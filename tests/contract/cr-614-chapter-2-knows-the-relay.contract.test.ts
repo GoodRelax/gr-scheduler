@@ -74,7 +74,7 @@ const refusalReasonOf = (value: unknown): unknown =>
 
 const isPageNotConnected = (result: Json): boolean => refusalReasonOf(result['structuredContent']) === 'pageNotConnected'
 
-// see UF-188, PI-17
+// Spec: UF-188, PI-17
 class RelayedPage {
   private frames = Buffer.alloc(0)
 
@@ -218,7 +218,7 @@ const MEMBERS: readonly string[] = specTable('T-107').rows.map((row) => (row.cel
 const PROPERTIES = new Set(['agentApiVersion', 'schemaVersion'])
 
 const A_STAMP = 'stamp-614'
-// WHY: the specification names no reason value for a malformed applyCommands, so
+// Why: the specification names no reason value for a malformed applyCommands, so
 // this value is the test's own; only its equality across the two roads is held.
 const MALFORMED_REASON = 'malformedRequest'
 
@@ -234,7 +234,7 @@ interface ValidatingApi {
   readonly applyDirectly: (request: unknown) => unknown
 }
 
-// see AG-5, AG-9a
+// Spec: AG-5, AG-9a
 const validatingApi = (): ValidatingApi => {
   const applied: unknown[][] = []
   const applyCommands = (...args: unknown[]): unknown =>
@@ -306,7 +306,7 @@ describe('SEAM-B relay side: the relay is reached through 127.0.0.1 only (CN-6, 
     const port = theRelay().port
     const addresses = nonLoopbackIpv4()
     if (addresses.length === 0) {
-      // WHY: with no such address the refusal cannot be shown; hold the bind address instead of passing silently.
+      // Why: with no such address the refusal cannot be shown; hold the bind address instead of passing silently.
       const own = await probe('127.0.0.1', port)
       expect(own.peer, 'this machine has no non-loopback IPv4 address; held instead: the listener answers as 127.0.0.1').toBe(
         '127.0.0.1',
@@ -325,7 +325,7 @@ describe('SEAM-B relay side: the relay is reached through 127.0.0.1 only (CN-6, 
     expect(new URL(theRelay().pageUrl).hostname).toBe('127.0.0.1')
     expect(new URL(theRelay().pageUrl).port).toBe(String(port))
     expect(own.peer, own.how).toBe('127.0.0.1')
-    // WHY: a wildcard bind would also answer on another loopback address; 127.0.0.1 alone does not.
+    // Why: a wildcard bind would also answer on another loopback address; 127.0.0.1 alone does not.
     expect(sibling.reached, `127.0.0.2: ${sibling.how}`).toBe(false)
   })
 })

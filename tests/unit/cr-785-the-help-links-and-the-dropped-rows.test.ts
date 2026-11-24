@@ -271,7 +271,7 @@ const declared = (element: FakeElement, name: string): string => {
   return typeof property === 'string' ? property : ''
 }
 
-// WHY: color and text-decoration pass down the tree, so the nearest write at or above the anchor is what the reader sees.
+// Why: color and text-decoration pass down the tree, so the nearest write at or above the anchor is what the reader sees.
 function nearestStyle(element: FakeElement, property: string, stop: FakeElement): string {
   for (let at: FakeElement | null = element; at !== null; at = at.parentNode) {
     const written = styleMap(at).get(property)
@@ -319,7 +319,7 @@ describe('CR-785 -- the premises read from the specification', () => {
     expect(REQUIREMENTS).toContain('`IC-20` に添えるリンクは囲まない')
   })
 
-  // WHY: CR-850 retired MK-17; FR-036 now names it as a gap of table T-023, still left off the help.
+  // Why: CR-850 retired MK-17; FR-036 now names it as a gap of table T-023, still left off the help.
   it('FR-036 names MK-2 / MK-5 / MK-7 alone of table T-023, puts MK-15 / MK-16 among the rows learned by touching and MK-17 among the gaps', () => {
     expect(REQUIREMENTS).toContain('表 T-023 の `MK-2` / `MK-5` / `MK-7` と、下の 表 T-255 の行を示すこと（MUST）')
     expect(REQUIREMENTS).toContain('`MK-13` / `MK-15` / `MK-16`）と、内部の取り決め')

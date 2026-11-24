@@ -15,7 +15,7 @@ import { SCREEN, taskGroupDocument, taskOf } from './cr-541-stage'
 
 const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
-// see FR-052
+// Spec: FR-052
 const FR_052_STARTS =
   '⭐ プロパティパネルの幅は画面の値とし、出している中身の種の既定の幅から始めること（MUST）'
 const FR_052_ROWS =
@@ -24,7 +24,7 @@ const FR_052_WIDEST = 'いくつもの種を一度に出しているときは、
 const FR_052_KIND_CHANGE = '⭐ 出す中身の種が変わったら、新しい種の既定の幅へ戻すこと（MUST）'
 const FR_052_SAME_KIND = '同じ種の別の物を出したときと、パネルを閉じて同じ種で開き直したときは、人が境界で決めた幅を保つ。'
 const FR_052_WRITES_NOTHING = '⛔ プロパティパネルの幅を、文書にもブラウザの保管庫にも書いてはならない（MUST NOT）'
-// see FR-072
+// Spec: FR-072
 const FR_072_FOLLOWS = '⚠️ **出しているあいだは、選択が動けば中身がそれに移る**'
 
 const settingOf = (id: string): number => {
@@ -33,7 +33,7 @@ const settingOf = (id: string): number => {
   return Number(/-?\d+(?:\.\d+)?/.exec(bare(row.by['既定'] ?? ''))?.[0] ?? Number.NaN)
 }
 
-// see T-206
+// Spec: T-206
 const S_171 = settingOf('S-171')
 const S_602 = settingOf('S-602')
 const S_604 = settingOf('S-604')
@@ -41,7 +41,7 @@ const S_605 = settingOf('S-605')
 const S_606 = settingOf('S-606')
 const S_248 = settingOf('S-248')
 
-// see T-109, FR-072
+// Spec: T-109, FR-072
 const IC_17 = specTable('T-109').rows.find((one) => bare(one.by['正'] ?? '') === 'FR-072')?.id ?? 'IC-17'
 
 describe('CR-787 -- the manuscript these cases are driven by', () => {
@@ -185,7 +185,7 @@ function bench(): Bench {
   const loop = frameLoop({ showSvg: () => undefined } as never, documentOf() as never, SCREEN, {
     surface,
     language: 'ja',
-    // WHY: stands in for the host that focuses the field MK-13 names; this bench does not draw the DOM.
+    // Why: stands in for the host that focuses the field MK-13 names; this bench does not draw the DOM.
     focusPropertyField: () => true,
   })
   drain()
@@ -248,23 +248,23 @@ function onTask(built: Bench, uid: number): Point {
   return { x: placement.x + placement.width / 2, y: placement.y + placement.height / 2 }
 }
 
-// see GR-14
-// WHY: a comment box is grabbed on its body.
+// Spec: GR-14
+// Why: a comment box is grabbed on its body.
 function onComment(built: Bench): Point {
   const body = geometryOf(built).commentBoxes.find((one) => one.id === COMMENT.id)?.body
   if (body === undefined) throw new Error('the comment box is not drawn')
   return { x: body.x + body.width / 2, y: body.y + body.height / 2 }
 }
 
-// see GR-14
-// WHY: a highlight box is grabbed on its frame; the press lands on the middle of its top edge.
+// Spec: GR-14
+// Why: a highlight box is grabbed on its frame; the press lands on the middle of its top edge.
 function onHighlight(built: Bench): Point {
   const box = geometryOf(built).highlightBoxes.find((one) => one.id === HIGHLIGHT.id)?.box
   if (box === undefined) throw new Error('the highlight box is not drawn')
   return { x: box.x + box.width / 2, y: box.y }
 }
 
-// WHY: walk the drawn path of the one line until the hit test answers the line, so the press lands on it.
+// Why: walk the drawn path of the one line until the hit test answers the line, so the press lands on it.
 function onDependency(built: Bench): Point {
   const line = geometryOf(built).dependencies.find((one) => one.successorUid === 2)
   if (line === undefined) throw new Error('the dependency line is not drawn')

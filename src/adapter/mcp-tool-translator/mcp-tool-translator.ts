@@ -1,4 +1,4 @@
-// McpToolTranslator -- maps MCP tools to Agent API members and back (AG-12).
+// File: McpToolTranslator: maps MCP tools to Agent API members and back (AG-12).
 // @unit      UF-186   (docs/spec/05-07-design.md, table T-075)
 // @component McpToolTranslator, layer Adapter (table T-062)
 // @purity    pure
@@ -7,7 +7,7 @@
 import type { answerRelayedCall } from '../agent-api-endpoint/agent-api-endpoint'
 import toolDescriptions from './mcp-tool-descriptions.json'
 
-// WHY: read off answerRelayedCall, the name table T-064 PI-17 lists; importing the
+// Why: read off answerRelayedCall, the name table T-064 PI-17 lists; importing the
 // types by name would cross the folder with names the table does not hold.
 type AgentApi = Parameters<typeof answerRelayedCall>[0]
 type RelayedCall = Parameters<typeof answerRelayedCall>[1]
@@ -34,7 +34,7 @@ const EXPORT_PNG = 'exportPng'
 const PNG_MIME_TYPE = 'image/png'
 const MS_PER_SECOND = 1000
 
-// WHY: the names, descriptions and input shapes are printed from the manuscript of table T-107 (CR-765),
+// Why: the names, descriptions and input shapes are printed from the manuscript of table T-107 (CR-765),
 // the one that also prints AgentApi and RelayedParams, so a tool and its member cannot drift apart unseen.
 const MCP_TOOLS: readonly McpTool[] = toolDescriptions.tools.map((row): McpTool => ({
   name: row.name,
@@ -49,26 +49,26 @@ function isMemberName(name: string): name is MemberName {
   return MEMBER_NAMES.has(name)
 }
 
-// see AG-12, T-107
+// Spec: AG-12, T-107
 /** @purity pure */
 export function mcpToolList(): readonly McpTool[] {
   return MCP_TOOLS
 }
 
-// see AG-12
-// WHY: printed from the same manuscript as the tools (CR-791), so the text never names a tool the list lacks.
+// Spec: AG-12
+// Why: printed from the same manuscript as the tools (CR-791), so the text never names a tool the list lacks.
 /** @purity pure */
 export function mcpInstructions(): string {
   return toolDescriptions.instructions
 }
 
-// see AM-30
+// Spec: AM-30
 /** @purity pure */
 export function schemaNotes(): string {
   return toolDescriptions.schemaNotes
 }
 
-// see AG-12, AG-5
+// Spec: AG-12, AG-5
 /** @purity pure */
 export function relayedCallOf(toolCall: {
   readonly name: string
@@ -80,7 +80,7 @@ export function relayedCallOf(toolCall: {
   return { member, params } as RelayedCall
 }
 
-// WHY: MCP carries structuredContent only as a JSON object -- never an array or a bare value.
+// Why: MCP carries structuredContent only as a JSON object -- never an array or a bare value.
 /** @purity pure */
 function structuredContentOf(result: unknown): Record<string, unknown> | undefined {
   if (typeof result !== 'object' || result === null || Array.isArray(result)) return undefined
@@ -94,7 +94,7 @@ function pngDataOf(member: string, result: unknown): string | null {
   return exported['ok'] === true && typeof exported['value'] === 'string' ? exported['value'] : null
 }
 
-// see AG-9a, AG-12
+// Spec: AG-9a, AG-12
 /** @purity pure */
 export function mcpToolResultOf(member: string, answer: RelayedAnswer): McpToolResult {
   if ('error' in answer) {
@@ -112,7 +112,7 @@ export function mcpToolResultOf(member: string, answer: RelayedAnswer): McpToolR
     : { content: [{ type: 'text', text }], structuredContent }
 }
 
-// WHY: the relay has no page to ask, so its refusals carry no stamp; no refusal carries a document (AG-2, AV-3).
+// Why: the relay has no page to ask, so its refusals carry no stamp; no refusal carries a document (AG-2, AV-3).
 /** @purity pure */
 export function relayRefusalResult(reason: string, what: string, extra: Record<string, unknown> = {}): McpToolResult {
   const refusal = { target: 'relay', reason, stamp: null, refusals: [], what, ...extra }
@@ -122,21 +122,21 @@ export function relayRefusalResult(reason: string, what: string, extra: Record<s
 
 const SLOT = /\{([A-Za-z]+)\}/g
 
-// WHY: the texts are printed from the manuscript (CR-799); a name in braces is filled here, and a
+// Why: the texts are printed from the manuscript (CR-799); a name in braces is filled here, and a
 // name the slots lack is left as written, so a missed slot shows instead of vanishing.
 /** @purity pure */
 function filledText(text: string, slots: Readonly<Record<string, string>>): string {
   return text.replace(SLOT, (whole: string, name: string) => slots[name] ?? whole)
 }
 
-// see AG-12
+// Spec: AG-12
 /** @purity pure */
 export function pageNotConnectedResult(pageUrl: string): McpToolResult {
   const what = filledText(toolDescriptions.relayRefusals.pageNotConnected, { pageUrl })
   return relayRefusalResult('pageNotConnected', what, { pageUrl })
 }
 
-// see AG-12
+// Spec: AG-12
 /** @purity pure */
 export function relayTimedOutResult(member: string, deadlineMs: number): McpToolResult {
   const seconds = String(deadlineMs / MS_PER_SECOND)

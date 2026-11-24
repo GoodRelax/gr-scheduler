@@ -44,7 +44,7 @@ const FR_039_HEADER_AND_PALETTE_KEEP_THEIR_SIZE =
 const FR_077_THE_FLOOR =
   '⭐ 可読の下限は、`_assets/tbl-settings.md` の 表 T-201 の `S-8` に、`FR-039` の表示の倍率の描く比を掛けた値とすること（MUST）'
 
-// see T-201, T-206
+// Spec: T-201, T-206
 const firstNumber = (table: string, id: string, column: string): number => {
   const row = specTable(table).rows.find((one) => one.id === id)
   if (row === undefined) throw new Error(`table ${table} has no row ${id}`)
@@ -80,7 +80,7 @@ describe('CR-417 -- the manuscript these cases are driven by', () => {
   })
 })
 
-// see T-252
+// Spec: T-252
 const nestedDefaults = (): Record<string, unknown> => {
   const out: Record<string, unknown> = {}
   for (const [key, value] of Object.entries(SETTINGS_DEFAULTS)) {
@@ -162,7 +162,7 @@ describe(`FR-077 (MUST) -- ${FR_077_THE_FLOOR}`, () => {
       S_8 * S_236,
       9,
     )
-    // WHY: S-7 is a constant since CR-572, so no document squeezes the name onto the floor; the drawn view is squeezed here.
+    // Why: S-7 is a constant since CR-572, so no document squeezes the name onto the floor; the drawn view is squeezed here.
     const drawn = drawnSettingsOf(settingsOf({ zoomY: S_54 }))
     expect(labelFontSize('rectangle', { ...drawn, actualMin: 0, basePlanHeight: 0 }), FR_077_THE_FLOOR).toBeCloseTo(S_8 * S_236, 6)
     const settings = settingsOf({ zoomY: S_54 })

@@ -31,7 +31,7 @@ export const SATO = 2001
 export const TANAKA = 2002
 export const IDLE = 2003
 
-// WHY: Alpha is Sato's, Bravo Tanaka's, Charlie both, Delta and Echo nobody's; Idle carries no task (RQ-4 reads 0).
+// Why: Alpha is Sato's, Bravo Tanaka's, Charlie both, Delta and Echo nobody's; Idle carries no task (RQ-4 reads 0).
 const TASKS: readonly { readonly uid: number; readonly name: string; readonly day: string }[] = [
   { uid: ALPHA, name: 'Alpha', day: '2026-04-01' },
   { uid: BRAVO, name: 'Bravo', day: '2026-04-02' },
@@ -87,7 +87,7 @@ export function scheduleWith(pairs: readonly (readonly [number, number])[] = PAI
 export const SCHEDULE = scheduleWith()
 export const ALL_TASKS: readonly number[] = TASKS.map((one) => one.uid)
 
-// see TV-2
+// Spec: TV-2
 export const NONE_CHECKED: TableVisibility = { shownTaskUids: [], shownResourceUids: [], isUnassignedShown: false, isScheduleFilterApplied: false }
 
 export const visibility = (part: Partial<TableVisibility>): TableVisibility => ({ ...NONE_CHECKED, ...part })
@@ -100,7 +100,7 @@ export interface Tables {
   readonly created?: readonly number[]
 }
 
-// see TV-1, TV-2, TV-7, TV-13
+// Spec: TV-1, TV-2, TV-7, TV-13
 export function drawn(tables: Tables, schedule: Schedule = SCHEDULE): readonly number[] | null {
   const made = drawnTaskUidsOf(
     schedule,
@@ -113,7 +113,7 @@ export function drawn(tables: Tables, schedule: Schedule = SCHEDULE): readonly n
   return made === null ? null : [...made].sort((a, b) => a - b)
 }
 
-// WHY: the dictionary is the spec's own file; a word is read from it, never retyped here.
+// Why: the dictionary is the spec's own file; a word is read from it, never retyped here.
 type Words = Record<DisplayLanguage, string>
 const WORDS = JSON.parse(readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8')) as Record<
   string,
@@ -127,7 +127,7 @@ export function wordOf(group: string, key: string, language: DisplayLanguage): s
   return text[language]
 }
 
-// see TV-11
+// Spec: TV-11
 export const SURFACE_OF: Readonly<Record<VisibilityTable, string>> = {
   searchPanel: 'Search Panel',
   delayDiagnosticsReport: 'Delay Diagnostics Report',

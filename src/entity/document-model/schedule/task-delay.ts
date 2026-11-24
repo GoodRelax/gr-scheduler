@@ -1,4 +1,4 @@
-// Schedule -- whether a task is delayed, and by how many working days (table T-021b).
+// File: Schedule: whether a task is delayed, and by how many working days (table T-021b).
 // @unit      UF-129  (docs/spec/05-07-design.md, table T-075)
 // @component Schedule, layer documentModel (table T-062)
 // @purity    pure
@@ -8,7 +8,7 @@ import { planActualState } from './plan-actual-state'
 import type { Task } from './schedule-entities'
 import { workingDaysBetween, type WorkingCalendar } from './working-calendar'
 
-// see T-021b
+// Spec: T-021b
 /** @purity pure */
 export function delayStart(task: Task): { readonly row: string; readonly from: string | null } | null {
   switch (planActualState(task)) {
@@ -33,10 +33,10 @@ export function isDelayed(task: Task, statusDate: CalendarDay | null): boolean {
   return compareDays(statusDate, from) > 0
 }
 
-// see T-021, T-315
+// Spec: T-021, T-315
 export type ProgressMarker = 'PM-1a' | 'PM-1' | 'PM-2' | 'PM-3' | 'PM-4' | 'DG-1' | 'DG-2' | 'DG-3'
 
-// see PI-1, RV-5, SQ-5, T-021, T-315
+// Spec: PI-1, RV-5, SQ-5, T-021, T-315
 /** @purity pure */
 export function progressMarkerOf(task: Task, statusDate: CalendarDay | null,
                                  diagnosed?: 'DG-1' | 'DG-2' | 'DG-3'): ProgressMarker {

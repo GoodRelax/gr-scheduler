@@ -11,7 +11,7 @@ const NT_3A_NOT_BARE = '失敗したことだけを伝えて手段を示さな�
 const T_233 = specTable('T-233')
 const UNLOCK_SURFACE = 'Watermark Unlock'
 
-// see T-233
+// Spec: T-233
 const FAILURE_ROWS: readonly string[] = T_233.rows.filter((row) => bare(row.cells[1] ?? '') === 'NT-3a').map((row) => row.id)
 
 interface Words {

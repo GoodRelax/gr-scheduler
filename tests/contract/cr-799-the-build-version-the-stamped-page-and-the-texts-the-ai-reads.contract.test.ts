@@ -15,7 +15,7 @@ interface Version {
   readonly semver: string
 }
 
-// WHY: the build tools are plain .mjs files with no type declarations; they are loaded by path and typed here.
+// Why: the build tools are plain .mjs files with no type declarations; they are loaded by path and typed here.
 async function loadTool(name: string): Promise<Record<string, (...rest: never[]) => unknown>> {
   return (await import(pathToFileURL(join(process.cwd(), 'tools', name)).href)) as Record<string, (...rest: never[]) => unknown>
 }

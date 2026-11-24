@@ -1,4 +1,4 @@
-// ScheduleLayout -- the task groups to draw: level zero, hidden and folded task groups dropped, the rest in tree order (LC-1).
+// File: ScheduleLayout: the task groups to draw: level zero, hidden and folded task groups dropped, the rest in tree order (LC-1).
 // @unit      UF-138  (docs/spec/05-07-design.md, table T-075)
 // @component ScheduleLayout, layer layoutEngine (table T-062)
 // @purity    pure
@@ -9,8 +9,8 @@ import {
 } from '../../document-model/document-settings/document-settings'
 import type { Schedule, TaskGroup } from '../../document-model/schedule/schedule'
 
-// see TD-8, TV-1
-// WHY: a task group is kept when it or a descendant carries a shown task; its ancestors then stand as headings.
+// Spec: TD-8, TV-1
+// Why: a task group is kept when it or a descendant carries a shown task; its ancestors then stand as headings.
 /** @purity pure */
 function taskGroupsCarryingShown(schedule: Schedule, shown: ReadonlySet<number>, byId: ReadonlyMap<string, TaskGroup>): ReadonlySet<string> {
   const kept = new Set<string>()
@@ -25,8 +25,8 @@ function taskGroupsCarryingShown(schedule: Schedule, shown: ReadonlySet<number>,
   return kept
 }
 
-// see LC-1, HR-2, T-329, TD-8
-// TRAP: TD-8 never writes treeState: the shown set only drops task groups from this answer (MUST NOT of TD-8).
+// Spec: LC-1, HR-2, T-329, TD-8
+// Trap: TD-8 never writes treeState: the shown set only drops task groups from this answer (MUST NOT of TD-8).
 /** @purity pure */
 export function drawnGroups(
   schedule: Schedule,
@@ -44,7 +44,7 @@ export function drawnGroups(
   return inTreeOrder(drawnTaskGroups, byId)
 }
 
-// WHY: nearest first, stopping at a missing parent or past the deepest level, so a broken chain cannot loop.
+// Why: nearest first, stopping at a missing parent or past the deepest level, so a broken chain cannot loop.
 /** @purity pure */
 function ancestorsOf(group: TaskGroup, byId: ReadonlyMap<string, TaskGroup>): readonly TaskGroup[] {
   const out: TaskGroup[] = []
@@ -62,8 +62,8 @@ function depthOf(group: TaskGroup, byId: ReadonlyMap<string, TaskGroup>): number
   return 1 + ancestorsOf(group, byId).length
 }
 
-// see TD-1, TD-2, TD-3, LC-1, EL-20
-// WHY: the one reading of a person's fold and hide: the drawn task groups and the dependency ends both ask it (DFC-1221).
+// Spec: TD-1, TD-2, TD-3, LC-1, EL-20
+// Why: the one reading of a person's fold and hide: the drawn task groups and the dependency ends both ask it (DFC-1221).
 /** @purity pure */
 export function isDroppedByTreeState(
   group: TaskGroup,
@@ -74,8 +74,8 @@ export function isDroppedByTreeState(
   return ancestorsOf(group, byId).some((parent) => parent.treeState === 'hidden' || parent.treeState === 'collapsed')
 }
 
-// see LC-9, AT-55, EL-20
-// WHY: exported so the geometry places an EL-20 end with no drawn ancestor by this same order, not a second walk.
+// Spec: LC-9, AT-55, EL-20
+// Why: exported so the geometry places an EL-20 end with no drawn ancestor by this same order, not a second walk.
 /** @purity pure */
 export function inTreeOrder<T extends TaskGroup>(
   rows: readonly T[], byId: ReadonlyMap<string, TaskGroup>,

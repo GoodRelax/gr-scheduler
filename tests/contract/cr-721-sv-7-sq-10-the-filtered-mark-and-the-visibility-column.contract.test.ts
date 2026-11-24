@@ -60,7 +60,7 @@ describe('CR-721 the manuscript these cases are driven by', () => {
   })
 })
 
-// WHY: CR-798 TV-2 -- every row starts unchecked (Hide), so a case that needs some rows Show checks exactly the named ones.
+// Why: CR-798 TV-2 -- every row starts unchecked (Hide), so a case that needs some rows Show checks exactly the named ones.
 const onlyShown = (pane: Pane, uids: readonly number[]): Pane => ({
   ...pane,
   view: { ...pane.view, visibility: { ...pane.view.visibility, shownTaskUids: TASK_UIDS.filter((uid) => uids.includes(uid)) } },
@@ -99,7 +99,7 @@ describe('FR-151 T-330 SV-7 -- 列のフィルタを掛けている列: a column
     expect(filteredColumns(until)).toEqual(['SQ-4'])
   })
 
-  // WHY: CR-800 -- the Visibility column has no value list, no filter and no IC-122, so nothing on it can mark its heading.
+  // Why: CR-800 -- the Visibility column has no value list, no filter and no IC-122, so nothing on it can mark its heading.
   it('the Visibility column is never marked: a row checked and the heading box pressed both ways are not a column filter', () => {
     const some = onlyShown(TASK_PANEL, [1])
     expect(filteredColumns(some)).toEqual([])
@@ -148,7 +148,7 @@ describe('FR-151 T-331 SQ-10, T-330 SV-8 -- the Visibility column words and valu
     }
   })
 
-  // WHY: CR-800 SV-7 -- the heading holds the box alone, so IC-122 on SQ-10 opens nothing in either language.
+  // Why: CR-800 SV-7 -- the heading holds the box alone, so IC-122 on SQ-10 opens nothing in either language.
   it('SQ-10 has no value list and no IC-122: nothing opens on it, and every other column still opens', () => {
     for (const language of ['ja', 'en'] as const) {
       expect(searchPanelWithFilterOpened(sessionIn(language), TASK_PANEL.panel, TASK_PANEL.view, 'SQ-10'), language).toBeNull()
@@ -171,7 +171,7 @@ describe('FR-151 T-331 SQ-10, T-330 SV-8 -- the Visibility column words and valu
     expect(viewOf(after).rows.map((one) => one.isShown)).toEqual([false, true, false])
   })
 
-  // WHY: CR-800 SV-8 -- the Visibility column is not sorted: it opens no filter, so a press of IC-123 / IC-124 changes nothing.
+  // Why: CR-800 SV-8 -- the Visibility column is not sorted: it opens no filter, so a press of IC-123 / IC-124 changes nothing.
   it('SV-8: the Visibility column takes no sort; IC-123 and IC-124 pressed there give no view', () => {
     const there = onlyShown(TASK_PANEL, [3])
     for (const entry of ['IC-123', 'IC-124'] as const) {
@@ -180,7 +180,7 @@ describe('FR-151 T-331 SQ-10, T-330 SV-8 -- the Visibility column words and valu
     expect(uidsOf(there), 'the rows keep the default order').toEqual([1, 2, 3])
   })
 
-  // WHY: CR-801 SQ-10 -- the box is empty only when no row is checked, so the press that adds the listed rows leaves a word's other rows unchecked.
+  // Why: CR-801 SQ-10 -- the box is empty only when no row is checked, so the press that adds the listed rows leaves a word's other rows unchecked.
   it('SQ-10: the empty heading box checks the listed rows only; the rows a word keeps out of the list stay unchecked', () => {
     const worded: Pane = { ...TASK_PANEL, panel: { ...TASK_PANEL.panel, word: 'alpha' } }
     expect(uidsOf(worded), 'premise: the word lists one row').toEqual([1])
@@ -247,7 +247,7 @@ describe('FR-151 T-331 SQ-10 -- the heading box is checked while any row of the 
     expect(viewOf(out).showHeading).toBe('checked')
   })
 
-  // WHY: CR-801 SQ-10 -- a row the word keeps out of the list still counts, so the box is checked and the press clears the table instead of adding.
+  // Why: CR-801 SQ-10 -- a row the word keeps out of the list still counts, so the box is checked and the press clears the table instead of adding.
   it('only a row outside the list checked: the box is checked, and the press takes that row out', () => {
     const narrowed: Pane = { ...onlyShown(TASK_PANEL, [2, 3]), panel: { ...TASK_PANEL.panel, word: 'alpha' } }
     expect(uidsOf(narrowed), 'premise: the word lists one row, unchecked').toEqual([1])

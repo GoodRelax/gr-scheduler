@@ -1,4 +1,4 @@
-// NotifyChangeWatchers: what one watcher has not been told about yet.
+// File: NotifyChangeWatchers: what one watcher has not been told about yet.
 // @unit      UF-25  (docs/spec/05-07-design.md, table T-075)
 // @component NotifyChangeWatchers, layer UseCase (table T-062)
 // @purity    pure
@@ -14,15 +14,15 @@ export interface ConfirmedChange {
   readonly hasUpdatedSchedule: boolean
 }
 
-// see AV-14, AG-6
-// WHY: the stamp, never the document: the receiver reads again what it needs (AG-6).
+// Spec: AV-14, AG-6
+// Why: the stamp, never the document: the receiver reads again what it needs (AG-6).
 export interface ChangeNotice {
   readonly watcher: string
   readonly stamp: Document['documentStamp']
   readonly mark: WatcherMark
 }
 
-// see AG-6, FR-063
+// Spec: AG-6, FR-063
 /** @purity pure */
 export function changeNoticeFor(
   watcher: string,

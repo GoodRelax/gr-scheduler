@@ -1,4 +1,4 @@
-// EditDocument: the commands of the TaskGroup aggregate.
+// File: EditDocument: the commands of the TaskGroup aggregate.
 // @unit      UF-12  (docs/spec/05-07-design.md, table T-075)
 // @component EditDocument, layer UseCase (table T-062)
 // @purity    pure
@@ -28,7 +28,7 @@ export { tasksRankedByTheTaskGroupTree } from './task-group-order'
 
 // <generated -- do not edit by hand>
 // From docs/spec/_source/document-commands.json (table T-108, TaskGroupCommand).
-// see T-108
+// Spec: T-108
 export type TaskGroupCommand =
   | {
       readonly kind: 'createTaskGroup'
@@ -139,8 +139,8 @@ export function subtreeOf(groups: readonly TaskGroup[], rootId: string): Subtree
   return { taskGroups, height }
 }
 
-// see CD-1, DU-1, IV-4
-// WHY: a sweep, not a recursion, because task groups arrive in no parent-before-child order.
+// Spec: CD-1, DU-1, IV-4
+// Why: a sweep, not a recursion, because task groups arrive in no parent-before-child order.
 /** @purity pure */
 export function wbsSubtreesOf(tasks: readonly Task[], seeds: Iterable<number>): ReadonlySet<number> {
   const held = new Set<number>(seeds)
@@ -157,13 +157,13 @@ export function wbsSubtreesOf(tasks: readonly Task[], seeds: Iterable<number>): 
   return held
 }
 
-// see DU-2
+// Spec: DU-2
 /** @purity pure */
 function pastedTreeState(state: TaskGroup['treeState']): TaskGroup['treeState'] {
   return state === 'expanded' || state === 'temporarilyExpanded' ? 'auto' : state
 }
 
-// see CD-1, DU-2, AT-54
+// Spec: CD-1, DU-2, AT-54
 /** @purity pure */
 export function settledTaskGroup(schedule: Schedule, taskGroup: TaskGroup, defaultTaskGroupName: string): TaskGroup {
   const source = taskGroup.derivedFromTaskUid === null ? null : taskByUid(schedule, taskGroup.derivedFromTaskUid)
@@ -174,7 +174,7 @@ type PastePlan =
   | { readonly ok: false; readonly refusals: readonly Refusal[] }
   | { readonly ok: true; readonly copied: Subtree; readonly idOf: ReadonlyMap<string, string> }
 
-// see CM-28, FR-033, FR-004, AT-51, IV-1, IV-2
+// Spec: CM-28, FR-033, FR-004, AT-51, IV-1, IV-2
 /** @purity pure */
 function pastePlanOf(
   command: TaskGroupCommandOf<'pasteTaskGroupSubtree'>,
@@ -211,8 +211,8 @@ function pastePlanOf(
   return refusals.length > 0 ? { ok: false, refusals } : { ok: true, copied, idOf }
 }
 
-// see DU-2, HM-12
-// WHY: the copied task group follows its Task's copy, or settles its name, so moving the copy never moves the original Task.
+// Spec: DU-2, HM-12
+// Why: the copied task group follows its Task's copy, or settles its name, so moving the copy never moves the original Task.
 /** @purity pure */
 function copiedTaskGroupOf(
   schedule: Schedule,
@@ -234,8 +234,8 @@ function copiedTaskGroupOf(
   return copy === undefined ? settledTaskGroup(schedule, pasted, defaultTaskGroupName) : { ...pasted, derivedFromTaskUid: copy }
 }
 
-// see CM-28, FR-033, DU-1, DU-2
-// WHY: only the Tasks on the copied task groups; a WBS descendant on another task group is not copied, and no paste is refused.
+// Spec: CM-28, FR-033, DU-1, DU-2
+// Why: only the Tasks on the copied task groups; a WBS descendant on another task group is not copied, and no paste is refused.
 /** @purity pure */
 function pasteTaskGroupSubtree(
   document: Document,
@@ -251,7 +251,7 @@ function pasteTaskGroupSubtree(
 
   let mark = schedule.project.uidHighWaterMark
   const uidOf = new Map<number, number>()
-  // TRAP: sorted, so the same paste mints the same uids.
+  // Trap: sorted, so the same paste mints the same uids.
   for (const uid of [...new Set(riders.map((one) => one.taskUid))].sort((a, b) => a - b)) uidOf.set(uid, ++mark)
 
   const sources = schedule.tasks.filter((one) => uidOf.has(one.uid))
@@ -284,8 +284,8 @@ function pasteTaskGroupSubtree(
   }))
 }
 
-// see CM-26, CM-27, CM-28, CM-29, CM-30, CM-31, CM-32, CM-35, CM-72, CM-73, CM-85
-// TRAP: a command that changes nothing returns the same document object; a write is detected
+// Spec: CM-26, CM-27, CM-28, CM-29, CM-30, CM-31, CM-32, CM-35, CM-72, CM-73, CM-85
+// Trap: a command that changes nothing returns the same document object; a write is detected
 // by the schedule reference.
 /** @purity pure */
 export function editTaskGroup(
@@ -320,7 +320,7 @@ export function editTaskGroup(
           kept.push(taskGroup)
           continue
         }
-        // WHY: settles a name rather than refusing, which would block deleting a nameless Task.
+        // Why: settles a name rather than refusing, which would block deleting a nameless Task.
         kept.push(settledTaskGroup(schedule, taskGroup, defaultTaskGroupName))
       }
 
@@ -346,7 +346,7 @@ export function editTaskGroup(
           (one.topTaskGroupId !== null && doomedTaskGroups.has(one.topTaskGroupId)) ||
           (one.bottomTaskGroupId !== null && doomedTaskGroups.has(one.bottomTaskGroupId)),
       )
-      // WHY: baselineTasks match by uid rather than by reference, and resources are kept.
+      // Why: baselineTasks match by uid rather than by reference, and resources are kept.
       return edited(documentWithTableViewsKept({
         ...document,
         schedule: {

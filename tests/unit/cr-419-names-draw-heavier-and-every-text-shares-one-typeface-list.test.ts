@@ -47,7 +47,7 @@ const cellOf = (table: string, id: string, column: string): string => {
   return row.by[column] ?? ''
 }
 
-// see S-246
+// Spec: S-246
 const familyOf = (written: string): string =>
   written
     .replace(/`/g, '')
@@ -74,7 +74,7 @@ describe('table T-206 -- the two rows CR-419 added', () => {
   )
 })
 
-// see T-252
+// Spec: T-252
 const nestedDefaults = (): Record<string, unknown> => {
   const out: Record<string, unknown> = {}
   for (const [key, value] of Object.entries(SETTINGS_DEFAULTS)) {
@@ -174,7 +174,7 @@ const styleOf = (tag: string, property: string): string | null => {
 const ownOf = (tag: string, property: string): string | null =>
   styleOf(tag, property) ?? attributeOf(tag, property)?.replace(/&quot;/g, '"') ?? null
 
-// see FR-039
+// Spec: FR-039
 const textsOf = (svg: string): readonly SvgText[] => {
   const texts: SvgText[] = []
   const stack: { family: string | null; weight: string | null; name: string }[] = []

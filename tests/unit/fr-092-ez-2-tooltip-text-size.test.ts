@@ -213,7 +213,7 @@ const HEADER_HEIGHT = { 'App Header': 37 }
 
 const THEME: ScreenTheme = { preference: 'light', hue: 214 }
 
-// WHY: a DOM host offers createTextNode and the shared fake document does not, so it is added here.
+// Why: a DOM host offers createTextNode and the shared fake document does not, so it is added here.
 function wireWithTextNodes(theme: ScreenTheme, heightsByRole: Record<string, number>): Stage {
   const built = stage(heightsByRole)
   Object.assign(built.host, { createTextNode: (data: string): FakeText => new FakeText(data) })

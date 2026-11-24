@@ -112,7 +112,7 @@ describe('CR-800 the manuscript these cases are driven by', () => {
     expect(cell).not.toContain(SV_7_RETIRED_DROPDOWN)
   })
 
-  // WHY: a funnel that is gone cannot still carry IC-125 / IC-126 for the check column; SV-7 keeps a sentence that says it does.
+  // Why: a funnel that is gone cannot still carry IC-125 / IC-126 for the check column; SV-7 keeps a sentence that says it does.
   it('SV-7 no longer says IC-125 / IC-126 act on every row of the check column (CR-800 section 3: the funnel retires)', () => {
     expect(cellOf('T-330', 'SV-7', '定め')).not.toContain(SV_7_RETIRED_EVERY_ROW)
   })
@@ -149,7 +149,7 @@ function openedFrom(text: string): Document {
   return opened.document
 }
 
-// WHY: Alpha and Charlie are Sato's, Bravo and Delta Tanaka's, Echo is nobody's and Idle carries no task (cr-723-fixture).
+// Why: Alpha and Charlie are Sato's, Bravo and Delta Tanaka's, Echo is nobody's and Idle carries no task (cr-723-fixture).
 const DOCUMENT = openedFrom(documentText({ tableViews: undefined }))
 const SCHEDULE: Schedule = DOCUMENT.schedule
 
@@ -206,15 +206,15 @@ const REPORT = {
   lateDays: [],
 } as unknown as DelayDiagnosticsReport
 
-// WHY: the three tables answer the same questions from their own views, so one adapter per table lets one case table walk all three.
+// Why: the three tables answer the same questions from their own views, so one adapter per table lets one case table walk all three.
 interface Probe {
   readonly name: TableName
   readonly column: string
-  // WHY: every row key of the table, the rows no word lists included.
+  // Why: every row key of the table, the rows no word lists included.
   readonly everyKey: readonly Key[]
-  // WHY: a word that keeps at least one row out of view and lists at least one.
+  // Why: a word that keeps at least one row out of view and lists at least one.
   readonly narrowWord: string
-  // WHY: a word that lists no row.
+  // Why: a word that lists no row.
   readonly emptyWord: string
   readonly checkedOf: (visibility: Visibility) => readonly Key[]
   readonly visibilityOf: (keys: readonly Key[]) => Partial<Visibility>
@@ -309,13 +309,13 @@ const LIST_PROBE: Probe = {
 
 const PROBES: readonly Probe[] = [SEARCH, REPORT_PROBE, LIST_PROBE]
 
-// WHY: the box raises isHeading with the listed rows as its keys; isShown is the box's new state.
+// Why: the box raises isHeading with the listed rows as its keys; isShown is the box's new state.
 const headingPress = (probe: Probe, part: Partial<Visibility>, word: string, isShown: boolean): TableView => {
   const keys = probe.listed({ ...probe.base.visibility, ...part }, word)
   return probe.press(part, word, { kind: 'shown', keys, isShown, isHeading: true })
 }
 
-// WHY: CR-801 -- the host raises isShown true from an empty box and false from a checked one, so a case presses by the state the box reads.
+// Why: CR-801 -- the host raises isShown true from an empty box and false from a checked one, so a case presses by the state the box reads.
 const derivedPress = (probe: Probe, part: Partial<Visibility>, word: string): TableView =>
   headingPress(probe, part, word, probe.heading({ ...probe.base.visibility, ...part }, word) === 'empty')
 
@@ -350,7 +350,7 @@ describe.each(PROBES)('FR-151 T-331 SQ-10 / T-347 DT-8 / T-371 RQ-1 ($name) -- �
     expect(probe.heading({ ...NO_ROW_CHECKED, ...probe.visibilityOf(listed) }, probe.narrowWord)).toBe('checked')
   })
 
-  // WHY: CR-801 -- the state is read over the whole table, so a row the word keeps out of the list still makes the box checked.
+  // Why: CR-801 -- the state is read over the whole table, so a row the word keeps out of the list still makes the box checked.
   it('SQ-10: only rows out of view checked reads checked', () => {
     const listed = probe.listed(NO_ROW_CHECKED, probe.narrowWord)
     const outOfView = probe.everyKey.filter((one) => !listed.includes(one))
@@ -427,7 +427,7 @@ describe.each(PROBES)('FR-151 T-331 SQ-10 ($name) -- 入っているときに押
     expect(probe.heading(cleared.visibility, '')).toBe('empty')
   })
 
-  // WHY: CR-801 -- a checked box clears whatever is checked, so a press never adds on top of rows checked out of view.
+  // Why: CR-801 -- a checked box clears whatever is checked, so a press never adds on top of rows checked out of view.
   it('SQ-10: one listed row checked, the heading press clears every row', () => {
     const first = probe.everyKey[0] as Key
     const part = probe.visibilityOf([first])
@@ -491,7 +491,7 @@ describe('FR-099 T-371 RQ-1 -- 担当の行と（担当なし）の行', () => {
     expect(stayed.visibility.isUnassignedShown).toBe(false)
   })
 
-  // WHY: CR-801 -- the (Unassigned) row alone checked makes the box checked, so the press clears it though the word does not list it.
+  // Why: CR-801 -- the (Unassigned) row alone checked makes the box checked, so the press clears it though the word does not list it.
   it('RQ-1: the (Unassigned) row checked out of view, the heading press clears it', () => {
     const part = { isUnassignedShown: true }
     expect(LIST_PROBE.heading({ ...LIST_PROBE.base.visibility, ...part }, LIST_PROBE.narrowWord)).toBe('checked')

@@ -13,7 +13,7 @@ import { BEFORE_ALL, FINISH_OF, START_OF, documentOf, taskIn, type TaskSpec } fr
 const SPEC = join(process.cwd(), 'docs', 'spec')
 const LIMITS: SettingsLimits = { zoomMin: 0.02, zoomMax: 64, taskGroupAreaWidthWithoutPanels: 982 }
 
-// see T-018, DP-1, DP-4
+// Spec: T-018, DP-1, DP-4
 const FS = 1
 const SS = 3
 
@@ -22,7 +22,7 @@ type Loose = Record<string, any>
 const SCHEMA = JSON.parse(readFileSync(join(SPEC, '_source', 'grs-commands.schema.json'), 'utf8')) as Loose
 const SETTINGS = JSON.parse(readFileSync(join(SPEC, '_source', 'settings.json'), 'utf8')) as unknown
 
-// WHY: the schema may keep each branch inline under oneOf or under $defs keyed by the command name.
+// Why: the schema may keep each branch inline under oneOf or under $defs keyed by the command name.
 function branchOf(name: string): Loose {
   const inline = (SCHEMA['oneOf'] as readonly Loose[] | undefined)?.find((one) => one['properties']?.['kind']?.['const'] === name)
   if (inline !== undefined) return inline
@@ -33,7 +33,7 @@ function branchOf(name: string): Loose {
 
 const descriptionOf = (name: string): string => String(branchOf(name)['description'] ?? '')
 
-// WHY: the settings book nests rows at an unknown depth; find the object whose id is the row id.
+// Why: the settings book nests rows at an unknown depth; find the object whose id is the row id.
 function findRow(node: unknown, id: string): Loose | null {
   if (node === null || typeof node !== 'object') return null
   if (!Array.isArray(node) && (node as Loose)['id'] === id) return node as Loose

@@ -153,7 +153,7 @@ const ROWS_WITH_OWN_WORDS: readonly string[] = ROW_IDS.filter((rowId) => wordsRo
  * store that goes stale exactly the way the dictionary did in DFC-166.
  */
 const PAIRED_ON_2026_09_03: Readonly<Record<string, string>> = {
-  // WHY: read 2026-10-15 (CR-770); the en words gained a final period and UI convention words, so only re-keyed.
+  // Why: read 2026-10-15 (CR-770); the en words gained a final period and UI convention words, so only re-keyed.
   'RS-1': '4e06709e0faeacdf',
   'RS-2': '99014ef99e47bb3d',
   'RS-3': 'faef8d7f1451cdb6',
@@ -167,7 +167,7 @@ const PAIRED_ON_2026_09_03: Readonly<Record<string, string>> = {
   'RS-11': 'c6653e5783ae7df2',
   'RS-12': '95ad8c948d6a7601',
   'RS-13': 'f321af6f75bd49bf',
-  // WHY: re-keyed 2026-10-31 (CR-858): RS-14 became a refusal of several dropped files (OP-11, JDG-3584, words JDG-3585).
+  // Why: re-keyed 2026-10-31 (CR-858): RS-14 became a refusal of several dropped files (OP-11, JDG-3584, words JDG-3585).
   'RS-14': 'cf268c722d841409',
   'RS-16': '1eac0dcebc65e01a',
   // ⭐⭐ RE-READ 2026-09-05, and the pair still holds. The scene gained
@@ -217,7 +217,7 @@ const PAIRED_ON_2026_09_03: Readonly<Record<string, string>> = {
   'RS-28': '17384e3e95f1923c',
   'RS-29': 'e1e9b843248cfb66',
   'RS-30': '80b524e909a79457',
-  // WHY: CR-570 rewrote the scene to 'no task group is left undrawn'; read against the words (every task group open
+  // Why: CR-570 rewrote the scene to 'no task group is left undrawn'; read against the words (every task group open
   // and drawn; fold a task group or zoom out vertically) they still tell it, so only the fingerprint is re-keyed.
   'RS-31': 'fbf6b90b3bd24213',
   'RS-32': '8f6a3b4632a549c0',
@@ -225,7 +225,7 @@ const PAIRED_ON_2026_09_03: Readonly<Record<string, string>> = {
   'RS-34': '208cd7e4ab6ad6b4',
   'RS-40': 'ee6ace9eedfca0f0',
   'RS-41': '34729e01f76ee4ed',
-  // WHY: CR-713 (JDG-1737) changed only the word for copy (utsushi -> kopi-); read together, the scene and
+  // Why: CR-713 (JDG-1737) changed only the word for copy (utsushi -> kopi-); read together, the scene and
   // the words still tell the same copy to the clipboard, so only the fingerprint is re-keyed.
   'RS-42': 'fcbbc9996fa64c05',
   'RS-43': 'fbb77a59bc23fc7c',
@@ -243,7 +243,7 @@ const PAIRED_ON_2026_09_03: Readonly<Record<string, string>> = {
   //   open. ⇒ the words tell the scene. (The MOVE at the cap was told by a row
   //   of its own until CR-772 retired it: a carried task group now stops silently.)
   // ---------------------------------------------------------------------
-  // WHY: re-read 2026-10-03 (CR-635 next step, CR-637 text; JDG-1157/1181 Add = tsuika): the ja
+  // Why: re-read 2026-10-03 (CR-635 next step, CR-637 text; JDG-1157/1181 Add = tsuika): the ja
   // text now says "tsuika dekimasen", the same scene; the next step still offers the shallower task group.
   'RS-46': 'd81a17a2a4e27f6b',
   //
@@ -261,7 +261,7 @@ const PAIRED_ON_2026_09_03: Readonly<Record<string, string>> = {
   //   that is malformed; this row is a value that is well formed and UNKNOWN.
   //   `RS-26` 「起動時に渡された文書が読めなかった」 is the document not opening
   //   at all; here it opens. ⇒ the words tell the scene.
-  // WHY: re-read with CR-565; the next step now tells the loss on going on and leads
+  // Why: re-read with CR-565; the next step now tells the loss on going on and leads
   // to the latest version, as FR-073 asks of RS-48, RS-63 and RS-64 alike.
   'RS-48': 'a0e952c306b84841',
   'RS-63': 'a18f4a5cf5656086',
@@ -501,49 +501,49 @@ const PAIRED_ON_2026_09_03: Readonly<Record<string, string>> = {
   'RS-58': '48b6575a7f704f7e',
   'RS-59': 'ca5ce244475236d8',
   'RS-60': '275f46ff4448f779',
-  // WHY: the words are option B of Q2 (JDG-300), read against the scene: the task group is read-only
+  // Why: the words are option B of Q2 (JDG-300), read against the scene: the task group is read-only
   // because a group is set on it, and a copy into a task group with no group is a write FR-111 allows.
   'RS-61': '7e85652bf3f5fe1a',
-  // WHY: read 2026-09-30; the words name editPermission by its PR-33 label and point to the person who may set it.
+  // Why: read 2026-09-30; the words name editPermission by its PR-33 label and point to the person who may set it.
   'RS-62': 'bf2d387ab7a11905',
-  // WHY: read 2026-09-30; the words say the prompt is on the clipboard and to hand it to an AI (FR-068).
-  // WHY: CR-713 (JDG-1737) changed only the word for copy (utsushi -> kopi-); read together, the scene and
+  // Why: read 2026-09-30; the words say the prompt is on the clipboard and to hand it to an AI (FR-068).
+  // Why: CR-713 (JDG-1737) changed only the word for copy (utsushi -> kopi-); read together, the scene and
   // the words still tell the same copy to the clipboard, so only the fingerprint is re-keyed.
-  // WHY: CR-827 (JDG-3086) added the schema file to the scene; read together, the words name the prompt on the
+  // Why: CR-827 (JDG-3086) added the schema file to the scene; read together, the words name the prompt on the
   // clipboard and the downloaded grs-document.schema.json, both handed to an AI (FR-068), so they tell the scene.
   'RS-65': 'a159e9808bbc345e',
-  // WHY: read 2026-09-30; too many pinned task groups to show the jump target, and unpinning is the road.
+  // Why: read 2026-09-30; too many pinned task groups to show the jump target, and unpinning is the road.
   'RS-66': '8902906e4fbc4e1f',
   'RS-67': '1271e9fd41af3746',
-  // WHY: read 2026-10-03; the words say the schedule picture reached the clipboard, no next step (JDG-1094).
-  // WHY: CR-713 (JDG-1737) changed only the word for copy (utsushi -> kopi-); read together, the scene and
+  // Why: read 2026-10-03; the words say the schedule picture reached the clipboard, no next step (JDG-1094).
+  // Why: CR-713 (JDG-1737) changed only the word for copy (utsushi -> kopi-); read together, the scene and
   // the words still tell the same copy to the clipboard, so only the fingerprint is re-keyed.
   'RS-68': 'f2d7f18901dcc0a0',
-  // WHY: read 2026-10-04; a milestone has no span, so it cannot be a parent, and the next step is a bar with a span (PTL-8).
+  // Why: read 2026-10-04; a milestone has no span, so it cannot be a parent, and the next step is a bar with a span (PTL-8).
   'RS-69': '622c7c9858d60d6a',
-  // WHY: read 2026-10-04; a dashed arrow is a parent inferred from dates, and the road is to link it under AR-7 (PTL-12).
+  // Why: read 2026-10-04; a dashed arrow is a parent inferred from dates, and the road is to link it under AR-7 (PTL-12).
   'RS-70': '164e7929c5bca997',
-  // WHY: read 2026-10-07; the matching tasks were overwritten with the file's values (MG-14), and
+  // Why: read 2026-10-07; the matching tasks were overwritten with the file's values (MG-14), and
   // undo is the road back; the count NT-3 asks for is the notice's own, not a word of the row.
   'RS-71': 'e4cf8addf139dc9d',
-  // WHY: read 2026-10-07; tasks the file did not carry were kept (MG-7 only says it keeps them),
+  // Why: read 2026-10-07; tasks the file did not carry were kept (MG-7 only says it keeps them),
   // an NT-5 notice that is accepted, and deleting by hand is the road.
   'RS-72': 'b9542a7c91a16d34',
-  // WHY: read 2026-10-07; the tasks that came last time and not now are listed by name below
+  // Why: read 2026-10-07; the tasks that came last time and not now are listed by name below
   // (MG-11), and the step warns a kept one comes back on the other side at the next export.
   'RS-73': 'd09a368a5aadff7b',
-  // WHY: read 2026-10-07; a write refused (AG-9a) while an NT-7 question stands, and the road is
+  // Why: read 2026-10-07; a write refused (AG-9a) while an NT-7 question stands, and the road is
   // to try again once that question has been answered (WS-2). Re-read 2026-10-09 (CR-718): the
   // scene now says a screen write is dropped as RS-27, not told; the words still tell it.
   'RS-74': '2fda66aed54bfb73',
-  // WHY: read 2026-10-08 (CR-705); opening or reopening a file broke for no row's reason (IF-3),
+  // Why: read 2026-10-08 (CR-705); opening or reopening a file broke for no row's reason (IF-3),
   // an NT-3a notice, and the road is to open it once more.
   'RS-75': 'd7540ecac35069e4',
-  // WHY: read 2026-10-08 (CR-705); saving or writing out broke for no row's reason (IF-3), the file
+  // Why: read 2026-10-08 (CR-705); saving or writing out broke for no row's reason (IF-3), the file
   // may not hold it, and the road is another destination, as RS-3's.
   'RS-76': '12abe41d1b423c81',
   'RS-77': '4632023f72925b3e',
-  // WHY: read 2026-10-10 (CR-719, JDG-1777); four tell why a file is not opened (a limit of
+  // Why: read 2026-10-10 (CR-719, JDG-1777); four tell why a file is not opened (a limit of
   // table T-211 or a Task with no dates), seven tell which row of table T-220 an edit broke.
   'RS-78': '49e4427d5fbf4fc7',
   'RS-79': '8594e69ebd464347',
@@ -556,13 +556,13 @@ const PAIRED_ON_2026_09_03: Readonly<Record<string, string>> = {
   'RS-86': '118c544dd5ae1637',
   'RS-87': 'b6b6bb28f94a91c1',
   'RS-88': '0e1f8f1cef6b1cc1',
-  // WHY: read 2026-10-11 (CR-710 wave 2); RS-89 tells the ranges miss 1d, which still counts the day
+  // Why: read 2026-10-11 (CR-710 wave 2); RS-89 tells the ranges miss 1d, which still counts the day
   // length. CR-755 (JDG-2107) retired the MSPDI time zone notice: nothing is told when the PC's zone is set.
-  // WHY: read 2026-10-15 (CR-751); the scene now also counts a one-off working exception day, and the
+  // Why: read 2026-10-15 (CR-751); the scene now also counts a one-off working exception day, and the
   // words still tell that the ranges miss 1d, so only the fingerprint is re-keyed.
   'RS-89': 'afc4b6d7567c09ae',
-  // WHY: read 2026-10-18 (CR-796 slice 1); RS-90 tells the relay link dropped, and the words tell the person to reopen the address the AI gives.
-  // WHY: read 2026-10-19 (CR-808); the scene now says the page's own reconnect tries all failed first, and
+  // Why: read 2026-10-18 (CR-796 slice 1); RS-90 tells the relay link dropped, and the words tell the person to reopen the address the AI gives.
+  // Why: read 2026-10-19 (CR-808); the scene now says the page's own reconnect tries all failed first, and
   // the words still tell the link was lost and to reopen the address, so only the fingerprint is re-keyed.
   'RS-90': 'f6b4a054a668daef',
 }

@@ -32,7 +32,7 @@ import {
 
 const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
-// WHY: one row since CR-441 -- the plan's white and the actual's black are the two fills of PK-1.
+// Why: one row since CR-441 -- the plan's white and the actual's black are the two fills of PK-1.
 const PK_1_SQUARE =
   '| PK-1 | 箱の矢印 | 幅の広い箱型の矢印（← ／ →） | 予定は 白 ／ 黒、実績とダミーは 黒 ／ 白（本表の結びの約束） | 丸め | 一辺 `S-249` | 中心 |'
 const FR_106_COLORS =
@@ -127,7 +127,7 @@ const documentAt = (displayScale: number): Document =>
       displayScale,
       scrollDate: '2026-04-01T00:00:00',
       scrollTaskGroupId: 'g1',
-      // WHY: S-1 is a constant (CR-572); the stored zoomX (S-75) carries the day width this fixture draws at.
+      // Why: S-1 is a constant (CR-572); the stored zoomX (S-75) carries the day width this fixture draws at.
       zoomX: 20 / SETTINGS_CONSTANTS.pxPerDayAt1x,
     },
     documentStamp: structuredClone(TEMPLATE.documentStamp),
@@ -197,7 +197,7 @@ const benchAt = (displayScale: number): Bench => {
   }
 }
 
-// see T-023d, GA-1, GA-2, GA-3, GA-4
+// Spec: T-023d, GA-1, GA-2, GA-3, GA-4
 const endsOf = (loop: FrameLoop): Readonly<Record<'GA-1' | 'GA-2' | 'GA-3' | 'GA-4', Point>> => {
   const drawn = loop.current()?.geometry.tasks.find((one) => one.taskUid === BAR_UID)
   if (drawn === undefined) throw new Error('the bar Task is not drawn')
@@ -225,7 +225,7 @@ interface Cursor {
   readonly fallback: string
 }
 
-// see PK-1, T-269
+// Spec: PK-1, T-269
 const cursorOf = (written: string | null): Cursor | null => {
   if (written === null) return null
   const found = /^url\((['"]?)(data:image\/svg\+xml[^)]*?)\1\)\s+(-?\d+(?:\.\d+)?)\s+(-?\d+(?:\.\d+)?)\s*,\s*([\w-]+)\s*$/.exec(
@@ -265,8 +265,8 @@ const pairsOf = (text: string): Point[] => {
   return out
 }
 
-// see PK-1
-// WHY: H and V carry one number each, so reading a path as bare number pairs misplaces every later point.
+// Spec: PK-1
+// Why: H and V carry one number each, so reading a path as bare number pairs misplaces every later point.
 const pathPointsOf = (d: string): Point[] => {
   const tokens = d.match(/[a-zA-Z]|-?\d*\.?\d+(?:e-?\d+)?/gi) ?? []
   const out: Point[] = []
@@ -312,8 +312,8 @@ const pathPointsOf = (d: string): Point[] => {
   return out
 }
 
-// see PK-1
-// WHY: a right arrow may be the left one mirrored by a transform, which moves every point it draws.
+// Spec: PK-1
+// Why: a right arrow may be the left one mirrored by a transform, which moves every point it draws.
 const transformOf = (text: string): readonly [number, number, number, number, number, number] => {
   let m: [number, number, number, number, number, number] = [1, 0, 0, 1, 0, 0]
   for (const found of text.matchAll(/(matrix|translate|scale)\s*\(([^)]*)\)/g)) {
@@ -336,7 +336,7 @@ const transformOf = (text: string): readonly [number, number, number, number, nu
   return m
 }
 
-// see PK-1
+// Spec: PK-1
 const shapeOf = (svg: string): Shape => {
   const root = /<svg\b[^>]*>/.exec(svg)?.[0] ?? ''
   const width = Number(attributeOf(root, 'width') ?? Number.NaN)
@@ -352,7 +352,7 @@ const shapeOf = (svg: string): Shape => {
     const matrix = transformOf(attributeOf(tag, 'transform') ?? '')
     return own.map((one) => ({ x: matrix[0] * one.x + matrix[2] * one.y + matrix[4], y: matrix[1] * one.x + matrix[3] * one.y + matrix[5] }))
   })
-  // WHY: the path is drawn in viewBox units, which need not be the image's px side.
+  // Why: the path is drawn in viewBox units, which need not be the image's px side.
   const box = (attributeOf(root, 'viewBox') ?? '').trim().split(/[\s,]+/).map(Number)
   const [gridWidth, gridHeight] = box.length === 4 ? [box[2]!, box[3]!] : [width, height]
   const center = gridWidth / 2
@@ -421,8 +421,8 @@ describe(`FR-106 (MUST NOT) -- ${FR_106_NO_DISPLAY_SCALE}`, () => {
 })
 
 describe('CR-427 section 9 -- what the change request leaves open', () => {
-  // WHY: DFC-3447 -- PND-445 (JDG-300) asked for the host default where IN-2 named no shape; table T-266 now names
-  // WHY: PK-3 for GA-7 / GA-8 and PK-5 for GA-15 .. GA-17, so the case follows the manuscript as it stands.
+  // Why: DFC-3447 -- PND-445 (JDG-300) asked for the host default where IN-2 named no shape; table T-266 now names
+  // Why: PK-3 for GA-7 / GA-8 and PK-5 for GA-15 .. GA-17, so the case follows the manuscript as it stands.
   it('GA-7 / GA-8 / GA-15 / GA-16 / GA-17: milestone figures and the fade corners show the T-269 shape table T-266 names (PK-3, PK-5) with their fallbacks, not the host default (CR-427 questions 1 and 2, DFC-3447)', () => {
     const T_269_PK_5_ON_MILESTONES = '⭐ マイルストーンの上の「掴めることの合図」（同じく `IN-2`）は、`PK-5` に置き換わる。'
     const T_269_FALLBACKS =
@@ -460,7 +460,7 @@ describe('CR-427 section 9 -- what the change request leaves open', () => {
       'GA-7': null,
       'GA-8': null,
     }
-    // WHY: FR-075 draws the fade grab points only on the selected Task.
+    // Why: FR-075 draws the fade grab points only on the selected Task.
     pressAndRelease(built, middleOf(drawnTask(built.loop, FADED_UID).plan, 'the faded plan'))
     const handles = [...drawnTask(built.loop, FADED_UID).fadeHandles].sort((a, b) => a.y - b.y)
     expect(handles, 'premise (FR-075): the selected faded Task draws its two grab points').toHaveLength(2)
@@ -485,7 +485,7 @@ describe('CR-427 section 9 -- what the change request leaves open', () => {
     circle('GA-16', filledDiameter!, '#000000', '#ffffff', 'ew-resize')
     circle('GA-17', filledDiameter!, '#000000', '#ffffff', 'ew-resize')
 
-    // WHY: PK-3 holds the right angle as the hotspot; in spreads up-left from it, out spreads down-right.
+    // Why: PK-3 holds the right angle as the hotspot; in spreads up-left from it, out spreads down-right.
     const triangle = (row: 'GA-7' | 'GA-8', isIn: boolean): void => {
       const cursor = cursorOf(written[row])
       expect(cursor, `${row}: an image, not the host default -- ${T_269_PK_3} (written ${String(written[row])})`).not.toBeNull()

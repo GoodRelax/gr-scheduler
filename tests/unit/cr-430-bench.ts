@@ -29,26 +29,26 @@ export function numberIn(cell: string): number {
   return Number(found[0])
 }
 
-// see T-206
+// Spec: T-206
 /** @purity pure */
 export function sizePx(id: string): number {
   return numberIn(specRow('T-206', id).by[DEFAULT_COLUMN] ?? '')
 }
 
-// see T-201
+// Spec: T-201
 /** @purity pure */
 export function drawingDefault(id: string): number {
   return numberIn(specRow('T-201', id).by[DEFAULT_VALUE_COLUMN] ?? '')
 }
 
-// see T-266
+// Spec: T-266
 /** @purity pure */
 export function grabSizeTaskGroupsOf(grabArea: string): readonly string[] {
   const cell = specRow('T-266', grabArea).by[T_266_SIZES] ?? ''
   return [...cell.matchAll(/`(S-\d+)`/g)].map((one) => one[1] ?? '')
 }
 
-// see T-266, T-269
+// Spec: T-266, T-269
 /** @purity pure */
 export function pointerRowFor(grabArea: string): string {
   const cell = specRow('T-266', grabArea).by[T_266_POINTER] ?? ''
@@ -57,7 +57,7 @@ export function pointerRowFor(grabArea: string): string {
   return found[1] ?? ''
 }
 
-// see T-266
+// Spec: T-266
 /** @purity pure */
 export function grabAreaTaskGroups(): readonly string[] {
   return specTable('T-266').rows.map((one) => one.id)
@@ -93,7 +93,7 @@ export function boxesOverlap(a: Box, b: Box): boolean {
   return a.x0 < b.x1 && b.x0 < a.x1 && a.y0 < b.y1 && b.y0 < a.y1
 }
 
-// see T-266
+// Spec: T-266
 /** @purity pure */
 export function widestGrabMargin(): number {
   let widest = 0
@@ -106,9 +106,9 @@ export function widestGrabMargin(): number {
   return widest
 }
 
-// see XS-10
-// WHY: the seam names ResumeGeometry.box, the tree still draws an arm and a
-// WHY: head; reading both keeps this measuring the icon, not a member's name.
+// Spec: XS-10
+// Why: the seam names ResumeGeometry.box, the tree still draws an arm and a
+// Why: head; reading both keeps this measuring the icon, not a member's name.
 /** @purity pure */
 export function resumeBoxOf(drawn: TaskGeometry): Box | null {
   const resume = drawn.resume as unknown as Record<string, unknown> | null
@@ -174,7 +174,7 @@ function bandOfTask(drawn: TaskGeometry): Box | null {
   }
 }
 
-// see T-266
+// Spec: T-266
 /** @purity pure */
 export function sizesOrSeam(): ReturnType<typeof grabSizesOf> {
   try {
@@ -193,9 +193,9 @@ export interface GrabScan {
   readonly sampled: number
 }
 
-// see T-266, T-267, T-268
-// WHY: tables T-267 and T-268 decide which overlapping area answers, so a case
-// WHY: asks where an area answers instead of computing a point and pressing it.
+// Spec: T-266, T-267, T-268
+// Why: tables T-267 and T-268 decide which overlapping area answers, so a case
+// Why: asks where an area answers instead of computing a point and pressing it.
 /** @purity pure */
 export function scanGrabAreas(
   geometry: ScheduleGeometry,
@@ -232,8 +232,8 @@ export function scanGrabAreas(
   return { points, answered, sampled }
 }
 
-// WHY: the first answering point sits on the area's outer corner, where a press
-// WHY: lands in a neighboring region; the middlemost one is inside the area.
+// Why: the first answering point sits on the area's outer corner, where a press
+// Why: lands in a neighboring region; the middlemost one is inside the area.
 /** @purity pure */
 function middlemost(all: readonly Point[]): Point {
   const cx = all.reduce((sum, one) => sum + one.x, 0) / all.length

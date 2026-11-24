@@ -279,7 +279,7 @@ const FORMATS: readonly (readonly [string, string])[] = [
 
 const PNG_BYTES = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0x00, 0xff, 0x0d, 0x0a, 0x7f])
 
-// WHY: CRLF, a lone LF and a non-ASCII letter prove the text is placed byte for byte.
+// Why: CRLF, a lone LF and a non-ASCII letter prove the text is placed byte for byte.
 const FIRST_TEXT = 'first\r\nline\n\u3042 end'
 
 function freshContent(): Record<string, string> {
@@ -292,7 +292,7 @@ function freshContent(): Record<string, string> {
   }
 }
 
-// WHY: CR-799 -- savedTo and backedUpTo are the absolute places of the files, under the real place of the save folder (AV-21).
+// Why: CR-799 -- savedTo and backedUpTo are the absolute places of the files, under the real place of the save folder (AV-21).
 const placeIn = (folder: string, name: string): string => join(realpathSync(folder), name)
 
 const bytesOfValue = (method: string, value: string): Buffer =>
@@ -305,7 +305,7 @@ interface Place {
   readonly folder: string
 }
 
-// WHY: the base is a fresh folder under the temp folder; the save folder is a child of it that may or may not exist yet.
+// Why: the base is a fresh folder under the temp folder; the save folder is a child of it that may or may not exist yet.
 function placeOf(isFolderMade: boolean): Place {
   const base = mkdtempSync(join(tmpdir(), 'grs-s7-'))
   bases.push(base)
@@ -357,7 +357,7 @@ afterEach(async () => {
   for (const base of bases.splice(0)) rmSync(base, { recursive: true, force: true })
 })
 
-// see AG-12, AM-11, AM-12, AM-13, AM-14, AM-15, AV-21
+// Spec: AG-12, AM-11, AM-12, AM-13, AM-14, AM-15, AV-21
 describe('AG-12 (9): a save writes the page value into the save folder and answers AgentSavedFile (AV-21)', () => {
   it.each(FORMATS)(`${CLAUSE_WRITES} -- %s writes the exact bytes`, async (method, extension) => {
     const { started, place, content } = await savingSetup()
@@ -430,7 +430,7 @@ describe('AG-12 (9): a save writes the page value into the save folder and answe
   })
 })
 
-// see AG-12
+// Spec: AG-12
 describe('AG-12 (9) / design 7: a name that leaves the folder, or is not the format, is refused with badFileName', () => {
   const place = (): Place => placeOf(true)
   const bad: readonly (readonly [string, (base: string) => string])[] = [
@@ -504,7 +504,7 @@ describe('AG-12 (9) / design 7: a name that leaves the folder, or is not the for
   })
 })
 
-// see AG-12, AV-21
+// Spec: AG-12, AV-21
 describe('AG-12 (9) / design 5: saveFolderUnavailable when the folder cannot be made', () => {
   it('a save folder under a plain file -> refused with saveFolderUnavailable, nothing is written', async () => {
     const here = placeOf(true)
@@ -519,7 +519,7 @@ describe('AG-12 (9) / design 5: saveFolderUnavailable when the folder cannot be 
   })
 })
 
-// see AG-12, AV-21
+// Spec: AG-12, AV-21
 describe('AG-12 (9): a file that exists is not replaced unless overwrite is true, and the old content is kept as .bak', () => {
   it(`${CLAUSE_EXISTS} -- the setting is on by default: a second save of the name is refused with fileExists`, async () => {
     const { started, place, content } = await savingSetup()
@@ -602,7 +602,7 @@ describe('AG-12 (9): a file that exists is not replaced unless overwrite is true
   })
 })
 
-// see AG-12
+// Spec: AG-12
 describe('AG-12 (9) -- the clauses slice 7 added, held verbatim', () => {
   const requirements = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
   const clauses = [CLAUSE_WRITES, CLAUSE_OUTSIDE, CLAUSE_EXISTS, CLAUSE_BACKUP, CLAUSE_NO_DOCUMENT]

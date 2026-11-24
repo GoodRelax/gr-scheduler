@@ -32,7 +32,7 @@ const DAYS_RIGHT_OF_THE_BAR = 6.5
 const FIRST_TRAVEL_DAYS = 1
 const SECOND_TRAVEL_DAYS = 2
 
-// WHY: the press lands mid-day on a Tuesday after this finish, so both travels
+// Why: the press lands mid-day on a Tuesday after this finish, so both travels
 // stay on weekdays and no rest-day rule takes part in the held picture.
 const PLAN_START = '2026-04-06'
 const PLAN_FINISH = '2026-04-14'
@@ -80,7 +80,7 @@ const oneTaskDocument = (): Document =>
 const SCREEN: FrameEnvironment = { width: 1200, height: 700, appHeaderHeight: 0, scrollbarThickness: 0 }
 const PALETTE_BOX: ScreenRect = { x: 8, y: SCREEN.height - 56, width: 120, height: 48 }
 
-// see AR-2, T-109
+// Spec: AR-2, T-109
 const TASK_SHAPE_ARMING_ENTRY: IconId = ((): string => {
   const found = specTable('T-109').rows.find((one) => (one.by['構え'] ?? '').includes('AR-2'))
   if (found === undefined) throw new Error('table T-109 has no entry whose arming is AR-2')
@@ -177,7 +177,7 @@ describe('DFC-978 / T-023d, PTD-4, IN-1 -- every move of one held press draws fr
     const day = dayWidthOf(built.loop)
     const pressAt = { x: ends.right + DAYS_RIGHT_OF_THE_BAR * day, y: ends.y }
     const held = built.loop.document().schedule.tasks.length
-    // STEP: press on an empty place of the task group, then move one day and two days away from the press
+    // Step: press on an empty place of the task group, then move one day and two days away from the press
     built.send(pointer('down', pressAt))
     built.send(pointer('move', { x: pressAt.x + FIRST_TRAVEL_DAYS * day, y: pressAt.y }))
     expect(drawnTaskCount(built.loop), 'premise: the first move draws the Task a release would make').toBe(held + 1)

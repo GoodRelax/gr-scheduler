@@ -93,7 +93,7 @@ const MILESTONE_UID = 2
 const FADED_UID = 3
 
 const day = (d: number): string => `2026-04-${String(d).padStart(2, '0')}T00:00:00`
-// WHY: an end is written at the day's close (WT-2, WT-4); at 00:00 FR-054 reads it as the day before (RV-1, RV-6).
+// Why: an end is written at the day's close (WT-2, WT-4); at 00:00 FR-054 reads it as the day before (RV-1, RV-6).
 const endOfDay = (d: number): string => `2026-04-${String(d).padStart(2, '0')}T17:00:00`
 
 const dayPart = (value: string | null | undefined): string => {
@@ -177,7 +177,7 @@ function documentWith(
     },
     documentSettings: {
       ...structuredClone(template.documentSettings),
-      // WHY: S-1 is a constant (CR-572); the stored zoomX (S-75) carries the day width this fixture draws at.
+      // Why: S-1 is a constant (CR-572); the stored zoomX (S-75) carries the day width this fixture draws at.
       zoomX: PX_PER_DAY_AT_1X / SETTINGS_CONSTANTS.pxPerDayAt1x,
       scrollDate,
       scrollTaskGroupId: rows[0],
@@ -253,7 +253,7 @@ const nextCalendarDay = (text: string): string => {
   return new Date(Date.UTC(y, m - 1, d + 1)).toISOString().slice(0, 10)
 }
 
-// see FR-011
+// Spec: FR-011
 const actualLengthOf = (one: Task): number => {
   const start = dayPart(one.actualStart)
   const last = dayPart(one.actualFinish ?? one.stop)
@@ -385,26 +385,26 @@ const dayUnder = (loop: FrameLoop, x: number): string => {
   return dayPart(textOfDay(found))
 }
 
-// see IN-1
+// Spec: IN-1
 function grab(built: Stage, at: Point, releaseX: number): void {
   built.send(pointer('down', at.x, at.y))
   built.send(pointer('move', releaseX, at.y))
   built.send(pointer('up', releaseX, at.y))
 }
 
-// see GA-1
+// Spec: GA-1
 const planStartPress = (loop: FrameLoop, uid: number): Point => {
   const plan = planBox(loop, uid)
   return { x: plan.x0 - S_90 / 2, y: midY(plan) }
 }
 
-// see GA-2
+// Spec: GA-2
 const planEndPress = (loop: FrameLoop, uid: number): Point => {
   const plan = planBox(loop, uid)
   return { x: plan.x1 + S_90 / 2, y: midY(plan) }
 }
 
-// see GA-4
+// Spec: GA-4
 const actualEndPress = (loop: FrameLoop, uid: number): Point => {
   const actual = actualBox(loop, uid)
   return { x: actual.x1 - S_91 / 2, y: midY(actual) }
@@ -440,7 +440,7 @@ describe('FR-103 -- the manuscript this file is driven by', () => {
   it('table T-220 still holds IV-10, IV-12 and IV-14 as the refusals FR-103 points at', () => {
     expect(DESIGN).toContain('| IV-10 | `start` と `finish` がともに非 `null` の `Task` で、`finish` が `start` より前でないこと |')
     expect(DESIGN).toContain('| IV-12 | `fadeInDays` と `fadeOutDays` の和が、その `Task` の期間を超えないこと。')
-    // WHY: CR-710 reads date-time columns as instants (IV-14, FR-054).
+    // Why: CR-710 reads date-time columns as instants (IV-14, FR-054).
     expect(DESIGN).toContain('| IV-14 | 日付と日時の列が、日時として読め（時刻は 1 分の単位）、受け入れる日付の範囲に収まること。')
   })
 })
@@ -572,7 +572,7 @@ describe('table T-245 GO-2 -- the plan end', () => {
   })
 })
 
-// see GO-3
+// Spec: GO-3
 function actualEndReleasedAt(k: number): { readonly released: string; readonly after: Task; readonly before: Task } {
   const built = stage(aprilDocument())
   const before = structuredClone(taskOf(built.loop, PLAIN_UID))

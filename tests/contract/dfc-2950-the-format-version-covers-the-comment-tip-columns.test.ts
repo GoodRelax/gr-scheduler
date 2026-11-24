@@ -18,10 +18,10 @@ const DR_4_CONST = '刊行するスキーマは `schemaVersion` を、その造�
 const DR_4_TEMPLATE = '値は `FR-027` のテンプレートが載せる版と同じ 1 か所から採る。'
 const FR_024_BUILD_VERSION = '載せる形式の版は、この造りの版とすること（MUST）'
 
-// WHY: AT-163 .. AT-167, the comment tip columns whose addition is the shape change DFC-2950 is about.
+// Why: AT-163 .. AT-167, the comment tip columns whose addition is the shape change DFC-2950 is about.
 const TIP_COLUMNS = ['AT-163', 'AT-164', 'AT-165', 'AT-166', 'AT-167'] as const
 
-// WHY: the version the builds before the tip columns carried (ledger row DFC-2950: the CR-769 version); a later shape must be newer.
+// Why: the version the builds before the tip columns carried (ledger row DFC-2950: the CR-769 version); a later shape must be newer.
 const VERSION_WITHOUT_TIP_COLUMNS = '2026-10-15T05:52:20Z'
 
 const INSTANT_FORM = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/
@@ -29,11 +29,11 @@ const INSTANT_FORM = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/
 const ROOT = process.cwd()
 const readJson = (...parts: string[]): Record<string, any> => JSON.parse(readFileSync(join(ROOT, ...parts), 'utf8')) as Record<string, any>
 
-// see DR-4
+// Spec: DR-4
 const SCHEMA = readJson('docs', 'spec', '_source', 'grs-document.schema.json')
 const SPEC_VERSION = String(SCHEMA['properties']['schemaVersion']['const'])
 
-// see AT-163, AT-164, AT-165, AT-166, AT-167
+// Spec: AT-163, AT-164, AT-165, AT-166, AT-167
 const columnNameOf = (id: string): string => {
   const line = ERD_DETAIL.split('\n').find((one) => one.startsWith(`| ${id} |`))
   if (line === undefined) throw new Error(`fig-erd-detail.md has no row ${id}`)
@@ -41,7 +41,7 @@ const columnNameOf = (id: string): string => {
   return cells[3]!.replace(/`/g, '')
 }
 
-// WHY: one box snapped to a task and one snapped to a highlight box, so every tip column holds a value.
+// Why: one box snapped to a task and one snapped to a highlight box, so every tip column holds a value.
 const savedText = (version: string): string => {
   const root = documentObject({
     tasks: tasksOf(),

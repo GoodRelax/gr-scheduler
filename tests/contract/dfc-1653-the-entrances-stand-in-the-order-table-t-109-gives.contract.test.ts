@@ -18,7 +18,7 @@ import { templateDocument } from './w3-t3-frame-stage'
 
 const GLOSSARY = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '_assets', 'tbl-glossary.md'), 'utf8').replace(/\r\n/g, '\n'))
 
-// WHY: each clause is cut from the manuscript as check 39 reads it, so the cases cannot drift from the words they test.
+// Why: each clause is cut from the manuscript as check 39 reads it, so the cases cannot drift from the words they test.
 const T_109_ORDER =
   '入口を並べる順は、面ごとに、本表の `群` の欄と行の順が決める —— 同じ面で同じ `群` の行を 1 つの塊に寄せ、塊どうしは塊の最初の行が本表に現れる順に、塊の中は本表の行の順に並べること（MUST）'
 const T_109_GROUP_ONLY_FOR_BLOCKS = '⛔ 本表の `群` の欄は、この塊を決めるためだけに在る。'
@@ -38,14 +38,14 @@ interface Row {
   readonly group: string
 }
 
-// see T-109
+// Spec: T-109
 const ROWS: readonly Row[] = specTable('T-109').rows.map((one) => ({
   id: one.id,
   surfaces: [...(one.by['面'] ?? '').matchAll(/`([^`]+)`/g)].map((found) => found[1] ?? ''),
   group: bare(one.by['群'] ?? '').trim(),
 }))
 
-// WHY: the rule of the preamble, written out: blocks open where their first row stands, rows inside a block keep the table's order.
+// Why: the rule of the preamble, written out: blocks open where their first row stands, rows inside a block keep the table's order.
 function orderedByTheRule(onSurface: string): readonly string[] {
   const rows = ROWS.filter((one) => one.surfaces.includes(onSurface))
   const blocks: { group: string; ids: string[] }[] = []
@@ -119,7 +119,7 @@ describe('T-109 (MUST): the Command Palette shows its entrances in the same rule
     expect(shown.length).toBeGreaterThan(5)
   })
 
-  // WHY: the palette may fold or leave out rows (FR-078, the two non-button rows), so what it shows must be an ordered subset of the rule's order.
+  // Why: the palette may fold or leave out rows (FR-078, the two non-button rows), so what it shows must be an ordered subset of the rule's order.
   it('what it shows is the rule\'s order with some rows left out, none out of place', () => {
     const kept = expected.filter((id) => shown.includes(id))
     expect(shown).toEqual(kept)

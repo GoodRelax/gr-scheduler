@@ -984,7 +984,7 @@ const REVERSED: Readonly<Record<string, () => DocumentUnderTest>> = {
     }),
 }
 
-// see IV-24
+// Spec: IV-24
 const BAD_WORKING_TIMES: Readonly<Record<string, () => DocumentUnderTest>> = {
   'a weekday span that ends before it starts': () =>
     withSchedule({ calendars: [calendarWithMonday(spansOf(['17:00', '08:00']))] }),
@@ -1004,7 +1004,7 @@ const BAD_WORKING_TIMES: Readonly<Record<string, () => DocumentUnderTest>> = {
     withSchedule({ calendars: [calendarWithException(spansOf(['08:00', '13:00'], ['12:00', '17:00']))] }),
 }
 
-// see IV-10
+// Spec: IV-10
 const REVERSED_BY_THE_CLOCK: Readonly<Record<string, () => DocumentUnderTest>> = {
   'the same day, finish at 08:00 and start at 17:00': () =>
     withSchedule({ tasks: [{ ...TASK_A, start: '2026-01-05T17:00:00', finish: '2026-01-05T08:00:00' }, TASK_B] }),
@@ -1013,13 +1013,13 @@ const REVERSED_BY_THE_CLOCK: Readonly<Record<string, () => DocumentUnderTest>> =
     withSchedule({ tasks: [{ ...TASK_A, start: '2026-01-05T08:01:00', finish: '2026-01-05T08:00:00' }, TASK_B] }),
 }
 
-// see IV-14
+// Spec: IV-14
 const UNREADABLE_TIMES: Readonly<Record<string, () => DocumentUnderTest>> = {
   'an hour that does not exist': () =>
     withSchedule({ tasks: [{ ...TASK_A, start: '2026-01-05T25:00:00' }, TASK_B] }),
 }
 
-// see IV-24, IV-10, IV-14
+// Spec: IV-24, IV-10, IV-14
 const NOT_REPORTED: Readonly<Record<string, { readonly row: string; readonly document: () => DocumentUnderTest }>> = {
   'IV-24 for a weekday with no span': { row: 'IV-24', document: () => withSchedule({ calendars: [calendarWithMonday([])] }) },
 

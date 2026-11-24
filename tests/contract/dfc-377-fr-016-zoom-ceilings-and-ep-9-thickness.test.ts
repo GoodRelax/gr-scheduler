@@ -507,7 +507,7 @@ const FLOOR_BINDS_BELOW =
 const ZOOM_LOW = FLOOR_BINDS_BELOW * 1.2
 const ZOOM_HIGH = FLOOR_BINDS_BELOW * 3.6 // 3x ZOOM_LOW
 
-// see VG-2, VG-3, VG-4, FR-039
+// Spec: VG-2, VG-3, VG-4, FR-039
 const VG_2_GAP =
   settingNumber('stackGap') * 2 + settingNumber('dependencyWidth') * displayRatioAt(LAYOUT_SETTINGS.displayScale)
 
@@ -541,7 +541,7 @@ describe('FR-016 (MUST) -- 「その倍率でのタスクグループの位置�
 
 describe('FR-016 (MUST NOT) -- 「倍率から位置を算で求めてはならない」', () => {
   it('scaling the low-zoom position by the zoom ratio is NOT what PI-5 answers at the higher zoom', () => {
-    // WHY: the band is S-4 x zoomY plus the VG-2 gap and the border, which zoomY does not scale
+    // Why: the band is S-4 x zoomY plus the VG-2 gap and the border, which zoomY does not scale
     // (VG-3), so a position scaled by the zoom ratio lands off the one PI-5 answers.
     const lastIndex = THREE_FLAT_TASK_GROUPS - 1
     const low = placesAt(ZOOM_LOW)[lastIndex]!.y - placesAt(ZOOM_LOW)[0]!.y
@@ -560,6 +560,6 @@ describe('FR-016 (MUST NOT) -- 「倍率から位置を算で求めてはなら�
     )
   })
 
-  // WHY: the control is the premise above: a band with no fixed term would scale exactly, and the
+  // Why: the control is the premise above: a band with no fixed term would scale exactly, and the
   // VG-2 gap is that term.
 })

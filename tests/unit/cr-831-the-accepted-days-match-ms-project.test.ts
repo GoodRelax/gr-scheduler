@@ -60,7 +60,7 @@ const MAX_YEAR = Number(MAX_DAY.slice(0, 4))
 
 const DAY_BEFORE_MIN = `${MIN_YEAR - 1}-12-31`
 const DAY_AFTER_MAX = `${MAX_YEAR + 1}-01-01`
-// WHY: a two-digit year padded to four digits names year 75, never 1975.
+// Why: a two-digit year padded to four digits names year 75, never 1975.
 const PADDED_TWO_DIGIT_YEAR = '0075-03-03T08:00:00'
 
 const S_119_EXPORT_NOTE =
@@ -153,7 +153,7 @@ const openedMspdi = (start: string, finish: string): MspdiOutcome => {
   return { stage: 'validation', verdict: verdictOf(read.document) }
 }
 
-// WHY: the spec does not pin which MSPDI stage refuses (codec or the shared validation); FR-023 forbids only
+// Why: the spec does not pin which MSPDI stage refuses (codec or the shared validation); FR-023 forbids only
 // a silent intake, so a codec refusal or an IV-14 refusal naming the column both pass.
 const expectMspdiRefused = (outcome: MspdiOutcome, column: string): void => {
   if (outcome.stage === 'codec') {
@@ -230,7 +230,7 @@ const CASES: readonly CommandCase[] = [
   { name: 'setTaskDeadline', at: (when) => ({ kind: 'setTaskDeadline', taskUid: 1, deadline: when }) },
 ]
 
-// WHY: the plan-date cases need finish >= start (IV-10), so each case writes only the side it names;
+// Why: the plan-date cases need finish >= start (IV-10), so each case writes only the side it names;
 // a start on the last day or a finish on the first would break IV-10 for a reason that is not IV-14.
 const ACCEPTED: Readonly<Record<string, readonly string[]>> = {
   'setTaskPlanDates (start)': [`${MIN_DAY}T${S_482}`],
@@ -240,7 +240,7 @@ const ACCEPTED: Readonly<Record<string, readonly string[]>> = {
 }
 const acceptedOf = (name: string): readonly string[] => ACCEPTED[name] ?? [`${MIN_DAY}T00:00:00`, `${MAX_DAY}T23:59:00`]
 
-// WHY: likewise a refused day that is not IV-14's subject would pass for the wrong reason, so the
+// Why: likewise a refused day that is not IV-14's subject would pass for the wrong reason, so the
 // "after" day goes to the finish side and the "before" day to the start side of a two-sided command.
 const REFUSED: Readonly<Record<string, readonly string[]>> = {
   'setTaskPlanDates (start)': [`${DAY_BEFORE_MIN}T${S_482}`, PADDED_TWO_DIGIT_YEAR],

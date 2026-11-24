@@ -90,7 +90,7 @@ const logRow = (over: Partial<DelayFixLogRow> & Pick<DelayFixLogRow, 'fixedAt' |
   ...over,
 })
 
-// WHY: given out of order on purpose; the default order of the log is newest fixed time first, then the order in the bundle (T-374).
+// Why: given out of order on purpose; the default order of the log is newest fixed time first, then the order in the bundle (T-374).
 const OLDEST = logRow({ fixedAt: '2027-05-02T09:00:00', order: 0, taskUid: 1, taskName: 'Alpha' })
 const NEWEST_FIRST_IN_BUNDLE = logRow({ fixedAt: '2027-05-03T10:30:00', order: 0, taskUid: 2, taskName: 'Bravo' })
 const NEWEST_SECOND_IN_BUNDLE = logRow({

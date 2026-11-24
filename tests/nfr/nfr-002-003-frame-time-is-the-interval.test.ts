@@ -603,11 +603,11 @@ async function driveSegment(
 }
 
 // see MK-6, PTD-5, DFC-2301
-// WHY: the old fixed point sat on the Command Palette before CR-707, so MK-6 timed a palette press.
+// Why: the old fixed point sat on the Command Palette before CR-707, so MK-6 timed a palette press.
 const BARE_SPOT_STEP_PX = 12
 const BARE_SPOT_CLEARANCE_PX = 8
 
-// WHY: a task group's own ground on every side, read just before the press, wherever the palette stands.
+// Why: a task group's own ground on every side, read just before the press, wherever the palette stands.
 /** @purity semi-pure-mutable */
 async function bareCanvasPoint(
   page: Page,
@@ -652,7 +652,7 @@ const BORDER_ROUNDS_CAP = 600
 const BORDER_CHECK_EVERY = 10
 const BORDER_SWING_PX = 40
 
-// see SK-24
+// Spec: SK-24
 /** @purity pure */
 function chordOf(row: SpecRow): string {
   return (row.cells[1] ?? '')
@@ -683,7 +683,7 @@ async function headingWidth(page: Page, column: string): Promise<number> {
   )
 }
 
-// see MC-8, MC-10, GR-28, SV-18
+// Spec: MC-8, MC-10, GR-28, SV-18
 /** @purity non-pure */
 async function driveColumnBorder(page: Page, cdp: Cdp, perBurst: number): Promise<void> {
   await page.keyboard.press(OPEN_SEARCH)
@@ -700,7 +700,7 @@ async function driveColumnBorder(page: Page, cdp: Cdp, perBurst: number): Promis
     { type: 'mouseMoved', x: grip.x, y: grip.y },
     { type: 'mousePressed', x: grip.x, y: grip.y, button: 'left', buttons: 1, clickCount: 1 },
   ])
-  // WHY: the swing only widens from the press, so no move lands on the S-425 floor where nothing redraws.
+  // Why: the swing only widens from the press, so no move lands on the S-425 floor where nothing redraws.
   const swing = (round: number): PointerEventArgs[] =>
     Array.from({ length: perBurst }, (_unused, step) => ({
       type: 'mouseMoved' as const,

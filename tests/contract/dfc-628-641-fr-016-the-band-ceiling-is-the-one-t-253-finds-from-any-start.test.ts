@@ -5,17 +5,17 @@ import { afterEach, describe, expect, it } from 'vitest'
 import { settingNumber } from '../fixtures/setting-number'
 import { keyOf, REQUIREMENTS, taskGroupDocument, shell, taskOf, type ShellBench } from '../unit/cr-541-stage'
 
-// see FR-016
+// Spec: FR-016
 const FR_016_FIRST_REACH =
   '⭐ 縦軸（`zoomY`）の上限は、いちばん高いタスクグループの帯の高さが、初めて `Task Group Area` の高さ以上になった倍率とし、その倍率を 表 T-253 の手順で探すこと（MUST）'
 const FR_016_ANY_START =
   '⭐ 縦軸の上限は、拡大を始めた倍率に依らないこと（MUST） —— いまの `zoomY` だけが違う 2 つの状態は、同じ上限を持つ。'
-// see T-253
+// Spec: T-253
 const BC_1_LADDER = '次の倍率を、1 つ前の倍率に同書の 表 T-206 の `S-238` を掛けた値とする。'
 const BC_2_EQUAL_REACHES = '帯の高さが `Task Group Area` の高さと等しいときも、達したとする。'
 const BC_5_UPPER_END = '帯の側の上限は、止めたときの上端とする。'
 
-// see S-54, S-55, S-238, S-239
+// Spec: S-54, S-55, S-238, S-239
 const ZOOM_MIN = settingNumber('S-54')
 const ZOOM_MAX = settingNumber('S-55')
 const LADDER_STEP = settingNumber('S-238')
@@ -23,7 +23,7 @@ const TOLERANCE = settingNumber('S-239')
 
 const STACKED_TASKS = 24
 const PRESS_LIMIT = 300
-// WHY: two tolerances, since the answer and the zoom may each sit anywhere inside the last bracket T-253 leaves.
+// Why: two tolerances, since the answer and the zoom may each sit anywhere inside the last bracket T-253 leaves.
 const ANSWER_SLACK = 2 * TOLERANCE + 1e-9
 
 const benches: ShellBench[] = []
@@ -49,8 +49,8 @@ function frameOf(built: ShellBench) {
   return frame
 }
 
-// see BC-2
-// WHY: the tallest band reaches the Task Group Area when it is at least as tall.
+// Spec: BC-2
+// Why: the tallest band reaches the Task Group Area when it is at least as tall.
 function bandReachesAt(zoomY: number): boolean {
   const built = stackedTaskGroupBench(zoomY)
   const frame = frameOf(built)
@@ -60,8 +60,8 @@ function bandReachesAt(zoomY: number): boolean {
   return tallest >= frame.regions.taskGroupArea.height
 }
 
-// see BC-1
-// WHY: the candidates run smallest first and end at the upper bound.
+// Spec: BC-1
+// Why: the candidates run smallest first and end at the upper bound.
 function ladder(): readonly number[] {
   const found = [ZOOM_MIN]
   for (;;) {
@@ -74,8 +74,8 @@ function ladder(): readonly number[] {
   }
 }
 
-// see BC-3, BC-4, BC-5
-// WHY: the first candidate that reaches, then halve the bracket until it is S-239 wide and answer its upper end.
+// Spec: BC-3, BC-4, BC-5
+// Why: the first candidate that reaches, then halve the bracket until it is S-239 wide and answer its upper end.
 function bandCeilingByTheTable(): number {
   const candidates = ladder()
   const at = candidates.findIndex((one) => bandReachesAt(one))
@@ -169,7 +169,7 @@ function flooredTaskGroupBench(minHeight: number): ShellBench {
 const flooredBandOf = (built: ShellBench): number =>
   frameOf(built).layout.taskGroups.find((taskGroup) => taskGroup.taskGroupId === 'task-group-1')?.height ?? Number.NaN
 
-// WHY: the floor is the only thing that sets the band, so a floor landing exactly on the Task Group Area's height makes "equal" a real case.
+// Why: the floor is the only thing that sets the band, so a floor landing exactly on the Task Group Area's height makes "equal" a real case.
 function minHeightFillingTheAreaExactly(): number {
   const probe = flooredTaskGroupBench(1)
   const height = frameOf(probe).regions.taskGroupArea.height

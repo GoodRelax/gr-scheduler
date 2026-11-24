@@ -16,7 +16,7 @@ import { bare, specTable, unbroken } from './spec-table'
 
 const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
-// see FR-039
+// Spec: FR-039
 const FR_039_LARGER_OF_THE_TWO = '⭐ 描くタスクグループパネルの幅は、`S-79` に描く比を掛けた値と、次の床の大きい方とすること（MUST）'
 const FR_039_THE_FLOOR =
   '床 ＝ `S-37` × 描く比 × 同書の 表 T-211 の `S-125` ＋ タスクグループの掴み代の幅（`S-138` × `S-235`）＋ タスクグループの操作子の 4 列（表 T-051 の `HF-4`）ぶんの入口の外形の幅（`FR-029` が定める外形の幅 × `S-235`）'
@@ -46,7 +46,7 @@ const S_237 = numberIn(cellOf('T-206', 'S-237', '既定'), 'S-237')
 const PANEL_WIDTH_KEY = bare(cellOf('T-203', 'S-79', 'キー'))
 const DISPLAY_SCALE_KEY = bare(cellOf('T-202', 'S-234', 'キー'))
 
-// see HF-4, FR-029
+// Spec: HF-4, FR-029
 const ROW_CONTROL_COLUMNS = 4
 const OUTER_WIDTH = S_138 + S_243 * 2 + S_237 * 2
 
@@ -64,10 +64,10 @@ function settingsWith(panelWidth: number, displayScale: number): DocumentSetting
   return { ...read.document.documentSettings, [PANEL_WIDTH_KEY]: panelWidth, [DISPLAY_SCALE_KEY]: displayScale } as DocumentSettings
 }
 
-// WHY: wide enough that the Task Group Area bound of FR-052 never binds.
+// Why: wide enough that the Task Group Area bound of FR-052 never binds.
 const ENV: ScreenEnvironment = { width: 3000, height: 1200, appHeaderHeight: 40, scrollbarThickness: 8, propertyPanelWidth: 0 }
 
-// WHY: half a hundredth of a px is float noise, not a different rule.
+// Why: half a hundredth of a px is float noise, not a different rule.
 const CLOSE = 2
 
 describe('W3-T5 -- the manuscript these cases are driven by', () => {
@@ -85,7 +85,7 @@ describe('W3-T5 -- the manuscript these cases are driven by', () => {
 })
 
 describe(`FR-039 "${FR_039_LARGER_OF_THE_TWO}"`, () => {
-  // WHY: each pair is (stored S-79, display scale); the first two fall under the floor, the last two clear it.
+  // Why: each pair is (stored S-79, display scale); the first two fall under the floor, the last two clear it.
   it.each([
     [100, 50],
     [100, 200],

@@ -37,7 +37,7 @@ interface ManuscriptRow {
   readonly light?: { readonly color?: string }
 }
 
-// see T-201, T-204, T-205, T-206, T-236
+// Spec: T-201, T-204, T-205, T-206, T-236
 const manuscriptRowOf = (id: string): ManuscriptRow => {
   const found: ManuscriptRow[] = []
   const walk = (one: unknown): void => {
@@ -60,30 +60,30 @@ const manuscriptNumberOf = (id: string): number => {
   return value
 }
 
-// see S-8
+// Spec: S-8
 const S_8 = manuscriptNumberOf('S-8')
-// see S-30
+// Spec: S-30
 const S_30 = manuscriptNumberOf('S-30')
-// see S-33
+// Spec: S-33
 const S_33 = manuscriptNumberOf('S-33')
-// see S-83
+// Spec: S-83
 const S_83 = manuscriptNumberOf('S-83')
-// see S-84
+// Spec: S-84
 const S_84 = manuscriptNumberOf('S-84')
-// see S-135
+// Spec: S-135
 const S_135 = manuscriptNumberOf('S-135')
-// see S-225
+// Spec: S-225
 const S_225 = manuscriptNumberOf('S-225')
-// see S-73
+// Spec: S-73
 const THEME_HUE = Number(settingDefaultOf('themeHue') ?? NaN)
-// see S-81
+// Spec: S-81
 const [S_81_WIDTH, S_81_HEIGHT] = (manuscriptRowOf('S-81').default?.pair ?? []).map(Number) as [number, number]
 
-// see FR-093
+// Spec: FR-093
 const labelUnitsOf = (label: string): number =>
   [...label].reduce((sum, one) => sum + ((one.codePointAt(0) ?? 0) > 0xff ? 2 : 1), 0)
 
-// see FR-093, T-205
+// Spec: FR-093, T-205
 const widestLabelWidthOf = (labels: readonly string[]): number =>
   Math.max(...labels.map(labelUnitsOf)) * S_8 * S_30 + S_135
 
@@ -104,7 +104,7 @@ const TIER_OF_ROW: Readonly<Record<string, RulerTier>> = {
   'TM-2': 'yearMonth',
   'TM-3': 'yearMonthWeek',
   'TM-4': 'yearMonthDayWeekday',
-  // WHY: CR-710 added the hour tier TM-5, printed only while time of day is shown (FR-158).
+  // Why: CR-710 added the hour tier TM-5, printed only while time of day is shown (FR-158).
   'TM-5': 'dayHour',
 }
 
@@ -116,7 +116,7 @@ const SETTINGS = ((): DocumentSettings => {
   return built as unknown as DocumentSettings
 })()
 
-// see FR-017, DS-1
+// Spec: FR-017, DS-1
 const AT_A_12PX_RULER: DocumentSettings = { ...SETTINGS, rulerFontSizePx: S_8 / DEFAULT_DISPLAY_RATIO }
 
 const JUST_UNDER = 1 - 1e-9
@@ -247,7 +247,7 @@ interface Tag {
 const attrsOf = (source: string): Record<string, string> =>
   Object.fromEntries([...source.matchAll(/([A-Za-z_:][-A-Za-z0-9_:.]*)="([^"]*)"/g)].map((hit) => [hit[1], hit[2]]))
 
-// see IX-10
+// Spec: IX-10
 const firstDrawnInsideTheClip = (svg: string): Tag => {
   const clipId = /<clipPath\b[^>]*\sid="([^"]+)"/.exec(svg)?.[1]
   if (clipId === undefined) throw new Error('the export has no fit clip')

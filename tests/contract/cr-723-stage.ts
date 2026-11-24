@@ -35,20 +35,20 @@ export const TABLES: readonly VisibilityTable[] = ['searchPanel', 'delayDiagnost
 
 export const BUILT_VERSION: string = (startupTemplate as { schemaVersion: string }).schemaVersion
 
-// see S-560, S-561, S-562, S-563, S-564, S-565, S-566, S-567, S-568, S-569, S-570, S-571, S-572
+// Spec: S-560, S-561, S-562, S-563, S-564, S-565, S-566, S-567, S-568, S-569, S-570, S-571, S-572
 export const KEYS_OF: Readonly<Record<VisibilityTable, readonly string[]>> = {
   searchPanel: ['columnFilters', 'isScheduleFilterApplied', 'shownTaskUids', 'sort'],
   delayDiagnosticsReport: ['columnFilters', 'isScheduleFilterApplied', 'shownTaskUids', 'sort'],
   resourceList: ['columnFilters', 'isScheduleFilterApplied', 'isUnassignedShown', 'shownResourceUids', 'sort'],
 }
 
-// see TV-2
+// Spec: TV-2
 export const NONE_CHECKED: TableVisibility = { shownTaskUids: [], shownResourceUids: [], isUnassignedShown: false, isScheduleFilterApplied: false }
 export const DEFAULT_VIEW: TableView = { visibility: NONE_CHECKED, columnFilters: [], sort: null }
 
 export const view = (part: Partial<TableView> = {}): TableView => ({ ...DEFAULT_VIEW, ...part })
 
-// WHY: T-372 names the date fields fromDate and toDate and takes the schedule's date text.
+// Why: T-372 names the date fields fromDate and toDate and takes the schedule's date text.
 export const STATUS_FILTER: ColumnFilter = { column: 'SQ-5', hiddenValues: ['Done'], fromDate: null, toDate: null }
 export const DATE_FILTER: ColumnFilter = { column: 'SQ-3', hiddenValues: [], fromDate: '2026-04-02T00:00:00', toDate: '2026-04-06T00:00:00' }
 export const BY_RESOURCE: ColumnSort = { column: 'SQ-2', direction: 'descending' }
@@ -115,11 +115,11 @@ export function tableViewsIn(saved: Loose): Record<string, Loose> {
   return ((saved['documentSettings'] as Loose)['tableViews'] ?? {}) as Record<string, Loose>
 }
 
-// see CM-92
+// Spec: CM-92
 export const setTableView = (table: VisibilityTable, one: TableView): DocumentCommand =>
   ({ kind: 'setTableView', table, view: one }) as unknown as DocumentCommand
 
-// WHY: until the seam is exported a call throws, so the case reds for the right reason.
+// Why: until the seam is exported a call throws, so the case reds for the right reason.
 /** @purity pure */
 export function tableViewOf(settings: DocumentSettings, table: VisibilityTable): TableView {
   const seam = (screenValues as unknown as { tableViewOf?: (settings: DocumentSettings, table: VisibilityTable) => TableView }).tableViewOf
@@ -148,7 +148,7 @@ export interface Held {
 
 export const heldOf = (document: Document): Held => ({ document, history: EMPTY_HISTORY })
 
-// see FR-031
+// Spec: FR-031
 /** @purity pure */
 export function written(held: Held, commands: readonly DocumentCommand[]): Held {
   const plan = planDocumentChange({

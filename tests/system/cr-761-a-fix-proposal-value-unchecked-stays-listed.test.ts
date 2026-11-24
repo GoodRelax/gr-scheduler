@@ -10,7 +10,7 @@ import { BASE_SCREEN, openDocument, pressEntrance, settle } from './cr-570-tree-
 import { rowOf } from './sws-case'
 import { taskGroupsDocument } from './w3-t1-stage'
 
-// WHY: the committed dist can lag the code under test; GRS_CR761_BUILD names a fresh build of the current src.
+// Why: the committed dist can lag the code under test; GRS_CR761_BUILD names a fresh build of the current src.
 const BUILD = process.env['GRS_CR761_BUILD'] ?? join(process.cwd(), 'dist', 'index.html')
 
 const REPORT = `[data-role="${bare(rowOf(specTable('T-103'), 'U-66').cells[0] ?? '')}"]`
@@ -30,7 +30,7 @@ test.afterAll(async () => {
   await browser?.close()
 })
 
-// WHY: a parent whose span differs from its children, and a started successor of an unfinished task, so the
+// Why: a parent whose span differs from its children, and a started successor of an unfinished task, so the
 // proposals hold rows of several tasks and several fix methods.
 /** @purity pure */
 function proposingDocument(): string {
@@ -59,7 +59,7 @@ function proposingDocument(): string {
   return JSON.stringify(base)
 }
 
-// WHY: the stand-in file picker of the shared stage, over the build this case names instead of the committed one.
+// Why: the stand-in file picker of the shared stage, over the build this case names instead of the committed one.
 /** @purity non-pure */
 async function openBuild(): Promise<{ page: Page; close(): Promise<void> }> {
   if (browser === null) throw new Error('no browser')
@@ -142,7 +142,7 @@ test('SV-7 / T-374: a task unchecked in the fix proposals stays listed unchecked
     const tasks = await openFilter(page, TASK_COLUMN)
     expect(tasks.length, 'premise: the proposals name two tasks or more').toBeGreaterThan(1)
     const first = tasks[0] as Mark
-    // STEP: uncheck the first task by its drawn check box
+    // Step: uncheck the first task by its drawn check box
     await pressSelector(page, `${REPORT} ${MENU} input[type="checkbox"][data-search-filter-value="${first.value}"]`)
     expect(await proposalRows(page), 'the table drops the rows of the task').toBeLessThan(rows)
     const after = await marksOf(page)
@@ -152,7 +152,7 @@ test('SV-7 / T-374: a task unchecked in the fix proposals stays listed unchecked
     expect((await openFilter(page, METHOD_COLUMN)).map((one) => one.label), 'answer A: the removed rows still give their values').toEqual(methods)
     await closeFilter(page, METHOD_COLUMN)
     await openFilter(page, TASK_COLUMN)
-    // STEP: check the same task again
+    // Step: check the same task again
     await pressSelector(page, `${REPORT} ${MENU} input[type="checkbox"][data-search-filter-value="${first.value}"]`)
     expect(await proposalRows(page)).toBe(rows)
     expect((await marksOf(page)).every((one) => one.checked)).toBe(true)

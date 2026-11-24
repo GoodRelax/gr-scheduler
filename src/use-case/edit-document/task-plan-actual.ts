@@ -1,4 +1,4 @@
-// Places a Task's plan and actual dates by tables T-245, T-019 and T-021a.
+// File: EditDocument: Places a Task's plan and actual dates by tables T-245, T-019 and T-021a.
 // @unit      UF-74   (docs/spec/05-07-design.md, table T-075)
 // @component EditDocument, layer UseCase (table T-062)
 // @purity    pure
@@ -40,11 +40,11 @@ import {
 } from './edit-task'
 import { repriced } from './percent-complete'
 
-// see GO-6, GO-7
+// Spec: GO-6, GO-7
 const DUMMY_FINISH_HOLDS: readonly ActualGrabHold[] = ['barDummyFinish', 'arrowDummyFinish']
 
-// see FR-011, S-129, S-130, PV-1
-// WHY: a milestone's floor day is its actualStart itself, so no length is counted for it.
+// Spec: FR-011, S-129, S-130, PV-1
+// Why: a milestone's floor day is its actualStart itself, so no length is counted for it.
 /** @purity pure */
 function floorDayOf(within: WorkingCalendar, start: CalendarDay, milestone: boolean): CalendarDay {
   return milestone ? start : lastDayForLength(within, start, SETTINGS_CONSTANTS.actualInitialDuration)
@@ -54,8 +54,8 @@ type LastDayCheck =
   | { readonly ok: true; readonly lastDay: CalendarDay }
   | { readonly ok: false; readonly length: number }
 
-// see FR-011, IV-21
-// WHY: a length below 0 is refused, a length of 0 or under the floor is lifted to the floor day.
+// Spec: FR-011, IV-21
+// Why: a length below 0 is refused, a length of 0 or under the floor is lifted to the floor day.
 /** @purity pure */
 function settledLastDay(within: WorkingCalendar, start: CalendarDay, lastDay: CalendarDay,
                         floor: CalendarDay): LastDayCheck {
@@ -66,8 +66,8 @@ function settledLastDay(within: WorkingCalendar, start: CalendarDay, lastDay: Ca
 
 const CARRIED_ACTUAL_DURATION = 'ActualDuration'
 
-// see T-019
-// TRAP: call only where actuals are edited; dropping ActualDuration on other edits breaks T-033's round trip.
+// Spec: T-019
+// Trap: call only where actuals are edited; dropping ActualDuration on other edits breaks T-033's round trip.
 /** @purity pure */
 function actualsEdited(task: Task): Task {
   if (task.carry[CARRIED_ACTUAL_DURATION] === undefined) return task
@@ -80,7 +80,7 @@ function actualsEdited(task: Task): Task {
 }
 
 export interface CycleSurroundings {
-  // WHY: PV-1 / PV-5 put the start's day back as an actual the cycle writes, so it takes the WT-3 start-side time.
+  // Why: PV-1 / PV-5 put the start's day back as an actual the cycle writes, so it takes the WT-3 start-side time.
   readonly startSide: string | null
   readonly floorDay: string | null
   readonly milestone: boolean
@@ -91,7 +91,7 @@ export interface CycledPlanActual {
   readonly remembered: RememberedActual | null
 }
 
-// see PV-4
+// Spec: PV-4
 /** @purity pure */
 function actualTakenOff(task: Task): RememberedActual {
   return {
@@ -102,8 +102,8 @@ function actualTakenOff(task: Task): RememberedActual {
   }
 }
 
-// see PV-1, PV-5
-// WHY: the carried duration goes back with the days, so putting the same actual back is no edit.
+// Spec: PV-1, PV-5
+// Why: the carried duration goes back with the days, so putting the same actual back is no edit.
 /** @purity pure */
 function actualPutBack(task: Task, actual: RememberedActual): Task {
   const carry =
@@ -120,7 +120,7 @@ function actualPutBack(task: Task, actual: RememberedActual): Task {
   }
 }
 
-// see PV-4
+// Spec: PV-4
 /** @purity pure */
 function actualCleared(task: Task): Task {
   return actualsEdited({
@@ -133,20 +133,20 @@ function actualCleared(task: Task): Task {
   })
 }
 
-// see DU-1, PV-4, FR-090
+// Spec: DU-1, PV-4, FR-090
 /** @purity pure */
 function unstartedCopyOf(task: Task): Task {
   return { ...actualCleared(task), percentComplete: 0 }
 }
 
-// see CM-8, CM-28, DU-1, EX-12
-// WHY: the one rule for a copy on both pastes (Task and task group): unstarted, and its dates read as edited.
+// Spec: CM-8, CM-28, DU-1, EX-12
+// Why: the one rule for a copy on both pastes (Task and task group): unstarted, and its dates read as edited.
 /** @purity pure */
 export function pastedCopyOf(task: Task, schedule: Schedule, within: WorkingCalendar): Task {
   return planDatesEdited(unstartedCopyOf(task), schedule, within)
 }
 
-// see PV-1
+// Spec: PV-1
 /** @purity pure */
 function startedAgain(task: Task, remembered: RememberedActual | null,
                       around: CycleSurroundings): Task {
@@ -162,7 +162,7 @@ function startedAgain(task: Task, remembered: RememberedActual | null,
   })
 }
 
-// see PV-5
+// Spec: PV-5
 /** @purity pure */
 function cycledMilestone(task: Task, remembered: RememberedActual | null,
                          state: ReturnType<typeof planActualState>, startSide: string | null): CycledPlanActual {
@@ -186,8 +186,8 @@ function cycledMilestone(task: Task, remembered: RememberedActual | null,
   }
 }
 
-// see CM-15, T-021a
-// TRAP: `around` left out reads S-129 as 1; hand the floor day in, or PV-1 puts a one-day actual where it is longer.
+// Spec: CM-15, T-021a
+// Trap: `around` left out reads S-129 as 1; hand the floor day in, or PV-1 puts a one-day actual where it is longer.
 /** @purity pure */
 export function cycleTaskPlanActualState(
   task: Task,
@@ -200,7 +200,7 @@ export function cycleTaskPlanActualState(
     case 'notStarted':
       return { task: startedAgain(task, remembered, around), remembered: null }
     case 'inProgress':
-      // WHY: one replacement moves the last day, so no actual without a last day is seen (PV-2).
+      // Why: one replacement moves the last day, so no actual without a last day is seen (PV-2).
       return task.stop === null
         ? { task, remembered }
         : {
@@ -208,7 +208,7 @@ export function cycleTaskPlanActualState(
             remembered,
           }
     case 'finished':
-      // WHY: move the last day to stop, or clearing actualFinish erases the actual's right end (PV-3).
+      // Why: move the last day to stop, or clearing actualFinish erases the actual's right end (PV-3).
       return {
         task: actualsEdited({
           ...task,
@@ -229,7 +229,7 @@ const CARRIED_SLACKS: readonly string[] = ['FreeSlack', 'TotalSlack', 'StartSlac
 
 const CARRIED_PLAN_LEAVES: readonly string[] = ['ConstraintType', 'ConstraintDate', 'Duration']
 
-// see EX-11
+// Spec: EX-11
 const MUST_START_ON = '2'
 
 interface DatedPlan {
@@ -238,7 +238,7 @@ interface DatedPlan {
   readonly duration: string
 }
 
-// see DV-8, EX-9
+// Spec: DV-8, EX-9
 /** @purity pure */
 function datedPlanOf(task: Task, within: WorkingCalendar): DatedPlan | null {
   const startText = task.start
@@ -248,8 +248,8 @@ function datedPlanOf(task: Task, within: WorkingCalendar): DatedPlan | null {
   return { startText, finishText, duration: durationText(minutes) }
 }
 
-// see EX-11, EX-12, AT-143
-// WHY: a document read from MSPDI writes its carry back as it stands (EX-2), so these replace what would
+// Spec: EX-11, EX-12, AT-143
+// Why: a document read from MSPDI writes its carry back as it stands (EX-2), so these replace what would
 // contradict the dates; a grs document has them written on export, so its carried ones are dropped.
 /** @purity pure */
 function pinnedToStart(task: Task, schedule: Schedule, span: DatedPlan): Task {
@@ -261,15 +261,15 @@ function pinnedToStart(task: Task, schedule: Schedule, span: DatedPlan): Task {
   return { ...task, carry: { ...task.carry, ...pinned } }
 }
 
-// see EX-11, EX-12, FR-033
-// WHY: a copy is a task GRS adds, not one the partner sent (FR-033 gives it no TaskOrigin), so a pasted subtree
+// Spec: EX-11, EX-12, FR-033
+// Why: a copy is a task GRS adds, not one the partner sent (FR-033 gives it no TaskOrigin), so a pasted subtree
 // comes through here as well: the links leaving the subtree do not come along, so the source's slack is no fact.
 /** @purity pure */
 export function planDatesEdited(task: Task, schedule: Schedule, within: WorkingCalendar): Task {
   const span = datedPlanOf(task, within)
   if (span === null) {
-    // WHY: EX-12 keeps no carried slack even undated; Manual*/constraint rebuilding needs both dates (DV-8).
-    // TRAP: nothing shipped makes a dateless task; only a test guards this -- press live once one can enter (JDG-366).
+    // Why: EX-12 keeps no carried slack even undated; Manual*/constraint rebuilding needs both dates (DV-8).
+    // Trap: nothing shipped makes a dateless task; only a test guards this -- press live once one can enter (JDG-366).
     const kept = Object.entries(task.carry).filter(([name]) => !CARRIED_SLACKS.includes(name))
     return { ...task, carry: Object.fromEntries(kept) }
   }
@@ -284,14 +284,14 @@ export function planDatesEdited(task: Task, schedule: Schedule, within: WorkingC
   return pinnedToStart({ ...task, carry: Object.fromEntries(kept) }, schedule, span)
 }
 
-// see EX-9
+// Spec: EX-9
 /** @purity pure */
 function durationText(minutes: number): string {
   const whole = Math.max(0, Math.round(minutes))
   return `PT${Math.floor(whole / 60)}H${whole % 60}M0S`
 }
 
-// see CM-11, FR-103
+// Spec: CM-11, FR-103
 /** @purity pure */
 export function setTaskPlanDates(
   document: Document,
@@ -322,7 +322,7 @@ export function setTaskPlanDates(
   return edited(withTask(document, repriced(within, moved)))
 }
 
-// see CM-13, FR-103
+// Spec: CM-13, FR-103
 /** @purity pure */
 export function setTaskPlanActualState(
   document: Document,
@@ -347,7 +347,7 @@ export function setTaskPlanActualState(
   if (faults.length > 0) return refused(faults)
 
   if (place.state === 'notStarted') {
-    // TRAP: leave resumeValid alone; T-019's PA-1 cell is a dash, not empty.
+    // Trap: leave resumeValid alone; T-019's PA-1 cell is a dash, not empty.
     const cleared: Task = { ...task, actualStart: null, stop: null, actualFinish: null, resume: null }
     return edited(withTask(document, repriced(within, actualsEdited(cleared))))
   }
@@ -411,7 +411,7 @@ export function setTaskPlanActualState(
   return edited(withTask(document, repriced(within, actualsEdited(placed))))
 }
 
-// see GO-6, GO-7, GO-8, GO-9, PV-1, T-378, FR-158
+// Spec: GO-6, GO-7, GO-8, GO-9, PV-1, T-378, FR-158
 interface DummyActualFrame {
   readonly within: WorkingCalendar
   readonly project: Project
@@ -434,13 +434,13 @@ function dummyActualFrameOf(document: Document, task: Task, within: WorkingCalen
   }
 }
 
-// see GO-6, PV-1, FR-158, T-378
+// Spec: GO-6, PV-1, FR-158, T-378
 /** @purity pure */
 function isTimedDummy(frame: DummyActualFrame): boolean {
   return frame.isTimeOfDayVisible && frame.snapMinutes < MINUTES_PER_CALENDAR_DAY
 }
 
-// WHY: S-585 working minutes from the start, never shorter than the snap unit in force (JDG-2108, FR-011's floor).
+// Why: S-585 working minutes from the start, never shorter than the snap unit in force (JDG-2108, FR-011's floor).
 /** @purity pure */
 function dummyActualEndOf(within: WorkingCalendar, start: number, snapMinutes: number): number {
   return Math.max(
@@ -449,7 +449,7 @@ function dummyActualEndOf(within: WorkingCalendar, start: number, snapMinutes: n
   )
 }
 
-// WHY: with time of day shown the instant itself, a date-only text read on its side; never the day's default time.
+// Why: with time of day shown the instant itself, a date-only text read on its side; never the day's default time.
 /** @purity pure */
 function dummyStartText(text: string | null, day: CalendarDay, frame: DummyActualFrame): string {
   if (!frame.isTimeOfDayVisible) return textOfStartSide(day, frame.project, frame.milestone)
@@ -457,7 +457,7 @@ function dummyStartText(text: string | null, day: CalendarDay, frame: DummyActua
   return instant === null ? textOfStartSide(day, frame.project, frame.milestone) : textOfInstant(instant)
 }
 
-// WHY: a shown milestone is a point on its instant; a timed actual runs S-585; otherwise it ends on the floor day.
+// Why: a shown milestone is a point on its instant; a timed actual runs S-585; otherwise it ends on the floor day.
 /** @purity pure */
 function dummyLastText(actualStart: string, startDay: CalendarDay, frame: DummyActualFrame): string {
   if (frame.milestone && frame.isTimeOfDayVisible) return actualStart
@@ -468,7 +468,7 @@ function dummyLastText(actualStart: string, startDay: CalendarDay, frame: DummyA
   return textOfFinishSide(floorDayOf(frame.within, startDay, frame.milestone), frame.project)
 }
 
-// WHY: a timed release before start + snap is lifted to it, the floor FR-011 puts at the snap unit.
+// Why: a timed release before start + snap is lifted to it, the floor FR-011 puts at the snap unit.
 /** @purity pure */
 function dummyFinishText(actualStart: string, released: string, lastDay: CalendarDay,
                          frame: DummyActualFrame): string {
@@ -478,7 +478,7 @@ function dummyFinishText(actualStart: string, released: string, lastDay: Calenda
   return textOfInstant(Math.max(to, from + frame.snapMinutes))
 }
 
-// WHY: the start stays on the plan start, where the dummy stands (DM-1); the released place is the last day itself.
+// Why: the start stays on the plan start, where the dummy stands (DM-1); the released place is the last day itself.
 /** @purity pure */
 function dummyFinishWrite(document: Document, task: Task, released: string,
                           frame: DummyActualFrame): EditResult {
@@ -488,7 +488,7 @@ function dummyFinishWrite(document: Document, task: Task, released: string,
       reject('CM-14', 'FR-043', 'the task names no plan start for the finish handle to fix its start by'),
     ])
   }
-  // WHY: the released day is the last day itself and is not moved to a working day (GO-3, FR-043).
+  // Why: the released day is the last day itself and is not moved to a working day (GO-3, FR-043).
   const settled = settledLastDay(
     frame.within, planStart, dayOf(released) as CalendarDay, floorDayOf(frame.within, planStart, frame.milestone),
   )
@@ -507,7 +507,7 @@ function dummyFinishWrite(document: Document, task: Task, released: string,
   return edited(withTask(document, repriced(frame.within, actualsEdited(pulled))))
 }
 
-// see CM-14, FR-043, GO-6, GO-7, GO-8, GO-9
+// Spec: CM-14, FR-043, GO-6, GO-7, GO-8, GO-9
 /** @purity pure */
 export function beginTaskActual(
   document: Document,
@@ -541,7 +541,7 @@ export function beginTaskActual(
   return edited(withTask(document, repriced(within, actualsEdited(begun))))
 }
 
-// see CM-15, T-021a
+// Spec: CM-15, T-021a
 /** @purity pure */
 export function cycleTaskPlanActualStateInDocument(
   document: Document,
@@ -568,7 +568,7 @@ export function cycleTaskPlanActualStateInDocument(
 // Single source of truth:
 //   docs/spec/_source/settings.json (table T-206)
 // Rebuild: npm run gen   ||   npm run gen:check fails on drift.
-// see T-206
+// Spec: T-206
 const NOT_STORED_DUMMY_ACTUAL_MINUTES: {
   readonly 'S-585': number
 } = {

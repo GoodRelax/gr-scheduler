@@ -1,4 +1,4 @@
-// NoticeValues: the notices region of the session and its transitions.
+// File: AdvanceScreenSession: NoticeValues: the notices region of the session and its transitions.
 // @unit      UF-87   (docs/spec/05-07-design.md, table T-075)
 // @component AdvanceScreenSession, layer UseCase (table T-062)
 // @purity    pure
@@ -7,7 +7,7 @@
 
 import { NO_EFFECTS, unchanged, type Step } from './session-step'
 
-// see NT-3, IR-3
+// Spec: NT-3, IR-3
 export interface StandingNotice {
   readonly reason: string
   readonly affectedCount: number | null
@@ -127,7 +127,7 @@ const NOTICE_VALUES_GUARDS = {
 // From docs/spec/_source/notice-reasons.json (tables T-233 and T-234) and the rows of table T-220.
 // Rebuild: npm run gen (tools/generate_notice_reasons.py).
 
-// see T-233
+// Spec: T-233
 export type ReasonRow =
   | 'RS-1'
   | 'RS-2'
@@ -211,7 +211,7 @@ export type ReasonRow =
   | 'RS-77'
   | 'RS-15'
 
-// see T-220
+// Spec: T-220
 export type InvariantRow =
   | 'IV-1'
   | 'IV-2'
@@ -237,10 +237,10 @@ export type InvariantRow =
   | 'IV-22'
   | 'IV-24'
 
-// see FR-076
+// Spec: FR-076
 export type NoticeReason = ReasonRow | InvariantRow
 
-// see T-234
+// Spec: T-234
 export type QuestionRow =
   | 'QN-1'
   | 'QN-2'
@@ -257,7 +257,7 @@ export type QuestionRow =
   | 'QN-17'
   | 'QN-8'
 
-// see T-037
+// Spec: T-037
 export type NoticeManner =
   | 'NT-1'
   | 'NT-3'
@@ -266,7 +266,7 @@ export type NoticeManner =
   | 'NT-5'
   | 'NT-6'
 
-// see T-233, T-037
+// Spec: T-233, T-037
 export const NOTICE_MANNER_OF_REASON: Readonly<Record<NoticeReason, NoticeManner>> = {
   'RS-1': 'NT-3a',
   'RS-2': 'NT-3a',
@@ -374,7 +374,7 @@ export const NOTICE_MANNER_OF_REASON: Readonly<Record<NoticeReason, NoticeManner
   'IV-24': 'NT-1',
 }
 
-// see T-233, FR-076
+// Spec: T-233, FR-076
 export const NOTICE_DISPLAY_OF_REASON: Readonly<Record<NoticeReason, 'show' | 'hide' | 'autoDismiss' | 'report'>> = {
   'RS-1': 'show',
   'RS-2': 'show',
@@ -482,7 +482,7 @@ export const NOTICE_DISPLAY_OF_REASON: Readonly<Record<NoticeReason, 'show' | 'h
   'IV-24': 'show',
 }
 
-// see T-233, FR-076
+// Spec: T-233, FR-076
 export const NOTICE_WORDS_ROW_OF_REASON: Readonly<Record<NoticeReason, NoticeReason>> = {
   'RS-1': 'RS-1',
   'RS-2': 'RS-2',
@@ -590,7 +590,7 @@ export const NOTICE_WORDS_ROW_OF_REASON: Readonly<Record<NoticeReason, NoticeRea
   'IV-24': 'IV-24',
 }
 
-// see T-234, FR-076
+// Spec: T-234, FR-076
 export const QUESTION_DISPLAY_OF_ROW: Readonly<Record<QuestionRow, 'ask' | 'askOnlyWithUnsavedEdits'>> = {
   'QN-1': 'ask',
   'QN-2': 'ask',
@@ -613,10 +613,10 @@ type NoticeStep = Step<NoticeValues, NoticeValuesEffect>
 
 type EventOf<T extends NoticeValuesEvent['type']> = Extract<NoticeValuesEvent, { readonly type: T }>
 
-// see T-286
+// Spec: T-286
 export const emptyNoticeValues: NoticeValues = { ...NOTICE_VALUES_INITIAL_AXES }
 
-// WHY: an empty list is the kind `hidden`, so a `shown` kind never holds an empty list.
+// Why: an empty list is the kind `hidden`, so a `shown` kind never holds an empty list.
 /** @purity pure */
 function withStanding(values: NoticeValues, standing: readonly StandingNotice[]): NoticeStep {
   const onScreen: NoticeDisplayState = standing.length === 0 ? { kind: 'hidden' } : { kind: 'shown', standing }
@@ -628,34 +628,34 @@ function withDelivery(values: NoticeValues, delivery: ChangeDeliveryState, effec
   return { state: { ...values, changeDeliveryState: delivery }, effects }
 }
 
-// see FR-076, NT-2, T-233
-// WHY: the guard language's noticeDisplay; the generated judgments call it by this name (SD-3).
+// Spec: FR-076, NT-2, T-233
+// Why: the guard language's noticeDisplay; the generated judgments call it by this name (SD-3).
 /** @purity pure */
 function noticeDisplay(reason: string): (typeof NOTICE_DISPLAY_OF_REASON)[NoticeReason] | null {
   return Object.hasOwn(NOTICE_DISPLAY_OF_REASON, reason) ? NOTICE_DISPLAY_OF_REASON[reason as NoticeReason] : null
 }
 
-// see FR-076, NT-3, T-233
+// Spec: FR-076, NT-3, T-233
 /** @purity pure */
 function wordsRow(reason: string): string {
   return Object.hasOwn(NOTICE_WORDS_ROW_OF_REASON, reason) ? NOTICE_WORDS_ROW_OF_REASON[reason as NoticeReason] : reason
 }
 
-// see NT-8, NT-2
-// WHY: the guard language's reasonsOf; no standing notices (the machine hidden) read as none.
+// Spec: NT-8, NT-2
+// Why: the guard language's reasonsOf; no standing notices (the machine hidden) read as none.
 /** @purity pure */
 function reasonsOf(standing: readonly StandingNotice[] | null): readonly string[] {
   return standing === null ? [] : standing.map((one) => one.reason)
 }
 
-// see NT-3
+// Spec: NT-3
 /** @purity pure */
 function wordsRowsOf(standing: readonly StandingNotice[] | null): readonly string[] {
   return reasonsOf(standing).map(wordsRow)
 }
 
-// see NT-3, T-233
-// WHY: reasons that share one row's words are one reason to the person reading them (CR-712 X-2).
+// Spec: NT-3, T-233
+// Why: reasons that share one row's words are one reason to the person reading them (CR-712 X-2).
 /** @purity pure */
 function isSameReason(a: string, b: string): boolean {
   return wordsRow(a) === wordsRow(b)
@@ -671,7 +671,7 @@ function withoutReason(values: NoticeValues, reason: string): NoticeStep {
   return withStanding(values, standingOf(values).filter((one) => one.reason !== reason))
 }
 
-// see T-286, NT-3, FR-076
+// Spec: T-286, NT-3, FR-076
 /** @purity pure */
 function onNoticeRaised(values: NoticeValues, event: EventOf<'noticeRaised'>): NoticeStep {
   if (NOTICE_VALUES_GUARDS.isHiddenReason(event)) return unchanged(values)
@@ -679,40 +679,40 @@ function onNoticeRaised(values: NoticeValues, event: EventOf<'noticeRaised'>): N
   const standing = standingOf(values)
   const same = standing.find((one) => isSameReason(one.reason, event.reason))
   if (!NOTICE_VALUES_GUARDS.isSameReasonStanding(values, event) || same === undefined) return withStanding(values, [...standing, raised])
-  // WHY: the gathered notice moves to the end, so newest-first dismissal (NT-8) meets it first.
+  // Why: the gathered notice moves to the end, so newest-first dismissal (NT-8) meets it first.
   const gathered = { reason: same.reason, affectedCount: (same.affectedCount ?? 1) + (event.affectedCount ?? 1) }
   return withStanding(values, [...standing.filter((one) => one !== same), gathered])
 }
 
-// see T-286, NT-8
+// Spec: T-286, NT-8
 /** @purity pure */
 function onNewestNoticeDismissAsked(values: NoticeValues): NoticeStep {
   if (values.noticeDisplayState.kind === 'hidden') return unchanged(values)
   return withStanding(values, NOTICE_VALUES_GUARDS.isOnlyOneStanding(values) ? [] : values.noticeDisplayState.standing.slice(0, -1))
 }
 
-// see T-286, NT-8
+// Spec: T-286, NT-8
 /** @purity pure */
 function onNoticeDismissPressed(values: NoticeValues, event: EventOf<'noticeDismissPressed'>): NoticeStep {
   if (NOTICE_VALUES_GUARDS.isLeavingNone(values, event)) return withStanding(values, [])
   return NOTICE_VALUES_GUARDS.isLeavingSome(values, event) ? withoutReason(values, event.reason) : unchanged(values)
 }
 
-// see T-286, NT-2
+// Spec: T-286, NT-2
 /** @purity pure */
 function onNoticeTimeElapsed(values: NoticeValues, event: EventOf<'noticeTimeElapsed'>): NoticeStep {
   if (!NOTICE_VALUES_GUARDS.isTimedCard(values, event)) return unchanged(values)
   return NOTICE_VALUES_GUARDS.isOnlyOneStanding(values) ? withStanding(values, []) : withoutReason(values, event.reason)
 }
 
-// see T-286, WS-2
+// Spec: T-286, WS-2
 /** @purity pure */
 function onDocumentReplaced(values: NoticeValues): NoticeStep {
   if (values.changeDeliveryState.kind === 'delivering') return unchanged(values)
   return withDelivery(values, { kind: 'delivering' }, NO_EFFECTS)
 }
 
-// see T-286, RS-23
+// Spec: T-286, RS-23
 /** @purity pure */
 function onChangeDelivered(values: NoticeValues, event: EventOf<'changeDelivered'>): NoticeStep {
   if (values.changeDeliveryState.kind === 'idle') return unchanged(values)
@@ -720,7 +720,7 @@ function onChangeDelivered(values: NoticeValues, event: EventOf<'changeDelivered
   return withDelivery(values, { kind: 'idle' }, effects)
 }
 
-// WHY: the same table form as the screen-values region, so a missing event fails to compile.
+// Why: the same table form as the screen-values region, so a missing event fails to compile.
 const HANDLERS: { readonly [T in NoticeValuesEvent['type']]: (values: NoticeValues, event: EventOf<T>) => NoticeStep } = {
   noticeRaised: onNoticeRaised,
   noticeTimeElapsed: onNoticeTimeElapsed,
@@ -730,7 +730,7 @@ const HANDLERS: { readonly [T in NoticeValuesEvent['type']]: (values: NoticeValu
   changeDelivered: onChangeDelivered,
 }
 
-// see SF-2, SF-8, T-286
+// Spec: SF-2, SF-8, T-286
 /** @purity pure */
 export function stepNoticeValues(values: NoticeValues, event: NoticeValuesEvent): NoticeStep {
   const handler = HANDLERS[event.type] as (values: NoticeValues, event: NoticeValuesEvent) => NoticeStep

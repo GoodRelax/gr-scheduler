@@ -36,7 +36,7 @@ import { unbroken } from './spec-table'
 
 const { members: printedAll } = printedMembers()
 
-// WHY: AM-30 readSchema is answered by the relay (AG-12 (4)); the page's AgentApi has no such member (CR-799).
+// Why: AM-30 readSchema is answered by the relay (AG-12 (4)); the page's AgentApi has no such member (CR-799).
 const members = printedAll.filter((one) => one.name !== 'readSchema')
 
 const SCHEMA_VERSION_HELD = 'the-format-version-of-this-build'
@@ -130,7 +130,7 @@ describe('the AgentApi type, member by member (T-107)', () => {
     expectTypeOf<ReturnType<AgentApi['readSearchRows']>>().toEqualTypeOf<AgentSearchPage>()
     expectTypeOf<ReturnType<AgentApi['readShownTasks']>>().toEqualTypeOf<AgentShownTasks>()
     expectTypeOf<ReturnType<AgentApi['readDelayDiagnostics']>>().toEqualTypeOf<AgentDelayDiagnostics>()
-    // see AM-3, AM-25
+    // Spec: AM-3, AM-25
     expectTypeOf<Parameters<AgentApi['readDocument']>>().toEqualTypeOf<
       [includeCarry: boolean, taskUids: readonly number[], parts: readonly string[]]
     >()

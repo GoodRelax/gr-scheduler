@@ -51,13 +51,13 @@ const SCHEDULE = {
     task(6, 'Foxtrot|Pipe', '2026-04-01'),
     task(7, 'Golf', '2026-05-01'),
   ],
-  // WHY: CR-710 shows the T-314 quantities through 1d = Project.minutesPerDay (empty, so S-128 = 480 minutes, TX-8).
+  // Why: CR-710 shows the T-314 quantities through 1d = Project.minutesPerDay (empty, so S-128 = 480 minutes, TX-8).
   project: { minutesPerDay: null },
   resources: [{ uid: 10, name: 'Ann' }],
   assignments: [{ uid: 100, taskUid: 2, resourceUid: 10 }],
 } as unknown as Schedule
 
-// WHY: CR-710 holds the quantities in working minutes (T-314); 480 is one working day of the fixture (S-128).
+// Why: CR-710 holds the quantities in working minutes (T-314); 480 is one working day of the fixture (S-128).
 const QUANTITIES = { inheritedDelayMinutes: 480, selfDelayMinutes: 960, pushOutMinutes: 2400, terminalsReached: 2 }
 
 const REPORT: DelayDiagnosticsReport = {
@@ -87,7 +87,7 @@ const SESSION = { screen: { screenLanguage: 'ja' } } as unknown as ScreenSession
 
 const CANVAS = { x: 0, y: 40, width: 1000, height: 600 }
 
-// WHY: CR-723 -- the table's view (Visibility column, Schedule Filter, column filters, sort) is the document's, so it is
+// Why: CR-723 -- the table's view (Visibility column, Schedule Filter, column filters, sort) is the document's, so it is
 // handed in beside the window and the steps that change it answer it back.
 const NO_VIEW: TableView = { visibility: NO_ROW_CHECKED, columnFilters: [], sort: null }
 
@@ -100,7 +100,7 @@ const withWord = (word: string): DelayDiagnosticsReportWindow => ({
 })
 
 
-// see T-347, DT-8
+// Spec: T-347, DT-8
 const REPORT_ORDER: readonly string[] = ['DT-8', 'DT-1', 'DT-3', 'DT-9', 'DT-4', 'DT-2', 'DT-5', 'DT-6', 'DT-7']
 
 describe('T-347 -- the rows of the report table (FR-134, DT-1)', () => {
@@ -142,7 +142,7 @@ describe('T-346 -- the report window (RW-2, RW-3, RW-4, RW-9)', () => {
     expect(view?.tableEntries[0]?.isEnabled).toBe(false)
   })
 
-  // WHY: CR-797 puts IC-168 at the left end of the RW-3 line.
+  // Why: CR-797 puts IC-168 at the left end of the RW-3 line.
   it('RW-3: the line under the title holds IC-168, IC-140 then IC-108, before the word field', () => {
     expect(view?.toolEntries.map((one) => one.icon)).toEqual(['IC-168', 'IC-140', 'IC-108'])
   })
@@ -224,7 +224,7 @@ describe('RW-6 / RW-7 -- the Markdown string and the file name', () => {
   const stamp = { documentName: 'Plan', madeAt: '2026/10/03 10:00' }
   const text = delayDiagnosticsReportMarkdownOf(OPENED_DELAY_DIAGNOSTICS_REPORT, NO_VIEW, REPORT, SCHEDULE, 'ja', stamp)
   const lines = text.split('\n')
-  // WHY: CR-731 RW-6 writes the fix proposals (and the log) as sections after the diagnosis table; these cases read the diagnosis table.
+  // Why: CR-731 RW-6 writes the fix proposals (and the log) as sections after the diagnosis table; these cases read the diagnosis table.
   const diagnosisTableOf = (all: readonly string[]): readonly string[] => {
     const fixes = all.findIndex((line) => line.startsWith('## '))
     return (fixes < 0 ? all : all.slice(0, fixes)).filter((line) => line.startsWith('| '))

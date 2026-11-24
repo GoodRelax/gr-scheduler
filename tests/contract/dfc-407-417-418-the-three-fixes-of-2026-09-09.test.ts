@@ -201,7 +201,7 @@ const draw = (schedule: Schedule, over: Readonly<Record<string, unknown>> = {}):
   }
 }
 
-// see NS-3
+// Spec: NS-3
 const PICTURE_GRID = ((): number => {
   const row = specTable('T-231').rows.find((one) => one.id === 'NS-3')
   const found = /(\d+(?:\.\d+)?)\s*px/.exec(row?.by[String.fromCharCode(0x898f, 0x5247)] ?? '')
@@ -209,10 +209,10 @@ const PICTURE_GRID = ((): number => {
   return Number(found[1])
 })()
 
-// see NS-3
+// Spec: NS-3
 const onGrid = (value: number): number => Math.round(value / PICTURE_GRID) * PICTURE_GRID
 
-// see FR-039, T-252
+// Spec: FR-039, T-252
 const drawnOnTheGrid = (stored: number): number => onGrid(stored * DEFAULT_DISPLAY_RATIO)
 
 /** Every `stroke-width` the marker's own figure was spelled with, and whether it is the disc's edge. */
@@ -248,7 +248,7 @@ describe('DFC-417: the progress marker reads S-24 for its stroke, and S-24 x S-3
   it('every stroke of the marker follows the value, and none is left behind', () => {
     // S-24 is a constant (SETTINGS_CONSTANTS); a document cannot turn it, so the case reads it.
     const turned = SETTINGS_CONSTANTS.markerStroke
-    // see S-63
+    // Spec: S-63
     const drawn = markerStrokeWidths(draw(started(), { isProgressMarkerVisible: true }).svg)
     expect(drawn.filter((one) => one.isDisc).length).toBe(1)
     for (const { isDisc, width } of drawn) {

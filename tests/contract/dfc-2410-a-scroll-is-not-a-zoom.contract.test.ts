@@ -48,7 +48,7 @@ afterEach(() => {
   for (const one of benches.splice(0)) one.restore()
 })
 
-// WHY: forty roots of three children of two grandchildren each, every treeState 'auto': the whole-view zoom (FR-055) picks a shallow
+// Why: forty roots of three children of two grandchildren each, every treeState 'auto': the whole-view zoom (FR-055) picks a shallow
 // depth, and the stored zoomY of 1 would draw the deeper ones (T-329 TD-4), so a scroll that changes the zoom shows in the count.
 function family(roots: number): TaskGroupSeed[] {
   const rows: TaskGroupSeed[] = []
@@ -74,7 +74,7 @@ interface Picture {
   readonly barWidth: number
 }
 
-// WHY: the drawn zoom is read off the picture -- how many task groups are drawn, how tall a band is, how wide a plan bar is.
+// Why: the drawn zoom is read off the picture -- how many task groups are drawn, how tall a band is, how wide a plan bar is.
 function pictureOf(built: ShellBench): Picture {
   const frame = built.loop.current()
   if (frame === null) throw new Error('premise: a frame was drawn')
@@ -225,7 +225,7 @@ describe('DFC-2410 -- MK-5: a sideways wheel on a document with no view position
   })
 })
 
-// WHY: the record predates CR-769's stored-key names and the shell reads no old key, so it is
+// Why: the record predates CR-769's stored-key names and the shell reads no old key, so it is
 // read under the new names (Project.startDate keeps its name; the record has no highlight box).
 const CR_769_KEYS: Readonly<Record<string, string>> = {
   actualVisible: 'isActualVisible', assigneeVisible: 'isAssigneeVisible', baselineVisible: 'isBaselineVisible',
@@ -270,7 +270,7 @@ describe('DFC-2410 -- the real progress table, which stores no view position', (
 })
 
 describe('DFC-2410 -- FR-051: the scrollbar drag changes the view position and not the zoom', () => {
-  // WHY: a drag on a bar is a long press-move-up; its translation is panTo (the seam the implementer named), so it is called with a
+  // Why: a drag on a bar is a long press-move-up; its translation is panTo (the seam the implementer named), so it is called with a
   // context whose picture is, or is not, at the stored zoom.
   const SCENE: SceneSpec = {
     groups: Array.from({ length: 30 }, (_one, index) => [`root-${String(index)}`, null] as const),

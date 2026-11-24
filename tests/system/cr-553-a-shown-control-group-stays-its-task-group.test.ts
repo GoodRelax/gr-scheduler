@@ -10,20 +10,20 @@ import { rowOf } from './sws-case'
 
 const BASE_SCREEN = screenOf(rowOf(specTable('T-025'), 'MC-6'))
 
-// see DR-4, S-540
-// WHY: the Agent API's read holds no "$schema" (it stands in the written text only), so the template gives it.
+// Spec: DR-4, S-540
+// Why: the Agent API's read holds no "$schema" (it stands in the written text only), so the template gives it.
 const TEMPLATE = JSON.parse(
   readFileSync(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
 ) as { $schema: string }
 
-// see T-109, HF-13
+// Spec: T-109, HF-13
 const OPEN_ONE_TIER = ((): string => {
   const found = specTable('T-109').rows.filter((row) => row.cells.some((cell) => /HF-13(?![0-9])/.test(cell)))
   if (found.length !== 1) throw new Error(`table T-109 has ${found.length} entrances governed by HF-13`)
   return found[0]?.id ?? ''
 })()
 
-// see FR-065, T-109
+// Spec: FR-065, T-109
 const AGENT_API_ENTRANCE = ((): string => {
   const found = specTable('T-109').rows.filter((row) => row.cells.some((cell) => /FR-065(?![0-9])/.test(cell)))
   if (found.length !== 1) throw new Error(`table T-109 has ${found.length} entrances governed by FR-065`)
@@ -62,8 +62,8 @@ async function pressAt(page: Page, at: { x: number; y: number }): Promise<void> 
   await page.mouse.up()
 }
 
-// see FR-067, FR-065, T-107
-// WHY: the document is built from the one the app opens with, so every column keeps the shape the
+// Spec: FR-067, FR-065, T-107
+// Why: the document is built from the one the app opens with, so every column keeps the shape the
 // schema holds; it reaches the page through the embedded-document route of FR-067, not AM-8 (FR-022 waits).
 /** @purity non-pure */
 async function documentWithTaskGroups(baseURL: string, roots: number, offset: number): Promise<string> {
@@ -83,7 +83,7 @@ async function documentWithTaskGroups(baseURL: string, roots: number, offset: nu
       type Bag = Record<string, unknown>
       const api = (window as unknown as { grSchedulerAgentApi?: { readDocument(includeCarry?: boolean): unknown } }).grSchedulerAgentApi
       if (api === undefined) throw new Error('the Agent API did not open')
-      // WHY: AM-3 leaves the MSPDI carry out unless asked, and this fixture is re-opened as a whole document.
+      // Why: AM-3 leaves the MSPDI carry out unless asked, and this fixture is re-opened as a whole document.
       const held = api.readDocument(true) as { schedule: Bag & { project: Bag; tasks: Bag[]; taskGroups: Bag[] }; documentSettings: Bag }
       const task0 = held.schedule.tasks[0] ?? {}
       const group0 = held.schedule.taskGroups[0] ?? {}
@@ -206,7 +206,7 @@ async function taskGroupById(page: Page, id: string): Promise<DrawnTaskGroup> {
   return found
 }
 
-// WHY: the left end of the name, where the page itself says the name is on top: the ground of the
+// Why: the left end of the name, where the page itself says the name is on top: the ground of the
 // group runs from the leftmost control to the right edge (HF-6), so it never covers this spot.
 /** @purity semi-pure-mutable */
 async function nameSpotOf(page: Page, id: string): Promise<{ x: number; y: number }> {
@@ -264,7 +264,7 @@ test.describe('HF-6 / JDG-394 (MUST): a shown group stays the task group it was 
       const taskGroupBottom = first.box.y + first.box.height
       expect(entrance.y + entrance.height, `the premise: ${OPEN_ONE_TIER} in the lower rank reaches over r1`).toBeGreaterThan(taskGroupBottom + 1)
 
-      // STEP: along the group to the part of the lower rank that lies over r1's band, then press there.
+      // Step: along the group to the part of the lower rank that lies over r1's band, then press there.
       const middle = { x: entrance.x + entrance.width / 2, y: entrance.y + entrance.height / 2 }
       const overNext = { x: middle.x, y: (taskGroupBottom + entrance.y + entrance.height) / 2 }
       await page.mouse.move(middle.x, middle.y, { steps: 8 })
@@ -315,8 +315,8 @@ interface TaskGroupArea {
   readonly scrollbarTop: number
 }
 
-// see FR-051, GR-21
-// WHY: Scrollbars take their room from the Task Group Area (FR-051), so the vertical one spans exactly the
+// Spec: FR-051, GR-21
+// Why: Scrollbars take their room from the Task Group Area (FR-051), so the vertical one spans exactly the
 // Task Group Area's height, and the horizontal one starts where nothing of the schedule may be drawn.
 /** @purity semi-pure-mutable */
 async function taskGroupAreaOf(page: Page): Promise<TaskGroupArea> {
@@ -376,14 +376,14 @@ test.describe('LF-16 / HF-19 (MUST): the last task group keeps room for its latt
     }
   })
 
-  // see FR-055, T-109
+  // Spec: FR-055, T-109
   const FIT_ENTRANCE = ((): string => {
     const found = specTable('T-109').rows.filter((row) => row.cells.some((cell) => /FR-055(?![0-9])/.test(cell)))
     if (found.length !== 1) throw new Error(`table T-109 has ${found.length} entrances governed by FR-055`)
     return found[0]?.id ?? ''
   })()
 
-  // WHY: the Task Group Area is sized so that 40 one-lane task groups fit and 40 task groups plus the reserve do not; FR-055
+  // Why: the Task Group Area is sized so that 40 one-lane task groups fit and 40 task groups plus the reserve do not; FR-055
   // (MUST) then has to settle on depth 1, and a fit that forgot LF-16 would draw depth 2 and cut the lattice.
   const fittedWith = async (baseURL: string | undefined, spare: (reserve: number) => number) => {
     const measuring = await openWith(baseURL, 20)

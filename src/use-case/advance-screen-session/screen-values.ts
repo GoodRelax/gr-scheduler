@@ -1,4 +1,4 @@
-// ScreenValues: the screen-values region of the session and its transitions.
+// File: AdvanceScreenSession: ScreenValues: the screen-values region of the session and its transitions.
 // @unit      UF-86   (docs/spec/05-07-design.md, table T-075)
 // @component AdvanceScreenSession, layer UseCase (table T-062)
 // @purity    pure
@@ -19,7 +19,7 @@ import {
 import { calendarDraftRefusalsOf, type CalendarDraft, type CalendarDraftRefusal } from './calendar-draft'
 import { NO_EFFECTS, unchanged, type Step } from './session-step'
 
-// see FR-072
+// Spec: FR-072
 export interface PropertiesSubject {
   readonly selection: Selection
   readonly taskGroupIds: readonly string[]
@@ -27,7 +27,7 @@ export interface PropertiesSubject {
 
 export type ArmKind = ArmModeArmedState['kind']
 
-// see FR-016, T-280
+// Spec: FR-016, T-280
 /** @purity pure */
 export function armedOf(armMode: ArmModeState): ArmModeArmedState | null {
   return armMode.kind === 'armed' ? armMode.child : null
@@ -37,19 +37,19 @@ type DisplayLanguage = 'ja' | 'en'
 
 type ScaleEnd = 'max' | 'min' | null
 
-// see FR-156, FO-14
+// Spec: FR-156, FO-14
 export type BaseChangeWay = 'keepGlobalTime' | 'keepLocalTime'
 
-// see S-72, FR-039
+// Spec: S-72, FR-039
 type ThemePreference = 'light' | 'dark'
 
-// see S-66, FR-048
+// Spec: S-66, FR-048
 type GuideCursorMode = 'none' | 'crosshair' | 'single-vertical'
 
-// see DC-9, S-66
+// Spec: DC-9, S-66
 type GuideCursor = Exclude<GuideCursorMode, 'none'>
 
-// see S-65, DC-6
+// Spec: S-65, DC-6
 interface DualCursorDates {
   readonly cursorADate: string
   readonly cursorBDate: string
@@ -64,7 +64,7 @@ type LandedBy = 'continuationMark' | 'jump'
 
 export type SearchTable = 'tasks' | 'commentBoxes'
 
-// see T-331
+// Spec: T-331
 export type SearchColumn = string
 
 export interface SearchFilters {
@@ -78,7 +78,7 @@ export type TableVisibility = TableView['visibility']
 
 export type VisibilityTable = Extract<DocumentCommand, { readonly kind: 'setTableView' }>['table']
 
-// see TV-2, TV-9
+// Spec: TV-2, TV-9
 export const NO_ROW_CHECKED: TableVisibility = {
   shownTaskUids: [],
   shownResourceUids: [],
@@ -86,7 +86,7 @@ export const NO_ROW_CHECKED: TableVisibility = {
   isScheduleFilterApplied: false,
 }
 
-// see TV-11, IC-143
+// Spec: TV-11, IC-143
 const TABLE_RANKS: Readonly<Record<VisibilityTable, number>> = {
   searchPanel: 0,
   delayDiagnosticsReport: 1,
@@ -97,7 +97,7 @@ export const VISIBILITY_TABLES: readonly VisibilityTable[] = (Object.keys(TABLE_
   (a, b) => TABLE_RANKS[a] - TABLE_RANKS[b],
 )
 
-// see S-419, S-420, S-429, SV-7, SV-18
+// Spec: S-419, S-420, S-429, SV-7, SV-18
 export interface SearchPanelSession {
   readonly word: string
   readonly table: SearchTable
@@ -110,8 +110,8 @@ export interface SearchPanelSession {
 
 export type SearchPanelTextSizeRow = keyof typeof NOT_STORED_SEARCH_PANEL_FONT_SIZES
 
-// see T-333, S-429
-// WHY: a step is a row's place in table T-333, so the rows are read in the table's order.
+// Spec: T-333, S-429
+// Why: a step is a row's place in table T-333, so the rows are read in the table's order.
 export const SEARCH_PANEL_TEXT_SIZE_ROWS = Object.keys(
   NOT_STORED_SEARCH_PANEL_FONT_SIZES,
 ) as readonly SearchPanelTextSizeRow[]
@@ -135,7 +135,7 @@ export interface ScreenValuesStateCarried {
   readonly themePreference: ThemePreference
   readonly guideCursorMode: GuideCursorMode
   readonly dualCursor: DualCursorDates | null
-  // WHY: null until the shell seats S-171 at startup, as it seats the language; the value is generated there.
+  // Why: null until the shell seats S-171 at startup, as it seats the language; the value is generated there.
   readonly propertyPanelWidth: number | null
   readonly shapeKind: string
   readonly glyph: string
@@ -662,7 +662,7 @@ const WATERMARK_UNLOCK_SURFACE = 'U-60'
 
 const NO_REMEMBERED_ACTUALS: Readonly<Record<number, RememberedActual>> = Object.freeze({})
 
-// see T-280, T-206, S-72
+// Spec: T-280, T-206, S-72
 export const emptyScreenValues: ScreenValues = {
   ...SCREEN_VALUES_INITIAL_AXES,
   screenLanguage: null,
@@ -688,7 +688,7 @@ function stayed(values: ScreenValues, effects: readonly ScreenValuesEffect[]): S
   return { state: values, effects }
 }
 
-// see T-280
+// Spec: T-280
 /** @purity pure */
 function onPaletteToggled(values: ScreenValues): ScreenStep {
   if (values.paletteDisplayState.kind === 'hidden') {
@@ -698,7 +698,7 @@ function onPaletteToggled(values: ScreenValues): ScreenStep {
   return moved(values, { paletteDisplayState: { kind: 'hidden' } })
 }
 
-// see T-280
+// Spec: T-280
 /** @purity pure */
 function onPaletteMinimizeToggled(values: ScreenValues): ScreenStep {
   const palette = values.paletteDisplayState
@@ -707,20 +707,20 @@ function onPaletteMinimizeToggled(values: ScreenValues): ScreenStep {
   return moved(values, { paletteDisplayState: { kind: 'shown', child: { kind } } })
 }
 
-// see T-280
+// Spec: T-280
 /** @purity pure */
 function onMilestoneListToggled(values: ScreenValues): ScreenStep {
   const kind = values.milestoneListDisplayState.kind === 'closed' ? 'open' : 'closed'
   return moved(values, { milestoneListDisplayState: { kind } })
 }
 
-// see T-280
+// Spec: T-280
 /** @purity pure */
 function onFullScreenEntryPressed(values: ScreenValues): ScreenStep {
   return stayed(values, [{ type: 'askBrowserForFullScreen' }])
 }
 
-// see T-280
+// Spec: T-280
 /** @purity pure */
 function onFullScreenChanged(values: ScreenValues, event: EventOf<'fullScreenChanged'>): ScreenStep {
   const isFull = values.fullScreenModeState.kind === 'full'
@@ -729,8 +729,8 @@ function onFullScreenChanged(values: ScreenValues, event: EventOf<'fullScreenCha
   return moved(values, { fullScreenModeState: { kind: isFullScreen ? 'full' : 'normal' } })
 }
 
-// see T-280, S-99g, RS-27
-// WHY: an entrance pressed over a surface awaiting its answer is told; one raised by the flow is not.
+// Spec: T-280, S-99g, RS-27
+// Why: an entrance pressed over a surface awaiting its answer is told; one raised by the flow is not.
 /** @purity pure */
 function surfaceOpenedOver(values: ScreenValues, surfaceName: string, isPressed: boolean, isAnother: boolean): ScreenStep {
   const surface = values.openSurfaceState
@@ -753,14 +753,14 @@ function onSurfaceOpened(
   return surfaceOpenedOver(values, event.surfaceName, event.type === 'surfaceEntryPressed', isAnother)
 }
 
-// WHY: no tellFlowSurfaceClosed; the answer already reached the file-flow region (OP-3, FR-022).
+// Why: no tellFlowSurfaceClosed; the answer already reached the file-flow region (OP-3, FR-022).
 /** @purity pure */
 function onFlowSurfaceAnswered(values: ScreenValues): ScreenStep {
   if (values.openSurfaceState.kind === 'closed') return unchanged(values)
   return moved(values, { openSurfaceState: { kind: 'closed' } })
 }
 
-// see T-280
+// Spec: T-280
 /** @purity pure */
 function surfaceClosed(values: ScreenValues): ScreenStep {
   const surface = values.openSurfaceState
@@ -770,7 +770,7 @@ function surfaceClosed(values: ScreenValues): ScreenStep {
   ])
 }
 
-// see T-280
+// Spec: T-280
 /** @purity pure */
 function propertiesPutAway(values: ScreenValues): ScreenStep {
   if (values.propertiesPanelContentState.kind === 'hidden') return unchanged(values)
@@ -791,7 +791,7 @@ function disarmed(values: ScreenValues): ScreenStep {
   return moved(values, { armModeState: { kind: 'notArmed' } })
 }
 
-// see T-280
+// Spec: T-280
 /** @purity pure */
 function dualCursorCleared(values: ScreenValues): ScreenStep {
   if (values.dualCursorModeState.kind === 'off') return unchanged(values)
@@ -806,14 +806,14 @@ function tooltipDismissed(values: ScreenValues): ScreenStep {
 
 export type ToggleableWindowKey = 'searchPanelDisplayState' | 'helpDisplayState'
 
-// see RG-16, HN-2, T-335
+// Spec: RG-16, HN-2, T-335
 /** @purity pure */
 export function isWindowStandingIn(values: ScreenValues, key: ToggleableWindowKey): boolean {
   const display = values[key]
   return display.kind === 'shown' && display.child.kind !== 'minimized'
 }
 
-// see S-99g, HN-1, HN-2, HN-3
+// Spec: S-99g, HN-1, HN-2, HN-3
 /** @purity pure */
 export function isHelpStandingIn(values: ScreenValues): boolean {
   return isWindowStandingIn(values, 'helpDisplayState')
@@ -825,7 +825,7 @@ function windowRungConsumed(values: ScreenValues, key: ToggleableWindowKey): Scr
   return moved(values, { [key]: { kind: 'hidden' } } as Partial<ScreenValues>)
 }
 
-// see T-280, IN-4, RG-16
+// Spec: T-280, IN-4, RG-16
 /** @purity pure */
 function onEscapePressed(values: ScreenValues, event: EventOf<'escapePressed'>): ScreenStep {
   if (SCREEN_VALUES_GUARDS.isRungSearchPanel(event)) return windowRungConsumed(values, 'searchPanelDisplayState')
@@ -855,7 +855,7 @@ const ARMED_BY_KIND: {
   parentTaskArmed: () => ({ kind: 'parentTaskArmed' }),
 }
 
-// see T-280, FR-016
+// Spec: T-280, FR-016
 /** @purity pure */
 function onArmEntryPressed(values: ScreenValues, event: EventOf<'armEntryPressed'>): ScreenStep {
   if (SCREEN_VALUES_GUARDS.isSameArm(values, event)) return moved(values, { armModeState: { kind: 'notArmed' } })
@@ -886,14 +886,14 @@ function onWatermarkUnlockMatched(values: ScreenValues): ScreenStep {
   return moved(values, { watermarkDisplayState: { kind: 'hidden' }, openSurfaceState: { kind: 'closed' } })
 }
 
-// see T-280
+// Spec: T-280
 /** @purity pure */
 function onWatermarkUnlockMismatched(values: ScreenValues): ScreenStep {
   if (!SCREEN_VALUES_GUARDS.isWatermarkUnlockSurface(values)) return unchanged(values)
   return stayed(values, [{ type: 'raiseNotice', reason: 'RS-41' }])
 }
 
-// see T-280, FR-072, IC-17
+// Spec: T-280, FR-072, IC-17
 /** @purity pure */
 function onSettingsEntryPressed(values: ScreenValues): ScreenStep {
   const properties = values.propertiesPanelContentState
@@ -903,7 +903,7 @@ function onSettingsEntryPressed(values: ScreenValues): ScreenStep {
   return moved(values, { propertiesPanelContentState: { kind: 'documentSettingsDisplayed' } })
 }
 
-// see T-280
+// Spec: T-280
 /** @purity pure */
 function onPropertiesOfChoiceAsked(
   values: ScreenValues,
@@ -912,7 +912,7 @@ function onPropertiesOfChoiceAsked(
   return moved(values, { propertiesPanelContentState: { kind: 'selectionDisplayed', subject: event.subject } })
 }
 
-// see T-280
+// Spec: T-280
 /** @purity pure */
 function onSelectionMoved(values: ScreenValues, event: EventOf<'selectionMoved'>): ScreenStep {
   if (values.propertiesPanelContentState.kind === 'hidden') return unchanged(values)
@@ -920,7 +920,7 @@ function onSelectionMoved(values: ScreenValues, event: EventOf<'selectionMoved'>
   return moved(values, { propertiesPanelContentState: { kind: 'selectionDisplayed', subject: event.subject } })
 }
 
-// see T-280
+// Spec: T-280
 /** @purity pure */
 function onCreatedNameSettled(values: ScreenValues): ScreenStep {
   const effects: readonly ScreenValuesEffect[] = [{ type: 'clearSelection' }]
@@ -928,7 +928,7 @@ function onCreatedNameSettled(values: ScreenValues): ScreenStep {
   return moved(values, { propertiesPanelContentState: { kind: 'hidden' } }, effects)
 }
 
-// see T-280
+// Spec: T-280
 /** @purity pure */
 function onSettleKeyPressed(values: ScreenValues, event: EventOf<'settleKeyPressed'>): ScreenStep {
   if (values.propertiesPanelContentState.kind === 'hidden') return unchanged(values)
@@ -938,7 +938,7 @@ function onSettleKeyPressed(values: ScreenValues, event: EventOf<'settleKeyPress
   return propertiesPutAway(values)
 }
 
-// see T-280, FR-016
+// Spec: T-280, FR-016
 /** @purity pure */
 function onDualCursorEntryPressed(
   values: ScreenValues,
@@ -948,7 +948,7 @@ function onDualCursorEntryPressed(
   if (!SCREEN_VALUES_GUARDS.hasDaysToPlace(event)) return unchanged(values)
   const child = SCREEN_VALUES_INITIAL_CHILDREN['dualCursorModeStateMachine.on']
   const armed = values.armModeState.kind === 'notArmed' ? values.armModeState : ({ kind: 'notArmed' } as const)
-  // WHY: the event carries the one date DC-1 places; cursorADate follows the pointer until DC-2 fixes it.
+  // Why: the event carries the one date DC-1 places; cursorADate follows the pointer until DC-2 fixes it.
   const dualCursor = { cursorADate: event.date, cursorBDate: event.date }
   return moved(
     values,
@@ -957,7 +957,7 @@ function onDualCursorEntryPressed(
   )
 }
 
-// see DC-9, FR-048, T-280
+// Spec: DC-9, FR-048, T-280
 /** @purity pure */
 function onGuideCursorEntryPressed(
   values: ScreenValues,
@@ -972,7 +972,7 @@ function onGuideCursorEntryPressed(
   ])
 }
 
-// see DC-2, T-280
+// Spec: DC-2, T-280
 /** @purity pure */
 function onDualCursorPlaced(values: ScreenValues, event: EventOf<'dualCursorPlaced'>): ScreenStep {
   const mode = values.dualCursorModeState
@@ -990,7 +990,7 @@ function onDualCursorPlaced(values: ScreenValues, event: EventOf<'dualCursorPlac
   ])
 }
 
-// see T-280
+// Spec: T-280
 /** @purity pure */
 function onScaleMessageRaised(
   values: ScreenValues,
@@ -1001,14 +1001,14 @@ function onScaleMessageRaised(
   return moved(values, { scaleMessageDisplayState: scaleMessage }, [{ type: timer }])
 }
 
-// see T-280
+// Spec: T-280
 /** @purity pure */
 function onScaleMessageTimeElapsed(values: ScreenValues): ScreenStep {
   if (values.scaleMessageDisplayState.kind === 'hidden') return unchanged(values)
   return moved(values, { scaleMessageDisplayState: { kind: 'hidden' } })
 }
 
-// see T-280
+// Spec: T-280
 /** @purity pure */
 function onScreenLanguageChosen(
   values: ScreenValues,
@@ -1018,14 +1018,14 @@ function onScreenLanguageChosen(
   return moved(values, { screenLanguage }, [{ type: 'storeScreenLanguage', screenLanguage }])
 }
 
-// see S-434, FR-038, T-280
+// Spec: S-434, FR-038, T-280
 /** @purity pure */
 function onHelpLanguageChosen(values: ScreenValues, event: EventOf<'helpLanguageChosen'>): ScreenStep {
   const helpLanguage = event.helpLanguage
   return moved(values, { helpLanguage }, [{ type: 'writeHelpLanguage', helpLanguage }])
 }
 
-// see S-72, FR-039, T-280
+// Spec: S-72, FR-039, T-280
 /** @purity pure */
 function onThemePreferenceChosen(
   values: ScreenValues,
@@ -1035,7 +1035,7 @@ function onThemePreferenceChosen(
   return moved(values, { themePreference }, [{ type: 'storeThemePreference', themePreference }])
 }
 
-// see S-171, FR-052, T-280
+// Spec: S-171, FR-052, T-280
 /** @purity pure */
 function onPropertyPanelWidthSettled(
   values: ScreenValues,
@@ -1045,7 +1045,7 @@ function onPropertyPanelWidthSettled(
   return moved(values, { propertyPanelWidth }, [{ type: 'storePropertyPanelWidth', propertyPanelWidth }])
 }
 
-// see T-280, PV-4
+// Spec: T-280, PV-4
 /** @purity pure */
 function onProgressMarkerPressed(
   values: ScreenValues,
@@ -1061,14 +1061,14 @@ function onProgressMarkerPressed(
   ])
 }
 
-// see T-280
+// Spec: T-280
 /** @purity pure */
 function onHintTargetChanged(values: ScreenValues): ScreenStep {
   if (values.tooltipDisplayState.kind === 'allowed') return unchanged(values)
   return moved(values, { tooltipDisplayState: { kind: 'allowed' } })
 }
 
-// see T-280, EL-16
+// Spec: T-280, EL-16
 /** @purity pure */
 function onContinuationMarkClicked(
   values: ScreenValues,
@@ -1078,21 +1078,21 @@ function onContinuationMarkClicked(
   return moved(values, { landingMarkDisplayState: { kind: 'shown', landedBy: 'continuationMark', landedLink, landedTarget, landedRelatedTasks: [] } })
 }
 
-// see T-280, SJ-10
+// Spec: T-280, SJ-10
 /** @purity pure */
 function onSearchJumpLanded(values: ScreenValues, event: EventOf<'searchJumpLanded'>): ScreenStep {
   const { landedTarget, landedRelatedTasks } = event
   return moved(values, { landingMarkDisplayState: { kind: 'shown', landedBy: 'jump', landedLink: null, landedTarget, landedRelatedTasks } })
 }
 
-// see T-280, EL-17
+// Spec: T-280, EL-17
 /** @purity pure */
 function onLandingMarkClearAsked(values: ScreenValues): ScreenStep {
   if (values.landingMarkDisplayState.kind === 'hidden') return unchanged(values)
   return moved(values, { landingMarkDisplayState: { kind: 'hidden' } })
 }
 
-// see T-280, OP-17
+// Spec: T-280, OP-17
 /** @purity pure */
 function onFileDragEntered(values: ScreenValues, event: EventOf<'fileDragEntered'>): ScreenStep {
   if (!SCREEN_VALUES_GUARDS.isOpenAccepted(event) || values.dropCueDisplayState.kind === 'shown') return unchanged(values)
@@ -1121,7 +1121,7 @@ const MAXIMIZE_TOGGLED_TO: { readonly [K in WindowShownKind]: WindowShownKind } 
   maximized: 'normal',
 }
 
-// see T-280, SV-2
+// Spec: T-280, SV-2
 /** @purity pure */
 function onSearchEntryPressed(values: ScreenValues): ScreenStep {
   const panel = values.searchPanelDisplayState
@@ -1130,7 +1130,7 @@ function onSearchEntryPressed(values: ScreenValues): ScreenStep {
   return moved(values, { searchPanelDisplayState: { kind: 'shown', child } }, FOCUS_SEARCH_WORD)
 }
 
-// see T-280, T-335
+// Spec: T-280, T-335
 /** @purity pure */
 function windowDisplayToggled(
   values: ScreenValues,
@@ -1143,14 +1143,14 @@ function windowDisplayToggled(
   return moved(values, { [key]: { kind: 'shown', child } } as Partial<ScreenValues>)
 }
 
-// see T-280, SV-14
+// Spec: T-280, SV-14
 /** @purity pure */
 function onSearchPanelClosePressed(values: ScreenValues): ScreenStep {
   if (values.searchPanelDisplayState.kind === 'hidden') return unchanged(values)
   return moved(values, { searchPanelDisplayState: { kind: 'hidden' } })
 }
 
-// see T-280, SJ-3
+// Spec: T-280, SJ-3
 /** @purity pure */
 function onSearchHitJumped(values: ScreenValues): ScreenStep {
   const panel = values.searchPanelDisplayState
@@ -1159,7 +1159,7 @@ function onSearchHitJumped(values: ScreenValues): ScreenStep {
   return moved(values, { searchPanelDisplayState: { kind: 'shown', child } })
 }
 
-// see T-280, FR-036, FR-038, WB-1
+// Spec: T-280, FR-036, FR-038, WB-1
 /** @purity pure */
 function onHelpEntryPressed(values: ScreenValues): ScreenStep {
   const help = values.helpDisplayState
@@ -1178,8 +1178,8 @@ function helpHidden(values: ScreenValues): ScreenStep {
   return moved(values, { helpDisplayState: { kind: 'hidden' } })
 }
 
-// see T-280, FR-156, FO-14
-// WHY: choosing the shown base again drops the draft -- the answers show only for another time zone (X-j).
+// Spec: T-280, FR-156, FO-14
+// Why: choosing the shown base again drops the draft -- the answers show only for another time zone (X-j).
 /** @purity pure */
 function onBaseTimeZoneChosen(values: ScreenValues, event: EventOf<'baseTimeZoneChosen'>): ScreenStep {
   const held = values.baseTimeZoneDraftState
@@ -1190,7 +1190,7 @@ function onBaseTimeZoneChosen(values: ScreenValues, event: EventOf<'baseTimeZone
   return moved(values, { baseTimeZoneDraftState: { kind: 'drafted', chosenRegion: event.chosenRegion } })
 }
 
-// see T-280, FR-156, FO-14, CM-94, CM-95
+// Spec: T-280, FR-156, FO-14, CM-94, CM-95
 /** @purity pure */
 function onBaseChangeEntryPressed(values: ScreenValues, event: EventOf<'baseChangeEntryPressed'>): ScreenStep {
   const held = values.baseTimeZoneDraftState
@@ -1200,14 +1200,14 @@ function onBaseChangeEntryPressed(values: ScreenValues, event: EventOf<'baseChan
   ])
 }
 
-// see T-280, FR-156, FO-14
+// Spec: T-280, FR-156, FO-14
 /** @purity pure */
 function onBaseChangeCancelPressed(values: ScreenValues): ScreenStep {
   if (values.baseTimeZoneDraftState.kind === 'untouched') return unchanged(values)
   return moved(values, { baseTimeZoneDraftState: { kind: 'untouched' } })
 }
 
-// see T-280, FR-157, FO-16
+// Spec: T-280, FR-157, FO-16
 /** @purity pure */
 function onTimeShiftAmountSettled(values: ScreenValues, event: EventOf<'timeShiftAmountSettled'>): ScreenStep {
   const held = values.timeShiftDraftState
@@ -1216,7 +1216,7 @@ function onTimeShiftAmountSettled(values: ScreenValues, event: EventOf<'timeShif
   return moved(values, { timeShiftDraftState: { kind: 'amountHeld', shiftMinutes: event.shiftMinutes } })
 }
 
-// see T-280, FR-157, IC-162, QN-14
+// Spec: T-280, FR-157, IC-162, QN-14
 /** @purity pure */
 function onTimeShiftEntryPressed(values: ScreenValues): ScreenStep {
   const held = values.timeShiftDraftState
@@ -1230,7 +1230,7 @@ function onTimeShiftLanded(values: ScreenValues): ScreenStep {
   return moved(values, { timeShiftDraftState: { kind: 'empty' } })
 }
 
-// see T-280, FR-159, FO-17
+// Spec: T-280, FR-159, FO-17
 /** @purity pure */
 function onWholeScheduleShiftDateSettled(values: ScreenValues, event: EventOf<'wholeScheduleShiftDateSettled'>): ScreenStep {
   const held = values.wholeScheduleShiftDraftState
@@ -1239,7 +1239,7 @@ function onWholeScheduleShiftDateSettled(values: ScreenValues, event: EventOf<'w
   return moved(values, { wholeScheduleShiftDraftState: { kind: 'dateHeld', newStartDate: event.newStartDate } })
 }
 
-// see T-280, FR-159, WH-12, QN-15
+// Spec: T-280, FR-159, WH-12, QN-15
 /** @purity pure */
 function onWholeScheduleShiftEntryPressed(values: ScreenValues): ScreenStep {
   const held = values.wholeScheduleShiftDraftState
@@ -1253,7 +1253,7 @@ function onWholeScheduleShiftLanded(values: ScreenValues): ScreenStep {
   return moved(values, { wholeScheduleShiftDraftState: { kind: 'empty' } })
 }
 
-// see T-280, FR-088
+// Spec: T-280, FR-088
 /** @purity pure */
 function onCalendarDraftEdited(values: ScreenValues, event: EventOf<'calendarDraftEdited'>): ScreenStep {
   const held = values.calendarDraftState
@@ -1261,7 +1261,7 @@ function onCalendarDraftEdited(values: ScreenValues, event: EventOf<'calendarDra
   return moved(values, { calendarDraftState: { kind: 'drafted', calendarDraft: event.calendarDraft } })
 }
 
-// see T-280, FR-088, IC-138, WC-7, WC-10, CM-39
+// Spec: T-280, FR-088, IC-138, WC-7, WC-10, CM-39
 /** @purity pure */
 function onCalendarApplyEntryPressed(values: ScreenValues): ScreenStep {
   const held = values.calendarDraftState
@@ -1287,14 +1287,14 @@ function calendarDraftDropped(values: ScreenValues): Partial<DraftAxes> {
   return values.calendarDraftState.kind === 'untouched' ? {} : { calendarDraftState: { kind: 'untouched' } }
 }
 
-// WHY: the guard language's calendarDraftRefusals (WC-10); an untouched draft carries none.
+// Why: the guard language's calendarDraftRefusals (WC-10); an untouched draft carries none.
 /** @purity pure */
 function calendarDraftRefusals(calendarDraft: CalendarDraft | null): readonly CalendarDraftRefusal[] {
   return calendarDraft === null ? [] : calendarDraftRefusalsOf(calendarDraft)
 }
 
-// see T-280, FR-156, FR-157, FR-159, FR-088
-// WHY: isLeavingDocumentSettings and isLeavingHolidaySettings are read off the step the event already took.
+// Spec: T-280, FR-156, FR-157, FR-159, FR-088
+// Why: isLeavingDocumentSettings and isLeavingHolidaySettings are read off the step the event already took.
 /** @purity pure */
 function draftsLeftBehind(before: ScreenValues, step: ScreenStep): ScreenStep {
   const after = step.state
@@ -1312,14 +1312,14 @@ function leavingDrafts<E>(
   return (values, event) => draftsLeftBehind(values, handler(values, event))
 }
 
-// see T-280, RD-4, RD-7
+// Spec: T-280, RD-4, RD-7
 /** @purity pure */
 function onDocumentReplacedByOpenOrNew(values: ScreenValues): ScreenStep {
   const patch = { ...settingsDraftsDropped(values), ...calendarDraftDropped(values) }
   return Object.keys(patch).length === 0 ? unchanged(values) : moved(values, patch)
 }
 
-// WHY: a table, not a switch that would cross the size band; the mapped type still refuses a missing event.
+// Why: a table, not a switch that would cross the size band; the mapped type still refuses a missing event.
 const HANDLERS: {
   readonly [T in ScreenValuesEvent['type']]: (values: ScreenValues, event: EventOf<T>) => ScreenStep
 } = {
@@ -1382,7 +1382,7 @@ const HANDLERS: {
   documentReplacedByOpenOrNew: onDocumentReplacedByOpenOrNew,
 }
 
-// see SF-2, SF-8, T-280
+// Spec: SF-2, SF-8, T-280
 /** @purity pure */
 export function stepScreenValues(values: ScreenValues, event: ScreenValuesEvent): ScreenStep {
   const handler = HANDLERS[event.type] as (values: ScreenValues, event: ScreenValuesEvent) => ScreenStep

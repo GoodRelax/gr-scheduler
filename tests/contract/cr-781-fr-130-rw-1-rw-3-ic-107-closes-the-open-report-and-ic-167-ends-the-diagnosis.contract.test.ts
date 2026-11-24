@@ -39,9 +39,9 @@ const RE_WORD = (language: Language): string => {
   return word
 }
 
-// see T-315
-// WHY: SELF depends on itself (DG-1); LATE is not started after its start (DG-2); PARENT is its ancestor (DG-3); PLAIN has no state.
-// WHY: SELF starts before the status date; a task not begun that starts after it is never drawn with DG-1 or DG-2 (FR-133).
+// Spec: T-315
+// Why: SELF depends on itself (DG-1); LATE is not started after its start (DG-2); PARENT is its ancestor (DG-3); PLAIN has no state.
+// Why: SELF starts before the status date; a task not begun that starts after it is never drawn with DG-1 or DG-2 (FR-133).
 const SELF = 40
 const PARENT = 20
 const LATE = 21
@@ -54,7 +54,7 @@ const span = (uid: number, from: string, to: string, extra: Partial<TaskSpec> = 
   ...extra,
 })
 
-// WHY: the canvas starts before April, so every marker stands on the chart and clear of the report window below it.
+// Why: the canvas starts before April, so every marker stands on the chart and clear of the report window below it.
 function seeded(): Document {
   const made = documentOf(
     [
@@ -70,7 +70,7 @@ function seeded(): Document {
 
 const staged = async (language: Language = 'ja'): Promise<WindowStage> => {
   const stage = await windowStage(seeded())
-  // WHY: IC-21 chooses the screen language (FR-038); the stage starts in Japanese.
+  // Why: IC-21 chooses the screen language (FR-038); the stage starts in Japanese.
   if (language === 'en') await stage.press('IC-21')
   return stage
 }
@@ -86,13 +86,13 @@ const needReport = (stage: WindowStage): ReportSeen => {
   return found
 }
 
-// WHY: a mark of the diagnosis is a DG- marker on the chart (FR-133, T-315).
+// Why: a mark of the diagnosis is a DG- marker on the chart (FR-133, T-315).
 const isDiagnosisDrawn = (stage: WindowStage): boolean =>
   (stage.loop.current()?.geometry.tasks ?? []).some((one) => /^DG-/.test(String(one.marker?.symbol ?? '')))
 const symbolsOf = (stage: WindowStage, uids: readonly number[]): readonly string[] =>
   uids.map((uid) => String(stage.loop.current()?.geometry.tasks.find((one) => one.taskUid === uid)?.marker?.symbol ?? ''))
 
-// WHY: the header entry looks pressed in the described screen and in the drawn DOM alike (EN-2).
+// Why: the header entry looks pressed in the described screen and in the drawn DOM alike (EN-2).
 const isPressedInView = (stage: WindowStage): boolean | undefined =>
   (stage.last() as unknown as { appHeaderItems: { commands: readonly { icon: string; isPressed: boolean }[] } }).appHeaderItems.commands.find(
     (one) => one.icon === 'IC-107',

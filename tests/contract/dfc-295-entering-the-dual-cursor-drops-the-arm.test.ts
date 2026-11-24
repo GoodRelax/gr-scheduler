@@ -305,7 +305,7 @@ const pressing = (
   given: ScreenValues,
   dualCursorFollowing: DualCursorSide | null = null,
 ): ScreenValues => {
-  // WHY: the mode lives in the screen values (T-280); the following side the shell hands in is read off it.
+  // Why: the mode lives in the screen values (T-280); the following side the shell hands in is read off it.
   const screen = inTheMode(given, dualCursorFollowing)
   const event = screenEventFromInput(pointerOf('up'), {
     ...BASE,
@@ -336,7 +336,7 @@ const ARMS: ReadonlyArray<{ readonly row: string; readonly armed: Armed }> = [
   { row: 'AR-7', armed: { kind: 'parentTaskArmed' } },
 ]
 
-// WHY: wave 2 of CR-767 (JDG-2364) holds every arm as a child of the composite `armed`.
+// Why: wave 2 of CR-767 (JDG-2364) holds every arm as a child of the composite `armed`.
 const armState = (armed: Armed): ScreenValues['armModeState'] => ({ kind: 'armed', child: armed })
 
 const armedWith = (armed: Armed): ScreenValues => ({ ...emptyScreenSession.screen, armModeState: armState(armed) })
@@ -403,7 +403,7 @@ describe('T-023b closing paragraph (MUST) -- entering the Dual Cursor drops the 
     }
     const after = pressing(IC_45, before, null)
     expect(after.armModeState).toEqual({ kind: 'notArmed' })
-    // WHY: entering is itself a move of the mode and its two dates (DC-1, T-280); nothing else may move.
+    // Why: entering is itself a move of the mode and its two dates (DC-1, T-280); nothing else may move.
     const rest = (one: ScreenValues) => ({ ...one, armModeState: null, dualCursorModeState: null, dualCursor: null })
     expect(after.dualCursorModeState.kind, 'IC-45 entered the mode').toBe('on')
     expect(rest(after)).toEqual(rest(before))

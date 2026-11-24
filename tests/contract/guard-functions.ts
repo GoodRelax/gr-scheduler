@@ -11,17 +11,17 @@ const ROSTER = (
   }
 ).reasons
 
-// see FR-076, NT-2, T-233
+// Spec: FR-076, NT-2, T-233
 export function noticeDisplay(reason: unknown): string | null {
   return ROSTER.find((row) => row.id === reason)?.display ?? null
 }
 
-// see NT-3, T-233
+// Spec: NT-3, T-233
 export function wordsRow(reason: unknown): unknown {
   return ROSTER.find((row) => row.id === reason)?.wordsOf ?? reason
 }
 
-// see NT-8, NT-2
+// Spec: NT-8, NT-2
 export function reasonsOf(standing: unknown): readonly unknown[] {
   if (standing === null) return []
   if (!Array.isArray(standing)) throw new Error(`reasonsOf: ${JSON.stringify(standing)} is not a list of notices`)
@@ -32,7 +32,7 @@ export function reasonsOf(standing: unknown): readonly unknown[] {
   })
 }
 
-// see NT-3
+// Spec: NT-3
 export function wordsRowsOf(standing: unknown): readonly unknown[] {
   return reasonsOf(standing).map(wordsRow)
 }
@@ -49,8 +49,8 @@ function minutesOf(text: unknown, isEnd: boolean): number | null {
   return isEnd && minutes === 0 ? MINUTES_PER_DAY : minutes
 }
 
-// see WC-10, WC-8, IV-24, IV-17
-// WHY: the time ranges and the weekdays of WC-10 are read here; an exception-day draft is refused
+// Spec: WC-10, WC-8, IV-24, IV-17
+// Why: the time ranges and the weekdays of WC-10 are read here; an exception-day draft is refused
 // loudly rather than half-read, so a scene must keep its exceptions empty.
 export function calendarDraftRefusals(draft: unknown): readonly string[] {
   if (draft === null) return []
@@ -80,7 +80,7 @@ export function calendarDraftRefusals(draft: unknown): readonly string[] {
 
 export type TreeRow = { readonly id: string; readonly parentId: string | null }
 
-// see HR-3, HR-1a, SJ-2, HR-7, TD-6, S-418
+// Spec: HR-3, HR-1a, SJ-2, HR-7, TD-6, S-418
 export function treeFunctions(
   rows: readonly TreeRow[],
   settings: Readonly<Record<string, unknown>>,

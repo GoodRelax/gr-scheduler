@@ -1,4 +1,4 @@
-// DocumentSettings: the presentation group, with its defaults and bounds.
+// File: DocumentSettings: the presentation group, with its defaults and bounds.
 // @unit      UF-2   (docs/spec/05-07-design.md, table T-075)
 // @component DocumentSettings, layer documentModel (table T-062)
 // @purity    pure
@@ -12,7 +12,7 @@ export {}
 //   docs/spec/_source/erd.json
 //   docs/spec/_source/grs-document.schema.json (itself generated from the two above)
 // Rebuild: npm run gen   ||   npm run gen:check fails on drift.
-// see DR-3, FR-063
+// Spec: DR-3, FR-063
 export interface DocumentSettings {
   readonly displayScale: 50 | 67 | 75 | 90 | 100 | 110 | 125 | 150 | 175 | 200
   readonly displayTimeZones: readonly string[]
@@ -70,7 +70,7 @@ export interface DocumentSettings {
   readonly zoomY: number
 }
 
-// see T-372
+// Spec: T-372
 export interface ColumnFilter {
   readonly column: string
   readonly hiddenValues: readonly string[]
@@ -78,7 +78,7 @@ export interface ColumnFilter {
   readonly toDate: string | null
 }
 
-// see T-372
+// Spec: T-372
 export interface ColumnSort {
   readonly column: string
   readonly direction: 'ascending' | 'descending'
@@ -133,7 +133,7 @@ export const SETTINGS_DEFAULTS: Readonly<Record<string, unknown>> = {
   'zoomY': 1,
 }
 
-// TRAP: the tokens are in postfix order.
+// Trap: the tokens are in postfix order.
 export type SettingsBoundToken =
   | { readonly key: string }
   | { readonly num: number }
@@ -148,7 +148,7 @@ export interface SettingsBound {
   readonly maxExpression?: readonly SettingsBoundToken[]
 }
 
-// see IV-16
+// Spec: IV-16
 export const SETTINGS_BOUNDS: Readonly<Record<string, SettingsBound>> = {
   'pinnedTaskGroupIds': { maxExpression: [{ num: 5 }] },
   'rulerFontSizePx': {
@@ -164,19 +164,19 @@ export const SETTINGS_BOUNDS: Readonly<Record<string, SettingsBound>> = {
   'zoomY': { minExpression: [{ num: 0.02 }], maxExpression: [{ num: 240 }] },
 }
 
-// see FR-039
-// TRAP: SETTINGS_DEFAULTS holds these keys worked out at the defaults only;
+// Spec: FR-039
+// Trap: SETTINGS_DEFAULTS holds these keys worked out at the defaults only;
 // once a key they read is edited, work them out again from this rule.
-// TRAP: the value is from * times + plus + plusFrom * plusTimes, and
+// Trap: the value is from * times + plus + plusFrom * plusTimes, and
 // plusFrom is null when the rule names no second key.
-// TRAP: a rule with index instead of from is index[by] * times.
+// Trap: a rule with index instead of from is index[by] * times.
 export const SETTINGS_DERIVED = {
   'rulerFontSizePx': { index: 'fontSizeStepSizes', by: 'fontSizeStep', times: 1.5 },
   'rulerHeightPx': { from: 'rulerFontSizePx', times: 3, plus: 0, plusFrom: 'rulerLabelPad', plusTimes: 3 },
 } as const
 
 // see FR-063, table T-064 PI-2
-// TRAP: never read one of these from a document; a file does not carry them.
+// Trap: never read one of these from a document; a file does not carry them.
 export const SETTINGS_CONSTANTS: {
   readonly actualGap: number
   readonly actualInitialDuration: number
@@ -401,24 +401,24 @@ export const SETTINGS_CONSTANTS: {
   zoomMax: 240,
   zoomMin: 0.02,
   zoomStep: 1.1,
-  // TRAP: these keys state no machine value, so none is generated:
+  // Trap: these keys state no machine value, so none is generated:
   //   planActualGuideColor (S-105)
 }
 
 // see table T-064 PI-2, PI-35
-// TRAP: only drawnSettingsOf builds one; nothing else joins the two.
+// Trap: only drawnSettingsOf builds one; nothing else joins the two.
 export type DrawnSettings = DocumentSettings & typeof SETTINGS_CONSTANTS
 // </generated>
 
-// see S-234, FR-039
-// TRAP: the order is table T-202's own type column, and FR-039 (MUST NOT) forbids either
+// Spec: S-234, FR-039
+// Trap: the order is table T-202's own type column, and FR-039 (MUST NOT) forbids either
 // end wrapping round, so the ends are read from this list rather than counted modulo it.
 export const DISPLAY_SCALE_STEPS: readonly DocumentSettings['displayScale'][] = [
   50, 67, 75, 90, 100, 110, 125, 150, 175, 200,
 ]
 
-// see FR-151, T-203, T-372
-// WHY: the views of the three tables, one key each; the table names everywhere are this type's keys.
+// Spec: FR-151, T-203, T-372
+// Why: the views of the three tables, one key each; the table names everywhere are this type's keys.
 export type TableViews = DocumentSettings['tableViews']
 
 export interface ClampedValue {
@@ -448,7 +448,7 @@ function replace(value: unknown, path: readonly string[], put: number): unknown 
   return { ...held, [head]: rest.length === 0 ? put : replace(held[head], rest, put) }
 }
 
-// TRAP: repeats boundValueOf of schedule-invariants.ts (IV-16); change both together.
+// Trap: repeats boundValueOf of schedule-invariants.ts (IV-16); change both together.
 /** @purity pure */
 function expressionValueOf(expression: readonly SettingsBoundToken[], held: unknown): number | null {
   const stack: number[] = []
@@ -475,14 +475,14 @@ function expressionValueOf(expression: readonly SettingsBoundToken[], held: unkn
   return answer === undefined || !Number.isFinite(answer) ? null : answer
 }
 
-// see RS-51, IV-16
+// Spec: RS-51, IV-16
 /** @purity pure */
 export function clampedSettings(settings: DocumentSettings): ClampResult {
   let held: unknown = settings
   const wasByKey = new Map<string, number>()
   const keys = Object.keys(SETTINGS_BOUNDS)
 
-  // WHY: a floor or ceiling naming another key reads that key after its own clamp; a chain
+  // Why: a floor or ceiling naming another key reads that key after its own clamp; a chain
   // (fontOfActual -> actualMin -> basePlanHeight) settles within one pass per key at most.
   for (let pass = 0; pass <= keys.length; pass++) {
     let moved = false
@@ -498,7 +498,7 @@ export function clampedSettings(settings: DocumentSettings): ClampResult {
       if (ceiling !== null && now > ceiling) now = ceiling
       const floor = bound.minExpression === undefined ? null : expressionValueOf(bound.minExpression, held)
       if (floor !== null && now < floor) now = floor
-      // WHY: the fixed bounds last, so a floor read from another key never lifts a value past its own maximum.
+      // Why: the fixed bounds last, so a floor read from another key never lifts a value past its own maximum.
       if (bound.min !== undefined && now < bound.min) now = bound.min
       if (bound.max !== undefined && now > bound.max) now = bound.max
       if (now !== value) {

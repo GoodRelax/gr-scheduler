@@ -228,7 +228,7 @@ describe('item 12 -- RW-14: previous and next walk the rows a person mends, and 
   })
 })
 
-// WHY: CR-798 TV-2 -- every row starts unchecked and IC-143 stays idle while no row is checked (TV-5), so a case that turns the
+// Why: CR-798 TV-2 -- every row starts unchecked and IC-143 stays idle while no row is checked (TV-5), so a case that turns the
 // filter on first checks the rows of the report table in the document it opens.
 const withReportChecked = (document: Document, taskUids: readonly number[]): Document => ({
   ...document,

@@ -64,7 +64,7 @@ interface TablePage {
   readonly nextOffset: number | null
 }
 
-// WHY: readTableRows is new in this slice; typed loosely so the file compiles whether or not it has landed.
+// Why: readTableRows is new in this slice; typed loosely so the file compiles whether or not it has landed.
 interface Reader {
   readTableRows(table: string, word?: string, filters?: 'asShown' | 'none', offset?: number, limit?: number): TablePage
   readStamp(): unknown
@@ -182,7 +182,7 @@ const assignment = (uid: number, taskUid: number, resourceUid: number): Loose =>
 
 type TableName = 'resourceList' | 'delayDiagnosticsReport'
 
-// WHY: the saved view of one table (S-564..S-572) is written straight into documentSettings.tableViews, in the T-372 shape.
+// Why: the saved view of one table (S-564..S-572) is written straight into documentSettings.tableViews, in the T-372 shape.
 function withView(document: Document, table: TableName, view: Loose): Document {
   const settings = document.documentSettings as unknown as Loose & { tableViews: Loose }
   const views = settings.tableViews as Loose
@@ -194,7 +194,7 @@ function withView(document: Document, table: TableName, view: Loose): Document {
 
 const columnFilter = (column: string, hiddenValues: string[]): Loose => ({ column, hiddenValues, fromDate: null, toDate: null })
 
-// WHY: Ann has three tasks, Bob one, Cy none, and task 605 has no assignee.
+// Why: Ann has three tasks, Bob one, Cy none, and task 605 has no assignee.
 function resourceDocument(): Document {
   const tasks = [601, 602, 603, 604, 605].map((uid, at) => task(uid, `Work ${uid}`, { start: D(`2026-04-0${at + 1}`) }))
   return withStamp({
@@ -217,7 +217,7 @@ function manyResourcesDocument(count: number): Document {
 
 const STATUS_DATE = '2026-10-18T17:00:00'
 
-// WHY: 701 and 702 are started and past their planned finish with no actual finish (DL-1); 703 is finished.
+// Why: 701 and 702 are started and past their planned finish with no actual finish (DL-1); 703 is finished.
 function delayedDocument(): Document {
   const tasks = [
     task(701, 'Late one', { start: D('2026-03-02'), finish: D('2026-03-06'), actualStart: D('2026-03-02'), percentComplete: 40 }),
@@ -239,7 +239,7 @@ function delayedDocument(): Document {
 const keysOf = (page: TablePage): Array<number | string> => page.rows.map((row) => row.key)
 const cellOf = (row: TableRow, column: string): TableCell | undefined => row.cells.find((one) => one.column === column)
 
-// WHY: a filter cell that says "same as above" repeats the row above it in the table.
+// Why: a filter cell that says "same as above" repeats the row above it in the table.
 function kindsOfTable(tableId: string): Map<string, string> {
   const rows = specTable(tableId).rows
   const filterCellOf = (at: number): string => {
@@ -254,7 +254,7 @@ function kindsOfTable(tableId: string): Map<string, string> {
 const REPORT_IDS = specTable('T-347').rows.map((row) => row.id)
 const LIST_IDS = specTable('T-371').rows.map((row) => row.id)
 
-// see AM-28, AV-17, AV-18, AV-19, AV-20, T-371
+// Spec: AM-28, AV-17, AV-18, AV-19, AV-20, T-371
 describe('AM-28 readTableRows(resourceList) -- the Resource List table by the columns of table T-371', () => {
   const page = (): TablePage => readerOf(stateOf(resourceDocument())).readTableRows('resourceList', '')
   const rowOf = (uid: number): TableRow => page().rows.find((row) => row.key === uid)!
@@ -300,7 +300,7 @@ describe('AM-28 readTableRows(resourceList) -- the Resource List table by the co
     }
     for (const uid of [301, 302, 303]) {
       const row = rowOf(uid)
-      // WHY: a resource with no tasks has an empty RQ-5 cell
+      // Why: a resource with no tasks has an empty RQ-5 cell
       for (const id of LIST_IDS) expect(cellOf(row, id), `${uid} ${id}`).toBeDefined()
       for (const id of LIST_IDS.filter((one) => one !== 'RQ-5')) expect(cellOf(row, id)?.text.length, `${uid} ${id}`).toBeGreaterThan(0)
     }
@@ -352,7 +352,7 @@ describe('AM-28 readTableRows(resourceList) -- the Resource List table by the co
   })
 })
 
-// see AM-28, AM-19, AV-17, AV-19, AV-20, T-347
+// Spec: AM-28, AM-19, AV-17, AV-19, AV-20, T-347
 describe('AM-28 readTableRows(delayDiagnosticsReport) -- the Delay Diagnostics Report table by the columns of table T-347', () => {
   const page = (): TablePage => readerOf(stateOf(delayedDocument())).readTableRows('delayDiagnosticsReport', '')
   const rowOf = (uid: number): TableRow => page().rows.find((row) => row.key === uid)!
@@ -420,7 +420,7 @@ describe('AM-28 readTableRows(delayDiagnosticsReport) -- the Delay Diagnostics R
   })
 })
 
-// see AM-28, S-566, S-567, S-571, S-572, T-372
+// Spec: AM-28, S-566, S-567, S-571, S-572, T-372
 describe('AM-28 readTableRows(table, word, filters) -- asShown applies the saved column filters and sort of the table; none does not', () => {
   const listKeys = (document: Document, filters?: 'asShown' | 'none'): Array<number | string> =>
     keysOf(readerOf(stateOf(document)).readTableRows('resourceList', '', filters))
@@ -458,7 +458,7 @@ describe('AM-28 readTableRows(table, word, filters) -- asShown applies the saved
   it('S-567: a sort on DT-5 (planned days) orders the report by the start day, under asShown only', () => {
     const ascending = withView(delayedDocument(), 'delayDiagnosticsReport', { sort: { column: 'DT-5', direction: 'ascending' } })
     const descending = withView(delayedDocument(), 'delayDiagnosticsReport', { sort: { column: 'DT-5', direction: 'descending' } })
-    // WHY: task 702 starts on 2026-02-02 and task 701 on 2026-03-02.
+    // Why: task 702 starts on 2026-02-02 and task 701 on 2026-03-02.
     expect(before(reportKeys(ascending, 'asShown'), 702, 701)).toBe(true)
     expect(before(reportKeys(descending, 'asShown'), 702, 701)).toBe(false)
     expect(reportKeys(ascending, 'none')).toEqual(reportKeys(descending, 'none'))
@@ -486,7 +486,7 @@ describe('AM-28 readTableRows(table, word, filters) -- asShown applies the saved
   })
 })
 
-// see AM-28, AV-18
+// Spec: AM-28, AV-18
 describe('AM-28 readTableRows(table, word, filters, offset, limit) -- the rows come in pages of at most 100', () => {
   const reader = (): Reader => readerOf(stateOf(manyResourcesDocument(130)))
 
@@ -539,7 +539,7 @@ describe('AM-28 readTableRows(table, word, filters, offset, limit) -- the rows c
   })
 })
 
-// see AM-28, AV-4
+// Spec: AM-28, AV-4
 describe('AM-28 readTableRows -- a table the call does not name is refused as malformedRequest', () => {
   const read = (table: string): unknown => (readerOf(stateOf(resourceDocument())) as unknown as { readTableRows(table: string): unknown }).readTableRows(table)
 
@@ -552,7 +552,7 @@ describe('AM-28 readTableRows -- a table the call does not name is refused as ma
   })
 })
 
-// see AM-28, AM-25
+// Spec: AM-28, AM-25
 describe('AM-28 / AM-25 -- the Search Panel is read by readSearchRows, one table one road', () => {
   const text = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '_assets', 'tbl-agent-api-members.md'), 'utf8'))
   const rowLine = text.split('\n').find((line) => line.startsWith('| AM-28 |')) ?? ''

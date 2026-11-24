@@ -1,11 +1,11 @@
-// ClipboardGateway -- declares the interface Clipboard (table T-065 IF-5).
+// File: ClipboardGateway: declares the interface Clipboard (table T-065 IF-5).
 // @unit      UF-46   (docs/spec/05-07-design.md, table T-075)
 // @component ClipboardGateway, layer Adapter (table T-062)
 // @purity    n/a
 // @seam      Clipboard, implemented in another layer (LR-5)
 
-// see FR-025
-// TRAP: PNG bytes, never SVG text: FR-025 puts one image/png item on the board and
+// Spec: FR-025
+// Trap: PNG bytes, never SVG text: FR-025 puts one image/png item on the board and
 // forbids the SVG text beside it, so a text-shaped picture arm cannot be honored.
 export type ClipboardContent =
   | {

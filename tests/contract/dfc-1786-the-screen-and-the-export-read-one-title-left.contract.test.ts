@@ -26,7 +26,7 @@ import { templateDocument } from './w3-t3-frame-stage'
 
 const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
-// WHY: each constant is cut from the manuscript as check 39 reads it, so the cases cannot drift from the words they test.
+// Why: each constant is cut from the manuscript as check 39 reads it, so the cases cannot drift from the words they test.
 const BR_2_TITLE_LEFT = '`Document Title` の左端は、席の右に `BR-7` の縦線とその両脇の隔たりを置いた右とすること（MUST）'
 const BR_2_NO_MEASURING = '⛔ 字の実寸を測って題を置いてはならない（MUST NOT）'
 const EP_1_ONE_ROW = '字の大きさと左の余白は、画面と書き出しが同じ 1 つの行を読むこと（MUST）'
@@ -53,7 +53,7 @@ const setting = (id: string): number => {
   return value
 }
 
-// see BR-2
+// Spec: BR-2
 const TITLE_LEFT = (3 * setting('S-226') + setting('S-490') * setting('S-462')) * setting('S-235') + setting('S-492')
 const SEAT = setting('S-490') * setting('S-462') * setting('S-235')
 
@@ -91,7 +91,7 @@ const SETTINGS = ((): DocumentSettings => {
   return built as unknown as DocumentSettings
 })()
 
-// WHY: the items are built the way the application builds them from a document, not written out by hand.
+// Why: the items are built the way the application builds them from a document, not written out by hand.
 function builtItems(): AppHeaderItems {
   const document = templateDocument()
   const schedule = { ...document.schedule, project: { ...document.schedule.project, title: TITLE } }
@@ -100,8 +100,8 @@ function builtItems(): AppHeaderItems {
 
 const px = (value: string | undefined): number => Number((value ?? '').replace('px', ''))
 
-// see BR-2, BR-7
-// WHY: the left of the title strip is the header padding, the seat, the divider and the two gaps beside it, as the header lays them out.
+// Spec: BR-2, BR-7
+// Why: the left of the title strip is the header padding, the seat, the divider and the two gaps beside it, as the header lays them out.
 function titleLeftOnTheScreen(items: AppHeaderItems): number {
   const built = stage()
   const header = built.host.createElement('div') as unknown as FakeElement
@@ -148,7 +148,7 @@ function titleLeftInTheExport(items: AppHeaderItems): number {
   const tag = new RegExp(`<text\\b([^>]*)>${TITLE}</text>`).exec(answer.svg)?.[1]
   if (tag === undefined) throw new Error('EP-1: the export draws no Document Title')
   const x = Number(/\sx="([^"]*)"/.exec(tag)?.[1])
-  // WHY: the picture is scaled to the export canvas width; the screen's pixels are recovered by the same ratio.
+  // Why: the picture is scaled to the export canvas width; the screen's pixels are recovered by the same ratio.
   const widthOfPicture = Number(/viewBox="0 0 ([\d.]+)/.exec(answer.svg)?.[1])
   const ratio = widthOfPicture / (scene.regions.scheduleCanvas.x + scene.regions.scheduleCanvas.width)
   return x / ratio - scene.regions.appHeader.x

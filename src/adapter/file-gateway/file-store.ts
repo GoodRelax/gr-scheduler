@@ -1,10 +1,10 @@
-// The FileStore seam FileGateway reads and writes files through.
+// File: FileGateway: The FileStore seam FileGateway reads and writes files through.
 // @unit      UF-42   (docs/spec/05-07-design.md, table T-075)
 // @component FileGateway, layer Adapter (table T-062)
 // @purity    n/a
 // @seam      FileStore, implemented in another layer (LR-5)
 
-// see OP-2, OP-13, OP-15
+// Spec: OP-2, OP-13, OP-15
 export type OpenRoute = 'chooser' | 'drop' | 'reopen' | 'baseline'
 
 export type FileStoreFaultReason =
@@ -56,14 +56,14 @@ export interface ChosenFileWrite {
   askToWriteOver(destination: ChosenWriteDestination): Promise<boolean>
 }
 
-// see IF-3
+// Spec: IF-3
 export interface FileStore {
   readFileToOpen(route: OpenRoute): Promise<FileReading>
 
-  // see FR-060, T-290
+  // Spec: FR-060, T-290
   adoptFileReadToOpen(): void
 
-  // see FR-095
+  // Spec: FR-095
   forgetOpenedFile(): void
 
   readOpenedFileState(): Promise<OpenedFileState>
@@ -74,7 +74,7 @@ export interface FileStore {
 
   writeChosenFile(write: ChosenFileWrite): Promise<FileWriting>
 
-  // see IF-3, FR-068, IO-10
-  // WHY: optional: a host with no page (Node, a test's store) has no download to hand a file to.
+  // Spec: IF-3, FR-068, IO-10
+  // Why: optional: a host with no page (Node, a test's store) has no download to hand a file to.
   downloadFile?(fileName: string, bytes: Uint8Array): void
 }

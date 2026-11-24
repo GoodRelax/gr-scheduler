@@ -18,7 +18,7 @@ const OP_17_OUTSIDE = 'ドラッグがウィンドウの外へ出たとき、と
 const OP_17_ONLY_FILES = 'ファイルを持つドラッグ（閲覧環境が渡す `dataTransfer.types` に `Files` が在るもの）がウィンドウの上に来たら、ドロップの案内（`_assets/tbl-glossary.md` の `U-68`）を出すこと（MUST）'
 const OP_17_REFUSED = '⚠️ ドロップしても受け付けないあいだ'
 const CUE = '[data-role="Drop Cue"]'
-// WHY: a drop of something the app cannot read raises a notice and no chooser, so the dragged file is a real GRS JSON document.
+// Why: a drop of something the app cannot read raises a notice and no chooser, so the dragged file is a real GRS JSON document.
 const DOCUMENT_TEXT = readFileSync(resolve('src', 'framework', 'single-html-shell', 'empty-document.json'), 'utf8')
 
 test('the clauses these cases drive are still in the manuscript', () => {
@@ -29,7 +29,7 @@ test('the clauses these cases drive are still in the manuscript', () => {
 
 type Kind = 'dragenter' | 'dragleave' | 'drop'
 
-// WHY: a browser fires dragenter on the element it enters and dragleave on the one it leaves, so the page is driven the same way, element by element.
+// Why: a browser fires dragenter on the element it enters and dragleave on the one it leaves, so the page is driven the same way, element by element.
 const fire = async (page: Page, kind: Kind, selector: string, withFiles = true): Promise<void> => {
   await page.evaluate(
     ({ kind, selector, withFiles, text }) => {
@@ -46,7 +46,7 @@ const fire = async (page: Page, kind: Kind, selector: string, withFiles = true):
 const CANVAS = '[data-role="Schedule Canvas"]'
 const HEADER = '[data-role="App Header"]'
 
-// WHY: the cue is drawn by the frame that follows the event, so the page is read after it settles.
+// Why: the cue is drawn by the frame that follows the event, so the page is read after it settles.
 const cueCount = async (page: Page): Promise<number> => {
   await settle(page)
   return page.locator(CUE).count()
@@ -58,7 +58,7 @@ test('OP-17 (MUST): a drag carrying files over the window shows the cue, over th
   await expect.poll(() => cueCount(page), 'OP-17: no cue appeared for a file drag').toBe(1)
   const cue = page.locator(CUE)
   await expect(cue).toHaveText(CUE_WORDS?.en ?? '')
-  // WHY: U-32 is the screen region under the App Header (ScreenRegions.scheduleCanvas); the element carrying the role also runs behind the header.
+  // Why: U-32 is the screen region under the App Header (ScreenRegions.scheduleCanvas); the element carrying the role also runs behind the header.
   const rects = await page.evaluate(
     ({ cue, header }) => {
       const a = (document.querySelector(cue) as Element).getBoundingClientRect()
@@ -103,11 +103,11 @@ test('OP-17: moving from one part inside the window onto another does not hide t
   await launch(page)
   await fire(page, 'dragenter', CANVAS)
   await expect.poll(() => cueCount(page)).toBe(1)
-  // STEP: the browser enters the next element first and then leaves the previous one
+  // Step: the browser enters the next element first and then leaves the previous one
   await fire(page, 'dragenter', HEADER)
   await fire(page, 'dragleave', CANVAS)
   expect(await cueCount(page), `${OP_17_SAME_UI} -- the cue went away on a move inside the window`).toBe(1)
-  // STEP: back onto the first and on again, then the one that is the window's edge
+  // Step: back onto the first and on again, then the one that is the window's edge
   await fire(page, 'dragenter', CANVAS)
   await fire(page, 'dragleave', HEADER)
   expect(await cueCount(page)).toBe(1)
@@ -136,11 +136,11 @@ test('OP-17 (MUST): dropping takes the cue down, and the drop opens the GRS JSON
 
 test('OP-17: after a drop, the next drag starts counting from the window again (a drop leaves no depth behind)', async ({ page }) => {
   await launch(page)
-  // STEP: two nested entries, then the drop, which the browser ends with no dragleave for either
+  // Step: two nested entries, then the drop, which the browser ends with no dragleave for either
   await fire(page, 'dragenter', CANVAS)
   await fire(page, 'dragenter', HEADER)
   await fire(page, 'drop', HEADER)
-  // WHY: a dropped GRS JSON opens without U-56 (OP-19); only a question over unsaved edits may stand.
+  // Why: a dropped GRS JSON opens without U-56 (OP-19); only a question over unsaved edits may stand.
   await settle(page)
   await page.waitForTimeout(200)
   if (await page.locator('[data-role="Confirmation"] [data-confirmation-answer="proceed"]').count()) {
@@ -156,7 +156,7 @@ test('OP-17: after a drop, the next drag starts counting from the window again (
 
 test('OP-17 (MUST NOT): while an open chooser stands the app would refuse a drop, so no cue is shown', async ({ page }) => {
   await launch(page)
-  // WHY: the file dialog keeps U-56; a dropped GRS JSON skips it (OP-19).
+  // Why: the file dialog keeps U-56; a dropped GRS JSON skips it (OP-19).
   await openThroughIc1(page, 'dragged.json', DOCUMENT_TEXT, null)
   await expect(page.locator('[data-role="Open Chooser"]')).toHaveCount(1)
   await fire(page, 'dragleave', CANVAS)

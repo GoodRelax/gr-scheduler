@@ -14,13 +14,13 @@ const RS_67 = WORDS.reasons.find((one) => one.rowId === 'RS-67')
 const LOWER_LINE = /^\d{4}\/\d{2}\/\d{2} \d{2}:\d{2}:\d{2} {2}(\d+\.\d\[kB\])$/
 const EMBEDDED = 'id="embedded-document"'
 
-// see FR-027
+// Spec: FR-027
 const templateContainerId = (): string | null => /<script type="application\/json" id="([^"]+)"/.exec(DIST.replace(/<script type="module">[\s\S]*?<\/script>/g, ''))?.[1] ?? null
 
-// see HS-3
+// Spec: HS-3
 const sizeSpelling = (bytes: number): string => `${(Math.floor((bytes + 50) / 100) / 10).toFixed(1)}[kB]`
 
-// see IC-2, T-024
+// Spec: IC-2, T-024
 const writeOut = async (page: Page, format: string): Promise<{ name: string; text: string }> => {
   const before = (await savedFiles(page)).length
   await press(page, 'IC-2')
@@ -30,7 +30,7 @@ const writeOut = async (page: Page, format: string): Promise<{ name: string; tex
   return (await savedFiles(page))[before]!
 }
 
-// see OP-2
+// Spec: OP-2
 const drop = async (page: Page, name: string, text: string): Promise<void> => {
   await page.evaluate(
     ({ name, text }) => {
@@ -44,7 +44,7 @@ const drop = async (page: Page, name: string, text: string): Promise<void> => {
   await settle(page)
 }
 
-// see HS-8, U-31
+// Spec: HS-8, U-31
 const headerHeights = (page: Page): Promise<{ shown: number; hidden: number; inside: boolean }> =>
   page.evaluate(() => {
     const header = document.querySelector('[data-role="App Header"]') as HTMLElement
@@ -77,7 +77,7 @@ test('SX-1 / HS-1 / HS-2 / HS-3: a GRS JSON written through IC-2 names the file,
 test('HS-8: the two lines do not count toward the App Header height and stay inside it at the default 16px ground', async ({ page }) => {
   await launch(page)
   const before = (await savedFiles(page)).length
-  // STEP: SK-11 names the file in every build, so both lines hold text before the header is measured
+  // Step: SK-11 names the file in every build, so both lines hold text before the header is measured
   await page.keyboard.press('Control+s')
   await expect.poll(async () => (await savedFiles(page)).length).toBe(before + 1)
   await settle(page)
@@ -138,7 +138,7 @@ test('RS-67 / NT-1: an .html GRS cannot open is refused with RS-67', async ({ pa
   expect([RS_67?.text.en, RS_67?.text.ja].some((words) => words !== undefined && told.includes(words)), 'RS-67 was not told').toBe(true)
 })
 
-// see BT-1, BT-4, FR-067
+// Spec: BT-1, BT-4, FR-067
 const startFrom = async (page: Page, html: string): Promise<void> => {
   const path = join(mkdtempSync(join(tmpdir(), 'grs-cr-612-')), 'handed.html')
   writeFileSync(path, html)

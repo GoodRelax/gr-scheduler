@@ -17,10 +17,10 @@ import { barOf, cellOf, centerOf, G, MODS, numberIn, pointerAt, pressOf, Q, rowT
 
 const flat = (text: string): string => text.replace(/<br\s*\/?>/g, '').replace(/\*\*/g, '').replace(/\s*\n\s*/g, '')
 
-// WHY: the three grabs of a task body -- a press on any of them moves the whole selection (table T-270 PE-1).
+// Why: the three grabs of a task body -- a press on any of them moves the whole selection (table T-270 PE-1).
 const BODY_GRABS = ['GA-9', 'GA-14', 'GA-15']
 
-// WHY: the boundary between a click and a drag is the settings row S-208 of table T-206, never a number held here.
+// Why: the boundary between a click and a drag is the settings row S-208 of table T-206, never a number held here.
 const S_208 = numberIn(cellOf('T-206', 'S-208', '既定'))
 
 describe('DFC-1991 -- the rows these cases are driven by', () => {
@@ -80,7 +80,7 @@ const bodyOf = (scene: Scene, uid: number): Pt => {
   return at
 }
 
-// WHY: a point on the bar's end, found by the hit test itself so the case does not assume the grab's size.
+// Why: a point on the bar's end, found by the hit test itself so the case does not assume the grab's size.
 const endOf = (scene: Scene, uid: number): Pt => {
   const bar = barOf(scene, uid)
   const middle = bar.y + bar.height / 2

@@ -8,13 +8,13 @@ import { describe, expect, it } from 'vitest'
 
 const PAGE = readFileSync(join(process.cwd(), 'docs', 'download', 'index.html'), 'utf8').replace(/\r\n/g, '\n')
 
-// WHY: the page holds the English block first and the Japanese block after it; each block opens with a data-lang container.
+// Why: the page holds the English block first and the Japanese block after it; each block opens with a data-lang container.
 const JA_START = PAGE.indexOf('<div data-lang="ja"')
 const EN_START = PAGE.indexOf('<div data-lang="en"')
 const EN_BLOCK = PAGE.slice(EN_START, JA_START)
 const JA_BLOCK = PAGE.slice(JA_START)
 
-// WHY: the drive letter and the folder are written in pieces so no absolute-path literal stands in the test.
+// Why: the drive letter and the folder are written in pieces so no absolute-path literal stands in the test.
 const USERS_DIR = `${'C'}:\\Users\\`
 const NAME_ESCAPED = '&lt;name&gt;'
 const OWN_DOCUMENTS = `${USERS_DIR}${NAME_ESCAPED}\\Documents\\GRS`

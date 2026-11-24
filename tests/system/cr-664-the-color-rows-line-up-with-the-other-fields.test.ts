@@ -33,7 +33,7 @@ const S_248 = ((): number => {
 
 const SCREEN = screenOf(rowOf(specTable('T-025'), 'MC-6'))
 
-// WHY: sub-pixel layout rounds differently per row; one pixel is the line the eye cannot tell apart.
+// Why: sub-pixel layout rounds differently per row; one pixel is the line the eye cannot tell apart.
 const SAME_EDGE_PX = 1
 
 const SETTLE_MS = 900
@@ -109,7 +109,7 @@ async function panelWidthOf(page: Page): Promise<number> {
   return page.evaluate((panel: string) => document.querySelector(panel)?.getBoundingClientRect().width ?? 0, PROPERTIES_PANEL)
 }
 
-// WHY: the divider nearest the panel's left edge is the one FR-052 lets the author drag.
+// Why: the divider nearest the panel's left edge is the one FR-052 lets the author drag.
 /** @purity non-pure */
 async function narrowToTheFloor(page: Page): Promise<void> {
   const at = await page.evaluate(
@@ -166,7 +166,7 @@ interface SwatchRows {
   readonly tops: number
 }
 
-// WHY: the grid is the element holding the transparent entry (CV-9, CR-689); its cells' tops count its rows.
+// Why: the grid is the element holding the transparent entry (CV-9, CR-689); its cells' tops count its rows.
 /** @purity semi-pure-mutable */
 async function swatchRowsOf(page: Page): Promise<SwatchRows[]> {
   return page.evaluate(

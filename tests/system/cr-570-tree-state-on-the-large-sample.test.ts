@@ -65,8 +65,8 @@ test.afterAll(async () => {
   await browser?.close()
 })
 
-// see OP-3, FR-055
-// WHY: the sample holds two levels only, so the claims that need a third open the four-level
+// Spec: OP-3, FR-055
+// Why: the sample holds two levels only, so the claims that need a third open the four-level
 // tree of the stage instead (T1 > T1a > T1a1 > T1a1x).
 /** @purity non-pure */
 async function openArranged(arranged: Arrangement): Promise<Stage> {
@@ -76,7 +76,7 @@ async function openArranged(arranged: Arrangement): Promise<Stage> {
   return stage
 }
 
-// WHY: the picture OP-10 draws on opening, with no fit pressed -- the zoom the fit chose is the
+// Why: the picture OP-10 draws on opening, with no fit pressed -- the zoom the fit chose is the
 // current one (FR-055), which the cases below start from.
 /** @purity non-pure */
 async function openTheSampleAsOpened(): Promise<Stage> {
@@ -100,7 +100,7 @@ function withState(reading: TreeReading, wanted: string): string[] {
   return reading.rows.filter((row) => row.treeState === wanted).map((row) => row.id)
 }
 
-// WHY: the picture where only depth 1 is drawn, so a task group's children are drawn only if a tree value
+// Why: the picture where only depth 1 is drawn, so a task group's children are drawn only if a tree value
 // asks for them (TD-6 / TD-7) -- the setting the one-level entrance of decision 5 needs.
 /** @purity non-pure */
 async function toTheShallowestPicture(page: Page): Promise<void> {
@@ -126,7 +126,7 @@ test('the manuscript: HF-2, HF-3, HF-8, HF-10, HF-11, HF-13 send their values to
 test.describe('CR-570 section 9 on sample-large-erp-program.ja.xml', () => {
   test.describe.configure({ timeout: 300_000 })
 
-  // WHY: red if the head [vv] is faint while the zoom hides task groups, or it moves the zoom, or it
+  // Why: red if the head [vv] is faint while the zoom hides task groups, or it moves the zoom, or it
   // rewrites an expanded task group.
   test('claim 1: while the zoom drops the deep tiers the head [vv] is armed, draws every task group, keeps the zoom and the expanded task groups', async () => {
     const stage = await openTheSample()
@@ -134,12 +134,12 @@ test.describe('CR-570 section 9 on sample-large-erp-program.ja.xml', () => {
       const { page } = stage
       const program = taskGroupNamed(await readTree(page), ERP_PROGRAM_TASK_GROUP)
       await toTheShallowestPicture(page)
-      // STEP: one expanded task group before the press, so the press is seen to leave it alone
+      // Step: one expanded task group before the press, so the press is seen to leave it alone
       await pressRowEntrance(page, program.id, TASK_GROUP_OPEN_ONE_LEVEL)
       expect(stateOf(await readTree(page), program.id), 'HF-13 / T-328: [v] gives expanded').toBe('expanded')
       const before = await readTree(page)
       expect(await isArmed(page, HEAD_OPEN_EVERY_TASK_GROUP), 'HF-10: task groups the zoom does not draw arm the head [vv]').toBe(true)
-      // STEP: the head [vv]
+      // Step: the head [vv]
       await pressEntrance(page, HEAD_OPEN_EVERY_TASK_GROUP)
       const after = await readTree(page)
       expect(after.zoomY, 'HF-10: the zoom does not move').toBe(before.zoomY)
@@ -154,7 +154,7 @@ test.describe('CR-570 section 9 on sample-large-erp-program.ja.xml', () => {
     }
   })
 
-  // WHY: red if a task group [vv] leaves a non-leaf descendant auto, or rewrites an expanded one.
+  // Why: red if a task group [vv] leaves a non-leaf descendant auto, or rewrites an expanded one.
   test('claim 2: a task group [vv] draws its whole subtree; non-leaf descendants become temporarilyExpanded, expanded ones stay', async () => {
     const stage = await openArranged({ zoomY: SHALLOW_ZOOM })
     try {
@@ -163,7 +163,7 @@ test.describe('CR-570 section 9 on sample-large-erp-program.ja.xml', () => {
       await pressRowEntrance(page, 'T1a', TASK_GROUP_OPEN_ONE_LEVEL)
       expect(stateOf(await readTree(page), 'T1a'), 'premise: T1a is expanded').toBe('expanded')
       expect(await isTaskGroupEntranceArmed(page, 'T1', TASK_GROUP_OPEN_ALL_BELOW), 'HF-2: undrawn task groups below arm the task group [vv]').toBe(true)
-      // STEP: the task group [vv] on T1
+      // Step: the task group [vv] on T1
       await pressRowEntrance(page, 'T1', TASK_GROUP_OPEN_ALL_BELOW)
       const after = await readTree(page)
       expect(stateOf(after, 'T1'), 'T-328: [vv] leaves an expanded pressed task group').toBe('expanded')
@@ -178,7 +178,7 @@ test.describe('CR-570 section 9 on sample-large-erp-program.ja.xml', () => {
     }
   })
 
-  // WHY: red if a shrink leaves a temporarilyExpanded task group or draws more than the zoom picture of the
+  // Why: red if a shrink leaves a temporarilyExpanded task group or draws more than the zoom picture of the
   // fit, which already holds every task group the smaller zoom can draw (FR-018 monotonic).
   test('claim 3: one shrink after the head [vv] returns every temporarilyExpanded task group to auto', async () => {
     const stage = await openTheSample()
@@ -187,7 +187,7 @@ test.describe('CR-570 section 9 on sample-large-erp-program.ja.xml', () => {
       const atFit = await drawnRowIds(page)
       expect(await isArmed(page, HEAD_OPEN_EVERY_TASK_GROUP), 'premise: the fit picture leaves task groups undrawn').toBe(true)
       await pressEntrance(page, HEAD_OPEN_EVERY_TASK_GROUP)
-      // STEP: one shrink
+      // Step: one shrink
       await pressEntrance(page, VERTICAL_ZOOM_SHRINK)
       const after = await readTree(page)
       expect(withState(after, 'temporarilyExpanded'), 'T-328 verticalZoomShrinkPressed: none left').toEqual([])
@@ -198,7 +198,7 @@ test.describe('CR-570 section 9 on sample-large-erp-program.ja.xml', () => {
     }
   })
 
-  // WHY: red if [v] is faint over children drawn only by temporarilyExpanded (decision 5), or the
+  // Why: red if [v] is faint over children drawn only by temporarilyExpanded (decision 5), or the
   // shrink takes the expanded task group's children away (TD-6), or draws another task group's children.
   test('claim 6: [v] after the head [vv] gives expanded, and its children stay after the shrink', async () => {
     const stage = await openTheSample()
@@ -208,10 +208,10 @@ test.describe('CR-570 section 9 on sample-large-erp-program.ja.xml', () => {
       const program = taskGroupNamed(await readTree(page), ERP_PROGRAM_TASK_GROUP)
       await pressEntrance(page, HEAD_OPEN_EVERY_TASK_GROUP)
       expect(await isTaskGroupEntranceArmed(page, program.id, TASK_GROUP_OPEN_ONE_LEVEL), 'HF-13: children drawn only by temporarilyExpanded arm [v]').toBe(true)
-      // STEP: [v] on the program task group after the head [vv]
+      // Step: [v] on the program task group after the head [vv]
       await pressRowEntrance(page, program.id, TASK_GROUP_OPEN_ONE_LEVEL)
       expect(stateOf(await readTree(page), program.id), 'T-328: [v] on temporarilyExpanded gives expanded').toBe('expanded')
-      // STEP: one shrink (at the ZE-2 end)
+      // Step: one shrink (at the ZE-2 end)
       await pressEntrance(page, VERTICAL_ZOOM_SHRINK)
       const after = await readTree(page)
       expect(withState(after, 'temporarilyExpanded'), 'T-328 verticalZoomShrinkPressed: none left').toEqual([])
@@ -230,7 +230,7 @@ test.describe('CR-570 section 9 on sample-large-erp-program.ja.xml', () => {
     }
   })
 
-  // WHY: red if enlarging, zooming the dates or scrolling ends temporarilyExpanded, or the one
+  // Why: red if enlarging, zooming the dates or scrolling ends temporarilyExpanded, or the one
   // shrink after them does not.
   test('claim 4: enlarge, date zoom and scroll keep temporarilyExpanded; the next shrink ends it', async () => {
     const stage = await openTheSample()
@@ -246,7 +246,7 @@ test.describe('CR-570 section 9 on sample-large-erp-program.ja.xml', () => {
       await page.mouse.wheel(0, 400)
       await settle(page)
       expect(withState(await readTree(page), 'temporarilyExpanded'), 'T-328: A24 leaves the values').toEqual(opened)
-      // STEP: one shrink
+      // Step: one shrink
       await pressEntrance(page, VERTICAL_ZOOM_SHRINK)
       expect(withState(await readTree(page), 'temporarilyExpanded'), 'T-328 verticalZoomShrinkPressed').toEqual([])
     } finally {
@@ -254,7 +254,7 @@ test.describe('CR-570 section 9 on sample-large-erp-program.ja.xml', () => {
     }
   })
 
-  // WHY: red if a shrink at the ZE-2 end keeps temporarilyExpanded or moves the zoom, or a shrink
+  // Why: red if a shrink at the ZE-2 end keeps temporarilyExpanded or moves the zoom, or a shrink
   // with nothing to end changes the document, marks it unsaved or stacks a step.
   test('claim 5: at the shrinking end a shrink still ends temporarilyExpanded, and with none it changes nothing', async () => {
     const stage = await openTheSample()
@@ -265,13 +265,13 @@ test.describe('CR-570 section 9 on sample-large-erp-program.ja.xml', () => {
       expect(await wouldWarn(page), 'premise: saved, so nothing is unsaved').toBe(false)
       const clean = JSON.stringify(await readTree(page))
       const undoBefore = await isArmed(page, UNDO)
-      // STEP: a shrink at the end with no temporarilyExpanded task group
+      // Step: a shrink at the end with no temporarilyExpanded task group
       await pressEntrance(page, VERTICAL_ZOOM_SHRINK)
       expect(JSON.stringify(await readTree(page)), 'ZE-2 / T-328: nothing changes').toBe(clean)
       expect(await wouldWarn(page), 'ZE-4 (MUST NOT): no unsaved edit').toBe(false)
       expect(await isArmed(page, UNDO), 'UN-8 / FR-031: no step was stacked').toBe(undoBefore)
       await pressEntrance(page, HEAD_OPEN_EVERY_TASK_GROUP)
-      // STEP: a shrink at the end with temporarilyExpanded task groups
+      // Step: a shrink at the end with temporarilyExpanded task groups
       await pressEntrance(page, VERTICAL_ZOOM_SHRINK)
       const after = await readTree(page)
       expect(after.zoomY, 'ZE-2 (MUST NOT): the zoom is not rewritten at the end').toBe(end)
@@ -281,7 +281,7 @@ test.describe('CR-570 section 9 on sample-large-erp-program.ja.xml', () => {
     }
   })
 
-  // WHY: red if [^^] or [^] leaves an expanded task group open, or a later [vv] brings expanded back.
+  // Why: red if [^^] or [^] leaves an expanded task group open, or a later [vv] brings expanded back.
   test('claim 7: an expanded task group folded by [^^] or hidden by [^] does not come back expanded through [vv]', async () => {
     const stage = await openTheSample()
     try {
@@ -289,13 +289,13 @@ test.describe('CR-570 section 9 on sample-large-erp-program.ja.xml', () => {
       await toTheShallowestPicture(page)
       const program = taskGroupNamed(await readTree(page), ERP_PROGRAM_TASK_GROUP)
       await pressRowEntrance(page, program.id, TASK_GROUP_OPEN_ONE_LEVEL)
-      // STEP: [^^] then [vv] on the expanded task group
+      // Step: [^^] then [vv] on the expanded task group
       await pressRowEntrance(page, program.id, TASK_GROUP_FOLD_ALL_BELOW)
       expect(stateOf(await readTree(page), program.id), 'T-328 allBelowFoldPressed: expanded -> collapsed').toBe('collapsed')
       await pressRowEntrance(page, program.id, TASK_GROUP_OPEN_ALL_BELOW)
       expect(stateOf(await readTree(page), program.id), 'JDG-594: [vv] gives temporarilyExpanded, not expanded').toBe('temporarilyExpanded')
       await pressRowEntrance(page, program.id, TASK_GROUP_OPEN_ONE_LEVEL)
-      // STEP: [^] then the head [v] then [vv]
+      // Step: [^] then the head [v] then [vv]
       await pressRowEntrance(page, program.id, TASK_GROUP_HIDE)
       expect(stateOf(await readTree(page), program.id), 'T-328 hidePressed: expanded -> hidden').toBe('hidden')
       await pressEntrance(page, HEAD_OPEN_TOP_LEVEL)
@@ -307,7 +307,7 @@ test.describe('CR-570 section 9 on sample-large-erp-program.ja.xml', () => {
     }
   })
 
-  // WHY: red if fit keeps a folded task group or level zero folded, un-hides a task group, or its undo is not
+  // Why: red if fit keeps a folded task group or level zero folded, un-hides a task group, or its undo is not
   // one step that restores the values and keeps the new zoom.
   test('claim 8: fit returns every value but hidden to auto and opens level zero; one undo restores them', async () => {
     const stage = await openTheSample()
@@ -321,7 +321,7 @@ test.describe('CR-570 section 9 on sample-large-erp-program.ja.xml', () => {
       await pressEntrance(page, HEAD_FOLD_EVERY_TASK_GROUP)
       const folded = await readTree(page)
       expect(folded.levelZero, 'T-328 root: head [^^] folds level zero').toBe('collapsed')
-      // STEP: fit
+      // Step: fit
       await pressEntrance(page, FIT)
       const fitted = await readTree(page)
       expect(fitted.levelZero, 'HF-8 / T-328 root: fit opens level zero').toBe('auto')
@@ -329,7 +329,7 @@ test.describe('CR-570 section 9 on sample-large-erp-program.ja.xml', () => {
       for (const row of fitted.rows.filter((one) => one.id !== other.id)) {
         expect(row.treeState, `T-328 fitPressed: ${row.label}`).toBe('auto')
       }
-      // STEP: one undo
+      // Step: one undo
       await pressEntrance(page, UNDO)
       const undone = await readTree(page)
       expect(undone.levelZero, 'UN-17: level zero comes back in the same step').toBe('collapsed')
@@ -340,23 +340,23 @@ test.describe('CR-570 section 9 on sample-large-erp-program.ja.xml', () => {
     }
   })
 
-  // WHY: red if a value change is not an unsaved edit, or the shrink's undo step brings back the zoom.
+  // Why: red if a value change is not an unsaved edit, or the shrink's undo step brings back the zoom.
   test('claim 9: every value change is an unsaved edit and one undo step; the shrink step keeps the zoom', async () => {
-    // WHY: above zoomY 1 the plan height is off its floor, so ZE-1 is false and the shrink writes a
+    // Why: above zoomY 1 the plan height is off its floor, so ZE-1 is false and the shrink writes a
     // zoom; the collapsed T1 leaves task groups undrawn, which arms the head [vv].
     const stage = await openArranged({ zoomY: 1.5, states: { T1: 'collapsed' } })
     try {
       const { page } = stage
       await saveDocument(page)
       const before = await readTree(page)
-      // STEP: the head [vv] after a save
+      // Step: the head [vv] after a save
       await pressEntrance(page, HEAD_OPEN_EVERY_TASK_GROUP)
       const opened = await readTree(page)
       expect(await wouldWarn(page), 'FR-018 / UN-14: the change is an unsaved edit').toBe(true)
       await pressEntrance(page, VERTICAL_ZOOM_SHRINK)
       const shrunk = await readTree(page)
       expect(shrunk.zoomY, 'premise: the shrink moved the zoom').not.toBe(opened.zoomY)
-      // STEP: undo twice, one step for the shrink and one for the press
+      // Step: undo twice, one step for the shrink and one for the press
       await pressKey(page, 'SK-6')
       const first = await readTree(page)
       expect(first.rows.map((row) => row.treeState), 'UN-14: the shrink step brings temporarilyExpanded back').toEqual(opened.rows.map((row) => row.treeState))
@@ -368,7 +368,7 @@ test.describe('CR-570 section 9 on sample-large-erp-program.ja.xml', () => {
     }
   })
 
-  // WHY: red if a value, temporarilyExpanded included, is lost or changed by saving and opening.
+  // Why: red if a value, temporarilyExpanded included, is lost or changed by saving and opening.
   test('claim 10: the five values are saved and a reopened file draws them the same', async () => {
     const stage = await openTheSample()
     try {
@@ -378,7 +378,7 @@ test.describe('CR-570 section 9 on sample-large-erp-program.ja.xml', () => {
       const tops = start.rows.filter((row) => row.parentId === null && !isLeaf(start, row.id))
       if (tops.length < 4) throw new Error('premise: four top-level task groups with children')
       const [first, second, third, fourth] = tops
-      // WHY: bottom-up, so a task group opened above never pushes a task group still to press off the screen.
+      // Why: bottom-up, so a task group opened above never pushes a task group still to press off the screen.
       await pressRowEntrance(page, fourth?.id ?? '', TASK_GROUP_HIDE)
       await pressRowEntrance(page, third?.id ?? '', TASK_GROUP_OPEN_ALL_BELOW)
       await pressRowEntrance(page, third?.id ?? '', TASK_GROUP_FOLD_ALL_BELOW)
@@ -388,7 +388,7 @@ test.describe('CR-570 section 9 on sample-large-erp-program.ja.xml', () => {
       const values = new Set(held.rows.map((row) => row.treeState))
       expect([...values].sort(), 'premise: all five values are held').toEqual(['auto', 'collapsed', 'expanded', 'hidden', 'temporarilyExpanded'])
       const drawn = await drawnRowIds(page)
-      // STEP: save, then open the saved file in place of the document
+      // Step: save, then open the saved file in place of the document
       const body = await saveDocument(page)
       const saved = JSON.parse(body) as { schedule: { taskGroups: { id: string; treeState: string }[] } }
       expect(saved.schedule.taskGroups.map((row) => row.treeState), 'AT-153: the file holds each value').toEqual(held.rows.map((row) => row.treeState))
@@ -401,14 +401,14 @@ test.describe('CR-570 section 9 on sample-large-erp-program.ja.xml', () => {
     }
   })
 
-  // WHY: red if the shrink right after opening steps from any zoom but the fit's (OP-10, FR-055,
+  // Why: red if the shrink right after opening steps from any zoom but the fit's (OP-10, FR-055,
   // ZE-1), so that the picture widens instead.
   test('opening: one task group shrink right after opening adds no task group', async () => {
     const stage = await openTheSampleAsOpened()
     try {
       const { page } = stage
       const opened = await drawnRowIds(page)
-      // STEP: one shrink with no fit pressed
+      // Step: one shrink with no fit pressed
       await pressEntrance(page, VERTICAL_ZOOM_SHRINK)
       const added = (await drawnRowIds(page)).filter((id) => !opened.includes(id))
       expect(added, 'FR-018 / ZE-1: a shrink never draws more task groups').toEqual([])
@@ -417,7 +417,7 @@ test.describe('CR-570 section 9 on sample-large-erp-program.ja.xml', () => {
     }
   })
 
-  // WHY: red if, from the opening picture, the expanded task group loses its child to the shrink (TD-6).
+  // Why: red if, from the opening picture, the expanded task group loses its child to the shrink (TD-6).
   test('claim 6 from the opening picture: [vv], then [v] on the program task group, then a shrink keeps its child', async () => {
     const stage = await openTheSampleAsOpened()
     try {
@@ -427,10 +427,10 @@ test.describe('CR-570 section 9 on sample-large-erp-program.ja.xml', () => {
       const children = childrenOf(start, program.id)
       expect(children.length, 'premise: the program task group has a child').toBeGreaterThan(0)
       await pressEntrance(page, HEAD_OPEN_EVERY_TASK_GROUP)
-      // STEP: [v] on the program task group
+      // Step: [v] on the program task group
       await pressRowEntrance(page, program.id, TASK_GROUP_OPEN_ONE_LEVEL)
       expect(stateOf(await readTree(page), program.id), 'T-328: [v] gives expanded').toBe('expanded')
-      // STEP: one shrink
+      // Step: one shrink
       await pressEntrance(page, VERTICAL_ZOOM_SHRINK)
       const drawn = await drawnRowIds(page)
       for (const child of children) {

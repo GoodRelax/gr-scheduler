@@ -1,4 +1,4 @@
-// ScheduleLayout -- the assignee label: the primary work resource, and a mark when there are more (FR-059).
+// File: ScheduleLayout: the assignee label: the primary work resource, and a mark when there are more (FR-059).
 // @unit      UF-134  (docs/spec/05-07-design.md, table T-075)
 // @component ScheduleLayout, layer layoutEngine (table T-062)
 // @purity    pure
@@ -7,7 +7,7 @@ import type { Schedule } from '../../document-model/schedule/schedule'
 
 const WORK_RESOURCE = 1
 
-// see FR-059
+// Spec: FR-059
 export const MORE_ASSIGNEES_MARK = ', …'
 
 interface LabeledAssignee {
@@ -15,19 +15,19 @@ interface LabeledAssignee {
   readonly uid: number
 }
 
-// see FR-059
+// Spec: FR-059
 /** @purity pure */
 function labeledAssigneeOf(resource: Schedule['resources'][number] | undefined): LabeledAssignee | null {
   if (resource === undefined) return null
-  // TRAP: test both AT-87 and AT-88; either alone draws some cost resources as people.
+  // Trap: test both AT-87 and AT-88; either alone draws some cost resources as people.
   if (resource.resourceKind !== WORK_RESOURCE) return null
   if (resource.isCostResource === true) return null
   const name = resource.name ?? ''
   return name === '' ? null : { name, uid: resource.uid }
 }
 
-// see FR-059, AS-1, AS-13
-// WHY: the task's assignments in document order; the first one the label may show is the primary.
+// Spec: FR-059, AS-1, AS-13
+// Why: the task's assignments in document order; the first one the label may show is the primary.
 /** @purity pure */
 export function labeledAssigneeUidOf(schedule: Schedule, taskUid: number): number | null {
   for (const assignment of schedule.assignments) {
@@ -38,7 +38,7 @@ export function labeledAssigneeUidOf(schedule: Schedule, taskUid: number): numbe
   return null
 }
 
-// see FR-059
+// Spec: FR-059
 /** @purity pure */
 export function assigneeLabelsOf(schedule: Schedule): ReadonlyMap<number, string> {
   const resourceByUid = new Map<number, Schedule['resources'][number]>()

@@ -88,8 +88,8 @@ function grabAndRelease(built: Stage, uid: number, grabArea: string, toDay: numb
   built.drag(from.x, from.y, xOfDay(built.loop, april(toDay)), from.y)
 }
 
-// see T-270
-// WHY: within S-208 of the press point is a press (T-270), so release past S-208 upward; PE-3 reads only x.
+// Spec: T-270
+// Why: within S-208 of the press point is a press (T-270), so release past S-208 upward; PE-3 reads only x.
 /** @purity non-pure */
 function pullAndRelease(built: Stage, uid: number, grabArea: string, toDay: number): void {
   const frame = frameOf(built.loop)
@@ -153,7 +153,7 @@ describe('X-1 WT-1 / WT-2 / WT-5: a task moved by its grab areas (T-245) takes t
 
   it('GA-9 / WT-1 / WT-2: the body moved writes start at S-482 and finish at S-483', () => {
     const built = stage(grsDocument())
-    // WHY: the scan finds a GA-9 point; the S-584 gap and the marker beside the dummy answer GA-18 (FR-013).
+    // Why: the scan finds a GA-9 point; the S-584 gap and the marker beside the dummy answer GA-18 (FR-013).
     const frame = frameOf(built.loop)
     const from = pointAnswering(scanGrabAreas(frame.geometry, BAR, frame.taskGroupArea), 'GA-9')
     built.drag(from.x, from.y, from.x + (xOfDay(built.loop, april(9)) - xOfDay(built.loop, april(7))), from.y)
@@ -164,7 +164,7 @@ describe('X-1 WT-1 / WT-2 / WT-5: a task moved by its grab areas (T-245) takes t
 
   it('GA-9 / AT-154 / AT-155: the body moved writes the project default times', () => {
     const built = stage(grsDocument(ownTimes))
-    // WHY: the scan finds a GA-9 point; the S-584 gap and the marker beside the dummy answer GA-18 (FR-013).
+    // Why: the scan finds a GA-9 point; the S-584 gap and the marker beside the dummy answer GA-18 (FR-013).
     const frame = frameOf(built.loop)
     const from = pointAnswering(scanGrabAreas(frame.geometry, BAR, frame.taskGroupArea), 'GA-9')
     built.drag(from.x, from.y, from.x + (xOfDay(built.loop, april(9)) - xOfDay(built.loop, april(7))), from.y)

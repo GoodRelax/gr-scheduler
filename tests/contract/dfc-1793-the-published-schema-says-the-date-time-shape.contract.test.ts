@@ -14,7 +14,7 @@ const READ = (...parts: string[]): string => readFileSync(join(process.cwd(), ..
 const DESIGN = unbroken(READ('docs', 'spec', '05-07-design.md'))
 const REQUIREMENTS = unbroken(READ('docs', 'spec', '01-04-requirements.md'))
 
-// WHY: each clause is cut from the manuscript as check 39 reads it, so the cases cannot drift from the words they test.
+// Why: each clause is cut from the manuscript as check 39 reads it, so the cases cannot drift from the words they test.
 const CHAPTER_6_2_ONE_DEFINITION =
   '⭐ 日時の列は 1 つの日時の定義を指し、その定義が形を `xsd:dateTime` の字面の `pattern` で言うこと（MUST）'
 const CHAPTER_6_2_SCROLL_DATE = '`_assets/tbl-settings.md` の `S-77`（`scrollDate`）も同じ `pattern` を持つ。'
@@ -36,13 +36,13 @@ type Loose = Record<string, any>
 const SCHEMA = JSON.parse(READ('docs', 'spec', '_source', 'grs-document.schema.json')) as Loose
 const DEFINITIONS = SCHEMA['$defs'] as Loose
 
-// see T-058
-// WHY: the columns whose type the table writes as a date-time.
+// Spec: T-058
+// Why: the columns whose type the table writes as a date-time.
 const DATE_TIME_COLUMNS = specTable('T-058')
   .rows.filter((one) => /^日時$/.test((one.by['型'] ?? '').trim()))
   .map((one) => ({ id: one.id, entity: (one.by['エンティティ'] ?? '').replace(/`/g, '').trim(), column: (one.by['列'] ?? '').replace(/`/g, '').trim() }))
 
-// WHY: the table also types its three setting keys as a date; S-77, S-518 and S-519 are the ones FR-024 names beside the columns.
+// Why: the table also types its three setting keys as a date; S-77, S-518 and S-519 are the ones FR-024 names beside the columns.
 const SETTING_KEYS = ['scrollDate', 'fitSpanStart', 'fitSpanFinish']
 
 const DATE_TIME_REF = '#/$defs/DateTime'
@@ -91,7 +91,7 @@ describe('Chapter 6.2 (MUST): the pattern is the xsd:dateTime spelling, with fra
 })
 
 describe('Chapter 6.2 (MUST NOT): the pattern is shown, not enforced, on the read path', () => {
-  // WHY: the schema says the shape; FR-023 reads the day, so a date-only scroll date is still opened.
+  // Why: the schema says the shape; FR-023 reads the day, so a date-only scroll date is still opened.
   it('a document whose scrollDate is a date alone still opens', () => {
     const raw = taskGroupDocument([{ id: 'r1', parentId: null }])
     raw['documentSettings'].scrollDate = '2026-04-01'

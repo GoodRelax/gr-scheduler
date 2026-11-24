@@ -1,4 +1,4 @@
-// Pastes a copy of each chosen Task, and of no Task that was not chosen.
+// File: EditDocument: Pastes a copy of each chosen Task, and of no Task that was not chosen.
 // @unit      UF-73   (docs/spec/05-07-design.md, table T-075)
 // @component EditDocument, layer UseCase (table T-062)
 // @purity    pure
@@ -17,8 +17,8 @@ import { wbsSubtreesOf } from './edit-task-group'
 import { nearestDerivedTaskUid } from './task-group-order'
 import { pastedCopyOf } from './task-plan-actual'
 
-// see CM-8, FR-033, DU-1
-// WHY: the one owner of the copies' UIDs, so the shell picks the copies (T-308 CY-8) without a second count.
+// Spec: CM-8, FR-033, DU-1
+// Why: the one owner of the copies' UIDs, so the shell picks the copies (T-308 CY-8) without a second count.
 /** @purity pure */
 export function pastedUidsOf(schedule: Schedule, sourceUids: readonly number[]): ReadonlyMap<number, number> {
   const chosen = new Set(sourceUids)
@@ -28,8 +28,8 @@ export function pastedUidsOf(schedule: Schedule, sourceUids: readonly number[]):
   return remap
 }
 
-// see CY-5, FR-054
-// WHY: both instants move by the same minutes, so the copy keeps the source's time of day and length; a dateless copy stays dateless.
+// Spec: CY-5, FR-054
+// Why: both instants move by the same minutes, so the copy keeps the source's time of day and length; a dateless copy stays dateless.
 /** @purity pure */
 function shiftedPlan(task: Task, landing: PasteLanding | undefined, within: WorkingCalendar): Task {
   const plan = plannedInstantsOf(within, task)
@@ -38,7 +38,7 @@ function shiftedPlan(task: Task, landing: PasteLanding | undefined, within: Work
   return { ...task, start: textOfInstant(plan[0] + minutes), finish: textOfInstant(plan[1] + minutes) }
 }
 
-// see CM-8, CM-28, DU-1
+// Spec: CM-8, CM-28, DU-1
 /** @purity pure */
 export function copiedTask(one: Task, chosen: ReadonlySet<number>, remap: ReadonlyMap<number, number>): Task {
   return {
@@ -51,7 +51,7 @@ export function copiedTask(one: Task, chosen: ReadonlySet<number>, remap: Readon
   }
 }
 
-// see DU-1, HM-12, FR-058
+// Spec: DU-1, HM-12, FR-058
 /** @purity pure */
 export function withInferredCopyParents(
   after: Schedule,
@@ -78,7 +78,7 @@ export function withInferredCopyParents(
   return settled
 }
 
-// see CM-8, FR-033
+// Spec: CM-8, FR-033
 /** @purity pure */
 export function pasteTasks(
   document: Document,

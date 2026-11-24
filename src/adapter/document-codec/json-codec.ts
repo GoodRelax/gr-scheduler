@@ -1,4 +1,4 @@
-// Converts between GRS JSON text and the document.
+// File: DocumentCodec: Converts between GRS JSON text and the document.
 // @unit      UF-35   (docs/spec/05-07-design.md, table T-075)
 // @component DocumentCodec, layer Adapter (table T-062)
 // @purity    pure
@@ -48,7 +48,7 @@ export type JsonDecoding =
       readonly ok: true
       readonly document: Document
       readonly clampedCount: number
-      // see FR-012, RS-52
+      // Spec: FR-012, RS-52
       readonly recountedCount: number
       readonly formatVersion: FormatVersionReading
       readonly unreadColumns: readonly string[]
@@ -117,8 +117,8 @@ interface SettingsReading {
   readonly rest: readonly JsonFault[]
 }
 
-// see OP-6, T-220
-// WHY: a nested key has one default only, so any fault inside it sets the whole top key back;
+// Spec: OP-6, T-220
+// Why: a nested key has one default only, so any fault inside it sets the whole top key back;
 // a missing top key is left for restoredSettings, which fills it on replace and not on merge.
 /** @purity pure */
 function readSettingsFaults(parsed: unknown, faults: readonly JsonFault[]): SettingsReading {
@@ -157,7 +157,7 @@ interface SortedFaults {
   readonly unreadColumns: readonly string[]
 }
 
-// see OP-6, FR-073
+// Spec: OP-6, FR-073
 /** @purity pure */
 function sortedFaults(parsed: unknown, faults: readonly JsonFault[], isNewer: boolean): SortedFaults {
   const settings = readSettingsFaults(parsed, faults)
@@ -182,7 +182,7 @@ function formatVersionReading(
   return schemaVersion > greatestKnownSchemaVersion ? 'newerThanKnown' : 'known'
 }
 
-// see FR-024
+// Spec: FR-024
 /** @purity pure */
 function withOwnSchemaVersion(parsed: unknown, greatestKnownSchemaVersion: string | undefined): unknown {
   if (greatestKnownSchemaVersion === undefined || !isObject(parsed)) return parsed
@@ -194,7 +194,7 @@ interface OlderActualShape {
   readonly lengthByTaskIndex: ReadonlyMap<number, unknown>
 }
 
-// see FR-011, FR-073
+// Spec: FR-011, FR-073
 /** @purity pure */
 function withStopInPlaceOfActualDuration(parsed: unknown): OlderActualShape {
   const lengthByTaskIndex = new Map<number, unknown>()
@@ -213,8 +213,8 @@ function withStopInPlaceOfActualDuration(parsed: unknown): OlderActualShape {
   return { shaped: { ...parsed, schedule: { ...schedule, tasks: shapedTasks } }, lengthByTaskIndex }
 }
 
-// see FR-073, GP-1
-// WHY: GP-1's edit group is ungated, so any task group without it is open to anyone. The task group's tree
+// Spec: FR-073, GP-1
+// Why: GP-1's edit group is ungated, so any task group without it is open to anyone. The task group's tree
 // state (AT-153) is never filled: an older document is not read over (JDG-601).
 /** @purity pure */
 function withTaskGroupColumnsOfAnOlderVersion(parsed: unknown): unknown {
@@ -228,7 +228,7 @@ function withTaskGroupColumnsOfAnOlderVersion(parsed: unknown): unknown {
   return { ...parsed, schedule: { ...schedule, taskGroups: shapedTaskGroups } }
 }
 
-// see AT-145, AT-146, AT-147, AT-148, AT-149, AT-150, AT-151, AT-152, AT-168
+// Spec: AT-145, AT-146, AT-147, AT-148, AT-149, AT-150, AT-151, AT-152, AT-168
 const ANNOTATION_LOOK_COLUMNS: readonly { readonly collection: string; readonly keys: readonly string[] }[] = [
   { collection: 'highlightBoxes', keys: ['strokeWidthPx', 'fillColor', 'fillTransparencyPercent'] },
   {
@@ -237,8 +237,8 @@ const ANNOTATION_LOOK_COLUMNS: readonly { readonly collection: string; readonly 
   },
 ]
 
-// see FR-019, CP-20
-// WHY: not gated by schemaVersion and not told: null draws what a box drew before the columns existed, so no
+// Spec: FR-019, CP-20
+// Why: not gated by schemaVersion and not told: null draws what a box drew before the columns existed, so no
 // document of any version looks different and the reader has nothing to correct.
 /** @purity pure */
 function withAnnotationLookColumns(parsed: unknown): unknown {
@@ -256,8 +256,8 @@ function withAnnotationLookColumns(parsed: unknown): unknown {
   return changedSchedule === schedule ? parsed : { ...parsed, schedule: changedSchedule }
 }
 
-// see AT-143
-// WHY: not gated by schemaVersion (AT-143 reads any document without the column), and not in the
+// Spec: AT-143
+// Why: not gated by schemaVersion (AT-143 reads any document without the column), and not in the
 // generated schema, which can state a default but not one read from the document's own carry.
 /** @purity pure */
 function withSourceFormatOfAnOlderDocument(parsed: unknown): unknown {
@@ -271,14 +271,14 @@ function withSourceFormatOfAnOlderDocument(parsed: unknown): unknown {
   return { ...parsed, schedule: { ...schedule, project: { ...project, sourceFormat } } }
 }
 
-// see S-9, T-297
+// Spec: S-9, T-297
 const RETIRED_COLUMNS: readonly { readonly entity: string; readonly key: string }[] = [
   { entity: 'TaskVisual', key: 'nameAnchor' },
   { entity: 'TaskVisual', key: 'nameAlign' },
 ]
 
-// see S-9, T-297
-// WHY: an older document still carries these keys, often null; the schema no longer lists them,
+// Spec: S-9, T-297
+// Why: an older document still carries these keys, often null; the schema no longer lists them,
 // so validating without this step would refuse every such document.
 /** @purity pure */
 function withoutRetiredColumns(parsed: unknown): unknown {
@@ -316,7 +316,7 @@ function olderLengthFaults(lengthByTaskIndex: ReadonlyMap<number, unknown>): Jso
   return out
 }
 
-// see FR-011, AT-141
+// Spec: FR-011, AT-141
 /** @purity pure */
 function withStopsFromOlderLengths(
   document: Document,
@@ -326,7 +326,7 @@ function withStopsFromOlderLengths(
   const within = workingCalendarOf(document.schedule)
   const tasks = document.schedule.tasks.map((task, index) => {
     if (!lengthByTaskIndex.has(index)) return task
-    // WHY: an older document carried the file's own Stop; it is the day the partner wrote, so it wins over the length.
+    // Why: an older document carried the file's own Stop; it is the day the partner wrote, so it wins over the length.
     const carriedStop = task.carry['Stop']
     if (carriedStop !== undefined) {
       const carry = Object.fromEntries(Object.entries(task.carry).filter(([name]) => name !== 'Stop'))
@@ -341,7 +341,7 @@ function withStopsFromOlderLengths(
   return { ...document, schedule: { ...document.schedule, tasks } }
 }
 
-// see DR-4, S-540
+// Spec: DR-4, S-540
 /** @purity pure */
 function withOwnAddress(parsed: unknown): unknown {
   if (!isObject(parsed) || !Object.hasOwn(parsed, SCHEMA_ADDRESS_KEY)) return parsed
@@ -353,7 +353,7 @@ function documentWithoutAddress(shaped: unknown): Document {
   return withoutKeyAt(shaped, [SCHEMA_ADDRESS_KEY]) as unknown as Document
 }
 
-// see FR-023, FR-073, OP-7, FR-012
+// Spec: FR-023, FR-073, OP-7, FR-012
 /** @purity pure */
 export function documentFromJson(
   text: string,
@@ -384,7 +384,7 @@ export function documentFromJson(
 
   let read: Document
   try {
-    // TRAP: a reader before OP-6 may find documentSettings keys missing despite this cast.
+    // Trap: a reader before OP-6 may find documentSettings keys missing despite this cast.
     read = withStopsFromOlderLengths(documentWithoutAddress(shaped), older.lengthByTaskIndex)
   } catch (why) {
     return refusal([
@@ -396,8 +396,8 @@ export function documentFromJson(
   return settledReading(read, formatVersion, unreadColumns)
 }
 
-// see OP-6, S-518, S-519
-// WHY: restoredSettings fills a missing key only at the replace (OP-6), so a missing end reads null here.
+// Spec: OP-6, S-518, S-519
+// Why: restoredSettings fills a missing key only at the replace (OP-6), so a missing end reads null here.
 /** @purity pure */
 function spanTextOf(settings: DocumentSettings, key: 'fitSpanStart' | 'fitSpanFinish'): string | null {
   const read = settings as unknown as Readonly<Record<string, unknown>>
@@ -405,8 +405,8 @@ function spanTextOf(settings: DocumentSettings, key: 'fitSpanStart' | 'fitSpanFi
   return typeof value === 'string' ? value : null
 }
 
-// see FX-1, S-518, S-519, S-532
-// WHY: a read never refuses a presentation value (T-220 preamble): one dated end is copied, a reversed
+// Spec: FX-1, S-518, S-519, S-532
+// Why: a read never refuses a presentation value (T-220 preamble): one dated end is copied, a reversed
 // finish is pulled to the start, a fix over no span reads unfixed; none counts toward RS-51.
 /** @purity pure */
 function pairedFitSpan(settings: DocumentSettings): DocumentSettings {
@@ -426,8 +426,8 @@ function pairedFitSpan(settings: DocumentSettings): DocumentSettings {
   }
 }
 
-// see FR-012, OP-6, RS-51, RS-52, OP-18
-// WHY: a hidden uid the schedule does not hold is dropped silently, never refused (OP-18), and counts toward no notice.
+// Spec: FR-012, OP-6, RS-51, RS-52, OP-18
+// Why: a hidden uid the schedule does not hold is dropped silently, never refused (OP-18), and counts toward no notice.
 /** @purity pure */
 function settledReading(
   read: Document,
@@ -444,7 +444,7 @@ function settledReading(
     const settled = paired === recounted.documentSettings ? recounted : { ...recounted, documentSettings: paired }
     return { ok: true, document: settled, clampedCount: 0, recountedCount, formatVersion, unreadColumns }
   }
-  // WHY: taskGroupGap clamps stay silent (CR-384, JDG-113) -- clamp.settings still zeroes
+  // Why: taskGroupGap clamps stay silent (CR-384, JDG-113) -- clamp.settings still zeroes
   // it, but it is left out of the count RS-51 tells.
   const toldClamped = clamp.clamped.filter((one) => one.key !== 'taskGroupGap')
   return {
@@ -457,7 +457,7 @@ function settledReading(
   }
 }
 
-// see FR-024, DR-4, S-540
+// Spec: FR-024, DR-4, S-540
 /** @purity pure */
 export function jsonFromDocument(document: Document): string {
   const addressed = Object.fromEntries([
@@ -471,7 +471,7 @@ export function jsonFromDocument(document: Document): string {
 // Single source of truth:
 //   docs/spec/_source/settings.json (table T-206)
 // Rebuild: npm run gen   ||   npm run gen:check fails on drift.
-// see T-206
+// Spec: T-206
 const NOT_STORED_SCHEMA_ADDRESS: {
   readonly 'S-540': string
 } = {

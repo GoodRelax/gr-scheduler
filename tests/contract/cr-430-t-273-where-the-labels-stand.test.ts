@@ -23,7 +23,7 @@ import {
   type Scene,
 } from '../unit/cr-430-cross-section-scene'
 
-// see S-584
+// Spec: S-584
 const EDGE_GAP = stored('S-584') * RATIO
 
 const SHAPE = '形'
@@ -55,7 +55,7 @@ const LP_THE_MARKER_POSITION_IS_ITS_LEFT = '「マーカーの位置」はマー
 const SHORT = 'ab'
 const LONG = 'a name that is far too long to stand inside a narrow bar'
 
-// see S-63
+// Spec: S-63
 const rectangle = (
   over: Readonly<Record<string, unknown>>,
   settings: Readonly<Record<string, unknown>> = {},

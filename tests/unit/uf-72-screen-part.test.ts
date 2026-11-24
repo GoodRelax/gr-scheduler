@@ -309,8 +309,8 @@ const isHeadRule = (authority: string): boolean =>
     new RegExp(`(^|[^0-9A-Za-z-])${rule}([^0-9-]|$)`).test(authority),
   )
 
-// see HF-20, IC-106
-// WHY: IC-106 shares its authority column (FR-032) with IC-82; only its entrance column names HF-20.
+// Spec: HF-20, IC-106
+// Why: IC-106 shares its authority column (FR-032) with IC-82; only its entrance column names HF-20.
 const namesHeadRule = (one: { readonly by: Readonly<Record<string, string>> }): boolean =>
   isHeadRule(one.by['正'] ?? '') || isHeadRule(one.by['何の入口か'] ?? '')
 
@@ -1811,7 +1811,7 @@ describe('IF-9 of 表 T-065 -- one member per supply the cell names', () => {
 
     expect(Object.keys(surface).sort()).toEqual([
       'readFieldCommit',
-      // WHY: IF-9's begin/end notices (CR-500 wave B) replaced the boolean member (DFC-1876).
+      // Why: IF-9's begin/end notices (CR-500 wave B) replaced the boolean member (DFC-1876).
       'readFieldEditNotices',
       'readScreenPartAt',
       'readSearchWord',
@@ -2468,7 +2468,7 @@ describe('表 T-051 HF-1 -- one opening control and one closing control per task
   it('GIVEN a task group whose description carries an expander WHEN the panel is drawn THEN the task group holds one IC-58 and one IC-59 (HF-1, U-47)', () => {
     const built = drawn(withExpander({ canOpen: true, canClose: false, canCloseBelow: false }))
 
-    // WHY: U-47 holds no count of its own (it points at HF-1), so the count is
+    // Why: U-47 holds no count of its own (it points at HF-1), so the count is
     // the roster's, read from table T-109.
     expect(expanderIcons(built).sort()).toEqual(EXPANDER_TASK_GROUPS)
   })
@@ -4794,7 +4794,7 @@ const HF1_LEFT_TO_RIGHT = T_051_HF1_LATTICE.map((one) => entranceForRule(one.rul
  */
 const HF4_LEFT_TO_RIGHT = [...HF1_LEFT_TO_RIGHT, 'IC-82', entranceForRule('HF-14'), 'IC-60']
 
-// see HF-20
+// Spec: HF-20
 const HF20_HEAD_DELETE = T_109.rows.find(
   (one) => namesHeadRule(one) && /(^|[^0-9A-Za-z-])HF-20([^0-9-]|$)/.test(one.by['何の入口か'] ?? ''),
 )?.id
@@ -5552,7 +5552,7 @@ const TIPPED_PALETTE: ScreenView = viewWith({
   tooltips: [{ anchor: { kind: 'icon', icon: TIPPED_ENTRY, surface: 'Command Palette' }, text: 'TipTextOne', assignment: null }],
 })
 
-// WHY: a browser skips a node whose pointer-events resolve to none; the shared fake does not, so only this bench does.
+// Why: a browser skips a node whose pointer-events resolve to none; the shared fake does not, so only this bench does.
 /** @purity non-pure */
 function drawnHonoringPointerEvents(view: ScreenView): Stage {
   const built = stage(TIP_OVER_THE_ENTRY)

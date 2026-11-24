@@ -58,9 +58,9 @@ const IMAGE_ROWS = PK_ROWS.filter((row) => !ENVIRONMENT_ROWS.includes(row))
 
 const INK_BY_WORD: Readonly<Record<string, string>> = { '白': '#ffffff', '黒': '#000000' }
 
-// see T-269
-// WHY: PK-1 and PK-5 hold the plan (white) and the actual and dummy (black) in one cell, split by
-// WHY: the closing white/black rule; the seam is asked for each with its ink argument.
+// Spec: T-269
+// Why: PK-1 and PK-5 hold the plan (white) and the actual and dummy (black) in one cell, split by
+// Why: the closing white/black rule; the seam is asked for each with its ink argument.
 type Ink = 'hollow' | 'filled'
 
 interface Variant {
@@ -103,11 +103,11 @@ const sizeNumbersOf = (row: string): readonly number[] => {
   return (cell.replace(/`/g, '').match(/-?\d+(?:\.\d+)?/g) ?? []).map(Number)
 }
 
-// see T-269
+// Spec: T-269
 const IMAGE_VARIANTS = IMAGE_ROWS.flatMap(variantsOf)
 
-// WHY: the circle's two fills carry their sign (hollow / filled) in the ink cell, and the fallback
-// WHY: clause tells the two apart by that sign alone.
+// Why: the circle's two fills carry their sign (hollow / filled) in the ink cell, and the fallback
+// Why: clause tells the two apart by that sign alone.
 const signsOf = (variant: Variant): readonly string[] => [...variant.words].filter((one) => one === '○' || one === '●')
 
 const FALLBACK_BY_VARIANT = ((): Readonly<Record<string, string>> => {
@@ -116,7 +116,7 @@ const FALLBACK_BY_VARIANT = ((): Readonly<Record<string, string>> => {
     const words = found[1] ?? ''
     const keyword = found[2] ?? ''
     for (const variant of IMAGE_VARIANTS) {
-      // WHY: any part of the name, not the first: a row keyed on its leading word alone would miss.
+      // Why: any part of the name, not the first: a row keyed on its leading word alone would miss.
       const parts = cellOf(variant.row, NAME)
         .split(/[\s／]+/)
         .filter((one) => one !== '')
@@ -136,8 +136,8 @@ interface Cursor {
   readonly fallback: string
 }
 
-// WHY: the seam does not spell its return type, so a string and an object that
-// WHY: carries one both read here; what is asserted is the cursor it states.
+// Why: the seam does not spell its return type, so a string and an object that
+// Why: carries one both read here; what is asserted is the cursor it states.
 const cursorTextOf = (value: unknown): string | null => {
   if (typeof value === 'string') return value
   if (value === null || typeof value !== 'object') return null
@@ -186,8 +186,8 @@ const sidesOf = (svg: string): readonly number[] => {
   return [Number(attributeOf(root, 'width') ?? Number.NaN), Number(attributeOf(root, 'height') ?? Number.NaN)]
 }
 
-// WHY: an image authored on a grid of its own renders its stroke at the grid's scale, so the
-// WHY: attribute is read back through that scale -- S-297 is a width on the screen, not in the grid.
+// Why: an image authored on a grid of its own renders its stroke at the grid's scale, so the
+// Why: attribute is read back through that scale -- S-297 is a width on the screen, not in the grid.
 const drawnScaleOf = (svg: string): number => {
   const root = /<svg\b[^>]*>/.exec(svg)?.[0] ?? ''
   const box = (attributeOf(root, 'viewBox') ?? '').trim().split(/[\s,]+/).map(Number)
@@ -250,7 +250,7 @@ describe('CR-430 -- the manuscript these cases are driven by', () => {
     expect(REQUIREMENTS).toContain(clause)
   })
 
-  // WHY: table T-269 grows (PK-11..PK-15 came with CR-558), so the cases read its rows, not a count.
+  // Why: table T-269 grows (PK-11..PK-15 came with CR-558), so the cases read its rows, not a count.
   it('table T-269 holds PK-1, PK-3, PK-4, PK-5, PK-7, PK-8, PK-9, PK-10 in that order, each row ID once', () => {
     expect(new Set(PK_ROWS).size, 'a row ID of table T-269 repeats').toBe(PK_ROWS.length)
     const eight = ['PK-1', 'PK-3', 'PK-4', 'PK-5', 'PK-7', 'PK-8', 'PK-9', 'PK-10']
@@ -410,7 +410,7 @@ describe('table T-266 -- the pointer row each grab area shows', () => {
       'PK-5',
       'PK-5',
     ])
-    // WHY: the plan circle is hollow and the actual and dummy circles filled -- T-266 says which by its sign.
+    // Why: the plan circle is hollow and the actual and dummy circles filled -- T-266 says which by its sign.
     expect(specRow('T-266', 'GA-15').by['ポインタ（表 T-269）'], T_269_WHITE_IS_PLAN).toContain('○')
     for (const id of ['GA-16', 'GA-17']) {
       expect(specRow('T-266', id).by['ポインタ（表 T-269）'], `${id}: ${T_269_WHITE_IS_PLAN}`).toContain('●')
@@ -424,7 +424,7 @@ describe('table T-266 -- the pointer row each grab area shows', () => {
   })
 })
 
-// WHY: DFC-1024 -- the default timeout reds these cases on a loaded machine though they pass
+// Why: DFC-1024 -- the default timeout reds these cases on a loaded machine though they pass
 // alone; an explicit ceiling, not a retry (JDG-642).
 const LOADED_MACHINE_TIMEOUT_MS = 60_000
 

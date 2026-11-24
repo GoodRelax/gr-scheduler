@@ -27,14 +27,14 @@ const FIXTURE_TEXT = readFileSync(join(process.cwd(), 'tests', 'fixtures', 'meas
 const KNOWN_VERSION = (JSON.parse(FIXTURE_TEXT) as Json)['schemaVersion'] as string
 const fixture = (): Json => JSON.parse(FIXTURE_TEXT) as Json
 
-// see T-376
-// WHY: CR-755 -- the table holds keys of fixed offsets; the base takes the standard-time rows only.
+// Spec: T-376
+// Why: CR-755 -- the table holds keys of fixed offsets; the base takes the standard-time rows only.
 const T_376 = specTable('T-376')
 const REGIONS: readonly string[] = T_376.rows.map((row) => bare(row.by['鍵'] ?? ''))
 const STANDARD_KEYS: readonly string[] = T_376.rows.filter((row) => row.by['種'] === '標準時').map((row) => bare(row.by['鍵'] ?? ''))
 const DAYLIGHT_KEYS: readonly string[] = REGIONS.filter((key) => !STANDARD_KEYS.includes(key))
 
-// see T-376
+// Spec: T-376
 function offsetMinutesOf(cell: string): number {
   const text = cell.replace(/−/g, '-').replace(/±/g, '+').trim()
   const found = /^([+-])(\d{2}):(\d{2})$/.exec(text)
@@ -43,8 +43,8 @@ function offsetMinutesOf(cell: string): number {
   return found[1] === '-' ? -minutes : minutes
 }
 
-// see FR-156
-// WHY: CR-755 -- a region name (the old values) is outside the table now, as is a made-up or mis-spelt key.
+// Spec: FR-156
+// Why: CR-755 -- a region name (the old values) is outside the table now, as is a made-up or mis-spelt key.
 const OUTSIDE = ['Mars/Base', 'Asia/Tokyo', 'UTC', '', 'utc+09:00', ' UTC+09:00', 'UTC+9:00', '+09:00', 'UTC+09:00 dst']
 
 function withScheduleZone(zone: unknown): string {
@@ -76,7 +76,7 @@ describe('premise -- the tables and rows these cases are built from', () => {
   })
 })
 
-// see FR-156, T-376, RS-25
+// Spec: FR-156, T-376, RS-25
 describe('FR-156: a GRS JSON whose scheduleDataTimeZone is not a standard-time key of T-376 is refused whole with RS-25', () => {
   it.each([...OUTSIDE, ...DAYLIGHT_KEYS].map((value) => [JSON.stringify(value), value]))(
     '%s is refused with RS-25, and the faults name the column (RS-25: a column does not match its form)',
@@ -97,7 +97,7 @@ describe('FR-156: a GRS JSON whose scheduleDataTimeZone is not a standard-time k
   })
 })
 
-// see FR-156, T-376
+// Spec: FR-156, T-376
 describe('FR-156 / T-376: the roster the code holds is the table', () => {
   it('TIME_ZONE_ROWS holds the T-376 rows in table order: row ID, key, offset, daylight row, abbreviation', () => {
     expect(TIME_ZONE_ROWS.map((row) => [row.rowId, row.key, row.offsetMinutes, row.isDaylight, row.abbreviation])).toEqual(
@@ -140,7 +140,7 @@ describe('FR-156 / T-376: the roster the code holds is the table', () => {
   })
 })
 
-// see OP-3, OP-6
+// Spec: OP-3, OP-6
 function replacedBy(incoming: Document): Document {
   const current = decodedOk(FIXTURE_TEXT)
   const request: ImportRequest = {
@@ -166,10 +166,10 @@ function withSetting(key: string, value: unknown): string {
   return JSON.stringify(json)
 }
 
-// see S-574, S-575
+// Spec: S-574, S-575
 const defaultOf = (id: string): unknown => JSON.parse(String(settingRow(id)['default']?.['lit']))
 
-// see FR-156, OP-6, S-574, S-575
+// Spec: FR-156, OP-6, S-574, S-575
 describe('FR-156 / OP-6: a view key outside T-376 does not refuse; after a replace it is its default, the rest intact', () => {
   const baseline = replacedBy(decodedOk(FIXTURE_TEXT))
 
@@ -182,7 +182,7 @@ describe('FR-156 / OP-6: a view key outside T-376 does not refuse; after a repla
     ['S-574', 'viewTimeZone', 'Mars/Base'],
     ['S-574', 'viewTimeZone', 'Asia/Tokyo'],
     ['S-574', 'viewTimeZone', ''],
-    // WHY: CR-755 (X-r) -- the view base takes a standard-time key only; a daylight key goes back to the default.
+    // Why: CR-755 (X-r) -- the view base takes a standard-time key only; a daylight key goes back to the default.
     ['S-574', 'viewTimeZone', 'UTC-07:00 DST'],
     ['S-575', 'displayTimeZones', ['UTC+09:00', 'Mars/Base']],
     ['S-575', 'displayTimeZones', ['Asia/Tokyo']],
@@ -222,10 +222,10 @@ const spans = (...pairs: readonly (readonly [string, string])[]): Span[] => pair
 const workingTimes = (list: readonly Span[]): Json[] =>
   list.map((one, ordinal) => ({ ordinal, fromTime: one.from, toTime: one.to }))
 
-// WHY: 2026-11-04 is a Wednesday, a working weekday of the fixture calendar.
+// Why: 2026-11-04 is a Wednesday, a working weekday of the fixture calendar.
 const WEDNESDAY = '2026-11-04'
 
-// see AT-79, AT-80, AT-82
+// Spec: AT-79, AT-80, AT-82
 function exceptionRow(recurrenceKind: number | null, dayWorking: boolean, list: readonly Span[]): Json {
   return {
     ordinal: 0,
@@ -259,11 +259,11 @@ const hhmm = (minutes: number): string =>
   `${String(Math.floor(minutes / 60)).padStart(2, '0')}:${String(minutes % 60).padStart(2, '0')}:00`
 const FULL_DAY_BY_S_128 = spans(['08:00:00', hhmm(8 * 60 + S_128)])
 
-// see AT-82
+// Spec: AT-82
 const ONE_OFF_KINDS: readonly (number | null)[] = [9, null, 1]
 const RECURRING_KINDS: readonly number[] = [2, 3, 4, 5, 6, 7, 8]
 
-// see FR-054, RS-89, AT-82, S-128, S-580
+// Spec: FR-054, RS-89, AT-82, S-128, S-580
 describe('FR-054 / RS-89: isWorkingDayUnlikeMinutesPerDay counts one-off exception days with their own spans', () => {
   it('premise: the default spans S-580 total S-128, SHORT_DAY does not, FULL_DAY_BY_S_128 does', () => {
     expect(S_580.reduce((sum, [from, to]) => sum + minutesOf(to) - minutesOf(from), 0)).toBe(S_128)
@@ -326,7 +326,7 @@ function spanRun(count: number): Span[] {
   return out
 }
 
-// see IV-24, S-582, T-233, FR-023
+// Spec: IV-24, S-582, T-233, FR-023
 describe('IV-24 / S-582: the span count is a T-220 row, not a reading condition of the schema (Chapter 6.1)', () => {
   const S_582 = settingNumber('S-582')
   const importOf = (text: string) =>

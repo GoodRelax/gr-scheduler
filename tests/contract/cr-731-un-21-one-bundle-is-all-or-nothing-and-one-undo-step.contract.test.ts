@@ -61,7 +61,7 @@ describe('item 6 (undo) -- UN-21: what one approval mended comes back with one u
   })
 })
 
-// WHY: DFC-730 -- the write path does not refuse an edit in a read-only task group yet (GP-1), so this bundle is not refused.
+// Why: DFC-730 -- the write path does not refuse an edit in a read-only task group yet (GP-1), so this bundle is not refused.
 describe('item 8 -- all or nothing: a command the document refuses stops the whole bundle', () => {
   it.fails('the bundle of the first document is refused on a document that cannot take its second command', () => {
     const commands = bundleOf(CHAIN)

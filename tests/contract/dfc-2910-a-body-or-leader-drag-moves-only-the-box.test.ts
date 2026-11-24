@@ -31,13 +31,13 @@ const GR_14_TIP_ONLY = '線先（線先から同表の `S-292`）を掴んで引
 const S_291_NOTE = '引けば本文の箱だけが動き、線先は動かない'
 
 const FREE_ROW = groupOf(3)
-// WHY: the free tip stands in the third band (FREE_ROW); this offset and pull keep the box inside the Task Group Area.
+// Why: the free tip stands in the third band (FREE_ROW); this offset and pull keep the box inside the Task Group Area.
 const START_OFFSET = { dx: 60, dy: -30 }
 const PULL = { dx: 60, dy: 20 }
 
 const undo = (built: Stage): void => built.send({ kind: 'key', key: 'Z', modifiers: { ...NO_MODIFIERS, ctrl: true } })
 
-// WHY: every tip column FR-019 names (AT-113, AT-114, AT-163 .. AT-167); a body pull must leave all of them as they were.
+// Why: every tip column FR-019 names (AT-113, AT-114, AT-163 .. AT-167); a body pull must leave all of them as they were.
 const tipColumnsOf = (built: Stage) => {
   const row = commentStored(built.loop)
   return {
@@ -57,7 +57,7 @@ const bodyOf = (built: Stage) => {
   return drawn.body
 }
 
-// WHY: FR-019 puts the body's lower-left corner at tip + offset; with dx > 0 and dy < 0 LF-17 picks that corner, so the leader runs tip -> lower-left corner.
+// Why: FR-019 puts the body's lower-left corner at tip + offset; with dx > 0 and dy < 0 LF-17 picks that corner, so the leader runs tip -> lower-left corner.
 const leaderMiddleOf = (built: Stage) => {
   const tip = tipOf(built.loop)
   const body = bodyOf(built)
@@ -105,7 +105,7 @@ describe('GR-14 / CM-51: a pull on the body moves only the box', () => {
   })
 
   it('GR-14 / AT-164 .. AT-167: a tip snapped to a task keeps its target and point after a body pull', () => {
-    // WHY: the bar stands in the top band, so the box hangs below-right of the tip to stay inside the Task Group Area.
+    // Why: the bar stands in the top band, so the box hangs below-right of the tip to stay inside the Task Group Area.
     const { built, columnsBefore } = pulledBody({
       bodyOffsetPx: { dx: 60, dy: 30 },
       anchorTaskGroupId: groupOf(BAR_UID),

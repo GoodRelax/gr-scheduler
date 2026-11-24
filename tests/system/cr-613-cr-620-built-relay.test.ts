@@ -25,7 +25,7 @@ const LOCAL_ENTRY = 0x04034b50
 const STORED = 0
 const DEFLATED = 8
 
-// WHY: a minimal reader instead of a zip library -- the repository has none,
+// Why: a minimal reader instead of a zip library -- the repository has none,
 // and the three fields asked for need only the central directory.
 function unzip(bytes: Buffer): Map<string, Buffer> {
   let end = -1
@@ -127,7 +127,7 @@ test('design 7 / AG-12 (9): the manifest asks for saveFolder and confirmBeforeOv
   ])
 })
 
-// WHY: design 6 (CR-799, CR-820) -- the version is the UTC time held as grsRelayBuiltAt in tools/artifact-versions.json (never asked of git):
+// Why: design 6 (CR-799, CR-820) -- the version is the UTC time held as grsRelayBuiltAt in tools/artifact-versions.json (never asked of git):
 // builtAt for people, YEAR.MMDD.HHMMSS for semver.
 function expectedBuild(): { builtAt: string; semver: string } {
   const versions = JSON.parse(readFileSync(join(process.cwd(), 'tools', 'artifact-versions.json'), 'utf8')) as { grsRelayBuiltAt?: string }

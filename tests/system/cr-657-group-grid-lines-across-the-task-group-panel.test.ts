@@ -51,7 +51,7 @@ test.afterAll(async () => {
   await browser?.close()
 })
 
-// see FR-042, U-18, U-22
+// Spec: FR-042, U-18, U-22
 /** @purity semi-pure-mutable */
 async function measure(page: Page): Promise<Measured> {
   return page.evaluate((drawn: string) => {
@@ -145,12 +145,12 @@ test('S-68 through IC-43: switched off, neither side has the lines; switched bac
   try {
     const before = await measure(opened.page)
     expect(before.scheduleRules.length, 'the opened document shows the lines').toBeGreaterThan(0)
-    // STEP: IC-43 sets S-68 false.
+    // Step: IC-43 sets S-68 false.
     await pressToggle(opened.page)
     const off = await measure(opened.page)
     expect(off.scheduleRules, 'the schedule side draws no task-group-boundary line').toEqual([])
     expect(off.panelLines, 'the panel draws no task-group-boundary line').toEqual([])
-    // STEP: IC-43 again sets S-68 true.
+    // Step: IC-43 again sets S-68 true.
     await pressToggle(opened.page)
     expectSameLineOnBothSides(await measure(opened.page))
   } finally {

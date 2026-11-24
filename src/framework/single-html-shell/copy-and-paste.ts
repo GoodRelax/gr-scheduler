@@ -1,4 +1,4 @@
-// SingleHtmlShell frame loop -- copies the chosen task group or Tasks, and builds the command that pastes the copy back.
+// File: SingleHtmlShell frame loop: copies the chosen task group or Tasks, and builds the command that pastes the copy back.
 // @unit      UF-168  (docs/spec/05-07-design.md, table T-075)
 // @component SingleHtmlShell, layer Framework (table T-062)
 // @purity    non-pure
@@ -20,7 +20,7 @@ import {
 
 type SelectionCopied = NonNullable<ScreenSession['selection']['copiedForPaste']>
 
-// WHY: one chosen task group wins over chosen Tasks; two task groups or nothing copy nothing (RS-27). see FR-033, SL-7b
+// Why: one chosen task group wins over chosen Tasks; two task groups or nothing copy nothing (RS-27). see FR-033, SL-7b
 /** @purity pure */
 export function copiedForPasteOf(chosenTaskGroups: readonly string[], selected: Selection): SelectionCopied | null {
   if (chosenTaskGroups.length === 1) return { kind: 'taskGroup', taskGroupId: chosenTaskGroups[0] as string }
@@ -29,7 +29,7 @@ export function copiedForPasteOf(chosenTaskGroups: readonly string[], selected: 
   return uids.length === 0 ? null : { kind: 'task', uids }
 }
 
-// WHY: two or more paste targets refuse any paste, a task group copy or a Task copy alike (RS-27). see FR-033
+// Why: two or more paste targets refuse any paste, a task group copy or a Task copy alike (RS-27). see FR-033
 /** @purity pure */
 export function isPasteRefusedFor(chosenTaskGroups: readonly string[]): boolean {
   return chosenTaskGroups.length > 1
@@ -41,7 +41,7 @@ export type CopyAndPasteHands = Pick<
   | 'settingsLimitsOf'
 >
 
-// see SK-4, FR-033
+// Spec: SK-4, FR-033
 /** @purity non-pure */
 export function copyForPaste(hands: CopyAndPasteHands): void {
   const session = hands.readSession()
@@ -53,7 +53,7 @@ export function copyForPaste(hands: CopyAndPasteHands): void {
   hands.sendToSession({ type: 'copyTaken', copiedForPaste }, hands.readValues())
 }
 
-// see SK-5, FR-033
+// Spec: SK-5, FR-033
 /** @purity non-pure */
 export function pasteWhatWasCopied(hands: CopyAndPasteHands, frame: FrameValues): void {
   const copied = hands.readSession().selection.copiedForPaste
@@ -70,8 +70,8 @@ export function pasteWhatWasCopied(hands: CopyAndPasteHands, frame: FrameValues)
   hands.writeDocument([command], frame)
 }
 
-// see FR-033, ST-7, CY-10
-// WHY: one test for both roads that copy -- a cap that held the paste but not the drag would work in one place only.
+// Spec: FR-033, ST-7, CY-10
+// Why: one test for both roads that copy -- a cap that held the paste but not the drag would work in one place only.
 /** @purity semi-pure-mutable */
 function isStackSafetyCapReachedBy(
   hands: CopyAndPasteHands,
@@ -94,7 +94,7 @@ function isStackSafetyCapReachedBy(
   return wouldDraw.stackSafetyCapReached !== null
 }
 
-// see PTD-7, CY-8, CY-10
+// Spec: PTD-7, CY-8, CY-10
 /** @purity non-pure */
 export function landCopyDrag(
   hands: CopyAndPasteHands,
@@ -112,8 +112,8 @@ export function landCopyDrag(
   if (isLanded) hands.sendToSession({ type: 'objectsPicked', pickedObjects: picked }, frame)
 }
 
-// see FR-033, DU-2, IV-2, RS-82
-// WHY: a copied source that is gone is still sent, so CM-8 / CM-28 refuse it by IV-2 and the paste is told RS-82, not RS-27.
+// Spec: FR-033, DU-2, IV-2, RS-82
+// Why: a copied source that is gone is still sent, so CM-8 / CM-28 refuse it by IV-2 and the paste is told RS-82, not RS-27.
 /** @purity non-pure */
 function pasteCommandFor(
   hands: CopyAndPasteHands,

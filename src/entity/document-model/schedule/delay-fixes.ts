@@ -1,4 +1,4 @@
-// Schedule -- the Delay Diagnostics fix proposals (table T-373), the bundle they issue and the log of what was fixed.
+// File: Schedule: the Delay Diagnostics fix proposals (table T-373), the bundle they issue and the log of what was fixed.
 // @unit      UF-201  (docs/spec/05-07-design.md, table T-075)
 // @component Schedule, layer documentModel (table T-062)
 // @purity    pure
@@ -27,16 +27,16 @@ import {
   type WorkingCalendar,
 } from './working-calendar'
 
-// see T-373, FM-3
+// Spec: T-373, FM-3
 export type DelayFixKind = 'automatic' | 'choose' | 'suggestedDate' | 'byHand'
 
-// see T-374, FM-3
+// Spec: T-374, FM-3
 export const DELAY_FIX_KINDS: readonly DelayFixKind[] = ['automatic', 'choose', 'suggestedDate', 'byHand']
 
-// see T-373, GP-1
+// Spec: T-373, GP-1
 export type DelayFixRefusal = 'readOnly'
 
-// see FM-7, T-018
+// Spec: FM-7, T-018
 export interface DelayFixLink {
   readonly predecessorUid: number
   readonly successorUid: number
@@ -44,7 +44,7 @@ export interface DelayFixLink {
   readonly lag: number | null
 }
 
-// see FM-7, FM-8
+// Spec: FM-7, FM-8
 export type DelayFixValue =
   | { readonly kind: 'empty' }
   | { readonly kind: 'date'; readonly text: string }
@@ -52,8 +52,8 @@ export type DelayFixValue =
   | { readonly kind: 'flag'; readonly value: boolean }
   | { readonly kind: 'links'; readonly links: readonly DelayFixLink[] }
 
-// see T-019, CM-13
-// WHY: the same shape as the placement CM-13 takes, so a bundle reaches the edit with no conversion.
+// Spec: T-019, CM-13
+// Why: the same shape as the placement CM-13 takes, so a bundle reaches the edit with no conversion.
 export type DelayFixPlacement =
   | { readonly state: 'notStarted' }
   | ({ readonly state: 'inProgress' | 'suspendedWithoutResumeDate'; readonly stop: string } & StartedPlacement)
@@ -64,8 +64,8 @@ interface StartedPlacement {
   readonly actualStart: string
 }
 
-// see T-373, CM-3, CM-11, CM-13, CM-37, CM-93
-// WHY: each member has the shape of the command of table T-108 it names, so a bundle is a list of document commands.
+// Spec: T-373, CM-3, CM-11, CM-13, CM-37, CM-93
+// Why: each member has the shape of the command of table T-108 it names, so a bundle is a list of document commands.
 export type DelayFixCommand =
   | { readonly kind: 'deleteDependency'; readonly predecessorUid: number; readonly successorUid: number }
   | { readonly kind: 'deleteDependencyAt'; readonly predecessorUid: number; readonly successorUid: number; readonly order: number }
@@ -76,7 +76,7 @@ export type DelayFixCommand =
   | { readonly kind: 'setTaskName'; readonly taskUid: number; readonly name: string | null }
   | { readonly kind: 'setTaskParentTask'; readonly taskUid: number; readonly parentTaskUid: number | null }
 
-// see T-373
+// Spec: T-373
 export type DelayFixChoiceWord =
   | 'deleteLinkBetween'
   | 'deleteLink'
@@ -94,8 +94,8 @@ export type DelayFixChoiceWord =
   | 'markAsStillInProgress'
   | 'makeParentTaskFromTaskGroup'
 
-// see T-373, FM-8
-// WHY: predecessorUid, successorUid and date fill the placeholders of the choice's words.
+// Spec: T-373, FM-8
+// Why: predecessorUid, successorUid and date fill the placeholders of the choice's words.
 export interface DelayFixChoice {
   readonly key: string
   readonly word: DelayFixChoiceWord
@@ -107,13 +107,13 @@ export interface DelayFixChoice {
   readonly commands: readonly DelayFixCommand[]
 }
 
-// see RW-13, T-016
+// Spec: RW-13, T-016
 export interface DelayFixOpenField {
   readonly taskUid: number
   readonly field: string
 }
 
-// see T-374, FM-4, FM-5, FM-6, FM-7
+// Spec: T-374, FM-4, FM-5, FM-6, FM-7
 export interface DelayFixSubject {
   readonly fixRow: string
   readonly findingRow: string
@@ -123,7 +123,7 @@ export interface DelayFixSubject {
   readonly before: DelayFixValue
 }
 
-// see DX-11, T-374, RW-13, RW-16
+// Spec: DX-11, T-374, RW-13, RW-16
 export interface DelayFixRow extends DelayFixSubject {
   readonly key: string
   readonly after: DelayFixValue | null
@@ -143,8 +143,8 @@ export interface DelayFixRow extends DelayFixSubject {
   readonly commands: readonly DelayFixCommand[]
 }
 
-// see RW-16
-// WHY: what the person did to one row, held by the row's key; null keeps the row's default.
+// Spec: RW-16
+// Why: what the person did to one row, held by the row's key; null keeps the row's default.
 export interface DelayFixCheck {
   readonly key: string
   readonly checked: boolean | null
@@ -152,7 +152,7 @@ export interface DelayFixCheck {
   readonly date: string | null
 }
 
-// see DX-12, T-374
+// Spec: DX-12, T-374
 export interface DelayFixLogRow extends DelayFixSubject {
   readonly fixedAt: string
   readonly order: number
@@ -160,7 +160,7 @@ export interface DelayFixLogRow extends DelayFixSubject {
   readonly isCascade: boolean
 }
 
-// see T-018
+// Spec: T-018
 const FINISH_TO_START = 1
 const START_TO_FINISH = 2
 const START_TO_START = 3
@@ -250,8 +250,8 @@ function linksValue(links: readonly DelayFixLink[]): DelayFixValue {
   return links.length === 0 ? EMPTY : { kind: 'links', links }
 }
 
-// see T-373
-// WHY: a column that already holds a value keeps its own time, so an MSPDI document keeps the times it carries.
+// Spec: T-373
+// Why: a column that already holds a value keeps its own time, so an MSPDI document keeps the times it carries.
 /** @purity pure */
 function onDay(held: string | null, day: CalendarDay, fallback: string): string {
   if (held === null || dayOf(held) === null) return fallback
@@ -307,8 +307,8 @@ function deleteLink(link: Pick<DelayFixLink, 'predecessorUid' | 'successorUid'>)
   return { kind: 'deleteDependency', predecessorUid: link.predecessorUid, successorUid: link.successorUid }
 }
 
-// see T-019, CM-13
-// WHY: CM-13 places the five columns as one of the T-019 states; the in-progress rows need a last day, so a missing stop
+// Spec: T-019, CM-13
+// Why: CM-13 places the five columns as one of the T-019 states; the in-progress rows need a last day, so a missing stop
 // takes the actual start and the command settles it (FR-011).
 /** @purity pure */
 function placementOf(actuals: Actuals): DelayFixPlacement {
@@ -320,8 +320,8 @@ function placementOf(actuals: Actuals): DelayFixPlacement {
   return { state: actuals.resumeValid === false ? 'suspendedWithoutResumeDate' : 'inProgress', actualStart, stop }
 }
 
-// see CM-13
-// WHY: a finish with no start has no T-019 state, so that outcome is not formed at all.
+// Spec: CM-13
+// Why: a finish with no start has no T-019 state, so that outcome is not formed at all.
 /** @purity pure */
 function actualsOutcome(task: Task, changes: Partial<Actuals>, after: DelayFixValue): FixOutcome | null {
   const actuals: Actuals = { ...task, ...changes }
@@ -329,14 +329,14 @@ function actualsOutcome(task: Task, changes: Partial<Actuals>, after: DelayFixVa
   return { after, commands: [{ kind: 'setTaskPlanActualState', taskUid: task.uid, place: placementOf(actuals) }] }
 }
 
-// see CM-11
+// Spec: CM-11
 /** @purity pure */
 function planOutcome(uid: number, start: string | null, finish: string | null, after: DelayFixValue): FixOutcome | null {
   if (start === null || finish === null) return null
   return { after, commands: [{ kind: 'setTaskPlanDates', taskUid: uid, start, finish }] }
 }
 
-// see T-019
+// Spec: T-019
 /** @purity pure */
 function taskAfterPlacement(task: Task, place: DelayFixPlacement): Task {
   const cleared = { ...task, stop: null, actualFinish: null, resume: null }
@@ -359,8 +359,8 @@ function withTaskEdited(schedule: Schedule, uid: number, edit: (task: Task) => T
   return { ...schedule, tasks: schedule.tasks.map((task) => (task.uid === uid ? edit(task) : task)) }
 }
 
-// see CM-6, FA-25
-// WHY: the Task CM-6 makes, with the uid CM-6 gives it, so a later row of the same bundle names the next uid.
+// Spec: CM-6, FA-25
+// Why: the Task CM-6 makes, with the uid CM-6 gives it, so a later row of the same bundle names the next uid.
 /** @purity pure */
 function scheduleWithCreatedTask(schedule: Schedule, command: Extract<DelayFixCommand, { readonly kind: 'createTask' }>): Schedule {
   const uid = schedule.project.uidHighWaterMark + 1
@@ -377,8 +377,8 @@ function scheduleWithCreatedTask(schedule: Schedule, command: Extract<DelayFixCo
   }
 }
 
-// see T-373
-// WHY: applied to a simulated schedule, so the chain is found before anything is issued.
+// Spec: T-373
+// Why: applied to a simulated schedule, so the chain is found before anything is issued.
 /** @purity pure */
 function scheduleAfter(schedule: Schedule, command: DelayFixCommand): Schedule {
   switch (command.kind) {
@@ -434,7 +434,7 @@ function groupedBy(tasks: readonly Task[], keyOf: (task: Task) => number | null)
   return grouped
 }
 
-// see GP-1
+// Spec: GP-1
 /** @purity pure */
 function readOnlyUidsOf(schedule: Schedule): ReadonlySet<number> {
   const closed = new Set(schedule.taskGroups.filter((group) => group.editPermission !== null).map((group) => group.id))
@@ -488,8 +488,8 @@ function choiceOf(
   }
 }
 
-// see T-373
-// WHY: a fix whose outcome cannot be formed is left to the person, so no row offers a fix it cannot issue.
+// Spec: T-373
+// Why: a fix whose outcome cannot be formed is left to the person, so no row offers a fix it cannot issue.
 /** @purity pure */
 function hasOutcome(draft: FixDraft): boolean {
   switch (draft.fixKind) {
@@ -565,7 +565,7 @@ function reachFrom(start: number, next: (uid: number) => readonly number[]): Rea
   return reached
 }
 
-// see VC-1
+// Spec: VC-1
 /** @purity pure */
 function ringOf(context: FixContext, uid: number): ReadonlySet<number> {
   const forward = reachFrom(uid, (at) => context.successorsOf.get(at) ?? NO_UIDS)
@@ -573,7 +573,7 @@ function ringOf(context: FixContext, uid: number): ReadonlySet<number> {
   return new Set([...forward].filter((one) => backward.has(one)))
 }
 
-// see FA-1, VC-1
+// Spec: FA-1, VC-1
 /** @purity pure */
 function ringDrafts(context: FixContext, finding: DelayFinding): readonly FixDraft[] {
   const ring = ringOf(context, finding.uid)
@@ -586,7 +586,7 @@ function ringDrafts(context: FixContext, finding: DelayFinding): readonly FixDra
   return [draftOf({ fixKind: 'choose', before: linksValue(links), choices, related })]
 }
 
-// see FA-2, VC-2
+// Spec: FA-2, VC-2
 /** @purity pure */
 function selfLinkDrafts(context: FixContext, finding: DelayFinding): readonly FixDraft[] {
   const task = context.byUid.get(finding.uid)
@@ -597,16 +597,16 @@ function selfLinkDrafts(context: FixContext, finding: DelayFinding): readonly Fi
   return [draftOf({ fixKind: 'automatic', before: linksValue(links), outcome })]
 }
 
-// see VC-3, FA-3
-// WHY: only the lines of one direction form a VC-3 group; the reverse line is a loop for VC-1 and stays (JDG-1972).
+// Spec: VC-3, FA-3
+// Why: only the lines of one direction form a VC-3 group; the reverse line is a loop for VC-1 and stays (JDG-1972).
 /** @purity pure */
 function sameWayLines(context: FixContext, predecessorUid: number, successorUid: number): readonly DelayFixLink[] {
   const successor = context.byUid.get(successorUid)
   return (successor?.dependencies ?? []).filter((one) => one.predecessorUid === predecessorUid).map((one) => linkOf(successorUid, one))
 }
 
-// see FA-3, CM-93
-// WHY: links holds the lines of one direction in the document order, so a line's place in it is its order;
+// Spec: FA-3, CM-93
+// Why: links holds the lines of one direction in the document order, so a line's place in it is its order;
 // the lines are deleted last first, so no deletion moves the order of a line still to be deleted.
 /** @purity pure */
 function keepOutcome(links: readonly DelayFixLink[], kept: DelayFixLink): FixOutcome {
@@ -616,7 +616,7 @@ function keepOutcome(links: readonly DelayFixLink[], kept: DelayFixLink): FixOut
   return { after: linksValue([kept]), commands }
 }
 
-// see FA-3, VC-3
+// Spec: FA-3, VC-3
 /** @purity pure */
 function duplicateDrafts(context: FixContext, finding: DelayFinding): readonly FixDraft[] {
   const other = numberIn(finding, 'predecessorUid')
@@ -632,7 +632,7 @@ function duplicateDrafts(context: FixContext, finding: DelayFinding): readonly F
   return [draftOf({ ...base, fixKind: 'choose', choices })]
 }
 
-// see FA-4, VC-4, PR-35
+// Spec: FA-4, VC-4, PR-35
 /** @purity pure */
 function milestoneDateDrafts(context: FixContext, finding: DelayFinding): readonly FixDraft[] {
   const task = context.byUid.get(finding.uid)
@@ -649,16 +649,16 @@ function milestoneDateDrafts(context: FixContext, finding: DelayFinding): readon
   return [draftOf({ fixKind: 'choose', column: 'PR-35', before, choices, openField: field(task.uid, 'PR-35') })]
 }
 
-// see FA-5, FA-6, FA-7, FA-18, FA-22, PR-4
+// Spec: FA-5, FA-6, FA-7, FA-18, FA-22, PR-4
 /** @purity pure */
 function actualStartOn(context: FixContext, task: Task, day: CalendarDay): FixOutcome | null {
   const actualStart = startSideOn(context, task, task.actualStart ?? task.start, day)
   return actualsOutcome(task, { actualStart }, dateValue(actualStart))
 }
 
-// see FA-13, FA-24, PR-6
-// see FA-9, FA-13
-// WHY: a task finished with no start of its own starts on its planned start, or on the finish day if that is earlier.
+// Spec: FA-13, FA-24, PR-6
+// Spec: FA-9, FA-13
+// Why: a task finished with no start of its own starts on its planned start, or on the finish day if that is earlier.
 /** @purity pure */
 function actualStartBy(context: FixContext, task: Task, finishDay: CalendarDay): string {
   return task.actualStart ?? startSideOn(context, task, task.start, earlierDay(dayOf(task.start), finishDay) ?? finishDay)
@@ -682,7 +682,7 @@ function suggestedStartDraft(context: FixContext, task: Task, suggested: Calenda
   })
 }
 
-// see FA-5, FA-6, VC-5, VC-6
+// Spec: FA-5, FA-6, VC-5, VC-6
 /** @purity pure */
 function actualStartDrafts(context: FixContext, finding: DelayFinding): readonly FixDraft[] {
   const task = context.byUid.get(finding.uid)
@@ -690,14 +690,14 @@ function actualStartDrafts(context: FixContext, finding: DelayFinding): readonly
   return [suggestedStartDraft(context, task, earlierDay(dayOf(task.start), dayOf(task.actualFinish)))]
 }
 
-// see FA-22, VO-1
+// Spec: FA-22, VO-1
 /** @purity pure */
 function notStartedDrafts(context: FixContext, finding: DelayFinding): readonly FixDraft[] {
   const task = context.byUid.get(finding.uid)
   return task === undefined || task.actualStart !== null ? [] : [suggestedStartDraft(context, task, dayOf(task.start))]
 }
 
-// see FA-7, VC-7
+// Spec: FA-7, VC-7
 /** @purity pure */
 function pauseDrafts(context: FixContext, finding: DelayFinding): readonly FixDraft[] {
   const task = context.byUid.get(finding.uid)
@@ -713,7 +713,7 @@ function pauseDrafts(context: FixContext, finding: DelayFinding): readonly FixDr
   return [draftOf({ fixKind: 'choose', column: 'PR-4', before, choices, openField: field(task.uid, 'PR-4') })]
 }
 
-// see FA-8, VC-8, PR-8
+// Spec: FA-8, VC-8, PR-8
 /** @purity pure */
 function resumeValidDrafts(context: FixContext, finding: DelayFinding): readonly FixDraft[] {
   const task = context.byUid.get(finding.uid)
@@ -722,15 +722,15 @@ function resumeValidDrafts(context: FixContext, finding: DelayFinding): readonly
   return [draftOf({ fixKind: 'automatic', column: 'PR-8', before: { kind: 'flag', value: true }, outcome })]
 }
 
-// see FA-9, FA-14
+// Spec: FA-9, FA-14
 /** @purity pure */
 function finishOnCommands(context: FixContext, tasks: readonly Task[], finish: string, finishDay: CalendarDay): readonly DelayFixCommand[] {
   return tasks.flatMap((task) =>
     actualsOutcome(task, { actualStart: actualStartBy(context, task, finishDay), actualFinish: finish }, EMPTY)?.commands ?? [])
 }
 
-// see VC-9, FR-135
-// WHY: the stated children only; a parent known only from the derivation is a relation the document does not hold.
+// Spec: VC-9, FR-135
+// Why: the stated children only; a parent known only from the derivation is a relation the document does not hold.
 /** @purity pure */
 function statedFamilyOf(context: FixContext, uid: number): { readonly parent: Task; readonly children: readonly Task[] } | null {
   const parent = context.byUid.get(uid)
@@ -743,7 +743,7 @@ function uidsOf(tasks: readonly Task[]): readonly number[] {
   return tasks.map((task) => task.uid)
 }
 
-// see FA-9, VC-9, PR-6
+// Spec: FA-9, VC-9, PR-6
 /** @purity pure */
 function parentFinishedDrafts(context: FixContext, finding: DelayFinding): readonly FixDraft[] {
   const family = statedFamilyOf(context, finding.uid)
@@ -764,7 +764,7 @@ function parentFinishedDrafts(context: FixContext, finding: DelayFinding): reado
   return [draftOf({ fixKind: 'choose', column: 'PR-6', before: dateValue(finish), choices, openField, related: uidsOf(children) })]
 }
 
-// see FA-10, VC-10
+// Spec: FA-10, VC-10
 /** @purity pure */
 function parentUnfinishedDrafts(context: FixContext, finding: DelayFinding): readonly FixDraft[] {
   const family = statedFamilyOf(context, finding.uid)
@@ -777,7 +777,7 @@ function parentUnfinishedDrafts(context: FixContext, finding: DelayFinding): rea
   return [draftOf({ fixKind: 'automatic', column: 'PR-6', before: dateValue(parent.actualFinish), outcome, related: uidsOf(children) })]
 }
 
-// see FA-11, VC-11, PR-3, PR-47
+// Spec: FA-11, VC-11, PR-3, PR-47
 /** @purity pure */
 function parentPlanDrafts(context: FixContext, finding: DelayFinding): readonly FixDraft[] {
   const family = statedFamilyOf(context, finding.uid)
@@ -798,8 +798,8 @@ function parentPlanDrafts(context: FixContext, finding: DelayFinding): readonly 
   return drafts
 }
 
-// see FA-12, VC-12, PR-4, PR-6
-// WHY: the finish is set only when every child is finished; a finished parent with an open child is VC-9's (FA-9).
+// Spec: FA-12, VC-12, PR-4, PR-6
+// Why: the finish is set only when every child is finished; a finished parent with an open child is VC-9's (FA-9).
 /** @purity pure */
 function parentActualDrafts(context: FixContext, finding: DelayFinding): readonly FixDraft[] {
   const family = statedFamilyOf(context, finding.uid)
@@ -827,19 +827,19 @@ function linkEndsOf(context: FixContext, finding: DelayFinding): { readonly pred
   return predecessor === undefined || successor === undefined ? null : { predecessor, successor }
 }
 
-// see VC-13, VS-4, T-018
+// Spec: VC-13, VS-4, T-018
 /** @purity pure */
 function bindsSuccessorStart(linkType: number | null): boolean {
   return linkType === FINISH_TO_START || linkType === START_TO_START
 }
 
-// see VC-13, VC-15, T-018
+// Spec: VC-13, VC-15, T-018
 /** @purity pure */
 function bindsByPredecessorStart(linkType: number | null): boolean {
   return linkType === START_TO_START || linkType === START_TO_FINISH
 }
 
-// see FA-13, VC-13
+// Spec: FA-13, VC-13
 /** @purity pure */
 function bindingEndDrafts(context: FixContext, finding: DelayFinding): readonly FixDraft[] {
   const ends = linkEndsOf(context, finding)
@@ -861,7 +861,7 @@ function bindingEndDrafts(context: FixContext, finding: DelayFinding): readonly 
   })]
 }
 
-// see FA-14, VC-14, PR-36
+// Spec: FA-14, VC-14, PR-36
 /** @purity pure */
 function milestoneActualDrafts(context: FixContext, finding: DelayFinding): readonly FixDraft[] {
   const milestone = context.byUid.get(finding.uid)
@@ -883,8 +883,8 @@ function milestoneActualDrafts(context: FixContext, finding: DelayFinding): read
   return [draftOf({ fixKind: 'choose', column: 'PR-36', before, choices, openField, related: uidsOf(open) })]
 }
 
-// see VC-15, BD-2, FR-054
-// WHY: the instant VC-15 holds the successor against: the end of the predecessor, advanced by the lag in working minutes.
+// Spec: VC-15, BD-2, FR-054
+// Why: the instant VC-15 holds the successor against: the end of the predecessor, advanced by the lag in working minutes.
 /** @purity pure */
 function boundInstantOf(within: WorkingCalendar, walk: WorkingTimeWalk, predecessor: Task, dependency: Dependency): number | null {
   const byStart = bindsByPredecessorStart(dependency.linkType)
@@ -894,16 +894,16 @@ function boundInstantOf(within: WorkingCalendar, walk: WorkingTimeWalk, predeces
   return laggedInstant(walk, at, lagMinutes)
 }
 
-// see FA-15, FR-054
-// WHY: a start bound at the end of a working time (17:00) starts at the next working minute (08:00 the next working day),
+// Spec: FA-15, FR-054
+// Why: a start bound at the end of a working time (17:00) starts at the next working minute (08:00 the next working day),
 // which is the same working time; a milestone stays on the bound, as WT-5 places it at the end of the day.
 /** @purity pure */
 function startOnBound(walk: WorkingTimeWalk, successor: Task, bound: number): number {
   return successor.milestone === true ? bound : walk(bound, 1) - 1
 }
 
-// see FA-15, VC-15, FR-011, FR-012
-// WHY: the successor keeps its length in working minutes (FR-012's count), moved so its bound end meets the bound.
+// Spec: FA-15, VC-15, FR-011, FR-012
+// Why: the successor keeps its length in working minutes (FR-012's count), moved so its bound end meets the bound.
 /** @purity pure */
 function movedSuccessorOutcome(context: FixContext, predecessor: Task, successor: Task, dependency: Dependency): FixOutcome | null {
   const walk = workingTimeWalkOf(context.calendar)
@@ -916,7 +916,7 @@ function movedSuccessorOutcome(context: FixContext, predecessor: Task, successor
   return planOutcome(successor.uid, startText, finishText, datesValue([startText, finishText]))
 }
 
-// see FA-15, VC-15
+// Spec: FA-15, VC-15
 /** @purity pure */
 function planLinkDrafts(context: FixContext, finding: DelayFinding): readonly FixDraft[] {
   const ends = linkEndsOf(context, finding)
@@ -934,7 +934,7 @@ function planLinkDrafts(context: FixContext, finding: DelayFinding): readonly Fi
   return [draftOf({ fixKind: 'choose', other: link.predecessorUid, before: linksValue([link]), choices, openField, related: [link.predecessorUid] })]
 }
 
-// see FA-16, VS-1
+// Spec: FA-16, VS-1
 /** @purity pure */
 function parentChildLinkDrafts(context: FixContext, finding: DelayFinding): readonly FixDraft[] {
   const successor = context.byUid.get(finding.uid)
@@ -944,7 +944,7 @@ function parentChildLinkDrafts(context: FixContext, finding: DelayFinding): read
   return [draftOf({ fixKind: 'choose', other: link.predecessorUid, before: linksValue([link]), choices, related: [link.predecessorUid] })]
 }
 
-// see FA-17, VS-2, PR-15
+// Spec: FA-17, VS-2, PR-15
 /** @purity pure */
 function milestoneChildrenDrafts(_context: FixContext, finding: DelayFinding): readonly FixDraft[] {
   const children = numbersIn(finding, 'childUids')
@@ -952,7 +952,7 @@ function milestoneChildrenDrafts(_context: FixContext, finding: DelayFinding): r
   return [draftOf({ openField: only === undefined ? null : field(only, 'PR-15'), related: children })]
 }
 
-// see FA-18, VS-3
+// Spec: FA-18, VS-3
 /** @purity pure */
 function predecessorStartDrafts(context: FixContext, finding: DelayFinding): readonly FixDraft[] {
   const ends = linkEndsOf(context, finding)
@@ -963,7 +963,7 @@ function predecessorStartDrafts(context: FixContext, finding: DelayFinding): rea
   return [{ ...suggestedStartDraft(context, predecessor, suggested), other: predecessor.uid, related: [predecessor.uid] }]
 }
 
-// see FA-19, VS-4
+// Spec: FA-19, VS-4
 /** @purity pure */
 function linkActualDrafts(_context: FixContext, finding: DelayFinding): readonly FixDraft[] {
   const predecessorUid = numberIn(finding, 'predecessorUid')
@@ -972,7 +972,7 @@ function linkActualDrafts(_context: FixContext, finding: DelayFinding): readonly
   return [draftOf({ other: predecessorUid, openField: field(finding.uid, column), related })]
 }
 
-// see FA-20, VS-5, CM-3
+// Spec: FA-20, VS-5, CM-3
 /** @purity pure */
 function statusDateDrafts(context: FixContext, finding: DelayFinding): readonly FixDraft[] {
   const task = context.byUid.get(finding.uid)
@@ -986,20 +986,20 @@ function statusDateDrafts(context: FixContext, finding: DelayFinding): readonly 
   return [draftOf({ fixKind: 'choose', before: dateValue(status), choices })]
 }
 
-// see VS-6
+// Spec: VS-6
 /** @purity pure */
 function descendantsOf(context: FixContext, uid: number): readonly number[] {
   const reached = reachFrom(uid, (at) => uidsOf(context.childrenOf.get(at) ?? []))
   return [...reached].filter((one) => one !== uid)
 }
 
-// see FA-21, VS-6
+// Spec: FA-21, VS-6
 /** @purity pure */
 function progressSpreadDrafts(context: FixContext, finding: DelayFinding): readonly FixDraft[] {
   return [draftOf({ related: descendantsOf(context, finding.uid) })]
 }
 
-// see FA-23, VO-2
+// Spec: FA-23, VO-2
 /** @purity pure */
 function unfinishedDrafts(context: FixContext, finding: DelayFinding): readonly FixDraft[] {
   const task = context.byUid.get(finding.uid)
@@ -1016,7 +1016,7 @@ function unfinishedDrafts(context: FixContext, finding: DelayFinding): readonly 
   return [draftOf({ fixKind: 'choose', column: 'PR-6', before: dateValue(task.actualFinish), choices, openField })]
 }
 
-// see FA-24, VO-3
+// Spec: FA-24, VO-3
 /** @purity pure */
 function finishOmissionDrafts(context: FixContext, finding: DelayFinding): readonly FixDraft[] {
   const task = openTaskOf(context, finding.uid)
@@ -1039,7 +1039,7 @@ function finishOmissionDrafts(context: FixContext, finding: DelayFinding): reado
   })]
 }
 
-// see FA-25, VO-4, IP-1
+// Spec: FA-25, VO-4, IP-1
 /** @purity pure */
 function orphansOfTaskGroup(context: FixContext, taskGroupId: string): readonly Task[] {
   return context.schedule.taskGroupMembers
@@ -1049,8 +1049,8 @@ function orphansOfTaskGroup(context: FixContext, taskGroupId: string): readonly 
 }
 
 // see FA-25, VO-4, CM-6, CM-18, JDG-2900
-// WHY: one row for each task group: only its task with the smallest uid offers it; the others keep their by-hand row.
-// TRAP: the bare task group above is read from the finding, never the settled schedule, where a sibling's new parent hides it.
+// Why: one row for each task group: only its task with the smallest uid offers it; the others keep their by-hand row.
+// Trap: the bare task group above is read from the finding, never the settled schedule, where a sibling's new parent hides it.
 /** @purity pure */
 function parentTaskFromTaskGroupChoice(context: FixContext, finding: DelayFinding): DelayFixChoice | null {
   if (typeof finding.values['taskGroupAboveWithoutSpanBar'] !== 'string') return null
@@ -1072,7 +1072,7 @@ function parentTaskFromTaskGroupChoice(context: FixContext, finding: DelayFindin
     { after: EMPTY, commands })
 }
 
-// see FA-25, VO-4, PR-15
+// Spec: FA-25, VO-4, PR-15
 /** @purity pure */
 function undecidedParentDrafts(context: FixContext, finding: DelayFinding): readonly FixDraft[] {
   const related = numbersIn(finding, 'candidateUids')
@@ -1081,7 +1081,7 @@ function undecidedParentDrafts(context: FixContext, finding: DelayFinding): read
   return [draftOf({ fixKind: 'choose', choices: [choice], openField: field(finding.uid, 'PR-15'), related })]
 }
 
-// see FA-26, VO-5, MP-4, PR-36
+// Spec: FA-26, VO-5, MP-4, PR-36
 /** @purity pure */
 function achievedDrafts(context: FixContext, finding: DelayFinding): readonly FixDraft[] {
   const task = openTaskOf(context, finding.uid)
@@ -1098,7 +1098,7 @@ interface FixWay {
   readonly build: FixBuilder
 }
 
-// see T-373, T-310
+// Spec: T-373, T-310
 /** @purity pure */
 function contradictionWayOf(findingRow: string): FixWay | null {
   switch (findingRow) {
@@ -1121,7 +1121,7 @@ function contradictionWayOf(findingRow: string): FixWay | null {
   }
 }
 
-// see T-373, T-311, T-312
+// Spec: T-373, T-311, T-312
 /** @purity pure */
 function suspicionOrOmissionWayOf(findingRow: string): FixWay | null {
   switch (findingRow) {
@@ -1145,8 +1145,8 @@ function fixWayOf(findingRow: string): FixWay | null {
   return contradictionWayOf(findingRow) ?? suspicionOrOmissionWayOf(findingRow)
 }
 
-// see T-373
-// WHY: only a finding whose fix can be 'automatic' joins a chain; the person fixes the rest after a new diagnosis.
+// Spec: T-373
+// Why: only a finding whose fix can be 'automatic' joins a chain; the person fixes the rest after a new diagnosis.
 const CHAINING_FINDING_ROWS: ReadonlySet<string> = new Set(['VC-2', 'VC-3', 'VC-8', 'VC-10', 'VC-11', 'VC-12', 'VO-5'])
 
 /** @purity pure */
@@ -1159,7 +1159,7 @@ function findingKeyOf(finding: DelayFinding): string {
   return `${finding.row}:${finding.uid}:${otherEndOf(finding) ?? '-'}`
 }
 
-// see RW-16
+// Spec: RW-16
 /** @purity pure */
 function rowKeyOf(finding: DelayFinding, draft: FixDraft): string {
   return `${finding.row}:${finding.uid}:${draft.column ?? '-'}:${draft.other ?? '-'}`
@@ -1171,14 +1171,14 @@ function possibleOutcomesOf(draft: FixDraft): readonly FixOutcome[] {
   return [...(draft.outcome === null ? [] : [draft.outcome]), ...draft.choices, ...(suggested === null ? [] : [suggested])]
 }
 
-// see T-373, GP-1
+// Spec: T-373, GP-1
 /** @purity pure */
 function isReadOnly(context: FixContext, draft: FixDraft): boolean {
   return possibleOutcomesOf(draft).some((outcome) => outcome.commands
     .some((command) => writtenUidsOf(command).some((uid) => context.readOnlyUids.has(uid))))
 }
 
-// see FM-1, FM-8, T-373, T-064
+// Spec: FM-1, FM-8, T-373, T-064
 /** @purity pure */
 function isOneChoice(draft: FixDraft): boolean {
   return draft.fixKind === 'choose' && draft.choices.length === 1
@@ -1196,7 +1196,7 @@ function isCheckedByDefault(draft: FixDraft): boolean {
   return draft.fixKind !== 'suggestedDate' && !isOneChoice(draft)
 }
 
-// see FM-8, RW-16
+// Spec: FM-8, RW-16
 /** @purity pure */
 function outcomeOf(draft: FixDraft, chosen: DelayFixChoice | null, check: DelayFixCheck | null): FixOutcome | null {
   switch (draft.fixKind) {
@@ -1222,7 +1222,7 @@ function depthOf(context: FixContext, uid: number): number {
   return depth
 }
 
-// see T-373, FM-1, RW-16
+// Spec: T-373, FM-1, RW-16
 /** @purity pure */
 function rowOf(context: FixContext, seed: Seed, draft: FixDraft, check: DelayFixCheck | null): Omit<DelayFixRow, 'applyOrder'> {
   const { finding } = seed
@@ -1272,7 +1272,7 @@ function settleColumn(rules: SettleRules, settled: Settled, seed: Seed, column: 
   return { schedule, rows: [...settled.rows, row], applied: [...settled.applied, row] }
 }
 
-// WHY: a finding with two columns (FA-11, FA-12) is built again after its first column is applied, so the second
+// Why: a finding with two columns (FA-11, FA-12) is built again after its first column is applied, so the second
 // command carries the first column's new value.
 /** @purity pure */
 function settleSeed(rules: SettleRules, settled: Settled, seed: Seed): Settled {
@@ -1281,8 +1281,8 @@ function settleSeed(rules: SettleRules, settled: Settled, seed: Seed): Settled {
   return columns.reduce((held, column) => settleColumn(rules, held, seed, column), settled)
 }
 
-// see FR-155, DX-3, T-373
-// WHY: one row for each finding of the report: a machine finding an earlier applied row already mended (VC-12 after
+// Spec: FR-155, DX-3, T-373
+// Why: one row for each finding of the report: a machine finding an earlier applied row already mended (VC-12 after
 // FA-10 on the same parent) keeps its row, under that row, checked with it and with no command of its own.
 /** @purity pure */
 function settleCovered(rules: SettleRules, settled: Settled, seed: Seed): Settled {
@@ -1300,8 +1300,8 @@ function withRowShown(settled: Settled, row: DelayFixRow): Settled {
   return { ...settled, rows: [...settled.rows, row] }
 }
 
-// see T-373
-// WHY: table T-312 gives no layer, so those findings go last rather than first.
+// Spec: T-373
+// Why: table T-312 gives no layer, so those findings go last rather than first.
 /** @purity pure */
 function inApplyOrder(seeds: readonly Seed[], context: FixContext): readonly Seed[] {
   const layerOf = (seed: Seed): number => seed.finding.layer ?? Number.POSITIVE_INFINITY
@@ -1317,8 +1317,8 @@ function touchedUidsOf(row: DelayFixRow): ReadonlySet<number> {
     ? [command.predecessorUid, command.successorUid] : writtenUidsOf(command)))
 }
 
-// see FR-155
-// WHY: the last applied row that wrote the finding's Task or one it names; else the last applied row.
+// Spec: FR-155
+// Why: the last applied row that wrote the finding's Task or one it names; else the last applied row.
 /** @purity pure */
 function causeOf(finding: DelayFinding, applied: readonly DelayFixRow[]): string | null {
   const named = new Set([finding.uid, ...numbersIn(finding, 'childUids'), ...numbersIn(finding, 'predecessorUids'),
@@ -1336,7 +1336,7 @@ function chainSeedsOf(rules: SettleRules, settled: Settled, seen: ReadonlySet<st
   return inApplyOrder(seeds, contextOf(settled.schedule, rules.calendar))
 }
 
-// see T-373
+// Spec: T-373
 /** @purity pure */
 function passLimitOf(schedule: Schedule): number {
   return schedule.tasks.reduce((sum, task) => sum + 1 + task.dependencies.length, 0)
@@ -1360,13 +1360,13 @@ function isIssued(row: DelayFixRow): boolean {
   return row.checked && row.isCheckable
 }
 
-// WHY: an 'automatic' row the person unchecked; its chain is found by applying it anyway, then shown unpressable.
+// Why: an 'automatic' row the person unchecked; its chain is found by applying it anyway, then shown unpressable.
 /** @purity pure */
 function isWithheld(row: DelayFixRow): boolean {
   return row.fixKind === 'automatic' && row.isCheckable && !row.checked
 }
 
-// see RW-16
+// Spec: RW-16
 /** @purity pure */
 function withheldChainsOf(settled: readonly DelayFixRow[], discovered: readonly DelayFixRow[]): readonly DelayFixRow[] {
   const keys = new Set(settled.map((row) => row.key))
@@ -1375,7 +1375,7 @@ function withheldChainsOf(settled: readonly DelayFixRow[], discovered: readonly 
     .map((row, at) => ({ ...row, checked: false, isCheckable: false, commands: [], applyOrder: settled.length + at }))
 }
 
-// see FR-155, T-373, DX-11, RW-16
+// Spec: FR-155, T-373, DX-11, RW-16
 /** @purity pure */
 export function proposeDelayFixes(
   document: { readonly schedule: Schedule },
@@ -1395,19 +1395,19 @@ export function proposeDelayFixes(
   return [...settled, ...withheldChainsOf(settled, discovered)]
 }
 
-// see FR-155, UN-21
+// Spec: FR-155, UN-21
 /** @purity pure */
 export function delayFixCommands(rows: readonly DelayFixRow[]): readonly DelayFixCommand[] {
   return rows.filter(isIssued).sort((a, b) => a.applyOrder - b.applyOrder).flatMap((row) => row.commands)
 }
 
-// WHY: one way to fix and nothing in the way: the rows adopt-all ticks and the Agent API issues by default.
+// Why: one way to fix and nothing in the way: the rows adopt-all ticks and the Agent API issues by default.
 /** @purity pure */
 export function isRecommendedDelayFix(row: DelayFixRow): boolean {
   return (row.fixKind === 'automatic' || (row.fixKind === 'choose' && row.choices.length === 1)) && row.isCheckable
 }
 
-// see DX-12, FM-2
+// Spec: DX-12, FM-2
 /** @purity pure */
 export function delayFixLogRowsOf(rows: readonly DelayFixRow[], fixedAt: string): readonly DelayFixLogRow[] {
   return rows.filter(isIssued).sort((a, b) => a.applyOrder - b.applyOrder).map((row, order) => ({

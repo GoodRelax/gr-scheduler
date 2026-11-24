@@ -45,7 +45,7 @@ import {
 const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 const DESIGN = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '05-07-design.md'), 'utf8'))
 
-// see FR-088, FR-054
+// Spec: FR-088, FR-054
 const CLAUSES = [
   '⭐ 面が示す 1 組は、時間帯を持つ稼働の曜日のうち最も多くが持つ組とする —— 同数なら `Project.weekStartDay` から数えて最初の稼働の曜日の組、どの曜日も持たなければ 表 T-209 の `S-580` である。',
   '⛔ それと違う組を持つ曜日（交換相手から取り込んだもの）を、面で直してはならない（MUST NOT）。',
@@ -56,7 +56,7 @@ const CLAUSES = [
   '⭐ 当てた 1 組の合計が `Project.minutesPerDay`（空なら `S-128`）と違うときは、当てたときにも 表 T-233 の `RS-89` を 1 度告げること（MUST）',
 ]
 
-// see IV-24
+// Spec: IV-24
 const IV_24 =
   '1 つの曜日・例外日の時間帯は 0 本（稼働でない日）か 1 〜 `_assets/tbl-settings.md` の 表 T-211 の `S-582` 本で、どれも始まりが終わりより前（終わりの `00:00:00` は 24:00）であり、互いに重ならないこと。'
 
@@ -70,14 +70,14 @@ describe('the clauses these cases are built from still read as quoted', () => {
   })
 })
 
-// see S-580, S-582
+// Spec: S-580, S-582
 const DEFAULT_PAIRS = [['08:00:00', '12:00:00'], ['13:00:00', '17:00:00']]
 const MOST_PER_DAY = 5
 const A_FAR_FRIDAY = 23
 
 const FULL_DAY = spansOf(['09:00', '18:00'])
 
-// see WC-8, WC-9
+// Spec: WC-8, WC-9
 describe('WC-8 / WC-9: workingTimeSetOf names the one set a window shows and the weekdays that hold another', () => {
   const setOf = (parts: CalendarParts) => workingTimeSetOf(workingCalendarOver(parts))
 
@@ -138,7 +138,7 @@ describe('WC-8 / WC-9: workingTimeSetOf names the one set a window shows and the
   })
 })
 
-// see IV-24
+// Spec: IV-24
 describe('IV-24: workingTimesBreach says nothing for a sound day and something for each way to break it', () => {
   it.each([
     ['no span at all (a day that does not work)', []],
@@ -184,7 +184,7 @@ function weekDayIn(document: Document, dayType: number) {
   return found
 }
 
-// see CM-39, FR-088
+// Spec: CM-39, FR-088
 describe('CM-39: the one set is written to the weekdays FR-088 names and to no others', () => {
   const NEW_SET = spansOf(['07:00', '11:00'], ['12:00', '16:00'])
   const NEW_PAIRS = [['07:00:00', '11:00:00'], ['12:00:00', '16:00:00']]
@@ -299,7 +299,7 @@ describe('CM-39: the one set is written to the weekdays FR-088 names and to no o
   })
 })
 
-// see FR-012, FR-088
+// Spec: FR-012, FR-088
 describe('FR-012: a calendar edit counts the stored completion again from the instants', () => {
   const task = (uid: number, part: Record<string, unknown>) =>
     taskRow(uid, { start: jan(JAN_WEDNESDAY, '08:00'), finish: jan(JAN_NEXT_FRIDAY, '17:00'), percentComplete: 0, ...part })
@@ -337,7 +337,7 @@ function projectOf(minutesPerDay: number | null): Project {
   return { ...asDocument().schedule.project, minutesPerDay }
 }
 
-// see RS-89, S-128
+// Spec: RS-89, S-128
 describe('RS-89: isWorkingTimeSetUnlikeDay compares the sum of a set with the minutes of a day', () => {
   it.each([
     ['08:00-12:00 and 13:00-17:00 is 480, the day of S-128', MORNING_AND_AFTERNOON, null, false],
@@ -352,7 +352,7 @@ describe('RS-89: isWorkingTimeSetUnlikeDay compares the sum of a set with the mi
   })
 })
 
-// see RS-89, FR-054
+// Spec: RS-89, FR-054
 describe('RS-89: isWorkingDayUnlikeMinutesPerDay finds a working day whose spans do not sum to the day', () => {
   const scheduleOver = (working: WorkingByDayType, minutesPerDay: number | null, exceptions: CalendarParts['exceptions'] = []) =>
     documentOver({ working, exceptions }, { minutesPerDay }).schedule

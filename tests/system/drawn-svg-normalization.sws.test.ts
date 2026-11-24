@@ -16,8 +16,8 @@ const ID_ROW = 'NS-4'
 const PAIR_ROW = 'NS-5'
 const SCREEN_ROW = 'MC-6'
 
-// WHY: derived from the grid, not written down, so moving the grid moves this;
-// WHY: a grid no finer than 1px yields zero places, which is a valid answer.
+// Why: derived from the grid, not written down, so moving the grid moves this;
+// Why: a grid no finer than 1px yields zero places, which is a valid answer.
 /** @purity pure */
 function fractionDigitsOf(row: SpecRow): number {
   const found = /(\d+\.\d+|\d+)\s*px/.exec(lastCellOf(row))
@@ -33,8 +33,8 @@ const BASE_SCREEN = screenOf(rowOf(T025, SCREEN_ROW))
 const SPELLING =
   FRACTION_DIGITS > 0 ? `^-?\\d+(?:\\.\\d{1,${FRACTION_DIGITS}})?$` : '^-?\\d+$'
 
-// WHY: not read off the renderer -- the list is what the format defines, so a
-// WHY: new attribute is already judged; transform's numbers are not uniform.
+// Why: not read off the renderer -- the list is what the format defines, so a
+// Why: new attribute is already judged; transform's numbers are not uniform.
 const GEOMETRY_ATTRIBUTES = [
   'x',
   'y',
@@ -60,8 +60,8 @@ const GEOMETRY_ATTRIBUTES = [
   'stroke-dashoffset',
 ]
 
-// WHY: recorded, not omitted, so the completeness check below still catches
-// WHY: a new table row that is neither covered nor excused.
+// Why: recorded, not omitted, so the completeness check below still catches
+// Why: a new table row that is neither covered nor excused.
 const OUT_OF_REACH: Readonly<Record<string, string>> = {
   'NS-1':
     'the standard is implemented in no file under src/, and the running application ' +
@@ -79,8 +79,8 @@ test.beforeAll(async () => {
 })
 
 test.afterAll(async () => {
-  // WHY: this raises the hook's own timeout, not an assertion's -- closing the
-  // WHY: reference browser exceeds Playwright's 30s hook default on this machine.
+  // Why: this raises the hook's own timeout, not an assertion's -- closing the
+  // Why: reference browser exceeds Playwright's 30s hook default on this machine.
   test.setTimeout(CLEARING_UP_MS)
   await browser?.close()
 })
@@ -118,8 +118,8 @@ test(
     await page.goto('/')
     await readSettledDrawnSvg(page)
 
-    // WHY: judged inside the page, only offenders returned -- shipping every
-    // WHY: number across the wire would be tens of thousands of strings.
+    // Why: judged inside the page, only offenders returned -- shipping every
+    // Why: number across the wire would be tens of thousands of strings.
     const scan = await page.evaluate(
       /** @purity semi-pure-mutable */
       (asked: { selector: string; attributes: readonly string[]; spelling: string }) => {
@@ -148,8 +148,8 @@ test(
       { selector: DRAWN_SVG, attributes: GEOMETRY_ATTRIBUTES, spelling: SPELLING },
     )
 
-    // WHY: guards against a green run that read nothing -- an empty drawing
-    // WHY: satisfies every spelling there is.
+    // Why: guards against a green run that read nothing -- an empty drawing
+    // Why: satisfies every spelling there is.
     expect(scan.elements, 'the drawing holds no element to read').toBeGreaterThan(1)
     expect(scan.numbers, 'the drawing holds no coordinate and no dimension').toBeGreaterThan(0)
 
@@ -190,8 +190,8 @@ test(
     const compared = await secondPage.evaluate(
       /** @purity pure */
       (pair: { first: string; second: string }) => {
-        // WHY: not NS-1's standard -- ignores only the order of written attributes
-        // WHY: and whitespace-only text between children; everything else counts.
+        // Why: not NS-1's standard -- ignores only the order of written attributes
+        // Why: and whitespace-only text between children; everything else counts.
         /** @purity pure */
         const shapeOf = (markup: string): string => {
           /** @purity pure */
@@ -204,8 +204,8 @@ test(
             const parts: string[] = []
             for (const child of Array.from(element.childNodes)) {
               if (child.nodeType === Node.ELEMENT_NODE) {
-                // TRAP: the watermark's stamp changes every run/machine (WY-2);
-                // TRAP: excluding it here is required or SWS-7 never passes once FR-020 draws it.
+                // Trap: the watermark's stamp changes every run/machine (WY-2);
+                // Trap: excluding it here is required or SWS-7 never passes once FR-020 draws it.
                 if ((child as Element).getAttribute('data-role') === 'Watermark') continue
                 parts.push(written(child as Element))
                 continue
@@ -224,8 +224,8 @@ test(
           Array.from(
             new DOMParser().parseFromString(markup, 'image/svg+xml').querySelectorAll('[id]'),
           )
-            // WHY: same exclusion as above (WY-2) -- the watermark's clip id is
-            // WHY: derived from the Task Group Area, which is already set aside from comparison.
+            // Why: same exclusion as above (WY-2) -- the watermark's clip id is
+            // Why: derived from the Task Group Area, which is already set aside from comparison.
             .filter((one) => one.closest('[data-role="Watermark"]') === null)
             .map((one) => one.id)
 
@@ -245,8 +245,8 @@ test(
       { first, second },
     )
 
-    // WHY: recorded so a pass states how much there was to judge -- a drawing
-    // WHY: with no id at all would satisfy the row with nothing to show.
+    // Why: recorded so a pass states how much there was to judge -- a drawing
+    // Why: with no id at all would satisfy the row with nothing to show.
     test.info().annotations.push({
       type: 'note',
       description: `ids in the drawing: ${compared.firstIds.length}`,
@@ -275,8 +275,8 @@ test('every row of table T-231 is either verified by a case or recorded as out o
       covered.has(row.id) || reason !== undefined,
       `table T-231 row ${row.id} is neither covered by a case nor recorded as out of reach`,
     ).toBe(true)
-    // WHY: put on the run, not just in a constant -- a gap only visible by
-    // WHY: reading this file is a gap that stops being read.
+    // Why: put on the run, not just in a constant -- a gap only visible by
+    // Why: reading this file is a gap that stops being read.
     if (reason !== undefined) {
       test.info().annotations.push({ type: 'note', description: `${row.id}: ${reason}` })
     }

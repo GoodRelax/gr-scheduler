@@ -104,13 +104,13 @@ def invariant_rows():
 
 
 def union(name, members, see):
-    out = ['// see %s' % see, 'export type %s =' % name]
+    out = ['// Spec: %s' % see, 'export type %s =' % name]
     out += ["  | '%s'" % one for one in members]
     return out
 
 
 def record(name, key_type, value_type, pairs, see):
-    out = ['// see %s' % see,
+    out = ['// Spec: %s' % see,
            'export const %s: Readonly<Record<%s, %s>> = {' % (name, key_type, value_type)]
     out += ["  '%s': '%s'," % pair for pair in pairs]
     out.append('}')
@@ -132,7 +132,7 @@ def block(doc, invariants):
     manners = sorted(set([one['manner'] for one in reasons] + [family['manner']]),
                      key=manner_order)
     shared = family.get('wordsOf', {})
-    # WHY: every name printed here has a reader in src/ (JDG-139 refuses an
+    # Why: every name printed here has a reader in src/ (JDG-139 refuses an
     # exported generated constant nobody imports): the shell reads the manner,
     # the session's notices region, the clock and the file flow read the
     # display, the region and the renderer read the words row, and the file
@@ -140,7 +140,7 @@ def block(doc, invariants):
     sections = [
         union('ReasonRow', reason_ids, 'T-233'),
         union('InvariantRow', invariants, 'T-220'),
-        ['// see FR-076', 'export type NoticeReason = ReasonRow | InvariantRow'],
+        ['// Spec: FR-076', 'export type NoticeReason = ReasonRow | InvariantRow'],
         union('QuestionRow', [one['id'] for one in doc['questions']], 'T-234'),
         union('NoticeManner', manners, 'T-037'),
         record('NOTICE_MANNER_OF_REASON', 'NoticeReason', 'NoticeManner',

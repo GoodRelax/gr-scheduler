@@ -16,7 +16,7 @@ import {
 } from './cr-610-file-flow-stage'
 import { specTable } from './spec-table'
 
-// WHY: the bench builds its FileStore (IF-3, CP-28) from this public entry; wrapping the factory
+// Why: the bench builds its FileStore (IF-3, CP-28) from this public entry; wrapping the factory
 // hands the shell a store whose chosen methods reject, with no src internals touched.
 const control = vi.hoisted(() => ({ rejecting: new Set<string>(), rejected: [] as string[] }))
 

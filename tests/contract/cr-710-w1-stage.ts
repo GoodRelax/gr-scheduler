@@ -8,7 +8,7 @@ import type {
   WorkingTime,
 } from '../../src/entity/document-model/schedule/schedule'
 
-// see AT-73
+// Spec: AT-73
 export const SUNDAY = 1
 export const MONDAY = 2
 export const TUESDAY = 3
@@ -17,10 +17,10 @@ export const THURSDAY = 5
 export const FRIDAY = 6
 export const SATURDAY = 7
 
-// see AT-17
+// Spec: AT-17
 export const WEEK_STARTS_MONDAY = 1
 
-// WHY: January 2026 starts on a Thursday, so the 2nd is a Friday and the 5th a Monday.
+// Why: January 2026 starts on a Thursday, so the 2nd is a Friday and the 5th a Monday.
 export const JAN_FRIDAY = 2
 export const JAN_SATURDAY = 3
 export const JAN_SUNDAY = 4
@@ -31,13 +31,13 @@ export const JAN_THURSDAY = 8
 export const JAN_NEXT_FRIDAY = 9
 export const JAN_NEXT_MONDAY = 12
 
-// see WT-1, WT-2
+// Spec: WT-1, WT-2
 /** @purity pure */
 export function jan(dayOfMonth: number, hhmm: string): string {
   return `2026-01-${String(dayOfMonth).padStart(2, '0')}T${hhmm}:00`
 }
 
-// see AT-160, AT-161, AT-162
+// Spec: AT-160, AT-161, AT-162
 /** @purity pure */
 export function span(ordinal: number, from: string, to: string): WorkingTime {
   return { ordinal, fromTime: `${from}:00`, toTime: `${to}:00` }
@@ -48,7 +48,7 @@ export function spansOf(...pairs: readonly (readonly [string, string])[]): reado
   return pairs.map(([from, to], ordinal) => span(ordinal, from, to))
 }
 
-// see S-580
+// Spec: S-580
 export const MORNING_AND_AFTERNOON = spansOf(['08:00', '12:00'], ['13:00', '17:00'])
 
 /** @purity pure */
@@ -56,13 +56,13 @@ export function pairsOf(workingTimes: readonly WorkingTime[]): readonly (readonl
   return workingTimes.map((one) => [one.fromTime, one.toTime] as const)
 }
 
-// see AT-72, AT-73, AT-74, AT-158
+// Spec: AT-72, AT-73, AT-74, AT-158
 /** @purity pure */
 export function weekDayOf(dayType: number, working: boolean, workingTimes: readonly WorkingTime[] = []): WeekDay {
   return { ordinal: dayType, dayType, dayWorking: working, workingTimes, carry: {}, carryElements: [] }
 }
 
-// see AT-77, AT-82, AT-159
+// Spec: AT-77, AT-82, AT-159
 /** @purity pure */
 export function exceptionOf(
   ordinal: number,

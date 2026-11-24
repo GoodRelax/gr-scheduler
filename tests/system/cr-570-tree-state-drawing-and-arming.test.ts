@@ -114,7 +114,7 @@ const DRAWING_CASES: readonly { readonly name: string; readonly arranged: Arrang
 test.describe('claim 12: table T-329, row by row', () => {
   test.describe.configure({ timeout: 180_000 })
   for (const one of DRAWING_CASES) {
-    // WHY: red if the panel draws a task group T-329 does not, or leaves out one it does.
+    // Why: red if the panel draws a task group T-329 does not, or leaves out one it does.
     test(one.name, async () => {
       const stage = await openArranged(one.arranged)
       try {
@@ -129,7 +129,7 @@ test.describe('claim 12: table T-329, row by row', () => {
 test.describe('claim 13: when an entrance is armed (CR-570 14.6), and a faint press that T-233 hides', () => {
   test.describe.configure({ timeout: 180_000 })
 
-  // WHY: red if the head [vv] stays armed with every task group drawn, or a faint press changes the file.
+  // Why: red if the head [vv] stays armed with every task group drawn, or a faint press changes the file.
   test('HF-10 / RS-31: every task group drawn and nothing folded -- the head [vv] is faint and RS-31 is hidden', async () => {
     const stage = await openArranged({ zoomY: DEEP_ZOOM })
     try {
@@ -144,7 +144,7 @@ test.describe('claim 13: when an entrance is armed (CR-570 14.6), and a faint pr
     }
   })
 
-  // WHY: red if the head [vv] stays faint while the zoom alone hides task groups -- the change JDG-591 made.
+  // Why: red if the head [vv] stays faint while the zoom alone hides task groups -- the change JDG-591 made.
   test('HF-10: nothing folded but the zoom drops depth 2 -- the head [vv] is armed', async () => {
     const stage = await openArranged({ zoomY: SHALLOW_ZOOM })
     try {
@@ -154,7 +154,7 @@ test.describe('claim 13: when an entrance is armed (CR-570 14.6), and a faint pr
     }
   })
 
-  // WHY: red if [^^] is armed on a task group whose children are all undrawn.
+  // Why: red if [^^] is armed on a task group whose children are all undrawn.
   test('HF-11 / RS-29: a task group with no drawn child -- [^^] is faint and RS-29 is hidden', async () => {
     const stage = await openArranged({ zoomY: SHALLOW_ZOOM })
     try {
@@ -167,7 +167,7 @@ test.describe('claim 13: when an entrance is armed (CR-570 14.6), and a faint pr
     }
   })
 
-  // WHY: red if [v] is armed when the zoom already draws every child, or [vv] on a leaf.
+  // Why: red if [v] is armed when the zoom already draws every child, or [vv] on a leaf.
   test('HF-13 / RS-30 and HF-2 / RS-28: nothing to bring back -- [v] and [vv] are faint and their reasons are hidden', async () => {
     const stage = await openArranged({ zoomY: DEEP_ZOOM })
     try {
@@ -183,7 +183,7 @@ test.describe('claim 13: when an entrance is armed (CR-570 14.6), and a faint pr
     }
   })
 
-  // WHY: red if [v] is faint over children drawn only because of temporarilyExpanded (decision 5).
+  // Why: red if [v] is faint over children drawn only because of temporarilyExpanded (decision 5).
   test('HF-13: children drawn only by temporarilyExpanded -- [v] is armed', async () => {
     const stage = await openArranged({ zoomY: SHALLOW_ZOOM, states: { T2: 'temporarilyExpanded' } })
     try {
@@ -194,7 +194,7 @@ test.describe('claim 13: when an entrance is armed (CR-570 14.6), and a faint pr
     }
   })
 
-  // WHY: red if the head [^^] is armed with level zero already folded.
+  // Why: red if the head [^^] is armed with level zero already folded.
   test('HF-12 / RS-32: level zero folded -- the head [^^] is faint and RS-32 is hidden', async () => {
     const stage = await openArranged({ zoomY: DEEP_ZOOM, levelZero: 'collapsed' })
     try {

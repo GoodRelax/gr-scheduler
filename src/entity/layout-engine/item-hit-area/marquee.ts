@@ -1,4 +1,4 @@
-// ItemHitArea -- the items a marquee wholly encloses (SL-3).
+// File: ItemHitArea: the items a marquee wholly encloses (SL-3).
 // @unit      UF-151  (docs/spec/05-07-design.md, table T-075)
 // @component ItemHitArea, layer layoutEngine (table T-062)
 // @purity    pure
@@ -30,8 +30,8 @@ function isEnclosedInclusive(box: ScreenRect | null, marquee: ScreenRect): boole
   )
 }
 
-// see PTL-4
-// WHY: a dashed arrow is left out in silence; it can be neither picked nor deleted (RS-70).
+// Spec: PTL-4
+// Why: a dashed arrow is left out in silence; it can be neither picked nor deleted (RS-70).
 /** @purity pure */
 function parentTaskLinksIn(geometry: ScheduleGeometry, marquee: ScreenRect): readonly Item[] {
   return (geometry.parentTasks?.arrows ?? [])
@@ -39,8 +39,8 @@ function parentTaskLinksIn(geometry: ScheduleGeometry, marquee: ScreenRect): rea
     .map((arrow) => ({ kind: 'parentTaskLink', childUid: arrow.childUid, isStated: true }))
 }
 
-// see SL-3, SL-7b, EL-14, FR-098, EL-1
-// WHY: a scrolling task group's shape is judged by what shows below the pinned band, as the press is (DFC-1222).
+// Spec: SL-3, SL-7b, EL-14, FR-098, EL-1
+// Why: a scrolling task group's shape is judged by what shows below the pinned band, as the press is (DFC-1222).
 /** @purity pure */
 export function itemsInMarquee(geometry: ScheduleGeometry, marquee: ScreenRect): readonly Item[] {
   const cut = geometry.pinnedBand ?? null
@@ -53,12 +53,12 @@ export function itemsInMarquee(geometry: ScheduleGeometry, marquee: ScreenRect):
     }
   }
   for (const line of geometry.dependencies) {
-    // WHY: the continuation mark is part of its line (T-303), so the dots must be enclosed too.
+    // Why: the continuation mark is part of its line (T-303), so the dots must be enclosed too.
     const mark = line.continuation
     const dotsBox = mark === null ? null : boxOfPath(mark.dots)
     const dots = mark === null || dotsBox === null ? null : grown(dotsBox, mark.radius, mark.radius)
     const box = merged(boxOfPath(line.drawnPoints), dots)
-    // WHY: false: the press that opens a marquee hides the landing mark (EL-17), so no line is drawn whole (EL-19).
+    // Why: false: the press that opens a marquee hides the landing mark (EL-17), so no line is drawn whole (EL-19).
     if (isEnclosedInclusive(cutRect(box, cut, isLineScrolling(cut, line, false)), marquee)) {
       out.push(dependencyItemOf(line))
     }

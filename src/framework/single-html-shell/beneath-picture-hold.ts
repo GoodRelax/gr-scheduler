@@ -1,4 +1,4 @@
-// SingleHtmlShell -- holds the picture beneath while what it reads is the same (table T-071 CA-1, carry-over 3).
+// File: SingleHtmlShell: holds the picture beneath while what it reads is the same (table T-071 CA-1, carry-over 3).
 // @unit      UF-206  (docs/spec/05-07-design.md, table T-075)
 // @component SingleHtmlShell, layer Framework (table T-062)
 // @purity    non-pure
@@ -19,7 +19,7 @@ import { isSameRecord, isSameScreenRegions } from './frame-loop'
 
 type BeneathPictureInputs = Parameters<typeof svgFromSchedule>
 
-// see CA-1
+// Spec: CA-1
 interface BeneathPictureKey {
   readonly schedule: Schedule
   readonly layout: ScheduleLayout
@@ -47,8 +47,8 @@ function isSameData(x: unknown, y: unknown): boolean {
   return Array.isArray(x) === Array.isArray(y) && isSameRecord(x, y, isSameData)
 }
 
-// see CA-1
-// TRAP: no pointer field: the pointer moves every frame of a Range Selection, so a key holding it never hits (CA-1).
+// Spec: CA-1
+// Trap: no pointer field: the pointer moves every frame of a Range Selection, so a key holding it never hits (CA-1).
 /** @purity pure */
 function beneathPictureKeyOf(inputs: BeneathPictureInputs): BeneathPictureKey {
   const [schedule, settings, layout, geometry, regions, selection, , viewer, follow, weekdayWords, pointer, hovered,
@@ -62,8 +62,8 @@ function beneathPictureKeyOf(inputs: BeneathPictureInputs): BeneathPictureKey {
   }
 }
 
-// see CA-1
-// WHY: the settings, the regions and the small values are new objects every frame; compared by identity, nothing is ever held.
+// Spec: CA-1
+// Why: the settings, the regions and the small values are new objects every frame; compared by identity, nothing is ever held.
 /** @purity pure */
 function isSameBeneathPictureKey(held: BeneathPictureKey, now: BeneathPictureKey): boolean {
   return (
@@ -82,7 +82,7 @@ function isSameBeneathPictureKey(held: BeneathPictureKey, now: BeneathPictureKey
   )
 }
 
-// see CA-1, IF-1, FR-080
+// Spec: CA-1, IF-1, FR-080
 /** @purity non-pure */
 export function beneathPictureHoldOf(): (...inputs: BeneathPictureInputs) => string {
   let held: HeldBeneathPicture | null = null

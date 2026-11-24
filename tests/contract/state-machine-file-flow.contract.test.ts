@@ -58,7 +58,7 @@ function regionNamed(name: string): RawRegion {
 const FLOW = regionNamed('fileFlow')
 const OTHER_REGIONS = ['screen', 'notices', 'gesture'] as const
 
-// see T-290
+// Spec: T-290
 function fieldOf(machineName: string): string {
   return machineName.replace(/Machine$/, '')
 }
@@ -88,22 +88,22 @@ function withFlow(fields: Loose): ScreenSession {
   return { ...regionsOf(emptyScreenSession), fileFlow: { ...flowOf(emptyScreenSession), ...fields } } as unknown as ScreenSession
 }
 
-// see QN-1, QN-4, QN-5, QN-11, NT-7
+// Spec: QN-1, QN-4, QN-5, QN-11, NT-7
 function question(row: string): Loose {
   return { manner: 'NT-7', question: row, items: [{ name: 'Task A', isShownOnAnotherTaskGroup: false }] }
 }
 
 const CHANGE_WRITES: Loose = { kind: 'changeDocument', writes: [[{ kind: 'CM-35' }]], created: null }
 const START_NEW: Loose = { kind: 'startNewDocument' }
-// see FR-153
+// Spec: FR-153
 const RESET_GRS: Loose = { kind: 'resetGrs' }
 const CANDIDATES = [{ currentUid: 1, currentName: 'Task A', incomingUid: 7, incomingName: 'Task A' }]
-// see FR-155
+// Spec: FR-155
 const FIX_BUNDLE: readonly Loose[] = [{ fixRow: 'FA-11', taskUid: 3 }]
 
 const FILE_OPERATION_VALUES: Readonly<Record<string, readonly Loose[]>> = {
   idle: [{}],
-  // WHY: OP-15 -- the 'baseline' route opens the OP-2 file chooser and reads the chosen file to overlay it (MUST).
+  // Why: OP-15 -- the 'baseline' route opens the OP-2 file chooser and reads the chosen file to overlay it (MUST).
   readingDocumentFile: ['chooser', 'drop', 'reopen', 'baseline', 'handed'].map((openRoute) => ({ openRoute })),
   awaitingOpenChoice: [{}],
   awaitingDiscardAnswer: [{}],
@@ -123,7 +123,7 @@ const CONFIRMATION_VALUES: Readonly<Record<string, readonly Loose[]>> = {
   ],
 }
 
-// see MG-11, MG-14, RS-73
+// Spec: MG-11, MG-14, RS-73
 const ROOT_VALUES: readonly Loose[] = [
   { openedFileName: null, droppedTaskNames: [], missingTaskNames: [], reportedCounts: [] },
   { openedFileName: 'plan.xml', droppedTaskNames: ['Task B', null], missingTaskNames: [], reportedCounts: [] },
@@ -172,10 +172,10 @@ function crossedSessions(): { name: string; session: ScreenSession }[] {
 }
 
 const EVENT_VARIANTS: Readonly<Record<string, readonly Loose[]>> = {
-  // WHY: OP-15 (T-290 openRoute) -- `baseline` is the pre-change-plan entrance when no plan is overlaid.
+  // Why: OP-15 (T-290 openRoute) -- `baseline` is the pre-change-plan entrance when no plan is overlaid.
   documentOpenAsked: ['chooser', 'drop', 'reopen', 'baseline'].map((openRoute) => ({ openRoute })),
   agentDocumentHanded: [{}],
-  // see FR-155, SX-3
+  // Spec: FR-155, SX-3
   documentFileWriteAsked: [
     { writeForm: { kind: 'save' }, fixBundle: null },
     { writeForm: { kind: 'export', format: 'MF-1' }, fixBundle: null },
@@ -244,7 +244,7 @@ function firing(flow: Loose, event: Loose): { machines: Fired[]; root: RawBranch
   return { machines, root: pick(FLOW.root.transitions[type], flow, event) }
 }
 
-// see T-290, OP-3, FR-022, NT-7
+// Spec: T-290, OP-3, FR-022, NT-7
 function expectedEffect(branch: StateEffect, flow: Loose, event: Loose): Loose {
   const confirmation = flow['confirmationState'] as Loose
   switch (branch.effect) {
@@ -263,7 +263,7 @@ function expectedEffect(branch: StateEffect, flow: Loose, event: Loose): Loose {
       if (event['type'] === 'openChoiceAnswered') {
         return { type: 'importIncomingDocument', answer: { kind: 'openChoice', openChoice: event['openChoice'] } }
       }
-      // WHY: OP-15 -- a file read on the baseline route overlays without asking the three choices of OP-3 (MUST).
+      // Why: OP-15 -- a file read on the baseline route overlays without asking the three choices of OP-3 (MUST).
       if (event['type'] === 'documentFileRead' && (flow['fileOperationState'] as Loose)['openRoute'] === 'baseline') {
         return { type: 'importIncomingDocument', answer: { kind: 'openChoice', openChoice: 'baseline' } }
       }
@@ -274,7 +274,7 @@ function expectedEffect(branch: StateEffect, flow: Loose, event: Loose): Loose {
       return { type: 'answerOverwriteQuestion', isProceeding: event['isProceeding'] }
     case 'carryOutOwedAction':
       return { type: 'carryOutOwedAction', owedAction: event['type'] === 'newDocumentEntryPressed' ? START_NEW : confirmation['owedAction'] }
-    // see FR-155, UN-21
+    // Spec: FR-155, UN-21
     case 'issueDelayFixBundle':
       return { type: 'issueDelayFixBundle', fixBundle: (flow['fileOperationState'] as Loose)['fixBundle'] }
     default:
@@ -282,7 +282,7 @@ function expectedEffect(branch: StateEffect, flow: Loose, event: Loose): Loose {
   }
 }
 
-// WHY: a refusal (RS-27) leaves the operation as it was, so a self cell of the operation
+// Why: a refusal (RS-27) leaves the operation as it was, so a self cell of the operation
 // machine keeps its carried values; only entering a state takes them from the event.
 function expectedCarried(target: string, before: Loose, event: Loose): Loose {
   const type = event['type']
@@ -318,7 +318,7 @@ function ancestry(m: RawMachine, key: string): RawState[] {
   return chain
 }
 
-// see SD-1, SD-3
+// Spec: SD-1, SD-3
 function cellEffects(f: Fired, flow: Loose): StateEffect[] {
   const own: StateEffect[] = f.branch.effect === undefined
     ? []
@@ -361,7 +361,7 @@ function expectedRoot(root: RawBranch | undefined, flow: Loose, event: Loose): L
   }
 }
 
-// see SD-3, SF-3, SS-5
+// Spec: SD-3, SF-3, SS-5
 function expectFlowStep(session: ScreenSession, event: Loose): void {
   const before = flowOf(session)
   const { machines, root } = firing(before, event)

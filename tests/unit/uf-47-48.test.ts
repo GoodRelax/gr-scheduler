@@ -838,8 +838,8 @@ describe('ADR-001 and table T-071 -- computed once at the head of a frame', () =
     // The regions are this frame's...
     expect(after.regions.scheduleCanvas.width).toBe(1400)
     // ...the layout was laid out on THOSE regions...
-    // see S-177, FR-055
-    // WHY: the fit keeps the left edge inside a day (scrollDate plus scrollDateFraction, never snapped to
+    // Spec: S-177, FR-055
+    // Why: the fit keeps the left edge inside a day (scrollDate plus scrollDateFraction, never snapped to
     // the day boundary), so the origin stands up to one day left of the Task Group Area and never right of it.
     const dayOffset = (after.regions.taskGroupArea.x - after.layout.originX) / after.layout.pxPerDay
     expect(dayOffset).toBeGreaterThanOrEqual(0)
@@ -924,7 +924,7 @@ function screenPane(language: DisplayLanguage = 'ja'): ScreenPane {
     showScreenView: (view) => {
       views.push(view)
     },
-    // WHY: this fake draws nothing, which readScreenPartAt answers as "the schedule below is exposed".
+    // Why: this fake draws nothing, which readScreenPartAt answers as "the schedule below is exposed".
     readFieldCommit: () => null,
     readScreenPartAt: () => null,
   }
@@ -1217,7 +1217,7 @@ describe('SC-1 of table T-031 -- the panel and the body hold the SAME task group
       const taskGroups: unknown[] = []
       const members: unknown[] = []
       const tasks = [...draft.schedule.tasks]
-      // WHY: 48, not 24: CR-414's 24px lattice lets 24 task groups fit the Task Group Area whole, and nothing would be clipped.
+      // Why: 48, not 24: CR-414's 24px lattice lets 24 task groups fit the Task Group Area whole, and nothing would be clipped.
       for (let index = 0; index < 48; index += 1) {
         const id = `row-${index}`
         taskGroups.push({

@@ -32,7 +32,7 @@ function withoutSpanKeys(text: string): string {
   return JSON.stringify({ ...root, documentSettings: settings })
 }
 
-// see OP-3, OP-6
+// Spec: OP-3, OP-6
 function replacedBy(incoming: Document): Document {
   const request: ImportRequest = {
     current: TEMPLATE,

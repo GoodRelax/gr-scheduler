@@ -27,7 +27,7 @@ const verticalIn = (table: string, id: string) => {
   return found
 }
 
-// WHY: each clause is cut from the manuscript as check 39 reads it, so the cases cannot drift from the words they test.
+// Why: each clause is cut from the manuscript as check 39 reads it, so the cases cannot drift from the words they test.
 const WB_10_CLOSE_ONLY = '右端に `IC-52` だけを置く —— `IC-129` 〜 `IC-131` を置かない'
 const WB_10_CLOSES_BY_IC_52 = '`IC-52` で閉じる'
 const IN_4_FACE_RUNG = '開いている面'

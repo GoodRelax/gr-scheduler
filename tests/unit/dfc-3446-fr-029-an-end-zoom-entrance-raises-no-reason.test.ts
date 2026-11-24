@@ -5,7 +5,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { DEFAULT_DISPLAY_SCALE } from '../fixtures/display-scale'
 import { DISPLAY_WORDS, REQUIREMENTS, shell, taskGroupDocument, type ShellBench, type TaskGroupSeed } from './cr-541-stage'
 
-// WHY: RS-27 (the FR-029 fallback) shows nothing, so a carried reason is only visible on the seam every event goes through (notices/noticeRaised).
+// Why: RS-27 (the FR-029 fallback) shows nothing, so a carried reason is only visible on the seam every event goes through (notices/noticeRaised).
 const seen = vi.hoisted(() => ({ raised: [] as string[] }))
 
 vi.mock('../../src/use-case/advance-screen-session/advance-screen-session', async (importOriginal) => {
@@ -83,7 +83,7 @@ const press = (built: ShellBench, icon: string): void => built.press('App Header
 const isEnabled = (built: ShellBench, icon: string): boolean | undefined =>
   built.last().appHeaderItems.commands.find((one) => one.icon === icon)?.isEnabled
 
-// WHY: the end is reached by pressing the entrance itself, so the scene stands where ZE-2 / ZE-3 put it for this window.
+// Why: the end is reached by pressing the entrance itself, so the scene stands where ZE-2 / ZE-3 put it for this window.
 function pressToEnd(built: ShellBench, icon: string): number {
   for (let turn = 0; turn < 60; turn += 1) {
     const before = zoomY(built)

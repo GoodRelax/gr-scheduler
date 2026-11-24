@@ -11,13 +11,13 @@ test.use({ viewport: VIEWPORT, locale: 'en-US' })
 
 const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
-// WHY: the constant ends exactly at its marker, cut from the manuscript as check 39 reads it.
+// Why: the constant ends exactly at its marker, cut from the manuscript as check 39 reads it.
 const HS_11 =
   '`AT-140` には、保存（表 T-340 の `SX-1`）ではその保存の時刻（書けた後に下段が出す時刻）を、ほかでは書くときに下段が示している時刻を入れること（MUST）'
 
 const FILE_SAVED_AT = '[data-role="File Saved At"]'
 
-// see HS-2
+// Spec: HS-2
 /** @purity semi-pure-mutable */
 async function shownTimeAsUtc(page: Page): Promise<string | null> {
   const said = (await page.locator(FILE_SAVED_AT).textContent()) ?? ''
@@ -27,7 +27,7 @@ async function shownTimeAsUtc(page: Page): Promise<string | null> {
   return new Date(y, mo - 1, d, h, mi, s).toISOString().slice(0, 19)
 }
 
-// WHY: a single .html carries the app's own code before the document; the document is the last stamp in the text.
+// Why: a single .html carries the app's own code before the document; the document is the last stamp in the text.
 /** @purity pure */
 function lastStampOf(text: string): string | null {
   const all = [...text.matchAll(/"fileSavedAt"\s*:\s*(null|"(\d{4}-\d\d-\d\dT[0-9]{2}:[0-9]{2}:[0-9]{2})[^"]*")/g)]

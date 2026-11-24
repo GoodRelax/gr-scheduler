@@ -24,7 +24,7 @@ interface RosterRow {
   readonly hue: number
 }
 
-// see S-73
+// Spec: S-73
 function s73Default(): number {
   if (S_73 === undefined) throw new Error('table T-216 has no row S-73')
   const value = Number(bare(S_73.by['既定'] ?? ''))
@@ -32,7 +32,7 @@ function s73Default(): number {
   return value
 }
 
-// see T-305
+// Spec: T-305
 function expectedRoster(): readonly RosterRow[] {
   return specTable('T-305').rows.map((row) => {
     const cell = row.by['色相'] ?? row.cells[0] ?? ''
@@ -43,7 +43,7 @@ function expectedRoster(): readonly RosterRow[] {
   })
 }
 
-// see T-305
+// Spec: T-305
 function readRoster(): readonly RosterRow[] {
   if (!existsSync(ROSTER_PATH)) {
     throw new Error('seam S-1: src/adapter/screen-renderer/theme-hue-roster.json does not exist yet')

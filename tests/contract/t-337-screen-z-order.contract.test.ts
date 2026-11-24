@@ -76,7 +76,7 @@ const says = (id: string): string => {
   return row === undefined ? `T-337 has no row ${id}` : `T-337 ${id} [${RANK}: ${row.rank}] ${row.part}`
 }
 
-// WHY: CR-575 section 5 reserved UZ-6 until a window was drawn there; the search panel and the
+// Why: CR-575 section 5 reserved UZ-6 until a window was drawn there; the search panel and the
 // report window (DFC-1711) now are, so no row is reserved. The exemption covers absence only.
 const RESERVED_NOT_YET_ON_SCREEN = new Set<string>()
 
@@ -194,7 +194,7 @@ const viewWith = (openModal: OpenModal): ScreenView => ({
 
 const THEME: ScreenTheme = { preference: 'light', hue: 214 }
 
-// WHY: one surface is open at a time (S-99g), so the help and the export chooser -- UZ-7 and
+// Why: one surface is open at a time (S-99g), so the help and the export chooser -- UZ-7 and
 // UZ-13 -- are each drawn on a screen of their own.
 function screens(): { help: Stage; chooser: Stage } {
   const help = wire(THEME, { 'App Header': 37 })
@@ -249,7 +249,7 @@ describe('T-337 -- the premises read from the manuscript', () => {
   it(`${T_337_CAPTION}: the rows are written in the order of ${RANK}, 1 at the top`, () => {
     expect(ROWS.length, T_337_CAPTION).toBeGreaterThan(0)
     const ranks = ROWS.map((one) => one.rank)
-    // WHY: the table prints no row at order 10, so the ranks rise from 1 without being contiguous.
+    // Why: the table prints no row at order 10, so the ranks rise from 1 without being contiguous.
     expect(ranks[0], T_337_CAPTION).toBe(1)
     expect(ranks, T_337_CAPTION).toEqual([...ranks].sort((a, b) => a - b))
     expect(new Set(ranks).size, T_337_CAPTION).toBe(ranks.length)
@@ -324,7 +324,7 @@ describe('T-337 -- the layers stack by z-index in the order the table gives', ()
   }
 })
 
-// WHY: each pair is checked against the row's UI part cell first, so a part that moves to another
+// Why: each pair is checked against the row's UI part cell first, so a part that moves to another
 // row turns the premise red instead of this list going stale.
 const PARTS: readonly (readonly [string, string, 'help' | 'chooser'])[] = [
   ['U-55', 'UZ-3', 'help'],

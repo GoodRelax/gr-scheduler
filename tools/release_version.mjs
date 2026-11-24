@@ -71,7 +71,7 @@ function main() {
   }
   const pkg = readFileSync(join(ROOT, 'package.json'), 'utf8')
   const lock = readFileSync(join(ROOT, 'package-lock.json'), 'utf8')
-  // WHY: package.json has one version line at its top; the lock has its own and packages[""]'s, the first two.
+  // Why: package.json has one version line at its top; the lock has its own and packages[""]'s, the first two.
   const nextPkg = withVersion(pkg, compact, 1)
   const nextLock = withVersion(lock, compact, 2)
   const parsedLock = JSON.parse(nextLock)

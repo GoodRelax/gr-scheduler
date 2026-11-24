@@ -23,7 +23,7 @@ import { DEFAULT_DISPLAY_SCALE } from '../fixtures/display-scale'
 import { settingDefaultOf } from '../fixtures/setting-default'
 import { bare, specTable } from './spec-table'
 
-// WHY: the headings of tables T-206 and T-236 are Japanese; written as escapes to keep this file ASCII.
+// Why: the headings of tables T-206 and T-236 are Japanese; written as escapes to keep this file ASCII.
 const DEFAULT_COLUMN = String.fromCharCode(0x65e2, 0x5b9a)
 const LIGHT_COLUMN = String.fromCharCode(0x660e, 0x308b, 0x3044, 0x30c6, 0x30fc, 0x30de)
 const DARK_COLUMN = String.fromCharCode(0x6697, 0x3044, 0x30c6, 0x30fc, 0x30de)
@@ -41,7 +41,7 @@ const numberIn = (cell: string, what: string): number => {
   return value
 }
 
-// see T-206
+// Spec: T-206
 const setting = (id: string): number => numberIn(rowOf('T-206', id).by[DEFAULT_COLUMN] ?? '', `T-206 ${id}`)
 
 const S_225 = setting('S-225')
@@ -55,7 +55,7 @@ const S_492 = setting('S-492')
 const S_210 = setting('S-210')
 const S_449 = setting('S-449')
 
-// WHY: a T-236 cell either spells a color or names the row it copies (S-493 names S-149).
+// Why: a T-236 cell either spells a color or names the row it copies (S-493 names S-149).
 const colorOf = (id: string, column: string, seen: readonly string[] = []): string => {
   const cell = (rowOf('T-236', id).by[column] ?? '').trim()
   const named = /^`(S-\d+)`/.exec(cell)
@@ -71,7 +71,7 @@ const huedAt = (written: string, hue: number): string => written.replace(/\bH\b/
 
 const HUE = 214
 
-// see BR-2, EP-1
+// Spec: BR-2, EP-1
 const TITLE_LEFT = (3 * S_226 + S_490 * S_462) * S_235 + S_492
 
 const px = (value: string | undefined): number => Number((value ?? '').replace('px', ''))
@@ -138,7 +138,7 @@ describe('CR-650 -- T-206 / T-236 rows read from the manuscript', () => {
 
 const ITEMS: AppHeaderItems = {
   brandingText: LOGO,
-  // see BR-2, EP-1
+  // Spec: BR-2, EP-1
   ...brandingPlaceOf(),
   documentTitle: 'a document',
   openedFileName: 'a-file-name-that-goes-on-and-on.json',
@@ -187,7 +187,7 @@ describe('CR-650 BR-7 -- the divider between the Branding and the Document Title
     expect(style.get('background') ?? style.get('background-color')).toBe(PAINT.brandingDivider)
   })
 
-  // WHY: CR-659 retired the S-491 gap here (JDG-1350); the divider's two sides are the inset left of the mark.
+  // Why: CR-659 retired the S-491 gap here (JDG-1350); the divider's two sides are the inset left of the mark.
   it('BR-7 S-226: the gap on both sides of the divider is S-226 x S-235, the same as the inset left of the seat', () => {
     const { header, byRole } = drawnHeader()
     const style = styleMap(header)
@@ -251,7 +251,7 @@ const SETTINGS = ((): DocumentSettings => {
   return built as unknown as DocumentSettings
 })()
 
-// see S-81
+// Spec: S-81
 const S_81_WIDTH = numberIn(rowOf('T-204', 'S-81').by[DEFAULT_COLUMN] ?? '', 'T-204 S-81')
 
 const TITLE = 'Plan of record'

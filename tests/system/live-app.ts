@@ -3,13 +3,13 @@
 import { chromium, type Browser, type Page } from '@playwright/test'
 import { bare, specTable, type SpecRow } from '../contract/spec-table'
 
-// see T-025
+// Spec: T-025
 const REFERENCE_CHANNEL = 'msedge'
 
-// see FR-080
+// Spec: FR-080
 /** @purity pure */
 export function screenOf(row: SpecRow): { width: number; height: number } {
-  // WHY: written as an escape, not the character itself, to keep this file ASCII.
+  // Why: written as an escape, not the character itself, to keep this file ASCII.
   const found = /(\d+)\s*[x\u00d7]\s*(\d+)/.exec(row.cells[row.cells.length - 1] ?? '')
   const width = Number(found?.[1] ?? '')
   const height = Number(found?.[2] ?? '')
@@ -19,15 +19,15 @@ export function screenOf(row: SpecRow): { width: number; height: number } {
   return { width, height }
 }
 
-// TRAP: this selector must match the "Schedule Canvas" role the shell
+// Trap: this selector must match the "Schedule Canvas" role the shell
 // marks the drawing with; drifting apart breaks every case here silently.
 export const DRAWN_SVG = '[data-role="Schedule Canvas"] svg'
 
-// WHY: closing this browser channel measured much slower than a hook's
+// Why: closing this browser channel measured much slower than a hook's
 // default timeout, so the allowance is set explicitly here.
 export const CLEARING_UP_MS = 300_000
 
-// WHY: the default failure message suggests installing the bundled
+// Why: the default failure message suggests installing the bundled
 // browser, which is the wrong fix here.
 /** @purity non-pure */
 export async function launchReferenceBrowser(): Promise<Browser> {
@@ -51,12 +51,12 @@ export async function readDrawnSvg(page: Page): Promise<string | null> {
   )
 }
 
-// see S-56, U-50
-// WHY: the drawing reaches canvasPadding past the Task Group Area, where a press answers nothing.
+// Spec: S-56, U-50
+// Why: the drawing reaches canvasPadding past the Task Group Area, where a press answers nothing.
 const CANVAS_PADDING_PX = Number(/\d+/.exec(bare(specTable('T-201').rows.find((one) => one.id === 'S-56')?.by['既定値'] ?? ''))?.[0] ?? '')
 
-// see MK-13, T-266, RV-6, FR-051
-// WHY: MK-13 opens the panel only from a Task's own body, label or actual; a marker, resume icon, dependency
+// Spec: MK-13, T-266, RV-6, FR-051
+// Why: MK-13 opens the panel only from a Task's own body, label or actual; a marker, resume icon, dependency
 // or status line over the bar answers first in T-266 (RV-6 moved one bar middle onto a resume icon).
 /** @purity semi-pure-mutable */
 export async function taskBodyPoint(page: Page): Promise<{ uid: string; x: number; y: number } | null> {
@@ -76,7 +76,7 @@ export async function taskBodyPoint(page: Page): Promise<{ uid: string; x: numbe
       for (const plan of Array.from(drawing?.querySelectorAll('[data-figure$="-plan"]') ?? [])) {
         const uid = /^task-(\d+)-plan$/.exec(plan.getAttribute('data-figure') ?? '')?.[1]
         const box = plan.getBoundingClientRect()
-        // WHY: wide and tall enough that a press inside it is not on an end grab.
+        // Why: wide and tall enough that a press inside it is not on an end grab.
         if (uid === undefined || box.width < 30 || box.height < 6) continue
         const own = new Set([`task-${uid}-plan`, `task-${uid}-actual`, `task-${uid}-label`])
         const others = figures
@@ -99,7 +99,7 @@ export async function taskBodyPoint(page: Page): Promise<{ uid: string; x: numbe
   )
 }
 
-// WHY: the shell may legitimately draw twice while the screen size
+// Why: the shell may legitimately draw twice while the screen size
 // settles, so this waits for two identical readings, not a fixed delay.
 /** @purity semi-pure-mutable */
 export async function readSettledDrawnSvg(page: Page): Promise<string> {

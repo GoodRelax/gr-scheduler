@@ -1,4 +1,4 @@
-// Schedule: public entry; looks a task up by uid, drops one named dependency line and re-exports what the siblings hold.
+// File: Schedule: public entry; looks a task up by uid, drops one named dependency line and re-exports what the siblings hold.
 // @unit      UF-1   (docs/spec/05-07-design.md, table T-075)
 // @component Schedule, layer documentModel (table T-062)
 // @purity    pure
@@ -195,8 +195,8 @@ export function taskByUid(schedule: Schedule, uid: number): Task | null {
   return schedule.tasks.find((task) => task.uid === uid) ?? null
 }
 
-// see CM-93, AT-42
-// WHY: lines from one predecessor have no name of their own, so the order counts those lines alone and a deletion
+// Spec: CM-93, AT-42
+// Why: lines from one predecessor have no name of their own, so the order counts those lines alone and a deletion
 // of another predecessor's line does not move it.
 /** @purity pure */
 export function withoutDependencyAt(task: Task, predecessorUid: number, order: number): Task | null {
@@ -206,8 +206,8 @@ export function withoutDependencyAt(task: Task, predecessorUid: number, order: n
   return { ...task, dependencies: task.dependencies.filter((_, at) => at !== place) }
 }
 
-// see IV-23, AT-97
-// WHY: a Task whose color and shape nobody chose still holds its one TaskVisual, so no reader needs
+// Spec: IV-23, AT-97
+// Why: a Task whose color and shape nobody chose still holds its one TaskVisual, so no reader needs
 // a second way to draw a Task without one.
 /** @purity pure */
 export function blankTaskVisual(taskUid: number): TaskVisual {

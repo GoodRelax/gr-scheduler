@@ -97,7 +97,7 @@ const FINISHED_MILESTONE_UID = 2
 const RUNNING_UID = 3
 
 const day = (d: number): string => `2026-04-${String(d).padStart(2, '0')}T00:00:00`
-// WHY: an end is written at the day's close (WT-2, WT-4); at 00:00 FR-054 reads it as the day before (RV-1, RV-6).
+// Why: an end is written at the day's close (WT-2, WT-4); at 00:00 FR-054 reads it as the day before (RV-1, RV-6).
 const endOfDay = (d: number): string => `2026-04-${String(d).padStart(2, '0')}T17:00:00`
 
 const dayPart = (value: string | null | undefined): string => {
@@ -201,7 +201,7 @@ function fixtureDocument(): Document {
     },
     documentSettings: {
       ...structuredClone(template.documentSettings),
-      // WHY: S-1 is a constant (CR-572); the stored zoomX (S-75) carries the day width this fixture draws at.
+      // Why: S-1 is a constant (CR-572); the stored zoomX (S-75) carries the day width this fixture draws at.
       zoomX: 20 / DEFAULT_DISPLAY_RATIO / SETTINGS_CONSTANTS.pxPerDayAt1x,
       scrollDate: day(1),
       scrollTaskGroupId: TASK_GROUP_A,
@@ -213,7 +213,7 @@ function fixtureDocument(): Document {
   } as unknown as Document
 }
 
-// see FR-011, T-019
+// Spec: FR-011, T-019
 function lastDayOf(one: Task): string {
   return dayPart(one.actualFinish ?? one.stop)
 }
@@ -336,7 +336,7 @@ function grab(built: Stage, at: Point, releaseX: number): void {
   built.send(pointer('up', releaseX, at.y))
 }
 
-// see GA-4
+// Spec: GA-4
 function actualEndReleasedAt(uid: number, k: number): { readonly released: string; readonly before: Task; readonly after: Task } {
   const built = stage()
   const before = structuredClone(taskOf(built.loop, uid))
@@ -347,7 +347,7 @@ function actualEndReleasedAt(uid: number, k: number): { readonly released: strin
   return { released, before, after: taskOf(built.loop, uid) }
 }
 
-// see GA-3
+// Spec: GA-3
 function actualStartReleasedAt(uid: number, k: number): { readonly before: Task; readonly after: Task } {
   const built = stage()
   const before = structuredClone(taskOf(built.loop, uid))
@@ -357,7 +357,7 @@ function actualStartReleasedAt(uid: number, k: number): { readonly before: Task;
   return { before, after: taskOf(built.loop, uid) }
 }
 
-// see GA-16
+// Spec: GA-16
 function milestoneReleasedAt(k: number): { readonly released: string; readonly before: Task; readonly after: Task } {
   const built = stage()
   const before = structuredClone(taskOf(built.loop, FINISHED_MILESTONE_UID))

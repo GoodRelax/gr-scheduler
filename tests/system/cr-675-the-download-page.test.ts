@@ -47,7 +47,7 @@ type Lang = 'en' | 'ja'
 const LANGS: readonly Lang[] = ['en', 'ja']
 const SWITCH_NAME: Record<Lang, string> = { en: SWITCH_EN, ja: SWITCH_JA }
 
-// WHY: a break test points every case at a damaged scratch copy through this variable; unset, the real page is read.
+// Why: a break test points every case at a damaged scratch copy through this variable; unset, the real page is read.
 const PAGE_FILE = resolve(process.cwd(), process.env['GRS_DOWNLOAD_PAGE'] ?? join('docs', 'download', 'index.html'))
 const PAGE_URL = pathToFileURL(PAGE_FILE).href
 const SOURCE = readFileSync(PAGE_FILE, 'utf8')
@@ -62,7 +62,7 @@ const GLYPHS = JSON.parse(
   readFileSync(join(process.cwd(), 'src', 'framework', 'dom-screen-surface', 'icon-glyphs.json'), 'utf8'),
 ) as { viewBox: string; glyphs: Glyph[] }
 
-// see IC-1, IC-2, IC-20
+// Spec: IC-1, IC-2, IC-20
 function labelOf(rowId: string, lang: Lang): string {
   const found = WORDS.icons.find((one) => one.rowId === rowId && one.label !== undefined)?.label?.[lang]
   if (found === undefined) throw new Error(`display-words.json holds no ${lang} label for ${rowId}`)
@@ -71,7 +71,7 @@ function labelOf(rowId: string, lang: Lang): string {
 
 const numbersNormalized = (text: string): string => text.replace(/-?\d*\.?\d+/g, (number) => String(Number(number)))
 
-// see F-019
+// Spec: F-019
 function glyphOf(rowId: string): string {
   const glyph = GLYPHS.glyphs.find((one) => one.rowId === rowId)
   if (glyph === undefined) throw new Error(`icon-glyphs.json holds no glyph for ${rowId}`)
@@ -88,7 +88,7 @@ const CJK = /[぀-ヿ㐀-鿿＀-￯]/g
 type Link = { href: string; download: string | null; top: number; height: number }
 type Shown = { text: string; headings: string[]; steps: string[]; links: Link[]; first: Link | null; firstAt: number }
 
-// WHY: everything is read from what is visible, so a hidden language block can neither pass nor fail a case.
+// Why: everything is read from what is visible, so a hidden language block can neither pass nor fail a case.
 const readShown = (page: Page): Promise<Shown> =>
   page.evaluate((switchNames: string[]) => {
     for (const details of document.querySelectorAll('details')) details.open = true
@@ -154,7 +154,7 @@ async function downloadsWithin(page: Page, act: () => Promise<unknown>): Promise
   return arriving
 }
 
-// WHY: Chromium ignores the download attribute on file://, so the page and stand-ins for the files the build
+// Why: Chromium ignores the download attribute on file://, so the page and stand-ins for the files the build
 // places beside it are served from a gitignored scratch folder over loopback HTTP, one origin as when published.
 async function servedCopy(): Promise<{ url: string; close: () => void }> {
   const root = join(process.cwd(), 'scratch')
@@ -351,7 +351,7 @@ function directive(csp: string, name: string): readonly string[] | undefined {
   return undefined
 }
 
-// WHY: the HTML parser turns CR LF into LF before the browser hashes an inline block, so the hash is taken the same way.
+// Why: the HTML parser turns CR LF into LF before the browser hashes an inline block, so the hash is taken the same way.
 const sha256 = (body: string): string => `'sha256-${createHash('sha256').update(body.replace(/\r\n?/g, '\n'), 'utf8').digest('base64')}'`
 
 test('design 6: every inline style and script runs by its SHA-256 in the page CSP, which names no outside source', () => {

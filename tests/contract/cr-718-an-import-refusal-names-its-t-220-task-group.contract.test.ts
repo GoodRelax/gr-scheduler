@@ -23,7 +23,7 @@ const NO_FALL_TO_A_T_233_ROW =
 const A_REFUSAL_VALUE_CARRIES_THE_ROW_ID =
   '⭐ 取り込みの検証（`FR-023`）が拒んだときの理由の区分は、拒んだ `05-07-design.md` の 表 T-220 の行の行 ID とすること（MUST）'
 const IV_10 = '`start` と `finish` がともに非 `null` の `Task` で、`finish` が `start` より前でないこと'
-// WHY: CR-710 rewrote this clause (FR-054 reads instants and counts working time in minutes).
+// Why: CR-710 rewrote this clause (FR-054 reads instants and counts working time in minutes).
 const IV_14 = '日付と日時の列が、日時として読め（時刻は 1 分の単位）、受け入れる日付の範囲に収まること。'
 
 const t220Row = (rowId: string) => {
@@ -43,8 +43,8 @@ describe('FR-076 / AG-9a / T-220 -- the clauses this file is driven by still sta
   })
 })
 
-// see S-119, T-214
-// WHY: the first day the import accepts is read off the table, never typed here.
+// Spec: S-119, T-214
+// Why: the first day the import accepts is read off the table, never typed here.
 const IMPORT_MIN_DATE = ((): string => {
   const found = /\d{4}-\d{2}-\d{2}/.exec(specTable('T-214').rows.find((one) => one.id === 'S-119')?.cells.join(' ') ?? '')
   if (found === null) throw new Error('table T-214 S-119 states no date')

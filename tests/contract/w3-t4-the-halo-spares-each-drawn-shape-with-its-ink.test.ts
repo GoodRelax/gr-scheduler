@@ -1,6 +1,6 @@
 // W3 tester 4: FR-009 dependency lines -- the ground-colored halo is not laid over the box of a plan or actual shape, ink included.
 
-// WHY: the drawn picture is read from the frame loop's export scene (the same SVG the screen draws); every box is measured
+// Why: the drawn picture is read from the frame loop's export scene (the same SVG the screen draws); every box is measured
 // from the figure's own coordinates and stroke width, never from a number written here.
 
 import { describe, expect, it } from 'vitest'
@@ -15,7 +15,7 @@ const HALO_SPARES =
 const HALO_NOT_ON_SHAPES = '⛔ **`Task` の形に重なる区間では、縁を敷いてはならない（MUST NOT）**'
 const HALO_IS_GROUND = '手当ては、手前の線に地の色（`S-146`）の縁を敷くこととする（MUST）'
 
-// see AT-46
+// Spec: AT-46
 const FS = 1
 
 const link = (predecessorUid: number): Record<string, unknown> => ({
@@ -27,8 +27,8 @@ const link = (predecessorUid: number): Record<string, unknown> => ({
   carryElements: [],
 })
 
-// see HT-1
-// WHY: a plain bar, a linked bar, a started bar with an actual, and a milestone, so every shape family is drawn.
+// Spec: HT-1
+// Why: a plain bar, a linked bar, a started bar with an actual, and a milestone, so every shape family is drawn.
 /** @purity pure */
 function shapesDocument(): Document {
   const draft = taskGroupDocument([
@@ -73,8 +73,8 @@ function numbersIn(text: string): readonly number[] {
   return [...text.matchAll(/-?\d+(?:\.\d+)?(?:e-?\d+)?/g)].map((hit) => Number(hit[0]))
 }
 
-// see HT-1
-// WHY: the ink of a figure is its geometry grown by half its stroke width on every side.
+// Spec: HT-1
+// Why: the ink of a figure is its geometry grown by half its stroke width on every side.
 /** @purity pure */
 function inkBoxOf(tag: string, attrs: Readonly<Record<string, string>>): Box | null {
   const half = Number(attrs['stroke'] === undefined || attrs['stroke'] === 'none' ? 0 : attrs['stroke-width'] ?? 1) / 2
@@ -109,7 +109,7 @@ interface Figure {
   readonly box: Box
 }
 
-// see HT-1
+// Spec: HT-1
 /** @purity pure */
 function shapeFiguresOf(svg: string): readonly Figure[] {
   const out: Figure[] = []
@@ -124,8 +124,8 @@ function shapeFiguresOf(svg: string): readonly Figure[] {
   return out
 }
 
-// see HT-1
-// WHY: every halo mask is read: each halo may carry its own mask, holding the boxes that meet it (DFC-2314).
+// Spec: HT-1
+// Why: every halo mask is read: each halo may carry its own mask, holding the boxes that meet it (DFC-2314).
 /** @purity pure */
 function sparedBoxesOf(svg: string): readonly Box[] {
   return [...svg.matchAll(/<mask\b[^>]*id="[^"]*halo[^"]*"[^>]*>([\s\S]*?)<\/mask>/g)]
@@ -135,7 +135,7 @@ function sparedBoxesOf(svg: string): readonly Box[] {
     .map((attrs) => inkBoxOf('rect', { ...attrs, stroke: 'none' }) as Box)
 }
 
-// WHY: the picture is written to the 0.01 px grid (NS-3), so a box may sit one grid step inside the ink it spares.
+// Why: the picture is written to the 0.01 px grid (NS-3), so a box may sit one grid step inside the ink it spares.
 const GRID = 0.011
 
 const covers = (outer: Box, inner: Box): boolean =>

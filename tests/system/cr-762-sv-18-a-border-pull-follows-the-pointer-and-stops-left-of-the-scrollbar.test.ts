@@ -32,9 +32,9 @@ const RULE_PX = 1
 
 const STEP_PX = 5
 const STEPS = 20
-// WHY: a drawn width is a layout number; one px covers subpixel rounding of the cell box.
+// Why: a drawn width is a layout number; one px covers subpixel rounding of the cell box.
 const TOLERANCE = 1
-// WHY: the floor is measured by the app at the current type step, and this file rebuilds it from SV-7's parts (cr-721 used 2 too).
+// Why: the floor is measured by the app at the current type step, and this file rebuilds it from SV-7's parts (cr-721 used 2 too).
 const FLOOR_TOLERANCE = 2
 
 interface Window {
@@ -60,7 +60,7 @@ const WINDOWS: readonly Window[] = [
 
 let browser: Browser | null = null
 
-// WHY: Chromium hides scrollbars under automation by default, and SV-18's ceiling is the scrollbar's left edge, so it must be drawn.
+// Why: Chromium hides scrollbars under automation by default, and SV-18's ceiling is the scrollbar's left edge, so it must be drawn.
 // The channel is the one tests/system/live-app.ts names for T-025 MC-5.
 test.beforeAll(async () => {
   browser = await chromium.launch({ channel: 'msedge', ignoreDefaultArgs: ['--hide-scrollbars'] })
@@ -121,7 +121,7 @@ interface Reading {
   readonly headings: readonly Heading[]
 }
 
-// WHY: read inside a requestAnimationFrame callback -- the first frame after the input was delivered (SV-18 follow).
+// Why: read inside a requestAnimationFrame callback -- the first frame after the input was delivered (SV-18 follow).
 /** @purity semi-pure-mutable */
 async function readFrame(page: Page, window: string, nextFrame: boolean): Promise<Reading> {
   return page.evaluate(
@@ -181,7 +181,7 @@ const headingOf = (reading: Reading, column: string): Heading => {
   return found
 }
 
-// see SV-18, SV-7, S-425
+// Spec: SV-18, SV-7, S-425
 const floorOf = (heading: Heading): number => heading.markWidth + 2 * PAD_EM * heading.fontPx + BAND + RULE_PX
 
 const clamp = (value: number, low: number, high: number): number => Math.min(Math.max(value, low), high)
@@ -196,7 +196,7 @@ interface Pull {
   readonly lastExpected: number
 }
 
-// see SV-18, GR-28
+// Spec: SV-18, GR-28
 /** @purity non-pure */
 async function pull(page: Page, window: string, column: string, step: number): Promise<Pull> {
   const before = await readFrame(page, window, false)
@@ -229,7 +229,7 @@ async function pull(page: Page, window: string, column: string, step: number): P
   return { column, start, floor, ceiling, misses, last, lastExpected }
 }
 
-// WHY: the first bordered column whose border lies inside the area, clear of the window edge (GR-25 answers there).
+// Why: the first bordered column whose border lies inside the area, clear of the window edge (GR-25 answers there).
 /** @purity semi-pure-mutable */
 async function firstBorderedColumn(page: Page, window: string): Promise<string> {
   const reading = await readFrame(page, window, false)
@@ -340,7 +340,7 @@ test.describe(`T-330 SV-18 「${SV_18_SCROLLBAR}」`, () => {
       expect(opened.area.scrollbar, 'premise: the vertical scrollbar is drawn (--hide-scrollbars is off)').toBeGreaterThan(0)
       const strip = { from: opened.area.right, to: opened.area.right + opened.area.scrollbar }
       const target = (strip.from + strip.to) / 2
-      // WHY: at scrollLeft 0 a scrolled column's border moves left by exactly the scroll amount.
+      // Why: at scrollLeft 0 a scrolled column's border moves left by exactly the scroll amount.
       const candidate = opened.headings.find((one) => {
         if (one.fixed || one.noBorder) return false
         const by = one.right - target

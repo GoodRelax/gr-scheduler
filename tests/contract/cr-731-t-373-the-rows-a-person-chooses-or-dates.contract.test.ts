@@ -100,7 +100,7 @@ describe('T-373 -- the rows of a choice carry as many choices as the table says'
   })
 })
 
-// WHY: DFC-2418 / CR-735 -- FA-3 deletes one named line at a time (CM-93), so these hold T-373 as written.
+// Why: DFC-2418 / CR-735 -- FA-3 deletes one named line at a time (CM-93), so these hold T-373 as written.
 describe('FA-3 -- two lines between the same two tasks', () => {
   it('lines of the same kind and lag: the machine keeps the first in the document order and deletes the rest', () => {
     const before = DOUBLE_LINE_SAME()

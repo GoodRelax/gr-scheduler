@@ -1,4 +1,4 @@
-// ChooseStartupDocument: the first document to open at startup.
+// File: ChooseStartupDocument: the first document to open at startup.
 // @unit      UF-23   (docs/spec/05-07-design.md, table T-075)
 // @component ChooseStartupDocument, layer UseCase (table T-062)
 // @purity    pure
@@ -60,7 +60,7 @@ function noticesOfCandidates(candidates: StartupCandidates): readonly StartupNot
   return notices
 }
 
-// see BO-2, T-034
+// Spec: BO-2, T-034
 // STOP: spec does not decide running FR-023's validation over BT-1. Looked in FR-023, FR-067, OP-5, T-008 (PND-452)
 /** @purity pure */
 export function chooseStartupDocument(candidates: StartupCandidates): StartupChoice {

@@ -138,7 +138,7 @@ interface TitleRow {
   readonly middle: number
 }
 
-// WHY: the title row is the row that carries IC-52 and holds no table row (SV-1); read it from the page the way a person sees it.
+// Why: the title row is the row that carries IC-52 and holds no table row (SV-1); read it from the page the way a person sees it.
 /** @purity semi-pure-mutable */
 async function titleRowOf(page: Page, win: Win): Promise<TitleRow> {
   const row = await page.evaluate(
@@ -159,7 +159,7 @@ async function titleRowOf(page: Page, win: Win): Promise<TitleRow> {
   return row
 }
 
-// WHY: x positions along the top where neither the edge rows nor the title row's middle lie under an entrance (IF-9: an entrance answers first), nearest the middle first.
+// Why: x positions along the top where neither the edge rows nor the title row's middle lie under an entrance (IF-9: an entrance answers first), nearest the middle first.
 /** @purity semi-pure-mutable */
 async function freeColumns(page: Page, win: Win, title: TitleRow): Promise<readonly number[]> {
   const box = await windowBox(page, win)
@@ -256,7 +256,7 @@ for (const win of WINDOWS) {
           },
           { box, edge: EDGE },
         )
-        // WHY: IF-9 lets an entrance answer first; when IC-52 covers the whole inner corner, the outer corner (cr-737) is all that remains to point at
+        // Why: IF-9 lets an entrance answer first; when IC-52 covers the whole inner corner, the outer corner (cr-737) is all that remains to point at
         test.skip(points.length === 0, 'IC-52 covers every point of the inner top right corner')
         const at = points[0] as Point
         expect(await shapeAt(page, at.x, at.y), 'top right corner, inside, off the entrance').toBe('nesw-resize')
@@ -298,7 +298,7 @@ for (const win of WINDOWS) {
           expect(near(after.y, from.y - up), `grabbed ${String(inside)}px inside: the top follows the pointer`).toBeLessThanOrEqual(TOLERANCE_PX)
           expect(near(after.x, from.x), `grabbed ${String(inside)}px inside: the window does not move sideways`).toBeLessThanOrEqual(TOLERANCE_PX)
           expect(near(after.width, from.width), `grabbed ${String(inside)}px inside: the width stays`).toBeLessThanOrEqual(TOLERANCE_PX)
-          // WHY: put the top back so the next grab starts from the same box
+          // Why: put the top back so the next grab starts from the same box
           await dragFrom(page, { x, y: after.y + inside }, { x: 0, y: up })
         }
         const back = await windowBox(page, win)
@@ -398,7 +398,7 @@ for (const win of WINDOWS) {
             if (x < low || x > high) continue
             expect(await shapeAt(page, x, y), `${cell.column}: ${what}`).toBe('pointer')
           }
-          // WHY: a border that lies against the window's right edge is the window edge's (GR-25), and cr-737 holds the band cases
+          // Why: a border that lies against the window's right edge is the window edge's (GR-25), and cr-737 holds the band cases
           if (cell.hasRightBorder && cell.box.right + BAND + EDGE + 2 < box.right) {
             for (const offset of [-Math.round(BAND / 2), 0, Math.round(BAND / 2)]) {
               expect(await shapeAt(page, cell.box.right + offset, y), `${cell.column}: the band at ${String(offset)}px stays the border's`).toBe('col-resize')
@@ -422,7 +422,7 @@ interface Cell {
   readonly hasRightBorder: boolean
 }
 
-// WHY: SQ-10, DT-8 and RQ-1 hold a fixed width and have no right border (SV-18, RW-9, RO-9)
+// Why: SQ-10, DT-8 and RQ-1 hold a fixed width and have no right border (SV-18, RW-9, RO-9)
 const NO_BORDER = new Set(['SQ-10', 'DT-8', 'RQ-1'])
 
 /** @purity semi-pure-mutable */

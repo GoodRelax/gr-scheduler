@@ -10,7 +10,7 @@ import { FIRST_GROUP_ID, LANGUAGES, partWord, REQUIREMENTS, SETTINGS_BOOK, setti
 import { T_376_ROWS, WORDS, placeOf, timeZoneWord, zoneRowOfKey } from './cr-755-stage'
 import { bare, specTable } from './spec-table'
 
-// see FR-156
+// Spec: FR-156
 const FR_156_TWO_LINES =
   '見せる名は 2 行とし、1 行目は 表 T-376 の UTC の差と略称を `FR-038` の辞書の `timeZoneField` の `zoneHead` の形でつないだもの、2 行目は同じ辞書の `timeZones` が行ごとに持つ地名とすること（MUST）'
 const FR_156_DIGITS = '差は時も分も 2 桁とし、0 は `±00:00` と書く'
@@ -21,15 +21,15 @@ const FR_156_LIST =
 const FR_156_OUTSIDE = '欄の外を押すと、選ばずに一覧を閉じる。'
 const FR_156_WRAP =
   '⭐ 欄の幅は 1 行目が収まる幅を下限とし（`FR-006` の要る幅）、2 行目の地名が欄に入り切らないときは欄の中で折り返すこと（MUST）'
-// see FR-052
+// Spec: FR-052
 const FR_052_STARTS = '⭐ プロパティパネルの幅は画面の値とし、出している中身の種の既定の幅から始めること（MUST）'
 const FR_052_KIND_CHANGE = '⭐ 出す中身の種が変わったら、新しい種の既定の幅へ戻すこと（MUST）'
 const FR_156_SCROLL = '一覧は、選択肢 `_assets/tbl-settings.md` の 表 T-206 の `S-607` 個ぶんの高さを超えると、中で縦に送る。'
-// see T-380, T-369
+// Spec: T-380, T-369
 const RN_3_JOINED =
   '⭐ 日程表の左端と上端は、保存では 2 つずつの値（`K-69` と `K-121`、`K-70` と `K-120`）で持つが、読むだけの行では 1 行ずつにまとめ、何の・どこかを 1 行で読ませる'
 const RN_3_KEEPS_STORAGE = '保存の持ち方は変えない。'
-// see FR-159, T-379
+// Spec: FR-159, T-379
 const FR_159_FIRST_START = '欄の上に最初のタスクの開始日（表 T-379 の `WH-1`）を見せること（MUST）'
 
 const SECTION = 'readOnlySettings'
@@ -64,7 +64,7 @@ describe('CR-787 -- the manuscript these cases are driven by', () => {
   })
 })
 
-// see T-206, S-171, S-602, S-603, S-604, S-605, S-606, S-607, S-248
+// Spec: T-206, S-171, S-602, S-603, S-604, S-605, S-606, S-607, S-248
 describe('T-206 -- S-171 and S-602..S-607 as table T-206 holds them', () => {
   it.each([
     ['S-171', '文書の設定の面を出したプロパティパネルの既定の幅'],
@@ -92,7 +92,7 @@ describe('T-206 -- S-171 and S-602..S-607 as table T-206 holds them', () => {
   })
 })
 
-// see FR-156, T-376, FR-038
+// Spec: FR-156, T-376, FR-038
 describe(`FR-156 -- ${FR_156_TWO_LINES}`, () => {
   it.each([
     ['ZN-61', 'ja', 'UTC +09:00 JST', '東京'],
@@ -150,7 +150,7 @@ const chooserOf = (field: PropertyField): PropertyControl => {
   return found
 }
 
-// see FO-14, FO-15, FR-156
+// Spec: FO-14, FO-15, FR-156
 describe('FO-14 / FO-15 -- the zone fields carry their choices on two lines', () => {
   it.each(LANGUAGES)('FR-156 (MUST), %s: the base field (K-144) offers the standard rows as their two lines, beside choiceValues', (language) => {
     const chooser = chooserOf(fieldOf(language, 'K-144'))
@@ -175,10 +175,10 @@ interface Rig {
   pointerDownOn(node: FakeElement): void
 }
 
-// WHY: the element's own world, so a node drawn by any rig of this file bubbles through its own listeners.
+// Why: the element's own world, so a node drawn by any rig of this file bubbles through its own listeners.
 const worldOf = (node: FakeElement): World => (node as unknown as { world: World }).world
 
-// WHY: the shared fake has no dispatchEvent and its host no listeners; a browser bubbles from the node up, after the
+// Why: the shared fake has no dispatchEvent and its host no listeners; a browser bubbles from the node up, after the
 // capturing listeners of the document.
 function rig(): { readonly host: Document; readonly rigged: (field: HTMLElement) => Rig } {
   const built = stage()
@@ -194,7 +194,7 @@ function rig(): { readonly host: Document; readonly rigged: (field: HTMLElement)
       }
     }
   }
-  // WHY: each element is given its own dispatchEvent, so no prototype changes for any other file (--no-isolate).
+  // Why: each element is given its own dispatchEvent, so no prototype changes for any other file (--no-isolate).
   const armed = (root: FakeElement): void => {
     for (const node of selfAndDescendants(root)) {
       if (typeof (node as unknown as Record<string, unknown>)['dispatchEvent'] === 'function') continue
@@ -248,7 +248,7 @@ function rig(): { readonly host: Document; readonly rigged: (field: HTMLElement)
   }
 }
 
-// see FO-14, FR-156
+// Spec: FO-14, FR-156
 describe(`FO-14 -- ${FR_156_LIST}`, () => {
   const ROW = 'K-144'
 
@@ -262,14 +262,14 @@ describe(`FO-14 -- ${FR_156_LIST}`, () => {
     const shown = twoLine.children.find((one) => one.tagName === 'BUTTON')
     if (shown === undefined) throw new Error('the two-line field holds no button')
     const list = (): FakeElement | null => twoLine.querySelector(`[data-two-line-list="${ROW}"]`)
-    // WHY: a list left open by an earlier case stays open across a redraw of the same field; start each case closed.
+    // Why: a list left open by an earlier case stays open across a redraw of the same field; start each case closed.
     if (list() !== null) built.click(shown)
     return { field, built, twoLine, shown, list }
   }
 
   it.each(LANGUAGES)('FR-156 (MUST), %s: the closed field shows the chosen zone on its two lines and no list', (language) => {
     const { shown, list } = drawn(language)
-    // WHY: the startup document shows its schedule data zone (S-574 null), so the base field holds it.
+    // Why: the startup document shows its schedule data zone (S-574 null), so the base field holds it.
     const base = String((TEMPLATE.documentSettings as Loose)['viewTimeZone'] ?? (TEMPLATE.schedule.project as Loose)['scheduleDataTimeZone'])
     const [head, place] = timeZoneLinesOf(base, language)
     expect(zoneRowOfKey(base).id, 'premise: the startup base is a T-376 row').toMatch(/^ZN-\d+$/)
@@ -401,7 +401,7 @@ describe(`T-380 RN-3 -- ${RN_3_JOINED}`, () => {
   })
 })
 
-// see FR-159, T-379, WH-1, FO-17, TX-12
+// Spec: FR-159, T-379, WH-1, FO-17, TX-12
 describe(`FR-159 -- ${FR_159_FIRST_START}`, () => {
   const word = (language: DisplayLanguage): string =>
     String((WORDS['wholeScheduleShiftField'] as readonly Loose[]).find((one) => one['part'] === 'currentStart')?.['text'][language])

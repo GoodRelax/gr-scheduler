@@ -38,8 +38,8 @@ const elementOf = (row: string): string => {
   return unbroken(found.by[ELEMENT] ?? '')
 }
 
-// see S-64
-// WHY: the progress line is off by default, so the scene turns it on.
+// Spec: S-64
+// Why: the progress line is off by default, so the scene turns it on.
 const PROGRESS_LINE_VISIBLE = cellOf('T-202', 'S-64', 'キー')
 
 const COMMENT_BOX = {
@@ -77,7 +77,7 @@ const SCENE: SceneWish = {
   settings: {
     isAssigneeVisible: true,
     isPercentCompleteVisible: true,
-    isProgressMarkerVisible: true, // see S-63
+    isProgressMarkerVisible: true, // Spec: S-63
     [PROGRESS_LINE_VISIBLE]: true,
   },
 }
@@ -113,7 +113,7 @@ interface Drawn {
   readonly layers: readonly string[]
 }
 
-// WHY: every drawn element with the data-zo layers of the groups it sits inside.
+// Why: every drawn element with the data-zo layers of the groups it sits inside.
 const drawnElementsOf = (svg: string): readonly Drawn[] => {
   const out: Drawn[] = []
   const groups: (string | null)[] = []

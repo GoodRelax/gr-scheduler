@@ -131,7 +131,7 @@ const nestedFrom = (flat: Readonly<Record<string, unknown>>): Record<string, unk
 
 const SETTINGS_BASE = nestedFrom(SETTINGS_DEFAULTS)
 
-// see FR-039, T-252
+// Spec: FR-039, T-252
 const DISPLAY_RATIO = displayRatioAt(DEFAULT_DISPLAY_SCALE)
 
 const settingsOf = (part: Record<string, unknown> = {}): DocumentSettings =>
@@ -171,7 +171,7 @@ const PI_21_MEMBERS = ((): readonly { name: string; isType: boolean }[] => {
 /** The names of `PI-21` that survive to run time: the two entries. */
 const PI_21_ENTRIES = PI_21_MEMBERS.filter((one) => !one.isType).map((one) => one.name)
 
-// WHY: JDG-139 stage 3 (DFC-619) took `export` off NOT_STORED_DOCUMENT_TITLE_SIZES, the one name T-064 did not give.
+// Why: JDG-139 stage 3 (DFC-619) took `export` off NOT_STORED_DOCUMENT_TITLE_SIZES, the one name T-064 did not give.
 const PI_21_UNNAMED_RUNTIME_NAMES: readonly string[] = []
 
 /**
@@ -717,7 +717,7 @@ interface Assembled {
 
 const CLIP_BLOCK = /<clipPath((?:[^<>"]|"[^"]*")*)>([\s\S]*?)<\/clipPath>/
 
-// see IX-10, S-146
+// Spec: IX-10, S-146
 const isGroundOf = (scene: ExportScene, root: Drawn | undefined) => (drawn: Drawn): boolean =>
   root !== undefined &&
   drawn.tag === 'rect' &&

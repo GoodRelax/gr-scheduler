@@ -46,14 +46,14 @@ const WORDS = JSON.parse(readFileSync(join(SPEC, '_source', 'display-words.json'
   readonly colorField: readonly { readonly part: string; readonly text: Record<DisplayLanguage, string> }[]
 }
 
-// WHY: CR-690 -- the place moved to table T-369 (FO-2, the first field under the GRS reset entrance FO-1).
+// Why: CR-690 -- the place moved to table T-369 (FO-2, the first field under the GRS reset entrance FO-1).
 const CLAUSE_FIRST_FIELD =
   '⭐ テーマ色を選ぶ入口は、文書の設定の面（`FR-072`、面を出す入口は `_assets/tbl-glossary.md` の 表 T-109 の `IC-17`）の欄とし、置き場は `FR-072` の 表 T-369 の `FO-2` とすること（MUST）'
 const CLAUSE_ROWS_IN_ORDER =
   'その欄には 表 T-305 の行を同表の順に、1 段に `_assets/tbl-settings.md` の 表 T-206 の `S-368` 個ずつ並べ、押された行の色相で 表 T-108 の `CM-5` を 1 回発行すること（MUST）。'
 const CLAUSE_SWATCH_PAINT =
   '各行の見本は、その行の色相で解いた `_assets/tbl-settings.md` の 表 T-236 の `S-151` を、いま描いている明暗の値で塗ること（MUST）'
-// WHY: CR-690 -- the field is the swatch rows alone; the chosen swatch is ringed and each swatch's tooltip is its word.
+// Why: CR-690 -- the field is the swatch rows alone; the chosen swatch is ringed and each swatch's tooltip is its word.
 const CLAUSE_NAME_AND_VALUE = '⭐ 欄の名は `FR-038` の辞書が 表 T-104 の `K-60` に持つ語とし、欄は見本の段だけとして、見本の外に行の語を書かないこと（MUST）'
 const CLAUSE_TOOLTIP = '各見本のツールチップは、辞書の `themeHues` のその行の語とすること（MUST）。'
 const CLAUSE_NO_ROW =
@@ -75,27 +75,27 @@ const SEXTANT = 30
 const WHEEL = 12
 const HUE_OFF_THE_ROSTER = 200
 
-// see T-216
+// Spec: T-216
 const S_73_DEFAULT = Number(bare(specTable('T-216').rows.find((one) => one.id === 'S-73')?.by['既定'] ?? ''))
 
-// see T-206
+// Spec: T-206
 const S_368 = Number(bare(specTable('T-206').rows.find((one) => one.id === 'S-368')?.by['既定'] ?? ''))
 
-// see T-305
+// Spec: T-305
 const ROSTER = specTable('T-305').rows.map((row) => {
   const cell = row.by['色相'] ?? ''
   return { rowId: row.id, hue: cell.includes('S-73') ? S_73_DEFAULT : Number(bare(cell)) }
 })
 
-// see T-104
+// Spec: T-104
 const fieldNameOf = (language: DisplayLanguage): string =>
   WORDS.settings.find((one) => one.rowId === K_60)?.label[language] ?? `(no dictionary word for ${K_60})`
 
-// see T-305
+// Spec: T-305
 const hueWordOf = (rowId: string, language: DisplayLanguage): string =>
   WORDS.themeHues.find((one) => one.rowId === rowId)?.text[language] ?? `(no dictionary word for ${rowId})`
 
-// see T-236
+// Spec: T-236
 function s151Formula(preference: Preference): { readonly s: number; readonly l: number } {
   const row = specTable('T-236').rows.find((one) => one.id === 'S-151')
   const cell = bare(row?.by[preference === 'light' ? '明るいテーマ' : '暗いテーマ'] ?? '')
@@ -106,7 +106,7 @@ function s151Formula(preference: Preference): { readonly s: number; readonly l: 
 
 type Rgb = readonly [number, number, number]
 
-// see T-236
+// Spec: T-236
 function rgbOfHsl(hue: number, saturationPercent: number, lightnessPercent: number): Rgb {
   const s = saturationPercent / 100
   const l = lightnessPercent / 100
@@ -134,8 +134,8 @@ function rgbOfPaint(paint: string): Rgb | null {
   return null
 }
 
-// see CF-2, CF-3, S-525
-// WHY: since CR-683 "solved" includes table T-366: CF-3's measured line puts k = 2 on TH-3..TH-5 (light) and TH-10 (dark).
+// Spec: CF-2, CF-3, S-525
+// Why: since CR-683 "solved" includes table T-366: CF-3's measured line puts k = 2 on TH-3..TH-5 (light) and TH-10 (dark).
 const SHIFTED_ROWS: Readonly<Record<Preference, readonly string[]>> = { light: ['TH-3', 'TH-4', 'TH-5'], dark: ['TH-10'] }
 const MEASURED_SHIFT = 2
 const S_525_RATIO = 1
@@ -149,7 +149,7 @@ const expectedPaintOf = (hue: number, preference: Preference, rowId: string): Rg
 const sameRgb = (left: Rgb, right: Rgb): boolean =>
   left.every((value, index) => Math.abs(value - (right[index] ?? Number.NaN)) <= CHANNEL_TOLERANCE)
 
-// WHY: seam S-2 names the swatch paint per row but not the member that carries it, so any
+// Why: seam S-2 names the swatch paint per row but not the member that carries it, so any
 // string list of the roster's length whose every entry is a color is taken as the paint.
 function paintsOf(control: PropertyControl): readonly string[] {
   const places: unknown[] = [
@@ -270,7 +270,7 @@ const EMPTY_VIEW = {
   tooltips: [],
 } as unknown as ScreenView
 
-// see U-25
+// Spec: U-25
 const U_25 = bare(specTable('T-103').rows.find((one) => one.id === 'U-25')?.by['確定名（英）'] ?? '')
 
 const HEADER_HEIGHT = { 'App Header': 37 }
@@ -292,7 +292,7 @@ function drawnHueField(look: Partial<Look> = {}): FakeElement[] {
   return descendants(panel).filter(inField)
 }
 
-// WHY: the panel's own commands are icon entries (data-icon) and may be drawn beside the first
+// Why: the panel's own commands are icon entries (data-icon) and may be drawn beside the first
 // field; they are not entrances of this field.
 const buttonsOf = (field: readonly FakeElement[]): FakeElement[] =>
   field.filter((one) => one.tagName === 'BUTTON' && one.getAttribute('data-icon') === null)
@@ -431,9 +431,9 @@ describe('CR-557 S-2 -- nothing else enters the field, and every other setting i
   })
 
   it(`FR-072 "${CLAUSE_READ_ONLY}" / "${CLAUSE_EXCEPTION}"`, () => {
-    // WHY: table T-369 (CR-690) orders the fields under this one: FO-3 K-125, FO-4 K-85, FO-5 K-143, FO-6 K-71,
+    // Why: table T-369 (CR-690) orders the fields under this one: FO-3 K-125, FO-4 K-85, FO-5 K-143, FO-6 K-71,
     // FO-7 (read-out), FO-8 IC-44, FO-9 K-142, FO-10 K-141, FO-11 (read-out and copy), FO-12 K-140, FO-13 to FO-16 (CR-710).
-    // WHY: CR-755 (FO-15) -- the display time zones are four rows, the setting's row and its number.
+    // Why: CR-755 (FO-15) -- the display time zones are four rows, the setting's row and its number.
     const placed = ['K-125', 'K-85', 'K-143', 'K-71', 'IC-44', 'K-142', 'K-141', 'K-140', 'K-146', 'K-144', 'K-145:1', 'K-145:2', 'K-145:3', 'K-145:4', 'FO-17', 'IC-162']
     const withControls = ['K-125', 'K-85', 'K-143', 'K-71', 'IC-44', 'K-142', 'K-141', 'FX-6', 'K-140', 'K-146', 'K-144', 'K-145:1', 'K-145:2', 'K-145:3', 'K-145:4', 'FO-17', 'IC-162']
     const rest = settingsPanel().fields.slice(1)

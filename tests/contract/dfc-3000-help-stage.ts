@@ -55,7 +55,7 @@ interface Dictionary {
   readonly assignments?: readonly { readonly rowId: string; readonly text: Words }[]
 }
 
-// see FR-038
+// Spec: FR-038
 export const DICTIONARY = JSON.parse(readFileSync(join(SPEC, '_source', 'display-words.json'), 'utf8')) as Dictionary
 
 export function linkWords(link: string, language: DisplayLanguage): string {
@@ -76,7 +76,7 @@ export function headingWords(block: string, language: DisplayLanguage): string {
   return found
 }
 
-// see S-350, S-459, S-583
+// Spec: S-350, S-459, S-583
 const T_206 = specTable('T-206')
 export function addressOf(id: string): string {
   const row = T_206.rows.find((one) => one.id === id)
@@ -87,14 +87,14 @@ export const DOWNLOAD_ADDRESS = addressOf('S-350')
 export const ABOUT_ADDRESS = addressOf('S-583')
 export const REPOSITORY_ADDRESS = addressOf('S-459')
 
-// see S-503
+// Spec: S-503
 const S_503 = specTable('T-236').rows.find((one) => one.id === 'S-503')
 export const LINK_INK = {
   light: bare(S_503?.by['明るいテーマ'] ?? '').toLowerCase(),
   dark: bare(S_503?.by['暗いテーマ'] ?? '').toLowerCase(),
 } as const
 
-// see T-109
+// Spec: T-109
 export interface IconRow {
   readonly id: string
   readonly surfaces: readonly string[]
@@ -230,7 +230,7 @@ export const anchorsIn = (root: FakeElement): FakeElement[] => selfAndDescendant
 export const anchorsTo = (root: FakeElement, address: string): FakeElement[] =>
   anchorsIn(root).filter((one) => hrefOf(one) === address)
 
-// WHY: color and text-decoration pass down the tree, so the nearest write at or above the anchor is what the reader sees.
+// Why: color and text-decoration pass down the tree, so the nearest write at or above the anchor is what the reader sees.
 function nearestStyle(element: FakeElement, property: string, stop: FakeElement): string {
   for (let at: FakeElement | null = element; at !== null; at = at.parentNode) {
     const written = styleMap(at).get(property)

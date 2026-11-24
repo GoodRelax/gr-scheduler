@@ -281,7 +281,7 @@ export class FakeElement {
     return this.childNodes[0] ?? null
   }
 
-  // WHY: the DOM getter the scale message layer reads (CR-411); absent, it answered undefined, not null.
+  // Why: the DOM getter the scale message layer reads (CR-411); absent, it answered undefined, not null.
   get firstElementChild(): FakeElement | null {
     return this.children[0] ?? null
   }
@@ -402,11 +402,11 @@ export interface Stage {
   surface: ScreenSurface | undefined
   /** The tree the unit built inside the mount. */
   root(): FakeElement
-  // WHY: the listeners the unit put on the document itself; nothing fires them unless a case does.
+  // Why: the listeners the unit put on the document itself; nothing fires them unless a case does.
   readonly hostListeners?: HostListener[]
 }
 
-// WHY: one listener on the document (host.addEventListener), kept apart from the elements' own.
+// Why: one listener on the document (host.addEventListener), kept apart from the elements' own.
 export interface HostListener {
   readonly type: string
   readonly listener: (event: FakeEvent) => void
@@ -428,7 +428,7 @@ export function stage(heightsByRole: Record<string, number> = {}): Stage {
   }
 
   const hostListeners: HostListener[] = []
-  // WHY: a list the unit opens closes on a press anywhere, so it listens on the document (FR-156, AS-5).
+  // Why: a list the unit opens closes on a press anywhere, so it listens on the document (FR-156, AS-5).
   const document = {
     createElement(tagName: string): FakeElement {
       const made = new FakeElement(tagName, world)

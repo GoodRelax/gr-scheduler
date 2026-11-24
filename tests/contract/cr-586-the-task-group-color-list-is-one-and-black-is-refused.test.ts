@@ -45,7 +45,7 @@ function rowOf(table: SpecTable, id: string): SpecRow {
   return found
 }
 
-// see CV-9
+// Spec: CV-9
 const CV_9_ONE_LIST =
   '⭐ タスクグループの色の欄が並べる名を、`TaskGroup.color` が受ける名の唯一の一覧とすること（MUST） —— 一覧は、表 T-294 の名のうち、タスクグループの帯の欄が「—」でないものとする（透明は「描かない」を持つので一覧に入る）。'
 const CV_9_REFUSED =
@@ -55,9 +55,9 @@ const CV_9_GENERATED =
 const CV_9_SLOTS_KEPT = 'その欄に並べない名と入口（下の 2 つ）の場所は空けたままとし、後ろの名や入口を詰めてはならない（MUST NOT）'
 const CV_9_FRAME_TRANSPARENT = 'ハイライトボックスの枠の欄にも透明（線なし）を並べる —— 線が透明でも枠は掴める（`FR-016` の 表 T-246 の `HB-12`）。'
 const CV_9_COMMENT_NO_TRANSPARENT = 'コメントボックスの線の欄と字の欄には透明を並べない（`FR-019`）。'
-// see CV-2
+// Spec: CV-2
 const CV_2_TWO_VALUES = 'カスタムカラーは、明るいテーマの値と暗いテーマの値の 2 つを持つこと（MUST）。'
-// see RS-25
+// Spec: RS-25
 const RS_25_SCENE = '読んだ `GRS JSON` の列が、決められた形に合わない'
 
 const H_NAME = '保存する綴り'
@@ -65,7 +65,7 @@ const H_LIGHT_BAND = '明るいテーマのタスクグループの帯'
 const H_DARK_BAND = '暗いテーマのタスクグループの帯'
 const DASH = '—'
 
-// see T-294, CV-9
+// Spec: T-294, CV-9
 const nameOf = (row: SpecRow): string => bare(row.by[H_NAME] ?? '')
 const isBandless = (row: SpecRow): boolean =>
   (row.by[H_LIGHT_BAND] ?? '').startsWith(DASH) || (row.by[H_DARK_BAND] ?? '').startsWith(DASH)
@@ -118,7 +118,7 @@ const oneTaskGroup = (): Document =>
 const colorOf = (document: Document): string | null =>
   document.schedule.taskGroups.find((one) => one.id === ROW_ID)?.color ?? null
 
-// see CM-30
+// Spec: CM-30
 const editWithSetTaskGroupColor = (color: string) => {
   const command: TaskGroupCommand = { kind: 'setTaskGroupColor', taskGroupId: ROW_ID, color }
   return editDocument(oneTaskGroup(), command, LIMITS, 'row')

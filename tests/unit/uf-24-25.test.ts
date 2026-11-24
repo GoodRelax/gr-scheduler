@@ -16,18 +16,18 @@ import {
   type ChangeNotice,
 } from '../../src/use-case/notify-change-watchers/notify-change-watchers'
 
-// WHY: AG-6 compares a watcher's name against DocumentStamp.lastEditedBy,
+// Why: AG-6 compares a watcher's name against DocumentStamp.lastEditedBy,
 // so these must be the same strings that land there.
 const SELF = 'ai'
 const OTHER = 'user'
 
-// WHY: these are only ever compared for equality; T1 < T2 appears exactly
+// Why: these are only ever compared for equality; T1 < T2 appears exactly
 // once below, only to prove the undo case really is the backwards one.
 const T0 = '2026-08-17T00:00:00Z'
 const T1 = '2026-08-17T00:01:00Z'
 const T2 = '2026-08-17T00:02:00Z'
 
-// WHY: AG-6 reads only the schedule-data group's instant, so this fixture
+// Why: AG-6 reads only the schedule-data group's instant, so this fixture
 // carries just the stamp and the four other root keys DR-1/DR-4 need.
 const documentOf = (
   scheduleUpdatedAt: string,
@@ -46,7 +46,7 @@ const documentOf = (
     changeLog: [],
   }) as unknown as Document
 
-// WHY: hasUpdatedSchedule is WS-5's own judgment.
+// Why: hasUpdatedSchedule is WS-5's own judgment.
 const confirmedOf = (document: Document, hasUpdatedSchedule = false): ConfirmedChange => ({
   document,
   hasUpdatedSchedule,
@@ -56,7 +56,7 @@ const markAt = (confirmed: ConfirmedChange): WatcherMark => ({
   seenScheduleUpdatedAt: confirmed.document.documentStamp.scheduleUpdatedAt,
 })
 
-// WHY: table T-035's AG-6, copied here as fixed cases per Chapter 1.9 --
+// Why: table T-035's AG-6, copied here as fixed cases per Chapter 1.9 --
 // the watcher is SELF, already handed the document as it stood at T0.
 const SEEN: WatcherMark = { seenScheduleUpdatedAt: T0 }
 
@@ -103,7 +103,7 @@ describe('ChangeNotice (UF-25) -- what one watcher has not been told', () => {
       )
       const notice = changeNoticeFor(SELF, SEEN, confirmed)
 
-      // WHY: "not woken" is the absence of a notice -- a notice existing at
+      // Why: "not woken" is the absence of a notice -- a notice existing at
       // all is the wake-up, so AG-6's MUST NOTs are both answered with null.
       expect({ case: row.case, woken: notice !== null }).toEqual({
         case: row.case,
@@ -112,8 +112,8 @@ describe('ChangeNotice (UF-25) -- what one watcher has not been told', () => {
       if (notice === null) continue
 
       expect(notice.watcher).toBe(SELF)
-      // see AV-14, AG-6
-      // WHY: the notice carries the stamp, never the document; whether the SCHEDULE is new shows in the mark,
+      // Spec: AV-14, AG-6
+      // Why: the notice carries the stamp, never the document; whether the SCHEDULE is new shows in the mark,
       // which moves to the new instant only when the schedule is new.
       expect(notice.stamp).toBe(confirmed.document.documentStamp)
       expect({ case: row.case, mark: notice.mark.seenScheduleUpdatedAt }).toEqual({
@@ -124,7 +124,7 @@ describe('ChangeNotice (UF-25) -- what one watcher has not been told', () => {
   })
 
   it('AG-6 MUST NOT wake a watcher for a write that moved the presentation group ONLY', () => {
-    // WHY: a presentation-only write leaves the SCHEDULE instant standing
+    // Why: a presentation-only write leaves the SCHEDULE instant standing
     // still while the other two stamp fields move (FR-063 MUST NOT).
     const presentationOnly = confirmedOf(
       documentOf(T0, OTHER, '2026-08-17T09:00:00Z'),
@@ -132,7 +132,7 @@ describe('ChangeNotice (UF-25) -- what one watcher has not been told', () => {
     )
     expect(changeNoticeFor(SELF, SEEN, presentationOnly)).toBeNull()
 
-    // WHY: stays silent however many times it happens -- a wheel turn puts
+    // Why: stays silent however many times it happens -- a wheel turn puts
     // dozens of these through WS-1..WS-7, which is why the row says "only".
     for (let n = 1; n <= 30; n += 1) {
       const again = confirmedOf(
@@ -147,7 +147,7 @@ describe('ChangeNotice (UF-25) -- what one watcher has not been told', () => {
   })
 
   it('AG-6 MUST NOT wake a writer for its OWN write, whatever moved and however far behind it is', () => {
-    // WHY: the veto is on the writer's identity, so neither half of the
+    // Why: the veto is on the writer's identity, so neither half of the
     // selection can talk round it -- not WS-5's judgment, not the mark equality.
     for (const movedSchedule of [true, false]) {
       for (const held of [T0, T2]) {
@@ -163,13 +163,13 @@ describe('ChangeNotice (UF-25) -- what one watcher has not been told', () => {
   })
 
   it('AG-6 wakes a watcher holding t2 when an UNDO returns the document to t1', () => {
-    // WHY: this is the one case that goes red if an ordering read of the
+    // Why: this is the one case that goes red if an ordering read of the
     // stamp ever comes back (FR-063 MUST NOT); CR-205 was raised against it.
     const held: WatcherMark = { seenScheduleUpdatedAt: T2 }
 
     expect(T1 < T2).toBe(true)
 
-    // WHY: the restore claims no fresh schedule edit, so only the mark
+    // Why: the restore claims no fresh schedule edit, so only the mark
     // equality against the watcher's held instant can wake it here.
     const restored = confirmedOf(documentOf(T1, OTHER), false)
     const notice = changeNoticeFor(SELF, held, restored)
@@ -177,7 +177,7 @@ describe('ChangeNotice (UF-25) -- what one watcher has not been told', () => {
     expect(notice).not.toBeNull()
     if (notice === null) return
     expect(notice.stamp).toBe(restored.document.documentStamp)
-    // WHY: the mark is now t1 -- the watcher holds what it was handed, not
+    // Why: the mark is now t1 -- the watcher holds what it was handed, not
     // the high-water mark of everything it ever saw.
     expect(notice.mark.seenScheduleUpdatedAt).toBe(T1)
 
@@ -189,7 +189,7 @@ describe('ChangeNotice (UF-25) -- what one watcher has not been told', () => {
   })
 
   it('AG-6 tells a watcher only what it has NOT received: its mark silences the repeat', () => {
-    // WHY: whatever the notice's mark is, it must be far enough along that
+    // Why: whatever the notice's mark is, it must be far enough along that
     // the same confirmed change said twice is not delivered twice.
     const confirmed = confirmedOf(documentOf(T1, OTHER), true)
     const first = changeNoticeFor(SELF, SEEN, confirmed)
@@ -197,7 +197,7 @@ describe('ChangeNotice (UF-25) -- what one watcher has not been told', () => {
     if (first === null) return
     expect(first.mark.seenScheduleUpdatedAt).toBe(T1)
 
-    // WHY: hasUpdatedSchedule is false here because a second announcement of
+    // Why: hasUpdatedSchedule is false here because a second announcement of
     // the SAME write is not a second write -- only the mark equality is left to select on.
     const saidAgain = confirmedOf(confirmed.document, false)
     expect(changeNoticeFor(SELF, first.mark, saidAgain)).toBeNull()
@@ -210,7 +210,7 @@ describe('ChangeNotice (UF-25) -- what one watcher has not been told', () => {
   })
 
   it('UT-3 is pure: the same two values always answer the same, and neither is touched', () => {
-    // WHY: UT-3 (table T-063) -- the selection is pure, so calling it twice
+    // Why: UT-3 (table T-063) -- the selection is pure, so calling it twice
     // cannot differ and cannot mutate anything it was handed.
     const confirmed = confirmedOf(documentOf(T1, OTHER), true)
     const once = changeNoticeFor(SELF, SEEN, confirmed)
@@ -225,7 +225,7 @@ describe('ChangeNotice (UF-25) -- what one watcher has not been told', () => {
   })
 })
 
-// WHY: one registry serves the whole file, so a case that leaves a subscription
+// Why: one registry serves the whole file, so a case that leaves a subscription
 // behind would be heard by the next one.
 const REGISTERED: string[] = []
 const WATCHERS = emptyChangeWatchers()
@@ -257,7 +257,7 @@ describe('NotifyChangeWatchers (UF-24 / PI-15) -- registering, dropping, deliver
   })
 
   it('AG-6 delivers the UNDO to a watcher that already took t2, all the way through the registry', () => {
-    // WHY: the registry holds the mark that was actually TAKEN, so after the
+    // Why: the registry holds the mark that was actually TAKEN, so after the
     // t2 notice the watcher stands on t2 before the undo hands it t1.
     const start = confirmedOf(documentOf(T1, OTHER))
     const heard: ChangeNotice[] = []
@@ -276,7 +276,7 @@ describe('NotifyChangeWatchers (UF-24 / PI-15) -- registering, dropping, deliver
   })
 
   it('AG-2 settles a same-instant collision as last-writer-wins: the watcher ends on the SECOND', () => {
-    // WHY: both writes carry the SAME scheduleUpdatedAt, so the stamp alone
+    // Why: both writes carry the SAME scheduleUpdatedAt, so the stamp alone
     // cannot tell them apart; AG-6 selects on WS-5's judgment instead.
     const SECOND_WRITER = 'user-2'
     const start = confirmedOf(documentOf(T0, OTHER))
@@ -305,7 +305,7 @@ describe('NotifyChangeWatchers (UF-24 / PI-15) -- registering, dropping, deliver
 
     const confirmed = confirmedOf(documentOf(T1, OTHER), true)
     expect([...notifyChangeWatchers(WATCHERS, confirmed).notified]).toEqual([SELF])
-    // WHY: said again as the same write, not a second one, so the second
+    // Why: said again as the same write, not a second one, so the second
     // round has nothing left to select and nobody is woken twice.
     const saidAgain = confirmedOf(confirmed.document, false)
     expect(notifyChangeWatchers(WATCHERS, saidAgain).notified).toEqual([])
@@ -329,7 +329,7 @@ describe('NotifyChangeWatchers (UF-24 / PI-15) -- registering, dropping, deliver
   })
 
   it('Chapter 5.5 keeps the delivering-notices window OUT of this unit (MUST)', () => {
-    // WHY: the delivery flag is not a parameter; the unit takes the shell-held
+    // Why: the delivery flag is not a parameter; the unit takes the shell-held
     // registrations (SF-10) and the confirmed change, so a subscriber cannot fake it.
     expect(notifyChangeWatchers.length).toBe(2)
   })

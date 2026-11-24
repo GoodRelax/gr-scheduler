@@ -20,10 +20,10 @@ const CLAUSE_NO_WRITE_WHILE_HELD =
   '⛔ 日程の形（`GR-23`）・`GR-14`・`GR-16` を掴んでいるあいだ値を文書へ書いてはならない（MUST NOT）'
 
 const HIGHLIGHT = 'highlight-one'
-// WHY: two whole weeks, so a moved plan lands on the same weekdays it left.
+// Why: two whole weeks, so a moved plan lands on the same weekdays it left.
 const MOVE_DAYS = 14
 
-// WHY: a long plan, so the body center stands clear of the progress marker and dummy that answer first (T-266).
+// Why: a long plan, so the body center stands clear of the progress marker and dummy that answer first (T-266).
 const DOCUMENT = ((): Document => {
   const built = documentOf({
     tasks: [taskOf(1, { start: '2026-04-06T08:00:00', finish: '2026-06-26T17:00:00' })],

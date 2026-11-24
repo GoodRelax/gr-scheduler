@@ -16,7 +16,7 @@ import { bare, specTable, unbroken } from './spec-table'
 
 const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
-// WHY: each constant ends exactly at its marker, cut from the manuscript as check 39 reads it.
+// Why: each constant ends exactly at its marker, cut from the manuscript as check 39 reads it.
 const BR_6 = '| BR-6 | 書き出し | 書き出す絵とクリップボードへコピーする絵での扱いは、表 T-076 の `EP-1` に従うこと（MUST）'
 const BR_6_BLANK = '`Branding` も `BR-7` の縦線も描かず、席と縦線の分を空白のまま残し、`Document Title` を画面と同じ位置に置く。'
 const EP_1_SAME_ROWS = '席の幅は同書の 表 T-206 の `S-490` と `S-462` から、隔たりは `S-226` から、太さは `S-492` から決まり、画面も書き出しも同じ行を読む。'
@@ -36,10 +36,10 @@ const setting = (id: string): number => {
   return value
 }
 
-// see BR-2, EP-1
+// Spec: BR-2, EP-1
 const TITLE_LEFT = (3 * setting('S-226') + setting('S-490') * setting('S-462')) * setting('S-235') + setting('S-492')
 
-// see T-236
+// Spec: T-236
 const colorIn = (id: string, column: string, hue: number): string => {
   const cell = (rowOf('T-236', id).by[column] ?? '').trim()
   const named = /^`(S-\d+)`/.exec(cell)
@@ -58,7 +58,7 @@ const TITLE = 'Plan of record'
 
 const ITEMS: AppHeaderItems = {
   brandingText: LOGO,
-  // see BR-2, EP-1
+  // Spec: BR-2, EP-1
   ...brandingPlaceOf(),
   documentTitle: TITLE,
   openedFileName: 'plan.json',
@@ -90,7 +90,7 @@ const SETTINGS = ((): DocumentSettings => {
   return built as unknown as DocumentSettings
 })()
 
-// see S-81
+// Spec: S-81
 const S_81_WIDTH = Number(/\d+/.exec(bare(rowOf('T-204', 'S-81').by['既定'] ?? ''))?.[0])
 
 const sceneOf = (preference: 'light' | 'dark'): ExportScene => ({

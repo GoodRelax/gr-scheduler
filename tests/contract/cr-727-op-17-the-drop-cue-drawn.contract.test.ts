@@ -26,7 +26,7 @@ import { settingNumber } from '../fixtures/setting-number'
 import { GENERATED_WORDS, LANGUAGES, REGIONS, inLanguage, specText, viewOf } from './cr-727-stage'
 import { specTable, unbroken } from './spec-table'
 
-// see T-024a, OP-17
+// Spec: T-024a, OP-17
 const opCell = (): string => unbroken(specTable('T-024a').rows.find((one) => one.id === 'OP-17')?.by['規則'] ?? '')
 
 const OP_17_RIM_AND_GROUND =
@@ -82,7 +82,7 @@ interface Rim {
   readonly color: string
 }
 
-// WHY: no row says how the rim is spelled, so the shorthand and the three longhands are both read.
+// Why: no row says how the rim is spelled, so the shorthand and the three longhands are both read.
 function rimOf(built: Stage, element: FakeElement): Rim {
   const style = styleMap(element)
   const shorthand = /^(-?[\d.]+)px\s+(\w+)\s+(.+)$/.exec((style.get('border') ?? '').trim())
@@ -101,7 +101,7 @@ interface Ground {
   readonly percent: number
 }
 
-// WHY: a translucent ground is spelled as color-mix() or as an alpha color; both are read, neither is demanded.
+// Why: a translucent ground is spelled as color-mix() or as an alpha color; both are read, neither is demanded.
 function groundOf(built: Stage, element: FakeElement): Ground | null {
   const written = (styleMap(element).get('background-color') ?? styleMap(element).get('background') ?? '').trim()
   const mixed = /^color-mix\(\s*in srgb\s*,\s*(.+?)\s+([\d.]+)%\s*,\s*transparent\s*\)$/.exec(written)
@@ -145,13 +145,13 @@ function sameColor(drawn: string, expected: string): boolean {
   return left.every((one, index) => Math.abs(one - (right[index] ?? Number.NaN)) <= CHANNEL_TOLERANCE)
 }
 
-// see S-151, PI-19
+// Spec: S-151, PI-19
 const accentOf = (theme: ScreenTheme): string => colorOf('S-151', theme.hue, theme.preference === 'dark', false)
 
 const wordOf = (language: DisplayLanguage): string =>
   GENERATED_WORDS['dropCue']?.find((one) => one.part === 'dropToOpen')?.text?.[language] ?? ''
 
-// WHY: the cue is "the ground the words sit on" so the text lives somewhere under the cue box.
+// Why: the cue is "the ground the words sit on" so the text lives somewhere under the cue box.
 const wordsUnder = (cue: FakeElement): FakeElement[] => selfAndDescendants(cue).filter((one) => textOf(one) !== '' && one.children.every((child) => textOf(child) === ''))
 
 describe('CR-727 the manuscript these cases are driven by', () => {
@@ -261,7 +261,7 @@ describe(`FR-087 OP-17 -- ${OP_17_RIM_AND_GROUND}`, () => {
   })
 })
 
-// WHY: no row names a font; "the same as the Notification Area" is read as the same font declarations on the way down to the text.
+// Why: no row names a font; "the same as the Notification Area" is read as the same font declarations on the way down to the text.
 function fontDeclarationsOn(built: Stage, text: FakeElement): readonly string[] {
   const root = built.root()
   const found: string[] = []

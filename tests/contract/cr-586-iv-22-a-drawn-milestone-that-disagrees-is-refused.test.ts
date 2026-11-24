@@ -45,20 +45,20 @@ function rowOf(table: SpecTable, id: string): SpecRow {
 
 const IV_22 = rowOf(T_220, 'IV-22')
 
-// see IV-22
+// Spec: IV-22
 const IV_22_RULE =
   '`TaskVisual.shapeKind` が非 `null` のとき、それが `\'milestone\'` であることと、その `TaskVisual` が指す `Task` の `milestone` が真であることが一致すること。'
 const IV_22_NULL_EXEMPT = '⚠️ **`shapeKind` が `null` の `TaskVisual` は対象外**'
-// see T-233
+// Spec: T-233
 const T_233_CLOSING =
   '⭐ ⇒ 取り込みの検証が拒んだとき、`NT-1` の通知が運ぶ理由は、拒んだ 表 T-220 の行の行 ID とすること（MUST）'
-// see T-251
+// Spec: T-251
 const NO_MISMATCHED_DOCUMENT =
   '⚠️ 2 つが食い違う文書は作らせない —— `GRS JSON` から来た食い違いは `05-07-design.md` の 表 T-220 の `IV-22` が取り込みで拒み'
-// see OP-5
+// Spec: OP-5
 const OP_5_BEFORE_OP_3 = '**`OP-3` を問う前に通すこと（MUST）**'
 
-// see T-220
+// Spec: T-220
 const KIND_WORD_COMBINATION = '組合せ'
 
 describe('CR-586 premise -- the clauses these cases are built from', () => {
@@ -116,9 +116,9 @@ function withMilestone(json: Json, taskUid: number, milestone: boolean | null): 
 const DRAWN_MILESTONE = visualShaped(templateJson(), true)
 const DRAWN_BAR = visualShaped(templateJson(), false)
 
-// see IV-22
+// Spec: IV-22
 const shapeSaysMilestone = (): Json => withMilestone(templateJson(), DRAWN_MILESTONE.taskUid, false)
-// see IV-22
+// Spec: IV-22
 const taskSaysMilestone = (): Json => withMilestone(templateJson(), DRAWN_BAR.taskUid, true)
 
 const iv22In = (document: Document) =>
@@ -175,13 +175,13 @@ function keyOf(id: string): KeyInput {
   }
 }
 
-// see SK-10
+// Spec: SK-10
 const SK_10 = keyOf('SK-10')
 const OPEN_CHOOSER = bare(rowOf(T_103, 'U-56').by['確定名（英）'] ?? '')
 const CONFIRMATION = bare(rowOf(T_103, 'U-55').by['確定名（英）'] ?? '')
-// see IC-71, OP-3
+// Spec: IC-71, OP-3
 const REPLACE_ENTRY = 'IC-71'
-// see IO-2
+// Spec: IO-2
 const FILE_NAME = 'incoming.json'
 
 const SCREEN: FrameEnvironment = { width: 1000, height: 700, appHeaderHeight: 56, scrollbarThickness: 8 }
@@ -299,7 +299,7 @@ interface Opened {
   readonly chooserShown: boolean
 }
 
-// see SK-10, OP-3, OP-4
+// Spec: SK-10, OP-3, OP-4
 async function open(json: Json): Promise<Opened> {
   const one = bench()
   one.loop.receiveInput(SK_10)
@@ -341,7 +341,7 @@ const IV_22_WORDS: string = (() => {
 const refusalNoticeIn = (notices: readonly Notice[]): Notice | undefined =>
   notices.find((one) => one.manner === 'NT-1' && one.text === IV_22_WORDS)
 
-// see CV-9
+// Spec: CV-9
 const CV_9_REFUSED =
   '⛔ 一覧の外の名（黒）は、`CM-30`（`FR-042`）も、`GRS JSON` の取り込み（`05-07-design.md` の 表 T-220 の前文のスキーマ、拒んだときの理由は 表 T-233 の `RS-25`）も受けてはならない（MUST NOT）'
 const BLACK = bare(rowOf(specTable('T-294'), 'S-315').by['保存する綴り'] ?? '')

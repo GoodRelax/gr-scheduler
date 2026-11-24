@@ -10,7 +10,7 @@ import { rowOf } from './sws-case'
 
 const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
-// WHY: each constant is cut from the manuscript as it stands; the cases below are driven by them.
+// Why: each constant is cut from the manuscript as it stands; the cases below are driven by them.
 const FR_069_STRETCH =
   '⭐ 全文と帰属表示を開いたら、表 T-335 の `WB-1` のヘルプの窓の下の縁を、同表の `WB-3` の範囲の下端まで伸ばすこと（MUST）'
 const FR_069_SCROLLS_INSIDE = '全文は窓の本文の中でスクロールして読み、スクロールバーは窓の右側に出る'
@@ -44,22 +44,22 @@ type Words = Readonly<Record<Language, string>>
 const WORDS = JSON.parse(readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8')) as {
   readonly helpLegal: readonly { readonly part: string; readonly text: Words }[]
 }
-// see FR-069, FR-038
+// Spec: FR-069, FR-038
 const FULL_TEXT_WORD: Words = (() => {
   const found = WORDS.helpLegal.find((one) => one.part === 'fullText')
   if (found === undefined) throw new Error('the dictionary holds no helpLegal word for fullText')
   return found.text
 })()
 
-// WHY: a viewport tall enough that the default help ends well above the bottom; MC-6 is the reference environment.
+// Why: a viewport tall enough that the default help ends well above the bottom; MC-6 is the reference environment.
 const SCREENS: readonly (readonly [string, { width: number; height: number }])[] = [
   ['1600 x 1000', { width: 1600, height: 1000 }],
   ['MC-6', screenOf(rowOf(specTable('T-025'), 'MC-6'))],
 ]
 
-// WHY: a box laid out at a fractional position reads back a fraction off; less than that is not a move.
+// Why: a box laid out at a fractional position reads back a fraction off; less than that is not a move.
 const EDGE = 1.5
-// WHY: the default box (S-201 of the area, centred) ends about 24 px above the bottom at both screens; a stretch must be seen past this.
+// Why: the default box (S-201 of the area, centred) ends about 24 px above the bottom at both screens; a stretch must be seen past this.
 const ROOM = 10
 
 interface Box {
@@ -128,7 +128,7 @@ async function helpBox(page: Page): Promise<Box> {
   return box
 }
 
-// see WB-3, U-32
+// Spec: WB-3, U-32
 /** @purity semi-pure-mutable */
 async function rangeBox(page: Page): Promise<Box> {
   const header = await boxOf(page, HEADER)
@@ -137,7 +137,7 @@ async function rangeBox(page: Page): Promise<Box> {
   return { left: 0, top: header.bottom, right: inner.width, bottom: inner.height }
 }
 
-// see T-337
+// Spec: T-337
 /** @purity semi-pure-mutable */
 async function frontPointOf(page: Page, selector: string): Promise<Point | null> {
   return page.evaluate((wanted: string) => {
@@ -177,7 +177,7 @@ async function openHelp(page: Page): Promise<Box> {
 
 const SUMMARY = `${HELP} details > summary`
 
-// see FR-069
+// Spec: FR-069
 /** @purity semi-pure-mutable */
 async function readLegal(page: Page): Promise<{ language: string; summaryText: string; isOpen: boolean } | null> {
   return page.evaluate((help: string) => {
@@ -194,14 +194,14 @@ async function isFullTextOpen(page: Page): Promise<boolean> {
   return (await readLegal(page))?.isOpen ?? false
 }
 
-// see FR-069
+// Spec: FR-069
 /** @purity semi-pure-mutable */
 async function readBodyScroll(page: Page): Promise<BodyScroll> {
   const read = await page.evaluate((help: string) => {
     const modal = document.querySelector(help)
     const details = modal?.querySelector('details')
     if (modal === null || modal === undefined || details === null || details === undefined) return null
-    // WHY: the body is the nearest box around the full text, inside the help, that clips its content.
+    // Why: the body is the nearest box around the full text, inside the help, that clips its content.
     let body: Element | null = details.parentElement
     while (body !== null && body !== modal) {
       const style = getComputedStyle(body)
@@ -215,7 +215,7 @@ async function readBodyScroll(page: Page): Promise<BodyScroll> {
   return read
 }
 
-// see GR-24
+// Spec: GR-24
 /** @purity semi-pure-mutable */
 async function titleBandPoint(page: Page): Promise<Point> {
   const at = await page.evaluate(
@@ -312,12 +312,12 @@ for (const [screenName, size] of SCREENS) {
         const folded = await readBodyScroll(page)
         expect(folded.scrollHeight, `${FR_036_ONE_SCREEN_AT_WB_1}: folded, the body does not scroll`).toBeLessThanOrEqual(folded.clientHeight)
 
-        // STEP: (1) press the full-text entrance with the mouse; the bottom reaches the range bottom
+        // Step: (1) press the full-text entrance with the mouse; the bottom reaches the range bottom
         await openFullText(page)
         const stretched = await helpBox(page)
         expectStretched(stretched, opened, range, 'opened')
 
-        // STEP: (2) the body scrolls vertically and nothing scrolls sideways
+        // Step: (2) the body scrolls vertically and nothing scrolls sideways
         const body = await readBodyScroll(page)
         expect(body.scrollHeight, `${FR_069_SCROLLS_INSIDE}: vertical scroll`).toBeGreaterThan(body.clientHeight)
         expect(body.scrollWidth, `${FR_069_SCROLLS_INSIDE}: no horizontal scroll`).toBeLessThanOrEqual(body.clientWidth)
@@ -327,7 +327,7 @@ for (const [screenName, size] of SCREENS) {
         }))
         expect(page_.scrollWidth, 'the page does not scroll sideways').toBeLessThanOrEqual(page_.clientWidth)
 
-        // STEP: (3) press again; the window returns to the box it had before
+        // Step: (3) press again; the window returns to the box it had before
         await foldFullText(page)
         expectSameBox(await helpBox(page), opened, FR_069_FOLD_BACK)
       } finally {

@@ -1,4 +1,4 @@
-// EditHistory: the undo and redo history.
+// File: EditHistory: the undo and redo history.
 // @unit      UF-4   (docs/spec/05-07-design.md, table T-075)
 // @component EditHistory, layer documentModel (table T-062)
 // @purity    pure
@@ -55,8 +55,8 @@ export interface HistoryMove<TStep> {
   readonly step: TStep | null
 }
 
-// see FR-031, PI-11
-// WHY: leftBehind rewrites the moved step as it crosses, so no caller has to find it again by position.
+// Spec: FR-031, PI-11
+// Why: leftBehind rewrites the moved step as it crosses, so no caller has to find it again by position.
 /** @purity pure */
 export function previousStep<TStep>(
   history: EditHistory<TStep>,
@@ -73,7 +73,7 @@ export function previousStep<TStep>(
   }
 }
 
-// see FR-031, PI-12
+// Spec: FR-031, PI-12
 /** @purity pure */
 export function nextStep<TStep>(
   history: EditHistory<TStep>,
@@ -94,7 +94,7 @@ export function nextStep<TStep>(
 // Single source of truth:
 //   docs/spec/_source/settings.json (table T-206)
 // Rebuild: npm run gen   ||   npm run gen:check fails on drift.
-// see T-206
+// Spec: T-206
 export const NOT_STORED_LIMITS: {
   readonly 'S-94': number
   readonly 'S-95': number

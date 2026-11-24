@@ -18,7 +18,7 @@ const EXPORT = rowOf(specTable('T-109'), 'IC-140').id
 const COPY = rowOf(specTable('T-109'), 'IC-108').id
 const END = rowOf(specTable('T-109'), 'IC-40').id
 const REDIAGNOSE = rowOf(specTable('T-109'), 'IC-168').id
-// WHY: the word follows the SCREEN language (FR-038), which this stage starts in English whatever the opened document's language is.
+// Why: the word follows the SCREEN language (FR-038), which this stage starts in English whatever the opened document's language is.
 const REDIAGNOSE_WORD = (
   JSON.parse(readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8')) as {
     readonly icons: readonly { readonly rowId: string; readonly label: { readonly en: string } }[]
@@ -79,7 +79,7 @@ test.describe('CR-617 -- the report window on the shipped build', () => {
     }
   })
 
-  // WHY: CR-781 -- IC-107 looks pressed while the window is open (RW-1, S-451); a window closed alone leaves the marks but not the look.
+  // Why: CR-781 -- IC-107 looks pressed while the window is open (RW-1, S-451); a window closed alone leaves the marks but not the look.
   test('RW-1: IC-52 closes the window alone, and IC-107 stands pressed only while the window is open', async () => {
     const stage = await opened()
     try {

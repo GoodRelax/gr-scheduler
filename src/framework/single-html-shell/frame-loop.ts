@@ -1,4 +1,4 @@
-// SingleHtmlShell frame loop: holds the current values and computes table T-068 once per frame.
+// File: SingleHtmlShell: SingleHtmlShell frame loop: holds the current values and computes table T-068 once per frame.
 // @unit      UF-48   (docs/spec/05-07-design.md, table T-075)
 // @component SingleHtmlShell, layer Framework (table T-062)
 // @purity    non-pure
@@ -309,7 +309,7 @@ export { OPEN_ROUTE_FROM_DROP } from './document-file-flow'
 
 export const GREATEST_KNOWN_SCHEMA_VERSION: string = startupTemplateManifest.schemaVersion
 
-// see FR-051
+// Spec: FR-051
 export interface FrameEnvironment {
   readonly width: number
   readonly height: number
@@ -339,7 +339,7 @@ export interface HandedImport {
   readonly byteLength: number
   readonly unreadColumns: readonly string[]
   readonly isNewerFormat: boolean
-  // see FR-012, RS-52
+  // Spec: FR-012, RS-52
   readonly recountedCount?: number
 }
 
@@ -350,13 +350,13 @@ export type StartupNoticeReason = Extract<
   'RS-15' | 'RS-21' | 'RS-25' | 'RS-26' | 'RS-48' | 'RS-51' | 'RS-63' | 'RS-64' | 'RS-67' | 'RS-90'
 >
 
-// see T-078
+// Spec: T-078
 export interface FrameLoop {
   hasUnsavedEdits(): boolean
   holdDocument(call: HeldDocumentCall): void
   resize(env: FrameEnvironment): void
   settleFirstFrameEnvironment(env: FrameEnvironment): void
-  // TRAP: asked before the watcher hears the happening; changing any state here
+  // Trap: asked before the watcher hears the happening; changing any state here
   // makes IN-4a read a screen that has already moved on.
   /** @purity non-pure */
   isBrowserDefaultStopped(input: HumanInput): boolean
@@ -364,7 +364,7 @@ export interface FrameLoop {
   receiveInput(input: HumanInput): void
   current(): FrameValues | null
   document(): Document
-  // see FR-039, S-72
+  // Spec: FR-039, S-72
   themePreference(): ScreenValues['themePreference']
   /** @purity semi-pure-mutable */
   exportScene(): ExportScene | null
@@ -376,17 +376,17 @@ export interface FrameLoop {
   raiseStartupNotice(reason: StartupNoticeReason, affectedCount?: number | null): void
   /** @purity non-pure */
   fullScreenChanged(isFullScreen: boolean): void
-  // see FT-1
+  // Spec: FT-1
   /** @purity non-pure */
   pressContinued(): void
   /** @purity non-pure */
   fileDropped(): void
-  // see OP-17
+  // Spec: OP-17
   /** @purity non-pure */
   fileDragMoved(isOver: boolean): void
 }
 
-// see FR-071, UF-48
+// Spec: FR-071, UF-48
 export interface FullScreenHost {
   isFullScreen(): boolean
   requestFullScreen(): Promise<void>
@@ -396,22 +396,22 @@ export interface FullScreenHost {
 export interface ScreenWiring {
   readonly surface: ScreenSurface
   readonly language: DisplayLanguage
-  // see FR-039, S-72
+  // Spec: FR-039, S-72
   readonly themePreference?: ScreenValues['themePreference']
-  // TRAP: optional, so a host that omits it leaves MK-13 half done with nothing to say so.
-  // WHY: only false (the focus did not enter) asks again; a host that cannot tell answers otherwise.
+  // Trap: optional, so a host that omits it leaves MK-13 half done with nothing to say so.
+  // Why: only false (the focus did not enter) asks again; a host that cannot tell answers otherwise.
   readonly focusPropertyField?: (row: string) => unknown
   readonly readWatermarkUnlockAnswer?: () => string
-  // see FR-102, IR-1
-  // TRAP: answers a row ID or FOCUS_ON_DOCUMENT_BODY, never the field's contents (FR-102 MUST NOT).
+  // Spec: FR-102, IR-1
+  // Trap: answers a row ID or FOCUS_ON_DOCUMENT_BODY, never the field's contents (FR-102 MUST NOT).
   readonly readFocusPosition?: () => string
-  // see RG-16, SV-5, IF-9
+  // Spec: RG-16, SV-5, IF-9
   readonly readFocusedWindow?: () => WindowName | null
   readonly isFocusInPropertiesPanel?: () => boolean
-  // see SV-7, IF-9
-  // TRAP: reading takes the changes, in the order the host raised them.
+  // Spec: SV-7, IF-9
+  // Trap: reading takes the changes, in the order the host raised them.
   readonly readSearchFilterChanges?: () => readonly SearchFilterChange[]
-  // see RW-3, SV-7
+  // Spec: RW-3, SV-7
   readonly readDelayDiagnosticsReportInput?: () => {
     readonly word: string | null
     readonly changes: readonly SearchFilterChange[]
@@ -451,12 +451,12 @@ export interface FrameLoopHands {
 
 const BYTES_PER_MEGABYTE = 1024 * 1024
 
-// see S-598
+// Spec: S-598
 const MS_PER_SECOND = 1000
 
 export const HISTORY_LIMITS: HistoryLimits = {
   maxSteps: NOT_STORED_LIMITS['S-94'],
-  // TRAP: S-95 is in megabytes; read as bytes, every write collapses the history to one step.
+  // Trap: S-95 is in megabytes; read as bytes, every write collapses the history to one step.
   maxTotalSizeBytes: NOT_STORED_LIMITS['S-95'] * BYTES_PER_MEGABYTE,
 }
 
@@ -475,7 +475,7 @@ const CONFIRMATION_PROCEED_ANSWER = 'proceed'
 const CONFIRMATION_PROCEED_KEY = 'Y'
 const CONFIRMATION_CANCEL_KEY = 'N'
 
-// see NT-7
+// Spec: NT-7
 /** @purity pure */
 function isConfirmationAnswerKey(key: string): boolean {
   return key === CONFIRMATION_PROCEED_KEY || key === CONFIRMATION_CANCEL_KEY
@@ -489,19 +489,19 @@ const CLOSE_SURFACE_ENTRY: IconId = 'IC-52'
 
 const PROPERTIES_PANEL_SURFACE = 'Properties Panel'
 
-// see U-64, FR-151
+// Spec: U-64, FR-151
 const SEARCH_PANEL_SURFACE = 'Search Panel'
 
-// see SJ-3, SV-13
+// Spec: SJ-3, SV-13
 const REPORT_RESTORE_ENTRY: IconId = 'IC-131'
 
-// see U-30, FR-036
+// Spec: U-30, FR-036
 const HELP_MODAL_SURFACE = 'Help Modal'
 
-// see SV-2
+// Spec: SV-2
 const SEARCH_WORD_ROW = 'SV-2'
 
-// see IN-5a, SV-7
+// Spec: IN-5a, SV-7
 const SEARCH_FIELD_ROWS: ReadonlySet<string> = new Set([SEARCH_WORD_ROW, 'SV-7'])
 
 const SEARCH_TASKS_ENTRY: IconId = 'IC-118'
@@ -528,7 +528,7 @@ interface HeldDelayDiagnostics {
 const NO_MARKED_TASKS: ReadonlySet<number> = new Set()
 
 // see FR-130, FR-133, PE-8, T-315, S-3, JDG-2803, JDG-2804, JDG-2806
-// WHY: made only on a run (IC-107, IC-168), never on an edit.
+// Why: made only on a run (IC-107, IC-168), never on an edit.
 /** @purity pure */
 function delayDiagnosticsOf(document: Document, fixLogAtRun: ReadonlySet<DelayFixLogRow>): HeldDelayDiagnostics {
   const report = diagnoseDelay(document, workingCalendarOf(document.schedule))
@@ -568,7 +568,7 @@ interface PictureInputs {
   readonly dualCursor: GeometryArguments[5]
   readonly delayDiagnostics: DelayDiagnosticsDrawing | undefined
   readonly parentTaskFamilies: ParentTaskFamilies | null
-  // see TV-1, FR-151
+  // Spec: TV-1, FR-151
   readonly shownTaskUids: ReadonlySet<number> | null
 }
 
@@ -597,7 +597,7 @@ export function isSameScreenRegions(a: ScreenRegions, b: ScreenRegions): boolean
 }
 
 // see FR-046, GR-16, DFC-2314
-// WHY: a Status Line drag writes only statusDate, which no layout reads; a new layout re-asks the zoom ends.
+// Why: a Status Line drag writes only statusDate, which no layout reads; a new layout re-asks the zoom ends.
 /** @purity pure */
 function isSameScheduleApartFromStatusDate(a: Document['schedule'], b: Document['schedule']): boolean {
   return isSameRecord(a, b, (x, y, key) =>
@@ -606,7 +606,7 @@ function isSameScheduleApartFromStatusDate(a: Document['schedule'], b: Document[
       : Object.is(x, y))
 }
 
-// TRAP: the settings and the regions are new objects on every frame; compared by identity, nothing is ever held.
+// Trap: the settings and the regions are new objects on every frame; compared by identity, nothing is ever held.
 /** @purity pure */
 function isSameLayoutInputs(a: PictureInputs, b: PictureInputs): boolean {
   return (
@@ -631,7 +631,7 @@ function isSamePictureInputs(a: PictureInputs, b: PictureInputs): boolean {
 }
 
 // see DFC-1820
-// WHY: the same objects come back while no input moved, so the pointer walk held per drawn geometry is not rebuilt.
+// Why: the same objects come back while no input moved, so the pointer walk held per drawn geometry is not rebuilt.
 /** @purity pure */
 function drawnPictureOf(held: DrawnPicture | null, inputs: PictureInputs): DrawnPicture {
   if (held !== null && isSamePictureInputs(held.inputs, inputs)) return held
@@ -657,8 +657,8 @@ interface HeldZoomEnds {
   readonly ends: ZoomEntranceEnds
 }
 
-// see OP-10, OP-10a
-// WHY: the view place only shifts task groups and days; it changes no task group's height, order or the stored zoom.
+// Spec: OP-10, OP-10a
+// Why: the view place only shifts task groups and days; it changes no task group's height, order or the stored zoom.
 const VIEW_PLACE_FIELDS: ReadonlySet<string> = new Set<keyof DocumentSettings>([
   'scrollDate', 'scrollDateFraction', 'scrollTaskGroupId', 'scrollTaskGroupFraction',
 ])
@@ -668,7 +668,7 @@ function isSameApartFromViewPlace(a: DocumentSettings, b: DocumentSettings): boo
   return isSameRecord(a, b, (x, y, key) => VIEW_PLACE_FIELDS.has(key) || Object.is(x, y))
 }
 
-// TRAP: away from the stored zoom the drawn zoom is a fit read off the drawn layout, so only then is the layout a key.
+// Trap: away from the stored zoom the drawn zoom is a fit read off the drawn layout, so only then is the layout a key.
 /** @purity pure */
 function isSameZoomEndsInputs(held: HeldZoomEnds, now: Omit<HeldZoomEnds, 'ends'>): boolean {
   if (held.isPictureAtStoredZoom !== now.isPictureAtStoredZoom) return false
@@ -682,7 +682,7 @@ function isSameZoomEndsInputs(held: HeldZoomEnds, now: Omit<HeldZoomEnds, 'ends'
 }
 
 // see FR-029, DFC-567, PI-18, DFC-2301
-// WHY: the ends lay the task groups out again; a pan moves the layout every frame but none of what they read.
+// Why: the ends lay the task groups out again; a pan moves the layout every frame but none of what they read.
 /** @purity non-pure */
 function zoomEntranceEndsHoldOf() {
   let held: HeldZoomEnds | null = null
@@ -701,7 +701,7 @@ function zoomEntranceEndsHoldOf() {
   }
 }
 
-// see PTD-1
+// Spec: PTD-1
 /** @purity pure */
 function followedPressOf(press: PointerPress | null, input: HumanInput, isFollowing: boolean): PointerPress | null {
   if (!isFollowing || press === null || input.kind !== 'pointer' || input.phase !== 'move') return press
@@ -709,7 +709,7 @@ function followedPressOf(press: PointerPress | null, input: HumanInput, isFollow
   return isDragged ? { ...press, followedTo: { x: input.x, y: input.y } } : press
 }
 
-// see RS-24
+// Spec: RS-24
 /** @purity pure */
 function stackSafetyCapToldAfter(told: string | null, layout: ScheduleLayout): { readonly told: string | null; readonly isNew: boolean } {
   const capStop = layout.stackSafetyCapReached
@@ -723,10 +723,10 @@ const PINNED_TASK_GROUPS_LEAVE_NO_ROOM_REASON: NoticeReason = 'RS-66'
 
 type SearchJumpCell = NonNullable<ScreenPart['searchJumpTarget']>
 
-// see U-54, T-280
+// Spec: U-54, T-280
 export const EXPORT_CHOOSER_ROW = 'U-54'
 
-// see U-60, T-280
+// Spec: U-60, T-280
 export const WATERMARK_UNLOCK_ROW = 'U-60'
 
 const ESCAPE_SURFACE: ScreenValuesEvent = { type: 'escapePressed', rung: 'surface' }
@@ -736,15 +736,15 @@ const ESCAPE_HELP: ScreenValuesEvent = { type: 'escapePressed', rung: 'helpModal
 const ESCAPE_SEARCH_PANEL: ScreenValuesEvent = { type: 'escapePressed', rung: 'searchPanel' }
 const ESCAPE_DUAL_CURSOR: ScreenValuesEvent = { type: 'escapePressed', rung: 'dualCursorMode' }
 const ESCAPE_TOOLTIP: ScreenValuesEvent = { type: 'escapePressed', rung: 'tooltip' }
-// see IN-4, RG-17, FR-071
-// WHY: the last rung asks the browser the same as the IC-11 press.
+// Spec: IN-4, RG-17, FR-071
+// Why: the last rung asks the browser the same as the IC-11 press.
 const ESCAPE_FULL_SCREEN: ScreenValuesEvent = { type: 'fullScreenEntryPressed' }
 const PANEL_CLOSE_ASKED: ScreenValuesEvent = { type: 'surfaceCloseAsked', target: 'panel' }
 const HINT_TARGET_CHANGED: ScreenValuesEvent = { type: 'hintTargetChanged' }
 const LANDING_MARK_CLEAR_ASKED: ScreenValuesEvent = { type: 'landingMarkClearAsked' }
 const NEWEST_NOTICE_DISMISS_ASKED: SessionEvent = { type: 'newestNoticeDismissAsked' }
 const DOCUMENT_REPLACED: SessionEvent = { type: 'documentReplaced' }
-// WHY: only an open that replaces and a fresh start drop the screen drafts; undo, merge and writes keep them (T-280).
+// Why: only an open that replaces and a fresh start drop the screen drafts; undo, merge and writes keep them (T-280).
 const DOCUMENT_REPLACED_BY_OPEN_OR_NEW: SessionEvent = { type: 'documentReplacedByOpenOrNew' }
 const OPEN_OR_NEW_ROWS: ReadonlySet<ReplacementCall['row']> = new Set(['RD-4', 'RD-7'])
 const TIME_SHIFT_LANDED: SessionEvent = { type: 'timeShiftLanded' }
@@ -762,8 +762,8 @@ const SELECTION_ESCAPE_PRESSED: SessionEvent = { type: 'selectionEscapePressed',
 const SELECTION_SETTLE_KEY_PRESSED: SessionEvent = { type: 'selectionSettleKeyPressed' }
 const INTERACTION_RECORD_TOGGLED: SessionEvent = { type: 'interactionRecordToggled' }
 const AGENT_API_ENTRY_PRESSED: SessionEvent = { type: 'agentApiEntryPressed' }
-// see FR-100, T-230, T-290
-// WHY: null for the open road's rows, which land as documentOpenLanded with the choice they carry.
+// Spec: FR-100, T-230, T-290
+// Why: null for the open road's rows, which land as documentOpenLanded with the choice they carry.
 const LANDING_OF_REPLACEMENT_ROW: Readonly<Record<ReplacementCall['row'], SessionEvent | null>> = {
   'RD-1': DOCUMENT_EDIT_LANDED,
   'RD-2': DOCUMENT_EDIT_LANDED,
@@ -786,7 +786,7 @@ const UNSAVED_MARK_DROPPING_EVENTS: ReadonlySet<SessionEvent['type']> = new Set(
   'startupDocumentHeld',
 ])
 
-// see T-290, FR-100
+// Spec: T-290, FR-100
 /** @purity pure */
 function documentAtUnsavedMarkDrop(event: SessionEvent, after: ScreenSession, held: Document, kept: Document): Document {
   if (!UNSAVED_MARK_DROPPING_EVENTS.has(event.type)) return kept
@@ -795,8 +795,8 @@ function documentAtUnsavedMarkDrop(event: SessionEvent, after: ScreenSession, he
 export const AGENT_DOCUMENT_HANDED: SessionEvent = { type: 'agentDocumentHanded' }
 export const DOCUMENT_OPEN_FAILED: SessionEvent = { type: 'documentOpenFailed' }
 
-// see FR-076, U-62, OP-14, T-290
-// WHY: the start-up reading lands with what it counted, as an opened file does; no name, no choice of its own.
+// Spec: FR-076, U-62, OP-14, T-290
+// Why: the start-up reading lands with what it counted, as an opened file does; no name, no choice of its own.
 /** @purity pure */
 function startupReadingLanded(reason: NoticeReason, count: number | null): SessionEvent {
   const reportedCounts = [{ reason, count: count ?? 1 }]
@@ -805,7 +805,7 @@ function startupReadingLanded(reason: NoticeReason, count: number | null): Sessi
 export const DOCUMENT_FILE_WRITE_ENDED: SessionEvent = { type: 'documentFileWriteEnded' }
 const SAVE_WRITE_FORM: FileFlowWriteForm = { kind: 'save' }
 
-// see IN-4, T-283
+// Spec: IN-4, T-283
 const ESCAPE_RUNG_EVENTS: { readonly [R in EscapeTarget]: ScreenValuesEvent | null } = {
   notice: null,
   textEntry: null,
@@ -828,22 +828,22 @@ const FULL_SCREEN_REFUSED_REASON: NoticeReason = 'RS-59'
 
 export const CONFIRMATION_MANNER = 'NT-7'
 
-// see ZE-5
+// Spec: ZE-5
 const PERCENT_PER_WHOLE = 100
 
-// see IN-4, IN-5a, IN-5b
-// TRAP: spelled as dom-input-source.ts delivers them; Tab moves the focus the person's way.
+// Spec: IN-4, IN-5a, IN-5b
+// Trap: spelled as dom-input-source.ts delivers them; Tab moves the focus the person's way.
 export const FIELD_FOCUS_WITHDRAWING_KEYS: ReadonlySet<string> = new Set([ESCAPE_KEY, 'Tab'])
 
 export type ConfirmationQuestion = FileFlowQuestion['question']
 
 const DISCARD_QUESTION: ConfirmationQuestion = 'QN-5'
 
-// see FR-153, IC-139, QN-11
+// Spec: FR-153, IC-139, QN-11
 const GRS_RESET_ENTRY: IconId = 'IC-139'
 const GRS_RESET_QUESTION: ConfirmationQuestion = 'QN-11'
 
-// see AM-29, QN-17, FR-087
+// Spec: AM-29, QN-17, FR-087
 const AGENT_OPEN_FILE_ASKED: SessionEvent = {
   type: 'changeQuestionRaised',
   question: { manner: CONFIRMATION_MANNER, question: 'QN-17', items: [] },
@@ -871,7 +871,7 @@ const NOTICE_REASON_OF_WRITE_REFUSAL: Readonly<
   deliveringNotices: 'RS-9',
   refused: 'RS-10',
   importRefused: null,
-  // WHY: only the Agent API names a writer on RD-1 / RD-2 (AM-9, AM-10); its refusal goes back to the caller.
+  // Why: only the Agent API names a writer on RD-1 / RD-2 (AM-9, AM-10); its refusal goes back to the caller.
   noStepToMove: null,
   notOwnStep: null,
 }
@@ -901,7 +901,7 @@ const REFUSAL_SITUATIONS: readonly RefusalSituation[] = [
   { reason: 'RS-88', command: null, rule: 'IV-21' },
 ]
 
-// see T-233
+// Spec: T-233
 /** @purity pure */
 function situationReasonOf(one: Refusal): NoticeReason | null {
   for (const situation of REFUSAL_SITUATIONS) {
@@ -915,14 +915,14 @@ function situationReasonOf(one: Refusal): NoticeReason | null {
   return null
 }
 
-// see T-233, WS-3, RS-10, RW-17
+// Spec: T-233, WS-3, RS-10, RW-17
 /** @purity pure */
 export function noticeReasonOfRefusals(refusals: readonly Refusal[]): NoticeReason {
   const first = refusals.length > 0 ? situationReasonOf(refusals[0] as Refusal) : null
   return first !== null && refusals.every((one) => situationReasonOf(one) === first) ? first : 'RS-10'
 }
 
-// see T-233, WS-3
+// Spec: T-233, WS-3
 /** @purity pure */
 function reasonOfWriteRefusal(refusal: PlanRefusal | ReplacementRefusal): NoticeReason | null {
   if (refusal.step === 'WS-3' && refusal.reason === 'refused') return noticeReasonOfRefusals(refusal.refusals)
@@ -937,7 +937,7 @@ const PROMPT_COPIED_REASON: NoticeReason = 'RS-65'
 
 const PROMPT_NOT_COPIED_REASON: NoticeReason = 'RS-15'
 
-// see FR-025
+// Spec: FR-025
 const PICTURE_COPIED_REASON: NoticeReason = 'RS-68'
 
 export const NOTICE_REASON_OF_RASTER_FAULT: Readonly<Record<RasterFaultReason, NoticeReason>> = {
@@ -973,7 +973,7 @@ const NOTICE_REASON_OF_SPENT_ENTRANCE: Readonly<
 
 const NO_WORKING_WEEKDAY_INVARIANT = 'IV-17'
 
-// see FR-088, IV-17
+// Spec: FR-088, IV-17
 /** @purity pure */
 export function noWorkingWeekdayReason(document: Document): StartupNoticeReason | null {
   const violated = scheduleViolations(document.schedule, document.documentSettings).some(
@@ -982,10 +982,10 @@ export function noWorkingWeekdayReason(document: Document): StartupNoticeReason 
   return violated ? NO_WORKING_WEEKDAY_REASON : null
 }
 
-// see U-56, T-280
+// Spec: U-56, T-280
 export const OPEN_CHOOSER_ROW: FileFlowSurfaceName = 'U-56'
 
-// see U-65
+// Spec: U-65
 const HOLIDAY_SETTINGS_SURFACE = 'Holiday Settings'
 
 const OPEN_CHOICE_OF_ENTRY: Readonly<Record<IconId, OpenChoice>> = {
@@ -994,7 +994,7 @@ const OPEN_CHOICE_OF_ENTRY: Readonly<Record<IconId, OpenChoice>> = {
   'IC-73': 'baseline',
 }
 
-// see U-61, T-280
+// Spec: U-61, T-280
 const DIFFERENCE_REVIEW_ROW: FileFlowSurfaceName = 'U-61'
 
 const FLOW_SURFACE_ROWS: ReadonlySet<string> = new Set<FileFlowSurfaceName>([OPEN_CHOOSER_ROW, DIFFERENCE_REVIEW_ROW, 'U-62'])
@@ -1005,7 +1005,7 @@ const MERGE_MAPPING_OF_ENTRY: Readonly<Record<IconId, MergeMapping>> = {
   'IC-97': { kind: 'cancelImport' },
 }
 
-// see FR-053, S-535
+// Spec: FR-053, S-535
 /** @purity pure */
 function paletteCornerOf(
   draggedTo: { readonly x: number; readonly y: number } | null,
@@ -1025,7 +1025,7 @@ function windowSizeOf(env: FrameEnvironment): { readonly width: number; readonly
 }
 
 // see FR-053, GR-19, JDG-660
-// WHY: only the band's own box must stay inside the window; the rest of the palette may sit
+// Why: only the band's own box must stay inside the window; the rest of the palette may sit
 // off-screen, since its size is content's to decide (S-135a note).
 /** @purity pure */
 export function paletteCornerInWindow(
@@ -1042,7 +1042,7 @@ export function paletteCornerInWindow(
 }
 
 // see FR-053, JDG-660
-// WHY: the size comes from dom-screen-surface.ts's own measurement (commandPaletteBandPx, wired
+// Why: the size comes from dom-screen-surface.ts's own measurement (commandPaletteBandPx, wired
 // the way appHeaderHeight is); 0 until the first report, never a guessed number.
 /** @purity pure */
 function bandSizeOf(env: FrameEnvironment): { readonly width: number; readonly height: number } {
@@ -1095,7 +1095,7 @@ interface ScreenViewReadingsTaken {
   readonly jumpRipple?: ScreenViewReadings['jumpRipple']
 }
 
-// see PI-37, SF-5, SF-10, FR-099
+// Spec: PI-37, SF-5, SF-10, FR-099
 /** @purity pure */
 function screenViewReadingsOf(
   held: Document,
@@ -1122,7 +1122,7 @@ function screenViewReadingsOf(
   }
 }
 
-// see FX-6
+// Spec: FX-6
 /** @purity pure */
 function shownSpanTextsOf(layout: ScheduleLayout, regions: ScreenRegions): NonNullable<ScreenViewReadings['shownSpan']> | null {
   const shown = shownSpanOf(layout, regions.taskGroupArea)
@@ -1134,7 +1134,7 @@ interface HeldWholes {
   readonly vertical: VerticalWhole | null
 }
 
-// see FR-052, GR-21, PE-8
+// Spec: FR-052, GR-21, PE-8
 /** @purity pure */
 function measuredAtPress(
   frame: FrameValues,
@@ -1151,7 +1151,7 @@ function measuredAtPress(
   }
 }
 
-// see GR-21
+// Spec: GR-21
 /** @purity pure */
 function heldWholeOf(press: PointerPress | null): HeldWholes | null {
   const axis = press?.on?.scrollbarAxis
@@ -1162,8 +1162,8 @@ function heldWholeOf(press: PointerPress | null): HeldWholes | null {
   }
 }
 
-// see T-280, SS-6, S-72, FR-052
-// WHY: the startup values seat the initial screen; sent as events they would store S-99 on
+// Spec: T-280, SS-6, S-72, FR-052
+// Why: the startup values seat the initial screen; sent as events they would store S-99 on
 // every start, which today's start never writes (FR-038).
 /** @purity pure */
 function startingSession(language: DisplayLanguage, themePreference: ScreenValues['themePreference']): ScreenSession {
@@ -1176,7 +1176,7 @@ function startingSession(language: DisplayLanguage, themePreference: ScreenValue
   return { ...emptyScreenSession, screen }
 }
 
-// see FR-080, EP-11, EP-12
+// Spec: FR-080, EP-11, EP-12
 /** @purity pure */
 function pictureSessionOf(session: ScreenSession): ScreenSession {
   const now = session.screen
@@ -1212,13 +1212,13 @@ export function dualCursorFollowingIn(session: ScreenSession): DualCursorSide | 
   return mode.child.kind === 'placingCursorA' ? 'cursorA' : 'cursorB'
 }
 
-// WHY: never null here; startingSession seats the language before the first frame.
+// Why: never null here; startingSession seats the language before the first frame.
 /** @purity pure */
 function screenLanguageIn(session: ScreenSession): DisplayLanguage {
   return session.screen.screenLanguage ?? 'en'
 }
 
-// see FR-051, TV-11, S-497
+// Spec: FR-051, TV-11, S-497
 /** @purity pure */
 function environmentForRegionsOf(environment: FrameEnvironment, propertyPanelWidth: number, isScheduleFiltered: boolean): ScreenEnvironment {
   const { width, height, appHeaderHeight, scrollbarThickness } = environment
@@ -1226,7 +1226,7 @@ function environmentForRegionsOf(environment: FrameEnvironment, propertyPanelWid
   return { width, height, appHeaderHeight, scrollbarThickness, propertyPanelWidth, topBandHeight }
 }
 
-// see FR-052, FR-072, S-171, S-248
+// Spec: FR-052, FR-072, S-171, S-248
 /** @purity pure */
 function propertiesPanelWidthOf(session: ScreenSession, held: number | null): number {
   if (panelShowingIn(session) === null) return 0
@@ -1234,8 +1234,8 @@ function propertiesPanelWidthOf(session: ScreenSession, held: number | null): nu
   return Math.max(NOT_STORED_PROPERTIES_PANEL_FLOOR['S-248'], width)
 }
 
-// see FR-052, S-171, S-602, S-603, S-604, S-605, S-606
-// WHY: several kinds shown at once open at the widest of their defaults; a subject that is gone, at the task's.
+// Spec: FR-052, S-171, S-602, S-603, S-604, S-605, S-606
+// Why: several kinds shown at once open at the widest of their defaults; a subject that is gone, at the task's.
 /** @purity pure */
 function defaultPanelWidthOf(faces: readonly PanelFace[]): number {
   const sizes = NOT_STORED_PROPERTIES_PANEL_SIZES
@@ -1255,7 +1255,7 @@ function panelFacesIn(session: ScreenSession): readonly PanelFace[] {
   return panelFacesOf(session.screen.propertiesPanelContentState, selectedObjectsIn(session), session.selection.chosenTaskGroups)
 }
 
-// WHY: only another kind of content resets the width; the same kind, or shut and reopened on it, keeps it.
+// Why: only another kind of content resets the width; the same kind, or shut and reopened on it, keeps it.
 /** @purity pure */
 function panelFaceWidthEventOf(session: ScreenSession, lastFaces: string | null): SessionEvent | null {
   const faces = panelFacesIn(session)
@@ -1271,14 +1271,14 @@ export function panelShowingIn(session: ScreenSession): PanelShowing {
   return content === 'selectionDisplayed' ? 'selection' : 'documentSettings'
 }
 
-// see NT-3, T-286
+// Spec: NT-3, T-286
 /** @purity pure */
 export function standingNoticesIn(session: ScreenSession): readonly StandingNotice[] {
   const onScreen = session.notices.noticeDisplayState
   return onScreen.kind === 'shown' ? onScreen.standing : []
 }
 
-// see FR-099, CM-42
+// Spec: FR-099, CM-42
 /** @purity pure */
 function resourcePruningOf(session: ScreenSession, schedule: Document['schedule']): readonly SessionEvent[] {
   const chosen = session.selection.chosenResources
@@ -1286,20 +1286,20 @@ function resourcePruningOf(session: ScreenSession, schedule: Document['schedule'
   return kept.length === chosen.length ? [] : [{ type: 'resourcesPicked', chosenResources: kept }]
 }
 
-// see WS-2, T-286
+// Spec: WS-2, T-286
 /** @purity pure */
 function isDeliveringNoticesIn(session: ScreenSession): boolean {
   return session.notices.changeDeliveryState.kind === 'delivering'
 }
 
-// see U-62, FR-023, FR-076, T-290
+// Spec: U-62, FR-023, FR-076, T-290
 /** @purity pure */
 function importReportLinesIn(session: ScreenSession) {
   const { droppedTaskNames, missingTaskNames, reportedCounts } = session.fileFlow
   return { droppedTaskNames, missingTaskNames, reportedCounts }
 }
 
-// see FR-076, T-233, T-286
+// Spec: FR-076, T-233, T-286
 /** @purity pure */
 function raisedNoticesOf(session: ScreenSession): readonly RaisedNotice[] {
   return standingNoticesIn(session).map((one) => ({
@@ -1309,14 +1309,14 @@ function raisedNoticesOf(session: ScreenSession): readonly RaisedNotice[] {
   }))
 }
 
-// see NT-8, IN-4, SK-19, T-283
+// Spec: NT-8, IN-4, SK-19, T-283
 /** @purity pure */
 function isNoticeDismissKey(input: HumanInput): boolean {
   if (input.kind !== 'key') return false
   return input.key === ESCAPE_KEY || (input.key === ENTER_KEY && isCombo(input.modifiers, false, false, false))
 }
 
-// see EL-17, EL-18, UN-8
+// Spec: EL-17, EL-18, UN-8
 /** @purity pure */
 function isLandingMarkClearedBy(
   input: HumanInput,
@@ -1328,27 +1328,27 @@ function isLandingMarkClearedBy(
   return !isLandingMarkKeptBy(input, press, regions)
 }
 
-// see EL-16, EL-19, FR-098
+// Spec: EL-16, EL-19, FR-098
 /** @purity pure */
 function landedLinkIn(session: ScreenSession): Parameters<typeof pointerWalkOf>[2] {
   const mark = session.screen.landingMarkDisplayState
   return mark.kind === 'shown' ? mark.landedLink : null
 }
 
-// see EL-16, T-280
+// Spec: EL-16, T-280
 /** @purity pure */
 function continuationMarkClickedOf(landed: NonNullable<ReturnType<typeof commandFromInput>['landingMarked']>): ScreenValuesEvent {
   const { predecessorUid, successorUid, landedTaskUid } = landed
   return { type: 'continuationMarkClicked', landedLink: { predecessorUid, successorUid }, landedTarget: { kind: 'task', taskUid: landedTaskUid } }
 }
 
-// see FR-052, U-50
+// Spec: FR-052, U-50
 /** @purity pure */
 function isRefusedPanelWidth(event: ScreenValuesEvent, frame: FrameValues): boolean {
   return event.type === 'propertyPanelWidthSettled' && !isLeavingTaskGroupArea(event.propertyPanelWidth, frame.regions)
 }
 
-// WHY: the progress step and IC-138 (T-280) wait for the press to drop; their effects write, and WS-2 refuses a write mid-gesture.
+// Why: the progress step and IC-138 (T-280) wait for the press to drop; their effects write, and WS-2 refuses a write mid-gesture.
 const SENT_AFTER_PRESS_DROPS: ReadonlySet<ScreenValuesEvent['type']> = new Set(['progressMarkerPressed', 'calendarApplyEntryPressed'])
 
 /** @purity pure */
@@ -1356,7 +1356,7 @@ function isSentBeforePressDrops(event: ScreenValuesEvent, frame: FrameValues): b
   return !SENT_AFTER_PRESS_DROPS.has(event.type) && !isRefusedPanelWidth(event, frame)
 }
 
-// see AM-9, AM-10, T-230
+// Spec: AM-9, AM-10, T-230
 /** @purity pure */
 function historyStepsOf(
   replaceAt: (call: ReplacementCall, expectedStamp: Document['documentStamp']) => ReplaceOutcome,
@@ -1369,7 +1369,7 @@ function historyStepsOf(
   }
 }
 
-// WHY: an Agent API write lands through the holder only; the screen's own writes send the event in writeDocument (FR-100).
+// Why: an Agent API write lands through the holder only; the screen's own writes send the event in writeDocument (FR-100).
 /** @purity pure */
 function agentHolderOf(holder: DocumentHolder, landed: () => void): DocumentHolder {
   return {
@@ -1381,13 +1381,13 @@ function agentHolderOf(holder: DocumentHolder, landed: () => void): DocumentHold
     replace(next: HeldDocument): void {
       const before = holder.read().document
       holder.replace(next)
-      // WHY: a write that left the document as it was raises no unsaved edits (FR-100, JDG-2421).
+      // Why: a write that left the document as it was raises no unsaved edits (FR-100, JDG-2421).
       if (next.document !== before) landed()
     },
   }
 }
 
-// see FR-085
+// Spec: FR-085
 /** @purity pure */
 function taskGroupsWithinSchedule(session: ScreenSession, schedule: Document['schedule']): readonly string[] {
   const chosenTaskGroups = session.selection.chosenTaskGroups
@@ -1398,8 +1398,8 @@ function taskGroupsWithinSchedule(session: ScreenSession, schedule: Document['sc
 // see FR-072, DFC-2491
 type PanelSubjectPick = 'objects' | 'taskGroups' | 'inferredFromShownPanel'
 
-// see FR-072, FR-006, FR-085
-// WHY: both selections stand at once (SK-19); a choice that moved the task groups alone was a task group pick, so the panel shows the task group.
+// Spec: FR-072, FR-006, FR-085
+// Why: both selections stand at once (SK-19); a choice that moved the task groups alone was a task group pick, so the panel shows the task group.
 /** @purity pure */
 function subjectOfChoice(selection: Selection, taskGroupIds: readonly string[], session: ScreenSession, pick: PanelSubjectPick): PropertiesSubject | null {
   if (selection.items.length === 0 && taskGroupIds.length === 0) return null
@@ -1412,16 +1412,16 @@ function subjectOfChoice(selection: Selection, taskGroupIds: readonly string[], 
 
 type ExportSceneWithCapStop = ExportScene & { readonly capStopTaskGroupId: string | null }
 
-// see FR-025, IX-12, T-068
+// Spec: FR-025, IX-12, T-068
 interface ExportView {
   readonly regions: ScreenRegions
   readonly settings: DocumentSettings
   readonly layout: ScheduleLayout
-  // see IX-16
+  // Spec: IX-16
   readonly dualCursor: ScreenSession['screen']['dualCursor']
 }
 
-// see FR-080, IX-4, T-068
+// Spec: FR-080, IX-4, T-068
 /** @purity pure */
 function screenExportViewOf(
   document: Document,
@@ -1443,8 +1443,8 @@ function screenExportViewOf(
   return { regions, settings, layout, dualCursor }
 }
 
-// see IX-15
-// WHY: the picture is the four stacked sections only (JDG-1627): the screen's bottom padding (S-56)
+// Spec: IX-15
+// Why: the picture is the four stacked sections only (JDG-1627): the screen's bottom padding (S-56)
 // and scrollbar strip under the Task Group Area are cut, as the bar's thickness differs per machine.
 /** @purity pure */
 function regionsClosedUnderTaskGroupArea(regions: ScreenRegions): ScreenRegions {
@@ -1458,8 +1458,8 @@ function regionsClosedUnderTaskGroupArea(regions: ScreenRegions): ScreenRegions 
   }
 }
 
-// see IX-13, IX-14, IX-15, FX-1, FX-2
-// WHY: the screen's own composition at the S-81 width with both panels shut; one layout run (5.5),
+// Spec: IX-13, IX-14, IX-15, FX-1, FX-2
+// Why: the screen's own composition at the S-81 width with both panels shut; one layout run (5.5),
 // laid against the S-217 height so no pinned task group is cut, then the canvas is closed under the last task group.
 /** @purity pure */
 function spanExportViewOf(
@@ -1531,14 +1531,14 @@ interface ScreenEffectHands {
   readonly issueCalendarCommand: (effect: Extract<SessionEffect, { readonly type: 'issueCalendarCommand' }>, frame: FrameValues | null) => void
 }
 
-// see SF-6, UF-123, T-280
+// Spec: SF-6, UF-123, T-280
 /** @purity pure */
 function effectRunnersOf(hands: ScreenEffectHands): EffectRunners<SessionEffect> {
   return {
     raiseNotice: (effect) => hands.raiseNotice(effect.reason),
 
     storeScreenLanguage: (effect) => hands.storeScreenLanguage(effect.screenLanguage),
-    // WHY: the step already holds these in the screen values; FR-039, FR-048, FR-052 and DC-1 keep them nowhere else.
+    // Why: the step already holds these in the screen values; FR-039, FR-048, FR-052 and DC-1 keep them nowhere else.
     writeHelpLanguage: () => undefined,
     storeThemePreference: () => undefined,
     storeGuideCursorMode: () => undefined,
@@ -1586,7 +1586,7 @@ function effectRunnersOf(hands: ScreenEffectHands): EffectRunners<SessionEffect>
 
 type ScreenDraftEffectName = 'issueBaseChangeCommand' | 'raiseTimeShiftQuestion' | 'raiseWholeScheduleShiftQuestion' | 'issueCalendarCommand'
 
-// see T-280, FR-088, FR-156, FR-157
+// Spec: T-280, FR-088, FR-156, FR-157
 /** @purity pure */
 function screenDraftRunnersOf(hands: ScreenEffectHands): Pick<EffectRunners<SessionEffect>, ScreenDraftEffectName> {
   return {
@@ -1597,7 +1597,7 @@ function screenDraftRunnersOf(hands: ScreenEffectHands): Pick<EffectRunners<Sess
   }
 }
 
-// TRAP: a FrameEnvironment member left out here wakes no frame when only that member changes.
+// Trap: a FrameEnvironment member left out here wakes no frame when only that member changes.
 /** @purity pure */
 export function isSameEnvironment(one: FrameEnvironment, other: FrameEnvironment): boolean {
   return (
@@ -1611,14 +1611,14 @@ export function isSameEnvironment(one: FrameEnvironment, other: FrameEnvironment
   )
 }
 
-// see BO-1
+// Spec: BO-1
 /** @purity pure */
 export function isSizeSettled(env: FrameEnvironment): boolean {
   return env.width > 0 && env.height > 0
 }
 
-// see SV-1, SV-3, SV-7, SV-16, IC-122, IC-127, IC-153, SQ-5, UN-20
-// WHY: the panel is the screen's and the view the document's (FR-151); the shell writes the view with setTableView.
+// Spec: SV-1, SV-3, SV-7, SV-16, IC-122, IC-127, IC-153, SQ-5, UN-20
+// Why: the panel is the screen's and the view the document's (FR-151); the shell writes the view with setTableView.
 /** @purity pure */
 function searchPanelAfterEntry(
   held: SearchPanelSession,
@@ -1642,14 +1642,14 @@ function searchPanelAfterEntry(
   return filtered === null ? null : { panel: held, view: filtered }
 }
 
-// see GR-24, GR-25, GR-28, SV-15
+// Spec: GR-24, GR-25, GR-28, SV-15
 /** @purity semi-pure-mutable */
 function isWindowGrabPress(input: HumanInput, surface: ScreenSurface | undefined): boolean {
   if (input.kind !== 'pointer' || input.phase !== 'down' || surface === undefined) return false
   return surface.readScreenPartAt(input.x, input.y)?.windowGrab !== undefined
 }
 
-// see SJ-1, IN-1
+// Spec: SJ-1, IN-1
 /** @purity pure */
 function searchJumpOnRelease(input: HumanInput, press: PointerPress | null, on: ScreenPart | null): SearchJumpCell | null {
   if (input.kind !== 'pointer' || input.phase !== 'up' || press?.on == null) return null
@@ -1663,7 +1663,7 @@ function searchJumpOnRelease(input: HumanInput, press: PointerPress | null, on: 
   return isSameCell ? releasedCell : null
 }
 
-// see SJ-2, SJ-4
+// Spec: SJ-2, SJ-4
 /** @purity pure */
 function searchHitOf(schedule: Document['schedule'], cell: SearchJumpCell): { readonly item: ItemRef; readonly taskGroupId: string | null } {
   if (cell.kind === 'task') {
@@ -1676,7 +1676,7 @@ function searchHitOf(schedule: Document['schedule'], cell: SearchJumpCell): { re
 
 type WindowGrab = NonNullable<ScreenPart['windowGrab']>
 
-// see FR-106, GR-25, GR-28, T-269
+// Spec: FR-106, GR-25, GR-28, T-269
 const WINDOW_GRAB_POINTERS: { readonly [R in Exclude<WindowGrab['region'], 'titleBand'>]: PointerRow } = {
   left: 'PK-12',
   right: 'PK-12',
@@ -1689,23 +1689,23 @@ const WINDOW_GRAB_POINTERS: { readonly [R in Exclude<WindowGrab['region'], 'titl
   columnBorder: 'PK-10',
 }
 
-// see FR-106
-// WHY: the title band keeps the host's pointer (CR-621 decision 11); an edge or a border names its row.
+// Spec: FR-106
+// Why: the title band keeps the host's pointer (CR-621 decision 11); an edge or a border names its row.
 /** @purity pure */
 function windowGrabPointerOf(on: ScreenPart | null): PointerShape | null {
   const region = on?.windowGrab?.region
   return region === undefined || region === 'titleBand' ? null : pointerImageOf(WINDOW_GRAB_POINTERS[region])
 }
 
-// see T-335, RG-16
-// WHY: only the search panel and the help have a display machine; the report and resource list windows have none (RW-1, RO-1).
+// Spec: T-335, RG-16
+// Why: only the search panel and the help have a display machine; the report and resource list windows have none (RW-1, RO-1).
 /** @purity pure */
 function windowDisplayKeyOf(window: WindowName): Parameters<typeof isWindowStandingIn>[1] | null {
   if (window === 'searchPanel') return 'searchPanelDisplayState'
   return window === 'helpModal' ? 'helpDisplayState' : null
 }
 
-// see T-335
+// Spec: T-335
 /** @purity pure */
 function windowShownIn(session: ScreenSession, window: WindowName): WindowShown | null {
   const display = windowDisplayKeyOf(window)
@@ -1713,8 +1713,8 @@ function windowShownIn(session: ScreenSession, window: WindowName): WindowShown 
   return shown === null || shown.kind === 'hidden' ? null : shown.child.kind
 }
 
-// see WB-8, WB-9, GR-24, GR-25, GR-28, SV-18
-// WHY: a maximized window neither moves nor resizes, and a minimized one only moves; its restore box moves with it.
+// Spec: WB-8, WB-9, GR-24, GR-25, GR-28, SV-18
+// Why: a maximized window neither moves nor resizes, and a minimized one only moves; its restore box moves with it.
 /** @purity pure */
 function grabbedWindowBox(grab: WindowGrab, shown: WindowShown | null, travel: { readonly dx: number; readonly dy: number }): ScreenRect | null {
   if (grab.region === 'columnBorder' || shown === null || shown === 'maximized') return null
@@ -1752,8 +1752,8 @@ const STARTING_WINDOW_PLACES: WindowPlaces = {
 
 type ResourceListInput = ReturnType<NonNullable<ScreenWiring['readResourceListInput']>>
 
-// see RO-1, RW-1, WB-6, WB-11
-// WHY: a closed window is remembered for its reopening; the window opened or raised goes in front.
+// Spec: RO-1, RW-1, WB-6, WB-11
+// Why: a closed window is remembered for its reopening; the window opened or raised goes in front.
 /** @purity pure */
 function withTableWindows(
   held: WindowPlaces,
@@ -1787,8 +1787,8 @@ function withFrontTableWindow(held: WindowPlaces, front: VisibilityTable | null)
   return { ...held, delayDiagnosticsReport, resourceList }
 }
 
-// see WB-11, UZ-6
-// WHY: the search panel carries no flag; it is in front when neither the report nor the list is.
+// Spec: WB-11, UZ-6
+// Why: the search panel carries no flag; it is in front when neither the report nor the list is.
 /** @purity pure */
 function withTableWindowRaised(held: WindowPlaces, raised: VisibilityTable): WindowPlaces {
   const order = held.tableWindowsBackToFront
@@ -1797,8 +1797,8 @@ function withTableWindowRaised(held: WindowPlaces, raised: VisibilityTable): Win
   return raisedOrder === order ? flagged : { ...flagged, tableWindowsBackToFront: raisedOrder }
 }
 
-// see WB-11, UZ-6, RW-5, RO-6
-// WHY: a front window closed leaves its flag to the one raised before it, which Esc then closes first (RG-16).
+// Spec: WB-11, UZ-6, RW-5, RO-6
+// Why: a front window closed leaves its flag to the one raised before it, which Esc then closes first (RG-16).
 /** @purity pure */
 function withFrontTableWindowSettled(held: WindowPlaces, wasSearchPanelShown: boolean, isSearchPanelShown: boolean): WindowPlaces {
   const opened = isSearchPanelShown && !wasSearchPanelShown ? withTableWindowRaised(held, 'searchPanel') : held
@@ -1811,8 +1811,8 @@ function withFrontTableWindowSettled(held: WindowPlaces, wasSearchPanelShown: bo
   return withFrontTableWindow(opened, front)
 }
 
-// see WB-11, SV-7, IN-1
-// WHY: raised before the places are kept, so an interrupted grab still leaves the pressed window in front.
+// Spec: WB-11, SV-7, IN-1
+// Why: raised before the places are kept, so an interrupted grab still leaves the pressed window in front.
 /** @purity pure */
 function windowPlacesAtPress(
   session: ScreenSession,
@@ -1828,7 +1828,7 @@ function windowPlacesAtPress(
 
 type ReportInput = ReturnType<NonNullable<ScreenWiring['readDelayDiagnosticsReportInput']>>
 
-// see WB-8, WB-9, GR-24, GR-25
+// Spec: WB-8, WB-9, GR-24, GR-25
 /** @purity pure */
 function windowPlacesAfterGrab(held: WindowPlaces, grab: WindowGrab, box: ScreenRect): WindowPlaces {
   const place = windowPlaceOf(box)
@@ -1841,7 +1841,7 @@ function windowPlacesAfterGrab(held: WindowPlaces, grab: WindowGrab, box: Screen
   return report === null ? held : { ...held, delayDiagnosticsReport: { ...report, panel: { ...report.panel, ...place } } }
 }
 
-// see SV-18, RW-9, GR-28
+// Spec: SV-18, RW-9, GR-28
 /** @purity pure */
 function windowPlacesAfterColumnDrag(held: WindowPlaces, grab: Extract<WindowGrab, { region: 'columnBorder' }>, dx: number): WindowPlaces {
   const width = Math.min(Math.max(grab.widthAtPress + dx, grab.widthFloor), grab.widthCeiling)
@@ -1858,7 +1858,7 @@ interface TypedTable<W> {
   readonly view: TableView
 }
 
-// see RW-3, RW-8, SV-7, UN-20
+// Spec: RW-3, RW-8, SV-7, UN-20
 /** @purity pure */
 function reportWithInput(
   window: DelayDiagnosticsReportWindow | null,
@@ -1869,7 +1869,7 @@ function reportWithInput(
   return delayDiagnosticsReportWithInput(window, view, input, fixTables)
 }
 
-// see RO-3, SV-7, RQ-1, UN-20
+// Spec: RO-3, SV-7, RQ-1, UN-20
 /** @purity pure */
 function resourceListWithInput(window: ResourceListWindow | null, view: TableView, input: ResourceListInput | undefined): TypedTable<ResourceListWindow> {
   if (window === null || input === undefined) return { window, view }
@@ -1877,8 +1877,8 @@ function resourceListWithInput(window: ResourceListWindow | null, view: TableVie
   return { window: typed, view: input.changes.reduce((held, change) => resourceListAfterFilterChange(typed, held, change), view) }
 }
 
-// see SV-2, SV-7, RW-3, IF-9, UN-20
-// WHY: the words stay on the screen; the Visibility and filter changes come back as views for setTableView (CM-92).
+// Spec: SV-2, SV-7, RW-3, IF-9, UN-20
+// Why: the words stay on the screen; the Visibility and filter changes come back as views for setTableView (CM-92).
 /** @purity semi-pure-mutable */
 function windowPlacesAfterTyping(
   held: WindowPlaces,
@@ -1898,7 +1898,7 @@ function windowPlacesAfterTyping(
   }
 }
 
-// see WB-6, RW-1, S-451, SQ-5
+// Spec: WB-6, RW-1, S-451, SQ-5
 /** @purity pure */
 function windowReadingsOf(held: WindowPlaces, diagnostics: Pick<HeldDelayDiagnostics, 'of' | 'report' | 'drawing'> | null, drawnTaskUids: ReadonlySet<number> | null, fixTablesOf: () => DelayFixTables | undefined) {
   const window = held.delayDiagnosticsReport
@@ -1913,7 +1913,7 @@ function windowReadingsOf(held: WindowPlaces, diagnostics: Pick<HeldDelayDiagnos
   }
 }
 
-// see WB-6, WB-10
+// Spec: WB-6, WB-10
 /** @purity pure */
 function windowPlacesAfterClosing(held: WindowPlaces, session: ScreenSession): WindowPlaces {
   const isHelpHidden = session.screen.helpDisplayState.kind === 'hidden'
@@ -1934,7 +1934,7 @@ function grabbedShown(session: ScreenSession, held: WindowPlaces, window: Window
   return windowShownIn(session, window)
 }
 
-// see IN-4, SV-14, RG-16, RW-1
+// Spec: IN-4, SV-14, RG-16, RW-1
 /** @purity pure */
 function windowPlacesAfterEscape(session: ScreenSession, held: WindowPlaces, level: EscapeTarget | null, views: TableViewsHeld): WindowPlaces | null {
   const report = held.delayDiagnosticsReport
@@ -1948,8 +1948,8 @@ function windowPlacesAfterEscape(session: ScreenSession, held: WindowPlaces, lev
   return withTableWindows(held, delayDiagnosticsReportWithFilterClosed(report, views.delayDiagnosticsReport), list)
 }
 
-// see SV-7
-// WHY: the open filter's own IC-122 is not outside: its press closes the filter by itself on release.
+// Spec: SV-7
+// Why: the open filter's own IC-122 is not outside: its press closes the filter by itself on release.
 /** @purity pure */
 function isFilterPressedOutside(on: ScreenPart | null, surface: string, open: string | null): boolean {
   if (open === null) return false
@@ -1957,7 +1957,7 @@ function isFilterPressedOutside(on: ScreenPart | null, surface: string, open: st
   return on.isInFilterMenu !== true && !(on.entry === SEARCH_FILTER_ENTRY && on.searchFilterColumn === open)
 }
 
-// see SV-7, RW-1
+// Spec: SV-7, RW-1
 /** @purity pure */
 function windowPlacesAfterOutsidePress(session: ScreenSession, held: WindowPlaces, on: ScreenPart | null, views: TableViewsHeld): WindowPlaces {
   const panel = held.searchPanel
@@ -1974,8 +1974,8 @@ function windowPlacesAfterOutsidePress(session: ScreenSession, held: WindowPlace
   return { ...held, searchPanel, delayDiagnosticsReport, resourceList }
 }
 
-// see TV-8, UN-20
-// WHY: a window closed lets its table's Schedule Filter go as an edit, whichever entry or key closed it (TV-8).
+// Spec: TV-8, UN-20
+// Why: a window closed lets its table's Schedule Filter go as an edit, whichever entry or key closed it (TV-8).
 /** @purity pure */
 function closedTablesOf(before: WindowPlaces, after: WindowPlaces): readonly VisibilityTable[] {
   const isReportClosed = before.delayDiagnosticsReport !== null && after.delayDiagnosticsReport === null
@@ -1983,7 +1983,7 @@ function closedTablesOf(before: WindowPlaces, after: WindowPlaces): readonly Vis
   return [...(isReportClosed ? ['delayDiagnosticsReport' as const] : []), ...(isListClosed ? ['resourceList' as const] : [])]
 }
 
-// see TV-8, UN-20
+// Spec: TV-8, UN-20
 /** @purity non-pure */
 function closingHoldOf(read: () => WindowPlaces, write: (next: WindowPlaces) => void, letGo: (table: VisibilityTable) => void) {
   return (next: WindowPlaces): void => {
@@ -2005,7 +2005,7 @@ interface DelayDiagnosticsPress {
 }
 
 // see FR-130, RW-1, RW-3, IC-52, IC-168, JDG-2197, JDG-2199, JDG-2805
-// WHY: null is an entry of neither; an open window (minimized included) closes as its IC-52 does and the marks stay.
+// Why: null is an entry of neither; an open window (minimized included) closes as its IC-52 does and the marks stay.
 /** @purity non-pure */
 function answerDelayDiagnosticsEntry(entry: IconId, surface: string | null, press: DelayDiagnosticsPress): boolean | null {
   if (entry === RE_DIAGNOSE_ENTRY && surface === DELAY_DIAGNOSTICS_REPORT_SURFACE) {
@@ -2018,12 +2018,12 @@ function answerDelayDiagnosticsEntry(entry: IconId, surface: string | null, pres
   return true
 }
 
-// see T-335, RO-1, RW-1, TV-8, WB-6
+// Spec: T-335, RO-1, RW-1, TV-8, WB-6
 /** @purity non-pure */
 function tableWindowsHeldIn(read: () => WindowPlaces, write: (next: WindowPlaces) => void) {
   const fixTables = delayFixTablesKeeper()
   return {
-    // see DX-11, DX-12, RW-16
+    // Spec: DX-11, DX-12, RW-16
     /** @purity non-pure */
     fixTablesNow(diagnostics: Pick<HeldDelayDiagnostics, 'of' | 'report' | 'fixLogAtRun'> | null, fixLog: FixLogSource): DelayFixTables | undefined {
       const window = read().delayDiagnosticsReport
@@ -2038,8 +2038,8 @@ function tableWindowsHeldIn(read: () => WindowPlaces, write: (next: WindowPlaces
     holdReport: (report: DelayDiagnosticsReportWindow | null): void => write(withTableWindows(read(), report, read().resourceList)),
     reopenedReport: (): DelayDiagnosticsReportWindow =>
       read().delayDiagnosticsReport ?? { ...withoutDelayFixes(tableWindowReopened(null, read().closedReport, OPENED_DELAY_DIAGNOSTICS_REPORT)), markedRow: null },
-    // see RW-1, RW-19, FR-130
-    // WHY: the diagnosis goes on, so the fix picks and the marked row come back with the window (RW-16).
+    // Spec: RW-1, RW-19, FR-130
+    // Why: the diagnosis goes on, so the fix picks and the marked row come back with the window (RW-16).
     shownReport: (): DelayDiagnosticsReportWindow => tableWindowReopened(read().delayDiagnosticsReport, read().closedReport, OPENED_DELAY_DIAGNOSTICS_REPORT),
     /** @purity non-pure */
     keepMarkWithin<D extends Pick<HeldDelayDiagnostics, 'reportTaskUids'>>(diagnostics: D): D {
@@ -2059,8 +2059,8 @@ type HeldGrabScroll = Extract<InputAction, { readonly kind: 'scrollTaskGroupGrab
 
 const PLAIN_MODIFIERS = { ctrl: false, shift: false, alt: false, meta: false } as const
 
-// see HF-15, MK-1, WS-2
-// WHY: the scroll a carry turns is a frame value until release; WS-2 refuses a write mid-gesture.
+// Spec: HF-15, MK-1, WS-2
+// Why: the scroll a carry turns is a frame value until release; WS-2 refuses a write mid-gesture.
 /** @purity non-pure */
 function heldGrabScrollOf() {
   let scroll: HeldGrabScroll | null = null
@@ -2085,15 +2085,15 @@ function heldGrabScrollOf() {
   }
 }
 
-// see HF-15, CM-66
-// WHY: an edge tick that turned nothing owes no write; writing it would mark an unchanged document as edited.
+// Spec: HF-15, CM-66
+// Why: an edge tick that turned nothing owes no write; writing it would mark an unchanged document as edited.
 /** @purity pure */
 function turnedGrabScrollPlace(owed: HeldGrabScroll, stored: DocumentSettings): Parameters<typeof writeScrollPlace>[1] | null {
   if (owed.scrollTaskGroupId === stored.scrollTaskGroupId && owed.scrollTaskGroupFraction === stored.scrollTaskGroupFraction) return null
   return { scrollDate: stored.scrollDate, scrollDateFraction: stored.scrollDateFraction, ...owed }
 }
 
-// see HF-15, S-597, S-598
+// Spec: HF-15, S-597, S-598
 /** @purity non-pure */
 function taskGroupGrabCarryOf(hands: FrameLoopHands) {
   const held = heldGrabScrollOf()
@@ -2105,7 +2105,7 @@ function taskGroupGrabCarryOf(hands: FrameLoopHands) {
     hands.ask()
   }
 
-  // WHY: turned as a plain wheel would turn it, one painted frame at a time; a host painting no frame would recurse.
+  // Why: turned as a plain wheel would turn it, one painted frame at a time; a host painting no frame would recurse.
   /** @purity non-pure */
   function edgeScroll(context: InputContext, pointer: { readonly x: number; readonly y: number }, speed: number): void {
     const now = readMonotonicMs()
@@ -2145,7 +2145,7 @@ function taskGroupGrabCarryOf(hands: FrameLoopHands) {
   return { scrolled: held.scrolled, scrollTo, readingAt, end }
 }
 
-// see T-335, WB-6, WB-8, WB-9, SV-14, SV-18, S-419, S-451, S-455
+// Spec: T-335, WB-6, WB-8, WB-9, SV-14, SV-18, S-419, S-451, S-455
 /** @purity non-pure */
 function heldWindowsOf(shownTasks: () => Pick<ShownTasksHold, 'views' | 'letScheduleFilterGo'>) {
   let held: WindowPlaces = STARTING_WINDOW_PLACES
@@ -2175,7 +2175,7 @@ function heldWindowsOf(shownTasks: () => Pick<ShownTasksHold, 'views' | 'letSche
       if (isInterrupted && atPress !== null) held = atPress
       atPress = null
     },
-    // see IN-1, WB-6
+    // Spec: IN-1, WB-6
     /** @purity non-pure */
     followGrab(session: ScreenSession, input: HumanInput, press: PointerPress | null): void {
       held = windowPlacesAfterClosing(held, session)
@@ -2186,7 +2186,7 @@ function heldWindowsOf(shownTasks: () => Pick<ShownTasksHold, 'views' | 'letSche
       const box = grabbedWindowBox(grab, grabbedShown(session, held, grab.window), travel)
       if (box !== null) held = windowPlacesAfterGrab(held, grab, box)
     },
-    // see IN-4, SV-14, RG-16
+    // Spec: IN-4, SV-14, RG-16
     /** @purity non-pure */
     spendEscapeRung(hands: FrameLoopHands, level: EscapeTarget | null, frame: FrameValues): void {
       const closed = windowPlacesAfterEscape(hands.readSession(), held, level, shownTasks().views())
@@ -2197,7 +2197,7 @@ function heldWindowsOf(shownTasks: () => Pick<ShownTasksHold, 'views' | 'letSche
   }
 }
 
-// see FR-134, RW-6, RW-7
+// Spec: FR-134, RW-6, RW-7
 /** @purity pure */
 function reportHeldOf(
   window: DelayDiagnosticsReportWindow | null,
@@ -2213,13 +2213,13 @@ function reportHeldOf(
   return { window, view, report: diagnostics.report, schedule: document.schedule, documentName, language, isTimeOfDayVisible, viewTimeZone, ...(fixTables === undefined ? {} : { fixTables }) }
 }
 
-// see RW-16, RW-17, DX-12
+// Spec: RW-16, RW-17, DX-12
 interface FixLogSource {
   readonly readDelayFixLog?: () => readonly DelayFixLogRow[]
   readonly readDelayFixTelling?: () => DelayFixTelling | null
 }
 
-// see EL-21, SJ-0, SJ-2, UN-20
+// Spec: EL-21, SJ-0, SJ-2, UN-20
 /** @purity semi-pure-mutable */
 function actionWithJumpViews(
   translated: ReturnType<typeof commandFromInput>,
@@ -2243,8 +2243,8 @@ interface ReportBeforeJump {
   readonly openField?: (row: string) => void
 }
 
-// see T-332, SJ-0, SJ-2, SJ-3, SJ-4, SJ-5, SJ-6, SJ-8, SJ-10, UN-20
-// WHY: placed on this picture; a target this picture does not draw is placed again on the picture its reveal draws (SJ-5).
+// Spec: T-332, SJ-0, SJ-2, SJ-3, SJ-4, SJ-5, SJ-6, SJ-8, SJ-10, UN-20
+// Why: placed on this picture; a target this picture does not draw is placed again on the picture its reveal draws (SJ-5).
 /** @purity non-pure */
 function jumpToSearchHit(hands: FrameLoopHands, cell: SearchJumpCell | null, frame: FrameValues, report: ReportBeforeJump): void {
   if (cell === null) return
@@ -2265,8 +2265,8 @@ function jumpToSearchHit(hands: FrameLoopHands, cell: SearchJumpCell | null, fra
   else report.oweLanding(cell, reach.landing === null)
 }
 
-// see SJ-5, SJ-6, SJ-7, SJ-8, SJ-10, AM-16
-// WHY: asked again on the picture after the jump; a target the first picture did not draw is placed now (SJ-5).
+// Spec: SJ-5, SJ-6, SJ-7, SJ-8, SJ-10, AM-16
+// Why: asked again on the picture after the jump; a target the first picture did not draw is placed now (SJ-5).
 /** @purity non-pure */
 function landJump(hands: FrameLoopHands, owed: OwedJump, frame: FrameValues): boolean {
   const { target, isPlacedAgain } = owed
@@ -2280,14 +2280,14 @@ function landJump(hands: FrameLoopHands, owed: OwedJump, frame: FrameValues): bo
   return true
 }
 
-// see OP-10, FR-055
+// Spec: OP-10, FR-055
 /** @purity pure */
 function unstoredZoomOf(view: { readonly settings: DocumentSettings; readonly isAtStoredZoom: boolean }): FrameValues['unstoredZoom'] {
   return view.isAtStoredZoom ? null : { zoomX: view.settings.zoomX, zoomY: view.settings.zoomY }
 }
 
-// see HF-17
-// TRAP: the resolved day, not the stored null, or the fit undoes the write.
+// Spec: HF-17
+// Trap: the resolved day, not the stored null, or the fit undoes the write.
 /** @purity non-pure */
 function writeOwedSight(hands: FrameLoopHands, taskGroupId: string | null, settings: DocumentSettings, frame: FrameValues): boolean {
   if (taskGroupId === null || drawnTaskGroupBoxesOf(frame.layout, frame.regions).some((one) => one.taskGroupId === taskGroupId)) return false
@@ -2296,8 +2296,8 @@ function writeOwedSight(hands: FrameLoopHands, taskGroupId: string | null, setti
   return true
 }
 
-// see HF-15, HF-17, OP-10
-// WHY: a zoom the picture holds unstored goes with the place, or the write snaps the picture back.
+// Spec: HF-15, HF-17, OP-10
+// Why: a zoom the picture holds unstored goes with the place, or the write snaps the picture back.
 /** @purity non-pure */
 function writeScrollPlace(
   hands: FrameLoopHands,
@@ -2321,7 +2321,7 @@ interface JumpLandingHold {
   ) => ScreenViewReadings['jumpRipple']
 }
 
-// see SJ-5, SJ-10, AM-16
+// Spec: SJ-5, SJ-10, AM-16
 /** @purity non-pure */
 function owedJumpHolder(ask: () => void): JumpLandingHold {
   let owed: OwedJump | null = null
@@ -2350,7 +2350,7 @@ function owedJumpHolder(ask: () => void): JumpLandingHold {
   }
 }
 
-// see AM-16, SJ-0, SJ-5, SJ-9, SJ-10
+// Spec: AM-16, SJ-0, SJ-5, SJ-9, SJ-10
 /** @purity non-pure */
 function landingAgentHolder(
   holder: AgentApiWiring['shownTasks'], oweLanding: JumpLandingHold['owe'], readFrame: () => FrameValues | null,
@@ -2367,7 +2367,7 @@ function landingAgentHolder(
   }
 }
 
-// see SV-7, IF-9
+// Spec: SV-7, IF-9
 /** @purity semi-pure-mutable */
 function searchViewWithFilterChanges(
   panel: SearchPanelSession,
@@ -2379,28 +2379,28 @@ function searchViewWithFilterChanges(
   return changes.reduce((held, change) => searchPanelAfterFilterChange(session, panel, held, change) ?? held, view)
 }
 
-// see SV-7, IC-122
+// Spec: SV-7, IC-122
 /** @purity pure */
 function filterColumnOf(input: HumanInput, context: InputContext): string | null {
   if (input.kind !== 'pointer' || input.phase !== 'up') return null
   return context.pressed?.on?.searchFilterColumn ?? null
 }
 
-// see SV-7, IF-9, IC-125, IC-126
+// Spec: SV-7, IF-9, IC-125, IC-126
 /** @purity pure */
 function filterListedOf(input: HumanInput, context: InputContext): readonly string[] | null {
   if (input.kind !== 'pointer' || input.phase !== 'up') return null
   return context.pressed?.on?.searchFilterListed ?? null
 }
 
-// see SV-2, SV-5
+// Spec: SV-2, SV-5
 /** @purity semi-pure-mutable */
 function searchPanelWithTypedWord(held: SearchPanelSession, surface: ScreenSurface | undefined): SearchPanelSession {
   const typed = surface?.readSearchWord?.() ?? null
   return typed === null ? held : { ...held, word: typed }
 }
 
-// see SV-15, MK-10, T-023, RW-4
+// Spec: SV-15, MK-10, T-023, RW-4
 /** @purity semi-pure-mutable */
 function isOnTableWindowBody(input: HumanInput, surface: ScreenSurface | undefined): boolean {
   if (input.kind === 'key' || surface === undefined) return false
@@ -2409,7 +2409,7 @@ function isOnTableWindowBody(input: HumanInput, surface: ScreenSurface | undefin
   return isTableWindow && (input.kind === 'wheel' || on.entry === null)
 }
 
-// see T-023, SV-15, MK-1, U-25
+// Spec: T-023, SV-15, MK-1, U-25
 /** @purity semi-pure-mutable */
 function isLeftToTheHost(input: HumanInput, surface: ScreenSurface | undefined): boolean {
   if (isOnTableWindowBody(input, surface)) return true
@@ -2417,8 +2417,8 @@ function isLeftToTheHost(input: HumanInput, surface: ScreenSurface | undefined):
   return surface.readScreenPartAt(input.x, input.y)?.part === PROPERTIES_PANEL_SURFACE
 }
 
-// see U-65, WC-3, WC-4, WC-8, IN-6
-// TRAP: taskGroupArea also covers these floating fields; stopped, their press takes no native focus (DFC-578).
+// Spec: U-65, WC-3, WC-4, WC-8, IN-6
+// Trap: taskGroupArea also covers these floating fields; stopped, their press takes no native focus (DFC-578).
 /** @purity semi-pure-mutable */
 function isFloatingFieldPress(input: HumanInput, surface: ScreenSurface | undefined): boolean {
   if (input.kind !== 'pointer' || input.phase !== 'down' || surface === undefined) return false
@@ -2426,13 +2426,13 @@ function isFloatingFieldPress(input: HumanInput, surface: ScreenSurface | undefi
   return on?.part === HOLIDAY_SETTINGS_SURFACE && on.entry === null
 }
 
-// see IN-5a, SV-5, IN-4
+// Spec: IN-5a, SV-5, IN-4
 /** @purity pure */
 function pickedObjectsOf(input: HumanInput, context: InputContext, escapeLevel: EscapeTarget | null): Selection {
   return isTypedIntoSearchWord(input, context) ? context.selection : selectionFromInput(input, context, escapeLevel)
 }
 
-// see IN-4, SK-19, FR-085, T-293
+// Spec: IN-4, SK-19, FR-085, T-293
 /** @purity pure */
 function choiceEventOf(input: HumanInput, pickedObjects: Selection): SessionEvent {
   if (input.kind === 'key' && pickedObjects.items.length === 0) {
@@ -2442,8 +2442,8 @@ function choiceEventOf(input: HumanInput, pickedObjects: Selection): SessionEven
   return { type: 'objectsPicked', pickedObjects }
 }
 
-// see IN-4, SK-19, FR-085, T-293
-// WHY: emptySelection() is one shared value, so with only task groups chosen the picked objects stay the held
+// Spec: IN-4, SK-19, FR-085, T-293
+// Why: emptySelection() is one shared value, so with only task groups chosen the picked objects stay the held
 // ones; the spent rung tells instead -- Esc on the selection rung, Enter the translator left to the choice.
 /** @purity pure */
 function isTaskGroupChoiceSpentBy(
@@ -2458,13 +2458,13 @@ function isTaskGroupChoiceSpentBy(
   return translated.action === null && translated.isBrowserDefaultStopped
 }
 
-// see IN-1, IN-1a
+// Spec: IN-1, IN-1a
 /** @purity pure */
 function hasEndedGesture(input: HumanInput): boolean {
   return input.kind === 'pointer' && (input.phase === 'up' || input.phase === 'lost')
 }
 
-// see IN-4
+// Spec: IN-4
 /** @purity pure */
 function escapeLevelOf(
   input: HumanInput,
@@ -2477,7 +2477,7 @@ function escapeLevelOf(
   return escapeTarget({ ...escapeContextOf(context), isConfirmationStanding, isPropertiesPanelOpen, isTooltipStanding })
 }
 
-// see RG-16, IF-9
+// Spec: RG-16, IF-9
 /** @purity semi-pure-mutable */
 function windowFocusContextOf(
   screen: ScreenWiring | undefined,
@@ -2528,13 +2528,13 @@ function isSameGrabbedItem(a: Grabbed['item'], b: Grabbed['item']): boolean {
   }
 }
 
-// see AG-9, WS-2, T-289
+// Spec: AG-9, WS-2, T-289
 /** @purity pure */
 function isChangingDocumentIn(session: ScreenSession): boolean {
   return session.gesture.pointerPressState.kind === 'changingDocument'
 }
 
-// see FR-032, FR-099
+// Spec: FR-032, FR-099
 /** @purity pure */
 function changeQuestionRaisedBy(
   action: Extract<InputAction, { readonly kind: 'changeDocument' }>,
@@ -2551,7 +2551,7 @@ function isAgentApiEnabledIn(session: ScreenSession): boolean {
   return session.agentApi.agentApiEnablingState.kind === 'enabled'
 }
 
-// WHY: one empty selection for nothingSelected: the shell compares selections by identity.
+// Why: one empty selection for nothingSelected: the shell compares selections by identity.
 const NO_OBJECTS_SELECTED: Selection = emptySelection()
 
 /** @purity pure */
@@ -2583,8 +2583,8 @@ function itemKeyOf(item: Hit['item']): string {
   }
 }
 
-// see T-289, UN-8, GR-21
-// TRAP: the thumb before the entry and the strip before the band; the machine's guards read the kind alone.
+// Spec: T-289, UN-8, GR-21
+// Trap: the thumb before the entry and the strip before the band; the machine's guards read the kind alone.
 /** @purity pure */
 function pressedOnOf(on: ScreenPart | null, hit: Hit | null): PressedOn | null {
   if (on === null) return hit === null ? null : { kind: 'grab', grabTaskGroup: hit.grab, itemId: itemKeyOf(hit.item) }
@@ -2601,15 +2601,15 @@ export function isQuestionAskedIn(session: ScreenSession): boolean {
   return session.fileFlow.confirmationState.kind === 'questionAsked'
 }
 
-// see OP-17, OP-8, T-290
-// WHY: the cue invites a drop only while an open would be taken: no file operation runs and no question stands.
+// Spec: OP-17, OP-8, T-290
+// Why: the cue invites a drop only while an open would be taken: no file operation runs and no question stands.
 /** @purity pure */
 function fileDragEventIn(session: ScreenSession, isOver: boolean): SessionEvent {
   if (!isOver) return { type: 'fileDragLeft' }
   return { type: 'fileDragEntered', isOpenAccepted: session.fileFlow.fileOperationState.kind === 'idle' && !isQuestionAskedIn(session) }
 }
 
-// see FR-091, T-280
+// Spec: FR-091, T-280
 /** @purity pure */
 function isAnySurfaceStanding(session: ScreenSession): boolean {
   return openSurfaceNameIn(session) !== null || isHelpStandingIn(session.screen) || isQuestionAskedIn(session)
@@ -2638,8 +2638,8 @@ function isFlowSurface(surfaceName: string): surfaceName is FileFlowSurfaceName 
   return FLOW_SURFACE_ROWS.has(surfaceName)
 }
 
-// see FR-153, QN-11
-// WHY: asked even with no unsaved edits; the document is named only when it has some.
+// Spec: FR-153, QN-11
+// Why: asked even with no unsaved edits; the document is named only when it has some.
 /** @purity pure */
 function grsResetEntryPressedOf(document: Document, session: ScreenSession): SessionEvent {
   const isUnsaved = session.fileFlow.unsavedEditsState.kind === 'editsUnsaved'
@@ -2647,8 +2647,8 @@ function grsResetEntryPressedOf(document: Document, session: ScreenSession): Ses
   return { type: 'grsResetEntryPressed', question: { manner: CONFIRMATION_MANNER, question: GRS_RESET_QUESTION, items } }
 }
 
-// see FR-153
-// TRAP: clear before the reload; the other way round the reloaded page starts with the old values.
+// Spec: FR-153
+// Trap: clear before the reload; the other way round the reloaded page starts with the old values.
 /** @purity non-pure */
 function resetGrs(pageReload: (() => void) | undefined): void {
   clearBrowserStoredForReset()
@@ -2665,7 +2665,7 @@ export function discardQuestionOf(discarded: Document): FileFlowQuestion {
 }
 
 // see IN-3, EZ-2, JDG-662
-// WHY: the pressed entrance's trigger stays released until the pointer is over another part;
+// Why: the pressed entrance's trigger stays released until the pointer is over another part;
 // while held, a drag (IC-53 included) may outrun the entrance, so a held move keeps it released.
 /** @purity pure */
 function hintReleasedEntryAfter(
@@ -2679,7 +2679,7 @@ function hintReleasedEntryAfter(
   return under === released ? released : null
 }
 
-// see IN-3, EZ-2
+// Spec: IN-3, EZ-2
 /** @purity pure */
 function hintEntryOf(under: IconId | null, released: IconId | null): IconId | null {
   return under === released ? null : under
@@ -2702,7 +2702,7 @@ function iconRowOf(partUnderPointer: ScreenPart | null): string | null {
   return partUnderPointer === null || partUnderPointer.entry === null ? null : partUnderPointer.taskGroupId
 }
 
-// see EZ-2, EZ-6, FR-037, IN-3
+// Spec: EZ-2, EZ-6, FR-037, IN-3
 /** @purity pure */
 function hintTargetOf(partUnderPointer: ScreenPart | null, hint: HintHolder | null): HintTarget {
   return {
@@ -2719,8 +2719,8 @@ interface HintWalk {
   readonly holder: HintHolder | null
 }
 
-// see EZ-6, T-023d, GR-26, GR-27
-// WHY: kept while the point and the drawn geometry stay, so the holder read by the frame keeps its identity.
+// Spec: EZ-6, T-023d, GR-26, GR-27
+// Why: kept while the point and the drawn geometry stay, so the holder read by the frame keeps its identity.
 /** @purity pure */
 function hintWalkAt(
   walked: HintWalk | null,
@@ -2778,7 +2778,7 @@ function formatSettledOnRelease(
 }
 
 
-// TRAP: toISOString here would move the zoneless statusDate by the UTC offset.
+// Trap: toISOString here would move the zoneless statusDate by the UTC offset.
 /** @purity semi-pure-mutable */
 export function readToday(): string {
   const now = new Date()
@@ -2790,28 +2790,28 @@ export function readToday(): string {
   return textOfDay(day)
 }
 
-// see FR-095, RD-7
+// Spec: FR-095, RD-7
 /** @purity semi-pure-mutable */
 function startingAfreshCall(emptyDocument: Document): ReplacementCall {
   const document = startedDocumentOf(emptyDocument, readLocalMoment(), readSystemStandardTimeZone())
   return { row: 'RD-7', document, editedBy: EDITED_BY_SCREEN, updatedAt: readInstantOfWrite() }
 }
 
-// see BK-4, WT-9, FR-156
+// Spec: BK-4, WT-9, FR-156
 /** @purity pure */
 export function startedDocumentOf(emptyDocument: Document, created: string, scheduleDataTimeZone: string): Document {
   const schedule = emptyDocument.schedule
   return { ...emptyDocument, schedule: { ...schedule, project: { ...schedule.project, creationDate: created, scheduleDataTimeZone } } }
 }
 
-// WHY: noon, so no date of the year lands on a daylight-saving switch hour; month 0 is January, 6 July (FR-156).
+// Why: noon, so no date of the year lands on a daylight-saving switch hour; month 0 is January, 6 July (FR-156).
 const PC_OFFSET_HOUR = 12
 
 const JANUARY = 0
 
 const JULY = 6
 
-// see FR-156, BK-4, T-376
+// Spec: FR-156, BK-4, T-376
 /** @purity semi-pure-mutable */
 export function readSystemStandardTimeZone(): StandardTimeZoneKey {
   const year = new Date().getFullYear()
@@ -2819,13 +2819,13 @@ export function readSystemStandardTimeZone(): StandardTimeZoneKey {
   return standardTimeZoneKeyForSystem({ januaryOffsetMinutes: offsetOn(JANUARY), julyOffsetMinutes: offsetOn(JULY) })
 }
 
-// see FR-063
+// Spec: FR-063
 /** @purity semi-pure-mutable */
 export function readInstantOfWrite(): string {
   return new Date().toISOString().replace(/\.\d+Z$/, 'Z')
 }
 
-// see WT-9, DV-12
+// Spec: WT-9, DV-12
 /** @purity semi-pure-mutable */
 export function readLocalMoment(): string {
   const now = new Date()
@@ -2839,7 +2839,7 @@ export function readMonotonicMs(): number {
   return performance.now()
 }
 
-// see IF-1
+// Spec: IF-1
 /** @purity non-pure */
 function beneathAndMarqueeOverlayShowerOf(surface: SvgSurface): (beneathSvg: string, overlaySvg: string) => string {
   let overlayShown = ''
@@ -2855,7 +2855,7 @@ function beneathAndMarqueeOverlayShowerOf(surface: SvgSurface): (beneathSvg: str
 
 type CreatedSubject = NonNullable<Extract<InputAction, { kind: 'changeDocument' }>['created']>
 
-// see FR-091, HF-14, FR-019, AR-5
+// Spec: FR-091, HF-14, FR-019, AR-5
 /** @purity pure */
 function creationLandingOf(
   schedule: Schedule,
@@ -2874,8 +2874,8 @@ function creationLandingOf(
   }
 }
 
-// see FR-068, IC-115, IO-10
-// WHY: the clipboard goes first: it needs the page focused, and the download's own display can take it.
+// Spec: FR-068, IC-115, IO-10
+// Why: the clipboard goes first: it needs the page focused, and the download's own display can take it.
 /** @purity non-pure */
 function copyPromptAndHandSchema(seam: Clipboard, files: FileStore | undefined, language: DisplayLanguage): Promise<boolean> {
   const text = imageToJsonPromptText(language, GREATEST_KNOWN_SCHEMA_VERSION)
@@ -2915,7 +2915,7 @@ export function frameLoop(
     watermarkStoredName === null || watermarkStoredName === ''
       ? NOT_STORED_WATERMARK_NAME['S-99a']
       : watermarkStoredName
-  // see FR-020, S-144
+  // Spec: FR-020, S-144
   /** @purity semi-pure-mutable */
   function watermarkNow(): { readonly openedBy: string; readonly stampedAt: string } | null {
     return session.screen.watermarkDisplayState.kind === 'shown'
@@ -2932,13 +2932,13 @@ export function frameLoop(
   let commandPaletteCornerAtPress: { readonly x: number; readonly y: number } | null = null
   const windows = heldWindowsOf(() => shownTasks)
   let isSearchWordFocusOwed = false
-  // see S-445, FR-130
-  // WHY: diagnosed once per held document, never per frame (decision 17).
+  // Spec: S-445, FR-130
+  // Why: diagnosed once per held document, never per frame (decision 17).
   let delayDiagnosticsShown = false
   let delayDiagnosticsHeld: HeldDelayDiagnostics | null = null
   const parentTasks = parentTaskHoldOf()
   let agentApiEnablingWatch: ((isEnabled: boolean) => void) | null = null
-  // WHY: a frame value, not a region state (CR-440 decision 8): the cap is the frame's layout result.
+  // Why: a frame value, not a region state (CR-440 decision 8): the cap is the frame's layout result.
   let stackSafetyCapToldFor: string | null = null
   let pointerAt: { readonly x: number; readonly y: number } | null = null
   let partUnderPointer: ScreenPart | null = null
@@ -2966,31 +2966,31 @@ export function frameLoop(
       const schedule = held.document.schedule
       pruneChoiceTo(selectionWithinSchedule(selectedObjectsIn(session), schedule), taskGroupsWithinSchedule(session, schedule))
       for (const pruned of resourcePruningOf(session, held.document.schedule)) sendToSession(pruned, null)
-      // TRAP: Agent API writes reach only this door; without this ask they are never painted.
+      // Trap: Agent API writes reach only this door; without this ask they are never painted.
       if (isSizeSettled(environment)) ask()
     },
   }
 
-  // see WS-6, WS-7, T-286
-  // WHY: the delivery window is changeDeliveryStateMachine.delivering; RS-23 returns from its exit.
+  // Spec: WS-6, WS-7, T-286
+  // Why: the delivery window is changeDeliveryStateMachine.delivering; RS-23 returns from its exit.
   const audience: ChangeAudience = {
     /** @purity non-pure */
     deliver(document: Document, hasUpdatedSchedule: boolean): void {
       sendToSession(DOCUMENT_REPLACED, null)
       try {
-        // WHY: HS-12 -- the notice hands the AI the lower line's AT-140, never the held one's.
+        // Why: HS-12 -- the notice hands the AI the lower line's AT-140, never the held one's.
         const handed = documentStampedAt(document, readFileSaved().fileSavedAt)
         const outcome = notifyChangeWatchers(changeWatchers, { document: handed, hasUpdatedSchedule })
         sendToSession({ type: 'changeDelivered', silentWatchers: outcome.failures.length }, null)
       } catch (fault) {
-        // TRAP: the window must close on a throw too, or WS-2 refuses every later write.
+        // Trap: the window must close on a throw too, or WS-2 refuses every later write.
         sendToSession({ type: 'changeDelivered', silentWatchers: 0 }, null)
         throw fault
       }
     },
   }
 
-  // see SF-6, SF-7, UF-48
+  // Spec: SF-6, SF-7, UF-48
   /** @purity non-pure */
   function sendToSession(event: SessionEvent, frame: FrameValues | null): void {
     const step = advanceScreenSession(session, event)
@@ -3053,7 +3053,7 @@ export function frameLoop(
     issueDelayFixBundle,
   } = documentFileFlow
 
-  // see SF-6, UF-123
+  // Spec: SF-6, UF-123
   const effectRunners = effectRunnersOf({
     raiseNotice: (reason) => raiseNotice(reason, null),
     storeScreenLanguage: (language) => writeBrowserStored('S-99', language),
@@ -3129,12 +3129,12 @@ export function frameLoop(
     followPanelFace()
     const panelWidth = propertiesPanelWidthOf(session, heldPropertyPanelWidth)
     const regions = regionsFromScreen(environmentForRegionsOf(environment, panelWidth, shownTasks.appliedTables().length > 0), stored)
-    // TRAP: not the preview; a longer bar would refit and shrink the axis under the drag.
+    // Trap: not the preview; a longer bar would refit and shrink the axis under the drag.
     const view = viewSettingsOnce(held.document, stored, regions)
     const settings = view.settings
     const diagnostics = delayDiagnosticsNow()
-    // see FR-133, FR-049
-    // TRAP: the drawn settings only; S-63 itself is never written for the diagnosis (DFC-1229).
+    // Spec: FR-133, FR-049
+    // Trap: the drawn settings only; S-63 itself is never written for the diagnosis (DFC-1229).
     const drawnSettings = diagnostics === null ? settings : { ...settings, isProgressMarkerVisible: true }
     drawnPicture = drawnPictureOf(drawnPicture, {
       schedule: document.schedule,
@@ -3231,18 +3231,18 @@ export function frameLoop(
     shownNotices = screenView.notices
     followTimedNotices(standingNoticesIn(session), partUnderPointer?.noticeBoxReasons ?? [])
     screen.surface.showScreenView(screenView)
-    // TRAP: only after showScreenView; the field it focuses does not exist before the draw.
+    // Trap: only after showScreenView; the field it focuses does not exist before the draw.
     focusWantedField(screen.focusPropertyField)
     if (isSearchWordFocusOwed) {
       isSearchWordFocusOwed = false
       screen.focusPropertyField?.(SEARCH_WORD_ROW)
     }
     drainFieldEditNotices(hands, values)
-    // WHY: recorded once the focus is placed, so IR-1 reads where this frame left it.
+    // Why: recorded once the focus is placed, so IR-1 reads where this frame left it.
     recordFrame(hands, interactionRecorder, drawnSvg, layout)
   }
 
-  // see PTL-13, PTL-14, QN-12
+  // Spec: PTL-13, PTL-14, QN-12
   /** @purity non-pure */
   function spentOnParentTaskChoice(input: HumanInput, frame: FrameValues): boolean {
     const answer = input.kind === 'pointer' ? screen?.surface.readScreenPartAt(input.x, input.y)?.confirmationAnswer : undefined
@@ -3263,7 +3263,7 @@ export function frameLoop(
     return delayDiagnosticsShown ? (delayDiagnosticsHeld ??= windows.keepMarkWithin(delayDiagnosticsOf(held.document, new Set(documentFileFlow.readDelayFixLog?.() ?? [])))) : null
   }
 
-  // see RW-1, S-451, FR-130
+  // Spec: RW-1, S-451, FR-130
   /** @purity non-pure */
   function showDelayDiagnostics(isShown: boolean): void {
     const isRunAgain = isShown && delayDiagnosticsShown
@@ -3283,7 +3283,7 @@ export function frameLoop(
     windows.holdReport(shown.window)
   }
 
-  // see FR-134, FR-155, T-346, RW-6, RW-7, RW-12, RW-14
+  // Spec: FR-134, FR-155, T-346, RW-6, RW-7, RW-12, RW-14
   /** @purity non-pure */
   function answerReportEntry(entry: IconId, filterColumn: string | null, listed?: readonly string[] | null): boolean {
     const reportHeld = reportHeldOf(windows.report(), delayDiagnosticsNow(), held.document, screenLanguageIn(session), windows.fixTablesNow(delayDiagnosticsNow(), documentFileFlow))
@@ -3300,7 +3300,7 @@ export function frameLoop(
   /** @purity non-pure */
   function endFileOperation(ended: SessionEvent): void {
     sendToSession(ended, null)
-    // TRAP: ask even when nothing was raised, or a finished save paints nothing until next input.
+    // Trap: ask even when nothing was raised, or a finished save paints nothing until next input.
     if (isSizeSettled(environment)) ask()
   }
 
@@ -3319,7 +3319,7 @@ export function frameLoop(
     else runAskedFrame()
   }
 
-  // WHY: the change a press raises (a color swatch's click, FT-1) comes after the release asked this frame.
+  // Why: the change a press raises (a color swatch's click, FT-1) comes after the release asked this frame.
   /** @purity non-pure */
   function runAskedFrame(): void {
     if (values !== null) spendFieldCommit(hands, values)
@@ -3327,9 +3327,9 @@ export function frameLoop(
     runFrame()
   }
 
-  // see FR-039, SE-1, SE-2, SE-3, SE-4, SE-5
-  // TRAP: kept apart from the notices region, so notices= and the Esc / Enter levels never see it.
-  // TRAP: the number is the held value after the press was carried out, so a write refused
+  // Spec: FR-039, SE-1, SE-2, SE-3, SE-4, SE-5
+  // Trap: kept apart from the notices region, so notices= and the Esc / Enter levels never see it.
+  // Trap: the number is the held value after the press was carried out, so a write refused
   // (WS-2, a confirmation standing) shows the scale that really stands.
   /** @purity non-pure */
   function showDisplayScaleMessage(shown: { readonly end: 'max' | 'min' | null }): void {
@@ -3337,8 +3337,8 @@ export function frameLoop(
     sendToSession({ type: 'displayScaleStepped', percent, end: shown.end }, values)
   }
 
-  // see ZE-5, SE-3, SE-4, SE-5
-  // WHY: the same one message as the display scale's, so a vertical-axis end and a scale press
+  // Spec: ZE-5, SE-3, SE-4, SE-5
+  // Why: the same one message as the display scale's, so a vertical-axis end and a scale press
   // replace each other rather than stack; the number is zoomY as a rounded percent.
   /** @purity non-pure */
   function showVerticalZoomEndMessage(shown: { readonly end: 'max' | 'min'; readonly zoomY: number }): void {
@@ -3346,14 +3346,14 @@ export function frameLoop(
     sendToSession({ type: 'verticalZoomEndReached', percent, end: shown.end }, values)
   }
 
-  // see FR-018, S-173, T-289
-  // TRAP: judge the press, not the pointer now, or a pixel of drift stops the repeat.
+  // Spec: FR-018, S-173, T-289
+  // Trap: judge the press, not the pointer now, or a pixel of drift stops the repeat.
   /** @purity non-pure */
   function repeatHeldEntry(): void {
     const frame = values
     const press = pressed
     if (frame === null || press === null) return
-    // TRAP: phase must become up; a down answers nothing but the press question.
+    // Trap: phase must become up; a down answers nothing but the press question.
     const continuation: PointerInput = { ...press.at, phase: 'up' }
     const context = collectInputContext(frame)
     carryOutAction(commandFromInput(continuation, context).action, frame)
@@ -3361,8 +3361,8 @@ export function frameLoop(
     tickEntryRepeat(repeatTimesOfHeldEntry().intervalMs)
   }
 
-  // see CS-2, T-289
-  // WHY: a second down while one is held replaces the press, as the frame value does (JDG-57).
+  // Spec: CS-2, T-289
+  // Why: a second down while one is held replaces the press, as the frame value does (JDG-57).
   /** @purity non-pure */
   function beginPointerPress(press: PointerPress, on: ScreenPart | null, frame: FrameValues): void {
     if (session.gesture.pointerPressState.kind !== 'notPressed') sendToSession(POINTER_RELEASED, frame)
@@ -3371,7 +3371,7 @@ export function frameLoop(
   }
 
   // see IN-1, IN-1a, FR-053, T-289, JDG-660
-  // TRAP: the press drops before the event; the restorePaletteCorner effect reads the corner still held here.
+  // Trap: the press drops before the event; the restorePaletteCorner effect reads the corner still held here.
   /** @purity non-pure */
   function endPointerPress(isInterrupted: boolean, frame: FrameValues): void {
     pressed = null
@@ -3379,7 +3379,7 @@ export function frameLoop(
     commandPaletteCornerAtPress = null
     grabCarry.end(isInterrupted, frame)
     windows.endPress(isInterrupted)
-    // WHY: the corner the band settles on, at the moment it is let go, is the same one FR-053
+    // Why: the corner the band settles on, at the moment it is let go, is the same one FR-053
     // holds afterwards; a palette not being dragged is already inside the window, so this is a no-op then.
     if (commandPaletteDraggedTo !== null) {
       commandPaletteDraggedTo = paletteCornerInWindow(
@@ -3390,23 +3390,23 @@ export function frameLoop(
     }
   }
 
-  // see FR-076, NT-3, T-233, T-286
+  // Spec: FR-076, NT-3, T-233, T-286
   /** @purity non-pure */
   function raiseNotice(reason: NoticeReason, affectedCount: number | null): void {
     sendToSession({ type: 'noticeRaised', reason, affectedCount }, null)
     if (isSizeSettled(environment)) ask()
   }
 
-  // see NT-4, NT-8, T-286
-  // WHY: the key names the drawn surface; a gathered one stands for every telling it holds.
+  // Spec: NT-4, NT-8, T-286
+  // Why: the key names the drawn surface; a gathered one stands for every telling it holds.
   /** @purity non-pure */
   function dismissNoticeByKey(answered: string, frame: FrameValues): void {
     const tellings = shownNotices.find((one) => one.dismissKey === answered)?.raisedNotices ?? []
     for (const told of tellings) sendToSession({ type: 'noticeDismissPressed', reason: told.reason }, frame)
   }
 
-  // see NT-8, SK-19, T-283
-  // WHY: newestNoticeDismissAsked goes before anything else the input carries (CR-440 decision 6):
+  // Spec: NT-8, SK-19, T-283
+  // Why: newestNoticeDismissAsked goes before anything else the input carries (CR-440 decision 6):
   // spendFieldCommit can raise a telling this key never saw, and the newest as of arrival is the one it dismisses.
   /** @purity non-pure */
   function spendNoticeRungFirst(input: HumanInput, frame: FrameValues): boolean {
@@ -3415,7 +3415,7 @@ export function frameLoop(
     return isStanding
   }
 
-  // see NT-7
+  // Spec: NT-7
   /** @purity non-pure */
   function answerConfirmation(isProceeding: boolean, frame: FrameValues): boolean {
     if (!isQuestionAskedIn(session)) return false
@@ -3423,7 +3423,7 @@ export function frameLoop(
     return true
   }
 
-  // see FR-076, T-233
+  // Spec: FR-076, T-233
   /** @purity non-pure */
   function raiseFileFault(fault: DocumentFileFault): void {
     const reason = NOTICE_REASON_OF_FILE_FAULT[fault.reason]
@@ -3438,19 +3438,19 @@ export function frameLoop(
     raiseNotice(reason, null)
   }
 
-  // see FR-025, IX-12
+  // Spec: FR-025, IX-12
   /** @purity non-pure */
   function exportViewNow(document: Document): ExportView {
     const framed = spanExportViewOf(document, environment, shownTasks.drawnSet())
-    // TRAP: the held answer, not a fresh fit, or the export is laid out at a zoom the screen
+    // Trap: the held answer, not a fresh fit, or the export is laid out at a zoom the screen
     // is not showing.
     const heldSettingsAt = (regions: ScreenRegions): DocumentSettings =>
       viewSettingsOnce(document, document.documentSettings, regions).settings
     return framed ?? screenExportViewOf(document, environment, heldSettingsAt, shownTasks.drawnSet(), session.screen.dualCursor)
   }
 
-  // see FR-080, IX-12, EP-11, EP-12, ST-7
-  // WHY: the cap stop rides on the scene (CR-440 decision 9), so an export owes its telling by value.
+  // Spec: FR-080, IX-12, EP-11, EP-12, ST-7
+  // Why: the cap stop rides on the scene (CR-440 decision 9), so an export owes its telling by value.
   /** @purity semi-pure-mutable */
   function exportScene(): ExportSceneWithCapStop | null {
     if (!isSizeSettled(environment)) return null
@@ -3479,7 +3479,7 @@ export function frameLoop(
         rulerWeekdayWords(screenLanguageIn(session)),
         null,
         null,
-        // TRAP: not the picture's root, whose default S-144 would restore a watermark the person hid.
+        // Trap: not the picture's root, whose default S-144 would restore a watermark the person hid.
         watermarkNow(),
       ),
       regions,
@@ -3511,7 +3511,7 @@ export function frameLoop(
           missingTaskNames: [],
           notices: [],
           searchPanel: windows.searchPanel(),
-        // TRAP: canUndo and canRedo stay absent; false would draw a faint undo entrance.
+        // Trap: canUndo and canRedo stay absent; false would draw a faint undo entrance.
         }),
       ),
       settings,
@@ -3521,17 +3521,17 @@ export function frameLoop(
     }
   }
 
-  // see FR-052, S-97, S-98
+  // Spec: FR-052, S-97, S-98
   /** @purity semi-pure-mutable */
   function settingsLimitsOf(frame: FrameValues | null): SettingsLimits {
-    // TRAP: the frame's widths; stored ones drift the sum by a held divider's travel.
+    // Trap: the frame's widths; stored ones drift the sum by a held divider's travel.
     return {
       zoomMin: NOT_STORED_ZOOM_BOUNDS['S-97'],
       zoomMax: NOT_STORED_ZOOM_BOUNDS['S-98'],
       taskGroupAreaWidthWithoutPanels:
         frame === null
           ? 0
-          // TRAP: the DRAWN panel widths, as the regions are: FR-039 scales S-79 on the way
+          // Trap: the DRAWN panel widths, as the regions are: FR-039 scales S-79 on the way
         // into a drawing, so a stored width here would not add back up to the canvas.
         : frame.regions.taskGroupArea.width +
             frame.regions.taskGroupPanel.width +
@@ -3539,10 +3539,10 @@ export function frameLoop(
     }
   }
 
-  // see FR-065, S-99b
+  // Spec: FR-065, S-99b
   /** @purity non-pure */
   function storeAgentApiEnabling(): void {
-    // TRAP: only a press reaches here, and a press always moves the root (T-296); telling an unmoved
+    // Trap: only a press reaches here, and a press always moves the root (T-296); telling an unmoved
     // value would make the installer overwrite a reference already handed out.
     const isEnabled = isAgentApiEnabledIn(session)
     writeBrowserStored('S-99b', String(isEnabled))
@@ -3571,11 +3571,11 @@ export function frameLoop(
     },
   }
 
-  // see CS-2
+  // Spec: CS-2
   /** @purity semi-pure-mutable */
   function collectPress(at: PointerInput, frame: FrameValues, on: ScreenPart | null): PointerPress {
     const resolving = at.clickCount >= 2 ? 'doubleClick' : 'press'
-    // TRAP: without the Task Group Area test a bar clipped under the Task Group Panel still takes the press.
+    // Trap: without the Task Group Area test a bar clipped under the Task Group Panel still takes the press.
     const hit =
       on === null && regionAtPointer(frame.regions, at.x, at.y) === 'taskGroupArea'
         ? itemAtPointer(frame.geometry, at.x, at.y, grabSizesOf(), resolving, landedLinkIn(session))
@@ -3592,9 +3592,9 @@ export function frameLoop(
     }
   }
 
-  // see PE-0
-  // WHY: the whole Schedule Canvas, ruler band included, and whatever modifier is held: a press or
-  // WHY: a drag there must not hand the browser its own text selection.
+  // Spec: PE-0
+  // Why: the whole Schedule Canvas, ruler band included, and whatever modifier is held: a press or
+  // Why: a drag there must not hand the browser its own text selection.
   /** @purity semi-pure-mutable */
   function startsNoTextSelection(input: HumanInput, frame: FrameValues): boolean {
     if (input.kind !== 'pointer') return false
@@ -3606,7 +3606,7 @@ export function frameLoop(
   }
 
   // see T-023d, EZ-6, DFC-1810, DFC-1811
-  // WHY: one walk per input answers the press and the hint; its regions are built once per drawn geometry.
+  // Why: one walk per input answers the press and the hint; its regions are built once per drawn geometry.
   /** @purity non-pure */
   function answersAtPointerOf(frame: FrameValues, x: number, y: number, on: ScreenPart | null): PointerAnswers {
     if (on !== null) return NO_POINTER_ANSWERS
@@ -3669,7 +3669,7 @@ export function frameLoop(
       newCommentBoxId: crypto.randomUUID(),
       newHighlightBoxId: crypto.randomUUID(),
     }
-    // WHY: asked only by a vertical-axis zoom, and remembered across contexts, so the shell's second
+    // Why: asked only by a vertical-axis zoom, and remembered across contexts, so the shell's second
     // reading of one input and every later notch reuse the walk (DFC-610).
     return {
       ...withoutCeiling,
@@ -3678,7 +3678,7 @@ export function frameLoop(
     }
   }
 
-  // see WS-2, AG-9
+  // Spec: WS-2, AG-9
   /** @purity semi-pure-mutable */
   function collectWriteMoment(isSettlingFieldCommit = false): WriteMoment {
     return {
@@ -3689,7 +3689,7 @@ export function frameLoop(
     }
   }
 
-  // see WS-6, WS-7
+  // Spec: WS-6, WS-7
   /** @purity non-pure */
   function writeDocument(
     commands: readonly DocumentCommand[],
@@ -3722,10 +3722,10 @@ export function frameLoop(
     raiseWriteRefusal(outcome.refusal)
   }
 
-  // see T-230
+  // Spec: T-230
   /** @purity non-pure */
   function replaceHeldDocument(call: ReplacementCall): boolean {
-    // TRAP: the held stamp, not the incoming one, which would refuse every replacement.
+    // Trap: the held stamp, not the incoming one, which would refuse every replacement.
     const outcome = replaceHeldDocumentAt(call, held.document.documentStamp)
     if (!outcome.ok) raiseWriteRefusal(outcome.refusal)
     return outcome.ok
@@ -3745,7 +3745,7 @@ export function frameLoop(
       audience,
     )
     if (!outcome.ok) return outcome
-    // TRAP: roads outside a happening reach here, and nothing else clears the preview for them.
+    // Trap: roads outside a happening reach here, and nothing else clears the preview for them.
     previewDocument = null
     heldPropertyPanelWidth = null
     const landing = landingOfReplacement(call.row, held.document === savedDocument)
@@ -3753,7 +3753,7 @@ export function frameLoop(
     if (OPEN_OR_NEW_ROWS.has(call.row)) leaveStartupTemplate()
     if (OPEN_OR_NEW_ROWS.has(call.row)) sendToSession(DOCUMENT_REPLACED_BY_OPEN_OR_NEW, values)
     if (call.row === 'RD-7') documentFileFlow.forgetOpenedFile()
-    // TRAP: the rows that make it another document, or an arriving document is drawn at the
+    // Trap: the rows that make it another document, or an arriving document is drawn at the
     // fit the one before it was given.
     if (call.row === 'RD-4' || call.row === 'RD-6' || call.row === 'RD-7') {
       forgetFitForNoPlace()
@@ -3766,13 +3766,13 @@ export function frameLoop(
   /** @purity non-pure */
   function carryOutOwedAction(owedAction: FileFlowOwedAction, frame: FrameValues | null): void {
     if (owedAction.kind === 'startNewDocument') {
-      // TRAP: not RD-6, whose history cell differs.
+      // Trap: not RD-6, whose history cell differs.
       if (emptyDocument !== undefined) replaceHeldDocument(startingAfreshCall(emptyDocument))
       return
     }
     if (owedAction.kind === 'resetGrs') return resetGrs(pageReload)
     if (owedAction.kind === 'openDocumentFile') {
-      // WHY: the person pressed go on, so the browser lets the file window open as IC-1 does.
+      // Why: the person pressed go on, so the browser lets the file window open as IC-1 does.
       if (files !== undefined) sendToSession({ type: 'documentOpenAsked', openRoute: OPEN_ROUTE_FROM_CHOOSER }, frame)
       return
     }
@@ -3784,12 +3784,12 @@ export function frameLoop(
     if (owedAction.created !== null) standOnWhatWasCreated(owedAction.created)
   }
 
-  // see FR-095, SK-25, IC-98
+  // Spec: FR-095, SK-25, IC-98
   /** @purity non-pure */
   const askToStartNewDocument = (frame: FrameValues | null): void =>
     sendToSession({ type: 'newDocumentEntryPressed', question: discardQuestionOf(held.document) }, frame)
 
-  // see T-109
+  // Spec: T-109
   /** @purity non-pure */
   function answerSettledEntry(entry: IconId, surface: string | null, frame: FrameValues, filterColumn: string | null, listed: readonly string[] | null): boolean {
     if (entry === CLOSE_SURFACE_ENTRY && surface === PROPERTIES_PANEL_SURFACE) {
@@ -3811,8 +3811,8 @@ export function frameLoop(
       return true
     }
     if (parentTasks.isToggledBy(entry)) return true
-    // see FR-049, S-445
-    // WHY: spent only when S-63 is already off; otherwise the translator's write turns it off.
+    // Spec: FR-049, S-445
+    // Why: spent only when S-63 is already off; otherwise the translator's write turns it off.
     if (entry === PROGRESS_MARKER_ENTRY && delayDiagnosticsShown) {
       showDelayDiagnostics(false)
       return !held.document.documentSettings.isProgressMarkerVisible
@@ -3863,13 +3863,13 @@ export function frameLoop(
     return false
   }
 
-  // see T-036
+  // Spec: T-036
   /** @purity non-pure */
   function carryOutAction(action: InputAction | null, frame: FrameValues, didSettleFieldEntry = false): void {
     if (action === null) return
     switch (action.kind) {
       case 'changeDocument': {
-        // WHY: a standing question is WS-2's to refuse (UN-8 passes); a second question is never raised.
+        // Why: a standing question is WS-2's to refuse (UN-8 passes); a second question is never raised.
         const raised = isQuestionAskedIn(session) ? null : changeQuestionRaisedBy(action, held.document)
         if (raised !== null) return sendToSession(raised, frame)
         if (action.picked !== undefined) return landCopyDrag(hands, action.writes.flat(), action.picked, frame)
@@ -3912,7 +3912,7 @@ export function frameLoop(
         const scene = exportScene()
         if (scene === null) return
         const capStopInPicture = scene.capStopTaskGroupId
-        // TRAP: the same PNG road as IO-4, not exportSvg; FR-025 puts one image/png on the
+        // Trap: the same PNG road as IO-4, not exportSvg; FR-025 puts one image/png on the
         // board and forbids the SVG text beside it.
         void exportPng(paint, scene).then(async (painted) => {
           if (!painted.ok) {
@@ -3927,7 +3927,7 @@ export function frameLoop(
             kind: 'picture',
             pngBytes: painted.png.pngBytes,
           })
-          // WHY: RS-68 only after the board took the picture; a refused write is RS-15 alone (FR-025 MUST NOT).
+          // Why: RS-68 only after the board took the picture; a refused write is RS-15 alone (FR-025 MUST NOT).
           if (!writing.ok) return void raiseNotice('RS-15', null)
           raiseNotice(PICTURE_COPIED_REASON, null)
           if (capStopInPicture !== null) raiseNotice(STACK_SAFETY_CAP_REASON, null)
@@ -3946,7 +3946,7 @@ export function frameLoop(
         sendToSession({ type: 'documentFileWriteAsked', writeForm: SAVE_WRITE_FORM, fixBundle: null }, frame)
         return
       case 'dismissNotice':
-        // WHY: spent at the head of receiveInput (spendNoticeRungFirst), before any other rung (NT-8).
+        // Why: spent at the head of receiveInput (spendNoticeRungFirst), before any other rung (NT-8).
         return
       case 'settleTextEntry':
         settleOnScreen(frame, didSettleFieldEntry)
@@ -3964,7 +3964,7 @@ export function frameLoop(
         wantFieldFocused(FIELD_ROW_OF_IN_PLACE_TARGET[action.target.kind])
         return
       case 'moveCommandPalette': {
-        // TRAP: each travel is an increment on the last corner; measuring from the press overshoots.
+        // Trap: each travel is an increment on the last corner; measuring from the press overshoots.
         const from = paletteCornerOf(commandPaletteDraggedTo, frame.regions, environment)
         commandPaletteDraggedTo = paletteCornerInWindow(
           { x: from.x + action.by.dx, y: from.y + action.by.dy },
@@ -3981,7 +3981,7 @@ export function frameLoop(
         return
       }
       case 'followTaskGroupGrab':
-        // WHY: the carry goes back onto the press because UF-30 is pure and cannot remember it.
+        // Why: the carry goes back onto the press because UF-30 is pure and cannot remember it.
         if (pressed !== null) pressed = { ...pressed, isTaskGroupGrabCarried: true }
         sendToSession(TASK_GROUP_GRAB_TRAVEL_PASSED, frame)
         return
@@ -3989,7 +3989,7 @@ export function frameLoop(
         grabCarry.scrollTo(action.to)
         return
       case 'chooseTaskGroup': {
-        // TRAP: read the held set, not the drawn task group; FR-048 may skip a paint, so a picture can be older.
+        // Trap: read the held set, not the drawn task group; FR-048 may skip a paint, so a picture can be older.
         const chosenTaskGroups = taskGroupsChosenWith(session.selection.chosenTaskGroups, action.taskGroupId, action.isExtending)
         sendToSession({ type: 'taskGroupsPicked', chosenTaskGroups }, frame)
         showPropertiesOfChoice('taskGroups')
@@ -3997,11 +3997,11 @@ export function frameLoop(
         return
       }
       case 'chooseResources':
-        // see FR-099, T-293
+        // Spec: FR-099, T-293
         sendToSession({ type: 'resourcesPicked', chosenResources: action.uids }, frame)
         return
       case 'toggleChosenResource': {
-        // see FR-099, T-293
+        // Spec: FR-099, T-293
         const chosen = session.selection.chosenResources
         const chosenResources = chosen.includes(action.uid)
           ? chosen.filter((one) => one !== action.uid)
@@ -4021,12 +4021,12 @@ export function frameLoop(
     }
   }
 
-  // see SK-19, FR-091, T-280
+  // Spec: SK-19, FR-091, T-280
   /** @purity non-pure */
   function settleOnScreen(frame: FrameValues, didSettleFieldEntry: boolean): void {
     if (isAnySurfaceStanding(session)) return
     const isNameEnded = isCreatedNameEnded(hands)
-    // TRAP: the naming answer first; the guard after it would leave the panel up (FR-091).
+    // Trap: the naming answer first; the guard after it would leave the panel up (FR-091).
     const hasUnsettledEntry = !isNameEnded && (didSettleFieldEntry || isEditingField(hands))
     const settleKey = { type: 'settleKeyPressed', hasSurfaceOrConfirmation: false, hasUnsettledEntry } as const
     sendToSession(isNameEnded ? { type: 'createdNameSettled' } : settleKey, frame)
@@ -4038,7 +4038,7 @@ export function frameLoop(
     if (subject !== null) sendToSession({ type: 'selectionMoved', subject }, frame)
   }
 
-  // see FR-068, IC-115, RS-65, UF-48, IO-10
+  // Spec: FR-068, IC-115, RS-65, UF-48, IO-10
   /** @purity non-pure */
   function copyImageToJsonPrompt(): void {
     const seam = clipboard
@@ -4046,13 +4046,13 @@ export function frameLoop(
       raiseNotice(PROMPT_NOT_COPIED_REASON, null)
       return
     }
-    // TRAP: started inside the input's own call; deferred, the browser can refuse the write and the download.
+    // Trap: started inside the input's own call; deferred, the browser can refuse the write and the download.
     void copyPromptAndHandSchema(seam, files, screenLanguageIn(session)).then((isCopied) => {
       raiseNotice(isCopied ? PROMPT_COPIED_REASON : PROMPT_NOT_COPIED_REASON, null)
     })
   }
 
-  // see FR-071, UF-48, RS-59
+  // Spec: FR-071, UF-48, RS-59
   /** @purity non-pure */
   function askBrowserForFullScreen(): void {
     const tellRefused = (): void => raiseNotice(FULL_SCREEN_REFUSED_REASON, null)
@@ -4061,22 +4061,22 @@ export function frameLoop(
       tellRefused()
       return
     }
-    // TRAP: asked here, inside the input's own call; deferred to a frame, the browser's
+    // Trap: asked here, inside the input's own call; deferred to a frame, the browser's
     // user-activation window can close first. S-99f waits for fullScreenChanged.
     const request = host.isFullScreen() ? host.exitFullScreen() : host.requestFullScreen()
     void request.catch(tellRefused)
   }
 
-  // see FR-072
+  // Spec: FR-072
   /** @purity non-pure */
   function showPropertiesOfChoice(pick: PanelSubjectPick): void {
     const subject = subjectOfChoice(selectedObjectsIn(session), session.selection.chosenTaskGroups, session, pick)
     if (subject === null) return
-    // see FR-072, T-280
+    // Spec: FR-072, T-280
     sendToSession({ type: 'propertiesOfChoiceAsked', subject }, values)
   }
 
-  // see FR-091, HF-14, HF-17
+  // Spec: FR-091, HF-14, HF-17
   /** @purity non-pure */
   function standOnWhatWasCreated(created: CreatedSubject): void {
     const landing = creationLandingOf(held.document.schedule, created)
@@ -4088,7 +4088,7 @@ export function frameLoop(
     else sendToSession({ type: 'creationLanded', created }, values)
   }
 
-  // see FR-048, NFR-010
+  // Spec: FR-048, NFR-010
   /** @purity semi-pure-mutable */
   function owesFrame(
     input: HumanInput,
@@ -4103,7 +4103,7 @@ export function frameLoop(
       if (pressed !== null) return true
       if (held.document !== before.document || session !== sessionBefore) return true
       if (session.notices !== noticesBefore) return true
-      // TRAP: a key that acted on nothing and moved nothing would draw the frame already shown;
+      // Trap: a key that acted on nothing and moved nothing would draw the frame already shown;
       // a held Shift, Ctrl or Alt repeats its press about 30 times a second.
       return input.kind === 'key' && (hasKeyActed || !isSameGrab(grabUnderPointer, grabBefore))
     }
@@ -4118,7 +4118,7 @@ export function frameLoop(
   }
 
   // see EZ-2, IN-3, JDG-668
-  // WHY: after the grab is read, since a task is a target; the icon's wait and the Esc-dismissed
+  // Why: after the grab is read, since a task is a target; the icon's wait and the Esc-dismissed
   // tooltip both follow the target, never a move inside it.
   /** @purity non-pure */
   function noteHintTarget(frame: FrameValues): void {
@@ -4129,13 +4129,13 @@ export function frameLoop(
     sendToSession(HINT_TARGET_CHANGED, frame)
   }
 
-  // see FT-1
+  // Spec: FT-1
   /** @purity non-pure */
   function receiveInput(input: HumanInput): void {
     recordHappening(hands, interactionRecorder, input)
-    // TRAP: before values is read; the frame it may draw replaces them.
+    // Trap: before values is read; the frame it may draw replaces them.
     tryWantedFieldBeforeInput(hands, fieldFocusRetries, input)
-    // TRAP: before sessionBefore is taken; a notice drained later would owe a frame on its own.
+    // Trap: before sessionBefore is taken; a notice drained later would owe a frame on its own.
     drainFieldEditNotices(hands, values)
     const frame = values
     if (frame === null) {
@@ -4143,12 +4143,12 @@ export function frameLoop(
       return
     }
 
-    // TRAP: the notice rung is spent before spendFieldCommit, whose settling can raise a telling this key never saw.
+    // Trap: the notice rung is spent before spendFieldCommit, whose settling can raise a telling this key never saw.
     const noticesBefore = session.notices
     const isNoticeStandingOnArrival = spendNoticeRungFirst(input, frame)
 
     const didSettleFieldEntry = spendFieldCommit(hands, frame)
-    // WHY: the wheel scrolls the window's table or the Properties Panel and leaves the chart still (SV-15, T-023).
+    // Why: the wheel scrolls the window's table or the Properties Panel and leaves the chart still (SV-15, T-023).
     if (input.kind === 'wheel' && isLeftToTheHost(input, screen?.surface)) {
       recordLine(hands, interactionRecorder, 'done', 'spent=tableWindowWheel')
       return
@@ -4158,9 +4158,9 @@ export function frameLoop(
     const partBefore = partUnderPointer
     const grabBefore = grabUnderPointer
     if (input.kind === 'pointer') {
-      // TRAP: first in this block; the NT-8 dismissal below returns early, and the repeat would tick for ever.
+      // Trap: first in this block; the NT-8 dismissal below returns early, and the repeat would tick for ever.
       if (input.phase === 'up' || input.phase === 'lost') endEntryRepeat()
-      // TRAP: judged on the point; hosts report moves that never leave the pixel, which would hold the rest open.
+      // Trap: judged on the point; hosts report moves that never leave the pixel, which would hold the rest open.
       const hasMoved = pointerAt === null || pointerAt.x !== input.x || pointerAt.y !== input.y
       pointerAt = { x: input.x, y: input.y }
       if (hasMoved) beginPointerRest()
@@ -4194,9 +4194,9 @@ export function frameLoop(
 
     const sessionBefore = session
     if (isLandingMarkClearedBy(input, session, pressed, frame.regions)) sendToSession(LANDING_MARK_CLEAR_ASKED, frame)
-    // TRAP: one context for all three members; rebuilding it reads the clock again (R7.4).
+    // Trap: one context for all three members; rebuilding it reads the clock again (R7.4).
     const context = collectInputContext(frame, isNoticeStandingOnArrival)
-    // TRAP: asked before the members run; asked after an Esc rung is spent, one press spends two levels.
+    // Trap: asked before the members run; asked after an Esc rung is spent, one press spends two levels.
     const escapeLevel = escapeLevelOf(
       input,
       context,
@@ -4218,7 +4218,7 @@ export function frameLoop(
     if (escapeLevel === 'confirmation') answerConfirmation(false, frame)
     windows.spendEscapeRung(hands, escapeLevel, frame)
 
-    // TRAP: dropped after the translator read the press (CS-2) and before the write below,
+    // Trap: dropped after the translator read the press (CS-2) and before the write below,
     // because WS-2 refuses a write during a gesture (AG-9).
     const isDragInterrupted =
       escapeLevel === 'gesture' || (input.kind === 'pointer' && input.phase === 'lost')
@@ -4238,7 +4238,7 @@ export function frameLoop(
       (settledEntry !== null &&
         answerSettledEntry(settledEntry, surfaceSettledOnRelease(input, context), frame, filterColumnOf(input, context), filterListedOf(input, context))) ||
       (settledFormat !== null && answerSettledFormat(hands, settledFormat)) ||
-      // TRAP: U-60 is offered the answer before answerConfirmation; it answers false unless standing.
+      // Trap: U-60 is offered the answer before answerConfirmation; it answers false unless standing.
       (settledAnswer !== null &&
         answerWatermarkUnlock(hands, settledAnswer === CONFIRMATION_PROCEED_ANSWER)) ||
       (settledAnswer !== null &&
@@ -4255,7 +4255,7 @@ export function frameLoop(
 
     if (hasChoiceMoved) followChoiceOnPanel(frame)
 
-    // TRAP: last, after the press is dropped, so a release no longer finds PTD-1 in flight.
+    // Trap: last, after the press is dropped, so a release no longer finds PTD-1 in flight.
     if (pointerAt !== null) {
       const answers = answersAtPointerOf(frame, pointerAt.x, pointerAt.y, partUnderPointer)
       grabUnderPointer = answers.hit
@@ -4272,7 +4272,7 @@ export function frameLoop(
     const hasKeyActed =
       spent || didSettleFieldEntry || hasChoiceMoved || escapeLevel !== null || translated.action !== null ||
       translated.displayScaleShown !== undefined || isVerticalZoomEndShown || screenEvent !== null || diagnosisRow !== null
-    // WHY: a wheel at a vertical-axis end changes nothing owesFrame reads, yet its message is new (ZE-5).
+    // Why: a wheel at a vertical-axis end changes nothing owesFrame reads, yet its message is new (ZE-5).
     const owesAFrame =
       owesFrame(input, context, sessionBefore, partBefore, grabBefore, noticesBefore, hasKeyActed) ||
       isVerticalZoomEndShown
@@ -4291,7 +4291,7 @@ export function frameLoop(
   if (isSizeSettled(environment)) runFrame()
 
   return {
-    // see FR-100
+    // Spec: FR-100
     /** @purity semi-pure-mutable */
     hasUnsavedEdits(): boolean {
       return session.fileFlow.unsavedEditsState.kind === 'editsUnsaved'
@@ -4305,7 +4305,7 @@ export function frameLoop(
       const frame = values
       if (frame === null) return false
       const context = collectInputContext(frame)
-      // TRAP: keep in step with receiveInput, which spends presses commandFromInput cannot see;
+      // Trap: keep in step with receiveInput, which spends presses commandFromInput cannot see;
       // otherwise an Esc spent there also leaves full screen (IN-4a, FR-071).
       const level = escapeLevelOf(
         input,
@@ -4330,7 +4330,7 @@ export function frameLoop(
       const wasSettled = isSizeSettled(environment)
       environment = next
       // see FR-053, JDG-660
-      // WHY: a shrunk window, or a wider measured band, can leave a held corner outside it;
+      // Why: a shrunk window, or a wider measured band, can leave a held corner outside it;
       // this same path carries both (onAppHeaderHeightMeasured's wiring does too).
       if (commandPaletteDraggedTo !== null) {
         commandPaletteDraggedTo = paletteCornerInWindow(
@@ -4369,7 +4369,7 @@ export function frameLoop(
       shownTasks: landingAgentHolder(shownTasks.agentHolder(), owedJump.owe, () => values),
       delayFixLog: documentFileFlow,
       historySteps: historyStepsOf(replaceHeldDocumentAt),
-      // see CM-102, FR-055
+      // Spec: CM-102, FR-055
       pageFitWrites: () => (values === null ? null : fitWrites(collectInputContext(values))[0] ?? null),
       /** @purity non-pure */
       askToOpenFile: () => {
@@ -4398,7 +4398,7 @@ export function frameLoop(
       if (NOTICE_DISPLAY_OF_REASON[reason] !== 'report') return raiseNotice(reason, affectedCount)
       sendFromFlow(startupReadingLanded(reason, affectedCount))
     },
-    // see FT-6, FR-071, S-99f
+    // Spec: FT-6, FR-071, S-99f
     /** @purity non-pure */
     fullScreenChanged(isFullScreen: boolean): void {
       const before = session
@@ -4409,12 +4409,12 @@ export function frameLoop(
     pressContinued(): void {
       if (isSizeSettled(environment)) ask()
     },
-    // WHY: the store took the file in its capture listener; a host with no store still wakes (FT-1).
+    // Why: the store took the file in its capture listener; a host with no store still wakes (FT-1).
     /** @purity non-pure */
     fileDropped(): void {
       askToOpenDroppedFile(hands)
     },
-    // see OP-17, T-280
+    // Spec: OP-17, T-280
     /** @purity non-pure */
     fileDragMoved(isOver: boolean): void {
       const before = session
@@ -4429,7 +4429,7 @@ export function frameLoop(
 //   docs/spec/_source/settings.json (table T-206)
 //   docs/spec/01-04-requirements.md (table T-229)
 // Rebuild: npm run gen   ||   npm run gen:check fails on drift.
-// see T-206
+// Spec: T-206
 const NOT_STORED_PROPERTIES_PANEL_SIZES: {
   readonly 'S-171': number
   readonly 'S-602': number
@@ -4446,21 +4446,21 @@ const NOT_STORED_PROPERTIES_PANEL_SIZES: {
   'S-606': 160,
 }
 
-// see T-206
+// Spec: T-206
 const NOT_STORED_PROPERTIES_PANEL_FLOOR: {
   readonly 'S-248': number
 } = {
   'S-248': 160,
 }
 
-// see T-206
+// Spec: T-206
 export const NOT_STORED_SCROLLBAR_SIZES: {
   readonly 'S-205': number
 } = {
   'S-205': 8,
 }
 
-// see T-206
+// Spec: T-206
 const NOT_STORED_SCHEDULE_FILTER_BAR_SIZES: {
   readonly 'S-497': number
   readonly 'S-498': number
@@ -4469,13 +4469,13 @@ const NOT_STORED_SCHEDULE_FILTER_BAR_SIZES: {
   'S-498': 12,
 }
 
-// see T-206
+// Spec: T-206
 const NOT_STORED_WATERMARK_NAME: {
   readonly 'S-99a': 'user'
 } = {
   'S-99a': 'user',
 }
 
-// see T-229, ED-1
+// Spec: T-229, ED-1
 export const EDITED_BY_SCREEN = 'user'
 // </generated>

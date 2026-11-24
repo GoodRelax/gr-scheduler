@@ -140,7 +140,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `parentCandidatesOf` | entry | function | `src/entity/document-model/schedule/delay-diagnostics.ts#parentCandidatesOf` | PI-1 | 親の決まらない子の候補の並び（表 T-318 の `IP-4`、`FR-135` の番号の枠） |
 | `ParentTaskResolution` | entry | type | `src/entity/document-model/schedule/delay-diagnostics.ts#ParentTaskResolution` | PI-1 | 型。 |
 | `parentTaskResolutionsOf` | entry | function | `src/entity/document-model/schedule/delay-diagnostics.ts#parentTaskResolutionsOf` | PI-1 | どの `Task` の親タスクも、明記・導いた親タスク（表 T-318 の `IP-2`）・決まらない（`VO-4`、候補は `IP-4` の並び）・根（`IP-5`）のどれかで答える。 |
-| `PlanActualState` | entry | type | `src/entity/document-model/schedule/plan-actual-state.ts#PlanActualState` | -- | type PlanActualState = \| 'notStarted' \| 'finished' \| 'suspendedResumeUnknown' \| 'suspendedResumePlanned' \| 'inProgress' // see T-019a /** @purity pure */ exp... |
+| `PlanActualState` | entry | type | `src/entity/document-model/schedule/plan-actual-state.ts#PlanActualState` | -- | type PlanActualState = \| 'notStarted' \| 'finished' \| 'suspendedResumeUnknown' \| 'suspendedResumePlanned' \| 'inProgress' // Spec: T-019a /** @purity pure */ e... |
 | `planActualState` | entry | function | `src/entity/document-model/schedule/plan-actual-state.ts#planActualState` | PI-1 | 表 T-019a の判別 |
 | `plannedDurationMinutesOf` | entry | function | `src/entity/document-model/schedule/working-calendar.ts#plannedDurationMinutesOf` | PI-1 | 予定の長さの分数。 |
 | `plannedInstantsOf` | entry | function | `src/entity/document-model/schedule/working-calendar.ts#plannedInstantsOf` | PI-1 | 予定の始まりと終わりの瞬間の対。 |
@@ -731,9 +731,9 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `AgentApi` | entry | interface | `src/adapter/agent-api-endpoint/agent-api-members.ts#AgentApi` | -- | interface AgentApi |
 | `AgentApiWiring` | entry | interface | `src/adapter/agent-api-endpoint/agent-api-members.ts#AgentApiWiring` | -- | interface AgentApiWiring |
 | `AgentChangeReceiver` | entry | type | `src/adapter/agent-api-endpoint/agent-api-members.ts#AgentChangeReceiver` | -- | type AgentChangeReceiver = (notice: ChangeNotice) => void |
-| `AgentExport` | entry | type | `src/adapter/agent-api-endpoint/agent-api-members.ts#AgentExport` | -- | type AgentExport<TValue> = \| { readonly ok: true; readonly value: TValue } \| { readonly ok: false; readonly refusal: AgentRefusal } // see AV-6 export type A... |
+| `AgentExport` | entry | type | `src/adapter/agent-api-endpoint/agent-api-members.ts#AgentExport` | -- | type AgentExport<TValue> = \| { readonly ok: true; readonly value: TValue } \| { readonly ok: false; readonly refusal: AgentRefusal } // Spec: AV-6 export type... |
 | `AgentFocusOutcome` | entry | type | `src/adapter/agent-api-endpoint/agent-api-members.ts#AgentFocusOutcome` | -- | type AgentFocusOutcome = \| |
-| `AgentImportSource` | entry | type | `src/adapter/agent-api-endpoint/agent-api-members.ts#AgentImportSource` | -- | type AgentImportSource = \| Document \| { readonly document: Document } \| { readonly text: string } // see AV-8 export interface AgentShownTasks |
+| `AgentImportSource` | entry | type | `src/adapter/agent-api-endpoint/agent-api-members.ts#AgentImportSource` | -- | type AgentImportSource = \| Document \| { readonly document: Document } \| { readonly text: string } // Spec: AV-8 export interface AgentShownTasks |
 | `AgentRefusal` | entry | interface | `src/adapter/agent-api-endpoint/agent-api-members.ts#AgentRefusal` | -- | interface AgentRefusal |
 | `AgentRefusalReason` | entry | type | `src/adapter/agent-api-endpoint/agent-api-members.ts#AgentRefusalReason` | -- | type AgentRefusalReason = \| 'staleStamp' \| 'notOwnStep' \| 'gestureInFlight' \| 'editingInPlace' \| 'questionAsked' \| 'deliveringNotices' \| 'commandRefused' \| '... |
 | `AgentShownTasks` | entry | interface | `src/adapter/agent-api-endpoint/agent-api-members.ts#AgentShownTasks` | -- | interface AgentShownTasks |
@@ -1083,7 +1083,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `DocumentFileFaultReason` | entry | type | `src/adapter/file-gateway/file-gateway.ts#DocumentFileFaultReason` | -- | type DocumentFileFaultReason = \| FileStoreFaultReason \| 'notUtf8' \| 'notAnOverwriteTarget' export interface DocumentFileFault |
 | `DocumentFileOpening` | entry | type | `src/adapter/file-gateway/file-gateway.ts#DocumentFileOpening` | -- | type DocumentFileOpening = \| |
 | `DocumentFileSaveRequest` | entry | type | `src/adapter/file-gateway/file-gateway.ts#DocumentFileSaveRequest` | -- | type DocumentFileSaveRequest = \| |
-| `DocumentFileSaving` | entry | type | `src/adapter/file-gateway/file-gateway.ts#DocumentFileSaving` | -- | type DocumentFileSaving = \| { readonly ok: true; readonly openedFile: OpenedFileState } \| { readonly ok: false; readonly fault: DocumentFileFault } // see SX... |
+| `DocumentFileSaving` | entry | type | `src/adapter/file-gateway/file-gateway.ts#DocumentFileSaving` | -- | type DocumentFileSaving = \| { readonly ok: true; readonly openedFile: OpenedFileState } \| { readonly ok: false; readonly fault: DocumentFileFault } // Spec: ... |
 | `DocumentIdentity` | entry | interface | `src/adapter/file-gateway/file-gateway.ts#DocumentIdentity` | -- | interface DocumentIdentity extends ProjectIdentity |
 | `FileReading` | entry | type | `src/adapter/file-gateway/file-store.ts#FileReading` | -- | type FileReading = \| |
 | `FileStore` | entry | interface | `src/adapter/file-gateway/file-store.ts#FileStore` | PI-22 | 表 T-065 |
@@ -1497,7 +1497,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `PropertiesPanel` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#PropertiesPanel` | -- | interface PropertiesPanel |
 | `PropertyBadge` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#PropertyBadge` | -- | interface PropertyBadge |
 | `PropertyControl` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#PropertyControl` | -- | interface PropertyControl |
-| `PropertyControlKind` | entry | type | `src/adapter/screen-renderer/screen-renderer.ts#PropertyControlKind` | -- | type PropertyControlKind = \| 'text' \| 'multiline' \| 'date' \| 'number' \| 'boolean' \| 'choice' \| 'color' \| 'taskReference' // see CV-9 // WHY: swatches run bes... |
+| `PropertyControlKind` | entry | type | `src/adapter/screen-renderer/screen-renderer.ts#PropertyControlKind` | -- | type PropertyControlKind = \| 'text' \| 'multiline' \| 'date' \| 'number' \| 'boolean' \| 'choice' \| 'color' \| 'taskReference' // Spec: CV-9 // Why: swatches run b... |
 | `PropertyField` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#PropertyField` | -- | interface PropertyField |
 | `PropertyFieldGroup` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#PropertyFieldGroup` | -- | interface PropertyFieldGroup |
 | `PropertyFieldKey` | entry | type | `src/adapter/screen-renderer/screen-renderer.ts#PropertyFieldKey` | -- | type PropertyFieldKey = \| |
@@ -2027,7 +2027,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `emptyNoticeValues` | file only | const | `src/use-case/advance-screen-session/notice-values.ts#emptyNoticeValues` | -- | const emptyNoticeValues: NoticeValues = { ...NOTICE_VALUES_INITIAL_AXES } |
 | `InvariantRow` | file only | type | `src/use-case/advance-screen-session/notice-values.ts#InvariantRow` | -- | type InvariantRow = \| 'IV-1' \| 'IV-2' \| 'IV-3' \| 'IV-4' \| 'IV-5' \| 'IV-6' \| 'IV-23' \| 'IV-7' \| 'IV-17' \| 'IV-8' \| 'IV-9' |
 | `NoticeDisplayState` | file only | type | `src/use-case/advance-screen-session/notice-values.ts#NoticeDisplayState` | -- | type NoticeDisplayState = \| { readonly kind: 'hidden' } \| { readonly kind: 'shown'; readonly standing: NoticeValuesStateCarried['standing'] } export type Cha... |
-| `NoticeManner` | file only | type | `src/use-case/advance-screen-session/notice-values.ts#NoticeManner` | -- | type NoticeManner = \| 'NT-1' \| 'NT-3' \| 'NT-3a' \| 'NT-4' \| 'NT-5' \| 'NT-6' // see T-233, T-037 export const NOTICE_MANNER_OF_REASON: Readonly<Record<NoticeRe... |
+| `NoticeManner` | file only | type | `src/use-case/advance-screen-session/notice-values.ts#NoticeManner` | -- | type NoticeManner = \| 'NT-1' \| 'NT-3' \| 'NT-3a' \| 'NT-4' \| 'NT-5' \| 'NT-6' // Spec: T-233, T-037 export const NOTICE_MANNER_OF_REASON: Readonly<Record<Notice... |
 | `NoticeValues` | file only | interface | `src/use-case/advance-screen-session/notice-values.ts#NoticeValues` | -- | interface NoticeValues |
 | `NoticeValuesAxes` | file only | type | `src/use-case/advance-screen-session/notice-values.ts#NoticeValuesAxes` | -- | type NoticeValuesAxes = Omit<NoticeValues, never> |
 | `NoticeValuesEffect` | file only | type | `src/use-case/advance-screen-session/notice-values.ts#NoticeValuesEffect` | -- | type NoticeValuesEffect = |

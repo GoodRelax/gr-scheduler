@@ -14,7 +14,7 @@ import { specTable, unbroken } from './spec-table'
 const SPEC = join(process.cwd(), 'docs', 'spec')
 const REQUIREMENTS = unbroken(readFileSync(join(SPEC, '01-04-requirements.md'), 'utf8'))
 
-// see FR-132, S-397, T-314
+// Spec: FR-132, S-397, T-314
 const FR_132_COMPARED = '押し出し日数（`DQ-4`）を稼働日へ切り上げた数が `S-397` 以上で完了していない `Task` をボトルネックとすること'
 const FR_132_IN_MINUTES =
   '量はすべて文書の暦の稼働時間の分で数え（表 T-314）、`S-397` と比べるときだけ、`Project.minutesPerDay` 分（空なら `S-128`）を 1 日として稼働日へ切り上げること（MUST、暦は `FR-054`） —— 1 分でも終端を押したものを 1 日として数え、表 T-375 の `TX-8` が見せる日数と揃える。'
@@ -34,7 +34,7 @@ describe('the clauses and the row these cases are built from still read as quote
   })
 })
 
-// WHY: May 2027 has Monday the 3rd and Monday the 10th; the bundled calendar works Monday to Friday, 08:00-12:00 and 13:00-17:00.
+// Why: May 2027 has Monday the 3rd and Monday the 10th; the bundled calendar works Monday to Friday, 08:00-12:00 and 13:00-17:00.
 const may = (date: number, hhmm: string): string => `2027-05-${String(date).padStart(2, '0')}T${hhmm}:00`
 const UID = 300
 
@@ -49,12 +49,12 @@ function documentOf(statusDate: string, task: Record<string, unknown>): Document
   return decoded.document
 }
 
-// WHY: planned Mon 08:00 to Fri 17:00 (2400 min), worked to Thu 17:00 (1920), so 480 remain and BD-1 ends 480
+// Why: planned Mon 08:00 to Fri 17:00 (2400 min), worked to Thu 17:00 (1920), so 480 remain and BD-1 ends 480
 // working minutes after the status date: the push-out is the working minutes from Friday 08:00 to the status date.
 const startedOpen = (statusDate: string): Document =>
   documentOf(statusDate, taskOf(UID, { start: may(3, '08:00'), finish: may(7, '17:00'), actualStart: may(3, '08:00'), stop: may(6, '17:00'), percentComplete: 80 }))
 
-// WHY: finished at actualFinish; the push-out is the working minutes from the planned finish to it.
+// Why: finished at actualFinish; the push-out is the working minutes from the planned finish to it.
 const finishedAt = (actualFinish: string): Document =>
   documentOf(may(10, '17:00'), taskOf(UID, { start: may(3, '08:00'), finish: may(7, '17:00'), actualStart: may(3, '08:00'), actualFinish, percentComplete: 100 }))
 

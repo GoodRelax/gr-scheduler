@@ -185,13 +185,13 @@ test.describe('T-330 SV-1 / T-109 IC-153 -- Clear Filters on the Search Panel', 
       await settle(page)
       const wordRows = await rowCount(page, PANEL)
       expect(wordRows, 'premise: the word narrows the table').toBeLessThan(all)
-      // STEP: check the Visibility box of the first row
+      // Step: check the Visibility box of the first row
       const firstBox = await boxOf(page, `${PANEL} tbody tr:first-child input[type="checkbox"]`)
       if (firstBox === null) throw new Error('premise: the first row has a Visibility box')
       await pressAt(page, firstBox.x + firstBox.width / 2, firstBox.y + firstBox.height / 2)
       const checkedBefore = await page.evaluate((window: string) => Array.from(document.querySelectorAll<HTMLInputElement>(`${window} tbody input[type="checkbox"]`)).map((one) => one.checked), PANEL)
       expect(checkedBefore.some(Boolean), 'premise: a row is checked').toBe(true)
-      // STEP: drag SQ-11 wider, filter SQ-1, sort SQ-4
+      // Step: drag SQ-11 wider, filter SQ-1, sort SQ-4
       const dragged = await dragBorder(page, PANEL, 'SQ-11', 40)
       await openFilter(page, PANEL, 'SQ-1')
       await uncheckFirstValue(page, PANEL)

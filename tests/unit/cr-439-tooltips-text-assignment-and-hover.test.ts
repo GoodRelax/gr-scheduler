@@ -82,7 +82,7 @@ function drawn(tooltips: readonly Tooltip[]): Stage {
 
 const tipsOf = (built: Stage): FakeElement[] => oneByRole(built.root(), TOOLTIP).children
 
-// WHY: pointer-events inherits, so the value a node takes is the nearest declaration up the tree.
+// Why: pointer-events inherits, so the value a node takes is the nearest declaration up the tree.
 /** @purity pure */
 function pointerEventsReaching(element: FakeElement): string {
   for (let at: FakeElement | null = element; at !== null; at = at.parentNode) {

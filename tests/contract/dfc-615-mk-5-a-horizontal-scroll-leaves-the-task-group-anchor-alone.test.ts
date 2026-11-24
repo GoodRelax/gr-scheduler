@@ -6,7 +6,7 @@ import type { HumanInput } from '../../src/adapter/input-command-translator/inpu
 import { DISPLAY_SCALE_STEPS } from '../fixtures/display-scale'
 import { REQUIREMENTS, taskGroupDocument, shell, type TaskGroupSeed, type ShellBench } from '../unit/cr-541-stage'
 
-// see MK-5
+// Spec: MK-5
 const MK_5_ROW = '| MK-5 | Ctrl ＋ Shift ＋ ホイール | 横スクロール | — |'
 
 const TASK_GROUP_COUNT = 60

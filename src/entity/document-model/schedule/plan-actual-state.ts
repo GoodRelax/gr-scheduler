@@ -1,4 +1,4 @@
-// Schedule -- the plan/actual state of a task, judged by the steps of table T-019a, and the day its progress point marks.
+// File: Schedule: the plan/actual state of a task, judged by the steps of table T-019a, and the day its progress point marks.
 // @unit      UF-127  (docs/spec/05-07-design.md, table T-075)
 // @component Schedule, layer documentModel (table T-062)
 // @purity    pure
@@ -13,7 +13,7 @@ export type PlanActualState =
   | 'suspendedResumePlanned'
   | 'inProgress'
 
-// see T-019a
+// Spec: T-019a
 /** @purity pure */
 export function planActualState(task: Task): PlanActualState {
   if (task.actualStart === null) return 'notStarted'
@@ -23,9 +23,9 @@ export function planActualState(task: Task): PlanActualState {
   return 'inProgress'
 }
 
-// see T-022, RV-1, FR-014, VS-6
-// WHY: the progress line and the VS-6 check read the one day, so the rule of T-022 lives in one place.
-// TRAP: the in-progress day is read off stop here, not through actualLastDay, whose unit imports this one.
+// Spec: T-022, RV-1, FR-014, VS-6
+// Why: the progress line and the VS-6 check read the one day, so the rule of T-022 lives in one place.
+// Trap: the in-progress day is read off stop here, not through actualLastDay, whose unit imports this one.
 /** @purity pure */
 export function progressPointDayOf(task: Task, statusDate: CalendarDay): CalendarDay | null {
   /** @purity pure */

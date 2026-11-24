@@ -221,7 +221,7 @@ export function rowsOf(result: unknown): readonly FixRow[] {
   throw new Error('proposeDelayFixes answered neither a list of DelayFixRow nor an object holding one under rows')
 }
 
-// WHY: the third argument (`checks`) is named by CR-731 section 5 and by nothing else; its shape is the one thing the specification leaves open.
+// Why: the third argument (`checks`) is named by CR-731 section 5 and by nothing else; its shape is the one thing the specification leaves open.
 // A case that does not need it calls with none; a case that does names the shapes it tried.
 const NO_CHECKS: readonly unknown[] = [undefined, [], new Set<string>(), new Map<string, boolean>(), {}]
 

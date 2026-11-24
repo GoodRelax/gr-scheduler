@@ -1,7 +1,7 @@
 // W3 tester 4: the built page pressed in a real browser -- MK-13 Document Title, FR-096 Export Chooser, T-335 WB-10, WM-9 Esc, T-330 SV-7.
 
-// WHY: one line, overlap, focus and a drag on a frame edge are decided by layout in a real browser; the fake DOM cannot see them.
-// WHY: every word and row is read from docs/spec at read time; the page is the built dist/index.html (uc-harness).
+// Why: one line, overlap, focus and a drag on a frame edge are decided by layout in a real browser; the fake DOM cannot see them.
+// Why: every word and row is read from docs/spec at read time; the page is the built dist/index.html (uc-harness).
 
 import { expect, test, type Page } from '@playwright/test'
 import { readFileSync } from 'node:fs'
@@ -38,7 +38,7 @@ interface Rect {
   readonly bottom: number
 }
 
-// see T-103
+// Spec: T-103
 const roleOf = (id: string): string => {
   const row = specTable('T-103').rows.find((one) => one.id === id)
   if (row === undefined) throw new Error(`table T-103 has no row ${id}`)
@@ -50,7 +50,7 @@ const OPEN_CHOOSER = roleOf('U-56')
 const WATERMARK_UNLOCK = roleOf('U-60')
 const DOCUMENT_TITLE = roleOf('U-27')
 
-// see FR-038
+// Spec: FR-038
 /** @purity pure */
 function wordsOfPart(part: string): readonly string[] {
   const found: string[] = []
@@ -114,7 +114,7 @@ async function formatBoxes(page: Page): Promise<readonly { left: number; right: 
 
 /** @purity non-pure */
 async function dragEdge(page: Page, box: Rect, dx: number, dy: number): Promise<void> {
-  // WHY: one pixel inside the lower-right corner, where a resize border would be grabbed if there were one.
+  // Why: one pixel inside the lower-right corner, where a resize border would be grabbed if there were one.
   const at = { x: box.right - 1, y: box.bottom - 1 }
   await page.mouse.move(at.x, at.y)
   await page.mouse.down()
@@ -200,7 +200,7 @@ test.describe(`FR-096 -- ${FR_096_HEADING}`, () => {
       return { icons, firstFormat, texts }
     }, EXPORT_CHOOSER)
     if (read === null) throw new Error('the Export Chooser is not on the page')
-    // WHY: CR-770 (JDG-2251) renamed the English heading of the Export Chooser to Save As.
+    // Why: CR-770 (JDG-2251) renamed the English heading of the Export Chooser to Save As.
     const headings = ['ファイルに保存', 'Save As']
     const heading = read.texts.find((one) => headings.includes(one.text))
     expect(heading, `${FR_096_HEADING}: the title is the heading word`).toBeDefined()

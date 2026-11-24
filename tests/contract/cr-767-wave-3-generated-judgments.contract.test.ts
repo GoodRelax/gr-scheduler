@@ -62,7 +62,7 @@ const GENERATED_OPEN = '// <generated -- do not edit by hand>'
 const GENERATED_FROM = '// From docs/spec/_source/state-machines.json'
 const GENERATED_CLOSE = '// </generated>'
 
-// see SD-3, RA-2
+// Spec: SD-3, RA-2
 function generatedRegionOf(unit: string): string {
   const text = readFileSync(join(process.cwd(), unit), 'utf8').replace(/\r\n/g, '\n')
   let at = text.indexOf(GENERATED_OPEN)
@@ -184,7 +184,7 @@ function kindPath(value: unknown): string[] {
   return path
 }
 
-// WHY: a cell on a composite answers for every state below it; the innermost cell is read first.
+// Why: a cell on a composite answers for every state below it; the innermost cell is read first.
 function cellFor(machine: RawMachine, event: string, key: string): RawCell | undefined {
   const parts = key.split('.')
   for (let depth = parts.length; depth >= 1; depth -= 1) {
@@ -214,7 +214,7 @@ function sessionWith(region: string, values: Loose): ScreenSession {
 
 type Ran = { truth: boolean; selected: RawBranch | undefined; before: Loose; after: Loose; effects: readonly Loose[]; cell: readonly RawBranch[] }
 
-// WHY: inAfter / after read the machine after the same event's step; the step's own result is that
+// Why: inAfter / after read the machine after the same event's step; the step's own result is that
 // value, and whether that machine itself landed right is the region contract test's business.
 function run(c: GuardCase, scene: Scene): Ran {
   const session = sessionWith(c.region, scene.values)
@@ -237,7 +237,7 @@ function run(c: GuardCase, scene: Scene): Ran {
   }
 }
 
-// see SD-3, SF-3
+// Spec: SD-3, SF-3
 function expectSceneMatchesTable(c: GuardCase, scene: Scene): void {
   const ran = run(c, scene)
   expect(ran.cell.some((b) => (b.guard ?? []).some((g) => g.name === c.guard)), `the cell names ${c.guard}`).toBe(true)
@@ -272,7 +272,7 @@ const open = (surfaceName: string): Loose => ({ kind: 'open', surfaceName })
 const esc = (rung: string): Loose => ({ type: 'escapePressed', rung })
 const closeAsked = (target: string): Loose => ({ type: 'surfaceCloseAsked', target })
 
-// see FR-085, FR-072
+// Spec: FR-085, FR-072
 const ONE_ITEM = { items: [{ kind: 'task', uid: 1 }], isOrdered: false }
 const TWO_ITEMS = { items: [{ kind: 'task', uid: 1 }, { kind: 'task', uid: 2 }], isOrdered: false }
 const NO_ITEMS = { items: [], isOrdered: false }
@@ -281,7 +281,7 @@ const subject = (selection: unknown, taskGroupIds: readonly string[]): Loose => 
 const SELECTION_SHOWN = { propertiesPanelContentState: { kind: 'selectionDisplayed', subject: SUBJECT } }
 const SETTINGS_SHOWN = { propertiesPanelContentState: { kind: 'documentSettingsDisplayed' } }
 
-// see WC-10, WC-8, IV-17
+// Spec: WC-10, WC-8, IV-17
 const CLEAN_DRAFT = { workingDayTypes: [2, 3, 4, 5, 6], weekStartDay: 1, ranges: [{ start: '8:00', end: '17:00' }], exceptions: [] }
 const ONE_REFUSAL_DRAFT = { ...CLEAN_DRAFT, workingDayTypes: [] }
 const TWO_REFUSALS_DRAFT = { ...CLEAN_DRAFT, workingDayTypes: [], ranges: [{ start: '17:00', end: '8:00' }] }
@@ -290,7 +290,7 @@ const drafted = (calendarDraft: unknown): Loose => ({ calendarDraftState: { kind
 const arm = (child: Loose): Loose => ({ armModeState: { kind: 'armed', child } })
 const armEvent = (armKind: string, shapeKind: string | null, glyph: string | null): Loose => ({ type: 'armEntryPressed', armKind, shapeKind, glyph })
 
-// see NT-3, NT-8, T-233
+// Spec: NT-3, NT-8, T-233
 const OLDEST = { reason: 'RS-41', affectedCount: 3 }
 const NEWEST = { reason: 'RS-2', affectedCount: null }
 const TIMED = { reason: 'RS-65', affectedCount: null }
@@ -300,12 +300,12 @@ const standingLength = (values: Loose): number => {
   const display = values['noticeDisplayState'] as Loose
   return display['kind'] === 'shown' ? (display['standing'] as readonly unknown[]).length : 0
 }
-// see NT-3
+// Spec: NT-3
 const bundledOrAppended = (before: Loose, after: Loose, truth: boolean): void => {
   expect(standingLength(after), truth ? 'the same words bundle into one card' : 'a new card stands').toBe(standingLength(before) + (truth ? 0 : 1))
 }
 
-// see AG-9, FR-018, FR-053, GR-19
+// Spec: AG-9, FR-018, FR-053, GR-19
 const GRAB_SHAPE = { kind: 'grab', grabTaskGroup: 'GR-23', itemId: 'task1' }
 const REPEATING = { kind: 'entry', entry: 'IC-12' }
 const LAST_REPEATING = { kind: 'entry', entry: 'IC-15' }
@@ -316,7 +316,7 @@ const STRIP = { kind: 'taskGroupGrabStrip', taskGroupId: 'group1' }
 const press = (pressRow: string, pressedOn: Loose | null): Loose => ({ type: 'pointerPressed', pressRow, pressedOn })
 const held = (kind: string, pressRow: string, pressedOn: Loose | null): Loose => ({ pointerPressState: { kind, pressRow, pressedOn } })
 
-// see QN-1, QN-4, QN-5, NT-7, OP-16
+// Spec: QN-1, QN-4, QN-5, NT-7, OP-16
 const question = (row: string): Loose => ({ manner: 'NT-7', question: row, items: [{ name: 'Task A', isShownOnAnotherTaskGroup: false }] })
 const OWED = { kind: 'changeDocument', writes: [[{ kind: 'CM-35' }]], created: null }
 const INCOMING = { fileName: 'next.xml', byteCount: 120, documentName: null }
@@ -340,7 +340,7 @@ const REPORTED = { droppedTaskNames: ['Task B'], missingTaskNames: ['Task M'], r
 
 const SCREEN = 'screen'
 
-// WHY: per guard, scenes on one or two cells naming it, with each comparison at its boundary;
+// Why: per guard, scenes on one or two cells naming it, with each comparison at its boundary;
 // whether a scene is true or false is not written here -- the manuscript condition says it.
 const GUARD_CASES: readonly GuardCase[] = [
   { region: SCREEN, guard: 'hasCalendarDraftRefusal', machine: 'calendarDraftStateMachine', state: 'drafted', scenes: [

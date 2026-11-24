@@ -1,4 +1,4 @@
-// DomScreenSurface -- the Task Group Title Tree task groups with their controls, grab strips and folded counts.
+// File: DomScreenSurface: the Task Group Title Tree task groups with their controls, grab strips and folded counts.
 // @unit      UF-105  (docs/spec/05-07-design.md, table T-075)
 // @component DomScreenSurface, layer Framework (table T-062)
 // @purity    non-pure
@@ -49,8 +49,8 @@ const ADD_TOP_ROW_ENTRY = 'IC-93'
 
 const DELETE_EVERY_ROW_ENTRY = 'IC-106'
 
-// see HF-10, HF-12
-// WHY: one line, left to right; each entry's step from the right edge is read from here only.
+// Spec: HF-10, HF-12
+// Why: one line, left to right; each entry's step from the right edge is read from here only.
 const HEAD_RUN = [
   COLLAPSE_EVERY_ROW_ENTRY,
   OPEN_LEVEL_ZERO_ENTRY,
@@ -87,8 +87,8 @@ function taskGroupControlRight(stepsFromEdge: number): string {
   return `right:${taskGroupControlRightPx(stepsFromEdge)}px;`
 }
 
-// see HF-4, T-206
-// TRAP: read at the call; dom-screen-surface.ts imports this file, so a module-level read sees nothing.
+// Spec: HF-4, T-206
+// Trap: read at the call; dom-screen-surface.ts imports this file, so a module-level read sees nothing.
 /** @purity pure */
 function taskGroupControlRightPx(stepsFromEdge: number): number {
   return NOT_STORED_TASK_GROUP_CONTROL_EDGE_SIZES['S-313'] + taskGroupControlStepPx() * stepsFromEdge
@@ -114,17 +114,17 @@ const ROW_CONTROL_PAIR_CELLS = {
 
 const TASK_GROUP_CONTROL_LEFTMOST_STEP = TASK_GROUP_CONTROL_STEPS.foldingGrid + 1
 
-// see HF-1, HF-4
+// Spec: HF-1, HF-4
 const TASK_GROUP_CONTROL_RANKS = 2
 
-// see HF-1, LF-16
+// Spec: HF-1, LF-16
 /** @purity pure */
 function taskGroupControlLatticePx(): number {
   return entranceOuterHeightPx('S-243') * TASK_GROUP_CONTROL_RANKS
 }
 
-// see HF-6, HF-19
-// WHY: hit, so the gaps between controls count as the group; as tall as the lower of the
+// Spec: HF-6, HF-19
+// Why: hit, so the gaps between controls count as the group; as tall as the lower of the
 // task group's bottom and the lattice's, which may hang over the task groups below.
 /** @purity pure */
 function taskGroupControlGroundStyle(leftmostStepsFromEdge: number): string {
@@ -137,7 +137,7 @@ function taskGroupControlGroundStyle(leftmostStepsFromEdge: number): string {
   )
 }
 
-// see FR-029, S-243
+// Spec: FR-029, S-243
 /** @purity pure */
 function taskGroupControlBoxPx(): number {
   return entranceOuterWidthPx('S-243')
@@ -148,7 +148,7 @@ function taskGroupControlWidthCss(): string {
   return `${taskGroupControlBoxPx()}px`
 }
 
-// see HF-5, FR-029
+// Spec: HF-5, FR-029
 /** @purity pure */
 function taskGroupControlBoxStyle(): string {
   return (
@@ -158,13 +158,13 @@ function taskGroupControlBoxStyle(): string {
   )
 }
 
-// see FR-029, S-243
+// Spec: FR-029, S-243
 /** @purity pure */
 function taskGroupControlGlyphGapStyle(): string {
   return `margin:${entranceGapPx('S-243')}px 0;`
 }
 
-// see HF-1, HF-4, LF-16, HF-19
+// Spec: HF-1, HF-4, LF-16, HF-19
 /** @purity pure */
 function rowControlGridStyle(columns: number, stepsFromEdge: number): string {
   const columnTracks = Array.from({ length: columns }, () => taskGroupControlWidthCss()).join(' ')
@@ -191,7 +191,7 @@ function taskGroupBandPx(): number {
   return NOT_STORED_TASK_GROUP_BAND_SIZES['S-213']
 }
 
-// see HF-15, S-215
+// Spec: HF-15, S-215
 /** @purity pure */
 function heldTaskGroupGroundStyle(): string {
   return `background:${stateGround(PAINT.heldTaskGroup, 'S-215')};`
@@ -203,8 +203,8 @@ const DROP_RING_MARK = 'data-drop-ring'
 
 const GRAB_STRIP_MARK_TEXT = '⋮⋮'
 
-// see HF-15, S-620, S-213, S-150
-// WHY: centred on the line's left end, so it stands on the indent of the depth the drop takes.
+// Spec: HF-15, S-620, S-213, S-150
+// Why: centred on the line's left end, so it stands on the indent of the depth the drop takes.
 /** @purity non-pure */
 function dropRingElement(host: Document, band: number): HTMLElement {
   const outer = NOT_STORED_TASK_GROUP_DROP_RING_SIZES['S-620']
@@ -220,14 +220,14 @@ function dropRingElement(host: Document, band: number): HTMLElement {
   return ring
 }
 
-// see HF-15, S-151, S-213
+// Spec: HF-15, S-151, S-213
 /** @purity non-pure */
 function dropLineElement(host: Document, cue: NonNullable<TaskGroupPanel['dropCue']>, panelBox: TaskGroupTitle['box']): HTMLElement {
   const band = taskGroupBandPx()
   const x = panelBox.x + cue.lineIndentPx
   const width = Math.max(0, panelBox.x + panelBox.width - x)
   const isPastDepthCap = cue.isPastDepthCap === true
-  // WHY: the dashed line keeps the solid line's box, so both stand centred on the gap (HF-15).
+  // Why: the dashed line keeps the solid line's box, so both stand centred on the gap (HF-15).
   const stroke = isPastDepthCap
     ? `box-sizing:border-box;border-top:${band}px dashed ${PAINT.heldTaskGroup};`
     : `background:${PAINT.heldTaskGroup};`
@@ -239,7 +239,7 @@ function dropLineElement(host: Document, cue: NonNullable<TaskGroupPanel['dropCu
   return line
 }
 
-// see HF-15, S-599
+// Spec: HF-15, S-599
 /** @purity non-pure */
 function grabCopyElement(host: Document, copy: NonNullable<TaskGroupPanel['grabCopy']>): HTMLElement {
   const offset = NOT_STORED_TASK_GROUP_GRAB_COPY_SIZES['S-599']
@@ -258,20 +258,20 @@ export interface TaskGroupGrabCues {
   readonly panelBox: TaskGroupTitle['box'] | null
 }
 
-// see HF-15
+// Spec: HF-15
 /** @purity pure */
 export function taskGroupGrabCuesOf(panel: TaskGroupPanel): TaskGroupGrabCues {
   return { dropCue: panel.dropCue ?? null, grabCopy: panel.grabCopy ?? null, panelBox: panel.titles[0]?.box ?? null }
 }
 
-// see HF-15
-// WHY: the panel without its grab cues; the task groups are drawn again only when this changes.
+// Spec: HF-15
+// Why: the panel without its grab cues; the task groups are drawn again only when this changes.
 /** @purity pure */
 export function taskGroupRowsOf(panel: TaskGroupPanel): TaskGroupPanel {
   return { ...panel, dropCue: null, grabCopy: null }
 }
 
-// see HF-15
+// Spec: HF-15
 /** @purity non-pure */
 function grabCueElements(host: Document, cues: TaskGroupGrabCues): readonly HTMLElement[] {
   const shown: HTMLElement[] = []
@@ -280,8 +280,8 @@ function grabCueElements(host: Document, cues: TaskGroupGrabCues): readonly HTML
   return shown
 }
 
-// see HF-6, HF-15
-// WHY: in a layer in front of the tree, so no task group covers them and moving them redraws no task group.
+// Spec: HF-6, HF-15
+// Why: in a layer in front of the tree, so no task group covers them and moving them redraws no task group.
 /** @purity non-pure */
 export function fillTaskGroupGrabCues(host: Document, layer: HTMLElement, tree: HTMLElement, panel: TaskGroupPanel): void {
   const cues = taskGroupGrabCuesOf(panel)
@@ -289,7 +289,7 @@ export function fillTaskGroupGrabCues(host: Document, layer: HTMLElement, tree: 
   tree.setAttribute(TASK_GROUP_CARRIED_MARK, String(cues.dropCue != null || cues.grabCopy != null))
 }
 
-// see HF-18
+// Spec: HF-18
 /** @purity pure */
 function foldedTaskGroupCountStyle(rightPx: string): string {
   const side = NOT_STORED_ICON_SIZES['S-138']
@@ -304,7 +304,7 @@ function foldedTaskGroupCountStyle(rightPx: string): string {
 
 const FOLD_COUNT_MARK = '\u25be\u0020'
 
-// see HF-12
+// Spec: HF-12
 /** @purity non-pure */
 export function markFoldedTaskGroupCount(mark: HTMLElement, count: number, rightPx: string): void {
   mark.setAttribute(FOLDED_TASK_GROUP_COUNT_MARK, String(count))
@@ -321,7 +321,7 @@ export function foldedTaskGroupCountElement(host: Document, count: number, right
   return mark
 }
 
-// see GR-20, HF-15
+// Spec: GR-20, HF-15
 /** @purity pure */
 function taskGroupGrabStripStyle(isHeld: boolean): string {
   const width = NOT_STORED_ICON_SIZES['S-138']
@@ -359,19 +359,19 @@ function taskGroupControlElement(
   return control
 }
 
-// see FR-098, GR-20, HF-4, HF-15, HF-18
+// Spec: FR-098, GR-20, HF-4, HF-15, HF-18
 /** @purity non-pure */
 function taskGroupTitleElement(host: Document, title: TaskGroupTitle, isPinned: boolean, anchoredIn: TaskGroupAnchors): HTMLElement {
   const row = made(
     host,
     'div',
-    // TRAP: the indent is the only inset; other padding lets the browser cut the name
+    // Trap: the indent is the only inset; other padding lets the browser cut the name
     // silently, since isLabelTruncated records only FR-085's cut.
     boxStyle(title.box) +
       STYLE.taskGroupTitle +
       `gap:${NOT_STORED_TASK_GROUP_GRAB_STRIP_SIZES['S-218']}px;` +
       `padding:0 0 0 ${title.indentPx}px;` +
-      // TRAP: title.isPinned, not the isPinned argument, which only says which list is built.
+      // Trap: title.isPinned, not the isPinned argument, which only says which list is built.
       (title.isPinned ? `background:${stateGround(PAINT.pinnedTaskGroup, 'S-214')};` : '') +
       (title.isHeld === true ? heldTaskGroupGroundStyle() : ''),
   )
@@ -391,11 +391,11 @@ function taskGroupTitleElement(host: Document, title: TaskGroupTitle, isPinned: 
     row.append(grab)
   }
 
-  // TRAP: the size goes on the name alone; on the task group the em-sized marks would follow it (HF-5).
+  // Trap: the size goes on the name alone; on the task group the em-sized marks would follow it (HF-5).
   const label = made(host, 'span', STYLE.taskGroupLabel + `font-size:${title.fontPx}px;`)
   label.textContent = title.label
 
-  // TRAP: append the ground before every control: with no z-index, paint order is tree order.
+  // Trap: append the ground before every control: with no z-index, paint order is tree order.
   const ground = made(
     host,
     'div',
@@ -436,7 +436,7 @@ function taskGroupTitleElement(host: Document, title: TaskGroupTitle, isPinned: 
     foldingGrid.append(closeBelow)
   }
 
-  // TRAP: outside the expander block: expander is null on a leaf, where HF-13 still draws IC-90.
+  // Trap: outside the expander block: expander is null on a leaf, where HF-13 still draws IC-90.
   const openOneLevel = taskGroupControlElement(host, ROLE.taskGroupExpander, OPEN_ONE_LEVEL_ENTRY, title.canOpenOneLevel ?? true, anchoredIn)
   openOneLevel.setAttribute('data-can-open-one-level', String(title.canOpenOneLevel ?? true))
   openOneLevel.setAttribute(
@@ -508,7 +508,7 @@ function panelCornerEntryElement(
   return entry
 }
 
-// see HF-10
+// Spec: HF-10
 /** @purity pure */
 function panelCornerEntryStyle(stepsFromEdge: number, canAct: boolean): string {
   return (
@@ -518,16 +518,16 @@ function panelCornerEntryStyle(stepsFromEdge: number, canAct: boolean): string {
   )
 }
 
-// see HF-10, T-206
-// WHY: the head stands S-313 off the right edge, the same distance as the task group controls (HF-4).
-// TRAP: read at the call; dom-screen-surface.ts imports this file, so a module-level read sees nothing.
+// Spec: HF-10, T-206
+// Why: the head stands S-313 off the right edge, the same distance as the task group controls (HF-4).
+// Trap: read at the call; dom-screen-surface.ts imports this file, so a module-level read sees nothing.
 /** @purity pure */
 function panelCornerRightPx(stepsFromEdge: number): number {
   return NOT_STORED_TASK_GROUP_CONTROL_EDGE_SIZES['S-313'] + panelCornerStepPx() * stepsFromEdge
 }
 
-// see FR-029, S-237
-// TRAP: step by the width the host paints; a border thinner than one device pixel is
+// Spec: FR-029, S-237
+// Trap: step by the width the host paints; a border thinner than one device pixel is
 // painted at 1px, so the box outgrows entranceOuterWidthPx and the entries lap (DFC-160).
 /** @purity pure */
 function panelCornerStepPx(): number {
@@ -539,8 +539,8 @@ function headStepFromEdge(icon: HeadIcon): number {
   return HEAD_RUN.length - 1 - HEAD_RUN.indexOf(icon)
 }
 
-// see HF-10, HF-12
-// WHY: the count's right edge touches the left edge of the leftmost entry, one step past the run.
+// Spec: HF-10, HF-12
+// Why: the count's right edge touches the left edge of the leftmost entry, one step past the run.
 /** @purity pure */
 export function headFoldedTaskGroupCountRight(): string {
   return `right:${panelCornerRightPx(HEAD_RUN.length)}px;`
@@ -581,7 +581,7 @@ function markHeadEntry(
   markPanelCornerEntry(entry, headStepFromEdge(icon), canAct)
 }
 
-// see HF-10, HF-12, HF-16, HF-17, HF-20
+// Spec: HF-10, HF-12, HF-16, HF-17, HF-20
 /** @purity non-pure */
 export function headEntryElements(host: Document): HeadEntries {
   return {
@@ -593,7 +593,7 @@ export function headEntryElements(host: Document): HeadEntries {
   }
 }
 
-// see HF-10, HF-17, HF-20
+// Spec: HF-10, HF-17, HF-20
 /** @purity non-pure */
 export function markHeadEntries(entries: HeadEntries, panel: TaskGroupPanel): void {
   markHeadEntry(entries.collapseEveryTaskGroup, COLLAPSE_EVERY_ROW_ENTRY, panel.canCloseEveryTaskGroup)
@@ -603,7 +603,7 @@ export function markHeadEntries(entries: HeadEntries, panel: TaskGroupPanel): vo
   markHeadEntry(entries.deleteEveryTaskGroup, DELETE_EVERY_ROW_ENTRY, true)
 }
 
-// WHY: inferred from task group tops: ScreenFrame carries no corner rectangle and no ruler height.
+// Why: inferred from task group tops: ScreenFrame carries no corner rectangle and no ruler height.
 /** @purity pure */
 export function taskGroupsTopPx(panel: TaskGroupPanel): number | null {
   let top: number | null = null
@@ -617,7 +617,7 @@ export function taskGroupsTopPx(panel: TaskGroupPanel): number | null {
 }
 
 // see FR-017, FR-156, JDG-2043
-// WHY: right-aligned in its box; a box narrower than the words clips them on the left (flex-end overflows leftward).
+// Why: right-aligned in its box; a box narrower than the words clips them on the left (flex-end overflows leftward).
 /** @purity non-pure */
 function rulerAbbreviationElement(host: Document, abbreviation: RulerAbbreviation): HTMLElement {
   const shown = made(
@@ -635,7 +635,7 @@ function rulerAbbreviationElement(host: Document, abbreviation: RulerAbbreviatio
 
 const RULER_ABBREVIATION_MARK = 'data-ruler-abbreviation'
 
-// see U-22, FR-098
+// Spec: U-22, FR-098
 /** @purity non-pure */
 export function fillTaskGroupTitleTree(
   host: Document,
@@ -654,7 +654,7 @@ export function fillTaskGroupTitleTree(
     anchors.set(anchorKey({ kind: 'taskGroupTitle', taskGroupId: title.taskGroupId }), row)
     drawn.push(row)
   }
-  // WHY: after the task groups, whose opaque ground would hide a line set before them; a hovered
+  // Why: after the task groups, whose opaque ground would hide a line set before them; a hovered
   // task group's z-index still lifts its controls over the lines (HF-19).
   for (const line of panel.groupGridLines ?? []) {
     const rule = made(host, 'div', boxStyle(line) + STYLE.groupGridLine)
@@ -666,7 +666,7 @@ export function fillTaskGroupTitleTree(
   tree.replaceChildren(...drawn)
 }
 
-// TRAP: no term may read style or geometry off the tree; a forced layout costs what the key saves.
+// Trap: no term may read style or geometry off the tree; a forced layout costs what the key saves.
 /** @purity non-pure */
 export function taskGroupControlsMeasureKey(
   view: ScreenView,
@@ -699,7 +699,7 @@ export function taskGroupControlsHeightReporter(
   let taskGroupControlsMeasuredAgainst: string | null = null
   let taskGroupControlsPanelDrawnAtMs = 0
 
-  // see LF-16, HF-19
+  // Spec: LF-16, HF-19
   /** @purity non-pure */
   function reportRowControlsHeight(measuredAgainst: string): void {
     const drawnAtMs = readClockMs()

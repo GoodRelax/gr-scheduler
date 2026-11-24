@@ -8,7 +8,7 @@ import { REQUIREMENTS } from './cr-610-file-flow-stage'
 import { accepted, edited, pj12Fixture, writtenTask } from '../unit/cr-429-mspdi-fixtures'
 import { mspdiText, type XmlNode } from '../unit/cr-429-mspdi-schema'
 
-// WHY: the constants end exactly at their markers, cut from the manuscript as check 39 reads it.
+// Why: the constants end exactly at their markers, cut from the manuscript as check 39 reads it.
 const EX_12_COPY_IS_EDITED = '貼り付けで足したコピーは、日付を編集したタスクと同じに扱うこと（MUST）'
 const EX_12_NO_SLACK =
   '余裕日数（`FreeSlack` / `TotalSlack` / `StartSlack` / `FinishSlack`）は書いてはならない（MUST NOT）'
@@ -39,7 +39,7 @@ const newTaskUids = (before: Document, after: Document): readonly number[] => {
 
 const newTaskUid = (before: Document, after: Document): number => newTaskUids(before, after)[0] as number
 
-// WHY: the task group that holds the source task may hold other tasks (it is the task group of the outline), so every copy is read.
+// Why: the task group that holds the source task may hold other tasks (it is the task group of the outline), so every copy is read.
 const copyOfSource = (before: Document, after: Document): number => {
   const name = before.schedule.tasks.find((each) => each.uid === SOURCE_UID)?.name
   const found = newTaskUids(before, after).find((uid) => after.schedule.tasks.find((each) => each.uid === uid)?.name === name)

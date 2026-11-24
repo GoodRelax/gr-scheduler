@@ -1,4 +1,4 @@
-// DomScreenSurface -- the tooltips, placed under what they point at.
+// File: DomScreenSurface: the tooltips, placed under what they point at.
 // @unit      UF-112  (docs/spec/05-07-design.md, table T-075)
 // @component DomScreenSurface, layer Framework (table T-062)
 // @purity    non-pure
@@ -36,8 +36,8 @@ const PART_STYLE = 'display:inline-block;white-space:pre;'
 
 const columnsOf = new WeakMap<Element, readonly (readonly HTMLElement[])[]>()
 
-// see EZ-2, IN-7
-// WHY: border-box, so the cap holds the padding and the border too; content-box let a capped tip end past S-339 (DFC-1476).
+// Spec: EZ-2, IN-7
+// Why: border-box, so the cap holds the padding and the border too; content-box let a capped tip end past S-339 (DFC-1476).
 /** @purity pure */
 function tooltipStyle(): string {
   return (
@@ -46,7 +46,7 @@ function tooltipStyle(): string {
   )
 }
 
-// see IN-3, EZ-2
+// Spec: IN-3, EZ-2
 /** @purity non-pure */
 export function tooltipElement(
   host: Document,
@@ -79,7 +79,7 @@ export function tooltipElement(
   return drawn
 }
 
-// see EZ-6, IN-7
+// Spec: EZ-6, IN-7
 /** @purity non-pure */
 function appendTextLines(host: Document, drawn: HTMLElement, text: string): void {
   const lines = text.split(LINE_BREAK)
@@ -96,7 +96,7 @@ function appendTextLines(host: Document, drawn: HTMLElement, text: string): void
   }
 }
 
-// see TL-14, S-621, S-622
+// Spec: TL-14, S-621, S-622
 /** @purity pure */
 function noteStyle(): string {
   return (
@@ -105,8 +105,8 @@ function noteStyle(): string {
   )
 }
 
-// see TL-13
-// WHY: one box per line, so every reader (innerText too) keeps a line whole; the label boxes are widened to one width after layout.
+// Spec: TL-13
+// Why: one box per line, so every reader (innerText too) keeps a line whole; the label boxes are widened to one width after layout.
 /** @purity non-pure */
 function appendTooltipRows(
   host: Document,
@@ -129,7 +129,7 @@ function appendTooltipRows(
   return columns
 }
 
-// see TL-13
+// Spec: TL-13
 /** @purity non-pure */
 function valueOf(host: Document, row: { readonly value: string; readonly parts?: readonly string[] }, columns: HTMLElement[][]): HTMLElement {
   const value = made(host, 'span', '')
@@ -148,7 +148,7 @@ function valueOf(host: Document, row: { readonly value: string; readonly parts?:
   return value
 }
 
-// WHY: measured, not guessed from a character count: in a proportional face only the widest label's own width lines the colons up.
+// Why: measured, not guessed from a character count: in a proportional face only the widest label's own width lines the colons up.
 /** @purity non-pure */
 function alignLabels(drawn: Element): void {
   const columns = columnsOf.get(drawn) ?? []
@@ -170,8 +170,8 @@ function pointTipStyle(left: number, top: number, ink: string): string {
   return tooltipStyle() + `${ink}left:${left}px;top:${top}px;`
 }
 
-// see IN-7, S-460
-// WHY: one placing for every tip at the pointer's point (EZ-6, DC-3, CU-3); S-460 is never scaled.
+// Spec: IN-7, S-460
+// Why: one placing for every tip at the pointer's point (EZ-6, DC-3, CU-3); S-460 is never scaled.
 /** @purity pure */
 export function pointTipPlace(point: Point, size: Size, room: Size): { readonly left: number; readonly top: number } {
   const offset = NOT_STORED_HELP_SIZES['S-460']
@@ -184,8 +184,8 @@ export function pointTipPlace(point: Point, size: Size, room: Size): { readonly 
   return { left, top: isTurnedUp ? above : below }
 }
 
-// see EZ-2, IN-7
-// WHY: measured once, when shown: the surface places again only for a changed set, never for a resize (IN-7, JDG-728).
+// Spec: EZ-2, IN-7
+// Why: measured once, when shown: the surface places again only for a changed set, never for a resize (IN-7, JDG-728).
 /** @purity non-pure */
 export function keepTooltipsInside(layer: HTMLElement): void {
   const tooltips = Array.from(layer.children)
@@ -212,7 +212,7 @@ export function keepTooltipsInside(layer: HTMLElement): void {
 
 /** @purity non-pure */
 export function tooltipAnchorTable(root: HTMLElement) {
-  // WHY: one map per part, not one for the screen: a single map keeps detached nodes of rebuilt
+  // Why: one map per part, not one for the screen: a single map keeps detached nodes of rebuilt
   // parts, which measure to nothing and put a tooltip in the top-left corner.
   const anchorsByPart = new Map<string, Map<string, HTMLElement>>()
 
@@ -239,9 +239,9 @@ export function tooltipAnchorTable(root: HTMLElement) {
 
 const shownPointTipOf = new WeakMap<Element, string>()
 
-// see DC-3, CU-3, IN-7
-// WHY: placed after it is in the layer, since only then does it have a size to turn back by.
-// TRAP: the layer carries no data-role, so readScreenPartAt never answers it and a press reaches the chart.
+// Spec: DC-3, CU-3, IN-7
+// Why: placed after it is in the layer, since only then does it have a size to turn back by.
+// Trap: the layer carries no data-role, so readScreenPartAt never answers it and a press reaches the chart.
 /** @purity non-pure */
 export function showPointTip(
   host: Document,

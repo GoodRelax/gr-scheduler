@@ -50,7 +50,7 @@ const MILESTONE_DAY: ReadonlyMap<number, string> = new Map([
   [MILESTONE_SAME, F(5, 21)],
 ])
 
-// WHY: one milestone per document (MP-1 and MP-3 read every task group of the same depth); the long task starts first,
+// Why: one milestone per document (MP-1 and MP-3 read every task group of the same depth); the long task starts first,
 // so the milestone does not head its row, and finishes 06-30, so it is no predecessor: DW-3.
 const dw3Document = (milestone: number): Document =>
   documentOf([
@@ -97,7 +97,7 @@ const CHILD = 301
 const LATE = 310
 const ABSORBER = 311
 
-// WHY: CHILD is enclosed by PARENT one task group above (IP-1), runs past its plan with no successor (DG-2, PARENT DG-3);
+// Why: CHILD is enclosed by PARENT one task group above (IP-1), runs past its plan with no successor (DG-2, PARENT DG-3);
 // LATE is late (PM-4) but ABSORBER, starting 06-28, takes the delay, so no push: DG-4.
 const dueDocument = (): Document =>
   documentOf([

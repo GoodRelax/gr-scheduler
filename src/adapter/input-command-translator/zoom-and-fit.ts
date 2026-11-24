@@ -1,4 +1,4 @@
-// InputCommandTranslator -- the schedule's zoom: one zoom step, and fitting the whole schedule.
+// File: InputCommandTranslator: the schedule's zoom: one zoom step, and fitting the whole schedule.
 // @unit      UF-92   (docs/spec/05-07-design.md, table T-075)
 // @component InputCommandTranslator, layer Adapter (table T-062)
 // @purity    pure
@@ -43,7 +43,7 @@ import {
   type TranslatedInput,
 } from './input-command-translator'
 
-// see FR-031, FR-055, HF-8, CM-72, CM-86, T-328
+// Spec: FR-031, FR-055, HF-8, CM-72, CM-86, T-328
 /** @purity pure */
 export function fitWrites(context: InputContext): readonly (readonly DocumentCommand[])[] {
   const levelZeroTreeState = context.document.documentSettings.levelZeroTreeState
@@ -56,7 +56,7 @@ export function fitWrites(context: InputContext): readonly (readonly DocumentCom
   ]
 }
 
-// see FR-031, FR-018, T-328, ZE-2, ZE-4
+// Spec: FR-031, FR-018, T-328, ZE-2, ZE-4
 /** @purity pure */
 function verticalZoomShrinkWrites(
   context: InputContext,
@@ -77,7 +77,7 @@ export function zoomStepAnswer(
   return factor < 1 ? verticalZoomShrinkWrites(context, zoom) : changed(zoom)
 }
 
-// see S-53, FR-016
+// Spec: S-53, FR-016
 /** @purity pure */
 export function keyZoomFactor(context: InputContext, isIn: boolean): number {
   const step = context.zoomStep
@@ -86,8 +86,8 @@ export function keyZoomFactor(context: InputContext, isIn: boolean): number {
 
 const HOURS_PER_DAY = 24
 
-// see FR-016, S-229, S-579, S-1, FR-158
-// TRAP: S-1 is divided as stored: the display ratio (FR-039) is on both sides, so the time-of-day ceiling ignores it.
+// Spec: FR-016, S-229, S-579, S-1, FR-158
+// Trap: S-1 is divided as stored: the display ratio (FR-039) is on both sides, so the time-of-day ceiling ignores it.
 /** @purity pure */
 export function zoomXCeiling(context: InputContext, isTimeOfDayVisible: boolean): number | null {
   if (isTimeOfDayVisible) return (HOURS_PER_DAY * NOT_STORED_HOUR_WIDTH_CEILING['S-579']) / SETTINGS_CONSTANTS.pxPerDayAt1x
@@ -105,14 +105,14 @@ function tallestBandOf(taskGroups: readonly TaskGroupPlacement[]): number {
   return tallest
 }
 
-// see FR-016, FR-018, FR-094, PI-5
+// Spec: FR-016, FR-018, FR-094, PI-5
 /** @purity pure */
 function bandZoomKeyOf(measuredWith: DocumentSettings, zoomY: number): string {
   const reading = verticalAxisReadingOf(measuredWith, zoomY)
   return `${reading.planHeight}|${reading.depthLimit}`
 }
 
-// see FR-016, FR-018, FR-094, ZE-1
+// Spec: FR-016, FR-018, FR-094, ZE-1
 /** @purity pure */
 function verticalAxisReadingOf(
   measuredWith: DocumentSettings,
@@ -125,7 +125,7 @@ function verticalAxisReadingOf(
   }
 }
 
-// see ZE-1, ZE-6
+// Spec: ZE-1, ZE-6
 /** @purity pure */
 function measuredAtScreenZoomX(
   context: InputContext,
@@ -134,7 +134,7 @@ function measuredAtScreenZoomX(
   return { ...context.document.documentSettings, zoomX: on.x }
 }
 
-// see ZE-1, FR-094, FR-018, S-76
+// Spec: ZE-1, FR-094, FR-018, S-76
 /** @purity pure */
 function isVerticalZoomAtLowerEnd(context: InputContext, on: { readonly x: number; readonly y: number }): boolean {
   const measuredWith = measuredAtScreenZoomX(context, on)
@@ -148,13 +148,13 @@ function isVerticalZoomAtLowerEnd(context: InputContext, on: { readonly x: numbe
   )
 }
 
-// see ZE-1, ZE-6, FR-018
+// Spec: ZE-1, ZE-6, FR-018
 /** @purity pure */
 function drawsSameTaskGroups(one: readonly TaskGroupPlacement[], other: readonly TaskGroupPlacement[]): boolean {
   return one.length === other.length && one.every((taskGroup, at) => taskGroup.taskGroupId === other[at]?.taskGroupId)
 }
 
-// see ZE-6, ZE-1, FR-018, FR-094
+// Spec: ZE-6, ZE-1, FR-018, FR-094
 /** @purity pure */
 function nextTaskGroupPictureZoomYOf(
   context: InputContext,
@@ -175,8 +175,8 @@ function nextTaskGroupPictureZoomYOf(
   return Math.max(stepped, target)
 }
 
-// see FR-016, FR-031, T-262, ZE-2, ZE-3, ZE-4, ZE-5, MK-4, IC-14, IC-15, SK-16a, SK-16c
-// TRAP: never for MK-2; the date axis still moves there, so that input changes the picture.
+// Spec: FR-016, FR-031, T-262, ZE-2, ZE-3, ZE-4, ZE-5, MK-4, IC-14, IC-15, SK-16a, SK-16c
+// Trap: never for MK-2; the date axis still moves there, so that input changes the picture.
 /** @purity pure */
 export function verticalZoomAnswer(
   context: InputContext,
@@ -197,7 +197,7 @@ export function verticalZoomAnswer(
   return zoomStepAnswer(context, factor, zoomWrites(context, null, stepped, pointerX, pointerY))
 }
 
-// see FR-016, ZE-3, ZE-6, S-76
+// Spec: FR-016, ZE-3, ZE-6, S-76
 /** @purity pure */
 function verticalZoomStepOf(
   context: InputContext,
@@ -223,8 +223,8 @@ export interface ZoomEntranceEnds {
   readonly isVerticalInAtEnd: boolean
 }
 
-// see FR-029, IC-12, IC-13, IC-14, IC-15, ZE-1, ZE-3, S-75, S-76, S-229
-// WHY: the steps the presses take (setZoom clamps zoomX alike), so faint and press never disagree.
+// Spec: FR-029, IC-12, IC-13, IC-14, IC-15, ZE-1, ZE-3, S-75, S-76, S-229
+// Why: the steps the presses take (setZoom clamps zoomX alike), so faint and press never disagree.
 /** @purity pure */
 export function zoomEntranceEndsOf(context: InputContext): ZoomEntranceEnds {
   const on = zoomOnScreen(context)
@@ -236,7 +236,7 @@ export function zoomEntranceEndsOf(context: InputContext): ZoomEntranceEnds {
   }
 }
 
-// see ST-7
+// Spec: ST-7
 /** @purity pure */
 function mayStopAtStackCap(schedule: Schedule, drawn: DrawnSettings): boolean {
   const members = new Map<string, number>()
@@ -248,8 +248,8 @@ function mayStopAtStackCap(schedule: Schedule, drawn: DrawnSettings): boolean {
   return false
 }
 
-// see FR-016, FR-018
-// TRAP: void when ST-7 may cut the task groups, or once one task group's height reads another task group.
+// Spec: FR-016, FR-018
+// Trap: void when ST-7 may cut the task groups, or once one task group's height reads another task group.
 /** @purity pure */
 function deepestFloorZoomYOf(context: InputContext, measuredWith: DocumentSettings): number | null {
   const top = floorZoomYOf(measuredWith)
@@ -257,7 +257,7 @@ function deepestFloorZoomYOf(context: InputContext, measuredWith: DocumentSettin
   return top
 }
 
-// see FR-094, ZE-1
+// Spec: FR-094, ZE-1
 /** @purity pure */
 function floorZoomYOf(measuredWith: DocumentSettings): number | null {
   const drawn = drawnSettingsOf(measuredWith)
@@ -267,7 +267,7 @@ function floorZoomYOf(measuredWith: DocumentSettings): number | null {
   return top
 }
 
-// see FR-016, PI-5, BC-2
+// Spec: FR-016, PI-5, BC-2
 /** @purity pure */
 function tallestBandAtZoomY(
   context: InputContext,
@@ -294,8 +294,8 @@ function tallestBandAtZoomY(
   }
 }
 
-// see FR-016, PI-18
-// TRAP: never solve the band here; a second solver with its own interval or stop moves
+// Spec: FR-016, PI-18
+// Trap: never solve the band here; a second solver with its own interval or stop moves
 // where the zoom stops with the zoom it started from (DFC-628).
 /** @purity pure */
 function zoomYWithinBand(context: InputContext, drawnZoomX: number, wanted: number, upTo: number): number {
@@ -308,7 +308,7 @@ function zoomYWithinBand(context: InputContext, drawnZoomX: number, wanted: numb
   return Math.min(wanted, ceiling)
 }
 
-// see FR-016, T-253, PI-18
+// Spec: FR-016, T-253, PI-18
 /** @purity pure */
 export function taskGroupBandCeilingOf(
   context: InputContext,
@@ -318,8 +318,8 @@ export function taskGroupBandCeilingOf(
   return bandCeilingUpTo(context, zoomOnScreen(context).x, upTo, enough)
 }
 
-// see FR-016, T-253, OC-10, PI-5, PI-18
-// WHY: no answer is below the last probe short of the band, so min(enough, ceiling) is settled there.
+// Spec: FR-016, T-253, OC-10, PI-5, PI-18
+// Why: no answer is below the last probe short of the band, so min(enough, ceiling) is settled there.
 /** @purity pure */
 function bandCeilingUpTo(
   context: InputContext,
@@ -353,14 +353,14 @@ function bandCeilingUpTo(
   return upper
 }
 
-// see FR-016, FR-018
+// Spec: FR-016, FR-018
 /** @purity pure */
 export function zoomTimes(context: InputContext, factor: number, axis: 'x' | 'y'): number {
   return zoomTimesFrom(context, zoomOnScreen(context), factor, axis)
 }
 
-// TRAP: rounding the stepped zoom breaks FR-018 silently (it can cross a detail threshold).
-// see FR-016, FR-018
+// Trap: rounding the stepped zoom breaks FR-018 silently (it can cross a detail threshold).
+// Spec: FR-016, FR-018
 /** @purity pure */
 function zoomTimesFrom(
   context: InputContext,
@@ -374,7 +374,7 @@ function zoomTimesFrom(
   return ceiling === null ? stepped : Math.min(stepped, ceiling)
 }
 
-// see FR-016, ZE-3
+// Spec: FR-016, ZE-3
 /** @purity pure */
 function zoomYWithinCeiling(context: InputContext, drawnZoomX: number, stepped: number): number {
   const ceiling = zoomYCeiling(context)
@@ -396,9 +396,9 @@ function zoomCommand(
   }
 }
 
-// TRAP: viewSettings in view-place.ts writes the same base half of OP-10's condition;
+// Trap: viewSettings in view-place.ts writes the same base half of OP-10's condition;
 // change both together.
-// see OP-10
+// Spec: OP-10
 /** @purity pure */
 export function isPlaceNamed(
   schedule: Schedule,
@@ -409,7 +409,7 @@ export function isPlaceNamed(
   return schedule.taskGroups.some((one) => one.id === scrollTaskGroupId)
 }
 
-// see OP-10
+// Spec: OP-10
 /** @purity pure */
 function placeSeated(context: InputContext): readonly DocumentCommand[] {
   const schedule = context.document.schedule
@@ -440,7 +440,7 @@ function zoomCenterY(context: InputContext, pointerY: number | null): number {
   return pointerY === null ? area.y + area.height / 2 : pointerY
 }
 
-// TRAP: taskGroupAnchorIn and scrollOffsetOf measure the same slab; change all three together.
+// Trap: taskGroupAnchorIn and scrollOffsetOf measure the same slab; change all three together.
 /** @purity pure */
 export function taskGroupPointIn(
   taskGroups: readonly TaskGroupPlacement[],
@@ -467,13 +467,13 @@ export function topEdgeIn(
   return first === undefined ? null : first.y
 }
 
-// see S-75, S-76
+// Spec: S-75, S-76
 /** @purity pure */
 function zoomWithinBounds(context: InputContext, value: number): number {
   return Math.max(context.zoomMin, Math.min(context.zoomMax, value))
 }
 
-// see FR-016
+// Spec: FR-016
 /** @purity pure */
 function dayHeldStill(
   context: InputContext,
@@ -487,7 +487,7 @@ function dayHeldStill(
   return dayAnchorAt(context, centerX - (centerX - area.x) / factor)
 }
 
-// see FR-016, PI-5
+// Spec: FR-016, PI-5
 /** @purity pure */
 function taskGroupHeldStill(
   context: InputContext,
@@ -501,7 +501,7 @@ function taskGroupHeldStill(
   if (!(willBe > 0) || willBe === on.y) return null
   const seat = scrolledAnchor(context, 0, 0)
   const held = taskGroupAnchorIn(scrollingTaskGroupsOf(context.layout), centerY, seat)
-  // TRAP: lay the candidate out at the new zoomX too: lanes follow horizontal overlap (ST-2, ST-3).
+  // Trap: lay the candidate out at the new zoomX too: lanes follow horizontal overlap (ST-2, ST-3).
   const after = taskGroupPlacesAtZoomY(
     context.document.schedule,
     {
@@ -522,7 +522,7 @@ function taskGroupHeldStill(
   return taskGroupAnchorIn(after, topEdge + (landed - centerY), seat)
 }
 
-// see FR-016, OP-10
+// Spec: FR-016, OP-10
 /** @purity pure */
 function placeHeldStill(
   context: InputContext,
@@ -550,7 +550,7 @@ function placeHeldStill(
   return isScrollPositionInForce(context, to) ? [] : [to]
 }
 
-// see FR-016
+// Spec: FR-016
 /** @purity pure */
 export function zoomWrites(
   context: InputContext,
@@ -571,8 +571,8 @@ export function zoomWrites(
   ]
 }
 
-// TRAP: CM-72 (resetTaskGroupTreeStates) writes the same predicate; change both together.
-// see HF-8, CM-72
+// Trap: CM-72 (resetTaskGroupTreeStates) writes the same predicate; change both together.
+// Spec: HF-8, CM-72
 /** @purity pure */
 function treeStatesReset(schedule: Schedule): Schedule {
   return {
@@ -583,8 +583,8 @@ function treeStatesReset(schedule: Schedule): Schedule {
   }
 }
 
-// see FR-055, OP-10
-// WHY: with no stored date the fit has no origin day and places no left edge; any date measures alike.
+// Spec: FR-055, OP-10
+// Why: with no stored date the fit has no origin day and places no left edge; any date measures alike.
 /** @purity pure */
 function datedSettings(context: InputContext): DocumentSettings {
   const settings = context.document.documentSettings
@@ -592,9 +592,9 @@ function datedSettings(context: InputContext): DocumentSettings {
   return { ...settings, scrollDate: scrolledAnchor(context, 0, 0).scrollDate ?? context.today }
 }
 
-// TRAP: keep the discard out of fitZoom: viewSettings in view-place.ts shares it; HF-8 forbids it at startup.
-// TRAP: only the fit command passes the drawn filter (TV-1); fittedAsDrawn answers the zoom OP-10 drew, which knows no filter.
-// see FR-055, HF-8, TV-1, S-418
+// Trap: keep the discard out of fitZoom: viewSettings in view-place.ts shares it; HF-8 forbids it at startup.
+// Trap: only the fit command passes the drawn filter (TV-1); fittedAsDrawn answers the zoom OP-10 drew, which knows no filter.
+// Spec: FR-055, HF-8, TV-1, S-418
 /** @purity pure */
 function fittedNow(context: InputContext, shownTaskUids: ReadonlySet<number> | null = null) {
   const settings: DocumentSettings = { ...datedSettings(context), levelZeroTreeState: 'auto' }
@@ -612,11 +612,11 @@ function fitOf(
   return fitZoom(schedule, settings, context.regions, bounds, context.taskGroupControlsHeightPx, shownTaskUids)
 }
 
-// see OP-10, FR-055
+// Spec: OP-10, FR-055
 /** @purity pure */
 export function zoomOnScreen(context: InputContext): { readonly x: number; readonly y: number } {
   const settings = context.document.documentSettings
-  // TRAP: keep ?? and not === true: an absent flag falls back to OP-10's base half.
+  // Trap: keep ?? and not === true: an absent flag falls back to OP-10's base half.
   const atStoredZoom =
     context.isPictureAtStoredZoom ??
     isPlaceNamed(context.document.schedule, settings.scrollDate, settings.scrollTaskGroupId)
@@ -627,20 +627,20 @@ export function zoomOnScreen(context: InputContext): { readonly x: number; reado
   return { x: fitted.zoomX, y: fitted.zoomY }
 }
 
-// TRAP: keep the folds as viewSettings in view-place.ts drew them; only the asked fit discards (HF-8).
+// Trap: keep the folds as viewSettings in view-place.ts drew them; only the asked fit discards (HF-8).
 /** @purity pure */
 function fittedAsDrawn(context: InputContext) {
   return fitOf(context, context.document.schedule, datedSettings(context), null)
 }
 
-// see FR-046, IC-44
+// Spec: FR-046, IC-44
 /** @purity pure */
 export function statusLineWrites(context: InputContext): readonly DocumentCommand[] {
   if (context.document.schedule.project.statusDate !== null) return [{ kind: 'clearStatusDate' }]
   return [{ kind: 'setStatusDate', statusDate: context.today }, ...statusLineCentered(context, context.today)]
 }
 
-// WHY: a picture drawn at the fit stores no zoom; a place written alone moves the next picture to the stored zoom (DFC-2410).
+// Why: a picture drawn at the fit stores no zoom; a place written alone moves the next picture to the stored zoom (DFC-2410).
 /** @purity pure */
 export function unstoredZoomWrites(context: InputContext): readonly DocumentCommand[] {
   return (context.isPictureAtStoredZoom ?? isPlaceSeatedIn(context)) ? [] : [zoomCommand(context, null, null)]
@@ -652,7 +652,7 @@ export function isPlaceSeatedIn(context: InputContext): boolean {
   return isPlaceNamed(context.document.schedule, held.scrollDate, held.scrollTaskGroupId)
 }
 
-// see FR-046, OP-10
+// Spec: FR-046, OP-10
 /** @purity pure */
 export function statusLineCentered(context: InputContext, date: string): readonly DocumentCommand[] {
   const day = dayOf(date)
@@ -672,7 +672,7 @@ export function statusLineCentered(context: InputContext, date: string): readonl
   return isScrollPositionInForce(context, to) ? [] : [to]
 }
 
-// see SK-18, FR-055
+// Spec: SK-18, FR-055
 /** @purity pure */
 function fitCommand(context: InputContext): DocumentCommand {
   const schedule = context.document.schedule
@@ -695,7 +695,7 @@ function fitCommand(context: InputContext): DocumentCommand {
   }
 }
 
-// see FX-3, FX-1, S-75
+// Spec: FX-3, FX-1, S-75
 /** @purity pure */
 function fixedSpanAcrossOf(context: InputContext): { readonly zoomX: number; readonly scrollDate: string } | null {
   const settings = context.document.documentSettings

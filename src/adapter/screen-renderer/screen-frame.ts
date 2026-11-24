@@ -1,4 +1,4 @@
-// ScreenRenderer: the panel dividers, the scrollbar lanes and the wholes they span (GR-21) of ScreenView's frame.
+// File: ScreenRenderer: the panel dividers, the scrollbar lanes and the wholes they span (GR-21) of ScreenView's frame.
 // @unit      UF-61   (docs/spec/05-07-design.md, table T-075)
 // @component ScreenRenderer, layer Adapter (table T-062)
 // @purity    pure
@@ -69,8 +69,8 @@ function scrollbarIn(
   }
 }
 
-// see FR-052, GR-22, S-99h, WF-4
-// WHY: a put-away panel's boundary is the screen's right edge, the only place to grab the vertical bar;
+// Spec: FR-052, GR-22, S-99h, WF-4
+// Why: a put-away panel's boundary is the screen's right edge, the only place to grab the vertical bar;
 // a fixed task group title width lays no band there, so nothing grabs it and the pointer keeps its shape.
 /** @purity pure */
 function dividersOf(regions: ScreenRegions, settings: DocumentSettings, session: ScreenSession): readonly PanelDivider[] {
@@ -82,8 +82,8 @@ function dividersOf(regions: ScreenRegions, settings: DocumentSettings, session:
   return [...taskGroupTitle, properties]
 }
 
-// see FR-051
-// WHY: on the canvas bottom edge, so canvasPadding lies between the task groups and the bar, not under it.
+// Spec: FR-051
+// Why: on the canvas bottom edge, so canvasPadding lies between the task groups and the bar, not under it.
 /** @purity pure */
 function horizontalTrackOf(regions: ScreenRegions, thickness: number): ScreenRect {
   const canvas = regions.scheduleCanvas
@@ -95,7 +95,7 @@ function horizontalTrackOf(regions: ScreenRegions, thickness: number): ScreenRec
   }
 }
 
-// see FR-051, FR-052, SC-4
+// Spec: FR-051, FR-052, SC-4
 /** @purity pure */
 export function screenFrameFromRegions(
   regions: ScreenRegions,
@@ -109,7 +109,7 @@ export function screenFrameFromRegions(
   const scrollbarThickness = Math.max(0, gapRightOfTaskGroupArea - SETTINGS_CONSTANTS.canvasPadding)
 
   const horizontalTrack = horizontalTrackOf(regions, scrollbarThickness)
-  // TRAP: (FR-051) the panel's left edge, not taskGroupArea's right: canvasPadding lies between, a gap.
+  // Trap: (FR-051) the panel's left edge, not taskGroupArea's right: canvasPadding lies between, a gap.
   const verticalTrack: ScreenRect = {
     x: regions.propertiesPanel.x - scrollbarThickness,
     y: taskGroupArea.y,
@@ -149,8 +149,8 @@ export interface VerticalWhole {
   readonly height: number
 }
 
-// see GR-21, FR-051
-// WHY: the content and the view together: after a fit the view runs past the content by the margin (S-332).
+// Spec: GR-21, FR-051
+// Why: the content and the view together: after a fit the view runs past the content by the margin (S-332).
 /** @purity pure */
 export function horizontalWholeOf(layout: ScheduleLayout, regions: ScreenRegions): HorizontalWhole {
   const area = regions.taskGroupArea
@@ -160,8 +160,8 @@ export function horizontalWholeOf(layout: ScheduleLayout, regions: ScreenRegions
   return { fromContentX0: contentX0 - left, width: right - left }
 }
 
-// see GR-21, FR-051
-// WHY: the same union as the horizontal whole: a view scrolled down to the last task group runs past the content.
+// Spec: GR-21, FR-051
+// Why: the same union as the horizontal whole: a view scrolled down to the last task group runs past the content.
 /** @purity pure */
 export function verticalWholeOf(layout: ScheduleLayout, regions: ScreenRegions): VerticalWhole {
   const scrollTop = layout.scrollAreaY ?? regions.taskGroupArea.y
@@ -171,13 +171,13 @@ export function verticalWholeOf(layout: ScheduleLayout, regions: ScreenRegions):
   return { fromContentY0: contentY0 - top, height: bottom - top }
 }
 
-// TRAP: (FR-098) the scrolling remainder's height; the Task Group Area's would grow the grip as task groups are pinned.
+// Trap: (FR-098) the scrolling remainder's height; the Task Group Area's would grow the grip as task groups are pinned.
 /** @purity pure */
 function visibleHeightOf(layout: ScheduleLayout, regions: ScreenRegions): number {
   return Math.max(0, regions.taskGroupArea.y + regions.taskGroupArea.height - (layout.scrollAreaY ?? regions.taskGroupArea.y))
 }
 
-// see SC-1, FR-098
+// Spec: SC-1, FR-098
 /** @purity pure */
 export function scrollExtentOf(
   layout: ScheduleLayout,
@@ -200,14 +200,14 @@ export function scrollExtentOf(
 // Single source of truth:
 //   docs/spec/_source/settings.json (table T-206)
 // Rebuild: npm run gen   ||   npm run gen:check fails on drift.
-// see T-206
+// Spec: T-206
 const NOT_STORED_PANEL_DIVIDER_SIZES: {
   readonly 'S-134': number
 } = {
   'S-134': 8,
 }
 
-// see T-206
+// Spec: T-206
 const NOT_STORED_SCROLLBAR_SIZES: {
   readonly 'S-205': number
 } = {

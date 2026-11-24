@@ -1,4 +1,4 @@
-// DocumentStamp: the stamp a write advances and a writer is matched against.
+// File: DocumentStamp: the stamp a write advances and a writer is matched against.
 // @unit      UF-3   (docs/spec/05-07-design.md, table T-075)
 // @component DocumentStamp, layer documentModel (table T-062)
 // @purity    pure

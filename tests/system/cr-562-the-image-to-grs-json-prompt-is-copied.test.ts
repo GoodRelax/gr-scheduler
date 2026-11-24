@@ -22,17 +22,17 @@ import { rowOf } from './sws-case'
 const ROOT = process.cwd()
 const NOTICE_ROSTER = readFileSync(join(ROOT, 'docs', 'spec', '_assets', 'tbl-notice-reasons.md'), 'utf8')
 
-// WHY: CR-827 (JDG-3086) took the schema out of the copy; it goes to the download as IO-10 instead.
+// Why: CR-827 (JDG-3086) took the schema out of the copy; it goes to the download as IO-10 instead.
 const FR_068_ORDER =
   '⭐ コピーするプロンプトは、(1) 画面の言語の原稿、(2) 版の 1 行（`schemaVersion:` と 1 字の空白に、初期テンプレート（`FR-027`）の `schemaVersion` の値を続けたもの）、(3) 土台の文書、の 3 つをこの順に空行で区切って連ねた 1 つの文字列とすること（MUST）。'
 const FR_068_ONE_LINE = '(3) は空白を除いた 1 行の JSON とし、`json` の囲みに入れる。'
-// WHY: CR-687 named the language the prompt follows the screen language (S-99), not the help's.
+// Why: CR-687 named the language the prompt follows the screen language (S-99), not the help's.
 const FR_068_LANGUAGE =
   '⭐ プロンプトは、コピーした瞬間の画面の言語（`FR-038` の `S-99`、`screenLanguage`）の原稿から作ること（MUST）'
 const FR_068_BASE =
   '⭐ 土台の文書は、初期テンプレートと同じ版と同じ `documentSettings` を持ち、タスクを 1 つも持たない `GRS JSON` とし、初期テンプレートと同じ生成器が同じ回に起こすこと（MUST）'
 const FR_068_OPENED_BY_OP_2 = '返った文書は 表 T-024a の `OP-2` の「開く」1 つから入る。'
-// WHY: CR-827 added the schema file to the same press and to what the notice tells next.
+// Why: CR-827 added the schema file to the same press and to what the notice tells next.
 const FR_068_NO_SURFACE =
   '⭐ 入口は 表 T-109 の `IC-115` とし、押されたときに面を開かずにプロンプトをコピーし、スキーマのファイルをダウンロードに渡すこと（MUST）。'
 const FR_068_TELL =
@@ -64,7 +64,7 @@ const COPY_PROMPT = rowOf(T_109, 'IC-115').id
 const AGENT_API = rowOf(T_109, 'IC-20').id
 const SCREEN_LANGUAGE = rowOf(T_109, 'IC-21').id
 
-// see T-109
+// Spec: T-109
 const AI_GROUP: readonly string[] = T_109.rows
   .filter((row) => (row.by['面'] ?? '').trim() === `\`${roleName('U-31')}\`` && (row.by['群'] ?? '').trim() === 'AI')
   .map((row) => row.id)
@@ -79,7 +79,7 @@ interface PromptParts {
   readonly emptyDocument: string
 }
 
-// WHY: the generated seam file CR-562 section 5 names; it is a spec artifact, not a body.
+// Why: the generated seam file CR-562 section 5 names; it is a spec artifact, not a body.
 const PROMPT = JSON.parse(
   readFileSync(join(ROOT, 'src', 'adapter', 'screen-renderer', 'image-to-grs-json-prompt.json'), 'utf8'),
 ) as PromptParts
@@ -97,14 +97,14 @@ interface SettingsBlock {
   readonly rows?: readonly { readonly id?: string; readonly value?: { readonly num?: string; readonly lit?: string } }[]
 }
 
-// see T-209
+// Spec: T-209
 const T_209_ROWS = (
   JSON.parse(readFileSync(join(ROOT, 'docs', 'spec', '_source', 'settings.json'), 'utf8')) as {
     readonly blocks: readonly SettingsBlock[]
   }
 ).blocks.find((block) => block.id === 'T-209')?.rows ?? []
 
-// WHY: the manuscript names a T-209 value as `{{S-128}}` and the prompt carries what the row states (CR-644);
+// Why: the manuscript names a T-209 value as `{{S-128}}` and the prompt carries what the row states (CR-644);
 // a literal row (S-482 / S-483, CR-646) is carried as its own text.
 /** @purity pure */
 function t209Value(id: string): string {
@@ -116,7 +116,7 @@ function t209Value(id: string): string {
   return String(value)
 }
 
-// WHY: the manuscript's first line is its own role line and not part of the prompt (CR-562 section 5).
+// Why: the manuscript's first line is its own role line and not part of the prompt (CR-562 section 5).
 /** @purity non-pure */
 function manuscriptOf(language: Language): string {
   const text = readFileSync(join(ROOT, 'docs', 'spec', '_source', `image-to-grs-json-prompt.${language}.md`), 'utf8')
@@ -136,7 +136,7 @@ function expectedCopy(language: Language): string {
   )
 }
 
-// WHY: a stand-in in front of navigator.clipboard sees exactly what the page handed over, whatever the host allows.
+// Why: a stand-in in front of navigator.clipboard sees exactly what the page handed over, whatever the host allows.
 const CLIPBOARD_SPY = (refuse: boolean): void => {
   const seen: (string | null)[] = []
   ;(window as unknown as Record<string, unknown>)['cr562Copied'] = seen
@@ -180,7 +180,7 @@ test.afterAll(async () => {
   await browser?.close()
 })
 
-// WHY: not openStage -- that one presses IC-20 first, and the entrances are judged here from a disabled Agent API.
+// Why: not openStage -- that one presses IC-20 first, and the entrances are judged here from a disabled Agent API.
 /** @purity non-pure */
 async function visit(refuseCopy = false): Promise<Visit> {
   if (browser === null) throw new Error('no browser')
@@ -211,7 +211,7 @@ async function pressAndWaitForCopy(page: Page): Promise<string | null> {
   throw new Error(`${COPY_PROMPT} was pressed and nothing was handed to the clipboard`)
 }
 
-// WHY: the host clipboard is read back as well when the browser allows it; null when it does not.
+// Why: the host clipboard is read back as well when the browser allows it; null when it does not.
 /** @purity semi-pure-mutable */
 async function hostClipboard(page: Page): Promise<string | null> {
   return page.evaluate(async () => {
@@ -284,7 +284,7 @@ test.describe(`IC-115 -- ${FR_068_NO_SURFACE}`, () => {
       expect(copied).toBe(expectedCopy(language))
       const host = await hostClipboard(one.page)
       test.info().annotations.push({ type: 'host clipboard', description: host === null ? 'not readable' : 'read back' })
-      // WHY: the Windows clipboard hands text back with CRLF line ends (measured); the page wrote LF, as the spy shows.
+      // Why: the Windows clipboard hands text back with CRLF line ends (measured); the page wrote LF, as the spy shows.
       if (host !== null) expect(host.replace(/\r\n/g, '\n')).toBe(expectedCopy(language))
     } finally {
       await one.context.close()

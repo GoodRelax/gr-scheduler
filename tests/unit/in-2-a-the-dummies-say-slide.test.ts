@@ -29,14 +29,14 @@ import {
 import { specTable } from '../contract/spec-table'
 import { SETTINGS_CONSTANTS } from '../../src/entity/document-model/document-settings/document-settings'
 
-// see IN-2
+// Spec: IN-2
 const IN_2_GRAB_MARGIN_MUST = '掴み代の上は `FR-106` の 表 T-269 の形'
 
-// see T-266
+// Spec: T-266
 const GA_5_POINTER = '箱の矢印 ← 黒（`PK-1`）'
 const GA_6_POINTER = '箱の矢印 → 黒（`PK-1`）'
 
-// see T-266
+// Spec: T-266
 const GA_17_POINTER = '円 ●（`PK-5`）'
 
 const IN_2_ROW = specTable('T-028').rows.find((row) => row.id === 'IN-2')
@@ -53,7 +53,7 @@ it('T-266 -- the manuscript still gives the two rectangle dummy ends their fille
   expect(requirements, GA_17_POINTER).toContain(GA_17_POINTER)
 })
 
-// see BT-4, FR-043
+// Spec: BT-4, FR-043
 const TEMPLATE_PATH = join(
   process.cwd(),
   'src',
@@ -81,7 +81,7 @@ const BAR_UID = 1
 const BAR_START = '2026-04-06'
 const BAR_FINISH = '2026-04-24'
 
-// see GA-3, GA-4
+// Spec: GA-3, GA-4
 const STARTED_BAR_UID = 4
 const STARTED_BAR_FINISH = '2026-04-20'
 const STARTED_BAR_ACTUAL_START = '2026-04-08'
@@ -90,7 +90,7 @@ const STARTED_BAR_ACTUAL_STOP = '2026-04-14'
 const STONE_UID = 2
 const STONE_DAY = '2026-04-15'
 
-// see GA-16
+// Spec: GA-16
 const STARTED_STONE_UID = 3
 
 const PX_PER_DAY_AT_1X = 20
@@ -120,7 +120,7 @@ const task = (over: Partial<Task> & { readonly uid: number }): Task =>
     ...over,
   }) as unknown as Task
 
-// see SH-5
+// Spec: SH-5
 const milestoneVisual = (taskUid: number): TaskVisual =>
   ({
     taskUid,
@@ -194,7 +194,7 @@ function fixtureDocument(): Document {
     },
     documentSettings: {
       ...structuredClone(template.documentSettings),
-      // WHY: S-1 is a constant (CR-572); the stored zoomX (S-75) carries the day width this fixture draws at.
+      // Why: S-1 is a constant (CR-572); the stored zoomX (S-75) carries the day width this fixture draws at.
       zoomX: PX_PER_DAY_AT_1X / SETTINGS_CONSTANTS.pxPerDayAt1x,
     },
     documentStamp: structuredClone(template.documentStamp),
@@ -240,7 +240,7 @@ function host(): Host {
   }
 }
 
-// see IF-9
+// Spec: IF-9
 function screenPane(): ScreenWiring {
   const surface: ScreenSurface = {
     showScreenView: () => undefined,
@@ -320,20 +320,20 @@ const drawnTask = (loop: FrameLoop, uid: number) => {
 const pointsOf = (bar: BarGeometry): readonly Point[] =>
   bar.form === 'outline' ? bar.points : [bar.from, bar.to]
 
-// see GA-5, GA-6, GA-17
+// Spec: GA-5, GA-6, GA-17
 function dummyProbe(loop: FrameLoop, taskUid: number, grab: 'GA-5' | 'GA-6' | 'GA-17'): Point {
   const found = drawnTask(loop, taskUid).dummies.find((one) => one.grab === grab)
   if (found === undefined) throw new Error(`Task ${taskUid} drew no ${grab} dummy`)
   const ink = found.ink
   const y = ink.y + ink.height / 2
-  // WHY: T-023d's closing rule gives the dummy only strictly right of the plan start, where its ink begins;
+  // Why: T-023d's closing rule gives the dummy only strictly right of the plan start, where its ink begins;
   // the ink's own left edge is that boundary and belongs to GA-1, so probe inside the left half instead.
   if (grab === 'GA-5') return { x: ink.x + ink.width / 4, y }
   if (grab === 'GA-6') return { x: ink.x + ink.width - 1, y }
   return { x: ink.x + ink.width / 2, y }
 }
 
-// see GA-1
+// Spec: GA-1
 function planStart(loop: FrameLoop): Point {
   const plan = drawnTask(loop, BAR_UID).plan
   if (plan === null) throw new Error("the bar Task's plan bar was not drawn")
@@ -343,8 +343,8 @@ function planStart(loop: FrameLoop): Point {
   return { x: Math.min(...xs), y: (Math.min(...ys) + Math.max(...ys)) / 2 }
 }
 
-// see GA-1, DM-1
-// WHY: on a Task with no actual the dummy's mark begins on the plan's own left edge
+// Spec: GA-1, DM-1
+// Why: on a Task with no actual the dummy's mark begins on the plan's own left edge
 // (`DM-1`), so only the STARTED bar has a plan start `GA-1` can answer at.
 function startedPlanStart(loop: FrameLoop): Point {
   const plan = drawnTask(loop, STARTED_BAR_UID).plan
@@ -355,7 +355,7 @@ function startedPlanStart(loop: FrameLoop): Point {
   return { x: Math.min(...xs), y: (Math.min(...ys) + Math.max(...ys)) / 2 }
 }
 
-// see GA-9
+// Spec: GA-9
 function barBody(loop: FrameLoop): Point {
   const plan = drawnTask(loop, BAR_UID).plan
   if (plan === null) throw new Error("the bar Task's plan bar was not drawn")
@@ -367,7 +367,7 @@ function barBody(loop: FrameLoop): Point {
   return { x: (x0 + x1) / 2, y: (Math.min(...ys) + Math.max(...ys)) / 2 }
 }
 
-// see GA-3, GA-4, S-257, S-260
+// Spec: GA-3, GA-4, S-257, S-260
 function actualEnd(loop: FrameLoop, grab: 'GA-3' | 'GA-4'): Point {
   const actual = drawnTask(loop, STARTED_BAR_UID).actual
   if (actual === null) throw new Error("the started bar Task's actual bar was not drawn")
@@ -375,11 +375,11 @@ function actualEnd(loop: FrameLoop, grab: 'GA-3' | 'GA-4'): Point {
   const xs = points.map((one) => one.x)
   const ys = points.map((one) => one.y)
   const y = (Math.min(...ys) + Math.max(...ys)) / 2
-  // WHY: not the end pixel itself -- the grab is inside the end and the marker touches it from outside.
+  // Why: not the end pixel itself -- the grab is inside the end and the marker touches it from outside.
   return grab === 'GA-3' ? { x: Math.min(...xs) + 1, y } : { x: Math.max(...xs) - 1, y }
 }
 
-// see GA-16
+// Spec: GA-16
 function startedMilestoneFigure(loop: FrameLoop): Point {
   const plan = drawnTask(loop, STARTED_STONE_UID).plan
   if (plan === null) throw new Error("the started milestone's figure was not drawn")
@@ -392,7 +392,7 @@ function startedMilestoneFigure(loop: FrameLoop): Point {
   }
 }
 
-// see PTD-5
+// Spec: PTD-5
 function emptyCanvas(loop: FrameLoop): Point {
   const area = frameOf(loop).regions.taskGroupArea
   return { x: area.x + area.width - 4, y: area.y + area.height - 4 }

@@ -61,7 +61,7 @@ describe('DFC-752 / IN-3, EZ-2 -- a tooltip is placed against the entry drawn in
     surface.showScreenView(viewWith({ title: 'A plan', tooltips: [tooltipOn('first')] }))
     const before = headerEntryOf(built)
     const measuredBefore = built.world.measured.length
-    // STEP: one frame redraws the header and changes the tooltip
+    // Step: one frame redraws the header and changes the tooltip
     surface.showScreenView(viewWith({ title: 'Another plan', tooltips: [tooltipOn('second')] }))
     const after = headerEntryOf(built)
     expect(after, 'the header drew its entry anew').not.toBe(before)
