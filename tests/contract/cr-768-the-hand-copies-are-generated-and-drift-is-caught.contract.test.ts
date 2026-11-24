@@ -173,6 +173,7 @@ describe('npm run gen:check -- the generators catch a planted drift (run on a sc
   beforeAll(() => {
     scratch = mkdtempSync(join(tmpdir(), 'grs-cr-768-'))
     cpSync(join(process.cwd(), 'docs', 'spec'), pathOf('docs', 'spec'), { recursive: true })
+    cpSync(join(process.cwd(), 'docs', 'development-rules', 'manuscript-schemas'), pathOf('docs', 'development-rules', 'manuscript-schemas'), { recursive: true })
     cpSync(join(process.cwd(), 'src'), pathOf('src'), { recursive: true })
     cpSync(join(process.cwd(), 'tools'), pathOf('tools'), { recursive: true })
   }, 120_000)
