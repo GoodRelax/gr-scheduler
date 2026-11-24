@@ -14,7 +14,7 @@
       "creationDate": "2026-10-31T08:50:00",
       "revision": 11,
       "startDate": "2026-10-17T05:30:00",
-      "statusDate": "2026-11-25T02:12:00",
+      "statusDate": "2026-11-25T02:55:00",
       "minutesPerDay": 1440,
       "minutesPerWeek": 10080,
       "daysPerMonth": 30,
@@ -24,7 +24,7 @@
       "defaultFinishTime": "23:59:00",
       "themeHue": 214,
       "parentTaskProgressToleranceDays": 1,
-      "uidHighWaterMark": 522,
+      "uidHighWaterMark": 525,
       "importSequence": 0,
       "carry": {},
       "carryElements": [],
@@ -4247,6 +4247,14 @@
           },
           {
             "predecessorUid": 506,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          },
+          {
+            "predecessorUid": 525,
             "linkType": 1,
             "linkLag": 0,
             "lagFormat": 7,
@@ -9112,6 +9120,14 @@
             "lagFormat": 7,
             "carry": {},
             "carryElements": []
+          },
+          {
+            "predecessorUid": 525,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
           }
         ],
         "carry": {},
@@ -9543,19 +9559,19 @@
         "uid": 506,
         "parentTaskUid": null,
         "wbsOrder": 364,
-        "name": "🌒 CR-857(SSOT へ寄せる —— 名の原稿 glossary.json と生成)の段 1b・2・3(後任の席。SUB)",
+        "name": "🌕 CR-857(SSOT へ寄せる —— 名の原稿 glossary.json と生成)の段 1b・2・3(後任の席。SUB)",
         "start": "2026-11-25T00:40:00",
-        "finish": "2026-11-25T06:40:00",
+        "finish": "2026-11-25T02:19:00",
         "milestone": false,
         "deadline": null,
-        "notes": "pmo-6 2026-11-24T08:00: BOSS line 11-24: the rest of CR-857 (steps 1b, 2, 3) goes to a successor seat, which starts on the owner signal (\"立てろ\"). Not started. 6 h is a PMO placeholder (provisional). SUB: Opus 5.5 high. pmo-6 2026-11-25T00:43: started about 00:4x (seat cr857-glossary-2, local_44703aac; JDG-3901..3910; steps 1b, 2, 3 and BGQA11). Start taken as 00:40 (unmeasured). The src change rowId -> specTableRowId comes after B6.",
+        "notes": "pmo-6 2026-11-24T08:00: BOSS line 11-24: the rest of CR-857 (steps 1b, 2, 3) goes to a successor seat, which starts on the owner signal (\"立てろ\"). Not started. 6 h is a PMO placeholder (provisional). SUB: Opus 5.5 high. pmo-6 2026-11-25T00:43: started about 00:4x (seat cr857-glossary-2, local_44703aac; JDG-3901..3910; steps 1b, 2, 3 and BGQA11). Start taken as 00:40 (unmeasured). The src change rowId -> specTableRowId comes after B6. pmo-6 2026-11-25T02:28: done (step 1b, rowId -> specTableRowId, step 2 glossary table generation, step 3 twelve schemas moved; 0942cd1a5 02:19, develop 497eed3a8). The rest of CR-857 (section 1 \"3 (rest)\") follows the BGQA11 answers (525).",
         "calendarUid": null,
         "actualStart": "2026-11-25T00:40:00",
         "stop": null,
-        "actualFinish": null,
+        "actualFinish": "2026-11-25T02:19:00",
         "resume": null,
         "resumeValid": null,
-        "percentComplete": 0,
+        "percentComplete": 100,
         "fadeInDays": null,
         "fadeOutDays": null,
         "dependencies": [
@@ -10002,7 +10018,7 @@
         "finish": "2026-11-25T08:51:00",
         "milestone": false,
         "deadline": null,
-        "notes": "pmo-6 2026-11-25T02:12: BOSS line 11-25: the B4 seat recorded product defect DFC-3626 (a drag does not create the task at the date and position; against FR-001 and TC-6). The seat is not chosen yet (owner decision, task 522). 2 h is a PMO placeholder (provisional). The final merge 228 waits for it.",
+        "notes": "pmo-6 2026-11-25T02:12: BOSS line 11-25: the B4 seat recorded product defect DFC-3626 (a drag does not create the task at the date and position; against FR-001 and TC-6). The seat is not chosen yet (owner decision, task 522). 2 h is a PMO placeholder (provisional). The final merge 228 waits for it. pmo-6 2026-11-25T02:28: the defect record is in develop (835b82e86, merge 30658968f); the fix still waits for the seat decision.",
         "calendarUid": null,
         "actualStart": null,
         "stop": null,
@@ -10029,19 +10045,19 @@
         "uid": 521,
         "parentTaskUid": null,
         "wbsOrder": 379,
-        "name": "🌑 新 ANMS・NDD: CR-857 の後任の rowId と段 1b・2・3 の GT-2 を回し、develop へ合流する(調整役)",
-        "start": "2026-11-25T06:40:00",
-        "finish": "2026-11-25T09:40:00",
+        "name": "🌕 新 ANMS・NDD: CR-857 の後任の rowId と段 1b・2・3 の GT-2 を回し、develop へ合流する(通過)(調整役)",
+        "start": "2026-11-25T02:28:00",
+        "finish": "2026-11-25T02:53:00",
         "milestone": false,
         "deadline": null,
-        "notes": "pmo-6 2026-11-25T02:12: BOSS line 11-25: the next GT-2 bundle holds the CR-857 successor work (rowId 87f7cc764; steps 1b, 2, 3). 3 h (provisional).",
+        "notes": "pmo-6 2026-11-25T02:12: BOSS line 11-25: the next GT-2 bundle holds the CR-857 successor work (rowId 87f7cc764; steps 1b, 2, 3). 3 h (provisional). pmo-6 2026-11-25T02:28: started 02:28 (the fifth GT-2 run). 3 h (provisional). pmo-6 2026-11-25T02:55: passed 02:28..02:53; develop a7ba8b54a pushed (up to the CR-857 successor bundle).",
         "calendarUid": null,
-        "actualStart": null,
+        "actualStart": "2026-11-25T02:28:00",
         "stop": null,
-        "actualFinish": null,
+        "actualFinish": "2026-11-25T02:53:00",
         "resume": null,
         "resumeValid": null,
-        "percentComplete": 0,
+        "percentComplete": 100,
         "fadeInDays": null,
         "fadeOutDays": null,
         "dependencies": [
@@ -10077,6 +10093,101 @@
         "fadeInDays": null,
         "fadeOutDays": null,
         "dependencies": [],
+        "carry": {},
+        "carryElements": []
+      },
+      {
+        "uid": 523,
+        "parentTaskUid": null,
+        "wbsOrder": 381,
+        "name": "🌒 オーナー: BGQA の問 24(固めた GRS JSON の説明の 2 つの語、Delay Diagnosis と date-time)に答える",
+        "start": "2026-11-25T02:28:00",
+        "finish": "2026-11-25T06:58:57",
+        "milestone": false,
+        "deadline": null,
+        "notes": "pmo-6 2026-11-25T02:28: BOSS line 11-25: question 24 asks about two words in the descriptions of the frozen GRS JSON. Length = 2 questions at 8.6 rows/h in owner hours (provisional).",
+        "calendarUid": null,
+        "actualStart": "2026-11-25T02:28:00",
+        "stop": null,
+        "actualFinish": null,
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 0,
+        "fadeInDays": null,
+        "fadeOutDays": null,
+        "dependencies": [],
+        "carry": {},
+        "carryElements": []
+      },
+      {
+        "uid": 524,
+        "parentTaskUid": null,
+        "wbsOrder": 382,
+        "name": "🌒 オーナー: BGQA11(CR-857 の用語集の名)に答える",
+        "start": "2026-11-25T01:07:00",
+        "finish": "2026-11-25T21:15:00",
+        "milestone": false,
+        "deadline": null,
+        "notes": "pmo-6 2026-11-25T02:28: BOSS line 11-25: the CR-857 successor put BGQA11 (glossary names; studies/82 goodrelax-qa-b11-glossary-names.md) to the owner. 1 h in owner hours is a PMO placeholder (provisional). Start = the BGQA11 commit 86608c8e3 (01:07).",
+        "calendarUid": null,
+        "actualStart": "2026-11-25T01:07:00",
+        "stop": null,
+        "actualFinish": null,
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 0,
+        "fadeInDays": null,
+        "fadeOutDays": null,
+        "dependencies": [
+          {
+            "predecessorUid": 302,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          }
+        ],
+        "carry": {},
+        "carryElements": []
+      },
+      {
+        "uid": 525,
+        "parentTaskUid": null,
+        "wbsOrder": 383,
+        "name": "🌑 CR-857(SSOT へ寄せる)の 1 節「3(残り)」(SUB)",
+        "start": "2026-11-25T21:15:00",
+        "finish": "2026-11-25T23:15:00",
+        "milestone": false,
+        "deadline": null,
+        "notes": "pmo-6 2026-11-25T02:28: BOSS line 11-25: the rest of CR-857 after the BGQA11 answers. 2 h is a PMO placeholder (provisional). CR-855 (303) and the full review B14 (493) wait for it.",
+        "calendarUid": null,
+        "actualStart": null,
+        "stop": null,
+        "actualFinish": null,
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 0,
+        "fadeInDays": null,
+        "fadeOutDays": null,
+        "dependencies": [
+          {
+            "predecessorUid": 506,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          },
+          {
+            "predecessorUid": 524,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          }
+        ],
         "carry": {},
         "carryElements": []
       }
@@ -11685,6 +11796,18 @@
       {
         "taskUid": 522,
         "taskGroupId": "b2a0e74c-4c44-5678-b53c-aecd31dc8ae5"
+      },
+      {
+        "taskUid": 523,
+        "taskGroupId": "b2a0e74c-4c44-5678-b53c-aecd31dc8ae5"
+      },
+      {
+        "taskUid": 524,
+        "taskGroupId": "b2a0e74c-4c44-5678-b53c-aecd31dc8ae5"
+      },
+      {
+        "taskUid": 525,
+        "taskGroupId": "5321b390-7f24-598b-8fb6-6de6c53cf32f"
       }
     ],
     "taskVisuals": [
@@ -14359,6 +14482,30 @@
         "fillColor": "blue",
         "strokeColor": null,
         "strokeWidthPx": null
+      },
+      {
+        "taskUid": 523,
+        "shapeKind": "rectangle",
+        "milestoneGlyph": "diamond",
+        "fillColor": "blue",
+        "strokeColor": null,
+        "strokeWidthPx": null
+      },
+      {
+        "taskUid": 524,
+        "shapeKind": "rectangle",
+        "milestoneGlyph": "diamond",
+        "fillColor": "blue",
+        "strokeColor": null,
+        "strokeWidthPx": null
+      },
+      {
+        "taskUid": 525,
+        "shapeKind": "rectangle",
+        "milestoneGlyph": "diamond",
+        "fillColor": "blue",
+        "strokeColor": null,
+        "strokeWidthPx": null
       }
     ],
     "commentBoxes": [
@@ -16367,10 +16514,10 @@
     "zoomY": 1.099862517185352
   },
   "documentStamp": {
-    "scheduleUpdatedAt": "2026-11-24T17:12:00Z",
+    "scheduleUpdatedAt": "2026-11-24T17:55:00Z",
     "lastEditedBy": "PMO child session",
     "settingsUpdatedAt": "2026-10-20T20:24:42Z",
-    "fileSavedAt": "2026-11-24T17:12:00Z"
+    "fileSavedAt": "2026-11-24T17:55:00Z"
   },
   "changeLog": [
     {
@@ -17242,6 +17389,18 @@
       "editedBy": "PMO child session",
       "explanation": "Fact at 11-25 02:12 JST: BOSS line, the fourth GT-2 run 519 passed (01:45-02:11; develop 2f06c90f3 pushed). New task 520 fixes product defect DFC-3626 after the owner chooses its seat (owner task 522); the final merge 228 waits for it. Next GT-2 bundle 521 for the CR-857 successor work.",
       "changedAt": "2026-11-24T17:12:00Z"
+    },
+    {
+      "ordinal": 146,
+      "editedBy": "PMO child session",
+      "explanation": "Fact at 11-25 02:28 JST: BOSS line, the CR-857 successor 506 done (0942cd1a5); the fifth GT-2 run 521 started 02:28. Owner waits 523 (BGQA q24) and 524 (BGQA11) added; task 525 (rest of CR-857) after 524, before CR-855 and B14. DFC-3626 recorded in develop; its fix 520 still waits for the seat decision.",
+      "changedAt": "2026-11-24T17:28:00Z"
+    },
+    {
+      "ordinal": 147,
+      "editedBy": "PMO child session",
+      "explanation": "Fact at 11-25 02:55 JST: BOSS line, the fifth GT-2 run 521 passed (02:28-02:53; develop a7ba8b54a pushed).",
+      "changedAt": "2026-11-24T17:55:00Z"
     }
   ]
 }
