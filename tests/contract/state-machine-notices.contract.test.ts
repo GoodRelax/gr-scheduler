@@ -1,7 +1,5 @@
 // Contract test: table T-250 SD-3 -- the notices manuscript (T-286) against advanceScreenSession.
 
-import { readFileSync } from 'node:fs'
-import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
 
@@ -13,6 +11,7 @@ import {
 } from '../../src/use-case/advance-screen-session/advance-screen-session'
 import { NO_EFFECTS } from '../../src/use-case/advance-screen-session/session-step'
 import { termHolds } from './guard-language'
+import { readStateMachineView } from './state-machine-manuscript'
 
 type Carried = { readonly name: string }
 type SmRow = {
@@ -106,7 +105,7 @@ function regionOf(raw: RawRegion): Region {
 }
 
 const REGIONS = (
-  JSON.parse(readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'state-machines.json'), 'utf8')) as {
+  readStateMachineView() as {
     readonly regions: readonly RawRegion[]
   }
 ).regions.map(regionOf)

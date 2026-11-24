@@ -183,7 +183,7 @@ def state_machine_figures():
     path = os.path.join(ROOT, 'docs', 'spec', '_source', 'state-machines.json')
     doc = json.load(io.open(path, encoding='utf-8'))
     return [('docs/spec/_assets/fig-sm-%s.svg' % machine['name'], 'state-machines.json')
-            for region in doc['regions'] for machine in region['machines']]
+            for machine in doc['stateMachines']]
 
 
 ARTIFACTS += state_machine_figures()

@@ -216,6 +216,7 @@ import {
   type ScreenValues,
   type SearchPanelSession,
 } from '../../src/use-case/advance-screen-session/advance-screen-session'
+import { readStateMachineView } from './state-machine-manuscript'
 
 // ---------------------------------------------------------------------------
 // The dictionary, read as data at load time.
@@ -812,7 +813,7 @@ const openSurfaceRowsIn = (node: unknown): readonly string[] => {
 }
 
 const SURFACE_ROWS_OF_T_280: ReadonlySet<string> = new Set(
-  openSurfaceRowsIn(JSON.parse(readFileSync(join(ROOT, 'docs', 'spec', '_source', 'state-machines.json'), 'utf8'))),
+  openSurfaceRowsIn(readStateMachineView()),
 )
 
 const surfaceRowOf = (surface: string): string => {

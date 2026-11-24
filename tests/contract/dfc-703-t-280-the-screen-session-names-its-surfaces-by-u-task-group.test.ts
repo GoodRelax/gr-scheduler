@@ -1,7 +1,5 @@
 // DFC-703 spec-only cases: T-280 -- the open surface is named by its U row (U-49, U-54, U-56, U-60, U-61, U-62, U-65) in every event the input makes, so the machine can tell an open road surface (U-56, U-61) that awaits an answer.
 
-import { readFileSync } from 'node:fs'
-import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
 
@@ -16,6 +14,7 @@ import { contextOf, documentOf } from './cr-606-stage'
 import { HERE_TASK_GROUP, OPEN_CHOOSER, keyOfRow, oneTaskGroupDocument, reasonWords } from './cr-610-file-flow-stage'
 import { bare, bareAll, specTable } from './spec-table'
 import { jsonBytes, paletteStage, surfaceOfEntrance, there, type PaletteStage } from './wp-p1-palette-stage'
+import { readStateMachineView } from './state-machine-manuscript'
 
 interface RawMachine {
   readonly name: string
@@ -29,7 +28,7 @@ interface RawRegion {
 
 // see T-280
 const REGIONS = (
-  JSON.parse(readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'state-machines.json'), 'utf8')) as {
+  readStateMachineView() as {
     readonly regions: readonly RawRegion[]
   }
 ).regions

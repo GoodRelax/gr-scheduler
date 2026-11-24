@@ -21,6 +21,7 @@ import {
   type GuardTerm,
 } from './guard-language'
 import { specTable, unbroken } from './spec-table'
+import { readStateMachineView } from './state-machine-manuscript'
 
 type Loose = Record<string, unknown>
 type RawBranch = { readonly to?: string; readonly guard?: readonly GuardTerm[]; readonly effect?: string; readonly effectArgument?: string }
@@ -37,7 +38,7 @@ type RawRegion = {
 }
 
 const SPEC = join(process.cwd(), 'docs', 'spec')
-const MANUSCRIPT = JSON.parse(readFileSync(join(SPEC, '_source', 'state-machines.json'), 'utf8')) as {
+const MANUSCRIPT = readStateMachineView() as {
   readonly guardLanguage: unknown
   readonly regions: readonly RawRegion[]
 }

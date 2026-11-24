@@ -1,7 +1,5 @@
 // Contract test: table T-250 SD-3 -- the screen-values manuscript (T-280) against advanceScreenSession.
 
-import { readFileSync } from 'node:fs'
-import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
 
@@ -13,6 +11,7 @@ import {
 } from '../../src/use-case/advance-screen-session/advance-screen-session'
 import { NO_EFFECTS } from '../../src/use-case/advance-screen-session/session-step'
 import { type GuardScope, termHolds } from './guard-language'
+import { readStateMachineView } from './state-machine-manuscript'
 
 type Carried = { readonly name: string }
 type StateEffect = { readonly effect: string }
@@ -125,9 +124,7 @@ function regionOf(raw: RawRegion): Region {
 
 // WHY: the manuscript, not the generated table, is read: it is the single source, and
 // generated-vs-manuscript drift is gen:check's job.
-const MANUSCRIPT = JSON.parse(
-  readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'state-machines.json'), 'utf8'),
-) as { readonly regions: readonly RawRegion[] }
+const MANUSCRIPT = readStateMachineView() as { readonly regions: readonly RawRegion[] }
 
 const RAW_REGION = MANUSCRIPT.regions.find((r) => r.region === 'screen')
 if (RAW_REGION === undefined) throw new Error('state-machines.json has no region "screen"')

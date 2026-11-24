@@ -7,6 +7,7 @@ import { afterEach, describe, expect, it } from 'vitest'
 
 import { installAgentApi, type AgentApi } from '../../src/adapter/agent-api-endpoint/agent-api-endpoint'
 import { shell, taskGroupDocument, taskOf, TEMPLATE, type ShellBench } from '../unit/cr-541-stage'
+import { readStateMachineView } from './state-machine-manuscript'
 
 const SOURCE = join(process.cwd(), 'docs', 'spec', '_source')
 const readJson = (name: string): any => JSON.parse(readFileSync(join(SOURCE, name), 'utf8'))
@@ -15,7 +16,7 @@ const COMMANDS = readJson('document-commands.json')
 const ERD = readJson('erd.json')
 const SETTINGS = readJson('settings.json')
 const PUBLISHED = readJson('published-entries.json')
-const MACHINES = readJson('state-machines.json')
+const MACHINES = readStateMachineView()
 
 // see T-058
 const AT_NAMES = new Map<string, string>()

@@ -1,7 +1,5 @@
 // Contract test: table T-250 SD-3 -- the gesture manuscript (T-289) against advanceScreenSession.
 
-import { readFileSync } from 'node:fs'
-import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
 
@@ -13,6 +11,7 @@ import {
 } from '../../src/use-case/advance-screen-session/advance-screen-session'
 import { NO_EFFECTS } from '../../src/use-case/advance-screen-session/session-step'
 import { branchHolds } from './guard-language'
+import { readStateMachineView } from './state-machine-manuscript'
 
 type Loose = Record<string, unknown>
 type RawGuard = { readonly name: string; readonly not?: boolean }
@@ -28,7 +27,7 @@ type RawEvent = { readonly key: string; readonly carries: readonly { readonly na
 type RawRegion = { readonly region: string; readonly events: readonly RawEvent[]; readonly machines: readonly RawMachine[] }
 
 const REGIONS = (
-  JSON.parse(readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'state-machines.json'), 'utf8')) as {
+  readStateMachineView() as {
     readonly regions: readonly RawRegion[]
   }
 ).regions

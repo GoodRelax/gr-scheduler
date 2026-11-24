@@ -65,7 +65,7 @@ describe('CR-727 the manuscript these cases are driven by', () => {
   it('T-103 U-68 names the Drop Cue and T-280 holds dropCueDisplayStateMachine', () => {
     expect(rowLine(specText('_assets', 'tbl-glossary.md'), 'U-68')).toContain('`Drop Cue`')
     const machines = specText('_assets', 'tbl-state-machines.md')
-    expect(machines).toContain('### 状態機械 `dropCueDisplayStateMachine`')
+    expect(machines).toContain('### ステートマシン `dropCueDisplayStateMachine`')
     expect(machines).toContain(T_280_ENTERED)
     expect(machines).toContain(T_280_LEFT)
     expect(machines).toContain('表に無い出来事は `dropCueDisplayStateMachine` を変えない（同じ参照）。')

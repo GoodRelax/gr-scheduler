@@ -8,9 +8,9 @@ values and one section per state machine -- the link to its UML figure, its
 state transition table and its states -- and _assets/tbl-state-machines.md is
 a generated artifact: a hand edit to it is overwritten, and --check catches
 one before it can be committed. Ahead of the regions it prints the guard
-language (`guardLanguage`) and table T-283, the order across regions (SD-4),
-from the manuscript's top-level `priorities`; what `load_priorities()`
-refuses is written on it. Only this printer reads `priorities` -- no code
+language (`xGuardLanguage`) and table T-283, the order across regions (SD-4),
+from the manuscript's top-level `xPriorities`; what `load_priorities()`
+refuses is written on it. Only this printer reads `xPriorities` -- no code
 constant is generated from it. The figures, one SVG per machine, are drawn by
 state_machine_figures.py, which this file runs.
 
@@ -20,20 +20,25 @@ state_machine_figures.py, which this file runs.
                                                   differs or a figure's
                                                   fingerprint does (no drawing)
 
-It is also the ONE reader of the manuscript: tools/generate_state_machine_types.py
+It holds the ONE validated model of the manuscript: tools/generate_state_machine_types.py
 imports `load()` from here, so the two artifacts are printed from one
-validated model and cannot disagree about what the manuscript says.
+validated model and cannot disagree about what the manuscript says. The file
+itself is read by state_machine_source.py, which checks the shape the NDD
+review standard asks for (stateMachines[], transitions[], unhandled[]) and
+hands `load()` the region view. A cell no transition answers prints the
+`handling` of its `unhandled[]` entry (HANDLING_WORD: ignore or error),
+and the document's head carries the legend.
 
 NAMES, NOT NUMBERS (JDG-286, R4.4 of docs/development-rules/07-review-
 standards.md). A machine -- the definition -- is a noun phrase plus
 `StateMachine` and is unique across every region; the code holds its current
 state under the same noun phrase plus `State` (`armModeStateMachine` ->
 `armModeState`); a state is `machine.key`; an event is `region/key`; a
-transition is its cell -- the machine, the current state and the event.
+transition is named by the machine, its source state and its trigger.
 
 GUARDS ARE CONDITIONS (JDG-2161, JDG-2362). Each region lists its guards,
 and each guard's condition is an expression in the one language the
-manuscript's `guardLanguage` defines; `load()` parses every condition here
+manuscript's `xGuardLanguage` defines; `load()` parses every condition here
 and resolves every term it reads, so a printed condition cannot name a value
 nothing holds. Entry and exit effects run as UML runs them -- exit, the
 transition's own effect, entry; a transition to itself crosses nothing.
@@ -52,9 +57,9 @@ What `load()` refuses (CR-436 section 3.1 and wave A2), on top of the schema:
     machine of the region carries, an entity term (`taskGroup.x`) outside a
     documentData region or naming no column of that entity in erd.json,
     `in(...)` / `inAfter(...)` naming no state of the region, and a function
-    `guardLanguage` does not define or that is given the wrong number of
+    `xGuardLanguage` does not define or that is given the wrong number of
     arguments;
-  - a function `guardLanguage` defines twice, or that no condition calls;
+  - a function `xGuardLanguage` defines twice, or that no condition calls;
   - a cell whose state is not a state of its machine, whose `to` is not a
     state of the SAME machine, or whose `{name}` target is not a value the
     event carries (such a target stands for any top-level kind of the
@@ -95,6 +100,7 @@ import re
 import sys
 
 import state_machine_figures as figures
+import state_machine_source as source
 from spec_md_printing import say
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -109,6 +115,9 @@ OUT = os.path.join(ASSETS, OUT_NAME)
 
 LANG = 'ja'
 NONE_CELL = u'—'
+# What a cell of unhandled[] prints, and the legend explains: ignore keeps the
+# dash the table always printed for no change.
+HANDLING_WORD = {'ignore': NONE_CELL, 'error': u'エラー'}
 JOIN = u' ・ '
 ALT = u' ／ '
 AND = u' & '
@@ -197,7 +206,7 @@ def guard_words(guard):
 
 # --- the guard language ------------------------------------------------------
 #
-# A small recursive descent over the forms `guardLanguage` writes down. `!`
+# A small recursive descent over the forms `xGuardLanguage` writes down. `!`
 # binds tighter than a comparison or `in`, which bind tighter than `&&`, which
 # binds tighter than `||`. The tree is tuples: ('lit', value), ('list', [x]),
 # ('path', [word, ...]), ('field', x, word), ('call', name, [x]),
@@ -333,6 +342,9 @@ class Machine(object):
         self.name = raw['name']
         self.states = raw['states']
         self.table = raw['transitions']
+        # (event, state key) -> 'ignore' | 'error': the cells no transition answers.
+        self.unhandled = dict(((u['trigger'], u['source']), u['handling'])
+                              for u in raw.get('unhandled', []))
         self.by_key = collections.OrderedDict((s['key'], s) for s in self.states)
         # parent key (None for the top) -> [state, ...]
         self.children = collections.OrderedDict()
@@ -524,7 +536,7 @@ class Region(object):
             return '%s(%s) names no state of region %s' % (node[1], node[2], self.name)
         if node[0] == 'call':
             if node[1] not in functions:
-                return 'calls %s, which guardLanguage does not define' % node[1]
+                return 'calls %s, which xGuardLanguage does not define' % node[1]
             if len(functions[node[1]]) != len(node[2]):
                 return '%s takes %d argument(s), not %d' % (
                     node[1], len(functions[node[1]]), len(node[2]))
@@ -746,11 +758,11 @@ def document_data_problems(region):
 
 def load():
     """(regions, problems) -- the validated model, or the reasons it is not."""
-    doc = json.load(io.open(SRC, encoding='utf-8'),
-                    object_pairs_hook=collections.OrderedDict)
-    found = schema_problems(doc)
+    manuscript = source.read(SRC)
+    found = schema_problems(manuscript) or source.problems(manuscript)
     if found:
         return [], found
+    doc = source.regions(manuscript)
     regions = [Region(raw) for raw in doc['regions']]
     found.extend('region %s appears twice' % d
                  for d in duplicates(r.name for r in regions))
@@ -770,12 +782,12 @@ def load():
     found.extend(shared_event_keys(regions))
     known = defined_ids()
     language = doc['guardLanguage']
-    found.extend('guardLanguage: function %s appears twice' % d
+    found.extend('xGuardLanguage: function %s appears twice' % d
                  for d in duplicates(f['name'] for f in language['functions']))
     functions = dict((f['name'], f['parameters']) for f in language['functions'])
     called = set()
     for one in language['functions']:
-        found.extend('guardLanguage: function %s: %s is not defined in docs/spec' % (one['name'], e)
+        found.extend('xGuardLanguage: function %s: %s is not defined in docs/spec' % (one['name'], e)
                      for e in one['evidence'] if e not in known)
     for region in regions:
         found.extend('event %s appears twice' % region.event_id(d)
@@ -792,7 +804,7 @@ def load():
             for one in cited:
                 if one not in known:
                     found.append('%s: %s is not defined in docs/spec' % (where, one))
-    found.extend('guardLanguage: function %s is called by no condition' % name
+    found.extend('xGuardLanguage: function %s is called by no condition' % name
                  for name in functions if name not in called)
     return regions, found
 
@@ -824,8 +836,7 @@ def load_priorities(regions):
     the ORDER is the requirement's (SD-4), so the table may not drift from it.
     Enter and y / n are not compared: their requirements do not write the
     order as one arrowed chain."""
-    doc = json.load(io.open(SRC, encoding='utf-8'),
-                    object_pairs_hook=collections.OrderedDict)
+    doc = source.regions(source.read(SRC))
     raw = doc.get('priorities')
     if raw is None:
         return None, []
@@ -1086,6 +1097,9 @@ def transition_rows(machine):
         cells = [code(region.event_id(event))]
         for leaf in leaves:
             answer = NONE_CELL
+            for (trigger, source), handling in machine.unhandled.items():
+                if trigger == event and machine.covers(source, leaf['key']):
+                    answer = HANDLING_WORD[handling]
             for source, cell in row.items():
                 if machine.covers(source, leaf['key']):
                     answer = cell_text(branches_of(cell), source, leaf['key'], region)
@@ -1112,7 +1126,7 @@ def state_list(machine):
 
 
 def machine_lines(machine):
-    lines = [u'', u'### 状態機械 %s' % code(machine.name), u'']
+    lines = [u'', u'### ステートマシン %s' % code(machine.name), u'']
     lines.append(figures.link(machine))
     lines.append(u'')
     head = [u'出来事'] + [code(s['key']) for s in machine.leaves()]
@@ -1127,21 +1141,28 @@ def machine_lines(machine):
 # --- the document ------------------------------------------------------------
 
 HEADER = [
-    u'# 状態機械 — 出来事・状態・状態遷移表',
+    u'# ステートマシン — 出来事・状態・状態遷移表',
     u'',
     u'**UID**: DOC-TBL-STATE-MACHINES',
     u'**Version**: 0.2',
     u'',
     u'> ⛔ 本書は生成物である。  ',
     u'> 手で直さない —— 直しても次の `npm run gen` で消える。',
-    u'> **状態機械の唯一の正は `_source/state-machines.json` である。**  ',
+    u'> **ステートマシンの唯一の正は `_source/state-machines.json` である。**  ',
     u'> 本書はそれを `_source/state_machines_json_to_md.py` が印字したものである。',
     u'> **作り直す**: `npm run gen` ／ **ズレを検出する**: `npm run gen:check`。',
     u'',
-    u'本書は、保存しない状態の状態機械（`05-07-design.md` の 5.6 の ADR-002）を、領域ごと・状態機械ごとに印字したものである。  ',
+    u'本書は、保存しない状態のステートマシン（`05-07-design.md` の 5.6 の ADR-002）を、領域ごと・ステートマシンごとに印字したものである。  ',
     u'⚠️ 例外はタスクグループの木（`taskGroupTree`）の 1 つだけであり、その状態は文書に保存する値である（`05-07-design.md` の 表 T-250 の `SD-5`）。  ',
-    u'原稿が持つもの・持たないものは `05-07-design.md` の 表 T-250 が、状態機械の形は 表 T-249 が持つ。  ',
+    u'原稿が持つもの・持たないものは `05-07-design.md` の 表 T-250 が、ステートマシンの形は 表 T-249 が持つ。  ',
     u'名前の読み方は `05-07-design.md` の 5.5 が持つ。',
+    u'',
+    u'⭐ **状態遷移表の升の凡例** —— `→ 状態` は遷移であり、`[...]` はそのガードである。  ',
+    u'`%s` は無視（`ignore`）の升であり、出来事を受けても状態を変えない（同じ参照のまま。`SD-3`）。  '
+    % HANDLING_WORD['ignore'],
+    u'`%s` はエラー（`error`）の升であり、起きてはならない組である。  ' % HANDLING_WORD['error'],
+    u'`それ以外 → %s` は、遷移の升でどのガードにも当たらないとき、状態を変えないことである。  ' % NONE_CELL,
+    u'無視とエラーの升は、原稿の `unhandled[]` が 1 つずつ持つ（NDD レビュー基準の付録 A.6）。',
 ]
 
 
@@ -1151,11 +1172,11 @@ def region_lines(region):
     lines = [u'', u'## %s（%s）' % (text(region.raw['name']), code(region.name)), u'']
     lines.append(u'**表 %s — %s**' % (table['id'], text(table['caption'])))
     lines.append(u'')
-    lines.append(u'本表は、出来事の定義・根の値・状態機械ごとの状態遷移表と状態の一覧からなる。  ')
-    lines.append(u'状態遷移表の行はその状態機械を動かす出来事、列はその状態機械の葉の状態、'
+    lines.append(u'本表は、出来事の定義・根の値・ステートマシンごとの状態遷移表と状態の一覧からなる。  ')
+    lines.append(u'状態遷移表の行はそのステートマシンを動かす出来事、列はそのステートマシンの葉の状態、'
                  u'升は「→ 次の状態 [ガード] / 副作用」である。  ')
     lines.append(u'ガードは名と条件を「`名`（`条件`）」と刷り、条件は同じ領域のガードの一覧と同じである。  ')
-    lines.append(u'状態に entry ／ exit の副作用がある状態機械は、出来事の行の上に `entry` ／ `exit` の行を置く'
+    lines.append(u'状態に entry ／ exit の副作用があるステートマシンは、出来事の行の上に `entry` ／ `exit` の行を置く'
                  u' —— その状態へ入る遷移・出る遷移が、出 → 遷移の副作用 → 入の順に起こし、'
                  u'自己への遷移（「→ 自己」）は起こさない。  ')
     lines.append(u'升の「%s」は変化なし（同じ参照）を表す。  ' % NONE_CELL)
@@ -1175,8 +1196,8 @@ def region_lines(region):
     lines += guard_list_lines(region, name)
     lines += root_lines(region)
     lines += [u'', u'**図 %s — %s**' % (figure['id'], text(figure['caption'])), u'']
-    lines.append(u'状態機械ごとに 1 つの図に分け、その状態機械の節に置く。状態機械どうしは直交する。  ')
-    lines.append(u'図は UML の状態機械図である —— 矢印のラベルは「出来事 [ガード] / 副作用」、'
+    lines.append(u'ステートマシンごとに 1 つの図に分け、そのステートマシンの節に置く。ステートマシンどうしは直交する。  ')
+    lines.append(u'図は UML のステートマシン図である —— 矢印のラベルは「出来事 [ガード] / 副作用」、'
                  u'同じ 2 つの状態を結ぶ遷移は 1 本の矢印に 1 行ずつ並べる。'
                  u'ガードは名で書き、条件は同じ領域のガードの一覧が持つ。  ')
     lines.append(u'行き先が運ぶ値で決まる升は選択の擬似状態（◇）で分ける。'
@@ -1210,7 +1231,7 @@ def form_cell(form):
 
 
 def language_lines(language):
-    """The guard language (`guardLanguage`), once, ahead of the regions."""
+    """The guard language (`xGuardLanguage`), once, ahead of the regions."""
     lines = [u'', u'## ガードの条件の書き方', u'']
     lines.append(u'各領域のガードの一覧の条件は、次の項・演算・関数だけで書く式である。  ')
     lines.append(u'生成器は条件を 1 つずつ読み、読む値が在ることを確かめる'
@@ -1273,9 +1294,8 @@ def build(regions, priorities=None, language=None):
 
 
 def guard_language():
-    """The manuscript's `guardLanguage`, which load() has already checked."""
-    return json.load(io.open(SRC, encoding='utf-8'),
-                     object_pairs_hook=collections.OrderedDict)['guardLanguage']
+    """The manuscript's `xGuardLanguage`, which load() has already checked."""
+    return source.regions(source.read(SRC))['guardLanguage']
 
 
 def check(regions, body):

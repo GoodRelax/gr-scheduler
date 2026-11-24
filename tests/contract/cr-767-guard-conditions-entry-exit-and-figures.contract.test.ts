@@ -12,6 +12,7 @@ import {
   type SessionEvent,
 } from '../../src/use-case/advance-screen-session/advance-screen-session'
 import { unbroken } from './spec-table'
+import { readStateMachineView } from './state-machine-manuscript'
 
 type Loose = Record<string, unknown>
 type GuardTerm = { readonly name: string; readonly not?: boolean } | { readonly in: string }
@@ -47,13 +48,13 @@ const SPEC = join(process.cwd(), 'docs', 'spec')
 const ASSETS = join(SPEC, '_assets')
 const MANUSCRIPT_PATH = 'docs/spec/_source/state-machines.json'
 const REGIONS = (
-  JSON.parse(readFileSync(join(SPEC, '_source', 'state-machines.json'), 'utf8')) as { readonly regions: readonly RawRegion[] }
+  readStateMachineView() as { readonly regions: readonly RawRegion[] }
 ).regions
 const PRINTED = readFileSync(join(ASSETS, 'tbl-state-machines.md'), 'utf8').replace(/\r\n/g, '\n')
 const DESIGN = unbroken(readFileSync(join(SPEC, '05-07-design.md'), 'utf8'))
 
 const SECTION_5_5_GENERATES =
-  '原稿から、ガードの式の書き方、領域ごとの出来事の定義・ガードの一覧・優先順の表と、状態機械ごとの状態遷移図（UML）・状態遷移表・状態の一覧を生成し'
+  '原稿から、ガードの式の書き方、領域ごとの出来事の定義・ガードの一覧・優先順の表と、ステートマシンごとの状態遷移図（UML）・状態遷移表・状態の一覧を生成し'
 const SECTION_5_5_NO_HAND_EDIT = '状態遷移図と状態遷移表を手で直してはならない（MUST NOT）'
 // WHY: wave 2 of CR-767 continues the sentence with the generated guard-name type.
 const SECTION_5_5_CONDITIONS = 'ガードの条件は原稿が持ち、コードの判定はそれに従う'
@@ -161,7 +162,7 @@ describe('SD-3: every printed cell that names a guard prints it as `name`（`con
       .map((c) => [`${r.region}: ${c.where} x ${c.event}${c.from === null ? '' : ` @ ${c.from}`}`, r, c] as const),
   )
   it.each(cases)('%s', (_, region, cell) => {
-    const heading = cell.where === 'root' ? `### 根 \`${region.region}\` の値` : `### 状態機械 \`${cell.where}\``
+    const heading = cell.where === 'root' ? `### 根 \`${region.region}\` の値` : `### ステートマシン \`${cell.where}\``
     const row = rowOf(sectionAfter(heading, regionSection(region.region)), region.region, cell.event)
     expect(row, `${heading}: a row for ${region.region}/${cell.event}`).toBeDefined()
     for (const name of namedGuards(cell.branch)) {
@@ -174,7 +175,7 @@ describe('SD-3: every printed cell that names a guard prints it as `name`（`con
   it('no printed guard shows a condition other than its own list entry', () => {
     const wrong: string[] = []
     for (const region of REGIONS) {
-      const tables = [`### 根 \`${region.region}\` の値`, ...region.machines.map((m) => `### 状態機械 \`${m.name}\``)]
+      const tables = [`### 根 \`${region.region}\` の値`, ...region.machines.map((m) => `### ステートマシン \`${m.name}\``)]
       const section = tables.map((heading) => sectionAfter(heading, regionSection(region.region))).join('\n')
       for (const guard of region.guards ?? []) {
         const shown = section.split(`\`${guard.name}\`（`).slice(1)
@@ -548,7 +549,7 @@ const MACHINES = REGIONS.flatMap((r) => r.machines.map((m) => [r.region, m.name]
 // both from the manuscript; a test sees only what is printed, so it checks the link and banner.
 describe('5.5: each machine section links its UML diagram fig-sm-<machine>.svg, drawn from the manuscript', () => {
   it.each(MACHINES)('%s: %s', (region, name) => {
-    const section = sectionAfter(`### 状態機械 \`${name}\``, regionSection(region))
+    const section = sectionAfter(`### ステートマシン \`${name}\``, regionSection(region))
     expect(section, `the section of ${name}`).not.toBe('')
     expect(section).toContain(`[![${name}](fig-sm-${name}.svg)](fig-sm-${name}.svg)`)
     const file = join(ASSETS, `fig-sm-${name}.svg`)

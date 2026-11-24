@@ -10,6 +10,7 @@ import { treeStateWritesFor, type TreeStateEvent } from '../../src/use-case/edit
 import { treeFunctions } from './guard-functions'
 import { termHolds } from './guard-language'
 import { specTable, unbroken } from './spec-table'
+import { readStateMachineView } from './state-machine-manuscript'
 
 type TreeState = TaskGroup['treeState']
 type Guard = { readonly name: string; readonly not?: boolean }
@@ -27,9 +28,7 @@ type RawRegion = {
 
 // WHY: the manuscript, not the generated table, is the single source; generated-vs-manuscript
 // drift is gen:check's job, and the generated copy is compared below only as a second reader.
-const MANUSCRIPT = JSON.parse(
-  readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'state-machines.json'), 'utf8'),
-) as { readonly regions: readonly RawRegion[] }
+const MANUSCRIPT = readStateMachineView() as { readonly regions: readonly RawRegion[] }
 const REGION = MANUSCRIPT.regions.find((r) => r.region === 'taskGroupTree')
 if (REGION === undefined) throw new Error('state-machines.json has no region "taskGroupTree"')
 const MACHINE = REGION.machines.find((m) => m.name === 'treeStateMachine')
@@ -256,7 +255,7 @@ describe('SD-3: a cell the table leaves empty writes nothing (the same reference
 describe(`table T-332 SJ-2 -- ${SJ_2_OPENS}`, () => {
   it('the requirement still says it, word for word, and names taskGroupRevealAsked of table T-328', () => {
     expect(REQUIREMENTS).toContain(SJ_2_OPENS)
-    expect(REQUIREMENTS).toContain('規則はタスクグループの木の状態機械（表 T-328）の出来事 `taskGroupRevealAsked` が持つ。')
+    expect(REQUIREMENTS).toContain('規則はタスクグループの木のステートマシン（表 T-328）の出来事 `taskGroupRevealAsked` が持つ。')
   })
 
   it('opens the task group jumped to and every ancestor, a hidden one included, and nothing else', () => {

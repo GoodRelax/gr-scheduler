@@ -102,9 +102,11 @@ FIELDS = {
     ('notice-reasons.json', 'manner'): ('row', {'NT'}),
     ('notice-reasons.json', 'table'): ('table', None),
     ('state-machines.json', 'evidence'): ('row', None),
+    ('state-machines.json', 'xEvidence'): ('row', None),
     ('state-machines.json', 'rows'): ('row', None),
     # a notice reason, or the surface an effect opens (U-56 Open Chooser)
     ('state-machines.json', 'effectArgument'): ('row', {'RS', 'U'}),
+    ('state-machines.json', 'xEffectArgument'): ('row', {'RS', 'U'}),
     ('state-machines.json', 'column'): ('row', {'AT'}),
     ('verification.json', 'verifiedBy'): ('row', {'TS'}),
     ('verification.json', 'alsoVerifies'): ('row', None),
@@ -201,7 +203,7 @@ def generated_markdown(root='.'):
 def spec_prefixes(root='.'):
     """The row-id prefixes the specification registered (owner `spec`)."""
     doc = read_json(SOURCE_DIR + '/row-id-prefixes.json', root)
-    return {p['prefix'] for p in doc['prefixes'] if p['owner'] == 'spec'}
+    return {p['prefix'] for p in doc['prefixes'] if p['xOwner'] == 'spec'}
 
 
 class Definitions(object):

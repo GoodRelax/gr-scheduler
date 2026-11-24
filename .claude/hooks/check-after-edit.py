@@ -80,6 +80,7 @@ GENERATORS = {
     'grs-document.schema.json': [ERD_SCHEMA, VALIDATOR, TYPES, STARTUP],
     'property-items.json': [ITEMS_MD, PROPITEMS],
     'row-id-prefixes.json': [PREFIXES_MD],
+    'row-id-prefixes.schema.json': [PREFIXES_MD],
     'components.json': [COMPONENTS],
     'overview.json': [COMPONENTS],
     'display-words.json': [WORDS],

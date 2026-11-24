@@ -12,10 +12,11 @@ import {
 } from '../../src/framework/single-html-shell/session-effects'
 import type { SessionEffect } from '../../src/use-case/advance-screen-session/advance-screen-session'
 import { unbroken } from '../contract/spec-table'
+import { readStateMachineView } from '../contract/state-machine-manuscript'
 
 const DESIGN = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '05-07-design.md'), 'utf8'))
 
-const UF_123_IN_ORDER = '状態機械が返した副作用を、返った順に 1 つずつ種類ごとの実行へ渡すこと（`runSessionEffects`）'
+const UF_123_IN_ORDER = 'ステートマシンが返した副作用を、返った順に 1 つずつ種類ごとの実行へ渡すこと（`runSessionEffects`）'
 const UF_123_EVERY_KIND = '`EffectRunners` —— 副作用の種類の全数を 1 つ残らず求める。'
 const UF_123_UNWIRED = '（`unwiredEffect` —— 呼ばれたら投げる。'
 const SF_6 = '副作用（書き込み・ファイル・クリップボード・問い）は値として返し、`SingleHtmlShell` が実行する。'
@@ -34,9 +35,7 @@ const MANUSCRIPT_EFFECTS: readonly string[] = (() => {
       else walk(inner)
     }
   }
-  const raw = JSON.parse(
-    readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'state-machines.json'), 'utf8'),
-  ) as { readonly regions: readonly { readonly holds?: string }[] }
+  const raw = readStateMachineView() as { readonly regions: readonly { readonly holds?: string }[] }
   walk(raw.regions.filter((region) => region.holds !== 'documentData'))
   return [...found].sort()
 })()

@@ -12,6 +12,7 @@ import {
   type SessionEvent,
 } from '../../src/use-case/advance-screen-session/advance-screen-session'
 import { unbroken } from './spec-table'
+import { readStateMachineView } from './state-machine-manuscript'
 
 const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
@@ -55,9 +56,7 @@ type RawRegion = {
 
 // WHY: the manuscript is the single source of table T-280 (Chapter 1.9: the cases are fixed
 // data copied from the table, here read from it).
-const MANUSCRIPT = JSON.parse(
-  readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'state-machines.json'), 'utf8'),
-) as { readonly regions: readonly RawRegion[] }
+const MANUSCRIPT = readStateMachineView() as { readonly regions: readonly RawRegion[] }
 
 const SCREEN_REGION = MANUSCRIPT.regions.find((one) => one.region === 'screen')
 if (SCREEN_REGION === undefined) throw new Error('state-machines.json has no region "screen"')

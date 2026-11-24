@@ -1915,7 +1915,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `FileOperationState` | entry | type | `src/use-case/advance-screen-session/file-flow-values.ts#FileOperationState` | PI-39 | 型。 |
 | `hasCalendarDraftRefusal` | entry | function | `src/use-case/advance-screen-session/calendar-draft.ts#hasCalendarDraftRefusal` | -- | function hasCalendarDraftRefusal(draft: CalendarDraft): boolean |
 | `isHelpStandingIn` | entry | function | `src/use-case/advance-screen-session/screen-values.ts#isHelpStandingIn` | PI-39 | ヘルプが立っているか（`helpDisplayStateMachine` が `shown.normal` か `shown.maximized`）。 |
-| `isWindowStandingIn` | entry | function | `src/use-case/advance-screen-session/screen-values.ts#isWindowStandingIn` | PI-39 | ウィンドウ（`FR-036` の 表 T-335）が立っているか —— 表示の状態機械が `shown.normal` か `shown.maximized`。 |
+| `isWindowStandingIn` | entry | function | `src/use-case/advance-screen-session/screen-values.ts#isWindowStandingIn` | PI-39 | ウィンドウ（`FR-036` の 表 T-335）が立っているか —— 表示のステートマシンが `shown.normal` か `shown.maximized`。 |
 | `NO_ROW_CHECKED` | entry | const | `src/use-case/advance-screen-session/screen-values.ts#NO_ROW_CHECKED` | PI-39 | `TableVisibility` の初めの値 —— どの行もチェックが外れ（「非表示」）、スケジュールフィルタを掛けていない（表 T-353 の `TV-2`） |
 | `NOTICE_DISPLAY_OF_REASON` | entry | const | `src/use-case/advance-screen-session/notice-values.ts#NOTICE_DISPLAY_OF_REASON` | PI-39 | 理由ごとの表示の仕方 —— 表 T-233 の表示の仕方の欄（`show` ・ `autoDismiss` ・ `hide` ・ `report`）と、取り込みの拒否が運ぶ 表 T-220 の行の家族の値（`_source/notice-reasons.json` から生成）。 |
 | `NOTICE_MANNER_OF_REASON` | entry | const | `src/use-case/advance-screen-session/notice-values.ts#NOTICE_MANNER_OF_REASON` | PI-39 | 理由ごとの作法 —— 表 T-233 の作法の欄（表 T-037 の行）。 |

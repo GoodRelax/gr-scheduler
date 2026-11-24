@@ -1,9 +1,8 @@
 // Reads and evaluates a guard condition of docs/spec/_source/state-machines.json in its guardLanguage, test side.
 
-import { readFileSync } from 'node:fs'
-import { join } from 'node:path'
 
 import { GUARD_FUNCTIONS, type GuardFunction } from './guard-functions'
+import { readStateMachineView } from './state-machine-manuscript'
 
 type Carried = { readonly name: string }
 type ManuscriptState = { readonly key: string; readonly parent: string | null; readonly carries: readonly Carried[] }
@@ -22,9 +21,7 @@ export interface GuardRegion {
   readonly machines: readonly ManuscriptMachine[]
 }
 
-const MANUSCRIPT = JSON.parse(
-  readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'state-machines.json'), 'utf8'),
-) as {
+const MANUSCRIPT = readStateMachineView() as {
   readonly guardLanguage: { readonly functions: readonly { readonly name: string; readonly parameters: readonly string[] }[] }
   readonly regions: readonly GuardRegion[]
 }

@@ -74,7 +74,7 @@ const SJ_10_AM_16 = '`SJ-9` の `AM-16` は古い印を新しい印に置き換�
 const SJ_10_NOT_DRAWN =
   '⚠️ `SJ-8` で画面に出せなかったときと、飛ぶ先の予定の形が描かれていないとき（予定を持たないタスク、予定を表示していないとき —— `S-227` が偽）は、囲みも波紋も描かない。'
 const SJ_10_NOT_SAVED =
-  '⛔ 保存と取り消しは `EL-16` の送った先の印と同じとする —— 同じ状態機械（`_assets/tbl-state-machines.md` の 表 T-280 の `landingMarkDisplayStateMachine`）が持つ。'
+  '⛔ 保存と取り消しは `EL-16` の送った先の印と同じとする —— 同じステートマシン（`_assets/tbl-state-machines.md` の 表 T-280 の `landingMarkDisplayStateMachine`）が持つ。'
 const SJ_10_EXPORT = '⚠️ 書き出す絵（`FR-080`）には描かない。'
 const SJ_10_NO_GAP = '⚠️ 掴み代（`FR-105`）と縦の隙間（`FR-094`）は印で変えない'
 const SJ_5_MIDDLE =
