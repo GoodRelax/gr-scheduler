@@ -1,0 +1,6 @@
+# Check 98 (check-screen-words-in-code.mjs): the counts held, one "key value" per line.
+# A count above its line fails; a count below it asks for the line to be lowered.
+# Started 2026-11-25 at the measured tree (rule 03 section 1, JDG-3836, JDG-3837):
+# "Resource List" x5 and "Command Palette" x2 written in src/. Lower only.
+glossary-lookup 0
+word-literal 7

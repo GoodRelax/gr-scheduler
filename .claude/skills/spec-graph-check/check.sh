@@ -10,7 +10,8 @@
 #
 # then add up the ranges in the headings (1-4 is four, 5-10 is six, and so
 # on). A heading may carry several numbers because one script answers them.
-# The ranges today are 1 + 4 + 8 + 4 + 77. (Recounted 2026-11-24 at checks 95-97
+# The ranges today are 1 + 4 + 8 + 4 + 78. (Recounted 2026-11-25 at check 98
+# (screen words in code, JDG-3836): 77 + 1. Recounted 2026-11-24 at checks 95-97
 # (the test record of JDG-3827, @purity coverage of R7, the R1b gap counts): 74 + 3. Recounted 2026-11-08 at check 94
 # (the retired purity values, CR-859): 73 + 1. Recounted 2026-10-24 at checks 91-93
 # (old rule-07 numbers, rule 07 against its master, the lockfile and OSS;
@@ -470,6 +471,10 @@
 #   97     check-trace-gaps.py : the four traceability gap counts of R1b
 #          over the StrictDoc chain and the traces rows. Ratchet:
 #          trace-gaps-baseline.txt
+#   98     check-screen-words-in-code.mjs : hand-written src/ reads the
+#          glossary, or spells a display-word label as a string literal
+#          (rule 03 section 1, JDG-3836). Ratchet:
+#          screen-words-in-code-baseline.txt
 #
 # Green does NOT prove the specification is sound: defects of meaning have
 # appeared while all of these were green. They stop broken references, not
@@ -1370,6 +1375,25 @@ section "97  the traceability gap counts of R1b do not grow"
 # unbuilt implementation specification each land in their term.
 PYTHONIOENCODING=utf-8 python "$HERE/check-trace-gaps.py" --self-test >/dev/null || { echo "FAIL the self-test of check-trace-gaps.py"; failed; }
 PYTHONIOENCODING=utf-8 python "$HERE/check-trace-gaps.py" || failed
+
+echo ""
+section "98  src/ looks a screen word up by its row ID, never by a glossary key or by the word"
+# Rule 03 section 1 (JDG-3836, JDG-3837): renaming a screen word is a data
+# change only. Hand-written src/ may not read glossary.json (its key changes
+# on every rename), and may not spell a label of display-words.json as a
+# string literal. A bare literal equal to a glossary key is not counted: 1563
+# of them in src/ are field names and identifiers. Labels shaped like an
+# identifier (the settings rows) or holding no letter (+) are not words.
+# Literals an outside standard or platform names (MSPDI elements, DOM key
+# names) are exempt BY NAME in screen-words-in-code-exempt.txt, printed on
+# every run; an exemption matching nothing is red. MEASURED 2026-11-25:
+# glossary-lookup 0, word-literal 7 ("Resource List" x5, "Command Palette"
+# x2), held as a ratchet in screen-words-in-code-baseline.txt. MEASURED by
+# breaking it (--self-test): an English label, a Japanese label written as an
+# escape, and a glossary import with an index each go red; an
+# identifier-shaped label, "+" and a generated region stay green.
+node "$HERE/check-screen-words-in-code.mjs" --self-test >/dev/null || { echo "FAIL the self-test of check-screen-words-in-code.mjs"; failed; }
+node "$HERE/check-screen-words-in-code.mjs" || failed
 
 echo ""
 section "NOT COVERED  what this run did not look at"
