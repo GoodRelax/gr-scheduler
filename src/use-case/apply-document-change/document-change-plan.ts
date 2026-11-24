@@ -1,4 +1,4 @@
-// The pure half of ApplyDocumentChange: steps WS-1 to WS-5 for both write roads.
+// File: ApplyDocumentChange: The pure half of ApplyDocumentChange: steps WS-1 to WS-5 for both write roads.
 // @unit      UF-9   (docs/spec/05-07-design.md, table T-075)
 // @component ApplyDocumentChange, layer UseCase (table T-062)
 // @purity    pure
@@ -28,7 +28,7 @@ import { importDocument, type ImportRefusal, type ImportRequest } from '../impor
 import { redoEdit } from '../redo-edit/redo-edit'
 import { undoEdit, type ChangeStep, type HeldDocument } from '../undo-edit/undo-edit'
 
-// see AG-9, WS-2, NT-7
+// Spec: AG-9, WS-2, NT-7
 export interface WriteMoment {
   readonly gestureInFlight: boolean
   readonly editingInPlace: boolean
@@ -71,8 +71,8 @@ export type ChangePlan =
       readonly report: EditReport
     }
 
-// see T-027, AG-10
-// TRAP: change together with columnsOutsideHistory: a command answering false here must write only
+// Spec: T-027, AG-10
+// Trap: change together with columnsOutsideHistory: a command answering false here must write only
 // columns listed there, or an undo rewinds its effect.
 /** @purity pure */
 function isUndoable(command: DocumentCommand): boolean {
@@ -83,7 +83,7 @@ function isUndoable(command: DocumentCommand): boolean {
     case 'setTaskGroupPanelWidthFixed':
     case 'setTimeOfDayVisible':
       return false
-    // TRAP: FR-031 splits a fit into CM-71 (no step) then CM-72 (a step); swapping or merging
+    // Trap: FR-031 splits a fit into CM-71 (no step) then CM-72 (a step); swapping or merging
     // them makes an undo rewind the zoom against UN-8.
     case 'setZoom':
     case 'setScrollPosition':
@@ -94,8 +94,8 @@ function isUndoable(command: DocumentCommand): boolean {
   }
 }
 
-// see T-027, UN-7, UN-8, UN-16
-// TRAP: never list a column the history owns; keeping it would silently undo the undo.
+// Spec: T-027, UN-7, UN-8, UN-16
+// Trap: never list a column the history owns; keeping it would silently undo the undo.
 /** @purity pure */
 function columnsOutsideHistory(current: DocumentSettings): Partial<DocumentSettings> {
   return {
@@ -124,8 +124,8 @@ function columnsOutsideHistory(current: DocumentSettings): Partial<DocumentSetti
   }
 }
 
-// see T-290, FR-100
-// WHY: the very restored document when no column outside the history moved, so the shell can tell
+// Spec: T-290, FR-100
+// Why: the very restored document when no column outside the history moved, so the shell can tell
 // by reference that an undo or a redo is back at the saved document (isBackToSavedDocument).
 /** @purity pure */
 function keepingColumnsOutsideHistory(restored: HeldDocument, leaving: Document): HeldDocument {
@@ -152,14 +152,14 @@ function utf8Length(text: string): number {
   return bytes
 }
 
-// see FR-031, S-95
+// Spec: FR-031, S-95
 /** @purity pure */
 function stepSizeBytes(document: Document): number {
   return utf8Length(JSON.stringify(document))
 }
 
-// see T-050, CM-27
-// TRAP: on the command road only CM-27 can leave no task group, so a batch that does carries this id.
+// Spec: T-050, CM-27
+// Trap: on the command road only CM-27 can leave no task group, so a batch that does carries this id.
 /** @purity pure */
 function freshRowIdOf(commands: readonly DocumentCommand[]): string | null {
   for (const command of commands) {
@@ -168,8 +168,8 @@ function freshRowIdOf(commands: readonly DocumentCommand[]): string | null {
   return null
 }
 
-// see T-050, FR-004
-// TRAP: a non-empty document must come back as the same reference; WS-6 replaces one reference.
+// Spec: T-050, FR-004
+// Trap: a non-empty document must come back as the same reference; WS-6 replaces one reference.
 /** @purity pure */
 function documentHoldingOneTaskGroup(
   document: Document,
@@ -183,7 +183,7 @@ function documentHoldingOneTaskGroup(
     name: defaultTaskGroupName,
     derivedFromTaskUid: null,
     order: 0,
-    // WHY: the one task group T-050 leaves stands open whatever emptied the task groups, as a CM-26 task group does (AT-153).
+    // Why: the one task group T-050 leaves stands open whatever emptied the task groups, as a CM-26 task group does (AT-153).
     treeState: 'temporarilyExpanded',
     editPermission: null,
     color: null,
@@ -192,30 +192,30 @@ function documentHoldingOneTaskGroup(
   return { ...document, schedule: { ...document.schedule, taskGroups: [taskGroup] } }
 }
 
-// see FR-063
+// Spec: FR-063
 /** @purity pure */
 function hasUpdatedScheduleGroup(before: Document, after: Document): boolean {
   return before.schedule !== after.schedule
 }
 
-// see AG-2, T-230
-// TRAP: match the held stamp, never the incoming document's; that would refuse every replacement.
+// Spec: AG-2, T-230
+// Trap: match the held stamp, never the incoming document's; that would refuse every replacement.
 /** @purity pure */
 function refusalOfStamp(declared: DocumentStamp | null, current: DocumentStamp): StampRefusal | null {
   if (declared === null) return null
   return isStampMatched(declared, current) ? null : { step: 'WS-1', reason: 'staleStamp' }
 }
 
-// see WS-2, UN-8
+// Spec: WS-2, UN-8
 const VIEW_ONLY_KINDS: readonly DocumentCommand['kind'][] = ['setZoom', 'setScrollPosition', 'fitScheduleToScreen']
 
-// see WS-2, UN-8, MH-4
+// Spec: WS-2, UN-8, MH-4
 /** @purity pure */
 function isViewOnly(commands: readonly DocumentCommand[]): boolean {
   return commands.length > 0 && commands.every((command) => VIEW_ONLY_KINDS.includes(command.kind))
 }
 
-// see AG-9, WS-2, NT-7, RS-74
+// Spec: AG-9, WS-2, NT-7, RS-74
 /** @purity pure */
 function refusalOfMoment(moment: WriteMoment, commands: readonly DocumentCommand[] = []): MomentRefusal | null {
   if (moment.gestureInFlight) return { step: 'WS-2', reason: 'gestureInFlight' }
@@ -226,8 +226,8 @@ function refusalOfMoment(moment: WriteMoment, commands: readonly DocumentCommand
   return null
 }
 
-// see WS-3, HM-3a, AG-3, AG-5
-// WHY: every command is checked where it lands (JDG-2414); one refusal refuses the whole write.
+// Spec: WS-3, HM-3a, AG-3, AG-5
+// Why: every command is checked where it lands (JDG-2414); one refusal refuses the whole write.
 /** @purity pure */
 function editedInTurn(input: PlanInput): { readonly held: Document; readonly refusals: readonly Refusal[]; readonly recountedTaskUids: ReadonlySet<number> } {
   let held = input.document
@@ -245,7 +245,7 @@ function editedInTurn(input: PlanInput): { readonly held: Document; readonly ref
   return { held, refusals, recountedTaskUids }
 }
 
-// see T-067, AG-3, AG-10, FR-063
+// Spec: T-067, AG-3, AG-10, FR-063
 /** @purity pure */
 export function planDocumentChange(input: PlanInput): ChangePlan {
   const stale = refusalOfStamp(input.expectedStamp, input.document.documentStamp)
@@ -261,7 +261,7 @@ export function planDocumentChange(input: PlanInput): ChangePlan {
 
   const settled = documentHoldingOneTaskGroup(held, input.defaultTaskGroupName, freshRowIdOf(input.commands))
 
-  // TRAP: identity means nothing moved only while every edit-document arm returns the document it got.
+  // Trap: identity means nothing moved only while every edit-document arm returns the document it got.
   const recorded = input.commands.filter(isUndoable)
   const history =
     recorded.length === 0 || settled === input.document
@@ -298,9 +298,9 @@ export type ImportCall<TChoice extends ImportRequest['choice']> = Omit<
   'current' | 'choice'
 > & { readonly choice: TChoice }
 
-// see T-230
-// see AM-9, AM-10, AG-10
-// WHY: writer is named only by the Agent API; the person's press moves any step.
+// Spec: T-230
+// Spec: AM-9, AM-10, AG-10
+// Why: writer is named only by the Agent API; the person's press moves any step.
 export type ReplacementCall =
   | { readonly row: 'RD-1'; readonly writer?: string }
   | { readonly row: 'RD-2'; readonly writer?: string }
@@ -349,8 +349,8 @@ export type ReplacementPlan =
       readonly hasUpdatedSchedule: boolean
     }
 
-// see FR-063
-// TRAP: compare for equality, never order; an undo restores an older stamp.
+// Spec: FR-063
+// Trap: compare for equality, never order; an undo restores an older stamp.
 /** @purity pure */
 function hasUpdatedScheduleBetween(outgoing: Document, incoming: Document): boolean {
   return outgoing.documentStamp.scheduleUpdatedAt !== incoming.documentStamp.scheduleUpdatedAt
@@ -368,7 +368,7 @@ function replacementSettled(
   return { ok: true, next: pair, hasUpdatedSchedule: hasUpdatedScheduleBetween(held.document, pair.document) }
 }
 
-// see RD-7, FR-095
+// Spec: RD-7, FR-095
 /** @purity pure */
 function startedAfresh(outgoing: Document, call: Extract<ReplacementCall, { readonly row: 'RD-7' }>): Document {
   const hasUpdatedSchedule = hasUpdatedScheduleGroup(outgoing, call.document)
@@ -376,7 +376,7 @@ function startedAfresh(outgoing: Document, call: Extract<ReplacementCall, { read
   return { ...call.document, documentStamp }
 }
 
-// see AM-9, AM-10, AG-10, ED-2
+// Spec: AM-9, AM-10, AG-10, ED-2
 /** @purity pure */
 function refusalOfStepOwner(held: HeldDocument, call: ReplacementCall): StepOwnerRefusal | null {
   if ((call.row !== 'RD-1' && call.row !== 'RD-2') || call.writer === undefined) return null
@@ -385,7 +385,7 @@ function refusalOfStepOwner(held: HeldDocument, call: ReplacementCall): StepOwne
   return moved.step.editedBy === call.writer ? null : { step: 'WS-3', reason: 'notOwnStep' }
 }
 
-// see WS-1, WS-2, AM-9, AM-10
+// Spec: WS-1, WS-2, AM-9, AM-10
 /** @purity pure */
 function refusalBeforeReplacing(input: ReplacementInput): ReplacementRefusal | null {
   return refusalOfStamp(input.expectedStamp, input.held.document.documentStamp)
@@ -398,7 +398,7 @@ function importRefused(refusal: ImportRefusal): ReplacementPlan {
   return { ok: false, refusal: { step: 'WS-3', reason: 'importRefused', refusal } }
 }
 
-// see T-230, T-067
+// Spec: T-230, T-067
 /** @purity pure */
 export function planDocumentReplacement(input: ReplacementInput): ReplacementPlan {
   const { held, call } = input
@@ -409,7 +409,7 @@ export function planDocumentReplacement(input: ReplacementInput): ReplacementPla
   switch (call.row) {
     case 'RD-1': {
       const outcome = undoEdit(held)
-      // TRAP: nothing moved, so return the very pair; a fresh object breaks WS-6's one-reference swap.
+      // Trap: nothing moved, so return the very pair; a fresh object breaks WS-6's one-reference swap.
       if (!outcome.undone) return replacementSettled(held, outcome.next, input)
       return replacementSettled(
         held,

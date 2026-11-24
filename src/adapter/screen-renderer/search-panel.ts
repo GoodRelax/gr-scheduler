@@ -1,4 +1,4 @@
-// Builds the Search Panel description for one frame: title row, word field and the shown table.
+// File: ScreenRenderer: Builds the Search Panel description for one frame: title row, word field and the shown table.
 // @unit      UF-180  (docs/spec/05-07-design.md, table T-075)
 // @component ScreenRenderer, layer Adapter (table T-062)
 // @purity    pure
@@ -97,7 +97,7 @@ const VISIBILITY_COLUMN: SearchColumn = 'SQ-10'
 
 const TASK_TYPE_COLUMN: SearchColumn = 'SQ-14'
 
-// see SV-18
+// Spec: SV-18
 const MEASURED_COLUMNS: ReadonlySet<SearchColumn> = new Set(['SQ-5', 'SQ-11', 'SQ-14', 'SQ-3', 'SQ-4', 'SQ-12', 'SQ-13', 'SQ-9'])
 
 const NOTHING_FOUND: SearchRows = { taskRows: [], commentBoxRows: [] }
@@ -107,14 +107,14 @@ const TABLE_COLUMNS: { readonly [T in SearchTable]: readonly SearchColumn[] } = 
   commentBoxes: COMMENT_BOX_SEARCH_COLUMNS,
 }
 
-// see SJ-1, SV-6
-// WHY: the jump column is also the last fixed one: SV-6 fixes each table up to the cell SJ-1 jumps from.
+// Spec: SJ-1, SV-6
+// Why: the jump column is also the last fixed one: SV-6 fixes each table up to the cell SJ-1 jumps from.
 const JUMP_COLUMN: { readonly [T in SearchTable]: SearchColumn } = {
   tasks: 'SQ-1',
   commentBoxes: 'SQ-7',
 }
 
-// see SQ-5, T-021, T-315
+// Spec: SQ-5, T-021, T-315
 const STATE_GLYPHS: { readonly [S in SearchTaskState]: MarkGlyph } = {
   notStarted: 'PM-1a',
   inProgress: 'PM-1',
@@ -127,11 +127,11 @@ const STATE_GLYPHS: { readonly [S in SearchTaskState]: MarkGlyph } = {
   'DG-3': 'DG-3',
 }
 
-// see SQ-5, T-315
+// Spec: SQ-5, T-315
 const MARKER_WORD_ROWS: { readonly [S in SearchTaskState]?: string } = { 'DG-1': 'DG-1', 'DG-2': 'DG-2', 'DG-3': 'DG-3', 'PM-4': 'DG-4' }
 
-// see T-019a
-// TRAP: the PS rows top down, which is the order of their words; a state out of that order shows another's words.
+// Spec: T-019a
+// Trap: the PS rows top down, which is the order of their words; a state out of that order shows another's words.
 const STATES_IN_TABLE_ORDER: readonly PlanActualState[] = [
   'notStarted',
   'finished',
@@ -152,7 +152,7 @@ const PANEL_HEADING = displayWords.surfaces.find((entry) => entry.name === SEARC
 
 export type SearchPanelShown = WindowShown
 
-// see SJ-1, SQ-5, DT-1
+// Spec: SJ-1, SQ-5, DT-1
 export interface SearchRowView {
   readonly cells: readonly string[]
   readonly glyph: MarkGlyph | null
@@ -181,7 +181,7 @@ export interface SearchPanelView {
   readonly columns: readonly SearchColumnView[]
   readonly filterMenu: SearchFilterMenuView | null
   readonly rows: readonly SearchRowView[]
-  // see SJ-1, SQ-5
+  // Spec: SJ-1, SQ-5
   readonly jumpAt?: number
   readonly glyphAt?: number | null
   readonly showAt?: number | null
@@ -189,7 +189,7 @@ export interface SearchPanelView {
   readonly entryRefusals?: readonly EntryRefusal[]
 }
 
-// see SQ-5, T-019a, T-315
+// Spec: SQ-5, T-019a, T-315
 /** @purity pure */
 function stateWordOf(state: SearchTaskState, language: DisplayLanguage): string {
   const markerRow = MARKER_WORD_ROWS[state]
@@ -197,8 +197,8 @@ function stateWordOf(state: SearchTaskState, language: DisplayLanguage): string 
   return wordOf(STATE_WORDS.get(state)?.text, language)
 }
 
-// see TL-8, SQ-5
-// WHY: the task tooltip's progress line names the state in the Status column's words, so the two never differ on one task.
+// Spec: TL-8, SQ-5
+// Why: the task tooltip's progress line names the state in the Status column's words, so the two never differ on one task.
 /** @purity pure */
 export function taskStateWordOf(
   task: Task,
@@ -210,19 +210,19 @@ export function taskStateWordOf(
   return stateWordOf(searchTaskStateOf({ progressMarker, planActualState: planActualState(task) }), language)
 }
 
-// see SQ-14, DT-9, FM-9
+// Spec: SQ-14, DT-9, FM-9
 /** @purity pure */
 export function taskTypeWordOf(taskType: string, language: DisplayLanguage): string {
   return wordOf(TASK_TYPE_WORDS.get(taskType), language)
 }
 
-// see SV-18, SQ-14, DT-9
+// Spec: SV-18, SQ-14, DT-9
 /** @purity pure */
 export function taskTypeWordsIn(language: DisplayLanguage): readonly string[] {
   return TASK_TYPES_ASCENDING.map((taskType) => taskTypeWordOf(taskType, language))
 }
 
-// see T-331, TX-4
+// Spec: T-331, TX-4
 /** @purity pure */
 function taskCells(row: TaskSearchRow, language: DisplayLanguage, times: ShownDateTimes): readonly string[] {
   const name = row.name === '' ? wordOf(PANEL_WORDS.get('noName')?.text, language) : row.name
@@ -242,13 +242,13 @@ function taskCells(row: TaskSearchRow, language: DisplayLanguage, times: ShownDa
   return TASK_SEARCH_COLUMNS.map((column) => cells[column] ?? BLANK_SEARCH_VALUE)
 }
 
-// see SQ-7, SQ-8, SQ-9, SV-17
+// Spec: SQ-7, SQ-8, SQ-9, SV-17
 /** @purity pure */
 function commentBoxCells(row: CommentBoxSearchRow): readonly string[] {
   return [searchBodyTextOf(row.text), row.taskGroupName, dateText(row.anchorDate)]
 }
 
-// see SV-4, SV-7, SV-8, SJ-1
+// Spec: SV-4, SV-7, SV-8, SJ-1
 /** @purity pure */
 function rowsOf(found: SearchRows, panel: SearchPanelSession, view: TableView, language: DisplayLanguage,
                 times: ShownDateTimes): readonly SearchRowView[] {
@@ -268,13 +268,13 @@ function rowsOf(found: SearchRows, panel: SearchPanelSession, view: TableView, l
   }))
 }
 
-// see SQ-10, TV-2, S-561
+// Spec: SQ-10, TV-2, S-561
 /** @purity pure */
 function shownTasksOf(view: TableView): ReadonlySet<number> {
   return new Set(view.visibility.shownTaskUids)
 }
 
-// see SV-7, SQ-5, T-331
+// Spec: SV-7, SQ-5, T-331
 /** @purity pure */
 function valueLabelOf(column: SearchColumn, value: string, language: DisplayLanguage): string {
   if (value === BLANK_SEARCH_VALUE) return wordOf(PANEL_WORDS.get('blank')?.text, language)
@@ -284,7 +284,7 @@ function valueLabelOf(column: SearchColumn, value: string, language: DisplayLang
   return stateWordOf(value as SearchTaskState, language)
 }
 
-// see SV-18, SQ-5
+// Spec: SV-18, SQ-5
 /** @purity pure */
 function widthSamplesIn(all: SearchRows, panel: SearchPanelSession, language: DisplayLanguage,
                         times: ShownDateTimes): (column: SearchColumn) => readonly string[] | null {
@@ -301,7 +301,7 @@ function widthSamplesIn(all: SearchRows, panel: SearchPanelSession, language: Di
   }
 }
 
-// see SV-6, SV-7, SV-18, T-331
+// Spec: SV-6, SV-7, SV-18, T-331
 /** @purity pure */
 function searchTableOf(
   session: ScreenSession,
@@ -332,7 +332,7 @@ function shownIn(session: ScreenSession): SearchPanelShown | null {
 }
 
 // see TV-5, SQ-10, JDG-2820
-// WHY: one checked task is enough to apply, every row checked included (JDG-2825).
+// Why: one checked task is enough to apply, every row checked included (JDG-2825).
 /** @purity pure */
 function searchFilterReadinessOf(view: TableView, schedule: Schedule): ScheduleFilterReadiness {
   return scheduleFilterReadinessOf('searchPanel', view.visibility, () => taskUidSetOf(schedule))
@@ -343,8 +343,8 @@ function taskUidSetOf(schedule: Schedule): ReadonlySet<number> {
   return new Set(schedule.tasks.map((task) => task.uid))
 }
 
-// see FR-151, T-330, S-442, SQ-5, S-560, TX-4
-// WHY: view is the search table's view the document holds (tableViewOf), the panel the screen-only values.
+// Spec: FR-151, T-330, S-442, SQ-5, S-560, TX-4
+// Why: view is the search table's view the document holds (tableViewOf), the panel the screen-only values.
 /** @purity pure */
 export function searchPanelFromSession(
   session: ScreenSession,
@@ -392,20 +392,20 @@ export function searchPanelFromSession(
   }
 }
 
-// see IC-127, SV-16
+// Spec: IC-127, SV-16
 /** @purity pure */
 export function nextSearchPanelTextSizeStep(step: number): number {
   return (step + 1) % SEARCH_PANEL_TEXT_SIZE_ROWS.length
 }
 
-// see SV-18, GR-28
+// Spec: SV-18, GR-28
 /** @purity pure */
 export function searchPanelWithColumnWidth(panel: SearchPanelSession, column: SearchColumn, width: number): SearchPanelSession {
   return tableWithColumnWidth(panel, column, width)
 }
 
-// see SV-7, SV-8, T-109, SQ-5, UN-20
-// WHY: every entry this answers changes the search table's view, so it answers the view after it
+// Spec: SV-7, SV-8, T-109, SQ-5, UN-20
+// Why: every entry this answers changes the search table's view, so it answers the view after it
 // (written by the shell with setTableView, CM-92); null is an entry it does not answer.
 /** @purity pure */
 export function searchPanelAfterFilterEntry(
@@ -423,7 +423,7 @@ export function searchPanelAfterFilterEntry(
   return tableAfterFilterEntry(panel, view, shownIn(session), entry, table, listed)
 }
 
-// see SV-7, IC-122
+// Spec: SV-7, IC-122
 /** @purity pure */
 export function searchPanelWithFilterOpened(
   session: ScreenSession,
@@ -434,7 +434,7 @@ export function searchPanelWithFilterOpened(
   return tableWithFilterOpened(panel, shownIn(session), column, searchTableOf(session, panel, view, () => NOTHING_FOUND))
 }
 
-// see SV-7, TV-2, UN-20
+// Spec: SV-7, TV-2, UN-20
 /** @purity pure */
 export function searchPanelAfterFilterChange(
   session: ScreenSession,
@@ -446,14 +446,14 @@ export function searchPanelAfterFilterChange(
   return tableAfterFilterChange(panel, view, shownIn(session), change, searchTableOf(session, panel, view, () => NOTHING_FOUND))
 }
 
-// see SV-14, IN-4
+// Spec: SV-14, IN-4
 /** @purity pure */
 export function searchPanelWithFilterClosed(session: ScreenSession, panel: SearchPanelSession, view: TableView): SearchPanelSession | null {
   return tableWithFilterClosed(panel, shownIn(session), searchTableOf(session, panel, view, () => NOTHING_FOUND))
 }
 
-// see SV-1, IC-153, UN-20
-// WHY: the open filter shuts with the clear; the view after it is written with setTableView (CM-92).
+// Spec: SV-1, IC-153, UN-20
+// Why: the open filter shuts with the clear; the view after it is written with setTableView (CM-92).
 /** @purity pure */
 export function searchPanelWithTableViewsCleared(
   panel: SearchPanelSession,

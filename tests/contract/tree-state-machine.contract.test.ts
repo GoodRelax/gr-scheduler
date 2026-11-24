@@ -26,7 +26,7 @@ type RawRegion = {
   }[]
 }
 
-// WHY: the manuscript, not the generated table, is the single source; generated-vs-manuscript
+// Why: the manuscript, not the generated table, is the single source; generated-vs-manuscript
 // drift is gen:check's job, and the generated copy is compared below only as a second reader.
 const MANUSCRIPT = readStateMachineView() as { readonly regions: readonly RawRegion[] }
 const REGION = MANUSCRIPT.regions.find((r) => r.region === 'taskGroupTree')
@@ -37,7 +37,7 @@ if (MACHINE === undefined) throw new Error('region taskGroupTree has no treeStat
 const STATES = MACHINE.states.map((s) => s.key as TreeState)
 const EVENTS = REGION.events
 
-// WHY: JDG-139 stage 3 -- the generated table is read as the printed text, so the unit keeps it unexported.
+// Why: JDG-139 stage 3 -- the generated table is read as the printed text, so the unit keeps it unexported.
 const FOLDING_UNIT = readFileSync(
   join(process.cwd(), 'src', 'use-case', 'edit-document', 'task-group-folding.ts'),
   'utf8',
@@ -45,7 +45,7 @@ const FOLDING_UNIT = readFileSync(
 const PRINTED_TABLE = /^const TREE_STATE_TRANSITIONS: readonly TreeStateTransition\[\] = \[\n([\s\S]*?)^\]$/m
 const PRINTED_ROW = /^ {4}state: '([^']*)',\n {4}event: '([^']*)',\n {4}guard: [^\n]*\n {4}to: '([^']*)',$/gm
 
-// see T-328
+// Spec: T-328
 const printedTransitions = (): readonly { readonly state: string; readonly event: string; readonly to: string }[] => {
   const table = PRINTED_TABLE.exec(FOLDING_UNIT)?.[1]
   if (table === undefined) throw new Error('task-group-folding.ts prints no unexported TREE_STATE_TRANSITIONS')
@@ -64,8 +64,8 @@ const FR_018_NO_OTHER_WRITER = '同表に無い操作で値を書き換えては
 const FR_018_BY_T_329 =
   'タスクグループの木の状態（`_assets/fig-erd-detail.md` の `AT-153`、`TaskGroup.treeState`）によって、本要求の対象から外すタスクグループを 表 T-329 に従って決めること（MUST）'
 
-// see T-328
-// WHY: one tree reaches every guard of the table: an ancestor of the pressed task group, the pressed task group,
+// Spec: T-328
+// Why: one tree reaches every guard of the table: an ancestor of the pressed task group, the pressed task group,
 // a child that has children, a deeper task group that has children, a leaf below, a leaf child, others.
 const TREE: readonly { readonly id: string; readonly parentId: string | null }[] = [
   { id: 'R', parentId: null },
@@ -78,7 +78,7 @@ const TREE: readonly { readonly id: string; readonly parentId: string | null }[]
   { id: 'A', parentId: null },
 ]
 const PRESSED = 'P'
-// WHY: (T-332 SJ-2) G has three ancestors (C, P, R), a child (GG), and task groups beside it (L, S, A) -- every
+// Why: (T-332 SJ-2) G has three ancestors (C, P, R), a child (GG), and task groups beside it (L, S, A) -- every
 // relation isRevealedTaskGroupOrAncestor has to tell apart.
 const REVEALED = 'G'
 const SJ_2_OPENS =
@@ -106,11 +106,11 @@ function scheduleWith(states: Readonly<Record<string, TreeState>>): Schedule {
   return { ...TEMPLATE.schedule, taskGroups, taskGroupMembers: [], tasks: [] }
 }
 
-// see T-328, S-418
-// WHY: the tree's named functions read TREE; the machine cells name no setting, so none is given.
+// Spec: T-328, S-418
+// Why: the tree's named functions read TREE; the machine cells name no setting, so none is given.
 const TREE_FUNCTIONS = treeFunctions(TREE, {})
 
-// WHY: a guard the table names and the manuscript condition cannot read fails loudly instead of passing as true.
+// Why: a guard the table names and the manuscript condition cannot read fails loudly instead of passing as true.
 /** @purity pure */
 function guardTrue(guard: Guard, id: string, pressed: string | null, revealed: string | null): boolean {
   const row = TREE.find((one) => one.id === id)
@@ -125,7 +125,7 @@ function branchesOf(cell: Cell | undefined): readonly Branch[] {
   return Array.isArray(cell) ? (cell as readonly Branch[]) : [cell as Branch]
 }
 
-// WHY: null when the cell leaves the task group alone, the same reference SD-3 asks for.
+// Why: null when the cell leaves the task group alone, the same reference SD-3 asks for.
 /** @purity pure */
 function manuscriptAnswer(
   event: string,
@@ -219,7 +219,7 @@ describe('SD-3: every event x every value x every task group relation equals tab
         const pressedId = 'pressedRowId' in pressed ? PRESSED : null
         const revealedId = 'revealedRowId' in pressed ? REVEALED : null
         for (const row of TREE) {
-          // STEP: only this task group holds the value under test; every other task group is auto
+          // Step: only this task group holds the value under test; every other task group is auto
           const schedule = scheduleWith({ [row.id]: from })
           const expected: Written[] = []
           for (const other of TREE) {
@@ -228,7 +228,7 @@ describe('SD-3: every event x every value x every task group relation equals tab
             if (to !== null) expected.push({ id: other.id, to })
           }
           expected.sort((a, b) => a.id.localeCompare(b.id))
-          // STEP: the writes are exactly the changed task groups the manuscript names
+          // Step: the writes are exactly the changed task groups the manuscript names
           expect(writesOf(schedule, pressed), `${event.key}: task group ${row.id} in ${from}`).toEqual(expected)
         }
       })

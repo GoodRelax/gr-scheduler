@@ -40,14 +40,14 @@ const [CHAT = '', CODE = ''] = /(\S+) タブと (\S+) タブ/.exec(DESIGN_ASK_TA
 type Lang = 'en' | 'ja'
 const LANGS: readonly Lang[] = ['en', 'ja']
 const SWITCH_NAME: Record<Lang, string> = { en: SWITCH_EN, ja: SWITCH_JA }
-// WHY: the English name is the one Windows shows in English; the Japanese one is read from the clause.
+// Why: the English name is the one Windows shows in English; the Japanese one is read from the clause.
 const TASK_MANAGER: Record<Lang, string> = { en: 'Task Manager', ja: /（Windows の([^）]+)）/.exec(DESIGN_RESTART)?.[1] ?? '' }
 
 const WINDOW_NOT_ENOUGH: Record<Lang, RegExp[]> = {
   en: [/\bwindows?\b/i, /\b(?:quit|exit)\b/i],
   ja: [/窓|ウィンドウ/, /終了|終わ/],
 }
-// WHY: the page writes the app maker's own screen words (DESIGN_SCREEN_WORDS), so Chat may read chat or its Japanese word,
+// Why: the page writes the app maker's own screen words (DESIGN_SCREEN_WORDS), so Chat may read chat or its Japanese word,
 // and the per-tab difference is matched by its meaning rather than by the word tab.
 const TAB_NAMES: Record<Lang, RegExp[]> = {
   en: [new RegExp(`\\b${CHAT}\\b`, 'i'), new RegExp(`\\b${CODE}\\b`)],
@@ -69,11 +69,11 @@ const OVERWRITE_TERMS: Record<Lang, (string | RegExp)[]> = {
   en: [CONFIRM_OVERWRITE, BAK, /\bon\b/i, /\boff\b/i, /\bask/i, /\bonly one\b/i],
   ja: [CONFIRM_OVERWRITE, BAK, 'オン', 'オフ', '尋ね', /(1 つだけ)/.exec(DESIGN_OVERWRITE)?.[1] ?? '1 つだけ'],
 }
-// WHY: the ids of the two save-folder cards are a seam agreed with the page's author.
+// Why: the ids of the two save-folder cards are a seam agreed with the page's author.
 const SAVE_FOLDER_ID: Record<Lang, string> = { en: 'save-folder', ja: 'save-folder-ja' }
 const TROUBLE_HEADING: Record<Lang, RegExp> = { en: /not work|troubleshoot|problem/i, ja: /うまくいかない/ }
 
-// WHY: a break test points every case at a damaged scratch copy through this variable; unset, the real page is read.
+// Why: a break test points every case at a damaged scratch copy through this variable; unset, the real page is read.
 const PAGE_FILE = resolve(process.cwd(), process.env['GRS_DOWNLOAD_PAGE'] ?? join('docs', 'download', 'index.html'))
 const SENTINEL = 'cr-823 clipboard sentinel'
 
@@ -81,7 +81,7 @@ type Prompt = { id: string; text: string; buttons: number }
 type Step = { text: string; prompts: Prompt[] }
 type Shown = { steps: Step[]; prompts: Prompt[]; trouble: Prompt[] | null; afterTrouble: string }
 
-// WHY: everything is read from what is visible, so a hidden language block can neither pass nor fail a case.
+// Why: everything is read from what is visible, so a hidden language block can neither pass nor fail a case.
 const readShown = (page: Page, lang: Lang): Promise<Shown> =>
   page.evaluate(({ heading }) => {
     for (const details of document.querySelectorAll('details')) details.open = true
@@ -119,7 +119,7 @@ const readShown = (page: Page, lang: Lang): Promise<Shown> =>
 
 const switchOf = (page: Page, lang: Lang) => page.getByRole('button', { name: SWITCH_NAME[lang], exact: true })
 
-// WHY: the clipboard API needs a secure context, which file:// is not; loopback HTTP is one.
+// Why: the clipboard API needs a secure context, which file:// is not; loopback HTTP is one.
 async function served(): Promise<{ url: string; close: () => void }> {
   const body = readFileSync(PAGE_FILE)
   const server = createServer((asked, answer) => {
@@ -218,7 +218,7 @@ for (const lang of LANGS) {
         expect(prompt.buttons, `prompt ${prompt.id} has one copy button in its box`).toBe(1)
         await page.evaluate((text) => navigator.clipboard.writeText(text), SENTINEL)
         await page.locator(`div.prompt-box button.copy[data-copy="${prompt.id}"]`).filter({ visible: true }).click()
-        // WHY: the Windows clipboard stores line ends as CR LF and hands them back so; the page's text has LF.
+        // Why: the Windows clipboard stores line ends as CR LF and hands them back so; the page's text has LF.
         const copied = (): Promise<string> => page.evaluate(() => navigator.clipboard.readText()).then((text) => text.replace(/\r\n/g, '\n'))
         await expect.poll(copied, { message: prompt.id }).toBe(prompt.text)
       }

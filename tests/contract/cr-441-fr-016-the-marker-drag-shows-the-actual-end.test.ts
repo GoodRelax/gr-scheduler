@@ -47,8 +47,8 @@ const lastActualDayOf = (one: Stage, uid: number): string | null => {
   return dayPart(task.actualFinish ?? task.stop)
 }
 
-// WHY: either figure may carry the picture of the actual to be put -- an actual bar or the dummy
-// WHY: that stands for it -- so the right end of whichever is drawn is read, not one member's name.
+// Why: either figure may carry the picture of the actual to be put -- an actual bar or the dummy
+// Why: that stands for it -- so the right end of whichever is drawn is read, not one member's name.
 const drawnEndOf = (one: Stage, uid: number): number => {
   const drawn = drawnTask(one.loop, uid)
   if (drawn.actual !== null) return actualBox(one.loop, uid).x1
@@ -78,7 +78,7 @@ describe('FR-016 / FR-106 -- the manuscript these cases are driven by', () => {
   })
 })
 
-// WHY: DFC-1024 -- the default timeout reds these cases on a loaded machine though they pass
+// Why: DFC-1024 -- the default timeout reds these cases on a loaded machine though they pass
 // alone; an explicit ceiling, not a retry (JDG-642).
 const LOADED_MACHINE_TIMEOUT_MS = 60_000
 
@@ -89,7 +89,7 @@ describe(`FR-016: ${FR_016_THE_MARKER_SHOWS_THE_END}`, { timeout: LOADED_MACHINE
   ] as const
 
   it.each(CASES)('$what: the drawn actual ends on the day under the pointer while the marker is held', ({ uid }) => {
-    const one = stage(benchDocument({ isProgressMarkerVisible: true })) // see S-63
+    const one = stage(benchDocument({ isProgressMarkerVisible: true })) // Spec: S-63
     const target = april(17)
     hold(one, uid, target)
     const end = drawnEndOf(one, uid)

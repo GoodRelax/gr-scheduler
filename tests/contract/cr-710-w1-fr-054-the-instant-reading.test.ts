@@ -21,7 +21,7 @@ const WITHIN = workingCalendarOver({ working: MONDAY_TO_FRIDAY_WITH_SPANS })
 const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 const DESIGN = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '05-07-design.md'), 'utf8'))
 
-// see FR-054
+// Spec: FR-054
 const CLAUSES = [
   '日時は、字面の日付と時刻を、文書の日程データのタイムゾーン（`FR-156`）の現地の時刻として読むこと（MUST）。',
   '時差を換算してはならない（MUST NOT）',
@@ -33,7 +33,7 @@ const CLAUSES = [
   '丸 1 日の範囲（表 T-350 の `WT-6` 〜 `WT-8`）は日として読み、その終わりの `23:59:00` はその日の終わりと読む。',
 ]
 
-// see IV-10
+// Spec: IV-10
 const IV_10 = '`start` と `finish` がともに非 `null` の `Task` で、`finish` が `start` より前でないこと'
 
 describe('the clauses these cases are built from still read as quoted', () => {

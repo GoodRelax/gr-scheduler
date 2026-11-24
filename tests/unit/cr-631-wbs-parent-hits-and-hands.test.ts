@@ -76,7 +76,7 @@ describe('CR-631 -- the rows of table T-351 these cases are driven by', () => {
   })
 })
 
-// WHY: the owners whose families draw every arrow these cases press: P's (P -> G, C -> P, F -> P) and D's (D -> Q).
+// Why: the owners whose families draw every arrow these cases press: P's (P -> G, C -> P, F -> P) and D's (D -> Q).
 const DRAWN = { ownerUids: [P, D] }
 
 const link = (childUid: number) => ({ kind: 'parentTaskLink', childUid }) as const

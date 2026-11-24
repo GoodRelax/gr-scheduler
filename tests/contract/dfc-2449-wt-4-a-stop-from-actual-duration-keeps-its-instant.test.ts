@@ -11,7 +11,7 @@ import { unbroken } from './spec-table'
 
 const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
-// see WT-4, FR-011
+// Spec: WT-4, FR-011
 const WT_4_STOP_FROM_DURATION =
   '⚠️ `FR-011` が `ActualDuration` から `Task.stop` を置くときは、その段が置く瞬間とする（既定の終了時刻とは限らない） —— 分で数えた実績の長さを寄せで変えない'
 const FR_011_STOP_FROM_DURATION =
@@ -26,7 +26,7 @@ describe('the clauses these cases are built from still read as quoted', () => {
   })
 })
 
-// WHY: the bundled template stands in for the open document; cr-429-mspdi-fixtures reads the local-only XSD on import (JDG-644).
+// Why: the bundled template stands in for the open document; cr-429-mspdi-fixtures reads the local-only XSD on import (JDG-644).
 function currentDocument(): Document {
   const text = readFileSync(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8')
   const parsed = JSON.parse(text) as { schedule: { project: Record<string, unknown> } }
@@ -38,7 +38,7 @@ function currentDocument(): Document {
 
 const NAMESPACE = 'http://schemas.microsoft.com/project/2007'
 
-// WHY: April 2026 starts on a Wednesday, so the 6th is a Monday and the 8th a Wednesday.
+// Why: April 2026 starts on a Wednesday, so the 6th is a Monday and the 8th a Wednesday.
 const april = (dayOfMonth: number, hhmm: string): string => `2026-04-${String(dayOfMonth).padStart(2, '0')}T${hhmm}:00`
 
 const SPLIT_DAY = '<WorkingTimes><WorkingTime><FromTime>08:00:00</FromTime><ToTime>12:00:00</ToTime></WorkingTime><WorkingTime><FromTime>13:00:00</FromTime><ToTime>17:00:00</ToTime></WorkingTime></WorkingTimes>'
@@ -47,7 +47,7 @@ const weekDayXml = (dayType: number): string =>
     ? `<WeekDay><DayType>${dayType}</DayType><DayWorking>0</DayWorking></WeekDay>`
     : `<WeekDay><DayType>${dayType}</DayType><DayWorking>1</DayWorking>${SPLIT_DAY}</WeekDay>`
 
-// WHY: Monday to Friday, 08:00-12:00 and 13:00-17:00, the calendar FR-011's own example counts on.
+// Why: Monday to Friday, 08:00-12:00 and 13:00-17:00, the calendar FR-011's own example counts on.
 function mspdiWithActualDuration(duration: string): string {
   const task = `<Task><UID>1</UID><ID>1</ID><Name>T1</Name><OutlineNumber>1</OutlineNumber><OutlineLevel>1</OutlineLevel><Start>${april(8, '08:00')}</Start><Finish>${april(10, '17:00')}</Finish><Duration>PT24H0M0S</Duration><DurationFormat>7</DurationFormat><Milestone>0</Milestone><Summary>0</Summary><ActualStart>${april(8, '08:00')}</ActualStart><ActualDuration>${duration}</ActualDuration></Task>`
   return [

@@ -22,7 +22,7 @@ const COPY_PROMPT = 'IC-115'
 const CHOOSE_SCREEN_LANGUAGE = 'IC-21'
 const LANGUAGES: readonly DisplayLanguage[] = ['ja', 'en']
 
-// WHY: the manuscript's first line is its own role line; its longest plain line tells the language apart.
+// Why: the manuscript's first line is its own role line; its longest plain line tells the language apart.
 function markerLineOf(language: DisplayLanguage): string {
   const lines = readFileSync(join(SOURCE, `image-to-grs-json-prompt.${language}.md`), 'utf8')
     .replace(/\r\n/g, '\n')

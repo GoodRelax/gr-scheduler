@@ -29,7 +29,7 @@ const T_109 = specTable('T-109')
 const COPY_PROMPT = rowOf(T_109, 'IC-115').id
 const SCREEN_LANGUAGE = rowOf(T_109, 'IC-21').id
 
-// WHY: a stand-in in front of the clipboard sees what the page wrote; a counter on the save chooser proves it stayed shut.
+// Why: a stand-in in front of the clipboard sees what the page wrote; a counter on the save chooser proves it stayed shut.
 const SPIES = (): void => {
   const seen: string[] = []
   const held = window as unknown as Record<string, unknown>
@@ -124,7 +124,7 @@ test.describe(`IC-115 -- ${FR_068_DOWNLOAD}`, () => {
       expect(download.suggestedFilename()).toBe(SCHEMA_FILE_NAME)
       const content = await contentOf(download)
       expect(JSON.parse(content)).toEqual(SCHEMA)
-      // WHY: one line of JSON may end with its line end; FR-068 fixes the one line, not whether it is terminated.
+      // Why: one line of JSON may end with its line end; FR-068 fixes the one line, not whether it is terminated.
       expect(content.replace(/\n$/, '')).toBe(SCHEMA_ONE_LINE)
       await one.page.waitForTimeout(1_500)
       expect(one.downloads, 'one press hands one file').toHaveLength(1)

@@ -96,7 +96,7 @@ describe(`FR-046: ${FR_046_DRAG_SNAPS}`, () => {
 
   it('day (SG-1), time shown at the day tier: the column the release falls in, not the nearest midnight read on the finish side', () => {
     const built = stage(DAY_TIER_SHOWN)
-    // STEP: the line stands at 10/14 at the default finish time; 0.4 day right falls in the 10/15 column.
+    // Step: the line stands at 10/14 at the default finish time; 0.4 day right falls in the 10/15 column.
     dragBy(built, statusLineGrab(built), 0.4 * pxPerDay(built.loop))
     expect(statusDateOf(built)).toBe(`2026-10-15T${DEFAULT_FINISH_TIME}`)
   })
@@ -124,7 +124,7 @@ describe(`FR-046: ${FR_046_LINE_AT_INSTANT}`, () => {
   })
 })
 
-// see FR-046, TX-3
+// Spec: FR-046, TX-3
 const STATUS_DATE_ROW = 'IC-44'
 const LIMITS: SettingsLimits = { zoomMin: 0.02, zoomMax: 240, taskGroupAreaWidthWithoutPanels: 982 }
 

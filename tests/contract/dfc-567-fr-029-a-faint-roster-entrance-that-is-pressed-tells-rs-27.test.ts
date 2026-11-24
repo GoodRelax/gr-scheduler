@@ -31,7 +31,7 @@ const adaAndBob = () =>
     assignments: [seatOf(21, 1, ADA)],
   })
 
-// WHY: CR-722 RO-1 -- the Resource List is a window (ScreenView.resourceList); IC-63 .. IC-66 stand in its row of choice entries (RO-3).
+// Why: CR-722 RO-1 -- the Resource List is a window (ScreenView.resourceList); IC-63 .. IC-66 stand in its row of choice entries (RO-3).
 const rosterOf = (view: ScreenView): ResourceListView => {
   const window = view.resourceList ?? null
   if (window === null) throw new Error('the Resource List is not standing')

@@ -20,7 +20,7 @@ const AV_4_MALFORMED = "`'malformedRequest'` —— 呼び方の形が違う（`
 const AM_7 = '| AM-7 | 書く | `applyCommands` |'
 const PI_20_SHAPE = '`commandShapeFaults`'
 
-// see T-108
+// Spec: T-108
 const WORKING_DAY_LAG = { lagWorkingDays: 2 }
 const TYPED_LAG = { lagMinutes: 120, lagUnit: 'h' }
 const LAG_BASE = { kind: 'setDependencyLag', predecessorUid: 1, successorUid: 2 }
@@ -59,7 +59,7 @@ function write(api: AgentApi, commands: readonly unknown[]) {
   return api.applyCommands({ expectedStamp: api.readStamp(), commands: commands as never })
 }
 
-// see AG-9a
+// Spec: AG-9a
 function expectRefused(commands: readonly unknown[], why: string): void {
   const { api, bench } = stage()
   const documentBefore = JSON.stringify(bench.loop.document())

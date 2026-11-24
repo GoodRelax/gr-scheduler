@@ -58,7 +58,7 @@ const settingIdOf = (cell: string): string => {
 
 type Theme = 'light' | 'dark'
 const THEME_COLUMN: Record<Theme, string> = { light: '明るいテーマ', dark: '暗いテーマ' }
-// WHY: CR-616 made S-386 / S-388 / S-390 cells point at S-327; the color is the one that row holds.
+// Why: CR-616 made S-386 / S-388 / S-390 cells point at S-327; the color is the one that row holds.
 const colorOf = (id: string, theme: Theme): string => {
   const cell = cellOf('T-236', id, THEME_COLUMN[theme])
   const same = /(S-\d+[a-z]?)`?\s*に同じ/.exec(cell)
@@ -137,7 +137,7 @@ const STAGE: Stage = (() => {
 
 type Diagnostics = { readonly shown: boolean; readonly symbolByUid: ReadonlyMap<number, 'DG-1' | 'DG-2' | 'DG-3'> }
 
-// WHY: taskGeometryOf is the one exported reader of GeometryInputs, the seam that carries delayDiagnostics.
+// Why: taskGeometryOf is the one exported reader of GeometryInputs, the seam that carries delayDiagnostics.
 function inputsOf(diagnostics: Diagnostics | undefined): GeometryInputs {
   const drawn = drawnSettingsOf(STAGE.settings)
   const base = {
@@ -451,7 +451,7 @@ describe('CR-561 -- the clauses these cases quote are still in the specification
     expect(todayOf(LATE_TOO).marker?.symbol).toBe('PM-4')
     expect(todayOf(LATER).marker?.symbol).toBe('PM-1a')
     expect(todayOf(GOING).marker?.symbol).not.toBe('PM-4')
-    // WHY: the hand-built inputs must match the ones geometryFromLayout builds, or each case reads another stage.
+    // Why: the hand-built inputs must match the ones geometryFromLayout builds, or each case reads another stage.
     for (const uid of [LATE, GOING, LATER, LATE_TOO]) {
       expect(taskFigureOf(uid, undefined).marker, `task ${uid}`).toEqual(todayOf(uid).marker)
     }
@@ -549,7 +549,7 @@ describe('FR-133 / T-315 -- the shape of each symbol', () => {
   })
 
   it('DG-1: `?` の鉤（S-392 ・ S-393）と縦の線の下端（S-394） -- the hook top and the stem bottom', () => {
-    // WHY: counted from the top of the mark, whose diameter is the unit; the hook top is its center less its radius.
+    // Why: counted from the top of the mark, whose diameter is the unit; the hook top is its center less its radius.
     const read = readingOf(LATE, shownWith(LATE, 'DG-1'), 'light', 'S-389', 'S-390')
     const diameter = 2 * read.radius
     const top = read.center.y - read.radius

@@ -189,7 +189,7 @@ describe(`UN-13 -- ${FR_159_ONE_WRITE}`, () => {
   })
 })
 
-// WHY: WH-9 says nothing is written and no step is left; a write path may land an empty change or turn it away as CM-99's own.
+// Why: WH-9 says nothing is written and no step is left; a write path may land an empty change or turn it away as CM-99's own.
 function expectNothingWritten(before: Document, plan: ReturnType<typeof planned>): void {
   if (!plan.ok) {
     expect(JSON.stringify((plan as unknown as Loose)['refusal']), 'a refusal is CM-99 turning the empty shift away').toContain('CM-99')

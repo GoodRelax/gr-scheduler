@@ -15,7 +15,7 @@ const FR_073_FORM = '書式は RFC 3339 の UTC の `YYYY-MM-DDTHH:MM:SSZ` と�
 const FR_073_NO_FRACTION = '小数秒と、`Z` 以外の帯を書いてはならない（MUST NOT）'
 const FR_073_STRING_ORDER = '辞書順がそのまま時刻の順になる。⭐ **判別は文字列の大小で行うこと（MUST）'
 const FR_073_NEWER_UNREADABLE = 'この `GRS` が知っている最大の版より新しい版を読めない版とすること（MUST）'
-// WHY: CR-822 (JDG-2985) keeps the promise in FR-073; when the version is raised is docs/development-rules/10-versions.md.
+// Why: CR-822 (JDG-2985) keeps the promise in FR-073; when the version is raised is docs/development-rules/10-versions.md.
 const FR_073_RAISE_TO_INSTANT = '変われば、形式の版は、それまでのどの版よりも新しい時刻になること（MUST）'
 const FR_073_NO_LEDGER_ROW_BEFORE_USE = '⛔ 公式運用の前は、台帳に行を足してはならない（MUST NOT）'
 const CH_6_2_ID = '刊行するスキーマの `$id` は、`_assets/tbl-settings.md` の 表 T-206 の `S-540` の所とすること（MUST）'
@@ -39,7 +39,7 @@ const LEDGER_SOURCE = JSON.parse(read(SPEC_DIR, '_source', 'grs-json-changes.jso
 const TEMPLATE_TEXT = read(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json')
 const TEMPLATE_ROOT = JSON.parse(TEMPLATE_TEXT) as Record<string, unknown>
 
-// see T-206
+// Spec: T-206
 function settingDefault(id: string): string {
   const row = specTable('T-206').rows.find((one) => one.id === id)
   if (row === undefined) throw new Error(`table T-206 has no row ${id}`)
@@ -49,7 +49,7 @@ function settingDefault(id: string): string {
 const S_540 = settingDefault('S-540')
 const S_541 = settingDefault('S-541')
 
-// WHY: FR-027's template carries the version this build knows; DR-4 names it as the one place.
+// Why: FR-027's template carries the version this build knows; DR-4 names it as the one place.
 const KNOWN_VERSION = String(TEMPLATE_ROOT['schemaVersion'])
 const INSTANT_FORM = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/
 

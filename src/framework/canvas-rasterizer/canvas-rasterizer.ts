@@ -1,4 +1,4 @@
-// Paints a finished SVG picture into PNG bytes through a browser canvas.
+// File: CanvasRasterizer: Paints a finished SVG picture into PNG bytes through a browser canvas.
 // @unit      UF-54   (docs/spec/05-07-design.md, table T-075)
 // @component CanvasRasterizer, layer Framework (table T-062)
 // @purity    semi-pure-mutable
@@ -19,13 +19,13 @@ const SMALLEST_SIDE_PX = 1
 
 const TAINTED_ERROR = 'SecurityError'
 
-// TRAP: the leading whitespace is what keeps stroke-width from matching as width.
+// Trap: the leading whitespace is what keeps stroke-width from matching as width.
 const SIZE_ATTRIBUTE = /\s+(?:width|height)\s*=\s*(?:"[^"]*"|'[^']*')/g
 const VIEW_BOX_ATTRIBUTE = /\sviewBox\s*=\s*(?:"[^"]*"|'[^']*')/
 const WIDTH_ATTRIBUTE = /\swidth\s*=/
 const HEIGHT_ATTRIBUTE = /\sheight\s*=/
 
-// TRAP: xmlns stays out; a namespace url is never fetched, and matching it refuses every svg.
+// Trap: xmlns stays out; a namespace url is never fetched, and matching it refuses every svg.
 const FETCHED_ATTRIBUTE = /\s(?:xlink:href|href|src)\s*=\s*(?:"([^"]*)"|'([^']*)')/g
 
 const CSS_URL = /url\(\s*(?:"([^"]*)"|'([^']*)'|([^)'"]*))\)/g
@@ -112,7 +112,7 @@ function sizedSvg(svg: string, sizePx: RasterSizePx): SizedPicture {
     const hasIntrinsicSize = WIDTH_ATTRIBUTE.test(tagText) && HEIGHT_ATTRIBUTE.test(tagText)
     return hasIntrinsicSize ? { ok: true, svg } : { ok: false, what: WHAT_NO_SIZE }
   }
-  // TRAP: remove the old width and height; a repeated attribute is a fatal XML error.
+  // Trap: remove the old width and height; a repeated attribute is a fatal XML error.
   const rest = tagText.slice('<svg'.length).replace(SIZE_ATTRIBUTE, '')
   const sized = `<svg width="${sizePx.widthPx}" height="${sizePx.heightPx}"${rest}`
   return { ok: true, svg: svg.slice(0, tag.start) + sized + svg.slice(tag.end) }
@@ -130,7 +130,7 @@ function errorName(error: unknown): string {
   return typeof named === 'string' ? named : ''
 }
 
-// WHY: probes a 1px canvas instead of a largest-canvas number, which differs per machine.
+// Why: probes a 1px canvas instead of a largest-canvas number, which differs per machine.
 /** @purity semi-pure-mutable */
 function canPaintAtAll(host: Document): boolean {
   const probe = host.createElement('canvas')
@@ -175,7 +175,7 @@ async function paintPng(host: Document, svg: string, sizePx: RasterSizePx): Prom
   try {
     const image = host.createElement('img')
     image.src = svgDataUrl(picture.svg)
-    // TRAP: an image drawn before it is decoded paints nothing, a blank no check sees.
+    // Trap: an image drawn before it is decoded paints nothing, a blank no check sees.
     await image.decode()
     context.drawImage(image, 0, 0, sizePx.widthPx, sizePx.heightPx)
   } catch (error: unknown) {
@@ -193,7 +193,7 @@ async function paintPng(host: Document, svg: string, sizePx: RasterSizePx): Prom
   }
 }
 
-// see PI-31, IF-6
+// Spec: PI-31, IF-6
 /** @purity pure */
 export function canvasRasterizer(host: Document): Rasterizer {
   return {

@@ -25,10 +25,10 @@ const CLAUSE_ONLY_JUST_CREATED = '⛔ **これは作った直後の場面に限�
 const CLAUSE_TASK_GROUPS_IN_THE_DOCUMENT =
   '規則は 表 T-028 の `IN-4` と 表 T-036 の `SK-19` が持つ。⭐ タスクグループの選択は、文書に在るタスクグループだけを指すこと（MUST）'
 
-// see T-103
+// Spec: T-103
 const TASK_GROUP_PANEL = bare(specTable('T-103').rows.find((one) => one.id === 'U-22')?.by['確定名（英）'] ?? '')
 
-// see T-108
+// Spec: T-108
 const commandNameOf = (id: string): string => bare(specTable('T-108').rows.find((one) => one.id === id)?.by['確定名'] ?? '')
 
 const ENTER: HumanInput = { kind: 'key', key: 'Enter', modifiers: { ctrl: false, shift: false, alt: false, meta: false } }
@@ -39,7 +39,7 @@ const TASK_GROUPS = [
   { id: 'task-group-c', parentId: null },
 ]
 
-// WHY: a long plan, so the body center stands clear of the progress marker and dummy that answer first (T-266).
+// Why: a long plan, so the body center stands clear of the progress marker and dummy that answer first (T-266).
 const LONG_PLAN = { start: '2026-04-06T08:00:00', finish: '2026-06-26T17:00:00' }
 
 const documentWithTaskGroups = (): Document =>

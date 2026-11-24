@@ -228,7 +228,7 @@ const STALE_GRS_KEY = `${PREFIX}retiredByAnEarlierVersion`
 const FOREIGN_KEYS: Readonly<Record<string, string>> = { 'another-page.setting': 'kept', theme: 'dark' }
 
 function seededStorage(): RecordingStorage {
-  // WHY: S-99 and S-99b are left out of the seed so the loop's own boot reads
+  // Why: S-99 and S-99b are left out of the seed so the loop's own boot reads
   // cannot move the starting picture.
   const seed: Record<string, string> = { ...FOREIGN_KEYS, [STALE_GRS_KEY]: 'stale' }
   seed[KEYS['S-99a']] = 'value of S-99a'
@@ -256,7 +256,7 @@ const pointer = (phase: 'down' | 'up', x: number, y: number): PointerInput => ({
 const keyOf = (key: string): KeyInput => ({ kind: 'key', key, modifiers: { ...NO_MODIFIERS } })
 const ENTER = keyOf(KEY.enter)
 const ESCAPE = keyOf(KEY.escape)
-// WHY: HumanInput spells a letter key in upper case (exported KEY has y: 'Y' and no n),
+// Why: HumanInput spells a letter key in upper case (exported KEY has y: 'Y' and no n),
 // so the y and n keys of NT-7 arrive as Y and N.
 const KEY_N = 'N'
 
@@ -270,7 +270,7 @@ const firstTaskUid = (document: Document): number =>
 const firstTaskName = (document: Document): string =>
   String((document as unknown as { schedule: { tasks: { name: unknown }[] } }).schedule.tasks[0]?.name)
 
-// WHY: widened so the 13th argument pageReload compiles before and after it lands;
+// Why: widened so the 13th argument pageReload compiles before and after it lands;
 // a loop that ignores it never reloads, and the cases report that.
 const startLoop = frameLoop as unknown as (...args: unknown[]) => FrameLoop
 
@@ -748,7 +748,7 @@ describe(`FR-153 "${FR_153_ONLY_T_345}" -- going on (Yes, y)`, () => {
 })
 
 describe('table T-027 UN-19 -- the reset stacks no undo step', () => {
-  // WHY: the person's undo key (table T-036 SK-6), not the Agent API's AM-9,
+  // Why: the person's undo key (table T-036 SK-6), not the Agent API's AM-9,
   // which this build answers with notAvailable.
   const undoKey = (): KeyInput => {
     const parts = (rowOf(T_036, 'SK-6').by['割当'] ?? '')

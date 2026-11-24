@@ -47,7 +47,7 @@ const HISTORY_LIMITS = {
 }
 const SETTINGS_LIMITS: SettingsLimits = { zoomMin: 0.02, zoomMax: 64, taskGroupAreaWidthWithoutPanels: 982 }
 
-// WHY: the calls under test take optional trailing arguments in the spec; typed loosely so the file compiles either way.
+// Why: the calls under test take optional trailing arguments in the spec; typed loosely so the file compiles either way.
 interface Reader {
   readDocument(includeCarry?: boolean, taskUids?: readonly number[]): Document
   readSearchRows(word: string, filters?: 'asShown' | 'none', offset?: number, limit?: number): AgentSearchPage
@@ -107,13 +107,13 @@ function wiringFor(state: State, writerName: string): AgentApiWiring {
 const withStamp = (document: Loose): Document =>
   ({ ...document, documentStamp: { ...STAMP }, changeLog: [] }) as unknown as Document
 
-// WHY: the whole template (1000 tasks, 4970 carry keys) is the document the spec measured 1,383,668 characters on.
+// Why: the whole template (1000 tasks, 4970 carry keys) is the document the spec measured 1,383,668 characters on.
 const wholeTemplate = (): Document => withStamp(structuredClone(TEMPLATE))
 
 const apiOf = (state: State, writerName = 'cr-796 s4 reader') => agentApiMembers(wiringFor(state, writerName))
 const readerOf = (state: State): Reader => apiOf(state) as unknown as Reader
 
-// WHY: the carry keys can sit at any depth, so the check walks the whole value.
+// Why: the carry keys can sit at any depth, so the check walks the whole value.
 function hasKeyDeep(value: unknown, keys: readonly string[]): boolean {
   if (value === null || typeof value !== 'object') return false
   if (Array.isArray(value)) return value.some((one) => hasKeyDeep(one, keys))
@@ -193,7 +193,7 @@ function scheduleOf(tasks: readonly Loose[], extra: Loose = {}): Loose {
   }
 }
 
-// WHY: four tasks whose default order is the start-day order.
+// Why: four tasks whose default order is the start-day order.
 function searchedDocument(searchPanel: Loose = {}): Document {
   const tasks = [
     task(201, 'Alpha', D('2026-04-01'), D('2026-04-05'), 30),
@@ -220,7 +220,7 @@ const filter = (column: string, hiddenValues: string[], fromDate: string | null 
   toDate,
 })
 
-// see AM-3, AG-2
+// Spec: AM-3, AG-2
 describe('AM-3 readDocument(includeCarry, taskUids) -- the carry fields are left out unless asked for', () => {
   it('premise: the starting document holds carry / carryElements keys', () => {
     expect(hasKeyDeep(wholeTemplate(), CARRY_KEYS)).toBe(true)
@@ -245,7 +245,7 @@ describe('AM-3 readDocument(includeCarry, taskUids) -- the carry fields are left
     expect(hasKeyDeep((read.schedule.tasks as readonly unknown[])[0], CARRY_KEYS)).toBe(true)
   })
 
-  // WHY: AM-3 gives 84% for a document opened from MS Project XML; the GRS startup template holds few carry fields,
+  // Why: AM-3 gives 84% for a document opened from MS Project XML; the GRS startup template holds few carry fields,
   // so no size ratio is asserted here -- only that no carry key remains and the text is strictly shorter.
   it('without the carry fields the text is shorter than with them and no carry key remains (AM-3)', () => {
     const reader = readerOf(stateOf(wholeTemplate()))
@@ -256,7 +256,7 @@ describe('AM-3 readDocument(includeCarry, taskUids) -- the carry fields are left
   })
 })
 
-// see AM-3
+// Spec: AM-3
 describe('AM-3 readDocument(false, taskUids) -- the six groups that belong to a task keep only the tasks asked for', () => {
   const build = () =>
     stateOf(
@@ -318,7 +318,7 @@ describe('AM-3 readDocument(false, taskUids) -- the six groups that belong to a 
   })
 })
 
-// see AM-25, AV-16
+// Spec: AM-25, AV-16
 describe('AM-25 readSearchRows -- the answer is AgentSearchPage and the task rows come in pages of at most 100', () => {
   const manyTasks = (count: number): State =>
     stateOf(
@@ -409,7 +409,7 @@ describe('AM-25 readSearchRows -- the answer is AgentSearchPage and the task row
 
 const searchState = (searchPanel: Loose = {}): State => stateOf(searchedDocument(searchPanel))
 
-// see AM-25, S-562, S-563, T-372
+// Spec: AM-25, S-562, S-563, T-372
 describe('AM-25 readSearchRows(word, filters) -- asShown applies the column filters and the sort of the search panel; none does not', () => {
   it('no filter and no sort: asShown and none give the same rows in the default order (the start day)', () => {
     const reader = readerOf(searchState())
@@ -465,7 +465,7 @@ describe('AM-25 readSearchRows(word, filters) -- asShown applies the column filt
         sort: { column: 'SQ-11', direction: 'descending' },
       }),
     )
-    // WHY: the word "l" is found in Alpha, Charlie and Delta, not in Bravo.
+    // Why: the word "l" is found in Alpha, Charlie and Delta, not in Bravo.
     expect(uidsOf(reader.readSearchRows('l', 'asShown'))).toEqual([203, 201])
     expect(uidsOf(reader.readSearchRows('l', 'none'))).toEqual([201, 203, 204])
   })
@@ -481,11 +481,11 @@ describe('AM-25 readSearchRows(word, filters) -- asShown applies the column filt
   })
 })
 
-// see AV-17, T-331
+// Spec: AV-17, T-331
 describe('AV-17 columns -- the task table columns, by the row ids of table T-331', () => {
   const taskColumns = specTable('T-331').rows.filter((row) => row.cells[0] === 'タスク')
   const page = (): AgentSearchPage => readerOf(searchState()).readSearchRows('')
-  // WHY: a filter cell that says 'same as above' repeats the row above it in table T-331 (SQ-4 repeats SQ-3)
+  // Why: a filter cell that says 'same as above' repeats the row above it in table T-331 (SQ-4 repeats SQ-3)
   const allRows = specTable('T-331').rows
   const filterCellOf = (row: (typeof allRows)[number]): string => {
     const cell = row.cells[row.cells.length - 1] ?? ''
@@ -528,7 +528,7 @@ describe('AV-17 columns -- the task table columns, by the row ids of table T-331
   })
 })
 
-// see AG-2, AV-3
+// Spec: AG-2, AV-3
 describe('AG-2 / AV-3: a write whose expectedStamp is stale is refused with the current stamp and no document', () => {
   const staleWrite = () => {
     const state = stateOf(wholeTemplate())
@@ -571,7 +571,7 @@ describe('AG-2 / AV-3: a write whose expectedStamp is stale is refused with the 
   })
 })
 
-// see AG-6, AV-14
+// Spec: AG-6, AV-14
 describe('AG-6 / AV-14: a ChangeNotice carries the current stamp and no document', () => {
   it('a write by another writer reaches the watcher as a notice with stamp and without document', () => {
     const state = stateOf(wholeTemplate())
@@ -597,7 +597,7 @@ describe('AG-6 / AV-14: a ChangeNotice carries the current stamp and no document
   })
 })
 
-// see AG-2, AG-6
+// Spec: AG-2, AG-6
 describe('AG-2 / AG-6 -- the clauses slice 4 added, held verbatim', () => {
   const clauses = [
     '⛔ 拒否の値に現在の文書を丸ごと載せてはならない（MUST NOT）',

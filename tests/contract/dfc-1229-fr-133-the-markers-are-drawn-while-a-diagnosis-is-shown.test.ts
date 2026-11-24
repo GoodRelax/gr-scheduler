@@ -19,11 +19,11 @@ const TEMPLATE = JSON.parse(
   readFileSync(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
 ) as Record<string, any>
 
-// see FR-130, T-109
+// Spec: FR-130, T-109
 const DIAGNOSE_ENTRY = specTable('T-109').rows.find((one) => (one.cells.join(' ')).includes('遅延診断を行う'))?.id ?? ''
 const APP_HEADER = bare(specTable('T-109').rows.find((one) => one.id === DIAGNOSE_ENTRY)?.by['面'] ?? '')
 
-// see T-109
+// Spec: T-109
 const END_ENTRY = 'IC-40'
 const END_SURFACE = bare(specTable('T-109').rows.find((one) => one.id === END_ENTRY)?.by['面'] ?? '')
 

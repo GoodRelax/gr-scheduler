@@ -5,7 +5,7 @@ import { SETTINGS_CONSTANTS } from '../../src/entity/document-model/document-set
 const DEFAULT_TASK_GROUP_TITLE_FONT = SETTINGS_CONSTANTS.taskGroupTitleFont
 const DEFAULT_TASK_GROUP_TITLE_TOP_SCALE = SETTINGS_CONSTANTS.taskGroupTitleTopScale
 
-// see FR-094, T-201
+// Spec: FR-094, T-201
 /** @purity pure */
 export function taskGroupNameFontPx(
   depth: number,
@@ -15,7 +15,7 @@ export function taskGroupNameFontPx(
   return depth === 1 ? taskGroupTitleFont * taskGroupTitleTopScale : taskGroupTitleFont
 }
 
-// see FR-094, T-201
+// Spec: FR-094, T-201
 /** @purity pure */
 export function taskGroupNameFont(depth: number): { readonly fontPx: number } {
   return { fontPx: taskGroupNameFontPx(depth) }

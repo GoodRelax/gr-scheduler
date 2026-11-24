@@ -46,7 +46,7 @@ const rowOf = (table: string, id: string): Readonly<Record<string, string>> => {
   return found.by
 }
 
-// see FR-036, T-036
+// Spec: FR-036, T-036
 const assignmentsIn = (cell: string): readonly (readonly string[])[] =>
   cell
     .split('\uff0f')

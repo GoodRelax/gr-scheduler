@@ -26,7 +26,7 @@ const AG_9_QUESTION = '確認の問い（表 T-037 の `NT-7`）が立ってい�
 
 const BUILT_VERSION = (JSON.parse(TEMPLATE_TEXT) as { schemaVersion: string }).schemaVersion
 
-// see T-108
+// Spec: T-108
 const kindOf = (id: string): string => {
   const row = specTable('T-108').rows.find((one) => one.id === id)
   if (row === undefined) throw new Error(`table T-108 has no row ${id}`)
@@ -35,7 +35,7 @@ const kindOf = (id: string): string => {
   return kind
 }
 
-// see CM-1
+// Spec: CM-1
 const titleCommand = (title: string): Record<string, unknown> => ({ kind: kindOf('CM-1'), title })
 
 type Api = ReturnType<typeof installAgentApi>

@@ -23,7 +23,7 @@ describe('CR-722 the manuscript these cases are driven by', () => {
 
 const ORDER: readonly VisibilityTable[] = ['searchPanel', 'delayDiagnosticsReport', 'resourceList']
 
-// WHY: section 5.1 names the first argument `tables` without its shape; this value is the list of the tables that are on and the record of all three.
+// Why: section 5.1 names the first argument `tables` without its shape; this value is the list of the tables that are on and the record of all three.
 function tablesOn(on: readonly VisibilityTable[]): readonly VisibilityTable[] {
   const record = Object.fromEntries(ORDER.map((name) => [name, on.includes(name) ? visibility({ isScheduleFilterApplied: true }) : NONE_CHECKED]))
   return Object.assign([...on], record)

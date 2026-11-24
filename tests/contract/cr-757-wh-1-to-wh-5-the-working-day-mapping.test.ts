@@ -82,7 +82,7 @@ describe('WH-2 / WH-3 / WH-4 / WH-5 -- the worked example below table T-379', ()
     expect(SHIFT.fromZero).toEqual(day('2028-04-04'))
     expect(SHIFT.toZero).toEqual(day('2029-03-05'))
     expect(SHIFT.isNewStartNonWorking).toBe(false)
-    // WHY: Monday to Friday from Tuesday 2028-04-04 up to (not including) Monday 2029-03-05 are 239 working days.
+    // Why: Monday to Friday from Tuesday 2028-04-04 up to (not including) Monday 2029-03-05 are 239 working days.
     expect(SHIFT.workingDays).toBe(239)
   })
 
@@ -170,7 +170,7 @@ describe('FR-054 / WH-3 -- the one calendar of the document; a recurring excepti
       exceptions: [{ ...HOLIDAY_2029_03_20, recurrenceKind: 2 }],
     })
     const shift = workingDayShiftOf(workingCalendarOf(recurring.schedule), day('2028-04-04'), day('2029-03-05'))
-    // WHY: rank 11 is 2029-03-20 itself when the recurring row is passed over, and 2029-03-21 when it were counted.
+    // Why: rank 11 is 2029-03-20 itself when the recurring row is passed over, and 2029-03-21 when it were counted.
     expect(shift.moveDay(day('2028-04-19')).day).toEqual(day('2029-03-20'))
   })
 })

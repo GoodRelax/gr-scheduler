@@ -34,7 +34,7 @@ import { specTable, unbroken } from './spec-table'
 
 afterEach(restoreAnimationFrames)
 
-// see FR-156
+// Spec: FR-156
 const FR_156_STATEMENT =
   '作成者が文書の設定の面で基準に別のタイムゾーンを選び、答えを押したときは、その答えに従って、見せる基準を選んだタイムゾーンにするか、日程データのタイムゾーンを選んだタイムゾーンに付け替えて見せる基準を日程データのタイムゾーンへ戻すこと。'
 const FR_156_FIELD = '基準の欄は、`_assets/tbl-glossary.md` の 表 T-104 の `K-144` の名で、表 T-376 の種が標準時の行を選ぶ欄を 1 つ置く。'
@@ -101,7 +101,7 @@ const DONT_CONVERT = { holder: 'baseTimeZoneDraft', column: 'keepLocalTime' } as
 const CANCEL = { holder: 'baseTimeZoneDraft', column: 'cancel' } as const
 const UNDO = keyOf('SK-6')
 
-// WHY: the first task holds no start, so the first task WITH a start is the second, not the earliest (the third).
+// Why: the first task holds no start, so the first task WITH a start is the second, not the earliest (the third).
 const TASKS: readonly TaskSpec[] = [
   { uid: 1, name: 'Unplanned', start: null, finish: null },
   { uid: 2, name: 'Kickoff', start: '2028-04-01T08:00:00', finish: '2028-04-01T17:00:00' },
@@ -129,7 +129,7 @@ const chooserOf = (field: PropertyField): PropertyControl => {
   return found
 }
 
-// WHY: the words below the chooser, one line per entry, a control of several lines split at its breaks.
+// Why: the words below the chooser, one line per entry, a control of several lines split at its breaks.
 const linesUnder = (field: PropertyField): readonly string[] =>
   field.controls.filter((one) => one.kind !== 'choice').flatMap((one) => (one.press ?? one.words ?? '').split('\n'))
 
@@ -144,14 +144,14 @@ async function chosen(document: Document, key: string, language: DisplayLanguage
   return built
 }
 
-// see FO-14, FR-156, K-144, T-376
+// Spec: FO-14, FR-156, K-144, T-376
 describe(`FO-14 -- ${FR_156_FIELD}`, () => {
   it.each(['ja', 'en'] as const)('%s: the field carries the K-144 word and one chooser of the 27 standard rows, in table order', async (language) => {
     const field = fieldOf(await shiftStage(benchOf(TASKS), language), BASE_ROW)
     expect(field.name).toBe(settingWord('K-144', language))
     const chooser = chooserOf(field)
     expect(chooser.choiceValues).toEqual(STANDARD_KEYS)
-    // WHY: CR-787 (FR-156) -- each choice is shown on two lines, zoneHead over the place, beside choiceValues.
+    // Why: CR-787 (FR-156) -- each choice is shown on two lines, zoneHead over the place, beside choiceValues.
     expect(chooser.choiceLines).toEqual(STANDARD_KEYS.map((key) => expectedLinesOf(zoneRowOfKey(key), language)))
     expect(chooser.choices).toHaveLength(STANDARD_KEYS.length)
     for (const [index, key] of STANDARD_KEYS.entries()) {
@@ -178,7 +178,7 @@ describe(`FO-14 -- ${FR_156_FIELD}`, () => {
   })
 })
 
-// see FO-14, FR-156, TX-11, T-280
+// Spec: FO-14, FR-156, TX-11, T-280
 describe(`FO-14 -- ${FR_156_ASK_ONLY_OTHER}`, () => {
   it('choosing the shown base again asks nothing and writes nothing', async () => {
     const built = await chosen(benchOf(TASKS), 'UTC-08:00')
@@ -256,7 +256,7 @@ describe(`FO-14 -- ${FR_156_ASK_ONLY_OTHER}`, () => {
   })
 })
 
-// see FR-156, CM-94, CM-95, UN-13
+// Spec: FR-156, CM-94, CM-95, UN-13
 describe(`FO-14 -- ${FR_156_ONLY_ON_ANSWER} / ${FR_156_ONE_UNDO}`, () => {
   it('choosing another zone writes nothing until an answer is pressed', async () => {
     const built = await chosen(benchOf(TASKS), 'UTC+09:00')
@@ -302,7 +302,7 @@ describe(`FO-14 -- ${FR_156_ONLY_ON_ANSWER} / ${FR_156_ONE_UNDO}`, () => {
   })
 })
 
-// see FR-156, CM-94, CM-95, UN-13
+// Spec: FR-156, CM-94, CM-95, UN-13
 describe(`the base change commands -- ${FR_156_ONE_WRITE}`, () => {
   const bench = benchOf(TASKS, 'UTC-08:00', 'UTC+05:30')
 
@@ -331,7 +331,7 @@ describe(`the base change commands -- ${FR_156_ONE_WRITE}`, () => {
   })
 })
 
-// see FO-15, FR-156, K-145, S-575
+// Spec: FO-15, FR-156, K-145, S-575
 describe(`FO-15 -- ${FR_156_DISPLAY_ROWS}`, () => {
   const ROWS = ['K-145:1', 'K-145:2', 'K-145:3', 'K-145:4']
 
@@ -341,7 +341,7 @@ describe(`FO-15 -- ${FR_156_DISPLAY_ROWS}`, () => {
       const field = fieldOf(built, row)
       expect(field.name).toBe(`${settingWord('K-145', language)} ${String(index + 1)}`)
       const chooser = chooserOf(field)
-      // WHY: CR-787 (FR-156) -- none first, then every row on two lines, beside choiceValues.
+      // Why: CR-787 (FR-156) -- none first, then every row on two lines, beside choiceValues.
       expect(chooser.choices?.[0]).toContain(timeZoneWord('none', language))
       expect(chooser.choiceValues).toHaveLength(ALL_KEYS.length + 1)
       expect(chooser.choiceLines).toHaveLength(ALL_KEYS.length + 1)

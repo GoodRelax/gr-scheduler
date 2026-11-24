@@ -95,15 +95,15 @@ function setting(id: string): number {
   return value
 }
 
-// see S-79
+// Spec: S-79
 const S_79_FLOOR = setting('S-37') * setting('S-125')
 
-// see T-206
+// Spec: T-206
 const sizeOf = (id: string): number => Number.parseFloat(bare(specTable('T-206').rows.find((one) => one.id === id)?.by['既定'] ?? ''))
 const S_530 = sizeOf('S-530')
 const S_531 = sizeOf('S-531')
 
-// see T-108
+// Spec: T-108
 const commandNameOf = (id: string): string => bare(specTable('T-108').rows.find((one) => one.id === id)?.by['確定名'] ?? '')
 const CM_67 = commandNameOf('CM-67')
 const CM_87 = commandNameOf('CM-87')
@@ -264,13 +264,13 @@ describe('FR-052 T-368 WF-4 -- the boundary while the width is fixed', () => {
   })
 })
 
-// see T-369
+// Spec: T-369
 const nameCellIdOf = (cell: string): string | null => /(?:K|IC)-\d+/.exec(cell)?.[0] ?? null
 const ruleRowOf = (cell: string): string => /(?:WF|FX)-\d+/.exec(cell)?.[0] ?? ''
 const FACE_ROWS = specTable('T-369').rows.filter((row) => row.id !== 'FO-1')
 
-// see FO-17, FR-159
-// WHY: the Shift Whole Schedule row is named by its dictionary section and keyed by its own T-369 row (CR-757).
+// Spec: FO-17, FR-159
+// Why: the Shift Whole Schedule row is named by its dictionary section and keyed by its own T-369 row (CR-757).
 const WHOLE_SCHEDULE_SHIFT_SECTION = 'wholeScheduleShiftField'
 const isWholeScheduleShiftRow = (row: (typeof FACE_ROWS)[number]): boolean => (row.by['名の語'] ?? '').includes(WHOLE_SCHEDULE_SHIFT_SECTION)
 
@@ -286,8 +286,8 @@ const faceNameOf = (row: (typeof FACE_ROWS)[number], language: DisplayLanguage):
   return partWordOf(words, 'currentName', language)
 }
 
-// see FO-15, K-145
-// WHY: CR-755 -- the display time zones are four rows, each the setting's row and name with its number 1 to 4.
+// Spec: FO-15, K-145
+// Why: CR-755 -- the display time zones are four rows, each the setting's row and name with its number 1 to 4.
 const NUMBERED_ROWS: Readonly<Record<string, number>> = { 'K-145': 4 }
 const numberedOf = (row: string, name: string): readonly { readonly row: string; readonly name: string }[] => {
   const count = NUMBERED_ROWS[row]
@@ -330,7 +330,7 @@ describe('FR-072 T-369 -- the order and the names of the settings face', () => {
   })
 })
 
-// see U-25
+// Spec: U-25
 const U_25 = bare(specTable('T-103').rows.find((one) => one.id === 'U-25')?.by['確定名（英）'] ?? '')
 
 const HEADER_HEIGHT = { 'App Header': 37 }

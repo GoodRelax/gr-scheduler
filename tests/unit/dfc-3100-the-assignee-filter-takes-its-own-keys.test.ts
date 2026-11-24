@@ -44,7 +44,7 @@ const viewOf = (panel: PropertiesPanel): ScreenView =>
     tooltips: [],
   }) as unknown as ScreenView
 
-// WHY: the shared fake has no dispatchEvent and fires no focus events; a browser bubbles from the target up, after the
+// Why: the shared fake has no dispatchEvent and fires no focus events; a browser bubbles from the target up, after the
 // capturing listeners of the document.
 function fire(built: Stage, target: FakeElement, init: Readonly<Record<string, unknown>>): void {
   const event = {
@@ -65,7 +65,7 @@ function fire(built: Stage, target: FakeElement, init: Readonly<Record<string, u
   }
 }
 
-// WHY: each element is given its own dispatchEvent, so no prototype changes for any other file.
+// Why: each element is given its own dispatchEvent, so no prototype changes for any other file.
 function armed(built: Stage): void {
   for (const node of selfAndDescendants(built.root())) {
     const record = node as unknown as Record<string, unknown>
@@ -121,7 +121,7 @@ describe(`IF-9 -- focusing the filter begins a field edit (fieldEditBegan)`, () 
 
 const keyOf = (key: string): KeyInput => ({ kind: 'key', key, modifiers: { ctrl: false, shift: false, alt: false, meta: false } })
 
-// WHY: a selected Task stands behind the panel, so SK-3 would have something to delete if the key reached it.
+// Why: a selected Task stands behind the panel, so SK-3 would have something to delete if the key reached it.
 const contextWith = (isTextEntryUnsettled: boolean): InputContext => ({
   ...contextOf(DOCUMENT),
   selection: selectionWith(emptySelection(), taskItem(TASK)),

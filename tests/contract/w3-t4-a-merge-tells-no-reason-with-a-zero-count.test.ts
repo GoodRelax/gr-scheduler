@@ -21,8 +21,8 @@ const MG_14_TELL =
 
 const MERGE_REASONS = ['RS-71', 'RS-72', 'RS-73'] as const
 
-// see T-233, NT-9
-// WHY: read from the raised rows and from the words anywhere in the description, so RS-73 on its own surface counts too.
+// Spec: T-233, NT-9
+// Why: read from the raised rows and from the words anywhere in the description, so RS-73 on its own surface counts too.
 /** @purity pure */
 function toldReasons(view: ScreenView): readonly string[] {
   const raised = view.notices.flatMap((one) => one.raisedNotices.map((two) => two.reason))

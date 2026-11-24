@@ -113,7 +113,7 @@ describe('FR-039 (MUST) -- a document opens at the step it stored', () => {
 })
 
 describe('FR-039 (MUST NOT) with OP-6 -- a value off the steps opens at the default, not at a near step', () => {
-  // WHY: OP-6 (CR-565) reads an enum miss as that key alone at its default; the trailing
+  // Why: OP-6 (CR-565) reads an enum miss as that key alone at its default; the trailing
   // clause of FR-039 still says refused with RS-25, reported as a spec mismatch, not pinned.
   it.each([33, 66, 85])('reads a stored %s as the default step', (scale) => {
     const read = documentFromJson(textWith({ displayScale: scale }))
@@ -131,7 +131,7 @@ afterEach(() => {
   else (globalThis as Record<string, unknown>)['requestAnimationFrame'] = realRaf
 })
 
-// see FR-029, IC-104, IC-105
+// Spec: FR-029, IC-104, IC-105
 const headerAt = (scale: number): ScreenView => {
   const waiting: ((time: number) => void)[] = []
   ;(globalThis as Record<string, unknown>)['requestAnimationFrame'] = (callback: (time: number) => void): number =>

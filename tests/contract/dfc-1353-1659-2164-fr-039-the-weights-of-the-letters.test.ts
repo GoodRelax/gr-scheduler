@@ -30,11 +30,11 @@ const weightRow = (id: string): number => {
   return Number(found[0])
 }
 
-// see T-206
+// Spec: T-206
 const S_463 = weightRow('S-463')
 const S_529 = weightRow('S-529')
 
-// WHY: the browser makes these bold unless a rule says otherwise, which is what FR-039 asks to be put back.
+// Why: the browser makes these bold unless a rule says otherwise, which is what FR-039 asks to be put back.
 const BOLD_BY_DEFAULT = new Set(['TH', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'B', 'STRONG'])
 
 const numberOfWeight = (written: string): number => {
@@ -44,7 +44,7 @@ const numberOfWeight = (written: string): number => {
   return Number(flat)
 }
 
-// WHY: an explicit weight on the element or the nearest ancestor that states one, else the browser's own for the tag.
+// Why: an explicit weight on the element or the nearest ancestor that states one, else the browser's own for the tag.
 const weightOf = (element: FakeElement): number => {
   for (let at: FakeElement | null = element; at !== null; at = at.parentNode) {
     const written = styleMap(at).get('font-weight')

@@ -98,7 +98,7 @@ const LEFT_WORD = '左: '
 const RIGHT_WORD = '右: '
 const SPAN_WORD = '間隔: '
 const UNDECIDED = '—'
-// WHY: the CU-3 form, written out from the manuscript's examples (2026/04/01 is a Wednesday).
+// Why: the CU-3 form, written out from the manuscript's examples (2026/04/01 is a Wednesday).
 const APRIL_2026: Readonly<Record<number, string>> = {
   1: '2026/04/01 (水)',
   2: '2026/04/02 (木)',
@@ -192,7 +192,7 @@ type Mode = 'off' | 'placingCursorA' | 'placingCursorB'
 
 type Placed = { readonly cursorADate: string; readonly cursorBDate: string } | null
 
-// WHY: DC-1 holds the two dates in the screen values (CR-572), no longer in the document.
+// Why: DC-1 holds the two dates in the screen values (CR-572), no longer in the document.
 const sessionIn = (mode: Mode, placed: Placed = null, language: 'ja' | 'en' = 'ja'): ScreenSession => ({
   ...emptyScreenSession,
   screen: {
@@ -434,7 +434,7 @@ const taskTooltips = (mode: Mode): number => {
   const settings = stage.settings
   const readings = readingsAt(
     { x: stage.pointOn(2026, 4, 3).x, y: stage.middleY },
-    // WHY: EZ-6, S-439 -- the task wait is its own value, not S-124 (CR-576)
+    // Why: EZ-6, S-439 -- the task wait is its own value, not S-124 (CR-576)
     {
       pointerRestedMs: SETTINGS_CONSTANTS.taskHintDelayMs,
       hintTargetDwellMs: SETTINGS_CONSTANTS.taskHintDelayMs,

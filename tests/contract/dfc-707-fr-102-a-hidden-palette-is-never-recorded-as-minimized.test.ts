@@ -12,7 +12,7 @@ import { unbroken } from './spec-table'
 const MACHINES = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '_assets', 'tbl-state-machines.md'), 'utf8'))
 const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
-// WHY: the state list, not the diagram -- the diagram became an SVG figure, which a text match
+// Why: the state list, not the diagram -- the diagram became an SVG figure, which a text match
 // cannot read.
 const HIDDEN_STATE = '- `paletteDisplayStateMachine.hidden` —— '
 const A_CHILD_OF_HIDDEN = '親 `paletteDisplayStateMachine.hidden`'
@@ -36,7 +36,7 @@ function recordingClipboard(): { readonly clipboard: Clipboard; readonly sent: C
   }
 }
 
-// see IC-76, IC-75, SK-14
+// Spec: IC-76, IC-75, SK-14
 async function recordWithPaletteStates(): Promise<{ readonly shownThenMinimized: string[]; readonly hidden: string[] }> {
   const copy = recordingClipboard()
   const built: ShellStage = await shellStage({ clipboard: copy.clipboard })

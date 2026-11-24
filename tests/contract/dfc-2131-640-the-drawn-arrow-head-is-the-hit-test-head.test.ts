@@ -35,7 +35,7 @@ const triangleOf = (corners: readonly Pt[]): Triangle => {
   return { base: distance(left, right), height: distance(tip, middle) }
 }
 
-// WHY: the marker is a path of three corners in the marker's own box; that is the only place the drawn triangle is written.
+// Why: the marker is a path of three corners in the marker's own box; that is the only place the drawn triangle is written.
 const drawnTriangleOf = (svg: string): Triangle => {
   const marker = /<marker\b[^>]*>[\s\S]*?<\/marker>/.exec(svg)
   if (marker === null) throw new Error('the picture holds no <marker> for the dependency arrow')
@@ -52,7 +52,7 @@ const heldTriangleOf = (geometry: unknown): Triangle => {
   return triangleOf(head)
 }
 
-// see T-201
+// Spec: T-201
 const S_19 = stored('S-19')
 const S_300 = stored('S-300')
 const SCENE = sceneOf({ tasks: LINKED })
@@ -74,7 +74,7 @@ describe('DFC-2131 / DFC-640: the drawn arrow head is the hit-test head (S-19, S
     expect(drawnTriangleOf(SCENE.svg()).height).toBeCloseTo(S_19 * RATIO, 1)
   })
 
-  // WHY: T-201 now holds S-19 = S-300 = 6.4 (a 4 x 4 head, CR-758), so the two rows give a square; the ratio still reads both.
+  // Why: T-201 now holds S-19 = S-300 = 6.4 (a 4 x 4 head, CR-758), so the two rows give a square; the ratio still reads both.
   it('S-19 / S-300 the height and the base are two values, and the drawn ratio is S-300 / S-19 (DFC-2131)', () => {
     const drawn = drawnTriangleOf(SCENE.svg())
     expect(drawn.base / drawn.height).toBeCloseTo(S_300 / S_19, 2)

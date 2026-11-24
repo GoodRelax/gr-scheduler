@@ -1,7 +1,7 @@
 // 表 T-051 の `HF-14` (MUST, 利用者の裁定 2026-09-03 / 2026-09-04) -- the promise
 // this file is written for is HF-14's OWN summary of it: 「立てたタスクグループは見える」.
 //
-// WHY: HF-14 shows a raised task group by tree state alone (AT-153, T-328, TD-6 / TD-7), never by
+// Why: HF-14 shows a raised task group by tree state alone (AT-153, T-328, TD-6 / TD-7), never by
 // rewriting zoomY; groupDepthLimit only proves the raised task group lies past the drawn tier.
 //
 // ---------------------------------------------------------------------------
@@ -536,7 +536,7 @@ describe('表 T-051 HF-14 (MUST): a task group raised past the drawn tier is dra
   })
 
   it('control: a child raised INSIDE the already-drawn tier is drawn too', () => {
-    // WHY: the raised child lands at depth 2, inside the tier that excluded
+    // Why: the raised child lands at depth 2, inside the tier that excluded
     // depth 3 above, so a unit that never draws a raised task group fails here too.
     const root = uuidOf(3)
     const before = documentWith(

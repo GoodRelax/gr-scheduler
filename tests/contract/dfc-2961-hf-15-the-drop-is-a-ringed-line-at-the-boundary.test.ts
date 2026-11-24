@@ -44,17 +44,17 @@ const HF_15_FOLDED_GAP = '⭐ **折りたたまれたタスクグループの真
 const S_213_ROW = '| S-213 | タスクグループパネルに引く帯と線の太さ（表 T-051 の `HF-18` の帯と、`HF-15` の差し込み線と丸の輪） | 3px 🔎 |'
 const S_620_ROW = '| S-620 | タスクグループを運ぶあいだ、差し込み線の左端に立てる丸の外径（表 T-051 の `HF-15`） | 12px 🔎 |'
 
-// WHY: the cr-772 tree; drawn order A(1), A1(2), A1x(3), Ah(2), A2(2), A2a(3), B(1), B1(2), C(1, folded), D(1), E(1), E1(2), E2(3), E3(4).
+// Why: the cr-772 tree; drawn order A(1), A1(2), A1x(3), Ah(2), A2(2), A2a(3), B(1), B1(2), C(1, folded), D(1), E(1), E1(2), E2(3), E3(4).
 const DEPTH_OF: Readonly<Record<string, number>> = { A: 1, A1: 2, A1x: 3, Ah: 2, A2: 2, A2a: 3, B: 1, B1: 2, C: 1, D: 1, E: 1, E1: 2, E2: 3, E3: 4 }
-// WHY: the held task group and every one under it (HF-15 part 2), for the two task groups these cases hold.
+// Why: the held task group and every one under it (HF-15 part 2), for the two task groups these cases hold.
 const CARRIED_WITH: Readonly<Record<string, readonly string[]>> = { D: ['D'], E1: ['E1', 'E2', 'E3'] }
-// WHY: a drawn row standing at each depth, to read where that depth's indent starts.
+// Why: a drawn row standing at each depth, to read where that depth's indent starts.
 const ROW_AT_DEPTH: Readonly<Record<number, string>> = { 1: 'A', 2: 'A1', 3: 'A1x', 4: 'E3' }
 
 interface Carry {
   readonly bench: CarryBench
   readonly press: { readonly x: number; readonly y: number }
-  // WHY: put the pointer at a height inside the gap under `upperId` (between its middle and the next counted row's middle), `steps` indents right of the press.
+  // Why: put the pointer at a height inside the gap under `upperId` (between its middle and the next counted row's middle), `steps` indents right of the press.
   readonly at: (upperId: string, lowerId: string, steps: number, part?: number) => void
 }
 
@@ -83,7 +83,7 @@ const px = (value: string | undefined): number => {
   return found === null ? ((value ?? '').trim() === '0' ? 0 : NaN) : Number(found[1])
 }
 
-// WHY: where a row's indent ends and its content (grab strip, then name: FR-085) starts.
+// Why: where a row's indent ends and its content (grab strip, then name: FR-085) starts.
 function indentStartOf(bench: CarryBench, id: string): number {
   const row = bench.row(id)
   const style = styleMap(row)
@@ -107,7 +107,7 @@ function lineOf(bench: CarryBench): FakeElement {
   return line
 }
 
-// WHY: every round, bordered part drawn beside the line (in the line or in the layer holding it).
+// Why: every round, bordered part drawn beside the line (in the line or in the layer holding it).
 function ringsOf(bench: CarryBench): FakeElement[] {
   const holder = lineOf(bench).parentNode as FakeElement
   return selfAndDescendants(holder).filter((one) => {
@@ -119,7 +119,7 @@ function ringsOf(bench: CarryBench): FakeElement[] {
   })
 }
 
-// WHY: every var(--x) written in a value, replaced by what the unit's root declares for it.
+// Why: every var(--x) written in a value, replaced by what the unit's root declares for it.
 function expand(bench: CarryBench, written: string): string {
   const rootStyle = styleMap(bench.root())
   return written.replace(/var\((--[\w-]+)\)/g, (_all, name: string) => rootStyle.get(name.toLowerCase()) ?? `(no ${name})`).replace(/\s+/g, '').toLowerCase()
@@ -188,7 +188,7 @@ describe('HF-15 ① -- the line stands on the boundary of the gap, not at the po
     const element = lineOf(bench)
     const line = page(bench, element)
     expect(line.height).toBeCloseTo(S_213, 6)
-    // WHY: the gap A1 | A1x admits depth 3 only (lower bound A1x = 3, upper bound A1 + 1 = 3).
+    // Why: the gap A1 | A1x admits depth 3 only (lower bound A1x = 3, upper bound A1 + 1 = 3).
     expect(line.left).toBeCloseTo(indentStartOf(bench, ROW_AT_DEPTH[3] as string), 6)
     const panelRow = page(bench, bench.row('A'))
     expect(line.left + line.width).toBeCloseTo(panelRow.left + panelRow.width, 6)
@@ -221,12 +221,12 @@ describe('HF-15 ① -- the ring at the left end of the line', () => {
     const ring = ringsOf(bench)[0] as FakeElement
     const box = page(bench, ring)
     const size = outerSizeOf(ring)
-    // WHY: the page box starts at the border edge whichever box-sizing is used; the outer size already includes the border.
+    // Why: the page box starts at the border edge whichever box-sizing is used; the outer size already includes the border.
     expect(box.left + size.width / 2).toBeCloseTo(line.left, 6)
     expect(box.top + size.height / 2).toBeCloseTo(line.top + line.height / 2, 6)
   })
 
-  // WHY: the gap B1 | C admits depths 1 to 3 (lower bound C = 1, upper bound B1 + 1 = 3); D is pressed at depth 1, so steps move the depth from 1 and stop silently at the ends.
+  // Why: the gap B1 | C admits depths 1 to 3 (lower bound C = 1, upper bound B1 + 1 = 3); D is pressed at depth 1, so steps move the depth from 1 and stop silently at the ends.
   it.each([
     [-1, 1],
     [0, 1],
@@ -259,7 +259,7 @@ describe('HF-15 ① -- the ring at the left end of the line', () => {
 describe('HF-15 ① -- a folded task group takes a line one level deeper under its row', () => {
   it('draws the line under the folded C at the indent of depth 2, with its ring', () => {
     const { bench, at } = carry('E1')
-    // WHY: E1 is pressed at depth 2; the gap C | D admits 1 to 2 (lower bound D = 1, folded C + 1 = 2).
+    // Why: E1 is pressed at depth 2; the gap C | D admits 1 to 2 (lower bound D = 1, folded C + 1 = 2).
     at('C', 'D', 0)
     expect(DEPTH_OF['C']).toBe(1)
     const line = page(bench, lineOf(bench))
@@ -278,7 +278,7 @@ describe('HF-15 ① -- a folded task group takes a line one level deeper under i
 })
 
 describe('HF-15 -- no task group is framed to show the drop', () => {
-  // WHY: each landing makes a different task group the parent: none (depth 1), B (depth 2), B1 (depth 3), the folded C (depth 2 under C).
+  // Why: each landing makes a different task group the parent: none (depth 1), B (depth 2), B1 (depth 3), the folded C (depth 2 under C).
   const LANDINGS: readonly [string, string, string, string, number][] = [
     ['no parent', 'D', 'B1', 'C', -1],
     ['the parent B', 'D', 'B1', 'C', 1],

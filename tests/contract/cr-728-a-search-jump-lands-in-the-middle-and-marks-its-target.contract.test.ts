@@ -296,7 +296,7 @@ const sceneOf = (spec: SceneSpec, override: Loose = {}, selection: Selection = e
 
 const GROUP_COUNT = 30
 const GROUP_IDS = Array.from({ length: GROUP_COUNT }, (_, at) => `g${String(at)}`)
-// WHY: task N sits in group g(N-1), so a task's uid says how far down the task group list it is.
+// Why: task N sits in group g(N-1), so a task's uid says how far down the task group list it is.
 const LONG_LIST: SceneSpec = {
   groups: GROUP_IDS.map((id): GroupSpec => [id, null]),
   tasks: GROUP_IDS.map((id, at) => [taskOf(at + 1, at * 3, 5), id] as const),
@@ -324,7 +324,7 @@ const scrollFieldsOf = (plan: SearchJumpPlan): Loose => {
   return fields
 }
 
-// WHY: the shell reads the reach on the picture drawn after SJ-2's reveal (SJ-5); `revealed` is that picture's schedule,
+// Why: the shell reads the reach on the picture drawn after SJ-2's reveal (SJ-5); `revealed` is that picture's schedule,
 // and `after` is the same picture with the written view position.
 /** @purity pure */
 function jump(spec: SceneSpec, target: SearchJumpTarget, start: Loose = {}, revealed: SceneSpec = spec): Landed {
@@ -562,8 +562,8 @@ const svgOf = (scene: Scene, landing: LandingState, picture: 'screen' | 'export'
     { themePreference: theme, guideCursorMode: 'none', landingMarkDisplayState: landing } as never,
   )
 
-// see S-587
-// WHY: the ring's own row, which follows no theme hue (its hue cell is -).
+// Spec: S-587
+// Why: the ring's own row, which follows no theme hue (its hue cell is -).
 const inkOf = (theme: Theme): string =>
   cellOf('T-236', 'S-587', theme === 'light' ? '明るいテーマ' : '暗いテーマ').replace(/`/g, '').trim().toLowerCase()
 const colorOnly = (value: string | null): string => (value ?? '').toLowerCase().replace(/\s+/g, ' ').trim()
@@ -605,7 +605,7 @@ describe(`T-332 SJ-10 -- ${SJ_10_RING}`, () => {
     expect(colorOnly(attrOf(ring.attrs, 'stroke')), 'S-587 dark').toBe(inkOf('dark'))
   })
 
-  // WHY: SJ-10 counts S-555 to the line's inner edge (CR-763), and the stroke is S-556 wide.
+  // Why: SJ-10 counts S-555 to the line's inner edge (CR-763), and the stroke is S-556 wide.
   it('the ring stands S-555 outside the plan figure (the box without the actual), on every side', () => {
     const placed = placementOf(scene, 15)
     const ring = boxOfRing(ringsOf(svg)[0]!)
@@ -721,7 +721,7 @@ describe(`T-332 SJ-10 -- ${SJ_10_NOT_DRAWN}`, () => {
 describe('T-332 SJ-10 -- the mark changes no drawn gap (FR-105 / FR-094)', () => {
   it(`${SJ_10_NO_GAP}: the layout and the geometry are the same with the mark shown and hidden`, () => {
     const { after } = jump(LONG_LIST, TASK(15), FAR_START)
-    // WHY: the layout and the geometry are computed without the landing state; the picture only adds the ring.
+    // Why: the layout and the geometry are computed without the landing state; the picture only adds the ring.
     const plain = svgOf(after, HIDDEN)
     const marked = svgOf(after, landedOn(TASK(15)))
     const withoutRing = marked.replace(/<g clip-path="[^"]*"><g data-zo="ZO-8"><rect [^>]*data-role="Jump Landing Ring"[^>]*\/><\/g><\/g>/, '')
@@ -868,7 +868,7 @@ const shellDocument = (
 
 const dayText = (offset: number): string => new Date(Date.UTC(2026, 3, 1) + offset * 86400000).toISOString().slice(0, 10)
 
-// WHY: task N (1..20) is in group N, one every 4 days; a folded parent with 8 children stands between group 5 and group 6.
+// Why: task N (1..20) is in group N, one every 4 days; a folded parent with 8 children stands between group 5 and group 6.
 const SHELL_LONG = (settings: Loose = {}): Document => {
   const groups: ShellGroup[] = [
     ...GROUP_UUIDS.slice(0, 5).map((id): ShellGroup => ({ id, parentId: null })),
@@ -1109,7 +1109,7 @@ describe(`T-280 and EL-17 / EL-18 in the shell -- ${EL_17_CLEAR}`, () => {
   })
 
   it(`${SJ_10_NOT_SAVED}: the jump leaves no undo step of its own -- Undo after a scroll-only jump keeps the view and the document`, () => {
-    // WHY: task 12 is in an open task group, so SJ-2 writes nothing and the move is only a view change (UN-8).
+    // Why: task 12 is in an open task group, so SJ-2 writes nothing and the move is only a view change (UN-8).
     const shell = shellOf(SHELL_LONG())
     focus(shell, 12)
     const afterJump = JSON.stringify(shell.document().documentSettings)

@@ -97,7 +97,7 @@ const on = (...flags: readonly Flag[]): EscapeContext => {
   return context as unknown as EscapeContext
 }
 
-// see IN-4
+// Spec: IN-4
 const RUNGS_ABOVE_FULL_SCREEN: readonly (readonly [string, Flag, EscapeTarget])[] = [
   ['a standing notice', 'isNoticeStanding', 'notice'],
   ['an unsettled text entry', 'isTextEntryUnsettled', 'textEntry'],

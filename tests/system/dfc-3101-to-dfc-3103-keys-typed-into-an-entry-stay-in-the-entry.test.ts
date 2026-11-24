@@ -48,7 +48,7 @@ async function zoomOf(page: Page): Promise<unknown> {
   return (await readDocument(page)).documentSettings['zoomX']
 }
 
-// WHY: '+' and '_' are typed with Shift on a US keyboard -- the same keystrokes as SK-16 and SK-16b.
+// Why: '+' and '_' are typed with Shift on a US keyboard -- the same keystrokes as SK-16 and SK-16b.
 /** @purity non-pure */
 async function typeShiftedSigns(page: Page, entry: Locator): Promise<{ value: string; zoomBefore: unknown; zoomAfter: unknown }> {
   await entry.click()

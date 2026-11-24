@@ -1,11 +1,11 @@
-// SingleHtmlShell -- the page's WebSocket link to the relay that served it (AG-12).
+// File: SingleHtmlShell: the page's WebSocket link to the relay that served it (AG-12).
 // @unit      UF-188   (docs/spec/05-07-design.md, table T-075)
 // @component SingleHtmlShell, layer Framework (table T-062)
 // @purity    non-pure
 
 import { answerRelayedCall } from '../../adapter/agent-api-endpoint/agent-api-endpoint'
 
-// WHY: read off answerRelayedCall, the name table T-064 PI-17 lists; importing the
+// Why: read off answerRelayedCall, the name table T-064 PI-17 lists; importing the
 // types by name would cross the folder with names the table does not hold (check 26b).
 type AgentApi = Parameters<typeof answerRelayedCall>[0]
 type RelayedCall = Parameters<typeof answerRelayedCall>[1]
@@ -21,7 +21,7 @@ const JSON_RPC_VERSION = '2.0'
 const KEY_PRESENTED = 'relayKeyPresented'
 const CHANGE_NOTICED = 'changeNoticed'
 const INTERNAL_ERROR = -32603
-// see AG-12
+// Spec: AG-12
 const CLOSE_REFUSED_BY_RELAY = 1008
 const RECONNECT_DELAYS_MS: readonly number[] = [1000, 2000, 4000, 8000]
 
@@ -52,7 +52,7 @@ function relayRequestOf(text: unknown): RelayRequest | null {
   return { id, method, params }
 }
 
-// see AG-12
+// Spec: AG-12
 /** @purity non-pure */
 function answerRelayRequests(api: AgentApi, socket: WebSocket, sendWhileOpen: (message: object) => void): void {
   socket.addEventListener('message', (event: MessageEvent) => {
@@ -65,7 +65,7 @@ function answerRelayRequests(api: AgentApi, socket: WebSocket, sendWhileOpen: (m
       try {
         sendWhileOpen({ id: request.id, ...answer })
       } catch (thrown) {
-        // WHY: a value JSON cannot carry would otherwise leave the relay waiting for this id forever.
+        // Why: a value JSON cannot carry would otherwise leave the relay waiting for this id forever.
         sendWhileOpen({ id: request.id, error: { code: INTERNAL_ERROR, message: String(thrown) } })
       }
     })
@@ -99,7 +99,7 @@ function giveUpRelayLink(state: RelayLinkState): void {
   state.onLost()
 }
 
-// see AG-12, RS-90
+// Spec: AG-12, RS-90
 /** @purity non-pure */
 function tryRelayAgainLater(state: RelayLinkState): void {
   const delayMs = RECONNECT_DELAYS_MS[state.triesMade]
@@ -114,8 +114,8 @@ function tryRelayAgainLater(state: RelayLinkState): void {
   }, delayMs)
 }
 
-// see AG-12, RS-90
-// WHY: the browser drops the link on waking from modern standby while the relay runs on with the
+// Spec: AG-12, RS-90
+// Why: the browser drops the link on waking from modern standby while the relay runs on with the
 // same port and key (CR-808), so the page tries the same address again before it tells RS-90.
 /** @purity non-pure */
 function relayLinkClosed(state: RelayLinkState, hasOpened: boolean, code: number): void {
@@ -131,7 +131,7 @@ function relayLinkClosed(state: RelayLinkState, hasOpened: boolean, code: number
   }
 }
 
-// see AG-12
+// Spec: AG-12
 /** @purity non-pure */
 function connectRelayOnce(state: RelayLinkState): boolean {
   let opened: WebSocket
@@ -149,7 +149,7 @@ function connectRelayOnce(state: RelayLinkState): boolean {
   })
   let hasClosed = false
   opened.addEventListener('close', (event: CloseEvent) => {
-    // WHY: one socket is one try; a repeated close event must not count a second try.
+    // Why: one socket is one try; a repeated close event must not count a second try.
     if (hasClosed || state.socket !== opened) return
     hasClosed = true
     relayLinkClosed(state, hasOpened, event.code)
@@ -158,7 +158,7 @@ function connectRelayOnce(state: RelayLinkState): boolean {
   return true
 }
 
-// WHY: the page closing the link itself (Agent API turned off) is not a loss and stops a waiting try.
+// Why: the page closing the link itself (Agent API turned off) is not a loss and stops a waiting try.
 /** @purity non-pure */
 function closeRelayLink(state: RelayLinkState): void {
   state.hasEnded = true
@@ -167,7 +167,7 @@ function closeRelayLink(state: RelayLinkState): void {
   state.socket?.close()
 }
 
-// see AG-12
+// Spec: AG-12
 /** @purity non-pure */
 export function openAgentApiRelayLink(
   api: AgentApi,

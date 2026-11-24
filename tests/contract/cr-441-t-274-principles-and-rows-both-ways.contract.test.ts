@@ -11,24 +11,24 @@ const REQUIREMENTS = unbroken(
   readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8').replace(/\r\n/g, '\n'),
 )
 
-// see T-274
+// Spec: T-274
 const T_274_NONE_OUTSIDE =
   '⛔ 本表の「覆う行」の欄にも上の段にも名の無い行を、表 T-266 ／ 表 T-267 ／ 表 T-268 ／ 表 T-269 ／ 表 T-270 ／ 表 T-271 ／ 表 T-272 ／ 表 T-273 ／ 表 T-020 へ足してはならない（MUST NOT）。'
 const T_274_THE_EXCEPTIONS_OPEN = '⭐ 本表のどの行も覆わない行は '
 const T_274_THE_EXCEPTIONS_CLOSE = ' であり、'
 const COVERS = '覆う行'
 
-// see FR-104
+// Spec: FR-104
 const FR_104_EACH_NAMES_A_TABLE =
   '⚠️ **逆に、`FR-104` 〜 `FR-110` ／ `FR-043` ／ `FR-009` ／ `FR-044` のどれも、表 T-266 ／ 表 T-267 ／ 表 T-268 ／ 表 T-269 ／ 表 T-270 ／ 表 T-271 ／ 表 T-272 ／ 表 T-273 ／ 表 T-020 のうち少なくとも 1 つを名指すこと（MUST）**'
 
-// WHY: CR-441 section 5 claimed 86/82/4; CR-551 E-40 added PK-10 to PP-6's covered rows, moving the
-// WHY: count to 87/83/4. The spec is measured below, and this is the claim it is compared with, so a
-// WHY: later row that moves them again is a red that names the claim. Ten rows came since, each
-// WHY: covered (PK-11..PK-16, ZO-13..ZO-15, GA-24; CR-558 brought PK-11..PK-15 and ZO-14), so the
-// WHY: claim is 97/93/4, recounted row by row from the nine tables. CR-631 added PK-17 and PK-18 to
-// WHY: table T-269 and to PP-6's covered rows: 99/95/4. CR-662 added ZO-16 to table T-020 and to
-// WHY: PP-7's covered rows: 100/96/4.
+// Why: CR-441 section 5 claimed 86/82/4; CR-551 E-40 added PK-10 to PP-6's covered rows, moving the
+// Why: count to 87/83/4. The spec is measured below, and this is the claim it is compared with, so a
+// Why: later row that moves them again is a red that names the claim. Ten rows came since, each
+// Why: covered (PK-11..PK-16, ZO-13..ZO-15, GA-24; CR-558 brought PK-11..PK-15 and ZO-14), so the
+// Why: claim is 97/93/4, recounted row by row from the nine tables. CR-631 added PK-17 and PK-18 to
+// Why: table T-269 and to PP-6's covered rows: 99/95/4. CR-662 added ZO-16 to table T-020 and to
+// Why: PP-7's covered rows: 100/96/4.
 const CLAIMED_ROWS = 100
 const CLAIMED_COVERED = 96
 const CLAIMED_EXCEPTIONS = 4
@@ -62,7 +62,7 @@ interface Trace {
   readonly exceptions: number
 }
 
-// see T-274
+// Spec: T-274
 const traceOf = (
   principles: readonly Principle[],
   tableRows: Readonly<Record<string, readonly string[]>>,
@@ -175,7 +175,7 @@ describe('control -- the both-ways trace goes red when either direction breaks',
   })
 })
 
-// see FR-104
+// Spec: FR-104
 const REQUIREMENT_LINES = REQUIREMENTS.split('\n')
 
 const blockOf = (uid: string, lines: readonly string[] = REQUIREMENT_LINES): string => {
@@ -199,7 +199,7 @@ const requirementsNamedIn = (clause: string): readonly string[] => {
   return out
 }
 
-// WHY: a table's own caption line is where the table sits, not a naming of it.
+// Why: a table's own caption line is where the table sits, not a naming of it.
 const tablesNamedIn = (block: string): readonly string[] =>
   idsIn(block.replace(/\*\*表 T-\d+[a-z]? —[^\n]*/g, ''), TABLE_ID)
 

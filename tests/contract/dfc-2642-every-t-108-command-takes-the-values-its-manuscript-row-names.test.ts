@@ -18,7 +18,7 @@ const MANUSCRIPT = readJson('_source', 'document-commands.json')
 const ERD = readJson('_source', 'erd.json')
 const SETTINGS = readJson('_source', 'settings.json')
 
-// see T-108, PI-20, AV-4, AG-3
+// Spec: T-108, PI-20, AV-4, AG-3
 const T_108_HOLDS_THE_VALUES = '⭐ **命令が運ぶ値（名・型・意味）は本表が持つ**'
 const T_108_COLUMN_RULES = '文書の列を書く値は、その列（表 T-058 の `AT-` の行、見せ方の群は 表 T-202 ・表 T-203 の `S-` の行）を指し、型と上下限はその行に従う。'
 const T_108_OPTIONAL_WORD = '省いてよい'
@@ -28,12 +28,12 @@ const AV_4_MALFORMED = "`'malformedRequest'` —— 呼び方の形が違う（`
 const AG_3_ATOMIC = '途中で 1 つでも拒否されたら全部を元に戻し、半端に適用された文書を残さない'
 const UNIMPLEMENTED_WORD = '⚠️ まだ実装していない —— 受けても断る'
 
-// WHY: a value name no row of the manuscript carries (asserted below), so adding it is a value the command may not have.
+// Why: a value name no row of the manuscript carries (asserted below), so adding it is a value the command may not have.
 const NOT_CARRIED = 'notCarriedByT108'
 const GROUP = 'aaaaaaaa-0000-4000-8000-000000000001'
 const DATE_TIME = '2026-04-06T08:00:00'
 const TIME = '08:00:00'
-// WHY: a word every colour pattern of the document schema admits (table T-058 colour columns).
+// Why: a word every colour pattern of the document schema admits (table T-058 colour columns).
 const COLOR = 'red'
 
 interface ManuscriptValue {
@@ -70,8 +70,8 @@ const shapeNamed = (name: string): ManuscriptShape | undefined => SHAPES.find((s
 const isUnimplemented = (row: ManuscriptRow): boolean => row.union === 'UnimplementedDocumentCommand'
 const IMPLEMENTED = ROWS.filter((row) => !isUnimplemented(row))
 
-// see T-058
-// WHY: the AT- row id gives the entity and the column; erd.json holds the column's JSON kind.
+// Spec: T-058
+// Why: the AT- row id gives the entity and the column; erd.json holds the column's JSON kind.
 const COLUMN_OF_AT = new Map<string, { entity: string; column: string }>(
   specTable('T-058').rows.map((row) => [
     row.id,
@@ -88,8 +88,8 @@ const jsonOfAt = (id: string): any => {
   return column.json
 }
 
-// see T-202, T-203
-// WHY: every S- row of settings.json, wherever its block nests it.
+// Spec: T-202, T-203
+// Why: every S- row of settings.json, wherever its block nests it.
 const SETTING_ROWS = new Map<string, any>()
 const collectSettings = (node: unknown): void => {
   if (Array.isArray(node)) {
@@ -103,11 +103,11 @@ const collectSettings = (node: unknown): void => {
 }
 collectSettings(SETTINGS)
 
-// see T-376
-// WHY: the standard-time keys a time-zone column takes.
+// Spec: T-376
+// Why: the standard-time keys a time-zone column takes.
 const STANDARD_ZONE = specTable('T-376').rows.find((row) => (row.by['種'] ?? '').includes('標準時'))?.by['鍵']?.replace(/`/g, '')
 
-// WHY: a default is by definition a value the setting takes (T-202 / T-203 default column).
+// Why: a default is by definition a value the setting takes (T-202 / T-203 default column).
 const valueOfSetting = (id: string): unknown => {
   const row = SETTING_ROWS.get(id)
   if (row === undefined) throw new Error(`settings.json has no row ${id}`)
@@ -155,7 +155,7 @@ const valueOfColumnId = (id: string): unknown => (id.startsWith('S-') ? valueOfS
 const valueOfType = (value: ManuscriptValue): unknown => {
   const type = value.type ?? ''
   if (type === 'string') {
-    // WHY: a typed string that also points at an enum column (CM-95 viewTimeZone, S-574) takes that column's value.
+    // Why: a typed string that also points at an enum column (CM-95 viewTimeZone, S-574) takes that column's value.
     if (typeof value.column === 'string' && value.column.startsWith('S-') && SETTING_ROWS.get(value.column)?.json?.kind === 'enum') {
       return value.null === true ? null : STANDARD_ZONE
     }
@@ -183,7 +183,7 @@ const singleValueOf = (value: ManuscriptValue): unknown => {
 }
 
 const valueOf = (value: ManuscriptValue): unknown => {
-  // WHY: an external type carried as a list (TableView.columnFilters) is an empty list -- no element to build.
+  // Why: an external type carried as a list (TableView.columnFilters) is an empty list -- no element to build.
   if (value.list === true && value.type !== undefined && EXTERNAL_TYPES.has(value.type)) return []
   const one = singleValueOf(value)
   if (one === UNSYNTHESIZABLE) return UNSYNTHESIZABLE
@@ -222,8 +222,8 @@ function objectOfShape(shape: ManuscriptShape): Record<string, unknown> {
 
 const minimalCommand = (row: ManuscriptRow): Record<string, unknown> => ({ kind: row.name, ...objectOf(row.values ?? [], false) })
 
-// see T-108
-// WHY: a value the row prints without the optional word must be there.
+// Spec: T-108
+// Why: a value the row prints without the optional word must be there.
 const requiredNames = (row: ManuscriptRow): readonly string[] =>
   (row.values ?? []).filter((value) => value.name !== undefined && value.optional !== true).map((value) => value.name as string)
 

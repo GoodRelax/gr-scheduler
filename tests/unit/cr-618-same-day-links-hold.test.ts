@@ -43,10 +43,10 @@ const numberIn = (cell: string): number => {
   return value
 }
 
-// see S-397
+// Spec: S-397
 const S_397 = numberIn(cellOf('T-206', 'S-397', '既定'))
 
-// see AT-46
+// Spec: AT-46
 const FF = 0
 const FS = 1
 const SF = 2
@@ -97,7 +97,7 @@ const FINDING_ROW = /^V[COS]-\d+$/
 const MARK_ROW = /^DG-[1-4]$/
 const ANY_ROW = /^(V[COS]|DW|DG)-\d+$/
 
-// see T-317, DX-3
+// Spec: T-317, DX-3
 function findingsOf(report: Report): readonly { readonly row: string; readonly record: Loose }[] {
   const out: { row: string; record: Loose }[] = []
   for (const record of plainsOf(report)) {
@@ -110,7 +110,7 @@ function findingsOf(report: Report): readonly { readonly row: string; readonly r
 const findingRows = (report: Report): readonly string[] => findingsOf(report).map((one) => one.row)
 const countOf = (rows: readonly string[], row: string): number => rows.filter((one) => one === row).length
 
-// see T-317, DX-8
+// Spec: T-317, DX-8
 function marksOf(report: Report): ReadonlyMap<number, string> {
   const marks = new Map<number, string>()
   for (const node of nodesOf(report)) {
@@ -130,10 +130,10 @@ function marksOf(report: Report): ReadonlyMap<number, string> {
   return marks
 }
 
-// see T-314
+// Spec: T-314
 const QUANTITIES = ['inheritedDelayMinutes', 'selfDelayMinutes', 'pushOutMinutes'] as const
 
-// WHY: the T-314 quantities are working minutes; one working day of this calendar is S-128 = 480 minutes.
+// Why: the T-314 quantities are working minutes; one working day of this calendar is S-128 = 480 minutes.
 const DAY = 480
 
 function quantitiesOf(report: Report, uid: number): readonly Loose[] {
@@ -146,7 +146,7 @@ function anyPositiveQuantity(report: Report): readonly Loose[] {
   )
 }
 
-// see T-317, DX-5
+// Spec: T-317, DX-5
 function terminalDelaysOf(report: Report, uid: number): readonly number[] {
   return plainsOf(report)
     .filter((record) => !Object.hasOwn(record, 'pushOutMinutes'))
@@ -228,7 +228,7 @@ function documentOf(statusDate: string, children: readonly Child[]): Document {
   return decoded.document
 }
 
-// WHY: diagnosed before anything is due, so no omission (T-312) and no PM-4 delay can arise.
+// Why: diagnosed before anything is due, so no omission (T-312) and no PM-4 delay can arise.
 const BEFORE_ALL = at(3, 17)
 const AFTER_ALL = at(15, 17)
 
@@ -300,7 +300,7 @@ describe(`CR-618 T1 -- T-310 VC-15: ${VC_15_SAME_DAY}`, () => {
   })
 })
 
-// WHY: CR-710 section 11 question 9 -- the day reading let B start at 08:00 on the day A ends at 17:00; read as instants it starts first.
+// Why: CR-710 section 11 question 9 -- the day reading let B start at 08:00 on the day A ends at 17:00; read as instants it starts first.
 describe(`CR-618 T1b -- T-310 VC-15: ${VC_15_SAME_DAY} -- FS, B starts at 08:00 on the day A ends at 17:00`, () => {
   const make = (): Document =>
     plannedOnly([
@@ -377,7 +377,7 @@ describe(`CR-618 T3 -- T-310 VC-15: SS, FF and SF at the same instant hold`, () 
   })
 })
 
-// WHY: the T3 shapes CR-618 held as days; CR-710 reads them as instants, and each bound end comes first (CR-710 section 11 question 9).
+// Why: the T3 shapes CR-618 held as days; CR-710 reads them as instants, and each bound end comes first (CR-710 section 11 question 9).
 describe(`CR-618 T3b -- T-310 VC-15: SS, FF and SF earlier on the same day break`, () => {
   const shapes: readonly [string, () => Document][] = [
     [
@@ -481,7 +481,7 @@ const CHAIN: readonly Child[] = [
 describe(`CR-618 T6 -- T-313 BD-2: ${BD_2_SAME_DAY}`, () => {
   const shapes: readonly [string, () => Document][] = [
     ['done on plan, status date after the last finish', () => doneOnPlan(CHAIN)],
-    // WHY: with nothing done every projected finish comes from the flow itself (BD-1), so a
+    // Why: with nothing done every projected finish comes from the flow itself (BD-1), so a
     // next-working-day flow would carry one day into B and two into the terminal C.
     ['not started, status date before the first start', () => plannedOnly(CHAIN)],
   ]
@@ -506,7 +506,7 @@ describe(`CR-618 T6 -- T-313 BD-2: ${BD_2_SAME_DAY}`, () => {
 })
 
 describe(`CR-618 T7 -- T-313 BD-1 / BD-2 / BD-4: the first step of the T6 chain ends 5 working days late (CR-633)`, () => {
-  // WHY: A (6th .. 8th) started, has no stop and is not done; FR-011 counts 1 actual day, so BD-1 leaves 2 days
+  // Why: A (6th .. 8th) started, has no stop and is not done; FR-011 counts 1 actual day, so BD-1 leaves 2 days
   // after the status date (13th): A ends the 15th, 5 working days past its finish on the 8th.
   const make = (): Document =>
     documentOf(at(13, 17), [

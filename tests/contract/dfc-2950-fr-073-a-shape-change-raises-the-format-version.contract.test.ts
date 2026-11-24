@@ -13,10 +13,10 @@ const READ = (...parts: string[]): string => readFileSync(join(process.cwd(), ..
 
 const REQUIREMENTS = unbroken(READ('docs', 'spec', '01-04-requirements.md'))
 const DESIGN = unbroken(READ('docs', 'spec', '05-07-design.md'))
-// WHY: CR-822 (JDG-2985) moved when and how often the version is raised to the version table; FR-073 keeps the promise.
+// Why: CR-822 (JDG-2985) moved when and how often the version is raised to the version table; FR-073 keeps the promise.
 const VERSION_TABLE = unbroken(READ('docs', 'development-rules', '10-versions.md'))
 
-// WHY: each clause is cut from the manuscript as check 39 reads it, ending right before its (MUST) marker.
+// Why: each clause is cut from the manuscript as check 39 reads it, ending right before its (MUST) marker.
 const FR_073_RAISE_TO_INSTANT = '変われば、形式の版は、それまでのどの版よりも新しい時刻になること'
 const FR_073_RAISE_TO_INSTANT_WITH_MARKER = `${FR_073_RAISE_TO_INSTANT}（MUST）`
 const FR_073_FORM = '書式は RFC 3339 の UTC の `YYYY-MM-DDTHH:MM:SSZ` とすること（MUST）'
@@ -33,7 +33,7 @@ const ERD = JSON.parse(READ('docs', 'spec', '_source', 'erd.json')) as Record<st
 const SCHEMA_VERSION = String(SCHEMA['properties']['schemaVersion']['const'])
 const INSTANT_FORM = /^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$/
 
-// WHY: key order of an object carries no meaning, the order of an array does (a column's place, an entity's place).
+// Why: key order of an object carries no meaning, the order of an array does (a column's place, an entity's place).
 function canonical(value: unknown): string {
   if (Array.isArray(value)) return `[${value.map(canonical).join(',')}]`
   if (value !== null && typeof value === 'object') {
@@ -43,14 +43,14 @@ function canonical(value: unknown): string {
   return JSON.stringify(value)
 }
 
-// WHY: a default only fills a missing key and every key is written (FR-024), so a default never changes which documents are valid.
+// Why: a default only fills a missing key and every key is written (FR-024), so a default never changes which documents are valid.
 const NOT_SHAPE_JSON_KEYS: readonly string[] = ['default', 'defaultFrom']
 
 function shapeJson(json: Record<string, unknown>): Record<string, unknown> {
   return Object.fromEntries(Object.entries(json).filter(([key]) => !NOT_SHAPE_JSON_KEYS.includes(key)))
 }
 
-// WHY: only what decides which documents are valid (table T-058 columns, table T-052 keys) is fingerprinted; prose is left out.
+// Why: only what decides which documents are valid (table T-058 columns, table T-052 keys) is fingerprinted; prose is left out.
 function shapeOf(erd: Record<string, any>): unknown {
   const boxes: Record<string, any>[] = erd['container']['boxes']
   const rootKeys = boxes.map((box) => ({
@@ -79,7 +79,7 @@ function cloneErd(): Record<string, any> {
   return JSON.parse(JSON.stringify(ERD)) as Record<string, any>
 }
 
-// WHY: newest last. Raising the version AND changing the shape means adding one pair; a pair is never edited or removed.
+// Why: newest last. Raising the version AND changing the shape means adding one pair; a pair is never edited or removed.
 const VERSION_FINGERPRINTS: readonly { readonly version: string; readonly fingerprint: string }[] = [
   { version: '2026-10-16T12:35:39Z', fingerprint: '2c273409e5b2234e4d63cdf9a06dcdef8c6e1f28b40b90495fe35409e29795bb' },
   { version: '2026-10-17T15:27:48Z', fingerprint: '81b900632ae4d04a207af1bc827cfefe7709e4961f65700f4a80e0fc56395781' },
@@ -182,7 +182,7 @@ describe(`FR-073 -- a shape change raises the version (${FR_073_RAISE_TO_INSTANT
   })
 
   it('FR-073 / DR-4: while the version equals the newest pair, the shape fingerprint equals its fingerprint', () => {
-    // STEP: only the case "version unchanged" is judged here; a changed version is the case above.
+    // Step: only the case "version unchanged" is judged here; a changed version is the case above.
     if (SCHEMA_VERSION !== NEWEST.version) return
     expect(fingerprintOf(ERD), `the shape changed and the version did not. ${RAISE_MESSAGE}`).toBe(NEWEST.fingerprint)
   })
@@ -249,7 +249,7 @@ describe(`FR-073 -- a shape change raises the version (${FR_073_RAISE_TO_INSTANT
     it('FR-073: the guard goes red on a changed shape under an unchanged version', () => {
       const copy = cloneErd()
       copy['entities'][1]['columns'].pop()
-      // STEP: the version is the newest pair's, the shape is not its shape: this is the red case.
+      // Step: the version is the newest pair's, the shape is not its shape: this is the red case.
       expect(fingerprintOf(copy)).not.toBe(NEWEST.fingerprint)
     })
   })

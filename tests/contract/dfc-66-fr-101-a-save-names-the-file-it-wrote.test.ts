@@ -152,7 +152,7 @@ const THE_SHOW_MUST =
 /** `FR-101`'s other half -- what stands where the time would be until a save. */
 const THE_NEVER_SAVED_MUST = 'まだ 1 度もファイルへ書いていないときは、時刻の代わりにその旨を示すこと（MUST）'
 
-// see FR-036, T-036
+// Spec: FR-036, T-036
 const assignmentsIn = (cell: string): readonly (readonly string[])[] =>
   cell
     .split('\uff0f')

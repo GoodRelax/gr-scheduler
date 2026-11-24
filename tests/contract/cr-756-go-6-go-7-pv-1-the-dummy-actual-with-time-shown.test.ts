@@ -186,7 +186,7 @@ const dragFrom = (one: Stage, from: { readonly x: number; readonly y: number }, 
   one.send(pointer('up', toX, from.y))
 }
 
-// see FR-104, GA-5, GA-6
+// Spec: FR-104, GA-5, GA-6
 const halfOf = (one: Stage, uid: number, side: 'left' | 'right'): { readonly x: number; readonly y: number } => {
   const ink = inkOf(one, uid)
   const quarter = ink.width / 4

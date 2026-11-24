@@ -10,7 +10,7 @@ import { rowOf } from './sws-case'
 
 const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
-// WHY: each constant ends exactly at its marker, cut from the manuscript as check 39 reads it.
+// Why: each constant ends exactly at its marker, cut from the manuscript as check 39 reads it.
 const FR_036_MAXIMIZED =
   'ヘルプを最大化したときに占める範囲は、`Schedule Canvas`（`_assets/tbl-glossary.md` の `U-32`）の全体とする（MUST）'
 const WB_8_FOLLOWS = 'タイトルバーの帯（表 T-023d の `GR-24`）を握っているあいだ、ウィンドウをポインタに追従させること（MUST）'
@@ -23,7 +23,7 @@ const FR_036_ONE_SCREEN =
   'ない環境の両方で、ヘルプの言語が日本語でも英語でも、開いたときの大きさ（表 T-335 の `WB-1`）で全部の塊とライセンスの行（`FR-069`）を 1 画面に収め、縦にも横にもスクロールを要さないこと（MUST）'
 const S_203_FITS_BOTH =
   '⭐ 収めるためにヘルプの字を小さくしてよい —— `_assets/tbl-settings.md` の 表 T-206 の `S-203` は、上の 2 つの環境で日英の両方が収まる値とすること（MUST）'
-// WHY: plain sentences the cases below lean on; no marker of their own.
+// Why: plain sentences the cases below lean on; no marker of their own.
 const WB_3_RANGE = 'ヘルプ・検索パネル・遅延診断レポートの窓・担当リストのウィンドウのどれも `Schedule Canvas`（`U-32`）の全体'
 const FR_036_HEADER_STAYS = 'ヘルプを実物の横へ寄せて見比べるあいだも、`App Header` の入口は隠れない'
 const FR_036_ONE_SPACE = '項目の説明は名の語と添える語を半角の空白 1 つで繋ぐ'
@@ -59,11 +59,11 @@ const labelOf = (rowId: string, language: Language): string => {
   return found.label[language]
 }
 
-// see FR-036
+// Spec: FR-036
 const LOW_SCREEN = { width: 1280, height: 627 }
-// WHY: a box laid out at a fractional position reads back a fraction off; less than that is not a move.
+// Why: a box laid out at a fractional position reads back a fraction off; less than that is not a move.
 const EDGE = 1.5
-// WHY: far enough past every edge of the range at the low screen that only the range can stop the box.
+// Why: far enough past every edge of the range at the low screen that only the range can stop the box.
 const FAR = 400
 
 interface Box {
@@ -126,7 +126,7 @@ async function helpBox(page: Page): Promise<Box> {
   return box
 }
 
-// see U-32
+// Spec: U-32
 /** @purity semi-pure-mutable */
 async function scheduleCanvasBox(page: Page): Promise<Box> {
   const header = await boxOf(page, HEADER)
@@ -136,7 +136,7 @@ async function scheduleCanvasBox(page: Page): Promise<Box> {
   return { left: 0, top: header.bottom, right: view.width, bottom: view.height }
 }
 
-// see T-337
+// Spec: T-337
 /** @purity semi-pure-mutable */
 async function frontPointOf(page: Page, selector: string): Promise<Point | null> {
   return page.evaluate((wanted: string) => {
@@ -174,7 +174,7 @@ async function openHelp(page: Page): Promise<Box> {
   return helpBox(page)
 }
 
-// see GR-24
+// Spec: GR-24
 /** @purity semi-pure-mutable */
 async function titleBandPoint(page: Page): Promise<Point> {
   const at = await page.evaluate(
@@ -271,7 +271,7 @@ test.describe('CR-669 FR-036 / WB-3 -- the maximized help', () => {
       }
       expect(hidden, `${T_337_THE_FRONT_ONE_TAKES_THE_PRESS}: App Header entrances under the maximized help`).toEqual([])
 
-      // STEP: T-336 HN-6 -- the screen language entrance is pressed through; the help keeps its language and its box
+      // Step: T-336 HN-6 -- the screen language entrance is pressed through; the help keeps its language and its box
       const before = await helpBox(page)
       const helpLanguage = await page.evaluate((help: string) => document.querySelector(help)?.getAttribute('data-language') ?? '', HELP)
       const screenLanguage = await page.evaluate(() => document.documentElement.lang)
@@ -305,7 +305,7 @@ test.describe('CR-669 T-335 WB-8 / WB-9 -- moving and resizing stop at the Sched
       expect(near(moved.left, canvas.left), `${WB_8_RANGE}: left ${said(moved)} stops at ${canvas.left}`).toBe(true)
       expect(near(moved.bottom - moved.top, opened.bottom - opened.top), 'WB-8 moves, it does not resize').toBe(true)
 
-      // STEP: the other way -- far down and right, the help stops at the window's bottom and right
+      // Step: the other way -- far down and right, the help stops at the window's bottom and right
       await dragBy(page, await titleBandPoint(page), { x: FAR * 2, y: FAR * 2 })
       const back = await helpBox(page)
       expect(back.bottom, `${WB_8_RANGE}: bottom ${said(back)}`).toBeLessThanOrEqual(canvas.bottom + EDGE)
@@ -324,14 +324,14 @@ test.describe('CR-669 T-335 WB-8 / WB-9 -- moving and resizing stop at the Sched
       const opened = await openHelp(page)
       const canvas = await scheduleCanvasBox(page)
 
-      // STEP: GR-25 -- the top edge, a little outside the box, in the middle of its width
+      // Step: GR-25 -- the top edge, a little outside the box, in the middle of its width
       await dragBy(page, { x: (opened.left + opened.right) / 2, y: opened.top - 2 }, { x: 0, y: -FAR })
       const taller = await helpBox(page)
       expect(taller.top, `${WB_9_FOLLOWS}: the top edge rose ${said(taller)} vs ${said(opened)}`).toBeLessThan(opened.top - EDGE)
       expect(near(taller.top, canvas.top), `${WB_9_RANGE}: top ${said(taller)} stops at the App Header's bottom ${canvas.top}`).toBe(true)
       expect(near(taller.bottom, opened.bottom), 'WB-9: the opposite edge stays').toBe(true)
 
-      // STEP: GR-25 -- the right edge, half way down
+      // Step: GR-25 -- the right edge, half way down
       await dragBy(page, { x: taller.right - 1, y: (taller.top + taller.bottom) / 2 }, { x: FAR, y: 0 })
       const wider = await helpBox(page)
       expect(wider.right, `${WB_9_FOLLOWS}: the right edge moved ${said(wider)} vs ${said(taller)}`).toBeGreaterThan(taller.right + EDGE)
@@ -344,7 +344,7 @@ test.describe('CR-669 T-335 WB-8 / WB-9 -- moving and resizing stop at the Sched
   })
 })
 
-// see FR-036
+// Spec: FR-036
 /** @purity semi-pure-mutable */
 async function readItemsAndScroll(page: Page): Promise<{
   language: string
@@ -361,7 +361,7 @@ async function readItemsAndScroll(page: Page): Promise<{
       const items: Record<string, string> = {}
       for (const row of asked.rows) {
         const item = modal.querySelector(`[data-row="${row}"]`)
-        // WHY: the item's text spans are the description then the assignment; the description is the first non-empty one.
+        // Why: the item's text spans are the description then the assignment; the description is the first non-empty one.
         const spans = item === null ? [] : [...item.querySelectorAll('span')].map((one) => one.textContent ?? '').filter((t) => t.trim() !== '')
         items[row] = spans[0] ?? ''
       }

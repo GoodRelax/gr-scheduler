@@ -32,7 +32,7 @@ const EMPTY_DOCUMENT_TEXT = readFileSync(
   'utf8',
 )
 
-// see S-100, T-207
+// Spec: S-100, T-207
 const unlockPassword = (): string => {
   const row = specTable('T-207').rows.find((one) => one.id === 'S-100')
   return (row?.by['値'] ?? '').replace(/[`*]/g, '').trim()

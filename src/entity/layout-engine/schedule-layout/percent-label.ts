@@ -1,4 +1,4 @@
-// ScheduleLayout -- the percent-complete label, joined to the assignee label (FR-090).
+// File: ScheduleLayout: the percent-complete label, joined to the assignee label (FR-090).
 // @unit      UF-135  (docs/spec/05-07-design.md, table T-075)
 // @component ScheduleLayout, layer layoutEngine (table T-062)
 // @purity    pure
@@ -7,7 +7,7 @@ import { planActualState, type Task } from '../../document-model/schedule/schedu
 
 const PERCENT_MARK = '%'
 
-// see FR-090
+// Spec: FR-090
 /** @purity pure */
 export function percentLabelOf(task: Task): string {
   if (planActualState(task) === 'notStarted') return ''
@@ -17,7 +17,7 @@ export function percentLabelOf(task: Task): string {
 
 const OC2_SEPARATOR = ' : '
 
-// see OC-2, FR-090
+// Spec: OC-2, FR-090
 /** @purity pure */
 export function outsideLabelOf(assignee: string, percent: string): string {
   if (assignee === '') return percent

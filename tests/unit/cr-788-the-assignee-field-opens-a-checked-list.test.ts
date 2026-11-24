@@ -16,7 +16,7 @@ const ALPHONSE = { uid: 4, name: 'Alphonse' }
 const TWIN_HIGH = { uid: 9, name: 'Twin' }
 const TWIN_LOW = { uid: 5, name: 'Twin' }
 const ROSTER = [CHARLIE, TWIN_HIGH, BRAVO, ALPHONSE, ALPHA, TWIN_LOW]
-// see AS-5
+// Spec: AS-5
 const BY_NAME = [ALPHA, ALPHONSE, BRAVO, CHARLIE, TWIN_LOW, TWIN_HIGH]
 
 const NOBODY = 20
@@ -61,7 +61,7 @@ interface Drawn {
   focus(row: string): boolean
 }
 
-// WHY: the shared fake has no dispatchEvent; each element is given one that bubbles through its own listeners, so no
+// Why: the shared fake has no dispatchEvent; each element is given one that bubbles through its own listeners, so no
 // prototype is changed for any other file.
 function armed(root: FakeElement, built: Stage): void {
   for (const node of selfAndDescendants(root)) {
@@ -78,7 +78,7 @@ function armed(root: FakeElement, built: Stage): void {
   }
 }
 
-// WHY: the capturing listeners of the document run first, then the target and its ancestors, as a browser does.
+// Why: the capturing listeners of the document run first, then the target and its ancestors, as a browser does.
 function fire(built: Stage, target: FakeElement, init: Readonly<Record<string, unknown>>): boolean {
   let stopped = false
   const event = {
@@ -132,7 +132,7 @@ function drawn(taskUid: number): Drawn {
     fire(built, node, init)
     armed(built.root(), built)
   }
-  // WHY: a list left open by an earlier case stays open across a redraw of the same field; start each case closed.
+  // Why: a list left open by an earlier case stays open across a redraw of the same field; start each case closed.
   const opened = list()
   if (opened !== null) act(field().children.find((one) => one.tagName === 'BUTTON') as FakeElement, { type: 'click' })
   return {
@@ -181,11 +181,11 @@ function drawn(taskUid: number): Drawn {
   }
 }
 
-// WHY: the closed field shows its word, then a drop-down glyph that is no letter or digit.
+// Why: the closed field shows its word, then a drop-down glyph that is no letter or digit.
 const wordShown = (view: Drawn): string => view.shown().textContent.replace(/[^\p{L}\p{N}\s,.\u2026()\uff08\uff09]+$/u, '')
 
-// WHY: SV-4 folds full width and case, so the full-width upper-case ALPH finds the same people as alph.
-// WHY: built from the ASCII word by the full-width offset, so no word is spelled in code points (check 77).
+// Why: SV-4 folds full width and case, so the full-width upper-case ALPH finds the same people as alph.
+// Why: built from the ASCII word by the full-width offset, so no word is spelled in code points (check 77).
 const FULL_WIDTH_OFFSET = 0xfee0
 const FULL_WIDTH_ALPH = [...'ALPH'].map((one) => String.fromCharCode(one.charCodeAt(0) + FULL_WIDTH_OFFSET)).join('')
 
@@ -315,7 +315,7 @@ describe('AS-5 -- one press writes once, and the list stays open', () => {
     const commit = view.commit() as FieldCommit
     expect(commit.pick).toBe('all')
     const seated = commandsOf(DOCUMENT, commit).map((one) => (one as unknown as Record<string, unknown>)['resourceUid'])
-    // WHY: 'a' (folded) holds Alpha, Alphonse, Bravo and Charlie; Alpha and Charlie are already seated.
+    // Why: 'a' (folded) holds Alpha, Alphonse, Bravo and Charlie; Alpha and Charlie are already seated.
     expect(seated).toEqual(ids(ALPHONSE, BRAVO))
   })
 

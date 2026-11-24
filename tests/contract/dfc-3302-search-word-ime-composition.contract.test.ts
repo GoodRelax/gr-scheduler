@@ -35,7 +35,7 @@ const SCHEDULE = {
   project: { ...(TEMPLATE.schedule['project'] as Loose), statusDate: null },
 } as unknown as Schedule
 
-// WHY: the fake element has no parentElement, which the painter's filter listener climbs; a browser answers the parent node.
+// Why: the fake element has no parentElement, which the painter's filter listener climbs; a browser answers the parent node.
 Object.defineProperty(FakeElement.prototype, 'parentElement', {
   get(this: FakeElement): FakeElement | null {
     return this.parentNode
@@ -47,7 +47,7 @@ const NO_VIEW: TableView = { visibility: NO_ROW_CHECKED, columnFilters: [], sort
 const SHOWN: ScreenSession = advanceScreenSession(emptyScreenSession, { type: 'searchEntryPressed' } as unknown as SessionEvent)
   .state
 
-// WHY: "dezain" typed on a Japanese IME ends as these characters; the in-between strings are what the IME puts in the field.
+// Why: "dezain" typed on a Japanese IME ends as these characters; the in-between strings are what the IME puts in the field.
 const COMPOSING_STEPS = ['d', 'で', 'でz', 'でza', 'でざ', 'でざi', 'でざい', 'でざいn', 'でざいん'] as const
 const COMMITTED = 'デザイン'
 
@@ -59,7 +59,7 @@ interface Wired {
   readonly readWord: () => string | null
 }
 
-// WHY: events are delivered the way the browser does -- to every listener the unit registered on the layer for that type.
+// Why: events are delivered the way the browser does -- to every listener the unit registered on the layer for that type.
 function fire(built: Stage, layer: FakeElement, type: string, target: FakeElement, extra: Record<string, unknown> = {}): void {
   const event = { type, target, currentTarget: layer, defaultPrevented: false, ...extra } as unknown as FakeEvent
   for (const registration of built.world.registrations) {
@@ -73,7 +73,7 @@ const wordFieldOf = (layer: FakeElement): FakeElement => {
   return field
 }
 
-// WHY: the unit alone -- typedWordWatch on a layer that holds the real word field (wordFieldElement).
+// Why: the unit alone -- typedWordWatch on a layer that holds the real word field (wordFieldElement).
 function watchedField(): Wired {
   const built = stage()
   const layer = built.host.createElement('div') as unknown as FakeElement
@@ -85,7 +85,7 @@ function watchedField(): Wired {
   return { built, layer, wordFieldIn: () => wordFieldOf(layer), typedCount: () => typed, readWord: watch.read }
 }
 
-// WHY: the painter -- the field comes from a drawn Search Panel, as in the app.
+// Why: the painter -- the field comes from a drawn Search Panel, as in the app.
 function paintedField(): Wired & { readonly draw: (word: string) => void } {
   const built = stage()
   const layer = built.host.createElement('div') as unknown as FakeElement
@@ -105,7 +105,7 @@ function composeAll(wired: Wired, field: FakeElement): void {
   for (const text of COMPOSING_STEPS) {
     field.value = text
     fire(wired.built, wired.layer, 'input', field, { isComposing: true })
-    // WHY: SV-2 -- the very same node is still the word field, with the composed text in it.
+    // Why: SV-2 -- the very same node is still the word field, with the composed text in it.
     expect(wired.wordFieldIn()).toBe(field)
     expect(field.value).toBe(text)
   }

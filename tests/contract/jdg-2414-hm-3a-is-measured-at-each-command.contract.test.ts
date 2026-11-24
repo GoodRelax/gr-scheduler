@@ -28,7 +28,7 @@ import {
   type MoveCommand,
 } from './cr-774-stage'
 
-// WHY: the write path the Agent API (AM-7, AG-5) and the UI both drive: one planDocumentChange call per batch.
+// Why: the write path the Agent API (AM-7, AG-5) and the UI both drive: one planDocumentChange call per batch.
 const LIMITS: SettingsLimits = { zoomMin: 0.02, zoomMax: 64, taskGroupAreaWidthWithoutPanels: 982 }
 const CALM: WriteMoment = { gestureInFlight: false, editingInPlace: false, questionAsked: false, deliveringNotices: false }
 const HISTORY_LIMITS = { maxSteps: 50, maxTotalSizeBytes: 64 * 1024 * 1024 }
@@ -62,9 +62,9 @@ const move = (taskGroupId: string, parentId: string | null, order: number): Move
   order,
 })
 
-// WHY: S > S1 > S2 > S3 > S4 is five deep. Put under P (as the last child, after P1) it sits one level lower, so S4 would be at depth 6.
+// Why: S > S1 > S2 > S3 > S4 is five deep. Put under P (as the last child, after P1) it sits one level lower, so S4 would be at depth 6.
 const MOVE_S_UNDER_P = move('S', 'P', 1)
-// WHY: lifting S4 to be the second child of S2 makes the subtree four deep before the move and five deep after it.
+// Why: lifting S4 to be the second child of S2 makes the subtree four deep before the move and five deep after it.
 const LIFT_S4_TO_S2 = move('S4', 'S2', 1)
 
 describe('premise -- the fixture is five deep and the cap is S-125', () => {
@@ -126,7 +126,7 @@ describe('HM-3a / AG-3 / AG-5 -- the cap is measured at each command of a batch,
   it.todo('the HM-3a refusal carries a row id of its own -- the spec names no reason value for it (AG-9a lists only invariant rows and T-233 rows)')
 })
 
-// WHY: the held group H (five deep, two leaves under H3) let go at depth 2 under P, one indent right of P1: H4a and H4b land at depth 6.
+// Why: the held group H (five deep, two leaves under H3) let go at depth 2 under P, one indent right of P1: H4a and H4b land at depth 6.
 const releasedBundle = (): readonly MoveCommand[] => {
   const result = releaseAt('H', 1, under('P1'))
   return bundlesOf(result)[0] ?? []
@@ -196,7 +196,7 @@ describe('QN-16 / HF-15 -- the Yes batch applied as one batch', () => {
     expect(plan.ok).toBe(true)
     if (!plan.ok) return
     const after = groupsOf(plan.document)
-    // WHY: H is at depth 2, so H1 is 3, H2 is 4 (cap - 1) and H3 is 5 (the cap).
+    // Why: H is at depth 2, so H1 is 3, H2 is 4 (cap - 1) and H3 is 5 (the cap).
     expect(childrenIn(after, 'H2'), 'H3 first, then the first lifted group, then the second').toEqual(['H3', 'H4a', 'H4b'])
   })
 

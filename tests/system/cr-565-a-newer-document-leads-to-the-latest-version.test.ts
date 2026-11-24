@@ -77,7 +77,7 @@ test.beforeAll(async () => {
   const context = await browser.newContext({ viewport: BASE_SCREEN })
   const page = await context.newPage()
   try {
-    // WHY: a real file chooser cannot be answered from a test; the page is handed
+    // Why: a real file chooser cannot be answered from a test; the page is handed
     // a chooser that answers with the newer document, as a person would pick it.
     await page.addInitScript((text: string) => {
       const file = new File([text], 'newer.json', { type: 'application/json' })

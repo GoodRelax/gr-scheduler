@@ -1,4 +1,4 @@
-// Creates one Task with a plan span, in the shape the author armed.
+// File: EditDocument: Creates one Task with a plan span, in the shape the author armed.
 // @unit      UF-72   (docs/spec/05-07-design.md, table T-075)
 // @component EditDocument, layer UseCase (table T-062)
 // @purity    pure
@@ -17,7 +17,7 @@ import { checkDay, visualOf, withSchedule, type TaskCommand } from './edit-task'
 import { repriced } from './percent-complete'
 import { planDatesEdited } from './task-plan-actual'
 
-// see CM-6, FR-001
+// Spec: CM-6, FR-001
 /** @purity pure */
 export function createTask(
   document: Document,
@@ -63,7 +63,7 @@ export function createTask(
   }
   const tasks = [...schedule.tasks, repriced(within, planDatesEdited(created, schedule, within))]
 
-  // TRAP: write shapeKind down; Task.milestone cannot tell SH-1 from SH-2 (AT-100).
+  // Trap: write shapeKind down; Task.milestone cannot tell SH-1 from SH-2 (AT-100).
   const taskVisuals = [...schedule.taskVisuals, { ...visualOf(schedule, uid), shapeKind: command.shapeKind }]
 
   const held = schedule.taskGroups.find((one) => one.id === command.taskGroupId)

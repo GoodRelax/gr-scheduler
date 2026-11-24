@@ -107,7 +107,7 @@ const px = (style: string, property: string): number => {
   return Number(found[1])
 }
 
-// WHY: the rows and the cue layer side by side, so a case can look for a line or a copy in either.
+// Why: the rows and the cue layer side by side, so a case can look for a line or a copy in either.
 function treeOf(panel: TaskGroupPanel): { readonly children: FakeElement[] } {
   const built = stage()
   const tree = built.host.createElement('div') as unknown as FakeElement

@@ -66,7 +66,7 @@ const HIGHLIGHT_BOX = {
   bottomTaskGroupId: 'g1',
   strokeColor: null,
   cornerRadiusPx: null,
-  // WHY: FR-019 draws the fill at ZO-14 only when it is not transparent, and S-370's default is transparent.
+  // Why: FR-019 draws the fill at ZO-14 only when it is not transparent, and S-370's default is transparent.
   strokeWidthPx: null,
   fillColor: 'blue',
   fillTransparencyPercent: null,
@@ -84,7 +84,7 @@ const TENTATIVE_LINK = {
 }
 
 const BASELINE_VISIBLE = cellOf('T-202', 'S-69', 'キー')
-// WHY: S-64 defaults to false, and ZO-16 (the progress line) is a row the sweep must see drawn.
+// Why: S-64 defaults to false, and ZO-16 (the progress line) is a row the sweep must see drawn.
 const PROGRESS_LINE_VISIBLE = cellOf('T-202', 'S-64', 'キー')
 
 const BASELINE = { uid: 1, name: null, start: day(4), finish: day(12), milestone: false }
@@ -126,7 +126,7 @@ const RICH: SceneWish = {
       isAssigneeVisible: true,
       isPercentCompleteVisible: true,
       dualCursorVisible: true,
-      isProgressMarkerVisible: true, // see S-63
+      isProgressMarkerVisible: true, // Spec: S-63
       [BASELINE_VISIBLE]: true,
       [PROGRESS_LINE_VISIBLE]: true,
     },
@@ -156,7 +156,7 @@ const richScene = (): { readonly svg: (draw?: DrawWish) => string } => {
         (draw.watermark ?? null) as never,
         (draw.tentativeLink ?? null) as never,
       ) +
-      // WHY: table T-065 IF-1 lays the marquee overlay in front of the picture beneath, so the screen reads them in this order.
+      // Why: table T-065 IF-1 lays the marquee overlay in front of the picture beneath, so the screen reads them in this order.
       marqueeOverlaySvg(schedule, scene.settings, regions, { themePreference: 'light', guideCursorMode: 'none' }, (draw.marquee ?? null) as never),
   }
 }
@@ -192,7 +192,7 @@ const isBackToFront = (order: readonly string[], ranked: readonly { id: string; 
 
 describe('T-020 -- every row of the table is a drawn layer, in the order the table gives', () => {
   it(`premise: ${FR_110_ONE_TABLE_DECIDES}`, () => {
-    // WHY: the table grows (ZO-13..ZO-15 came since), so the ranks are read against the rows it holds.
+    // Why: the table grows (ZO-13..ZO-15 came since), so the ranks are read against the rows it holds.
     expect(new Set(ROWS.map((one) => one.id)).size, FR_110_ONE_TABLE_DECIDES).toBe(ROWS.length)
     expect([...ROWS].map((one) => one.rank).sort((a, b) => a - b), FR_110_ONE_TABLE_DECIDES).toEqual(
       Array.from({ length: ROWS.length }, (_, index) => index + 1),

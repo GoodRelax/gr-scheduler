@@ -1,9 +1,9 @@
 // System test: regression cases for settled ledger rows, driven against the live app (DFC-06, DFC-147, DFC-182, DFC-232).
 
-// WHY: not driven through `npm run parity` -- that harness compares against a
+// Why: not driven through `npm run parity` -- that harness compares against a
 // task-groups-only sample with no task bars, canvas or watermark to press.
 
-// WHY: each case is preceded by a plain CONTROL case proving the same gesture
+// Why: each case is preceded by a plain CONTROL case proving the same gesture
 // still reaches the product, so a case cannot pass by pressing something inert.
 
 import { expect, test, type Browser, type Page } from '@playwright/test'
@@ -27,7 +27,7 @@ const D230: Pin = {
     'BO-1 (MUST NOT) draws nothing until the screen size is settled',
 }
 
-// WHY: DFC-230's case lives in first-frame-is-the-settled-frame.test.ts (needs
+// Why: DFC-230's case lives in first-frame-is-the-settled-frame.test.ts (needs
 // its own launch); it stays here only so the ledger gate below still sees it.
 const PINNED: readonly Pin[] = [D230]
 
@@ -41,7 +41,7 @@ const REQUIREMENTS = unbroken(
   readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'),
 )
 
-// WHY: the headings are Japanese and rule 03 section 5 keeps this file ASCII,
+// Why: the headings are Japanese and rule 03 section 5 keeps this file ASCII,
 // so they are spelled as escapes -- as tests/fixtures/display-scale.ts does.
 const DEFAULT_COLUMN = String.fromCharCode(0x65e2, 0x5b9a)
 const DEFAULT_VALUE_COLUMN = String.fromCharCode(0x65e2, 0x5b9a, 0x5024)
@@ -57,23 +57,23 @@ function settingOf(table: string, id: string, column: string): number {
   return value
 }
 
-// see S-4, S-5
+// Spec: S-4, S-5
 const S_4 = settingOf('T-201', 'S-4', DEFAULT_VALUE_COLUMN)
 const S_5 = settingOf('T-201', 'S-5', DEFAULT_VALUE_COLUMN)
-// see S-75, S-76
+// Spec: S-75, S-76
 const S_75 = settingOf('T-203', 'S-75', DEFAULT_COLUMN)
 const S_76 = settingOf('T-203', 'S-76', DEFAULT_COLUMN)
-// see S-180
+// Spec: S-180
 const S_180 = settingOf('T-206', 'S-180', DEFAULT_COLUMN)
-// see S-22, S-247
+// Spec: S-22, S-247
 const S_22 = settingOf('T-201', 'S-22', DEFAULT_VALUE_COLUMN)
 const S_247 = settingOf('T-206', 'S-247', DEFAULT_COLUMN)
 
-// see DM-3, DS-1
+// Spec: DM-3, DS-1
 const MARK_WIDTH_PX = Math.min(S_22 * DEFAULT_DISPLAY_RATIO * S_247, S_180)
-// see S-180, DS-1, DS-8
+// Spec: S-180, DS-1, DS-8
 const MARK_HEIGHT_PX = S_4 * DEFAULT_DISPLAY_RATIO * S_76 * S_5
-// see S-1, DS-4
+// Spec: S-1, DS-4
 const DAY_WIDTH_PX = settingOf('T-201', 'S-1', DEFAULT_VALUE_COLUMN) * DEFAULT_DISPLAY_RATIO * S_75
 
 let browser: Browser | null = null
@@ -83,7 +83,7 @@ test.beforeAll(async () => {
 })
 
 test.afterAll(async () => {
-  // WHY: this is the hook's own allowance, not an assertion's -- see
+  // Why: this is the hook's own allowance, not an assertion's -- see
   // CLEARING_UP_MS in ./live-app for the measurement behind it.
   test.setTimeout(CLEARING_UP_MS)
   await browser?.close()
@@ -126,7 +126,7 @@ async function openTheApp(baseURL: string | undefined): Promise<Opened> {
   }
 }
 
-// WHY: the same selector tests/system/live-app.ts leans on -- no spec row
+// Why: the same selector tests/system/live-app.ts leans on -- no spec row
 // fixes how a part is marked, so a change to it should break these cases.
 const CANVAS = '[data-role="Schedule Canvas"] svg'
 const CANVAS_PART = '[data-role="Schedule Canvas"]'
@@ -165,7 +165,7 @@ async function censusOf(page: Page): Promise<{ shapes: string; notice: string }>
   )
 }
 
-// WHY: wider than censusOf on purpose -- a surface opened over the canvas
+// Why: wider than censusOf on purpose -- a surface opened over the canvas
 // (S-99g) leaves every shape there untouched, so only the whole screen answers.
 /** @purity semi-pure-mutable */
 async function screenCensusOf(page: Page): Promise<{ parts: string; notice: string }> {
@@ -184,7 +184,7 @@ async function screenCensusOf(page: Page): Promise<{ parts: string; notice: stri
   )
 }
 
-// WHY: a real pointer, not element.click() -- the shell reads the pointer,
+// Why: a real pointer, not element.click() -- the shell reads the pointer,
 // and a synthetic click has reached nothing in this project before.
 /** @purity non-pure */
 async function pressEntrance(page: Page, icon: string): Promise<boolean> {
@@ -221,7 +221,7 @@ async function armingOf(page: Page, icon: string): Promise<string | null> {
   )
 }
 
-// WHY: wheeled rather than jumped -- there is no settled handle for the
+// Why: wheeled rather than jumped -- there is no settled handle for the
 // scroll position, and the wheel is what a person turns.
 /** @purity non-pure */
 async function scrollToTheGround(page: Page): Promise<void> {
@@ -230,7 +230,7 @@ async function scrollToTheGround(page: Page): Promise<void> {
   await page.waitForTimeout(900)
 }
 
-// WHY: found by asking the page, not a coordinate written here --
+// Why: found by asking the page, not a coordinate written here --
 // elementFromPoint re-measures itself when the screen or document moves.
 /** @purity semi-pure-mutable */
 async function emptyCanvasPoint(page: Page): Promise<{ x: number; y: number } | null> {
@@ -245,7 +245,7 @@ async function emptyCanvasPoint(page: Page): Promise<{ x: number; y: number } | 
       for (let y = window.innerHeight - 40; y > 120; y -= 8) {
         for (let x = left; x < right; x += 24) {
           if (document.elementFromPoint(x, y) !== svg) continue
-          // WHY: room to the right too -- the drag below runs that way, and a
+          // Why: room to the right too -- the drag below runs that way, and a
           // point with something drawn 20px along is not an empty spot.
           if (document.elementFromPoint(x + 160, y) !== svg) continue
           return { x, y }
@@ -268,13 +268,13 @@ async function cursorAt(page: Page, x: number, y: number): Promise<string> {
       const surface = document.querySelector(canvas)
       return surface instanceof HTMLElement ? surface.style.cursor : ''
     },
-    // WHY: the part itself, not CANVAS -- that reaches the SVG drawing inside
+    // Why: the part itself, not CANVAS -- that reaches the SVG drawing inside
     // it, which carries no style.cursor and reads as '' everywhere.
     CANVAS_PART,
   )
 }
 
-// WHY: unlike emptyCanvasPoint, elementFromPoint cannot answer inside a task group
+// Why: unlike emptyCanvasPoint, elementFromPoint cannot answer inside a task group
 // (its own band is always topmost), so this reads the cursor PTD-5 sets there.
 /** @purity non-pure */
 async function emptyPointOnADrawnTaskGroup(page: Page): Promise<{ x: number; y: number } | null> {
@@ -315,9 +315,9 @@ interface FaintHold extends Box {
   readonly halves: readonly number[]
 }
 
-// WHY: found by how faint they are -- the one thing FR-043 says about them
+// Why: found by how faint they are -- the one thing FR-043 says about them
 // that a browser can measure, since everything else on the canvas is solid.
-// TRAP: the PM-1a marker group is faint too, so the key tells the two apart.
+// Trap: the PM-1a marker group is faint too, so the key tells the two apart.
 // A width floor cannot: DM-3 draws the mark 2.0001px wide at the default scale.
 /** @purity semi-pure-mutable */
 async function faintHolds(page: Page): Promise<FaintHold[]> {
@@ -351,7 +351,7 @@ async function faintHolds(page: Page): Promise<FaintHold[]> {
   )
 }
 
-// TRAP: the floor is half a drawn day and must stay under one, or the S-129 actual a
+// Trap: the floor is half a drawn day and must stay under one, or the S-129 actual a
 // dropped dummy writes is filtered out and the drop reads as having written nothing.
 /** @purity semi-pure-mutable */
 async function barsAround(page: Page, y: number): Promise<Array<{ x: number; width: number; height: number }>> {
@@ -379,7 +379,7 @@ const COMMENT_BOX = 'IC-35'
 const HIDE_WATERMARK = 'IC-41'
 const DATE_RULES = 'IC-42'
 
-// WHY: proves the palette itself still answers a press, so the DFC-147 case
+// Why: proves the palette itself still answers a press, so the DFC-147 case
 // below cannot pass merely because nothing here reaches the product.
 test('control for DFC-147: a neighboring entrance of the same palette group answers a press', async ({
   baseURL,
@@ -397,7 +397,7 @@ test('control for DFC-147: a neighboring entrance of the same palette group answ
   await app.close()
 })
 
-// WHY: asserts FR-029 (MUST) -- a press that cannot act must say why -- and
+// Why: asserts FR-029 (MUST) -- a press that cannot act must say why -- and
 // not the watermark's own drawing, which this build does not render at all.
 test('DFC-147: pressing the entrance that hides the watermark either does something or says why not', async ({
   baseURL,
@@ -420,7 +420,7 @@ test('DFC-147: pressing the entrance that hides the watermark either does someth
   }
 })
 
-// WHY: proves the point, the arming and the drag below still reach the
+// Why: proves the point, the arming and the drag below still reach the
 // product, so the DFC-06 case cannot pass by pressing something inert.
 test('control for DFC-06: with the rectangle entrance armed, the same drag on the same spot draws', async ({
   baseURL,
@@ -475,7 +475,7 @@ test('DFC-06: with the comment box entrance armed, a press on empty canvas place
       `(${before.shapes})`,
   ).not.toBe(before.shapes)
 
-  // WHY: pressed off the first box (PTD-3, not PTD-4) -- table T-023b (MUST)
+  // Why: pressed off the first box (PTD-3, not PTD-4) -- table T-023b (MUST)
   // keeps an arming standing, so a second press owes a second box.
   await app.page.mouse.move(spot.x + REACH_PX, spot.y)
   await app.page.mouse.down()
@@ -502,13 +502,13 @@ interface Dropped {
   readonly after: ReadonlyArray<{ x: number; width: number; height: number }>
 }
 
-// WHY: FR-001 / FR-019 part a press from a drag at S-208, read here rather than
-// WHY: written, so the carry below follows the product's own boundary.
+// Why: FR-001 / FR-019 part a press from a drag at S-208, read here rather than
+// Why: written, so the carry below follows the product's own boundary.
 const PRESS_OR_DRAG_PX = settingOf('T-206', 'S-208', DEFAULT_COLUMN)
 
-// WHY: drawn fresh, not from the starting document -- every unstarted task
+// Why: drawn fresh, not from the starting document -- every unstarted task
 // there sits off-screen at the default zoom, out of pointer reach.
-// WHY: the drag distance is the product's own drawn mark width (FR-043), not
+// Why: the drag distance is the product's own drawn mark width (FR-043), not
 // a pixel count written here, so a change to that width moves the drag too.
 /** @purity non-pure */
 async function dropTheDummy(page: Page, steps: number): Promise<Dropped> {
@@ -517,9 +517,9 @@ async function dropTheDummy(page: Page, steps: number): Promise<Dropped> {
   expect(spot, 'no point on the canvas has empty ground under it').not.toBeNull()
   if (spot === null) throw new Error('unreachable')
 
-  // WHY: excludes holds already on screen -- the starting document has its
+  // Why: excludes holds already on screen -- the starting document has its
   // own unstarted tasks, and taking the first faint mark found one of those.
-  // TRAP: keyed by data-figure, never by position -- the drop redraws the
+  // Trap: keyed by data-figure, never by position -- the drop redraws the
   // board, so every existing mark moves and would be counted as a new one.
   const already = new Set((await faintHolds(page)).map((one) => one.key))
 
@@ -539,7 +539,7 @@ async function dropTheDummy(page: Page, steps: number): Promise<Dropped> {
   const dummy = fresh[0]
   if (dummy === undefined) throw new Error('unreachable')
 
-  // WHY: the widest bar in the band is the plan bar -- the hold's own two
+  // Why: the widest bar in the band is the plan bar -- the hold's own two
   // halves are drawn in the same band as a fraction of that width.
   const beside = await barsAround(page, dummy.y + dummy.height / 2)
   const plan = beside.slice().sort((one, two) => two.width - one.width)[0]
@@ -564,10 +564,10 @@ async function dropTheDummy(page: Page, steps: number): Promise<Dropped> {
       `${DEFAULT_DISPLAY_RATIO} × zoomY ${S_76} × S-5 ${S_5}）ので ${MARK_HEIGHT_PX}px になる`,
   ).toBe(Math.round(MARK_HEIGHT_PX))
 
-  // WHY: pressed a quarter into the mark -- inside GA-5's (start) half and
+  // Why: pressed a quarter into the mark -- inside GA-5's (start) half and
   // short of the center pixel, which FR-043 routes to GA-6 (finish) instead.
-  // WHY: a move no further than S-208 is a press, not a drag, so the product writes
-  // WHY: nothing; the mark is a few px here, so three of them may not reach that boundary.
+  // Why: a move no further than S-208 is a press, not a drag, so the product writes
+  // Why: nothing; the mark is a few px here, so three of them may not reach that boundary.
   const carriedPx = Math.max(steps * step, PRESS_OR_DRAG_PX + step)
   const from = { x: dummy.x + dummy.width / 4, y: dummy.y + dummy.height / 2 }
   await page.mouse.move(from.x, from.y)
@@ -587,7 +587,7 @@ async function dropTheDummy(page: Page, steps: number): Promise<Dropped> {
   }
 }
 
-// WHY: proves only that a drop writes something -- not where -- so the
+// Why: proves only that a drop writes something -- not where -- so the
 // DFC-182 case below cannot pass by dragging a gesture the product ignores.
 test('control for DFC-182: dropping the dummy of an unstarted task writes an actual bar', async ({
   baseURL,
@@ -599,7 +599,7 @@ test('control for DFC-182: dropping the dummy of an unstarted task writes an act
     dropped.after.length,
     'after the drop the task group holds fewer than two bars, so no actual bar was drawn beside the plan',
   ).toBeGreaterThan(1)
-  // WHY: catches the press landing on GA-1 (plan start) instead of the hold
+  // Why: catches the press landing on GA-1 (plan start) instead of the hold
   // -- a pinned case alone would not notice the plan bar moving instead.
   const plan = dropped.after[dropped.after.length - 1]
   expect(
@@ -609,7 +609,7 @@ test('control for DFC-182: dropping the dummy of an unstarted task writes an act
   await app.close()
 })
 
-// WHY: both complaints are collected and asserted together, so a run shows
+// Why: both complaints are collected and asserted together, so a run shows
 // both instead of stopping at the first (FR-043 MUST / MUST NOT, both halves).
 test('DFC-182: where the dummy is dropped decides where the actual starts', async ({ baseURL }) => {
   test.setTimeout(240_000)
@@ -647,7 +647,7 @@ interface TypedInto {
   readonly value: string
 }
 
-// WHY: a box of its own is part of the answer -- the shipped build keeps a
+// Why: a box of its own is part of the answer -- the shipped build keeps a
 // 0x0 input in the page always, so focus alone does not mean anyone sees it.
 /** @purity semi-pure-mutable */
 async function focusedTypableField(page: Page): Promise<TypedInto | null> {
@@ -674,7 +674,7 @@ async function focusedTypableField(page: Page): Promise<TypedInto | null> {
   )
 }
 
-// WHY: proves the drag itself still draws a shape, so the pinned DFC-232
+// Why: proves the drag itself still draws a shape, so the pinned DFC-232
 // case below cannot pass because the gesture it drives reaches nothing.
 test('control for DFC-232: a task dragged onto empty ground below the last task group is drawn', async ({
   baseURL,
@@ -707,7 +707,7 @@ test('control for DFC-232: a task dragged onto empty ground below the last task 
   await app.close()
 })
 
-// WHY: FR-091 (MUST) is that a just-drawn task takes text input on the spot,
+// Why: FR-091 (MUST) is that a just-drawn task takes text input on the spot,
 // not after re-selecting it and opening the Properties Panel as a second step.
 test('DFC-232: a task drawn on empty ground leaves a name field under the keyboard', async ({
   baseURL,
@@ -762,7 +762,7 @@ test('DFC-232: a task drawn on empty ground leaves a name field under the keyboa
   }
 })
 
-// WHY: the width and height above are derived from these, so a reworded clause
+// Why: the width and height above are derived from these, so a reworded clause
 // must break this file rather than quietly move what the cases admit.
 const CLAUSES: readonly (readonly [string, string])[] = [
   [
@@ -788,11 +788,11 @@ test('the manuscript still states the mark this file measures, word for word', (
   ).toContain(DM_3_THE_DRAWN_WIDTH)
 })
 
-// WHY: both files -- a settled row moves from defects.md to fixed-defects.md,
+// Why: both files -- a settled row moves from defects.md to fixed-defects.md,
 // and reading only the first once misread that move as a deletion.
 const LEDGERS: readonly string[] = ['defects.md', 'fixed-defects.md']
 
-// WHY: a pin on a settled row is not a fault -- it becomes the fix's own
+// Why: a pin on a settled row is not a fault -- it becomes the fix's own
 // control -- so this only checks the row still exists in the ledger pair.
 test('every defect pinned in this file is still a row of the ledger', () => {
   const written = LEDGERS.map((file) =>
@@ -805,7 +805,7 @@ test('every defect pinned in this file is still a row of the ledger', () => {
         'under docs/development-records/ -- the row it was written for is gone',
     ).toBe(true)
   }
-  // WHY: catches a copied-and-half-edited case pinning the same row twice.
+  // Why: catches a copied-and-half-edited case pinning the same row twice.
   expect(new Set(PINNED.map((one) => one.ledger)).size, 'two pins name the same ledger row').toBe(
     PINNED.length,
   )

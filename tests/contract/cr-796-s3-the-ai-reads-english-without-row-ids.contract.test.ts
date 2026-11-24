@@ -21,7 +21,7 @@ const ROW_ID = /\b[A-Z]{1,4}-\d+[a-z]?\b/
 const TABLE_ID = /\bT-\d+[a-z]?\b/
 const JAPANESE = /[぀-ヿ一-鿿]/
 
-// WHY: ASCII-only means no CJK, no em dash and no typographic quotes either
+// Why: ASCII-only means no CJK, no em dash and no typographic quotes either
 function isAscii(text: string): boolean {
   return /^[\x00-\x7f]*$/.test(text)
 }
@@ -40,7 +40,7 @@ interface Walked {
   readonly text: string
 }
 
-// WHY: collect every `description` string in the tree, whatever the nesting (properties, items, oneOf)
+// Why: collect every `description` string in the tree, whatever the nesting (properties, items, oneOf)
 function descriptionsIn(node: unknown, path: string, into: Walked[]): void {
   if (Array.isArray(node)) {
     node.forEach((each, index) => descriptionsIn(each, `${path}[${index}]`, into))
@@ -56,7 +56,7 @@ function descriptionsIn(node: unknown, path: string, into: Walked[]): void {
   }
 }
 
-// WHY: collect every string value (and every key) in the tree
+// Why: collect every string value (and every key) in the tree
 function stringsIn(node: unknown, path: string, into: Walked[], skipKey?: string): void {
   if (typeof node === 'string') {
     into.push({ path, text: node })
@@ -143,7 +143,7 @@ describe('CR-796 slice 3 -- the spec address is given once, in the initialize in
 })
 
 describe('CR-796 slice 3 -- grs-commands.schema.json reads English', () => {
-  // WHY: each oneOf entry names its command's definition by $ref (CR-806).
+  // Why: each oneOf entry names its command's definition by $ref (CR-806).
   const branches: any[] = commandsSchema.oneOf.map((one: any) => commandsSchema.$defs[one.$ref.replace('#/$defs/', '')])
 
   function kindOf(branch: any): string {

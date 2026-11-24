@@ -16,7 +16,7 @@ import { readStateMachineView } from './state-machine-manuscript'
 
 const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
-// see FR-072
+// Spec: FR-072
 const FR_072_CLOSES_WHILE_SHOWN =
   '⭐ パネルが文書の設定を出しているあいだに、設定を出す入口をもう一度押したときは、プロパティパネルを閉じること（MUST）'
 const FR_072_EITHER_WAY = '直前の選択物が在っても無くても同じとし、選択物へは戻さない'
@@ -54,7 +54,7 @@ type RawRegion = {
   readonly machines: readonly RawMachine[]
 }
 
-// WHY: the manuscript is the single source of table T-280 (Chapter 1.9: the cases are fixed
+// Why: the manuscript is the single source of table T-280 (Chapter 1.9: the cases are fixed
 // data copied from the table, here read from it).
 const MANUSCRIPT = readStateMachineView() as { readonly regions: readonly RawRegion[] }
 
@@ -72,7 +72,7 @@ const MACHINE: RawMachine = FOUND_MACHINE
 const ROW = MACHINE.transitions[EVENT]
 if (ROW === undefined) throw new Error(`table T-280 ${MACHINE_NAME} has no row for ${EVENT}`)
 
-// see T-280
+// Spec: T-280
 function cellOf(from: string): RawCell {
   const cell = ROW?.[from]
   if (cell === undefined) throw new Error(`table T-280 has no cell ${from} x ${EVENT}`)
@@ -112,7 +112,7 @@ describe('CR-609 -- the premises read from table T-280', () => {
     expect(carriesOf(SELECTION_DISPLAYED)).toEqual(['subject'])
   })
 
-  // see FR-156, FR-157, FR-159
+  // Spec: FR-156, FR-157, FR-159
   it('the event carries nothing; besides this machine only the three settings drafts take it; no root cell takes it', () => {
     expect(REGION.events.find((one) => one.key === EVENT)?.carries).toEqual([])
     const takers = REGION.machines.filter((one) => EVENT in one.transitions).map((one) => one.name)
@@ -125,13 +125,13 @@ describe('CR-609 -- the premises read from table T-280', () => {
   })
 })
 
-// see T-280, T-293, FR-072
+// Spec: T-280, T-293, FR-072
 const TASK_1 = { kind: 'task', uid: 1 } as const
 const CHOICE = { selection: { items: [TASK_1], isOrdered: false }, taskGroupIds: [] as readonly string[] }
 
 type Loose = Record<string, unknown>
 
-// WHY: a state that carries nothing is its kind alone (R4.4), so the value a cell lands on is
+// Why: a state that carries nothing is its kind alone (R4.4), so the value a cell lands on is
 // built from the table's state row, never from the code.
 function panelValue(state: string): Loose {
   if (state === SELECTION_DISPLAYED) return { kind: state, subject: CHOICE }

@@ -31,8 +31,8 @@ const NO_FALL_TO_A_T_233_ROW =
 const NOTIFICATION_AREA = '[data-role="Notification Area"]'
 const OPEN_CHOOSER = '[data-role="Open Chooser"]'
 
-// see S-119, T-214
-// WHY: the first accepted day is read off the table, so the file below is one day short of it.
+// Spec: S-119, T-214
+// Why: the first accepted day is read off the table, so the file below is one day short of it.
 const IMPORT_MIN_DATE = (() => {
   const text = readFileSync(join(SPEC, '_assets', 'tbl-settings.md'), 'utf8')
   const found = /\| S-119 \| `importMinDate` \| `(\d{4}-\d{2}-\d{2})`/.exec(text)
@@ -71,7 +71,7 @@ async function waitForWords(page: Page, selector: string, words: readonly string
   return false
 }
 
-// see OP-2
+// Spec: OP-2
 /** @purity non-pure */
 async function dropOpen(page: Page, name: string, text: string): Promise<void> {
   await page.evaluate(

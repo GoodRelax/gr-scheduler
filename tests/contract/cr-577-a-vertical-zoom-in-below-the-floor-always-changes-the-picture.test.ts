@@ -109,10 +109,10 @@ const S_125 = setting('S-125')
 const S_172 = setting('S-172')
 const S_173 = setting('S-173')
 
-// see ZE-1, FR-094
+// Spec: ZE-1, FR-094
 const isOnTheFloor = (zoomY: number): boolean => S_4 * zoomY <= S_6 / S_5
 const PAST_THE_FLOOR = (S_6 / S_5 / S_4) * S_53
-// see FR-018
+// Spec: FR-018
 const thresholdOf = (depth: number): number => S_87 * S_88 ** (depth - 2)
 
 interface RowSpec {
@@ -123,7 +123,7 @@ interface RowSpec {
 
 const OPEN_STATES = new Set(['expanded', 'temporarilyExpanded'])
 
-// see FR-018, T-329
+// Spec: FR-018, T-329
 function drawnTaskGroupsAt(rows: readonly RowSpec[], levelZero: string, zoomY: number): readonly string[] {
   if (levelZero === 'collapsed') return []
   const byId = new Map(rows.map((one) => [one.id, one]))
@@ -157,7 +157,7 @@ function drawnTaskGroupsAt(rows: readonly RowSpec[], levelZero: string, zoomY: n
 
 const sameTaskGroups = (a: readonly string[], b: readonly string[]): boolean => JSON.stringify(a) === JSON.stringify(b)
 
-// see ZE-6
+// Spec: ZE-6
 function targetOf(rows: readonly RowSpec[], levelZero: string, zoomY: number): number {
   const now = drawnTaskGroupsAt(rows, levelZero, zoomY)
   let one = Number.POSITIVE_INFINITY
@@ -168,7 +168,7 @@ function targetOf(rows: readonly RowSpec[], levelZero: string, zoomY: number): n
   return Math.min(one, PAST_THE_FLOOR)
 }
 
-// see ZE-6, FR-016
+// Spec: ZE-6, FR-016
 const ze6Write = (rows: readonly RowSpec[], levelZero: string, zoomY: number, ceiling: number): number =>
   Math.min(Math.max(zoomY * S_53, targetOf(rows, levelZero, zoomY)), ceiling)
 
@@ -234,7 +234,7 @@ function taskOf(uid: number): Record<string, unknown> {
   }
 }
 
-// WHY: the `stacked` extra tasks share the first task group's dates, so FR-003 stacks them into one tall band;
+// Why: the `stacked` extra tasks share the first task group's dates, so FR-003 stacks them into one tall band;
 // that band is how a case gets an FR-016 ceiling below the ZE-6 target without typing a ceiling.
 function documentOf(rows: readonly RowSpec[], zoomY: number, stacked = 0): Document {
   const members = rows.map((one, index) => ({ taskUid: index + 1, taskGroupId: one.id }))
@@ -284,7 +284,7 @@ function documentOf(rows: readonly RowSpec[], zoomY: number, stacked = 0): Docum
 
 const ERP_TEXT = readFileSync(join(process.cwd(), 'sample-schedule', 'sample-large-erp-program.ja.xml'), 'utf8')
 
-// WHY: null leaves the sample as imported, so OP-10 opens it at the FR-055 fit (T1); a number also
+// Why: null leaves the sample as imported, so OP-10 opens it at the FR-055 fit (T1); a number also
 // places the view on the first task group, since a null place would refit and drop the zoom given.
 function erpDocument(zoomY: number | null): Document {
   const current = documentFromJson(TEMPLATE_TEXT)
@@ -329,7 +329,7 @@ afterEach(() => {
 
 const MODS = (part: Partial<InputModifiers> = {}): InputModifiers => ({ ctrl: false, shift: false, alt: false, meta: false, ...part })
 
-// see T-036
+// Spec: T-036
 function keyOfRow(id: string): KeyInput {
   const row = specTable('T-036').rows.find((one) => one.id === id)
   const spans = [...(row?.by['割当'] ?? '').matchAll(/`([^`]+)`/g)].map((one) => one[1]!)
@@ -356,7 +356,7 @@ const SCALE_ECHO: readonly ScaleEcho[] = (
   }
 ).scaleEcho
 const MAX_WORD = SCALE_ECHO.find((one) => one.end === 'max')?.text.ja ?? 'no scaleEcho max word'
-// see ZE-5
+// Spec: ZE-5
 const endMessage = (zoomY: number, word: string): string => `${Math.round(zoomY * 100)}%${word}`
 
 const pointer = (phase: 'down' | 'up'): PointerInput => ({
@@ -389,7 +389,7 @@ interface Bench {
   taskGroupAreaHeight(): number
 }
 
-// WHY: one queue for every bench of a case; a queue per bench loses the frames of an earlier bench
+// Why: one queue for every bench of a case; a queue per bench loses the frames of an earlier bench
 // once a later one (a ceiling probe) replaces requestAnimationFrame.
 const waiting: ((time: number) => void)[] = []
 
@@ -485,7 +485,7 @@ function bench(document: Document): Bench {
   }
 }
 
-// WHY: the notch sign of MK-4 / MK-2 is not in the manuscript; the T7 cases prove -1 raises zoomY
+// Why: the notch sign of MK-4 / MK-2 is not in the manuscript; the T7 cases prove -1 raises zoomY
 // off the floor, so a wrong sign reads red there first.
 const IN = -1
 const OUT = 1
@@ -507,7 +507,7 @@ const ZOOM_OUT: readonly Press[] = [
 const ABOVE_THE_FLOOR = 1.2
 const JUST_OFF_THE_FLOOR = 1
 
-// see FR-016, ZE-3
+// Spec: FR-016, ZE-3
 function ceilingFrom(document: Document): number {
   const built = bench(document)
   let last = built.zoomY()
@@ -564,13 +564,13 @@ describe('the scenes stand where the manuscript puts them', () => {
   )
 })
 
-// WHY: DFC-1024 -- the default timeout reds these cases on a loaded machine though they pass
+// Why: DFC-1024 -- the default timeout reds these cases on a loaded machine though they pass
 // alone; an explicit ceiling, not a retry (JDG-642).
 const LOADED_MACHINE_TIMEOUT_MS = 60_000
 
 describe('T1 / T2 -- sample-large-erp-program.ja.xml opened at the FR-055 fit', { timeout: LOADED_MACHINE_TIMEOUT_MS }, () => {
   const erp = sceneNamed('sample-large-erp-program.ja.xml')
-  // WHY: the fit OP-10 opens at is not in the stored zoomY; IC-10 is the same FR-055 fit and writes it,
+  // Why: the fit OP-10 opens at is not in the stored zoomY; IC-10 is the same FR-055 fit and writes it,
   // so the case knows the zoomY the press starts from.
   const fitOf = (): number => {
     const probe = bench(erpDocument(null))

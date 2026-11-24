@@ -35,7 +35,7 @@ const valueRow = (id: string) => {
 const PREFIXES = readFileSync(join(SPEC, '_assets', 'tbl-row-id-prefixes.md'), 'utf8')
 const DESIGN = readFileSync(join(SPEC, '_assets', 'design-mcp-relay.md'), 'utf8').replace(/\s+/g, ' ')
 
-// see T-400
+// Spec: T-400
 const EXPECTED_TYPES = [
   ['AV-1', 'AgentWriteRequest'],
   ['AV-2', 'AgentWriteOutcome'],
@@ -58,14 +58,14 @@ const EXPECTED_TYPES = [
   ['AV-21', 'AgentSavedFile'],
 ] as const
 
-// see T-400
+// Spec: T-400
 const EXPECTED_FIELDS: Readonly<Record<string, readonly (readonly string[])[]>> = {
   'AV-1': [['expectedStamp', 'commands']],
   'AV-2': [
     ['ok', 'stamp', 'hasUpdatedSchedule', 'createdUids'],
     ['ok', 'refusal'],
   ],
-  // WHY: a refusal never carries the document (see AV-3, AG-2)
+  // Why: a refusal never carries the document (see AV-3, AG-2)
   'AV-3': [['target', 'reason', 'stamp', 'refusals', 'message']],
   'AV-4': [],
   'AV-5': [
@@ -81,29 +81,29 @@ const EXPECTED_FIELDS: Readonly<Record<string, readonly (readonly string[])[]>> 
   'AV-9': [['fixProposals', 'fixLog']],
   'AV-10': [['notice']],
   'AV-11': [['hasReplacedEarlierWatch', 'stopWatching']],
-  // WHY: a notice carries the stamp, not the document (see AV-14, AG-6)
+  // Why: a notice carries the stamp, not the document (see AV-14, AG-6)
   'AV-14': [['watcher', 'stamp', 'mark']],
-  // see AV-15
+  // Spec: AV-15
   'AV-15': [
     ['ok', 'stamp', 'hasUpdatedSchedule'],
     ['ok', 'asked', 'stamp'],
     ['ok', 'refusal'],
   ],
-  // see AV-16, AV-17
+  // Spec: AV-16, AV-17
   'AV-16': [['taskRows', 'commentBoxRows', 'columns', 'taskTotal', 'offset', 'nextOffset']],
   'AV-17': [['id', 'ja', 'en', 'kind']],
-  // see AV-18, AV-19, AV-20
+  // Spec: AV-18, AV-19, AV-20
   'AV-18': [
     ['ok', 'table', 'columns', 'rows', 'total', 'offset', 'nextOffset'],
     ['ok', 'refusal'],
   ],
   'AV-19': [['key', 'cells']],
   'AV-20': [['column', 'text']],
-  // see AV-21
+  // Spec: AV-21
   'AV-21': [['ok', 'savedTo', 'bytes', 'backedUpTo']],
 }
 
-// see AV-4
+// Spec: AV-4
 const FIXED_REASONS = [
   'staleStamp',
   'notOwnStep',
@@ -178,7 +178,7 @@ describe('T-400 fields, row by row', () => {
 })
 
 describe('every row of T-400 is used by a member, and every type a member names is a row of T-400', () => {
-  // WHY: AV-21 is the one value no member's type names; only the relay answers it (see AV-21)
+  // Why: AV-21 is the one value no member's type names; only the relay answers it (see AV-21)
   it('the rows a member reaches, directly or through the rows it points at, are all nineteen but AV-21, which only the relay answers', () => {
     expect([...inClosure()].sort((a, b) => Number(a.slice(3)) - Number(b.slice(3)))).toEqual(
       values.map((one) => one.id).filter((id) => id !== 'AV-21'),
@@ -229,7 +229,7 @@ describe('every row of T-400 is used by a member, and every type a member names 
         { typeText: one.returnsType, pointsAt: one.returnsPointsAt },
       ]
       for (const place of places) {
-        // WHY: a quoted literal ('asShown', 'none') is a value, not a named type (AM-25)
+        // Why: a quoted literal ('asShown', 'none') is a value, not a named type (AM-25)
         const named = (place.typeText.replace(/'[^']*'/g, '').match(/[A-Za-z_$][\w$]*/g) ?? []).filter(
           (word) => !['readonly', 'null', 'string', 'number', 'boolean', 'Promise', 'Uint8Array'].includes(word),
         )

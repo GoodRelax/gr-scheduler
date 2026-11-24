@@ -60,7 +60,7 @@ const rowOf = (table: string, id: string) => {
   return found
 }
 
-// see T-206, S-94
+// Spec: T-206, S-94
 const S_94 = Number.parseInt(
   bare(rowOf('T-206', 'S-94').by['既定'] ?? '').replace(/[^\d]/g, ''),
   10,
@@ -76,10 +76,10 @@ const MB_FACTOR = (() => {
   return Number.parseInt(said[1] ?? '', 10) * Number.parseInt(said[2] ?? '', 10)
 })()
 
-// see T-108, CM-9
+// Spec: T-108, CM-9
 const CM_9 = bare(rowOf('T-108', 'CM-9').by['確定名'] ?? '')
 
-// see T-108, CM-67
+// Spec: T-108, CM-67
 const CM_67 = bare(rowOf('T-108', 'CM-67').by['確定名'] ?? '')
 
 const TEMPLATE_TEXT = readFileSync(
@@ -97,23 +97,23 @@ function templateDocument(): Document {
 
 const START = templateDocument()
 const STARTED_JSON = JSON.stringify(START)
-// see FR-031
+// Spec: FR-031
 const STEP_BYTES = Buffer.byteLength(STARTED_JSON, 'utf8')
 
 const FIRST_TASK_UID = START.schedule.tasks[0]?.uid ?? 0
 const FIRST_TASK_NAME = START.schedule.tasks[0]?.name ?? ''
 
-// see T-108, CM-67
+// Spec: T-108, CM-67
 const HELD_TASK_GROUP_TITLE_WIDTH = START.documentSettings.taskGroupPanelWidthPx
 
-// see T-060, LY-5
+// Spec: T-060, LY-5
 const SETTINGS_LIMITS: SettingsLimits = {
   zoomMin: 0.02,
   zoomMax: 64,
   taskGroupAreaWidthWithoutPanels: 982,
 }
 
-// see T-206, S-94, S-95
+// Spec: T-206, S-94, S-95
 const REAL_LIMITS: HistoryLimits = {
   maxSteps: NOT_STORED_LIMITS['S-94'],
   maxTotalSizeBytes: NOT_STORED_LIMITS['S-95'] * MB_FACTOR,
@@ -155,7 +155,7 @@ function bench(limits: HistoryLimits = REAL_LIMITS): Bench {
           historyLimits: limits,
           settingsLimits: SETTINGS_LIMITS,
           editedBy: 'the case at the keyboard',
-          // see FR-063
+          // Spec: FR-063
           updatedAt: new Date(Date.UTC(2026, 8, 8, 0, 0, 0) + writes * 1000)
             .toISOString()
             .replace(/\.\d{3}Z$/, 'Z'),
@@ -175,12 +175,12 @@ function bench(limits: HistoryLimits = REAL_LIMITS): Bench {
   }
 }
 
-// WHY: no counter here -- each caller names its own value at the call site;
-// WHY: a shared counter masked a same-value repeat as new in this file's sibling.
+// Why: no counter here -- each caller names its own value at the call site;
+// Why: a shared counter masked a same-value repeat as new in this file's sibling.
 const nameTask = (name: string): DocumentCommand =>
   ({ kind: CM_9, taskUid: FIRST_TASK_UID, name }) as unknown as DocumentCommand
 
-// see FR-052
+// Spec: FR-052
 const setTaskGroupPanelWidthPx = (taskGroupTitle: number): DocumentCommand =>
   ({
     kind: CM_67,

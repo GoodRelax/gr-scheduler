@@ -40,7 +40,7 @@ function regionNamed(name: string): RawRegion {
 
 const GESTURE = regionNamed('gesture')
 
-// see T-289
+// Spec: T-289
 function fieldOf(machine: RawMachine): string {
   return machine.name.replace(/Machine$/, '')
 }
@@ -62,7 +62,7 @@ function kindOf(value: unknown): string {
   return String((value as Loose)['kind'])
 }
 
-// WHY: a composite state's value holds its child (JDG-2364); the dotted key is the state id
+// Why: a composite state's value holds its child (JDG-2364); the dotted key is the state id
 // below the machine (grabbed.carrying), the form the manuscript keys its states and cells by.
 function stateKeyOf(value: unknown): string {
   const path: string[] = []
@@ -78,7 +78,7 @@ function childrenOf(machine: RawMachine, key: string | null): readonly RawState[
   return machine.states.filter((s) => s.parent === key)
 }
 
-// WHY: a target that names a composite enters its initial child (T-289).
+// Why: a target that names a composite enters its initial child (T-289).
 function enteredKey(machine: RawMachine, to: string): string {
   let at = to
   for (;;) {
@@ -97,7 +97,7 @@ function valueOf(key: string): Loose {
   return rest.length === 0 ? { kind } : { kind, child: valueOf(rest.join('.')) }
 }
 
-// WHY: a cell on a composite answers for every state below it; the innermost cell is read first.
+// Why: a cell on a composite answers for every state below it; the innermost cell is read first.
 function cellFor(machine: RawMachine, event: string, key: string): RawCell | undefined {
   const row = machine.transitions[event]
   const parts = key.split('.')
@@ -116,7 +116,7 @@ function withGesture(fields: Loose): ScreenSession {
   return { ...regionsOf(emptyScreenSession), gesture: { ...gestureOf(emptyScreenSession), ...fields } } as unknown as ScreenSession
 }
 
-// see FR-018, IC-12, IC-13, IC-14, IC-15, S-172
+// Spec: FR-018, IC-12, IC-13, IC-14, IC-15, S-172
 const REPEATING_ENTRIES: readonly string[] = ['IC-12', 'IC-13', 'IC-14', 'IC-15']
 const REPEATING_ENTRY = 'IC-12'
 const PLAIN_ENTRY = 'IC-17'
@@ -132,7 +132,7 @@ const PRESSED_ON: Record<string, Loose> = {
   scrollbarThumb: { kind: 'scrollbarThumb', axis: 'vertical' },
 }
 
-// WHY: PTD-7 and PTD-3 are the rows that hit something, so only they carry a pressedOn;
+// Why: PTD-7 and PTD-3 are the rows that hit something, so only they carry a pressedOn;
 // PTD-1 pans whatever is under it and PTD-2 does no hit test (T-023a).
 const PRESSES: readonly { label: string; pressRow: string; pressedOn: Loose | null }[] = [
   { label: 'PTD-7', pressRow: 'PTD-7', pressedOn: PRESSED_ON['scheduleShape'] as Loose },
@@ -144,7 +144,7 @@ const PRESSES: readonly { label: string; pressRow: string; pressedOn: Loose | nu
   { label: 'PTD-5', pressRow: 'PTD-5', pressedOn: null },
 ]
 
-// WHY: AG-9 limits the refusal to drags that change the document, matched to the undo
+// Why: AG-9 limits the refusal to drags that change the document, matched to the undo
 // rows of T-027: UN-1 / UN-2 / UN-4 / UN-5 are in; UN-8 / UN-9 / UN-16 are out.
 const DOCUMENT_CHANGING: Readonly<Record<string, boolean>> = {
   'PTD-7': true,
@@ -183,7 +183,7 @@ function firing(gesture: Loose, event: Loose): Fired[] {
   return fired
 }
 
-// see SD-3, SF-3, SS-5
+// Spec: SD-3, SF-3, SS-5
 function expectGestureStep(session: ScreenSession, event: Loose): void {
   const before = gestureOf(session)
   const fired = firing(before, event)
@@ -288,8 +288,8 @@ describe('AG-9 (DFC-687): a press that changes no document stays out of changing
       .map((event) => [`${s.name} x ${describeEvent(event)}`, s.session, event] as const),
   )
 
-  // DEVIATION: the manuscript condition of isDocumentChangingPress writes today's judgment, which
-  // reads these presses as changing the document (its note leaves AG-9 undecided; DFC-687, JDG-57).
+  // Temporary: the manuscript condition of isDocumentChangingPress writes today's judgment, which
+  // reads these presses as changing the document (its note leaves AG-9 undecided; DFC-687, JDG-57). Until: DFC-687 is fixed.
   it.fails.each(pinned)('%s (DFC-687)', (_, session, event) => {
     expect(DOCUMENT_CHANGING[pressLabel(event['pressRow'], event['pressedOn'])]).toBe(false)
     expect(kindOf(gestureOf(step(session, event).state)['pointerPressState'])).toBe('viewingDocument')
@@ -342,7 +342,7 @@ describe('FR-018: each entry that repeats while held (IC-12..IC-15) starts the r
 
   it.each(REPEATING_ENTRIES)('pointerPressed on entry %s', pressEntry)
 
-  // DEVIATION: AG-9 keeps an entry press out of changingDocument; the region copies today's
-  // shell until the move is shown equal (DFC-687, JDG-57).
+  // Temporary: AG-9 keeps an entry press out of changingDocument; the region copies today's
+  // shell until the move is shown equal (DFC-687, JDG-57). Until: DFC-687 is fixed.
   it.fails.each(['IC-104', 'IC-105', PLAIN_ENTRY])('pointerPressed on entry %s (DFC-687)', pressEntry)
 })

@@ -51,17 +51,17 @@ const numberOf = (cell: string): number => {
   return value
 }
 
-// see S-124, S-439
+// Spec: S-124, S-439
 const S_124_MS = numberOf(rowOf(specTable('T-212'), 'S-124').by['値'] ?? '')
 const S_439_MS = numberOf(rowOf(specTable('T-212'), 'S-439').by['値'] ?? '')
 
-// see U-31, U-53
+// Spec: U-31, U-53
 const HEADER = `[data-role="${bare(rowOf(specTable('T-103'), 'U-31').by['確定名（英）'] ?? '')}"]`
 const TOOLTIP = `[data-role="${bare(rowOf(specTable('T-103'), 'U-53').by['確定名（英）'] ?? '')}"]`
-// WHY: the stage presses IC-20 on opening, and a pressed entrance has dropped its trigger (IN-3).
+// Why: the stage presses IC-20 on opening, and a pressed entrance has dropped its trigger (IN-3).
 const PRESSED_ON_OPENING = rowOf(specTable('T-109'), 'IC-20').id
 
-// see FR-038, EZ-2
+// Spec: FR-038, EZ-2
 const WORDS = JSON.parse(readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8')) as {
   readonly icons: readonly { readonly rowId: string; readonly hint?: { readonly ja: string; readonly en: string } }[]
 }
@@ -69,19 +69,19 @@ const HINTS: ReadonlyMap<string, readonly string[]> = new Map(
   WORDS.icons.flatMap((one) => (one.hint === undefined ? [] : [[one.rowId, [one.hint.ja, one.hint.en]] as const])),
 )
 
-// see EZ-6
-// see TL-5, TL-10, TL-11
+// Spec: EZ-6
+// Spec: TL-5, TL-10, TL-11
 const TELLING = /: (?:\d{4}\/)?\d{1,2}\/\d{1,2} \([^)]+\) - (?:\d{4}\/)?\d{1,2}\/\d{1,2} \([^)]+\)/
 
-// WHY: "a few pixels" of claim 3 -- small enough to stay inside an entrance of the App Header.
+// Why: "a few pixels" of claim 3 -- small enough to stay inside an entrance of the App Header.
 const WIGGLE_PX = 2
-// WHY: claim 3 moves the pointer every fifth of S-124.
+// Why: claim 3 moves the pointer every fifth of S-124.
 const WIGGLE_EVERY_MS = Math.round(S_124_MS / 5)
-// WHY: the page may count a wait from the frame the move fell in, so a shown box can read one 60 Hz frame early.
+// Why: the page may count a wait from the frame the move fell in, so a shown box can read one 60 Hz frame early.
 const ONE_FRAME_MS = 17
-// WHY: past a wait the box still needs a frame or two to be drawn and read back (as CR-575's cases allow).
+// Why: past a wait the box still needs a frame or two to be drawn and read back (as CR-575's cases allow).
 const SHOW_ALLOWANCE_MS = 1_500
-// WHY: a box laid out at a fractional position reads back a fraction off; less than that is not a move.
+// Why: a box laid out at a fractional position reads back a fraction off; less than that is not a move.
 const SUBPIXEL = 0.5
 
 interface Rect {
@@ -131,7 +131,7 @@ test.afterAll(async () => {
   await browser?.close()
 })
 
-// see OP-3
+// Spec: OP-3
 /** @purity non-pure */
 async function openTheSample(): Promise<Stage> {
   if (browser === null) throw new Error('the reference browser was not opened')
@@ -141,7 +141,7 @@ async function openTheSample(): Promise<Stage> {
   return stage
 }
 
-// WHY: the page's own clock -- every pointer move and every change of the shown box, stamped where they happen,
+// Why: the page's own clock -- every pointer move and every change of the shown box, stamped where they happen,
 // so a wait is measured without the round trips of the driver.
 /** @purity non-pure */
 async function installRecorder(page: Page): Promise<void> {
@@ -201,7 +201,7 @@ async function shownNow(page: Page): Promise<{ text: string; rect: Rect | null }
   }, TOOLTIP)
 }
 
-// WHY: two entrances of the App Header that carry a description, are wholly on the screen and are the front at
+// Why: two entrances of the App Header that carry a description, are wholly on the screen and are the front at
 // their center, wide enough to move a few pixels inside.
 /** @purity semi-pure-mutable */
 async function twoHintedEntrances(page: Page): Promise<readonly { icon: string; rect: Rect }[]> {
@@ -228,7 +228,7 @@ async function twoHintedEntrances(page: Page): Promise<readonly { icon: string; 
   return found.slice(0, 2)
 }
 
-// see EZ-2
+// Spec: EZ-2
 /** @purity pure */
 function pointOfTheBoxOutside(box: Rect, icon: Rect, center: Point): Point | null {
   const at = { x: Math.min(Math.max(center.x, box.left + 2), box.right - 2), y: (box.top + box.bottom) / 2 }
@@ -236,7 +236,7 @@ function pointOfTheBoxOutside(box: Rect, icon: Rect, center: Point): Point | nul
   return outside ? at : null
 }
 
-// see IN-3, UZ-2
+// Spec: IN-3, UZ-2
 /** @purity semi-pure-mutable */
 async function frontIsTheTooltip(page: Page, at: Point): Promise<boolean> {
   return page.evaluate(
@@ -253,7 +253,7 @@ function isHintOf(icon: string, text: string): boolean {
   return (HINTS.get(icon) ?? []).some((hint) => hint !== '' && text.includes(hint))
 }
 
-// WHY: a spot where nothing raises a description -- the corner of the window, checked quiet before use.
+// Why: a spot where nothing raises a description -- the corner of the window, checked quiet before use.
 /** @purity non-pure */
 async function goNowhere(page: Page): Promise<Point> {
   const spot = await page.evaluate(() => ({ x: 2, y: window.innerHeight - 2 }))
@@ -321,7 +321,7 @@ test.describe('CR-576 claim 3 -- the icon wait counts from entering the icon (EZ
       await goNowhere(page)
       const since = await nowOf(page)
       const center = centerOf(one.rect)
-      // STEP: enter at once, then keep moving a few pixels every fifth of S-124 for twice S-124
+      // Step: enter at once, then keep moving a few pixels every fifth of S-124 for twice S-124
       await page.mouse.move(center.x, center.y)
       await wiggleInside(page, center, 10)
       await page.waitForTimeout(S_124_MS + SHOW_ALLOWANCE_MS)
@@ -359,7 +359,7 @@ test.describe('CR-576 claim 4 -- a shown icon description stays put while the po
       const first = await restUntilShown(page, center, `premise: resting on ${one.icon} shows its description`)
 
       const since = await nowOf(page)
-      // STEP: move a few pixels inside the icon again and again, then stay past S-124
+      // Step: move a few pixels inside the icon again and again, then stay past S-124
       await wiggleInside(page, center, 10)
       await page.waitForTimeout(S_124_MS + SHOW_ALLOWANCE_MS)
 
@@ -412,12 +412,12 @@ test.describe('CR-576 claim 4 -- a shown icon description stays put while the po
       if (one === undefined || two === undefined) throw new Error('premise: two entrances')
       const nowhere = await goNowhere(page)
 
-      // STEP: leave to a spot that is neither the icon nor its box -- the description goes
+      // Step: leave to a spot that is neither the icon nor its box -- the description goes
       const first = await restUntilShown(page, centerOf(one.rect), `premise: resting on ${one.icon} shows its description`)
       await page.mouse.move(nowhere.x, nowhere.y)
       await expect.poll(async () => (await shownNow(page)).text, { timeout: SHOW_ALLOWANCE_MS, message: EZ_2_LEAVING }).not.toBe(first.text)
 
-      // STEP: from a shown description, straight into another icon -- the old one goes and the new wait starts at entering
+      // Step: from a shown description, straight into another icon -- the old one goes and the new wait starts at entering
       const again = await restUntilShown(page, centerOf(one.rect), `premise: resting on ${one.icon} again shows its description`)
       const since = await nowOf(page)
       const target = centerOf(two.rect)
@@ -449,7 +449,7 @@ test.describe('CR-576 claim 5 -- a description put away with Esc stays away on t
       const [one, two] = await twoHintedEntrances(page)
       if (one === undefined || two === undefined) throw new Error('premise: two entrances')
       const nowhere = await goNowhere(page)
-      // WHY: IN-4 spends Esc on the rungs above the description first; spend them before the case starts.
+      // Why: IN-4 spends Esc on the rungs above the description first; spend them before the case starts.
       for (let at = 0; at < 5; at += 1) await page.keyboard.press('Escape')
       await settle(page)
 
@@ -458,7 +458,7 @@ test.describe('CR-576 claim 5 -- a description put away with Esc stays away on t
       await page.keyboard.press('Escape')
       await expect.poll(async () => (await shownNow(page)).text, { timeout: SHOW_ALLOWANCE_MS, message: `${IN_4_EXPLANATION_RUNG} (${one.icon})` }).toBe('')
 
-      // STEP: move on inside the same icon for well past S-124 -- the hint target has not changed
+      // Step: move on inside the same icon for well past S-124 -- the hint target has not changed
       const since = await nowOf(page)
       await wiggleInside(page, center, 10)
       await page.waitForTimeout(S_124_MS + SHOW_ALLOWANCE_MS)
@@ -469,13 +469,13 @@ test.describe('CR-576 claim 5 -- a description put away with Esc stays away on t
         `${MACHINE_ROW_TARGET} -- the put-away description came back on the same icon`,
       ).toEqual([])
 
-      // STEP: out to nowhere and back -- going nowhere is a change of target, so the next wait shows it again
+      // Step: out to nowhere and back -- going nowhere is a change of target, so the next wait shows it again
       await page.mouse.move(nowhere.x, nowhere.y)
       await page.waitForTimeout(WIGGLE_EVERY_MS)
       const back = await restUntilShown(page, center, `${MACHINE_ROW_TARGET} -- leaving ${one.icon} and coming back`)
       expect(isHintOf(one.icon, back.text), `the box shows the description of ${one.icon}: ${JSON.stringify(back.text)}`).toBe(true)
 
-      // STEP: put it away again, then straight into another icon
+      // Step: put it away again, then straight into another icon
       await page.keyboard.press('Escape')
       await expect.poll(async () => (await shownNow(page)).text, { timeout: SHOW_ALLOWANCE_MS, message: IN_4_EXPLANATION_RUNG }).toBe('')
       const other = await restUntilShown(page, centerOf(two.rect), `${MACHINE_ROW_TARGET} -- moving from ${one.icon} into ${two.icon}`)
@@ -486,7 +486,7 @@ test.describe('CR-576 claim 5 -- a description put away with Esc stays away on t
   })
 })
 
-// see EZ-6, T-023d
+// Spec: EZ-6, T-023d
 /** @purity semi-pure-mutable */
 async function barsOnScreen(page: Page): Promise<readonly Rect[]> {
   return page.evaluate((canvas: string) => {
@@ -530,7 +530,7 @@ test.describe('CR-576 claim 6 -- the task description waits S-439 from the stop,
       const at = await aTaskToRestOn(page)
       await goNowhere(page)
 
-      // STEP: stop on the task and wait past S-439
+      // Step: stop on the task and wait past S-439
       const since = await nowOf(page)
       await page.mouse.move(at.x, at.y)
       await page.waitForTimeout(S_439_MS + SHOW_ALLOWANCE_MS)
@@ -544,7 +544,7 @@ test.describe('CR-576 claim 6 -- the task description waits S-439 from the stop,
       expect(waited, `${EZ_6_TWO_VALUES} -- shown ${waited.toFixed(0)} ms after the stop, S-124 is ${S_124_MS} ms and S-439 ${S_439_MS} ms`).toBeGreaterThanOrEqual(S_439_MS - ONE_FRAME_MS)
       expect(waited, `${EZ_6_WAIT} -- shown ${waited.toFixed(0)} ms after the stop`).toBeLessThanOrEqual(S_439_MS + SHOW_ALLOWANCE_MS)
 
-      // STEP: move a few pixels along the task and stop again
+      // Step: move a few pixels along the task and stop again
       const moved = await nowOf(page)
       await page.mouse.move(at.x + WIGGLE_PX, at.y)
       await page.waitForTimeout(S_439_MS + SHOW_ALLOWANCE_MS)

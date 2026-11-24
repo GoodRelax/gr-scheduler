@@ -20,11 +20,11 @@ const HINTS: Readonly<Record<string, Words>> = {
 }
 
 const CHOICES: readonly (readonly [string, Words])[] = [
-  // WHY: JDG-1950 writes the slots the user read as Predecessor and Successor as {predecessor} and {successor} in the dictionary.
+  // Why: JDG-1950 writes the slots the user read as Predecessor and Successor as {predecessor} and {successor} in the dictionary.
   ['FA-1', { ja: '{predecessor} → {successor} を消す', en: 'Delete {predecessor} → {successor}' }],
   ['FA-3', { ja: 'この依存線を残す', en: 'Keep This Dependency Line' }],
   ['FA-4', { ja: '予定日を {date} にする', en: 'Set Planned Date to {date}' }],
-  // WHY: CR-770 (JDG-2250) renamed the English pause words to the Stop / Resume pair; the ja stays JDG-1950's.
+  // Why: CR-770 (JDG-2250) renamed the English pause words to the Stop / Resume pair; the ja stays JDG-1950's.
   ['FA-7', { ja: '中断の値を外す', en: 'Clear the Stop and Resume Dates' }],
   ['FA-7', { ja: '着手したことにする', en: 'Mark as Started' }],
   ['FA-9', { ja: '親の実績終了日を外す', en: "Clear the Parent Task's Actual Finish" }],

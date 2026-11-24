@@ -36,7 +36,7 @@ import {
 import { specTable } from '../contract/spec-table'
 import { SETTINGS_CONSTANTS } from '../../src/entity/document-model/document-settings/document-settings'
 
-// see IN-2
+// Spec: IN-2
 
 const IN_2_DEPENDENCY_ARROW_MUST =
   '掴み代の上は既定の矢印（閲覧環境の `default`）とし、何にも当たらない場所は作図の合図とすること（MUST）'
@@ -55,7 +55,7 @@ it('T-028 IN-2 -- the manuscript still carries the dependency-arm clause quoted 
   expect(cells, IN_2_ARMED_EMPTY_MUST).toContain(IN_2_ARMED_EMPTY_MUST)
 })
 
-// see AR-4
+// Spec: AR-4
 const DEPENDENCY_ARMING_ENTRY: IconId = ((): string => {
   const found = specTable('T-109').rows.find((one) => (one.by['構え'] ?? '').includes('AR-4'))
   if (found === undefined) throw new Error('table T-109 has no entry whose 構え is AR-4')
@@ -200,7 +200,7 @@ function fixtureDocument(): Document {
     },
     documentSettings: {
       ...structuredClone(template.documentSettings),
-      // WHY: S-1 is a constant (CR-572); the stored zoomX (S-75) carries the day width this fixture draws at.
+      // Why: S-1 is a constant (CR-572); the stored zoomX (S-75) carries the day width this fixture draws at.
       zoomX: PX_PER_DAY_AT_1X / SETTINGS_CONSTANTS.pxPerDayAt1x,
     },
     documentStamp: structuredClone(template.documentStamp),
@@ -371,7 +371,7 @@ function planEnds(loop: FrameLoop): readonly Point[] {
 
 function actualEnds(loop: FrameLoop): readonly Point[] {
   const box = boxOf(drawnTask(loop, BAR_UID).actual, "the bar Task's actual bar")
-  // WHY: the end probe stands one px inside, where GA-4 grabs, not on the pixel a touching marker takes.
+  // Why: the end probe stands one px inside, where GA-4 grabs, not on the pixel a touching marker takes.
   return [onEndpoint(loop, box.x, midY(box)), onEndpoint(loop, box.x + box.width - 1, midY(box))]
 }
 
@@ -384,13 +384,13 @@ function barBody(loop: FrameLoop): Point {
 const startedMilestone = (loop: FrameLoop): Point =>
   center(boxOf(drawnTask(loop, STONE_UID).plan, "the started milestone's figure"))
 
-// see GA-5, GA-6, GA-17
+// Spec: GA-5, GA-6, GA-17
 function dummyProbe(loop: FrameLoop, taskUid: number, grab: 'GA-5' | 'GA-6' | 'GA-17'): Point {
   const found = drawnTask(loop, taskUid).dummies.find((one) => one.grab === grab)
   if (found === undefined) throw new Error(`Task ${taskUid} drew no ${grab} dummy`)
   const ink = found.ink
   const y = ink.y + ink.height / 2
-  // WHY: T-023d's closing rule gives the dummy only strictly right of the plan start, where its ink begins;
+  // Why: T-023d's closing rule gives the dummy only strictly right of the plan start, where its ink begins;
   // the ink's own left edge is that boundary and belongs to GA-1, so probe inside the left half instead.
   if (grab === 'GA-5') return { x: ink.x + ink.width / 4, y }
   if (grab === 'GA-6') return { x: ink.x + ink.width - 1, y }
@@ -402,7 +402,7 @@ function shapeAt(built: Stage, at: Point): PointerShape | null {
   return built.latest()
 }
 
-// see AR-4
+// Spec: AR-4
 function armDependency(built: Stage): void {
   const at = center(PALETTE_BOX)
   built.send(pointer('down', at))
@@ -524,7 +524,7 @@ describe('unarmed control -- T-023d places keep their own shapes, not the arrow'
   })
 
   it('gives the body its own grab shape, and the milestone and GA-17 the filled circle of PK-5, distinct from resize', () => {
-    // WHY: table T-269's closing rule replaces IN-2's grab sign on a milestone
+    // Why: table T-269's closing rule replaces IN-2's grab sign on a milestone
     // with `PK-5`, so `GA-16` and `GA-17` both take the filled circle.
     const built = stage()
     const grab = shapeAt(built, barBody(built.loop))

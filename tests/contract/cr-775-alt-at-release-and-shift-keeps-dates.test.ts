@@ -36,7 +36,7 @@ const rowOf = (table: string, id: string) => {
   return found
 }
 
-// WHY: the column headings of the settings tables are Japanese; they are written as escapes to keep this file ASCII.
+// Why: the column headings of the settings tables are Japanese; they are written as escapes to keep this file ASCII.
 const HEADING_DEFAULT_VALUE = '既定値'
 const HEADING_DEFAULT = '既定'
 
@@ -46,14 +46,14 @@ const numberOf = (table: string, id: string, heading: string): number => {
   return Number(numbers[0])
 }
 
-// WHY: every number below is read from the settings tables, never held here.
+// Why: every number below is read from the settings tables, never held here.
 const S_1 = numberOf('T-201', 'S-1', HEADING_DEFAULT_VALUE)
 const S_8 = numberOf('T-201', 'S-8', HEADING_DEFAULT_VALUE)
 const S_577 = numberOf('T-205', 'S-577', HEADING_DEFAULT)
 const S_578 = numberOf('T-205', 'S-578', HEADING_DEFAULT)
 const S_208 = numberOf('T-206', 'S-208', HEADING_DEFAULT)
 
-// WHY: two task groups, one task in the first; 2026-10-12 is a Monday, 10/14 a Wednesday, 10/15 a Thursday.
+// Why: two task groups, one task in the first; 2026-10-12 is a Monday, 10/14 a Wednesday, 10/15 a Thursday.
 
 const TASK_GROUP_A = '75300000-0000-4000-8000-00000000000a'
 const TASK_GROUP_B = '75300000-0000-4000-8000-00000000000b'
@@ -66,7 +66,7 @@ const TEMPLATE = JSON.parse(
 
 const RULER_FONT = SETTINGS_DEFAULTS['rulerFontSizePx'] as number
 
-// WHY: FR-017 judges pxPerDay / (rulerFontSizePx * ratio / S-8) and pxPerDay = S-1 * ratio * zoomX, so the ratio cancels:
+// Why: FR-017 judges pxPerDay / (rulerFontSizePx * ratio / S-8) and pxPerDay = S-1 * ratio * zoomX, so the ratio cancels:
 // a zoomX for a wanted judged width is judged * rulerFontSizePx / (S-1 * S-8).
 const zoomXFor = (judged: number): number => (judged * RULER_FONT) / (S_1 * S_8)
 
@@ -139,7 +139,7 @@ function fixtureDocument(scene: Scene): Document {
     documentSettings: {
       ...(template['documentSettings'] as Record<string, unknown>),
       isTimeOfDayVisible: scene.isTimeOfDayVisible,
-      // WHY: the progress marker (GA-18) of an unstarted task would cover the middle of a short body.
+      // Why: the progress marker (GA-18) of an unstarted task would cover the middle of a short body.
       isProgressMarkerVisible: false,
       zoomX: scene.zoomX,
       scrollDate: scene.scrollDate,
@@ -152,7 +152,7 @@ function fixtureDocument(scene: Scene): Document {
   } as unknown as Document
 }
 
-// WHY: SG-2 on the hour tier -- judged between S-577 and S-578.
+// Why: SG-2 on the hour tier -- judged between S-577 and S-578.
 const HOUR_TIER: Scene = {
   start: '2026-10-14T09:00:00',
   finish: '2026-10-14T12:00:00',
@@ -162,7 +162,7 @@ const HOUR_TIER: Scene = {
   scrollDateFraction: 0.25,
 }
 
-// WHY: SG-2 on the half-hour grid tier (CR-850 folded SG-3 into SG-2) -- judged over S-578, kept under the FR-016 zoomX ceiling S-55 by staying near S-578.
+// Why: SG-2 on the half-hour grid tier (CR-850 folded SG-3 into SG-2) -- judged over S-578, kept under the FR-016 zoomX ceiling S-55 by staying near S-578.
 const HALF_HOUR_TIER: Scene = {
   ...HOUR_TIER,
   zoomX: zoomXFor(S_578 * 1.3),
@@ -250,7 +250,7 @@ const planBox = (loop: FrameLoop, uid: number): ScreenRect => {
 
 const hitAt = (loop: FrameLoop, at: Point): Hit | null => itemAtPointer(frameOf(loop).geometry, at.x, at.y, grabSizesOf())
 
-// WHY: the three grabs of a task body -- table T-270 PE-1 / PE-6 through T-266 GA-9 / GA-14 / GA-15.
+// Why: the three grabs of a task body -- table T-270 PE-1 / PE-6 through T-266 GA-9 / GA-14 / GA-15.
 const BODY_GRABS = ['GA-9', 'GA-14', 'GA-15']
 
 const bodyOf = (loop: FrameLoop, uid: number): Point => {
@@ -270,7 +270,7 @@ const groupY = (loop: FrameLoop, taskGroupId: string): number => {
   return found.y
 }
 
-// WHY: a travel of a number of calendar days (fractions allowed) across, and from task group A to `to` down.
+// Why: a travel of a number of calendar days (fractions allowed) across, and from task group A to `to` down.
 const travel = (loop: FrameLoop, days: number, to: string = TASK_GROUP_A): Point => ({
   x: days * pxPerDay(loop),
   y: groupY(loop, to) - groupY(loop, TASK_GROUP_A),
@@ -346,7 +346,7 @@ const SHIFT: Partial<InputModifiers> = { shift: true }
 const ALT: Partial<InputModifiers> = { alt: true }
 const SHIFT_ALT: Partial<InputModifiers> = { shift: true, alt: true }
 
-// WHY: the intermediate move carries the release-time keys by default, as a hand holding the key does.
+// Why: the intermediate move carries the release-time keys by default, as a hand holding the key does.
 function dragWith(
   built: Stage,
   from: Point,
@@ -365,7 +365,7 @@ function dragWith(
 const hasKind = (writes: readonly DocumentCommand[], kind: string): boolean =>
   writes.some((one) => (one as unknown as { kind: string }).kind === kind)
 
-// WHY: the release is read through the translator with the press row the press gets -- no premise on which row that is.
+// Why: the release is read through the translator with the press row the press gets -- no premise on which row that is.
 function writesOfDrag(
   scene: Scene,
   days: number,
@@ -391,7 +391,7 @@ function writesOfDrag(
 const settingsOf = (scene: Scene): DocumentSettings =>
   ({ ...SETTINGS_DEFAULTS, isTimeOfDayVisible: scene.isTimeOfDayVisible, zoomX: scene.zoomX }) as unknown as DocumentSettings
 
-// WHY: a pull of 2 h 20 min ends off a quarter hour: the 15-minute snap (11:15) differs from the raw pull (11:20).
+// Why: a pull of 2 h 20 min ends off a quarter hour: the 15-minute snap (11:15) differs from the raw pull (11:20).
 const PULL_DAYS = hours(2 + 20 / 60)
 
 describe('premise: the scenes sit on the T-378 rows they are named after', () => {
@@ -409,7 +409,7 @@ const T_378_SG_4_RETIRED = '（欠番 —— CR-850 で消した —— `Alt` �
 const T_023_MK_17_RETIRED = '（欠番 —— CR-850 で消した —— `Alt` ＋ 掴み代のドラッグは寄せの単位を選ばず、`MK-12` の割当の無い組合せであり、利用者が `Alt` の 1 分は要らないと定めた）'
 const QUARTER_HOUR_LANDING = { start: '2026-10-14T11:15:00', finish: '2026-10-14T14:15:00' }
 
-// WHY: CR-850 deleted "Alt (SG-4) is read at release"; these cases press the opposite -- Alt at press or release changes nothing.
+// Why: CR-850 deleted "Alt (SG-4) is read at release"; these cases press the opposite -- Alt at press or release changes nothing.
 describe(`FR-103 / T-378 SG-4 -- ${T_378_SG_4_RETIRED} -- Alt selects no snap unit, at press or at release`, () => {
   it('the retired rows still read as quoted', () => {
     expect(rowOf('T-378', 'SG-4').by['とき']).toBe(T_378_SG_4_RETIRED)
@@ -535,7 +535,7 @@ describe('MK-15 / MK-12 -- a press with Ctrl+Shift+Alt on a selected task body d
   })
 })
 
-// WHY: WCAG 2.1 contrast of two colors rounded to 8-bit sRGB (CF-6); the cells are #rrggbb or hsl(H S% L%).
+// Why: WCAG 2.1 contrast of two colors rounded to 8-bit sRGB (CF-6); the cells are #rrggbb or hsl(H S% L%).
 function rgbOf(cell: string): readonly [number, number, number] {
   const hex = /^#([0-9a-f]{6})$/i.exec(cell.trim())
   if (hex !== null) {

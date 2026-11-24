@@ -183,7 +183,7 @@ async function openFile(stage: Stage, text: string): Promise<void> {
   stage.runFrames()
 }
 
-// WHY: a document whose one calendar holds Monday to Friday with the given spans, and a given minutesPerDay (null reads as S-128, 480).
+// Why: a document whose one calendar holds Monday to Friday with the given spans, and a given minutesPerDay (null reads as S-128, 480).
 function fileText(spans: WorkingByDayType, minutesPerDay: number | null): string {
   const base = currentDocument() as unknown as Record<string, unknown>
   const schedule = base['schedule'] as Record<string, unknown>

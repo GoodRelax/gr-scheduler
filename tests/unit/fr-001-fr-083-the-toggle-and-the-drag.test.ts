@@ -206,7 +206,7 @@ const BAR_SHAPE_DRAG_MAKES_THE_SPAN =
 const FR_001_A_CLICK_MAKES_NO_BAR_TASK =
   '⛔ クリックでは、バーの形状のタスクを作らないこと（MUST NOT）'
 
-// WHY: CR-718 made TC-8 carry RS-53 and leave showing it to the T-233 display column (FR-076).
+// Why: CR-718 made TC-8 carry RS-53 and leave showing it to the T-233 display column (FR-076).
 const FR_001_TELLS_IT_MADE_NOTHING =
   '⭐ 作らなかった理由として 表 T-233 の `RS-53` を運ぶこと（MUST）'
 
@@ -639,7 +639,7 @@ function creations(action: InputAction | null): readonly any[] {
 // RULING A -- the palette entrance is a toggle, and the selection has no say
 // ---------------------------------------------------------------------------
 
-// WHY: wave 2 of CR-767 (JDG-2364) holds every arm as a child of the composite `armed`;
+// Why: wave 2 of CR-767 (JDG-2364) holds every arm as a child of the composite `armed`;
 // this reads the arm itself -- the child, or notArmed.
 function armOf(screen: ScreenValues): { readonly kind: string } {
   const state = screen.armModeState
@@ -874,7 +874,7 @@ function screenPane(language: DisplayLanguage): ScreenPane {
   const views: ScreenView[] = []
   let part: ScreenPart | null = null
   let textEntryStanding = false
-  // WHY: IF-9's notices raised since the shell last read them, in order.
+  // Why: IF-9's notices raised since the shell last read them, in order.
   const pending: FieldEditNotice[] = []
   const surface: ScreenSurface = {
     showScreenView: (view) => {
@@ -892,7 +892,7 @@ function screenPane(language: DisplayLanguage): ScreenPane {
     holdTextEntry: (standing) => {
       if (standing === textEntryStanding) return
       textEntryStanding = standing
-      // WHY: PR-1 is the row the name field names (table T-016).
+      // Why: PR-1 is the row the name field names (table T-016).
       pending.push({ kind: standing ? 'began' : 'ended', row: 'PR-1' })
     },
     endHeldEntryOnEnter(which) {

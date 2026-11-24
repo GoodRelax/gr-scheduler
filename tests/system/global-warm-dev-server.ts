@@ -4,7 +4,7 @@ import { launchReferenceBrowser, readSettledDrawnSvg } from './live-app'
 
 const WARM_UP_TIMEOUT_MS = 180_000
 
-// WHY: origin is read back from config.webServer.url instead of recomputed,
+// Why: origin is read back from config.webServer.url instead of recomputed,
 // so this file cannot drift from the port playwright.config.ts derived.
 /** @purity non-pure */
 export default async function globalSetup(config: FullConfig): Promise<void> {

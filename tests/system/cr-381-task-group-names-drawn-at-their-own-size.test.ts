@@ -14,7 +14,7 @@ const BASE_SCREEN = screenOf(rowOf(specTable('T-025'), 'MC-6'))
 const SHIPPED_BUILD = join(process.cwd(), 'dist', 'index.html')
 const SIZE_TOLERANCE_PX = 0.05
 
-// see FR-065, T-109
+// Spec: FR-065, T-109
 const AGENT_API_ENTRANCE = ((): string => {
   const wanted = /FR-065(?![0-9])/
   const found = specTable('T-109').rows.filter((row) => row.cells.some((cell) => wanted.test(cell)))
@@ -27,7 +27,7 @@ const AGENT_API_ENTRANCE = ((): string => {
 interface TaskGroupNameSettings {
   readonly taskGroupTitleFont: number
   readonly taskGroupTitleTopScale: number
-  // see FR-039, T-202, S-234
+  // Spec: FR-039, T-202, S-234
   readonly displayScale: number
 }
 
@@ -39,9 +39,9 @@ interface MeasuredTaskGroup {
   readonly controls: readonly string[]
 }
 
-// see FR-094, FR-039, T-201, T-252
-// WHY: S-36 is a px row of the label group, so DS-1 of table T-252 has the
-// WHY: drawing multiply it once by the ratio; the stored value stays as it is.
+// Spec: FR-094, FR-039, T-201, T-252
+// Why: S-36 is a px row of the label group, so DS-1 of table T-252 has the
+// Why: drawing multiply it once by the ratio; the stored value stays as it is.
 /** @purity pure */
 function expectedNamePx(depth: number, settings: TaskGroupNameSettings): number {
   const stored =
@@ -63,7 +63,7 @@ test.afterAll(async () => {
   await browser?.close()
 })
 
-// see FR-065, T-109
+// Spec: FR-065, T-109
 /** @purity non-pure */
 async function openAgentApi(page: Page): Promise<void> {
   const at = await page.evaluate((wanted: string) => {
@@ -81,7 +81,7 @@ async function openAgentApi(page: Page): Promise<void> {
   await page.waitForTimeout(500)
 }
 
-// see T-107
+// Spec: T-107
 /** @purity semi-pure-mutable */
 async function readTaskGroupNameSettings(page: Page): Promise<TaskGroupNameSettings> {
   return page.evaluate(() => {
@@ -90,14 +90,14 @@ async function readTaskGroupNameSettings(page: Page): Promise<TaskGroupNameSetti
     const held = api.readDocument() as { documentSettings: Pick<TaskGroupNameSettings, 'displayScale'> }
     return held.documentSettings.displayScale
   }).then((displayScale) => ({
-    // WHY: the two sizes are constants of the artifact (CR-572); a file never carries them.
+    // Why: the two sizes are constants of the artifact (CR-572); a file never carries them.
     taskGroupTitleFont: SETTINGS_CONSTANTS.taskGroupTitleFont,
     taskGroupTitleTopScale: SETTINGS_CONSTANTS.taskGroupTitleTopScale,
     displayScale,
   }))
 }
 
-// see FR-085, T-051
+// Spec: FR-085, T-051
 /** @purity semi-pure-mutable */
 async function measureTaskGroups(page: Page): Promise<MeasuredTaskGroup[]> {
   return page.evaluate(() => {

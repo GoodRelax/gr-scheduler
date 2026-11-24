@@ -46,8 +46,8 @@ async function press(page: Page, selector: string): Promise<void> {
   await settle(page)
 }
 
-// see SJ-1, DT-4, T-337
-// WHY: since CR-660 moved DT-4 left, the first name cell can sit under the palette (UZ-5
+// Spec: SJ-1, DT-4, T-337
+// Why: since CR-660 moved DT-4 left, the first name cell can sit under the palette (UZ-5
 // in front of UZ-6); the case presses the first name cell whose center is the cell.
 /** @purity non-pure */
 async function reachableNameCell(page: Page): Promise<{ readonly x: number; readonly y: number } | null> {

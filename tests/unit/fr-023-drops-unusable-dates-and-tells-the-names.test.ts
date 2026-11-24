@@ -148,7 +148,7 @@ const IMPORT_REPORT = partNameOf('U-62')
 
 const T_036: SpecTable = specTable('T-036')
 
-// see FR-036, T-036
+// Spec: FR-036, T-036
 const assignmentsIn = (cell: string): readonly (readonly string[])[] =>
   cell
     .split('\uff0f')

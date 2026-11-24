@@ -230,7 +230,7 @@ function taskGroupMoves(document: Document, bar: { readonly uid: number; readonl
     .slice()
     .sort((a, b) => a.order - b.order)
     .map((each) => each.id)
-  // WHY: moving a nested task group to the top is no longer here -- T-015a HM-12 gives its Task the root as parent task
+  // Why: moving a nested task group to the top is no longer here -- T-015a HM-12 gives its Task the root as parent task
   // (CR-706), so that move changes more than the sibling order.
   return [
     ['reorderTaskGroupSiblings', groupEdited(document, { kind: 'reorderTaskGroupSiblings', parentId: null, orderedIds: [...rootTaskGroups].reverse() })],

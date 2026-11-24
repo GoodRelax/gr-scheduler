@@ -48,7 +48,7 @@ const numberOf = (table: string, id: string, heading: string): number => {
   return Number(numbers[0])
 }
 
-// WHY: every number below is read from the settings tables, never held here.
+// Why: every number below is read from the settings tables, never held here.
 const S_1 = numberOf('T-201', 'S-1', '既定値')
 const S_8 = numberOf('T-201', 'S-8', '既定値')
 const S_85 = numberOf('T-205', 'S-85', '既定')
@@ -62,7 +62,7 @@ const timeOfRow = (id: string): string => {
   if (found === null) throw new Error(`${id} of table T-209 holds no time`)
   return found[0]
 }
-// WHY: the default times a day snap writes (T-350 WT-1 / WT-2) are read from T-209, never held here.
+// Why: the default times a day snap writes (T-350 WT-1 / WT-2) are read from T-209, never held here.
 const S_482 = timeOfRow('S-482')
 const S_483 = timeOfRow('S-483')
 
@@ -128,7 +128,7 @@ describe('CR-753 -- the spec sentences these cases are driven by', () => {
   })
 })
 
-// WHY: two task groups, one task in the first; 2026-10-12 is a Monday, 10/14 a Wednesday, 10/15 a Thursday.
+// Why: two task groups, one task in the first; 2026-10-12 is a Monday, 10/14 a Wednesday, 10/15 a Thursday.
 
 const TASK_GROUP_A = '75300000-0000-4000-8000-00000000000a'
 const TASK_GROUP_B = '75300000-0000-4000-8000-00000000000b'
@@ -141,7 +141,7 @@ const TEMPLATE = JSON.parse(
 
 const RULER_FONT = SETTINGS_DEFAULTS['rulerFontSizePx'] as number
 
-// WHY: FR-017 judges pxPerDay / (rulerFontSizePx * ratio / S-8) and pxPerDay = S-1 * ratio * zoomX, so the ratio cancels:
+// Why: FR-017 judges pxPerDay / (rulerFontSizePx * ratio / S-8) and pxPerDay = S-1 * ratio * zoomX, so the ratio cancels:
 // a zoomX for a wanted judged width is judged * rulerFontSizePx / (S-1 * S-8).
 const zoomXFor = (judged: number): number => (judged * RULER_FONT) / (S_1 * S_8)
 
@@ -214,7 +214,7 @@ function fixtureDocument(scene: Scene): Document {
     documentSettings: {
       ...(template['documentSettings'] as Record<string, unknown>),
       isTimeOfDayVisible: scene.isTimeOfDayVisible,
-      // WHY: the progress marker (GA-18) of an unstarted task would cover the middle of a short body.
+      // Why: the progress marker (GA-18) of an unstarted task would cover the middle of a short body.
       isProgressMarkerVisible: false,
       zoomX: scene.zoomX,
       scrollDate: scene.scrollDate,
@@ -227,7 +227,7 @@ function fixtureDocument(scene: Scene): Document {
   } as unknown as Document
 }
 
-// WHY: SG-1 with the time shown -- judged between S-85 (day tier) and S-577 (hour tier).
+// Why: SG-1 with the time shown -- judged between S-85 (day tier) and S-577 (hour tier).
 const DAY_SNAP_TIME_SHOWN: Scene = {
   start: '2026-10-14T06:00:00',
   finish: '2026-10-14T10:00:00',
@@ -237,7 +237,7 @@ const DAY_SNAP_TIME_SHOWN: Scene = {
   scrollDateFraction: 0,
 }
 
-// WHY: SG-1 with the time hidden -- the FR-016 day ceiling is area / (S-229 * S-1 * ratio); a third of it is safe.
+// Why: SG-1 with the time hidden -- the FR-016 day ceiling is area / (S-229 * S-1 * ratio); a third of it is safe.
 const DAY_SNAP_TIME_HIDDEN: Scene = {
   start: '2026-10-12T06:00:00',
   finish: '2026-10-12T10:00:00',
@@ -247,7 +247,7 @@ const DAY_SNAP_TIME_HIDDEN: Scene = {
   scrollDateFraction: 0,
 }
 
-// WHY: SG-2 on the hour tier -- judged between S-577 and S-578.
+// Why: SG-2 on the hour tier -- judged between S-577 and S-578.
 const HOUR_TIER: Scene = {
   start: '2026-10-14T09:00:00',
   finish: '2026-10-14T12:00:00',
@@ -257,7 +257,7 @@ const HOUR_TIER: Scene = {
   scrollDateFraction: 0.25,
 }
 
-// WHY: SG-2 on the half-hour grid tier (CR-850 folded SG-3 into SG-2) -- judged over S-578, kept under the FR-016 zoomX ceiling S-55 by staying near S-578.
+// Why: SG-2 on the half-hour grid tier (CR-850 folded SG-3 into SG-2) -- judged over S-578, kept under the FR-016 zoomX ceiling S-55 by staying near S-578.
 const HALF_HOUR_TIER: Scene = {
   ...HOUR_TIER,
   zoomX: zoomXFor(S_578 * 1.3),
@@ -346,7 +346,7 @@ const planBox = (loop: FrameLoop, uid: number): ScreenRect => {
 
 const hitAt = (loop: FrameLoop, at: Point): Hit | null => itemAtPointer(frameOf(loop).geometry, at.x, at.y, grabSizesOf())
 
-// WHY: the three grabs of a task body -- table T-270 PE-1 / PE-6 through T-266 GA-9 / GA-14 / GA-15.
+// Why: the three grabs of a task body -- table T-270 PE-1 / PE-6 through T-266 GA-9 / GA-14 / GA-15.
 const BODY_GRABS = ['GA-9', 'GA-14', 'GA-15']
 
 const bodyOf = (loop: FrameLoop, uid: number): Point => {
@@ -366,7 +366,7 @@ const groupY = (loop: FrameLoop, taskGroupId: string): number => {
   return found.y
 }
 
-// WHY: a travel of a number of calendar days (fractions allowed) across, and from task group A to `to` down.
+// Why: a travel of a number of calendar days (fractions allowed) across, and from task group A to `to` down.
 const travel = (loop: FrameLoop, days: number, to: string = TASK_GROUP_A): Point => ({
   x: days * pxPerDay(loop),
   y: groupY(loop, to) - groupY(loop, TASK_GROUP_A),
@@ -539,7 +539,7 @@ describe('case 2 -- CY-9 (2): a Ctrl drag of 0.2 day snaps back to the same day 
     expect(selectedUids(built)).toEqual([SOURCE])
   })
 
-  // WHY: SPEC-READ -- a body move landing on its own day may rewrite the times (FR-103); only the day is pinned.
+  // Why: SPEC-READ -- a body move landing on its own day may rewrite the times (FR-103); only the day is pinned.
   it('S5 contrast: the plain move does not move the body to another day', () => {
     const built = stage(DAY_SNAP_TIME_SHOWN)
     selectSource(built)
@@ -570,7 +570,7 @@ describe('case 3 -- PTD-7: while held at 0.6 day, the copy is drawn on the day t
     const held = frameOf(built.loop).geometry.tasks.filter((one) => one.taskUid !== SOURCE)
     expect(held.length, 'PTD-7: one copy is drawn while held').toBe(1)
     const heldBox = boxOf((held[0] as { plan: BarGeometry | null }).plan, 'the held copy')
-    // WHY: with the time shown a bar stands on its instants (RV-1); one day later is one day width to the right.
+    // Why: with the time shown a bar stands on its instants (RV-1); one day later is one day width to the right.
     expect(Math.abs(heldBox.x - (sourceBox.x + pxPerDay(built.loop))), 'the held copy is drawn on 10/15 06:00').toBeLessThan(1)
     expect(Math.abs(planBox(built.loop, SOURCE).x - sourceBox.x), 'the source is drawn where it was').toBeLessThan(1)
     built.send(pointer('up', to, CTRL))
@@ -588,7 +588,7 @@ describe('case 4 -- CY-5 / SG-1, time hidden: the copy shifts by the dropped day
     expect(day(copy.finish)).toBe('2026-10-15')
   })
 
-  // WHY: SPEC-READ -- the CY-5 sentence that the copy keeps the source time and length is read to hold with the time hidden.
+  // Why: SPEC-READ -- the CY-5 sentence that the copy keeps the source time and length is read to hold with the time hidden.
   it('S5: the copy keeps the source time and length with the time hidden', () => {
     const { before, after } = copyThroughShell(DAY_SNAP_TIME_HIDDEN, 3, CTRL)
     expect(planOf(theCopy(before, after))).toEqual({ start: '2026-10-15T06:00:00', finish: '2026-10-15T10:00:00' })
@@ -618,7 +618,7 @@ describe('case 5 -- CY-5: Ctrl + Shift copies with an amount of 0 whatever the p
     expect(landing.taskGroupIdOf[SOURCE]).toBe(TASK_GROUP_B)
   })
 
-  // WHY: SPEC-READ -- with Shift the CY-5 amount is 0, so a pull across only (0 task groups) is CY-9 (2).
+  // Why: SPEC-READ -- with Shift the CY-5 amount is 0, so a pull across only (0 task groups) is CY-9 (2).
   it('S5: a Ctrl + Shift pull across only (no task group) copies nothing (CY-9 (2))', () => {
     const { built, before, after } = copyThroughShell(DAY_SNAP_TIME_SHOWN, 2.6, CTRL_SHIFT)
     expect(after).toEqual(before)

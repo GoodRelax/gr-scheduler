@@ -11,7 +11,7 @@ import { rowOf } from './sws-case'
 
 const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
-// WHY: each constant ends exactly at its marker, cut from the manuscript as check 39 reads it.
+// Why: each constant ends exactly at its marker, cut from the manuscript as check 39 reads it.
 const BR_2_SEAT =
   '| BR-2 | 席 | 帯の左端から、同書の 表 T-206 の `S-226` に `S-235` を掛けた長さだけ右を左端とし、幅が `S-490` × 同表の `S-462` × `S-235` の席を取ること（MUST）'
 const BR_2_GLYPH = '字は、左の縁（`BR-3`）が席の左端に接するように置き、縦は `Document Title` と同じく帯の縦の中央に置くこと（MUST）'
@@ -44,12 +44,12 @@ const S_490 = settingOf('S-490')
 const S_491 = settingOf('S-491')
 const S_492 = settingOf('S-492')
 
-// see BR-2, BR-7
+// Spec: BR-2, BR-7
 const INSET_PX = S_226 * S_235
 const SEAT_PX = S_490 * S_462 * S_235
 const TITLE_LEFT_PX = (3 * S_226 + S_490 * S_462) * S_235 + S_492
 
-// WHY: S-462's note gives the default font a margin match within one pixel; layout rounds below that.
+// Why: S-462's note gives the default font a margin match within one pixel; layout rounds below that.
 const ONE_PX = 1
 const SUBPIXEL = 0.75
 
@@ -79,8 +79,8 @@ test.afterAll(async () => {
   await browser?.close()
 })
 
-// see BR-2, BR-3, BR-7
-// WHY: the ink of GRS is the advance box moved by canvas measureText's bounding box, widened by the rim S-461 on each side.
+// Spec: BR-2, BR-3, BR-7
+// Why: the ink of GRS is the advance box moved by canvas measureText's bounding box, widened by the rim S-461 on each side.
 /** @purity semi-pure-mutable */
 async function readHeader(page: Page): Promise<Header> {
   return page.evaluate((rim: number) => {
@@ -107,7 +107,7 @@ async function readHeader(page: Page): Promise<Header> {
       const rect = one(role).getBoundingClientRect()
       return { left: rect.left, right: rect.right, top: rect.top, bottom: rect.bottom }
     }
-    // WHY: the seat is the box holding the Branding link, the one the header lays out beside the divider.
+    // Why: the seat is the box holding the Branding link, the one the header lays out beside the divider.
     const seat = (branding.parentElement ?? branding).getBoundingClientRect()
     return {
       innerLeft: outer.left + (Number.parseFloat(style.borderLeftWidth) || 0),

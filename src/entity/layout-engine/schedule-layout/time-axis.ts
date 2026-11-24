@@ -1,4 +1,4 @@
-// ScheduleLayout -- the time axis: a day to x and back, and the ruler tier (FR-017).
+// File: ScheduleLayout: the time axis: a day to x and back, and the ruler tier (FR-017).
 // @unit      UF-132  (docs/spec/05-07-design.md, table T-075)
 // @component ScheduleLayout, layer layoutEngine (table T-062)
 // @purity    pure
@@ -24,14 +24,14 @@ export function serialOf(day: CalendarDay): number {
   return Math.floor(Date.UTC(day.year, day.month - 1, day.day) / MS_PER_DAY)
 }
 
-// see FR-017, S-8, T-205
+// Spec: FR-017, S-8, T-205
 /** @purity pure */
 export function thresholdPxPerDayOf(pxPerDay: number, settings: DrawnSettings): number {
   return pxPerDay / (settings.rulerFontSizePx / SETTINGS_CONSTANTS.fontMin)
 }
 
-// see LC-3, FR-017, T-252, DS-1, DS-4, S-8, TM-5, S-577
-// TRAP: STORED settings with a DRAWN pxPerDay; the ruler font is scaled here, the S-8 divisor is not.
+// Spec: LC-3, FR-017, T-252, DS-1, DS-4, S-8, TM-5, S-577
+// Trap: STORED settings with a DRAWN pxPerDay; the ruler font is scaled here, the S-8 divisor is not.
 /** @purity pure */
 export function rulerTierOf(pxPerDay: number, storedSettings: DocumentSettings): RulerTier {
   const settings = drawnSettingsOf(storedSettings)
@@ -47,7 +47,7 @@ const DAYS_PER_WEEK = 7
 
 const SNAP_MINUTES = { 'SG-2': 15 } as const
 
-// see T-378, SG-1, SG-2, FR-103
+// Spec: T-378, SG-1, SG-2, FR-103
 /** @purity pure */
 export function snapMinutesOf(pxPerDay: number, storedSettings: DocumentSettings): number {
   const settings = drawnSettingsOf(storedSettings)
@@ -57,7 +57,7 @@ export function snapMinutesOf(pxPerDay: number, storedSettings: DocumentSettings
   return MINUTES_PER_CALENDAR_DAY
 }
 
-// see LF-1
+// Spec: LF-1
 /** @purity pure */
 export function tickStrideOf(layout: ScheduleLayout, _settings: DocumentSettings): number {
   return layout.tier === 'yearMonthWeek' ? DAYS_PER_WEEK : 1
@@ -65,8 +65,8 @@ export function tickStrideOf(layout: ScheduleLayout, _settings: DocumentSettings
 
 export type TimeAxis = Pick<ScheduleLayout, 'pxPerDay' | 'originDay' | 'originX'>
 
-// see FR-017, DC-3
-// WHY: the axis alone, without laying out a task group, for readers that only turn a pointer into a day.
+// Spec: FR-017, DC-3
+// Why: the axis alone, without laying out a task group, for readers that only turn a pointer into a day.
 /** @purity pure */
 export function timeAxisOf(storedSettings: DocumentSettings, regions: ScreenRegions): TimeAxis {
   const settings = drawnSettingsOf(storedSettings)
@@ -77,8 +77,8 @@ export function timeAxisOf(storedSettings: DocumentSettings, regions: ScreenRegi
   return { pxPerDay, originDay, originX }
 }
 
-// see FR-017, T-252, DS-4
-// TRAP: a quotient within an ulp of a whole day IS that day; floor alone answers the day before.
+// Spec: FR-017, T-252, DS-4
+// Trap: a quotient within an ulp of a whole day IS that day; floor alone answers the day before.
 /** @purity pure */
 export function dateAtX(layout: TimeAxis, x: number): CalendarDay | null {
   if (layout.originDay === null || layout.pxPerDay <= 0) return null
@@ -89,8 +89,8 @@ export function dateAtX(layout: TimeAxis, x: number): CalendarDay | null {
   return { year: foundAt.getUTCFullYear(), month: foundAt.getUTCMonth() + 1, day: foundAt.getUTCDate() }
 }
 
-// see FX-1, FX-2, S-532
-// WHY: the one reading of whether the span reaches the screen: fixed, both ends dated, the finish not before the start.
+// Spec: FX-1, FX-2, S-532
+// Why: the one reading of whether the span reaches the screen: fixed, both ends dated, the finish not before the start.
 /** @purity pure */
 export function fixedFitSpanOf(
   settings: DocumentSettings,
@@ -103,8 +103,8 @@ export function fixedFitSpanOf(
   return days < 1 ? null : { start, finish, days }
 }
 
-// see FX-6, FX-7
-// WHY: the right end is read 1 px short of the edge; the edge itself is the next day's column.
+// Spec: FX-6, FX-7
+// Why: the right end is read 1 px short of the edge; the edge itself is the next day's column.
 /** @purity pure */
 export function shownSpanOf(
   axis: TimeAxis,
@@ -128,14 +128,14 @@ export function xFromDay(layout: ScheduleLayout, day: CalendarDay): number {
   return xOnTimeAxis(serialOf(origin), layout.pxPerDay, layout.originX, day)
 }
 
-// see RV-1, RV-6, FR-158, FR-054
+// Spec: RV-1, RV-6, FR-158, FR-054
 /** @purity pure */
 export function xOfInstant(layout: TimeAxis, instant: number): number {
   if (layout.originDay === null) return layout.originX
   return layout.originX + (instant / MINUTES_PER_CALENDAR_DAY - serialOf(layout.originDay)) * layout.pxPerDay
 }
 
-// see FR-103, T-378
+// Spec: FR-103, T-378
 /** @purity pure */
 export function snappedInstantAtX(layout: TimeAxis, x: number, snapMinutes: number): number | null {
   if (layout.originDay === null || layout.pxPerDay <= 0) return null

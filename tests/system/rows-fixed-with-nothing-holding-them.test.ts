@@ -1,8 +1,8 @@
 // System cases for seven fixed-but-unautomated rows of defects.md (DFC-27, DFC-115, DFC-133, DFC-157, DFC-180, DFC-209, DFC-215).
 
-// WHY: a Playwright file, not a unit -- DFC-215 asks for rules that live only
+// Why: a Playwright file, not a unit -- DFC-215 asks for rules that live only
 // in the shell, unreachable from a Vitest and impossible to publish as a seam.
-// WHY: every number asserted (scrollbar floor, press/drag boundary, screen,
+// Why: every number asserted (scrollbar floor, press/drag boundary, screen,
 // field column) is read out of docs/spec at read time, never measured locally.
 
 import { expect, test, type Browser, type Page } from '@playwright/test'
@@ -38,7 +38,7 @@ const PRESS_OR_DRAG_PX = settingOf('S-208')
 
 const BASE_SCREEN = screenOf(rowOf(T025, 'MC-6'))
 
-// WHY: resolved rather than written -- naming the entity and column here
+// Why: resolved rather than written -- naming the entity and column here
 // means the case follows the manuscript if the row itself is renumbered.
 /** @purity pure */
 function columnRowOf(entity: string, column: string): string {
@@ -53,7 +53,7 @@ function columnRowOf(entity: string, column: string): string {
   return found[0]?.id ?? ''
 }
 
-// WHY: IR-1 marks a field by its table T-016 row; the task-group-name field alone
+// Why: IR-1 marks a field by its table T-016 row; the task-group-name field alone
 // keeps the ERD column (AT-53), so only the name is read from table T-058.
 const TASK_GROUP_NAME_COLUMN = columnRowOf('TaskGroup', 'name')
 
@@ -72,7 +72,7 @@ function propertyRowOf(entity: string, column: string): string {
 
 const ROW_HEIGHT_FIELD = propertyRowOf('TaskGroup', 'minHeightPx')
 
-// WHY: found by what the table says the entrance does, so that no case
+// Why: found by what the table says the entrance does, so that no case
 // spells an IC-nn of its own.
 /** @purity pure */
 function entranceNaming(text: string): string {
@@ -86,7 +86,7 @@ function entranceNaming(text: string): string {
   return found[0]?.id ?? ''
 }
 
-// WHY: built from code points, not literal characters -- rule 03 section 5
+// Why: built from code points, not literal characters -- rule 03 section 5
 // keeps this tree ASCII, and a literal would be invisible in a diff.
 const FOLD_ALL_BELOW = String.fromCharCode(
   0x30bf, 0x30b9, 0x30af, 0x30b0, 0x30eb, 0x30fc, 0x30d7, 0x306e, 0x914d, 0x4e0b, 0x3092,
@@ -107,7 +107,7 @@ const HIGHLIGHT_BOX_WORD = String.fromCharCode(
 const FOLD_BELOW_ENTRANCE = entranceNaming(FOLD_ALL_BELOW)
 const OPEN_ONE_TIER_ENTRANCE = entranceNaming(OPEN_ONE_TIER)
 
-// WHY: not entranceNaming -- table T-109 prints the same word in two
+// Why: not entranceNaming -- table T-109 prints the same word in two
 // entrances' purpose, so the holding table T-023b names must pick the row.
 /** @purity pure */
 function entranceArming(holding: string): string {
@@ -135,7 +135,7 @@ test.beforeAll(async () => {
 })
 
 test.afterAll(async () => {
-  // WHY: this is the hook's own allowance, not an assertion's -- see
+  // Why: this is the hook's own allowance, not an assertion's -- see
   // CLEARING_UP_MS in ./live-app for the measurement behind it.
   test.setTimeout(CLEARING_UP_MS)
   await browser?.close()
@@ -152,13 +152,13 @@ interface Opened {
   close(): Promise<void>
 }
 
-// WHY: the same selectors the neighboring System files lean on -- no spec
+// Why: the same selectors the neighboring System files lean on -- no spec
 // row fixes how a part is marked in the page.
 const CANVAS = '[data-role="Schedule Canvas"] svg'
 const CANVAS_PART = '[data-role="Schedule Canvas"]'
 const TASK_GROUP_PANEL_BOX = '[data-role="Task Group Panel"]'
 const PROPERTIES = '[data-role="Properties Panel"]'
-// see PR-21
+// Spec: PR-21
 const COMMENT_BOX_TEXT_ROW = 'PR-21'
 const SCROLLBARS = '[data-role="Scrollbars"]'
 const DIVIDER = '[data-role="Panel Divider"]'
@@ -185,7 +185,7 @@ interface DrawnTaskGroup {
   readonly depth: number
   readonly height: number
   readonly label: string
-  // WHY: a name longer than the room comes back with an ellipsis (FR-085),
+  // Why: a name longer than the room comes back with an ellipsis (FR-085),
   // which every case comparing a typed name reads first.
   readonly isCut: boolean
 }
@@ -202,11 +202,11 @@ async function drawnTaskGroups(page: Page): Promise<DrawnTaskGroup[]> {
   )
 }
 
-// WHY: short on purpose -- a name FR-085 legitimately cuts would make these
+// Why: short on purpose -- a name FR-085 legitimately cuts would make these
 // cases argue about that instead of the name they compare against.
 const SHORT_NAME = 'Row Zed'
 
-// WHY: not the middle of the name's box -- the task group's folding controls draw
+// Why: not the middle of the name's box -- the task group's folding controls draw
 // over that end, so the page is asked which element is actually on top.
 /** @purity semi-pure-mutable */
 async function nameSpotOf(page: Page, index: number): Promise<{ x: number; y: number } | null> {
@@ -223,7 +223,7 @@ async function nameSpotOf(page: Page, index: number): Promise<{ x: number; y: nu
   }, index)
 }
 
-// WHY: a real pointer, not element.click() -- the shell reads the pointer,
+// Why: a real pointer, not element.click() -- the shell reads the pointer,
 // and a synthetic click has reached nothing in this project before.
 /** @purity non-pure */
 async function pressAt(page: Page, at: { x: number; y: number }): Promise<void> {
@@ -298,7 +298,7 @@ async function cursorAt(page: Page, x: number, y: number): Promise<string> {
 
 const REACH_PX = 160
 
-// WHY: ground below the last task group does not do -- FR-019 (MUST) holds an
+// Why: ground below the last task group does not do -- FR-019 (MUST) holds an
 // annotation's position by a task group identifier, which that ground has none of.
 /** @purity non-pure */
 async function groundOnADrawnTaskGroup(page: Page): Promise<{ x: number; y: number } | null> {
@@ -409,7 +409,7 @@ async function hostScrollbarThickness(page: Page): Promise<number> {
   })
 }
 
-// WHY: proves both bars are drawn at all (SC-4 MUST), so the two cases below
+// Why: proves both bars are drawn at all (SC-4 MUST), so the two cases below
 // cannot pass by measuring a bar that is not on the screen.
 test('control for DFC-115: both scrollbars are on the screen (SC-4 of table T-031)', async ({
   baseURL,
@@ -423,7 +423,7 @@ test('control for DFC-115: both scrollbars are on the screen (SC-4 of table T-03
   }
 })
 
-// WHY: DFC-215's evidence as much as DFC-115's -- the halving applies to a
+// Why: DFC-215's evidence as much as DFC-115's -- the halving applies to a
 // thickness only the host reports, which no Vitest can be given.
 test('DFC-115: neither scrollbar is drawn thinner than `S-205`, the floor FR-051 states', async ({
   baseURL,
@@ -468,7 +468,7 @@ test('DFC-115: the thumb inside each scrollbar is as thick as the bar', async ({
   }
 })
 
-// WHY: DFC-215's second piece of evidence -- FR-100's MUST and MUST NOT are
+// Why: DFC-215's second piece of evidence -- FR-100's MUST and MUST NOT are
 // both asked of one page, so neither half can pass by the page being broken.
 test('DFC-215: FR-100 -- the host warning is asked for only once the document is dirty', async ({
   baseURL,
@@ -493,7 +493,7 @@ test('DFC-215: FR-100 -- the host warning is asked for only once the document is
   }
 })
 
-// WHY: the field is found by the column table T-058 gives it, so this case
+// Why: the field is found by the column table T-058 gives it, so this case
 // follows a renumbering of the manuscript rather than naming AT-53 itself.
 test('DFC-180: pressing a task group name twice opens the panel with the name field focused and all of it selected', async ({
   baseURL,
@@ -515,7 +515,7 @@ test('DFC-180: pressing a task group name twice opens the panel with the name fi
         return {
           panelWidth: Math.round(box?.width ?? 0),
           focusedRow: focused?.getAttribute('data-field-row') ?? null,
-          // WHY: FR-006 wraps a text field downwards, so the name field is a textarea since CR-408.
+          // Why: FR-006 wraps a text field downwards, so the name field is a textarea since CR-408.
           selection:
             focused instanceof HTMLInputElement || focused instanceof HTMLTextAreaElement
               ? { start: focused.selectionStart, end: focused.selectionEnd, value: focused.value }
@@ -541,21 +541,21 @@ test('DFC-180: pressing a task group name twice opens the panel with the name fi
   }
 })
 
-// WHY: both faces (panel and task group) are asked in one case, so FR-006 cannot
+// Why: both faces (panel and task group) are asked in one case, so FR-006 cannot
 // pass by the confirmed value reaching neither, or only one of them.
 test('DFC-133: confirming the height field moves the panel and the task group together', async ({
   baseURL,
 }) => {
   const opened = await openTheApp(baseURL)
   try {
-    // WHY: DFC-1086: the template carries no stated task group height, so this case
+    // Why: DFC-1086: the template carries no stated task group height, so this case
     // starts from the blank field on task group 0, the first drawn task group.
     await openPanelOnTaskGroup(opened.page, 0)
     const before = (await drawnTaskGroups(opened.page))[0] as DrawnTaskGroup
     const shownBefore = (await panelFields(opened.page))[ROW_HEIGHT_FIELD]
     expect(shownBefore, `the panel shows ${ROW_HEIGHT_FIELD} blank to begin with`).toBe('')
 
-    // WHY: T-338 MH-2 (CR-689): the value input opens only once its check is ticked.
+    // Why: T-338 MH-2 (CR-689): the value input opens only once its check is ticked.
     await opened.page.locator(`${PROPERTIES} input[type="checkbox"][data-field-row="MH-2"]`).check()
     await opened.page.waitForTimeout(900)
     const wanted = before.height + 56
@@ -597,7 +597,7 @@ test('DFC-133: confirming the name field moves the panel and the task group head
 
 const WIDEN_BY_PX = 90
 
-// WHY: the undo has to reach something first, or this case would pass on a
+// Why: the undo has to reach something first, or this case would pass on a
 // keystroke that did nothing -- the rename (UN-14) is asserted before UN-16.
 test('DFC-27: an undo of an unrelated edit leaves the panel width where the reader put it', async ({
   baseURL,
@@ -661,7 +661,7 @@ function taskGroupWithAGrandchild(rows: readonly DrawnTaskGroup[]): number {
   return -1
 }
 
-// WHY: the task group is chosen by having a grandchild drawn under it, and that
+// Why: the task group is chosen by having a grandchild drawn under it, and that
 // choice is asserted first -- a document with no second tier would say nothing.
 test('DFC-157: a folded task group hides every tier below it, and opens exactly one back', async ({
   baseURL,
@@ -707,7 +707,7 @@ test('DFC-157: a folded task group hides every tier below it, and opens exactly 
   }
 })
 
-// WHY: proves the pointer reaches the canvas and a drag places something
+// Why: proves the pointer reaches the canvas and a drag places something
 // (FR-019), so the DFC-209 case below cannot pass on a page placing nothing.
 test('control for DFC-209: with the highlight box armed, a drag on empty ground places one', async ({
   baseURL,
@@ -769,7 +769,7 @@ test('DFC-209: with the highlight box armed, a press that does not travel places
   }
 })
 
-// WHY: CR-341 narrowed FR-019's MUST NOT to the highlight box by name -- the
+// Why: CR-341 narrowed FR-019's MUST NOT to the highlight box by name -- the
 // comment box places at one point (AR-5) and was never inside that rule.
 test('DFC-209: the comment box is outside that MUST NOT -- one press still places one', async ({
   baseURL,
@@ -790,7 +790,7 @@ test('DFC-209: the comment box is outside that MUST NOT -- one press still place
     await pressAt(page, at)
     await page.waitForTimeout(900)
 
-    // WHY: the drawn-element count is no proof of a placed box: the placed box is selected (CR-782) and the
+    // Why: the drawn-element count is no proof of a placed box: the placed box is selected (CR-782) and the
     // panel opens beside the schedule, which narrows it and draws fewer elements than before.
     expect(
       COMMENT_BOX_TEXT_ROW in (await panelFields(page)),

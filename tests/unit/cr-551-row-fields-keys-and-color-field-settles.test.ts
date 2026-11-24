@@ -29,7 +29,7 @@ const verticalIn = (table: string, id: string) => {
   return found
 }
 
-// see T-016
+// Spec: T-016
 const T_016 = specTable('T-016')
 const t016RowOf = (subject: string, column: string): string => {
   const found = T_016.rows.find(
@@ -39,7 +39,7 @@ const t016RowOf = (subject: string, column: string): string => {
   return found.id
 }
 
-// see T-294
+// Spec: T-294
 const TRANSPARENT = bare(verticalIn('T-294', 'S-324').cells[1] ?? '')
 const BLUE = bare(verticalIn('T-294', 'S-319').cells[1] ?? '')
 
@@ -69,7 +69,7 @@ interface Bench {
   svg(): string
 }
 
-// WHY: settle() lets time pass and runs only the frames the page itself asked for, with no further input.
+// Why: settle() lets time pass and runs only the frames the page itself asked for, with no further input.
 function bench(document: Record<string, unknown>): Bench {
   const waiting: ((time: number) => void)[] = []
   GLOBAL['requestAnimationFrame'] = (callback: (time: number) => void): number => waiting.push(callback)
@@ -110,7 +110,7 @@ function bench(document: Record<string, unknown>): Bench {
     pressOnPanel: () => {
       aimed = partOn(PROPERTIES_PANEL, null)
       send(pointerOf('down', SCREEN.width - 40, 200))
-      // WHY: the release is heard before the next frame, and the click it causes lands before that frame too.
+      // Why: the release is heard before the next frame, and the click it causes lands before that frame too.
       loop.receiveInput(pointerOf('up', SCREEN.width - 40, 200))
       aimed = null
     },
@@ -126,7 +126,7 @@ function bench(document: Record<string, unknown>): Bench {
   }
 }
 
-// WHY: the same event raiser tests/unit/property-date-field-delete-empties-the-date.test.ts uses on this fake.
+// Why: the same event raiser tests/unit/property-date-field-delete-empties-the-date.test.ts uses on this fake.
 function raise(built: Stage, node: FakeElement, type: string, extra: Record<string, unknown> = {}): FakeEvent {
   const event = {
     type,
@@ -160,7 +160,7 @@ function raise(built: Stage, node: FakeElement, type: string, extra: Record<stri
   return event
 }
 
-// WHY: the shared fake has no dispatchEvent; what the page dispatches on a node is routed through raise().
+// Why: the shared fake has no dispatchEvent; what the page dispatches on a node is routed through raise().
 function routeDispatch(built: Bench, node: FakeElement): void {
   ;(node as unknown as { dispatchEvent: (event: Event) => boolean }).dispatchEvent = (event) => {
     raise(built.built, node, event.type)
@@ -168,7 +168,7 @@ function routeDispatch(built: Bench, node: FakeElement): void {
   }
 }
 
-// WHY: a pointer press reaches the shell as pointer input and the page as click, before the next frame.
+// Why: a pointer press reaches the shell as pointer input and the page as click, before the next frame.
 function pointerPress(built: Bench, node: FakeElement): void {
   routeDispatch(built, node)
   built.pressOnPanel()
@@ -187,7 +187,7 @@ function documentWith(visual: Record<string, unknown> | null = null) {
   return document
 }
 
-// see MK-13
+// Spec: MK-13
 function panelOnTask(visual: Record<string, unknown> | null = null): Bench {
   const built = bench(documentWith(visual))
   const placement = built.loop.current()?.layout.placements.find((one) => one.taskUid === 1)
@@ -213,7 +213,7 @@ const linePalette = (built: Bench): FakeElement => {
   return grids[0]
 }
 // see CV-9, CR-689
-// WHY: every entrance is a cell of the one grid of two rows, beside the names.
+// Why: every entrance is a cell of the one grid of two rows, beside the names.
 const cellWith = (grid: FakeElement, attribute: string, value: string | null = null): FakeElement => {
   const found = grid.children.find((one) =>
     value === null ? one.getAttribute(attribute) !== null : one.getAttribute(attribute) === value,
@@ -238,7 +238,7 @@ describe('IR-1 -- the task group fields carry their T-016 row IDs', () => {
   })
 
   it('IR-1: the task group color field is the T-016 color row, the height value field the T-016 height row (its check MH-2 of T-338), the name field AT-53', () => {
-    // see IR-1, T-016, AT-53, MH-2
+    // Spec: IR-1, T-016, AT-53, MH-2
     const built = bench(documentWith())
     const box = built.view().taskGroupPanel.titles[0]?.box
     if (box === undefined) throw new Error('the task group title is not drawn')
@@ -271,7 +271,7 @@ describe('CV-9 / JDG-397 -- the custom color input', () => {
     [BLUE, (grid: FakeElement) => swatchOf(grid, BLUE)],
   ] as const) {
     it(`CV-9: pressing ${name} while the Custom input is open removes the host input`, async () => {
-      // see CV-9
+      // Spec: CV-9
       const built = panelOnTask({ strokeColor: 'red' })
       openCustom(built)
       pointerPress(built, press(linePalette(built)))
@@ -281,7 +281,7 @@ describe('CV-9 / JDG-397 -- the custom color input', () => {
   }
 
   it('CV-9: opening the Custom input does not change the size of the swatches', () => {
-    // see CV-9
+    // Spec: CV-9
     const built = panelOnTask({ strokeColor: 'red' })
     const sizes = (): string[] =>
       linePalette(built).children.map((one) => `${styleMap(one).get('width') ?? ''}x${styleMap(one).get('height') ?? ''}`)

@@ -362,7 +362,7 @@ def build(schema):
     # for is recorded at reduce_node, and why `documentSettings` is relaxed at
     # the head of this file.
     lines = []
-    lines.append('// see T-220')
+    lines.append('// Spec: T-220')
     lines.append('type JsonSchemaKind =')
     for kind in kinds:
         lines.append('  | %s' % ts_string(kind))
@@ -392,7 +392,7 @@ def build(schema):
     lines.append('')
     # The note that nothing calls `clampedSettings` is a fact about hand-written
     # code, not about the schema, so it is not emitted here; DFC-312 holds it.
-    lines.append('// see T-220, OP-6, PI-2')
+    lines.append('// Spec: T-220, OP-6, PI-2')
     lines.append('const GRS_DOCUMENT_SCHEMA: SchemaNode = %s' % ts_node(root, 0))
     return '\n'.join(lines) + '\n', formats
 

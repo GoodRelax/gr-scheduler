@@ -24,10 +24,10 @@ const DESCRIPTION_GENERATOR = 'tools/generate_mcp_tool_descriptions.py'
 const AGENT_GENERATOR = 'tools/generate_agent_api.py'
 const TABLE_PRINTER = 'docs/spec/_source/document_commands_json_to_md.py'
 
-// WHY: the generator also writes the one-line letters of a length (TX-10) into these two units outside UNIT_DIR.
+// Why: the generator also writes the one-line letters of a length (TX-10) into these two units outside UNIT_DIR.
 const LENGTH_LETTER_UNITS = ['src/entity/layout-engine/schedule-layout/name-label.ts', 'src/adapter/screen-renderer/properties-panel.ts']
 
-// WHY: the generator also prints each command's shape into the codec's schema walker, through its printer (DFC-2856).
+// Why: the generator also prints each command's shape into the codec's schema walker, through its printer (DFC-2856).
 const SHAPE_UNIT = 'src/adapter/document-codec/grs-json-schema.ts'
 const SHAPE_PRINTER = 'tools/generate_json_schema_validator.py'
 const COPIED = [
@@ -71,7 +71,7 @@ const python = (cwd: string, args: readonly string[]): Ran => {
 
 const check = (cwd: string, script: string): Ran => python(cwd, [join(cwd, script), '--check'])
 
-// WHY: the seams are called the way a generator calls them, with tools/ and _source/ on the path of the copy.
+// Why: the seams are called the way a generator calls them, with tools/ and _source/ on the path of the copy.
 const seam = (cwd: string, body: string): Ran =>
   python(cwd, [
     '-c',
@@ -108,7 +108,7 @@ const valueOf = (manuscript: Manuscript, id: string, name: string): Value => {
   return found
 }
 
-// WHY: a row number far past every row the file holds, so the planted pointer names no row.
+// Why: a row number far past every row the file holds, so the planted pointer names no row.
 const unheldRow = (prefix: string, file: string): string => {
   const rowLine = new RegExp('^\\| ' + prefix + '-(\\d+) ', 'gm')
   const numbers = [...readFileSync(join(ROOT, file), 'utf8').matchAll(rowLine)].map((found) => Number(found[1]))
@@ -203,8 +203,8 @@ describe('on a scratch copy outside the repository: an untouched copy is green, 
     expect(ran.out).toContain('tbl-document-commands.md')
   })
 
-  // see AM-7, AG-12
-  // WHY: the keys of a command are no longer in the MCP tool input; they moved into grs-commands.schema.json, which the command generator checks.
+  // Spec: AM-7, AG-12
+  // Why: the keys of a command are no longer in the MCP tool input; they moved into grs-commands.schema.json, which the command generator checks.
   it('the same rename no longer reaches the MCP tool descriptions but leaves grs-commands.schema.json drifted', () => {
     const copy = scratchCopy()
     editManuscript(copy, (manuscript) => {

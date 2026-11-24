@@ -43,7 +43,7 @@ const day = (d: number): string => `2026-04-${String(d).padStart(2, '0')}T00:00:
 
 const PX_PER_DAY_AT_1X = 20 / DEFAULT_DISPLAY_RATIO
 
-// WHY: a box over days 6..16 and task groups B..D, drawn on a six-group screen so every move has room on each side.
+// Why: a box over days 6..16 and task groups B..D, drawn on a six-group screen so every move has room on each side.
 const RANGE = { start: day(6), finish: day(16), topTaskGroupId: TASK_GROUP_B, bottomTaskGroupId: TASK_GROUP_D }
 
 function fixtureDocument(): Document {
@@ -184,7 +184,7 @@ const writtenBy = (action: unknown): Written => {
   return { kinds: records.map((each) => String(each['kind'])), commands: records, actionKind: one.kind ?? null }
 }
 
-// WHY: the press is built the way the shell builds it -- the hit under the point and the press row it gets -- with no premise on which row that is.
+// Why: the press is built the way the shell builds it -- the hit under the point and the press row it gets -- with no premise on which row that is.
 // The path is the pointer's travel after the press; the last point is where it is released.
 function dragThrough(loop: FrameLoop, press: Point, path: readonly Point[]): { readonly moves: readonly Written[]; readonly release: Written } {
   const context = contextOf(loop)
@@ -200,7 +200,7 @@ function dragThrough(loop: FrameLoop, press: Point, path: readonly Point[]): { r
   return { moves, release }
 }
 
-// WHY: FR-031 -- following the pointer is a picture, not an edit, so no move writes either.
+// Why: FR-031 -- following the pointer is a picture, not an edit, so no move writes either.
 function expectNoWrite(result: { readonly moves: readonly Written[]; readonly release: Written }, what: string): void {
   for (const move of result.moves) {
     expect(move.kinds, `${what}: a move wrote to the document`).toEqual([])
@@ -210,7 +210,7 @@ function expectNoWrite(result: { readonly moves: readonly Written[]; readonly re
   expect(result.release.kinds, `${what}: the release wrote a command`).toEqual([])
 }
 
-// WHY: a point on the left frame line, clear of the left-edge midpoint (HB-10) which sits at the box's vertical middle.
+// Why: a point on the left frame line, clear of the left-edge midpoint (HB-10) which sits at the box's vertical middle.
 const onLeftFrameIn = (loop: FrameLoop, taskGroupId: string, shareOfBand: number): Point => {
   const box = highlightRect(loop)
   const at = band(loop, taskGroupId)
@@ -240,7 +240,7 @@ describe('FR-100 / GR-14 / HB-12 -- a body drag that lands on the held range wri
     expectNoWrite(dragThrough(loop, press, [{ x: press.x + dx / 2, y: press.y + dy / 2 }, end]), 'HB-3 / HB-12 down, inside the group')
   })
 
-  // WHY: pressed on the middle of a day column, a sideways pull under half a day lands in the same column on either reading
+  // Why: pressed on the middle of a day column, a sideways pull under half a day lands in the same column on either reading
   // of the amount (FR-103 reads the column the release falls in; HB-4 rounds to the nearest boundary).
   it('FR-100 -- (a) moved up inside the same task group and sideways less than half a day to the left: no document write', () => {
     const loop = drawnLoop()

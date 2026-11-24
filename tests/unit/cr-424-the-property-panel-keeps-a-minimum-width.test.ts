@@ -23,7 +23,7 @@ import { bare, specTable, unbroken } from '../contract/spec-table'
 
 const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
-// WHY: CR-787 -- the width starts at the default width of the kind shown (S-171 the settings face, S-602 a Task).
+// Why: CR-787 -- the width starts at the default width of the kind shown (S-171 the settings face, S-602 a Task).
 const FR_052_STARTS_AT_THE_KIND_DEFAULT =
   '⭐ プロパティパネルの幅は画面の値とし、出している中身の種の既定の幅から始めること（MUST）'
 const FR_052_KIND_CHANGE_RESETS = '⭐ 出す中身の種が変わったら、新しい種の既定の幅へ戻すこと（MUST）'
@@ -68,7 +68,7 @@ const settingOf = (id: string): number => {
   return Number(/-?\d+(?:\.\d+)?/.exec(bare(row.by[H_DEFAULT] ?? ''))?.[0] ?? Number.NaN)
 }
 
-// see T-206
+// Spec: T-206
 const S_171 = settingOf('S-171')
 const S_602 = settingOf('S-602')
 const S_248 = settingOf('S-248')
@@ -79,7 +79,7 @@ const settingsEntrance = (): string => {
   return row.id
 }
 
-// see T-109, FR-072
+// Spec: T-109, FR-072
 const IC_17 = settingsEntrance()
 const APP_HEADER = bare(specTable('T-109').rows.find((one) => one.id === IC_17)?.by['面'] ?? '')
 
@@ -160,7 +160,7 @@ interface Bench {
   openBySelectingTheTask(): void
   panel(): PropertiesPanel | null
   isIc17Pressed(): boolean | undefined
-  // WHY: CR-572 -- the document never carries a properties panel width; this says whether it does.
+  // Why: CR-572 -- the document never carries a properties panel width; this says whether it does.
   isWidthStored(): boolean
   drawnWidth(): number
 }
@@ -247,7 +247,7 @@ function boundaryOf(built: Bench): { x: number; y: number } {
   return { x: band.x + band.width / 2, y: band.y + band.height / 2 }
 }
 
-// see FR-052, IN-1
+// Spec: FR-052, IN-1
 function dragTo(built: Bench, x: number): { readonly held: number; readonly storedWhileHeld: boolean } {
   const at = boundaryOf(built)
   built.send(pointer('down', at.x, at.y))
@@ -259,7 +259,7 @@ function dragTo(built: Bench, x: number): { readonly held: number; readonly stor
   return { held, storedWhileHeld }
 }
 
-// WHY: CR-787 -- MK-13 shows a Task (S-602), IC-17 the settings face (S-171).
+// Why: CR-787 -- MK-13 shows a Task (S-602), IC-17 the settings face (S-171).
 const OPENINGS: readonly (readonly [string, (built: Bench) => void, () => number])[] = [
   ['MK-13 (a Task, S-602)', (built) => built.openBySelectingTheTask(), () => S_602],
   ['IC-17 (the settings face, S-171)', (built) => built.pressIc17(), () => S_171],

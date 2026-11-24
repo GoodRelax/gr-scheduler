@@ -40,7 +40,7 @@ const PAGE_HTML = new Uint8Array(Buffer.from('<!doctype html><html><body>page</b
 
 const sleep = (ms: number): Promise<void> => new Promise((resolve) => setTimeout(resolve, ms))
 
-// WHY: the confirmed names of table T-108 are read from the printed table, in table order, never typed here.
+// Why: the confirmed names of table T-108 are read from the printed table, in table order, never typed here.
 function commandNamesOfT108(): string[] {
   const text = readFileSync(join(SPEC, '_assets', 'tbl-document-commands.md'), 'utf8')
   const names: string[] = []
@@ -67,7 +67,7 @@ function toolsOfDescriptions(): readonly Tool[] {
 
 const isObject = (value: unknown): value is Json => typeof value === 'object' && value !== null && !Array.isArray(value)
 
-// WHY: a key under "properties" is the name of an argument, so a property that is itself called "type" or "oneOf" is not a schema keyword.
+// Why: a key under "properties" is the name of an argument, so a property that is itself called "type" or "oneOf" is not a schema keyword.
 function bannedShapesIn(node: unknown, at: string): string[] {
   if (Array.isArray(node)) return node.flatMap((one, index) => bannedShapesIn(one, `${at}[${String(index)}]`))
   if (!isObject(node)) return []
@@ -84,7 +84,7 @@ function bannedShapesIn(node: unknown, at: string): string[] {
   return found
 }
 
-// see AG-12
+// Spec: AG-12
 describe('CR-796 s2 -- no tool input carries oneOf, anyOf or a type list (AG-12 (8))', () => {
   const tools = toolsOfDescriptions()
 
@@ -125,7 +125,7 @@ describe('CR-796 s2 -- no tool input carries oneOf, anyOf or a type list (AG-12 
   })
 })
 
-// see AG-12
+// Spec: AG-12
 describe('CR-796 s2 -- grs-commands.schema.json, the printed shape of every command (table T-108)', () => {
   const path = join(SPEC, '_source', 'grs-commands.schema.json')
 
@@ -208,7 +208,7 @@ afterEach(async () => {
   client.input.end()
 })
 
-// see AG-12
+// Spec: AG-12
 describe('CR-796 s2 -- the relay serves two resources (AG-12 (8), design-mcp-relay 3.1)', () => {
   it('resources/list answers the document schema first and the commands schema second, both application/schema+json', async () => {
     const answer = await client.request('resources/list', {})
@@ -247,7 +247,7 @@ describe('CR-796 s2 -- the relay serves two resources (AG-12 (8), design-mcp-rel
   })
 })
 
-// see AM-27, TV-5, TV-8, S-560
+// Spec: AM-27, TV-5, TV-8, S-560
 describe('CR-796 s2 -- AM-27: an empty list turns the Search Panel schedule filter off', () => {
   const template = JSON.parse(
     readFileSync(join(ROOT, 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
@@ -321,7 +321,7 @@ describe('CR-796 s2 -- AM-27: an empty list turns the Search Panel schedule filt
     const on = (await api.showOnlyTasks([1, 2])) as unknown as Json
     expect(on['ok'], JSON.stringify(on)).toBe(true)
     expect(searchPanelOf(read())['isScheduleFilterApplied']).toBe(true)
-    // WHY: CR-798 -- the saved list is the checked tasks, so the named tasks are the ones held checked.
+    // Why: CR-798 -- the saved list is the checked tasks, so the named tasks are the ones held checked.
     const checkedWhileOn = searchPanelOf(read())['shownTaskUids']
     expect(checkedWhileOn).toEqual([1, 2])
 
@@ -339,7 +339,7 @@ describe('CR-796 s2 -- AM-27: an empty list turns the Search Panel schedule filt
   })
 })
 
-// see AG-12, AM-7, AM-27
+// Spec: AG-12, AM-7, AM-27
 describe('CR-796 s2 -- the clauses slice 2 added, held verbatim', () => {
   const requirements = unbroken(readFileSync(join(SPEC, '01-04-requirements.md'), 'utf8'))
   const rowOfAG12 = (): string => {

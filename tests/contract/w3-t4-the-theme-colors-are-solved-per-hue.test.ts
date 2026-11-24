@@ -1,6 +1,6 @@
 // W3 tester 4: FR-041 table T-366 CF-2 / CF-3 -- the drawn plan, outline, actual and accent colors are solved per hue, never stored.
 
-// WHY: every number is read from docs/spec (T-236 cells, T-206 S-520..S-525); the solve is re-derived here from the
+// Why: every number is read from docs/spec (T-236 cells, T-206 S-520..S-525); the solve is re-derived here from the
 // words of CF-2, CF-3 and CF-6 alone and compared with what the public colorOf (PI-19) draws.
 
 import { readFileSync } from 'node:fs'
@@ -27,11 +27,11 @@ const CF_2_ROUNDING = '足した明度は 0 〜 100 に収め、小数第 1 位�
 const CF_6 = '比は WCAG 2.1 のコントラスト比とし、HSL を 8 ビットの sRGB に丸めた値から求めること（MUST）'
 const CF_3_MEASURED = '明るいテーマで 360 の色相のうち 131 が k ＞ 0（最大 6）、暗いテーマで 15（最大 2）。'
 
-// see S-520, S-521
+// Spec: S-520, S-521
 const STEP = settingNumber('S-520')
 const CAP = settingNumber('S-521')
 
-// see CF-2, S-522, S-523, S-524, S-525
+// Spec: CF-2, S-522, S-523, S-524, S-525
 const RATIO_OF: Readonly<Record<string, number>> = {
   'S-155': settingNumber('S-522'),
   'S-156': settingNumber('S-523'),
@@ -98,14 +98,14 @@ function luminance({ r, g, b }: Rgb): number {
   return 0.2126 * lin(r) + 0.7152 * lin(g) + 0.0722 * lin(b)
 }
 
-// see CF-6
+// Spec: CF-6
 /** @purity pure */
 function contrast(one: Rgb, other: Rgb): number {
   const [hi, lo] = [luminance(one), luminance(other)].sort((a, b) => b - a) as [number, number]
   return (hi + 0.05) / (lo + 0.05)
 }
 
-// see CF-2
+// Spec: CF-2
 /** @purity pure */
 function shiftedHsl(id: string, side: Side, hue: number, k: number): Hsl {
   const base = cellHsl(id, side, hue)
@@ -114,7 +114,7 @@ function shiftedHsl(id: string, side: Side, hue: number, k: number): Hsl {
   return { ...base, l: Math.round(Math.min(100, Math.max(0, moved)) * 10) / 10 }
 }
 
-// see CF-3, CT-3, CT-4, CT-5
+// Spec: CF-3, CT-3, CT-4, CT-5
 /** @purity pure */
 function meets(side: Side, hue: number, k: number): boolean {
   const ground = hslToRgb({ ...cellHsl('S-146', side, hue), s: 0 })
@@ -124,7 +124,7 @@ function meets(side: Side, hue: number, k: number): boolean {
   return contrast(actual, plan) >= 3 && contrast(outline, ground) >= 3 && contrast(plan, ground) >= 1.3
 }
 
-// see CF-3
+// Spec: CF-3
 /** @purity pure */
 function solvedK(side: Side, hue: number): number {
   for (let k = 0; k <= CAP; k += STEP) if (meets(side, hue, k)) return k

@@ -72,7 +72,7 @@ const OP_15_WITH_A_PLAN_ONLY_TOGGLES = '⚠️ 重ねる予定が在るときの
 const FR_015_TURNS_S_69_ON =
   '⭐ 重ねを読み込んだときは、`_assets/tbl-settings.md` の 表 T-202 の `S-69` を真にすること（MUST）'
 const UN_18_ONE_STEP = '| UN-18 | 対象 | 重ねの取り込み（表 T-024a の `OP-9`、`FR-015`）。取り込み 1 回を 1 段とする'
-// WHY: CR-710 names the time-of-day toggle of FR-158 in UN-7 (JDG-1975).
+// Why: CR-710 names the time-of-day toggle of FR-158 in UN-7 (JDG-1975).
 const UN_7_TOGGLES_OUTSIDE = '| UN-7 | 対象外 | 表示の切り替え（各トグル。`FR-158` の「時刻を表示する」を含む） |'
 const S_69_ROW = '| S-69 | `isBaselineVisible` | 真偽 | `false` |'
 
@@ -133,7 +133,7 @@ describe('CR-588 premises -- the clauses these cases quote still stand', () => {
     expect(SETTINGS_TABLE).toContain(S_69_ROW)
   })
 
-  // WHY: SD-1 / SD-3 (CR-767) -- importIncomingDocument is importingDocument's entry, so the
+  // Why: SD-1 / SD-3 (CR-767) -- importIncomingDocument is importingDocument's entry, so the
   // cell entering it no longer repeats it.
   it('the fileFlow manuscript still routes documentFileRead under isBaselineRoute to importingDocument', () => {
     expect(BASELINE_READ_BRANCH?.to).toBe('importingDocument')
@@ -245,7 +245,7 @@ interface PressAnswer {
   readonly openRoutes: readonly unknown[]
 }
 
-// WHY: the seam names the value, not the carrier, so both translator members get the down and the up
+// Why: the seam names the value, not the carrier, so both translator members get the down and the up
 // and any openRoute in what they answer counts.
 function pressIc4(document: Document): PressAnswer {
   const settings = document.documentSettings

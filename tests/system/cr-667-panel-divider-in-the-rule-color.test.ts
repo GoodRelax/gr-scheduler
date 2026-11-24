@@ -10,7 +10,7 @@ import { rowOf } from './sws-case'
 
 const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
-// WHY: the constant ends exactly at its marker, cut from the manuscript as check 39 reads it.
+// Why: the constant ends exactly at its marker, cut from the manuscript as check 39 reads it.
 const EP_9_S_149 =
   ' | 操作子としては描かない。境界の線を描く | 境界が消えるとタスクグループ見出しと日程の境目が読めない。`Group Grid Lines`（`U-18`）と同じ太さの線を 1 本、表 T-236 の `S-149`（罫の色）で引くこと（MUST）'
 
@@ -19,7 +19,7 @@ const BASE_SCREEN = screenOf(rowOf(specTable('T-025'), 'MC-6'))
 const T_236 = specTable('T-236')
 const DIVIDER = `[data-role="${bare(rowOf(specTable('T-103'), 'U-24').by['確定名（英）'] ?? '')}"]`
 
-// WHY: the hue of the document the shipped build opens with, which every hue-following row of T-236 takes as H.
+// Why: the hue of the document the shipped build opens with, which every hue-following row of T-236 takes as H.
 const THEME_HUE = (
   JSON.parse(readFileSync(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8')) as {
     readonly schedule: { readonly project: { readonly themeHue: number } }
@@ -51,7 +51,7 @@ test.afterAll(async () => {
   await browser?.close()
 })
 
-// see EP-9, U-24, U-18
+// Spec: EP-9, U-24, U-18
 /** @purity semi-pure-mutable */
 async function readDivider(page: Page, theme: Theme): Promise<DividerReading> {
   return page.evaluate(

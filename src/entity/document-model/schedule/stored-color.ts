@@ -1,4 +1,4 @@
-// Schedule -- the stored spelling of a chosen color: a palette name or a light/dark custom pair.
+// File: Schedule: the stored spelling of a chosen color: a palette name or a light/dark custom pair.
 // @unit      UF-130  (docs/spec/05-07-design.md, table T-075)
 // @component Schedule, layer documentModel (table T-062)
 // @purity    pure
@@ -7,7 +7,7 @@ import { COLUMN_SHAPES } from './schedule-entities'
 
 export const TRANSPARENT = 'transparent'
 
-// see CV-2
+// Spec: CV-2
 export interface CustomColor {
   readonly light: string | null
   readonly dark: string | null
@@ -17,10 +17,10 @@ const SIDE_HEX = /^#[0-9a-fA-F]{6}$/
 
 const CUSTOM_SIDES_CUT = '/'
 
-// see CV-1, T-294
+// Spec: CV-1, T-294
 const PALETTE_SPELLINGS: readonly string[] = COLUMN_SHAPES.TaskVisual['fillColor']?.choices ?? []
 
-// see CV-2
+// Spec: CV-2
 /** @purity pure */
 export function customColorOf(stored: string): CustomColor | null {
   const sides = stored.split(CUSTOM_SIDES_CUT)
@@ -34,22 +34,22 @@ export function customColorOf(stored: string): CustomColor | null {
   }
 }
 
-// see CV-3
+// Spec: CV-3
 /** @purity pure */
 export function customSideOf(color: CustomColor, dark: boolean): string {
   const drawn = dark ? (color.dark ?? color.light) : (color.light ?? color.dark)
   return drawn ?? ''
 }
 
-// see CV-1, CV-2, FR-019
+// Spec: CV-1, CV-2, FR-019
 /** @purity pure */
 export function isStoredColor(text: string, allowsTransparent: boolean): boolean {
   if (PALETTE_SPELLINGS.includes(text)) return allowsTransparent || text !== TRANSPARENT
   return customColorOf(text) !== null
 }
 
-// see CV-4
-// WHY: null when chosen is not one #rrggbb, i.e. not a pick from the custom entrance.
+// Spec: CV-4
+// Why: null when chosen is not one #rrggbb, i.e. not a pick from the custom entrance.
 /** @purity pure */
 export function customColorChosen(previous: string | null, chosen: string, dark: boolean): string | null {
   if (!SIDE_HEX.test(chosen)) return null

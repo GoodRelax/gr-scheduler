@@ -21,7 +21,7 @@ const UF_123_EVERY_KIND = '`EffectRunners` —— 副作用の種類の全数を
 const UF_123_UNWIRED = '（`unwiredEffect` —— 呼ばれたら投げる。'
 const SF_6 = '副作用（書き込み・ファイル・クリップボード・問い）は値として返し、`SingleHtmlShell` が実行する。'
 
-// see T-280, T-286, T-289, T-290, T-292, T-293, SD-5
+// Spec: T-280, T-286, T-289, T-290, T-292, T-293, SD-5
 const MANUSCRIPT_EFFECTS: readonly string[] = (() => {
   const found = new Set<string>()
   const walk = (value: unknown): void => {
@@ -42,7 +42,7 @@ const MANUSCRIPT_EFFECTS: readonly string[] = (() => {
 
 type Called = { readonly type: string; readonly at: number }
 
-// WHY: a Proxy answers every kind, so the order and count of calls can be read without typing each runner.
+// Why: a Proxy answers every kind, so the order and count of calls can be read without typing each runner.
 const recording = (): { readonly runners: EffectRunners<SessionEffect>; readonly calls: Called[] } => {
   const calls: Called[] = []
   const runners = new Proxy(
@@ -59,7 +59,7 @@ const effect = (type: string): SessionEffect => ({ type }) as unknown as Session
 
 type Two = { readonly type: 'first' } | { readonly type: 'second' }
 
-// WHY: a type answer, not a compiler directive: tsc refuses `= false` the moment the table accepts it.
+// Why: a type answer, not a compiler directive: tsc refuses `= false` the moment the table accepts it.
 type Accepts<Table, Offered> = [Offered] extends [Table] ? true : false
 
 describe(`UF-123 -- ${UF_123_IN_ORDER}`, () => {
@@ -130,7 +130,7 @@ describe(`UF-123 -- ${UF_123_EVERY_KIND}`, () => {
       discardIncomingDocument: true,
       handInteractionRecordToClipboard: true,
       importIncomingDocument: true,
-      // see FR-156, FR-157, FR-088
+      // Spec: FR-156, FR-157, FR-088
       issueBaseChangeCommand: true,
       issueCalendarCommand: true,
       issueDelayFixBundle: true,
@@ -152,7 +152,7 @@ describe(`UF-123 -- ${UF_123_EVERY_KIND}`, () => {
       storeFixedCursorADate: true,
       storeFixedCursorBDate: true,
       storeGuideCursorMode: true,
-      // see DC-9
+      // Spec: DC-9
       storePlacedDualCursorClearingGuide: true,
       storePropertyPanelWidth: true,
       storeScreenLanguage: true,

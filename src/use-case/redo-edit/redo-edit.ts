@@ -1,4 +1,4 @@
-// RedoEdit: one step forward through the edit history.
+// File: RedoEdit: one step forward through the edit history.
 // @unit      UF-21  (docs/spec/05-07-design.md, table T-075)
 // @component RedoEdit, layer UseCase (table T-062)
 // @purity    pure
@@ -18,7 +18,7 @@ export type RedoOutcome =
       readonly commands: readonly string[]
     }
 
-// see FR-031, PI-12
+// Spec: FR-031, PI-12
 /** @purity pure */
 export function redoEdit(held: HeldDocument): RedoOutcome {
   const moved = nextStep(held.history, (step) => ({ ...step, document: held.document }))

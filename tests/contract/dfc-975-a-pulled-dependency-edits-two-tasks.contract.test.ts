@@ -22,7 +22,7 @@ import { specTable } from './spec-table'
 
 const edited = vi.hoisted(() => ({ taskCounts: [] as number[] }))
 
-// WHY: NFR-002 is about how much one move edits, which no picture shows;
+// Why: NFR-002 is about how much one move edits, which no picture shows;
 // the createDependency edits are counted where they are made.
 vi.mock('../../src/use-case/edit-document/edit-document', async (importOriginal) => {
   const real = await importOriginal<typeof import('../../src/use-case/edit-document/edit-document')>()
@@ -39,14 +39,14 @@ const TEMPLATE = JSON.parse(
   readFileSync(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
 ) as Record<string, any>
 
-// see PTD-3, FR-009
+// Spec: PTD-3, FR-009
 const PAIR = 2
 const OTHER_TASKS = 12
 const UID_A = 1
 const UID_B = 2
 const PX_PER_DAY = 20
 const DAYS_RIGHT_OF_B = 4
-// see AT-46
+// Spec: AT-46
 const FINISH_TO_START = 1
 
 const task = (uid: number, start: string, finish: string, dependencies: readonly unknown[] = []): Task =>
@@ -59,7 +59,7 @@ const task = (uid: number, start: string, finish: string, dependencies: readonly
 
 const rowIdOf = (uid: number): string => `task-group-${uid}`
 
-// WHY: the other Tasks sit below A and B and hold a dependency of their own,
+// Why: the other Tasks sit below A and B and hold a dependency of their own,
 // so a whole-document edit would carry more than the pair and more than one line.
 const fixtureDocument = (): Document => {
   const template = structuredClone(TEMPLATE)
@@ -103,7 +103,7 @@ const fixtureDocument = (): Document => {
   } as unknown as Document
 }
 
-// see AR-4, T-109
+// Spec: AR-4, T-109
 const DEPENDENCY_ARMING_ENTRY: IconId = ((): string => {
   const found = specTable('T-109').rows.find((one) => (one.by['構え'] ?? '').includes('AR-4'))
   if (found === undefined) throw new Error('table T-109 has no entry whose arming is AR-4')
@@ -174,7 +174,7 @@ const planBox = (loop: FrameLoop, uid: number): ScreenRect => {
   return { x, y, width: Math.max(...xs) - x, height: Math.max(...ys) - y }
 }
 
-// see FR-009
+// Spec: FR-009
 const finishHalf = (box: ScreenRect): Point => ({ x: box.x + box.width * 0.75, y: box.y + box.height / 2 })
 const startHalf = (box: ScreenRect): Point => ({ x: box.x + box.width * 0.25, y: box.y + box.height / 2 })
 
@@ -190,7 +190,7 @@ describe('DFC-975 / NFR-002, FR-009, PTD-3 -- a pulled dependency line is drawn 
     arm(built)
     const b = planBox(built.loop, UID_B)
     const overNothing = { x: b.x + b.width + DAYS_RIGHT_OF_B * PX_PER_DAY, y: finishHalf(planBox(built.loop, UID_A)).y }
-    // STEP: press A's finish half, then move over nothing and over B's start half
+    // Step: press A's finish half, then move over nothing and over B's start half
     built.send(pointer('down', finishHalf(planBox(built.loop, UID_A))))
     edited.taskCounts.length = 0
     built.send(pointer('move', overNothing))

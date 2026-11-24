@@ -24,7 +24,7 @@ import {
 } from './cr-606-stage'
 import { specTable } from './spec-table'
 
-// see FR-006
+// Spec: FR-006
 const FR_006_SHOWN_FOR = '⭐ 対象が `Task` の行は、さらに同表の `出す種類` の欄で絞ること（MUST）'
 const FR_006_BY_MILESTONE =
   '`Task.milestone`（`_assets/fig-erd-detail.md` の `AT-30`）が真のタスクには `milestone` か `both` の行だけを、偽のタスクには `task` か `both` の行だけを出す。'
@@ -36,7 +36,7 @@ const FR_006_COLOR_NAME_LEFT =
   '⭐ 色の行（入力の型が `色` の行）も同じであり、項目名は色の欄の 1 段目の左に置き、色の欄の 2 つの段は値の欄の左端から始めること（MUST）'
 const FR_006_VISUAL_ORDER =
   '⭐ 見た目の行どうしは、どの対象でも 枠線の幅 → 枠線の色 → 塗りの色 → 塗りの透過率 → 字の色 の順に並べ、1 つの行に色を 1 つだけ持たせること（MUST）'
-// see FR-009
+// Spec: FR-009
 const FR_009_ROWS =
   '依存線を選んだときにプロパティパネルへ出す項目は、表 T-016 の `対象` が `Dependency` の行（種別・ラグ・両端）とすること（MUST）'
 const FR_009_LAG_ONLY = '⭐ 編集できるのはラグだけであり、種別と両端は同表が読み取り専用と記す'
@@ -45,7 +45,7 @@ const FR_009_ABBREVIATION_AND_ENDS =
 const T_018_ABBREVIATION =
   '⭐ 画面に依存の種別を出すときは、本表の `名` の欄の略号（括弧の前の `FS` / `SF` / `FF` / `SS`）で出すこと（MUST）。'
 const T_018_NO_NUMBER = '⛔ 保存した数（`linkType`）をそのまま出してはならない（MUST NOT）'
-// see PR-37, PR-38
+// Spec: PR-37, PR-38
 const PR_37_ORDER = '並びは先行の `uid` の昇順。'
 const PR_38_ORDER = '並びは後続の `uid` の昇順。'
 const NONE_IS_EMPTY = '依存が無いときは空の欄とする'
@@ -104,7 +104,7 @@ const KINDS = documentOf({
   ],
 })
 
-// see FR-006, T-016
+// Spec: FR-006, T-016
 const rowsFor = (kind: 'task' | 'milestone'): readonly string[] =>
   T_016.filter((one) => appliesToOf(one) === 'Task' && (one.shownFor === kind || one.shownFor === 'both')).map(
     (one) => one.id,
@@ -223,7 +223,7 @@ const linkOf = (predecessorUid: number, linkType = 1): Record<string, unknown> =
   carryElements: [],
 })
 
-// WHY: task 5's links are held in the order 4, 1, 3 and task 5 precedes task 2 in the array,
+// Why: task 5's links are held in the order 4, 1, 3 and task 5 precedes task 2 in the array,
 // so only the uid order passes.
 const LINKED = documentOf({
   tasks: [

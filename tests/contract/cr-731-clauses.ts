@@ -21,7 +21,7 @@ export const FR_155_NOTHING_IN_THE_DOCUMENT =
 export const FR_155_AGENT_API_ISSUES_WITHOUT_SAVING =
   '⚠️ `AM-32` は先に保存しない（利用者の裁定、CR-803）'
 
-// WHY: CR-735 (JDG-1954) retired the T-373 preface that sent a derived pair to the hand; T-310 VC-9 now says a
+// Why: CR-735 (JDG-1954) retired the T-373 preface that sent a derived pair to the hand; T-310 VC-9 now says a
 // derived parent is not judged, so no FA-9 to FA-12 row stands on that pair at all.
 export const T_310_STATED_PARENT_ONLY =
   '⭐ 親と子は、子の `parentTaskUid` が指す親（明記の親）だけで組む —— `FR-135` で導いた親では判じない。'

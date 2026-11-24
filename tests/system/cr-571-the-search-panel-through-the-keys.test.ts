@@ -49,7 +49,7 @@ async function isPanelShown(page: Page): Promise<boolean> {
   return (await page.$(SEARCH_PANEL)) !== null
 }
 
-// WHY: SV-2's field is the one text entry inside the panel that holds focus after SK-24.
+// Why: SV-2's field is the one text entry inside the panel that holds focus after SK-24.
 /** @purity semi-pure-mutable */
 async function focusedField(page: Page): Promise<{ readonly inPanel: boolean; readonly value: string; readonly selected: string }> {
   return page.evaluate((panel: string) => {
@@ -121,7 +121,7 @@ test.describe(`SK-24 -- ${SK_24_DOES}`, () => {
     }
   })
 
-  // WHY: Ctrl+F is none of the keys IN-5a hands to the field, so it stays SK-24 while typing.
+  // Why: Ctrl+F is none of the keys IN-5a hands to the field, so it stays SK-24 while typing.
   test(`pressed again with the panel out, returns the focus and selects the word -- ${SV_2_AGAIN}`, async () => {
     const one = await stage()
     try {

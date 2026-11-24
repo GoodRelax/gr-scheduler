@@ -49,7 +49,7 @@ describe('CR-768 -- the manuscript these cases read', () => {
 })
 
 describe('FR-096 / T-024 -- the copies of the table in src are generated regions that equal the table', () => {
-  // WHY: CR-827 IO-10 shares .json (and application/json) with IO-2, and a map keyed by extension holds .json once.
+  // Why: CR-827 IO-10 shares .json (and application/json) with IO-2, and a map keyed by extension holds .json once.
   it('MEDIA_TYPE_OF_EXTENSION lies in a generated region and holds each extension of the file rows with its media type, at its first row in the order of the table, and no other pair', () => {
     const region = regionHolding(STORE, 'MEDIA_TYPE_OF_EXTENSION')
     expect(region).toContain('docs/spec/01-04-requirements.md (table T-024)')
@@ -157,7 +157,7 @@ describe('npm run gen:check -- the generators catch a planted drift (run on a sc
     return { status: done.status, out: `${done.stdout}${done.stderr}` }
   }
 
-  // WHY: one copy for the whole group; each case plants one change, reads, and puts the file back.
+  // Why: one copy for the whole group; each case plants one change, reads, and puts the file back.
   function planted(relative: readonly string[], from: string, to: string, readers: readonly (typeof generators)[number][]): readonly Run[] {
     const path = pathOf(...relative)
     const original = readFileSync(path, 'utf8')

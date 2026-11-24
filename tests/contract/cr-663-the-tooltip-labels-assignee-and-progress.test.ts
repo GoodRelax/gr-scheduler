@@ -25,7 +25,7 @@ const TL_7_ONE_LINE =
   '担当の語、`:`、半角空白 1 つ、名前の並び の順に、担当が何人でも 1 行で書くこと（MUST）'
 const TL_7_THE_WORD =
   '担当の語は、遅延診断レポートの担当の欄の見出しと同じ語（`FR-038` の辞書の `delayReportColumns` の `DT-2` の語）とすること（MUST）'
-// WHY: CR-788 -- the names follow the assignment order (the primary first, AS-13), not the name order.
+// Why: CR-788 -- the names follow the assignment order (the primary first, AS-13), not the name order.
 const TL_7_THE_ORDER =
   '名前の並びは、担当ラベルが対象にする担当（`FR-059` —— 作業資源で、名前が空でないもの）の名前を、割当の並びの順（主担当が先頭、`FR-008` の 表 T-225 の `AS-13`）に、`,` と半角空白 1 つで繋いだものとする'
 const TL_7_CUT_AT_WHOLE_NAMES =
@@ -37,7 +37,7 @@ const TL_7_CODE_POINTS = '字数は、文字（Unicode の符号位置）1 つ�
 const TL_7_NONE = '対象が 1 人もいなければ行を出さない。'
 const TL_7_NO_COUNT_FORM =
   '⛔ 担当ラベルの `-`（表 T-225 の `AS-2`）も、先頭 1 名と残りの人数の形もコピーしてはならない（MUST NOT）'
-// WHY: CR-793 -- the progress line ends with the state word in parentheses.
+// Why: CR-793 -- the progress line ends with the state word in parentheses.
 const TL_8_LINE =
   '進捗の語、`:`、半角空白 1 つ、`percentComplete`、半角空白 1 つ、`(`、状態の語、`)` の順に書くこと（MUST）'
 const TL_8_THE_WORD =
@@ -57,14 +57,14 @@ const cellOf = (table: string, id: string, heading: string): string => {
 const TL_7_CELL = unbroken(cellOf('T-348', 'TL-7', '書き方'))
 const TL_8_CELL = unbroken(cellOf('T-348', 'TL-8', '書き方'))
 
-// see S-513
+// Spec: S-513
 const S_513 = ((): number => {
   const found = /(\d+)/.exec(bare(cellOf('T-206', 'S-513', '既定')))
   if (found === null) throw new Error('table T-206 row S-513 states no number')
   return Number(found[1])
 })()
 
-// see S-439
+// Spec: S-439
 const S_439_MS = ((): number => {
   const found = /(\d+(?:\.\d+)?)/.exec(bare(cellOf('T-212', 'S-439', '値')))
   if (found === null) throw new Error('table T-212 row S-439 states no number')
@@ -73,7 +73,7 @@ const S_439_MS = ((): number => {
 
 const THEME_HUE = Number(bare(cellOf('T-216', 'S-73', '既定')))
 
-// see DT-2, DT-3
+// Spec: DT-2, DT-3
 const COLUMN_WORDS = (
   JSON.parse(readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8')) as {
     delayReportColumns: { rowId: string; text: Readonly<Record<Language, string>> }[]
@@ -89,7 +89,7 @@ const columnWord = (row: string, language: Language): string => {
 const ASSIGNEE = (language: Language): string => `${columnWord('DT-2', language)}: `
 const PROGRESS = (language: Language): string => `${columnWord('DT-3', language)}: `
 
-// see PS-5, SQ-5
+// Spec: PS-5, SQ-5
 const IN_PROGRESS_WORD = (
   JSON.parse(readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8')) as {
     planActualStates: { rowId: string; text: Readonly<Record<Language, string>> }[]
@@ -100,7 +100,7 @@ const stateWord = (language: Language): string => {
   if (found === undefined) throw new Error('the dictionary planActualStates has no PS-5')
   return found
 }
-// WHY: TL-8 -- "<word>: <percent>% (<state word>)"
+// Why: TL-8 -- "<word>: <percent>% (<state word>)"
 const PROGRESS_LINE = (language: Language, percent: number): string =>
   `${PROGRESS(language)}${percent}% (${stateWord(language)})`
 
@@ -209,7 +209,7 @@ const progressLinesOf = (text: string, language: Language): readonly string[] =>
 
 const namesPart = (line: string, language: Language): string => line.slice(ASSIGNEE(language).length)
 
-// WHY: a name of a given length in code points, built of one wide character so its count is plain.
+// Why: a name of a given length in code points, built of one wide character so its count is plain.
 const nameOf = (head: string, length: number): string => head + '鈴'.repeat(Math.max(0, length - codePoints(head)))
 
 const STARTED = { actualStart: day(2), percentComplete: 50 }

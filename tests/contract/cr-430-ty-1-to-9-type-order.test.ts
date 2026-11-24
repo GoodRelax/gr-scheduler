@@ -37,8 +37,8 @@ const EXPECTED_ROW_IDS = Array.from({ length: 9 }, (_one, at) => `TY-${at + 1}`)
 
 const DEPENDENCY = '依存線'
 const CONTINUATION_MARK = '依存線の続きの印'
-// WHY: since CR-555 the dependency line travels with its continuation mark, mark first, in both columns
-// WHY: (TY-2 off a shape, TY-5 on one) -- the pair is what "where the dependency line sits" moves.
+// Why: since CR-555 the dependency line travels with its continuation mark, mark first, in both columns
+// Why: (TY-2 off a shape, TY-5 on one) -- the pair is what "where the dependency line sits" moves.
 const DEPENDENCY_KINDS: readonly string[] = [CONTINUATION_MARK, DEPENDENCY]
 
 const plain = (cell: string): string =>
@@ -53,7 +53,7 @@ const kindsIn = (cell: string): readonly string[] => plain(cell).split('・').fi
 const columnKinds = (column: string): readonly string[] =>
   rowsOf('T-268').flatMap((row) => kindsIn(row.by[column] ?? ''))
 
-// see S-63
+// Spec: S-63
 const SCENE = sceneOf('rectangle', { isProgressMarkerVisible: true })
 const MILESTONE = sceneOf('milestone', { isProgressMarkerVisible: true })
 
@@ -136,8 +136,8 @@ describe(`TY-1 -- the fade grab point answers before anything else: ${T_268_TOP_
 })
 
 describe(`TY-2 / TY-3 -- the marker outside the actual and the resume icon answer before the plan end`, () => {
-  // WHY: a one-day actual, so table T-273's LP-2 stands the marker just right of the base's end --
-  // WHY: on the default actual the label fits, the marker stands at its start and TY-7 applies instead.
+  // Why: a one-day actual, so table T-273's LP-2 stands the marker just right of the base's end --
+  // Why: on the default actual the label fits, the marker stands at its start and TY-7 applies instead.
   it('gives the marker the pixel it shares with the plan end grab', () => {
     const SHORT = sceneOf(
       'rectangle',
@@ -166,8 +166,8 @@ describe('TY-4 / TY-6 -- the actual end answers before the plan end where the tw
     const plan = boxOf((SCENE.started as unknown as { plan: unknown }).plan)
     const actual = boxOf(actualOf(SCENE.started))
     const wide = sizesWith(SCENE.sizes, 'S-259', plan.right - actual.right + defaultOf('S-253'))
-    // WHY: above the mid-line: the line leaves the plan end there and drops at x1 to the lower successor
-    // WHY: (T-222 RP-2, CR-758); off a shape T-268 puts the line (TY-2) ahead of an actual end, so it would answer.
+    // Why: above the mid-line: the line leaves the plan end there and drops at x1 to the lower successor
+    // Why: (T-222 RP-2, CR-758); off a shape T-268 puts the line (TY-2) ahead of an actual end, so it would answer.
     expect(grabAt(SCENE, plan.right + 1, actual.top + 1, wide), T_268_TOP_FIRST).toBe('GA-4')
   })
 })

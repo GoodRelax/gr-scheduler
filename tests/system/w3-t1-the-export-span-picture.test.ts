@@ -11,8 +11,8 @@ import { applyCommandsOf, exportSvgOf, taskGroupsDocument } from './w3-t1-stage'
 
 const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
-// WHY: each constant ends exactly at its marker, cut from the manuscript as check 39 reads it.
-// WHY: CR-690 -- the old span row retired (its rules are FX-1 / FX-5), the span applies only while fixed (S-532), days carry the year (FX-8).
+// Why: each constant ends exactly at its marker, cut from the manuscript as check 39 reads it.
+// Why: CR-690 -- the old span row retired (its rules are FX-1 / FX-5), the span applies only while fixed (S-532), days carry the year (FX-8).
 const IX_12 = '表 T-024 の `IO-3`・`IO-4`・`IO-6` の絵を `IX-13` 〜 `IX-16` で描くこと（MUST）'
 const IX_14_ALL_TASK_GROUPS = '| IX-14 | 期間の絵の縦 | ⭐ `FR-018` の 表 T-329 が描くタスクグループのすべてを、上から下まで並べること（MUST）'
 const IX_14_ZOOM_ONE = 'タスクグループの高さは、`FR-039` の 表 T-252 の `DS-8` の縦のズーム（表 T-203 の `S-76`）を 1 と置いて組むこと（MUST）（`DS-13` は縦のズームを掛けない）'
@@ -29,9 +29,9 @@ const WORDS = JSON.parse(readFileSync(join(process.cwd(), 'docs', 'spec', '_sour
 }
 const SPAN_WORDS = WORDS.exportChooser.find((one) => one.part === 'fitSpan')?.text ?? { ja: '', en: '' }
 
-// see S-517
+// Spec: S-517
 const S_517_EM = Number(/[\d.]+/.exec(bare(rowOf(specTable('T-206'), 'S-517').cells[1] ?? ''))?.[0] ?? NaN)
-// see S-217
+// Spec: S-217
 const S_217 = Number(/\d+/.exec(bare(rowOf(specTable('T-204'), 'S-217').by['既定'] ?? ''))?.[0] ?? NaN)
 const EXPORT_CHOOSER = `[data-role="${bare(rowOf(specTable('T-103'), 'U-54').cells[0] ?? '')}"]`
 const PALETTE_COMMANDS = `[data-role="${bare(rowOf(specTable('T-103'), 'U-26').cells[0] ?? '')}"]`
@@ -39,7 +39,7 @@ const OPEN_EXPORT_CHOOSER = rowOf(specTable('T-109'), 'IC-2').id
 
 const SPAN_28 = { fitSpanStart: '2026-03-02T00:00:00', fitSpanFinish: '2026-03-29T00:00:00' }
 const SPAN_14 = { fitSpanStart: '2026-03-02T00:00:00', fitSpanFinish: '2026-03-15T00:00:00' }
-// WHY: CM-90 fixes the span; it reaches the picture only while fixed (FX-2).
+// Why: CM-90 fixes the span; it reaches the picture only while fixed (FX-2).
 const FIX = { kind: 'setFitSpanFixed', isFitSpanFixed: true, shownStart: null, shownFinish: null }
 
 let browser: Browser | null = null
@@ -68,7 +68,7 @@ async function pictureOf(page: Page): Promise<string> {
   return String(answer.value)
 }
 
-// WHY: the watermark carries the clock and the clip paths carry a fresh id per drawing; neither is the picture.
+// Why: the watermark carries the clock and the clip paths carry a fresh id per drawing; neither is the picture.
 /** @purity pure */
 function sameness(svg: string): string {
   return svg.replace(/\d{4}-\d\d-\d\dT[0-9]{2}:[0-9]{2}:[0-9]{2}Z/g, 'T').replace(/(grs-[a-z-]+?)-[0-9a-z]{4,}(?=[")])/g, '$1')
@@ -172,7 +172,7 @@ test.describe('FR-025 the export span picture on the shipped build', () => {
       const at28 = await pictureOf(opened.page)
       const bar28 = planOf(at28, 1)
       const day28 = (bar28.right - bar28.left) / 3
-      // see IX-13
+      // Spec: IX-13
       expect(planOf(at28, 2).left - bar28.left, 'task 2 starts 7 days after task 1').toBeCloseTo(7 * day28, 1)
       await opened.page.setViewportSize({ width: 1280, height: 720 })
       await settle(opened.page)
@@ -384,7 +384,7 @@ test.describe(`WB-10 (MUST): ${WB_10_MOVE.slice(-40)}`, () => {
       await settle(opened.page)
       const released = await boxOf(opened.page, EXPORT_CHOOSER)
       expect([released?.x, released?.y], 'WB-8: the place is settled on release').toEqual([expect.closeTo(held?.x ?? NaN, 0), expect.closeTo(held?.y ?? NaN, 0)])
-      // WHY: IN-4 spends Esc on the open surface before the drag, so an Esc here closes the chooser and its place is thrown away.
+      // Why: IN-4 spends Esc on the open surface before the drag, so an Esc here closes the chooser and its place is thrown away.
       await opened.page.keyboard.press('Escape')
       await settle(opened.page)
       expect(await pressEntrance(opened.page, OPEN_EXPORT_CHOOSER)).toBe(true)

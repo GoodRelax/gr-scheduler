@@ -11,7 +11,7 @@ import { rowOf } from './sws-case'
 
 const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
-// WHY: each constant ends exactly at its marker, cut from the manuscript as check 39 reads it.
+// Why: each constant ends exactly at its marker, cut from the manuscript as check 39 reads it.
 const NT_7_NO_WRITE =
   '画面からの書き込み（取り消し・やり直しを含む）は 表 T-233 の `RS-27` として捨て（同行は出さない —— 問いが画面に立っているので、受けなかったことは見える）、`Agent API` の書き込みは 表 T-035 の `AG-9` のとおり拒むこと（MUST）'
 const NT_7_YES_NO = '（`05-07-design.md` の 表 T-067 の `WS-2` と同じ例外である）。⚠️ **問いの文は、`y` / `n` で答えられる形にすること（MUST）'
@@ -23,7 +23,7 @@ const WORDS = JSON.parse(readFileSync(join(process.cwd(), 'docs', 'spec', '_sour
 const CONFIRMATION = `[data-role="${bare(rowOf(specTable('T-103'), 'U-55').cells[0] ?? '')}"]`
 const NOTIFICATION_AREA = `[data-role="${bare(rowOf(specTable('T-103'), 'U-57').cells[0] ?? '')}"]`
 
-// WHY: T-234 also holds the words of two surfaces that are not the y / n Confirmation -- a row that says so
+// Why: T-234 also holds the words of two surfaces that are not the y / n Confirmation -- a row that says so
 // itself, and the row the Watermark Unlock surface (U-60, answered by typing) names as its question.
 const NOT_ON_THE_CONFIRMATION = new Set([
   ...specTable('T-234')
@@ -36,7 +36,7 @@ const TEMPLATE = JSON.parse(
   readFileSync(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
 ) as { $schema: string; schemaVersion: string; schedule: Record<string, any>; documentSettings: Record<string, unknown>; documentStamp: unknown }
 
-// WHY: January 2026 runs Mon 5 .. Fri 9, Sat 10; the template calendar works Mon-Fri and has no January exception.
+// Why: January 2026 runs Mon 5 .. Fri 9, Sat 10; the template calendar works Mon-Fri and has no January exception.
 const day = (dayOfMonth: number, time = '08:00:00'): string => `2026-01-${String(dayOfMonth).padStart(2, '0')}T${time}`
 const ROW = '5c000000-0000-4000-8000-000000072021'
 
@@ -123,8 +123,8 @@ async function textOf(page: Page, selector: string): Promise<string | null> {
   }, selector)
 }
 
-// see FR-032, QN-10, IC-106
-// WHY: deleting every task group owes a write bundle, so the question it raises holds the document as NT-7 says.
+// Spec: FR-032, QN-10, IC-106
+// Why: deleting every task group owes a write bundle, so the question it raises holds the document as NT-7 says.
 /** @purity non-pure */
 async function askToDeleteEveryTaskGroup(page: Page): Promise<void> {
   expect(await pressEntrance(page, 'IC-106'), 'IC-106 is on the screen').toBe(true)

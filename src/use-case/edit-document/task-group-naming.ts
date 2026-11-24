@@ -1,4 +1,4 @@
-// EditDocument -- a task group stands with a name or a derivation source, and is renamed.
+// File: EditDocument: a task group stands with a name or a derivation source, and is renamed.
 // @unit      UF-77  (docs/spec/05-07-design.md, table T-075)
 // @component EditDocument, layer UseCase (table T-062)
 // @purity    pure
@@ -11,7 +11,7 @@ import { refused, edited, reject } from './edit-document'
 import type { TaskGroupCommandOf } from './edit-task-group'
 import { depthOf, withTaskGroup, withScheduleParts } from './edit-task-group'
 
-// see CM-26, FR-085, FR-058, AT-153
+// Spec: CM-26, FR-085, FR-058, AT-153
 /** @purity pure */
 export function createTaskGroup(
   document: Document,
@@ -70,7 +70,7 @@ export function createTaskGroup(
   return edited(withScheduleParts(document, { taskGroups: [...groups, taskGroup] }))
 }
 
-// see CM-29, FR-085, FR-058
+// Spec: CM-29, FR-085, FR-058
 /** @purity pure */
 export function setTaskGroupName(
   document: Document,

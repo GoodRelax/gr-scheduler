@@ -29,7 +29,7 @@ import { specTable, unbroken } from './spec-table'
 afterEach(restoreAnimationFrames)
 
 const FR_159_PLACE = '全体日程シフトの欄は、`FR-072` の 表 T-369 の `FO-17` の場所に置く。'
-// WHY: CR-787 renamed the start date to the first task start (JDG-2540).
+// Why: CR-787 renamed the start date to the first task start (JDG-2540).
 const FR_159_SHOWS_START = '欄の上に最初のタスクの開始日（表 T-379 の `WH-1`）を見せること（MUST）'
 const FR_159_AGENT = '`Agent API` から `_assets/tbl-document-commands.md` の 表 T-108 の `CM-99` を受けたときは問わない'
 const FR_156_ASKS_ONLY = '確認を取るのは、データを大幅に書き換えるタイムシフト（`FR-157`）と全体日程シフト（`FR-159`）だけである（利用者の判断）'
@@ -42,8 +42,8 @@ const WH_12_NO_TOOLTIP = 'ツールチップも持たない（利用者の判断
 const FO_17_ABOVE_FO_16 = '⭐ `FO-16` の上に置く（利用者の指示）'
 const FR_159_ONE_UNDO = '取り消しを 1 度押せば全部の日付が元へ戻ること（MUST）'
 
-// see T-369
-// WHY: CR-755 -- FO-15 is four rows; the last of them stands right above FO-17.
+// Spec: T-369
+// Why: CR-755 -- FO-15 is four rows; the last of them stands right above FO-17.
 const FACE_ROW_OF_FO_15 = 'K-145:4'
 const FACE_ROW_OF_FO_16 = 'IC-162'
 const LINE_BREAK = '\n'
@@ -217,7 +217,7 @@ describe('FR-159 / QN-15 -- Apply asks like the Time Shift, and only "proceed" w
     expect([settings.fitSpanStart, settings.fitSpanFinish]).toEqual([WORKED().documentSettings.fitSpanStart, WORKED().documentSettings.fitSpanFinish])
   })
 
-  // WHY: DFC-2761 -- FR-159 brings every date back with one undo and WH-7 moves S-77; the shell keeps the moved scrollDate (UN-8 keeps scrolling out of undo).
+  // Why: DFC-2761 -- FR-159 brings every date back with one undo and WH-7 moves S-77; the shell keeps the moved scrollDate (UN-8 keeps scrolling out of undo).
   it.fails(`UN-13 / FR-159: ${FR_159_ONE_UNDO} -- S-77 scrollDate is back too`, async () => {
     const stage = await moved()
     expect(stage.loop.document().documentSettings.scrollDate, 'premise: CM-99 moved S-77').toBe('2029-03-09T00:00:00')

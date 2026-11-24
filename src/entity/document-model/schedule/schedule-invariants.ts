@@ -1,4 +1,4 @@
-// Schedule -- the document invariants, judged row by row of table T-220.
+// File: Schedule: the document invariants, judged row by row of table T-220.
 // @unit      UF-131  (docs/spec/05-07-design.md, table T-075)
 // @component Schedule, layer documentModel (table T-062)
 // @purity    pure
@@ -34,7 +34,7 @@ export interface ScheduleViolation {
   readonly what: string
 }
 
-// WHY: two groups, not a Document, whose component imports this one and would close a cycle.
+// Why: two groups, not a Document, whose component imports this one and would close a cycle.
 interface DocumentUnderTest {
   readonly schedule: Schedule
   readonly settings: DocumentSettings
@@ -63,7 +63,7 @@ interface Nesting<TKey> {
   readonly rings: readonly (readonly TKey[])[]
 }
 
-// see IV-6, IV-23
+// Spec: IV-6, IV-23
 /** @purity pure */
 function tasksNotNamedOnce(
   schedule: Schedule,
@@ -82,7 +82,7 @@ function tasksNotNamedOnce(
   return found
 }
 
-// see IV-4, IV-5, IV-18
+// Spec: IV-4, IV-5, IV-18
 /** @purity pure */
 function nestingOf<TKey, TRow>(
   rows: readonly TRow[],
@@ -146,8 +146,8 @@ function nestingOf<TKey, TRow>(
   return { depthByKey, rings }
 }
 
-// WHY: not the picture's task group walk, which skips hidden and folded task groups; an invariant must not depend on the screen.
-// see IV-19, SV-8
+// Why: not the picture's task group walk, which skips hidden and folded task groups; an invariant must not depend on the screen.
+// Spec: IV-19, SV-8
 /** @purity pure */
 export function taskGroupRankById(groups: readonly TaskGroup[]): ReadonlyMap<string, number> {
   const childrenOf = new Map<string | null, TaskGroup[]>()
@@ -174,7 +174,7 @@ export function taskGroupRankById(groups: readonly TaskGroup[]): ReadonlyMap<str
   return rankById
 }
 
-// see IV-14
+// Spec: IV-14
 /** @purity pure */
 function dateBreaches<TRow extends object>(
   row: TRow,
@@ -254,7 +254,7 @@ function documentRowsOf(schedule: Schedule): DocumentRows {
       const rows = rowsIn(group[entry.scheduleKey], entry.entity, at)
       if (rows === null) continue
       arrays.push({ entity: entry.entity, at, rows })
-      // TRAP: push one row at a time; all.push(...rows) exceeds the argument limit on a long array.
+      // Trap: push one row at a time; all.push(...rows) exceeds the argument limit on a long array.
       for (const row of rows) all.push(row)
       continue
     }
@@ -276,7 +276,7 @@ function documentRowsOf(schedule: Schedule): DocumentRows {
   return { arrays, all }
 }
 
-// TRAP: a list counts as its length; tools/generate_startup_template.py must read it the same way.
+// Trap: a list counts as its length; tools/generate_startup_template.py must read it the same way.
 /** @purity pure */
 function settingNumberOf(settings: DocumentSettings, key: string): number | null {
   let at: unknown = settings
@@ -318,7 +318,7 @@ function boundValueOf(
   return answer === undefined || !Number.isFinite(answer) ? null : answer
 }
 
-// see T-220
+// Spec: T-220
 const INVARIANTS: readonly Invariant[] = [
   {
     row: 'IV-1',
@@ -514,7 +514,7 @@ const INVARIANTS: readonly Invariant[] = [
           })
         }
       }
-      // WHY: a highlight box is held to the same pair since its outline takes transparent (FR-019).
+      // Why: a highlight box is held to the same pair since its outline takes transparent (FR-019).
       for (const [index, box] of schedule.highlightBoxes.entries()) {
         if (box.fillColor === TRANSPARENT && box.strokeColor === TRANSPARENT) {
           found.push({
@@ -772,8 +772,8 @@ const INVARIANTS: readonly Invariant[] = [
   },
 ]
 
-// see T-220
-// WHY: `rows` lets a caller that refuses one row judge only it, without walking rows that count working days.
+// Spec: T-220
+// Why: `rows` lets a caller that refuses one row judge only it, without walking rows that count working days.
 /** @purity pure */
 export function scheduleViolations(
   schedule: Schedule,

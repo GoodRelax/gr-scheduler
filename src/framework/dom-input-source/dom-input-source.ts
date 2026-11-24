@@ -1,4 +1,4 @@
-// Reports the person's pointer, wheel and key input from the browser window.
+// File: DomInputSource: Reports the person's pointer, wheel and key input from the browser window.
 // @unit      UF-50   (docs/spec/05-07-design.md, table T-075)
 // @component DomInputSource, layer Framework (table T-062)
 // @purity    non-pure
@@ -100,14 +100,14 @@ function keyOf(event: { readonly key: string; readonly code: string }): string {
   return event.key
 }
 
-// see IN-4
-// WHY: an Esc held down spends one rung: only its first keydown is reported.
+// Spec: IN-4
+// Why: an Esc held down spends one rung: only its first keydown is reported.
 /** @purity pure */
 function isHeldEscapeRepeat(event: { readonly key: string; readonly repeat: boolean }): boolean {
   return event.key === HOST_ESCAPE && event.repeat
 }
 
-// see T-023, S-514, S-515, S-516
+// Spec: T-023, S-514, S-515, S-516
 /** @purity pure */
 function pixelsPerUnit(deltaMode: number, pageSize: number): number {
   if (deltaMode === DELTA_IN_LINES) return NOT_STORED_WHEEL_UNITS['S-514']
@@ -138,7 +138,7 @@ function wheelTurn(
   }
 }
 
-// see MK-13
+// Spec: MK-13
 /** @purity pure */
 function isSameRun(
   before: PreviousPress,
@@ -151,11 +151,11 @@ function isSameRun(
   return Math.abs(pointer.clientY - before.y) <= DOUBLE_CLICK_WITHIN_PX
 }
 
-// TRAP: a window wheel listener is passive by default, and a passive preventDefault is ignored.
+// Trap: a window wheel listener is passive by default, and a passive preventDefault is ignored.
 const MAY_STOP_DEFAULT: AddEventListenerOptions = { passive: false }
 const NOTHING_TO_STOP: AddEventListenerOptions = { passive: true }
 
-// see IF-2, PI-27
+// Spec: IF-2, PI-27
 /** @purity non-pure */
 export function domInputSource(
   host: InputHost,
@@ -171,15 +171,15 @@ export function domInputSource(
     if (receive !== null) receive(input)
   }
 
-  // see MK-10
+  // Spec: MK-10
   /** @purity non-pure */
   function deliver(input: HumanInput, event: { preventDefault(): void }): void {
-    // TRAP: asked before the watcher runs; Esc consumes a level, so later reads a changed screen.
+    // Trap: asked before the watcher runs; Esc consumes a level, so later reads a changed screen.
     if (isBrowserDefaultStopped(input)) event.preventDefault()
     report(input)
   }
 
-  // TRAP: capture on the root; the svg subtree is replaced every draw and loses its capture.
+  // Trap: capture on the root; the svg subtree is replaced every draw and loses its capture.
   /** @purity non-pure */
   function holdPointer(pointerId: number): void {
     host.document.documentElement.setPointerCapture(pointerId)
@@ -271,13 +271,13 @@ export function domInputSource(
       modifiers: modifiersOf(pointer),
       clickCount: held.clickCount,
     }
-    // TRAP: cleared before reporting, so the watcher sees a settled gesture.
+    // Trap: cleared before reporting, so the watcher sees a settled gesture.
     gesture = null
     if (held.isHeld) releasePointer(pointer.pointerId)
     deliver(input, pointer)
   }
 
-  // see IN-1a
+  // Spec: IN-1a
   /** @purity non-pure */
   function onPointerLost(event: Event): void {
     if (watcher === null) return
@@ -363,7 +363,7 @@ export function domInputSource(
   }
 }
 
-// see FR-071, IN-4a
+// Spec: FR-071, IN-4a
 interface KeyboardLock {
   lock(keyCodes: readonly string[]): Promise<void>
   unlock(): void
@@ -374,8 +374,8 @@ export interface EscapeKeyLock {
   unlock(): void
 }
 
-// see FR-071, IN-4, IN-4a
-// WHY: without the lock the browser takes Esc before the page and leaves full screen ahead of every rung.
+// Spec: FR-071, IN-4, IN-4a
+// Why: without the lock the browser takes Esc before the page and leaves full screen ahead of every rung.
 // A refusal or an absent Keyboard Lock is not told (FR-071): the browser then leaves full screen as before.
 /** @purity pure */
 export function escapeKeyLockOf(keyboard: unknown): EscapeKeyLock {
@@ -405,7 +405,7 @@ export function escapeKeyLockOf(keyboard: unknown): EscapeKeyLock {
 // Single source of truth:
 //   docs/spec/_source/settings.json (table T-206)
 // Rebuild: npm run gen   ||   npm run gen:check fails on drift.
-// see T-206
+// Spec: T-206
 const NOT_STORED_WHEEL_UNITS: {
   readonly 'S-514': number
   readonly 'S-515': number

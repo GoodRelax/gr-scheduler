@@ -1,4 +1,4 @@
-// ScheduleGeometry -- the highlight box: its rectangle from the top and bottom task groups and the two end days (FR-019).
+// File: ScheduleGeometry: the highlight box: its rectangle from the top and bottom task groups and the two end days (FR-019).
 // @unit      UF-171  (docs/spec/05-07-design.md, table T-075)
 // @component ScheduleGeometry, layer layoutEngine (table T-062)
 // @purity    pure
@@ -8,8 +8,8 @@ import { inTreeOrder, xFromDay, type TaskGroupPlacement, type ScheduleLayout } f
 import { isAtLeastDrawnPx } from './dependency-route'
 import type { HighlightGeometry } from './schedule-geometry'
 
-// see FR-019
-// WHY: the one place a highlight box's end day is counted inclusive; its right edge is where the next day begins.
+// Spec: FR-019
+// Why: the one place a highlight box's end day is counted inclusive; its right edge is where the next day begins.
 /** @purity pure */
 function rightEdgeOfDay(layout: ScheduleLayout, day: CalendarDay): number {
   return xFromDay(layout, day) + layout.pxPerDay
@@ -17,8 +17,8 @@ function rightEdgeOfDay(layout: ScheduleLayout, day: CalendarDay): number {
 
 type AnnotationNumberRow = keyof typeof NOT_STORED_ANNOTATION_BOUNDS
 
-// see T-217, FR-019
-// WHY: a null column draws the table's default, and a stored value outside the bounds is drawn clamped while the
+// Spec: T-217, FR-019
+// Why: a null column draws the table's default, and a stored value outside the bounds is drawn clamped while the
 // document keeps it -- refusing the document for one look value would lose every other value in it.
 /** @purity pure */
 export function drawnAnnotationNumber(held: number | null, row: AnnotationNumberRow): number {
@@ -26,21 +26,21 @@ export function drawnAnnotationNumber(held: number | null, row: AnnotationNumber
   return Math.min(max, Math.max(min, held ?? NOT_STORED_ANNOTATION_SIZES[row]))
 }
 
-// see HB-10, HB-11
+// Spec: HB-10, HB-11
 /** @purity pure */
 function sideHandlesOf(width: number, height: number): HighlightGeometry['hasSideHandles'] {
   const shortest = NOT_STORED_HIGHLIGHT_HANDLE_SIZES['S-373']
   return { leftRight: isAtLeastDrawnPx(height, shortest), topBottom: isAtLeastDrawnPx(width, shortest) }
 }
 
-// see FR-019, UC-008
+// Spec: FR-019, UC-008
 interface DrawnTaskGroupsInTree {
   readonly treeIndexOf: ReadonlyMap<string, number>
-  // WHY: the drawn task groups in tree order, each with its index in the whole tree (drawn or not).
+  // Why: the drawn task groups in tree order, each with its index in the whole tree (drawn or not).
   readonly drawn: readonly { readonly taskGroup: TaskGroupPlacement; readonly at: number }[]
 }
 
-// see FR-019, UC-008
+// Spec: FR-019, UC-008
 /** @purity pure */
 function drawnTaskGroupsInTreeOf(schedule: Schedule, taskGroupById: ReadonlyMap<string, TaskGroupPlacement>): DrawnTaskGroupsInTree {
   const tree = inTreeOrder(schedule.taskGroups, new Map(schedule.taskGroups.map((group) => [group.id, group])))
@@ -52,8 +52,8 @@ function drawnTaskGroupsInTreeOf(schedule: Schedule, taskGroupById: ReadonlyMap<
   return { treeIndexOf: new Map(tree.map((group, at) => [group.id, at])), drawn }
 }
 
-// see FR-019, UC-008
-// WHY: UC-008 4a -- an undrawn end task group gives way to the nearest drawn task group of the range in tree order, so the frame
+// Spec: FR-019, UC-008
+// Why: UC-008 4a -- an undrawn end task group gives way to the nearest drawn task group of the range in tree order, so the frame
 // shrinks to the shown task groups; a null or unknown end keeps the screen's first or last task group, and no drawn task group, no box.
 /** @purity pure */
 function drawnEndsOf(
@@ -67,7 +67,7 @@ function drawnEndsOf(
   const top = topId === null ? screen[0] : taskGroupById.get(topId)
   const bottom = bottomId === null ? screen[screen.length - 1] : taskGroupById.get(bottomId)
   if (top !== undefined && bottom !== undefined) return { top, bottom }
-  // TRAP: built only when an end is not drawn, so a frame whose ends are both drawn pays no tree walk.
+  // Trap: built only when an end is not drawn, so a frame whose ends are both drawn pays no tree walk.
   const rows = treeOf()
   const low = (topId === null ? undefined : rows.treeIndexOf.get(topId)) ?? -Infinity
   const high = (bottomId === null ? undefined : rows.treeIndexOf.get(bottomId)) ?? Infinity
@@ -79,7 +79,7 @@ function drawnEndsOf(
   return shownTop === undefined || shownBottom === undefined ? undefined : { top: shownTop, bottom: shownBottom }
 }
 
-// see FR-019
+// Spec: FR-019
 /** @purity pure */
 export function highlightGeometry(schedule: Schedule, layout: ScheduleLayout): readonly HighlightGeometry[] {
   const taskGroupById = new Map(layout.taskGroups.map((taskGroup) => [taskGroup.taskGroupId, taskGroup]))
@@ -94,7 +94,7 @@ export function highlightGeometry(schedule: Schedule, layout: ScheduleLayout): r
     const ends = drawnEndsOf(box, taskGroupById, treeOf, layout.taskGroups)
     if (ends === undefined) continue
     const { top, bottom } = ends
-    // TRAP: both edges through min / max: task groups are stored in tree order but drawn in screen order, and pinning inverts them.
+    // Trap: both edges through min / max: task groups are stored in tree order but drawn in screen order, and pinning inverts them.
     const early = compareDays(from, toDay) <= 0 ? from : toDay
     const late = compareDays(from, toDay) <= 0 ? toDay : from
     const x0 = xFromDay(layout, early)
@@ -105,12 +105,12 @@ export function highlightGeometry(schedule: Schedule, layout: ScheduleLayout): r
     out.push({
       id: box.id,
       box: { x: x0, y, width, height },
-      // WHY: not defaulted to S-132: CM-52 gives that to a new box, and a box that states none draws none.
+      // Why: not defaulted to S-132: CM-52 gives that to a new box, and a box that states none draws none.
       cornerRadiusPx: box.cornerRadiusPx === null ? null : drawnAnnotationNumber(box.cornerRadiusPx, 'S-132'),
       strokeWidthPx: drawnAnnotationNumber(box.strokeWidthPx, 'S-369'),
-      // WHY: null is the project theme color (FR-019); the renderer, which holds the theme, paints it.
+      // Why: null is the project theme color (FR-019); the renderer, which holds the theme, paints it.
       fillColor: box.fillColor ?? null,
-      // see AT-147
+      // Spec: AT-147
       fillOpacity: 1 - drawnAnnotationNumber(box.fillTransparencyPercent, 'S-371') / 100,
       hasSideHandles: sideHandlesOf(width, height),
     })
@@ -122,14 +122,14 @@ export function highlightGeometry(schedule: Schedule, layout: ScheduleLayout): r
 // Single source of truth:
 //   docs/spec/_source/settings.json (tables T-206 and T-217)
 // Rebuild: npm run gen   ||   npm run gen:check fails on drift.
-// see T-206
+// Spec: T-206
 const NOT_STORED_HIGHLIGHT_HANDLE_SIZES: {
   readonly 'S-373': number
 } = {
   'S-373': 36,
 }
 
-// see T-217, FR-019
+// Spec: T-217, FR-019
 const NOT_STORED_ANNOTATION_SIZES: {
   readonly 'S-132': number
   readonly 'S-369': number
@@ -150,7 +150,7 @@ const NOT_STORED_ANNOTATION_SIZES: {
   'S-624': 10,
 }
 
-// see T-217, FR-006, FR-019
+// Spec: T-217, FR-006, FR-019
 const NOT_STORED_ANNOTATION_BOUNDS: {
   readonly 'S-132': { readonly key: string; readonly min: number; readonly max: number; readonly default: number }
   readonly 'S-369': { readonly key: string; readonly min: number; readonly max: number; readonly default: number }

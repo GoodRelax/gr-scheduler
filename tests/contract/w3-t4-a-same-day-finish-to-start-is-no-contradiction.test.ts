@@ -12,12 +12,12 @@ const VC_15_NOT_ND_3 = '⛔ `ND-3` の「終了日はその日を含む」を、
 const VC_15_SAME_DAY = '同じ瞬間は反せず、1 分でも前なら反する'
 const VC_15_FS = 'FS: 後続の `start` ≥ 先行の `finish` ＋ `linkLag`'
 
-// see AT-46
+// Spec: AT-46
 const FS = 1
 
 type Diagnose = (document: Document, calendar: unknown) => unknown
 
-// see PI-1, AM-19
+// Spec: PI-1, AM-19
 /** @purity pure */
 function findingRowsOf(document: Document): readonly string[] {
   const seam = (scheduleEntry as unknown as { diagnoseDelay?: Diagnose }).diagnoseDelay
@@ -39,8 +39,8 @@ function findingRowsOf(document: Document): readonly string[] {
 const PREDECESSOR = 1
 const SUCCESSOR = 2
 
-// see VC-15
-// WHY: the predecessor runs 6 to 8 April and the successor is linked to it Finish-to-Start with lag 0.
+// Spec: VC-15
+// Why: the predecessor runs 6 to 8 April and the successor is linked to it Finish-to-Start with lag 0.
 /** @purity pure */
 function linkedDocument(successorStart: string, successorFinish: string): Document {
   const draft = taskGroupDocument([
@@ -65,7 +65,7 @@ describe('VC-15 -- the manuscript these cases are driven by', () => {
   })
 })
 
-// WHY: CR-710 compares instants in every document (FR-054, CR-710 section 11 question 9): the same instant holds, the same day earlier breaks.
+// Why: CR-710 compares instants in every document (FR-054, CR-710 section 11 question 9): the same instant holds, the same day earlier breaks.
 describe(`VC-15 -- ${VC_15_NOT_ND_3}`, () => {
   it('a successor that starts at the moment its predecessor finishes, on that day, is not a contradiction', () => {
     const rows = findingRowsOf(linkedDocument('2026-04-08T17:00:00', '2026-04-10T17:00:00'))

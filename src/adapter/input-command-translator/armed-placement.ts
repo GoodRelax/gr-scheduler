@@ -1,4 +1,4 @@
-// InputCommandTranslator -- the armed state (table T-023b) applied to a range or the chosen Tasks.
+// File: InputCommandTranslator: the armed state (table T-023b) applied to a range or the chosen Tasks.
 // @unit      UF-99   (docs/spec/05-07-design.md, table T-075)
 // @component InputCommandTranslator, layer Adapter (table T-062)
 // @purity    pure
@@ -46,14 +46,14 @@ import {
   type TranslatedInput,
 } from './input-command-translator'
 
-// see FR-083
+// Spec: FR-083
 /** @purity pure */
 export function commandFromArmingEntry(entry: string, context: InputContext): TranslatedInput {
   const armed = armedByEntry(entry)
   if (armed === null) return CONSUMED_ELSEWHERE
   if (context.selection.items.length === 0) return CONSUMED_ELSEWHERE
 
-  // WHY: a mixed selection is not filtered; CM-20 refuses the crossing and AG-3 keeps the bundle
+  // Why: a mixed selection is not filtered; CM-20 refuses the crossing and AG-3 keeps the bundle
   // atomic, while filtering here would decide a question no row decides.
   const commands: DocumentCommand[] = []
   for (const one of context.selection.items) {
@@ -74,7 +74,7 @@ export function commandFromArmingEntry(entry: string, context: InputContext): Tr
   return changed(commands)
 }
 
-// see UC-004, FR-009
+// Spec: UC-004, FR-009
 /** @purity pure */
 export function commandFromDependencyDrag(
   release: PointerInput,
@@ -85,7 +85,7 @@ export function commandFromDependencyDrag(
   if (from === null) return CONSUMED_ELSEWHERE
   const into = dependencyEndAtPointer(context.geometry, release.x, release.y, null)
   if (into === null) return CONSUMED_ELSEWHERE
-  // WHY: no `linkType` here; `edit-dependency.ts` maps the edges through T-018, a second entrance FR-009 refuses.
+  // Why: no `linkType` here; `edit-dependency.ts` maps the edges through T-018, a second entrance FR-009 refuses.
   return changed([
     {
       kind: 'createDependency',
@@ -98,7 +98,7 @@ export function commandFromDependencyDrag(
 }
 
 // see FR-135, PTL-5, PTL-6, PTL-7, PTL-8, PTL-9, JDG-1138
-// WHY: one call holds every child's CM-18, so one refused child refuses them all and one undo step undoes them all.
+// Why: one call holds every child's CM-18, so one refused child refuses them all and one undo step undoes them all.
 /** @purity pure */
 export function commandFromParentTaskDrag(
   release: PointerInput,
@@ -117,7 +117,7 @@ export function commandFromParentTaskDrag(
   return changed(children.map((uid) => ({ kind: 'setTaskParentTask', taskUid: uid, parentTaskUid: parent.uid })))
 }
 
-// see PTL-10, PTL-12, RS-70
+// Spec: PTL-10, PTL-12, RS-70
 /** @purity pure */
 export function commandFromParentTaskLinkRelease(release: PointerInput, press: PointerPress): TranslatedInput {
   const item = press.hit?.item
@@ -125,7 +125,7 @@ export function commandFromParentTaskLinkRelease(release: PointerInput, press: P
   return item.isStated ? CONSUMED_ELSEWHERE : nothingToDo('derivedParentCannotBePicked')
 }
 
-// see AR-5, FR-019
+// Spec: AR-5, FR-019
 /** @purity pure */
 function commentBoxPlacement(context: InputContext, press: PointerPress): TranslatedInput {
   const placed = commentAnchorAt(context.layout, context.geometry, press.at.x, press.at.y)
@@ -150,7 +150,7 @@ interface DraggedDays {
   readonly dragged: boolean
 }
 
-// see PTD-4, FR-001, TC-1, TC-3
+// Spec: PTD-4, FR-001, TC-1, TC-3
 /** @purity pure */
 function createdTaskWrite(context: InputContext, drag: ArmedDrag, days: DraggedDays): TranslatedInput {
   const { armed } = drag
@@ -178,7 +178,7 @@ function createdTaskWrite(context: InputContext, drag: ArmedDrag, days: DraggedD
 }
 
 // see FR-001, FR-103, T-378, JDG-2422
-// WHY: finer than a day the press and the release are snapped instants, as a grabbed end is; a pull inside one unit spans one unit.
+// Why: finer than a day the press and the release are snapped instants, as a grabbed end is; a pull inside one unit spans one unit.
 /** @purity pure */
 function createdSpanOnFineSnap(
   context: InputContext,
@@ -198,7 +198,7 @@ function createdSpanOnFineSnap(
   return { start: textOfInstant(early), finish: textOfInstant(late) }
 }
 
-// see PTD-4, FR-001, FR-019
+// Spec: PTD-4, FR-001, FR-019
 /** @purity pure */
 export function commandFromArmed(
   release: PointerInput,
@@ -226,7 +226,7 @@ export function commandFromArmed(
   return CONSUMED_ELSEWHERE
 }
 
-// see PTD-4, FR-019
+// Spec: PTD-4, FR-019
 /** @purity pure */
 function highlightBoxPlacement(
   context: InputContext,
@@ -237,7 +237,7 @@ function highlightBoxPlacement(
   const releaseTaskGroup = taskGroupAtY(context.layout, release.y)
   if (taskGroup === null || releaseTaskGroup === null) return nothingToDo('noTaskGroupToPutTheAnnotationOn')
 
-  // TRAP: rank task groups by tree order, not TaskGroupPlacement.y: once FR-098 pins a task group,
+  // Trap: rank task groups by tree order, not TaskGroupPlacement.y: once FR-098 pins a task group,
   // comparing y writes pairs IV-19 refuses.
   const rankById = taskGroupRankById(context.document.schedule.taskGroups)
   const pressRank = rankById.get(taskGroup.taskGroupId) ?? 0

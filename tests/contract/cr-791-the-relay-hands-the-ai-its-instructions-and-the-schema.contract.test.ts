@@ -21,7 +21,7 @@ const COMMANDS_URI = 'grs-relay://grs-commands.schema.json'
 const COMMANDS_NAME = 'grs-commands.schema.json'
 const RESOURCE_NOT_FOUND = -32002
 
-// WHY: the heading in tbl-agent-api-members.md is Japanese; the code stays ASCII, so it is written as escapes.
+// Why: the heading in tbl-agent-api-members.md is Japanese; the code stays ASCII, so it is written as escapes.
 const INSTRUCTIONS_HEADING =
   'MCP の初期化の答えに載せる案内'
 
@@ -33,7 +33,7 @@ const PAGE_HTML = new Uint8Array(Buffer.from('<!doctype html><html><body>page</b
 
 const sleep = (ms: number): Promise<void> => new Promise((resolve) => setTimeout(resolve, ms))
 
-// WHY: the printed text is the single manuscript (design 3.1: printed from the same manuscript, not written by hand).
+// Why: the printed text is the single manuscript (design 3.1: printed from the same manuscript, not written by hand).
 function printedInstructions(): string {
   const heading = MEMBERS_TABLE.indexOf(INSTRUCTIONS_HEADING)
   if (heading < 0) throw new Error('the instructions heading is not in tbl-agent-api-members.md')
@@ -138,7 +138,7 @@ describe('CR-791 AG-12 (8): the initialize answer carries the instructions', () 
 })
 
 describe('CR-791 design 3.1: the resources are the GRS JSON schema and the commands schema', () => {
-  // see AG-12
+  // Spec: AG-12
   it('resources/list returns two resources: the document schema first, the commands schema second', async () => {
     const answer = await client.request('resources/list', {})
     const resources = (answer['result'] as Json)['resources'] as Json[]

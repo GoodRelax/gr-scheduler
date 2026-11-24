@@ -138,7 +138,7 @@ const rowOf = (table: string, id: string) => {
 /** Everything HF-6 writes, as one string. */
 const HF_6 = rowOf('T-051', 'HF-6').cells.join(' ')
 
-// see LF-16, HF-1
+// Spec: LF-16, HF-1
 const LATTICE = (() => {
   const px = (id: string): number => Number(/-?\d+(?:\.\d+)?/.exec(bare(rowOf('T-206', id).by['既定'] ?? ''))?.[0])
   return 2 * (px('S-138') + px('S-243') * 2) * px('S-235')
@@ -971,8 +971,8 @@ const bandsIn = (built: Stage, row: FakeElement): FakeElement[] =>
 /** The task groups the tree drew, in its own order. */
 const rowsOf = (tree: FakeElement): FakeElement[] => tree.children
 
-// see HF-6, HF-19
-// WHY: the fake lays nothing out, so the ground is read as written: pinned to the task group top and as
+// Spec: HF-6, HF-19
+// Why: the fake lays nothing out, so the ground is read as written: pinned to the task group top and as
 // tall as the task group box or the lattice, whichever is lower down; a max() of the two counts as both.
 function reachesTheLowerBottom(node: FakeElement, taskGroupHeightPx: number, latticePx: number): boolean {
   const style = styleMap(node)
@@ -1089,7 +1089,7 @@ describe('表 T-051 HF-6 -- the ground laid under a task group’s controls', ()
   })
 
   it('⛔ MUST: it reaches the lower of the TASK GROUP bottom and the lattice bottom, not a control', () => {
-    // see HF-6, HF-5
+    // Spec: HF-6, HF-5
     const built = drawn(oneTaskGroup())
     const row = taskGroupElement(built)
     const band = bandsIn(built, row)[0]

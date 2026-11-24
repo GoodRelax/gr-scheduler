@@ -5,13 +5,13 @@ import { join } from 'node:path'
 
 import { bare, specTable, unbroken } from './spec-table'
 
-// WHY: the two headings CR-768 (JDG-2163) added to table T-024; read by name so a moved column moves nothing here.
+// Why: the two headings CR-768 (JDG-2163) added to table T-024; read by name so a moved column moves nothing here.
 export const MEDIA_TYPE_HEADING = '保存の選択面に渡す媒体の型'
 export const OFFERED_HEADING = '`IC-2` に出す'
 export const EXTENSION_HEADING = '拡張子'
 export const DIRECTION_HEADING = '方向'
 
-// WHY: how table T-024 writes "this row has no such value".
+// Why: how table T-024 writes "this row has no such value".
 const NO_VALUE = '—'
 
 export const OFFERED_WORD = '出す'

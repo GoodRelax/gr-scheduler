@@ -47,8 +47,8 @@ function askedQuestion(session: ScreenSession): string | null {
   return state.kind === 'questionAsked' ? state.question.question : null
 }
 
-// see T-290
-// WHY: the file dialog; a dropped file skips U-56 (OP-19), so the chooser path opens through IC-1.
+// Spec: T-290
+// Why: the file dialog; a dropped file skips U-56 (OP-19), so the chooser path opens through IC-1.
 const UP_TO_THE_REPLACE: readonly SessionEvent[] = [
   { type: 'documentOpenAsked', openRoute: 'chooser' },
   { type: 'documentFileRead', question: QUESTION, incomingFile: INCOMING },

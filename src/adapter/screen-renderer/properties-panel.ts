@@ -1,4 +1,4 @@
-// ScreenRenderer: the Properties Panel's content for one frame.
+// File: ScreenRenderer: the Properties Panel's content for one frame.
 // @unit      UF-64   (docs/spec/05-07-design.md, table T-075)
 // @component ScreenRenderer, layer Adapter (table T-062)
 // @purity    pure
@@ -108,7 +108,7 @@ const PROPERTIES_PANEL = 'Properties Panel'
 
 const ITEM_WORDS_BY_ROW = new Map(displayWords.properties.map((item) => [item.rowId, item]))
 
-// see FR-009, T-018
+// Spec: FR-009, T-018
 const DEPENDENCY_KINDS = dependencyKinds.dependencyKinds
 
 const SETTINGS_WORDS_BY_KEY = new Map(
@@ -119,8 +119,8 @@ const SETTINGS_WORDS_BY_KEY = new Map(
 
 const NO_ENTRY_WORDS = ''
 
-// see FR-006, FR-038, PR-1
-// WHY: a milestone's name row reads the row's own milestone word, any other row its label.
+// Spec: FR-006, FR-038, PR-1
+// Why: a milestone's name row reads the row's own milestone word, any other row its label.
 /** @purity pure */
 function itemName(row: string, language: DisplayLanguage, isMilestone = false): string {
   const words = ITEM_WORDS_BY_ROW.get(row)
@@ -130,7 +130,7 @@ function itemName(row: string, language: DisplayLanguage, isMilestone = false): 
   return word === '' ? NO_ENTRY_WORDS : word
 }
 
-// see T-104
+// Spec: T-104
 /** @purity pure */
 function settingsWordOf(key: string): (typeof displayWords.settings)[number] | undefined {
   const own = SETTINGS_WORDS_BY_KEY.get(key)
@@ -148,7 +148,7 @@ function settingsName(key: string, language: DisplayLanguage): string {
 
 type NamedField = Pick<PropertyField, 'name' | 'nameBreakSegments'>
 
-// see FR-006, FR-038
+// Spec: FR-006, FR-038
 /** @purity pure */
 function breakSegmentsOf(entry: object | undefined, language: DisplayLanguage): readonly string[] | undefined {
   if (entry === undefined || !('labelBreakSegments' in entry)) return undefined
@@ -171,14 +171,14 @@ function partNamed(entries: readonly { readonly part: string }[], part: string, 
   return namedField(entry?.text?.[language] ?? NO_ENTRY_WORDS, breakSegmentsOf(entry, language))
 }
 
-// see AS-5, IC-123, IC-124, IC-139
+// Spec: AS-5, IC-123, IC-124, IC-139
 const ASCENDING_ENTRY: IconId = 'IC-123'
 const DESCENDING_ENTRY: IconId = 'IC-124'
 const CHECK_ALL_ENTRY: IconId = 'IC-125'
 const UNCHECK_ALL_ENTRY: IconId = 'IC-126'
 const GRS_RESET_ENTRY: IconId = 'IC-139'
 const TIME_SHIFT_ENTRY: IconId = 'IC-162'
-// WHY: these sit inside a field of the panel, not on its way-out line beside IC-52.
+// Why: these sit inside a field of the panel, not on its way-out line beside IC-52.
 const IN_FIELD_ENTRIES: readonly IconId[] = [
   ASCENDING_ENTRY, DESCENDING_ENTRY, CHECK_ALL_ENTRY, UNCHECK_ALL_ENTRY, GRS_RESET_ENTRY, TIME_SHIFT_ENTRY,
 ]
@@ -188,7 +188,7 @@ function commandItemOf(icon: IconId, language: DisplayLanguage): CommandItem {
   return { icon, isEnabled: true, isPressed: false, isArmed: false, isChosen: false, label: iconLabel(icon, language) }
 }
 
-// see T-109, FR-029
+// Spec: T-109, FR-029
 /** @purity pure */
 function panelCommands(language: DisplayLanguage): readonly CommandItem[] {
   return iconRoster.icons
@@ -196,8 +196,8 @@ function panelCommands(language: DisplayLanguage): readonly CommandItem[] {
     .map((row) => commandItemOf(row.rowId, language))
 }
 
-// see T-016
-// WHY: 'derived' rows are not columns of the document (PR-37, PR-38); 'dependency' rows are
+// Spec: T-016
+// Why: 'derived' rows are not columns of the document (PR-37, PR-38); 'dependency' rows are
 // a selected dependency line's (FR-009).
 type PropertyItem = {
   readonly row: string
@@ -269,7 +269,7 @@ function heldByOf(row: string, appliesTo: AppliesTo): PropertyItem['heldBy'] {
   return heldBy
 }
 
-// TRAP: keep the roster's order, which is FR-006's printed order; never sort by row id.
+// Trap: keep the roster's order, which is FR-006's printed order; never sort by row id.
 const PROPERTY_ITEMS: readonly PropertyItem[] = propertyItems.items.map((item) => {
   const appliesTo = item.appliesTo as AppliesTo
   return {
@@ -302,8 +302,8 @@ const DEPENDENCY_ITEMS: readonly DependencyPropertyItem[] = PROPERTY_ITEMS.filte
   (item): item is DependencyPropertyItem => item.appliesTo === APPLIES_TO_DEPENDENCY,
 )
 
-// see FR-006, AT-30
-// WHY: by Task.milestone, never by the shape column.
+// Spec: FR-006, AT-30
+// Why: by Task.milestone, never by the shape column.
 /** @purity pure */
 function isShownFor(item: PropertyItem, task: Task): boolean {
   if (item.shownFor === null || item.shownFor === 'both') return true
@@ -316,8 +316,8 @@ const NAME_SLOT = '{name}'
 const UID_SLOT = '{uid}'
 const LINE_BREAK = '\n'
 
-// see FR-009, PR-37, PR-38, PR-43, PR-44, FR-038
-// WHY: replaced by a function, so a $ in a task's name is not read as a replacement pattern.
+// Spec: FR-009, PR-37, PR-38, PR-43, PR-44, FR-038
+// Why: replaced by a function, so a $ in a task's name is not read as a replacement pattern.
 /** @purity pure */
 function nameWithUid(name: string, uid: number, language: DisplayLanguage): string {
   return (PROPERTY_FIELD_WORDS.get('dependencyEnd')?.[language] ?? '')
@@ -330,7 +330,7 @@ function dependencyEndText(schedule: Schedule, uid: number, language: DisplayLan
   return nameWithUid(taskByUid(schedule, uid)?.name ?? '', uid, language)
 }
 
-// see PR-37, PR-38
+// Spec: PR-37, PR-38
 /** @purity pure */
 function linkedEndsText(schedule: Schedule, task: Task, column: string, language: DisplayLanguage): string {
   const uids =
@@ -359,7 +359,7 @@ function textOfValue(value: unknown): string {
   return ''
 }
 
-// see FR-054, EX-7
+// Spec: FR-054, EX-7
 /** @purity pure */
 function textOfDateColumn(stored: unknown): string {
   const day = typeof stored === 'string' ? dayOf(stored) : null
@@ -367,8 +367,8 @@ function textOfDateColumn(stored: unknown): string {
   return textOfDay(day).split(DAY_TIME_SEPARATOR)[0] ?? ''
 }
 
-// see TX-3, FR-158, FR-054, FR-156
-// WHY: the host's `yyyy-mm-ddThh:mm` entry (the minute is the stored unit), read on its side in the view base (field-commit reads it back).
+// Spec: TX-3, FR-158, FR-054, FR-156
+// Why: the host's `yyyy-mm-ddThh:mm` entry (the minute is the stored unit), read on its side in the view base (field-commit reads it back).
 /** @purity pure */
 function textOfDateTimeColumn(stored: unknown, side: DateTimeSide, inTime: InstantOnSide): string {
   const instant = typeof stored === 'string' ? inTime(stored, side) : null
@@ -377,7 +377,7 @@ function textOfDateTimeColumn(stored: unknown, side: DateTimeSide, inTime: Insta
 
 const DATE_TIME_ENTRY_LENGTH = 16
 
-// TRAP: assumes TaskVisual has no date column; textOfItem would write a new one raw.
+// Trap: assumes TaskVisual has no date column; textOfItem would write a new one raw.
 /** @purity pure */
 function textOfTaskColumn(schedule: Schedule, task: Task, column: keyof Task, inTime: InstantOnSide | null): string {
   if ((column as string) === ACTUAL_LENGTH_ITEM) return textOfActualLength(schedule, task, inTime)
@@ -385,11 +385,11 @@ function textOfTaskColumn(schedule: Schedule, task: Task, column: keyof Task, in
   return inTime !== null ? textOfDateTimeColumn(task[column], sideOfTaskColumn(task, column), inTime) : textOfDateColumn(task[column])
 }
 
-// see PR-5, P-5
-// WHY: the name of PR-5's row, not a Task column; the length is counted from the dates (FR-011).
+// Spec: PR-5, P-5
+// Why: the name of PR-5's row, not a Task column; the length is counted from the dates (FR-011).
 const ACTUAL_LENGTH_ITEM = 'actualDuration'
 
-// see PR-5, FR-011
+// Spec: PR-5, FR-011
 /** @purity pure */
 function textOfActualLength(schedule: Schedule, task: Task, inTime: InstantOnSide | null): string {
   if (inTime !== null) return actualLengthTextInTime(schedule, task)
@@ -399,8 +399,8 @@ function textOfActualLength(schedule: Schedule, task: Task, inTime: InstantOnSid
   return textOfValue(actualLengthOf(workingCalendarOf(schedule), start, lastDay))
 }
 
-// see PR-5, TX-3, TX-10, FR-011
-// WHY: with time of day the length is the working minutes from actualStart to the actual's end, spelled by TX-10.
+// Spec: PR-5, TX-3, TX-10, FR-011
+// Why: with time of day the length is the working minutes from actualStart to the actual's end, spelled by TX-10.
 /** @purity pure */
 function actualLengthTextInTime(schedule: Schedule, task: Task): string {
   const within = workingCalendarOf(schedule)
@@ -414,16 +414,16 @@ interface Assignee {
   readonly uid: number
 }
 
-// see AS-8, FR-059
-// WHY: code-unit order, not a locale collation: no row fixes one, and a locale orders one document differently per machine.
+// Spec: AS-8, FR-059
+// Why: code-unit order, not a locale collation: no row fixes one, and a locale orders one document differently per machine.
 /** @purity pure */
 function compareAssignees(a: Assignee, b: Assignee): number {
   if (a.name === b.name) return a.uid - b.uid
   return a.name < b.name ? -1 : 1
 }
 
-// see AS-6, AS-13
-// WHY: no FR-059 work-resource filter: this surface edits assignments, and a hidden resource could not be removed.
+// Spec: AS-6, AS-13
+// Why: no FR-059 work-resource filter: this surface edits assignments, and a hidden resource could not be removed.
 // In document order: the first is the primary (AS-13).
 /** @purity pure */
 function assigneesOf(schedule: Schedule, taskUid: number): readonly Assignee[] {
@@ -445,7 +445,7 @@ function assigneeText(schedule: Schedule, taskUid: number): string {
     .join(PART_SEPARATOR)
 }
 
-// see AS-5, AS-9
+// Spec: AS-5, AS-9
 /** @purity pure */
 function assigneeChoices(schedule: Schedule): readonly Assignee[] {
   const people: Assignee[] = []
@@ -461,13 +461,13 @@ const MULTILINE_COLUMNS: readonly string[] = ['notes', 'text']
 
 type ShapedEntity = keyof typeof COLUMN_SHAPES
 
-// see T-016
+// Spec: T-016
 /** @purity pure */
 function controlKindOf(entity: ShapedEntity, column: string): PropertyControlKind {
-  // TRAP: keep these first: notes and dates are strings.
+  // Trap: keep these first: notes and dates are strings.
   if (COLUMN_SHAPES[entity][column]?.kind === 'color') return 'color'
   if (MULTILINE_COLUMNS.includes(column)) return 'multiline'
-  // WHY: PR-5 has no column shape to read since AT-35 retired, and table T-016 still takes a number.
+  // Why: PR-5 has no column shape to read since AT-35 retired, and table T-016 still takes a number.
   if (entity === 'Task' && column === ACTUAL_LENGTH_ITEM) return 'number'
   const dateRoster: Partial<Record<ShapedEntity, readonly string[]>> = DATE_COLUMNS
   if ((dateRoster[entity] ?? []).includes(column)) return 'date'
@@ -513,7 +513,7 @@ const PARENT_COLUMN: keyof Task & string = 'parentTaskUid'
 
 const COUNT_SLOT = '{n}'
 
-// see PTL-15, FR-038
+// Spec: PTL-15, FR-038
 const PARENT_WORD_PARTS = { derived: 'derivedParent', undecided: 'undecidedParent', none: 'noParent' } as const
 
 interface ParentShown {
@@ -521,15 +521,15 @@ interface ParentShown {
   readonly link: PropertyLink | null
 }
 
-// see PTL-15, SQ-1
-// WHY: an empty name would draw a link with nothing to press, so the uid stands in for it.
+// Spec: PTL-15, SQ-1
+// Why: an empty name would draw a link with nothing to press, so the uid stands in for it.
 /** @purity pure */
 function linkedNameOf(task: Task): string {
   return task.name === null || task.name === '' ? String(task.uid) : task.name
 }
 
-// see PTL-15, VS-2, IP-1, IP-2, IP-5, VO-4
-// WHY: the stated value is read first, so a stated milestone parent still shows (PTL-15 1) though IP-2 reads past it.
+// Spec: PTL-15, VS-2, IP-1, IP-2, IP-5, VO-4
+// Why: the stated value is read first, so a stated milestone parent still shows (PTL-15 1) though IP-2 reads past it.
 /** @purity pure */
 function parentShownOf(schedule: Schedule, task: Task, language: DisplayLanguage): ParentShown {
   const stated = task.parentTaskUid === null ? null : taskByUid(schedule, task.parentTaskUid)
@@ -548,8 +548,8 @@ function parentShownOf(schedule: Schedule, task: Task, language: DisplayLanguage
   return { text: word(PARENT_WORD_PARTS.none) ?? '', link: null }
 }
 
-// see PTL-15, PTL-16, PTL-17, PR-15, FR-006
-// WHY: plain words carry no control, so they draw as text and never as a link that does nothing (PTL-15).
+// Spec: PTL-15, PTL-16, PTL-17, PR-15, FR-006
+// Why: plain words carry no control, so they draw as text and never as a link that does nothing (PTL-15).
 /** @purity pure */
 function parentField(schedule: Schedule, task: Task, item: TaskPropertyItem, language: DisplayLanguage): PropertyField {
   const shown = parentShownOf(schedule, task, language)
@@ -572,8 +572,8 @@ function parentField(schedule: Schedule, task: Task, item: TaskPropertyItem, lan
   }
 }
 
-// see FR-006, T-217
-// WHY: the schema leaves these columns unbounded on purpose; table T-217 holds their range (FR-006).
+// Spec: FR-006, T-217
+// Why: the schema leaves these columns unbounded on purpose; table T-217 holds their range (FR-006).
 /** @purity pure */
 function annotationBoundsOf(
   entity: ShapedEntity,
@@ -583,8 +583,8 @@ function annotationBoundsOf(
   return Object.values(NOT_STORED_ANNOTATION_BOUNDS).find((row) => row.key === key) ?? null
 }
 
-// see PR-50, S-624
-// WHY: a null font size is drawn at the table's default, so its field shows that number instead of an empty box.
+// Spec: PR-50, S-624
+// Why: a null font size is drawn at the table's default, so its field shows that number instead of an empty box.
 const SHOWS_ITS_DEFAULT: ReadonlySet<string> = new Set(['CommentBox.fontSizePx'])
 
 /** @purity pure */
@@ -593,27 +593,27 @@ function shownValueOf(entity: ShapedEntity, column: string, value: unknown): unk
   return annotationBoundsOf(entity, column)?.default ?? value
 }
 
-// see FR-006
-// WHY: a chooser of names gathered from the document takes no floor: it fits the panel and the
+// Spec: FR-006
+// Why: a chooser of names gathered from the document takes no floor: it fits the panel and the
 // drawing side cuts a name too long for it (FR-006), so the longest name cannot push it past the edge.
 const NO_ROOM_FLOOR = 0
 
-// see FR-006, S-589, S-590, TX-3
-// WHY: the host draws its own format and calendar button, so the room is the same with or without a value (JDG-1491).
+// Spec: FR-006, S-589, S-590, TX-3
+// Why: the host draws its own format and calendar button, so the room is the same with or without a value (JDG-1491).
 /** @purity pure */
 export function dateEntryWidthOf(isDateTime: boolean): number {
   return isDateTime ? NOT_STORED_PROPERTY_CONTROL_SIZES['S-590'] : NOT_STORED_PROPERTY_CONTROL_SIZES['S-589']
 }
 
-// see FR-006, FR-093, S-199
+// Spec: FR-006, FR-093, S-199
 /** @purity pure */
 export function widthOf(text: string, choices: readonly string[] | null, labelCoef: number): number {
   const widest = (choices ?? []).reduce((most, one) => Math.max(most, labelUnits(one)), labelUnits(text))
   return widest * labelCoef + NOT_STORED_PROPERTY_CONTROL_SIZES['S-199']
 }
 
-// see AS-5, AS-6
-// WHY: the uid is added to a name only where two people share it (AS-6).
+// Spec: AS-5, AS-6
+// Why: the uid is added to a name only where two people share it (AS-6).
 /** @purity pure */
 function assigneeComboOf(schedule: Schedule, language: DisplayLanguage): Omit<AssigneeCombo, 'seated' | 'fieldWord'> {
   const people = assigneeChoices(schedule)
@@ -627,12 +627,12 @@ function assigneeComboOf(schedule: Schedule, language: DisplayLanguage): Omit<As
     sortEntries: [commandItemOf(ASCENDING_ENTRY, language), commandItemOf(DESCENDING_ENTRY, language)],
     checkEntries: [commandItemOf(CHECK_ALL_ENTRY, language), commandItemOf(UNCHECK_ALL_ENTRY, language)],
   }
-  // WHY: carried with the roster, so the drawing side narrows it without a second reading of SV-4.
+  // Why: carried with the roster, so the drawing side narrows it without a second reading of SV-4.
   return { ...held, candidatesOf: (typed, isDescending) => assigneeCandidatesOf(held, typed, isDescending) }
 }
 
-// see AS-5, AS-3, SV-4, IC-123, IC-124
-// WHY: an empty text adds no one: the add item names the person it makes (AS-7).
+// Spec: AS-5, AS-3, SV-4, IC-123, IC-124
+// Why: an empty text adds no one: the add item names the person it makes (AS-7).
 /** @purity pure */
 export function assigneeCandidatesOf(
   combo: Pick<AssigneeCombo, 'people' | 'addWord'>,
@@ -649,11 +649,11 @@ export function assigneeCandidatesOf(
   return [...candidates, { pick: 'add' as const, value: settled, word: combo.addWord.replace(NAME_SLOT, () => settled) }]
 }
 
-// see AS-3
+// Spec: AS-3
 const UNASSIGN_TEXT = '-'
 
-// see PR-16, AS-1, AS-5, AS-13
-// WHY: one field: the people seated in document order, the primary's word and the mark when more sit (FR-059).
+// Spec: PR-16, AS-1, AS-5, AS-13
+// Why: one field: the people seated in document order, the primary's word and the mark when more sit (FR-059).
 /** @purity pure */
 function assigneeControls(
   schedule: Schedule,
@@ -680,8 +680,8 @@ function assigneeControls(
 }
 
 
-// see T-016, PR-35, PR-36
-// WHY: a oneInput row draws one input, for its first column; the commit writes the others (field-commit.ts).
+// Spec: T-016, PR-35, PR-36
+// Why: a oneInput row draws one input, for its first column; the commit writes the others (field-commit.ts).
 /** @purity pure */
 function drawnColumnsOf<Column>(item: { readonly oneInput: boolean; readonly columns: readonly Column[] }): readonly Column[] {
   return item.oneInput ? item.columns.slice(0, 1) : item.columns
@@ -718,8 +718,8 @@ function controlsOfItem(
   })
 }
 
-// see TX-3, FR-158, FR-009, PR-5, PR-42
-// WHY: a host number entry refuses the d / h / m of TX-10, so a typed length is a text entry while time of day is shown.
+// Spec: TX-3, FR-158, FR-009, PR-5, PR-42
+// Why: a host number entry refuses the d / h / m of TX-10, so a typed length is a text entry while time of day is shown.
 /** @purity pure */
 function controlInTime(control: PropertyControl, column: string): PropertyControl {
   if (control.kind === 'date') return { ...control, isDateTime: true, widthInFontSizes: dateEntryWidthOf(true) }
@@ -727,7 +727,7 @@ function controlInTime(control: PropertyControl, column: string): PropertyContro
   return { ...control, kind: 'text', min: null, max: null }
 }
 
-// see PR-5, PR-42, TX-3
+// Spec: PR-5, PR-42, TX-3
 const TYPED_LENGTH_COLUMNS: readonly string[] = ['actualDuration', 'linkLag']
 
 /** @purity pure */
@@ -752,7 +752,7 @@ function textOfItem(
   }
 }
 
-// see T-016
+// Spec: T-016
 /** @purity pure */
 function taskFields(
   schedule: Schedule,
@@ -790,7 +790,7 @@ const LAG_SLOT = '{lag}'
 
 const LINK_HINT_PART_PREFIX = 'linkHint'
 
-// see PR-37, PR-38
+// Spec: PR-37, PR-38
 /** @purity pure */
 function linkedEndsOf(schedule: Schedule, task: Task, column: string): readonly LinkedEnd[] {
   const ends =
@@ -802,8 +802,8 @@ function linkedEndsOf(schedule: Schedule, task: Task, column: string): readonly 
   return [...ends].sort((a, b) => a.uid - b.uid)
 }
 
-// see PR-37, PR-38, T-018, DP-1, FR-009
-// WHY: FS carries no badge, so a document of FS links shows names only and a rarer kind stands out.
+// Spec: PR-37, PR-38, T-018, DP-1, FR-009
+// Why: FS carries no badge, so a document of FS links shows names only and a rarer kind stands out.
 /** @purity pure */
 function badgeOf(dependency: Dependency, language: DisplayLanguage): PropertyBadge | null {
   const kind = DEPENDENCY_KINDS.find((one) => one.linkType === dependency.linkType)
@@ -816,8 +816,8 @@ const FINISH_TO_START_ROW = 'DP-1'
 
 const PLUS_SIGN = '+'
 
-// see PR-37, PR-38, AT-47, FR-009, S-118
-// WHY: read in working days whatever unit it was taken in; a lag no day count settles is read through the day's minutes.
+// Spec: PR-37, PR-38, AT-47, FR-009, S-118
+// Why: read in working days whatever unit it was taken in; a lag no day count settles is read through the day's minutes.
 /** @purity pure */
 function lagWordOf(project: Project, dependency: Dependency, language: DisplayLanguage, inTime: InstantOnSide | null): string {
   if (dependency.linkLag === null || dependency.linkLag === 0) return ''
@@ -829,7 +829,7 @@ function lagWordOf(project: Project, dependency: Dependency, language: DisplayLa
   return (PROPERTY_FIELD_WORDS.get('lagDays')?.[language] ?? '').replace(LAG_SLOT, () => signed)
 }
 
-// see PR-37, PR-38, PTL-16
+// Spec: PR-37, PR-38, PTL-16
 /** @purity pure */
 function linkedEndControls(
   schedule: Schedule,
@@ -857,15 +857,15 @@ function linkedEndControls(
   })
 }
 
-// WHY: the elapsed units are fixed by their name; the working ones follow the Project columns (FR-009).
+// Why: the elapsed units are fixed by their name; the working ones follow the Project columns (FR-009).
 const MINUTES_PER_HOUR = 60
 const MINUTES_PER_ELAPSED_DAY = 24 * MINUTES_PER_HOUR
 const MINUTES_PER_ELAPSED_WEEK = 7 * MINUTES_PER_ELAPSED_DAY
 
 type LagUnitLength = number | 'workingDay' | 'workingWeek' | 'workingMonth' | null
 
-// see FR-009, AT-48
-// WHY: the codes and symbols are mspdi_pj12.xsd:2203's; a null length is one FR-009 cannot settle (percent, elapsed month); such a lag is shown in minutes.
+// Spec: FR-009, AT-48
+// Why: the codes and symbols are mspdi_pj12.xsd:2203's; a null length is one FR-009 cannot settle (percent, elapsed month); such a lag is shown in minutes.
 const LAG_FORMAT_UNITS: ReadonlyMap<number, { readonly symbol: string; readonly length: LagUnitLength }> = new Map([
   [3, { symbol: 'm', length: 1 }],
   [4, { symbol: 'em', length: 1 }],
@@ -881,13 +881,13 @@ const LAG_FORMAT_UNITS: ReadonlyMap<number, { readonly symbol: string; readonly 
   [20, { symbol: 'e%', length: null }],
 ])
 
-// see FR-009
-// WHY: mspdi_pj12.xsd:2203 numbers the estimated forms ("?") 32 above their plain ones.
+// Spec: FR-009
+// Why: mspdi_pj12.xsd:2203 numbers the estimated forms ("?") 32 above their plain ones.
 const ESTIMATED_LAG_FORMAT_OFFSET = 32
 const ESTIMATED_MARK = '?'
 const MINUTE_SYMBOL = 'm'
 
-// see FR-009
+// Spec: FR-009
 const SHOWN_LAG_SCALE = 100
 
 /** @purity pure */
@@ -906,7 +906,7 @@ function minutesOfUnit(project: Project, length: LagUnitLength): number | null {
   }
 }
 
-// see FR-009, S-118, AT-47, AT-48
+// Spec: FR-009, S-118, AT-47, AT-48
 /** @purity pure */
 function lagText(project: Project, dependency: Dependency, inTime: InstantOnSide | null): string {
   if (dependency.linkLag === null) return ''
@@ -923,8 +923,8 @@ function lagText(project: Project, dependency: Dependency, inTime: InstantOnSide
   return `${shownLagNumber(minutes / unitMinutes)}${unit.symbol}${isEstimated ? ESTIMATED_MARK : ''}`
 }
 
-// see FR-009, TX-3, TX-10, AT-48
-// WHY: null is no time of day, or a format not typed in d / h / m; that lag keeps the spelling of FR-009.
+// Spec: FR-009, TX-3, TX-10, AT-48
+// Why: null is no time of day, or a format not typed in d / h / m; that lag keeps the spelling of FR-009.
 /** @purity pure */
 function typedLagTextOf(project: Project, dependency: Dependency, inTime: InstantOnSide | null): string | null {
   const lag = dependency.linkLag ?? 0
@@ -935,17 +935,17 @@ function typedLagTextOf(project: Project, dependency: Dependency, inTime: Instan
 
 // <generated -- do not edit by hand>
 // From docs/spec/_source/document-commands.json (table T-108, TypedLag.lagUnit).
-// see T-108, TX-10
+// Spec: T-108, TX-10
 const LENGTH_LETTERS = ['d', 'h', 'm'] as const
 // </generated>
 
-// see FR-009, AT-48, TX-10
-// WHY: the formats whose symbol is a letter TX-10 spells a length with (7 d, 5 h, 3 m), read off the one table of codes.
+// Spec: FR-009, AT-48, TX-10
+// Why: the formats whose symbol is a letter TX-10 spells a length with (7 d, 5 h, 3 m), read off the one table of codes.
 const TYPED_LAG_FORMATS: readonly number[] = [...LAG_FORMAT_UNITS]
   .filter(([, unit]) => (LENGTH_LETTERS as readonly string[]).includes(unit.symbol))
   .map(([format]) => format)
 
-// see T-018, FR-009, PR-41, PR-42, PR-43, PR-44
+// Spec: T-018, FR-009, PR-41, PR-42, PR-43, PR-44
 /** @purity pure */
 function dependencyText(
   schedule: Schedule,
@@ -963,8 +963,8 @@ function dependencyText(
   return kind === undefined ? textOfValue(dependency.linkType) : kind.abbreviation
 }
 
-// see FR-009, T-016
-// WHY: only the lag is editable (CM-38); kind and both ends are read-only rows of table T-016.
+// Spec: FR-009, T-016
+// Why: only the lag is editable (CM-38); kind and both ends are read-only rows of table T-016.
 /** @purity pure */
 function dependencyFields(
   schedule: Schedule,
@@ -1050,7 +1050,7 @@ function commentBoxRows(box: CommentBox): ObjectRows<CommentBox> {
   return { items: COMMENT_BOX_ITEMS, held: box, keyOf, entity: 'CommentBox' }
 }
 
-// see PR-22
+// Spec: PR-22
 /** @purity pure */
 function highlightBoxRows(box: HighlightBox): ObjectRows<HighlightBox> {
   const keyOf = (column: keyof HighlightBox & string): PropertyFieldKey => ({ holder: 'highlightBox', id: box.id, column })
@@ -1073,7 +1073,7 @@ interface ObjectRows<Held> {
   readonly rowOf?: (item: ItemRows) => string
 }
 
-// see T-016, MK-13, FR-019
+// Spec: T-016, MK-13, FR-019
 /** @purity pure */
 function objectFields<Held>(
   rows: ObjectRows<Held>,
@@ -1097,12 +1097,12 @@ function objectFields<Held>(
   })
 }
 
-// see T-016, PR-48, PR-49, CM-100, CM-101
-// WHY: a command row edits no column; its one column is the box's key, and pressing its word commits that key,
+// Spec: T-016, PR-48, PR-49, CM-100, CM-101
+// Why: a command row edits no column; its one column is the box's key, and pressing its word commits that key,
 // which the translator reads as the row's command (the box to the front, FR-019).
 const COMMAND_COLUMN = 'id'
 
-// WHY: never the empty text, so a press is never read as leaving the field as it was.
+// Why: never the empty text, so a press is never read as leaving the field as it was.
 const COMMAND_PRESS_TEXT = 'bringToFront'
 
 /** @purity pure */
@@ -1123,7 +1123,7 @@ type TaskGroup = Schedule['taskGroups'][number]
 const TASK_GROUP_NAME_COLUMN = 'name'
 const TASK_GROUP_NAME_FIELD_TASK_GROUP = 'AT-53'
 
-// see IR-1, FR-085, FR-042
+// Spec: IR-1, FR-085, FR-042
 /** @purity pure */
 function declaredRowOf(item: ItemRows): string {
   const [first] = item.columns
@@ -1141,7 +1141,7 @@ function taskGroupMinHeightWord(part: string, language: DisplayLanguage): string
   return TASK_GROUP_MIN_HEIGHT_WORDS.get(part)?.[language] ?? NO_ENTRY_WORDS
 }
 
-// see MH-3, MH-6
+// Spec: MH-3, MH-6
 /** @purity pure */
 function minHeightReadoutOf(taskGroupId: string, placedTaskGroups: readonly TaskGroupPlacement[], language: DisplayLanguage): string {
   const placed = placedTaskGroups.find((taskGroup) => taskGroup.taskGroupId === taskGroupId)
@@ -1149,8 +1149,8 @@ function minHeightReadoutOf(taskGroupId: string, placedTaskGroups: readonly Task
   return taskGroupMinHeightWord('currentValue', language).replace(READOUT_PX_SLOT, String(Math.round(placed.height)))
 }
 
-// see T-338, MH-1, MH-2, MH-3, FR-006
-// WHY: the readout row's own text stays empty: the panel key leaves out readout alone (MH-4), so a zoom step rebuilds nothing.
+// Spec: T-338, MH-1, MH-2, MH-3, FR-006
+// Why: the readout row's own text stays empty: the panel key leaves out readout alone (MH-4), so a zoom step rebuilds nothing.
 /** @purity pure */
 function minHeightFields(
   field: PropertyField,
@@ -1174,8 +1174,8 @@ const MIN_HEIGHT_CHECK_TASK_GROUP = 'MH-2'
 
 const MIN_HEIGHT_READOUT_TASK_GROUP = 'MH-3'
 
-// see FR-042, FR-058
-// WHY: the name field shows the name the panel shows (FR-058), so a derived name is not an empty field (DFC-3320).
+// Spec: FR-042, FR-058
+// Why: the name field shows the name the panel shows (FR-058), so a derived name is not an empty field (DFC-3320).
 /** @purity pure */
 function groupFields(
   schedule: Schedule,
@@ -1203,8 +1203,8 @@ function onlyTaskGroupId(taskGroupIds: readonly string[]): string | null {
   return null
 }
 
-// see FR-006, FR-042, FR-072, FR-085
-// WHY: one subject's fields only (FR-006 MUST NOT): a picked item's, else the one picked task group's.
+// Spec: FR-006, FR-042, FR-072, FR-085
+// Why: one subject's fields only (FR-006 MUST NOT): a picked item's, else the one picked task group's.
 /** @purity pure */
 function fieldsOfSubject(
   schedule: Schedule,
@@ -1225,7 +1225,7 @@ function fieldsOfSubject(
   return groupFields(schedule, group, labelCoef, language, placedTaskGroups)
 }
 
-// TRAP: repeats the private reach() walk of clampedSettings; change both together.
+// Trap: repeats the private reach() walk of clampedSettings; change both together.
 /** @purity pure */
 function valueAt(settings: DocumentSettings, key: string): unknown {
   return key
@@ -1243,8 +1243,8 @@ const THEME_HUE_KEY = { holder: 'project', column: 'themeHue' } as const
 
 const THEME_HUE_SWATCH_ROW = 'S-151'
 
-// see FR-041, T-305, K-60, S-74
-// WHY: the swatches gray with the rest under monochrome (JDG-1244 6): the author picks by the gray each hue becomes.
+// Spec: FR-041, T-305, K-60, S-74
+// Why: the swatches gray with the rest under monochrome (JDG-1244 6): the author picks by the gray each hue becomes.
 /** @purity pure */
 function themeHueField(hue: number, dark: boolean, monochrome: boolean, language: DisplayLanguage): PropertyField {
   const words = themeHueRoster.map((one) => THEME_HUE_WORDS.get(one.rowId)?.[language] ?? '')
@@ -1275,8 +1275,8 @@ const PARENT_TASK_PROGRESS_TOLERANCE_KEY = { holder: 'project', column: 'parentT
 
 const WORKING_DAYS_UNIT_PART = 'workingDaysUnit'
 
-// see FR-131, K-140, CM-87, S-487
-// WHY: no floor here: CM-87 alone refuses a value below S-487's bound and says so, so the range lives once.
+// Spec: FR-131, K-140, CM-87, S-487
+// Why: no floor here: CM-87 alone refuses a value below S-487's bound and says so, so the range lives once.
 /** @purity pure */
 function parentTaskProgressToleranceField(workingDays: number, language: DisplayLanguage): PropertyField {
   const column = PARENT_TASK_PROGRESS_TOLERANCE_KEY.column
@@ -1295,8 +1295,8 @@ const FIT_SPAN_COLUMNS = ['fitSpanStart', 'fitSpanFinish'] as const
 
 const DISABLED_UNLESS_FIXED = { isDisabled: true } as const
 
-// see T-369, FR-072
-// WHY: the settings face's controls take no choices and no bounds (a bound lives once, in its command).
+// Spec: T-369, FR-072
+// Why: the settings face's controls take no choices and no bounds (a bound lives once, in its command).
 /** @purity pure */
 function settingsControl(
   key: PropertyFieldKey,
@@ -1307,8 +1307,8 @@ function settingsControl(
   return { key, kind, text, choices: null, min: null, max: null, widthInFontSizes }
 }
 
-// see FX-5, K-141, CM-88, CM-89
-// WHY: one line, two date entrances, written only while the span is fixed; the read-only rows leave these keys out.
+// Spec: FX-5, K-141, CM-88, CM-89
+// Why: one line, two date entrances, written only while the span is fixed; the read-only rows leave these keys out.
 /** @purity pure */
 function fitSpanField(settings: DocumentSettings, language: DisplayLanguage): PropertyField {
   const [startColumn] = FIT_SPAN_COLUMNS
@@ -1331,7 +1331,7 @@ function fitSpanField(settings: DocumentSettings, language: DisplayLanguage): Pr
 
 type CheckColumn = 'isFitSpanFixed' | 'isTaskGroupPanelWidthFixed' | 'isTimeOfDayVisible'
 
-// see FX-4, WF-1, K-142, K-143, CM-90, CM-91, FO-13, K-146
+// Spec: FX-4, WF-1, K-142, K-143, CM-90, CM-91, FO-13, K-146
 /** @purity pure */
 function checkField(settings: DocumentSettings, column: CheckColumn, language: DisplayLanguage): PropertyField {
   const text = String(settings[column])
@@ -1359,7 +1359,7 @@ function fieldWord(words: ReadonlyMap<string, { readonly ja: string; readonly en
   return words.get(part)?.[language] ?? NO_ENTRY_WORDS
 }
 
-// see FX-6, FX-8
+// Spec: FX-6, FX-8
 /** @purity pure */
 function shownSpanReadoutOf(readings: ScreenViewReadings, language: DisplayLanguage): string {
   const shown = readings.shownSpan ?? null
@@ -1369,8 +1369,8 @@ function shownSpanReadoutOf(readings: ScreenViewReadings, language: DisplayLangu
     .replace(SPAN_SLOTS.finish, dateText(shown.finish))
 }
 
-// see FX-6, FX-7
-// WHY: one field holds the read-out and the copy entrance under it (FX-7: no rule between them).
+// Spec: FX-6, FX-7
+// Why: one field holds the read-out and the copy entrance under it (FX-7: no rule between them).
 /** @purity pure */
 function shownSpanField(settings: DocumentSettings, readings: ScreenViewReadings, language: DisplayLanguage): PropertyField {
   const word = fieldWord(FIT_SPAN_WORDS, 'copyCurrent', language)
@@ -1390,7 +1390,7 @@ function shownSpanField(settings: DocumentSettings, readings: ScreenViewReadings
   }
 }
 
-// see WF-2, K-71, CM-67, S-79
+// Spec: WF-2, K-71, CM-67, S-79
 /** @purity pure */
 function taskGroupPanelWidthField(settings: DocumentSettings, language: DisplayLanguage): PropertyField {
   const column = 'taskGroupPanelWidthPx'
@@ -1410,7 +1410,7 @@ function taskGroupPanelWidthField(settings: DocumentSettings, language: DisplayL
   }
 }
 
-// see WF-3
+// Spec: WF-3
 /** @purity pure */
 function drawnWidthField(readings: ScreenViewReadings, language: DisplayLanguage): PropertyField {
   const drawn = readings.taskGroupPanelDrawnWidth
@@ -1432,8 +1432,8 @@ const STATUS_DATE_KEY = { holder: 'project', column: 'statusDate' } as const
 
 const STATUS_DATE_ENTRY: IconId = 'IC-44'
 
-// see FR-046, IC-44, CM-3, CM-4, TX-3
-// WHY: named by IC-44's own words (FR-046), so the field and the palette entry say the same thing.
+// Spec: FR-046, IC-44, CM-3, CM-4, TX-3
+// Why: named by IC-44's own words (FR-046), so the field and the palette entry say the same thing.
 // With time of day shown it is a date-and-time entry like a Task's (TX-3), read on the finish side (WT-4).
 /** @purity pure */
 function statusDateField(statusDate: string | null, language: DisplayLanguage, inTime: InstantOnSide | null): PropertyField {
@@ -1450,14 +1450,14 @@ function statusDateField(statusDate: string | null, language: DisplayLanguage, i
 
 type SteppedSetting = 'displayScale' | 'fontSizeStep'
 
-// see FR-039, S-234, S-70, K-125, K-85
-// WHY: the steps are the type column's own order (S-234, S-70), so the field lists them as the palette entries step through them.
+// Spec: FR-039, S-234, S-70, K-125, K-85
+// Why: the steps are the type column's own order (S-234, S-70), so the field lists them as the palette entries step through them.
 const SETTING_STEPS: Readonly<Record<SteppedSetting, readonly string[]>> = {
   displayScale: DISPLAY_SCALE_STEPS.map(String),
   fontSizeStep: Object.keys(SETTINGS_CONSTANTS.fontSizeStepSizes),
 }
 
-// see FR-039, CM-74, CM-62
+// Spec: FR-039, CM-74, CM-62
 /** @purity pure */
 function steppedSettingField(settings: DocumentSettings, column: SteppedSetting, language: DisplayLanguage): PropertyField {
   const text = textOfValue(settings[column])
@@ -1483,7 +1483,7 @@ function steppedSettingField(settings: DocumentSettings, column: SteppedSetting,
 
 const TIME_ZONE_KEYS = TIME_ZONE_ROWS.map((row) => row.key)
 
-// see FR-156, AT-157, S-574
+// Spec: FR-156, AT-157, S-574
 const STANDARD_TIME_ZONE_KEYS = TIME_ZONE_ROWS.filter((row) => !row.isDaylight).map((row) => row.key)
 
 const VIEW_TIME_ZONE_KEY = { holder: 'documentSettings', column: 'viewTimeZone' } as const
@@ -1494,7 +1494,7 @@ const TIME_SHIFT_KEY = { holder: 'timeShift', column: 'minutes' } as const
 
 const TIME_SHIFT_ENTRY_KEY = { holder: 'timeShift', column: 'entry' } as const
 
-// WHY: the read-out is drawn pre-line (MH-3), so a line break starts the example on its own line.
+// Why: the read-out is drawn pre-line (MH-3), so a line break starts the example on its own line.
 const READOUT_LINE_BREAK = '\n'
 
 /** @purity pure */
@@ -1502,14 +1502,14 @@ function readoutLines(lines: readonly string[]): string {
   return lines.filter((line) => line !== '').join(READOUT_LINE_BREAK)
 }
 
-// see FR-029
+// Spec: FR-029
 const DISABLED_ENTRY = { isDisabled: true } as const
 
 const CHOSEN_REGION_KEY = { holder: 'baseTimeZoneDraft', column: 'chosenRegion' } as const
 
 type BaseChangeWay = 'keepGlobalTime' | 'keepLocalTime'
 
-// see FR-156, FO-14
+// Spec: FR-156, FO-14
 const BASE_CHANGE_HINTS: Readonly<Record<BaseChangeWay, string>> = {
   keepGlobalTime: 'keepGlobalTimeHint',
   keepLocalTime: 'keepLocalTimeHint',
@@ -1519,19 +1519,19 @@ const BASE_CHANGE_WAYS: readonly BaseChangeWay[] = ['keepGlobalTime', 'keepLocal
 
 const BASE_CHANGE_CANCEL_KEY = { holder: 'baseTimeZoneDraft', column: 'cancel' } as const
 
-// see FR-156, S-575
+// Spec: FR-156, S-575
 const DISPLAY_TIME_ZONE_SLOTS = [0, 1, 2, 3] as const
 
 const DISPLAY_TIME_ZONE_ROW_SEPARATOR = ':'
 
-// see FO-14, FO-15, T-376
+// Spec: FO-14, FO-15, T-376
 /** @purity pure */
 function timeZoneChoiceLines(keys: readonly string[], language: DisplayLanguage): readonly (readonly [string, string])[] {
   return keys.map((key) => timeZoneLinesOf(key, language))
 }
 
 // see FO-14, FO-15, FR-006, S-171, JDG-2541
-// WHY: the room is the widest first line; a place too long for the field wraps inside it (JDG-2541), so the
+// Why: the room is the widest first line; a place too long for the field wraps inside it (JDG-2541), so the
 // longest English place does not set the panel's width. The one-line name joins them for a reader of `choices`.
 /** @purity pure */
 function twoLineChoice(lines: readonly (readonly [string, string])[], leading: readonly string[]): {
@@ -1547,21 +1547,21 @@ function twoLineChoice(lines: readonly (readonly [string, string])[], leading: r
   }
 }
 
-// see FO-14, FR-156, T-280
+// Spec: FO-14, FR-156, T-280
 /** @purity pure */
 function draftedBaseOf(screen: ScreenSession['screen']): string | null {
   const state = screen.baseTimeZoneDraftState
   return state.kind === 'drafted' ? state.chosenRegion : null
 }
 
-// see TX-11, FR-156, T-376
+// Spec: TX-11, FR-156, T-376
 /** @purity pure */
 function changeDateTimeOf(instant: number, key: string, language: DisplayLanguage): string {
   const day = dayOf(textOfInstant(instant))
   return day === null ? '' : `${planDateText(day, false)} ${clockTextOf(instant)} ${timeZoneAbbreviationOf(key, language)}`
 }
 
-// see FR-156, CM-94, CM-95
+// Spec: FR-156, CM-94, CM-95
 /** @purity pure */
 function answeredReaderOf(schedule: Schedule, chosen: string, way: BaseChangeWay): InstantOnSide {
   if (way === 'keepGlobalTime') return shownInstantReader(schedule, chosen)
@@ -1569,8 +1569,8 @@ function answeredReaderOf(schedule: Schedule, chosen: string, way: BaseChangeWay
   return shownInstantReader(moved, null)
 }
 
-// see FO-14, FR-156, TX-11
-// WHY: the first task with a start, read now and after the answer, each with its zone's abbreviation; none, no lines.
+// Spec: FO-14, FR-156, TX-11
+// Why: the first task with a start, read now and after the answer, each with its zone's abbreviation; none, no lines.
 /** @purity pure */
 function beforeAfterLines(
   schedule: Schedule,
@@ -1591,13 +1591,13 @@ function beforeAfterLines(
   ])
 }
 
-// see FO-14, FR-156
+// Spec: FO-14, FR-156
 /** @purity pure */
 function wordsLine(words: string): PropertyControl {
   return { ...settingsControl(CHOSEN_REGION_KEY, 'text', '', 0), words, isOwnLine: true }
 }
 
-// see FO-14, FR-156
+// Spec: FO-14, FR-156
 /** @purity pure */
 function answerControl(key: PropertyFieldKey, word: string, hint: string | null): PropertyControl {
   return {
@@ -1608,8 +1608,8 @@ function answerControl(key: PropertyFieldKey, word: string, hint: string | null)
   }
 }
 
-// see FO-14, FR-156, TX-11, T-280
-// WHY: shown only while a draft holds another time zone; the two that write carry their before / after lines.
+// Spec: FO-14, FR-156, TX-11, T-280
+// Why: shown only while a draft holds another time zone; the two that write carry their before / after lines.
 /** @purity pure */
 function baseChangeAnswers(schedule: Schedule, shownBase: string, chosen: string, language: DisplayLanguage): readonly PropertyControl[] {
   const answers = BASE_CHANGE_WAYS.flatMap((way) => {
@@ -1625,7 +1625,7 @@ function baseChangeAnswers(schedule: Schedule, shownBase: string, chosen: string
   ]
 }
 
-// see FO-14, FR-156, K-144, T-280
+// Spec: FO-14, FR-156, K-144, T-280
 /** @purity pure */
 function baseTimeZoneField(
   schedule: Schedule,
@@ -1652,7 +1652,7 @@ function baseTimeZoneField(
   }
 }
 
-// see FO-15, FR-156, K-145, CM-96, S-575
+// Spec: FO-15, FR-156, K-145, CM-96, S-575
 /** @purity pure */
 function displayTimeZonesFields(settings: DocumentSettings, language: DisplayLanguage): readonly PropertyField[] {
   const column = DISPLAY_TIME_ZONES_KEY.column
@@ -1679,8 +1679,8 @@ function displayTimeZonesFields(settings: DocumentSettings, language: DisplayLan
   })
 }
 
-// see FO-16, FR-157, IC-162, CM-98, T-280
-// WHY: settling the amount only holds it (timeShiftDraftStateMachine); IC-162 asks QN-14 and is dim while no amount is held.
+// Spec: FO-16, FR-157, IC-162, CM-98, T-280
+// Why: settling the amount only holds it (timeShiftDraftStateMachine); IC-162 asks QN-14 and is dim while no amount is held.
 /** @purity pure */
 function timeShiftField(screen: ScreenSession['screen'], language: DisplayLanguage): PropertyField {
   const unit = timeZoneFieldWord('shiftUnit', language)
@@ -1711,7 +1711,7 @@ const WHOLE_SCHEDULE_SHIFT_DATE_KEY = { holder: 'wholeScheduleShift', column: 'n
 
 const WHOLE_SCHEDULE_SHIFT_ENTRY_KEY = { holder: 'wholeScheduleShift', column: 'entry' } as const
 
-// see WH-1
+// Spec: WH-1
 const NO_CURRENT_START = '\u2014'
 
 interface WholeScheduleShiftReadout {
@@ -1719,8 +1719,8 @@ interface WholeScheduleShiftReadout {
   readonly isIdle: boolean
 }
 
-// see WH-2, WH-9, WH-12, TX-12
-// TRAP: only the walks' own refusals read as idle; anything else is a fault and is thrown on.
+// Spec: WH-2, WH-9, WH-12, TX-12
+// Trap: only the walks' own refusals read as idle; anything else is a fault and is thrown on.
 /** @purity pure */
 function wholeScheduleShiftReadoutOf(schedule: Schedule, current: CalendarDay | null, typed: string, language: DisplayLanguage): WholeScheduleShiftReadout {
   const day = dayOf(typed)
@@ -1737,8 +1737,8 @@ function wholeScheduleShiftReadoutOf(schedule: Schedule, current: CalendarDay | 
   }
 }
 
-// see FO-17, FR-159, WH-1, WH-2, WH-12, T-280
-// WHY: settling the date only holds it (wholeScheduleShiftDraftStateMachine); the text-only Apply button carries no hint (WH-12).
+// Spec: FO-17, FR-159, WH-1, WH-2, WH-12, T-280
+// Why: settling the date only holds it (wholeScheduleShiftDraftStateMachine); the text-only Apply button carries no hint (WH-12).
 /** @purity pure */
 function wholeScheduleShiftField(schedule: Schedule, screen: ScreenSession['screen'], language: DisplayLanguage): PropertyField {
   const held = screen.wholeScheduleShiftDraftState
@@ -1774,7 +1774,7 @@ const TABLE_COLUMN_WORDS = new Map(
   [...displayWords.searchColumns, ...displayWords.resourceListColumns, ...displayWords.delayReportColumns].map((entry) => [entry.rowId, entry.text]),
 )
 
-// see T-380
+// Spec: T-380
 /** @purity pure */
 function readOnlyWord(part: string, language: DisplayLanguage): string {
   return READ_ONLY_WORDS.get(part)?.[language] ?? NO_ENTRY_WORDS
@@ -1842,7 +1842,7 @@ const READ_ONLY_GROUPS: readonly ReadOnlyGroupRows[] = [
     group: 'groupView',
     rows: [
       ...['zoomX', 'zoomY'].map(shaped('percent')),
-      // WHY: one row each, the date with its place in the day and the task group with its place in it (JDG-2469).
+      // Why: one row each, the date with its place in the day and the task group with its place in it (JDG-2469).
       { key: 'scrollDate', shape: 'leftEdge', namePart: 'viewLeftEdge' },
       { key: 'scrollTaskGroupId', shape: 'topEdge', namePart: 'viewTopEdge' },
       { key: 'pinnedTaskGroupIds', shape: 'count' },
@@ -1934,8 +1934,8 @@ function countOrNone(part: string): ReadOnlyFormat {
   return (value, _schedule, language) => (lengthOf(value) === 0 ? readOnlyWord('none', language) : counted(part, lengthOf(value), language))
 }
 
-// see T-380, RN-3, RN-6
-// WHY: one formatter per value shape, so no stored spelling (true, auto, a ratio, a T00:00:00) reaches the row.
+// Spec: T-380, RN-3, RN-6
+// Why: one formatter per value shape, so no stored spelling (true, auto, a ratio, a T00:00:00) reaches the row.
 const READ_ONLY_FORMATS: Readonly<Record<ReadOnlyShape, ReadOnlyFormat>> = {
   visible: either('shown', 'hidden'),
   overlaid: either('overlaid', 'notOverlaid'),
@@ -1970,7 +1970,7 @@ function readOnlySettingsFields(settings: DocumentSettings, schedule: Schedule, 
   })
 }
 
-// see IC-17, T-104, FR-072, T-369, FO-1, FO-12
+// Spec: IC-17, T-104, FR-072, T-369, FO-1, FO-12
 /** @purity pure */
 function settingsFields(
   settings: DocumentSettings,
@@ -2005,7 +2005,7 @@ function settingsFields(
 
 type ColorHolderColumn = keyof TaskVisual | keyof TaskGroup | keyof CommentBox | keyof HighlightBox
 
-// see CV-6, CV-9, FR-019
+// Spec: CV-6, CV-9, FR-019
 const COLOR_FORM_OF_COLUMN: Readonly<Partial<Record<ColorHolderColumn, ColorForm>>> = {
   fillColor: 'fill',
   strokeColor: 'outline',
@@ -2013,7 +2013,7 @@ const COLOR_FORM_OF_COLUMN: Readonly<Partial<Record<ColorHolderColumn, ColorForm
   color: 'band',
 }
 
-// see CV-9, AT-58, FR-019
+// Spec: CV-9, AT-58, FR-019
 /** @purity pure */
 function colorChoicesOf(key: PropertyFieldKey): readonly string[] | null {
   switch (key.holder) {
@@ -2045,8 +2045,8 @@ interface ColorLook {
 
 type ColorForm = Parameters<typeof swatchOf>[1]
 
-// see FR-007, FR-019, FR-042, CV-9
-// WHY: the T-236 row each field's null draws; its hue column names the null theme or default.
+// Spec: FR-007, FR-019, FR-042, CV-9
+// Why: the T-236 row each field's null draws; its hue column names the null theme or default.
 const NULL_ROW_OF_FIELD: Readonly<Record<string, string>> = {
   'taskVisual.fillColor': 'S-155',
   'taskVisual.strokeColor': 'S-156',
@@ -2058,15 +2058,15 @@ const NULL_ROW_OF_FIELD: Readonly<Record<string, string>> = {
   'highlightBox.fillColor': 'S-155',
 }
 
-// see CV-9
+// Spec: CV-9
 const TRANSPARENT_WORD_OF_COLUMN: Readonly<Partial<Record<string, string>>> = {
   fillColor: 'noFill',
   color: 'noFill',
   strokeColor: 'noLine',
 }
 
-// see T-236, CV-9
-// WHY: a row follows the theme hue (its hue column is a circle) exactly when its color moves with
+// Spec: T-236, CV-9
+// Why: a row follows the theme hue (its hue column is a circle) exactly when its color moves with
 // the hue; read through colorOf, the one published reading of table T-236.
 const HUES_APART: readonly [number, number] = [0, 180]
 
@@ -2083,7 +2083,7 @@ function colorWord(part: string, language: DisplayLanguage): string {
 
 const VALUE_SLOT = '{value}'
 
-// see CV-9, CV-5, CV-7
+// Spec: CV-9, CV-5, CV-7
 /** @purity pure */
 function themeEntranceOf(form: ColorForm, nullRow: string | undefined, look: ColorLook): ColorEntrance {
   const isThemeNull = nullRow === undefined || followsThemeHue(nullRow)
@@ -2099,8 +2099,8 @@ function themeEntranceOf(form: ColorForm, nullRow: string | undefined, look: Col
   }
 }
 
-// see CV-9, CV-3, CV-7
-// WHY: the tooltip names the value drawn now, not the grayed paint, so monochrome still reads the chosen color.
+// Spec: CV-9, CV-3, CV-7
+// Why: the tooltip names the value drawn now, not the grayed paint, so monochrome still reads the chosen color.
 /** @purity pure */
 function customEntranceOf(stored: string | null, form: ColorForm, look: ColorLook): ColorEntrance {
   const glyph = colorWord('customGlyph', look.language)
@@ -2112,7 +2112,7 @@ function customEntranceOf(stored: string | null, form: ColorForm, look: ColorLoo
   return { glyph, hint: colorWord('customValue', look.language).replace(VALUE_SLOT, () => value), paint, ink: inkOn(paint) }
 }
 
-// see CV-9, CV-4, CV-5, CV-7
+// Spec: CV-9, CV-4, CV-5, CV-7
 /** @purity pure */
 function withColorField(control: PropertyControl, look: ColorLook): PropertyControl {
   const forms: Readonly<Partial<Record<string, ColorForm>>> = COLOR_FORM_OF_COLUMN
@@ -2127,7 +2127,7 @@ function withColorField(control: PropertyControl, look: ColorLook): PropertyCont
   const nullRow = NULL_ROW_OF_FIELD[`${control.key.holder}.${control.key.column}`]
   const transparentPart = TRANSPARENT_WORD_OF_COLUMN[control.key.column]
   const values = ['', ...names, ...(custom === null || stored === null ? [] : [stored])]
-  // WHY: the color input is seeded with a value to choose, not a swatch, so it keeps
+  // Why: the color input is seeded with a value to choose, not a swatch, so it keeps
   // the hue while monochrome is on; CV-7 grays only what is painted.
   const drawn = swatchOf(stored, form, look.hue, look.dark, false).paint
   const swatches = values.map((value) =>
@@ -2155,7 +2155,7 @@ function withColorField(control: PropertyControl, look: ColorLook): PropertyCont
   }
 }
 
-// see CV-9, FR-006
+// Spec: CV-9, FR-006
 /** @purity pure */
 function withColorFields(fields: readonly PropertyField[], look: ColorLook): readonly PropertyField[] {
   return fields.map((field) =>
@@ -2165,8 +2165,8 @@ function withColorFields(fields: readonly PropertyField[], look: ColorLook): rea
   )
 }
 
-// see FR-006, PR-5, PR-40, PR-26, PR-23, PR-8, PR-50
-// WHY: keyed by column, so a box's outline width takes the same unit as a task's (CR-689 decision 11).
+// Spec: FR-006, PR-5, PR-40, PR-26, PR-23, PR-8, PR-50
+// Why: keyed by column, so a box's outline width takes the same unit as a task's (CR-689 decision 11).
 const UNIT_PART_OF_COLUMN: Readonly<Record<string, string>> = {
   strokeWidthPx: 'pxUnit',
   fontSizePx: 'pxUnit',
@@ -2180,7 +2180,7 @@ function withFieldWords(fields: readonly PropertyField[], language: DisplayLangu
     const column: string = field.controls[0]?.key.column ?? ''
     const unitPart = isTimeOfDayVisible && TYPED_LENGTH_COLUMNS.includes(column) ? undefined : UNIT_PART_OF_COLUMN[column]
     const hintPart = HINT_PART_OF_COLUMN[column]
-    // WHY: PR-5 takes the date width even when the time of day drops its unit word (DFC-2870).
+    // Why: PR-5 takes the date width even when the time of day drops its unit word (DFC-2870).
     const isActualLength = column === ACTUAL_LENGTH_ITEM
     if (unitPart === undefined && hintPart === undefined && !isActualLength) return field
     const hint = hintPart === undefined ? {} : { hint: PROPERTY_FIELD_WORDS.get(hintPart)?.[language] ?? '' }
@@ -2197,8 +2197,8 @@ function withFieldWords(fields: readonly PropertyField[], language: DisplayLangu
 
 type PanelSubject = Extract<ScreenSession['screen']['propertiesPanelContentState'], { kind: 'selectionDisplayed' }>['subject']
 
-// see FR-072, U-25
-// WHY: a held subject naming task groups alone was a task group pick (FR-072), so the items still selected stay off the panel.
+// Spec: FR-072, U-25
+// Why: a held subject naming task groups alone was a task group pick (FR-072), so the items still selected stay off the panel.
 /** @purity pure */
 function panelSubjectOf(held: PanelSubject, selection: Selection, selectedTaskGroupIds: readonly string[]): PanelSubject {
   if (selection.items.length === 0 && selectedTaskGroupIds.length === 0) return held
@@ -2221,7 +2221,7 @@ const FACE_OF_ITEM: Readonly<Record<Selection['items'][number]['kind'], PanelFac
 const PANEL_FACE_ORDER: readonly PanelFace[] = ['task', 'taskGroup', 'commentBox', 'highlightBox', 'dependency']
 
 // see FR-052, JDG-2466
-// WHY: the kinds of content the panel shows, each once, in table T-016's order; none while it is hidden.
+// Why: the kinds of content the panel shows, each once, in table T-016's order; none while it is hidden.
 /** @purity pure */
 export function panelFacesOf(
   content: ScreenSession['screen']['propertiesPanelContentState'],
@@ -2236,7 +2236,7 @@ export function panelFacesOf(
   return PANEL_FACE_ORDER.filter((face) => shown.has(face))
 }
 
-// see FR-072, U-25, T-280
+// Spec: FR-072, U-25, T-280
 /** @purity pure */
 export function propertiesPanelFromSelection(
   schedule: Schedule,
@@ -2263,7 +2263,7 @@ export function propertiesPanelFromSelection(
 
   const isNothingPicked = selection.items.length === 0 && readings.selectedTaskGroupIds.length === 0
   const subject = panelSubjectOf(content.subject, selection, readings.selectedTaskGroupIds)
-  // WHY: readings with no layout place no task group, so the task group reads as not drawn (MH-6), never as 0 px.
+  // Why: readings with no layout place no task group, so the task group reads as not drawn (MH-6), never as 0 px.
   const placedTaskGroups = readings.placedTaskGroups ?? []
   const inTime = settings.isTimeOfDayVisible ? shownInstantReader(schedule, settings.viewTimeZone) : null
   const described = fieldsOfSubject(schedule, subject, SETTINGS_CONSTANTS.labelCoef, language, placedTaskGroups, inTime)
@@ -2290,7 +2290,7 @@ export function propertiesPanelFromSelection(
 //   docs/spec/_source/settings.json (tables T-206 and T-217)
 //   docs/spec/_source/property-items.json (table T-016)
 // Rebuild: npm run gen   ||   npm run gen:check fails on drift.
-// see T-206
+// Spec: T-206
 const NOT_STORED_PROPERTY_CONTROL_SIZES: {
   readonly 'S-199': number
   readonly 'S-589': number
@@ -2301,7 +2301,7 @@ const NOT_STORED_PROPERTY_CONTROL_SIZES: {
   'S-590': 12.5,
 }
 
-// see T-217, FR-006, FR-019
+// Spec: T-217, FR-006, FR-019
 const NOT_STORED_ANNOTATION_BOUNDS: {
   readonly 'S-132': { readonly key: string; readonly min: number; readonly max: number; readonly default: number }
   readonly 'S-369': { readonly key: string; readonly min: number; readonly max: number; readonly default: number }
@@ -2318,10 +2318,10 @@ const NOT_STORED_ANNOTATION_BOUNDS: {
   'S-624': { key: 'CommentBox.fontSizePx', min: 8, max: 24, default: 10 },
 }
 
-// see T-016, FR-006
+// Spec: T-016, FR-006
 type AppliesTo = 'Task' | 'TaskGroup' | 'CommentBox' | 'HighlightBox' | 'Dependency'
 
-// see T-016, FR-006
+// Spec: T-016, FR-006
 type TaskPropertyItemRow =
   | 'PR-1'
   | 'PR-34'

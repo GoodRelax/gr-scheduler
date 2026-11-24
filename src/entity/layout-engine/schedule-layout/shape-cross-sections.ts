@@ -1,4 +1,4 @@
-// ScheduleLayout -- each shape's vertical cross-section at the vertical zoom (table T-271).
+// File: ScheduleLayout: each shape's vertical cross-section at the vertical zoom (table T-271).
 // @unit      UF-137  (docs/spec/05-07-design.md, table T-075)
 // @component ScheduleLayout, layer layoutEngine (table T-062)
 // @purity    pure
@@ -7,13 +7,13 @@ import type { DocumentSettings, DrawnSettings } from '../../document-model/docum
 import { displayRatioOf, drawnSettingsOf } from '../screen-regions/screen-regions'
 import { NOT_STORED_LABEL_SIZES, type ShapeKind } from './schedule-layout'
 
-// see XS-5, XS-6
+// Spec: XS-5, XS-6
 /** @purity pure */
 export function thinEndHalfHeightOf(shapeKind: ShapeKind, settings: DrawnSettings): number {
   return (shapeKind === 'arrow' ? settings.thinArrowHeadHeight : settings.spanDotSize) / 2
 }
 
-// see T-012, XS-5, XS-6
+// Spec: T-012, XS-5, XS-6
 /** @purity pure */
 export function shapeHeightOf(shapeKind: ShapeKind, settings: DrawnSettings): number {
   if (!isLaidBelow(shapeKind)) return planHeightOf(shapeKind, settings)
@@ -21,8 +21,8 @@ export function shapeHeightOf(shapeKind: ShapeKind, settings: DrawnSettings): nu
   return stroke + settings.actualGap + stroke / 2 + thinEndHalfHeightOf(shapeKind, settings)
 }
 
-// see OC-10, XS-4
-// TRAP: the tier is the font size, never S-233; that ratio moves every stacked task group.
+// Spec: OC-10, XS-4
+// Trap: the tier is the font size, never S-233; that ratio moves every stacked task group.
 /** @purity pure */
 export function labelLiftOf(shapeKind: ShapeKind, settings: DrawnSettings): number {
   if (!isLaidBelow(shapeKind)) return 0
@@ -37,15 +37,15 @@ function reservedHeight(shapeKind: ShapeKind, settings: DrawnSettings): number {
   return labelLiftOf(shapeKind, settings) + shapeHeightOf(shapeKind, settings)
 }
 
-// see AT-104, CL-2, VG-5, S-39
-// WHY: a task's own outline width takes the display ratio S-39 takes (FR-039); null draws S-39 itself.
+// Spec: AT-104, CL-2, VG-5, S-39
+// Why: a task's own outline width takes the display ratio S-39 takes (FR-039); null draws S-39 itself.
 /** @purity pure */
 export function outlineWidthOf(strokeWidthPx: number | null | undefined, settings: DrawnSettings): number {
   if (strokeWidthPx === null || strokeWidthPx === undefined) return settings.planStroke
   return strokeWidthPx * displayRatioOf(settings)
 }
 
-// see VG-5
+// Spec: VG-5
 /** @purity pure */
 export function drawnEdgeOverhangOf(shapeKind: ShapeKind, outlineWidth: number): number {
   return isLaidBelow(shapeKind) ? 0 : outlineWidth / 2
@@ -81,7 +81,7 @@ export function actualReachOf(
   return actual.x + (planHeightOf(shapeKind, settings) * settings.actualOfPlan) / 2
 }
 
-// TRAP: the one spelling of this floor; a second can land an ulp off the zoom the fit lands on.
+// Trap: the one spelling of this floor; a second can land an ulp off the zoom the fit lands on.
 /** @purity pure */
 function planHeightFloor(settings: DrawnSettings): number {
   return settings.actualMin / settings.actualOfPlan
@@ -92,21 +92,21 @@ export function zoomYAtPlanHeightFloor(settings: DrawnSettings): number {
   return planHeightFloor(settings) / settings.basePlanHeight
 }
 
-// see FR-094
+// Spec: FR-094
 /** @purity pure */
 export function planHeightOf(shapeKind: ShapeKind, settings: DrawnSettings): number {
   const ratio = settings.shapeHeightOf[shapeKind]
   return Math.max(planHeightFloor(settings), settings.basePlanHeight * settings.zoomY) * ratio
 }
 
-// see FR-094
+// Spec: FR-094
 /** @purity pure */
 export function markerDiameterOf(shapeKind: ShapeKind, nameFontSize: number,
                                  settings: DrawnSettings): number {
   return isLaidBelow(shapeKind) ? nameFontSize : settings.markerSize
 }
 
-// see FR-077, FR-094
+// Spec: FR-077, FR-094
 /** @purity pure */
 export function labelFontSize(shapeKind: ShapeKind, settings: DrawnSettings): number {
   const actual = planHeightOf(shapeKind, settings) * settings.actualOfPlan
@@ -114,8 +114,8 @@ export function labelFontSize(shapeKind: ShapeKind, settings: DrawnSettings): nu
   return Math.max(settings.fontMin, actual * settings.fontOfActual * scale)
 }
 
-// see FR-016, FR-077, FR-094, PI-5, T-252, DS-1
-// WHY: the largest of three: below either floor the name does not grow, so the floor's release answers.
+// Spec: FR-016, FR-077, FR-094, PI-5, T-252, DS-1
+// Why: the largest of three: below either floor the name does not grow, so the floor's release answers.
 /** @purity pure */
 export function zoomYAtRectangleLabelFont(fontPx: number, storedSettings: DocumentSettings): number {
   const settings = drawnSettingsOf(storedSettings)

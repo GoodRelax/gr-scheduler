@@ -15,7 +15,7 @@ import { planDocumentChange } from '../../src/use-case/apply-document-change/doc
 import startupTemplate from '../../src/framework/single-html-shell/startup-template.json'
 import { bare, specTable } from './spec-table'
 
-// see T-108
+// Spec: T-108
 function kindOf(row: string): DocumentCommand['kind'] {
   const found = specTable('T-108').rows.find((one) => one.id === row)
   const name = bare(found?.by['確定名'] ?? '')
@@ -62,7 +62,7 @@ function planOf(document: Document, commands: readonly DocumentCommand[], expect
   })
 }
 
-// see CM-66, UN-8
+// Spec: CM-66, UN-8
 const SCROLL = cmd({
   kind: kindOf('CM-66'),
   scrollDate: '2026-03-09',
@@ -70,15 +70,15 @@ const SCROLL = cmd({
   scrollDateFraction: 0.25,
   scrollTaskGroupFraction: 0.5,
 })
-// see CM-65, UN-8
+// Spec: CM-65, UN-8
 const ZOOM = cmd({ kind: kindOf('CM-65'), zoomX: SETTINGS.zoomX * 1.5, zoomY: SETTINGS.zoomY * 1.5 })
-// see CM-58, UN-7
+// Spec: CM-58, UN-7
 const TOGGLE = cmd({ kind: kindOf('CM-58'), setting: 'isBaselineVisible', isVisible: !SETTINGS.isBaselineVisible })
-// see CM-67, UN-16
+// Spec: CM-67, UN-16
 const PANEL_WIDTH = cmd({ kind: kindOf('CM-67'), taskGroupPanelWidthPx: SETTINGS.taskGroupPanelWidthPx + 20 })
-// see CM-62, UN-13
+// Spec: CM-62, UN-13
 const FONT_STEP = cmd({ kind: kindOf('CM-62'), fontSizeStep: SETTINGS.fontSizeStep === 'L' ? 'S' : 'L' })
-// see CM-9, UN-3
+// Spec: CM-9, UN-3
 const RENAME = cmd({ kind: kindOf('CM-9'), taskUid: FIRST_TASK?.uid, name: 'cr-807 renamed task' })
 
 describe('premises', () => {

@@ -96,7 +96,7 @@ describe(`T-107 AM-25 readSearchRows -- ${AM_25_STATUS}`, () => {
 })
 
 describe('T-107 AM-25 -- the MCP description, printed from the English of the manuscript, sends exact analysis to readDelayDiagnostics', () => {
-  // WHY: design-mcp-relay.md 3.1 prints MCP descriptions from the `en` lines; the Japanese cell stays in the printed table.
+  // Why: design-mcp-relay.md 3.1 prints MCP descriptions from the `en` lines; the Japanese cell stays in the printed table.
   it('the description of readSearchRows is the AM-25 English, line for line', () => {
     const description = descriptionOf('readSearchRows')
     const lines = englishLinesOf(manuscriptMember('readSearchRows').carries)

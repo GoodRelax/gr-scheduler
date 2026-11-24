@@ -20,7 +20,7 @@ import { unbroken } from './spec-table'
 
 const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
-// WHY: each constant ends exactly at its marker, cut from the manuscript as check 39 reads it.
+// Why: each constant ends exactly at its marker, cut from the manuscript as check 39 reads it.
 const FR_003_LANES = 'スケジュールフィルタ（`FR-151` の 表 T-353）を掛けているあいだは、描くタスクだけで段を割り当てること（MUST）'
 const TD_8_KEEPS_TREE_STATE = '⛔ この条件のために `treeState` を書き換えてはならない（MUST NOT）'
 const TD_8_ANCESTORS = '⭐ 祖先は、子孫に描くタスクがあるので見出しとして描かれる。'
@@ -55,7 +55,7 @@ const TEMPLATE = JSON.parse(
   readFileSync(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
 ) as Record<string, any>
 
-// WHY: January 2026; Alpha and Bravo overlap in task group C so the task group stacks two lanes, Charlie sits alone in task group Q.
+// Why: January 2026; Alpha and Bravo overlap in task group C so the task group stacks two lanes, Charlie sits alone in task group Q.
 const day = (dayOfMonth: number): string => `2026-01-${String(dayOfMonth).padStart(2, '0')}T00:00:00`
 
 const TASK_GROUP_P = '5c000000-0000-4000-8000-000000006610'
@@ -152,7 +152,7 @@ const layoutOf = (document: Document, shown: readonly number[] | null): Schedule
   return layoutFromSchedule(document.schedule, settings, regions, undefined, undefined, shown === null ? null : new Set(shown))
 }
 
-// WHY: Bravo states Alpha as its parent task; the family is drawn for Bravo as its owner (FR-135).
+// Why: Bravo states Alpha as its parent task; the family is drawn for Bravo as its owner (FR-135).
 const FAMILIES: ParentTaskFamilies = {
   resolutions: new Map([[BRAVO, { kind: 'stated', parentUid: ALPHA }]]),
   ownerUids: [BRAVO],
@@ -227,7 +227,7 @@ describe(`EL-20 (MUST): ${EL_20_FILTERED_END}`, () => {
     expect(linkOf(geometryOf(OPEN, [ALPHA, CHARLIE]))?.continuation ?? null).toBeNull()
   })
 
-  // WHY: task group Q is left undrawn by TD-8 and has no drawn ancestor, so the end stands per EL-20's earlier rule.
+  // Why: task group Q is left undrawn by TD-8 and has no drawn ancestor, so the end stands per EL-20's earlier rule.
   it(`Charlie unchecked and task group Q undrawn: ${EL_20_NOT_DROPPED}`, () => {
     const link = linkOf(geometryOf(OPEN, [ALPHA]))
     expect(link?.continuation?.farUid).toBe(CHARLIE)

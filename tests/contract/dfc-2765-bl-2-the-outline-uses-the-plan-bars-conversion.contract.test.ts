@@ -109,7 +109,7 @@ describe('BL-2 -- the outline is placed with the plan bar\'s conversion from a d
     const texts = { start: '2026-03-10T09:00:00', finish: '2026-03-10T09:00:00', milestone: true }
     const { outline } = sameTexts(texts, MINUTES)
     expect(outline.kind).toBe('diamond')
-    // WHY: a plan milestone stub has a minimum width that begins at the instant, so its centre is not the instant;
+    // Why: a plan milestone stub has a minimum width that begins at the instant, so its centre is not the instant;
     // the left edge of a plain bar with the same start text is (BL-2 centres the diamond on the start position).
     const atStart = sameTexts({ start: texts.start, finish: '2026-03-10T12:00:00' }, MINUTES).plan.left
     expect(outline.box.x + outline.box.width / 2, BL_2_X).toBeCloseTo(atStart, 6)

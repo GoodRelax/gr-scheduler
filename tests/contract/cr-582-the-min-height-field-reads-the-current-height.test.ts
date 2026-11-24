@@ -261,7 +261,7 @@ const pointerAt = (phase: 'down' | 'up', x: number, y: number, clickCount = 1): 
 const partOn = (part: string, entry: string | null, taskGroupId: string | null = null): ScreenPart =>
   ({ part, entry, format: null, taskGroupId, resourceUid: null, dividerPanel: null, noticeDismissKey: null }) as unknown as ScreenPart
 
-// see T-036
+// Spec: T-036
 function keyOfRow(id: string): KeyInput {
   const row = specTable('T-036').rows.find((one) => one.id === id)
   const spans = [...(row?.by['割当'] ?? '').matchAll(/`([^`]+)`/g)].map((one) => one[1]!)
@@ -276,10 +276,10 @@ function keyOfRow(id: string): KeyInput {
 
 const SK_19 = keyOfRow('SK-19')
 
-// see U-25
+// Spec: U-25
 const PROPERTIES_PANEL = bare(specTable('T-103').rows.find((one) => one.id === 'U-25')?.by['確定名（英）'] ?? '')
 
-// WHY: the same event raiser the cr-551 cases use on this fake.
+// Why: the same event raiser the cr-551 cases use on this fake.
 function raise(built: Stage, node: FakeElement, type: string, extra: Record<string, unknown> = {}): FakeEvent {
   const event = {
     type,
@@ -382,7 +382,7 @@ function bench(document: Document, language: DisplayLanguage = 'ja'): Bench {
       aimed = null
       drain()
     },
-    // see MK-13
+    // Spec: MK-13
     openTaskGroup: (taskGroupId) => {
       const title = view().taskGroupPanel.titles.find((one) => one.taskGroupId === taskGroupId)
       if (title === undefined) throw new Error(`the task group title of ${taskGroupId} is not drawn`)
@@ -402,7 +402,7 @@ function bench(document: Document, language: DisplayLanguage = 'ja'): Bench {
   }
 }
 
-// WHY: the notch sign of MK-4 is not in the manuscript; cr-577 proves -1 raises zoomY.
+// Why: the notch sign of MK-4 is not in the manuscript; cr-577 proves -1 raises zoomY.
 const IN = -1
 const OUT = 1
 
@@ -470,8 +470,8 @@ function settle(built: Bench, text: string): void {
   built.send(SK_19)
 }
 
-// see MH-2
-// WHY: a browser reflects `type` and flips `checked`, then fires change; the next frame reads the commit (IF-9).
+// Spec: MH-2
+// Why: a browser reflects `type` and flips `checked`, then fires change; the next frame reads the commit (IF-9).
 function tick(built: Bench, checked: boolean): void {
   const box = inputOf(built, MH_2)
   Object.assign(box, { type: box.getAttribute('type'), checked })

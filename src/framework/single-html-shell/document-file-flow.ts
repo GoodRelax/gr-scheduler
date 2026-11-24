@@ -1,4 +1,4 @@
-// SingleHtmlShell frame loop -- carries the document file flow (table T-290): open, save, export and a handed document.
+// File: SingleHtmlShell frame loop: carries the document file flow (table T-290): open, save, export and a handed document.
 // @unit      UF-165  (docs/spec/05-07-design.md, table T-075)
 // @component SingleHtmlShell, layer Framework (table T-062)
 // @purity    non-pure
@@ -99,13 +99,13 @@ import {
 import type { HeldViewPlace } from './view-place'
 import startupTemplateManifest from './startup-template-manifest.json'
 
-// see BT-1, FR-067
+// Spec: BT-1, FR-067
 export const EMBEDDED_DOCUMENT_ELEMENT_ID = 'embedded-document'
 
-// see FR-027, FR-067
+// Spec: FR-027, FR-067
 export const STARTUP_TEMPLATE_ELEMENT_ID: string = startupTemplateManifest.containerElementId
 
-// see FR-067
+// Spec: FR-067
 const OPEN_ROUTE_CONTAINER_ORDER: readonly string[] = [EMBEDDED_DOCUMENT_ELEMENT_ID, STARTUP_TEMPLATE_ELEMENT_ID]
 
 const DIAGNOSTIC_FIX_BACKUP_SAVED: SessionEvent = { type: 'diagnosticFixBackupSaved' }
@@ -114,7 +114,7 @@ const NOT_OPENABLE_HTML_REASON: Extract<NoticeReason, 'RS-67'> = 'RS-67'
 
 const OVERWRITE_QUESTION: ConfirmationQuestion = 'QN-4'
 
-// see OP-16
+// Spec: OP-16
 type IncomingFile = Extract<FileOperationState, { readonly kind: 'awaitingOpenChoice' }>['incomingFile']
 
 type JsonRefusalReason = Extract<ReturnType<typeof documentFromJson>, { readonly ok: false }>['reason']
@@ -129,15 +129,15 @@ const SEVERAL_FILES_DROPPED_REASON: NoticeReason = 'RS-14'
 
 const SETTINGS_CLAMPED_REASON: NoticeReason = 'RS-51'
 
-// see FR-012
+// Spec: FR-012
 const PERCENT_COMPLETE_RECOUNTED_REASON: NoticeReason = 'RS-52'
 
-// see MR-3
+// Spec: MR-3
 const DUPLICATE_LEAVES_REASON: NoticeReason = 'RS-60'
 
 const OVERLAY_NOT_DRAWN_REASON: NoticeReason = 'RS-16'
 
-// see MG-14
+// Spec: MG-14
 const MERGE_OVERWROTE_REASON: NoticeReason = 'RS-71'
 
 const MERGE_KEPT_REASON: NoticeReason = 'RS-72'
@@ -146,13 +146,13 @@ const NEWER_FORMAT_UNREAD_REASON: NoticeReason = 'RS-48'
 
 const NEWER_FORMAT_OPENED_REASON: NoticeReason = 'RS-63'
 
-// see IF-3
+// Spec: IF-3
 const READING_BROKE_REASON: NoticeReason = 'RS-75'
 
-// see IF-3
+// Spec: IF-3
 const WRITING_BROKE_REASON: NoticeReason = 'RS-76'
 
-// see EX-3
+// Spec: EX-3
 const WORK_NOT_REWRITTEN_REASON: NoticeReason = 'RS-77'
 
 const WORK_COLUMN = 'Work'
@@ -174,29 +174,29 @@ const NOTICE_REASON_OF_EMBEDDED_HTML_FAULT: Readonly<
 
 const NO_DROPPED_SEEDS: ReadonlySet<number> = new Set<number>()
 
-// see FT-1, OP-2
+// Spec: FT-1, OP-2
 export const OPEN_ROUTE_FROM_DROP: OpenRoute = 'drop'
 
 export const OPEN_ROUTE_FROM_CHOOSER: OpenRoute = 'chooser'
 
 export const OPEN_ROUTE_REOPEN: OpenRoute = 'reopen'
 
-// see SK-11, IO-2
+// Spec: SK-11, IO-2
 const SAVE_FORM: SaveFileForm = 'IO-2'
 
-// see FR-096, T-024
+// Spec: FR-096, T-024
 /** @purity pure */
 function extensionOfForm(form: SaveFileForm): string {
   return extensionOfFormat(form)
 }
 
-// see T-024
+// Spec: T-024
 /** @purity pure */
 function saveFormOfExportFormat(format: ExportFormatId): SaveFileForm | null {
   return SAVE_FILE_FORMS.find((form) => form === format) ?? null
 }
 
-// see OP-6
+// Spec: OP-6
 /** @purity pure */
 function defaultDocumentSettings(): DocumentSettings {
   const built: Record<string, unknown> = {}
@@ -221,20 +221,20 @@ function defaultDocumentSettings(): DocumentSettings {
 
 const DEFAULT_DOCUMENT_SETTINGS: DocumentSettings = defaultDocumentSettings()
 
-// see FR-096, T-352
+// Spec: FR-096, T-352
 /** @purity pure */
 function suggestedFileNameOf(project: Project, form: SaveFileForm): string {
   return exportFileNameOf(project.title ?? '', extensionOfForm(form))
 }
 
-// see AT-140, HS-11
-// WHY: only the bytes carry the stamp; the held document keeps the one it was opened with (HS-11).
+// Spec: AT-140, HS-11
+// Why: only the bytes carry the stamp; the held document keeps the one it was opened with (HS-11).
 /** @purity pure */
 export function documentStampedAt(document: Document, savedAt: string | null): Document {
   return { ...document, documentStamp: { ...document.documentStamp, fileSavedAt: savedAt } }
 }
 
-// see AT-140, FR-101, HS-11
+// Spec: AT-140, FR-101, HS-11
 /** @purity pure */
 function savedDocumentText(document: Document, savedAt: string): string {
   return jsonFromDocument(documentStampedAt(document, savedAt))
@@ -250,7 +250,7 @@ interface ExportedText {
   readonly unlistedNoticeCount: number
 }
 
-// see FR-096, AT-140, DV-12, EX-6
+// Spec: FR-096, AT-140, DV-12, EX-6
 /** @purity pure */
 function exportedText(form: SaveFileForm, document: Document, moment: WriteMoment): ExportedText | null {
   switch (form) {
@@ -269,8 +269,8 @@ function exportedText(form: SaveFileForm, document: Document, moment: WriteMomen
 
 type ImportedFormat = Exclude<ExchangeFormat, 'singleHtml'>
 
-// see IO-7
-// WHY: the document a single .html carries is a GRS JSON, and is taken in as a GRS JSON file is.
+// Spec: IO-7
+// Why: the document a single .html carries is a GRS JSON, and is taken in as a GRS JSON file is.
 /** @purity pure */
 function importedFormatOf(format: ExchangeFormat): ImportedFormat {
   return format === 'singleHtml' ? 'grsJson' : format
@@ -290,13 +290,13 @@ interface RefusedIntake {
   readonly refusal: JsonRefusalReason | typeof NOT_OPENABLE_HTML_REASON
 }
 
-// see T-233, RS-15
-// WHY: table T-233 has no row for why an MSPDI could not be read, so each fault falls to RS-15.
+// Spec: T-233, RS-15
+// Why: table T-233 has no row for why an MSPDI could not be read, so each fault falls to RS-15.
 interface UnreadableMspdi {
   readonly unlistedFaultCount: number
 }
 
-// see OP-12, FR-073
+// Spec: OP-12, FR-073
 /** @purity pure */
 function decodedDocument(
   format: ExchangeFormat,
@@ -304,7 +304,7 @@ function decodedDocument(
   current: Document,
 ): DecodedIntake | RefusedIntake | UnreadableMspdi {
   if (format === 'grsJson' || format === 'singleHtml') {
-    // TRAP: omit this argument and OP-7 silently answers notCompared (FR-073).
+    // Trap: omit this argument and OP-7 silently answers notCompared (FR-073).
     const read =
       format === 'grsJson'
         ? documentFromJson(text, GREATEST_KNOWN_SCHEMA_VERSION)
@@ -327,7 +327,7 @@ function decodedDocument(
     ? {
         document: read.document,
         clampedCount: 0,
-        // WHY: an MSPDI keeps the percent complete it carried (FR-012, FR-021).
+        // Why: an MSPDI keeps the percent complete it carried (FR-012, FR-021).
         recountedCount: 0,
         duplicateLeaves: read.duplicateLeaves,
         unlistedNoticeCount: read.notices.length,
@@ -337,7 +337,7 @@ function decodedDocument(
     : { unlistedFaultCount: read.faults.length }
 }
 
-// see FR-073, FR-076, RS-15, RS-25, RS-64, RS-67
+// Spec: FR-073, FR-076, RS-15, RS-25, RS-64, RS-67
 /** @purity non-pure */
 function acceptedIntake(
   hands: Pick<DocumentFileFlowHands, 'raiseNotice'>,
@@ -352,8 +352,8 @@ function acceptedIntake(
   return null
 }
 
-// see T-233, RS-15
-// WHY: the MSPDI codec words its notices for a reader, not by a row of table T-220, so they share RS-15.
+// Spec: T-233, RS-15
+// Why: the MSPDI codec words its notices for a reader, not by a row of table T-220, so they share RS-15.
 /** @purity non-pure */
 function tellUnlisted(hands: Pick<DocumentFileFlowHands, 'raiseNotice'>, count: number): void {
   if (count > 0) hands.raiseNotice(UNLISTED_REASON, count > 1 ? count : null)
@@ -367,14 +367,14 @@ interface NewerFormatReading {
 
 const NOT_NEWER: NewerFormatReading = { isNewerFormat: false, couldNotBeRead: [], isUnreadAsked: false }
 
-// see FR-073, RS-48, RS-63
+// Spec: FR-073, RS-48, RS-63
 /** @purity non-pure */
 function tellNewerFormat(hands: Pick<DocumentFileFlowHands, 'raiseNotice'>, reading: NewerFormatReading): void {
   const { isNewerFormat, couldNotBeRead, isUnreadAsked } = reading
   if (!isNewerFormat) return
   if (couldNotBeRead.length === 0) return hands.raiseNotice(NEWER_FORMAT_OPENED_REASON, null)
-  // DEVIATION: spec says unread columns ask whether to go on (FR-073, U-61); here U-61 stands
-  // only for a merge with candidates, so the other opens tell RS-48 after opening (DFC-855)
+  // Temporary: spec says unread columns ask whether to go on (FR-073, U-61); here U-61 stands
+  // only for a merge with candidates, so the other opens tell RS-48 after opening (DFC-855). Until: DFC-855 is fixed.
   if (!isUnreadAsked) hands.raiseNotice(NEWER_FORMAT_UNREAD_REASON, null)
 }
 
@@ -392,7 +392,7 @@ function taskIndexOfRefusal(at: string): number | null {
   return Number.isInteger(index) && index >= 0 ? index : null
 }
 
-// see FR-023, CD-1
+// Spec: FR-023, CD-1
 /** @purity pure */
 function taskUidsWithAnUnusableDate(
   refusals: readonly { readonly rule: string; readonly at: string }[],
@@ -410,10 +410,10 @@ function taskUidsWithAnUnusableDate(
   return seeds
 }
 
-// see DI-3
+// Spec: DI-3
 /** @purity pure */
 function projectIdentityFromText(text: string): ProjectIdentity | null {
-  // TRAP: omit the version and documentFromJson silently answers notCompared.
+  // Trap: omit the version and documentFromJson silently answers notCompared.
   const read = documentFromJson(text, GREATEST_KNOWN_SCHEMA_VERSION)
   if (!read.ok) return null
   const project = read.document.schedule.project
@@ -448,7 +448,7 @@ export interface FileSavedReading {
 
 export const NO_FILE_SAVED: FileSavedReading = { fileSavedAt: null, fileSavedByteLength: null }
 
-// see FR-101, HS-4, HS-5, HS-6
+// Spec: FR-101, HS-4, HS-5, HS-6
 /** @purity non-pure */
 function fileSavedReadingOf(hands: Pick<DocumentFileFlowHands, 'files'>) {
   let fileSaved: FileSavedReading = NO_FILE_SAVED
@@ -468,7 +468,7 @@ function fileSavedReadingOf(hands: Pick<DocumentFileFlowHands, 'files'>) {
       fileSaved = savedAt === null ? NO_FILE_SAVED : { fileSavedAt: savedAt, fileSavedByteLength: byteLength }
       hasSavedOpenedFile = false
     },
-    // see FR-095, HS-5
+    // Spec: FR-095, HS-5
     /** @purity non-pure */
     forgetOpenedFile(): void {
       hands.files?.forgetOpenedFile()
@@ -478,13 +478,13 @@ function fileSavedReadingOf(hands: Pick<DocumentFileFlowHands, 'files'>) {
   }
 }
 
-// TRAP: the session carries the rows opaquely; they are the very DelayFixRow values the report window handed in.
+// Trap: the session carries the rows opaquely; they are the very DelayFixRow values the report window handed in.
 type CheckedFixRows = readonly DelayFixRow[]
 
 export type CarriedFixBundle = Extract<SessionEffect, { readonly type: 'issueDelayFixBundle' }>['fixBundle']
 
-// see DX-12, FM-2
-// WHY: the log rows carry the minute they were fixed, so the window, the Markdown and AM-19 read one log.
+// Spec: DX-12, FM-2
+// Why: the log rows carry the minute they were fixed, so the window, the Markdown and AM-19 read one log.
 interface LandedFixBundle {
   readonly logRows: readonly DelayFixLogRow[]
   readonly before: Document
@@ -493,14 +493,14 @@ interface LandedFixBundle {
 
 type HeldNow = ReturnType<DocumentFileFlowHands['readHeld']>
 
-// WHY: a bundle stands while its own step is done: undone it leaves the log, a replacement drops it (RW-16).
+// Why: a bundle stands while its own step is done: undone it leaves the log, a replacement drops it (RW-16).
 /** @purity pure */
 function isFixBundleStanding(held: HeldNow, landed: LandedFixBundle): boolean {
   const done = held.history.done
   return done.some((one, at) => one.step.document === landed.before && (done[at + 1]?.step.document ?? held.document) === landed.after)
 }
 
-// WHY: the write path refuses a bundle whole and names no row, so the rows are replayed one by one to name it.
+// Why: the write path refuses a bundle whole and names no row, so the rows are replayed one by one to name it.
 /** @purity pure */
 function firstRefusedFixRow(
   document: Document,
@@ -518,7 +518,7 @@ function firstRefusedFixRow(
   return null
 }
 
-// WHY: issued as one write, so the bundle lands whole as one undo step (UN-21) or not at all.
+// Why: issued as one write, so the bundle lands whole as one undo step (UN-21) or not at all.
 /** @purity non-pure */
 function delayFixBundleHoldOf(hands: DocumentFileFlowHands) {
   let landed: readonly LandedFixBundle[] = []
@@ -549,7 +549,7 @@ function delayFixBundleHoldOf(hands: DocumentFileFlowHands) {
       landed = []
       telling = null
     },
-    // WHY: the Agent API writes the bundle itself (its own step, no save first); only the log is kept here.
+    // Why: the Agent API writes the bundle itself (its own step, no save first); only the log is kept here.
     /** @purity non-pure */
     landDelayFixes(rows: readonly DelayFixRow[], before: Document, after: Document): void {
       if (rows.length === 0 || after === before) return
@@ -564,13 +564,13 @@ export function documentFileFlowOf(
   hands: DocumentFileFlowHands,
   viewPlace: Pick<HeldViewPlace, 'documentToWrite'>,
 ) {
-  // WHY: continuations, not states: the machine's effects settle them (CR-460 decision 5).
+  // Why: continuations, not states: the machine's effects settle them (CR-460 decision 5).
   let settleOpenChoice: ((choice: OpenChoice | null) => void) | null = null
-  // TRAP: kept apart from settleOpenChoice; one shared holder settles whichever was waiting.
+  // Trap: kept apart from settleOpenChoice; one shared holder settles whichever was waiting.
   let settleMergeMapping: ((mapping: MergeMapping | null) => void) | null = null
   let settleOverwrite: ((isProceeding: boolean) => void) | null = null
 
-  // see DI-4, QN-4, T-290
+  // Spec: DI-4, QN-4, T-290
   /** @purity non-pure */
   function askToWriteOverDestination(): Promise<boolean> {
     return new Promise<boolean>((answer) => {
@@ -580,8 +580,8 @@ export function documentFileFlowOf(
     })
   }
 
-  // see OP-3, OP-4, OP-13, FR-022, T-290
-  // WHY: replace only once the discard is confirmed, null when discarded or closed; effects settle it.
+  // Spec: OP-3, OP-4, OP-13, FR-022, T-290
+  // Why: replace only once the discard is confirmed, null when discarded or closed; effects settle it.
   // A handed document is asked the same way: the person answers, never the caller (JDG-130).
   /** @purity non-pure */
   function askHowToOpen(discarded: Document, incomingFile: IncomingFile) {
@@ -591,7 +591,7 @@ export function documentFileFlowOf(
     })
   }
 
-  // see FR-022, T-032a, T-290
+  // Spec: FR-022, T-032a, T-290
   /** @purity non-pure */
   function askWhichFileToTakeFrom(
     mergeCandidates: readonly MergeCandidateLine[],
@@ -618,7 +618,7 @@ export function documentFileFlowOf(
   function beginWritingDocumentFile(writeForm: FileFlowWriteForm): void {
     const store = hands.files
     if (store === undefined) return hands.endFileOperation(DOCUMENT_FILE_WRITE_ENDED)
-    // WHY: taken here and passed in, so no await inside can swap the document asked for (CS-4).
+    // Why: taken here and passed in, so no await inside can swap the document asked for (CS-4).
     // OP-10 gives the written copy the startup template's place; the held document keeps its own.
     const asked = viewPlace.documentToWrite(hands.readHeld().document)
     void documentFileWriting(hands, flow, store, asked, writeForm)
@@ -672,7 +672,7 @@ interface ReadInFile {
   readonly fileName: string | null
 }
 
-// see OP-16
+// Spec: OP-16
 /** @purity pure */
 function incomingFileOf(readIn: ReadInFile, incoming: Document): IncomingFile {
   return { fileName: readIn.fileName, byteLength: readIn.byteLength, documentTitle: incoming.schedule.project.title }
@@ -684,7 +684,7 @@ export function answerOpenChoice(hands: DocumentFileFlowHands, openChoice: OpenC
   hands.sendToSession({ type: 'openChoiceAnswered', openChoice, question: discardQuestionOf(hands.readHeld().document) }, frame)
 }
 
-// see T-290, FR-023, FR-076, MG-14
+// Spec: T-290, FR-023, FR-076, MG-14
 type ReportedLines = Omit<Extract<SessionEvent, { readonly type: 'documentOpenLanded' }>, 'type' | 'openedFileName' | 'openChoice'>
 
 interface ReadingTally {
@@ -692,8 +692,8 @@ interface ReadingTally {
   readonly counted: () => ReportedLines['reportedCounts']
 }
 
-// see FR-076, U-62, T-233, T-290
-// WHY: held until the reading lands, and dropped with the tally when it does not (nothing was taken in).
+// Spec: FR-076, U-62, T-233, T-290
+// Why: held until the reading lands, and dropped with the tally when it does not (nothing was taken in).
 /** @purity non-pure */
 function readingTallyOf(outer: DocumentFileFlowHands): ReadingTally {
   const counts = new Map<string, number>()
@@ -706,8 +706,8 @@ function readingTallyOf(outer: DocumentFileFlowHands): ReadingTally {
   return { hands: { ...outer, raiseNotice }, counted: () => [...counts].map(([reason, count]) => ({ reason, count })) }
 }
 
-// see FR-076, T-220, NT-3, NT-1
-// WHY: a rule that is no row of table T-220 has no words of its own, so it falls to RS-15.
+// Spec: FR-076, T-220, NT-3, NT-1
+// Why: a rule that is no row of table T-220 has no words of its own, so it falls to RS-15.
 /** @purity non-pure */
 function tellImportRefusals(
   hands: Pick<DocumentFileFlowHands, 'raiseNotice'>,
@@ -721,7 +721,7 @@ function tellImportRefusals(
   for (const [row, count] of counts) hands.raiseNotice(row, count > 1 ? count : null)
 }
 
-// see AM-8, FR-012, RS-52
+// Spec: AM-8, FR-012, RS-52
 /** @purity non-pure */
 function handedReadingOf(hands: Pick<DocumentFileFlowHands, 'raiseNotice'>, handed: HandedImport) {
   const recounted = handed.recountedCount ?? 0
@@ -733,7 +733,7 @@ function handedReadingOf(hands: Pick<DocumentFileFlowHands, 'raiseNotice'>, hand
   }
 }
 
-// see EX-3
+// Spec: EX-3
 /** @purity pure */
 function holdsWorkValues(document: Document): boolean {
   return document.schedule.tasks.some((task) => task.carry[WORK_COLUMN] !== undefined)
@@ -753,7 +753,7 @@ function landOpenedDocument(
   tellNewerFormat(hands, newer)
 }
 
-// see MG-11, MG-14, RS-73
+// Spec: MG-11, MG-14, RS-73
 /** @purity pure */
 function missingTaskNamesOf(current: Document, report: ImportReport | null): ReportedLines['missingTaskNames'] {
   if (report === null) return []
@@ -761,8 +761,8 @@ function missingTaskNamesOf(current: Document, report: ImportReport | null): Rep
   return current.schedule.tasks.filter((task) => missing.has(task.uid)).map((task) => task.name)
 }
 
-// see MG-14, RS-71, RS-72, OP-15, RS-16
-// WHY: a zero count tells nothing (MG-14); an overlay or a replacement is no merge.
+// Spec: MG-14, RS-71, RS-72, OP-15, RS-16
+// Why: a zero count tells nothing (MG-14); an overlay or a replacement is no merge.
 /** @purity non-pure */
 function tellImportReport(hands: Pick<DocumentFileFlowHands, 'raiseNotice'>, report: ImportReport): void {
   const notDrawn = report.baselineTaskUidsNotDrawn.length
@@ -774,8 +774,8 @@ function tellImportReport(hands: Pick<DocumentFileFlowHands, 'raiseNotice'>, rep
   if (kept > 0) hands.raiseNotice(MERGE_KEPT_REASON, kept)
 }
 
-// see MG-14, OP-15, T-290
-// WHY: asked a second time because ReplaceOutcome carries no ImportReport.
+// Spec: MG-14, OP-15, T-290
+// Why: asked a second time because ReplaceOutcome carries no ImportReport.
 /** @purity non-pure */
 function landImportedDocument(
   reading: ReadingTally,
@@ -791,8 +791,8 @@ function landImportedDocument(
   landOpenedDocument(reading.hands, lines, request.choice, newer)
 }
 
-// see FR-060, FR-101, HS-6, T-290
-// WHY: only a replace makes the file read the save target; a merge or an overlay makes a document no file holds.
+// Spec: FR-060, FR-101, HS-6, T-290
+// Why: only a replace makes the file read the save target; a merge or an overlay makes a document no file holds.
 /** @purity non-pure */
 function landReplacedDocument(
   reading: ReadingTally,
@@ -809,8 +809,8 @@ function landReplacedDocument(
   landOpenedDocument(reading.hands, lines, 'replace', newer, readIn.fileName)
 }
 
-// see OP-18, T-372, FR-046, FR-130, S-445, S-564
-// WHY: corrections made as a replaced GRS JSON opens, never an unsaved edit: a filter or sort on a column no table holds goes, and so does a report filter with no Status Date to diagnose by.
+// Spec: OP-18, T-372, FR-046, FR-130, S-445, S-564
+// Why: corrections made as a replaced GRS JSON opens, never an unsaved edit: a filter or sort on a column no table holds goes, and so does a report filter with no Status Date to diagnose by.
 /** @purity pure */
 export function documentAsOpened(document: Document): Document {
   const held = document.documentSettings.tableViews
@@ -821,7 +821,7 @@ export function documentAsOpened(document: Document): Document {
   return kept === held ? document : { ...document, documentSettings: { ...document.documentSettings, tableViews: kept } }
 }
 
-// see OP-2, OP-5, OP-12, OP-18, T-230
+// Spec: OP-2, OP-5, OP-12, OP-18, T-230
 /** @purity non-pure */
 export async function openDocumentIntoHold(
   outer: DocumentFileFlowHands, flow: OpeningFlow, store: FileStore | null,
@@ -900,7 +900,7 @@ export async function openDocumentIntoHold(
     return false
   }
 
-  // TRAP: refuse before the input becomes current; drawing such a calendar throws.
+  // Trap: refuse before the input becomes current; drawing such a calendar throws.
   const noWorkingWeekday = noWorkingWeekdayReason(incoming)
   if (noWorkingWeekday !== null) return refusedWith(hands, noWorkingWeekday)
 
@@ -944,7 +944,7 @@ export async function openDocumentIntoHold(
     mergeAnswers = { mapping, profileConflict: null, settingsConflict: null }
   }
 
-  // TRAP: read again here, not current, which predates the waits.
+  // Trap: read again here, not current, which predates the waits.
   const importedAgainst = hands.readHeld().document
   const landed = hands.replaceHeldDocument({
     row: 'RD-3',
@@ -966,7 +966,7 @@ function refusedWith(hands: Pick<DocumentFileFlowHands, 'raiseNotice'>, reason: 
   return false
 }
 
-// see OP-13
+// Spec: OP-13
 /** @purity non-pure */
 async function reopenDocumentIntoHold(
   hands: DocumentFileFlowHands,
@@ -978,24 +978,24 @@ async function reopenDocumentIntoHold(
   await openDocumentIntoHold(hands, flow, store, OPEN_ROUTE_REOPEN)
 }
 
-// see RS-89, FR-054, FR-088
+// Spec: RS-89, FR-054, FR-088
 export const WORKING_TIMES_UNLIKE_DAY_REASON: NoticeReason = 'RS-89'
 
-// see FR-156, BK-4
-// WHY: MSPDI holds no zone, so a read MSPDI is the PC's standard time, told to nobody (FR-156).
+// Spec: FR-156, BK-4
+// Why: MSPDI holds no zone, so a read MSPDI is the PC's standard time, told to nobody (FR-156).
 /** @purity semi-pure-mutable */
 function withSystemTimeZone(document: Document): Document {
   const project = document.schedule.project
   return { ...document, schedule: { ...document.schedule, project: { ...project, scheduleDataTimeZone: readSystemStandardTimeZone() } } }
 }
 
-// see RS-89, FR-054, FR-088
+// Spec: RS-89, FR-054, FR-088
 /** @purity non-pure */
 function tellOpenedCalendar(hands: Pick<DocumentFileFlowHands, 'raiseNotice'>, opened: Document): void {
   if (isWorkingDayUnlikeMinutesPerDay(opened.schedule)) hands.raiseNotice(WORKING_TIMES_UNLIKE_DAY_REASON, null)
 }
 
-// see RS-51, RS-52, RS-60, RS-15
+// Spec: RS-51, RS-52, RS-60, RS-15
 /** @purity non-pure */
 function tellDecodedIntake(hands: Pick<DocumentFileFlowHands, 'raiseNotice'>, decoded: DecodedIntake): void {
   if (decoded.clampedCount > 0) hands.raiseNotice(SETTINGS_CLAMPED_REASON, decoded.clampedCount)
@@ -1004,7 +1004,7 @@ function tellDecodedIntake(hands: Pick<DocumentFileFlowHands, 'raiseNotice'>, de
   tellUnlisted(hands, decoded.unlistedNoticeCount)
 }
 
-// see FR-012, RS-52
+// Spec: FR-012, RS-52
 type HandedFirstReading = Pick<HandedImport, 'unreadColumns' | 'isNewerFormat'> & {
   readonly recountedCount?: number
 }
@@ -1031,8 +1031,8 @@ function askingOpeningFlow(flow: OpeningFlow, onAsked: (asked: typeof ASKED_MERG
   }
 }
 
-// see AM-8, FR-022, FR-073
-// TRAP: the handed document's unread columns were dropped at its first decode; a caller holding that reading passes it.
+// Spec: AM-8, FR-022, FR-073
+// Trap: the handed document's unread columns were dropped at its first decode; a caller holding that reading passes it.
 /** @purity non-pure */
 export async function takeInHandedDocument(
   hands: DocumentFileFlowHands,
@@ -1053,7 +1053,7 @@ export async function takeInHandedDocument(
       byteLength: new TextEncoder().encode(handedText).length,
       unreadColumns: firstReading?.unreadColumns ?? (reread.ok ? reread.unreadColumns : []),
       isNewerFormat: firstReading?.isNewerFormat ?? (reread.ok && reread.formatVersion === 'newerThanKnown'),
-      // TRAP: the reread finds nothing to recount; the count is the first reading's.
+      // Trap: the reread finds nothing to recount; the count is the first reading's.
       recountedCount: firstReading?.recountedCount ?? 0,
     })
     return landed
@@ -1062,17 +1062,17 @@ export async function takeInHandedDocument(
   }
 }
 
-// see FR-096, FR-060, SX-1
-// WHY: a file opened as MSPDI or as a single .html is not written over with GRS JSON; its first save
+// Spec: FR-096, FR-060, SX-1
+// Why: a file opened as MSPDI or as a single .html is not written over with GRS JSON; its first save
 // asks for a file. OP-12 opens a file only when its extension names its format, so the extension tells.
 /** @purity pure */
 function isOverwritableOpenedFile(openedFile: OpenedFileState, hasSavedOpenedFile: boolean): boolean {
   if (openedFile.kind === 'none') return false
-  // TRAP: judging a file this run saved by its extension asks again on every save whose name lacks it.
+  // Trap: judging a file this run saved by its extension asks again on every save whose name lacks it.
   return hasSavedOpenedFile || openedFile.fileName.endsWith(extensionOfForm(SAVE_FORM))
 }
 
-// see SX-1, HS-4, T-340
+// Spec: SX-1, HS-4, T-340
 /** @purity non-pure */
 function landSavedDocument(
   hands: DocumentFileFlowHands,
@@ -1091,7 +1091,7 @@ function byteLengthOfText(text: string): number {
   return new TextEncoder().encode(text).length
 }
 
-// see SK-11, FR-060, FR-096
+// Spec: SK-11, FR-060, FR-096
 /** @purity non-pure */
 async function saveHeldDocumentToFile(
   hands: DocumentFileFlowHands,
@@ -1117,8 +1117,8 @@ async function saveHeldDocumentToFile(
   hands.raiseFileFault(saving.fault)
 }
 
-// see SX-3, RW-15, FR-155
-// TRAP: never through saveDocumentFile, where a GRS JSON becomes the file the next SK-11 writes over (SX-1).
+// Spec: SX-3, RW-15, FR-155
+// Trap: never through saveDocumentFile, where a GRS JSON becomes the file the next SK-11 writes over (SX-1).
 /** @purity non-pure */
 async function backupHeldDocumentToFile(
   hands: DocumentFileFlowHands,
@@ -1138,7 +1138,7 @@ async function backupHeldDocumentToFile(
   hands.raiseFileFault(writing.fault)
 }
 
-// WHY: the overwrite before a fix is the very save of SK-11; only the backup takes its own road.
+// Why: the overwrite before a fix is the very save of SK-11; only the backup takes its own road.
 /** @purity non-pure */
 function documentFileWriting(
   hands: DocumentFileFlowHands,
@@ -1158,7 +1158,7 @@ function documentFileWriting(
   }
 }
 
-// see FR-096, SK-12, T-340
+// Spec: FR-096, SK-12, T-340
 /** @purity non-pure */
 async function exportHeldDocumentToFile(
   hands: DocumentFileFlowHands,
@@ -1172,7 +1172,7 @@ async function exportHeldDocumentToFile(
   const savedAt = readInstantOfWrite()
   const exported = exportedText(form, written, { savedAt, savedLocalAt: readLocalMoment() })
   const text = exported?.text ?? null
-  // WHY: a form that builds no picture owes no cap stop (CR-440 decision 9); the value rides with the content.
+  // Why: a form that builds no picture owes no cap stop (CR-440 decision 9); the value rides with the content.
   const picture =
     text === null
       ? await exportPictureContent(hands, form, documentStampedAt(written, flow.readFileSaved().fileSavedAt))
@@ -1185,7 +1185,7 @@ async function exportHeldDocumentToFile(
   )
   if (saving.ok) {
     if (form === SAVE_FORM && text !== null) return landSavedDocument(hands, flow, saving, byteLengthOfText(text), savedAt)
-    // TRAP: leave stackSafetyCapToldFor alone; it is the frame's, and touching it silences the screen.
+    // Trap: leave stackSafetyCapToldFor alone; it is the frame's, and touching it silences the screen.
     if (picture.capStopTaskGroupId !== null) hands.raiseNotice(STACK_SAFETY_CAP_REASON, null)
     if (form === 'IO-1') tellMspdiWritten(hands, written, exported?.unlistedNoticeCount ?? 0)
     return
@@ -1193,14 +1193,14 @@ async function exportHeldDocumentToFile(
   hands.raiseFileFault(saving.fault)
 }
 
-// see EX-3, EX-6, RS-77, RS-15
+// Spec: EX-3, EX-6, RS-77, RS-15
 /** @purity non-pure */
 function tellMspdiWritten(hands: Pick<DocumentFileFlowHands, 'raiseNotice'>, written: Document, noticeCount: number): void {
   if (holdsWorkValues(written)) hands.raiseNotice(WORK_NOT_REWRITTEN_REASON, null)
   tellUnlisted(hands, noticeCount)
 }
 
-// see IO-3, IO-4, IO-7, ST-7
+// Spec: IO-3, IO-4, IO-7, ST-7
 /** @purity non-pure */
 async function exportPictureContent(
   hands: DocumentFileFlowHands,
@@ -1237,7 +1237,7 @@ async function exportPictureContent(
   }
 }
 
-// see IO-4
+// Spec: IO-4
 /** @purity non-pure */
 async function rasteredContent(
   hands: DocumentFileFlowHands,
@@ -1260,7 +1260,7 @@ async function rasteredContent(
   return { bytes: painted.png.pngBytes }
 }
 
-// see IO-7
+// Spec: IO-7
 /** @purity non-pure */
 async function embeddedHtmlContent(
   hands: DocumentFileFlowHands,
@@ -1279,7 +1279,7 @@ async function embeddedHtmlContent(
   return { text: made.html }
 }
 
-// see FR-096, DI-1
+// Spec: FR-096, DI-1
 /** @purity pure */
 function chosenFileSave(
   flow: Pick<DocumentFileFlow, 'askToWriteOverDestination'>,
@@ -1293,7 +1293,7 @@ function chosenFileSave(
     form,
     suggestedFileName: suggestedFileNameOf(project, form),
     extension: extensionOfForm(form),
-    // WHY: fileName is null rather than asked of the store, which would be a second outside read
+    // Why: fileName is null rather than asked of the store, which would be a second outside read
     // (R7.4); a null name matches no destination, so DI-4 asks before every existing file.
     identity: { fileName: null, projectName: project.name, projectId: project.id },
     projectIdentityFromText,
@@ -1301,10 +1301,10 @@ function chosenFileSave(
   }
 }
 
-// see FR-096, SK-12
+// Spec: FR-096, SK-12
 /** @purity non-pure */
 export function answerSettledFormat(hands: DocumentFileFlowHands, format: ExportFormatId): boolean {
-  // TRAP: taken down before both gates, so each gate must raise a notice; a silent return
+  // Trap: taken down before both gates, so each gate must raise a notice; a silent return
   // closes the chooser with nothing written and nothing said (FR-029).
   hands.sendToSession({ type: 'flowSurfaceAnswered', surfaceName: EXPORT_CHOOSER_ROW }, hands.readValues())
   const store = hands.files
@@ -1326,6 +1326,6 @@ export function askToOpenDroppedFile(hands: DocumentFileFlowHands): void {
 // Single source of truth:
 //   docs/spec/01-04-requirements.md (table T-024)
 // Rebuild: npm run gen   ||   npm run gen:check fails on drift.
-// see T-024, FR-096
+// Spec: T-024, FR-096
 const SAVE_FILE_FORMS: readonly SaveFileForm[] = ['IO-2', 'IO-1', 'IO-7', 'IO-3', 'IO-4']
 // </generated>

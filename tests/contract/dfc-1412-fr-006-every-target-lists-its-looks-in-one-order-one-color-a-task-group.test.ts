@@ -17,11 +17,11 @@ import {
   visualOf,
 } from './cr-606-stage'
 
-// see FR-006
+// Spec: FR-006
 const FR_006_VISUAL_ORDER =
   '⭐ 見た目の行どうしは、どの対象でも 枠線の幅 → 枠線の色 → 塗りの色 → 塗りの透過率 → 字の色 の順に並べ、1 つの行に色を 1 つだけ持たせること（MUST）'
 
-// WHY: the manuscript names the five looks by their words; table T-016 names the column each one is.
+// Why: the manuscript names the five looks by their words; table T-016 names the column each one is.
 const LOOK_ORDER = [
   ['枠線の幅', 'strokeWidthPx'],
   ['枠線の色', 'strokeColor'],
@@ -52,7 +52,7 @@ const SCENES: readonly (readonly [string, ItemRef | null, readonly string[]])[] 
 const looksOf = (panel: PropertiesPanel): readonly string[] =>
   panel.fields.flatMap((field) => itemOf(field.row).columns.filter((column) => LOOK_COLUMNS.includes(column)))
 
-// WHY: a task group's panel also holds the task group name (AT-53), which is no row of table T-016.
+// Why: a task group's panel also holds the task group name (AT-53), which is no row of table T-016.
 const itemOf = (row: string) => T_016.find((one) => one.id === row) ?? { id: row, columns: [], inputKinds: [] }
 
 const rank = (column: string): number => LOOK_COLUMNS.indexOf(column)
@@ -64,7 +64,7 @@ describe('DFC-1412 premise -- the clause these cases press still stands', () => 
 })
 
 describe(`FR-006 -- ${FR_006_VISUAL_ORDER}`, () => {
-  // WHY: a task group has one color (TaskGroup.color), which is none of the five looks, so it has no order to keep.
+  // Why: a task group has one color (TaskGroup.color), which is none of the five looks, so it has no order to keep.
   it.each(SCENES.filter(([name]) => name !== 'a task group'))('%s: the look rows the panel shows keep the order of the clause', (_name, item, taskGroupIds) => {
     const shown = looksOf(panelOf(DOCUMENT, item, taskGroupIds))
     expect(shown.length, 'premise: the target shows at least one look row').toBeGreaterThan(0)

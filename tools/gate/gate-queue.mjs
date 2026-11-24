@@ -282,7 +282,7 @@ function runUnderLock(command) {
   const release = acquire(`run: ${command.join(' ')}`)
   try {
     let done = spawnSync(command[0], command.slice(1), { cwd: process.cwd(), stdio: 'inherit' })
-    // WHY: on Windows npm, npx and friends are .cmd files, which only a shell can start.
+    // Why: on Windows npm, npx and friends are .cmd files, which only a shell can start.
     if (done.error !== undefined && process.platform === 'win32') {
       const quoted = command.map((one) => (/[\s"]/.test(one) ? `"${one.replaceAll('"', '\\"')}"` : one))
       done = spawnSync(quoted.join(' '), { cwd: process.cwd(), stdio: 'inherit', shell: true })

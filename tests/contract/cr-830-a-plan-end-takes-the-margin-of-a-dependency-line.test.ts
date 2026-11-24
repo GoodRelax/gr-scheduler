@@ -156,7 +156,7 @@ const halfStrokeOf = (line: Line): number => {
 
 const sizes = grabSizesOf()
 
-// WHY: both seams named by CR-830 section 4 must give the same answer.
+// Why: both seams named by CR-830 section 4 must give the same answer.
 const grabAt = (stage: Stage, at: Pt): string | null => {
   const one = itemAtPointer(stage.geometry as never, at.x, at.y, sizes)
   const two = answersAtPointer(pointerWalkOf(stage.geometry as never, sizes), at.x, at.y).hit
@@ -175,7 +175,7 @@ const verticalRunNear = (path: readonly Pt[], x: number): readonly [Pt, Pt] => {
   throw new Error('premise: the line has no vertical run right of the predecessor')
 }
 
-// WHY: the falling FS line -- the predecessor in row g1, the successor in row g2 a week later.
+// Why: the falling FS line -- the predecessor in row g1, the successor in row g2 a week later.
 const PREDECESSOR = taskOf({ uid: 1, start: day(2), finish: day(4) })
 const SUCCESSOR = taskOf({ uid: 2, start: day(12), finish: day(15), dependencies: [linkTo(1)] })
 
@@ -203,7 +203,7 @@ describe(`CR-830 -- GA-19 「${GA_19_OFF_SHAPE}${GA_19_DRAWN_ONLY}」`, () => {
   const marginProbe = (): Pt => {
     const [a, b] = verticalRunNear(path, before.right)
     const top = Math.min(a.y, b.y)
-    // WHY: the lower half of the plan band, where the run falls; the exit run sits at the band's middle.
+    // Why: the lower half of the plan band, where the run falls; the exit run sits at the band's middle.
     const y = Math.min(before.bottom - 0.5, Math.max(top + half + S_285 + 1, (before.center + before.bottom) / 2 + 1))
     return { x: a.x + half + S_285 / 2, y }
   }

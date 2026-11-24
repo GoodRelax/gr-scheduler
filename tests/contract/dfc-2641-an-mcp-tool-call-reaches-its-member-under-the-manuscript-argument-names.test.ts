@@ -13,7 +13,7 @@ const SPEC = join(process.cwd(), 'docs', 'spec')
 const MANUSCRIPT = JSON.parse(readFileSync(join(SPEC, '_source', 'agent-api-members.json'), 'utf8'))
 const RELAY_DESIGN = unbroken(readFileSync(join(SPEC, '_assets', 'design-mcp-relay.md'), 'utf8').replace(/\r\n/g, '\n'))
 
-// see AG-12, T-107
+// Spec: AG-12, T-107
 const INPUT_KEYS_ARE_ARGUMENTS = '1 つのオブジェクトとし、鍵はそのメンバの引数の名とする。'
 const ARGUMENTS_HELD_BY_T_107 = '引数の名・型・意味は 表 T-107 の引数の欄が持ち（`tbl-agent-api-members.md`）、道具の入力の形はその原稿から刷り、手で書かない。'
 const WAIT_KEY_ONLY = '⚠️ `watchChanges` だけは受け手の代わりに待つ長さ `waitMs` を受ける（`AG-12` の ⑤）'
@@ -46,8 +46,8 @@ const toolNamed = (name: string) => {
   return found
 }
 
-// see AG-12
-// WHY: a member with MCP-only keys takes those at the MCP door; the receiver of watchChanges never reaches it.
+// Spec: AG-12
+// Why: a member with MCP-only keys takes those at the MCP door; the receiver of watchChanges never reaches it.
 const mcpKeysOf = (member: ManuscriptMember): readonly string[] => {
   if (member.name === WATCH) return (member.mcpOnlyKeys ?? []).map((key) => key.name)
   return [...member.arguments, ...(member.mcpOnlyKeys ?? [])].map((key) => key.name)

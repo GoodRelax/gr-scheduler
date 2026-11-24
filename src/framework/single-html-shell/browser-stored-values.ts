@@ -1,4 +1,4 @@
-// SingleHtmlShell frame loop -- reads and writes the values kept in the browser (table T-206, S-99 to S-99c).
+// File: SingleHtmlShell frame loop: reads and writes the values kept in the browser (table T-206, S-99 to S-99c).
 // @unit      UF-159  (docs/spec/05-07-design.md, table T-075)
 // @component SingleHtmlShell, layer Framework (table T-062)
 // @purity    non-pure
@@ -20,7 +20,7 @@ const PREFERS_DARK_QUERY = '(prefers-color-scheme: dark)'
 
 const DISPLAY_LANGUAGES: Readonly<Record<DisplayLanguage, true>> = { ja: true, en: true }
 
-// see FR-038
+// Spec: FR-038
 /** @purity pure */
 function isDisplayLanguage(value: string): value is DisplayLanguage {
   return Object.prototype.hasOwnProperty.call(DISPLAY_LANGUAGES, value)
@@ -29,7 +29,7 @@ function isDisplayLanguage(value: string): value is DisplayLanguage {
 /** @purity semi-pure-mutable */
 export function readBrowserStored(row: BrowserStoredRow): string | null {
   try {
-    // TRAP: a refusing host throws on the property itself; keep the access inside the try.
+    // Trap: a refusing host throws on the property itself; keep the access inside the try.
     return globalThis.localStorage?.getItem(BROWSER_STORED_KEY[row]) ?? null
   } catch {
     return null
@@ -44,8 +44,8 @@ export function writeBrowserStored(row: BrowserStoredRow, value: string): void {
   }
 }
 
-// see FR-153, T-345, WP-4, WP-5, WP-6
-// WHY: every key of GRS's prefix but S-99c's, old ones too (WP-5); never clear(), which would take
+// Spec: FR-153, T-345, WP-4, WP-5, WP-6
+// Why: every key of GRS's prefix but S-99c's, old ones too (WP-5); never clear(), which would take
 // other pages' values sharing the origin (WP-6). A refusing host is left alone; the reload follows.
 /** @purity non-pure */
 export function clearBrowserStoredForReset(): void {
@@ -63,7 +63,7 @@ export function clearBrowserStoredForReset(): void {
   }
 }
 
-// see FR-038, S-99
+// Spec: FR-038, S-99
 /** @purity semi-pure-mutable */
 export function startupDisplayLanguage(): DisplayLanguage {
   const stored = readBrowserStored('S-99')
@@ -71,8 +71,8 @@ export function startupDisplayLanguage(): DisplayLanguage {
   return globalThis.navigator?.language?.toLowerCase().startsWith('ja') === true ? 'ja' : 'en'
 }
 
-// see FR-039, S-72
-// WHY: read once per start and never written back; the page follows the browser on the next start.
+// Spec: FR-039, S-72
+// Why: read once per start and never written back; the page follows the browser on the next start.
 /** @purity semi-pure-mutable */
 export function startupThemePreference(): 'light' | 'dark' {
   try {
@@ -82,7 +82,7 @@ export function startupThemePreference(): 'light' | 'dark' {
   }
 }
 
-// see FR-065, S-99b
+// Spec: FR-065, S-99b
 /** @purity semi-pure-mutable */
 export function isStartupAgentApiEnabled(): boolean {
   return readBrowserStored('S-99b') === String(true)

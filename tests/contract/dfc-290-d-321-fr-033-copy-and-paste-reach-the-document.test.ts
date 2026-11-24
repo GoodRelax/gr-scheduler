@@ -268,7 +268,7 @@ function group(id: string, parentId: string | null, order: number): Record<strin
  * needs a Task WITH a descendant that stays behind, and 「選ばれた `TaskGroup` を
  * 部分木ごと」 needs a task group WITH a task group under it.
  */
-// WHY: S-89 is a constant since CR-572, so a fixture reaches the valve by overlapping Tasks, never by a document cap.
+// Why: S-89 is a constant since CR-572, so a fixture reaches the valve by overlapping Tasks, never by a document cap.
 function documentOfTwoTaskGroups(fillers = 0): Document {
   const template = structuredClone(TEMPLATE) as any
   const settings = { ...structuredClone(template.documentSettings) }
@@ -642,7 +642,7 @@ describe('FR-033 -- what does NOT change the document', () => {
 describe('FR-033 (MUST) -- a paste that would pass the safety valve is refused AND told', () => {
   /** Tasks added to the parent task group, so it holds one Task under the cap and one paste stands exactly at it. */
   const AT_THE_CAP = SETTINGS_CONSTANTS.stackSafetyCap - 2
-  // WHY: a window tall enough that the whole stacked task group is drawn, so the parent Task can be pressed.
+  // Why: a window tall enough that the whole stacked task group is drawn, so the parent Task can be pressed.
   const TALL: FrameEnvironment = { ...SCREEN, height: 40000 }
 
   it('the premise: the parent task group stands one under the valve and is not yet past it', () => {

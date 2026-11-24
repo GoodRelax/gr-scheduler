@@ -251,8 +251,8 @@ const TEMPLATE_PATH = join(
 const fixtureDocument = (): Document =>
   JSON.parse(readFileSync(TEMPLATE_PATH, 'utf8')) as unknown as Document
 
-// see OP-10, T-024a, FR-055, S-77, S-78
-// WHY: at the fit the whole schedule is in view and the grip has no room to run; a scroll keeps the fit's zoom (DFC-2410).
+// Spec: OP-10, T-024a, FR-055, S-77, S-78
+// Why: at the fit the whole schedule is in view and the grip has no room to run; a scroll keeps the fit's zoom (DFC-2410).
 const placedDocument = (): Document => {
   const held = fixtureDocument() as any
   const first = held.schedule.taskGroups.find((one: any) => one.parentId === null && one.order === 0)
@@ -458,7 +458,7 @@ describe('DFC-420 -- table T-023d has GR-21 follow the pointer while it is held'
           : pointer('move', from.x, from.y + by)
 
       const one = stage(placedDocument())
-      // WHY: a warm-up drag first, so the measured drag is never the first write after the open.
+      // Why: a warm-up drag first, so the measured drag is never the first write after the open.
       const warm = gripCenterOf(one.pane, axis)
       one.send(pointer('down', warm.x, warm.y))
       one.send(to(warm, TRAVEL))

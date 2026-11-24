@@ -1,4 +1,4 @@
-// McpRelayServer -- carries MCP tool calls to the GRS page it serves on 127.0.0.1 (AG-12).
+// File: McpRelayServer: carries MCP tool calls to the GRS page it serves on 127.0.0.1 (AG-12).
 // @unit      UF-187   (docs/spec/05-07-design.md, table T-075)
 // @component McpRelayServer, layer Framework (table T-062)
 // @purity    non-pure
@@ -36,11 +36,11 @@ export interface McpRelayOptions {
   readonly log: (line: string) => void
   readonly pageHtml: Uint8Array
   readonly documentSchema: string
-  // see AG-12
+  // Spec: AG-12
   readonly commandsSchema: string
-  // see AG-12
+  // Spec: AG-12
   readonly callDeadlineMs?: number
-  // see AG-12
+  // Spec: AG-12
   readonly saveFolder?: string
   readonly confirmBeforeOverwrite?: boolean
 }
@@ -56,7 +56,7 @@ type RelayedAnswer = Parameters<typeof mcpToolResultOf>[1]
 type RelayedCall = NonNullable<ReturnType<typeof relayedCallOf>>
 type McpToolResult = ReturnType<typeof mcpToolResultOf>
 
-// WHY: the version is grsRelay's in tools/artifact-versions.json, defined by the relay build (vite.relay.config.ts);
+// Why: the version is grsRelay's in tools/artifact-versions.json, defined by the relay build (vite.relay.config.ts);
 // a run from source (a test) has no build, so it says so instead.
 declare const __GRS_RELAY_VERSION__: string
 const RELAY_VERSION =
@@ -84,8 +84,8 @@ const INVALID_PARAMS = -32602
 const INTERNAL_ERROR = -32603
 const RESOURCE_NOT_FOUND = -32002
 const SCHEMA_MIME_TYPE = 'application/schema+json'
-// see AG-12
-// WHY: the two resources of design-mcp-relay.md 3.1, the document's first; `text` names the option holding the bytes.
+// Spec: AG-12
+// Why: the two resources of design-mcp-relay.md 3.1, the document's first; `text` names the option holding the bytes.
 interface SchemaResource {
   readonly uri: string
   readonly name: string
@@ -109,8 +109,8 @@ const SCHEMA_RESOURCES: readonly SchemaResource[] = [
     text: 'commandsSchema',
   },
 ]
-// see AM-30
-// WHY: the one member the relay answers from what it carries, so it works before a page is connected (AG-12 (4)).
+// Spec: AM-30
+// Why: the one member the relay answers from what it carries, so it works before a page is connected (AG-12 (4)).
 const READ_SCHEMA = 'readSchema'
 const SCHEMA_TEXT_OF: Readonly<Record<string, SchemaResource['text']>> = {
   document: 'documentSchema',
@@ -122,19 +122,19 @@ const KEY_PRESENTED = 'relayKeyPresented'
 const CHANGE_NOTICED = 'changeNoticed'
 const CANCELED = 'notifications/cancelled'
 const LONGEST_TIMER_MS = 2 ** 31 - 1
-// see AG-12
-// WHY: shorter than the MCP client's request timeout, which restarts the relay and drops the page (DFC-3252).
+// Spec: AG-12
+// Why: shorter than the MCP client's request timeout, which restarts the relay and drops the page (DFC-3252).
 const DEFAULT_CALL_DEADLINE_MS = 45_000
-// see AM-17
-// WHY: shorter than the call deadline, so a watch never runs into the client's timeout itself.
+// Spec: AM-17
+// Why: shorter than the call deadline, so a watch never runs into the client's timeout itself.
 const LONGEST_WATCH_WAIT_MS = 40_000
 
 // <generated -- do not edit by hand>
 // From docs/spec/_source/agent-api-members.json (table T-107, the MCP-only keys of AM-17 and AM-11, AM-12, AM-13, AM-14, AM-15, AM-34).
-// see AM-17, AG-12
+// Spec: AM-17, AG-12
 const WATCH_CHANGES = 'watchChanges'
 const WAIT_MS_KEY = 'waitMs'
-// see AM-11, AM-12, AM-13, AM-14, AM-15, AM-34, AG-12
+// Spec: AM-11, AM-12, AM-13, AM-14, AM-15, AM-34, AG-12
 const FILE_NAME_KEY = 'fileName'
 const OVERWRITE_KEY = 'overwrite'
 const SAVED_EXTENSION_OF: Readonly<Record<string, string>> = {
@@ -208,10 +208,10 @@ interface RelayState {
   readonly mcpCancels: Map<string, () => void>
 }
 
-// WHY: an MCP reply has the same JSON-RPC result-or-error shape as a relayed answer.
+// Why: an MCP reply has the same JSON-RPC result-or-error shape as a relayed answer.
 type McpReply = RelayedAnswer
 
-// WHY: every value tested here came from JSON.parse, where an object is always an Object instance.
+// Why: every value tested here came from JSON.parse, where an object is always an Object instance.
 /** @purity pure */
 function isPlainRecord(value: unknown): value is Record<string, unknown> {
   return value instanceof Object && !Array.isArray(value)
@@ -356,7 +356,7 @@ function openWebSocket(socket: Socket, onText: (text: string) => void, onClosed:
   const link: WebSocketLink = { socket, onText, buffered: Buffer.alloc(0), fragments: null, closing: false }
   socket.setNoDelay(true)
   socket.on('data', (chunk: Buffer) => receiveChunk(link, chunk))
-  // TRAP: the http server keeps its sockets half-open, so without this a page that goes
+  // Trap: the http server keeps its sockets half-open, so without this a page that goes
   // away with no close frame never fires 'close' and stays the connected page.
   socket.on('end', () => socket.destroy())
   socket.on('error', () => socket.destroy())
@@ -419,7 +419,7 @@ function sameKey(expected: string, presented: string | null): boolean {
   return want.length === got.length && timingSafeEqual(want, got)
 }
 
-// see AG-12
+// Spec: AG-12
 /** @purity non-pure */
 function presentKey(state: RelayState, link: WebSocketLink, text: string): void {
   if (!sameKey(state.key, presentedKeyOf(text))) {
@@ -468,7 +468,7 @@ function refuseHttp(socket: Socket, status: number): void {
   )
 }
 
-// see AG-12
+// Spec: AG-12
 /** @purity non-pure */
 function acceptUpgrade(state: RelayState, request: IncomingMessage, socket: Socket, head: Buffer): void {
   const refusal = upgradeRefusalOf(state, request)
@@ -507,7 +507,7 @@ function httpStatusOf(state: RelayState, request: IncomingMessage): number {
   return HTTP_OK
 }
 
-// see AG-12
+// Spec: AG-12
 /** @purity non-pure */
 function answerHttp(state: RelayState, request: IncomingMessage, response: ServerResponse): void {
   const status = httpStatusOf(state, request)
@@ -526,8 +526,8 @@ function answerHttp(state: RelayState, request: IncomingMessage, response: Serve
   response.end(pageHtml)
 }
 
-// see AG-12
-// TRAP: the id leaves pageCalls at the deadline, so a late answer finds no one and is dropped.
+// Spec: AG-12
+// Trap: the id leaves pageCalls at the deadline, so a late answer finds no one and is dropped.
 /** @purity non-pure */
 function pageAnswerOf(
   state: RelayState,
@@ -574,14 +574,14 @@ async function pageResultOf(state: RelayState, call: RelayedCall, canceled: Prom
   return 'unanswered' in reply ? reply.unanswered : mcpToolResultOf(call.member, reply.answer)
 }
 
-// WHY: Windows opens these as devices whatever extension follows; `:` would open an alternate data stream.
+// Why: Windows opens these as devices whatever extension follows; `:` would open an alternate data stream.
 const DEVICE_NAME = /^(con|prn|aux|nul|com[0-9¹²³]|lpt[0-9¹²³]|conin\$|conout\$)$/i
 const FORBIDDEN_CHARACTERS = /[<>:"|?*\u0000-\u001f]/
 const PATH_SEPARATORS = /[\\/]/
 const LONGEST_NAME_PART = 255
 const BAK_SUFFIX = '.bak'
 const TEMP_NAME_BYTES = 6
-// WHY: the page hands a PNG over as base64 (AM-14 in relayed-call.ts); every other format is text.
+// Why: the page hands a PNG over as base64 (AM-14 in relayed-call.ts); every other format is text.
 const BASE64_EXTENSION = '.png'
 
 /** @purity pure */
@@ -593,7 +593,7 @@ function namePartProblemOf(part: string): string | null {
   return null
 }
 
-// see AG-12
+// Spec: AG-12
 /** @purity pure */
 function saveNameProblemOf(fileName: unknown, extension: string): string | null {
   if (typeof fileName !== 'string' || fileName === '') return 'fileName must be a non-empty string'
@@ -613,7 +613,7 @@ function isInside(folder: string, path: string): boolean {
   return way !== '' && !way.startsWith(`..${sep}`) && way !== '..' && !isAbsolute(way)
 }
 
-// WHY: `path` is absolute and is what the AI is told (AV-21 savedTo), so it can tell the person where the file is.
+// Why: `path` is absolute and is what the AI is told (AV-21 savedTo), so it can tell the person where the file is.
 interface SaveTarget {
   readonly path: string
   readonly exists: boolean
@@ -629,8 +629,8 @@ async function realFolderOf(folder: string): Promise<string | McpToolResult> {
   }
 }
 
-// see AG-12
-// TRAP: the real path is checked, not the name: a link or junction inside the folder can lead out of it.
+// Spec: AG-12
+// Trap: the real path is checked, not the name: a link or junction inside the folder can lead out of it.
 /** @purity non-pure */
 async function saveTargetOf(options: McpRelayOptions, fileName: string): Promise<SaveTarget | McpToolResult> {
   const folder = await realFolderOf(resolve(options.saveFolder || join(homedir(), 'Documents', 'GRS')))
@@ -658,8 +658,8 @@ function fileExistsResult(target: SaveTarget): McpToolResult {
   )
 }
 
-// see AG-12, AV-21
-// WHY: the new bytes go to a temporary file first, so a write that stops half way leaves the old file whole.
+// Spec: AG-12, AV-21
+// Why: the new bytes go to a temporary file first, so a write that stops half way leaves the old file whole.
 /** @purity non-pure */
 async function writeSaveTarget(target: SaveTarget, bytes: Buffer): Promise<McpToolResult> {
   const temporary = join(dirname(target.path), `.${basename(target.path)}.${randomBytes(TEMP_NAME_BYTES).toString('hex')}.tmp`)
@@ -675,8 +675,8 @@ async function writeSaveTarget(target: SaveTarget, bytes: Buffer): Promise<McpTo
   return { content: [{ type: 'text', text: JSON.stringify(saved) }], structuredContent: saved }
 }
 
-// see AG-12, AM-11, AM-12, AM-13, AM-14, AM-15
-// TRAP: the target is judged again after the page answers; a file may have appeared in the meantime.
+// Spec: AG-12, AM-11, AM-12, AM-13, AM-14, AM-15
+// Trap: the target is judged again after the page answers; a file may have appeared in the meantime.
 /** @purity non-pure */
 async function saveResultOf(
   state: RelayState,
@@ -727,7 +727,7 @@ function waitMsOf(toolArguments: unknown): number {
   return typeof waitMs === 'number' && Number.isFinite(waitMs) && waitMs > 0 ? Math.min(waitMs, LONGEST_WATCH_WAIT_MS) : 0
 }
 
-// see AG-12, AG-6
+// Spec: AG-12, AG-6
 /** @purity non-pure */
 async function watchResultOf(
   state: RelayState,
@@ -760,7 +760,7 @@ async function toolCallReplyOf(state: RelayState, id: unknown, params: unknown):
   if (typeof name !== 'string') return { error: { code: INVALID_PARAMS, message: 'tools/call needs a tool name' } }
   if (name === READ_SCHEMA) return { result: schemaToolResultOf(state.options, toolArguments) }
   const isSaving = Object.prototype.hasOwnProperty.call(SAVED_EXTENSION_OF, name)
-  // WHY: the save keys are the relay's own (AG-12 (9)); the page is never handed them.
+  // Why: the save keys are the relay's own (AG-12 (9)); the page is never handed them.
   const call = relayedCallOf(isPlainRecord(toolArguments) && !isSaving ? { name, arguments: toolArguments } : { name })
   if (call === null) return { error: { code: INVALID_PARAMS, message: `Unknown tool: ${name}` } }
   const saves = isSaving && isPlainRecord(toolArguments) && toolArguments[FILE_NAME_KEY] !== undefined
@@ -795,7 +795,7 @@ function initializeResultOf(params: unknown): Record<string, unknown> {
   }
 }
 
-// see AG-12
+// Spec: AG-12
 /** @purity pure */
 function schemaResourceOf(resource: SchemaResource, options: McpRelayOptions): Record<string, unknown> {
   return {
@@ -808,8 +808,8 @@ function schemaResourceOf(resource: SchemaResource, options: McpRelayOptions): R
   }
 }
 
-// see AM-30
-// WHY: one line per definition is enough to choose from; the whole description stays in the definition.
+// Spec: AM-30
+// Why: one line per definition is enough to choose from; the whole description stays in the definition.
 /** @purity pure */
 function aboutOf(definition: unknown): string {
   const text = isPlainRecord(definition) && typeof definition['description'] === 'string' ? definition['description'] : ''
@@ -828,8 +828,8 @@ function schemaVersionOf(options: McpRelayOptions): unknown {
   return recordAt(recordAt(parsedJsonOf(options.documentSchema), 'properties'), 'schemaVersion')['const'] ?? null
 }
 
-// see AM-30
-// WHY: the page the relay serves is built with these schemas, so the version printed here is the page's (CR-802).
+// Spec: AM-30
+// Why: the page the relay serves is built with these schemas, so the version printed here is the page's (CR-802).
 /** @purity pure */
 function schemaPartOf(options: McpRelayOptions, which: string, defs: readonly string[] | undefined): string {
   const schema = parsedJsonOf(options[SCHEMA_TEXT_OF[which]!])
@@ -858,7 +858,7 @@ function isStringList(value: unknown): value is readonly string[] {
   return Array.isArray(value) && value.every((one) => typeof one === 'string')
 }
 
-// see AM-30
+// Spec: AM-30
 /** @purity pure */
 function schemaToolResultOf(options: McpRelayOptions, toolArguments: unknown): McpToolResult {
   const given = isPlainRecord(toolArguments) ? toolArguments : {}
@@ -875,7 +875,7 @@ function schemaToolResultOf(options: McpRelayOptions, toolArguments: unknown): M
   return { content: [{ type: 'text', text }] }
 }
 
-// see AG-12
+// Spec: AG-12
 /** @purity pure */
 function resourceReadReplyOf(options: McpRelayOptions, params: unknown): McpReply {
   const uri = isPlainRecord(params) ? params['uri'] : undefined
@@ -919,7 +919,7 @@ function handleMcpNotification(state: RelayState, method: string, params: unknow
   state.mcpCancels.get(JSON.stringify(params['requestId']))?.()
 }
 
-// see AG-12
+// Spec: AG-12
 /** @purity non-pure */
 function handleMcpLine(state: RelayState, line: string): void {
   const message = parsedJsonOf(line)
@@ -988,7 +988,7 @@ function closeRelay(state: RelayState, server: Server, stopReading: () => void):
   return new Promise((resolve) => server.close(() => resolve()))
 }
 
-// see AG-12, FR-150
+// Spec: AG-12, FR-150
 /** @purity non-pure */
 export async function startMcpRelay(options: McpRelayOptions): Promise<McpRelay> {
   const server = createServer()

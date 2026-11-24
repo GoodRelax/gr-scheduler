@@ -32,9 +32,9 @@ const HF_15_BACK = '離すか `Esc` でやめれば、`HF-6` のとおりに戻�
 const HF_6_TAIL = '⛔ **タスクグループを運んでいるあいだ（`HF-15`）は、ポインタが乗っていても操作子とその地を描かないこと（MUST）** —— 規則と理由は `HF-15` が持つ。'
 const HF_6_HEAD = '**操作子は、そのタスクグループ名か、そのタスクグループのために描いた操作子の群（下の段が地を敷く範囲）にポインタが乗っているあいだだけ描くこと（MUST）**'
 
-// WHY: the held task group B (with B1 under it) in the cr-772 tree; drawn order A, A1, A1x, Ah, A2, A2a, B, B1, C (folded), D, E, E1, E2, E3.
+// Why: the held task group B (with B1 under it) in the cr-772 tree; drawn order A, A1, A1x, Ah, A2, A2a, B, B1, C (folded), D, E, E1, E2, E3.
 const HELD = 'B'
-// WHY: rows the route crosses, top to bottom and back; every point stays clear of the S-597 edge band.
+// Why: rows the route crosses, top to bottom and back; every point stays clear of the S-597 edge band.
 const ROUTE_ROWS = ['A1x', 'Ah', 'A2', 'A2a', 'C', 'D', 'E', 'E1', 'E2', 'D', 'C', 'A2a', 'A2', 'Ah']
 
 function startCarry(): { bench: CarryBench; route: { x: number; y: number }[] } {
@@ -44,13 +44,13 @@ function startCarry(): { bench: CarryBench; route: { x: number; y: number }[] } 
   const route: { x: number; y: number }[] = []
   ROUTE_ROWS.forEach((id, index) => {
     const box = bench.layoutBox(id)
-    // WHY: three heights per row (upper half, middle, lower half) and a sideways drift of whole and half indents, so gap and depth both change.
+    // Why: three heights per row (upper half, middle, lower half) and a sideways drift of whole and half indents, so gap and depth both change.
     for (const part of [0.25, 0.5, 0.8]) route.push({ x: at.x + 30 + (index % 4) * 7 + part * 4, y: box.y + box.height * part })
   })
   return { bench, route }
 }
 
-// WHY: the page offset between the frame loop's coordinates and the drawn tree, read from the held row itself.
+// Why: the page offset between the frame loop's coordinates and the drawn tree, read from the held row itself.
 function offsetOf(bench: CarryBench, id: string): { x: number; y: number } {
   const page = pageBoxOf(bench.row(id), bench.root())
   const layout = bench.layoutBox(id)
@@ -158,7 +158,7 @@ describe('HF-15 -- a pointer move does not rebuild the rows', () => {
       const line = bench.line()
       if (line !== null) lines.add(serialize(line))
     }
-    // WHY: premise -- the route really moved the drop between gaps and depths, so the rows stayed through landing changes too.
+    // Why: premise -- the route really moved the drop between gaps and depths, so the rows stayed through landing changes too.
     expect(lines.size).toBeGreaterThan(4)
   })
 })

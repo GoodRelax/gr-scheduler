@@ -1,4 +1,4 @@
-// Schedule -- the tasks and comment boxes a search word finds, with the values of their columns.
+// File: Schedule: the tasks and comment boxes a search word finds, with the values of their columns.
 // @unit      UF-178  (docs/spec/05-07-design.md, table T-075)
 // @component Schedule, layer documentModel (table T-062)
 // @purity    pure
@@ -19,14 +19,14 @@ import type { CommentBox, HighlightBox, Schedule, Task } from './schedule-entiti
 import { taskGroupRankById } from './schedule-invariants'
 import { progressMarkerOf, type ProgressMarker } from './task-delay'
 
-// see T-331
+// Spec: T-331
 export type TaskSearchRow = {
   readonly taskUid: number
   readonly name: string
   readonly assigneeNames: readonly string[]
   readonly plannedStart: string | null
   readonly plannedFinish: string | null
-  // see SQ-11, SQ-12, SQ-13
+  // Spec: SQ-11, SQ-12, SQ-13
   readonly percentComplete: number | null
   readonly actualStart: string | null
   readonly actualFinish: string | null
@@ -37,13 +37,13 @@ export type TaskSearchRow = {
   readonly taskGroupId: string | null
 }
 
-// see SQ-11, SQ-12, SQ-13
+// Spec: SQ-11, SQ-12, SQ-13
 /** @purity pure */
 function progressOf(task: Task): Pick<TaskSearchRow, 'percentComplete' | 'actualStart' | 'actualFinish'> {
   return { percentComplete: task.percentComplete, actualStart: task.actualStart, actualFinish: task.actualFinish }
 }
 
-// see T-331
+// Spec: T-331
 export type CommentBoxSearchRow = {
   readonly commentBoxId: string
   readonly text: string
@@ -52,7 +52,7 @@ export type CommentBoxSearchRow = {
   readonly taskGroupId: string | null
 }
 
-// see T-331
+// Spec: T-331
 export type SearchRows = {
   readonly taskRows: readonly TaskSearchRow[]
   readonly commentBoxRows: readonly CommentBoxSearchRow[]
@@ -70,7 +70,7 @@ function comparable(text: string): string {
   return text.normalize('NFKC').toLowerCase()
 }
 
-// see SV-4
+// Spec: SV-4
 /** @purity pure */
 export function isSearchWordFound(text: string, word: string): boolean {
   return comparable(text).includes(comparable(word))
@@ -82,20 +82,20 @@ export function compareInstants(a: number | null, b: number | null): number {
   return a === b ? 0 : a === null ? 1 : -1
 }
 
-// TRAP: a date without a time reads as 00:00 here; a Task column is read on its side (plannedStartInstantsOf).
+// Trap: a date without a time reads as 00:00 here; a Task column is read on its side (plannedStartInstantsOf).
 /** @purity pure */
 export function compareDates(left: string | null, right: string | null): number {
   return compareInstants(instantOf(left), instantOf(right))
 }
 
-// see SV-8, SQ-3, FR-054, WT-5
+// Spec: SV-8, SQ-3, FR-054, WT-5
 /** @purity pure */
 export function plannedStartInstantsOf(schedule: Schedule): ReadonlyMap<number, number | null> {
   const read = instantOnSideReader(schedule)
   return new Map(schedule.tasks.map((task) => [task.uid, read(task.start, startSideOf(task))]))
 }
 
-// see SV-8
+// Spec: SV-8
 /** @purity pure */
 function inDefaultOrder<T>(ranked: readonly Ranked<T>[]): readonly T[] {
   return [...ranked]
@@ -108,7 +108,7 @@ function inDefaultOrder<T>(ranked: readonly Ranked<T>[]): readonly T[] {
     .map((one) => one.row)
 }
 
-// see SQ-2
+// Spec: SQ-2
 /** @purity pure */
 export function assigneeNamesByTaskUid(schedule: Schedule): ReadonlyMap<number, readonly string[]> {
   const nameByResourceUid = new Map(schedule.resources.map((one) => [one.uid, one.name]))
@@ -124,7 +124,7 @@ export function assigneeNamesByTaskUid(schedule: Schedule): ReadonlyMap<number, 
   return names
 }
 
-// see SQ-4
+// Spec: SQ-4
 /** @purity pure */
 export function plannedFinishOf(task: Task): string | null {
   return task.milestone === true ? task.start : task.finish
@@ -149,13 +149,13 @@ function taskSearchRowOf(task: Task, assigneeNames: readonly string[],
   }
 }
 
-// TRAP: read through ?.: a schedule built from a part of a document may carry no project, and then no row is late.
+// Trap: read through ?.: a schedule built from a part of a document may carry no project, and then no row is late.
 /** @purity pure */
 function statusDayOf(schedule: Schedule): CalendarDay | null {
   return dayOf(schedule.project?.statusDate ?? null)
 }
 
-// see SV-4, T-331, SQ-5, SQ-14
+// Spec: SV-4, T-331, SQ-5, SQ-14
 /** @purity pure */
 export function searchRowsOf(
   schedule: Schedule,
@@ -201,7 +201,7 @@ export function searchRowsOf(
   return { taskRows: inDefaultOrder(taskRows), commentBoxRows: inDefaultOrder(commentBoxRows) }
 }
 
-// see T-331, SV-8
+// Spec: T-331, SV-8
 /** @purity pure */
 function rankedCommentBox(
   box: CommentBox,
@@ -221,8 +221,8 @@ function rankedCommentBox(
   return { row, rank: rankOf(taskGroupId), at: instantOf(shown), key: box.id }
 }
 
-// see FR-019, SQ-9, SJ-6
-// WHY: the one reading of the instant a tip stands at: its target's point if snapped, else the free point.
+// Spec: FR-019, SQ-9, SJ-6
+// Why: the one reading of the instant a tip stands at: its target's point if snapped, else the free point.
 // The search row, the jump and the release on a deleted target all read it, so they agree with the drawn box.
 /** @purity pure */
 export function commentBoxShownDateOf(schedule: Schedule, box: CommentBox): string | null {
@@ -243,7 +243,7 @@ function holdsId(id: string | null): (box: HighlightBox) => boolean {
   return (box) => box.id === id
 }
 
-// see FR-019, LF-15
+// Spec: FR-019, LF-15
 /** @purity pure */
 function snappedSpanOf(schedule: Schedule, box: CommentBox): Span | null {
   const taskUid = box.anchorTaskUid ?? null
@@ -261,7 +261,7 @@ function taskSpanOf(schedule: Schedule, taskUid: number, isActual: boolean): Spa
   return left === null || right === null ? null : { left, right }
 }
 
-// WHY: a highlight box is drawn from the start of its first day to the end of its last, so its right stands a day on.
+// Why: a highlight box is drawn from the start of its first day to the end of its last, so its right stands a day on.
 /** @purity pure */
 function highlightSpanOf(schedule: Schedule, highlightBoxId: string | null): Span | null {
   const highlight = schedule.highlightBoxes.find(holdsId(highlightBoxId))

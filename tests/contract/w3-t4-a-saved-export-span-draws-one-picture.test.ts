@@ -1,6 +1,6 @@
 // W3 tester 4: FR-025 table T-241 IX-4 .. IX-13, FX-1 / FX-5 and the export chooser's span line -- a fixed fit span.
 
-// WHY: the shell is driven through its public frame loop and the Agent API (PI-17); the picture is read from
+// Why: the shell is driven through its public frame loop and the Agent API (PI-17); the picture is read from
 // exportSvg (PI-21). Every number asserted comes from docs/spec; the document is built here.
 
 import { describe, expect, it, vi } from 'vitest'
@@ -39,7 +39,7 @@ const IX_4_CAP =
 const IX_10 =
   'りの空白 | 絵の高さ（全体表示時の期間を固定していなければ縮めた絵の高さ、固定していれば `IX-15` の高さ）が `S-81` の高さに満たないときは、余りを空白のままとすること（MUST）'
 const IX_10_NO_TASK_GROUPS = '余りを空白のままとすること（MUST）。タスクグループを足して埋めてはならない（MUST NOT） —— 画面に無いものが出る。'
-// WHY: CR-690 -- the old span row retired; its rules are FX-1 and FX-5 of table T-367, and the span reaches the picture only fixed.
+// Why: CR-690 -- the old span row retired; its rules are FX-1 and FX-5 of table T-367, and the span reaches the picture only fixed.
 const IX_17_BOTH = '⭐ `S-518` と `S-519` は、ともに `null` か、ともに日付を持つこと（MUST）'
 const IX_17_COPY = '読んだ文書と、片方だけが日付を持つ 表 T-108 の `CM-88` は、もう片方に同じ日をコピーする。'
 const IX_17_REFUSE = '⭐ 欄と命令は、`S-519` が `S-518` より前の値を拒み、表 T-233 の `RS-58` を告げること（MUST）'
@@ -50,11 +50,11 @@ const FR_096_NO_NOTICE =
 
 const BUILT_VERSION = (JSON.parse(TEMPLATE_TEXT) as { schemaVersion: string }).schemaVersion
 
-// see S-81, S-217
+// Spec: S-81, S-217
 const [S_81_WIDTH, S_81_HEIGHT] = (settingRow('S-81')['default']?.['pair'] ?? []).map(Number) as [number, number]
 const S_217 = settingNumber('S-217')
 
-// see T-108
+// Spec: T-108
 const kindOf = (id: string): string => {
   const row = specTable('T-108').rows.find((one) => one.id === id)
   if (row === undefined) throw new Error(`table T-108 has no row ${id}`)
@@ -65,7 +65,7 @@ const kindOf = (id: string): string => {
 
 const SPAN_START_DAY = '2026-04-13'
 const SPAN_FINISH_DAY = '2026-04-24'
-// WHY: both ends are counted (IX-13), so 13 .. 24 April is twelve calendar days.
+// Why: both ends are counted (IX-13), so 13 .. 24 April is twelve calendar days.
 const SPAN_DAYS = 12
 const SPANNED_TASK = 2
 
@@ -94,14 +94,14 @@ const agentOf = (built: ShellStage): Api =>
 const apply = (api: Api, commands: readonly Record<string, unknown>[]) =>
   api.applyCommands({ expectedStamp: api.readStamp(), commands: commands as never })
 
-// see CM-88
+// Spec: CM-88
 const spanCommand = (start: string | null, finish: string | null): Record<string, unknown> => ({
   kind: kindOf('CM-88'),
   fitSpanStart: start,
   fitSpanFinish: finish,
 })
 
-// see CM-90, FX-4
+// Spec: CM-90, FX-4
 const fixCommand = (): Record<string, unknown> => ({
   kind: kindOf('CM-90'),
   isFitSpanFixed: true,
@@ -156,8 +156,8 @@ interface FieldRig {
   document(): Document
 }
 
-// see IF-9
-// WHY: the shared stage answers no field commit, so this rig hands the shell one settled value the way a host does.
+// Spec: IF-9
+// Why: the shared stage answers no field commit, so this rig hands the shell one settled value the way a host does.
 /** @purity non-pure */
 function fieldRig(document: Document): FieldRig {
   const views: ScreenView[] = []
@@ -220,7 +220,7 @@ describe('FR-025 / FR-096 -- the manuscript these cases are driven by', () => {
 
 describe(`IX-12 -- ${IX_12}`, () => {
   it('the span picture is the same after the window is resized, both zooms move and both panels open', async () => {
-    // WHY: the picture carries the edit time; the zoom write lands a second later under load and differs by it alone.
+    // Why: the picture carries the edit time; the zoom write lands a second later under load and differs by it alone.
     vi.useFakeTimers({ toFake: ['Date'] })
     vi.setSystemTime(new Date('2026-04-01T09:00:00Z'))
     try {
@@ -231,7 +231,7 @@ describe(`IX-12 -- ${IX_12}`, () => {
     await built.repaint()
     expect(pictureOf(built).svg, `${IX_12}: a smaller window (S-77, S-78)`).toBe(first)
 
-    // see CM-65
+    // Spec: CM-65
     expect(apply(api, [{ kind: kindOf('CM-65'), zoomX: 3, zoomY: 2 }]).ok, 'premise: CM-65 moves both zooms').toBe(true)
     await built.repaint()
     expect(pictureOf(built).svg, `${IX_12}: zoomed (S-75, S-76)`).toBe(first)
@@ -269,7 +269,7 @@ describe(`IX-13 -- ${IX_13}`, () => {
     expect(Math.max(...xs), `${IX_13_DAY}: the span's last day closes the Task Group Area`).toBeCloseTo(taskGroupArea.x + taskGroupArea.width, 1)
     const firstTaskXs = planXs(pictureOf(built).svg, 1)
     const dayWidth = taskGroupArea.width / SPAN_DAYS
-    // WHY: Task 1 runs 6 .. 10 April, five calendar days; its width is five of the span's days.
+    // Why: Task 1 runs 6 .. 10 April, five calendar days; its width is five of the span's days.
     expect(Math.max(...firstTaskXs) - Math.min(...firstTaskXs), IX_13_DAY).toBeCloseTo(5 * dayWidth, 1)
   })
 })
@@ -328,7 +328,7 @@ describe(`FX-1 -- ${IX_17_REFUSE}`, () => {
     const draft = twoTaskGroupDraft()
     draft['documentSettings'].fitSpanStart = `${SPAN_START_DAY}T00:00:00`
     draft['documentSettings'].fitSpanFinish = `${SPAN_FINISH_DAY}T23:59:00`
-    // WHY: FX-5 lets the two entrances be written only while the span is fixed.
+    // Why: FX-5 lets the two entrances be written only while the span is fixed.
     draft['documentSettings'].isFitSpanFixed = true
     const rig = fieldRig(documentOf(draft))
     rig.press(surfaceOfEntrance('IC-17'), 'IC-17')

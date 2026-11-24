@@ -15,6 +15,7 @@ status: draft
 - 2 回目の版: 2026-11-24。持ち主の答え（`JDG-3821`〜`JDG-3828`）で、道を「β の前に新基準に合わせる」形に組み直した。本書を書いた SUB は、規則・検査・仕様・コードを 1 つも直していない。適用は、持ち主が BGQA9 の 2 回目に答えた後に BOSS が始める。
 - 持ち主への問い: [`goodrelax-qa-b9-anms-ndd-apply.md`](goodrelax-qa-b9-anms-ndd-apply.md)（BGQA9）。1 回目の 7 問は 2026-11-23 に答えが来た（`JDG-3821`〜`JDG-3827`）。持ち主のチャットの指示は `JDG-3828`。2 回目の 5 問（問 8〜12）を出した。
 - 数え方: 7 節と [`measurements/`](measurements/)（3 つの調べの報告と、数を出したスクリプト）。
+- B5（仕様の試し）の結果: [`b5-spec-trial/README.md`](b5-spec-trial/README.md)（2026-11-25）。組み替えの速さは確かめ込みで 1 時間に 130〜190 件、計画には 1 席 100 件を使う。持ち主への問いは BGQA10（[`goodrelax-qa-b10-b5-spec-trial.md`](goodrelax-qa-b10-b5-spec-trial.md)）。
 
 ## 1. 結論
 
@@ -106,6 +107,10 @@ status: draft
 | 持ち主の CR-851 の行のレビュー（307、残り 445 行、11-28 11:18 まで） | 持ち主の時間を B3・B5・B14 と取り合う | B3・B5・B14 の問いは 1 枚ずつにまとめ、合わせて 3〜5 時間に抑える |
 | チーム T の改定案（まだ `main` の外） | T が改定案を変えると、B1 と B2 を追い直す | T へ返した 8 件の答えを B1 が取り込む。答えが 11-25 より後なら、追い直しを B14 の後に回す |
 | 11-08 の新レビュー基準の計画（391〜396） | 中身が重なる | 本計画に畳む。β の前の道への置き直しは、BOSS が PMO に頼む |
+
+### 4.1 ほかの枝がコメントの移し（B6）を取り込む手順
+
+⭐ B6 は src・tests・tools の約 900 ファイルのコメントの種類の名を、1 本のスクリプト `tools/rename_comment_kinds.py` で替えた（`WHY:` → `Why:`、`TRAP:` → `Trap:`、`STEP:` → `Step:`、仕様の ID だけを並べた `see` → `Spec:`、`DEVIATION:` → `Temporary:` と `Until:`、src のファイル頭の役割の行 → `File: <@component の名>: <役割>`）。走っている枝は、develop を合流する**前に**、同じスクリプトを自分の枝で走らせる: ① `git checkout develop -- tools/rename_comment_kinds.py` でスクリプトを持ってくる ② `python tools/rename_comment_kinds.py` を引数なしで走らせ、コミットする（コメントの行が develop と同じ形になるので、合流でぶつかるのは枝が自分で書き換えた行だけになる） ③ develop を合流し、ぶつかった行は枝の側を採ってから、スクリプトをもう一度走らせる ④ `npm run gen` の後に `npm run gen:check` と `python tools/rename_comment_kinds.py --check` がどちらも 0 であることを見る。スクリプトは冪等で、文字列・テンプレート・正規表現の中は触らない。⛔ 生成器の文字列は触らないので、枝が生成器に古い頭（`// see`・`// WHY:`）を足していれば、手で新しい種類に直す（`gen:check` が赤で知らせる）。`JDG`・`DFC`・`CR` を指す `see`、`STOP` と `@provisional`、種類の無いコメントと日本語のコメントは残る —— B11 が判定して替える。
 
 ## 5. 席が決めた事
 

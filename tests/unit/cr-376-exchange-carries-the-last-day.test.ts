@@ -32,15 +32,15 @@ const TEMPLATE = JSON.parse(
 ) as Record<string, any>
 
 const ymd = (dayOfMonth: number): string => `2026-01-${String(dayOfMonth).padStart(2, '0')}`
-// WHY: the times GRS writes (T-350), so each end is a whole working day under FR-054's instant reading.
+// Why: the times GRS writes (T-350), so each end is a whole working day under FR-054's instant reading.
 const stored = (iso: string): string => `${iso}T08:00:00`
 const storedEnd = (iso: string): string => `${iso}T17:00:00`
-// see FR-054, S-580
+// Spec: FR-054, S-580
 const DAY_SPAN_MINUTES = 480
 const dayPart = (value: string | null | undefined): string | null =>
   value === null || value === undefined ? null : value.slice(0, 10)
 
-// see S-106
+// Spec: S-106
 const isWorkedDay = (iso: string): boolean => {
   const weekday = new Date(`${iso}T00:00:00Z`).getUTCDay()
   return weekday !== 0 && weekday !== 6
@@ -52,7 +52,7 @@ const dayAfter = (iso: string): string => {
   return next.toISOString().slice(0, 10)
 }
 
-// see FR-011
+// Spec: FR-011
 const lengthOf = (start: string, last: string): number => {
   let count = 0
   for (let at = start; at <= last; at = dayAfter(at)) {
@@ -168,7 +168,7 @@ describe('CR-376 exchange premises read from the manuscript', () => {
 })
 
 describe('Chapter 6.2 export: Stop is the last day itself, ActualDuration is DV-11', () => {
-  // WHY: DV-11 counts working time (FR-011, FR-054), so a minutesPerDay unlike the spans does not scale it.
+  // Why: DV-11 counts working time (FR-011, FR-054), so a minutesPerDay unlike the spans does not scale it.
   const MINUTES = 420
 
   for (const one of RUNNING) {
@@ -185,7 +185,7 @@ describe('Chapter 6.2 export: Stop is the last day itself, ActualDuration is DV-
     expect(minutesOf(childText(block, 'ActualDuration'))).toBe(FINISHED.days * DAY_SPAN_MINUTES)
   })
 
-  // WHY: retired "an empty minutesPerDay falls back to S-128" -- CR-710 made DV-11 the working time (FR-011).
+  // Why: retired "an empty minutesPerDay falls back to S-128" -- CR-710 made DV-11 the working time (FR-011).
   it('minutesPerDay does not scale ActualDuration: an empty one writes the same working time', () => {
     const block = taskBlock(written(null), 1)
     expect(minutesOf(childText(block, 'ActualDuration'))).toBe(2 * DAY_SPAN_MINUTES)
@@ -219,7 +219,7 @@ describe('FR-011 import: Stop is read as stop; without Stop, ActualDuration plac
 })
 
 describe('FR-011 / FR-073: an older GRS JSON with actualDuration and no stop still opens', () => {
-  // WHY: the schema before CR-376 required actualDuration on every Task, a not-started one included.
+  // Why: the schema before CR-376 required actualDuration on every Task, a not-started one included.
   const OLDER_SCHEMA_VERSION = '2026-08-20'
 
   const older = (): string =>

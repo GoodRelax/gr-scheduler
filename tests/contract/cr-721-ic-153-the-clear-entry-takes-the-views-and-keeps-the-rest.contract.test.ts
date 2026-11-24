@@ -55,14 +55,14 @@ describe('CR-721 the manuscript these cases are driven by', () => {
   })
 })
 
-// WHY: a word, a column width, one checked row and the Schedule Filter on stand for what the clear must leave alone (CR-722 TV-2, CR-798).
+// Why: a word, a column width, one checked row and the Schedule Filter on stand for what the clear must leave alone (CR-722 TV-2, CR-798).
 const KEPT_VISIBILITY = { shownTaskUids: [3], shownResourceUids: [], isUnassignedShown: false, isScheduleFilterApplied: true }
 const KEPT: Pane = {
   panel: searchPanelWithColumnWidth({ ...TASK_PANEL.panel, word: 'al' }, 'SQ-1', 333),
   view: { ...NO_VIEW, visibility: KEPT_VISIBILITY },
 }
 
-// WHY: CR-723 -- the clear answers the panel with its filter shut and the view with its filters and sort gone.
+// Why: CR-723 -- the clear answers the panel with its filter shut and the view with its filters and sort gone.
 const cleared = (pane: Pane): Pane => searchPanelWithTableViewsCleared(pane.panel, pane.view)
 
 const filteredAndSorted = (): Pane => {
@@ -70,7 +70,7 @@ const filteredAndSorted = (): Pane => {
   return withValueOff('SQ-5', statusLabelOf(sorted), sorted)
 }
 
-// WHY: the status labels depend on the document, so the one to take off is read from the open filter.
+// Why: the status labels depend on the document, so the one to take off is read from the open filter.
 function statusLabelOf(pane: Pane): string {
   const menu = valuesOf(opened('SQ-5', pane))
   const label = menu.values[0]?.label
@@ -124,7 +124,7 @@ describe('FR-151 T-330 SV-1 -- what the clear keeps: the words, the Visibility v
     expect(after.panel.table).toBe('tasks')
   })
 
-  // WHY: CR-800 -- the Visibility column holds no column filter and no IC-122; its heading box checks rows, and a checked row is a Visibility value, which the clear keeps.
+  // Why: CR-800 -- the Visibility column holds no column filter and no IC-122; its heading box checks rows, and a checked row is a Visibility value, which the clear keeps.
   it('the rows the heading box of the Visibility column checked are Visibility values, so the clear keeps them', () => {
     const allChecked = changed(KEPT, { kind: 'shown', column: 'SQ-10', keys: TASK_UIDS, isShown: true, isHeading: true })
     expect([...allChecked.view.visibility.shownTaskUids].sort((a, b) => a - b), 'premise: the heading box checked every task').toEqual([1, 2, 3])
@@ -133,7 +133,7 @@ describe('FR-151 T-330 SV-1 -- what the clear keeps: the words, the Visibility v
     expect(after.view.visibility).toEqual(allChecked.view.visibility)
   })
 
-  // WHY: the heading box's second press clears every row (SQ-10); IC-153 afterwards keeps the cleared Visibility values as they are.
+  // Why: the heading box's second press clears every row (SQ-10); IC-153 afterwards keeps the cleared Visibility values as they are.
   it('the heading box clearing every row leaves nothing for IC-153 to take, and IC-153 does not check anything back', () => {
     const allChecked = changed(KEPT, { kind: 'shown', column: 'SQ-10', keys: TASK_UIDS, isShown: true, isHeading: true })
     const none = changed(allChecked, { kind: 'shown', column: 'SQ-10', keys: TASK_UIDS, isShown: false, isHeading: true })

@@ -94,8 +94,8 @@ function shellSource(html: string, embeddedDocumentElementId: string): AppShellS
   }
 }
 
-// WHY: no published payload reader exists; a minimal scanner (not an HTML
-// WHY: parser) finds the <script id=...> container, matching the caller's job.
+// Why: no published payload reader exists; a minimal scanner (not an HTML
+// Why: parser) finds the <script id=...> container, matching the caller's job.
 function embeddedPayload(html: string, elementId: string): string {
   const pattern = new RegExp(`<script\\b[^<>]*\\sid="${elementId}"[^<>]*>`, 'i')
   const start = pattern.exec(html)

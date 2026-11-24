@@ -1,4 +1,4 @@
-// AgentApiEndpoint -- wires the members of table T-107 to the components that do the work.
+// File: AgentApiEndpoint: wires the members of table T-107 to the components that do the work.
 // @unit      UF-28   (docs/spec/05-07-design.md, table T-075)
 // @component AgentApiEndpoint, layer Adapter (table T-062)
 // @purity    non-pure
@@ -61,33 +61,33 @@ import type { AgentSnapshot, SnapshotSource } from './snapshot-source'
 
 type DocumentStamp = Document['documentStamp']
 
-// see AG-9a, T-233
+// Spec: AG-9a, T-233
 type CodecRefusalReason = Extract<DocumentCodec.JsonDecoding, { readonly ok: false }>['reason']
 
 type ChangeNotice = NotifyChangeWatchers.ChangeNotice
 
-// see AM-26, TV-1
-// WHY: the keys of the document's tableViews, read off the document so this component gains no edge to AdvanceScreenSession.
+// Spec: AM-26, TV-1
+// Why: the keys of the document's tableViews, read off the document so this component gains no edge to AdvanceScreenSession.
 export type VisibilityTable = keyof Document['documentSettings']['tableViews']
 
 type SearchTableView = Document['documentSettings']['tableViews']['searchPanel']
 
-// see AM-26, AM-16, SJ-0
-// WHY: the table views are the document's (FR-151, S-560); AM-27 writes them with setTableView (CM-92).
+// Spec: AM-26, AM-16, SJ-0
+// Why: the table views are the document's (FR-151, S-560); AM-27 writes them with setTableView (CM-92).
 export interface ShownTasksHolder {
   /** @purity semi-pure-mutable */
   readShownTasks(): AgentShownTasks
-  // see SJ-0, UN-20
-  // WHY: AM-16 touches no panel (SJ-9) but does SJ-0, which puts the target among the drawn tasks;
+  // Spec: SJ-0, UN-20
+  // Why: AM-16 touches no panel (SJ-9) but does SJ-0, which puts the target among the drawn tasks;
   // its view writes ride in the SJ-2 write, so the jump is one undo step.
   /** @purity semi-pure-mutable */
   jumpViewWrites(taskUid: number): readonly DocumentCommand[]
-  // see SJ-5
+  // Spec: SJ-5
   /** @purity non-pure */
   holdJumpTarget(taskUid: number): void
 }
 
-// see DX-12, RW-16
+// Spec: DX-12, RW-16
 export interface DelayFixLogSource {
   /** @purity semi-pure-mutable */
   readDelayFixLog(): readonly DelayFixLogRow[]
@@ -104,20 +104,20 @@ export interface HistoryStepper {
   redoStep(expectedStamp: DocumentStamp, writer: string): ReplaceOutcome
 }
 
-// see AM-8, AG-9a
+// Spec: AM-8, AG-9a
 export type ImportLanding =
   | boolean
   | { readonly landed: false; readonly refusals: readonly InvariantRefusal[] }
 
 // <generated -- do not edit by hand>
 // From docs/spec/_source/agent-api-members.json (tables T-107 and T-400).
-// see AV-1
+// Spec: AV-1
 export interface AgentWriteRequest {
   readonly expectedStamp: DocumentStamp
   readonly commands: readonly DocumentCommand[]
 }
 
-// see AV-2
+// Spec: AV-2
 export type AgentWriteOutcome =
   | {
       readonly ok: true
@@ -127,7 +127,7 @@ export type AgentWriteOutcome =
     }
   | { readonly ok: false; readonly refusal: AgentRefusal }
 
-// see AV-3
+// Spec: AV-3
 export interface AgentRefusal {
   readonly target: string
   readonly reason: AgentRefusalReason
@@ -136,7 +136,7 @@ export interface AgentRefusal {
   readonly message: string
 }
 
-// see AV-4
+// Spec: AV-4
 export type AgentRefusalReason =
   | 'staleStamp'
   | 'notOwnStep'
@@ -155,12 +155,12 @@ export type AgentRefusalReason =
   | CodecRefusalReason
   | InvariantRow
 
-// see AV-5
+// Spec: AV-5
 export type AgentExport<TValue> =
   | { readonly ok: true; readonly value: TValue }
   | { readonly ok: false; readonly refusal: AgentRefusal }
 
-// see AV-6
+// Spec: AV-6
 export type AgentFocusOutcome =
   | {
       readonly ok: true
@@ -170,41 +170,41 @@ export type AgentFocusOutcome =
     }
   | { readonly ok: false; readonly refusal: AgentRefusal }
 
-// see AV-7
+// Spec: AV-7
 export type AgentImportSource =
   | Document
   | { readonly document: Document }
   | { readonly text: string }
 
-// see AV-8
+// Spec: AV-8
 export interface AgentShownTasks {
   readonly drawnTaskUids: readonly number[] | null
   readonly filteringTables: readonly VisibilityTable[]
 }
 
-// see AV-9
+// Spec: AV-9
 export interface AgentDelayDiagnostics extends DelayDiagnosticsReport {
   readonly fixProposals: readonly DelayFixRow[]
   readonly fixLog: readonly DelayFixLogRow[]
 }
 
-// see AV-10
+// Spec: AV-10
 export type AgentChangeReceiver = (notice: ChangeNotice) => void
 
-// see AV-11
+// Spec: AV-11
 export interface AgentWatch {
   readonly hasReplacedEarlierWatch: boolean
   /** @purity non-pure */
   stopWatching(): boolean
 }
 
-// see AV-15
+// Spec: AV-15
 export type AgentImportOutcome =
   | { readonly ok: true; readonly stamp: DocumentStamp; readonly hasUpdatedSchedule: boolean }
   | { readonly ok: true; readonly asked: string; readonly stamp: DocumentStamp }
   | { readonly ok: false; readonly refusal: AgentRefusal }
 
-// see AV-16
+// Spec: AV-16
 export interface AgentSearchPage {
   readonly taskRows: SearchRows['taskRows']
   readonly commentBoxRows: SearchRows['commentBoxRows']
@@ -214,7 +214,7 @@ export interface AgentSearchPage {
   readonly nextOffset: number | null
 }
 
-// see AV-17
+// Spec: AV-17
 export interface AgentTableColumn {
   readonly id: string
   readonly ja: string
@@ -222,7 +222,7 @@ export interface AgentTableColumn {
   readonly kind: 'text' | 'date'
 }
 
-// see AV-18
+// Spec: AV-18
 export type AgentTableRows =
   | {
       readonly ok: true
@@ -235,19 +235,19 @@ export type AgentTableRows =
     }
   | { readonly ok: false; readonly refusal: AgentRefusal }
 
-// see AV-19
+// Spec: AV-19
 export interface AgentTableRow {
   readonly key: number | string
   readonly cells: readonly AgentTableCell[]
 }
 
-// see AV-20
+// Spec: AV-20
 export interface AgentTableCell {
   readonly column: string
   readonly text: string
 }
 
-// see AV-21
+// Spec: AV-21
 export interface AgentSavedFile {
   readonly ok: true
   readonly savedTo: string
@@ -255,7 +255,7 @@ export interface AgentSavedFile {
   readonly backedUpTo: string | null
 }
 
-// see T-107
+// Spec: T-107
 export interface AgentApi {
   readonly agentApiVersion: string
   readonly schemaVersion: string
@@ -315,8 +315,8 @@ export interface AgentApi {
   watchChanges(receive: AgentChangeReceiver): AgentWatch
 }
 
-// see AV-14
-// WHY: declared by their own components; their field names are held against table T-400 here.
+// Spec: AV-14
+// Why: declared by their own components; their field names are held against table T-400 here.
 type SameFieldNames<TValue, TNames extends PropertyKey> = [keyof TValue] extends [TNames]
   ? ([TNames] extends [keyof TValue] ? true : false)
   : false
@@ -325,7 +325,7 @@ const ELSEWHERE_DECLARED_FIELDS_MATCH: [
 ] = [true]
 void ELSEWHERE_DECLARED_FIELDS_MATCH
 
-// see AM-1, AG-1
+// Spec: AM-1, AG-1
 const AGENT_API_VERSION = '2026-10-19T01:15:00Z'
 // </generated>
 
@@ -333,27 +333,27 @@ export interface AgentApiWiring {
   readonly source: SnapshotSource
   readonly holder: DocumentHolder
   readonly audience: ChangeAudience
-  // see SF-10
+  // Spec: SF-10
   readonly changeWatchers: NotifyChangeWatchers.ChangeWatchers
-  // TRAP: required but possibly undefined, never optional (so too appShell and takeInDocument): an optional member lets a wiring forget it silently.
+  // Trap: required but possibly undefined, never optional (so too appShell and takeInDocument): an optional member lets a wiring forget it silently.
   readonly rasterizer: ImageExporter.Rasterizer | undefined
   readonly appShell: DocumentCodec.AppShellSource | undefined
   readonly takeInDocument:
     | ((incoming: Document, reading: HandedFormatReading, onAsked: (asked: AskedSurface) => void) => Promise<ImportLanding>)
     | undefined
-  // see AM-26, AM-27
+  // Spec: AM-26, AM-27
   readonly shownTasks: ShownTasksHolder | undefined
-  // WHY: optional, unlike its siblings: the log is a screen value of the report window, and a page with no window has written none, so an absent source reads as an empty log.
+  // Why: optional, unlike its siblings: the log is a screen value of the report window, and a page with no window has written none, so an absent source reads as an empty log.
   readonly delayFixLog?: DelayFixLogSource | undefined
-  // WHY: optional: absent, the holder is stepped through the same use case; the shell's steps also land the screen (FR-100).
+  // Why: optional: absent, the holder is stepped through the same use case; the shell's steps also land the screen (FR-100).
   readonly historySteps?: HistoryStepper | undefined
-  // see AM-29, QN-17
+  // Spec: AM-29, QN-17
   readonly askToOpenFile?: (() => void) | undefined
   readonly pageFitWrites?: (() => readonly DocumentCommand[] | null) | undefined
-  // see AM-31, FR-130
+  // Spec: AM-31, FR-130
   readonly runDelayDiagnostics?: (() => void) | undefined
   readonly closeWindow?: ((which: 'delayDiagnosticsReport' | 'propertiesPanel') => void) | undefined
-  // TRAP: must differ from the person's writer name, or AG-6 takes the person's edits for this API's own.
+  // Trap: must differ from the person's writer name, or AG-6 takes the person's edits for this API's own.
   readonly writerName: string
   readonly schemaVersion: string
 }
@@ -361,8 +361,8 @@ export interface AgentApiWiring {
 const NO_DROPPED_KEYS: ReadonlySet<string> = new Set()
 const CARRY_KEYS: ReadonlySet<string> = new Set(['carry', 'carryElements'])
 
-// see AG-4, AM-3
-// WHY: a walk, not structuredClone or a JSON round trip: both throw on some values (FR-028).
+// Spec: AG-4, AM-3
+// Why: a walk, not structuredClone or a JSON round trip: both throw on some values (FR-028).
 /** @purity pure */
 function frozenCopy<TValue>(value: TValue, dropped: ReadonlySet<string> = NO_DROPPED_KEYS): TValue {
   if (Array.isArray(value)) {
@@ -393,7 +393,7 @@ function scheduleOfTasks(schedule: Document['schedule'], taskUids: readonly numb
   }
 }
 
-// see AM-3
+// Spec: AM-3
 const KEPT_DOCUMENT_PARTS: ReadonlySet<string> = new Set(['$schema', 'schemaVersion', 'documentStamp', 'project'])
 
 /** @purity pure */
@@ -415,7 +415,7 @@ function documentPartsOf(document: Document, parts: unknown): Document {
 
 const KEPT_DIAGNOSIS_PARTS: ReadonlySet<string> = new Set(['outcome', 'statusDate', 'unreliableCount'])
 
-// see AM-19
+// Spec: AM-19
 /** @purity pure */
 function diagnosticsPartsOf(diagnostics: AgentDelayDiagnostics, parts: unknown, limit: unknown): AgentDelayDiagnostics {
   const named = namesOf(parts)
@@ -424,7 +424,7 @@ function diagnosticsPartsOf(diagnostics: AgentDelayDiagnostics, parts: unknown, 
   return Object.fromEntries(Object.entries(kept).map(([key, value]) => [key, Array.isArray(value) ? value.slice(0, limit) : value])) as AgentDelayDiagnostics
 }
 
-// see AM-3, FR-028
+// Spec: AM-3, FR-028
 /** @purity pure */
 function documentAsRead(document: Document, includeCarry: unknown, taskUids: unknown): Document {
   const isNarrowed = Array.isArray(taskUids) && taskUids.length > 0
@@ -439,7 +439,7 @@ function agentColumnOf(heading: ColumnHeading): AgentTableColumn {
   return { id: heading.column, ja: heading.ja, en: heading.en, kind: heading.isDate ? 'date' : 'text' }
 }
 
-// see AM-25, AM-28, AV-17, T-331
+// Spec: AM-25, AM-28, AV-17, T-331
 const SEARCH_PAGE_LIMIT = 100
 const SEARCH_TABLE_COLUMNS: readonly AgentTableColumn[] = taskSearchColumnHeadings().map(agentColumnOf)
 
@@ -448,7 +448,7 @@ function wholeNumberOr(given: unknown, fallback: number): number {
   return typeof given === 'number' && Number.isFinite(given) ? Math.max(0, Math.floor(given)) : fallback
 }
 
-// see AM-25, AM-28
+// Spec: AM-25, AM-28
 /** @purity pure */
 function pageBoundsOf(offset: unknown, limit: unknown): { readonly start: number; readonly end: number } {
   const start = wholeNumberOr(offset, 0)
@@ -456,7 +456,7 @@ function pageBoundsOf(offset: unknown, limit: unknown): { readonly start: number
   return { start, end: start + count }
 }
 
-// see AM-25, AV-16, S-562, S-563
+// Spec: AM-25, AV-16, S-562, S-563
 /** @purity pure */
 function searchPageOf(document: Document, word: string, filters: unknown, offset: unknown, limit: unknown): AgentSearchPage {
   const found = searchRowsOf(document.schedule, typeof word === 'string' ? word : '')
@@ -488,8 +488,8 @@ function fixColumnOf(heading: { readonly column: string; readonly ja: string; re
   return { id: heading.column, ja: heading.ja, en: heading.en, kind: 'text' }
 }
 
-// see AM-28, AV-20
-// WHY: the Agent API reads no screen value: not the screen language (S-99), nor the choice of resources (RO-3).
+// Spec: AM-28, AV-20
+// Why: the Agent API reads no screen value: not the screen language (S-99), nor the choice of resources (RO-3).
 const TABLE_CELL_LANGUAGE = 'en'
 const NO_CHOSEN_RESOURCES: readonly number[] = []
 
@@ -498,7 +498,7 @@ function isAgentTable(table: unknown): table is AgentTable {
   return typeof table === 'string' && Object.prototype.hasOwnProperty.call(TABLE_COLUMNS, table)
 }
 
-// see AM-28, AM-19, FR-134, FR-099, S-566, S-567, S-571, S-572
+// Spec: AM-28, AM-19, FR-134, FR-099, S-566, S-567, S-571, S-572
 /** @purity semi-pure-mutable */
 function tableRowsListedOf(document: Document, table: AgentTable, word: string, isAsShown: boolean, log: DelayFixLogSource | undefined): readonly AgentTableRow[] {
   const look = { word, isAsShown, language: TABLE_CELL_LANGUAGE } as const
@@ -511,7 +511,7 @@ function tableRowsListedOf(document: Document, table: AgentTable, word: string, 
   return delayFixTableRows(fixTable, { proposals: fixProposals, log: fixLog }, document, report, look)
 }
 
-// see AM-28, AV-18, T-347, T-371
+// Spec: AM-28, AV-18, T-347, T-371
 /** @purity semi-pure-mutable */
 function tableRowsPageOf(document: Document, table: AgentTable, look: { readonly word: unknown; readonly filters: unknown; readonly log: DelayFixLogSource | undefined }, offset: unknown, limit: unknown): AgentTableRows {
   const rows = tableRowsListedOf(document, table, typeof look.word === 'string' ? look.word : '', look.filters !== 'none', look.log)
@@ -527,8 +527,8 @@ function tableRowsPageOf(document: Document, table: AgentTable, look: { readonly
   }
 }
 
-// see HS-12, AT-140, AG-4
-// WHY: the held document keeps the AT-140 it was opened with (HS-11); every stamp handed out carries the lower line's time.
+// Spec: HS-12, AT-140, AG-4
+// Why: the held document keeps the AT-140 it was opened with (HS-11); every stamp handed out carries the lower line's time.
 /** @purity pure */
 function stampHandedOut(stamp: DocumentStamp, snapshot: AgentSnapshot): DocumentStamp {
   return frozenCopy({ ...stamp, fileSavedAt: snapshot.documentAsWritten.documentStamp.fileSavedAt })
@@ -558,7 +558,7 @@ function ruleOfPlanRefusal(refusal: PlanRefusal): string {
   }
 }
 
-// WHY: commandRefused for an empty side of the history: AV-4 has no reason of its own, and notAvailable means a missing component.
+// Why: commandRefused for an empty side of the history: AV-4 has no reason of its own, and notAvailable means a missing component.
 /** @purity pure */
 function reasonOfStepRefusal(refusal: ReplacementRefusal): AgentRefusalReason {
   if (refusal.step !== 'WS-3') return reasonOfPlanRefusal(refusal)
@@ -580,7 +580,7 @@ function agentRefusal(
   what: string,
   refusals: readonly Refusal[],
 ): AgentRefusal {
-  // WHY: never the document, even for staleStamp (AG-2, AV-3).
+  // Why: never the document, even for staleStamp (AG-2, AV-3).
   return {
     target,
     reason,
@@ -595,12 +595,12 @@ function notAvailable(target: string, snapshot: AgentSnapshot, missing: string):
   return agentRefusal(target, 'notAvailable', snapshot, `not built yet: ${missing}`, [])
 }
 
-// see AM-26, TV-1
-// WHY: a page with no screen draws every task; it answers no product and no table.
+// Spec: AM-26, TV-1
+// Why: a page with no screen draws every task; it answers no product and no table.
 const NO_SHOWN_TASKS: AgentShownTasks = { drawnTaskUids: null, filteringTables: [] }
 
-// see AM-19, DX-11, DX-12, FR-155
-// WHY: the proposals with no row checked or chosen by a person: AM-19 reads no screen value but the log.
+// Spec: AM-19, DX-11, DX-12, FR-155
+// Why: the proposals with no row checked or chosen by a person: AM-19 reads no screen value but the log.
 /** @purity semi-pure-mutable */
 function delayDiagnosticsWithFixes(document: Document, log: DelayFixLogSource | undefined): AgentDelayDiagnostics {
   const report = diagnoseDelay(document, workingCalendarOf(document.schedule))
@@ -608,8 +608,8 @@ function delayDiagnosticsWithFixes(document: Document, log: DelayFixLogSource | 
   return { ...report, fixProposals, fixLog: log?.readDelayFixLog() ?? [] }
 }
 
-// see AM-27, TV-5, AG-5, FR-028
-// WHY: untyped caller input; a list naming every task hides no row, and TV-5 keeps the filter from turning on for nothing.
+// Spec: AM-27, TV-5, AG-5, FR-028
+// Why: untyped caller input; a list naming every task hides no row, and TV-5 keeps the filter from turning on for nothing.
 /** @purity pure */
 function shownTasksRefusalOf(snapshot: AgentSnapshot, taskUids: unknown): AgentRefusal | null {
   if (!Array.isArray(taskUids) || taskUids.some((uid) => typeof uid !== 'number')) {
@@ -621,15 +621,15 @@ function shownTasksRefusalOf(snapshot: AgentSnapshot, taskUids: unknown): AgentR
   return null
 }
 
-// see AM-27, CM-92, S-560, S-561
+// Spec: AM-27, CM-92, S-560, S-561
 /** @purity pure */
 function searchTableViewWrite(held: SearchTableView, shownTaskUids: readonly number[], isScheduleFilterApplied: boolean): DocumentCommand {
   const visibility = { shownTaskUids, shownResourceUids: [], isUnassignedShown: false, isScheduleFilterApplied }
   return { kind: 'setTableView', table: 'searchPanel', view: { visibility, columnFilters: held.columnFilters, sort: held.sort } }
 }
 
-// see AM-27, TV-5, TV-6, TV-8, UN-20, FR-100
-// WHY: one setTableView and the TV-6 reveal writes in one step (JDG-1868); WS-1 gets the stamp just read, as AM-16 does.
+// Spec: AM-27, TV-5, TV-6, TV-8, UN-20, FR-100
+// Why: one setTableView and the TV-6 reveal writes in one step (JDG-1868); WS-1 gets the stamp just read, as AM-16 does.
 /** @purity non-pure */
 function showOnlyTasksThrough(wiring: AgentApiWiring, snapshot: AgentSnapshot, taskUids: readonly number[]): AgentWriteOutcome {
   const held = snapshot.document.documentSettings.tableViews.searchPanel
@@ -647,7 +647,7 @@ function showOnlyTasksThrough(wiring: AgentApiWiring, snapshot: AgentSnapshot, t
   return writeThroughTheOnePath(wiring, snapshot, 'AM-27', stamp, commands)
 }
 
-// see AM-16, SJ-0, SJ-2, SJ-5, SJ-9, SJ-10
+// Spec: AM-16, SJ-0, SJ-2, SJ-5, SJ-9, SJ-10
 /** @purity non-pure */
 function focusTaskThrough(wiring: AgentApiWiring, snapshot: AgentSnapshot, taskUid: number): AgentFocusOutcome {
   const frame = snapshot.frame
@@ -671,22 +671,22 @@ function focusTaskThrough(wiring: AgentApiWiring, snapshot: AgentSnapshot, taskU
   const target = { kind: 'task', taskUid } as const
   const plan = searchJumpWrites(snapshot.document, target, hasRoom, searchJumpReachOf(frame.layout, frame.geometry, frame.regions.taskGroupArea, target))
   const commands = [...(wiring.shownTasks?.jumpViewWrites(taskUid) ?? []), ...searchJumpCommands(plan, frame.unstoredZoom ?? null)]
-  // WHY: WS-1 gets the stamp just read: the caller named a task, not a document it read,
+  // Why: WS-1 gets the stamp just read: the caller named a task, not a document it read,
   // so a concurrent edit does not refuse it.
   const written = writeThroughTheOnePath(wiring, snapshot, 'AM-16', snapshot.document.documentStamp, commands)
   if (written.ok) wiring.shownTasks?.holdJumpTarget(taskUid)
   return written.ok ? { ...written, isScrolled: !plan.isBlockedByPinnedTaskGroups } : written
 }
 
-// see FR-073
+// Spec: FR-073
 interface HandedFormatReading {
   readonly unreadColumns: readonly string[]
   readonly isNewerFormat: boolean
-  // see FR-012, RS-52
+  // Spec: FR-012, RS-52
   readonly recountedCount: number
 }
 
-// see AM-8, AG-9a
+// Spec: AM-8, AG-9a
 type HandedReading =
   | {
       readonly ok: true
@@ -704,7 +704,7 @@ type HandedText =
 const NONE_OF_THE_SHAPES =
   'AM-8 takes the document, { document } or { text }; none of the three was given'
 
-// WHY: every shape is decoded by the codec, so { document } and the bare document refuse
+// Why: every shape is decoded by the codec, so { document } and the bare document refuse
 // exactly what { text } refuses, with the codec's reason (DFC-911).
 /** @purity pure */
 function handedDocument(
@@ -741,7 +741,7 @@ function textOfHanded(handed: AgentImportSource): HandedText {
     : { ok: false, what: NONE_OF_THE_SHAPES }
 }
 
-// WHY: caught despite ST-7: a handed value may hold a cycle or a bigint, and writing either
+// Why: caught despite ST-7: a handed value may hold a cycle or a bigint, and writing either
 // as JSON throws, which FR-028 forbids passing on.
 /** @purity pure */
 function serializedDocument(value: object): HandedText {
@@ -761,8 +761,8 @@ function commandKindText(command: unknown): string {
   return typeof kind === 'string' ? `kind ${JSON.stringify(kind)}` : 'no kind'
 }
 
-// see FR-028, AG-9a, T-108
-// WHY: judged before the one path, so a bundle out of shape is refused without touching the document (DFC-2856).
+// Spec: FR-028, AG-9a, T-108
+// Why: judged before the one path, so a bundle out of shape is refused without touching the document (DFC-2856).
 /** @purity pure */
 function malformedWriteRequestWhat(request: AgentWriteRequest): string | null {
   if (request === null || typeof request !== 'object'
@@ -784,7 +784,7 @@ function malformedWriteRequestWhat(request: AgentWriteRequest): string | null {
   return null
 }
 
-// see CM-102, CM-71, FR-055
+// Spec: CM-102, CM-71, FR-055
 /** @purity semi-pure-mutable */
 function withPageFit(wiring: AgentApiWiring, commands: readonly DocumentCommand[]): readonly DocumentCommand[] {
   if (!commands.some((command) => command.kind === 'fitScheduleToScreenOnPage')) return commands
@@ -793,7 +793,7 @@ function withPageFit(wiring: AgentApiWiring, commands: readonly DocumentCommand[
   return commands.flatMap((command) => (command.kind === 'fitScheduleToScreenOnPage' ? fit : [command]))
 }
 
-// see AG-5
+// Spec: AG-5
 /** @purity non-pure */
 function writeThroughTheOnePath(
   wiring: AgentApiWiring,
@@ -803,7 +803,7 @@ function writeThroughTheOnePath(
   commands: readonly DocumentCommand[],
 ): AgentWriteOutcome {
   let outcome
-  // WHY: caught despite ST-7: untyped caller input enters here, and planning a malformed
+  // Why: caught despite ST-7: untyped caller input enters here, and planning a malformed
   // command throws, which FR-028 forbids passing on.
   try {
     outcome = planAndApply(wiring, snapshot, expectedStamp, commands)
@@ -842,7 +842,7 @@ function writeThroughTheOnePath(
   }
 }
 
-// WHY: tasks, resources, assignments and calendars share one counter, so what a write made is the range it moved.
+// Why: tasks, resources, assignments and calendars share one counter, so what a write made is the range it moved.
 /** @purity pure */
 function createdUidsOf(before: Document, after: Document): readonly number[] {
   const from = before.schedule.project.uidHighWaterMark ?? 0
@@ -881,7 +881,7 @@ function historyStepsOnHolder(wiring: AgentApiWiring): HistoryStepper {
   }
 }
 
-// WHY: WS-1 gets the caller's stamp, and an undo answers the stamp it restored (T-230 keeps it as it came in).
+// Why: WS-1 gets the caller's stamp, and an undo answers the stamp it restored (T-230 keeps it as it came in).
 /** @purity non-pure */
 function historyStepThrough(wiring: AgentApiWiring, snapshot: AgentSnapshot, row: 'RD-1' | 'RD-2', expectedStamp: DocumentStamp): AgentWriteOutcome {
   const target = row === 'RD-1' ? 'AM-9' : 'AM-10'
@@ -919,7 +919,7 @@ function planAndApply(
   )
 }
 
-// see AM-11, DV-12
+// Spec: AM-11, DV-12
 /** @purity pure */
 function mspdiOfSnapshot(snapshot: AgentSnapshot): string {
   return mspdiFromDocument(snapshot.document, snapshot.localReadAt).text
@@ -927,7 +927,7 @@ function mspdiOfSnapshot(snapshot: AgentSnapshot): string {
 
 /** @purity semi-pure-mutable */
 function importLandingOutcome(landing: ImportLanding, after: AgentSnapshot): AgentWriteOutcome {
-  // TRAP: `!landing` compiles but takes a refusal object for a landed import.
+  // Trap: `!landing` compiles but takes a refusal object for a landed import.
   if (landing === true) {
     return { ok: true, stamp: frozenCopy(after.documentAsWritten.documentStamp), hasUpdatedSchedule: true, createdUids: [] }
   }
@@ -954,7 +954,7 @@ function importLandingOutcome(landing: ImportLanding, after: AgentSnapshot): Age
 }
 
 // see AM-8, AG-12, AV-15, DFC-3252
-// WHY: answers as soon as the person is asked; waiting for the answer outlasts the MCP client's request.
+// Why: answers as soon as the person is asked; waiting for the answer outlasts the MCP client's request.
 /** @purity non-pure */
 async function importHandedDocument(
   wiring: AgentApiWiring,
@@ -976,7 +976,7 @@ async function importHandedDocument(
   })
   const onAsked = (surface: AskedSurface): void =>
     answerAsked({ ok: true, asked: surface, stamp: frozenCopy(source.readSnapshot().documentAsWritten.documentStamp) })
-  // TRAP: a person answers U-61 during this await; take a fresh snapshot after it.
+  // Trap: a person answers U-61 during this await; take a fresh snapshot after it.
   const settled = road(incoming.document, incoming, onAsked).then((landing) =>
     importLandingOutcome(landing, source.readSnapshot()))
   return Promise.race([asked, settled])
@@ -984,7 +984,7 @@ async function importHandedDocument(
 
 const OPEN_FILE_QUESTION = 'QN-17'
 
-// see AM-29, AG-12, FR-087, AG-6
+// Spec: AM-29, AG-12, FR-087, AG-6
 /** @purity non-pure */
 function askToOpenFileThrough(wiring: AgentApiWiring): AgentImportOutcome {
   const snapshot = wiring.source.readSnapshot()
@@ -1009,7 +1009,7 @@ function unchangedOutcomeOf(snapshot: AgentSnapshot): AgentWriteOutcome {
   return { ok: true, stamp: frozenCopy(snapshot.documentAsWritten.documentStamp), hasUpdatedSchedule: false, createdUids: [] }
 }
 
-// see AM-31, FR-130, IC-107, IC-168
+// Spec: AM-31, FR-130, IC-107, IC-168
 /** @purity non-pure */
 function runDelayDiagnosticsThrough(wiring: AgentApiWiring): AgentWriteOutcome {
   const snapshot = wiring.source.readSnapshot()
@@ -1021,7 +1021,7 @@ function runDelayDiagnosticsThrough(wiring: AgentApiWiring): AgentWriteOutcome {
   return unchangedOutcomeOf(snapshot)
 }
 
-// see AM-33, RW-1, IC-52
+// Spec: AM-33, RW-1, IC-52
 /** @purity non-pure */
 function closeWindowThrough(wiring: AgentApiWiring, which: unknown): AgentWriteOutcome {
   const snapshot = wiring.source.readSnapshot()
@@ -1036,8 +1036,8 @@ function closeWindowThrough(wiring: AgentApiWiring, which: unknown): AgentWriteO
   return unchangedOutcomeOf(snapshot)
 }
 
-// see AM-32, FR-155, IC-166
-// WHY: the rows are rebuilt from the document as readDelayDiagnostics lists them, so a key the caller read names the same row.
+// Spec: AM-32, FR-155, IC-166
+// Why: the rows are rebuilt from the document as readDelayDiagnostics lists them, so a key the caller read names the same row.
 /** @purity pure */
 function issuedFixRowsOf(document: Document, fixKeys: readonly string[]): { rows: readonly DelayFixRow[]; unknown: readonly string[] } {
   const report = diagnoseDelay(document, workingCalendarOf(document.schedule))
@@ -1049,8 +1049,8 @@ function issuedFixRowsOf(document: Document, fixKeys: readonly string[]): { rows
   return { rows, unknown: fixKeys.filter((key) => !known.has(key)) }
 }
 
-// see AM-32, FR-155, UN-21, AG-10
-// WHY: no save first, unlike the screen's Fix (CR-803): the step is the caller's, so the caller can undo it.
+// Spec: AM-32, FR-155, UN-21, AG-10
+// Why: no save first, unlike the screen's Fix (CR-803): the step is the caller's, so the caller can undo it.
 /** @purity non-pure */
 function issueDelayFixesThrough(wiring: AgentApiWiring, expectedStamp: DocumentStamp, fixKeys: unknown): AgentWriteOutcome {
   const snapshot = wiring.source.readSnapshot()
@@ -1070,7 +1070,7 @@ function issueDelayFixesThrough(wiring: AgentApiWiring, expectedStamp: DocumentS
   return outcome
 }
 
-// see T-107
+// Spec: T-107
 /** @purity non-pure */
 export function agentApiMembers(wiring: AgentApiWiring): AgentApi {
   const { source } = wiring
@@ -1093,14 +1093,14 @@ export function agentApiMembers(wiring: AgentApiWiring): AgentApi {
       return frozenCopy(source.readSnapshot().selection)
     },
 
-    // see AM-25, AM-19
-    // WHY: no delay diagnosis here, so late is only a planned day past the status date (T-021b) and
+    // Spec: AM-25, AM-19
+    // Why: no delay diagnosis here, so late is only a planned day past the status date (T-021b) and
     // (?), the bottleneck and (!!) never show; the precise analysis is readDelayDiagnostics'.
     /** @purity semi-pure-mutable */
     readSearchRows: (word: string, filters: 'asShown' | 'none', offset: number, limit: number): AgentSearchPage =>
       frozenCopy(searchPageOf(source.readSnapshot().document, word, filters, offset, limit)),
 
-    // see AM-28, AG-9a
+    // Spec: AM-28, AG-9a
     /** @purity semi-pure-mutable */
     readTableRows(table: AgentTable, word: string, filters: 'asShown' | 'none', offset: number, limit: number): AgentTableRows {
       const snapshot = source.readSnapshot()
@@ -1114,8 +1114,8 @@ export function agentApiMembers(wiring: AgentApiWiring): AgentApi {
     /** @purity semi-pure-mutable */
     readShownTasks: (): AgentShownTasks => frozenCopy(wiring.shownTasks?.readShownTasks() ?? NO_SHOWN_TASKS),
 
-    // see AM-19, FR-134, AG-4
-    // WHY: diagnosed afresh, never the shell's held report: AM-19 writes no screen value, so it
+    // Spec: AM-19, FR-134, AG-4
+    // Why: diagnosed afresh, never the shell's held report: AM-19 writes no screen value, so it
     // answers whether or not S-445 is on.
     /** @purity semi-pure-mutable */
     readDelayDiagnostics(parts: readonly string[], limit: number): AgentDelayDiagnostics {
@@ -1186,7 +1186,7 @@ export function agentApiMembers(wiring: AgentApiWiring): AgentApi {
         }
       }
 
-      // TRAP: draw from exportScene, not frame: a frame has the screen's size, not the one IO-3 fixes.
+      // Trap: draw from exportScene, not frame: a frame has the screen's size, not the one IO-3 fixes.
       const scene = snapshot.exportScene
       if (scene === null) {
         return {
@@ -1245,7 +1245,7 @@ export function agentApiMembers(wiring: AgentApiWiring): AgentApi {
         }
       }
 
-      // TRAP: refusals after this await keep the earlier snapshot; a fresh read would carry
+      // Trap: refusals after this await keep the earlier snapshot; a fresh read would carry
       // a stamp this call never stood at (CS-4).
       const painted = await ImageExporter.exportPng(seam, scene)
       if (!painted.ok) {
@@ -1301,7 +1301,7 @@ export function agentApiMembers(wiring: AgentApiWiring): AgentApi {
       return { ok: true, value: made.html }
     },
 
-    // see AM-34, RW-20, IO-9
+    // Spec: AM-34, RW-20, IO-9
     /** @purity semi-pure-mutable */
     exportFixLogTsv(): AgentExport<string> {
       const document = source.readSnapshot().document

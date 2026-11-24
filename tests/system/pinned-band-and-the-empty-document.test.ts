@@ -18,7 +18,7 @@ const T203: SpecTable = specTable('T-203')
 
 const BASE_SCREEN = screenOf(rowOf(T025, 'MC-6'))
 
-// WHY: anchored on the digits, so asking for HF-1 cannot be answered by
+// Why: anchored on the digits, so asking for HF-1 cannot be answered by
 // HF-12, nor HF-12 by HF-120.
 /** @purity pure */
 function entranceRuledBy(rule: string): string {
@@ -32,14 +32,14 @@ function entranceRuledBy(rule: string): string {
   return found[0]?.id ?? ''
 }
 
-// see HF-17
+// Spec: HF-17
 const ADD_AT_SHALLOWEST = entranceRuledBy('HF-17')
-// see HF-12
+// Spec: HF-12
 const FOLD_EVERY_TASK_GROUP = entranceRuledBy('HF-12')
-// see HF-10
+// Spec: HF-10
 const UNFOLD_EVERY_TASK_GROUP = entranceRuledBy('HF-10')
 
-// WHY: resolved, not written -- the shell marks a properties-panel field with
+// Why: resolved, not written -- the shell marks a properties-panel field with
 // the table T-058 row it edits, so this follows the manuscript if renumbered.
 /** @purity pure */
 function columnRowOf(entity: string, column: string): string {
@@ -54,7 +54,7 @@ function columnRowOf(entity: string, column: string): string {
   return found[0]?.id ?? ''
 }
 
-// see HF-14
+// Spec: HF-14
 const TASK_GROUP_NAME_COLUMN = columnRowOf('TaskGroup', 'name')
 
 /** @purity pure */
@@ -69,10 +69,10 @@ function partNamed(id: string): string {
   return found[1] ?? ''
 }
 
-// see U-60
+// Spec: U-60
 const WATERMARK_UNLOCK_PART = partNamed('U-60')
 
-// WHY: taken from U-60 rather than written, so the case follows the row that
+// Why: taken from U-60 rather than written, so the case follows the row that
 // owns the face rather than a copy of its entrance number.
 const WATERMARK_ENTRANCE = (() => {
   const found = [...wholeRow(T103, 'U-60').matchAll(/IC-\d+/g)].map((one) => one[0])
@@ -86,13 +86,13 @@ const WATERMARK_ENTRANCE = (() => {
   return only[0] ?? ''
 })()
 
-// WHY: given as code-point escapes, not literal characters -- rule 03
+// Why: given as code-point escapes, not literal characters -- rule 03
 // section 5 keeps this tree ASCII, for the words table T-028 row IN-4 names.
 const IN_PLACE_EDIT_WORD = String.fromCharCode(0x305d, 0x306e, 0x5834, 0x306e, 0x7de8, 0x96c6)
 const OPEN_FACE_WORD = String.fromCharCode(0x958b, 0x3044, 0x3066, 0x3044, 0x308b, 0x9762)
 const ELLIPSIS = String.fromCharCode(0x2026)
 
-// WHY: read out of the cell so the order asserted below is the manuscript's,
+// Why: read out of the cell so the order asserted below is the manuscript's,
 // not a copy kept in this file.
 /** @purity pure */
 function escOrderOf(word: string, what: string): number {
@@ -103,11 +103,11 @@ function escOrderOf(word: string, what: string): number {
   return at
 }
 
-// WHY: the deliverable, not sources or the dev server -- NFR-004 row CN-1
+// Why: the deliverable, not sources or the dev server -- NFR-004 row CN-1
 // has dist/ hold one .html file, which tests/nfr/ assembles and judges.
 const SHIPPED_BUILD = join(process.cwd(), 'dist', 'index.html')
 
-// WHY: the same handles the neighboring System files lean on; a change to
+// Why: the same handles the neighboring System files lean on; a change to
 // how the shell marks a part breaks these cases, as it should.
 const PROPERTIES = '[data-role="Properties Panel"]'
 
@@ -124,7 +124,7 @@ test.beforeAll(async () => {
 })
 
 test.afterAll(async () => {
-  // WHY: this is the hook's own allowance, not an assertion's -- see
+  // Why: this is the hook's own allowance, not an assertion's -- see
   // CLEARING_UP_MS in ./live-app.
   test.setTimeout(CLEARING_UP_MS)
   await browser?.close()
@@ -151,7 +151,7 @@ async function openTheApp(): Promise<Opened> {
   }
 }
 
-// WHY: a real pointer, not element.click() -- the shell builds its input
+// Why: a real pointer, not element.click() -- the shell builds its input
 // from pointer events, and a synthetic click has reached nothing here before.
 /** @purity non-pure */
 async function pressEntrance(page: Page, icon: string): Promise<boolean> {
@@ -175,7 +175,7 @@ interface DrawnTaskGroup {
   readonly name: string
 }
 
-// WHY: names come back cut -- FR-085 ends one that does not fit with an
+// Why: names come back cut -- FR-085 ends one that does not fit with an
 // ellipsis; see namesTheSameTaskGroup.
 /** @purity semi-pure-mutable */
 async function drawnTaskGroups(page: Page): Promise<DrawnTaskGroup[]> {
@@ -192,7 +192,7 @@ function describe(some: readonly DrawnTaskGroup[]): string {
   return some.map((one) => `${String(one.depth)}:${one.name}`).join(' | ')
 }
 
-// WHY: not a plain equality -- FR-085 ends a name that does not fit with an
+// Why: not a plain equality -- FR-085 ends a name that does not fit with an
 // ellipsis, so a drawn name is the whole of it or a head of it plus that mark.
 /** @purity pure */
 function namesTheSameTaskGroup(drawn: string, whole: string): boolean {
@@ -214,7 +214,7 @@ async function panelState(
         width: Math.round(shown?.getBoundingClientRect().width ?? 0),
         hasField: field !== null && field !== undefined,
         focusedRow: focused?.getAttribute('data-field-row') ?? null,
-        // WHY: FR-006 wraps a text field downwards, so the name field is a textarea since CR-408.
+        // Why: FR-006 wraps a text field downwards, so the name field is a textarea since CR-408.
         value:
           field instanceof HTMLInputElement || field instanceof HTMLTextAreaElement
             ? field.value
@@ -225,7 +225,7 @@ async function panelState(
   )
 }
 
-// WHY: a wheel over the panel moves nothing while a field of the properties
+// Why: a wheel over the panel moves nothing while a field of the properties
 // panel holds the typing, so every caller releases that field first.
 /** @purity non-pure */
 async function takeThePanelToTheTop(page: Page): Promise<void> {
@@ -270,7 +270,7 @@ async function pressTheUnlockField(page: Page): Promise<boolean> {
   return true
 }
 
-// WHY: goes red if HF-17, S-418 and U-60 stop cross-referencing each other
+// Why: goes red if HF-17, S-418 and U-60 stop cross-referencing each other
 // the way the cases below assume.
 test('the rows these cases are read from are still the rows that carry them', () => {
   const hf17 = wholeRow(T051, 'HF-17')
@@ -287,7 +287,7 @@ test('the rows these cases are read from are still the rows that carry them', ()
     'table T-103 row U-60 is still the face FR-020 raises',
   ).toContain('FR-020')
 
-  // WHY: IN-5a is read for its presence only -- it is why "mid-edit" has
+  // Why: IN-5a is read for its presence only -- it is why "mid-edit" has
   // consequences of its own, which the watermark case's third reading leans on.
   expect(
     T028.rows.map((row) => row.id),
@@ -300,7 +300,7 @@ test('the rows these cases are read from are still the rows that carry them', ()
   ).toHaveLength(new Set([ADD_AT_SHALLOWEST, FOLD_EVERY_TASK_GROUP, UNFOLD_EVERY_TASK_GROUP, WATERMARK_ENTRANCE]).size)
 })
 
-// WHY: goes red if HF-17 adds a task group and draws nothing, sends the field
+// Why: goes red if HF-17 adds a task group and draws nothing, sends the field
 // alone, or leaves the shallowest tier's fold (S-418) closed.
 test(`HF-17: with no task group drawn at all, ${ADD_AT_SHALLOWEST} draws the task group it raises`, async () => {
   test.setTimeout(180_000)
@@ -352,7 +352,7 @@ test(`HF-17: with no task group drawn at all, ${ADD_AT_SHALLOWEST} draws the tas
   }
 })
 
-// WHY: goes red if adding a task group opens every tier under S-418, not the one tier
+// Why: goes red if adding a task group opens every tier under S-418, not the one tier
 // HF-17 (MUST NOT) allows. The Esc that follows is not part of the judgment.
 test(`HF-17 (MUST NOT): ${ADD_AT_SHALLOWEST} opens one tier of the fold, not every tier`, async () => {
   test.setTimeout(180_000)
@@ -387,7 +387,7 @@ test(`HF-17 (MUST NOT): ${ADD_AT_SHALLOWEST} opens one tier of the fold, not eve
   }
 })
 
-// WHY: the control for the case above -- from the same folded state, HF-10
+// Why: the control for the case above -- from the same folded state, HF-10
 // does open every tier, or the case above could pass on a panel that cannot draw a deep task group.
 test(`⭐ THE CONTROL: from the same folded state, ${UNFOLD_EVERY_TASK_GROUP} opens every tier`, async () => {
   test.setTimeout(180_000)
@@ -412,7 +412,7 @@ test(`⭐ THE CONTROL: from the same folded state, ${UNFOLD_EVERY_TASK_GROUP} op
   }
 })
 
-// WHY: goes red if the first Esc in the unlock field takes the typing back
+// Why: goes red if the first Esc in the unlock field takes the typing back
 // but keeps hold of the field, so a later character still lands there.
 test('IN-4: one Esc in the watermark unlock field takes the typing back AND lets the field go', async () => {
   test.setTimeout(180_000)
@@ -474,7 +474,7 @@ test('IN-4: one Esc in the watermark unlock field takes the typing back AND lets
   }
 })
 
-// WHY: the control for the case above -- with nothing typed there is no
+// Why: the control for the case above -- with nothing typed there is no
 // edit to consume, so the FIRST Esc reaches the face directly.
 test('⭐ THE CONTROL: with nothing typed, the first Esc reaches the face itself', async () => {
   test.setTimeout(180_000)

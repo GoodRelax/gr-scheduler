@@ -61,8 +61,8 @@ const TASK_GROUP_PANEL = englishName('U-22')
 const TASK_GROUP_EXPANDER = englishName('U-47')
 const TASK_GROUP_PIN = englishName('U-48')
 
-// see T-109, HF-20
-// WHY: IC-106 shares its authority column (FR-032) with IC-82; only its entrance column names HF-20.
+// Spec: T-109, HF-20
+// Why: IC-106 shares its authority column (FR-032) with IC-82; only its entrance column names HF-20.
 function iconFor(hfRow: string): string {
   const onPanel = specTable('T-109').rows.filter((one) => (one.by['面'] ?? '').includes('Task Group Panel'))
   const byAuthority = onPanel.filter((one) => (one.by['正'] ?? '').includes(`\`${hfRow}\``))

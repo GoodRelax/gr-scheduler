@@ -44,7 +44,7 @@ const rowOf = (table: string, id: string) => {
 
 const rowText = (table: string, id: string): string => flat(rowOf(table, id).cells.join(' | '))
 
-// WHY: the boundary between a click and a drag is the settings row S-208 of table T-206, never a number held here.
+// Why: the boundary between a click and a drag is the settings row S-208 of table T-206, never a number held here.
 const S_208 = ((): number => {
   const numbers = (rowOf('T-206', 'S-208').by['既定'] ?? '').match(/\d+(?:\.\d+)?/g) ?? []
   if (numbers.length !== 1) throw new Error('S-208 does not hold one number')
@@ -67,7 +67,7 @@ describe('CR-656 -- the rows these cases are driven by', () => {
     expect(mk15).toContain('`Shift` を伴えば日付を変えずにコピーする')
   })
 
-  // WHY: CR-850 retired MK-17, so MK-12 no longer carves the Alt grab drag out of the unassigned combination.
+  // Why: CR-850 retired MK-17, so MK-12 no longer carves the Alt grab drag out of the unassigned combination.
   it('MK-12: only Alt + drag is unassigned, with no MK-17 exception; Ctrl + Shift + drag is assigned (MK-7, MK-15)', () => {
     const row = rowOf('T-023', 'MK-12')
     expect(flat(row.cells[0] ?? '')).toBe('割当の無い修飾キー付きドラッグ（`Alt` ＋ ドラッグ）')
@@ -110,7 +110,7 @@ describe('CR-656 -- the rows these cases are driven by', () => {
     expect(rowText('T-308', 'CY-11')).toContain('押した時点の修飾キーで決め、押しているあいだに `Ctrl` や `Shift` を押しても離しても変えないこと（MUST）')
   })
 
-  // WHY: CR-785 moved MK-16 from the rows the help shows to the rows that are known by touching; CR-850 then retired MK-17 from that list.
+  // Why: CR-785 moved MK-16 from the rows the help shows to the rows that are known by touching; CR-850 then retired MK-17 from that list.
   it('FR-036: the help does not list MK-16; it stands among the T-023 rows learned by touching', () => {
     expect(REQUIREMENTS).toContain('表 T-023 の `MK-2` / `MK-5` / `MK-7` と')
     expect(REQUIREMENTS).not.toContain('/ `MK-16` / `MK-17` と')
@@ -122,7 +122,7 @@ describe('CR-656 -- the rows these cases are driven by', () => {
   })
 })
 
-// WHY: six task groups, one task per task group; ROOT is in progress and has a WBS child, so a kept actual is observable.
+// Why: six task groups, one task per task group; ROOT is in progress and has a WBS child, so a kept actual is observable.
 const TASK_GROUP_A = '65600000-0000-4000-8000-00000000000a'
 const TASK_GROUP_B = '65600000-0000-4000-8000-00000000000b'
 const TASK_GROUP_C = '65600000-0000-4000-8000-00000000000c'
@@ -325,7 +325,7 @@ const planBox = (loop: FrameLoop, uid: number): ScreenRect => {
 
 const hitAt = (loop: FrameLoop, at: Point): Hit | null => itemAtPointer(frameOf(loop).geometry, at.x, at.y, grabSizesOf())
 
-// WHY: the three grabs of a task body -- table T-270 PE-1 / PE-6 through T-266 GA-9 / GA-14 / GA-15.
+// Why: the three grabs of a task body -- table T-270 PE-1 / PE-6 through T-266 GA-9 / GA-14 / GA-15.
 const BODY_GRABS = ['GA-9', 'GA-14', 'GA-15']
 
 const bodyOf = (loop: FrameLoop, uid: number): Point => {
@@ -358,7 +358,7 @@ const drawnTaskGroup = (loop: FrameLoop, taskGroupId: string): TaskGroupPlacemen
 
 const pxPerDay = (loop: FrameLoop): number => frameOf(loop).layout.pxPerDay
 
-// WHY: a travel of whole days across, and from the task group `from` down to the task group `to` (both drawn task groups).
+// Why: a travel of whole days across, and from the task group `from` down to the task group `to` (both drawn task groups).
 const travel = (loop: FrameLoop, days: number, from: string, to: string): Point => ({
   x: days * pxPerDay(loop),
   y: drawnTaskGroup(loop, to).y - drawnTaskGroup(loop, from).y,
@@ -649,7 +649,7 @@ describe('PTD-7 / CY-1 / CY-5 / MK-15: Ctrl + Shift on the selection copies with
     const before = built.tasks()
     drag(built, bodyOf(built.loop, ROOT), travel(built.loop, 3, TASK_GROUP_A, TASK_GROUP_B), CTRL_SHIFT)
     const after = built.tasks()
-    // WHY: the WBS child was not chosen, so T-223 DU-1 does not copy it (CR-706).
+    // Why: the WBS child was not chosen, so T-223 DU-1 does not copy it (CR-706).
     expect(newTasks(before, after).map((one) => one.name).sort()).toEqual(['Root'])
     const rootCopy = copyNamed(before, after, 'Root')
     const source = before.find((one) => one.uid === ROOT) as Task

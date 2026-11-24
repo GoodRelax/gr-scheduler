@@ -269,7 +269,7 @@ def main(argv):
         branch = run.git('rev-parse', '--abbrev-ref', 'HEAD')
         head = run.git('rev-parse', 'HEAD')
         lines[0] = 'merge: %s (%s) into %s at %s' % (target, sha[:8], branch, head[:8])
-        # WHY: after criss-cross merges there are several bases, and one of
+        # Why: after criss-cross merges there are several bases, and one of
         # them alone misses rows the other already holds (DFC-1430).
         bases = run.git('merge-base', '--all', 'HEAD', sha).split()
         incoming, moved = renumber_clashes(run, bases, sha)

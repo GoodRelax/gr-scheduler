@@ -238,7 +238,7 @@ class Printer(object):
         return '{ %s }' % ', '.join(fields)
 
     def initial_children(self):
-        # WHY: a region whose states nest no composite (`notices`) would get an
+        # Why: a region whose states nest no composite (`notices`) would get an
         # empty table nobody reads, and noUnusedLocals refuses an unread constant.
         # A composite with no initial child (`armed`, entered only by naming a
         # child) has no initial value to print.
@@ -284,7 +284,7 @@ class Printer(object):
                     yield machine.state_id(key), event, branch, machine.state_id(branch['to'])
 
     def effect_names(self):
-        # WHY: entry and exit effects (SD-1) are named where the cells that run them stand.
+        # Why: entry and exit effects (SD-1) are named where the cells that run them stand.
         names = []
         for effect in self.region.effect_order():
             if effect not in names:
@@ -350,7 +350,7 @@ class Printer(object):
                  '// Rebuild: npm run gen (tools/generate_state_machine_types.py).',
                  '']
         lines += self.keys()
-        # WHY: SD-5 -- a documentData region's state type is an erd.json
+        # Why: SD-5 -- a documentData region's state type is an erd.json
         # column, and it has no unsaved root to hold or initialize.
         saved = self.region.holds_document_data
         if not saved:

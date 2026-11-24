@@ -26,19 +26,19 @@ const COMMANDS_RESOURCE = JSON.parse(readFileSync(join(ROOT, 'docs', 'spec', '_s
   oneOf: Json[]
   $defs: Record<string, Json>
 }
-// WHY: the resource names each command's definition by $ref (CR-806); the cases read the definitions in that order.
+// Why: the resource names each command's definition by $ref (CR-806); the cases read the definitions in that order.
 const COMMANDS_SCHEMA = {
   oneOf: COMMANDS_RESOURCE.oneOf.map((one) => COMMANDS_RESOURCE.$defs[String(one['$ref']).replace('#/$defs/', '')] as Json),
 }
 
-// see AM-7, AG-12
+// Spec: AM-7, AG-12
 const REQUEST_IS_PRINTED = [
   '⭐ ただし `applyCommands`（`AM-7`）の `request` は、刻印と命令の束を鍵に持つオブジェクトとし、束の 1 つは鍵 `kind`（`tbl-document-commands.md` の 表 T-108 の確定名を並べた `enum`）を必ず持つオブジェクトとする。',
   '命令ごとの鍵と型は道具の入力に刷らず、2 つ目の資源（下の「資源」）が持つ。',
   '鍵ごとの説明は引数の欄の意味である。',
 ]
 
-// WHY: the resource holds every row of table T-108 (CM-76 too -- the Agent API refuses it at run time, the resource does not hide it).
+// Why: the resource holds every row of table T-108 (CM-76 too -- the Agent API refuses it at run time, the resource does not hide it).
 const { commands } = printedCommands()
 const offered = commands
 
@@ -47,7 +47,7 @@ const request = ((tool?.inputSchema['properties'] ?? {}) as Record<string, Json>
 const requestProperties = (request['properties'] ?? {}) as Record<string, Json>
 const items = (requestProperties['commands']?.['items'] ?? {}) as Json
 
-// WHY: a command with a choice of shapes is one branch holding a oneOf of its ways; each way lists `kind` as `true`, so the
+// Why: a command with a choice of shapes is one branch holding a oneOf of its ways; each way lists `kind` as `true`, so the
 // way is read as an alternative of its own with the branch's kind and words, in the order of the table (AM-7, CM-38).
 const alternatives = COMMANDS_SCHEMA.oneOf.flatMap((branch): Json[] => {
   const ways = branch['oneOf'] as Json[] | undefined
@@ -64,7 +64,7 @@ const kindOf = (alternative: Json): string =>
 const propertiesOf = (node: Json): Record<string, Json> => (node['properties'] ?? {}) as Record<string, Json>
 const alternativesOf = (name: string): Json[] => alternatives.filter((alternative) => kindOf(alternative) === name)
 
-// WHY: the values one alternative carries -- the named values, and for a choice of shapes, one shape's fields.
+// Why: the values one alternative carries -- the named values, and for a choice of shapes, one shape's fields.
 const waysOf = (command: PrintedCommand): PrintedValue[][] =>
   command.choice === null
     ? [[...command.values]]
@@ -81,7 +81,7 @@ const resolved = (node: Json): Json => {
 
 const SHAPE_WORDS = ['type', 'enum', 'const', 'minimum', 'maximum', 'pattern', 'format', 'maxItems'] as const
 
-// WHY: what a schema node admits, without its words for a reader (description, default) and with its references followed.
+// Why: what a schema node admits, without its words for a reader (description, default) and with its references followed.
 function essence(node: Json, withoutNull = false): Json {
   const at = resolved(node)
   const out: Json = {}
@@ -168,8 +168,8 @@ describe('one alternative per command the Agent API takes, in the order of table
     },
   )
 
-  // see AM-7
-  // WHY: the description is printed from the English of the row's "what it carries" cell in the manuscript, not from the Japanese table.
+  // Spec: AM-7
+  // Why: the description is printed from the English of the row's "what it carries" cell in the manuscript, not from the Japanese table.
   it.each(offered.map((command) => [command.id, command.name] as const))(
     '%s %s: the alternative is described by what the row does',
     (_id, name) => {
@@ -259,7 +259,7 @@ describe('the published input refuses a command whose shape is off (schema level
     ['a lag unit outside d, h and m', { kind: 'setDependencyLag', predecessorUid: 1, successorUid: 2, lagMinutes: 60, lagUnit: 'w' }],
     ['a null start where the table says null is not taken', { kind: 'setTaskPlanDates', taskUid: 1, start: null, finish: '2026-04-08T17:00:00' }],
   ])('%s is refused', (_label, command) => {
-    // WHY: the tool input holds no keys of a command (AG-12 (8)); the shape is refused by the resource's schema only.
+    // Why: the tool input holds no keys of a command (AG-12 (8)); the shape is refused by the resource's schema only.
     expect(acceptsCommand(command)).toBe(false)
   })
 

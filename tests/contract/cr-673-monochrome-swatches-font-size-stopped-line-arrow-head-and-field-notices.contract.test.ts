@@ -47,7 +47,7 @@ const rowOf = (table: string, id: string) => {
   return found
 }
 
-// WHY: each constant ends exactly at its marker, cut from the manuscript as check 39 reads it.
+// Why: each constant ends exactly at its marker, cut from the manuscript as check 39 reads it.
 const FR_041_ALL_GRAY =
   '画面の枠（罫 `S-149`・パネルの地 `S-150`・強調 `S-151`・掴み代の印 `S-231`・文字 `S-147`・押下の緑 `S-183` ほか）にも、無彩色にして描くこと（MUST）'
 const FR_041_SWATCH_PAINT =
@@ -84,10 +84,10 @@ const HUE_TURN = 360
 const SEXTANT = 30
 const WHEEL = 12
 
-// see T-216
+// Spec: T-216
 const S_73_DEFAULT = Number(bare(rowOf('T-216', 'S-73').by['既定'] ?? ''))
 
-// see T-305
+// Spec: T-305
 const ROSTER = specTable('T-305').rows.map((row) => {
   const cell = row.by['色相'] ?? ''
   return { rowId: row.id, hue: cell.includes('S-73') ? S_73_DEFAULT : Number(bare(cell)) }
@@ -197,12 +197,12 @@ const EMPTY_VIEW = {
   tooltips: [],
 } as unknown as ScreenView
 
-// see U-25
+// Spec: U-25
 const U_25 = bare(rowOf('T-103', 'U-25').by['確定名（英）'] ?? '')
 
 const HEADER_HEIGHT = { 'App Header': 37 }
 
-// WHY: a var() ground is read through the root's custom property, as the browser would.
+// Why: a var() ground is read through the root's custom property, as the browser would.
 function groundsOf(built: Stage, element: FakeElement): string[] {
   const style = styleMap(element)
   const written = ['background-color', 'background', 'fill']
@@ -215,8 +215,8 @@ function groundsOf(built: Stage, element: FakeElement): string[] {
   })
 }
 
-// see T-236, T-294
-// WHY: the gray keeps the HSL lightness (T-294's preamble), so S-151's written lightness is the gray every hue gives.
+// Spec: T-236, T-294
+// Why: the gray keeps the HSL lightness (T-294's preamble), so S-151's written lightness is the gray every hue gives.
 function s151LightnessOf(preference: Preference): number {
   const written = bare(rowOf('T-236', 'S-151').by[preference === 'light' ? '明るいテーマ' : '暗いテーマ'] ?? '')
   const lightness = /([\d.]+)%\s*\)$/.exec(written)
@@ -224,7 +224,7 @@ function s151LightnessOf(preference: Preference): number {
   return Number(lightness[1])
 }
 
-// see K-60
+// Spec: K-60
 function swatchColors(preference: Preference, monochrome: boolean): Rgb[] {
   const built = wire({ preference, hue: S_73_DEFAULT, monochrome }, HEADER_HEIGHT)
   surfaceOf(built).showScreenView({ ...EMPTY_VIEW, propertiesPanel: settingsPanel(preference, monochrome) })
@@ -319,7 +319,7 @@ const TEMPLATE_RAW = JSON.parse(readFileSync(TEMPLATE_PATH, 'utf8')) as Record<s
 const ACTUAL_START = '2026-04-06'
 const STOP_DAY = '2026-04-08'
 
-// see PS-3, PS-4, T-019a
+// Spec: PS-3, PS-4, T-019a
 const SHAPES = ['arrow', 'endpointSpan'] as const
 type Shape = (typeof SHAPES)[number]
 const STATES = ['PS-3', 'PS-4', 'PS-2'] as const
@@ -450,7 +450,7 @@ const lineOf = (lines: ReadonlyMap<number, LineBar>, shape: Shape, state: State)
   return found
 }
 
-// WHY: the Task finished on the stop day marks where that day ends: its head tip or its end dot.
+// Why: the Task finished on the stop day marks where that day ends: its head tip or its end dot.
 const finishedEndX = (bar: LineBar): number => bar.head?.[0]?.x ?? bar.dots[bar.dots.length - 1]?.at.x ?? bar.to.x
 
 describe(`CR-673 FR-109 "${FR_109_STOPPED}"`, () => {
