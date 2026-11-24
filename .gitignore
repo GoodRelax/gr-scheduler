@@ -62,6 +62,8 @@ temp/
 # git status and would otherwise count every file inside them as a trap while
 # a workflow is still running.
 .claude/worktrees/
+# Handover-guard registry written by `guard.py registry ack`: holds absolute paths and user names.
+.claude/session-registry/
 
 # ---- Editor / OS / scratch ----
 .vscode/*
