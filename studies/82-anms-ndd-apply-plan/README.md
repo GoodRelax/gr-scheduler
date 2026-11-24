@@ -15,6 +15,7 @@ status: draft
 - 2 回目の版: 2026-11-24。持ち主の答え（`JDG-3821`〜`JDG-3828`）で、道を「β の前に新基準に合わせる」形に組み直した。本書を書いた SUB は、規則・検査・仕様・コードを 1 つも直していない。適用は、持ち主が BGQA9 の 2 回目に答えた後に BOSS が始める。
 - 持ち主への問い: [`goodrelax-qa-b9-anms-ndd-apply.md`](goodrelax-qa-b9-anms-ndd-apply.md)（BGQA9）。1 回目の 7 問は 2026-11-23 に答えが来た（`JDG-3821`〜`JDG-3827`）。持ち主のチャットの指示は `JDG-3828`。2 回目の 5 問（問 8〜12）を出した。
 - 数え方: 7 節と [`measurements/`](measurements/)（3 つの調べの報告と、数を出したスクリプト）。
+- B5（仕様の試し）の結果: [`b5-spec-trial/README.md`](b5-spec-trial/README.md)（2026-11-25）。組み替えの速さは確かめ込みで 1 時間に 130〜190 件、計画には 1 席 100 件を使う。持ち主への問いは BGQA10（[`goodrelax-qa-b10-b5-spec-trial.md`](goodrelax-qa-b10-b5-spec-trial.md)）。
 
 ## 1. 結論
 

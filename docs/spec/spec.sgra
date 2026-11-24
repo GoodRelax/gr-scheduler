@@ -26,15 +26,24 @@ ELEMENTS:
   - TITLE: TITLE
     TYPE: String
     REQUIRED: True
-  - TITLE: STATEMENT
+  - TITLE: INTENT
     TYPE: String
     REQUIRED: True
-  - TITLE: SCENARIO
+  - TITLE: TRIGGER
     TYPE: String
     REQUIRED: True
-  - TITLE: EXTENSIONS
+  - TITLE: PRECONDITION
     TYPE: String
-    REQUIRED: False
+    REQUIRED: True
+  - TITLE: POSTCONDITION
+    TYPE: String
+    REQUIRED: True
+  - TITLE: STEPS
+    TYPE: String
+    REQUIRED: True
+  - TITLE: REJECTION
+    TYPE: String
+    REQUIRED: True
   RELATIONS:
   - TYPE: Parent
     ROLE: Satisfies
