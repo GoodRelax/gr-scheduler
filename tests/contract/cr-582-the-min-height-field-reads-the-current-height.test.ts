@@ -105,7 +105,7 @@ interface PartWord {
 }
 
 const WORDS = JSON.parse(readFileSync(join(SPEC, '_source', 'display-words.json'), 'utf8')) as {
-  readonly properties: readonly { readonly rowId: string; readonly label: Record<DisplayLanguage, string> }[]
+  readonly properties: readonly { readonly specTableRowId: string; readonly label: Record<DisplayLanguage, string> }[]
   readonly rowMinHeightField: readonly PartWord[]
 }
 
@@ -121,7 +121,7 @@ const partWord = (part: string, language: DisplayLanguage): string => {
   return found
 }
 const labelOf = (language: DisplayLanguage): string =>
-  WORDS.properties.find((one) => one.rowId === PR_20)?.label[language] ?? `(no dictionary label for ${PR_20})`
+  WORDS.properties.find((one) => one.specTableRowId === PR_20)?.label[language] ?? `(no dictionary label for ${PR_20})`
 const readoutOf = (heightPx: number, language: DisplayLanguage): string =>
   partWord('currentValue', language).replace(PX_SLOT, String(Math.floor(heightPx + 1 / 2)))
 const escaped = (text: string): string => text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')

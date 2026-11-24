@@ -93,7 +93,7 @@ STATED_COUNT = re.compile(r'(\d+)\s*行ある')
 # order. ⭐ Their Japanese headings travel with the artifact (see `columns`
 # below), read from the table rather than typed out, so no key here has to
 # explain itself in a second language.
-FIELDS = ('rowId', 'surfaces', 'group', 'entryTo', 'authority', 'arms')
+FIELDS = ('specTableRowId', 'surfaces', 'group', 'entryTo', 'authority', 'arms')
 
 # ⭐ THE SEVENTH COLUMN, AND THE ROSTER DOES NOT CARRY IT (CR-589). It names,
 # for the entries of FR-049 and FR-048 only, the settings row the entry
@@ -215,7 +215,7 @@ def icon_of(row, surfaces):
                  '%s does not settle, and the manuscript forbids a new surface '
                  'name' % (row_id, ', '.join(unsettled), SURFACE_TABLE))
     return {
-        'rowId': row_id,
+        'specTableRowId': row_id,
         'surfaces': names,
         'group': None if group == EM_DASH else group,
         'entryTo': row[3],
@@ -331,7 +331,7 @@ def fill_arms_shape(icons, lines):
             if len(named) != 1:
                 sys.exit('generate_icon_roster: %s arms %s and names %d row(s) '
                          'of table %s in its entry column, and exactly one row '
-                         'must be named' % (icon['rowId'], TASK_SHAPE_ARM,
+                         'must be named' % (icon['specTableRowId'], TASK_SHAPE_ARM,
                                             len(named), SHAPE_TABLE))
             icon[ARMS_SHAPE_FIELD] = shapes[named[0]][1]
         elif icon['arms'] == MILESTONE_SHAPE_ARM:
@@ -339,7 +339,7 @@ def fill_arms_shape(icons, lines):
             if len(marked) != 1:
                 sys.exit('generate_icon_roster: %s arms %s and prints %d of the '
                          'marks %s lists, and exactly one mark must be printed'
-                         % (icon['rowId'], MILESTONE_SHAPE_ARM, len(marked),
+                         % (icon['specTableRowId'], MILESTONE_SHAPE_ARM, len(marked),
                             MILESTONE_SHAPE_ROW))
             icon[ARMS_SHAPE_FIELD] = glyphs[marked[0]]
             armed.append(icon[ARMS_SHAPE_FIELD])
@@ -376,7 +376,7 @@ def build():
                  'sentence above it in %s says %d'
                  % (ICON_TABLE, len(rows), REL_GLOSSARY, wanted))
     icons = [icon_of(row, surfaces) for row in rows]
-    seen = sorted(set(icon['rowId'] for icon in icons))
+    seen = sorted(set(icon['specTableRowId'] for icon in icons))
     if len(seen) != len(icons):
         sys.exit('generate_icon_roster: table %s uses %d row id(s) for %d row(s)'
                  % (ICON_TABLE, len(seen), len(icons)))

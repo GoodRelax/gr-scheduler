@@ -90,7 +90,7 @@ const S_73_DEFAULT = Number(bare(rowOf('T-216', 'S-73').by['既定'] ?? ''))
 // Spec: T-305
 const ROSTER = specTable('T-305').rows.map((row) => {
   const cell = row.by['色相'] ?? ''
-  return { rowId: row.id, hue: cell.includes('S-73') ? S_73_DEFAULT : Number(bare(cell)) }
+  return { specTableRowId: row.id, hue: cell.includes('S-73') ? S_73_DEFAULT : Number(bare(cell)) }
 })
 
 function rgbOfHsl(hue: number, saturationPercent: number, lightnessPercent: number): Rgb {
@@ -257,7 +257,7 @@ describe(`CR-673 FR-041 "${FR_041_SWATCH_GRAY}"`, () => {
       const colors = swatchColors(preference, true)
       expect(colors, 'one swatch per T-305 row').toHaveLength(ROSTER.length)
       colors.forEach((rgb, index) => {
-        expect(isAchromatic(rgb), `${ROSTER[index]?.rowId}: rgb(${rgb.map(Math.round).join(',')}) is gray`).toBe(true)
+        expect(isAchromatic(rgb), `${ROSTER[index]?.specTableRowId}: rgb(${rgb.map(Math.round).join(',')}) is gray`).toBe(true)
       })
     })
 
@@ -267,7 +267,7 @@ describe(`CR-673 FR-041 "${FR_041_SWATCH_GRAY}"`, () => {
       expect(colors).toHaveLength(ROSTER.length)
       colors.forEach((rgb, index) => {
         rgb.forEach((channel) => {
-          expect(Math.abs(channel - gray), `${ROSTER[index]?.rowId}: rgb(${rgb.map(Math.round).join(',')})`).toBeLessThanOrEqual(CHANNEL_TOLERANCE)
+          expect(Math.abs(channel - gray), `${ROSTER[index]?.specTableRowId}: rgb(${rgb.map(Math.round).join(',')})`).toBeLessThanOrEqual(CHANNEL_TOLERANCE)
         })
       })
     })
@@ -281,13 +281,13 @@ describe(`CR-673 FR-041 "${FR_041_SWATCH_GRAY}"`, () => {
 })
 
 type Word = { readonly ja: string; readonly en: string }
-type IconWord = { readonly rowId: string; readonly label: Word; readonly hint: Word }
+type IconWord = { readonly specTableRowId: string; readonly label: Word; readonly hint: Word }
 
 const iconsIn = (path: string): readonly IconWord[] =>
   (JSON.parse(readFileSync(path, 'utf8')) as { readonly icons: readonly IconWord[] }).icons
 
 const labelIn = (icons: readonly IconWord[], row: string): Word => {
-  const found = icons.find((one) => one.rowId === row)
+  const found = icons.find((one) => one.specTableRowId === row)
   if (found === undefined) throw new Error(`the dictionary has no icon ${row}`)
   return found.label
 }

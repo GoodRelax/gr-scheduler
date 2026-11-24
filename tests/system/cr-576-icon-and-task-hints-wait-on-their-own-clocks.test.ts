@@ -63,10 +63,10 @@ const PRESSED_ON_OPENING = rowOf(specTable('T-109'), 'IC-20').id
 
 // Spec: FR-038, EZ-2
 const WORDS = JSON.parse(readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8')) as {
-  readonly icons: readonly { readonly rowId: string; readonly hint?: { readonly ja: string; readonly en: string } }[]
+  readonly icons: readonly { readonly specTableRowId: string; readonly hint?: { readonly ja: string; readonly en: string } }[]
 }
 const HINTS: ReadonlyMap<string, readonly string[]> = new Map(
-  WORDS.icons.flatMap((one) => (one.hint === undefined ? [] : [[one.rowId, [one.hint.ja, one.hint.en]] as const])),
+  WORDS.icons.flatMap((one) => (one.hint === undefined ? [] : [[one.specTableRowId, [one.hint.ja, one.hint.en]] as const])),
 )
 
 // Spec: EZ-6

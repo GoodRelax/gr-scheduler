@@ -126,7 +126,7 @@
      "type": "array",
      "minItems": 1,
      "items": {
-      "$ref": "#/$defs/rowId"
+      "$ref": "#/$defs/specTableRowId"
      }
     }
    }
@@ -152,7 +152,7 @@
      "type": "array",
      "minItems": 1,
      "items": {
-      "$ref": "#/$defs/rowId"
+      "$ref": "#/$defs/specTableRowId"
      }
     },
     "note": {
@@ -173,13 +173,13 @@
      "$ref": "#/$defs/identifier"
     },
     "effectArgument": {
-     "$ref": "#/$defs/rowId"
+     "$ref": "#/$defs/specTableRowId"
     },
     "evidence": {
      "type": "array",
      "minItems": 1,
      "items": {
-      "$ref": "#/$defs/rowId"
+      "$ref": "#/$defs/specTableRowId"
      }
     },
     "note": {
@@ -221,7 +221,7 @@
    "additionalProperties": false,
    "properties": {
     "id": {
-     "$ref": "#/$defs/rowId"
+     "$ref": "#/$defs/specTableRowId"
     },
     "keys": {
      "type": "array",
@@ -248,7 +248,7 @@
      "type": "array",
      "minItems": 1,
      "items": {
-      "$ref": "#/$defs/rowId"
+      "$ref": "#/$defs/specTableRowId"
      }
     },
     "note": {
@@ -307,7 +307,7 @@
     }
    }
   },
-  "rowId": {
+  "specTableRowId": {
    "type": "string",
    "pattern": "^[A-Z][A-Za-z]*-[0-9]+[a-z]?$"
   },
@@ -366,7 +366,7 @@
     "rows": {
      "type": "array",
      "items": {
-      "$ref": "#/$defs/rowId"
+      "$ref": "#/$defs/specTableRowId"
      }
     },
     "note": {
@@ -410,7 +410,7 @@
     },
     "column": {
      "description": "With `holds`: the erd.json column (its AT- seat) whose enum values are this region's state keys, in the same order. The generators refuse a mismatch.",
-     "$ref": "#/$defs/rowId"
+     "$ref": "#/$defs/specTableRowId"
     },
     "table": {
      "$ref": "#/$defs/caption"
@@ -457,7 +457,7 @@
      "type": "array",
      "minItems": 1,
      "items": {
-      "$ref": "#/$defs/rowId"
+      "$ref": "#/$defs/specTableRowId"
      }
     },
     "transitions": {
@@ -504,7 +504,7 @@
        "type": "array",
        "minItems": 1,
        "items": {
-        "$ref": "#/$defs/rowId"
+        "$ref": "#/$defs/specTableRowId"
        }
       },
       "note": {
@@ -597,7 +597,7 @@
      "type": "array",
      "minItems": 1,
      "items": {
-      "$ref": "#/$defs/rowId"
+      "$ref": "#/$defs/specTableRowId"
      }
     },
     "entry": {
@@ -658,13 +658,13 @@
      "$ref": "#/$defs/identifier"
     },
     "effectArgument": {
-     "$ref": "#/$defs/rowId"
+     "$ref": "#/$defs/specTableRowId"
     },
     "evidence": {
      "type": "array",
      "minItems": 1,
      "items": {
-      "$ref": "#/$defs/rowId"
+      "$ref": "#/$defs/specTableRowId"
      }
     },
     "note": {
@@ -723,13 +723,13 @@
      "$ref": "#/$defs/identifier"
     },
     "xEffectArgument": {
-     "$ref": "#/$defs/rowId"
+     "$ref": "#/$defs/specTableRowId"
     },
     "xEvidence": {
      "type": "array",
      "minItems": 1,
      "items": {
-      "$ref": "#/$defs/rowId"
+      "$ref": "#/$defs/specTableRowId"
      }
     },
     "xNote": {

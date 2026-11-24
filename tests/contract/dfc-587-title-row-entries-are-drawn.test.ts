@@ -67,10 +67,10 @@ const THEME: ScreenTheme = { preference: 'light', hue: THEME_HUE }
 
 const WORDS = JSON.parse(
   readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8'),
-) as { readonly icons: readonly { readonly rowId: string; readonly label: Record<DisplayLanguage, string> }[] }
+) as { readonly icons: readonly { readonly specTableRowId: string; readonly label: Record<DisplayLanguage, string> }[] }
 
 const legendWord = (language: DisplayLanguage): string =>
-  WORDS.icons.find((one) => one.rowId === LEGEND_ROW)?.label[language] ?? ''
+  WORDS.icons.find((one) => one.specTableRowId === LEGEND_ROW)?.label[language] ?? ''
 
 const LANGUAGES: readonly DisplayLanguage[] = ['ja', 'en']
 

@@ -20,8 +20,8 @@ interface Words {
 }
 
 const WORDS = JSON.parse(readFileSync(join(SPEC, '_source', 'display-words.json'), 'utf8')) as {
-  readonly reasons: readonly { readonly rowId: string; readonly text: Words; readonly nextStep?: Words }[]
-  readonly invariants: readonly { readonly rowId: string; readonly text: Words }[]
+  readonly reasons: readonly { readonly specTableRowId: string; readonly text: Words; readonly nextStep?: Words }[]
+  readonly invariants: readonly { readonly specTableRowId: string; readonly text: Words }[]
   readonly differenceReview?: readonly { readonly part: string; readonly text: Words }[]
 }
 
@@ -50,15 +50,15 @@ const SCHEMA = JSON.parse(readFileSync(join(SPEC, '_source', 'grs-document.schem
 const OUT_OF_RANGE_ZOOM = SCHEMA.properties.documentSettings.properties.zoomX.maximum * 2
 
 /** @purity pure */
-function reasonWords(rowId: string): readonly string[] {
-  const found = WORDS.reasons.find((one) => one.rowId === rowId)
-  if (found === undefined) throw new Error(`the dictionary holds no ${rowId}`)
+function reasonWords(specTableRowId: string): readonly string[] {
+  const found = WORDS.reasons.find((one) => one.specTableRowId === specTableRowId)
+  if (found === undefined) throw new Error(`the dictionary holds no ${specTableRowId}`)
   return [found.text.ja, found.text.en]
 }
 
 /** @purity pure */
-function nextStepWords(rowId: string): readonly string[] {
-  const found = WORDS.reasons.find((one) => one.rowId === rowId)?.nextStep
+function nextStepWords(specTableRowId: string): readonly string[] {
+  const found = WORDS.reasons.find((one) => one.specTableRowId === specTableRowId)?.nextStep
   return found === undefined ? [] : [found.ja, found.en]
 }
 
@@ -213,7 +213,7 @@ test.describe(`T-233 closing (MUST): ${T_233_REFUSAL_CARRIES_THE_ROW}`, () => {
   test.setTimeout(120_000)
 
   test('a file whose tasks form a parent loop is refused with the IV-4 words, not with RS-10', async ({ page }) => {
-    const iv4 = WORDS.invariants.find((one) => one.rowId === 'IV-4')?.text
+    const iv4 = WORDS.invariants.find((one) => one.specTableRowId === 'IV-4')?.text
     expect(iv4?.en ?? '', 'the dictionary words IV-4').not.toBe('')
     await launch(page)
     await dropOnly(page, 'cr-712-loop.json', taskGroupsDocument({ rows: 2, parentTaskOf: { 1: 2, 2: 1 } }))

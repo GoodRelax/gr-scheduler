@@ -403,7 +403,7 @@
 #          section 7 -- names, globs, words and order. JDG-2419. Baseline 0
 #   83     check-source-references.py : a reference between the JSON
 #          files of docs/spec/_source (a pointing field such as `column`,
-#          `rowId`, `valuesOf`, `entity`, or an id in any string, bare or
+#          `specTableRowId`, `valuesOf`, `entity`, or an id in any string, bare or
 #          in a code span) that resolves nowhere, a pointing field whose
 #          value is no id or lands in a family the field does not allow, a
 #          command column on an entity its command does not write, a

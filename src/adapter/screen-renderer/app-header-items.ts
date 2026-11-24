@@ -196,7 +196,7 @@ function headerCommands(
   readings: ScreenViewReadings,
 ): readonly CommandItem[] {
   return inGroupBlocks(iconRoster.icons.filter((row) => row.surfaces.includes(APP_HEADER)))
-    .map((row) => commandItemFor(row.rowId, settings, session, readings))
+    .map((row) => commandItemFor(row.specTableRowId, settings, session, readings))
 }
 
 const DIVIDER_SIDES = 2

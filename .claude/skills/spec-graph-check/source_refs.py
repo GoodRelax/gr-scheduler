@@ -13,7 +13,7 @@ watch those references. JDG-2691 seeds the name allow-list.
 
 WHAT COUNTS AS A REFERENCE. Two kinds, kept apart because they fail apart:
   - STRUCTURED: a field whose whole value names something defined elsewhere
-    -- `column: "AT-156"`, `valuesOf: ["S-69", ...]`, `rowId: "PR-33"`,
+    -- `column: "AT-156"`, `valuesOf: ["S-69", ...]`, `specTableRowId: "PR-33"`,
     `entity: "ColumnFilter"`. The FIELDS table below lists each one, with
     what it points at and, for a row id, the row families it may land in.
     A value that is not an id where an id belongs, that resolves nowhere, or
@@ -94,7 +94,7 @@ FIELDS = {
     ('document-commands.json', 'key'): ('row', {'AT', 'S'}),
     ('document-commands.json', 'valuesOf'): ('row', {'S'}),
     ('document-commands.json', 'row'): ('row', {'PA'}),
-    ('display-words.json', 'rowId'): ('row', None),
+    ('display-words.json', 'specTableRowId'): ('row', None),
     ('display-words.json', 'firstRow'): ('row', {'IC'}),
     ('erd.json', 'defaultFrom'): ('row', {'S'}),
     ('erd.json', 'maxItemsFrom'): ('row', {'S'}),

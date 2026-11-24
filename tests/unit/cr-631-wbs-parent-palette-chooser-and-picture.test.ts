@@ -314,7 +314,7 @@ describe('T-269 PK-17 / PK-18 -- the pointer over the arrows', () => {
 })
 
 describe('FR-135 -- the arrows as drawn', () => {
-  const themed = (rowId: string): string => `ink-${rowId}`
+  const themed = (specTableRowId: string): string => `ink-${specTableRowId}`
   const partsOf = (scene: ReturnType<typeof sceneOf>, drawsOperationState: boolean): readonly string[] =>
     parentTaskParts(scene.geometry, drawnSettingsOf(scene.settings as unknown as DocumentSettings), themed, drawsOperationState)
   const polylineOf = (parts: readonly string[], childUid: number): string => {

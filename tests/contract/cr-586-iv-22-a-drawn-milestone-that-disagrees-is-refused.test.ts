@@ -325,7 +325,7 @@ const milestoneOf = (loop: FrameLoop, taskUid: number): boolean | null =>
   loop.document().schedule.tasks.find((task) => task.uid === taskUid)?.milestone ?? null
 
 interface InvariantWords {
-  readonly rowId: string
+  readonly specTableRowId: string
   readonly text: { readonly ja: string; readonly en: string }
 }
 
@@ -333,7 +333,7 @@ const IV_22_WORDS: string = (() => {
   const words = JSON.parse(readFileSync(join(SPEC, '_source', 'display-words.json'), 'utf8')) as {
     invariants: InvariantWords[]
   }
-  const found = words.invariants.find((one) => one.rowId === 'IV-22')
+  const found = words.invariants.find((one) => one.specTableRowId === 'IV-22')
   if (found === undefined) throw new Error('premise: the dictionary holds no IV-22 entry (CR-586 E-05)')
   return found.text.ja
 })()

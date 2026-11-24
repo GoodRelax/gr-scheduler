@@ -10,7 +10,7 @@ typing the hues out: rule 03 of docs/development-rules forbids re-typing a
 value the specification holds, and `npm run gen:check` is what fails when the
 manuscript moves on without the roster.
 
-The roster is a bare JSON array of { "rowId": "TH-n", "hue": <integer> } in the
+The roster is a bare JSON array of { "specTableRowId": "TH-n", "hue": <integer> } in the
 table's print order. The words each row shows are NOT carried here: the
 dictionary (display-words.json, section themeHues) holds them by the same row
 id, and the row id is the only join.
@@ -109,8 +109,8 @@ def build():
         if not ROW_ID.match(row_id):
             sys.exit('generate_theme_hue_roster: table %s holds a row %r whose '
                      'id is not TH-n' % (HUE_TABLE, row_id))
-        roster.append({'rowId': row_id, 'hue': hue_of(row_id, cell, setting)})
-    ids = [one['rowId'] for one in roster]
+        roster.append({'specTableRowId': row_id, 'hue': hue_of(row_id, cell, setting)})
+    ids = [one['specTableRowId'] for one in roster]
     hues = [one['hue'] for one in roster]
     if len(set(ids)) != len(ids):
         sys.exit('generate_theme_hue_roster: table %s uses one row id twice'

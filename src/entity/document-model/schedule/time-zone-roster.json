@@ -1,272 +1,272 @@
 [
  {
-  "rowId": "ZN-29",
+  "specTableRowId": "ZN-29",
   "key": "UTC-12:00",
   "offsetMinutes": -720,
   "isDaylight": false,
   "abbreviation": null
  },
  {
-  "rowId": "ZN-30",
+  "specTableRowId": "ZN-30",
   "key": "UTC-11:00",
   "offsetMinutes": -660,
   "isDaylight": false,
   "abbreviation": "SST"
  },
  {
-  "rowId": "ZN-31",
+  "specTableRowId": "ZN-31",
   "key": "UTC-10:00",
   "offsetMinutes": -600,
   "isDaylight": false,
   "abbreviation": "HST"
  },
  {
-  "rowId": "ZN-32",
+  "specTableRowId": "ZN-32",
   "key": "UTC-09:00",
   "offsetMinutes": -540,
   "isDaylight": false,
   "abbreviation": "AKST"
  },
  {
-  "rowId": "ZN-33",
+  "specTableRowId": "ZN-33",
   "key": "UTC-08:00",
   "offsetMinutes": -480,
   "isDaylight": false,
   "abbreviation": "PST"
  },
  {
-  "rowId": "ZN-34",
+  "specTableRowId": "ZN-34",
   "key": "UTC-08:00 DST",
   "offsetMinutes": -480,
   "isDaylight": true,
   "abbreviation": "AKDT"
  },
  {
-  "rowId": "ZN-35",
+  "specTableRowId": "ZN-35",
   "key": "UTC-07:00",
   "offsetMinutes": -420,
   "isDaylight": false,
   "abbreviation": "MST"
  },
  {
-  "rowId": "ZN-36",
+  "specTableRowId": "ZN-36",
   "key": "UTC-07:00 DST",
   "offsetMinutes": -420,
   "isDaylight": true,
   "abbreviation": "PDT"
  },
  {
-  "rowId": "ZN-37",
+  "specTableRowId": "ZN-37",
   "key": "UTC-06:00",
   "offsetMinutes": -360,
   "isDaylight": false,
   "abbreviation": "CST"
  },
  {
-  "rowId": "ZN-38",
+  "specTableRowId": "ZN-38",
   "key": "UTC-06:00 DST",
   "offsetMinutes": -360,
   "isDaylight": true,
   "abbreviation": "MDT"
  },
  {
-  "rowId": "ZN-39",
+  "specTableRowId": "ZN-39",
   "key": "UTC-05:00",
   "offsetMinutes": -300,
   "isDaylight": false,
   "abbreviation": "EST"
  },
  {
-  "rowId": "ZN-40",
+  "specTableRowId": "ZN-40",
   "key": "UTC-05:00 DST",
   "offsetMinutes": -300,
   "isDaylight": true,
   "abbreviation": "CDT"
  },
  {
-  "rowId": "ZN-41",
+  "specTableRowId": "ZN-41",
   "key": "UTC-04:00",
   "offsetMinutes": -240,
   "isDaylight": false,
   "abbreviation": "AST"
  },
  {
-  "rowId": "ZN-42",
+  "specTableRowId": "ZN-42",
   "key": "UTC-04:00 DST",
   "offsetMinutes": -240,
   "isDaylight": true,
   "abbreviation": "EDT"
  },
  {
-  "rowId": "ZN-43",
+  "specTableRowId": "ZN-43",
   "key": "UTC-03:00",
   "offsetMinutes": -180,
   "isDaylight": false,
   "abbreviation": "BRT"
  },
  {
-  "rowId": "ZN-44",
+  "specTableRowId": "ZN-44",
   "key": "UTC-03:00 DST",
   "offsetMinutes": -180,
   "isDaylight": true,
   "abbreviation": "ADT"
  },
  {
-  "rowId": "ZN-45",
+  "specTableRowId": "ZN-45",
   "key": "UTC-02:00",
   "offsetMinutes": -120,
   "isDaylight": false,
   "abbreviation": "WGT"
  },
  {
-  "rowId": "ZN-46",
+  "specTableRowId": "ZN-46",
   "key": "UTC-01:00",
   "offsetMinutes": -60,
   "isDaylight": false,
   "abbreviation": "CVT"
  },
  {
-  "rowId": "ZN-47",
+  "specTableRowId": "ZN-47",
   "key": "UTC+00:00",
   "offsetMinutes": 0,
   "isDaylight": false,
   "abbreviation": "UTC"
  },
  {
-  "rowId": "ZN-48",
+  "specTableRowId": "ZN-48",
   "key": "UTC+00:00 DST",
   "offsetMinutes": 0,
   "isDaylight": true,
   "abbreviation": "AZOST"
  },
  {
-  "rowId": "ZN-49",
+  "specTableRowId": "ZN-49",
   "key": "UTC+01:00",
   "offsetMinutes": 60,
   "isDaylight": false,
   "abbreviation": "CET"
  },
  {
-  "rowId": "ZN-50",
+  "specTableRowId": "ZN-50",
   "key": "UTC+01:00 DST",
   "offsetMinutes": 60,
   "isDaylight": true,
   "abbreviation": "BST"
  },
  {
-  "rowId": "ZN-51",
+  "specTableRowId": "ZN-51",
   "key": "UTC+02:00",
   "offsetMinutes": 120,
   "isDaylight": false,
   "abbreviation": "EET"
  },
  {
-  "rowId": "ZN-52",
+  "specTableRowId": "ZN-52",
   "key": "UTC+02:00 DST",
   "offsetMinutes": 120,
   "isDaylight": true,
   "abbreviation": "CEST"
  },
  {
-  "rowId": "ZN-53",
+  "specTableRowId": "ZN-53",
   "key": "UTC+03:00",
   "offsetMinutes": 180,
   "isDaylight": false,
   "abbreviation": "MSK"
  },
  {
-  "rowId": "ZN-54",
+  "specTableRowId": "ZN-54",
   "key": "UTC+03:00 DST",
   "offsetMinutes": 180,
   "isDaylight": true,
   "abbreviation": "EEST"
  },
  {
-  "rowId": "ZN-55",
+  "specTableRowId": "ZN-55",
   "key": "UTC+04:00",
   "offsetMinutes": 240,
   "isDaylight": false,
   "abbreviation": "GST"
  },
  {
-  "rowId": "ZN-56",
+  "specTableRowId": "ZN-56",
   "key": "UTC+05:00",
   "offsetMinutes": 300,
   "isDaylight": false,
   "abbreviation": "PKT"
  },
  {
-  "rowId": "ZN-57",
+  "specTableRowId": "ZN-57",
   "key": "UTC+05:30",
   "offsetMinutes": 330,
   "isDaylight": false,
   "abbreviation": "IST"
  },
  {
-  "rowId": "ZN-58",
+  "specTableRowId": "ZN-58",
   "key": "UTC+06:00",
   "offsetMinutes": 360,
   "isDaylight": false,
   "abbreviation": "BST"
  },
  {
-  "rowId": "ZN-59",
+  "specTableRowId": "ZN-59",
   "key": "UTC+07:00",
   "offsetMinutes": 420,
   "isDaylight": false,
   "abbreviation": "WIB"
  },
  {
-  "rowId": "ZN-60",
+  "specTableRowId": "ZN-60",
   "key": "UTC+08:00",
   "offsetMinutes": 480,
   "isDaylight": false,
   "abbreviation": "CST"
  },
  {
-  "rowId": "ZN-61",
+  "specTableRowId": "ZN-61",
   "key": "UTC+09:00",
   "offsetMinutes": 540,
   "isDaylight": false,
   "abbreviation": "JST"
  },
  {
-  "rowId": "ZN-62",
+  "specTableRowId": "ZN-62",
   "key": "UTC+10:00",
   "offsetMinutes": 600,
   "isDaylight": false,
   "abbreviation": "AEST"
  },
  {
-  "rowId": "ZN-63",
+  "specTableRowId": "ZN-63",
   "key": "UTC+11:00",
   "offsetMinutes": 660,
   "isDaylight": false,
   "abbreviation": "SBT"
  },
  {
-  "rowId": "ZN-64",
+  "specTableRowId": "ZN-64",
   "key": "UTC+11:00 DST",
   "offsetMinutes": 660,
   "isDaylight": true,
   "abbreviation": "AEDT"
  },
  {
-  "rowId": "ZN-65",
+  "specTableRowId": "ZN-65",
   "key": "UTC+12:00",
   "offsetMinutes": 720,
   "isDaylight": false,
   "abbreviation": "NZST"
  },
  {
-  "rowId": "ZN-66",
+  "specTableRowId": "ZN-66",
   "key": "UTC+13:00",
   "offsetMinutes": 780,
   "isDaylight": false,
   "abbreviation": "WST"
  },
  {
-  "rowId": "ZN-67",
+  "specTableRowId": "ZN-67",
   "key": "UTC+13:00 DST",
   "offsetMinutes": 780,
   "isDaylight": true,

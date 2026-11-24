@@ -50,7 +50,7 @@ export interface TaskFiguresInput {
   readonly geometry: ScheduleGeometry
   readonly settings: DrawnSettings
   readonly picture: SchedulePicture
-  readonly themed: (rowId: string) => string
+  readonly themed: (specTableRowId: string) => string
   readonly chosen: ChosenColor
   readonly placedOf: ReadonlyMap<number, Placed>
   readonly visualOf: ReadonlyMap<number, Schedule['taskVisuals'][number]>
@@ -94,7 +94,7 @@ export interface BaselineOutlineParts {
 export interface DependencyLinksInput {
   readonly geometry: ScheduleGeometry
   readonly settings: DrawnSettings
-  readonly themed: (rowId: string) => string
+  readonly themed: (specTableRowId: string) => string
   readonly selectedLinks: ReadonlySet<string>
   readonly landingLink: string | null
   readonly haloCuts: readonly HaloCut[]
@@ -178,7 +178,7 @@ function paintOf(
 
 // Spec: ZO-13, DA-2, DA-3
 /** @purity pure */
-function deadlineSvg(deadline: DeadlineGeometry, themed: (rowId: string) => string, key: string): string {
+function deadlineSvg(deadline: DeadlineGeometry, themed: (specTableRowId: string) => string, key: string): string {
   return (
     `<polygon points="${pointsOf(deadline.outline)}" fill="${themed('S-364')}"` +
     ` stroke="${themed('S-146')}" stroke-width="${rounded(deadline.haloWidth)}"` +
@@ -213,7 +213,7 @@ function isCulled(box: ScreenRect | null, input: Pick<TaskFiguresInput,
 /** @purity pure */
 function markColorsOf(
   symbol: MarkerGeometry['symbol'],
-  themed: (rowId: string) => string,
+  themed: (specTableRowId: string) => string,
 ): { readonly ground: string; readonly ink: string } {
   switch (symbol) {
     case 'PM-4':
@@ -336,7 +336,7 @@ function markSymbolSvg(marker: MarkerGeometry, ink: string, settings: MarkerStro
 /** @purity pure */
 function markerSvg(
   marker: MarkerGeometry,
-  themed: (rowId: string) => string,
+  themed: (specTableRowId: string) => string,
   faintness: number,
   settings: MarkerStroke,
   key: string,
@@ -355,7 +355,7 @@ function markerSvg(
 
 // Spec: FR-133, T-021, T-315, SQ-5, DT-1, RW-4
 /** @purity pure */
-export function markerGlyphSvg(symbol: MarkerGeometry['symbol'], themed: (rowId: string) => string): string {
+export function markerGlyphSvg(symbol: MarkerGeometry['symbol'], themed: (specTableRowId: string) => string): string {
   const side = SETTINGS_CONSTANTS.markerSize
   const stroke = SETTINGS_CONSTANTS.markerStroke
   const marker = { symbol, center: { x: side / 2, y: side / 2 }, radius: (side - stroke) / 2 }

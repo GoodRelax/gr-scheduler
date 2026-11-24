@@ -38,9 +38,9 @@ const PASTE = keyOf('V', { ctrl: true })
 const TASK_GROUP_PANEL = bare(rowOf('T-103', 'U-22').by['確定名（英）'] ?? '')
 
 /** @purity pure */
-function wordsOf(rowId: string): { readonly ja: string; readonly en: string } {
-  const found = (DISPLAY_WORDS.reasons as { rowId: string; text: { ja: string; en: string } }[]).find((one) => one.rowId === rowId)
-  if (found === undefined) throw new Error(`the dictionary holds no ${rowId}`)
+function wordsOf(specTableRowId: string): { readonly ja: string; readonly en: string } {
+  const found = (DISPLAY_WORDS.reasons as { specTableRowId: string; text: { ja: string; en: string } }[]).find((one) => one.specTableRowId === specTableRowId)
+  if (found === undefined) throw new Error(`the dictionary holds no ${specTableRowId}`)
   return found.text
 }
 

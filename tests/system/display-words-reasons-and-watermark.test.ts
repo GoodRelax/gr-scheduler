@@ -58,22 +58,22 @@ function dictionaryWordings(): readonly Wording[] {
 }
 
 /** @purity semi-pure-mutable */
-function dictionaryTextOf(section: string, rowId: string, language: string): string {
+function dictionaryTextOf(section: string, specTableRowId: string, language: string): string {
   const shape = JSON.parse(readFileSync(DICTIONARY, 'utf8')) as Record<string, unknown>
   const rows = shape[section]
   if (!Array.isArray(rows)) {
     throw new Error(`${DICTIONARY} holds no section named ${section}`)
   }
   for (const row of rows as readonly Record<string, unknown>[]) {
-    if (row['rowId'] !== rowId) continue
+    if (row['specTableRowId'] !== specTableRowId) continue
     const text = row['text']
     if (text !== null && typeof text === 'object') {
       const said = (text as Record<string, unknown>)[language]
       if (typeof said === 'string' && said.length > 0) return said
     }
-    throw new Error(`${DICTIONARY} row ${rowId} holds no ${language} text`)
+    throw new Error(`${DICTIONARY} row ${specTableRowId} holds no ${language} text`)
   }
-  throw new Error(`${DICTIONARY} section ${section} holds no row ${rowId}`)
+  throw new Error(`${DICTIONARY} section ${section} holds no row ${specTableRowId}`)
 }
 
 
@@ -87,20 +87,20 @@ interface BannedShortening {
 }
 
 /** @purity pure */
-function bannedShorteningOf(cell: string, rowId: string): BannedShortening {
+function bannedShorteningOf(cell: string, specTableRowId: string): BannedShortening {
   const settled = cell.split(FULL_STOP)[0]?.trim() ?? ''
   const opened = cell.indexOf(QUOTE_OPEN)
   const shut = cell.indexOf(QUOTE_SHUT, opened + 1)
   const banned = opened < 0 || shut < 0 ? '' : cell.slice(opened + 1, shut).trim()
   if (settled.length === 0 || banned.length === 0) {
     throw new Error(
-      `table T-103 row ${rowId} does not read as "settled term, then a quoted spelling": ` +
+      `table T-103 row ${specTableRowId} does not read as "settled term, then a quoted spelling": ` +
         JSON.stringify(cell),
     )
   }
   if (!settled.startsWith(banned) || settled === banned) {
     throw new Error(
-      `table T-103 row ${rowId} bans ${JSON.stringify(banned)}, which is not a shortening of the ` +
+      `table T-103 row ${specTableRowId} bans ${JSON.stringify(banned)}, which is not a shortening of the ` +
         `settled term ${JSON.stringify(settled)} -- this file reads the row wrongly`,
     )
   }
@@ -398,8 +398,8 @@ test('DFC-341: no reason the product can carry is missing from table T-233', () 
   ).toContain('RS-15')
 
   const words = new Set(
-    (JSON.parse(readFileSync(DICTIONARY, 'utf8')) as { reasons?: { rowId?: string }[] }).reasons?.map(
-      (one) => one.rowId ?? '',
+    (JSON.parse(readFileSync(DICTIONARY, 'utf8')) as { reasons?: { specTableRowId?: string }[] }).reasons?.map(
+      (one) => one.specTableRowId ?? '',
     ) ?? [],
   )
   expect(

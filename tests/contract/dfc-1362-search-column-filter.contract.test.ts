@@ -101,7 +101,7 @@ const WORDS = JSON.parse(
   readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8'),
 ) as {
   readonly searchPanel: readonly { readonly part: string; readonly text: Words }[]
-  readonly planActualStates: readonly { readonly rowId: string; readonly text: Words }[]
+  readonly planActualStates: readonly { readonly specTableRowId: string; readonly text: Words }[]
 }
 
 function found<T>(value: T | undefined | null, what: string): T {
@@ -112,7 +112,7 @@ function found<T>(value: T | undefined | null, what: string): T {
 const panelWordOf = (part: string, language: DisplayLanguage): string =>
   found(WORDS.searchPanel.find((one) => one.part === part), `search panel word ${part}`).text[language]
 const stateWordOf = (row: string, language: DisplayLanguage): string =>
-  found(WORDS.planActualStates.find((one) => one.rowId === row), `state word ${row}`).text[language]
+  found(WORDS.planActualStates.find((one) => one.specTableRowId === row), `state word ${row}`).text[language]
 
 const BLANK_JA = panelWordOf('blank', 'ja')
 const NO_NAME_JA = panelWordOf('noName', 'ja')

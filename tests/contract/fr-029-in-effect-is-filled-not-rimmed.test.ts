@@ -186,11 +186,11 @@ const themeOf = (preference: ScreenTheme['preference']): ScreenTheme => ({
  * ⛔ NO COLOR IS TYPED HERE (rule 03 section 1). A row that follows the hue
  * writes it as the letter `H`, which `S-73` fills in.
  */
-function t236(rowId: string, preference: ScreenTheme['preference']): string {
-  const row = rowOf('T-236', rowId)
+function t236(specTableRowId: string, preference: ScreenTheme['preference']): string {
+  const row = rowOf('T-236', specTableRowId)
   const cell = bare(row.by[preference === 'dark' ? '暗いテーマ' : '明るいテーマ'] ?? '')
   if (!/^(#|hsl\(|rgba?\()/.test(cell)) {
-    throw new Error(`表 T-236 ${rowId} states no color for this rendering: ${cell}`)
+    throw new Error(`表 T-236 ${specTableRowId} states no color for this rendering: ${cell}`)
   }
   return cell.replace('H', String(THEME_HUE)).replace(/\s+/g, '').toLowerCase()
 }

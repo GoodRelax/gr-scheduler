@@ -1,7 +1,7 @@
 {
  "$comment": "GENERATED -- do not edit by hand. Generated from docs/spec/_assets/tbl-glossary.md, table T-109 (the whole of the icons, FR-029). Rebuild: npm run gen -- npm run gen:check fails on drift. The generator is tools/generate_icon_roster.py. An icon is carried by its row id alone: table T-109 deliberately has no English column and no shape column, and the shapes are figure F-019. The `columns` map names SIX of the seven columns of that table; the settings-row column is not carried here, because tools/generate_entity_types.py prints it into src/. `armsShape` is a seventh field and no column of it -- it is derived from table T-012 of docs/spec/01-04-requirements.md and from docs/spec/_source/erd.json, and it exists because the arm column names a KIND of arm that stands against several entries at once.",
  "columns": {
-  "rowId": "行 ID",
+  "specTableRowId": "行 ID",
   "surfaces": "面",
   "group": "群",
   "entryTo": "何の入口か",
@@ -10,7 +10,7 @@
  },
  "icons": [
   {
-   "rowId": "IC-7",
+   "specTableRowId": "IC-7",
    "surfaces": [
     "App Header"
    ],
@@ -21,7 +21,7 @@
    "armsShape": null
   },
   {
-   "rowId": "IC-98",
+   "specTableRowId": "IC-98",
    "surfaces": [
     "App Header"
    ],
@@ -32,7 +32,7 @@
    "armsShape": null
   },
   {
-   "rowId": "IC-1",
+   "specTableRowId": "IC-1",
    "surfaces": [
     "App Header"
    ],
@@ -43,7 +43,7 @@
    "armsShape": null
   },
   {
-   "rowId": "IC-2",
+   "specTableRowId": "IC-2",
    "surfaces": [
     "App Header"
    ],
@@ -54,7 +54,7 @@
    "armsShape": null
   },
   {
-   "rowId": "IC-3",
+   "specTableRowId": "IC-3",
    "surfaces": [
     "App Header"
    ],
@@ -65,7 +65,7 @@
    "armsShape": null
   },
   {
-   "rowId": "IC-4",
+   "specTableRowId": "IC-4",
    "surfaces": [
     "App Header"
    ],
@@ -76,7 +76,7 @@
    "armsShape": null
   },
   {
-   "rowId": "IC-8",
+   "specTableRowId": "IC-8",
    "surfaces": [
     "App Header"
    ],
@@ -87,7 +87,7 @@
    "armsShape": null
   },
   {
-   "rowId": "IC-9",
+   "specTableRowId": "IC-9",
    "surfaces": [
     "App Header"
    ],
@@ -98,7 +98,7 @@
    "armsShape": null
   },
   {
-   "rowId": "IC-10",
+   "specTableRowId": "IC-10",
    "surfaces": [
     "App Header"
    ],
@@ -109,7 +109,7 @@
    "armsShape": null
   },
   {
-   "rowId": "IC-104",
+   "specTableRowId": "IC-104",
    "surfaces": [
     "App Header"
    ],
@@ -120,7 +120,7 @@
    "armsShape": null
   },
   {
-   "rowId": "IC-105",
+   "specTableRowId": "IC-105",
    "surfaces": [
     "App Header"
    ],
@@ -131,7 +131,7 @@
    "armsShape": null
   },
   {
-   "rowId": "IC-11",
+   "specTableRowId": "IC-11",
    "surfaces": [
     "App Header"
    ],
@@ -142,7 +142,7 @@
    "armsShape": null
   },
   {
-   "rowId": "IC-12",
+   "specTableRowId": "IC-12",
    "surfaces": [
     "App Header"
    ],
@@ -153,7 +153,7 @@
    "armsShape": null
   },
   {
-   "rowId": "IC-13",
+   "specTableRowId": "IC-13",
    "surfaces": [
     "App Header"
    ],
@@ -164,7 +164,7 @@
    "armsShape": null
   },
   {
-   "rowId": "IC-14",
+   "specTableRowId": "IC-14",
    "surfaces": [
     "App Header"
    ],
@@ -175,7 +175,7 @@
    "armsShape": null
   },
   {
-   "rowId": "IC-15",
+   "specTableRowId": "IC-15",
    "surfaces": [
     "App Header"
    ],
@@ -186,7 +186,7 @@
    "armsShape": null
   },
   {
-   "rowId": "IC-100",
+   "specTableRowId": "IC-100",
    "surfaces": [
     "App Header"
    ],
@@ -197,7 +197,7 @@
    "armsShape": null
   },
   {
-   "rowId": "IC-16",
+   "specTableRowId": "IC-16",
    "surfaces": [
     "App Header"
    ],
@@ -208,7 +208,7 @@
    "armsShape": null
   },
   {
-   "rowId": "IC-5",
+   "specTableRowId": "IC-5",
    "surfaces": [
     "App Header"
    ],
@@ -219,7 +219,7 @@
    "armsShape": null
   },
   {
-   "rowId": "IC-6",
+   "specTableRowId": "IC-6",
    "surfaces": [
     "App Header"
    ],
@@ -230,7 +230,7 @@
    "armsShape": null
   },
   {
-   "rowId": "IC-117",
+   "specTableRowId": "IC-117",
    "surfaces": [
     "App Header"
    ],
@@ -241,7 +241,7 @@
    "armsShape": null
   },
   {
-   "rowId": "IC-107",
+   "specTableRowId": "IC-107",
    "surfaces": [
     "App Header"
    ],
@@ -252,7 +252,7 @@
    "armsShape": null
   },
   {
-   "rowId": "IC-115",
+   "specTableRowId": "IC-115",
    "surfaces": [
     "App Header"
    ],
@@ -263,7 +263,7 @@
    "armsShape": null
   },
   {
-   "rowId": "IC-20",
+   "specTableRowId": "IC-20",
    "surfaces": [
     "App Header"
    ],
@@ -274,7 +274,7 @@
    "armsShape": null
   },
   {
-   "rowId": "IC-17",
+   "specTableRowId": "IC-17",
    "surfaces": [
     "App Header"
    ],
@@ -285,7 +285,7 @@
    "armsShape": null
   },
   {
-   "rowId": "IC-21",
+   "specTableRowId": "IC-21",
    "surfaces": [
     "App Header"
    ],
@@ -296,7 +296,7 @@
    "armsShape": null
   },
   {
-   "rowId": "IC-22",
+   "specTableRowId": "IC-22",
    "surfaces": [
     "App Header"
    ],
@@ -307,7 +307,7 @@
    "armsShape": null
   },
   {
-   "rowId": "IC-23",
+   "specTableRowId": "IC-23",
    "surfaces": [
     "Command Palette"
    ],
@@ -318,7 +318,7 @@
    "armsShape": "rectangle"
   },
   {
-   "rowId": "IC-24",
+   "specTableRowId": "IC-24",
    "surfaces": [
     "Command Palette"
    ],
@@ -329,7 +329,7 @@
    "armsShape": "chevron"
   },
   {
-   "rowId": "IC-25",
+   "specTableRowId": "IC-25",
    "surfaces": [
     "Command Palette"
    ],
@@ -340,7 +340,7 @@
    "armsShape": "arrow"
   },
   {
-   "rowId": "IC-26",
+   "specTableRowId": "IC-26",
    "surfaces": [
     "Command Palette"
    ],
@@ -351,7 +351,7 @@
    "armsShape": "endpointSpan"
   },
   {
-   "rowId": "IC-27",
+   "specTableRowId": "IC-27",
    "surfaces": [
     "Command Palette"
    ],
@@ -362,7 +362,7 @@
    "armsShape": "circle"
   },
   {
-   "rowId": "IC-28",
+   "specTableRowId": "IC-28",
    "surfaces": [
     "Command Palette"
    ],
@@ -373,7 +373,7 @@
    "armsShape": "hexagon"
   },
   {
-   "rowId": "IC-29",
+   "specTableRowId": "IC-29",
    "surfaces": [
     "Command Palette"
    ],
@@ -384,7 +384,7 @@
    "armsShape": "pentagon"
   },
   {
-   "rowId": "IC-30",
+   "specTableRowId": "IC-30",
    "surfaces": [
     "Command Palette"
    ],
@@ -395,7 +395,7 @@
    "armsShape": "diamond"
   },
   {
-   "rowId": "IC-31",
+   "specTableRowId": "IC-31",
    "surfaces": [
     "Command Palette"
    ],
@@ -406,7 +406,7 @@
    "armsShape": "square"
   },
   {
-   "rowId": "IC-32",
+   "specTableRowId": "IC-32",
    "surfaces": [
     "Command Palette"
    ],
@@ -417,7 +417,7 @@
    "armsShape": "star"
   },
   {
-   "rowId": "IC-33",
+   "specTableRowId": "IC-33",
    "surfaces": [
     "Command Palette"
    ],
@@ -428,7 +428,7 @@
    "armsShape": "triangleUp"
   },
   {
-   "rowId": "IC-34",
+   "specTableRowId": "IC-34",
    "surfaces": [
     "Command Palette"
    ],
@@ -439,7 +439,7 @@
    "armsShape": "triangleDown"
   },
   {
-   "rowId": "IC-83",
+   "specTableRowId": "IC-83",
    "surfaces": [
     "Command Palette"
    ],
@@ -450,7 +450,7 @@
    "armsShape": "file"
   },
   {
-   "rowId": "IC-84",
+   "specTableRowId": "IC-84",
    "surfaces": [
     "Command Palette"
    ],
@@ -461,7 +461,7 @@
    "armsShape": "box"
   },
   {
-   "rowId": "IC-85",
+   "specTableRowId": "IC-85",
    "surfaces": [
     "Command Palette"
    ],
@@ -472,7 +472,7 @@
    "armsShape": "floppyDisk"
   },
   {
-   "rowId": "IC-86",
+   "specTableRowId": "IC-86",
    "surfaces": [
     "Command Palette"
    ],
@@ -483,7 +483,7 @@
    "armsShape": "cylinder"
   },
   {
-   "rowId": "IC-87",
+   "specTableRowId": "IC-87",
    "surfaces": [
     "Command Palette"
    ],
@@ -494,7 +494,7 @@
    "armsShape": "person"
   },
   {
-   "rowId": "IC-88",
+   "specTableRowId": "IC-88",
    "surfaces": [
     "Command Palette"
    ],
@@ -505,7 +505,7 @@
    "armsShape": "smile"
   },
   {
-   "rowId": "IC-89",
+   "specTableRowId": "IC-89",
    "surfaces": [
     "Command Palette"
    ],
@@ -516,7 +516,7 @@
    "armsShape": "beerMug"
   },
   {
-   "rowId": "IC-61",
+   "specTableRowId": "IC-61",
    "surfaces": [
     "Command Palette"
    ],
@@ -527,7 +527,7 @@
    "armsShape": null
   },
   {
-   "rowId": "IC-35",
+   "specTableRowId": "IC-35",
    "surfaces": [
     "Command Palette"
    ],
@@ -538,7 +538,7 @@
    "armsShape": null
   },
   {
-   "rowId": "IC-36",
+   "specTableRowId": "IC-36",
    "surfaces": [
     "Command Palette"
    ],
@@ -549,7 +549,7 @@
    "armsShape": null
   },
   {
-   "rowId": "IC-37",
+   "specTableRowId": "IC-37",
    "surfaces": [
     "Command Palette"
    ],
@@ -560,7 +560,7 @@
    "armsShape": null
   },
   {
-   "rowId": "IC-38",
+   "specTableRowId": "IC-38",
    "surfaces": [
     "Command Palette"
    ],
@@ -571,7 +571,7 @@
    "armsShape": null
   },
   {
-   "rowId": "IC-39",
+   "specTableRowId": "IC-39",
    "surfaces": [
     "Command Palette"
    ],
@@ -582,7 +582,7 @@
    "armsShape": null
   },
   {
-   "rowId": "IC-40",
+   "specTableRowId": "IC-40",
    "surfaces": [
     "Command Palette"
    ],
@@ -593,7 +593,7 @@
    "armsShape": null
   },
   {
-   "rowId": "IC-41",
+   "specTableRowId": "IC-41",
    "surfaces": [
     "Command Palette"
    ],
@@ -604,7 +604,7 @@
    "armsShape": null
   },
   {
-   "rowId": "IC-42",
+   "specTableRowId": "IC-42",
    "surfaces": [
     "Command Palette"
    ],
@@ -615,7 +615,7 @@
    "armsShape": null
   },
   {
-   "rowId": "IC-43",
+   "specTableRowId": "IC-43",
    "surfaces": [
     "Command Palette"
    ],
@@ -626,7 +626,7 @@
    "armsShape": null
   },
   {
-   "rowId": "IC-79",
+   "specTableRowId": "IC-79",
    "surfaces": [
     "Command Palette"
    ],
@@ -637,7 +637,7 @@
    "armsShape": null
   },
   {
-   "rowId": "IC-80",
+   "specTableRowId": "IC-80",
    "surfaces": [
     "Command Palette"
    ],
@@ -648,7 +648,7 @@
    "armsShape": null
   },
   {
-   "rowId": "IC-81",
+   "specTableRowId": "IC-81",
    "surfaces": [
     "Command Palette"
    ],
@@ -659,7 +659,7 @@
    "armsShape": null
   },
   {
-   "rowId": "IC-141",
+   "specTableRowId": "IC-141",
    "surfaces": [
     "Command Palette"
    ],
@@ -670,7 +670,7 @@
    "armsShape": null
   },
   {
-   "rowId": "IC-142",
+   "specTableRowId": "IC-142",
    "surfaces": [
     "Command Palette"
    ],
@@ -681,7 +681,7 @@
    "armsShape": null
   },
   {
-   "rowId": "IC-99",
+   "specTableRowId": "IC-99",
    "surfaces": [
     "Command Palette"
    ],
@@ -692,7 +692,7 @@
    "armsShape": null
   },
   {
-   "rowId": "IC-101",
+   "specTableRowId": "IC-101",
    "surfaces": [
     "Command Palette"
    ],
@@ -703,7 +703,7 @@
    "armsShape": null
   },
   {
-   "rowId": "IC-103",
+   "specTableRowId": "IC-103",
    "surfaces": [
     "Command Palette"
    ],
@@ -714,7 +714,7 @@
    "armsShape": null
   },
   {
-   "rowId": "IC-44",
+   "specTableRowId": "IC-44",
    "surfaces": [
     "Command Palette"
    ],
@@ -725,7 +725,7 @@
    "armsShape": null
   },
   {
-   "rowId": "IC-47",
+   "specTableRowId": "IC-47",
    "surfaces": [
     "Command Palette"
    ],
@@ -736,7 +736,7 @@
    "armsShape": null
   },
   {
-   "rowId": "IC-48",
+   "specTableRowId": "IC-48",
    "surfaces": [
     "Command Palette"
    ],
@@ -747,7 +747,7 @@
    "armsShape": null
   },
   {
-   "rowId": "IC-45",
+   "specTableRowId": "IC-45",
    "surfaces": [
     "Command Palette"
    ],
@@ -758,7 +758,7 @@
    "armsShape": null
   },
   {
-   "rowId": "IC-50",
+   "specTableRowId": "IC-50",
    "surfaces": [
     "Command Palette"
    ],
@@ -769,7 +769,7 @@
    "armsShape": null
   },
   {
-   "rowId": "IC-52",
+   "specTableRowId": "IC-52",
    "surfaces": [
     "Help Modal",
     "Resource List",
@@ -787,7 +787,7 @@
    "armsShape": null
   },
   {
-   "rowId": "IC-53",
+   "specTableRowId": "IC-53",
    "surfaces": [
     "Command Palette"
    ],
@@ -798,7 +798,7 @@
    "armsShape": null
   },
   {
-   "rowId": "IC-75",
+   "specTableRowId": "IC-75",
    "surfaces": [
     "Command Palette"
    ],
@@ -809,7 +809,7 @@
    "armsShape": null
   },
   {
-   "rowId": "IC-54",
+   "specTableRowId": "IC-54",
    "surfaces": [
     "Command Palette"
    ],
@@ -820,7 +820,7 @@
    "armsShape": null
   },
   {
-   "rowId": "IC-102",
+   "specTableRowId": "IC-102",
    "surfaces": [
     "Help Modal"
    ],
@@ -831,7 +831,7 @@
    "armsShape": null
   },
   {
-   "rowId": "IC-128",
+   "specTableRowId": "IC-128",
    "surfaces": [
     "Help Modal"
    ],
@@ -842,7 +842,7 @@
    "armsShape": null
   },
   {
-   "rowId": "IC-58",
+   "specTableRowId": "IC-58",
    "surfaces": [
     "Task Group Panel"
    ],
@@ -853,7 +853,7 @@
    "armsShape": null
   },
   {
-   "rowId": "IC-59",
+   "specTableRowId": "IC-59",
    "surfaces": [
     "Task Group Panel"
    ],
@@ -864,7 +864,7 @@
    "armsShape": null
   },
   {
-   "rowId": "IC-77",
+   "specTableRowId": "IC-77",
    "surfaces": [
     "Task Group Panel"
    ],
@@ -875,7 +875,7 @@
    "armsShape": null
   },
   {
-   "rowId": "IC-90",
+   "specTableRowId": "IC-90",
    "surfaces": [
     "Task Group Panel"
    ],
@@ -886,7 +886,7 @@
    "armsShape": null
   },
   {
-   "rowId": "IC-91",
+   "specTableRowId": "IC-91",
    "surfaces": [
     "Task Group Panel"
    ],
@@ -897,7 +897,7 @@
    "armsShape": null
   },
   {
-   "rowId": "IC-60",
+   "specTableRowId": "IC-60",
    "surfaces": [
     "Task Group Panel"
    ],
@@ -908,7 +908,7 @@
    "armsShape": null
   },
   {
-   "rowId": "IC-82",
+   "specTableRowId": "IC-82",
    "surfaces": [
     "Task Group Panel"
    ],
@@ -919,7 +919,7 @@
    "armsShape": null
   },
   {
-   "rowId": "IC-106",
+   "specTableRowId": "IC-106",
    "surfaces": [
     "Task Group Panel"
    ],
@@ -930,7 +930,7 @@
    "armsShape": null
   },
   {
-   "rowId": "IC-118",
+   "specTableRowId": "IC-118",
    "surfaces": [
     "Search Panel"
    ],
@@ -941,7 +941,7 @@
    "armsShape": null
   },
   {
-   "rowId": "IC-119",
+   "specTableRowId": "IC-119",
    "surfaces": [
     "Search Panel"
    ],
@@ -952,7 +952,7 @@
    "armsShape": null
   },
   {
-   "rowId": "IC-153",
+   "specTableRowId": "IC-153",
    "surfaces": [
     "Search Panel",
     "Delay Diagnostics Report",
@@ -965,7 +965,7 @@
    "armsShape": null
   },
   {
-   "rowId": "IC-143",
+   "specTableRowId": "IC-143",
    "surfaces": [
     "Search Panel",
     "Delay Diagnostics Report",
@@ -978,7 +978,7 @@
    "armsShape": null
   },
   {
-   "rowId": "IC-129",
+   "specTableRowId": "IC-129",
    "surfaces": [
     "Help Modal",
     "Search Panel",
@@ -992,7 +992,7 @@
    "armsShape": null
   },
   {
-   "rowId": "IC-130",
+   "specTableRowId": "IC-130",
    "surfaces": [
     "Help Modal",
     "Search Panel",
@@ -1006,7 +1006,7 @@
    "armsShape": null
   },
   {
-   "rowId": "IC-131",
+   "specTableRowId": "IC-131",
    "surfaces": [
     "Help Modal",
     "Search Panel",
@@ -1020,7 +1020,7 @@
    "armsShape": null
   },
   {
-   "rowId": "IC-122",
+   "specTableRowId": "IC-122",
    "surfaces": [
     "Search Panel",
     "Delay Diagnostics Report",
@@ -1033,7 +1033,7 @@
    "armsShape": null
   },
   {
-   "rowId": "IC-123",
+   "specTableRowId": "IC-123",
    "surfaces": [
     "Search Panel",
     "Delay Diagnostics Report",
@@ -1047,7 +1047,7 @@
    "armsShape": null
   },
   {
-   "rowId": "IC-124",
+   "specTableRowId": "IC-124",
    "surfaces": [
     "Search Panel",
     "Delay Diagnostics Report",
@@ -1061,7 +1061,7 @@
    "armsShape": null
   },
   {
-   "rowId": "IC-125",
+   "specTableRowId": "IC-125",
    "surfaces": [
     "Search Panel",
     "Delay Diagnostics Report",
@@ -1075,7 +1075,7 @@
    "armsShape": null
   },
   {
-   "rowId": "IC-126",
+   "specTableRowId": "IC-126",
    "surfaces": [
     "Search Panel",
     "Delay Diagnostics Report",
@@ -1089,7 +1089,7 @@
    "armsShape": null
   },
   {
-   "rowId": "IC-127",
+   "specTableRowId": "IC-127",
    "surfaces": [
     "Search Panel",
     "Delay Diagnostics Report",
@@ -1102,7 +1102,7 @@
    "armsShape": null
   },
   {
-   "rowId": "IC-168",
+   "specTableRowId": "IC-168",
    "surfaces": [
     "Delay Diagnostics Report"
    ],
@@ -1113,7 +1113,7 @@
    "armsShape": null
   },
   {
-   "rowId": "IC-140",
+   "specTableRowId": "IC-140",
    "surfaces": [
     "Delay Diagnostics Report"
    ],
@@ -1124,7 +1124,7 @@
    "armsShape": null
   },
   {
-   "rowId": "IC-108",
+   "specTableRowId": "IC-108",
    "surfaces": [
     "Delay Diagnostics Report"
    ],
@@ -1135,7 +1135,7 @@
    "armsShape": null
   },
   {
-   "rowId": "IC-154",
+   "specTableRowId": "IC-154",
    "surfaces": [
     "Delay Diagnostics Report"
    ],
@@ -1146,7 +1146,7 @@
    "armsShape": null
   },
   {
-   "rowId": "IC-155",
+   "specTableRowId": "IC-155",
    "surfaces": [
     "Delay Diagnostics Report"
    ],
@@ -1157,7 +1157,7 @@
    "armsShape": null
   },
   {
-   "rowId": "IC-156",
+   "specTableRowId": "IC-156",
    "surfaces": [
     "Delay Diagnostics Report"
    ],
@@ -1168,7 +1168,7 @@
    "armsShape": null
   },
   {
-   "rowId": "IC-157",
+   "specTableRowId": "IC-157",
    "surfaces": [
     "Delay Diagnostics Report"
    ],
@@ -1179,7 +1179,7 @@
    "armsShape": null
   },
   {
-   "rowId": "IC-158",
+   "specTableRowId": "IC-158",
    "surfaces": [
     "Delay Diagnostics Report"
    ],
@@ -1190,7 +1190,7 @@
    "armsShape": null
   },
   {
-   "rowId": "IC-166",
+   "specTableRowId": "IC-166",
    "surfaces": [
     "Delay Diagnostics Report"
    ],
@@ -1201,7 +1201,7 @@
    "armsShape": null
   },
   {
-   "rowId": "IC-169",
+   "specTableRowId": "IC-169",
    "surfaces": [
     "Delay Diagnostics Report"
    ],
@@ -1212,7 +1212,7 @@
    "armsShape": null
   },
   {
-   "rowId": "IC-159",
+   "specTableRowId": "IC-159",
    "surfaces": [
     "Delay Diagnostics Report"
    ],
@@ -1223,7 +1223,7 @@
    "armsShape": null
   },
   {
-   "rowId": "IC-160",
+   "specTableRowId": "IC-160",
    "surfaces": [
     "Delay Diagnostics Report"
    ],
@@ -1234,7 +1234,7 @@
    "armsShape": null
   },
   {
-   "rowId": "IC-62",
+   "specTableRowId": "IC-62",
    "surfaces": [
     "Command Palette"
    ],
@@ -1245,7 +1245,7 @@
    "armsShape": null
   },
   {
-   "rowId": "IC-132",
+   "specTableRowId": "IC-132",
    "surfaces": [
     "Command Palette"
    ],
@@ -1256,7 +1256,7 @@
    "armsShape": null
   },
   {
-   "rowId": "IC-63",
+   "specTableRowId": "IC-63",
    "surfaces": [
     "Resource List"
    ],
@@ -1267,7 +1267,7 @@
    "armsShape": null
   },
   {
-   "rowId": "IC-64",
+   "specTableRowId": "IC-64",
    "surfaces": [
     "Resource List"
    ],
@@ -1278,7 +1278,7 @@
    "armsShape": null
   },
   {
-   "rowId": "IC-65",
+   "specTableRowId": "IC-65",
    "surfaces": [
     "Resource List"
    ],
@@ -1289,7 +1289,7 @@
    "armsShape": null
   },
   {
-   "rowId": "IC-66",
+   "specTableRowId": "IC-66",
    "surfaces": [
     "Resource List"
    ],
@@ -1300,7 +1300,7 @@
    "armsShape": null
   },
   {
-   "rowId": "IC-67",
+   "specTableRowId": "IC-67",
    "surfaces": [
     "Resource List"
    ],
@@ -1311,7 +1311,7 @@
    "armsShape": null
   },
   {
-   "rowId": "IC-68",
+   "specTableRowId": "IC-68",
    "surfaces": [
     "Resource List"
    ],
@@ -1322,7 +1322,7 @@
    "armsShape": null
   },
   {
-   "rowId": "IC-133",
+   "specTableRowId": "IC-133",
    "surfaces": [
     "Holiday Settings"
    ],
@@ -1333,7 +1333,7 @@
    "armsShape": null
   },
   {
-   "rowId": "IC-134",
+   "specTableRowId": "IC-134",
    "surfaces": [
     "Holiday Settings"
    ],
@@ -1344,7 +1344,7 @@
    "armsShape": null
   },
   {
-   "rowId": "IC-163",
+   "specTableRowId": "IC-163",
    "surfaces": [
     "Holiday Settings"
    ],
@@ -1355,7 +1355,7 @@
    "armsShape": null
   },
   {
-   "rowId": "IC-164",
+   "specTableRowId": "IC-164",
    "surfaces": [
     "Holiday Settings"
    ],
@@ -1366,7 +1366,7 @@
    "armsShape": null
   },
   {
-   "rowId": "IC-165",
+   "specTableRowId": "IC-165",
    "surfaces": [
     "Holiday Settings"
    ],
@@ -1377,7 +1377,7 @@
    "armsShape": null
   },
   {
-   "rowId": "IC-135",
+   "specTableRowId": "IC-135",
    "surfaces": [
     "Holiday Settings"
    ],
@@ -1388,7 +1388,7 @@
    "armsShape": null
   },
   {
-   "rowId": "IC-136",
+   "specTableRowId": "IC-136",
    "surfaces": [
     "Holiday Settings"
    ],
@@ -1399,7 +1399,7 @@
    "armsShape": null
   },
   {
-   "rowId": "IC-137",
+   "specTableRowId": "IC-137",
    "surfaces": [
     "Holiday Settings"
    ],
@@ -1410,7 +1410,7 @@
    "armsShape": null
   },
   {
-   "rowId": "IC-138",
+   "specTableRowId": "IC-138",
    "surfaces": [
     "Holiday Settings"
    ],
@@ -1421,7 +1421,7 @@
    "armsShape": null
   },
   {
-   "rowId": "IC-71",
+   "specTableRowId": "IC-71",
    "surfaces": [
     "Open Chooser"
    ],
@@ -1432,7 +1432,7 @@
    "armsShape": null
   },
   {
-   "rowId": "IC-72",
+   "specTableRowId": "IC-72",
    "surfaces": [
     "Open Chooser"
    ],
@@ -1443,7 +1443,7 @@
    "armsShape": null
   },
   {
-   "rowId": "IC-73",
+   "specTableRowId": "IC-73",
    "surfaces": [
     "Open Chooser"
    ],
@@ -1454,7 +1454,7 @@
    "armsShape": null
   },
   {
-   "rowId": "IC-74",
+   "specTableRowId": "IC-74",
    "surfaces": [
     "Task Group Panel"
    ],
@@ -1465,7 +1465,7 @@
    "armsShape": null
   },
   {
-   "rowId": "IC-78",
+   "specTableRowId": "IC-78",
    "surfaces": [
     "Task Group Panel"
    ],
@@ -1476,7 +1476,7 @@
    "armsShape": null
   },
   {
-   "rowId": "IC-92",
+   "specTableRowId": "IC-92",
    "surfaces": [
     "Task Group Panel"
    ],
@@ -1487,7 +1487,7 @@
    "armsShape": null
   },
   {
-   "rowId": "IC-93",
+   "specTableRowId": "IC-93",
    "surfaces": [
     "Task Group Panel"
    ],
@@ -1498,7 +1498,7 @@
    "armsShape": null
   },
   {
-   "rowId": "IC-76",
+   "specTableRowId": "IC-76",
    "surfaces": [
     "Command Palette"
    ],
@@ -1509,7 +1509,7 @@
    "armsShape": null
   },
   {
-   "rowId": "IC-95",
+   "specTableRowId": "IC-95",
    "surfaces": [
     "Difference Review"
    ],
@@ -1520,7 +1520,7 @@
    "armsShape": null
   },
   {
-   "rowId": "IC-96",
+   "specTableRowId": "IC-96",
    "surfaces": [
     "Difference Review"
    ],
@@ -1531,7 +1531,7 @@
    "armsShape": null
   },
   {
-   "rowId": "IC-97",
+   "specTableRowId": "IC-97",
    "surfaces": [
     "Difference Review"
    ],
@@ -1542,7 +1542,7 @@
    "armsShape": null
   },
   {
-   "rowId": "IC-139",
+   "specTableRowId": "IC-139",
    "surfaces": [
     "Properties Panel"
    ],
@@ -1553,7 +1553,7 @@
    "armsShape": null
   },
   {
-   "rowId": "IC-162",
+   "specTableRowId": "IC-162",
    "surfaces": [
     "Properties Panel"
    ],

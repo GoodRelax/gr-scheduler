@@ -37,7 +37,7 @@ const DELAY_TOLERANCE = 'K-140'
 // Spec: T-380
 // Why: CR-787 (JDG-2469) -- a row may join two stored keys in one cell segment; partner is the second of them.
 interface ReadOnlyRow {
-  readonly rowId: string
+  readonly specTableRowId: string
   readonly group: string
   readonly section: string | null
   readonly key: string
@@ -76,7 +76,7 @@ const T_380: readonly ReadOnlyRow[] = (() => {
     namesOf.set(row.id, names)
     own.forEach((keys, at) =>
       rows.push({
-        rowId: row.id,
+        specTableRowId: row.id,
         group,
         section,
         key: `${prefix}${keys[0] ?? ''}`,
@@ -97,12 +97,12 @@ const word = (part: string, language: DisplayLanguage, fill: Record<string, stri
   Object.entries(fill).reduce((text, [slot, value]) => text.split(`{${slot}}`).join(value), partWord(SECTION, part, language))
 
 /** @purity pure */
-function columnWord(rowId: string, language: DisplayLanguage): string {
+function columnWord(specTableRowId: string, language: DisplayLanguage): string {
   for (const section of ['searchColumns', 'resourceListColumns', 'delayReportColumns']) {
-    const found = (MARKED_WORDS[section] as readonly Loose[]).find((one) => one['rowId'] === rowId)
+    const found = (MARKED_WORDS[section] as readonly Loose[]).find((one) => one['specTableRowId'] === specTableRowId)
     if (found !== undefined) return found['text'][language] as string
   }
-  throw new Error(`no table heading word for column ${rowId}`)
+  throw new Error(`no table heading word for column ${specTableRowId}`)
 }
 
 /** @purity pure */
@@ -235,8 +235,8 @@ describe('CR-754 premise -- the clauses and table T-380 these cases read', () =>
       'Resource List',
       'Delay Diagnostics Report',
     ])
-    expect(T_380.filter((one) => one.rowId === 'RN-8').map((one) => one.key.split('.').pop())).toEqual(
-      T_380.filter((one) => one.rowId === 'RN-6').map((one) => one.key.split('.').pop()),
+    expect(T_380.filter((one) => one.specTableRowId === 'RN-8').map((one) => one.key.split('.').pop())).toEqual(
+      T_380.filter((one) => one.specTableRowId === 'RN-6').map((one) => one.key.split('.').pop()),
     )
   })
 

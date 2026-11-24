@@ -74,7 +74,7 @@ const HUE_MAX = Number(bare(S_73?.by['上限'] ?? ''))
 // Spec: T-305
 const ROSTER = specTable('T-305').rows.map((row) => {
   const cell = row.by['色相'] ?? ''
-  return { rowId: row.id, hue: cell.includes('S-73') ? S_73_DEFAULT : Number(bare(cell)) }
+  return { specTableRowId: row.id, hue: cell.includes('S-73') ? S_73_DEFAULT : Number(bare(cell)) }
 })
 
 // Spec: T-108
@@ -313,7 +313,7 @@ describe('CR-557 -- the manuscript still says what these cases read', () => {
 })
 
 describe('CR-557 S-3 -- the committed hue translates to CM-5 alone', () => {
-  it.each(ROSTER.map((one) => [one.rowId, one.hue] as const))(
+  it.each(ROSTER.map((one) => [one.specTableRowId, one.hue] as const))(
     `FR-041 "${CLAUSE_ONE_CM_5}" -- %s (hue %s)`,
     (_rowId, hue) => {
       expect(translate(String(hue))).toEqual([{ kind: CM_5, themeHue: hue }])
@@ -340,7 +340,7 @@ describe('CR-557 S-4 -- pressing a swatch hands back the commit of its row', () 
       const swatches = swatchesOf(built)
       expect(swatches, 'one swatch per T-305 row').toHaveLength(ROSTER.length)
       const commit = press(built, swatches[index] as FakeElement)
-      expect(commit, `${row.rowId}: nothing was handed back`).not.toBeNull()
+      expect(commit, `${row.specTableRowId}: nothing was handed back`).not.toBeNull()
       expect(commit?.row).toBe(K_60)
       expect(commit?.key).toEqual(HUE_KEY)
       expect(commit?.text).toBe(String(row.hue))

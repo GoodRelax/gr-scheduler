@@ -52,9 +52,9 @@ const PV_2_CELL =
 
 const T_021A = specTable('T-021a')
 
-const cellOfRow = (rowId: string): string => {
-  const row = T_021A.rows.find((one) => one.id === rowId)
-  if (row === undefined) throw new Error(`table T-021a has no row ${rowId}`)
+const cellOfRow = (specTableRowId: string): string => {
+  const row = T_021A.rows.find((one) => one.id === specTableRowId)
+  if (row === undefined) throw new Error(`table T-021a has no row ${specTableRowId}`)
   const cell = row.by['置く値']
   if (cell === undefined) throw new Error(`table T-021a has no column; it has ${Object.keys(row.by).join(', ')}`)
   return cell

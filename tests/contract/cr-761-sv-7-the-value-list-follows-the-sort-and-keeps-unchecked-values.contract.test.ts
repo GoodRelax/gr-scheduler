@@ -62,10 +62,10 @@ const cellOf = (table: string, id: string, heading: string): string =>
 type Words = Record<DisplayLanguage, string>
 const WORDS = JSON.parse(readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8')) as Record<
   string,
-  readonly { readonly part?: string; readonly rowId?: string; readonly text?: Words }[]
+  readonly { readonly part?: string; readonly specTableRowId?: string; readonly text?: Words }[]
 >
 const wordOf = (group: string, key: string, language: DisplayLanguage = 'ja'): string =>
-  found((WORDS[group] ?? []).find((one) => one.part === key || one.rowId === key)?.text, `the word ${group}/${key}`)[language]
+  found((WORDS[group] ?? []).find((one) => one.part === key || one.specTableRowId === key)?.text, `the word ${group}/${key}`)[language]
 
 const BLANK = wordOf('searchPanel', 'blank')
 

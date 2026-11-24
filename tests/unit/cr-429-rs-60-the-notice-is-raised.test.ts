@@ -49,15 +49,15 @@ function mannerOfRs60(): string {
 }
 
 interface ReasonEntry {
-  readonly rowId: string
+  readonly specTableRowId: string
   readonly text: { readonly ja: string; readonly en: string }
 }
 
-function reasonWordsOf(rowId: string): ReasonEntry {
+function reasonWordsOf(specTableRowId: string): ReasonEntry {
   const path = join(process.cwd(), 'src', 'adapter', 'screen-renderer', 'display-words.json')
   const raw = JSON.parse(readFileSync(path, 'utf8')) as { reasons: ReasonEntry[] }
-  const found = raw.reasons.find((each) => each.rowId === rowId)
-  if (found === undefined) throw new Error(`the dictionary holds no row ${rowId}`)
+  const found = raw.reasons.find((each) => each.specTableRowId === specTableRowId)
+  if (found === undefined) throw new Error(`the dictionary holds no row ${specTableRowId}`)
   return found
 }
 

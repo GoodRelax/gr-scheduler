@@ -2,7 +2,7 @@
  "$comment": "GENERATED -- do not edit by hand. Generated from docs/spec/_source/display-words.json (the words the screen prints, FR-038). Rebuild: npm run gen -- npm run gen:check fails on drift. The generator is tools/generate_display_words.py. The words belong to the user: table T-109 refuses an English column because one would settle dozens of names the glossary has not settled, and an invented word settles the same names. Whoever prints one of these falls back to what it printed before -- a row id, an empty label -- while its entry is still unwritten.",
  "icons": [
   {
-   "rowId": "IC-7",
+   "specTableRowId": "IC-7",
    "label": {
     "ja": "コマンドパレット",
     "en": "Command Palette"
@@ -13,7 +13,7 @@
    }
   },
   {
-   "rowId": "IC-98",
+   "specTableRowId": "IC-98",
    "label": {
     "ja": "新規作成",
     "en": "New"
@@ -24,7 +24,7 @@
    }
   },
   {
-   "rowId": "IC-1",
+   "specTableRowId": "IC-1",
    "label": {
     "ja": "開く",
     "en": "Open…"
@@ -35,7 +35,7 @@
    }
   },
   {
-   "rowId": "IC-2",
+   "specTableRowId": "IC-2",
    "label": {
     "ja": "書き出して保存",
     "en": "Save As…"
@@ -46,7 +46,7 @@
    }
   },
   {
-   "rowId": "IC-3",
+   "specTableRowId": "IC-3",
    "label": {
     "ja": "画像をコピー",
     "en": "Copy Image"
@@ -57,7 +57,7 @@
    }
   },
   {
-   "rowId": "IC-4",
+   "specTableRowId": "IC-4",
    "label": {
     "ja": "変更前の予定",
     "en": "Baseline"
@@ -68,7 +68,7 @@
    }
   },
   {
-   "rowId": "IC-8",
+   "specTableRowId": "IC-8",
    "label": {
     "ja": "予定の表示切替",
     "en": "Plan Bar"
@@ -79,7 +79,7 @@
    }
   },
   {
-   "rowId": "IC-9",
+   "specTableRowId": "IC-9",
    "label": {
     "ja": "実績の表示切替",
     "en": "Actual Bar"
@@ -90,7 +90,7 @@
    }
   },
   {
-   "rowId": "IC-10",
+   "specTableRowId": "IC-10",
    "label": {
     "ja": "全体を収める",
     "en": "Zoom to Fit"
@@ -101,7 +101,7 @@
    }
   },
   {
-   "rowId": "IC-104",
+   "specTableRowId": "IC-104",
    "label": {
     "ja": "小さく表示",
     "en": "Smaller"
@@ -112,7 +112,7 @@
    }
   },
   {
-   "rowId": "IC-105",
+   "specTableRowId": "IC-105",
    "label": {
     "ja": "大きく表示",
     "en": "Larger"
@@ -123,7 +123,7 @@
    }
   },
   {
-   "rowId": "IC-11",
+   "specTableRowId": "IC-11",
    "label": {
     "ja": "全画面表示",
     "en": "Full Screen"
@@ -134,7 +134,7 @@
    }
   },
   {
-   "rowId": "IC-12",
+   "specTableRowId": "IC-12",
    "label": {
     "ja": "横に縮小",
     "en": "Zoom Out Horizontally"
@@ -145,7 +145,7 @@
    }
   },
   {
-   "rowId": "IC-13",
+   "specTableRowId": "IC-13",
    "label": {
     "ja": "横に拡大",
     "en": "Zoom In Horizontally"
@@ -156,7 +156,7 @@
    }
   },
   {
-   "rowId": "IC-14",
+   "specTableRowId": "IC-14",
    "label": {
     "ja": "縦に縮小",
     "en": "Zoom Out Vertically"
@@ -167,7 +167,7 @@
    }
   },
   {
-   "rowId": "IC-15",
+   "specTableRowId": "IC-15",
    "label": {
     "ja": "縦に拡大",
     "en": "Zoom In Vertically"
@@ -178,7 +178,7 @@
    }
   },
   {
-   "rowId": "IC-100",
+   "specTableRowId": "IC-100",
    "label": {
     "ja": "モノクロ",
     "en": "Monochrome"
@@ -189,7 +189,7 @@
    }
   },
   {
-   "rowId": "IC-16",
+   "specTableRowId": "IC-16",
    "label": {
     "ja": "明暗テーマ",
     "en": "Light / Dark"
@@ -200,7 +200,7 @@
    }
   },
   {
-   "rowId": "IC-5",
+   "specTableRowId": "IC-5",
    "label": {
     "ja": "取り消す",
     "en": "Undo"
@@ -211,7 +211,7 @@
    }
   },
   {
-   "rowId": "IC-6",
+   "specTableRowId": "IC-6",
    "label": {
     "ja": "やり直す",
     "en": "Redo"
@@ -222,7 +222,7 @@
    }
   },
   {
-   "rowId": "IC-117",
+   "specTableRowId": "IC-117",
    "label": {
     "ja": "検索",
     "en": "Search"
@@ -233,7 +233,7 @@
    }
   },
   {
-   "rowId": "IC-107",
+   "specTableRowId": "IC-107",
    "label": {
     "ja": "遅延診断",
     "en": "Delay Diagnostics"
@@ -244,7 +244,7 @@
    }
   },
   {
-   "rowId": "IC-115",
+   "specTableRowId": "IC-115",
    "label": {
     "ja": "日程の画像をデータ化するプロンプト",
     "en": "Schedule Image-to-JSON Prompt"
@@ -255,7 +255,7 @@
    }
   },
   {
-   "rowId": "IC-20",
+   "specTableRowId": "IC-20",
    "label": {
     "ja": "Agent API",
     "en": "Agent API"
@@ -266,7 +266,7 @@
    }
   },
   {
-   "rowId": "IC-17",
+   "specTableRowId": "IC-17",
    "label": {
     "ja": "文書の設定",
     "en": "Document Settings"
@@ -277,7 +277,7 @@
    }
   },
   {
-   "rowId": "IC-21",
+   "specTableRowId": "IC-21",
    "label": {
     "ja": "画面の言語",
     "en": "Screen Language"
@@ -288,7 +288,7 @@
    }
   },
   {
-   "rowId": "IC-22",
+   "specTableRowId": "IC-22",
    "label": {
     "ja": "ヘルプ",
     "en": "Help"
@@ -299,7 +299,7 @@
    }
   },
   {
-   "rowId": "IC-23",
+   "specTableRowId": "IC-23",
    "label": {
     "ja": "矩形",
     "en": "Rectangle"
@@ -310,7 +310,7 @@
    }
   },
   {
-   "rowId": "IC-24",
+   "specTableRowId": "IC-24",
    "label": {
     "ja": "矢羽根",
     "en": "Chevron"
@@ -321,7 +321,7 @@
    }
   },
   {
-   "rowId": "IC-25",
+   "specTableRowId": "IC-25",
    "label": {
     "ja": "矢印",
     "en": "Arrow"
@@ -332,7 +332,7 @@
    }
   },
   {
-   "rowId": "IC-26",
+   "specTableRowId": "IC-26",
    "label": {
     "ja": "端点スパン",
     "en": "Endpoint Span"
@@ -343,7 +343,7 @@
    }
   },
   {
-   "rowId": "IC-27",
+   "specTableRowId": "IC-27",
    "label": {
     "ja": "マイルストーン（〇）",
     "en": "Milestone (Circle)"
@@ -354,7 +354,7 @@
    }
   },
   {
-   "rowId": "IC-28",
+   "specTableRowId": "IC-28",
    "label": {
     "ja": "マイルストーン（六角形）",
     "en": "Milestone (Hexagon)"
@@ -365,7 +365,7 @@
    }
   },
   {
-   "rowId": "IC-29",
+   "specTableRowId": "IC-29",
    "label": {
     "ja": "マイルストーン（五角形）",
     "en": "Milestone (Pentagon)"
@@ -376,7 +376,7 @@
    }
   },
   {
-   "rowId": "IC-30",
+   "specTableRowId": "IC-30",
    "label": {
     "ja": "マイルストーン（◇）",
     "en": "Milestone (Diamond)"
@@ -387,7 +387,7 @@
    }
   },
   {
-   "rowId": "IC-31",
+   "specTableRowId": "IC-31",
    "label": {
     "ja": "マイルストーン（□）",
     "en": "Milestone (Square)"
@@ -398,7 +398,7 @@
    }
   },
   {
-   "rowId": "IC-32",
+   "specTableRowId": "IC-32",
    "label": {
     "ja": "マイルストーン（☆）",
     "en": "Milestone (Star)"
@@ -409,7 +409,7 @@
    }
   },
   {
-   "rowId": "IC-33",
+   "specTableRowId": "IC-33",
    "label": {
     "ja": "マイルストーン（△）",
     "en": "Milestone (Triangle Up)"
@@ -420,7 +420,7 @@
    }
   },
   {
-   "rowId": "IC-34",
+   "specTableRowId": "IC-34",
    "label": {
     "ja": "マイルストーン（▽）",
     "en": "Milestone (Triangle Down)"
@@ -431,7 +431,7 @@
    }
   },
   {
-   "rowId": "IC-83",
+   "specTableRowId": "IC-83",
    "label": {
     "ja": "マイルストーン（ファイル）",
     "en": "Milestone (File)"
@@ -442,7 +442,7 @@
    }
   },
   {
-   "rowId": "IC-84",
+   "specTableRowId": "IC-84",
    "label": {
     "ja": "マイルストーン（ボックス）",
     "en": "Milestone (Box)"
@@ -453,7 +453,7 @@
    }
   },
   {
-   "rowId": "IC-85",
+   "specTableRowId": "IC-85",
    "label": {
     "ja": "マイルストーン（フロッピー）",
     "en": "Milestone (Floppy Disk)"
@@ -464,7 +464,7 @@
    }
   },
   {
-   "rowId": "IC-86",
+   "specTableRowId": "IC-86",
    "label": {
     "ja": "マイルストーン（円筒）",
     "en": "Milestone (Cylinder)"
@@ -475,7 +475,7 @@
    }
   },
   {
-   "rowId": "IC-87",
+   "specTableRowId": "IC-87",
    "label": {
     "ja": "マイルストーン（会議の人）",
     "en": "Milestone (Meeting People)"
@@ -486,7 +486,7 @@
    }
   },
   {
-   "rowId": "IC-88",
+   "specTableRowId": "IC-88",
    "label": {
     "ja": "マイルストーン（嬉しい顔）",
     "en": "Milestone (Smiling Face)"
@@ -497,7 +497,7 @@
    }
   },
   {
-   "rowId": "IC-89",
+   "specTableRowId": "IC-89",
    "label": {
     "ja": "マイルストーン（ビールジョッキ）",
     "en": "Milestone (Beer Mug)"
@@ -508,7 +508,7 @@
    }
   },
   {
-   "rowId": "IC-61",
+   "specTableRowId": "IC-61",
    "label": {
     "ja": "依存線を引く",
     "en": "Link Tasks"
@@ -519,7 +519,7 @@
    }
   },
   {
-   "rowId": "IC-35",
+   "specTableRowId": "IC-35",
    "label": {
     "ja": "コメントボックス",
     "en": "Callout"
@@ -530,7 +530,7 @@
    }
   },
   {
-   "rowId": "IC-36",
+   "specTableRowId": "IC-36",
    "label": {
     "ja": "ハイライトボックス",
     "en": "Highlight Box"
@@ -541,7 +541,7 @@
    }
   },
   {
-   "rowId": "IC-37",
+   "specTableRowId": "IC-37",
    "label": {
     "ja": "開始日で揃える",
     "en": "Align to Start"
@@ -552,7 +552,7 @@
    }
   },
   {
-   "rowId": "IC-38",
+   "specTableRowId": "IC-38",
    "label": {
     "ja": "終了日で揃える",
     "en": "Align to Finish"
@@ -563,7 +563,7 @@
    }
   },
   {
-   "rowId": "IC-39",
+   "specTableRowId": "IC-39",
    "label": {
     "ja": "イナズマ線",
     "en": "Progress Line"
@@ -574,7 +574,7 @@
    }
   },
   {
-   "rowId": "IC-40",
+   "specTableRowId": "IC-40",
    "label": {
     "ja": "進捗マーカー",
     "en": "Progress Marker"
@@ -585,7 +585,7 @@
    }
   },
   {
-   "rowId": "IC-41",
+   "specTableRowId": "IC-41",
    "label": {
     "ja": "透かしを非表示（パスワードが必要）",
     "en": "Watermark…"
@@ -596,7 +596,7 @@
    }
   },
   {
-   "rowId": "IC-42",
+   "specTableRowId": "IC-42",
    "label": {
     "ja": "日付罫線",
     "en": "Date Grid Lines"
@@ -607,7 +607,7 @@
    }
   },
   {
-   "rowId": "IC-43",
+   "specTableRowId": "IC-43",
    "label": {
     "ja": "グループ罫線",
     "en": "Group Grid Lines"
@@ -618,7 +618,7 @@
    }
   },
   {
-   "rowId": "IC-79",
+   "specTableRowId": "IC-79",
    "label": {
     "ja": "担当ラベル",
     "en": "Assignee Label"
@@ -629,7 +629,7 @@
    }
   },
   {
-   "rowId": "IC-80",
+   "specTableRowId": "IC-80",
    "label": {
     "ja": "完了率ラベル",
     "en": "Percent Complete Label"
@@ -640,7 +640,7 @@
    }
   },
   {
-   "rowId": "IC-81",
+   "specTableRowId": "IC-81",
    "label": {
     "ja": "依存線の表示",
     "en": "Show Dependency Lines"
@@ -651,7 +651,7 @@
    }
   },
   {
-   "rowId": "IC-141",
+   "specTableRowId": "IC-141",
    "label": {
     "ja": "親タスク表示",
     "en": "Show Parent Tasks"
@@ -662,7 +662,7 @@
    }
   },
   {
-   "rowId": "IC-142",
+   "specTableRowId": "IC-142",
    "label": {
     "ja": "親タスク設定",
     "en": "Set Parent Task"
@@ -673,7 +673,7 @@
    }
   },
   {
-   "rowId": "IC-99",
+   "specTableRowId": "IC-99",
    "label": {
     "ja": "文字サイズ",
     "en": "Font Size"
@@ -684,7 +684,7 @@
    }
   },
   {
-   "rowId": "IC-101",
+   "specTableRowId": "IC-101",
    "label": {
     "ja": "日程が重複するタスクを積む向き",
     "en": "Stack Direction"
@@ -695,7 +695,7 @@
    }
   },
   {
-   "rowId": "IC-103",
+   "specTableRowId": "IC-103",
    "label": {
     "ja": "予定日",
     "en": "Planned Dates"
@@ -706,7 +706,7 @@
    }
   },
   {
-   "rowId": "IC-44",
+   "specTableRowId": "IC-44",
    "label": {
     "ja": "基準日",
     "en": "Status Date"
@@ -717,7 +717,7 @@
    }
   },
   {
-   "rowId": "IC-47",
+   "specTableRowId": "IC-47",
    "label": {
     "ja": "十字",
     "en": "Crosshair"
@@ -728,7 +728,7 @@
    }
   },
   {
-   "rowId": "IC-48",
+   "specTableRowId": "IC-48",
    "label": {
     "ja": "縦 1 本",
     "en": "Single Vertical"
@@ -739,7 +739,7 @@
    }
   },
   {
-   "rowId": "IC-45",
+   "specTableRowId": "IC-45",
    "label": {
     "ja": "デュアルカーソル",
     "en": "Dual Cursor"
@@ -750,7 +750,7 @@
    }
   },
   {
-   "rowId": "IC-50",
+   "specTableRowId": "IC-50",
    "label": {
     "ja": "マイルストーン",
     "en": "Milestone"
@@ -761,7 +761,7 @@
    }
   },
   {
-   "rowId": "IC-52",
+   "specTableRowId": "IC-52",
    "label": {
     "ja": "閉じる",
     "en": "Close"
@@ -772,7 +772,7 @@
    }
   },
   {
-   "rowId": "IC-53",
+   "specTableRowId": "IC-53",
    "label": {
     "ja": "掴んで動かす",
     "en": "Drag to Move"
@@ -783,7 +783,7 @@
    }
   },
   {
-   "rowId": "IC-75",
+   "specTableRowId": "IC-75",
    "label": {
     "ja": "最小化",
     "en": "Minimize"
@@ -794,7 +794,7 @@
    }
   },
   {
-   "rowId": "IC-54",
+   "specTableRowId": "IC-54",
    "label": {
     "ja": "構えている図形",
     "en": "Current Tool"
@@ -805,7 +805,7 @@
    }
   },
   {
-   "rowId": "IC-102",
+   "specTableRowId": "IC-102",
    "label": {
     "ja": "ホイール",
     "en": "Wheel"
@@ -816,7 +816,7 @@
    }
   },
   {
-   "rowId": "IC-128",
+   "specTableRowId": "IC-128",
    "label": {
     "ja": "ヘルプの言語",
     "en": "Help Language"
@@ -827,7 +827,7 @@
    }
   },
   {
-   "rowId": "IC-58",
+   "specTableRowId": "IC-58",
    "label": {
     "ja": "配下をすべて展開する",
     "en": "Expand Below"
@@ -838,7 +838,7 @@
    }
   },
   {
-   "rowId": "IC-59",
+   "specTableRowId": "IC-59",
    "label": {
     "ja": "折りたたむ",
     "en": "Collapse"
@@ -849,7 +849,7 @@
    }
   },
   {
-   "rowId": "IC-77",
+   "specTableRowId": "IC-77",
    "label": {
     "ja": "配下をすべて折りたたむ",
     "en": "Collapse Below"
@@ -860,7 +860,7 @@
    }
   },
   {
-   "rowId": "IC-90",
+   "specTableRowId": "IC-90",
    "label": {
     "ja": "1 階層だけ展開する",
     "en": "Expand One Level"
@@ -871,7 +871,7 @@
    }
   },
   {
-   "rowId": "IC-91",
+   "specTableRowId": "IC-91",
    "label": {
     "ja": "配下に追加",
     "en": "Add Below"
@@ -882,7 +882,7 @@
    }
   },
   {
-   "rowId": "IC-60",
+   "specTableRowId": "IC-60",
    "label": {
     "ja": "ピン止め",
     "en": "Pin"
@@ -893,7 +893,7 @@
    }
   },
   {
-   "rowId": "IC-82",
+   "specTableRowId": "IC-82",
    "label": {
     "ja": "タスクグループを削除",
     "en": "Delete Task Group"
@@ -904,7 +904,7 @@
    }
   },
   {
-   "rowId": "IC-106",
+   "specTableRowId": "IC-106",
    "label": {
     "ja": "すべてのタスクグループを削除",
     "en": "Delete All Task Groups"
@@ -915,7 +915,7 @@
    }
   },
   {
-   "rowId": "IC-118",
+   "specTableRowId": "IC-118",
    "label": {
     "ja": "タスク",
     "en": "Tasks"
@@ -926,7 +926,7 @@
    }
   },
   {
-   "rowId": "IC-119",
+   "specTableRowId": "IC-119",
    "label": {
     "ja": "コメントボックス",
     "en": "Callouts"
@@ -937,7 +937,7 @@
    }
   },
   {
-   "rowId": "IC-153",
+   "specTableRowId": "IC-153",
    "label": {
     "ja": "フィルタをクリア",
     "en": "Clear Filters"
@@ -948,7 +948,7 @@
    }
   },
   {
-   "rowId": "IC-143",
+   "specTableRowId": "IC-143",
    "label": {
     "ja": "スケジュールフィルタ",
     "en": "Schedule Filter"
@@ -959,7 +959,7 @@
    }
   },
   {
-   "rowId": "IC-129",
+   "specTableRowId": "IC-129",
    "label": {
     "ja": "最小化",
     "en": "Minimize"
@@ -970,7 +970,7 @@
    }
   },
   {
-   "rowId": "IC-130",
+   "specTableRowId": "IC-130",
    "label": {
     "ja": "最大化",
     "en": "Maximize"
@@ -981,7 +981,7 @@
    }
   },
   {
-   "rowId": "IC-131",
+   "specTableRowId": "IC-131",
    "label": {
     "ja": "元のサイズに戻す",
     "en": "Restore"
@@ -992,7 +992,7 @@
    }
   },
   {
-   "rowId": "IC-122",
+   "specTableRowId": "IC-122",
    "label": {
     "ja": "フィルタ",
     "en": "Filter"
@@ -1003,7 +1003,7 @@
    }
   },
   {
-   "rowId": "IC-123",
+   "specTableRowId": "IC-123",
    "label": {
     "ja": "昇順",
     "en": "Sort Ascending"
@@ -1014,7 +1014,7 @@
    }
   },
   {
-   "rowId": "IC-124",
+   "specTableRowId": "IC-124",
    "label": {
     "ja": "降順",
     "en": "Sort Descending"
@@ -1025,7 +1025,7 @@
    }
   },
   {
-   "rowId": "IC-125",
+   "specTableRowId": "IC-125",
    "label": {
     "ja": "すべてチェック",
     "en": "Check All"
@@ -1036,7 +1036,7 @@
    }
   },
   {
-   "rowId": "IC-126",
+   "specTableRowId": "IC-126",
    "label": {
     "ja": "チェックをすべて外す",
     "en": "Uncheck All"
@@ -1047,7 +1047,7 @@
    }
   },
   {
-   "rowId": "IC-127",
+   "specTableRowId": "IC-127",
    "label": {
     "ja": "文字サイズ",
     "en": "Font Size"
@@ -1058,7 +1058,7 @@
    }
   },
   {
-   "rowId": "IC-168",
+   "specTableRowId": "IC-168",
    "label": {
     "ja": "再診断",
     "en": "Diagnose Again"
@@ -1069,7 +1069,7 @@
    }
   },
   {
-   "rowId": "IC-140",
+   "specTableRowId": "IC-140",
    "label": {
     "ja": ".md",
     "en": "Save as Markdown…"
@@ -1080,7 +1080,7 @@
    }
   },
   {
-   "rowId": "IC-108",
+   "specTableRowId": "IC-108",
    "label": {
     "ja": "Copy",
     "en": "Copy"
@@ -1091,7 +1091,7 @@
    }
   },
   {
-   "rowId": "IC-154",
+   "specTableRowId": "IC-154",
    "label": {
     "ja": "診断結果",
     "en": "Diagnosis"
@@ -1102,7 +1102,7 @@
    }
   },
   {
-   "rowId": "IC-155",
+   "specTableRowId": "IC-155",
    "label": {
     "ja": "修正案",
     "en": "Fix Proposals"
@@ -1113,7 +1113,7 @@
    }
   },
   {
-   "rowId": "IC-156",
+   "specTableRowId": "IC-156",
    "label": {
     "ja": "修正の記録",
     "en": "Fix Log"
@@ -1124,7 +1124,7 @@
    }
   },
   {
-   "rowId": "IC-157",
+   "specTableRowId": "IC-157",
    "label": {
     "ja": "上書きして修正",
     "en": "Overwrite and Fix"
@@ -1135,7 +1135,7 @@
    }
   },
   {
-   "rowId": "IC-158",
+   "specTableRowId": "IC-158",
    "label": {
     "ja": "スケジュールを別名でバックアップして修正",
     "en": "Back Up the Schedule Under Another Name and Fix"
@@ -1146,7 +1146,7 @@
    }
   },
   {
-   "rowId": "IC-166",
+   "specTableRowId": "IC-166",
    "label": {
     "ja": "推奨案をすべて採用する",
     "en": "Adopt All Recommended"
@@ -1157,7 +1157,7 @@
    }
   },
   {
-   "rowId": "IC-169",
+   "specTableRowId": "IC-169",
    "label": {
     "ja": ".tsv で保存",
     "en": "Save As .tsv"
@@ -1168,7 +1168,7 @@
    }
   },
   {
-   "rowId": "IC-159",
+   "specTableRowId": "IC-159",
    "label": {
     "ja": "前へ",
     "en": "Previous"
@@ -1179,7 +1179,7 @@
    }
   },
   {
-   "rowId": "IC-160",
+   "specTableRowId": "IC-160",
    "label": {
     "ja": "次へ",
     "en": "Next"
@@ -1190,7 +1190,7 @@
    }
   },
   {
-   "rowId": "IC-62",
+   "specTableRowId": "IC-62",
    "label": {
     "ja": "担当リスト",
     "en": "Resource List"
@@ -1201,7 +1201,7 @@
    }
   },
   {
-   "rowId": "IC-132",
+   "specTableRowId": "IC-132",
    "label": {
     "ja": "休日の設定",
     "en": "Working Time…"
@@ -1212,7 +1212,7 @@
    }
   },
   {
-   "rowId": "IC-63",
+   "specTableRowId": "IC-63",
    "label": {
     "ja": "すべて選択",
     "en": "Select All"
@@ -1223,7 +1223,7 @@
    }
   },
   {
-   "rowId": "IC-64",
+   "specTableRowId": "IC-64",
    "label": {
     "ja": "選択をすべて解除",
     "en": "Deselect All"
@@ -1234,7 +1234,7 @@
    }
   },
   {
-   "rowId": "IC-65",
+   "specTableRowId": "IC-65",
    "label": {
     "ja": "未参照を選択",
     "en": "Select Unreferenced"
@@ -1245,7 +1245,7 @@
    }
   },
   {
-   "rowId": "IC-66",
+   "specTableRowId": "IC-66",
    "label": {
     "ja": "削除",
     "en": "Delete"
@@ -1256,7 +1256,7 @@
    }
   },
   {
-   "rowId": "IC-67",
+   "specTableRowId": "IC-67",
    "label": {
     "ja": "選択中",
     "en": "Selected"
@@ -1267,7 +1267,7 @@
    }
   },
   {
-   "rowId": "IC-68",
+   "specTableRowId": "IC-68",
    "label": {
     "ja": "未選択",
     "en": "Not Selected"
@@ -1278,7 +1278,7 @@
    }
   },
   {
-   "rowId": "IC-133",
+   "specTableRowId": "IC-133",
    "label": {
     "ja": "曜日",
     "en": "Weekday"
@@ -1289,7 +1289,7 @@
    }
   },
   {
-   "rowId": "IC-134",
+   "specTableRowId": "IC-134",
    "label": {
     "ja": "週の始まり",
     "en": "Week Starts On"
@@ -1300,7 +1300,7 @@
    }
   },
   {
-   "rowId": "IC-163",
+   "specTableRowId": "IC-163",
    "label": {
     "ja": "＋",
     "en": "+"
@@ -1311,7 +1311,7 @@
    }
   },
   {
-   "rowId": "IC-164",
+   "specTableRowId": "IC-164",
    "label": {
     "ja": "削除",
     "en": "Delete"
@@ -1322,7 +1322,7 @@
    }
   },
   {
-   "rowId": "IC-165",
+   "specTableRowId": "IC-165",
    "label": {
     "ja": "時刻",
     "en": "Time"
@@ -1333,7 +1333,7 @@
    }
   },
   {
-   "rowId": "IC-135",
+   "specTableRowId": "IC-135",
    "label": {
     "ja": "追加",
     "en": "Add"
@@ -1344,7 +1344,7 @@
    }
   },
   {
-   "rowId": "IC-136",
+   "specTableRowId": "IC-136",
    "label": {
     "ja": "削除",
     "en": "Delete"
@@ -1355,7 +1355,7 @@
    }
   },
   {
-   "rowId": "IC-137",
+   "specTableRowId": "IC-137",
    "label": {
     "ja": "休み",
     "en": "Day Off"
@@ -1366,7 +1366,7 @@
    }
   },
   {
-   "rowId": "IC-138",
+   "specTableRowId": "IC-138",
    "label": {
     "ja": "適用",
     "en": "Apply"
@@ -1377,7 +1377,7 @@
    }
   },
   {
-   "rowId": "IC-71",
+   "specTableRowId": "IC-71",
    "label": {
     "ja": "置き換える",
     "en": "Replace"
@@ -1388,7 +1388,7 @@
    }
   },
   {
-   "rowId": "IC-72",
+   "specTableRowId": "IC-72",
    "label": {
     "ja": "合流させる",
     "en": "Merge"
@@ -1399,7 +1399,7 @@
    }
   },
   {
-   "rowId": "IC-73",
+   "specTableRowId": "IC-73",
    "label": {
     "ja": "重ねる",
     "en": "Overlay as Baseline"
@@ -1410,7 +1410,7 @@
    }
   },
   {
-   "rowId": "IC-74",
+   "specTableRowId": "IC-74",
    "label": {
     "ja": "すべて展開する",
     "en": "Expand All"
@@ -1421,7 +1421,7 @@
    }
   },
   {
-   "rowId": "IC-78",
+   "specTableRowId": "IC-78",
    "label": {
     "ja": "すべて折りたたむ",
     "en": "Collapse All"
@@ -1432,7 +1432,7 @@
    }
   },
   {
-   "rowId": "IC-92",
+   "specTableRowId": "IC-92",
    "label": {
     "ja": "最も浅い段を 1 階層展開する",
     "en": "Show Top Level Only"
@@ -1443,7 +1443,7 @@
    }
   },
   {
-   "rowId": "IC-93",
+   "specTableRowId": "IC-93",
    "label": {
     "ja": "最も浅い段に追加",
     "en": "Add Top Task Group"
@@ -1454,7 +1454,7 @@
    }
   },
   {
-   "rowId": "IC-76",
+   "specTableRowId": "IC-76",
    "label": {
     "ja": "デバッグ用ログ取得の開始/停止",
     "en": "Interaction Log"
@@ -1465,7 +1465,7 @@
    }
   },
   {
-   "rowId": "IC-95",
+   "specTableRowId": "IC-95",
    "label": {
     "ja": "開いたファイルから取る",
     "en": "Use Opened File"
@@ -1476,7 +1476,7 @@
    }
   },
   {
-   "rowId": "IC-96",
+   "specTableRowId": "IC-96",
    "label": {
     "ja": "両方とも残す",
     "en": "Keep Both"
@@ -1487,7 +1487,7 @@
    }
   },
   {
-   "rowId": "IC-97",
+   "specTableRowId": "IC-97",
    "label": {
     "ja": "取り込みをやめる",
     "en": "Cancel Import"
@@ -1498,7 +1498,7 @@
    }
   },
   {
-   "rowId": "IC-139",
+   "specTableRowId": "IC-139",
    "label": {
     "ja": "GRS リセット",
     "en": "GRS Reset"
@@ -1509,7 +1509,7 @@
    }
   },
   {
-   "rowId": "IC-162",
+   "specTableRowId": "IC-162",
    "label": {
     "ja": "タイムシフト",
     "en": "Time Shift"
@@ -1522,7 +1522,7 @@
  ],
  "properties": [
   {
-   "rowId": "PR-1",
+   "specTableRowId": "PR-1",
    "label": {
     "ja": "タスク名",
     "en": "Task Name"
@@ -1533,301 +1533,301 @@
    }
   },
   {
-   "rowId": "PR-34",
+   "specTableRowId": "PR-34",
    "label": {
     "ja": "UID",
     "en": "UID"
    }
   },
   {
-   "rowId": "PR-16",
+   "specTableRowId": "PR-16",
    "label": {
     "ja": "担当",
     "en": "Assignee"
    }
   },
   {
-   "rowId": "PR-3",
+   "specTableRowId": "PR-3",
    "label": {
     "ja": "予定開始日",
     "en": "Planned Start"
    }
   },
   {
-   "rowId": "PR-47",
+   "specTableRowId": "PR-47",
    "label": {
     "ja": "予定終了日",
     "en": "Planned Finish"
    }
   },
   {
-   "rowId": "PR-35",
+   "specTableRowId": "PR-35",
    "label": {
     "ja": "予定日",
     "en": "Planned Date"
    }
   },
   {
-   "rowId": "PR-4",
+   "specTableRowId": "PR-4",
    "label": {
     "ja": "実績開始日",
     "en": "Actual Start"
    }
   },
   {
-   "rowId": "PR-6",
+   "specTableRowId": "PR-6",
    "label": {
     "ja": "実績終了日",
     "en": "Actual Finish"
    }
   },
   {
-   "rowId": "PR-36",
+   "specTableRowId": "PR-36",
    "label": {
     "ja": "実績日",
     "en": "Actual Date"
    }
   },
   {
-   "rowId": "PR-5",
+   "specTableRowId": "PR-5",
    "label": {
     "ja": "実績期間",
     "en": "Actual Duration"
    }
   },
   {
-   "rowId": "PR-9",
+   "specTableRowId": "PR-9",
    "label": {
     "ja": "完了率",
     "en": "% Complete"
    }
   },
   {
-   "rowId": "PR-7",
+   "specTableRowId": "PR-7",
    "label": {
     "ja": "再開予定日",
     "en": "Resume"
    }
   },
   {
-   "rowId": "PR-8",
+   "specTableRowId": "PR-8",
    "label": {
     "ja": "再開日確定",
     "en": "Resume Date Confirmed"
    }
   },
   {
-   "rowId": "PR-10",
+   "specTableRowId": "PR-10",
    "label": {
     "ja": "期限",
     "en": "Deadline"
    }
   },
   {
-   "rowId": "PR-17",
+   "specTableRowId": "PR-17",
    "label": {
     "ja": "マイルストーン形状",
     "en": "Milestone Shape"
    }
   },
   {
-   "rowId": "PR-14",
+   "specTableRowId": "PR-14",
    "label": {
     "ja": "フェード日数 前/後",
     "en": "Fade In/Out Days"
    }
   },
   {
-   "rowId": "PR-15",
+   "specTableRowId": "PR-15",
    "label": {
     "ja": "親タスク",
     "en": "Parent Task"
    }
   },
   {
-   "rowId": "PR-37",
+   "specTableRowId": "PR-37",
    "label": {
     "ja": "先行タスク",
     "en": "Predecessor Tasks"
    }
   },
   {
-   "rowId": "PR-38",
+   "specTableRowId": "PR-38",
    "label": {
     "ja": "後続タスク",
     "en": "Successor Tasks"
    }
   },
   {
-   "rowId": "PR-2",
+   "specTableRowId": "PR-2",
    "label": {
     "ja": "備考",
     "en": "Notes"
    }
   },
   {
-   "rowId": "PR-40",
+   "specTableRowId": "PR-40",
    "label": {
     "ja": "枠線幅",
     "en": "Outline Width"
    }
   },
   {
-   "rowId": "PR-39",
+   "specTableRowId": "PR-39",
    "label": {
     "ja": "枠線色",
     "en": "Outline Color"
    }
   },
   {
-   "rowId": "PR-12",
+   "specTableRowId": "PR-12",
    "label": {
     "ja": "塗潰し色",
     "en": "Fill Color"
    }
   },
   {
-   "rowId": "PR-18",
+   "specTableRowId": "PR-18",
    "label": {
     "ja": "タスクグループ名",
     "en": "Task Group Name"
    }
   },
   {
-   "rowId": "PR-20",
+   "specTableRowId": "PR-20",
    "label": {
     "ja": "最小高さ",
     "en": "Min Height"
    }
   },
   {
-   "rowId": "PR-33",
+   "specTableRowId": "PR-33",
    "label": {
     "ja": "編集権限",
     "en": "Edit Permission"
    }
   },
   {
-   "rowId": "PR-19",
+   "specTableRowId": "PR-19",
    "label": {
     "ja": "色",
     "en": "Color"
    }
   },
   {
-   "rowId": "PR-21",
+   "specTableRowId": "PR-21",
    "label": {
     "ja": "本文",
     "en": "Text"
    }
   },
   {
-   "rowId": "PR-50",
+   "specTableRowId": "PR-50",
    "label": {
     "ja": "フォントサイズ",
     "en": "Font Size"
    }
   },
   {
-   "rowId": "PR-48",
+   "specTableRowId": "PR-48",
    "label": {
     "ja": "最前面に配置",
     "en": "Bring to Front"
    }
   },
   {
-   "rowId": "PR-26",
+   "specTableRowId": "PR-26",
    "label": {
     "ja": "枠線幅",
     "en": "Outline Width"
    }
   },
   {
-   "rowId": "PR-28",
+   "specTableRowId": "PR-28",
    "label": {
     "ja": "枠線色",
     "en": "Outline Color"
    }
   },
   {
-   "rowId": "PR-45",
+   "specTableRowId": "PR-45",
    "label": {
     "ja": "塗潰し色",
     "en": "Fill Color"
    }
   },
   {
-   "rowId": "PR-27",
+   "specTableRowId": "PR-27",
    "label": {
     "ja": "塗りの透過率（%）",
     "en": "Fill Transparency (%)"
    }
   },
   {
-   "rowId": "PR-46",
+   "specTableRowId": "PR-46",
    "label": {
     "ja": "文字色",
     "en": "Text Color"
    }
   },
   {
-   "rowId": "PR-49",
+   "specTableRowId": "PR-49",
    "label": {
     "ja": "最前面に配置",
     "en": "Bring to Front"
    }
   },
   {
-   "rowId": "PR-23",
+   "specTableRowId": "PR-23",
    "label": {
     "ja": "枠線幅",
     "en": "Outline Width"
    }
   },
   {
-   "rowId": "PR-22",
+   "specTableRowId": "PR-22",
    "label": {
     "ja": "枠線色",
     "en": "Outline Color"
    }
   },
   {
-   "rowId": "PR-25",
+   "specTableRowId": "PR-25",
    "label": {
     "ja": "塗潰し色",
     "en": "Fill Color"
    }
   },
   {
-   "rowId": "PR-24",
+   "specTableRowId": "PR-24",
    "label": {
     "ja": "塗りの透過率（%）",
     "en": "Fill Transparency (%)"
    }
   },
   {
-   "rowId": "PR-41",
+   "specTableRowId": "PR-41",
    "label": {
     "ja": "種別",
     "en": "Type"
    }
   },
   {
-   "rowId": "PR-42",
+   "specTableRowId": "PR-42",
    "label": {
     "ja": "ラグ",
     "en": "Lag"
    }
   },
   {
-   "rowId": "PR-43",
+   "specTableRowId": "PR-43",
    "label": {
     "ja": "先行",
     "en": "Predecessor"
    }
   },
   {
-   "rowId": "PR-44",
+   "specTableRowId": "PR-44",
    "label": {
     "ja": "後続",
     "en": "Successor"
@@ -1836,7 +1836,7 @@
  ],
  "settings": [
   {
-   "rowId": "K-1",
+   "specTableRowId": "K-1",
    "keys": [
     "pxPerDayAt1x"
    ],
@@ -1846,7 +1846,7 @@
    }
   },
   {
-   "rowId": "K-2",
+   "specTableRowId": "K-2",
    "keys": [
     "rulerHeightPx"
    ],
@@ -1863,7 +1863,7 @@
    }
   },
   {
-   "rowId": "K-3",
+   "specTableRowId": "K-3",
    "keys": [
     "rulerFontSizePx"
    ],
@@ -1873,7 +1873,7 @@
    }
   },
   {
-   "rowId": "K-112",
+   "specTableRowId": "K-112",
    "keys": [
     "rulerLabelGap"
    ],
@@ -1883,7 +1883,7 @@
    }
   },
   {
-   "rowId": "K-113",
+   "specTableRowId": "K-113",
    "keys": [
     "rulerLabelPad"
    ],
@@ -1893,7 +1893,7 @@
    }
   },
   {
-   "rowId": "K-114",
+   "specTableRowId": "K-114",
    "keys": [
     "rulerLabelBottomPad"
    ],
@@ -1903,7 +1903,7 @@
    }
   },
   {
-   "rowId": "K-4",
+   "specTableRowId": "K-4",
    "keys": [
     "basePlanHeight"
    ],
@@ -1913,7 +1913,7 @@
    }
   },
   {
-   "rowId": "K-5",
+   "specTableRowId": "K-5",
    "keys": [
     "actualOfPlan"
    ],
@@ -1923,7 +1923,7 @@
    }
   },
   {
-   "rowId": "K-6",
+   "specTableRowId": "K-6",
    "keys": [
     "actualMin"
    ],
@@ -1933,7 +1933,7 @@
    }
   },
   {
-   "rowId": "K-7",
+   "specTableRowId": "K-7",
    "keys": [
     "fontOfActual"
    ],
@@ -1943,7 +1943,7 @@
    }
   },
   {
-   "rowId": "K-8",
+   "specTableRowId": "K-8",
    "keys": [
     "fontMin"
    ],
@@ -1953,7 +1953,7 @@
    }
   },
   {
-   "rowId": "K-9",
+   "specTableRowId": "K-9",
    "keys": [
     "thinFontScale"
    ],
@@ -1963,7 +1963,7 @@
    }
   },
   {
-   "rowId": "K-10",
+   "specTableRowId": "K-10",
    "keys": [
     "actualGap"
    ],
@@ -1973,7 +1973,7 @@
    }
   },
   {
-   "rowId": "K-11",
+   "specTableRowId": "K-11",
    "keys": [
     "stackGap"
    ],
@@ -1983,7 +1983,7 @@
    }
   },
   {
-   "rowId": "K-12",
+   "specTableRowId": "K-12",
    "keys": [
     "taskGroupGap"
    ],
@@ -1993,7 +1993,7 @@
    }
   },
   {
-   "rowId": "K-13",
+   "specTableRowId": "K-13",
    "keys": [
     "shapeHeightOf.rectangle"
    ],
@@ -2003,7 +2003,7 @@
    }
   },
   {
-   "rowId": "K-14",
+   "specTableRowId": "K-14",
    "keys": [
     "shapeHeightOf.chevron"
    ],
@@ -2013,7 +2013,7 @@
    }
   },
   {
-   "rowId": "K-15",
+   "specTableRowId": "K-15",
    "keys": [
     "shapeHeightOf.arrow"
    ],
@@ -2023,7 +2023,7 @@
    }
   },
   {
-   "rowId": "K-16",
+   "specTableRowId": "K-16",
    "keys": [
     "shapeHeightOf.endpointSpan"
    ],
@@ -2033,7 +2033,7 @@
    }
   },
   {
-   "rowId": "K-17",
+   "specTableRowId": "K-17",
    "keys": [
     "shapeHeightOf.milestone"
    ],
@@ -2043,7 +2043,7 @@
    }
   },
   {
-   "rowId": "K-18",
+   "specTableRowId": "K-18",
    "keys": [
     "dependencyWidth"
    ],
@@ -2053,7 +2053,7 @@
    }
   },
   {
-   "rowId": "K-19",
+   "specTableRowId": "K-19",
    "keys": [
     "dependencyArrowLength"
    ],
@@ -2063,7 +2063,7 @@
    }
   },
   {
-   "rowId": "K-126",
+   "specTableRowId": "K-126",
    "keys": [
     "dependencyLeadOut"
    ],
@@ -2073,7 +2073,7 @@
    }
   },
   {
-   "rowId": "K-127",
+   "specTableRowId": "K-127",
    "keys": [
     "dependencyLeadIn"
    ],
@@ -2083,7 +2083,7 @@
    }
   },
   {
-   "rowId": "K-128",
+   "specTableRowId": "K-128",
    "keys": [
     "dependencyArrowWidth"
    ],
@@ -2093,7 +2093,7 @@
    }
   },
   {
-   "rowId": "K-22",
+   "specTableRowId": "K-22",
    "keys": [
     "markerSize"
    ],
@@ -2103,7 +2103,7 @@
    }
   },
   {
-   "rowId": "K-24",
+   "specTableRowId": "K-24",
    "keys": [
     "markerStroke"
    ],
@@ -2113,7 +2113,7 @@
    }
   },
   {
-   "rowId": "K-25",
+   "specTableRowId": "K-25",
    "keys": [
     "resumeScaleInvalid"
    ],
@@ -2123,7 +2123,7 @@
    }
   },
   {
-   "rowId": "K-26",
+   "specTableRowId": "K-26",
    "keys": [
     "resumeArmOfMarker"
    ],
@@ -2133,7 +2133,7 @@
    }
   },
   {
-   "rowId": "K-27",
+   "specTableRowId": "K-27",
    "keys": [
     "resumeHeadOfMarker"
    ],
@@ -2143,7 +2143,7 @@
    }
   },
   {
-   "rowId": "K-28",
+   "specTableRowId": "K-28",
    "keys": [
     "resumeDashOn"
    ],
@@ -2153,7 +2153,7 @@
    }
   },
   {
-   "rowId": "K-29",
+   "specTableRowId": "K-29",
    "keys": [
     "resumeDashOff"
    ],
@@ -2163,7 +2163,7 @@
    }
   },
   {
-   "rowId": "K-129",
+   "specTableRowId": "K-129",
    "keys": [
     "resumeOpacityInvalid"
    ],
@@ -2173,7 +2173,7 @@
    }
   },
   {
-   "rowId": "K-130",
+   "specTableRowId": "K-130",
    "keys": [
     "resumeDashWidth"
    ],
@@ -2183,7 +2183,7 @@
    }
   },
   {
-   "rowId": "K-30",
+   "specTableRowId": "K-30",
    "keys": [
     "labelCoef"
    ],
@@ -2193,7 +2193,7 @@
    }
   },
   {
-   "rowId": "K-31",
+   "specTableRowId": "K-31",
    "keys": [
     "labelPad"
    ],
@@ -2203,7 +2203,7 @@
    }
   },
   {
-   "rowId": "K-32",
+   "specTableRowId": "K-32",
    "keys": [
     "labelGap"
    ],
@@ -2213,7 +2213,7 @@
    }
   },
   {
-   "rowId": "K-131",
+   "specTableRowId": "K-131",
    "keys": [
     "milestoneNameMarkerGap"
    ],
@@ -2223,7 +2223,7 @@
    }
   },
   {
-   "rowId": "K-132",
+   "specTableRowId": "K-132",
    "keys": [
     "assigneeLabelGap"
    ],
@@ -2233,7 +2233,7 @@
    }
   },
   {
-   "rowId": "K-147",
+   "specTableRowId": "K-147",
    "keys": [
     "progressMarkerEdgeGap"
    ],
@@ -2243,7 +2243,7 @@
    }
   },
   {
-   "rowId": "K-133",
+   "specTableRowId": "K-133",
    "keys": [
     "milestoneNameStartOfWidth"
    ],
@@ -2253,7 +2253,7 @@
    }
   },
   {
-   "rowId": "K-33",
+   "specTableRowId": "K-33",
    "keys": [
     "labelBaseline"
    ],
@@ -2263,7 +2263,7 @@
    }
   },
   {
-   "rowId": "K-34",
+   "specTableRowId": "K-34",
    "keys": [
     "labelHaloOfFont"
    ],
@@ -2273,7 +2273,7 @@
    }
   },
   {
-   "rowId": "K-35",
+   "specTableRowId": "K-35",
    "keys": [
     "truncateUnits"
    ],
@@ -2283,7 +2283,7 @@
    }
   },
   {
-   "rowId": "K-36",
+   "specTableRowId": "K-36",
    "keys": [
     "taskGroupTitleFont"
    ],
@@ -2293,7 +2293,7 @@
    }
   },
   {
-   "rowId": "K-37",
+   "specTableRowId": "K-37",
    "keys": [
     "taskGroupTitleIndent"
    ],
@@ -2303,7 +2303,7 @@
    }
   },
   {
-   "rowId": "K-38",
+   "specTableRowId": "K-38",
    "keys": [
     "taskGroupTitleTopScale"
    ],
@@ -2313,7 +2313,7 @@
    }
   },
   {
-   "rowId": "K-39",
+   "specTableRowId": "K-39",
    "keys": [
     "planStroke"
    ],
@@ -2323,7 +2323,7 @@
    }
   },
   {
-   "rowId": "K-43",
+   "specTableRowId": "K-43",
    "keys": [
     "chevronNotchOfHeight"
    ],
@@ -2333,7 +2333,7 @@
    }
   },
   {
-   "rowId": "K-44",
+   "specTableRowId": "K-44",
    "keys": [
     "chevronNotchOfWidth"
    ],
@@ -2343,7 +2343,7 @@
    }
   },
   {
-   "rowId": "K-46",
+   "specTableRowId": "K-46",
    "keys": [
     "arrowHeadOfSpan"
    ],
@@ -2353,7 +2353,7 @@
    }
   },
   {
-   "rowId": "K-134",
+   "specTableRowId": "K-134",
    "keys": [
     "thinStrokeWidth"
    ],
@@ -2363,7 +2363,7 @@
    }
   },
   {
-   "rowId": "K-135",
+   "specTableRowId": "K-135",
    "keys": [
     "thinArrowHeadLength"
    ],
@@ -2373,7 +2373,7 @@
    }
   },
   {
-   "rowId": "K-136",
+   "specTableRowId": "K-136",
    "keys": [
     "thinArrowHeadHeight"
    ],
@@ -2383,7 +2383,7 @@
    }
   },
   {
-   "rowId": "K-137",
+   "specTableRowId": "K-137",
    "keys": [
     "spanDotSize"
    ],
@@ -2393,7 +2393,7 @@
    }
   },
   {
-   "rowId": "K-48",
+   "specTableRowId": "K-48",
    "keys": [
     "starInnerOfOuter"
    ],
@@ -2403,7 +2403,7 @@
    }
   },
   {
-   "rowId": "K-49",
+   "specTableRowId": "K-49",
    "keys": [
     "minShapeWidth"
    ],
@@ -2413,7 +2413,7 @@
    }
   },
   {
-   "rowId": "K-50",
+   "specTableRowId": "K-50",
    "keys": [
     "progressLineWidth"
    ],
@@ -2423,7 +2423,7 @@
    }
   },
   {
-   "rowId": "K-51",
+   "specTableRowId": "K-51",
    "keys": [
     "progressLineOverhang"
    ],
@@ -2433,7 +2433,7 @@
    }
   },
   {
-   "rowId": "K-52",
+   "specTableRowId": "K-52",
    "keys": [
     "rulerTierPxPerDayMonth"
    ],
@@ -2443,7 +2443,7 @@
    }
   },
   {
-   "rowId": "K-53",
+   "specTableRowId": "K-53",
    "keys": [
     "rulerTierPxPerDayWeek"
    ],
@@ -2453,7 +2453,7 @@
    }
   },
   {
-   "rowId": "K-54",
+   "specTableRowId": "K-54",
    "keys": [
     "rulerTierPxPerDayDay"
    ],
@@ -2463,7 +2463,7 @@
    }
   },
   {
-   "rowId": "K-56",
+   "specTableRowId": "K-56",
    "keys": [
     "groupLevelOfDetailBase"
    ],
@@ -2473,7 +2473,7 @@
    }
   },
   {
-   "rowId": "K-57",
+   "specTableRowId": "K-57",
    "keys": [
     "groupLevelOfDetailRatio"
    ],
@@ -2483,7 +2483,7 @@
    }
   },
   {
-   "rowId": "K-58",
+   "specTableRowId": "K-58",
    "keys": [
     "stackSafetyCap"
    ],
@@ -2493,7 +2493,7 @@
    }
   },
   {
-   "rowId": "K-59",
+   "specTableRowId": "K-59",
    "keys": [
     "themePreference"
    ],
@@ -2503,7 +2503,7 @@
    }
   },
   {
-   "rowId": "K-60",
+   "specTableRowId": "K-60",
    "keys": [
     "themeHue"
    ],
@@ -2513,7 +2513,7 @@
    }
   },
   {
-   "rowId": "K-61",
+   "specTableRowId": "K-61",
    "keys": [
     "isThemeMonochrome"
    ],
@@ -2529,7 +2529,7 @@
    }
   },
   {
-   "rowId": "K-62",
+   "specTableRowId": "K-62",
    "keys": [
     "zoomStep"
    ],
@@ -2539,7 +2539,7 @@
    }
   },
   {
-   "rowId": "K-63",
+   "specTableRowId": "K-63",
    "keys": [
     "zoomMin"
    ],
@@ -2549,7 +2549,7 @@
    }
   },
   {
-   "rowId": "K-64",
+   "specTableRowId": "K-64",
    "keys": [
     "zoomMax"
    ],
@@ -2559,7 +2559,7 @@
    }
   },
   {
-   "rowId": "K-65",
+   "specTableRowId": "K-65",
    "keys": [
     "canvasPadding"
    ],
@@ -2569,7 +2569,7 @@
    }
   },
   {
-   "rowId": "K-67",
+   "specTableRowId": "K-67",
    "keys": [
     "zoomX"
    ],
@@ -2586,7 +2586,7 @@
    }
   },
   {
-   "rowId": "K-68",
+   "specTableRowId": "K-68",
    "keys": [
     "zoomY"
    ],
@@ -2603,7 +2603,7 @@
    }
   },
   {
-   "rowId": "K-69",
+   "specTableRowId": "K-69",
    "keys": [
     "scrollDate"
    ],
@@ -2621,7 +2621,7 @@
    }
   },
   {
-   "rowId": "K-70",
+   "specTableRowId": "K-70",
    "keys": [
     "scrollTaskGroupId"
    ],
@@ -2639,7 +2639,7 @@
    }
   },
   {
-   "rowId": "K-71",
+   "specTableRowId": "K-71",
    "keys": [
     "taskGroupPanelWidthPx"
    ],
@@ -2656,7 +2656,7 @@
    }
   },
   {
-   "rowId": "K-143",
+   "specTableRowId": "K-143",
    "keys": [
     "isTaskGroupPanelWidthFixed"
    ],
@@ -2674,7 +2674,7 @@
    }
   },
   {
-   "rowId": "K-72",
+   "specTableRowId": "K-72",
    "keys": [
     "propertyPanelWidth"
    ],
@@ -2684,7 +2684,7 @@
    }
   },
   {
-   "rowId": "K-110",
+   "specTableRowId": "K-110",
    "keys": [
     "pinnedTaskGroupIds"
    ],
@@ -2700,7 +2700,7 @@
    }
   },
   {
-   "rowId": "K-111",
+   "specTableRowId": "K-111",
    "keys": [
     "pinnedTaskGroupMax"
    ],
@@ -2710,7 +2710,7 @@
    }
   },
   {
-   "rowId": "K-73",
+   "specTableRowId": "K-73",
    "keys": [
     "stackDirection"
    ],
@@ -2720,7 +2720,7 @@
    }
   },
   {
-   "rowId": "K-122",
+   "specTableRowId": "K-122",
    "keys": [
     "isPlanVisible"
    ],
@@ -2730,7 +2730,7 @@
    }
   },
   {
-   "rowId": "K-123",
+   "specTableRowId": "K-123",
    "keys": [
     "isActualVisible"
    ],
@@ -2740,7 +2740,7 @@
    }
   },
   {
-   "rowId": "K-75",
+   "specTableRowId": "K-75",
    "keys": [
     "isAssigneeVisible"
    ],
@@ -2750,7 +2750,7 @@
    }
   },
   {
-   "rowId": "K-76",
+   "specTableRowId": "K-76",
    "keys": [
     "isPercentCompleteVisible"
    ],
@@ -2760,7 +2760,7 @@
    }
   },
   {
-   "rowId": "K-124",
+   "specTableRowId": "K-124",
    "keys": [
     "isPlanDatesVisible"
    ],
@@ -2777,7 +2777,7 @@
    }
   },
   {
-   "rowId": "K-77",
+   "specTableRowId": "K-77",
    "keys": [
     "isDependencyVisible"
    ],
@@ -2787,7 +2787,7 @@
    }
   },
   {
-   "rowId": "K-78",
+   "specTableRowId": "K-78",
    "keys": [
     "isProgressMarkerVisible"
    ],
@@ -2797,7 +2797,7 @@
    }
   },
   {
-   "rowId": "K-79",
+   "specTableRowId": "K-79",
    "keys": [
     "isProgressLineVisible"
    ],
@@ -2807,7 +2807,7 @@
    }
   },
   {
-   "rowId": "K-80",
+   "specTableRowId": "K-80",
    "keys": [
     "dualCursor"
    ],
@@ -2817,7 +2817,7 @@
    }
   },
   {
-   "rowId": "K-81",
+   "specTableRowId": "K-81",
    "keys": [
     "guideCursorMode"
    ],
@@ -2827,7 +2827,7 @@
    }
   },
   {
-   "rowId": "K-82",
+   "specTableRowId": "K-82",
    "keys": [
     "isDateGridLinesVisible"
    ],
@@ -2844,7 +2844,7 @@
    }
   },
   {
-   "rowId": "K-83",
+   "specTableRowId": "K-83",
    "keys": [
     "isGroupGridLinesVisible"
    ],
@@ -2861,7 +2861,7 @@
    }
   },
   {
-   "rowId": "K-84",
+   "specTableRowId": "K-84",
    "keys": [
     "isBaselineVisible"
    ],
@@ -2878,7 +2878,7 @@
    }
   },
   {
-   "rowId": "K-85",
+   "specTableRowId": "K-85",
    "keys": [
     "fontSizeStep"
    ],
@@ -2888,7 +2888,7 @@
    }
   },
   {
-   "rowId": "K-125",
+   "specTableRowId": "K-125",
    "keys": [
     "displayScale"
    ],
@@ -2904,7 +2904,7 @@
    }
   },
   {
-   "rowId": "K-86",
+   "specTableRowId": "K-86",
    "keys": [
     "importSequence"
    ],
@@ -2914,7 +2914,7 @@
    }
   },
   {
-   "rowId": "K-87",
+   "specTableRowId": "K-87",
    "keys": [
     "exportCanvas"
    ],
@@ -2924,7 +2924,7 @@
    }
   },
   {
-   "rowId": "K-141",
+   "specTableRowId": "K-141",
    "keys": [
     "fitSpanStart",
     "fitSpanFinish"
@@ -2941,7 +2941,7 @@
    }
   },
   {
-   "rowId": "K-142",
+   "specTableRowId": "K-142",
    "keys": [
     "isFitSpanFixed"
    ],
@@ -2958,7 +2958,7 @@
    }
   },
   {
-   "rowId": "K-144",
+   "specTableRowId": "K-144",
    "keys": [
     "viewTimeZone"
    ],
@@ -2975,7 +2975,7 @@
    }
   },
   {
-   "rowId": "K-145",
+   "specTableRowId": "K-145",
    "keys": [
     "displayTimeZones"
    ],
@@ -2991,7 +2991,7 @@
    }
   },
   {
-   "rowId": "K-146",
+   "specTableRowId": "K-146",
    "keys": [
     "isTimeOfDayVisible"
    ],
@@ -3007,7 +3007,7 @@
    }
   },
   {
-   "rowId": "K-91",
+   "specTableRowId": "K-91",
    "keys": [
     "planActualGuideWeight"
    ],
@@ -3017,7 +3017,7 @@
    }
   },
   {
-   "rowId": "K-92",
+   "specTableRowId": "K-92",
    "keys": [
     "planActualGuidePattern"
    ],
@@ -3027,7 +3027,7 @@
    }
   },
   {
-   "rowId": "K-93",
+   "specTableRowId": "K-93",
    "keys": [
     "planActualGuideColor"
    ],
@@ -3037,7 +3037,7 @@
    }
   },
   {
-   "rowId": "K-94",
+   "specTableRowId": "K-94",
    "keys": [
     "fadeHandleHalfPx"
    ],
@@ -3047,7 +3047,7 @@
    }
   },
   {
-   "rowId": "K-95",
+   "specTableRowId": "K-95",
    "keys": [
     "fadeHandleStrokePx"
    ],
@@ -3057,7 +3057,7 @@
    }
   },
   {
-   "rowId": "K-97",
+   "specTableRowId": "K-97",
    "keys": [
     "importMaxBytes"
    ],
@@ -3067,7 +3067,7 @@
    }
   },
   {
-   "rowId": "K-98",
+   "specTableRowId": "K-98",
    "keys": [
     "importMaxItems"
    ],
@@ -3077,7 +3077,7 @@
    }
   },
   {
-   "rowId": "K-99",
+   "specTableRowId": "K-99",
    "keys": [
     "importMaxDepth"
    ],
@@ -3087,7 +3087,7 @@
    }
   },
   {
-   "rowId": "K-100",
+   "specTableRowId": "K-100",
    "keys": [
     "appHeaderMaxHeight"
    ],
@@ -3097,7 +3097,7 @@
    }
   },
   {
-   "rowId": "K-101",
+   "specTableRowId": "K-101",
    "keys": [
     "watermarkOpacity"
    ],
@@ -3107,7 +3107,7 @@
    }
   },
   {
-   "rowId": "K-102",
+   "specTableRowId": "K-102",
    "keys": [
     "maxGroupDepth"
    ],
@@ -3117,7 +3117,7 @@
    }
   },
   {
-   "rowId": "K-103",
+   "specTableRowId": "K-103",
    "keys": [
     "importMinDate",
     "importMaxDate"
@@ -3128,7 +3128,7 @@
    }
   },
   {
-   "rowId": "K-104",
+   "specTableRowId": "K-104",
    "keys": [
     "dependencyLagDefault"
    ],
@@ -3138,7 +3138,7 @@
    }
   },
   {
-   "rowId": "K-105",
+   "specTableRowId": "K-105",
    "keys": [
     "fontSizeStepSizes.S",
     "fontSizeStepSizes.M",
@@ -3150,7 +3150,7 @@
    }
   },
   {
-   "rowId": "K-106",
+   "specTableRowId": "K-106",
    "keys": [
     "iconHintDelayMs"
    ],
@@ -3160,7 +3160,7 @@
    }
   },
   {
-   "rowId": "K-107",
+   "specTableRowId": "K-107",
    "keys": [
     "actualInitialDuration"
    ],
@@ -3170,7 +3170,7 @@
    }
   },
   {
-   "rowId": "K-108",
+   "specTableRowId": "K-108",
    "keys": [
     "milestoneActualDuration"
    ],
@@ -3180,7 +3180,7 @@
    }
   },
   {
-   "rowId": "K-109",
+   "specTableRowId": "K-109",
    "keys": [
     "dummyOpacity"
    ],
@@ -3190,7 +3190,7 @@
    }
   },
   {
-   "rowId": "K-115",
+   "specTableRowId": "K-115",
    "keys": [
     "commentBoxPad"
    ],
@@ -3200,7 +3200,7 @@
    }
   },
   {
-   "rowId": "K-116",
+   "specTableRowId": "K-116",
    "keys": [
     "commentBoxWrapUnits"
    ],
@@ -3210,7 +3210,7 @@
    }
   },
   {
-   "rowId": "K-118",
+   "specTableRowId": "K-118",
    "keys": [
     "carryMaxDepth"
    ],
@@ -3220,7 +3220,7 @@
    }
   },
   {
-   "rowId": "K-119",
+   "specTableRowId": "K-119",
    "keys": [
     "exportCanvasHeightCap"
    ],
@@ -3230,7 +3230,7 @@
    }
   },
   {
-   "rowId": "K-120",
+   "specTableRowId": "K-120",
    "keys": [
     "scrollTaskGroupFraction"
    ],
@@ -3250,7 +3250,7 @@
    }
   },
   {
-   "rowId": "K-121",
+   "specTableRowId": "K-121",
    "keys": [
     "scrollDateFraction"
    ],
@@ -3270,7 +3270,7 @@
    }
   },
   {
-   "rowId": "K-138",
+   "specTableRowId": "K-138",
    "keys": [
     "levelZeroTreeState"
    ],
@@ -3287,7 +3287,7 @@
    }
   },
   {
-   "rowId": "K-140",
+   "specTableRowId": "K-140",
    "keys": [
     "parentTaskProgressToleranceDays"
    ],
@@ -3307,7 +3307,7 @@
    }
   },
   {
-   "rowId": "K-90",
+   "specTableRowId": "K-90",
    "keys": [
     "screenLanguage"
    ],
@@ -3317,7 +3317,7 @@
    }
   },
   {
-   "rowId": "K-139",
+   "specTableRowId": "K-139",
    "keys": [
     "helpLanguage"
    ],
@@ -3417,70 +3417,70 @@
  ],
  "notices": [
   {
-   "rowId": "NT-1",
+   "specTableRowId": "NT-1",
    "manner": {
     "ja": "入力を受け付けないとき",
     "en": "When input is not accepted"
    }
   },
   {
-   "rowId": "NT-2",
+   "specTableRowId": "NT-2",
    "manner": {
     "ja": "時間で消える通知",
     "en": "A notification that goes away with time"
    }
   },
   {
-   "rowId": "NT-3",
+   "specTableRowId": "NT-3",
    "manner": {
     "ja": "破壊的な結果を伴うとき",
     "en": "When the result is destructive"
    }
   },
   {
-   "rowId": "NT-3a",
+   "specTableRowId": "NT-3a",
    "manner": {
     "ja": "失敗の通知",
     "en": "A notification of failure"
    }
   },
   {
-   "rowId": "NT-4",
+   "specTableRowId": "NT-4",
    "manner": {
     "ja": "起動時の保留中の用件",
     "en": "Matters pending at startup"
    }
   },
   {
-   "rowId": "NT-6",
+   "specTableRowId": "NT-6",
    "manner": {
     "ja": "資源の上限に達したとき",
     "en": "When the limit is reached"
    }
   },
   {
-   "rowId": "NT-5",
+   "specTableRowId": "NT-5",
    "manner": {
     "ja": "受け付けたうえで注意を伝えるとき",
     "en": "When a caution accompanies acceptance"
    }
   },
   {
-   "rowId": "NT-7",
+   "specTableRowId": "NT-7",
    "manner": {
     "ja": "続けてよいかを問うとき",
     "en": "When asking whether to go on"
    }
   },
   {
-   "rowId": "NT-8",
+   "specTableRowId": "NT-8",
    "manner": {
     "ja": "告げた通知を消すとき",
     "en": "When a told notification is dismissed"
    }
   },
   {
-   "rowId": "NT-9",
+   "specTableRowId": "NT-9",
    "manner": {
     "ja": "通知の箱の幅",
     "en": "How wide the box of a notification is"
@@ -3489,63 +3489,63 @@
  ],
  "shortcuts": [
   {
-   "rowId": "SK-19",
+   "specTableRowId": "SK-19",
    "text": {
     "ja": "その場の編集を確定する",
     "en": "Commit the edit in place"
    }
   },
   {
-   "rowId": "SK-2",
+   "specTableRowId": "SK-2",
    "text": {
     "ja": "選べるものをすべて選ぶ",
     "en": "Select everything selectable"
    }
   },
   {
-   "rowId": "SK-3",
+   "specTableRowId": "SK-3",
    "text": {
     "ja": "選択しているものを削除する",
     "en": "Delete what is selected"
    }
   },
   {
-   "rowId": "SK-4",
+   "specTableRowId": "SK-4",
    "text": {
     "ja": "コピーする",
     "en": "Copy"
    }
   },
   {
-   "rowId": "SK-5",
+   "specTableRowId": "SK-5",
    "text": {
     "ja": "貼り付ける",
     "en": "Paste"
    }
   },
   {
-   "rowId": "SK-8",
+   "specTableRowId": "SK-8",
    "text": {
     "ja": "取り消す・閉じる",
     "en": "Cancel or close"
    }
   },
   {
-   "rowId": "SK-9",
+   "specTableRowId": "SK-9",
    "text": {
     "ja": "文書名を編集する",
     "en": "Edit the document name"
    }
   },
   {
-   "rowId": "SK-11",
+   "specTableRowId": "SK-11",
    "text": {
     "ja": "保存する",
     "en": "Save"
    }
   },
   {
-   "rowId": "SK-21",
+   "specTableRowId": "SK-21",
    "text": {
     "ja": "開いているファイルを読み直す",
     "en": "Reload the open file"
@@ -3614,7 +3614,7 @@
  ],
  "helpNotes": [
   {
-   "rowId": "IC-54",
+   "specTableRowId": "IC-54",
    "text": {
     "ja": "(構えている間だけ出る)",
     "en": "(while a tool is selected)"
@@ -3647,7 +3647,7 @@
   },
   {
    "link": "agentApi",
-   "rowId": "IC-20",
+   "specTableRowId": "IC-20",
    "text": {
     "ja": "詳細→AI連携",
     "en": "Details → AI integration"
@@ -3656,14 +3656,14 @@
  ],
  "browserFunctions": [
   {
-   "rowId": "BF-1",
+   "specTableRowId": "BF-1",
    "text": {
     "ja": "ブラウザの表示を拡大・縮小する",
     "en": "Zoom the browser in or out"
    }
   },
   {
-   "rowId": "BF-2",
+   "specTableRowId": "BF-2",
    "text": {
     "ja": "ブラウザの表示の倍率を戻す",
     "en": "Reset the browser zoom"
@@ -3672,7 +3672,7 @@
  ],
  "reasons": [
   {
-   "rowId": "RS-1",
+   "specTableRowId": "RS-1",
    "text": {
     "ja": "このファイルへ書き込む権限が切れています",
     "en": "Permission to write to this file has lapsed."
@@ -3683,7 +3683,7 @@
    }
   },
   {
-   "rowId": "RS-2",
+   "specTableRowId": "RS-2",
    "text": {
     "ja": "開いているファイルが無いので、上書きする先がありません",
     "en": "No file is open, so there is nothing to overwrite."
@@ -3694,7 +3694,7 @@
    }
   },
   {
-   "rowId": "RS-3",
+   "specTableRowId": "RS-3",
    "text": {
     "ja": "この環境ではファイルへの書き込みが行えません",
     "en": "Writing to a file is not available here."
@@ -3705,7 +3705,7 @@
    }
   },
   {
-   "rowId": "RS-4",
+   "specTableRowId": "RS-4",
    "text": {
     "ja": "このファイルは UTF-8 ではないので読めません",
     "en": "This file is not UTF-8, so it cannot be read."
@@ -3716,7 +3716,7 @@
    }
   },
   {
-   "rowId": "RS-5",
+   "specTableRowId": "RS-5",
    "text": {
     "ja": "この形式は書き出し専用なので、開いたファイルへは上書きできません",
     "en": "This format only goes out, so it cannot overwrite the opened file."
@@ -3727,7 +3727,7 @@
    }
   },
   {
-   "rowId": "RS-6",
+   "specTableRowId": "RS-6",
    "text": {
     "ja": "いまは変更を受け付けられなかったので、行っていません",
     "en": "The change could not be accepted just now, so it was not made."
@@ -3738,7 +3738,7 @@
    }
   },
   {
-   "rowId": "RS-8",
+   "specTableRowId": "RS-8",
    "text": {
     "ja": "いまは変更を受け付けられなかったので、行っていません",
     "en": "The change could not be accepted just now, so it was not made."
@@ -3749,7 +3749,7 @@
    }
   },
   {
-   "rowId": "RS-10",
+   "specTableRowId": "RS-10",
    "text": {
     "ja": "受け付けられない操作が含まれていたので、まとめて取りやめました",
     "en": "One of the changes was refused, so the whole set was dropped."
@@ -3760,7 +3760,7 @@
    }
   },
   {
-   "rowId": "RS-11",
+   "specTableRowId": "RS-11",
    "text": {
     "ja": "このファイルは GRS が読める形式（GRS JSON・MSPDI XML・GRS の .html）ではありません",
     "en": "This file is not in a format GRS can read (GRS JSON, MSPDI XML, or a GRS .html)."
@@ -3771,7 +3771,7 @@
    }
   },
   {
-   "rowId": "RS-14",
+   "specTableRowId": "RS-14",
    "text": {
     "ja": "一度に開けるファイルは 1 つです",
     "en": "Only one file can be opened at a time."
@@ -3782,7 +3782,7 @@
    }
   },
   {
-   "rowId": "RS-78",
+   "specTableRowId": "RS-78",
    "text": {
     "ja": "大きさが {importMaxBytes} MB を超えているので、このファイルは開けません",
     "en": "The file is larger than {importMaxBytes} MB, so it cannot be opened."
@@ -3793,7 +3793,7 @@
    }
   },
   {
-   "rowId": "RS-79",
+   "specTableRowId": "RS-79",
    "text": {
     "ja": "タスクが {importMaxItems} 件を超えているので、このファイルは開けません",
     "en": "The file holds more than {importMaxItems} tasks, so it cannot be opened."
@@ -3804,7 +3804,7 @@
    }
   },
   {
-   "rowId": "RS-80",
+   "specTableRowId": "RS-80",
    "text": {
     "ja": "親タスクと子タスクの入れ子が {importMaxDepth} 段より深いので、このファイルは開けません",
     "en": "Tasks are nested more than {importMaxDepth} levels deep, so this file cannot be opened."
@@ -3815,7 +3815,7 @@
    }
   },
   {
-   "rowId": "RS-81",
+   "specTableRowId": "RS-81",
    "text": {
     "ja": "開始日か終了日の無いタスクがあるので、このファイルは開けません",
     "en": "A task has no start date or no finish date, so this file cannot be opened."
@@ -3826,7 +3826,7 @@
    }
   },
   {
-   "rowId": "RS-16",
+   "specTableRowId": "RS-16",
    "text": {
     "ja": "重ねたファイルの一部のタスクは、現在の文書に対応するものが無いので描いていません",
     "en": "Some tasks of the overlaid file have no counterpart in this document, so they are not drawn."
@@ -3837,7 +3837,7 @@
    }
   },
   {
-   "rowId": "RS-19",
+   "specTableRowId": "RS-19",
    "text": {
     "ja": "透かしに出す名前が、まだ設定されていません",
     "en": "The name the watermark prints has not been set."
@@ -3848,7 +3848,7 @@
    }
   },
   {
-   "rowId": "RS-20",
+   "specTableRowId": "RS-20",
    "text": {
     "ja": "無効にしても、既に渡した参照は取り消せません",
     "en": "Disabling it does not take back references already handed out."
@@ -3859,7 +3859,7 @@
    }
   },
   {
-   "rowId": "RS-21",
+   "specTableRowId": "RS-21",
    "text": {
     "ja": "稼働する曜日が 1 つも無い暦なので、この文書の暦にできません",
     "en": "This calendar has no working weekday, so it cannot be the calendar of this document."
@@ -3870,7 +3870,7 @@
    }
   },
   {
-   "rowId": "RS-22",
+   "specTableRowId": "RS-22",
    "text": {
     "ja": "収まらないタスクがあるので、一部を描いていません",
     "en": "Some tasks did not fit, so they are not drawn."
@@ -3881,7 +3881,7 @@
    }
   },
   {
-   "rowId": "RS-23",
+   "specTableRowId": "RS-23",
    "text": {
     "ja": "変更の通知を配れなかった相手があります",
     "en": "A change notice could not be delivered to one of the watchers."
@@ -3892,7 +3892,7 @@
    }
   },
   {
-   "rowId": "RS-24",
+   "specTableRowId": "RS-24",
    "text": {
     "ja": "1 つのタスクグループに重なるタスクが多すぎるので、これ以上積めません",
     "en": "Too many tasks overlap on one task group, so no more can be stacked."
@@ -3903,7 +3903,7 @@
    }
   },
   {
-   "rowId": "RS-25",
+   "specTableRowId": "RS-25",
    "text": {
     "ja": "読み込んだファイルの中身が、決められた形に合いません",
     "en": "The contents of the file that was read do not match the settled shape."
@@ -3914,7 +3914,7 @@
    }
   },
   {
-   "rowId": "RS-26",
+   "specTableRowId": "RS-26",
    "text": {
     "ja": "起動時に渡されたファイルを読めなかったので、開いていません",
     "en": "The file handed at startup could not be read, so it was not opened."
@@ -3925,7 +3925,7 @@
    }
   },
   {
-   "rowId": "RS-27",
+   "specTableRowId": "RS-27",
    "text": {
     "ja": "この操作は、いま行えることがありません",
     "en": "There is nothing for this control to do right now."
@@ -3936,7 +3936,7 @@
    }
   },
   {
-   "rowId": "RS-28",
+   "specTableRowId": "RS-28",
    "text": {
     "ja": "展開する配下のタスクグループがありません",
     "en": "There is no collapsed group under this task group to expand."
@@ -3947,7 +3947,7 @@
    }
   },
   {
-   "rowId": "RS-29",
+   "specTableRowId": "RS-29",
    "text": {
     "ja": "このタスクグループは、描かれている子を 1 つも持っていません",
     "en": "This task group draws no child, so there is nothing to collapse."
@@ -3958,7 +3958,7 @@
    }
   },
   {
-   "rowId": "RS-30",
+   "specTableRowId": "RS-30",
    "text": {
     "ja": "このタスクグループの直下に、画面へ戻せる子がありません",
     "en": "No child of this task group is out of the picture to bring back."
@@ -3969,7 +3969,7 @@
    }
   },
   {
-   "rowId": "RS-31",
+   "specTableRowId": "RS-31",
    "text": {
     "ja": "すべてのタスクグループが、もう展開して描かれています",
     "en": "Every task group is already expanded and drawn."
@@ -3980,7 +3980,7 @@
    }
   },
   {
-   "rowId": "RS-32",
+   "specTableRowId": "RS-32",
    "text": {
     "ja": "展開しているタスクグループが 1 つもありません",
     "en": "No task group is expanded."
@@ -3991,7 +3991,7 @@
    }
   },
   {
-   "rowId": "RS-33",
+   "specTableRowId": "RS-33",
    "text": {
     "ja": "予定と実績の両方を隠すことはできません",
     "en": "The plan and the actual cannot both be hidden."
@@ -4002,7 +4002,7 @@
    }
   },
   {
-   "rowId": "RS-34",
+   "specTableRowId": "RS-34",
    "text": {
     "ja": "揃える相手のタスクが選ばれていません",
     "en": "No task is chosen to align."
@@ -4013,7 +4013,7 @@
    }
   },
   {
-   "rowId": "RS-40",
+   "specTableRowId": "RS-40",
    "text": {
     "ja": "この形式は、このビルドではまだ書けません",
     "en": "This build cannot write this format yet."
@@ -4024,7 +4024,7 @@
    }
   },
   {
-   "rowId": "RS-41",
+   "specTableRowId": "RS-41",
    "text": {
     "ja": "透かし解除パスワードが合いません",
     "en": "That is not the watermark unlock password."
@@ -4035,7 +4035,7 @@
    }
   },
   {
-   "rowId": "RS-43",
+   "specTableRowId": "RS-43",
    "text": {
     "ja": "タスクグループが多すぎて、この大きさでは描けません",
     "en": "There are too many task groups to draw at this size."
@@ -4046,7 +4046,7 @@
    }
   },
   {
-   "rowId": "RS-44",
+   "specTableRowId": "RS-44",
    "text": {
     "ja": "そこには注記を置くタスクグループがありません",
     "en": "There is no task group there to put the annotation on."
@@ -4057,7 +4057,7 @@
    }
   },
   {
-   "rowId": "RS-46",
+   "specTableRowId": "RS-46",
    "text": {
     "ja": "これ以上深い段にはタスクグループを追加できません",
     "en": "A task group cannot be added any deeper than this."
@@ -4068,7 +4068,7 @@
    }
   },
   {
-   "rowId": "RS-48",
+   "specTableRowId": "RS-48",
    "text": {
     "ja": "この文書は新しい形式で書かれており、読めなかった項目があります",
     "en": "This document is in a newer format, and some items could not be read."
@@ -4079,7 +4079,7 @@
    }
   },
   {
-   "rowId": "RS-63",
+   "specTableRowId": "RS-63",
    "text": {
     "ja": "この文書は、この版より新しい形式で書かれています",
     "en": "This document is in a newer format than this version."
@@ -4090,7 +4090,7 @@
    }
   },
   {
-   "rowId": "RS-64",
+   "specTableRowId": "RS-64",
    "text": {
     "ja": "この文書は新しい形式で書かれており、この版では開けません",
     "en": "This document is in a newer format, and this version cannot open it."
@@ -4101,7 +4101,7 @@
    }
   },
   {
-   "rowId": "RS-49",
+   "specTableRowId": "RS-49",
    "text": {
     "ja": "担当の名前を変えました。この担当が付いているタスクの表示が変わります",
     "en": "The assignee has been renamed, and every task they are on now shows the new name."
@@ -4112,7 +4112,7 @@
    }
   },
   {
-   "rowId": "RS-50",
+   "specTableRowId": "RS-50",
    "text": {
     "ja": "下記の無効なタスクを削除して取り込みました",
     "en": "The invalid tasks listed below were removed, and the rest was imported."
@@ -4123,7 +4123,7 @@
    }
   },
   {
-   "rowId": "RS-51",
+   "specTableRowId": "RS-51",
    "text": {
     "ja": "読んだ設定値が範囲の外だったので、範囲に収めました",
     "en": "Settings the document carried were out of range and were brought back in."
@@ -4134,7 +4134,7 @@
    }
   },
   {
-   "rowId": "RS-52",
+   "specTableRowId": "RS-52",
    "text": {
     "ja": "完了率を日付から数え直しました",
     "en": "The percent complete was counted again from the dates."
@@ -4145,7 +4145,7 @@
    }
   },
   {
-   "rowId": "RS-89",
+   "specTableRowId": "RS-89",
    "text": {
     "ja": "稼働日の時間帯の合計が、1 日（1d）の長さと違います",
     "en": "The working-time ranges of some working days do not add up to the length of 1d."
@@ -4156,7 +4156,7 @@
    }
   },
   {
-   "rowId": "RS-90",
+   "specTableRowId": "RS-90",
    "text": {
     "ja": "GRS Relay との接続が切れました",
     "en": "The connection to GRS Relay was lost."
@@ -4167,7 +4167,7 @@
    }
   },
   {
-   "rowId": "RS-53",
+   "specTableRowId": "RS-53",
    "text": {
     "ja": "タスクは期間を持つので、引かないと作れません",
     "en": "A task has a span, so it is not created without a drag."
@@ -4178,7 +4178,7 @@
    }
   },
   {
-   "rowId": "RS-54",
+   "specTableRowId": "RS-54",
    "text": {
     "ja": "構えている形状は、選んでいるものには当てられません",
     "en": "The selected tool cannot be applied to what is selected."
@@ -4189,7 +4189,7 @@
    }
   },
   {
-   "rowId": "RS-55",
+   "specTableRowId": "RS-55",
    "text": {
     "ja": "自分自身や、その下にあるタスクグループの中へは動かせません",
     "en": "A task group cannot be moved under itself or under one of its own descendants."
@@ -4200,7 +4200,7 @@
    }
   },
   {
-   "rowId": "RS-56",
+   "specTableRowId": "RS-56",
    "text": {
     "ja": "同じタスクを、依存の前と後ろの両方にはできません",
     "en": "One task cannot be both ends of a dependency."
@@ -4211,7 +4211,7 @@
    }
   },
   {
-   "rowId": "RS-57",
+   "specTableRowId": "RS-57",
    "text": {
     "ja": "同じ id のものが、この文書に既にあります",
     "en": "Something with the same id is already in this document."
@@ -4222,7 +4222,7 @@
    }
   },
   {
-   "rowId": "RS-58",
+   "specTableRowId": "RS-58",
    "text": {
     "ja": "終了の日が、開始の日より前になっています",
     "en": "The finish day is before the start day."
@@ -4233,7 +4233,7 @@
    }
   },
   {
-   "rowId": "RS-82",
+   "specTableRowId": "RS-82",
    "text": {
     "ja": "操作の相手（タスク・タスクグループ・担当）が、もう文書にないので、行っていません",
     "en": "What this change points at (a task, task group, or assignee) is no longer in the document, so it was not made."
@@ -4244,7 +4244,7 @@
    }
   },
   {
-   "rowId": "RS-83",
+   "specTableRowId": "RS-83",
    "text": {
     "ja": "このタスクはどのタスクグループにも載っていないので、動かせません",
     "en": "The task being moved sits on no task group, so it was not moved."
@@ -4255,7 +4255,7 @@
    }
   },
   {
-   "rowId": "RS-84",
+   "specTableRowId": "RS-84",
    "text": {
     "ja": "塗りと線の両方を透明にはできません",
     "en": "The fill and the line cannot both be transparent."
@@ -4266,7 +4266,7 @@
    }
   },
   {
-   "rowId": "RS-85",
+   "specTableRowId": "RS-85",
    "text": {
     "ja": "終了日の無いタスクには、フェードを付けられません",
     "en": "A task with no finish date cannot have a fade."
@@ -4277,7 +4277,7 @@
    }
   },
   {
-   "rowId": "RS-86",
+   "specTableRowId": "RS-86",
    "text": {
     "ja": "フェードの日数の和がタスクの期間より長くなるので、変えられません",
     "en": "The fade days would add up to more than the task's span, so the change was not made."
@@ -4288,7 +4288,7 @@
    }
   },
   {
-   "rowId": "RS-87",
+   "specTableRowId": "RS-87",
    "text": {
     "ja": "日付として読めないか、扱える範囲の外の日付なので、変えられません",
     "en": "The value is not a date, or is outside the dates that can be handled, so the change was not made."
@@ -4299,7 +4299,7 @@
    }
   },
   {
-   "rowId": "RS-88",
+   "specTableRowId": "RS-88",
    "text": {
     "ja": "実績の終了が実績の開始より前になるので、変えられません",
     "en": "The actual finish would come before the actual start, so the change was not made."
@@ -4310,7 +4310,7 @@
    }
   },
   {
-   "rowId": "RS-59",
+   "specTableRowId": "RS-59",
    "text": {
     "ja": "ブラウザが全画面表示を認めませんでした",
     "en": "The browser did not allow full screen."
@@ -4321,7 +4321,7 @@
    }
   },
   {
-   "rowId": "RS-60",
+   "specTableRowId": "RS-60",
    "text": {
     "ja": "同じ要素が重なっていたので、最初のものを採りました",
     "en": "Some elements appeared more than once; the first of each was kept."
@@ -4332,7 +4332,7 @@
    }
   },
   {
-   "rowId": "RS-61",
+   "specTableRowId": "RS-61",
    "text": {
     "ja": "このタスクグループは読み取り専用です（編集権限が設定されています）",
     "en": "This task group is read-only (an edit permission is set on it)."
@@ -4343,7 +4343,7 @@
    }
   },
   {
-   "rowId": "RS-62",
+   "specTableRowId": "RS-62",
    "text": {
     "ja": "編集権限は人だけが変えられます",
     "en": "Only a person can change the edit permission."
@@ -4354,7 +4354,7 @@
    }
   },
   {
-   "rowId": "RS-66",
+   "specTableRowId": "RS-66",
    "text": {
     "ja": "ピン止めしたタスクグループが多くて検索結果を表示できません。",
     "en": "Too many pinned task groups to show the search result."
@@ -4365,7 +4365,7 @@
    }
   },
   {
-   "rowId": "RS-65",
+   "specTableRowId": "RS-65",
    "text": {
     "ja": "クリップボードのプロンプトを、ダウンロードしたスキーマのファイル grs-document.schema.json と一緒にAIに渡してください。",
     "en": "Paste the prompt from the clipboard into an AI, together with the downloaded schema file grs-document.schema.json."
@@ -4376,7 +4376,7 @@
    }
   },
   {
-   "rowId": "RS-67",
+   "specTableRowId": "RS-67",
    "text": {
     "ja": "このファイルは GRS で開ける .html ではありません",
     "en": "This file is not an .html that GRS can open."
@@ -4387,7 +4387,7 @@
    }
   },
   {
-   "rowId": "RS-68",
+   "specTableRowId": "RS-68",
    "text": {
     "ja": "スケジュールをクリップボードにコピーしました",
     "en": "The schedule was copied to the clipboard."
@@ -4398,7 +4398,7 @@
    }
   },
   {
-   "rowId": "RS-69",
+   "specTableRowId": "RS-69",
    "text": {
     "ja": "マイルストーンは期間を持たないので、親タスクにはできません",
     "en": "A milestone has no span, so it cannot be a parent task."
@@ -4409,7 +4409,7 @@
    }
   },
   {
-   "rowId": "RS-70",
+   "specTableRowId": "RS-70",
    "text": {
     "ja": "期間から推定された仮の親タスクと子タスクの関係は選択・削除できません",
     "en": "A parent inferred from the dates cannot be selected or deleted."
@@ -4420,7 +4420,7 @@
    }
   },
   {
-   "rowId": "RS-71",
+   "specTableRowId": "RS-71",
    "text": {
     "ja": "取り込んだファイルの値で、対応するタスクを上書きしました",
     "en": "The matching tasks were overwritten with the values of the file you brought in."
@@ -4431,7 +4431,7 @@
    }
   },
   {
-   "rowId": "RS-72",
+   "specTableRowId": "RS-72",
    "text": {
     "ja": "取り込んだファイルに無かったタスクは、消さずに残しました",
     "en": "Tasks the file did not carry were kept, not deleted."
@@ -4442,7 +4442,7 @@
    }
   },
   {
-   "rowId": "RS-73",
+   "specTableRowId": "RS-73",
    "text": {
     "ja": "前回の取り込みでは届いていた下記のタスクが、今回は届きませんでした",
     "en": "The tasks listed below came with the last import but not with this one."
@@ -4453,7 +4453,7 @@
    }
   },
   {
-   "rowId": "RS-74",
+   "specTableRowId": "RS-74",
    "text": {
     "ja": "確認の問いが答えを待っている最中なので、この変更は適用できません",
     "en": "A question is waiting for its answer, so this change was not applied."
@@ -4464,7 +4464,7 @@
    }
   },
   {
-   "rowId": "RS-75",
+   "specTableRowId": "RS-75",
    "text": {
     "ja": "ファイルを開く途中で、思いがけない理由で失敗しました",
     "en": "Opening the file failed partway for an unexpected reason."
@@ -4475,7 +4475,7 @@
    }
   },
   {
-   "rowId": "RS-76",
+   "specTableRowId": "RS-76",
    "text": {
     "ja": "ファイルへ書く途中で、思いがけない理由で失敗しました。ファイルに書けていないかもしれません",
     "en": "Writing to the file failed partway for an unexpected reason; the file may not hold it."
@@ -4486,7 +4486,7 @@
    }
   },
   {
-   "rowId": "RS-77",
+   "specTableRowId": "RS-77",
    "text": {
     "ja": "工数は書き換えていません",
     "en": "The work values were not rewritten."
@@ -4497,7 +4497,7 @@
    }
   },
   {
-   "rowId": "RS-15",
+   "specTableRowId": "RS-15",
    "text": {
     "ja": "操作を終えられませんでした",
     "en": "The operation could not be completed."
@@ -4510,7 +4510,7 @@
  ],
  "invariants": [
   {
-   "rowId": "IV-1",
+   "specTableRowId": "IV-1",
    "text": {
     "ja": "同じ ID のものが 2 つ以上あるので、このファイルは開けません",
     "en": "Two or more items share one ID, so this file cannot be opened."
@@ -4521,7 +4521,7 @@
    }
   },
   {
-   "rowId": "IV-2",
+   "specTableRowId": "IV-2",
    "text": {
     "ja": "存在しないものを指している参照があるので、このファイルは開けません",
     "en": "A reference points at something that does not exist, so this file cannot be opened."
@@ -4532,7 +4532,7 @@
    }
   },
   {
-   "rowId": "IV-3",
+   "specTableRowId": "IV-3",
    "text": {
     "ja": "ピン止めの記録が存在しないタスクグループを指しているので、このファイルは開けません",
     "en": "A pin record points at a task group that does not exist, so this file cannot be opened."
@@ -4543,7 +4543,7 @@
    }
   },
   {
-   "rowId": "IV-4",
+   "specTableRowId": "IV-4",
    "text": {
     "ja": "親タスクと子タスクの関係が輪になっているので、このファイルは開けません",
     "en": "The parents and children of the tasks form a loop, so this file cannot be opened."
@@ -4554,7 +4554,7 @@
    }
   },
   {
-   "rowId": "IV-5",
+   "specTableRowId": "IV-5",
    "text": {
     "ja": "タスクグループの入れ子が段の上限より深いので、このファイルは開けません",
     "en": "Task groups are nested deeper than the level limit, so this file cannot be opened."
@@ -4565,7 +4565,7 @@
    }
   },
   {
-   "rowId": "IV-6",
+   "specTableRowId": "IV-6",
    "text": {
     "ja": "どのタスクグループにも載っていない（または 2 つ以上に載っている）タスクがあるので、このファイルは開けません",
     "en": "A task sits on no task group (or on more than one), so this file cannot be opened."
@@ -4576,7 +4576,7 @@
    }
   },
   {
-   "rowId": "IV-23",
+   "specTableRowId": "IV-23",
    "text": {
     "ja": "タスクの見た目の記録が欠けているか重なっているので、このファイルは開けません",
     "en": "A task's appearance record is missing or repeated, so this file cannot be opened."
@@ -4587,7 +4587,7 @@
    }
   },
   {
-   "rowId": "IV-7",
+   "specTableRowId": "IV-7",
    "text": {
     "ja": "暦が 1 つも無いので、このファイルは開けません",
     "en": "The file has no calendar, so it cannot be opened."
@@ -4598,7 +4598,7 @@
    }
   },
   {
-   "rowId": "IV-8",
+   "specTableRowId": "IV-8",
    "text": {
     "ja": "名前の無いタスクグループがあるので、このファイルは開けません",
     "en": "A task group has no name, so this file cannot be opened."
@@ -4609,7 +4609,7 @@
    }
   },
   {
-   "rowId": "IV-9",
+   "specTableRowId": "IV-9",
    "text": {
     "ja": "塗りと線の両方が透明なものがあるので、このファイルは開けません",
     "en": "Something has both its fill and its line transparent, so this file cannot be opened."
@@ -4620,7 +4620,7 @@
    }
   },
   {
-   "rowId": "IV-10",
+   "specTableRowId": "IV-10",
    "text": {
     "ja": "終了の日が、開始の日より前になっているタスクがあるので、このファイルは開けません",
     "en": "A task finishes before it starts, so this file cannot be opened."
@@ -4631,7 +4631,7 @@
    }
   },
   {
-   "rowId": "IV-11",
+   "specTableRowId": "IV-11",
    "text": {
     "ja": "フェードが付いているのに終了日の無いタスクがあるので、このファイルは開けません",
     "en": "A task has a fade but no finish date, so this file cannot be opened."
@@ -4642,7 +4642,7 @@
    }
   },
   {
-   "rowId": "IV-12",
+   "specTableRowId": "IV-12",
    "text": {
     "ja": "フェードの日数の和がタスクの期間より長いタスクがあるので、このファイルは開けません",
     "en": "A task's fade days add up to more than its span, so this file cannot be opened."
@@ -4653,7 +4653,7 @@
    }
   },
   {
-   "rowId": "IV-14",
+   "specTableRowId": "IV-14",
    "text": {
     "ja": "日付として読めない値か、扱える範囲の外の日付です",
     "en": "The value is not a date, or the date is outside the range that can be handled."
@@ -4664,7 +4664,7 @@
    }
   },
   {
-   "rowId": "IV-15",
+   "specTableRowId": "IV-15",
    "text": {
     "ja": "ファイルの中の取り込みの記録が食い違っているので、このファイルは開けません",
     "en": "The import records in the file disagree, so this file cannot be opened."
@@ -4675,7 +4675,7 @@
    }
   },
   {
-   "rowId": "IV-16",
+   "specTableRowId": "IV-16",
    "text": {
     "ja": "設定値の上限と下限が逆になっているので、このファイルは開けません",
     "en": "A setting's upper and lower limits are reversed, so this file cannot be opened."
@@ -4686,7 +4686,7 @@
    }
   },
   {
-   "rowId": "IV-19",
+   "specTableRowId": "IV-19",
    "text": {
     "ja": "始まりと終わり（または上と下）が逆のハイライトボックスがあるので、このファイルは開けません",
     "en": "A highlight box has its start and end (or top and bottom) reversed, so this file cannot be opened."
@@ -4697,7 +4697,7 @@
    }
   },
   {
-   "rowId": "IV-18",
+   "specTableRowId": "IV-18",
    "text": {
     "ja": "タスクグループの親子が輪になっているので、このファイルは開けません",
     "en": "The parents and children of the task groups form a loop, so this file cannot be opened."
@@ -4708,7 +4708,7 @@
    }
   },
   {
-   "rowId": "IV-20",
+   "specTableRowId": "IV-20",
    "text": {
     "ja": "タスクグループが 1 つも無いので、このファイルは開けません",
     "en": "The file has no task group, so it cannot be opened."
@@ -4719,7 +4719,7 @@
    }
   },
   {
-   "rowId": "IV-21",
+   "specTableRowId": "IV-21",
    "text": {
     "ja": "実績の終了が実績の開始より前のタスクがあるので、このファイルは開けません",
     "en": "A task's actual finish is before its actual start, so this file cannot be opened."
@@ -4730,7 +4730,7 @@
    }
   },
   {
-   "rowId": "IV-22",
+   "specTableRowId": "IV-22",
    "text": {
     "ja": "マイルストーンの形なのにマイルストーンでない（またはその逆の）タスクがあるので、このファイルは開けません",
     "en": "A task drawn as a milestone is not a milestone (or the other way around), so this file cannot be opened."
@@ -4741,7 +4741,7 @@
    }
   },
   {
-   "rowId": "IV-24",
+   "specTableRowId": "IV-24",
    "text": {
     "ja": "曜日か例外日の時間帯が、始まりが終わりより前でない・互いに重なっている・{workingTimesPerDayMax} 本を超えている、のどれかなので、このファイルは開けません",
     "en": "A weekday or exception day has working-time ranges where a start is not before its end, ranges overlap, or there are more than {workingTimesPerDayMax}, so this file cannot be opened."
@@ -4754,98 +4754,98 @@
  ],
  "questions": [
   {
-   "rowId": "QN-1",
+   "specTableRowId": "QN-1",
    "text": {
     "ja": "このタスクグループと、タスクグループに載っているタスクを削除しますか？",
     "en": "Delete this task group and the tasks on it?"
    }
   },
   {
-   "rowId": "QN-2",
+   "specTableRowId": "QN-2",
    "text": {
     "ja": "このタスクと、その配下のタスクを削除しますか？",
     "en": "Delete this task and the tasks under it?"
    }
   },
   {
-   "rowId": "QN-3",
+   "specTableRowId": "QN-3",
    "text": {
     "ja": "選んでいる担当を削除しますか？ 下のタスクの割り当てが外れます",
     "en": "Delete the selected resources? They will be unassigned from the tasks below."
    }
   },
   {
-   "rowId": "QN-4",
+   "specTableRowId": "QN-4",
    "text": {
     "ja": "開いたときと同じ文書ではありません。上書きしますか？ その間の変更が失われます",
     "en": "This is not the document that was opened. Overwrite it? The changes made since will be lost."
    }
   },
   {
-   "rowId": "QN-5",
+   "specTableRowId": "QN-5",
    "text": {
     "ja": "いまの文書を閉じますか？ 保存していない編集と、元に戻す履歴は失われます",
     "en": "Close the current document? Unsaved edits and the undo history will be lost."
    }
   },
   {
-   "rowId": "QN-9",
+   "specTableRowId": "QN-9",
    "text": {
     "ja": "透かしを非表示にしますか？ 透かし解除パスワードが要ります。透かしはアクセス制御ではなく、画面に出した証跡です",
     "en": "Hide the watermark? This needs the watermark unlock password. The watermark is a record that this was on screen, not access control."
    }
   },
   {
-   "rowId": "QN-10",
+   "specTableRowId": "QN-10",
    "text": {
     "ja": "すべてのタスクグループと、タスクグループに載っているタスクを削除しますか？",
     "en": "Delete all task groups and the tasks on them?"
    }
   },
   {
-   "rowId": "QN-11",
+   "specTableRowId": "QN-11",
    "text": {
     "ja": "GRS をリセットしますか？ GRS がこのブラウザに覚えた値（画面の言語など）を消して、ページを読み直します。保存していない編集があれば、それも失われます\n※ リセットしても不具合が直らない場合、以下をお試しください。\nCtrl+F5: 再読み込み\nF12（開発者ツール）→ Application（Firefox では「ストレージ」）→ GRS のローカルストレージをクリア",
     "en": "Reset GRS? What GRS keeps in this browser (such as the display language) is cleared and the page is reloaded. Unsaved edits, if any, are lost too.\n* If resetting does not fix the problem, try the following.\nCtrl+F5: Reload\nF12 (developer tools) → Application (Storage in Firefox) → clear GRS's local storage"
    }
   },
   {
-   "rowId": "QN-12",
+   "specTableRowId": "QN-12",
    "text": {
     "ja": "タスクと親タスクと子タスクの関係の矢印が一緒に選ばれました。どちらを選びますか",
     "en": "Tasks and parent arrows are selected together. Which do you want to select?"
    }
   },
   {
-   "rowId": "QN-14",
+   "specTableRowId": "QN-14",
    "text": {
     "ja": "タイムシフトを実行して、日程の日時を一斉にずらしますか？ 書き換える内容は下に示します。取り消し 1 回で戻せます",
     "en": "Run the Time Shift and move every schedule date-time at once? What will be rewritten is shown below. One Undo brings it back."
    }
   },
   {
-   "rowId": "QN-15",
+   "specTableRowId": "QN-15",
    "text": {
     "ja": "全体日程シフトを実行して、日程全体を新しい開始日へ移しますか？ 書き換える内容は下に示します。取り消し 1 回で戻せます",
     "en": "Shift the whole schedule to the new start date? What will be rewritten is shown below. One Undo brings it back."
    }
   },
   {
-   "rowId": "QN-16",
+   "specTableRowId": "QN-16",
    "text": {
     "ja": "タスクグループは {maxGroupDepth} 段までしか入れ子にできません。深すぎる配下を {maxGroupDepth} 段目へ引き上げて、移動しますか？",
     "en": "Task groups nest at most {maxGroupDepth} levels. Lift the too-deep task groups to level {maxGroupDepth} and finish the move?"
    }
   },
   {
-   "rowId": "QN-17",
+   "specTableRowId": "QN-17",
    "text": {
     "ja": "AI がファイルを開くよう求めています。ファイルを選ぶ窓を開きますか？",
     "en": "The AI asks you to open a file. Open the file window?"
    }
   },
   {
-   "rowId": "QN-8",
+   "specTableRowId": "QN-8",
    "text": {
     "ja": "この操作を続けますか？ 取り消しで戻せない変更が起きます",
     "en": "Continue? This can't be undone."
@@ -4915,35 +4915,35 @@
  ],
  "exportFormats": [
   {
-   "rowId": "IO-2",
+   "specTableRowId": "IO-2",
    "name": {
     "ja": "GRS JSON",
     "en": "GRS JSON"
    }
   },
   {
-   "rowId": "IO-1",
+   "specTableRowId": "IO-1",
    "name": {
     "ja": "MSPDI XML",
     "en": "MSPDI XML"
    }
   },
   {
-   "rowId": "IO-7",
+   "specTableRowId": "IO-7",
    "name": {
     "ja": "単一 HTML",
     "en": "Single HTML"
    }
   },
   {
-   "rowId": "IO-3",
+   "specTableRowId": "IO-3",
    "name": {
     "ja": "SVG画像",
     "en": "SVG Image"
    }
   },
   {
-   "rowId": "IO-4",
+   "specTableRowId": "IO-4",
    "name": {
     "ja": "PNG画像",
     "en": "PNG Image"
@@ -5031,7 +5031,7 @@
  ],
  "assignments": [
   {
-   "rowId": "MK-1",
+   "specTableRowId": "MK-1",
    "text": {
     "ja": "縦にスクロールする",
     "en": "Scroll vertically"
@@ -5042,7 +5042,7 @@
    }
   },
   {
-   "rowId": "MK-2",
+   "specTableRowId": "MK-2",
    "text": {
     "ja": "ポインタを中心に両軸をズームする",
     "en": "Zoom both axes, centered on the pointer"
@@ -5053,7 +5053,7 @@
    }
   },
   {
-   "rowId": "MK-3",
+   "specTableRowId": "MK-3",
    "text": {
     "ja": "時間軸（横）だけをズームする",
     "en": "Zoom the time axis only"
@@ -5064,7 +5064,7 @@
    }
   },
   {
-   "rowId": "MK-4",
+   "specTableRowId": "MK-4",
    "text": {
     "ja": "縦軸だけをズームする",
     "en": "Zoom the vertical axis only"
@@ -5075,7 +5075,7 @@
    }
   },
   {
-   "rowId": "MK-5",
+   "specTableRowId": "MK-5",
    "text": {
     "ja": "横にスクロールする",
     "en": "Scroll horizontally"
@@ -5086,7 +5086,7 @@
    }
   },
   {
-   "rowId": "MK-6",
+   "specTableRowId": "MK-6",
    "text": {
     "ja": "範囲選択する（Shift を併せると選択に追加する）",
     "en": "Marquee-select; hold Shift to add to the selection"
@@ -5097,7 +5097,7 @@
    }
   },
   {
-   "rowId": "MK-7",
+   "specTableRowId": "MK-7",
    "text": {
     "ja": "画面をパンする",
     "en": "Pan the view"
@@ -5108,7 +5108,7 @@
    }
   },
   {
-   "rowId": "MK-8",
+   "specTableRowId": "MK-8",
    "text": {
     "ja": "そのものへの操作になる。選択に含まれるものはまとめて動く",
     "en": "Act on that item; whatever is in the selection moves with it"
@@ -5119,7 +5119,7 @@
    }
   },
   {
-   "rowId": "MK-9",
+   "specTableRowId": "MK-9",
    "text": {
     "ja": "画面上のボタンで拡大・縮小できる",
     "en": "Zoom with the on-screen buttons"
@@ -5130,7 +5130,7 @@
    }
   },
   {
-   "rowId": "MK-9a",
+   "specTableRowId": "MK-9a",
    "text": {
     "ja": "決まった順で掴む",
     "en": "A fixed order decides which is grabbed"
@@ -5141,7 +5141,7 @@
    }
   },
   {
-   "rowId": "MK-10",
+   "specTableRowId": "MK-10",
    "text": {
     "ja": "ブラウザの既定動作を止める",
     "en": "The browser's default is held back"
@@ -5152,7 +5152,7 @@
    }
   },
   {
-   "rowId": "MK-11",
+   "specTableRowId": "MK-11",
    "text": {
     "ja": "選択を解除",
     "en": "Clear the selection"
@@ -5163,7 +5163,7 @@
    }
   },
   {
-   "rowId": "MK-12",
+   "specTableRowId": "MK-12",
    "text": {
     "ja": "ブラウザに委ねる",
     "en": "Left to the browser"
@@ -5174,7 +5174,7 @@
    }
   },
   {
-   "rowId": "MK-13",
+   "specTableRowId": "MK-13",
    "text": {
     "ja": "対象で意味が決まる。コメントボックス＝プロパティパネルを開いて本文を編集、ハイライトボックス＝プロパティパネルを開いて枠の色を編集、名称ラベル＝名称、担当ラベル＝プロパティパネルを開いて担当を編集、タスクと実績＝プロパティパネルを開いて名前を編集、タスクグループ見出し＝タスクグループ名",
     "en": "What it does depends on what it lands on—Callout: opens the Properties Panel and edits its body; Highlight Box: opens the Properties Panel and edits its frame color; Name Label: its name; Assignee Label: opens the Properties Panel and edits the assignee; task and actual: opens the Properties Panel and edits its name; task group title: the task group name"
@@ -5185,7 +5185,7 @@
    }
   },
   {
-   "rowId": "MK-15",
+   "specTableRowId": "MK-15",
    "text": {
     "ja": "選んでいるものをコピーして、離した所に置く（Shift を併せると日付を変えない）",
     "en": "Copy the selection and put the copy where you release; hold Shift too to keep the dates"
@@ -5196,7 +5196,7 @@
    }
   },
   {
-   "rowId": "MK-16",
+   "specTableRowId": "MK-16",
    "text": {
     "ja": "日付を変えずにタスクグループだけを移す（選択に無いタスクは選択に足す）",
     "en": "Move to another task group only, keeping the dates; a task outside the selection joins it"
@@ -5209,49 +5209,49 @@
  ],
  "arms": [
   {
-   "rowId": "AR-1",
+   "specTableRowId": "AR-1",
    "text": {
     "ja": "なし（既定）",
     "en": "None (Default)"
    }
   },
   {
-   "rowId": "AR-2",
+   "specTableRowId": "AR-2",
    "text": {
     "ja": "タスク形状",
     "en": "Task Shape"
    }
   },
   {
-   "rowId": "AR-3",
+   "specTableRowId": "AR-3",
    "text": {
     "ja": "マイルストーン形状",
     "en": "Milestone Shape"
    }
   },
   {
-   "rowId": "AR-4",
+   "specTableRowId": "AR-4",
    "text": {
     "ja": "依存線",
     "en": "Dependency Line"
    }
   },
   {
-   "rowId": "AR-5",
+   "specTableRowId": "AR-5",
    "text": {
     "ja": "コメントボックス",
     "en": "Callout"
    }
   },
   {
-   "rowId": "AR-6",
+   "specTableRowId": "AR-6",
    "text": {
     "ja": "ハイライトボックス",
     "en": "Highlight Box"
    }
   },
   {
-   "rowId": "AR-7",
+   "specTableRowId": "AR-7",
    "text": {
     "ja": "親タスク",
     "en": "Parent Task"
@@ -5311,14 +5311,14 @@
  ],
  "hintLines": [
   {
-   "rowId": "TL-5",
+   "specTableRowId": "TL-5",
    "text": {
     "ja": "予定",
     "en": "Plan"
    }
   },
   {
-   "rowId": "TL-6",
+   "specTableRowId": "TL-6",
    "text": {
     "ja": "実績",
     "en": "Actual"
@@ -5639,70 +5639,70 @@
  ],
  "themeHues": [
   {
-   "rowId": "TH-1",
+   "specTableRowId": "TH-1",
    "text": {
     "ja": "青",
     "en": "Blue"
    }
   },
   {
-   "rowId": "TH-2",
+   "specTableRowId": "TH-2",
    "text": {
     "ja": "青緑",
     "en": "Blue-green"
    }
   },
   {
-   "rowId": "TH-3",
+   "specTableRowId": "TH-3",
    "text": {
     "ja": "緑",
     "en": "Green"
    }
   },
   {
-   "rowId": "TH-4",
+   "specTableRowId": "TH-4",
    "text": {
     "ja": "黄緑",
     "en": "Yellow-green"
    }
   },
   {
-   "rowId": "TH-5",
+   "specTableRowId": "TH-5",
    "text": {
     "ja": "黄",
     "en": "Yellow"
    }
   },
   {
-   "rowId": "TH-6",
+   "specTableRowId": "TH-6",
    "text": {
     "ja": "オレンジ",
     "en": "Orange"
    }
   },
   {
-   "rowId": "TH-7",
+   "specTableRowId": "TH-7",
    "text": {
     "ja": "赤",
     "en": "Red"
    }
   },
   {
-   "rowId": "TH-8",
+   "specTableRowId": "TH-8",
    "text": {
     "ja": "赤紫",
     "en": "Red-purple"
    }
   },
   {
-   "rowId": "TH-9",
+   "specTableRowId": "TH-9",
    "text": {
     "ja": "紫",
     "en": "Purple"
    }
   },
   {
-   "rowId": "TH-10",
+   "specTableRowId": "TH-10",
    "text": {
     "ja": "藍",
     "en": "Indigo"
@@ -5711,273 +5711,273 @@
  ],
  "timeZones": [
   {
-   "rowId": "ZN-29",
+   "specTableRowId": "ZN-29",
    "label": {
     "ja": "日付変更線の西",
     "en": "International Date Line West"
    }
   },
   {
-   "rowId": "ZN-30",
+   "specTableRowId": "ZN-30",
    "label": {
     "ja": "サモア（米領）",
     "en": "American Samoa"
    }
   },
   {
-   "rowId": "ZN-31",
+   "specTableRowId": "ZN-31",
    "label": {
     "ja": "ハワイ",
     "en": "Hawaii"
    }
   },
   {
-   "rowId": "ZN-32",
+   "specTableRowId": "ZN-32",
    "label": {
     "ja": "アラスカ標準時",
     "en": "Alaska Standard Time"
    }
   },
   {
-   "rowId": "ZN-33",
+   "specTableRowId": "ZN-33",
    "label": {
     "ja": "太平洋標準時（米国・カナダ）",
     "en": "Pacific Standard Time (US, Canada)"
    }
   },
   {
-   "rowId": "ZN-34",
+   "specTableRowId": "ZN-34",
    "label": {
     "ja": "アラスカ夏時間",
     "en": "Alaska Daylight Time"
    }
   },
   {
-   "rowId": "ZN-35",
+   "specTableRowId": "ZN-35",
    "label": {
     "ja": "山岳部標準時（米国・カナダ）",
     "en": "Mountain Standard Time (US, Canada)"
    }
   },
   {
-   "rowId": "ZN-36",
+   "specTableRowId": "ZN-36",
    "label": {
     "ja": "太平洋夏時間（米国・カナダ）",
     "en": "Pacific Daylight Time (US, Canada)"
    }
   },
   {
-   "rowId": "ZN-37",
+   "specTableRowId": "ZN-37",
    "label": {
     "ja": "中部標準時（米国・カナダ）",
     "en": "Central Standard Time (US, Canada)"
    }
   },
   {
-   "rowId": "ZN-38",
+   "specTableRowId": "ZN-38",
    "label": {
     "ja": "山岳部夏時間（米国・カナダ）",
     "en": "Mountain Daylight Time (US, Canada)"
    }
   },
   {
-   "rowId": "ZN-39",
+   "specTableRowId": "ZN-39",
    "label": {
     "ja": "東部標準時（米国・カナダ）",
     "en": "Eastern Standard Time (US, Canada)"
    }
   },
   {
-   "rowId": "ZN-40",
+   "specTableRowId": "ZN-40",
    "label": {
     "ja": "中部夏時間（米国・カナダ）",
     "en": "Central Daylight Time (US, Canada)"
    }
   },
   {
-   "rowId": "ZN-41",
+   "specTableRowId": "ZN-41",
    "label": {
     "ja": "大西洋標準時（カナダ）",
     "en": "Atlantic Standard Time (Canada)"
    }
   },
   {
-   "rowId": "ZN-42",
+   "specTableRowId": "ZN-42",
    "label": {
     "ja": "東部夏時間（米国・カナダ）",
     "en": "Eastern Daylight Time (US, Canada)"
    }
   },
   {
-   "rowId": "ZN-43",
+   "specTableRowId": "ZN-43",
    "label": {
     "ja": "サンパウロ",
     "en": "Sao Paulo"
    }
   },
   {
-   "rowId": "ZN-44",
+   "specTableRowId": "ZN-44",
    "label": {
     "ja": "大西洋夏時間（カナダ）",
     "en": "Atlantic Daylight Time (Canada)"
    }
   },
   {
-   "rowId": "ZN-45",
+   "specTableRowId": "ZN-45",
    "label": {
     "ja": "ヌーク・南ジョージア",
     "en": "Nuuk, South Georgia"
    }
   },
   {
-   "rowId": "ZN-46",
+   "specTableRowId": "ZN-46",
    "label": {
     "ja": "カーボベルデ・アゾレス",
     "en": "Cape Verde, Azores"
    }
   },
   {
-   "rowId": "ZN-47",
+   "specTableRowId": "ZN-47",
    "label": {
     "ja": "協定世界時・ロンドン",
     "en": "Coordinated Universal Time, London"
    }
   },
   {
-   "rowId": "ZN-48",
+   "specTableRowId": "ZN-48",
    "label": {
     "ja": "アゾレス夏時間",
     "en": "Azores Summer Time"
    }
   },
   {
-   "rowId": "ZN-49",
+   "specTableRowId": "ZN-49",
    "label": {
     "ja": "中央ヨーロッパ（ベルリン・パリ）",
     "en": "Central Europe (Berlin, Paris)"
    }
   },
   {
-   "rowId": "ZN-50",
+   "specTableRowId": "ZN-50",
    "label": {
     "ja": "ロンドン夏時間",
     "en": "London Summer Time"
    }
   },
   {
-   "rowId": "ZN-51",
+   "specTableRowId": "ZN-51",
    "label": {
     "ja": "カイロ・東ヨーロッパ（ヘルシンキ）",
     "en": "Cairo, Eastern Europe (Helsinki)"
    }
   },
   {
-   "rowId": "ZN-52",
+   "specTableRowId": "ZN-52",
    "label": {
     "ja": "中央ヨーロッパ夏時間（ベルリン・パリ）",
     "en": "Central European Summer Time (Berlin, Paris)"
    }
   },
   {
-   "rowId": "ZN-53",
+   "specTableRowId": "ZN-53",
    "label": {
     "ja": "モスクワ",
     "en": "Moscow"
    }
   },
   {
-   "rowId": "ZN-54",
+   "specTableRowId": "ZN-54",
    "label": {
     "ja": "東ヨーロッパ夏時間（カイロ・ヘルシンキ）",
     "en": "Eastern European Summer Time (Cairo, Helsinki)"
    }
   },
   {
-   "rowId": "ZN-55",
+   "specTableRowId": "ZN-55",
    "label": {
     "ja": "ドバイ",
     "en": "Dubai"
    }
   },
   {
-   "rowId": "ZN-56",
+   "specTableRowId": "ZN-56",
    "label": {
     "ja": "カラチ",
     "en": "Karachi"
    }
   },
   {
-   "rowId": "ZN-57",
+   "specTableRowId": "ZN-57",
    "label": {
     "ja": "インド",
     "en": "India"
    }
   },
   {
-   "rowId": "ZN-58",
+   "specTableRowId": "ZN-58",
    "label": {
     "ja": "ダッカ",
     "en": "Dhaka"
    }
   },
   {
-   "rowId": "ZN-59",
+   "specTableRowId": "ZN-59",
    "label": {
     "ja": "ジャカルタ・バンコク",
     "en": "Jakarta, Bangkok"
    }
   },
   {
-   "rowId": "ZN-60",
+   "specTableRowId": "ZN-60",
    "label": {
     "ja": "北京・シンガポール",
     "en": "Beijing, Singapore"
    }
   },
   {
-   "rowId": "ZN-61",
+   "specTableRowId": "ZN-61",
    "label": {
     "ja": "東京",
     "en": "Tokyo"
    }
   },
   {
-   "rowId": "ZN-62",
+   "specTableRowId": "ZN-62",
    "label": {
     "ja": "シドニー",
     "en": "Sydney"
    }
   },
   {
-   "rowId": "ZN-63",
+   "specTableRowId": "ZN-63",
    "label": {
     "ja": "ホニアラ・ヌメア",
     "en": "Honiara, Noumea"
    }
   },
   {
-   "rowId": "ZN-64",
+   "specTableRowId": "ZN-64",
    "label": {
     "ja": "シドニー夏時間",
     "en": "Sydney Daylight Time"
    }
   },
   {
-   "rowId": "ZN-65",
+   "specTableRowId": "ZN-65",
    "label": {
     "ja": "オークランド",
     "en": "Auckland"
    }
   },
   {
-   "rowId": "ZN-66",
+   "specTableRowId": "ZN-66",
    "label": {
     "ja": "サモア・トンガ",
     "en": "Samoa, Tonga"
    }
   },
   {
-   "rowId": "ZN-67",
+   "specTableRowId": "ZN-67",
    "label": {
     "ja": "オークランド夏時間",
     "en": "Auckland Daylight Time"
@@ -6664,98 +6664,98 @@
  ],
  "searchColumns": [
   {
-   "rowId": "SQ-10",
+   "specTableRowId": "SQ-10",
    "text": {
     "ja": "表示",
     "en": "Visibility"
    }
   },
   {
-   "rowId": "SQ-5",
+   "specTableRowId": "SQ-5",
    "text": {
     "ja": "ステータス",
     "en": "Status"
    }
   },
   {
-   "rowId": "SQ-11",
+   "specTableRowId": "SQ-11",
    "text": {
     "ja": "進捗",
     "en": "Progress"
    }
   },
   {
-   "rowId": "SQ-14",
+   "specTableRowId": "SQ-14",
    "text": {
     "ja": "タスク種別",
     "en": "Task Type"
    }
   },
   {
-   "rowId": "SQ-1",
+   "specTableRowId": "SQ-1",
    "text": {
     "ja": "タスク（マイルストーン）",
     "en": "Task (Milestone)"
    }
   },
   {
-   "rowId": "SQ-2",
+   "specTableRowId": "SQ-2",
    "text": {
     "ja": "担当名",
     "en": "Assignees"
    }
   },
   {
-   "rowId": "SQ-3",
+   "specTableRowId": "SQ-3",
    "text": {
     "ja": "予定開始",
     "en": "Planned Start"
    }
   },
   {
-   "rowId": "SQ-4",
+   "specTableRowId": "SQ-4",
    "text": {
     "ja": "予定終了",
     "en": "Planned Finish"
    }
   },
   {
-   "rowId": "SQ-12",
+   "specTableRowId": "SQ-12",
    "text": {
     "ja": "実績開始",
     "en": "Actual Start"
    }
   },
   {
-   "rowId": "SQ-13",
+   "specTableRowId": "SQ-13",
    "text": {
     "ja": "実績終了",
     "en": "Actual Finish"
    }
   },
   {
-   "rowId": "SQ-6",
+   "specTableRowId": "SQ-6",
    "text": {
     "ja": "最上位までの階層",
     "en": "Path from Top"
    }
   },
   {
-   "rowId": "SQ-7",
+   "specTableRowId": "SQ-7",
    "text": {
     "ja": "本文",
     "en": "Body"
    }
   },
   {
-   "rowId": "SQ-8",
+   "specTableRowId": "SQ-8",
    "text": {
     "ja": "タスクグループ名",
     "en": "Task Group Name"
    }
   },
   {
-   "rowId": "SQ-9",
+   "specTableRowId": "SQ-9",
    "text": {
     "ja": "日付",
     "en": "Date"
@@ -6764,35 +6764,35 @@
  ],
  "planActualStates": [
   {
-   "rowId": "PS-1",
+   "specTableRowId": "PS-1",
    "text": {
     "ja": "未着手",
     "en": "Not started"
    }
   },
   {
-   "rowId": "PS-2",
+   "specTableRowId": "PS-2",
    "text": {
     "ja": "完了",
     "en": "Finished"
    }
   },
   {
-   "rowId": "PS-3",
+   "specTableRowId": "PS-3",
    "text": {
     "ja": "中断・再開日未定",
     "en": "Suspended, no resume date"
    }
   },
   {
-   "rowId": "PS-4",
+   "specTableRowId": "PS-4",
    "text": {
     "ja": "中断・再開予定あり",
     "en": "Suspended, resume date set"
    }
   },
   {
-   "rowId": "PS-5",
+   "specTableRowId": "PS-5",
    "text": {
     "ja": "進行中",
     "en": "In progress"
@@ -6896,35 +6896,35 @@
  ],
  "resourceListColumns": [
   {
-   "rowId": "RQ-1",
+   "specTableRowId": "RQ-1",
    "text": {
     "ja": "表示",
     "en": "Visibility"
    }
   },
   {
-   "rowId": "RQ-2",
+   "specTableRowId": "RQ-2",
    "text": {
     "ja": "担当名",
     "en": "Resource"
    }
   },
   {
-   "rowId": "RQ-3",
+   "specTableRowId": "RQ-3",
    "text": {
     "ja": "選択",
     "en": "Selected"
    }
   },
   {
-   "rowId": "RQ-4",
+   "specTableRowId": "RQ-4",
    "text": {
     "ja": "担当タスク数",
     "en": "Task Count"
    }
   },
   {
-   "rowId": "RQ-5",
+   "specTableRowId": "RQ-5",
    "text": {
     "ja": "担当タスク",
     "en": "Assigned Tasks"
@@ -6972,63 +6972,63 @@
  ],
  "delayReportColumns": [
   {
-   "rowId": "DT-8",
+   "specTableRowId": "DT-8",
    "text": {
     "ja": "表示",
     "en": "Visibility"
    }
   },
   {
-   "rowId": "DT-1",
+   "specTableRowId": "DT-1",
    "text": {
     "ja": "ステータス",
     "en": "Status"
    }
   },
   {
-   "rowId": "DT-3",
+   "specTableRowId": "DT-3",
    "text": {
     "ja": "進捗",
     "en": "Progress"
    }
   },
   {
-   "rowId": "DT-9",
+   "specTableRowId": "DT-9",
    "text": {
     "ja": "タスク種別",
     "en": "Task Type"
    }
   },
   {
-   "rowId": "DT-4",
+   "specTableRowId": "DT-4",
    "text": {
     "ja": "タスク（マイルストーン）",
     "en": "Task (Milestone)"
    }
   },
   {
-   "rowId": "DT-2",
+   "specTableRowId": "DT-2",
    "text": {
     "ja": "担当",
     "en": "Assignee"
    }
   },
   {
-   "rowId": "DT-5",
+   "specTableRowId": "DT-5",
    "text": {
     "ja": "予定日",
     "en": "Planned Dates"
    }
   },
   {
-   "rowId": "DT-6",
+   "specTableRowId": "DT-6",
    "text": {
     "ja": "実績日",
     "en": "Actual Dates"
    }
   },
   {
-   "rowId": "DT-7",
+   "specTableRowId": "DT-7",
    "text": {
     "ja": "理由",
     "en": "Reason"
@@ -7037,42 +7037,42 @@
  ],
  "delayReportStatuses": [
   {
-   "rowId": "DG-1",
+   "specTableRowId": "DG-1",
    "text": {
     "ja": "信用できない・要修正",
     "en": "Unreliable, fix needed"
    }
   },
   {
-   "rowId": "DX-3",
+   "specTableRowId": "DX-3",
    "text": {
     "ja": "疑義・記載漏れ",
     "en": "Doubtful or missing"
    }
   },
   {
-   "rowId": "DG-2",
+   "specTableRowId": "DG-2",
    "text": {
     "ja": "ボトルネック",
     "en": "Bottleneck"
    }
   },
   {
-   "rowId": "DG-3",
+   "specTableRowId": "DG-3",
    "text": {
     "ja": "ボトルネック経路",
     "en": "Bottleneck path"
    }
   },
   {
-   "rowId": "DG-4",
+   "specTableRowId": "DG-4",
    "text": {
     "ja": "遅れ",
     "en": "Late"
    }
   },
   {
-   "rowId": "DX-9",
+   "specTableRowId": "DX-9",
    "text": {
     "ja": "確定",
     "en": "Confirmed"
@@ -7241,140 +7241,140 @@
  ],
  "delayReportAspects": [
   {
-   "rowId": "VC-1",
+   "specTableRowId": "VC-1",
    "text": {
     "ja": "依存に輪がある",
     "en": "The dependencies form a loop"
    }
   },
   {
-   "rowId": "VC-2",
+   "specTableRowId": "VC-2",
    "text": {
     "ja": "同じタスクを先行と後続にする依存（自己依存）",
     "en": "A dependency links a task to itself"
    }
   },
   {
-   "rowId": "VC-3",
+   "specTableRowId": "VC-3",
    "text": {
     "ja": "同じ先行から同じ後続へ依存が 2 本以上ある",
     "en": "Two or more dependencies run from the same predecessor to the same successor"
    }
   },
   {
-   "rowId": "VC-4",
+   "specTableRowId": "VC-4",
    "text": {
     "ja": "マイルストーンなのに開始と終了が違う",
     "en": "A milestone whose start and finish differ"
    }
   },
   {
-   "rowId": "VC-5",
+   "specTableRowId": "VC-5",
    "text": {
     "ja": "完了率が 0 より大きいのに実績開始が無い",
     "en": "Progress above 0 but no actual start"
    }
   },
   {
-   "rowId": "VC-6",
+   "specTableRowId": "VC-6",
    "text": {
     "ja": "実績終了があるのに実績開始が無い",
     "en": "An actual finish but no actual start"
    }
   },
   {
-   "rowId": "VC-7",
+   "specTableRowId": "VC-7",
    "text": {
     "ja": "未着手なのに中断または再開の日を持つ",
     "en": "Not started but has a stop or resume date"
    }
   },
   {
-   "rowId": "VC-8",
+   "specTableRowId": "VC-8",
    "text": {
     "ja": "実績終了があるのに再開の日が有効",
     "en": "An actual finish but the resume date is still valid"
    }
   },
   {
-   "rowId": "VC-9",
+   "specTableRowId": "VC-9",
    "text": {
     "ja": "親が完了なのに、子に未完了がある",
     "en": "The parent is finished but a child is not"
    }
   },
   {
-   "rowId": "VC-10",
+   "specTableRowId": "VC-10",
    "text": {
     "ja": "子が全部完了なのに、親が未完了",
     "en": "Every child is finished but the parent is not"
    }
   },
   {
-   "rowId": "VC-11",
+   "specTableRowId": "VC-11",
    "text": {
     "ja": "親の予定の両端が、子の両端と違う",
     "en": "The parent's planned ends differ from its children's"
    }
   },
   {
-   "rowId": "VC-12",
+   "specTableRowId": "VC-12",
    "text": {
     "ja": "親の実績の両端が、子の両端と違う",
     "en": "The parent's actual ends differ from its children's"
    }
   },
   {
-   "rowId": "VC-13",
+   "specTableRowId": "VC-13",
    "text": {
     "ja": "後続が完了しているのに、依存が縛る先行の端がまだ起きていない",
     "en": "The successor is finished but the predecessor end it waits for has not happened"
    }
   },
   {
-   "rowId": "VC-14",
+   "specTableRowId": "VC-14",
    "text": {
     "ja": "手で完了にしたマイルストーンの先行に、未完了がある",
     "en": "A milestone finished by hand has an unfinished predecessor"
    }
   },
   {
-   "rowId": "VC-15",
+   "specTableRowId": "VC-15",
    "text": {
     "ja": "予定の日付が依存の向きに反する",
     "en": "The planned dates go against a dependency"
    }
   },
   {
-   "rowId": "VS-1",
+   "specTableRowId": "VS-1",
    "text": {
     "ja": "親タスクと子タスクの関係にある 2 つのタスクの間に依存がある",
     "en": "A dependency joins a parent and its own child"
    }
   },
   {
-   "rowId": "VS-2",
+   "specTableRowId": "VS-2",
    "text": {
     "ja": "このタスクを束ねる上位タスクが無い",
     "en": "No summary task holds this task"
    }
   },
   {
-   "rowId": "VS-3",
+   "specTableRowId": "VS-3",
    "text": {
     "ja": "先行が未着手なのに、後続が着手済み",
     "en": "The predecessor has not started but the successor has"
    }
   },
   {
-   "rowId": "VS-4",
+   "specTableRowId": "VS-4",
    "text": {
     "ja": "実績の日付が依存の向きに反する",
     "en": "The actual dates go against a dependency"
    }
   },
   {
-   "rowId": "VS-5",
+   "specTableRowId": "VS-5",
    "text": {
     "ja": "実績の日付が基準日より後",
     "en": "An actual date is after the status date"
@@ -7383,21 +7383,21 @@
  ],
  "delayReportWalls": [
   {
-   "rowId": "DW-1",
+   "specTableRowId": "DW-1",
    "text": {
     "ja": "矛盾があるので、依存の下流を解析できない",
     "en": "A contradiction stops the analysis downstream"
    }
   },
   {
-   "rowId": "DW-2",
+   "specTableRowId": "DW-2",
    "text": {
     "ja": "親が決まらないので、遅れを祖先へ上げられない",
     "en": "No single parent, so the delay is not passed up"
    }
   },
   {
-   "rowId": "DW-3",
+   "specTableRowId": "DW-3",
    "text": {
     "ja": "先行の無いマイルストーンは診断できない",
     "en": "A milestone with no predecessor cannot be diagnosed"
@@ -7406,63 +7406,63 @@
  ],
  "delayFixColumns": [
   {
-   "rowId": "FM-1",
+   "specTableRowId": "FM-1",
    "text": {
     "ja": "修正",
     "en": "Fix"
    }
   },
   {
-   "rowId": "FM-2",
+   "specTableRowId": "FM-2",
    "text": {
     "ja": "日時",
     "en": "Date and Time"
    }
   },
   {
-   "rowId": "FM-3",
+   "specTableRowId": "FM-3",
    "text": {
     "ja": "修正のしかた",
     "en": "Fix Type"
    }
   },
   {
-   "rowId": "FM-4",
+   "specTableRowId": "FM-4",
    "text": {
     "ja": "指摘",
     "en": "Finding"
    }
   },
   {
-   "rowId": "FM-9",
+   "specTableRowId": "FM-9",
    "text": {
     "ja": "タスク種別",
     "en": "Task Type"
    }
   },
   {
-   "rowId": "FM-5",
+   "specTableRowId": "FM-5",
    "text": {
     "ja": "タスク",
     "en": "Task"
    }
   },
   {
-   "rowId": "FM-6",
+   "specTableRowId": "FM-6",
    "text": {
     "ja": "プロパティ",
     "en": "Property"
    }
   },
   {
-   "rowId": "FM-7",
+   "specTableRowId": "FM-7",
    "text": {
     "ja": "修正前",
     "en": "Before"
    }
   },
   {
-   "rowId": "FM-8",
+   "specTableRowId": "FM-8",
    "text": {
     "ja": "修正後",
     "en": "After"

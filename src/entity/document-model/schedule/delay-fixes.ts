@@ -465,8 +465,8 @@ function contextOf(schedule: Schedule, calendar: WorkingCalendar): FixContext {
 }
 
 /** @purity pure */
-function field(taskUid: number, rowId: string): DelayFixOpenField {
-  return { taskUid, field: rowId }
+function field(taskUid: number, specTableRowId: string): DelayFixOpenField {
+  return { taskUid, field: specTableRowId }
 }
 
 /** @purity pure */

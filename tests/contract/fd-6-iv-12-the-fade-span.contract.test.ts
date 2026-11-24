@@ -93,9 +93,9 @@ import {
 // The rows, read out of the manuscript at run time (Chapter 1.9)
 // ---------------------------------------------------------------------------
 
-const cellOf = (tableId: string, rowId: string): string => {
-  const found = specTable(tableId).rows.find((row) => row.id === rowId)
-  if (found === undefined) throw new Error(`table ${tableId} has no row ${rowId}`)
+const cellOf = (tableId: string, specTableRowId: string): string => {
+  const found = specTable(tableId).rows.find((row) => row.id === specTableRowId)
+  if (found === undefined) throw new Error(`table ${tableId} has no row ${specTableRowId}`)
   return found.cells.join(' ')
 }
 
@@ -109,10 +109,10 @@ const cellOf = (tableId: string, rowId: string): string => {
  * this row's to change, so the one row this file needs is found by its ID
  * instead, which is what Chapter 1.9 (:274) makes the first column for.
  */
-const fadeRow = (rowId: string): string => {
+const fadeRow = (specTableRowId: string): string => {
   const text = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
-  const line = text.split('\n').find((one) => one.startsWith(`| ${rowId} |`))
-  if (line === undefined) throw new Error(`no row ${rowId} in 01-04-requirements.md`)
+  const line = text.split('\n').find((one) => one.startsWith(`| ${specTableRowId} |`))
+  if (line === undefined) throw new Error(`no row ${specTableRowId} in 01-04-requirements.md`)
   return line
 }
 

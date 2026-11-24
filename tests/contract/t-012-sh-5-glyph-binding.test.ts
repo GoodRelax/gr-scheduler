@@ -95,7 +95,7 @@ const marksPrintedBy = (entrance: string): readonly string[] =>
   MARKS.filter((mark) => entrance.includes(mark))
 
 interface RosterIcon {
-  readonly rowId: string
+  readonly specTableRowId: string
   readonly arms: string | null
   readonly armsShape?: string | null
 }
@@ -110,7 +110,7 @@ const ROSTER: readonly RosterIcon[] = (
 ).icons
 
 const rosterRow = (row: string): RosterIcon => {
-  const found = ROSTER.find((one) => one.rowId === row)
+  const found = ROSTER.find((one) => one.specTableRowId === row)
   if (found === undefined) throw new Error(`icon-roster.json has no row ${row}`)
   return found
 }
@@ -193,8 +193,8 @@ describe('what the generator carried into `src/` is the pairing the note states'
   it('no OTHER row of the roster carries one of the fifteen spellings', () => {
     const theFifteen = new Set(MILESTONE_ENTRANCES.map((one) => one.row))
     for (const icon of ROSTER) {
-      if (theFifteen.has(icon.rowId)) continue
-      expect(GLYPHS, `${icon.rowId} arms a milestone glyph`).not.toContain(icon.armsShape ?? null)
+      if (theFifteen.has(icon.specTableRowId)) continue
+      expect(GLYPHS, `${icon.specTableRowId} arms a milestone glyph`).not.toContain(icon.armsShape ?? null)
     }
   })
 })

@@ -26,7 +26,7 @@ const REQUIREMENTS = unbroken(readFileSync(join(SPEC, '01-04-requirements.md'), 
 
 const withoutBreakMarks = (_key: string, value: unknown): unknown => (typeof value === 'string' ? value.replace(/\|/g, '') : value)
 const WORDS = JSON.parse(readFileSync(join(SPEC, '_source', 'display-words.json'), 'utf8'), withoutBreakMarks) as {
-  readonly settings: readonly { readonly rowId: string; readonly label: Record<DisplayLanguage, string> }[]
+  readonly settings: readonly { readonly specTableRowId: string; readonly label: Record<DisplayLanguage, string> }[]
   readonly fitSpanField: readonly { readonly part: string; readonly text: Record<DisplayLanguage, string> }[]
   readonly exportChooser: readonly { readonly part: string; readonly text: Record<DisplayLanguage, string> }[]
 }
@@ -129,8 +129,8 @@ const K_141 = 'K-141'
 const K_142 = 'K-142'
 const FX_6 = 'FX-6'
 
-const settingsWordOf = (rowId: string, language: DisplayLanguage): string =>
-  WORDS.settings.find((one) => one.rowId === rowId)?.label[language] ?? `(no dictionary word for ${rowId})`
+const settingsWordOf = (specTableRowId: string, language: DisplayLanguage): string =>
+  WORDS.settings.find((one) => one.specTableRowId === specTableRowId)?.label[language] ?? `(no dictionary word for ${specTableRowId})`
 const partWordOf = (
   words: readonly { readonly part: string; readonly text: Record<DisplayLanguage, string> }[],
   part: string,

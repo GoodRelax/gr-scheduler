@@ -225,7 +225,7 @@ import { readStateMachineView } from './state-machine-manuscript'
 /** One entry's word per language: the `{ "ja": "", "en": "" }` of both files. */
 type Words = Readonly<Record<string, string>>
 
-/** One entry of one section, e.g. `{ rowId, label, hint }`. */
+/** One entry of one section, e.g. `{ specTableRowId, label, hint }`. */
 type Entry = Readonly<Record<string, unknown>>
 
 /** The dictionary with `$comment` dropped: section name -> its entries. */
@@ -279,7 +279,7 @@ const GENERATED = readDictionary(GENERATED_PATH)
  * and pass under one name.
  */
 const KEY_FIELD: Readonly<Record<string, string>> = {
-  icons: 'rowId',
+  icons: 'specTableRowId',
   // ⭐ THE NAME EACH ROW OF TABLE T-016 SHOWS (CR-278). Until 2026-08-28 that
   // table carried an 項目名（英語・画面表示） column and the panel drew it
   // verbatim, which is how a GRS JSON column name reached a reader (the user's
@@ -287,7 +287,7 @@ const KEY_FIELD: Readonly<Record<string, string>> = {
   // words, so the name moved here and the table kept the column.
   // ⚠️ Keyed by the row and not by the column: a row may carry several columns
   // and still show ONE name -- PR-14 is 「Fade In/Out Days」 over two.
-  properties: 'rowId',
+  properties: 'specTableRowId',
   // ⭐ THE NAME THE SAME PANEL SHOWS FOR A ROW OF TABLE T-104 (CR-344,
   // 2026-09-03). The paragraph under table T-006a
   // (docs/spec/01-04-requirements.md) puts the settings face under the
@@ -301,23 +301,23 @@ const KEY_FIELD: Readonly<Record<string, string>> = {
   // (K-105 spells three) and shows ONE name over them. ⛔ Until this stood here,
   // every one of its 110 entries collapsed onto the empty key and the filled copy
   // the carriage group drives held one word for all of them.
-  settings: 'rowId',
+  settings: 'specTableRowId',
   paletteGroups: 'firstRow',
   surfaces: 'name',
-  notices: 'rowId',
-  shortcuts: 'rowId',
+  notices: 'specTableRowId',
+  shortcuts: 'specTableRowId',
   helpHeadings: 'block',
   // Why: CR-622 keys the help's two license words (FR-069) by the part they fill.
   helpLegal: 'part',
-  helpNotes: 'rowId',
+  helpNotes: 'specTableRowId',
   // Why: CR-828 keys the one sentence under the browser functions block (FR-036, JDG-3087) by that block.
   helpBlockNotes: 'block',
   // see FR-036, CR-748, CR-785
   helpLinks: 'link',
-  browserFunctions: 'rowId',
-  reasons: 'rowId',
-  invariants: 'rowId',
-  questions: 'rowId',
+  browserFunctions: 'specTableRowId',
+  reasons: 'specTableRowId',
+  invariants: 'specTableRowId',
+  questions: 'specTableRowId',
   confirmation: 'answer',
   noticeDismiss: 'answer',
   confirmationMarks: 'mark',
@@ -344,7 +344,7 @@ const KEY_FIELD: Readonly<Record<string, string>> = {
   // names would be. ⛔ THIS IS THE ONE SECTION WHOSE WORD IS NOT PRINTED BY A
   // FRAME; see omission 7 of the head comment and the `drop` below it.
   defaultNames: 'use',
-  exportFormats: 'rowId',
+  exportFormats: 'specTableRowId',
   // Why: CR-690 keys the settings face's fit span field's words by the part they fill (T-367).
   fitSpanField: 'part',
   // Why: CR-677 (E-36) keys the Export Chooser's span line by the part it fills; FR-096 holds no table row for it.
@@ -362,7 +362,7 @@ const KEY_FIELD: Readonly<Record<string, string>> = {
   // be printed in: 「⛔ **パネルの先頭にタイトルバーを置いてはならない（MUST NOT）**」.
   // ⭐ So the section has nowhere to be raised from, and the case below says so
   // by name rather than leaving it to be noticed here.
-  assignments: 'rowId',
+  assignments: 'specTableRowId',
   // ⭐ THE ROW OF TABLE T-023b THE PALETTE HAS ARMED. Its closing rule (MUST)
   // 「⭐ **構えの語は 表 T-233 の結びが理由の語について定めるのと同じ扱いとする
   // こと（MUST）** —— 辞書が持ち、行 ID で引き、行を足すなら原稿にも項を足す。」
@@ -371,7 +371,7 @@ const KEY_FIELD: Readonly<Record<string, string>> = {
   // generator prints it after `assignments`; the manuscript keeps the two in the
   // other order, and no row of docs/spec asks the two files to agree on where a
   // section is printed.
-  arms: 'rowId',
+  arms: 'specTableRowId',
   // ⭐ THE SEVEN WEEKDAYS THE FOURTH RULER TIER PRINTS. FR-017 (MUST) gives
   // the weekday a 段 of its own -- 「曜日の段は曜日」をそれぞれ 1 段に持つ
   // (利用者の裁定 2026-08-27; it used to share the day's 段) -- and leaves the
@@ -385,7 +385,7 @@ const KEY_FIELD: Readonly<Record<string, string>> = {
   // file's printed order, and the generator prints `weekdays` after `arms`.
   weekdays: 'weekday',
   // Why: CR-624 keys a bar tooltip's line words by their row of table T-348.
-  hintLines: 'rowId',
+  hintLines: 'specTableRowId',
   // Why: CR-548 keys a palette color by its stored spelling (table T-294) and a
   // part of the color field by the part it names (CV-9); neither is a row.
   colorNames: 'spelling',
@@ -398,9 +398,9 @@ const KEY_FIELD: Readonly<Record<string, string>> = {
   // Why: CR-690 keys the settings face's width field's words the same way (T-368).
   taskGroupPanelWidthField: 'part',
   // Why: CR-557 keys a theme hue by its row of table T-305 (FR-041).
-  themeHues: 'rowId',
+  themeHues: 'specTableRowId',
   // Why: CR-710 keys a time zone's shown name by its row of table T-376 (FR-156).
-  timeZones: 'rowId',
+  timeZones: 'specTableRowId',
   // Why: CR-710 wave 3b keys the words of the zone fields and of the Time Shift question by their part.
   timeZoneField: 'part',
   // Why: CR-757 keys the words of the Shift Whole Schedule row (FO-17) and of its question by their part.
@@ -418,29 +418,29 @@ const KEY_FIELD: Readonly<Record<string, string>> = {
   // Why: CR-571 keys a search column's heading by its row of table T-331 (FR-151),
   // the state word of column SQ-5 by its row of table T-019a, and the panel's own
   // words (SV-7's blank item, SQ-1's no-name word) by the part they fill.
-  searchColumns: 'rowId',
-  planActualStates: 'rowId',
+  searchColumns: 'specTableRowId',
+  planActualStates: 'specTableRowId',
   searchPanel: 'part',
   // Why: CR-760 keys the two values of the Task Type column (SQ-14, DT-9, FM-9) by the part they name, task or milestone.
   taskTypes: 'part',
   // Why: CR-722 keys the Resource List's headings by their row of table T-371, and its (Unassigned) and joining words by part.
-  resourceListColumns: 'rowId',
+  resourceListColumns: 'specTableRowId',
   resourceList: 'part',
   // Why: CR-631 keys QN-12's two choices by the part they fill (PTL-13): the armed and the unarmed
   // wording of the first choice, then the arrows; no table row numbers them.
   parentTaskChoice: 'part',
   // Why: CR-648 keys the report's headings by T-347 row, its statuses by the DG / DX row each is
   // made of (DT-1), and its summary, Markdown and DT-7 words by the part they fill (FR-134).
-  delayReportColumns: 'rowId',
-  delayReportStatuses: 'rowId',
+  delayReportColumns: 'specTableRowId',
+  delayReportStatuses: 'specTableRowId',
   delayReportSummary: 'part',
   delayReportMarkdown: 'part',
   delayReportReasons: 'part',
   // Why: CR-670 keys DT-7's aspect words by their row of table T-310 / T-311 and its wall words by their row of T-316.
-  delayReportAspects: 'rowId',
-  delayReportWalls: 'rowId',
+  delayReportAspects: 'specTableRowId',
+  delayReportWalls: 'specTableRowId',
   // Why: CR-731 keys the fix tables' headings by their row of table T-374 and the other fix words by part (FR-155).
-  delayFixColumns: 'rowId',
+  delayFixColumns: 'specTableRowId',
   delayFixes: 'part',
 }
 
@@ -548,21 +548,21 @@ const IMPORT_REFUSAL_MANNER = ((): string => {
   return found[1] as string
 })()
 
-const t109Row = (rowId: string) => T109.rows.find((row) => row.id === rowId)
+const t109Row = (specTableRowId: string) => T109.rows.find((row) => row.id === specTableRowId)
 
 /** The 面 cell names one or more settled names of table T-103, separated by `/`. */
-const surfacesOf = (rowId: string): readonly string[] =>
-  (t109Row(rowId)?.by['面'] ?? '').split('/').map((name) => bare(name.trim())).filter((name) => name !== '')
+const surfacesOf = (specTableRowId: string): readonly string[] =>
+  (t109Row(specTableRowId)?.by['面'] ?? '').split('/').map((name) => bare(name.trim())).filter((name) => name !== '')
 
-const groupOf = (rowId: string): string => bare(t109Row(rowId)?.by['群'] ?? '')
+const groupOf = (specTableRowId: string): string => bare(t109Row(specTableRowId)?.by['群'] ?? '')
 
 /**
  * ⚠️ Table T-109 holds rows that are not entries at all -- it says so in the
  * 何の入口か column in as many words, and `CommandItem` is only for the ones a
  * person can press.
  */
-const isEntry = (rowId: string): boolean =>
-  !/ボタンではない/.test(t109Row(rowId)?.by['何の入口か'] ?? '')
+const isEntry = (specTableRowId: string): boolean =>
+  !/ボタンではない/.test(t109Row(specTableRowId)?.by['何の入口か'] ?? '')
 
 /** The surfaces IC-52's 面 column lists, each a settled name of table T-103. */
 const SURFACE_NAMES = surfacesOf('IC-52')
@@ -1120,7 +1120,7 @@ const ON_THE_SETTINGS_FACE_ONLY: readonly string[] = ['IC-139', 'IC-162']
 
 // Spec: IC-52, T-109
 interface SurfaceScene {
-  readonly frame: (rowId: string | null) => Frame
+  readonly frame: (specTableRowId: string | null) => Frame
   readonly heading: ((view: ScreenView) => string | undefined) | null
   readonly entries: (view: ScreenView) => readonly CommandItem[] | undefined
 }
@@ -1131,7 +1131,7 @@ const SCENE_OF_WINDOW: ReadonlyMap<string, SurfaceScene> = new Map([
   [
     HELP_SURFACE,
     {
-      frame: (rowId) => (rowId === RESTORE_ENTRY ? HELP_MAXIMIZED : HELP_SHOWN),
+      frame: (specTableRowId) => (specTableRowId === RESTORE_ENTRY ? HELP_MAXIMIZED : HELP_SHOWN),
       heading: (view) => view.helpModal?.heading,
       entries: (view) => view.helpModal?.commands,
     },
@@ -1139,7 +1139,7 @@ const SCENE_OF_WINDOW: ReadonlyMap<string, SurfaceScene> = new Map([
   [
     'Search Panel',
     {
-      frame: (rowId) => (rowId === RESTORE_ENTRY ? SEARCH_MAXIMIZED : SEARCH_TASKS_CHECKED),
+      frame: (specTableRowId) => (specTableRowId === RESTORE_ENTRY ? SEARCH_MAXIMIZED : SEARCH_TASKS_CHECKED),
       heading: (view) => view.searchPanel?.heading,
       entries: (view) => tableWindowEntries(view.searchPanel),
     },
@@ -1147,7 +1147,7 @@ const SCENE_OF_WINDOW: ReadonlyMap<string, SurfaceScene> = new Map([
   [
     'Delay Diagnostics Report',
     {
-      frame: (rowId) => delayReportShown(rowId === RESTORE_ENTRY ? 'maximized' : 'normal', FIX_FOOTER_ENTRIES.includes(rowId ?? '') ? 'proposals' : FIX_LOG_FOOTER_ENTRIES.includes(rowId ?? '') ? 'log' : 'diagnosis'),
+      frame: (specTableRowId) => delayReportShown(specTableRowId === RESTORE_ENTRY ? 'maximized' : 'normal', FIX_FOOTER_ENTRIES.includes(specTableRowId ?? '') ? 'proposals' : FIX_LOG_FOOTER_ENTRIES.includes(specTableRowId ?? '') ? 'log' : 'diagnosis'),
       heading: (view) => view.delayDiagnosticsReport?.heading,
       entries: (view) => tableWindowEntries(view.delayDiagnosticsReport),
     },
@@ -1155,7 +1155,7 @@ const SCENE_OF_WINDOW: ReadonlyMap<string, SurfaceScene> = new Map([
   [
     'Resource List',
     {
-      frame: (rowId) => resourceListShown(rowId === RESTORE_ENTRY ? 'maximized' : 'normal', rowId === 'IC-67'),
+      frame: (specTableRowId) => resourceListShown(specTableRowId === RESTORE_ENTRY ? 'maximized' : 'normal', specTableRowId === 'IC-67'),
       heading: (view) => view.resourceList?.heading,
       entries: (view) => tableWindowEntries(view.resourceList),
     },
@@ -1164,7 +1164,7 @@ const SCENE_OF_WINDOW: ReadonlyMap<string, SurfaceScene> = new Map([
     'Properties Panel',
     {
       // Why: IC-139 stands at the head of the document-settings face only (FR-153), IC-162 in its field (FO-16).
-      frame: (rowId) => (PANEL_STATES[ON_THE_SETTINGS_FACE_ONLY.includes(rowId ?? '') ? 'documentSettings' : 'selection'] as Frame),
+      frame: (specTableRowId) => (PANEL_STATES[ON_THE_SETTINGS_FACE_ONLY.includes(specTableRowId ?? '') ? 'documentSettings' : 'selection'] as Frame),
       // Why: FR-072 puts no heading row at the panel's head, so no member carries this word.
       heading: null,
       entries: (view) => propertiesPanelEntries(view.propertiesPanel),
@@ -1237,7 +1237,7 @@ const HOLIDAY_SETTINGS_FIELD_ENTRIES: readonly string[] = ['IC-134', 'IC-165']
 const sceneOf = (surface: string): SurfaceScene =>
   SCENE_OF_WINDOW.get(surface) ?? (surface === HOLIDAY_SETTINGS_SURFACE ? HOLIDAY_SETTINGS_SCENE : openSurfaceScene(surface))
 
-const surfaceFrame = (surface: string, rowId: string | null = null): Frame => sceneOf(surface).frame(rowId)
+const surfaceFrame = (surface: string, specTableRowId: string | null = null): Frame => sceneOf(surface).frame(specTableRowId)
 
 // ---------------------------------------------------------------------------
 // Reading the answer through the published entry (table T-064, PI-37).
@@ -1364,18 +1364,18 @@ const drop = (section: string, key: string, why: string): void => {
 const iconFrames = new Map<string, Frame>()
 
 for (const entry of GENERATED['icons'] ?? []) {
-  const rowId = keyOf('icons', entry)
-  const row = t109Row(rowId)
+  const specTableRowId = keyOf('icons', entry)
+  const row = t109Row(specTableRowId)
   if (row === undefined) {
-    drop('icons', rowId, 'table T-109 has no such row')
+    drop('icons', specTableRowId, 'table T-109 has no such row')
     continue
   }
-  if (!isEntry(rowId)) {
-    drop('icons', rowId, 'table T-109 says it is not an entry a person presses')
+  if (!isEntry(specTableRowId)) {
+    drop('icons', specTableRowId, 'table T-109 says it is not an entry a person presses')
     continue
   }
 
-  const surfaces = surfacesOf(rowId)
+  const surfaces = surfacesOf(specTableRowId)
   const on = (
     what: string,
     unit: string,
@@ -1386,14 +1386,14 @@ for (const entry of GENERATED['icons'] ?? []) {
     pointer: { readonly x: number; readonly y: number },
     read: (view: ScreenView) => string | undefined,
   ): void => {
-    place({ section: 'icons', key: rowId, field: 'label', unit, what, frame, read })
-    if (!iconFrames.has(rowId)) {
-      iconFrames.set(rowId, {
+    place({ section: 'icons', key: specTableRowId, field: 'label', unit, what, frame, read })
+    if (!iconFrames.has(specTableRowId)) {
+      iconFrames.set(specTableRowId, {
         ...frame,
         readings: {
           ...frame.readings,
           pointer,
-          iconUnderPointer: rowId,
+          iconUnderPointer: specTableRowId,
           pointerRestedMs: ICON_HINT_MS + 1,
           hintTargetDwellMs: ICON_HINT_MS + 1,
         },
@@ -1402,41 +1402,41 @@ for (const entry of GENERATED['icons'] ?? []) {
   }
 
   if (surfaces.includes('App Header')) {
-    on(`the App Header entry ${rowId}`, 'UF-62', BASE, centerOf(REGIONS.appHeader), (view) =>
-      labelIn(view.appHeaderItems.commands, rowId),
+    on(`the App Header entry ${specTableRowId}`, 'UF-62', BASE, centerOf(REGIONS.appHeader), (view) =>
+      labelIn(view.appHeaderItems.commands, specTableRowId),
     )
   }
   if (surfaces.includes('Command Palette')) {
-    on(`the Command Palette entry ${rowId}`, 'UF-65', PALETTE_SHOWN, PALETTE_AT, (view) =>
-      labelIn(paletteCommands(view), rowId),
+    on(`the Command Palette entry ${specTableRowId}`, 'UF-65', PALETTE_SHOWN, PALETTE_AT, (view) =>
+      labelIn(paletteCommands(view), specTableRowId),
     )
   }
   for (const surface of surfaces.filter((name) => SURFACE_NAMES.includes(name))) {
-    if (surface === HOLIDAY_SETTINGS_SURFACE && HOLIDAY_SETTINGS_FIELD_ENTRIES.includes(rowId)) {
-      drop('icons', rowId, 'a field of table T-344 (WC-3, WC-8): it prints its value under a holidaySettings word, not a label')
+    if (surface === HOLIDAY_SETTINGS_SURFACE && HOLIDAY_SETTINGS_FIELD_ENTRIES.includes(specTableRowId)) {
+      drop('icons', specTableRowId, 'a field of table T-344 (WC-3, WC-8): it prints its value under a holidaySettings word, not a label')
       continue
     }
-    on(`the ${surface} entry ${rowId}`, 'UF-66', surfaceFrame(surface, rowId), centerOf(REGIONS.scheduleCanvas), (view) =>
-      labelIn(sceneOf(surface).entries(view), rowId),
+    on(`the ${surface} entry ${specTableRowId}`, 'UF-66', surfaceFrame(surface, specTableRowId), centerOf(REGIONS.scheduleCanvas), (view) =>
+      labelIn(sceneOf(surface).entries(view), specTableRowId),
     )
   }
 
-  if (!PLACES.some((one) => one.section === 'icons' && one.key === rowId)) {
-    drop('icons', rowId, `no unit of the five publishes a member for an entry on ${surfaces.join(' / ')}`)
+  if (!PLACES.some((one) => one.section === 'icons' && one.key === specTableRowId)) {
+    drop('icons', specTableRowId, `no unit of the five publishes a member for an entry on ${surfaces.join(' / ')}`)
   }
 }
 
-for (const [rowId, frame] of iconFrames) {
+for (const [specTableRowId, frame] of iconFrames) {
   // EZ-2 of table T-040 (MUST): the explanation of the icon the pointer rests
   // on, once `iconHintDelayMs` (S-124) has passed.
   place({
     section: 'icons',
-    key: rowId,
+    key: specTableRowId,
     field: 'hint',
     unit: 'UF-69',
-    what: `the explanation EZ-2 shows against ${rowId}`,
+    what: `the explanation EZ-2 shows against ${specTableRowId}`,
     frame,
-    read: (view) => iconTooltip(view, rowId),
+    read: (view) => iconTooltip(view, specTableRowId),
   })
 }
 
@@ -1505,8 +1505,8 @@ for (const entry of GENERATED['surfaces'] ?? []) {
  * ⚠️ Read by ROW and never by position: FR-006's order is a MUST of its own and
  * uf-64 is where that is held, so a reordering must not make this file fall too.
  */
-const propertyFieldName = (view: ScreenView, rowId: string): string | undefined => {
-  const field = view.propertiesPanel?.fields.find((one) => one.row === rowId)
+const propertyFieldName = (view: ScreenView, specTableRowId: string): string | undefined => {
+  const field = view.propertiesPanel?.fields.find((one) => one.row === specTableRowId)
   // Why: a command row (PR-48, PR-49) has no name cell; its word is the one button it draws (CR-786).
   return field?.name === '' ? field.controls[0]?.press : field?.name
 }
@@ -1562,18 +1562,18 @@ const NAME_FIELD_ROW = ((): string => {
   return found
 })()
 
-const declaredRowOf = (rowId: string): string => {
-  const item = T016.rows.find((row) => row.id === rowId)
-  if (item === undefined) return rowId
-  if (bare(item.by[APPLIES_TO_COLUMN] ?? '') !== ON_A_TASK_GROUP) return rowId
+const declaredRowOf = (specTableRowId: string): string => {
+  const item = T016.rows.find((row) => row.id === specTableRowId)
+  if (item === undefined) return specTableRowId
+  if (bare(item.by[APPLIES_TO_COLUMN] ?? '') !== ON_A_TASK_GROUP) return specTableRowId
   const column = bare(item.by[GRS_COLUMN] ?? '')
   const attribute = T058.rows.find(
     (row) => bare(row.by[ENTITY_COLUMN] ?? '') === ON_A_TASK_GROUP && bare(row.by[COLUMN_COLUMN] ?? '') === column,
   )
   if (attribute === undefined) {
-    throw new Error(`table T-058 has no row for ${ON_A_TASK_GROUP}.${column}, which table T-016 ${rowId} edits`)
+    throw new Error(`table T-058 has no row for ${ON_A_TASK_GROUP}.${column}, which table T-016 ${specTableRowId} edits`)
   }
-  return attribute.id === NAME_FIELD_ROW ? attribute.id : rowId
+  return attribute.id === NAME_FIELD_ROW ? attribute.id : specTableRowId
 }
 
 /**
@@ -1709,10 +1709,10 @@ const MILESTONE_PICKED: Frame = frameWith({
  * cannot print it, and this file would report the road as broken while the only
  * thing missing is a frame.
  */
-const frameFor = (rowId: string): Frame => {
-  const appliesTo = bare(T016.rows.find((row) => row.id === rowId)?.by[APPLIES_TO_COLUMN] ?? '')
+const frameFor = (specTableRowId: string): Frame => {
+  const appliesTo = bare(T016.rows.find((row) => row.id === specTableRowId)?.by[APPLIES_TO_COLUMN] ?? '')
   if (appliesTo === ON_A_TASK) {
-    const shownFor = bare(T016.rows.find((row) => row.id === rowId)?.by[SHOWN_FOR_COLUMN] ?? '')
+    const shownFor = bare(T016.rows.find((row) => row.id === specTableRowId)?.by[SHOWN_FOR_COLUMN] ?? '')
     return shownFor === FOR_A_MILESTONE ? MILESTONE_PICKED : (PANEL_STATES['selection'] as Frame)
   }
   if (appliesTo === ON_A_TASK_GROUP) return TASK_GROUP_PICKED
@@ -1720,30 +1720,30 @@ const frameFor = (rowId: string): Frame => {
   if (appliesTo === ON_A_HIGHLIGHT_BOX) return HIGHLIGHT_BOX_PICKED
   if (appliesTo === ON_A_DEPENDENCY) return DEPENDENCY_PICKED
   throw new Error(
-    `table T-016 ${rowId} carries 対象 ${JSON.stringify(appliesTo)}, which this file can raise no frame for`,
+    `table T-016 ${specTableRowId} carries 対象 ${JSON.stringify(appliesTo)}, which this file can raise no frame for`,
   )
 }
 
 for (const entry of GENERATED['properties'] ?? []) {
-  const rowId = keyOf('properties', entry)
-  const declared = declaredRowOf(rowId)
+  const specTableRowId = keyOf('properties', entry)
+  const declared = declaredRowOf(specTableRowId)
   place({
     section: 'properties',
-    key: rowId,
+    key: specTableRowId,
     field: 'label',
     unit: 'UF-67',
-    what: `the name the properties panel shows for ${rowId}`,
-    frame: frameFor(rowId),
+    what: `the name the properties panel shows for ${specTableRowId}`,
+    frame: frameFor(specTableRowId),
     read: (view) => propertyFieldName(view, declared),
   })
   // Why: a row shown for both kinds may carry the milestone's own name too (FR-006).
   if ('milestoneLabel' in entry) {
     place({
       section: 'properties',
-      key: rowId,
+      key: specTableRowId,
       field: 'milestoneLabel',
       unit: 'UF-67',
-      what: `the name the properties panel shows for ${rowId} while a milestone is selected`,
+      what: `the name the properties panel shows for ${specTableRowId} while a milestone is selected`,
       frame: MILESTONE_PICKED,
       read: (view) => propertyFieldName(view, declared),
     })
@@ -1870,15 +1870,15 @@ const ROWS_ON_THE_SETTINGS_FACE = new Set(
  * no row of docs/spec fixes the order the settings face lists its keys in, so a
  * reordering must not make this file fall.
  */
-const settingsFieldName = (view: ScreenView, rowId: string): string | undefined =>
-  view.propertiesPanel?.fields.find((field) => field.row === rowId)?.name
+const settingsFieldName = (view: ScreenView, specTableRowId: string): string | undefined =>
+  view.propertiesPanel?.fields.find((field) => field.row === specTableRowId)?.name
 
 // Spec: FO-15, K-145
 // Why: CR-755 -- four display rows named by the setting's name and a number; row 1's name less ' 1' is the word.
 const NUMBERED_SETTINGS_ROWS: ReadonlySet<string> = new Set(['K-145'])
 const FIRST_ROW_NUMBER = ' 1'
-const numberedFieldName = (view: ScreenView, rowId: string): string | undefined => {
-  const name = settingsFieldName(view, `${rowId}:1`)
+const numberedFieldName = (view: ScreenView, specTableRowId: string): string | undefined => {
+  const name = settingsFieldName(view, `${specTableRowId}:1`)
   return name?.endsWith(FIRST_ROW_NUMBER) === true ? name.slice(0, -FIRST_ROW_NUMBER.length) : name
 }
 
@@ -1888,20 +1888,20 @@ const numberedFieldName = (view: ScreenView, rowId: string): string | undefined 
 const ROWS_JOINED_ON_THE_SETTINGS_FACE: ReadonlySet<string> = new Set(['K-69', 'K-121', 'K-70', 'K-120'])
 
 for (const entry of GENERATED['settings'] ?? []) {
-  const rowId = keyOf('settings', entry)
-  if (ROWS_JOINED_ON_THE_SETTINGS_FACE.has(rowId)) {
+  const specTableRowId = keyOf('settings', entry)
+  if (ROWS_JOINED_ON_THE_SETTINGS_FACE.has(specTableRowId)) {
     drop(
       'settings',
-      rowId,
+      specTableRowId,
       'T-380 RN-3 (CR-787) joins this key with its partner into one read-only row named by ' +
         'readOnlySettings viewLeftEdge / viewTopEdge, so no field of the settings face carries this name',
     )
     continue
   }
-  if (!ROWS_ON_THE_SETTINGS_FACE.has(rowId)) {
+  if (!ROWS_ON_THE_SETTINGS_FACE.has(specTableRowId)) {
     drop(
       'settings',
-      rowId,
+      specTableRowId,
       'the presentation group (DR-3 of table T-052) that IC-17 opens the face on holds no key ' +
         'on this row, so no field of that face carries its name',
     )
@@ -1909,12 +1909,12 @@ for (const entry of GENERATED['settings'] ?? []) {
   }
   place({
     section: 'settings',
-    key: rowId,
+    key: specTableRowId,
     field: 'label',
     unit: 'UF-64',
-    what: `the name the settings face shows for ${rowId}`,
+    what: `the name the settings face shows for ${specTableRowId}`,
     frame: PANEL_STATES['documentSettings'] as Frame,
-    read: (view) => NUMBERED_SETTINGS_ROWS.has(rowId) ? numberedFieldName(view, rowId) : settingsFieldName(view, rowId),
+    read: (view) => NUMBERED_SETTINGS_ROWS.has(specTableRowId) ? numberedFieldName(view, specTableRowId) : settingsFieldName(view, specTableRowId),
   })
 }
 
@@ -1929,21 +1929,21 @@ for (const entry of GENERATED['settings'] ?? []) {
  * ⚠️ Read by ROW: FR-036's order is that requirement's own and `uf-66` is where
  * it is held, so a reordering must not make this file fall too.
  */
-const helpEntryText = (view: ScreenView, rowId: string): string | undefined => {
+const helpEntryText = (view: ScreenView, specTableRowId: string): string | undefined => {
   const entries: readonly HelpEntry[] | undefined = view.helpModal?.entries
-  return entries?.find((entry) => entry.row === rowId)?.text
+  return entries?.find((entry) => entry.row === specTableRowId)?.text
 }
 
 for (const entry of GENERATED['shortcuts'] ?? []) {
-  const rowId = keyOf('shortcuts', entry)
+  const specTableRowId = keyOf('shortcuts', entry)
   place({
     section: 'shortcuts',
-    key: rowId,
+    key: specTableRowId,
     field: 'text',
     unit: 'UF-66',
-    what: `what the help says about ${rowId}`,
+    what: `what the help says about ${specTableRowId}`,
     frame: HELP_SHOWN,
-    read: (view) => helpEntryText(view, rowId),
+    read: (view) => helpEntryText(view, specTableRowId),
   })
 }
 
@@ -2041,23 +2041,23 @@ const T_255_HELD_BY_T_036 = ((): ReadonlySet<string> => {
 })()
 
 for (const entry of GENERATED['browserFunctions'] ?? []) {
-  const rowId = keyOf('browserFunctions', entry)
-  if (T_255_HELD_BY_T_036.has(rowId)) {
+  const specTableRowId = keyOf('browserFunctions', entry)
+  if (T_255_HELD_BY_T_036.has(specTableRowId)) {
     drop(
       'browserFunctions',
-      rowId,
+      specTableRowId,
       'T-255 (MUST NOT): a row of T-036 holds the same combination, so the help never lists this row',
     )
     continue
   }
   place({
     section: 'browserFunctions',
-    key: rowId,
+    key: specTableRowId,
     field: 'text',
     unit: 'UF-66',
-    what: `what the help says about the browser function ${rowId}`,
+    what: `what the help says about the browser function ${specTableRowId}`,
     frame: HELP_SHOWN,
-    read: (view) => helpEntryText(view, rowId),
+    read: (view) => helpEntryText(view, specTableRowId),
   })
 }
 
@@ -2083,15 +2083,15 @@ for (const entry of GENERATED['invariants'] ?? []) {
 // -- assignments: FR-037's hint, shown while the pointer rests on a scrollbar
 
 for (const entry of GENERATED['assignments'] ?? []) {
-  const rowId = keyOf('assignments', entry)
-  const axis = (['vertical', 'horizontal'] as const).find((one) => assignmentForAxis(one) === rowId)
+  const specTableRowId = keyOf('assignments', entry)
+  const axis = (['vertical', 'horizontal'] as const).find((one) => assignmentForAxis(one) === specTableRowId)
   if (axis === undefined) {
-    drop('assignments', rowId, 'no slower way this component describes does what that row of table T-023 does')
+    drop('assignments', specTableRowId, 'no slower way this component describes does what that row of table T-023 does')
     continue
   }
   place({
     section: 'assignments',
-    key: rowId,
+    key: specTableRowId,
     field: 'text',
     unit: 'UF-69',
     what: `the hint FR-037 shows on the ${axis} scrollbar`,
@@ -2126,10 +2126,10 @@ const ARMED_BY_ROW: Readonly<Record<string, ScreenValues['armModeState']>> = {
 }
 
 for (const entry of GENERATED['arms'] ?? []) {
-  const rowId = keyOf('arms', entry)
-  const armed = ARMED_BY_ROW[rowId]
+  const specTableRowId = keyOf('arms', entry)
+  const armed = ARMED_BY_ROW[specTableRowId]
   if (armed === undefined) {
-    drop('arms', rowId, 'table T-023b has no such row, so nothing can be armed with it')
+    drop('arms', specTableRowId, 'table T-023b has no such row, so nothing can be armed with it')
     continue
   }
   // FR-053 (MUST): 「**いま構えているものが画面上で読めること（MUST）。**」
@@ -2141,10 +2141,10 @@ for (const entry of GENERATED['arms'] ?? []) {
   // member UF-65 publishes for it.
   place({
     section: 'arms',
-    key: rowId,
+    key: specTableRowId,
     field: 'text',
     unit: 'UF-65',
-    what: `what the palette says it has armed while ${rowId} is armed`,
+    what: `what the palette says it has armed while ${specTableRowId} is armed`,
     frame: {
       ...PALETTE_SHOWN,
       root: withScreen(PALETTE_SHOWN.root, { armModeState: armed }),
@@ -2592,30 +2592,30 @@ const themeHueControlOf = (view: ScreenView) =>
     .flatMap((field) => field.controls)
     .find((control) => control.key.holder === 'project' && control.key.column === 'themeHue')
 for (const entry of GENERATED['themeHues'] ?? []) {
-  const rowId = keyOf('themeHues', entry)
+  const specTableRowId = keyOf('themeHues', entry)
   place({
     section: 'themeHues',
-    key: rowId,
+    key: specTableRowId,
     field: 'text',
     unit: 'UF-64',
-    what: `the choice ${rowId} of table T-305 on the settings face's theme color field`,
+    what: `the choice ${specTableRowId} of table T-305 on the settings face's theme color field`,
     frame: PANEL_STATES['documentSettings'] as Frame,
-    read: (view) => themeHueControlOf(view)?.choices?.[T305_ROWS.indexOf(rowId)],
+    read: (view) => themeHueControlOf(view)?.choices?.[T305_ROWS.indexOf(specTableRowId)],
   })
 }
 
 // Spec: FR-156, T-376, FO-14, FO-15
 // Why: CR-787 -- a zone's place is line 2 of its two-line name; display row 1 offers none and then every row.
 const ZONE_ROWS_IN_ORDER: readonly string[] = (GENERATED['timeZones'] ?? []).map((entry) => keyOf('timeZones', entry))
-for (const rowId of ZONE_ROWS_IN_ORDER) {
+for (const specTableRowId of ZONE_ROWS_IN_ORDER) {
   place({
     section: 'timeZones',
-    key: rowId,
+    key: specTableRowId,
     field: 'label',
     unit: 'UF-64',
-    what: `line 2 of the two-line name of ${rowId} in display time zone row 1 of the settings face (FR-156)`,
+    what: `line 2 of the two-line name of ${specTableRowId} in display time zone row 1 of the settings face (FR-156)`,
     frame: PANEL_STATES['documentSettings'] as Frame,
-    read: (view) => settingsRowOf(view, 'K-145:1')?.controls[0]?.choiceLines?.[ZONE_ROWS_IN_ORDER.indexOf(rowId) + 1]?.[1],
+    read: (view) => settingsRowOf(view, 'K-145:1')?.controls[0]?.choiceLines?.[ZONE_ROWS_IN_ORDER.indexOf(specTableRowId) + 1]?.[1],
   })
 }
 
@@ -3231,12 +3231,12 @@ const hintLineFramesShowing = (
 
 // Spec: FR-036, FR-038
 const helpNoteFramesShowing = (
-  rowId: string,
+  specTableRowId: string,
   word: string,
   language: string,
 ): readonly { readonly what: string; readonly frame: Frame }[] =>
   FRAMES.filter((one) => {
-    const text = helpEntryText(viewOf(screenViewFromRegions, one.frame, language), rowId)
+    const text = helpEntryText(viewOf(screenViewFromRegions, one.frame, language), specTableRowId)
     return text !== undefined && text.includes(word)
   })
 

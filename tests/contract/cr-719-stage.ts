@@ -20,7 +20,7 @@ export const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 's
 
 export const DISPLAY_WORDS = JSON.parse(
   readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8'),
-) as { reasons: { rowId: string; text: { ja: string; en: string }; nextStep?: { ja: string; en: string } }[] }
+) as { reasons: { specTableRowId: string; text: { ja: string; en: string }; nextStep?: { ja: string; en: string } }[] }
 
 /** @purity pure */
 export function rowOf(table: string, id: string): SpecRow {
@@ -30,9 +30,9 @@ export function rowOf(table: string, id: string): SpecRow {
 }
 
 /** @purity pure */
-export function wordsOf(rowId: string): { ja: string; en: string; nextStepJa: string; nextStepEn: string } {
-  const found = DISPLAY_WORDS.reasons.find((one) => one.rowId === rowId)
-  if (found === undefined) throw new Error(`the dictionary holds no row ${rowId}`)
+export function wordsOf(specTableRowId: string): { ja: string; en: string; nextStepJa: string; nextStepEn: string } {
+  const found = DISPLAY_WORDS.reasons.find((one) => one.specTableRowId === specTableRowId)
+  if (found === undefined) throw new Error(`the dictionary holds no row ${specTableRowId}`)
   return { ja: found.text.ja, en: found.text.en, nextStepJa: found.nextStep?.ja ?? '', nextStepEn: found.nextStep?.en ?? '' }
 }
 

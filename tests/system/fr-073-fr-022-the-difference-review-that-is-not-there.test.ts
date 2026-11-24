@@ -119,8 +119,8 @@ const REASON_NEWER_VERSION = rowOf(T233, 'RS-48').id
 const REASON_WORDS: readonly string[] = (() => {
   const raw = JSON.parse(
     readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8'),
-  ) as { reasons?: { rowId: string; text?: { ja?: string; en?: string } }[] }
-  const found = (raw.reasons ?? []).find((one) => one.rowId === REASON_NEWER_VERSION)
+  ) as { reasons?: { specTableRowId: string; text?: { ja?: string; en?: string } }[] }
+  const found = (raw.reasons ?? []).find((one) => one.specTableRowId === REASON_NEWER_VERSION)
   const said = [found?.text?.ja ?? '', found?.text?.en ?? ''].filter((one) => one !== '')
   if (said.length === 0) {
     throw new Error(`the dictionary holds no words for ${REASON_NEWER_VERSION}`)

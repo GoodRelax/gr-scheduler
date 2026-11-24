@@ -26,9 +26,9 @@ const IV_10 = '`start` と `finish` がともに非 `null` の `Task` で、`fin
 // Why: CR-710 rewrote this clause (FR-054 reads instants and counts working time in minutes).
 const IV_14 = '日付と日時の列が、日時として読め（時刻は 1 分の単位）、受け入れる日付の範囲に収まること。'
 
-const t220Row = (rowId: string) => {
-  const found = specTable('T-220').rows.find((one) => one.id === rowId)
-  if (found === undefined) throw new Error(`table T-220 has no row ${rowId}`)
+const t220Row = (specTableRowId: string) => {
+  const found = specTable('T-220').rows.find((one) => one.id === specTableRowId)
+  if (found === undefined) throw new Error(`table T-220 has no row ${specTableRowId}`)
   return found
 }
 

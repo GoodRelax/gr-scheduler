@@ -37,9 +37,9 @@ const IV_14_A_DATE_IN_RANGE = '日付と日時の列が、日時として読め�
 
 const SHOWS_NOTHING = '出さない'
 
-const rowOf = (tableId: string, rowId: string) => {
-  const found = specTable(tableId).rows.find((one) => one.id === rowId)
-  if (found === undefined) throw new Error(`table ${tableId} has no row ${rowId}`)
+const rowOf = (tableId: string, specTableRowId: string) => {
+  const found = specTable(tableId).rows.find((one) => one.id === specTableRowId)
+  if (found === undefined) throw new Error(`table ${tableId} has no row ${specTableRowId}`)
   return found
 }
 
@@ -72,9 +72,9 @@ describe('the clauses CR-718 wrote still read word for word', () => {
 })
 
 describe('the three reasons the clauses carry are rows of table T-233 that show nothing', () => {
-  it.each(['RS-53', 'RS-27', 'RS-49'])('%s has the display %s', (rowId) => {
-    const cells = rowOf('T-233', rowId).cells.map((one) => one.trim())
-    expect(cells, `${rowId} is a row of T-233 whose display cell reads ${SHOWS_NOTHING}`).toContain(SHOWS_NOTHING)
+  it.each(['RS-53', 'RS-27', 'RS-49'])('%s has the display %s', (specTableRowId) => {
+    const cells = rowOf('T-233', specTableRowId).cells.map((one) => one.trim())
+    expect(cells, `${specTableRowId} is a row of T-233 whose display cell reads ${SHOWS_NOTHING}`).toContain(SHOWS_NOTHING)
   })
 
   it('RS-53 and RS-27 and RS-49 are named by the sentences that carry them', () => {

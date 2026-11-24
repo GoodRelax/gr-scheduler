@@ -102,9 +102,9 @@ describe(`FR-156 -- ${FR_156_TWO_LINES}`, () => {
     ['ZN-47', 'ja', 'UTC ±00:00 UTC', '協定世界時・ロンドン'],
     ['ZN-57', 'en', 'UTC +05:30 IST', 'India'],
     ['ZN-67', 'en', 'UTC +13:00 NZDT', 'Auckland Daylight Time'],
-  ] as const)('FR-156 (MUST): %s in %s reads "%s" over "%s"', (rowId, language, head, place) => {
-    const row = T_376_ROWS.find((one) => one.id === rowId)
-    if (row === undefined) throw new Error(`table T-376 has no row ${rowId}`)
+  ] as const)('FR-156 (MUST): %s in %s reads "%s" over "%s"', (specTableRowId, language, head, place) => {
+    const row = T_376_ROWS.find((one) => one.id === specTableRowId)
+    if (row === undefined) throw new Error(`table T-376 has no row ${specTableRowId}`)
     expect(timeZoneLinesOf(row.key, language)).toEqual([head, place])
   })
 

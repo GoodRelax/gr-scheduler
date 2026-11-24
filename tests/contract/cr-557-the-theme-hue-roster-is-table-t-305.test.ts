@@ -20,7 +20,7 @@ const HUE_MIN = Number(bare(S_73?.by['下限'] ?? ''))
 const HUE_MAX = Number(bare(S_73?.by['上限'] ?? ''))
 
 interface RosterRow {
-  readonly rowId: string
+  readonly specTableRowId: string
   readonly hue: number
 }
 
@@ -36,10 +36,10 @@ function s73Default(): number {
 function expectedRoster(): readonly RosterRow[] {
   return specTable('T-305').rows.map((row) => {
     const cell = row.by['色相'] ?? row.cells[0] ?? ''
-    if (cell.includes('S-73')) return { rowId: row.id, hue: s73Default() }
+    if (cell.includes('S-73')) return { specTableRowId: row.id, hue: s73Default() }
     const hue = Number(bare(cell))
     if (!Number.isInteger(hue)) throw new Error(`table T-305 row ${row.id} states no integer hue: ${cell}`)
-    return { rowId: row.id, hue }
+    return { specTableRowId: row.id, hue }
   })
 }
 
@@ -66,7 +66,7 @@ describe('CR-557 -- the manuscript still says what these cases read', () => {
 
   it('premise: table T-305 names TH-1 .. TH-n in order, each hue within S-73 bounds', () => {
     const rows = expectedRoster()
-    expect(rows.map((one) => one.rowId)).toEqual(rows.map((_, index) => `TH-${index + 1}`))
+    expect(rows.map((one) => one.specTableRowId)).toEqual(rows.map((_, index) => `TH-${index + 1}`))
     for (const one of rows) {
       expect(one.hue).toBeGreaterThanOrEqual(HUE_MIN)
       expect(one.hue).toBeLessThanOrEqual(HUE_MAX)
@@ -81,7 +81,7 @@ describe('CR-557 S-1 -- theme-hue-roster.json is table T-305', () => {
 
   it(`FR-041 "${NOTE_TH_1}" -- TH-1 carries the default of S-73 (table T-216)`, () => {
     const first = readRoster()[0]
-    expect(first?.rowId).toBe('TH-1')
+    expect(first?.specTableRowId).toBe('TH-1')
     expect(first?.hue).toBe(s73Default())
   })
 

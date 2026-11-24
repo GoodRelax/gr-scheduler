@@ -114,8 +114,8 @@ describe('SK-25 / FR-095 / T-342 / QN-5 -- the manuscript still says it', () => 
   })
 
   it('QN-5: the generated words are the manuscript words, true whether or not edits are unsaved', () => {
-    const spec = (SPEC_WORDS['questions'] as Loose[]).find((one) => one['rowId'] === 'QN-5')
-    const built = (GENERATED_WORDS['questions'] as Loose[]).find((one) => one['rowId'] === 'QN-5')
+    const spec = (SPEC_WORDS['questions'] as Loose[]).find((one) => one['specTableRowId'] === 'QN-5')
+    const built = (GENERATED_WORDS['questions'] as Loose[]).find((one) => one['specTableRowId'] === 'QN-5')
     expect(built?.['text']).toEqual(spec?.['text'])
   })
 

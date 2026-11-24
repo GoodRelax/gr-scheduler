@@ -16,11 +16,11 @@ const T206: SpecTable = specTable('T-206')
 const T212: SpecTable = specTable('T-212')
 
 /** @purity pure */
-function cellOf(table: SpecTable, rowId: string, column: number, columns: number): string {
-  const row = rowOf(table, rowId)
+function cellOf(table: SpecTable, specTableRowId: string, column: number, columns: number): string {
+  const row = rowOf(table, specTableRowId)
   if (row.cells.length !== columns) {
     throw new Error(
-      `table ${table.id} row ${rowId} has ${row.cells.length} cells after the row ID, not the ` +
+      `table ${table.id} row ${specTableRowId} has ${row.cells.length} cells after the row ID, not the ` +
         `${columns} this file reads by position -- a column was added or taken away`,
     )
   }
@@ -1229,8 +1229,8 @@ const T201_COLUMNS = 7
 const T201_DEFAULT = 3
 
 /** @purity pure */
-function drawingSettingOf(rowId: string): number {
-  return numberIn(cellOf(T201, rowId, T201_DEFAULT, T201_COLUMNS), `table T-201 row ${rowId}`)
+function drawingSettingOf(specTableRowId: string): number {
+  return numberIn(cellOf(T201, specTableRowId, T201_DEFAULT, T201_COLUMNS), `table T-201 row ${specTableRowId}`)
 }
 
 const RECTANGLE_NAME_PX_AT_ONE =

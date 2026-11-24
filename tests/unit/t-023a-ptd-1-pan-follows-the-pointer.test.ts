@@ -177,20 +177,20 @@ const SPEC = join(process.cwd(), 'docs', 'spec')
 const REQUIREMENTS = unbroken(readFileSync(join(SPEC, '01-04-requirements.md'), 'utf8')).split('\n')
 
 /** The `結果` cell of one row of 表 T-023a. */
-function resultOf(rowId: string): string {
-  const found = specTable('T-023a').rows.find((one) => one.id === rowId)
-  if (found === undefined) throw new Error(`table T-023a has no row ${rowId}`)
+function resultOf(specTableRowId: string): string {
+  const found = specTable('T-023a').rows.find((one) => one.id === specTableRowId)
+  if (found === undefined) throw new Error(`table T-023a has no row ${specTableRowId}`)
   const cell = found.by['結果']
   if (cell === undefined || cell.length === 0) {
-    throw new Error(`table T-023a row ${rowId} states no 結果`)
+    throw new Error(`table T-023a row ${specTableRowId} states no 結果`)
   }
   return cell
 }
 
 /** The `条件` cell of one row of 表 T-023a. */
-function conditionOf(rowId: string): string {
-  const found = specTable('T-023a').rows.find((one) => one.id === rowId)
-  if (found === undefined) throw new Error(`table T-023a has no row ${rowId}`)
+function conditionOf(specTableRowId: string): string {
+  const found = specTable('T-023a').rows.find((one) => one.id === specTableRowId)
+  if (found === undefined) throw new Error(`table T-023a has no row ${specTableRowId}`)
   return found.by['条件'] ?? ''
 }
 

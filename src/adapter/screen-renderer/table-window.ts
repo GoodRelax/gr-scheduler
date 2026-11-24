@@ -79,11 +79,11 @@ const DATE_SEPARATOR = '/'
 // Spec: SQ-3
 const DATE_PART_DIGITS: readonly number[] = [4, 2, 2]
 
-const ICON_WORDS = new Map(displayWords.icons.map((entry) => [entry.rowId, entry]))
+const ICON_WORDS = new Map(displayWords.icons.map((entry) => [entry.specTableRowId, entry]))
 
 const FILTER_SEARCH_HINT = displayWords.searchPanel.find((entry) => entry.part === 'filterSearch')?.text
 // Why: VISIBILITY_TABLES is in the order T-109 lists the surfaces of IC-143 in, the order the band names them (TV-11).
-const TABLE_SURFACES: readonly string[] = iconRoster.icons.find((row) => row.rowId === SCHEDULE_FILTER_ENTRY)?.surfaces ?? []
+const TABLE_SURFACES: readonly string[] = iconRoster.icons.find((row) => row.specTableRowId === SCHEDULE_FILTER_ENTRY)?.surfaces ?? []
 
 const SURFACE_HEADINGS = new Map(displayWords.surfaces.map((entry) => [entry.name, entry.heading]))
 const PANEL_WORDS = new Map(displayWords.searchPanel.map((entry) => [entry.part, entry.text]))
@@ -100,14 +100,14 @@ export const MARK_COLOR_ROWS: readonly string[] = [
 ]
 
 /** @purity pure */
-export function markColorVariableOf(rowId: string): string {
-  return `--gr-mark-${rowId}`
+export function markColorVariableOf(specTableRowId: string): string {
+  return `--gr-mark-${specTableRowId}`
 }
 
 // Spec: SQ-5, DT-1, RW-4, FR-133
 /** @purity pure */
 export function statusGlyphSvg(symbol: MarkGlyph): string {
-  return markerGlyphSvg(symbol, (rowId) => `var(${markColorVariableOf(rowId)})`)
+  return markerGlyphSvg(symbol, (specTableRowId) => `var(${markColorVariableOf(specTableRowId)})`)
 }
 
 /** @purity pure */
@@ -274,9 +274,9 @@ type HeldTableViews = DocumentSettings['tableViews']
 
 // Spec: OP-18, T-372, JF-1
 const COLUMNS_OF_TABLE: { readonly [T in VisibilityTable]: ReadonlySet<string> } = {
-  searchPanel: new Set(displayWords.searchColumns.map((entry) => entry.rowId)),
-  delayDiagnosticsReport: new Set(displayWords.delayReportColumns.map((entry) => entry.rowId)),
-  resourceList: new Set(displayWords.resourceListColumns.map((entry) => entry.rowId)),
+  searchPanel: new Set(displayWords.searchColumns.map((entry) => entry.specTableRowId)),
+  delayDiagnosticsReport: new Set(displayWords.delayReportColumns.map((entry) => entry.specTableRowId)),
+  resourceList: new Set(displayWords.resourceListColumns.map((entry) => entry.specTableRowId)),
 }
 
 /** @purity pure */

@@ -15,9 +15,9 @@ const OP_19_KEEPS_OP_4 = '`OP-4` の確認は掛かること（MUST）'
 const OP_11_SEVERAL_OPEN_NONE =
   '人が 2 つ以上のファイルを同時にウィンドウへドロップしたとき、`GRS` は、どのファイルも開かずに断り、現在の文書を変えないこと（MUST）'
 const WORDS = JSON.parse(readFileSync(resolve('docs', 'spec', '_source', 'display-words.json'), 'utf8')) as {
-  readonly reasons: readonly { readonly rowId: string; readonly text: { readonly ja: string; readonly en: string } }[]
+  readonly reasons: readonly { readonly specTableRowId: string; readonly text: { readonly ja: string; readonly en: string } }[]
 }
-const RS_14_EN = WORDS.reasons.find((one) => one.rowId === 'RS-14')?.text.en ?? ''
+const RS_14_EN = WORDS.reasons.find((one) => one.specTableRowId === 'RS-14')?.text.en ?? ''
 
 const OPEN_CHOOSER = '[data-role="Open Chooser"]'
 const CONFIRMATION = '[data-role="Confirmation"]'

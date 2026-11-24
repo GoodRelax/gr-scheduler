@@ -213,7 +213,7 @@ const mannerOf = (reason: string): string => bare(rowOf(T_233, reason).by['作�
 
 /** FR-038's dictionary, as the manuscript keeps it. Copied from the fr-029 file. */
 interface ReasonWords {
-  readonly rowId: string
+  readonly specTableRowId: string
   readonly text: Readonly<Record<DisplayLanguage, string>>
   readonly nextStep: Readonly<Record<DisplayLanguage, string>>
 }
@@ -224,9 +224,9 @@ const REASON_WORDS: readonly ReasonWords[] = (
   ) as { reasons: ReasonWords[] }
 ).reasons
 
-function wordsFor(rowId: string): ReasonWords {
-  const found = REASON_WORDS.find((one) => one.rowId === rowId)
-  if (found === undefined) throw new Error(`FR-038's dictionary holds no words for ${rowId}`)
+function wordsFor(specTableRowId: string): ReasonWords {
+  const found = REASON_WORDS.find((one) => one.specTableRowId === specTableRowId)
+  if (found === undefined) throw new Error(`FR-038's dictionary holds no words for ${specTableRowId}`)
   return found
 }
 
@@ -427,7 +427,7 @@ describe('FR-029 / 表 T-233 -- the manuscript this file is driven by', () => {
     const mine = wordsFor(RS_27).text.ja
     const others = T_233.rows
       .filter((one) => one.id !== RS_27)
-      .map((one) => REASON_WORDS.find((word) => word.rowId === one.id)?.text.ja)
+      .map((one) => REASON_WORDS.find((word) => word.specTableRowId === one.id)?.text.ja)
       .filter((one): one is string => one !== undefined)
     expect(mine.length).toBeGreaterThan(0)
     expect(others).not.toContain(mine)

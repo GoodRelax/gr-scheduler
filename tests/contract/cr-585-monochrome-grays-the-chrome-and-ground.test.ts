@@ -218,9 +218,9 @@ function groundOf(theme: ScreenTheme): string {
 }
 
 // Why: a row the export does not draw (the grab strip S-231 is chrome only) has no export color.
-function exportColorOf(rowId: string, hue: number, preference: Preference, monochrome: boolean): string | null {
+function exportColorOf(specTableRowId: string, hue: number, preference: Preference, monochrome: boolean): string | null {
   try {
-    return colorOf(rowId, hue, preference === 'dark', monochrome)
+    return colorOf(specTableRowId, hue, preference === 'dark', monochrome)
   } catch {
     return null
   }
@@ -266,12 +266,12 @@ describe(`CR-585 (1)(7) FR-041 "${CLAUSE_MONOCHROME}" / T-294 "${CLAUSE_KEEP_LIG
     for (const hue of HUES) {
       it(`${preference}, hue ${hue}: every "o" row's --gr-<name> is achromatic and keeps the HSL lightness`, () => {
         for (const name of HUE_NAMES) {
-          const rowId = NAME_TO_TASK_GROUP[name] ?? ''
+          const specTableRowId = NAME_TO_TASK_GROUP[name] ?? ''
           const written = propertyOf(theme(preference, hue, true), name)
-          const drawn = mustPaint(written, `--gr-${name} (${rowId})`)
-          const colored = mustPaint(writtenOf(t236(rowId), preference, hue), `T-236 ${rowId}`)
-          expect(isGray(drawn), `${name} (${rowId}) is not gray: ${written}`).toBe(true)
-          expect(samePaint(drawn, grayOf(colored)), `${name} (${rowId}): ${written} keeps L of ${writtenOf(t236(rowId), preference, hue)}`).toBe(true)
+          const drawn = mustPaint(written, `--gr-${name} (${specTableRowId})`)
+          const colored = mustPaint(writtenOf(t236(specTableRowId), preference, hue), `T-236 ${specTableRowId}`)
+          expect(isGray(drawn), `${name} (${specTableRowId}) is not gray: ${written}`).toBe(true)
+          expect(samePaint(drawn, grayOf(colored)), `${name} (${specTableRowId}): ${written} keeps L of ${writtenOf(t236(specTableRowId), preference, hue)}`).toBe(true)
         }
       })
     }
@@ -283,12 +283,12 @@ describe(`CR-585 (2) FR-041 "${CLAUSE_ANY_HUE_COLUMN}" / T-294 "${CLAUSE_KEEP_LI
     for (const hue of HUES) {
       it(`${preference}, hue ${hue}: every "-" row's --gr-<name> is achromatic and keeps the HSL lightness`, () => {
         for (const name of FIXED_NAMES) {
-          const rowId = NAME_TO_TASK_GROUP[name] ?? ''
+          const specTableRowId = NAME_TO_TASK_GROUP[name] ?? ''
           const written = propertyOf(theme(preference, hue, true), name)
-          const drawn = mustPaint(written, `--gr-${name} (${rowId})`)
-          const colored = mustPaint(writtenOf(t236(rowId), preference, hue), `T-236 ${rowId}`)
-          expect(isGray(drawn), `${name} (${rowId}) is not gray: ${written}`).toBe(true)
-          expect(samePaint(drawn, grayOf(colored)), `${name} (${rowId}): ${written} keeps L of ${writtenOf(t236(rowId), preference, hue)}`).toBe(true)
+          const drawn = mustPaint(written, `--gr-${name} (${specTableRowId})`)
+          const colored = mustPaint(writtenOf(t236(specTableRowId), preference, hue), `T-236 ${specTableRowId}`)
+          expect(isGray(drawn), `${name} (${specTableRowId}) is not gray: ${written}`).toBe(true)
+          expect(samePaint(drawn, grayOf(colored)), `${name} (${specTableRowId}): ${written} keeps L of ${writtenOf(t236(specTableRowId), preference, hue)}`).toBe(true)
         }
       })
     }
@@ -300,14 +300,14 @@ describe(`CR-585 (3) FR-041 "${CLAUSE_FOLLOW_T236}" -- monochrome off`, () => {
     for (const hue of HUES) {
       it(`${preference}, hue ${hue}: every --gr-<name> is its T-236 value with H substituted`, () => {
         for (const name of Object.keys(NAME_TO_TASK_GROUP)) {
-          const rowId = NAME_TO_TASK_GROUP[name] ?? ''
+          const specTableRowId = NAME_TO_TASK_GROUP[name] ?? ''
           const written = propertyOf(theme(preference, hue, false), name)
-          const wanted = writtenOf(t236(rowId), preference, hue)
+          const wanted = writtenOf(t236(specTableRowId), preference, hue)
           // Why: since CR-693 the frame reads the picture's T-366 value (CF-1), so a shifted row moves like the export's.
-          const keeps = T366_SHIFTED_ROWS.includes(rowId)
+          const keeps = T366_SHIFTED_ROWS.includes(specTableRowId)
             ? isShiftOf(written, wanted, preference)
-            : samePaint(mustPaint(written, name), mustPaint(wanted, rowId))
-          expect(keeps, `${name} (${rowId}): ${written} vs ${wanted}`).toBe(true)
+            : samePaint(mustPaint(written, name), mustPaint(wanted, specTableRowId))
+          expect(keeps, `${name} (${specTableRowId}): ${written} vs ${wanted}`).toBe(true)
         }
       })
     }
@@ -350,9 +350,9 @@ describe(`CR-585 (5) FR-041 "${CLAUSE_SAME_VALUE}"`, () => {
       for (const monochrome of [true, false]) {
         it(`${preference}, hue ${hue}, monochrome ${monochrome}: --gr-<name> equals the export's color for the same row`, () => {
           for (const name of both) {
-            const rowId = NAME_TO_TASK_GROUP[name] ?? ''
-            expect(propertyOf(theme(preference, hue, monochrome), name), `${name} (${rowId})`).toBe(
-              exportColorOf(rowId, hue, preference, monochrome),
+            const specTableRowId = NAME_TO_TASK_GROUP[name] ?? ''
+            expect(propertyOf(theme(preference, hue, monochrome), name), `${name} (${specTableRowId})`).toBe(
+              exportColorOf(specTableRowId, hue, preference, monochrome),
             )
           }
           expect(groundOf(theme(preference, hue, monochrome)), 'page ground vs export S-146').toBe(

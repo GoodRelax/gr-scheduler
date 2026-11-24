@@ -86,7 +86,7 @@ const pointsOf = (list: string): Pt[] => {
 }
 
 const glyphOf = (symbol: 'PM-1' | 'PM-3'): Glyph => {
-  const markup = markerGlyphSvg(symbol, (rowId) => `var(--${rowId})`)
+  const markup = markerGlyphSvg(symbol, (specTableRowId) => `var(--${specTableRowId})`)
   const tags = markup.match(/<(?:circle|line|path|polyline)\b[^>]*>/g) ?? []
   const disc = tags.find((tag) => tag.startsWith('<circle') && attrOf(tag, 'stroke-width') !== undefined)
   if (disc === undefined) throw new Error(`no disc circle in ${markup}`)

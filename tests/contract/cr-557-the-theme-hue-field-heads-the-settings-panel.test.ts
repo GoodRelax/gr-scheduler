@@ -41,8 +41,8 @@ const SPEC = join(process.cwd(), 'docs', 'spec')
 const REQUIREMENTS = unbroken(readFileSync(join(SPEC, '01-04-requirements.md'), 'utf8'))
 
 const WORDS = JSON.parse(readFileSync(join(SPEC, '_source', 'display-words.json'), 'utf8')) as {
-  readonly themeHues: readonly { readonly rowId: string; readonly text: Record<DisplayLanguage, string> }[]
-  readonly settings: readonly { readonly rowId: string; readonly label: Record<DisplayLanguage, string> }[]
+  readonly themeHues: readonly { readonly specTableRowId: string; readonly text: Record<DisplayLanguage, string> }[]
+  readonly settings: readonly { readonly specTableRowId: string; readonly label: Record<DisplayLanguage, string> }[]
   readonly colorField: readonly { readonly part: string; readonly text: Record<DisplayLanguage, string> }[]
 }
 
@@ -84,16 +84,16 @@ const S_368 = Number(bare(specTable('T-206').rows.find((one) => one.id === 'S-36
 // Spec: T-305
 const ROSTER = specTable('T-305').rows.map((row) => {
   const cell = row.by['色相'] ?? ''
-  return { rowId: row.id, hue: cell.includes('S-73') ? S_73_DEFAULT : Number(bare(cell)) }
+  return { specTableRowId: row.id, hue: cell.includes('S-73') ? S_73_DEFAULT : Number(bare(cell)) }
 })
 
 // Spec: T-104
 const fieldNameOf = (language: DisplayLanguage): string =>
-  WORDS.settings.find((one) => one.rowId === K_60)?.label[language] ?? `(no dictionary word for ${K_60})`
+  WORDS.settings.find((one) => one.specTableRowId === K_60)?.label[language] ?? `(no dictionary word for ${K_60})`
 
 // Spec: T-305
-const hueWordOf = (rowId: string, language: DisplayLanguage): string =>
-  WORDS.themeHues.find((one) => one.rowId === rowId)?.text[language] ?? `(no dictionary word for ${rowId})`
+const hueWordOf = (specTableRowId: string, language: DisplayLanguage): string =>
+  WORDS.themeHues.find((one) => one.specTableRowId === specTableRowId)?.text[language] ?? `(no dictionary word for ${specTableRowId})`
 
 // Spec: T-236
 function s151Formula(preference: Preference): { readonly s: number; readonly l: number } {
@@ -140,9 +140,9 @@ const SHIFTED_ROWS: Readonly<Record<Preference, readonly string[]>> = { light: [
 const MEASURED_SHIFT = 2
 const S_525_RATIO = 1
 
-const expectedPaintOf = (hue: number, preference: Preference, rowId: string): Rgb => {
+const expectedPaintOf = (hue: number, preference: Preference, specTableRowId: string): Rgb => {
   const { s, l } = s151Formula(preference)
-  const shift = SHIFTED_ROWS[preference].includes(rowId) ? MEASURED_SHIFT * S_525_RATIO : 0
+  const shift = SHIFTED_ROWS[preference].includes(specTableRowId) ? MEASURED_SHIFT * S_525_RATIO : 0
   return rgbOfHsl(hue, s, l + (preference === 'dark' ? shift : -shift))
 }
 
@@ -375,14 +375,14 @@ describe('CR-557 S-2 -- the first field of the document settings panel is K-60',
     expect(field.isEditable).toBe(true)
   })
 
-  it.each(ROSTER.map((one) => [one.rowId, one.hue] as const))(
+  it.each(ROSTER.map((one) => [one.specTableRowId, one.hue] as const))(
     `FR-041 "${CLAUSE_TOOLTIP}" -- the swatch holding themeHue %s's value carries its word when themeHue is %s`,
-    (rowId, hue) => {
+    (specTableRowId, hue) => {
       for (const language of LANGUAGES) {
         const control = hueControl(settingsPanel({ hue, language }))
         const at = (control.choiceValues ?? []).indexOf(control.text)
         expect(at, 'the stored hue is one swatch value').toBeGreaterThanOrEqual(0)
-        expect(control.choices?.[at]).toBe(hueWordOf(rowId, language))
+        expect(control.choices?.[at]).toBe(hueWordOf(specTableRowId, language))
       }
     },
   )
@@ -391,7 +391,7 @@ describe('CR-557 S-2 -- the first field of the document settings panel is K-60',
     const control = hueControl(settingsPanel({ language }))
     expect(control.key).toEqual({ holder: 'project', column: 'themeHue' })
     expect(control.choiceValues).toEqual(ROSTER.map((one) => String(one.hue)))
-    expect(control.choices).toEqual(ROSTER.map((one) => hueWordOf(one.rowId, language)))
+    expect(control.choices).toEqual(ROSTER.map((one) => hueWordOf(one.specTableRowId, language)))
   })
 
   it(`FR-041 "${CLAUSE_NO_ROW}" -- themeHue ${HUE_OFF_THE_ROSTER} is shown as the number`, () => {
@@ -407,8 +407,8 @@ describe('CR-557 S-2 -- each swatch is S-151 solved at its row hue (table T-236)
       const paints = paintsOf(hueControl(settingsPanel({ preference })))
       ROSTER.forEach((row, index) => {
         const drawn = rgbOfPaint(paints[index] ?? '')
-        const wanted = expectedPaintOf(row.hue, preference, row.rowId)
-        expect(drawn !== null && sameRgb(drawn, wanted), `${row.rowId} (${preference}): ${paints[index]} vs rgb(${wanted.map(Math.round).join(',')})`).toBe(true)
+        const wanted = expectedPaintOf(row.hue, preference, row.specTableRowId)
+        expect(drawn !== null && sameRgb(drawn, wanted), `${row.specTableRowId} (${preference}): ${paints[index]} vs rgb(${wanted.map(Math.round).join(',')})`).toBe(true)
       })
     })
 

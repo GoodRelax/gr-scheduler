@@ -2164,7 +2164,7 @@ def color_block(name):
     by_id = {r['id']: r for r in block[0]['rows']}
     out = list(COLOR_NOTE) + [
            'export const %s: {' % name,
-           '  readonly [rowId: string]: {',
+           '  readonly [specTableRowId: string]: {',
            '    readonly light: string',
            '    readonly dark: string',
            '    readonly followsHue: boolean',
@@ -2218,7 +2218,7 @@ def color_sources_block(name):
     by_id = {r['id']: r for r in block[0]['rows']}
     out = ['// Spec: T-236, T-366',
            'export const %s_SOURCES: {' % name,
-           '  readonly [rowId: string]: { readonly light: string; readonly dark: string }',
+           '  readonly [specTableRowId: string]: { readonly light: string; readonly dark: string }',
            '} = {']
     for row_id in COLOR_TARGETS[name]:
         ends = {}
@@ -2284,7 +2284,7 @@ def palette_block():
            '}',
            'export const COLOR_NAME_VALUES: {',
            '  readonly [spelling: string]: {',
-           '    readonly rowId: string',
+           '    readonly specTableRowId: string',
            '    readonly light: PaletteForms',
            '    readonly dark: PaletteForms',
            '  }',
@@ -2292,7 +2292,7 @@ def palette_block():
     for row in block[0]['rows']:
         key = row['key'].strip('`')
         out.append("  %s: {" % key)
-        out.append("    rowId: '%s'," % row['id'])
+        out.append("    specTableRowId: '%s'," % row['id'])
         for side in ('light', 'dark'):
             cells = ', '.join(
                 '%s: %s' % (form, palette_cell(row.get(side + form.capitalize()),
@@ -2558,7 +2558,7 @@ def property_item_unions_block():
     for item in items:
         if item['appliesTo'] not in applies_to:
             applies_to.append(item['appliesTo'])
-    task_rows = [item['rowId'] for item in items
+    task_rows = [item['specTableRowId'] for item in items
                  if item['appliesTo'] == generate_property_items.DEFAULT_APPLIES_TO]
     for word in applies_to:
         if not PLAIN_WORD.match(word):

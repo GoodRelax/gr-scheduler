@@ -133,8 +133,8 @@ const B = 4
 const COPY = keyOf('C', { ctrl: true })
 const PASTE = keyOf('V', { ctrl: true })
 const TASK_GROUP_PANEL = bare(rowOf('T-103', 'U-22').by['確定名（英）'] ?? '')
-const RS_27_WORDS: string = (DISPLAY_WORDS.reasons as { rowId: string; text: { ja: string } }[]).find(
-  (one) => one.rowId === 'RS-27',
+const RS_27_WORDS: string = (DISPLAY_WORDS.reasons as { specTableRowId: string; text: { ja: string } }[]).find(
+  (one) => one.specTableRowId === 'RS-27',
 )!.text.ja
 
 // Why: P on task-group-1 holds A (task-group-2), A holds A1 (task-group-3); B is a root on task-group-1. Dates differ

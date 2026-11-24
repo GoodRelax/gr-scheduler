@@ -9,13 +9,13 @@ import { windowStage, type WindowStage } from './cr-731-window-stage'
 import type { Document } from '../../src/entity/document-model/document/document'
 import { selfAndDescendants, type FakeElement } from '../fixtures/fake-browser'
 
-const wordOf = (section: string, key: string, field: 'part' | 'rowId'): string => {
+const wordOf = (section: string, key: string, field: 'part' | 'specTableRowId'): string => {
   const found = (WORDS[section] as readonly Record<string, any>[]).find((one) => one[field] === key)
   if (found === undefined) throw new Error(`the dictionary has no ${section}/${key}`)
   return found['text']['ja']
 }
 const fixWord = (part: string): string => wordOf('delayFixes', part, 'part')
-const columnWord = (row: string): string => wordOf('delayFixColumns', row, 'rowId')
+const columnWord = (row: string): string => wordOf('delayFixColumns', row, 'specTableRowId')
 const filled = (text: string, values: Record<string, number>): string =>
   Object.entries(values).reduce((made, [key, value]) => made.replace(`{${key}}`, String(value)), text)
 
@@ -123,7 +123,7 @@ describe('RW-11 -- three tables, one at a time, the diagnosis first', () => {
     const first = stage.copied[0]
     expect(first?.kind).toBe('document')
     const text = first?.kind === 'document' ? first.text : ''
-    const heading = (WORDS['icons'] as readonly Record<string, any>[]).find((one) => one['rowId'] === 'IC-155')?.['label']?.['ja'] as string
+    const heading = (WORDS['icons'] as readonly Record<string, any>[]).find((one) => one['specTableRowId'] === 'IC-155')?.['label']?.['ja'] as string
     expect(text).toContain(heading)
     expect(text.indexOf(heading)).toBeGreaterThan(text.indexOf('2027'))
     expect(text).toContain('2027/05/21')

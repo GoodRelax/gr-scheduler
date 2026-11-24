@@ -109,14 +109,14 @@ const DESIGN = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '05-07-
 const THE_ORDER_MUST = '名前を時刻の上に置くこと（MUST）'
 
 /** The settled name one row of table T-103 gives, which reaches the DOM as `data-role`. */
-function settledName(rowId: string): string {
+function settledName(specTableRowId: string): string {
   const table = specTable('T-103')
   const COLUMN = '確定名（英）'
   if (!table.headings.includes(COLUMN)) {
     throw new Error(`table T-103 no longer has a ${COLUMN} column: ${table.headings.join(' | ')}`)
   }
-  const row = table.rows.find((one) => one.id === rowId)
-  if (row === undefined) throw new Error(`table T-103 no longer has row ${rowId}`)
+  const row = table.rows.find((one) => one.id === specTableRowId)
+  if (row === undefined) throw new Error(`table T-103 no longer has row ${specTableRowId}`)
   return bare(row.by[COLUMN] ?? '')
 }
 

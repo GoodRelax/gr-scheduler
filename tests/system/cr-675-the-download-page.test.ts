@@ -55,26 +55,26 @@ const QUIET_MS = 2_000
 const WIDE = { width: 1280, height: 800 }
 const NARROW = { width: 375, height: 812 }
 
-type Labeled = { rowId: string; label?: Record<Lang, string> }
-type Glyph = { rowId: string; elements: { tag: string; attributes: { name: string; value: string }[] }[] }
+type Labeled = { specTableRowId: string; label?: Record<Lang, string> }
+type Glyph = { specTableRowId: string; elements: { tag: string; attributes: { name: string; value: string }[] }[] }
 const WORDS = JSON.parse(readFileSync(join(SPEC, '_source', 'display-words.json'), 'utf8')) as { icons: Labeled[] }
 const GLYPHS = JSON.parse(
   readFileSync(join(process.cwd(), 'src', 'framework', 'dom-screen-surface', 'icon-glyphs.json'), 'utf8'),
 ) as { viewBox: string; glyphs: Glyph[] }
 
 // Spec: IC-1, IC-2, IC-20
-function labelOf(rowId: string, lang: Lang): string {
-  const found = WORDS.icons.find((one) => one.rowId === rowId && one.label !== undefined)?.label?.[lang]
-  if (found === undefined) throw new Error(`display-words.json holds no ${lang} label for ${rowId}`)
+function labelOf(specTableRowId: string, lang: Lang): string {
+  const found = WORDS.icons.find((one) => one.specTableRowId === specTableRowId && one.label !== undefined)?.label?.[lang]
+  if (found === undefined) throw new Error(`display-words.json holds no ${lang} label for ${specTableRowId}`)
   return found
 }
 
 const numbersNormalized = (text: string): string => text.replace(/-?\d*\.?\d+/g, (number) => String(Number(number)))
 
 // Spec: F-019
-function glyphOf(rowId: string): string {
-  const glyph = GLYPHS.glyphs.find((one) => one.rowId === rowId)
-  if (glyph === undefined) throw new Error(`icon-glyphs.json holds no glyph for ${rowId}`)
+function glyphOf(specTableRowId: string): string {
+  const glyph = GLYPHS.glyphs.find((one) => one.specTableRowId === specTableRowId)
+  if (glyph === undefined) throw new Error(`icon-glyphs.json holds no glyph for ${specTableRowId}`)
   const parts = glyph.elements.map((element) => {
     const geometry = element.attributes.filter((one) => one.name !== 'style').map((one) => `${one.name}=${one.value}`)
     return `${element.tag}(${geometry.sort().join(',')})`
@@ -311,7 +311,7 @@ for (const lang of LANGS) {
     for (const remark of REMARKS) {
       expect(places[remark.within].some((one) => remark.pattern[lang].test(one)), `${lang}: ${remark.name}`).toBe(true)
     }
-    for (const rowId of ['IC-1', 'IC-2', 'IC-20']) expect(shown.text, `${lang}: the ${rowId} label`).toContain(labelOf(rowId, lang))
+    for (const specTableRowId of ['IC-1', 'IC-2', 'IC-20']) expect(shown.text, `${lang}: the ${specTableRowId} label`).toContain(labelOf(specTableRowId, lang))
     if (lang === 'ja') expect((shown.text.match(CJK) ?? []).length).toBeGreaterThan(shown.text.length / 4)
   })
 
@@ -332,7 +332,7 @@ for (const lang of LANGS) {
   test(`F-019: the ${lang} block draws IC-1, IC-2 and IC-20 with their own glyphs`, async ({ page }) => {
     await openIn(page, lang)
     const drawn = (await readGlyphs(page)).map(numbersNormalized)
-    for (const rowId of ['IC-1', 'IC-2', 'IC-20']) expect(drawn, rowId).toContain(glyphOf(rowId))
+    for (const specTableRowId of ['IC-1', 'IC-2', 'IC-20']) expect(drawn, specTableRowId).toContain(glyphOf(specTableRowId))
   })
 }
 

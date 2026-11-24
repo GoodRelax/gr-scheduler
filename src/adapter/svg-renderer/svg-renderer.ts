@@ -180,8 +180,8 @@ export function bandBaselineYOf(band: ScreenRect, fontPx: number): number {
 
 // Spec: CF-1
 /** @purity pure */
-export function isScheduleColorRow(rowId: string): boolean {
-  return SCHEDULE_COLORS[rowId] !== undefined
+export function isScheduleColorRow(specTableRowId: string): boolean {
+  return SCHEDULE_COLORS[specTableRowId] !== undefined
 }
 
 // Spec: FR-041
@@ -201,11 +201,11 @@ export function achromatic(color: string): string {
 // Spec: T-236, FR-041, CF-1
 // Why: a row whose cell names another row (S-527, S-528) is drawn as that row, so it shifts with it (T-366).
 /** @purity pure */
-export function colorOf(rowId: string, hue: number, dark: boolean, monochrome: boolean): string {
-  const named = SCHEDULE_COLORS_SOURCES[rowId]?.[dark ? 'dark' : 'light']
-  const drawnTaskGroup = named !== undefined && SCHEDULE_COLORS[named] !== undefined ? named : rowId
+export function colorOf(specTableRowId: string, hue: number, dark: boolean, monochrome: boolean): string {
+  const named = SCHEDULE_COLORS_SOURCES[specTableRowId]?.[dark ? 'dark' : 'light']
+  const drawnTaskGroup = named !== undefined && SCHEDULE_COLORS[named] !== undefined ? named : specTableRowId
   const row = SCHEDULE_COLORS[drawnTaskGroup]
-  if (row === undefined) throw new Error(`table T-236 does not reach this unit with ${rowId}`)
+  if (row === undefined) throw new Error(`table T-236 does not reach this unit with ${specTableRowId}`)
   const written = solvedCellOf(drawnTaskGroup, dark ? row.dark : row.light, themeSolveOf(hue, dark, monochrome), dark)
   const colored = row.followsHue ? written.replace(/\bH\b/g, rounded(hue)) : written
   return monochrome ? achromatic(colored) : colored
@@ -253,18 +253,18 @@ function shiftedCellOf(written: string, delta: number): string {
 }
 
 /** @purity pure */
-function shiftDeltaOf(rowId: string, shift: number, dark: boolean): number | null {
-  const ratioRow = SHIFT_RATIO_ROW_OF[rowId]
+function shiftDeltaOf(specTableRowId: string, shift: number, dark: boolean): number | null {
+  const ratioRow = SHIFT_RATIO_ROW_OF[specTableRowId]
   if (ratioRow === undefined) return null
   return (dark ? 1 : -1) * shift * NOT_STORED_THEME_SOLVE[ratioRow]
 }
 
 // Spec: CF-2, CF-4
 /** @purity pure */
-function solvedCellOf(rowId: string, written: string, solve: ThemeSolve, dark: boolean): string {
-  const delta = shiftDeltaOf(rowId, solve.shift, dark)
+function solvedCellOf(specTableRowId: string, written: string, solve: ThemeSolve, dark: boolean): string {
+  const delta = shiftDeltaOf(specTableRowId, solve.shift, dark)
   if (delta !== null) return delta === 0 ? written : shiftedCellOf(written, delta)
-  if (rowId === GROUND_ROW && solve.groundSaturation !== null) return withSaturation(written, solve.groundSaturation)
+  if (specTableRowId === GROUND_ROW && solve.groundSaturation !== null) return withSaturation(written, solve.groundSaturation)
   return written
 }
 
@@ -290,23 +290,23 @@ function hexChannelsOf(hex: string): readonly [number, number, number] {
 }
 
 /** @purity pure */
-function themeCellOf(rowId: string, dark: boolean): string {
-  const row = SCHEDULE_COLORS[rowId]
-  if (row === undefined) throw new Error(`table T-236 does not reach this unit with ${rowId}`)
+function themeCellOf(specTableRowId: string, dark: boolean): string {
+  const row = SCHEDULE_COLORS[specTableRowId]
+  if (row === undefined) throw new Error(`table T-236 does not reach this unit with ${specTableRowId}`)
   return dark ? row.dark : row.light
 }
 
 /** @purity pure */
-function shiftedThemeCellOf(rowId: string, shift: number, dark: boolean): string {
-  return solvedCellOf(rowId, themeCellOf(rowId, dark), { shift, groundSaturation: null }, dark)
+function shiftedThemeCellOf(specTableRowId: string, shift: number, dark: boolean): string {
+  return solvedCellOf(specTableRowId, themeCellOf(specTableRowId, dark), { shift, groundSaturation: null }, dark)
 }
 
 // Spec: CF-3, CT-3, CT-4, CT-5
 /** @purity pure */
 function meetsShiftFloors(hue: number, dark: boolean, monochrome: boolean, shift: number): boolean {
   const ground = measuredCellOf(withSaturation(themeCellOf(GROUND_ROW, dark), 0), hue, monochrome)
-  const measured = (rowId: string): readonly [number, number, number] =>
-    measuredCellOf(shiftedThemeCellOf(rowId, shift, dark), hue, monochrome)
+  const measured = (specTableRowId: string): readonly [number, number, number] =>
+    measuredCellOf(shiftedThemeCellOf(specTableRowId, shift, dark), hue, monochrome)
   const plan = measured('S-155')
   return (
     contrastRatioOf(measured('S-157'), plan) >= CT_FLOOR['CT-3'] &&
@@ -340,11 +340,11 @@ function shiftedGroundPairsOf(hue: number, dark: boolean, shift: number): readon
 /** @purity pure */
 function fixedGroundPairsOf(dark: boolean): readonly GroundPair[] {
   const pairs: (readonly [string, number])[] = [
-    ...TEXT_ROWS_ON_GROUND.map((rowId) => [themeCellOf(rowId, dark), TEXT_ON_GROUND_FLOOR] as const),
-    ...LINE_ROWS_ON_GROUND.map((rowId) => [themeCellOf(rowId, dark), CT_FLOOR['CT-4']] as const),
+    ...TEXT_ROWS_ON_GROUND.map((specTableRowId) => [themeCellOf(specTableRowId, dark), TEXT_ON_GROUND_FLOOR] as const),
+    ...LINE_ROWS_ON_GROUND.map((specTableRowId) => [themeCellOf(specTableRowId, dark), CT_FLOOR['CT-4']] as const),
   ]
   for (const named of Object.values(COLOR_NAME_VALUES)) {
-    if (PALETTE_ROWS_OFF_THE_GROUND.includes(named.rowId)) continue
+    if (PALETTE_ROWS_OFF_THE_GROUND.includes(named.specTableRowId)) continue
     const forms = dark ? named.dark : named.light
     if (typeof forms.outline === 'string') pairs.push([forms.outline, CT_FLOOR['CT-4']])
     if (typeof forms.fill === 'string') pairs.push([forms.fill, CT_FLOOR['CT-5']])
@@ -413,8 +413,8 @@ function solvedThemeTableOf(): readonly (readonly ThemeSolve[])[] {
 // Spec: T-236, FR-041, CV-9
 // Why: one reader of the theme rows for the drawing and the panel's swatches, so the two cannot drift.
 /** @purity pure */
-function themedColors(hue: number, dark: boolean, monochrome: boolean): (rowId: string) => string {
-  return (rowId) => colorOf(rowId, hue, dark, monochrome)
+function themedColors(hue: number, dark: boolean, monochrome: boolean): (specTableRowId: string) => string {
+  return (specTableRowId) => colorOf(specTableRowId, hue, dark, monochrome)
 }
 
 // Spec: CV-6
@@ -431,8 +431,8 @@ const HSL_CELL = /^hsl\(\s*\S+\s+([\d.]+)%\s+([\d.]+)%\s*\)$/
 /** @purity pure */
 function planToActualShift(dark: boolean): { readonly s: number; readonly l: number } {
   /** @purity pure */
-  const cellOf = (rowId: string): string => {
-    const row = SCHEDULE_COLORS[rowId]
+  const cellOf = (specTableRowId: string): string => {
+    const row = SCHEDULE_COLORS[specTableRowId]
     return (dark ? row?.dark : row?.light) ?? ''
   }
   const plan = HSL_CELL.exec(cellOf('S-155'))
@@ -585,7 +585,7 @@ function drawnChoice(
   form: ColorForm,
   dark: boolean,
   monochrome: boolean,
-  themed: (rowId: string) => string,
+  themed: (specTableRowId: string) => string,
 ): string | null {
   const named = COLOR_NAME_VALUES[stored]
   if (named !== undefined) {
@@ -608,7 +608,7 @@ function chosenColorOf(
   form: ColorForm,
   dark: boolean,
   monochrome: boolean,
-  themed: (rowId: string) => string,
+  themed: (specTableRowId: string) => string,
 ): string | null {
   if (stored === null) return null
   const drawn = drawnChoice(stored, form, dark, monochrome, themed)
@@ -1103,7 +1103,7 @@ export const NOT_STORED_NAME_LABEL_WEIGHT: {
 
 // Spec: T-236, S-73
 const SCHEDULE_COLORS: {
-  readonly [rowId: string]: {
+  readonly [specTableRowId: string]: {
     readonly light: string
     readonly dark: string
     readonly followsHue: boolean
@@ -1154,7 +1154,7 @@ const SCHEDULE_COLORS: {
 
 // Spec: T-236, T-366
 const SCHEDULE_COLORS_SOURCES: {
-  readonly [rowId: string]: { readonly light: string; readonly dark: string }
+  readonly [specTableRowId: string]: { readonly light: string; readonly dark: string }
 } = {
   'S-162': { light: 'S-146', dark: 'S-146' },
   'S-169': { light: 'S-146', dark: 'S-146' },
@@ -1177,63 +1177,63 @@ interface PaletteForms {
 }
 const COLOR_NAME_VALUES: {
   readonly [spelling: string]: {
-    readonly rowId: string
+    readonly specTableRowId: string
     readonly light: PaletteForms
     readonly dark: PaletteForms
   }
 } = {
   white: {
-    rowId: 'S-314',
+    specTableRowId: 'S-314',
     light: { fill: '#ffffff', outline: '#ffffff', actual: { sameAs: 'S-157' }, band: { sameAs: 'S-146' } },
     dark: { fill: '#14161a', outline: '#14161a', actual: { sameAs: 'S-157' }, band: { sameAs: 'S-146' } },
   },
   black: {
-    rowId: 'S-315',
+    specTableRowId: 'S-315',
     light: { fill: '#000000', outline: '#000000', actual: { sameAs: 'S-157' }, band: false },
     dark: { fill: '#ffffff', outline: '#ffffff', actual: { sameAs: 'S-157' }, band: false },
   },
   dimgray: {
-    rowId: 'S-316',
+    specTableRowId: 'S-316',
     light: { fill: '#575757', outline: '#383838', actual: { sameAs: 'S-157' }, band: '#e0e0e0' },
     dark: { fill: '#a3a3a3', outline: '#cccccc', actual: { sameAs: 'S-157' }, band: '#474747' },
   },
   lightgray: {
-    rowId: 'S-317',
+    specTableRowId: 'S-317',
     light: { fill: '#cccccc', outline: '#757575', actual: '#575757', band: '#f5f5f5' },
     dark: { fill: '#424242', outline: '#a8a8a8', actual: '#a3a3a3', band: '#333333' },
   },
   red: {
-    rowId: 'S-318',
+    specTableRowId: 'S-318',
     light: { fill: '#e3b9b5', outline: '#a94c42', actual: '#8c2c21', band: '#f9f1f1' },
     dark: { fill: '#58312d', outline: '#d08880', actual: '#dc766a', band: '#3c2c2a' },
   },
   blue: {
-    rowId: 'S-319',
+    specTableRowId: 'S-319',
     light: { fill: '#b5c9e3', outline: '#426ea9', actual: '#21508c', band: '#f1f4f9' },
     dark: { fill: '#2d3f58', outline: '#80a3d0', actual: '#6a9cdc', band: '#2a323c' },
   },
   yellow: {
-    rowId: 'S-320',
+    specTableRowId: 'S-320',
     light: { fill: '#dfd6a9', outline: '#8c7d36', actual: '#79691c', band: '#f9f8f1' },
     dark: { fill: '#58502d', outline: '#d0c380', actual: '#dcc96a', band: '#3c392a' },
   },
   green: {
-    rowId: 'S-321',
+    specTableRowId: 'S-321',
     light: { fill: '#afe1bf', outline: '#3c9a5b', actual: '#1f8340', band: '#f1f9f3' },
     dark: { fill: '#2d583b', outline: '#80d09b', actual: '#6adc90', band: '#2a3c30' },
   },
   orange: {
-    rowId: 'S-322',
+    specTableRowId: 'S-322',
     light: { fill: '#e3cab5', outline: '#a97242', actual: '#8c5321', band: '#f9f5f1' },
     dark: { fill: '#58412d', outline: '#d0a680', actual: '#dc9f6a', band: '#3c322a' },
   },
   purple: {
-    rowId: 'S-323',
+    specTableRowId: 'S-323',
     light: { fill: '#d8b5e3', outline: '#8f42a9', actual: '#72218c', band: '#f7f1f9' },
     dark: { fill: '#4d2d58', outline: '#bc80d0', actual: '#c06adc', band: '#382a3c' },
   },
   transparent: {
-    rowId: 'S-324',
+    specTableRowId: 'S-324',
     light: { fill: null, outline: null, actual: null, band: null },
     dark: { fill: null, outline: null, actual: null, band: null },
   },

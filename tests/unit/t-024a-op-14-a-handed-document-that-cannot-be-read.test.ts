@@ -88,17 +88,17 @@ const T_233 = specTable('T-233')
 /** Table T-233 prints the situation first, then the row of table T-037. */
 const T_233_MANNER = 1
 
-const reasonRow = (rowId: string): readonly string[] => {
-  const row = T_233.rows.find((one) => one.id === rowId)
-  if (row === undefined) throw new Error(`table T-233 has no row ${rowId}`)
+const reasonRow = (specTableRowId: string): readonly string[] => {
+  const row = T_233.rows.find((one) => one.id === specTableRowId)
+  if (row === undefined) throw new Error(`table T-233 has no row ${specTableRowId}`)
   return row.cells
 }
 
 /** The manner table T-233 gives one reason. */
-const mannerOf = (rowId: string): string => bare(reasonRow(rowId)[T_233_MANNER] ?? '')
+const mannerOf = (specTableRowId: string): string => bare(reasonRow(specTableRowId)[T_233_MANNER] ?? '')
 
 interface ReasonWords {
-  readonly rowId: string
+  readonly specTableRowId: string
   readonly text: Readonly<Record<DisplayLanguage, string>>
   readonly nextStep: Readonly<Record<DisplayLanguage, string>>
 }
@@ -115,10 +115,10 @@ const MANUSCRIPT_WORDS = JSON.parse(
   readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8'),
 ) as { reasons: ReasonWords[] }
 
-const wordsFor = (rowId: string): ReasonWords => {
-  const found = MANUSCRIPT_WORDS.reasons.find((one) => one.rowId === rowId)
+const wordsFor = (specTableRowId: string): ReasonWords => {
+  const found = MANUSCRIPT_WORDS.reasons.find((one) => one.specTableRowId === specTableRowId)
   if (found === undefined) {
-    throw new Error(`table T-233 row ${rowId} has no entry in FR-038's dictionary`)
+    throw new Error(`table T-233 row ${specTableRowId} has no entry in FR-038's dictionary`)
   }
   return found
 }

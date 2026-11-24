@@ -9,8 +9,8 @@ import { VIEWPORT, answerConfirmation, enableAgentApi, launch, press, readDocume
 test.use({ viewport: VIEWPORT, locale: 'en-US' })
 
 const DIST = readFileSync(resolve('dist/index.html'), 'utf8')
-const WORDS = JSON.parse(readFileSync(resolve('docs/spec/_source/display-words.json'), 'utf8')) as { reasons: { rowId: string; text: { ja: string; en: string } }[] }
-const RS_67 = WORDS.reasons.find((one) => one.rowId === 'RS-67')
+const WORDS = JSON.parse(readFileSync(resolve('docs/spec/_source/display-words.json'), 'utf8')) as { reasons: { specTableRowId: string; text: { ja: string; en: string } }[] }
+const RS_67 = WORDS.reasons.find((one) => one.specTableRowId === 'RS-67')
 const LOWER_LINE = /^\d{4}\/\d{2}\/\d{2} \d{2}:\d{2}:\d{2} {2}(\d+\.\d\[kB\])$/
 const EMBEDDED = 'id="embedded-document"'
 

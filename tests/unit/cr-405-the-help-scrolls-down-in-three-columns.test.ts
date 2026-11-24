@@ -406,10 +406,10 @@ describe('FR-036 + T-256 (MUST) -- the roster the help is described from', () =>
     const words = JSON.parse(
       readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8'),
     ) as Record<string, unknown>
-    const texts: { rowId?: string; block?: string; text?: Record<string, string> }[] = Object.values(words)
+    const texts: { specTableRowId?: string; block?: string; text?: Record<string, string> }[] = Object.values(words)
       .filter((one): one is unknown[] => Array.isArray(one))
-      .flat() as { rowId?: string; block?: string; text?: Record<string, string> }[]
-    const bf1 = texts.filter((one) => one.rowId === 'BF-1')
+      .flat() as { specTableRowId?: string; block?: string; text?: Record<string, string> }[]
+    const bf1 = texts.filter((one) => one.specTableRowId === 'BF-1')
     expect(bf1, 'no dictionary entry for BF-1').toHaveLength(1)
     expect(bf1[0]?.text?.['ja'] ?? '').not.toBe('')
     expect(bf1[0]?.text?.['en'] ?? '').not.toBe('')

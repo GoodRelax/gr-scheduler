@@ -18,8 +18,8 @@ const SETTLE_MS = 600
 const RS_59_WORDS: readonly string[] = ((): readonly string[] => {
   const raw = JSON.parse(
     readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8'),
-  ) as { readonly reasons: readonly { readonly rowId: string; readonly text: { readonly ja: string; readonly en: string } }[] }
-  const found = raw.reasons.find((one) => one.rowId === 'RS-59')
+  ) as { readonly reasons: readonly { readonly specTableRowId: string; readonly text: { readonly ja: string; readonly en: string } }[] }
+  const found = raw.reasons.find((one) => one.specTableRowId === 'RS-59')
   if (found === undefined) throw new Error('the dictionary manuscript holds no reason RS-59')
   return [found.text.ja, found.text.en]
 })()

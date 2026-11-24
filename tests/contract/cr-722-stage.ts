@@ -117,11 +117,11 @@ export function drawn(tables: Tables, schedule: Schedule = SCHEDULE): readonly n
 type Words = Record<DisplayLanguage, string>
 const WORDS = JSON.parse(readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8')) as Record<
   string,
-  readonly { readonly part?: string; readonly rowId?: string; readonly name?: string; readonly text?: Words; readonly heading?: Words }[]
+  readonly { readonly part?: string; readonly specTableRowId?: string; readonly name?: string; readonly text?: Words; readonly heading?: Words }[]
 >
 
 export function wordOf(group: string, key: string, language: DisplayLanguage): string {
-  const found = (WORDS[group] ?? []).find((one) => one.part === key || one.rowId === key || one.name === key)
+  const found = (WORDS[group] ?? []).find((one) => one.part === key || one.specTableRowId === key || one.name === key)
   const text = found?.text ?? found?.heading
   if (text === undefined) throw new Error(`the dictionary has no ${group}/${key}`)
   return text[language]

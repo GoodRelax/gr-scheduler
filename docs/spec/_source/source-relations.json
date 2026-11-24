@@ -113,7 +113,7 @@
    "to": "docs/spec/01-04-requirements.md",
    "family": "rows",
    "fields": {
-    "rowId": 171
+    "specTableRowId": 171
    },
    "prefixes": [
     "AR",
@@ -143,7 +143,7 @@
    "to": "docs/spec/05-07-design.md",
    "family": "rows",
    "fields": {
-    "rowId": 22
+    "specTableRowId": 22
    },
    "prefixes": [
     "IV"
@@ -156,7 +156,7 @@
    "family": "rows",
    "fields": {
     "firstRow": 5,
-    "rowId": 272
+    "specTableRowId": 272
    },
    "prefixes": [
     "IC",
@@ -169,7 +169,7 @@
    "to": "docs/spec/_source/notice-reasons.json",
    "family": "QN",
    "fields": {
-    "rowId": 14
+    "specTableRowId": 14
    },
    "prefixes": [
     "QN"
@@ -181,7 +181,7 @@
    "to": "docs/spec/_source/notice-reasons.json",
    "family": "RS",
    "fields": {
-    "rowId": 76
+    "specTableRowId": 76
    },
    "prefixes": [
     "RS"
@@ -193,7 +193,7 @@
    "to": "docs/spec/_source/property-items.json",
    "family": "PR",
    "fields": {
-    "rowId": 44
+    "specTableRowId": 44
    },
    "prefixes": [
     "PR"
@@ -617,12 +617,12 @@
   {
    "from": "docs/development-rules/manuscript-schemas/glossary.schema.json",
    "to": "docs/spec/_assets/tbl-glossary.md",
-   "count": 2
+   "count": 4
   },
   {
    "from": "docs/development-rules/manuscript-schemas/glossary.schema.json",
    "to": "docs/spec/_source/property-items.json",
-   "count": 1
+   "count": 2
   },
   {
    "from": "docs/development-rules/manuscript-schemas/grs-json-changes.schema.json",
@@ -982,7 +982,7 @@
   {
    "from": "docs/spec/_source/glossary.json",
    "to": "docs/spec/_assets/tbl-glossary.md",
-   "count": 385
+   "count": 465
   },
   {
    "from": "docs/spec/_source/glossary.json",
@@ -1314,6 +1314,62 @@
    "token": "S-90",
    "status": "retired",
    "count": 1
+  },
+  {
+   "from": "docs/spec/_source/glossary.json",
+   "field": "en",
+   "token": "N-15",
+   "status": "retired",
+   "count": 2
+  },
+  {
+   "from": "docs/spec/_source/glossary.json",
+   "field": "en",
+   "token": "N-16",
+   "status": "unresolved",
+   "count": 2
+  },
+  {
+   "from": "docs/spec/_source/glossary.json",
+   "field": "en",
+   "token": "N-17",
+   "status": "unresolved",
+   "count": 3
+  },
+  {
+   "from": "docs/spec/_source/glossary.json",
+   "field": "en",
+   "token": "N-4",
+   "status": "retired",
+   "count": 5
+  },
+  {
+   "from": "docs/spec/_source/glossary.json",
+   "field": "ja",
+   "token": "N-15",
+   "status": "retired",
+   "count": 2
+  },
+  {
+   "from": "docs/spec/_source/glossary.json",
+   "field": "ja",
+   "token": "N-16",
+   "status": "unresolved",
+   "count": 2
+  },
+  {
+   "from": "docs/spec/_source/glossary.json",
+   "field": "ja",
+   "token": "N-17",
+   "status": "unresolved",
+   "count": 3
+  },
+  {
+   "from": "docs/spec/_source/glossary.json",
+   "field": "ja",
+   "token": "N-4",
+   "status": "retired",
+   "count": 5
   },
   {
    "from": "docs/spec/_source/property-items.json",

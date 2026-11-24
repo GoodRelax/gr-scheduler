@@ -170,15 +170,15 @@ def pairs(defs):
 
     shown = sr.read_json(sr.SOURCE_DIR + '/display-words.json')
     for e in shown['settings']:
-        row = cells(defs, e['rowId'])
+        row = cells(defs, e['specTableRowId'])
         key = first_code(row[2]) if row and len(row) > 2 else NO_ROW
-        out.append(Pair('screen', e['rowId'], key, e['label']['en'],
+        out.append(Pair('screen', e['specTableRowId'], key, e['label']['en'],
                         'tbl-glossary.md'))
     items = {i['id']: i for i in
              sr.read_json(sr.SOURCE_DIR + '/property-items.json')['items']}
     for e in shown['properties']:
-        for column in items.get(e['rowId'], {}).get('columns', [NO_ROW]):
-            out.append(Pair('screen', e['rowId'], column, e['label']['en'],
+        for column in items.get(e['specTableRowId'], {}).get('columns', [NO_ROW]):
+            out.append(Pair('screen', e['specTableRowId'], column, e['label']['en'],
                             'property-items.json'))
     return out
 

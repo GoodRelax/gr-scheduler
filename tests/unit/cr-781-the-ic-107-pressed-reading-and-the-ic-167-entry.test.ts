@@ -19,10 +19,10 @@ import { settingDefaultOf } from '../fixtures/setting-default'
 type Language = 'ja' | 'en'
 
 const WORDS = JSON.parse(readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8')) as {
-  readonly icons: readonly { readonly rowId: string; readonly label: Record<Language, string> }[]
+  readonly icons: readonly { readonly specTableRowId: string; readonly label: Record<Language, string> }[]
 }
 const wordOf = (row: string, language: Language): string => {
-  const found = WORDS.icons.find((one) => one.rowId === row)?.label[language]
+  const found = WORDS.icons.find((one) => one.specTableRowId === row)?.label[language]
   if (found === undefined) throw new Error(`the dictionary has no word for ${row}`)
   return found
 }

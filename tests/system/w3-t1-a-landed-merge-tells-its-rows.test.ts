@@ -34,8 +34,8 @@ async function toldText(page: Page): Promise<string> {
 }
 
 /** @purity pure */
-function tells(said: string, rowId: string): boolean {
-  return reasonWords(rowId).some((words) => said.includes(words))
+function tells(said: string, specTableRowId: string): boolean {
+  return reasonWords(specTableRowId).some((words) => said.includes(words))
 }
 
 test.describe('W3-T1 the manuscript this case is driven by', () => {

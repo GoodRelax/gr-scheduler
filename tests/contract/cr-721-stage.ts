@@ -163,18 +163,18 @@ export const columnOf = (view: SearchPanelView, column: string): SearchPanelView
 // Why: the dictionary is the spec's own file; a word is read from it, never retyped here.
 type Words = Record<DisplayLanguage, string>
 export const WORDS = JSON.parse(readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8')) as {
-  readonly icons: readonly { readonly rowId: string; readonly label: Words }[]
-  readonly searchColumns: readonly { readonly rowId: string; readonly text: Words }[]
+  readonly icons: readonly { readonly specTableRowId: string; readonly label: Words }[]
+  readonly searchColumns: readonly { readonly specTableRowId: string; readonly text: Words }[]
   readonly searchPanel: readonly { readonly part: string; readonly text: Words }[]
-  readonly planActualStates: readonly { readonly rowId: string; readonly text: Words }[]
-  readonly delayReportStatuses: readonly { readonly rowId: string; readonly text: Words }[]
+  readonly planActualStates: readonly { readonly specTableRowId: string; readonly text: Words }[]
+  readonly delayReportStatuses: readonly { readonly specTableRowId: string; readonly text: Words }[]
 }
 export const panelWordOf = (part: string, language: DisplayLanguage): string =>
   found(WORDS.searchPanel.find((one) => one.part === part), `search panel word ${part}`).text[language]
 export const columnWordOf = (row: string, language: DisplayLanguage): string =>
-  found(WORDS.searchColumns.find((one) => one.rowId === row), `column word ${row}`).text[language]
+  found(WORDS.searchColumns.find((one) => one.specTableRowId === row), `column word ${row}`).text[language]
 export const iconWordOf = (row: string, language: DisplayLanguage): string =>
-  found(WORDS.icons.find((one) => one.rowId === row), `icon word ${row}`).label[language]
+  found(WORDS.icons.find((one) => one.specTableRowId === row), `icon word ${row}`).label[language]
 
 const reportTask = (uid: number, name: string, start: string, extra: Loose = {}): Loose => ({
   uid,

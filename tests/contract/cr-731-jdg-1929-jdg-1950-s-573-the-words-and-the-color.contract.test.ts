@@ -55,19 +55,19 @@ const PARTS = [
   'refusedNotice',
 ]
 
-const entryOf = (rowId: string): Record<string, any> => {
-  const found = (WORDS['icons'] as readonly Record<string, any>[]).find((one) => one['rowId'] === rowId)
-  if (found === undefined) throw new Error(`the dictionary has no icon ${rowId}`)
+const entryOf = (specTableRowId: string): Record<string, any> => {
+  const found = (WORDS['icons'] as readonly Record<string, any>[]).find((one) => one['specTableRowId'] === specTableRowId)
+  if (found === undefined) throw new Error(`the dictionary has no icon ${specTableRowId}`)
   return found
 }
 
 describe('FM-1 to FM-8 and the sections delayFixColumns and delayFixes', () => {
   it('delayFixColumns holds one word for each row of T-374, in the order of the table, in both languages', () => {
     const section = WORDS['delayFixColumns'] as readonly Record<string, any>[]
-    expect(section.map((one) => one['rowId'])).toEqual(specTable('T-374').rows.map((one) => one.id))
+    expect(section.map((one) => one['specTableRowId'])).toEqual(specTable('T-374').rows.map((one) => one.id))
     for (const one of section) {
-      expect(String(one['text']['ja']).length, one['rowId']).toBeGreaterThan(0)
-      expect(String(one['text']['en']).length, one['rowId']).toBeGreaterThan(0)
+      expect(String(one['text']['ja']).length, one['specTableRowId']).toBeGreaterThan(0)
+      expect(String(one['text']['en']).length, one['specTableRowId']).toBeGreaterThan(0)
     }
   })
 

@@ -87,7 +87,7 @@ const TEXT_SIZE_ENTRY: IconId = 'IC-127'
 
 type SearchTable = SearchPanelSession['table']
 
-type SearchColumn = (typeof displayWords.searchColumns)[number]['rowId']
+type SearchColumn = (typeof displayWords.searchColumns)[number]['specTableRowId']
 
 type PlanActualState = TaskSearchRow['planActualState']
 
@@ -142,7 +142,7 @@ const STATES_IN_TABLE_ORDER: readonly PlanActualState[] = [
 
 const SEARCH_TASK_STATES = Object.keys(STATE_GLYPHS) as readonly SearchTaskState[]
 
-const COLUMN_WORDS = new Map(displayWords.searchColumns.map((entry) => [entry.rowId, entry]))
+const COLUMN_WORDS = new Map(displayWords.searchColumns.map((entry) => [entry.specTableRowId, entry]))
 const STATE_WORDS = new Map<SearchTaskState | undefined, (typeof displayWords.planActualStates)[number]>(
   displayWords.planActualStates.map((entry, at) => [STATES_IN_TABLE_ORDER[at], entry]),
 )
@@ -193,7 +193,7 @@ export interface SearchPanelView {
 /** @purity pure */
 function stateWordOf(state: SearchTaskState, language: DisplayLanguage): string {
   const markerRow = MARKER_WORD_ROWS[state]
-  if (markerRow !== undefined) return wordOf(displayWords.delayReportStatuses.find((entry) => entry.rowId === markerRow)?.text, language)
+  if (markerRow !== undefined) return wordOf(displayWords.delayReportStatuses.find((entry) => entry.specTableRowId === markerRow)?.text, language)
   return wordOf(STATE_WORDS.get(state)?.text, language)
 }
 

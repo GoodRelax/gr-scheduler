@@ -2,7 +2,7 @@
  "$comment": "GENERATED from docs/spec/_source/property-items.json by tools/generate_property_items.py -- do not edit by hand. Rebuild: npm run gen  |  npm run gen:check fails on drift. The shown name is NOT here: FR-038 keeps it in display-words.json under the same row id.",
  "items": [
   {
-   "rowId": "PR-1",
+   "specTableRowId": "PR-1",
    "columns": [
     "name"
    ],
@@ -15,7 +15,7 @@
    "oneInput": false
   },
   {
-   "rowId": "PR-34",
+   "specTableRowId": "PR-34",
    "columns": [
     "uid"
    ],
@@ -28,7 +28,7 @@
    "oneInput": false
   },
   {
-   "rowId": "PR-16",
+   "specTableRowId": "PR-16",
    "columns": [
     "assignee"
    ],
@@ -41,7 +41,7 @@
    "oneInput": false
   },
   {
-   "rowId": "PR-3",
+   "specTableRowId": "PR-3",
    "columns": [
     "start"
    ],
@@ -54,7 +54,7 @@
    "oneInput": false
   },
   {
-   "rowId": "PR-47",
+   "specTableRowId": "PR-47",
    "columns": [
     "finish"
    ],
@@ -67,7 +67,7 @@
    "oneInput": false
   },
   {
-   "rowId": "PR-35",
+   "specTableRowId": "PR-35",
    "columns": [
     "start",
     "finish"
@@ -81,7 +81,7 @@
    "oneInput": true
   },
   {
-   "rowId": "PR-4",
+   "specTableRowId": "PR-4",
    "columns": [
     "actualStart"
    ],
@@ -94,7 +94,7 @@
    "oneInput": false
   },
   {
-   "rowId": "PR-6",
+   "specTableRowId": "PR-6",
    "columns": [
     "actualFinish"
    ],
@@ -107,7 +107,7 @@
    "oneInput": false
   },
   {
-   "rowId": "PR-36",
+   "specTableRowId": "PR-36",
    "columns": [
     "actualStart",
     "actualFinish"
@@ -121,7 +121,7 @@
    "oneInput": true
   },
   {
-   "rowId": "PR-5",
+   "specTableRowId": "PR-5",
    "columns": [
     "actualDuration"
    ],
@@ -134,7 +134,7 @@
    "oneInput": false
   },
   {
-   "rowId": "PR-9",
+   "specTableRowId": "PR-9",
    "columns": [
     "percentComplete"
    ],
@@ -147,7 +147,7 @@
    "oneInput": false
   },
   {
-   "rowId": "PR-7",
+   "specTableRowId": "PR-7",
    "columns": [
     "resume"
    ],
@@ -160,7 +160,7 @@
    "oneInput": false
   },
   {
-   "rowId": "PR-8",
+   "specTableRowId": "PR-8",
    "columns": [
     "resumeValid"
    ],
@@ -173,7 +173,7 @@
    "oneInput": false
   },
   {
-   "rowId": "PR-10",
+   "specTableRowId": "PR-10",
    "columns": [
     "deadline"
    ],
@@ -186,7 +186,7 @@
    "oneInput": false
   },
   {
-   "rowId": "PR-17",
+   "specTableRowId": "PR-17",
    "columns": [
     "milestoneGlyph"
    ],
@@ -199,7 +199,7 @@
    "oneInput": false
   },
   {
-   "rowId": "PR-14",
+   "specTableRowId": "PR-14",
    "columns": [
     "fadeInDays",
     "fadeOutDays"
@@ -214,7 +214,7 @@
    "oneInput": false
   },
   {
-   "rowId": "PR-15",
+   "specTableRowId": "PR-15",
    "columns": [
     "parentTaskUid"
    ],
@@ -227,7 +227,7 @@
    "oneInput": false
   },
   {
-   "rowId": "PR-37",
+   "specTableRowId": "PR-37",
    "columns": [
     "predecessors"
    ],
@@ -240,7 +240,7 @@
    "oneInput": false
   },
   {
-   "rowId": "PR-38",
+   "specTableRowId": "PR-38",
    "columns": [
     "successors"
    ],
@@ -253,7 +253,7 @@
    "oneInput": false
   },
   {
-   "rowId": "PR-2",
+   "specTableRowId": "PR-2",
    "columns": [
     "notes"
    ],
@@ -266,7 +266,7 @@
    "oneInput": false
   },
   {
-   "rowId": "PR-40",
+   "specTableRowId": "PR-40",
    "columns": [
     "strokeWidthPx"
    ],
@@ -279,7 +279,7 @@
    "oneInput": false
   },
   {
-   "rowId": "PR-39",
+   "specTableRowId": "PR-39",
    "columns": [
     "strokeColor"
    ],
@@ -292,7 +292,7 @@
    "oneInput": false
   },
   {
-   "rowId": "PR-12",
+   "specTableRowId": "PR-12",
    "columns": [
     "fillColor"
    ],
@@ -305,7 +305,7 @@
    "oneInput": false
   },
   {
-   "rowId": "PR-18",
+   "specTableRowId": "PR-18",
    "columns": [
     "name"
    ],
@@ -318,7 +318,7 @@
    "oneInput": false
   },
   {
-   "rowId": "PR-20",
+   "specTableRowId": "PR-20",
    "columns": [
     "minHeightPx"
    ],
@@ -331,7 +331,7 @@
    "oneInput": false
   },
   {
-   "rowId": "PR-33",
+   "specTableRowId": "PR-33",
    "columns": [
     "editPermission"
    ],
@@ -344,7 +344,7 @@
    "oneInput": false
   },
   {
-   "rowId": "PR-19",
+   "specTableRowId": "PR-19",
    "columns": [
     "color"
    ],
@@ -357,7 +357,7 @@
    "oneInput": false
   },
   {
-   "rowId": "PR-21",
+   "specTableRowId": "PR-21",
    "columns": [
     "text"
    ],
@@ -370,7 +370,7 @@
    "oneInput": false
   },
   {
-   "rowId": "PR-50",
+   "specTableRowId": "PR-50",
    "columns": [
     "fontSizePx"
    ],
@@ -383,7 +383,7 @@
    "oneInput": false
   },
   {
-   "rowId": "PR-48",
+   "specTableRowId": "PR-48",
    "columns": [
     "id"
    ],
@@ -396,7 +396,7 @@
    "oneInput": false
   },
   {
-   "rowId": "PR-26",
+   "specTableRowId": "PR-26",
    "columns": [
     "strokeWidthPx"
    ],
@@ -409,7 +409,7 @@
    "oneInput": false
   },
   {
-   "rowId": "PR-28",
+   "specTableRowId": "PR-28",
    "columns": [
     "strokeColor"
    ],
@@ -422,7 +422,7 @@
    "oneInput": false
   },
   {
-   "rowId": "PR-45",
+   "specTableRowId": "PR-45",
    "columns": [
     "fillColor"
    ],
@@ -435,7 +435,7 @@
    "oneInput": false
   },
   {
-   "rowId": "PR-27",
+   "specTableRowId": "PR-27",
    "columns": [
     "fillTransparencyPercent"
    ],
@@ -448,7 +448,7 @@
    "oneInput": false
   },
   {
-   "rowId": "PR-46",
+   "specTableRowId": "PR-46",
    "columns": [
     "textColor"
    ],
@@ -461,7 +461,7 @@
    "oneInput": false
   },
   {
-   "rowId": "PR-49",
+   "specTableRowId": "PR-49",
    "columns": [
     "id"
    ],
@@ -474,7 +474,7 @@
    "oneInput": false
   },
   {
-   "rowId": "PR-23",
+   "specTableRowId": "PR-23",
    "columns": [
     "strokeWidthPx"
    ],
@@ -487,7 +487,7 @@
    "oneInput": false
   },
   {
-   "rowId": "PR-22",
+   "specTableRowId": "PR-22",
    "columns": [
     "strokeColor"
    ],
@@ -500,7 +500,7 @@
    "oneInput": false
   },
   {
-   "rowId": "PR-25",
+   "specTableRowId": "PR-25",
    "columns": [
     "fillColor"
    ],
@@ -513,7 +513,7 @@
    "oneInput": false
   },
   {
-   "rowId": "PR-24",
+   "specTableRowId": "PR-24",
    "columns": [
     "fillTransparencyPercent"
    ],
@@ -526,7 +526,7 @@
    "oneInput": false
   },
   {
-   "rowId": "PR-41",
+   "specTableRowId": "PR-41",
    "columns": [
     "linkType"
    ],
@@ -539,7 +539,7 @@
    "oneInput": false
   },
   {
-   "rowId": "PR-42",
+   "specTableRowId": "PR-42",
    "columns": [
     "linkLag"
    ],
@@ -552,7 +552,7 @@
    "oneInput": false
   },
   {
-   "rowId": "PR-43",
+   "specTableRowId": "PR-43",
    "columns": [
     "predecessorUid"
    ],
@@ -565,7 +565,7 @@
    "oneInput": false
   },
   {
-   "rowId": "PR-44",
+   "specTableRowId": "PR-44",
    "columns": [
     "successorUid"
    ],

@@ -115,17 +115,17 @@ const HEADING = displayWords.surfaces.find((entry) => entry.name === DELAY_DIAGN
 
 type LanguageWord = { readonly [L in DisplayLanguage]: string }
 
-const COLUMN_WORDS: ReadonlyMap<string, LanguageWord> = new Map(displayWords.delayReportColumns.map((entry) => [entry.rowId, entry.text]))
-const STATUS_WORDS: ReadonlyMap<string, LanguageWord> = new Map(displayWords.delayReportStatuses.map((entry) => [entry.rowId, entry.text]))
+const COLUMN_WORDS: ReadonlyMap<string, LanguageWord> = new Map(displayWords.delayReportColumns.map((entry) => [entry.specTableRowId, entry.text]))
+const STATUS_WORDS: ReadonlyMap<string, LanguageWord> = new Map(displayWords.delayReportStatuses.map((entry) => [entry.specTableRowId, entry.text]))
 const SUMMARY_WORDS: ReadonlyMap<string, LanguageWord> = new Map(displayWords.delayReportSummary.map((entry) => [entry.part, entry.text]))
 const MARKDOWN_WORDS: ReadonlyMap<string, LanguageWord> = new Map(displayWords.delayReportMarkdown.map((entry) => [entry.part, entry.text]))
 const REASON_WORDS: ReadonlyMap<string, LanguageWord> = new Map(displayWords.delayReportReasons.map((entry) => [entry.part, entry.text]))
 // Spec: DT-7, T-310, T-311, T-316
-const ASPECT_WORDS: ReadonlyMap<string, LanguageWord> = new Map(displayWords.delayReportAspects.map((entry) => [entry.rowId, entry.text]))
-const WALL_WORDS: ReadonlyMap<string, LanguageWord> = new Map(displayWords.delayReportWalls.map((entry) => [entry.rowId, entry.text]))
+const ASPECT_WORDS: ReadonlyMap<string, LanguageWord> = new Map(displayWords.delayReportAspects.map((entry) => [entry.specTableRowId, entry.text]))
+const WALL_WORDS: ReadonlyMap<string, LanguageWord> = new Map(displayWords.delayReportWalls.map((entry) => [entry.specTableRowId, entry.text]))
 
 // Spec: T-347
-export const DELAY_REPORT_COLUMNS: readonly string[] = displayWords.delayReportColumns.map((entry) => entry.rowId)
+export const DELAY_REPORT_COLUMNS: readonly string[] = displayWords.delayReportColumns.map((entry) => entry.specTableRowId)
 
 const STATUS_COLUMN = 'DT-1'
 
@@ -172,7 +172,7 @@ const REPORT_FILE_WORD = 'delay-diagnostics'
 
 const FILE_NAME_JOIN = '_'
 
-export const DELAY_DIAGNOSTICS_REPORT_EXTENSION = exportFormats.files.find((one) => one.rowId === 'IO-8')?.extension ?? ''
+export const DELAY_DIAGNOSTICS_REPORT_EXTENSION = exportFormats.files.find((one) => one.specTableRowId === 'IO-8')?.extension ?? ''
 
 // Why: a filter change reads the columns and their kinds only; no word it would print is shown.
 const COLUMNS_ONLY_LANGUAGE: DisplayLanguage = 'en'
@@ -892,22 +892,22 @@ const WRITE_FORM_OF_ENTRY: { readonly [entry: IconId]: DelayFixWriteForm } = {
 
 const STEP_OF_ENTRY: { readonly [entry: IconId]: number } = { [PREVIOUS_FIX_ENTRY]: -1, [NEXT_FIX_ENTRY]: 1 }
 
-const FIX_COLUMN_WORDS: ReadonlyMap<string, LanguageWord> = new Map(displayWords.delayFixColumns.map((entry) => [entry.rowId, entry.text]))
+const FIX_COLUMN_WORDS: ReadonlyMap<string, LanguageWord> = new Map(displayWords.delayFixColumns.map((entry) => [entry.specTableRowId, entry.text]))
 const FIX_WORDS: ReadonlyMap<string, LanguageWord> = new Map(displayWords.delayFixes.map((entry) => [entry.part, entry.text]))
-const ITEM_WORDS: ReadonlyMap<string, LanguageWord> = new Map(displayWords.properties.map((entry) => [entry.rowId, entry.label]))
+const ITEM_WORDS: ReadonlyMap<string, LanguageWord> = new Map(displayWords.properties.map((entry) => [entry.specTableRowId, entry.label]))
 // Spec: FM-7, SV-7
 const BLANK_WORD = displayWords.searchPanel.find((entry) => entry.part === 'blank')?.text
 
 // Spec: FM-6, T-016
 const ITEM_OF_TASK_COLUMN: ReadonlyMap<string, string> = new Map(
-  propertyItems.items.filter((item) => item.appliesTo === 'Task' && item.columns.length === 1).map((item) => [item.columns[0] ?? '', item.rowId]),
+  propertyItems.items.filter((item) => item.appliesTo === 'Task' && item.columns.length === 1).map((item) => [item.columns[0] ?? '', item.specTableRowId]),
 )
 
 const LINK_TYPE_ABBREVIATIONS: ReadonlyMap<number, string> = new Map(
   dependencyKinds.dependencyKinds.map((kind) => [kind.linkType, kind.abbreviation]),
 )
 
-const FIX_COLUMNS: readonly string[] = displayWords.delayFixColumns.map((entry) => entry.rowId)
+const FIX_COLUMNS: readonly string[] = displayWords.delayFixColumns.map((entry) => entry.specTableRowId)
 const PROPOSAL_COLUMNS: readonly string[] = delayFixColumnsOf('proposals', FIX_COLUMNS)
 const LOG_COLUMNS: readonly string[] = delayFixColumnsOf('log', FIX_COLUMNS)
 
@@ -1284,7 +1284,7 @@ function delayReportTabEntriesOf(values: DelayFixWindowValues, tables: DelayFixT
   return tables.log.length === 0 ? tabs : [...tabs, entryOf(LOG_ENTRY, language, values.table === 'log')]
 }
 
-const REASON_ROW_WORDS: ReadonlyMap<string, LanguageWord> = new Map(displayWords.reasons.map((entry) => [entry.rowId, entry.text]))
+const REASON_ROW_WORDS: ReadonlyMap<string, LanguageWord> = new Map(displayWords.reasons.map((entry) => [entry.specTableRowId, entry.text]))
 
 // Spec: RW-17, FR-155, NT-1, T-233
 /** @purity pure */
@@ -1464,7 +1464,7 @@ function fixLogTsvOf(found: ReturnType<typeof foundFixRowsOf>, language: Display
   return delayFixLogTsv(headings, rows)
 }
 
-export const DELAY_FIX_LOG_EXTENSION = exportFormats.files.find((one) => one.rowId === 'IO-9')?.extension ?? ''
+export const DELAY_FIX_LOG_EXTENSION = exportFormats.files.find((one) => one.specTableRowId === 'IO-9')?.extension ?? ''
 
 // Spec: RW-6
 /** @purity pure */

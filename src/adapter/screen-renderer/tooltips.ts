@@ -56,10 +56,10 @@ import { taskStateWordOf } from './search-panel'
 import displayWords from './display-words.json'
 import helpRoster from './help-roster.json'
 
-const HINTS_BY_ROW = new Map(displayWords.icons.map((entry) => [entry.rowId, entry]))
-const ASSIGNMENTS_BY_ROW = new Map(displayWords.assignments.map((entry) => [entry.rowId, entry]))
+const HINTS_BY_ROW = new Map(displayWords.icons.map((entry) => [entry.specTableRowId, entry]))
+const ASSIGNMENTS_BY_ROW = new Map(displayWords.assignments.map((entry) => [entry.specTableRowId, entry]))
 const DEADLINE_ROW = 'PR-10'
-const DEADLINE_WORDS = displayWords.properties.find((entry) => entry.rowId === DEADLINE_ROW)?.label
+const DEADLINE_WORDS = displayWords.properties.find((entry) => entry.specTableRowId === DEADLINE_ROW)?.label
 const LINE_BREAK = '\n'
 
 const FASTER_SCROLL_ASSIGNMENT_TASK_GROUPS: Readonly<Record<'horizontal' | 'vertical', string>> = {
@@ -77,7 +77,7 @@ const HELP_ITEM_BY_ICON = new Map(
 )
 
 const PRESS_BY_ROW = new Map(
-  displayWords.assignments.map((entry) => [entry.rowId, entry]),
+  displayWords.assignments.map((entry) => [entry.specTableRowId, entry]),
 )
 
 const KEY_NOTATION_WORDS = new Map(displayWords.keyNotation.map((entry) => [entry.part, entry.text]))
@@ -225,7 +225,7 @@ function hintContextOf(schedule: Schedule | null, taskUid: number, times: HintTi
   return { assigneeNames: assigneeNamesOf(schedule, taskUid), shown }
 }
 
-const HINT_LINE_WORDS = new Map(displayWords.hintLines.map((entry) => [entry.rowId, entry.text]))
+const HINT_LINE_WORDS = new Map(displayWords.hintLines.map((entry) => [entry.specTableRowId, entry.text]))
 const PLAN_LINE_ROW = 'TL-5'
 const ACTUAL_LINE_ROW = 'TL-6'
 const LABEL_MARK = ':'
@@ -262,7 +262,7 @@ function hintLineWord(row: string, language: DisplayLanguage): string {
 // Why: TL-7 and TL-8 take the delay report's column words (DT-2, DT-3) and hold none of their own, as TL-9 takes PR-10's.
 /** @purity pure */
 function columnWord(row: string, language: DisplayLanguage): string {
-  return displayWords.delayReportColumns.find((entry) => entry.rowId === row)?.text[language] ?? row
+  return displayWords.delayReportColumns.find((entry) => entry.specTableRowId === row)?.text[language] ?? row
 }
 
 /** @purity pure */
@@ -392,7 +392,7 @@ function deadlineRow(task: Task, context: HintContext, language: DisplayLanguage
 }
 
 const LATE_ROW = 'DG-4'
-const LATE_WORDS = displayWords.delayReportStatuses.find((entry) => entry.rowId === LATE_ROW)?.text
+const LATE_WORDS = displayWords.delayReportStatuses.find((entry) => entry.specTableRowId === LATE_ROW)?.text
 const WORKING_DAYS_UNIT_PART = 'workingDaysUnit'
 const WORKING_DAYS_WORDS = displayWords.propertyField.find((entry) => entry.part === WORKING_DAYS_UNIT_PART)?.text
 

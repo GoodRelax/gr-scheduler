@@ -23,7 +23,7 @@ export const COMMENT_BOX_SEARCH_COLUMNS: readonly SearchColumn[] = ['SQ-7', 'SQ-
 
 // Spec: T-331
 export const TASK_SEARCH_COLUMNS: readonly SearchColumn[] = displayWords.searchColumns
-  .map((entry) => entry.rowId)
+  .map((entry) => entry.specTableRowId)
   .filter((column) => !COMMENT_BOX_SEARCH_COLUMNS.includes(column))
 
 export const ASSIGNEE_SEPARATOR = ', '
@@ -262,7 +262,7 @@ export function columnHeadingsOf(
 // Spec: AM-25, AV-17, T-331
 /** @purity pure */
 export function taskSearchColumnHeadings(): readonly SearchColumnHeading[] {
-  const words = new Map(displayWords.searchColumns.map((entry) => [entry.rowId, entry.text]))
+  const words = new Map(displayWords.searchColumns.map((entry) => [entry.specTableRowId, entry.text]))
   return columnHeadingsOf(TASK_SEARCH_COLUMNS, words, isDateSearchColumn)
 }
 

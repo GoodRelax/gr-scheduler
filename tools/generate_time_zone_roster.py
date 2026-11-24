@@ -14,7 +14,7 @@ forbids re-typing a value the specification holds, and `npm run gen:check` is
 what fails when the manuscript moves on without the roster.
 
 The roster is a bare JSON array of
-    { "rowId": "ZN-n", "key": "UTC+09:00", "offsetMinutes": <integer>,
+    { "specTableRowId": "ZN-n", "key": "UTC+09:00", "offsetMinutes": <integer>,
       "isDaylight": <bool>, "abbreviation": "JST" | null }
 in the table's print order. The place a person reads is NOT carried here:
 the dictionary (display-words.json, section timeZones) holds it by the same
@@ -134,7 +134,7 @@ def build():
         offset = offset_minutes(row_id, row.cell(OFFSET_HEADING))
         is_daylight = is_daylight_of(row_id, row.cell(KIND_HEADING))
         roster.append({
-            'rowId': row_id,
+            'specTableRowId': row_id,
             'key': key_of(row_id, row.cell(KEY_HEADING), offset, is_daylight),
             'offsetMinutes': offset,
             'isDaylight': is_daylight,

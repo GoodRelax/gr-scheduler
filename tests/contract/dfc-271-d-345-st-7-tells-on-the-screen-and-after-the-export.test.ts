@@ -241,7 +241,7 @@ const EXPORT_CHOOSER = bare(rowOf(specTable('T-103'), 'U-54').by['確定名（�
  * `npm run words:check`, not by this file.
  */
 interface ReasonWords {
-  readonly rowId: string
+  readonly specTableRowId: string
   readonly text: Readonly<Record<DisplayLanguage, string>>
   readonly nextStep: Readonly<Record<DisplayLanguage, string>>
 }
@@ -252,11 +252,11 @@ const REASON_WORDS: readonly ReasonWords[] = (
   ) as { reasons: ReasonWords[] }
 ).reasons
 
-function wordsFor(rowId: string): ReasonWords {
-  const found = REASON_WORDS.find((one) => one.rowId === rowId)
+function wordsFor(specTableRowId: string): ReasonWords {
+  const found = REASON_WORDS.find((one) => one.specTableRowId === specTableRowId)
   if (found === undefined) {
     throw new Error(
-      `FR-076 (MUST): table T-233 row ${rowId} has no entry in FR-038's dictionary, so a notice ` +
+      `FR-076 (MUST): table T-233 row ${specTableRowId} has no entry in FR-038's dictionary, so a notice ` +
         'carrying it cannot be told in words',
     )
   }
@@ -628,7 +628,7 @@ describe('表 T-014 の ST-7 -- the manuscript this file is driven by', () => {
     const mine = wordsFor(RS_24).text.ja
     const others = T_233.rows
       .filter((one) => one.id !== RS_24)
-      .map((one) => REASON_WORDS.find((word) => word.rowId === one.id)?.text.ja)
+      .map((one) => REASON_WORDS.find((word) => word.specTableRowId === one.id)?.text.ja)
       .filter((one): one is string => one !== undefined)
     expect(others).not.toContain(mine)
     expect(wordsFor(RS_24).text.en).not.toBe(mine)

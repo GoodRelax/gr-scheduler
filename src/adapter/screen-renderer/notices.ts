@@ -27,7 +27,7 @@ import displayWords from './display-words.json'
 
 const STARTUP_PENDING_MANNER = 'NT-4'
 
-const ZONE_WORDS_BY_ROW = new Map(displayWords.timeZones.map((entry) => [entry.rowId, entry.label]))
+const ZONE_WORDS_BY_ROW = new Map(displayWords.timeZones.map((entry) => [entry.specTableRowId, entry.label]))
 
 const TIME_ZONE_FIELD_WORDS = new Map(displayWords.timeZoneField.map((entry) => [entry.part, entry.text]))
 
@@ -75,7 +75,7 @@ export function timeZoneAbbreviationOf(key: string, language: DisplayLanguage): 
 /** @purity pure */
 export function timeZoneLinesOf(key: string, language: DisplayLanguage): readonly [string, string] {
   const row = timeZoneRowOf(key)
-  const place = row === null ? undefined : ZONE_WORDS_BY_ROW.get(row.rowId)?.[language]
+  const place = row === null ? undefined : ZONE_WORDS_BY_ROW.get(row.specTableRowId)?.[language]
   if (row === null || place === undefined) return [key, '']
   const shape = row.abbreviation === null
     ? timeZoneFieldWord('zoneHead', language).replace(' {abbreviation}', '')
@@ -197,13 +197,13 @@ const CONFIRMATION_BY_ANSWER = new Map(
   displayWords.confirmation.map((entry) => [entry.answer, entry]),
 )
 
-const MANNERS_BY_ROW = new Map(displayWords.notices.map((entry) => [entry.rowId, entry]))
+const MANNERS_BY_ROW = new Map(displayWords.notices.map((entry) => [entry.specTableRowId, entry]))
 
-const REASONS_BY_ROW = new Map(displayWords.reasons.map((entry) => [entry.rowId, entry]))
+const REASONS_BY_ROW = new Map(displayWords.reasons.map((entry) => [entry.specTableRowId, entry]))
 
-const QUESTIONS_BY_ROW = new Map(displayWords.questions.map((entry) => [entry.rowId, entry]))
+const QUESTIONS_BY_ROW = new Map(displayWords.questions.map((entry) => [entry.specTableRowId, entry]))
 
-const INVARIANTS_BY_ROW = new Map(displayWords.invariants.map((entry) => [entry.rowId, entry]))
+const INVARIANTS_BY_ROW = new Map(displayWords.invariants.map((entry) => [entry.specTableRowId, entry]))
 
 const CHOICES_BY_PART = new Map(displayWords.parentTaskChoice.map((entry) => [entry.part, entry]))
 

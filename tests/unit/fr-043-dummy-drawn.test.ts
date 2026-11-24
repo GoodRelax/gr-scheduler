@@ -122,9 +122,9 @@ import { DEFAULT_DISPLAY_RATIO, DEFAULT_DISPLAY_SCALE } from '../fixtures/displa
 // The rows, read out of the manuscript at run time (Chapter 1.9)
 // ---------------------------------------------------------------------------
 
-const rowOf = (tableId: string, rowId: string): Readonly<Record<string, string>> => {
-  const found = specTable(tableId).rows.find((row) => row.id === rowId)
-  if (found === undefined) throw new Error(`table ${tableId} has no row ${rowId}`)
+const rowOf = (tableId: string, specTableRowId: string): Readonly<Record<string, string>> => {
+  const found = specTable(tableId).rows.find((row) => row.id === specTableRowId)
+  if (found === undefined) throw new Error(`table ${tableId} has no row ${specTableRowId}`)
   return found.by
 }
 

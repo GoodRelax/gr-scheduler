@@ -120,18 +120,18 @@ interface Words {
 }
 
 interface ReasonWords {
-  readonly rowId: string
+  readonly specTableRowId: string
   readonly text: Words
   readonly nextStep?: Words
 }
 
 // Spec: FR-038, T-233
-const reasonWords = (rowId: string): ReasonWords => {
+const reasonWords = (specTableRowId: string): ReasonWords => {
   const raw = JSON.parse(
     readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8'),
   ) as { readonly reasons: readonly ReasonWords[] }
-  const found = raw.reasons.find((one) => one.rowId === rowId)
-  if (found === undefined) throw new Error(`the dictionary manuscript holds no reason ${rowId}`)
+  const found = raw.reasons.find((one) => one.specTableRowId === specTableRowId)
+  if (found === undefined) throw new Error(`the dictionary manuscript holds no reason ${specTableRowId}`)
   return found
 }
 

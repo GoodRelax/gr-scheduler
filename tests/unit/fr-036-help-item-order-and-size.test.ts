@@ -392,17 +392,17 @@ interface GlyphElement {
 const ICON_GLYPHS = JSON.parse(
   readFileSync(join(process.cwd(), 'src', 'framework', 'dom-screen-surface', 'icon-glyphs.json'), 'utf8'),
 ) as {
-  readonly glyphs: readonly { readonly rowId: string; readonly elements: readonly GlyphElement[] }[]
+  readonly glyphs: readonly { readonly specTableRowId: string; readonly elements: readonly GlyphElement[] }[]
 }
 
-function shapeOf(rowId: string): readonly string[] {
-  const found = ICON_GLYPHS.glyphs.find((one) => one.rowId === rowId)
-  if (found === undefined) throw new Error(`図 F-019 draws no shape for ${rowId}`)
+function shapeOf(specTableRowId: string): readonly string[] {
+  const found = ICON_GLYPHS.glyphs.find((one) => one.specTableRowId === specTableRowId)
+  if (found === undefined) throw new Error(`図 F-019 draws no shape for ${specTableRowId}`)
   return found.elements.map((one) => one.tag.toUpperCase())
 }
 
-function theGlyphIn(item: FakeElement, rowId: string): FakeElement {
-  const wanted = shapeOf(rowId).join(',')
+function theGlyphIn(item: FakeElement, specTableRowId: string): FakeElement {
+  const wanted = shapeOf(specTableRowId).join(',')
   const drawnShapes = selfAndDescendants(item).filter((one) => one.tagName === 'SVG')
   const matching = drawnShapes.filter(
     (one) => selfAndDescendants(one).slice(1).map((part) => part.tagName).join(',') === wanted,
@@ -410,7 +410,7 @@ function theGlyphIn(item: FakeElement, rowId: string): FakeElement {
   const first = matching[0]
   if (first === undefined) {
     throw new Error(
-      `no shape in this item is 図 F-019's ${rowId} (${wanted}): ${whatWasDrawn(item)}`,
+      `no shape in this item is 図 F-019's ${specTableRowId} (${wanted}): ${whatWasDrawn(item)}`,
     )
   }
   return first

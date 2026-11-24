@@ -175,8 +175,8 @@ const T_233_SHARING = 3
 
 const SHARED_WORDS = /語は `(RS-\d+)`/
 
-function wordsRowOf(rowId: string): string {
-  return SHARED_WORDS.exec(cellOf(T_233, rowId, T_233_SHARING))?.[1] ?? rowId
+function wordsRowOf(specTableRowId: string): string {
+  return SHARED_WORDS.exec(cellOf(T_233, specTableRowId, T_233_SHARING))?.[1] ?? specTableRowId
 }
 // Spec: NT-3a
 const NEXT_STEP_MANNER = 'NT-3a'
@@ -305,7 +305,7 @@ function firstCharacterOf(id: string): string | null {
  * this file, which is what makes the two one value rather than two.
  */
 interface ExchangeFormat {
-  readonly rowId: string
+  readonly specTableRowId: string
   readonly extension: string | null
   readonly firstCharacter: string | null
 }
@@ -334,7 +334,7 @@ const EXCHANGE_FORMATS: readonly ExchangeFormat[] = (
  * reached the screen.
  */
 interface ReasonWords {
-  readonly rowId: string
+  readonly specTableRowId: string
   readonly text: Readonly<Record<DisplayLanguage, string>>
   readonly nextStep: Readonly<Record<DisplayLanguage, string>>
 }
@@ -371,11 +371,11 @@ const CANCEL_ANSWER = 'cancel'
  *
  * @purity pure
  */
-function wordsFor(rowId: string): ReasonWords {
-  const found = REASON_WORDS.find((one) => one.rowId === wordsRowOf(rowId))
+function wordsFor(specTableRowId: string): ReasonWords {
+  const found = REASON_WORDS.find((one) => one.specTableRowId === wordsRowOf(specTableRowId))
   if (found === undefined) {
     throw new Error(
-      `FR-076 (MUST): table T-233 row ${rowId} has no entry in FR-038's dictionary, so a notice ` +
+      `FR-076 (MUST): table T-233 row ${specTableRowId} has no entry in FR-038's dictionary, so a notice ` +
         'carrying it cannot be told in words',
     )
   }
@@ -387,9 +387,9 @@ function wordsFor(rowId: string): ReasonWords {
  *
  * @purity pure
  */
-function mannerFor(rowId: string): string {
-  const manner = bare(cellOf(T_233, rowId, T_233_MANNER))
-  if (manner === '') throw new Error(`table T-233 row ${rowId} names no manner`)
+function mannerFor(specTableRowId: string): string {
+  const manner = bare(cellOf(T_233, specTableRowId, T_233_MANNER))
+  if (manner === '') throw new Error(`table T-233 row ${specTableRowId} names no manner`)
   return manner
 }
 
@@ -1913,13 +1913,13 @@ describe('FR-096 -- the name the chooser proposes', () => {
     const cannotBeWritten = ['IO-3', 'IO-4', 'IO-7']
     for (const id of cannotBeWritten) {
       expect(
-        EXCHANGE_FORMATS.some((format) => format.rowId === id),
+        EXCHANGE_FORMATS.some((format) => format.specTableRowId === id),
         `${id} is recorded as unwritable in this build but is no longer a format of table T-024`,
       ).toBe(true)
     }
 
     const drivable = EXCHANGE_FORMATS.filter(
-      (format) => offeredOnIc2Rows().includes(format.rowId) && !cannotBeWritten.includes(format.rowId),
+      (format) => offeredOnIc2Rows().includes(format.specTableRowId) && !cannotBeWritten.includes(format.specTableRowId),
     )
     expect(drivable.length, 'no format of table T-024 can be written in this build').toBeGreaterThan(
       1,
@@ -1933,17 +1933,17 @@ describe('FR-096 -- the name the chooser proposes', () => {
 
       loop.receiveInput(SK_12)
       pane.runAnimationFrames()
-      takeFormat(loop, screen, format.rowId)
+      takeFormat(loop, screen, format.specTableRowId)
       await settle()
       pane.runAnimationFrames()
 
       expect(
         files.written.length,
-        `FR-096 (MUST): choosing table T-024 row ${format.rowId} handed the store nothing`,
+        `FR-096 (MUST): choosing table T-024 row ${format.specTableRowId} handed the store nothing`,
       ).toBe(1)
       expect(
         files.written[0]?.suggestedFileName,
-        `FR-096 (MUST): the name proposed for table T-024 row ${format.rowId}`,
+        `FR-096 (MUST): the name proposed for table T-024 row ${format.specTableRowId}`,
       ).toBe(`Plan_of_record${format.extension}`)
     }
   })
@@ -1951,7 +1951,7 @@ describe('FR-096 -- the name the chooser proposes', () => {
   it('FR-035 empty: T-352 FN-5 proposes schedule with the chosen format\'s extension (CR-648)', async () => {
     // Again per row, so the same sweep with no document name.
     const drivable = EXCHANGE_FORMATS.filter(
-      (format) => offeredOnIc2Rows().includes(format.rowId) && !['IO-3', 'IO-4', 'IO-7'].includes(format.rowId),
+      (format) => offeredOnIc2Rows().includes(format.specTableRowId) && !['IO-3', 'IO-4', 'IO-7'].includes(format.specTableRowId),
     )
 
     for (const format of drivable) {
@@ -1962,13 +1962,13 @@ describe('FR-096 -- the name the chooser proposes', () => {
 
       loop.receiveInput(SK_12)
       pane.runAnimationFrames()
-      takeFormat(loop, screen, format.rowId)
+      takeFormat(loop, screen, format.specTableRowId)
       await settle()
       pane.runAnimationFrames()
 
       expect(
         files.written[0]?.suggestedFileName,
-        `FR-096 (MUST) / T-352 FN-5: the name proposed for table T-024 row ${format.rowId} with no document name`,
+        `FR-096 (MUST) / T-352 FN-5: the name proposed for table T-024 row ${format.specTableRowId} with no document name`,
       ).toBe(`schedule${format.extension}`)
     }
   })
@@ -2002,7 +2002,7 @@ describe('FR-096 -- the name the chooser proposes', () => {
     // cases above that read only `suggestedFileName` stayed green -- which is
     // the whole argument for this case existing.
     const drivable = EXCHANGE_FORMATS.filter(
-      (format) => offeredOnIc2Rows().includes(format.rowId) && !['IO-3', 'IO-4', 'IO-7'].includes(format.rowId),
+      (format) => offeredOnIc2Rows().includes(format.specTableRowId) && !['IO-3', 'IO-4', 'IO-7'].includes(format.specTableRowId),
     )
     expect(drivable.length).toBeGreaterThan(1)
 
@@ -2014,15 +2014,15 @@ describe('FR-096 -- the name the chooser proposes', () => {
 
       loop.receiveInput(SK_12)
       pane.runAnimationFrames()
-      takeFormat(loop, screen, format.rowId)
+      takeFormat(loop, screen, format.specTableRowId)
       await settle()
       pane.runAnimationFrames()
 
       const write = files.written[0]
-      expect(write, `table T-024 row ${format.rowId} handed the store nothing`).toBeDefined()
+      expect(write, `table T-024 row ${format.specTableRowId} handed the store nothing`).toBeDefined()
       expect(
         (write as unknown as { extension?: unknown }).extension,
-        `FR-096 (MUST): the store was not told which form table T-024 row ${format.rowId} is`,
+        `FR-096 (MUST): the store was not told which form table T-024 row ${format.specTableRowId} is`,
       ).toBe(format.extension)
       // ⚠️ AND THE TWO STILL AGREE. The name is a proposal, the extension is
       // not, and this is the one moment they are both this row's.
@@ -2056,7 +2056,7 @@ describe('FR-029 / DFC-173 -- a format that cannot be written says so', () => {
    * @purity non-pure
    */
   const press = async (
-    rowId: string,
+    specTableRowId: string,
   ): Promise<{ readonly written: number; readonly view: ScreenView }> => {
     const pane = host()
     const screen = screenPane('ja')
@@ -2065,7 +2065,7 @@ describe('FR-029 / DFC-173 -- a format that cannot be written says so', () => {
 
     loop.receiveInput(SK_12)
     pane.runAnimationFrames()
-    takeFormat(loop, screen, rowId)
+    takeFormat(loop, screen, specTableRowId)
     await settle()
     pane.runAnimationFrames()
     return { written: files.written.length, view: screen.last() }
@@ -2098,11 +2098,11 @@ describe('FR-029 / DFC-173 -- a format that cannot be written says so', () => {
     // whose 正 is LM-14 of 表 T-004 -- so nothing has to be invented to say it,
     // and narrowing the walk to the rows that happen to pass would put the hole
     // back where DFC-173 found it.
-    for (const rowId of offeredOnIc2Rows()) {
-      const { written, view } = await press(rowId)
+    for (const specTableRowId of offeredOnIc2Rows()) {
+      const { written, view } = await press(specTableRowId)
       expect(
         `${written} written, ${view.notices.length} told`,
-        `FR-029 (MUST): table T-024 row ${rowId} is offered on the ${EXPORT_CHOOSER}, and ` +
+        `FR-029 (MUST): table T-024 row ${specTableRowId} is offered on the ${EXPORT_CHOOSER}, and ` +
           'pressing it wrote nothing and said nothing -- which is the outcome DFC-173 names',
       ).not.toBe('0 written, 0 told')
     }
@@ -2132,14 +2132,14 @@ describe('FR-029 / DFC-173 -- a format that cannot be written says so', () => {
     // would read.
     const known = REASON_WORDS.map((one) => one.text.ja)
     let told = 0
-    for (const rowId of offeredOnIc2Rows()) {
-      const { written, view } = await press(rowId)
+    for (const specTableRowId of offeredOnIc2Rows()) {
+      const { written, view } = await press(specTableRowId)
       if (written > 0) continue
       for (const notice of view.notices) {
         told += 1
         expect(
           known,
-          `FR-076 (MUST): table T-024 row ${rowId} was refused with words FR-038's dictionary ` +
+          `FR-076 (MUST): table T-024 row ${specTableRowId} was refused with words FR-038's dictionary ` +
             `does not hold: ${JSON.stringify(notice.text)}`,
         ).toContain(notice.text)
         expect(
@@ -2193,7 +2193,7 @@ describe('FR-076 / RS-40 -- an unwritable form carries its own row, not RS-15', 
    * @purity non-pure
    */
   const pressIn = async (
-    rowId: string,
+    specTableRowId: string,
     language: DisplayLanguage,
   ): Promise<{ readonly written: number; readonly view: ScreenView }> => {
     const pane = host()
@@ -2203,7 +2203,7 @@ describe('FR-076 / RS-40 -- an unwritable form carries its own row, not RS-15', 
 
     loop.receiveInput(SK_12)
     pane.runAnimationFrames()
-    takeFormat(loop, screen, rowId)
+    takeFormat(loop, screen, specTableRowId)
     await settle()
     pane.runAnimationFrames()
     return { written: files.written.length, view: screen.last() }
@@ -2217,13 +2217,13 @@ describe('FR-076 / RS-40 -- an unwritable form carries its own row, not RS-15', 
       // GOES RED IF: an unwritable format is answered with the landing place
       // again -- which is the state the build was in on 2026-09-02.
       const fallbackWords = wordsFor('RS-15')
-      for (const rowId of offeredOnIc2Rows()) {
-        const { written, view } = await pressIn(rowId, language)
+      for (const specTableRowId of offeredOnIc2Rows()) {
+        const { written, view } = await pressIn(specTableRowId, language)
         if (written > 0) continue
         for (const notice of view.notices) {
           expect(
             notice.text,
-            `FR-076 (MUST NOT): table T-024 row ${rowId} was refused with RS-15, the landing ` +
+            `FR-076 (MUST NOT): table T-024 row ${specTableRowId} was refused with RS-15, the landing ` +
               'place for a reason table T-233 holds no row for -- and RS-40 is that row',
           ).not.toBe(fallbackWords.text[language])
         }
@@ -2246,27 +2246,27 @@ describe('FR-076 / RS-40 -- an unwritable form carries its own row, not RS-15', 
       // GOES RED IF: a refusal is worded with something no row holds, or is
       // given a manner or a next step from another row.
       const carried: string[] = []
-      for (const rowId of offeredOnIc2Rows()) {
-        const { written, view } = await pressIn(rowId, language)
+      for (const specTableRowId of offeredOnIc2Rows()) {
+        const { written, view } = await pressIn(specTableRowId, language)
         if (written > 0) continue
         for (const notice of view.notices) {
           const row = REASON_WORDS.find((one) => one.text[language] === notice.text)
           expect(
             row,
-            `FR-076 (MUST NOT): table T-024 row ${rowId} was refused in words FR-038's ` +
+            `FR-076 (MUST NOT): table T-024 row ${specTableRowId} was refused in words FR-038's ` +
               `dictionary holds for no row of table T-233 -- ${JSON.stringify(notice.text)}`,
           ).toBeDefined()
           if (row === undefined) continue
           expect(
-            row.rowId,
-            `FR-076: table T-024 row ${rowId} landed on RS-15, the place kept for a reason ` +
+            row.specTableRowId,
+            `FR-076: table T-024 row ${specTableRowId} landed on RS-15, the place kept for a reason ` +
               'table T-233 holds no row for',
           ).not.toBe('RS-15')
-          carried.push(row.rowId)
+          carried.push(row.specTableRowId)
           expect(
             notice.manner,
-            `table T-233 makes ${row.rowId}'s manner ${mannerFor(row.rowId)}`,
-          ).toBe(mannerFor(row.rowId))
+            `table T-233 makes ${row.specTableRowId}'s manner ${mannerFor(row.specTableRowId)}`,
+          ).toBe(mannerFor(row.specTableRowId))
           expect(
             notice.nextSteps,
             'NT-3a (MUST NOT): told it failed with nothing to do next',
@@ -2462,11 +2462,11 @@ describe('FR-076 -- OP-12 of table T-024a tells its three refusals apart', () =>
   }
 
   it('the rows a file may be read as are the rows OP-1 accepts', () => {
-    expect(readableFormats().map((one) => one.rowId)).toEqual(inDirectionRows())
+    expect(readableFormats().map((one) => one.specTableRowId)).toEqual(inDirectionRows())
     expect(new Set(readableFormats().map((one) => one.firstCharacter)).size).toBeGreaterThan(1)
     for (const format of readableFormats()) {
-      expect(firstCharacterOf(format.rowId), `table T-024 row ${format.rowId}`).not.toBeNull()
-      expect(extensionOf(format.rowId), `table T-024 row ${format.rowId}`).not.toBeNull()
+      expect(firstCharacterOf(format.specTableRowId), `table T-024 row ${format.specTableRowId}`).not.toBeNull()
+      expect(extensionOf(format.specTableRowId), `table T-024 row ${format.specTableRowId}`).not.toBeNull()
     }
   })
 
@@ -2656,13 +2656,13 @@ describe('the tables are read by position, so the positions are pinned', () => {
     //   1 か所である」. `exchange-formats.json` is printed FROM that table, and
     // this is what keeps the cases above from being driven by a copy that has
     // drifted away from it: a generator that stopped running reaches this line.
-    expect(EXCHANGE_FORMATS.map((one) => one.rowId)).toEqual(outDirectionRows())
+    expect(EXCHANGE_FORMATS.map((one) => one.specTableRowId)).toEqual(outDirectionRows())
     for (const format of EXCHANGE_FORMATS) {
-      expect(format.extension, `table T-024 row ${format.rowId} extension`).toBe(
-        extensionOf(format.rowId),
+      expect(format.extension, `table T-024 row ${format.specTableRowId} extension`).toBe(
+        extensionOf(format.specTableRowId),
       )
-      expect(format.firstCharacter, `table T-024 row ${format.rowId} first character`).toBe(
-        firstCharacterOf(format.rowId),
+      expect(format.firstCharacter, `table T-024 row ${format.specTableRowId} first character`).toBe(
+        firstCharacterOf(format.specTableRowId),
       )
     }
   })
@@ -2769,7 +2769,7 @@ describe('table T-024 / FR-096 -- the three picture forms are written', () => {
    * @purity non-pure
    */
   const pressWithSeams = async (
-    rowId: string,
+    specTableRowId: string,
     seams: { rasterizer?: Rasterizer; appShell?: AppShellSource } = {},
     language: DisplayLanguage = 'ja',
   ): Promise<Pressed> => {
@@ -2790,7 +2790,7 @@ describe('table T-024 / FR-096 -- the three picture forms are written', () => {
     )
     loop.receiveInput(SK_12)
     pane.runAnimationFrames()
-    takeFormat(loop, screen, rowId)
+    takeFormat(loop, screen, specTableRowId)
     await settle()
     pane.runAnimationFrames()
     return { written: files.written, view: screen.last() }
@@ -2859,8 +2859,8 @@ describe('table T-024 / FR-096 -- the three picture forms are written', () => {
         rasterFailed: 'RS-42',
       }
       for (const reason of Object.keys(owed) as readonly RasterFaultReason[]) {
-        const rowId = owed[reason]
-        const words = wordsFor(rowId)
+        const specTableRowId = owed[reason]
+        const words = wordsFor(specTableRowId)
         const { written, view } = await pressWithSeams(
           'IO-4',
           { rasterizer: refusingRasterizer(reason) },
@@ -2868,15 +2868,15 @@ describe('table T-024 / FR-096 -- the three picture forms are written', () => {
         )
         expect(written, `${reason}: nothing may be written when the canvas refused`).toHaveLength(0)
         const texts = view.notices.map((notice) => notice.text)
-        expect(texts, `${reason} is owed table T-233 row ${rowId}`).toContain(words.text[language])
-        if (wordsRowOf(rowId) !== 'RS-15') {
+        expect(texts, `${reason} is owed table T-233 row ${specTableRowId}`).toContain(words.text[language])
+        if (wordsRowOf(specTableRowId) !== 'RS-15') {
           expect(texts, 'FR-076 (MUST NOT): RS-15 is for a reason with no row').not.toContain(
             wordsFor('RS-15').text[language],
           )
         }
         for (const notice of view.notices) {
           if (notice.text !== words.text[language]) continue
-          expect(notice.manner).toBe(mannerFor(rowId))
+          expect(notice.manner).toBe(mannerFor(specTableRowId))
           expect(
             notice.nextSteps,
             'NT-3a (MUST): a failure is told with what can be done next',
@@ -2924,17 +2924,17 @@ describe('table T-024 / FR-096 -- the three picture forms are written', () => {
       for (const notice of view.notices) {
         const carried = REASON_WORDS.find((one) => one.text[language] === notice.text)
         expect(
-          carried?.rowId,
+          carried?.specTableRowId,
           `表 T-233 の閉じ（MUST NOT）: 同表に無い理由を運んではならない -- the words ` +
             `${JSON.stringify(notice.text)} belong to no row of table T-233`,
         ).toBeDefined()
-        const rowId = carried!.rowId
+        const specTableRowId = carried!.specTableRowId
         expect(
           T_233.rows.map((row) => row.id),
-          `${rowId} is not a row of table T-233`,
-        ).toContain(rowId)
-        expect(notice.manner, `the manner table T-233 gives ${rowId}`).toBe(mannerFor(rowId))
-        if (mannerFor(rowId) === 'NT-3a') {
+          `${specTableRowId} is not a row of table T-233`,
+        ).toContain(specTableRowId)
+        expect(notice.manner, `the manner table T-233 gives ${specTableRowId}`).toBe(mannerFor(specTableRowId))
+        if (mannerFor(specTableRowId) === 'NT-3a') {
           expect(
             notice.nextSteps,
             'NT-3a (MUST): 次に取れる手段を添えること',
@@ -2950,10 +2950,10 @@ describe('table T-024 / FR-096 -- the three picture forms are written', () => {
     // is LM-14 -- the same row a host with no save chooser answers with.
     // GOES RED IF: a missing seam returns `null` in silence again.
     const words = wordsFor('RS-3')
-    for (const rowId of ['IO-4', 'IO-7']) {
-      const { written, view } = await pressWithSeams(rowId)
-      expect(written, `${rowId} wrote a file with no seam to make it from`).toHaveLength(0)
-      expect(view.notices.map((notice) => notice.text), `${rowId} said nothing`).toContain(
+    for (const specTableRowId of ['IO-4', 'IO-7']) {
+      const { written, view } = await pressWithSeams(specTableRowId)
+      expect(written, `${specTableRowId} wrote a file with no seam to make it from`).toHaveLength(0)
+      expect(view.notices.map((notice) => notice.text), `${specTableRowId} said nothing`).toContain(
         words.text['ja'],
       )
     }
@@ -3000,12 +3000,12 @@ describe('table T-024 / FR-096 -- the three picture forms are written', () => {
 // these cases with it.
 describe('FR-025 (MUST) -- a picture past the height ceiling is refused with RS-43', () => {
   /** The one number a settings row prints in its 既定 column. */
-  const settingNumbers = (rowId: string): readonly number[] => {
-    const found = specTable('T-204').rows.find((one) => one.id === rowId)
-    if (found === undefined) throw new Error(`表 T-204 no longer holds ${rowId}`)
+  const settingNumbers = (specTableRowId: string): readonly number[] => {
+    const found = specTable('T-204').rows.find((one) => one.id === specTableRowId)
+    if (found === undefined) throw new Error(`表 T-204 no longer holds ${specTableRowId}`)
     const cell = found.by['既定'] ?? ''
     const numbers = [...cell.matchAll(/\d+(?:\.\d+)?/g)].map((hit) => Number(hit[0]))
-    if (numbers.length === 0) throw new Error(`${rowId} states no number in its 既定 column`)
+    if (numbers.length === 0) throw new Error(`${specTableRowId} states no number in its 既定 column`)
     return numbers
   }
 
@@ -3049,7 +3049,7 @@ describe('FR-025 (MUST) -- a picture past the height ceiling is refused with RS-
    */
   const exportOn = async (
     environment: FrameEnvironment,
-    rowId: string,
+    specTableRowId: string,
     seams: { rasterizer?: Rasterizer; appShell?: AppShellSource } = {},
     language: DisplayLanguage = 'ja',
   ): Promise<Exported> => {
@@ -3070,7 +3070,7 @@ describe('FR-025 (MUST) -- a picture past the height ceiling is refused with RS-
     )
     loop.receiveInput(SK_12)
     pane.runAnimationFrames()
-    takeFormat(loop, screen, rowId)
+    takeFormat(loop, screen, specTableRowId)
     await settle()
     pane.runAnimationFrames()
     return { written: files.written, view: screen.last() }
@@ -3173,18 +3173,18 @@ describe('FR-025 (MUST) -- a picture past the height ceiling is refused with RS-
     // the picture rows -- which is the shape of DFC-173's defect turned inside out.
     const rs43 = wordsFor('RS-43')
 
-    for (const rowId of ['IO-2', 'IO-1', 'IO-7']) {
-      const extension = extensionOf(rowId)
+    for (const specTableRowId of ['IO-2', 'IO-1', 'IO-7']) {
+      const extension = extensionOf(specTableRowId)
       const { written, view } = await exportOn(
         SCREEN_TOO_TALL,
-        rowId,
-        rowId === 'IO-7' ? { appShell: willingAppShell() } : {},
+        specTableRowId,
+        specTableRowId === 'IO-7' ? { appShell: willingAppShell() } : {},
       )
-      expect(written, `${rowId} is not a picture, so no height ceiling applies to it`).toHaveLength(1)
-      expect(written[0]?.extension, `table T-024 gives ${rowId} its extension`).toBe(extension)
+      expect(written, `${specTableRowId} is not a picture, so no height ceiling applies to it`).toHaveLength(1)
+      expect(written[0]?.extension, `table T-024 gives ${specTableRowId} its extension`).toBe(extension)
       expect(
         view.notices.map((notice) => notice.text),
-        `${rowId} was told RS-43, which belongs to the picture rows`,
+        `${specTableRowId} was told RS-43, which belongs to the picture rows`,
       ).not.toContain(rs43.text['ja'])
     }
   })

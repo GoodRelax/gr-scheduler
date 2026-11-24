@@ -17,9 +17,9 @@ import { specTable, unbroken } from './spec-table'
 const SPEC = join(process.cwd(), 'docs', 'spec')
 const REQUIREMENTS = unbroken(readFileSync(join(SPEC, '01-04-requirements.md'), 'utf8'))
 
-const cellOf = (tableId: string, rowId: string, heading: string): string => {
-  const row = specTable(tableId).rows.find((one) => one.id === rowId)
-  if (row === undefined) throw new Error(`table ${tableId} has no row ${rowId}`)
+const cellOf = (tableId: string, specTableRowId: string, heading: string): string => {
+  const row = specTable(tableId).rows.find((one) => one.id === specTableRowId)
+  if (row === undefined) throw new Error(`table ${tableId} has no row ${specTableRowId}`)
   const cell = row.by[heading]
   if (cell === undefined) {
     throw new Error(

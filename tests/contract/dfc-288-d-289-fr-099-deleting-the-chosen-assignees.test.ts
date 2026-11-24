@@ -199,7 +199,7 @@ function surfaceOf(icon: string): string {
 /** FR-038's dictionary, as the manuscript keeps it. */
 interface DictionaryWords {
   readonly reasons: readonly {
-    readonly rowId: string
+    readonly specTableRowId: string
     readonly text: Readonly<Record<DisplayLanguage, string>>
   }[]
   readonly confirmation: readonly {
@@ -212,9 +212,9 @@ const WORDS = JSON.parse(
   readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8'),
 ) as DictionaryWords
 
-const reasonWords = (rowId: string): string => {
-  const found = WORDS.reasons.find((one) => one.rowId === rowId)
-  if (found === undefined) throw new Error(`FR-038's dictionary holds no words for ${rowId}`)
+const reasonWords = (specTableRowId: string): string => {
+  const found = WORDS.reasons.find((one) => one.specTableRowId === specTableRowId)
+  if (found === undefined) throw new Error(`FR-038's dictionary holds no words for ${specTableRowId}`)
   return found.text.ja
 }
 

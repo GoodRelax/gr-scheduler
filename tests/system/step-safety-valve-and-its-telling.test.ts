@@ -85,9 +85,9 @@ interface ReasonWords {
 const RS_24_WORDS: readonly ReasonWords[] = (() => {
   const manuscript = join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json')
   const held = JSON.parse(readFileSync(manuscript, 'utf8')) as {
-    reasons?: { rowId?: string; text?: Record<string, string>; nextStep?: Record<string, string> }[]
+    reasons?: { specTableRowId?: string; text?: Record<string, string>; nextStep?: Record<string, string> }[]
   }
-  const entry = (held.reasons ?? []).find((one) => one.rowId === 'RS-24')
+  const entry = (held.reasons ?? []).find((one) => one.specTableRowId === 'RS-24')
   if (entry === undefined) {
     throw new Error('the dictionary manuscript holds no entry for RS-24')
   }

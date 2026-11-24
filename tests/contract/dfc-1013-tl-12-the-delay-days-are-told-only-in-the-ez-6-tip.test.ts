@@ -28,12 +28,12 @@ const OC_8_NOT_COUNTED = '**算入してはならない（MUST NOT）**'
 
 const WORDS = JSON.parse(readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8')) as {
   readonly delayReportReasons: readonly { readonly part: string; readonly text: Record<Language, string> }[]
-  readonly delayReportStatuses: readonly { readonly rowId: string; readonly text: Record<Language, string> }[]
+  readonly delayReportStatuses: readonly { readonly specTableRowId: string; readonly text: Record<Language, string> }[]
   readonly propertyField: readonly { readonly part: string; readonly text: Record<Language, string> }[]
 }
 // Spec: DG-4
 const lateSentence = (days: number, language: Language): string => {
-  const late = WORDS.delayReportStatuses.find((one) => one.rowId === 'DG-4')?.text[language]
+  const late = WORDS.delayReportStatuses.find((one) => one.specTableRowId === 'DG-4')?.text[language]
   const unit = WORDS.propertyField.find((one) => one.part === 'workingDaysUnit')?.text[language]
   if (late === undefined || unit === undefined) throw new Error('the dictionary holds no DG-4 word or workingDaysUnit')
   return `${late}: ${days} ${unit}`

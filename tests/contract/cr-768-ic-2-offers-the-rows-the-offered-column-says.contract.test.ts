@@ -27,7 +27,7 @@ const PLAIN_SHELL =
 const rasterizer: Rasterizer = { rasterizePng: async () => ({ ok: true, pngBytes: new Uint8Array([0x89, 0x50, 0x4e, 0x47]) }) }
 
 const WORDS = JSON.parse(readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8')) as {
-  readonly exportFormats: readonly { readonly rowId: string; readonly name: Record<DisplayLanguage, string> }[]
+  readonly exportFormats: readonly { readonly specTableRowId: string; readonly name: Record<DisplayLanguage, string> }[]
 }
 
 const LANGUAGES: readonly DisplayLanguage[] = ['ja', 'en']
@@ -62,7 +62,7 @@ describe(`FR-096 "${FR_096_CHOOSES_BY_THE_COLUMN}" -- the chooser of IC-2 lists 
     for (const one of await chooserFormats(language)) {
       expect(one.name, one.row).not.toBe('')
       expect(one.name, one.row).not.toMatch(/^IO-\d+$/)
-      expect(one.name, one.row).toBe(WORDS.exportFormats.find((word) => word.rowId === one.row)?.name[language])
+      expect(one.name, one.row).toBe(WORDS.exportFormats.find((word) => word.specTableRowId === one.row)?.name[language])
     }
   })
 
@@ -74,7 +74,7 @@ describe(`FR-096 "${FR_096_CHOOSES_BY_THE_COLUMN}" -- the chooser of IC-2 lists 
   })
 
   it('the dictionary holds a word for each offered row and for no other row', () => {
-    expect(WORDS.exportFormats.map((one) => one.rowId)).toEqual(OFFERED)
+    expect(WORDS.exportFormats.map((one) => one.specTableRowId)).toEqual(OFFERED)
   })
 })
 

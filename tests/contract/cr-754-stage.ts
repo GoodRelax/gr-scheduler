@@ -41,14 +41,14 @@ export const withoutMarks = (word: string): string => word.split(BREAK_MARK).joi
 
 // Spec: T-104
 /** @purity pure */
-export function markedSettingLabel(rowId: string, language: DisplayLanguage): string {
-  const entry = (MARKED_WORDS['settings'] as readonly Loose[]).find((one) => one['rowId'] === rowId)
-  if (entry === undefined) throw new Error(`the dictionary has no settings row ${rowId}`)
+export function markedSettingLabel(specTableRowId: string, language: DisplayLanguage): string {
+  const entry = (MARKED_WORDS['settings'] as readonly Loose[]).find((one) => one['specTableRowId'] === specTableRowId)
+  if (entry === undefined) throw new Error(`the dictionary has no settings row ${specTableRowId}`)
   return entry['label'][language] as string
 }
 
 /** @purity pure */
-export const settingLabel = (rowId: string, language: DisplayLanguage): string => withoutMarks(markedSettingLabel(rowId, language))
+export const settingLabel = (specTableRowId: string, language: DisplayLanguage): string => withoutMarks(markedSettingLabel(specTableRowId, language))
 
 /** @purity pure */
 export function partWord(section: string, part: string, language: DisplayLanguage): string {
@@ -58,9 +58,9 @@ export function partWord(section: string, part: string, language: DisplayLanguag
 }
 
 /** @purity pure */
-export function iconLabel(rowId: string, language: DisplayLanguage): string {
-  const entry = (MARKED_WORDS['icons'] as readonly Loose[]).find((one) => one['rowId'] === rowId)
-  if (entry === undefined) throw new Error(`the dictionary has no icon row ${rowId}`)
+export function iconLabel(specTableRowId: string, language: DisplayLanguage): string {
+  const entry = (MARKED_WORDS['icons'] as readonly Loose[]).find((one) => one['specTableRowId'] === specTableRowId)
+  if (entry === undefined) throw new Error(`the dictionary has no icon row ${specTableRowId}`)
   return entry['label'][language] as string
 }
 

@@ -39,7 +39,7 @@ const MARKED: readonly MarkedWord[] = Object.entries(MARKED_WORDS).flatMap(([sec
           LANGUAGES.filter((language) => typeof entry[field]?.[language] === 'string' && (entry[field][language] as string).includes(BREAK_MARK)).map(
             (language) => ({
               section,
-              key: String(entry['rowId'] ?? entry['part'] ?? entry['name']),
+              key: String(entry['specTableRowId'] ?? entry['part'] ?? entry['name']),
               field,
               language,
               marked: entry[field][language] as string,
@@ -53,7 +53,7 @@ const MARKED: readonly MarkedWord[] = Object.entries(MARKED_WORDS).flatMap(([sec
 /** @purity pure */
 function generatedEntry(word: MarkedWord): Loose {
   const found = (GENERATED_WORDS[word.section] as readonly Loose[] | undefined)?.find(
-    (one) => String(one['rowId'] ?? one['part'] ?? one['name']) === word.key,
+    (one) => String(one['specTableRowId'] ?? one['part'] ?? one['name']) === word.key,
   )
   if (found === undefined) throw new Error(`the generated dictionary has no ${word.section} ${word.key}`)
   return found

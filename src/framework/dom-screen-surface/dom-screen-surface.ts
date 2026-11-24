@@ -332,8 +332,8 @@ type EntranceStateRow = (typeof ENTRANCE_STATE_FILL)[number][0]
 // Spec: FR-029, T-237
 /** @purity pure */
 export function entranceStateFill(standing: readonly EntranceStateRow[]): string {
-  for (const [rowId, color, glyph] of ENTRANCE_STATE_FILL) {
-    if (standing.includes(rowId)) return `background:${color};color:${glyph};`
+  for (const [specTableRowId, color, glyph] of ENTRANCE_STATE_FILL) {
+    if (standing.includes(specTableRowId)) return `background:${color};color:${glyph};`
   }
   return ''
 }
@@ -512,9 +512,9 @@ export interface ScreenTheme {
 // Trap: every H, not the first (DFC-754); and the one graying of SvgRenderer, so screen and export agree.
 // Why: a row the schedule picture also paints takes the picture's solved value (T-366), never its own cell.
 /** @purity pure */
-function hued(rowId: string, written: string, followsHue: boolean, theme: ScreenTheme): string {
-  if (isScheduleColorRow(rowId)) {
-    return colorOf(rowId, theme.hue, theme.preference === 'dark', theme.monochrome === true)
+function hued(specTableRowId: string, written: string, followsHue: boolean, theme: ScreenTheme): string {
+  if (isScheduleColorRow(specTableRowId)) {
+    return colorOf(specTableRowId, theme.hue, theme.preference === 'dark', theme.monochrome === true)
   }
   const colored = followsHue ? written.replace(/\bH\b/g, String(theme.hue)) : written
   return theme.monochrome === true ? achromatic(colored) : colored
@@ -524,18 +524,18 @@ function hued(rowId: string, written: string, followsHue: boolean, theme: Screen
 /** @purity pure */
 export function themeStyle(theme: ScreenTheme): string {
   let written = `color-scheme:${theme.preference};`
-  for (const [name, rowId] of Object.entries(PAINT_ROW)) {
-    const row = SCREEN_COLORS[rowId]
+  for (const [name, specTableRowId] of Object.entries(PAINT_ROW)) {
+    const row = SCREEN_COLORS[specTableRowId]
     if (row === undefined) continue
     const chosen = theme.preference === 'dark' ? row.dark : row.light
-    written += `--gr-${name}:${hued(rowId, chosen, row.followsHue, theme)};`
+    written += `--gr-${name}:${hued(specTableRowId, chosen, row.followsHue, theme)};`
   }
   // Spec: FR-133, SQ-5, DT-1
-  for (const rowId of MARK_COLOR_ROWS) {
-    const row = SCREEN_COLORS[rowId]
+  for (const specTableRowId of MARK_COLOR_ROWS) {
+    const row = SCREEN_COLORS[specTableRowId]
     if (row === undefined) continue
     const chosen = theme.preference === 'dark' ? row.dark : row.light
-    written += `${markColorVariableOf(rowId)}:${hued(rowId, chosen, row.followsHue, theme)};`
+    written += `${markColorVariableOf(specTableRowId)}:${hued(specTableRowId, chosen, row.followsHue, theme)};`
   }
   return written
 }
@@ -588,22 +588,22 @@ export const SCREEN_Z_ORDER: readonly string[] = [
 
 // Spec: T-337
 /** @purity pure */
-function zIndexOf(rowId: string): number {
-  const at = SCREEN_Z_ORDER.indexOf(rowId)
-  if (at < 0) throw new Error(`table T-337 has no row ${rowId}`)
+function zIndexOf(specTableRowId: string): number {
+  const at = SCREEN_Z_ORDER.indexOf(specTableRowId)
+  if (at < 0) throw new Error(`table T-337 has no row ${specTableRowId}`)
   return SCREEN_Z_ORDER.length - at
 }
 
 // Spec: T-337
 /** @purity pure */
-function zIndexStyle(rowId: string): string {
-  return `z-index:${zIndexOf(rowId)};`
+function zIndexStyle(specTableRowId: string): string {
+  return `z-index:${zIndexOf(specTableRowId)};`
 }
 
 /** @purity non-pure */
-function markZOrder(element: HTMLElement, rowId: string): void {
-  element.setAttribute(SCREEN_Z_ORDER_ATTRIBUTE, rowId)
-  element.style.zIndex = String(zIndexOf(rowId))
+function markZOrder(element: HTMLElement, specTableRowId: string): void {
+  element.setAttribute(SCREEN_Z_ORDER_ATTRIBUTE, specTableRowId)
+  element.style.zIndex = String(zIndexOf(specTableRowId))
 }
 
 const TASK_GROUP_TREE_NOT_CARRIED = `[data-unit="${UNIT_ROW}"] [${TASK_GROUP_CARRIED_MARK}="false"]`
@@ -674,7 +674,7 @@ function markFrame(root: HTMLElement, taskGroupTitleTree: HTMLElement, grabCueLa
 
 const SVG_NAMESPACE = 'http://www.w3.org/2000/svg'
 
-const GLYPH_BY_ROW = new Map(iconGlyphs.glyphs.map((one) => [one.rowId, one.elements]))
+const GLYPH_BY_ROW = new Map(iconGlyphs.glyphs.map((one) => [one.specTableRowId, one.elements]))
 
 /** @purity pure */
 export function boxStyle(box: ScreenRect): string {
@@ -1877,7 +1877,7 @@ const NOT_STORED_TYPEFACES: {
 
 // Spec: T-236, S-73
 export const SCREEN_COLORS: {
-  readonly [rowId: string]: {
+  readonly [specTableRowId: string]: {
     readonly light: string
     readonly dark: string
     readonly followsHue: boolean

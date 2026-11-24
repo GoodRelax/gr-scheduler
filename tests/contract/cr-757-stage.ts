@@ -68,9 +68,9 @@ export function timeZoneWord(part: string, language: DisplayLanguage): string {
   return entry['text'][language] as string
 }
 
-export function questionWord(rowId: string, language: DisplayLanguage): string {
-  const entry = (WORDS['questions'] as readonly Loose[]).find((one) => one['rowId'] === rowId)
-  if (entry === undefined) throw new Error(`the dictionary has no question ${rowId}`)
+export function questionWord(specTableRowId: string, language: DisplayLanguage): string {
+  const entry = (WORDS['questions'] as readonly Loose[]).find((one) => one['specTableRowId'] === specTableRowId)
+  if (entry === undefined) throw new Error(`the dictionary has no question ${specTableRowId}`)
   return entry['text'][language] as string
 }
 

@@ -76,12 +76,12 @@ const THEME_HUE = Number(bare(cellOf('T-216', 'S-73', '既定')))
 // Spec: DT-2, DT-3
 const COLUMN_WORDS = (
   JSON.parse(readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8')) as {
-    delayReportColumns: { rowId: string; text: Readonly<Record<Language, string>> }[]
+    delayReportColumns: { specTableRowId: string; text: Readonly<Record<Language, string>> }[]
   }
 ).delayReportColumns
 
 const columnWord = (row: string, language: Language): string => {
-  const found = COLUMN_WORDS.find((one) => one.rowId === row)?.text[language]
+  const found = COLUMN_WORDS.find((one) => one.specTableRowId === row)?.text[language]
   if (found === undefined) throw new Error(`the dictionary's delayReportColumns has no ${row}`)
   return found
 }
@@ -92,11 +92,11 @@ const PROGRESS = (language: Language): string => `${columnWord('DT-3', language)
 // Spec: PS-5, SQ-5
 const IN_PROGRESS_WORD = (
   JSON.parse(readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8')) as {
-    planActualStates: { rowId: string; text: Readonly<Record<Language, string>> }[]
+    planActualStates: { specTableRowId: string; text: Readonly<Record<Language, string>> }[]
   }
 ).planActualStates
 const stateWord = (language: Language): string => {
-  const found = IN_PROGRESS_WORD.find((one) => one.rowId === 'PS-5')?.text[language]
+  const found = IN_PROGRESS_WORD.find((one) => one.specTableRowId === 'PS-5')?.text[language]
   if (found === undefined) throw new Error('the dictionary planActualStates has no PS-5')
   return found
 }

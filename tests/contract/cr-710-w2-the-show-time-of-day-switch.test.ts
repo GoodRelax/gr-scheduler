@@ -26,7 +26,7 @@ const GLOSSARY = unbroken(readFileSync(join(SPEC, '_assets', 'tbl-glossary.md'),
 
 const withoutBreakMarks = (_key: string, value: unknown): unknown => (typeof value === 'string' ? value.replace(/\|/g, '') : value)
 const WORDS = JSON.parse(readFileSync(join(SPEC, '_source', 'display-words.json'), 'utf8'), withoutBreakMarks) as {
-  readonly settings: readonly { readonly rowId: string; readonly label: Record<DisplayLanguage, string> }[]
+  readonly settings: readonly { readonly specTableRowId: string; readonly label: Record<DisplayLanguage, string> }[]
 }
 
 // Spec: FR-158, FR-016, FR-072, UN-7
@@ -44,8 +44,8 @@ const K_146 = 'K-146'
 const K_140 = 'K-140'
 const SHOWS_TIME_OF_DAY = 'isTimeOfDayVisible'
 
-const wordOf = (rowId: string, language: DisplayLanguage): string =>
-  WORDS.settings.find((one) => one.rowId === rowId)?.label[language] ?? `(no dictionary word for ${rowId})`
+const wordOf = (specTableRowId: string, language: DisplayLanguage): string =>
+  WORDS.settings.find((one) => one.specTableRowId === specTableRowId)?.label[language] ?? `(no dictionary word for ${specTableRowId})`
 
 describe('the clauses these cases are built from still read as quoted', () => {
   it.each([FR_158_STORED, FR_016_BACK, FR_072_ORDER, FO_13_ROW, UN_7_ROW])('%s', (clause) => {

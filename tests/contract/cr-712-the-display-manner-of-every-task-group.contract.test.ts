@@ -48,7 +48,7 @@ interface NoticeRoster {
 const ROSTER = JSON.parse(readFileSync(join(SPEC, '_source', 'notice-reasons.json'), 'utf8')) as NoticeRoster
 
 interface WordEntry {
-  readonly rowId: string
+  readonly specTableRowId: string
   readonly text: { readonly ja: string; readonly en: string }
   readonly nextStep?: { readonly ja: string; readonly en: string }
 }
@@ -251,7 +251,7 @@ describe('the generated rosters src reads are the manuscript (PI-39)', () => {
 
 describe(`the dictionary follows the riding -- ${FR_076_A_RIDING_ROW_HAS_NONE}`, () => {
   it('a riding row has no entry in reasons, and every other row of T-233 has one (76)', () => {
-    const entries = WORDS.reasons.map((one) => one.rowId)
+    const entries = WORDS.reasons.map((one) => one.specTableRowId)
     for (const rider of Object.keys(RIDING)) expect(entries, `${rider} rides and has no words of its own`).not.toContain(rider)
     const owners = ROSTER.reasons.filter((one) => one.wordsOf === undefined).map((one) => one.id)
     expect([...entries].sort()).toEqual([...owners].sort())
@@ -259,19 +259,19 @@ describe(`the dictionary follows the riding -- ${FR_076_A_RIDING_ROW_HAS_NONE}`,
   })
 
   it('a hidden row keeps its words (JDG-1759)', () => {
-    const entries = WORDS.reasons.map((one) => one.rowId)
+    const entries = WORDS.reasons.map((one) => one.specTableRowId)
     for (const id of HIDDEN) expect(entries, `${id} keeps its words`).toContain(id)
   })
 
   it('invariants holds 22 rows with words in both languages, and IV-17 rides on RS-21', () => {
-    const entries = WORDS.invariants.map((one) => one.rowId)
+    const entries = WORDS.invariants.map((one) => one.specTableRowId)
     expect(entries).not.toContain('IV-17')
     expect(entries).toHaveLength(22)
     for (const one of WORDS.invariants) {
-      expect(one.text.ja, `${one.rowId} text ja`).not.toBe('')
-      expect(one.text.en, `${one.rowId} text en`).not.toBe('')
-      expect(one.nextStep?.ja ?? '', `${one.rowId} nextStep ja`).not.toBe('')
-      expect(one.nextStep?.en ?? '', `${one.rowId} nextStep en`).not.toBe('')
+      expect(one.text.ja, `${one.specTableRowId} text ja`).not.toBe('')
+      expect(one.text.en, `${one.specTableRowId} text en`).not.toBe('')
+      expect(one.nextStep?.ja ?? '', `${one.specTableRowId} nextStep ja`).not.toBe('')
+      expect(one.nextStep?.en ?? '', `${one.specTableRowId} nextStep en`).not.toBe('')
     }
   })
 })

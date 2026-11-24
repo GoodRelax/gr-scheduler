@@ -49,7 +49,7 @@ const GROUP_NAMES_BY_FIRST_ROW = new Map(
   displayWords.paletteGroups.map((entry) => [entry.firstRow, entry]),
 )
 
-const ARM_WORDS_BY_ROW = new Map(displayWords.arms.map((entry) => [entry.rowId, entry]))
+const ARM_WORDS_BY_ROW = new Map(displayWords.arms.map((entry) => [entry.specTableRowId, entry]))
 
 // Spec: FR-036, FR-038
 /** @purity pure */
@@ -93,8 +93,8 @@ function drawnTaskUids(
 // Spec: FR-049, T-109
 /** @purity pure */
 function isSettingsToggleOn(row: IconRosterRow, settings: DocumentSettings): boolean {
-  if (!Object.prototype.hasOwnProperty.call(VISIBLE_ELEMENT_BY_ENTRY, row.rowId)) return false
-  const key: keyof DocumentSettings | undefined = VISIBLE_ELEMENT_BY_ENTRY[row.rowId]
+  if (!Object.prototype.hasOwnProperty.call(VISIBLE_ELEMENT_BY_ENTRY, row.specTableRowId)) return false
+  const key: keyof DocumentSettings | undefined = VISIBLE_ELEMENT_BY_ENTRY[row.specTableRowId]
   return key !== undefined && settings[key] === true
 }
 
@@ -126,9 +126,9 @@ interface EntranceFacts {
 // Spec: FR-048, T-237, DC-9
 /** @purity pure */
 function isExclusiveChoiceChosen(row: IconRosterRow, facts: EntranceFacts): boolean {
-  if (row.rowId === DUAL_CURSOR_ROW) return facts.isDualCursorOn
-  if (!Object.prototype.hasOwnProperty.call(GUIDE_CURSOR_MODE_BY_ENTRY, row.rowId)) return false
-  const mode: ScreenValues['guideCursorMode'] | undefined = GUIDE_CURSOR_MODE_BY_ENTRY[row.rowId]
+  if (row.specTableRowId === DUAL_CURSOR_ROW) return facts.isDualCursorOn
+  if (!Object.prototype.hasOwnProperty.call(GUIDE_CURSOR_MODE_BY_ENTRY, row.specTableRowId)) return false
+  const mode: ScreenValues['guideCursorMode'] | undefined = GUIDE_CURSOR_MODE_BY_ENTRY[row.specTableRowId]
   return mode !== undefined && facts.guideCursorMode === mode
 }
 
@@ -136,9 +136,9 @@ function isExclusiveChoiceChosen(row: IconRosterRow, facts: EntranceFacts): bool
 // Why: EN-7, EN-5 and EN-2 paint alike (S-183), so the drawn line and the shown watermark ride on isPressed.
 /** @purity pure */
 function isEntryOn(row: IconRosterRow, facts: EntranceFacts): boolean {
-  if (row.rowId === STATUS_DATE_ROW) return facts.isStatusDateDrawn
-  if (row.rowId === PARENT_TASK_LINKS_TASK_GROUP) return facts.isParentTaskLinksShown
-  if (row.rowId === WATERMARK_ROW) return facts.isWatermarkShown
+  if (row.specTableRowId === STATUS_DATE_ROW) return facts.isStatusDateDrawn
+  if (row.specTableRowId === PARENT_TASK_LINKS_TASK_GROUP) return facts.isParentTaskLinksShown
+  if (row.specTableRowId === WATERMARK_ROW) return facts.isWatermarkShown
   return isSettingsToggleOn(row, facts.settings)
 }
 
@@ -172,13 +172,13 @@ function isFlowSurfaceOpen(open: ScreenValues['openSurfaceState']): boolean {
 /** @purity pure */
 function isSurfaceEntryRefused(row: IconRosterRow, facts: EntranceFacts): boolean {
   if (!facts.isFlowAwaitingAnswer) return false
-  return row.rowId === WATERMARK_ROW && facts.isWatermarkShown
+  return row.specTableRowId === WATERMARK_ROW && facts.isWatermarkShown
 }
 
 // Spec: TV-12, EN-8, IC-62
 /** @purity pure */
 function scheduleFilterMarkOf(row: IconRosterRow, facts: EntranceFacts): Pick<CommandItem, 'isScheduleFilterApplied'> {
-  return row.rowId === RESOURCE_LIST_ROW && facts.isResourceListFiltered ? { isScheduleFilterApplied: true } : {}
+  return row.specTableRowId === RESOURCE_LIST_ROW && facts.isResourceListFiltered ? { isScheduleFilterApplied: true } : {}
 }
 
 // Spec: FR-049, FR-053, FR-102
@@ -193,12 +193,12 @@ function commandItemFor(
   facts: EntranceFacts,
 ): CommandItem {
   return {
-    icon: row.rowId,
+    icon: row.specTableRowId,
     isEnabled: isEntryUsable(row, selection, drawnTasks) && !isSurfaceEntryRefused(row, facts),
-    isPressed: (row.rowId === INTERACTION_RECORD_ROW && isRecording) || isEntryOn(row, facts),
+    isPressed: (row.specTableRowId === INTERACTION_RECORD_ROW && isRecording) || isEntryOn(row, facts),
     isArmed: row.arms === armed.row && row.armsShape === armed.shape,
     isChosen: isExclusiveChoiceChosen(row, facts),
-    label: iconLabel(row.rowId, language),
+    label: iconLabel(row.specTableRowId, language),
     ...scheduleFilterMarkOf(row, facts),
   }
 }
@@ -206,7 +206,7 @@ function commandItemFor(
 /** @purity pure */
 function isMilestoneGlyphEntry(row: IconRosterRow): boolean {
   if (!row.authority.includes(MILESTONE_GLYPH_REQUIREMENT)) return false
-  return !MILESTONE_LIST_CONTROL_TASK_GROUPS.includes(row.rowId)
+  return !MILESTONE_LIST_CONTROL_TASK_GROUPS.includes(row.specTableRowId)
 }
 
 /** @purity pure */
@@ -235,14 +235,14 @@ function paletteGroups(
 
   for (const row of iconRoster.icons) {
     if (!row.surfaces.includes(COMMAND_PALETTE)) continue
-    if (NOT_BUTTON_ROWS.includes(row.rowId)) continue
+    if (NOT_BUTTON_ROWS.includes(row.specTableRowId)) continue
 
     const cell = row.group
     if (cell === null) continue
 
     // Trap: a folded row must still open its group; the group's word is keyed by its first row.
     const opened = groups.find((group) => group.cell === cell)
-    const group = opened ?? { cell, firstRow: row.rowId, commands: [] }
+    const group = opened ?? { cell, firstRow: row.specTableRowId, commands: [] }
     if (opened === undefined) groups.push(group)
 
     // Trap: count every glyph row, folded or not, or an entry folds after the list opens and closes.
@@ -302,10 +302,10 @@ function armedWord(
 }
 
 /** @purity pure */
-function bandTaskGroupOf(rowId: IconId): IconRosterRow {
-  const row = iconRoster.icons.find((one) => one.rowId === rowId)
+function bandTaskGroupOf(specTableRowId: IconId): IconRosterRow {
+  const row = iconRoster.icons.find((one) => one.specTableRowId === specTableRowId)
   if (row === undefined) {
-    throw new Error(`table T-109 no longer holds ${rowId}, which FR-053 requires`)
+    throw new Error(`table T-109 no longer holds ${specTableRowId}, which FR-053 requires`)
   }
   return row
 }
@@ -333,8 +333,8 @@ export function commandPaletteFromSession(
   const isMinimized = palette.child.kind === 'minimized'
   const facts = entranceFactsOf(settings, session, schedule, readings)
   const isRecording = isRecordingInteractions(readings)
-  const bandItem = (rowId: IconId): CommandItem =>
-    commandItemFor(bandTaskGroupOf(rowId), selection, drawnTasks, language, armedEntry(armed), isRecording, facts)
+  const bandItem = (specTableRowId: IconId): CommandItem =>
+    commandItemFor(bandTaskGroupOf(specTableRowId), selection, drawnTasks, language, armedEntry(armed), isRecording, facts)
 
   return {
     at: readings.commandPaletteAt,

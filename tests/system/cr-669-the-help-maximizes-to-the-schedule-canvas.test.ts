@@ -50,12 +50,12 @@ type Language = 'ja' | 'en'
 type Words = Readonly<Record<Language, string>>
 
 const WORDS = JSON.parse(readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8')) as {
-  readonly icons: readonly { readonly rowId: string; readonly label: Words }[]
-  readonly helpNotes: readonly { readonly rowId: string; readonly text: Words }[]
+  readonly icons: readonly { readonly specTableRowId: string; readonly label: Words }[]
+  readonly helpNotes: readonly { readonly specTableRowId: string; readonly text: Words }[]
 }
-const labelOf = (rowId: string, language: Language): string => {
-  const found = WORDS.icons.find((one) => one.rowId === rowId)
-  if (found === undefined) throw new Error(`the dictionary holds no label for ${rowId}`)
+const labelOf = (specTableRowId: string, language: Language): string => {
+  const found = WORDS.icons.find((one) => one.specTableRowId === specTableRowId)
+  if (found === undefined) throw new Error(`the dictionary holds no label for ${specTableRowId}`)
   return found.label[language]
 }
 
@@ -367,7 +367,7 @@ async function readItemsAndScroll(page: Page): Promise<{
       }
       return { language: modal.getAttribute('data-language') ?? '', items, scrollHeight: body.scrollHeight, clientHeight: body.clientHeight }
     },
-    { help: HELP, rows: WORDS.helpNotes.map((one) => one.rowId) },
+    { help: HELP, rows: WORDS.helpNotes.map((one) => one.specTableRowId) },
   )
   if (read === null) throw new Error(`${HELP} draws no body with columns`)
   return read
@@ -394,15 +394,15 @@ test.describe('CR-669 FR-036 brackets and S-203 at 1280 x 627 -- the help opened
 
   test('premise: the help was read in ja and in en, and the dictionary names IC-54 alone for added words', () => {
     expect(readings.map((one) => one.language).sort()).toEqual(['en', 'ja'])
-    expect(WORDS.helpNotes.map((one) => one.rowId).sort()).toEqual(['IC-54'])
+    expect(WORDS.helpNotes.map((one) => one.specTableRowId).sort()).toEqual(['IC-54'])
   })
 
   test(`FR-036 (MUST): ${FR_036_BRACKETS} -- the dictionary words start with "(" and end with ")"`, () => {
     for (const note of WORDS.helpNotes) {
       for (const language of ['ja', 'en'] as const) {
         const text = note.text[language]
-        expect(text.startsWith('('), `${note.rowId} ${language}: ${JSON.stringify(text)}`).toBe(true)
-        expect(text.endsWith(')'), `${note.rowId} ${language}: ${JSON.stringify(text)}`).toBe(true)
+        expect(text.startsWith('('), `${note.specTableRowId} ${language}: ${JSON.stringify(text)}`).toBe(true)
+        expect(text.endsWith(')'), `${note.specTableRowId} ${language}: ${JSON.stringify(text)}`).toBe(true)
       }
     }
   })
@@ -411,8 +411,8 @@ test.describe('CR-669 FR-036 brackets and S-203 at 1280 x 627 -- the help opened
     for (const reading of readings) {
       const language = reading.language as Language
       for (const note of WORDS.helpNotes) {
-        const expected = `${labelOf(note.rowId, language)} ${note.text[language]}`
-        expect(reading.items[note.rowId]?.trim(), `${note.rowId} in ${language}: ${FR_036_ONE_SPACE}`).toBe(expected)
+        const expected = `${labelOf(note.specTableRowId, language)} ${note.text[language]}`
+        expect(reading.items[note.specTableRowId]?.trim(), `${note.specTableRowId} in ${language}: ${FR_036_ONE_SPACE}`).toBe(expected)
       }
     }
   })

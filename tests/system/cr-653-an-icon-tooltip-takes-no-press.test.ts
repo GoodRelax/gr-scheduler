@@ -64,10 +64,10 @@ const S_124_MS = numberOf(rowOf(specTable('T-212'), 'S-124').by['値'] ?? '')
 
 // Spec: FR-038, EZ-2
 const WORDS = JSON.parse(readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8')) as {
-  readonly icons: readonly { readonly rowId: string; readonly hint?: { readonly ja: string; readonly en: string } }[]
+  readonly icons: readonly { readonly specTableRowId: string; readonly hint?: { readonly ja: string; readonly en: string } }[]
 }
 const HINTS: ReadonlyMap<string, readonly string[]> = new Map(
-  WORDS.icons.flatMap((one) => (one.hint === undefined ? [] : [[one.rowId, [one.hint.ja, one.hint.en]] as const])),
+  WORDS.icons.flatMap((one) => (one.hint === undefined ? [] : [[one.specTableRowId, [one.hint.ja, one.hint.en]] as const])),
 )
 
 // Why: past a wait the box still needs a frame or two to be drawn and read back (as CR-576's cases allow).

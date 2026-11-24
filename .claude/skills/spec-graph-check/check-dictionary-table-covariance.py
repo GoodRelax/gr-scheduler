@@ -20,7 +20,7 @@ the OK line prints the live number of pairings.
 the keyboard while this check was written (2026-09-05, not copied from any
 ledger row):
 
-    13 sections carry a `rowId` field naming a row of some other table
+    13 sections carry a `specTableRowId` field naming a row of some other table
         (icons, properties, settings, notices, reasons, questions,
         exportFormats, arms, pressOrder, selecting, grabAreas, shortcuts,
         assignments)
@@ -32,7 +32,7 @@ ledger row):
         (surfaces, confirmation, noticeDismiss, confirmationMarks, fileStatus,
         defaultNames, weekdays)
 
-Of the 13 with a `rowId`, `reasons` is table T-233 -- already guarded by the
+Of the 13 with a `specTableRowId`, `reasons` is table T-233 -- already guarded by the
 precedent test above -- so this check covers the other 12: 323 dictionary
 entries in all (87 + 19 + 116 + 10 + 7 + 5 + 6 + 6 + 10 + 20 + 23 + 14, each
 number the length of one section below). Every one of the 12 tables named in
@@ -56,7 +56,7 @@ WHAT "READ TOGETHER" MEANS HERE, GENERALIZED. The precedent pairs one column
 規則, 動作, 掴み領域, 場面, 日本語, 事項, 構え, 条件, 操作 -- so this check
 widens the shape instead of picking one column per table: the fingerprint is
 taken over the WHOLE ROW (every cell but 行 ID) and the WHOLE DICTIONARY ENTRY
-(every field but rowId), the same move `fingerprintOf` in the precedent makes
+(every field but specTableRowId), the same move `fingerprintOf` in the precedent makes
 joining five named fields, done here over however many a row or an entry has.
 ⭐ This is a strict widening and never a narrowing -- any cell of the row
 changing, or any field of the entry changing, moves the fingerprint, so it
@@ -202,7 +202,7 @@ def spec_table(table_id):
 
 
 # ---------------------------------------------------------------------------
-# The twelve groups -- every section of display-words.json keyed by `rowId`
+# The twelve groups -- every section of display-words.json keyed by `specTableRowId`
 # other than `reasons` (table T-233, already guarded by the precedent test).
 # The table id is what this check trusts; spec_table() finds it wherever in
 # docs/spec/ it currently lives, the same way the precedent trusts only a
@@ -242,7 +242,7 @@ def dictionary_groups():
 
 def fingerprint(table_row, dict_entry):
     """sha256, first 16 hex characters, of the table row and the dictionary
-    entry read together -- every cell but 行 ID, every field but rowId, each
+    entry read together -- every cell but 行 ID, every field but specTableRowId, each
     serialized through a canonical (sorted-key) JSON encoding so the shape of
     either side (however many fields it has) is caught without this check
     naming a single column or field by hand."""
@@ -254,7 +254,7 @@ def fingerprint(table_row, dict_entry):
 
 
 def entry_without_row_id(entry):
-    return {k: v for k, v in entry.items() if k != 'rowId'}
+    return {k: v for k, v in entry.items() if k != 'specTableRowId'}
 
 
 def row_without_row_id_heading(row):
@@ -324,7 +324,7 @@ def main():
         table_found.append((group, table_id, table_file))
 
         for entry in entries:
-            row_id = entry['rowId']
+            row_id = entry['specTableRowId']
             if group in SECTION_IN_KEY:
                 key = '%s %s %s' % (table_id, group, row_id)
             else:

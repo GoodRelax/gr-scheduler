@@ -10,13 +10,13 @@ import { windowStage, type WindowStage } from './cr-731-window-stage'
 import type { Document } from '../../src/entity/document-model/document/document'
 import { specTable } from './spec-table'
 
-const wordOf = (section: string, key: string, field: 'part' | 'rowId'): string => {
+const wordOf = (section: string, key: string, field: 'part' | 'specTableRowId'): string => {
   const found = (WORDS[section] as readonly Record<string, any>[]).find((one) => one[field] === key)
   if (found === undefined) throw new Error(`the dictionary has no ${section}/${key}`)
   return found['text']['ja']
 }
 const labelOf = (icon: string): string => {
-  const found = (WORDS['icons'] as readonly Record<string, any>[]).find((one) => one['rowId'] === icon)
+  const found = (WORDS['icons'] as readonly Record<string, any>[]).find((one) => one['specTableRowId'] === icon)
   if (found === undefined) throw new Error(`the dictionary has no icon ${icon}`)
   return found['label']['ja']
 }
@@ -135,7 +135,7 @@ describe('item 13 -- RW-6: the Markdown of IC-108 holds the proposal and, with a
     const from = text.indexOf(heading)
     // Why: the heading's own word (IC-155) holds FM-1's word, so the columns are looked for after the heading, not inside it.
     const after = from + heading.length
-    const columns = ['FM-1', 'FM-3', 'FM-4', 'FM-5', 'FM-6', 'FM-7', 'FM-8'].map((row) => text.indexOf(wordOf('delayFixColumns', row, 'rowId'), after))
+    const columns = ['FM-1', 'FM-3', 'FM-4', 'FM-5', 'FM-6', 'FM-7', 'FM-8'].map((row) => text.indexOf(wordOf('delayFixColumns', row, 'specTableRowId'), after))
     expect(columns.every((one) => one > from), JSON.stringify(columns)).toBe(true)
     expect([...columns].sort((a, b) => a - b)).toEqual(columns)
   })
@@ -163,7 +163,7 @@ describe('item 13 -- RW-6: the Markdown of IC-108 holds the proposal and, with a
     const log = labelOf('IC-156')
     expect(text).toContain(log)
     expect(text.indexOf(log)).toBeGreaterThan(text.indexOf(labelOf('IC-155')))
-    expect(text.indexOf(wordOf('delayFixColumns', 'FM-2', 'rowId'), text.indexOf(log))).toBeGreaterThan(text.indexOf(log))
+    expect(text.indexOf(wordOf('delayFixColumns', 'FM-2', 'specTableRowId'), text.indexOf(log))).toBeGreaterThan(text.indexOf(log))
   })
 
   it('IC-140 writes the same string as IC-108 (RW-7)', async () => {

@@ -151,13 +151,13 @@ export function bench(start: Document): Bench {
 export type Language = 'ja' | 'en'
 type Words = Readonly<Record<Language, string>>
 const DICTIONARY = JSON.parse(readSpec('_source', 'display-words.json')) as {
-  readonly properties: readonly { readonly rowId: string; readonly label: Words }[]
+  readonly properties: readonly { readonly specTableRowId: string; readonly label: Words }[]
 }
 
 /** @purity pure */
-export function propertyWordOf(rowId: string, language: Language): string {
-  const found = DICTIONARY.properties.find((one) => one.rowId === rowId)
-  if (found === undefined) throw new Error(`display-words properties has no ${rowId}`)
+export function propertyWordOf(specTableRowId: string, language: Language): string {
+  const found = DICTIONARY.properties.find((one) => one.specTableRowId === specTableRowId)
+  if (found === undefined) throw new Error(`display-words properties has no ${specTableRowId}`)
   return found.label[language]
 }
 

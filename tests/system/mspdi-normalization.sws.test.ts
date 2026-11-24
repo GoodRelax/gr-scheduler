@@ -117,15 +117,15 @@ const BASE_SCREEN = screenOf(rowOf(T025, SCREEN_ROW))
 // Trap: this selector must match the row-ID marking the shell uses for
 // entries of table T-109; drifting apart breaks this case silently.
 /** @purity pure */
-function entrySelector(rowId: string): string {
-  return `[data-icon="${rowId}"]`
+function entrySelector(specTableRowId: string): string {
+  return `[data-icon="${specTableRowId}"]`
 }
 
 // Trap: this selector must match the row-ID marking the shell uses for a
 // format; drifting apart breaks this case silently.
 /** @purity pure */
-function formatSelector(rowId: string): string {
-  return `[data-format="${rowId}"]`
+function formatSelector(specTableRowId: string): string {
+  return `[data-format="${specTableRowId}"]`
 }
 
 // Why: a document can leave through either the File System Access API or

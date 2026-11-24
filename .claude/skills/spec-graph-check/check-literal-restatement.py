@@ -531,7 +531,7 @@ def json_sets(node, path, out, in_list=False):
             # the id column filtered by "this other field is present", and by
             # "this other field has this value": the rows of a roster that
             # carry a given property
-            idk = next((k for k in ('rowId', 'id', 'name', 'key')
+            idk = next((k for k in ('specTableRowId', 'id', 'name', 'key')
                         if all(isinstance(d.get(k), str) for d in dicts)), None)
             if idk is not None:
                 fields = sorted(set(k for d in dicts for k in d) - {idk})

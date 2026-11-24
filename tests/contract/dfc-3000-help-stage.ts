@@ -49,10 +49,10 @@ export function requirementText(uid: string): string {
 }
 
 interface Dictionary {
-  readonly icons: readonly { readonly rowId: string; readonly label: Words; readonly hint: Words }[]
-  readonly helpLinks?: readonly { readonly link: string; readonly rowId?: string; readonly text: Words }[]
+  readonly icons: readonly { readonly specTableRowId: string; readonly label: Words; readonly hint: Words }[]
+  readonly helpLinks?: readonly { readonly link: string; readonly specTableRowId?: string; readonly text: Words }[]
   readonly helpHeadings?: readonly { readonly block: string; readonly text: Words }[]
-  readonly assignments?: readonly { readonly rowId: string; readonly text: Words }[]
+  readonly assignments?: readonly { readonly specTableRowId: string; readonly text: Words }[]
 }
 
 // Spec: FR-038
@@ -64,9 +64,9 @@ export function linkWords(link: string, language: DisplayLanguage): string {
   return found
 }
 
-export function iconLabel(rowId: string, language: DisplayLanguage): string {
-  const found = DICTIONARY.icons.find((one) => one.rowId === rowId)?.label[language]
-  if (found === undefined) throw new Error(`the dictionary has no icon label ${rowId} in ${language}`)
+export function iconLabel(specTableRowId: string, language: DisplayLanguage): string {
+  const found = DICTIONARY.icons.find((one) => one.specTableRowId === specTableRowId)?.label[language]
+  if (found === undefined) throw new Error(`the dictionary has no icon label ${specTableRowId} in ${language}`)
   return found
 }
 

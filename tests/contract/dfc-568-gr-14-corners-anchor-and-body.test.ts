@@ -175,9 +175,9 @@ const CM_50_COLUMNS = [
 ] as const
 const CM_51_COLUMNS = ['bodyOffsetPx'] as const
 
-const t206Default = (rowId: string): string => {
-  const row = specTable('T-206').rows.find((one) => one.id === rowId)
-  if (row === undefined) throw new Error(`table T-206 has no row ${rowId}`)
+const t206Default = (specTableRowId: string): string => {
+  const row = specTable('T-206').rows.find((one) => one.id === specTableRowId)
+  if (row === undefined) throw new Error(`table T-206 has no row ${specTableRowId}`)
   const cell = row.by['既定']
   if (cell === undefined) throw new Error(`table T-206 has no 既定 column; it has ${Object.keys(row.by).join(', ')}`)
   return cell
@@ -211,8 +211,8 @@ const S_292 = ((): number => {
 })()
 
 const RS_44_WORDS = ((): string => {
-  const reasons = (displayWords as unknown as { reasons: { rowId: string; text: { en: string } }[] }).reasons
-  const found = reasons.find((one) => one.rowId === 'RS-44')
+  const reasons = (displayWords as unknown as { reasons: { specTableRowId: string; text: { en: string } }[] }).reasons
+  const found = reasons.find((one) => one.specTableRowId === 'RS-44')
   if (found === undefined) throw new Error('the dictionary holds no row RS-44')
   return found.text.en
 })()

@@ -262,7 +262,7 @@ describe('CR-378 table T-248: where a `.json` under src/ sits, read against src/
   it('JF-3: 持ち主と同じ層か、それより外側の層のコンポーネントが中身を要するときは、持ち主の公開エントリが公開する名前（表 T-064）を介して読むこと（MUST）', () => {
     const extensionOfFormat = (documentCodec as Record<string, unknown>)['extensionOfFormat']
     expect(typeof extensionOfFormat, 'DocumentCodec publishes no extensionOfFormat').toBe('function')
-    const answer = extensionOfFormat as (rowId: string) => unknown
+    const answer = extensionOfFormat as (specTableRowId: string) => unknown
     let rowsWithAnExtension = 0
     for (const row of specTable('T-024').rows) {
       const found = /`([^`]+)`/.exec(row.by['拡張子'] ?? '')

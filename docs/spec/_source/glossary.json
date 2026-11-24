@@ -1480,8 +1480,8 @@
     "ja": "命名の決まり"
    },
    "definition": {
-    "en": "Naming Rules: the rules that name the keys, types and enumeration values of GRS JSON. The document commands and the Agent API follow the same rules. The rules stand in the order of priority: when two rules conflict, the earlier rule wins. A numbered rule keeps its number from N-1 to N-17; N-13 absorbed N-11. Only this dictionary holds the rules; the schema describes the value of each key at that key.",
-    "ja": "命名の決まり: GRS JSON のキー・型・列挙の値に名を付ける決まり。文書の命令と Agent API の名も同じ決まりに従う。決まりは優先の順に並び、2 つの決まりがぶつかるときは前の決まりが勝つ。番号の付いた決まりは番号 N-1〜N-17 を保つ。N-11 は N-13 にまとめた。決まりはこの辞書だけが持ち、値の書き方はスキーマの各キーの説明が持つ。"
+    "en": "Naming Rules: the rules that name the keys, types and enumeration values of GRS JSON. The document commands and the Agent API follow the same rules. The rules stand in the order of priority: when two rules conflict, the earlier rule wins. A rule is cited by its key, not by a number. Only this dictionary holds the rules; the schema describes the value of each key at that key.",
+    "ja": "命名の決まり: GRS JSON のキー・型・列挙の値に名を付ける決まり。文書の命令と Agent API の名も同じ決まりに従う。決まりは優先の順に並び、2 つの決まりがぶつかるときは前の決まりが勝つ。決まりは番号でなくキーで引く。決まりはこの辞書だけが持ち、値の書き方はスキーマの各キーの説明が持つ。"
    },
    "xGroup": "designPrinciples",
    "xParent": "naming",
@@ -1505,8 +1505,8 @@
     "ja": "外の決まりの名"
    },
    "definition": {
-    "en": "Priority 1: a key whose name an external standard fixes keeps that name, such as $schema of JSON Schema. The rule wins over N-1.",
-    "ja": "優先 1: 外の決まりが名を決めるキーは、その名のまま（JSON Schema の $schema）。N-1 に勝つ。"
+    "en": "Priority 1: a key whose name an external standard fixes keeps that name, such as $schema of JSON Schema. The rule wins over `camelCaseKeys`.",
+    "ja": "優先 1: 外の決まりが名を決めるキーは、その名のまま（JSON Schema の $schema）。`camelCaseKeys` に勝つ。"
    },
    "xGroup": "designPrinciples",
    "xParent": "namingRules",
@@ -1525,8 +1525,8 @@
     "ja": "MSPDI の要素の名"
    },
    "definition": {
-    "en": "Priority 2: the keys inside `passthrough` and `mspdiElement` keep the MSPDI element names as they are, in PascalCase. The rule wins over N-1 and N-3.",
-    "ja": "優先 2: `passthrough` と `mspdiElement` の中のキーは、MSPDI の要素の名そのまま（PascalCase）。N-1・N-3 に勝つ。"
+    "en": "Priority 2: the keys inside `passthrough` and `mspdiElement` keep the MSPDI element names as they are, in PascalCase. The rule wins over `camelCaseKeys` and `mspdiNames`.",
+    "ja": "優先 2: `passthrough` と `mspdiElement` の中のキーは、MSPDI の要素の名そのまま（PascalCase）。`camelCaseKeys`・`mspdiNames` に勝つ。"
    },
    "xGroup": "designPrinciples",
    "xParent": "namingRules",
@@ -1542,12 +1542,12 @@
   {
    "key": "mspdiNames",
    "label": {
-    "en": "N-3 MSPDI Names",
-    "ja": "N-3 MSPDI の名"
+    "en": "MSPDI Names",
+    "ja": "MSPDI の名"
    },
    "definition": {
-    "en": "Priority 3 (N-3): a value that comes from MSPDI takes the MSPDI name in camelCase (StartDate becomes `startDate`). The MSPDI element Type becomes `type`, which selects no set of keys. An MSPDI numeric code stays a number. The MSPDI name wins over N-2, N-4, N-7, N-9, N-10, N-13 and N-14: `predecessorUid`, `milestone`, `resumeValid`, `dayWorking`, `linkLag`, `startDate`, `statusDate`, `stop` and `resume` keep their MSPDI names.",
-    "ja": "優先 3（N-3）: MSPDI から来た値は、MSPDI の名を camelCase にして使う（StartDate は `startDate`）。MSPDI の要素 Type は `type` になり、キーの組を選ばない。MSPDI の数の符号は数のまま。MSPDI の名は N-2・N-4・N-7・N-9・N-10・N-13・N-14 に勝つ: `predecessorUid`・`milestone`・`resumeValid`・`dayWorking`・`linkLag`・`startDate`・`statusDate`・`stop`・`resume` は MSPDI の名のまま。"
+    "en": "Priority 3: a value that comes from MSPDI takes the MSPDI name in camelCase (StartDate becomes `startDate`). The MSPDI element Type becomes `type`, which selects no set of keys. An MSPDI numeric code stays a number. The MSPDI name wins over `descriptiveNames`, `ownerFreeKeys`, `typeDiscriminator`, `isBooleans`, `unitSuffixes`, `dateTimeTypeSuffixes` and `enumerationValues`: `predecessorUid`, `milestone`, `resumeValid`, `dayWorking`, `linkLag`, `startDate`, `statusDate`, `stop` and `resume` keep their MSPDI names.",
+    "ja": "優先 3: MSPDI から来た値は、MSPDI の名を camelCase にして使う（StartDate は `startDate`）。MSPDI の要素 Type は `type` になり、キーの組を選ばない。MSPDI の数の符号は数のまま。MSPDI の名は `descriptiveNames`・`ownerFreeKeys`・`typeDiscriminator`・`isBooleans`・`unitSuffixes`・`dateTimeTypeSuffixes`・`enumerationValues` に勝つ: `predecessorUid`・`milestone`・`resumeValid`・`dayWorking`・`linkLag`・`startDate`・`statusDate`・`stop`・`resume` は MSPDI の名のまま。"
    },
    "xGroup": "designPrinciples",
    "xParent": "namingRules",
@@ -1572,8 +1572,8 @@
     "ja": "リンクの欄の MSPDI の名"
    },
    "definition": {
-    "en": "Priority 4: the link fields of tasks, task groups and comment boxes take the MSPDI names `hyperlinkAddress` (the URL) and `hyperlink` (the title). The rule wins over N-2.",
-    "ja": "優先 4: タスク・タスクグループ・コメントボックスのリンクの欄は、MSPDI の名 `hyperlinkAddress`（URL）と `hyperlink`（題）を使う。N-2 に勝つ。"
+    "en": "Priority 4: the link fields of tasks, task groups and comment boxes take the MSPDI names `hyperlinkAddress` (the URL) and `hyperlink` (the title). The rule wins over `descriptiveNames`.",
+    "ja": "優先 4: タスク・タスクグループ・コメントボックスのリンクの欄は、MSPDI の名 `hyperlinkAddress`（URL）と `hyperlink`（題）を使う。`descriptiveNames` に勝つ。"
    },
    "xGroup": "designPrinciples",
    "xParent": "namingRules",
@@ -1592,8 +1592,8 @@
     "ja": "版のキー"
    },
    "definition": {
-    "en": "Priority 5: a key that states a version ends in VersionUtc, and its value is a UTC time to the second (`schemaVersionUtc`, `buildVersionUtc`). The rule wins over N-13.",
-    "ja": "優先 5: 版を言うキーは VersionUtc で終え、値は UTC の秒までの時刻（`schemaVersionUtc`・`buildVersionUtc`）。N-13 に勝つ。"
+    "en": "Priority 5: a key that states a version ends in VersionUtc, and its value is a UTC time to the second (`schemaVersionUtc`, `buildVersionUtc`). The rule wins over `dateTimeTypeSuffixes`.",
+    "ja": "優先 5: 版を言うキーは VersionUtc で終え、値は UTC の秒までの時刻（`schemaVersionUtc`・`buildVersionUtc`）。`dateTimeTypeSuffixes` に勝つ。"
    },
    "xGroup": "designPrinciples",
    "xParent": "namingRules",
@@ -1608,12 +1608,12 @@
   {
    "key": "camelCaseKeys",
    "label": {
-    "en": "N-1 camelCase Keys",
-    "ja": "N-1 キーは camelCase"
+    "en": "camelCase Keys",
+    "ja": "キーは camelCase"
    },
    "definition": {
-    "en": "Priority 6 (N-1): a key is camelCase, and a type name is PascalCase (`startDate`, `Task`).",
-    "ja": "優先 6（N-1）: キーは camelCase、型の名は PascalCase（`startDate`・`Task`）。"
+    "en": "Priority 6: a key is camelCase, and a type name is PascalCase (`startDate`, `Task`).",
+    "ja": "優先 6: キーは camelCase、型の名は PascalCase（`startDate`・`Task`）。"
    },
    "xGroup": "designPrinciples",
    "xParent": "namingRules",
@@ -1628,12 +1628,12 @@
   {
    "key": "twoIdentifiers",
    "label": {
-    "en": "N-6 Two Identifiers",
-    "ja": "N-6 識別子は 2 つ"
+    "en": "Two Identifiers",
+    "ja": "識別子は 2 つ"
    },
    "definition": {
-    "en": "Priority 7 (N-6): there are exactly two identifiers. An entity that comes from MSPDI has `uid`, an integer; only Project has a string uid, as MSPDI writes Project/UID. An entity of GRS alone has `id`, a random UUID version 4 in lower case. A uid is unique within its array, as in MSPDI; an id is unique within the whole document. The rule wins over N-2.",
-    "ja": "優先 7（N-6）: 識別子は 2 つだけ。MSPDI から来た実体は `uid`（整数。Project だけ MSPDI のとおり文字列）、GRS 固有の実体は `id`（ランダムな UUID 版 4 を小文字で書く）。`uid` は同じ配列の中で一意（MSPDI のとおり）、`id` は文書全体で一意。N-2 に勝つ。"
+    "en": "Priority 7: there are exactly two identifiers. An entity that comes from MSPDI has `uid`, an integer; only Project has a string uid, as MSPDI writes Project/UID. An entity of GRS alone has `id`, a random UUID version 4 in lower case. A uid is unique within its array, as in MSPDI; an id is unique within the whole document. The rule wins over `descriptiveNames`.",
+    "ja": "優先 7: 識別子は 2 つだけ。MSPDI から来た実体は `uid`（整数。Project だけ MSPDI のとおり文字列）、GRS 固有の実体は `id`（ランダムな UUID 版 4 を小文字で書く）。`uid` は同じ配列の中で一意（MSPDI のとおり）、`id` は文書全体で一意。`descriptiveNames` に勝つ。"
    },
    "xGroup": "designPrinciples",
    "xParent": "namingRules",
@@ -1655,12 +1655,12 @@
   {
    "key": "referenceNames",
    "label": {
-    "en": "N-5 Reference Names",
-    "ja": "N-5 参照の名"
+    "en": "Reference Names",
+    "ja": "参照の名"
    },
    "definition": {
-    "en": "Priority 8 (N-5): a key that refers to another entity is the name of that entity plus Uid or Id (`parentTaskGroupId`, `representativeTaskUid`). The rule wins over N-4 (`parentTaskUid`, `parentTaskGroupId`).",
-    "ja": "優先 8（N-5）: 別の実体を指す参照は、相手の名に Uid か Id を足す（`parentTaskGroupId`・`representativeTaskUid`）。N-4 に勝つ（`parentTaskUid`・`parentTaskGroupId`）。"
+    "en": "Priority 8: a key that refers to another entity is the name of that entity plus Uid or Id (`parentTaskGroupId`, `representativeTaskUid`). The rule wins over `ownerFreeKeys` (`parentTaskUid`, `parentTaskGroupId`).",
+    "ja": "優先 8: 別の実体を指す参照は、相手の名に Uid か Id を足す（`parentTaskGroupId`・`representativeTaskUid`）。`ownerFreeKeys` に勝つ（`parentTaskUid`・`parentTaskGroupId`）。"
    },
    "xGroup": "designPrinciples",
    "xParent": "namingRules",
@@ -1677,12 +1677,12 @@
   {
    "key": "descriptiveNames",
    "label": {
-    "en": "N-2 Names Say What They Point At",
-    "ja": "N-2 名は指すものを言う"
+    "en": "Names Say What They Point At",
+    "ja": "名は指すものを言う"
    },
    "definition": {
-    "en": "Priority 9 (N-2): a name says what it points at. The only abbreviations are `uid`, `id`, Px and Utc, and the words of web standards dx, dy, min, max and hex. The format name MSPDI is a proper name and counts as no abbreviation. The rule wins over N-4: `scheduleDataTimeZone` keeps the owner name so that a reader reads it right.",
-    "ja": "優先 9（N-2）: 名は、指すものを言う。略は `uid`・`id`・Px・Utc と、Web の決まりが使う語 dx・dy・min・max・hex だけ。形式の名 MSPDI は固有の名で、略に数えない。N-4 に勝つ: `scheduleDataTimeZone` は、読み違えないよう持ち主の名を残す。"
+    "en": "Priority 9: a name says what it points at. The only abbreviations are `uid`, `id`, Px and Utc, and the words of web standards dx, dy, min, max and hex. The format name MSPDI is a proper name and counts as no abbreviation. The rule wins over `ownerFreeKeys`: `scheduleDataTimeZone` keeps the owner name so that a reader reads it right.",
+    "ja": "優先 9: 名は、指すものを言う。略は `uid`・`id`・Px・Utc と、Web の決まりが使う語 dx・dy・min・max・hex だけ。形式の名 MSPDI は固有の名で、略に数えない。`ownerFreeKeys` に勝つ: `scheduleDataTimeZone` は、読み違えないよう持ち主の名を残す。"
    },
    "xGroup": "designPrinciples",
    "xParent": "namingRules",
@@ -1698,12 +1698,12 @@
   {
    "key": "ownerFreeKeys",
    "label": {
-    "en": "N-4 Owner-Free Keys",
-    "ja": "N-4 持ち主の名を繰り返さない"
+    "en": "Owner-Free Keys",
+    "ja": "持ち主の名を繰り返さない"
    },
    "definition": {
-    "en": "Priority 10 (N-4): a key leaves out the name of its owner (`title` under project, in place of projectTitle).",
-    "ja": "優先 10（N-4）: キーに持ち主の名を繰り返さない（project の `title`。projectTitle にしない）。"
+    "en": "Priority 10: a key leaves out the name of its owner (`title` under project, in place of projectTitle).",
+    "ja": "優先 10: キーに持ち主の名を繰り返さない（project の `title`。projectTitle にしない）。"
    },
    "xGroup": "designPrinciples",
    "xParent": "namingRules",
@@ -1718,12 +1718,12 @@
   {
    "key": "typeDiscriminator",
    "label": {
-    "en": "N-7 type Discriminator",
-    "ja": "N-7 判別子は type"
+    "en": "type Discriminator",
+    "ja": "判別子は type"
    },
    "definition": {
-    "en": "Priority 11 (N-7): the discriminator that selects the set of keys of its object is `type`. A name that ends in Type serves only a classification that would otherwise take the name type. An enumeration of a state, a direction or a level takes a name that says what it is (`showMode`, `taskPlacementDirection`, `fontSizePreset`). The word kind names no key.",
-    "ja": "優先 11（N-7）: 自分の欄の組を選ぶ判別子は `type`。Type で終わる名は、名が type になりそうな分類だけに使う。状態・向き・段などの列挙は、それが何かを言う名にする（`showMode`・`taskPlacementDirection`・`fontSizePreset`）。kind は使わない。"
+    "en": "Priority 11: the discriminator that selects the set of keys of its object is `type`. A name that ends in Type serves only a classification that would otherwise take the name type. An enumeration of a state, a direction or a level takes a name that says what it is (`showMode`, `taskPlacementDirection`, `fontSizePreset`). The word kind names no key.",
+    "ja": "優先 11: 自分の欄の組を選ぶ判別子は `type`。Type で終わる名は、名が type になりそうな分類だけに使う。状態・向き・段などの列挙は、それが何かを言う名にする（`showMode`・`taskPlacementDirection`・`fontSizePreset`）。kind は使わない。"
    },
    "xGroup": "designPrinciples",
    "xParent": "namingRules",
@@ -1741,12 +1741,12 @@
   {
    "key": "pluralArrays",
    "label": {
-    "en": "N-8 Plural Arrays",
-    "ja": "N-8 配列は複数形"
+    "en": "Plural Arrays",
+    "ja": "配列は複数形"
    },
    "definition": {
-    "en": "Priority 12 (N-8): an array has a plural name (`tasks`, `predecessorLinks`, `checkedTaskUids`).",
-    "ja": "優先 12（N-8）: 配列は複数形（`tasks`・`predecessorLinks`・`checkedTaskUids`）。"
+    "en": "Priority 12: an array has a plural name (`tasks`, `predecessorLinks`, `checkedTaskUids`).",
+    "ja": "優先 12: 配列は複数形（`tasks`・`predecessorLinks`・`checkedTaskUids`）。"
    },
    "xGroup": "designPrinciples",
    "xParent": "namingRules",
@@ -1761,12 +1761,12 @@
   {
    "key": "isBooleans",
    "label": {
-    "en": "N-9 is Booleans",
-    "ja": "N-9 真偽は is で始める"
+    "en": "is Booleans",
+    "ja": "真偽は is で始める"
    },
    "definition": {
-    "en": "Priority 13 (N-9): a boolean starts with is (`isPlanBarVisible`).",
-    "ja": "優先 13（N-9）: 真偽の値は is で始める（`isPlanBarVisible`）。"
+    "en": "Priority 13: a boolean starts with is (`isPlanBarVisible`).",
+    "ja": "優先 13: 真偽の値は is で始める（`isPlanBarVisible`）。"
    },
    "xGroup": "designPrinciples",
    "xParent": "namingRules",
@@ -1781,12 +1781,12 @@
   {
    "key": "percentAndRatio",
    "label": {
-    "en": "N-16 Percent and Ratio",
-    "ja": "N-16 割合と倍率"
+    "en": "Percent and Ratio",
+    "ja": "割合と倍率"
    },
    "definition": {
-    "en": "Priority 14 (N-16): a proportion ends in Percent and runs from 0 to 100; a scale factor ends in Ratio, and 1 is its default (`displayScaleRatio`). The rule settles the unit of N-10 for proportions and scale factors.",
-    "ja": "優先 14（N-16）: 割合は Percent で終え 0〜100、倍率は Ratio で終え 1 が既定（`displayScaleRatio`）。N-10 の単位を、割合と倍率で決める。"
+    "en": "Priority 14: a proportion ends in Percent and runs from 0 to 100; a scale factor ends in Ratio, and 1 is its default (`displayScaleRatio`). The rule settles the unit of `unitSuffixes` for proportions and scale factors.",
+    "ja": "優先 14: 割合は Percent で終え 0〜100、倍率は Ratio で終え 1 が既定（`displayScaleRatio`）。`unitSuffixes` の単位を、割合と倍率で決める。"
    },
    "xGroup": "designPrinciples",
    "xParent": "namingRules",
@@ -1802,12 +1802,12 @@
   {
    "key": "unitSuffixes",
    "label": {
-    "en": "N-10 Unit Suffixes",
-    "ja": "N-10 量は単位で終える"
+    "en": "Unit Suffixes",
+    "ja": "量は単位で終える"
    },
    "definition": {
-    "en": "Priority 15 (N-10): a quantity ends in its unit (Px, Percent, Minutes, WorkingDays and so on). An object that holds only quantities of one unit puts the unit on the object name and leaves it off its inner keys (`bodyOffsetPx` with `dx` and `dy`).",
-    "ja": "優先 15（N-10）: 量は単位で終える（Px・Percent・Minutes・WorkingDays など）。同じ単位の量だけを持つ物は、物の名に単位を付け、中のキーには付けない（`bodyOffsetPx` の `dx`・`dy`）。"
+    "en": "Priority 15: a quantity ends in its unit (Px, Percent, Minutes, WorkingDays and so on). An object that holds only quantities of one unit puts the unit on the object name and leaves it off its inner keys (`bodyOffsetPx` with `dx` and `dy`).",
+    "ja": "優先 15: 量は単位で終える（Px・Percent・Minutes・WorkingDays など）。同じ単位の量だけを持つ物は、物の名に単位を付け、中のキーには付けない（`bodyOffsetPx` の `dx`・`dy`）。"
    },
    "xGroup": "designPrinciples",
    "xParent": "namingRules",
@@ -1823,12 +1823,12 @@
   {
    "key": "dateTimeTypeSuffixes",
    "label": {
-    "en": "N-13 Date-Time Suffixes",
-    "ja": "N-13 日時のキーは値の型で終える"
+    "en": "Date-Time Suffixes",
+    "ja": "日時のキーは値の型で終える"
    },
    "definition": {
-    "en": "Priority 16 (N-13): a date-time key that GRS names ends in the type of its value, which also fixes the form of the value: a day alone ends in Day (2026-12-01); a time alone ends in Time (08:00:00); a day and a time end in DateTime (2026-12-01T08:00:00, with no offset; `scheduleDataTimeZone` states the offset of the date-times of the data); a UTC instant ends in At (2026-12-01T08:00:00Z, to the second).",
-    "ja": "優先 16（N-13）: GRS が名を付ける日時のキーは値の型で終え、値の形もそれで決まる: 日だけは Day（2026-12-01）、時刻だけは Time（08:00:00）、日と時刻は DateTime（2026-12-01T08:00:00。時差を書かない。データの日時の時差は `scheduleDataTimeZone` が言う）、UTC の瞬間は At（2026-12-01T08:00:00Z。秒まで）。"
+    "en": "Priority 16: a date-time key that GRS names ends in the type of its value, which also fixes the form of the value: a day alone ends in Day (2026-12-01); a time alone ends in Time (08:00:00); a day and a time end in DateTime (2026-12-01T08:00:00, with no offset; `scheduleDataTimeZone` states the offset of the date-times of the data); a UTC instant ends in At (2026-12-01T08:00:00Z, to the second).",
+    "ja": "優先 16: GRS が名を付ける日時のキーは値の型で終え、値の形もそれで決まる: 日だけは Day（2026-12-01）、時刻だけは Time（08:00:00）、日と時刻は DateTime（2026-12-01T08:00:00。時差を書かない。データの日時の時差は `scheduleDataTimeZone` が言う）、UTC の瞬間は At（2026-12-01T08:00:00Z。秒まで）。"
    },
    "xGroup": "designPrinciples",
    "xParent": "namingRules",
@@ -1844,12 +1844,12 @@
   {
    "key": "enumerationValues",
    "label": {
-    "en": "N-14 Enumeration Values",
-    "ja": "N-14 列挙の値"
+    "en": "Enumeration Values",
+    "ja": "列挙の値"
    },
    "definition": {
-    "en": "Priority 17 (N-14): an enumeration value is an English word in camelCase; an MSPDI numeric code stays a number.",
-    "ja": "優先 17（N-14）: 列挙の値は camelCase の英語の語。MSPDI の数の符号は数のまま。"
+    "en": "Priority 17: an enumeration value is an English word in camelCase; an MSPDI numeric code stays a number.",
+    "ja": "優先 17: 列挙の値は camelCase の英語の語。MSPDI の数の符号は数のまま。"
    },
    "xGroup": "designPrinciples",
    "xParent": "namingRules",
@@ -1864,12 +1864,12 @@
   {
    "key": "discriminatedFields",
    "label": {
-    "en": "N-17 Fields of the Chosen Type",
-    "ja": "N-17 判別子が選ぶ欄だけを書く"
+    "en": "Fields of the Chosen Type",
+    "ja": "判別子が選ぶ欄だけを書く"
    },
    "definition": {
-    "en": "Priority 18 (N-17): an object with the discriminator `type` writes only the fields that its value of type holds.",
-    "ja": "優先 18（N-17）: 判別子 `type` を持つ物は、その値が持つ欄だけを書く。"
+    "en": "Priority 18: an object with the discriminator `type` writes only the fields that its value of type holds.",
+    "ja": "優先 18: 判別子 `type` を持つ物は、その値が持つ欄だけを書く。"
    },
    "xGroup": "designPrinciples",
    "xParent": "namingRules",
@@ -1884,12 +1884,12 @@
   {
    "key": "absenceByOmission",
    "label": {
-    "en": "N-12 Absence by Omission",
-    "ja": "N-12 無いことはキーを書かずに言う"
+    "en": "Absence by Omission",
+    "ja": "無いことはキーを書かずに言う"
    },
    "definition": {
-    "en": "Priority 19 (N-12): the data shows that a value is absent in one way only: it leaves the key out. It writes no null.",
-    "ja": "優先 19（N-12）: 「無い」は、キーを書かないこと 1 つで言う。null は使わない。"
+    "en": "Priority 19: the data shows that a value is absent in one way only: it leaves the key out. It writes no null.",
+    "ja": "優先 19: 「無い」は、キーを書かないこと 1 つで言う。null は使わない。"
    },
    "xGroup": "designPrinciples",
    "xParent": "namingRules",
@@ -1907,12 +1907,12 @@
   {
    "key": "emptyByOmission",
    "label": {
-    "en": "N-15 Empty by Omission",
-    "ja": "N-15 空もキーを書かずに言う"
+    "en": "Empty by Omission",
+    "ja": "空もキーを書かずに言う"
    },
    "definition": {
-    "en": "Priority 20 (N-15): the data leaves out the key of an empty array and of an object whose contents are all absent.",
-    "ja": "優先 20（N-15）: 空の配列も、中身が全部無い物も、キーを書かないことで言う。"
+    "en": "Priority 20: the data leaves out the key of an empty array and of an object whose contents are all absent.",
+    "ja": "優先 20: 空の配列も、中身が全部無い物も、キーを書かないことで言う。"
    },
    "xGroup": "designPrinciples",
    "xParent": "namingRules",

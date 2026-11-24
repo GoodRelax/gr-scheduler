@@ -340,8 +340,8 @@ export function rowText(table: string, id: string): string {
   return unbroken(row.cells.join(' | '))
 }
 
-export function iconWord(rowId: string, field: 'label' | 'hint', language: 'ja' | 'en'): string | undefined {
-  const entry = (WORDS['icons'] as readonly Record<string, any>[]).find((one) => one['rowId'] === rowId)
+export function iconWord(specTableRowId: string, field: 'label' | 'hint', language: 'ja' | 'en'): string | undefined {
+  const entry = (WORDS['icons'] as readonly Record<string, any>[]).find((one) => one['specTableRowId'] === specTableRowId)
   return entry?.[field]?.[language]
 }
 

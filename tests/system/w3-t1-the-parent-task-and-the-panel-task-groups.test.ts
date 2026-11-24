@@ -30,10 +30,10 @@ const DOCUMENT_SETTINGS = rowOf(specTable('T-109'), 'IC-17').id
 const LINK_INK = bare(rowOf(specTable('T-236'), 'S-503').by['明るいテーマ'] ?? '')
 
 const WORDS = JSON.parse(readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8')) as {
-  readonly settings: readonly { readonly rowId: string; readonly label: { readonly ja: string; readonly en: string } }[]
+  readonly settings: readonly { readonly specTableRowId: string; readonly label: { readonly ja: string; readonly en: string } }[]
 }
 const SPAN_LABELS = (() => {
-  const found = WORDS.settings.find((one) => one.rowId === 'K-141')
+  const found = WORDS.settings.find((one) => one.specTableRowId === 'K-141')
   return found === undefined ? [] : [found.label.ja, found.label.en]
 })()
 

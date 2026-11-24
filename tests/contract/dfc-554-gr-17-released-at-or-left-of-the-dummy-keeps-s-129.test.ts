@@ -56,9 +56,9 @@ const AT_39_NOT_NEGATIVE = '| `Task` | `percentComplete` | 整数（0 以上） 
 const IV_21_NOT_BELOW_ZERO =
   '`actualStart` と実績の最後の日（完了なら `actualFinish`、それ以外は `stop`）がともに非 `null` の `Task` で、`FR-011` が日付から数えた実績の長さが 0 を下回らないこと。'
 
-const cellOf = (tableId: string, rowId: string, heading: string): string => {
-  const row = specTable(tableId).rows.find((one) => one.id === rowId)
-  if (row === undefined) throw new Error(`table ${tableId} has no row ${rowId}`)
+const cellOf = (tableId: string, specTableRowId: string, heading: string): string => {
+  const row = specTable(tableId).rows.find((one) => one.id === specTableRowId)
+  if (row === undefined) throw new Error(`table ${tableId} has no row ${specTableRowId}`)
   const cell = row.by[heading]
   if (cell === undefined) throw new Error(`table ${tableId} has no ${heading} column; it has ${Object.keys(row.by).join(', ')}`)
   return cell

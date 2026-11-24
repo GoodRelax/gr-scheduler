@@ -29,9 +29,9 @@ const S_339_PX = numberOf(specTable('T-206').rows.find((row) => row.id === 'S-33
 
 // Spec: FR-038, EZ-2
 const WORDS = JSON.parse(readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8')) as {
-  icons: { rowId: string; hint?: { ja: string; en: string } }[]
+  icons: { specTableRowId: string; hint?: { ja: string; en: string } }[]
 }
-const HINTED: readonly string[] = WORDS.icons.filter((one) => one.hint !== undefined).map((one) => one.rowId)
+const HINTED: readonly string[] = WORDS.icons.filter((one) => one.hint !== undefined).map((one) => one.specTableRowId)
 
 // Why: 800 x 600 -- a narrow window, where the App Header runs out of room, long descriptions meet the cap and
 // the entrances on the right (the help entrance IC-22 among them) must turn their descriptions back.

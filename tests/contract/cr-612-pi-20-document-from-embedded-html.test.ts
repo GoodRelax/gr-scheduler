@@ -73,17 +73,17 @@ describe('OP-1 -- the open route accepts every row of T-024 that comes in', () =
 
   it('OP-1 / OP-12: the generated format list gives IO-7 the extension .html and the first character <', () => {
     const formats = JSON.parse(readFileSync(join(process.cwd(), 'src', 'adapter', 'document-codec', 'exchange-formats.json'), 'utf8')) as unknown
-    const rows: { rowId: string; extension: string | null; firstCharacter: string | null }[] = []
+    const rows: { specTableRowId: string; extension: string | null; firstCharacter: string | null }[] = []
     const walk = (node: unknown): void => {
       if (Array.isArray(node)) for (const one of node) walk(one)
       else if (node !== null && typeof node === 'object') {
         const record = node as Record<string, unknown>
-        if (typeof record['rowId'] === 'string') rows.push(record as never)
+        if (typeof record['specTableRowId'] === 'string') rows.push(record as never)
         else for (const value of Object.values(record)) walk(value)
       }
     }
     walk(formats)
-    expect(rows.find((one) => one.rowId === 'IO-7')).toMatchObject({ extension: '.html', firstCharacter: '<' })
+    expect(rows.find((one) => one.specTableRowId === 'IO-7')).toMatchObject({ extension: '.html', firstCharacter: '<' })
   })
 
   it('OP-1 / IO-7: a single .html handed to the open route is read, not refused for its extension', () => {

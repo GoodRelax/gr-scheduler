@@ -94,7 +94,7 @@ const CONFIRMATION = settledName('U-55')
 const PANEL_ROLE = settledName('U-25')
 
 interface Worded {
-  readonly rowId: string
+  readonly specTableRowId: string
   readonly label?: Readonly<Record<DisplayLanguage, string>>
   readonly text?: Readonly<Record<DisplayLanguage, string>>
 }
@@ -107,13 +107,13 @@ const WORDS = JSON.parse(readFileSync(join(SPEC, '_source', 'display-words.json'
 }
 
 const labelOf = (language: DisplayLanguage): string => {
-  const held = WORDS.icons.find((one) => one.rowId === IC_139)?.label?.[language]
+  const held = WORDS.icons.find((one) => one.specTableRowId === IC_139)?.label?.[language]
   if (held === undefined) throw new Error(`FR-038's dictionary holds no label for ${IC_139}`)
   return held
 }
 
 const sentenceOf = (language: DisplayLanguage): string => {
-  const held = WORDS.questions.find((one) => one.rowId === QN_11)?.text?.[language]
+  const held = WORDS.questions.find((one) => one.specTableRowId === QN_11)?.text?.[language]
   if (held === undefined) throw new Error(`FR-038's dictionary holds no sentence for ${QN_11}`)
   return held
 }

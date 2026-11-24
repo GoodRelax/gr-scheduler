@@ -44,9 +44,9 @@ const LANGUAGES: readonly DisplayLanguage[] = ['ja', 'en']
 const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
 interface Manuscript {
-  readonly icons: readonly { readonly rowId: string; readonly label: Words; readonly hint: Words }[]
-  readonly helpLinks?: readonly { readonly link: string; readonly rowId?: string; readonly text: Words }[]
-  readonly helpNotes?: readonly { readonly rowId: string; readonly text: Words }[]
+  readonly icons: readonly { readonly specTableRowId: string; readonly label: Words; readonly hint: Words }[]
+  readonly helpLinks?: readonly { readonly link: string; readonly specTableRowId?: string; readonly text: Words }[]
+  readonly helpNotes?: readonly { readonly specTableRowId: string; readonly text: Words }[]
   readonly helpFootnotes?: unknown
 }
 
@@ -60,9 +60,9 @@ const linkWords = (link: string, language: DisplayLanguage): string => {
   return found
 }
 
-const iconWords = (rowId: string): { readonly label: Words; readonly hint: Words } => {
-  const found = DICTIONARY.icons.find((one) => one.rowId === rowId)
-  if (found === undefined) throw new Error(`the dictionary has no icons ${rowId}`)
+const iconWords = (specTableRowId: string): { readonly label: Words; readonly hint: Words } => {
+  const found = DICTIONARY.icons.find((one) => one.specTableRowId === specTableRowId)
+  if (found === undefined) throw new Error(`the dictionary has no icons ${specTableRowId}`)
   return found
 }
 
@@ -336,9 +336,9 @@ describe('CR-785 -- the premises read from the specification', () => {
       for (const language of LANGUAGES) expect(linkWords(link, language).trim().length, `${link} ${language}`).toBeGreaterThan(0)
       expect(linkWords(link, 'ja'), link).not.toBe(linkWords(link, 'en'))
     }
-    expect((DICTIONARY.helpLinks ?? []).find((one) => one.link === 'agentApi')?.rowId).toBe('IC-20')
+    expect((DICTIONARY.helpLinks ?? []).find((one) => one.link === 'agentApi')?.specTableRowId).toBe('IC-20')
     expect(DICTIONARY.helpFootnotes).toBeUndefined()
-    expect((DICTIONARY.helpNotes ?? []).map((one) => one.rowId)).toEqual(['IC-54'])
+    expect((DICTIONARY.helpNotes ?? []).map((one) => one.specTableRowId)).toEqual(['IC-54'])
   })
 
   it('S-350 and S-583 are https addresses without a query of their own, and are two different pages', () => {
@@ -416,7 +416,7 @@ describe('FR-036 (MUST) -- the IC-20 item carries a link to S-350 after its name
   })
 
   it.each(LANGUAGES)('%s: the IC-54 item keeps its word in parentheses', (language) => {
-    const word = (DICTIONARY.helpNotes ?? []).find((one) => one.rowId === 'IC-54')?.text[language] ?? ''
+    const word = (DICTIONARY.helpNotes ?? []).find((one) => one.specTableRowId === 'IC-54')?.text[language] ?? ''
     expect(word.startsWith('(') && word.endsWith(')')).toBe(true)
     const text = helpOf(language).entries.find((one) => one.row === 'IC-54')?.text ?? ''
     expect(text.endsWith(word)).toBe(true)

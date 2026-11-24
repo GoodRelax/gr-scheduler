@@ -42,20 +42,20 @@ export const MARKER_OF_STATE: Readonly<Record<State, Marker>> = {
   'PS-3': 'PM-3',
 }
 
-function sectionWord(section: string, field: 'rowId' | 'part', key: string, language: Language): string {
+function sectionWord(section: string, field: 'specTableRowId' | 'part', key: string, language: Language): string {
   const found = (WORDS[section] as readonly Record<string, any>[]).find((one) => one[field] === key)
   const text = found?.['text']?.[language]
   if (typeof text !== 'string' || text === '') throw new Error(`the dictionary has no ${section}/${key} in ${language}`)
   return text
 }
 
-export const stateWord = (state: State, language: Language): string => sectionWord('planActualStates', 'rowId', state, language)
+export const stateWord = (state: State, language: Language): string => sectionWord('planActualStates', 'specTableRowId', state, language)
 export const statusWord = (row: Diagnosed | 'DG-4', language: Language): string =>
-  sectionWord('delayReportStatuses', 'rowId', row, language)
+  sectionWord('delayReportStatuses', 'specTableRowId', row, language)
 export const taskTypeWord = (part: 'task' | 'milestone', language: Language): string => sectionWord('taskTypes', 'part', part, language)
-export const searchHeading = (row: string, language: Language): string => sectionWord('searchColumns', 'rowId', row, language)
-export const reportHeading = (row: string, language: Language): string => sectionWord('delayReportColumns', 'rowId', row, language)
-export const fixHeading = (row: string, language: Language): string => sectionWord('delayFixColumns', 'rowId', row, language)
+export const searchHeading = (row: string, language: Language): string => sectionWord('searchColumns', 'specTableRowId', row, language)
+export const reportHeading = (row: string, language: Language): string => sectionWord('delayReportColumns', 'specTableRowId', row, language)
+export const fixHeading = (row: string, language: Language): string => sectionWord('delayFixColumns', 'specTableRowId', row, language)
 
 const span = (uid: number, name: string, from: string, to: string, extra: Partial<TaskSpec> = {}): TaskSpec => ({
   uid,

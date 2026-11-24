@@ -10,7 +10,7 @@ const SPEC = resolve('docs', 'spec')
 const REQUIREMENTS = readFileSync(resolve(SPEC, '01-04-requirements.md'), 'utf8').replace(/\r\n/g, '\n')
 const REASONS_TABLE = readFileSync(resolve(SPEC, '_assets', 'tbl-notice-reasons.md'), 'utf8').replace(/\r\n/g, '\n')
 const WORDS = JSON.parse(readFileSync(resolve(SPEC, '_source', 'display-words.json'), 'utf8')) as {
-  reasons: { rowId: string; text: { ja: string; en: string }; nextStep: { ja: string; en: string } }[]
+  reasons: { specTableRowId: string; text: { ja: string; en: string }; nextStep: { ja: string; en: string } }[]
 }
 
 const NT_1_SAYS_WHY_IN_WORDS = 'どの項目が、なぜ誤りかを文字で示すこと（MUST）'
@@ -18,8 +18,8 @@ const NT_1_ROW = '| NT-1 | 入力を受け付けないとき |'
 const FR_023_NO_PARTIAL_APPLY = '部分的に適用してはならない（MUST NOT）'
 const RS_25_IS_SHOWN_BY_NT_1 = /^\| RS-25 \|[^|]*\| `NT-1` \| 出す \|/m
 
-const RS_25 = WORDS.reasons.find((one) => one.rowId === 'RS-25')
-const RS_11 = WORDS.reasons.find((one) => one.rowId === 'RS-11')
+const RS_25 = WORDS.reasons.find((one) => one.specTableRowId === 'RS-25')
+const RS_11 = WORDS.reasons.find((one) => one.specTableRowId === 'RS-11')
 
 // Why: a conforming GRS JSON has a schema address, a version and a schedule; none of these has any of them.
 const BROKEN_JSON = '{"x":'

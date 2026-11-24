@@ -128,14 +128,14 @@ const TSV_PARTS = ['tsvTaskUid', 'tsvBeforeUid', 'tsvAfterUid']
 describe('T-374 FM-6 -- the heading word is Property / プロパティ', () => {
   it('FM-6 reads プロパティ in ja and Property in en, in the manuscript and in its generated copy', () => {
     for (const book of [MANUSCRIPT, GENERATED_COPY]) {
-      expect(wordIn(book, 'delayFixColumns', 'rowId', 'FM-6')).toEqual({ ja: 'プロパティ', en: 'Property' })
+      expect(wordIn(book, 'delayFixColumns', 'specTableRowId', 'FM-6')).toEqual({ ja: 'プロパティ', en: 'Property' })
     }
   })
 
   it('FM-6 is the heading of the Fix Log property column in the file (ja and en)', () => {
     for (const language of LANGUAGES) {
       const heading = linesOf(tsvIn(language))[0]!
-      expect(heading[4]).toBe(wordIn(MANUSCRIPT, 'delayFixColumns', 'rowId', 'FM-6')[language])
+      expect(heading[4]).toBe(wordIn(MANUSCRIPT, 'delayFixColumns', 'specTableRowId', 'FM-6')[language])
     }
   })
 
@@ -164,7 +164,7 @@ describe('PTL-15 (2) -- the derived parent label is 「（推定(自明)）」 /
 describe('IC-169 -- the word and the hint of the entrance', () => {
   it('the label is 「.tsv で保存」 / "Save As .tsv" in the manuscript and in the generated copy', () => {
     for (const book of [MANUSCRIPT, GENERATED_COPY]) {
-      expect(wordIn(book, 'icons', 'rowId', 'IC-169')).toEqual({ ja: '.tsv で保存', en: 'Save As .tsv' })
+      expect(wordIn(book, 'icons', 'specTableRowId', 'IC-169')).toEqual({ ja: '.tsv で保存', en: 'Save As .tsv' })
     }
   })
 
@@ -234,7 +234,7 @@ describe('RW-20 -- delayFixLogTsvOf writes the Fix Log table with the uid cells'
   it('the heading is built from the dictionary words, in ja and in en', () => {
     for (const language of LANGUAGES) {
       const expected = [
-        ...COLUMN_ROWS_OF_THE_LOG.map((row) => wordIn(MANUSCRIPT, 'delayFixColumns', 'rowId', row)[language]),
+        ...COLUMN_ROWS_OF_THE_LOG.map((row) => wordIn(MANUSCRIPT, 'delayFixColumns', 'specTableRowId', row)[language]),
         ...TSV_PARTS.map((part) => wordIn(MANUSCRIPT, 'delayFixes', 'part', part)[language]),
       ]
       expect(linesOf(tsvIn(language))[0], language).toEqual(expected)
@@ -274,10 +274,10 @@ describe('RW-20 -- delayFixLogTsvOf writes the Fix Log table with the uid cells'
     expect(first![0]).toBe('2027/05/03 10:30')
     expect(second![0]).toBe('2027/05/03 10:30')
     expect(third![0]).toBe('2027/05/02 09:00')
-    const finding = wordIn(MANUSCRIPT, 'delayReportAspects', 'rowId', 'VC-11').ja
+    const finding = wordIn(MANUSCRIPT, 'delayReportAspects', 'specTableRowId', 'VC-11').ja
     expect(third![1]).toContain(finding)
     expect(third![3]).toContain('Alpha')
-    expect(third![4]).toBe(wordIn(MANUSCRIPT, 'properties', 'rowId', 'PR-4').ja)
+    expect(third![4]).toBe(wordIn(MANUSCRIPT, 'properties', 'specTableRowId', 'PR-4').ja)
     expect(third![5]).toBe('2027/05/20')
     expect(third![6]).toBe('2027/05/22')
   })
@@ -293,7 +293,7 @@ describe('RW-20 -- delayFixLogTsvOf writes the Fix Log table with the uid cells'
     const lines = linesOf(tsvIn('en')).slice(1)
     expect(lines.map((line) => line[7])).toEqual(['2', '3', '1'])
     expect(lines[2]![0]).toBe('2027/05/02 09:00')
-    expect(lines[2]![4]).toBe(wordIn(MANUSCRIPT, 'properties', 'rowId', 'PR-4').en)
+    expect(lines[2]![4]).toBe(wordIn(MANUSCRIPT, 'properties', 'specTableRowId', 'PR-4').en)
   })
 
   it('a Fix Log with no row is the heading alone', () => {

@@ -231,9 +231,9 @@ describe('FR-073 (MUST) -- schedule data of the wrong shape refuses the whole do
 })
 
 describe('FR-073 -- the reason words name the place of the latest version by its seat', () => {
-  const reasons = (DISPLAY_WORDS as { reasons: { rowId: string; nextStep?: { ja: string; en: string } }[] }).reasons
+  const reasons = (DISPLAY_WORDS as { reasons: { specTableRowId: string; nextStep?: { ja: string; en: string } }[] }).reasons
   it.each(['RS-48', 'RS-63', 'RS-64'])('%s holds the {downloadUrl} seat in both languages, and never S-350 itself', (row) => {
-    const next = reasons.find((one) => one.rowId === row)?.nextStep
+    const next = reasons.find((one) => one.specTableRowId === row)?.nextStep
     expect(next, `${row} has no next step`).toBeDefined()
     for (const said of [next?.ja ?? '', next?.en ?? '']) {
       expect(said, FR_073_LEAD_TO_THE_LATEST).toContain(DOWNLOAD_URL_SEAT)
@@ -373,8 +373,8 @@ function bench(): Bench {
 }
 
 const wordsOf = (row: string): { text: string; next: string } => {
-  const entry = (DISPLAY_WORDS as { reasons: { rowId: string; text: { ja: string }; nextStep?: { ja: string } }[] }).reasons.find(
-    (one) => one.rowId === row,
+  const entry = (DISPLAY_WORDS as { reasons: { specTableRowId: string; text: { ja: string }; nextStep?: { ja: string } }[] }).reasons.find(
+    (one) => one.specTableRowId === row,
   )
   if (entry === undefined) throw new Error(`the dictionary holds no ${row}`)
   return { text: entry.text.ja, next: entry.nextStep?.ja ?? '' }

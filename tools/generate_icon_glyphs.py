@@ -689,7 +689,7 @@ def build():
         'viewBox': view_box,
         # In table T-109's own order, which is the order the roster beside this
         # artifact is written in.
-        'glyphs': [{'rowId': one, 'elements': glyphs[one]} for one in rows],
+        'glyphs': [{'specTableRowId': one, 'elements': glyphs[one]} for one in rows],
     }
 
 

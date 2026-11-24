@@ -23,7 +23,7 @@ import { NO_MODS, pointerOf, taskGroupDocument, taskOf, SCREEN } from './cr-541-
 const SPEC = join(process.cwd(), 'docs', 'spec')
 const REQUIREMENTS = unbroken(readFileSync(join(SPEC, '01-04-requirements.md'), 'utf8'))
 const WORDS = JSON.parse(readFileSync(join(SPEC, '_source', 'display-words.json'), 'utf8')) as {
-  questions: { rowId: string; text: { ja: string } }[]
+  questions: { specTableRowId: string; text: { ja: string } }[]
   confirmation: { answer: string; text: { ja: string } }[]
   colorNames: { spelling: string; text: { ja: string } }[]
   colorField: { part: string; text: { ja: string } }[]
@@ -197,7 +197,7 @@ const HF_20 = '`HF-10` の操作子の並びに、すべてのタスクグルー
 const CD_6_ONE_TASK_GROUP = 'タスクグループが 0 になるので、本表の後の段により、同じ操作の一部として深さ `L1` のタスクグループが 1 つ作られる（取り消し 1 回で戻る）'
 const E_36_HEAD = '頭が持つ入口が 5 つ、タスクグループが持つ入口が 7 つであることは、この 1 つの違いから出る（MUST）'
 
-const QN_10 = WORDS.questions.find((one) => one.rowId === 'QN-10')?.text.ja ?? ''
+const QN_10 = WORDS.questions.find((one) => one.specTableRowId === 'QN-10')?.text.ja ?? ''
 const YES = (WORDS.confirmation.find((one) => one.answer === 'proceed')?.text.ja ?? '').slice(0, 1).toUpperCase()
 
 const TASK_GROUPS: readonly TaskGroupSeed[] = [
