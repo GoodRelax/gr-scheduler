@@ -1,4 +1,4 @@
-excess-lines=5383 excess-branches=467
+excess-lines=5170 excess-branches=465
 # PRUNED armed-placement.ts::commandFromArmed (held 51/16, now below the band) on 2026-10-23 (CR-767 wave 2, FR-019): the highlight box placement moved to highlightBoxPlacement. Totals left for the coordinator to lower.
 # LOWERED totals 5744/509 -> 5383/467 and every HELD line to its measured value on 2026-10-23 (JDG-520): the wave 2 cleanup shrank the held functions; no HELD line rose, the key set is unchanged.
 # PRUNED document-change-plan.ts::planDocumentChange (held 62/9, now below the band) on 2026-10-19 (CR-807, FR-063): the two stamp returns folded into one. Totals left for the coordinator to lower.

@@ -324,6 +324,7 @@ function panelIndexOf(schedule: Schedule, readings: ScreenViewReadings, isLevelZ
   const orderedDeepestFirst: TaskGroup[] = []
   // TRAP: visited guards a parentId ring; without it the walk never returns.
   const visited = new Set<string>()
+  /** @purity pure */
   const walkDeepestFirst = (parentId: string | null): void => {
     for (const child of childrenByParentId.get(parentId) ?? []) {
       if (visited.has(child.id)) continue

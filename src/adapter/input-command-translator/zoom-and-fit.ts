@@ -276,6 +276,7 @@ function tallestBandAtZoomY(
 ): (zoomY: number) => boolean {
   const measuredWith = { ...context.document.documentSettings, zoomX: drawnZoomX }
   const asked = new Map<string, number>()
+  /** @purity non-pure */
   const tallestAt = (zoomY: number): number => {
     const key = bandZoomKeyOf(measuredWith, zoomY)
     const known = asked.get(key)
@@ -285,7 +286,7 @@ function tallestBandAtZoomY(
     return tallest
   }
   const deepestFloor = deepestFloorZoomYOf(context, measuredWith)
-  return (zoomY: number): boolean => {
+  return /** @purity non-pure */ (zoomY: number): boolean => {
     if (deepestFloor !== null && zoomY <= deepestFloor && tallestAt(deepestFloor) < height) {
       return false
     }

@@ -236,6 +236,7 @@ function dayReaderFor(within: WorkingCalendar, isTimeOfDayVisible: boolean, show
   const walks = new Map<string, CalendarDay>()
   const edges = [0, 1, 2, 3].map(() => new Map<string, number | null>())
   const onSide = instantOnSideReader(within)
+  /** @purity non-pure */
   const day = (text: string | null): CalendarDay | null => {
     const key = text ?? ''
     const held = days.get(key)
@@ -245,6 +246,7 @@ function dayReaderFor(within: WorkingCalendar, isTimeOfDayVisible: boolean, show
     return made
   }
   return {
+    /** @purity non-pure */
     edge(text: string | null, side: 'start' | 'finish', reading: DateTimeSide): number | null {
       const slot = edges[edgeSlotOf(side, reading)]!
       const key = text ?? ''
@@ -258,6 +260,7 @@ function dayReaderFor(within: WorkingCalendar, isTimeOfDayVisible: boolean, show
     shown,
     isTimeOfDayVisible,
     day,
+    /** @purity non-pure */
     walk(from: CalendarDay, workingDays: number): CalendarDay {
       const key = `${textOfDay(from)}/${String(workingDays)}`
       const held = walks.get(key)

@@ -689,6 +689,7 @@ async function saveResultOf(
   const problem = saveNameProblemOf(fileName, extension)
   if (problem !== null) return relayRefusalResult('badFileName', problem)
   const mayReplace = toolArguments[OVERWRITE_KEY] === true || state.options.confirmBeforeOverwrite === false
+  /** @purity non-pure */
   const judged = async (): Promise<SaveTarget | McpToolResult> => {
     const target = await saveTargetOf(state.options, fileName as string)
     return 'path' in target && target.exists && !mayReplace ? fileExistsResult(target) : target
@@ -708,6 +709,7 @@ async function saveResultOf(
 /** @purity non-pure */
 function noticeOrTimeout(state: RelayState, waitMs: number, canceled: Promise<null>): Promise<void> {
   return new Promise((resolve) => {
+    /** @purity non-pure */
     const done = (): void => {
       clearTimeout(timer)
       state.noticeWaiters.delete(done)
@@ -945,6 +947,7 @@ function handleMcpLine(state: RelayState, line: string): void {
 function readMcpInput(state: RelayState): () => void {
   const { input } = state.options
   let unread = ''
+  /** @purity non-pure */
   const onData = (chunk: string | Buffer): void => {
     unread += typeof chunk === 'string' ? chunk : chunk.toString('utf8')
     let newline = unread.indexOf('\n')

@@ -620,6 +620,7 @@ function boot(): void {
     },
   }
   let pointerShapeShown = ''
+  /** @purity non-pure */
   const showPointerShape = (shape: PointerShape | null): void => {
     const spelling = shape ?? ''
     if (spelling === pointerShapeShown) return

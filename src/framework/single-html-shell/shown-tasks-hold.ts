@@ -367,10 +367,12 @@ type CreatedTasks = ReturnType<typeof createdTasksKeeper>
 // see CM-92, UN-20, TV-6, TV-8, SJ-0
 /** @purity non-pure */
 function tableViewWriterOf(hands: FrameLoopHands, windows: HeldTableWindows, views: () => TableViewsHeld, judged: { readonly diagnosis: Diagnosis; readonly created: CreatedTasks }) {
+  /** @purity non-pure */
   const writeViews = (changes: TableViewChanges, frame: FrameValues | null = hands.readValues()): void => {
     const writes = tableViewWrites(hands.readHeld().document, views(), changes)
     if (writes.length > 0 && frame !== null) hands.writeDocument(writes, frame)
   }
+  /** @purity non-pure */
   const jumpViewWrites = (taskUid: number): readonly DocumentCommand[] => {
     const document = hands.readHeld().document
     const of = { reportTaskUids: judged.diagnosis.readReportTaskUids(), created: judged.created.read() }
@@ -428,6 +430,7 @@ export function shownTasksHoldOf(hands: FrameLoopHands, windows: HeldTableWindow
   const views = (): TableViewsHeld => viewsOf(hands.readHeld().document.documentSettings, created.read())
   const visibilities = (): TableVisibilities => visibilitiesOf(views())
   const isFiltered = (): boolean => appliedTablesOf(visibilities()).length > 0
+  /** @purity non-pure */
   const drawnSet = (drawn?: Schedule): ReadonlySet<number> | null => {
     const held = hands.readHeld().document.schedule
     const schedule = drawn ?? held
@@ -457,6 +460,7 @@ function agentShownTasksHolderOf(
   hold: { readonly drawnSet: () => ReadonlySet<number> | null; readonly jumpViewWrites: (taskUid: number) => readonly DocumentCommand[] },
 ): NonNullable<AgentApiSeams['shownTasks']> {
   return {
+    /** @purity non-pure */
     readShownTasks: () => {
       const drawn = hold.drawnSet()
       return { drawnTaskUids: drawn === null ? null : [...drawn], filteringTables: appliedTablesOf(visibilities()) }

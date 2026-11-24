@@ -276,6 +276,7 @@ export function workingDayShiftOf(within: WorkingCalendar, currentStart: Calenda
   const toZero = rankZeroSerial(index, newStart, uid)
   const rankOf = rankCounter(index, fromZero)
   const serialOfRank = rankWalker(index, toZero, uid)
+  /** @purity pure */
   const moveDay = (day: CalendarDay): MovedDay => {
     const at = serial(day)
     const isPulled = !isWorkingDayAt(index, at)
@@ -690,6 +691,7 @@ export function workingTimeCounterOf(within: WorkingCalendar): WorkingTimeCounte
   const lengthOf = (ends: readonly [number, number] | null): number | null =>
     ends === null ? null : ends[1] === ends[0] ? 0 : actualMinutesAt(indexOnce(), ends[0], ends[1])
   return {
+    /** @purity non-pure */
     plannedLengthMinutes: (task) => {
       const plan = plannedInstantsBy(onSide, task)
       return plan !== null && task.milestone === true ? 0 : lengthOf(plan)

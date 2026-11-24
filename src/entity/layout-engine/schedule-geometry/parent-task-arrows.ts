@@ -185,6 +185,7 @@ export function parentTaskGeometryOf(inputs: GeometryInputs, families: ParentTas
   const shown = inputs.layout.shownTaskUids ?? null
   // see TV-3
   const isFiltered = (uid: number): boolean => shown !== null && !shown.has(uid)
+  /** @purity pure */
   const pairOf = (childUid: number): void => {
     if (drawn.has(childUid)) return
     const resolution = families.resolutions.get(childUid)

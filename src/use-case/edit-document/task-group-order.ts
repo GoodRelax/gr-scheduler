@@ -27,6 +27,7 @@ function taskGroupTreeRankById(groups: readonly TaskGroup[]): ReadonlyMap<string
   for (const kin of childrenOf.values()) kin.sort((a, b) => a.order - b.order)
 
   const rankById = new Map<string, number>()
+  /** @purity pure */
   const walk = (parent: string | null): void => {
     for (const one of childrenOf.get(parent) ?? []) {
       if (rankById.has(one.id)) continue
@@ -57,6 +58,7 @@ export function tasksRankedByTheTaskGroupTree(schedule: Schedule): readonly Task
   if (schedule.tasks.length === 0) return schedule.tasks
   const rankById = taskGroupTreeRankById(schedule.taskGroups)
   const taskGroupOfTask = new Map(schedule.taskGroupMembers.map((one) => [one.taskUid, one.taskGroupId]))
+  /** @purity pure */
   const rankOf = (task: Task): number => {
     const row = taskGroupOfTask.get(task.uid)
     const rank = row === undefined ? undefined : rankById.get(row)

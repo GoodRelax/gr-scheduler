@@ -410,8 +410,7 @@ TASK_GROUP_KIND = {
 }
 ROOT_KIND = 'program'
 
-# @provisional PND-611 -- the shipped size is on hold until the user
-# simplifies the sample (JDG-970); CR-612's MC-10 keeps this size for measuring.
+# Provisional: OPQ-11
 WANTED_TASK_GROUPS = 100    # TP-5
 WANTED_TASKS = 1000  # TP-6
 

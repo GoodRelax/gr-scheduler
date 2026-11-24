@@ -867,6 +867,7 @@ function writeMomentOf(snapshot: AgentSnapshot): WriteMoment {
 
 /** @purity non-pure */
 function historyStepsOnHolder(wiring: AgentApiWiring): HistoryStepper {
+  /** @purity non-pure */
   const replaceAt = (call: ReplacementCall, expectedStamp: DocumentStamp): ReplaceOutcome => {
     const snapshot = wiring.source.readSnapshot()
     const input = { expectedStamp, moment: writeMomentOf(snapshot), call, defaultTaskGroupName: snapshot.defaultTaskGroupName }

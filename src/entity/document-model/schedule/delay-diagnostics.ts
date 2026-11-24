@@ -349,6 +349,7 @@ function findingOf(row: string, task: Task, values: Record<string, FindingValue>
 /** @purity pure */
 function taskGroupDepthByTask(schedule: Schedule): ReadonlyMap<number, number> {
   const parentOf = new Map(schedule.taskGroups.map((group) => [group.id, group.parentId]))
+  /** @purity pure */
   const depthOf = (taskGroupId: string): number => {
     let depth = 0
     for (let at = parentOf.get(taskGroupId) ?? null; at !== null && depth < parentOf.size; depth += 1) {
@@ -439,6 +440,7 @@ function milestoneLinksOf(milestone: Task, taskGroupDepthOf: ReadonlyMap<number,
   const previous = latestMilestones(peers)
   const bound = previous[0] === undefined ? null : plannedEnds(previous[0]).finish
   const afterPrevious = (task: Task): boolean => bound === null || isBefore(bound, plannedEnds(task).finish)
+  /** @purity pure */
   const unowned = (task: Task): boolean => {
     const parent = parentOf.get(task.uid)
     return parent === undefined || taskGroupDepthOf.get(parent) !== depth
@@ -639,15 +641,18 @@ function ringMembersOf(tasks: readonly Task[], successorsOf: ReadonlyMap<number,
   const stack: number[] = []
   const onStack = new Set<number>()
   const members = new Set<number>()
+  /** @purity pure */
   const enter = (uid: number): void => {
     indexOf.set(uid, indexOf.size)
     lowOf.set(uid, indexOf.size - 1)
     stack.push(uid)
     onStack.add(uid)
   }
+  /** @purity pure */
   const lower = (uid: number, to: number): void => {
     lowOf.set(uid, Math.min(lowOf.get(uid) ?? 0, to))
   }
+  /** @purity pure */
   const close = (uid: number): void => {
     if (lowOf.get(uid) !== indexOf.get(uid)) return
     const component: number[] = []
@@ -846,6 +851,7 @@ function leafDescendantsOf(facts: Facts, parentUid: number): readonly Task[] {
   const leaves: Task[] = []
   const queued = new Set([parentUid])
   const pending: Task[] = []
+  /** @purity pure */
   const enqueueChildrenOf = (uid: number): readonly Task[] => {
     const children = facts.explicitChildrenOf.get(uid) ?? []
     pending.push(...children.filter((child) => !queued.has(child.uid)))
@@ -978,6 +984,7 @@ function omissionsOf(facts: Facts): readonly DelayFinding[] {
 function downstreamOf(uid: number, successorsOf: ReadonlyMap<number, readonly number[]>): readonly number[] {
   const seen = new Set([uid])
   const reached: number[] = []
+  /** @purity pure */
   const reach = (from: number): void => {
     for (const next of successorsOf.get(from) ?? []) {
       if (seen.has(next)) continue
@@ -997,6 +1004,7 @@ function wallsOf(facts: Facts, contradictions: readonly DelayFinding[]): Walls {
   const unreliable = new Set<number>()
   const cut = new Set<number>()
   const undiagnosable = new Set<number>()
+  /** @purity pure */
   const mark = (row: AnalysisWall['row'], causeUid: number, reach: readonly number[]): void => {
     const range = [causeUid, ...reach]
     for (const uid of range) unreliable.add(uid)
@@ -1022,6 +1030,7 @@ function wallsOf(facts: Facts, contradictions: readonly DelayFinding[]): Walls {
 function flowOrder(facts: Facts, nodes: ReadonlySet<number>): readonly number[] {
   const into = new Map<number, number>()
   const out = new Map<number, number[]>()
+  /** @purity pure */
   const edge = (from: number, to: number): void => {
     if (from === to || !nodes.has(from) || !nodes.has(to)) return
     into.set(to, (into.get(to) ?? 0) + 1)
@@ -1303,6 +1312,7 @@ export function diagnoseDelay(document: DiagnosedDocument, calendar: WorkingCale
   const flows = flowsOf(facts, cut)
   const { terminals, quantities } = pushOutsOf(facts, flows, undiagnosable)
   const pushing = quantities.filter((one) => pushOutWorkingDaysOf(one, facts.minutesPerDay) >= bottleneckMinPushOutDays)
+  /** @purity pure */
   const isOpen = (uid: number): boolean => {
     const task = facts.byUid.get(uid)
     return task !== undefined && !isFinished(task)
@@ -1353,6 +1363,7 @@ export function parentCandidatesOf(document: DiagnosedDocument, taskUid: number)
   const bars = (tasksAtDepth.get(depth - 1) ?? []).filter((bar) => bar.milestone !== true
     && plannedEnds(bar).start !== null && plannedEnds(bar).finish !== null
     && !ancestorsOf(bar.uid, parentOf).includes(taskUid))
+  /** @purity pure */
   const overlaps = (bar: Task): boolean => {
     const outer = plannedEnds(bar)
     const inner = plannedEnds(child)

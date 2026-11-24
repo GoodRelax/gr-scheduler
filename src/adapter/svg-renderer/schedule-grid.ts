@@ -537,6 +537,7 @@ function dayCalendarsOf(shaded: WorkingCalendar, first: number, last: number): (
 function offHourRunsOf(shaded: WorkingCalendar, firstSerial: number, lastSerial: number): readonly (readonly [number, number])[] {
   const spansOn = workingSpansReader(shaded)
   const runs: [number, number][] = []
+  /** @purity pure */
   const add = (from: number, to: number): void => {
     if (to <= from) return
     const last = runs[runs.length - 1]
@@ -579,6 +580,7 @@ function shadeBoxOf(input: GridInput, from: CalendarDay): ShadeBox {
     firstSerial,
     lastSerial: firstSerial + Math.ceil((right - left) / layout.pxPerDay) + 1,
     // TRAP: compare the numbers, never rounded()'s strings: '1147.5' > '697.5' is false (DFC-2467, DFC-2468).
+    /** @purity pure */
     run(x0, x1) {
       const [from0, to1] = [rounded(Math.max(left, x0)), rounded(Math.min(right, x1))]
       return Number(to1) > Number(from0) ? `M${from0} ${top} H${to1} V${bottom} H${from0} Z` : null
@@ -616,6 +618,7 @@ function nonWorkingDaysSvg(input: GridInput): string | null {
   if (layout.tier === 'dayHour') return offHoursSvg(input, shaded, box)
   const runs: string[] = []
   let runFrom: number | null = null
+  /** @purity pure */
   const closeRun = (endX: number): void => {
     if (runFrom === null) return
     const piece = box.run(runFrom, endX)

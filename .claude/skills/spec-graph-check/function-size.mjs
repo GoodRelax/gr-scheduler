@@ -27,7 +27,8 @@
 // them -- from the `function` keyword or the arrow's parameter list, to the
 // closing brace or, for a concise arrow body, the end of the expression),
 // mapped to 1-based source lines and counted inclusive. Blank lines and
-// comment lines inside the span are counted; nothing is stripped.
+// comment lines inside the span are counted, except a line that holds only a
+// `@purity` tag (R7 tags nested functions too; 2026-11-24).
 //
 // BRANCHES, one point each, counted for the innermost enclosing function
 // only (a branch inside a nested function is never charged to the outer
@@ -293,6 +294,8 @@ function resolveNameCollisions(entries) {
   }
 }
 
+const PURITY_TAG_ONLY = /^\s*(?:\/\*\*\s*@purity\s+[a-z-]+\s*\*\/|\/\/\s*@purity\s+[a-z-]+)\s*\r?$/;
+
 function measureFile(file, text) {
   const program = parseAst(text, { lang: 'ts', sourceType: 'module' }, file);
   const lineOf = makeLineOf(text);
@@ -300,10 +303,22 @@ function measureFile(file, text) {
   walk(program, null, null, [], { anonSeq: 0 }, lineOf, collected);
   collected.sort((a, b) => a.start - b.start);
   resolveNameCollisions(collected);
+  // Why: R7 asks for a @purity tag on every function, nested ones included,
+  // so a tag line inside a function body is not size; check 55 leaves the same
+  // lines out of its density (study 82, B2, 2026-11-24).
+  const tagOnly = new Set();
+  text.split('\n').forEach((line, index) => {
+    if (PURITY_TAG_ONLY.test(line)) tagOnly.add(index + 1);
+  });
+  const tagLinesWithin = (from, to) => {
+    let count = 0;
+    for (let line = from; line <= to; line += 1) if (tagOnly.has(line)) count += 1;
+    return count;
+  };
   return collected.map((entry) => ({
     file,
     name: entry.record.name,
-    lines: entry.endLine - entry.startLine + 1,
+    lines: entry.endLine - entry.startLine + 1 - tagLinesWithin(entry.startLine, entry.endLine),
     branches: entry.record.branches,
     startLine: entry.startLine,
     endLine: entry.endLine,

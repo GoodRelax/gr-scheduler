@@ -204,6 +204,7 @@ function workingTimeLinesOf(
   const hint = iconHint(TIME_FIELD_ENTRY, language)
   const canDelete = canDeleteRange(draft)
   return draft.ranges.map((range, index) => {
+    /** @purity pure */
     const side = (column: 'fromTime' | 'toTime'): HolidaySettingsCell => {
       const held = column === 'fromTime' ? 'start' : 'end'
       return cellOf(WORKING_HOURS_ROW, { holder: 'calendarDraft', column, index }, 'text', range[held], { isRefused: refused.has(`${index}.${held}`), hint })

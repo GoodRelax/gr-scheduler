@@ -41,8 +41,7 @@ function taskGroupKeptOf(context: InputContext): TaskGroupAnchor {
 
 // see FR-016, MK-1, S-176
 // TRAP: the device distance itself, never whole task groups: a band taller than a notch never moved.
-// STOP: spec does not decide where a turn past an end lands. Looked in MK-1, S-78, S-176, OP-10.
-// @provisional PND-177
+// Provisional: OPQ-1
 /** @purity pure */
 export function taskGroupTurnedTo(context: InputContext, dy: number): TaskGroupAnchor {
   const held = taskGroupHeldOf(context)
