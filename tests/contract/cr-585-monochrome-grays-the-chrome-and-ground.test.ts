@@ -24,7 +24,7 @@ const CLAUSE_MONOCHROME =
 const CLAUSE_SAME_VALUE = '⭐ 画面と書き出した絵とで、同じ行を同じ値で塗ること（MUST）'
 const CLAUSE_ANY_HUE_COLUMN =
   '⚠️ 本段落は、色相の欄を問わず 表 T-236 のすべての行を灰にする —— 色相の欄が決めるのはテーマ色に追随するかだけである。'
-// WHY: no MUST states how the gray is chosen; table T-294's preamble is the one sentence that
+// Why: no MUST states how the gray is chosen; table T-294's preamble is the one sentence that
 // names the method the specification measures monochrome by, so case (7) rests on it.
 const CLAUSE_KEEP_LIGHTNESS = 'モノクロは、その値を HSL の明度を保ったまま彩度 0 にして測った'
 
@@ -47,13 +47,13 @@ const WHEEL = 12
 const HUE_FOLLOWS = '○'
 const S_146 = 'S-146'
 
-// see T-216
+// Spec: T-216
 const S_73_DEFAULT = Number(bare(specTable('T-216').rows.find((one) => one.id === 'S-73')?.by['既定'] ?? ''))
 
-// WHY: several hues, so a graying that only works at the default hue (or only strips one H) is caught.
+// Why: several hues, so a graying that only works at the default hue (or only strips one H) is caught.
 const HUES = [S_73_DEFAULT, 0, 60, 140, 285]
 
-// WHY: the DOM surface keeps its name->row pairing (PAINT_ROW) private; only the pairing is
+// Why: the DOM surface keeps its name->row pairing (PAINT_ROW) private; only the pairing is
 // copied to tie a --gr-<name> custom property to its T-236 row, never a color.
 const NAME_TO_TASK_GROUP: Readonly<Record<string, string>> = {
   ground: 'S-146',
@@ -74,7 +74,7 @@ const NAME_TO_TASK_GROUP: Readonly<Record<string, string>> = {
   caution: 'S-153',
 }
 
-// see T-236
+// Spec: T-236
 
 interface T236Row {
   readonly id: string
@@ -101,7 +101,7 @@ function t236(id: string): T236Row {
   }
 }
 
-// WHY: a row whose two cells both name another row (S-162, S-169, S-311) carries that row's value, gray or not.
+// Why: a row whose two cells both name another row (S-162, S-169, S-311) carries that row's value, gray or not.
 function inheritedRowOf(id: string): string | null {
   const row = T236.rows.find((one) => one.id === id)
   const light = bare(row?.by['明るいテーマ'] ?? '')
@@ -114,7 +114,7 @@ const HUE_ROWS = T236.rows.filter((row) => (row.by['色相追随'] ?? '').trim()
 const writtenOf = (row: T236Row, preference: Preference, hue: number): string =>
   (preference === 'dark' ? row.dark : row.light).replace(/\bH\b/g, String(hue))
 
-// WHY: T-236 spells colors as #rrggbb, hsl(), rgb() and rgba(), so all four are read.
+// Why: T-236 spells colors as #rrggbb, hsl(), rgb() and rgba(), so all four are read.
 
 type Rgb = readonly [number, number, number]
 
@@ -168,8 +168,8 @@ const samePaint = (left: Paint, right: Paint): boolean =>
   left.rgb.every((value, index) => Math.abs(value - (right.rgb[index] ?? Number.NaN)) <= CHANNEL_TOLERANCE) &&
   Math.abs(left.alpha - right.alpha) < 1e-6
 
-// see CF-2
-// WHY: since CR-683 table T-366 moves these rows' lightness per hue, toward the theme's side, and nothing else.
+// Spec: CF-2
+// Why: since CR-683 table T-366 moves these rows' lightness per hue, toward the theme's side, and nothing else.
 const T366_SHIFTED_ROWS: readonly string[] = ['S-151', 'S-155', 'S-156', 'S-157']
 const HSL_TEXT = /^hsl\((\S+) ([\d.]+)% ([\d.]+)%\)$/
 
@@ -188,12 +188,12 @@ const isGray = (paint: Paint): boolean =>
 const lightnessOf = (paint: Paint): number =>
   ((Math.max(...paint.rgb) + Math.min(...paint.rgb)) / 2 / CHANNEL_MAX) * PERCENT
 
-// see T-294
+// Spec: T-294
 function grayOf(colored: Paint): Paint {
   return { rgb: rgbOfHsl(0, 0, lightnessOf(colored)), alpha: colored.alpha }
 }
 
-// see FR-041
+// Spec: FR-041
 
 const squash = (name: string): string => name.replace(/-/g, '').toLowerCase()
 
@@ -217,7 +217,7 @@ function groundOf(theme: ScreenTheme): string {
   return (found[1] ?? '').trim()
 }
 
-// WHY: a row the export does not draw (the grab strip S-231 is chrome only) has no export color.
+// Why: a row the export does not draw (the grab strip S-231 is chrome only) has no export color.
 function exportColorOf(rowId: string, hue: number, preference: Preference, monochrome: boolean): string | null {
   try {
     return colorOf(rowId, hue, preference === 'dark', monochrome)
@@ -303,7 +303,7 @@ describe(`CR-585 (3) FR-041 "${CLAUSE_FOLLOW_T236}" -- monochrome off`, () => {
           const rowId = NAME_TO_TASK_GROUP[name] ?? ''
           const written = propertyOf(theme(preference, hue, false), name)
           const wanted = writtenOf(t236(rowId), preference, hue)
-          // WHY: since CR-693 the frame reads the picture's T-366 value (CF-1), so a shifted row moves like the export's.
+          // Why: since CR-693 the frame reads the picture's T-366 value (CF-1), so a shifted row moves like the export's.
           const keeps = T366_SHIFTED_ROWS.includes(rowId)
             ? isShiftOf(written, wanted, preference)
             : samePaint(mustPaint(written, name), mustPaint(wanted, rowId))

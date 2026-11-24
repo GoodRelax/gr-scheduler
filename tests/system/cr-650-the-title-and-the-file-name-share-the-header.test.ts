@@ -1,7 +1,7 @@
 // CR-650 system case: T-341 HS-8 / HS-9 / HS-10 and T-349 BR-7 measured on the running application.
 
-// WHY: overlap, clipping and the header height are decided by layout in a real browser; the fake DOM cannot see them.
-// WHY: every number asserted is read out of docs/spec at read time, never measured locally.
+// Why: overlap, clipping and the header height are decided by layout in a real browser; the fake DOM cannot see them.
+// Why: every number asserted is read out of docs/spec at read time, never measured locally.
 
 import { expect, test, type Browser, type Page } from '@playwright/test'
 import { readFileSync } from 'node:fs'
@@ -32,16 +32,16 @@ const S_235 = settingOf('S-235')
 const S_491 = settingOf('S-491')
 const S_492 = settingOf('S-492')
 
-// see HS-9, HS-10
+// Spec: HS-9, HS-10
 const GAP_PX = S_491 * S_235
 
-// see BR-7
+// Spec: BR-7
 const DIVIDER_GAP_PX = S_226 * S_235
 
-// WHY: half a pixel either way is subpixel layout, not a different gap.
+// Why: half a pixel either way is subpixel layout, not a different gap.
 const SUBPIXEL = 0.75
 
-// see IC-1, IC-71, U-55
+// Spec: IC-1, IC-71, U-55
 const OPEN_ENTRANCE = rowOf(specTable('T-109'), 'IC-1').id
 const REPLACE_ENTRANCE = rowOf(specTable('T-109'), 'IC-71').id
 const CONFIRMATION = `[data-role="${bare(rowOf(specTable('T-103'), 'U-55').cells[0] ?? '')}"]`
@@ -109,7 +109,7 @@ async function openStubbed(baseURL: string | undefined): Promise<{ page: Page; c
   if (baseURL === undefined) throw new Error('playwright.config.ts declares no baseURL for the running application')
   if (browser === null) throw new Error('the reference browser was not opened')
   const context = await browser.newContext({ baseURL, viewport: BASE_SCREEN })
-  // WHY: a real file chooser cannot be answered from a test; it is handed one that answers with a long-named file.
+  // Why: a real file chooser cannot be answered from a test; it is handed one that answers with a long-named file.
   await context.addInitScript((given: { name: string; text: string }) => {
     const file = new File([given.text], given.name, { type: 'application/json' })
     const handle = {
@@ -224,7 +224,7 @@ test('CR-650 HS-8 HS-9 HS-10 BR-7: a long title and a long file name share the h
       'HS-8: the App Header height equals its height with the two-line box not drawn',
     ).toBeCloseTo(seen.header.bottom - seen.header.top, 1)
 
-    // WHY: the band's own frame line is not the band; the divider runs between its inner edges.
+    // Why: the band's own frame line is not the band; the divider runs between its inner edges.
     expect(seen.divider.right - seen.divider.left, 'BR-7: the divider is S-492 px wide').toBeCloseTo(S_492, 1)
     expect(seen.divider.top, 'BR-7: the divider reaches the top of the band').toBeLessThanOrEqual(
       seen.header.top + seen.headerBorderTop + SUBPIXEL,

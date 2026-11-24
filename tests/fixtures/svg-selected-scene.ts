@@ -7,7 +7,7 @@ import { layoutFromSchedule } from '../../src/entity/layout-engine/schedule-layo
 import { regionsFromScreen } from '../../src/entity/layout-engine/screen-regions/screen-regions'
 import { SCREEN, sceneOf, scheduleOf, type SceneWish } from '../unit/cr-430-cross-section-scene'
 
-// WHY: the scene's own selection is ignored, so a test can choose a statusLine or a box, which SceneWish cannot.
+// Why: the scene's own selection is ignored, so a test can choose a statusLine or a box, which SceneWish cannot.
 export const svgSelecting = (wish: SceneWish, selection: Selection): string => {
   const scene = sceneOf(wish)
   const schedule = scheduleOf(wish)
@@ -32,7 +32,7 @@ export const svgSelecting = (wish: SceneWish, selection: Selection): string => {
   )
 }
 
-// WHY: the picture names a figure by data-figure; this reads the attributes of every element carrying one key.
+// Why: the picture names a figure by data-figure; this reads the attributes of every element carrying one key.
 export const figuresKeyed = (svg: string, key: string): readonly Readonly<Record<string, string>>[] => {
   const out: Record<string, string>[] = []
   for (const tag of svg.matchAll(/<[a-z]+\b[^>]*\/?>/g)) {

@@ -27,26 +27,26 @@ const REQUIREMENTS = unbroken(readFileSync(join(SPEC, '01-04-requirements.md'), 
 const DESIGN = unbroken(readFileSync(join(SPEC, '05-07-design.md'), 'utf8'))
 const STATE_MACHINES = unbroken(readFileSync(join(SPEC, '_assets', 'tbl-state-machines.md'), 'utf8'))
 
-// see FR-019, CM-46, S-600
+// Spec: FR-019, CM-46, S-600
 const FR_019_PLACED_OFFSET =
   '置くとき（`_assets/tbl-document-commands.md` の 表 T-108 の `CM-46`）は、本文のずれを `{ dx: S-600, dy: −S-600 }` とすること（MUST） —— 本文の箱を線先から右上へずらし、線先と引出し線を箱の左下から外へ出す'
-// see FR-019, LF-17
+// Spec: FR-019, LF-17
 const FR_019_ZERO_HAS_NO_LEADER = 'ずれ 0 の箱は線先が本文の箱の左下隅に重なり、引出し線が描かれない'
-// see FR-019, AR-5, PR-21
+// Spec: FR-019, AR-5, PR-21
 const FR_019_SELECT_AND_FOCUS =
   '構えて置いたとき（表 T-023b の `AR-5`）は、置いたコメントボックスを選び、プロパティパネルを出して本文の欄（`_assets/tbl-property-items.md` の 表 T-016 の `PR-21`）に焦点を置くこと（MUST）'
-// see LF-17
+// Spec: LF-17
 const LF_17_INSIDE_NO_LEADER = '留めた点が本文の箱の中（縁を含む）に在るときは、引出し線を描かない'
-// see FR-019, AR-5
+// Spec: FR-019, AR-5
 const SM_CREATED_FROM_NOTHING = '→ `objectsSelected`（`selectedObjects` は置いたコメントボックス 1 つ）'
 const SM_CREATED_REPLACES = '→ 自己（`selectedObjects` を置いたコメントボックス 1 つに置き換える）'
-// see FR-106, PK-8
+// Spec: FR-106, PK-8
 const FR_106_PALM =
   'コメントボックスの本体と引出し線の掴み代（表 T-023d の `GR-14`、`_assets/tbl-settings.md` の 表 T-206 の `S-291`）では、表 T-269 の `PK-8` とすること（MUST）'
 const FR_106_MOVE =
   'コメントボックスの線先の掴み代（表 T-023d の `GR-14`、`_assets/tbl-settings.md` の 表 T-206 の `S-292`）では、表 T-269 の `PK-11` とすること（MUST）'
 
-// see T-217, S-600
+// Spec: T-217, S-600
 const S_600 = ((): number => {
   const row = specTable('T-217').rows.find((one) => one.id === 'S-600')
   const found = /[0-9]+/.exec((row?.by['既定'] ?? '').replace(/`/g, ''))
@@ -54,7 +54,7 @@ const S_600 = ((): number => {
   return Number(found[0])
 })()
 
-// see T-269, PK-8, PK-11
+// Spec: T-269, PK-8, PK-11
 const PALM = 'grab'
 const MOVE = ((): string => {
   const cell = specTable('T-269').rows.find((one) => one.id === 'PK-11')?.by['形'] ?? ''
@@ -64,11 +64,11 @@ const MOVE = ((): string => {
 })()
 
 const BODY_FIELD = 'PR-21'
-// WHY: task group of Task 3 in the cr-777 document; 27 April is right of every task, so the press snaps to nothing (AR-5).
+// Why: task group of Task 3 in the cr-777 document; 27 April is right of every task, so the press snaps to nothing (AR-5).
 const FREE_GROUP = groupOf(3)
 const FREE_DAY = april(27)
 const PIXEL = 0.5
-// WHY: a stored box on the band of Task 4, right of every task, so its body lies inside the Task Group Area and over no figure.
+// Why: a stored box on the band of Task 4, right of every task, so its body lies inside the Task Group Area and over no figure.
 const OLD_TEXT = 'Note of the box pressed before'
 const lowBox = (): Record<string, unknown> =>
   commentRow({ anchorTaskGroupId: groupOf(4), anchorDate: april(24, '00:00:00'), text: OLD_TEXT })
@@ -83,7 +83,7 @@ const insideArea = (loop: Parameters<typeof frameOf>[0], rect: { x: number; y: n
   return rect.x >= area.x && rect.y >= area.y && rect.x + rect.width <= area.x + area.width && rect.y + rect.height <= area.y + area.height
 }
 
-// WHY: the stage's key() hands any input to the frame loop and turns the frames; a pointer goes the same road.
+// Why: the stage's key() hands any input to the frame loop and turns the frames; a pointer goes the same road.
 const pointAt = (built: WindowStage, phase: 'down' | 'up', x: number, y: number): Promise<void> =>
   built.key(pointerOf(phase, x, y) as unknown as KeyInput)
 
@@ -206,7 +206,7 @@ describe(`FR-019 / AR-5: ${FR_019_SELECT_AND_FOCUS}`, () => {
   })
 })
 
-// WHY: the selection region of the session, read as the table of selectionStateMachine prints it.
+// Why: the selection region of the session, read as the table of selectionStateMachine prints it.
 type Loose = Record<string, unknown>
 const CREATED = { type: 'createdCommentBoxSelected', createdCommentBoxId: 'box-new' } as unknown as SessionEvent
 const withSelection = (selectionState: Loose): ScreenSession => {
@@ -235,7 +235,7 @@ describe('selectionStateMachine: createdCommentBoxSelected', () => {
   })
 })
 
-// see FR-106, T-269
+// Spec: FR-106, T-269
 const lastShape = (built: HoverStage, at: Point): string | null => {
   built.send(pointer('move', at.x, at.y))
   const all = built.shown()

@@ -38,7 +38,7 @@ import {
 const ERD = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '_assets', 'fig-erd-detail.md'), 'utf8'))
 const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
-// see DV-8, DV-11, AT-158, AT-159
+// Spec: DV-8, DV-11, AT-158, AT-159
 const CLAUSES = [
   '`start` から `finish` までの、文書の暦の稼働時間の合計（分、`01-04-requirements.md` の `FR-054`）を `PTnHnMnS` で書く。マイルストーン（`Task.milestone` が真）は `PT0H0M0S`。',
   '公式の例は、水曜の `08:00:00` に始まり木曜の `17:00:00` に終わるタスクを `PT16H0M0S` と書く',
@@ -62,7 +62,7 @@ describe('the clauses these cases are built from still read as quoted', () => {
 const SAVED_AT = '2026-10-11T09:00:00'
 const NAMESPACE = 'http://schemas.microsoft.com/project/2007'
 
-// WHY: April 2026 starts on a Wednesday, so the 6th is a Monday, the 8th a Wednesday, the 11th a Saturday.
+// Why: April 2026 starts on a Wednesday, so the 6th is a Monday, the 8th a Wednesday, the 11th a Saturday.
 const april = (dayOfMonth: number, hhmm: string): string => `2026-04-${String(dayOfMonth).padStart(2, '0')}T${hhmm}:00`
 
 type Pairs = readonly (readonly [string, string])[]
@@ -216,7 +216,7 @@ function documentWith(
 const durationOf = (document: Document, uid = 1): string[] =>
   elementTexts(taskElementOf(mspdiFromDocument(document, SAVED_AT).text, uid), 'Duration')
 
-// see DV-8, EX-12
+// Spec: DV-8, EX-12
 describe('DV-8: a task a person made writes Duration as the working time between its start and its finish', () => {
   const standard = { working: MONDAY_TO_FRIDAY_WITH_SPANS }
 
@@ -246,7 +246,7 @@ describe('DV-8: a task a person made writes Duration as the working time between
   })
 })
 
-// see DV-11, FR-011
+// Spec: DV-11, FR-011
 describe('DV-11: a task a person made writes ActualDuration as the actual length FR-011 counts', () => {
   const standard = { working: MONDAY_TO_FRIDAY_WITH_SPANS }
   const actualOf = (part: Record<string, unknown>): string[] => {
@@ -263,7 +263,7 @@ describe('DV-11: a task a person made writes ActualDuration as the actual length
   })
 })
 
-// see FR-011, EX-2
+// Spec: FR-011, EX-2
 describe('FR-011: a file with an ActualStart and an ActualDuration but no Stop gets its stop that many working minutes on', () => {
   const stopOf = (duration: string): string | null | undefined => {
     const extra = `<ActualStart>${april(8, '08:00')}</ActualStart><ActualDuration>${duration}</ActualDuration>`
@@ -288,7 +288,7 @@ describe('FR-011: a file with an ActualStart and an ActualDuration but no Stop g
   })
 })
 
-// see FR-054, EX-2
+// Spec: FR-054, EX-2
 describe('FR-054: a length is read in minutes and is not rounded to a day on the way in or out', () => {
   const half = taskXml(1, april(8, '09:00'), april(8, '11:30'))
   const text = mspdiOf(half.replace('<Duration>PT16H0M0S</Duration>', '<Duration>PT2H30M0S</Duration>'), '', STANDARD_WEEK)
@@ -311,7 +311,7 @@ describe('FR-054: a length is read in minutes and is not rounded to a day on the
   })
 })
 
-// see AT-158, FR-024
+// Spec: AT-158, FR-024
 describe('AT-158 / AT-159 in GRS JSON: the spans are saved with the calendar and read back as they were', () => {
   const held = documentWith(
     { working: { 2: MORNING_AND_AFTERNOON, 3: spansOf(['09:00', '18:00']), 4: spansOf(['22:00', '00:00']) } },
@@ -331,7 +331,7 @@ describe('AT-158 / AT-159 in GRS JSON: the spans are saved with the calendar and
   })
 })
 
-// see IV-24, FR-023, OP-5
+// Spec: IV-24, FR-023, OP-5
 describe('IV-24 on the import path: a document whose day breaks the row is refused', () => {
   const importOf = (parts: CalendarParts) => validateImportedDocument({ document: documentWith(parts, [taskRow(1, {})]), byteLength: 1024, emptyRowTaskUids: [] })
   const six = spansOf(['01:00', '02:00'], ['03:00', '04:00'], ['05:00', '06:00'], ['07:00', '08:00'], ['09:00', '10:00'], ['11:00', '12:00'])
@@ -352,7 +352,7 @@ describe('IV-24 on the import path: a document whose day breaks the row is refus
   })
 })
 
-// see FR-054
+// Spec: FR-054
 describe('FR-054: an end the file wrote at 00:00:00 is read as it is written, one minute after the day before', () => {
   const text = mspdiOf(taskXml(1, april(6, '08:00'), april(8, '00:00')), '', STANDARD_WEEK)
 
@@ -374,7 +374,7 @@ describe('FR-054: an end the file wrote at 00:00:00 is read as it is written, on
   })
 })
 
-// see FR-012, FR-023
+// Spec: FR-012, FR-023
 describe('FR-012: reading GRS JSON counts the stored completion again from the instants', () => {
   const stale = documentWith(
     { working: MONDAY_TO_FRIDAY_WITH_SPANS },
@@ -402,7 +402,7 @@ describe('FR-012: reading GRS JSON counts the stored completion again from the i
   })
 })
 
-// see AT-158, AT-159, CM-39, EX-1
+// Spec: AT-158, AT-159, CM-39, EX-1
 describe('CM-39 then MSPDI: the set an edit wrote is exported on the weekdays and the working exception that took it', () => {
   const edited = editCalendar(documentWith({ working: MONDAY_TO_FRIDAY_WITH_SPANS }, [taskRow(1, {})]), {
     kind: 'setCalendar',
@@ -430,7 +430,7 @@ describe('CM-39 then MSPDI: the set an edit wrote is exported on the weekdays an
   })
 })
 
-// see FR-073, FR-023
+// Spec: FR-073, FR-023
 describe('FR-073: a GRS JSON of the old shape is refused whole, not read onto empty spans', () => {
   const held = documentWith({ working: MONDAY_TO_FRIDAY_WITH_SPANS }, [taskRow(1, {})])
   const without = (change: (parsed: Record<string, any>) => void, version?: string): string => {
@@ -465,7 +465,7 @@ describe('FR-073: a GRS JSON of the old shape is refused whole, not read onto em
   })
 })
 
-// see IV-10, IV-14, FR-023, OP-5
+// Spec: IV-10, IV-14, FR-023, OP-5
 describe('IV-10 and IV-14 on the import path: the instant is what is judged', () => {
   const importOf = (part: Record<string, unknown>) =>
     validateImportedDocument({

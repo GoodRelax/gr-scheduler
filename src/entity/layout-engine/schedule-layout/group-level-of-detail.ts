@@ -1,4 +1,4 @@
-// ScheduleLayout -- how deep the drawn task groups go at the vertical zoom (table T-005a, L-3).
+// File: ScheduleLayout: how deep the drawn task groups go at the vertical zoom (table T-005a, L-3).
 // @unit      UF-139  (docs/spec/05-07-design.md, table T-075)
 // @component ScheduleLayout, layer layoutEngine (table T-062)
 // @purity    pure
@@ -6,17 +6,17 @@
 import type { DrawnSettings } from '../../document-model/document-settings/document-settings'
 import type { TaskGroup } from '../../document-model/schedule/schedule'
 
-// see T-329
+// Spec: T-329
 const OPENING_TREE_STATES: Readonly<
   Record<'expandedAndTemporary' | 'expandedOnly', ReadonlySet<TaskGroup['treeState']>>
 > = {
   expandedAndTemporary: new Set(['expanded', 'temporarilyExpanded']),
-  // WHY: the [v] arming (IC-90) asks which children only temporarilyExpanded keeps drawn.
+  // Why: the [v] arming (IC-90) asks which children only temporarilyExpanded keeps drawn.
   expandedOnly: new Set(['expanded']),
 }
 
-// see FR-018, T-329, AT-153
-// WHY: read over rows TD-1 to TD-3 let through, so an opened task group never beats HF-7 or HR-6.
+// Spec: FR-018, T-329, AT-153
+// Why: read over rows TD-1 to TD-3 let through, so an opened task group never beats HF-7 or HR-6.
 /** @purity pure */
 export function keptInViewByTreeState(
   unfoldedTaskGroups: readonly TaskGroup[],
@@ -39,7 +39,7 @@ export function keptInViewByTreeState(
   return kept
 }
 
-// see LC-2, FR-018
+// Spec: LC-2, FR-018
 /** @purity pure */
 export function groupDepthLimit(settings: DrawnSettings): number {
   let limit = 1
@@ -49,8 +49,8 @@ export function groupDepthLimit(settings: DrawnSettings): number {
   return limit
 }
 
-// see FR-018
-// TRAP: never retype this: the fit lands zoomY on it and groupDepthLimit reads it back,
+// Spec: FR-018
+// Trap: never retype this: the fit lands zoomY on it and groupDepthLimit reads it back,
 // so an ulp apart draws one depth shallower.
 /** @purity pure */
 export function groupDepthThresholdOf(depth: number, settings: DrawnSettings): number {

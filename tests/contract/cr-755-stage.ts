@@ -17,7 +17,7 @@ const withoutBreakMarks = (_key: string, value: unknown): unknown => (typeof val
 export const WORDS = JSON.parse(readFileSync(join(SPEC, '_source', 'display-words.json'), 'utf8'), withoutBreakMarks) as Loose
 export const SCHEMA = JSON.parse(readFileSync(join(SPEC, '_source', 'grs-document.schema.json'), 'utf8')) as Loose
 
-// see T-376
+// Spec: T-376
 export interface ZoneRow {
   readonly id: string
   readonly key: string
@@ -31,8 +31,8 @@ const KIND_STANDARD = '標準時'
 const KIND_DAYLIGHT = '夏時間'
 const NO_ABBREVIATION = '—'
 
-// see T-376
-// WHY: the table writes the offset with the typographic minus sign and the plus-minus sign for zero.
+// Spec: T-376
+// Why: the table writes the offset with the typographic minus sign and the plus-minus sign for zero.
 export function offsetMinutesOfCell(cell: string): number {
   const text = cell.replace(/−/g, '-').replace(/±/g, '+').trim()
   const found = /^([+-])(\d{2}):(\d{2})$/.exec(text)
@@ -66,37 +66,37 @@ export function zoneRowOfKey(key: string): ZoneRow {
   return found
 }
 
-// see FR-038, FO-14
+// Spec: FR-038, FO-14
 export function timeZoneWord(part: string, language: DisplayLanguage): string {
   const entry = (WORDS['timeZoneField'] as readonly Loose[]).find((one) => one['part'] === part)
   if (entry === undefined) throw new Error(`the dictionary section timeZoneField has no part ${part}`)
   return entry['text'][language] as string
 }
 
-// see FR-038, T-376
+// Spec: FR-038, T-376
 export function placeOf(rowId: string, language: DisplayLanguage): string {
   const entry = (WORDS['timeZones'] as readonly Loose[]).find((one) => one['rowId'] === rowId)
   if (entry === undefined) throw new Error(`the dictionary section timeZones has no row ${rowId}`)
   return entry['label'][language] as string
 }
 
-// see FR-038, T-104
+// Spec: FR-038, T-104
 export function settingWord(rowId: string, language: DisplayLanguage): string {
   const entry = (WORDS['settings'] as readonly Loose[]).find((one) => one['rowId'] === rowId)
   if (entry === undefined) throw new Error(`the dictionary section settings has no row ${rowId}`)
   return entry['label'][language] as string
 }
 
-// see FR-156
-// WHY: FR-156 (CR-787) -- hours and minutes both take two digits, zero is the plus-minus sign and 00:00.
+// Spec: FR-156
+// Why: FR-156 (CR-787) -- hours and minutes both take two digits, zero is the plus-minus sign and 00:00.
 export function nameOffsetOf(minutes: number): string {
   const sign = minutes === 0 ? '±' : minutes < 0 ? '-' : '+'
   const size = Math.abs(minutes)
   return `${sign}${String(Math.floor(size / 60)).padStart(2, '0')}:${String(size % 60).padStart(2, '0')}`
 }
 
-// see FR-156, T-376
-// WHY: FR-156 (CR-787) -- two lines: zoneHead fills offset and abbreviation (a row with no abbreviation
+// Spec: FR-156, T-376
+// Why: FR-156 (CR-787) -- two lines: zoneHead fills offset and abbreviation (a row with no abbreviation
 // closes up that part), and the dictionary place stands alone on line 2.
 export function expectedLinesOf(row: ZoneRow, language: DisplayLanguage): readonly [string, string] {
   const shape = timeZoneWord('zoneHead', language)
@@ -104,8 +104,8 @@ export function expectedLinesOf(row: ZoneRow, language: DisplayLanguage): readon
   return [head.replace('{offset}', nameOffsetOf(row.offsetMinutes)), placeOf(row.id, language)]
 }
 
-// see FR-017, FR-156
-// WHY: offsetName with the hour alone when the minutes are 0 (FR-017).
+// Spec: FR-017, FR-156
+// Why: offsetName with the hour alone when the minutes are 0 (FR-017).
 export function expectedOffsetNameOf(row: ZoneRow, language: DisplayLanguage): string {
   const size = Math.abs(row.offsetMinutes)
   const sign = row.offsetMinutes < 0 ? '-' : '+'
@@ -114,7 +114,7 @@ export function expectedOffsetNameOf(row: ZoneRow, language: DisplayLanguage): s
   return timeZoneWord('offsetName', language).replace('{offset}', offset)
 }
 
-// see FR-017, FR-156
+// Spec: FR-017, FR-156
 export function expectedAbbreviationOf(key: string, language: DisplayLanguage): string {
   const row = zoneRowOfKey(key)
   return row.abbreviation ?? expectedOffsetNameOf(row, language)

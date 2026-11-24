@@ -1,4 +1,4 @@
-// ScheduleGeometry: public entry; assembles the vertices of everything drawn on the schedule in one pass, and re-exports what the siblings hold.
+// File: ScheduleGeometry: public entry; assembles the vertices of everything drawn on the schedule in one pass, and re-exports what the siblings hold.
 // @unit      UF-6   (docs/spec/05-07-design.md, table T-075)
 // @component ScheduleGeometry, layer layoutEngine (table T-062)
 // @purity    pure
@@ -99,7 +99,7 @@ export interface MilestoneLayer {
 export type BarGeometry =
   | {
       readonly form: 'outline'
-      // TRAP: a layered milestone joins its body rings by bridges walked there and back; read it with the non-zero rule.
+      // Trap: a layered milestone joins its body rings by bridges walked there and back; read it with the non-zero rule.
       readonly points: Path
       readonly layers?: readonly MilestoneLayer[]
     }
@@ -112,7 +112,7 @@ export type BarGeometry =
       readonly dots: readonly SpanDot[]
     }
 
-// see RV-5, T-021, T-315
+// Spec: RV-5, T-021, T-315
 export type ProgressSymbol = ReturnType<typeof progressMarkerOf>
 
 export interface MarkerGeometry {
@@ -122,7 +122,7 @@ export interface MarkerGeometry {
   readonly standsOffX?: number
 }
 
-// see LF-13, XS-10, XS-12, S-25, GA-20
+// Spec: LF-13, XS-10, XS-12, S-25, GA-20
 export interface ResumeGeometry {
   readonly arm: Path
   readonly head: Path
@@ -132,17 +132,17 @@ export interface ResumeGeometry {
   readonly isUndecided: boolean
 }
 
-// see FR-043, GA-5, GA-6, GA-17, GA-21, GA-22
+// Spec: FR-043, GA-5, GA-6, GA-17, GA-21, GA-22
 export interface DummyGeometry {
   readonly grab: 'GA-5' | 'GA-6' | 'GA-17' | 'GA-21' | 'GA-22'
   readonly at: Point
   readonly ink: ScreenRect
-  // see DM-4, DM-8, DM-9, PI-5
-  // WHY: optional, not required: a hand-built geometry that only asks what a press hits need not draw one.
+  // Spec: DM-4, DM-8, DM-9, PI-5
+  // Why: optional, not required: a hand-built geometry that only asks what a press hits need not draw one.
   readonly figure?: BarGeometry
 }
 
-// see DA-2, DA-3
+// Spec: DA-2, DA-3
 export interface DeadlineGeometry {
   readonly outline: Path
   readonly haloWidth: number
@@ -162,16 +162,16 @@ export interface TaskGeometry {
   readonly fadeHandles: readonly Point[]
   readonly label: ScreenRect | null
   readonly assigneeLabel: ScreenRect | null
-  // WHY: FR-009 / RT-4a; optional, read as true when absent: a hand-built geometry may not say.
+  // Why: FR-009 / RT-4a; optional, read as true when absent: a hand-built geometry may not say.
   readonly hasPlanDates?: boolean
-  // WHY: FR-045 / T-304; optional, read as null when absent: a hand-built geometry may not say.
+  // Why: FR-045 / T-304; optional, read as null when absent: a hand-built geometry may not say.
   readonly deadline?: DeadlineGeometry | null
-  // WHY: LF-15's band of this copy (one Task may be drawn in several); optional for hand-built geometry.
+  // Why: LF-15's band of this copy (one Task may be drawn in several); optional for hand-built geometry.
   readonly taskGroupId?: string
 }
 
-// see EL-1, EL-2, EL-10, EL-11, EL-12, EL-20, EL-21
-// WHY: decided here once, where EL-1, EL-2 and EL-20 are judged, so the click (EL-10 .. EL-12) never judges them again.
+// Spec: EL-1, EL-2, EL-10, EL-11, EL-12, EL-20, EL-21
+// Why: decided here once, where EL-1, EL-2 and EL-20 are judged, so the click (EL-10 .. EL-12) never judges them again.
 export interface FarEndGeometry {
   readonly isAcrossInTaskGroupArea: boolean
   readonly isDownInTaskGroupPlace: boolean
@@ -181,7 +181,7 @@ export interface FarEndGeometry {
   readonly foldedRowId: string | null
 }
 
-// see EL-9, GA-24
+// Spec: EL-9, GA-24
 export interface ContinuationGeometry {
   readonly dots: readonly Point[]
   readonly radius: number
@@ -189,10 +189,10 @@ export interface ContinuationGeometry {
   readonly far: FarEndGeometry
 }
 
-// see T-303
+// Spec: T-303
 export type Elision = 'EL-3' | 'EL-4' | 'EL-5' | 'EL-6'
 
-// see LC-10, T-222, T-303
+// Spec: LC-10, T-222, T-303
 export interface DependencyGeometry {
   readonly predecessorUid: number
   readonly successorUid: number
@@ -202,28 +202,28 @@ export interface DependencyGeometry {
   readonly elision: Elision
   readonly drawnPoints: Path
   readonly continuation: ContinuationGeometry | null
-  // see S-18, S-447, S-19, GA-19
-  // WHY: optional, not required: a hand-built geometry that only asks what a press hits may give no ink.
+  // Spec: S-18, S-447, S-19, GA-19
+  // Why: optional, not required: a hand-built geometry that only asks what a press hits may give no ink.
   readonly strokeWidth?: number
   readonly head?: Path
-  // see EL-19, GA-19
+  // Spec: EL-19, GA-19
   readonly wholeRouteHead?: Path
 }
 
-// see FR-019, S-369, S-370, S-371, HB-10, HB-11
-// WHY: the look is already defaulted and clamped, so the renderer draws it as it stands.
+// Spec: FR-019, S-369, S-370, S-371, HB-10, HB-11
+// Why: the look is already defaulted and clamped, so the renderer draws it as it stands.
 export interface HighlightGeometry {
   readonly id: string
   readonly box: ScreenRect
   readonly cornerRadiusPx: number | null
   readonly strokeWidthPx: number
-  // WHY: null is the project theme color (FR-019, AT-146), painted from the theme by the renderer.
+  // Why: null is the project theme color (FR-019, AT-146), painted from the theme by the renderer.
   readonly fillColor: string | null
   readonly fillOpacity: number
   readonly hasSideHandles: { readonly leftRight: boolean; readonly topBottom: boolean }
 }
 
-// see FR-019, FR-097, S-374, S-375
+// Spec: FR-019, FR-097, S-374, S-375
 export interface CommentGeometry {
   readonly id: string
   readonly anchor: Point
@@ -237,7 +237,7 @@ export interface CommentGeometry {
   readonly textColor: string | null
 }
 
-// see CU-2
+// Spec: CU-2
 export interface DualCursorGeometry {
   readonly cursorAX: number
   readonly cursorBX: number
@@ -245,7 +245,7 @@ export interface DualCursorGeometry {
   readonly bottom: number
 }
 
-// see FR-015, T-339
+// Spec: FR-015, T-339
 interface BaselineOutline {
   readonly taskUid: number
   readonly kind: 'rectangle' | 'diamond'
@@ -264,7 +264,7 @@ export interface ScheduleGeometry {
   readonly dualCursor: DualCursorGeometry | null
   readonly highlightBoxes: readonly HighlightGeometry[]
   readonly commentBoxes: readonly CommentGeometry[]
-  // WHY: optional, read as none when absent: a hand-built geometry draws no family.
+  // Why: optional, read as none when absent: a hand-built geometry draws no family.
   readonly parentTasks?: ParentTaskGeometry
   readonly pinnedBand?: {
     readonly scrollTop: number
@@ -288,7 +288,7 @@ export interface GeometryInputs {
   readonly isActualVisible: boolean
   readonly selectedTaskUids: ReadonlySet<number>
   readonly selectedLinks: ReadonlySet<string>
-  // TRAP: made and dropped inside one call; holding it longer is a cache Chapter 5.6 must first record (R2.20).
+  // Trap: made and dropped inside one call; holding it longer is a cache Chapter 5.6 must first record (R2.20).
   readonly dummyEndByFrom: Map<string, CalendarDay>
   readonly delayDiagnostics?: {
     readonly shown: boolean
@@ -341,8 +341,8 @@ function overlapOf(from: number, to: number, lower: number, upper: number): numb
   return Math.min(to, upper) - Math.max(from, lower)
 }
 
-// see EL-1, EL-2, FR-098, LF-14
-// WHY: an EL-2 end stands on a zero-height line, so it is never inside its task group's place down.
+// Spec: EL-1, EL-2, FR-098, LF-14
+// Why: an EL-2 end stands on a zero-height line, so it is never inside its task group's place down.
 /** @purity pure */
 function farEndOf(end: LinkEnd, taskGroupId: string, undrawnTaskGroupDepth: number | null, foldedRowId: string | null,
                   reading: EndReading): FarEndGeometry {
@@ -361,13 +361,13 @@ function farEndOf(end: LinkEnd, taskGroupId: string, undrawnTaskGroupDepth: numb
   }
 }
 
-// see EL-1
+// Spec: EL-1
 /** @purity pure */
 function isSeen(far: FarEndGeometry): boolean {
   return far.isAcrossInTaskGroupArea && far.isDownInTaskGroupPlace
 }
 
-// see EL-2, EL-20
+// Spec: EL-2, EL-20
 /** @purity pure */
 function scrollingFloorOf(reading: EndReading, counts: (taskGroup: TaskGroupPlacement, at: number) => boolean): number {
   let floor = reading.inputs.layout.scrollAreaY ?? reading.regions.taskGroupArea.y
@@ -377,7 +377,7 @@ function scrollingFloorOf(reading: EndReading, counts: (taskGroup: TaskGroupPlac
   return floor
 }
 
-// see EL-2
+// Spec: EL-2
 /** @purity pure */
 function standingYOf(taskGroup: TaskGroupPlacement, reading: EndReading): number {
   if (taskGroup.isPinned !== true) return taskGroup.y + taskGroup.height
@@ -385,7 +385,7 @@ function standingYOf(taskGroup: TaskGroupPlacement, reading: EndReading): number
   return scrollingFloorOf(reading, (_one, at) => stop < 0 || at < stop)
 }
 
-// see EL-20, LC-9
+// Spec: EL-20, LC-9
 /** @purity pure */
 function unhiddenYOf(own: TaskGroup, reading: EndReading): number {
   const position = reading.treePositionOf()
@@ -399,7 +399,7 @@ interface Climb {
   readonly isFolded: boolean
 }
 
-// see EL-2, EL-20, HF-7
+// Spec: EL-2, EL-20, HF-7
 /** @purity pure */
 function climbOf(own: TaskGroup, reading: EndReading): Climb | null {
   const { settings } = reading.inputs
@@ -416,9 +416,9 @@ function climbOf(own: TaskGroup, reading: EndReading): Climb | null {
   return null
 }
 
-// see EL-2, EL-10, EL-20, RT-4a, LC-1
-// WHY: a pin the band cannot hold and a task group past the stack safety cap are no group LOD row; RT-4a keeps them.
-// WHY: a fold or a hide on the way up makes the end an EL-20 end, a pinned task group too; it stands like an EL-2 end.
+// Spec: EL-2, EL-10, EL-20, RT-4a, LC-1
+// Why: a pin the band cannot hold and a task group past the stack safety cap are no group LOD row; RT-4a keeps them.
+// Why: a fold or a hide on the way up makes the end an EL-20 end, a pinned task group too; it stands like an EL-2 end.
 /** @purity pure */
 function lodEndOf(task: Task, reading: EndReading): SightedEnd | null {
   const { layout, settings } = reading.inputs
@@ -436,13 +436,13 @@ function lodEndOf(task: Task, reading: EndReading): SightedEnd | null {
   if (climb.taskGroup === null) return unparentedEndOf(task, own, climb, x, width, reading)
   if (!climb.isFolded && reading.pinnedIds.has(own.id)) return null
   const end = standingEndOf(task.uid, x, width, standingYOf(climb.taskGroup, reading))
-  // WHY: the own task group lies step + 1 levels below the drawn ancestor it stands under.
+  // Why: the own task group lies step + 1 levels below the drawn ancestor it stands under.
   const depth = climb.taskGroup.depth + climb.step + 1
   return { end, far: farEndOf(end, own.id, depth, climb.isFolded ? own.id : null, reading) }
 }
 
-// see EL-20, TV-3, LC-9
-// WHY: with no drawn ancestor, a folded end or a filtered end stands at the last drawn task group before its own.
+// Spec: EL-20, TV-3, LC-9
+// Why: with no drawn ancestor, a folded end or a filtered end stands at the last drawn task group before its own.
 /** @purity pure */
 function unparentedEndOf(task: Task, own: TaskGroup, climb: Climb, x: number, width: number,
                          reading: EndReading): SightedEnd | null {
@@ -454,7 +454,7 @@ function unparentedEndOf(task: Task, own: TaskGroup, climb: Climb, x: number, wi
   return { end, far: farEndOf(end, own.id, climb.isFolded ? climb.step + 1 : null, foldedRowId, reading) }
 }
 
-// see EL-20, TV-3
+// Spec: EL-20, TV-3
 /** @purity pure */
 function filteredEndOf(task: Task, own: TaskGroup, taskGroup: TaskGroupPlacement, reading: EndReading): SightedEnd | null {
   const { layout, settings } = reading.inputs
@@ -478,14 +478,14 @@ function sightedEndOf(uid: number, reading: EndReading): SightedEnd | null {
   return task === undefined ? null : lodEndOf(task, reading)
 }
 
-// see T-303
+// Spec: T-303
 /** @purity pure */
 function elisionOf(predecessorSeen: boolean, successorSeen: boolean): Elision {
   if (predecessorSeen) return successorSeen ? 'EL-3' : 'EL-4'
   return successorSeen ? 'EL-5' : 'EL-6'
 }
 
-// see RT-4a, FR-009, T-303
+// Spec: RT-4a, FR-009, T-303
 /** @purity pure */
 function dependenciesOf(schedule: Schedule, inputs: GeometryInputs, regions: ScreenRegions): DependencyGeometry[] {
   if (!inputs.settings.isDependencyVisible || !inputs.settings.isPlanVisible) return []
@@ -506,7 +506,7 @@ function dependenciesOf(schedule: Schedule, inputs: GeometryInputs, regions: Scr
   return out
 }
 
-// see BL-2, XS-5, XS-6
+// Spec: BL-2, XS-5, XS-6
 /** @purity pure */
 function planExtentOf(placed: TaskPlacement, settings: DrawnSettings): { readonly top: number; readonly height: number } {
   if (!isThinShape(placed.shapeKind)) return { top: placed.y, height: placed.planHeight }
@@ -514,7 +514,7 @@ function planExtentOf(placed: TaskPlacement, settings: DrawnSettings): { readonl
   return { top: thinTierMiddle(placed, settings, false) - half, height: half * 2 }
 }
 
-// see BL-2
+// Spec: BL-2
 /** @purity pure */
 function baselineEdgeXOf(text: string | null, side: DateTimeSide, reading: DateTimeSide,
                          inputs: GeometryInputs, onSide: InstantOnSide): number | null {
@@ -522,7 +522,7 @@ function baselineEdgeXOf(text: string | null, side: DateTimeSide, reading: DateT
   return edge === null ? null : xOfInstant(inputs.layout, edge)
 }
 
-// see BL-1, BL-2
+// Spec: BL-1, BL-2
 /** @purity pure */
 function baselineOutlineOf(baseline: BaselineTask, placed: TaskPlacement, isPinned: boolean,
                            inputs: GeometryInputs, onSide: InstantOnSide): BaselineOutline | null {
@@ -539,8 +539,8 @@ function baselineOutlineOf(baseline: BaselineTask, placed: TaskPlacement, isPinn
   return { taskUid, kind: 'rectangle', box: { x, y: top, width, height }, isPinned }
 }
 
-// see FR-015, BL-1, BL-4
-// TRAP: never gate on isPlanVisible as dependenciesOf does: the overlay is drawn with the plan hidden.
+// Spec: FR-015, BL-1, BL-4
+// Trap: never gate on isPlanVisible as dependenciesOf does: the overlay is drawn with the plan hidden.
 /** @purity pure */
 function baselineOutlinesOf(schedule: Schedule, inputs: GeometryInputs): BaselineOutline[] {
   if (!inputs.settings.isBaselineVisible || schedule.baselineTasks.length === 0) return []
@@ -563,7 +563,7 @@ function baselineOutlinesOf(schedule: Schedule, inputs: GeometryInputs): Baselin
   return out
 }
 
-// see FR-046, FR-014, CU-1, FR-158
+// Spec: FR-046, FR-014, CU-1, FR-158
 /** @purity pure */
 export function statusLineXOf(inputs: GeometryInputs, statusDate: CalendarDay): number {
   const instant = inputs.settings.isTimeOfDayVisible ? inputs.statusInstant ?? null : null
@@ -577,7 +577,7 @@ function statusLineOf(inputs: GeometryInputs, regions: ScreenRegions): ScheduleG
   return { x: statusLineXOf(inputs, inputs.statusDate), top: area.y, bottom: area.y + area.height }
 }
 
-// see CP-6, LC-10, LC-11, RV-5
+// Spec: CP-6, LC-10, LC-11, RV-5
 /** @purity pure */
 export function geometryFromLayout(
   schedule: Schedule,
@@ -589,7 +589,7 @@ export function geometryFromLayout(
   delayDiagnostics?: GeometryInputs['delayDiagnostics'],
   parentTaskFamilies: ParentTaskFamilies | null = null,
 ): ScheduleGeometry {
-  // see FR-039, T-252
+  // Spec: FR-039, T-252
   const settings = drawnSettingsOf(storedSettings)
   const inputs: GeometryInputs = {
     settings,
@@ -629,7 +629,7 @@ export function geometryFromLayout(
   }
 }
 
-// WHY: LF-15's eight points are listed only while some tip is snapped; otherwise nothing is paid per frame.
+// Why: LF-15's eight points are listed only while some tip is snapped; otherwise nothing is paid per frame.
 /** @purity pure */
 function snapsForTips(
   schedule: Schedule,
@@ -640,7 +640,7 @@ function snapsForTips(
   return isAnySnapped ? anchorSnapsOf(tasks, highlights) : []
 }
 
-// see FR-098, S-78
+// Spec: FR-098, S-78
 /** @purity pure */
 function pinnedBandOf(layout: ScheduleLayout, regions: ScreenRegions): Pick<ScheduleGeometry, 'pinnedBand'> {
   const pinnedIds = new Set(layout.taskGroups.filter((taskGroup) => taskGroup.isPinned === true).map((taskGroup) => taskGroup.taskGroupId))
@@ -651,7 +651,7 @@ function pinnedBandOf(layout: ScheduleLayout, regions: ScreenRegions): Pick<Sche
   return { pinnedBand: { scrollTop: layout.scrollAreaY ?? regions.taskGroupArea.y, pinnedTaskUids } }
 }
 
-// see FR-098, T-303, EL-4, EL-5, EL-19, PI-6
+// Spec: FR-098, T-303, EL-4, EL-5, EL-19, PI-6
 /** @purity pure */
 export function isLinkInBand(
   band: Pick<NonNullable<ScheduleGeometry['pinnedBand']>, 'pinnedTaskUids'> | null | undefined,

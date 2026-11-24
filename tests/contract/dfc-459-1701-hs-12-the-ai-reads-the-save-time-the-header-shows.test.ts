@@ -14,7 +14,7 @@ import {
   type ShellStage,
 } from './cr-610-file-flow-stage'
 
-// WHY: each constant ends exactly at its marker, cut from the manuscript as check 39 reads it.
+// Why: each constant ends exactly at its marker, cut from the manuscript as check 39 reads it.
 const HS_12_MUST =
   '`Agent API`（表 T-035）が手渡す文書と刻印の `AT-140` には、手渡すときに下段が示している時刻を入れること（MUST）'
 const HS_12_EVERY_ROAD =
@@ -89,7 +89,7 @@ describe(`HS-12 -- ${HS_12_MUST}`, () => {
     expect(outcome.ok, 'premise: a stale stamp is refused (AG-2)').toBe(false)
     expect(outcome.refusal?.reason, 'premise: the refusal names the stamp (AG-9a)').toBe('staleStamp')
     expect(outcome.refusal?.stamp.fileSavedAt, 'AG-9a stamp').toBe(shown)
-    // WHY: a staleStamp refusal carries only the stamp, never the document (see AG-2, AV-3)
+    // Why: a staleStamp refusal carries only the stamp, never the document (see AG-2, AV-3)
     expect(outcome.refusal, 'AG-2 no document').not.toHaveProperty('document')
   })
 })
@@ -121,7 +121,7 @@ describe(`HS-12 -- ${HS_12_EVERY_SAVE}`, () => {
     const { built, shown } = await openedThenSaved()
     const api = agentOf(built)
     expect(api.readStamp().fileSavedAt, 'premise: the first save').toBe(shown)
-    // WHY: AT-140 is kept to the second, so the next save has to land in a later second.
+    // Why: AT-140 is kept to the second, so the next save has to land in a later second.
     await new Promise((resolve) => setTimeout(resolve, 1_100))
     await built.save()
     await built.repaint()

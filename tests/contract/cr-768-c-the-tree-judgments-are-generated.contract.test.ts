@@ -59,8 +59,8 @@ const SD_5_ONE_INPUT =
   '判定は 1 つの入力（升が木の状態を決めるタスクグループ —— 根の升では無い ——、出来事が運ぶ値、式が呼ぶ名の付いた関数）を受け、遷移の関数は升のガードの名でその表から引く'
 const TASK_GROUP_TERM_NULL = '根の升にはタスクグループが無く、`null` を読む'
 
-// see SD-5, RA-2
-// WHY: JDG-139 stage 3 -- the unit keeps its generated tables unexported, so they are read as the printed text.
+// Spec: SD-5, RA-2
+// Why: JDG-139 stage 3 -- the unit keeps its generated tables unexported, so they are read as the printed text.
 const GENERATED = ((): string => {
   const text = readFileSync(join(process.cwd(), REGION.unit), 'utf8').replace(/\r\n/g, '\n')
   const open = text.indexOf('// <generated -- do not edit by hand>\n// From docs/spec/_source/state-machines.json')
@@ -69,8 +69,8 @@ const GENERATED = ((): string => {
   return text.slice(open, close)
 })()
 
-// see SD-5
-// WHY: one printed entry runs from its "  name: (" line to the next one or the closing brace.
+// Spec: SD-5
+// Why: one printed entry runs from its "  name: (" line to the next one or the closing brace.
 function printedGuardEntries(): readonly { readonly name: string; readonly text: string }[] {
   const head = 'const TREE_STATE_GUARDS = {\n'
   const at = GENERATED.indexOf(head)
@@ -85,8 +85,8 @@ function printedGuardEntries(): readonly { readonly name: string; readonly text:
   throw new Error('TREE_STATE_GUARDS never closes')
 }
 
-// see T-328
-// WHY: one tree holds every relation the seven guards tell apart: R and A are top level, P has a leaf child (L)
+// Spec: T-328
+// Why: one tree holds every relation the seven guards tell apart: R and A are top level, P has a leaf child (L)
 // and a child with children (C), G sits three deep with a child GG, S is a leaf beside P.
 const TREE: readonly TreeRow[] = [
   { id: 'R', parentId: null },
@@ -122,8 +122,8 @@ function scheduleWith(rest: TreeState, states: Readonly<Record<string, TreeState
   return { ...TEMPLATE.schedule, taskGroups, taskGroupMembers: [], tasks: [] }
 }
 
-// see SD-5, T-328
-// WHY: the manuscript's taskGroup.<column> term reads the cell's task group; in a root cell it reads null.
+// Spec: SD-5, T-328
+// Why: the manuscript's taskGroup.<column> term reads the cell's task group; in a root cell it reads null.
 /** @purity pure */
 function scopeOf(taskGroup: TreeRow | null, event: Readonly<Record<string, unknown>>, levelZero: LevelZero): GuardScope {
   return {
@@ -149,7 +149,7 @@ function carriedOf(event: TreeStateEvent): Readonly<Record<string, unknown>> {
 
 type Written = { readonly id: string; readonly to: string }
 
-// WHY: the expected writes come from the manuscript's conditions over the same tree, never from the code;
+// Why: the expected writes come from the manuscript's conditions over the same tree, never from the code;
 // a task group whose cell leaves it where it is writes nothing (SD-3, the same reference).
 /** @purity pure */
 function manuscriptWrites(schedule: Schedule, event: TreeStateEvent): Written[] {
@@ -186,7 +186,7 @@ function eventOf(type: string, carried: Readonly<Record<string, unknown>>): Tree
 type Scene = {
   readonly label: string
   readonly guard: string
-  // WHY: the truth the clause gives the subject task group, written by hand; the manuscript condition must agree.
+  // Why: the truth the clause gives the subject task group, written by hand; the manuscript condition must agree.
   readonly holds: boolean
   readonly subject: string
   readonly rest: TreeState
@@ -197,29 +197,29 @@ type Scene = {
 const press = (type: string, pressedRowId: string | null): TreeStateEvent => eventOf(type, { pressedRowId })
 const reveal = (revealedRowId: string): TreeStateEvent => eventOf('taskGroupRevealAsked', { revealedRowId })
 
-// see HR-3, HR-4, HR-6, HR-7, HR-8, HF-13, HF-14, HF-16, IC-93, SJ-2, TD-6
-// WHY: each guard is read in a cell that names it, with the other task groups in a value that cell leaves alone,
+// Spec: HR-3, HR-4, HR-6, HR-7, HR-8, HF-13, HF-14, HF-16, IC-93, SJ-2, TD-6
+// Why: each guard is read in a cell that names it, with the other task groups in a value that cell leaves alone,
 // so the subject's write is decided by that guard's truth alone.
 const SCENES: readonly Scene[] = [
-  // WHY: isPressedTaskGroup is read in the cell childTaskGroupAddPressed x auto -> temporarilyExpanded (HR-8, HF-14)
+  // Why: isPressedTaskGroup is read in the cell childTaskGroupAddPressed x auto -> temporarilyExpanded (HR-8, HF-14)
   { label: 'the pressed task group has children', guard: 'isPressedTaskGroup', holds: true, subject: 'P', rest: 'auto', states: {}, event: press('childTaskGroupAddPressed', 'P') },
   { label: 'the pressed task group is a leaf', guard: 'isPressedTaskGroup', holds: true, subject: 'L', rest: 'auto', states: {}, event: press('childTaskGroupAddPressed', 'L') },
   { label: 'a child of the pressed task group', guard: 'isPressedTaskGroup', holds: false, subject: 'C', rest: 'auto', states: {}, event: press('childTaskGroupAddPressed', 'P') },
   { label: 'the head add (IC-93) presses null', guard: 'isPressedTaskGroup', holds: false, subject: 'R', rest: 'auto', states: {}, event: press('childTaskGroupAddPressed', null) },
   { label: 'the pressed id is absent from the tree', guard: 'isPressedTaskGroup', holds: false, subject: 'P', rest: 'auto', states: {}, event: press('childTaskGroupAddPressed', ABSENT) },
-  // WHY: isChildOfPressedTaskGroup is read in the cell oneLevelOpenPressed x hidden -> collapsed (HR-7, HF-13)
+  // Why: isChildOfPressedTaskGroup is read in the cell oneLevelOpenPressed x hidden -> collapsed (HR-7, HF-13)
   { label: 'a child with children of the pressed task group', guard: 'isChildOfPressedTaskGroup', holds: true, subject: 'C', rest: 'auto', states: { C: 'hidden' }, event: press('oneLevelOpenPressed', 'P') },
   { label: 'a leaf child of the pressed task group', guard: 'isChildOfPressedTaskGroup', holds: true, subject: 'L', rest: 'auto', states: { L: 'hidden' }, event: press('oneLevelOpenPressed', 'P') },
   { label: 'a grandchild of the pressed task group', guard: 'isChildOfPressedTaskGroup', holds: false, subject: 'G', rest: 'auto', states: { G: 'hidden' }, event: press('oneLevelOpenPressed', 'P') },
   { label: 'the pressed task group itself', guard: 'isChildOfPressedTaskGroup', holds: false, subject: 'P', rest: 'auto', states: { P: 'hidden' }, event: press('oneLevelOpenPressed', 'P') },
   { label: 'a top-level task group when null is pressed', guard: 'isChildOfPressedTaskGroup', holds: false, subject: 'A', rest: 'auto', states: { A: 'hidden' }, event: press('oneLevelOpenPressed', null) },
   { label: 'a top-level task group when an absent id is pressed', guard: 'isChildOfPressedTaskGroup', holds: false, subject: 'A', rest: 'auto', states: { A: 'hidden' }, event: press('oneLevelOpenPressed', ABSENT) },
-  // WHY: isLeafTaskGroup is read in the cell everyTaskGroupOpenPressed x collapsed: leaf -> auto, parent -> temporarilyExpanded (HR-1, TD-6)
+  // Why: isLeafTaskGroup is read in the cell everyTaskGroupOpenPressed x collapsed: leaf -> auto, parent -> temporarilyExpanded (HR-1, TD-6)
   { label: 'a leaf below a parent', guard: 'isLeafTaskGroup', holds: true, subject: 'L', rest: 'expanded', states: { L: 'collapsed' }, event: eventOf('everyTaskGroupOpenPressed', {}) },
   { label: 'a top-level leaf', guard: 'isLeafTaskGroup', holds: true, subject: 'A', rest: 'expanded', states: { A: 'collapsed' }, event: eventOf('everyTaskGroupOpenPressed', {}) },
   { label: 'a parent of one child', guard: 'isLeafTaskGroup', holds: false, subject: 'G', rest: 'expanded', states: { G: 'collapsed' }, event: eventOf('everyTaskGroupOpenPressed', {}) },
   { label: 'a top-level parent', guard: 'isLeafTaskGroup', holds: false, subject: 'R', rest: 'expanded', states: { R: 'collapsed' }, event: eventOf('everyTaskGroupOpenPressed', {}) },
-  // WHY: isBelowPressedTaskGroup is read in the cell hidePressed x auto: pressed -> hidden, below -> collapsed (HR-6, HR-1a)
+  // Why: isBelowPressedTaskGroup is read in the cell hidePressed x auto: pressed -> hidden, below -> collapsed (HR-6, HR-1a)
   { label: 'a child of the pressed task group', guard: 'isBelowPressedTaskGroup', holds: true, subject: 'C', rest: 'hidden', states: { C: 'auto' }, event: press('hidePressed', 'P') },
   { label: 'a leaf three below the pressed task group', guard: 'isBelowPressedTaskGroup', holds: true, subject: 'GG', rest: 'hidden', states: { GG: 'auto' }, event: press('hidePressed', 'P') },
   { label: 'the pressed task group itself', guard: 'isBelowPressedTaskGroup', holds: false, subject: 'P', rest: 'hidden', states: { P: 'auto' }, event: press('hidePressed', 'P') },
@@ -228,14 +228,14 @@ const SCENES: readonly Scene[] = [
   { label: 'a task group below a pressed leaf -- none exists', guard: 'isBelowPressedTaskGroup', holds: false, subject: 'GG', rest: 'hidden', states: { GG: 'auto', L: 'auto' }, event: press('hidePressed', 'L') },
   { label: 'a top-level task group when null is pressed', guard: 'isBelowPressedTaskGroup', holds: false, subject: 'A', rest: 'hidden', states: { A: 'auto' }, event: press('hidePressed', null) },
   { label: 'a task group when an absent id is pressed', guard: 'isBelowPressedTaskGroup', holds: false, subject: 'C', rest: 'hidden', states: { C: 'auto' }, event: press('hidePressed', ABSENT) },
-  // WHY: isRevealedTaskGroupOrAncestor is read in the cell taskGroupRevealAsked x collapsed -> expanded (SJ-2)
+  // Why: isRevealedTaskGroupOrAncestor is read in the cell taskGroupRevealAsked x collapsed -> expanded (SJ-2)
   { label: 'the task group revealed', guard: 'isRevealedTaskGroupOrAncestor', holds: true, subject: 'G', rest: 'expanded', states: { G: 'collapsed' }, event: reveal('G') },
   { label: 'an ancestor of the task group revealed', guard: 'isRevealedTaskGroupOrAncestor', holds: true, subject: 'R', rest: 'expanded', states: { R: 'collapsed' }, event: reveal('G') },
   { label: 'a revealed top-level task group itself', guard: 'isRevealedTaskGroupOrAncestor', holds: true, subject: 'A', rest: 'expanded', states: { A: 'collapsed' }, event: reveal('A') },
   { label: 'a descendant of the task group revealed', guard: 'isRevealedTaskGroupOrAncestor', holds: false, subject: 'GG', rest: 'expanded', states: { GG: 'collapsed' }, event: reveal('G') },
   { label: 'a task group unrelated to the one revealed', guard: 'isRevealedTaskGroupOrAncestor', holds: false, subject: 'S', rest: 'expanded', states: { S: 'collapsed' }, event: reveal('G') },
   { label: 'a task group when the revealed id is absent', guard: 'isRevealedTaskGroupOrAncestor', holds: false, subject: 'P', rest: 'expanded', states: { P: 'collapsed' }, event: reveal(ABSENT) },
-  // WHY: isTopLevelTaskGroup is read in the cell topLevelOpenPressed x hidden -> collapsed (HF-16)
+  // Why: isTopLevelTaskGroup is read in the cell topLevelOpenPressed x hidden -> collapsed (HF-16)
   { label: 'a top-level parent', guard: 'isTopLevelTaskGroup', holds: true, subject: 'R', rest: 'auto', states: { R: 'hidden' }, event: eventOf('topLevelOpenPressed', {}) },
   { label: 'a top-level leaf', guard: 'isTopLevelTaskGroup', holds: true, subject: 'A', rest: 'auto', states: { A: 'hidden' }, event: eventOf('topLevelOpenPressed', {}) },
   { label: 'a child of a top-level task group', guard: 'isTopLevelTaskGroup', holds: false, subject: 'P', rest: 'auto', states: { P: 'hidden' }, event: eventOf('topLevelOpenPressed', {}) },
@@ -274,7 +274,7 @@ describe('SD-5, 5.5: the clauses this file is driven by', () => {
   it('guardLanguage: the taskGroup.<column> term reads null in a root cell', () => {
     const term = MANUSCRIPT.guardLanguage.terms.find((t) => t.form === 'taskGroup.<column>')
     expect(term?.meaning.ja).toContain(TASK_GROUP_TERM_NULL)
-    // STEP: the evaluator reads the term as the rule says -- a root cell's taskGroup.id is null, not an error
+    // Step: the evaluator reads the term as the rule says -- a root cell's taskGroup.id is null, not an error
     expect(termHolds(scopeOf(null, {}, 'auto'), { name: 'isTopLevelTaskGroup' })).toBe(true)
   })
 })
@@ -314,19 +314,19 @@ describe('SD-5, T-328: every tree guard, true and false, through treeStateWrites
       expect(SCENES.some((s) => s.guard === name && s.holds), `${name} true`).toBe(true)
       expect(SCENES.some((s) => s.guard === name && !s.holds), `${name} false`).toBe(true)
     }
-    // WHY: isLevelZeroCollapsed is read only in root cells; its scenes are the level zero 'auto' / 'collapsed' cases below.
+    // Why: isLevelZeroCollapsed is read only in root cells; its scenes are the level zero 'auto' / 'collapsed' cases below.
     expect(Object.values(REGION.root.transitions).some((c) => (c.guard ?? []).some((g) => g.name === 'isLevelZeroCollapsed'))).toBe(true)
   })
 
   it.each(SCENES.map((s) => [`${s.guard}: ${s.label} (${String(s.holds)})`, s] as const))('%s', (_, scene) => {
     const row = TREE.find((one) => one.id === scene.subject) ?? null
-    // STEP: the manuscript condition reads the subject as the clause says
+    // Step: the manuscript condition reads the subject as the clause says
     expect(guardHolds(scopeOf(row, carriedOf(scene.event), 'auto'), scene.guard)).toBe(scene.holds)
-    // STEP: the writes are exactly what the manuscript cells give over the same tree
+    // Step: the writes are exactly what the manuscript cells give over the same tree
     const schedule = scheduleWith(scene.rest, scene.states)
     const expected = manuscriptWrites(schedule, scene.event)
     expect(writesOf(schedule, scene.event)).toEqual(expected)
-    // STEP: the subject moves exactly when its guard holds, so the scene is a boundary of that guard
+    // Step: the subject moves exactly when its guard holds, so the scene is a boundary of that guard
     const from = scene.states[scene.subject] ?? scene.rest
     const scope = scopeOf(row, carriedOf(scene.event), 'auto')
     const positive = branchesOf(MACHINE.transitions[scene.event.type]?.[from]).filter((b) =>
@@ -352,7 +352,7 @@ describe('SD-5, T-328: every tree guard, true and false, through treeStateWrites
         const holds = guardHolds(scopeOf(null, carriedOf(event), levelZero), 'isLevelZeroCollapsed')
         expect(holds, 'S-418: the guard holds exactly when level zero is collapsed').toBe(levelZero === 'collapsed')
         if (holds) expect(levelZeroAfter(levelZero, event)).toBe(ROOT_EFFECT_VALUE[REGION.root.transitions[key]?.effect ?? ''])
-        // WHY: T-328 prints the other case as no change, so no write at all
+        // Why: T-328 prints the other case as no change, so no write at all
         else expect(levelZeroWritesFor(levelZero, event)).toEqual([])
       },
     )
@@ -360,7 +360,7 @@ describe('SD-5, T-328: every tree guard, true and false, through treeStateWrites
 })
 
 describe('T-328 root cells: every event x level zero gives the value the manuscript cell gives', () => {
-  // WHY: tree-state-machine.contract.test.ts already walks every machine cell (event x value x task group relation)
+  // Why: tree-state-machine.contract.test.ts already walks every machine cell (event x value x task group relation)
   // over a tree that reaches every branch; the root cells, written through levelZeroWritesFor, are walked here.
   it.each(REGION.events.flatMap((e) => (['auto', 'collapsed'] as const).map((lz) => [e.key, lz] as const)))(
     '%s with level zero %s',
@@ -368,7 +368,7 @@ describe('T-328 root cells: every event x level zero gives the value the manuscr
       const event = rootEventOf(key)
       const cell = REGION.root.transitions[key]
       const takes = cell !== undefined && (cell.guard ?? []).every((t) => termHolds(scopeOf(null, carriedOf(event), levelZero), t))
-      // WHY: a cell's effect writes its value; writing the value level zero already holds changes nothing (SD-3).
+      // Why: a cell's effect writes its value; writing the value level zero already holds changes nothing (SD-3).
       const expected = takes ? (ROOT_EFFECT_VALUE[cell.effect] ?? 'unknown effect') : levelZero
       expect(levelZeroAfter(levelZero, event)).toBe(expected)
       if (!takes) expect(levelZeroWritesFor(levelZero, event)).toEqual([])

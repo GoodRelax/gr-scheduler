@@ -253,8 +253,8 @@ const firstNumberIn = (cell: string): number => {
   return value
 }
 
-// see T-203, S-79, T-252
-// WHY: S-37 x S-125 x ratio is the first term of the T-252 floor, so this S-79 stands on the floor at every
+// Spec: T-203, S-79, T-252
+// Why: S-37 x S-125 x ratio is the first term of the T-252 floor, so this S-79 stands on the floor at every
 // step; the default S-79 (300 x 0.625 = 187.5) stands above the floor 114.0032 and would break the premises.
 const TASK_GROUP_PANEL_WIDTH_ON_THE_FLOOR =
   firstNumberIn(rowOf('T-201', 'S-37').by['既定値'] ?? '') * firstNumberIn(rowOf('T-211', 'S-125').by['値'] ?? '')
@@ -274,7 +274,7 @@ function fixtureDocument(): Document {
     wbsOrder: uid,
     name,
     start,
-    // WHY: an end is written at the day's close (WT-2); a date alone is read by FR-054 as the day before (RV-6).
+    // Why: an end is written at the day's close (WT-2); a date alone is read by FR-054 as the day before (RV-6).
     finish: `${finish}T17:00:00`,
     milestone: false,
     deadline: null,
@@ -325,7 +325,7 @@ function fixtureDocument(): Document {
     },
     documentSettings: {
       ...structuredClone(template.documentSettings),
-      // WHY: S-1 is a constant (CR-572); the stored zoomX (S-75) carries the day width this fixture draws at.
+      // Why: S-1 is a constant (CR-572); the stored zoomX (S-75) carries the day width this fixture draws at.
       zoomX: PX_PER_DAY_AT_1X / SETTINGS_CONSTANTS.pxPerDayAt1x,
       taskGroupPanelWidthPx: TASK_GROUP_PANEL_WIDTH_ON_THE_FLOOR,
     },
@@ -598,7 +598,7 @@ function selectTheTask(built: Stage): void {
   built.send(pointer('up', at.x, at.y))
 }
 
-// see MK-13, FR-072
+// Spec: MK-13, FR-072
 function openThePanelOnTheTask(built: Stage): void {
   const points = outlineOf(drawnTask(built.loop, FADED_UID).plan)
   const xs = points.map((one) => one.x)
@@ -1260,7 +1260,7 @@ describe('FR-052: while the boundary is held the widths are DRAWN and not WRITTE
 
   it('changes the OTHER panel from its own boundary (a screen value, CR-572)', () => {
     const built = stage()
-    // STEP: MK-13 puts the property panel up at the screen value S-171
+    // Step: MK-13 puts the property panel up at the screen value S-171
     openThePanelOnTheTask(built)
     const at = boundaryOf(built, 'propertiesPanel')
     const drawn = frameOf(built.loop).regions.propertiesPanel.width

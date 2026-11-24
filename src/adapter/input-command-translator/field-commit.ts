@@ -1,4 +1,4 @@
-// InputCommandTranslator -- a value committed in the properties panel into a command (table T-016).
+// File: InputCommandTranslator: a value committed in the properties panel into a command (table T-016).
 // @unit      UF-100  (docs/spec/05-07-design.md, table T-075)
 // @component InputCommandTranslator, layer Adapter (table T-062)
 // @purity    pure
@@ -67,7 +67,7 @@ function settledNumber(text: string): number | null | undefined {
   return Number.isFinite(value) ? value : undefined
 }
 
-// see FR-009, TX-3, TX-10
+// Spec: FR-009, TX-3, TX-10
 const TYPED_LENGTH = /^([-+])?\s*(?:(\d+)\s*d)?\s*(?:(\d+)\s*h)?\s*(?:(\d+)\s*m)?$/i
 const BARE_WORKING_DAYS = /^[-+]?\d+$/
 const MINUTES_PER_HOUR = 60
@@ -79,8 +79,8 @@ interface TypedLength {
   readonly unit: TypedLagUnit
 }
 
-// see FR-009, TX-3, TX-10, PR-5, PR-42
-// WHY: the unit is the finest one typed, so the length is a whole count of it (FR-009 writes the typed unit's format).
+// Spec: FR-009, TX-3, TX-10, PR-5, PR-42
+// Why: the unit is the finest one typed, so the length is a whole count of it (FR-009 writes the typed unit's format).
 /** @purity pure */
 function typedLengthOf(text: string, minutesPerDay: number): TypedLength | null | undefined {
   const held = settledText(text)
@@ -96,7 +96,7 @@ function typedLengthOf(text: string, minutesPerDay: number): TypedLength | null 
 
 type SideText = (day: CalendarDay) => string
 
-// see T-350
+// Spec: T-350
 /** @purity pure */
 function sideTextOf(project: Project, task: Task, column: string): SideText {
   return sideOfTaskColumn(task, column) === 'start'
@@ -108,7 +108,7 @@ const DATE_AND_TIME = /^(\d{4}-\d{2}-\d{2}[T ])(\d{1,2})(:\d{2}.*)$/
 
 const HOUR_DIGITS = 2
 
-// WHY: the panel shows and takes H:MM (TX-3); a stored text has two hour digits (FR-054), so one is padded here.
+// Why: the panel shows and takes H:MM (TX-3); a stored text has two hour digits (FR-054), so one is padded here.
 /** @purity pure */
 function typedInstantOf(held: string): number | null {
   const hit = DATE_AND_TIME.exec(held)
@@ -126,8 +126,8 @@ function settledDay(text: string, sideText: SideText): string | null | undefined
   return day === null ? undefined : sideText(day)
 }
 
-// see CV-4, CV-5
-// WHY: the color field commits a palette name, an empty text (back to the theme) or one #rrggbb
+// Spec: CV-4, CV-5
+// Why: the color field commits a palette name, an empty text (back to the theme) or one #rrggbb
 // from its custom entrance; only the last is folded into the side of the theme being drawn.
 /** @purity pure */
 function settledColor(text: string, previous: string | null, dark: boolean): string | null {
@@ -140,11 +140,11 @@ function settledTruth(text: string): boolean {
   return text.trim() === String(true)
 }
 
-// see PR-5, P-5
-// WHY: the name of PR-5's row, not a Task column; the length is counted from the dates (FR-011).
+// Spec: PR-5, P-5
+// Why: the name of PR-5's row, not a Task column; the length is counted from the dates (FR-011).
 const ACTUAL_LENGTH_ITEM = 'actualDuration'
 
-// see CM-13, T-019, T-019a, FR-044, PR-5
+// Spec: CM-13, T-019, T-019a, FR-044, PR-5
 /** @purity pure */
 function planActualWithColumn(
   schedule: Schedule,
@@ -154,7 +154,7 @@ function planActualWithColumn(
   isTimeOfDayVisible: boolean,
 ): PlacedPlanActual | null {
   const next: Task = { ...task }
-  // WHY: written by name; five typed arms would repeat the classification below five times.
+  // Why: written by name; five typed arms would repeat the classification below five times.
   const written = next as unknown as { [key: string]: unknown }
   if (column === 'resumeValid') {
     written[column] = settledTruth(text)
@@ -166,7 +166,7 @@ function planActualWithColumn(
     const day = settledDay(text, sideTextOf(schedule.project, task, column))
     if (day === undefined) return null
     written[column] = day
-    // TRAP: set resumeValid with resume before the row is read: without true a date on PA-4 is
+    // Trap: set resumeValid with resume before the row is read: without true a date on PA-4 is
     // dropped, without false a cleared date ends the suspension; false only where a date stood.
     if (column === 'resume' && day !== null) {
       written['resumeValid'] = true
@@ -174,7 +174,7 @@ function planActualWithColumn(
     if (column === 'resume' && day === null && task.resume !== null) {
       written['resumeValid'] = false
     }
-    // WHY: a cleared actualFinish hands its day to stop as PV-3 does, or the actual loses its right end.
+    // Why: a cleared actualFinish hands its day to stop as PV-3 does, or the actual loses its right end.
     if (column === 'actualFinish' && day === null && task.actualFinish !== null && next.stop === null) {
       written['stop'] = task.actualFinish
     }
@@ -184,7 +184,7 @@ function planActualWithColumn(
   return placementAt(next)
 }
 
-// see PR-5, FR-011, TX-3
+// Spec: PR-5, FR-011, TX-3
 /** @purity pure */
 function actualEndForLength(schedule: Schedule, task: Task, text: string, isTimeOfDayVisible: boolean): string | null {
   if (isTimeOfDayVisible) {
@@ -208,7 +208,7 @@ const PLAN_ACTUAL_COLUMNS: readonly string[] = [
   'resumeValid',
 ]
 
-// see PR-35, PR-36, CM-11, CM-13
+// Spec: PR-35, PR-36, CM-11, CM-13
 /** @purity pure */
 function commandFromMilestoneDay(task: Task, column: keyof Task, text: string, project: Project): readonly DocumentCommand[] | null {
   const uid = task.uid
@@ -222,7 +222,7 @@ function commandFromMilestoneDay(task: Task, column: keyof Task, text: string, p
   return [{ kind: 'setTaskPlanActualState', taskUid: uid, place }]
 }
 
-// see PR-3, PR-47, CM-11, FR-006
+// Spec: PR-3, PR-47, CM-11, FR-006
 /** @purity pure */
 function commandFromPlanDate(project: Project, task: Task, column: 'start' | 'finish', text: string): readonly DocumentCommand[] {
   const settled = settledDay(text, sideTextOf(project, task, column))
@@ -233,7 +233,7 @@ function commandFromPlanDate(project: Project, task: Task, column: 'start' | 'fi
   return [{ kind: 'setTaskPlanDates', taskUid: task.uid, start, finish }]
 }
 
-// see T-016, PR-3, CM-11, FR-006
+// Spec: T-016, PR-3, CM-11, FR-006
 /** @purity pure */
 function commandFromTaskColumn(
   schedule: Schedule,
@@ -278,7 +278,7 @@ function commandFromTaskColumn(
   }
 }
 
-// see FR-007, CM-22, CM-23, CV-4, CV-5
+// Spec: FR-007, CM-22, CM-23, CV-4, CV-5
 /** @purity pure */
 function commandsFromVisualColor(
   visual: Schedule['taskVisuals'][number] | null,
@@ -296,7 +296,7 @@ function commandsFromVisualColor(
   return [{ kind: 'setTaskVisualColors', taskUid: uid, fillColor, strokeColor }]
 }
 
-// see FR-007, FR-078, FR-002, CM-22, CM-23
+// Spec: FR-007, FR-078, FR-002, CM-22, CM-23
 /** @purity pure */
 function commandFromVisualColumn(
   schedule: Schedule,
@@ -326,7 +326,7 @@ function commandFromVisualColumn(
   }
 }
 
-// see FR-042, AT-53, CM-29, CM-30, CM-31
+// Spec: FR-042, AT-53, CM-29, CM-30, CM-31
 /** @purity pure */
 function commandFromGroupColumn(
   group: Schedule['taskGroups'][number],
@@ -358,7 +358,7 @@ const MIN_HEIGHT_COLUMN = 'minHeightPx'
 
 const CHECK_TEXTS: readonly string[] = [String(true), String(false)]
 
-// see MH-2, MH-1, MH-3, DS-13
+// Spec: MH-2, MH-1, MH-3, DS-13
 /** @purity pure */
 function minHeightTextOf(text: string, taskGroupId: string, context: InputContext): string | null {
   if (!CHECK_TEXTS.includes(text)) return text
@@ -370,8 +370,8 @@ function minHeightTextOf(text: string, taskGroupId: string, context: InputContex
 
 type HighlightBox = Schedule['highlightBoxes'][number]
 
-// see PR-22, PR-23, PR-24, PR-25, CM-55, CM-77, CM-78, CM-79
-// WHY: a number the field cannot read writes nothing; an empty field writes null, which draws T-217's default.
+// Spec: PR-22, PR-23, PR-24, PR-25, CM-55, CM-77, CM-78, CM-79
+// Why: a number the field cannot read writes nothing; an empty field writes null, which draws T-217's default.
 /** @purity pure */
 function commandFromHighlightBoxColumn(
   box: HighlightBox,
@@ -401,8 +401,8 @@ function commandFromHighlightBoxColumn(
 
 type CommentBox = Schedule['commentBoxes'][number]
 
-// see PR-21, PR-26, PR-27, PR-28, PR-50, CM-48, CM-80, CM-81, CM-82, CM-83, CM-84, CM-103
-// WHY: dispatched by column: one field per column, and PR-28's three colors must not land in the text (S-7).
+// Spec: PR-21, PR-26, PR-27, PR-28, PR-50, CM-48, CM-80, CM-81, CM-82, CM-83, CM-84, CM-103
+// Why: dispatched by column: one field per column, and PR-28's three colors must not land in the text (S-7).
 /** @purity pure */
 function commandFromCommentBoxColumn(
   box: CommentBox,
@@ -413,7 +413,7 @@ function commandFromCommentBoxColumn(
   const id = box.id
   const number = settledNumber(text)
   switch (column) {
-    // see PR-48, PR-49, CM-100, CM-101
+    // Spec: PR-48, PR-49, CM-100, CM-101
     case 'id':
       return [{ kind: 'bringCommentBoxToFront', commentBoxId: id }]
     case 'text':
@@ -439,7 +439,7 @@ function commandFromCommentBoxColumn(
 
 type BoxKey = Extract<FieldCommit['key'], { holder: 'commentBox' | 'highlightBox' }>
 
-// see PR-21, PR-22, PR-23, PR-24, PR-25, PR-26, PR-27, PR-28, FR-019
+// Spec: PR-21, PR-22, PR-23, PR-24, PR-25, PR-26, PR-27, PR-28, FR-019
 /** @purity pure */
 function commandFromBoxColumn(schedule: Schedule, key: BoxKey, text: string, dark: boolean): readonly DocumentCommand[] {
   const id = key.id
@@ -451,8 +451,8 @@ function commandFromBoxColumn(schedule: Schedule, key: BoxKey, text: string, dar
   return box === undefined ? [] : commandFromHighlightBoxColumn(box, key.column, text, dark)
 }
 
-// see FR-009, CM-38, S-118, TX-3
-// WHY: working days, or d / h / m with time of day; EditDocument turns them into the stored tenths of a minute (FR-009).
+// Spec: FR-009, CM-38, S-118, TX-3
+// Why: working days, or d / h / m with time of day; EditDocument turns them into the stored tenths of a minute (FR-009).
 /** @purity pure */
 function commandFromDependencyColumn(
   link: { readonly predecessorUid: number; readonly successorUid: number },
@@ -482,13 +482,13 @@ function commandFromDependencyField(key: DependencyKey, text: string, context: I
   return commandFromDependencyColumn(link, key.column, text, context)
 }
 
-// TRAP: change with setThemeHue's range check in edit-project.ts; no generated bound of S-73 reaches here.
+// Trap: change with setThemeHue's range check in edit-project.ts; no generated bound of S-73 reaches here.
 const LOWEST_HUE = 0
 const HIGHEST_HUE = 359
 
 const DECIMAL_DIGITS = /^[0-9]+$/
 
-// see FR-041, CM-5, S-73
+// Spec: FR-041, CM-5, S-73
 /** @purity pure */
 function commandFromThemeHue(text: string): readonly DocumentCommand[] {
   if (!DECIMAL_DIGITS.test(text)) return []
@@ -497,7 +497,7 @@ function commandFromThemeHue(text: string): readonly DocumentCommand[] {
   return [{ kind: 'setThemeHue', themeHue: hue }]
 }
 
-// see FR-131, CM-87
+// Spec: FR-131, CM-87
 /** @purity pure */
 function commandFromParentTaskProgressTolerance(text: string): readonly DocumentCommand[] {
   const workingDays = settledNumber(text)
@@ -505,7 +505,7 @@ function commandFromParentTaskProgressTolerance(text: string): readonly Document
   return [{ kind: 'setParentTaskProgressToleranceDays', parentTaskProgressToleranceDays: workingDays }]
 }
 
-// see FR-046, CM-3, CM-4, WT-4, TX-3
+// Spec: FR-046, CM-3, CM-4, WT-4, TX-3
 /** @purity pure */
 function commandsFromStatusDate(text: string, context: InputContext): readonly DocumentCommand[] {
   const typed = typedDataWallTextOf(text, context)
@@ -515,7 +515,7 @@ function commandsFromStatusDate(text: string, context: InputContext): readonly D
   return [{ kind: 'setStatusDate', statusDate: date }, ...statusLineCentered(context, date)]
 }
 
-// see FR-035, CM-1, FR-041, FR-131, FR-046
+// Spec: FR-035, CM-1, FR-041, FR-131, FR-046
 /** @purity pure */
 function commandFromProjectColumn(column: string, text: string, context: InputContext): readonly DocumentCommand[] {
   if (column === 'themeHue') return commandFromThemeHue(text)
@@ -535,8 +535,8 @@ function fitSpanTextOf(commit: FieldCommit, side: FitSpanColumn, settings: Docum
   return isSide(commit.key) ? commit.text : (settings[side] ?? '')
 }
 
-// see FX-1, FX-5, CM-88, CM-89, UN-13
-// WHY: one settle of the row is one command (DFC-2223); an emptied end clears the span (JDG-1626).
+// Spec: FX-1, FX-5, CM-88, CM-89, UN-13
+// Why: one settle of the row is one command (DFC-2223); an emptied end clears the span (JDG-1626).
 /** @purity pure */
 function commandsFromFitSpan(commit: FieldCommit, settings: DocumentSettings): readonly DocumentCommand[] {
   const start = settledText(fitSpanTextOf(commit, 'fitSpanStart', settings))
@@ -553,14 +553,14 @@ function shownSpanTextsOf(context: InputContext): { readonly start: string | nul
   return { start: textOfDayStart(shown.start), finish: textOfDayEnd(shown.finish) }
 }
 
-// see CM-90, FX-4
+// Spec: CM-90, FX-4
 /** @purity pure */
 function commandsFromFitSpanFixed(text: string, context: InputContext): readonly DocumentCommand[] {
   const shown = shownSpanTextsOf(context)
   return [{ kind: 'setFitSpanFixed', isFitSpanFixed: settledTruth(text), shownStart: shown.start, shownFinish: shown.finish }]
 }
 
-// see CM-88, FX-7
+// Spec: CM-88, FX-7
 /** @purity pure */
 function commandsFromShownSpanCopy(context: InputContext): readonly DocumentCommand[] {
   const shown = shownSpanTextsOf(context)
@@ -570,8 +570,8 @@ function commandsFromShownSpanCopy(context: InputContext): readonly DocumentComm
 
 const TASK_GROUP_TITLE_WIDTH_FLOOR = SETTINGS_CONSTANTS.taskGroupTitleIndent * SETTINGS_CONSTANTS.maxGroupDepth
 
-// see WF-2, CM-67
-// WHY: a value below S-79's floor or not whole writes nothing, so the field goes back to the stored width.
+// Spec: WF-2, CM-67
+// Why: a value below S-79's floor or not whole writes nothing, so the field goes back to the stored width.
 /** @purity pure */
 function commandsFromTaskGroupTitleWidth(text: string): readonly DocumentCommand[] {
   const width = settledNumber(text)
@@ -579,7 +579,7 @@ function commandsFromTaskGroupTitleWidth(text: string): readonly DocumentCommand
   return [{ kind: 'setTaskGroupPanelWidthPx', taskGroupPanelWidthPx: width }]
 }
 
-// see FO-13, CM-97, FR-016, FR-158
+// Spec: FO-13, CM-97, FR-016, FR-158
 /** @purity pure */
 function commandsFromShowsTimeOfDay(text: string, context: InputContext): readonly DocumentCommand[] {
   const isTimeOfDayVisible = settledTruth(text)
@@ -590,7 +590,7 @@ function commandsFromShowsTimeOfDay(text: string, context: InputContext): readon
   return [set, { kind: 'setZoom', zoomX: ceiling, zoomY: settings.zoomY }]
 }
 
-// see FR-039, CM-74, CM-62, S-234, S-70, T-369
+// Spec: FR-039, CM-74, CM-62, S-234, S-70, T-369
 /** @purity pure */
 function commandFromDocumentSettingsColumn(
   column: string,
@@ -619,7 +619,7 @@ const FONT_SIZE_STEPS = Object.keys(SETTINGS_CONSTANTS.fontSizeStepSizes) as rea
 
 const UNASSIGN_TOKEN = '-'
 
-// see AS-8
+// Spec: AS-8
 /** @purity pure */
 function resourceUidOfName(schedule: Schedule, name: string): number | null {
   let found: number | null = null
@@ -630,23 +630,23 @@ function resourceUidOfName(schedule: Schedule, name: string): number | null {
   return found
 }
 
-// see AS-9
+// Spec: AS-9
 /** @purity pure */
 function resourceUidOfChoice(schedule: Schedule, text: string): number | null {
   const uid = Number(text)
   if (!Number.isInteger(uid)) return null
-  // TRAP: ask the roster: a uid gone since the list was drawn writes nothing.
+  // Trap: ask the roster: a uid gone since the list was drawn writes nothing.
   return schedule.resources.some((one) => one.uid === uid) ? uid : null
 }
 
-// see AS-5, AS-8
+// Spec: AS-5, AS-8
 /** @purity pure */
 function resourceUidOfCommit(schedule: Schedule, text: string, pick: FieldCommit['pick']): number | null {
   return pick === 'candidate' ? resourceUidOfChoice(schedule, text) : resourceUidOfName(schedule, text)
 }
 
-// see AS-5, AS-10, AS-13, IC-125, IC-126
-// WHY: one undo step; check-all seats the named people not yet seated, after the seated, so the primary stays.
+// Spec: AS-5, AS-10, AS-13, IC-125, IC-126
+// Why: one undo step; check-all seats the named people not yet seated, after the seated, so the primary stays.
 /** @purity pure */
 function commandsFromAssigneeList(
   schedule: Schedule,
@@ -665,7 +665,7 @@ function commandsFromAssigneeList(
   return [...new Set(known)].filter((uid) => !onTask.has(uid)).map((resourceUid) => ({ kind: 'createAssignment', taskUid, resourceUid }))
 }
 
-// see AS-3, AS-5, AS-7, AS-8, AS-9, AS-10, AS-12, T-225
+// Spec: AS-3, AS-5, AS-7, AS-8, AS-9, AS-10, AS-12, T-225
 /** @purity pure */
 function commandsFromAssigneeField(
   schedule: Schedule,
@@ -679,7 +679,7 @@ function commandsFromAssigneeField(
   )
   if (pick === 'all' || pick === 'none') return commandsFromAssigneeList(schedule, taskUid, onTask, text, pick)
   const settled = settledText(text)
-  // TRAP: a line drawn before its person was taken off (UN-15) must write nothing: CM-45 refuses
+  // Trap: a line drawn before its person was taken off (UN-15) must write nothing: CM-45 refuses
   // a pair not held, and AG-3 then throws the whole bundle away.
   if (settled === null || (seatedUid !== null && !onTask.has(seatedUid))) return []
   const unseat: readonly DocumentCommand[] =
@@ -697,7 +697,7 @@ function commandsFromAssigneeField(
     {
       kind: 'createAssignment',
       taskUid,
-      // TRAP: read before the bundle runs; it names the resource CM-40 makes only while nothing
+      // Trap: read before the bundle runs; it names the resource CM-40 makes only while nothing
       // ahead of CM-44 in this bundle but CM-40 issues a uid.
       resourceUid: nextIssuedUid(schedule),
     },
@@ -705,7 +705,7 @@ function commandsFromAssigneeField(
   ]
 }
 
-// see T-016, PR-3
+// Spec: T-016, PR-3
 /** @purity pure */
 function commandFromTaskField(schedule: Schedule, uid: number, column: keyof Task, text: string,
                              isTimeOfDayVisible: boolean): readonly DocumentCommand[] {
@@ -715,16 +715,16 @@ function commandFromTaskField(schedule: Schedule, uid: number, column: keyof Tas
   return milestoneDay ?? commandFromTaskColumn(schedule, task, column, text, isTimeOfDayVisible)
 }
 
-// see PI-18, T-016
+// Spec: PI-18, T-016
 /** @purity pure */
 export function commandFromFieldCommit(
   commit: FieldCommit,
   context: InputContext,
 ): readonly DocumentCommand[] {
   const schedule = context.document.schedule
-  // see CV-4
+  // Spec: CV-4
   const dark = context.screen.themePreference === 'dark'
-  // WHY: the column is the key the panel drew, not worked out again here: the selection may
+  // Why: the column is the key the panel drew, not worked out again here: the selection may
   // have changed between drawing and commit.
   const key = commit.key
 
@@ -759,14 +759,14 @@ export function commandFromFieldCommit(
   }
 }
 
-// see TX-3, FR-156, S-574
-// WHY: the panel shows a Task's date-time in the view base (properties-panel.ts), so a typed one goes back to the data's clock.
+// Spec: TX-3, FR-156, S-574
+// Why: the panel shows a Task's date-time in the view base (properties-panel.ts), so a typed one goes back to the data's clock.
 /** @purity pure */
 function dataWallTextOf(text: string, column: keyof Task, context: InputContext): string {
   return DATE_COLUMNS.Task.includes(column) ? typedDataWallTextOf(text, context) : text
 }
 
-// see TX-3, FR-156, FR-046
+// Spec: TX-3, FR-156, FR-046
 /** @purity pure */
 function typedDataWallTextOf(text: string, context: InputContext): string {
   const settings = context.document.documentSettings
@@ -777,7 +777,7 @@ function typedDataWallTextOf(text: string, context: InputContext): string {
   return textOfInstant(dataWallOfViewWall(zoneClockOf(data), zoneClockOf(view), instant))
 }
 
-// see FO-15, CM-96, S-575
+// Spec: FO-15, CM-96, S-575
 /** @purity pure */
 function commandsFromDisplayTimeZone(text: string, settings: DocumentSettings): readonly DocumentCommand[] {
   const at = text.indexOf(DISPLAY_TIME_ZONE_SLOT_SEPARATOR)

@@ -69,7 +69,7 @@ describe('UF-97 -- a release past the limit returns the move and the lifts as on
       ...liftMovesAfter('H', settled),
     ]
     const bundle = bundlesOf(releaseAt('H', 1, under('P1')))[0] ?? []
-    // WHY: by id: applyMoves appends a moved row, so the arrays differ in order while the tree is the same.
+    // Why: by id: applyMoves appends a moved row, so the arrays differ in order while the tree is the same.
     const byId = (rows: ReturnType<typeof applyMoves>) => [...rows].sort((x, y) => x.id.localeCompare(y.id))
     expect(byId(applyMoves(groupsOf(), bundle))).toEqual(byId(applyMoves(groupsOf(), moveFirst)))
   })
@@ -91,7 +91,7 @@ interface Case {
   readonly shape: Readonly<Record<string, readonly string[]>>
 }
 
-// WHY: with a limit of 5. Lifted ones become children of the group at limit - 1, straight after the group at the limit, in tree order.
+// Why: with a limit of 5. Lifted ones become children of the group at limit - 1, straight after the group at the limit, in tree order.
 const CASES: readonly Case[] = [
   {
     held: 'S',
@@ -233,7 +233,7 @@ describe('HF-15 / QN-16 -- Yes (proceed) moves the group and lifts the too-deep 
     expect(childrenIn(after, 'S2')).toEqual(['S3', 'S4'])
     expect(deepestIn(after)).toBe(S_125)
     expect(built.loop.document().schedule.taskGroupMembers, 'a Task stays on the task group that carries it').toEqual(before.taskGroupMembers)
-    // WHY: HM-9 (MUST) re-ranks wbsOrder by the task group tree on every move, so the Task is compared without it.
+    // Why: HM-9 (MUST) re-ranks wbsOrder by the task group tree on every move, so the Task is compared without it.
     const withoutRank = (tasks: typeof before.tasks) => tasks.map(({ wbsOrder: _rank, ...rest }) => rest)
     expect(withoutRank(built.loop.document().schedule.tasks)).toEqual(withoutRank(before.tasks))
   })

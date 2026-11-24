@@ -1,4 +1,4 @@
-// Builds the Command Palette description for one frame.
+// File: ScreenRenderer: Builds the Command Palette description for one frame.
 // @unit      UF-65   (docs/spec/05-07-design.md, table T-075)
 // @component ScreenRenderer, layer Adapter (table T-062)
 // @purity    pure
@@ -51,7 +51,7 @@ const GROUP_NAMES_BY_FIRST_ROW = new Map(
 
 const ARM_WORDS_BY_ROW = new Map(displayWords.arms.map((entry) => [entry.rowId, entry]))
 
-// see FR-036, FR-038
+// Spec: FR-036, FR-038
 /** @purity pure */
 function groupName(groupCell: string, firstRow: string, language: DisplayLanguage): string {
   const word = GROUP_NAMES_BY_FIRST_ROW.get(firstRow)?.name[language]
@@ -59,7 +59,7 @@ function groupName(groupCell: string, firstRow: string, language: DisplayLanguag
   return word === '' ? groupCell : word
 }
 
-// see FR-029, FR-034
+// Spec: FR-029, FR-034
 /** @purity pure */
 function isEntryUsable(
   row: IconRosterRow,
@@ -69,7 +69,7 @@ function isEntryUsable(
   if (!row.authority.includes(ALIGN_REQUIREMENT)) return true
   return (
     selection.isOrdered &&
-    // TRAP: count only drawn Tasks; Selection is not pruned when a fold or hiding takes one out.
+    // Trap: count only drawn Tasks; Selection is not pruned when a fold or hiding takes one out.
     selection.items.filter(
       (item) => item.kind === 'task' && (drawnTasks === null || drawnTasks.has(item.uid)),
     ).length >= 2
@@ -90,7 +90,7 @@ function drawnTaskUids(
   return uids
 }
 
-// see FR-049, T-109
+// Spec: FR-049, T-109
 /** @purity pure */
 function isSettingsToggleOn(row: IconRosterRow, settings: DocumentSettings): boolean {
   if (!Object.prototype.hasOwnProperty.call(VISIBLE_ELEMENT_BY_ENTRY, row.rowId)) return false
@@ -108,10 +108,10 @@ const WATERMARK_ROW: IconId = 'IC-41'
 
 const RESOURCE_LIST_ROW: IconId = 'IC-62'
 
-// see T-280, U-56, U-61
+// Spec: T-280, U-56, U-61
 const FLOW_SURFACES_AWAITING_ANSWER: ReadonlySet<string> = new Set(['U-56', 'U-61'])
 
-// see FR-029, T-237
+// Spec: FR-029, T-237
 interface EntranceFacts {
   readonly settings: DocumentSettings
   readonly guideCursorMode: ScreenValues['guideCursorMode']
@@ -123,7 +123,7 @@ interface EntranceFacts {
   readonly isResourceListFiltered: boolean
 }
 
-// see FR-048, T-237, DC-9
+// Spec: FR-048, T-237, DC-9
 /** @purity pure */
 function isExclusiveChoiceChosen(row: IconRosterRow, facts: EntranceFacts): boolean {
   if (row.rowId === DUAL_CURSOR_ROW) return facts.isDualCursorOn
@@ -132,8 +132,8 @@ function isExclusiveChoiceChosen(row: IconRosterRow, facts: EntranceFacts): bool
   return mode !== undefined && facts.guideCursorMode === mode
 }
 
-// see FR-046, FR-049, T-237
-// WHY: EN-7, EN-5 and EN-2 paint alike (S-183), so the drawn line and the shown watermark ride on isPressed.
+// Spec: FR-046, FR-049, T-237
+// Why: EN-7, EN-5 and EN-2 paint alike (S-183), so the drawn line and the shown watermark ride on isPressed.
 /** @purity pure */
 function isEntryOn(row: IconRosterRow, facts: EntranceFacts): boolean {
   if (row.rowId === STATUS_DATE_ROW) return facts.isStatusDateDrawn
@@ -142,7 +142,7 @@ function isEntryOn(row: IconRosterRow, facts: EntranceFacts): boolean {
   return isSettingsToggleOn(row, facts.settings)
 }
 
-// see FR-046, FR-048
+// Spec: FR-046, FR-048
 /** @purity pure */
 function entranceFactsOf(
   settings: DocumentSettings,
@@ -167,21 +167,21 @@ function isFlowSurfaceOpen(open: ScreenValues['openSurfaceState']): boolean {
   return open.kind === 'open' && FLOW_SURFACES_AWAITING_ANSWER.has(open.surfaceName)
 }
 
-// see FR-029, T-280, RS-27, IC-41
-// WHY: T-280 refuses a surface entry over U-56 / U-61 with RS-27; IC-41 opens one only while shown.
+// Spec: FR-029, T-280, RS-27, IC-41
+// Why: T-280 refuses a surface entry over U-56 / U-61 with RS-27; IC-41 opens one only while shown.
 /** @purity pure */
 function isSurfaceEntryRefused(row: IconRosterRow, facts: EntranceFacts): boolean {
   if (!facts.isFlowAwaitingAnswer) return false
   return row.rowId === WATERMARK_ROW && facts.isWatermarkShown
 }
 
-// see TV-12, EN-8, IC-62
+// Spec: TV-12, EN-8, IC-62
 /** @purity pure */
 function scheduleFilterMarkOf(row: IconRosterRow, facts: EntranceFacts): Pick<CommandItem, 'isScheduleFilterApplied'> {
   return row.rowId === RESOURCE_LIST_ROW && facts.isResourceListFiltered ? { isScheduleFilterApplied: true } : {}
 }
 
-// see FR-049, FR-053, FR-102
+// Spec: FR-049, FR-053, FR-102
 /** @purity pure */
 function commandItemFor(
   row: IconRosterRow,
@@ -214,7 +214,7 @@ function isFoldedMilestoneGlyph(met: number): boolean {
   return met > NOT_STORED_COMMAND_PALETTE_SIZES['S-216']
 }
 
-// see T-109, FR-053
+// Spec: T-109, FR-053
 /** @purity pure */
 function paletteGroups(
   selection: Selection,
@@ -240,12 +240,12 @@ function paletteGroups(
     const cell = row.group
     if (cell === null) continue
 
-    // TRAP: a folded row must still open its group; the group's word is keyed by its first row.
+    // Trap: a folded row must still open its group; the group's word is keyed by its first row.
     const opened = groups.find((group) => group.cell === cell)
     const group = opened ?? { cell, firstRow: row.rowId, commands: [] }
     if (opened === undefined) groups.push(group)
 
-    // TRAP: count every glyph row, folded or not, or an entry folds after the list opens and closes.
+    // Trap: count every glyph row, folded or not, or an entry folds after the list opens and closes.
     if (isMilestoneGlyphEntry(row)) {
       milestoneGlyphsMet += 1
       if (isFoldedMilestoneGlyph(milestoneGlyphsMet) && !isMilestoneListOpen) continue
@@ -268,7 +268,7 @@ interface ArmedEntry {
   readonly shape: string | null
 }
 
-// see T-023b
+// Spec: T-023b
 /** @purity pure */
 function armedEntry(armMode: ScreenSession['screen']['armModeState']): ArmedEntry {
   const armed = armedOf(armMode)
@@ -289,7 +289,7 @@ function armedEntry(armMode: ScreenSession['screen']['armModeState']): ArmedEntr
   }
 }
 
-// see FR-038, FR-053
+// Spec: FR-038, FR-053
 // Provisional: OPQ-4
 /** @purity pure */
 function armedWord(
@@ -315,7 +315,7 @@ function isRecordingInteractions(readings: ScreenViewReadings): boolean {
   return readings.isRecordingInteractions === true
 }
 
-// see FR-053, S-99e
+// Spec: FR-053, S-99e
 /** @purity pure */
 export function commandPaletteFromSession(
   session: ScreenSession,
@@ -340,7 +340,7 @@ export function commandPaletteFromSession(
     at: readings.commandPaletteAt,
     grabBandHeight: NOT_STORED_COMMAND_PALETTE_SIZES['S-135a'],
     minimize: bandItem(MINIMIZE_ROW),
-    // see FR-053, FR-102, S-206
+    // Spec: FR-053, FR-102, S-206
     bandRecord: isMinimized && isRecording ? bandItem(INTERACTION_RECORD_ROW) : null,
     isMinimized,
     groups: isMinimized
@@ -363,7 +363,7 @@ export function commandPaletteFromSession(
 //   docs/spec/_source/settings.json (table T-206)
 //   docs/spec/_assets/tbl-glossary.md (table T-109)
 // Rebuild: npm run gen   ||   npm run gen:check fails on drift.
-// see T-206
+// Spec: T-206
 const NOT_STORED_COMMAND_PALETTE_SIZES: {
   readonly 'S-135a': number
   readonly 'S-216': number
@@ -372,7 +372,7 @@ const NOT_STORED_COMMAND_PALETTE_SIZES: {
   'S-216': 3,
 }
 
-// see T-109, FR-049
+// Spec: T-109, FR-049
 const VISIBLE_ELEMENT_BY_ENTRY: Readonly<Record<string, 'isBaselineVisible' | 'isPlanVisible' | 'isActualVisible' | 'isProgressLineVisible' | 'isProgressMarkerVisible' | 'isDateGridLinesVisible' | 'isGroupGridLinesVisible' | 'isAssigneeVisible' | 'isPercentCompleteVisible' | 'isDependencyVisible' | 'isPlanDatesVisible'>> = {
   'IC-4': 'isBaselineVisible',
   'IC-8': 'isPlanVisible',
@@ -387,7 +387,7 @@ const VISIBLE_ELEMENT_BY_ENTRY: Readonly<Record<string, 'isBaselineVisible' | 'i
   'IC-103': 'isPlanDatesVisible',
 }
 
-// see T-109, FR-048
+// Spec: T-109, FR-048
 const GUIDE_CURSOR_MODE_BY_ENTRY: Readonly<Record<string, 'crosshair' | 'single-vertical'>> = {
   'IC-47': 'crosshair',
   'IC-48': 'single-vertical',

@@ -25,7 +25,7 @@ export const COMMENT_ID = '77700000-0000-4000-8000-000000000001'
 export const OTHER_COMMENT_ID = '77700000-0000-4000-8000-000000000002'
 export const HIGHLIGHT_ID = '77700000-0000-4000-8000-0000000000a1'
 
-// see AT-167
+// Spec: AT-167
 export const SNAP_ORDER = [
   'topLeftCorner',
   'topMiddle',
@@ -160,7 +160,7 @@ export function boxOfTask(loop: FrameLoop, uid: number, figure: 'plan' | 'actual
   return boxOfBar(drawn[figure], `Task ${uid} ${figure}`)
 }
 
-// see LF-15
+// Spec: LF-15
 /** @purity pure */
 export function eightPointsOf(box: Box, isMilestone: boolean): readonly Point[] {
   const cx = (box.x0 + box.x1) / 2
@@ -189,7 +189,7 @@ export function snapsOfFigure(
   return snapsOf(loop).filter((one) => one.target.kind === 'task' && one.target.taskUid === uid && one.target.taskFigure === figure)
 }
 
-// WHY: the left edge of a day's column, found by bisection on the day the axis reads, so no column width is assumed.
+// Why: the left edge of a day's column, found by bisection on the day the axis reads, so no column width is assumed.
 /** @purity pure */
 export function columnLeft(loop: FrameLoop, isoDay: string): number {
   const { regions, layout } = frameOf(loop)

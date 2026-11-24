@@ -42,12 +42,12 @@ const T_103 = specTable('T-103')
 const T_109 = specTable('T-109')
 const partOf = (id: string): string => `[data-role="${bare(rowOf(T_103, id).by['確定名（英）'] ?? '')}"]`
 
-// see U-26, U-53
+// Spec: U-26, U-53
 const PALETTE = partOf('U-26')
 const TOOLTIP = partOf('U-53')
 const PALETTE_NAME = bare(rowOf(T_103, 'U-26').by['確定名（英）'] ?? '')
 
-// see T-109
+// Spec: T-109
 const PLACE_A_RECTANGLE = rowOf(T_109, 'IC-23').id
 const ARM_A_DEPENDENCY = rowOf(T_109, 'IC-61').id
 const NO_ARM = new Set(['', '—', '-'])
@@ -59,10 +59,10 @@ const numberOf = (cell: string): number => {
   return value
 }
 
-// see S-124
+// Spec: S-124
 const S_124_MS = numberOf(rowOf(specTable('T-212'), 'S-124').by['値'] ?? '')
 
-// see FR-038, EZ-2
+// Spec: FR-038, EZ-2
 const WORDS = JSON.parse(readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8')) as {
   readonly icons: readonly { readonly rowId: string; readonly hint?: { readonly ja: string; readonly en: string } }[]
 }
@@ -70,9 +70,9 @@ const HINTS: ReadonlyMap<string, readonly string[]> = new Map(
   WORDS.icons.flatMap((one) => (one.hint === undefined ? [] : [[one.rowId, [one.hint.ja, one.hint.en]] as const])),
 )
 
-// WHY: past a wait the box still needs a frame or two to be drawn and read back (as CR-576's cases allow).
+// Why: past a wait the box still needs a frame or two to be drawn and read back (as CR-576's cases allow).
 const SHOW_ALLOWANCE_MS = 1_500
-// WHY: a point this far inside an edge is inside the box whatever fraction the layout lands on.
+// Why: a point this far inside an edge is inside the box whatever fraction the layout lands on.
 const INSET_PX = 2
 
 interface Rect {
@@ -107,7 +107,7 @@ function isHintOf(icon: string, text: string): boolean {
   return (HINTS.get(icon) ?? []).some((hint) => hint !== '' && text.includes(hint))
 }
 
-// WHY: the point of the overlap nearest the column of the hinted icon, so the move from it is straight down where it can be.
+// Why: the point of the overlap nearest the column of the hinted icon, so the move from it is straight down where it can be.
 /** @purity pure */
 function pointOfOverlap(box: Rect, covered: Rect, column: number): Point | null {
   const left = Math.max(box.left, covered.left) + INSET_PX
@@ -118,7 +118,7 @@ function pointOfOverlap(box: Rect, covered: Rect, column: number): Point | null 
   return { x: Math.min(Math.max(column, left), right), y: (top + bottom) / 2 }
 }
 
-// see EZ-2
+// Spec: EZ-2
 /** @purity pure */
 function pointOfTheBoxOutside(box: Rect, icon: Rect): Point | null {
   const x = Math.min(Math.max(centerOf(icon).x, box.left + INSET_PX), box.right - INSET_PX)
@@ -153,7 +153,7 @@ async function shownNow(page: Page): Promise<{ text: string; rect: Rect | null }
   }, TOOLTIP)
 }
 
-// WHY: every change of the shown text stamped by the page itself, so the first change after a move is not lost between polls.
+// Why: every change of the shown text stamped by the page itself, so the first change after a move is not lost between polls.
 /** @purity non-pure */
 async function installRecorder(page: Page): Promise<void> {
   await page.evaluate((tooltip: string) => {
@@ -188,7 +188,7 @@ async function changesSince(page: Page, since: number): Promise<readonly { at: n
   }, since)
 }
 
-// see T-337, GR-19
+// Spec: T-337, GR-19
 /** @purity semi-pure-mutable */
 async function frontAt(page: Page, at: Point): Promise<Front> {
   return page.evaluate(
@@ -257,7 +257,7 @@ async function openTheSample(): Promise<Stage> {
   return stage
 }
 
-// WHY: at the shallow zoom T1's children are not drawn, so IC-90 has something to bring back and a press on it shows.
+// Why: at the shallow zoom T1's children are not drawn, so IC-90 has something to bring back and a press on it shows.
 /** @purity non-pure */
 async function openTheShallowTree(): Promise<Stage> {
   if (browser === null) throw new Error('the reference browser was not opened')
@@ -306,7 +306,7 @@ test.describe('CR-653 (a) -- the description of a task group control covers the 
       expect(front.inTooltip, `${IN_3_TAKES_NO_POINTER} -- the box is the front at ${JSON.stringify(at)}`).toBe(false)
       expect(front.entrance, UZ_2_PASSES_THE_PRESS).toBe(TASK_GROUP_OPEN_ONE_LEVEL)
 
-      // STEP: straight down from the hinted control onto the covered one, and press at once
+      // Step: straight down from the hinted control onto the covered one, and press at once
       await pressHere(page, at)
       expect(await drawnRowIds(page), `${UZ_2_PASSES_THE_PRESS} -- ${TASK_GROUP_OPEN_ONE_LEVEL} did not open a level`).toContain('T1a')
       expect(stateOf(await readTree(page), row), `${UZ_2_PASSES_THE_PRESS} -- the press went to ${TASK_GROUP_HIDE}`).not.toBe('hidden')

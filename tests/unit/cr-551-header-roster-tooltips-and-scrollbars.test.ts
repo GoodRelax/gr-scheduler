@@ -29,7 +29,7 @@ const numberOf = (cell: string): number => {
   return value
 }
 
-// see S-339
+// Spec: S-339
 const S_339 = numberOf(verticalIn('T-206', 'S-339').by['既定'] ?? '')
 
 const GLOBAL = globalThis as unknown as Record<string, unknown>
@@ -105,7 +105,7 @@ describe('IC-100 -- the monochrome entrance', () => {
   })
 
   it('IC-100: App Header の IC-16 の左 -- the header lists IC-100 immediately before IC-16', () => {
-    // see IC-100, FR-041
+    // Spec: IC-100, FR-041
     const icons = bench(oneTaskGroupDocument()).view().appHeaderItems.commands.map((one) => one.icon)
     const at = icons.indexOf('IC-100')
     expect(at, `the header entrances: ${icons.join(' ')}`).toBeGreaterThanOrEqual(0)
@@ -113,7 +113,7 @@ describe('IC-100 -- the monochrome entrance', () => {
   })
 
   it('IC-100: not in the Command Palette (FR-041 moved it out of the palette)', () => {
-    // see IC-100
+    // Spec: IC-100
     const built = bench(oneTaskGroupDocument({}))
     const palette = built.view().commandPalette
     const inPalette = (palette?.groups ?? []).flatMap((group) => group.commands.map((one) => one.icon))
@@ -125,7 +125,7 @@ describe('IC-100 -- the monochrome entrance', () => {
   })
 
   it('IC-100: the drawn App Header carries IC-100 as the entrance just before IC-16', () => {
-    // see IC-100
+    // Spec: IC-100
     const built = bench(oneTaskGroupDocument())
     const header = byRole(built.built.root(), 'App Header')[0] as FakeElement
     const order = selfAndDescendants(header)
@@ -155,7 +155,7 @@ interface FakeNode {
 const pxOf = (style: string, name: string): number =>
   Number(new RegExp(`(?:^|;)${name}:(-?[\\d.]+)px`).exec(style.replace(/\s/g, ''))?.[1])
 
-// WHY: the same fake node tests/unit/ez-2-tooltip-one-line-inside-the-window.test.ts drives these two exports with.
+// Why: the same fake node tests/unit/ez-2-tooltip-one-line-inside-the-window.test.ts drives these two exports with.
 const nodeOf = (width: number): FakeNode & Record<string, unknown> => {
   const node: FakeNode & Record<string, unknown> = { style: '', text: '', children: [], width, rect: null }
   node.setAttribute = (name: string, value: string) => {
@@ -206,27 +206,27 @@ describe('IN-7 (table T-028) -- tooltips', () => {
   })
 
   it('IN-7: 説明の幅は中身の幅とし、その上限を ... 窓の幅から両側に S-339 を引いた幅 -- written against the window', () => {
-    // see IN-7, S-339
+    // Spec: IN-7, S-339
     const style = flat(shown(100, 1000, 240).style)
     expect(style).toMatch(/(?:^|;)width:max-content(?:;|$)/)
     expect(style).toContain(`max-width:calc(100vw-${2 * S_339}px)`)
   })
 
   it('IN-7: with room on the right it stands at the anchor left edge', () => {
-    // see IN-7
+    // Spec: IN-7
     expect(pxOf(shown(100, 1000, 240).style, 'left')).toBe(100)
   })
 
   it('IN-7: 窓の右端から S-339 の内側に収まらないとき ... 説明の右端を対象の右端に揃えて出す (the S-339 margin counts)', () => {
-    // see IN-7, S-339
-    // WHY: 1000 - S-339 < anchorLeft + width <= 1000: inside the window, but not S-339 inside it.
+    // Spec: IN-7, S-339
+    // Why: 1000 - S-339 < anchorLeft + width <= 1000: inside the window, but not S-339 inside it.
     const anchorLeft = 1000 - S_339 - 240 + 1
     const left = pxOf(shown(anchorLeft, 1000, 240).style, 'left')
     expect(left).toBe(anchorLeft + ANCHOR_WIDTH - 240)
   })
 
   it('IN-7: それでも左端が ... S-339 の内側に収まらないときは、左端を窓の左端から S-339 の位置に置く', () => {
-    // see IN-7, S-339
+    // Spec: IN-7, S-339
     const left = pxOf(shown(900, 1000, 990).style, 'left')
     expect(left).toBe(S_339)
   })
@@ -246,7 +246,7 @@ interface Box {
 
 const numberAttr = (tag: string, name: string): number => Number(new RegExp(`\\b${name}="([^"]+)"`).exec(tag)?.[1])
 
-// WHY: a clip on an enclosing group is what the viewer sees, so the clip rectangle bounds what was drawn.
+// Why: a clip on an enclosing group is what the viewer sees, so the clip rectangle bounds what was drawn.
 function drawnBoxes(svg: string, figure: RegExp): Box[] {
   const clips = new Map<string, Box>()
   for (const found of svg.matchAll(/<clipPath\b[^>]*id="([^"]+)"[^>]*>\s*<rect\b([^>]*)>/g)) {
@@ -307,7 +307,7 @@ describe('FR-051 -- the scrollbar bands', () => {
   })
 
   it('FR-051: 横の Scrollbars は、GRS が占める画面の下端に接して置く', () => {
-    // see FR-051
+    // Spec: FR-051
     const bars = manyTaskGroups().view().frame.scrollbars
     const horizontal = bars.find((one) => one.axis === 'horizontal')
     expect(horizontal).toBeDefined()
@@ -315,7 +315,7 @@ describe('FR-051 -- the scrollbar bands', () => {
   })
 
   it('FR-051: タスクグループの帯の地を、縦の Scrollbars の左端まで続けて塗る', () => {
-    // see FR-051
+    // Spec: FR-051
     const built = manyTaskGroups()
     const vertical = built.view().frame.scrollbars.find((one) => one.axis === 'vertical')
     const bands = drawnBoxes(built.svg(), /^task-group-.*-band$/)
@@ -324,7 +324,7 @@ describe('FR-051 -- the scrollbar bands', () => {
   })
 
   it('FR-051: タスクグループの帯の地も日程の形も、縦の Scrollbars の帯の中へ描いてはならない', () => {
-    // see FR-051
+    // Spec: FR-051
     const built = manyTaskGroups()
     const vertical = built.view().frame.scrollbars.find((one) => one.axis === 'vertical')?.track as Box
     const drawn = drawnBoxes(built.svg(), /^(task-group-.*|task-.*)$/)
@@ -333,7 +333,7 @@ describe('FR-051 -- the scrollbar bands', () => {
   })
 
   it('FR-051: 日程（タスクグループの帯・形・罫線）を横の Scrollbars の帯の中へ描いてはならない', () => {
-    // see FR-051
+    // Spec: FR-051
     const built = manyTaskGroups()
     const horizontal = built.view().frame.scrollbars.find((one) => one.axis === 'horizontal')?.track as Box
     const drawn = drawnBoxes(built.svg(), /^(task-group-.*|task-.*)$/)

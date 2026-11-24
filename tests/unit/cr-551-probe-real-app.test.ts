@@ -148,7 +148,7 @@ const marginsOf = (loop: FrameLoop): { left: number; right: number; width: numbe
 
 describe('A: FR-055 / S-332 -- the first fit after a template start leaves the margin on both sides', () => {
   it('the first press of IC-10 on a document that stores no place (the startup template) leaves S-332 each side', () => {
-    // see FR-055, S-332, OP-10
+    // Spec: FR-055, S-332, OP-10
     const built = started(seededDocument({ scrollDate: null, scrollTaskGroupId: null }), { fromTemplate: true })
     built.press('App Header', 'IC-10')
     const { left, right, width } = marginsOf(built.loop)
@@ -157,7 +157,7 @@ describe('A: FR-055 / S-332 -- the first fit after a template start leaves the m
   })
 
   it('the same on a document without a stored place that did not come from the template', () => {
-    // see FR-055, S-332
+    // Spec: FR-055, S-332
     const built = started(seededDocument({ scrollDate: null, scrollTaskGroupId: null, zoomX: 4 }))
     built.press('App Header', 'IC-10')
     const { left, right, width } = marginsOf(built.loop)
@@ -174,7 +174,7 @@ const horizontalBarOf = (built: ProbeBench) => {
 
 describe('B: GR-21 -- while the grip is held, the view stays inside the whole held from the press', () => {
   it('the grip follows the pointer, and where it meets the lane end the view stops with it', () => {
-    // see GR-21, T-023d, FR-051
+    // Spec: GR-21, T-023d, FR-051
     const built = started(seededDocument({ zoomX: 4, scrollDate: '2026-03-20', scrollTaskGroupId: 'g1' }))
     const bar = horizontalBarOf(built)
     const at = { x: bar.thumb.x + bar.thumb.width / 2, y: bar.thumb.y + bar.thumb.height / 2 }
@@ -207,7 +207,7 @@ describe('B: GR-21 -- while the grip is held, the view stays inside the whole he
 
 describe('B (the vertical twin): GR-21 -- the vertical grip holds the same whole', () => {
   it('the vertical grip follows the pointer, and where it meets the lane end the view stops with it', () => {
-    // see GR-21, T-023d, FR-051
+    // Spec: GR-21, T-023d, FR-051
     const rows = Array.from({ length: 60 }, (_one, index) => ({ id: `g${index + 1}`, parentId: null }))
     const built = started(taskGroupDocument(rows, { isProgressMarkerVisible: false, zoomY: 3 }))
     const barOf = () => {
@@ -244,7 +244,7 @@ interface PanelBench {
   readonly built: Stage
   readonly frames: () => number
   send(input: HumanInput): void
-  // WHY: hands the input over and leaves the frame it asks for waiting, as a browser does until
+  // Why: hands the input over and leaves the frame it asks for waiting, as a browser does until
   // the events of the same task (the click after a pointerup) have run.
   sendHeld(input: HumanInput): void
   drain(): void
@@ -311,7 +311,7 @@ function panelBench(document: Record<string, unknown>): PanelBench {
   }
 }
 
-// WHY: bubbles from the node through its parents as a browser does; the shell's own listeners sit on window.
+// Why: bubbles from the node through its parents as a browser does; the shell's own listeners sit on window.
 function raise(built: Stage, node: FakeElement, type: string, extra: Record<string, unknown> = {}): FakeEvent {
   const event = {
     type,
@@ -375,14 +375,14 @@ function dateEntryOf(bench: PanelBench, row: string, index: number): FakeElement
     (one) => one.getAttribute('data-field-row') === row && one.tagName === 'INPUT' && one.getAttribute('type') === 'date',
   )[index]
   if (found === undefined) throw new Error(`the panel drew no date entry for ${row}`)
-  // WHY: a browser reflects the type attribute onto the property; the shared fake does not.
+  // Why: a browser reflects the type attribute onto the property; the shared fake does not.
   ;(found as unknown as { type: string | null }).type = found.getAttribute('type')
   return found
 }
 
 const keyInput = (key: string): HumanInput => ({ kind: 'key', key, modifiers: { ...NO_MODS } })
 
-// WHY: what a browser raises for a key pressed in the field: keydown at the field, bubbling to the
+// Why: what a browser raises for a key pressed in the field: keydown at the field, bubbling to the
 // panel, then to window where the shell's input source hears it.
 function pressKeyIn(bench: PanelBench, entry: FakeElement, key: string): void {
   raise(bench.built, entry, 'keydown', { key })
@@ -390,7 +390,7 @@ function pressKeyIn(bench: PanelBench, entry: FakeElement, key: string): void {
   raise(bench.built, entry, 'keyup', { key })
 }
 
-// WHY: measured on Edge (Chromium) 2026-09-24 with the built app: a script that sets the value of the
+// Why: measured on Edge (Chromium) 2026-09-24 with the built app: a script that sets the value of the
 // focused date entry makes the entry raise focusin again, inside the setter.
 const typedBy = new WeakMap<FakeElement, (next: string) => void>()
 
@@ -411,7 +411,7 @@ function focusIn(bench: PanelBench, entry: FakeElement): void {
   raise(bench.built, entry, 'focusin')
 }
 
-// WHY: a blur by script raises focusout and nothing the shell hears; the next input is a move.
+// Why: a blur by script raises focusout and nothing the shell hears; the next input is a move.
 function blurOut(bench: PanelBench, entry: FakeElement): void {
   raise(bench.built, entry, 'focusout')
   bench.send(pointerOf('move', 5, SCREEN.height - 20))
@@ -420,7 +420,7 @@ function blurOut(bench: PanelBench, entry: FakeElement): void {
 describe('C: FR-006 -- an emptied date field commits with the events a browser raises', () => {
   for (const commit of ['blur', 'Enter'] as const) {
     it(`deadline emptied by Delete and settled by ${commit} writes null`, () => {
-      // see FR-006, T-016, PR-10
+      // Spec: FR-006, T-016, PR-10
       const bench = taskPanel({ deadline: '2026-12-15T17:00:00' })
       const entry = dateEntryOf(bench, 'PR-10', 0)
       focusIn(bench, entry)
@@ -431,7 +431,7 @@ describe('C: FR-006 -- an emptied date field commits with the events a browser r
     })
 
     it(`start emptied by Delete and settled by ${commit} writes nothing and shows the old value again`, () => {
-      // see FR-006, T-016, PR-3
+      // Spec: FR-006, T-016, PR-3
       const bench = taskPanel()
       const before = bench.loop.document().schedule.tasks[0]?.start
       const entry = dateEntryOf(bench, 'PR-3', 0)
@@ -445,7 +445,7 @@ describe('C: FR-006 -- an emptied date field commits with the events a browser r
     })
 
     it(`a date typed into the deadline field (input, change) and settled by ${commit} is written`, () => {
-      // see FR-006, T-016, PR-10
+      // Spec: FR-006, T-016, PR-10
       const bench = taskPanel({ deadline: '2026-12-15T17:00:00' })
       const entry = dateEntryOf(bench, 'PR-10', 0)
       focusIn(bench, entry)
@@ -461,7 +461,7 @@ describe('C: FR-006 -- an emptied date field commits with the events a browser r
 
 describe('D: CV-9 / JDG-397 -- a press on a color swatch lands in the frame its press asked for', () => {
   it('the swatch press writes the color, draws it and lets undo be pressed without a further input', () => {
-    // see CV-9, T-078, FT-1, IF-9
+    // Spec: CV-9, T-078, FT-1, IF-9
     const bench = taskPanel({}, null)
     const swatch = selfAndDescendants(panelRootOf(bench)).find(
       (one) => one.tagName === 'BUTTON' && (one.getAttribute('data-color-choice') ?? '') !== '' && one.getAttribute('aria-pressed') !== 'true',
@@ -494,7 +494,7 @@ describe('D: CV-9 / JDG-397 -- a press on a color swatch lands in the frame its 
 
 describe('E: FR-051 E-14 -- the schedule is drawn only on the ground its task group bands paint', () => {
   it('every layer of table T-020 sits inside one clip: the Task Group Area widened by canvasPadding to the vertical bar', () => {
-    // see FR-051, EP-5, T-020
+    // Spec: FR-051, EP-5, T-020
     const rows = Array.from({ length: 40 }, (_one, index) => ({ id: `g${index + 1}`, parentId: null }))
     const document = taskGroupDocument(rows, { isProgressMarkerVisible: false, zoomY: 2 })
     const built = started(document)

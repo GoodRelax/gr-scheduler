@@ -55,7 +55,7 @@ describe('DFC-753 / FR-051 -- the App Header height settled from the host is rep
 
   it('FR-051: a header that grows from zero reports its new height', () => {
     const built = wire(THEME, { [ROLE.appHeader]: ZERO_HEIGHT_PX })
-    // STEP: the host now measures the header taller, and the header is redrawn
+    // Step: the host now measures the header taller, and the header is redrawn
     built.world.heightsByRole.set(ROLE.appHeader, LATER_HEIGHT_PX)
     surfaceOf(built).showScreenView(viewTitled('A plan'))
     expect(built.reportedHeights).toEqual([ZERO_HEIGHT_PX, LATER_HEIGHT_PX])

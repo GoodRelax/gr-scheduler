@@ -10,7 +10,7 @@ import { rowIdOf, taskGroupsDocument } from './w3-t1-stage'
 
 const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
-// WHY: the constant ends exactly at its marker, cut from the manuscript as check 39 reads it.
+// Why: the constant ends exactly at its marker, cut from the manuscript as check 39 reads it.
 const FR_098_NOT_DRAWN =
   'それ以外の理由で描くのをやめてはならない（MUST NOT）。⭐ **入りきらないときが要るのは、無いと本行が同じ要求の「入りきらないタスクグループを描かないこと（MUST）'
 const FR_098_RULE = '⭐ ピン止めしたタスクグループが画面に収まらないときは、入りきらないタスクグループを描かないこと（MUST）'

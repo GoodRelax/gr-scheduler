@@ -1,4 +1,4 @@
-// The values the screen uses that the document does not keep.
+// File: ScreenState: The values the screen uses that the document does not keep.
 // @unit      UF-59   (docs/spec/05-07-design.md, table T-075)
 // @component ScreenState, layer documentModel (table T-062)
 // @purity    pure
@@ -6,7 +6,7 @@
 
 import type { TableViews } from '../document-settings/document-settings'
 
-// see PV-4, PV-5
+// Spec: PV-4, PV-5
 export interface RememberedActual {
   readonly actualStart: string | null
   readonly actualFinish: string | null
@@ -14,8 +14,8 @@ export interface RememberedActual {
   readonly carriedActualDuration: string | null
 }
 
-// see T-335, RG-16
-// WHY: the words of escapePressed.rung that RG-16 names: the three table windows (T-353) and the help.
+// Spec: T-335, RG-16
+// Why: the words of escapePressed.rung that RG-16 names: the three table windows (T-353) and the help.
 export type WindowName = keyof TableViews | 'helpModal'
 
 export type EscapeTarget =
@@ -34,19 +34,19 @@ export type EscapeTarget =
 
 export type DualCursorSide = 'cursorA' | 'cursorB'
 
-// see RG-16, RW-5, RO-6
+// Spec: RG-16, RW-5, RO-6
 export interface WindowStanding {
   readonly isSearchPanelStanding?: boolean
   readonly isHelpStanding?: boolean
   readonly isDelayDiagnosticsReportStanding?: boolean
   readonly isResourceListStanding?: boolean
   readonly focusedWindow?: WindowName | null
-  // WHY: RW-5, RO-6 -- the three table windows share UZ-6; the one opened later is in front.
+  // Why: RW-5, RO-6 -- the three table windows share UZ-6; the one opened later is in front.
   readonly isDelayDiagnosticsReportInFront?: boolean
   readonly isResourceListInFront?: boolean
 }
 
-// TRAP: an optional member's level must be reckoned once, by the holder of that value;
+// Trap: an optional member's level must be reckoned once, by the holder of that value;
 // a second caller that cannot see it answers the next level down and spends two levels.
 export interface EscapeContext extends WindowStanding {
   readonly isNoticeStanding?: boolean
@@ -63,8 +63,8 @@ export interface EscapeContext extends WindowStanding {
   readonly isFullScreen?: boolean
 }
 
-// see T-337, RW-5, RO-6, UZ-6
-// WHY: each window says only whether it is in front, so one that is not falls behind the other two.
+// Spec: T-337, RW-5, RO-6, UZ-6
+// Why: each window says only whether it is in front, so one that is not falls behind the other two.
 /** @purity pure */
 function windowsFrontToBack(standing: WindowStanding): readonly WindowName[] {
   const reportAndSearch: readonly WindowName[] =
@@ -90,8 +90,8 @@ function isWindowStanding(standing: WindowStanding, window: WindowName): boolean
   }
 }
 
-// see IN-4, RG-16, T-337
-// WHY: one Esc closes one window: the focused one first, otherwise the front-most of table T-337.
+// Spec: IN-4, RG-16, T-337
+// Why: one Esc closes one window: the focused one first, otherwise the front-most of table T-337.
 /** @purity pure */
 export function windowClosedByEscape(standing: WindowStanding): WindowName | null {
   const focused = standing.focusedWindow ?? null
@@ -99,7 +99,7 @@ export function windowClosedByEscape(standing: WindowStanding): WindowName | nul
   return windowsFrontToBack(standing).find((window) => isWindowStanding(standing, window)) ?? null
 }
 
-// see IN-4, T-283
+// Spec: IN-4, T-283
 /** @purity pure */
 export function escapeTarget(context: EscapeContext): EscapeTarget | null {
   if (context.isNoticeStanding === true) return 'notice'
@@ -107,7 +107,7 @@ export function escapeTarget(context: EscapeContext): EscapeTarget | null {
   if (context.isConfirmationStanding === true) return 'confirmation'
   if (context.isSurfaceOpen) return 'surface'
   if (context.gestureInFlight) return 'gesture'
-  // WHY: IN-4 -- while the focus is in the properties panel, the panel rung takes this Esc first.
+  // Why: IN-4 -- while the focus is in the properties panel, the panel rung takes this Esc first.
   const window = context.isFocusInPropertiesPanel === true ? null : windowClosedByEscape(context)
   if (window !== null) return window
   if (context.isPropertiesPanelOpen === true) return 'propertiesPanel'
@@ -115,7 +115,7 @@ export function escapeTarget(context: EscapeContext): EscapeTarget | null {
   if (context.isSelectionStanding === true) return 'selection'
   if (context.dualCursorMode) return 'dualCursorMode'
   if (context.isTooltipStanding === true) return 'tooltip'
-  // WHY: IN-4 -- full screen is left only when nothing else is left to cancel.
+  // Why: IN-4 -- full screen is left only when nothing else is left to cancel.
   if (context.isFullScreen === true) return 'fullScreen'
   return null
 }
@@ -124,7 +124,7 @@ export function escapeTarget(context: EscapeContext): EscapeTarget | null {
 // Single source of truth:
 //   docs/spec/_source/settings.json (table T-333)
 // Rebuild: npm run gen   ||   npm run gen:check fails on drift.
-// see T-333, FR-151
+// Spec: T-333, FR-151
 export const NOT_STORED_SEARCH_PANEL_FONT_SIZES: {
   readonly 'S-430': number
   readonly 'S-431': number

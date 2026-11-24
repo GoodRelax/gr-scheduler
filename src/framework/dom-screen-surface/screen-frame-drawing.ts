@@ -1,4 +1,4 @@
-// DomScreenSurface -- the Panel Divider bands and lines and the Scrollbars, drawn from the frame.
+// File: DomScreenSurface: the Panel Divider bands and lines and the Scrollbars, drawn from the frame.
 // @unit      UF-103  (docs/spec/05-07-design.md, table T-075)
 // @component DomScreenSurface, layer Framework (table T-062)
 // @purity    non-pure
@@ -39,7 +39,7 @@ export function horizontalScrollbar(frame: ScreenFrame): ScreenFrame['scrollbars
   return frame.scrollbars.find((one) => one.axis === 'horizontal')
 }
 
-// see U-21, U-24, SC-4, GR-22
+// Spec: U-21, U-24, SC-4, GR-22
 /** @purity non-pure */
 export function fillScreenFrame(
   host: Document,
@@ -60,7 +60,7 @@ export function fillScreenFrame(
   for (const bar of frame.scrollbars) {
     const track = part(host, 'div', ROLE.scrollbars, boxStyle(bar.track) + STYLE.scrollbarTrack)
     track.setAttribute(SCROLLBAR_AXIS_ATTRIBUTE, bar.axis)
-    // TRAP: the thumb stays inside the track: readScreenPartAt reads data-axis off ancestors.
+    // Trap: the thumb stays inside the track: readScreenPartAt reads data-axis off ancestors.
     track.append(
       made(host, 'div', boxStyleWithin(bar.thumb, bar.track) + STYLE.scrollbarThumb),
     )

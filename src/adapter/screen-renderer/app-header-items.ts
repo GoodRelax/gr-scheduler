@@ -1,4 +1,4 @@
-// Fills the App Header's entries: whether each can be used and whether it is on.
+// File: ScreenRenderer: Fills the App Header's entries: whether each can be used and whether it is on.
 // @unit      UF-62   (docs/spec/05-07-design.md, table T-075)
 // @component ScreenRenderer, layer Adapter (table T-062)
 // @purity    pure
@@ -28,7 +28,7 @@ const FILE_STATUS_BY_STATE = new Map(
   displayWords.fileStatus.map((entry) => [entry.state, entry]),
 )
 
-// see BR-1
+// Spec: BR-1
 const BRANDING_LOGO = displayWords.branding.find((entry) => entry.part === 'logo')
 
 const APP_HEADER = 'App Header'
@@ -64,7 +64,7 @@ const ZOOM_END_BY_ENTRY: Readonly<Record<string, keyof ZoomEntranceEnds>> = {
   'IC-15': 'isVerticalInAtEnd',
 }
 
-// see FR-029, IC-12, IC-13, IC-14, IC-15, ZE-1, ZE-3
+// Spec: FR-029, IC-12, IC-13, IC-14, IC-15, ZE-1, ZE-3
 /** @purity pure */
 function zoomEntryStateOf(icon: IconId, readings: ScreenViewReadings): CommandState | null {
   const end = ZOOM_END_BY_ENTRY[icon]
@@ -72,7 +72,7 @@ function zoomEntryStateOf(icon: IconId, readings: ScreenViewReadings): CommandSt
   return { isEnabled: readings.zoomEntranceEnds?.[end] !== true, isPressed: false }
 }
 
-// see FR-072, T-280
+// Spec: FR-072, T-280
 /** @purity pure */
 function isShowingSettings(session: ScreenSession): boolean {
   return session.screen.propertiesPanelContentState.kind === 'documentSettingsDisplayed'
@@ -88,7 +88,7 @@ function isFileFlowAskingTheAuthor(session: ScreenSession): boolean {
 
 const FLOW_SURFACE_AWAITING_STATES: ReadonlySet<string> = new Set(['awaitingOpenChoice', 'awaitingMergeMapping'])
 
-// see FR-029, OP-8, CS-4, T-280, RS-27
+// Spec: FR-029, OP-8, CS-4, T-280, RS-27
 /** @purity pure */
 function fileEntryStateOf(icon: IconId, session: ScreenSession): CommandState | null {
   if (icon === OPEN_DOCUMENT_ENTRY) return { isEnabled: !isFileFlowAskingTheAuthor(session), isPressed: false }
@@ -96,7 +96,7 @@ function fileEntryStateOf(icon: IconId, session: ScreenSession): CommandState | 
   return { isEnabled: !FLOW_SURFACE_AWAITING_STATES.has(session.fileFlow.fileOperationState.kind), isPressed: false }
 }
 
-// see FR-029, FR-039
+// Spec: FR-029, FR-039
 /** @purity pure */
 function displayScaleStateOf(icon: IconId, settings: DocumentSettings): CommandState | null {
   const lowest = DISPLAY_SCALE_STEPS[0]
@@ -105,7 +105,7 @@ function displayScaleStateOf(icon: IconId, settings: DocumentSettings): CommandS
   return end === null ? null : { isEnabled: settings.displayScale !== end, isPressed: false }
 }
 
-// see FR-029, T-109, OP-8, CS-4
+// Spec: FR-029, T-109, OP-8, CS-4
 /** @purity pure */
 function commandStateOf(
   icon: IconId,
@@ -125,7 +125,7 @@ function commandStateOf(
       return { isEnabled: true, isPressed: session.screen.paletteDisplayState.kind === 'shown' }
 
     case UNDO_ENTRY:
-      // WHY: !== false, not === true, so an absent answer leaves the entry usable.
+      // Why: !== false, not === true, so an absent answer leaves the entry usable.
       return { isEnabled: readings.canUndo !== false, isPressed: false }
 
     case REDO_ENTRY:
@@ -167,7 +167,7 @@ function commandItemFor(
   }
 }
 
-// see TV-12, EN-8, IC-117, IC-107, S-560, S-564
+// Spec: TV-12, EN-8, IC-117, IC-107, S-560, S-564
 /** @purity pure */
 function scheduleFilterMarkOf(icon: IconId, settings: DocumentSettings): Pick<CommandItem, 'isScheduleFilterApplied'> {
   const isSearchFiltered = icon === SEARCH_ENTRY && isScheduleFilterAppliedIn(settings, 'searchPanel')
@@ -175,10 +175,10 @@ function scheduleFilterMarkOf(icon: IconId, settings: DocumentSettings): Pick<Co
   return isSearchFiltered || isReportFiltered ? { isScheduleFilterApplied: true } : {}
 }
 
-// see T-109, BR-5
+// Spec: T-109, BR-5
 /** @purity pure */
 function inGroupBlocks<Row extends { readonly group: string | null }>(rows: readonly Row[]): readonly Row[] {
-  // WHY: a row with no group is a block of its own, so it keeps its place.
+  // Why: a row with no group is a block of its own, so it keeps its place.
   const blocks = new Map<string | Row, Row[]>()
   for (const row of rows) {
     const key = row.group ?? row
@@ -206,7 +206,7 @@ export interface BrandingPlace {
   readonly documentTitleLeftPx: number
 }
 
-// see BR-2, BR-7, EP-1, FR-051
+// Spec: BR-2, BR-7, EP-1, FR-051
 /** @purity pure */
 export function brandingPlaceOf(): BrandingPlace {
   const chrome = NOT_STORED_CHROME_SCALE['S-235']
@@ -215,7 +215,7 @@ export function brandingPlaceOf(): BrandingPlace {
   return { brandingSeatPx, documentTitleLeftPx: insetsPx + brandingSeatPx + NOT_STORED_DOCUMENT_TITLE_SIZES['S-492'] }
 }
 
-// see U-31, FR-101, FR-038
+// Spec: U-31, FR-101, FR-038
 /** @purity pure */
 export function appHeaderItemsFromDocument(
   schedule: Schedule,
@@ -244,8 +244,8 @@ const SCALE_ECHO_BY_END = new Map(displayWords.scaleEcho.map((entry) => [entry.e
 
 const PERCENT_SIGN = '%'
 
-// see FR-039, SE-2, FR-038
-// WHY: the number and the percent sign are no words (CR-411 decision 4); only the end word
+// Spec: FR-039, SE-2, FR-038
+// Why: the number and the percent sign are no words (CR-411 decision 4); only the end word
 // comes from the dictionary.
 /** @purity pure */
 export function displayScaleMessageText(
@@ -261,7 +261,7 @@ const JSON_FENCE_OPEN = '```json\n'
 
 const JSON_FENCE_CLOSE = '\n```'
 
-// see FR-068, FR-027, FR-038
+// Spec: FR-068, FR-027, FR-038
 /** @purity pure */
 export function imageToJsonPromptText(language: DisplayLanguage, schemaVersion: string): string {
   const versionLine = `schemaVersion: ${schemaVersion}`
@@ -269,7 +269,7 @@ export function imageToJsonPromptText(language: DisplayLanguage, schemaVersion: 
   return [imageToJsonPrompt[language], versionLine, emptyDocument].join('\n\n') + '\n'
 }
 
-// see FR-068, IO-10
+// Spec: FR-068, IO-10
 /** @purity pure */
 export function imageToJsonSchemaFile(): { readonly fileName: string; readonly text: string } {
   return { fileName: imageToJsonPrompt.schemaFileName, text: imageToJsonPrompt.schema + '\n' }
@@ -280,7 +280,7 @@ export function imageToJsonSchemaFile(): { readonly fileName: string; readonly t
 //   docs/spec/_assets/tbl-glossary.md (table T-109)
 //   docs/spec/_source/settings.json (tables T-202 and T-206)
 // Rebuild: npm run gen   ||   npm run gen:check fails on drift.
-// see T-206
+// Spec: T-206
 const NOT_STORED_DOCUMENT_TITLE_SIZES: {
   readonly 'S-225': number
   readonly 'S-226': number
@@ -301,14 +301,14 @@ const NOT_STORED_DOCUMENT_TITLE_SIZES: {
   'S-492': 1,
 }
 
-// see T-206
+// Spec: T-206
 const NOT_STORED_CHROME_SCALE: {
   readonly 'S-235': number
 } = {
   'S-235': 0.6667,
 }
 
-// see T-109, FR-049
+// Spec: T-109, FR-049
 const VISIBLE_ELEMENT_BY_ENTRY: Readonly<Record<string, 'isBaselineVisible' | 'isPlanVisible' | 'isActualVisible' | 'isProgressLineVisible' | 'isProgressMarkerVisible' | 'isDateGridLinesVisible' | 'isGroupGridLinesVisible' | 'isAssigneeVisible' | 'isPercentCompleteVisible' | 'isDependencyVisible' | 'isPlanDatesVisible'>> = {
   'IC-4': 'isBaselineVisible',
   'IC-8': 'isPlanVisible',

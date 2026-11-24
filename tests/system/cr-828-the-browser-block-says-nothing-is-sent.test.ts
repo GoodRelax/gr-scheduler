@@ -32,13 +32,13 @@ const HELP = `[data-role="${nameOf('U-30')}"]`
 const HELP_ENTRY = `[data-role="${nameOf('U-31')}"] [data-icon="${rowOf(T_109, 'IC-22').id}"]`
 const HELP_LANGUAGE_ENTRY = `${HELP} [data-icon="${rowOf(T_109, 'IC-128').id}"]`
 
-// see FR-036, MC-6
+// Spec: FR-036, MC-6
 const SCREENS: readonly (readonly [string, { width: number; height: number }])[] = [
   ['1280 x 627', { width: 1280, height: 627 }],
   ['MC-6', screenOf(rowOf(specTable('T-025'), 'MC-6'))],
 ]
 
-// WHY: a box laid out at a fractional position reads back a fraction off; less than that is not a move.
+// Why: a box laid out at a fractional position reads back a fraction off; less than that is not a move.
 const EDGE = 1.5
 
 interface NoteReading {
@@ -63,7 +63,7 @@ test.afterAll(async () => {
   await browser?.close()
 })
 
-// see FR-036, T-255
+// Spec: FR-036, T-255
 /** @purity semi-pure-mutable */
 async function readNote(page: Page, sentence: Readonly<Record<string, string>>): Promise<NoteReading> {
   return page.evaluate(

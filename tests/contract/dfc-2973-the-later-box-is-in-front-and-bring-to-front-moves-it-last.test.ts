@@ -33,13 +33,13 @@ afterEach(restoreAnimationFrames)
 const SPEC = join(process.cwd(), 'docs', 'spec')
 const REQUIREMENTS = unbroken(readFileSync(join(SPEC, '01-04-requirements.md'), 'utf8'))
 
-// see T-020, ZO-9, ZO-14
+// Spec: T-020, ZO-9, ZO-14
 const ZO_9_ORDER = 'コメントボックスどうしの前後は `FR-019` が持つ（文書の並びで後のものほど前）'
 const ZO_14_ORDER = 'ハイライトボックスどうしの前後は、塗りも枠（`ZO-8`）も `FR-019` が持つ（文書の並びで後のものほど前）'
-// see T-016, PR-48, PR-49
+// Spec: T-016, PR-48, PR-49
 const PR_48_CELL = '押すと、そのコメントボックスをコメントボックスの並びの最後へ移し（`CM-100`）、ほかのコメントボックスより前に描く'
 const PR_49_CELL = '押すと、そのハイライトボックスをハイライトボックスの並びの最後へ移し（`CM-101`）、ほかのハイライトボックスより前に描く'
-// see T-108, CM-100, CM-101
+// Spec: T-108, CM-100, CM-101
 const CM_100_CELL = 'コメントボックスを、コメントボックスの並びの最後（最前面）へ移す'
 const CM_101_CELL = 'ハイライトボックスを、ハイライトボックスの並びの最後（最前面）へ移す'
 
@@ -60,15 +60,15 @@ const H1 = '29730000-0000-4000-8000-0000000000a1'
 const H2 = '29730000-0000-4000-8000-0000000000a2'
 const H3 = '29730000-0000-4000-8000-0000000000a3'
 
-// WHY: right of every task on the band of Task 4, so no task figure shares a press on the bodies.
+// Why: right of every task on the band of Task 4, so no task figure shares a press on the bodies.
 const FREE_DATE = april(24, '00:00:00')
 const OFFSET = { dx: 60, dy: -60 }
-// WHY: each later body starts this far right of the earlier, less than a body width, so the bodies overlap in part.
+// Why: each later body starts this far right of the earlier, less than a body width, so the bodies overlap in part.
 const STEP_PX = 12
 
 const comment = (id: string, index = 0): Record<string, unknown> =>
   commentRow({ id, text: `Box ${id.slice(-1)}`, anchorDate: FREE_DATE, anchorTaskGroupId: groupOf(SECOND_BAR_UID), bodyOffsetPx: { dx: OFFSET.dx + index * STEP_PX, dy: OFFSET.dy } })
-// WHY: on the milestone band before the milestone (13 April), so no task figure shares the frame lines.
+// Why: on the milestone band before the milestone (13 April), so no task figure shares the frame lines.
 const highlight = (id: string, fillColor: string | null = null): Record<string, unknown> =>
   highlightRow({
     id,
@@ -84,11 +84,11 @@ const highlightIds = (document: Document): readonly string[] => document.schedul
 
 const hitAt = (geometry: ScheduleGeometry, x: number, y: number): Item | null => itemAtPointer(geometry, x, y, grabSizesOf())?.item ?? null
 
-// WHY: the painted order of the picture: an element written later in the SVG is painted over the earlier.
+// Why: the painted order of the picture: an element written later in the SVG is painted over the earlier.
 const figureIndexes = (svg: string, prefix: string): readonly number[] =>
   [...svg.matchAll(/data-figure="([^"]+)"/g)].filter((one) => (one[1] ?? '').startsWith(prefix)).map((one) => one.index ?? -1)
 
-// WHY: the ZO-9 group alone, so the selection cues ZO-10 paints over every box are not read as the box.
+// Why: the ZO-9 group alone, so the selection cues ZO-10 paints over every box are not read as the box.
 const zoGroupOf = (svg: string, row: string): string => {
   const from = svg.indexOf(`data-zo="${row}"`)
   if (from < 0) throw new Error(`premise: the picture has a ${row} group`)
@@ -247,7 +247,7 @@ describe(`CM-100 / CM-101 (T-108) -- ${FR_019_FRONT}`, () => {
   })
 })
 
-// see PR-48, PR-49
+// Spec: PR-48, PR-49
 const pressControlOf = (field: PropertyField): PropertyControl => {
   const found = field.controls.filter((one) => one.press !== undefined)
   if (found.length !== 1) throw new Error(`expected one press entrance in ${field.row}, got ${found.length}`)
@@ -268,7 +268,7 @@ describe(`PR-48 / PR-49 (T-016) -- ${PR_48_CELL}`, () => {
   })
 })
 
-// WHY: the whole road a person takes: place a box over a stored one, press the stored one, press its button, undo.
+// Why: the whole road a person takes: place a box over a stored one, press the stored one, press its button, undo.
 describe('FR-019 through the frame loop: PR-48 brings a covered comment box to the front, and one undo puts it back', () => {
   const BACK_TEXT = 'Covered box'
 

@@ -1,4 +1,4 @@
-// SvgRenderer -- the overlays that belong to no Task: lines, cursors, annotations, watermark.
+// File: SvgRenderer: the overlays that belong to no Task: lines, cursors, annotations, watermark.
 // @unit      UF-83   (docs/spec/05-07-design.md, table T-075)
 // @component SvgRenderer, layer Adapter (table T-062)
 // @purity    pure
@@ -42,20 +42,20 @@ import {
   type Watermark,
 } from './svg-renderer'
 
-// see S-72, S-66, EL-16, SJ-10, T-280
-// WHY: the screen values the picture reads, spelled here so the renderer
+// Spec: S-72, S-66, EL-16, SJ-10, T-280
+// Why: the screen values the picture reads, spelled here so the renderer
 // depends on no use case; ScreenValues satisfies it as it stands.
 export interface ViewerValues {
   readonly themePreference: 'light' | 'dark'
   readonly guideCursorMode: 'none' | 'crosshair' | 'single-vertical'
-  // WHY: optional -- a viewer built before the landing mark carries none, and none reads as hidden.
+  // Why: optional -- a viewer built before the landing mark carries none, and none reads as hidden.
   readonly landingMarkDisplayState?:
     | { readonly kind: 'hidden' }
     | { readonly kind: 'shown'; readonly landedBy: 'continuationMark' | 'jump'; readonly landedLink: { readonly predecessorUid: number;
         readonly successorUid: number } | null; readonly landedTarget: LandedTarget; readonly landedRelatedTasks?: readonly number[] }
 }
 
-// see SJ-10, S-555, S-556, S-588
+// Spec: SJ-10, S-555, S-556, S-588
 export interface JumpLandingRing {
   readonly inner: ScreenRect
   readonly lineWidth: number
@@ -83,10 +83,10 @@ export interface OverlaysInput {
 }
 
 export interface OverlayParts {
-  // see ZO-14
+  // Spec: ZO-14
   readonly fillParts: readonly string[]
   readonly linkParts: readonly string[]
-  // see ZO-16
+  // Spec: ZO-16
   readonly progressLineParts: readonly string[]
   readonly annotationParts: readonly string[]
   readonly selectionParts: readonly string[]
@@ -94,15 +94,15 @@ export interface OverlayParts {
 
 const WATERMARK_ROLE = 'Watermark'
 
-// see SJ-10
+// Spec: SJ-10
 const JUMP_LANDING_RING_ROLE = 'Jump Landing Ring'
 
-// see RW-13, S-573
+// Spec: RW-13, S-573
 const RELATED_TASK_RING_ROLE = 'Jump Landing Related Ring'
 
 const UNDECIDED_PARENT_MARK = '?'
 
-// see FR-135, S-398, S-485, S-486, SL-8, VO-4, IP-4
+// Spec: FR-135, S-398, S-485, S-486, SL-8, VO-4, IP-4
 /** @purity pure */
 export function parentTaskParts(
   geometry: ScheduleGeometry,
@@ -118,7 +118,7 @@ export function parentTaskParts(
     const width = arrow.isSelected ? emphasizedWidthOf(settings.dependencyWidth) : settings.dependencyWidth
     const dash = arrow.dash === null ? '' : ` stroke-dasharray="${rounded(arrow.dash[0])} ${rounded(arrow.dash[1])}"`
     const key = `parent-task-${arrow.childUid}`
-    // see FR-135, EL-20, TV-3
+    // Spec: FR-135, EL-20, TV-3
     const radius = arrow.continuationRadius ?? 0
     const dots = (arrow.continuationDots ?? []).map(
       (dot) => `<circle cx="${rounded(dot.x)}" cy="${rounded(dot.y)}" r="${rounded(radius)}" fill="${ink}"${figureKey(key)}/>`,
@@ -154,7 +154,7 @@ export function parentTaskParts(
   return parts
 }
 
-// see FR-020, T-207
+// Spec: FR-020, T-207
 /** @purity pure */
 export function watermarkSvg(
   area: ScreenRect,
@@ -179,7 +179,7 @@ export function watermarkSvg(
       )
     }
   }
-  // TRAP: the clip sits on the outer, unrotated group; on the rotated one it would turn too.
+  // Trap: the clip sits on the outer, unrotated group; on the rotated one it would turn too.
   return (
     `<g data-role="${WATERMARK_ROLE}" clip-path="url(#${clipId})"` +
     ` opacity="${WATERMARK_MARKS['S-102']}" fill="${ink}"` +
@@ -191,8 +191,8 @@ export function watermarkSvg(
   )
 }
 
-// see FR-019, HB-8, HB-9, HB-10, HB-11
-// WHY: the drawn points must be the ones that answer, so the midpoints follow the geometry's hasSideHandles.
+// Spec: FR-019, HB-8, HB-9, HB-10, HB-11
+// Why: the drawn points must be the ones that answer, so the midpoints follow the geometry's hasSideHandles.
 /** @purity pure */
 function grabPointsOfBox(box: HighlightGeometry): readonly Point[] {
   const { x, y, width, height } = box.box
@@ -207,8 +207,8 @@ function grabPointsOfBox(box: HighlightGeometry): readonly Point[] {
   return points
 }
 
-// see FR-016, S-372, S-146, S-151, S-174
-// WHY: a fixed screen size, never scaled: the reach the square shows (S-230) is in screen px too.
+// Spec: FR-016, S-372, S-146, S-151, S-174
+// Why: a fixed screen size, never scaled: the reach the square shows (S-230) is in screen px too.
 /** @purity pure */
 function grabPointSquares(box: HighlightGeometry, ground: string, edge: string): readonly string[] {
   const side = NOT_STORED_SELECTION_SIZES['S-372']
@@ -221,7 +221,7 @@ function grabPointSquares(box: HighlightGeometry, ground: string, edge: string):
   )
 }
 
-// see FR-019, AT-146, AT-147, ZO-14
+// Spec: FR-019, AT-146, AT-147, ZO-14
 // Provisional: OPQ-12
 /** @purity pure */
 function highlightFillSvg(
@@ -242,7 +242,7 @@ function highlightFillSvg(
   ]
 }
 
-// see FR-019, ZO-8, ZO-10, ZO-14
+// Spec: FR-019, ZO-8, ZO-10, ZO-14
 /** @purity pure */
 function highlightBoxSvg(
   box: HighlightGeometry,
@@ -250,7 +250,7 @@ function highlightBoxSvg(
   annotationColor: string,
 ): { readonly fill: readonly string[]; readonly frame: string; readonly selection: readonly string[] } {
   const { chosen, themed, strokeOfBox } = input
-  // see CV-6
+  // Spec: CV-6
   const stroke = chosen(strokeOfBox.get(box.id) ?? null, 'outline') ?? annotationColor
   const radius = box.cornerRadiusPx
   const rounding = radius !== null && radius > 0 ? ` rx="${rounded(radius)}"` : ''
@@ -267,8 +267,8 @@ function highlightBoxSvg(
   return { fill: highlightFillSvg(box, chosen, themed, rounding), frame, selection }
 }
 
-// see FR-019, CV-6, LF-17
-// WHY: one color and one width for the frame and the leader, which read as one line from the note to its point;
+// Spec: FR-019, CV-6, LF-17
+// Why: one color and one width for the frame and the leader, which read as one line from the note to its point;
 // transparency is laid on the fill alone.
 /** @purity pure */
 function commentBoxSvg(box: CommentGeometry, input: OverlaysInput, annotationColor: string): readonly string[] {
@@ -303,8 +303,8 @@ function commentBoxSvg(box: CommentGeometry, input: OverlaysInput, annotationCol
   return parts
 }
 
-// see FR-016, S-376, S-146, S-151, S-174
-// WHY: a fixed screen size, never scaled: the reach it shows (S-292) is in screen px too.
+// Spec: FR-016, S-376, S-146, S-151, S-174
+// Why: a fixed screen size, never scaled: the reach it shows (S-292) is in screen px too.
 /** @purity pure */
 function commentHandleSvg(box: CommentGeometry, ground: string, edge: string): string {
   const side = NOT_STORED_SELECTION_SIZES['S-376']
@@ -315,8 +315,8 @@ function commentHandleSvg(box: CommentGeometry, ground: string, edge: string): s
   )
 }
 
-// see ZO-8, CU-2, DC-3, CA-1, PI-19
-// WHY: the reading that owns the point, so the drawn guide and the dual cursor readout agree on the edge (DFC-1053).
+// Spec: ZO-8, CU-2, DC-3, CA-1, PI-19
+// Why: the reading that owns the point, so the drawn guide and the dual cursor readout agree on the edge (DFC-1053).
 /** @purity pure */
 export function guideCursorPointOf(
   regions: ScreenRegions,
@@ -328,14 +328,14 @@ export function guideCursorPointOf(
   return { x: pointer.x, y: pointer.y }
 }
 
-// see CU-2, DC-2, DC-8
+// Spec: CU-2, DC-2, DC-8
 /** @purity pure */
 function dualCursorLines(input: OverlaysInput): readonly string[] {
   const { geometry, layout, themed, following } = input
   const cursors = geometry.dualCursor
   if (cursors === null) return []
   const color = themed('S-195')
-  // see DC-3, T-378
+  // Spec: DC-3, T-378
   const followedAt =
     following === null || following.x === null ? null : cursorInstantAtX(layout, following.x, input.settings)
   const followedX = followedAt === null ? null : xOfInstant(layout, followedAt)
@@ -376,7 +376,7 @@ export function overlayParts(input: OverlaysInput): OverlayParts {
   const selectionParts: string[] = []
   const annotationColor = themed('S-312')
 
-  // see FR-110, ZO-16
+  // Spec: FR-110, ZO-16
   if (geometry.progressLine.length > 0 && settings.isProgressLineVisible) {
     progressLineParts.push(
       `<polyline points="${pointsOf(geometry.progressLine)}" fill="none"` +
@@ -387,8 +387,8 @@ export function overlayParts(input: OverlaysInput): OverlayParts {
 
   const status = geometry.statusLine
   if (status !== null) {
-    // see SL-8, S-438
-    // WHY: S-438 is the chosen line's own width, not S-333 times S-178: the two are picked apart in px.
+    // Spec: SL-8, S-438
+    // Why: S-438 is the chosen line's own width, not S-333 times S-178: the two are picked apart in px.
     const statusWidth = NOT_STORED_DUAL_CURSOR_SIZES[selectedStatusLine ? 'S-438' : 'S-333']
     linkParts.push(
       `<line x1="${rounded(status.x)}" y1="${rounded(status.top)}"` +
@@ -441,8 +441,8 @@ export function overlayParts(input: OverlaysInput): OverlayParts {
   return { fillParts, linkParts, progressLineParts, annotationParts, selectionParts }
 }
 
-// see SJ-10, S-555, S-556, S-588, S-227
-// WHY: the one box the ring is drawn on and the ripple starts from, so the two cannot part; a task whose
+// Spec: SJ-10, S-555, S-556, S-588, S-227
+// Why: the one box the ring is drawn on and the ripple starts from, so the two cannot part; a task whose
 // plan figure is not drawn (no plan dates, or the plan hidden) gets none.
 /** @purity pure */
 export function jumpLandingRingOf(layout: ScheduleLayout, geometry: ScheduleGeometry, target: LandedTarget): JumpLandingRing | null {
@@ -460,11 +460,11 @@ export function jumpLandingRingOf(layout: ScheduleLayout, geometry: ScheduleGeom
   }
 }
 
-// see SJ-10, FR-041, S-74
+// Spec: SJ-10, FR-041, S-74
 type RingInput = Pick<OverlaysInput, 'geometry' | 'layout' | 'themed'> & { readonly monochrome: boolean }
 
-// see SJ-10, ZO-8, EP-12, FR-098, S-587
-// WHY: a ring around a task below the pinned band scrolls under it, so it is handed back apart from one that stands in the band.
+// Spec: SJ-10, ZO-8, EP-12, FR-098, S-587
+// Why: a ring around a task below the pinned band scrolls under it, so it is handed back apart from one that stands in the band.
 /** @purity pure */
 export function jumpLandingRingParts(
   viewer: ViewerValues,
@@ -487,8 +487,8 @@ function isPinnedTask(input: Pick<OverlaysInput, 'geometry'>, taskUid: number): 
   return input.geometry.pinnedBand?.pinnedTaskUids.has(taskUid) === true
 }
 
-// see SJ-10, S-556, S-588
-// WHY: a line `outward` of the inner edge keeps the band's rounding: further out rounds more, further in less.
+// Spec: SJ-10, S-556, S-588
+// Why: a line `outward` of the inner edge keeps the band's rounding: further out rounds more, further in less.
 /** @purity pure */
 function ringLineSvg(ring: JumpLandingRing, outward: number, width: number, stroke: string, role: string, key: string): string {
   const radius = Math.max(0, ring.cornerRadius + outward - ring.lineWidth / 2)
@@ -501,7 +501,7 @@ function ringLineSvg(ring: JumpLandingRing, outward: number, width: number, stro
   )
 }
 
-// see SJ-10, FR-041, S-556
+// Spec: SJ-10, FR-041, S-556
 /** @purity pure */
 function ringSvg(ring: JumpLandingRing, stroke: string, isMonochrome: boolean, role: string, key: string): string {
   const width = ring.lineWidth
@@ -512,8 +512,8 @@ function ringSvg(ring: JumpLandingRing, stroke: string, isMonochrome: boolean, r
   )
 }
 
-// see RW-13, SJ-10, S-573, TV-3, EL-17
-// WHY: SJ-10's ring in S-573 and with no ripple; a related task the picture does not draw gets none (RW-13).
+// Spec: RW-13, SJ-10, S-573, TV-3, EL-17
+// Why: SJ-10's ring in S-573 and with no ripple; a related task the picture does not draw gets none (RW-13).
 /** @purity pure */
 function relatedTaskRingParts(
   taskUids: readonly number[],

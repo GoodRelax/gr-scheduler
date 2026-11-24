@@ -24,7 +24,7 @@ import { unbroken } from './spec-table'
 
 const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
-// WHY: each constant ends exactly at its marker, cut from the manuscript as check 39 reads it.
+// Why: each constant ends exactly at its marker, cut from the manuscript as check 39 reads it.
 const FD_6_SAME_COUNT =
   '⛔ 本表の「期間」は暦日で数えること（MUST）。'
 const FD_6_IV_12_AGREES =
@@ -32,7 +32,7 @@ const FD_6_IV_12_AGREES =
 
 afterEach(restoreAnimationFrames)
 
-// WHY: a task from Mon 6 April to Mon 16 April, so the span is ten calendar days (eleven when both end days are counted);
+// Why: a task from Mon 6 April to Mon 16 April, so the span is ten calendar days (eleven when both end days are counted);
 // the other end already holds four days, so a pull of the first end past six days is more than the task can hold.
 const SPAN_DAYS_AT_MOST = 11
 const KEPT_END_DAYS = 4

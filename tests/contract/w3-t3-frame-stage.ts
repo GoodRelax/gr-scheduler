@@ -40,11 +40,11 @@ export function restoreAnimationFrames(): void {
 export const SMALL_SCREEN: FrameEnvironment = { width: 1000, height: 700, appHeaderHeight: 56, scrollbarThickness: 8 }
 export const LARGE_SCREEN: FrameEnvironment = { width: 1500, height: 950, appHeaderHeight: 56, scrollbarThickness: 8 }
 
-// see T-109
+// Spec: T-109
 export const surfaceOfEntry = (entry: string): string =>
   bare(specTable('T-109').rows.find((one) => one.id === entry)?.by['面'] ?? '')
 
-// see T-103
+// Spec: T-103
 export const EXPORT_CHOOSER = bare(specTable('T-103').rows.find((one) => one.id === 'U-54')?.by['確定名（英）'] ?? '')
 
 const TEMPLATE_PATH = join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json')
@@ -55,7 +55,7 @@ export function templateDocument(): Document {
   return read.document
 }
 
-// WHY: CR-690 -- a span reaches the picture only while it is fixed (FX-1, S-532), so a span set here is fixed too.
+// Why: CR-690 -- a span reaches the picture only while it is fixed (FX-1, S-532), so a span set here is fixed too.
 export const withSpan = (document: Document, start: string | null, finish: string | null): Document => ({
   ...document,
   documentSettings: { ...document.documentSettings, fitSpanStart: start, fitSpanFinish: finish, isFitSpanFixed: start !== null },
@@ -150,7 +150,7 @@ export function exportStage(
       written.push(write)
       return { ok: true, openedFile: { kind: 'writable', fileName: write.suggestedFileName } }
     },
-    // WHY: CR-827 -- IF-3 also hands a file to the browser's download without a chooser (IO-10, FR-068).
+    // Why: CR-827 -- IF-3 also hands a file to the browser's download without a chooser (IO-10, FR-068).
     downloadFile: (fileName: string, bytes: Uint8Array) => {
       downloaded.push({ fileName, bytes })
     },

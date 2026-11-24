@@ -178,7 +178,7 @@ const SHARED_WORDS = /語は `(RS-\d+)`/
 function wordsRowOf(rowId: string): string {
   return SHARED_WORDS.exec(cellOf(T_233, rowId, T_233_SHARING))?.[1] ?? rowId
 }
-// see NT-3a
+// Spec: NT-3a
 const NEXT_STEP_MANNER = 'NT-3a'
 
 /**
@@ -244,7 +244,7 @@ function outDirectionRows(): readonly string[] {
 
 const IN_DIRECTION = '取り込み'
 
-// see OP-1
+// Spec: OP-1
 /** @purity pure */
 function inDirectionRows(): readonly string[] {
   return T_024.rows
@@ -1635,7 +1635,7 @@ describe('CS-4 -- what the screen does while the person is being waited on', () 
 
     expect(uidsOf(loop.document())).toEqual([1, 2])
     expect(baselineUidsOf(loop.document())).toEqual([HERE_AND_THERE])
-    // WHY: FR-015 (MUST) sets S-69 of table T-202 true when an overlay is read -- so the landing turns
+    // Why: FR-015 (MUST) sets S-69 of table T-202 true when an overlay is read -- so the landing turns
     // isBaselineVisible on and keeps every other value written in the wait.
     expect((loop.document() as any).documentSettings).toEqual({ ...written, isBaselineVisible: true })
   })
@@ -2577,7 +2577,7 @@ describe('the tables are read by position, so the positions are pinned', () => {
     // that moves a row moves the save list with it, and the two cases in
     // `FR-096 -- the name the chooser proposes` that drive the surface would go
     // on passing, because they read the same table. This is where it is caught.
-    // WHY: CR-827 added IO-10 (out only) after IO-9 and before IO-5, so it goes out between IO-9 and IO-6.
+    // Why: CR-827 added IO-10 (out only) after IO-9 and before IO-5, so it goes out between IO-9 and IO-6.
     expect(outDirectionRows()).toEqual(['IO-2', 'IO-1', 'IO-7', 'IO-3', 'IO-4', 'IO-8', 'IO-9', 'IO-10', 'IO-6'])
     expect(offeredOnIc2Rows()).toEqual(['IO-2', 'IO-1', 'IO-7', 'IO-3', 'IO-4'])
     // ⭐ And the same order said in extensions, which is how the person stated
@@ -2601,7 +2601,7 @@ describe('the tables are read by position, so the positions are pinned', () => {
     // ⚠️ IC-52 LEADS BOTH ROSTERS because `entriesOn` keeps the table's print
     // order and that row comes before IC-71. ⭐ It reaches U-56 by CR-226,
     // which is the cell that gave the surface OP-3 asks on a way off it.
-    // WHY: the setting column stands after the rule column, so neither position read below moved.
+    // Why: the setting column stands after the rule column, so neither position read below moved.
     expect(T_109.headings.length).toBe(7)
     // ⛔ THE COUNT ALONE IS NOT THE GUARD `cellOf` ASKS FOR. A column inserted
     // in the middle while another is dropped leaves the count where it was and

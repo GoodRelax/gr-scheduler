@@ -19,10 +19,10 @@ const verticalIn = (table: string, id: string) => {
   return found
 }
 
-// WHY: IN-3 and the two UZ rows are the clauses; their words are read from the tables so the cases follow the manuscript.
+// Why: IN-3 and the two UZ rows are the clauses; their words are read from the tables so the cases follow the manuscript.
 const IN_3_PER_PLACE = '押す場所ごとに'
 const HELP_SURFACE = bare(verticalIn('T-103', 'U-30').by['確定名（英）'] ?? '')
-// WHY: CR-722 made the Resource List (U-49) a window, so the Export Chooser (U-54) is the other surface UZ-13 lists.
+// Why: CR-722 made the Resource List (U-49) a window, so the Export Chooser (U-54) is the other surface UZ-13 lists.
 const OTHER_SURFACE = bare(verticalIn('T-103', 'U-54').by['確定名（英）'] ?? '')
 const CLOSE = 'IC-52'
 
@@ -48,7 +48,7 @@ afterEach(() => {
 const partOn = (part: string, entry: string | null): ScreenPart =>
   ({ part, entry, format: null, taskGroupId: null, resourceUid: null, dividerPanel: null, noticeDismissKey: null }) as unknown as ScreenPart
 
-// WHY: the loop and the DOM surface are the real ones; only the pointer's part is aimed by the bench.
+// Why: the loop and the DOM surface are the real ones; only the pointer's part is aimed by the bench.
 function bench() {
   const waiting: ((time: number) => void)[] = []
   GLOBAL['requestAnimationFrame'] = (callback: (time: number) => void): number => waiting.push(callback)
@@ -93,7 +93,7 @@ const SESSION: ScreenSession = {
 }
 const EMPTY_SCHEDULE = { tasks: [], resources: [], assignments: [], baselineTasks: [] } as unknown as Schedule
 
-// WHY: a rested pointer on an icon: the dwell is past the wait, the pointer is somewhere, and the icon is the close entrance.
+// Why: a rested pointer on an icon: the dwell is past the wait, the pointer is somewhere, and the icon is the close entrance.
 const resting = (isOnHelp: boolean): ScreenViewReadings =>
   ({
     pointer: { x: 400, y: 300 },
@@ -136,7 +136,7 @@ describe('IN-3 / UZ-7 / UZ-13 (MUST): the explanation of IC-52 is anchored to th
     expect(anchorKey((onHelp[0] as Tooltip).anchor)).not.toBe(anchorKey((onOther[0] as Tooltip).anchor))
   })
 
-  // WHY: each IC-52 is given a place of its own, so where a tooltip lands says which entrance it was drawn under.
+  // Why: each IC-52 is given a place of its own, so where a tooltip lands says which entrance it was drawn under.
   function tooltipPlaceFor(isOnHelp: boolean): { readonly left: number; readonly top: number } {
     const { built, view } = bothStanding()
     const helpClose = selfAndDescendants(byRole(built.built.root(), HELP_SURFACE)[0] as FakeElement).find((one) => one.getAttribute('data-icon') === CLOSE) as FakeElement

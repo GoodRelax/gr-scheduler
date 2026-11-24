@@ -1,4 +1,4 @@
-// ClipboardGateway: writes through the Clipboard seam and answers with a value.
+// File: ClipboardGateway: writes through the Clipboard seam and answers with a value.
 // @unit      UF-45   (docs/spec/05-07-design.md, table T-075)
 // @component ClipboardGateway, layer Adapter (table T-062)
 // @purity    non-pure

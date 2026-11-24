@@ -21,15 +21,15 @@ const RS_25_IS_SHOWN_BY_NT_1 = /^\| RS-25 \|[^|]*\| `NT-1` \| 出す \|/m
 const RS_25 = WORDS.reasons.find((one) => one.rowId === 'RS-25')
 const RS_11 = WORDS.reasons.find((one) => one.rowId === 'RS-11')
 
-// WHY: a conforming GRS JSON has a schema address, a version and a schedule; none of these has any of them.
+// Why: a conforming GRS JSON has a schema address, a version and a schedule; none of these has any of them.
 const BROKEN_JSON = '{"x":'
 const OFF_SHAPE_JSON = '{"x":1}'
-// WHY: the open route reads the single document container of a .html; its id is the one the shipped page uses for an embedded document.
+// Why: the open route reads the single document container of a .html; its id is the one the shipped page uses for an embedded document.
 const htmlHoldingOffShapeContent = (): string =>
   '<!doctype html><html lang="en"><head><meta charset="utf-8"><title>GRS</title></head><body><div id="app"></div>' +
   `<script type="application/json" id="embedded-document">${OFF_SHAPE_JSON}</script></body></html>\n`
 
-// WHY: the headless stand-in for the file picker hands over the next file; IC-1 then reads it as a person's open would.
+// Why: the headless stand-in for the file picker hands over the next file; IC-1 then reads it as a person's open would.
 const openThroughIc1 = async (page: Page, name: string, text: string): Promise<void> => {
   await page.evaluate(
     (given: { name: string; text: string }) => {

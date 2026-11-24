@@ -17,7 +17,7 @@ const rowOf = (table: string, id: string) => {
   return found
 }
 
-// see T-109, T-023b
+// Spec: T-109, T-023b
 const entranceOfArm = (arm: string): string => {
   const found = specTable('T-109').rows.find((one) => (one.by['構え'] ?? '').includes(arm))
   if (found === undefined) throw new Error(`table T-109 has no entry whose arm is ${arm}`)

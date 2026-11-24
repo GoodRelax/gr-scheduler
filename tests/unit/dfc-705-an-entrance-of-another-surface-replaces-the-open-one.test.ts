@@ -12,7 +12,7 @@ afterEach(() => {
 })
 
 const surfaceOf = (icon: string): string => bareAll(rowOf('T-109', icon).by['面'] ?? '')[0] ?? ''
-// WHY: CR-722 RO-1 made the Resource List (IC-62) a window, so the two surface entrances left take its place here.
+// Why: CR-722 RO-1 made the Resource List (IC-62) a window, so the two surface entrances left take its place here.
 const EXPORT_ENTRANCE = 'IC-2'
 const WATERMARK_ENTRANCE = 'IC-41'
 

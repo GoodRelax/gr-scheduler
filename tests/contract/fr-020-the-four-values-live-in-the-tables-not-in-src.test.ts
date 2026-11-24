@@ -87,7 +87,7 @@ describe('table T-207 still holds the three values FR-020 names by row (S-220 / 
     expect(bare(row.by['値'] ?? '')).toBe('0.01125')
     expect(bare(row.by['下限'] ?? '')).toBe('0.01')
     expect(bare(row.by['上限'] ?? '')).toBe('1')
-    // WHY: checked directly, so a case that hard-coded S-81's value instead
+    // Why: checked directly, so a case that hard-coded S-81's value instead
     // of reading it would still be caught by this row's own remark.
     expect(row.by['備考'] ?? '').toContain('書き出す絵の幅')
     expect(row.by['備考'] ?? '').toContain('S-81')
@@ -107,7 +107,7 @@ describe('table T-207 still holds the three values FR-020 names by row (S-220 / 
     expect(bare(row.by['値'] ?? '')).toBe('0.06')
     expect(bare(row.by['下限'] ?? '')).toBe('0.02')
     expect(bare(row.by['上限'] ?? '')).toBe('0.30')
-    // WHY: this range's top must not exceed what NFR-007 / LM-13 already
+    // Why: this range's top must not exceed what NFR-007 / LM-13 already
     // excludes from the contrast floor.
     expect(row.by['備考'] ?? '').toContain('コントラストの適合範囲から外してある')
   })
@@ -116,13 +116,13 @@ describe('table T-207 still holds the three values FR-020 names by row (S-220 / 
 describe('the ruling of 2026-09-05: the watermark keeps its default name for now', () => {
   it('FR-086 says the road to type the name is not built for now', () => {
     expect(REQUIREMENTS).toContain('名前を入力させる道は、いまは実装しない')
-    // WHY: the cost is asserted too, so a specification that quietly drops
+    // Why: the cost is asserted too, so a specification that quietly drops
     // a goal cannot read later as though the goal were met.
     expect(REQUIREMENTS).toContain('GL-007')
   })
 
   it('RS-19 is not shown while there is no road to set the name (表示の仕方, CR-712)', () => {
-    // WHY: quoted long enough for check 39 to count this as a held clause
+    // Why: quoted long enough for check 39 to count this as a held clause
     // under tests/, not just a paraphrase.
     expect(NOTICE_ROSTER).toContain(
       '名前が、まだ設定されていない⚠️ **表示の仕方は「出さない」である** —— 設定する道が作られていない',
@@ -132,7 +132,7 @@ describe('the ruling of 2026-09-05: the watermark keeps its default name for now
   it('NT-4 no longer counts the name setting among the matters pending at startup', () => {
     const row = rowOf(specTable('T-037'), 'NT-4')
     const said = Object.values(row.by).join(' ')
-    // WHY: the row still holds the rule as one sheet; only the retired
+    // Why: the row still holds the rule as one sheet; only the retired
     // item's own listing was removed.
     expect(said).toContain('1 枚に集約して出すこと')
     expect(said).not.toContain('透かしに出す名前の設定を別々の面')
@@ -142,12 +142,12 @@ describe('the ruling of 2026-09-05: the watermark keeps its default name for now
 describe('table T-236 still holds S-223, the fourth of the four values (the ink color)', () => {
   it('S-223 -- the ink color -- is the same as S-148 (the muted text color), in both themes', () => {
     const row = rowOf(T_236, 'S-223')
-    // WHY: bare() reads the first backtick span, so this comparison is
+    // Why: bare() reads the first backtick span, so this comparison is
     // exact even though the raw sentence carries more than one span.
     expect(bare(row.by['明るいテーマ'] ?? '')).toBe('S-148')
     expect(bare(row.by['暗いテーマ'] ?? '')).toBe('S-148')
     expect(row.by['色相追随'] ?? '').toBe('—')
-    // WHY: S-223's own row must defer to S-102's number rather than
+    // Why: S-223's own row must defer to S-102's number rather than
     // restating it here.
     expect(row.by['備考'] ?? '').toContain('濃さをここに書いてはならない')
   })
@@ -164,7 +164,7 @@ describe('the Task-group-area confinement is not stated only once', () => {
   it('table T-041 (WY-2) still excludes the watermark layer from the WYSIWYG comparison, and says why', () => {
     const wy2 = rowOf(specTable('T-041'), 'WY-2')
     expect(wy2.by['判定に含めないもの'] ?? '').toContain('FR-020')
-    // WHY: the same reason this file's rendering hole rests on -- the name
+    // Why: the same reason this file's rendering hole rests on -- the name
     // and the clock make the layer differ on every run and machine.
     expect(wy2.by['判定に含めないもの'] ?? '').toContain('実行のたび・機ごとに必ず変わる')
   })
@@ -177,7 +177,7 @@ describe('the Task-group-area confinement is not stated only once', () => {
   })
 
   it('S-99a (the opener\'s name, FR-086) still lives outside documentSettings, in the same separate slot FR-020 relies on', () => {
-    // WHY: if the name lived inside DocumentSettings, the existing
+    // Why: if the name lived inside DocumentSettings, the existing
     // settings argument could carry it into the renderer; it does not.
     const s99a = rowOf(specTable('T-206'), 'S-99a')
     expect(s99a.by['値'] ?? '').toContain('透かしに出す')

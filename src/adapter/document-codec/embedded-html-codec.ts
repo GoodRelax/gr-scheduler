@@ -1,4 +1,4 @@
-// Puts the application and one document into a single .html file, and reads the document back out.
+// File: DocumentCodec: Puts the application and one document into a single .html file, and reads the document back out.
 // @unit      UF-37   (docs/spec/05-07-design.md, table T-075)
 // @component DocumentCodec, layer Adapter (table T-062)
 // @purity    semi-pure-mutable
@@ -93,7 +93,7 @@ function containerSpans(html: string, elementId: string): readonly ElementSpan[]
   return spans
 }
 
-// WHY: not at the top of <head>: that pushes <meta charset> past the first 1024 bytes a browser reads.
+// Why: not at the top of <head>: that pushes <meta charset> past the first 1024 bytes a browser reads.
 /** @purity pure */
 function indexOfInsertion(html: string): number {
   const lower = html.toLowerCase()
@@ -126,7 +126,7 @@ function htmlWithContainer(html: string, elementId: string, json: string): Embed
   return { ok: true, html: `${html.slice(0, only.begin)}${container}${html.slice(only.end)}` }
 }
 
-// see FR-067
+// Spec: FR-067
 /** @purity pure */
 function htmlWithout(html: string, elementIds: readonly string[]): string {
   let left = html
@@ -140,8 +140,8 @@ function htmlWithout(html: string, elementIds: readonly string[]): string {
   return left
 }
 
-// see IO-7, FR-067, PI-20
-// WHY: the ids are tried in the order given and the first one found decides, so the read order is the caller's.
+// Spec: IO-7, FR-067, PI-20
+// Why: the ids are tried in the order given and the first one found decides, so the read order is the caller's.
 /** @purity pure */
 export function documentFromEmbeddedHtml(
   html: string,
@@ -158,7 +158,7 @@ export function documentFromEmbeddedHtml(
   return { ok: false, reason: 'entryCountNotOne', entryCount: 0 }
 }
 
-// see IO-7, FR-067
+// Spec: IO-7, FR-067
 /** @purity semi-pure-mutable */
 export async function exportEmbeddedHtml(
   source: AppShellSource,

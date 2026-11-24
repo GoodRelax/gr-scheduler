@@ -748,7 +748,7 @@ describe('IN-4 of table T-028 -- Esc consumes one level per press', () => {
   })
 
   it('IN-4 (MUST): the first Esc interrupts the drag and leaves the normal help open', () => {
-    // WHY: IN-4 spends one rung per press, and the drag stands above the open-window rung where the help is.
+    // Why: IN-4 spends one rung per press, and the drag stands above the open-window rung where the help is.
     const pane = host()
     const screen = screenPane()
     const loop = frameLoop(pane.surface, twoTaskGroupDocument(), SCREEN, screen.wiring)

@@ -1,4 +1,4 @@
-// DomScreenSurface -- the editing of text fields: focus, Esc back, Enter and a press outside settle.
+// File: DomScreenSurface: the editing of text fields: focus, Esc back, Enter and a press outside settle.
 // @unit      UF-107  (docs/spec/05-07-design.md, table T-075)
 // @component DomScreenSurface, layer Framework (table T-062)
 // @purity    non-pure
@@ -6,14 +6,14 @@
 import type { FieldCommit, FieldEditNotice, PropertyFieldKey } from '../../adapter/screen-renderer/screen-renderer'
 import { HOST_ENTER, STYLE, made } from './dom-screen-surface'
 
-// WHY: not an attribute: a key spelled into one must be parsed back, and a separator breaks that.
+// Why: not an attribute: a key spelled into one must be parsed back, and a separator breaks that.
 export const CONTROL_KEYS = new WeakMap<Element, { row: string; key: PropertyFieldKey }>()
 
 const HOST_ESCAPE_KEY = 'Escape'
 
 const HOST_TAB_KEY = 'Tab'
 
-// see IN-4
+// Spec: IN-4
 /** @purity pure */
 function isFreshEscape(event: Event): boolean {
   const key = event as { key?: unknown; repeat?: unknown }
@@ -26,7 +26,7 @@ const HOST_DELETE_KEY = 'Delete'
 
 const HOST_BACKSPACE_KEY = 'Backspace'
 
-// see SK-3
+// Spec: SK-3
 const HOST_DELETE_KEYS: ReadonlySet<unknown> = new Set([HOST_DELETE_KEY, HOST_BACKSPACE_KEY])
 
 const HOST_DATE_INPUT_TYPE = 'date'
@@ -66,7 +66,7 @@ function isUnchordedDeleteKey(key: Partial<KeyboardEvent>): boolean {
   return HOST_DELETE_KEYS.has(key.key) && !isChorded(key)
 }
 
-// see AS-3, AS-5
+// Spec: AS-3, AS-5
 /** @purity pure */
 function isSeatedNameChosenWhole(target: unknown, key: PropertyFieldKey): boolean {
   const typed = target as Partial<HTMLInputElement>
@@ -75,7 +75,7 @@ function isSeatedNameChosenWhole(target: unknown, key: PropertyFieldKey): boolea
     typed.selectionStart === 0 && typed.selectionEnd === typed.value.length
 }
 
-// WHY: AS-3, SK-3; a delete key would otherwise reach FR-046 and delete the task.
+// Why: AS-3, SK-3; a delete key would otherwise reach FR-046 and delete the task.
 /** @purity non-pure */
 function assigneeLineDeleted(event: Event): FieldCommit | null {
   const key = event as Partial<KeyboardEvent>
@@ -109,10 +109,10 @@ function fieldCommitOf(target: unknown): FieldCommit | null {
 
 const FIELD_ROW_SELECTOR = '[data-field-row]'
 
-// WHY: only a row FX-5 makes one command settles as one; a date and its time (PR-3) do not.
+// Why: only a row FX-5 makes one command settles as one; a date and its time (PR-3) do not.
 export const SETTLED_AS_ONE_ATTRIBUTE = 'data-settled-as-one'
 
-// see FX-5
+// Spec: FX-5
 /** @purity semi-pure-mutable */
 function rowEntrancesOf(target: unknown): readonly TextEntryControl[] {
   const control = textEntryControlOf(target)
@@ -131,8 +131,8 @@ function isDateEntry(control: unknown): boolean {
   return type === HOST_DATE_INPUT_TYPE || type === HOST_DATE_TIME_INPUT_TYPE
 }
 
-// see IN-6, FR-031
-// WHY: a keyed date changes at every digit (year 2 is 0002), so it waits; a calendar pick or an emptying does not.
+// Spec: IN-6, FR-031
+// Why: a keyed date changes at every digit (year 2 is 0002), so it waits; a calendar pick or an emptying does not.
 /** @purity non-pure */
 function keyedDateOf() {
   let isKeyed = false
@@ -157,8 +157,8 @@ function keyedDateOf() {
   }
 }
 
-// see FX-5, IN-6, UN-13
-// WHY: a row of several entrances settles once, on Enter or when the focus leaves the row: a
+// Spec: FX-5, IN-6, UN-13
+// Why: a row of several entrances settles once, on Enter or when the focus leaves the row: a
 // commit on each entrance's change made one settle two commands and two undo steps (DFC-2223).
 /** @purity non-pure */
 function jointRowOf() {
@@ -195,8 +195,8 @@ function activeElementOf(host: Document): unknown {
 
 const PANEL_KEY_SEPARATOR = '#'
 
-// see IN-6, SK-19, FR-088, WC-4, WC-8
-// WHY: a surface's fields settle as the panel's do (T-344): every listener set on the panel is set on it too.
+// Spec: IN-6, SK-19, FR-088, WC-4, WC-8
+// Why: a surface's fields settle as the panel's do (T-344): every listener set on the panel is set on it too.
 /** @purity non-pure */
 function fieldListenersOf(propertiesPanel: HTMLElement) {
   const listened: (readonly [string, (event: Event) => void])[] = []
@@ -218,13 +218,13 @@ export function fieldEditingOf(host: Document, propertiesPanel: HTMLElement) {
   let commitsHandedOut = 0
   const fieldEditNotices: FieldEditNotice[] = []
 
-  // see IF-9
+  // Spec: IF-9
   /** @purity non-pure */
   function noteFieldEdit(kind: FieldEditNotice['kind'], row: string): void {
     fieldEditNotices.push({ kind, row })
   }
 
-  // see FR-031, UN-3
+  // Spec: FR-031, UN-3
   /** @purity non-pure */
   function onFieldChange(event: Event): void {
     const commit = fieldCommitOf(event.target)
@@ -240,7 +240,7 @@ export function fieldEditingOf(host: Document, propertiesPanel: HTMLElement) {
 
   const typedControlsByTaskGroup = new Map<string, TextEntryControl>()
 
-  // see MK-13
+  // Spec: MK-13
   /** @purity non-pure */
   function focusPropertyField(row: string): boolean {
     if (row === DOCUMENT_TITLE_TASK_GROUP) {
@@ -248,7 +248,7 @@ export function fieldEditingOf(host: Document, propertiesPanel: HTMLElement) {
       const entry = documentTitleEntry
       return entry === null || isFocusOn(entry) || focusAndChoose(entry)
     }
-    // WHY: a held control that takes no text stops the panel redraw, so the fields drawn may be
+    // Why: a held control that takes no text stops the panel redraw, so the fields drawn may be
     // the last choice's; let it go, and the next frame draws the field this choice asks for.
     if (isFieldHeld && heldTextControl === null) {
       const active: unknown = activeElementOf(host)
@@ -263,12 +263,12 @@ export function fieldEditingOf(host: Document, propertiesPanel: HTMLElement) {
   /** @purity non-pure */
   function focusAndChoose(control: TextEntryControl): boolean {
     if (typeof control.focus === 'function') control.focus()
-    // TRAP: select after focus, or the host's own focus handling moves the caret afterwards.
+    // Trap: select after focus, or the host's own focus handling moves the caret afterwards.
     if (typeof control.select === 'function') control.select()
     return isFocusOn(control)
   }
 
-  // WHY: a host with no activeElement cannot say where the focus is, so it is read as in.
+  // Why: a host with no activeElement cannot say where the focus is, so it is read as in.
   /** @purity semi-pure-mutable */
   function isFocusOn(control: TextEntryControl): boolean {
     const active = activeElementOf(host)
@@ -277,14 +277,14 @@ export function fieldEditingOf(host: Document, propertiesPanel: HTMLElement) {
 
   let isFieldHeld = false
   let isNoticeShowing = false
-  // see NT-8
+  // Spec: NT-8
   /** @purity semi-pure-mutable */
   function isPressTakenByStandingNotice(key: unknown): boolean {
     if (!isNoticeShowing) return false
     return key === HOST_ENTER || key === HOST_ESCAPE_KEY
   }
   let heldTextControl: TextEntryControl | null = null
-  // see IF-9, T-292
+  // Spec: IF-9, T-292
   /** @purity non-pure */
   function holdText(control: TextEntryControl | null): void {
     const was = heldTextControl
@@ -295,8 +295,8 @@ export function fieldEditingOf(host: Document, propertiesPanel: HTMLElement) {
   }
   let heldTextValueAtFocus = ''
   let isHeldTextTakenBack = false
-  // see IN-4, IN-5a
-  // WHY: released on the Esc key release, not in a microtask: a microtask runs between two
+  // Spec: IN-4, IN-5a
+  // Why: released on the Esc key release, not in a microtask: a microtask runs between two
   // keydown listeners, so one Esc would cancel the edit and put the panel away.
   /** @purity non-pure */
   function releaseTakenBackText(held: TextEntryControl): void {
@@ -307,7 +307,7 @@ export function fieldEditingOf(host: Document, propertiesPanel: HTMLElement) {
     isFieldHeld = false
     isHeldTextTakenBack = false
   }
-  // TRAP: not a new edit: the date entry raises focusin again when a script sets its value.
+  // Trap: not a new edit: the date entry raises focusin again when a script sets its value.
   listen('focusin', (event: Event) => {
     isFieldHeld = true
     jointRow.enter(event.target)
@@ -338,14 +338,14 @@ export function fieldEditingOf(host: Document, propertiesPanel: HTMLElement) {
       releaseTakenBackText(held)
       return
     }
-    // TRAP: do not let go of the control on this press: this listener runs before the shell's,
+    // Trap: do not let go of the control on this press: this listener runs before the shell's,
     // so the ladder would spend a second level on one press.
     held.value = heldTextValueAtFocus
     jointRow.restore()
     isHeldTextTakenBack = true
   })
 
-  // WHY: the host's date entry clears one segment per press, which leaves an invalid date that
+  // Why: the host's date entry clears one segment per press, which leaves an invalid date that
   // commits nothing; one press empties the whole field, which commits as an emptied field does.
   /** @purity non-pure */
   listen('keydown', (event: Event) => {
@@ -383,7 +383,7 @@ export function fieldEditingOf(host: Document, propertiesPanel: HTMLElement) {
     if (jointRow.holds(held)) fieldCommit = jointRow.settle() ?? fieldCommit
     else if (commit.text !== heldTextValueAtFocus) fieldCommit = commit
     heldTextValueAtFocus = commit.text
-    // TRAP: blur before clearing heldTextControl: onFieldChange drops the repeated change only
+    // Trap: blur before clearing heldTextControl: onFieldChange drops the repeated change only
     // while heldTextControl names the control, or one value is written twice.
     if (typeof held.blur === 'function') held.blur()
     holdText(null)
@@ -392,14 +392,14 @@ export function fieldEditingOf(host: Document, propertiesPanel: HTMLElement) {
     isHeldTextTakenBack = false
   })
 
-  // WHY: on the host, not the root or readScreenPartAt: the schedule is outside this tree,
+  // Why: on the host, not the root or readScreenPartAt: the schedule is outside this tree,
   // and readScreenPartAt is also asked on hover, which would end an edit.
   /** @purity non-pure */
   if (typeof host.addEventListener === 'function') {
     host.addEventListener('pointerdown', settleOnPressOutside)
   }
 
-  // see IN-6, FR-020
+  // Spec: IN-6, FR-020
   /** @purity non-pure */
   function releaseWatermarkUnlockOnPressOutside(event: Event): void {
     const field = watermarkUnlockEntry
@@ -445,7 +445,7 @@ export function fieldEditingOf(host: Document, propertiesPanel: HTMLElement) {
   const WATERMARK_UNLOCK_ROW = 'U-60'
   const DOCUMENT_TITLE_KEY: PropertyFieldKey = { holder: 'project', column: 'title' }
 
-  // see FR-035
+  // Spec: FR-035
   /** @purity non-pure */
   function openDocumentTitleField(): void {
     const box = documentTitleBox
@@ -457,13 +457,13 @@ export function fieldEditingOf(host: Document, propertiesPanel: HTMLElement) {
     entry.value = documentTitleShown
     CONTROL_KEYS.set(drawn, { row: DOCUMENT_TITLE_TASK_GROUP, key: DOCUMENT_TITLE_KEY })
     TYPED_CONTROLS.add(drawn)
-    // TRAP: the field goes inside the box, not in its place, or a point on the name answers no part.
+    // Trap: the field goes inside the box, not in its place, or a point on the name answers no part.
     box.replaceChildren(drawn)
     documentTitleEntry = entry
     noteFieldEdit('began', DOCUMENT_TITLE_TASK_GROUP)
     documentTitleValueAtFocus = documentTitleShown
     isDocumentTitleTakenBack = false
-    // TRAP: watch before focusing: the host may raise focusin or focusout on the focus below.
+    // Trap: watch before focusing: the host may raise focusin or focusout on the focus below.
     watchDocumentTitleField(drawn, entry)
     if (typeof entry.focus === 'function') entry.focus()
     if (typeof entry.select === 'function') entry.select()
@@ -476,11 +476,11 @@ export function fieldEditingOf(host: Document, propertiesPanel: HTMLElement) {
     noteFieldEdit('ended', DOCUMENT_TITLE_TASK_GROUP)
     documentTitleValueAtFocus = ''
     isDocumentTitleTakenBack = false
-    // TRAP: clear the entry before rewriting the box: a focusout on the removed field must find nothing.
+    // Trap: clear the entry before rewriting the box: a focusout on the removed field must find nothing.
     if (documentTitleBox !== null) documentTitleBox.textContent = documentTitleShown
   }
 
-  // see FR-035, IN-6
+  // Spec: FR-035, IN-6
   /** @purity non-pure */
   function settleDocumentTitle(): void {
     const entry = documentTitleEntry
@@ -506,7 +506,7 @@ export function fieldEditingOf(host: Document, propertiesPanel: HTMLElement) {
     closeDocumentTitleField()
   }
 
-  // see SK-19, IN-4
+  // Spec: SK-19, IN-4
   /** @purity non-pure */
   function watchDocumentTitleField(field: HTMLElement, entry: TextEntryControl): void {
     const isStanding = (): boolean => documentTitleEntry === entry
@@ -531,7 +531,7 @@ export function fieldEditingOf(host: Document, propertiesPanel: HTMLElement) {
         closeDocumentTitleField()
         return
       }
-      // TRAP: do not close the field on this press: this listener runs before the shell's (IN-4).
+      // Trap: do not close the field on this press: this listener runs before the shell's (IN-4).
       entry.value = documentTitleValueAtFocus
       isDocumentTitleTakenBack = true
     })
@@ -552,16 +552,16 @@ export function fieldEditingOf(host: Document, propertiesPanel: HTMLElement) {
     })
   }
 
-  // see FR-020
+  // Spec: FR-020
   /** @purity semi-pure-mutable */
   function readWatermarkUnlockAnswer(): string {
     return watermarkUnlockEntry === null ? '' : watermarkUnlockEntry.value
   }
 
-  // WHY: held by focus, not by contents: a keydown is answered before the character lands,
+  // Why: held by focus, not by contents: a keydown is answered before the character lands,
   // so the first keystroke would reach table T-036.
   let isWatermarkUnlockHeld = false
-  // see IF-9, T-292
+  // Spec: IF-9, T-292
   /** @purity non-pure */
   function holdWatermarkUnlock(isHeld: boolean): void {
     if (isHeld === isWatermarkUnlockHeld) return
@@ -569,10 +569,10 @@ export function fieldEditingOf(host: Document, propertiesPanel: HTMLElement) {
     noteFieldEdit(isHeld ? 'began' : 'ended', WATERMARK_UNLOCK_ROW)
   }
   let isWatermarkUnlockTakenBack = false
-  // see FR-020
+  // Spec: FR-020
   /** @purity non-pure */
   function watchWatermarkUnlock(surface: HTMLElement): void {
-    // WHY: focused here, not by the browser: the input seam prevents this pointerdown, and a
+    // Why: focused here, not by the browser: the input seam prevents this pointerdown, and a
     // prevented pointerdown gives no focus.
     surface.addEventListener('pointerdown', (event: Event) => {
       const field = watermarkUnlockEntry
@@ -616,7 +616,7 @@ export function fieldEditingOf(host: Document, propertiesPanel: HTMLElement) {
     })
   }
 
-  // see IN-4, WS-2
+  // Spec: IN-4, WS-2
   /** @purity non-pure */
   function releaseTakenBackWatermarkUnlock(held: TextEntryControl): void {
     if (watermarkUnlockEntry !== held || !isWatermarkUnlockTakenBack) return
@@ -633,7 +633,7 @@ export function fieldEditingOf(host: Document, propertiesPanel: HTMLElement) {
     return held
   }
 
-  // see IF-9
+  // Spec: IF-9
   /** @purity semi-pure-mutable */
   function readFieldEditNotices(): readonly FieldEditNotice[] {
     return fieldEditNotices.splice(0)

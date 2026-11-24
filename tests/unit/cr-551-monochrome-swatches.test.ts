@@ -36,15 +36,15 @@ const CV_9_MONO =
 const CV_9_KEPT = '（透明の市松はそのまま）'
 const CV_7 = '`FR-041` のモノクロは、`CV-6` で決まった値を無彩色にして描くこと（MUST）'
 
-// see S-74
+// Spec: S-74
 const MONO_KEY = bare(verticalIn('T-203', 'S-74').by['キー'] ?? '')
-// see T-294
+// Spec: T-294
 const TRANSPARENT = bare(verticalIn('T-294', 'S-324').cells[1] ?? '')
 const NAMED = specTable('T-294').rows.map((row) => bare(row.cells[1] ?? '')).filter((one) => one !== TRANSPARENT)
 const RED = bare(verticalIn('T-294', 'S-318').cells[1] ?? '')
 const colorWord = (spelling: string): string => WORDS.colorNames.find((one) => one.spelling === spelling)?.text.ja ?? ''
-// see T-016
-// WHY: the Task line and fill colors are two rows, found by the column each edits.
+// Spec: T-016
+// Why: the Task line and fill colors are two rows, found by the column each edits.
 const taskRowOf = (column: string): string =>
   specTable('T-016').rows.find(
     (row) => bare(row.by['対象'] ?? '') === 'Task' && (row.by['列（`GRS JSON`）'] ?? '').includes(`\`${column}\``),
@@ -91,7 +91,7 @@ function bench(document: Record<string, unknown>, side: Side): Bench {
     readFieldEditNotices: () => (drawn as unknown as { readFieldEditNotices?: () => unknown[] }).readFieldEditNotices?.() ?? [],
     readScreenPartAt: () => aimed,
   } as unknown as ScreenSurface
-  // WHY: S-72 is a screen value since CR-572; the side is the one the browser hands the start.
+  // Why: S-72 is a screen value since CR-572; the side is the one the browser hands the start.
   const loop = frameLoop({ showSvg: (svg: string) => svgs.push(svg) } as never, document as never, SCREEN, {
     surface,
     language: 'ja',
@@ -122,7 +122,7 @@ function bench(document: Record<string, unknown>, side: Side): Bench {
   }
 }
 
-// WHY: one task per palette name, each drawn in that name for its fill and its line, so the drawing itself
+// Why: one task per palette name, each drawn in that name for its fill and its line, so the drawing itself
 // says what each name is painted as; task 1 carries the color the field shows.
 function documentOf(mono: boolean, first: Record<string, unknown> = {}) {
   const rows = NAMED.map((_name, index) => ({ id: `g${index + 1}`, parentId: null }))
@@ -151,7 +151,7 @@ function panelOnTask(document: Record<string, unknown>, side: Side): Bench {
   return built
 }
 
-// WHY: colors are compared as numbers, whatever notation each side writes them in.
+// Why: colors are compared as numbers, whatever notation each side writes them in.
 function rgbOf(written: string): readonly [number, number, number] | null {
   const text = written.trim().toLowerCase()
   const hex = /^#([0-9a-f]{6})$/.exec(text)
@@ -186,7 +186,7 @@ const sameColor = (a: string, b: string): boolean => {
   return x !== null && y !== null && x.every((one, index) => Math.abs(one - (y[index] as number)) <= 1.5)
 }
 
-// see CV-6
+// Spec: CV-6
 function drawnPaint(built: Bench, uid: number, name: 'fill' | 'stroke'): string {
   const plan = new RegExp(`<[a-z]+\\b[^>]*data-figure="task-${uid}-plan"[^>]*>`).exec(built.svg())?.[0] ?? ''
   return new RegExp(`\\b${name}="([^"]+)"`).exec(plan)?.[1] ?? ''
@@ -197,7 +197,7 @@ const panelNodes = (built: Bench, row: string): FakeElement[] => {
   if (panel === undefined) return []
   return [...new Set(selfAndDescendants(panel).filter((one) => one.getAttribute('data-field-row') === row).flatMap((one) => selfAndDescendants(one)))]
 }
-// see T-016, CV-9
+// Spec: T-016, CV-9
 const palettes = (built: Bench, row: string): FakeElement[] =>
   panelNodes(built, row).filter((one) => /grid/.test(styleMap(one).get('display') ?? ''))
 const groundOf = (node: FakeElement): string => styleMap(node).get('background-color') ?? styleMap(node).get('background') ?? ''
@@ -244,7 +244,7 @@ describe('CV-9 E-48 -- the color field in monochrome', () => {
   })
 
   it('CV-9 / CV-7: with S-74 on, every name swatch is painted as the drawing paints that name in monochrome', () => {
-    // see CV-9, CV-7, S-74
+    // Spec: CV-9, CV-7, S-74
     const built = panelOnTask(documentOf(true), 'light')
     expect(isGray(drawnPaint(built, NAMED.indexOf(RED) + 1, 'fill')), 'premise: the drawing is monochrome').toBe(true)
     expect(namesPaintedAsDrawn(built)).toEqual([])
@@ -252,7 +252,7 @@ describe('CV-9 E-48 -- the color field in monochrome', () => {
 
   for (const side of ['light', 'dark'] as const) {
     it(`CV-9 / CV-7: with S-74 on, the theme entrance of an unset fill is the drawing's monochrome value (${side})`, () => {
-      // see CV-9, CV-7, S-74
+      // Spec: CV-9, CV-7, S-74
       const built = panelOnTask(documentOf(true, { fillColor: null }), side)
       const theme = groundOf(cellOf(built, FILL_ROW, 'data-color-theme-entry'))
       expect(isGray(theme), theme).toBe(true)
@@ -267,7 +267,7 @@ describe('CV-9 E-48 -- the color field in monochrome', () => {
   })
 
   it('CV-9: with S-74 on, a custom color keeps its uppercase hex in the custom entrance tooltip while its swatch turns gray', () => {
-    // see CV-9, CV-7
+    // Spec: CV-9, CV-7
     const built = panelOnTask(documentOf(true, { fillColor: '#c0504d/' }), 'light')
     const custom = cellOf(built, FILL_ROW, 'data-color-custom-entry')
     expect(custom.getAttribute('title') ?? '').toContain('#C0504D')
@@ -276,7 +276,7 @@ describe('CV-9 E-48 -- the color field in monochrome', () => {
   })
 
   it('CV-9: turning S-74 off (IC-100) restores the colors the drawing paints', () => {
-    // see CV-9, S-74, IC-100
+    // Spec: CV-9, S-74, IC-100
     const built = panelOnTask(documentOf(true), 'light')
     built.press('App Header', 'IC-100')
     expect(built.loop.document().documentSettings[MONO_KEY as 'isThemeMonochrome'], 'premise: IC-100 turned S-74 off').toBe(false)
@@ -285,7 +285,7 @@ describe('CV-9 E-48 -- the color field in monochrome', () => {
   })
 
   it(`CV-9: ${CV_9_KEPT} -- the transparent entrance is the same checkerboard with S-74 on as off`, () => {
-    // see CV-9
+    // Spec: CV-9
     const style = (mono: boolean): string[] => {
       const built = panelOnTask(documentOf(mono, { strokeColor: TRANSPARENT }), 'light')
       return [LINE_ROW, FILL_ROW].map((row) => styleMap(cellOf(built, row, 'data-color-choice', TRANSPARENT)).get('background') ?? '')

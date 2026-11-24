@@ -36,7 +36,7 @@ export function wordsOf(rowId: string): { ja: string; en: string; nextStepJa: st
   return { ja: found.text.ja, en: found.text.en, nextStepJa: found.nextStep?.ja ?? '', nextStepEn: found.nextStep?.en ?? '' }
 }
 
-// see FR-076
+// Spec: FR-076
 /** @purity pure */
 export function filled(words: string): string {
   return words.replace(/\{(\w+)\}/g, (_whole, name: string) => {
@@ -46,7 +46,7 @@ export function filled(words: string): string {
   })
 }
 
-// see S-113, S-114, S-115
+// Spec: S-113, S-114, S-115
 export const LIMITS = {
   bytes: Number(SETTINGS_CONSTANTS['importMaxBytes']),
   items: Number(SETTINGS_CONSTANTS['importMaxItems']),
@@ -170,7 +170,7 @@ export function assertReadable(text: string): void {
 
 export const TEMPLATE_PATH = join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json')
 
-// see BT-4
+// Spec: BT-4
 export function templateDocument(): Document {
   const read = documentFromJson(readFileSync(TEMPLATE_PATH, 'utf8'))
   if (!read.ok) throw new Error(`the bundled template is not GRS JSON: ${JSON.stringify(read.faults)}`)
@@ -180,7 +180,7 @@ export function templateDocument(): Document {
 const SCREEN: FrameEnvironment = { width: 1000, height: 700, appHeaderHeight: 56, scrollbarThickness: 8 }
 const NO_MODIFIERS: InputModifiers = { ctrl: false, shift: false, alt: false, meta: false }
 
-// WHY: any happening spends a settled value; a pointer move decides nothing else.
+// Why: any happening spends a settled value; a pointer move decides nothing else.
 const SPENDING_HAPPENING: HumanInput = {
   kind: 'pointer',
   phase: 'move',

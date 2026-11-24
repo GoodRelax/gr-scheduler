@@ -1,4 +1,4 @@
-// SelectionValues: the selection region of the session and its transitions.
+// File: AdvanceScreenSession: SelectionValues: the selection region of the session and its transitions.
 // @unit      UF-122  (docs/spec/05-07-design.md, table T-075)
 // @component AdvanceScreenSession, layer UseCase (table T-062)
 // @purity    pure
@@ -12,7 +12,7 @@ import {
 } from '../../entity/document-model/selection/selection'
 import { NO_EFFECTS, unchanged, type Step } from './session-step'
 
-// see FR-033, SL-7b
+// Spec: FR-033, SL-7b
 export interface SelectionCopiedTask {
   readonly kind: 'task'
   readonly uids: readonly number[]
@@ -28,7 +28,7 @@ export type SelectionCopied = SelectionCopiedTask | SelectionCopiedTaskGroup
 export interface SelectionValuesStateCarried {
   readonly chosenTaskGroups: readonly string[]
   readonly chosenResources: readonly number[]
-  // WHY: null is nothing copied yet; a paste then refuses (RS-27).
+  // Why: null is nothing copied yet; a paste then refuses (RS-27).
   readonly copiedForPaste: SelectionCopied | null
   readonly selectedObjects: Selection
 }
@@ -151,7 +151,7 @@ function isSameCopy(a: SelectionCopied | null, b: SelectionCopied): boolean {
   return a.taskGroupId === (b as SelectionCopiedTaskGroup).taskGroupId
 }
 
-// WHY: rewriting a carried value with the one it already holds changes nothing (SF-3, SD-3).
+// Why: rewriting a carried value with the one it already holds changes nothing (SF-3, SD-3).
 /** @purity pure */
 function selected(values: SelectionValues, objects: Selection): SelectionStep {
   const current = values.selectionState
@@ -168,20 +168,20 @@ function deselected(values: SelectionValues): SelectionStep {
   return { state: { ...values, selectionState: NOTHING_SELECTED }, effects: NO_EFFECTS }
 }
 
-// WHY: an empty pick clears; with nothing selected it changes nothing (the fall-through of T-293).
+// Why: an empty pick clears; with nothing selected it changes nothing (the fall-through of T-293).
 /** @purity pure */
 function onObjectsPicked(values: SelectionValues, event: EventOf<'objectsPicked'>): SelectionStep {
   return SELECTION_VALUES_GUARDS.hasPickedObjects(event) ? selected(values, event.pickedObjects) : deselected(values)
 }
 
-// WHY: the root's chosenTaskGroups moves in the same step as the machine; neither moving keeps the reference (SF-3, FR-085).
+// Why: the root's chosenTaskGroups moves in the same step as the machine; neither moving keeps the reference (SF-3, FR-085).
 /** @purity pure */
 function withTaskGroupsAlso(step: SelectionStep, chosenTaskGroups: readonly string[]): SelectionStep {
   if (isSameList(step.state.chosenTaskGroups, chosenTaskGroups)) return step
   return { state: { ...step.state, chosenTaskGroups }, effects: step.effects }
 }
 
-// WHY: pruning only narrows what stands; it never selects from nothing (T-293).
+// Why: pruning only narrows what stands; it never selects from nothing (T-293).
 /** @purity pure */
 function objectsPruned(values: SelectionValues, event: EventOf<'selectionPruned'>): SelectionStep {
   if (values.selectionState.kind === 'nothingSelected') return unchanged(values)
@@ -193,26 +193,26 @@ function onSelectionPruned(values: SelectionValues, event: EventOf<'selectionPru
   return withTaskGroupsAlso(objectsPruned(values, event), event.chosenTaskGroups)
 }
 
-// see IN-4, FR-085
+// Spec: IN-4, FR-085
 /** @purity pure */
 function onSelectionEscapePressed(values: SelectionValues, event: EventOf<'selectionEscapePressed'>): SelectionStep {
   if (!SELECTION_VALUES_GUARDS.isRungSelection(event)) return unchanged(values)
   return withTaskGroupsAlso(deselected(values), NO_CHOSEN_TASK_GROUPS)
 }
 
-// see SK-19, FR-085
+// Spec: SK-19, FR-085
 /** @purity pure */
 function onSelectionSettleKeyPressed(values: SelectionValues): SelectionStep {
   return withTaskGroupsAlso(deselected(values), NO_CHOSEN_TASK_GROUPS)
 }
 
-// see FR-001, FR-091, TC-9
+// Spec: FR-001, FR-091, TC-9
 /** @purity pure */
 function onCreatedTaskSelected(values: SelectionValues, event: EventOf<'createdTaskSelected'>): SelectionStep {
   return selected(values, selectionWith(emptySelection(), { kind: 'task', uid: event.createdTaskUid }))
 }
 
-// see FR-019, AR-5
+// Spec: FR-019, AR-5
 /** @purity pure */
 function onCreatedCommentBoxSelected(values: SelectionValues, event: EventOf<'createdCommentBoxSelected'>): SelectionStep {
   return selected(values, selectionWith(emptySelection(), { kind: 'commentBox', id: event.createdCommentBoxId }))
@@ -241,7 +241,7 @@ function onResourcesPicked(values: SelectionValues, event: EventOf<'resourcesPic
   return { state: { ...values, chosenResources }, effects: NO_EFFECTS }
 }
 
-// see FR-033, SK-4
+// Spec: FR-033, SK-4
 /** @purity pure */
 function onCopyTaken(values: SelectionValues, event: EventOf<'copyTaken'>): SelectionStep {
   const { copiedForPaste } = event
@@ -266,7 +266,7 @@ const HANDLERS: {
   copyTaken: onCopyTaken,
 }
 
-// see SF-2, SF-8, T-293
+// Spec: SF-2, SF-8, T-293
 /** @purity pure */
 export function stepSelectionValues(values: SelectionValues, event: SelectionValuesEvent): SelectionStep {
   const handler = HANDLERS[event.type] as (values: SelectionValues, event: SelectionValuesEvent) => SelectionStep

@@ -37,7 +37,7 @@ const IN_5B_UNTIL = '置き直しは、焦点が入るか、求めが取り下�
 const IN_5B_NOT_STOLEN = '⛔ 置き直すために、人が別の欄や入口へ動かした焦点を奪ってはならない（MUST NOT）'
 const FR_102_ONLY_THESE =
   '**記録するのは、操作と、表 T-263 の画面の状態（描かれた絵の形は同表の `IR-4`）だけとする（MUST）。**'
-// WHY: CR-742 section 4.5 moved the drawn picture's shape into T-263 as IR-4; the per-frame clause now stands on its own line.
+// Why: CR-742 section 4.5 moved the drawn picture's shape into T-263 as IR-4; the per-frame clause now stands on its own line.
 const FR_102_EVERY_FRAME = '⭐ 画面の状態は、描いたフレームごとに書くこと（MUST）'
 const IR_1_FOCUS = '| IR-1 | 焦点の位置 | 焦点を持つ要素の種類を書くこと（MUST）'
 const IR_1_NO_CONTENT = 'どれでもなければ文書の本体。⛔ 欄の中身を書いてはならない（MUST NOT）'
@@ -134,7 +134,7 @@ const oneTaskDocument = (): Document =>
       ...structuredClone(TEMPLATE.documentSettings),
       scrollDate: '2026-04-01T00:00:00',
       scrollTaskGroupId: 'g1',
-      // WHY: S-1 is a constant (CR-572); the stored zoomX (S-75) carries the day width this fixture draws at.
+      // Why: S-1 is a constant (CR-572); the stored zoomX (S-75) carries the day width this fixture draws at.
       zoomX: 20 / SETTINGS_CONSTANTS.pxPerDayAt1x,
     },
     documentStamp: structuredClone(TEMPLATE.documentStamp),
@@ -172,7 +172,7 @@ interface Bench {
   taskCount(): number
 }
 
-// see IN-5b, IF-9
+// Spec: IN-5b, IF-9
 const benchWith = (answers: (asked: number) => boolean): Bench => {
   const waiting: ((time: number) => void)[] = []
   ;(globalThis as Record<string, unknown>)['requestAnimationFrame'] = (callback: (time: number) => void): number =>
@@ -191,7 +191,7 @@ const benchWith = (answers: (asked: number) => boolean): Bench => {
   }
   const asked: string[] = []
   const records: string[] = []
-  // WHY: stands in for the host, as focusPropertyField does: a taken ask moves the focus, a press puts it back.
+  // Why: stands in for the host, as focusPropertyField does: a taken ask moves the focus, a press puts it back.
   let focusAt = FOCUS_ON_DOCUMENT_BODY
   const clipboard: Clipboard = {
     writeClipboardContent: (content: ClipboardContent) => {
@@ -242,7 +242,7 @@ const benchWith = (answers: (asked: number) => boolean): Bench => {
   }
 }
 
-// see MK-13, T-023d
+// Spec: MK-13, T-023d
 const bodyOfTheBar = (loop: FrameLoop): Point => {
   const drawn = loop.current()?.geometry.tasks.find((one) => one.taskUid === TASK_UID)
   if (drawn === undefined || drawn.plan === null || drawn.plan.form !== 'outline') {
@@ -366,8 +366,8 @@ const pressRecordEntrance = (built: Bench): void => {
 const frameLinesOf = (record: string): readonly string[] =>
   record.split('\n').filter((line) => line.split('\t')[2] === 'frame')
 
-// see T-263, T-016, T-109, S-99h, T-233
-// TRAP: T-263 names what a frame line holds, not how it is spelled; the keys below are frame-loop.ts's.
+// Spec: T-263, T-016, T-109, S-99h, T-233
+// Trap: T-263 names what a frame line holds, not how it is spelled; the keys below are frame-loop.ts's.
 const FOCUS_KINDS: ReadonlySet<string> = new Set([
   ...specTable('T-016').rows.map((one) => one.id),
   ...specTable('T-109').rows.map((one) => one.id),

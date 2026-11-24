@@ -20,14 +20,14 @@ import { validateDocument } from '../fixtures/grs-document'
 import { settingDefaultOf } from '../fixtures/setting-default'
 import { DESIGN, DISPLAY_WORDS, REQUIREMENTS } from './cr-541-stage'
 
-// see FR-024
+// Spec: FR-024
 const FR_024_FITS_THE_SCHEMA =
   '書き出す `GRS JSON` は、その造りが刊行するスキーマ（`_source/grs-document.schema.json`）に適合すること（MUST）'
 const FR_024_NO_KEY_WRITTEN_BACK = '⛔ 読んだ文書が持っていた、スキーマに無い鍵を書き戻してはならない（MUST NOT）'
 const FR_024_OWN_VERSION = '同じ造りのスキーマが拒む。⭐ 載せる形式の版は、この造りの版とすること（MUST）'
-// see OP-6
+// Spec: OP-6
 const OP_6_DROPPED_NOT_WRITTEN_BACK = '範囲へ収める（表 T-233 の `RS-51`）。⛔ 捨てた鍵を書き戻してはならない（MUST NOT）'
-// see FR-073
+// Spec: FR-073
 const FR_073_NOT_REFUSED_FOR_BEING_NEWER = '⛔ 版が新しいことを理由に拒んではならない（MUST NOT）'
 const FR_073_NOT_OPENED_SILENTLY = '日程データの群が合わない場合だけである。黙って開いてもならない（MUST NOT）'
 const FR_073_DROPPED_ON_GOING_ON = '⛔ 続けたときは、読めなかった列を捨てて開くこと（MUST）'
@@ -41,7 +41,7 @@ const FR_073_LEAD_TO_THE_LATEST =
 const FR_073_NOT_COPIED_INTO_WORDS = '`S-350` が持つ。⛔ 所を語に書き写してはならない（MUST NOT）'
 const FR_073_A_LINK = '1 か所にするためである。⭐ 差し込んだ所は、押せるリンクとして示すこと（MUST）'
 const FR_073_NO_REFERENCE = '⛔ 開いた頁へ、この頁への参照と参照元を渡してはならない（MUST NOT）'
-// see T-220
+// Spec: T-220
 const SCHEMA_STAYS_STRICT =
   '`documentSettings` の群にも、欠けている鍵と知らない鍵を拒む条件と、鍵ごとの型・列挙・下限・上限を持たせたままとすること（MUST）'
 const READER_DOES_NOT_REFUSE_SETTINGS =
@@ -77,14 +77,14 @@ const DESIGN_CLAUSES: readonly (readonly [string, string])[] = [
 
 type Group = Record<string, unknown>
 
-// WHY: this build states its own version through the bundled template (AM-2);
+// Why: this build states its own version through the bundled template (AM-2);
 // no table of the manuscript holds the value.
 const THIS_BUILD: string = (startupTemplate as { schemaVersion: string }).schemaVersion
 const NEWER = `9${THIS_BUILD.slice(1)}`
 const OLDER = '2000-01-01'
 const UNKNOWN_KEY = 'keyFromALaterVersion'
 const UNKNOWN_COLUMN = 'aColumnNoBuildOfThisToolCanRead'
-// WHY: a nested item the document held until CR-572 made it a tool constant (S-81); no stored item is nested now.
+// Why: a nested item the document held until CR-572 made it a tool constant (S-81); no stored item is nested now.
 const RETIRED_NESTED_KEY = 'exportCanvas'
 
 const templateCopy = (): Group => structuredClone(startupTemplate) as unknown as Group

@@ -62,7 +62,7 @@ const GLYPHS: readonly string[] = ((): readonly string[] => {
 
 const PAIRS = '＝'
 
-// WHY: found by what the note SAYS, not a line number, so a moved note is
+// Why: found by what the note SAYS, not a line number, so a moved note is
 // still found and a deleted note fails here rather than silently.
 const NOTE_PAIRING: ReadonlyMap<string, string> = ((): ReadonlyMap<string, string> => {
   const lines = paragraphsOf(REQUIREMENTS).filter(
@@ -117,7 +117,7 @@ const rosterRow = (row: string): RosterIcon => {
 
 describe('the manuscripts still say what these cases read', () => {
   it('⭐ was really driven by the manuscripts, and not by a hollow read of them', () => {
-    // TRAP: an empty parse of any of these four lists makes every case below
+    // Trap: an empty parse of any of these four lists makes every case below
     // pass vacuously; these length checks are what stops that (rule 04.2).
     expect(MARKS.length).toBeGreaterThan(1)
     expect(GLYPHS.length).toBeGreaterThan(1)
@@ -142,14 +142,14 @@ describe('the note under 表 T-012 pairs SH-5 to `TaskVisual.milestoneGlyph`', (
 
 describe('⛔ the printing order is not what joins the two lists (MUST NOT)', () => {
   it('the by-position pairing the generator makes is the pairing the note states', () => {
-    // WHY: this does not assert an order rule; it only requires the order the
+    // Why: this does not assert an order rule; it only requires the order the
     // lists happen to print in to still agree with the pairing that is the rule.
     const byPosition = new Map(MARKS.map((mark, at) => [mark, GLYPHS[at] as string]))
     expect([...byPosition]).toEqual([...NOTE_PAIRING])
   })
 
   it('the same holds spelling for spelling, which is the direction a reorder breaks', () => {
-    // WHY: the prior case compares whole maps; this one names the mark that
+    // Why: the prior case compares whole maps; this one names the mark that
     // moved, so a failure says which pair drifted.
     MARKS.forEach((mark, at) => {
       expect(NOTE_PAIRING.get(mark), `SH-5's mark #${at + 1}`).toBe(GLYPHS[at])
@@ -178,7 +178,7 @@ describe('表 T-109 places one palette entrance against each of SH-5\'s marks', 
 
 describe('what the generator carried into `src/` is the pairing the note states', () => {
   it('every AR-3 row of 表 T-109 reaches the roster carrying the note\'s own spelling', () => {
-    // WHY: armsShape is what both the screen and the input side read; if it
+    // Why: armsShape is what both the screen and the input side read; if it
     // drifts from the note, an entrance draws one figure and arms another.
     for (const entrance of MILESTONE_ENTRANCES) {
       const mark = marksPrintedBy(entrance.entrance)[0] as string

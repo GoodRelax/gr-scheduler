@@ -53,7 +53,7 @@ const GO_3_WHICH_COLUMN =
 
 const GO_3_REST_DAY = '離した所が非稼働日であっても、その日を最後の日とすること（MUST）'
 
-// WHY: CR-710 rewrote this clause (FR-054 reads instants and counts working time in minutes).
+// Why: CR-710 rewrote this clause (FR-054 reads instants and counts working time in minutes).
 const FR_011_SAME_DAY_IS_ONE =
   '⭐ 実績の開始と終わりが同じ日の 08:00 〜 17:00 であるとき、その実績は 480 分（1d）である（下の段の数え方、既定の時間帯の暦）。'
 
@@ -89,7 +89,7 @@ const RUNNING_UID = 1
 const FINISHED_UID = 2
 
 const day = (d: number): string => `2026-04-${String(d).padStart(2, '0')}T00:00:00`
-// WHY: an end is written at the day's close (WT-2, WT-4); at 00:00 FR-054 reads it as the day before (RV-1, RV-6).
+// Why: an end is written at the day's close (WT-2, WT-4); at 00:00 FR-054 reads it as the day before (RV-1, RV-6).
 const endOfDay = (d: number): string => `2026-04-${String(d).padStart(2, '0')}T17:00:00`
 
 const dayPart = (value: string | null | undefined): string => {
@@ -182,7 +182,7 @@ function fixtureDocument(): Document {
     },
     documentSettings: {
       ...structuredClone(template.documentSettings),
-      // WHY: S-1 is a constant (CR-572); the stored zoomX (S-75) carries the day width this fixture draws at.
+      // Why: S-1 is a constant (CR-572); the stored zoomX (S-75) carries the day width this fixture draws at.
       zoomX: 20 / DEFAULT_DISPLAY_RATIO / SETTINGS_CONSTANTS.pxPerDayAt1x,
       scrollDate: day(1),
       scrollTaskGroupId: TASK_GROUP_A,
@@ -207,7 +207,7 @@ const nextCalendarDay = (text: string): string => {
   return new Date(Date.UTC(y, m - 1, d + 1)).toISOString().slice(0, 10)
 }
 
-// see FR-011
+// Spec: FR-011
 function lengthFromTo(start: string, last: string): number {
   let count = 0
   for (let at = start; at <= last; at = nextCalendarDay(at)) {
@@ -216,7 +216,7 @@ function lengthFromTo(start: string, last: string): number {
   return count
 }
 
-// see FR-011, T-019
+// Spec: FR-011, T-019
 function lastDayOf(one: Task): string {
   return dayPart(one.actualFinish ?? one.stop)
 }
@@ -338,7 +338,7 @@ interface Released {
   readonly after: Task
 }
 
-// see GA-4
+// Spec: GA-4
 function actualEndReleasedOn(uid: number, target: string): Released {
   const built = stage()
   const before = structuredClone(taskOf(built.loop, uid))

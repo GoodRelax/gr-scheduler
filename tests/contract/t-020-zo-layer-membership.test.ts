@@ -138,7 +138,7 @@ const HIGHLIGHT_BOX = {
   bottomTaskGroupId: 'g1',
   strokeColor: null,
   cornerRadiusPx: null,
-  // WHY: unfilled, as CM-52 places a box (S-370); a null fill paints the theme in ZO-14 (CR-606, FR-019).
+  // Why: unfilled, as CM-52 places a box (S-370); a null fill paints the theme in ZO-14 (CR-606, FR-019).
   fillColor: 'transparent',
 }
 
@@ -228,7 +228,7 @@ describe(`${says('ZO-8')} (PND-312, table T-029 CU-2)`, () => {
 })
 
 describe(`${says('ZO-6')} (PND-363, table T-023c SL-3)`, () => {
-  // WHY: table T-065 IF-1 moved ZO-6 to the marquee overlay, laid in front of the picture beneath (CR-736).
+  // Why: table T-065 IF-1 moved ZO-6 to the marquee overlay, laid in front of the picture beneath (CR-736).
   it('T-020 ZO-6: the held range-selection rectangle is inside ZO-6, in the overlay after the picture beneath', () => {
     const scene = sceneOf({
       tasks: [taskOf({ uid: 1, name: 'Anchor', start: day(2), finish: day(24) })],

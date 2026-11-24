@@ -22,7 +22,7 @@ import { bare, specTable, unbroken } from './spec-table'
 
 const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
-// WHY: each constant ends exactly at its marker, cut from the manuscript as check 39 reads it.
+// Why: each constant ends exactly at its marker, cut from the manuscript as check 39 reads it.
 const T_256_SPLIT =
   '4` は後から足した段である）。⭐ `Command Palette` の入口を 2 つの塊に分け、表 T-109 の `群` が `揃える` の行を、`HC-4` の `Task Group Panel` の塊の下の塊へ移すこと（MUST）'
 const T_256_CONTINUED_HEADING =
@@ -49,12 +49,12 @@ const T_109 = specTable('T-109')
 
 const surfaceOf = (cell: string): string => cell.replace(/`/g, '').trim()
 
-// see T-109
+// Spec: T-109
 const PALETTE_ALIGN_ROWS: readonly string[] = T_109.rows
   .filter((row) => surfaceOf(row.by['面'] ?? '') === 'Command Palette' && bare(row.by['群'] ?? '') === '揃える')
   .map((row) => row.id)
 
-// see FR-036
+// Spec: FR-036
 const LEFT_OFF_SURFACES = new Set(['Open Chooser', 'Difference Review'])
 const LEFT_OFF_ROWS: readonly string[] = T_109.rows
   .filter((row) => LEFT_OFF_SURFACES.has(surfaceOf(row.by['面'] ?? '')))

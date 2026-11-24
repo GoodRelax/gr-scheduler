@@ -8,7 +8,7 @@ import { smallestWithText, windowStage, type WindowStage } from './cr-731-window
 
 export { FOOTER_ROLE, PROPOSALS_ROLE, isInert }
 
-// WHY: the seam the code seat builds for RW-17 -- the notice is its own child of the footer band, under the entries.
+// Why: the seam the code seat builds for RW-17 -- the notice is its own child of the footer band, under the entries.
 export const NOTICE_ROLE = 'Delay Fix Notice'
 
 export type Language = 'ja' | 'en'
@@ -35,7 +35,7 @@ export const filled = (text: string, values: Readonly<Record<string, number | st
 
 export const countText = (n: number, language: Language = 'ja'): string => filled(fixWord('fixCount', language), { n })
 
-// WHY: IC-21 chooses the screen language (FR-038); the stage starts in Japanese.
+// Why: IC-21 chooses the screen language (FR-038); the stage starts in Japanese.
 export async function proposalsOpened(document: Document, language: Language = 'ja'): Promise<WindowStage> {
   const stage = await windowStage(document)
   if (language === 'en') await stage.press('IC-21')
@@ -130,7 +130,7 @@ function raise(stage: WindowStage, node: FakeElement, type: string): void {
   }
 }
 
-// WHY: a browser flips a clicked box itself, then fires input and change; the stand-in DOM flips nothing, so a press
+// Why: a browser flips a clicked box itself, then fires input and change; the stand-in DOM flips nothing, so a press
 // is the flip, both events up the tree and the pointer -- a refused tick left on screen is then seen, as in a browser.
 export async function pressBox(stage: WindowStage, box: FakeElement): Promise<void> {
   const held = box as unknown as { checked?: boolean }

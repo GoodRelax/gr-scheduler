@@ -27,7 +27,7 @@ import { advanceScreenSession, emptyScreenSession, type ScreenValues } from '../
 import { NOT_STORED_ZOOM_BOUNDS } from '../../src/use-case/edit-document/edit-document'
 import { bare, specTable } from './spec-table'
 
-// WHY: the TC-6 clause is copied verbatim, so that the check that counts held MUST clauses finds it in this file's bytes.
+// Why: the TC-6 clause is copied verbatim, so that the check that counts held MUST clauses finds it in this file's bytes.
 const TC_6_THE_DRAWN_SPAN_IS_READ_AS_SNAPPED_INSTANTS =
   '⭐ 引いた期間は、押した点を開始、離した点を終了とし（左へ引けば入れ替える）、`FR-103` の 表 T-378 の単位で寄せた瞬間として読むこと（MUST）'
 const TC_10_THE_MILESTONE_AT_THE_SNAPPED_PRESS = '寄せの単位が日より細かいとき（表 T-378 の `SG-2`）は、押した点をその単位で寄せた瞬間に置く'
@@ -38,7 +38,7 @@ const rowOf = (table: string, id: string) => {
   return found
 }
 
-// WHY: the column headings of the spec tables are Japanese; they are written as escapes to keep the logic ASCII.
+// Why: the column headings of the spec tables are Japanese; they are written as escapes to keep the logic ASCII.
 const HEADING_DEFAULT_VALUE = '既定値'
 const HEADING_DEFAULT = '既定'
 const HEADING_VALUE = '値'
@@ -52,7 +52,7 @@ const numberOf = (table: string, id: string, heading: string): number => {
   return Number(numbers[0])
 }
 
-// WHY: S-482 / S-483 hold the default start / finish times of T-350, written hh:mm:ss.
+// Why: S-482 / S-483 hold the default start / finish times of T-350, written hh:mm:ss.
 const timeOf = (table: string, id: string): string => {
   const found = /\d{2}:\d{2}:\d{2}/.exec(bare(rowOf(table, id).by[HEADING_VALUE] ?? ''))
   if (found === null) throw new Error(`${id} of table ${table} holds no time`)
@@ -67,8 +67,8 @@ const S_208 = numberOf('T-206', 'S-208', HEADING_DEFAULT)
 const DEFAULT_START_TIME = timeOf('T-209', 'S-482')
 const DEFAULT_FINISH_TIME = timeOf('T-209', 'S-483')
 
-// see T-109, T-023b
-// WHY: the entrance that arms one shape row is read from the table, never named here.
+// Spec: T-109, T-023b
+// Why: the entrance that arms one shape row is read from the table, never named here.
 interface Entrance {
   readonly row: string
   readonly surface: string
@@ -100,7 +100,7 @@ const TEMPLATE = JSON.parse(
 
 const RULER_FONT = SETTINGS_DEFAULTS['rulerFontSizePx'] as number
 
-// WHY: FR-017 judges pxPerDay / (rulerFontSizePx * ratio / S-8) and pxPerDay = S-1 * ratio * zoomX, so the ratio cancels.
+// Why: FR-017 judges pxPerDay / (rulerFontSizePx * ratio / S-8) and pxPerDay = S-1 * ratio * zoomX, so the ratio cancels.
 const zoomXFor = (judged: number): number => (judged * RULER_FONT) / (S_1 * S_8)
 
 interface Scene {
@@ -156,13 +156,13 @@ function fixtureDocument(scene: Scene): Document {
   } as unknown as Document
 }
 
-// WHY: SG-2 on the hour tier -- judged between S-577 and S-578.
+// Why: SG-2 on the hour tier -- judged between S-577 and S-578.
 const HOUR_TIER: Scene = { isTimeOfDayVisible: true, zoomX: zoomXFor((S_577 + S_578) / 2) }
-// WHY: SG-2 on the half-hour grid tier (CR-850 folded SG-3 into SG-2) -- judged over S-578, kept under the FR-016 zoomX ceiling by staying near S-578.
+// Why: SG-2 on the half-hour grid tier (CR-850 folded SG-3 into SG-2) -- judged over S-578, kept under the FR-016 zoomX ceiling by staying near S-578.
 const HALF_HOUR_TIER: Scene = { isTimeOfDayVisible: true, zoomX: zoomXFor(S_578 * 1.3) }
-// WHY: SG-1 by hiding the time of day.
+// Why: SG-1 by hiding the time of day.
 const TIME_HIDDEN: Scene = { isTimeOfDayVisible: false, zoomX: HOUR_TIER.zoomX }
-// WHY: SG-1 by a scale under the hour tier while the time of day is shown.
+// Why: SG-1 by a scale under the hour tier while the time of day is shown.
 const BELOW_HOUR_TIER: Scene = { isTimeOfDayVisible: true, zoomX: zoomXFor(S_577 * 0.5) }
 
 const SCREEN: FrameEnvironment = { width: 1400, height: 700, appHeaderHeight: 0, scrollbarThickness: 0 }
@@ -243,7 +243,7 @@ function contextOf(loop: FrameLoop, screen: ScreenValues): InputContext {
   } as unknown as InputContext
 }
 
-// WHY: the palette entrance is pressed as the shell presses it, so the arm stands as it would for a person.
+// Why: the palette entrance is pressed as the shell presses it, so the arm stands as it would for a person.
 function armedBy(loop: FrameLoop, entrance: Entrance): ScreenValues {
   const at = { x: 40, y: 200 }
   const down = pointer('down', at)
@@ -262,7 +262,7 @@ function armedBy(loop: FrameLoop, entrance: Entrance): ScreenValues {
 const MINUTES_PER_DAY = 1440
 const DAY = { year: 2026, month: 10, day: 14 }
 
-// WHY: an x for a wall-clock minute of 2026-10-14, read off the exported day-to-x map so no pixel is held here.
+// Why: an x for a wall-clock minute of 2026-10-14, read off the exported day-to-x map so no pixel is held here.
 const xAt = (loop: FrameLoop, minuteOfDay: number): number => {
   const values = loop.current()
   if (values === null) throw new Error('the loop has run no frame')
@@ -300,7 +300,7 @@ interface Drag {
   readonly released?: Partial<InputModifiers>
 }
 
-// WHY: the release is read through the translator against the press it got, the way the shell runs both.
+// Why: the release is read through the translator against the press it got, the way the shell runs both.
 function createdByDrag(drag: Drag): readonly Created[] {
   const loop = loopOf(drag.scene)
   const armed = armedBy(loop, drag.entrance)
@@ -345,7 +345,7 @@ describe('premise: the scenes sit on the T-378 rows they are named after', () =>
 
   it('the bar shape and the milestone are armed by an entrance the spec names', () => {
     expect(RECTANGLE.surface).toBe('Command Palette')
-    // WHY: wave 2 of CR-767 (JDG-2364) holds the arm as a child of the composite `armed`.
+    // Why: wave 2 of CR-767 (JDG-2364) holds the arm as a child of the composite `armed`.
     expect(armedBy(loopOf(HOUR_TIER), RECTANGLE).armModeState).toMatchObject({ kind: 'armed', child: { kind: 'taskShapeArmed' } })
     expect(armedBy(loopOf(HOUR_TIER), MILESTONE).armModeState).toMatchObject({ kind: 'armed', child: { kind: 'milestoneShapeArmed' } })
   })
@@ -370,7 +370,7 @@ describe(`FR-001 / T-239 TC-6 -- ${TC_6_THE_DRAWN_SPAN_IS_READ_AS_SNAPPED_INSTAN
     })
   })
 
-  // WHY: CR-850 retired SG-4 and the TC-6 words that Alt is read at release; these cases press the opposite -- Alt selects no unit.
+  // Why: CR-850 retired SG-4 and the TC-6 words that Alt is read at release; these cases press the opposite -- Alt selects no unit.
   describe('(c) Alt selects no unit (SG-4 retired)', () => {
     it('pressed without Alt and released with Alt creates the same 09:15 to 11:45', () => {
       const made = createdByDrag(bar({ scene: HOUR_TIER, pressMinute: at(9, 10), releaseMinute: at(11, 40), released: ALT }))
@@ -403,8 +403,8 @@ describe(`FR-001 / T-239 TC-6 -- ${TC_6_THE_DRAWN_SPAN_IS_READ_AS_SNAPPED_INSTAN
   })
 
   describe('(e) two ends that snap to the same instant span one unit in the pulled direction', () => {
-    // WHY: 9:08 and 9:22 both snap to 9:15 in the 15-minute unit (7 minutes off it, 8 off 9:00 and 9:30).
-    // WHY: two ends inside one quarter hour are under S-208 apart at the HOUR_TIER zoom (a click, not a drag),
+    // Why: 9:08 and 9:22 both snap to 9:15 in the 15-minute unit (7 minutes off it, 8 off 9:00 and 9:30).
+    // Why: two ends inside one quarter hour are under S-208 apart at the HOUR_TIER zoom (a click, not a drag),
     // so this SG-2 case is pressed at the half-hour grid tier, which CR-850 put on the same SG-2 unit.
     it('half-hour grid tier, rightward: start to start plus 15 minutes', () => {
       const made = createdByDrag(bar({ scene: HALF_HOUR_TIER, pressMinute: at(9, 8), releaseMinute: at(9, 22) }))
@@ -451,7 +451,7 @@ describe('FR-001 / T-239 TC-10 -- a milestone at a finer unit is placed at the s
     expect(rowOf('T-239', 'TC-10').cells.join(' | ').replace(/<br\s*\/?>/g, '')).toContain(TC_10_THE_MILESTONE_AT_THE_SNAPPED_PRESS)
   })
 
-  // WHY: pressed at 9:40 (hour tier) and 9:20 (half-hour grid tier): the nearest quarter hours are 9:45 and 9:15.
+  // Why: pressed at 9:40 (hour tier) and 9:20 (half-hour grid tier): the nearest quarter hours are 9:45 and 9:15.
   it.each([
     ['hour tier (SG-2)', HOUR_TIER, '2026-10-14T09:45:00'],
     ['half-hour grid tier (SG-2)', HALF_HOUR_TIER, '2026-10-14T09:15:00'],

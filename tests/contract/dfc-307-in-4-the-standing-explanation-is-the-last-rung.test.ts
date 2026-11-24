@@ -250,7 +250,7 @@ const commandOf = (icon: IconId): CommandItem => ({
   label: `the name of ${icon}`,
 })
 
-// WHY: no task is rested on in this file, so the schedule the tooltips read holds none.
+// Why: no task is rested on in this file, so the schedule the tooltips read holds none.
 const NO_TASKS = { tasks: [], resources: [], assignments: [], baselineTasks: [] } as unknown as Schedule
 
 const VIEW: Omit<ScreenView, 'tooltips'> = {
@@ -320,7 +320,7 @@ const readingsOf = (part: Partial<ScreenViewReadings> = {}): ScreenViewReadings 
 const RESTING_ON_THE_ICON = readingsOf({
   pointer: { x: 5, y: 5 },
   pointerRestedMs: WAIT_MS + 1,
-  // WHY: EZ-2 -- the icon wait counts from entering the icon (CR-576)
+  // Why: EZ-2 -- the icon wait counts from entering the icon (CR-576)
   hintTargetDwellMs: WAIT_MS + 1,
   iconUnderPointer: ICON,
 })

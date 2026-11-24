@@ -13,7 +13,7 @@ const SPEC = join(process.cwd(), 'docs', 'spec')
 const REQUIREMENTS = unbroken(readFileSync(join(SPEC, '01-04-requirements.md'), 'utf8'))
 const SETTINGS_BOOK = unbroken(readFileSync(join(SPEC, '_assets', 'tbl-settings.md'), 'utf8'))
 
-// see FR-006, FR-072, S-171
+// Spec: FR-006, FR-072, S-171
 const FR_006_FITS_AT_DEFAULT = '⭐ 中身ごとの既定の幅（`FR-052`）では横に送らずに収まる —— 横に送るのは、人が既定より狭めたときだけである。'
 const FR_006_SCROLL_NOT_SHRINK = 'パネルを横に送って見せ、選びを縮めない。'
 const FR_006_EMPTY_IS_AS_WIDE = '`S-590` を掛けた幅とすること（MUST）。⭐ 値が空でも同じ幅とすること（MUST）'
@@ -29,15 +29,15 @@ const S_171_RULE = '横にはみ出さず、どの項目名も 2 行以内に収
 const SHIPPED_BUILD = join(process.cwd(), 'dist', 'index.html')
 const SCREEN = screenOf(rowOf(specTable('T-025'), 'MC-6'))
 
-// see T-025
+// Spec: T-025
 const REFERENCE_CHANNEL = 'msedge'
 
-// see U-25, U-24
+// Spec: U-25, U-24
 const roleOf = (id: string): string => `[data-role="${bare(specTable('T-103').rows.find((one) => one.id === id)?.by['確定名（英）'] ?? '')}"]`
 const PROPERTIES_PANEL = roleOf('U-25')
 const PANEL_DIVIDER = roleOf('U-24')
 
-// see S-171, S-248
+// Spec: S-171, S-248
 const settingPx = (id: string): number => {
   const found = /(\d+(?:\.\d+)?)/.exec(bare(specTable('T-206').rows.find((one) => one.id === id)?.by['既定'] ?? ''))
   if (found === null) throw new Error(`table T-206 row ${id} states no number`)
@@ -51,7 +51,7 @@ const CLOSE = 'IC-52'
 const SHOW_TIME_OF_DAY = 'K-146'
 const SEARCH = 'IC-117'
 
-// see T-331
+// Spec: T-331
 const START_COLUMN = 'SQ-3'
 const LOCALES = [
   { language: 'ja', locale: 'ja-JP' },
@@ -61,15 +61,15 @@ const LOCALES = [
 const SETTLE_MS = 700
 const SUBPIXEL = 0.5
 
-// WHY: the panel's own box leaves out the one-pixel Panel Divider line that the stated width counts.
+// Why: the panel's own box leaves out the one-pixel Panel Divider line that the stated width counts.
 const PANEL_EDGE_PX = 1.5
 
-// WHY: at S-171 every ja name fits one line; a width between S-171 and S-248 makes some names take exactly two.
+// Why: at S-171 every ja name fits one line; a width between S-171 and S-248 makes some names take exactly two.
 const NARROWED_PX = 360
 
 let browser: Browser | null = null
 
-// WHY: Playwright hides scrollbars by default; S-171 was measured with the vertical scrollbar drawn, so it is drawn here too.
+// Why: Playwright hides scrollbars by default; S-171 was measured with the vertical scrollbar drawn, so it is drawn here too.
 test.beforeAll(async () => {
   if (!existsSync(SHIPPED_BUILD)) throw new Error('build the shipped app first (dist/index.html)')
   browser = await chromium.launch({ channel: REFERENCE_CHANNEL, ignoreDefaultArgs: ['--hide-scrollbars'] })
@@ -160,7 +160,7 @@ interface EntryReading {
 const DATE_ENTRIES = 'input[type="date"], input[type="datetime-local"]'
 const CHOICE_ENTRIES = 'select[data-field-row]'
 
-// WHY: what the host draws in full is read off a twin of the field let to take its own width (CR-754 section 12, step 3).
+// Why: what the host draws in full is read off a twin of the field let to take its own width (CR-754 section 12, step 3).
 /** @purity non-pure */
 async function readEntries(page: Page, selector: string, within: string = PROPERTIES_PANEL): Promise<readonly EntryReading[]> {
   return page.evaluate(
@@ -205,7 +205,7 @@ interface NameReading {
   readonly column: number
 }
 
-// WHY: a line starts where a character's top moves down; the pieces are the text between break opportunities (WBR) or, unmarked, the words.
+// Why: a line starts where a character's top moves down; the pieces are the text between break opportunities (WBR) or, unmarked, the words.
 /** @purity non-pure */
 async function readNames(page: Page): Promise<readonly NameReading[]> {
   return page.evaluate((panel: string) => {
@@ -272,7 +272,7 @@ async function readNames(page: Page): Promise<readonly NameReading[]> {
 const boundariesOf = (pieces: readonly string[]): readonly number[] =>
   pieces.reduce<number[]>((ends, piece) => [...ends, (ends[ends.length - 1] ?? 0) + piece.length], []).slice(0, -1)
 
-// WHY: the narrowest longest line any one break between pieces could give a two-line name.
+// Why: the narrowest longest line any one break between pieces could give a two-line name.
 /** @purity pure */
 function bestLongerLine(reading: NameReading): number {
   const total = reading.pieceWidths.reduce((sum, one) => sum + one, 0)
@@ -306,7 +306,7 @@ async function narrowTo(page: Page, width: number | null): Promise<void> {
   if (at === null) return
   await page.mouse.move(at.x, at.y)
   await page.mouse.down()
-  // WHY: the divider stands on the panel's left edge, so the panel ends as wide as the screen right of the release.
+  // Why: the divider stands on the panel's left edge, so the panel ends as wide as the screen right of the release.
   await page.mouse.move(width === null ? SCREEN.width - 2 : SCREEN.width - width, at.y, { steps: 16 })
   await page.mouse.up()
   await page.waitForTimeout(SETTLE_MS)
@@ -458,7 +458,7 @@ test('DFC-2525: with the time shown, a Task panel closes from its own row and cu
   }
 })
 
-// see FR-151, SV-7, IC-117, IC-122
+// Spec: FR-151, SV-7, IC-117, IC-122
 test(`SV-7: the start date filter of the search panel cuts neither empty bound -- ${FR_006_OTHER_DATE_FIELDS}`, async () => {
   test.setTimeout(120_000)
   const opened = await openSettings('ja-JP')

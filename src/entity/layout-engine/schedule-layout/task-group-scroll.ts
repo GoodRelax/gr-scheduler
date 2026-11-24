@@ -1,4 +1,4 @@
-// ScheduleLayout -- the vertical scroll: unpinned task groups and tasks move by the view place (OP-10a).
+// File: ScheduleLayout: the vertical scroll: unpinned task groups and tasks move by the view place (OP-10a).
 // @unit      UF-142  (docs/spec/05-07-design.md, table T-075)
 // @component ScheduleLayout, layer layoutEngine (table T-062)
 // @purity    pure
@@ -6,16 +6,16 @@
 import type { DocumentSettings } from '../../document-model/document-settings/document-settings'
 import type { TaskGroupPlacement, TaskPlacement } from './schedule-layout'
 
-// see S-78, S-176
+// Spec: S-78, S-176
 type SlabOf = Pick<TaskGroupPlacement, 'taskGroupId' | 'y' | 'height'>
 
-// see S-78, S-176
+// Spec: S-78, S-176
 interface TaskGroupAnchor {
   readonly scrollTaskGroupId: string | null
   readonly scrollTaskGroupFraction: number
 }
 
-// see OP-10a, S-176
+// Spec: OP-10a, S-176
 /** @purity pure */
 export function scrollOffsetOf(
   taskGroups: readonly TaskGroupPlacement[],
@@ -29,7 +29,7 @@ export function scrollOffsetOf(
   const landedAt = Math.min(taskGroups.length - 1, Math.max(0, anchoredAt + carriedRows))
   const taskGroup = taskGroups[landedAt]
   if (taskGroup === undefined) return 0
-  // TRAP: taskGroupAnchorAt in input-command-translator.ts inverts this with the same denominator;
+  // Trap: taskGroupAnchorAt in input-command-translator.ts inverts this with the same denominator;
   // change both or the pan lands elsewhere.
   const below = taskGroups[landedAt + 1]
   const slab = below === undefined ? taskGroup.height : below.y - taskGroup.y
@@ -61,7 +61,7 @@ export function scrolledPlacements(
   )
 }
 
-// see OP-10a, S-176
+// Spec: OP-10a, S-176
 /** @purity pure */
 export function taskGroupIndexAtTopEdge(taskGroups: readonly SlabOf[], y: number): number | null {
   for (let at = 0; at < taskGroups.length; at++) {
@@ -74,8 +74,8 @@ export function taskGroupIndexAtTopEdge(taskGroups: readonly SlabOf[], y: number
   return null
 }
 
-// see OP-10a, S-78, S-176
-// WHY: the inverse of scrollOffsetOf, beside it: the wheel, the zoom and the jump (SJ-5) all turn a top edge into an anchor.
+// Spec: OP-10a, S-78, S-176
+// Why: the inverse of scrollOffsetOf, beside it: the wheel, the zoom and the jump (SJ-5) all turn a top edge into an anchor.
 /** @purity pure */
 export function taskGroupAnchorIn(
   taskGroups: readonly SlabOf[],
@@ -87,14 +87,14 @@ export function taskGroupAnchorIn(
   const taskGroup = taskGroups[at]
   const below = taskGroups[at + 1]
   if (taskGroup === undefined) return held
-  // TRAP: scrollOffsetOf (task-group-scroll.ts) inverts this; both must divide by the slab.
+  // Trap: scrollOffsetOf (task-group-scroll.ts) inverts this; both must divide by the slab.
   const slab = below === undefined ? taskGroup.height : below.y - taskGroup.y
   if (slab <= 0) return held
   const into = y - taskGroup.y
   if (into >= slab && below !== undefined) {
     return { scrollTaskGroupId: below.taskGroupId, scrollTaskGroupFraction: 0 }
   }
-  // WHY: into < slab here, so the share is below 1 but for rounding, which wraps to 0 as a day's fraction does.
+  // Why: into < slab here, so the share is below 1 but for rounding, which wraps to 0 as a day's fraction does.
   const share = into / slab
   return { scrollTaskGroupId: taskGroup.taskGroupId, scrollTaskGroupFraction: share < 1 ? share : 0 }
 }

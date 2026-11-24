@@ -22,7 +22,7 @@ const cellOf = (table: string, id: string, heading: string): string => {
   return unbroken(row.by[heading] ?? '')
 }
 
-// WHY: the last cell of a T-206 row is the note, whatever the heading of that table calls it.
+// Why: the last cell of a T-206 row is the note, whatever the heading of that table calls it.
 const lastCellOf = (table: string, id: string): string => {
   const row = specTable(table).rows.find((one) => one.id === id)
   if (row === undefined) throw new Error(`table ${table} has no row ${id}`)
@@ -39,7 +39,7 @@ const SV_18_RAISE = '段を変えて下限が列の幅を超えたときは、�
 const SV_18_NOT_BY_STEP = '幅は画面の px であり、字の段（`S-429`）と表示の倍率（`S-234`）で変えない。'
 const SV_18_VISIBILITY = '⭐ [表示] の列（`SQ-10`）は例外で、幅は `S-496` の固定の値とし、右の境目（`GR-28`）を持たない'
 const RW_9_MEASURED = '中身の字の幅が決まる列（`DT-1`・`DT-3`・`DT-9`・`DT-5`・`DT-6`）の既定は、`SV-18` と同じ規則で測る'
-// WHY: CR-737 added the IC-122 clearance (S-465, T-330 SV-7) to the floor; the old clause without it is retired.
+// Why: CR-737 added the IC-122 clearance (S-465, T-330 SV-7) to the floor; the old clause without it is retired.
 const S_425_FLOOR =
   '⭐ 見出しのセルに `IC-122` の箱と、セルの左右の詰め（0.25em ずつ）と、`IC-122` を列の境目の掴み代の外に立てる離れ（`S-465`、表 T-330 の `SV-7`）と、罫 1px が入る幅を、そのときの字の段（`S-429`）で測る'
 const S_425_NO_PX = '⛔ px の定数を置かない —— 詰めは字の段に従う'
@@ -56,7 +56,7 @@ describe('CR-721 the manuscript these cases are driven by', () => {
   })
 })
 
-// WHY: CR-723 -- the pane holds the screen's panel beside the document's table view; a case here changes only the panel.
+// Why: CR-723 -- the pane holds the screen's panel beside the document's table view; a case here changes only the panel.
 const withPanel = (patch: Partial<SearchPanelSession>): Pane => ({ ...TASK_PANEL, panel: { ...TASK_PANEL.panel, ...patch } })
 const withWidth = (column: string, width: number): Pane => ({ ...TASK_PANEL, panel: searchPanelWithColumnWidth(TASK_PANEL.panel, column, width) })
 

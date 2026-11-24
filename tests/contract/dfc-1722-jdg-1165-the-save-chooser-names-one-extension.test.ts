@@ -10,7 +10,7 @@ import { bare, specTable } from './spec-table'
 const FR_096_ENDS_WITH = '書き出した先の名前が、選んだ行の拡張子で終わることを保証すること（MUST）'
 const RW_7_ENDS_WITH = '書いた名前が 表 T-024 の `IO-8` の拡張子で終わることを保証し'
 
-// WHY: the media types Chromium's own table maps to more than one extension -- the ones a key must not be.
+// Why: the media types Chromium's own table maps to more than one extension -- the ones a key must not be.
 const MANY_EXTENSION_TYPES = ['text/html', 'image/svg+xml', 'text/xml', 'text/markdown', 'text/plain']
 
 const extensionOfRow = (id: string): string => {
@@ -21,7 +21,7 @@ const extensionOfRow = (id: string): string => {
   return bare(cell).replace(/`/g, '').trim()
 }
 
-// WHY: since CR-768 RW-7 names the row of table T-024 its extension is read from, not the extension.
+// Why: since CR-768 RW-7 names the row of table T-024 its extension is read from, not the extension.
 const markdownExtension = (): string => {
   const found = specTable('T-346').rows.find((one) => one.id === 'RW-7')
   const cell = found?.cells.join(' ') ?? ''
@@ -70,7 +70,7 @@ describe('JDG-1165 / FR-096 -- the save chooser is told one extension and nothin
       const types = typesOf(await saveOptionsFor(extension))
       expect(types, `${extension}: the types handed to the chooser`).toHaveLength(1)
       const type = types[0] as Record<string, unknown>
-      // WHY: a description is free text the browser shows; JDG-1165 leaves the label to the OS.
+      // Why: a description is free text the browser shows; JDG-1165 leaves the label to the OS.
       expect(Object.keys(type), extension).toEqual(['accept'])
       const accept = type['accept'] as Record<string, unknown>
       const keys = Object.keys(accept)

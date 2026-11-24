@@ -58,17 +58,17 @@ const numberOf = (cell: string): number => {
   return value
 }
 
-// see S-124
+// Spec: S-124
 const S_124_MS = numberOf(rowOf(specTable('T-212'), 'S-124').by['値'] ?? '')
 
-// WHY: the two window sizes CR-575 section 9 names for the check on the shipped build.
+// Why: the two window sizes CR-575 section 9 names for the check on the shipped build.
 const TALL = { width: 1600, height: 1000 }
 const LOW = { width: 1600, height: 600 }
 
-// WHY: a box laid out at a fractional position reads back a fraction off; less than that is not a move.
+// Why: a box laid out at a fractional position reads back a fraction off; less than that is not a move.
 const SUBPIXEL = 0.5
 
-// WHY: past S-124 the description still needs a frame or two to be drawn and read back.
+// Why: past S-124 the description still needs a frame or two to be drawn and read back.
 const SHOW_ALLOWANCE_MS = 1_500
 
 interface Rect {
@@ -116,7 +116,7 @@ test.afterAll(async () => {
   await browser?.close()
 })
 
-// see OP-3
+// Spec: OP-3
 async function openTheSample(size: { width: number; height: number }): Promise<Stage> {
   if (browser === null) throw new Error('the reference browser was not opened')
   const stage = await openStage(browser)
@@ -134,7 +134,7 @@ async function rectOf(page: Page, selector: string): Promise<Rect | null> {
   }, selector)
 }
 
-// see GR-19, FR-053
+// Spec: GR-19, FR-053
 async function readBand(page: Page): Promise<Band> {
   const read = await page.evaluate(
     ({ palette, grabMark, minimize }: { palette: string; grabMark: string; minimize: string }) => {
@@ -163,7 +163,7 @@ async function readBand(page: Page): Promise<Band> {
   return read
 }
 
-// see T-337
+// Spec: T-337
 async function frontIsInside(page: Page, point: Point, selector: string): Promise<boolean> {
   return page.evaluate(
     ({ at, wanted }: { at: { x: number; y: number }; wanted: string }) => {
@@ -196,7 +196,7 @@ async function pressAt(page: Page, point: Point): Promise<void> {
   await settle(page)
 }
 
-// see FR-053
+// Spec: FR-053
 async function carry(page: Page, from: Point, to: Point): Promise<void> {
   const steps = 12
   await page.mouse.move(from.x, from.y)
@@ -312,7 +312,7 @@ test.describe('CR-575 item 3 -- the palette over the open help is in front and a
       expect(await frontIsInside(page, centerOf((await readBand(page)).band), PALETTE), T_337_THE_FRONT_ONE_TAKES_THE_PRESS).toBe(true)
 
       await pressAt(page, target)
-      // WHY: data-armed is the mark the use-case tests read an armed entrance by; no row names one.
+      // Why: data-armed is the mark the use-case tests read an armed entrance by; no row names one.
       expect(await isArmed(page, arming), `${T_337_THE_FRONT_ONE_TAKES_THE_PRESS} (${arming})`).toBe(true)
       expect(await rectOf(page, HELP), T_337_NO_PART_STOPS_PRESSES_OUTSIDE).not.toBeNull()
     } finally {
@@ -387,7 +387,7 @@ test.describe('CR-575 item 5 -- pressing an entrance drops its description (IN-3
         .poll(() => tooltipText(page), { timeout: S_124_MS + SHOW_ALLOWANCE_MS, message: `premise: resting on ${OPEN_HELP} shows its description` })
         .not.toBe('')
 
-      // STEP: press without moving the pointer, so only the press can drop the trigger
+      // Step: press without moving the pointer, so only the press can drop the trigger
       await page.mouse.down()
       await page.mouse.up()
       await expect.poll(() => rectOf(page, HELP), { timeout: SHOW_ALLOWANCE_MS, message: `${OPEN_HELP} opens ${HELP}` }).not.toBeNull()

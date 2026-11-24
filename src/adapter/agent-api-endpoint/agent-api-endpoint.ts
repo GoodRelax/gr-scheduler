@@ -1,4 +1,4 @@
-// AgentApiEndpoint: the entrance to the Agent API; each member hands its work on.
+// File: AgentApiEndpoint: the entrance to the Agent API; each member hands its work on.
 // @unit      UF-27   (docs/spec/05-07-design.md, table T-075)
 // @component AgentApiEndpoint, layer Adapter (table T-062)
 // @purity    non-pure

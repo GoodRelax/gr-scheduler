@@ -90,7 +90,7 @@ function wiringWith(takeInDocument: TakeIn): AgentApiWiring {
   }
 }
 
-// WHY: the third parameter is the new seam; typed loosely so the file compiles before and after the change.
+// Why: the third parameter is the new seam; typed loosely so the file compiles before and after the change.
 type Asking = (incoming: unknown, reading: unknown, onAsked: (asked: 'U-61') => void) => Promise<unknown>
 const road = (body: Asking): TakeIn => body as unknown as TakeIn
 
@@ -227,7 +227,7 @@ describe('CR-796 relayTimedOutResult(member, deadlineMs): the pure answer for a 
 })
 
 describe('CR-796 / CR-808 openAgentApiRelayLink(api, place, openSocket, onLost): RS-90 only when no reconnect connects (AG-12 (2))', () => {
-  // WHY: CR-808 -- a drop is first answered by up to four reconnect tries (1 s, 2 s, 4 s, 8 s), so time must be ours.
+  // Why: CR-808 -- a drop is first answered by up to four reconnect tries (1 s, 2 s, 4 s, 8 s), so time must be ours.
   beforeEach(() => {
     vi.useFakeTimers()
   })
@@ -258,7 +258,7 @@ describe('CR-796 / CR-808 openAgentApiRelayLink(api, place, openSocket, onLost):
       this.sent.push(JSON.parse(data) as Json)
     }
 
-    // WHY: a real socket answers close() with a close event; the link must not take that for a drop of the relay.
+    // Why: a real socket answers close() with a close event; the link must not take that for a drop of the relay.
     close(): void {
       this.closeCalls += 1
       this.emit('close')
@@ -271,7 +271,7 @@ describe('CR-796 / CR-808 openAgentApiRelayLink(api, place, openSocket, onLost):
     }
   }
 
-  // WHY: a retry socket that never opens and closes is a try that did not connect (design 5).
+  // Why: a retry socket that never opens and closes is a try that did not connect (design 5).
   const failAllTries = (sockets: FakeSocket[]): void => {
     for (const delayMs of [1000, 2000, 4000, 8000]) {
       vi.advanceTimersByTime(delayMs)
@@ -363,7 +363,7 @@ describe('CR-796 spec text: RS-90 and AG-12 (6)', () => {
   })
 })
 
-// see AG-12
+// Spec: AG-12
 describe('AG-12 (2) (6) -- the clauses slice 1 added, held verbatim', () => {
   const requirements = readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8')
   const clauses = [

@@ -30,7 +30,7 @@ const numberOf = (table: string, id: string, column: string): number => {
   return Number(found[0])
 }
 
-// see T-201, T-206, T-236
+// Spec: T-201, T-206, T-236
 const T201 = (id: string): number => {
   const named = /^`?(S-\d+[a-z]?)`?$/.exec(cellOf('T-201', id, '既定値').trim())
   return named === null ? numberOf('T-201', id, '既定値') : T201(named[1] as string)
@@ -39,7 +39,7 @@ const T206 = (id: string): number => numberOf('T-206', id, '既定')
 const LIGHT = (id: string): string => cellOf('T-236', id, '明るいテーマ')
 const DARK = (id: string): string => cellOf('T-236', id, '暗いテーマ')
 
-// see FR-039, T-252
+// Spec: FR-039, T-252
 const ratioAt = (displayScale: number): number => (T206('S-236') * displayScale) / 100
 
 const R = ratioAt(100)
@@ -59,7 +59,7 @@ const EL_20_NOT_SEEN = 'その端は見えていない端とすること（MUST�
 const EL_20_STAND = '経路を引くために立つ所は `EL-2` と同じとする —— 描かれている最も近い祖先のタスクグループの帯の下端であり'
 
 const EPS = 1e-6
-// WHY: the SVG prints two decimals.
+// Why: the SVG prints two decimals.
 const SVG_EPS = 0.006
 
 type Loose = Record<string, unknown>
@@ -79,7 +79,7 @@ interface Continuation {
   readonly farUid: number
 }
 
-// see FR-009, T-303
+// Spec: FR-009, T-303
 interface Line {
   readonly predecessorUid: number
   readonly successorUid: number
@@ -122,7 +122,7 @@ const FAR = 400
 
 type Link = number | readonly [number, number]
 
-// WHY: an end is written at the day's close (WT-2, WT-4); a date alone or 00:00 is read by FR-054 as the day before (RV-1, RV-6).
+// Why: an end is written at the day's close (WT-2, WT-4); a date alone or 00:00 is read by FR-054 as the day before (RV-1, RV-6).
 const taskOf = (uid: number, start: number, days: number, links: readonly Link[] = [], part: Loose = {}): Loose => ({
   uid,
   parentTaskUid: null,
@@ -253,7 +253,7 @@ const svgOf = (scene: Scene, picture: 'screen' | 'export' = 'screen', theme: 'li
 
 const sign = (value: number): number => (value > EPS ? 1 : value < -EPS ? -1 : 0)
 
-// WHY: EL-7 reads the direction off the route as walked from the visible end, not off the far end.
+// Why: EL-7 reads the direction off the route as walked from the visible end, not off the far end.
 const routeFrom = (line: Line, end: 'predecessor' | 'successor'): readonly Pt[] =>
   end === 'predecessor' ? line.points : [...line.points].reverse()
 
@@ -270,7 +270,7 @@ interface Expected {
   readonly towards: Pt
 }
 
-// see T-303
+// Spec: T-303
 const bentLine = (line: Line, end: 'predecessor' | 'successor'): Expected => {
   const route = routeFrom(line, end)
   const anchor = route[0]!
@@ -281,7 +281,7 @@ const bentLine = (line: Line, end: 'predecessor' | 'successor'): Expected => {
   return { outward: [anchor, corner, { x: corner.x, y: corner.y + down * TURN }], towards: { x: 0, y: down } }
 }
 
-// see T-303
+// Spec: T-303
 const straightLine = (line: Line, end: 'predecessor' | 'successor'): Expected => {
   const route = routeFrom(line, end)
   const anchor = route[0]!
@@ -289,7 +289,7 @@ const straightLine = (line: Line, end: 'predecessor' | 'successor'): Expected =>
   return { outward: [anchor, { x: anchor.x + across * STRAIGHT, y: anchor.y }], towards: { x: across, y: 0 } }
 }
 
-// see T-303
+// Spec: T-303
 const dotsAfter = (expected: Expected): readonly Pt[] => {
   const tip = expected.outward[expected.outward.length - 1]!
   return [1.5, 3.5, 5.5].map((steps) => ({
@@ -377,7 +377,7 @@ const circlesAt = (svg: string, centers: readonly Pt[]): readonly Element[] =>
       centers.some((center) => near({ x: Number(attrOf(one.attrs, 'cx')), y: Number(attrOf(one.attrs, 'cy')) }, center, SVG_EPS)),
   )
 
-// see FR-098
+// Spec: FR-098
 const cutAtScrollArea = (svg: string, element: Element, scrollAreaY: number): boolean => {
   const tops = clipTopsOf(svg)
   return element.clips.some((id) => Math.abs((tops.get(id) ?? Number.NaN) - scrollAreaY) <= SVG_EPS)
@@ -580,7 +580,7 @@ describe('EL-2 -- the end of a task group the group LOD does not draw stands at 
     expect(cell.replace(/<br\s*\/?>/g, ''), EL_20_STAND).toContain(EL_20_STAND)
   })
 
-  // WHY: zoomY 0.4 draws depth 2 and hides depth 3; zoomY 1 draws both.
+  // Why: zoomY 0.4 draws depth 2 and hides depth 3; zoomY 1 draws both.
   const DEEP = [['a', null], ['a1', 'a'], ['a11', 'a1'], ['b', null]] as const satisfies readonly GroupSpec[]
   const deep = (zoomY: number): Scene =>
     sceneOf({
@@ -588,7 +588,7 @@ describe('EL-2 -- the end of a task group the group LOD does not draw stands at 
       tasks: [
         [taskOf(1, 0, 5), 'a'],
         [taskOf(2, 20, 5, [1]), 'a11'],
-        // WHY: zero duration, so its width is the S-49 floor rather than its dates.
+        // Why: zero duration, so its width is the S-49 floor rather than its dates.
         [taskOf(3, 10, 0), 'a11'],
         [taskOf(4, 40, 5, [3]), 'b'],
       ],
@@ -969,8 +969,8 @@ describe('GA-24 / T-268 -- the mark is grabbed as part of its line', () => {
     const scene = predecessorOnly()
     const line = lineOf(scene, 1, 2)
     const tip = bentLine(line, 'predecessor').outward[2]!
-    // WHY: T-273 LP-2 now stands Task 1's marker S-584 off its dummy, and its drawn box covers the drawn
-    // WHY: short line, where HT-3 lets the marker answer; so the press is in the line's S-285 band beside it.
+    // Why: T-273 LP-2 now stands Task 1's marker S-584 off its dummy, and its drawn box covers the drawn
+    // Why: short line, where HT-3 lets the marker answer; so the press is in the line's S-285 band beside it.
     const onLine = { x: tip.x + (T201('S-18') * R) / 2 + T206('S-285') / 2, y: tip.y - 1 }
     const marker = scene.geometry.tasks.find((one) => one.taskUid === 1)?.marker ?? null
     if (marker === null) throw new Error('premise: Task 1 draws a marker')
@@ -982,7 +982,7 @@ describe('GA-24 / T-268 -- the mark is grabbed as part of its line', () => {
     expect(isLine(answer, 1, 2)).toBe(true)
   })
 
-  // WHY: Task 4 runs under the dots, so part of the mark sits on a drawn plan body.
+  // Why: Task 4 runs under the dots, so part of the mark sits on a drawn plan body.
   const overBody = (): Scene =>
     sceneOf({
       groups: [['a', null], ['b', null]],
@@ -1031,7 +1031,7 @@ describe('GA-24 / T-268 -- the mark is grabbed as part of its line', () => {
 })
 
 describe('EL-13 -- marks piled on one place answer for the line whose far end is nearer', () => {
-  // WHY: both successors lie down and right, so both lines leave the same way.
+  // Why: both successors lie down and right, so both lines leave the same way.
   const fan = (nearerFirst: boolean): Scene => {
     const nearer = [taskOf(2, FAR, 5, [1]), 'b'] as const
     const farther = [taskOf(3, FAR + 200, 5, [1]), 'c'] as const
@@ -1073,8 +1073,8 @@ describe('EL-14 -- elided lines are still drawn objects for selection', () => {
     expect(taken(itemsInMarquee(scene.geometry, marquee), 1, 2)).toBe(true)
   })
 
-  // WHY: a margin narrower than the gap before the first dot (S-362), so the rectangle holds the whole
-  // WHY: stroke of the short line and its head but stops short of the mark.
+  // Why: a margin narrower than the gap before the first dot (S-362), so the rectangle holds the whole
+  // Why: stroke of the short line and its head but stops short of the mark.
   const SHORT_OF_THE_MARK = DOT * 0.6
 
   const marqueeRound = (points: readonly Pt[], pad: number): Rect => {

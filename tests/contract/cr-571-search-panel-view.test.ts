@@ -103,21 +103,21 @@ const panelWordOf = (part: string, language: DisplayLanguage): string =>
 
 const LANGUAGES: readonly DisplayLanguage[] = ['ja', 'en']
 
-// see T-331
+// Spec: T-331
 const TASK_COLUMNS = specTable('T-331').rows.filter((row) => row.by['表'] === 'タスク').map((row) => row.id)
 const COMMENT_COLUMNS = specTable('T-331')
   .rows.filter((row) => row.by['表'] === 'コメントボックス')
   .map((row) => row.id)
 
-// see T-333
+// Spec: T-333
 const T_333 = specTable('T-333').rows.map((row) => ({ id: row.id, px: Number(bare(row.by['値'] ?? '')) }))
 const T_333_SIZES: Readonly<Record<string, number>> = Object.fromEntries(T_333.map((row) => [row.id, row.px]))
 
-// see T-206, T-333
+// Spec: T-206, T-333
 const S_429_ROW = bare(rowOf('T-206', 'S-429').by['既定'] ?? '')
 const S_429_STEP = T_333.findIndex((row) => row.id === S_429_ROW)
 
-// see T-206
+// Spec: T-206
 const ratioOf = (id: string): number => Number.parseFloat(rowOf('T-206', id).by['既定'] ?? '')
 const DEFAULT_RATIO = { width: ratioOf('S-421'), height: ratioOf('S-422') }
 
@@ -166,7 +166,7 @@ const row = (id: string, parentId: string | null, label: string): Loose => ({
   treeState: 'expanded',
 })
 
-// WHY: CR-760 made SQ-5 show PM-4 for a late task (T-021b); the template's status date would make these tasks
+// Why: CR-760 made SQ-5 show PM-4 for a late task (T-021b); the template's status date would make these tasks
 // late, so the fixture has no status date and SQ-5 writes a T-019a state (the CR-760 file holds the late ones).
 const SCHEDULE = {
   ...TEMPLATE.schedule,
@@ -230,7 +230,7 @@ function viewOf(session: ScreenSession, panel: Partial<SearchPanelSession> = {})
   return view
 }
 
-// WHY: the seam names no member for the entries, so every object with an icon is collected.
+// Why: the seam names no member for the entries, so every object with an icon is collected.
 function entriesOf(value: unknown): readonly { readonly icon: string; readonly [key: string]: unknown }[] {
   if (value === null || typeof value !== 'object') return []
   const own =
@@ -279,7 +279,7 @@ function nodesInOrder(root: FakeElement): readonly FakeNode[] {
   return out
 }
 
-// WHY: a browser gives a field its own font size unless told to inherit, so a field
+// Why: a browser gives a field its own font size unless told to inherit, so a field
 // that declares none does not take its parent's.
 function fontSizeOf(node: FakeElement): string {
   const style = styleMap(node)
@@ -291,7 +291,7 @@ function fontSizeOf(node: FakeElement): string {
 }
 
 function titleRowOf(panel: FakeElement): FakeElement {
-  // WHY: the nearest element holding both ends of the SV-1 row is the row itself.
+  // Why: the nearest element holding both ends of the SV-1 row is the row itself.
   const first = found(
     selfAndDescendants(panel).find((one) => one.getAttribute('data-icon') === 'IC-118'),
     'drawn IC-118',
@@ -513,7 +513,7 @@ describe(`T-330 SV-2 -- ${SV_2_REFOCUS}`, () => {
 describe(`T-330 SV-3 -- ${SV_3_ONE} / table T-331 -- the column headings`, () => {
   it.each(LANGUAGES)('%s: the tasks table shows SQ-1..SQ-6 in order, headed by the dictionary words', (language) => {
     const { panel } = drawn(viewOf(sessionIn(language)))
-    // WHY: SQ-10's heading cell is its box and IC-122; at the S-496 width SV-18 cuts the word first, so it rides as the title.
+    // Why: SQ-10's heading cell is its box and IC-122; at the S-496 width SV-18 cuts the word first, so it rides as the title.
     const cells = byTag(panel, 'TH')
     expect(cells.map(textOf)).toEqual(TASK_COLUMNS.map((column) => (column === 'SQ-10' ? '' : columnWordOf(column, language))))
     const show = cells[TASK_COLUMNS.indexOf('SQ-10')]

@@ -33,7 +33,7 @@ type RawRegion = {
   readonly root: { readonly carries: readonly unknown[]; readonly transitions: Readonly<Record<string, RawBranch>> }
 }
 
-// see SD-5
+// Spec: SD-5
 const REGIONS = (
   readStateMachineView() as {
     readonly regions: readonly RawRegion[]
@@ -369,7 +369,7 @@ describe('FR-065: the enabling is its own value', () => {
   })
 })
 
-// see SD-3, T-296
+// Spec: SD-3, T-296
 function expectedCell(kind: string, event: Loose): { readonly to: string | null; readonly effects: Loose[] } {
   const type = String(event['type'])
   const cell = MACHINE.transitions[type]?.[kind]

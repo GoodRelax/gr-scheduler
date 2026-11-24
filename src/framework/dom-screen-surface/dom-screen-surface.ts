@@ -1,4 +1,4 @@
-// DomScreenSurface -- public entry of this folder.
+// File: DomScreenSurface: public entry of this folder.
 // @unit      UF-71   (docs/spec/05-07-design.md, table T-075)
 // @component DomScreenSurface, layer Framework (table T-062)
 // @purity    non-pure
@@ -60,15 +60,15 @@ import { WINDOW_GRAB_ATTRIBUTE, type PointAsked } from './window-frame-drawing'
 
 const UNIT_ROW = 'UF-71'
 
-// see T-337
+// Spec: T-337
 const HELP_MODAL_SURFACE = 'Help Modal'
 
 const SEARCH_PANEL_SURFACE = 'Search Panel'
 
-// see U-66, RW-5, DT-8
+// Spec: U-66, RW-5, DT-8
 const REPORT_IDENTITY: TableWindowIdentity = { window: 'delayDiagnosticsReport', role: 'Delay Diagnostics Report', visibilityColumn: 'DT-8' }
 
-// see U-49, RO-6, RQ-1
+// Spec: U-49, RO-6, RQ-1
 const RESOURCE_LIST_IDENTITY: TableWindowIdentity = { window: 'resourceList', role: 'Resource List', visibilityColumn: 'RQ-1' }
 
 export const ROLE = {
@@ -132,21 +132,21 @@ function focusSurfaceFieldAt(layer: Element, place: number): void {
   if (typeof field?.focus === 'function') field.focus()
 }
 
-// see IF-9, WC-2, WC-4, WC-8
+// Spec: IF-9, WC-2, WC-4, WC-8
 /** @purity semi-pure-mutable */
 function holidaySettingsTargetOf(first: Element | null): Pick<ScreenPart, 'holidaySettingsTarget'> {
   const target = first?.closest(`[${HOLIDAY_SETTINGS_TARGET_ATTRIBUTE}]`)?.getAttribute(HOLIDAY_SETTINGS_TARGET_ATTRIBUTE)
   return target === undefined || target === null ? {} : { holidaySettingsTarget: target }
 }
 
-// see NT-2, IF-9
+// Spec: NT-2, IF-9
 /** @purity semi-pure-mutable */
 function noticeBoxOf(first: Element | null): Pick<ScreenPart, 'noticeBoxReasons'> {
   const box = first?.closest(`[${NOTICE_BOX_ATTRIBUTE}]`)?.getAttribute(NOTICE_BOX_ATTRIBUTE)
   return box === undefined || box === null ? {} : { noticeBoxReasons: box.split(NOTICE_BOX_REASON_SEPARATOR) }
 }
 
-// WHY: members that share a row stay apart; each follows its own rule and may be recolored alone.
+// Why: members that share a row stay apart; each follows its own rule and may be recolored alone.
 const PAINT_ROW = {
   ground: 'S-146',
   ink: 'S-147',
@@ -212,33 +212,33 @@ export const PAINT = {
 
 /** @purity pure */
 export function stateGround(paint: string, depthTaskGroup: 'S-214' | 'S-215'): string {
-  // WHY: color-mix, not opacity, which would fade the task group's name and controls with the ground.
+  // Why: color-mix, not opacity, which would fade the task group's name and controls with the ground.
   return `color-mix(in srgb, ${paint} ${NOT_STORED_STATE_GROUND_PERCENTS[depthTaskGroup]}%, transparent)`
 }
 
-// see FR-029, FR-051, FR-053
+// Spec: FR-029, FR-051, FR-053
 /** @purity pure */
 export function chromeScaledPx(px: number): number {
   return px * NOT_STORED_CHROME_SCALE['S-235']
 }
 
-// see FR-029, S-243
-// TRAP: S-243 on the Task Group Panel and S-141 on every other surface; the box and frame line never differ.
+// Spec: FR-029, S-243
+// Trap: S-243 on the Task Group Panel and S-141 on every other surface; the box and frame line never differ.
 type EntranceGapTaskGroup = 'S-141' | 'S-243'
 
-// see FR-029
+// Spec: FR-029
 /** @purity pure */
 export function entranceGapPx(gapTaskGroup: EntranceGapTaskGroup = 'S-141'): number {
   return chromeScaledPx(NOT_STORED_ICON_SIZES[gapTaskGroup])
 }
 
-// see FR-029
+// Spec: FR-029
 /** @purity pure */
 export function entranceBorderPx(): number {
   return chromeScaledPx(NOT_STORED_ICON_SIZES['S-237'])
 }
 
-// see FR-029
+// Spec: FR-029
 /** @purity pure */
 export function entranceOuterWidthPx(gapTaskGroup: EntranceGapTaskGroup = 'S-141'): number {
   return chromeScaledPx(
@@ -247,7 +247,7 @@ export function entranceOuterWidthPx(gapTaskGroup: EntranceGapTaskGroup = 'S-141
   )
 }
 
-// see FR-029, LF-16, HF-19
+// Spec: FR-029, LF-16, HF-19
 /** @purity pure */
 export function entranceOuterHeightPx(gapTaskGroup: EntranceGapTaskGroup = 'S-141'): number {
   return chromeScaledPx(
@@ -255,7 +255,7 @@ export function entranceOuterHeightPx(gapTaskGroup: EntranceGapTaskGroup = 'S-14
   )
 }
 
-// see FR-029
+// Spec: FR-029
 /** @purity pure */
 function entryGlyphRoom(gapTaskGroup: EntranceGapTaskGroup = 'S-141'): string {
   return (
@@ -269,8 +269,8 @@ function entryGlyphRoom(gapTaskGroup: EntranceGapTaskGroup = 'S-141'): string {
 
 const GLYPH_TOKEN = /\{(IC-\d+[a-z]?)\}/
 
-// see FR-036, EZ-2
-// TRAP: the dictionary embeds a glyph as {IC-nn}; printing the token as text shows the row id.
+// Spec: FR-036, EZ-2
+// Trap: the dictionary embeds a glyph as {IC-nn}; printing the token as text shows the row id.
 /** @purity non-pure */
 export function appendAssignment(
   host: Document,
@@ -317,7 +317,7 @@ export function entryFaintStyle(gapTaskGroup: EntranceGapTaskGroup = 'S-141'): s
   )
 }
 
-// see FR-029, T-237, EN-8
+// Spec: FR-029, T-237, EN-8
 const ENTRANCE_STATE_FILL = [
   ['EN-8', PAINT.scheduleFilter, PAINT.scheduleFilterGlyph],
   ['EN-1', PAINT.armed, PAINT.ground],
@@ -329,7 +329,7 @@ const ENTRANCE_STATE_FILL = [
 
 type EntranceStateRow = (typeof ENTRANCE_STATE_FILL)[number][0]
 
-// see FR-029, T-237
+// Spec: FR-029, T-237
 /** @purity pure */
 export function entranceStateFill(standing: readonly EntranceStateRow[]): string {
   for (const [rowId, color, glyph] of ENTRANCE_STATE_FILL) {
@@ -354,7 +354,7 @@ export const STYLE = {
     'position:fixed;left:0;top:0;right:0;bottom:0;pointer-events:none;' +
     `font:inherit;color:${PAINT.ink};`,
   layer: 'position:absolute;left:0;top:0;right:0;bottom:0;pointer-events:none;',
-  // TRAP: isolate the Task Group Title Tree, so a hovered task group's raise stays inside it; unisolated it
+  // Trap: isolate the Task Group Title Tree, so a hovered task group's raise stays inside it; unisolated it
   // lifts the task group over every later layer, the divider band and the modals included.
   treeIsolation: 'isolation:isolate;',
   appHeader:
@@ -362,14 +362,14 @@ export const STYLE = {
     `align-items:center;padding:${APP_HEADER_BLOCK_PADDING} 0.75em;line-height:1.5;` +
     `overflow:hidden;white-space:nowrap;background:${PAINT.ground};color:${PAINT.ink};` +
     `border-bottom:1px solid ${PAINT.rule};pointer-events:auto;`,
-  // see FR-039, S-529
-  // TRAP: every text here stays at S-529's normal weight, the h2 heading included; the bold are S-245 (OC-1 labels),
+  // Spec: FR-039, S-529
+  // Trap: every text here stays at S-529's normal weight, the h2 heading included; the bold are S-245 (OC-1 labels),
   // S-463 (the Document Title, documentTitleStyle in app-header-drawing.ts) and NT-7's answer initial.
   documentTitle: 'min-width:0;overflow:hidden;text-overflow:ellipsis;line-height:1.2;',
   brandingSeat: 'display:inline-flex;align-items:center;flex-shrink:0;',
   brandingDivider:
     `flex-shrink:0;align-self:stretch;margin-block:-${APP_HEADER_BLOCK_PADDING};background:${PAINT.brandingDivider};`,
-  // WHY: x-only clip lets file lines hang into the padding the title's border-block grounds; contain:inline-size: name adds no width.
+  // Why: x-only clip lets file lines hang into the padding the title's border-block grounds; contain:inline-size: name adds no width.
   titleAndFileStrip:
     'display:flex;align-items:center;flex:1 1 0;min-width:0;align-self:stretch;overflow-x:clip;overflow-y:visible;',
   documentTitleGround:
@@ -382,7 +382,7 @@ export const STYLE = {
   documentTitleEntry:
     'box-sizing:border-box;width:100%;min-width:0;font:inherit;color:inherit;' +
     'background:transparent;border:0;padding:0;margin:0;',
-  // WHY: height 0, its lines hanging evenly about the header's middle, so the box never sets the header's height.
+  // Why: height 0, its lines hanging evenly about the header's middle, so the box never sets the header's height.
   fileStatus:
     `flex:1 0 auto;color:${PAINT.quiet};display:flex;height:0;` +
     `flex-direction:column;justify-content:center;align-items:flex-end;line-height:1.2;`,
@@ -399,15 +399,15 @@ export const STYLE = {
   scrollbarThumb: `position:absolute;background:${PAINT.quiet};border-radius:0.25em;`,
   taskGroupPanel: `position:absolute;background:${PAINT.panel};`,
   panelCornerEntry: 'position:absolute;top:0;right:0;pointer-events:auto;',
-  // see HF-19
-  // WHY: clip across only; the controls' lattice may hang below a task group shorter than it.
+  // Spec: HF-19
+  // Why: clip across only; the controls' lattice may hang below a task group shorter than it.
   taskGroupTitle:
     'box-sizing:border-box;display:flex;align-items:flex-start;' +
     'overflow-x:clip;overflow-y:visible;white-space:nowrap;' +
     `background:${PAINT.panel};color:${PAINT.ink};` +
     'pointer-events:auto;',
   taskGroupLabel: 'flex:1;overflow:hidden;',
-  // TRAP: in the flex flow each control would take room from the name, so the browser's
+  // Trap: in the flex flow each control would take room from the name, so the browser's
   // ellipsis cuts it while isLabelTruncated stays false and no tooltip is raised (FR-085).
   taskGroupControl:
     `position:absolute;font:inherit;background:transparent;color:${PAINT.ink};` +
@@ -421,7 +421,7 @@ export const STYLE = {
   field: 'display:flex;gap:0.5em;line-height:1.6;',
   fieldName: `color:${PAINT.quiet};min-width:9em;`,
   // see FR-053, GR-19, JDG-660
-  // WHY: the band stays clamped in frame-loop.ts (paletteCornerInWindow); a palette wider or
+  // Why: the band stays clamped in frame-loop.ts (paletteCornerInWindow); a palette wider or
   // taller than the window is otherwise left alone, since content decides its size (S-135a note).
   commandPalette:
     `box-sizing:border-box;background:${PAINT.panel};color:${PAINT.ink};` +
@@ -435,7 +435,7 @@ export const STYLE = {
     'cursor:pointer;pointer-events:auto;',
   paletteContents: 'padding:0.5em;',
   paletteGroup: '',
-  // WHY: start keeps auto columns from stretching to a wider sibling group (FR-053, S-488).
+  // Why: start keeps auto columns from stretching to a wider sibling group (FR-053, S-488).
   paletteCommands: 'display:grid;justify-content:start;gap:0.25em;',
   armedText: `color:${PAINT.ink};`,
   modal: STOPPING_BOX,
@@ -454,7 +454,7 @@ export const STYLE = {
   helpLegalText: 'white-space:pre-wrap;margin:0.5em 0 0;',
   helpLink: `color:${PAINT.link};text-decoration:underline;`,
   formatChoices: 'display:grid;grid-template-columns:max-content;grid-auto-rows:1fr;',
-  // TRAP: `left:50%` with a transform, or a `max-width`, shrinks or wraps the telling (NT-9).
+  // Trap: `left:50%` with a transform, or a `max-width`, shrinks or wraps the telling (NT-9).
   notices:
     'position:absolute;left:0;right:0;pointer-events:none;' +
     'display:flex;flex-direction:column;align-items:center;',
@@ -481,7 +481,7 @@ export const STYLE = {
   watermarkUnlockEntry:
     `display:block;box-sizing:border-box;width:100%;margin:0.5em 0;font:inherit;` +
     `background:${PAINT.ground};color:${PAINT.ink};border:1px solid ${PAINT.rule};`,
-  // TRAP: none, or the box takes the press meant for the entrance under it (IN-3, UZ-2).
+  // Trap: none, or the box takes the press meant for the entrance under it (IN-3, UZ-2).
   tooltip:
     'position:absolute;width:max-content;white-space:normal;' +
     `padding:0.25em 0.5em;background:${PAINT.ground};` +
@@ -489,7 +489,7 @@ export const STYLE = {
   hidden: 'display:none;position:absolute;',
 } as const
 
-// see FR-029
+// Spec: FR-029
 /** @purity pure */
 function glyphStyle(): string {
   const side = chromeScaledPx(NOT_STORED_ICON_SIZES['S-138'])
@@ -499,18 +499,18 @@ function glyphStyle(): string {
   )
 }
 
-// see FR-041
+// Spec: FR-041
 export interface ScreenTheme {
   readonly preference: 'light' | 'dark'
   readonly hue: number
-  // see S-74
-  // WHY: optional, so a theme read before monochrome reached the screen still paints in color.
+  // Spec: S-74
+  // Why: optional, so a theme read before monochrome reached the screen still paints in color.
   readonly monochrome?: boolean
 }
 
-// see FR-041, S-74, CF-1
-// TRAP: every H, not the first (DFC-754); and the one graying of SvgRenderer, so screen and export agree.
-// WHY: a row the schedule picture also paints takes the picture's solved value (T-366), never its own cell.
+// Spec: FR-041, S-74, CF-1
+// Trap: every H, not the first (DFC-754); and the one graying of SvgRenderer, so screen and export agree.
+// Why: a row the schedule picture also paints takes the picture's solved value (T-366), never its own cell.
 /** @purity pure */
 function hued(rowId: string, written: string, followsHue: boolean, theme: ScreenTheme): string {
   if (isScheduleColorRow(rowId)) {
@@ -520,7 +520,7 @@ function hued(rowId: string, written: string, followsHue: boolean, theme: Screen
   return theme.monochrome === true ? achromatic(colored) : colored
 }
 
-// see FR-041
+// Spec: FR-041
 /** @purity pure */
 export function themeStyle(theme: ScreenTheme): string {
   let written = `color-scheme:${theme.preference};`
@@ -530,7 +530,7 @@ export function themeStyle(theme: ScreenTheme): string {
     const chosen = theme.preference === 'dark' ? row.dark : row.light
     written += `--gr-${name}:${hued(rowId, chosen, row.followsHue, theme)};`
   }
-  // see FR-133, SQ-5, DT-1
+  // Spec: FR-133, SQ-5, DT-1
   for (const rowId of MARK_COLOR_ROWS) {
     const row = SCREEN_COLORS[rowId]
     if (row === undefined) continue
@@ -540,13 +540,13 @@ export function themeStyle(theme: ScreenTheme): string {
   return written
 }
 
-// see FR-039, S-246
+// Spec: FR-039, S-246
 /** @purity pure */
 function typefaceStyle(): string {
   return `font-family:${NOT_STORED_TYPEFACES['S-246']};`
 }
 
-// see FR-041
+// Spec: FR-041
 /** @purity pure */
 export function pageGroundStyle(theme: ScreenTheme): string {
   const ground = SCREEN_COLORS[PAINT_ROW.ground]
@@ -562,15 +562,15 @@ export function pageGroundStyle(theme: ScreenTheme): string {
 
 export const TASK_GROUP_GRAB_STRIP_MARK = 'data-task-group-grab'
 
-// TRAP: here, not in the drawing file (HF-15): the hover sheet reads it at load, where the import cycle sees undefined.
+// Trap: here, not in the drawing file (HF-15): the hover sheet reads it at load, where the import cycle sees undefined.
 export const TASK_GROUP_CARRIED_MARK = 'data-task-group-carried'
 
 export const SCROLLBAR_AXIS_ATTRIBUTE = 'data-axis'
 
 export const SCREEN_Z_ORDER_ATTRIBUTE = 'data-uz'
 
-// see T-337
-// WHY: front to back, exactly the table's row ids; z-index comes only from a row's place here (R2.7).
+// Spec: T-337
+// Why: front to back, exactly the table's row ids; z-index comes only from a row's place here (R2.7).
 export const SCREEN_Z_ORDER: readonly string[] = [
   'UZ-1',
   'UZ-2',
@@ -586,7 +586,7 @@ export const SCREEN_Z_ORDER: readonly string[] = [
   'UZ-12',
 ]
 
-// see T-337
+// Spec: T-337
 /** @purity pure */
 function zIndexOf(rowId: string): number {
   const at = SCREEN_Z_ORDER.indexOf(rowId)
@@ -594,7 +594,7 @@ function zIndexOf(rowId: string): number {
   return SCREEN_Z_ORDER.length - at
 }
 
-// see T-337
+// Spec: T-337
 /** @purity pure */
 function zIndexStyle(rowId: string): string {
   return `z-index:${zIndexOf(rowId)};`
@@ -621,8 +621,8 @@ const TASK_GROUP_CONTROL_SHOWN_CSS =
   `${TASK_GROUP_TREE_NOT_CARRIED} [data-group-id]:hover [data-icon="${ADD_CHILD_ROW_ENTRY}"],` +
   `${TASK_GROUP_TREE_NOT_CARRIED} [data-group-id]:hover [data-icon="${DELETE_ROW_ENTRY}"]` +
   '{visibility:visible;}' +
-  // see HF-6, HF-19
-  // WHY: task groups paint in tree order, so a later task group covers a hanging group and takes its pointer.
+  // Spec: HF-6, HF-19
+  // Why: task groups paint in tree order, so a later task group covers a hanging group and takes its pointer.
   `${TASK_GROUP_TREE_NOT_CARRIED} > [data-group-id]:hover` +
   '{z-index:1;}'
 
@@ -632,14 +632,14 @@ const PALETTE_FAINT_CSS =
   `[data-unit="${UNIT_ROW}"] [data-role="${ROLE.commandPalette}"]:not(:hover)` +
   `{opacity:${PALETTE_FAINTNESS};}`
 
-// see FR-029
+// Spec: FR-029
 /** @purity pure */
 function entranceHoverGroundCss(): string {
   return (
-    // TRAP: `[data-icon]` without `button` tints the whole grab band, since IC-75 sits inside it.
+    // Trap: `[data-icon]` without `button` tints the whole grab band, since IC-75 sits inside it.
     `[data-unit="${UNIT_ROW}"] button[data-icon]:not([aria-disabled="true"])` +
     ':not([data-armed="true"]):not([data-pressed="true"]):not([data-pinned="true"])' +
-    // WHY: `!important` because entrance grounds are inline declarations, which outrank any rule.
+    // Why: `!important` because entrance grounds are inline declarations, which outrank any rule.
     `:hover{background:${stateGround(PAINT.hoveredEntrance, 'S-214')} !important;}`
   )
 }
@@ -660,8 +660,8 @@ export function showPointerShapeOver(mount: HTMLElement, spelling: string): stri
   return spelling
 }
 
-// see FR-051, HF-19
-// WHY: a hanging group may cross canvasPadding but not the horizontal Scrollbars band; no band
+// Spec: FR-051, HF-19
+// Why: a hanging group may cross canvasPadding but not the horizontal Scrollbars band; no band
 // lies under the Task Group Panel, so the tree stops where the chart's band starts.
 /** @purity non-pure */
 function markFrame(root: HTMLElement, taskGroupTitleTree: HTMLElement, grabCueLayer: HTMLElement, frame: ScreenFrame): void {
@@ -695,8 +695,8 @@ export function anchorKey(anchor: TooltipAnchor): string {
   return `${anchor.kind} ${anchor.taskUid}`
 }
 
-// see GR-24, WB-10, IF-9
-// WHY: the range keeps the band inside the browser window; the body may hang below it (WB-10).
+// Spec: GR-24, WB-10, IF-9
+// Why: the range keeps the band inside the browser window; the body may hang below it (WB-10).
 /** @purity semi-pure-mutable */
 function closeOnlyTitledGrabOf(modalLayer: Element, first: Element | null, walked: ScreenPart | null): ScreenPart | null {
   const band = first?.closest(`[${WINDOW_GRAB_ATTRIBUTE}]`) ?? null
@@ -730,7 +730,7 @@ function described(part: unknown): string {
 }
 
 // see FR-053, CR-575, DFC-2314
-// WHY: a pan or a zoom moves only the scroll thumbs, which never move the palette, so its band is not measured again.
+// Why: a pan or a zoom moves only the scroll thumbs, which never move the palette, so its band is not measured again.
 /** @purity pure */
 function frameKeysOf(frame: ScreenView['frame']): { readonly frame: string; readonly framePlace: string } {
   const tracks = frame.scrollbars.map((one) => ({ axis: one.axis, track: one.track }))
@@ -766,7 +766,7 @@ function shapeNode(host: Document, tag: string): Element {
   return host.createElementNS(SVG_NAMESPACE, tag)
 }
 
-// see FR-029, F-019
+// Spec: FR-029, F-019
 /** @purity non-pure */
 export function fillEntry(
   host: Document,
@@ -775,7 +775,7 @@ export function fillEntry(
   aroundTheShape = '',
 ): void {
   const drawn = GLYPH_BY_ROW.get(icon)
-  // WHY: IconId is a bare string, and an entry with no body collapses to zero height.
+  // Why: IconId is a bare string, and an entry with no body collapses to zero height.
   if (drawn === undefined) {
     entry.replaceChildren(icon)
     return
@@ -795,7 +795,7 @@ export function fillEntry(
   entry.replaceChildren(shape)
 }
 
-// see FR-029, T-109, T-237
+// Spec: FR-029, T-109, T-237
 /** @purity non-pure */
 export function commandEntry(host: Document, item: CommandItem): HTMLElement {
   const base = item.isEnabled ? entryStyle() : entryFaintStyle()
@@ -809,10 +809,10 @@ export function commandEntry(host: Document, item: CommandItem): HTMLElement {
   entry.setAttribute('data-icon', item.icon)
   entry.setAttribute('data-enabled', String(item.isEnabled))
   entry.setAttribute('data-pressed', String(item.isPressed))
-  // WHY: on every entry, so an unarmed entry is told from one the description never reached.
+  // Why: on every entry, so an unarmed entry is told from one the description never reached.
   entry.setAttribute('data-armed', String(item.isArmed))
   if (!item.isEnabled) entry.setAttribute('aria-disabled', 'true')
-  // WHY: only when on: aria-pressed=false on every entry would announce each as a toggle.
+  // Why: only when on: aria-pressed=false on every entry would announce each as a toggle.
   if (item.isPressed) entry.setAttribute('aria-pressed', 'true')
   entry.setAttribute('aria-label', item.label === '' ? item.icon : item.label)
   fillEntry(host, entry, item.icon)
@@ -833,7 +833,7 @@ export function anchoredEntry(
 }
 
 // see IN-3, DFC-1287
-// WHY: the renderer names the help's and the search panel's surface; a plain key would catch other parts.
+// Why: the renderer names the help's and the search panel's surface; a plain key would catch other parts.
 /** @purity non-pure */
 function keyedBySurfaceOnly(anchors: Map<string, HTMLElement>, surface: string): void {
   for (const [key, entry] of [...anchors]) {
@@ -865,10 +865,10 @@ export interface ScreenSurfaceWiring {
   readonly onCommandPaletteBandMeasured?: (bandPx: { readonly width: number; readonly height: number }) => void
   readonly holdFocusPropertyField?: (focus: (row: string) => boolean) => void
   readonly holdReadWatermarkUnlockAnswer?: (read: () => string) => void
-  // see SV-5, SV-14, RG-15
+  // Spec: SV-5, SV-14, RG-15
   readonly onSearchWordTyped?: () => void
-  // see SV-7, RG-16, IF-9
-  // WHY: on the wiring, not the seam: the focus and the settled filter changes are no member IF-9 lists.
+  // Spec: SV-7, RG-16, IF-9
+  // Why: on the wiring, not the seam: the focus and the settled filter changes are no member IF-9 lists.
   readonly holdWindowReaders?: (readers: WindowReaders) => void
   readonly readTheme: () => ScreenTheme
 }
@@ -888,7 +888,7 @@ interface TableWindowInput {
   readonly readFilterChanges: () => readonly SearchFilterChange[]
 }
 
-// see RG-16, IF-9
+// Spec: RG-16, IF-9
 /** @purity pure */
 function windowReadersOf(
   host: Document,
@@ -916,8 +916,8 @@ function windowReadersOf(
   return { readFocusedWindow, isFocusInPropertiesPanel, readFilterChanges: painters.search.readFilterChanges, readReportInput, readResourceListInput }
 }
 
-// see T-337
-// WHY: stacking comes from each element's z-index (markZOrder), not the order of the tree.
+// Spec: T-337
+// Why: stacking comes from each element's z-index (markZOrder), not the order of the tree.
 /** @purity non-pure */
 function screenLayersOf(host: Document) {
   const hoverSheet = host.createElement('style')
@@ -936,7 +936,7 @@ function screenLayersOf(host: Document) {
     reportLayer: made(host, 'div', STYLE.layer),
     scheduleFilterBarLayer: made(host, 'div', STYLE.layer),
     appHeader: part(host, 'div', ROLE.appHeader, appHeaderStyle()),
-    // WHY: (T-337) every open surface but Help, which JDG-666 gives its own layer (helpLayer, UZ-7).
+    // Why: (T-337) every open surface but Help, which JDG-666 gives its own layer (helpLayer, UZ-7).
     modalLayer: made(host, 'div', STYLE.layer),
     helpLayer: made(host, 'div', STYLE.layer),
     noticeLayer: part(host, 'div', ROLE.notices, STYLE.layer),
@@ -970,8 +970,8 @@ export const SCHEDULE_FILTER_BAR_ROLE = 'Schedule Filter Bar'
 
 const SCHEDULE_FILTER_ENTRY = 'IC-143'
 
-// see TV-11, U-67, S-497, S-498
-// WHY: in the band the shell takes off the Schedule Canvas (TV-11); a filter stands only while its window is out.
+// Spec: TV-11, U-67, S-497, S-498
+// Why: in the band the shell takes off the Schedule Canvas (TV-11); a filter stands only while its window is out.
 /** @purity non-pure */
 function scheduleFilterBarElements(host: Document, view: ScreenView): readonly HTMLElement[] {
   const bar = view.scheduleFilterBar ?? null
@@ -994,7 +994,7 @@ function scheduleFilterBarElements(host: Document, view: ScreenView): readonly H
   return [band]
 }
 
-// see RO-3, T-370, T-371
+// Spec: RO-3, T-370, T-371
 /** @purity pure */
 function resourceListDrawnOf(view: NonNullable<ScreenView['resourceList']> | null): TableWindowView | null {
   return view === null ? null : { ...view, toolEntries: view.choiceEntries, jumpAt: NO_JUMP_COLUMN }
@@ -1004,8 +1004,8 @@ const NO_JUMP_COLUMN = -1
 
 type TableWindowPainter = ReturnType<typeof searchPanelPainter>
 
-// see WB-11, UZ-6, T-337
-// TRAP: never move the front window itself; a moved node drops the focus its search box took from the press.
+// Spec: WB-11, UZ-6, T-337
+// Trap: never move the front window itself; a moved node drops the focus its search box took from the press.
 /** @purity non-pure */
 function tableWindowsInOrder(...windows: readonly (readonly [HTMLElement, TableWindowPainter])[]) {
   let order = windows
@@ -1026,7 +1026,7 @@ function tableWindowsInOrder(...windows: readonly (readonly [HTMLElement, TableW
   }
 }
 
-// see IF-9, PI-38
+// Spec: IF-9, PI-38
 /** @purity non-pure */
 export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
   const { host, readClockMs, onAppHeaderHeightMeasured, readTheme } = wiring
@@ -1040,15 +1040,15 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
   const { openEveryTaskGroup, collapseEveryTaskGroup, openLevelZero, addTopTaskGroup, deleteEveryTaskGroup } =
     headEntryElements(host)
   const headFoldedTaskGroups = foldedTaskGroupCountElement(host, 0, headFoldedTaskGroupCountRight())
-  // see HF-10
-  // WHY: the order they are added is the Tab order, so it follows the drawn run from left to right.
+  // Spec: HF-10
+  // Why: the order they are added is the Tab order, so it follows the drawn run from left to right.
   const head = [collapseEveryTaskGroup, openLevelZero, openEveryTaskGroup, addTopTaskGroup, deleteEveryTaskGroup]
   taskGroupPanel.append(...head, headFoldedTaskGroups)
 
   root.append(...Object.values(layers))
   wiring.mount.append(root)
 
-  // see T-337, SE-5
+  // Spec: T-337, SE-5
   const scaleMessageLayer = made(host, 'div', SCALE_MESSAGE_STYLE.layer)
   const readoutLayer = made(host, 'div', STYLE.layer)
   const dropCueLayer = made(host, 'div', STYLE.layer)
@@ -1068,7 +1068,7 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
   let paletteBandDrawn: HTMLElement | null = null
   const { anchorsOf, anchorFor } = tooltipAnchorTable(root)
 
-  // see FR-051
+  // Spec: FR-051
   /** @purity non-pure */
   function reportHeaderHeight(): boolean {
     const measured = appHeader.getBoundingClientRect().height
@@ -1083,11 +1083,11 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
     return headerHeightPx ?? 0
   }
   // see FR-053, JDG-660
-  // WHY: measured on a palette or frame change only, not per frame; the drawn rectangles are the
+  // Why: measured on a palette or frame change only, not per frame; the drawn rectangles are the
   // truth, since content decides the palette's width (S-135a note).
   /** @purity non-pure */
   function reportPaletteBand(): void {
-    // TRAP: from the palette's corner, not the band's own box; the palette's border sits above it.
+    // Trap: from the palette's corner, not the band's own box; the palette's border sits above it.
     const corner = paletteElementDrawn?.getBoundingClientRect()
     const band = paletteBandDrawn?.getBoundingClientRect()
     const width = corner === undefined || band === undefined ? 0 : band.right - corner.left
@@ -1144,12 +1144,12 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
         : `left:${propertiesEdge.x + propertiesEdge.width}px;` +
           `top:${headerTopPx()}px;right:0;bottom:0;`
     propertiesPanel.setAttribute('style', propertiesPanelStyle() + place + zIndexStyle('UZ-11'))
-    // WHY: a new panel width re-wraps the text fields and re-sizes the date entries, so each is fitted again (FR-006).
+    // Why: a new panel width re-wraps the text fields and re-sizes the date entries, so each is fitted again (FR-006).
     fitPanelFields(propertiesPanel)
   }
 
-  // TRAP: a held field of the surface is not redrawn, or the typed letters and the caret are lost (as the panel's).
-  // WHY: an untouched Holiday Settings field is redrawn and refocused, so WC-10 shows after a Tab (IN-6).
+  // Trap: a held field of the surface is not redrawn, or the typed letters and the caret are lost (as the panel's).
+  // Why: an untouched Holiday Settings field is redrawn and refocused, so WC-10 shows after a Tab (IN-6).
   /** @purity non-pure */
   function redrawOpenModal(surfaceModal: ScreenView['openModal']): boolean {
     const focused = fieldEditing.isFieldHeld() ? ((host as Partial<Document>).activeElement ?? null) : null
@@ -1175,11 +1175,11 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
     if (isChanged) fillTaskGroupGrabCues(host, layers.taskGroupGrabCueLayer, taskGroupTitleTree, panel)
   }
 
-  // see IF-9
+  // Spec: IF-9
   /** @purity non-pure */
   function showScreenView(view: ScreenView): void {
     fieldEditing.holdNoticeShowing(view.notices.length > 0)
-    // WHY: (T-337, JDG-666) Help has its own layer, also when it arrives as the open surface.
+    // Why: (T-337, JDG-666) Help has its own layer, also when it arrives as the open surface.
     const isHelpOpenModal = view.openModal !== null && view.openModal.surface === HELP_MODAL_SURFACE
     const surfaceModal = isHelpOpenModal ? null : view.openModal
     const helpModal = view.helpModal ?? (isHelpOpenModal ? view.openModal : null)
@@ -1202,7 +1202,7 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
       tooltips: described(view.tooltips),
     }
     const changed = (name: string): boolean => keys[name] !== lastKeys[name]
-    // TRAP: record what was drawn, not keys: a part that declined to redraw would see no change
+    // Trap: record what was drawn, not keys: a part that declined to redraw would see no change
     // next frame and keep the old description after its control is let go.
     const drawnKeys: Record<string, string> = { ...keys }
 
@@ -1248,7 +1248,7 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
     }
     if (changed('propertiesPanel') && view.propertiesPanel !== null) {
       markPropertiesPanel(propertiesPanel, view.propertiesPanel)
-      // TRAP: a held control: no redraw (loses the caret), no anchorsOf (empties the map).
+      // Trap: a held control: no redraw (loses the caret), no anchorsOf (empties the map).
       if (fieldEditing.isFieldHeld()) {
         drawnKeys.propertiesPanel = lastKeys.propertiesPanel ?? ''
       } else {
@@ -1299,13 +1299,13 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
     showUnpressableWords(host, scaleMessageLayer, readoutLayer, view)
     showDropCue(host, dropCueLayer, view.dropCue)
     showJumpRipple(host, jumpRippleLayer, view.jumpRipple, readTheme().monochrome === true)
-    // TRAP: shown synchronously, never inside a frame callback: a first paint that waits for one leaves a white screen until an input arrives.
+    // Trap: shown synchronously, never inside a frame callback: a first paint that waits for one leaves a white screen until an input arrives.
     root.setAttribute('style', STYLE.rootShown + typefaceStyle() + themeStyle(readTheme()))
   }
 
   const fieldEditing = fieldEditingOf(host, propertiesPanel)
 
-  // see IF-9, GR-20, GR-21
+  // Spec: IF-9, GR-20, GR-21
   /** @purity semi-pure-mutable */
   function readScreenPartAt(x: number, y: number): ScreenPart | null {
     const ask = (host as Partial<Document>).elementFromPoint
@@ -1324,7 +1324,7 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
     let onImportReportDismiss = false
     let onGrabStrip = false
     let axis: string | null = null
-    // WHY: innermost carrier per key, outermost data-role for the part (T-109), but U-27 for MK-13.
+    // Why: innermost carrier per key, outermost data-role for the part (T-109), but U-27 for MK-13.
     while (node !== null && node !== root) {
       const icon = node.getAttribute('data-icon')
       if (icon !== null && entry === null) entry = icon
@@ -1373,10 +1373,10 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
     return withPropertyLinkJump(help.answerAt({ ...asked, walked: answered }), asked.first)
   }
 
-  // TRAP: onAppHeaderHeightMeasured fires here, before this factory returns: the callback may not reach for the surface, and BO-1's regions must wait for it.
+  // Trap: onAppHeaderHeightMeasured fires here, before this factory returns: the callback may not reach for the surface, and BO-1's regions must wait for it.
   reportHeaderHeight()
 
-  // see SV-2
+  // Spec: SV-2
   wiring.holdFocusPropertyField?.((row) =>
     row === SEARCH_WORD_ROW ? searchPanel.focusWord() : fieldEditing.focusPropertyField(row),
   )
@@ -1385,7 +1385,7 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
   const windowLayers = { searchPanel: searchPanelLayer, delayDiagnosticsReport: reportLayer, resourceList: resourceListLayer, helpModal: helpLayer }
   wiring.holdWindowReaders?.(windowReadersOf(host, windowLayers, propertiesPanel, { search: searchPanel, report, resourceList }))
 
-  // WHY: focusPropertyField travels on the wiring: the IF-9 cell of table T-065 names exactly these.
+  // Why: focusPropertyField travels on the wiring: the IF-9 cell of table T-065 names exactly these.
   return {
     showScreenView,
     readFieldCommit: fieldEditing.readFieldCommit,
@@ -1395,11 +1395,11 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
   }
 }
 
-// see SE-2
+// Spec: SE-2
 const SCALE_MESSAGE_MARK = 'data-scale-message'
 
-// see FR-039, SE-4, SE-5
-// TRAP: no data-role and pointer-events:none, so readScreenPartAt never answers it and a
+// Spec: FR-039, SE-4, SE-5
+// Trap: no data-role and pointer-events:none, so readScreenPartAt never answers it and a
 // press lands on what lies under it; one element, rewritten in place, never stacked (SE-4).
 /** @purity non-pure */
 function showScaleMessage(host: Document, layer: HTMLElement, text: string | undefined): void {
@@ -1418,7 +1418,7 @@ function showScaleMessage(host: Document, layer: HTMLElement, text: string | und
   layer.append(box)
 }
 
-// see SE-5, DC-3, CU-3, DC-9
+// Spec: SE-5, DC-3, CU-3, DC-9
 /** @purity non-pure */
 function showUnpressableWords(
   host: Document,
@@ -1431,7 +1431,7 @@ function showUnpressableWords(
   showPointTip(host, readoutLayer, view.dualCursorReadout ?? (label === undefined ? undefined : { lines: [label.text], at: label.at }))
 }
 
-// see OP-17, U-68, S-214, S-553
+// Spec: OP-17, U-68, S-214, S-553
 /** @purity pure */
 function dropCueStyle(area: ScreenRect): string {
   return (
@@ -1443,13 +1443,13 @@ function dropCueStyle(area: ScreenRect): string {
   )
 }
 
-// see OP-17, U-57
+// Spec: OP-17, U-57
 const DROP_CUE_WORDS_STYLE =
   `padding:0.5em 0.75em;background:${PAINT.ground};color:${PAINT.ink};` +
   `border:1px solid ${PAINT.rule};pointer-events:none;`
 
-// see OP-17, U-68, UZ-1
-// TRAP: pointer-events:none on every part, so a drop still lands on the window (OP-2) and no press is taken.
+// Spec: OP-17, U-68, UZ-1
+// Trap: pointer-events:none on every part, so a drop still lands on the window (OP-2) and no press is taken.
 /** @purity non-pure */
 function showDropCue(host: Document, layer: HTMLElement, cue: ScreenView['dropCue']): void {
   if (cue === undefined) {
@@ -1469,7 +1469,7 @@ const LANDING_ATTRIBUTE = 'data-landing'
 
 const REDUCED_MOTION_QUERY = '(prefers-reduced-motion: reduce)'
 
-// see SJ-10, U-50
+// Spec: SJ-10, U-50
 /** @purity pure */
 function rippleClipStyle(within: ScreenRect): string {
   return (
@@ -1478,8 +1478,8 @@ function rippleClipStyle(within: ScreenRect): string {
   )
 }
 
-// see SJ-10, S-556, S-588, FR-041
-// WHY: an outline from the ring's inner edge (corner S-588 less half a line), so the offset alone spreads it;
+// Spec: SJ-10, S-556, S-588, FR-041
+// Why: an outline from the ring's inner edge (corner S-588 less half a line), so the offset alone spreads it;
 // in monochrome a double outline of S-556's width is the ring's two lines, the outer and inner thirds.
 /** @purity pure */
 function rippleStyle(ripple: NonNullable<ScreenView['jumpRipple']>, isMonochrome: boolean): string {
@@ -1493,8 +1493,8 @@ function rippleStyle(ripple: NonNullable<ScreenView['jumpRipple']>, isMonochrome
   )
 }
 
-// see SJ-10, S-557, S-558, S-559
-// TRAP: the host animates it and it is dropped when done: no frame is asked, and the SVG rebuilt each frame never restarts it.
+// Spec: SJ-10, S-557, S-558, S-559
+// Trap: the host animates it and it is dropped when done: no frame is asked, and the SVG rebuilt each frame never restarts it.
 /** @purity non-pure */
 function startJumpRipple(
   host: Document, layer: HTMLElement, ripple: NonNullable<ScreenView['jumpRipple']>, isMonochrome: boolean,
@@ -1511,7 +1511,7 @@ function startJumpRipple(
   run.onfinish = () => clip.remove()
 }
 
-// see SJ-10, EL-17, UZ-12
+// Spec: SJ-10, EL-17, UZ-12
 /** @purity non-pure */
 function showJumpRipple(host: Document, layer: HTMLElement, ripple: ScreenView['jumpRipple'], isMonochrome: boolean): void {
   if (ripple === undefined) {
@@ -1534,8 +1534,8 @@ function showJumpRipple(host: Document, layer: HTMLElement, ripple: ScreenView['
   if (ring !== null && ring.getAttribute('style') !== ringStyle) ring.setAttribute('style', ringStyle)
 }
 
-// see FR-039, SE-5
-// WHY: T-260 leaves the place and the look open; this follows CR-411 question 3's recommendation,
+// Spec: FR-039, SE-5
+// Why: T-260 leaves the place and the look open; this follows CR-411 question 3's recommendation,
 // an upper-middle box that takes no press.
 const SCALE_MESSAGE_STYLE = {
   layer:
@@ -1551,7 +1551,7 @@ const SCALE_MESSAGE_STYLE = {
 // Single source of truth:
 //   docs/spec/_source/settings.json (tables T-206 and T-236)
 // Rebuild: npm run gen   ||   npm run gen:check fails on drift.
-// see T-206
+// Spec: T-206
 export const NOT_STORED_ICON_SIZES: {
   readonly 'S-138': number
   readonly 'S-141': number
@@ -1564,42 +1564,42 @@ export const NOT_STORED_ICON_SIZES: {
   'S-243': 1,
 }
 
-// see T-206
+// Spec: T-206
 export const NOT_STORED_TASK_GROUP_GRAB_STRIP_SIZES: {
   readonly 'S-218': number
 } = {
   'S-218': 4,
 }
 
-// see T-206
+// Spec: T-206
 export const NOT_STORED_TASK_GROUP_BAND_SIZES: {
   readonly 'S-213': number
 } = {
   'S-213': 3,
 }
 
-// see T-206
+// Spec: T-206
 export const NOT_STORED_TASK_GROUP_GRAB_COPY_SIZES: {
   readonly 'S-599': number
 } = {
   'S-599': 8,
 }
 
-// see T-206
+// Spec: T-206
 export const NOT_STORED_TASK_GROUP_DROP_RING_SIZES: {
   readonly 'S-620': number
 } = {
   'S-620': 12,
 }
 
-// see T-206
+// Spec: T-206
 export const NOT_STORED_TASK_GROUP_CONTROL_EDGE_SIZES: {
   readonly 'S-313': number
 } = {
   'S-313': 4,
 }
 
-// see T-206
+// Spec: T-206
 const NOT_STORED_STATE_GROUND_PERCENTS: {
   readonly 'S-214': number
   readonly 'S-215': number
@@ -1608,7 +1608,7 @@ const NOT_STORED_STATE_GROUND_PERCENTS: {
   'S-215': 12,
 }
 
-// see T-206
+// Spec: T-206
 export const NOT_STORED_HELP_SIZES: {
   readonly 'S-201': number
   readonly 'S-202': number
@@ -1649,7 +1649,7 @@ export const NOT_STORED_HELP_SIZES: {
   'S-622': 10,
 }
 
-// see T-206
+// Spec: T-206
 export const NOT_STORED_HOLIDAY_SETTINGS_LIST_SIZES: {
   readonly 'S-240': number
   readonly 'S-241': number
@@ -1658,7 +1658,7 @@ export const NOT_STORED_HOLIDAY_SETTINGS_LIST_SIZES: {
   'S-241': 1,
 }
 
-// see T-206
+// Spec: T-206
 export const NOT_STORED_WHEEL_UNITS: {
   readonly 'S-514': number
   readonly 'S-515': number
@@ -1669,21 +1669,21 @@ export const NOT_STORED_WHEEL_UNITS: {
   'S-516': 3,
 }
 
-// see T-206
+// Spec: T-206
 export const NOT_STORED_EXPORT_CHOOSER_SIZES: {
   readonly 'S-517': number
 } = {
   'S-517': 1.75,
 }
 
-// see T-206
+// Spec: T-206
 const NOT_STORED_DROP_CUE_SIZES: {
   readonly 'S-553': number
 } = {
   'S-553': 3,
 }
 
-// see T-206
+// Spec: T-206
 const NOT_STORED_JUMP_LANDING_RIPPLE: {
   readonly 'S-557': number
   readonly 'S-558': number
@@ -1696,7 +1696,7 @@ const NOT_STORED_JUMP_LANDING_RIPPLE: {
   'S-588': 2,
 }
 
-// see T-206
+// Spec: T-206
 export const NOT_STORED_SEARCH_PANEL_SIZES: {
   readonly 'S-421': number
   readonly 'S-422': number
@@ -1729,14 +1729,14 @@ export const NOT_STORED_SEARCH_PANEL_SIZES: {
   'S-552': 380,
 }
 
-// see T-206
+// Spec: T-206
 export const NOT_STORED_RE_DIAGNOSE_WEIGHT: {
   readonly 'S-623': number
 } = {
   'S-623': 700,
 }
 
-// see SV-18, RW-9, T-206
+// Spec: SV-18, RW-9, T-206
 export const SEARCH_COLUMN_WIDTH_ROWS: {
   readonly [column: string]: keyof typeof NOT_STORED_SEARCH_PANEL_SIZES
 } = {
@@ -1755,7 +1755,7 @@ export const SEARCH_COLUMN_WIDTH_ROWS: {
   'RQ-5': 'S-552',
 }
 
-// see T-333, FR-151
+// Spec: T-333, FR-151
 export const NOT_STORED_SEARCH_PANEL_FONT_SIZES: {
   readonly 'S-430': number
   readonly 'S-431': number
@@ -1766,7 +1766,7 @@ export const NOT_STORED_SEARCH_PANEL_FONT_SIZES: {
   'S-432': 12,
 }
 
-// see T-206
+// Spec: T-206
 const NOT_STORED_SCHEDULE_FILTER_BAR_SIZES: {
   readonly 'S-497': number
   readonly 'S-498': number
@@ -1775,28 +1775,28 @@ const NOT_STORED_SCHEDULE_FILTER_BAR_SIZES: {
   'S-498': 12,
 }
 
-// see T-206
+// Spec: T-206
 export const NOT_STORED_PALETTE_GROUP_RULE_SIZES: {
   readonly 'S-143': readonly [number, number]
 } = {
   'S-143': [1, 6],
 }
 
-// see T-206
+// Spec: T-206
 export const NOT_STORED_PALETTE_ROW_CAP: {
   readonly 'S-488': number
 } = {
   'S-488': 11,
 }
 
-// see T-206
+// Spec: T-206
 export const NOT_STORED_ARMED_LABEL_SIZES: {
   readonly 'S-489': number
 } = {
   'S-489': 12,
 }
 
-// see T-206
+// Spec: T-206
 export const NOT_STORED_PROPERTY_FIELD_SIZES: {
   readonly 'S-186': number
   readonly 'S-187': number
@@ -1833,14 +1833,14 @@ export const NOT_STORED_PROPERTY_FIELD_SIZES: {
   'S-607': 8,
 }
 
-// see T-206
+// Spec: T-206
 export const NOT_STORED_CONFIRMATION_RULE_SIZES: {
   readonly 'S-242': number
 } = {
   'S-242': 1,
 }
 
-// see T-206
+// Spec: T-206
 export const NOT_STORED_DOCUMENT_TITLE_SIZES: {
   readonly 'S-225': number
   readonly 'S-226': number
@@ -1861,21 +1861,21 @@ export const NOT_STORED_DOCUMENT_TITLE_SIZES: {
   'S-492': 1,
 }
 
-// see T-206
+// Spec: T-206
 const NOT_STORED_CHROME_SCALE: {
   readonly 'S-235': number
 } = {
   'S-235': 0.6667,
 }
 
-// see T-206
+// Spec: T-206
 const NOT_STORED_TYPEFACES: {
   readonly 'S-246': string
 } = {
   'S-246': '"Yu Gothic UI", "Yu Gothic", YuGothic, "BIZ UDPGothic", sans-serif',
 }
 
-// see T-236, S-73
+// Spec: T-236, S-73
 export const SCREEN_COLORS: {
   readonly [rowId: string]: {
     readonly light: string

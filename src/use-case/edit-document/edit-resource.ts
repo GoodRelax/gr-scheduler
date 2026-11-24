@@ -1,4 +1,4 @@
-// EditDocument: the Resource and Assignment commands of table T-108.
+// File: EditDocument: the Resource and Assignment commands of table T-108.
 // @unit      UF-15  (docs/spec/05-07-design.md, table T-075)
 // @component EditDocument, layer UseCase (table T-062)
 // @purity    pure
@@ -15,7 +15,7 @@ import { documentWithTableViewsKept } from './edit-document-settings'
 
 // <generated -- do not edit by hand>
 // From docs/spec/_source/document-commands.json (table T-108, ResourceCommand).
-// see T-108
+// Spec: T-108
 export type ResourceCommand =
   | { readonly kind: 'createResource'; readonly name: Resource['name'] }
   | {
@@ -44,7 +44,7 @@ function withScheduleParts(document: Document, part: Partial<Schedule>): Documen
   return { ...document, schedule: { ...document.schedule, ...part } }
 }
 
-// see CM-40, CM-41, CM-42, CM-43, CM-44, CM-45
+// Spec: CM-40, CM-41, CM-42, CM-43, CM-44, CM-45
 /** @purity pure */
 export function editResource(document: Document, command: ResourceCommand): EditResult {
   const { project, resources, assignments, tasks } = document.schedule
@@ -73,7 +73,7 @@ export function editResource(document: Document, command: ResourceCommand): Edit
     case 'setResourceName': {
       const held = resources.find((one) => one.uid === command.resourceUid)
       if (held === undefined) {
-        // WHY: a uid the document lacks is refused, not skipped (also CM-42, CM-45): a bundle
+        // Why: a uid the document lacks is refused, not skipped (also CM-42, CM-45): a bundle
         // must not report success for an edit that did nothing (AG-3).
         return refused([
           reject('CM-41', 'FR-008', `no resource with uid ${command.resourceUid} is in the document`),
@@ -161,7 +161,7 @@ export function editResource(document: Document, command: ResourceCommand): Edit
     }
 
     case 'deleteAssignment': {
-      // TRAP: remove every assignment of the pair, not the first: an imported document may hold two.
+      // Trap: remove every assignment of the pair, not the first: an imported document may hold two.
       const kept = assignments.filter(
         (one) => !(one.taskUid === command.taskUid && one.resourceUid === command.resourceUid),
       )

@@ -1,4 +1,4 @@
-// InputCommandTranslator -- decides the next selection from an input by table T-023c.
+// File: InputCommandTranslator: decides the next selection from an input by table T-023c.
 // @unit      UF-101  (docs/spec/05-07-design.md, table T-075)
 // @component InputCommandTranslator, layer Adapter (table T-062)
 // @purity    pure
@@ -45,7 +45,7 @@ import {
 } from './input-command-translator'
 import { isContinuationMarkClick } from './item-grab'
 
-// see PE-1, PE-6
+// Spec: PE-1, PE-6
 const BODY_GRAB_TASK_GROUPS: ReadonlySet<string> = new Set(['GA-9', 'GA-14', 'GA-15'])
 
 /** @purity pure */
@@ -72,8 +72,8 @@ function itemRefOf(schedule: Schedule, item: Item): ItemRef | null {
   }
 }
 
-// see SL-2, T-023c
-// WHY: the progress marker of a Task nothing else draws still answers its own act (JDG-187); it picks nothing.
+// Spec: SL-2, T-023c
+// Why: the progress marker of a Task nothing else draws still answers its own act (JDG-187); it picks nothing.
 /** @purity pure */
 function pickableRefOf(context: InputContext, item: Item): ItemRef | null {
   if (item.kind !== 'task') return itemRefOf(context.document.schedule, item)
@@ -81,7 +81,7 @@ function pickableRefOf(context: InputContext, item: Item): ItemRef | null {
   return isDrawn ? itemRefOf(context.document.schedule, item) : null
 }
 
-// see SL-5, T-023c
+// Spec: SL-5, T-023c
 /** @purity pure */
 function everythingSelectable(context: InputContext): readonly ItemRef[] {
   const geometry = context.geometry
@@ -118,8 +118,8 @@ function marqueeRect(from: PointerInput, to: PointerInput): ScreenRect {
   }
 }
 
-// see EL-18, T-023c
-// WHY: a press on a surface part, and the second press EL-18 swallows, leave the selection as it is.
+// Spec: EL-18, T-023c
+// Why: a press on a surface part, and the second press EL-18 swallows, leave the selection as it is.
 /** @purity pure */
 function chartPressOf(context: InputContext): PointerPress | null {
   const press = context.pressed
@@ -127,13 +127,13 @@ function chartPressOf(context: InputContext): PointerPress | null {
   return isSwallowedSecondPress(press, context) ? null : press
 }
 
-// see T-023a, SL-4, PTL-3, PTL-10
+// Spec: T-023a, SL-4, PTL-3, PTL-10
 /** @purity pure */
 function pickRowOf(press: PointerPress, release: PointerInput, context: InputContext): string {
   return isParentPickingCtrlClick(press, release, context) ? 'PTD-3' : pressedRowOf(press, context)
 }
 
-// see SL-7, PTL-5
+// Spec: SL-7, PTL-5
 /** @purity pure */
 function isChoiceKeptByDrag(grab: GrabTaskGroup, ref: ItemRef, press: PointerPress, release: PointerInput,
                            context: InputContext): boolean {
@@ -142,7 +142,7 @@ function isChoiceKeptByDrag(grab: GrabTaskGroup, ref: ItemRef, press: PointerPre
   return isDragGrab && isSelected(context.selection, ref) && hasDraggedPastThreshold(press, release)
 }
 
-// see SL-4, MK-16
+// Spec: SL-4, MK-16
 /** @purity pure */
 function isShiftBodyMove(press: PointerPress, release: PointerInput, context: InputContext): boolean {
   const armed = armedOf(context.screen.armModeState)?.kind
@@ -150,7 +150,7 @@ function isShiftBodyMove(press: PointerPress, release: PointerInput, context: In
   return isMoveArm && isDateKeepingDrag(press) && hasDraggedPastThreshold(press, release)
 }
 
-// see SL-2, SL-7, T-270
+// Spec: SL-2, SL-7, T-270
 /** @purity pure */
 function selectionAfterDrag(press: PointerPress, release: PointerInput, context: InputContext,
                             grab: GrabTaskGroup, ref: ItemRef): Selection {
@@ -159,21 +159,21 @@ function selectionAfterDrag(press: PointerPress, release: PointerInput, context:
   return selectionWith(isJoining ? context.selection : emptySelection(), ref)
 }
 
-// see SL-3
+// Spec: SL-3
 /** @purity pure */
 function caughtInMarquee(context: InputContext, rect: ScreenRect): readonly ItemRef[] {
   return itemsInMarquee(context.geometry, rect).flatMap((item) => itemRefOf(context.document.schedule, item) ?? [])
 }
 
-// see IN-4, T-283
-// WHY: a caller that also sees the question and the tooltip passes the rung it judged, so one press spends one rung.
+// Spec: IN-4, T-283
+// Why: a caller that also sees the question and the tooltip passes the rung it judged, so one press spends one rung.
 /** @purity pure */
 function isSelectionRung(context: InputContext, judgedRung: EscapeTarget | null | undefined): boolean {
   const rung = judgedRung === undefined ? escapeTarget(escapeContextOf(context)) : judgedRung
   return rung === 'selection'
 }
 
-// see T-023c
+// Spec: T-023c
 /** @purity pure */
 export function selectionFromInput(
   input: HumanInput,

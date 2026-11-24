@@ -23,7 +23,7 @@ import { bare, unbroken } from './spec-table'
 
 const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
-// see FR-017, FR-089, OD-1, S-581
+// Spec: FR-017, FR-089, OD-1, S-581
 const CLAUSES = [
   '時刻を表示しているあいだ、日付罫線（`FR-089`）は、時の段では毎正時に実線で引き、1 日の幅が `_assets/tbl-settings.md` の 表 T-205 の `S-578` 以上のときは毎 30 分にも点線（刻みは 表 T-201 の `S-581`）を引くこと（MUST）',
   '⛔ 30 分の線を実線で引いてはならない（MUST NOT）',
@@ -41,21 +41,21 @@ describe('the clauses these cases are built from still read as quoted', () => {
   })
 })
 
-// see S-8, DS-1, FR-017, T-205
+// Spec: S-8, DS-1, FR-017, T-205
 const PX_SCALE = ((SETTINGS_DEFAULTS['rulerFontSizePx'] as number) * RATIO) / stored('S-8')
 const thresholdOf = (id: string): number => Number(bare(rowOf('T-205', id).by['既定'] ?? ''))
 const S_577 = thresholdOf('S-577')
 const S_578 = thresholdOf('S-578')
-// see S-581
+// Spec: S-581
 const S_581 = bare(cellOf('T-201', 'S-581', '既定値')).replace(/🔎/g, '').trim()
 
-// WHY: widths clear of the boundaries: inside the day tier, inside the hour tier, and from the half-hour width on.
+// Why: widths clear of the boundaries: inside the day tier, inside the hour tier, and from the half-hour width on.
 const DAY_TIER = S_577 / 2
 const HOUR_TIER = (S_577 + S_578) / 2
 const HALF_HOUR = S_578 * 1.25
-// WHY: a day wide enough that the rest days of a Friday-first view start well inside the area.
+// Why: a day wide enough that the rest days of a Friday-first view start well inside the area.
 const WIDE_DAY = S_578 * 2.1
-// WHY: a day tier width at which one view holds a Monday and the weekend after it.
+// Why: a day tier width at which one view holds a Monday and the weekend after it.
 const NARROW_DAY = 150
 
 const MONDAY = '2026-01-05'
@@ -93,7 +93,7 @@ function frameOf(threshold: number, shows: boolean, grid = true, scrollDay = MON
   return { svg, layout }
 }
 
-// WHY: the renderer is handed the weekday words by position, Sunday first, the way the screen hands them.
+// Why: the renderer is handed the weekday words by position, Sunday first, the way the screen hands them.
 const WEEKDAY_WORDS = ['日', '月', '火', '水', '木', '金', '土']
 
 const at = (hhmm: string, day = MONDAY): number => instantOf(`${day}T${hhmm}:00`) as number
@@ -268,7 +268,7 @@ describe('TM-5: the ruler of the hour tier', () => {
       const gaps = new Set<number>()
       for (let i = 1; i < labels.length; i += 1) {
         const gap = ((labels[i]?.minute as number) - (labels[i - 1]?.minute as number)) / 60
-        // WHY: the row restarts at each midnight, so a gap that spans one is the stride or less.
+        // Why: the row restarts at each midnight, so a gap that spans one is the stride or less.
         if (labels[i]?.minute !== undefined && Math.floor((labels[i]?.minute as number) / 1440) === Math.floor((labels[i - 1]?.minute as number) / 1440)) gaps.add(gap)
       }
       expect(gaps.size, `threshold ${threshold}`).toBeLessThanOrEqual(1)
@@ -353,7 +353,7 @@ describe('OD-1, OD-2, OD-6: the hours outside the working time are shaded on the
     expect(coveredAt(runs, midOf(frame, '12:15', '12:45')), 'the lunch hour').toBe(true)
   })
 
-  // WHY: DFC-2467 -- red until the shade compared its rounded x strings ('1147.5' > '697.5' is false), at 600 to 1000 px per day.
+  // Why: DFC-2467 -- red until the shade compared its rounded x strings ('1147.5' > '697.5' is false), at 600 to 1000 px per day.
   it('shades the evening of a working day from the half-hour width on', () => {
     const frame = frameOf(HALF_HOUR, true)
     const runs = shadeRunsOf(frame.svg)
@@ -379,7 +379,7 @@ describe('OD-1, OD-2, OD-6: the hours outside the working time are shaded on the
     expect(coveredAt(runs, midOf(frame, '00:30', '23:30', saturday))).toBe(true)
   })
 
-  // WHY: DFC-2467 -- red until the same string comparison dropped Friday 17:00 to Monday 08:00 at 432 px per day.
+  // Why: DFC-2467 -- red until the same string comparison dropped Friday 17:00 to Monday 08:00 at 432 px per day.
   it('shades a whole rest day: Saturday from 00:00 to 24:00, on the hour tier', () => {
     const frame = frameOf(HOUR_TIER, true, true, FRIDAY)
     const runs = shadeRunsOf(frame.svg)
@@ -413,7 +413,7 @@ describe('DFC-2457 TM-5: a thinned hour digit stands on a multiple of the stride
       minute: Number(one[1]),
       hour: Number((one[2] as string).trim()),
     }))
-  // WHY: the stride is the gap between two digits of one day; the row restarts at each midnight.
+  // Why: the stride is the gap between two digits of one day; the row restarts at each midnight.
   const strideOf = (labels: readonly { readonly minute: number }[]): number | null => {
     for (let i = 1; i < labels.length; i += 1) {
       const [a, b] = [labels[i - 1]?.minute as number, labels[i]?.minute as number]
@@ -421,7 +421,7 @@ describe('DFC-2457 TM-5: a thinned hour digit stands on a multiple of the stride
     }
     return null
   }
-  // WHY: a sweep of the hour tier, so the widths at which the stride is 2 and 3 are found rather than guessed.
+  // Why: a sweep of the hour tier, so the widths at which the stride is 2 and 3 are found rather than guessed.
   const SWEEP = Array.from({ length: 40 }, (_unused, i) => S_577 + 1 + ((S_578 - S_577 - 2) * i) / 39)
   const byStride = new Map<number, number>()
   for (const threshold of SWEEP) {
@@ -433,7 +433,7 @@ describe('DFC-2457 TM-5: a thinned hour digit stands on a multiple of the stride
     expect(REQUIREMENTS).toContain(TM_5_THINNED_HOURS)
   })
 
-  // WHY: the narrowest width of the hour tier may already fit two-digit labels every 2 hours, so 3 is checked only where it is reached.
+  // Why: the narrowest width of the hour tier may already fit two-digit labels every 2 hours, so 3 is checked only where it is reached.
   const thinned = (): readonly (readonly [number, number])[] => [...byStride].filter(([stride]) => stride > 1)
 
   it('premise: some width of the hour tier thins the digits to every 2 hours', () => {
@@ -453,7 +453,7 @@ describe('DFC-2457 TM-5: a thinned hour digit stands on a multiple of the stride
       const labels = labelsAt(threshold)
       const days = [...new Set(labels.map((one) => Math.floor(one.minute / 1440)))]
       expect(days.length, `stride ${stride}: premise, the view holds a whole day`).toBeGreaterThan(2)
-      // WHY: the first and the last day may be cut by the edges of the view; a day between them is shown whole.
+      // Why: the first and the last day may be cut by the edges of the view; a day between them is shown whole.
       for (const day of days.slice(1, -1)) {
         expect(labels.some((one) => one.minute === day * 1440 && one.hour === 0), `stride ${stride}: day ${day}`).toBe(true)
       }

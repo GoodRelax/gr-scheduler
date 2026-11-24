@@ -16,7 +16,7 @@ const T211: SpecTable = specTable('T-211')
 
 const BASE_SCREEN = screenOf(rowOf(T025, 'MC-6'))
 
-// WHY: by position, not heading -- these headings are Japanese (rule 03
+// Why: by position, not heading -- these headings are Japanese (rule 03
 // section 5 keeps this tree ASCII), so a changed column fails loudly here.
 /** @purity pure */
 function cellOf(table: SpecTable, id: string, column: number, columns: number): string {
@@ -30,12 +30,12 @@ function cellOf(table: SpecTable, id: string, column: number, columns: number): 
   return row.cells[column] ?? ''
 }
 
-// WHY: table T-036 holds three cells after the row ID -- what the key does,
+// Why: table T-036 holds three cells after the row ID -- what the key does,
 // the assignment, and the entrance the assignment moves.
 const T036_COLUMNS = 3
 const T036_ASSIGNMENT = 1
 
-// WHY: table T-036 writes the modifier as Ctrl (what a keyboard prints on
+// Why: table T-036 writes the modifier as Ctrl (what a keyboard prints on
 // itself); the driver's own name for the same key is Control.
 /** @purity pure */
 function asDriven(spelling: string): string {
@@ -46,7 +46,7 @@ function asDriven(spelling: string): string {
     .join('+')
 }
 
-// WHY: the assignment column marks each key on its own and joins them with a
+// Why: the assignment column marks each key on its own and joins them with a
 // fullwidth plus, so the first mark alone reads Ctrl and copies nothing.
 const T036_ALTERNATIVE = /[\uFF0F/]/
 const T036_KEY_MARK = /`([^`]+)`/g
@@ -64,18 +64,18 @@ function keyOf(id: string): string {
   return asDriven(found.join('+'))
 }
 
-// see SK-4
+// Spec: SK-4
 const COPY_KEY = keyOf('SK-4')
-// see SK-5
+// Spec: SK-5
 const PASTE_KEY = keyOf('SK-5')
 
-// WHY: table T-109 holds six cells after the row ID -- the surface, the group,
+// Why: table T-109 holds six cells after the row ID -- the surface, the group,
 // the purpose, the requirement, the setting it toggles, and the holding it arms.
 const T109_COLUMNS = 6
 const T109_PURPOSE = 2
 const T109_SOURCE = 3
 
-// WHY: anchored so FR-04 cannot be found by asking for FR-048, and a
+// Why: anchored so FR-04 cannot be found by asking for FR-048, and a
 // three-digit neighbor cannot answer for a two-digit one.
 /** @purity pure */
 function entrancesServing(requirement: string): readonly string[] {
@@ -97,13 +97,13 @@ function theEntranceServing(requirement: string): string {
   return found[0] ?? ''
 }
 
-// see FR-065
+// Spec: FR-065
 const AGENT_API_ENTRANCE = theEntranceServing('FR-065')
 
-// see FR-082
+// Spec: FR-082
 const DUAL_CURSOR_ENTRANCE = theEntranceServing('FR-082')
 
-// WHY: table T-206 holds three cells after the row ID -- the value, the
+// Why: table T-206 holds three cells after the row ID -- the value, the
 // default, and why it is not saved.
 const T206_COLUMNS = 3
 const T206_VALUE = 0
@@ -115,12 +115,12 @@ function screenValueKeyOf(id: string): string {
   return found[1] ?? ''
 }
 
-// see S-65
+// Spec: S-65
 const DUAL_CURSOR_SETTING = screenValueKeyOf('S-65')
-// see S-66
+// Spec: S-66
 const GUIDE_CURSOR_SETTING = screenValueKeyOf('S-66')
 
-// WHY: read out of the value cell so a value retired there leaves this file
+// Why: read out of the value cell so a value retired there leaves this file
 // without being edited.
 /** @purity pure */
 const GUIDE_CURSOR_VALUES: readonly string[] = (() => {
@@ -139,8 +139,8 @@ interface GuideLines {
   readonly horizontal: number
 }
 
-// see CU-3
-// WHY: S-66 is a screen value no reader hands back, so the mode is read off
+// Spec: CU-3
+// Why: S-66 is a screen value no reader hands back, so the mode is read off
 // the lines CU-3 draws at the pointer: none, a cross, or one vertical line.
 const GUIDE_LINES_OF_MODE: Readonly<Record<string, GuideLines>> = (() => {
   const known: Readonly<Record<string, GuideLines>> = {
@@ -164,7 +164,7 @@ function guideModeDrawn(lines: GuideLines): string {
   return found ?? `unreadable (${String(lines.vertical)} vertical, ${String(lines.horizontal)} horizontal)`
 }
 
-// WHY: not written out here -- table T-109's purpose column is the one home
+// Why: not written out here -- table T-109's purpose column is the one home
 // of the pairing, so a retired entrance drops out without this file changing.
 /** @purity pure */
 const GUIDE_CURSOR_ENTRANCES: readonly { readonly icon: string; readonly mode: string }[] = (() => {
@@ -183,12 +183,12 @@ const GUIDE_CURSOR_ENTRANCES: readonly { readonly icon: string; readonly mode: s
   return found
 })()
 
-// WHY: table T-211 holds five cells after the row ID -- the name, the
+// Why: table T-211 holds five cells after the row ID -- the name, the
 // value, the floor, the ceiling, and a note.
 const T211_COLUMNS = 5
 const T211_VALUE = 1
 
-// see S-125
+// Spec: S-125
 const MAX_GROUP_DEPTH = (() => {
   const said = cellOf(T211, 'S-125', T211_VALUE, T211_COLUMNS)
   const found = /-?\d+/.exec(said.replace(/`/g, ''))
@@ -199,11 +199,11 @@ const MAX_GROUP_DEPTH = (() => {
   return value
 })()
 
-// WHY: the deliverable, not sources or the dev server -- NFR-004 row CN-1
+// Why: the deliverable, not sources or the dev server -- NFR-004 row CN-1
 // has dist/ hold one .html file, which tests/nfr/ assembles and judges.
 const SHIPPED_BUILD = join(process.cwd(), 'dist', 'index.html')
 
-// WHY: not decided by the specification, but the same two markings the
+// Why: not decided by the specification, but the same two markings the
 // neighboring System files lean on, and no others.
 const TASK_GROUP_PANEL_BOX = '[data-role="Task Group Panel"]'
 const CANVAS_PART = '[data-role="Schedule Canvas"]'
@@ -227,7 +227,7 @@ interface DocShot {
   readonly members: ReadonlyArray<{ readonly taskUid: number; readonly taskGroupId: string }>
 }
 
-// WHY: S-65 and S-66 are screen values (table T-206) that AM-3 no longer
+// Why: S-65 and S-66 are screen values (table T-206) that AM-3 no longer
 // hands back, so both are read off what the Schedule Canvas draws.
 interface CursorShot {
   readonly dualCursorLines: number
@@ -271,7 +271,7 @@ let measured: Measured | null = null
 let sweepFailed: Error | null = null
 
 test.beforeAll(async () => {
-  // WHY: the sweep opens two contexts, loads the deliverable twice and
+  // Why: the sweep opens two contexts, loads the deliverable twice and
   // drives hundreds of pointer presses -- see CLEARING_UP_MS in ./live-app.
   test.setTimeout(600_000)
   if (!existsSync(SHIPPED_BUILD)) {
@@ -293,7 +293,7 @@ test.afterAll(async () => {
   await browser?.close()
 })
 
-// WHY: a counter in front of navigator.clipboard is the only way to judge
+// Why: a counter in front of navigator.clipboard is the only way to judge
 // FR-033's MUST NOT -- a working paste alone does not prove the store is the app's own.
 /** @purity non-pure */
 async function openTheApp(): Promise<{ context: BrowserContext; page: Page }> {
@@ -318,7 +318,7 @@ async function openTheApp(): Promise<{ context: BrowserContext; page: Page }> {
         },
       })
     } catch {
-      // WHY: a browser that refuses this leaves the count at zero, and the
+      // Why: a browser that refuses this leaves the count at zero, and the
       // case that reads it says so.
     }
   })
@@ -334,7 +334,7 @@ async function openTheApp(): Promise<{ context: BrowserContext; page: Page }> {
   return { context, page }
 }
 
-// WHY: a real pointer, not element.click() -- the shell builds its input
+// Why: a real pointer, not element.click() -- the shell builds its input
 // from pointer events, and a synthetic click has reached nothing here before.
 /** @purity non-pure */
 async function pressAt(page: Page, at: { x: number; y: number }): Promise<void> {
@@ -357,7 +357,7 @@ async function pressEntrance(page: Page, icon: string): Promise<void> {
   await page.waitForTimeout(500)
 }
 
-// see AM-3
+// Spec: AM-3
 /** @purity semi-pure-mutable */
 async function readShot(page: Page): Promise<DocShot> {
   return page.evaluate(
@@ -394,8 +394,8 @@ async function readShot(page: Page): Promise<DocShot> {
   )
 }
 
-// see CU-2, CU-3
-// WHY: the guide lines are drawn only while the pointer is over the Task group
+// Spec: CU-2, CU-3
+// Why: the guide lines are drawn only while the pointer is over the Task group
 // Area, so the pointer is first put on a point of the canvas's lower half.
 /** @purity non-pure */
 async function readCursors(page: Page): Promise<CursorShot> {
@@ -429,7 +429,7 @@ async function readCursors(page: Page): Promise<CursorShot> {
   }
 }
 
-// see AM-5
+// Spec: AM-5
 /** @purity semi-pure-mutable */
 async function readSelection(page: Page): Promise<{ kind: string; uid?: number }[]> {
   return page.evaluate(() => {
@@ -457,7 +457,7 @@ async function chosenRowIds(page: Page): Promise<string[]> {
   )
 }
 
-// WHY: the pointer goes on the task group first, then the point is chosen -- HF-6
+// Why: the pointer goes on the task group first, then the point is chosen -- HF-6
 // hides a task group's own controls (GR-20's grab strip too) until hovered.
 /** @purity non-pure */
 async function chooseTaskGroup(page: Page, taskGroupId: string, isExtending: boolean): Promise<void> {
@@ -495,7 +495,7 @@ async function chooseTaskGroup(page: Page, taskGroupId: string, isExtending: boo
   await page.waitForTimeout(500)
 }
 
-// WHY: there is no handle to aim at, so the only honest way to pick one is
+// Why: there is no handle to aim at, so the only honest way to pick one is
 // to press and read AM-5 back; every point is checked to be on the drawing.
 /** @purity non-pure */
 async function pickATask(
@@ -563,7 +563,7 @@ async function sweep(): Promise<Measured> {
     const cursors = (): Promise<CursorShot> => readCursors(page)
 
     const atStart = await shot()
-    // WHY: only a Task with no WBS descendants will do, so DU-1 has exactly
+    // Why: only a Task with no WBS descendants will do, so DU-1 has exactly
     // one thing to carry and this case can count it.
     const parentTasks = new Set(
       atStart.tasks.flatMap((one) => (one.parentTaskUid === null ? [] : [one.parentTaskUid])),
@@ -584,7 +584,7 @@ async function sweep(): Promise<Measured> {
       throw new Error('no press on the drawing picked a Task that has no WBS descendants')
     }
     const pickedTaskUid = picked
-    // WHY: read after the walk, not before -- picking a Task takes many
+    // Why: read after the walk, not before -- picking a Task takes many
     // presses, so the paste is measured against the state the walk left.
     const beforeTaskPaste = await shot()
     const pickedTaskRowId =
@@ -595,7 +595,7 @@ async function sweep(): Promise<Measured> {
     await page.waitForTimeout(1500)
     const afterTaskPaste = await shot()
 
-    // WHY: this run comes first of the three task group runs -- only a drawn task group
+    // Why: this run comes first of the three task group runs -- only a drawn task group
     // can be pressed, and the two runs below add task groups that could hide a deep one.
     const beforeDeep = await shot()
     const tooDeep = (await drawnRowIds(page)).find(
@@ -620,7 +620,7 @@ async function sweep(): Promise<Measured> {
       after: await shot(),
     }
 
-    // WHY: a task group with no children of its own, so its landing cannot be the
+    // Why: a task group with no children of its own, so its landing cannot be the
     // depth ceiling's business -- that refusal is the run above.
     const beforeIntoChosen = await shot()
     const leafWithTasks = (await drawnRowIds(page)).find(
@@ -643,7 +643,7 @@ async function sweep(): Promise<Measured> {
       after: await shot(),
     }
 
-    // WHY: SL-4's letting-go half -- the chosen task group is pressed again with
+    // Why: SL-4's letting-go half -- the chosen task group is pressed again with
     // the extending key, which takes it back out of the set.
     await chooseTaskGroup(page, leafWithTasks, true)
     const stillChosen = await chosenRowIds(page)
@@ -672,7 +672,7 @@ async function sweep(): Promise<Measured> {
 
     const guideCursorRuns: Measured['guideCursorRuns'][number][] = []
     for (const armed of GUIDE_CURSOR_ENTRANCES) {
-      // WHY: a Dual Cursor stands before each press -- DC-9 of table T-029a
+      // Why: a Dual Cursor stands before each press -- DC-9 of table T-029a
       // has the guide-cursor entrance take it down, and that is what is read.
       if ((await cursors()).dualCursorLines === 0) {
         await pressEntrance(page, DUAL_CURSOR_ENTRANCE)
@@ -691,7 +691,7 @@ async function sweep(): Promise<Measured> {
       })
     }
 
-    // WHY: its own visit -- "nothing has been copied" is a state only a
+    // Why: its own visit -- "nothing has been copied" is a state only a
     // page that has never been asked to copy can be in.
     const fresh = await openTheApp()
     try {
@@ -742,7 +742,7 @@ function tasksAdded(run: TaskGroupPaste): readonly number[] {
 }
 
 test.describe(`FR-033, driven by ${COPY_KEY} and ${PASTE_KEY} of table T-036`, () => {
-  // WHY: goes red if a copy of a Task lands as no Task, or as more than the
+  // Why: goes red if a copy of a Task lands as no Task, or as more than the
   // one subtree picked out of the drawing.
   test('copying one Task and pasting makes exactly one more Task', () => {
     const seen = readingsOfTheSweep()
@@ -756,7 +756,7 @@ test.describe(`FR-033, driven by ${COPY_KEY} and ${PASTE_KEY} of table T-036`, (
     ).toHaveLength(1)
   })
 
-  // WHY: goes red if the duplicate reuses the UID FR-033 (MUST NOT)
+  // Why: goes red if the duplicate reuses the UID FR-033 (MUST NOT)
   // reserves -- the failure that makes a redo hand out one UID twice.
   test('the pasted Task does not take the UID it was copied from', () => {
     const seen = readingsOfTheSweep()
@@ -770,7 +770,7 @@ test.describe(`FR-033, driven by ${COPY_KEY} and ${PASTE_KEY} of table T-036`, (
     ).not.toBe(seen.pickedTaskUid)
   })
 
-  // WHY: goes red if the duplicate lands off the task group it was copied from --
+  // Why: goes red if the duplicate lands off the task group it was copied from --
   // table T-050 row CD-2 leans on this to know what a deletion reaches.
   test('the pasted Task stands on the task group it was copied from', () => {
     const seen = readingsOfTheSweep()
@@ -788,7 +788,7 @@ test.describe(`FR-033, driven by ${COPY_KEY} and ${PASTE_KEY} of table T-036`, (
     ).toBe(seen.beforeTaskPaste.names[String(seen.pickedTaskUid)])
   })
 
-  // WHY: goes red if a copied task group lands anywhere but under the chosen task group.
+  // Why: goes red if a copied task group lands anywhere but under the chosen task group.
   test('a copied task group lands as a child of the task group that is chosen', () => {
     const seen = readingsOfTheSweep()
     const added = taskGroupsAdded(seen.intoChosenTaskGroup)
@@ -804,7 +804,7 @@ test.describe(`FR-033, driven by ${COPY_KEY} and ${PASTE_KEY} of table T-036`, (
     ).toBe(seen.intoChosenTaskGroup.chosenIds[0])
   })
 
-  // WHY: goes red if a task group arrives without the Tasks standing on it --
+  // Why: goes red if a task group arrives without the Tasks standing on it --
   // DU-2's whole point, and why FR-033 does not apply DU-1's same-task-group rule.
   test('a copied task group brings the Tasks that stood on it', () => {
     const seen = readingsOfTheSweep()
@@ -827,7 +827,7 @@ test.describe(`FR-033, driven by ${COPY_KEY} and ${PASTE_KEY} of table T-036`, (
     ).toHaveLength(0)
   })
 
-  // WHY: goes red if a paste with no task group chosen buries the new task group somewhere.
+  // Why: goes red if a paste with no task group chosen buries the new task group somewhere.
   test('a copied task group pasted with no task group chosen lands at the top level', () => {
     const seen = readingsOfTheSweep()
     const added = taskGroupsAdded(seen.atTopLevel)
@@ -837,7 +837,7 @@ test.describe(`FR-033, driven by ${COPY_KEY} and ${PASTE_KEY} of table T-036`, (
     expect(roots[0]?.parentId, 'FR-033 (MUST) puts it at the top level when nothing is chosen').toBeNull()
   })
 
-  // WHY: goes red if a paste is taken past S-125's depth -- the MUST NOT
+  // Why: goes red if a paste is taken past S-125's depth -- the MUST NOT
   // FR-033 states, with FR-004 owning the ceiling.
   test(`a paste that would pass the depth of S-125 (${String(MAX_GROUP_DEPTH)}) is refused whole`, () => {
     const seen = readingsOfTheSweep()
@@ -855,7 +855,7 @@ test.describe(`FR-033, driven by ${COPY_KEY} and ${PASTE_KEY} of table T-036`, (
     ).toHaveLength(0)
   })
 
-  // WHY: goes red if a paste on a page that has copied nothing writes anything.
+  // Why: goes red if a paste on a page that has copied nothing writes anything.
   test('pasting with nothing copied leaves the document as it stood', () => {
     const seen = readingsOfTheSweep()
     expect(
@@ -868,7 +868,7 @@ test.describe(`FR-033, driven by ${COPY_KEY} and ${PASTE_KEY} of table T-036`, (
     ).toEqual(seen.beforeEmptyPaste.groups.map((one) => one.id))
   })
 
-  // WHY: goes red if the application ever asks the host for its clipboard
+  // Why: goes red if the application ever asks the host for its clipboard
   // -- the MUST NOT FR-033 states, and why table T-008 row CHN-9's route is outward only.
   test('nothing in a copy or a paste reads the clipboard of the host', () => {
     const seen = readingsOfTheSweep()
@@ -884,7 +884,7 @@ test.describe(`FR-033, driven by ${COPY_KEY} and ${PASTE_KEY} of table T-036`, (
 })
 
 test.describe(`FR-048 and table T-029a, driven by ${DUAL_CURSOR_ENTRANCE} of table T-109`, () => {
-  // WHY: goes red if the entrance puts up no pair, or half of one -- DC-1
+  // Why: goes red if the entrance puts up no pair, or half of one -- DC-1
   // places both dates, and S-65 holds the pair as one screen value.
   test(`${DUAL_CURSOR_ENTRANCE} places both dates of ${DUAL_CURSOR_SETTING}`, () => {
     const seen = readingsOfTheSweep()
@@ -895,7 +895,7 @@ test.describe(`FR-048 and table T-029a, driven by ${DUAL_CURSOR_ENTRANCE} of tab
     ).toBe(2)
   })
 
-  // WHY: goes red if the pair outlives the mode -- FR-048 has the entrance
+  // Why: goes red if the pair outlives the mode -- FR-048 has the entrance
   // that put it up take it down, and DC-7 clears it on leaving the mode.
   test(`pressing ${DUAL_CURSOR_ENTRANCE} again clears ${DUAL_CURSOR_SETTING}`, () => {
     const seen = readingsOfTheSweep()
@@ -905,7 +905,7 @@ test.describe(`FR-048 and table T-029a, driven by ${DUAL_CURSOR_ENTRANCE} of tab
     ).toBe(0)
   })
 
-  // WHY: goes red if a guide-cursor entrance does not come back to its own
+  // Why: goes red if a guide-cursor entrance does not come back to its own
   // way out -- FR-048 forbids a second entrance for taking one down.
   test('each guide-cursor entrance arms its mode and disarms it on the next press', () => {
     const seen = readingsOfTheSweep()
@@ -925,7 +925,7 @@ test.describe(`FR-048 and table T-029a, driven by ${DUAL_CURSOR_ENTRANCE} of tab
     }
   })
 
-  // WHY: goes red if a guide-cursor entrance leaves the pair standing -- DC-9 of
+  // Why: goes red if a guide-cursor entrance leaves the pair standing -- DC-9 of
   // table T-029a (MUST) leaves the mode, DC-7 clears the pair, S-66 takes the press.
   test('a guide-cursor entrance clears a standing Dual Cursor and takes its own mode', () => {
     const seen = readingsOfTheSweep()

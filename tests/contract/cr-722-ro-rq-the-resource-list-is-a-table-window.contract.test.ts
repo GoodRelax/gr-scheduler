@@ -32,7 +32,7 @@ describe('CR-722 the manuscript these cases are driven by', () => {
 
 const T_371_IDS: readonly string[] = specTable('T-371').rows.map((one) => one.id)
 
-// WHY: section 5.1 shapes the Resource List functions after the report's, so the opened window is the report's opened shape.
+// Why: section 5.1 shapes the Resource List functions after the report's, so the opened window is the report's opened shape.
 const OPENED = OPENED_DELAY_DIAGNOSTICS_REPORT
 
 interface ColumnLike {

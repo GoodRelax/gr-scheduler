@@ -5,7 +5,7 @@ import { describe, expect, it } from 'vitest'
 import { FR_019_FRONT, FR_019_ORDER, FR_019_SHAPE, FR_019_SHOWN_DATE, REQUIREMENTS } from './cr-786-stage'
 
 const MUST_MARK = '（MUST）'
-// WHY: the handover asks a quoted MUST clause to be at least this long, the mark included, so it names its rule.
+// Why: the handover asks a quoted MUST clause to be at least this long, the mark included, so it names its rule.
 const MIN_MUST_CLAUSE_LENGTH = 28
 const FR_019_HEAD = '**UID**: FR-019'
 const SECTION_END = '**ORIGIN**'

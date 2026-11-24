@@ -39,7 +39,7 @@ const cueDrawn = (built: ShellStage): number => byRole(built.domRoot(), CUE_ROLE
 async function dragIs(built: ShellStage, isOver: boolean): Promise<void> {
   built.loop.fileDragMoved(isOver)
   await settle()
-  // WHY: any input wakes a frame, and the cue is read from the frame that follows the event.
+  // Why: any input wakes a frame, and the cue is read from the frame that follows the event.
   await built.repaint()
 }
 
@@ -99,7 +99,7 @@ describe(`FR-087 OP-17 -- ${OP_17_HIDE_ON_DROP} -- the drop`, () => {
     const built = await shellStage({ dom: true })
     await dragIs(built, true)
     expect(cueViewed(built), 'premise: the cue is up').toBeDefined()
-    // WHY: the shell sends the drag as left and then the drop, in this order, for one drop.
+    // Why: the shell sends the drag as left and then the drop, in this order, for one drop.
     built.loop.fileDragMoved(false)
     await built.drop(built.file('theirs.json', jsonBytes(there())))
     expect(cueViewed(built)).toBeUndefined()
@@ -111,7 +111,7 @@ describe(`FR-087 OP-17 -- ${OP_17_HIDE_ON_DROP} -- the drop`, () => {
 describe(`FR-087 OP-17 -- ${OP_17_REFUSED}`, () => {
   it(`T-280 ${T_280_IS_OPEN_ACCEPTED} -- an open chooser stands (a file operation is in progress): no cue`, async () => {
     const built = await shellStage({ dom: true })
-    // WHY: the file dialog keeps U-56; a dropped GRS JSON skips it (OP-19).
+    // Why: the file dialog keeps U-56; a dropped GRS JSON skips it (OP-19).
     await built.open(built.file('theirs.json', jsonBytes(there())))
     expect(built.last().openModal?.surface, 'premise: the open chooser stands').toBe(OPEN_CHOOSER())
     await dragIs(built, true)

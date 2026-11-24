@@ -1,4 +1,4 @@
-// Schedule -- the rows of the Delay Diagnostics Report tables (T-347, T-374), and the report as one Markdown string (RW-6).
+// File: Schedule: the rows of the Delay Diagnostics Report tables (T-347, T-374), and the report as one Markdown string (RW-6).
 // @unit      UF-192  (docs/spec/05-07-design.md, table T-075)
 // @component Schedule, layer documentModel (table T-062)
 // @purity    pure
@@ -23,19 +23,19 @@ import {
 import type { Schedule, Task } from './schedule-entities'
 import { assigneeNamesByTaskUid, compareInstants, plannedFinishOf, plannedStartInstantsOf } from './schedule-search'
 
-// see DT-1
+// Spec: DT-1
 export type DelayReportStatus = DelayMarkerRow | 'doubtful' | 'settled'
 
-// see DT-1
+// Spec: DT-1
 export const DELAY_REPORT_STATUSES: readonly DelayReportStatus[] = ['DG-1', 'doubtful', 'DG-2', 'DG-3', 'DG-4', 'settled']
 
-// see DT-7, DX-6
+// Spec: DT-7, DX-6
 export interface DelayReportWall {
   readonly row: AnalysisWall['row']
   readonly causeName: string
 }
 
-// see DT-7
+// Spec: DT-7
 export type DelayReportReason =
   | { readonly kind: 'unreliable'; readonly findings: readonly DelayFinding[]; readonly walls: readonly DelayReportWall[] }
   | { readonly kind: 'bottleneck'; readonly quantities: DelayQuantities | null }
@@ -43,7 +43,7 @@ export type DelayReportReason =
   | { readonly kind: 'late'; readonly days: number | null }
   | { readonly kind: 'settled'; readonly quantities: DelayQuantities | null }
 
-// see T-347
+// Spec: T-347
 export interface DelayReportRow {
   readonly taskUid: number
   readonly status: DelayReportStatus
@@ -54,7 +54,7 @@ export interface DelayReportRow {
   readonly plannedFinish: string | null
   readonly actualStart: string | null
   readonly actualFinish: string | null
-  // see DT-9
+  // Spec: DT-9
   readonly milestone: boolean
   readonly reason: DelayReportReason
 }
@@ -64,13 +64,13 @@ export interface DelayReportTextRow {
   readonly cells: readonly string[]
 }
 
-// see RW-6
+// Spec: RW-6
 export interface DelayReportFilter {
   readonly word: string
   readonly columns: readonly { readonly heading: string; readonly condition: string }[]
 }
 
-// see RW-6, T-315
+// Spec: RW-6, T-315
 export interface DelayReportWords {
   readonly heading: string
   readonly documentName: string
@@ -81,7 +81,7 @@ export interface DelayReportWords {
   readonly statuses: Readonly<Record<DelayReportStatus, { readonly symbol: string; readonly word: string }>>
 }
 
-// see RW-4, RW-6
+// Spec: RW-4, RW-6
 export interface DelayReportDates {
   readonly documentName: string
   readonly statusDateLine: string
@@ -107,7 +107,7 @@ function earlierStatus(held: DelayReportStatus | undefined, status: DelayReportS
   return held === undefined || statusRank(status) < statusRank(held) ? status : held
 }
 
-// see DT-1, DX-3, DX-8, DX-9
+// Spec: DT-1, DX-3, DX-8, DX-9
 /** @purity pure */
 function delayReportStatusesOf(report: DelayDiagnosticsReport): ReadonlyMap<number, DelayReportStatus> {
   const statuses = new Map<number, DelayReportStatus>()
@@ -118,7 +118,7 @@ function delayReportStatusesOf(report: DelayDiagnosticsReport): ReadonlyMap<numb
   return statuses
 }
 
-// see DT-7, DX-4
+// Spec: DT-7, DX-4
 /** @purity pure */
 function reasonOf(report: DelayDiagnosticsReport, uid: number, status: DelayReportStatus, taskNames: ReadonlyMap<number, string>): DelayReportReason {
   switch (status) {
@@ -166,7 +166,7 @@ function rowOf(
   }
 }
 
-// see FR-134, T-347
+// Spec: FR-134, T-347
 /** @purity pure */
 export function delayDiagnosticsReportRows(report: DelayDiagnosticsReport, schedule: Schedule): readonly DelayReportRow[] {
   const statuses = delayReportStatusesOf(report)
@@ -183,7 +183,7 @@ export function delayDiagnosticsReportRows(report: DelayDiagnosticsReport, sched
   )
 }
 
-// see RW-6
+// Spec: RW-6
 /** @purity pure */
 function markdownCell(text: string): string {
   return text.replace(MARKDOWN_LINE_BREAKS, ' ').replace(/\|/g, '\\|')
@@ -218,8 +218,8 @@ function tableLines(rows: readonly DelayReportTextRow[], words: DelayReportWords
   ]
 }
 
-// see FR-134, FR-155, RW-4, RW-6, IC-108, IC-140
-// WHY: the one string IC-108 copies and IC-140 writes, so the two never differ (CR-617 decision 5).
+// Spec: FR-134, FR-155, RW-4, RW-6, IC-108, IC-140
+// Why: the one string IC-108 copies and IC-140 writes, so the two never differ (CR-617 decision 5).
 /** @purity pure */
 export function delayDiagnosticsReportMarkdown(
   rows: readonly DelayReportTextRow[],
@@ -256,7 +256,7 @@ const LINKS_JOIN = ', '
 
 const MINUTE_OF_TEXT = /^(\d{4})-(\d{2})-(\d{2})[T ](\d{2}):(\d{2})/
 
-// see T-374, FM-4, FM-7, FM-8
+// Spec: T-374, FM-4, FM-7, FM-8
 export interface DelayFixWords {
   readonly empty: string
   readonly suggested: string
@@ -269,12 +269,12 @@ export interface DelayFixWords {
   readonly columnOf: (column: string) => string
   readonly choiceOf: (choice: DelayFixChoice) => string
   readonly taskNameOf: (taskUid: number) => string
-  // see FM-9
+  // Spec: FM-9
   readonly taskTypeWordOf: (taskUid: number) => string
   readonly linkTypeOf: (linkType: number) => string
 }
 
-// see RW-6, T-374
+// Spec: RW-6, T-374
 export interface DelayFixMarkdownSection {
   readonly heading: string
   readonly filter: DelayReportFilter
@@ -282,14 +282,14 @@ export interface DelayFixMarkdownSection {
   readonly rows: readonly (readonly string[])[]
 }
 
-// see RW-6
-// WHY: log is null while the log holds no row, so no log section is written then.
+// Spec: RW-6
+// Why: log is null while the log holds no row, so no log section is written then.
 export interface DelayFixMarkdown {
   readonly proposals: DelayFixMarkdownSection
   readonly log: DelayFixMarkdownSection | null
 }
 
-// see T-374
+// Spec: T-374
 /** @purity pure */
 function tableOfColumn(column: string): DelayFixTable | 'both' | null {
   switch (column) {
@@ -310,8 +310,8 @@ function tableOfColumn(column: string): DelayFixTable | 'both' | null {
   }
 }
 
-// see T-374
-// WHY: the caller hands the dictionary's column roster (delayFixColumns), so the order lives in one generated place.
+// Spec: T-374
+// Why: the caller hands the dictionary's column roster (delayFixColumns), so the order lives in one generated place.
 /** @purity pure */
 export function delayFixColumnsOf(table: DelayFixTable, columns: readonly string[]): readonly string[] {
   return columns.filter((column) => {
@@ -325,7 +325,7 @@ function fixKindRank(fixKind: DelayFixKind): number {
   return DELAY_FIX_KINDS.indexOf(fixKind)
 }
 
-// see T-374, T-373
+// Spec: T-374, T-373
 /** @purity pure */
 export function compareDelayFixRows(schedule: Schedule): (a: DelayFixRow, b: DelayFixRow) => number {
   const startOf = plannedStartInstantsOf(schedule)
@@ -339,8 +339,8 @@ export function compareDelayFixRows(schedule: Schedule): (a: DelayFixRow, b: Del
     a.applyOrder - b.applyOrder
 }
 
-// see T-374
-// WHY: a chain row stays right under the row that raised it, whatever order the person sorts by.
+// Spec: T-374
+// Why: a chain row stays right under the row that raised it, whatever order the person sorts by.
 /** @purity pure */
 export function delayFixRowsInOrder(
   rows: readonly DelayFixRow[],
@@ -361,13 +361,13 @@ export function delayFixRowsInOrder(
   return ordered
 }
 
-// see T-374, DX-11
+// Spec: T-374, DX-11
 /** @purity pure */
 export function delayFixProposalRows(rows: readonly DelayFixRow[], schedule: Schedule): readonly DelayFixRow[] {
   return delayFixRowsInOrder(rows, compareDelayFixRows(schedule))
 }
 
-// see T-374, DX-12
+// Spec: T-374, DX-12
 /** @purity pure */
 export function delayFixLogRowsInOrder(rows: readonly DelayFixLogRow[]): readonly DelayFixLogRow[] {
   return [...rows].sort((a, b) => b.fixedAt.localeCompare(a.fixedAt) || a.order - b.order)
@@ -386,7 +386,7 @@ function linkText(link: DelayFixLink, words: DelayFixWords): string {
   return `${ends} (${words.linkTypeOf(link.linkType)})`
 }
 
-// see FM-7
+// Spec: FM-7
 /** @purity pure */
 export function delayFixValueText(value: DelayFixValue, words: DelayFixWords): string {
   switch (value.kind) {
@@ -403,7 +403,7 @@ export function delayFixValueText(value: DelayFixValue, words: DelayFixWords): s
   }
 }
 
-// see FM-8
+// Spec: FM-8
 /** @purity pure */
 function proposalAfterText(row: DelayFixRow, words: DelayFixWords): string {
   const after = row.after === null ? '' : delayFixValueText(row.after, words)
@@ -434,7 +434,7 @@ function minuteText(fixedAt: string): string {
   return hit === null ? fixedAt : `${hit[1]}/${hit[2]}/${hit[3]} ${hit[4]}:${hit[5]}`
 }
 
-// see T-374
+// Spec: T-374
 /** @purity pure */
 function sharedCellOf(column: string, row: DelayFixRow | DelayFixLogRow, isCascade: boolean, words: DelayFixWords): string {
   switch (column) {
@@ -453,7 +453,7 @@ function sharedCellOf(column: string, row: DelayFixRow | DelayFixLogRow, isCasca
   }
 }
 
-// see T-374
+// Spec: T-374
 /** @purity pure */
 function proposalCellOf(column: string, row: DelayFixRow, words: DelayFixWords): string {
   switch (column) {
@@ -468,7 +468,7 @@ function proposalCellOf(column: string, row: DelayFixRow, words: DelayFixWords):
   }
 }
 
-// see T-374
+// Spec: T-374
 /** @purity pure */
 function logCellOf(column: string, row: DelayFixLogRow, words: DelayFixWords): string {
   switch (column) {
@@ -481,13 +481,13 @@ function logCellOf(column: string, row: DelayFixLogRow, words: DelayFixWords): s
   }
 }
 
-// see T-374, RW-6
+// Spec: T-374, RW-6
 /** @purity pure */
 export function delayFixProposalCells(row: DelayFixRow, words: DelayFixWords, columns: readonly string[]): readonly string[] {
   return delayFixColumnsOf('proposals', columns).map((column) => proposalCellOf(column, row, words))
 }
 
-// see T-374, RW-6
+// Spec: T-374, RW-6
 /** @purity pure */
 export function delayFixLogCells(row: DelayFixLogRow, words: DelayFixWords, columns: readonly string[]): readonly string[] {
   return delayFixColumnsOf('log', columns).map((column) => logCellOf(column, row, words))
@@ -499,7 +499,7 @@ function plainTableLines(columns: readonly string[], rows: readonly (readonly st
   return [line(columns), line(columns.map(() => '---')), ...rows.map(line)]
 }
 
-// see RW-6
+// Spec: RW-6
 /** @purity pure */
 function fixSectionLines(section: DelayFixMarkdownSection, words: DelayReportWords): readonly string[] {
   return [
@@ -522,15 +522,15 @@ const TSV_CELL_BREAK = /\r\n|[\t\r\n]/g
 
 const TSV_CELL_BREAK_WORD = ' '
 
-// see RW-20, IO-9
-// WHY: a tab or a line break inside a cell would split it, so each one becomes one space (RW-20).
+// Spec: RW-20, IO-9
+// Why: a tab or a line break inside a cell would split it, so each one becomes one space (RW-20).
 /** @purity pure */
 export function delayFixLogTsv(headings: readonly string[], rows: readonly (readonly string[])[]): string {
   const line = (cells: readonly string[]): string => cells.map((cell) => cell.replace(TSV_CELL_BREAK, TSV_CELL_BREAK_WORD)).join(TSV_CELL_JOIN)
   return TSV_BYTE_ORDER_MARK + [headings, ...rows].map(line).join(TSV_LINE_JOIN)
 }
 
-// see RW-6
+// Spec: RW-6
 /** @purity pure */
 function fixMarkdownLines(fixes: DelayFixMarkdown | undefined, words: DelayReportWords): readonly string[] {
   if (fixes === undefined) return []

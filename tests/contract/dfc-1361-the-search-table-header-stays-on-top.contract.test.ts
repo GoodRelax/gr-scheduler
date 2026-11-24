@@ -37,18 +37,18 @@ const RR_4_UNDER = '⭐ ほかの欄はその下を通って送られる'
 const S_146_ROLE = '地'
 const S_150_ROLE = 'タスクグループパネル・プロパティパネル・パレットの地'
 
-// see T-331
+// Spec: T-331
 const T_331 = specTable('T-331').rows
 const columnsOf = (table: string): readonly string[] => T_331.filter((row) => row.by['表'] === table).map((row) => row.id)
 const TASK_COLUMNS = columnsOf('タスク')
 const COMMENT_COLUMNS = columnsOf('コメントボックス')
 
-// WHY: SV-6 names the last fixed column of each table; the fixed ones are those up to it in table T-331 order.
+// Why: SV-6 names the last fixed column of each table; the fixed ones are those up to it in table T-331 order.
 const fixedUpTo = (columns: readonly string[], last: string): readonly string[] => columns.slice(0, columns.indexOf(last) + 1)
 const TASK_FIXED = fixedUpTo(TASK_COLUMNS, 'SQ-1')
 const COMMENT_FIXED = fixedUpTo(COMMENT_COLUMNS, 'SQ-7')
 
-// see T-206, T-333
+// Spec: T-206, T-333
 const T_333 = specTable('T-333').rows.map((row) => ({ id: row.id, px: Number(bare(row.by['値'] ?? '')) }))
 const S_429_ROW = bare(rowOf('T-206', 'S-429').by['既定'] ?? '')
 const FONT_PX = T_333.find((row) => row.id === S_429_ROW)?.px ?? Number.NaN
@@ -144,20 +144,20 @@ function drawn(panel: Partial<SearchPanelSession>): Drawn {
   return { box, heads, bodyRows }
 }
 
-// WHY: the fake browser has no layout, so paint order is read from inline styles by the CSS stacking rules.
+// Why: the fake browser has no layout, so paint order is read from inline styles by the CSS stacking rules.
 const isFixed = (cell: FakeElement): boolean => cell.getAttribute('data-fixed-column') === 'true'
 
 const POSITIONED = new Set(['relative', 'absolute', 'fixed', 'sticky'])
 
 const isPositioned = (element: FakeElement): boolean => POSITIONED.has((styleMap(element).get('position') ?? '').trim())
 
-// WHY: a missing or non-integer z-index is auto.
+// Why: a missing or non-integer z-index is auto.
 function zIndexOf(element: FakeElement): number | 'auto' {
   const written = (styleMap(element).get('z-index') ?? 'auto').trim()
   return /^-?\d+$/.test(written) ? Number(written) : 'auto'
 }
 
-// WHY: only the common CSS triggers of a stacking context are read.
+// Why: only the common CSS triggers of a stacking context are read.
 function formsStackingContext(element: FakeElement): boolean {
   const style = styleMap(element)
   const position = (style.get('position') ?? '').trim()
@@ -171,7 +171,7 @@ function formsStackingContext(element: FakeElement): boolean {
   return false
 }
 
-// WHY: an unpositioned box paints below every positioned box of z-index 0 or auto and above negative ones.
+// Why: an unpositioned box paints below every positioned box of z-index 0 or auto and above negative ones.
 const UNPOSITIONED_LEVEL = -0.5
 
 function levelOf(element: FakeElement): number {
@@ -191,7 +191,7 @@ function pathFrom(root: FakeElement, element: FakeElement): readonly FakeElement
   return path
 }
 
-// WHY: a path is ranked by its outermost stacking context, else its outermost positioned box, else the cell.
+// Why: a path is ranked by its outermost stacking context, else its outermost positioned box, else the cell.
 function representativeOf(path: readonly FakeElement[]): FakeElement {
   const context = path.find(formsStackingContext)
   if (context !== undefined) return context
@@ -199,7 +199,7 @@ function representativeOf(path: readonly FakeElement[]): FakeElement {
   return positioned ?? (path[path.length - 1] as FakeElement)
 }
 
-// WHY: in the nearest shared stacking context the higher level wins, and on a tie the later box in tree order.
+// Why: in the nearest shared stacking context the higher level wins, and on a tie the later box in tree order.
 function paintsAbove(root: FakeElement, upper: FakeElement, lower: FakeElement): boolean {
   const order = selfAndDescendants(root)
   let upperPath = pathFrom(root, upper)
@@ -237,7 +237,7 @@ function coverings(root: FakeElement, uppers: readonly FakeElement[], lowers: re
   return wrong
 }
 
-// WHY: FR-041 forbids a fallback inside var(), so a color is either one bare custom property or an opaque literal.
+// Why: FR-041 forbids a fallback inside var(), so a color is either one bare custom property or an opaque literal.
 function isOpaqueGround(written: string): boolean {
   const flat = written.trim().toLowerCase()
   if (flat === '' || flat === 'transparent' || flat === 'none' || flat === 'inherit' || flat === 'initial') return false

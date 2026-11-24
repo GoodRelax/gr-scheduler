@@ -58,7 +58,7 @@ const linesOf = (document: Document, uid: number): readonly Line[] =>
 
 const line = (predecessorUid: number, linkType: number, lag = 0): Line => ({ predecessorUid, linkType, linkLag: lag })
 
-// WHY: the bench builds a line from three numbers only; a line the person can tell apart (a carried value) needs the
+// Why: the bench builds a line from three numbers only; a line the person can tell apart (a carried value) needs the
 // dependencies of one task replaced on a copy of the document.
 function withLinesOf(document: Document, uid: number, change: (lines: readonly Loose[]) => readonly Loose[]): Document {
   const schedule = document.schedule as unknown as { readonly tasks: readonly Loose[] }
@@ -257,7 +257,7 @@ describe('FR-032 CM-37 -- still deletes every line of that direction', () => {
   })
 })
 
-// WHY: lines on task 2 from task 1, each told apart by a carried value (the machine keeps the first in the document order).
+// Why: lines on task 2 from task 1, each told apart by a carried value (the machine keeps the first in the document order).
 const SAME_LINES = (count: number): Document =>
   withLinesOf(
     documentOf([span(1, '05-10', '05-11'), span(2, '05-12', '05-13', { after: Array.from({ length: count }, () => [1, FS, 0] as const) })], {
@@ -336,7 +336,7 @@ describe('T-373 FA-3 -- lines that differ in kind or lag: a choice with one choi
     expect(row.choices ?? []).toHaveLength(3)
   })
 
-  // WHY: the check below is written from the fields T-064 PI-1 gives DelayFixCheck (key, checked, choice, date; CR-752);
+  // Why: the check below is written from the fields T-064 PI-1 gives DelayFixCheck (key, checked, choice, date; CR-752);
   // the row's key and the choice's key are the ones the proposed row carries (RW-16).
   it('choosing a line keeps that line and deletes each of the others: the three choices keep three different lines, between them all three', () => {
     const before = THREE_LINES()
@@ -356,7 +356,7 @@ describe('T-373 FA-3 -- lines that differ in kind or lag: a choice with one choi
   })
 })
 
-// WHY: CR-738 (JDG-1972, DFC-2425) -- T-310 VC-3 counts the lines of one direction only, T-373 FA-3 never touches the
+// Why: CR-738 (JDG-1972, DFC-2425) -- T-310 VC-3 counts the lines of one direction only, T-373 FA-3 never touches the
 // reverse line, and a pair with one line each way raises no VC-3 (VC-1 reports the loop).
 describe('T-310 VC-3 / T-373 FA-3 -- lines in both directions between the same two tasks: only the same way is a group', () => {
   const MIXED = (): Document =>
@@ -405,7 +405,7 @@ describe('T-310 VC-3 / T-373 FA-3 -- lines in both directions between the same t
   })
 })
 
-// WHY: a pair under a parent: the stated form puts the parent in parentTaskUid, the derived form only in the task groups (FR-135).
+// Why: a pair under a parent: the stated form puts the parent in parentTaskUid, the derived form only in the task groups (FR-135).
 type Pair = readonly [parent: Partial<TaskSpec>, child: Partial<TaskSpec>, status: DocumentSpec]
 
 const pairOf = (stated: boolean, [parent, child, status]: Pair): Document =>

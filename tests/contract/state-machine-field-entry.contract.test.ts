@@ -37,7 +37,7 @@ type RawRegion = {
   readonly root: { readonly transitions: Readonly<Record<string, RawCell>> }
 }
 
-// see SD-5
+// Spec: SD-5
 const REGIONS = (
   readStateMachineView() as {
     readonly regions: readonly RawRegion[]
@@ -53,7 +53,7 @@ function regionNamed(name: string): RawRegion {
 const ENTRY = regionNamed('fieldEntry')
 const OTHER_REGIONS = REGIONS.map((r) => r.region).filter((name) => name !== ENTRY.region)
 
-// see T-292
+// Spec: T-292
 function fieldOf(machineName: string): string {
   return machineName.replace(/Machine$/, '')
 }
@@ -83,12 +83,12 @@ function withEntry(fields: Loose): ScreenSession {
   return { ...regionsOf(emptyScreenSession), fieldEntry: { ...entryOf(emptyScreenSession), ...fields } } as unknown as ScreenSession
 }
 
-// see MK-13, FR-035, FR-091, HF-14, IN-5b
+// Spec: MK-13, FR-035, FR-091, HF-14, IN-5b
 const FIELD_ROWS = ['PR-1', 'AT-53', 'PR-16', 'PR-21', 'U-27'] as const
 const TASK_FIELD = 'PR-1'
 const ROW_FIELD = 'AT-53'
 const NAMED_UID = 5
-// see IF-9, IN-5a, U-60
+// Spec: IF-9, IN-5a, U-60
 const EDITED_ROWS = ['PR-1', 'AT-53', 'U-27', 'U-60'] as const
 
 const STATE_VALUES: Readonly<Record<string, Readonly<Record<string, readonly Loose[]>>>> = {
@@ -152,7 +152,7 @@ function pick(cell: RawCell | undefined, entry: Loose, event: Loose): RawBranch 
   return branchesOf(cell).find((b) => branchHolds({ region: 'fieldEntry', values: entry, event }, b))
 }
 
-// WHY: the T-292 notes say which carried value a cell writes; only a creation writes a new
+// Why: the T-292 notes say which carried value a cell writes; only a creation writes a new
 // createdTaskUid (FR-091), and a creation asks for PR-1 or AT-53 (HF-14).
 function expectedCarried(target: string, before: Loose, event: Loose): Loose {
   const created = event['created'] as Loose | undefined
@@ -165,7 +165,7 @@ function expectedCarried(target: string, before: Loose, event: Loose): Loose {
   return { fieldRow: created?.['kind'] === 'task' ? TASK_FIELD : ROW_FIELD }
 }
 
-// see HF-17
+// Spec: HF-17
 function expectedEffect(branch: RawBranch, event: Loose): Loose {
   if (branch.effect === 'bringCreatedTaskGroupIntoSight') {
     return { type: 'bringCreatedTaskGroupIntoSight', taskGroupId: (event['created'] as Loose)['taskGroupId'] }
@@ -173,7 +173,7 @@ function expectedEffect(branch: RawBranch, event: Loose): Loose {
   throw new Error(`effect ${String(branch.effect)} is named by the manuscript but not by this file's oracle`)
 }
 
-// see SD-3, SF-3, SS-5
+// Spec: SD-3, SF-3, SS-5
 function expectEntryStep(session: ScreenSession, event: Loose): void {
   const type = String(event['type'])
   const before = entryOf(session)

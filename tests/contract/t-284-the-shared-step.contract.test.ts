@@ -33,7 +33,7 @@ type Region = {
   }[]
 }
 
-// see SD-5
+// Spec: SD-5
 const REGIONS = (
   readStateMachineView() as {
     readonly regions: readonly Region[]
@@ -122,7 +122,7 @@ describe(`table T-284: ${T284_LEAD}`, () => {
   })
 })
 
-// WHY: RA-6..RA-8 (a spec-only tester, the shell wiring, the frame time) leave no mark
+// Why: RA-6..RA-8 (a spec-only tester, the shell wiring, the frame time) leave no mark
 // in the tree that a file could read, and the ORDER of the steps is not observable.
 describe(`table T-285: ${T285_LEAD}`, () => {
   const packageJson = JSON.parse(readFileSync(join(process.cwd(), 'package.json'), 'utf8')) as {

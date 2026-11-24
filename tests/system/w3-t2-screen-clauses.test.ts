@@ -10,50 +10,50 @@ test.use({ viewport: VIEWPORT, locale: 'en-US', colorScheme: 'light' })
 
 const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
-// see FR-039
-// WHY: CR-690 -- table T-369 places the font size field (FO-4) right under the display scale field (FO-3).
+// Spec: FR-039
+// Why: CR-690 -- table T-369 places the font size field (FO-4) right under the display scale field (FO-3).
 const FONT_SIZE_STEP_FIELD = '文字サイズを選ぶ欄を同表の `FO-4` の場所に置き、表 T-202 の `S-70` の 3 段を選ばせ、選ばれた段で同表の `CM-62` を 1 回発行すること（MUST）'
 const OTHER_TEXT_WEIGHT =
   '⭐ 名称ラベル・`NT-7` の頭 1 文字・`Document Title`・遅延診断レポートの【再診断】（表 T-109 の `IC-168`、`S-623`）のほかの字は、すべて `_assets/tbl-settings.md` の 表 T-206 の `S-529` の太さで描くこと（MUST）'
 
-// see FR-096
+// Spec: FR-096
 const FORMAT_BUTTON_GAP = '⭐ 上下に隣り合う 2 つの形式のボタンのあいだは、`_assets/tbl-settings.md` の 表 T-206 の `S-517` の隔たりとすること（MUST）'
 
-// see FR-052
+// Spec: FR-052
 const HELD_WIDTH_IS_RELEASED_WIDTH =
   '⭐ 掴んでいるあいだに描くタスクグループパネルの幅は、その時点のポインタ位置で離したときに `FR-039` の 表 T-252 の後の段が保存する `S-79` を、同じ段の規則で描いた幅とすること（MUST）'
 
-// see MK-13, T-023
+// Spec: MK-13, T-023
 const TITLE_DOUBLE_CLICK = '／`Document Title`（`_assets/tbl-glossary.md` の `U-27`） ＝ 表 T-036 の `SK-9` が開くのと同じ、その場で編集する欄（`FR-035`）を開くこと（MUST）'
 
-// see CF-1, T-366
+// Spec: CF-1, T-366
 const SOLVE_BEFORE_DRAWING =
   'テーマ色（`themeHue`）・明暗（`themePreference`）・モノクロ（`isThemeMonochrome`）のどれかが変わったら、描く前に `CF-2` 〜 `CF-4` を、この順に 1 回解くこと（MUST）'
 
-// see FR-036, T-335
+// Spec: FR-036, T-335
 const CHOOSERS_FOLLOW_WB_10 =
   '⭐ 保存の面（`_assets/tbl-glossary.md` の `U-54`、`FR-096`）と開く面（`U-56`、表 T-024a の `OP-16`）は、ウィンドウではなく `_assets/tbl-settings.md` の `S-99g` の面のままとし、タイトルバーと動かし方だけを本表の `WB-10` に従うこと（MUST）'
 const CHOOSERS_ARE_NOT_WINDOWS = 'ほかの操作を止めたままとすると定めた。⛔ 2 つに `WB-1` 〜 `WB-9` を当ててはならない（MUST NOT）'
 
-// see T-023, S-514, S-515, S-516
+// Spec: T-023, S-514, S-515, S-516
 const WHEEL_UNITS =
   '行で報告されたときの 1 行の長さ、画素で報告されたときの 1 ノッチの長さ、行で報告されたときの 1 ノッチの行数は、`_assets/tbl-settings.md` の 表 T-206 の `S-514`・`S-515`・`S-516` に従うこと（MUST）'
 
-// see IN-7, T-028
+// Spec: IN-7, T-028
 const TOOLTIP_COLORS = '⭐ 説明の地・字・縁の色は、`_assets/tbl-settings.md` の 表 T-236 の `S-146`・`S-147`・`S-149` とすること（MUST）'
 
-// see FR-100
+// Spec: FR-100
 const NO_WARNING_WORDS = '印の遷移は `_assets/tbl-state-machines.md` の 表 T-290 の `unsavedEditsStateMachine` が持つ。**警告の文言を `GRS` が決めてはならない（MUST NOT）'
 
-// see FR-046, DA-7
+// Spec: FR-046, DA-7
 const FIELD_SCROLLS_LIKE_THE_ENTRANCE =
   '欄の名は `FR-038` の辞書が 表 T-109 の `IC-44` に持つ語とすること（MUST） —— 新しい語を作らない。⭐ 欄の形は `FR-158` の 表 T-375 の `TX-3` に従い、時刻を表示するときは日付と時刻の欄とし、打った分を丸めずに `statusDate` に書くこと（MUST） —— 打つのは狙った値であり、15 分の寄せはドラッグだけが持つ。時刻を表示しないときは日付の欄とし、終了の側の既定の時刻（表 T-350 の `WT-4`）を書く。欄で日付を確定したときも、上の「基準日線を出す操作」と同じく表示位置を横に送ること（MUST）'
 
-// see HF-10, T-051
+// Spec: HF-10, T-051
 const OPEN_ALL_NOT_OUTERMOST =
   '⭐ 焦点が `Tab` で進む順も、この並びの左から右とすること（MUST） —— 見た目と違う順で焦点が飛ぶと、次に押されるのがどれかを読めない。⛔ **本行の「すべて展開する」を並びのいちばん外へ置いてはならない（MUST NOT）'
 
-// see FR-016, GA-7
+// Spec: FR-016, GA-7
 const FADE_FROM_POINTER = 'フェードの日数は、ポインタの位置から求めること（MUST）'
 
 const CLAUSES = [
@@ -89,7 +89,7 @@ const numberIn = (cell: string): number => {
 
 type Rgb = readonly [number, number, number]
 
-// see T-236
+// Spec: T-236
 const rgbOfHsl = (hue: number, saturation: number, lightness: number): Rgb => {
   const s = saturation / 100
   const l = lightness / 100
@@ -141,11 +141,11 @@ test(`FR-039: ${FONT_SIZE_STEP_FIELD}`, async ({ page }) => {
   const before = (await readDocument(page)).documentSettings['fontSizeStep']
   const chosen = levels.find((one) => one !== before) ?? ''
   await field.selectOption(chosen)
-  // STEP: IN-6 -- the choice is an in-place edit, settled by Enter
+  // Step: IN-6 -- the choice is an in-place edit, settled by Enter
   await field.press('Enter')
   await settle(page)
   expect((await readDocument(page)).documentSettings['fontSizeStep']).toBe(chosen)
-  // STEP: one CM-62 is one undo step (UN-13), so one undo gives the level back
+  // Step: one CM-62 is one undo step (UN-13), so one undo gives the level back
   await page.mouse.click(VIEWPORT.width / 2, VIEWPORT.height / 2)
   await settle(page)
   await page.keyboard.press('Control+z')
@@ -226,7 +226,7 @@ test(`FR-052: ${HELD_WIDTH_IS_RELEASED_WIDTH}`, async ({ page }) => {
   const wider = await dragAndCompare(140)
   expect(wider.released, 'precondition: the drag changed the width').not.toBeCloseTo(wider.start, 0)
   expect(wider.held).toBeCloseTo(wider.released, 1)
-  // STEP: past the floor of table T-252, where the held picture must stop where the release lands
+  // Step: past the floor of table T-252, where the held picture must stop where the release lands
   const narrower = await dragAndCompare(-1000)
   expect(narrower.held).toBeCloseTo(narrower.released, 1)
 })
@@ -258,7 +258,7 @@ test(`MK-13: ${TITLE_DOUBLE_CLICK}`, async ({ page }) => {
 })
 
 test(`CF-1: ${SOLVE_BEFORE_DRAWING}`, async ({ page }) => {
-  // WHY: CF-3's measured line puts k = 2 on TH-3 in the light theme, and CF-2 moves S-155 by k times S-522.
+  // Why: CF-3's measured line puts k = 2 on TH-3 in the light theme, and CF-2 moves S-155 by k times S-522.
   const TH_3 = numberIn(cellOf('T-305', 'TH-3', '色相'))
   const K_OF_TH_3 = 2
   const S_522 = numberIn(cellOf('T-206', 'S-522', '既定'))
@@ -291,7 +291,7 @@ test(`CF-1: ${SOLVE_BEFORE_DRAWING}`, async ({ page }) => {
   await settle(page)
   const afterSwatch = await readDocument(page)
   expect(afterSwatch.schedule.project['themeHue'], 'precondition: the swatch set the hue').toBe(TH_3)
-  // WHY: only a task with no stored fill draws S-155; a stored one draws its T-294 cell (CV-6), and
+  // Why: only a task with no stored fill draws S-155; a stored one draws its T-294 cell (CV-6), and
   // S-321 green sits within the on-hue filter of TH-3 without being solved (DFC-2204).
   const storedFill = new Set(afterSwatch.schedule.taskVisuals.filter((one) => one['fillColor'] !== null).map((one) => `task-${one['taskUid']}-plan`))
   const ofThemeRow = (figureAndFill: readonly [string, string][]): string[] =>
@@ -301,7 +301,7 @@ test(`CF-1: ${SOLVE_BEFORE_DRAWING}`, async ({ page }) => {
   const onHue = drawn.map((fill) => rgbOfPaint(fill)).filter((rgb) => farthestChannel(rgb, unsolved) < 4 || farthestChannel(rgb, solved) < 4)
   expect(onHue.length, 'precondition: plan bars were drawn in the new hue').toBeGreaterThan(0)
   for (const rgb of onHue) expect(farthestChannel(rgb, solved), `a frame drew S-155 as ${rgb.join(',')} instead of the solved color`).toBeLessThanOrEqual(0.75)
-  // STEP: CF-1 -- the exported picture uses the same solve
+  // Step: CF-1 -- the exported picture uses the same solve
   const svg: string = await page.evaluate(() => (window as any).grSchedulerAgentApi.exportSvg().value)
   const exported = ofThemeRow(
     [...svg.matchAll(/<[a-z]+ [^>]*data-figure="(task-\d+-plan)"[^>]*>/g)].map((m) => [m[1] ?? '', /fill="([^"]+)"/.exec(m[0])?.[1] ?? ''] as [string, string]),
@@ -319,7 +319,7 @@ const chooserCases: readonly { readonly name: string; readonly role: string; rea
   {
     name: 'the open face (U-56)',
     role: 'Open Chooser',
-    // WHY: a dropped file skips U-56 (OP-19); the file dialog raises it.
+    // Why: a dropped file skips U-56 (OP-19); the file dialog raises it.
     open: (page) => openThroughIc1(page, ERP, readSample(ERP), null),
   },
 ]
@@ -352,7 +352,7 @@ for (const chooser of chooserCases) {
     const surface = `[data-role="${chooser.role}"]`
     for (const icon of ['IC-129', 'IC-130', 'IC-131']) expect(await page.locator(`${surface} [data-icon="${icon}"]`).count(), `${icon} is on the face`).toBe(0)
     const before = await boxOf(page, surface)
-    // STEP: WB-10 lays no edge (GR-25), so a drag from the corner leaves the size alone
+    // Step: WB-10 lays no edge (GR-25), so a drag from the corner leaves the size alone
     await page.mouse.move(before.x + before.w - 1, before.y + before.h - 1)
     await page.mouse.down()
     await page.mouse.move(before.x + before.w + 120, before.y + before.h + 80, { steps: 8 })
@@ -360,7 +360,7 @@ for (const chooser of chooserCases) {
     await settle(page)
     const after = await boxOf(page, surface)
     expect([after.w, after.h]).toEqual([before.w, before.h])
-    // STEP: the band cannot be dragged out of the browser window
+    // Step: the band cannot be dragged out of the browser window
     const band = await boxOf(page, `${surface} [data-window-grab]`)
     await page.mouse.move(band.x + 4, band.y + band.h / 2)
     await page.mouse.down()
@@ -402,13 +402,13 @@ test(`T-023: ${WHEEL_UNITS}`, async ({ browser }) => {
   const S_516_LINES = numberIn(cellOf('T-206', 'S-516', '既定'))
   const LINE = 1
   const PIXEL = 0
-  // STEP: MK-1 -- one line reported by lines scrolls as far as S-514 px reported by pixels
+  // Step: MK-1 -- one line reported by lines scrolls as far as S-514 px reported by pixels
   const byLine = await wheelOutcome(browser, { deltaMode: LINE, deltaY: 1, shiftKey: false })
   const byPixel = await wheelOutcome(browser, { deltaMode: PIXEL, deltaY: S_514_PX, shiftKey: false })
   const still = await wheelOutcome(browser, { deltaMode: PIXEL, deltaY: 0, shiftKey: false })
   expect(byPixel, 'precondition: the pixel wheel scrolled').not.toEqual(still)
   expect(byLine).toEqual(byPixel)
-  // STEP: MK-3 -- one notch is S-516 lines, or S-515 px
+  // Step: MK-3 -- one notch is S-516 lines, or S-515 px
   const notchByLines = await wheelOutcome(browser, { deltaMode: LINE, deltaY: S_516_LINES, shiftKey: true })
   const notchByPixels = await wheelOutcome(browser, { deltaMode: PIXEL, deltaY: S_515_PX, shiftKey: true })
   expect(notchByPixels['zoomX'], 'precondition: the Shift wheel zoomed the time axis').not.toEqual(still['zoomX'])
@@ -502,7 +502,7 @@ test(`HF-10: ${OPEN_ALL_NOT_OUTERMOST}`, async ({ page }) => {
   expect(openAll, 'precondition: HR-1 (IC-74) heads the Task Group Panel').toBeDefined()
   expect(openAll!.x, 'IC-74 is the leftmost of the row').toBeGreaterThan(Math.min(...xs))
   expect(openAll!.x, 'IC-74 is the rightmost of the row').toBeLessThan(Math.max(...xs))
-  // STEP: the Tab order of the same row
+  // Step: the Tab order of the same row
   await page.locator(`[data-role="Task Group Panel"] > [data-icon="${head[0]?.icon}"]`).focus()
   const order: string[] = []
   for (let i = 0; i < head.length * 2; i++) {
@@ -537,7 +537,7 @@ test(`FR-016: ${FADE_FROM_POINTER}`, async ({ page }) => {
       uid,
     )
     expect(handles.length, 'precondition: the selected task shows its fade grab points').toBe(2)
-    // WHY: GA-8 stands on point 2 of table T-012a, the bottom edge of the plan, so the lower handle is the fade-out one.
+    // Why: GA-8 stands on point 2 of table T-012a, the bottom edge of the plan, so the lower handle is the fade-out one.
     return handles.reduce((low, one) => (one.y > low.y ? one : low))
   }
   const ticks = await page.evaluate(() =>
@@ -549,7 +549,7 @@ test(`FR-016: ${FADE_FROM_POINTER}`, async ({ page }) => {
   const first = ticks[0]!
   const last = ticks[ticks.length - 1]!
   const perDay = (last.x - first.x) / (last.day - first.day)
-  // WHY: the plan ends on the right edge of its finish day, the left edge of the next calendar day (RV-6).
+  // Why: the plan ends on the right edge of its finish day, the left edge of the next calendar day (RV-6).
   const endDay = Math.round(Date.parse(String(task!['finish']).slice(0, 10) + 'T00:00:00Z') / 86_400_000) + 1
   const xOfDay = (day: number): number => first.x + (day - first.day) * perDay
   const results: { pointer: number; expected: number; written: unknown }[] = []
@@ -560,7 +560,7 @@ test(`FR-016: ${FADE_FROM_POINTER}`, async ({ page }) => {
       handle,
     )
     expect(covering, 'precondition: no panel covers the fade-out grab point').toEqual([])
-    // STEP: the press lands off the handle center; the pointer position alone decides the count
+    // Step: the press lands off the handle center; the pointer position alone decides the count
     await page.mouse.move(handle.x - 1, handle.y - 1)
     await page.mouse.down()
     await page.mouse.move(xOfDay(endDay - pointerDays), handle.y - 1, { steps: 8 })

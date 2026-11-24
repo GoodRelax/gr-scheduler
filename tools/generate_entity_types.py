@@ -135,7 +135,7 @@ def entity_block(entity, row_id):
 
 
 DATE_COLUMNS_NOTE = [
-    '// see T-058, IV-14',
+    '// Spec: T-058, IV-14',
     'export const DATE_COLUMNS: {',
 ]
 
@@ -186,7 +186,7 @@ def date_columns_block(erd):
 SHAPED_ENTITIES = ['Task', 'TaskVisual', 'TaskGroup', 'Dependency', 'CommentBox', 'HighlightBox']
 
 COLUMN_SHAPES_NOTE = [
-    '// see T-058, T-016',
+    '// Spec: T-058, T-016',
     'export const COLUMN_SHAPES: {',
 ]
 
@@ -263,7 +263,7 @@ def column_shapes_block(erd):
 
 
 COLUMN_SHAPE_TYPE = [
-    '// see T-058',
+    '// Spec: T-058',
     'export interface ColumnShape {',
     '  readonly kind: string',
     '  readonly choices: readonly string[] | null',
@@ -396,7 +396,7 @@ def nested_rows(entity):
 
 
 ENTITY_ROWS_NOTE = [
-    '// see IV-1, IV-2',
+    '// Spec: IV-1, IV-2',
 ]
 
 
@@ -432,7 +432,7 @@ def entity_rows_block(erd):
         seat_of[entity] = (key, holds_many(shape))
 
     out = [
-        '// see T-057',
+        '// Spec: T-057',
         'export interface ForeignKeyColumn {',
         '  readonly fromColumn: string',
         '  readonly child: string',
@@ -444,7 +444,7 @@ def entity_rows_block(erd):
         '  readonly entity: string',
         '}',
         '',
-        '// see T-056, T-058',
+        '// Spec: T-056, T-058',
         'export interface EntityRows {',
         '  readonly entity: string',
         '  readonly scheduleKey: string | null',
@@ -481,7 +481,7 @@ def entity_rows_block(erd):
 
 
 COLUMN_DEFAULTS_NOTE = [
-    '// see T-058',
+    '// Spec: T-058',
     'export const COLUMN_DEFAULTS: {',
 ]
 
@@ -540,7 +540,7 @@ def schedule_block(erd):
     for shape, key, entity in box['entity_rows']:
         keys.append('  readonly %s: %s' % (key, ('readonly %s[]' % entity)
                                            if holds_many(shape) else entity))
-    out.append('// see DR-2\n'
+    out.append('// Spec: DR-2\n'
                'export interface Schedule {\n%s\n}' % '\n'.join(keys))
     out.append(date_columns_block(erd))
     out.append(column_shapes_block(erd))
@@ -605,7 +605,7 @@ def shape_interfaces_block(node):
         shape = shape_definitions()[name]
         if 'properties' not in shape:
             continue                          # DateTime: not a shape of T-372
-        lines = ['// see T-372', 'export interface %s {' % name]
+        lines = ['// Spec: T-372', 'export interface %s {' % name]
         lines.extend('  readonly %s: %s' % (field, shape_field_type(child))
                      for field, child in shape['properties'].items())
         out.append('\n'.join(lines + ['}']))
@@ -1050,7 +1050,7 @@ def default_calendar_block():
                 'table T-209 row %s holds no machine value this generator '
                 'reads' % row_id)
 
-    out = ['// see T-209, FR-054',
+    out = ['// Spec: T-209, FR-054',
            'export const DEFAULT_CALENDAR_VALUES: {']
     for row_id, _literal, ts, note in got:
         out.append('  /** %s, %s */' % (row_id, note))
@@ -1082,7 +1082,7 @@ def default_calendar_block():
 # Adapter would have to import an Entity unit to read a number the layer rules
 # (table T-061) never meant it to cross for.
 #
-# Each entry is (the rows, the comment lines emitted after `// see T-206`).
+# Each entry is (the rows, the comment lines emitted after `// Spec: T-206`).
 # Ruling 17 (docs/review/comment-rules-src.md) keeps the reasons below out of
 # src/: a seam emits a TRAP where one is needed and nothing otherwise, and the
 # paragraphs that explain each seam stay here, in the generator.
@@ -2151,7 +2151,7 @@ COLOR_TARGETS = {
 }
 
 COLOR_NOTE = [
-    '// see T-236, S-73',
+    '// Spec: T-236, S-73',
 ]
 
 
@@ -2216,7 +2216,7 @@ def color_sources_block(name):
     doc = json.load(io.open(SETTINGS, encoding='utf-8'))
     block = [b for b in doc['blocks'] if b.get('id') == 'T-236']
     by_id = {r['id']: r for r in block[0]['rows']}
-    out = ['// see T-236, T-366',
+    out = ['// Spec: T-236, T-366',
            'export const %s_SOURCES: {' % name,
            '  readonly [rowId: string]: { readonly light: string; readonly dark: string }',
            '} = {']
@@ -2274,7 +2274,7 @@ def palette_block():
     block = [b for b in doc['blocks'] if b.get('id') == 'T-294']
     if not block:
         raise SystemExit('settings.json holds no table T-294')
-    out = ['// see T-294, T-017b',
+    out = ['// Spec: T-294, T-017b',
            'type PaletteCell = string | null | false | { readonly sameAs: string }',
            'interface PaletteForms {',
            '  readonly fill: PaletteCell',
@@ -2348,7 +2348,7 @@ def not_stored_block(name):
         # is the row ID, and the row states its unit and what it points at.
         # Ruling 17 (docs/review/comment-rules-src.md) leaves one `// see` line.
         got.append((cell[0], cell[1], row_id))
-    out = ['// see T-206'] + list(seam) + ['export const %s: {' % name]
+    out = ['// Spec: T-206'] + list(seam) + ['export const %s: {' % name]
     for _literal, ts, row_id in got:
         out.append("  readonly '%s': %s" % (row_id, ts))
     out.append('} = {')
@@ -2413,7 +2413,7 @@ def search_column_width_rows_block():
     columns = [column for column, _row in got]
     if len(set(columns)) != len(columns):
         raise SystemExit('two rows of table T-206 name the same column: %s' % columns)
-    out = ['// see SV-18, RW-9, T-206', 'export const SEARCH_COLUMN_WIDTH_ROWS: {',
+    out = ['// Spec: SV-18, RW-9, T-206', 'export const SEARCH_COLUMN_WIDTH_ROWS: {',
            "  readonly [column: string]: keyof typeof NOT_STORED_SEARCH_PANEL_SIZES", '} = {']
     for column, row_id in got:
         out.append("  '%s': '%s'," % (column, row_id))
@@ -2446,7 +2446,7 @@ def finding_layers_block():
                 raise SystemExit('table %s row %s holds no layer number: %r'
                                  % (table, row.id, layer))
             got.append((row.id, int(layer)))
-    out = ['// see T-310, T-311, DX-3',
+    out = ['// Spec: T-310, T-311, DX-3',
            'const FINDING_LAYERS: Readonly<Record<string, number>> = {']
     for row_id, layer in got:
         out.append("  '%s': %d," % (row_id, layer))
@@ -2493,8 +2493,8 @@ def media_types_block():
 
     @purity semi-pure-mutable
     """
-    out = ['// see T-024, FR-096, RW-7',
-           '// TRAP: .svg, .html and .md carry x- types: a well-known type makes Chromium list every',
+    out = ['// Spec: T-024, FR-096, RW-7',
+           '// Trap: .svg, .html and .md carry x- types: a well-known type makes Chromium list every',
            '// extension it maps to that type (text/html brings .htm and .shtml; DFC-1722, JDG-1165).',
            'const MEDIA_TYPE_OF_EXTENSION: Readonly<Record<string, string>> = {']
     printed = set()
@@ -2502,7 +2502,7 @@ def media_types_block():
         if not PLAIN_EXTENSION.match(extension):
             raise SystemExit('table T-024 row %s writes the extension %r, which '
                              'this region cannot print as a key' % (row_id, extension))
-        # WHY: IO-10 shares `.json` with IO-2 (CR-827); generate_exchange_formats.py
+        # Why: IO-10 shares `.json` with IO-2 (CR-827); generate_exchange_formats.py
         # has already refused two media types on one extension, so the first stands.
         if extension in printed:
             continue
@@ -2524,7 +2524,7 @@ def save_file_form_block():
     @purity semi-pure-mutable
     """
     return NEWLINE.join([
-        '// see T-024, FR-096',
+        '// Spec: T-024, FR-096',
         ts_union('SaveFileForm', generate_exchange_formats.offered_rows(), exported=True),
     ])
 
@@ -2536,7 +2536,7 @@ def save_file_forms_block():
     """
     rows = generate_exchange_formats.offered_rows()
     return NEWLINE.join([
-        '// see T-024, FR-096',
+        '// Spec: T-024, FR-096',
         'const SAVE_FILE_FORMS: readonly SaveFileForm[] = [%s]'
         % ', '.join("'%s'" % one for one in rows),
     ])
@@ -2565,10 +2565,10 @@ def property_item_unions_block():
             raise SystemExit('property-items.json names the selection %r, which '
                              'this region cannot print' % word)
     return NEWLINE.join([
-        '// see T-016, FR-006',
+        '// Spec: T-016, FR-006',
         ts_union('AppliesTo', applies_to),
         '',
-        '// see T-016, FR-006',
+        '// Spec: T-016, FR-006',
         ts_union('TaskPropertyItemRow', task_rows),
     ])
 
@@ -2586,8 +2586,8 @@ def root_keys_block():
     keys = list(schema['properties'])
     if not keys:
         raise SystemExit('grs-document.schema.json holds no root property')
-    out = ['// see DR-1, DR-4',
-           "// WHY: '$schema' (DR-4) stands in the written text only -- DocumentCodec writes it first and drops it on read.",
+    out = ['// Spec: DR-1, DR-4',
+           "// Why: '$schema' (DR-4) stands in the written text only -- DocumentCodec writes it first and drops it on read.",
            'const ROOT_KEYS = [']
     out.extend("  '%s'," % key for key in keys)
     out.append('] as const')
@@ -2607,7 +2607,7 @@ def edited_by_screen_block():
     if not PLAIN_WORD.match(word):
         raise SystemExit('table %s row %s writes %r where one back-quoted word '
                          'stands' % (EDITED_BY_TABLE, EDITED_BY_SCREEN_ROW, cell))
-    return NEWLINE.join(['// see T-229, ED-1',
+    return NEWLINE.join(['// Spec: T-229, ED-1',
                          "export const EDITED_BY_SCREEN = '%s'" % word])
 
 
@@ -2633,7 +2633,7 @@ def search_panel_font_sizes_block():
                              'NOT_STORED_SEARCH_PANEL_FONT_SIZES cannot be generated'
                              % row['id'])
         got.append((cell[0], cell[1], row['id']))
-    out = ['// see T-333, FR-151', 'export const NOT_STORED_SEARCH_PANEL_FONT_SIZES: {']
+    out = ['// Spec: T-333, FR-151', 'export const NOT_STORED_SEARCH_PANEL_FONT_SIZES: {']
     for _literal, ts, row_id in got:
         out.append("  readonly '%s': %s" % (row_id, ts))
     out.append('} = {')
@@ -2660,7 +2660,7 @@ def annotation_defaults_block():
                              'NOT_STORED_ANNOTATION_SIZES cannot be generated'
                              % row['id'])
         got.append((cell[0], cell[1], row['id']))
-    out = ['// see T-217, FR-019', 'export const NOT_STORED_ANNOTATION_SIZES: {']
+    out = ['// Spec: T-217, FR-019', 'export const NOT_STORED_ANNOTATION_SIZES: {']
     for _literal, ts, row_id in got:
         out.append("  readonly '%s': %s" % (row_id, ts))
     out.append('} = {')
@@ -2704,7 +2704,7 @@ def annotation_bounds_block():
         got.append((row['id'], key, low['num'], high['num'], default['num']))
     if not got:
         raise SystemExit('table T-217 holds no row with bounds')
-    out = ['// see T-217, FR-006, FR-019', 'export const NOT_STORED_ANNOTATION_BOUNDS: {']
+    out = ['// Spec: T-217, FR-006, FR-019', 'export const NOT_STORED_ANNOTATION_BOUNDS: {']
     for row_id, _key, _low, _high, _default in got:
         out.append("  readonly '%s': { readonly key: string; readonly min: number; "
                    "readonly max: number; readonly default: number }" % row_id)
@@ -2779,7 +2779,7 @@ def watermark_block(name):
                 'table T-207 row %s holds no plain value, so %s cannot be '
                 'generated.' % (row_id, name))
         got.append((row_id, raw.strip().strip('`')))
-    out = ['// see T-207, FR-020'] + list(seam) + ['export const %s: {' % name]
+    out = ['// Spec: T-207, FR-020'] + list(seam) + ['export const %s: {' % name]
     for row_id, _value in got:
         out.append("  readonly '%s': string" % row_id)
     out.append('} = {')
@@ -2795,7 +2795,7 @@ DEFAULTS_NOTE = [
 
 
 BOUNDS_NOTE = [
-    '// TRAP: the tokens are in postfix order.',
+    '// Trap: the tokens are in postfix order.',
     'export type SettingsBoundToken =',
     '  | { readonly key: string }',
     '  | { readonly num: number }',
@@ -2810,18 +2810,18 @@ BOUNDS_NOTE = [
     '  readonly maxExpression?: readonly SettingsBoundToken[]',
     '}',
     '',
-    '// see IV-16',
+    '// Spec: IV-16',
     'export const SETTINGS_BOUNDS: Readonly<Record<string, SettingsBound>> = {',
 ]
 
 
 DERIVED_NOTE = [
-    '// see FR-039',
-    '// TRAP: SETTINGS_DEFAULTS holds these keys worked out at the defaults only;',
+    '// Spec: FR-039',
+    '// Trap: SETTINGS_DEFAULTS holds these keys worked out at the defaults only;',
     '// once a key they read is edited, work them out again from this rule.',
-    '// TRAP: the value is from * times + plus + plusFrom * plusTimes, and',
+    '// Trap: the value is from * times + plus + plusFrom * plusTimes, and',
     '// plusFrom is null when the rule names no second key.',
-    '// TRAP: a rule with index instead of from is index[by] * times.',
+    '// Trap: a rule with index instead of from is index[by] * times.',
     'export const SETTINGS_DERIVED = {',
 ]
 
@@ -2880,7 +2880,7 @@ ENGLISH_KEY = re.compile(r'^[A-Za-z_][A-Za-z0-9_]*(\.[A-Za-z_][A-Za-z0-9_]*)?$')
 
 CONSTANTS_NOTE = [
     '// see FR-063, table T-064 PI-2',
-    '// TRAP: never read one of these from a document; a file does not carry them.',
+    '// Trap: never read one of these from a document; a file does not carry them.',
 ]
 
 
@@ -3021,11 +3021,11 @@ def constants_block(stored, literals):
             rows.append('  %s: %s,' % (name, values[name]))
     kinds.append('} = {')
     if unstated:
-        rows.append('  // TRAP: these keys state no machine value, so none is generated:')
+        rows.append('  // Trap: these keys state no machine value, so none is generated:')
         for key, row_id in unstated:
             rows.append('  //   %s (%s)' % (key, row_id))
     drawn = ['// see table T-064 PI-2, PI-35',
-             '// TRAP: only drawnSettingsOf builds one; nothing else joins the two.',
+             '// Trap: only drawnSettingsOf builds one; nothing else joins the two.',
              'export type DrawnSettings = DocumentSettings & typeof SETTINGS_CONSTANTS']
     return '\n'.join(CONSTANTS_NOTE + kinds + rows + ['}', ''] + drawn)
 
@@ -3035,7 +3035,7 @@ def settings_block(_erd):
                        object_pairs_hook=collections.OrderedDict)
     node = schema['properties']['documentSettings']
 
-    head = '// see DR-3, FR-063'
+    head = '// Spec: DR-3, FR-063'
     body = [head + '\nexport interface DocumentSettings '
             + '\n'.join(settings_object(node, 0))]
     body.extend(shape_interfaces_block(node))
@@ -3119,7 +3119,7 @@ def settings_block(_erd):
                 # and the prose fields land here.
                 continue
             outside = [one for one in named if one not in stored]
-            # WHY: a key the presentation group does not hold is a constant
+            # Why: a key the presentation group does not hold is a constant
             # of SETTINGS_CONSTANTS (CR-572); its value is fixed by the
             # artifact, so the bound is judged with that value written in.
             folded = dict((one, literals[one]) for one in outside
@@ -3159,7 +3159,7 @@ def settings_block(_erd):
             rows.extend('    %s,' % part for part in parts)
             rows.append('  },')
     if unreachable:
-        rows.append('  // TRAP: IV-16 cannot judge these bounds on a document alone; each')
+        rows.append('  // Trap: IV-16 cannot judge these bounds on a document alone; each')
         rows.append('  // names a key this group does not hold:')
         for path, row_id, edge, outside in unreachable:
             rows.append('  //   %s (%s) %s names %s'
@@ -3187,7 +3187,7 @@ def settings_block(_erd):
             defaults.append("  '%s': null," % parent)
     defaults.sort()
     if unstated:
-        defaults.append('  // TRAP: no default is generated for these keys, since settings.json')
+        defaults.append('  // Trap: no default is generated for these keys, since settings.json')
         defaults.append('  // states none as a machine value; reading one gives undefined:')
         for path in unstated:
             defaults.append('  //   %s' % path)
@@ -3278,7 +3278,7 @@ def entry_switch_block(path, names):
             if value not in values:
                 values.append(value)
         union = ' | '.join("'%s'" % value for value in values)
-        lines = ['// see T-109, %s' % requirement,
+        lines = ['// Spec: T-109, %s' % requirement,
                  'const %s: Readonly<Record<string, %s>> = {' % (name, union)]
         lines.extend("  '%s': '%s'," % pair for pair in pairs)
         lines.append('}')
@@ -3303,7 +3303,7 @@ def visible_element_block():
     for _entry, value in pairs:
         if value not in values:
             values.append(value)
-    lines = ['// see T-109, T-202, %s' % requirement, 'export type VisibleElement =']
+    lines = ['// Spec: T-109, T-202, %s' % requirement, 'export type VisibleElement =']
     lines.extend("  | '%s'" % value for value in values)
     return '\n'.join(lines)
 

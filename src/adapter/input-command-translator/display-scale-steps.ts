@@ -1,4 +1,4 @@
-// InputCommandTranslator -- one display scale step, keeping the Task Group Area's middle (table T-252).
+// File: InputCommandTranslator: one display scale step, keeping the Task Group Area's middle (table T-252).
 // @unit      UF-93   (docs/spec/05-07-design.md, table T-075)
 // @component InputCommandTranslator, layer Adapter (table T-062)
 // @purity    pure
@@ -25,7 +25,7 @@ import {
 } from './input-command-translator'
 import { taskGroupPointIn, topEdgeIn, unstoredZoomWrites, zoomOnScreen } from './zoom-and-fit'
 
-// see FR-039, S-234
+// Spec: FR-039, S-234
 /** @purity pure */
 function steppedDisplayScale(
   current: DocumentSettings['displayScale'],
@@ -36,8 +36,8 @@ function steppedDisplayScale(
   return DISPLAY_SCALE_STEPS[at + towards] ?? current
 }
 
-// see SE-1, SE-2
-// TRAP: the end word follows the step the press leaves, so the press arriving there names it too.
+// Spec: SE-1, SE-2
+// Trap: the end word follows the step the press leaves, so the press arriving there names it too.
 /** @purity pure */
 function withDisplayScaleShown(
   answer: TranslatedInput,
@@ -52,7 +52,7 @@ function withDisplayScaleShown(
   return { ...answer, displayScaleShown: { end } }
 }
 
-// see FR-039, CM-74, SE-1, SE-5
+// Spec: FR-039, CM-74, SE-1, SE-5
 /** @purity pure */
 export function displayScaleStep(context: InputContext, towards: 1 | -1): TranslatedInput {
   const next = steppedDisplayScale(context.document.documentSettings.displayScale, towards)
@@ -64,7 +64,7 @@ function centerOf(area: ScreenRect): { readonly x: number; readonly y: number } 
   return { x: area.x + area.width / 2, y: area.y + area.height / 2 }
 }
 
-// see FR-039, DS-9
+// Spec: FR-039, DS-9
 /** @purity pure */
 function taskGroupAreaWidthAt(context: InputContext, next: DocumentSettings['displayScale']): number {
   const settings = context.document.documentSettings
@@ -73,7 +73,7 @@ function taskGroupAreaWidthAt(context: InputContext, next: DocumentSettings['dis
   return context.regions.taskGroupArea.width + held - moved
 }
 
-// see FR-039, DS-1
+// Spec: FR-039, DS-1
 /** @purity pure */
 function displayScaleWrites(
   context: InputContext,
@@ -91,7 +91,7 @@ function displayScaleWrites(
   const day = dayAnchorAt(context, centerX - taskGroupAreaWidthAt(context, next) / 2 / (after / before))
   const held = taskGroupAnchorIn(scrollingTaskGroupsOf(context.layout), centerY, seat)
   const afterRegions = regionsAtDisplayScale(context.regions, settings, next)
-  // TRAP: ask PI-5 at the new ratio; the band is not linear in it, so no arithmetic answers.
+  // Trap: ask PI-5 at the new ratio; the band is not linear in it, so no arithmetic answers.
   const afterTaskGroups = taskGroupPlacesAtZoomY(
     context.document.schedule,
     {

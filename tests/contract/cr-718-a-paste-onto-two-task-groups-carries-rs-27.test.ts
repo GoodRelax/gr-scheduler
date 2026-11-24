@@ -5,7 +5,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import { bare } from './spec-table'
 import { DISPLAY_WORDS, keyOf, REQUIREMENTS, taskGroupDocument, rowOf, shell, taskOf, type ShellBench } from '../unit/cr-541-stage'
 
-// WHY: RS-27 shows nothing, so the raise is only visible on the seam the shell sends every event through (notices/noticeRaised, T-290).
+// Why: RS-27 shows nothing, so the raise is only visible on the seam the shell sends every event through (notices/noticeRaised, T-290).
 const seen = vi.hoisted(() => ({ raised: [] as string[] }))
 
 vi.mock('../../src/use-case/advance-screen-session/advance-screen-session', async (importOriginal) => {
@@ -44,7 +44,7 @@ function wordsOf(rowId: string): { readonly ja: string; readonly en: string } {
   return found.text
 }
 
-// WHY: one Task per task group, all at the WBS top, so the paste has nothing to infer a parent from.
+// Why: one Task per task group, all at the WBS top, so the paste has nothing to infer a parent from.
 /** @purity pure */
 function threeTaskGroups(): Record<string, any> {
   const document = taskGroupDocument([
@@ -82,7 +82,7 @@ function copiedTask(bench: ShellBench, uid: number): void {
   bench.send(COPY)
 }
 
-// WHY: no row names the modifier that adds a task group to the chosen task groups, so each is tried on a fresh shell until two task groups stand chosen.
+// Why: no row names the modifier that adds a task group to the chosen task groups, so each is tried on a fresh shell until two task groups stand chosen.
 /** @purity non-pure */
 function copiedThenTaskGroupsChosen(rows: readonly string[]): ShellBench {
   for (const modifier of ['ctrl', 'shift', 'meta'] as const) {

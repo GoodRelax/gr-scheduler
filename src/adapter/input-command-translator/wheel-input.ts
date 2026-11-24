@@ -1,4 +1,4 @@
-// InputCommandTranslator -- turns a wheel turn into a scroll or a zoom (MK-1 to MK-5, table T-023).
+// File: InputCommandTranslator: turns a wheel turn into a scroll or a zoom (MK-1 to MK-5, table T-023).
 // @unit      UF-91   (docs/spec/05-07-design.md, table T-075)
 // @component InputCommandTranslator, layer Adapter (table T-062)
 // @purity    pure
@@ -30,8 +30,8 @@ function taskGroupHeldOf(context: InputContext): TaskGroupAnchor {
   return { scrollTaskGroupId: settings.scrollTaskGroupId, scrollTaskGroupFraction: settings.scrollTaskGroupFraction }
 }
 
-// see MK-5, OP-10
-// WHY: with no stored place the drawn top task group is kept, as statusLineCentered does; the stored null names no place.
+// Spec: MK-5, OP-10
+// Why: with no stored place the drawn top task group is kept, as statusLineCentered does; the stored null names no place.
 /** @purity pure */
 function taskGroupKeptOf(context: InputContext): TaskGroupAnchor {
   if (isPlaceSeatedIn(context)) return taskGroupHeldOf(context)
@@ -39,8 +39,8 @@ function taskGroupKeptOf(context: InputContext): TaskGroupAnchor {
   return { scrollTaskGroupId: drawn.scrollTaskGroupId, scrollTaskGroupFraction: drawn.scrollTaskGroupFraction }
 }
 
-// see FR-016, MK-1, S-176
-// TRAP: the device distance itself, never whole task groups: a band taller than a notch never moved.
+// Spec: FR-016, MK-1, S-176
+// Trap: the device distance itself, never whole task groups: a band taller than a notch never moved.
 // Provisional: OPQ-1
 /** @purity pure */
 export function taskGroupTurnedTo(context: InputContext, dy: number): TaskGroupAnchor {
@@ -63,7 +63,7 @@ function isWheelHere(context: InputContext, x: number, y: number): boolean {
 }
 
 
-// see MK-1, MK-2, MK-3, MK-4, MK-5, MK-10, FR-016, SV-15
+// Spec: MK-1, MK-2, MK-3, MK-4, MK-5, MK-10, FR-016, SV-15
 /** @purity pure */
 export function commandFromWheel(
   input: WheelInput,
@@ -100,15 +100,15 @@ export function commandFromWheel(
   }
   if (altOnly) return verticalZoomAnswer(context, factor, input.x, input.y)
 
-  // TRAP: a wheel turn is reported on the vertical axis whatever keys are held, so x alone
+  // Trap: a wheel turn is reported on the vertical axis whatever keys are held, so x alone
   // reads zero for MK-5; a real sideways report is believed first.
   const sideways = input.scrollPx.x !== 0 ? input.scrollPx.x : input.scrollPx.y
-  // TRAP: without this a plain turn with no vertical distance zeroes S-176.
+  // Trap: without this a plain turn with no vertical distance zeroes S-176.
   if (plain && input.scrollPx.y === 0) return UNASSIGNED
   const moved = plain
     ? scrolledAnchor(context, 0, input.scrollPx.y)
     : scrolledAnchor(context, sideways, 0)
-  // TRAP: MK-5 moves no task group, and a round trip through drawn px loses the rounding (DFC-615).
+  // Trap: MK-5 moves no task group, and a round trip through drawn px loses the rounding (DFC-615).
   const row = plain ? taskGroupTurnedTo(context, input.scrollPx.y) : taskGroupKeptOf(context)
   const to = {
     kind: 'setScrollPosition',
@@ -119,8 +119,8 @@ export function commandFromWheel(
   return scrollWriteAnswer(context, to)
 }
 
-// see MK-1, MK-5, OP-10
-// WHY: the position in force is not written again: an accepted write marks unsaved edits even if nothing moved.
+// Spec: MK-1, MK-5, OP-10
+// Why: the position in force is not written again: an accepted write marks unsaved edits even if nothing moved.
 /** @purity pure */
 function scrollWriteAnswer(context: InputContext, to: Parameters<typeof isScrollPositionInForce>[1]): TranslatedInput {
   const zoom = unstoredZoomWrites(context)

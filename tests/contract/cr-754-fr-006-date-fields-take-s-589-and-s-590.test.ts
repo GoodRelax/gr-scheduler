@@ -20,7 +20,7 @@ import {
   TEMPLATE,
 } from './cr-754-stage'
 
-// see FR-006
+// Spec: FR-006
 const FR_006_EMPTY_IS_AS_WIDE = '`S-590` を掛けた幅とすること（MUST）。⭐ 値が空でも同じ幅とすること（MUST）'
 const FR_006_NOT_THE_ESTIMATE = '⛔ 書式の字を `FR-093` の概算で測ってはならない（MUST NOT）'
 const FR_006_OTHER_DATE_FIELDS = '⭐ 本段の日付と日時の要る幅は、`GRS` が描くほかの日付の欄にも当てること（MUST）'
@@ -28,24 +28,24 @@ const FR_006_DATE_ROOM =
   '⭐ ただし日付の欄の要る幅は、`FR-093` の概算によらず、画面に出ている欄の形で決めること（MUST）'
 const FR_006_ACTUAL_LENGTH = 'その幅は、並ぶ日付の欄と同じ行（時刻を表示しているときは `S-590`）の幅である。'
 
-// see S-589, S-590
+// Spec: S-589, S-590
 const DATE_ROOM = settingValue('S-589')
 const DATE_TIME_ROOM = settingValue('S-590')
 
-// see S-30, S-199
-// WHY: the estimate FR-093 gives the ten half-width characters of yyyy/mm/dd, with S-199 on top -- what the clause forbids.
+// Spec: S-30, S-199
+// Why: the estimate FR-093 gives the ten half-width characters of yyyy/mm/dd, with S-199 on top -- what the clause forbids.
 const LABEL_COEF = Number(/\d+(?:\.\d+)?/.exec(bare(specTable('T-201').rows.find((one) => one.id === 'S-30')?.by['既定値'] ?? ''))?.[0])
 const FIELD_ROOM = settingValue('S-199')
 const HALF_WIDTH_DATE_CHARACTERS = 10
 const ESTIMATE_OF_A_DATE = HALF_WIDTH_DATE_CHARACTERS * LABEL_COEF + FIELD_ROOM
 
-// see T-016
+// Spec: T-016
 const TASK_DATE_ROWS = ['PR-3', 'PR-47', 'PR-4', 'PR-6', 'PR-7', 'PR-10']
 const ACTUAL_LENGTH_ROW = 'PR-5'
 const SHOWN_TIME = { isTimeOfDayVisible: true }
 const HIDDEN_TIME = { isTimeOfDayVisible: false }
 
-// WHY: the first task of the startup document with its empty date columns filled, to compare a full field with an empty one.
+// Why: the first task of the startup document with its empty date columns filled, to compare a full field with an empty one.
 const FILLED_TASK = { [FIRST_TASK_UID]: { actualFinish: '2026-05-01T17:00:00', resume: '2026-05-10T08:00:00', deadline: '2026-06-01T17:00:00' } }
 const EMPTIED_TASK = { [FIRST_TASK_UID]: { actualStart: null, actualFinish: null, resume: null, deadline: null } }
 
@@ -167,7 +167,7 @@ describe(`FR-006 -- ${FR_006_ACTUAL_LENGTH}`, () => {
 })
 
 describe(`FR-006 -- ${FR_006_OTHER_DATE_FIELDS}`, () => {
-  // see FR-088, WC-4
+  // Spec: FR-088, WC-4
   it('Holiday Settings: every exception date (WC-4) takes at least S-589', () => {
     const session = { ...emptyScreenSession } as unknown as ScreenSession
     const surface = holidaySettingsOf(session, TEMPLATE.schedule, '', [], 'ja')

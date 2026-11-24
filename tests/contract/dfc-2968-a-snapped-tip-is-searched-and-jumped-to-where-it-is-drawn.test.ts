@@ -29,24 +29,24 @@ afterEach(restoreAnimationFrames)
 
 const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
-// see FR-019
+// Spec: FR-019
 const FR_019_SHOWN_DATE =
   '線先が立つ日時は、吸着していれば吸着先のその点の日時（対象を消したときに ① へ書く日時と同じ求め方）、そうでなければ ① の日時（`AT-113`）とする —— 検索の表の `SQ-9` と飛び先（表 T-332 の `SJ-6`）もこれを読む。'
 const FR_019_FOLLOWS = '② の線先は、描くたびに対象の図形から点を求めること（MUST） —— 対象を動かす命令は注記を書かず'
-// see T-331, SQ-9
+// Spec: T-331, SQ-9
 const SQ_9_SOURCE = '線先が立つ日時（`FR-019`） —— 吸着していれば吸着先のその点の日時、そうでなければ `CommentBox.anchorDate`（`AT-113`）'
-// see T-332, SJ-6
+// Spec: T-332, SJ-6
 const SJ_6_DATE = 'コメントボックスは `SQ-9` と同じ線先が立つ日時'
 
 const cellsOf = (table: string, id: string): string =>
   unbroken((specTable(table).rows.find((one) => one.id === id)?.cells ?? []).join(' '))
 
-// WHY: the copy stored at snap time lies a fortnight away from every target, so reading it is told apart at once.
+// Why: the copy stored at snap time lies a fortnight away from every target, so reading it is told apart at once.
 const STALE = april(2, '06:00:00')
 const MS_PER_MINUTE = 60_000
 const MINUTES_PER_DAY = 24 * 60
 const SHIFT_DAYS = 7
-// WHY: two free boxes on known dates give the screen's minute-per-pixel map without assuming how the axis is built.
+// Why: two free boxes on known dates give the screen's minute-per-pixel map without assuming how the axis is built.
 const REF_A = '78600000-0000-4000-8000-0000000000f1'
 const REF_B = '78600000-0000-4000-8000-0000000000f2'
 const REF_A_DATE = april(3, '00:00:00')
@@ -89,7 +89,7 @@ const searched = (document: Document): string => {
   return row.anchorDate
 }
 
-// WHY: the minute under the drawn tip, read off the two reference tips; one pixel is the tolerance.
+// Why: the minute under the drawn tip, read off the two reference tips; one pixel is the tolerance.
 const drawnMinutesOf = (document: Document): { minutes: number; minutesPerPx: number } => {
   const { loop } = stage(document)
   const a = tipOf(loop, REF_A).x
@@ -106,7 +106,7 @@ const expectSearchedWhereDrawn = (document: Document): void => {
   )
 }
 
-// WHY: FR-019 defines the snapped date as the one the delete command writes back to the free point (CM-7, CM-53).
+// Why: FR-019 defines the snapped date as the one the delete command writes back to the free point (CM-7, CM-53).
 const freedOf = (document: Document, deletion: Record<string, unknown>): string => {
   const box = accepted(run(document, deletion)).schedule.commentBoxes.find((one) => one.id === COMMENT_ID)
   if (box?.anchorDate === null || box?.anchorDate === undefined) throw new Error('premise: the delete wrote a free date')
@@ -128,7 +128,7 @@ const movedBar = (document: Document): Document =>
     }),
   )
 
-// see SJ-6
+// Spec: SJ-6
 type Reach = Parameters<typeof searchJumpWrites>[3]
 const REACH: Reach = { pxPerDay: 20, leftReachPx: 0, drawnTaskGroups: [], areaWidth: 900, landing: null }
 const jumpOf = (document: Document): unknown => {
@@ -176,7 +176,7 @@ describe(`SQ-9 (T-331): ${SQ_9_SOURCE}`, () => {
     expect(minutesOf(searched(document))).toBe(minutesOf(freedOf(document, deletion)))
   })
 
-  // WHY: points standing on 0:00 of a day sit on a column edge, so the drawn pixel names the same minute (a time of day is not drawn at this zoom).
+  // Why: points standing on 0:00 of a day sit on a column edge, so the drawn pixel names the same minute (a time of day is not drawn at this zoom).
   it.each([
     ['planned bar', 'topLeftCorner', toBar],
     ['highlight box', 'topLeftCorner', toHighlight],

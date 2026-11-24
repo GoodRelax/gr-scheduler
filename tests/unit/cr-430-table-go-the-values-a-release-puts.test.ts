@@ -73,7 +73,7 @@ const nextDay = (text: string): string => {
   return new Date(Date.UTC(y, m - 1, d + 1)).toISOString().slice(0, 10)
 }
 
-// see FR-011, S-129
+// Spec: FR-011, S-129
 const floorDayAfter = (start: string): string => {
   let at = start.slice(0, 10)
   let counted = S_129 - 1
@@ -86,7 +86,7 @@ const floorDayAfter = (start: string): string => {
 
 afterEach(restoreAnimationFrames)
 
-// see S-63
+// Spec: S-63
 const built = (): Stage => stage(benchDocument({ isProgressMarkerVisible: true }))
 
 const scanOf = (one: Stage, uid: number): GrabScan => {

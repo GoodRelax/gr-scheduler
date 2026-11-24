@@ -61,8 +61,8 @@ const joined = (chunks: readonly Uint8Array[]): Uint8Array => {
   return all
 }
 
-// WHY: null and empty content are kept apart although DI-6 (T-227) gives them
-// WHY: the same answer, to prove neither is asked about, not to distinguish them.
+// Why: null and empty content are kept apart although DI-6 (T-227) gives them
+// Why: the same answer, to prove neither is asked about, not to distinguish them.
 interface StandInFile {
   readonly handle: FileHandle
   content(): Uint8Array | null
@@ -82,7 +82,7 @@ const standInFile = (
     const at = content ?? new Uint8Array(0)
     return {
       name,
-      // see FR-023, S-113
+      // Spec: FR-023, S-113
       size: at.byteLength,
       arrayBuffer: () => Promise.resolve(bufferOf(at)),
     }
@@ -167,8 +167,8 @@ const standInBrowser = (
     drop: async (files) => {
       const items: DroppedItem[] = files.map((file) => ({
         kind: 'file',
-        // WHY: a drop's items live only while the event is handled, so the file
-        // WHY: is handed over synchronously here, as a real browser does.
+        // Why: a drop's items live only while the event is handled, so the file
+        // Why: is handed over synchronously here, as a real browser does.
         getAsFile: () => {
           const opened = file.handle
           return {
@@ -191,7 +191,7 @@ const standInBrowser = (
 
 const MINE = 'the document this test is saving'
 const SOMEBODY_ELSE = 'a file that belongs to another document'
-// see S-113
+// Spec: S-113
 const WITH_A_WIDE_CHARACTER = 'sigma Σ and a kanji 日'
 
 const MY_IDENTITY: DocumentIdentity = {
@@ -204,7 +204,7 @@ type IdentityReader = (text: string) => ProjectIdentity | null
 
 interface AskRecord {
   readonly identityReads: string[]
-  // see NT-7
+  // Spec: NT-7
   questions: number
 }
 
@@ -223,7 +223,7 @@ const chosenSave = (
   content: { text: fields.text },
   form: fields.form,
   suggestedFileName: fields.identity.fileName ?? 'untitled',
-  // see FR-096
+  // Spec: FR-096
   extension: extensionOfForm(fields.form),
   identity: fields.identity,
   projectIdentityFromText: (text) => {
@@ -629,21 +629,21 @@ describe('IF-3 FileStore -- CN-5 of table T-003: the encoding rule, applied once
   )
 })
 
-// see T-024, OP-1, FR-060, FR-096
-// WHY: a save form IS the row id of a row table T-024 offers on IC-2 (CR-768 X-f).
+// Spec: T-024, OP-1, FR-060, FR-096
+// Why: a save form IS the row id of a row table T-024 offers on IC-2 (CR-768 X-f).
 const OFFERED_ROWS: readonly string[] = T024.rows
   .filter((one) => one.by['`IC-2` に出す'] === '出す')
   .map((one) => one.id)
 
-// WHY: extension is read from table T-024, never typed, so FR-096 keeps one
-// WHY: source of truth; declared as a function so chosenSave can call it later.
+// Why: extension is read from table T-024, never typed, so FR-096 keeps one
+// Why: source of truth; declared as a function so chosenSave can call it later.
 function extensionOfForm(form: SaveFileForm): string {
   const row = T024.rows.find((one) => one.id === form)
   if (row === undefined) throw new Error(`table T-024 has no row for the form ${form}`)
   return /`([^`]+)`/.exec(row.by['拡張子'] ?? '')?.[1] ?? ''
 }
 
-// see SX-1, T-340
+// Spec: SX-1, T-340
 const SAVED_ROWS: readonly string[] = (T340.rows.find((row) => row.id === 'SX-1')?.by['書けたもの'] ?? '')
   .match(/IO-\d+/g) ?? []
 

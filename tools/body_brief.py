@@ -41,7 +41,7 @@ def node_modules_from(checkout):
     folder = os.path.abspath(checkout)
     while True:
         candidate = os.path.join(folder, 'node_modules')
-        # WHY: a checkout can hold a node_modules with only vite caches in it.
+        # Why: a checkout can hold a node_modules with only vite caches in it.
         if os.path.isfile(os.path.join(candidate, 'vitest', 'vitest.mjs')):
             return os.path.relpath(candidate, checkout).replace(os.sep, '/')
         parent = os.path.dirname(folder)

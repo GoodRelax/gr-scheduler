@@ -21,7 +21,7 @@ const PLAIN_SHELL =
   '<title>GRS</title></head><body><div id="app"></div>' +
   '<script type="module">boot()</script></body></html>\n'
 
-// WHY: IC-2 on IO-4 rasterizes the picture; the bytes are not what these cases read.
+// Why: IC-2 on IO-4 rasterizes the picture; the bytes are not what these cases read.
 const rasterizer: Rasterizer = { rasterizePng: async () => ({ ok: true, pngBytes: new Uint8Array([0x89, 0x50, 0x4e, 0x47]) }) }
 
 const typesHandedFor = (row: string): unknown => [{ accept: { [mediaTypeOf(row)]: [extensionOf(row)] } }]

@@ -52,7 +52,7 @@ const NOTHING_OF_THE_VIEW_PLACE = [
 ] as const
 
 // see CR-690, T-368, T-369
-// WHY: the settings face's two tables name the fields the face lists (FR-055's span, the display
+// Why: the settings face's two tables name the fields the face lists (FR-055's span, the display
 // scale of FR-039), not the view place or the zoom; cut them, and the display scale's own name.
 const SETTINGS_FACE_TABLES = ['**表 T-368', '**表 T-369'] as const
 const DISPLAY_SCALE_NAME = '表示の倍率'
@@ -80,7 +80,7 @@ const numberIn = (cell: string): number => {
   if (!Number.isFinite(value)) throw new Error(`no number in ${JSON.stringify(cell)}`)
   return value
 }
-// see S-53
+// Spec: S-53
 const ZOOM_STEP = numberIn(rowOf('T-201', 'S-53').by['既定値'] ?? '')
 
 const FIT = 'IC-10'
@@ -110,7 +110,7 @@ const SCREEN: FrameEnvironment = {
   scrollbarThickness: 8,
 }
 
-// WHY: CR-787 -- drawing a task shows that Task, and a Task opens the panel at S-602 (FR-052).
+// Why: CR-787 -- drawing a task shows that Task, and a Task opens the panel at S-602 (FR-052).
 const PANEL_WIDTH_WHEN_OPENED = numberIn(rowOf('T-206', 'S-602').by[DEFAULT_COLUMN] ?? '')
 
 const NARROWER: FrameEnvironment = { ...SCREEN, width: SCREEN.width - PANEL_WIDTH_WHEN_OPENED }
@@ -527,7 +527,7 @@ describe('OP-10 の答えを取り直す出来事', () => {
     }
   })
 
-  // WHY: the fit may land inside the shrinking end (ZE-1), where ZE-6 writes more than one S-53
+  // Why: the fit may land inside the shrinking end (ZE-1), where ZE-6 writes more than one S-53
   // step; OP-10 and FR-055 fix the zoom stepped from, so one step is the floor of what is written.
   it('人が縦軸の倍率を選んだとき -- 全体表示の倍率から S-53 で刻んだ値が文書へ着き、次のフレームがそれを上書きしない', () => {
     const built = bench(documentWithNoViewPlace())

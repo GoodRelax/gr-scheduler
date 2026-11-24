@@ -38,14 +38,14 @@ const cellOf = (table: string, id: string, heading: string): string => {
 const numbersIn = (cell: string): number[] =>
   (cell.match(/-?\d+(?:\.\d+)?/g) ?? []).map(Number).filter((one) => Number.isFinite(one))
 
-// see S-81
+// Spec: S-81
 const [S_81_WIDTH, S_81_HEIGHT] = numbersIn(cellOf('T-204', 'S-81', DEFAULT_COLUMN)) as [
   number,
   number,
 ]
-// see S-217
+// Spec: S-217
 const S_217_CAP = numbersIn(cellOf('T-204', 'S-217', DEFAULT_COLUMN))[0] as number
-// see S-225
+// Spec: S-225
 const S_225 = numbersIn(cellOf('T-206', 'S-225', DEFAULT_COLUMN))[0] as number
 
 const SETTINGS = ((): DocumentSettings => {
@@ -149,10 +149,10 @@ const watchedRasterizer = (): Watched => {
   }
 }
 
-// see IX-4, FR-080
+// Spec: IX-4, FR-080
 const rawOf = (screen: Screen): number => (screen.height * S_81_WIDTH) / screen.width
 
-// see IX-4, S-217
+// Spec: IX-4, S-217
 const underTheCapOnlyOnceWhole = ((): Screen => {
   for (let width = 1377; width < 2 * S_81_WIDTH; width += 1) {
     const height = Math.floor((S_217_CAP * width) / S_81_WIDTH)
@@ -162,7 +162,7 @@ const underTheCapOnlyOnceWhole = ((): Screen => {
   throw new Error('no screen puts the raw height strictly between S-217 - 1 and S-217')
 })()
 
-// see IX-4, S-217
+// Spec: IX-4, S-217
 const exactlyTheCap = ((): Screen => {
   for (let width = 400; width < 2 * S_81_WIDTH; width += 1) {
     if ((S_217_CAP * width) % S_81_WIDTH === 0) return { width, height: (S_217_CAP * width) / S_81_WIDTH }
@@ -250,7 +250,7 @@ interface Fractional extends Screen {
   readonly why: string
 }
 
-// see IX-4, NS-3
+// Spec: IX-4, NS-3
 const nearestToTheGridHalf = (): readonly Fractional[] => {
   let below: Fractional | null = null
   let above: Fractional | null = null
@@ -277,7 +277,7 @@ const nearestToTheGridHalf = (): readonly Fractional[] => {
   return [below, above]
 }
 
-// see IX-4
+// Spec: IX-4
 const theExampleOfIx4 = ((): Fractional => {
   const row = specTable('T-241').rows.find((one) => one.id === 'IX-4')
   if (row === undefined) throw new Error('table T-241 has no row IX-4')

@@ -52,7 +52,7 @@ export const TEMPLATE_TEXT = readFileSync(
   join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'),
   'utf8',
 )
-// WHY: the shell hands the frame loop the bundled empty document for FR-095; the bench hands the same file.
+// Why: the shell hands the frame loop the bundled empty document for FR-095; the bench hands the same file.
 const EMPTY_DOCUMENT_TEXT = readFileSync(
   join(process.cwd(), 'src', 'framework', 'single-html-shell', 'empty-document.json'),
   'utf8',
@@ -64,7 +64,7 @@ export function cellOf(table: SpecTable, id: string, at: number): string {
   return cell
 }
 
-// see T-036
+// Spec: T-036
 export function keyOfRow(id: string): KeyInput {
   const parts = (cellOf(specTable('T-036'), id, 1).split('/')[0] ?? '')
     .replace(/`/g, '')
@@ -87,19 +87,19 @@ export function keyOfRow(id: string): KeyInput {
   }
 }
 
-// see T-103, W-4
+// Spec: T-103, W-4
 export function partName(id: string): string {
   const row = specTable('T-103').rows.find((one) => one.id === id)
   if (row === undefined) throw new Error(`table T-103 has no row ${id}`)
   return bare(row.cells[0] ?? '')
 }
 
-// see T-109
+// Spec: T-109
 export function surfaceOfEntrance(id: string): string {
   return bare(cellOf(specTable('T-109'), id, 0))
 }
 
-// see T-233, FR-038
+// Spec: T-233, FR-038
 export function reasonWords(rowId: string): { text: { ja: string; en: string } } {
   const found = (SPEC_WORDS['reasons'] as any[]).find((one) => one.rowId === rowId)
   if (found === undefined) throw new Error(`display-words.json has no reason ${rowId}`)
@@ -112,15 +112,15 @@ export function templateDocument(): Document {
   return read.document
 }
 
-// see FR-095, T-342
+// Spec: FR-095, T-342
 function shippedEmptyDocument(): Document {
   const read = documentFromJson(EMPTY_DOCUMENT_TEXT)
   if (!read.ok) throw new Error(`the bundled empty document is not GRS JSON: ${JSON.stringify(read.faults)}`)
   return read.document
 }
 
-// see IF-8, IO-7, FR-067
-// WHY: stands in for the shell's own AppShellSource, so it names the containers the shell names.
+// Spec: IF-8, IO-7, FR-067
+// Why: stands in for the shell's own AppShellSource, so it names the containers the shell names.
 export function shellAppSource(html: string): AppShellSource {
   return {
     readAppShell: async () => ({
@@ -438,7 +438,7 @@ export async function shellStage(options: StageOptions = {}): Promise<ShellStage
   return stage
 }
 
-// see FR-060
+// Spec: FR-060
 export async function stageWithTarget(options: StageOptions = {}): Promise<{ built: ShellStage; mine: StandInFile }> {
   const built = await shellStage(options)
   const mine = built.file('mine.json', new Uint8Array(0))
@@ -460,7 +460,7 @@ export async function closeImportReport(built: ShellStage): Promise<void> {
   await built.press(partName('U-62'), null, { isImportReportDismiss: true })
 }
 
-// see IC-72, T-290
+// Spec: IC-72, T-290
 export async function mergeSomething(built: ShellStage): Promise<void> {
   const theirs = built.file('theirs.json', jsonBytes(there()))
   await built.open(theirs)
@@ -472,7 +472,7 @@ export async function mergeSomething(built: ShellStage): Promise<void> {
   built.written.length = 0
 }
 
-// see IC-71, QN-5
+// Spec: IC-71, QN-5
 export async function replaceWith(built: ShellStage, file: StandInFile): Promise<void> {
   await built.open(file)
   expect(built.last().openModal, `precondition: SK-10 raised no U-56 for ${file.name}`).not.toBeNull()
@@ -481,12 +481,12 @@ export async function replaceWith(built: ShellStage, file: StandInFile): Promise
   expect(built.last().openModal, 'precondition: IC-71 did not close U-56').toBeNull()
 }
 
-// see HS-3
+// Spec: HS-3
 export function sizeSpelling(bytes: number): string {
   return `${(Math.floor((bytes + 50) / 100) / 10).toFixed(1)}[kB]`
 }
 
-// see HS-2
+// Spec: HS-2
 export function stampSpelling(iso: string): string {
   const at = new Date(iso)
   const two = (one: number): string => String(one).padStart(2, '0')

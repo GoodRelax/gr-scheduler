@@ -1,4 +1,4 @@
-// Public entry of DocumentCodec: binds the codecs and picks the decoder for a file.
+// File: DocumentCodec: Public entry of DocumentCodec: binds the codecs and picks the decoder for a file.
 // @unit      UF-34   (docs/spec/05-07-design.md, table T-075)
 // @component DocumentCodec, layer Adapter (table T-062)
 // @purity    pure
@@ -37,7 +37,7 @@ export type FormatReading =
       readonly firstCharacter: string | null
     }
 
-// TRAP: not trimStart() or \s: both eat U+FEFF and undo the drop-the-mark-first order.
+// Trap: not trimStart() or \s: both eat U+FEFF and undo the drop-the-mark-first order.
 const BLANK_CHARACTERS: ReadonlySet<string> = new Set([' ', '\t', '\n', '\r'])
 
 interface ReadableFormat {
@@ -46,8 +46,8 @@ interface ReadableFormat {
   readonly firstCharacter: string
 }
 
-// see T-024, OP-1
-// TRAP: a row table T-024 lets in with no decoder named here stops this module from loading, never silently.
+// Spec: T-024, OP-1
+// Trap: a row table T-024 lets in with no decoder named here stops this module from loading, never silently.
 /** @purity pure */
 function formatOfReadableRow(rowId: string): ExchangeFormat {
   switch (rowId) {
@@ -67,7 +67,7 @@ const READABLE_FORMATS: readonly ReadableFormat[] = exchangeFormats.formats.flat
   return [{ format: formatOfReadableRow(row.rowId), extension, firstCharacter }]
 })
 
-// see T-024
+// Spec: T-024
 /** @purity pure */
 export function extensionOfFormat(rowId: string): string {
   return exchangeFormats.formats.find((one) => one.rowId === rowId)?.extension ?? ''
@@ -99,8 +99,8 @@ function mismatchOf(
   return 'both'
 }
 
-// see OP-12, T-024
-// WHY: the row is chosen by the pair; two readable rows share their first character, so one column names no row.
+// Spec: OP-12, T-024
+// Why: the row is chosen by the pair; two readable rows share their first character, so one column names no row.
 /** @purity pure */
 export function formatFromFile(fileName: string, text: string): FormatReading {
   const extension = extensionOf(fileName)

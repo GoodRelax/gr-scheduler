@@ -39,7 +39,7 @@ async function frames(page: Page, count = 2): Promise<void> {
   await page.waitForTimeout(60)
 }
 
-// WHY: a drag starts on empty ground and stays on ground, so nothing under the pointer changes the picture beneath (IF-1).
+// Why: a drag starts on empty ground and stays on ground, so nothing under the pointer changes the picture beneath (IF-1).
 /** @purity semi-pure-mutable */
 async function emptyGround(page: Page): Promise<Point> {
   const found = await page.evaluate(

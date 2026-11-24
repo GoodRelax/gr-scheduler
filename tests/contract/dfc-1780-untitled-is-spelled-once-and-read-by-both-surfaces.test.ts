@@ -18,7 +18,7 @@ import { specTable, unbroken } from './spec-table'
 
 const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
-// WHY: each clause is cut from the manuscript as check 39 reads it, so the cases cannot drift from the words they test.
+// Why: each clause is cut from the manuscript as check 39 reads it, so the cases cannot drift from the words they test.
 const FR_035_UNTITLED = '`title` が `null` のときは、タブの見出しを `Untitled` とすること（MUST）'
 const FR_035_NOT_TRANSLATED = '⚠️ **画面の言語で切り替えない**'
 const PI_37_ONE_PLACE = '公開したのは、綴りを `src/` の 2 か所に置かないためである'
@@ -46,7 +46,7 @@ describe('R2.21 / PI-37 (MUST): ScreenRenderer publishes the word, and src/ spel
     expect((screenRenderer as unknown as Record<string, unknown>)['UNTITLED_DOCUMENT_TITLE']).toBe(WORD)
   })
 
-  // WHY: the ledger counts the spelling as a quoted literal in src/ (two quotes, not a comment or a doc word).
+  // Why: the ledger counts the spelling as a quoted literal in src/ (two quotes, not a comment or a doc word).
   it('the quoted spelling appears once under src/', () => {
     const found: string[] = []
     const walk = (folder: string): void => {

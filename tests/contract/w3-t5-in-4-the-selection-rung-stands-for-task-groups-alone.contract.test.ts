@@ -22,7 +22,7 @@ import { specTable, unbroken } from './spec-table'
 
 const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
-// see IN-4
+// Spec: IN-4
 const IN_4_BOTH_SELECTIONS =
   '⭐ 段「選択」は、表 T-023c の対象を選んでいるときにも、タスクグループパネルのタスクグループだけを選んでいるとき（`FR-085`）にも立ち、両方の選択を解除すること（MUST）'
 
@@ -54,7 +54,7 @@ function sessionWith(selection: Loose): ScreenSession {
 
 /** @purity pure */
 function escapeOn(session: ScreenSession): ScreenSession {
-  // WHY: the event carries the rung the caller has just found (T-293 selection/selectionEscapePressed).
+  // Why: the event carries the rung the caller has just found (T-293 selection/selectionEscapePressed).
   return advanceScreenSession(session, { type: 'selectionEscapePressed', rung: 'selection' } as unknown as SessionEvent).state
 }
 

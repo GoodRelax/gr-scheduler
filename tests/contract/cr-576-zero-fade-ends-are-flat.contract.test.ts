@@ -32,7 +32,7 @@ import { bare, specTable, unbroken } from './spec-table'
 
 const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
-// see FD-5
+// Spec: FD-5
 const FD_5_PER_END =
   '矢羽根では、開始側の切り込みの深さを `fadeIn` に、終了側の先端の深さを `fadeOut` に、端ごとに置き換えること（MUST）'
 const FD_5_MUST_NOT = '一方の端のフェード長で、もう一方の端の形を変えてはならない（MUST NOT）'
@@ -40,13 +40,13 @@ const FD_5_NULL =
   'フェード長が未設定（`null`）の端は、フェードの無い矢羽根と同じ深さ（`_assets/tbl-settings.md` の 表 T-201 の `S-43` ／ `S-44`）のままとすること（MUST）'
 const FD_5_ZERO = 'フェード長が 0 の端は、平ら（深さ 0）に描くこと（MUST）'
 const FD_5_BOTH_ZERO = '両端とも 0 の矢羽根は、外形が矩形になる'
-// see FD-6a
+// Spec: FD-6a
 const FD_6A_NO_FADE = '実績バーにはフェードを適用しない（MUST NOT）'
 const FD_6A_UNSET = '矢羽根の実績バーは、フェードを未設定として描くこと（MUST）'
 const FD_6A_NOT_FLAT = '予定の端を 0 にしても実績の端は平らにならない'
-// see FD-4
+// Spec: FD-4
 const FD_4 = '矩形で、どちらも 0 または未設定'
-// see FR-016
+// Spec: FR-016
 const FR_016_HANDLE = '未設定（`null`）の端の掴み点は 0 日の位置に立つ'
 
 const verticalIn = (table: string, id: string) => {
@@ -66,7 +66,7 @@ const settingOf = (id: string, key: string): number => {
   return numberOf(row.by['既定値'] ?? '')
 }
 
-// see S-43, S-44, S-5, LF-6
+// Spec: S-43, S-44, S-5, LF-6
 const S_43 = settingOf('S-43', 'chevronNotchOfHeight')
 const S_44 = settingOf('S-44', 'chevronNotchOfWidth')
 const S_5 = settingOf('S-5', 'actualOfPlan')
@@ -111,7 +111,7 @@ const EVERY_DAY_WORKED = {
 
 const day = (d: number): string => `2026-03-${String(d).padStart(2, '0')}T00:00:00`
 
-// WHY: IN_DAYS + OUT_DAYS stays inside the span, so FD-6b never trims them.
+// Why: IN_DAYS + OUT_DAYS stays inside the span, so FD-6b never trims them.
 const START = 4
 const FINISH = 24
 const IN_DAYS = 3
@@ -207,7 +207,7 @@ interface Ends {
   readonly right: number
 }
 
-// WHY: measured at the middle crossing, not at a middle point, so a flat end reads 0 however it is written.
+// Why: measured at the middle crossing, not at a middle point, so a flat end reads 0 however it is written.
 function endsOf(points: readonly Point[]): Ends {
   const ys = points.map((one) => one.y)
   const top = Math.min(...ys)
@@ -225,7 +225,7 @@ function endsOf(points: readonly Point[]): Ends {
   return { start: Math.min(...crossings) - left, end: Math.max(...crossings) - right, left, right }
 }
 
-// see LF-6
+// Spec: LF-6
 const defaultPlanDepth = (placed: TaskPlacement): number =>
   Math.min(placed.width * S_44, placed.planHeight * S_43)
 

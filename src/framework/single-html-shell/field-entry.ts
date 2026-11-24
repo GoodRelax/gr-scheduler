@@ -1,4 +1,4 @@
-// SingleHtmlShell frame loop -- carries the naming and field-entry region (table T-292) between the surface and the machine.
+// File: SingleHtmlShell frame loop: carries the naming and field-entry region (table T-292) between the surface and the machine.
 // @unit      UF-164  (docs/spec/05-07-design.md, table T-075)
 // @component SingleHtmlShell, layer Framework (table T-062)
 // @purity    non-pure
@@ -49,7 +49,7 @@ export const FIELD_ROW_OF_IN_PLACE_TARGET: Readonly<Record<InPlaceKind, string>>
   highlightBoxStroke: HIGHLIGHT_BOX_STROKE_FIELD_ROW,
 }
 
-// WHY: counted in frames, not ms: each try needs a drawn frame, and a held control let go lands on
+// Why: counted in frames, not ms: each try needs a drawn frame, and a held control let go lands on
 // the next; 10 bounds the frames asked for, and IN-5b keeps trying on later frames and keys.
 const FIELD_FOCUS_RETRY_FRAMES = 10
 
@@ -92,7 +92,7 @@ export type FieldEntryHands = Pick<
 export function fieldFocusRetriesOf(hands: FieldEntryHands) {
   let fieldFocusRetriesLeft = FIELD_FOCUS_RETRY_FRAMES
 
-  // see MK-13, IN-5a, IN-5b, T-292
+  // Spec: MK-13, IN-5a, IN-5b, T-292
   /** @purity non-pure */
   function focusWantedField(focus: ScreenWiring['focusPropertyField']): void {
     const wanted = fieldFocusWantedIn(hands.readSession())
@@ -108,7 +108,7 @@ export function fieldFocusRetriesOf(hands: FieldEntryHands) {
     if (fieldFocusWantedIn(hands.readSession()) !== null) hands.sendToSession(FIELD_FOCUS_WITHDRAWN, hands.readValues())
   }
 
-  // see MK-13, HF-14, FR-035, T-292
+  // Spec: MK-13, HF-14, FR-035, T-292
   /** @purity non-pure */
   function wantFieldFocused(row: string): void {
     fieldFocusRetriesLeft = FIELD_FOCUS_RETRY_FRAMES
@@ -125,8 +125,8 @@ export function fieldFocusRetriesOf(hands: FieldEntryHands) {
 
 export type FieldFocusRetries = ReturnType<typeof fieldFocusRetriesOf>
 
-// see IN-5a, IN-5b, IN-4, IN-6
-// WHY: the owed frame is drawn now, so a letter typed before that frame lands in the field.
+// Spec: IN-5a, IN-5b, IN-4, IN-6
+// Why: the owed frame is drawn now, so a letter typed before that frame lands in the field.
 /** @purity non-pure */
 export function tryWantedFieldBeforeInput(
   hands: FieldEntryHands,
@@ -146,13 +146,13 @@ export function tryWantedFieldBeforeInput(
   else fieldFocusRetries.focusWantedField(hands.screen.focusPropertyField)
 }
 
-// see IN-5a
+// Spec: IN-5a
 /** @purity semi-pure-mutable */
 export function isFieldFocusWanted(hands: FieldEntryHands): boolean {
   return fieldFocusWantedIn(hands.readSession()) !== null && hands.screen?.focusPropertyField !== undefined
 }
 
-// see IF-9, T-292
+// Spec: IF-9, T-292
 /** @purity non-pure */
 export function drainFieldEditNotices(hands: FieldEntryHands, frame: FrameValues | null): void {
   if (hands.screen === undefined) return
@@ -173,14 +173,14 @@ export function isCreatedNameEnded(hands: FieldEntryHands): boolean {
   return hands.readSession().fieldEntry.createdTaskNamingState.kind === 'createdNameEnded'
 }
 
-// see IN-5a
+// Spec: IN-5a
 /** @purity non-pure */
 export function noteChoiceMoved(hands: FieldEntryHands, frame: FrameValues | null): void {
   hands.sendToSession(CHOICE_MOVED, frame)
   hands.sendToSession(FIELD_FOCUS_WITHDRAWN, frame)
 }
 
-// see IF-9, FO-14, FO-16, WC-4, WC-8
+// Spec: IF-9, FO-14, FO-16, WC-4, WC-8
 /** @purity non-pure */
 export function spendFieldCommit(hands: FieldEntryHands, frame: FrameValues): boolean {
   if (hands.screen === undefined) return false
@@ -193,14 +193,14 @@ export function spendFieldCommit(hands: FieldEntryHands, frame: FrameValues): bo
     const commands = commandFromFieldCommit(commit, context)
     if (commands.length > 0) hands.writeDocument(commands, frame, true)
   }
-  // TRAP: true on the commit, not the commands; a value naming no task group is still a settled edit (SK-19).
+  // Trap: true on the commit, not the commands; a value naming no task group is still a settled edit (SK-19).
   return true
 }
 
 const TIME_SHIFT_QUESTION = 'QN-14'
 
-// see FR-157, QN-14, BS-3, NT-7, IC-162
-// WHY: the Time Shift alone asks first (FR-157); the answer carries the one write out as a deletion's does.
+// Spec: FR-157, QN-14, BS-3, NT-7, IC-162
+// Why: the Time Shift alone asks first (FR-157); the answer carries the one write out as a deletion's does.
 /** @purity non-pure */
 export function askTimeShift(hands: Pick<FieldEntryHands, 'readHeld' | 'readSession' | 'sendToSession'>, frame: FrameValues, minutes: number): void {
   const shift: DocumentCommand = { kind: 'shiftScheduleTimes', minutes }
@@ -222,8 +222,8 @@ export function isTimeShiftWrite(writes: readonly (readonly DocumentCommand[])[]
 
 const WHOLE_SCHEDULE_SHIFT_QUESTION = 'QN-15'
 
-// see FR-159, QN-15, WH-11, WH-12, NT-7
-// WHY: nothing to move (no start, or no working day between) asks nothing, as the dim Apply button does (WH-12).
+// Spec: FR-159, QN-15, WH-11, WH-12, NT-7
+// Why: nothing to move (no start, or no working day between) asks nothing, as the dim Apply button does (WH-12).
 /** @purity pure */
 function wholeScheduleShiftQuestionsOf(document: Document, session: ScreenSession, newStartDate: string): readonly SessionEvent[] {
   const preview = wholeScheduleShiftPreviewOf(document, newStartDate)
@@ -238,7 +238,7 @@ function wholeScheduleShiftQuestionsOf(document: Document, session: ScreenSessio
   ]
 }
 
-// see FR-159, QN-15
+// Spec: FR-159, QN-15
 /** @purity non-pure */
 export function askWholeScheduleShift(
   hands: Pick<FieldEntryHands, 'readHeld' | 'readSession' | 'sendToSession'>,
@@ -253,7 +253,7 @@ export function isWholeScheduleShiftWrite(writes: readonly (readonly DocumentCom
   return writes.some((bundle) => bundle.some((command) => command.kind === 'shiftScheduleToStartDate'))
 }
 
-// see FR-156, FO-14, CM-94, CM-95, UN-13
+// Spec: FR-156, FO-14, CM-94, CM-95, UN-13
 /** @purity pure */
 export function baseChangeCommandsOf(
   draft: { readonly chosenRegion: string; readonly chosenWay: Parameters<typeof baseChangeCommandOf>[2] },
@@ -269,8 +269,8 @@ type CalendarCommand = Extract<DocumentCommand, { readonly kind: 'setCalendar' }
 
 type CalendarCommandHands = Pick<FieldEntryHands, 'readHeld' | 'writeDocument' | 'raiseNotice'>
 
-// see FR-088, IC-138, CM-39, RS-89, WC-7
-// WHY: RS-89 only when CM-39 changed the document; a draft equal to the document writes nothing and tells nothing.
+// Spec: FR-088, IC-138, CM-39, RS-89, WC-7
+// Why: RS-89 only when CM-39 changed the document; a draft equal to the document writes nothing and tells nothing.
 /** @purity non-pure */
 export function issueCalendarCommand(hands: CalendarCommandHands, command: CalendarCommand, frame: FrameValues): void {
   const before = hands.readHeld().document

@@ -20,7 +20,7 @@ type Language = 'ja' | 'en'
 const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 const FR_047_ONLY_IN_THE_TIP = '⛔ 遅れの日数を日程表に描いてはならない（MUST NOT）'
 const TL_12_NO_NEW_WORD = '⛔ 遅れの行のために新しい語を辞書に持ってはならない（MUST NOT）'
-// WHY: CR-793 -- the late line is the DG-4 word, a colon, the days and the working-days word.
+// Why: CR-793 -- the late line is the DG-4 word, a colon, the days and the working-days word.
 const TL_12_THE_FORM = '遅れの語、`:`、半角空白 1 つ、日数、半角空白 1 つ、稼働日の語 の順に、1 行で書くこと（MUST）'
 const TL_12_SAME_COUNT = '日数は、遅延診断の `DX-10` と同じ数え方で求めること（MUST）'
 const TL_12_NO_STATUS_DATE = '基準日が置かれていないとき（`FR-046`）と、遅れていないときは行を出さない'
@@ -31,14 +31,14 @@ const WORDS = JSON.parse(readFileSync(join(process.cwd(), 'docs', 'spec', '_sour
   readonly delayReportStatuses: readonly { readonly rowId: string; readonly text: Record<Language, string> }[]
   readonly propertyField: readonly { readonly part: string; readonly text: Record<Language, string> }[]
 }
-// see DG-4
+// Spec: DG-4
 const lateSentence = (days: number, language: Language): string => {
   const late = WORDS.delayReportStatuses.find((one) => one.rowId === 'DG-4')?.text[language]
   const unit = WORDS.propertyField.find((one) => one.part === 'workingDaysUnit')?.text[language]
   if (late === undefined || unit === undefined) throw new Error('the dictionary holds no DG-4 word or workingDaysUnit')
   return `${late}: ${days} ${unit}`
 }
-// WHY: the pre-CR-793 sentence of the delay report; the tip no longer tells it.
+// Why: the pre-CR-793 sentence of the delay report; the tip no longer tells it.
 const reportSentence = (days: number, language: Language): string => {
   const found = WORDS.delayReportReasons.find((one) => one.part === 'late')
   if (found === undefined) throw new Error('the dictionary holds no late sentence of the delay report')
@@ -70,7 +70,7 @@ const tasks = () => [
 
 const scheduleWith = (statusDate: string | null): Schedule => scheduleOf({ tasks: tasks(), statusDate })
 
-// see DX-10
+// Spec: DX-10
 const diagnosedDaysOf = (schedule: Schedule, uid: number): number | undefined =>
   diagnoseDelay({ schedule }, workingCalendarOf(schedule)).lateDays.find((one) => one.uid === uid)?.days
 
@@ -101,7 +101,7 @@ const readingsOn = (taskUid: number): ScreenViewReadings =>
     scrollExtent: { contentWidth: 0, contentHeight: 0, visibleHeight: 0 },
   }) as unknown as ScreenViewReadings
 
-// see EZ-6, TL-12
+// Spec: EZ-6, TL-12
 function tipLinesOf(schedule: Schedule, uid: number, language: Language): readonly string[] {
   const shown = { frame: { scrollbars: [] } } as unknown as Omit<ScreenView, 'tooltips'>
   const tip = tooltipsFromScreenView(shown, SETTINGS, sessionIn(language), readingsOn(uid), schedule).find(

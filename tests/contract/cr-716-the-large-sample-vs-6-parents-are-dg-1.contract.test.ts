@@ -12,7 +12,7 @@ import * as scheduleEntry from '../../src/entity/document-model/schedule/schedul
 import { delayDiagnosticsReportRows, type DelayDiagnosticsReport } from '../../src/entity/document-model/schedule/schedule'
 import { specTable, unbroken } from './spec-table'
 
-// WHY: the large sample before CR-790, frozen for the CR-651 / CR-716 sweeps; the shipped sample now shows one VS-6 (CR-790).
+// Why: the large sample before CR-790, frozen for the CR-651 / CR-716 sweeps; the shipped sample now shows one VS-6 (CR-790).
 const FIXTURE_DIR = join(process.cwd(), 'tests', 'fixtures')
 const LARGE_FILE = 'cr-651-large-sample-before-cr-790.ja.xml'
 
@@ -39,7 +39,7 @@ const diagnose = (document: Document): DelayDiagnosticsReport =>
 const cellOf = (table: string, id: string, heading: string): string =>
   unbroken(specTable(table).rows.find((one) => one.id === id)?.by[heading] ?? '')
 
-// WHY: the parents the large sample's VS-6 finds at S-487 = 1 (CR-651): four named ones and six inside uids 125 .. 145.
+// Why: the parents the large sample's VS-6 finds at S-487 = 1 (CR-651): four named ones and six inside uids 125 .. 145.
 const NAMED_PARENTS = [208, 200, 182, 181] as const
 const RANGE_FIRST = 125
 const RANGE_LAST = 145
@@ -58,7 +58,7 @@ describe('CR-716 -- the rows the large sample is judged by', () => {
   })
 })
 
-// WHY: the en twin gave identical counts (CR-618 decision 5) and CR-790 froze ja only, so the sweep runs once, on the ja fixture.
+// Why: the en twin gave identical counts (CR-618 decision 5) and CR-790 froze ja only, so the sweep runs once, on the ja fixture.
 describe('CR-716 DX-8 -- the large sample before CR-790', () => {
   const report = diagnose(sampleDocument(LARGE_FILE))
   const parents = vs6Uids(report)

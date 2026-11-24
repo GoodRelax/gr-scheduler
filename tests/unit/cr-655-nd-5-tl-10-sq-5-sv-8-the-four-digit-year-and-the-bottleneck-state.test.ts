@@ -51,7 +51,7 @@ const firstCellOf = (table: string, id: string): string => {
 const ND_5_FOUR_DIGITS = '年（西暦の 4 桁）、`/`、月、`/`、日 の順で書く'
 const ND_5_NOT_TWO = '年を下 2 桁に縮めないのは'
 const ND_5_NO_PADDING = '月と日は `ND-4` のとおり 0 で埋めない'
-// WHY: CR-794 -- the tip day always has the year and two-digit month and day; only the name label keeps m/d (ND-4, ND-5).
+// Why: CR-794 -- the tip day always has the year and two-digit month and day; only the name label keeps m/d (ND-4, ND-5).
 const TL_10_EXAMPLE = '（例: `2026/06/03 (月)`・`2026/06/03 (Mon)`）'
 
 const READER: DayReader = {
@@ -133,7 +133,7 @@ describe('CR-655 TL-10 (table T-348) -- the tooltip day follows ND-5', () => {
 
 const SV_8_ORDER =
   '状態の列（`SQ-5`）の昇順は 信用できない・要修正 → ボトルネック → ボトルネック経路 → 遅れ → 未着手 → 進行中 → 完了 → 中断・再開予定あり → 中断・再開日未定、降順はその逆'
-// WHY: CR-760 retired the two SQ-5 clauses this file was cut from; these are the clauses that replaced them.
+// Why: CR-760 retired the two SQ-5 clauses this file was cut from; these are the clauses that replaced them.
 const SQ_5_WHILE_SHOWN = '`DG-1` 〜 `DG-3` は診断を出しているあいだだけ出し、診断を閉じると同じタスクは診断の無いときの値へ戻る。'
 const SQ_5_LATE_ALWAYS = '⭐ 遅れ（`PM-4`、表 T-021b）は予定の日と基準日だけで決まるので、診断を出していなくても出す。'
 
@@ -177,15 +177,15 @@ function diagnosedDocument(): Document {
 const DOCUMENT = diagnosedDocument()
 const SCHEDULE = DOCUMENT.schedule
 const REPORT = scheduleEntry.diagnoseDelay(DOCUMENT, scheduleEntry.workingCalendarOf(SCHEDULE))
-// see SQ-5, DG-2
-// WHY: CR-760 -- SQ-5 takes each task's diagnosed T-315 row (DG-1 .. DG-3); this file keeps to the bottlenecks, DG-2.
+// Spec: SQ-5, DG-2
+// Why: CR-760 -- SQ-5 takes each task's diagnosed T-315 row (DG-1 .. DG-3); this file keeps to the bottlenecks, DG-2.
 const BOTTLENECKS: ReadonlyMap<number, 'DG-1' | 'DG-2' | 'DG-3'> = new Map(REPORT.bottlenecks.map((one) => [one.uid, 'DG-2' as const]))
 
 const WORDS = JSON.parse(
   readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8'),
 ) as { readonly delayReportStatuses: readonly { readonly rowId: string; readonly text: Record<DisplayLanguage, string> }[] }
 const DG_2_WORD = WORDS.delayReportStatuses.find((one) => one.rowId === 'DG-2')?.text
-// WHY: SQ-5 writes a late task with the word of the T-315 row DG-4.
+// Why: SQ-5 writes a late task with the word of the T-315 row DG-4.
 const DG_4_WORD = WORDS.delayReportStatuses.find((one) => one.rowId === 'DG-4')?.text
 
 const CANVAS: ScreenRect = { x: 0, y: 56, width: 1000, height: 600 }
@@ -196,7 +196,7 @@ function sessionIn(language: DisplayLanguage): ScreenSession {
   return { ...shown, screen: { ...shown.screen, screenLanguage: language, helpLanguage: language } } as unknown as ScreenSession
 }
 const TASK_PANEL: SearchPanelSession = { ...emptySearchPanelSession, table: 'tasks' }
-// WHY: CR-723 -- the table's view is the document's and is handed in beside the panel; none is set here.
+// Why: CR-723 -- the table's view is the document's and is handed in beside the panel; none is set here.
 const NO_VIEW: TableView = { visibility: NO_ROW_CHECKED, columnFilters: [], sort: null }
 
 function viewOf(language: DisplayLanguage, bottleneckUids?: ReadonlyMap<number, 'DG-1' | 'DG-2' | 'DG-3'>): SearchPanelView {
@@ -227,7 +227,7 @@ describe('CR-655 SQ-5 / SV-8 (tables T-331, T-330) -- the bottleneck in the sear
     expect(DG_2_WORD?.ja).toBe('ボトルネック')
     expect(stateCellOf(viewOf('ja', BOTTLENECKS), LEAD)).toBe(DG_2_WORD?.ja)
     expect(stateCellOf(viewOf('en', BOTTLENECKS), LEAD)).toBe(DG_2_WORD?.en)
-    // WHY: CR-760 -- Trail is late (T-021b DL-1) and so no longer reads its state; Later is neither late nor diagnosed.
+    // Why: CR-760 -- Trail is late (T-021b DL-1) and so no longer reads its state; Later is neither late nor diagnosed.
     expect(stateCellOf(viewOf('ja', BOTTLENECKS), LATER), 'SQ-5: a task outside DG-2 keeps its T-019a state').toBe('未着手')
   })
 
@@ -239,7 +239,7 @@ describe('CR-655 SQ-5 / SV-8 (tables T-331, T-330) -- the bottleneck in the sear
   it('SV-8: ascending puts the bottleneck first, descending puts it last', () => {
     const rows = scheduleEntry.searchRowsOf(SCHEDULE, '', BOTTLENECKS)
     const up = filteredSearchRows(rows, NO_VIEW.columnFilters, { column: 'SQ-5', direction: 'ascending' })
-    // WHY: Trail is late (T-021b DL-1), and SV-8 puts the late before the not started.
+    // Why: Trail is late (T-021b DL-1), and SV-8 puts the late before the not started.
     expect(uidsOf(up.taskRows)).toEqual([LEAD, TRAIL, LATER, DONE])
     const down = filteredSearchRows(rows, NO_VIEW.columnFilters, { column: 'SQ-5', direction: 'descending' })
     expect(uidsOf(down.taskRows)).toEqual([DONE, LATER, TRAIL, LEAD])
@@ -247,7 +247,7 @@ describe('CR-655 SQ-5 / SV-8 (tables T-331, T-330) -- the bottleneck in the sear
 
   it('SV-7 / SV-8: the state filter lists the bottleneck first, and IC-126 hides it with the rest', () => {
     const rows = scheduleEntry.searchRowsOf(SCHEDULE, '', BOTTLENECKS)
-    // WHY: SQ-5's value is the T-315 row itself when one of DG-1 .. DG-3 wins.
+    // Why: SQ-5's value is the T-315 row itself when one of DG-1 .. DG-3 wins.
     expect(columnValuesOf(rows, 'SQ-5')[0]).toBe('DG-2')
     const opened = searchPanelWithFilterOpened(sessionIn('ja'), TASK_PANEL, NO_VIEW, 'SQ-5')
     if (opened === null) throw new Error('premise: the SQ-5 filter opens')

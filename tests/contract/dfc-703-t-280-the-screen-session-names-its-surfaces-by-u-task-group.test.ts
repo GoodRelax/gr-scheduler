@@ -26,7 +26,7 @@ interface RawRegion {
   readonly events: readonly { readonly key: string; readonly carries: readonly { readonly name: string; readonly rows?: readonly string[] }[] }[]
 }
 
-// see T-280
+// Spec: T-280
 const REGIONS = (
   readStateMachineView() as {
     readonly regions: readonly RawRegion[]

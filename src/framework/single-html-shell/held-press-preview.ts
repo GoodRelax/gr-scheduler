@@ -1,4 +1,4 @@
-// SingleHtmlShell frame loop -- while a grab is held, builds the document and dependency line a release would give.
+// File: SingleHtmlShell frame loop: while a grab is held, builds the document and dependency line a release would give.
 // @unit      UF-158  (docs/spec/05-07-design.md, table T-075)
 // @component SingleHtmlShell, layer Framework (table T-062)
 // @purity    semi-pure-mutable
@@ -31,7 +31,7 @@ import { DEFAULT_TASK_GROUP_NAME } from '../../adapter/screen-renderer/screen-re
 import type { FrameLoopHands, FrameValues } from './frame-loop'
 import type { GrabbedArea } from './pointer-shape'
 
-// see T-023d, FR-052
+// Spec: T-023d, FR-052
 const PREVIEWED_GRABS: Readonly<Record<GrabbedArea, boolean>> = {
   'GA-1': true,
   'GA-2': true,
@@ -55,7 +55,7 @@ const PREVIEWED_GRABS: Readonly<Record<GrabbedArea, boolean>> = {
   'GA-20': true,
   'GA-21': true,
   'GA-22': true,
-  // WHY: no T-023d row drags GA-24; a press only selects its line (PE-12), so nothing moves while held.
+  // Why: no T-023d row drags GA-24; a press only selects its line (PE-12), so nothing moves while held.
   'GA-24': false,
   'GR-10': false,
   'GR-11': false,
@@ -64,7 +64,7 @@ const PREVIEWED_GRABS: Readonly<Record<GrabbedArea, boolean>> = {
   'PTL-10': false,
 }
 
-// see PTD-5
+// Spec: PTD-5
 /** @purity pure */
 export function marqueeRect(
   press: PointerPress | null,
@@ -78,14 +78,14 @@ export function marqueeRect(
   return { x: Math.min(press.at.x, at.x), y: Math.min(press.at.y, at.y), width, height }
 }
 
-// see T-023d, PTD-3, FR-009
+// Spec: T-023d, PTD-3, FR-009
 /** @purity pure */
 function isPreviewedPress(press: PointerPress | null, isDependencyArmed: boolean): boolean {
   if (press === null) return false
   if (press.on !== null) return press.on.dividerPanel !== null
-  // WHY: the one tentative line belongs to FR-009, so a previewed createDependency would draw it twice.
+  // Why: the one tentative line belongs to FR-009, so a previewed createDependency would draw it twice.
   if (press.pressRow === 'PTD-3' && isDependencyArmed) return false
-  // WHY: PTD-1 is not previewed: scrolledAnchor measures against the previewed layout; it runs away.
+  // Why: PTD-1 is not previewed: scrolledAnchor measures against the previewed layout; it runs away.
   if (press.pressRow === 'PTD-4') return true
   return press.hit !== null && PREVIEWED_GRABS[press.hit.grab]
 }
@@ -118,13 +118,13 @@ export function previewOfHeldPress(
   return drawn
 }
 
-// see FR-052, U-50
+// Spec: FR-052, U-50
 /** @purity pure */
 export function isLeavingTaskGroupArea(propertyPanelWidth: number, regions: ScreenRegions): boolean {
   return regions.taskGroupArea.width + regions.propertiesPanel.width - propertyPanelWidth > 0
 }
 
-// see FR-052, S-248, T-280
+// Spec: FR-052, S-248, T-280
 /** @purity pure */
 export function heldPropertyPanelWidthOf(
   press: PointerPress | null,
@@ -138,7 +138,7 @@ export function heldPropertyPanelWidthOf(
   return isLeavingTaskGroupArea(settled.propertyPanelWidth, context.regions) ? settled.propertyPanelWidth : null
 }
 
-// see FR-009, PTD-3, T-018, T-018a
+// Spec: FR-009, PTD-3, T-018, T-018a
 /** @purity semi-pure-mutable */
 export function tentativeDependencyOf(
   hands: HeldPressPreviewHands, press: PointerPress | null,
@@ -159,7 +159,7 @@ export function tentativeDependencyOf(
   if (fromTask === null || fromPlaced === undefined) return null
 
   const into = dependencyEndAtPointer(geometry, at.x, at.y, null)
-  // WHY: the Task drawn from is no partner (DN-1), so over itself the line still enters from the pointer's left.
+  // Why: the Task drawn from is no partner (DN-1), so over itself the line still enters from the pointer's left.
   const intoTask = into === null || into.taskUid === from.taskUid ? null : taskByUid(schedule, into.taskUid)
   const intoPlaced =
     intoTask === null ? undefined : layout.placements.find((one) => one.taskUid === intoTask.uid)
@@ -194,7 +194,7 @@ export function tentativeDependencyOf(
     DEFAULT_TASK_GROUP_NAME,
   )
   if (!made.ok) return null
-  // WHY: FR-009 asks for the line with no exception for IC-81's toggle, so the copy draws it whatever the toggle says.
+  // Why: FR-009 asks for the line with no exception for IC-81's toggle, so the copy draws it whatever the toggle says.
   const drawn = geometryFromLayout(
     { ...made.document.schedule, highlightBoxes: [], commentBoxes: [] },
     { ...settings, isDependencyVisible: true },

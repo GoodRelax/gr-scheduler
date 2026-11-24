@@ -72,7 +72,7 @@ describe('the GRS JSON schema, as a shared fixture', () => {
   })
 
   it('states the default calendar in two weekday numberings that differ by one', () => {
-    // TRAP: WeekDay/DayType numbers weekdays from 1 = Sunday; Project/WeekStartDay
+    // Trap: WeekDay/DayType numbers weekdays from 1 = Sunday; Project/WeekStartDay
     // numbers them from 0 = Sunday (CR-180). One numbering shifted by a day fails nothing.
     const sundayIndexOfDayType = (n: number): number => n - 1
     const sundayIndexOfWeekStart = (n: number): number => n

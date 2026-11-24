@@ -1,4 +1,4 @@
-// DomScreenSurface -- the Command Palette: its grab band, minimize entry, groups and rules.
+// File: DomScreenSurface: the Command Palette: its grab band, minimize entry, groups and rules.
 // @unit      UF-108  (docs/spec/05-07-design.md, table T-075)
 // @component DomScreenSurface, layer Framework (table T-062)
 // @purity    non-pure
@@ -21,7 +21,7 @@ import {
 
 export const PALETTE_GRAB_BAND_ENTRY = 'IC-53'
 
-// see FR-053
+// Spec: FR-053
 /** @purity pure */
 export function paletteGroupRuleStyle(): string {
   const [thickness, clearance] = NOT_STORED_PALETTE_GROUP_RULE_SIZES['S-143']
@@ -31,7 +31,7 @@ export function paletteGroupRuleStyle(): string {
   )
 }
 
-// see FR-053, S-488
+// Spec: FR-053, S-488
 /** @purity pure */
 export function paletteColumnsOf(entranceCount: number, perRowCap: number): number {
   if (entranceCount <= 0) return 0
@@ -45,7 +45,7 @@ export function paletteColumnsStyle(entranceCount: number): string {
   return `grid-template-columns:repeat(${columns},auto);`
 }
 
-// WHY: screen px on purpose (FR-053, IC-54, S-489); S-235 would take it below FR-077's S-8.
+// Why: screen px on purpose (FR-053, IC-54, S-489); S-235 would take it below FR-077's S-8.
 /** @purity pure */
 export function armedLabelStyle(): string {
   return `font-size:${NOT_STORED_ARMED_LABEL_SIZES['S-489']}px;`
@@ -56,7 +56,7 @@ function cornerStyle(at: { readonly x: number; readonly y: number }): string {
   return `position:absolute;left:${at.x}px;top:${at.y}px;`
 }
 
-// see GR-19, FR-053
+// Spec: GR-19, FR-053
 /** @purity non-pure */
 function grabBandElement(
   host: Document,
@@ -67,7 +67,7 @@ function grabBandElement(
   const band = made(host, 'div', STYLE.paletteGrabBand + `height:${heightPx}px;`)
   band.setAttribute('data-icon', PALETTE_GRAB_BAND_ENTRY)
   fillEntry(host, band, PALETTE_GRAB_BAND_ENTRY)
-  // see FR-053, FR-102
+  // Spec: FR-053, FR-102
   const record = palette.bandRecord ?? null
   if (record !== null) band.prepend(anchoredEntry(host, record, anchors))
 
@@ -79,7 +79,7 @@ function grabBandElement(
   return band
 }
 
-// see U-26, FR-053
+// Spec: U-26, FR-053
 /** @purity non-pure */
 export function paletteElement(
   host: Document,
@@ -108,7 +108,7 @@ export function paletteElement(
     palette.armedText === null ? null : made(host, 'div', STYLE.armedText + armedLabelStyle())
   if (armed !== null) armed.textContent = palette.armedText
 
-  // TRAP: the band is a child of the palette part, never a sibling: PALETTE_FAINT_CSS uses
+  // Trap: the band is a child of the palette part, never a sibling: PALETTE_FAINT_CSS uses
   // :hover, which a sibling band would not keep matching while held.
   const band = grabBandElement(host, palette, anchors)
   anchors.set(anchorKey({ kind: 'icon', icon: PALETTE_GRAB_BAND_ENTRY }), band)

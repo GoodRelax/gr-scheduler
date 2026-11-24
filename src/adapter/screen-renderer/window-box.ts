@@ -1,4 +1,4 @@
-// The box of a window of table T-335: where it stands, and where a grab of its title row or edge leaves it.
+// File: ScreenRenderer: The box of a window of table T-335: where it stands, and where a grab of its title row or edge leaves it.
 // @unit      UF-189  (docs/spec/05-07-design.md, table T-075)
 // @component ScreenRenderer, layer Adapter (table T-062)
 // @purity    pure
@@ -8,17 +8,17 @@ import type { SearchPanelSession } from '../../use-case/advance-screen-session/a
 
 export type WindowShown = 'normal' | 'minimized' | 'maximized'
 
-// see WB-6, S-419, S-455
+// Spec: WB-6, S-419, S-455
 export type WindowPlace = Pick<SearchPanelSession, 'at' | 'size'>
 
 export const DEFAULT_WINDOW_PLACE: WindowPlace = { at: null, size: null }
 
 export type WindowEdge = 'top' | 'bottom' | 'left' | 'right' | 'topLeft' | 'topRight' | 'bottomLeft' | 'bottomRight'
 
-// see GR-24, GR-25
+// Spec: GR-24, GR-25
 export type WindowGrabRegion = 'titleBand' | WindowEdge
 
-// see S-423, S-424
+// Spec: S-423, S-424
 export interface WindowFloor {
   readonly width: number
   readonly height: number
@@ -50,7 +50,7 @@ const EDGE_AT: { readonly [Down in EdgeSide]: { readonly [Across in EdgeSide]: W
   end: { start: 'bottomLeft', middle: 'bottom', end: 'bottomRight' },
 }
 
-// WHY: the low end wins when a range is narrower than what must fit, so a window never starts left of its range.
+// Why: the low end wins when a range is narrower than what must fit, so a window never starts left of its range.
 /** @purity pure */
 function withinSpan(value: number, low: number, high: number): number {
   return Math.max(low, Math.min(value, high))
@@ -83,7 +83,7 @@ function spanAfterEdge(span: Span, side: SpanSide, travel: number, within: Span,
   return span
 }
 
-// see WB-8, WB-9, GR-24, GR-25
+// Spec: WB-8, WB-9, GR-24, GR-25
 /** @purity pure */
 export function windowBoxAfterGrab(
   region: WindowGrabRegion,
@@ -102,7 +102,7 @@ export function windowBoxAfterGrab(
   )
 }
 
-// WHY: a held place is fitted again on every frame, so a smaller range never leaves the window outside.
+// Why: a held place is fitted again on every frame, so a smaller range never leaves the window outside.
 /** @purity pure */
 export function windowPlaceInRange(place: WindowPlace, range: ScreenRect): WindowPlace {
   const held = place.size
@@ -119,7 +119,7 @@ export function windowPlaceOf(box: ScreenRect): WindowPlace {
   return { at: { x: box.x, y: box.y }, size: { width: box.width, height: box.height } }
 }
 
-// see WB-1, WB-2, WB-3
+// Spec: WB-1, WB-2, WB-3
 /** @purity pure */
 export function windowBoxOf(
   shown: WindowShown,
@@ -132,7 +132,7 @@ export function windowBoxOf(
   return { x: normalBox.x, y: normalBox.y + normalBox.height - titleHeight, width: normalBox.width, height: titleHeight }
 }
 
-// see WB-1, SV-9
+// Spec: WB-1, SV-9
 /** @purity pure */
 export function windowNormalBoxOf(place: WindowPlace, defaultBox: ScreenRect, range: ScreenRect): ScreenRect {
   const fitted = windowPlaceInRange(place, range)
@@ -150,7 +150,7 @@ function edgeSideOf(at: number, start: number, end: number, reach: number): Edge
   return fromStart <= fromEnd ? 'start' : 'end'
 }
 
-// see GR-25
+// Spec: GR-25
 /** @purity pure */
 export function windowEdgeAt(x: number, y: number, box: ScreenRect, reach: number): WindowEdge | null {
   const across = edgeSideOf(x, box.x, box.x + box.width, reach)

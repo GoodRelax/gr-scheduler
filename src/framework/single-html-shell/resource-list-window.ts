@@ -1,4 +1,4 @@
-// SingleHtmlShell -- answers the Resource List window's entries: its opening, its table and frame, and IC-66 (table T-370).
+// File: SingleHtmlShell: answers the Resource List window's entries: its opening, its table and frame, and IC-66 (table T-370).
 // @unit      UF-200  (docs/spec/05-07-design.md, table T-075)
 // @component SingleHtmlShell, layer Framework (table T-062)
 // @purity    non-pure
@@ -29,7 +29,7 @@ const RESOURCE_DELETE_ENTRY: IconId = 'IC-66'
 
 const TEXT_SIZE_ENTRY: IconId = 'IC-127'
 
-// see RO-1, RO-6, S-545, S-546
+// Spec: RO-1, RO-6, S-545, S-546
 export type ResourceListWindow = TableWindowState
 
 interface ResourceListRows {
@@ -54,22 +54,22 @@ type HeldResourceList = Pick<HeldTableWindows, 'resourceList' | 'holdResourceLis
   readonly reopenedResourceList: () => ResourceListWindow
 }
 
-// see RO-1, TV-8, UN-20, CM-92
-// WHY: closing a table's window lets its Schedule Filter go as an edit, so an undo puts it back (TV-8).
+// Spec: RO-1, TV-8, UN-20, CM-92
+// Why: closing a table's window lets its Schedule Filter go as an edit, so an undo puts it back (TV-8).
 /** @purity pure */
 export function scheduleFilterLetGoOf(table: VisibilityTable, view: TableView): Extract<DocumentCommand, { readonly kind: 'setTableView' }> | null {
   if (!view.visibility.isScheduleFilterApplied) return null
   return { kind: 'setTableView', table, view: { ...view, visibility: { ...view.visibility, isScheduleFilterApplied: false } } }
 }
 
-// see RO-1, WB-6, S-546
+// Spec: RO-1, WB-6, S-546
 /** @purity pure */
 export function tableWindowReopened<W extends TableWindowState>(held: W | null, closed: W | null, opened: W): W {
   if (held === null) return closed === null ? opened : { ...closed, shown: 'normal', isInFront: true }
   return { ...held, shown: held.shown === 'minimized' ? 'normal' : held.shown, isInFront: true }
 }
 
-// see T-370, RO-1, RO-2, RO-3, SV-7, SV-8, WB-2, WB-3, TV-8, UN-20
+// Spec: T-370, RO-1, RO-2, RO-3, SV-7, SV-8, WB-2, WB-3, TV-8, UN-20
 /** @purity non-pure */
 function answerResourceListEntry(
   entry: IconId,
@@ -86,8 +86,8 @@ function answerResourceListEntry(
   return true
 }
 
-// see T-370, RO-1, RO-10, TV-8, U-67, IC-127, UN-20
-// WHY: null hands the entry on; another table window reaches the search panel only with IC-127, the size of S-429.
+// Spec: T-370, RO-1, RO-10, TV-8, U-67, IC-127, UN-20
+// Why: null hands the entry on; another table window reaches the search panel only with IC-127, the size of S-429.
 /** @purity non-pure */
 export function answerTableWindowEntry(
   pressed: TableWindowEntryPressed,
@@ -115,7 +115,7 @@ export function answerTableWindowEntry(
   return false
 }
 
-// see RO-10, FR-099, CD-5
+// Spec: RO-10, FR-099, CD-5
 /** @purity non-pure */
 function answerResourceDeletion(hands: FrameLoopHands, frame: FrameValues): boolean {
   const chosen = hands.readSession().selection.chosenResources

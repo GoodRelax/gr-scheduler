@@ -49,8 +49,8 @@ const SQ_2_ORDER = '割当の並びのまま'
 const SQ_4_MILESTONE = 'マイルストーン（`AT-30`）は `AT-28` と同じ日'
 const SQ_6_TOP_FIRST = '最上位から順に'
 
-// see T-331
-// WHY: the seam (CR-571 section 5) gives each column of table T-331 one field; this copy
+// Spec: T-331
+// Why: the seam (CR-571 section 5) gives each column of table T-331 one field; this copy
 // is checked against the table below, so a row added to T-331 fails here first.
 const T_331_FIELDS: Readonly<Record<string, { readonly table: 'タスク' | 'コメントボックス'; readonly field: string }>> = {
   'SQ-5': { table: 'タスク', field: 'progressMarker' },
@@ -68,7 +68,7 @@ const T_331_FIELDS: Readonly<Record<string, { readonly table: 'タスク' | 'コ
   'SQ-9': { table: 'コメントボックス', field: 'anchorDate' },
 }
 
-// WHY: every task and every comment box sits on a task group: SV-8 does not say where a hit with
+// Why: every task and every comment box sits on a task group: SV-8 does not say where a hit with
 // no task group goes, so this file never makes one.
 
 const TEMPLATE = JSON.parse(
@@ -139,7 +139,7 @@ const commentBox = (id: string, text: string, anchorTaskGroupId: string, anchorD
 
 const D = (day: string): string => `${day}T00:00:00`
 
-// WHY: R12 comes before R11 in the array but after it by AT-55 order, so array order cannot pass for tree order.
+// Why: R12 comes before R11 in the array but after it by AT-55 order, so array order cannot pass for tree order.
 const GROUPS = [
   group(R1, null, 0, '1. Program', null),
   group(R12, R1, 1, null, 203),
@@ -167,7 +167,7 @@ const MEMBERS = [
   { taskUid: 207, taskGroupId: R11 },
 ]
 
-// WHY: resource 302 is assigned before 301, the reverse of both uid and reading order, so
+// Why: resource 302 is assigned before 301, the reverse of both uid and reading order, so
 // SQ-2's assignment order is the only rule that gives it.
 const RESOURCES = [resource(301, '山下 亜紀'), resource(302, '伊藤 直子'), resource(303, 'PMO 佐藤')]
 const ASSIGNMENTS = [assignment(402, 201, 302), assignment(401, 201, 301), assignment(403, 203, 303)]
@@ -230,9 +230,9 @@ describe('FR-151 -- the clauses these cases are driven by', () => {
 describe(`T-330 SV-4 -- ${SV_4_EMPTY_WORD} / T-330 SV-8 -- ${SV_8_DEFAULT_ORDER}`, () => {
   it('the empty word lists every task and every comment box, in the default order', () => {
     const rows = searchRowsOf(SCHEDULE, '')
-    // STEP: tree order R1, R11, R12, R2; inside a task group SQ-3, then Task.uid
+    // Step: tree order R1, R11, R12, R2; inside a task group SQ-3, then Task.uid
     expect(uidsOf(rows.taskRows)).toEqual([206, 205, 201, 207, 203, 202, 204])
-    // STEP: tree order R1, R11, R2; inside a task group SQ-9, then id
+    // Step: tree order R1, R11, R2; inside a task group SQ-9, then id
     expect(idsOf(rows.commentBoxRows)).toEqual(['c-3', 'c-4', 'c-1', 'c-2'])
   })
 
@@ -265,7 +265,7 @@ describe(`T-330 SV-4 -- ${SV_4_WHERE}`, () => {
   })
 
   it(FR_151_NOT_NOTES_NOR_TASK_GROUP_NAMES, () => {
-    // STEP: 205's notes say "steering budget" and "review"; R11 is "1.5 Steering", R2 "2. Review Delivery"
+    // Step: 205's notes say "steering budget" and "review"; R11 is "1.5 Steering", R2 "2. Review Delivery"
     expect(uidsOf(searchRowsOf(SCHEDULE, 'steering').taskRows)).toEqual([])
     expect(idsOf(searchRowsOf(SCHEDULE, 'steering').commentBoxRows)).toEqual([])
     expect(uidsOf(searchRowsOf(SCHEDULE, 'review').taskRows)).toEqual([])
@@ -275,7 +275,7 @@ describe(`T-330 SV-4 -- ${SV_4_WHERE}`, () => {
 
 describe(`T-330 SV-4 -- ${SV_4_FOLD}`, () => {
   it(`${SV_4_KANA} -- through searchRowsOf`, () => {
-    // STEP: the example of the row itself, and the comment boxes that say PM
+    // Step: the example of the row itself, and the comment boxes that say PM
     expect(uidsOf(searchRowsOf(SCHEDULE, 'ｐｍ').taskRows)).toEqual([201, 203])
     expect(idsOf(searchRowsOf(SCHEDULE, 'ｐｍ').commentBoxRows)).toEqual(['c-3', 'c-1'])
     expect(uidsOf(searchRowsOf(SCHEDULE, 'れびゅー').taskRows)).toEqual([])
@@ -348,7 +348,7 @@ describe('T-331 -- the value column of each row, on one task and one comment box
   })
 
   it('SQ-6 reads a derived task group name the way AT-53 / AT-54 give it (the one taskGroupNameOf of PI-1)', () => {
-    // STEP: R12 has no label and takes its name from task 203 (AT-54, FR-004 TC-12)
+    // Step: R12 has no label and takes its name from task 203 (AT-54, FR-004 TC-12)
     expect(taskGroupNameOf(SCHEDULE, R12)).toBe('Design')
     expect(taskGroupNameOf(SCHEDULE, R11)).toBe('1.5 Steering')
     expect(taskRowOf(203).rowPath).toEqual(['1. Program', 'Design'])

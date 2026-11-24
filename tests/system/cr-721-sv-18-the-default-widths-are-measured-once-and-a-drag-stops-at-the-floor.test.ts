@@ -33,7 +33,7 @@ const SV_18_RIGHT_EDGE =
 const SV_18_NOT_BY_STEP = '幅は画面の px であり、字の段（`S-429`）と表示の倍率（`S-234`）で変えない。'
 const SV_18_VISIBILITY = '⭐ [表示] の列（`SQ-10`）は例外で、幅は `S-496` の固定の値とし、右の境目（`GR-28`）を持たない'
 const S_425_ABOUT = '利用者が「フィルタマークの幅」と定めた（9px の段で約 29px）'
-// WHY: CR-737 stands IC-122 clear of the border's grab band by S-465 (T-206) on top of the 0.25em padding (T-330 SV-7).
+// Why: CR-737 stands IC-122 clear of the border's grab band by S-465 (T-206) on top of the 0.25em padding (T-330 SV-7).
 const S_465_CLEARANCE_PX = 6
 
 let browser: Browser | null = null
@@ -53,7 +53,7 @@ const need = (): Browser => {
 }
 
 const idsIn = (clause: string): readonly string[] => [...clause.matchAll(/`([A-Z]+-\d+)`/g)].map((one) => one[1] ?? '')
-// WHY: the measured columns are the ones the clause names, kept to the columns this window's table holds.
+// Why: the measured columns are the ones the clause names, kept to the columns this window's table holds.
 const MEASURED = idsIn(SV_18_MEASURED).filter((id) => specTable('T-331').rows.some((row) => row.id === id && row.by['表'] === 'タスク'))
 const MEASURED_REPORT = idsIn(RW_9_MEASURED).filter((id) => specTable('T-347').rows.some((row) => row.id === id))
 const TOLERANCE = 1

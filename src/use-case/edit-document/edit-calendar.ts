@@ -1,4 +1,4 @@
-// EditDocument: the Calendar aggregate's one command.
+// File: EditDocument: the Calendar aggregate's one command.
 // @unit      UF-16  (docs/spec/05-07-design.md, table T-075)
 // @component EditDocument, layer UseCase (table T-062)
 // @purity    pure
@@ -32,7 +32,7 @@ import { recountedPercentComplete } from './percent-complete'
 
 // <generated -- do not edit by hand>
 // From docs/spec/_source/document-commands.json (table T-108, CalendarCommand).
-// see T-108
+// Spec: T-108
 export type CalendarCommand =
   | {
       readonly kind: 'setCalendar'
@@ -45,7 +45,7 @@ export type CalendarCommand =
 
 const DAY_TYPES = [1, 2, 3, 4, 5, 6, 7] as const
 
-// see CM-39, FR-088, FR-012
+// Spec: CM-39, FR-088, FR-012
 /** @purity pure */
 export function editCalendar(document: Document, command: CalendarCommand): EditResult {
   switch (command.kind) {
@@ -54,13 +54,13 @@ export function editCalendar(document: Document, command: CalendarCommand): Edit
       const schedule = document.schedule
       const refusals = refusalsOf(command)
 
-      // TRAP: compare by identity, not uid: the T-209 default is built, and its uid can match a real row.
+      // Trap: compare by identity, not uid: the T-209 default is built, and its uid can match a real row.
       const within = workingCalendarOf(schedule)
       const foundAt = schedule.calendars.indexOf(within.calendar)
 
       if (refusals.length > 0) return refused(refusals)
 
-      // TRAP: keep the old reference when nothing moved; document-change-plan.ts reads a new one as a change.
+      // Trap: keep the old reference when nothing moved; document-change-plan.ts reads a new one as a change.
       const reworked = withWorkingTimes(withExceptions(
         workingDayTypes === undefined ? within.calendar : withWorkingDayTypes(within.calendar, workingDayTypes),
         exceptions,
@@ -96,7 +96,7 @@ export function editCalendar(document: Document, command: CalendarCommand): Edit
   }
 }
 
-// see CM-39, AT-73, AT-17, IV-24
+// Spec: CM-39, AT-73, AT-17, IV-24
 /** @purity pure */
 function refusalsOf(command: CalendarCommand): Refusal[] {
   const { workingDayTypes, weekStartDay, workingTimes } = command
@@ -119,8 +119,8 @@ function refusalsOf(command: CalendarCommand): Refusal[] {
   return refusals
 }
 
-// see FR-088, WC-8
-// WHY: a weekday holding another set keeps it (FR-088), and so does an exception holding its own spans.
+// Spec: FR-088, WC-8
+// Why: a weekday holding another set keeps it (FR-088), and so does an exception holding its own spans.
 /** @purity pure */
 function withWorkingTimes(
   calendar: Calendar,
@@ -186,7 +186,7 @@ function isSameException(left: Exception, right: Exception): boolean {
   )
 }
 
-// see WC-7, FR-031
+// Spec: WC-7, FR-031
 /** @purity pure */
 function withExceptions(calendar: Calendar, exceptions: readonly Exception[] | undefined): Calendar {
   if (exceptions === undefined) return calendar
@@ -196,8 +196,8 @@ function withExceptions(calendar: Calendar, exceptions: readonly Exception[] | u
   return isSame ? calendar : { ...calendar, exceptions: stampedExceptions(calendar.exceptions, exceptions) }
 }
 
-// see FR-057, CM-39, WT-6, WT-7, WT-10
-// WHY: the one writer stamps the times, so the issuers (the panel's draft WC-6, the agent relay) never learn them.
+// Spec: FR-057, CM-39, WT-6, WT-7, WT-10
+// Why: the one writer stamps the times, so the issuers (the panel's draft WC-6, the agent relay) never learn them.
 /** @purity pure */
 function stampedExceptions(held: readonly Exception[], incoming: readonly Exception[]): Exception[] {
   const heldByOrdinal = new Map(held.map((one) => [one.ordinal, one]))
@@ -209,8 +209,8 @@ function stampedExceptions(held: readonly Exception[], incoming: readonly Except
   })
 }
 
-// see WT-10, EX-4
-// WHY: a text with no readable day is kept as it came; stamping it would have to invent the day.
+// Spec: WT-10, EX-4
+// Why: a text with no readable day is kept as it came; stamping it would have to invent the day.
 /** @purity pure */
 function writtenDayText(
   heldText: string | null | undefined,
@@ -222,8 +222,8 @@ function writtenDayText(
   return day === null ? incomingText : textOfSide(day)
 }
 
-// see FR-088, CM-39, AT-20, AT-67
-// WHY: the T-209 default is no row of the document, so the first edit makes one and points the project at it.
+// Spec: FR-088, CM-39, AT-20, AT-67
+// Why: the T-209 default is no row of the document, so the first edit makes one and points the project at it.
 /** @purity pure */
 function withMadeCalendar(
   schedule: Schedule,

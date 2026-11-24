@@ -90,10 +90,10 @@ afterEach(() => {
 
 const COPY = keyOfRow('SK-4')
 const PASTE = keyOfRow('SK-5')
-// WHY: the SK-3 cell lists Delete and Backspace joined by a full-width slash, which keyOfRow does not split.
+// Why: the SK-3 cell lists Delete and Backspace joined by a full-width slash, which keyOfRow does not split.
 const DELETE = keyOf('Delete')
 
-// WHY: one Task on one task group; the paste has nothing to infer a parent from.
+// Why: one Task on one task group; the paste has nothing to infer a parent from.
 const twoTaskDocument = (): Record<string, any> => {
   const document = taskGroupDocument([{ id: 'task-group-1', parentId: null }])
   document.schedule.tasks = [1, 2].map((uid) => taskOf(uid, { name: `T${uid}` }))
@@ -102,7 +102,7 @@ const twoTaskDocument = (): Record<string, any> => {
   return document
 }
 
-// see FR-033
+// Spec: FR-033
 const pressedTask = (bench: ShellBench, uid: number): void => {
   const drawn = (bench.loop.current()?.geometry.tasks as any[] | undefined)?.find((one) => one.taskUid === uid)
   if (drawn?.plan?.form !== 'outline') throw new Error(`premise: Task ${uid} has no bar body to press`)

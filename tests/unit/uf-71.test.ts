@@ -150,7 +150,7 @@ import { S_235 } from '../fixtures/display-scale'
 import { emptyScreenSession } from '../../src/use-case/advance-screen-session/advance-screen-session'
 
 const LINK_GUARDS: readonly string[] = ['pointerdown', 'pointerup', 'keydown']
-// WHY: DFC-3302 -- the search word field hears composition so a word still being converted is not sent.
+// Why: DFC-3302 -- the search word field hears composition so a word still being converted is not sent.
 const TEXT_ENTRY_EVENTS: readonly string[] = ['input', 'compositionstart', 'compositionend']
 
 // ---------------------------------------------------------------------------
@@ -1495,7 +1495,7 @@ describe('表 T-078 / NFR-010 (MUST NOT) -- nothing in this unit wakes a frame',
     // own MUST NOT is held down from here.
     const root = built.root()
     const noticing = [oneByRole(root, 'Properties Panel')]
-    // WHY: the typed word may be heard on the layer holding the search field, but
+    // Why: the typed word may be heard on the layer holding the search field, but
     // only as text entry (an input event, or the composition that ends in one: IF-9 and SV-5,
     // DFC-3302) -- the jump and the grab are answers to a point.
     const searchLayers = selfAndDescendants(root).filter(
@@ -1528,9 +1528,9 @@ describe('表 T-078 / NFR-010 (MUST NOT) -- nothing in this unit wakes a frame',
       // ⛔ FT-1 of 表 T-078 has the human input reach the shell through IF-2 and
       // says the supply is not widened, so a listener OUTSIDE these two parts
       // would be this unit becoming a second source of input.
-      // WHY: FR-069 / FR-073 links keep their own press and Enter from the shell, so they open; they raise no frame.
+      // Why: FR-069 / FR-073 links keep their own press and Enter from the shell, so they open; they raise no frame.
       const isLinkGuard = one.node.getAttribute('target') === '_blank' && LINK_GUARDS.includes(one.type)
-      // WHY: CR-832 / FR-069 -- the help's full-text summary keeps its press and Enter from the shell like the links, and its
+      // Why: CR-832 / FR-069 -- the help's full-text summary keeps its press and Enter from the shell like the links, and its
       // details hears toggle so the drawn help box stretches; neither reports to the shell nor raises a frame (T-078).
       const inHelp = byRole(root, 'Help Modal').some((help) => help.contains(one.node))
       const isFullTextGuard =
@@ -1796,7 +1796,7 @@ describe('HF-14 of 表 T-051 (MUST) -- 既定の名前でタスクグループ�
     expect(ask('no-such-row'), 'no such field in the panel drawn: the ask is answered as withdrawn').toBe(true)
     const field = controlsIn(oneByRole(built.root(), partName('U-25')))[0] as FakeElement
     field.focus = (): void => undefined
-    // WHY: the fake host names no activeElement, and a host that cannot say where the focus is reads as "in".
+    // Why: the fake host names no activeElement, and a host that cannot say where the focus is reads as "in".
     Object.defineProperty(built.host, 'activeElement', { get: () => built.world.activeElement, configurable: true })
     built.world.activeElement = oneByRole(built.root(), partName('U-23'))
     expect(ask(NAME_TASK_GROUP), 'the field is drawn but the focus did not enter: ask again').toBe(false)
@@ -2642,7 +2642,7 @@ describe('FR-038 -- the words are carried, and the language is readable before t
     expect(commandFor('IC-61').getAttribute('aria-label')).toBe('PaletteCommandOne')
   })
 
-  // WHY: the view is in `ja` and HELP_MODAL carries helpLanguage `en`, so the two differ.
+  // Why: the view is in `ja` and HELP_MODAL carries helpLanguage `en`, so the two differ.
   it('⭐ ヘルプの言語が画面の言語と違うあいだは、ヘルプの領域にヘルプの言語を名乗らせること（MUST）', () => {
     const requirements = unbroken(readFileSync(
       join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'),
@@ -3004,7 +3004,7 @@ describe('LY-5 of 表 T-060 / R7.3 -- the outside arrives as an argument', () =>
   })
 
   it('holds what is current here, so a second surface starts clean', () => {
-    // WHY: a text field of the Properties Panel is the one place this unit holds a settled value.
+    // Why: a text field of the Properties Panel is the one place this unit holds a settled value.
     const panel = {
       showing: 'selection',
       isSubjectGone: false,

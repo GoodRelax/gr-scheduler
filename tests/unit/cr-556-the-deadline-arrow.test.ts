@@ -73,13 +73,13 @@ const DA_7_CUT = '`Task Group Area` の外に立つ印は、ほかの形と同�
 const OC_9_WIDTH = '数える幅は、印の軸を中心とした矢じりの幅（表 T-304 の `DA-2`）とすること（MUST）'
 const OC_9_ONE_OCCUPATION = '形状から離れて立つ印も、形状とのあいだを含めて 1 つの占有として数えること（MUST）'
 const ZO_13_PLACE = '形と依存線より手前、線の道具（`ZO-8`）・進捗マーカー（`ZO-3`）・札（`ZO-5`）・イナズマ線（`ZO-16`）より奥とする'
-// WHY: CR-793 -- the deadline line is labelled: the word, a colon, one space, the day.
+// Why: CR-793 -- the deadline line is labelled: the word, a colon, one space, the day.
 const TL_9_LINE = '期限の語、`:`、半角空白 1 つ、`deadline` の日（`TL-10`）の順に書くこと（MUST）'
 const TL_9_THE_WORD = '期限の語は、プロパティパネルの期限の欄と同じ語（`FR-038` の辞書の `properties` の `PR-10` の語）とすること（MUST）'
 const TL_9_NO_LINE = '`deadline` が `null` のときは、期限の行を出さないこと（MUST）'
 const TL_10_DAY = '年（西暦の 4 桁）、`/`、月、`/`、日 の順とし、月と日は 2 桁に 0 で埋めること（MUST）'
 const TL_1_ORDER = '`TL-9` の期限を、この順に 1 行ずつ出すこと（MUST）'
-// WHY: 2026-03-20 is a Friday; TL-11 adds the weekday word of the dictionary's weekdays.
+// Why: 2026-03-20 is a Friday; TL-11 adds the weekday word of the dictionary's weekdays.
 const DAY_20 = { ja: '2026/03/20 (金)', en: '2026/03/20 (Fri)' } as const
 const IN_7_ONE_LINE = 'ツールチップは、説明の各行を折り返さずに 1 行で出すこと（MUST）'
 const EP_5_HAS_THE_MARK = '`Deadline Mark`（`U-63`）'
@@ -107,7 +107,7 @@ const t236 = (id: string, preference: 'light' | 'dark'): string => {
 }
 const normalColor = (text: string): string => text.replace(/\s+/g, '').toLowerCase()
 
-// see T-012
+// Spec: T-012
 const KIND_OF = (id: string): string => cellOf('T-012', id, '値').replace(/'/g, '')
 const SH = ['SH-1', 'SH-2', 'SH-3', 'SH-4', 'SH-5'] as const
 const LAID_BELOW = new Set(['SH-3', 'SH-4'])
@@ -251,7 +251,7 @@ const partsOf = (outline: readonly Pt[]): ArrowParts => {
   }
 }
 
-// see DA-2, FR-094
+// Spec: DA-2, FR-094
 const diameterOf = (scene: Stage2, uid: number, sh: string): number =>
   LAID_BELOW.has(sh) ? placedOf(scene, uid).labelFontSize : MARKER_D
 

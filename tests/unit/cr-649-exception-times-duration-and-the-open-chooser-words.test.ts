@@ -32,22 +32,22 @@ import {
 const LIMITS: SettingsLimits = { zoomMin: 0.02, zoomMax: 64, taskGroupAreaWidthWithoutPanels: 982 }
 const A_MOMENT = '2026-10-04T09:00:00'
 
-// see FR-057, CM-39
+// Spec: FR-057, CM-39
 const FR_057_STAMPS =
   '例外日の `fromDate` ／ `toDate` は、`CM-39`（`_assets/tbl-document-commands.md` の 表 T-108）を受けて文書へ書く側が、足した行と日の動いた列だけを `WT-6` ／ `WT-7` の時刻で書くこと（MUST）。'
 const FR_057_KEEPS =
   '元の行（同じ `ordinal`、`_assets/fig-erd-detail.md` の `AT-77`）と日で比べて同じ列は、元の行の字面を保つこと（MUST、`WT-10`）。'
 const CM_39_POINTS = '例外日の `fromDate` ／ `toDate` の時刻は、本命令を受けて文書へ書く側が揃える'
-// see DV-8, T-059
-// WHY: CR-710 rewrote this clause (FR-054 reads instants and counts working time in minutes).
+// Spec: DV-8, T-059
+// Why: CR-710 rewrote this clause (FR-054 reads instants and counts working time in minutes).
 const DV_8_COUNTS =
   '`start` から `finish` までの、文書の暦の稼働時間の合計（分、`01-04-requirements.md` の `FR-054`）を `PTnHnMnS` で書く。マイルストーン（`Task.milestone` が真）は `PT0H0M0S`。'
 const DV_8_EXAMPLE = '水曜の `08:00:00` に始まり木曜の `17:00:00` に終わるタスクを `PT16H0M0S` と書く'
-// see EX-12, T-033
+// Spec: EX-12, T-033
 const EX_12_REBUILDS = '日付を編集したタスクでは、`Duration` を `DV-8` のとおり作り直すこと（MUST）。'
 const EX_12_GRS_MADE = '`GRS` が作ったタスクにも `Duration` を `DV-8` のとおり書くこと（MUST）。'
 
-// WHY: April 2026 starts on a Wednesday, so the 6th is a Monday; the template calendar works Monday to Friday
+// Why: April 2026 starts on a Wednesday, so the 6th is a Monday; the template calendar works Monday to Friday
 // and holds no exception in April 2026, and the template leaves minutesPerDay empty (S-128 answers).
 const MONDAY = 6
 const WEDNESDAY = 8
@@ -77,7 +77,7 @@ function exceptionRow(part: Partial<Exception> & { ordinal: number }): Exception
   }
 }
 
-// WHY: an imported row whose times are none of WT-6 / WT-7, so a kept spelling and a stamped one differ.
+// Why: an imported row whose times are none of WT-6 / WT-7, so a kept spelling and a stamped one differ.
 const IMPORTED_TASK_GROUP = exceptionRow({
   ordinal: 0,
   name: 'imported',
@@ -205,7 +205,7 @@ describe('DV-8 / EX-12: Task/Duration counts the finish day', () => {
     expect(writtenDuration(task)).toEqual(['PT0H0M0S'])
   })
 
-  // WHY: CR-710 made DV-8 the working time of the calendar's spans, so minutesPerDay no longer scales it.
+  // Why: CR-710 made DV-8 the working time of the calendar's spans, so minutesPerDay no longer scales it.
   it('DV-8: Project.minutesPerDay does not scale the count -- 420 minutes a day still writes PT16H0M0S', () => {
     const task = taskRow(1, { start: april(WEDNESDAY, S_482), finish: april(THURSDAY, S_483) })
     expect(writtenDuration(task, { minutesPerDay: 420 })).toEqual(['PT16H0M0S'])
@@ -224,7 +224,7 @@ describe('DV-8 / EX-12: Task/Duration counts the finish day', () => {
       asDocument(),
     )
     if (!read.ok) throw new Error('premise: the MSPDI was refused')
-    // WHY: Tuesday the 7th to Tuesday the 14th holds six working days; the half-open count would say five.
+    // Why: Tuesday the 7th to Tuesday the 14th holds six working days; the half-open count would say five.
     const result = editDocument(
       read.document,
       { kind: 'setTaskPlanDates', taskUid: 1, start: april(7, S_482), finish: april(14, S_483) },

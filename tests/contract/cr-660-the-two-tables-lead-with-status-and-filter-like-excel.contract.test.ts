@@ -41,7 +41,7 @@ import {
 import { selfAndDescendants, stage, type FakeElement } from '../fixtures/fake-browser'
 import { specTable, unbroken, type SpecRow } from './spec-table'
 
-// WHY: The clauses this file is driven by (quoted from docs/spec, so a changed sentence reddens case 1)
+// Why: The clauses this file is driven by (quoted from docs/spec, so a changed sentence reddens case 1)
 
 const T_331_ORDER = '列は、表ごとに本表の行の順に左から並べる'
 const T_347_ORDER = '欄は本表の行の順に左から並べる'
@@ -100,7 +100,7 @@ const TASK_COLUMNS = specTable('T-331').rows.filter((row) => row.by['表'] === '
 const COMMENT_COLUMNS = specTable('T-331').rows.filter((row) => row.by['表'] === 'コメントボックス').map((row) => row.id)
 const REPORT_COLUMNS = specTable('T-347').rows.map((row) => row.id)
 
-// see SV-18, RW-9
+// Spec: SV-18, RW-9
 const WIDTH_ROW: Readonly<Record<string, string>> = {
   ...Object.fromEntries([1, 2, 3, 4, 5, 6, 7, 8, 9].map((n) => [`SQ-${n}`, `S-${465 + n}`])),
   ...Object.fromEntries([11, 12, 13].map((n) => [`SQ-${n}`, `S-${489 + n}`])),
@@ -141,7 +141,7 @@ const STATE_FIELDS: Readonly<Record<State, Loose>> = {
   resumeUnknown: { actualStart: D('2026-03-30'), stop: D('2026-04-02'), actualFinish: null, resume: null, resumeValid: false },
 }
 
-// see SQ-5
+// Spec: SQ-5
 const STATE_GLYPH: Readonly<Record<State, string>> = {
   notStarted: 'PM-1a',
   inProgress: 'PM-1',
@@ -166,7 +166,7 @@ const TASKS: readonly TaskSpec[] = [
 ]
 const G_TASK_GROUP = 'g-task-group'
 
-// WHY: CR-760 made SQ-5 show PM-4 for a late task (T-021b); the template's status date would make most of these
+// Why: CR-760 made SQ-5 show PM-4 for a late task (T-021b); the template's status date would make most of these
 // April tasks late, so the fixture has none and every row shows its T-019a state (the CR-760 file holds the late ones).
 const SCHEDULE = {
   ...TEMPLATE.schedule,
@@ -205,7 +205,7 @@ const SHOWN = step(emptyScreenSession, 'searchEntryPressed')
 const JA = { ...SHOWN, screen: { ...SHOWN.screen, screenLanguage: 'ja', helpLanguage: 'ja' } } as unknown as ScreenSession
 const NO_VIEW: TableView = { visibility: NO_ROW_CHECKED, columnFilters: [], sort: null }
 
-// WHY: CR-723 split the panel (screen only) from the table's view (the document's); a pane carries both.
+// Why: CR-723 split the panel (screen only) from the table's view (the document's); a pane carries both.
 interface Pane {
   readonly panel: SearchPanelSession
   readonly view: TableView
@@ -214,7 +214,7 @@ interface Pane {
 const TASK_PANEL: Pane = { panel: { ...emptySearchPanelSession, table: 'tasks' }, view: NO_VIEW }
 const COMMENT_PANEL: Pane = { panel: { ...emptySearchPanelSession, table: 'commentBoxes' }, view: NO_VIEW }
 
-// WHY: CR-760 -- SQ-5 takes each task's diagnosed T-315 row (DG-1 .. DG-3), not only the bottlenecks; a bottleneck is DG-2.
+// Why: CR-760 -- SQ-5 takes each task's diagnosed T-315 row (DG-1 .. DG-3), not only the bottlenecks; a bottleneck is DG-2.
 const viewOf = (pane: Pane, bottlenecks?: ReadonlySet<number>): SearchPanelView =>
   found(
     searchPanelFromSession(
@@ -249,7 +249,7 @@ function valuesOf(pane: Pane): ValuesMenu {
 const shownMarks = (menu: ValuesMenu): Readonly<Record<string, boolean>> =>
   Object.fromEntries(menu.values.map((one) => [one.label, one.isShown]))
 
-// WHY: the surface lists the values whose label the typed word matches (SV-7, IF-9); this is that list.
+// Why: the surface lists the values whose label the typed word matches (SV-7, IF-9); this is that list.
 const listedFor = (menu: ValuesMenu, typed: string): readonly string[] =>
   menu.values.filter((one) => isFilterValueListed(one.label, typed)).map((one) => one.value)
 
@@ -282,13 +282,13 @@ const REPORT_SCHEDULE = {
     reportTask(5, 'Echo', '2026-01-01', { actualStart: '2026-01-01T08:00:00', actualFinish: '2026-01-09T17:00:00', percentComplete: 100 }),
     reportTask(6, 'Foxtrot', '2026-04-01'),
   ],
-  // WHY: CR-710 shows the T-314 quantities through 1d = Project.minutesPerDay (empty, so S-128 = 480 minutes, TX-8).
+  // Why: CR-710 shows the T-314 quantities through 1d = Project.minutesPerDay (empty, so S-128 = 480 minutes, TX-8).
   project: { minutesPerDay: null },
   resources: [],
   assignments: [],
 } as unknown as Schedule
 
-// WHY: CR-710 holds the quantities in working minutes (T-314); 480 is one working day of the fixture (S-128).
+// Why: CR-710 holds the quantities in working minutes (T-314); 480 is one working day of the fixture (S-128).
 const QUANTITIES = { inheritedDelayMinutes: 480, selfDelayMinutes: 960, pushOutMinutes: 2400, terminalsReached: 2 }
 
 const REPORT: DelayDiagnosticsReport = {
@@ -313,7 +313,7 @@ const REPORT: DelayDiagnosticsReport = {
   lateDays: [],
 } as unknown as DelayDiagnosticsReport
 
-// see DT-1
+// Spec: DT-1
 const REPORT_GLYPH: Readonly<Record<number, string | null>> = { 1: 'DG-1', 6: null, 2: 'DG-2', 3: 'DG-3', 4: 'PM-4', 5: null }
 
 const REPORT_SESSION = { screen: { screenLanguage: 'ja' } } as unknown as ScreenSession

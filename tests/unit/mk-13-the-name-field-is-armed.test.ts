@@ -539,7 +539,7 @@ function stage(heightsByRole: Record<string, number> = {}): Stage {
     activeElement: null,
   }
 
-  // WHY: CR-788 -- the assignee list AS-1 opens closes on a press anywhere, so it listens on the document.
+  // Why: CR-788 -- the assignee list AS-1 opens closes on a press anywhere, so it listens on the document.
   const document = {
     createElement(tagName: string): FakeElement {
       const made = new FakeElement(tagName, world)

@@ -1,4 +1,4 @@
-// SingleHtmlShell -- holds the parent task view: the toggle, the drawn families and the QN-12 chooser (FR-135).
+// File: SingleHtmlShell: holds the parent task view: the toggle, the drawn families and the QN-12 chooser (FR-135).
 // @unit      UF-197  (docs/spec/05-07-design.md, table T-075)
 // @component SingleHtmlShell, layer Framework (table T-062)
 // @purity    non-pure
@@ -16,7 +16,7 @@ import { armedOf, type ScreenSession } from '../../use-case/advance-screen-sessi
 
 const PARENT_TASK_LINKS_ENTRY: IconId = 'IC-141'
 
-// WHY: the dictionary part of the arrows' choice; either wording of the first choice keeps the tasks.
+// Why: the dictionary part of the arrows' choice; either wording of the first choice keeps the tasks.
 const PARENT_TASK_LINKS_ANSWER = 'links'
 
 const ESCAPE_KEY = 'Esc'
@@ -53,8 +53,8 @@ function isSameNumbers(a: readonly number[], b: readonly number[]): boolean {
   return a.length === b.length && a.every((one, at) => one === b[at])
 }
 
-// see FR-135, T-351
-// WHY: the owners kept while arrows are picked are the ones drawn just before, so a Shift click reaches a second arrow.
+// Spec: FR-135, T-351
+// Why: the owners kept while arrows are picked are the ones drawn just before, so a Shift click reaches a second arrow.
 /** @purity pure */
 export function parentTaskFamiliesOf(
   resolutions: ReadonlyMap<number, ParentTaskResolution>,
@@ -74,21 +74,21 @@ export function parentTaskFamiliesOf(
   return { families: { resolutions, ownerUids, pointedUid, selectedLinkChildUids: new Set(linkChildUids) }, anchorUids }
 }
 
-// see PTL-13
+// Spec: PTL-13
 /** @purity pure */
 export function isMixedParentPick(picked: Selection): boolean {
   return picked.items.some((one) => one.kind === 'task') && picked.items.some((one) => one.kind === 'parentTaskLink')
 }
 
-// see PTL-13, QN-12
+// Spec: PTL-13, QN-12
 /** @purity pure */
 export function selectionOfParentChoice(mixed: Selection, answer: string): Selection {
   const kept = answer === PARENT_TASK_LINKS_ANSWER ? 'parentTaskLink' : 'task'
   return { items: mixed.items.filter((one) => one.kind === kept), isOrdered: mixed.isOrdered }
 }
 
-// see PTL-13, PTL-14, IN-4
-// WHY: the chooser takes every key and press while it stands; a press outside closes it and does nothing else.
+// Spec: PTL-13, PTL-14, IN-4
+// Why: the chooser takes every key and press while it stands; a press outside closes it and does nothing else.
 /** @purity pure */
 export function choiceStepOf(mixed: Selection, input: HumanInput, answer: string | null): ParentTaskChoiceStep | null {
   if (input.kind === 'key') return input.key === ESCAPE_KEY ? { kind: 'closed' } : { kind: 'kept' }
@@ -102,7 +102,7 @@ function isParentTaskArmed(session: ScreenSession): boolean {
   return armedOf(session.screen.armModeState)?.kind === 'parentTaskArmed'
 }
 
-// see FR-135, S-484, AR-7
+// Spec: FR-135, S-484, AR-7
 /** @purity non-pure */
 function parentTaskViewOf() {
   let isShown = false
@@ -131,7 +131,7 @@ function parentTaskViewOf() {
       if (held?.of !== schedule) held = { of: schedule, resolutions: parentTaskResolutionsOf({ schedule }) }
       const state = session.selection.selectionState
       const chosen = state.kind === 'objectsSelected' ? state.selectedObjects : NOTHING_PICKED
-      // WHY: a pointer moved from a task onto one of its arrows still points at that family, or no arrow could be pressed.
+      // Why: a pointer moved from a task onto one of its arrows still points at that family, or no arrow could be pressed.
       const isOnArrow = under?.item.kind === 'parentTaskLink'
       const pointedUid = isOnArrow ? (families?.pointedUid ?? null) : pointed?.kind === 'task' ? pointed.taskUid : null
       const next = parentTaskFamiliesOf(held.resolutions, chosen, pointedUid, families, anchorUids)
@@ -142,7 +142,7 @@ function parentTaskViewOf() {
   }
 }
 
-// see QN-12, PTL-13, PTL-14
+// Spec: QN-12, PTL-13, PTL-14
 /** @purity non-pure */
 function parentTaskChooserOf() {
   let choice: HeldChoice | null = null
@@ -171,7 +171,7 @@ function parentTaskChooserOf() {
   }
 }
 
-// see FR-135, S-484, QN-12
+// Spec: FR-135, S-484, QN-12
 /** @purity non-pure */
 export function parentTaskHoldOf() {
   const view = parentTaskViewOf()

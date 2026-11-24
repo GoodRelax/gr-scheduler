@@ -21,7 +21,7 @@ import {
 
 const MANY_TASKS_ALL_COPIED =
   '⭐ `Task` が 2 つ以上選ばれているときは、選ばれた `Task` をすべて複製し、それぞれを上の段のとおり複製元と同じタスクグループに載せること（MUST）'
-// WHY: CR-706 moved both rules into T-223 DU-1: only the chosen Tasks are copied, each once; CR-714 made a copy's
+// Why: CR-706 moved both rules into T-223 DU-1: only the chosen Tasks are copied, each once; CR-714 made a copy's
 // parent task its source parent's copy when that parent is copied too, else the parent read off the landing task group.
 const ONLY_CHOSEN_COPIED =
   '⭐ 選ばれていない `Task` を複製するかどうかと、コピーの親タスクは、表 T-223 の `DU-1` に従うこと（MUST）'
@@ -29,7 +29,7 @@ const PARENT_FROM_THE_TASK_GROUP =
   'コピー元の親をコピーしないとき（コピー元が親を持たないときを含む）は、コピーの親タスクを、コピーを載せたタスクグループから推定すること（MUST）'
 const SAME_TASK_GROUP = '**複製した `Task` は、複製元と同じタスクグループに載せること（MUST）'
 const NO_SAME_UID = '複製した `Task` に、複製元と同じ `UID` を使ってはならない（MUST NOT）'
-// see CM-8
+// Spec: CM-8
 const CM_8_DOES = '選んだ `Task` を複製する —— 運ばない子孫タスクはコピーしない（`01-04-requirements.md` の 表 T-223 の `DU-1`）。'
 const CM_8_SOURCES = '`sourceUids`: 鍵の並び（`Task.uid`、`AT-24`） —— 複製元の `Task`（1 つ以上）'
 const COPY_TAKEN_ROW =
@@ -113,7 +113,7 @@ describe('copiedForPasteOf -- the seam the copy key goes through', () => {
   })
 })
 
-// WHY: these two are the parent brief's seam contract; no clause of docs/spec decides them
+// Why: these two are the parent brief's seam contract; no clause of docs/spec decides them
 // (PND-449 records them as the old behavior). Kept apart so a spec reader can drop them.
 describe('copiedForPasteOf -- the brief contract, NOT a spec clause', () => {
   it('brief: the task copy lists the Tasks in pick order (SL-7b keeps that order)', () => {
@@ -137,7 +137,7 @@ const RS_27_WORDS: string = (DISPLAY_WORDS.reasons as { rowId: string; text: { j
   (one) => one.rowId === 'RS-27',
 )!.text.ja
 
-// WHY: P on task-group-1 holds A (task-group-2), A holds A1 (task-group-3); B is a root on task-group-1. Dates differ
+// Why: P on task-group-1 holds A (task-group-2), A holds A1 (task-group-3); B is a root on task-group-1. Dates differ
 // so no two bars overlap and every bar has its own body to press.
 const wbsDocument = (): Record<string, unknown> =>
   taskGroupDocument(
@@ -188,7 +188,7 @@ function staged(): Staged {
   const schedule = (): any => (bench.loop.document() as any).schedule
   return {
     bench,
-    // see SL-2, SL-4
+    // Spec: SL-2, SL-4
     pickTasks: (uids) => {
       uids.forEach((uid, index) => {
         const at = middleOf(uid)
@@ -256,7 +256,7 @@ describe('FR-033 through the shell -- Ctrl+C then Ctrl+V on several picked Tasks
   })
 })
 
-// WHY: brief contract only (see the seam block above); the RS-27 fall-through itself is
+// Why: brief contract only (see the seam block above); the RS-27 fall-through itself is
 // T-293 copyTaken, but no clause says two chosen task groups are an uncopyable choice.
 describe('two task groups chosen at copy time -- the brief contract, NOT a spec clause', () => {
   it('brief + copyTaken RS-27: Ctrl+C with two task groups chosen is told RS-27 and holds nothing to paste', () => {

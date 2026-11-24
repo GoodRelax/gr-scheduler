@@ -84,7 +84,7 @@ const rowOf = (table: SpecTable, id: string) => {
   return found
 }
 
-// see FR-036, T-036, T-255
+// Spec: FR-036, T-036, T-255
 const assignmentsIn = (cell: string): readonly (readonly string[])[] =>
   cell
     .split('\uff0f')
@@ -93,8 +93,8 @@ const assignmentsIn = (cell: string): readonly (readonly string[])[] =>
 
 const combosOf = (cell: string): readonly string[] => assignmentsIn(cell).map((keys) => keys.join('+'))
 
-// see FR-036, T-255
-// WHY: CR-770 -- the screen spells a chord Ctrl+A and joins two with the en word of keyNotation (the help here is en).
+// Spec: FR-036, T-255
+// Why: CR-770 -- the screen spells a chord Ctrl+A and joins two with the en word of keyNotation (the help here is en).
 const spelledOnScreen = (cell: string): string | null => keysWords(assignmentsIn(cell), 'en')
 
 const T_036_COMBOS = new Set(T_036.rows.flatMap((row) => combosOf(row.by[H_KEYS] ?? '')))
@@ -117,7 +117,7 @@ const LEFT_OFF_NAMES = [...LEFT_OFF_SENTENCE.matchAll(/`([^`]+)`/g)].map((found)
 const LEFT_OFF_ICONS = LEFT_OFF_NAMES.filter((name) => /^IC-\d+$/.test(name))
 const LEFT_OFF_SURFACES = LEFT_OFF_NAMES.filter((name) => !/^IC-\d+$/.test(name) && name !== H_SURFACE)
 
-// see FR-036
+// Spec: FR-036
 function isLeftOff(row: string): boolean {
   if (LEFT_OFF_ICONS.includes(row)) return true
   return bareAll(rowOf(T_109, row).by[H_SURFACE] ?? '').every((surface) => LEFT_OFF_SURFACES.includes(surface))
@@ -144,7 +144,7 @@ const PALETTE_CONTINUED = 'Command Palette (continued)'
 const MOVED_GROUP_IN_CELL = new RegExp(`\`${H_GROUP}\` [^\`]*\`([^\`]+)\``)
 const CONTINUED_WORD = String.fromCodePoint(0x306e, 0x7d9a, 0x304d)
 
-// see T-256
+// Spec: T-256
 function blocksOfColumn(cell: string): readonly string[] {
   return cell.split(ARROW).map((part) => {
     if (part.includes(NO_ENTRANCE_BLOCK)) return BASICS
@@ -159,7 +159,7 @@ const MOVED_GROUP = T_256.rows
   .map((cell) => MOVED_GROUP_IN_CELL.exec(cell)?.[1])
   .find((one) => one !== undefined) ?? ''
 
-// see T-256
+// Spec: T-256
 function blockOfRow(row: string): string | null {
   if (T_255.rows.some((one) => one.id === row)) return BROWSER
   if (BASIC_ROWS.has(row)) return BASICS
@@ -319,7 +319,7 @@ interface Columns {
   readonly blocksByColumn: readonly (readonly string[])[]
 }
 
-// see FR-036, T-256
+// Spec: FR-036, T-256
 function columnsOf(help: FakeElement): Columns {
   const items = itemNodesOf(help).filter((one) => blockOfRow(one.getAttribute('data-row') ?? '') !== null)
   if (items.length === 0) throw new Error(`the help draws no item carrying data-row: ${whatWasDrawn(help)}`)
@@ -464,7 +464,7 @@ const S_149_LIGHT = bare(rowOf(specTable('T-236'), 'S-149').by[String.fromCodePo
 const isRuleLine = (one: FakeElement): boolean =>
   one.children.length === 0 && (one.textContent ?? '') === '' && styleMap(one).has('height') && styleMap(one).has('background')
 
-// see FR-036, S-437, S-457
+// Spec: FR-036, S-437, S-457
 function frameOf(help: FakeElement, block: string): FakeElement | null {
   const { container } = columnsOf(help)
   const items = itemNodesOf(help).filter((one) => blockOfRow(one.getAttribute('data-row') ?? '') === block)
@@ -530,7 +530,7 @@ describe('FR-036 (MUST / MUST NOT) -- the help box scrolls down, and not sideway
     expect(chain.some((one) => scrollsOn(one, 'y')), chain.map(whatWasDrawn).join('\n').slice(0, 800)).toBe(true)
   })
 
-  // WHY: CR-621 E-14 lets the body scroll sideways once narrowed; the floor keeps the opened help from doing so.
+  // Why: CR-621 E-14 lets the body scroll sideways once narrowed; the floor keeps the opened help from doing so.
   it('the body scrolls on both axes, and each column floors at min(S-458 em, the opened column width)', () => {
     const help = drawnHelp()
     const { container } = columnsOf(help)

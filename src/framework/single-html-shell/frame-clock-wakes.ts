@@ -1,4 +1,4 @@
-// SingleHtmlShell frame loop -- the waits that wake a frame when time has come (table T-078, FT-4).
+// File: SingleHtmlShell frame loop: the waits that wake a frame when time has come (table T-078, FT-4).
 // @unit      UF-163  (docs/spec/05-07-design.md, table T-075)
 // @component SingleHtmlShell, layer Framework (table T-062)
 // @purity    non-pure
@@ -21,7 +21,7 @@ interface RepeatTimes {
   readonly intervalMs: number
 }
 
-// see FR-018, T-206
+// Spec: FR-018, T-206
 /** @purity pure */
 export function repeatTimesOfHeldEntry(): RepeatTimes {
   return {
@@ -42,10 +42,10 @@ export function frameClockWakesOf(hands: FrameClockWakesHands) {
   let hintTargetEnteredAt: number | null = null
   let callOffIconHintWait: (() => void) | null = null
   let callOffEntryRepeat: (() => void) | null = null
-  // see SE-3, SE-4
+  // Spec: SE-3, SE-4
   let callOffScaleMessage: (() => void) | null = null
 
-  // see EZ-6, S-439
+  // Spec: EZ-6, S-439
   /** @purity non-pure */
   function beginPointerRest(): void {
     pointerRestingSince = readMonotonicMs()
@@ -59,7 +59,7 @@ export function frameClockWakesOf(hands: FrameClockWakesHands) {
     callOffTaskHintWait = () => clearTimeout(wake)
   }
 
-  // see EZ-2, S-124
+  // Spec: EZ-2, S-124
   /** @purity non-pure */
   function beginHintTargetDwell(): void {
     hintTargetEnteredAt = readMonotonicMs()
@@ -73,7 +73,7 @@ export function frameClockWakesOf(hands: FrameClockWakesHands) {
     callOffIconHintWait = () => clearTimeout(wake)
   }
 
-  // see SE-3, SE-4
+  // Spec: SE-3, SE-4
   /** @purity non-pure */
   function startScaleMessageTimer(): void {
     callOffScaleMessage?.()
@@ -85,14 +85,14 @@ export function frameClockWakesOf(hands: FrameClockWakesHands) {
     callOffScaleMessage = () => clearTimeout(wake)
   }
 
-  // see FR-018, S-172, T-289
+  // Spec: FR-018, S-172, T-289
   /** @purity non-pure */
   function beginEntryRepeat(): void {
     endEntryRepeat()
     tickEntryRepeat(repeatTimesOfHeldEntry().delayMs)
   }
 
-  // WHY: one wake chained per tick, not setInterval, so a late tick cannot pile onto the next.
+  // Why: one wake chained per tick, not setInterval, so a late tick cannot pile onto the next.
   /** @purity non-pure */
   function tickEntryRepeat(afterMs: number): void {
     const wake = setTimeout(() => {
@@ -137,14 +137,14 @@ interface NoticeWait {
   readonly callOff: (() => void) | null
 }
 
-// see NT-2, T-233
+// Spec: NT-2, T-233
 /** @purity pure */
 function isTimedNotice(notice: StandingNotice): boolean {
   return NOTICE_DISPLAY_OF_REASON[notice.reason as NoticeReason] === 'autoDismiss'
 }
 
-// see NT-2, NT-3, S-542, T-286
-// WHY: one wait per standing timed notice: called off while the pointer is over its box, and started
+// Spec: NT-2, NT-3, S-542, T-286
+// Why: one wait per standing timed notice: called off while the pointer is over its box, and started
 // afresh when the pointer leaves or the notice is gathered again (a new standing value), as SE-4 restarts.
 /** @purity non-pure */
 export function noticeTimersOf(hands: Pick<FrameLoopHands, 'readEnvironment' | 'sendToSession' | 'ask'>) {
@@ -188,7 +188,7 @@ export function noticeTimersOf(hands: Pick<FrameLoopHands, 'readEnvironment' | '
 // Single source of truth:
 //   docs/spec/_source/settings.json (table T-206)
 // Rebuild: npm run gen   ||   npm run gen:check fails on drift.
-// see T-206
+// Spec: T-206
 const NOT_STORED_REPEAT_TIMES: {
   readonly 'S-172': number
   readonly 'S-173': number
@@ -197,14 +197,14 @@ const NOT_STORED_REPEAT_TIMES: {
   'S-173': 120,
 }
 
-// see T-206
+// Spec: T-206
 const NOT_STORED_SCALE_MESSAGE_TIMES: {
   readonly 'S-244': number
 } = {
   'S-244': 1500,
 }
 
-// see T-206
+// Spec: T-206
 const NOT_STORED_NOTICE_TIMES: {
   readonly 'S-542': number
 } = {

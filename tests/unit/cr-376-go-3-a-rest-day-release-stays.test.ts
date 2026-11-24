@@ -110,7 +110,7 @@ function fixtureDocument(): Document {
     },
     documentSettings: {
       ...template.documentSettings,
-      // WHY: S-1 is a constant (CR-572); the stored zoomX (S-75) carries the day width this fixture draws at.
+      // Why: S-1 is a constant (CR-572); the stored zoomX (S-75) carries the day width this fixture draws at.
       zoomX: 20 / SETTINGS_CONSTANTS.pxPerDayAt1x,
       scrollDate: day(1),
       scrollTaskGroupId: TASK_GROUP_A,
@@ -206,7 +206,7 @@ const dayUnder = (loop: FrameLoop, x: number): string => {
   return textOfDay(found).slice(0, 10)
 }
 
-// see GA-4, GO-3
+// Spec: GA-4, GO-3
 function releasedOn(uid: number, target: string): { readonly released: string; readonly before: Task; readonly after: Task } {
   const built = stage()
   const before = structuredClone(taskIn(built.loop, uid))

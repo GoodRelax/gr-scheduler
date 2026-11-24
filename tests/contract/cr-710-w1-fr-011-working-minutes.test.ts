@@ -39,7 +39,7 @@ import {
 
 const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
-// see FR-011
+// Spec: FR-011
 const FR_011_CLAUSES = [
   '実績の長さは、`actualStart` から実績の終わり（完了なら `actualFinish`、それ以外は `stop`）の瞬間までの、文書の暦（`FR-054`）の稼働時間の合計（分）とすること（MUST）。',
   '間にある非稼働日を数えてはならない（MUST NOT）',
@@ -48,7 +48,7 @@ const FR_011_CLAUSES = [
   '`actualStart` から `ActualDuration` の分だけ稼働時間を進めた瞬間を `stop` に置くこと（MUST） —— 0 なら `actualStart`、負なら `actualStart` から同じ分だけ戻った瞬間である',
 ]
 
-// see FR-012
+// Spec: FR-012
 const FR_012_CLAUSES = [
   '予定の期間は、`start` から `finish` までを、`FR-011` が実績の長さを数える規則で数えた稼働時間（分）とすること（MUST）',
   'マイルストーンの予定の期間は 0 とする',

@@ -20,7 +20,7 @@ import {
 } from './cr-606-stage'
 import { bare, specTable, unbroken } from './spec-table'
 
-// see CV-9
+// Spec: CV-9
 const CV_9_TRANSPARENT_WORD =
   '透明の入口は、塗りの欄（`fillColor` と `TaskGroup.color`）では塗りの無いことを、線の欄（`strokeColor`）では線の無いことを言う語'
 const CV_9_THEME_OR_DEFAULT =
@@ -32,10 +32,10 @@ const CV_9_CUSTOM_VALUE =
 const CV_9_FRAME_NO_LINE = 'ハイライトボックスの枠の欄にも透明（線なし）を並べる'
 const CV_9_COMMENT_NO_TRANSPARENT = 'コメントボックスの線の欄と字の欄には透明を並べない（`FR-019`）。'
 const CV_9_THEME_ENTRY_IS_NULL = '押したらその欄の色をテーマ追随（`null`）へ戻すこと（MUST）'
-// see FR-019
+// Spec: FR-019
 const FR_019_NULL_ENTRIES =
   '色の欄のテーマに戻す入口（表 T-017b の `CV-9`）は、塗りを `null`（テーマの色 `S-155` で塗る）へ、枠の線を `null`（注記の色 `S-312` で描く —— ツールチップの語は既定の色）へ戻す。'
-// see PR-28, PR-45, PR-46
+// Spec: PR-28, PR-45, PR-46
 const COMMENT_BOX_NULLS = [
   ['PR-28', '`null` ＝ `FR-019` が名指す注記の色（`_assets/tbl-settings.md` の 表 T-236 の `S-312`）'],
   ['PR-45', '`null` ＝ `FR-019` が名指す地の色（`_assets/tbl-settings.md` の 表 T-236 の `S-146`）'],
@@ -92,7 +92,7 @@ const hslToRgb = (h: number, s: number, l: number): Rgb => {
   return [Math.round(f(0) * 255), Math.round(f(8) * 255), Math.round(f(4) * 255)]
 }
 
-// WHY: the panel may spell a color as hex, hsl() or rgb(); the cases compare the color, not the spelling.
+// Why: the panel may spell a color as hex, hsl() or rgb(); the cases compare the color, not the spelling.
 const rgbOf = (text: string): Rgb | null => {
   const value = text.trim().toLowerCase()
   const hex = /^#([0-9a-f]{6})$/.exec(value)?.[1] ?? null
@@ -161,7 +161,7 @@ const colorOf = (control: PropertyControl): ColorField => {
   return control.color
 }
 
-// WHY: what each field's transparent entry says (CV-9 (4)); null where CV-9 leaves the slot empty.
+// Why: what each field's transparent entry says (CV-9 (4)); null where CV-9 leaves the slot empty.
 const FIELDS: readonly (readonly [string, string, 'noFill' | 'noLine' | null])[] = [
   ['taskVisual', 'fillColor', 'noFill'],
   ['taskVisual', 'strokeColor', 'noLine'],
@@ -173,7 +173,7 @@ const FIELDS: readonly (readonly [string, string, 'noFill' | 'noLine' | null])[]
   ['commentBox', 'textColor', null],
 ]
 
-// WHY: the T-236 row each box field's null draws, as FR-019 and T-016 PR-28, PR-45 and PR-46 name them.
+// Why: the T-236 row each box field's null draws, as FR-019 and T-016 PR-28, PR-45 and PR-46 name them.
 const NULL_ROWS: readonly (readonly [string, string, string])[] = [
   ['highlightBox', 'fillColor', 'S-155'],
   ['highlightBox', 'strokeColor', 'S-312'],

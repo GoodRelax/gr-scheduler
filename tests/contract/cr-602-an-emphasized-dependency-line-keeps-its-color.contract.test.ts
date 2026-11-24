@@ -41,7 +41,7 @@ const numberIn = (cell: string): number => {
 
 const numbersOf = (text: string): readonly number[] => [...text.matchAll(/-?\d+(?:\.\d+)?/g)].map((one) => Number(one[0]))
 
-// see T-201, T-206, T-236
+// Spec: T-201, T-206, T-236
 const T201 = (id: string): number => numberIn(cellOf('T-201', id, '既定値'))
 const T206 = (id: string): number => numberIn(cellOf('T-206', id, '既定'))
 const colorOf = (id: string, column: string): string => cellOf('T-236', id, column).replace(/`/g, '').trim().toLowerCase()
@@ -122,14 +122,14 @@ describe('CR-602 -- the manuscript these cases are driven by', () => {
 })
 
 const DRAW_RATIO_AT_100 = T206('S-236')
-// see FR-039, T-252
+// Spec: FR-039, T-252
 const ratioAt = (displayScale: number): number => (DRAW_RATIO_AT_100 * displayScale) / 100
 const LINE_WIDTH = (displayScale = 100): number => T201('S-18') * ratioAt(displayScale)
-// see SL-8, EL-16, S-447
+// Spec: SL-8, EL-16, S-447
 const EMPHASIZED_WIDTH = (displayScale = 100): number => LINE_WIDTH(displayScale) + T206('S-447')
-// see SL-8, S-39
+// Spec: SL-8, S-39
 const PLAN_OUTLINE_WIDTH = (displayScale = 100): number => T201('S-39') * ratioAt(displayScale)
-// see SL-8, S-447
+// Spec: SL-8, S-447
 const OUTLINE_WIDTH = (displayScale = 100): number => PLAN_OUTLINE_WIDTH(displayScale) + T206('S-447')
 
 const PLAN_VISIBLE = keyOf('T-202', 'S-227')
@@ -270,7 +270,7 @@ const svgOf = (wish: SceneWish, picture: 'screen' | 'export' = 'screen', theme: 
   } as unknown as ViewerArgument)
 }
 
-// WHY: the SVG prints two decimals.
+// Why: the SVG prints two decimals.
 const SVG_EPS = 0.006
 
 interface Element {
@@ -286,7 +286,7 @@ const attrOf = (attrs: string, name: string): string | null => {
 
 const parsed = new Map<string, readonly Element[]>()
 
-// see T-020
+// Spec: T-020
 const elementsOf = (svg: string): readonly Element[] => {
   const held = parsed.get(svg)
   if (held !== undefined) return held
@@ -352,12 +352,12 @@ const verticesOf = (one: Element): readonly Pt[] => {
 const sameVertices = (a: readonly Pt[], b: readonly Pt[]): boolean =>
   a.length > 0 && a.every((one) => b.some((other) => near(one, other))) && b.every((one) => a.some((other) => near(one, other)))
 
-// WHY: a circle is the same figure only with the same center and the same radius.
+// Why: a circle is the same figure only with the same center and the same radius.
 const sameFigure = (a: Element, b: Element): boolean =>
   sameVertices(verticesOf(a), verticesOf(b)) &&
   (a.tag !== 'circle' || Math.abs(Number(attrOf(a.attrs, 'r')) - Number(attrOf(b.attrs, 'r'))) <= SVG_EPS)
 
-// see T-020, ZO-1
+// Spec: T-020, ZO-1
 const figuresOf = (svg: string, uid: number, part: 'plan' | 'actual'): readonly Element[] =>
   elementsOf(svg).filter((one) => attrOf(one.attrs, 'data-figure') === `task-${uid}-${part}`)
 
@@ -367,7 +367,7 @@ const inkedLines = (svg: string, theme: Theme = 'light'): readonly Element[] =>
 const emphasizedLines = (svg: string, displayScale = 100, theme: Theme = 'light'): readonly Element[] =>
   inkedLines(svg, theme).filter((one) => Math.abs(widthOf(one) - EMPHASIZED_WIDTH(displayScale)) <= SVG_EPS)
 
-// see SL-8, ZO-10
+// Spec: SL-8, ZO-10
 const outlinesOf = (svg: string, theme: Theme = 'light'): readonly Element[] =>
   elementsOf(svg).filter(
     (one) => one.zo === 'ZO-10' && strokeOf(one) === themed('S-159', theme) && attrOf(one.attrs, 'stroke-dasharray') === null,
@@ -603,7 +603,7 @@ const shellDocument = (): Document =>
     changeLog: [],
   }) as unknown as Document
 
-// see FR-082
+// Spec: FR-082
 const IC_DUAL = 'IC-45'
 
 describe(`DC-8 -- ${DC_8_WIDTH}`, () => {

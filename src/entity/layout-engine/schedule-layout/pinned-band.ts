@@ -1,4 +1,4 @@
-// ScheduleLayout -- the pinned band: pinned task groups lifted to the top, the rest shifted below (FR-098).
+// File: ScheduleLayout: the pinned band: pinned task groups lifted to the top, the rest shifted below (FR-098).
 // @unit      UF-141  (docs/spec/05-07-design.md, table T-075)
 // @component ScheduleLayout, layer layoutEngine (table T-062)
 // @purity    pure
@@ -7,7 +7,7 @@ import type { DrawnSettings } from '../../document-model/document-settings/docum
 import type { ScreenRect, ScreenRegions } from '../screen-regions/screen-regions'
 import type { TaskGroupPlacement, ScheduleLayout, TaskPlacement } from './schedule-layout'
 
-// see FR-098, LF-14
+// Spec: FR-098, LF-14
 /** @purity pure */
 export function pinnedBandOf(
   taskGroupPlacements: readonly TaskGroupPlacement[],
@@ -47,12 +47,12 @@ export function pinnedBandOf(
     bandY += taskGroup.height + settings.taskGroupGap
   }
   const height = Math.max(0, bandY - regions.taskGroupArea.y - settings.taskGroupGap)
-  // TRAP: inBand, not banded: with every pin dropped there is no band and no gap.
+  // Trap: inBand, not banded: with every pin dropped there is no band and no gap.
   const scrollAreaY = regions.taskGroupArea.y + (inBand.size === 0 ? 0 : height + settings.taskGroupGap)
 
   let scrollY = scrollAreaY
   for (const taskGroup of taskGroupPlacements) {
-    // TRAP: seen, not inBand: a dropped pin must not come back as a scrolling task group.
+    // Trap: seen, not inBand: a dropped pin must not come back as a scrolling task group.
     if (seen.has(taskGroup.taskGroupId)) continue
     shiftByTaskGroupId.set(taskGroup.taskGroupId, scrollY - taskGroup.y)
     scrollY += taskGroup.height + settings.taskGroupGap
@@ -69,7 +69,7 @@ export function pinnedBandOf(
   }
 }
 
-// see FR-098
+// Spec: FR-098
 /** @purity pure */
 export function liftedTaskGroups(
   taskGroupPlacements: readonly TaskGroupPlacement[],
@@ -106,8 +106,8 @@ export function shiftedPlacements(
   })
 }
 
-// see SJ-8
-// WHY: a task group the last picture did not draw has no drawn height yet; any room below the pins is taken as enough.
+// Spec: SJ-8
+// Why: a task group the last picture did not draw has no drawn height yet; any room below the pins is taken as enough.
 /** @purity pure */
 export function hasRoomBelowPinsIn(layout: ScheduleLayout, taskGroupArea: ScreenRect, taskGroupId: string | null): boolean {
   const room = taskGroupArea.height - (layout.pinnedBandHeight ?? 0)

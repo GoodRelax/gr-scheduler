@@ -9,7 +9,7 @@ import type { DelayDiagnosticsReport } from '../../src/entity/document-model/sch
 import { specTable, unbroken } from './spec-table'
 import { taskGroupDocument, taskOf } from '../unit/cr-541-stage'
 
-// see AT-46
+// Spec: AT-46
 const FF = 0
 const FS = 1
 const SF = 2
@@ -67,7 +67,7 @@ const findingCount = (report: DelayDiagnosticsReport, row: string, uid: number):
   report.findings.filter((one) => one.row === row && one.uid === uid).length
 const markOf = (report: DelayDiagnosticsReport, uid: number): string | undefined =>
   report.markerStates.find((one) => one.uid === uid)?.row
-// WHY: CR-710 counts the quantities in working minutes (T-314); these cases read them as working days of S-128 minutes.
+// Why: CR-710 counts the quantities in working minutes (T-314); these cases read them as working days of S-128 minutes.
 const MINUTES_PER_WORKING_DAY = 480
 const inDays = (minutes: number | undefined): number | undefined => (minutes === undefined ? undefined : minutes / MINUTES_PER_WORKING_DAY)
 const terminalDelayOf = (report: DelayDiagnosticsReport, uid: number): number | undefined =>
@@ -81,7 +81,7 @@ const M = 304
 const C1 = 305
 const STATUS = F(5, 21)
 
-// WHY: P is planned 05-03 .. 05-07 and the successor 05-10 .. 05-14, so no planned date breaks any of the four link types.
+// Why: P is planned 05-03 .. 05-07 and the successor 05-10 .. 05-14, so no planned date breaks any of the four link types.
 const pairOf = (linkType: number, predecessor: Loose, successor: Loose): Document =>
   flatOf(STATUS, [
     taskOf(P, { name: 'Predecessor', start: S(5, 3), finish: F(5, 7), ...predecessor }),
@@ -99,7 +99,7 @@ describe('CR-633 -- the rows these cases are driven by', () => {
     ['T-312', 'VO-1', '観点', 'FS は先行が完了、SS は先行が着手'],
     ['T-312', 'VO-3', '観点', '先行は 表 T-315 の `DG-1`（`?`）とし、ボトルネック（`DG-2`）としない'],
     ['T-312', 'VO-5', '観点', '「このマイルストーンは達成してるのでは？」'],
-    // WHY: CR-710 reads BD-1 and BD-2 by instants and working minutes; the sentences follow the new wording.
+    // Why: CR-710 reads BD-1 and BD-2 by instants and working minutes; the sentences follow the new wording.
     ['T-313', 'BD-1', '何をするか', '着手済みで未完了は 基準日 ＋ 残り とし、`finish` より前にはしない'],
     ['T-313', 'BD-2', '何をするか', '課す瞬間が `actualStart` より後のものを最早開始に使わない'],
     ['T-313', 'BD-2', '何をするか', '未着手の `Task` の最早開始は、基準日で押し上げない'],
@@ -147,7 +147,7 @@ describe('CR-633 T-312 VO-1 -- the successor was free to start when every start-
 })
 
 describe('CR-633 T-312 VO-3 / T-315 DG-1 / DG-2 -- a predecessor whose missing finish the successor shows', () => {
-  // WHY: P (under G) has no actualFinish while its FS successor T has started (VO-3). P also drives Q, which has
+  // Why: P (under G) has no actualFinish while its FS successor T has started (VO-3). P also drives Q, which has
   // not started, so P pushes Q's end and would be a bottleneck by DQ-4 alone.
   const make = (): Document =>
     documentOf(STATUS, [
@@ -219,7 +219,7 @@ describe('CR-633 T-312 VO-5 / FR-136 -- a milestone whose predecessors are all d
 })
 
 describe('CR-633 T-313 BD-1 -- a started task ends the remaining days after the status date', () => {
-  // WHY: 2027-06-04 is a Friday; the calendar works Monday to Friday. The task is the only one, so it is a terminal
+  // Why: 2027-06-04 is a Friday; the calendar works Monday to Friday. The task is the only one, so it is a terminal
   // and the terminal delay (DX-5) is the working days from its finish to its projected finish.
   const single = (statusDate: string, task: Loose): DelayDiagnosticsReport =>
     diagnose(flatOf(statusDate, [taskOf(T, { name: 'Work', percentComplete: 40, ...task })]))
@@ -282,7 +282,7 @@ describe('CR-633 T-313 BD-2 -- which bounds hold a started task', () => {
     expect(inDays(entry?.selfDelayMinutes)).toBe(2)
   })
 
-  // WHY: CR-710 compares the bound with actualStart by instants (BD-2); P ends at 17:00 on the 10th, T starts 08:00 on the 11th.
+  // Why: CR-710 compares the bound with actualStart by instants (BD-2); P ends at 17:00 on the 10th, T starts 08:00 on the 11th.
   it('an FS bound on or before actualStart is used: the wait of 1 day is the predecessor\'s (DQ-2 1)', () => {
     const report = diagnose(flatOf(F(5, 12), [
       taskOf(P, { name: 'Slow', start: S(5, 3), finish: F(5, 7), actualStart: S(5, 3), actualFinish: F(5, 10), percentComplete: 100 }),
@@ -301,7 +301,7 @@ describe('CR-633 T-313 BD-2 -- which bounds hold a started task', () => {
 })
 
 describe('CR-633 FR-135 -- a milestone is never a parent task, even when parentTaskUid states it', () => {
-  // WHY: C1 sits one task group below the milestone M and names it as its parent; no bar on M's task group encloses C1.
+  // Why: C1 sits one task group below the milestone M and names it as its parent; no bar on M's task group encloses C1.
   const make = (): Document =>
     documentOf(F(5, 12), [
       { id: 'r0', parentId: null, tasks: [taskOf(M, { name: 'Gate', milestone: true, start: S(5, 10), finish: S(5, 10) })] },

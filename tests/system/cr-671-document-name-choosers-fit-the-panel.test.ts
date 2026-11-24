@@ -11,7 +11,7 @@ import { rowOf } from './sws-case'
 
 const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
-// WHY: each constant ends exactly at its marker, cut from the manuscript as check 39 reads it.
+// Why: each constant ends exactly at its marker, cut from the manuscript as check 39 reads it.
 const FR_006_FITS =
   '⭐ 表 T-016 の `入力の型` が `選択` の操作子のうち、候補を文書の中の名から集めるもの（候補がスキーマの選択肢でないもの）にも、上の「要る幅より狭い幅を割ってはならない」を当てず、パネルの幅の中に収めること（MUST）'
 const FR_006_NO_OVERFLOW = '。⛔ その操作子をパネルの右へはみ出させてはならない（MUST NOT）'
@@ -22,13 +22,13 @@ const FR_006_FLOOR = '⛔ 1 つの操作子に、その値を出すのに要る�
 const SHIPPED_BUILD = join(process.cwd(), 'dist', 'index.html')
 const SCREEN = screenOf(rowOf(specTable('T-025'), 'MC-6'))
 
-// see U-25, U-24
+// Spec: U-25, U-24
 const roleOf = (id: string): string =>
   `[data-role="${bare(specTable('T-103').rows.find((one) => one.id === id)?.by['確定名（英）'] ?? '')}"]`
 const PROPERTIES_PANEL = roleOf('U-25')
 const PANEL_DIVIDER = roleOf('U-24')
 
-// see S-602, S-248
+// Spec: S-602, S-248
 const settingPx = (id: string): number => {
   const found = /(\d+(?:\.\d+)?)/.exec(bare(specTable('T-206').rows.find((one) => one.id === id)?.by['既定'] ?? ''))
   if (found === null) throw new Error(`table T-206 row ${id} states no number`)
@@ -42,7 +42,7 @@ const TEMPLATE = JSON.parse(
   readFileSync(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
 ) as { readonly schedule: { readonly tasks: readonly Loose[]; readonly assignments: readonly Loose[]; readonly resources: readonly Loose[] } }
 
-// WHY: the first Task of the startup document with both a parent task and an assignee.
+// Why: the first Task of the startup document with both a parent task and an assignee.
 const SUBJECT = ((): { uid: number; parentUid: number; parentName: string; assigneeName: string; assigneeShown: string } => {
   const { tasks, assignments, resources } = TEMPLATE.schedule
   for (const task of tasks) {
@@ -51,7 +51,7 @@ const SUBJECT = ((): { uid: number; parentUid: number; parentName: string; assig
     if (typeof parentUid !== 'number' || assignment === undefined || task['milestone'] === true) continue
     const parent = tasks.find((one) => one['uid'] === parentUid)
     const person = resources.find((one) => one['uid'] === assignment['resourceUid'])
-    // WHY: AS-5 shows the primary (the first assignment, AS-13) and FR-059's mark when others sit too.
+    // Why: AS-5 shows the primary (the first assignment, AS-13) and FR-059's mark when others sit too.
     const seatedCount = assignments.filter((one) => one['taskUid'] === task['uid']).length
     return {
       uid: task['uid'] as number,
@@ -69,7 +69,7 @@ const MILESTONE_UIDS = TEMPLATE.schedule.tasks.filter((one) => one['milestone'] 
 const SETTLE_MS = 900
 const SUBPIXEL = 0.5
 
-// WHY: the panel's own box leaves out the one-pixel Panel Divider line that the stated width counts.
+// Why: the panel's own box leaves out the one-pixel Panel Divider line that the stated width counts.
 const PANEL_EDGE_PX = 1.5
 
 let browser: Browser | null = null
@@ -111,7 +111,7 @@ async function openOn(page: Page, uids: readonly number[]): Promise<number> {
   return at.uid
 }
 
-// WHY: the divider nearest the panel's left edge is the one FR-052 lets the author drag; past the floor it stops at S-248.
+// Why: the divider nearest the panel's left edge is the one FR-052 lets the author drag; past the floor it stops at S-248.
 /** @purity non-pure */
 async function narrowToTheFloor(page: Page): Promise<void> {
   const at = await page.evaluate(
@@ -172,7 +172,7 @@ async function readPanel(page: Page, rows: readonly string[]): Promise<Reading> 
       }
       const choosers: Chooser[] = []
       for (const row of rows) {
-        // WHY: PR-15 is a task reference since CR-676 (PTL-15, kind renamed by JDG-1613); the Task it jumps to is its value.
+        // Why: PR-15 is a task reference since CR-676 (PTL-15, kind renamed by JDG-1613); the Task it jumps to is its value.
         const found = root.querySelectorAll(`select[data-field-row="${row}"], input[data-field-combo][data-field-row="${row}"], [data-field-row="${row}"] select, [data-field-row="${row}"][data-field-kind="taskReference"], [data-assignee-field="${row}"] > button > span:first-child`)
         for (const one of Array.from(found)) {
           const link = one.getAttribute('data-field-kind') === 'taskReference' ? (one as HTMLElement) : null
@@ -209,7 +209,7 @@ test('CR-671 the manuscript this file is driven by: FR-006 still reads this way'
   for (const clause of [FR_006_FITS, FR_006_NO_OVERFLOW, FR_006_ELLIPSIS, FR_006_VALUE_KEPT, FR_006_FLOOR]) {
     expect(REQUIREMENTS, clause).toContain(clause)
   }
-  // WHY: CR-676 made PR-15 a link (table T-351 PTL-15 to PTL-17); PTL-15 cuts its name as FR-006's chooser does.
+  // Why: CR-676 made PR-15 a link (table T-351 PTL-15 to PTL-17); PTL-15 cuts its name as FR-006's chooser does.
   for (const row of ['PR-16', 'PR-17']) {
     expect(bare(specTable('T-016').rows.find((one) => one.id === row)?.by['入力の型'] ?? ''), `${row} is a choice`).toBe('選択')
   }

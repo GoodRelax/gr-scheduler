@@ -10,7 +10,7 @@ import { rowOf } from './sws-case'
 
 const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
-// WHY: each constant ends exactly at its marker, cut from the manuscript as check 39 reads it.
+// Why: each constant ends exactly at its marker, cut from the manuscript as check 39 reads it.
 const FR_071_LOCK =
   '全画面表示に入ることをブラウザに求める押下の中で、閲覧環境が Keyboard Lock（`navigator.keyboard`）を持つなら `Escape` の鍵をかけることを求め、全画面表示を出たことを受けたら鍵を放すこと（MUST）'
 const FR_071_SILENT =
@@ -27,9 +27,9 @@ const HELP_ENTRY = `[data-icon="${rowOf(T_109, 'IC-22').id}"]`
 const HELP = `[data-role="${(rowOf(T_103, 'U-30').by['確定名（英）'] ?? '').replace(/`/g, '')}"]`
 const SETTLE_MS = 600
 
-// see FR-071
-// WHY: headless Chromium has neither a window to fill nor Keyboard Lock, so these stand in for both and
-// WHY: log every ask with the press it came in; a press is open from its capture listener to the next task.
+// Spec: FR-071
+// Why: headless Chromium has neither a window to fill nor Keyboard Lock, so these stand in for both and
+// Why: log every ask with the press it came in; a press is open from its capture listener to the next task.
 const STAND_IN_BROWSER = `
   const state = { requests: 0, exits: 0, element: null, keyboard: 'grants', press: 0, inPress: null, log: [], keys: [] }
   window.__grsCr666 = state

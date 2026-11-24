@@ -18,7 +18,7 @@ import { bare, specTable, unbroken } from './spec-table'
 
 const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
-// see FR-072
+// Spec: FR-072
 const FR_072_CLOSES_WHILE_SHOWN =
   '⭐ パネルが文書の設定を出しているあいだに、設定を出す入口をもう一度押したときは、プロパティパネルを閉じること（MUST）'
 const FR_072_EITHER_WAY = '直前の選択物が在っても無くても同じとし、選択物へは戻さない'
@@ -54,7 +54,7 @@ const settingsEntrance = (): string => {
   return row.id
 }
 
-// see T-109, FR-072
+// Spec: T-109, FR-072
 const IC_17 = settingsEntrance()
 const APP_HEADER = bare(specTable('T-109').rows.find((one) => one.id === IC_17)?.by['面'] ?? '')
 
@@ -118,7 +118,7 @@ const key = (which: string): KeyInput => ({ kind: 'key', key: which, modifiers: 
 
 interface Bench {
   send(input: HumanInput): void
-  // WHY: returns every description the surface was given during the press, so a case can say
+  // Why: returns every description the surface was given during the press, so a case can say
   // that no frame showed the previous selection on the way to the settings.
   pressIc17(): readonly ScreenView[]
   openBySelectingTheTask(): void

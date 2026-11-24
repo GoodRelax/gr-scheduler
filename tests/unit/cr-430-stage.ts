@@ -101,7 +101,7 @@ const SHAPES: Readonly<Record<number, string>> = {
 
 const LONG_NAME = 'Alpha that will not fit inside its own actual'
 
-// see T-019
+// Spec: T-019
 /** @purity pure */
 function benchTasks(): readonly Task[] {
   return [
@@ -149,7 +149,7 @@ export function benchDocument(settings: Record<string, unknown> = {}): Document 
       scrollDateFraction: 0,
       scrollTaskGroupFraction: 0,
       ...settings,
-      // WHY: S-1 is a constant (CR-572); the stored zoomX (S-75) carries the day width this bench draws at.
+      // Why: S-1 is a constant (CR-572); the stored zoomX (S-75) carries the day width this bench draws at.
       zoomX: (PX_PER_DAY_AT_1X / SETTINGS_CONSTANTS.pxPerDayAt1x) * ((settings['zoomX'] as number | undefined) ?? 1),
     },
     documentStamp: structuredClone(template['documentStamp']),
@@ -284,8 +284,8 @@ export function dayUnder(loop: FrameLoop, x: number): string {
   return text
 }
 
-// WHY: the middle of the day column, so a released point cannot fall into the
-// WHY: next day when the column edge moves with the zoom.
+// Why: the middle of the day column, so a released point cannot fall into the
+// Why: next day when the column edge moves with the zoom.
 /** @purity pure */
 export function xOfDay(loop: FrameLoop, isoDay: string): number {
   if (dayOf(isoDay) === null) throw new Error(`${isoDay} is not a day`)
@@ -309,7 +309,7 @@ export function pressAndRelease(built: Stage, at: Point): void {
   built.send(pointer('up', at.x, at.y))
 }
 
-// see IN-1
+// Spec: IN-1
 /** @purity non-pure */
 export function dragTo(built: Stage, at: Point, toX: number, toY: number = at.y): void {
   built.send(pointer('down', at.x, at.y))

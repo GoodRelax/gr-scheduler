@@ -1,4 +1,4 @@
-// Fills the notices and the confirmation of the screen description.
+// File: ScreenRenderer: Fills the notices and the confirmation of the screen description.
 // @unit      UF-67   (docs/spec/05-07-design.md, table T-075)
 // @component ScreenRenderer, layer Adapter (table T-062)
 // @purity    pure
@@ -39,16 +39,16 @@ const MINUTE_DIGITS = 2
 
 const HOUR_DIGITS = 2
 
-// see FR-156, T-376
-// WHY: a zero offset as plus-minus; ASCII signs otherwise.
+// Spec: FR-156, T-376
+// Why: a zero offset as plus-minus; ASCII signs otherwise.
 /** @purity pure */
 function offsetSignOf(offsetMinutes: number): string {
   if (offsetMinutes === 0) return '±'
   return offsetMinutes < 0 ? '-' : '+'
 }
 
-// see FR-156, T-376
-// WHY: the hour padded to two digits as well (JDG-2463), so the head lines of the list stand aligned.
+// Spec: FR-156, T-376
+// Why: the hour padded to two digits as well (JDG-2463), so the head lines of the list stand aligned.
 /** @purity pure */
 export function zoneOffsetTextOf(offsetMinutes: number): string {
   const magnitude = Math.abs(offsetMinutes)
@@ -57,7 +57,7 @@ export function zoneOffsetTextOf(offsetMinutes: number): string {
   return `${offsetSignOf(offsetMinutes)}${hours}:${minutes}`
 }
 
-// see FR-017, FR-156, T-376
+// Spec: FR-017, FR-156, T-376
 /** @purity pure */
 export function timeZoneAbbreviationOf(key: string, language: DisplayLanguage): string {
   const row = timeZoneRowOf(key)
@@ -70,8 +70,8 @@ export function timeZoneAbbreviationOf(key: string, language: DisplayLanguage): 
   return timeZoneFieldWord('offsetName', language).replace('{offset}', offset)
 }
 
-// see FR-156, T-376, FR-038
-// WHY: zoneHead holds the offset and abbreviation, the place stands under it; a key outside shows itself.
+// Spec: FR-156, T-376, FR-038
+// Why: zoneHead holds the offset and abbreviation, the place stands under it; a key outside shows itself.
 /** @purity pure */
 export function timeZoneLinesOf(key: string, language: DisplayLanguage): readonly [string, string] {
   const row = timeZoneRowOf(key)
@@ -83,13 +83,13 @@ export function timeZoneLinesOf(key: string, language: DisplayLanguage): readonl
   return [shape.replace('{offset}', zoneOffsetTextOf(row.offsetMinutes)), place]
 }
 
-// see FO-14, FO-16, QN-14, BS-3
+// Spec: FO-14, FO-16, QN-14, BS-3
 /** @purity pure */
 export function timeZoneFieldWord(part: string, language: DisplayLanguage): string {
   return TIME_ZONE_FIELD_WORDS.get(part)?.[language] ?? ''
 }
 
-// see TX-1, T-375
+// Spec: TX-1, T-375
 /** @purity pure */
 export function shownDateTimeOf(stored: string): string {
   const instant = instantOf(stored)
@@ -100,7 +100,7 @@ export function shownDateTimeOf(stored: string): string {
 
 const MINUTES_PER_HOUR = 60
 
-// see FR-157, BS-3
+// Spec: FR-157, BS-3
 /** @purity pure */
 export function shiftAmountText(minutes: number): string {
   const size = Math.abs(minutes)
@@ -108,8 +108,8 @@ export function shiftAmountText(minutes: number): string {
   return `${sign}${Math.floor(size / MINUTES_PER_HOUR)}:${String(size % MINUTES_PER_HOUR).padStart(2, '0')}`
 }
 
-// see BS-3, QN-14
-// WHY: EditDocument's preview, restated by shape: ScreenRenderer declares no edge to that component (check 59).
+// Spec: BS-3, QN-14
+// Why: EditDocument's preview, restated by shape: ScreenRenderer declares no edge to that component (check 59).
 export interface TimeShiftPreview {
   readonly minutes: number
   readonly taskCount: number
@@ -117,8 +117,8 @@ export interface TimeShiftPreview {
   readonly example: { readonly name: string | null; readonly before: string; readonly after: string } | null
 }
 
-// see QN-14, BS-3, FR-157
-// WHY: the lines under the question are composed when it is raised; names are document values and are not translated.
+// Spec: QN-14, BS-3, FR-157
+// Why: the lines under the question are composed when it is raised; names are document values and are not translated.
 /** @purity pure */
 export function timeShiftQuestionItems(
   preview: TimeShiftPreview,
@@ -141,14 +141,14 @@ export function timeShiftQuestionItems(
   return lines.map((name) => ({ name, isShownOnAnotherTaskGroup: false }))
 }
 
-// see FO-17, WH-1, WH-2, WH-11, WH-12
+// Spec: FO-17, WH-1, WH-2, WH-11, WH-12
 /** @purity pure */
 export function wholeScheduleShiftFieldWord(part: string, language: DisplayLanguage): string {
   return WHOLE_SCHEDULE_SHIFT_WORDS.get(part)?.[language] ?? ''
 }
 
-// see WH-11, QN-15
-// WHY: EditDocument's preview, restated by shape: ScreenRenderer declares no edge to that component (check 59).
+// Spec: WH-11, QN-15
+// Why: EditDocument's preview, restated by shape: ScreenRenderer declares no edge to that component (check 59).
 export interface WholeScheduleShiftPreview {
   readonly currentStart: string
   readonly typedStart: string
@@ -166,13 +166,13 @@ function slotted(word: string, slots: Slots): string {
   return Object.entries(slots).reduce((text, [slot, value]) => text.replace(`{${slot}}`, value), word)
 }
 
-// see BS-3, WH-11
+// Spec: BS-3, WH-11
 /** @purity pure */
 function timeZoneLine(language: DisplayLanguage, part: string, slots: Slots): string {
   return slotted(timeZoneFieldWord(part, language), slots)
 }
 
-// see QN-15, WH-2, WH-11, TX-12
+// Spec: QN-15, WH-2, WH-11, TX-12
 /** @purity pure */
 export function wholeScheduleShiftQuestionItems(
   preview: WholeScheduleShiftPreview,
@@ -233,8 +233,8 @@ const NO_WORDS = ''
 
 const DOWNLOAD_ADDRESS_SLOT = '{downloadUrl}'
 
-// see FR-076
-// WHY: a word names a setting in braces, e.g. {importMaxBytes}; its value is never copied into the word.
+// Spec: FR-076
+// Why: a word names a setting in braces, e.g. {importMaxBytes}; its value is never copied into the word.
 const SETTING_SLOT = /\{([A-Za-z]+)\}/g
 
 /** @purity pure */
@@ -263,7 +263,7 @@ export function downloadPageAddress(): string {
   return NOT_STORED_DOWNLOAD_ADDRESS['S-350']
 }
 
-// see FR-073
+// Spec: FR-073
 /** @purity pure */
 export function linkedWordsOf(word: string): LinkedWords | null {
   const at = word.indexOf(DOWNLOAD_ADDRESS_SLOT)
@@ -275,7 +275,7 @@ export function linkedWordsOf(word: string): LinkedWords | null {
   }
 }
 
-// see FR-076, T-211
+// Spec: FR-076, T-211
 /** @purity pure */
 function settingsFilledWord(word: string): string {
   const settings: Readonly<Record<string, unknown>> = SETTINGS_CONSTANTS
@@ -292,20 +292,20 @@ function filledWord(word: string): string {
   return linked === null ? settled : linked.before + linked.address + linked.after
 }
 
-// see FR-076, NT-1
+// Spec: FR-076, NT-1
 /** @purity pure */
 function reasonWord(reason: string, cell: ReasonCell, language: DisplayLanguage): string {
   return filledWord(unfilledReasonWord(reason, cell, language))
 }
 
-// see FR-073
+// Spec: FR-073
 /** @purity pure */
 export function reasonNextStepLink(reason: string, language: DisplayLanguage): LinkedWords | null {
   return linkedWordsOf(settingsFilledWord(unfilledReasonWord(reason, 'nextStep', language)))
 }
 
-// see FR-076, T-233
-// WHY: a row that shares another row's words prints that row's (CR-712 X-3); an unknown row is itself.
+// Spec: FR-076, T-233
+// Why: a row that shares another row's words prints that row's (CR-712 X-3); an unknown row is itself.
 /** @purity pure */
 function wordsRowOf(reason: string): string {
   const shared: Readonly<Partial<Record<string, NoticeReason>>> = NOTICE_WORDS_ROW_OF_REASON
@@ -316,7 +316,7 @@ function wordsRowOf(reason: string): string {
 function unfilledReasonWord(reason: string, cell: ReasonCell, language: DisplayLanguage): string {
   const row = wordsRowOf(reason)
   const invariant = INVARIANTS_BY_ROW.get(row)
-  // TRAP: never fall back to RS-15 for a row of table T-220, even while its word is empty.
+  // Trap: never fall back to RS-15 for a row of table T-220, even while its word is empty.
   if (invariant !== undefined) return invariant[cell][language]
   const word = reasonCell(row, cell, language)
   if (word !== undefined) return word
@@ -355,13 +355,13 @@ function dismissText(language: DisplayLanguage): string {
   return word === '' ? NO_WORDS : word
 }
 
-// see NT-8
+// Spec: NT-8
 /** @purity pure */
 export function dismissKeyOf(raised: RaisedNotice): string {
   return raised.manner + DISMISS_KEY_ROW_SEPARATOR + raised.reason
 }
 
-// see NT-7
+// Spec: NT-7
 /** @purity pure */
 export function confirmationAnswers(language: DisplayLanguage): readonly ConfirmationAnswer[] {
   return [...CONFIRMATION_BY_ANSWER.keys()].map((answer) => ({
@@ -370,7 +370,7 @@ export function confirmationAnswers(language: DisplayLanguage): readonly Confirm
   }))
 }
 
-// see FR-023
+// Spec: FR-023
 /** @purity pure */
 export function reasonSurfaceWords(
   reason: string,
@@ -383,7 +383,7 @@ export function reasonSurfaceWords(
   }
 }
 
-// WHY: joined by a line break, which adds no word and drops no text.
+// Why: joined by a line break, which adds no word and drops no text.
 const GATHERED_TEXT_SEPARATOR = '\n'
 
 const NO_NEXT_STEPS: readonly string[] = []
@@ -434,7 +434,7 @@ function gatheredStartupNotice(pending: readonly Notice[], language: DisplayLang
   }
 }
 
-// see FR-076, NT-4
+// Spec: FR-076, NT-4
 /** @purity pure */
 export function noticesFromSession(session: ScreenSession, readings: ScreenViewReadings): readonly Notice[] {
   const language = displayLanguageOf(session)
@@ -476,7 +476,7 @@ function parentTaskChoiceOf(choice: ParentTaskChoice, language: DisplayLanguage)
   }
 }
 
-// see NT-7
+// Spec: NT-7
 /** @purity pure */
 export function confirmationFromSession(
   session: ScreenSession,
@@ -499,7 +499,7 @@ export function confirmationFromSession(
 // Single source of truth:
 //   docs/spec/_source/settings.json (table T-206)
 // Rebuild: npm run gen   ||   npm run gen:check fails on drift.
-// see T-206
+// Spec: T-206
 const NOT_STORED_DOWNLOAD_ADDRESS: {
   readonly 'S-350': string
 } = {

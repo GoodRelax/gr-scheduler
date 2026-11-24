@@ -70,9 +70,9 @@ const wordIn = (section: string, keyField: string, key: string): Word => {
   return found.text
 }
 
-// see T-310, T-311
+// Spec: T-310, T-311
 const ASPECT_ROWS = [...specTable('T-310').rows, ...specTable('T-311').rows].map((one) => one.id).filter((id) => id !== 'VS-6')
-// see T-316
+// Spec: T-316
 const WALL_ROWS = specTable('T-316').rows.map((one) => one.id)
 
 const ROW_ID = /\b(?:VC|VS|VO|DW|DG|DL|DX|DT)-\d+\b/
@@ -127,7 +127,7 @@ const plainTask = (uid: number, name: string, extra: Record<string, unknown> = {
 const scheduleOf = (tasks: readonly Record<string, unknown>[]): Schedule =>
   ({ tasks, resources: [], assignments: [] }) as unknown as Schedule
 
-// see DT-5, DT-6
+// Spec: DT-5, DT-6
 const slash = (iso: string): string => iso.slice(0, 10).replace(/-/g, '/')
 
 describe(`CR-670 DT-5 / DT-6 "${DT_5_JOIN}"`, () => {
@@ -207,7 +207,7 @@ const day = (month: number, date: number, hour: number): string =>
 const S = (month: number, date: number): string => day(month, date, 8)
 const F = (month: number, date: number): string => day(month, date, 17)
 
-// see AT-46
+// Spec: AT-46
 const FS = 1
 
 const after = (uid: number): Record<string, unknown> => ({
@@ -239,7 +239,7 @@ const NEXT = 402
 const LAST = 403
 const CAUSE_NAME = 'Cause with a finish and no start'
 
-// WHY: CAUSE carries a T-310 contradiction (an actual finish with no actual start); NEXT and LAST hang below it by FS.
+// Why: CAUSE carries a T-310 contradiction (an actual finish with no actual start); NEXT and LAST hang below it by FS.
 const WALLED = flatDocument(STATUS, [
   taskOf(CAUSE, { name: CAUSE_NAME, start: S(5, 3), finish: F(5, 7), actualFinish: F(5, 7), percentComplete: 100 }),
   taskOf(NEXT, { name: 'Next', start: S(5, 10), finish: F(5, 14), dependencies: [after(CAUSE)] }),
@@ -274,7 +274,7 @@ const EARLY = 501
 const LATER = 502
 const DAYS_BETWEEN = 5
 
-// WHY: two unstarted Tasks past their start (DL-2), one working week apart, nothing linking them.
+// Why: two unstarted Tasks past their start (DL-2), one working week apart, nothing linking them.
 const LATE = flatDocument(STATUS, [
   taskOf(EARLY, { name: 'Early', start: S(5, 3), finish: F(5, 28) }),
   taskOf(LATER, { name: 'Later', start: S(5, 10), finish: F(5, 28) }),

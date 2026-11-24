@@ -23,7 +23,7 @@ const PLAIN_SHELL =
   '<title>GRS</title></head><body><div id="app"></div>' +
   '<script type="module">boot()</script></body></html>\n'
 
-// WHY: IC-2 on IO-4 rasterizes the picture; the bytes are not what these cases read.
+// Why: IC-2 on IO-4 rasterizes the picture; the bytes are not what these cases read.
 const rasterizer: Rasterizer = { rasterizePng: async () => ({ ok: true, pngBytes: new Uint8Array([0x89, 0x50, 0x4e, 0x47]) }) }
 
 const WORDS = JSON.parse(readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8')) as {
@@ -122,7 +122,7 @@ describe(`SX-2 "${SX_2_KEEPS_THE_TARGET}" -- every offered row but IO-2 is an ex
     expect(built.browser.saveQuestions(), `${row}: SK-11 asked again`).toBe(questionsBefore + 1)
   })
 
-  // WHY: CR-827 added IO-10 (the schema, written through IC-115), which T-024 marks as not offered.
+  // Why: CR-827 added IO-10 (the schema, written through IC-115), which T-024 marks as not offered.
   it('every row of the table is either offered or one of IO-8, IO-9, IO-10, IO-5 and IO-6, so no row falls between SX-1/SX-2 and the rest', () => {
     const others = formatRows().filter((one) => one.offered !== '出す').map((one) => one.id)
     expect([...others].sort()).toEqual(['IO-10', 'IO-5', 'IO-6', 'IO-8', 'IO-9'])

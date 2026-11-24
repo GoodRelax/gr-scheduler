@@ -230,7 +230,7 @@ const taskOf = (uid: number, start: string, finish: string): Loose => ({
   actualFinish: null,
   resume: null,
   resumeValid: null,
-  // WHY: what the dates give an unstarted Task; a GRS JSON read recounts any other value (FR-012).
+  // Why: what the dates give an unstarted Task; a GRS JSON read recounts any other value (FR-012).
   percentComplete: 0,
   fadeInDays: null,
   fadeOutDays: null,
@@ -288,7 +288,7 @@ const EMPTY_SCHEDULE: Loose = {
   taskGroupMembers: [],
 }
 
-// WHY: the document a read hands over holds no "$schema"; the writer adds it (DR-4, CR-699).
+// Why: the document a read hands over holds no "$schema"; the writer adds it (DR-4, CR-699).
 const startingDocument = (): Document =>
   ({
     ...Object.fromEntries(Object.entries(TEMPLATE).filter(([key]) => key !== '$schema')),
@@ -401,7 +401,7 @@ function bench(startWithFrame = true, schedule: Loose = SMALL_SCHEDULE): Bench {
     frame: startWithFrame ? frameOf(document) : null,
     isGestureInFlight: false,
     isEditingInPlace: false,
-    // WHY: changeDeliveryStateMachine.delivering, open only while WS-7 tells
+    // Why: changeDeliveryStateMachine.delivering, open only while WS-7 tells
     // the watchers (CR-440 section 5); the shell holds it, and so does this bench.
     isQuestionAsked: false,
     isDeliveringNotices: false,
@@ -452,7 +452,7 @@ function bench(startWithFrame = true, schedule: Loose = SMALL_SCHEDULE): Bench {
       // and has to be carried through: AG-6 of table T-035 selects a live
       // watcher by it (MUST), and nothing downstream can work it out again.
       deliver: (document, hasUpdatedSchedule) => {
-        // WHY: as the shell does, open the window at the head and close it in a
+        // Why: as the shell does, open the window at the head and close it in a
         // `finally` so a throwing watcher cannot leave WS-2 refusing for ever.
         state.isDeliveringNotices = true
         try {
@@ -549,7 +549,7 @@ function bench(startWithFrame = true, schedule: Loose = SMALL_SCHEDULE): Bench {
   return made
 }
 
-// WHY: one registry for every bench, as a single shell holds one (SF-10).
+// Why: one registry for every bench, as a single shell holds one (SF-10).
 const CHANGE_WATCHERS = emptyChangeWatchers()
 
 afterEach(() => {
@@ -757,7 +757,7 @@ describe('AM-1 / AM-2 -- the two versions', () => {
 describe('AM-3 to AM-5 -- AG-4, a frozen copy in both of its words', () => {
   it('AM-3 answers a copy that shares nothing with the running document', () => {
     const one = bench()
-    // WHY: carry and carryElements are left out unless asked for, so ask for them to compare the whole (see AM-3)
+    // Why: carry and carryElements are left out unless asked for, so ask for them to compare the whole (see AM-3)
     const read = one.api.readDocument(true, [], [])
 
     expect(read).toEqual(one.document)
@@ -933,7 +933,7 @@ describe('AM-7 applyCommands -- AG-2, the optimistic lock', () => {
     const stale = { ...one.api.readStamp(), scheduleUpdatedAt: '1999-01-01T00:00:00Z' }
     const outcome = refused(one.api.applyCommands({ expectedStamp: stale, commands: [RENAME] }))
 
-    // WHY: a staleStamp refusal carries only the stamp (see AG-2, AV-3)
+    // Why: a staleStamp refusal carries only the stamp (see AG-2, AV-3)
     expect(outcome.refusal).not.toHaveProperty('document')
     expect(outcome.refusal.stamp).toEqual(one.document.documentStamp)
   })
@@ -1018,7 +1018,7 @@ describe('IF-7 -- every current value arrives over the seam (LY-5 of table T-060
         commands: [
           {
             kind: 'setTaskGroupPanelWidthPx',
-            // WHY: the bound is drawn px and CM-67 writes a stored width, which FR-039 scales on the way in.
+            // Why: the bound is drawn px and CM-67 writes a stored width, which FR-039 scales on the way in.
             taskGroupPanelWidthPx:
               SETTINGS_LIMITS.taskGroupAreaWidthWithoutPanels / displayRatioOf(one.document.documentSettings),
           },
@@ -1150,7 +1150,7 @@ describe('AM-16 focusTask -- the view, not the schedule', () => {
   })
 
 
-  // WHY: CR-728 retired the old place (group at the top, start S-428 inside); its spec-only tests hold SJ-5 and SJ-6.
+  // Why: CR-728 retired the old place (group at the top, start S-428 inside); its spec-only tests hold SJ-5 and SJ-6.
 
   it('names a TaskGroup id in S-78, not an integer (table T-203 says so in as many words)', () => {
     const one = bench()
@@ -1219,7 +1219,7 @@ describe('AM-11 exportJson -- AG-7 and the round trip', () => {
     const read = documentFromJson(exported(one.api.exportJson()))
 
     expect(read.ok, JSON.stringify(read.ok ? [] : read.faults)).toBe(true)
-    // WHY: the whole document, so carry and carryElements are asked for (see AM-3)
+    // Why: the whole document, so carry and carryElements are asked for (see AM-3)
     if (read.ok) expect(read.document).toEqual(one.api.readDocument(true, [], []))
   })
 
@@ -1354,7 +1354,7 @@ describe('AM-17 watchChanges -- AG-6', () => {
     one.writeAsPerson([RENAME], 'a person at the keyboard')
 
     expect(one.notices).toHaveLength(1)
-    // WHY: the notice carries the stamp; the caller reads again what it needs (see AV-14, AG-6)
+    // Why: the notice carries the stamp; the caller reads again what it needs (see AV-14, AG-6)
     expect(one.notices[0]?.stamp).toEqual(one.api.readStamp())
     expect(one.api.readDocument(false, [], []).schedule.project.title).toBe(RENAME.title)
   })

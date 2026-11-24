@@ -1,4 +1,4 @@
-// ApplyDocumentChange: the one write path to the document.
+// File: ApplyDocumentChange: the one write path to the document.
 // @unit      UF-8   (docs/spec/05-07-design.md, table T-075)
 // @component ApplyDocumentChange, layer UseCase (table T-062)
 // @purity    non-pure
@@ -64,8 +64,8 @@ export type ReplaceOutcome =
       readonly hasUpdatedSchedule: boolean
     }
 
-// see WS-6, WS-7, T-286
-// WHY: the delivery window is the caller's session state (changeDeliveryStateMachine.delivering),
+// Spec: WS-6, WS-7, T-286
+// Why: the delivery window is the caller's session state (changeDeliveryStateMachine.delivering),
 // handed in on WriteMoment (CR-440).
 /** @purity non-pure */
 function replaceThenTell(
@@ -78,7 +78,7 @@ function replaceThenTell(
   audience.deliver(next.document, hasUpdatedSchedule)
 }
 
-// see CP-8, T-067
+// Spec: CP-8, T-067
 /** @purity non-pure */
 export function applyDocumentChange(
   input: Omit<PlanInput, 'document' | 'history'>,
@@ -107,7 +107,7 @@ export function applyDocumentChange(
   }
 }
 
-// see T-230
+// Spec: T-230
 /** @purity non-pure */
 export function replaceDocument(
   input: Omit<ReplacementInput, 'held'>,

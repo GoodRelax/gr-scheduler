@@ -46,7 +46,7 @@ function settingRow(id: string): SettingRow {
   return row
 }
 
-// see S-487
+// Spec: S-487
 const S_487_DEFAULT = ((): number => {
   const value = Number(settingRow('S-487').default?.num ?? Number.NaN)
   if (!Number.isInteger(value)) throw new Error('settings.json holds no integer default for S-487')
@@ -54,11 +54,11 @@ const S_487_DEFAULT = ((): number => {
 })()
 const S_487_KEY = (settingRow('S-487').key ?? '').replace(/`/g, '')
 
-// see CM-87
+// Spec: CM-87
 const CM_87_NAME = bare(cellOf('T-108', 'CM-87', '確定名')).replace(/`/g, '')
 
-// see FR-073
-// WHY: CR-651 E-11 raised the version; CR-699 raised it again, so the bundled documents follow the manifest.
+// Spec: FR-073
+// Why: CR-651 E-11 raised the version; CR-699 raised it again, so the bundled documents follow the manifest.
 const SCHEMA_VERSION = (JSON.parse(readFileSync(
   join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template-manifest.json'),
   'utf8',
@@ -73,14 +73,14 @@ const EMPTY_DOCUMENT_TEXT = readFileSync(
   'utf8',
 )
 
-// WHY: May 2027 has no exception in the bundled calendar, which works Monday to Friday; 2027-05-03 is a Monday.
+// Why: May 2027 has no exception in the bundled calendar, which works Monday to Friday; 2027-05-03 is a Monday.
 const day = (month: number, date: number, hour: number): string =>
   `2027-${String(month).padStart(2, '0')}-${String(date).padStart(2, '0')}T${String(hour).padStart(2, '0')}:00:00`
 const S = (month: number, date: number): string => day(month, date, 8)
 const F = (month: number, date: number): string => day(month, date, 17)
 const D = (month: number, date: number): string => day(month, date, 0).slice(0, 10)
 
-// WHY: 2027-05-21 is a Friday.
+// Why: 2027-05-21 is a Friday.
 const STATUS = F(5, 21)
 const STATUS_DAY = D(5, 21)
 
@@ -104,7 +104,7 @@ function documentOf(rows: readonly Row[], tolerance: number = S_487_DEFAULT, sta
   return decoded.document
 }
 
-// WHY: one task per task group, so no two bars share a task group; every child task group sits under its parent's task group.
+// Why: one task per task group, so no two bars share a task group; every child task group sits under its parent's task group.
 const familyOf = (parent: Loose, children: readonly Loose[]): readonly Row[] => [
   { id: 'r0', parentId: null, tasks: [parent] },
   ...children.map((child, index) => ({ id: `r${index + 1}`, parentId: 'r0', tasks: [child] })),
@@ -123,7 +123,7 @@ const vs6On = (report: DelayDiagnosticsReport, uid: number): readonly Finding[] 
 const valuesOf = (finding: Finding | undefined): Loose =>
   ((finding as unknown as { values?: Loose } | undefined)?.values ?? {}) as Loose
 
-// WHY: the seam does not fix whether a day value is the day text or a CalendarDay; both read as YYYY-MM-DD.
+// Why: the seam does not fix whether a day value is the day text or a CalendarDay; both read as YYYY-MM-DD.
 function dayText(value: unknown): string | null {
   if (value === null || value === undefined) return null
   if (typeof value === 'string') return value.slice(0, 10)
@@ -151,7 +151,7 @@ const C2 = 402
 const inProgress = (uid: number, name: string, start: string, finish: string, stop: string, extra: Loose = {}): Loose =>
   taskOf(uid, { name, start, finish, actualStart: start, stop, percentComplete: 30, resumeValid: true, ...extra })
 
-// WHY: G's point is 05-06 (Thu, after its last day 05-05). The leaves' points are 05-12 (Wed) and 05-19 (Wed).
+// Why: G's point is 05-06 (Thu, after its last day 05-05). The leaves' points are 05-12 (Wed) and 05-19 (Wed).
 // From 05-06 to 05-12 lie 4 working days (Thu, Fri, Mon, Tue) and 6 calendar days -- the weekend sits in the gap.
 const LEFT_PARENT = (tolerance: number): Document =>
   documentOf(
@@ -163,7 +163,7 @@ const LEFT_PARENT = (tolerance: number): Document =>
   )
 const LEFT_WORKING_DAYS = 4
 
-// WHY: G's point is 05-20 (Thu). The leaves' points are 05-12 (Wed) and 05-13 (Thu).
+// Why: G's point is 05-20 (Thu). The leaves' points are 05-12 (Wed) and 05-13 (Thu).
 // From 05-13 to 05-20 lie 5 working days (Thu, Fri, Mon, Tue, Wed) and 7 calendar days.
 const RIGHT_PARENT = (tolerance: number): Document =>
   documentOf(
@@ -175,7 +175,7 @@ const RIGHT_PARENT = (tolerance: number): Document =>
   )
 const RIGHT_WORKING_DAYS = 5
 
-// WHY: CR-710 holds the VS-6 distance in working minutes; one working day of the bundled calendar is S-128 = 480 minutes.
+// Why: CR-710 holds the VS-6 distance in working minutes; one working day of the bundled calendar is S-128 = 480 minutes.
 const MINUTES_PER_WORKING_DAY = 480
 const outsideDaysOf = (values: Readonly<Record<string, unknown>>): number => Number(values['outsideMinutes']) / MINUTES_PER_WORKING_DAY
 
@@ -185,7 +185,7 @@ describe('CR-651 -- the rows these cases are driven by', () => {
     ['T-311', 'VS-6', '観点', '頂点を打たない子孫は基準日を点とする'],
     ['T-311', 'VS-6', '観点', '親が頂点を打たないときは判じない'],
     ['T-311', 'VS-6', '観点', '子を持つ子孫の点は数えない'],
-    // WHY: CR-710 counts the distance in working minutes and holds it against S-487 x minutesPerDay.
+    // Why: CR-710 counts the distance in working minutes and holds it against S-487 x minutesPerDay.
     ['T-311', 'VS-6', '観点', '外れは文書の暦（`FR-054`）の稼働時間の分で、親の点から外れた側の端の点まで数え'],
     ['T-022', 'PL-3', '頂点', '`resume` < 基準日 なら `resume` に打つ'],
     ['T-022', 'PL-4', '頂点', '`start` < 基準日 なら `start` に打つ'],
@@ -272,7 +272,7 @@ describe('CR-651 FR-131 T-311 VS-6 -- the parent point against the points of its
   })
 
   it('VS-6 FR-054: the gap is counted in working days of the document calendar (a weekend inside it)', () => {
-    // WHY: 6 calendar days but 4 working days; a calendar-day count would still find at tolerance 4 and 5.
+    // Why: 6 calendar days but 4 working days; a calendar-day count would still find at tolerance 4 and 5.
     expect(vs6On(diagnose(LEFT_PARENT(LEFT_WORKING_DAYS - 1)), G)).toHaveLength(1)
     expect(vs6On(diagnose(LEFT_PARENT(LEFT_WORKING_DAYS)), G)).toHaveLength(0)
     expect(vs6On(diagnose(LEFT_PARENT(LEFT_WORKING_DAYS + 1)), G)).toHaveLength(0)
@@ -295,7 +295,7 @@ describe('CR-651 FR-131 T-311 VS-6 -- the parent point against the points of its
   })
 
   it('VS-6 S-487 0: a parent point one working day right of the rightmost leaf is told; inside the range is not', () => {
-    // WHY: leaves at 05-12 and 05-13; a parent whose last day is 05-13 strikes 05-14 (one working day right).
+    // Why: leaves at 05-12 and 05-13; a parent whose last day is 05-13 strikes 05-14 (one working day right).
     const make = (stop: string): Document =>
       documentOf(
         familyOf(inProgress(G, 'Parent', S(5, 3), F(5, 28), stop), [
@@ -310,7 +310,7 @@ describe('CR-651 FR-131 T-311 VS-6 -- the parent point against the points of its
   })
 
   it('VS-6 a parent point inside the range of its leaves is not told', () => {
-    // WHY: G strikes 05-14, between the leaves at 05-12 and 05-19.
+    // Why: G strikes 05-14, between the leaves at 05-12 and 05-19.
     const document = documentOf(
       familyOf(inProgress(G, 'Parent', S(5, 3), F(5, 28), F(5, 13)), [
         inProgress(C1, 'Early leaf', S(5, 3), F(5, 14), F(5, 11), { parentTaskUid: G }),
@@ -330,7 +330,7 @@ describe('CR-651 FR-131 T-311 VS-6 -- the parent point against the points of its
 
 describe('CR-651 T-311 VS-6 -- which descendants give a point', () => {
   it('VS-6 a leaf with no vertex (finished, or not yet due) counts at the status date', () => {
-    // WHY: G strikes 05-14 (Fri). C1 is finished and C2 starts after the status date, so both stand at 05-21;
+    // Why: G strikes 05-14 (Fri). C1 is finished and C2 starts after the status date, so both stand at 05-21;
     // from 05-14 to 05-21 lie 5 working days. Skipping vertex-less leaves would leave nothing to compare.
     const document = documentOf(
       familyOf(inProgress(G, 'Parent', S(5, 3), F(5, 28), F(5, 13)), [
@@ -347,7 +347,7 @@ describe('CR-651 T-311 VS-6 -- which descendants give a point', () => {
   })
 
   it('VS-6 a finished leaf at the status date keeps a parent at the status date inside the range', () => {
-    // WHY: G strikes 05-21; C2 strikes 05-11 and the finished C1 stands at 05-21, so G is inside [05-11, 05-21].
+    // Why: G strikes 05-21; C2 strikes 05-11 and the finished C1 stands at 05-21, so G is inside [05-11, 05-21].
     // Without the status-date point G would read 8 working days right of C2.
     const document = documentOf(
       familyOf(inProgress(G, 'Parent', S(5, 3), F(5, 28), F(5, 20)), [
@@ -359,7 +359,7 @@ describe('CR-651 T-311 VS-6 -- which descendants give a point', () => {
   })
 
   it('VS-6 leaf-only: an intermediate parent off its own leaves does not mask its ancestor; both are told', () => {
-    // WHY: A and B both strike 05-05 (Wed). B's leaves strike 05-12 and 05-13, A's own leaf A1 strikes 05-18.
+    // Why: A and B both strike 05-05 (Wed). B's leaves strike 05-12 and 05-13, A's own leaf A1 strikes 05-18.
     // Counting B as a point of A would put 05-05 inside A's range and hide A.
     const A = 410
     const B = 411
@@ -388,7 +388,7 @@ describe('CR-651 T-311 VS-6 -- which descendants give a point', () => {
 })
 
 describe('CR-651 T-311 VS-6 -- parents that are not judged', () => {
-  // WHY: tolerance 0 and leaves at 05-12 / 05-13, so any point the parent were given away from those two days would be told.
+  // Why: tolerance 0 and leaves at 05-12 / 05-13, so any point the parent were given away from those two days would be told.
   const leaves = (): readonly Loose[] => [
     inProgress(C1, 'Leaf one', S(5, 3), F(5, 14), F(5, 11), { parentTaskUid: G }),
     inProgress(C2, 'Leaf two', S(5, 10), F(5, 28), F(5, 12), { parentTaskUid: G }),
@@ -406,7 +406,7 @@ describe('CR-651 T-311 VS-6 -- parents that are not judged', () => {
   })
 
   it('VS-6 FR-135: a milestone with children is not judged', () => {
-    // WHY: M is not started with a start before the status date (PL-4 strikes 05-03), its child strikes 05-13;
+    // Why: M is not started with a start before the status date (PL-4 strikes 05-03), its child strikes 05-13;
     // judged as a parent it would be 8 working days left.
     const M = 420
     const document = documentOf([
@@ -419,7 +419,7 @@ describe('CR-651 T-311 VS-6 -- parents that are not judged', () => {
   })
 })
 
-// WHY: CR-716 retired the cases "VS-6 paints no marker" -- T-315 DG-1 now names the VS-6 parent.
+// Why: CR-716 retired the cases "VS-6 paints no marker" -- T-315 DG-1 now names the VS-6 parent.
 describe('CR-651 FR-131 VS-6 is a doubt', () => {
   it('VS-6 every VS-6 finding is a suspicion, never a contradiction', () => {
     for (const finding of vs6Of(diagnose(RIGHT_PARENT(S_487_DEFAULT)))) expect(finding.kind).toBe('suspicion')
@@ -427,7 +427,7 @@ describe('CR-651 FR-131 VS-6 is a doubt', () => {
 })
 
 const SAMPLE_DIR = join(process.cwd(), 'sample-schedule')
-// WHY: the large sample before CR-790, frozen for the CR-651 / CR-716 sweeps; the shipped sample now shows one VS-6 (CR-790).
+// Why: the large sample before CR-790, frozen for the CR-651 / CR-716 sweeps; the shipped sample now shows one VS-6 (CR-790).
 const LARGE_FILE = 'cr-651-large-sample-before-cr-790.ja.xml'
 const FIXTURE_DIR = join(process.cwd(), 'tests', 'fixtures')
 
@@ -453,7 +453,7 @@ const sample = (file: string): Document => {
 }
 
 const LANGUAGES = ['ja', 'en'] as const
-// WHY: CR-651 section 0.3 prints 9 at tolerance 1 but lists 10 parents; 181 counts only under the
+// Why: CR-651 section 0.3 prints 9 at tolerance 1 but lists 10 parents; 181 counts only under the
 // leaf-only rule T-311 VS-6 states, so the listed 10 are asserted.
 const LARGE_AT_DEFAULT = [125, 129, 133, 137, 141, 145, 181, 182, 200, 208]
 const LARGE_AT_WEEKLY = [181, 182, 200, 208]
@@ -486,7 +486,7 @@ describe('CR-651 VS-6 -- the MSPDI samples (CR-651 section 0.3)', () => {
     expect(vs6Of(diagnose(sample('sample-small-website-renewal.ja.xml'))).map((one) => one.uid)).toEqual([38])
   })
 
-  // WHY: the en twin of the large sample gave identical counts (CR-618 decision 5) and CR-790 froze ja only,
+  // Why: the en twin of the large sample gave identical counts (CR-618 decision 5) and CR-790 froze ja only,
   // so the large sample runs once, on the fixture.
   const cases = [
     ...COUNTS.flatMap(([name, atDefault, atWeekly]) =>
@@ -509,7 +509,7 @@ describe('CR-651 VS-6 -- the MSPDI samples (CR-651 section 0.3)', () => {
     expect(vs6Of(report).map((one) => one.uid).sort((a, b) => a - b)).toEqual(LARGE_AT_DEFAULT)
   })
 
-  // WHY: CR-710 places a Stop the file lacks by ActualDuration's working minutes, not rounded days (FR-011).
+  // Why: CR-710 places a Stop the file lacks by ActualDuration's working minutes, not rounded days (FR-011).
   it('VS-6 sample-large-erp-program at 7 keeps exactly 208, 200, 182 and 181, at 55, 59, 37 and 55 working days', () => {
     const report = diagnose(withTolerance(sample(LARGE_FILE), WEEKLY_TOLERANCE))
     expect(vs6Of(report).map((one) => one.uid).sort((a, b) => a - b)).toEqual(LARGE_AT_WEEKLY)
@@ -517,7 +517,7 @@ describe('CR-651 VS-6 -- the MSPDI samples (CR-651 section 0.3)', () => {
     expect([days.get(208), days.get(200), days.get(182), days.get(181)]).toEqual([55, 59, 37, 55])
   })
 
-  // WHY: CR-716 retired "the marker states do not move with the tolerance" -- T-315 DG-1 names the VS-6 parent.
+  // Why: CR-716 retired "the marker states do not move with the tolerance" -- T-315 DG-1 names the VS-6 parent.
 })
 
 describe('CR-651 AT-156 FR-073 -- the bundled documents carry the new column and the new version', () => {

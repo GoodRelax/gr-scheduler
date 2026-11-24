@@ -13,9 +13,9 @@ const T_269_ARMED_TOOL_WINS =
   '⚠️ 依存線の道具を構えているあいだは、本表の形を当てないこと（MUST NOT） —— 構えている合図は 表 T-028 の `IN-2` が持つ。'
 
 const EXPECTED_ROW_IDS = Array.from({ length: 22 }, (_one, at) => `GA-${at + 1}`)
-// WHY: not a run of nine -- the white and black of PK-1 and PK-5 are two fills of one row each.
+// Why: not a run of nine -- the white and black of PK-1 and PK-5 are two fills of one row each.
 const EXPECTED_POINTER_IDS = ['PK-1', 'PK-3', 'PK-4', 'PK-5', 'PK-7', 'PK-8', 'PK-9']
-// see PK-10
+// Spec: PK-10
 const ALL_POINTER_IDS = [...EXPECTED_POINTER_IDS, 'PK-10']
 
 const frameLoopModule = async (): Promise<Record<string, unknown>> =>
@@ -29,7 +29,7 @@ const seam = async (name: string): Promise<(...given: unknown[]) => unknown> => 
 }
 
 describe('table T-269 -- the manuscript shape of the nine pointers', () => {
-  // WHY: the table grows (PK-11..PK-15 came with CR-558), so its rows are read, not counted here.
+  // Why: the table grows (PK-11..PK-15 came with CR-558), so its rows are read, not counted here.
   it('holds the eight rows PK-1, PK-3, PK-4, PK-5, PK-7, PK-8, PK-9, PK-10 in its own order, each row ID once', () => {
     const ids = rowsOf('T-269').map((row) => row.id)
     expect(new Set(ids).size, 'a row ID of table T-269 repeats').toBe(ids.length)
@@ -37,7 +37,7 @@ describe('table T-269 -- the manuscript shape of the nine pointers', () => {
   })
 
   it('every row the eight do not cover takes the environment shape, the way PK-10 does, but PK-17 (CR-631)', () => {
-    // WHY: CR-631 added PK-17, a shape the product draws; it names its size the way the eight drawn rows do.
+    // Why: CR-631 added PK-17, a shape the product draws; it names its size the way the eight drawn rows do.
     expect(cellOf('T-269', 'PK-17', '大きさ')).toContain('S-249')
     const rest = rowsOf('T-269').filter((row) => !ALL_POINTER_IDS.includes(row.id) && row.id !== 'PK-17')
     expect(rest.length, 'table T-269 holds no row past the eight').toBeGreaterThan(0)
@@ -99,7 +99,7 @@ describe(`pointerRowOf and pointerImageOf -- the seam that carries the pointer c
       expect(typeof written, `${id} has no pointer image`).toBe('string')
       expect(String(written).length, `${id} has an empty pointer image`).toBeGreaterThan(0)
     }
-    // WHY: PK-1 and PK-5 each draw two fills (T-269's closing white/black rule), so the two are two images.
+    // Why: PK-1 and PK-5 each draw two fills (T-269's closing white/black rule), so the two are two images.
     for (const id of ['PK-1', 'PK-5']) {
       expect(pointerImageOf(id, 'start', 'filled'), `${id}: ${T_269_WHITE_IS_PLAN}`).not.toBe(pointerImageOf(id, 'start', 'hollow'))
     }

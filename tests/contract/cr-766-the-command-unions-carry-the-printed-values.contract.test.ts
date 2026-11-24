@@ -33,7 +33,7 @@ import type { PasteLanding, PlanActualPlacement } from '../../src/use-case/edit-
 import { taskGroupDocument } from '../unit/cr-541-stage'
 import { isUnimplemented, printedCommands, type PrintedCommand, type PrintedValue } from './cr-766-printed-commands'
 
-// WHY: each carried value as table T-108 prints it, "name:role:column:flags"; a field of a shape is "value.field".
+// Why: each carried value as table T-108 prints it, "name:role:column:flags"; a field of a shape is "value.field".
 const PRINTED_VALUES = {
   setProjectTitle: ['title:column:Project.title:'],
   setProjectProfile: [
@@ -280,7 +280,7 @@ const flagsOf = (value: PrintedValue): string =>
   [value.optional ? 'optional' : '', value.nonNull ? 'nonNull' : '', value.many ? 'many' : ''].filter(Boolean).join(',')
 const lineOf = (name: string, value: PrintedValue): string => `${name}:${value.role}:${value.writes ?? ''}:${flagsOf(value)}`
 
-// WHY: the same reading the constant above was written from -- the top values, the fields of a shape one level down
+// Why: the same reading the constant above was written from -- the top values, the fields of a shape one level down
 // (not of a T-019 alternative), and the fields of each shape of a choice as values of the command itself.
 const linesOf = (command: PrintedCommand): string[] => [
   ...command.values.flatMap((value) => [

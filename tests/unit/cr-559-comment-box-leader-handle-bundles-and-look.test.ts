@@ -30,7 +30,7 @@ const REQUIREMENTS = unbroken(readFileSync(join(SPEC, '01-04-requirements.md'), 
 const DESIGN = unbroken(readFileSync(join(SPEC, '05-07-design.md'), 'utf8').replace(/\r\n/g, '\n'))
 const DOCUMENT_COMMANDS = readFileSync(join(SPEC, '_assets', 'tbl-document-commands.md'), 'utf8').replace(/\r\n/g, '\n')
 
-// see T-023d
+// Spec: T-023d
 const BODY_OR_LEADER_MOVES_ALONE =
   '⭐ 本体（本文の箱の全体）か引出し線（線から左右へ同表の `S-291`）を掴んで引いたときは、本文の箱だけを動かし、線先は動かさないこと（MUST） —— 本文の箱は引いた量だけ動かし、線先の日とタスクグループは今のままとする（箱を空いた所へよけるたびに指す先が変わると、どのタスクについてのコメントかが崩れる）。'
 const ONE_BUNDLE =
@@ -50,10 +50,10 @@ const NO_HANDLE_UNSELECTED = '⛔ 選んでいないコメントボックスの�
 const HANDLE_KEEPS_THE_REACH = '⚠️ 印は見せ方だけであり、掴み代を変えない —— 線先は、選んでいてもいなくても `S-292` で応える。'
 const BODY_DOES_NOT_PASS_THROUGH =
   '⛔ 本文の箱の中を素通しにしてはならない（MUST NOT） —— 箱の中は、塗りの透過率（`_assets/fig-erd-detail.md` の `AT-151`、`FR-019`）によらず本体として応える。'
-// see FR-106
+// Spec: FR-106
 const FR_106_ANCHOR =
   '⭐ コメントボックスの線先の掴み代（表 T-023d の `GR-14`、`_assets/tbl-settings.md` の 表 T-206 の `S-292`）では、表 T-269 の `PK-11` とすること（MUST）'
-// see FR-019
+// Spec: FR-019
 const LEADER_ONE_CORNER =
   '⭐ 描き方はこうである（MUST）: 留めた点と、本文の箱の 4 隅のうち `05-07-design.md` の 表 T-221 の `LF-17` が選ぶ 1 隅とを、1 本の線で結ぶこと。'
 const NULLS_DRAW_DEFAULTS =
@@ -71,7 +71,7 @@ const FILL_MAY_BE_TRANSPARENT = '塗りには透明を選ばせてよい。'
 const CLAMPED_NOT_REWRITTEN = '範囲へ寄せて描き、文書を書き換えないこと（MUST）'
 const OUT_OF_RANGE_REFUSED =
   '⭐ 同じ範囲の外の値を置く命令（表 T-108 の `CM-77` ・ `CM-79` ・ `CM-81` ・ `CM-83`）は拒むこと（MUST）'
-// see LF-17
+// Spec: LF-17
 const LF_17_SIDE = '横は、留めた点（`LF-15`）が本文の箱の横の中点より右に在れば右、そうでなければ左の隅とする。'
 const LF_17_UPDOWN = '縦は、留めた点が箱の縦の中点より上に在れば上、そうでなければ下の隅とする。'
 const LF_17_TIE = '⭐ 中点に等しいときは左と下を採る'
@@ -124,14 +124,14 @@ const t217 = (row: string): Bounds => ({
 const S_374 = t217('S-374')
 const S_375 = t217('S-375')
 
-// WHY: a palette name is drawn with the value table T-294 holds for it, in whichever theme is drawn (CV-6).
+// Why: a palette name is drawn with the value table T-294 holds for it, in whichever theme is drawn (CV-6).
 const paletteValues = (spelling: string, kind: '塗り' | '縁'): readonly string[] => {
   const row = specTable('T-294').rows.find((one) => one.by['保存する綴り'] === `\`${spelling}\``)
   if (row === undefined) throw new Error(`table T-294 has no spelling ${spelling}`)
   return [row.by[`明るいテーマの${kind}`] ?? '', row.by[`暗いテーマの${kind}`] ?? ''].map((one) => one.replace(/`/g, '').toLowerCase())
 }
 
-// WHY: a T-236 color may carry the theme hue H, so it is read as a pattern with H any whole number.
+// Why: a T-236 color may carry the theme hue H, so it is read as a pattern with H any whole number.
 const themeColorPattern = (row: string): RegExp => {
   const cells = [cellOf('T-236', row, '明るいテーマ'), cellOf('T-236', row, '暗いテーマ')].map((one) =>
     one.replace(/`/g, '').replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/\bH\b/, '\\d+(?:\\.\\d+)?'),
@@ -212,7 +212,7 @@ const noteRecord = (spec: NoteSpec): Record<string, unknown> => ({
   textColor: spec.textColor ?? null,
 })
 
-// WHY: one plain Task per task group from day 2 to day 28, so every band has a drawn shape under the note.
+// Why: one plain Task per task group from day 2 to day 28, so every band has a drawn shape under the note.
 const taskOf = (uid: number): Record<string, unknown> => ({
   uid,
   parentTaskUid: null,
@@ -418,7 +418,7 @@ const tagsOf = (svg: string, element: string, figure: RegExp): readonly Tag[] =>
 const attributeOf = (tag: string, name: string): string | null => new RegExp(`\\s${name}="([^"]*)"`).exec(tag)?.[1] ?? null
 const numberAttribute = (tag: string, name: string): number => Number(attributeOf(tag, name) ?? Number.NaN)
 
-// WHY: the layer an element sits in is the last data-zo opened before it in the drawn text.
+// Why: the layer an element sits in is the last data-zo opened before it in the drawn text.
 const layerOf = (svg: string, at: number): string | null => {
   const opened = [...svg.slice(0, at).matchAll(/data-zo="([^"]+)"/g)]
   return opened.length === 0 ? null : (opened[opened.length - 1]![1] ?? null)
@@ -452,7 +452,7 @@ const CORNERS = {
 } as const
 type CornerName = keyof typeof CORNERS
 
-// WHY: the leader joins two points; the order it lists them in is not the specification's.
+// Why: the leader joins two points; the order it lists them in is not the specification's.
 const expectJoins = (ends: readonly Point[] | null, anchor: Point, corner: Point, what: string): void => {
   expect(ends, `${what}: no leader`).not.toBeNull()
   expect(ends!.length, `${what}: the leader is not one straight line`).toBe(2)
@@ -562,7 +562,7 @@ describe(`T-023d: ${BODY_OR_LEADER_MOVES_ALONE}`, () => {
       const after = drawnNote(built.loop)
       expect(after.body.x, `${part}: the box did not move by the pull`).toBeCloseTo(before.body.x + by.x, 1)
       expect(after.body.y, `${part}: the box did not move by the pull`).toBeCloseTo(before.body.y + by.y, 1)
-      // STEP: CM-51 alone holds the move, the offset grown by the pull
+      // Step: CM-51 alone holds the move, the offset grown by the pull
       const offset = storedNote(built.loop)['bodyOffsetPx'] as { dx: number; dy: number }
       expect(offset.dx).toBeCloseTo(offsetBefore.dx + by.x, 1)
       expect(offset.dy).toBeCloseTo(offsetBefore.dy + by.y, 1)
@@ -572,7 +572,7 @@ describe(`T-023d: ${BODY_OR_LEADER_MOVES_ALONE}`, () => {
   it('pulled under half a day, the box moves by the pull and the anchor stays on day 10', () => {
     const built = stage()
     const before = drawnNote(built.loop)
-    // WHY: the pull stays clear of S-208 (the press/pull split FR-019 names for placing) and under half a day.
+    // Why: the pull stays clear of S-208 (the press/pull split FR-019 names for placing) and under half a day.
     const by = Math.floor(pxPerDay(built.loop) / 2) - 1
     expect(by, 'premise: the pull is longer than S-208').toBeGreaterThan(t206('S-208'))
     drag(built, centerOf(before.body), by, 0)
@@ -608,7 +608,7 @@ describe(`T-023d: ${BODY_OR_LEADER_MOVES_ALONE}`, () => {
     expect(built.noticeTexts(), 'RS-44 is hidden (表 T-233, CR-712)').not.toContain(RS_44_WORDS)
   })
 
-  // WHY: the pull is the release minus the press; how many moves the pointer reported on the way is not in it.
+  // Why: the pull is the release minus the press; how many moves the pointer reported on the way is not in it.
   const PULLS: readonly (readonly [string, (loop: FrameLoop) => Point, string])[] = [
     ['1.2 days right only', (loop) => ({ x: Math.round(1.2 * pxPerDay(loop)), y: 0 }), `${ANCHOR_DAY} ${ANCHOR_TASK_GROUP}`],
     ['one task group down only', (loop) => ({ x: 0, y: Math.round(taskGroupStep(loop)) }), `${ANCHOR_DAY} ${ANCHOR_TASK_GROUP}`],
@@ -756,7 +756,7 @@ describe(`T-221 LF-17: ${LEADER_ONE_CORNER}`, () => {
 })
 
 describe(`FR-019: ${LEADER_ONE_CORNER} -- in the drawn picture`, () => {
-  // WHY: the body's size comes from its text (FR-097), so each placement is set from the drawn size.
+  // Why: the body's size comes from its text (FR-097), so each placement is set from the drawn size.
   const measured = (): ScreenRect => drawnNote(stage().loop).body
 
   const placements = (body: ScreenRect): readonly (readonly [CornerName, number, number])[] => [
@@ -903,7 +903,7 @@ describe(`FR-106: ${FR_106_ANCHOR}`, () => {
 })
 
 describe(`T-023d: ${BODY_DOES_NOT_PASS_THROUGH}`, () => {
-  // WHY: find a point inside the body that is also inside a drawn plan bar, so the press has a task to fall to.
+  // Why: find a point inside the body that is also inside a drawn plan bar, so the press has a task to fall to.
   const overlap = (loop: FrameLoop): Point => {
     const note = drawnNote(loop)
     for (const task of valuesOf(loop).geometry.tasks) {

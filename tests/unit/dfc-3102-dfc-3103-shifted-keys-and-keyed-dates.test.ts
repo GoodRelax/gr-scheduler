@@ -59,7 +59,7 @@ const viewOf = (panel: PropertiesPanel): ScreenView =>
     tooltips: [],
   }) as unknown as ScreenView
 
-// WHY: the shared fake fires no events of its own; a browser runs the document's capturing listeners, then bubbles.
+// Why: the shared fake fires no events of its own; a browser runs the document's capturing listeners, then bubbles.
 function fire(built: Stage, target: FakeElement, init: Readonly<Record<string, unknown>>): void {
   const event = {
     relatedTarget: null,
@@ -94,7 +94,7 @@ interface DateBench {
   commit(): FieldCommit | null
 }
 
-// WHY: the first date entry of the Task panel, focused the way a browser does it (focus, then focusin).
+// Why: the first date entry of the Task panel, focused the way a browser does it (focus, then focusin).
 function dateBench(): DateBench {
   const built = stage({ 'App Header': 37 })
   built.surface = domScreenSurface(wiringOf(built, { preference: 'light', hue: 214 }))
@@ -103,7 +103,7 @@ function dateBench(): DateBench {
     (one) => one.tagName === 'INPUT' && ['date', 'datetime-local'].includes(one.getAttribute('type') ?? ''),
   )
   if (entry === undefined) throw new Error('the Task panel draws no date entry')
-  // WHY: a browser mirrors the type attribute as the type property; the shared fake keeps only the attribute.
+  // Why: a browser mirrors the type attribute as the type property; the shared fake keeps only the attribute.
   Object.defineProperty(entry, 'type', { get: () => entry.getAttribute('type') ?? '', configurable: true })
   entry.focus()
   fire(built, entry, { type: 'focusin' })
@@ -127,7 +127,7 @@ function dateBench(): DateBench {
   }
 }
 
-// WHY: a value the date entry can hold, different from the one it showed at the focus, in the entry's own form.
+// Why: a value the date entry can hold, different from the one it showed at the focus, in the entry's own form.
 const movedOf = (atFocus: string): string => atFocus.replace(/^\d{4}-\d{2}-\d{2}/, '2026-05-12')
 const halfTypedOf = (atFocus: string): string => atFocus.replace(/^\d{4}/, '0002')
 

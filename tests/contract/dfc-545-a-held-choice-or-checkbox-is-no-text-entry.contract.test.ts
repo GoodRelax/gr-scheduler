@@ -80,7 +80,7 @@ interface Wired {
   readonly pressHost: (target: FakeElement) => void
 }
 
-// WHY: the shared fake host has neither activeElement nor addEventListener; a press on the
+// Why: the shared fake host has neither activeElement nor addEventListener; a press on the
 // host and the focus question both need them, so this stage lends the two.
 function wired(): Wired {
   const built = stage({ [ROLE.appHeader]: HEADER_PX })
@@ -159,7 +159,7 @@ describe('DFC-545 / IN-5a, IF-9 -- a focused choice or checkbox is not an unsett
     const text = controlOf(built, TEXT_ROW)
     focusIn(built, text)
     expect(textEntryStandsOpen(surface)).toBe(true)
-    // STEP: the focus leaves the text field and lands on the choice field
+    // Step: the focus leaves the text field and lands on the choice field
     raise(built, text, 'focusout')
     focusIn(built, controlOf(built, CHOICE_ROW))
     expect(textEntryStandsOpen(surface)).toBe(false)

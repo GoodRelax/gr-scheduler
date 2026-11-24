@@ -54,7 +54,7 @@ export const ALPHA_UID = 1
 
 const day = (d: number): string => `2026-04-${String(d).padStart(2, '0')}T00:00:00`
 
-// WHY: no actual start, so the task is not started -- FR-043 draws its Actual Operation Dummy and
+// Why: no actual start, so the task is not started -- FR-043 draws its Actual Operation Dummy and
 // T-023d GA-18 puts its progress marker outside the end grab, the two figures CA-1 (3) names.
 function notStartedTask(uid: number, name: string, start: number, finish: number): Task {
   return {
@@ -159,14 +159,14 @@ export interface StageOptions {
   readonly surface?: SvgSurface
 }
 
-// see S-100, T-207
+// Spec: S-100, T-207
 /** @purity pure */
 export function watermarkUnlockAnswer(): string {
   const row = specTable('T-207').rows.find((one) => one.id === 'S-100')
   return (row?.by['値'] ?? '').replace(/[`*]/g, '').trim()
 }
 
-// see T-103
+// Spec: T-103
 /** @purity pure */
 export function partNameOf(uid: string): string {
   const found = specTable('T-103').rows.find((one) => one.id === uid)
@@ -292,7 +292,7 @@ export function stage(options: StageOptions = {}): Stage {
     beneathNow: () => last('showSvg'),
     overlayNow: () => last('showMarqueeOverlaySvg'),
     framesRun: () => ran,
-    // WHY: left of Alpha's plan bar, in bands that hold no task -- nothing the picture reads from the
+    // Why: left of Alpha's plan bar, in bands that hold no task -- nothing the picture reads from the
     // pointer (CA-1 (3)) is under any of these points.
     ground: () => {
       const plan = alpha().plan

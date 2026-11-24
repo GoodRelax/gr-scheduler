@@ -1,4 +1,4 @@
-// InputCommandTranslator -- drags on the screen frame into position and width writes.
+// File: InputCommandTranslator: drags on the screen frame into position and width writes.
 // @unit      UF-94   (docs/spec/05-07-design.md, table T-075)
 // @component InputCommandTranslator, layer Adapter (table T-062)
 // @purity    pure
@@ -26,7 +26,7 @@ import {
   type TranslatedInput,
 } from './input-command-translator'
 
-// see FR-053, GR-19
+// Spec: FR-053, GR-19
 /** @purity pure */
 export function paletteFollow(input: PointerInput, context: InputContext): TranslatedInput {
   const press = context.pressed
@@ -36,7 +36,7 @@ export function paletteFollow(input: PointerInput, context: InputContext): Trans
   return acted({ kind: 'moveCommandPalette', by: followingTravel(input, press) })
 }
 
-// see GR-21, T-038
+// Spec: GR-21, T-038
 /** @purity pure */
 function scrollGearing(context: InputContext, axis: ScrollbarAxis): number {
   const area = context.regions.taskGroupArea
@@ -65,8 +65,8 @@ function travelInside(offset: number, room: number, travel: number): number {
   return Math.max(-offset, Math.min(room - offset, travel))
 }
 
-// see GR-21, FR-051
-// WHY: the grip is the view's share of the whole held at the press; a view carried past that whole
+// Spec: GR-21, FR-051
+// Why: the grip is the view's share of the whole held at the press; a view carried past that whole
 // has no place on the lane, so the grip stopped at the lane end and left the pointer.
 /** @purity pure */
 function travelInsideHeldWidth(context: InputContext, dx: number): number {
@@ -77,7 +77,7 @@ function travelInsideHeldWidth(context: InputContext, dx: number): number {
   return travelInside(area.x - (contentX0 - whole.fromContentX0), whole.width - area.width, dx)
 }
 
-// see GR-21, FR-051, FR-098
+// Spec: GR-21, FR-051, FR-098
 /** @purity pure */
 function travelInsideHeldHeight(context: InputContext, dy: number): number {
   const area = context.regions.taskGroupArea
@@ -89,7 +89,7 @@ function travelInsideHeldHeight(context: InputContext, dy: number): number {
   return travelInside(scrollTop - (first.y - whole.fromContentY0), whole.height - visible, dy)
 }
 
-// see FR-051, GR-21
+// Spec: FR-051, GR-21
 /** @purity pure */
 export function scrollbarFollow(input: PointerInput, context: InputContext): TranslatedInput {
   const press = context.pressed
@@ -100,7 +100,7 @@ export function scrollbarFollow(input: PointerInput, context: InputContext): Tra
   return panTo(context, by.dx, by.dy)
 }
 
-// see FR-052, CM-67, FR-100, T-290
+// Spec: FR-052, CM-67, FR-100, T-290
 /** @purity pure */
 export function commandFromPanelDivider(
   panel: NonNullable<ScreenPart['dividerPanel']>,
@@ -115,7 +115,7 @@ export function commandFromPanelDivider(
   return changed([{ kind: 'setTaskGroupPanelWidthPx', taskGroupPanelWidthPx }])
 }
 
-// see FR-052, GR-22, S-171, S-248, T-280
+// Spec: FR-052, GR-22, S-171, S-248, T-280
 /** @purity pure */
 export function screenEventFromPanelDivider(
   release: PointerInput,
@@ -129,7 +129,7 @@ export function screenEventFromPanelDivider(
   return { type: 'propertyPanelWidthSettled', propertyPanelWidth }
 }
 
-// see FR-052, FR-039, T-252
+// Spec: FR-052, FR-039, T-252
 /** @purity pure */
 function taskGroupPanelWidthAfterDrag(settings: DocumentSettings, traveled: number): number {
   const stored = settings.taskGroupPanelWidthPx

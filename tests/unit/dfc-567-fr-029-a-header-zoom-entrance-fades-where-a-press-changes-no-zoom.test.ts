@@ -47,7 +47,7 @@ describe('DFC-567 part 3 -- the manuscript these cases are driven by', () => {
   })
 })
 
-// see T-201, T-206, T-203
+// Spec: T-201, T-206, T-203
 const setting = (table: string, id: string, column: string): number => numberIn(rowOf(table, id).by[column] ?? '')
 const S_1 = setting('T-201', 'S-1', '既定値')
 const S_4 = setting('T-201', 'S-4', '既定値')
@@ -70,7 +70,7 @@ const B = 'cccccccc-0000-4000-8000-000000000002'
 const C = 'cccccccc-0000-4000-8000-000000000003'
 const Z = 'cccccccc-0000-4000-8000-000000000004'
 
-// WHY: depth 3, so FR-018 drops task groups as zoomY lowers and ZE-1 (2) is a real condition here.
+// Why: depth 3, so FR-018 drops task groups as zoomY lowers and ZE-1 (2) is a real condition here.
 const DEEP: readonly TaskGroupSeed[] = [
   { id: A, parentId: null },
   { id: B, parentId: A },
@@ -133,7 +133,7 @@ interface Step {
   readonly changed: boolean
 }
 
-// WHY: the walk records, per press, the drawn state before it and whether the press moved the zoom, so faintness is compared with the effect itself.
+// Why: the walk records, per press, the drawn state before it and whether the press moved the zoom, so faintness is compared with the effect itself.
 function walkToEnd(built: ShellBench, entrance: ZoomEntrance): readonly Step[] {
   const steps: Step[] = []
   for (let turn = 0; turn < 120; turn += 1) {

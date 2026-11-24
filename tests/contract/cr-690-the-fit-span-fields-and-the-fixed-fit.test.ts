@@ -119,7 +119,7 @@ const S_54 = setting('S-54')
 const S_55 = setting('S-55')
 const S_332 = Number(bare(specTable('T-206').rows.find((one) => one.id === 'S-332')?.by['既定'] ?? ''))
 
-// see T-108
+// Spec: T-108
 const commandNameOf = (id: string): string => bare(specTable('T-108').rows.find((one) => one.id === id)?.by['確定名'] ?? '')
 const CM_88 = commandNameOf('CM-88')
 const CM_89 = commandNameOf('CM-89')
@@ -193,7 +193,7 @@ const kindsOf = (commands: readonly unknown[]): string[] => commands.map((one) =
 
 const MS_PER_DAY = 86_400_000
 
-// see FX-6
+// Spec: FX-6
 const dayAt = (frame: FrameValues, x: number): string => {
   const origin = frame.layout.originDay as unknown as { year: number; month: number; day: number } | null
   if (origin === null) throw new Error('premise: the picture has an origin day')
@@ -206,7 +206,7 @@ const shownDaysOf = (frame: FrameValues): readonly [string, string] => {
   return [dayAt(frame, area.x), dayAt(frame, area.x + area.width - 1)]
 }
 
-// see FX-8
+// Spec: FX-8
 const slashed = (day: string): string => day.slice(0, 10).split('-').join('/')
 
 const readoutOf = (days: readonly [string, string], language: DisplayLanguage = 'ja'): string =>
@@ -341,7 +341,7 @@ describe('FR-055 T-367 FX-2 / FX-3 -- the fixed fit', () => {
   })
 
   it.each([
-    // WHY: CR-710 raised S-55 to 240 (FR-016, 1 minute = 1 px); a one-day span no longer fits past it, so only the S-54 end is reachable.
+    // Why: CR-710 raised S-55 to 240 (FR-016, 1 minute = 1 px); a one-day span no longer fits past it, so only the S-54 end is reachable.
     ['2000-01-01', '2099-12-31', S_54],
   ])(`${FX_3_CLAMP} -- %s .. %s fits at the S-75 end %s`, async (start, finish, end) => {
     const stage = exportStage(withFit(start, finish, true))

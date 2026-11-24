@@ -22,20 +22,20 @@ const defaultAddressOf = (id: string): string => {
   throw new Error(`the settings manuscript has no default for ${id}`)
 }
 
-// see S-350
+// Spec: S-350
 export const DOWNLOAD_ADDRESS: string = defaultAddressOf('S-350')
 
-// see S-459, FR-069, BR-4
+// Spec: S-459, FR-069, BR-4
 export const REPOSITORY_ADDRESS: string = defaultAddressOf('S-459')
 
-// see S-540, DR-4
+// Spec: S-540, DR-4
 export const SCHEMA_ADDRESS: string = defaultAddressOf('S-540')
 
-// see S-583, FR-036
+// Spec: S-583, FR-036
 export const ABOUT_ADDRESS: string = defaultAddressOf('S-583')
 
-// see FR-073
+// Spec: FR-073
 export const DOWNLOAD_URL_SEAT = '{downloadUrl}'
 
-// see FR-073
+// Spec: FR-073
 export const withDownloadAddress = (word: string): string => word.split(DOWNLOAD_URL_SEAT).join(DOWNLOAD_ADDRESS)

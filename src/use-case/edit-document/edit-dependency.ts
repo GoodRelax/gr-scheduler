@@ -1,4 +1,4 @@
-// EditDocument: the Dependency commands of table T-108.
+// File: EditDocument: the Dependency commands of table T-108.
 // @unit      UF-13  (docs/spec/05-07-design.md, table T-075)
 // @component EditDocument, layer UseCase (table T-062)
 // @purity    pure
@@ -21,18 +21,18 @@ export type DependencyEdge = 'start' | 'finish'
 
 // <generated -- do not edit by hand>
 // From docs/spec/_source/document-commands.json (table T-108, DependencyCommand).
-// see T-108
+// Spec: T-108
 export interface WorkingDayLag {
   readonly lagWorkingDays: number
 }
 
-// see T-108
+// Spec: T-108
 export interface TypedLag {
   readonly lagMinutes: number
   readonly lagUnit: 'd' | 'h' | 'm'
 }
 
-// see T-108
+// Spec: T-108
 export type DependencyCommand =
   | {
       readonly kind: 'createDependency'
@@ -59,11 +59,11 @@ export type DependencyCommand =
     } & (WorkingDayLag | TypedLag))
 // </generated>
 
-// see FR-009, TX-3, TX-10
+// Spec: FR-009, TX-3, TX-10
 export type TypedLagUnit = TypedLag['lagUnit']
 
-// see FR-009, AT-48
-// WHY: the codes are mspdi_pj12.xsd's LagFormat: 7 working days, 5 hours, 3 minutes.
+// Spec: FR-009, AT-48
+// Why: the codes are mspdi_pj12.xsd's LagFormat: 7 working days, 5 hours, 3 minutes.
 const LAG_FORMAT_OF_UNIT: Readonly<Record<TypedLagUnit, number>> = { d: WORKING_DAY_LAG_FORMAT, h: 5, m: 3 }
 
 /** @purity pure */
@@ -72,7 +72,7 @@ function linkTypeOf(from: DependencyEdge, into: DependencyEdge): number {
   return into === 'finish' ? 2 : 3
 }
 
-// see FR-009, RT-4a
+// Spec: FR-009, RT-4a
 /** @purity pure */
 function planlessEndRefusals(ends: readonly (Task | null)[]): Refusal[] {
   return ends.flatMap((end) =>
@@ -87,7 +87,7 @@ function withTask(document: Document, task: Task): Document {
   return { ...document, schedule: { ...document.schedule, tasks } }
 }
 
-// see CM-36, CM-37, CM-93, CM-38, FR-009, AT-47
+// Spec: CM-36, CM-37, CM-93, CM-38, FR-009, AT-47
 /** @purity pure */
 export function editDependency(document: Document, command: DependencyCommand): EditResult {
   const schedule = document.schedule
@@ -165,8 +165,8 @@ export function editDependency(document: Document, command: DependencyCommand): 
   }
 }
 
-// see CM-93, FR-155, FA-3
-// WHY: a line named by its order that is not there is refused rather than passed over, so a bundle built on another
+// Spec: CM-93, FR-155, FA-3
+// Why: a line named by its order that is not there is refused rather than passed over, so a bundle built on another
 // document cannot delete a line nobody named.
 /** @purity pure */
 function withOneLineDeleted(document: Document, command: Extract<DependencyCommand, { kind: 'deleteDependencyAt' }>): EditResult {
@@ -181,7 +181,7 @@ function withOneLineDeleted(document: Document, command: Extract<DependencyComma
   return edited(withTask(document, kept))
 }
 
-// see CM-38, FR-009, AT-47
+// Spec: CM-38, FR-009, AT-47
 /** @purity pure */
 function withLagSet(document: Document, command: Extract<DependencyCommand, { kind: 'setDependencyLag' }>): EditResult {
   const schedule = document.schedule
@@ -206,8 +206,8 @@ function withLagSet(document: Document, command: Extract<DependencyCommand, { ki
   return edited(withTask(document, { ...successor, dependencies }))
 }
 
-// see FR-009, AT-47, AT-48
-// WHY: a string is the refusal's reason; the lag is held in tenths of a minute whatever unit was typed.
+// Spec: FR-009, AT-47, AT-48
+// Why: a string is the refusal's reason; the lag is held in tenths of a minute whatever unit was typed.
 /** @purity pure */
 function writtenLagOf(lag: WorkingDayLag | TypedLag, minutesPerDay: number): Pick<Dependency, 'linkLag' | 'lagFormat'> | string {
   if ('lagMinutes' in lag) {

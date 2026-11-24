@@ -13,24 +13,24 @@ import { unbroken } from './spec-table'
 
 const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
-// see EX-15, T-033
+// Spec: EX-15, T-033
 const EX_15_GRS_MADE =
   'MSPDI を取り込まずに作った文書では、pj12 の `targetNamespace`（`http://schemas.microsoft.com/project/2007`）を書くこと（MUST）'
 
-// see EX-16, T-033
+// Spec: EX-16, T-033
 const EX_16_SAME_PLACE =
   '取り込んだフェード日数の値（`Task` の子の `ExtendedAttribute` のうち、`EX-6` の見分け方でフェードの枠と分かったもの）は、取り込んだときの位置へ書き戻すこと（MUST）'
 const EX_16_MARKER =
   '⭐ 位置は、値を解釈した要素の代わりに、値（`Value`）を持たない同じ名前の印をその `Task` の `carryElements` に残して持つこと（MUST）'
 
-// see FR-021
+// Spec: FR-021
 const NO_STOP_UNTIL_EDITED =
   '⛔ 取り込み元が `Stop` を持たなかった `Task` では、人がそのタスクの実績を編集していないあいだ、書き出しに `Stop` を書いてはならない（MUST NOT）'
 
 const PJ12_NAMESPACE = 'http://schemas.microsoft.com/project/2007'
 const SAVED_AT = '2026-10-07T09:00:00'
 
-// see EX-6
+// Spec: EX-6
 const ROSTER = JSON.parse(readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'mspdi-custom-fields.json'), 'utf8')) as {
   readonly frames: readonly { readonly name: string; readonly fieldId: number; readonly prefers: string; readonly alias: string }[]
 }
@@ -90,7 +90,7 @@ describe('FR-021: a Task imported without Stop is written without Stop while its
 })
 
 describe('EX-16: an imported fade value goes back to where it was read', () => {
-  // WHY: the fade value is put BEFORE the Text1 value, so moving it behind the carried ExtendedAttribute changes the order.
+  // Why: the fade value is put BEFORE the Text1 value, so moving it behind the carried ExtendedAttribute changes the order.
   const fixture = (): Spec => {
     if (FADE_IN_FRAME === undefined) throw new Error('the roster names no fadeInDays frame')
     const definition = node('ExtendedAttribute', leaf('FieldID', FADE_IN_FRAME.fieldId), leaf('FieldName', 'Number1'), leaf('Alias', FADE_IN_FRAME.alias))
@@ -113,7 +113,7 @@ describe('EX-16: an imported fade value goes back to where it was read', () => {
   it(EX_16_MARKER, () => {
     const document = read(fixture())
     const task = document.schedule.tasks.find((one) => one.uid === FADE_TASK)
-    // WHY: the clause binds only a value EX-6 recognized; an unrecognized one is carried whole (DF-2), and then no marker is due.
+    // Why: the clause binds only a value EX-6 recognized; an unrecognized one is carried whole (DF-2), and then no marker is due.
     const recognized = task?.fadeInDays === FADE_DAYS
     const kept = (task?.carryElements ?? []).filter((one) => one.name === 'ExtendedAttribute')
     if (recognized) {

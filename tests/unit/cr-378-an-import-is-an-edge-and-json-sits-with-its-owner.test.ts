@@ -22,7 +22,7 @@ const LAYER_FOLDERS: readonly string[] = [
   .map((one) => one[1] ?? '')
   .filter((one) => one !== 'src')
 
-// see T-060, LR-4
+// Spec: T-060, LR-4
 const INWARD_RANK: Readonly<Record<string, number>> = {
   'entity/document-model': 0,
   'entity/layout-engine': 1,
@@ -62,7 +62,7 @@ interface Place {
 
 const keyOf = (place: Place): string => `${place.layer}/${place.folder}`
 
-// see EG-1
+// Spec: EG-1
 function placeOf(path: string): Place | null {
   const parts = relative(SRC, path).split(sep)
   for (const layer of LAYER_FOLDERS) {
@@ -86,7 +86,7 @@ const IMPORT = new RegExp(
     `|(?:^|\\n)[ \\t]*import\\s*['"]([^'"]+)['"]`,
   'g',
 )
-// WHY: a second, looser pattern counts what is present, so a reader that
+// Why: a second, looser pattern counts what is present, so a reader that
 // skips a multi-line import shows up as a shortfall instead of a green run.
 const SPECIFIER = /(?<![\w$])from\s*['"]([^'"]+)['"]|(?:^|\n)[ \t]*import\s*['"]([^'"]+)['"]/g
 
@@ -96,7 +96,7 @@ interface Site {
   readonly typeOnly: boolean
 }
 
-// see EG-3
+// Spec: EG-3
 function typeOnlyClause(typeKeyword: string | undefined, clause: string | undefined): boolean {
   if (typeKeyword !== undefined) return true
   if (clause === undefined || !/^\{[^{}]*\}$/.test(clause)) return false
@@ -141,14 +141,14 @@ interface Crossing {
   readonly to: Place
 }
 
-// see EG-2, EG-4
+// Spec: EG-2, EG-4
 const CROSSINGS: readonly Crossing[] = RESOLVED.flatMap((one) =>
   one.from !== null && one.to !== null && keyOf(one.from) !== keyOf(one.to)
     ? [{ site: one.site, from: one.from, to: one.to }]
     : [],
 )
 
-// see EG-2
+// Spec: EG-2
 function edgesOf(crossings: readonly Crossing[]): ReadonlyMap<string, readonly Crossing[]> {
   const edges = new Map<string, Crossing[]>()
   for (const one of crossings) {

@@ -58,7 +58,7 @@ const WORDS = JSON.parse(readFileSync(join(SPEC, '_source', 'display-words.json'
   readonly invariants: readonly WordEntry[]
 }
 
-// WHY: each constant ends exactly at its marker, cut from section 4 of CR-712 as check 39 reads it.
+// Why: each constant ends exactly at its marker, cut from section 4 of CR-712 as check 39 reads it.
 const FR_076_THE_COLUMN_HOLDS_IT = '理由ごとに画面へどう出すかは、表 T-233 の「表示の仕方」の欄が持つ（MUST）'
 const FR_076_HIDE_IS_CARRIED =
   '「出さない」の理由は、上げられても通知の欄に 1 枚を立てない —— 行は理由として残り、`Agent API` の拒否の値（表 T-035 の `AG-9a`）はその行を運ぶ。'
@@ -66,7 +66,7 @@ const FR_076_NOT_DECIDED_AGAIN = '要求の本文に「告げる」と書かれ�
 const FR_076_A_NEW_ROW_HAS_WORDS = '相乗り（表 T-233 のまとめ方の欄の「語は …」）を持たない行を足すときは、辞書の原稿にも項を足すこと（MUST）'
 const FR_076_A_RIDING_ROW_HAS_NONE = '相乗りする行の項を辞書に持ってはならない（MUST NOT）'
 
-// WHY: the rows by display, copied from CR-712 section 3.2, so a row moved in the manuscript alone goes red.
+// Why: the rows by display, copied from CR-712 section 3.2, so a row moved in the manuscript alone goes red.
 const HIDDEN = [
   'RS-19', 'RS-22', 'RS-27', 'RS-28', 'RS-29', 'RS-30', 'RS-31', 'RS-32', 'RS-34',
   'RS-40', 'RS-44', 'RS-46', 'RS-49', 'RS-53', 'RS-55', 'RS-62', 'RS-74',
@@ -76,7 +76,7 @@ const TIMED = [
   'RS-70', 'RS-69', 'RS-77',
   'RS-84', 'RS-85', 'RS-86', 'RS-87', 'RS-88',
 ] as const
-// WHY: CR-858 made RS-14 a refusal shown at once (OP-11, JDG-3584), so it left the reported rows.
+// Why: CR-858 made RS-14 a refusal shown at once (OP-11, JDG-3584), so it left the reported rows.
 const REPORTED = ['RS-16', 'RS-50', 'RS-51', 'RS-52', 'RS-60', 'RS-71', 'RS-72', 'RS-73'] as const
 const RIDING: Readonly<Record<string, string>> = {
   'RS-7': 'RS-6',
@@ -86,7 +86,7 @@ const RIDING: Readonly<Record<string, string>> = {
   'RS-42': 'RS-15',
 }
 
-// see T-233
+// Spec: T-233
 /** @purity pure */
 function wantedDisplayOf(id: string): ReasonDisplay {
   if ((HIDDEN as readonly string[]).includes(id)) return 'hide'
@@ -95,7 +95,7 @@ function wantedDisplayOf(id: string): ReasonDisplay {
   return 'show'
 }
 
-// see T-233
+// Spec: T-233
 const PRINTED_DISPLAY: Readonly<Record<ReasonDisplay, string>> = {
   show: '出す',
   hide: '出さない',
@@ -103,7 +103,7 @@ const PRINTED_DISPLAY: Readonly<Record<ReasonDisplay, string>> = {
   report: '`U-62` に並べる',
 }
 
-// see T-234
+// Spec: T-234
 const PRINTED_ASKING: Readonly<Record<QuestionDisplay, string>> = {
   ask: '問う',
   askOnlyWithUnsavedEdits: '保存していない編集があるときだけ問う',
@@ -142,8 +142,8 @@ describe('FR-076: the display column is the one place that decides', () => {
 })
 
 describe(`T-233 display column -- ${FR_076_THE_COLUMN_HOLDS_IT}`, () => {
-  // WHY: CR-755 retired the MSPDI time zone notice (an autoDismiss row): 85 -> 84; CR-772 retired four hidden rows: -> 80.
-  // WHY: CR-796 slice 1 added RS-90 (show): -> 81, show 36. CR-858 moved RS-14 from report to show: show 37, report 8.
+  // Why: CR-755 retired the MSPDI time zone notice (an autoDismiss row): 85 -> 84; CR-772 retired four hidden rows: -> 80.
+  // Why: CR-796 slice 1 added RS-90 (show): -> 81, show 36. CR-858 moved RS-14 from report to show: show 37, report 8.
   it('the manuscript holds 81 reasons: show 37 (5 riding), autoDismiss 19, hide 17, report 8', () => {
     const count = (display: ReasonDisplay): number => ROSTER.reasons.filter((one) => one.display === display).length
     expect(ROSTER.reasons).toHaveLength(81)
@@ -242,7 +242,7 @@ describe('the generated rosters src reads are the manuscript (PI-39)', () => {
     expect(QUESTION_DISPLAY_OF_ROW['QN-5']).toBe('askOnlyWithUnsavedEdits')
   })
 
-  // WHY: the applied PI-39 lists NOTICE_DISPLAY_OF_REASON only; QUESTION_DISPLAY_OF_ROW is read inside the use case (file-flow-values.ts), not by the shell.
+  // Why: the applied PI-39 lists NOTICE_DISPLAY_OF_REASON only; QUESTION_DISPLAY_OF_ROW is read inside the use case (file-flow-values.ts), not by the shell.
   it('PI-39 publishes NOTICE_DISPLAY_OF_REASON', () => {
     const pi39 = PUBLISHED.split('\n').find((line) => line.startsWith('| PI-39 |')) ?? ''
     expect(pi39).toContain('`NOTICE_DISPLAY_OF_REASON`')

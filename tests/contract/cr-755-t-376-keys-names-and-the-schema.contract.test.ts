@@ -32,7 +32,7 @@ import {
   type Loose,
 } from './cr-755-stage'
 
-// see FR-156
+// Spec: FR-156
 const FR_156_FIXED_OFFSET =
   'タイムゾーンは、1 つの固定の UTC の差と 1 つの略称で決まるものとし、値は 表 T-376 の鍵とすること（MUST）'
 const FR_156_NO_SEASON = '⛔ 夏時間を季節で自動に切り替えてはならない（MUST NOT）'
@@ -42,7 +42,7 @@ const FR_156_REFUSE =
   '⛔ 日程データのタイムゾーンが 表 T-376 の種が標準時の行の鍵でない `GRS JSON` は開かず、表 T-233 の `RS-25` で拒むこと（MUST）'
 const FR_156_VIEW_RESET =
   '見せる基準（`S-574`）が標準時の行の鍵でないとき、表示するタイムゾーン（`S-575`）に 表 T-376 の鍵でない値があるときは、文書を拒まず、そのキーを既定へ戻す'
-// WHY: CR-787 (JDG-2463) -- the name is two lines, zoneHead over the place; hours take two digits.
+// Why: CR-787 (JDG-2463) -- the name is two lines, zoneHead over the place; hours take two digits.
 const FR_156_NAME =
   '見せる名は 2 行とし、1 行目は 表 T-376 の UTC の差と略称を `FR-038` の辞書の `timeZoneField` の `zoneHead` の形でつないだもの、2 行目は同じ辞書の `timeZones` が行ごとに持つ地名とすること（MUST）'
 const FR_156_NAME_EXAMPLES = '例「UTC +09:00 JST」／「東京」、「UTC -07:00 MST」／「Mountain Standard Time (US, Canada)」'
@@ -73,7 +73,7 @@ describe('CR-755 -- the manuscript these cases are built from still reads as quo
   })
 })
 
-// see T-376
+// Spec: T-376
 describe(`T-376 -- ${FR_156_FIXED_OFFSET}`, () => {
   it('39 rows ZN-29..ZN-67: 27 standard time and 12 daylight time, every key distinct', () => {
     expect(T_376_ROWS.map((row) => row.id)).toEqual(Array.from({ length: 39 }, (_, i) => `ZN-${String(i + 29)}`))
@@ -149,7 +149,7 @@ describe(`T-376 -- ${FR_156_FIXED_OFFSET}`, () => {
   })
 })
 
-// see FR-156
+// Spec: FR-156
 describe(`FR-156 -- ${FR_156_NO_SEASON}`, () => {
   const MS_PER_MINUTE = 60000
   const instants = [Date.UTC(2026, 0, 15, 12, 0), Date.UTC(2026, 3, 1, 15, 0), Date.UTC(2026, 7, 15, 12, 0), Date.UTC(2026, 10, 2, 9, 0)].map(
@@ -173,7 +173,7 @@ describe(`FR-156 -- ${FR_156_NO_SEASON}`, () => {
   })
 })
 
-// see FR-156, FR-038, T-376
+// Spec: FR-156, FR-038, T-376
 describe(`FR-156 -- ${FR_156_NAME}`, () => {
   it.each([
     ['UTC+09:00', 'ja', 'UTC +09:00 JST', '東京'],
@@ -223,7 +223,7 @@ describe(`FR-156 -- ${FR_156_NAME}`, () => {
   })
 })
 
-// see FR-156, BK-4
+// Spec: FR-156, BK-4
 describe(`FR-156 -- ${FR_156_PC_STANDARD}`, () => {
   const savedZone = process.env['TZ']
 
@@ -232,7 +232,7 @@ describe(`FR-156 -- ${FR_156_PC_STANDARD}`, () => {
     else process.env['TZ'] = savedZone
   })
 
-  // WHY: subtracting from 0 turns the -0 of a zero offset into 0.
+  // Why: subtracting from 0 turns the -0 of a zero offset into 0.
   const offsetOn = (month: number): number => 0 - new Date(new Date().getFullYear(), month, 1, 12).getTimezoneOffset()
 
   it('the reading on this PC is the standard row of the smaller of its January 1 and July 1 offsets', () => {
@@ -269,7 +269,7 @@ function withValues(zone: unknown, view: unknown, display: unknown): Json {
 
 const OUTSIDE = ['Asia/Tokyo', 'UTC', 'JST', 'UTC+9:00', 'UTC+09:00 dst', 'UTC+14:00']
 
-// see FR-156, T-376, S-574, S-575
+// Spec: FR-156, T-376, S-574, S-575
 describe(`the GRS JSON schema -- ${FR_156_STANDARD_BASE}`, () => {
   const project = (SCHEMA['$defs'] as Json)['Project']['properties']['scheduleDataTimeZone'] as Json
   const settings = SCHEMA['properties']['documentSettings']['properties'] as Json
@@ -309,7 +309,7 @@ describe(`the GRS JSON schema -- ${FR_156_STANDARD_BASE}`, () => {
   })
 })
 
-// see FR-156, RS-25, OP-6
+// Spec: FR-156, RS-25, OP-6
 describe(`the reader -- ${FR_156_REFUSE}`, () => {
   it.each([...DAYLIGHT_KEYS, ...OUTSIDE].map((value) => [value]))('a schedule data zone of %s is refused with RS-25', (value) => {
     const read = documentFromJson(JSON.stringify(withValues(value, null, [])), KNOWN_VERSION)

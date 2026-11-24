@@ -119,7 +119,7 @@ describe('T-318 -- how a parent not written down is resolved', () => {
 const FR_135_NO_MILESTONE_PARENT = '⛔ マイルストーンを親にしてはならない（MUST NOT） —— `parentTaskUid` が明記していても同じである。'
 const FR_135_READ_AS_NULL = '診断は、マイルストーンを指す `parentTaskUid` を親として読まず、その子を `parentTaskUid` が `null` の `Task` として 表 T-318 で親を導くこと（MUST）'
 
-// WHY: X, Y and Z each state a milestone as their parent; X is enclosed by P alone, Y by nothing, Z sits on the top task group.
+// Why: X, Y and Z each state a milestone as their parent; X is enclosed by P alone, Y by nothing, Z sits on the top task group.
 const X = 10
 const Y = 11
 const Z = 12
