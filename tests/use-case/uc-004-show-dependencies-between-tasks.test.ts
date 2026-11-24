@@ -6,6 +6,8 @@ import { VIEWPORT, answerConfirmation, drag, enableAgentApi, figureBox, icon, la
 test.use({ viewport: VIEWPORT, locale: 'en-US' })
 
 const TASK_GROUP_Y = 83
+// Why: the tasks are placed by pixel on a document that opens on today; with a real clock B is not drawn after the first link on Wed to Fri.
+const PINNED_NOW = new Date('2026-11-09T09:00:00')
 const PANEL = '[data-role="Properties Panel"] '
 
 const makeTask = async (page: Page, x1: number, x2: number, name: string): Promise<void> => {
@@ -23,6 +25,7 @@ const pointsOf = async (page: Page, figure: string): Promise<number[][]> => {
 }
 
 test('UC-004 show dependencies between tasks (FR-009 T-018 DP-1 DP-3, T-018a, T-023b, S-201)', async ({ page }) => {
+  await page.clock.setFixedTime(PINNED_NOW)
   await launch(page)
   await enableAgentApi(page)
   await press(page, 'IC-106')

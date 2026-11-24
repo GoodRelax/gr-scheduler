@@ -14,7 +14,7 @@
       "creationDate": "2026-10-31T08:50:00",
       "revision": 11,
       "startDate": "2026-10-17T05:30:00",
-      "statusDate": "2026-11-25T00:56:00",
+      "statusDate": "2026-11-25T01:33:00",
       "minutesPerDay": 1440,
       "minutesPerWeek": 10080,
       "daysPerMonth": 30,
@@ -24,7 +24,7 @@
       "defaultFinishTime": "23:59:00",
       "themeHue": 214,
       "parentTaskProgressToleranceDays": 1,
-      "uidHighWaterMark": 516,
+      "uidHighWaterMark": 519,
       "importSequence": 0,
       "carry": {},
       "carryElements": [],
@@ -9096,6 +9096,14 @@
             "lagFormat": 7,
             "carry": {},
             "carryElements": []
+          },
+          {
+            "predecessorUid": 517,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
           }
         ],
         "carry": {},
@@ -9497,7 +9505,7 @@
         "wbsOrder": 363,
         "name": "🌒 ② Agent API の後任の席が別の AI のレビュー 26 件を仕分け、名を問い、ほかの AI へ 2 段の質問状を出す(SUB)",
         "start": "2026-11-24T06:51:00",
-        "finish": "2026-11-24T23:00:41",
+        "finish": "2026-11-25T22:15:41",
         "milestone": false,
         "deadline": null,
         "calendarUid": null,
@@ -9509,7 +9517,7 @@
         "percentComplete": 0,
         "fadeInDays": null,
         "fadeOutDays": null,
-        "notes": "pmo-6 2026-11-24T00:24: BOSS line 11-24: the Agent API seat recorded the first independent AI review of the Agent API names (26 findings, 4 high; JDG-3785, 70072a3fb 00:20, develop ad639f551). A successor seat continues on the owner signal: triage, name questions, a two-stage questionnaire to other AIs. Not started. Length = 26 findings at 8.6 rows/h (provisional). Owner waits come as their own tasks when asked. SUB: Opus 5.5 high. pmo-6 2026-11-24T06:51: started on the owner signal (seat local_6568f2a0: Agent API successor; JDG ids 3786..3800 reserved; the previous seat local_bc823393 is done). Length kept (provisional). pmo-6 2026-11-24T08:00: waits for the owner on BGQA7 round 10 (507); finish = 507 + 0.5 h (provisional).",
+        "notes": "pmo-6 2026-11-24T00:24: BOSS line 11-24: the Agent API seat recorded the first independent AI review of the Agent API names (26 findings, 4 high; JDG-3785, 70072a3fb 00:20, develop ad639f551). A successor seat continues on the owner signal: triage, name questions, a two-stage questionnaire to other AIs. Not started. Length = 26 findings at 8.6 rows/h (provisional). Owner waits come as their own tasks when asked. SUB: Opus 5.5 high. pmo-6 2026-11-24T06:51: started on the owner signal (seat local_6568f2a0: Agent API successor; JDG ids 3786..3800 reserved; the previous seat local_bc823393 is done). Length kept (provisional). pmo-6 2026-11-24T08:00: waits for the owner on BGQA7 round 10 (507); finish = 507 + 0.5 h (provisional). pmo-6 2026-11-25T01:07: finish = 507 + 0.5 h (provisional).",
         "dependencies": [
           {
             "predecessorUid": 489,
@@ -9561,7 +9569,7 @@
         "wbsOrder": 365,
         "name": "🌒 オーナー: ② BGQA7 の 10 巡目(問 13〜25)に答える",
         "start": "2026-11-24T07:43:00",
-        "finish": "2026-11-24T22:30:41",
+        "finish": "2026-11-25T21:45:41",
         "milestone": false,
         "deadline": null,
         "calendarUid": null,
@@ -9573,7 +9581,7 @@
         "percentComplete": 0,
         "fadeInDays": null,
         "fadeOutDays": null,
-        "notes": "pmo-6 2026-11-24T08:00: BOSS line 11-24: the Agent API successor sorted the AI-C review and put BGQA7 round 10 (questions 13..25) to the owner (87b608711 07:43, develop f103ba529). Length = 13 questions at 8.6 rows/h in owner hours (provisional). pmo-6 2026-11-25T00:06: the owner reads BGQA7 round 10 now (BOSS line 11-25).",
+        "notes": "pmo-6 2026-11-24T08:00: BOSS line 11-24: the Agent API successor sorted the AI-C review and put BGQA7 round 10 (questions 13..25) to the owner (87b608711 07:43, develop f103ba529). Length = 13 questions at 8.6 rows/h in owner hours (provisional). pmo-6 2026-11-25T00:06: the owner reads BGQA7 round 10 now (BOSS line 11-25). pmo-6 2026-11-25T01:07: BGQA7 round 11 (13 questions left; API basics; JDG-3786..3787; develop fe23a584f 00:57) went to the owner. Finish = now + 13 questions at 8.6 rows/h in owner hours (provisional).",
         "dependencies": [
           {
             "predecessorUid": 489,
@@ -9726,19 +9734,19 @@
         "uid": 512,
         "parentTaskUid": null,
         "wbsOrder": 370,
-        "name": "🌑 新 ANMS・NDD: 適用計画の席が外に出る語の提案の表を作る(SUB)",
+        "name": "🌕 新 ANMS・NDD: 適用計画の席が外に出る語の提案の表を作る(SUB)",
         "start": "2026-11-25T00:43:00",
-        "finish": "2026-11-25T02:43:00",
+        "finish": "2026-11-25T00:53:00",
         "milestone": false,
         "deadline": null,
-        "notes": "pmo-6 2026-11-25T00:43: BOSS line 11-25: by BGQA9 q13-2 the seat proposes the outward terms, top priority; the apply-plan seat makes the table. 2 h is a PMO placeholder (provisional). The full review B14 (493) waits for it.",
+        "notes": "pmo-6 2026-11-25T00:43: BOSS line 11-25: by BGQA9 q13-2 the seat proposes the outward terms, top priority; the apply-plan seat makes the table. 2 h is a PMO placeholder (provisional). The full review B14 (493) waits for it. pmo-6 2026-11-25T01:07: done: the seat proposed the outward glossary names and put BGQA9 round 4 to the owner (393 outward terms, 28 proposals; 1a5663417 00:53, develop 2b4e0fb20; JDG-3834..3835). The JDG band 3911..3925 was added to the seat.",
         "calendarUid": null,
-        "actualStart": null,
+        "actualStart": "2026-11-25T00:43:00",
         "stop": null,
-        "actualFinish": null,
+        "actualFinish": "2026-11-25T00:53:00",
         "resume": null,
         "resumeValid": null,
-        "percentComplete": 0,
+        "percentComplete": 100,
         "fadeInDays": null,
         "fadeOutDays": null,
         "dependencies": [
@@ -9813,19 +9821,19 @@
         "uid": 515,
         "parentTaskUid": null,
         "wbsOrder": 373,
-        "name": "🌑 新 ANMS・NDD: B1・B2・B4・B5・B6 の GT-2 の 3 回目を回し、develop へ合流する(調整役)",
-        "start": "2026-11-25T01:56:00",
-        "finish": "2026-11-25T04:56:00",
+        "name": "🌕 新 ANMS・NDD: B1・B2・B4・B5・B6 の GT-2 の 3 回目(赤で止まった)(調整役)",
+        "start": "2026-11-25T01:07:00",
+        "finish": "2026-11-25T01:33:00",
         "milestone": false,
         "deadline": null,
-        "notes": "pmo-6 2026-11-25T00:56: BOSS line 11-25: the third GT-2 run, after the B5 fix (516). 3 h (BOSS, provisional).",
+        "notes": "pmo-6 2026-11-25T00:56: BOSS line 11-25: the third GT-2 run, after the B5 fix (516). 3 h (BOSS, provisional). pmo-6 2026-11-25T01:07: started now on the root (develop 527a80963). 3 h (provisional). pmo-6 2026-11-25T01:33: stopped red: vitest passed; only playwright uc-004 failed 3/3 (dist and tests are as pushed; a date-dependent test defect is suspected). The BOSS line says about 01:55; the finish is the arrival of the line, 01:33 by the machine clock. The B4 seat fixes it (518); the fourth run is 519.",
         "calendarUid": null,
-        "actualStart": null,
+        "actualStart": "2026-11-25T01:07:00",
         "stop": null,
-        "actualFinish": null,
+        "actualFinish": "2026-11-25T01:33:00",
         "resume": null,
         "resumeValid": null,
-        "percentComplete": 0,
+        "percentComplete": 100,
         "fadeInDays": null,
         "fadeOutDays": null,
         "dependencies": [
@@ -9853,14 +9861,46 @@
         "uid": 516,
         "parentTaskUid": null,
         "wbsOrder": 374,
-        "name": "🌒 新 ANMS・NDD B5: GT-2 の赤 3 件(cr-774 の tests が引くユースケースの文)を直す(SUB)",
+        "name": "🌕 新 ANMS・NDD B5: GT-2 の赤 3 件(cr-774 の tests が引くユースケースの文)を直す(SUB)",
         "start": "2026-11-25T00:56:00",
-        "finish": "2026-11-25T01:56:00",
+        "finish": "2026-11-25T01:02:00",
         "milestone": false,
         "deadline": null,
-        "notes": "pmo-6 2026-11-25T00:56: BOSS line 11-25: the B5 seat fixes the 3 reds of the second GT-2 run. 1 h is a PMO placeholder (provisional).",
+        "notes": "pmo-6 2026-11-25T00:56: BOSS line 11-25: the B5 seat fixes the 3 reds of the second GT-2 run. 1 h is a PMO placeholder (provisional). pmo-6 2026-11-25T01:07: done (66cf738a6 01:02, develop 27991d435).",
         "calendarUid": null,
         "actualStart": "2026-11-25T00:56:00",
+        "stop": null,
+        "actualFinish": "2026-11-25T01:02:00",
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 100,
+        "fadeInDays": null,
+        "fadeOutDays": null,
+        "dependencies": [
+          {
+            "predecessorUid": 511,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          }
+        ],
+        "carry": {},
+        "carryElements": []
+      },
+      {
+        "uid": 517,
+        "parentTaskUid": null,
+        "wbsOrder": 375,
+        "name": "🌒 オーナー: BGQA9 の 4 回目(外に出る語 393、案 28)に答える",
+        "start": "2026-11-25T00:53:00",
+        "finish": "2026-11-25T23:23:20",
+        "milestone": false,
+        "deadline": null,
+        "notes": "pmo-6 2026-11-25T01:07: BOSS line 11-25: BGQA9 round 4 (393 outward terms, 28 proposals) is with the owner. Length = 28 proposals at 8.6 rows/h in owner hours (provisional). The full review B14 (493) waits for it.",
+        "calendarUid": null,
+        "actualStart": "2026-11-25T00:53:00",
         "stop": null,
         "actualFinish": null,
         "resume": null,
@@ -9870,7 +9910,71 @@
         "fadeOutDays": null,
         "dependencies": [
           {
-            "predecessorUid": 511,
+            "predecessorUid": 512,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          }
+        ],
+        "carry": {},
+        "carryElements": []
+      },
+      {
+        "uid": 518,
+        "parentTaskUid": null,
+        "wbsOrder": 376,
+        "name": "🌒 新 ANMS・NDD B4: uc-004 の試験の時計を固定して直す(SUB)",
+        "start": "2026-11-25T01:33:00",
+        "finish": "2026-11-25T03:03:00",
+        "milestone": false,
+        "deadline": null,
+        "notes": "pmo-6 2026-11-25T01:33: BOSS line 11-25: the B4 seat (local_d48295b7) pins the clock in the uc-004 playwright test. 1.5 h = middle of 1..2 h (BOSS, provisional).",
+        "calendarUid": null,
+        "actualStart": "2026-11-25T01:33:00",
+        "stop": null,
+        "actualFinish": null,
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 0,
+        "fadeInDays": null,
+        "fadeOutDays": null,
+        "dependencies": [
+          {
+            "predecessorUid": 515,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          }
+        ],
+        "carry": {},
+        "carryElements": []
+      },
+      {
+        "uid": 519,
+        "parentTaskUid": null,
+        "wbsOrder": 377,
+        "name": "🌑 新 ANMS・NDD: B1・B2・B4・B5・B6 の GT-2 の 4 回目を回し、develop へ合流する(調整役)",
+        "start": "2026-11-25T03:03:00",
+        "finish": "2026-11-25T06:03:00",
+        "milestone": false,
+        "deadline": null,
+        "notes": "pmo-6 2026-11-25T01:33: BOSS line 11-25: the fourth GT-2 run, after the uc-004 fix (518). 3 h (BOSS, provisional).",
+        "calendarUid": null,
+        "actualStart": null,
+        "stop": null,
+        "actualFinish": null,
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 0,
+        "fadeInDays": null,
+        "fadeOutDays": null,
+        "dependencies": [
+          {
+            "predecessorUid": 518,
             "linkType": 1,
             "linkLag": 0,
             "lagFormat": 7,
@@ -11461,6 +11565,18 @@
       },
       {
         "taskUid": 516,
+        "taskGroupId": "b2a0e74c-4c44-5678-b53c-aecd31dc8ae5"
+      },
+      {
+        "taskUid": 517,
+        "taskGroupId": "b2a0e74c-4c44-5678-b53c-aecd31dc8ae5"
+      },
+      {
+        "taskUid": 518,
+        "taskGroupId": "b2a0e74c-4c44-5678-b53c-aecd31dc8ae5"
+      },
+      {
+        "taskUid": 519,
         "taskGroupId": "b2a0e74c-4c44-5678-b53c-aecd31dc8ae5"
       }
     ],
@@ -14088,6 +14204,30 @@
         "fillColor": "blue",
         "strokeColor": null,
         "strokeWidthPx": null
+      },
+      {
+        "taskUid": 517,
+        "shapeKind": "rectangle",
+        "milestoneGlyph": "diamond",
+        "fillColor": "blue",
+        "strokeColor": null,
+        "strokeWidthPx": null
+      },
+      {
+        "taskUid": 518,
+        "shapeKind": "rectangle",
+        "milestoneGlyph": "diamond",
+        "fillColor": "blue",
+        "strokeColor": null,
+        "strokeWidthPx": null
+      },
+      {
+        "taskUid": 519,
+        "shapeKind": "rectangle",
+        "milestoneGlyph": "diamond",
+        "fillColor": "blue",
+        "strokeColor": null,
+        "strokeWidthPx": null
       }
     ],
     "commentBoxes": [
@@ -16096,10 +16236,10 @@
     "zoomY": 1.099862517185352
   },
   "documentStamp": {
-    "scheduleUpdatedAt": "2026-11-24T15:56:00Z",
+    "scheduleUpdatedAt": "2026-11-24T16:33:00Z",
     "lastEditedBy": "PMO child session",
     "settingsUpdatedAt": "2026-10-20T20:24:42Z",
-    "fileSavedAt": "2026-11-24T15:56:00Z"
+    "fileSavedAt": "2026-11-24T16:33:00Z"
   },
   "changeLog": [
     {
@@ -16947,6 +17087,18 @@
       "editedBy": "PMO child session",
       "explanation": "Fact at 11-25 00:56 JST: BOSS line, the GT-2 run 511 stopped red at about 00:56 (machine clock) (the cr-774 tests quoted the B5 use case rewrite). The B5 seat fixes it (new task 516); the third GT-2 run is task 515, after the fix (3 h provisional).",
       "changedAt": "2026-11-24T15:56:00Z"
+    },
+    {
+      "ordinal": 142,
+      "editedBy": "PMO child session",
+      "explanation": "Fact at 11-25 01:07 JST: BOSS line, the B5 fix 516 done (66cf738a6); the third GT-2 run 515 started now (develop 527a80963). The outward terms table 512 done and BGQA9 round 4 put to the owner (new owner wait 517 before B14). BGQA7 round 11 (13 left) went to the owner: 507 and 504 re-placed.",
+      "changedAt": "2026-11-24T16:07:00Z"
+    },
+    {
+      "ordinal": 143,
+      "editedBy": "PMO child session",
+      "explanation": "Fact at 11-25 01:33 JST: BOSS line, the third GT-2 run 515 stopped red (only playwright uc-004, 3/3; a date-dependent test suspected). The B4 seat pins the clock (new task 518, 1.5 h) and the fourth GT-2 run is task 519 after it (3 h).",
+      "changedAt": "2026-11-24T16:33:00Z"
     }
   ]
 }
