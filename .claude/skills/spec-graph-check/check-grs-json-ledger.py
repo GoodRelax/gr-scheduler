@@ -38,7 +38,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.dirname(
     os.path.dirname(os.path.abspath(__file__)))))
 REL_STARTUP = 'tools/generate_startup_template.py'
 REL_LEDGER = 'docs/spec/_source/grs-json-changes.json'
-REL_CONTRACT = 'docs/spec/_source/grs-json-changes.schema.json'
+REL_CONTRACT = 'docs/development-rules/manuscript-schemas/grs-json-changes.schema.json'
 REL_SETTINGS = 'docs/spec/_source/settings.json'
 REL_ERD = 'docs/spec/_source/erd.json'
 REL_SCHEMA = 'docs/spec/_source/grs-document.schema.json'

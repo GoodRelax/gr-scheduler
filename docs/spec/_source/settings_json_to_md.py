@@ -185,7 +185,7 @@ def schema_problems(doc):
     able to build the specification. The checks below cover what a schema
     cannot say.
     """
-    path = os.path.join(HERE, 'settings.schema.json')
+    path = os.path.join(HERE, '..', '..', 'development-rules', 'manuscript-schemas', 'settings.schema.json')
     if not os.path.exists(path):
         return ['settings.schema.json is missing']
     try:

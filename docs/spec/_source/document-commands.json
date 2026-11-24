@@ -1,11 +1,11 @@
 {
- "$schema": "./document-commands.schema.json",
+ "$schema": "../../development-rules/manuscript-schemas/document-commands.schema.json",
  "$comment": [
   "SINGLE SOURCE OF TRUTH -- EDIT THIS FILE.",
   "The document commands and the values each one carries (CR-766, JDG-2162): table T-108 (the commands applyDocumentChange takes: group, confirmed name, bundle mark, the values carried, what it does, source).",
   "Generated FROM this file: _assets/tbl-document-commands.md (document_commands_json_to_md.py); the generated regions of the command unions in src/use-case/edit-document/ (tools/generate_document_commands.py); and the input shape of the applyCommands MCP tool in src/adapter/mcp-tool-translator/mcp-tool-descriptions.json (tools/generate_mcp_tool_descriptions.py, through tools/generate_document_commands.py).",
   "Rebuild: npm run gen   |   npm run gen:check fails if anything has drifted.",
-  "Validated by _source/document-commands.schema.json. document_commands_json_to_md.py also refuses a row id, a retired number or a command name written twice, a value name written twice in one command, a value pointing at an AT- row erd.json does not hold or an S- row settings.json does not hold, a type naming neither a built-in word, a shape nor an externalTypes entry, a shape or an externalTypes entry no value uses, and a line that is empty, holds a line-break tag or leaves a parenthesis or bold run open.",
+  "Validated by docs/development-rules/manuscript-schemas/document-commands.schema.json. document_commands_json_to_md.py also refuses a row id, a retired number or a command name written twice, a value name written twice in one command, a value pointing at an AT- row erd.json does not hold or an S- row settings.json does not hold, a type naming neither a built-in word, a shape nor an externalTypes entry, a shape or an externalTypes entry no value uses, and a line that is empty, holds a line-break tag or leaves a parenthesis or bold run open.",
   "A VALUE THAT WRITES A DOCUMENT COLUMN POINTS AT IT and writes no type: `column` names the AT- row of table T-058 (erd.json) or the S- row of tables T-202 / T-203 (settings.json) it writes, and the type, the null and the bounds are that row's (CR-766 X-d). `key` names the row a value identifies the target by. Only a value that is no column carries `type`: a built-in word (string, integer, number, boolean, enum, map), a name of `shapes`, or a name of `externalTypes`. `null`, `list` and `optional` narrow or widen what the column gives.",
   "Rows are in the order the table prints them, which is not the numeric order. ONE STRING IS ONE PRINTED LINE.",
   "The rules the commands follow are NOT here -- the requirements the `source` cells name hold them.",

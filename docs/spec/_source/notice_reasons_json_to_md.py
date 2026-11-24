@@ -53,7 +53,7 @@ SPEC = os.path.dirname(HERE)
 ROOT = os.path.dirname(os.path.dirname(SPEC))
 ASSETS = os.path.join(SPEC, '_assets')
 SRC = os.path.join(HERE, 'notice-reasons.json')
-SCHEMA = os.path.join(HERE, 'notice-reasons.schema.json')
+SCHEMA = os.path.join(HERE, '..', '..', 'development-rules', 'manuscript-schemas', 'notice-reasons.schema.json')
 OUT = os.path.join(ASSETS, 'tbl-notice-reasons.md')
 # Table T-220 (the document invariants) stands in Chapter 6.1 of this file.
 DESIGN = os.path.join(SPEC, '05-07-design.md')

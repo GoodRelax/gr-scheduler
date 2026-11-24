@@ -226,7 +226,7 @@ Error: table T-016 holds PR-21, and nothing says which entity holds its value
   |---|---|---|
   | 設定値 | `docs/spec/_source/settings.json` | `tbl-settings.md` |
   | 表示語 | `docs/spec/_source/display-words.json` | —— |
-  | プロパティ項目 | `docs/spec/_source/property-items.json`（＋ `property-items.schema.json` の enum）。読む側は `properties-panel.ts` の 1 つだけ | `src/adapter/screen-renderer/property-items.json` |
+  | プロパティ項目 | `docs/spec/_source/property-items.json`（＋ `docs/development-rules/manuscript-schemas/property-items.schema.json` の enum）。読む側は `properties-panel.ts` の 1 つだけ | `src/adapter/screen-renderer/property-items.json` |
   | コンポーネントの辺 | `docs/spec/_source/components.json` | 部品図 |
   | MSPDI の子の並び順 | `tools/generate_mspdi_child_order.py` が XSD から作る（`JDG-251`） | `mspdi-child-order.json`（`sourceXsdSha256` と `bodySha256` が見張る） |
 - ⚠️ **`docs/review/duplication-baseline.txt` の 表 T-023d まわりの 3 群は、撤回の記録を逐語で残した意図した重複である。⛔ 畳むな**

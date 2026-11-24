@@ -1,5 +1,5 @@
 {
- "$schema": "./row-id-prefixes.schema.json",
+ "$schema": "../../development-rules/manuscript-schemas/row-id-prefixes.schema.json",
  "$comment": [
   "SINGLE SOURCE OF TRUTH -- EDIT THIS FILE.",
   "The ID registry: what every row-ID prefix of the documentation MEANS, and where its rows are defined. The keys are the ID registry keys of the NDD review standard, appendix A.6 'List of JSON Keys': `prefix`, `standsFor` (the English words the letters stand for), `meaning` (one line saying what the numbered rows index, per BCP 47 language tag; `en` is the master) and `section` (the one place that defines the rows: a table id, the UID an untitled table stands under, or a ledger or rules file). Every key the project adds starts with `x`: `xOwner` is the tree that DEFINES the rows, `xMirroredIn` names a tree that only RECORDS them, `xPending` marks a prefix registered before its rows exist, and the top-level `xCollisionsSuppressed` lists the collisions held open. row-id-prefixes.schema.json holds the shape.",

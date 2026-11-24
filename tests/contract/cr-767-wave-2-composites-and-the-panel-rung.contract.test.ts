@@ -39,7 +39,7 @@ const MANUSCRIPT = readStateMachineView() as {
   readonly priorities: { readonly rungs: readonly Rung[] }
   readonly regions: readonly RawRegion[]
 }
-const SCHEMA = readFileSync(join(SPEC, '_source', 'state-machines.schema.json'), 'utf8')
+const SCHEMA = readFileSync(join(process.cwd(), 'docs', 'development-rules', 'manuscript-schemas', 'state-machines.schema.json'), 'utf8')
 const DESIGN = unbroken(readFileSync(join(SPEC, '05-07-design.md'), 'utf8'))
 
 function regionNamed(name: string): RawRegion {

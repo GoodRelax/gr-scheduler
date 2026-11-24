@@ -560,7 +560,7 @@ docs/spec/_assets/tbl-published-entries.md	5
 docs/spec/_source/agent-api-members.json	1
 docs/spec/_source/published-entries.json	5
 docs/spec/_source/state-machines.json	1
-docs/spec/_source/state-machines.schema.json	2
+docs/development-rules/manuscript-schemas/state-machines.schema.json	2
 docs/spec/_source/state_machines_json_to_md.py	5
 src/entity/document-model/schedule/working-calendar.ts	1
 src/entity/layout-engine/schedule-geometry/schedule-geometry.ts	1

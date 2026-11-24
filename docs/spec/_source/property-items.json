@@ -1,11 +1,11 @@
 {
- "$schema": "./property-items.schema.json",
+ "$schema": "../../development-rules/manuscript-schemas/property-items.schema.json",
  "$comment": [
   "SINGLE SOURCE OF TRUTH -- EDIT THIS FILE.",
   "Table T-016: every property item the panel draws, its GRS JSON columns, its input kinds, and the prose the specification prints beside it. The array's order IS the print order FR-006 (MUST) requires.",
   "Generated FROM this file: _assets/tbl-property-items.md (property_items_json_to_md.py).",
   "Rebuild: npm run gen   |   npm run gen:check fails if anything has drifted.",
-  "Validated by _source/property-items.schema.json.",
+  "Validated by docs/development-rules/manuscript-schemas/property-items.schema.json.",
   "NO DISPLAY NAME LIVES HERE. FR-038 (MUST NOT) keeps every word the screen prints in one dictionary per language, so a shown name is display-words.json's `properties` section, keyed by the same PR row id. What this file carries is the COLUMN -- the name in the file.",
   "NO CANDIDATE, BOUND OR DATE-NESS EITHER. grs-document.schema.json and DATE_COLUMNS already hold those, and the note under table T-016 (MUST NOT) forbids a second copy."
  ],

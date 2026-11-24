@@ -148,7 +148,7 @@ def build_edges(root=ROOT):
              'from': [sr.SOURCE_DIR + '/' + f for f in froms]}
             for g, froms in sorted(sr.GENERATED_JSON.items())],
         'schemas': [{'file': k, 'schema': v} for k, v in sorted(schemas.items())],
-        'schemas_read': [sr.SOURCE_DIR + '/' + n for n in sr.schemas(root)],
+        'schemas_read': [sr.SCHEMA_DIR + '/' + n for n in sr.schemas(root)],
         'structured': [
             {'from': s, 'to': t, 'family': fam,
              'fields': dict(sorted(fields.items())),

@@ -75,7 +75,7 @@ from spec_md_printing import say, schema_problems
 HERE = os.path.dirname(os.path.abspath(__file__))
 ASSETS = os.path.join(os.path.dirname(HERE), '_assets')
 SRC = os.path.join(HERE, 'published-entries.json')
-SCHEMA = os.path.join(HERE, 'published-entries.schema.json')
+SCHEMA = os.path.join(HERE, '..', '..', 'development-rules', 'manuscript-schemas', 'published-entries.schema.json')
 OUT = os.path.join(ASSETS, 'tbl-published-entries.md')
 
 LANG = 'ja'

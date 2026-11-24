@@ -1,10 +1,10 @@
 {
  "$schema": "https://json-schema.org/draft/2020-12/schema",
- "$id": "https://github.com/GoodRelax/gr-scheduler/docs/spec/_source/notice-reasons.schema.json",
+ "$id": "https://github.com/GoodRelax/gr-scheduler/docs/development-rules/manuscript-schemas/notice-reasons.schema.json",
  "$comment": [
   "HAND-WRITTEN CONTRACT -- EDIT THIS FILE.",
   "Validates _source/notice-reasons.json, which is the single source of truth for tables T-233 and T-234 of FR-076 (CR-712).",
-  "Same role as _source/settings.schema.json and _source/published-entries.schema.json.",
+  "Same role as docs/development-rules/manuscript-schemas/settings.schema.json and docs/development-rules/manuscript-schemas/published-entries.schema.json.",
   "The schema sees the SHAPE. What JSON Schema cannot say -- a row id written twice, a wordsOf that names no row, or a row of another manner or display, an invariantRefusals.wordsOf key that is no row of table T-220 -- is refused by notice_reasons_json_to_md.py."
  ],
  "title": "The notice roster manuscript",

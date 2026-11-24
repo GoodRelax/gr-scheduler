@@ -37,7 +37,7 @@ from spec_md_printing import say, separate_tables, broken_prose, broken
 HERE = os.path.dirname(os.path.abspath(__file__))
 ASSETS = os.path.join(os.path.dirname(HERE), '_assets')
 SRC = os.path.join(HERE, 'verification.json')
-SCHEMA = os.path.join(HERE, 'verification.schema.json')
+SCHEMA = os.path.join(HERE, '..', '..', 'development-rules', 'manuscript-schemas', 'verification.schema.json')
 OUT = os.path.join(ASSETS, 'tbl-verification.md')
 
 LANG = 'ja'

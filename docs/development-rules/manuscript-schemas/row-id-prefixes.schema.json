@@ -1,9 +1,9 @@
 {
  "$schema": "https://json-schema.org/draft/2020-12/schema",
- "$id": "https://github.com/GoodRelax/gr-scheduler/docs/spec/_source/row-id-prefixes.schema.json",
+ "$id": "https://github.com/GoodRelax/gr-scheduler/docs/development-rules/manuscript-schemas/row-id-prefixes.schema.json",
  "$comment": [
   "HAND-WRITTEN CONTRACT -- EDIT THIS FILE.",
-  "Validates _source/row-id-prefixes.json, the ID registry and the single source of truth for what a row-ID prefix means. Same role as _source/state-machines.schema.json.",
+  "Validates _source/row-id-prefixes.json, the ID registry and the single source of truth for what a row-ID prefix means. Same role as docs/development-rules/manuscript-schemas/state-machines.schema.json.",
   "Shape: the ID registry keys of the NDD review standard, appendix A.6 'List of JSON Keys' (array prefixes[]; required prefix, standsFor, meaning, section; no optional keys), plus the project keys, each of which starts with `x` (xOwner, xMirroredIn, xPending at an entry; xCollisionsSuppressed at the top).",
   "The schema sees the SHAPE. row_id_prefixes_json_to_md.py checks what a schema cannot see: a prefix written twice, a prefix a tree uses and the registry lacks, a registration no tree uses, a `section` the owner tree does not define the rows in, and a mirror that holds an id the owner never defines."
  ],

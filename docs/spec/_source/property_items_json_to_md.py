@@ -37,7 +37,7 @@ from spec_md_printing import say, separate_tables, broken_prose, broken, schema_
 HERE = os.path.dirname(os.path.abspath(__file__))
 ASSETS = os.path.join(os.path.dirname(HERE), '_assets')
 SRC = os.path.join(HERE, 'property-items.json')
-SCHEMA = os.path.join(HERE, 'property-items.schema.json')
+SCHEMA = os.path.join(HERE, '..', '..', 'development-rules', 'manuscript-schemas', 'property-items.schema.json')
 OUT = os.path.join(ASSETS, 'tbl-property-items.md')
 
 LANG = 'ja'

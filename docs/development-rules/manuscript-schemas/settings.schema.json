@@ -1,9 +1,9 @@
 {
  "$schema": "https://json-schema.org/draft/2020-12/schema",
- "$id": "https://github.com/GoodRelax/gr-scheduler/docs/spec/_source/settings.schema.json",
+ "$id": "https://github.com/GoodRelax/gr-scheduler/docs/development-rules/manuscript-schemas/settings.schema.json",
  "$comment": [
   "HAND-WRITTEN CONTRACT -- EDIT THIS FILE.",
-  "Validates _source/settings.json, which is the single source of truth. Same role as _source/erd.schema.json."
+  "Validates _source/settings.json, which is the single source of truth. Same role as docs/development-rules/manuscript-schemas/erd.schema.json."
  ],
  "title": "The settings manuscript",
  "description": "The manuscript Chapter 6.2 names for the presentation group. docs/spec/_assets/tbl-settings.md is printed from it and is a generated artifact. The manuscript belongs to no language: every cell that holds Japanese is a language dictionary so that the ja/en split is data entry rather than a second copy of 1533 rows.",

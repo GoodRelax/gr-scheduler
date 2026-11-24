@@ -24,6 +24,12 @@ REFUSED BEFORE A BYTE IS WRITTEN
       group, a parent that names no earlier term, a tag that names no term
     a group that holds no term, no sub-group and no tag
     a former name (renames[].from) listed in avoid
+    a name that a definition (en or ja) writes in backticks, or as
+      Entity.column, that no term carries as its key, label.en, xIdentifier
+      or xOwner (JDG-3418). A former name counts as missing: the check keeps
+      a definition from citing a name that a rename retired
+    an abbreviation term (label.en written as an acronym such as SSOT, JSON
+      or MSPDI) without xExpansion (JDG-3524)
 PRINTED, NOT REFUSED
     a former name (renames[].from) that another term under the same owner
       carries as its name -- the owner settled it, so the owner rules on it
@@ -133,7 +139,62 @@ def problems(doc):
                 if any(former in words for words in t2.get('avoid', {}).values()):
                     found.append('term %s: former name %s is listed in avoid of %s'
                                  % (t['key'], former, t2['key']))
+    found += cited_name_problems(terms)
+    found += ['term %s: abbreviation %s has no xExpansion (JDG-3524)' % (t['key'], t['label']['en'])
+              for t in terms if is_abbreviation(t['label']['en']) and 'xExpansion' not in t]
     return found
+
+
+IDENTIFIER = r'[A-Za-z][A-Za-z0-9]*'
+BACKTICKED = re.compile(r'`([^`]+)`')
+# Entity.column written without backticks: two or more identifier parts of at
+# least two letters each, outside a path, a file name or a web address.
+DOTTED = re.compile(r'(?<![A-Za-z0-9_./\\-])([A-Za-z][A-Za-z0-9]+(?:\.[A-Za-z][A-Za-z0-9]+)+)'
+                    r'(?![A-Za-z0-9_/\\-]|\.[A-Za-z0-9])')
+
+
+def cited_names(text):
+    """The names a definition cites: every backticked identifier or
+    Entity.column, and every Entity.column outside backticks. A backticked
+    text that is no identifier (a literal such as `javascript:` or
+    `{"type":"theme"}`) cites no name."""
+    names = []
+    for match in BACKTICKED.finditer(text):
+        if re.match(r'^%s(\.%s)*$' % (IDENTIFIER, IDENTIFIER), match.group(1)):
+            names.append(match.group(1))
+    names += [m.group(1) for m in DOTTED.finditer(BACKTICKED.sub(' ', text))
+              if m.group(1).rsplit('.', 1)[1] not in FILE_EXTENSIONS]
+    return names
+
+
+# A dotted word that ends in one of these is a file name, not Entity.column.
+FILE_EXTENSIONS = {'json', 'md', 'ts', 'js', 'mjs', 'html', 'xml', 'xsd', 'svg', 'png',
+                   'tsv', 'csv', 'txt', 'py', 'css', 'mcpb', 'bak'}
+
+
+def cited_name_problems(terms):
+    """JDG-3418: a name cited in a definition must be a name of the dictionary."""
+    known = set()
+    for t in terms:
+        known.update([t['key'], t['label']['en'], t.get('xIdentifier'), t.get('xOwner')])
+    found = []
+    for t in terms:
+        for lang in ('en', 'ja'):
+            for name in cited_names(t['definition'][lang]):
+                missing = [part for part in name.split('.') if part not in known]
+                if missing:
+                    found.append('term %s: definition.%s cites %s, and %s names no term (JDG-3418)'
+                                 % (t['key'], lang, name, ', '.join(missing)))
+    return found
+
+
+def is_abbreviation(label):
+    """True for a label written as an acronym: one word of letters and
+    digits, two or more capitals, and no two lower-case letters in a row
+    (SSOT, MSPDI, ISO8601, SoC, LoD; not NullTrap or JSONSchema)."""
+    return (re.match(r'^[A-Z][A-Za-z0-9]*$', label) is not None
+            and sum(1 for c in label if c.isupper()) >= 2
+            and re.search(r'[a-z]{2}', label) is None)
 
 
 def reused_former_names(doc):

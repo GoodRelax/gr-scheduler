@@ -41,67 +41,71 @@
  "schemas": [
   {
    "file": "docs/spec/_source/agent-api-members.json",
-   "schema": "docs/spec/_source/agent-api-members.schema.json"
+   "schema": "docs/development-rules/manuscript-schemas/agent-api-members.schema.json"
   },
   {
    "file": "docs/spec/_source/document-commands.json",
-   "schema": "docs/spec/_source/document-commands.schema.json"
+   "schema": "docs/development-rules/manuscript-schemas/document-commands.schema.json"
   },
   {
    "file": "docs/spec/_source/erd.json",
-   "schema": "docs/spec/_source/erd.schema.json"
+   "schema": "docs/development-rules/manuscript-schemas/erd.schema.json"
+  },
+  {
+   "file": "docs/spec/_source/glossary.json",
+   "schema": "docs/development-rules/manuscript-schemas/glossary.schema.json"
   },
   {
    "file": "docs/spec/_source/grs-json-changes.json",
-   "schema": "docs/spec/_source/grs-json-changes.schema.json"
+   "schema": "docs/development-rules/manuscript-schemas/grs-json-changes.schema.json"
   },
   {
    "file": "docs/spec/_source/mspdi-custom-fields.json",
-   "schema": "docs/spec/_source/mspdi-custom-fields.schema.json"
+   "schema": "docs/development-rules/manuscript-schemas/mspdi-custom-fields.schema.json"
   },
   {
    "file": "docs/spec/_source/notice-reasons.json",
-   "schema": "docs/spec/_source/notice-reasons.schema.json"
+   "schema": "docs/development-rules/manuscript-schemas/notice-reasons.schema.json"
   },
   {
    "file": "docs/spec/_source/property-items.json",
-   "schema": "docs/spec/_source/property-items.schema.json"
+   "schema": "docs/development-rules/manuscript-schemas/property-items.schema.json"
   },
   {
    "file": "docs/spec/_source/published-entries.json",
-   "schema": "docs/spec/_source/published-entries.schema.json"
+   "schema": "docs/development-rules/manuscript-schemas/published-entries.schema.json"
   },
   {
    "file": "docs/spec/_source/row-id-prefixes.json",
-   "schema": "docs/spec/_source/row-id-prefixes.schema.json"
+   "schema": "docs/development-rules/manuscript-schemas/row-id-prefixes.schema.json"
   },
   {
    "file": "docs/spec/_source/settings.json",
-   "schema": "docs/spec/_source/settings.schema.json"
+   "schema": "docs/development-rules/manuscript-schemas/settings.schema.json"
   },
   {
    "file": "docs/spec/_source/state-machines.json",
-   "schema": "docs/spec/_source/state-machines.schema.json"
+   "schema": "docs/development-rules/manuscript-schemas/state-machines.schema.json"
   },
   {
    "file": "docs/spec/_source/verification.json",
-   "schema": "docs/spec/_source/verification.schema.json"
+   "schema": "docs/development-rules/manuscript-schemas/verification.schema.json"
   }
  ],
  "schemas_read": [
-  "docs/spec/_source/agent-api-members.schema.json",
-  "docs/spec/_source/document-commands.schema.json",
-  "docs/spec/_source/erd.schema.json",
-  "docs/spec/_source/grs-commands.schema.json",
-  "docs/spec/_source/grs-json-changes.schema.json",
-  "docs/spec/_source/mspdi-custom-fields.schema.json",
-  "docs/spec/_source/notice-reasons.schema.json",
-  "docs/spec/_source/property-items.schema.json",
-  "docs/spec/_source/published-entries.schema.json",
-  "docs/spec/_source/row-id-prefixes.schema.json",
-  "docs/spec/_source/settings.schema.json",
-  "docs/spec/_source/state-machines.schema.json",
-  "docs/spec/_source/verification.schema.json"
+  "docs/development-rules/manuscript-schemas/agent-api-members.schema.json",
+  "docs/development-rules/manuscript-schemas/document-commands.schema.json",
+  "docs/development-rules/manuscript-schemas/erd.schema.json",
+  "docs/development-rules/manuscript-schemas/glossary.schema.json",
+  "docs/development-rules/manuscript-schemas/grs-json-changes.schema.json",
+  "docs/development-rules/manuscript-schemas/mspdi-custom-fields.schema.json",
+  "docs/development-rules/manuscript-schemas/notice-reasons.schema.json",
+  "docs/development-rules/manuscript-schemas/property-items.schema.json",
+  "docs/development-rules/manuscript-schemas/published-entries.schema.json",
+  "docs/development-rules/manuscript-schemas/row-id-prefixes.schema.json",
+  "docs/development-rules/manuscript-schemas/settings.schema.json",
+  "docs/development-rules/manuscript-schemas/state-machines.schema.json",
+  "docs/development-rules/manuscript-schemas/verification.schema.json"
  ],
  "structured": [
   {
@@ -556,6 +560,201 @@
  ],
  "prose": [
   {
+   "from": "docs/development-rules/manuscript-schemas/agent-api-members.schema.json",
+   "to": "docs/spec/01-04-requirements.md",
+   "count": 5
+  },
+  {
+   "from": "docs/development-rules/manuscript-schemas/agent-api-members.schema.json",
+   "to": "docs/spec/_source/agent-api-members.json",
+   "count": 5
+  },
+  {
+   "from": "docs/development-rules/manuscript-schemas/document-commands.schema.json",
+   "to": "docs/spec/01-04-requirements.md",
+   "count": 1
+  },
+  {
+   "from": "docs/development-rules/manuscript-schemas/document-commands.schema.json",
+   "to": "docs/spec/_source/document-commands.json",
+   "count": 4
+  },
+  {
+   "from": "docs/development-rules/manuscript-schemas/document-commands.schema.json",
+   "to": "docs/spec/_source/erd.json",
+   "count": 1
+  },
+  {
+   "from": "docs/development-rules/manuscript-schemas/document-commands.schema.json",
+   "to": "docs/spec/_source/settings.json",
+   "count": 2
+  },
+  {
+   "from": "docs/development-rules/manuscript-schemas/erd.schema.json",
+   "to": "docs/spec UIDs",
+   "count": 2
+  },
+  {
+   "from": "docs/development-rules/manuscript-schemas/erd.schema.json",
+   "to": "docs/spec/01-04-requirements.md",
+   "count": 10
+  },
+  {
+   "from": "docs/development-rules/manuscript-schemas/erd.schema.json",
+   "to": "docs/spec/05-07-design.md",
+   "count": 3
+  },
+  {
+   "from": "docs/development-rules/manuscript-schemas/erd.schema.json",
+   "to": "docs/spec/_source/erd.json",
+   "count": 7
+  },
+  {
+   "from": "docs/development-rules/manuscript-schemas/erd.schema.json",
+   "to": "docs/spec/_source/settings.json",
+   "count": 5
+  },
+  {
+   "from": "docs/development-rules/manuscript-schemas/glossary.schema.json",
+   "to": "docs/spec/_assets/tbl-glossary.md",
+   "count": 2
+  },
+  {
+   "from": "docs/development-rules/manuscript-schemas/glossary.schema.json",
+   "to": "docs/spec/_source/property-items.json",
+   "count": 1
+  },
+  {
+   "from": "docs/development-rules/manuscript-schemas/grs-json-changes.schema.json",
+   "to": "docs/spec UIDs",
+   "count": 1
+  },
+  {
+   "from": "docs/development-rules/manuscript-schemas/grs-json-changes.schema.json",
+   "to": "docs/spec/05-07-design.md",
+   "count": 1
+  },
+  {
+   "from": "docs/development-rules/manuscript-schemas/grs-json-changes.schema.json",
+   "to": "docs/spec/_source/erd.json",
+   "count": 1
+  },
+  {
+   "from": "docs/development-rules/manuscript-schemas/grs-json-changes.schema.json",
+   "to": "docs/spec/_source/notice-reasons.json",
+   "count": 1
+  },
+  {
+   "from": "docs/development-rules/manuscript-schemas/grs-json-changes.schema.json",
+   "to": "docs/spec/_source/settings.json",
+   "count": 2
+  },
+  {
+   "from": "docs/development-rules/manuscript-schemas/mspdi-custom-fields.schema.json",
+   "to": "docs/spec/01-04-requirements.md",
+   "count": 1
+  },
+  {
+   "from": "docs/development-rules/manuscript-schemas/mspdi-custom-fields.schema.json",
+   "to": "docs/spec/_source/erd.json",
+   "count": 2
+  },
+  {
+   "from": "docs/development-rules/manuscript-schemas/notice-reasons.schema.json",
+   "to": "docs/spec UIDs",
+   "count": 1
+  },
+  {
+   "from": "docs/development-rules/manuscript-schemas/notice-reasons.schema.json",
+   "to": "docs/spec/01-04-requirements.md",
+   "count": 3
+  },
+  {
+   "from": "docs/development-rules/manuscript-schemas/notice-reasons.schema.json",
+   "to": "docs/spec/05-07-design.md",
+   "count": 4
+  },
+  {
+   "from": "docs/development-rules/manuscript-schemas/notice-reasons.schema.json",
+   "to": "docs/spec/_source/notice-reasons.json",
+   "count": 8
+  },
+  {
+   "from": "docs/development-rules/manuscript-schemas/property-items.schema.json",
+   "to": "docs/spec UIDs",
+   "count": 9
+  },
+  {
+   "from": "docs/development-rules/manuscript-schemas/property-items.schema.json",
+   "to": "docs/spec/01-04-requirements.md",
+   "count": 5
+  },
+  {
+   "from": "docs/development-rules/manuscript-schemas/property-items.schema.json",
+   "to": "docs/spec/_source/document-commands.json",
+   "count": 2
+  },
+  {
+   "from": "docs/development-rules/manuscript-schemas/property-items.schema.json",
+   "to": "docs/spec/_source/property-items.json",
+   "count": 11
+  },
+  {
+   "from": "docs/development-rules/manuscript-schemas/published-entries.schema.json",
+   "to": "docs/spec/_source/published-entries.json",
+   "count": 3
+  },
+  {
+   "from": "docs/development-rules/manuscript-schemas/row-id-prefixes.schema.json",
+   "to": "docs/spec UIDs",
+   "count": 1
+  },
+  {
+   "from": "docs/development-rules/manuscript-schemas/row-id-prefixes.schema.json",
+   "to": "docs/spec/01-04-requirements.md",
+   "count": 1
+  },
+  {
+   "from": "docs/development-rules/manuscript-schemas/settings.schema.json",
+   "to": "docs/spec UIDs",
+   "count": 1
+  },
+  {
+   "from": "docs/development-rules/manuscript-schemas/settings.schema.json",
+   "to": "docs/spec/_source/erd.json",
+   "count": 2
+  },
+  {
+   "from": "docs/development-rules/manuscript-schemas/settings.schema.json",
+   "to": "docs/spec/_source/settings.json",
+   "count": 19
+  },
+  {
+   "from": "docs/development-rules/manuscript-schemas/state-machines.schema.json",
+   "to": "docs/spec/01-04-requirements.md",
+   "count": 1
+  },
+  {
+   "from": "docs/development-rules/manuscript-schemas/state-machines.schema.json",
+   "to": "docs/spec/05-07-design.md",
+   "count": 16
+  },
+  {
+   "from": "docs/development-rules/manuscript-schemas/state-machines.schema.json",
+   "to": "docs/spec/_source/state-machines.json",
+   "count": 1
+  },
+  {
+   "from": "docs/development-rules/manuscript-schemas/verification.schema.json",
+   "to": "docs/spec/05-07-design.md",
+   "count": 1
+  },
+  {
+   "from": "docs/development-rules/manuscript-schemas/verification.schema.json",
+   "to": "docs/spec/_source/verification.json",
+   "count": 15
+  },
+  {
    "from": "docs/spec/_source/agent-api-members.json",
    "to": "docs/spec UIDs",
    "count": 50
@@ -594,16 +793,6 @@
    "from": "docs/spec/_source/agent-api-members.json",
    "to": "docs/spec/_source/settings.json",
    "count": 7
-  },
-  {
-   "from": "docs/spec/_source/agent-api-members.schema.json",
-   "to": "docs/spec/01-04-requirements.md",
-   "count": 5
-  },
-  {
-   "from": "docs/spec/_source/agent-api-members.schema.json",
-   "to": "docs/spec/_source/agent-api-members.json",
-   "count": 5
   },
   {
    "from": "docs/spec/_source/components.json",
@@ -726,26 +915,6 @@
    "count": 3
   },
   {
-   "from": "docs/spec/_source/document-commands.schema.json",
-   "to": "docs/spec/01-04-requirements.md",
-   "count": 1
-  },
-  {
-   "from": "docs/spec/_source/document-commands.schema.json",
-   "to": "docs/spec/_source/document-commands.json",
-   "count": 4
-  },
-  {
-   "from": "docs/spec/_source/document-commands.schema.json",
-   "to": "docs/spec/_source/erd.json",
-   "count": 1
-  },
-  {
-   "from": "docs/spec/_source/document-commands.schema.json",
-   "to": "docs/spec/_source/settings.json",
-   "count": 2
-  },
-  {
    "from": "docs/spec/_source/erd.json",
    "to": "docs/spec UIDs",
    "count": 60
@@ -784,31 +953,6 @@
    "from": "docs/spec/_source/erd.json",
    "to": "docs/spec/_source/state-machines.json",
    "count": 1
-  },
-  {
-   "from": "docs/spec/_source/erd.schema.json",
-   "to": "docs/spec UIDs",
-   "count": 2
-  },
-  {
-   "from": "docs/spec/_source/erd.schema.json",
-   "to": "docs/spec/01-04-requirements.md",
-   "count": 10
-  },
-  {
-   "from": "docs/spec/_source/erd.schema.json",
-   "to": "docs/spec/05-07-design.md",
-   "count": 3
-  },
-  {
-   "from": "docs/spec/_source/erd.schema.json",
-   "to": "docs/spec/_source/erd.json",
-   "count": 7
-  },
-  {
-   "from": "docs/spec/_source/erd.schema.json",
-   "to": "docs/spec/_source/settings.json",
-   "count": 5
   },
   {
    "from": "docs/spec/_source/fig-mcp-relay.json",
@@ -851,42 +995,12 @@
    "count": 44
   },
   {
-   "from": "docs/spec/_source/grs-commands.schema.json",
-   "to": "docs/spec/_source/document-commands.json",
-   "count": 1
-  },
-  {
    "from": "docs/spec/_source/grs-json-changes.json",
    "to": "docs/spec UIDs",
    "count": 2
   },
   {
    "from": "docs/spec/_source/grs-json-changes.json",
-   "to": "docs/spec/_source/settings.json",
-   "count": 2
-  },
-  {
-   "from": "docs/spec/_source/grs-json-changes.schema.json",
-   "to": "docs/spec UIDs",
-   "count": 1
-  },
-  {
-   "from": "docs/spec/_source/grs-json-changes.schema.json",
-   "to": "docs/spec/05-07-design.md",
-   "count": 1
-  },
-  {
-   "from": "docs/spec/_source/grs-json-changes.schema.json",
-   "to": "docs/spec/_source/erd.json",
-   "count": 1
-  },
-  {
-   "from": "docs/spec/_source/grs-json-changes.schema.json",
-   "to": "docs/spec/_source/notice-reasons.json",
-   "count": 1
-  },
-  {
-   "from": "docs/spec/_source/grs-json-changes.schema.json",
    "to": "docs/spec/_source/settings.json",
    "count": 2
   },
@@ -899,16 +1013,6 @@
    "from": "docs/spec/_source/mspdi-custom-fields.json",
    "to": "docs/spec/_source/erd.json",
    "count": 4
-  },
-  {
-   "from": "docs/spec/_source/mspdi-custom-fields.schema.json",
-   "to": "docs/spec/01-04-requirements.md",
-   "count": 1
-  },
-  {
-   "from": "docs/spec/_source/mspdi-custom-fields.schema.json",
-   "to": "docs/spec/_source/erd.json",
-   "count": 2
   },
   {
    "from": "docs/spec/_source/notice-reasons.json",
@@ -941,26 +1045,6 @@
    "count": 14
   },
   {
-   "from": "docs/spec/_source/notice-reasons.schema.json",
-   "to": "docs/spec UIDs",
-   "count": 1
-  },
-  {
-   "from": "docs/spec/_source/notice-reasons.schema.json",
-   "to": "docs/spec/01-04-requirements.md",
-   "count": 3
-  },
-  {
-   "from": "docs/spec/_source/notice-reasons.schema.json",
-   "to": "docs/spec/05-07-design.md",
-   "count": 4
-  },
-  {
-   "from": "docs/spec/_source/notice-reasons.schema.json",
-   "to": "docs/spec/_source/notice-reasons.json",
-   "count": 8
-  },
-  {
    "from": "docs/spec/_source/property-items.json",
    "to": "docs/spec UIDs",
    "count": 31
@@ -989,26 +1073,6 @@
    "from": "docs/spec/_source/property-items.json",
    "to": "docs/spec/_source/settings.json",
    "count": 24
-  },
-  {
-   "from": "docs/spec/_source/property-items.schema.json",
-   "to": "docs/spec UIDs",
-   "count": 9
-  },
-  {
-   "from": "docs/spec/_source/property-items.schema.json",
-   "to": "docs/spec/01-04-requirements.md",
-   "count": 5
-  },
-  {
-   "from": "docs/spec/_source/property-items.schema.json",
-   "to": "docs/spec/_source/document-commands.json",
-   "count": 2
-  },
-  {
-   "from": "docs/spec/_source/property-items.schema.json",
-   "to": "docs/spec/_source/property-items.json",
-   "count": 11
   },
   {
    "from": "docs/spec/_source/published-entries.json",
@@ -1064,11 +1128,6 @@
    "from": "docs/spec/_source/published-entries.json",
    "to": "docs/spec/_source/state-machines.json",
    "count": 54
-  },
-  {
-   "from": "docs/spec/_source/published-entries.schema.json",
-   "to": "docs/spec/_source/published-entries.json",
-   "count": 3
   },
   {
    "from": "docs/spec/_source/row-id-prefixes.json",
@@ -1136,16 +1195,6 @@
    "count": 2
   },
   {
-   "from": "docs/spec/_source/row-id-prefixes.schema.json",
-   "to": "docs/spec UIDs",
-   "count": 1
-  },
-  {
-   "from": "docs/spec/_source/row-id-prefixes.schema.json",
-   "to": "docs/spec/01-04-requirements.md",
-   "count": 1
-  },
-  {
    "from": "docs/spec/_source/settings.json",
    "to": "docs/spec UIDs",
    "count": 481
@@ -1189,21 +1238,6 @@
    "from": "docs/spec/_source/settings.json",
    "to": "docs/spec/_source/state-machines.json",
    "count": 2
-  },
-  {
-   "from": "docs/spec/_source/settings.schema.json",
-   "to": "docs/spec UIDs",
-   "count": 1
-  },
-  {
-   "from": "docs/spec/_source/settings.schema.json",
-   "to": "docs/spec/_source/erd.json",
-   "count": 2
-  },
-  {
-   "from": "docs/spec/_source/settings.schema.json",
-   "to": "docs/spec/_source/settings.json",
-   "count": 19
   },
   {
    "from": "docs/spec/_source/state-machines.json",
@@ -1256,21 +1290,6 @@
    "count": 21
   },
   {
-   "from": "docs/spec/_source/state-machines.schema.json",
-   "to": "docs/spec/01-04-requirements.md",
-   "count": 1
-  },
-  {
-   "from": "docs/spec/_source/state-machines.schema.json",
-   "to": "docs/spec/05-07-design.md",
-   "count": 16
-  },
-  {
-   "from": "docs/spec/_source/state-machines.schema.json",
-   "to": "docs/spec/_source/state-machines.json",
-   "count": 1
-  },
-  {
    "from": "docs/spec/_source/verification.json",
    "to": "docs/spec/01-04-requirements.md",
    "count": 1
@@ -1279,19 +1298,23 @@
    "from": "docs/spec/_source/verification.json",
    "to": "docs/spec/05-07-design.md",
    "count": 7
-  },
-  {
-   "from": "docs/spec/_source/verification.schema.json",
-   "to": "docs/spec/05-07-design.md",
-   "count": 1
-  },
-  {
-   "from": "docs/spec/_source/verification.schema.json",
-   "to": "docs/spec/_source/verification.json",
-   "count": 15
   }
  ],
  "notResolved": [
+  {
+   "from": "docs/development-rules/manuscript-schemas/property-items.schema.json",
+   "field": "description",
+   "token": "X-23",
+   "status": "unresolved",
+   "count": 1
+  },
+  {
+   "from": "docs/development-rules/manuscript-schemas/settings.schema.json",
+   "field": "description",
+   "token": "S-90",
+   "status": "retired",
+   "count": 1
+  },
   {
    "from": "docs/spec/_source/property-items.json",
    "field": "columns",
@@ -1321,13 +1344,6 @@
    "count": 1
   },
   {
-   "from": "docs/spec/_source/property-items.schema.json",
-   "field": "description",
-   "token": "X-23",
-   "status": "unresolved",
-   "count": 1
-  },
-  {
    "from": "docs/spec/_source/settings.json",
    "field": "ja",
    "token": "S-440",
@@ -1338,13 +1354,6 @@
    "from": "docs/spec/_source/settings.json",
    "field": "ja",
    "token": "S-441",
-   "status": "retired",
-   "count": 1
-  },
-  {
-   "from": "docs/spec/_source/settings.schema.json",
-   "field": "description",
-   "token": "S-90",
    "status": "retired",
    "count": 1
   }

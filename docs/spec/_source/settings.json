@@ -1,11 +1,11 @@
 {
- "$schema": "./settings.schema.json",
+ "$schema": "../../development-rules/manuscript-schemas/settings.schema.json",
  "$comment": [
   "SINGLE SOURCE OF TRUTH -- EDIT THIS FILE.",
   "The presentation group: every settings row, its default, its bounds and the prose the specification prints beside it.",
   "Generated FROM this file: _assets/tbl-settings.md (settings_json_to_md.py), and SETTINGS_DEFAULTS / SETTINGS_BOUNDS in src/entity/document-model/document-settings (tools/generate_entity_types.py).",
   "Rebuild: npm run gen   |   npm run gen:check fails if anything has drifted.",
-  "Validated by _source/settings.schema.json before a byte is written."
+  "Validated by docs/development-rules/manuscript-schemas/settings.schema.json before a byte is written."
  ],
  "weekdays": {
   "$comment": [

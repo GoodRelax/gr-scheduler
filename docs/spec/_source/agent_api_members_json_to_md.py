@@ -55,7 +55,7 @@ from spec_md_printing import say, schema_problems
 HERE = os.path.dirname(os.path.abspath(__file__))
 ASSETS = os.path.join(os.path.dirname(HERE), '_assets')
 SRC = os.path.join(HERE, 'agent-api-members.json')
-SCHEMA = os.path.join(HERE, 'agent-api-members.schema.json')
+SCHEMA = os.path.join(HERE, '..', '..', 'development-rules', 'manuscript-schemas', 'agent-api-members.schema.json')
 OUT = os.path.join(ASSETS, 'tbl-agent-api-members.md')
 
 LANG = 'ja'

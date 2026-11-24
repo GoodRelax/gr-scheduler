@@ -1,9 +1,9 @@
 {
  "$schema": "https://json-schema.org/draft/2020-12/schema",
- "$id": "https://github.com/GoodRelax/gr-scheduler/docs/spec/_source/state-machines.schema.json",
+ "$id": "https://github.com/GoodRelax/gr-scheduler/docs/development-rules/manuscript-schemas/state-machines.schema.json",
  "$comment": [
   "HAND-WRITTEN CONTRACT -- EDIT THIS FILE.",
-  "Validates _source/state-machines.json, which is the single source of truth. Same role as _source/settings.schema.json.",
+  "Validates _source/state-machines.json, which is the single source of truth. Same role as docs/development-rules/manuscript-schemas/settings.schema.json.",
   "Shape: the state transition table keys of the NDD review standard, appendix A.6 'List of JSON Keys' -- a top-level array stateMachines[], each with name, states (state names, without initial) and transitions[] ({source, target, trigger}; trigger on every transition but the initial one; optional guard and effect), plus the optional unhandled[] ({source, trigger, handling: ignore | error}) and finalStates. Every key the project adds starts with x: xPriorities, xGuardLanguage and xRegions at the top; xRegion and xStates on a machine; xEffectArgument, xEvidence and xNote on a transition. Inside the value of a project key the keys are the project's own and carry no x.",
   "The shape only. What the manuscript may hold is table T-250 of docs/spec/05-07-design.md; the cross-entry rules (evidence ids defined, states and events resolved, every target a state of the same machine, one initial transition per level (none in a composite entered only by naming a child), every pair of a leaf state and an event of the machine answered exactly once by a transition or by unhandled[], machine names unique, no event key in two regions, every guard a transition names defined once in its region's `guards` and every condition written in `xGuardLanguage` and resolved) are checked by the generators (state_machine_source.py and state_machines_json_to_md.py), because a schema cannot see another entry."
  ],

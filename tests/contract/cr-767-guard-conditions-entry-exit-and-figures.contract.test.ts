@@ -63,7 +63,7 @@ const SD_3_CONDITIONS =
   'ガードの条件は領域ごとのガードの一覧が式で持ち（式の書き方は原稿の頭に 1 度だけ定める）、升と一覧はその式を刷る。'
 const SD_3_NOT_REPEATED = 'entry ／ exit の副作用は、その状態へ入る（出る）升に重ねて書かない。'
 const UML_ORDER = 'as UML runs them: exit, then the transition\'s effect, then entry. A transition to itself neither enters nor leaves.'
-const SCHEMA = readFileSync(join(SPEC, '_source', 'state-machines.schema.json'), 'utf8')
+const SCHEMA = readFileSync(join(process.cwd(), 'docs', 'development-rules', 'manuscript-schemas', 'state-machines.schema.json'), 'utf8')
 
 describe('CR-767 -- the clauses these cases are driven by', () => {
   it.each([SECTION_5_5_GENERATES, SECTION_5_5_NO_HAND_EDIT, SECTION_5_5_CONDITIONS, SD_1_ENTRY_EXIT, SD_3_CONDITIONS, SD_3_NOT_REPEATED])(

@@ -81,7 +81,7 @@ SPEC = os.path.dirname(HERE)
 ROOT = os.path.dirname(os.path.dirname(SPEC))
 ASSETS = os.path.join(SPEC, '_assets')
 SRC = os.path.join(HERE, 'row-id-prefixes.json')
-SCHEMA = os.path.join(HERE, 'row-id-prefixes.schema.json')
+SCHEMA = os.path.join(HERE, '..', '..', 'development-rules', 'manuscript-schemas', 'row-id-prefixes.schema.json')
 OUT = os.path.join(ASSETS, 'tbl-row-id-prefixes.md')
 
 LANG = 'ja'
