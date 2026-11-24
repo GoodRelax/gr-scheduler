@@ -14,7 +14,7 @@
       "creationDate": "2026-10-31T08:50:00",
       "revision": 11,
       "startDate": "2026-10-17T05:30:00",
-      "statusDate": "2026-11-25T00:06:00",
+      "statusDate": "2026-11-25T00:21:00",
       "minutesPerDay": 1440,
       "minutesPerWeek": 10080,
       "daysPerMonth": 30,
@@ -7378,14 +7378,14 @@
         "uid": 394,
         "parentTaskUid": null,
         "wbsOrder": 271,
-        "name": "🌑 新 ANMS・NDD B6: コメントの種類の名を 1 本のスクリプトで機械的に替える(SUB)",
-        "start": "2026-11-25T00:12:00",
-        "finish": "2026-11-25T03:12:00",
+        "name": "🌒 新 ANMS・NDD B6: コメントの種類の名を 1 本のスクリプトで機械的に替える(SUB)",
+        "start": "2026-11-25T00:21:00",
+        "finish": "2026-11-25T03:21:00",
         "milestone": false,
         "deadline": null,
-        "notes": "共有メモ new-review-standard-plan-b-2026-11-08.md の「順序」 の段 6。Sonnet 5.5・medium。見積は 2〜4 時間の中央。 11-11 07:21: 新基準の窓の残りは、基準書の新しい版 7015aa4 との差をオーナーと協議してから決める。重い処理の禁止（11-11 06:08）が解けるまで始められない。予定は動かさない。 11-13 13:05: 禁止の解除で測り直した。391 を今から 30 分、392〜394 を 391 の後に並べ、395 は 393・394 の後、396 は 395 と N1 の後。基準書の新しい版 7015aa4 との協議が済んでいなければ、段 5・6 の中身は協議で変わる（事実）。 pmo-6 2026-11-23T23:33: folded into study 82 (afdaf418f) as named; the same work keeps uid 394 (JDG-1931). Placed after the beta tag 233 and the owner answers 492; length 3 h = the middle of the study 82 estimate (provisional). Stage 2 also waits for team T to land the standard in gr-sw-maker main (outside this plan). pmo-6 2026-11-24T00:11: study 82 replanned before the beta (fb3a35e3e, owner order JDG-3821..3823, 3828). Moved before the beta as 新 ANMS・NDD B6; same work keeps uid 394. 3 h wall = middle of the study estimate (provisional). pmo-6 2026-11-24T07:23: JDG-3813: this step gets a seat only after the results of B1, B2 and B4. pmo-6 2026-11-24T08:29: pulled forward at the BOSS request: after B2 (393) and the owner signal 509.",
+        "notes": "共有メモ new-review-standard-plan-b-2026-11-08.md の「順序」 の段 6。Sonnet 5.5・medium。見積は 2〜4 時間の中央。 11-11 07:21: 新基準の窓の残りは、基準書の新しい版 7015aa4 との差をオーナーと協議してから決める。重い処理の禁止（11-11 06:08）が解けるまで始められない。予定は動かさない。 11-13 13:05: 禁止の解除で測り直した。391 を今から 30 分、392〜394 を 391 の後に並べ、395 は 393・394 の後、396 は 395 と N1 の後。基準書の新しい版 7015aa4 との協議が済んでいなければ、段 5・6 の中身は協議で変わる（事実）。 pmo-6 2026-11-23T23:33: folded into study 82 (afdaf418f) as named; the same work keeps uid 394 (JDG-1931). Placed after the beta tag 233 and the owner answers 492; length 3 h = the middle of the study 82 estimate (provisional). Stage 2 also waits for team T to land the standard in gr-sw-maker main (outside this plan). pmo-6 2026-11-24T00:11: study 82 replanned before the beta (fb3a35e3e, owner order JDG-3821..3823, 3828). Moved before the beta as 新 ANMS・NDD B6; same work keeps uid 394. 3 h wall = middle of the study estimate (provisional). pmo-6 2026-11-24T07:23: JDG-3813: this step gets a seat only after the results of B1, B2 and B4. pmo-6 2026-11-24T08:29: pulled forward at the BOSS request: after B2 (393) and the owner signal 509. pmo-6 2026-11-25T00:21: started (seat b6-comment-rename, local_ff90b26b). 3 h = middle of 2..4 h (BOSS; provisional). B11 (395) follows it.",
         "calendarUid": null,
-        "actualStart": null,
+        "actualStart": "2026-11-25T00:21:00",
         "stop": null,
         "actualFinish": null,
         "resume": null,
@@ -9599,19 +9599,19 @@
         "uid": 509,
         "parentTaskUid": null,
         "wbsOrder": 367,
-        "name": "🌑 オーナー: B6 の席を「立てろ」と合図する",
+        "name": "🌕 オーナー: B6 の席を「立てろ」と合図する",
         "start": "2026-11-25T00:06:00",
-        "finish": "2026-11-25T00:12:00",
+        "finish": "2026-11-25T00:21:00",
         "milestone": false,
         "deadline": null,
-        "notes": "pmo-6 2026-11-24T08:29: BOSS line 11-24: the BOSS judged B4 done and B1, B2 near a break, which meets JDG-3813 (\"add seats after the results\"). The owner signals the B6 seat (the BOSS cannot show a card while Remote Control runs). 0.1 h in owner hours (provisional). pmo-6 2026-11-25T00:06: the signal has not come yet (BOSS line 11-25); re-placed from now in owner hours.",
+        "notes": "pmo-6 2026-11-24T08:29: BOSS line 11-24: the BOSS judged B4 done and B1, B2 near a break, which meets JDG-3813 (\"add seats after the results\"). The owner signals the B6 seat (the BOSS cannot show a card while Remote Control runs). 0.1 h in owner hours (provisional). pmo-6 2026-11-25T00:06: the signal has not come yet (BOSS line 11-25); re-placed from now in owner hours. pmo-6 2026-11-25T00:21: done. The owner typed \"B6 を立てろ\" (BOSS line; finish = arrival of the line, start = when it was asked).",
         "calendarUid": null,
-        "actualStart": null,
+        "actualStart": "2026-11-25T00:06:00",
         "stop": null,
-        "actualFinish": null,
+        "actualFinish": "2026-11-25T00:21:00",
         "resume": null,
         "resumeValid": null,
-        "percentComplete": 0,
+        "percentComplete": 100,
         "fadeInDays": null,
         "fadeOutDays": null,
         "dependencies": [],
@@ -9622,12 +9622,12 @@
         "uid": 510,
         "parentTaskUid": null,
         "wbsOrder": 368,
-        "name": "🌑 新 ANMS・NDD: B1・B2・B4 をまとめて GT-2 を 1 回回し、develop へ合流する(調整役)",
-        "start": "2026-11-25T00:06:00",
-        "finish": "2026-11-25T03:06:00",
+        "name": "🌑 新 ANMS・NDD: B1・B2・B4・B6 をまとめて GT-2 を 1 回回し、develop へ合流する(調整役)",
+        "start": "2026-11-25T03:21:00",
+        "finish": "2026-11-25T06:21:00",
         "milestone": false,
         "deadline": null,
-        "notes": "pmo-6 2026-11-24T08:29: BOSS line 11-24: one GT-2 run for the src and tests changes of B1, B2 and B4 together, after B2. 3 h (BOSS). B1 joins with its changes so far. pmo-6 2026-11-25T00:06: the GT-2 version is develop e89926329 (B1 B7, B2 tags, B4 merged; tsc, check.sh, gen:check green). It waits for the owner to stop OneDrive. Placed from now (not started).",
+        "notes": "pmo-6 2026-11-24T08:29: BOSS line 11-24: one GT-2 run for the src and tests changes of B1, B2 and B4 together, after B2. 3 h (BOSS). B1 joins with its changes so far. pmo-6 2026-11-25T00:06: the GT-2 version is develop e89926329 (B1 B7, B2 tags, B4 merged; tsc, check.sh, gen:check green). It waits for the owner to stop OneDrive. Placed from now (not started). pmo-6 2026-11-25T00:21: moved after B6 (394): B6 also touches src and tests, so B1, B2, B4 and B6 share one GT-2 run. The BOSS asks the owner to stop OneDrive after B6.",
         "calendarUid": null,
         "actualStart": null,
         "stop": null,
@@ -9648,6 +9648,14 @@
           },
           {
             "predecessorUid": 396,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          },
+          {
+            "predecessorUid": 394,
             "linkType": 1,
             "linkLag": 0,
             "lagFormat": 7,
@@ -15801,10 +15809,10 @@
     "zoomY": 1.099862517185352
   },
   "documentStamp": {
-    "scheduleUpdatedAt": "2026-11-24T15:06:00Z",
+    "scheduleUpdatedAt": "2026-11-24T15:21:00Z",
     "lastEditedBy": "PMO child session",
     "settingsUpdatedAt": "2026-10-20T20:24:42Z",
-    "fileSavedAt": "2026-11-24T15:06:00Z"
+    "fileSavedAt": "2026-11-24T15:21:00Z"
   },
   "changeLog": [
     {
@@ -16616,6 +16624,12 @@
       "editedBy": "PMO child session",
       "explanation": "Fact at 11-25 00:06 JST: BOSS line, owner answer BGQA q23 = a (JDG-3817): 508 done, B5 (496) started now. B2 (393) and B7 part 1 (497) done (merged 0d4cb61e5). GT-2 (510) waits for the owner to stop OneDrive, placed from now. The B6 signal (509) is still awaited.",
       "changedAt": "2026-11-24T15:06:00Z"
+    },
+    {
+      "ordinal": 136,
+      "editedBy": "PMO child session",
+      "explanation": "Fact at 11-25 00:21 JST: BOSS line, the owner signalled B6: 509 done, B6 (394) started now (3 h). The GT-2 run (510) moves after B6 and covers B1, B2, B4 and B6 together. B11 follows B6.",
+      "changedAt": "2026-11-24T15:21:00Z"
     }
   ]
 }
