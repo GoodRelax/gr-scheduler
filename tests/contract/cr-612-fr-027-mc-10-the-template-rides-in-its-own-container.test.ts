@@ -19,8 +19,8 @@ const FIXTURES = join(process.cwd(), 'tests', 'fixtures')
 const EMBEDDED_ID = 'embedded-document'
 
 const CONTAINER_MUST =
-  'スクリプトとは別の、走らない JSON の容れ物として置くこと（MUST）'
-const NOT_BUNDLED = 'スクリプトに束ねてはならない（MUST NOT）'
+  '`GRS` は、テンプレートを、出荷する単一の `.html` の中に、スクリプトとは別の、走らない JSON の容れ物として置くこと。'
+const NOT_BUNDLED = '`GRS` は、テンプレートをスクリプトに束ねないこと。'
 
 function numberIn(id: string): number {
   const cell = specTable('T-226').rows.find((one) => one.id === id)?.cells[1] ?? ''

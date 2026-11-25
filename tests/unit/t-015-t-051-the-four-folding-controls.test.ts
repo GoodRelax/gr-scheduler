@@ -1211,7 +1211,7 @@ describe('FR-029 -- the arming of every entrance the panel carries', () => {
       '展開できる段が無いときは、`FR-029` に従って薄く描くこと（MUST）',
     )
     expect(REQUIREMENTS).toContain(
-      'その入口を押しても、いま文書にも画面にも何も変えられないときは、その入口を薄く描くこと（MUST）',
+      '`GRS` は、押してもいま文書にも画面にも何も変えられない入口を薄く描くこと',
     )
   })
 

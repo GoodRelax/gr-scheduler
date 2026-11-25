@@ -35,8 +35,8 @@ const IN_4A_PASS_ON = '**消費する対象が 1 つも無いときは、必ず�
 const IN_4A_FULL_SCREEN_ALWAYS_STANDS =
   '⚠️ 全画面表示のあいだは、`IN-4` の全画面表示の段がいつも立つので、本行の「渡す」は起きない。'
 const FR_071_ESCAPE_LOCKED =
-  '閲覧環境が Keyboard Lock（`navigator.keyboard`）を持つなら `Escape` の鍵をかけることを求め、全画面表示を出たことを受けたら鍵を放すこと（MUST）'
-const FR_071_LOCK_REFUSAL_UNTOLD = '鍵を断られたこと・閲覧環境が持たないことを通知してはならない（MUST NOT）'
+  '閲覧環境が Keyboard Lock（`navigator.keyboard`）を持つ場合、全画面表示に入ることをブラウザに求める押下の中で、`GRS` は、`Escape` の鍵をかけることを求めること。全画面表示を出たことを受けたとき、`GRS` は、`Escape` の鍵を放すこと。'
+const FR_071_LOCK_REFUSAL_UNTOLD = 'もし鍵を断られた場合、または閲覧環境が Keyboard Lock を持たない場合、`GRS` は、断られたこと・持たないことを通知しないこと。'
 const FR_071_LAST_RUNG = '`Esc` で全画面表示を出るのは、アプリの `Esc` の階層の最後の段である（表 T-028 の `IN-4`）。'
 
 const MANUSCRIPT_CLAUSES: readonly (readonly [string, string])[] = [

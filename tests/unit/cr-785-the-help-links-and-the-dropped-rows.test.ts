@@ -299,29 +299,29 @@ function inkOf(built: Stage, anchor: FakeElement, help: FakeElement): string {
 
 describe('CR-785 -- the premises read from the specification', () => {
   it('FR-036 puts two links, one per line, above the frame of the basics block, and names the dictionary section', () => {
-    expect(REQUIREMENTS).toContain('の枠のすぐ上に、2 つのリンクを 1 行ずつ縦に並べて置くこと（MUST）')
-    expect(REQUIREMENTS).toContain('2 つのリンクの語は `FR-038` の辞書（`helpLinks` の `download` と `about`）が持つこと（MUST）')
+    expect(REQUIREMENTS).toContain('`GRS` は、ヘルプの基本操作の塊（辞書の見出しの `basics`）の枠のすぐ上に、2 つのリンクを 1 行ずつ縦に並べて置くこと')
+    expect(REQUIREMENTS).toContain('`FR-038` の辞書（`helpLinks` の `download` と `about`）は、2 つのリンクの語を持つこと')
   })
 
   it('FR-036 sends the upper link to S-350 and the lower to S-583 plus ?lang=, both in a new tab', () => {
-    expect(REQUIREMENTS).toContain('上のリンクの宛先は `_assets/tbl-settings.md` の 表 T-206 の `S-350`（最新版を入手する頁）')
-    expect(REQUIREMENTS).toContain('下のリンクの宛先は同表の `S-583` の所にヘルプの言語を `?lang=ja` ／ `?lang=en` で付けたもの')
-    expect(REQUIREMENTS).toContain('どちらも押したら閲覧環境の新しいタブで開くこと（MUST）')
+    expect(REQUIREMENTS).toContain('`GRS` は、上のリンクの宛先を `_assets/tbl-settings.md` の 表 T-206 の `S-350`（最新版を入手する頁）とし')
+    expect(REQUIREMENTS).toContain('下のリンクの宛先を 表 T-206 の `S-583` の所にヘルプの言語を `?lang=ja` ／ `?lang=en` で付けたものとすること')
+    expect(REQUIREMENTS).toContain('利用者が 2 つのリンクのどちらかを押したとき、`GRS` はリンクの宛先を閲覧環境の新しいタブで開くこと')
   })
 
   it('FR-036 draws every help link in S-503 with an underline: the two, the IC-20 one and the FR-069 copyright', () => {
-    expect(REQUIREMENTS).toContain('この 2 つ、`IC-20` の項目に添えるリンク、`FR-069` の著作権表示 —— の字は、`_assets/tbl-settings.md` の 表 T-236 の `S-503` の色で下線を引いて描くこと（MUST）')
+    expect(REQUIREMENTS).toContain('`GRS` は、ヘルプのリンク（`IMPS-1145` の 2 つ、`IC-20` の項目に添えるリンク、`FR-069` の著作権表示）の字を、`_assets/tbl-settings.md` の 表 T-236 の `S-503` の色で下線を引いて描くこと')
   })
 
   it('FR-036 gives the IC-20 item a link after its name, unparenthesised; only IC-54 keeps parentheses', () => {
-    expect(REQUIREMENTS).toContain('`IC-20` の項目には、名の語の後ろに、最新版を入手する頁（`_assets/tbl-settings.md` の 表 T-206 の `S-350`）へのリンクを添え、押したら閲覧環境の新しいタブで開くこと（MUST）')
-    expect(REQUIREMENTS).toContain('⭐ `IC-54` の項目に添える語は、丸括弧で囲むこと（MUST）')
-    expect(REQUIREMENTS).toContain('`IC-20` に添えるリンクは囲まない')
+    expect(REQUIREMENTS).toContain('`GRS` は、`IC-20` の項目の名の語の後ろに、最新版を入手する頁（`_assets/tbl-settings.md` の 表 T-206 の `S-350`）へのリンクを添えること。利用者が `IC-20` のリンクを押したとき、`GRS` は頁を閲覧環境の新しいタブで開くこと。')
+    expect(REQUIREMENTS).toContain('`GRS` は、`IC-54` の項目に添える語を丸括弧で囲むこと')
+    expect(REQUIREMENTS).toContain('`GRS` は、`IC-20` に添えるリンクを丸括弧で囲まないこと')
   })
 
   // Why: CR-850 retired MK-17; FR-036 now names it as a gap of table T-023, still left off the help.
   it('FR-036 names MK-2 / MK-5 / MK-7 alone of table T-023, puts MK-15 / MK-16 among the rows learned by touching and MK-17 among the gaps', () => {
-    expect(REQUIREMENTS).toContain('表 T-023 の `MK-2` / `MK-5` / `MK-7` と、下の 表 T-255 の行を示すこと（MUST）')
+    expect(REQUIREMENTS).toContain('表 T-023 の `MK-2` / `MK-5` / `MK-7` と、表 T-255 の行を示すこと')
     expect(REQUIREMENTS).toContain('`MK-13` / `MK-15` / `MK-16`）と、内部の取り決め')
     expect(REQUIREMENTS).toContain('欠番（`MK-17`）')
   })

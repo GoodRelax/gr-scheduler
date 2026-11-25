@@ -33,11 +33,11 @@ import { RATIO, SCREEN, cellOf, rowOf, scheduleOf, taskOf } from './cr-430-cross
 const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
 // Spec: FR-054
-const FR_054_POINTER = '非稼働日を描くときは 表 T-343 に従うこと（MUST）。'
+const FR_054_POINTER = '`GRS` は、非稼働日を 表 T-343 に従って描くこと。'
 // Spec: OD-1
 const OD_1_RULE = '本要求が決める文書の暦で、稼働日でない日を塗ること（MUST）。'
 const OD_1_BOTH = '曜日の稼働（`WeekDay`）と、繰り返しの無い例外日（`Exception`、`_assets/fig-erd-detail.md` の `AT-82`）の両方に従う。'
-const OD_1_RECURRING = '⚠️ 繰り返しの例外日は実日付へ展開しない（本要求の RATIONALE）ので、塗らない。'
+const OD_1_RECURRING = '⚠️ 繰り返しの例外日は実日付へ展開しない（表 T-606 の `IMPS-758`）ので、塗らない。'
 const OD_1_WORKING = '⭐ 稼働にする例外日（`dayWorking` が真）は、週末でも塗らない'
 // Spec: OD-2
 const OD_2_TIERS = '目盛の段（`_assets/tbl-settings.md` の 表 T-205 の `S-83` 〜 `S-85` が分ける段）で塗る範囲を決めること（MUST）。'

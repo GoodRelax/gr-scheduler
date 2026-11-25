@@ -29,12 +29,12 @@ const STATE_MACHINES = unbroken(readFileSync(join(SPEC, '_assets', 'tbl-state-ma
 
 // Spec: FR-019, CM-46, S-600
 const FR_019_PLACED_OFFSET =
-  '置くとき（`_assets/tbl-document-commands.md` の 表 T-108 の `CM-46`）は、本文のずれを `{ dx: S-600, dy: −S-600 }` とすること（MUST） —— 本文の箱を線先から右上へずらし、線先と引出し線を箱の左下から外へ出す'
+  'コメントボックスを置くとき（`_assets/tbl-document-commands.md` の 表 T-108 の `CM-46`）、`GRS` は、本文のずれを `{ dx: S-600, dy: −S-600 }` とすること'
 // Spec: FR-019, LF-17
 const FR_019_ZERO_HAS_NO_LEADER = 'ずれ 0 の箱は線先が本文の箱の左下隅に重なり、引出し線が描かれない'
 // Spec: FR-019, AR-5, PR-21
 const FR_019_SELECT_AND_FOCUS =
-  '構えて置いたとき（表 T-023b の `AR-5`）は、置いたコメントボックスを選び、プロパティパネルを出して本文の欄（`_assets/tbl-property-items.md` の 表 T-016 の `PR-21`）に焦点を置くこと（MUST）'
+  '作成者がコメントボックスを構えて置いたとき（表 T-023b の `AR-5`）、`GRS` は、置いたコメントボックスを選ぶこと。作成者がコメントボックスを構えて置いたとき、`GRS` は、プロパティパネルを出すこと。作成者がコメントボックスを構えて置いたとき、`GRS` は、本文の欄（`_assets/tbl-property-items.md` の 表 T-016 の `PR-21`）に焦点を置くこと'
 // Spec: LF-17
 const LF_17_INSIDE_NO_LEADER = '留めた点が本文の箱の中（縁を含む）に在るときは、引出し線を描かない'
 // Spec: FR-019, AR-5

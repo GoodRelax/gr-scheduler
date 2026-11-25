@@ -381,7 +381,7 @@ const NT_7_KEYS_GO_NOWHERE_ELSE =
 
 /** FR-032's two halves that reach the screen. */
 const FR_032_NAMES_NOT_A_COUNT = '件数だけを示してはならない（MUST NOT）'
-const FR_032_SHOWN_ON_ANOTHER_TASK_GROUP = 'その旨を示すこと（MUST）'
+const FR_032_SHOWN_ON_ANOTHER_TASK_GROUP = '別の `editPermission` のタスクグループに載るタスクが、消そうとしているタスクを先行としているとき、その旨を挙げること（MUST）'
 
 /** The note under table T-023a that the table of other surfaces belongs to. */
 const T_023A_ONLY_THE_DRAWING_AREA = '判定順序を適用するのは日程の描画領域だけとすること（MUST）。'

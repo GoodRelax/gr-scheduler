@@ -49,20 +49,20 @@ const SPEC = join(process.cwd(), 'docs', 'spec')
 const REQUIREMENTS = unbroken(readFileSync(join(SPEC, '01-04-requirements.md'), 'utf8'))
 
 const FR_153_PLACE =
-  'その入口は、文書の設定の面（`FR-072`、面を出す入口は同表の `IC-17`）の頭、テーマ色の欄（`FR-041`）の上に置くこと（MUST）'
-const FR_153_NOT_A_FIELD = '⚠️ この入口は面の欄ではない —— 値を持たないので、`FR-072` の「その欄は読むだけ」にも、`FR-041` の「先頭の欄」にも数えない。'
+  '`GRS` は、GRS リセットの入口を、文書の設定の面（`FR-072`、面を出す入口は 表 T-109 の `IC-17`）の頭、テーマ色の欄（`FR-041`）の上に置くこと。'
+const FR_153_NOT_A_FIELD = '`GRS` は、GRS リセットの入口を面の欄に数えないこと —— `FR-072` の「その欄は読むだけ」にも、`FR-041` の「先頭の欄」にも数えない。'
 const FR_153_LABEL =
-  '入口の行は、面のほかの行と同じく左に名、右に入口を置き、名は `FR-038` の辞書が同行に持つ語（`label`）とすること（MUST）'
-const FR_153_NEVER_FAINT = '⚠️ この入口を薄く描かない（`FR-029`）'
-const FR_153_QUESTION = '問い方は 表 T-037 の `NT-7` に従い、示す文は 表 T-234 の `QN-11` とすること（MUST）'
-const FR_153_ASK_ALWAYS = '⭐ 未保存の編集が無くても問うこと（MUST）'
+  '`GRS` は、GRS リセットの入口の行に、面のほかの行と同じく左に名を、右に入口を置くこと。`GRS` は、入口の行の名を、`FR-038` の辞書が `IC-139` の行に持つ語（`label`）とすること。'
+const FR_153_NEVER_FAINT = '`GRS` は、GRS リセットの入口を薄く描かないこと（`FR-029`）。'
+const FR_153_QUESTION = '`GRS` は、問い方を 表 T-037 の `NT-7` に従わせること。`GRS` は、示す文を 表 T-234 の `QN-11` とすること。'
+const FR_153_ASK_ALWAYS = '`GRS` は、未保存の編集が無くても問うこと。'
 const FR_153_LINE_BREAKS =
-  '⭐ その文の語に含まれる改行は、`Confirmation`（`_assets/tbl-glossary.md` の `U-55`）の中で、そこで行を改めて示すこと（MUST）'
+  '`GRS` は、`QN-11` の語に含まれる改行を、`Confirmation`（`_assets/tbl-glossary.md` の `U-55`）の中で、改行の所で行を改めて示すこと。'
 const FR_153_ONLY_T_345 =
-  '続けると答えられたときに消すのは、`localStorage` の `GRS` の鍵のうち、表 T-345 が「消す」とするものだけとすること（MUST）'
-const FR_153_NEVER_WHOLE = '⛔ `localStorage` をまるごと消してはならない（MUST NOT）'
-const FR_153_CLEAR_THEN_RELOAD = '⭐ 消してから読み直すこと（MUST）'
-const FR_153_NO_AGENT_API = '⛔ `Agent API` にこの操作を与えてはならない（MUST NOT）'
+  '続けると答えられたとき、`GRS` は、`localStorage` の `GRS` の鍵のうち、表 T-345 が「消す」とするものだけを消すこと。'
+const FR_153_NEVER_WHOLE = '`GRS` は、`localStorage` をまるごと消さないこと'
+const FR_153_CLEAR_THEN_RELOAD = '続けると答えられたとき、`GRS` は、表 T-345 が「消す」とする値を消してから、ページを読み直すこと。'
+const FR_153_NO_AGENT_API = '`GRS` は、`Agent API` に GRS リセットの操作を与えないこと。'
 
 const T_109 = specTable('T-109')
 const T_234 = specTable('T-234')

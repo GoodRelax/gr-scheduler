@@ -19,15 +19,18 @@ import {
 import { settingNumber } from '../fixtures/setting-number'
 
 const FR_023_LIMITS_CARRY_THEIR_ROW =
-  '資源の上限（ファイルサイズ・件数・WBS のネストの深さ・解釈しない要素のネストの深さ）を `_assets/tbl-settings.md` の表 T-211 に従って持ち、超えた入力は取り込まず、超えた上限に当たる 表 T-233 の行を通知の仕組みへ運ぶこと（MUST）'
-const FR_023_NO_PARTIAL_APPLY = '部分的に適用してはならない（MUST NOT）'
+  'もし入力が資源の上限を超える場合、`GRS` は、超えた上限に当たる 表 T-233 の行を通知の仕組みへ運ぶこと —— 作法は `FR-076` に従う。'
+const FR_023_OVER_LIMIT_IS_NOT_TAKEN =
+  'もし入力が資源の上限（ファイルサイズ・件数・WBS のネストの深さ・解釈しない要素のネストの深さ）を超える場合、`GRS` は、その入力を取り込まないこと。'
+const FR_023_LIMITS_HELD_BY_T_211 = '`GRS` は、資源の上限を `_assets/tbl-settings.md` の表 T-211 に従って持つこと。'
+const FR_023_NO_PARTIAL_APPLY = '`GRS` は、取り込まない入力を部分的に適用しないこと。'
 const FR_076_UNOWNED_REFUSALS_CARRY_THE_OWNING_ROW =
-  '⭐ 同表に行を持たない取り込みの拒否（資源の上限（`_assets/tbl-settings.md` の 表 T-211）と、`start` か `finish` を持たない `Task`（`FR-012`））は、上の例外に当たらない —— 本表のうち出典の欄がその上限か `FR-012` を名指す行を運ぶこと（MUST）'
+  '取り込みの拒否が 表 T-220 に行を持たないとき（資源の上限（`_assets/tbl-settings.md` の 表 T-211）と、`start` か `finish` を持たない `Task`（`FR-012`））、`GRS` は 表 T-233 のうち出典の欄がその上限か `FR-012` を名指す行を運ぶこと（`IMPS-1134` の例外に当たらない）。'
 const AG_9A_THE_REASON_IS_THE_T_233_ROW_ID =
   '⭐ 同表に行を持たない拒否（資源の上限と、`start` か `finish` を持たない `Task`）では、理由の区分は `FR-076` が運ばせる 表 T-233 の行の行 ID である'
 const AG_9A_NO_COLLAPSE = '⛔ 理由の区分を 1 つの値へ潰してはならない（MUST NOT）'
 const FR_076_NO_FALL_TO_A_T_233_ROW =
-  '⛔ その通知を本表の行（`RS-15` を含む）へ振り替えてはならない（MUST NOT）'
+  '`GRS` は、取り込みの検証が拒んだ通知を、表 T-233 の行（`RS-15` を含む）へ振り替えないこと。'
 const NT_6_SAYS_WHAT_CAN_BE_DONE = '続けられないことと、いま何ができるかを示すこと（MUST）'
 const FR_012_NO_TASK_WITHOUT_AN_END =
   '⚠️ `start` または `finish` を持たない `Task` を、画面に出す `Task` として受け付けてはならない（MUST NOT）'
@@ -38,6 +41,8 @@ const NEVER_THE_KEY_OF_A_SETTING_OR_A_REQUIREMENT = ['S-113', 'S-114', 'S-115', 
 describe('FR-023 / FR-076 / AG-9a -- the clauses this file is driven by still stand', () => {
   it.each([
     FR_023_LIMITS_CARRY_THEIR_ROW,
+    FR_023_OVER_LIMIT_IS_NOT_TAKEN,
+    FR_023_LIMITS_HELD_BY_T_211,
     FR_023_NO_PARTIAL_APPLY,
     FR_076_UNOWNED_REFUSALS_CARRY_THE_OWNING_ROW,
     AG_9A_THE_REASON_IS_THE_T_233_ROW_ID,

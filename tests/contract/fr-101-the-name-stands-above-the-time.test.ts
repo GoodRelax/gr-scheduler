@@ -32,8 +32,8 @@
 // ---------------------------------------------------------------------------
 //
 //   FR-101   ⭐ 「`GRS` は、**いま開いているファイルの名前**と、**そのファイルへ最後
-//            に書いた時刻**を画面上に示すこと（MUST）。**名前を時刻の上に置くこと
-//            （MUST）**（利用者の裁定 2026-08-29）。」
+//            に書いた時刻**を画面上に示すこと。」「`GRS` は、ファイルの名前を時刻の
+//            上に置くこと。」（利用者の裁定 2026-08-29）
 //            ⚠️ 「`Document Title`（... `U-27`）と混同してはならない（MUST NOT）
 //            —— あちらは文書が持つ値（`Project/Title`）であり、本要求が出すのは
 //            ファイルの名前である。**2 つが違う値になることは正常である。**」
@@ -106,7 +106,7 @@ const REQUIREMENTS = unbroken(readFileSync(
 const DESIGN = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '05-07-design.md'), 'utf8'))
 
 /** ⛔ THE GROUND OF THIS WHOLE FILE, read rather than typed. */
-const THE_ORDER_MUST = '名前を時刻の上に置くこと（MUST）'
+const THE_ORDER_MUST = '`GRS` は、ファイルの名前を時刻の上に置くこと。'
 
 /** The settled name one row of table T-103 gives, which reaches the DOM as `data-role`. */
 function settledName(specTableRowId: string): string {
@@ -174,7 +174,7 @@ const HEADER_WITH_A_SAVED_FILE: AppHeaderItems = {
   fileNeverSavedText: 'FileNeverSavedHere',
 }
 
-/** The same file, never written to -- 「時刻の代わりにその旨を示すこと（MUST）」. */
+/** The same file, never written to -- 「時刻の代わりに、まだ書いていない旨を示すこと」. */
 const HEADER_NEVER_SAVED: AppHeaderItems = {
   ...HEADER_WITH_A_SAVED_FILE,
   fileSavedAt: null,
@@ -295,7 +295,7 @@ describe('the manuscripts still say what these cases read', () => {
 describe('FR-101 (MUST) -- the name stands above the time', () => {
   it('⭐ both parts are drawn, each exactly once', () => {
     // 「いま開いているファイルの名前 ... と ... 最後に書いた時刻 ... を画面上に示す
-    //   こと（MUST）」. ⚠️ The control case: without it, a header that drew
+    //   こと」. ⚠️ The control case: without it, a header that drew
     // NEITHER would pass every ordering case below by vacuity.
     // GOES RED IF: either part stops being drawn, or is drawn twice.
     const root = drawn(HEADER_WITH_A_SAVED_FILE)
@@ -350,8 +350,8 @@ describe('FR-101 (MUST) -- the name stands above the time', () => {
   })
 
   it('⭐ the same order holds when the file has never been written to', () => {
-    // 「まだ 1 度もファイルへ書いていないときは、時刻の代わりにその旨を示すこと
-    //   （MUST）」 -- 「空欄では『書けたのに読めない』と区別がつかない」. ⚠️ FR-101
+    // 「まだ 1 度もファイルへ書いていないとき、`GRS` は、時刻の代わりに、まだ書い
+    //   ていない旨を示すこと」 -- 「空欄では『書けたのに読めない』と区別がつかない」. ⚠️ FR-101
     // carves out no exception to the order for that state: what changes is WHAT
     // stands in the lower place, not WHICH place it is.
     // GOES RED IF: the never-saved wording is drawn somewhere else, or above

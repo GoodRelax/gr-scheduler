@@ -16,10 +16,10 @@ const REQUIREMENTS = unbroken(READ('docs', 'spec', '01-04-requirements.md'))
 
 // Why: each clause is cut from the manuscript as check 39 reads it, so the cases cannot drift from the words they test.
 const CHAPTER_6_2_ONE_DEFINITION =
-  '⭐ 日時の列は 1 つの日時の定義を指し、その定義が形を `xsd:dateTime` の字面の `pattern` で言うこと（MUST）'
+  '起こしたスキーマで、日時の列は 1 つの日時の定義を指すこと。日時の定義は、形を `xsd:dateTime` の字面の `pattern` で言うこと。'
 const CHAPTER_6_2_SCROLL_DATE = '`_assets/tbl-settings.md` の `S-77`（`scrollDate`）も同じ `pattern` を持つ。'
-const CHAPTER_6_2_NOT_IN_THE_READ = '⚠️ どちらも読む路の照合には載せない（Chapter 6.1）。'
-const FR_024_ALWAYS_DATE_TIME = '⭐ **日時の列は、日付だけで書かず、いつも日時の形で書くこと（MUST）**'
+const CHAPTER_6_2_NOT_IN_THE_READ = '⚠️ 日時の `pattern` と `schemaVersion` の `const` は、どちらも読む路の照合には載せない（Chapter 6.1 の `IMPS-1317`）。'
+const FR_024_ALWAYS_DATE_TIME = '`GRS` は、日時の列を、日付だけで書かず、いつも日時の形で書くこと'
 
 describe('DFC-1793 the manuscripts these cases are driven by', () => {
   it.each([CHAPTER_6_2_ONE_DEFINITION, CHAPTER_6_2_SCROLL_DATE, CHAPTER_6_2_NOT_IN_THE_READ])('05-07 still says it: %s', (clause) => {

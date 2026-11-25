@@ -21,14 +21,14 @@ import {
 import { specTable } from './spec-table'
 
 const FR_096_MEDIA_TYPE_FROM_TABLE =
-  '⭐ 宿主に「その拡張子の形式である」ことを伝える手立てがあるなら、表 T-024 の「保存の選択面に渡す媒体の型」の欄の値で伝えること（MUST）。'
-const FR_096_NO_COPY_OF_MEDIA_TYPE = '⛔ **媒体の型を本要求に書き写してはならない（MUST NOT）** —— 拡張子と同じく、正は 表 T-024 ただ 1 か所である。'
+  '宿主に「選んだ行の拡張子の形式である」ことを伝える手立てがある場合、`GRS` は、表 T-024 の「保存の選択面に渡す媒体の型」の欄の値で伝えること。'
+const FR_096_NO_COPY_OF_MEDIA_TYPE = '⛔ 媒体の型を本要求と子の要求（`FR-362`・`FR-363`）に書き写してはならない（MUST NOT） —— 拡張子と同じく、正は 表 T-024 ただ 1 か所である。'
 const FR_096_MEDIA_TYPE_IS_OURS =
-  '⭐ **媒体の型は本製品が決める値である** —— 宿主がよく知る型を渡すと、宿主はその型に結び付いたほかの拡張子まで選択面に並べる（利用者が `.html` だけと定めた）ので、`.svg`・`.html`・`.md` には本製品の `x-` の型を渡す。'
+  '⭐ 媒体の型は本製品が決める値である —— 宿主がよく知る型を渡すと、宿主はその型に結び付いたほかの拡張子まで選択面に並べる（利用者が `.html` だけと定めた）ので、`.svg`・`.html`・`.md` には本製品の `x-` の型を渡す。'
 const FR_096_CHOOSES_BY_THE_COLUMN =
-  '**STATEMENT**: 作成者が書き出しを選んだとき、`GRS` は、**表 T-024 のうち「`IC-2` に出す」の欄が「出す」の形式**から選ばせ、選ばれた形式の規約に従って書き出すこと。'
+  '作成者が書き出しを選んだとき、`GRS` は、表 T-024 のうち「`IC-2` に出す」の欄が「出す」の形式から、作成者に形式を選ばせること。'
 const FR_096_NO_CLIPBOARD =
-  '⛔ `IO-6`（クリップボード）を本要求の選択面に出してはならない（MUST NOT） —— **ファイルとして出ないので名を付ける先が無く**、その経路は `FR-025` が `IC-3` で直に運ぶ。'
+  '`GRS` は、`IO-6`（クリップボード）を、書き出しの選択面に出さないこと。'
 const FR_096_OLD_BAN = '媒体型を、本書のどの表にも持たせてはならない'
 const FR_096_OLD_PLACE = '持ち場は `05-07-design.md` の Framework 層とすること（MUST）'
 const FR_096_OLD_CHOICE = '表 T-024 のうち書出の方向を持ち、ファイルとして出る形式'
@@ -36,7 +36,7 @@ const FR_096_OLD_CHOICE = '表 T-024 のうち書出の方向を持ち、ファ�
 const T_024_MEDIA_NOTE = '⭐ **媒体の型の欄も、ファイルとして出る行がすべて持つ** —— `FR-096` が保存の選択面に渡す値の正が本表である。'
 const T_024_OFFERED_NOTE = '⭐ **「`IC-2` に出す」の欄は、`FR-096` の選択面に並ぶ行を決める**'
 // Why: CR-827 added this note when IO-10 came to share .json with IO-2.
-const T_024_SHARED_EXTENSION_NOTE = '拡張子を分け合う行は、媒体の型も同じであること（MUST）'
+const T_024_SHARED_EXTENSION_NOTE = '`GRS` は、表 T-024 で拡張子を分け合う行に、同じ媒体の型を持たせること。'
 
 const RW_7_EXTENSION_FROM_IO_8 = '＋ 表 T-024 の `IO-8` の拡張子。'
 const RW_7_ENDS_AND_MEDIA_TYPE =
@@ -94,6 +94,7 @@ describe('CR-768 -- table T-024 carries the two new columns', () => {
       '先頭の非空白 1 文字',
       '用途',
       '備考',
+      'traces',
     ])
   })
 

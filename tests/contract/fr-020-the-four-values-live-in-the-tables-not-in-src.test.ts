@@ -20,9 +20,9 @@ const NOTICE_ROSTER = unbroken(readFileSync(
 const FR_020_LAYS_IT_ON =
   '開いた者の名前と実行時の日時を、`Task Group Area`（`_assets/tbl-glossary.md` の `U-50`）へ斜めに繰り返し薄く重ねること'
 const FR_020_ISO_8601 =
-  '日時は UTC とし、`ISO 8601`（`RFC 3339` の書式。`YYYY-MM-DDThh:mm:ssZ`）で秒まで示すこと（MUST）'
-const FR_020_NOT_SAVED = '透かしの設定を文書に保存してはならない（MUST NOT）'
-const FR_020_NOT_OUTSIDE_TASK_GROUP_AREA = '`Task Group Area` の外へ重ねてはならない（MUST NOT）'
+  '`GRS` は、透かしの日時を UTC とし、`ISO 8601`（`RFC 3339` の書式。`YYYY-MM-DDThh:mm:ssZ`）で秒まで示すこと。'
+const FR_020_NOT_SAVED = '`GRS` は、透かしの設定を文書に保存しないこと。'
+const FR_020_NOT_OUTSIDE_TASK_GROUP_AREA = '`GRS` は、`Task Group Area` の外へ透かしを重ねないこと。'
 const FR_020_HIDE_PROPAGATES_TO_EXPORT =
   '画面で透かしを非表示にしたときは、書き出す絵からも消すこと（MUST）'
 const FR_020_FOUR_VALUES =
@@ -115,7 +115,7 @@ describe('table T-207 still holds the three values FR-020 names by row (S-220 / 
 
 describe('the ruling of 2026-09-05: the watermark keeps its default name for now', () => {
   it('FR-086 says the road to type the name is not built for now', () => {
-    expect(REQUIREMENTS).toContain('名前を入力させる道は、いまは実装しない')
+    expect(REQUIREMENTS).toContain('名前を入力させる道と、解除パスワードを設定させる道は、いまは実装しない')
     // Why: the cost is asserted too, so a specification that quietly drops
     // a goal cannot read later as though the goal were met.
     expect(REQUIREMENTS).toContain('GL-007')

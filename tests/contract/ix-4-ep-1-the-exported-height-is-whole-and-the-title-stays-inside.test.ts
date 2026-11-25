@@ -281,7 +281,7 @@ const nearestToTheGridHalf = (): readonly Fractional[] => {
 const theExampleOfIx4 = ((): Fractional => {
   const row = specTable('T-241').rows.find((one) => one.id === 'IX-4')
   if (row === undefined) throw new Error('table T-241 has no row IX-4')
-  const cell = (row.cells[row.cells.length - 1] ?? '').replace(/`/g, '')
+  const cell = (row.by['規則'] ?? '').replace(/`/g, '')
   const marker = cell.indexOf(String.fromCharCode(0x4f8b))
   if (marker < 0) throw new Error('IX-4 no longer gives its worked example')
   const numbers = numbersIn(cell.slice(marker))

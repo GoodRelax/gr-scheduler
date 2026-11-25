@@ -17,9 +17,9 @@ import { specTable, unbroken } from './spec-table'
 const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
 const AN_IMPORT_REFUSAL_CARRIES_ITS_T_220_ROW =
-  '⭐ ⇒ 取り込みの検証が拒んだとき、`NT-1` の通知が運ぶ理由は、拒んだ 表 T-220 の行の行 ID とすること（MUST） —— 語と次の一手は `FR-038` の辞書が同表の行 ID で持つ。'
+  '取り込みの検証が拒んだとき、`GRS` は `NT-1` の通知に、拒んだ Chapter 6.1 の 表 T-220 の行の行 ID を理由として運ぶこと。`FR-038` の辞書は、取り込みの検証が拒んだときの語と次の一手を、表 T-220 の行 ID で持つこと。'
 const NO_FALL_TO_A_T_233_ROW =
-  '⛔ その通知を本表の行（`RS-15` を含む）へ振り替えてはならない（MUST NOT） —— 振り替えると、どの不変条件が破れたのかを人が読めず、`NT-1` の「なぜ誤りか」を果せない。'
+  '`GRS` は、取り込みの検証が拒んだ通知を、表 T-233 の行（`RS-15` を含む）へ振り替えないこと。'
 const A_REFUSAL_VALUE_CARRIES_THE_ROW_ID =
   '⭐ 取り込みの検証（`FR-023`）が拒んだときの理由の区分は、拒んだ `05-07-design.md` の 表 T-220 の行の行 ID とすること（MUST）'
 const IV_10 = '`start` と `finish` がともに非 `null` の `Task` で、`finish` が `start` より前でないこと'
@@ -183,7 +183,7 @@ describe(`IV-14 -- a date before importMinDate (${IMPORT_MIN_DATE}) is refused u
 })
 
 const AN_UNOWNED_IMPORT_REFUSAL_CARRIES_ITS_T_233_ROW =
-  '本表のうち出典の欄がその上限か `FR-012` を名指す行を運ぶこと（MUST）'
+  '`GRS` は 表 T-233 のうち出典の欄がその上限か `FR-012` を名指す行を運ぶこと'
 
 describe('FR-076 (CR-719) -- a Task with no start is refused under the T-233 row whose 正 names FR-012', () => {
   it(AN_UNOWNED_IMPORT_REFUSAL_CARRIES_ITS_T_233_ROW, () => {

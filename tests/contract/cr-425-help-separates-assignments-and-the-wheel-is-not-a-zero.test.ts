@@ -12,17 +12,17 @@ const ROOT = process.cwd()
 const REQUIREMENTS = unbroken(readFileSync(join(ROOT, 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
 const FR_036_THE_SEPARATOR =
-  '⭐ 1 つの項目に割当が 2 つ以上あるときは、割当と割当のあいだに、辞書（`FR-038`）の `keyNotation` の `alternative` の語を置いて並べること（MUST）'
+  '1 つの項目に割当が 2 つ以上あるとき、`GRS` は、割当と割当のあいだに、辞書（`FR-038`）の `keyNotation` の `alternative` の語を置いて並べること'
 const FR_036_THE_CELL_SEPARATOR =
-  '⭐ 表 T-036 と 表 T-255 の `割当` の欄が 1 つの欄に 2 つ以上の割当を持つときは、欄の中では `／`（全角の斜線）の前後に半角の空白を 1 つずつ置いて並べ、画面では上の文の語で並べること（MUST）'
+  '表 T-036 と 表 T-255 の `割当` の欄は、1 つの欄に 2 つ以上の割当を持つとき、欄の中では `／`（全角の斜線）の前後に半角の空白を 1 つずつ置いて並べること。`GRS` は、画面では、1 つの欄の 2 つ以上の割当を `alternative` の語で並べること'
 const FR_036_THE_KEY_SPELLING =
-  '⭐ 表 T-036 と 表 T-255 の `割当` の欄は、キーを 1 つずつコードの印で囲み、＋ で繋ぐ形（例: `Ctrl` ＋ `Shift` ＋ `0`）にそろえること（MUST）'
+  '表 T-036 と 表 T-255 の `割当` の欄は、キーを 1 つずつコードの印で囲み、＋ で繋ぐ形（例: `Ctrl` ＋ `Shift` ＋ `0`）にそろえること'
 const FR_036_THE_SCREEN_CHORD =
-  '⭐ 画面（ヘルプとツールチップ）では、1 つの割当のキーを半角の `+` で、前後に空白を置かずに繋ぐこと（MUST）（例: `Ctrl+Shift+0`）'
+  '`GRS` は、画面（ヘルプとツールチップ）では、1 つの割当のキーを半角の `+` で、前後に空白を置かずに繋ぐこと（例: `Ctrl+Shift+0`）'
 const FR_036_THE_PLUS_KEY =
-  '⭐ キーそのものが `+` のときは、そのキーを辞書の `keyNotation` の `plusKey` の語で書くこと（MUST）'
-const FR_036_THE_PRESS_CHORD = '⭐ マウス操作の語（下の文）の中のキーも、同じ綴り（例: `Ctrl+ドラッグ`）とすること（MUST）'
-const FR_036_THE_WHEEL_IS_NOT_A_LETTER = '⛔ `IC-102` の図形を、数字や英字と読み違える形にしてはならない（MUST NOT）'
+  'キーそのものが `+` のとき、`GRS` は `+` のキーを辞書の `keyNotation` の `plusKey` の語で書くこと'
+const FR_036_THE_PRESS_CHORD = '`GRS` は、マウス操作の語の中のキーも、同じ綴り（例: `Ctrl+ドラッグ`）とすること'
+const FR_036_THE_WHEEL_IS_NOT_A_LETTER = '`GRS` は、`IC-102` の図形を、数字や英字と読み違える形にしないこと'
 
 describe('CR-425, CR-770 -- the manuscript these cases are driven by', () => {
   it.each([

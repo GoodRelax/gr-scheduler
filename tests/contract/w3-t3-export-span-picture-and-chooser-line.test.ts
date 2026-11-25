@@ -31,12 +31,14 @@ const WORDS = JSON.parse(readFileSync(join(SPEC, '_source', 'display-words.json'
 
 // Why: CR-690 -- the condition is the fix (FX-1, S-532), the old span row retired, and the days carry the year (FX-8).
 const CLAUSE_SPAN_PICTURE =
-  '⭐ 文書が全体表示時の期間を固定しているとき（`FR-055` の 表 T-367 の `FX-1`）は、本要求の縮めた絵ではなく、`FR-025` の 表 T-241 の `IX-12` 〜 `IX-16` が定める絵を出すこと（MUST）'
+  '文書が全体表示時の期間を固定しているとき（`FR-055` の 表 T-367 の `FX-1`）、`GRS` は、本要求の縮めた絵ではなく、`FR-025` の 表 T-241 の `IX-12` 〜 `IX-16` が定める絵を出すこと'
 const CLAUSE_NO_DUAL_CURSOR = '表 T-076 に従うこと（MUST）。⛔ ただし `EP-6` の `Dual Cursor` を描いてはならない（MUST NOT）'
 const CLAUSE_SPAN_LINE =
-  '⭐ 文書が全体表示時の期間を固定しているとき（`FR-055` の 表 T-367 の `FX-1`）は、選択面の形式の格子の下に、その期間を 1 行で示すこと（MUST）'
+  '文書が全体表示時の期間を固定している間（`FR-055` の 表 T-367 の `FX-1`）、`GRS` は、書き出しの選択面の形式の格子の下に、固定した期間を 1 行で示すこと。'
 const CLAUSE_SPAN_LINE_WORDS =
-  '行の語は `FR-038` の辞書の `exportChooser` の `fitSpan` の語とし、その中の 2 つの日を `FR-055` の 表 T-367 の `FX-8` の形で書くこと（MUST） —— 文書の設定の面と同じ日の書き方で、年まで読ませる。固定していないときは、行を出さず、場所も空けないこと（MUST）'
+  '`GRS` は、期間の行の語を、`FR-038` の辞書の `exportChooser` の `fitSpan` の語とすること。`GRS` は、語の中の 2 つの日を、`FR-055` の 表 T-367 の `FX-8` の形で書くこと。'
+const CLAUSE_SPAN_LINE_UNFIXED =
+  '文書が全体表示時の期間を固定していない間、`GRS` は、期間の行を出さないこと。文書が全体表示時の期間を固定していない間、`GRS` は、期間の行の場所を空けないこと。'
 
 const IC_2 = 'IC-2'
 const IC_45 = 'IC-45'
@@ -132,7 +134,7 @@ const shapeOf = (element: FakeElement): string =>
   `${element.tagName}[${element.children.map(shapeOf).join(',')}]`
 
 describe('W3-T3 -- the manuscript still says what these cases read', () => {
-  it.each([CLAUSE_SPAN_PICTURE, CLAUSE_NO_DUAL_CURSOR, CLAUSE_SPAN_LINE, CLAUSE_SPAN_LINE_WORDS])('%s', (clause) => {
+  it.each([CLAUSE_SPAN_PICTURE, CLAUSE_NO_DUAL_CURSOR, CLAUSE_SPAN_LINE, CLAUSE_SPAN_LINE_WORDS, CLAUSE_SPAN_LINE_UNFIXED])('%s', (clause) => {
     expect(REQUIREMENTS).toContain(clause)
   })
 

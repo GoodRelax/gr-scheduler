@@ -11,21 +11,21 @@ import { specTable, unbroken } from './spec-table'
 
 const DR_4_FIRST_KEY =
   '`$schema` / `schemaVersion` / `documentStamp` / `changeLog` の 4 つを置き、`$schema` を文書の先頭の鍵とすること（MUST）'
-const FR_073_FORM = '書式は RFC 3339 の UTC の `YYYY-MM-DDTHH:MM:SSZ` とすること（MUST）'
-const FR_073_NO_FRACTION = '小数秒と、`Z` 以外の帯を書いてはならない（MUST NOT）'
-const FR_073_STRING_ORDER = '辞書順がそのまま時刻の順になる。⭐ **判別は文字列の大小で行うこと（MUST）'
-const FR_073_NEWER_UNREADABLE = 'この `GRS` が知っている最大の版より新しい版を読めない版とすること（MUST）'
+const FR_073_FORM = '`GRS` は、形式の版を RFC 3339 の UTC の `YYYY-MM-DDTHH:MM:SSZ` の書式で書くこと。'
+const FR_073_NO_FRACTION = '`GRS` は、形式の版に、小数秒と `Z` 以外の帯を書かないこと。'
+const FR_073_STRING_ORDER = '`GRS` は、版の判別を文字列の大小で行うこと。'
+const FR_073_NEWER_UNREADABLE = '`GRS` は、動いている `GRS` の造りが知る最大の版より新しい版を、読めない版とすること。'
 // Why: CR-822 (JDG-2985) keeps the promise in FR-073; when the version is raised is docs/development-rules/10-versions.md.
-const FR_073_RAISE_TO_INSTANT = '変われば、形式の版は、それまでのどの版よりも新しい時刻になること（MUST）'
-const FR_073_NO_LEDGER_ROW_BEFORE_USE = '⛔ 公式運用の前は、台帳に行を足してはならない（MUST NOT）'
-const CH_6_2_ID = '刊行するスキーマの `$id` は、`_assets/tbl-settings.md` の 表 T-206 の `S-540` の所とすること（MUST）'
+const FR_073_RAISE_TO_INSTANT = '文書の形（`_assets/fig-erd-detail.md` の 表 T-058 の列と、表 T-052 の鍵）が変わったとき、形式の版は、それまでのどの版よりも新しい時刻になること。'
+const FR_073_NO_LEDGER_ROW_BEFORE_USE = '`S-541` が `null` の間、どの変更も、刊行するスキーマの変更の台帳（`05-07-design.md` の Chapter 6.2）に行を足さないこと。'
+const CH_6_2_ID = '刊行するスキーマの `$id` は、`_assets/tbl-settings.md` の 表 T-206 の `S-540` の所とすること。'
 const CH_6_2_WRITTEN_FIRST =
-  '書き出す `GRS JSON` は、ルートの先頭の鍵に `"$schema"` を書き、値を `S-540` の所とすること（MUST）'
-const CH_6_2_ROOT_ACCEPTS = '刊行するスキーマのルートは、`"$schema"` を必須の鍵として受けること（MUST）'
-const CH_6_2_NOT_REFUSED_BY_VALUE = '読む路は、`"$schema"` の値を理由に文書を拒んではならない（MUST NOT）'
-const CH_6_2_LEDGER = '刊行するスキーマは、ルートの注釈の語 `x-grsChanges` に、変更の台帳を配列で持つこと（MUST）'
-const CH_6_2_NO_LEDGER_WRITTEN = '書き出す `GRS JSON` に台帳を載せてはならない（MUST NOT）'
-const CH_6_2_SCHEMA_PLACE = '起こしたスキーマの置き場は `_source/grs-document.schema.json` とする（MUST）'
+  '`GRS JSON` を書き出すとき、`GRS` は、ルートの先頭の鍵に `"$schema"` を書くこと。`GRS` は、`"$schema"` の値を `S-540` の所とすること。'
+const CH_6_2_ROOT_ACCEPTS = '刊行するスキーマのルートは、`"$schema"` を必須の鍵として受けること。'
+const CH_6_2_NOT_REFUSED_BY_VALUE = '`GRS JSON` を読むとき、`GRS` は、`"$schema"` の値を理由に文書を拒まないこと。'
+const CH_6_2_LEDGER = '刊行するスキーマは、ルートの注釈の語 `x-grsChanges` に、変更の台帳を配列で持つこと。'
+const CH_6_2_NO_LEDGER_WRITTEN = '`GRS JSON` を書き出すとき、`GRS` は、変更の台帳を載せないこと。'
+const CH_6_2_SCHEMA_PLACE = '起こしたスキーマの置き場は、`_source/grs-document.schema.json` とすること。'
 
 const SPEC_DIR = join(process.cwd(), 'docs', 'spec')
 const read = (...parts: string[]): string => readFileSync(join(...parts), 'utf8').replace(/\r\n/g, '\n')

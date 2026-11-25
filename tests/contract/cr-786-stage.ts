@@ -45,12 +45,12 @@ export const REQUIREMENTS = unbroken(readSpec('01-04-requirements.md'))
 
 // Spec: FR-019
 export const FR_019_ORDER =
-  '同じ種類の注記どうし（コメントボックスどうし、ハイライトボックスどうし）は、文書の並び（`commentBoxes`・`highlightBoxes` の配列の順）で後のものほど前に描き、重なった所では前に描いたものを当たりの先にすること（MUST）'
+  '`GRS` は、同じ種類の注記どうし（コメントボックスどうし、ハイライトボックスどうし）を、文書の並び（`commentBoxes`・`highlightBoxes` の配列の順）で後のものほど前に描くこと（表 T-020 の `ZO-8`・`ZO-9`・`ZO-14` の段の中の順）。`GRS` は、同じ種類の注記どうしが重なった所では、前に描いたものを当たりの先にすること。'
 export const FR_019_FRONT =
-  '[最前面に配置]（`_assets/tbl-property-items.md` の 表 T-016 の `PR-48`・`PR-49`）は、その箱を同じ種類の並びの最後へ移す（`_assets/tbl-document-commands.md` の 表 T-108 の `CM-100`・`CM-101`） —— 1 つの命令なので、1 度の取り消し（`FR-031`）で戻る。'
+  '作成者が [最前面に配置]（`_assets/tbl-property-items.md` の 表 T-016 の `PR-48`・`PR-49`）を押したとき、`GRS` は、押した箱を同じ種類の並びの最後へ移すこと（`_assets/tbl-document-commands.md` の 表 T-108 の `CM-100`・`CM-101`）。'
 export const FR_019_SHAPE = '並びは `GRS JSON` の配列の順そのものであり、文書の形は変わらない。'
 export const FR_019_SHOWN_DATE =
-  '線先が立つ日時は、吸着していれば吸着先のその点の日時（対象を消したときに ① へ書く日時と同じ求め方）、そうでなければ ① の日時（`AT-113`）とする —— 検索の表の `SQ-9` と飛び先（表 T-332 の `SJ-6`）もこれを読む。'
+  '`GRS` は、線先が立つ日時を、吸着していれば吸着先のその点の日時（対象を消したときに ① へ書く日時と同じ求め方）、吸着していなければ ① の日時（`AT-113`）とすること。'
 // Spec: FR-031
 export const FR_031_NO_STEP = '⛔ 書き込みが文書の値を 1 つも変えなかったときは、取り消しの段を残さないこと（MUST）'
 

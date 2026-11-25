@@ -76,12 +76,12 @@
 //   or whose `topTaskGroupId` is below its `bottomTaskGroupId`, is refused -- `IV-19`
 //   of table T-220. ⛔ Nothing that can be pressed reaches it. The row is one of
 //   the document invariants, and Chapter 6.1 gives that table exactly one
-//   driver: 「`scheduleViolations`（表 T-064 の `PI-1`）は本表を駆動して回ること
-//   （MUST）」 -- a seam function, and no requirement puts its answer on a
+//   driver: 「`scheduleViolations`（表 T-064 の `PI-1`）は、表 T-220 を駆動して
+//   回ること」 -- a seam function, and no requirement puts its answer on a
 //   screen. The one refusal a reader is shown for a badly shaped document is
 //   `RS-25` of table T-233, which the same chapter hands to the GENERATED
 //   SCHEMA, and that schema is forbidden a condition over more than one column
-//   (「1 つの列だけで決まる条件を本表に書いてはならない（MUST NOT）」, read the
+//   (「表 T-220 は、1 つの列だけで決まる条件を持たないこと」, read the
 //   other way round); `IV-19` is over four columns. `FR-019` closes the other
 //   door: values that came from a drag are normalized on release and can never
 //   break the row, and table T-016 gives the Properties Panel no row for a
@@ -371,8 +371,8 @@ function reasonWordsOfDictionary(): ReasonWords[] {
 
 /**
  * The word `FR-101` (MUST) asks for while nothing has been written yet, in both
- * languages: 「まだ 1 度もファイルへ書いていないときは、時刻の代わりにその旨を
- * 示すこと（MUST）」.
+ * languages: 「まだ 1 度もファイルへ書いていないとき、`GRS` は、時刻の代わりに、
+ * まだ書いていない旨を示すこと」.
  *
  * @purity semi-pure-mutable
  */
@@ -1334,10 +1334,10 @@ test('DFC-126: the header stands the file name above the time it was written', a
 // GOES RED IF: the stamp stops being drawn at `S-210` times the host's ground
 // text, or the same coefficient starts being applied to the file's NAME, or the
 // header shows an empty stamp before anything has been written. `FR-101` (MUST)
-// says 「更新日時の字の大きさは ... 表 T-206 の `S-210` が定める係数で決める
-// こと（MUST）。px で持ってはならない（MUST NOT）」 and 「まだ 1 度もファイルへ
-// 書いていないときは、時刻の代わりにその旨を示すこと（MUST）」; `S-210` says
-// DFC-217 「ファイルの名前には掛けない」 in as many words.
+// says 「`GRS` は、更新日時の字の大きさを ... 表 T-206 の `S-210` が定める係数
+// で決めること。`GRS` は、更新日時の字の大きさを px で持たないこと」 and 「まだ
+// 1 度もファイルへ書いていないとき、`GRS` は、時刻の代わりに、まだ書いていない
+// 旨を示すこと」; `S-210` says DFC-217 「ファイルの名前には掛けない」 in as many words.
 //
 // ⭐ THE SECOND HALF OF DFC-65 -- that the time shown is the reader's own and not
 // UTC -- needs a file to have been written, and is judged further down, on the
@@ -1527,10 +1527,10 @@ test('DFC-106: the words a tooltip puts up are drawn at S-204 of the ground text
 // leaves the first of them, or its description leaves the second, or a key of
 // table T-036 stops standing in the third, or the third place draws a shape
 // that is not the wheel mark IC-102, or the list is drawn at anything other
-// than `S-203` of the host's ground text. `FR-036` (MUST) says 「一覧の各項目
-// は、入口の図形・その行の説明・その行の割当の 3 つを、この順に並べること
-// （MUST）」 and 「一覧の字の大きさは ... 表 T-206 の `S-203` が定める係数で決め
-// ること（MUST）。px で持ってはならない（MUST NOT）」.
+// than `S-203` of the host's ground text. `FR-036` (MUST) says 「`GRS` は、一覧
+// の各項目に、入口の図形・項目の行の説明・項目の行の割当の 3 つを、この順に
+// 並べること」 and 「`GRS` は、一覧の字の大きさを ... 表 T-206 の `S-203` が定め
+// る係数で決めること。`GRS` は、一覧の字の大きさを px で持たないこと」.
 //
 // THE THIRD PLACE IS CHECKED AGAINST THE MANUSCRIPT'S OWN KEYS: every row of
 // table T-036 whose assignment cell is a bare key must have that key in the third
@@ -1938,9 +1938,9 @@ test('DFC-152: settling the same value again writes nothing, so one undo puts th
 
 // GOES RED IF: the ruler band changes height when the granularity changes, or a
 // 段 that stands on two 行 gives them anything other than half the band each, or
-// the sweep stops crossing a 段 boundary. `FR-017` (MUST) says 「目盛の帯の高さは、目盛の段階が変わっても動かさ
-// ないこと（MUST）」 and 「⭐ 段が 3 つに満たない段階では、帯の高さを段の数で
-// 等分すること（MUST）... ⛔ 余りをどこかへ寄せてはならない（MUST NOT）」.
+// the sweep stops crossing a 段 boundary. `FR-017` (MUST) says 「`GRS` は、目盛の段階が変わっても目盛の帯の高さを動か
+// さないこと」 and 「段が 3 つに満たない段階の間、`GRS` は帯の高さを段の数で
+// 等分すること ... `GRS` は、等分の余りをどこかへ寄せないこと」.
 //
 // ⭐ THE LINES ARE READ FROM TWO BASELINES, as the unit case for this row does:
 // `S-136` and `S-179` place a label inside its line and neither names the line's
@@ -1969,7 +1969,7 @@ test('DFC-152: settling the same value again writes nothing, so one undo puts th
 //
 // ⭐ THE GUARD IS STILL LOUD: a sweep that stopped crossing a boundary would see
 // one 段 for all nine readings and fail below, and a reading that is none of the
-// four 段 fails as well -- 「同表に無い行を刷ってはならない（MUST NOT）」.
+// four 段 fails as well -- 「`GRS` は、表 T-238 に無い行を目盛に刷らないこと」.
 //
 // ⛔ THREE 行 ARE NOT REACHED HERE and are outside the even-division rule anyway:
 // `TM-4` is the only 段 that stands on three, and 「段が 3 つに満たない段階」 is
@@ -2571,9 +2571,9 @@ test('DFC-66: a second save writes again to the same file, and asks no second ti
 })
 
 // GOES RED IF: the time the header prints is the UTC one rather than the
-// reader's own. `FR-101` (MUST) says 「画面に出す時刻は、読む人のローカル時刻と
-// すること（MUST）。保管は UTC のままとすること（MUST）」 and (MUST NOT) 「画面に
-// UTC をそのまま出してはならない（MUST NOT）」.
+// reader's own. `FR-101` (MUST) says 「`GRS` は、画面に出す時刻を、読む人のローカル時刻と
+// すること」「`GRS` は、時刻の保管を UTC のままとすること」 and (MUST NOT)
+// 「`GRS` は、画面に UTC をそのまま出さないこと」.
 //
 // ⭐ NO FORMAT IS ASSERTED, because the requirement asserts none: 「時刻の綴り
 // そのものは本書が定めない」. What is asked is that the hour and minute printed
@@ -4002,11 +4002,11 @@ test('DFC-234: a task group added at the head, and one added under the last task
 // ---------------------------------------------------------------------------
 
 // GOES RED IF: the display language is changed and the document goes on naming
-// the language it named before. `FR-038` (MUST) reads 「⭐ **画面の言語を替えた
-// ときは、綴じた文書自身が名乗る言語も同じものに替えること（MUST）** ——
-// **読み上げと自動翻訳がそれを見る。**⚠️ **画面には現れないので、押しても
-// 気づけない。**」, and the same requirement fixes the two languages it can be:
-// 「対象は `ja` と `en` の 2 言語とする」.
+// the language it named before. `FR-038` (MUST) reads 「利用者が画面の言語を替えた
+// とき、`GRS` は、綴じた文書自身が名乗る言語も同じものに替えること」 ——
+// 「読み上げと自動翻訳が、文書の名乗る言語を見る。」「⚠️ 画面には現れないので、押しても気づけない。」,
+// and the same requirement fixes the two languages it can be: 「`GRS` は、画面の
+// 言語とヘルプの言語の対象を `ja` と `en` の 2 言語とすること」.
 //
 // ⛔ WHAT THE DOCUMENT NAMES ITS LANGUAGE WITH IS NOT SETTLED BY A REQUIREMENT,
 // and the ledger's DFC-235 names the one place a bound HTML document has for it --

@@ -50,13 +50,13 @@ function rowOf(table: string, id: string) {
 
 const englishName = (id: string): string => bare(rowOf('T-103', id).by['確定名（英）'] ?? '')
 
-const FR_101_NAME_ABOVE = '**名前を時刻の上に置くこと（MUST）**'
-const FR_101_NEVER_SAVED = 'まだ 1 度もファイルへ書いていないときは、時刻の代わりにその旨を示すこと（MUST）'
-const FR_101_LOCAL = '画面に出す時刻は、読む人のローカル時刻とすること（MUST）'
-const FR_101_SIZE = '更新日時の字の大きさは `_assets/tbl-settings.md` の 表 T-206 の `S-210` が定める係数で決めること（MUST）'
-const FR_029_FAINT = 'その入口を押しても、いま文書にも画面にも何も変えられないときは、その入口を薄く描くこと（MUST）'
-const FR_029_S_149 = '薄さは `_assets/tbl-settings.md` の 表 T-236 の `S-149` の色で示すこと（MUST）'
-const FR_029_NOT_DISABLED = '薄く描いた入口を、宿主の意味で無効にしてはならない（MUST NOT）'
+const FR_101_NAME_ABOVE = '`GRS` は、ファイルの名前を時刻の上に置くこと'
+const FR_101_NEVER_SAVED = 'まだ 1 度もファイルへ書いていないとき、`GRS` は、時刻の代わりに、まだ書いていない旨を示すこと'
+const FR_101_LOCAL = '`GRS` は、画面に出す時刻を、読む人のローカル時刻とすること'
+const FR_101_SIZE = '`GRS` は、更新日時の字の大きさを `_assets/tbl-settings.md` の 表 T-206 の `S-210` が定める係数で決めること'
+const FR_029_FAINT = '`GRS` は、押してもいま文書にも画面にも何も変えられない入口を薄く描くこと'
+const FR_029_S_149 = '`GRS` は、入口の薄さを `_assets/tbl-settings.md` の 表 T-236 の `S-149` の色で示すこと'
+const FR_029_NOT_DISABLED = '`GRS` は、薄く描いた入口を、宿主の意味で無効にしないこと'
 const IF_9_ENTRY_OR_FORMAT = '入口と形式は別の表の行であり、一方の上にあるとき他方は `null` である'
 const IF_9_U_27 = 'ヘッダーの文書名の欄は 表 T-103 の `U-27` を名乗る'
 const FR_035 = '作成者が文書名を選んだとき、`GRS` は、その場で編集できるようにすること。'

@@ -22,18 +22,18 @@
 //      （利用者の裁定 2026-08-30。逐語「アイコン自体を緑で塗れ。例: イナズマ線が
 //      有効ならイナズマ線アイコンを緑で塗れ」）
 //
-//     ⛔ 「白と直に書いてはならない（MUST NOT）」「抜き色は `S-146` とすること（MUST）」 —— 「暗いテーマの塗りは明るい
+//     ⛔ 「白と直に書いてはならない（MUST NOT）」「`GRS` は図形そのものを `_assets/tbl-settings.md` の 表 T-236 の `S-146`（地の色）で抜くこと」 —— 「暗いテーマの塗りは明るい
 //      色なので、白のままでは図形が浮かない。」⭐ 「地の色を指せば、両テーマで自動的に隔たりが
 //      立つ。」
 //
-//     ⛔ 「何が効いているときに何の色で塗るかは 表 T-237 に従うこと（MUST）」
+//     ⛔ 「`GRS` は、何が効いているときに何の色で塗るかを 表 T-237 に従わせること」
 //
-//     ⛔ 「上の薄く描く入口には当ててはならない（MUST NOT）」 —— 「効いていて、かつ
-//      いま何も変えられない入口が濃くなると、薄さの意味が消える。」
+//     ⛔ 「`GRS` は、`IMPS-1118` の塗りを、薄く描く入口（`IMPS-1108`）に当てないこと」 —— 「効いていて、かつ
+//      いま何も変えられない入口が濃くなると、薄さの意味が消える」
 //
 //   FR-029, 表 T-237 「入口を塗って示す状態」, and the sentence under it:
 //
-//     ⛔ 「1 つの入口に 2 行が同時に当たるときは、上の行が勝つこと（MUST）」
+//     ⛔ 「1 つの入口に 表 T-237 の行が 2 つ同時に当たるとき、`GRS` は 表 T-237 で上に並ぶ行を勝たせること」
 //
 //   FR-053 (Chapter 3): 「見分けさせ方は `FR-029` の 表 T-237 の `EN-1` に従うこと
 //     （MUST）」 —— this is where `EN-1` (armed) reaches the screen.
@@ -400,15 +400,15 @@ describe('the manuscripts still say what these cases read', () => {
     // and a 4px ring inside the 26 x 24 frame was left unpainted. The
     // manuscript now says the frame's inside, which is the picture CR-311
     // measured.
-    expect(CHAPTER_1_4).toContain('その入口の枠の内側を塗りつぶし')
-    expect(CHAPTER_1_4).toContain('縁の色や太さで示してはならない（MUST NOT）')
+    expect(CHAPTER_1_4).toContain('入口がいま効いていることを示すとき、`GRS` は入口の枠の内側を塗りつぶすこと')
+    expect(CHAPTER_1_4).toContain('`GRS` は、入口がいま効いていることを、縁の色や太さで示さないこと')
     // ⚠️ 「抜き色に白を使ってはならない」 CONTRADICTED ITS OWN MUST: S-146 IS
     // `#ffffff` in the light rendering, so an absolute prohibition on white
     // forbade the very row the same sentence requires. The manuscript now
     // forbids WRITING white instead of naming the row.
-    expect(CHAPTER_1_4).toContain('白と直に書いてはならない（MUST NOT）')
-    expect(CHAPTER_1_4).toContain('抜き色は `S-146` とすること（MUST）')
-    expect(CHAPTER_1_4).toContain('1 つの入口に 2 行が同時に当たるときは、上の行が勝つこと（MUST）')
+    expect(CHAPTER_1_4).toContain('`GRS` は、抜き色を白と直に書かないこと')
+    expect(CHAPTER_1_4).toContain('入口がいま効いていることを示すとき、`GRS` は図形そのものを `_assets/tbl-settings.md` の 表 T-236 の `S-146`（地の色）で抜くこと')
+    expect(CHAPTER_1_4).toContain('1 つの入口に 表 T-237 の行が 2 つ同時に当たるとき、`GRS` は 表 T-237 で上に並ぶ行を勝たせること')
   })
 
   it('⛔ 表 T-236 no longer carries `S-185`, the thickness CR-311 retired', () => {
@@ -469,7 +469,7 @@ describe('FR-029 (MUST) -- an entrance that is in effect is FILLED, in both rend
   }
 
   it('⛔ the knockout is not white in the dark rendering (MUST NOT)', () => {
-    // 「抜き色は `S-146` とすること（MUST）」 —— 「暗いテーマの塗りは明るい色な
+    // 「`GRS` は図形そのものを `_assets/tbl-settings.md` の 表 T-236 の `S-146`（地の色）で抜くこと」 —— 「暗いテーマの塗りは明るい色な
     // ので、白のままでは図形が浮かない。」
     const built = drawn(paletteShowing(command({ icon: IC_ARMS_A_DEPENDENCY, isArmed: true })), 'dark')
     const entry = entranceIn(built, IC_ARMS_A_DEPENDENCY)
@@ -555,7 +555,7 @@ describe('表 T-237 EN-4 (MUST) -- the entrance the properties panel is showing 
       // 状態の見せ方は `FR-029` の 表 T-237 の `EN-4` に従うこと（MUST）。」
       // ⭐ 表 T-109's `IC-17` stands on the `App Header` and is `FR-072`'s own
       // entrance, which is why the case asks a surface other than the palette:
-      // FR-029 (MUST NOT) 「載る面によって薄くしない入口があってはならない」 has
+      // FR-029 (MUST NOT) 「`GRS` は、載る面によって薄くしない入口を持たないこと」 has
       // the same shape for the fill -- one rule, every surface.
       const built = drawn(headerShowing(command({ icon: IC_PROPERTIES_PANEL, isPressed: true })), preference)
       const entry = entranceIn(built, IC_PROPERTIES_PANEL)
@@ -575,7 +575,7 @@ describe('表 T-237 EN-4 (MUST) -- the entrance the properties panel is showing 
 describe('FR-029 (MUST) -- when two rows of 表 T-237 fall on one entrance, the higher row wins', () => {
   for (const preference of THEMES) {
     it(`an entrance that is both armed and pressed carries ONE fill, EN-1's (${preference})`, () => {
-      // ⛔ 「1 つの入口に 2 行が同時に当たるときは、上の行が勝つこと（MUST）」 ——
+      // ⛔ 「1 つの入口に 表 T-237 の行が 2 つ同時に当たるとき、`GRS` は 表 T-237 で上に並ぶ行を勝たせること」 ——
       // ⚠️ 「同時に当たることはない」とは書かない（1.9 の員数の断定の作法）.
       // ⚠️ HOW DISCRIMINATING THIS CASE IS DEPENDS ON THE TABLE: while EN-1 and
       // EN-2 both state `S-183` it can only catch an entrance that paints TWO
@@ -604,8 +604,8 @@ describe('FR-029 (MUST) -- when two rows of 表 T-237 fall on one entrance, the 
 describe('FR-029 (MUST NOT) -- the fill is not applied to an entrance drawn faint', () => {
   for (const preference of THEMES) {
     it(`an entrance that can change nothing is not filled, even while armed (${preference})`, () => {
-      // ⛔ 「上の薄く描く入口には当ててはならない（MUST NOT）」 —— 「効いていて、かつ
-      // いま何も変えられない入口が濃くなると、薄さの意味が消える。」
+      // ⛔ 「`GRS` は、`IMPS-1118` の塗りを、薄く描く入口（`IMPS-1108`）に当てないこと」 —— 「効いていて、かつ
+      // いま何も変えられない入口が濃くなると、薄さの意味が消える」
       const built = drawn(
         paletteShowing(command({ icon: IC_ARMS_A_DEPENDENCY, isEnabled: false, isArmed: true })),
         preference,

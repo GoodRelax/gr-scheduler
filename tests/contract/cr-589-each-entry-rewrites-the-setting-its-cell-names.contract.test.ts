@@ -66,9 +66,9 @@ describe('CR-589 T1 -- table T-109 holds the column in the form its preamble sta
     expect(GLOSSARY).toContain('⭐ `切り替える設定値` の欄は、表示の値を書き換える入口のうち、次の 2 種の入口が書く設定値の行である。')
     expect(GLOSSARY).toContain('ほかの入口の欄は `—` である')
     expect(GLOSSARY).toContain('同欄が名指す設定値の行を、同じ行の `何の入口か` に重ねて書かない')
-    expect(REQUIREMENTS).toContain('対象は**型が真偽である行だけ**とすること（MUST）')
-    expect(REQUIREMENTS).toContain('`\'none\'` は値として残るが自分の入口を持たない')
-    expect(REQUIREMENTS).toContain('同じ機能の入口を画面上の 2 か所に置いてはならない（MUST NOT）。')
+    expect(REQUIREMENTS).toContain('`GRS` は、切り替えの対象を、型が真偽である行だけとすること')
+    expect(REQUIREMENTS).toContain('`GRS` は、`\'none\'` に自分の入口を持たせないこと（`\'none\'` は値として残る）')
+    expect(REQUIREMENTS).toContain('`GRS` は、同じ機能の入口を画面上の 2 か所に置かないこと（例外は `IMPS-1121` の 1 つだけである）。')
   })
 
   it('has seven columns, with 切り替える設定値 directly between 正 and 構え', () => {

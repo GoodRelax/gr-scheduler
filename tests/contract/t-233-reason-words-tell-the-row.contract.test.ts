@@ -585,9 +585,9 @@ const fingerprintOf = (specTableRowId: string): string => {
 
 describe('table T-233 -- every row has its word, and no word has no row', () => {
   it('holds a reason for every row of the table and no reason outside it (MUST)', () => {
-    // 表 T-037's closing: 「通知が運ぶ理由は 表 T-233 の行とすること（MUST）。
-    // 同表に無い理由を運んではならない（MUST NOT）」 and 「行を足すときは、辞書
-    // の原稿にも項を足すこと（MUST）」. Both directions, so neither side can
+    // 表 T-037's closing: 「`GRS` は、通知が運ぶ理由を 表 T-233 の行とすること。
+    // `GRS` は、表 T-233 に無い理由を運ばないこと」 and 「を持たない行を足す者は、`FR-038` の辞書
+    // の原稿にも項を足すこと」. Both directions, so neither side can
     // grow alone.
     expect([...DELIVERED.map((one) => one.specTableRowId)].sort()).toEqual([...ROWS_WITH_OWN_WORDS].sort())
   })

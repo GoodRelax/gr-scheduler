@@ -162,7 +162,7 @@ const rowOf = (table: SpecTable, id: string) => {
 /** The last column of a row: T-221 writes the formula there, T-222 the route. */
 const formulaOf = (table: SpecTable, id: string): string => {
   const cells = rowOf(table, id).cells
-  return cells[cells.length - 1] ?? ''
+  return cells[cells.length - (table.headings[table.headings.length - 1] === 'traces' ? 2 : 1)] ?? ''
 }
 
 /**

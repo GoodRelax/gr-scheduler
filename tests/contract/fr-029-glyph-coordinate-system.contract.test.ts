@@ -3,8 +3,8 @@
 // FR-029 (docs/spec/01-04-requirements.md) closes its STATEMENT with two
 // rules about that coordinate system, and this file is about those two alone:
 //
-//   MUST      「図 F-019 の座標系は、図形の外接する枠へ詰めること（MUST）」
-//   MUST NOT  「図形ごとに別々の座標系を与えてはならない（MUST NOT）」
+//   MUST      「図 F-019 は、座標系を図形の外接する枠へ詰めること」
+//   MUST NOT  「図 F-019 は、図形ごとに別々の座標系を与えないこと」
 //             —— 別々にすると図形どうしの相対的な大きさが変わり、同じ箱に入れ
 //                ても大きさが揃って見えなくなる。
 //   ⚠️ and the sentence that says what a coordinate system with slack costs:
@@ -602,10 +602,10 @@ const MEASURED =
 // ---------------------------------------------------------------------------
 
 /** FR-029, docs/spec/01-04-requirements.md. */
-const FR_029_PACKED = '図 F-019 の座標系は、図形の外接する枠へ詰めること（MUST）'
-const FR_029_ONE_SYSTEM = '図形ごとに別々の座標系を与えてはならない（MUST NOT）'
+const FR_029_PACKED = '図 F-019 は、座標系を図形の外接する枠へ詰めること。'
+const FR_029_ONE_SYSTEM = '図 F-019 は、図形ごとに別々の座標系を与えないこと。'
 const FR_029_SLACK_COSTS = '座標系に余白があると、箱を大きくしても見える図形は大きくならない'
-const FR_029_THE_BOX = '図形を描く箱の一辺は'
+const FR_029_THE_BOX = '`GRS` は、図形を描く箱の一辺を `_assets/tbl-settings.md` の 表 T-206 の `S-138` に従わせること。'
 
 /** §8 of docs/spec/_assets/tbl-glossary.md, above 表 T-109. */
 const GLOSSARY_EVERY_TASK_GROUP_HAS_ONE = '図形を持たない行は無い'
@@ -816,7 +816,7 @@ describe('the manuscript still says what these cases copy', () => {
 
 // Spec: FR-036, IC-102, F-019
 const FR_036_WHEEL_NOT_A_CHARACTER =
-  '⛔ `IC-102` の図形を、数字や英字と読み違える形にしてはならない（MUST NOT）'
+  '`GRS` は、`IC-102` の図形を、数字や英字と読み違える形にしないこと。'
 
 // Spec: F-019
 function figureGlyphOf(specTableRowId: string): Glyph {

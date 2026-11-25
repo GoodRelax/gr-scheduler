@@ -357,7 +357,7 @@ const KEY_FIELD: Readonly<Record<string, string>> = {
   // ⛔ `panelHeadings` IS NOT HERE ANY MORE, and its absence is a claim (CR-272).
   // Chapter 6.2 (MUST NOT) keeps the roster of WHICH words are needed out of the
   // manuscript -- 「名簿は、その語を画面へ出すことを課した要求の側が既に持っており」
-  // and 「⛔ ここへ表を並べ直してはならない（MUST NOT）」 (DFC-481: the chapter
+  // and 「名簿の表を、`_source/display-words.json` にも 6.2 Data Schema にも並べ直さないこと」 (DFC-481: the chapter
   // no longer lists the tables) -- and FR-072 now names no state of the panel for a word to
   // be printed in: 「⛔ **パネルの先頭にタイトルバーを置いてはならない（MUST NOT）**」.
   // ⭐ So the section has nowhere to be raised from, and the case below says so
@@ -543,7 +543,7 @@ const T220_SHARING: Readonly<Record<string, string>> = (
 // Spec: FR-076
 const IMPORT_REFUSAL_MANNER = ((): string => {
   const requirements = readFileSync(join(ROOT, 'docs', 'spec', '01-04-requirements.md'), 'utf8')
-  const found = /取り込みの検証が拒んだとき、`(NT-\d+[a-z]?)` の通知が運ぶ理由は/.exec(requirements)
+  const found = /取り込みの検証が拒んだとき、`GRS` は `(NT-\d+[a-z]?)` の通知に、拒んだ Chapter 6\.1 の 表 T-220 の行の行 ID を理由として運ぶこと/.exec(requirements)
   if (found === null) throw new Error('FR-076 no longer names the manner an import refusal is told in')
   return found[1] as string
 })()
@@ -1852,8 +1852,8 @@ const rowOfSettingsKey = (key: string): string | undefined => {
  * T-052 says what those are, so a row of table T-104 whose key is not in that
  * group has no field to be printed on: `themeHue` (DR-5 of table T-052 keeps the
  * hue on `Project`), `language` (FR-038's own RATIONALE keeps it out of the
- * document -- 「どの言語で開くかは読む人の環境であり、文書に保存しない（MUST
- * NOT）」), `zoomStep`, `zoomMin`, `zoomMax`, `importSequence`, `planActualGuideColor`
+ * document -- 「`GRS` は、どの言語で開くかを文書に保存しないこと」
+ * ), `zoomStep`, `zoomMin`, `zoomMax`, `importSequence`, `planActualGuideColor`
  * and `watermarkOpacity`. ⭐ Measured, not assumed: the group is asked.
  */
 const ROWS_ON_THE_SETTINGS_FACE = new Set(
@@ -2172,8 +2172,8 @@ for (const section of ['notices', 'reasons', 'questions', 'confirmation', 'notic
 // -- the two sections CR-280 raised when the autosave went
 
 // ⭐ `fileStatus`: FR-101 (MUST) shows the name of the open file and the time it
-// was last written to, 「まだ 1 度もファイルへ書いていないときは、時刻の代わりに
-// その旨を示すこと（MUST）」 -- and that 旨 is the word this section holds. It
+// was last written to, 「まだ 1 度もファイルへ書いていないとき、`GRS` は、時刻の代わりに、
+// まだ書いていない旨を示すこと」 -- and that 旨 is the word this section holds. It
 // stands in the App Header, under the file name.
 // ⭐ `exportFormats`: FR-096 (MUST) opens the choice of format before a write,
 // and the chooser prints one line per file row of table T-024 (IO-1 .. IO-7).
@@ -3159,7 +3159,7 @@ const FIGURED_ROWS: ReadonlySet<string> = new Set(
 )
 
 // Spec: FR-036, FR-038
-const FR_076_NO_SETTING_COPIED = '⛔ 設定値を理由の語に書き写してはならない（MUST NOT）'
+const FR_076_NO_SETTING_COPIED = '`FR-038` の辞書は、設定値を理由の語に書き写さないこと。'
 
 // Spec: FR-076
 // Why: a reason word names a setting in braces and the screen prints its value (CR-719 X-2).
@@ -3410,7 +3410,7 @@ describe('FR-038 -- a word the dictionary holds is the word the screen prints', 
     '$section $key $field holds a different word per language -> the view is built in each -> $what answers a different one in each',
     (at: Place) => {
       // FR-038 (MUST) shows the menus in the language the READER chose, and
-      // 「対象は `ja` と `en` の 2 言語とする」. ⛔ A place that answers the same
+      // 「`GRS` は、画面の言語とヘルプの言語の対象を `ja` と `en` の 2 言語とすること」. ⛔ A place that answers the same
       // string whichever language is asked for is not reading the language at
       // all -- it would satisfy the case above in one of the two by luck.
       const answers = LANGUAGES.map((language) => printed(at, language, driven()))
@@ -3506,7 +3506,7 @@ describe('PND-160 -- an entry with no word still leaves something at its place',
 
 describe('CR-194 section 5 / PND-160 -- fill one word of the manuscript and it reaches the screen', () => {
   it('offers a word per language -> the languages are read from the dictionary -> they are FR-038 s two', () => {
-    // FR-038: 「対象は `ja` と `en` の 2 言語とする」.
+    // FR-038: 「`GRS` は、画面の言語とヘルプの言語の対象を `ja` と `en` の 2 言語とすること」.
     expect(new Set(LANGUAGES)).toEqual(new Set(['ja', 'en']))
   })
 
@@ -3518,7 +3518,7 @@ describe('CR-194 section 5 / PND-160 -- fill one word of the manuscript and it r
     // states in as many words: the generated file is printed in the order its
     // generator fixes, and nothing in docs/spec asks a hand-kept JSON to hold
     // its sections in that same order. Chapter 6.2 (MUST) asks only 「生成物は、
-    // 原稿から作り直した結果と一致すること（MUST）」, which is about the words,
+    // 原稿から作り直した結果と一致すること」, which is about the words,
     // not about where a section is printed. ⭐ THE CONTENT CLAIM IS UNWEAKENED:
     // every section of either file is walked, and within a section the entries,
     // the fields and the languages are still held in order -- so a word that

@@ -560,7 +560,7 @@ echo "-- 3. ORIGIN vs Relations mismatch (expect none)"
 out=$(jq -r '.DOCUMENTS[] | recurse(.NODES[]?)
   | select(._NODE_TYPE=="FUNC_REQ" or ._NODE_TYPE=="NON_FUNC_REQ") | . as $n
   | [($n.ORIGIN // "") | scan("(?:UC|GL)-[0-9]+")] | unique as $o
-  | [($n.RELATIONS // [])[] | select(.TYPE=="Parent") | .VALUE] | unique as $r
+  | [($n.RELATIONS // [])[] | select(.TYPE=="Parent") | .VALUE | select(test("^(UC|GL)-"))] | unique as $r
   | (($o - $r) + ($r - $o)) as $m
   | select(($m|length)>0) | "ORIGIN-MISMATCH " + $n.UID' "$J")
 [ -n "$out" ] && { echo "$out"; failed; } || echo "   none"

@@ -46,7 +46,7 @@ const IX_17_REFUSE = '⭐ 欄と命令は、`S-519` が `S-518` より前の値�
 const IX_17_FIELD =
   '名を辞書が 表 T-104 の `K-141` に持つ語とし、開始日と終了日の 2 つを、宿主の日付の入力'
 const FR_096_NO_NOTICE =
-  '同じ日の書き方で、年まで読ませる。固定していないときは、行を出さず、場所も空けないこと（MUST）。⛔ 期間を固定した書き出しのたびに、そのことを告げる知らせを立ててはならない（MUST NOT）'
+  '`GRS` は、期間を固定した書き出しのたびに、期間を固定していることを告げる知らせを立てないこと'
 
 const BUILT_VERSION = (JSON.parse(TEMPLATE_TEXT) as { schemaVersion: string }).schemaVersion
 

@@ -31,9 +31,9 @@ const A_BAR_SHAPE_DRAG_MAKES_THE_SPAN =
   '⭐ バーの形状（表 T-012 の `SH-1` 〜 `SH-4`）を構えてドラッグしたときは、引いた期間のタスクを作ること（MUST）'
 const A_MILESTONE_IS_PLACED_BY_A_PRESS_ALONE = '⛔ マイルストーンは押すだけで置くこと（MUST）'
 const A_HIDDEN_REASON_STANDS_NO_CARD =
-  '「出さない」の理由は、上げられても通知の欄に 1 枚を立てない —— 行は理由として残り、`Agent API` の拒否の値（表 T-035 の `AG-9a`）はその行を運ぶ。'
+  '表示の仕方が「出さない」の理由が上がったとき、`GRS` は通知の欄に 1 枚を立てないこと。`GRS` は、`Agent API` の拒否の値（表 T-035 の `AG-9a`）に、「出さない」の理由の行を運ぶこと。'
 const THE_TEXT_DOES_NOT_DECIDE_AGAIN =
-  '⛔ 要求の本文に「告げる」と書かれていても、出すかどうかを本文で決め直してはならない（MUST NOT） —— 欄が唯一の正である。'
+  '要求の本文は、「告げる」と書いていても、理由を出すかどうかを本文で決め直さないこと。'
 
 describe('FR-001 / FR-076 -- the clauses this file is driven by still stand', () => {
   it.each([

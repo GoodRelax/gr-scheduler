@@ -20,15 +20,15 @@ const FR_033_SEVERAL_TASK_GROUPS_ARE_REFUSED =
 const FR_033_THE_REASON_IS_RS_27 = '⚠️ この場面に当たる 表 T-233 の行は無いので、運ぶ理由は同要求の落ち先の `RS-27` である。'
 const FR_008_A_RENAME_CARRIES_RS_49 =
   '担当の名前を変えたときは、その担当が付いている全タスクの表示が変わったことを、表 T-233 の `RS-49` として、対象の件数とともに通知の仕組みへ運ぶこと（MUST） —— 作法は `FR-076` に従う。'
-const FR_076_THE_COLUMN_DECIDES = '⭐ 理由ごとに画面へどう出すかは、表 T-233 の「表示の仕方」の欄が持つ（MUST）。'
+const FR_076_THE_COLUMN_DECIDES = '`GRS` は、理由ごとに画面へどう出すかを、表 T-233 の「表示の仕方」の欄に従わせること。'
 const FR_076_A_HIDDEN_REASON_STANDS_NO_CARD =
-  '「出さない」の理由は、上げられても通知の欄に 1 枚を立てない —— 行は理由として残り、`Agent API` の拒否の値（表 T-035 の `AG-9a`）はその行を運ぶ。'
+  '表示の仕方が「出さない」の理由が上がったとき、`GRS` は通知の欄に 1 枚を立てないこと。`GRS` は、`Agent API` の拒否の値（表 T-035 の `AG-9a`）に、「出さない」の理由の行を運ぶこと。'
 const FR_076_THE_TEXT_DOES_NOT_DECIDE_AGAIN =
-  '⛔ 要求の本文に「告げる」と書かれていても、出すかどうかを本文で決め直してはならない（MUST NOT） —— 欄が唯一の正である。'
+  '要求の本文は、「告げる」と書いていても、理由を出すかどうかを本文で決め直さないこと。'
 const FR_076_AN_IMPORT_REFUSAL_CARRIES_ITS_T_220_ROW =
-  '⭐ ⇒ 取り込みの検証が拒んだとき、`NT-1` の通知が運ぶ理由は、拒んだ 表 T-220 の行の行 ID とすること（MUST） —— 語と次の一手は `FR-038` の辞書が同表の行 ID で持つ。'
+  '取り込みの検証が拒んだとき、`GRS` は `NT-1` の通知に、拒んだ Chapter 6.1 の 表 T-220 の行の行 ID を理由として運ぶこと。'
 const FR_076_NO_FALL_TO_A_T_233_ROW =
-  '⛔ その通知を本表の行（`RS-15` を含む）へ振り替えてはならない（MUST NOT） —— 振り替えると、どの不変条件が破れたのかを人が読めず、`NT-1` の「なぜ誤りか」を果せない。'
+  '`GRS` は、取り込みの検証が拒んだ通知を、表 T-233 の行（`RS-15` を含む）へ振り替えないこと。'
 
 const IV_10_FINISH_NOT_BEFORE_START =
   '`start` と `finish` がともに非 `null` の `Task` で、`finish` が `start` より前でないこと'

@@ -26,18 +26,18 @@ const DOCUMENT_COMMANDS = readFileSync(join(SPEC, '_assets', 'tbl-document-comma
 
 // Spec: FR-019
 const NULL_DRAWS_DEFAULT =
-  '字の大きさの列（`AT-168`）が `null` のときは 表 T-217 の `S-624` の既定で描くこと（MUST）'
-const DEFAULT_NOT_STEP = '字の大きさの既定は文書の文字サイズ（表 T-215）に従わない'
-const PLACED_WITH_NULLS = '置くとき（`_assets/tbl-document-commands.md` の 表 T-108 の `CM-46`）は 6 列を `null` とすること（MUST）'
+  '字の大きさの列（`AT-168`）が `null` のとき、`GRS` は、表 T-217 の `S-624` の既定で描くこと'
+const DEFAULT_NOT_STEP = '`GRS` は、字の大きさの既定を文書の文字サイズ（表 T-215）に従わせないこと'
+const PLACED_WITH_NULLS = 'コメントボックスを置くとき（`_assets/tbl-document-commands.md` の 表 T-108 の `CM-46`）、`GRS` は、6 列を `null` とすること'
 // Spec: FR-097
 const SIZE_IS_OWN_OR_DEFAULT =
-  '文字の大きさは、その箱の `CommentBox.fontSizePx`（`_assets/fig-erd-detail.md` の `AT-168`）が `null` でなければその値（px）、`null` なら `_assets/tbl-settings.md` の 表 T-217 の `S-624` の既定とし、**1 行の高さは文字の大きさに等しいものとして数えること（MUST）。**'
+  '`GRS` は、箱の文字の大きさを、箱の `CommentBox.fontSizePx`（`_assets/fig-erd-detail.md` の `AT-168`）が `null` でなければ `fontSizePx` の値（px）とし、`null` なら `_assets/tbl-settings.md` の 表 T-217 の `S-624` の既定とすること。`GRS` は、1 行の高さを、文字の大きさに等しいものとして数えること。'
 const RANGE_IS_S_624 =
-  '⭐ `AT-168` の範囲は `_assets/tbl-settings.md` の 表 T-217 の `S-624` とすること（MUST） —— 範囲の外の値を置く命令（`_assets/tbl-document-commands.md` の 表 T-108 の `CM-103`）は拒み、読んだ値は範囲へ寄せて描く（`FR-019` の太さと同じ規則）。'
-const WIDTH_FROM_ESTIMATE = '幅は `FR-093` の概算で求め、**文字の実寸を測ってはならない（MUST NOT）。**'
-const BELOW_FONT_MIN = '⚠️ 既定と下限は `fontMin`（表 T-201 の `S-8`）を割る'
+  '`GRS` は、`AT-168` の範囲を、`_assets/tbl-settings.md` の 表 T-217 の `S-624` とすること。`GRS` は、範囲の外の値を置く命令（`_assets/tbl-document-commands.md` の 表 T-108 の `CM-103`）を拒むこと。`GRS` は、読んだ値を範囲へ寄せて描くこと（`FR-019` の太さと同じ規則）。'
+const WIDTH_FROM_ESTIMATE = '`GRS` は、箱の幅を `FR-093` の概算で求めること。`GRS` は、文字の実寸を測らないこと。'
+const BELOW_FONT_MIN = '既定と下限は `fontMin`（表 T-201 の `S-8`）を割る'
 // Spec: FR-077
-const FLOOR_NOT_APPLIED = '`FR-077` の可読の下限は、この選んだ大きさには当てない。'
+const FLOOR_NOT_APPLIED = '`GRS` は、コメントボックスの文字の大きさに、`FR-077` の可読の下限を当てないこと。'
 const BOX_FONT_NOT_FLOORED = 'コメントボックスの字は本要求の下限に当てない（`FR-097`、利用者が定めた）。'
 // Spec: FR-006
 const FR_006_FONT_SIZE_BELOW_BODY = 'コメントボックスの字の大きさ（表 T-016 の `PR-50`）は見た目の行に数えず、本文の欄（`PR-21`）のすぐ下に置くこと（MUST）'
@@ -49,7 +49,7 @@ const PR_50_SHOWS_DEFAULT = '列が `null` の箱は、既定の値（`_assets/t
 const PR_50_EMPTY_IS_NULL = '欄を空にして確定すると `null` に戻る。'
 // Spec: AT-168
 const MISSING_COLUMNS_READ_AS_NULL =
-  '`AT-148` 〜 `AT-152` と `AT-168` の列を持たない `CommentBox` の項には、その列を `null` として足して読むこと（MUST）'
+  '`GRS JSON` を読むとき、`GRS` は、スキーマを走らせる前に、`_assets/fig-erd-detail.md` の `AT-145` ・ `AT-146` ・ `AT-147` の列を持たない `HighlightBox` の項と、`AT-148` 〜 `AT-152` と `AT-168` の列を持たない `CommentBox` の項に、欠けている列を `null` として足すこと。'
 const MISSING_COLUMN_DEFAULT_DIFFERS =
   '`AT-168` だけは、列を足す前の造りが文書の文字サイズで描いていた大きさと違う既定（同表の `S-624`）で描く'
 
@@ -602,6 +602,6 @@ describe('control -- the checks here can go red', () => {
   })
 
   it('one character off a quoted clause is not in the manuscript', () => {
-    expect(REQUIREMENTS).not.toContain(RANGE_IS_S_624.replace('とすること（MUST）', 'とすること（MUST NOT）'))
+    expect(REQUIREMENTS).not.toContain(RANGE_IS_S_624.replace('とすること。', 'としないこと。'))
   })
 })

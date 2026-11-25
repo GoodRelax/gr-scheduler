@@ -22,12 +22,12 @@ import {
   textsInOrder,
 } from './dfc-3000-help-stage'
 
-const FR_036_TWO_LINKS = '⭐ ヘルプは、基本操作の塊（辞書の見出しの `basics`）の枠のすぐ上に、2 つのリンクを 1 行ずつ縦に並べて置くこと（MUST）'
+const FR_036_TWO_LINKS = '`GRS` は、ヘルプの基本操作の塊（辞書の見出しの `basics`）の枠のすぐ上に、2 つのリンクを 1 行ずつ縦に並べて置くこと。'
 const FR_036_DESTINATIONS =
-  '上のリンクの宛先は `_assets/tbl-settings.md` の 表 T-206 の `S-350`（最新版を入手する頁）、下のリンクの宛先は同表の `S-583` の所にヘルプの言語を `?lang=ja` ／ `?lang=en` で付けたものとし、どちらも押したら閲覧環境の新しいタブで開くこと（MUST）'
-const FR_036_WORDS = '2 つのリンクの語は `FR-038` の辞書（`helpLinks` の `download` と `about`）が持つこと（MUST）'
+  '`GRS` は、上のリンクの宛先を `_assets/tbl-settings.md` の 表 T-206 の `S-350`（最新版を入手する頁）とし、下のリンクの宛先を 表 T-206 の `S-583` の所にヘルプの言語を `?lang=ja` ／ `?lang=en` で付けたものとすること。利用者が 2 つのリンクのどちらかを押したとき、`GRS` はリンクの宛先を閲覧環境の新しいタブで開くこと。'
+const FR_036_WORDS = '`FR-038` の辞書（`helpLinks` の `download` と `about`）は、2 つのリンクの語を持つこと。'
 const FR_036_INK =
-  '⭐ ヘルプのリンク —— この 2 つ、`IC-20` の項目に添えるリンク、`FR-069` の著作権表示 —— の字は、`_assets/tbl-settings.md` の 表 T-236 の `S-503` の色で下線を引いて描くこと（MUST）'
+  '`GRS` は、ヘルプのリンク（`IMPS-1145` の 2 つ、`IC-20` の項目に添えるリンク、`FR-069` の著作権表示）の字を、`_assets/tbl-settings.md` の 表 T-236 の `S-503` の色で下線を引いて描くこと。'
 const T_256_HC_1 = '| HC-1 | 左端の段 | 入口を持たない割当 → 表 T-255 のブラウザの機能 |'
 
 const aboutAddress = (language: DisplayLanguage): string => `${ABOUT_ADDRESS}?lang=${language}`

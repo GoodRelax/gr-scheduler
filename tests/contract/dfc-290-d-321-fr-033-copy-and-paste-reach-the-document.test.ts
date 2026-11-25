@@ -142,7 +142,7 @@ const FR_033_REFUSE_AT_THE_VALVE =
 
 /** 表 T-233's closing rule -- what a telling may carry at all. */
 const T_233_ONLY_ITS_OWN_ROWS =
-  ' 通知が運ぶ理由は 表 T-233 の行とすること（MUST）。同表に無い理由を運んではならない（MUST NOT）'
+  '`GRS` は、通知が運ぶ理由を 表 T-233 の行とすること。`GRS` は、表 T-233 に無い理由を運ばないこと'
 
 const T_036: SpecTable = specTable('T-036')
 const T_037: SpecTable = specTable('T-037')
@@ -680,8 +680,8 @@ describe('FR-033 (MUST) -- a paste that would pass the safety valve is refused A
 
   it('⭐ and the refusal is TOLD, in the words FR-038 holds for a row of 表 T-233', () => {
     // 「表 T-233 の `RS-24` として通知の仕組みへ運ぶこと（MUST）」, and 表 T-233's closing
-    // rule: 「通知が運ぶ理由は 表 T-233 の行とすること（MUST）。同表に無い理由を運
-    // んではならない（MUST NOT）」.
+    // rule: 「`GRS` は、通知が運ぶ理由を 表 T-233 の行とすること。`GRS` は、表 T-233
+    // に無い理由を運ばないこと」.
     // ⛔ WHICH row is not asserted here (see the head of this file).
     expect(REQUIREMENTS).toContain(T_233_ONLY_ITS_OWN_ROWS)
     const built = stage(documentOfTwoTaskGroups(AT_THE_CAP), TALL)

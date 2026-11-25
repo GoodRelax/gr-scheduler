@@ -7,7 +7,7 @@ import { fileSystemAccessFileStore } from '../../src/framework/file-system-acces
 import { REQUIREMENTS, UTF8, standInBrowser, standInFile } from './cr-610-file-flow-stage'
 import { bare, specTable } from './spec-table'
 
-const FR_096_ENDS_WITH = '書き出した先の名前が、選んだ行の拡張子で終わることを保証すること（MUST）'
+const FR_096_ENDS_WITH = '`GRS` は、書き出した先の名前が、選んだ行の拡張子で終わることを保証すること。'
 const RW_7_ENDS_WITH = '書いた名前が 表 T-024 の `IO-8` の拡張子で終わることを保証し'
 
 // Why: the media types Chromium's own table maps to more than one extension -- the ones a key must not be.

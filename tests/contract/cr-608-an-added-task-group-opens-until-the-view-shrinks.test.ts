@@ -29,7 +29,7 @@ const HF_14_TEMPORARY = '縦を縮める最初の入力で、立てたタスク�
 const HF_14_ONE_PARENT = '展開してよいのは押した親 1 つだけである'
 const HF_14_NO_ANCESTOR = 'その先祖を書き換えてはならない（MUST NOT）'
 const UN_14_ONE_STEP = '1 回の押下が書き換えるタスクグループの木の状態は、タスクグループがいくつでも同じ 1 段に入れること（MUST）'
-const FR_018_ADDED = '足したタスクグループと、足した先の親も同じ値で立つ（`AT-153`、同表の `childTaskGroupAddPressed`、表 T-051 の `HF-14`）'
+const FR_018_ADDED = '足したタスクグループと、足した先の親も同じ値で立つ（`AT-153`、表 T-328 の `childTaskGroupAddPressed`、表 T-051 の `HF-14`）'
 
 const TASK_GROUP_PANEL = bare(rowOf('T-103', 'U-22').by['確定名（英）'] ?? '')
 

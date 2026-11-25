@@ -401,8 +401,8 @@ describe('S-63 -- isProgressMarkerVisible defaults to true', () => {
 })
 
 
-const T_297_DROP_FIRST = 'スキーマを走らせる前に、表 T-297 の列を捨てて読むこと（MUST）'
-const T_297_SILENT = '捨てた列を通知してはならず、書き戻してもならない（MUST NOT）'
+const T_297_DROP_FIRST = '`GRS JSON` を読むとき、`GRS` は、スキーマを走らせる前に、表 T-297 の列を捨てること。'
+const T_297_SILENT = '`GRS` は、捨てた列を通知しないこと。`GRS` は、捨てた列を書き戻さないこと。'
 
 const RETIRED: readonly { readonly entity: string; readonly column: string }[] = specTable('T-297').rows.map((row) => ({
   entity: bare(row.cells[0] ?? ''),

@@ -37,11 +37,11 @@ import { bare, specTable, unbroken, type SpecRow } from '../contract/spec-table'
 const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
 const FR_039_STARTS_FROM_THE_BROWSER =
-  '明暗テーマは文書に保存しない —— 起動したときにブラウザが伝える明暗（`prefers-color-scheme`）で描き、読めないときはライトで描くこと（MUST）'
+  '`GRS` が起動したとき、`GRS` は、ブラウザが伝える明暗（`prefers-color-scheme`）で描くこと。'
 const FR_039_REMEMBERED_NOWHERE =
-  '押した切り替えは、そのページを閉じるまで効き、ファイルにもブラウザの保管庫にも覚えてはならない（MUST NOT）'
-const FR_039_FONT_REACHES_THE_RULER = '文字サイズの変更は目盛にも及ぶこと（MUST）'
-const FR_039_FONT_IS_AN_EDIT = '変更した結果は文書の編集として保存される'
+  '`GRS` は、押した明暗の切り替えを、ファイルにもブラウザの保管庫にも覚えないこと。'
+const FR_039_FONT_REACHES_THE_RULER = '文字サイズが変わったとき、`GRS` は、目盛の文字と目盛の帯の高さを、変わった文字サイズに追随させること。'
+const FR_039_FONT_IS_AN_EDIT = '文字サイズか表示の倍率が変わったとき、`GRS` は、変わった結果を文書の編集として保存すること。'
 const FR_041_ONLY_TWO_ARE_SAVED =
   '保存するのは `themeHue` / `isThemeMonochrome` の 2 つだけとし、明暗（`themePreference`）は画面の値とし（`FR-039`）'
 // Why: CR-787 -- the width starts at the default of the kind shown; the settings face IC-17 shows is S-171.
@@ -51,10 +51,10 @@ const FR_052_SETTINGS_FACE_IS_S_171 = '文書の設定の面は `S-171`'
 const FR_052_EVERY_START = '起動のたびに既定の幅から始め、覚えない。'
 const FR_052_WRITES_NOWHERE = 'プロパティパネルの幅を、文書にもブラウザの保管庫にも書いてはならない（MUST NOT）'
 const FR_063_SETTINGS_STAMP_MOVES =
-  'どちらの群であれ動いた刻と、最後に書いた者は、見せ方の群だけを変えたときも更新すること（MUST）'
-const FR_063_SCHEDULE_STAMP_STAYS = '見せ方の群だけを変える更新で、日程データの群の刻を動かしてはならない（MUST NOT）'
+  '`GRS` は、見せ方の群だけを変えた更新でも、どちらの群であれ動いた刻と最後に書いた者を更新すること（例外は `FR-364`）。'
+const FR_063_SCHEDULE_STAMP_STAYS = '`GRS` は、見せ方の群だけを変える更新で、日程データの群の刻を動かさないこと。'
 const FR_063_NOT_IN_THE_LOOK =
-  '画面のどの操作も書き換えない値（道具の定数）と、見る人の画面の値（`_assets/tbl-settings.md` の 表 T-206）を見せ方に入れてはならない（MUST NOT）'
+  '`GRS` は、画面のどの操作も書き換えない値（道具の定数）と、見る人の画面の値（`_assets/tbl-settings.md` の 表 T-206）を、見せ方の群に入れないこと。'
 const FR_080_THE_SCREEN_SHRUNK = '`GRS` が占める画面の全体を'
 const FR_041_SCREEN_AND_PICTURE_ALIKE = '画面と書き出した絵とで、同じ行を同じ値で塗ること（MUST）'
 const DC_7_CLEARS = 'モードを出たら、置いた 2 本を消すこと（MUST）'

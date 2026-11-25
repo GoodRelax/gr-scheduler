@@ -20,7 +20,7 @@ const DOCUMENT_ID = 'embedded-document'
 const TEMPLATE_ID = 'startup-template-under-test'
 
 const READ_ORDER =
-  '開く道では、埋め込まれた文書の入れ口を読み、それが無ければ初期テンプレートの容れ物を読むこと（MUST）'
+  '作成者が開く道で `.html` を開いたとき、`GRS` は、埋め込まれた文書の入れ口を読むこと。もし `.html` が入れ口を持たない場合、`GRS` は、初期テンプレートの容れ物を読むこと'
 
 const PLAIN_SHELL =
   '<!doctype html><html lang="en"><head><meta charset="utf-8">' +

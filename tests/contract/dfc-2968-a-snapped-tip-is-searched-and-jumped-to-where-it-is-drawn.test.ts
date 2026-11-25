@@ -31,8 +31,8 @@ const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '
 
 // Spec: FR-019
 const FR_019_SHOWN_DATE =
-  '線先が立つ日時は、吸着していれば吸着先のその点の日時（対象を消したときに ① へ書く日時と同じ求め方）、そうでなければ ① の日時（`AT-113`）とする —— 検索の表の `SQ-9` と飛び先（表 T-332 の `SJ-6`）もこれを読む。'
-const FR_019_FOLLOWS = '② の線先は、描くたびに対象の図形から点を求めること（MUST） —— 対象を動かす命令は注記を書かず'
+  '`GRS` は、線先が立つ日時を、吸着していれば吸着先のその点の日時（対象を消したときに ① へ書く日時と同じ求め方）、吸着していなければ ① の日時（`AT-113`）とすること。'
+const FR_019_FOLLOWS = '`GRS` は、② の線先を、描くたびに対象の図形から点を求めて描くこと'
 // Spec: T-331, SQ-9
 const SQ_9_SOURCE = '線先が立つ日時（`FR-019`） —— 吸着していれば吸着先のその点の日時、そうでなければ `CommentBox.anchorDate`（`AT-113`）'
 // Spec: T-332, SJ-6

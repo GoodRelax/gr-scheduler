@@ -35,26 +35,26 @@
 // ---------------------------------------------------------------------------
 //
 //   FR-101   ⭐ 「`GRS` は、**いま開いているファイルの名前**と、**そのファイルへ
-//            最後に書いた時刻**を画面上に示すこと（MUST）」, 「**まだ 1 度もファ
+//            最後に書いた時刻**を画面上に示すこと」, 「**まだ 1 度もファ
 //            イルへ書いていないときは、時刻の代わりにその旨を示すこと（MUST）**
-//            —— 空欄では「書けたのに読めない」と区別がつかない」, and 「**保管は
-//            UTC のままとすること（MUST）**」. ⚠️ Its MUST NOT: 「`Document
-//            Title` … と混同してはならない（MUST NOT）—— あちらは文書が持つ値
-//            （`Project/Title`）であり、本要求が出すのはファイルの名前である」
+//            —— 空欄では「書けたのに読めない」と区別がつかない」, and 「`GRS` は、
+//            時刻の保管を UTC のままとすること」. ⚠️ Its MUST NOT: 「`GRS` は、本要求が
+//            出すファイルの名前を、`Document Title`（`_assets/tbl-glossary.md` の `U-27`）と
+//            混同しないこと」 —— 「`Document Title` は文書が持つ値（`Project/Title`）であり、本要求が出すのは**ファイルの名前**である」
 //   表 T-103 `U-58` `Opened File Name` 「開いているファイル名 … 規則は `FR-101`」
 //            `U-59` `File Saved At` 「ファイル保存時刻。開いているファイルへ最後
 //            に書いた時刻。規則は `FR-101`」
 //   表 T-036 `SK-11` 「保存する（`FR-096` の定めにより `GRS JSON` で書く。上書き
 //            先は `FR-060`）」, assignment `Ctrl+S` -- the door these cases press,
 //            read out of the 割当 column rather than typed
-//   `FR-096` 「表 T-036 の `SK-11`（保存する）は、どの形式から開いた文書であっても
-//            `GRS JSON` で書くこと（MUST）」 and 「⚠️ **MSPDI で開いた文書の最初の
+//   `FR-096` 「作成者が 表 T-036 の `SK-11`（保存する）で書いたとき、`GRS` は、どの形式から
+//            開いた文書も `GRS JSON` で書くこと」 and 「⚠️ **MSPDI で開いた文書の最初の
 //            `SK-11` は上書きする先を持たない**ので、保存先を問うことになる」 --
 //            why a document that has never been in a file takes the chosen-write
 //            road on its first save
 //   `FR-060` 「開いたファイルを保存するとき … 同じファイルへ上書きできるようにする
-//            こと」, and 「⭐ **その速い道は 表 T-036 の `SK-11` である（MUST）**」
-//   `FR-063` 「刻はいずれも `ISO 8601`・UTC・秒まで」 -- the spelling the stored
+//            こと」, and 「`GRS` は、問わずに上書きする速い道を 表 T-036 の `SK-11` とすること」
+//   `FR-063` 「`GRS` は、2 つの刻を、いずれも `ISO 8601`・UTC・秒までで書くこと」 -- the spelling the stored
 //            moment keeps, which `FR-101` (MUST) leaves alone
 //   表 T-078 `FT-1` -- the trigger every frame these cases run stands on
 //   表 T-034 `BT-4`, the bundled template: the one document whose values the
@@ -147,10 +147,10 @@ const REQUIREMENTS = unbroken(readFileSync(
 
 /** ⛔ THE GROUND OF THIS FILE, read rather than typed. */
 const THE_SHOW_MUST =
-  '**いま開いているファイルの名前**と、**そのファイルへ最後に書いた時刻**を画面上に示すこと（MUST）'
+  '**いま開いているファイルの名前**と、**そのファイルへ最後に書いた時刻**を画面上に示すこと'
 
 /** `FR-101`'s other half -- what stands where the time would be until a save. */
-const THE_NEVER_SAVED_MUST = 'まだ 1 度もファイルへ書いていないときは、時刻の代わりにその旨を示すこと（MUST）'
+const THE_NEVER_SAVED_MUST = 'まだ 1 度もファイルへ書いていないとき、`GRS` は、時刻の代わりに、まだ書いていない旨を示すこと'
 
 // Spec: FR-036, T-036
 const assignmentsIn = (cell: string): readonly (readonly string[])[] =>
@@ -425,7 +425,7 @@ describe('FR-101 (MUST) -- once one save has succeeded', () => {
   })
 
   it('⛔ the header states the moment it was written, in place of the words', async () => {
-    // 「そのファイルへ最後に書いた時刻を画面上に示すこと（MUST）」 -- and the
+    // 「そのファイルへ最後に書いた時刻を画面上に示すこと」 -- and the
     // words that stood in for it are no longer what is shown, because the time
     // they stood in for now exists.
     const one = bench(templateDocument())
@@ -438,8 +438,8 @@ describe('FR-101 (MUST) -- once one save has succeeded', () => {
   })
 
   it('⛔ that moment is kept in UTC, to the second (FR-101 MUST / FR-063)', async () => {
-    // 「**保管は UTC のままとすること（MUST）**」 and `FR-063`'s 「刻はいずれも
-    // `ISO 8601`・UTC・秒まで」. ⚠️ The SPELLING ON THE SCREEN is deliberately
+    // 「`GRS` は、時刻の保管を UTC のままとすること」 and `FR-063`'s 「`GRS` は、2 つの刻を、いずれも
+    // `ISO 8601`・UTC・秒までで書くこと」. ⚠️ The SPELLING ON THE SCREEN is deliberately
     // not asserted -- FR-101 says 「時刻の綴りそのものは本書が定めない」 -- so what
     // is read here is the value the header carries, not the text UF-71 draws.
     const one = bench(templateDocument())
@@ -452,8 +452,8 @@ describe('FR-101 (MUST) -- once one save has succeeded', () => {
   })
 
   it('⛔ MUST NOT: the name it shows is the file’s, not the `Document Title`', async () => {
-    // 「⚠️ **`Document Title` … と混同してはならない（MUST NOT）** —— あちらは文書
-    //   が持つ値（`Project/Title`）であり、本要求が出すのは**ファイルの名前**で
+    // 「`GRS` は、本要求が出すファイルの名前を、`Document Title`（`_assets/tbl-glossary.md` の `U-27`）と混同しないこと」
+    //   —— 「`Document Title` は文書が持つ値（`Project/Title`）であり、本要求が出すのは**ファイルの名前**で
     //   ある。**2 つが違う値になることは正常である。**」
     const one = bench(templateDocument())
     one.runFrames()

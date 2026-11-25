@@ -27,7 +27,7 @@ export const T_310_STATED_PARENT_ONLY =
   '⭐ 親と子は、子の `parentTaskUid` が指す親（明記の親）だけで組む —— `FR-135` で導いた親では判じない。'
 
 export const T_340_NOTHING_MOVES_ON_FAILURE =
-  '⭐ **書けなかったときは、どの行でも何も動かさないこと（MUST）'
+  'もし書けなかった場合、`GRS` は、表 T-340 のどの行のものも動かさないこと。'
 
 export const T_340_SX_2_ROW =
   '| SX-2 | 表 T-024 のうち「`IC-2` に出す」の欄が「出す」の、`IO-2` 以外の形式（`IC-2` で選んで書いたとき） | 書き出し —— `fileFlow/documentFileWriteEnded` を送ること（MUST） | 変えてはならない（MUST NOT） | 変えてはならない（MUST NOT） | 変えてはならない（MUST NOT） —— 書き出した先は交換や絵のためのファイルであり、この文書のファイルではない |'

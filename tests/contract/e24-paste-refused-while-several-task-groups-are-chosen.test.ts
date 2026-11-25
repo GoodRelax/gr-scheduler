@@ -27,7 +27,7 @@ const MANY_TASKS_ALL_COPIED =
 const PARENT_FROM_THE_TASK_GROUP =
   'コピー元の親をコピーしないとき（コピー元が親を持たないときを含む）は、コピーの親タスクを、コピーを載せたタスクグループから推定すること（MUST）'
 const NO_SAME_UID = '複製した `Task` に、複製元と同じ `UID` を使ってはならない（MUST NOT）'
-const REASON_IS_A_T233_ROW = '⭐ 通知が運ぶ理由は 表 T-233 の行とすること（MUST）'
+const REASON_IS_A_T233_ROW = '`GRS` は、通知が運ぶ理由を 表 T-233 の行とすること。'
 
 describe('FR-033 / T-233 -- the clauses this file is driven by still stand', () => {
   it.each([

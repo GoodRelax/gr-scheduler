@@ -72,7 +72,7 @@ const S_44 = settingOf('S-44', 'chevronNotchOfWidth')
 const S_5 = settingOf('S-5', 'actualOfPlan')
 const LF_6 = (() => {
   const cells = verticalIn('T-221', 'LF-6').cells
-  return cells[cells.length - 1] ?? ''
+  return cells[cells.length - 2] ?? ''
 })()
 
 const settingsOf = (over: Readonly<Record<string, unknown>> = {}): DocumentSettings => {

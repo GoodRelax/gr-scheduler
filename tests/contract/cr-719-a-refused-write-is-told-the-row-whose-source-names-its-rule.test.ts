@@ -8,9 +8,9 @@ import { firstTask, REQUIREMENTS, rowOf, settleLoop, templateDocument, wordsOf }
 import { keyOf, shell, taskGroupDocument, taskOf, type ShellBench } from '../unit/cr-541-stage'
 
 const FR_076_A_T_220_REFUSAL_CARRIES_ITS_ROW =
-  '⭐ 画面からの書き込みが Chapter 6.1 の 表 T-220 の行で拒まれたときは、本表のうち出典の欄がその行を名指す行を運ぶこと（MUST）'
-const FR_076_NO_COLLAPSE_OF_THE_REASON = '拒否の理由を 1 つの行へ潰してはならない（MUST NOT）'
-const FR_076_CHECK_THE_ROUTE_EXISTS = '本表に行を足す者は、その行へ振り分ける道が在ることまで確かめること（MUST）'
+  '画面からの書き込みが Chapter 6.1 の 表 T-220 の行で拒まれたとき、`GRS` は 表 T-233 のうち出典の欄が拒んだ行を名指す行を運ぶこと。'
+const FR_076_NO_COLLAPSE_OF_THE_REASON = '`GRS` は、拒否の理由を 1 つの行へ潰さないこと。'
+const FR_076_CHECK_THE_ROUTE_EXISTS = '表 T-233 に行を足す者は、足した行へ振り分ける道が在ることまで確かめること。'
 const NT_1_SAYS_WHY_IN_WORDS = 'どの項目が、なぜ誤りかを文字で示すこと（MUST）'
 
 describe('FR-076 -- the clauses this file is driven by still stand', () => {

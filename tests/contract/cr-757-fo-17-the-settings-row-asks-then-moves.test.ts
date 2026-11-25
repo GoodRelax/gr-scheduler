@@ -28,9 +28,9 @@ import { specTable, unbroken } from './spec-table'
 
 afterEach(restoreAnimationFrames)
 
-const FR_159_PLACE = '全体日程シフトの欄は、`FR-072` の 表 T-369 の `FO-17` の場所に置く。'
+const FR_159_PLACE = '`GRS` は、全体日程シフトの欄を、`FR-072` の 表 T-369 の `FO-17` の場所に置くこと。'
 // Why: CR-787 renamed the start date to the first task start (JDG-2540).
-const FR_159_SHOWS_START = '欄の上に最初のタスクの開始日（表 T-379 の `WH-1`）を見せること（MUST）'
+const FR_159_SHOWS_START = '`GRS` は、全体日程シフトの欄の上に最初のタスクの開始日（表 T-379 の `WH-1`）を見せること'
 const FR_159_AGENT = '`Agent API` から `_assets/tbl-document-commands.md` の 表 T-108 の `CM-99` を受けたときは問わない'
 const FR_156_ASKS_ONLY = '確認を取るのは、データを大幅に書き換えるタイムシフト（`FR-157`）と全体日程シフト（`FR-159`）だけである（利用者の判断）'
 const WH_1_DASH = '⛔ 開始を持つ `Task` が 1 つも無いあいだは、欄の上に「—」を見せ、適用のボタンを押せないものとする（`WH-12`）'
@@ -40,7 +40,7 @@ const WH_12_BUTTON = '新しい開始日の日付の欄の右に、語を辞書�
 const WH_12_DIM = '⭐ 新しい開始日が空のあいだ、開始を持つ `Task` が無いあいだ（`WH-1`）、ずらす稼働日が 0 のあいだ（`WH-9`）は、押せないものとすること（MUST）'
 const WH_12_NO_TOOLTIP = 'ツールチップも持たない（利用者の判断）'
 const FO_17_ABOVE_FO_16 = '⭐ `FO-16` の上に置く（利用者の指示）'
-const FR_159_ONE_UNDO = '取り消しを 1 度押せば全部の日付が元へ戻ること（MUST）'
+const FR_159_ONE_UNDO = '`GRS` は、移した結果をまとめて 1 度に書き、取り消しを 1 度押せば全部の日付が元へ戻るようにすること'
 
 // Spec: T-369
 // Why: CR-755 -- FO-15 is four rows; the last of them stands right above FO-17.

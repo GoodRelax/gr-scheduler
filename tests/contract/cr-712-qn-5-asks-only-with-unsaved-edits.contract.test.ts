@@ -18,7 +18,7 @@ const SPEC = join(process.cwd(), 'docs', 'spec')
 
 const REQUIREMENTS = unbroken(readFileSync(join(SPEC, '01-04-requirements.md'), 'utf8'))
 
-const FR_095_ASK_ONLY_WITH_EDITS = '捨てる前に、保存していない編集があるときは、表 T-024a の `OP-4` と同じ確認を求めること（MUST）'
+const FR_095_ASK_ONLY_WITH_EDITS = '保存していない編集がある間、作成者が新しく始めることを選んだとき、`GRS` は、開いている文書を捨てる前に、表 T-024a の `OP-4` と同じ確認を求めること。'
 const FR_095_WHY_NOT_ASKED =
   '保存していない編集が無いときに問わないのは、そのとき失うのが取り消しの履歴だけであり、利用者がそれを問いの負担より軽いと裁いたからである'
 const FR_095_OLD_STATEMENT = '捨てる前に、未保存の編集の有無によらず、表 T-024a の `OP-4` と同じ確認を求めること（MUST）'

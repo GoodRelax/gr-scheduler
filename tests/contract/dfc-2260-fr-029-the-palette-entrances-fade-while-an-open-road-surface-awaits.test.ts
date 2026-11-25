@@ -19,7 +19,7 @@ import { jsonBytes, paletteStage, surfaceOfEntrance, there, type PaletteStage } 
 const MACHINES = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '_assets', 'tbl-state-machines.md'), 'utf8'))
 
 const FR_029_FAINT =
-  'その入口を押しても、いま文書にも画面にも何も変えられないときは、その入口を薄く描くこと（MUST）'
+  '`GRS` は、押してもいま文書にも画面にも何も変えられない入口を薄く描くこと。'
 const REFUSES_ANOTHER = '開く道の答えを待つ面（`flowSurfaceAnswered` で答える `U-56`・`U-61`）は差し替えない。押した入口が効かない理由として運ぶ'
 
 const ROSTER_ENTRANCE = 'IC-62'

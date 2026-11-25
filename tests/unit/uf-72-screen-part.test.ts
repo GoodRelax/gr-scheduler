@@ -3084,7 +3084,7 @@ describe('the Task Group Expander at the edges -- R3.4, the bare panel, and a re
 const T_051_HF5_SAME_SIZE = '操作子を同じ大きさで描くこと（MUST）'
 
 /** FR-098's MUST, copied from docs/spec/01-04-requirements.md. */
-const FR_098_ONE_PER_TASK_GROUP = 'タスクグループパネルの各タスクグループに 1 つ置くこと（MUST）'
+const FR_098_ONE_PER_TASK_GROUP = '`GRS` は、ピン止めの操作子（`Task Group Pin`）を、タスクグループパネルの各タスクグループに 1 つ置くこと。'
 
 /** A length that contributes nothing. ⚠️ `none` and `auto` are a length's absence, not zero. */
 const isZeroLength = (value: string): boolean =>

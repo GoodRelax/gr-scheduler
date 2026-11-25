@@ -106,7 +106,7 @@ const DESIGN = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '05-07-
 // Why: rule 03 section 5 keeps code ASCII but allows the exact clause text
 // here -- matching it against the manuscript is what tests the specification.
 const THE_CLAUSE =
-  '⭐ `ET-` / `AT-` / `RL-` / `DV-` の番号は席番号である。一度与えた番号を振り直してはならない（MUST NOT）。'
+  '一度与えた `ET-` / `AT-` / `RL-` / `DV-` の番号を、振り直さないこと。'
 
 const FROM_THE_MANUSCRIPT =
   '原稿（`_source/erd.json`）の行がそれぞれ自分の `seat` を持ち、生成器はそれを印字する。'
@@ -114,7 +114,7 @@ const FROM_THE_MANUSCRIPT =
 const ADDING_A_ROW_MOVES_NOTHING = '**行を足しても、それ以降の番号は動かない。**'
 
 const POINT_BY_NAME =
-  '**外から指すときは名前で指すこと** —— エンティティは名前で、列はエンティティ名と列名の対で指す'
+  '外から指すときは、エンティティを名前で、列をエンティティ名と列名の対で指すこと'
 
 describe('Chapter 5.4 -- the manuscript this file is driven by', () => {
   it('still says the four prefixes are seats and may not be reissued', () => {
@@ -131,7 +131,7 @@ describe('Chapter 5.4 -- the manuscript this file is driven by', () => {
   })
 
   it('names `_source/erd.json` as the one manuscript these four tables come from', () => {
-    expect(DESIGN).toContain('日程データの群は `_source/erd.json`')
+    expect(DESIGN).toContain('`GRS JSON` のスキーマを起こす原稿は、日程データの群の `_source/erd.json` と、見せ方の群の `_source/settings.json` の 2 つとすること')
     expect(MANUSCRIPT.entities.length).toBeGreaterThan(0)
     expect(MANUSCRIPT.relations.length).toBeGreaterThan(0)
     expect(MANUSCRIPT.derived.length).toBeGreaterThan(0)

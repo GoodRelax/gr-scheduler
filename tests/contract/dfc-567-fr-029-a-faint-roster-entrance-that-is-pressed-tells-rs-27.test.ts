@@ -9,9 +9,9 @@ import { specTable } from './spec-table'
 import { paletteStage, surfaceOfEntrance, type PaletteStage } from './wp-p1-palette-stage'
 
 const FR_029_FAINT =
-  'その入口を押しても、いま文書にも画面にも何も変えられないときは、その入口を薄く描くこと（MUST）'
-const FR_029_ONLY_WHEN_PRESSED = '押されたときに限り、行えない理由を通知の仕組みへ運ぶこと（MUST）'
-const FR_029_FALLBACK = 'どの入口にも当たる行が無いときの落ち先が `RS-27` である'
+  '`GRS` は、押してもいま文書にも画面にも何も変えられない入口を薄く描くこと。'
+const FR_029_ONLY_WHEN_PRESSED = '利用者が薄く描いた入口を押したときに限り、`GRS` は行えない理由を通知の仕組みへ運ぶこと（例外は `IMPS-1114`）。'
+const FR_029_FALLBACK = 'もし押された入口の場面に当たる行が 表 T-233 に無い場合、`GRS` は落ち先の `RS-27`（出さない）を運ぶこと。'
 
 const ROSTER_ENTRANCE = 'IC-62'
 const SELECT_ALL = 'IC-63'

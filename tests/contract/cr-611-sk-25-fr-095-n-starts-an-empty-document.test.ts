@@ -45,9 +45,10 @@ const GENERATED_WORDS = JSON.parse(
   readFileSync(join(process.cwd(), 'src', 'adapter', 'screen-renderer', 'display-words.json'), 'utf8'),
 ) as Record<string, any>
 
-const ASKS_WITH_UNSAVED = '捨てる前に、保存していない編集があるときは、表 T-024a の `OP-4` と同じ確認を求めること（MUST）'
-const GOES_ON_UNASKED = '保存していない編集が無いときは問わずに進めること（MUST）'
-const NO_TARGET_AFTER = '新しく始めた後は、上書きする先を持たないこと（MUST）'
+const ASKS_WITH_UNSAVED =
+  '保存していない編集がある間、作成者が新しく始めることを選んだとき、`GRS` は、開いている文書を捨てる前に、表 T-024a の `OP-4` と同じ確認を求めること。'
+const GOES_ON_UNASKED = '保存していない編集が無い間、作成者が新しく始めることを選んだとき、`GRS` は問わずに進めること。'
+const NO_TARGET_AFTER = '新しく始めた後、`GRS` は、上書きする先を持たないこと。'
 
 type Loose = Record<string, any>
 

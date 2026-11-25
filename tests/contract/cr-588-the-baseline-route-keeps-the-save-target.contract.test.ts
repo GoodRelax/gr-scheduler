@@ -30,7 +30,7 @@ const OP_9_NEITHER_REPLACES_NOR_MERGES = '**現在の文書を置き換えも合
 const FR_060_OVERWRITES_THE_OPENED_FILE =
   '**STATEMENT**: 作成者が開いたファイルを保存するとき、`GRS` は、**同じファイルへ上書きできるようにすること。**'
 const FR_060_OVERLAY_KEEPS_THE_SAVE_TARGET =
-  '合流と重ね（表 T-024a の `OP-3`）で開いた後も、上書きする先はそれまでのままとすること（MUST）'
+  '合流か重ね（表 T-024a の `OP-3`）で開いた後も、`GRS` は、上書きする先をそれまでのままとすること。'
 const FR_060_ONLY_A_REPLACE_ADOPTS = '読んだファイルを上書きする先にするのは置き換えだけである'
 const IC_4_ASKS = '⭐ **重ねる予定が無いときは切り替えず、変更前の予定にするファイルを選ばせる**（表 T-024a の `OP-15`）'
 const FILE_FLOW_BASELINE_ROUTE = '`baseline`（重ねる予定が無いときの変更前の予定の入口。`OP-3` を問わずに重ねる）'

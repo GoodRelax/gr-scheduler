@@ -2648,7 +2648,7 @@ describe('FR-038 -- the words are carried, and the language is readable before t
       join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'),
       'utf8',
     ))
-    expect(requirements).toContain('⭐ ヘルプの言語が画面の言語と違うあいだは、ヘルプの領域にヘルプの言語を名乗らせること（MUST）')
+    expect(requirements).toContain('ヘルプの言語が画面の言語と違う間、`GRS` は、ヘルプの領域にヘルプの言語を名乗らせること')
     const built = wire({ 'App Header': 37 })
     surfaceOf(built).showScreenView(RICH_VIEW)
 
@@ -3089,8 +3089,8 @@ describe('LY-5 of 表 T-060 / R7.3 -- the outside arrives as an argument', () =>
 const T_051_HF5_SAME_SIZE_HERE = '操作子を同じ大きさで描くこと（MUST）'
 
 /** FR-029's two sentences about the box, copied from docs/spec/01-04-requirements.md. */
-const FR_029_THE_BOX = '図形を描く箱の一辺は'
-const FR_029_NOT_BY_SURFACE = '載る面によって変えてはならない（MUST NOT）'
+const FR_029_THE_BOX = '`GRS` は、図形を描く箱の一辺を `_assets/tbl-settings.md` の 表 T-206 の `S-138` に従わせること'
+const FR_029_NOT_BY_SURFACE = '`GRS` は、図形を描く箱の一辺を、載る面によって変えないこと'
 
 /**
  * One entry per surface a shape is drawn on, each with the row of 表 T-109 that
@@ -3224,7 +3224,7 @@ describe('the manuscript still says what the S-138 cases copy', () => {
     ))
     expect(requirements).toContain('S-141')
     expect(requirements).toContain(
-      'その隙間を読む人の文字サイズに追随させてはならない（MUST NOT）',
+      '`GRS` は、図形と入口の枠のあいだの隙間を、読む人の文字サイズに追随させないこと',
     )
   })
 

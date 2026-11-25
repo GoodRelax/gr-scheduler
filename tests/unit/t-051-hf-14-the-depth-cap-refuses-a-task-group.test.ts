@@ -480,8 +480,8 @@ describe('the manuscript still says what these cases read', () => {
   })
 
   it('⛔ FR-029 still ties the faint drawing and the telling into one rule', () => {
-    expect(REQUIREMENTS).toContain('押されたときに限り、行えない理由を通知の仕組みへ運ぶこと（MUST）')
-    expect(REQUIREMENTS).toContain('当たる行があるのに落ち先を運んではならない（MUST NOT）')
+    expect(REQUIREMENTS).toContain('利用者が薄く描いた入口を押したときに限り、`GRS` は行えない理由を通知の仕組みへ運ぶこと（例外は `IMPS-1114`）。')
+    expect(REQUIREMENTS).toContain('押された入口の場面に当たる行が 表 T-233 にあるとき、`GRS` は落ち先を運ばないこと。')
   })
 })
 

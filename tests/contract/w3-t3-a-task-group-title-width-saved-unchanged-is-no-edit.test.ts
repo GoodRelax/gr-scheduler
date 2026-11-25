@@ -18,7 +18,7 @@ const REQUIREMENTS = unbroken(
 )
 
 const CLAUSE_SAME_VALUE_IS_NO_EDIT =
-  '⭐ 保存する `S-79` が、いま保存している値と等しいとき（床で離して掴む前の値が残るときを含む）は、文書を書き換えたことにしてはならない（MUST NOT）'
+  '保存する `S-79` が、いま保存している値と等しいとき（床で離して掴む前の値が残るときを含む）、`GRS` は、文書を書き換えたことにしないこと'
 
 const TASK_GROUP_TITLE_DIVIDER = 'taskGroupPanel'
 
