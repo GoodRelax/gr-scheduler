@@ -17,8 +17,8 @@ import { bare, specTable, unbroken } from './spec-table'
 const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
 // Why: each constant ends exactly at its marker, cut from the manuscript as check 39 reads it.
-const BR_6 = '| BR-6 | 書き出し | 書き出す絵とクリップボードへコピーする絵での扱いは、表 T-076 の `EP-1` に従うこと（MUST）'
-const BR_6_BLANK = '`Branding` も `BR-7` の縦線も描かず、席と縦線の分を空白のまま残し、`Document Title` を画面と同じ位置に置く。'
+const BR_6 = '| BR-6 | 書き出し | `GRS` は、書き出す絵とクリップボードへコピーする絵での `Branding` の扱いを、表 T-076 の `EP-1` に従わせること。'
+const BR_6_BLANK = '書き出す絵とクリップボードへコピーする絵では、`GRS` は `Branding` と `BR-7` の縦線を描かず、席と縦線の分を空白のまま残し、`Document Title` を画面と同じ位置に置くこと。'
 const EP_1_SAME_ROWS = '席の幅は同書の 表 T-206 の `S-490` と `S-462` から、隔たりは `S-226` から、太さは `S-492` から決まり、画面も書き出しも同じ行を読む。'
 const EP_1_NO_DIVIDER = '⭐ 縦線（表 T-349 の `BR-7`）も描かず、その分も空白のまま残す'
 const BR_2_THREE_INSETS = '題の左の余白は、`S-226` の 3 つ分（帯の左端から席まで、縦線の左、縦線の右）と席の幅を足して `S-235` を掛け、縦線の太さ（同表の `S-492`）を足した長さであり'

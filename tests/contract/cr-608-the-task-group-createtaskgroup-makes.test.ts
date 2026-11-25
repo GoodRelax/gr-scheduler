@@ -33,7 +33,7 @@ const AT_153_DEFAULT =
   '既定の `auto` は、この値を持たずに読んだタスクグループと、`CM-26` を通らずにできるタスクグループ（MSPDI から取り込んだタスクグループ、`createTask` がタスクグループとともに作るタスクグループ）が取る。'
 const AT_153_DU_2 = '貼り付けたコピーは `01-04-requirements.md` の 表 T-223 の `DU-2` に従う'
 const DU_2_VALUE =
-  '複製元が `collapsed` か `hidden` ならその値とし、`expanded` か `temporarilyExpanded` なら `auto` とすること（MUST）'
+  '複製元が `collapsed` か `hidden` なら複製元の値にし、`expanded` か `temporarilyExpanded` なら `auto` にすること。'
 const FR_018_NO_OTHER_WRITER = '同表に無い操作で値を書き換えてはならない（MUST NOT）'
 
 type Guard = { readonly name: string; readonly not?: boolean }

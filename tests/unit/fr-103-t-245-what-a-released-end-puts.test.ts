@@ -44,25 +44,25 @@ const REQUIREMENTS = unbroken(
 const DESIGN = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '05-07-design.md'), 'utf8'))
 
 const FR_103_STATEMENT =
-  '`FR-104` の 表 T-266 の掴み代を掴んで離したとき、`GRS` は、**表 T-245 に従って**値を置き、同表が据え置くとする値を変えないこと。'
+  '`FR-104` の 表 T-266 の掴み代を掴んで離したとき、`GRS` は表 T-245 に従って値を置くこと。'
 
 const FR_103_REFUSALS =
-  '拒むときの規則は既存の条項が持つ —— `finish` が `start` より前になる置き方は `FR-012` の MUST NOT と `05-07-design.md` の 表 T-220 の `IV-10` が、フェードの日数の和が期間を超える置き方は同表の `IV-12` が、受け入れる日付の範囲を外れる置き方は同表の `IV-14` が拒む。'
+  '拒むときの規則は既存の条項が持つ —— `finish` が `start` より前になる置き方は `FR-012` の MUST NOT と `05-07-design.md` の 表 T-220 の `IV-10` が、フェードの日数の和が期間を超える置き方は 表 T-220 の `IV-12` が、受け入れる日付の範囲を外れる置き方は 表 T-220 の `IV-14` が拒む。'
 
-const FR_012_NOT_BEFORE = '⚠️ `finish` が `start` より前の入力を受け付けてはならない（MUST NOT）'
+const FR_012_NOT_BEFORE = '`GRS` は、`finish` が `start` より前の入力を受け付けないこと。'
 
-const FR_012_NO_ROUNDING = '丸めて `finish` = `start` にしてはならない（MUST NOT）'
+const FR_012_NO_ROUNDING = '`GRS` は、`finish` が `start` より前の入力を丸めて `finish` = `start` にしないこと。'
 
-const FR_103_IV_21 = '実績の長さ（`FR-011` が日付から数える）が 0 を下回る置き方は、同表の `IV-21` が拒む。'
+const FR_103_IV_21 = '実績の長さ（`FR-011` が日付から数える）が 0 を下回る置き方は、表 T-220 の `IV-21` が拒む。'
 
 const FR_011_FLOOR =
-  '⭐ 着手しているタスクの実績の最後の日を、床の日より前に置かないこと（MUST）'
+  '`GRS` は、着手しているタスクの実績の最後の日を、床の日より前に置かないこと'
 
-const FR_011_NOT_ZERO = '掴んで 0 稼働日まで縮められるようにしてはならない（MUST NOT）'
+const FR_011_NOT_ZERO = '`GRS` は、実績を掴んで 0 稼働日まで縮められるようにしないこと。'
 
-const GO_3_REST_DAY = '離した所が非稼働日であっても、その日を最後の日とすること（MUST）'
+const GO_3_REST_DAY = '離した所が非稼働日であっても、`GRS` は離した日を最後の日とすること。'
 
-const GO_4_LAST_DAY = '持っているほうの最後の日（`actualFinish` または `stop`）も、置き直した `actualStart` と同じ日とする'
+const GO_4_LAST_DAY = '`GRS` は、持っているほうの最後の日（`actualFinish` または `stop`）も、置き直した `actualStart` と同じ日にすること。'
 
 const T_245 = specTable('T-245')
 

@@ -27,24 +27,26 @@ function rowOf(table: string, id: string): SpecRow {
 const cellOf = (table: string, id: string, heading: string): string => unbroken(rowOf(table, id).by[heading] ?? '')
 
 const FR_151_STATEMENT =
-  '作成者が語を打ったとき、`GRS` は、名前・担当名・コメントボックスの本文にその語を含むタスクとコメントボックスを検索パネル（`_assets/tbl-glossary.md` の `U-64`）の表に並べ'
+  '作成者が語を打ったとき、`GRS` は、名前・担当名・コメントボックスの本文に打った語を含むタスクとコメントボックスを検索パネル（`_assets/tbl-glossary.md` の `U-64`）の表に並べること。'
 const FR_151_NOT_NOTES_NOR_TASK_GROUP_NAMES =
-  '⛔ 探すものに `Task.notes`（`_assets/fig-erd-detail.md` の `AT-32`）とタスクグループ名（`AT-53`）を含めてはならない（MUST NOT） —— タスクグループ名は 表 T-331 の `SQ-6` のフィルタで届く。'
+  '`GRS` は、語を比べる相手に `Task.notes`（`_assets/fig-erd-detail.md` の `AT-32`）とタスクグループ名（`AT-53`）を含めないこと。'
 
 const SV_4 = cellOf('T-330', 'SV-4', '定め')
 const SV_4_WHERE =
-  '語が、タスクの表では名前（`SQ-1`）か担当名のどれか 1 つ（`SQ-2`）、コメントボックスの表では本文（`SQ-7`）の一部と一致する行を載せる。'
-const SV_4_FOLD = '比べる前に両方を `NFKC` で正規化し、大文字と小文字を畳む —— 全角と半角、大文字と小文字を区別しない。'
+  '`GRS` は、タスクの表では名前（`SQ-1`）か担当名のどれか 1 つ（`SQ-2`）の一部と語が一致する行を、コメントボックスの表では本文（`SQ-7`）の一部と語が一致する行を載せること。'
+const SV_4_FOLD = '`GRS` は、語と相手を比べる前に、語と相手の両方を `NFKC` で正規化すること（全角と半角を区別しない）。'
+const SV_4_FOLD_CASE = '`GRS` は、語と相手を比べる前に、語と相手の両方の大文字と小文字を畳むこと（大文字と小文字を区別しない）。'
 const SV_4_KANA =
-  'ひらがなとカタカナは区別する（例: 語「ｐｍ」は「PM レビュー」に当たり、語「れびゅー」は「レビュー」に当たらない）。'
-const SV_4_EMPTY_WORD = '語が空のときはすべての行を載せる。'
-const SV_4_EMPTY_NAME = '名前が空のタスクも表に載るが、名前の側では空でない語に当たらない'
+  '`GRS` は、ひらがなとカタカナを区別して比べること（例: 語「ｐｍ」は「PM レビュー」に当たり、語「れびゅー」は「レビュー」に当たらない）。'
+const SV_4_EMPTY_WORD = '語が空の間、`GRS` は、すべての行を載せること。'
+const SV_4_EMPTY_NAME = '`GRS` は、名前が空のタスクを、名前が空であることを理由に表から外さないこと。'
+const SV_4_EMPTY_NAME_NO_HIT = '`GRS` は、名前が空のタスクを、名前の側では空でない語に当てないこと。'
 
 const SV_8 = cellOf('T-330', 'SV-8', '定め')
 const SV_8_DEFAULT_ORDER =
-  '既定の並びは、タスクグループの木の上からの並び → `SQ-3`（コメントボックスは `SQ-9`）→ `Task.uid`（コメントボックスは `id`）'
+  '`GRS` は、既定の並びを、タスクグループの木の上からの並び → `SQ-3`（コメントボックスは `SQ-9`）→ `Task.uid`（コメントボックスは `id`）の順で決めること。'
 
-const SQ_1_NO_NAME_WORD = 'この語は `SV-4` の一致に使わない'
+const SQ_1_NO_NAME_WORD = '`GRS` は、語「（名前なし）」を `SV-4` の一致に使わないこと。'
 const SQ_2_ORDER = '割当の並びのまま'
 const SQ_4_MILESTONE = 'マイルストーン（`AT-30`）は `AT-28` と同じ日'
 const SQ_6_TOP_FIRST = '最上位から順に'
@@ -209,7 +211,7 @@ describe('FR-151 -- the clauses these cases are driven by', () => {
   })
 
   it('table T-330 SV-4 and SV-8 still read this way', () => {
-    for (const clause of [SV_4_WHERE, SV_4_FOLD, SV_4_KANA, SV_4_EMPTY_WORD, SV_4_EMPTY_NAME]) expect(SV_4).toContain(clause)
+    for (const clause of [SV_4_WHERE, SV_4_FOLD, SV_4_FOLD_CASE, SV_4_KANA, SV_4_EMPTY_WORD, SV_4_EMPTY_NAME, SV_4_EMPTY_NAME_NO_HIT]) expect(SV_4).toContain(clause)
     expect(SV_8).toContain(SV_8_DEFAULT_ORDER)
   })
 

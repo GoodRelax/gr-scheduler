@@ -47,16 +47,16 @@ function rowOf(table: SpecTable, id: string): SpecRow {
 
 // Spec: CV-9
 const CV_9_ONE_LIST =
-  '⭐ タスクグループの色の欄が並べる名を、`TaskGroup.color` が受ける名の唯一の一覧とすること（MUST） —— 一覧は、表 T-294 の名のうち、タスクグループの帯の欄が「—」でないものとする（透明は「描かない」を持つので一覧に入る）。'
+  '`GRS` は、タスクグループの色の欄が並べる名 —— 表 T-294 の名のうち、タスクグループの帯の欄が「—」でないもの（透明は「描かない」を持つので一覧に入る） —— を、`TaskGroup.color` が受ける名の唯一の一覧とすること。'
 const CV_9_REFUSED =
-  '⛔ 一覧の外の名（黒）は、`CM-30`（`FR-042`）も、`GRS JSON` の取り込み（`05-07-design.md` の 表 T-220 の前文のスキーマ、拒んだときの理由は 表 T-233 の `RS-25`）も受けてはならない（MUST NOT）'
+  '`GRS` は、タスクグループの色の欄が並べる名の一覧の外の名（黒）を、`CM-30`（`FR-042`）でも、`GRS JSON` の取り込み（`05-07-design.md` の 表 T-220 の前文のスキーマ、拒んだときの理由は 表 T-233 の `RS-25`）でも受けないこと。'
 const CV_9_GENERATED =
-  '⭐ 一覧は列の形（`_assets/fig-erd-detail.md` の `AT-58`）から生成し、欄・命令・取り込みのどれにも手で書き写してはならない（MUST NOT）。'
-const CV_9_SLOTS_KEPT = 'その欄に並べない名と入口（下の 2 つ）の場所は空けたままとし、後ろの名や入口を詰めてはならない（MUST NOT）'
-const CV_9_FRAME_TRANSPARENT = 'ハイライトボックスの枠の欄にも透明（線なし）を並べる —— 線が透明でも枠は掴める（`FR-016` の 表 T-246 の `HB-12`）。'
-const CV_9_COMMENT_NO_TRANSPARENT = 'コメントボックスの線の欄と字の欄には透明を並べない（`FR-019`）。'
+  '`GRS` は、タスクグループの色の欄が並べる名の一覧を列の形（`_assets/fig-erd-detail.md` の `AT-58`）から生成すること。'
+const CV_9_SLOTS_KEPT = '`GRS` は、欄に並べない名と入口（コメントボックスの線の欄と字の欄の透明、タスクグループの色の欄の黒）の場所を空けたままとし、後ろの名や入口を詰めないこと。'
+const CV_9_FRAME_TRANSPARENT = '`GRS` は、ハイライトボックスの枠の欄にも透明（線なし）を並べること。'
+const CV_9_COMMENT_NO_TRANSPARENT = '`GRS` は、コメントボックスの線の欄と字の欄に透明を並べないこと（`FR-019`）。'
 // Spec: CV-2
-const CV_2_TWO_VALUES = 'カスタムカラーは、明るいテーマの値と暗いテーマの値の 2 つを持つこと（MUST）。'
+const CV_2_TWO_VALUES = '`GRS` は、カスタムカラーに、明るいテーマの値と暗いテーマの値の 2 つを持たせること。'
 // Spec: RS-25
 const RS_25_SCENE = '読んだ `GRS JSON` の列が、決められた形に合わない'
 
@@ -78,7 +78,7 @@ const TRANSPARENT = nameOf(rowOf(T_294, 'S-324'))
 describe('CR-586 premise -- the clauses these cases are built from', () => {
   it('CV-9, CV-2, RS-25 and CM-30 still read as quoted', () => {
     const cv9 = rowOf(T_017B, 'CV-9').cells.join(' ')
-    for (const clause of [CV_9_ONE_LIST, CV_9_REFUSED, CV_9_GENERATED, CV_9_SLOTS_KEPT]) {
+    for (const clause of [CV_9_ONE_LIST, CV_9_REFUSED, CV_9_GENERATED, '`GRS` は、タスクグループの色の欄が並べる名の一覧を、欄・命令・取り込みのどれにも手で書き写さないこと。', CV_9_SLOTS_KEPT]) {
       expect(cv9).toContain(clause)
     }
     expect(cv9).toContain(CV_9_FRAME_TRANSPARENT)

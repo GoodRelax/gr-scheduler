@@ -17,8 +17,8 @@ const REQUIREMENTS = unbroken(readFileSync(join(SPEC, '01-04-requirements.md'), 
 // Spec: FR-132, S-397, T-314
 const FR_132_COMPARED = '押し出し日数（`DQ-4`）を稼働日へ切り上げた数が `S-397` 以上で完了していない `Task` をボトルネックとすること'
 const FR_132_IN_MINUTES =
-  '量はすべて文書の暦の稼働時間の分で数え（表 T-314）、`S-397` と比べるときだけ、`Project.minutesPerDay` 分（空なら `S-128`）を 1 日として稼働日へ切り上げること（MUST、暦は `FR-054`） —— 1 分でも終端を押したものを 1 日として数え、表 T-375 の `TX-8` が見せる日数と揃える。'
-const FR_132_SETTLED = '押し出し日数を同じく切り上げた数が `S-397` 以上の完了したタスクは、レポートの 表 T-317 の `DX-9` に確定した押し出しとして出すこと（MUST）'
+  '`GRS` は、`S-397` と比べるときだけ、`Project.minutesPerDay` 分（空なら `S-128`）を 1 日として稼働日へ切り上げること。'
+const FR_132_SETTLED = '`GRS` は、押し出し日数を `IMPS-592` と同じく切り上げた数が `S-397` 以上の完了したタスクを、レポートの 表 T-317 の `DX-9` に確定した押し出しとして出すこと。'
 const S_397_NOTE = '比べるのは `DQ-4`（稼働時間の分）を稼働日へ切り上げた数である（`FR-132`） —— 30 分の押し出しも 1 稼働日として数える'
 
 describe('the clauses and the row these cases are built from still read as quoted', () => {

@@ -28,7 +28,7 @@ const ACTUAL_EMPTIED = '空にしたときは両方を空にして `PA-1`（未�
 const PLANNED_EMPTIED = '空のまま確定したときの扱いは `FR-006` の `start` ／ `finish` の欄と同じ'
 // Spec: FR-006
 const FR_006_EMPTIED =
-  '空のまま確定したときは、`start` ／ `finish` の欄なら何も書かずに欄を元の値へ戻し、それ以外の日付の欄なら `null` を書くこと（MUST）'
+  '`start` か `finish` の欄を空のまま確定したとき、`GRS` は、値を書かずに欄を元の値へ戻すこと。'
 
 const DAY_KIND = '日時'
 

@@ -15,14 +15,14 @@ import { specTable, unbroken } from './spec-table'
 const SPEC = join(process.cwd(), 'docs', 'spec')
 const REQUIREMENTS = unbroken(readFileSync(join(SPEC, '01-04-requirements.md'), 'utf8'))
 
-const FR_042_FLOOR = '指定した最小の高さは下限として扱うこと（MUST）。'
-const FR_042_WIDEN = '段数がそれより高い帯を要するときは、指定を超えて広げること（MUST）。'
+const FR_042_FLOOR = '`GRS` は、指定した最小の高さを下限として扱うこと。'
+const FR_042_WIDEN = '段数が指定した最小の高さより高い帯を要するとき、`GRS` は、帯を指定を超えて広げること。'
 const FR_042_HELD_AS_PX =
-  '指定した最小の高さは、表示の倍率（`_assets/tbl-settings.md` の 表 T-202 の `S-234`）が 100 のときの画面の px として持ち、描くときは `FR-039` の 表 T-252 の `DS-13` のとおり、表示の倍率に比例して伸縮させること（MUST）'
-const FR_042_NOT_ZOOM_Y = '⛔ 縦のズーム（同書の 表 T-203 の `S-76`）で縮めてはならない（MUST NOT）'
+  '`GRS` は、指定した最小の高さを、表示の倍率（`_assets/tbl-settings.md` の 表 T-202 の `S-234`）が 100 のときの画面の px として持つこと。'
+const FR_042_NOT_ZOOM_Y = '`GRS` は、最小の高さを縦のズーム（`_assets/tbl-settings.md` の 表 T-203 の `S-76`）で縮めないこと。'
 const DS_13_MULTIPLY = '`_assets/tbl-settings.md` の 表 T-202 の `S-234` を 100 で割った値を掛ける。'
 const DS_13_NOT_S_236 = '⛔ 縦のズーム（同書の 表 T-203 の `S-76`）と、同書の 表 T-206 の `S-236` を掛けてはならない（MUST NOT）'
-const MH_1_VALUE = '欄の値は、表示の倍率が 100 のときの画面の px の整数とすること（MUST）。'
+const MH_1_VALUE = '`GRS` は、欄の値を、表示の倍率が 100 のときの画面の px の整数とすること。'
 const DS_8_KEEP = '保存する倍率を書き換えず、描く縦の寸法に両方を掛ける'
 
 describe('CR-582 -- the manuscript these cases are driven by', () => {
@@ -30,6 +30,7 @@ describe('CR-582 -- the manuscript these cases are driven by', () => {
     ['FR-042 (MUST) -- a lower bound', FR_042_FLOOR],
     ['FR-042 (MUST) -- widened past it', FR_042_WIDEN],
     ['FR-042 (MUST) -- held as screen px, drawn scaled', FR_042_HELD_AS_PX],
+    ['FR-042 (MUST) -- held as screen px, drawn scaled', '`GRS` は、最小の高さを描くとき、`FR-039` の 表 T-252 の `DS-13` のとおり、表示の倍率に比例して伸縮させること。'],
     ['FR-042 (MUST NOT) -- never shrunk by the vertical zoom', FR_042_NOT_ZOOM_Y],
     ['T-338 MH-1 (MUST) -- the value', MH_1_VALUE],
     ['T-252 DS-8', DS_8_KEEP],

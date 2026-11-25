@@ -54,22 +54,22 @@ import { domScreenSurface } from '../../src/framework/dom-screen-surface/dom-scr
 import { bare, specTable, unbroken } from '../contract/spec-table'
 import { selfAndDescendants, stage, wiringOf, type FakeElement } from '../fixtures/fake-browser'
 
-const AS_1_OPENS_AND_FOCUSES_THE_FILTER = '押したときは、その欄の一覧を開き、一覧の上の絞り込みの欄に焦点を置くこと（MUST）'
-const AS_3_ONLY_THAT_ONE = '⭐ 解くのはチェックを外した担当の割当だけであり、ほかの割当を解いてはならない（MUST NOT）。'
+const AS_1_OPENS_AND_FOCUSES_THE_FILTER = '担当ラベルをダブルクリックしたとき、`GRS` は、一覧の上の絞り込みの欄に焦点を置くこと。'
+const AS_3_ONLY_THAT_ONE = 'チェックを外したとき、`GRS` は、チェックを外した担当の割当のほかの割当を解かないこと。'
 const AS_5_ONE_FIELD =
-  '⭐ 担当の欄はタスクに 1 つとし、閉じているあいだは主担当（`AS-13`）の名を出し、ほかにも就いているときはその後に `FR-059` の印「, …」を続けること（MUST）'
-const AS_5_NOBODY = '就いている担当がいないときは何も出さない。'
-const AS_5_NO_KIND_FILTER = '⭐ 一覧に出す担当は、資源の種類で絞らない'
-const AS_12_ADDS = 'ほかの割当を解いてはならない（MUST NOT） —— チェックを付けるのは足すことである。'
-const AS_12_AT_THE_TAIL = '⭐ 就けた割当は、そのタスクの割当の並びの末尾に入る（`AS-13`） —— 先に就いていた人の順も主担当も変わらない'
+  '`GRS` は、担当の欄をタスクに 1 つとすること。'
+const AS_5_NOBODY = '就いている担当がいないとき、`GRS` は、担当の欄に何も出さないこと。'
+const AS_5_NO_KIND_FILTER = '`GRS` は、一覧に出す担当を資源の種類で絞らないこと。'
+const AS_12_ADDS = 'チェックを付けたとき、`GRS` は、ほかの割当を解かないこと。'
+const AS_12_AT_THE_TAIL = '⭐ 就けた割当は、タスクの割当の並びの末尾に入る（`AS-13`） —— 先に就いていた人の順も主担当も変わらない'
 const AS_13_PRIMARY =
-  '⭐ そのタスクの割当（`Assignment`）を文書の割当の並びの順に読み、先頭の割当の担当を主担当とすること（MUST）'
+  '`GRS` は、タスクの割当（`Assignment`）を文書の割当の並びの順に読み、先頭の割当の担当を主担当とすること。'
 const AS_13_ORDER_KEPT =
-  '⛔ 割当を就けるときは並びの末尾に足し、解くときは並びから除くだけとし、残る割当の順を変えてはならない（MUST NOT）'
-const AS_13_LABEL = '担当ラベル（`FR-059`）は、並びで先頭の、ラベルに出せる担当の名を出す'
-const AS_10_NO_SECOND = '**割当を増やさないこと（MUST）**'
+  '`GRS` は、割当を解くとき、割当を並びから除くだけとし、残る割当の順を変えないこと。'
+const AS_13_LABEL = '`GRS` は、担当ラベル（`FR-059`）に、並びで先頭の、ラベルに出せる担当の名を出すこと。'
+const AS_10_NO_SECOND = 'もし受け取った名前または `uid` がタスクに既に就いている担当を指した場合、`GRS` は、割当を増やさないこと。'
 const T_225_ALL_IN_ONE_CALL =
-  '`AS-5` の `IC-125` と `IC-126` は、一覧に出ている人の数だけの `CM-44` か `CM-45` を 1 回の呼び出しで走らせること（MUST）。'
+  '`GRS` は、`AS-5` の `IC-125` と `IC-126` が書く、一覧に出ている人の数だけの `CM-44` か `CM-45` を、1 回の呼び出しで走らせること。'
 const FR_059_MARK =
   '複数が割り当てられているときは、**主担当の名に、半角コンマ・半角空白・三点リーダーの印「, …」を続けて**示すこと（利用者の判断）'
 const FR_059_NO_COUNT = '残りの人数は出さない'

@@ -32,8 +32,8 @@
 // THE ROWS THESE CASES ANSWER TO (rule 03 §3: name the row, do not copy it)
 // ---------------------------------------------------------------------------
 //
-//   表 T-036 `SK-11` 「保存する（`FR-096` の定めにより `GRS JSON` で書く。上書き
-//            先は `FR-060`）」, 割当 `Ctrl+S` -- the key these cases press, read
+//   表 T-036 `SK-11` 「`SK-11` で保存したとき、`GRS` は、`FR-096` の定めにより
+//            `GRS JSON` で書くこと。」, 割当 `Ctrl+S` -- the key these cases press, read
 //            out of that column rather than typed
 //   `FR-060` 「作成者が開いたファイルを保存するとき、`GRS` は、**同じファイルへ上書
 //            きできるようにすること。**」, with ⭐「**その速い道は 表 T-036 の
@@ -313,7 +313,7 @@ describe('the manuscript still says what these cases read', () => {
     // ⚠️ The raw cell, not `bare`: that helper answers the FIRST code span of a
     // cell, and this claim is about a phrase the cell holds further along.
     const action = rowOf(T_036, 'SK-11').by['操作'] ?? ''
-    expect(action, '表 T-036 の `SK-11`: 上書き先は `FR-060`').toContain('上書き先は `FR-060`')
+    expect(action, '表 T-036 の `SK-11`: 上書き先は `FR-060`').toContain('`SK-11` で保存したとき、`GRS` は、上書き先を `FR-060` に従わせること。')
   })
 
   it('⭐ FR-060 still calls SK-11 the fast road, and FR-096 still fixes the form', () => {

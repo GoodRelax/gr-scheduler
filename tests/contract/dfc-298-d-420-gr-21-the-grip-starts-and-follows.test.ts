@@ -33,9 +33,9 @@
 //                 floor is `S-205`. A 区間 has a start as well as a length.
 //   T-023d        its closing paragraph, which names GR-21 among the grabs
 //                 whose picture follows the pointer while held.
-//   FR-051        「スクロールバーの操作でも表示位置を変えられるようにすること
-//                 （MUST）」, and 「表示位置が変わったときは ... `S-77` と `S-78`
-//                 が新しい表示位置を指すようにすること（MUST）」.
+//   FR-051        「`GRS` は、スクロールバーの操作でも表示位置を変えられるように
+//                 すること。」, and 「表示位置が変わったとき、`GRS` は、... `S-77` と `S-78`
+//                 を、新しい表示位置を指す値にすること」.
 //   T-035 AG-9    「パンと範囲選択は文書を変えないので拒否しない —— 対象は表
 //                 T-027 の取り消し対象行と一致させる」 -- the sentence that says
 //                 which drags a mid-gesture write may not be refused during.
@@ -48,7 +48,7 @@
 // ⛔ WHAT IS DELIBERATELY NOT ASSERTED
 // ---------------------------------------------------------------------------
 //   - What a press on the LANE OUTSIDE the grip does. GR-21 says of itself
-//     「つまみの外の帯を押したときの振る舞いは、本行は定めない（未決）」.
+//     「つまみの外の帯を押したときの振る舞いは、`GR-21` は定めない（未決）」.
 //   - The grip's exact length.
 //     `tests/contract/dfc-405-gr-21-the-grip-is-a-fraction-of-its-lane.test.ts` holds
 //     that half. ⚠️ THIS LINE USED TO NAME the uf-61 unit test (since deleted by CR-573), AND THAT

@@ -30,8 +30,8 @@ const FR_076_NO_FALL_TO_A_T_233_ROW =
   '⛔ その通知を本表の行（`RS-15` を含む）へ振り替えてはならない（MUST NOT）'
 const NT_6_SAYS_WHAT_CAN_BE_DONE = '続けられないことと、いま何ができるかを示すこと（MUST）'
 const FR_012_NO_TASK_WITHOUT_AN_END =
-  '⚠️ `start` または `finish` を持たない `Task` を、画面に出す `Task` として受け付けてはならない（MUST NOT）'
-const FR_012_EX_5_IS_EXEMPT = '⚠️ 表 T-033 の `EX-5` が定める「中身のない行」は、この禁止の対象外とすること（MUST）。'
+  '`GRS` は、`start` または `finish` を持たない `Task` を、画面に出す `Task` として受け付けないこと。'
+const FR_012_EX_5_IS_EXEMPT = '`GRS` は、表 T-033 の `EX-5` が定める「中身のない行」を、`IMPS-477` の禁止の対象外とすること。'
 
 const NEVER_THE_KEY_OF_A_SETTING_OR_A_REQUIREMENT = ['S-113', 'S-114', 'S-115', 'FR-012', 'FR-023', 'RS-15'] as const
 

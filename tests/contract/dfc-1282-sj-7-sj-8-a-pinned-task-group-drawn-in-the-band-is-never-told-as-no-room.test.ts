@@ -17,10 +17,10 @@ const cellOf = (id: string): string => {
 
 // Spec: SJ-7, SJ-8
 const SJ_7_PINNED_DRAWN =
-  '飛ぶ先のタスクグループがピン止めのタスクグループ（`S-126`）で、ピン止めの帯（`FR-098`）に描かれているなら、`SJ-5` を行わず、`SJ-6` だけを行う。'
-const SJ_7_ROOM_IRRELEVANT = '帯の下に残る高さは問わない'
-const SJ_8_NOT_DRAWN = 'ピン止めのタスクグループでは、帯に入りきらずに描かれていないこと'
-const SJ_8_STILL_OPENS = '`SJ-2` と `SJ-4` は行う'
+  '飛ぶ先のタスクグループがピン止めのタスクグループ（`S-126`）で、ピン止めの帯（`FR-098`）に描いてある間、`GRS` は、`SJ-5` を行わずに `SJ-6` だけを行うこと。'
+const SJ_7_ROOM_IRRELEVANT = '飛ぶ先のタスクグループがピン止めの帯に描いてある間、`GRS` は、帯の下に残る高さを問わないこと。'
+const SJ_8_NOT_DRAWN = '`GRS` は、ピン止めのタスクグループを、帯に入りきらずに描いていないとき（`FR-098`）だけ、画面に出せないと判じること。'
+const SJ_8_STILL_OPENS = 'もし飛ぶ先のタスクグループを画面に出せない場合も、`GRS` は、`SJ-2` と `SJ-4` を行うこと。'
 
 type Loose = Record<string, unknown>
 const TEMPLATE = JSON.parse(

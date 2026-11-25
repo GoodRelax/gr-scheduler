@@ -59,7 +59,7 @@ const FR_029_S_149 = '薄さは `_assets/tbl-settings.md` の 表 T-236 の `S-1
 const FR_029_NOT_DISABLED = '薄く描いた入口を、宿主の意味で無効にしてはならない（MUST NOT）'
 const IF_9_ENTRY_OR_FORMAT = '入口と形式は別の表の行であり、一方の上にあるとき他方は `null` である'
 const IF_9_U_27 = 'ヘッダーの文書名の欄は 表 T-103 の `U-27` を名乗る'
-const FR_035 = '作成者が文書名を選んだとき、`GRS` は、その場で編集できるようにすること。'
+const FR_035 = '作成者が文書名を選んだとき、`GRS` は、文書名をその場で編集できるようにすること。'
 
 const APP_HEADER = englishName('U-31')
 const OPENED_FILE_NAME = englishName('U-58')

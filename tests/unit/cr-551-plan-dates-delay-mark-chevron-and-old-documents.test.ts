@@ -118,7 +118,7 @@ const placementOf = (loop: FrameLoop, uid: number) => {
 const labelOf = (loop: FrameLoop, uid: number): string => placementOf(loop, uid).label
 
 
-const ND_5_ONE_YEAR = '文書のすべてのタスクとマイルストーンの `start` と `finish` が 1 つの暦年に収まるときは書かない。'
+const ND_5_ONE_YEAR = '文書のすべてのタスクとマイルストーンの `start` と `finish` が 1 つの暦年に収まるとき、`GRS` は年を書かないこと。'
 const ND_5_FOUR_DIGITS = '年（西暦の 4 桁）、`/`、月、`/`、日 の順で書く'
 
 describe('ND-5 (table T-251) -- the year beside the plan dates', () => {
@@ -220,9 +220,9 @@ describe('FR-002 -- plan dates at the name size x S-325', () => {
 
 
 const FR_013_COLORS =
-  'ただし遅れ（表 T-021 の `PM-4`）のマーカーは、地を `_assets/tbl-settings.md` の 表 T-236 の `S-326`、記号を同表の `S-327` で塗ること（MUST）'
-const FR_013_BAR = '遅れの記号 `(!)` の縦棒の太さは、`S-24` に 表 T-206 の `S-328` を掛けた値とすること（MUST）'
-const FR_013_PARTS = '縦棒の下端・点の中心・点の半径は、同表の `S-329` ・ `S-330` ・ `S-331` とすること（MUST）'
+  '`GRS` は、遅れ（表 T-021 の `PM-4`）のマーカーの地を `_assets/tbl-settings.md` の 表 T-236 の `S-326` で、記号を 表 T-236 の `S-327` で塗ること。'
+const FR_013_BAR = '`GRS` は、遅れの記号 `(!)` の縦棒の太さを、`S-24` に 表 T-206 の `S-328` を掛けた値とすること。'
+const FR_013_PARTS = '`GRS` は、遅れの記号 `(!)` の縦棒の下端・点の中心・点の半径を、表 T-206 の `S-329` ・ `S-330` ・ `S-331` とすること。'
 
 interface DelayMark {
   readonly svg: string
@@ -310,11 +310,11 @@ describe('FR-013 -- the delay mark', () => {
 })
 
 
-const FD_5_PER_END = '矢羽根では、開始側の切り込みの深さを `fadeIn` に、終了側の先端の深さを `fadeOut` に、端ごとに置き換えること（MUST）'
-const FD_5_MUST_NOT = '一方の端のフェード長で、もう一方の端の形を変えてはならない（MUST NOT）'
+const FD_5_PER_END = '`GRS` は、矢羽根では、開始側の切り込みの深さを `fadeIn` に、終了側の先端の深さを `fadeOut` に、端ごとに置き換えること。'
+const FD_5_MUST_NOT = '`GRS` は、一方の端のフェード長で、もう一方の端の形を変えないこと。'
 const FD_5_UNSET_END =
-  'フェード長が未設定（`null`）の端は、フェードの無い矢羽根と同じ深さ（`_assets/tbl-settings.md` の 表 T-201 の `S-43` ／ `S-44`）のままとすること（MUST）'
-const FD_5_ZERO_FLAT = 'フェード長が 0 の端は、平ら（深さ 0）に描くこと（MUST）'
+  '`GRS` は、フェード長が未設定（`null`）の矢羽根の端を、フェードの無い矢羽根と同じ深さ（`_assets/tbl-settings.md` の 表 T-201 の `S-43` ／ `S-44`）のまま描くこと。'
+const FD_5_ZERO_FLAT = '`GRS` は、フェード長が 0 の矢羽根の端を、平ら（深さ 0）に描くこと。'
 
 interface Ends {
   readonly startNotch: number

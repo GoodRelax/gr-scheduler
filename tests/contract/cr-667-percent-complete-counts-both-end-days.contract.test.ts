@@ -26,12 +26,12 @@ const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '
 // Why: each constant ends exactly at its marker, cut from the manuscript as check 39 reads it.
 // Why: CR-710 retired the day count; the plan is now FR-011's working time in minutes (FR-054).
 const FR_012_PLAN_BY_FR_011 =
-  '⭐ **予定の期間は、`start` から `finish` までを、`FR-011` が実績の長さを数える規則で数えた稼働時間（分）とすること（MUST）'
-const FR_012_MILESTONE_ZERO = 'マイルストーンの予定の期間は 0 とする —— 長さを持たない点である（`FR-011` と同じ扱い）。'
+  '`GRS` は、予定の期間を、`start` から `finish` までを `FR-011` が実績の長さを数える規則で数えた稼働時間（分）とすること。'
+const FR_012_MILESTONE_ZERO = '`GRS` は、マイルストーンの予定の期間を 0 とすること（`FR-011` と同じ扱い）。'
 const FR_012_ON_PLAN_IS_100 =
   '⇒ 予定どおりに始めて予定どおりに終えたタスクは 100 であり、同じ日の 08:00 〜 17:00 のタスクの予定の期間は、既定の時間帯の暦で 480 分（1d）である。'
 const FR_011_ENDS_COUNT =
-  '⭐ ただし、端（`actualStart` か終わり）を持つ日が非稼働日であるときは、その日を稼働日の時間帯（`FR-088` の 表 T-344 の `WC-8` の 1 組）で稼働したものとして数えること（MUST）'
+  '`GRS` は、端（`actualStart` か終わり）を持つ日が非稼働日であるとき、端を持つ日を稼働日の時間帯（`FR-088` の 表 T-344 の `WC-8` の 1 組）で稼働したものとして数えること。'
 const EP_9_S_149 =
   ' | 操作子としては描かない。境界の線を描く | 境界が消えるとタスクグループ見出しと日程の境目が読めない。`Group Grid Lines`（`U-18`）と同じ太さの線を 1 本、表 T-236 の `S-149`（罫の色）で引くこと（MUST）'
 const EP_9_NOT_S_165 = '⚠️ 色はグループ罫線の `S-165` ではない'

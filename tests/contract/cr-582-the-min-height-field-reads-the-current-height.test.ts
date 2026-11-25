@@ -37,32 +37,32 @@ import { bare, specTable, unbroken } from './spec-table'
 const SPEC = join(process.cwd(), 'docs', 'spec')
 const REQUIREMENTS = unbroken(readFileSync(join(SPEC, '01-04-requirements.md'), 'utf8'))
 
-const FR_042_BY_T_338 = '欄は 表 T-338 に従って出すこと（MUST）。'
-const FR_042_WORDS = '欄の名・単位・現在の高さ・空の欄・タスクグループが描かれていないときの語は `FR-038` の辞書が持つ。'
-const MH_1_UNIT = '値の入力の右に単位の語を置くこと（MUST）。'
+const FR_042_BY_T_338 = '`GRS` は、タスクグループの最小の高さの欄を 表 T-338 に従って出すこと。'
+const FR_042_WORDS = '`GRS` は、最小の高さの欄の名・単位・現在の高さ・空の欄・タスクグループを描いていないときの語を、`FR-038` の辞書の語とすること。'
+const MH_1_UNIT = '`GRS` は、値の入力の右に単位の語を置くこと。'
 const MH_1_HINT =
-  '⭐ 欄の名は 1 行に収まる短い語とし、基準（表示の倍率が 100 のときの px であること）は値の入力のツールチップ（表 T-028 の `IN-3`）で示すこと（MUST）'
-const MH_2_CHECK = '値の入力の上の行に、最小の高さを設定するかのチェックを置くこと（MUST）。'
-const MH_2_EMPTY = 'チェックが外れていることを `null`（下限なし）とすること（MUST）。'
-const MH_2_CLEAR = '外したら `null` を書き、値の入力を空にして打てなくすること（MUST）。'
+  '`GRS` は、基準（表示の倍率が 100 のときの px であること）を、値の入力のツールチップ（表 T-028 の `IN-3`）で示すこと。'
+const MH_2_CHECK = '`GRS` は、値の入力の上の行に、最小の高さを設定するかのチェックを置くこと。'
+const MH_2_EMPTY = '`GRS` は、チェックが外れていることを `null`（下限なし）とすること。'
+const MH_2_CLEAR = 'チェックを外したとき、`GRS` は、値の入力を空にして打てなくすること。'
 const MH_2_TICK =
-  '⭐ チェックを入れたら、そのタスクグループのいまの帯高（`MH-3` が示す数）を表示の倍率が 100 のときの px の整数へ直して（`MH-1`）書き、値の入力に示すこと（MUST）'
-const MH_2_NOT_ZERO = '⛔ 下限の無いことを語（「なし」・`null` など）や `0` で示してはならない（MUST NOT）'
-const MH_2_NULL = 'チェックが入ったまま値を空にして確定したら、チェックを外したのと同じく `null` を書き、チェックを外すこと（MUST）'
-const MH_3_SHOW = '値の入力の下の行に、読み取り専用の 1 行として、そのタスクグループのいまの帯高を単位を添えて示すこと（MUST）。'
-const MH_3_BAND = '示す値はタスクグループの帯高（`05-07-design.md` の 表 T-221 の `LF-2`・`LF-3`）であり、タスクグループとタスクグループのあいだ（`taskGroupGap`）を含めない。'
-const MH_3_ROUND = 'px の整数へ四捨五入して示すこと（MUST）。'
-const MH_3_ALWAYS = '欄が空のときも、帯高が指定より高いときも示すこと（MUST）'
+  'チェックを入れたとき、`GRS` は、タスクグループのいまの帯高（`MH-3` が示す数）を表示の倍率が 100 のときの px の整数へ直して（`MH-1`）書くこと。'
+const MH_2_NOT_ZERO = '`GRS` は、下限の無いことを語（例: 「なし」・`null`）や `0` で示さないこと。'
+const MH_2_NULL = 'チェックが入っている間、値を空にして確定したとき、`GRS` は、チェックを外したときと同じく `null` を書くこと。'
+const MH_3_SHOW = '`GRS` は、値の入力の下の行に、読み取り専用の 1 行として、タスクグループのいまの帯高を単位を添えて示すこと。'
+const MH_3_BAND = '`GRS` は、現在の高さの値を、タスクグループの帯高（`05-07-design.md` の 表 T-221 の `LF-2`・`LF-3`）とし、タスクグループとタスクグループのあいだ（`taskGroupGap`）を含めないこと。'
+const MH_3_ROUND = '`GRS` は、現在の高さの値を px の整数へ四捨五入して示すこと。'
+const MH_3_ALWAYS = '`GRS` は、欄が空のときも、帯高が指定より高いときも、現在の高さの値を示すこと。'
 const MH_4_FOLLOW =
-  '縦のズーム・表示の倍率・タスクグループの中身のどれかで帯高が変わったら、次に描く絵で現在の高さを書き換えること（MUST）。'
-const MH_4_WHILE_EDITING = '欄を編集しているあいだも書き換えること（MUST）。'
-const MH_4_KEEP_INPUT = '⛔ 編集している入力の字と焦点を動かしてはならない（MUST NOT）'
+  '縦のズーム・表示の倍率・タスクグループの中身のどれかで帯高が変わったとき、`GRS` は、次に描く絵で現在の高さを書き換えること。'
+const MH_4_WHILE_EDITING = '欄を編集している間も、`GRS` は、現在の高さを書き換えること。'
+const MH_4_KEEP_INPUT = '`GRS` は、現在の高さを書き換えるとき、編集している入力の字と焦点を動かさないこと。'
 const MH_6_WORD_ONLY =
-  '選んだタスクグループが、いまの倍率で描かれていないとき（`FR-018` のグループ LOD で絵から外れたとき）は、現在の高さの行の数の代わりに、描かれていないことを示す語だけを示すこと（MUST）。'
-const MH_6_NO_NUMBER = '⛔ 数を示してはならない（MUST NOT）'
-const MH_6_BACK = '欄の形と位置は変えず、タスクグループがまた描かれたら、次に描く絵で現在の高さに戻すこと（MUST）'
-const FR_042_HELD_AS_PX = 'のときの画面の px として持ち、描くときは `FR-039` の 表 T-252 の `DS-13` のとおり、表示の倍率に比例して伸縮させること（MUST）'
-const FR_042_NOT_ZOOM_Y = '⛔ 縦のズーム（同書の 表 T-203 の `S-76`）で縮めてはならない（MUST NOT）'
+  '選んだタスクグループを `GRS` がいまの倍率で描いていない間（`FR-018` のグループ LOD で絵から外した間）、`GRS` は、現在の高さの行の数の代わりに、タスクグループを描いていないことを示す語だけを示すこと。'
+const MH_6_NO_NUMBER = '選んだタスクグループを `GRS` が描いていない間、`GRS` は、現在の高さの行に数を示さないこと。'
+const MH_6_BACK = '`GRS` がタスクグループをまた描いたとき、`GRS` は、次に描く絵で現在の高さの行を数に戻すこと。'
+const FR_042_HELD_AS_PX = '`GRS` は、指定した最小の高さを、表示の倍率（`_assets/tbl-settings.md` の 表 T-202 の `S-234`）が 100 のときの画面の px として持つこと。'
+const FR_042_NOT_ZOOM_Y = '`GRS` は、最小の高さを縦のズーム（`_assets/tbl-settings.md` の 表 T-203 の `S-76`）で縮めないこと。'
 
 describe('CR-582 -- the manuscript these cases are driven by', () => {
   it.each([
@@ -70,12 +70,16 @@ describe('CR-582 -- the manuscript these cases are driven by', () => {
     FR_042_WORDS,
     MH_1_UNIT,
     MH_1_HINT,
+    '`GRS` は、欄の名を 1 行に収まる短い語とすること。',
     MH_2_CHECK,
     MH_2_EMPTY,
     MH_2_CLEAR,
+    'チェックを外したとき、`GRS` は、`null` を書くこと。',
     MH_2_TICK,
+    'チェックを入れたとき、`GRS` は、書いた帯高の値を値の入力に示すこと。',
     MH_2_NOT_ZERO,
     MH_2_NULL,
+    'チェックが入っている間、値を空にして確定したとき、`GRS` は、チェックを外すこと。',
     MH_3_SHOW,
     MH_3_BAND,
     MH_3_ROUND,
@@ -86,7 +90,9 @@ describe('CR-582 -- the manuscript these cases are driven by', () => {
     MH_6_WORD_ONLY,
     MH_6_NO_NUMBER,
     MH_6_BACK,
+    '選んだタスクグループを `GRS` が描いていない間、`GRS` は、欄の形と位置を変えないこと。',
     FR_042_HELD_AS_PX,
+    '`GRS` は、最小の高さを描くとき、`FR-039` の 表 T-252 の `DS-13` のとおり、表示の倍率に比例して伸縮させること。',
     FR_042_NOT_ZOOM_Y,
   ])('still says it, word for word: %s', (clause) => {
     expect(REQUIREMENTS).toContain(clause)

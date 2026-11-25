@@ -36,9 +36,9 @@ const OP_10_NOT_UNDO_REDO_MERGE =
 const FR_080_SAME_AS_THE_SCREEN =
   '表示の切り替え・表示の倍率（`FR-039` の `S-234`）・ズームの段階・LOD による増減の結果を、書き出しでも同じにすること。'
 const FR_091_CLOSES_THE_PANEL =
-  '⭐ 作った直後の名称を `Enter` で確定したときは、同じ 1 回の押下でプロパティパネルを閉じ、その選択を解除すること（MUST）'
+  '作った直後の名称を `Enter` で確定したとき、`GRS` は、同じ 1 回の押下でプロパティパネルを閉じること。'
 const FR_052_JUDGES_ON_THE_TASK_GROUP_AREA =
-  '判定は `Task Group Area` の幅が 0 より大きいことをもって行うこと（MUST）'
+  '`GRS` は、幅の判定を、`Task Group Area` の幅が 0 より大きいことをもって行うこと。'
 const BO_3_READS_THE_ZOOM_AND_THE_VIEW_PLACE = '| BO-3 | 3 | 見せ方の群から倍率と表示位置を読む。'
 
 const NOTHING_OF_THE_VIEW_PLACE = [
@@ -413,7 +413,7 @@ describe('表 T-024a の OP-10 -- 本ファイルを動かす条文', () => {
   })
 
   it('パネルの幅は画面の値であり、タスクを出したときの既定の幅を 表 T-206 の S-602 が持つ（FR-052）', () => {
-    expect(REQUIREMENTS).toContain('⭐ プロパティパネルの幅は画面の値とし、出している中身の種の既定の幅から始めること（MUST）')
+    expect(REQUIREMENTS).toContain('`GRS` は、プロパティパネルの幅を、出している中身の種の既定の幅から始めること')
     expect(String(rowOf('T-206', 'S-602').by['値'] ?? '')).toContain(
       'タスク（マイルストーンを含む）を出したプロパティパネルの既定の幅',
     )

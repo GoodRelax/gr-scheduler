@@ -31,24 +31,24 @@ const REQUIREMENTS = unbroken(
 
 // Why: CR-710 rewrote this clause (FR-054 reads instants and counts working time in minutes).
 const FR_011_SAME_DAY_IS_ONE_DAY =
-  '⭐ 実績の開始と終わりが同じ日の 08:00 〜 17:00 であるとき、その実績は 480 分（1d）である（下の段の数え方、既定の時間帯の暦）。'
+  '`GRS` は、実績の開始と終わりが同じ日の 08:00 〜 17:00 であるとき、実績を 480 分（1d）とし、0 日としないこと（`IMPS-412` の数え方、既定の時間帯の暦）。'
 
 const FR_011_RIGHT_END_IS_A_POSITION =
-  '0 日としてはならない（MUST NOT） —— ⭐ **本要求の「実績バーの右端」は位置であって終了日ではない** —— 実績の最後の日の翌暦日の列の左端であり、実績の終了日は最後の日そのものである。'
+  '`GRS` は、実績の終了日を、実績の最後の日そのものにすること（実績バーの右端は位置であって終了日ではなく、`GRS` は右端を終了日と読まない）。'
 
 const FR_011_DO_NOT_READ_RIGHT_END_AS_FINISH =
-  '⚠️ **「右端」を終了日と読んではならない（MUST NOT）** —— そう読むと「開始日 ＝ 終了日 ⟺ 長さ 0」になり、同じ日の実績に長さを与える下の数え方に反する。'
+  '`IMPS-408` —— 「右端」を終了日と読むと「開始日 ＝ 終了日 ⟺ 長さ 0」になり、同じ日の実績に長さを与える `IMPS-412` の数え方に反する。'
 
 const FR_011_MILESTONE =
-  '⚠️ マイルストーンにはこの読みを当てない —— 長さを持たない点なので（`S-130`、表 T-012 の `SH-5`）、実績の終了日は `actualStart` と同じ日である。'
+  '`GRS` は、マイルストーンの実績の終了日を、`actualStart` と同じ日にすること（`IMPS-407`・`IMPS-408` の読みをマイルストーンに当てない）。'
 
 const PV_1_ACTUAL_FINISH =
-  '`stop` ＝ `FR-011` の床の日（`actualStart` の後に来る稼働日を `_assets/tbl-settings.md` の 表 T-201 の `S-129` − 1 個数えた日）を置くこと（MUST）'
+  'もし覚えている実績が無い場合、`GRS` は、`actualStart` ＝ `start`、`stop` ＝ `FR-011` の床の日（`actualStart` の後に来る稼働日を `_assets/tbl-settings.md` の 表 T-201 の `S-129` − 1 個数えた日）を置くこと。'
 
-const PV_1_OWN_READING = '⭐ 覚えている実績とは、`PV-4` で外して `ScreenState` が持っている実績のことである'
+const PV_1_OWN_READING = '覚えている実績とは、`PV-4` で外して `ScreenState` が持っている実績のことである。'
 
 const PV_2_CELL =
-  '`actualFinish` ＝ `stop`、`stop` ＝ 空（`FR-011`。2 つを 1 回の置き換えで行うこと（MUST） —— 間に「最後の日を持たない実績」を見せない。`actualFinish` は実績の最後の日そのものであり、実績バーの右端の位置ではない）、**`resumeValid` ＝ `false`**。**左端も右端も動かさない**'
+  '`GRS` は、`actualFinish` ＝ `stop`、`stop` ＝ 空 を置くこと（`FR-011`）。`actualFinish` は実績の最後の日そのものであり、実績バーの右端の位置ではない。`GRS` は、`PV-2` の 2 つの置き換えを 1 回の置き換えで行うこと。`GRS` は、`resumeValid` を `false` にすること。`GRS` は、実績の左端も右端も動かさないこと。'
 
 const T_021A = specTable('T-021a')
 

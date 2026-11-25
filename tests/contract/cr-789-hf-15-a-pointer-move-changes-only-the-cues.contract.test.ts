@@ -54,7 +54,7 @@ function panelAt(heldId: string | null, landing: Landing, x: number, y: number):
 
 describe('CR-789 -- the manuscript these cases are driven by', () => {
   it('HF-15 still says a pointer move redraws the line and the copy only', () => {
-    expect(REQUIREMENTS).toContain('描き直すのは差し込み線と写しだけとする。')
+    expect(REQUIREMENTS).toContain('タスクグループを運んでいる間、`GRS` は、差し込み線と写しだけを描き直すこと。')
   })
 
   it('UZ-11 still leaves the order inside the panel to each requirement', () => {

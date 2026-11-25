@@ -8,7 +8,7 @@ import * as scheduleEntry from '../../src/entity/document-model/schedule/schedul
 import { taskGroupDocument, taskOf } from '../unit/cr-541-stage'
 import { REQUIREMENTS } from './cr-610-file-flow-stage'
 
-const VC_15_NOT_ND_3 = '⛔ `ND-3` の「終了日はその日を含む」を、FS の 1 日の差に数えてはならない（MUST NOT）'
+const VC_15_NOT_ND_3 = '`GRS` は、`ND-3` の「終了日はその日を含む」を、FS の 1 日の差に数えないこと。'
 const VC_15_SAME_DAY = '同じ瞬間は反せず、1 分でも前なら反する'
 const VC_15_FS = 'FS: 後続の `start` ≥ 先行の `finish` ＋ `linkLag`'
 

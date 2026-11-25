@@ -25,7 +25,7 @@ const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '
 
 // Spec: SV-7
 const SV_7_LABELS =
-  '2 つの日付の入力には、それぞれの左に、`FR-038` の辞書が持つ語「いつから」「いつまで」を札として置くこと（MUST）'
+  '`GRS` は、2 つの日付の入力の左に 1 つずつ、`FR-038` の辞書が持つ語「いつから」「いつまで」を札として置くこと。'
 
 type Words = Record<DisplayLanguage, string>
 const WORDS = JSON.parse(

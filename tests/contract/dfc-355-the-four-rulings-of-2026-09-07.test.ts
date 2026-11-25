@@ -129,17 +129,17 @@ const NOTICE_ROSTER = unbroken(readFileSync(
 // -- FR-012, the percent complete a calendar edit moves --------------------
 
 const FR_012_RECOUNT_ON_CALENDAR_EDIT =
-  '`FR-011` が日付から数えた実績の長さである —— 文書の列ではない。 日付を編集したときは再計算すること。⭐ **稼働日の暦を編集したときも、格納済みの完了率を数え直すこと（MUST）'
+  '稼働日の暦が変わったとき、`GRS` は、格納済みの完了率を数え直すこと。'
 
 // Why: CR-710 rewrote this clause (FR-054 reads instants and counts working time in minutes).
 const FR_012_TELL_WITH_A_COUNT =
-  'T）**—— 分子も分母も文書の暦の稼働時間で数えるので、暦が変われば日付が 1 日も動かなくても正しい値が変わる。⛔ 数え直したことを、値が変わった `Task` の件数を添えて告げること（MUST）'
+  '`GRS` が暦の編集で完了率を数え直したとき、`GRS` は、数え直したことを、値が変わった `Task` の件数を添えて告げること（作法は 表 T-037 の `NT-3`、理由は 表 T-233 の `RS-52`）。'
 
 const FR_012_SAME_WRITE =
-  '直したことを、値が変わった `Task` の件数を添えて告げること（MUST） —— 作法は 表 T-037 の `NT-3`、理由は 表 T-233 の `RS-52` が持つ。⛔ 暦の変更と同じ書き込みの中で行うこと（MUST）'
+  '稼働日の暦が変わったとき、`GRS` は、完了率の数え直しを暦の変更と同じ書き込みの中で行うこと。'
 
 const FR_012_NOT_A_SECOND_WRITE =
-  'えて告げること（MUST） —— 作法は 表 T-037 の `NT-3`、理由は 表 T-233 の `RS-52` が持つ。⛔ 暦の変更と同じ書き込みの中で行うこと（MUST）。別の書き込みに分けてはならない（MUST NOT）'
+  '`GRS` は、完了率の数え直しを、暦の変更と別の書き込みに分けないこと。'
 
 // -- T-233 RS-52, the reason the telling carries ---------------------------
 
@@ -149,13 +149,13 @@ const RS_52_NEVER_SILENTLY =
 // -- T-023d GR-21 and FR-051, the grip ------------------------------------
 
 const GR_21_LENGTH_IS_THE_VISIBLE_FRACTION =
-  'は `FR-051` が環境から確定させ、下限は `_assets/tbl-settings.md` の 表 T-206 の `S-205` が持つ）。⭐ 長さは、帯の長さに対する「見えている範囲 ÷ 全体」の割合とすること（MUST）'
+  '`GRS` は、つまみの長さを、帯の長さに対する「見えている範囲 ÷ 全体」の割合にすること。'
 
 const GR_21_FLOOR_IS_S_205 =
-  ' が持つ）。⭐ 長さは、帯の長さに対する「見えている範囲 ÷ 全体」の割合とすること（MUST） —— **新しい設定値を立てない（割合は既にある値から導ける）。**⭐ **ただし長さの下限を `S-205` とすること（MUST）'
+  '`GRS` は、つまみの長さの下限を `S-205` にすること。'
 
 const FR_051_SCROLLBAR_MOVES_THE_VIEW =
-  'TATEMENT**: `GRS` は、画面の各部を**表 T-031 の規則**でスクロールさせること。**スクロールバーの操作でも表示位置を変えられるようにすること（MUST）'
+  '`GRS` は、スクロールバーの操作でも表示位置を変えられるようにすること。'
 
 // -- FR-020, where the trail is said to be a trail -------------------------
 

@@ -49,14 +49,18 @@ const rowOf = (table: string, id: string) => {
 
 // Why: each constant ends exactly at its marker, cut from the manuscript as check 39 reads it.
 const FR_041_ALL_GRAY =
-  '画面の枠（罫 `S-149`・パネルの地 `S-150`・強調 `S-151`・掴み代の印 `S-231`・文字 `S-147`・押下の緑 `S-183` ほか）にも、無彩色にして描くこと（MUST）'
+  'モノクロ（`_assets/tbl-settings.md` の 表 T-203 の `S-74`）が入っている間、`GRS` は、`_assets/tbl-settings.md` の 表 T-236 のすべての行を（色相の欄が ○ の行も — の行も）、日程の図の中にも画面の枠（罫 `S-149`・パネルの地 `S-150`・強調 `S-151`・掴み代の印 `S-231`・文字 `S-147`・押下の緑 `S-183` ほか）にも、例外を置かずに無彩色にして描くこと。'
 const FR_041_SWATCH_PAINT =
-  '各行の見本は、その行の色相で解いた `_assets/tbl-settings.md` の 表 T-236 の `S-151` を、いま描いている明暗の値で塗ること（MUST）'
+  '`GRS` は、テーマ色の欄の各行の見本を、行の色相で解いた `_assets/tbl-settings.md` の 表 T-236 の `S-151` の、いま描いている明暗の値で塗ること。'
 const FR_041_SWATCH_GRAY =
-  '⚠️ モノクロ（`S-74`）が入っているあいだは、見本も次の段落のとおり灰で描く —— 灰は HSL の明度を保つので（`_assets/tbl-settings.md` の 表 T-294 の前文）、どの行の見本も `S-151` の明度の同じ灰になり'
-const FR_041_NO_EXCEPTION = '⚠️ 例外を置かない —— 上の段落のテーマ色の欄の見本も灰で描く。'
+  'モノクロ（`S-74`）が入っている間、`GRS` は、テーマ色の欄の見本も `IMPS-168` のとおり灰で描くこと。'
+const FR_041_SWATCH_GRAY_WHY =
+  '`IMPS-159` —— 灰は HSL の明度を保つので（`_assets/tbl-settings.md` の 表 T-294 の前文）、どの行の見本も `S-151` の明度の同じ灰になり'
+const FR_041_NO_EXCEPTION = '⚠️ `IMPS-168` に例外を置かない —— テーマ色の欄の見本も灰で描く（`IMPS-159`）。'
 const FR_109_STOPPED =
-  '⭐ 実績を隠しても、実績が無くても、3 段目を取っておくこと（MUST）。⭐ 中断のあいだの実績の線は、停止日で矢じり（端点スパンは終わりの点）を付けずに止めること（MUST）'
+  '`GRS` は、実績を隠しているときも実績が無いときも、3 段目を取っておくこと。'
+const FR_109_STOPPED_LINE =
+  '`Task` が中断している間、`GRS` は、線だけの形の実績の線を、停止日で矢じり（端点スパンは終わりの点）を付けずに止めること。'
 const IF_9_NOTICES = '文字入力を受ける欄で編集が始まったことと終わったことを、その欄が名乗る行 ID とともに知らせ'
 const IF_9_HAND_OVER =
   '`WS-2`）は、この状態を読み、宿主に問わない。⛔ 読む側は、状態を読む前に届いている知らせをすべてステートマシンへ渡すこと（MUST）'
@@ -64,7 +68,7 @@ const PK_4_HEAD = '矢じりの幅（軸に直角の広さ）は一辺の 4 分�
 
 describe('CR-673 -- the clauses these cases are driven by', () => {
   it('FR-041, FR-109, IF-9 and PK-4 still read this way', () => {
-    for (const clause of [FR_041_ALL_GRAY, FR_041_SWATCH_PAINT, FR_041_SWATCH_GRAY, FR_041_NO_EXCEPTION, FR_109_STOPPED]) {
+    for (const clause of [FR_041_ALL_GRAY, FR_041_SWATCH_PAINT, FR_041_SWATCH_GRAY, FR_041_SWATCH_GRAY_WHY, FR_041_NO_EXCEPTION, FR_109_STOPPED, FR_109_STOPPED_LINE]) {
       expect(REQUIREMENTS, clause).toContain(clause)
     }
     expect(REQUIREMENTS, 'the retired FR-041 exception is gone').not.toContain('見本にモノクロ（`S-74`）を効かせてはならない')

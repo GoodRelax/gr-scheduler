@@ -14,17 +14,18 @@ import { windowStage, type WindowStage } from './cr-760-stage'
 import { specTable, unbroken } from './spec-table'
 
 const FR_130_OPEN_CLOSES_ONLY_THE_WINDOW =
-  '診断を出しているあいだに同じ入口を押したら、遅延診断レポートの窓（`FR-134` の 表 T-346 の `RW-1`）が開いていれば（最小化を含む）、窓の `IC-52` と同じく窓だけを閉じ、窓だけを閉じていれば（`IC-52`）いまの文書で診断をやり直し、その結果をマーカーと一覧に出して窓を開くこと（MUST）'
-const FR_130_MARKS_STAY = '⭐ 窓が開いているときの押下は窓の `IC-52` と同じに働き、診断の印は残る'
-const FR_130_ENDED_BY = '診断の表示を終えるのは、`IC-40`（`FR-049`）を押したときである（`RW-1`）'
-const FR_130_RERUN_BY_IC_168 = '窓の `IC-168`（`RW-3`）を押したら、窓を開いたまま、いまの文書で診断をやり直し、その結果をマーカーと一覧に出すこと（MUST）'
-const RW_1_OPEN_PRESS = '窓が開いているあいだ（最小化（`IC-129`）を含む）に `IC-107` を押したときは、`IC-52` と同じく窓だけを閉じる（`FR-130`）'
-const RW_1_PRESSED_LOOK = '`IC-107` の押されている見た目（表 T-237 の `EN-2`）は、窓が開いていること'
-const RW_1_UNPRESSED_WITH_MARKS = '窓だけを閉じて印が残っているあいだは押されていない見た目である'
-const RW_1_ENDING = '診断の表示を終える入口は、進捗マーカーの表示の切替 `IC-40`（`FR-049`）である —— 終えると窓が閉じ、診断の印が消え、修正の記録を捨てる（`RW-16`）'
-const RW_1_IC_168 = '窓の `IC-168`（`RW-3`）は、窓を開いたまま診断をやり直す（`FR-130`）—— 位置・大きさ・語・フィルタ・並べ替え・修正の記録を保つ（`RW-8`・`RW-16`）'
-const RW_3_HEAD = '左から、`IC-168`（再診断 —— 語の入口、語は `_assets/tbl-settings.md` の 表 T-206 の `S-623` の太さ、`RW-1`）・`IC-140`（`[.md]`）・`IC-108`（クリップボードへコピーする）・入力欄。'
-const RW_3_EVERY_TABLE = '`IC-168` は 3 つの表（`RW-11`）のどれを出しているときも置く。'
+  '診断を出している間、遅延診断レポートの窓（`FR-134` の 表 T-346 の `RW-1`）が開いているとき（最小化を含む）、`IC-107` を押したとき、`GRS` は、窓の `IC-52` と同じく窓だけを閉じること。'
+const FR_130_MARKS_STAY = '`IMPS-553` —— ⭐ 窓が開いているときの押下は窓の `IC-52` と同じに働き、印は診断した時のまま残り、文書が変わってもやり直さない（`IMPS-556`、利用者が定めた）。'
+const FR_130_ENDED_BY = '`GRS` は、`IC-40`（`FR-049`）を押したときにだけ、診断の表示を終えること（`RW-1`）。'
+const FR_130_RERUN_BY_IC_168 = '窓の `IC-168`（`RW-3`）を押したとき、`GRS` は、窓を開いたまま、いまの文書で診断をやり直し、やり直した結果をマーカーと一覧に出すこと。'
+const RW_1_OPEN_PRESS = '窓が開いている間（最小化（`IC-129`）を含む）、`IC-107` を押したとき、`GRS` は、`IC-52` と同じく窓だけを閉じること（`FR-130`）。'
+const RW_1_PRESSED_LOOK = '窓が開いている間（`_assets/tbl-settings.md` の 表 T-206 の `S-451`）、`GRS` は、`IC-107` を押されている見た目（表 T-237 の `EN-2`）で描くこと。'
+const RW_1_UNPRESSED_WITH_MARKS = '窓だけを閉じている間、`GRS` は、`IC-107` を押されていない見た目で描くこと。'
+const RW_1_ENDING = '`GRS` は、診断の表示を終える入口を、進捗マーカーの表示の切替 `IC-40`（`FR-049`）とすること。'
+const RW_1_IC_168 = '窓の `IC-168`（`RW-3`）を押したとき、`GRS` は、窓を開いたまま診断をやり直すこと（`FR-130`）。'
+const RW_1_IC_168_KEEPS = '窓の `IC-168` を押したとき、`GRS` は、位置・大きさ・語・フィルタ・並べ替え・修正の記録を保つこと（`RW-8`・`RW-16`）。'
+const RW_3_HEAD = '`GRS` は、タイトルバーの下の 1 行に、左から、`IC-168`（再診断 —— 語の入口、語は `_assets/tbl-settings.md` の 表 T-206 の `S-623` の太さ、`RW-1`）・`IC-140`（`[.md]`）・`IC-108`（クリップボードへコピーする）・入力欄を置くこと。'
+const RW_3_EVERY_TABLE = '`GRS` は、`IC-168` を 3 つの表（`RW-11`）のどれを出しているときも置くこと。'
 
 const SPEC = join(process.cwd(), 'docs', 'spec')
 const REQUIREMENTS = unbroken(readFileSync(join(SPEC, '01-04-requirements.md'), 'utf8'))
@@ -124,7 +125,7 @@ describe('CR-781 -- the clauses this file is driven by', () => {
     expect(REQUIREMENTS).toContain(FR_130_ENDED_BY)
     expect(REQUIREMENTS).toContain(FR_130_RERUN_BY_IC_168)
     const rw1 = cellOf('T-346', 'RW-1', '定め')
-    for (const clause of [RW_1_OPEN_PRESS, RW_1_PRESSED_LOOK, RW_1_UNPRESSED_WITH_MARKS, RW_1_ENDING, RW_1_IC_168]) expect(rw1, clause).toContain(clause)
+    for (const clause of [RW_1_OPEN_PRESS, RW_1_PRESSED_LOOK, RW_1_UNPRESSED_WITH_MARKS, RW_1_ENDING, RW_1_IC_168, RW_1_IC_168_KEEPS]) expect(rw1, clause).toContain(clause)
     const rw3 = cellOf('T-346', 'RW-3', '定め')
     expect(rw3).toContain(RW_3_HEAD)
     expect(rw3).toContain(RW_3_EVERY_TABLE)

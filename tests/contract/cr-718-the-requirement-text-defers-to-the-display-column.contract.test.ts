@@ -12,14 +12,14 @@ const SPEC = join(process.cwd(), 'docs', 'spec')
 const REQUIREMENTS = unbroken(readFileSync(join(SPEC, '01-04-requirements.md'), 'utf8'))
 
 // Why: each constant is one sentence cut from the manuscript as it stands, ending at its MUST marker where it has one (check 39).
-const TC_8_CARRIES_THE_REASON = '⭐ 作らなかった理由として 表 T-233 の `RS-53` を運ぶこと（MUST）'
+const TC_8_CARRIES_THE_REASON = 'もしクリックでバーの形状のタスクを作らなかった場合、`GRS` は、作らなかった理由として 表 T-233 の `RS-53` を `FR-029` の運び方で運ぶこと。'
 const TC_8_WHY_IT_IS_CARRIED =
   '⭐ 運ぶのは、出し分けを同表の欄の値 1 つで変えられるようにするためである —— 運ばなければ、欄を変えても何も出ない。'
 const FR_033_SEVERAL_TASK_GROUPS_ARE_REFUSED =
-  '⛔ 貼り付け先としてタスクグループが 2 つ以上選ばれているときは、貼り付けを受け付けず、行えない理由を `FR-029` のとおり通知の仕組みへ運ぶこと（MUST） —— どのタスクグループの子とするかが決まらない。'
-const FR_033_THE_REASON_IS_RS_27 = '⚠️ この場面に当たる 表 T-233 の行は無いので、運ぶ理由は同要求の落ち先の `RS-27` である。'
+  'もし貼り付け先の選択にタスクグループが 2 つ以上ある場合、`GRS` は、貼り付けを受け付けないこと。'
+const FR_033_THE_REASON_IS_RS_27 = 'もし貼り付け先の選択にタスクグループが 2 つ以上ある場合、`GRS` は、行えない理由を、`FR-029` のとおり、`FR-029` の落ち先の `RS-27` として通知の仕組みへ運ぶこと。'
 const FR_008_A_RENAME_CARRIES_RS_49 =
-  '担当の名前を変えたときは、その担当が付いている全タスクの表示が変わったことを、表 T-233 の `RS-49` として、対象の件数とともに通知の仕組みへ運ぶこと（MUST） —— 作法は `FR-076` に従う。'
+  '担当の名前を変えたとき、`GRS` は、担当が付いている全タスクの表示が変わったことを、表 T-233 の `RS-49` として、対象の件数とともに、`FR-076` の作法で通知の仕組みへ運ぶこと。'
 const FR_076_THE_COLUMN_DECIDES = '⭐ 理由ごとに画面へどう出すかは、表 T-233 の「表示の仕方」の欄が持つ（MUST）。'
 const FR_076_A_HIDDEN_REASON_STANDS_NO_CARD =
   '「出さない」の理由は、上げられても通知の欄に 1 枚を立てない —— 行は理由として残り、`Agent API` の拒否の値（表 T-035 の `AG-9a`）はその行を運ぶ。'

@@ -20,15 +20,15 @@ import {
 } from './cr-541-stage'
 
 const MANY_TASKS_ALL_COPIED =
-  '⭐ `Task` が 2 つ以上選ばれているときは、選ばれた `Task` をすべて複製し、それぞれを上の段のとおり複製元と同じタスクグループに載せること（MUST）'
+  '選択に `Task` が 2 つ以上ある間、コピーし貼り付けたとき、`GRS` は、選ばれた `Task` をすべて複製すること。'
 // Why: CR-706 moved both rules into T-223 DU-1: only the chosen Tasks are copied, each once; CR-714 made a copy's
 // parent task its source parent's copy when that parent is copied too, else the parent read off the landing task group.
 const ONLY_CHOSEN_COPIED =
-  '⭐ 選ばれていない `Task` を複製するかどうかと、コピーの親タスクは、表 T-223 の `DU-1` に従うこと（MUST）'
+  '`GRS` は、選ばれていない `Task` を複製するかどうかと、コピーの親タスクを、表 T-223 の `DU-1` に従わせること。'
 const PARENT_FROM_THE_TASK_GROUP =
-  'コピー元の親をコピーしないとき（コピー元が親を持たないときを含む）は、コピーの親タスクを、コピーを載せたタスクグループから推定すること（MUST）'
-const SAME_TASK_GROUP = '**複製した `Task` は、複製元と同じタスクグループに載せること（MUST）'
-const NO_SAME_UID = '複製した `Task` に、複製元と同じ `UID` を使ってはならない（MUST NOT）'
+  '`GRS` は、コピー元の親をコピーしないとき（コピー元が親を持たないときを含む）、コピーの親タスクを、コピーを載せたタスクグループから推定すること —— コピーを載せたタスクグループからタスクグループの木を根の側へたどり、最初に出会う導出元を持つタスクグループの `Task` を親とし、無ければ根（親なし）とする（表 T-015a の `HM-12` と同じたどり）。'
+const SAME_TASK_GROUP = '`Task` を単独で（タスクグループごとではなく）貼り付けたとき、`GRS` は、`IMPS-287` の場合を除き、複製した各 `Task` を、複製元と同じタスクグループに載せること。'
+const NO_SAME_UID = '`GRS` は、複製した `Task` に、複製元と同じ `UID` を使わないこと。'
 // Spec: CM-8
 const CM_8_DOES = '選んだ `Task` を複製する —— 運ばない子孫タスクはコピーしない（`01-04-requirements.md` の 表 T-223 の `DU-1`）。'
 const CM_8_SOURCES = '`sourceUids`: 鍵の並び（`Task.uid`、`AT-24`） —— 複製元の `Task`（1 つ以上）'

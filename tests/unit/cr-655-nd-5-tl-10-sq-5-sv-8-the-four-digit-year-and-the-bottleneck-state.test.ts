@@ -132,10 +132,10 @@ describe('CR-655 TL-10 (table T-348) -- the tooltip day follows ND-5', () => {
 })
 
 const SV_8_ORDER =
-  '状態の列（`SQ-5`）の昇順は 信用できない・要修正 → ボトルネック → ボトルネック経路 → 遅れ → 未着手 → 進行中 → 完了 → 中断・再開予定あり → 中断・再開日未定、降順はその逆'
+  '状態の列（`SQ-5`）で昇順に並べ替えたとき、`GRS` は、行を 信用できない・要修正 → ボトルネック → ボトルネック経路 → 遅れ → 未着手 → 進行中 → 完了 → 中断・再開予定あり → 中断・再開日未定 の順に並べること。'
 // Why: CR-760 retired the two SQ-5 clauses this file was cut from; these are the clauses that replaced them.
-const SQ_5_WHILE_SHOWN = '`DG-1` 〜 `DG-3` は診断を出しているあいだだけ出し、診断を閉じると同じタスクは診断の無いときの値へ戻る。'
-const SQ_5_LATE_ALWAYS = '⭐ 遅れ（`PM-4`、表 T-021b）は予定の日と基準日だけで決まるので、診断を出していなくても出す。'
+const SQ_5_WHILE_SHOWN = '`GRS` は、`SQ-5` に `DG-1` 〜 `DG-3` を、遅延診断を出している間だけ出すこと。'
+const SQ_5_LATE_ALWAYS = '遅延診断を出していない間も、`GRS` は、`SQ-5` に遅れ（`PM-4`、表 T-021b）を出すこと。'
 
 const FF = 0
 const day2027 = (month: number, date: number, hour: number): string =>

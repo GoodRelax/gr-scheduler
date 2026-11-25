@@ -858,7 +858,7 @@ const T_266_ENDS = [
 ] as const
 
 // Spec: FR-106
-const FR_106_KEEPS = '押しているあいだは、掴んだときの形を保つこと（MUST）'
+const FR_106_KEEPS = '押している間、`GRS` は、掴んだときの形を保つこと。'
 const IN_2_T_269 = '掴み代の上は `FR-106` の 表 T-269 の形'
 
 describe('T-028 IN-2: 予定バーと実績バーの端点の上は 表 T-269 の形', () => {

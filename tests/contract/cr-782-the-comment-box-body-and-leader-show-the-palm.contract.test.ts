@@ -17,9 +17,9 @@ const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '
 
 // Spec: FR-106, T-269, PK-8, PK-11
 const BODY_AND_LEADER_ARE_THE_PALM =
-  '（表 T-023d の `GR-14`、`_assets/tbl-settings.md` の 表 T-206 の `S-291`）では、表 T-269 の `PK-8` とすること（MUST）'
+  '`GRS` は、コメントボックスの本体と引出し線の掴み代（表 T-023d の `GR-14`、`_assets/tbl-settings.md` の 表 T-206 の `S-291`）では、表 T-269 の `PK-8` にすること。'
 const ANCHOR_IS_THE_MOVE_SHAPE =
-  '（表 T-023d の `GR-14`、`_assets/tbl-settings.md` の 表 T-206 の `S-292`）では、表 T-269 の `PK-11` とすること'
+  '`GRS` は、コメントボックスの線先の掴み代（表 T-023d の `GR-14`、`_assets/tbl-settings.md` の 表 T-206 の `S-292`）では、表 T-269 の `PK-11` にすること。'
 
 type Hit = NonNullable<Parameters<typeof pointerRowOf>[0]>
 

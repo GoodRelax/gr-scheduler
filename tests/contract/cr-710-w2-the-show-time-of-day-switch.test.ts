@@ -31,8 +31,8 @@ const WORDS = JSON.parse(readFileSync(join(SPEC, '_source', 'display-words.json'
 
 // Spec: FR-158, FR-016, FR-072, UN-7
 const FR_158_STORED = '保存する値（`GRS JSON`・MSPDI）は、切り替えによらず時刻まで書くこと（MUST）'
-const FR_016_BACK = '時刻の表示を切ったとき、`zoomX` が日付の軸の上限を超えていれば、その上限へ戻すこと（MUST）'
-const FR_072_ORDER = '⭐ 本面の欄の並びと欄の名は 表 T-369 に従うこと（MUST）'
+const FR_016_BACK = '時刻の表示を切ったとき、`zoomX` が日付の軸の上限（`IMPS-1462`）を超えていれば、`GRS` は `zoomX` を日付の軸の上限へ戻すこと。'
+const FR_072_ORDER = '`GRS` は、文書の設定の面の欄の並びと欄の名を 表 T-369 に従わせること。'
 const FO_13_ROW = '| FO-13 | 時刻を表示する | 表 T-104 の `K-146` | `FR-158` |'
 const UN_7_ROW = '`FR-158` の「時刻を表示する」を含む'
 

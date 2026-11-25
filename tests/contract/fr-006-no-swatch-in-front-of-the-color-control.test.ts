@@ -311,9 +311,9 @@ describe('FR-006 (MUST NOT) -- no second swatch stands in front of the color con
   })
 
   it('⛔ MUST NOT: nothing but the control itself puts the color on the screen', () => {
-    // FR-006:「⛔ **現在の値を、その値を示す操作子の手前に重ねて描いてはならない
-    // （MUST NOT）** —— **色を選ぶ操作子は現在の色を自ら示すので、その手前に色見本
-    // を置くと同じ色が 2 つ並ぶ。**」
+    // FR-006:「`GRS` は、現在の値を、現在の値を示す操作子の手前に重ねて描かないこと。」
+    // and 「`IMPS-69` —— 色を選ぶ操作子は現在の色を自ら示すので、操作子の手前に色見本
+    // を置くと同じ色が 2 つ並ぶ。」
     // ⭐ THE CONTROL'S ANCESTORS ARE LEFT OUT, and only they: a box that WRAPS
     // the control is not a second painting of the value (see point 2 of the head
     // comment). Everything else in the panel that carries the color is a

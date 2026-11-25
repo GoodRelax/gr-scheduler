@@ -556,7 +556,7 @@ async function reveal(page: Page, at: Spot): Promise<void> {
  * One drag, with a reading taken WHILE THE BUTTON IS STILL DOWN.
  *
  * ⭐ THE HELD READING IS NOT A CONVENIENCE. ZO-6 of table T-020 has the rubber
- * band of SL-3 「握っているあいだだけ描き、離したら消すこと（MUST）」, so a
+ * band of SL-3 「範囲選択（表 T-023c の `SL-3`）で押下を握っている間だけ、`GRS` は範囲選択の矩形を描くこと。…範囲選択の押下を離したとき、`GRS` は範囲選択の矩形を消すこと」, so a
  * before/after pair is blind to it by the specification's own design: the
  * drawing is meant to come back. PTD-1 and GR-19 put the same MUST on following
  * the pointer while held.
@@ -1135,7 +1135,7 @@ const PROBES: readonly Probe[] = [
     },
   },
   {
-    // MK-10: 「ブラウザの既定動作を画面全体で止めること（MUST）」 for a
+    // MK-10: 「`GRS` は、ブラウザの既定動作を画面全体で止めること。」 for a
     // combination this tool assigned. `Ctrl+S` is the row's own example.
     rows: ['MK-10'],
     expect: 'answers',
@@ -1153,7 +1153,7 @@ const PROBES: readonly Probe[] = [
     },
   },
   {
-    // MK-12: 「この組合せに本ツールの割当を与えない」. The row forbids writing
+    // MK-12: 「`GRS` は、`Alt` ＋ ドラッグの組合せに本ツールの割当を与えないこと。」. The row forbids writing
     // "nothing happens", so what is judged is that no shape is placed by the
     // combination -- the host's own default is left to the host.
     rows: ['MK-12'],
@@ -1193,7 +1193,7 @@ const PROBES: readonly Probe[] = [
     act: async (p) => press(p, 'IC-27'),
   },
   {
-    // PTD-4a: 「何もしない。引きかけの矢印があれば捨てる。構えは解除しない」 -- so
+    // PTD-4a: 「`GRS` は、何もしないこと。`GRS` は、引きかけの矢印があれば捨てること。`GRS` は、構えを解除しないこと。」 -- so
     // the drawing must NOT gain a shape. ⛔ The arm is taken in `setUp`, because
     // arming marks the palette and that marking is a screen change of its own.
     rows: ['AR-4', 'PTD-4a'],
@@ -1251,7 +1251,7 @@ const PROBES: readonly Probe[] = [
   },
   { rows: ['SL-5', 'SK-2'], expect: 'answers', setUp: selectBar, act: async (p) => stroke(p, 'Control+a') },
   {
-    // SL-7a: 「選択を掴んだ 1 つに絞り、そのタスクだけをリサイズする」.
+    // SL-7a: 「端をドラッグしたとき、`GRS` は、選択を掴んだ 1 つに絞ること。…掴んだタスクだけをリサイズすること」.
     rows: ['SL-7a', 'GA-2'],
     expect: 'answers',
     setUp: selectBar,
@@ -1607,7 +1607,7 @@ const PROBES: readonly Probe[] = [
       await press(p, 'IC-17')
       await p.waitForTimeout(600)
       // ⛔ THE LEVEL ABOVE BOTH STAGES IS PUT AWAY FIRST. The same row opens with
-      // 「出ている通知があるときは、それを 1 つ消すこと（MUST）」, and a telling
+      // 「出ている通知がある間、 `Enter` を押したとき、`GRS` は、出ている通知を 1 つ消すこと」, and a telling
       // left standing would eat the press below -- the reading would then be
       // `NT-8`'s put-away rather than the panel's.
       const telling = await p.$('[data-notice]')
@@ -1979,7 +1979,7 @@ const PROBES: readonly Probe[] = [
     // directly, and an `answersWhileHeld` here would turn this sweep red for a
     // defect that has nothing to do with the scheme.
     // ⇒ `answers`, which is what `GR-21`'s own 操作 column promises:
-    // 「掴めば表示位置を変える（規則は `FR-051`）」.
+    // 「つまみを掴んだとき、`GRS` は表示位置を変えること（規則は `FR-051`）」.
     //
     // ⛔⛔ AND `answers` ALONE WOULD BE VACUOUS HERE, WHICH IS WHY THE ACT
     // JUDGES FOR ITSELF AND THROWS. `moved` folds five readings and two of them

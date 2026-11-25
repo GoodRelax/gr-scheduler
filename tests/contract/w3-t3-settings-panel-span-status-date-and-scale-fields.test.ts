@@ -34,8 +34,8 @@ const WORDS = JSON.parse(readFileSync(join(SPEC, '_source', 'display-words.json'
 // Why: CR-690 -- table T-369 holds the face's order; the fit span (K-141) stands under its fix (K-142, FO-9).
 const CLAUSE_SPAN_FIELD_PLACE = '| FO-10 | 全体表示時の期間 | 表 T-104 の `K-141` | 同表の `FX-5` |'
 const CLAUSE_STATUS_DATE_FIELD =
-  '⭐ 基準日を打つ欄を、文書の設定の面（`FR-072`、面を出す入口は `_assets/tbl-glossary.md` の 表 T-109 の `IC-17`）の、`FR-072` の 表 T-369 の `FO-8` の場所に置き、日付を確定したら 表 T-108 の `CM-3` を、空にして確定したら同表の `CM-4` を 1 回発行すること（MUST）'
-const CLAUSE_STATUS_DATE_NAME = '欄の名は `FR-038` の辞書が 表 T-109 の `IC-44` に持つ語とすること（MUST）'
+  '`GRS` は、基準日を打つ欄を、文書の設定の面（`FR-072`、面を出す入口は `_assets/tbl-glossary.md` の 表 T-109 の `IC-17`）の、`FR-072` の 表 T-369 の `FO-8` の場所に置くこと。'
+const CLAUSE_STATUS_DATE_NAME = '`GRS` は、基準日を打つ欄の名を、`FR-038` の辞書が 表 T-109 の `IC-44` に持つ語とすること。'
 const CLAUSE_SCALE_FIELD =
   '⭐ 表示の倍率を選ぶ欄を、文書の設定の面（`FR-072`、面を出す入口は `_assets/tbl-glossary.md` の 表 T-109 の `IC-17`）の、`FR-072` の 表 T-369 の `FO-3` の場所に置き、`S-234` の型の欄の段を同じ順に並べて選ばせ、選ばれた段で 表 T-108 の `CM-74` を 1 回発行すること（MUST）'
 // Why: in table T-369 FO-9's fix, FO-7's read-out and FO-2's theme color stand right above these three.
@@ -133,7 +133,14 @@ const kindsOf = (commands: readonly unknown[]): string[] =>
   commands.map((one) => String((one as { readonly kind?: unknown }).kind))
 
 describe('W3-T3 -- the manuscript still says what these cases read', () => {
-  it.each([CLAUSE_SPAN_FIELD_PLACE, CLAUSE_STATUS_DATE_FIELD, CLAUSE_STATUS_DATE_NAME, CLAUSE_SCALE_FIELD])('%s', (clause) => {
+  it.each([
+    CLAUSE_SPAN_FIELD_PLACE,
+    CLAUSE_STATUS_DATE_FIELD,
+    '基準日を打つ欄で日付を確定したとき、`GRS` は、表 T-108 の `CM-3` を 1 回発行すること。',
+    '基準日を打つ欄を空にして確定したとき、`GRS` は、表 T-108 の `CM-4` を 1 回発行すること。',
+    CLAUSE_STATUS_DATE_NAME,
+    CLAUSE_SCALE_FIELD,
+  ])('%s', (clause) => {
     expect(REQUIREMENTS).toContain(clause)
   })
 

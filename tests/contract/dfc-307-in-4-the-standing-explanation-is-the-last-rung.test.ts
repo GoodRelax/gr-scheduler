@@ -573,11 +573,11 @@ describe('T-028 IN-4 (MUST, 利用者の裁定 2026-09-08) -- the selection is a
 // it depends on anything below.
 //
 // THE ROWS THESE CASES REST ON
-//   T-023 MK-13   its 実績 entry -- 「実績（実績バー、および未着手のダミー） ＝
-//                 **タスクの項と同じとすること（MUST）**」
-//   T-023d        its closing rule -- 「ダブルクリックの宛先は 表 T-023 の
-//                 `MK-13` が持ち、本表の優先順より先に読むこと（MUST）」 with
-//                 「本表の順でダブルクリックの宛先を決めてはならない（MUST NOT）。」
+//   T-023 MK-13   its 実績 entry -- 「実績（実績バー、および未着手のダミー）の
+//                 ダブルクリックの宛先を、タスクの項と同じにすること」
+//   T-023d        its closing rule -- 「ダブルクリックの宛先を、表 T-023d の優先順
+//                 より先に表 T-023 の `MK-13` から読むこと」 with
+//                 「表 T-023d の順でダブルクリックの宛先を決めないこと」
 //   T-023d GA-3 / GA-4 / GA-16 / GA-5 / GA-6 / GA-17 -- the actual's regions
 //
 // Exported declarations read, and nothing else:
@@ -589,13 +589,13 @@ describe('T-028 IN-4 (MUST, 利用者の裁定 2026-09-08) -- the selection is a
 
 /** MK-13's 実績 entry, quoted as the row prints it. */
 const MK_13_THE_ACTUAL =
-  '実績（実績バー、および未着手のダミー） ＝ **タスクの項と同じとすること（MUST）**'
+  '`GRS` は、実績（実績バー、および未着手のダミー）のダブルクリックの宛先を、タスクの項と同じにすること。'
 
 /** Table T-023d's closing rule, both halves. */
 const T_023D_MK_13_FIRST =
-  'ダブルクリックの宛先は 表 T-023 の `MK-13` が持ち、本表の優先順より先に読むこと（MUST）'
+  '`GRS` は、ダブルクリックの宛先を、表 T-023d の優先順より先に表 T-023 の `MK-13` から読むこと。'
 const T_023D_NOT_BY_THE_ORDER =
-  '**本表の順でダブルクリックの宛先を決めてはならない（MUST NOT）。**'
+  '`GRS` は、表 T-023d の順でダブルクリックの宛先を決めないこと。'
 
 /** ⭐ The rows table T-266 gives the actual, in the row order it prints them. */
 const THE_ACTUALS_ROWS = ['GA-3', 'GA-4', 'GA-16', 'GA-5', 'GA-6', 'GA-17'] as const

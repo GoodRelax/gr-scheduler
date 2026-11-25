@@ -26,9 +26,9 @@ import { taskGroupDocument, SCREEN, taskOf } from '../unit/cr-541-stage'
 const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
 const FR_013_EDGE =
-  '⭐ マーカーの円の縁は、そのマーカーの記号と同じ色で、`_assets/tbl-settings.md` の 表 T-201 の `S-24` の太さに描くこと（MUST）'
-const FR_013_DELAY = '⭐ ただし遅れ（表 T-021 の `PM-4`）のマーカーは、地を `_assets/tbl-settings.md` の 表 T-236 の `S-326`、記号を同表の `S-327` で塗ること（MUST）'
-const FR_133_SHAPE = '状態の区別を色だけに頼ってはならない（MUST NOT） —— 表 T-315 の記号の形でも分けること。'
+  '`GRS` は、マーカーの円の縁を、マーカーの記号と同じ色で、`_assets/tbl-settings.md` の 表 T-201 の `S-24` の太さに描くこと。'
+const FR_013_DELAY = '`GRS` は、遅れ（表 T-021 の `PM-4`）のマーカーの地を `_assets/tbl-settings.md` の 表 T-236 の `S-326` で、記号を 表 T-236 の `S-327` で塗ること。'
+const FR_133_SHAPE = '`GRS` は、表 T-315 の状態の区別を色だけに頼らないこと。'
 const FR_133_CLOSE = '⭐ `!!`（`DG-3`）と `!`（`DG-4`）は色が近い（ともに黄の系統） —— 見分けは記号の形が担う。'
 const NFR_007_TEXT = '`GRS` は、文字について 4.5 : 1、図形と操作できる要素について 3 : 1 のコントラスト比を満たすこと'
 
@@ -154,7 +154,7 @@ const paintOf = (shape: string, name: 'fill' | 'stroke'): string =>
 
 describe('CR-616 -- the clauses read here are still in the specification', () => {
   it('FR-013, FR-133 and NFR-007 still say what the cases below read', () => {
-    for (const clause of [FR_013_EDGE, FR_013_DELAY, FR_133_SHAPE, FR_133_CLOSE, NFR_007_TEXT]) {
+    for (const clause of [FR_013_EDGE, FR_013_DELAY, FR_133_SHAPE, '`GRS` は、表 T-315 の状態を記号の形でも分けること。', FR_133_CLOSE, NFR_007_TEXT]) {
       expect(REQUIREMENTS, clause).toContain(clause)
     }
   })

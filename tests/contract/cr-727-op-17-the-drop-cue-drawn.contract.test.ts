@@ -35,9 +35,9 @@ const OP_17_SAME_TYPE = '字は `Notification Area`（`U-57`）の字と同じ�
 const OP_17_NO_PRESS =
   '重ね順は `FR-152` の 表 T-337 の `UZ-1` とし、押下を受けない —— ドロップを受けるのは今どおりウィンドウ全体である（`OP-2`）。'
 const OP_17_AREA = '案内は `Schedule Canvas`（`U-32`）の範囲を覆い'
-const UZ_1_MUST = '押下を受けず、下へ通すこと（MUST）'
+const UZ_1_MUST = '`GRS` は、`UZ-1` の UI パーツに押下を受けさせず、押下を下へ通すこと。'
 const UZ_1_ROW = 'UZ-1'
-const FR_152_FRONT_TAKES_THE_PRESS = '⭐ 押下は、その点で最も手前に描かれた UI パーツが受けること（MUST）。'
+const FR_152_FRONT_TAKES_THE_PRESS = '`GRS` は、押下を、押下の点で最も手前に描いた UI パーツに受けさせること。'
 const FR_152_REQUIREMENTS = specText('01-04-requirements.md')
 
 const CUE_ROLE = 'Drop Cue'

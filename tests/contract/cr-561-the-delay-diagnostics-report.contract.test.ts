@@ -12,43 +12,48 @@ import { taskGroupDocument, taskOf } from '../unit/cr-541-stage'
 
 const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
-const FR_130_NO_STATUS = '基準日（`Project.statusDate`）が `null` のときは診断を行わず、そのことを告げること（MUST）。'
-const FR_130_NO_WRITE = '⛔ 診断は文書を変えてはならない（MUST NOT） —— タスク・依存・実績・`S-63` を書かない。'
-const FR_130_NOT_KEPT = '導いた親タスクと子タスクの関係（`FR-135`）とマイルストーンの先行・達成（`FR-136`）も保存しない。'
+const FR_130_NO_STATUS = 'もし基準日（`Project.statusDate`）が `null` の場合、`GRS` は、診断を行わないこと。'
+const FR_130_NO_WRITE = '`GRS` は、診断で文書を変えないこと —— タスク・依存・実績・`S-63` を書かない。'
+const FR_130_NOT_KEPT = '`GRS` は、診断で導いた親タスクと子タスクの関係（`FR-135`）とマイルストーンの先行・達成（`FR-136`）を保存しないこと。'
 const FR_131_ONE_EACH =
-  '`GRS` は、開いている文書モデルを、矛盾（表 T-310）・疑義（表 T-311）・記載漏れ（表 T-312）の観点ですべて調べ、当たった 1 件ごとに指摘を 1 つ作ること。'
+  '`GRS` は、表 T-310 〜 表 T-312 の観点に当たった 1 件ごとに、指摘を 1 つ作ること。'
 const FR_132_BOTTLENECK =
-  '`GRS` は、表 T-313 の 4 つの段をこの順に行い、表 T-314 の量をタスクごとに求め、押し出し日数（`DQ-4`）を稼働日へ切り上げた数が `S-397` 以上で完了していない `Task` をボトルネックとすること。'
+  '`GRS` は、押し出し日数（`DQ-4`）を稼働日へ切り上げた数が `S-397` 以上で完了していない `Task` をボトルネックとすること。'
 const FR_132_WORKING_DAYS =
-  '量はすべて文書の暦の稼働時間の分で数え（表 T-314）、`S-397` と比べるときだけ、`Project.minutesPerDay` 分（空なら `S-128`）を 1 日として稼働日へ切り上げること（MUST、暦は `FR-054`）'
-const FR_132_NOT_DONE = '⛔ 完了（表 T-019a の `PS-2`）したタスクをボトルネックとしてはならない（MUST NOT）。'
+  '`GRS` は、`S-397` と比べるときだけ、`Project.minutesPerDay` 分（空なら `S-128`）を 1 日として稼働日へ切り上げること。'
+const FR_132_NOT_DONE = '`GRS` は、完了（表 T-019a の `PS-2`）したタスクをボトルネックとしないこと。'
 const FR_132_DX_9 =
-  '押し出し日数を同じく切り上げた数が `S-397` 以上の完了したタスクは、レポートの 表 T-317 の `DX-9` に確定した押し出しとして出すこと（MUST）。'
+  '`GRS` は、押し出し日数を `IMPS-592` と同じく切り上げた数が `S-397` 以上の完了したタスクを、レポートの 表 T-317 の `DX-9` に確定した押し出しとして出すこと。'
 const FR_133_PATH_MARK =
-  'ボトルネック経路の印（`DG-3`）は、ボトルネックの祖先タスク（`parentTaskUid` を遡る縦の道、`FR-135` で導いた親タスクを含む）にだけ付けること（MUST）。'
-const FR_133_NOT_DOWNSTREAM = '⛔ 依存の下流に付けてはならない（MUST NOT）。'
-const FR_135_DERIVE = '`Task.parentTaskUid` が `null` の `Task` について、`GRS` は、表 T-318 の規則で親を導き、診断の中でだけ使うこと。'
-const FR_135_NOT_WRITTEN = '⛔ 導いた親タスクを文書へ書いてはならない（MUST NOT）。'
-const FR_135_NOT_NARROWER = '⛔ 候補が 2 つ以上のとき、狭いほうを親と決めてはならない（MUST NOT）。'
-const FR_135_VO_4 = '導けなかった `Task` を、進捗妥当性検査の指摘（表 T-312 の `VO-4`）として出すこと（MUST）。'
-const FR_136_DW_3 = '先行を 1 つも持たないマイルストーンは、行の先頭のマイルストーン（起点 —— 表 T-316 の `DW-3` の原因の欄）を除き、`DW-3` とすること（MUST）。'
+  '`GRS` は、ボトルネック経路の印（`DG-3`）を、ボトルネックの祖先タスク（`parentTaskUid` を遡る縦の道、`FR-135` で導いた親タスクを含む）にだけ付けること。'
+const FR_133_NOT_DOWNSTREAM = '`GRS` は、ボトルネック経路の印を依存の下流に付けないこと。'
+const FR_135_DERIVE = '`Task.parentTaskUid` が `null` の `Task` について、`GRS` は、表 T-318 の規則で親を導くこと。'
+const FR_135_NOT_WRITTEN = '`GRS` は、導いた親タスクを文書へ書かないこと。'
+const FR_135_NOT_NARROWER = 'もし候補が 2 つ以上の場合、`GRS` は、狭いほうを親と決めないこと。'
+const FR_135_VO_4 = '`GRS` は、親を導けなかった `Task` を、進捗妥当性検査の指摘（表 T-312 の `VO-4`）として出すこと。'
+const FR_136_DW_3 = '`GRS` は、先行を 1 つも持たないマイルストーンを、行の先頭のマイルストーン（起点 —— 表 T-316 の `DW-3` の原因の欄）を除き、`DW-3` とすること。'
 const FR_136_NO_WRITE =
-  '⛔ 診断がマイルストーンの `actualFinish` を書いてはならない（MUST NOT）。'
+  '`GRS` は、診断でマイルストーンの `actualFinish` を書かないこと。'
 const FR_136_VO_5 =
-  '導いた達成が成り立ち、手の `actualFinish` が無いマイルストーンは、表 T-312 の `VO-5` として、完了にする提案（達成日の候補 ＝ `MP-4` の日）をレポートに出すこと（MUST）。'
+  '`GRS` は、導いた達成が成り立ち、手の `actualFinish` が無いマイルストーンについて、表 T-312 の `VO-5` として、完了にする提案（達成日の候補 ＝ `MP-4` の日）をレポートに出すこと。'
 
 const CLAUSES = [
   FR_130_NO_STATUS,
+  'もし基準日（`Project.statusDate`）が `null` の場合、`GRS` は、診断を行わなかったことを告げること。',
   FR_130_NO_WRITE,
   FR_130_NOT_KEPT,
   FR_131_ONE_EACH,
+  '`GRS` は、開いている文書モデルを、矛盾（表 T-310）・疑義（表 T-311）・記載漏れ（表 T-312）の観点ですべて調べること。',
   FR_132_BOTTLENECK,
+  '`GRS` は、表 T-313 の 4 つの段を `BD-1` から `BD-4` の順に行うこと。',
   FR_132_WORKING_DAYS,
+  '`GRS` は、量をすべて文書の暦の稼働時間の分で数えること（表 T-314、暦は `FR-054`）。',
   FR_132_NOT_DONE,
   FR_132_DX_9,
   FR_133_PATH_MARK,
   FR_133_NOT_DOWNSTREAM,
   FR_135_DERIVE,
+  '`GRS` は、導いた親を診断の中でだけ使うこと。',
   FR_135_NOT_WRITTEN,
   FR_135_NOT_NARROWER,
   FR_135_VO_4,
@@ -504,12 +509,12 @@ describe('CR-561 -- the clauses these cases are driven by', () => {
       'DX-11',
       'DX-12',
     ])
-    expect(cellOf('T-313', 'BD-1', '何をするか')).toContain('着手済みで未完了は 基準日 ＋ 残り とし')
+    expect(cellOf('T-313', 'BD-1', '何をするか')).toContain('`GRS` は、着手済みで未完了の `Task` の見込み終了を 基準日 ＋ 残り（基準日の瞬間（`Project.statusDate`）から残りの分だけ文書の暦の稼働時間を進めた瞬間）とすること。')
     expect(cellOf('T-314', 'DQ-3', '定義')).toContain('max(0, `DQ-1` − (最早開始 ＋ 計画期間))')
     expect(cellOf('T-316', 'DW-1', '紫（表 T-315 の `DG-1`）を付けるタスク')).toBe('原因の `Task` と、その依存の下流すべて')
     expect(cellOf('T-316', 'DW-2', '紫（表 T-315 の `DG-1`）を付けるタスク')).toContain('候補が 0 なら原因だけ')
     expect(cellOf('T-318', 'IP-1', '規則')).toContain('（親の `start` ≤ 子の `start` かつ 子の `finish` ≤ 親の `finish`）')
-    expect(cellOf('T-319', 'MP-4', '規則')).toContain('達成日 ＝ 先行の最も遅い `actualFinish`')
+    expect(cellOf('T-319', 'MP-4', '規則')).toContain('もし先行が全部完了（`PS-2`）の場合、`GRS` は、達成とし、達成日を先行の最も遅い `actualFinish` とすること。')
     expect(S_397).toBe(1)
   })
 

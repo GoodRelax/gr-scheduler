@@ -34,19 +34,19 @@ import {
 } from '../fixtures/fake-browser'
 import { REQUIREMENTS, taskGroupDocument, rowOf, taskOf } from './cr-541-stage'
 
-const Q07 = '⭐ パネルが文書の設定を出しているあいだ、その欄は読むだけとすること（MUST）'
-const Q08 = 'だけとすること（MUST）。⛔ 編集できると示してはならない（MUST NOT）'
-const Q08A = '⭐ ただし、別の要求がその入口を本面の欄として置いたときは、その欄だけは、その要求に従って選ばせること（MUST） —— `FR-041` のテーマ色の欄がこれである。'
+const Q07 = 'プロパティパネルが文書の設定を出している間、`GRS` は、`IMPS-100` の欄を除き、文書の設定の欄を読むだけの欄とすること。'
+const Q08 = 'プロパティパネルが文書の設定を出している間、`GRS` は、`IMPS-100` の欄を除き、文書の設定の欄を編集できると示さないこと。'
+const Q08A = '別の要求が設定を変える入口を文書の設定の面の欄として置いたとき、`GRS` は、別の要求が置いた欄を、置いた要求が定めるとおりに選ばせること（例: `FR-041` のテーマ色の欄）。'
 // Why: CR-690 -- the order of the face's fields moved to table T-369, and no placing requirement names another field.
-const Q08B = '⭐ 本面の欄の並びと欄の名は 表 T-369 に従うこと（MUST）'
+const Q08B = '`GRS` は、文書の設定の面の欄の並びと欄の名を 表 T-369 に従わせること。'
 const THEME_HUE_FIELD = 'K-60'
 // Why: table T-369 places under K-60 the fields FO-3 to FO-16 name; FR-156, FR-157 and FR-158 placed the last four.
 // Why: CR-755 (FO-15) -- the display time zones are four rows, the setting's row and its number.
 const LATER_PLACED_FIELDS = ['K-125', 'K-85', 'K-143', 'K-71', 'IC-44', 'K-142', 'K-141', 'K-140', 'K-146', 'K-144', 'K-145:1', 'K-145:2', 'K-145:3', 'K-145:4', 'FO-17', 'IC-162']
 // Why: FO-11's read-out holds the copy entrance (FX-7), a control on a field that is itself read only.
 const SHOWN_SPAN_FIELD = 'FX-6'
-const Q17 = '⭐ 画面に依存の種別を出すときは、本表の `名` の欄の略号（括弧の前の `FS` / `SF` / `FF` / `SS`）で出すこと（MUST）'
-const Q18 = '（MUST）。⛔ 保存した数（`linkType`）をそのまま出してはならない（MUST NOT）'
+const Q17 = '`GRS` は、画面に依存の種別を出すとき、表 T-018 の `名` の欄の略号（括弧の前の `FS` / `SF` / `FF` / `SS`）で出すこと。'
+const Q18 = '`GRS` は、保存した数（`linkType`）をそのまま画面に出さないこと。'
 const Q34 = '⛔ タイトルバーを本文のスクロールの中に置いてはならない（MUST NOT）'
 const Q38 = '説明をポインタの点に出すこと（MUST）'
 const IN_3_TAKES_NO_POINTER = '⭐ ツールチップはポインタを受け取らず、下へ通すこと（MUST）'

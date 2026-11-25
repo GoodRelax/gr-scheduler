@@ -294,7 +294,7 @@ const FOLLOWING_ROWS = closingRuleRows()
 // Why: GR-22 joined T-023d with an operation cell that sends the held picture to FR-052, and none
 // of the three closing sentences of T-023d names it; FR-052 states that MUST itself.
 const FR_052_HELD_PICTURE =
-  '境界を掴んでいるあいだ、その時点のポインタ位置が決める 2 つの幅で画面を描いて示すこと（MUST）'
+  '境界を掴んでいる間、`GRS` は、`IMPS-1785`・`IMPS-1794` の場合と、タスクグループパネルの幅が床を下回る場合を除き、境界を掴んでいる時点のポインタ位置が決める 2 つの幅で画面を描くこと。'
 
 function followedByFr052Rows(): readonly string[] {
   return specTable('T-023d')

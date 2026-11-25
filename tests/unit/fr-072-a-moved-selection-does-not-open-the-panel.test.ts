@@ -200,16 +200,16 @@ const FR_072 = fr072Statement()
 
 /** The sentences of FR-072 these cases stand on, quoted from the manuscript. */
 const FR_072_NOT_FROM_A_SELECTION =
-  '表 T-023c の選択が動いたことだけを理由に、パネルを出し始めてはならない（MUST NOT）'
+  '`GRS` は、表 T-023c の選択が動いたことだけを理由に、プロパティパネルを出し始めないこと。'
 /** ⭐ WHAT REPLACED THE COUNT: a rule about WHEN, which names no entrance. */
 const FR_072_ONLY_A_NAMED_PRESS =
-  '出すのは、出すことを求める要求が名指した押下のときだけである（MUST）。'
+  '`GRS` は、パネルを出すことを求める要求が名指した押下のときだけ、プロパティパネルを出し始めること。'
 /** ⛔ And the MUST NOT that keeps the roster out of this requirement for good. */
 const FR_072_MUST_NOT_ENUMERATE = 'その入口を本要求が数え上げてはならない（MUST NOT）'
-const FR_072_MOVES_WITH_THE_SELECTION = '出しているあいだは、選択が動けば中身がそれに移る'
+const FR_072_MOVES_WITH_THE_SELECTION = 'プロパティパネルを出している間、選択が動いたとき、`GRS` は、中身を動いた先の選択へ移すこと（STATEMENT の「最後の操作」）。'
 const FR_072_KEEPS_THE_SELECTION =
-  'パネルを出すのをやめても、選択を解除してはならない（MUST NOT）'
-const T_036_NOT_WHILE_A_SURFACE_STANDS = '`SK-19` の 2 段目を当ててはならない（MUST NOT）'
+  'プロパティパネルを出すのをやめたとき、`GRS` は、選択を解除しないこと。'
+const T_036_NOT_WHILE_A_SURFACE_STANDS = '`Confirmation`（`U-55`）または `ScreenState` が持つ面（`S-99g`）が立っている間、`GRS` は、`SK-19` の 2 段目（プロパティパネルを出すのをやめる）を当てないこと。'
 
 
 // ---------------------------------------------------------------------------
@@ -593,7 +593,7 @@ describe('the manuscript still says what these cases read', () => {
     expect(APP_HEADER).toBe('App Header')
     expect(MK_13, 'MK-13 still opens the panel for a Task').toContain('プロパティパネルを出し')
     expect(SK_19, 'SK-19 still carries its second stage').toContain(
-      'プロパティパネルを出しているならば出すのをやめること（MUST）',
+      '出ている通知も確定していないその場の編集も無く、プロパティパネルを出している間、 `Enter` を押したとき、`GRS` は、プロパティパネルを出すのをやめること（焦点が名称の欄の外にあるときも含む）。',
     )
     expect(SK_3, 'SK-3 still deletes what is selected').toContain('選択しているものを削除する')
   })
@@ -638,7 +638,7 @@ describe('the manuscript still says what these cases read', () => {
     expect(REQUIREMENTS).toContain(T_036_NOT_WHILE_A_SURFACE_STANDS)
     // ⚠️ And the sentence that keeps the FIRST stage on, which is what makes
     // the rule a limit on ONE stage rather than on the key.
-    expect(REQUIREMENTS).toContain('1 段目（その場の編集の確定）は当てたままである')
+    expect(REQUIREMENTS).toContain('`Confirmation`（`U-55`）または `ScreenState` が持つ面（`S-99g`）が立っている間も、`GRS` は、`SK-19` の 1 段目（その場の編集の確定）を当てること。')
   })
 
   it('table T-109 still puts IC-17 on the App Header, on FR-072’s authority', () => {

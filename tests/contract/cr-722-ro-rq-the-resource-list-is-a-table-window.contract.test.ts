@@ -9,12 +9,12 @@ import { CANVAS, NO_VIEW, OPENED_DELAY_DIAGNOSTICS_REPORT, sessionIn } from './c
 import { specTable, unbroken } from './spec-table'
 
 const FR_099_WINDOW =
-  '担当リスト（`_assets/tbl-glossary.md` の `U-49`）はウィンドウ（`FR-036` の 表 T-335）とし、表 T-370 が違いを定めるほかは、検索パネルと同じ見せ方と振舞い（`FR-151` の 表 T-330）とすること（MUST）'
-const FR_099_COLUMNS = 'ウィンドウには表を 1 つ置き、表の列は 表 T-371 に従うこと（MUST）'
-const T_371_ORDER = '列は本表の行の順に左から並べる —— 表示・担当名・選択・担当タスク数・担当タスク（利用者が定めた）。'
-const RO_4_ORDER = '文書の `Resource` の並び。（担当なし）の行は末尾。'
-const RO_5_ALWAYS = '担当のいないタスクを持つ 1 行を、担当のいないタスクが文書に無くても置く。'
-const RO_7_FIXED = '見出し行と、`RQ-1`・`RQ-2`（表示・担当名）の 2 列を固定する'
+  '`GRS` は、担当リスト（`_assets/tbl-glossary.md` の `U-49`）をウィンドウ（`FR-036` の 表 T-335）にすること。'
+const FR_099_COLUMNS = '`GRS` は、担当リストの表の列を 表 T-371 に従わせること。'
+const T_371_ORDER = '`GRS` は、担当リストの表の列を、表 T-371 の行の順に左から並べること —— 表示・担当名・選択・担当タスク数・担当タスク。'
+const RO_4_ORDER = '`GRS` は、担当リストの表の既定の並びを、文書の `Resource` の並びにすること。`GRS` は、既定の並びで、（担当なし）の行を末尾に置くこと。'
+const RO_5_ALWAYS = '`GRS` は、担当のいないタスクを持つ 1 行を、担当のいないタスクが文書に無くても置くこと。'
+const RO_7_FIXED = '`GRS` は、見出し行と、`RQ-1`・`RQ-2`（表示・担当名）の 2 列を固定すること（`SV-6` の形）。'
 
 const cellOf = (table: string, id: string, heading: string): string =>
   unbroken(specTable(table).rows.find((one) => one.id === id)?.by[heading] ?? '')

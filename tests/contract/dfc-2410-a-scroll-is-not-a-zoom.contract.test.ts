@@ -13,9 +13,9 @@ import { specTable } from './spec-table'
 
 const OP_10_CHOSEN = '人が倍率か表示位置を選んだときは、それを表示位置とすること（MUST）'
 const OP_10_PAIR = 'どちらか一方でも `null` なら、表示位置が `null` であるとすること（MUST）'
-const FR_051_BAR = 'スクロールバーの操作でも表示位置を変えられるようにすること（MUST）'
+const FR_051_BAR = '`GRS` は、スクロールバーの操作でも表示位置を変えられるようにすること。'
 const FR_051_POINTS =
-  '表示位置が変わったときは、`_assets/tbl-settings.md` の表 T-203 の `S-77` と `S-78` が新しい表示位置を指すようにすること（MUST）'
+  '表示位置が変わったとき、`GRS` は、`_assets/tbl-settings.md` の表 T-203 の `S-77` と `S-78` を、新しい表示位置を指す値にすること。'
 
 describe('DFC-2410 -- the clauses the cases below answer to still stand in the manuscript', () => {
   it.each([OP_10_CHOSEN, OP_10_PAIR, FR_051_BAR, FR_051_POINTS])('%s', (clause) => {

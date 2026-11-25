@@ -38,10 +38,11 @@ const REQUIREMENTS = unbroken(
 
 
 const FR_042_PANEL_CARRIES_THE_LINE =
-  ' —— 1 つのタスクグループ ＝ 1 対象がマルチバーの中核なので、境界が見えないとどこまでが 1 つのタスクグループか読めない。⭐ **境界の線は、日程の側（`Task Group Area`、`U-50`）だけでなく、タスクグループパネル（`U-22`）のタスクグループの境にも引くこと（MUST）'
+  '`GRS` は、境界の線を、日程の側（`Task Group Area`、`U-50`）に加えて、タスクグループパネル（`U-22`）のタスクグループの境にも引くこと。'
 
 const FR_042_LEFT_TO_RIGHT_AND_UNBROKEN =
-  '18`）と同じ線であり、同じ線とは太さ・色・縦の位置が同じであるということである。線はタスクグループパネルの左端から右端まで引き、日程の側の線と切れ目なく続けること（MUST）'
+  '`GRS` は、タスクグループパネルの境界の線を、タスクグループパネルの左端から右端まで引くこと。'
+const FR_042_UNBROKEN = '`GRS` は、タスクグループパネルの境界の線を、日程の側の線と切れ目なく続けること。'
 
 const FR_098_PINNED_BAND_SIDE = '⭐ タスクグループ見出しの側の境目も同じ線で示す —— タスクグループパネルにも線を引く規則は `FR-042` が持つ。'
 const EP_3_EXPORT_SIDE = '⭐ タスクグループの境のグループ罫線（`U-18`）も画面のとおり描く'
@@ -49,6 +50,7 @@ const EP_3_EXPORT_SIDE = '⭐ タスクグループの境のグループ罫線�
 const CLAUSES: readonly (readonly [string, string])[] = [
   ['FR-042 (MUST) -- the Task Group Panel carries the line at each task group boundary', FR_042_PANEL_CARRIES_THE_LINE],
   ['FR-042 (MUST) -- left edge to right edge, unbroken into the schedule side', FR_042_LEFT_TO_RIGHT_AND_UNBROKEN],
+  ['FR-042 (MUST) -- left edge to right edge, unbroken into the schedule side', FR_042_UNBROKEN],
   ['FR-098 -- the pinned band boundary on the task group title side', FR_098_PINNED_BAND_SIDE],
   ['T-076 EP-3 -- the export draws the task-group-boundary lines too', EP_3_EXPORT_SIDE],
 ]

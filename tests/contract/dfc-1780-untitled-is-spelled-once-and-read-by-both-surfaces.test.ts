@@ -19,8 +19,8 @@ import { specTable, unbroken } from './spec-table'
 const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
 // Why: each clause is cut from the manuscript as check 39 reads it, so the cases cannot drift from the words they test.
-const FR_035_UNTITLED = '`title` が `null` のときは、タブの見出しを `Untitled` とすること（MUST）'
-const FR_035_NOT_TRANSLATED = '⚠️ **画面の言語で切り替えない**'
+const FR_035_UNTITLED = '`title` が `null` の間、`GRS` は、タブの見出しを `Untitled` にすること。'
+const FR_035_NOT_TRANSLATED = '`GRS` は、`IMPS-313` の見出しを、画面の言語で切り替えないこと。'
 const PI_37_ONE_PLACE = '公開したのは、綴りを `src/` の 2 か所に置かないためである'
 
 describe('DFC-1780 the manuscript these cases are driven by', () => {

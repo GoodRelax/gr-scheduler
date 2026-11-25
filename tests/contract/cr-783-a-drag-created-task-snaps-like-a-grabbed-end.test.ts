@@ -30,7 +30,7 @@ import { bare, specTable } from './spec-table'
 // Why: the TC-6 clause is copied verbatim, so that the check that counts held MUST clauses finds it in this file's bytes.
 const TC_6_THE_DRAWN_SPAN_IS_READ_AS_SNAPPED_INSTANTS =
   '⭐ 引いた期間は、押した点を開始、離した点を終了とし（左へ引けば入れ替える）、`FR-103` の 表 T-378 の単位で寄せた瞬間として読むこと（MUST）'
-const TC_10_THE_MILESTONE_AT_THE_SNAPPED_PRESS = '寄せの単位が日より細かいとき（表 T-378 の `SG-2`）は、押した点をその単位で寄せた瞬間に置く'
+const TC_10_THE_MILESTONE_AT_THE_SNAPPED_PRESS = '寄せの単位が日より細かいとき（表 T-378 の `SG-2`）、`GRS` は、押した点を寄せの単位で寄せた瞬間にマイルストーンを置くこと。'
 
 const rowOf = (table: string, id: string) => {
   const found = specTable(table).rows.find((one) => one.id === id)

@@ -16,17 +16,17 @@ import {
 
 // Why: E-24 names no kind of copy, so it binds every paste FR-033 makes, a Task paste included.
 const SEVERAL_TARGET_TASK_GROUPS_REFUSED =
-  '⛔ 貼り付け先としてタスクグループが 2 つ以上選ばれているときは、貼り付けを受け付けず、行えない理由を `FR-029` のとおり通知の仕組みへ運ぶこと（MUST）'
-const TARGET_IS_THE_CHOSEN_TASK_GROUP = '貼り付け先は、選んでいるタスクグループの子とすること（MUST）'
-const SAME_TASK_GROUP = '**複製した `Task` は、複製元と同じタスクグループに載せること（MUST）'
+  'もし貼り付け先の選択にタスクグループが 2 つ以上ある場合、`GRS` は、貼り付けを受け付けないこと。'
+const TARGET_IS_THE_CHOSEN_TASK_GROUP = '`GRS` は、貼り付け先を、選んでいるタスクグループの子にすること。'
+const SAME_TASK_GROUP = '`Task` を単独で（タスクグループごとではなく）貼り付けたとき、`GRS` は、`IMPS-287` の場合を除き、複製した各 `Task` を、複製元と同じタスクグループに載せること。'
 const EDIT_PERMISSION_LANDS_ON_CHOSEN_TASK_GROUP =
-  '⛐ **ただ 1 つの例外は、複製元のタスクグループが `editPermission` を名乗っているときである** —— そのときに限り、**選んでいる自分のタスクグループに載せること（MUST）**'
+  '`Task` を貼り付けたとき、もし複製元のタスクグループが `editPermission` を名乗っている場合、`GRS` は、複製した `Task` を、複製元のタスクグループに代えて、選んでいる自分のタスクグループに載せること（`IMPS-286` のただ 1 つの例外）。'
 const MANY_TASKS_ALL_COPIED =
-  '⭐ `Task` が 2 つ以上選ばれているときは、選ばれた `Task` をすべて複製し、それぞれを上の段のとおり複製元と同じタスクグループに載せること（MUST）'
+  '選択に `Task` が 2 つ以上ある間、コピーし貼り付けたとき、`GRS` は、選ばれた `Task` をすべて複製すること。'
 // Why: CR-714 (JDG-1736) replaced "the copy keeps its source's parent" with a parent inferred from the landing task group.
 const PARENT_FROM_THE_TASK_GROUP =
-  'コピー元の親をコピーしないとき（コピー元が親を持たないときを含む）は、コピーの親タスクを、コピーを載せたタスクグループから推定すること（MUST）'
-const NO_SAME_UID = '複製した `Task` に、複製元と同じ `UID` を使ってはならない（MUST NOT）'
+  '`GRS` は、コピー元の親をコピーしないとき（コピー元が親を持たないときを含む）、コピーの親タスクを、コピーを載せたタスクグループから推定すること —— コピーを載せたタスクグループからタスクグループの木を根の側へたどり、最初に出会う導出元を持つタスクグループの `Task` を親とし、無ければ根（親なし）とする（表 T-015a の `HM-12` と同じたどり）。'
+const NO_SAME_UID = '`GRS` は、複製した `Task` に、複製元と同じ `UID` を使わないこと。'
 const REASON_IS_A_T233_ROW = '⭐ 通知が運ぶ理由は 表 T-233 の行とすること（MUST）'
 
 describe('FR-033 / T-233 -- the clauses this file is driven by still stand', () => {

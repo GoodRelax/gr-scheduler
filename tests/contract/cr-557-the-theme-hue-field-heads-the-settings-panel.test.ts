@@ -50,19 +50,19 @@ const WORDS = JSON.parse(readFileSync(join(SPEC, '_source', 'display-words.json'
 const CLAUSE_FIRST_FIELD =
   '⭐ テーマ色を選ぶ入口は、文書の設定の面（`FR-072`、面を出す入口は `_assets/tbl-glossary.md` の 表 T-109 の `IC-17`）の欄とし、置き場は `FR-072` の 表 T-369 の `FO-2` とすること（MUST）'
 const CLAUSE_ROWS_IN_ORDER =
-  'その欄には 表 T-305 の行を同表の順に、1 段に `_assets/tbl-settings.md` の 表 T-206 の `S-368` 個ずつ並べ、押された行の色相で 表 T-108 の `CM-5` を 1 回発行すること（MUST）。'
+  '`GRS` は、テーマ色の欄に、表 T-305 の行を表 T-305 の順に、1 段に `_assets/tbl-settings.md` の 表 T-206 の `S-368` 個ずつ並べること。'
 const CLAUSE_SWATCH_PAINT =
-  '各行の見本は、その行の色相で解いた `_assets/tbl-settings.md` の 表 T-236 の `S-151` を、いま描いている明暗の値で塗ること（MUST）'
+  '`GRS` は、テーマ色の欄の各行の見本を、行の色相で解いた `_assets/tbl-settings.md` の 表 T-236 の `S-151` の、いま描いている明暗の値で塗ること。'
 // Why: CR-690 -- the field is the swatch rows alone; the chosen swatch is ringed and each swatch's tooltip is its word.
-const CLAUSE_NAME_AND_VALUE = '⭐ 欄の名は `FR-038` の辞書が 表 T-104 の `K-60` に持つ語とし、欄は見本の段だけとして、見本の外に行の語を書かないこと（MUST）'
-const CLAUSE_TOOLTIP = '各見本のツールチップは、辞書の `themeHues` のその行の語とすること（MUST）。'
+const CLAUSE_NAME_AND_VALUE = '`GRS` は、テーマ色の欄の名を、`FR-038` の辞書が 表 T-104 の `K-60` に持つ語とすること。'
+const CLAUSE_TOOLTIP = '`GRS` は、テーマ色の欄の各見本のツールチップを、`FR-038` の辞書の `themeHues` が行に持つ語とすること。'
 const CLAUSE_NO_ROW =
-  '⚠️ 等しい行が無いとき（`Agent API` やファイルが置いた値）は、どの見本も囲まず、見本の段の下に値を数で示す。'
+  'もし文書の `themeHue` と等しい行が無い場合（例: `Agent API` やファイルが置いた値）、`GRS` は、どの見本も囲まないこと。'
 const CLAUSE_NO_ENTRANCES =
-  '⛔ この欄に、カスタムカラーの入口・透明・テーマ追随へ戻す入口（表 T-017b の `CV-9` と `FR-007` の「戻す入口」）を並べてはならない（MUST NOT）'
-const CLAUSE_READ_ONLY = '⭐ パネルが文書の設定を出しているあいだ、その欄は読むだけとすること（MUST）。'
+  '`GRS` は、テーマ色の欄に、カスタムカラーの入口・透明・テーマ追随へ戻す入口（表 T-017b の `CV-9` と `FR-007` の「戻す入口」）を並べないこと。'
+const CLAUSE_READ_ONLY = 'プロパティパネルが文書の設定を出している間、`GRS` は、`IMPS-100` の欄を除き、文書の設定の欄を読むだけの欄とすること。'
 const CLAUSE_EXCEPTION =
-  '⭐ ただし、別の要求がその入口を本面の欄として置いたときは、その欄だけは、その要求に従って選ばせること（MUST） —— `FR-041` のテーマ色の欄がこれである。'
+  '別の要求が設定を変える入口を文書の設定の面の欄として置いたとき、`GRS` は、別の要求が置いた欄を、置いた要求が定めるとおりに選ばせること（例: `FR-041` のテーマ色の欄）。'
 
 const K_60 = 'K-60'
 const LANGUAGES: readonly DisplayLanguage[] = ['ja', 'en']
@@ -343,10 +343,13 @@ describe('CR-557 -- the manuscript still says what these cases read', () => {
   it.each([
     CLAUSE_FIRST_FIELD,
     CLAUSE_ROWS_IN_ORDER,
+    'テーマ色の欄の行を押したとき、`GRS` は、押した行の色相で 表 T-108 の `CM-5` を 1 回発行すること。',
     CLAUSE_SWATCH_PAINT,
     CLAUSE_NAME_AND_VALUE,
+    '`GRS` は、テーマ色の欄を見本の段だけとして、見本の外に行の語を書かないこと。',
     CLAUSE_TOOLTIP,
     CLAUSE_NO_ROW,
+    'もし文書の `themeHue` と等しい行が無い場合、`GRS` は、見本の段の下に `themeHue` の値を数で示すこと。',
     CLAUSE_NO_ENTRANCES,
     CLAUSE_READ_ONLY,
     CLAUSE_EXCEPTION,

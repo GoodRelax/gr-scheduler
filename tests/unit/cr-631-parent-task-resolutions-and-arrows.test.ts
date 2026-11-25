@@ -42,17 +42,17 @@ const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '
 
 const flat = (text: string): string => text.replace(/<br\s*\/?>/g, '').replace(/\*\*/g, '').replace(/\s*\n\s*/g, '')
 
-const IP_5_ROOT = '上にタスクグループの無いタスクグループ（最上位のタスクグループ）に載る `Task` は、`parentTaskUid` が `null` なら親なし（根）とする。'
-const IP_5_NO_VO_4 = '候補を求めず、表 T-312 の `VO-4` にしない。'
-const FR_135_FAMILY = '家族とは、持ち主の `Task` から親への矢印と、持ち主の子からその `Task` への矢印である。'
-const FR_135_NOT_ALL = '⛔ すべての親タスクと子タスクを一度に描いてはならない（MUST NOT）'
-const FR_135_SHAPE = '矢印は、子のバーの上辺の中ほどから縦に上がり、矢じりが親のバーの下辺に触れる形とし'
-const FR_135_BEND = '子の中ほどが親の幅の外にあれば、子の上で 1 度折れて親の幅の中へ寄ること（MUST）'
-const FR_135_INK = '明記の親タスク（`parentTaskUid`）への矢印は実線、表 T-318 で導いた親タスクへの矢印は `_assets/tbl-settings.md` の 表 T-206 の `S-486` の刻みの破線とし'
-const FR_135_HEAD = '矢じりは依存線と同じ大きさ（表 T-201 の `S-19` ・ `S-300`）とすること（MUST）'
-const FR_135_HIT = '矢印の当たりの太さは 表 T-206 の `S-485` とする。'
+const IP_5_ROOT = '`GRS` は、上にタスクグループの無いタスクグループ（最上位のタスクグループ）に載る `Task` を、`parentTaskUid` が `null` なら親なし（根）とすること。'
+const IP_5_NO_VO_4 = '`GRS` は、`IP-5` の根を 表 T-312 の `VO-4` にしないこと。'
+const FR_135_FAMILY = '家族とは、持ち主の `Task` から親への矢印と、持ち主の子から持ち主の `Task` への矢印である。'
+const FR_135_NOT_ALL = '`GRS` は、すべての親タスクと子タスクを一度に描かないこと。'
+const FR_135_SHAPE = '`GRS` は、矢印を、子のバーの上辺の中ほどから縦に上がり、矢じりが親のバーの下辺に触れる形とし'
+const FR_135_BEND = '子の中ほどが親の幅の外にあれば、子の上で 1 度折れて親の幅の中へ寄せて描くこと。'
+const FR_135_INK = '`GRS` は、明記の親タスク（`parentTaskUid`）への矢印を実線、表 T-318 で導いた親タスクへの矢印を `_assets/tbl-settings.md` の 表 T-206 の `S-486` の刻みの破線とし'
+const FR_135_HEAD = '矢じりを依存線と同じ大きさ（表 T-201 の `S-19` ・ `S-300`）として描くこと。'
+const FR_135_HIT = '`GRS` は、矢印の当たりの太さを 表 T-206 の `S-485` とすること。'
 const FR_135_QUERY = '子の上に `?` を、表 T-318 の `IP-4` の並びの頭 3 つの候補に破線の枠と並びの番号を'
-const FR_135_LABEL = 'その `Task` の親（明記または導いたもの）の名称ラベルを `S-398` の色と `S-399` の太さで描くこと（MUST）'
+const FR_135_LABEL = '`GRS` は、`Task` の親（明記または導いたもの）の名称ラベルを `S-398` の色と `S-399` の太さで描くこと。'
 
 describe('CR-631 -- the manuscript these cases are driven by', () => {
   it.each([
@@ -116,8 +116,8 @@ describe('T-318 -- how a parent not written down is resolved', () => {
   })
 })
 
-const FR_135_NO_MILESTONE_PARENT = '⛔ マイルストーンを親にしてはならない（MUST NOT） —— `parentTaskUid` が明記していても同じである。'
-const FR_135_READ_AS_NULL = '診断は、マイルストーンを指す `parentTaskUid` を親として読まず、その子を `parentTaskUid` が `null` の `Task` として 表 T-318 で親を導くこと（MUST）'
+const FR_135_NO_MILESTONE_PARENT = '`GRS` は、`parentTaskUid` が明記していても、マイルストーンを親にしないこと。'
+const FR_135_READ_AS_NULL = '`GRS` は、診断で、マイルストーンを指す `parentTaskUid` を親として読まず、マイルストーンの子を `parentTaskUid` が `null` の `Task` として 表 T-318 で親を導くこと。'
 
 // Why: X, Y and Z each state a milestone as their parent; X is enclosed by P alone, Y by nothing, Z sits on the top task group.
 const X = 10
