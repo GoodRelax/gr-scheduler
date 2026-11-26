@@ -37,7 +37,7 @@ const RULE = '規則'
 const BL_1_ONLY = '`GRS` は、`BaselineTask`（`_assets/fig-erd-detail.md` の `ET-18`）のうち、次の 3 つがそろうものだけを描くこと。'
 const BL_1_TASK_GROUP = '① `UID` が一致する `Task` が、描くフレームで描かれているタスクグループ（`TaskGroup`）に載っている'
 const BL_1_FOLDED =
-  '人が折りたたんだタスクグループ・隠したタスクグループ（表 T-015 の `HR-1a` / `HR-6`）と、グループ LOD（表 T-005a の `L-3`）が描かないタスクグループの `Task` には描かない'
+  '人が折りたたんだタスクグループ・格納したタスクグループ（表 T-015 の `HR-1a` / `HR-6`）と、グループ LOD（表 T-005a の `L-3`）が描かないタスクグループの `Task` には描かない'
 const BL_1_DATES = '② `start`（`AT-136`）と `finish`（`AT-137`）の両方を持つ。'
 const BL_1_S69 = '③ `_assets/tbl-settings.md` の 表 T-202 の `S-69` が真である（`FR-049`）。'
 const BL_1_NOT_S227 = '`GRS` は、輪郭を予定の表示（表 T-202 の `S-227`）で止めないこと。'

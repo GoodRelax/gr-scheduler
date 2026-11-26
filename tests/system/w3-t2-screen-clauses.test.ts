@@ -51,7 +51,7 @@ const FIELD_SCROLLS_LIKE_THE_ENTRANCE =
 
 // Spec: HF-10, T-051
 const OPEN_ALL_NOT_OUTERMOST =
-  '⭐ 焦点が `Tab` で進む順も、この並びの左から右とすること（MUST） —— 見た目と違う順で焦点が飛ぶと、次に押されるのがどれかを読めない。⛔ **本行の「すべて展開する」を並びのいちばん外へ置いてはならない（MUST NOT）'
+  '⭐ 焦点が `Tab` で進む順も、この並びの左から右とすること（MUST） —— 見た目と違う順で焦点が飛ぶと、次に押されるのがどれかを読めない。⛔ **本行の「配下を展開」を並びのいちばん外へ置いてはならない（MUST NOT）'
 
 // Spec: FR-016, GA-7
 const FADE_FROM_POINTER = 'フェードの日数は、ポインタの位置から求めること（MUST）'

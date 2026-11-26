@@ -13,14 +13,14 @@ const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '
 
 // Why: each constant ends exactly at its marker, cut from the manuscript as check 39 reads it.
 const FR_151_RULES =
-  '検索の表・遅延診断レポートの表・担当リストの表の表示の列（Visibility）と、表ごとのスケジュールフィルタの入口（`_assets/tbl-glossary.md` の 表 T-109 の `IC-143`）で、日程表に描くタスクを絞ること（スケジュールフィルタ）の規則は 表 T-353 に従うこと（MUST）'
-const FR_151_SAVED = '⭐ 3 つの表の見え方 —— 表示の列の値・スケジュールフィルタの入切・列のフィルタ・並べ替え —— は文書に保存すること（MUST）'
+  '検索の表・遅延診断レポートの表・担当リストの表の表示の列（Visibility）と、表ごとの日程抽出の入口（`_assets/tbl-glossary.md` の 表 T-109 の `IC-143`）で、日程表に描くタスクを絞ること（日程抽出）の規則は 表 T-353 に従うこと（MUST）'
+const FR_151_SAVED = '⭐ 3 つの表の見え方 —— 表示の列の値・日程抽出の入切・列のフィルタ・並べ替え —— は文書に保存すること（MUST）'
 const FR_151_ONE_STEP = '表の見え方を変えたら未保存の編集（`FR-100`）であり、取り消しの 1 段である（`FR-031` の 表 T-027 の `UN-20`）。'
 const TV_3_NOT_FAINT = '「描かれていないタスク」）。⛔ 薄く描いてはならない（MUST NOT）'
-const EL_21_SJ_0 = '印の先の端のタスクがスケジュールフィルタ（`FR-151` の 表 T-353）で描かれないときは、先に 表 T-332 の `SJ-0` を行うこと（MUST）'
+const EL_21_SJ_0 = '印の先の端のタスクが日程抽出（`FR-151` の 表 T-353）で描かれないときは、先に 表 T-332 の `SJ-0` を行うこと（MUST）'
 const FR_134_JUMP = '表の 1 行の名前を押したら、その行の `Task` へ、`FR-151` の 表 T-332 の飛び方（`SJ-0`・`SJ-2` 〜 `SJ-8`・`SJ-10`）で飛ぶこと（MUST）'
 const IX_11_NO_BAND_WORDS =
-  '⛔ 絵にスケジュールフィルタの帯（`_assets/tbl-glossary.md` の `U-67`）の語を書き込んではならない（MUST NOT）'
+  '⛔ 絵にチェックで日程抽出バー（`_assets/tbl-glossary.md` の `U-67`）の語を書き込んではならない（MUST NOT）'
 
 const CLAUSES = [FR_151_RULES, FR_151_SAVED, FR_151_ONE_STEP, TV_3_NOT_FAINT, EL_21_SJ_0, FR_134_JUMP, IX_11_NO_BAND_WORDS]
 
@@ -37,8 +37,8 @@ test.describe('CR-661 the manuscript these cases are driven by', () => {
   test('T-353 and T-332 still hold the rows these cases press', () => {
     expect(cellOf(T_353, 'TV-2')).toContain('初めはどの表のどの行もチェックが外れている（「非表示」）')
     expect(cellOf(T_353, 'TV-2')).toContain('チェックの入った行が「表示」である')
-    expect(cellOf(T_353, 'TV-5')).toContain('`IC-143` を押すと、その表のスケジュールフィルタを掛け')
-    expect(cellOf(T_353, 'TV-6')).toContain('スケジュールフィルタを掛けるときは、タスクグループを展開しない')
+    expect(cellOf(T_353, 'TV-5')).toContain('`IC-143` を押すと、その表で日程抽出し')
+    expect(cellOf(T_353, 'TV-6')).toContain('日程抽出するときは、タスクグループを展開しない')
     expect(cellOf(T_353, 'TV-8')).toContain('⭐ 最小化（`SV-12`）では解除しない')
     expect(cellOf(T_353, 'TV-8')).toContain('解除しても表示の列の値は残る')
     expect(cellOf(T_353, 'TV-11')).toContain('N は文書のタスクの数、M は描いているタスクの数')

@@ -278,7 +278,7 @@ describe('T-076 EP-9 (MUST NOT) -- 「太さを 0 で描いてはならない」
 describe('T-076 EP-9 (MUST) -- 「太さが同じであること」／「描く側は、罫の太さを 1 か所から読むこと」／「番号を 2 か所に置いてはならない」', () => {
   it('every Panel Divider the screen frame builds has that one published width', () => {
     // FR-052's own order gives two dividers (taskGroupPanel, propertiesPanel);
-    // EP-9 (MUST) asks that both read the SAME one place `Group Grid Lines`
+    // EP-9 (MUST) asks that both read the SAME one place `Task Group Grid Lines`
     // (U-18) itself is drawn from.
     const frame = frameOf()
     expect(frame.dividers.length).toBeGreaterThan(0)

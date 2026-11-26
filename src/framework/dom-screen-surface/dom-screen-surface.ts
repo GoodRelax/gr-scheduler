@@ -966,7 +966,7 @@ function screenLayersOf(host: Document) {
   return layers
 }
 
-export const SCHEDULE_FILTER_BAR_ROLE = 'Schedule Filter Bar'
+export const SCHEDULE_FILTER_BAR_ROLE = 'Filtered by Checks Bar'
 
 const SCHEDULE_FILTER_ENTRY = 'IC-143'
 

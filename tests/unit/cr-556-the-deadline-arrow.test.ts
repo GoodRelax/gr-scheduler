@@ -51,7 +51,7 @@ const anyRowText = (table: string, id: string): string => {
 const DA_1_DRAW = '`GRS` は、`deadline` が `null` でない `Task`（マイルストーンを含む）の印を、`Task` を置いたタスクグループを描くときに描くこと。'
 const DA_1_NULL = '`GRS` は、`deadline` が `null` の `Task` には印を描かないこと。'
 const DA_1_NOT_THE_TOGGLES = '`GRS` は、期限の印を、予定と実績の表示の切り替え（`_assets/tbl-settings.md` の 表 T-202 の `S-227` ／ `S-228`）と、進捗マーカーの切り替え（表 T-202 の `S-63`）に従わせないこと。'
-const DA_1_FOLDED = '`GRS` は、折りたたんだタスクグループ・隠したタスクグループ・詳しさの段で描かないタスクグループに載る `Task` の印を描かないこと。'
+const DA_1_FOLDED = '`GRS` は、折りたたんだタスクグループ・格納したタスクグループ・詳しさの段で描かないタスクグループに載る `Task` の印を描かないこと。'
 const DA_2_ONE_SHAPE = '`GRS` は、期限の印を下を指す矢印 1 つとし、縦の軸（矩形）と、下を指す二等辺三角形の矢じりを、1 つの塗りの形として描くこと。'
 const DA_2_HEIGHT = '`GRS` は、期限の印の箱の高さ d を、`Task` の進捗マーカーの径とすること'
 const DA_2_RATIOS = '`GRS` は、矢じりの幅を d × `_assets/tbl-settings.md` の 表 T-206 の `S-365`、矢じりの高さを d × 表 T-206 の `S-366`、軸の太さを d × 表 T-206 の `S-367` とすること。'

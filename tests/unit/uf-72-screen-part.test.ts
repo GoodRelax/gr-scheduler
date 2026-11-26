@@ -400,7 +400,7 @@ function entranceForRule(rule: string): string {
  * with the row of 表 T-051 that is its 正.
  *
  * ⭐ 表 T-109, docs/spec/_assets/tbl-glossary.md:
- *   | IC-59 | `Task Group Panel` | — | このタスクグループを隠す              | 表 T-051 の `HF-3`  |
+ *   | IC-59 | `Task Group Panel` | — | このタスクグループを親に格納する      | 表 T-051 の `HF-3`  |
  *   | IC-90 | `Task Group Panel` | — | タスクグループの配下を 1 階層だけ展開する | 表 T-051 の `HF-13` |
  *   | IC-77 | `Task Group Panel` | — | タスクグループの配下をすべて折りたたむ      | 表 T-051 の `HF-11` |
  *   | IC-58 | `Task Group Panel` | — | タスクグループの配下をすべて展開する      | 表 T-051 の `HF-2`  |
@@ -408,7 +408,7 @@ function entranceForRule(rule: string): string {
  *
  * ⚠️ THE COUNT IS `HF-1`'s AND MOVED TWICE. 表 T-103's `U-47` holds no count of
  * its own -- 「員数と置き方は 表 T-051 の `HF-1` が持ち、本行は持たない」 -- and
- * on 2026-08-30 `HF-1` was rewritten to 「**隠す操作子と、配下を 1 階層展開する操作子
+ * on 2026-08-30 `HF-1` was rewritten to 「**親に格納する操作子と、配下を 1 階層展開する操作子
  * と、配下をすべて折りたたむ操作子と、配下をすべて展開する操作子を 1 つずつ**」. ⇒ FOUR,
  * and the order below is the one that row states outright: 「並びは 2 × 2 の格子と
  * すること（MUST）」, read column first (see HF-1).
@@ -421,7 +421,7 @@ function entranceForRule(rule: string): string {
  * nothing but telling a press on one from a press on another.
  */
 const T_109_TASK_GROUP_EXPANDER = [
-  { row: entranceForRule('HF-3'), rule: 'HF-3', gist: 'このタスクグループを隠す', side: 'hiding' },
+  { row: entranceForRule('HF-3'), rule: 'HF-3', gist: 'このタスクグループを親に格納する', side: 'hiding' },
   {
     row: entranceForRule('HF-13'),
     rule: 'HF-13',
@@ -442,11 +442,11 @@ const T_109_TASK_GROUP_EXPANDER = [
  * task group carries and in what order, copied verbatim.
  */
 const T_051_HF1_FOUR_CONTROLS =
-  '隠す操作子と、配下を 1 階層展開する操作子と、配下をすべて折りたたむ操作子と、配下をすべて展開する操作子を 1 つずつ'
+  '親に格納する操作子と、配下を 1 階層展開する操作子と、配下をすべて折りたたむ操作子と、配下をすべて展開する操作子を 1 つずつ'
 const T_051_HF1_IS_A_LATTICE = '`GRS` は、`HF-1` の 4 つの操作子を 2 × 2 の格子に並べること'
 // ⭐⭐ REWORDED 2026-09-05, RULE UNCHANGED. The list is column-major and
 // the old wording read as four controls in a line -- see DFC-260.
-const T_051_HF1_LEFT_TO_RIGHT = '左の列を上から 隠す・1 階層展開する'
+const T_051_HF1_LEFT_TO_RIGHT = '左の列を上から 親に格納・1 階層展開する'
 
 /**
  * 表 T-051 `HF-4` — the whole left-to-right run of a task group.
@@ -489,12 +489,12 @@ const T_051_HF18_THE_COUNT =
  * and fail the moment the manuscript re-orders the lattice, instead of this
  * list quietly outliving the ruling that made it.
  * ⚠️ The pairing of word to rule is prose in the manuscript and cannot be
- * machine-joined: 「隠す」 is `HF-3` because that row is the one that hides,
+ * machine-joined: 「親に格納」 is `HF-3` because that row is the one that hides,
  * 「1 階層展開する」 is `HF-13`, 「配下をすべて折りたたむ」 is `HF-11` and 「配下をすべて
  * 開く」 is `HF-2`, each in those rows' own words.
  */
 const T_051_HF1_LATTICE = [
-  { rule: 'HF-3', word: '隠す' },
+  { rule: 'HF-3', word: '親に格納' },
   { rule: 'HF-13', word: '1 階層展開する' },
   { rule: 'HF-11', word: '配下をすべて折りたたむ' },
   { rule: 'HF-2', word: '配下をすべて展開する' },
@@ -525,7 +525,7 @@ const T_051_EXPANDER = [
   { row: 'HF-2', gist: '`GRS` は、展開する操作子の職務を 表 T-015 の `HR-3` にすること。' },
   // ⛔ `HF-3` IS NO LONGER 「そのタスクグループ自身を折りたたむ」. 利用者の裁定 2026-08-30 gave it
   // 表 T-015 の `HR-6` instead, and 2026-08-31 put that as a delegation too.
-  { row: 'HF-3', gist: '`GRS` は、隠す操作子の職務を 表 T-015 の `HR-6` にすること。' },
+  { row: 'HF-3', gist: '`GRS` は、親に格納する操作子の職務を 表 T-015 の `HR-6` にすること。' },
   // ⛔⛔ `HF-11` IS `HR-4`, WHICH FOLDS THE PRESSED TASK GROUP ITSELF. The row records
   // what the old wording cost: 「**2026-08-31 まで、本行は「そのタスクグループ自身を折りたたんでは
   // ならない」と定めていた**」.
@@ -5272,10 +5272,10 @@ describe('表 T-051 HF-10 (MUST) -- the run at the panel’s head, left to right
     const hf10 = (specTable('T-051').rows.find((one) => one.id === 'HF-10')?.cells ?? []).join(' ')
 
     expect(hf10).toContain(T_051_HF10_THE_HEAD_RUN)
-    // ⛔ THE OUTERMOST OF THE HEAD IS NOT 「すべて展開する」, which that row says
-    // itself: 「**本行の「すべて展開する」を並びのいちばん外へ置いてはならない
+    // ⛔ THE OUTERMOST OF THE HEAD IS NOT 「配下を展開」, which that row says
+    // itself: 「**本行の「配下を展開」を並びのいちばん外へ置いてはならない
     // （MUST NOT）** —— **頭もタスクグループも、折りたたみの外に立つのはタスクグループを足す入口と消す入口である。**」.
-    expect(hf10).toContain('`GRS` は、`HF-10` の「すべて展開する」を並びのいちばん外へ置かないこと。')
+    expect(hf10).toContain('`GRS` は、`HF-10` の「配下を展開」を並びのいちばん外へ置かないこと。')
 
     expect(hf10, 'HF-10 names the reason the head is not two tiers').toContain(T_051_HF10_NOT_TWO_TIERS)
     const hf20 = (specTable('T-051').rows.find((one) => one.id === 'HF-20')?.cells ?? []).join(' ')

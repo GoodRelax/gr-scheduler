@@ -12,10 +12,10 @@ import { specTable, unbroken } from './spec-table'
 const cellOf = (table: string, id: string, heading: string): string =>
   unbroken(specTable(table).rows.find((one) => one.id === id)?.by[heading] ?? '')
 
-const TV_5_ON_OFF = '表のスケジュールフィルタを掛けていない間、表のタイトルバーの `IC-143` を押したとき、`GRS` は、表のスケジュールフィルタを掛けること。'
-const TV_5_INDEPENDENT = '表の `IC-143` を押したとき、`GRS` は、ほかの表のスケジュールフィルタを変えないこと。'
-const TV_5_STAYS_ON = '表のスケジュールフィルタを掛けている間、行をすべて「表示」にしたときも、すべての行のチェックを外したときも、`GRS` は、スケジュールフィルタを掛けたままにすること（すべて外せば日程表に何も描かない）。'
-const TV_8_VALUES_STAY = 'スケジュールフィルタを解除したとき、`GRS` は、表示の列の値を残すこと。'
+const TV_5_ON_OFF = '表で日程抽出していない間、表のタイトルバーの `IC-143` を押したとき、`GRS` は、表で日程抽出すること。'
+const TV_5_INDEPENDENT = '表の `IC-143` を押したとき、`GRS` は、ほかの表の日程抽出を変えないこと。'
+const TV_5_STAYS_ON = '表で日程抽出している間、行をすべて「表示」にしたときも、すべての行のチェックを外したときも、`GRS` は、日程抽出したままにすること（すべて外せば日程表に何も描かない）。'
+const TV_8_VALUES_STAY = '日程抽出を解除したとき、`GRS` は、表示の列の値を残すこと。'
 const TV_2_WORDS_KEEP = '`GRS` は、語・列のフィルタ・並べ替え・表の切り替えで、表示の列の値を変えないこと（一覧に出ていない行の値も残す）。'
 const DT_8_VALUE = 'この表でのそのタスクの行の値（`FR-151` の 表 T-353 の `TV-2`）'
 const RW_10_FIXED = '横は `DT-8`・`DT-1`・`DT-3`・`DT-9`・`DT-4`（表示・ステータス・進捗・タスク種別・タスク —— 表 T-347 の並びで左の 5 列）を左に固定し'

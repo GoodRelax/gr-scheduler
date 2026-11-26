@@ -20,7 +20,7 @@ record <rows.tsv>
     language is en (label.en) or ja (label.ja); basis is ruling ids separated
     by spaces. The term's label takes the new name, and renames[] gets
     {from: the old label, version: CR-855, reason, basis, xAppliedToSpec: false}
-    (plus xLanguage: ja for a Japanese name). Refused, with nothing written:
+    (xLanguage: en or ja says which label it was). Refused, with nothing written:
     an unknown key, a new name equal to the old one, a new name that is a
     former name of a term (A.2: a former name is never reused), and a term in
     a frozen contract group (GRS JSON, document commands, Agent API: JDG-3807).
@@ -33,6 +33,10 @@ apply
     a Japanese bracket pair, **...**, or a whole table cell | ... |. A former
     name that stands loose in a sentence is listed for a person to read
     (--list prints each place), because a loose word may mean something else.
+    TRAP (seen 2026-11-25): a test may quote, in quotes, a word that stands
+    LOOSE in a spec sentence; apply then changes the test's quote but not the
+    sentence. Run the tests that read the spec after apply, and put such a
+    quote back (or rewrite the sentence) -- the failure names the row.
 
 --check
     Counts the delimited former names still written in the files below, for
@@ -137,13 +141,13 @@ def written_name(term):
 
 
 def current_name(term, rename):
-    """The name a rename leads to: label.ja for a Japanese rename; else the
-    screen label when the former name was a label, the written name otherwise."""
+    """The name a rename leads to: the label of its language for a label
+    rename (xLanguage en or ja), the written name otherwise."""
     if rename.get('xLanguage') == 'ja':
         return term['label']['ja']
-    if re.match(r'^[A-Za-z][A-Za-z0-9]*$', rename['from']):
-        return written_name(term)
-    return term['label']['en']
+    if rename.get('xLanguage') == 'en':
+        return term['label']['en']
+    return written_name(term)
 
 
 def is_contract(term):
@@ -165,15 +169,33 @@ def chosen_renames(doc, version=None):
     return chosen
 
 
-def mapping(chosen):
-    """{old: new}; refuses a former name that two renames send to two names."""
+def names_in_use(doc, renamed):
+    """{name: [keys]} of the names terms outside `renamed` carry today."""
+    used = {}
+    for term in doc.get('terms', []):
+        if term['key'] in renamed:
+            continue
+        for name in {term['label']['en'], term['label']['ja'], written_name(term)}:
+            used.setdefault(name, []).append(term['key'])
+    return used
+
+
+def mapping(chosen, doc=None):
+    """{old: new}. Refuses a former name that two renames send to two names,
+    and a former name another term still carries: one string would then name
+    two things, and a blind replacement would rename the other one too. A
+    person renames such a place by hand (its row id tells which thing)."""
     found, problems = OrderedDict(), []
+    used = names_in_use(doc, {c[0]['key'] for c in chosen}) if doc else {}
     for term, _rename, old, new in chosen:
         if old == new:
             continue
         if old in found and found[old] != new:
             problems.append('former name %r leads to %r and to %r (term %s)'
                             % (old, found[old], new, term['key']))
+        if old in used:
+            problems.append('former name %r of %s is still the name of %s -- rename '
+                            'by hand, by row id' % (old, term['key'], ', '.join(used[old])))
         found[old] = new
     return found, problems
 
@@ -258,7 +280,7 @@ def record(path):
         if not basis or not all(re.match(r'^JDG-\d+$', b) for b in basis):
             problems.append('line %d: %s: basis needs ruling ids JDG-n' % (number, key))
             continue
-        if any(r.get('xAppliedToSpec') is False and r.get('xLanguage') == (None if language == 'en' else 'ja')
+        if any(r.get('xAppliedToSpec') is False and r.get('xLanguage') == language
                for r in term.get('renames', [])):
             problems.append('line %d: %s already has a pending %s rename' % (number, key, language))
             continue
@@ -274,8 +296,7 @@ def record(path):
             ('reason', {'en': row.get('reasonEn') or 'The owner ruled the new name.',
                         'ja': row.get('reasonJa') or u'\u6301\u3061\u4e3b\u304c\u65b0\u3057\u3044\u540d\u3092\u88c1\u5b9a\u3057\u305f\u3002'}),
             ('basis', basis)])
-        if language == 'ja':
-            rename['xLanguage'] = 'ja'
+        rename['xLanguage'] = language
         rename['xAppliedToSpec'] = False
         term['label'][language] = new
         term.setdefault('renames', []).append(rename)
@@ -307,7 +328,7 @@ def scan(names, files, edit):
 def apply(listing):
     doc = load_glossary()
     chosen = [c for c in chosen_renames(doc) if c[1].get('xAppliedToSpec') is False]
-    names, problems = mapping(chosen)
+    names, problems = mapping(chosen, doc)
     if problems:
         for p in problems:
             say('  ' + p)
@@ -332,7 +353,7 @@ def apply(listing):
 def check(version, listing):
     doc = load_glossary()
     chosen = chosen_renames(doc, version)
-    names, problems = mapping(chosen)
+    names, problems = mapping(chosen, doc)
     for p in problems:
         say('  ' + p)
     per_file, loose = scan(names, list(target_files()), edit=False)

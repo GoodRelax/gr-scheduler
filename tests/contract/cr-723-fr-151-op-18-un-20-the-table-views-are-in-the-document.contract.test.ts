@@ -10,36 +10,36 @@ const cellOf = (table: string, id: string, heading: string): string =>
 
 // Why: each clause ends exactly at its marker, cut from the manuscript as check 39 reads it.
 const FR_151_NOT_SAVED = '`GRS` は、検索パネルの表示・位置・大きさ・語・列の幅を文書に保存しないこと。'
-const FR_151_SAVED = '`GRS` は、検索の表・遅延診断レポートの表・担当リストの表の見え方 —— 表示の列の値・スケジュールフィルタの入切・列のフィルタ・並べ替え —— を文書に保存すること'
-const FR_151_WHY = '（`_assets/tbl-settings.md` の 表 T-203 の `S-560` 〜 `S-572`） —— スケジュールフィルタを掛けた日程を、そのまま人に渡すためである（利用者が定めた）。'
+const FR_151_SAVED = '`GRS` は、検索の表・遅延診断レポートの表・担当リストの表の見え方 —— 表示の列の値・日程抽出の入切・列のフィルタ・並べ替え —— を文書に保存すること'
+const FR_151_WHY = '（`_assets/tbl-settings.md` の 表 T-203 の `S-560` 〜 `S-572`） —— 日程抽出した日程を、そのまま人に渡すためである（利用者が定めた）。'
 const FR_151_EDIT = '3 つの表の見え方が変わったとき、`GRS` は、見え方の変更を取り消しの 1 段（`FR-031` の 表 T-027 の `UN-20`）とすること。'
-const FR_151_RECEIVER = '`IMPS-1866` —— 受け取った人は、開いた直後に赤い入口と帯で、スケジュールフィルタを掛けた日程だと読める。'
+const FR_151_RECEIVER = '`IMPS-1866` —— 受け取った人は、開いた直後に赤い入口と帯で、日程抽出した日程だと読める。'
 const FR_134_NOT_WRITTEN = '`GRS` は、レポートと窓の状態（出ているか・位置・大きさ・語・列の幅）を文書に書かないこと。'
 const FR_134_SAVED = '`GRS` は、レポートの表の見え方を文書に保存すること（`FR-151`、表 T-203 の `S-564` 〜 `S-567`）。'
 const FR_099_NOT_SAVED = '`GRS` は、担当リストのウィンドウの状態（出ているか・位置・大きさ・語・列の幅・選択）を文書に保存しないこと（`_assets/tbl-settings.md` の 表 T-206 の `S-545`・`S-546`）。'
 const FR_099_SAVED = '担当リストの表の値は 表 T-203 の `S-568` 〜 `S-572` である。'
 
 const OP_18_REPLACE = '**置き換えを選んで** `GRS JSON` を読んだときは、文書が持つ 3 つの表の見え方（`_assets/tbl-settings.md` の 表 T-203 の `S-560` 〜 `S-572`、規則は `FR-151` の 表 T-353）に替えること（MUST）。'
-const OP_18_MINIMIZED = 'スケジュールフィルタを掛けている表（`S-560`・`S-564`・`S-568` が真）のウィンドウを、最小化（`FR-036` の 表 T-335 の `WB-2`）で出し、その表の `IC-143` と起動アイコンを赤で描くこと（MUST）（表 T-353 の `TV-12`）'
+const OP_18_MINIMIZED = '日程抽出している表（`S-560`・`S-564`・`S-568` が真）のウィンドウを、最小化（`FR-036` の 表 T-335 の `WB-2`）で出し、その表の `IC-143` と起動アイコンを赤で描くこと（MUST）（表 T-353 の `TV-12`）'
 const OP_18_SEARCH = '検索パネルはタスクの表を出す。'
-const OP_18_DIAGNOSE = '⭐ 遅延診断レポートの表のスケジュールフィルタを掛けている文書では、遅延診断を始め（`FR-130`）、レポートの窓を最小化で出す'
-const OP_18_NO_DATE = '基準日（`FR-046`）が無く診断できないときは、レポートの表のスケジュールフィルタを解除して開く —— 未保存の編集にしない。'
+const OP_18_DIAGNOSE = '⭐ 遅延診断レポートの表で日程抽出している文書では、遅延診断を始め（`FR-130`）、レポートの窓を最小化で出す'
+const OP_18_NO_DATE = '基準日（`FR-046`）が無く診断できないときは、レポートの表の日程抽出を解除して開く —— 未保存の編集にしない。'
 const OP_18_DROP = '⭐ 文書に無い `uid`（`S-561`・`S-565`・`S-569`）は読むときに、表に無い列の行 ID（表 T-372 の `column`）は開くときに、黙って捨てる —— 拒まない'
 const OP_18_NOT_EDIT = '⚠️ 開いたことは未保存の編集ではない —— 文書が持つ値を読んだだけである'
 
-const TV_6_COUNTS = 'スケジュールフィルタを掛けたとき、`GRS` は、掛けたことを `UN-20` の 1 段とすること。'
-const TV_8_EDIT = 'スケジュールフィルタを解除したとき（ウィンドウを閉じて解除したときを含む）、`GRS` は、解除を表の見え方の変更として未保存の編集とすること（表 T-027 の `UN-20`）。スケジュールフィルタを解除したとき（ウィンドウを閉じて解除したときを含む）、`GRS` は、解除を取り消しの 1 段とすること（表 T-027 の `UN-20`）。解除を取り消したとき、`GRS` は、スケジュールフィルタを掛け直すこと。ウィンドウを閉じた解除を取り消したとき、`GRS` は、ウィンドウを最小化（`FR-036` の 表 T-335 の `WB-2`）で戻すこと。'
-const TV_8_BAND = '帯の「スケジュールフィルタを解除」を押したとき、`GRS` は、すべての表の解除を合わせて 1 段とすること。'
-const TV_9_REPLACED = '文書を置き換えたとき（開く・新規・取り込み）、`GRS` は、3 つの表の見え方を、置き換えた文書が持つ見え方（`_assets/tbl-settings.md` の 表 T-203 の `S-560` 〜 `S-572`）に替えること。文書を置き換えたとき（開く・新規・取り込み）、`GRS` は、スケジュールフィルタを掛けている表のウィンドウを出すこと（表 T-024a の `OP-18`）。'
-const TV_9_NONE = '見え方を持たない文書（新規・MSPDI）に置き換えたとき、`GRS` は、3 つの表の見え方を既定 —— どの行もチェックが外れ（「非表示」）、どの表もスケジュールフィルタを掛けず、列のフィルタと並べ替えも無い —— にすること。'
+const TV_6_COUNTS = '日程抽出したとき、`GRS` は、日程抽出したことを `UN-20` の 1 段とすること。'
+const TV_8_EDIT = '日程抽出を解除したとき（ウィンドウを閉じて解除したときを含む）、`GRS` は、解除を表の見え方の変更として未保存の編集とすること（表 T-027 の `UN-20`）。日程抽出を解除したとき（ウィンドウを閉じて解除したときを含む）、`GRS` は、解除を取り消しの 1 段とすること（表 T-027 の `UN-20`）。解除を取り消したとき、`GRS` は、日程抽出し直すこと。ウィンドウを閉じた解除を取り消したとき、`GRS` は、ウィンドウを最小化（`FR-036` の 表 T-335 の `WB-2`）で戻すこと。'
+const TV_8_BAND = '帯の「日程抽出を解除」を押したとき、`GRS` は、すべての表の解除を合わせて 1 段とすること。'
+const TV_9_REPLACED = '文書を置き換えたとき（開く・新規・取り込み）、`GRS` は、3 つの表の見え方を、置き換えた文書が持つ見え方（`_assets/tbl-settings.md` の 表 T-203 の `S-560` 〜 `S-572`）に替えること。文書を置き換えたとき（開く・新規・取り込み）、`GRS` は、日程抽出している表のウィンドウを出すこと（表 T-024a の `OP-18`）。'
+const TV_9_NONE = '見え方を持たない文書（新規・MSPDI）に置き換えたとき、`GRS` は、3 つの表の見え方を既定 —— どの行もチェックが外れ（「非表示」）、どの表も日程抽出せず、列のフィルタと並べ替えも無い —— にすること。'
 const SV_14_REMEMBER = '`GRS` は、語・表の切り替え・列の幅・位置・大きさを、同じ画面のあいだ覚えること。検索パネルを開き直したとき、`GRS` は、覚えた語・表の切り替え・列の幅・位置・大きさを戻すこと。'
 const SV_14_STAYS = '検索パネルを閉じたとき、`GRS` は、表示の列の値（`SQ-10`）・列のフィルタ・並べ替えを残すこと。'
-const WB_6_MINIMIZED = '⚠️ 文書を開いたときにスケジュールフィルタのために出すウィンドウ（表 T-024a の `OP-18`）は、`WB-2` から始める'
-const UN_20_SJ = '`GRS` は、飛ぶ（`SJ-0`）ために行を「表示」にしたこと・スケジュールフィルタを解除したことを、`SJ-2` の展開と同じ 1 段に入れること。'
+const WB_6_MINIMIZED = '⚠️ 文書を開いたときに日程抽出のために出すウィンドウ（表 T-024a の `OP-18`）は、`WB-2` から始める'
+const UN_20_SJ = '`GRS` は、飛ぶ（`SJ-0`）ために行を「表示」にしたこと・日程抽出を解除したことを、`SJ-2` の展開と同じ 1 段に入れること。'
 const UN_20_OUT = '⚠️ 語・ウィンドウの位置と大きさ・最小化と最大化・列の幅・開いているフィルタは対象外 —— 文書に保存しない（`FR-151`）'
 const CD_1_TAIL = '表の見え方で消す `Task` を「表示」とする値（`_assets/tbl-settings.md` の `S-561`・`S-565`）も一緒に消すこと。'
 const CD_5_TAIL = '表の見え方で消す担当を「表示」とする値（`_assets/tbl-settings.md` の `S-569`）も一緒に消すこと。'
-const S_445_EXCEPTION = '⭐ 例外: 開いた文書が遅延診断レポートの表のスケジュールフィルタを掛けている（表 T-203 の `S-564` が真）ときは、開いたときに診断を始める（表 T-024a の `OP-18` —— 利用者が定めた）。'
+const S_445_EXCEPTION = '⭐ 例外: 開いた文書が遅延診断レポートの表で日程抽出している（表 T-203 の `S-564` が真）ときは、開いたときに診断を始める（表 T-024a の `OP-18` —— 利用者が定めた）。'
 
 describe('CR-723 -- FR-151, FR-134, FR-099 narrow what is not saved and say what is', () => {
   it('FR-151 (MUST NOT): the panel, its place, size, word and column widths are still not saved', () => {
@@ -56,7 +56,7 @@ describe('CR-723 -- FR-151, FR-134, FR-099 narrow what is not saved and say what
   })
 
   it('FR-151: the old ban on saving the Visibility, the eye and the undo record is gone', () => {
-    expect(REQUIREMENTS).not.toContain('表ごとの表示の列の値とスケジュールフィルタの入切も文書に保存してはならない')
+    expect(REQUIREMENTS).not.toContain('表ごとの表示の列の値と日程抽出の入切も文書に保存してはならない')
     expect(REQUIREMENTS).not.toContain('取り消しの記録にも載せない')
     expect(REQUIREMENTS).not.toContain('パネルの表示・位置・大きさ・語・フィルタ・並べ替え・列の幅を文書に保存してはならない')
   })
@@ -104,7 +104,7 @@ describe('CR-723 -- the lifetime of the schedule filter follows the document (T-
     const say = cellOf('T-353', 'TV-8', '定め')
     expect(say).toContain(TV_8_EDIT)
     expect(say).toContain(TV_8_BAND)
-    expect(say).toContain('スケジュールフィルタを解除したとき、`GRS` は、表示の列の値を残すこと。')
+    expect(say).toContain('日程抽出を解除したとき、`GRS` は、表示の列の値を残すこと。')
   })
 
   it('TV-9: replacing the document takes the new document\'s views; a document without views is the default', () => {
@@ -148,7 +148,7 @@ describe('CR-723 -- UN-20 is the undo row of a view, CD-1 and CD-5 take the hidd
     expect(row).toBeDefined()
     const cells = row?.cells.map((one) => unbroken(one)).join(' | ') ?? ''
     expect(cells).toContain('`setTableView`')
-    expect(cells).toContain('表 1 つの見え方（表示の列の値・スケジュールフィルタの入切・列のフィルタ・並べ替え')
+    expect(cells).toContain('表 1 つの見え方（表示の列の値・日程抽出の入切・列のフィルタ・並べ替え')
     expect(AGENT_API_MEMBERS).toContain('出す命令は `setTableView`（表 T-108 の `CM-92`）1 つであり、未保存の編集（`FR-100`）で取り消しの 1 段である（`FR-031` の 表 T-027 の `UN-20`）')
   })
 })

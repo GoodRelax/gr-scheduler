@@ -252,7 +252,7 @@ describe('CR-754 premise -- the clauses and table T-380 these cases read', () =>
     expect(things).toEqual([
       'Plan',
       'Actual',
-      'Progress Marker',
+      'Progress Status Mark',
       'Dependency Lines',
       'Progress Line',
       'Baseline',
@@ -260,7 +260,7 @@ describe('CR-754 premise -- the clauses and table T-380 these cases read', () =>
       'Percent Complete Label',
       'Planned Dates',
       'Date Grid Lines',
-      'Group Grid Lines',
+      'Task Group Grid Lines',
     ])
   })
 })

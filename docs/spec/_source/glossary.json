@@ -2818,7 +2818,7 @@
    },
    "definition": {
     "en": "The root: the head of the task group tree, at depth 0. It is not a task group and is not drawn as a row. It holds no values and has no Retract and no pin. Never call the root the top level. In MSPDI the root sits where the project summary task is (OutlineLevel 0, which only MS Project writes); GRS does not make it a task and carries it through. (JDG-3660)",
-    "ja": "根: タスクグループの木の頭。深さ 0。タスクグループではなく、行として描かない。値を持たず、Retract もピンもない。根を「最上位」・「top level」と呼んではならない。MSPDI では、根はプロジェクトの要約タスク（OutlineLevel 0、MS Project だけが書く）と同じ位置にあり、GRS はタスクにせず持ち回る。（JDG-3660）"
+    "ja": "根: タスクグループの木の頭。深さ 0。タスクグループではなく、行として描かない。値を持たず、親に格納（Retract Into Parent）もピンもない。根を「最上位」・「top level」と呼んではならない。MSPDI では、根はプロジェクトの要約タスク（OutlineLevel 0、MS Project だけが書く）と同じ位置にあり、GRS はタスクにせず持ち回る。（JDG-3660）"
    },
    "avoid": {
     "en": [
@@ -3468,7 +3468,7 @@
    },
    "definition": {
     "en": "Delay Diagnosis: the feature that finds, as of the status date, the tasks whose numbers are unreliable and the sources of delay (bottlenecks). It saves the reader the work of following the dependencies by hand. GRS counts the amount of delay in minutes of working time on the project calendar. The diagnosis keeps the document as it is, and draws its marks (?, flame, !!) on the progress markers and in the report only while GRS shows the diagnosis. GRS saves only the view of the diagnosis result table (the shown columns, the schedule filter, the column filters and the sort order). When the author issues a fix proposal, GRS applies it to the document as an edit by the author.",
-    "ja": "遅延診断: 基準日の時点で、数字が信用できないタスクと、遅れの発生源（ボトルネック）を見つける機能。読み手は依存を自分でたどる手間を省ける。GRS は遅れの量を、プロジェクトカレンダーの稼働時間の分で数える。診断は文書をそのまま保ち、診断の印（? ・炎・!!）を、診断を出しているあいだだけ進捗マーカーとレポートに描く。保存するのは、診断結果の表の見え方（表示する列・スケジュールフィルタ・列のフィルタ・並べ替え）だけである。作成者が修正案を発行すると、GRS はそれを作成者の編集として文書に当てる。"
+    "ja": "遅延診断: 基準日の時点で、数字が信用できないタスクと、遅れの発生源（ボトルネック）を見つける機能。読み手は依存を自分でたどる手間を省ける。GRS は遅れの量を、プロジェクトカレンダーの稼働時間の分で数える。診断は文書をそのまま保ち、診断の印（? ・炎・!!）を、診断を出しているあいだだけ進捗マーカーとレポートに描く。保存するのは、診断結果の表の見え方（表示する列・日程抽出・列のフィルタ・並べ替え）だけである。作成者が修正案を発行すると、GRS はそれを作成者の編集として文書に当てる。"
    },
    "renames": [
     {
@@ -7231,7 +7231,7 @@
    },
    "definition": {
     "en": "What a person wants for this task group. \"shown\": GRS draws the task group at any depth unless an ancestor hides the task group. \"hidden\": GRS hides the task group and every task group below. \"automatic\": GRS decides from automaticallyShownDepth, the pins and the path to a shown task group below. \"hiddenUntilZoomIn\": GRS hides the task group and every task group below until the next vertical zoom-in.",
-    "ja": "このタスクグループについて人が望むこと。\"shown\": 祖先がこのタスクグループを隠さない限り、GRS はどの深さでもこのタスクグループを描く。\"hidden\": GRS はこのタスクグループと配下のすべてのタスクグループを隠す。\"automatic\": GRS は、automaticallyShownDepth、ピン、見えている配下のタスクグループへの道から決める。\"hiddenUntilZoomIn\": 次の縦のズームインまで、GRS はこのタスクグループと配下のすべてのタスクグループを隠す。"
+    "ja": "このタスクグループについて人が望むこと。\"shown\": 祖先がこのタスクグループを隠さない限り、GRS はどの深さでもこのタスクグループを描く。\"hidden\": GRS はこのタスクグループを配下ごと親に格納する。\"automatic\": GRS は、automaticallyShownDepth、ピン、見えている配下のタスクグループへの道から決める。\"hiddenUntilZoomIn\": 次の縦のズームインまで、GRS はこのタスクグループと配下のすべてのタスクグループを隠す。"
    },
    "renames": [
     {
@@ -7306,7 +7306,7 @@
    },
    "definition": {
     "en": "Hidden: the task group is not shown in the Task Group Panel.",
-    "ja": "隠れている。タスクグループパネルに出さない。"
+    "ja": "親に格納している。タスクグループパネルに出さない。"
    },
    "xGroup": "taskGroup",
    "xParent": "showMode",
@@ -10908,8 +10908,8 @@
   {
    "key": "isProgressStatusMarkVisible",
    "label": {
-    "en": "Progress Marker",
-    "ja": "進捗マーカー"
+    "en": "Progress Status Mark",
+    "ja": "進捗ステータスマーク"
    },
    "definition": {
     "en": "When this value is true, GRS draws the Resume Marks and the Progress Status Marks.",
@@ -10931,7 +10931,8 @@
    "xGroup": "documentSettings",
    "checkedBasis": [
     "JDG-3781",
-    "JDG-3807"
+    "JDG-3807",
+    "JDG-3742"
    ],
    "xSpecTableRowId": "K-78",
    "xSince": "2026-11-01T00:00:00Z",
@@ -11018,7 +11019,7 @@
   {
    "key": "isTaskGroupGridLinesVisible",
    "label": {
-    "en": "Group Grid Lines",
+    "en": "Task Group Grid Lines",
     "ja": "グループ罫線（TaskGroup 境界の横線）"
    },
    "definition": {
@@ -11043,7 +11044,8 @@
    "checkedBasis": [
     "JDG-3519",
     "JDG-3781",
-    "JDG-3807"
+    "JDG-3807",
+    "JDG-3745"
    ],
    "xSpecTableRowId": "K-83",
    "xSince": "2026-11-01T00:00:00Z",
@@ -11641,7 +11643,7 @@
    },
    "definition": {
     "en": "Whether the Schedule Filter of this table is on; while the Schedule Filter is on, GRS draws only the tasks that the checked rows of this table select. A new Schedule Document starts with false.",
-    "ja": "この表のスケジュールフィルタが掛かっているかどうか。掛かっているあいだ、GRS はこの表のチェックの入った行が選ぶタスクだけを描く。新しいスケジュール文書は偽で始まる。"
+    "ja": "この表で日程抽出しているかどうか。日程抽出しているあいだ、GRS はこの表のチェックの入った行が選ぶタスクだけを描く。新しいスケジュール文書は偽で始まる。"
    },
    "renames": [
     {
@@ -11846,7 +11848,7 @@
    },
    "definition": {
     "en": "How GRS shows the tables of the Search Window: Schedule Filter, checked rows, column filters and sort.",
-    "ja": "検索ウィンドウの表をどう出すか。スケジュールフィルタ、チェックした行、列のフィルタ、並べ替え。"
+    "ja": "検索ウィンドウの表をどう出すか。日程抽出、チェックした行、列のフィルタ、並べ替え。"
    },
    "xGroup": "documentSettings",
    "xOwner": "tableWindows",
@@ -11870,7 +11872,7 @@
    },
    "definition": {
     "en": "How GRS shows the table of the Delay Diagnosis Report Window: Schedule Filter, checked rows, column filters and sort.",
-    "ja": "遅延診断レポートウィンドウの表をどう出すか。スケジュールフィルタ、チェックした行、列のフィルタ、並べ替え。"
+    "ja": "遅延診断レポートウィンドウの表をどう出すか。日程抽出、チェックした行、列のフィルタ、並べ替え。"
    },
    "renames": [
     {
@@ -11908,7 +11910,7 @@
    },
    "definition": {
     "en": "How GRS shows the table of the Resource List Window: Schedule Filter, checked rows, column filters and sort.",
-    "ja": "担当リストウィンドウの表をどう出すか。スケジュールフィルタ、チェックした行、列のフィルタ、並べ替え。"
+    "ja": "担当リストウィンドウの表をどう出すか。日程抽出、チェックした行、列のフィルタ、並べ替え。"
    },
    "xGroup": "documentSettings",
    "xOwner": "tableWindows",
@@ -13148,12 +13150,12 @@
   {
    "key": "scheduleFilterBar",
    "label": {
-    "en": "Schedule Filter Bar",
-    "ja": "スケジュールフィルタバー"
+    "en": "Filtered by Checks Bar",
+    "ja": "チェックで日程抽出バー"
    },
    "definition": {
     "en": "The Schedule Filter Bar: a band that appears only while a table's Schedule Filter narrows the tasks drawn; it names the tables, gives the count and offers to release every filter.",
-    "ja": "スケジュールフィルタバー: 表のスケジュールフィルタで描くタスクを絞っているあいだだけ出る帯。掛けている表の名と件数を告げ、すべてのフィルタを解く入口を持つ。"
+    "ja": "チェックで日程抽出バー: 表で日程抽出しているあいだだけ出る帯。日程抽出している表の名と件数を告げ、すべての日程抽出を解く入口を持つ。"
    },
    "xGroup": "screenAreas",
    "xParent": "grsType",
@@ -13161,6 +13163,48 @@
    "xUses": [
     "screen",
     "spec"
+   ],
+   "renames": [
+    {
+     "from": "Schedule Filter Bar",
+     "version": "CR-855",
+     "reason": {
+      "en": "The owner settled the name (BGQA11).",
+      "ja": "持ち主が名を決めた（BGQA11）。"
+     },
+     "basis": [
+      "JDG-3903"
+     ],
+     "xLanguage": "en"
+    },
+    {
+     "from": "スケジュールフィルタバー",
+     "version": "CR-855",
+     "reason": {
+      "en": "The owner settled the name (BGQA11).",
+      "ja": "持ち主が名を決めた（BGQA11）。"
+     },
+     "basis": [
+      "JDG-3903"
+     ],
+     "xLanguage": "ja"
+    },
+    {
+     "from": "チェックで絞りバー",
+     "version": "CR-855",
+     "reason": {
+      "en": "The owner renamed the Japanese name (BGQA11 round 2).",
+      "ja": "持ち主が日本語の名を改めた（BGQA11 の 2 回目）。"
+     },
+     "basis": [
+      "JDG-3904"
+     ],
+     "xLanguage": "ja"
+    }
+   ],
+   "checkedBasis": [
+    "JDG-3903",
+    "JDG-3904"
    ]
   },
   {
@@ -13236,7 +13280,7 @@
    },
    "definition": {
     "en": "The Schedule Canvas: the area between the two panels, from the lower edge of the App Header (or of the Schedule Filter Bar while it is shown) to the bottom of the window.",
-    "ja": "スケジュールキャンバス: 2 つのパネルのあいだの区分。アプリヘッダーの下の縁（スケジュールフィルタバーが出ているあいだはその下の縁）からウィンドウの下の端まで。"
+    "ja": "スケジュールキャンバス: 2 つのパネルのあいだの区分。アプリヘッダーの下の縁（チェックで日程抽出バーが出ているあいだはその下の縁）からウィンドウの下の端まで。"
    },
    "xGroup": "screenAreas",
    "xParent": "grsType",
@@ -14031,7 +14075,7 @@
    "key": "baselineOutline",
    "label": {
     "en": "Baseline Outline",
-    "ja": "変更前予定輪郭"
+    "ja": "前回予定輪郭"
    },
    "definition": {
     "en": "The Baseline Outline: the outline of the earlier plan drawn over a task.",
@@ -14045,6 +14089,25 @@
    ],
    "xTags": [
     "baseline"
+   ],
+   "renames": [
+    {
+     "from": "変更前予定輪郭",
+     "version": "CR-855",
+     "reason": {
+      "en": "The owner settled the name (BGQA11).",
+      "ja": "持ち主が名を決めた（BGQA11）。"
+     },
+     "basis": [
+      "JDG-3706",
+      "JDG-3901"
+     ],
+     "xLanguage": "ja"
+    }
+   ],
+   "checkedBasis": [
+    "JDG-3706",
+    "JDG-3901"
    ]
   },
   {
@@ -14070,20 +14133,12 @@
   {
    "key": "progressMark",
    "label": {
-    "en": "Progress Mark",
-    "ja": "進捗マーク"
+    "en": "Progress Status Mark",
+    "ja": "進捗ステータスマーク"
    },
    "definition": {
     "en": "The Progress Mark: the mark outside the end of the Actual Bar that shows the plan-and-actual state by its shape and changes the state when pressed.",
     "ja": "進捗マーク: 実績バーの端の外に出す印。形で進捗ステータスを示し、押すと状態を変える。"
-   },
-   "avoid": {
-    "en": [
-     "Progress Marker"
-    ],
-    "ja": [
-     "進捗マーカー"
-    ]
    },
    "xGroup": "drawnParts",
    "xParent": "taskGraphic",
@@ -14094,6 +14149,38 @@
    ],
    "xTags": [
     "progressStatus"
+   ],
+   "renames": [
+    {
+     "from": "Progress Mark",
+     "version": "CR-855",
+     "reason": {
+      "en": "The owner settled the name (BGQA11).",
+      "ja": "持ち主が名を決めた（BGQA11）。"
+     },
+     "basis": [
+      "JDG-3742",
+      "JDG-3901"
+     ],
+     "xLanguage": "en"
+    },
+    {
+     "from": "進捗マーク",
+     "version": "CR-855",
+     "reason": {
+      "en": "The owner settled the name (BGQA11).",
+      "ja": "持ち主が名を決めた（BGQA11）。"
+     },
+     "basis": [
+      "JDG-3742",
+      "JDG-3901"
+     ],
+     "xLanguage": "ja"
+    }
+   ],
+   "checkedBasis": [
+    "JDG-3742",
+    "JDG-3901"
    ]
   },
   {
@@ -14526,8 +14613,8 @@
   {
    "key": "groupGridLines",
    "label": {
-    "en": "Group Grid Lines",
-    "ja": "グループ罫線"
+    "en": "Task Group Grid Lines",
+    "ja": "タスクグループ罫線"
    },
    "definition": {
     "en": "The Group Grid Lines: horizontal lines between task groups.",
@@ -14539,6 +14626,38 @@
    "xUses": [
     "screen",
     "spec"
+   ],
+   "renames": [
+    {
+     "from": "Group Grid Lines",
+     "version": "CR-855",
+     "reason": {
+      "en": "The owner settled the name (BGQA11).",
+      "ja": "持ち主が名を決めた（BGQA11）。"
+     },
+     "basis": [
+      "JDG-3745",
+      "JDG-3901"
+     ],
+     "xLanguage": "en"
+    },
+    {
+     "from": "グループ罫線",
+     "version": "CR-855",
+     "reason": {
+      "en": "The owner settled the name (BGQA11).",
+      "ja": "持ち主が名を決めた（BGQA11）。"
+     },
+     "basis": [
+      "JDG-3745",
+      "JDG-3901"
+     ],
+     "xLanguage": "ja"
+    }
+   ],
+   "checkedBasis": [
+    "JDG-3745",
+    "JDG-3901"
    ]
   },
   {
@@ -14773,12 +14892,12 @@
   {
    "key": "collapseButton",
    "label": {
-    "en": "Collapse Button",
-    "ja": "折りたたむボタン"
+    "en": "Retract Into Parent Button",
+    "ja": "親に格納ボタン"
    },
    "definition": {
-    "en": "The Collapse Button: collapses the task group itself.",
-    "ja": "折りたたむボタン: そのタスクグループ自身を折りたたむ。"
+    "en": "The Retract Into Parent Button: retracts the task group itself, with everything below it, into its parent.",
+    "ja": "親に格納ボタン: そのタスクグループ自身を、配下ごと親に格納する。"
    },
    "xGroup": "pointerParts",
    "xParent": "taskGroupButtons",
@@ -14788,6 +14907,41 @@
    ],
    "xTags": [
     "collapseIcon"
+   ],
+   "renames": [
+    {
+     "from": "Collapse Button",
+     "version": "CR-855",
+     "reason": {
+      "en": "The owner settled the name (BGQA11).",
+      "ja": "持ち主が名を決めた（BGQA11）。"
+     },
+     "basis": [
+      "JDG-3658",
+      "JDG-3659",
+      "JDG-3901"
+     ],
+     "xLanguage": "en"
+    },
+    {
+     "from": "折りたたむボタン",
+     "version": "CR-855",
+     "reason": {
+      "en": "The owner settled the name (BGQA11).",
+      "ja": "持ち主が名を決めた（BGQA11）。"
+     },
+     "basis": [
+      "JDG-3901",
+      "JDG-3902"
+     ],
+     "xLanguage": "ja"
+    }
+   ],
+   "checkedBasis": [
+    "JDG-3658",
+    "JDG-3659",
+    "JDG-3901",
+    "JDG-3902"
    ]
   },
   {
@@ -15206,7 +15360,7 @@
   {
    "key": "cursors",
    "label": {
-    "en": "Cursors",
+    "en": "Cursor",
     "ja": "カーソル"
    },
    "definition": {
@@ -15218,6 +15372,25 @@
    "xUses": [
     "screen",
     "spec"
+   ],
+   "renames": [
+    {
+     "from": "Cursors",
+     "version": "CR-855",
+     "reason": {
+      "en": "The owner settled the name (BGQA11): names are singular.",
+      "ja": "持ち主が名を決めた（BGQA11）: 名は単数にする。"
+     },
+     "basis": [
+      "JDG-3375",
+      "JDG-3901"
+     ],
+     "xLanguage": "en"
+    }
+   ],
+   "checkedBasis": [
+    "JDG-3375",
+    "JDG-3901"
    ]
   },
   {
@@ -15737,7 +15910,7 @@
    "key": "zoomToFitIcon",
    "label": {
     "en": "Zoom to Fit",
-    "ja": "全体を収める"
+    "ja": "全体表示"
    },
    "definition": {
     "en": "Show the whole schedule",
@@ -15748,6 +15921,25 @@
    "xUses": [
     "screen",
     "spec"
+   ],
+   "renames": [
+    {
+     "from": "全体を収める",
+     "version": "CR-855",
+     "reason": {
+      "en": "The owner settled the name (BGQA11).",
+      "ja": "持ち主が名を決めた（BGQA11）。"
+     },
+     "basis": [
+      "JDG-3376",
+      "JDG-3901"
+     ],
+     "xLanguage": "ja"
+    }
+   ],
+   "checkedBasis": [
+    "JDG-3376",
+    "JDG-3901"
    ]
   },
   {
@@ -16071,7 +16263,7 @@
    "key": "documentSettingsIcon",
    "label": {
     "en": "Document Settings",
-    "ja": "文書の設定"
+    "ja": "文書設定"
    },
    "definition": {
     "en": "Show or hide the document's drawing settings in the Properties Panel, where the theme color is chosen",
@@ -16082,6 +16274,25 @@
    "xUses": [
     "screen",
     "spec"
+   ],
+   "renames": [
+    {
+     "from": "文書の設定",
+     "version": "CR-855",
+     "reason": {
+      "en": "The owner settled the name (BGQA11).",
+      "ja": "持ち主が名を決めた（BGQA11）。"
+     },
+     "basis": [
+      "JDG-3365",
+      "JDG-3901"
+     ],
+     "xLanguage": "ja"
+    }
+   ],
+   "checkedBasis": [
+    "JDG-3365",
+    "JDG-3901"
    ]
   },
   {
@@ -16188,8 +16399,8 @@
   {
    "key": "endpointSpanIcon",
    "label": {
-    "en": "Endpoint Span",
-    "ja": "端点スパン"
+    "en": "Dumbbell",
+    "ja": "ダンベル"
    },
    "definition": {
     "en": "Endpoint Span: drag on empty space to create an endpoint span task",
@@ -16200,13 +16411,48 @@
    "xUses": [
     "screen",
     "spec"
+   ],
+   "renames": [
+    {
+     "from": "Endpoint Span",
+     "version": "CR-855",
+     "reason": {
+      "en": "The owner settled the name (BGQA11).",
+      "ja": "持ち主が名を決めた（BGQA11）。"
+     },
+     "basis": [
+      "JDG-3696",
+      "JDG-3711",
+      "JDG-3901"
+     ],
+     "xLanguage": "en"
+    },
+    {
+     "from": "端点スパン",
+     "version": "CR-855",
+     "reason": {
+      "en": "The owner settled the name (BGQA11).",
+      "ja": "持ち主が名を決めた（BGQA11）。"
+     },
+     "basis": [
+      "JDG-3696",
+      "JDG-3711",
+      "JDG-3901"
+     ],
+     "xLanguage": "ja"
+    }
+   ],
+   "checkedBasis": [
+    "JDG-3696",
+    "JDG-3711",
+    "JDG-3901"
    ]
   },
   {
    "key": "milestoneCircleIcon",
    "label": {
     "en": "Milestone (Circle)",
-    "ja": "マイルストーン（〇）"
+    "ja": "マイルストーン（円）"
    },
    "definition": {
     "en": "Milestone (Circle): drag on empty space to create one",
@@ -16217,6 +16463,25 @@
    "xUses": [
     "screen",
     "spec"
+   ],
+   "renames": [
+    {
+     "from": "マイルストーン（〇）",
+     "version": "CR-855",
+     "reason": {
+      "en": "The owner settled the name (BGQA11).",
+      "ja": "持ち主が名を決めた（BGQA11）。"
+     },
+     "basis": [
+      "JDG-3703",
+      "JDG-3901"
+     ],
+     "xLanguage": "ja"
+    }
+   ],
+   "checkedBasis": [
+    "JDG-3703",
+    "JDG-3901"
    ]
   },
   {
@@ -16263,7 +16528,7 @@
    "key": "milestoneDiamondIcon",
    "label": {
     "en": "Milestone (Diamond)",
-    "ja": "マイルストーン（◇）"
+    "ja": "マイルストーン（ひし形）"
    },
    "definition": {
     "en": "Milestone (Diamond): drag on empty space to create one",
@@ -16274,13 +16539,32 @@
    "xUses": [
     "screen",
     "spec"
+   ],
+   "renames": [
+    {
+     "from": "マイルストーン（◇）",
+     "version": "CR-855",
+     "reason": {
+      "en": "The owner settled the name (BGQA11).",
+      "ja": "持ち主が名を決めた（BGQA11）。"
+     },
+     "basis": [
+      "JDG-3703",
+      "JDG-3901"
+     ],
+     "xLanguage": "ja"
+    }
+   ],
+   "checkedBasis": [
+    "JDG-3703",
+    "JDG-3901"
    ]
   },
   {
    "key": "milestoneSquareIcon",
    "label": {
     "en": "Milestone (Square)",
-    "ja": "マイルストーン（□）"
+    "ja": "マイルストーン（正方形）"
    },
    "definition": {
     "en": "Milestone (Square): drag on empty space to create one",
@@ -16291,13 +16575,32 @@
    "xUses": [
     "screen",
     "spec"
+   ],
+   "renames": [
+    {
+     "from": "マイルストーン（□）",
+     "version": "CR-855",
+     "reason": {
+      "en": "The owner settled the name (BGQA11).",
+      "ja": "持ち主が名を決めた（BGQA11）。"
+     },
+     "basis": [
+      "JDG-3703",
+      "JDG-3901"
+     ],
+     "xLanguage": "ja"
+    }
+   ],
+   "checkedBasis": [
+    "JDG-3703",
+    "JDG-3901"
    ]
   },
   {
    "key": "milestoneStarIcon",
    "label": {
     "en": "Milestone (Star)",
-    "ja": "マイルストーン（☆）"
+    "ja": "マイルストーン（星）"
    },
    "definition": {
     "en": "Milestone (Star): drag on empty space to create one",
@@ -16308,13 +16611,32 @@
    "xUses": [
     "screen",
     "spec"
+   ],
+   "renames": [
+    {
+     "from": "マイルストーン（☆）",
+     "version": "CR-855",
+     "reason": {
+      "en": "The owner settled the name (BGQA11).",
+      "ja": "持ち主が名を決めた（BGQA11）。"
+     },
+     "basis": [
+      "JDG-3703",
+      "JDG-3901"
+     ],
+     "xLanguage": "ja"
+    }
+   ],
+   "checkedBasis": [
+    "JDG-3703",
+    "JDG-3901"
    ]
   },
   {
    "key": "milestoneTriangleUpIcon",
    "label": {
     "en": "Milestone (Triangle Up)",
-    "ja": "マイルストーン（△）"
+    "ja": "マイルストーン（上向き三角）"
    },
    "definition": {
     "en": "Milestone (Triangle Up): drag on empty space to create one",
@@ -16325,13 +16647,32 @@
    "xUses": [
     "screen",
     "spec"
+   ],
+   "renames": [
+    {
+     "from": "マイルストーン（△）",
+     "version": "CR-855",
+     "reason": {
+      "en": "The owner settled the name (BGQA11).",
+      "ja": "持ち主が名を決めた（BGQA11）。"
+     },
+     "basis": [
+      "JDG-3703",
+      "JDG-3901"
+     ],
+     "xLanguage": "ja"
+    }
+   ],
+   "checkedBasis": [
+    "JDG-3703",
+    "JDG-3901"
    ]
   },
   {
    "key": "milestoneTriangleDownIcon",
    "label": {
     "en": "Milestone (Triangle Down)",
-    "ja": "マイルストーン（▽）"
+    "ja": "マイルストーン（下向き三角）"
    },
    "definition": {
     "en": "Milestone (Triangle Down): drag on empty space to create one",
@@ -16342,6 +16683,25 @@
    "xUses": [
     "screen",
     "spec"
+   ],
+   "renames": [
+    {
+     "from": "マイルストーン（▽）",
+     "version": "CR-855",
+     "reason": {
+      "en": "The owner settled the name (BGQA11).",
+      "ja": "持ち主が名を決めた（BGQA11）。"
+     },
+     "basis": [
+      "JDG-3703",
+      "JDG-3901"
+     ],
+     "xLanguage": "ja"
+    }
+   ],
+   "checkedBasis": [
+    "JDG-3703",
+    "JDG-3901"
    ]
   },
   {
@@ -16368,7 +16728,7 @@
    "key": "milestoneBoxIcon",
    "label": {
     "en": "Milestone (Box)",
-    "ja": "マイルストーン（ボックス）"
+    "ja": "マイルストーン（箱）"
    },
    "definition": {
     "en": "Milestone (Box): drag on empty space to create one",
@@ -16379,13 +16739,32 @@
    "xUses": [
     "screen",
     "spec"
+   ],
+   "renames": [
+    {
+     "from": "マイルストーン（ボックス）",
+     "version": "CR-855",
+     "reason": {
+      "en": "The owner settled the name (BGQA11).",
+      "ja": "持ち主が名を決めた（BGQA11）。"
+     },
+     "basis": [
+      "JDG-3703",
+      "JDG-3901"
+     ],
+     "xLanguage": "ja"
+    }
+   ],
+   "checkedBasis": [
+    "JDG-3703",
+    "JDG-3901"
    ]
   },
   {
    "key": "milestoneFloppyDiskIcon",
    "label": {
     "en": "Milestone (Floppy Disk)",
-    "ja": "マイルストーン（フロッピー）"
+    "ja": "マイルストーン（フロッピーディスク）"
    },
    "definition": {
     "en": "Milestone (Floppy Disk): drag on empty space to create one",
@@ -16396,6 +16775,25 @@
    "xUses": [
     "screen",
     "spec"
+   ],
+   "renames": [
+    {
+     "from": "マイルストーン（フロッピー）",
+     "version": "CR-855",
+     "reason": {
+      "en": "The owner settled the name (BGQA11).",
+      "ja": "持ち主が名を決めた（BGQA11）。"
+     },
+     "basis": [
+      "JDG-3703",
+      "JDG-3901"
+     ],
+     "xLanguage": "ja"
+    }
+   ],
+   "checkedBasis": [
+    "JDG-3703",
+    "JDG-3901"
    ]
   },
   {
@@ -16442,7 +16840,7 @@
    "key": "milestoneSmilingFaceIcon",
    "label": {
     "en": "Milestone (Smiling Face)",
-    "ja": "マイルストーン（嬉しい顔）"
+    "ja": "マイルストーン（笑顔）"
    },
    "definition": {
     "en": "Milestone (Smiling Face): drag on empty space to create one",
@@ -16453,6 +16851,25 @@
    "xUses": [
     "screen",
     "spec"
+   ],
+   "renames": [
+    {
+     "from": "マイルストーン（嬉しい顔）",
+     "version": "CR-855",
+     "reason": {
+      "en": "The owner settled the name (BGQA11).",
+      "ja": "持ち主が名を決めた（BGQA11）。"
+     },
+     "basis": [
+      "JDG-3703",
+      "JDG-3901"
+     ],
+     "xLanguage": "ja"
+    }
+   ],
+   "checkedBasis": [
+    "JDG-3703",
+    "JDG-3901"
    ]
   },
   {
@@ -16499,7 +16916,7 @@
   {
    "key": "calloutIcon",
    "label": {
-    "en": "Callout",
+    "en": "Comment Box",
     "ja": "コメントボックス"
    },
    "definition": {
@@ -16511,6 +16928,27 @@
    "xUses": [
     "screen",
     "spec"
+   ],
+   "renames": [
+    {
+     "from": "Callout",
+     "version": "CR-855",
+     "reason": {
+      "en": "The owner settled the name (BGQA11).",
+      "ja": "持ち主が名を決めた（BGQA11）。"
+     },
+     "basis": [
+      "JDG-2250",
+      "JDG-3371",
+      "JDG-3901"
+     ],
+     "xLanguage": "en"
+    }
+   ],
+   "checkedBasis": [
+    "JDG-2250",
+    "JDG-3371",
+    "JDG-3901"
    ]
   },
   {
@@ -16584,8 +17022,8 @@
   {
    "key": "progressMarkerIcon",
    "label": {
-    "en": "Progress Marker",
-    "ja": "進捗マーカー"
+    "en": "Progress Status Mark",
+    "ja": "進捗ステータスマーク"
    },
    "definition": {
     "en": "Show or hide the Progress Marker and the Resume Icon",
@@ -16596,12 +17034,44 @@
    "xUses": [
     "screen",
     "spec"
+   ],
+   "renames": [
+    {
+     "from": "Progress Marker",
+     "version": "CR-855",
+     "reason": {
+      "en": "The owner settled the name (BGQA11).",
+      "ja": "持ち主が名を決めた（BGQA11）。"
+     },
+     "basis": [
+      "JDG-3742",
+      "JDG-3901"
+     ],
+     "xLanguage": "en"
+    },
+    {
+     "from": "進捗マーカー",
+     "version": "CR-855",
+     "reason": {
+      "en": "The owner settled the name (BGQA11).",
+      "ja": "持ち主が名を決めた（BGQA11）。"
+     },
+     "basis": [
+      "JDG-3742",
+      "JDG-3901"
+     ],
+     "xLanguage": "ja"
+    }
+   ],
+   "checkedBasis": [
+    "JDG-3742",
+    "JDG-3901"
    ]
   },
   {
    "key": "watermarkIcon",
    "label": {
-    "en": "Watermark…",
+    "en": "Hide the Watermark (Password Required)",
     "ja": "透かしを非表示（パスワードが必要）"
    },
    "definition": {
@@ -16613,6 +17083,27 @@
    "xUses": [
     "screen",
     "spec"
+   ],
+   "renames": [
+    {
+     "from": "Watermark…",
+     "version": "CR-855",
+     "reason": {
+      "en": "The owner settled the name (BGQA11).",
+      "ja": "持ち主が名を決めた（BGQA11）。"
+     },
+     "basis": [
+      "JDG-80",
+      "JDG-1865",
+      "JDG-3901"
+     ],
+     "xLanguage": "en"
+    }
+   ],
+   "checkedBasis": [
+    "JDG-80",
+    "JDG-1865",
+    "JDG-3901"
    ]
   },
   {
@@ -16635,8 +17126,8 @@
   {
    "key": "groupGridLinesIcon",
    "label": {
-    "en": "Group Grid Lines",
-    "ja": "グループ罫線"
+    "en": "Task Group Grid Lines",
+    "ja": "タスクグループ罫線"
    },
    "definition": {
     "en": "Show or hide the Group Grid Lines",
@@ -16647,6 +17138,38 @@
    "xUses": [
     "screen",
     "spec"
+   ],
+   "renames": [
+    {
+     "from": "Group Grid Lines",
+     "version": "CR-855",
+     "reason": {
+      "en": "The owner settled the name (BGQA11).",
+      "ja": "持ち主が名を決めた（BGQA11）。"
+     },
+     "basis": [
+      "JDG-3745",
+      "JDG-3901"
+     ],
+     "xLanguage": "en"
+    },
+    {
+     "from": "グループ罫線",
+     "version": "CR-855",
+     "reason": {
+      "en": "The owner settled the name (BGQA11).",
+      "ja": "持ち主が名を決めた（BGQA11）。"
+     },
+     "basis": [
+      "JDG-3745",
+      "JDG-3901"
+     ],
+     "xLanguage": "ja"
+    }
+   ],
+   "checkedBasis": [
+    "JDG-3745",
+    "JDG-3901"
    ]
   },
   {
@@ -16997,7 +17520,7 @@
    "key": "expandBelowIcon",
    "label": {
     "en": "Expand Below",
-    "ja": "配下をすべて展開する"
+    "ja": "配下を展開"
    },
    "definition": {
     "en": "Expand every task group below this one",
@@ -17008,30 +17531,86 @@
    "xUses": [
     "screen",
     "spec"
+   ],
+   "renames": [
+    {
+     "from": "配下をすべて展開する",
+     "version": "CR-855",
+     "reason": {
+      "en": "The owner settled the name (BGQA11).",
+      "ja": "持ち主が名を決めた（BGQA11）。"
+     },
+     "basis": [
+      "JDG-3659",
+      "JDG-3901",
+      "JDG-3902"
+     ],
+     "xLanguage": "ja"
+    }
+   ],
+   "checkedBasis": [
+    "JDG-3659",
+    "JDG-3901",
+    "JDG-3902"
    ]
   },
   {
    "key": "collapseIcon",
    "label": {
-    "en": "Collapse",
-    "ja": "折りたたむ"
+    "en": "Retract Into Parent",
+    "ja": "親に格納"
    },
    "definition": {
-    "en": "Collapse this task group itself",
-    "ja": "このタスクグループ自身を折りたたむ"
+    "en": "Retract this task group itself into its parent",
+    "ja": "このタスクグループ自身を親に格納する"
    },
    "xGroup": "icons",
    "xSpecTableRowId": "IC-59",
    "xUses": [
     "screen",
     "spec"
+   ],
+   "renames": [
+    {
+     "from": "Collapse",
+     "version": "CR-855",
+     "reason": {
+      "en": "The owner settled the name (BGQA11).",
+      "ja": "持ち主が名を決めた（BGQA11）。"
+     },
+     "basis": [
+      "JDG-3658",
+      "JDG-3659",
+      "JDG-3901"
+     ],
+     "xLanguage": "en"
+    },
+    {
+     "from": "折りたたむ",
+     "version": "CR-855",
+     "reason": {
+      "en": "The owner settled the name (BGQA11).",
+      "ja": "持ち主が名を決めた（BGQA11）。"
+     },
+     "basis": [
+      "JDG-3901",
+      "JDG-3902"
+     ],
+     "xLanguage": "ja"
+    }
+   ],
+   "checkedBasis": [
+    "JDG-3658",
+    "JDG-3659",
+    "JDG-3901",
+    "JDG-3902"
    ]
   },
   {
    "key": "collapseBelowIcon",
    "label": {
     "en": "Collapse Below",
-    "ja": "配下をすべて折りたたむ"
+    "ja": "配下を折り畳み"
    },
    "definition": {
     "en": "Collapse every task group below this one",
@@ -17042,13 +17621,34 @@
    "xUses": [
     "screen",
     "spec"
+   ],
+   "renames": [
+    {
+     "from": "配下をすべて折りたたむ",
+     "version": "CR-855",
+     "reason": {
+      "en": "The owner settled the name (BGQA11).",
+      "ja": "持ち主が名を決めた（BGQA11）。"
+     },
+     "basis": [
+      "JDG-3659",
+      "JDG-3901",
+      "JDG-3902"
+     ],
+     "xLanguage": "ja"
+    }
+   ],
+   "checkedBasis": [
+    "JDG-3659",
+    "JDG-3901",
+    "JDG-3902"
    ]
   },
   {
    "key": "expandOneLevelIcon",
    "label": {
     "en": "Expand One Level",
-    "ja": "1 階層だけ展開する"
+    "ja": "1 階層展開"
    },
    "definition": {
     "en": "Expand only this task group's own children, leaving deeper task groups collapsed",
@@ -17059,6 +17659,40 @@
    "xUses": [
     "screen",
     "spec"
+   ],
+   "renames": [
+    {
+     "from": "1 階層だけ展開する",
+     "version": "CR-855",
+     "reason": {
+      "en": "The owner settled the name (BGQA11).",
+      "ja": "持ち主が名を決めた（BGQA11）。"
+     },
+     "basis": [
+      "JDG-3659",
+      "JDG-3901",
+      "JDG-3902"
+     ],
+     "xLanguage": "ja"
+    },
+    {
+     "from": "一階層展開",
+     "version": "CR-855",
+     "reason": {
+      "en": "The owner rewrote the starred name (BGQA11 round 2).",
+      "ja": "持ち主が ★ の名を書き直した（BGQA11 の 2 回目）。"
+     },
+     "basis": [
+      "JDG-3906"
+     ],
+     "xLanguage": "ja"
+    }
+   ],
+   "checkedBasis": [
+    "JDG-3659",
+    "JDG-3901",
+    "JDG-3902",
+    "JDG-3906"
    ]
   },
   {
@@ -17152,7 +17786,7 @@
   {
    "key": "calloutsIcon",
    "label": {
-    "en": "Callouts",
+    "en": "Comment Box",
     "ja": "コメントボックス"
    },
    "definition": {
@@ -17164,6 +17798,27 @@
    "xUses": [
     "screen",
     "spec"
+   ],
+   "renames": [
+    {
+     "from": "Callouts",
+     "version": "CR-855",
+     "reason": {
+      "en": "The owner settled the name (BGQA11).",
+      "ja": "持ち主が名を決めた（BGQA11）。"
+     },
+     "basis": [
+      "JDG-2250",
+      "JDG-3371",
+      "JDG-3901"
+     ],
+     "xLanguage": "en"
+    }
+   ],
+   "checkedBasis": [
+    "JDG-2250",
+    "JDG-3371",
+    "JDG-3901"
    ]
   },
   {
@@ -17189,18 +17844,62 @@
   {
    "key": "scheduleFilterIcon",
    "label": {
-    "en": "Schedule Filter",
-    "ja": "スケジュールフィルタ"
+    "en": "Filter Schedule by Checks",
+    "ja": "チェックで日程抽出"
    },
    "definition": {
     "en": "Turn the Schedule Filter on or off: draw only the tasks this table shows",
-    "ja": "スケジュールフィルタの切替。この表で「表示」の行のタスクだけを日程表に描く"
+    "ja": "日程抽出の切替。この表で「表示」の行のタスクだけを日程表に描く"
    },
    "xGroup": "icons",
    "xSpecTableRowId": "IC-143",
    "xUses": [
     "screen",
     "spec"
+   ],
+   "renames": [
+    {
+     "from": "Schedule Filter",
+     "version": "CR-855",
+     "reason": {
+      "en": "The owner settled the name (BGQA11).",
+      "ja": "持ち主が名を決めた（BGQA11）。"
+     },
+     "basis": [
+      "JDG-3728",
+      "JDG-3901"
+     ],
+     "xLanguage": "en"
+    },
+    {
+     "from": "スケジュールフィルタ",
+     "version": "CR-855",
+     "reason": {
+      "en": "PROVISIONAL until BGQA11 question 4 (the seat took the recommendation; the owner rules).",
+      "ja": "仮（BGQA11 の問 4 の答えまで。席が勧めを当てた。名は持ち主が決める）。"
+     },
+     "basis": [
+      "JDG-3901"
+     ],
+     "xLanguage": "ja"
+    },
+    {
+     "from": "チェックによりスケジュールを絞り込み",
+     "version": "CR-855",
+     "reason": {
+      "en": "The owner settled the name (BGQA11 question 4).",
+      "ja": "持ち主が名を決めた（BGQA11 の問 4）。"
+     },
+     "basis": [
+      "JDG-3905"
+     ],
+     "xLanguage": "ja"
+    }
+   ],
+   "checkedBasis": [
+    "JDG-3728",
+    "JDG-3901",
+    "JDG-3905"
    ]
   },
   {
@@ -18000,8 +18699,8 @@
   {
    "key": "expandAllIcon",
    "label": {
-    "en": "Expand All",
-    "ja": "すべて展開する"
+    "en": "Expand Below",
+    "ja": "配下を展開"
    },
    "definition": {
     "en": "Expand every task group that was collapsed",
@@ -18012,13 +18711,47 @@
    "xUses": [
     "screen",
     "spec"
+   ],
+   "renames": [
+    {
+     "from": "Expand All",
+     "version": "CR-855",
+     "reason": {
+      "en": "The owner settled the name (BGQA11).",
+      "ja": "持ち主が名を決めた（BGQA11）。"
+     },
+     "basis": [
+      "JDG-3688",
+      "JDG-3901"
+     ],
+     "xLanguage": "en"
+    },
+    {
+     "from": "すべて展開する",
+     "version": "CR-855",
+     "reason": {
+      "en": "The owner settled the name (BGQA11).",
+      "ja": "持ち主が名を決めた（BGQA11）。"
+     },
+     "basis": [
+      "JDG-3688",
+      "JDG-3901",
+      "JDG-3902"
+     ],
+     "xLanguage": "ja"
+    }
+   ],
+   "checkedBasis": [
+    "JDG-3688",
+    "JDG-3901",
+    "JDG-3902"
    ]
   },
   {
    "key": "collapseAllIcon",
    "label": {
-    "en": "Collapse All",
-    "ja": "すべて折りたたむ"
+    "en": "Collapse Below",
+    "ja": "配下を折り畳み"
    },
    "definition": {
     "en": "Collapse every task group",
@@ -18029,13 +18762,47 @@
    "xUses": [
     "screen",
     "spec"
+   ],
+   "renames": [
+    {
+     "from": "Collapse All",
+     "version": "CR-855",
+     "reason": {
+      "en": "The owner settled the name (BGQA11).",
+      "ja": "持ち主が名を決めた（BGQA11）。"
+     },
+     "basis": [
+      "JDG-3688",
+      "JDG-3901"
+     ],
+     "xLanguage": "en"
+    },
+    {
+     "from": "すべて折りたたむ",
+     "version": "CR-855",
+     "reason": {
+      "en": "The owner settled the name (BGQA11).",
+      "ja": "持ち主が名を決めた（BGQA11）。"
+     },
+     "basis": [
+      "JDG-3688",
+      "JDG-3901",
+      "JDG-3902"
+     ],
+     "xLanguage": "ja"
+    }
+   ],
+   "checkedBasis": [
+    "JDG-3688",
+    "JDG-3901",
+    "JDG-3902"
    ]
   },
   {
    "key": "showTopLevelOnlyIcon",
    "label": {
-    "en": "Show Top Level Only",
-    "ja": "最も浅い段を 1 階層展開する"
+    "en": "Expand One Level",
+    "ja": "1 階層展開"
    },
    "definition": {
     "en": "Bring back only the shallowest task groups, leaving what is under them collapsed",
@@ -18046,6 +18813,50 @@
    "xUses": [
     "screen",
     "spec"
+   ],
+   "renames": [
+    {
+     "from": "Show Top Level Only",
+     "version": "CR-855",
+     "reason": {
+      "en": "The owner settled the name (BGQA11).",
+      "ja": "持ち主が名を決めた（BGQA11）。"
+     },
+     "basis": [
+      "JDG-3688",
+      "JDG-3901"
+     ],
+     "xLanguage": "en"
+    },
+    {
+     "from": "最も浅い段を 1 階層展開する",
+     "version": "CR-855",
+     "reason": {
+      "en": "PROVISIONAL until BGQA11 question 3 (the seat took the recommendation; the owner rules).",
+      "ja": "仮（BGQA11 の問 3 の答えまで。席が勧めを当てた。名は持ち主が決める）。"
+     },
+     "basis": [
+      "JDG-3901"
+     ],
+     "xLanguage": "ja"
+    },
+    {
+     "from": "一階層展開",
+     "version": "CR-855",
+     "reason": {
+      "en": "The owner settled the name (BGQA11 question 3).",
+      "ja": "持ち主が名を決めた（BGQA11 の問 3）。"
+     },
+     "basis": [
+      "JDG-3906"
+     ],
+     "xLanguage": "ja"
+    }
+   ],
+   "checkedBasis": [
+    "JDG-3688",
+    "JDG-3901",
+    "JDG-3906"
    ]
   },
   {
@@ -18993,8 +19804,8 @@
   {
    "key": "commentBoxFillTransparencyPercentField",
    "label": {
-    "en": "Fill Transparency (%)",
-    "ja": "塗りの透過率（%）"
+    "en": "Fill Opacity (%)",
+    "ja": "塗りの不透明度（%）"
    },
    "definition": {
     "en": "The Properties Panel field that shows and edits the fill transparency of the selected Comment Box.",
@@ -19010,6 +19821,38 @@
    ],
    "xTags": [
     "opacityPercent"
+   ],
+   "renames": [
+    {
+     "from": "Fill Transparency (%)",
+     "version": "CR-855",
+     "reason": {
+      "en": "The owner settled the name (BGQA11).",
+      "ja": "持ち主が名を決めた（BGQA11）。"
+     },
+     "basis": [
+      "JDG-3526",
+      "JDG-3901"
+     ],
+     "xLanguage": "en"
+    },
+    {
+     "from": "塗りの透過率（%）",
+     "version": "CR-855",
+     "reason": {
+      "en": "The owner settled the name (BGQA11).",
+      "ja": "持ち主が名を決めた（BGQA11）。"
+     },
+     "basis": [
+      "JDG-3526",
+      "JDG-3901"
+     ],
+     "xLanguage": "ja"
+    }
+   ],
+   "checkedBasis": [
+    "JDG-3526",
+    "JDG-3901"
    ]
   },
   {
@@ -19137,8 +19980,8 @@
   {
    "key": "highlightBoxFillTransparencyPercentField",
    "label": {
-    "en": "Fill Transparency (%)",
-    "ja": "塗りの透過率（%）"
+    "en": "Fill Opacity (%)",
+    "ja": "塗りの不透明度（%）"
    },
    "definition": {
     "en": "The Properties Panel field that shows and edits the fill transparency of the selected Highlight Box.",
@@ -19154,6 +19997,38 @@
    ],
    "xTags": [
     "opacityPercent"
+   ],
+   "renames": [
+    {
+     "from": "Fill Transparency (%)",
+     "version": "CR-855",
+     "reason": {
+      "en": "The owner settled the name (BGQA11).",
+      "ja": "持ち主が名を決めた（BGQA11）。"
+     },
+     "basis": [
+      "JDG-3526",
+      "JDG-3901"
+     ],
+     "xLanguage": "en"
+    },
+    {
+     "from": "塗りの透過率（%）",
+     "version": "CR-855",
+     "reason": {
+      "en": "The owner settled the name (BGQA11).",
+      "ja": "持ち主が名を決めた（BGQA11）。"
+     },
+     "basis": [
+      "JDG-3526",
+      "JDG-3901"
+     ],
+     "xLanguage": "ja"
+    }
+   ],
+   "checkedBasis": [
+    "JDG-3526",
+    "JDG-3901"
    ]
   },
   {
@@ -20755,7 +21630,7 @@
   {
    "key": "armModeStateMachineCommentBoxArmed",
    "label": {
-    "en": "Callout",
+    "en": "Comment Box",
     "ja": "コメントボックス"
    },
    "definition": {
@@ -20770,6 +21645,25 @@
    "xUses": [
     "spec",
     "src"
+   ],
+   "renames": [
+    {
+     "from": "Callout",
+     "version": "CR-855",
+     "reason": {
+      "en": "The owner settled the name (BGQA11).",
+      "ja": "持ち主が名を決めた（BGQA11）。"
+     },
+     "basis": [
+      "JDG-3371",
+      "JDG-3901"
+     ],
+     "xLanguage": "en"
+    }
+   ],
+   "checkedBasis": [
+    "JDG-3371",
+    "JDG-3901"
    ]
   },
   {
@@ -24693,7 +25587,7 @@
    },
    "definition": {
     "en": "The name of a table that can filter the schedule: the Search Window, the Delay Diagnosis Report or the Resource List.",
-    "ja": "日程表を絞れる表の名前。検索ウィンドウ、遅延診断レポート、担当リストのどれか。"
+    "ja": "日程抽出できる表の名前。検索ウィンドウ、遅延診断レポート、担当リストのどれか。"
    },
    "renames": [
     {
@@ -25231,7 +26125,7 @@
    },
    "definition": {
     "en": "The uids of the tasks the schedule draws now, or null when no table filters the schedule.",
-    "ja": "いま日程表に描いているタスクの uid の並び。スケジュールフィルタを掛けた表が無ければ null。"
+    "ja": "いま日程表に描いているタスクの uid の並び。日程抽出している表が無ければ null。"
    },
    "xGroup": "valueTypes",
    "checkedBasis": [
@@ -25254,7 +26148,7 @@
    },
    "definition": {
     "en": "The names of the tables whose Schedule Filter is on.",
-    "ja": "スケジュールフィルタを掛けている表の名の並び。"
+    "ja": "日程抽出している表の名の並び。"
    },
    "renames": [
     {
@@ -25290,7 +26184,7 @@
    },
    "definition": {
     "en": "The answer of readShownTasks: the tasks drawn now and the tables that filter them.",
-    "ja": "readShownTasks の答え。いま描いているタスクと、それを絞っている表。"
+    "ja": "readShownTasks の答え。いま描いているタスクと、それを日程抽出している表。"
    },
    "renames": [
     {
@@ -29563,7 +30457,7 @@
    },
    "definition": {
     "en": "The uids of the tasks the schedule draws now, or null when no table filters the schedule, and the names of the tables that do. Reads only; changes neither the screen nor the document.",
-    "ja": "日程表がいま描いているタスクの uid（どの表も日程表を絞っていなければ null）と、絞っている表の名前。読むだけで、画面も文書も変えない。"
+    "ja": "日程表がいま描いているタスクの uid（どの表も日程抽出していなければ null）と、日程抽出している表の名前。読むだけで、画面も文書も変えない。"
    },
    "xGroup": "members",
    "checkedBasis": [
@@ -30035,7 +30929,7 @@
    },
    "definition": {
     "en": "Expands the task groups and ancestors the task sits in and scrolls it into view. This is a write: when the task can only be shown by changing what is shown (expanding a collapsed task group, or showing a task a table's schedule filter hides), that change is a step of its own in the edit history, written by you. Scrolling alone adds no step.",
-    "ja": "タスクが載るタスクグループと祖先を展開し、タスクが見える所まで表示を寄せる。これは書き込みである。見せるものを変えなければタスクを見せられない（たたんだタスクグループを開く、表のスケジュールフィルタが隠すタスクを表示にする）ときは、その変更が呼んだ側の書いた編集の履歴の 1 段になる。寄せるだけなら段を足さない。"
+    "ja": "タスクが載るタスクグループと祖先を展開し、タスクが見える所まで表示を寄せる。これは書き込みである。見せるものを変えなければタスクを見せられない（たたんだタスクグループを開く、表の日程抽出が隠すタスクを表示にする）ときは、その変更が呼んだ側の書いた編集の履歴の 1 段になる。寄せるだけなら段を足さない。"
    },
    "xGroup": "members",
    "checkedBasis": [
@@ -30083,7 +30977,7 @@
    },
    "definition": {
     "en": "Shows only the listed tasks: rewrites the visibility column of the Search Window task table and turns on that table's schedule filter, as the person can. An empty list turns the filter off and keeps the visibility values. Opens the Search Window minimized if it is not shown, and the page shows its band so the person sees what happened. The Delay Diagnosis Report and Resource List filters are not touched.",
-    "ja": "並べたタスクだけを見せる。人ができるのと同じく、検索ウィンドウのタスクの表の表示の列を書き換え、その表のスケジュールフィルタを掛ける。空の並びはフィルタを解き、表示の値は残す。検索ウィンドウが出ていなければ最小化して出し、ページは帯を出すので、人は何が起きたかが分かる。遅延診断レポートと担当リストのフィルタには触れない。"
+    "ja": "並べたタスクだけを見せる。人ができるのと同じく、検索ウィンドウのタスクの表の表示の列を書き換え、その表で日程抽出する。空の並びは日程抽出を解き、表示の値は残す。検索ウィンドウが出ていなければ最小化して出し、ページは帯を出すので、人は何が起きたかが分かる。遅延診断レポートと担当リストの日程抽出には触れない。"
    },
    "xGroup": "members",
    "checkedBasis": [
@@ -30107,7 +31001,7 @@
    },
    "definition": {
     "en": "The uids of the tasks to show; an empty list clears the filter",
-    "ja": "表示にするタスクの uid。空の並びはフィルタを解く。"
+    "ja": "表示にするタスクの uid。空の並びは日程抽出を解く。"
    },
    "xGroup": "members",
    "xParent": "showOnlyTasks",
@@ -35154,7 +36048,7 @@
    },
    "definition": {
     "en": "The visibility column of a table: the shown tasks, the shown resources, the unassigned row and whether the Schedule Filter is on.",
-    "ja": "表の表示の列。表示にしたタスク、表示にした担当、担当なしの行、スケジュールフィルタを掛けているか。"
+    "ja": "表の表示の列。表示にしたタスク、表示にした担当、担当なしの行、日程抽出しているか。"
    },
    "xGroup": "usecaseComponents",
    "xParent": "advanceScreenSession",

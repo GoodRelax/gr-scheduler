@@ -561,7 +561,7 @@ const SPENT: readonly Spent[] = [
     // `HF-3`; on 2026-08-30 利用者の裁定 gave that entrance 表 T-015 の `HR-6`
     // (hide), so 「既に折りたたまれている」 stopped being its situation and the task group it
     // stands on is by definition DRAWN -- hiding it always takes one task group off the
-    // screen, and `HF-3` says so: 「⭐ **描かれているタスクグループはいつでも隠せるので、本操作
+    // screen, and `HF-3` says so: 「⭐ **描かれているタスクグループはいつでも親に格納できるので、本操作
     // 子を薄く描く場面は無い**」.
     // ⭐⭐ ON 2026-08-31 THE ROW MOVED TO `HF-13`, and it now reads 「直下に、
     // 画面へ戻せる子が 1 つも無い」 -- what `HR-7` would put back: 「**選択した

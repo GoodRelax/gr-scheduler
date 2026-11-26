@@ -57,7 +57,7 @@
 //   T-023d GA-5 / GA-6 / GA-17   where the three dummies sit
 //   T-076 EP-14  「`Actual Operation Dummy`（`U-52`）| 描かない | 文書に無い
 //             値を描く操作子である。⚠️ 場所は空けない」
-//   T-076 EP-5   the `Task Group Area`'s contents, `Progress Marker`（`U-5`）among
+//   T-076 EP-5   the `Task Group Area`'s contents, `Progress Status Mark`（`U-5`）among
 //             them, ARE drawn in the export
 //   T-041 WY-3   「画面上の外接矩形に `exportCanvas` の幅 ÷ 画面の幅 の比を
 //             掛けた値と、…… 書き出した SVG / PNG の中の同じ UI パーツの外接
@@ -1377,7 +1377,7 @@ describe('EP-14 of table T-076 -- an export draws no dummy, and moves nothing', 
     expect(EP_14['描くか']).toContain('描かない')
     expect(EP_14['理由と扱い']).toContain('場所は空けない')
     // GA-18's own row is why a dummy may not simply be deleted for an export.
-    expect(GA_18['掴む所']).toContain('進捗マーカー')
+    expect(GA_18['掴む所']).toContain('進捗ステータスマーク')
   })
 
   it('EP-14 (MUST NOT): what the screen draws for the dummy is not in the export', () => {
@@ -1435,7 +1435,7 @@ describe('EP-14 of table T-076 -- an export draws no dummy, and moves nothing', 
     // ⛔ THE CASE THIS FILE EXISTS FOR MOST. Emptying `dummies` for the export
     // would satisfy EP-14 and take the marker with it: GA-18 puts the
     // not-started marker 「終了点の掴みシロの外側」, so its x hangs off GA-6.
-    // EP-5 draws `Progress Marker`（`U-5`）in the export, so it must survive.
+    // EP-5 draws `Progress Status Mark`（`U-5`）in the export, so it must survive.
     const pictures = shellPictures(notStartedSchedule())
     const marker = taskGeometryOf(pictures, UNDER_TEST).marker
     expect(marker?.symbol).toBe('PM-1a')

@@ -10,7 +10,7 @@ import { BAND, ENTER, PANEL, boxOf, pressAt, pressSelector, settle, withSearch }
 const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
 const IX_11_NO_BAND_WORDS =
-  '⛔ 絵にスケジュールフィルタの帯（`_assets/tbl-glossary.md` の `U-67`）の語を書き込んではならない（MUST NOT）'
+  '⛔ 絵にチェックで日程抽出バー（`_assets/tbl-glossary.md` の `U-67`）の語を書き込んではならない（MUST NOT）'
 const IX_11_CLOSE_UP =
   '⭐ 帯の高さも絵に残さず、帯が無いときと同じ位置から日程表を組むこと（MUST）'
 const EP_24_CLOSE_UP = '帯が無いときと同じ位置から組む'

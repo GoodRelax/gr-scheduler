@@ -80,7 +80,7 @@
 | RG-2 | `Esc` | 確定していないその場の編集 | `fieldEditStateMachine.editingField` | `IN-4` | 面が消費する（`IF-9`） |
 | RG-3 | `Esc` | 開いている面 | `confirmationStateMachine.questionAsked` ／ `openSurfaceStateMachine.open` | `IN-4` ・ `FR-070` | 同じ段の中は、問い → 面の順。問いか面が立っているあいだは `SK-19` の 2 段目を当てない（`FR-070`）。ヘルプはこの段に立たない —— 開いているウィンドウの段に立つ（`IN-4`） |
 | RG-4 | `Esc` | 進行中のドラッグ・引きかけの矢印 | `pointerPressStateMachine.changingDocument` ／ `pointerPressStateMachine.viewingDocument` | `IN-4` | — |
-| RG-16 | `Esc` | 開いているウィンドウ | `searchPanelDisplayStateMachine.shown.normal` ／ `searchPanelDisplayStateMachine.shown.maximized` ／ `helpDisplayStateMachine.shown.normal` ／ `helpDisplayStateMachine.shown.maximized` と、フレームの値（焦点がどのウィンドウの中にあるか、焦点がプロパティパネルの中にあるか）。遅延診断レポートの窓はステートマシンを持たず、出ていて（`S-451`）最小化していないときに立つ。担当リストのウィンドウも同じ（`S-545`） | `IN-4` ・ `SV-14` ・ `HN-2` ・ `FR-152` ・ `RW-1` ・ `RO-1` | 1 度の `Esc` で 1 つだけ閉じる。焦点がその中にあるウィンドウが先、ほかは 表 T-337 の手前から（`IN-4`）。焦点がプロパティパネルの中にあるあいだは立たない —— `RG-14` が先に受ける（`IN-4`）。最小化したウィンドウは立たない。検索パネルは、列のフィルタが開いていればフィルタだけを閉じる（`SV-14`）。遅延診断レポートの窓は窓だけを閉じ、診断の表示は終えない（`RW-1`）。担当リストのウィンドウを閉じると担当リストの表のスケジュールフィルタを解除する（`RO-1`）。`escapePressed` の `rung` の語は `searchPanel` ・ `helpModal` ・ `delayDiagnosticsReport` ・ `resourceList` |
+| RG-16 | `Esc` | 開いているウィンドウ | `searchPanelDisplayStateMachine.shown.normal` ／ `searchPanelDisplayStateMachine.shown.maximized` ／ `helpDisplayStateMachine.shown.normal` ／ `helpDisplayStateMachine.shown.maximized` と、フレームの値（焦点がどのウィンドウの中にあるか、焦点がプロパティパネルの中にあるか）。遅延診断レポートの窓はステートマシンを持たず、出ていて（`S-451`）最小化していないときに立つ。担当リストのウィンドウも同じ（`S-545`） | `IN-4` ・ `SV-14` ・ `HN-2` ・ `FR-152` ・ `RW-1` ・ `RO-1` | 1 度の `Esc` で 1 つだけ閉じる。焦点がその中にあるウィンドウが先、ほかは 表 T-337 の手前から（`IN-4`）。焦点がプロパティパネルの中にあるあいだは立たない —— `RG-14` が先に受ける（`IN-4`）。最小化したウィンドウは立たない。検索パネルは、列のフィルタが開いていればフィルタだけを閉じる（`SV-14`）。遅延診断レポートの窓は窓だけを閉じ、診断の表示は終えない（`RW-1`）。担当リストのウィンドウを閉じると担当リストの表の日程抽出を解除する（`RO-1`）。`escapePressed` の `rung` の語は `searchPanel` ・ `helpModal` ・ `delayDiagnosticsReport` ・ `resourceList` |
 | RG-14 | `Esc` | プロパティパネル | `propertiesPanelContentStateMachine`（`hidden` 以外） | `IN-4` | 面ではない（`S-99g`、`S-99h`）。進行中のドラッグと開いているウィンドウの後に置く（`IN-4`）。番号は最後の次を採り、並びは表の上下が持つ。`escapePressed` の `rung` の語は `propertiesPanel` —— 開いている面（`RG-3`）の `surface` とは別の語 |
 | RG-5 | `Esc` | 構え | `armModeStateMachine.armed` | `IN-4` | — |
 | RG-6 | `Esc` | 選択 | `selectionStateMachine.objectsSelected` と、根の値 `chosenTaskGroups`（空でないとき）のどちらか —— タスクグループパネルのタスクグループだけを選んでいるときも立つ（`FR-085`） | `IN-4` ・ `FR-085` | 構えより前に置かない（`IN-4`） |
@@ -962,7 +962,7 @@
 | `selection/selectionEscapePressed` | 入力（`Esc`。画面の値の `escapePressed` と同じ押下から呼び手が作る）: `IN-4` | `rung`（消費する `IN-4` の段の語。呼び手が詰める） | 根 ・ `selectionStateMachine` |
 | `selection/selectionSettleKeyPressed` | 入力（`Enter`。通知も確定していないその場の編集も無く、プロパティパネルも出していないときだけ呼び手が送る）: `SK-19` | — | 根 ・ `selectionStateMachine` |
 | `selection/selectionCleared` | 副作用の結果（画面の値の副作用 `clearSelection` の結果）: `FR-091` | — | `selectionStateMachine` |
-| `selection/selectionPruned` | 副作用の結果（書き込みが着地し、文書に無くなった対象を刈った。または、表示の切り替え・タスクグループの折りたたみと隠し・縦軸の倍率で描かれなくなったタスクを刈った。⭐ 同じ着地で、文書に無くなったタスクグループもタスクグループの選択から刈る（`FR-085`））: `FR-081` ・ `UN-9` ・ `FR-049` ・ `FR-018` ・ `HR-1a` ・ `HR-6` ・ `FR-085` | `remainingObjects` ／ `chosenTaskGroups`（`FR-085`。刈ったあとに残るタスクグループ。文書から消えたタスクグループを除いたタスクグループの選択） | 根 ・ `selectionStateMachine` |
+| `selection/selectionPruned` | 副作用の結果（書き込みが着地し、文書に無くなった対象を刈った。または、表示の切り替え・タスクグループの折りたたみと格納・縦軸の倍率で描かれなくなったタスクを刈った。⭐ 同じ着地で、文書に無くなったタスクグループもタスクグループの選択から刈る（`FR-085`））: `FR-081` ・ `UN-9` ・ `FR-049` ・ `FR-018` ・ `HR-1a` ・ `HR-6` ・ `FR-085` | `remainingObjects` ／ `chosenTaskGroups`（`FR-085`。刈ったあとに残るタスクグループ。文書から消えたタスクグループを除いたタスクグループの選択） | 根 ・ `selectionStateMachine` |
 | `selection/createdTaskSelected` | 副作用の結果（作る書き込みが着地し、作ったタスクが文書に在る）: `FR-001` ・ `FR-091` ・ `TC-9` | `createdTaskUid`（`TC-9`） | `selectionStateMachine` |
 | `selection/createdCommentBoxSelected` | 副作用の結果（置く書き込みが着地し、置いたコメントボックスが文書に在る）: `FR-019` ・ `AR-5` | `createdCommentBoxId`（`AT-110`） | `selectionStateMachine` |
 | `selection/taskGroupsPicked` | 入力（タスクグループパネルでタスクグループを選ぶ・増減する）: `FR-085` ・ `FR-042` | `chosenTaskGroups` | 根 |
@@ -1145,7 +1145,7 @@
 | --- | --- | --- | --- |
 | `taskGroupTree/oneLevelOpenPressed` | 入力（タスクグループの 1 階層展開する操作子を押した。押しが何かを行うときだけ（`FR-029`））: `IC-90` ・ `HF-13` ・ `HR-7` | `pressedRowId`（押したタスクグループの id） | `treeStateMachine` |
 | `taskGroupTree/allBelowOpenPressed` | 入力（タスクグループの配下をすべて展開する操作子を押した。押しが何かを行うときだけ）: `IC-58` ・ `HF-2` ・ `HR-3` | `pressedRowId`（押したタスクグループの id） | `treeStateMachine` |
-| `taskGroupTree/hidePressed` | 入力（タスクグループの隠す操作子を押した）: `IC-59` ・ `HF-3` ・ `HR-6` | `pressedRowId`（押したタスクグループの id） | `treeStateMachine` |
+| `taskGroupTree/hidePressed` | 入力（タスクグループの親に格納する操作子を押した）: `IC-59` ・ `HF-3` ・ `HR-6` | `pressedRowId`（押したタスクグループの id） | `treeStateMachine` |
 | `taskGroupTree/allBelowFoldPressed` | 入力（タスクグループの配下をすべて折りたたむ操作子を押した。押しが何かを行うときだけ）: `IC-77` ・ `HF-11` ・ `HR-4` | `pressedRowId`（押したタスクグループの id） | `treeStateMachine` |
 | `taskGroupTree/everyTaskGroupOpenPressed` | 入力（頭のすべて展開する操作子を押した。押しが何かを行うときだけ）: `IC-74` ・ `HF-10` ・ `HR-1` | — | 根 ・ `treeStateMachine` |
 | `taskGroupTree/everyTaskGroupFoldPressed` | 入力（頭のすべて折りたたむ操作子を押した。押しが何かを行うときだけ）: `IC-78` ・ `HF-12` ・ `HR-2` | — | 根 ・ `treeStateMachine` |
@@ -1154,7 +1154,7 @@
 | `taskGroupTree/fitPressed` | 入力（全体表示を求めた）: `IC-10` ・ `SK-18` ・ `FR-055` ・ `HF-8` | — | 根 ・ `treeStateMachine` |
 | `taskGroupTree/everyTaskGroupDeletePressed` | 入力（頭のすべてのタスクグループを消す操作子を押し、問い（`QN-10`）に消すと答えた）: `IC-106` ・ `HF-20` | — | 根 |
 | `taskGroupTree/verticalZoomShrinkPressed` | 入力（縦軸を縮める入力。縮める側の端で倍率を書き換えないとき（`ZE-2`）も送る。拡げる入力・日付の軸のズーム・`Agent API` の `setZoom` では送らない）: `MK-2` ・ `MK-4` ・ `IC-14` ・ `SK-16c` ・ `ZE-2` | — | `treeStateMachine` |
-| `taskGroupTree/taskGroupRevealAsked` | 入力（検索パネルの表の行を押して飛ぶ（`SJ-1`）か、`Agent API` の `focusTask`（`AM-16`）が飛ぶか、依存線の続きの印を押して折りたたんだタスクグループか隠したタスクグループの配下の端へ送る（`EL-21`）か、スケジュールフィルタを掛けているあいだに表の行を「非表示」から「表示」にする（`FR-151` の 表 T-353 の `TV-6`）。⭐ スケジュールフィルタを掛けることでは展開しない（同行））: `SJ-1` ・ `AM-16` ・ `EL-21` ・ `TV-6` | `revealedRowId`（飛ぶ先のタスクグループの id） | 根 ・ `treeStateMachine` |
+| `taskGroupTree/taskGroupRevealAsked` | 入力（検索パネルの表の行を押して飛ぶ（`SJ-1`）か、`Agent API` の `focusTask`（`AM-16`）が飛ぶか、依存線の続きの印を押して折りたたんだタスクグループか格納したタスクグループの配下の端へ送る（`EL-21`）か、日程抽出しているあいだに表の行を「非表示」から「表示」にする（`FR-151` の 表 T-353 の `TV-6`）。⭐ 日程抽出することでは展開しない（同行））: `SJ-1` ・ `AM-16` ・ `EL-21` ・ `TV-6` | `revealedRowId`（飛ぶ先のタスクグループの id） | 根 ・ `treeStateMachine` |
 
 ### タスクグループの木のガード
 

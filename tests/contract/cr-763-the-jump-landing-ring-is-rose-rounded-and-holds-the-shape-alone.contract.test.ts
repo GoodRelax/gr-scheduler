@@ -61,7 +61,7 @@ const S_585_WHAT = '飛んだ先の囲みと波紋の色。'
 const S_585_NO_THEME = '⛔ テーマ色に追随させない'
 const RW_13_RING =
   '`SJ-10` の ① の囲みと同じ形の印を `_assets/tbl-settings.md` の 表 T-236 の `S-573` の色で描くこと。'
-const RW_13_UNDRAWN = '`GRS` は、描かれていないタスク（スケジュールフィルタの 表 T-353 の `TV-3` を含む）の印を描かないこと。'
+const RW_13_UNDRAWN = '`GRS` は、描かれていないタスク（日程抽出の 表 T-353 の `TV-3` を含む）の印を描かないこと。'
 const FR_041_EVERY_ROW = '`_assets/tbl-settings.md` の 表 T-236 のすべての行を（色相の欄が ○ の行も — の行も）'
 const T_294_KEEP_LIGHTNESS = 'モノクロは、その値を HSL の明度を保ったまま彩度 0 にして測った'
 const PI_19_RING = '飛んだ先の印の囲みの箱と線の太さと角の丸み（表 T-332 の `SJ-10`、`S-555` ・ `S-556` ・ `S-588`）。'

@@ -21,16 +21,16 @@ import { unbroken } from './spec-table'
 const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
 // Why: each constant ends exactly at its marker, cut from the manuscript as check 39 reads it.
-const FR_003_LANES = 'スケジュールフィルタ（`FR-151` の 表 T-353）を掛けている間、`GRS` は、描くタスクだけで段を割り当てること。'
+const FR_003_LANES = '日程抽出（`FR-151` の 表 T-353）している間、`GRS` は、描くタスクだけで段を割り当てること。'
 const TD_8_KEEPS_TREE_STATE = '⛔ この条件のために `treeState` を書き換えてはならない（MUST NOT）'
 const TD_8_ANCESTORS = '⭐ 祖先は、子孫に描くタスクがあるので見出しとして描かれる。'
 const TV_3_NOT_FAINT = '`GRS` は、積に入らないタスクを薄く描かないこと。'
 const EL_20_FILTERED_END =
-  '`GRS` は、端の `Task` をスケジュールフィルタ（`FR-151` の 表 T-353 の `TV-3`）で描かないときも、載るタスクグループを描いていても、端を見えていない端とすること。'
+  '`GRS` は、端の `Task` を日程抽出（`FR-151` の 表 T-353 の `TV-3`）で描かないときも、載るタスクグループを描いていても、端を見えていない端とすること。'
 const EL_20_TASK_GROUP_DRAWN = '載るタスクグループを描いていても、端を見えていない端とすること'
 const EL_20_NOT_DROPPED = '`GRS` は、立つ所が無いとして線を落とさないこと。'
 const FR_135_FILTERED_END =
-  'もし家族の矢印の片方の端のタスクがスケジュールフィルタ（`FR-151` の 表 T-353 の `TV-3`）で描かれない場合、`GRS` は、依存線の見えていない端（表 T-303 の `EL-20`）と同じく、見えている側に短い線と続きの印を描くこと。'
+  'もし家族の矢印の片方の端のタスクが日程抽出（`FR-151` の 表 T-353 の `TV-3`）で描かれない場合、`GRS` は、依存線の見えていない端（表 T-303 の `EL-20`）と同じく、見えている側に短い線と続きの印を描くこと。'
 const FR_135_ONE_MANNER = '同じ「見えない端」の作法を 2 種の線で分けない。'
 
 const CLAUSES: readonly (readonly [string, string])[] = [

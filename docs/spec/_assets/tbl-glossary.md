@@ -90,12 +90,12 @@
 | U-2 | `Task Bars` | タスクバー（**総称**）。<br>`Plan Bar` と `Actual Bar` をまとめて指す。<br>言い分ける規則は表 T-006b の `A-14` が持つ |
 | U-3 | `Plan Bar` | 予定バー |
 | U-4 | `Actual Bar` | 実績バー |
-| U-5 | `Progress Marker` | 進捗マーカー |
+| U-5 | `Progress Status Mark` | 進捗ステータスマーク |
 | U-6 | `Resume Icon` | 再開アイコン |
 | U-7 | `Name Label` | 名称ラベル |
 | U-8 | `Assignee Label` | 担当ラベル |
 | U-9 | `Progress Line` | イナズマ線。<br>直訳ではない。<br>例外は表 T-105 |
-| U-10 | `Cursors` | カーソル |
+| U-10 | `Cursor` | カーソル |
 | U-11 | `Status Line` | 基準日線。<br>直訳ではない。<br>例外は表 T-105。<br>`Project.statusDate` の位置に引く縦線（`FR-046`）。<br>⚠️ **「本日線」と呼んではならない（MUST NOT）** —— 本日以外を指せる |
 | U-12 | `Dual Cursor` | デュアルカーソル |
 | U-13 | `Guide Cursor` | ガイドカーソル |
@@ -104,7 +104,7 @@
 | U-15a | `Annotations` | **注記**。<br>コメントボックスとハイライトボックスをまとめて指す上位語 |
 | U-16 | `Dependency Lines` | 依存線 |
 | U-17 | `Date Grid Lines` | 日付罫線 |
-| U-18 | `Group Grid Lines` | グループ罫線 |
+| U-18 | `Task Group Grid Lines` | タスクグループ罫線 |
 | U-19 | `Time Ruler` | タイムルーラー |
 | U-20 | `Watermark` | 透かし |
 | U-21 | `Scrollbars` | スクロールバー |
@@ -116,7 +116,7 @@
 | U-27 | `Document Title` | 文書名。<br>MSPDI の `Project/Title` に対応する。<br>⚠️ **「表題」「題名」と呼んではならない（MUST NOT）** —— 同じ値を指す |
 | U-30 | `Help Modal` | ヘルプ |
 | U-31 | `App Header` | ヘッダー |
-| U-32 | `Schedule Canvas` | （画面に出ない構造名。<br>日本語を当てない）。<br>範囲は、`App Header`（`U-31`）の下の縁からウィンドウの下の端までの、ウィンドウの全幅とする —— スケジュールフィルタの帯（`U-67`）が出ているあいだは、その帯の下の縁から（`01-04-requirements.md` の 表 T-353 の `TV-11`）。<br>利用者が見て押すのはこの範囲であり、仕様が `Schedule Canvas` の全体・中・角と書くときもこの範囲を指す（同書の 表 T-335 の `WB-3` ほか）。<br>⚠️ ページの中で `data-role` に `Schedule Canvas` を持つ要素は、ウィンドウの左上の角 (0, 0) からウィンドウ全体を覆う描画の層であり、`App Header` の帯の上も含む —— 範囲とは別である（利用者が定めた）。<br>⛔ `Schedule Canvas` の範囲を、`data-role` に `Schedule Canvas` を持つ要素の箱から読んではならない（MUST NOT） —— 範囲は `App Header` の下の縁から測る |
+| U-32 | `Schedule Canvas` | （画面に出ない構造名。<br>日本語を当てない）。<br>範囲は、`App Header`（`U-31`）の下の縁からウィンドウの下の端までの、ウィンドウの全幅とする —— チェックで日程抽出バー（`U-67`）が出ているあいだは、その帯の下の縁から（`01-04-requirements.md` の 表 T-353 の `TV-11`）。<br>利用者が見て押すのはこの範囲であり、仕様が `Schedule Canvas` の全体・中・角と書くときもこの範囲を指す（同書の 表 T-335 の `WB-3` ほか）。<br>⚠️ ページの中で `data-role` に `Schedule Canvas` を持つ要素は、ウィンドウの左上の角 (0, 0) からウィンドウ全体を覆う描画の層であり、`App Header` の帯の上も含む —— 範囲とは別である（利用者が定めた）。<br>⛔ `Schedule Canvas` の範囲を、`data-role` に `Schedule Canvas` を持つ要素の箱から読んではならない（MUST NOT） —— 範囲は `App Header` の下の縁から測る |
 | U-33 | `Canvas Overlays` | （同上） |
 | U-34 | `Palette Groups` / `Palette Commands` | （同上） |
 | U-35 | `Header Commands` / `Branding` | （同上）。<br>`Branding` は `App Header` の左端に置く製品の略称の字であり、規則は `01-04-requirements.md` の `FR-051` の 表 T-349 が持つ |
@@ -150,7 +150,7 @@
 | U-64 | `Search Panel` | 検索パネル。<br>語で探したタスクとコメントボックスを表に並べ、押すとそこへ飛ぶ、浮く UI パーツ。<br>規則は `01-04-requirements.md` の `FR-151`。<br>⚠️ `tbl-settings.md` の `S-99g` の面ではない |
 | U-65 | `Holiday Settings` | 休日の設定。<br>文書の暦（稼働する曜日・例外日）と週の始まりを直す面。<br>立てる規則は `01-04-requirements.md` の `FR-088`、欄と入口は同書の 表 T-344 |
 | U-66 | `Delay Diagnostics Report` | 遅延診断レポート。<br>遅延診断のまとめとタスクの表を出す浮く窓 —— 行を押せばその `Task` へ飛ぶ。<br>立てる規則と窓の形は `01-04-requirements.md` の `FR-134` と同書の 表 T-346 ・ 表 T-347 が持つ。<br>⚠️ 検索パネル（`U-64`）と同じく、`S-99g` が数える面には入らない |
-| U-67 | `Schedule Filter Bar` | スケジュールフィルタの帯。<br>3 つの表（検索パネル・遅延診断レポート・担当リスト）のどれかのスケジュールフィルタを掛けて日程表に描くタスクを絞っているあいだ、そのことと、掛けている表の名と、件数を告げ、すべての表のスケジュールフィルタを解除する語の入口を持つ帯 —— 語の入口であってアイコンではないので、表 T-109 に行を持たない（`NT-8` の `OK` と同じ）。<br>置き方と語は `01-04-requirements.md` の 表 T-353 の `TV-11` が持つ。<br>⚠️ `Esc` で閉じる面（`tbl-settings.md` の `S-99g`）に数えない —— 帯が消えるのは、すべての表のスケジュールフィルタが解除されたときだけである（`TV-8`） |
+| U-67 | `Filtered by Checks Bar` | チェックで日程抽出バー。<br>3 つの表（検索パネル・遅延診断レポート・担当リスト）のどれかで日程抽出しているあいだ、そのことと、日程抽出している表の名と、件数を告げ、すべての表の日程抽出を解除する語の入口を持つ帯 —— 語の入口であってアイコンではないので、表 T-109 に行を持たない（`NT-8` の `OK` と同じ）。<br>置き方と語は `01-04-requirements.md` の 表 T-353 の `TV-11` が持つ。<br>⚠️ `Esc` で閉じる面（`tbl-settings.md` の `S-99g`）に数えない —— 帯が消えるのは、すべての表の日程抽出が解除されたときだけである（`TV-8`） |
 | U-68 | `Drop Cue` | ドロップの案内。<br>ファイルを持つドラッグがウィンドウの上に在るあいだ、`Schedule Canvas`（`U-32`）を薄く塗って囲み、ドロップすれば開くことを告げる面。<br>出す規則・形・消す時は `01-04-requirements.md` の 表 T-024a の `OP-17` が持つ。<br>押せるものを持たない |
 
 > 呼び名は `Agent API` とする。  
@@ -209,22 +209,22 @@
 | K-13 | 形状の縦幅 | `shapeHeightOf.rectangle` | 矩形 |
 | K-14 | 形状の縦幅 | `shapeHeightOf.chevron` | 矢羽根 |
 | K-15 | 形状の縦幅 | `shapeHeightOf.arrow` | 矢印 |
-| K-16 | 形状の縦幅 | `shapeHeightOf.endpointSpan` | 端点スパン |
+| K-16 | 形状の縦幅 | `shapeHeightOf.endpointSpan` | ダンベル |
 | K-17 | 形状の縦幅 | `shapeHeightOf.milestone` | マイルストーン |
 | K-18 | 依存線 | `dependencyWidth` | 依存線の太さ |
 | K-19 | 依存線 | `dependencyArrowLength` | 矢印の三角形の長さ |
 | K-126 | 依存線 | `dependencyLeadOut` | 出口の走り |
 | K-127 | 依存線 | `dependencyLeadIn` | 入口の走り |
 | K-128 | 依存線 | `dependencyArrowWidth` | 矢印の三角形の底辺 |
-| K-22 | 進捗マーカー | `markerSize` | マーカー径 |
-| K-24 | 進捗マーカー | `markerStroke` | 円の線の太さ |
-| K-25 | 進捗マーカー | `resumeScaleInvalid` | 再開日未定のときの縮小率 |
-| K-26 | 進捗マーカー | `resumeArmOfMarker` | 再開アイコンの腕の長さ ÷ マーカー |
-| K-27 | 進捗マーカー | `resumeHeadOfMarker` | 再開アイコンの矢じり ÷ マーカー |
-| K-28 | 進捗マーカー | `resumeDashOn` | 再開アイコンへ繋ぐ破線の実部 |
-| K-29 | 進捗マーカー | `resumeDashOff` | 再開アイコンへ繋ぐ破線の空部 |
-| K-129 | 進捗マーカー | `resumeOpacityInvalid` | 再開日未定のときの濃さ |
-| K-130 | 進捗マーカー | `resumeDashWidth` | 再開アイコンへ繋ぐ破線の太さ |
+| K-22 | 進捗ステータスマーク | `markerSize` | マーカー径 |
+| K-24 | 進捗ステータスマーク | `markerStroke` | 円の線の太さ |
+| K-25 | 進捗ステータスマーク | `resumeScaleInvalid` | 再開日未定のときの縮小率 |
+| K-26 | 進捗ステータスマーク | `resumeArmOfMarker` | 再開アイコンの腕の長さ ÷ マーカー |
+| K-27 | 進捗ステータスマーク | `resumeHeadOfMarker` | 再開アイコンの矢じり ÷ マーカー |
+| K-28 | 進捗ステータスマーク | `resumeDashOn` | 再開アイコンへ繋ぐ破線の実部 |
+| K-29 | 進捗ステータスマーク | `resumeDashOff` | 再開アイコンへ繋ぐ破線の空部 |
+| K-129 | 進捗ステータスマーク | `resumeOpacityInvalid` | 再開日未定のときの濃さ |
+| K-130 | 進捗ステータスマーク | `resumeDashWidth` | 再開アイコンへ繋ぐ破線の太さ |
 | K-30 | ラベル | `labelCoef` | 幅の概算係数 |
 | K-31 | ラベル | `labelPad` | タスク名を開始から離す隙間 |
 | K-32 | ラベル | `labelGap` | タスク名をマーカーから離す隙間 |
@@ -279,7 +279,7 @@
 | K-76 | 表示の切り替え | `isPercentCompleteVisible` | 完了率ラベル |
 | K-124 | 表示の切り替え | `isPlanDatesVisible` | 名称ラベルに添える予定日 |
 | K-77 | 表示の切り替え | `isDependencyVisible` | 依存線 |
-| K-78 | 表示の切り替え | `isProgressMarkerVisible` | 進捗マーカー |
+| K-78 | 表示の切り替え | `isProgressMarkerVisible` | 進捗ステータスマーク |
 | K-79 | 表示の切り替え | `isProgressLineVisible` | イナズマ線 |
 | K-80 | 表示の切り替え | `dualCursor` ⛔ | デュアルカーソル |
 | K-81 | 表示の切り替え | `guideCursorMode` ⛔ | ガイドカーソル |
@@ -492,7 +492,7 @@
 | IC-102 | `Help Modal` | — | マウスのホイールを示す。<br>**ボタンではない** —— ヘルプの凡例に置き、割当の語の中のホイールをこの図形で示す | `FR-036` | — | — |
 | IC-128 | `Help Modal` | — | ヘルプの言語を選ぶ（`S-434`）。<br>⭐ 図形は `IC-21` と同じである | `FR-038` | — | — |
 | IC-58 | `Task Group Panel` | — | タスクグループの配下をすべて展開する | 表 T-051 の `HF-2` | — | — |
-| IC-59 | `Task Group Panel` | — | このタスクグループを隠す | 表 T-051 の `HF-3` | — | — |
+| IC-59 | `Task Group Panel` | — | このタスクグループを親に格納する | 表 T-051 の `HF-3` | — | — |
 | IC-77 | `Task Group Panel` | — | タスクグループの配下をすべて折りたたむ | 表 T-051 の `HF-11` | — | — |
 | IC-90 | `Task Group Panel` | — | タスクグループの配下を 1 階層だけ展開する | 表 T-051 の `HF-13` | — | — |
 | IC-91 | `Task Group Panel` | — | タスクグループの配下にタスクグループを 1 つ足す | 表 T-051 の `HF-14` | — | — |
@@ -501,8 +501,8 @@
 | IC-106 | `Task Group Panel` | — | すべてのタスクグループを削除する（タスクグループパネルの頭、`HF-20`）。<br>⭐ 図形は `IC-82` と同じである。<br>消える範囲は 表 T-050 の `CD-6` が持ち、問い方は 表 T-037 の `NT-7` が持つ（示す文は 表 T-234 の `QN-10`）| `FR-032` | — | — |
 | IC-118 | `Search Panel` | — | タスクとマイルストーンの表を出す | `FR-151` | — | — |
 | IC-119 | `Search Panel` | — | コメントボックスの表を出す | `FR-151` | — | — |
-| IC-153 | `Search Panel` / `Delay Diagnostics Report` / `Resource List` | — | その表のすべての列のフィルタをクリアし、並びを既定の並び（`FR-151` の 表 T-330 の `SV-8`）へ戻す。<br>⭐ 語・表示の列の値・スケジュールフィルタ（`IC-143`）は変えない。<br>戻すものが無いあいだは効かない | `FR-151` の 表 T-330 の `SV-1` | — | — |
-| IC-143 | `Search Panel` / `Delay Diagnostics Report` / `Resource List` | — | その表のスケジュールフィルタを掛け、同じ入口で解除する（`_assets/tbl-settings.md` の 表 T-203 の `S-560`・`S-564`・`S-568`）。<br>⭐ 検索パネルではタスクの表を出しているときだけ置く。<br>掛けていないあいだ、チェックの入った行が 1 つも無いときは効かない（`FR-151` の 表 T-353 の `TV-5`）。<br>掛けているあいだは赤（同表の `TV-12`） | `FR-151` の 表 T-353 | — | — |
+| IC-153 | `Search Panel` / `Delay Diagnostics Report` / `Resource List` | — | その表のすべての列のフィルタをクリアし、並びを既定の並び（`FR-151` の 表 T-330 の `SV-8`）へ戻す。<br>⭐ 語・表示の列の値・日程抽出（`IC-143`）は変えない。<br>戻すものが無いあいだは効かない | `FR-151` の 表 T-330 の `SV-1` | — | — |
+| IC-143 | `Search Panel` / `Delay Diagnostics Report` / `Resource List` | — | その表で日程抽出し、同じ入口で解除する（`_assets/tbl-settings.md` の 表 T-203 の `S-560`・`S-564`・`S-568`）。<br>⭐ 検索パネルではタスクの表を出しているときだけ置く。<br>掛けていないあいだ、チェックの入った行が 1 つも無いときは効かない（`FR-151` の 表 T-353 の `TV-5`）。<br>掛けているあいだは赤（同表の `TV-12`） | `FR-151` の 表 T-353 | — | — |
 | IC-129 | `Help Modal` / `Search Panel` / `Delay Diagnostics Report` / `Resource List` | — | ウィンドウ（`FR-036` の 表 T-335）を最小化し、同じ入口で戻す（`S-435`・`S-442`・`S-451`）。<br>⭐ 図形は `IC-75` と同じである | `FR-036` の 表 T-335 | — | — |
 | IC-130 | `Help Modal` / `Search Panel` / `Delay Diagnostics Report` / `Resource List` | — | ウィンドウを最大化する（`S-435`・`S-442`・`S-451`） | `FR-036` の 表 T-335 | — | — |
 | IC-131 | `Help Modal` / `Search Panel` / `Delay Diagnostics Report` / `Resource List` | — | 最大化したウィンドウを元のサイズに戻す（`S-435`・`S-442`・`S-451`）。<br>⭐ `IC-130` の場所に、最大化しているあいだだけ描く | `FR-036` の 表 T-335 | — | — |

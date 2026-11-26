@@ -92,7 +92,7 @@
   {
    "specTableRowId": "IC-10",
    "label": {
-    "ja": "全体を収める",
+    "ja": "全体表示",
     "en": "Zoom to Fit"
    },
    "hint": {
@@ -268,7 +268,7 @@
   {
    "specTableRowId": "IC-17",
    "label": {
-    "ja": "文書の設定",
+    "ja": "文書設定",
     "en": "Document Settings"
    },
    "hint": {
@@ -334,8 +334,8 @@
   {
    "specTableRowId": "IC-26",
    "label": {
-    "ja": "端点スパン",
-    "en": "Endpoint Span"
+    "ja": "ダンベル",
+    "en": "Dumbbell"
    },
    "hint": {
     "ja": "端点スパンを構える。何にも当たらない場所をドラッグすると端点スパンのタスクを作る",
@@ -345,7 +345,7 @@
   {
    "specTableRowId": "IC-27",
    "label": {
-    "ja": "マイルストーン（〇）",
+    "ja": "マイルストーン（円）",
     "en": "Milestone (Circle)"
    },
    "hint": {
@@ -378,7 +378,7 @@
   {
    "specTableRowId": "IC-30",
    "label": {
-    "ja": "マイルストーン（◇）",
+    "ja": "マイルストーン（ひし形）",
     "en": "Milestone (Diamond)"
    },
    "hint": {
@@ -389,7 +389,7 @@
   {
    "specTableRowId": "IC-31",
    "label": {
-    "ja": "マイルストーン（□）",
+    "ja": "マイルストーン（正方形）",
     "en": "Milestone (Square)"
    },
    "hint": {
@@ -400,7 +400,7 @@
   {
    "specTableRowId": "IC-32",
    "label": {
-    "ja": "マイルストーン（☆）",
+    "ja": "マイルストーン（星）",
     "en": "Milestone (Star)"
    },
    "hint": {
@@ -411,7 +411,7 @@
   {
    "specTableRowId": "IC-33",
    "label": {
-    "ja": "マイルストーン（△）",
+    "ja": "マイルストーン（上向き三角）",
     "en": "Milestone (Triangle Up)"
    },
    "hint": {
@@ -422,7 +422,7 @@
   {
    "specTableRowId": "IC-34",
    "label": {
-    "ja": "マイルストーン（▽）",
+    "ja": "マイルストーン（下向き三角）",
     "en": "Milestone (Triangle Down)"
    },
    "hint": {
@@ -444,7 +444,7 @@
   {
    "specTableRowId": "IC-84",
    "label": {
-    "ja": "マイルストーン（ボックス）",
+    "ja": "マイルストーン（箱）",
     "en": "Milestone (Box)"
    },
    "hint": {
@@ -455,7 +455,7 @@
   {
    "specTableRowId": "IC-85",
    "label": {
-    "ja": "マイルストーン（フロッピー）",
+    "ja": "マイルストーン（フロッピーディスク）",
     "en": "Milestone (Floppy Disk)"
    },
    "hint": {
@@ -488,7 +488,7 @@
   {
    "specTableRowId": "IC-88",
    "label": {
-    "ja": "マイルストーン（嬉しい顔）",
+    "ja": "マイルストーン（笑顔）",
     "en": "Milestone (Smiling Face)"
    },
    "hint": {
@@ -522,7 +522,7 @@
    "specTableRowId": "IC-35",
    "label": {
     "ja": "コメントボックス",
-    "en": "Callout"
+    "en": "Comment Box"
    },
    "hint": {
     "ja": "コメントボックスを構える。置きたい位置をドラッグすると置く",
@@ -576,8 +576,8 @@
   {
    "specTableRowId": "IC-40",
    "label": {
-    "ja": "進捗マーカー",
-    "en": "Progress Marker"
+    "ja": "進捗ステータスマーク",
+    "en": "Progress Status Mark"
    },
    "hint": {
     "ja": "進捗マーカーと再開アイコンを表示する。もう一度押すと非表示にする",
@@ -588,7 +588,7 @@
    "specTableRowId": "IC-41",
    "label": {
     "ja": "透かしを非表示（パスワードが必要）",
-    "en": "Watermark…"
+    "en": "Hide the Watermark (Password Required)"
    },
    "hint": {
     "ja": "透かしの表示切替。非表示にするときだけ透かし解除パスワードを求める",
@@ -609,8 +609,8 @@
   {
    "specTableRowId": "IC-43",
    "label": {
-    "ja": "グループ罫線",
-    "en": "Group Grid Lines"
+    "ja": "タスクグループ罫線",
+    "en": "Task Group Grid Lines"
    },
    "hint": {
     "ja": "グループ罫線を表示する。もう一度押すと非表示にする",
@@ -829,7 +829,7 @@
   {
    "specTableRowId": "IC-58",
    "label": {
-    "ja": "配下をすべて展開する",
+    "ja": "配下を展開",
     "en": "Expand Below"
    },
    "hint": {
@@ -840,18 +840,18 @@
   {
    "specTableRowId": "IC-59",
    "label": {
-    "ja": "折りたたむ",
-    "en": "Collapse"
+    "ja": "親に格納",
+    "en": "Retract Into Parent"
    },
    "hint": {
-    "ja": "このタスクグループ自身を折りたたむ",
-    "en": "Collapse this task group itself"
+    "ja": "このタスクグループ自身を親に格納する",
+    "en": "Retract this task group itself into its parent"
    }
   },
   {
    "specTableRowId": "IC-77",
    "label": {
-    "ja": "配下をすべて折りたたむ",
+    "ja": "配下を折り畳み",
     "en": "Collapse Below"
    },
    "hint": {
@@ -862,7 +862,7 @@
   {
    "specTableRowId": "IC-90",
    "label": {
-    "ja": "1 階層だけ展開する",
+    "ja": "1 階層展開",
     "en": "Expand One Level"
    },
    "hint": {
@@ -929,7 +929,7 @@
    "specTableRowId": "IC-119",
    "label": {
     "ja": "コメントボックス",
-    "en": "Callouts"
+    "en": "Comment Box"
    },
    "hint": {
     "ja": "コメントボックスの表を出す",
@@ -950,11 +950,11 @@
   {
    "specTableRowId": "IC-143",
    "label": {
-    "ja": "スケジュールフィルタ",
-    "en": "Schedule Filter"
+    "ja": "チェックで日程抽出",
+    "en": "Filter Schedule by Checks"
    },
    "hint": {
-    "ja": "スケジュールフィルタの切替。この表で「表示」の行のタスクだけを日程表に描く",
+    "ja": "日程抽出の切替。この表で「表示」の行のタスクだけを日程表に描く",
     "en": "Turn the Schedule Filter on or off: draw only the tasks this table shows"
    }
   },
@@ -1412,8 +1412,8 @@
   {
    "specTableRowId": "IC-74",
    "label": {
-    "ja": "すべて展開する",
-    "en": "Expand All"
+    "ja": "配下を展開",
+    "en": "Expand Below"
    },
    "hint": {
     "ja": "折りたたんだタスクグループをすべて展開する",
@@ -1423,8 +1423,8 @@
   {
    "specTableRowId": "IC-78",
    "label": {
-    "ja": "すべて折りたたむ",
-    "en": "Collapse All"
+    "ja": "配下を折り畳み",
+    "en": "Collapse Below"
    },
    "hint": {
     "ja": "すべてのタスクグループを折りたたむ",
@@ -1434,8 +1434,8 @@
   {
    "specTableRowId": "IC-92",
    "label": {
-    "ja": "最も浅い段を 1 階層展開する",
-    "en": "Show Top Level Only"
+    "ja": "1 階層展開",
+    "en": "Expand One Level"
    },
    "hint": {
     "ja": "最も浅い段のタスクグループだけを戻す。その配下は折りたたんだままにする",
@@ -1759,8 +1759,8 @@
   {
    "specTableRowId": "PR-27",
    "label": {
-    "ja": "塗りの透過率（%）",
-    "en": "Fill Transparency (%)"
+    "ja": "塗りの不透明度（%）",
+    "en": "Fill Opacity (%)"
    }
   },
   {
@@ -1801,8 +1801,8 @@
   {
    "specTableRowId": "PR-24",
    "label": {
-    "ja": "塗りの透過率（%）",
-    "en": "Fill Transparency (%)"
+    "ja": "塗りの不透明度（%）",
+    "en": "Fill Opacity (%)"
    }
   },
   {
@@ -2028,7 +2028,7 @@
     "shapeHeightOf.endpointSpan"
    ],
    "label": {
-    "ja": "端点スパン",
+    "ja": "ダンベル",
     "en": "shapeHeightOf.endpointSpan"
    }
   },
@@ -2792,8 +2792,8 @@
     "isProgressMarkerVisible"
    ],
    "label": {
-    "ja": "進捗マーカー",
-    "en": "Progress Marker"
+    "ja": "進捗ステータスマーク",
+    "en": "Progress Status Mark"
    }
   },
   {
@@ -2850,7 +2850,7 @@
    ],
    "label": {
     "ja": "グループ罫線（TaskGroup 境界の横線）",
-    "en": "Group Grid Lines"
+    "en": "Task Group Grid Lines"
    },
    "labelBreakSegments": {
     "ja": [
@@ -3964,8 +3964,8 @@
     "en": "No child of this task group is out of the picture to bring back."
    },
    "nextStep": {
-    "ja": "配下を折りたたむか、直下のタスクグループを隠してから、もう一度押してください",
-    "en": "Collapse what is under this task group, or hide one of its children, then try again."
+    "ja": "配下を折りたたむか、直下のタスクグループを親に格納してから、もう一度押してください",
+    "en": "Collapse what is under this task group, or retract one of its children into it, then try again."
    }
   },
   {
@@ -5240,7 +5240,7 @@
    "specTableRowId": "AR-5",
    "text": {
     "ja": "コメントボックス",
-    "en": "Callout"
+    "en": "Comment Box"
    }
   },
   {
@@ -6215,8 +6215,8 @@
   {
    "part": "scheduleFilter",
    "text": {
-    "ja": "スケジュールフィルタ",
-    "en": "Schedule Filter"
+    "ja": "チェックで日程抽出",
+    "en": "Filter Schedule by Checks"
    }
   },
   {
@@ -6852,21 +6852,21 @@
   {
    "part": "nothingChecked",
    "text": {
-    "ja": "この表にチェックの入った行が無いので、スケジュールフィルタを掛けると日程表が空になります",
+    "ja": "この表にチェックの入った行が無いので、日程抽出すると日程表が空になります",
     "en": "No row in this table is checked, so the Schedule Filter would leave the schedule empty"
    }
   },
   {
    "part": "scheduleFilterBar",
    "text": {
-    "ja": "{tables}のスケジュールフィルタを掛けています（{total} 件中 {shown} 件）",
+    "ja": "{tables}で日程抽出しています（{total} 件中 {shown} 件）",
     "en": "Schedule Filter on {tables} ({shown} of {total})"
    }
   },
   {
    "part": "scheduleFilterOff",
    "text": {
-    "ja": "スケジュールフィルタを解除",
+    "ja": "日程抽出を解除",
     "en": "Turn Off Schedule Filter"
    }
   },

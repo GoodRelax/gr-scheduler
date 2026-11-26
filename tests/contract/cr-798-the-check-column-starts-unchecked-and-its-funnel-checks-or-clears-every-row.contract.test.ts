@@ -72,8 +72,8 @@ const found = <T>(value: T | undefined | null, what: string): T => {
 
 const TV_2_STARTS = '`GRS` は、初めはどの表のどの行のチェックも外しておくこと（「非表示」）。'
 const TV_2_KEPT = '`GRS` は、文書に、チェックの入った行の一覧を持たせること'
-const TV_5_NOTHING_CHECKED = '表のスケジュールフィルタを掛けておらず、表にチェックの入った行が 1 つも無い間、`GRS` は、`IC-143` を効かなくすること（`FR-092`）。'
-const TV_5_STAYS_ON = '表のスケジュールフィルタを掛けている間、行をすべて「表示」にしたときも、すべての行のチェックを外したときも、`GRS` は、スケジュールフィルタを掛けたままにすること'
+const TV_5_NOTHING_CHECKED = '表で日程抽出しておらず、表にチェックの入った行が 1 つも無い間、`GRS` は、`IC-143` を効かなくすること（`FR-092`）。'
+const TV_5_STAYS_ON = '表で日程抽出している間、行をすべて「表示」にしたときも、すべての行のチェックを外したときも、`GRS` は、日程抽出したままにすること'
 const TV_9_DEFAULT = '見え方を持たない文書（新規・MSPDI）に置き換えたとき、`GRS` は、3 つの表の見え方を既定 —— どの行もチェックが外れ（「非表示」）'
 const TV_13_UNASSIGNED = '`GRS` は、（担当なし）の行のチェックも、初めは外しておくこと（`TV-2`）。'
 const SV_7_NO_ENTRANCE = '`GRS` は、[表示] の列の見出しに、`IC-122` を置かずに、見出しのチェックボックスだけを置くこと（`SQ-10`）。'
@@ -390,7 +390,7 @@ function drawn(
   return made === null ? null : sorted([...made])
 }
 
-describe('FR-151 T-353 TV-1 / TV-2 -- 日程表には、スケジュールフィルタを掛けた表のどれもが「表示」とするタスク（積）だけを描く', () => {
+describe('FR-151 T-353 TV-1 / TV-2 -- 日程表には、日程抽出した表のどれもが「表示」とするタスク（積）だけを描く', () => {
   it('no table applies its filter: every task is drawn (the unchecked start does not hide anything)', () => {
     expect(drawn({})).toBeNull()
   })

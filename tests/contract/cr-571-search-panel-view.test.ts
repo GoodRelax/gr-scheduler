@@ -47,7 +47,7 @@ function rowOf(table: string, id: string): SpecRow {
 const cellOf = (table: string, id: string, heading: string): string => unbroken(rowOf(table, id).by[heading] ?? '')
 
 const SV_1_ORDER =
-  '`GRS` は、検索パネルのタイトルバーに、左から、面の名（`FR-038` の辞書）・タスクの表の入口 `IC-118`・コメントボックスの表の入口 `IC-119`・列のフィルタと並べ替えを戻す入口 `IC-153`・スケジュールフィルタの入口 `IC-143`（表 T-353 —— `IC-143` の色は 表 T-353 の `TV-12`）を置くこと。'
+  '`GRS` は、検索パネルのタイトルバーに、左から、面の名（`FR-038` の辞書）・タスクの表の入口 `IC-118`・コメントボックスの表の入口 `IC-119`・列のフィルタと並べ替えを戻す入口 `IC-153`・日程抽出の入口 `IC-143`（表 T-353 —— `IC-143` の色は 表 T-353 の `TV-12`）を置くこと。'
 const SV_1_RIGHT =
   '`GRS` は、タイトルバーの右端に、左から `IC-127`（字の大きさ）・`IC-129`（最小化）・`IC-130`（最大化）・`IC-52`（閉じる）を置くこと。'
 const SV_1_TITLE_FONT = '`GRS` は、タイトルバーの面の名の字を `SV-16` の段に従わせること。'
