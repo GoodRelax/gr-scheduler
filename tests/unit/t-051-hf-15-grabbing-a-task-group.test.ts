@@ -97,7 +97,7 @@
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { afterEach, describe, expect, it } from 'vitest'
@@ -131,7 +131,7 @@ import { bare, specTable, unbroken } from '../contract/spec-table'
 
 const SPEC = join(process.cwd(), 'docs', 'spec')
 
-const REQUIREMENTS = unbroken(readFileSync(join(SPEC, '01-04-requirements.md'), 'utf8'))
+const REQUIREMENTS = unbroken(readRepoFile(join(SPEC, '01-04-requirements.md'), 'utf8'))
 
 const rowOf = (table: string, id: string) => {
   const found = specTable(table).rows.find((one) => one.id === id)
@@ -183,7 +183,7 @@ const U_22_PART = bare(rowOf('T-103', 'U-22').by['確定名（英）'] ?? '')
 // the project and the settings come from it; the task groups are written out here so
 // that what is drawn can be named.
 const TEMPLATE = JSON.parse(
-  readFileSync(
+  readRepoFile(
     join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'),
     'utf8',
   ),

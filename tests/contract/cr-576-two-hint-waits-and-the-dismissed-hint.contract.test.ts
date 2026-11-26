@@ -1,6 +1,6 @@
 // CR-576 section 8 claims 5 (contract half) and 6a: the dismissed hint comes back only on a new hint target, and the icon and task waits are two keys.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { afterEach, describe, expect, it, vi } from 'vitest'
@@ -21,9 +21,9 @@ import {
 import { bare, specTable, unbroken } from './spec-table'
 import { readStateMachineView } from './state-machine-manuscript'
 
-const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
-const SETTINGS_TABLES = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '_assets', 'tbl-settings.md'), 'utf8'))
-const MACHINE_TABLES = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '_assets', 'tbl-state-machines.md'), 'utf8'))
+const REQUIREMENTS = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
+const SETTINGS_TABLES = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '_assets', 'tbl-settings.md'), 'utf8'))
+const MACHINE_TABLES = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '_assets', 'tbl-state-machines.md'), 'utf8'))
 
 const EZ_2_WAIT = 'ポインタがアイコンに入ってから `_assets/tbl-settings.md` の `S-124` が経ったら、そのアイコンの説明を出すこと（MUST）。'
 const EZ_2_FROM_ENTERING = '⭐ 待ちは、ポインタがそのアイコンに入った時から数えること（MUST）。'

@@ -30,6 +30,8 @@ import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
+sys.path.insert(0, HERE)
+import spec_files  # noqa: E402
 
 REL_REQUIREMENTS = 'docs/spec/01-04-requirements.md'
 
@@ -135,10 +137,26 @@ def unpushed_files():
     return sorted(set(names))
 
 
+def as_documents(names):
+    """NAMES with each part file of a split document replaced by the document's old path."""
+    owner = {}
+    for document in spec_files.document_names():
+        for part in spec_files.part_files(document):
+            owner['docs/spec/' + part] = 'docs/spec/' + document
+    out = []
+    for name in names:
+        name = owner.get(name.replace(os.sep, '/'), name)
+        if name not in out:
+            out.append(name)
+    return out
+
+
 def read_lines(relative):
     try:
+        if os.path.dirname(relative) == 'docs/spec' and spec_files.is_split_document(relative):
+            return spec_files.read_document(relative).split('\n')
         return io.open(path_of(relative), encoding='utf-8').read().split('\n')
-    except (OSError, UnicodeDecodeError):
+    except (OSError, UnicodeDecodeError, ValueError):
         return None
 
 
@@ -405,6 +423,8 @@ def main():
         files = unpushed_files()
     else:
         files = changed_files()
+    # Why: a split document is read and reported whole, under its old path.
+    files = as_documents(files)
     goals = challenge_goals()
     found = []
     looked = 0

@@ -1,6 +1,6 @@
 // CR-429: a pj12 file and a pj15 file each come back from an unedited round trip, valid and equal.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -19,7 +19,7 @@ import {
   textAt,
 } from '../unit/cr-429-mspdi-schema'
 
-const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
+const REQUIREMENTS = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
 const FR_021_READS_BY_T_265 = '`GRS` は、取り込むときの読み方を表 T-265 に従わせること。'
 

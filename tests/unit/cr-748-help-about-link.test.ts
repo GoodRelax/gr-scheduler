@@ -1,6 +1,6 @@
 // CR-748 (re-pointed by CR-785): FR-036 puts the about link, the lower of two, above the frame of the basics block, in the help language.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -13,12 +13,12 @@ import { bare, specTable, unbroken } from '../contract/spec-table'
 import { oneByRole, selfAndDescendants, surfaceOf, whatWasDrawn, wire, type FakeElement } from '../fixtures/fake-browser'
 
 
-const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
+const REQUIREMENTS = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
 const RULE_OPENING = String.fromCodePoint(0x60, 0x47, 0x52, 0x53, 0x60, 0x20, 0x306f, 0x3001, 0x30d8, 0x30eb, 0x30d7, 0x306e, 0x57fa, 0x672c, 0x64cd, 0x4f5c, 0x306e, 0x584a, 0xff08, 0x8f9e, 0x66f8, 0x306e, 0x898b, 0x51fa, 0x3057, 0x306e, 0x20, 0x60, 0x62, 0x61, 0x73, 0x69, 0x63, 0x73, 0x60, 0xff09, 0x306e, 0x67a0, 0x306e, 0x3059, 0x3050, 0x4e0a, 0x306b)
 
 const WORDS = JSON.parse(
-  readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8'),
+  readRepoFile(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8'),
 ) as { readonly helpLinks?: readonly { readonly link: string; readonly text: Record<string, string> }[] }
 
 const ABOUT_ENTRIES = (WORDS.helpLinks ?? []).filter((one) => one.link === 'about')

@@ -1,6 +1,6 @@
 // CR-710 wave 2 (spec-only): FR-054 tells RS-89 once when an opened file holds a working day whose spans do not add up to minutesPerDay.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { afterEach, describe, expect, it } from 'vitest'
@@ -30,12 +30,12 @@ import {
 import { bare, specTable, unbroken } from './spec-table'
 
 const SPEC = join(process.cwd(), 'docs', 'spec')
-const REQUIREMENTS = unbroken(readFileSync(join(SPEC, '01-04-requirements.md'), 'utf8').replace(/\r\n/g, '\n'))
+const REQUIREMENTS = unbroken(readRepoFile(join(SPEC, '01-04-requirements.md'), 'utf8').replace(/\r\n/g, '\n'))
 
 const FR_054_OPEN =
   '時間帯の合計が `Project.minutesPerDay` と違う稼働日（曜日の稼働日と、稼働にする繰り返しの無い例外日の両方を数え、時間帯を持たない日は `S-580` の時間帯で数える）を持つ文書を開いたとき、`GRS` は、表 T-233 の `RS-89` を 1 度だけ告げること'
 
-const WORDS = JSON.parse(readFileSync(join(SPEC, '_source', 'display-words.json'), 'utf8')) as {
+const WORDS = JSON.parse(readRepoFile(join(SPEC, '_source', 'display-words.json'), 'utf8')) as {
   readonly reasons: readonly { readonly specTableRowId: string; readonly text: { readonly ja: string; readonly en: string } }[]
 }
 const RS_89_TEXT = WORDS.reasons.find((one) => one.specTableRowId === 'RS-89')?.text.ja ?? '(no dictionary word for RS-89)'

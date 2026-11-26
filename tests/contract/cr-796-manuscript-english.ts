@@ -1,6 +1,6 @@
 // CR-796 spec-only reader: the English (`en`) of the manuscripts the MCP descriptions are printed from (design-mcp-relay.md 3.1).
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 const SOURCE = join(process.cwd(), 'docs', 'spec', '_source')
@@ -38,7 +38,7 @@ export const englishOf = (cell: Cell): string => {
 export const englishLinesOf = (cell: Cell): string[] =>
   (typeof cell.en === 'string' ? [cell.en] : [...(cell.en ?? [])]).map((line) => line.trim())
 
-const read = <T>(file: string): T => JSON.parse(readFileSync(join(SOURCE, file), 'utf8')) as T
+const read = <T>(file: string): T => JSON.parse(readRepoFile(join(SOURCE, file), 'utf8')) as T
 
 export const manuscriptMembers = (): readonly ManuscriptMember[] =>
   read<{ members: { rows: ManuscriptMember[] } }>('agent-api-members.json').members.rows

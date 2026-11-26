@@ -1,6 +1,6 @@
 // CR-551 items 6-9: the monochrome entrance in the App Header (IC-100),
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { afterEach, describe, expect, it } from 'vitest'
@@ -14,8 +14,8 @@ import { byRole, selfAndDescendants, surfaceOf, wire, type FakeElement, type Sta
 import { pointerOf, taskGroupDocument, SCREEN } from './cr-541-stage'
 
 const SPEC = join(process.cwd(), 'docs', 'spec')
-const REQUIREMENTS = unbroken(readFileSync(join(SPEC, '01-04-requirements.md'), 'utf8'))
-const GLOSSARY = unbroken(readFileSync(join(SPEC, '_assets', 'tbl-glossary.md'), 'utf8'))
+const REQUIREMENTS = unbroken(readRepoFile(join(SPEC, '01-04-requirements.md'), 'utf8'))
+const GLOSSARY = unbroken(readRepoFile(join(SPEC, '_assets', 'tbl-glossary.md'), 'utf8'))
 
 const verticalIn = (table: string, id: string) => {
   const found = specTable(table).rows.find((one) => one.id === id)

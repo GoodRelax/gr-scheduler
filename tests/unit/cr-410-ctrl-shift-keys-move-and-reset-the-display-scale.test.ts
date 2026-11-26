@@ -1,6 +1,6 @@
 // CR-410: Ctrl + Shift + [+] / [-] step the display scale, Ctrl + Shift + [0] is no longer assigned (JDG-301), and plain Ctrl stays the browser's.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { afterEach, describe, expect, it } from 'vitest'
@@ -18,7 +18,7 @@ import { specTable, unbroken } from '../contract/spec-table'
 import { DEFAULT_DISPLAY_SCALE, DISPLAY_SCALE_STEPS } from '../fixtures/display-scale'
 
 const REQUIREMENTS = unbroken(
-  readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'),
+  readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'),
 )
 
 const FR_039_THE_TWO_KEYS = '`GRS` は、表示の倍率を 1 段ずつ上げ下げする割当を、表 T-036 の `SK-22`（上げる）と `SK-23`（下げる）にすること。'
@@ -56,7 +56,7 @@ describe('CR-410 -- the manuscript these cases are driven by', () => {
 const WALK_TIMEOUT_MS = 30_000
 
 const TEMPLATE = JSON.parse(
-  readFileSync(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
+  readRepoFile(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
 ) as Record<string, any>
 
 const SCREEN: FrameEnvironment = { width: 1200, height: 700, appHeaderHeight: 56, scrollbarThickness: 8 }
@@ -260,7 +260,7 @@ describe('PND-93 -- the physical keys reach the loop as the three signs, with Ct
 
 describe('FR-036 / T-255 -- the help lists both browser functions and the Ctrl + Shift keys on their entrances', () => {
   const ROSTER = JSON.parse(
-    readFileSync(join(process.cwd(), 'src', 'adapter', 'screen-renderer', 'help-roster.json'), 'utf8'),
+    readRepoFile(join(process.cwd(), 'src', 'adapter', 'screen-renderer', 'help-roster.json'), 'utf8'),
   ) as {
     readonly entries: readonly {
       readonly row: string

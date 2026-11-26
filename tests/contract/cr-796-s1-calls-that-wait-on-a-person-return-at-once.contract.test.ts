@@ -1,6 +1,6 @@
 // CR-796 slice 1, page side: a call that waits on a person returns at once (AG-12 (2) (6), AM-8, AM-17, AV-15, RS-90).
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -23,10 +23,10 @@ import { specTable, unbroken } from './spec-table'
 type Json = Record<string, unknown>
 
 const TEMPLATE = JSON.parse(
-  readFileSync(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
+  readRepoFile(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
 ) as Document
 
-const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
+const REQUIREMENTS = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
 const startingDocument = (): Document =>
   ({
@@ -356,7 +356,7 @@ describe('CR-796 spec text: RS-90 and AG-12 (6)', () => {
   })
 
   it('AM-8 and AV-15: the member table gives importDocument the AV-15 outcome', () => {
-    const table = readFileSync(join(process.cwd(), 'docs', 'spec', '_assets', 'tbl-agent-api-members.md'), 'utf8')
+    const table = readRepoFile(join(process.cwd(), 'docs', 'spec', '_assets', 'tbl-agent-api-members.md'), 'utf8')
     const lineOf = (id: string): string => table.split(/\r?\n/).find((line) => line.startsWith(`| ${id} |`)) ?? ''
     expect(lineOf('AM-8')).toContain('AV-15')
     expect(lineOf('AV-15')).toContain('AgentImportOutcome')
@@ -365,7 +365,7 @@ describe('CR-796 spec text: RS-90 and AG-12 (6)', () => {
 
 // Spec: AG-12
 describe('AG-12 (2) (6) -- the clauses slice 1 added, held verbatim', () => {
-  const requirements = readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8')
+  const requirements = readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8')
   const clauses = [
     'どの試みも繋がらなかったときだけ 表 T-233 の `RS-90` を告げること（MUST）',
     '問いを出したら答えを待たずに値（`_assets/tbl-agent-api-members.md` の 表 T-400 の `AV-15` の「人に問うたとき」）で返すこと（MUST）',

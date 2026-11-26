@@ -1,6 +1,6 @@
 // W3 spec-only tester 5: table T-067 WS-2 -- the four moments the caller hands in, and the UN-8 judgment only WS-2 makes.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -20,7 +20,7 @@ import {
 import startupTemplate from '../../src/framework/single-html-shell/startup-template.json'
 import { bare, specTable, unbroken } from './spec-table'
 
-const DESIGN = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '05-07-design.md'), 'utf8'))
+const DESIGN = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '05-07-design.md'), 'utf8'))
 
 // Spec: WS-2
 const WS_2_FOUR_MOMENTS =

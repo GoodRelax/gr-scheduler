@@ -1,6 +1,6 @@
 // DFC-572: PV-1 and PV-2 write actualFinish as the last actual day, not the right end (FR-011).
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -26,7 +26,7 @@ import { specTable, unbroken } from './spec-table'
 const DEFAULT_TASK_GROUP_NAME_FIXTURE = 'fixture default task group name'
 
 const REQUIREMENTS = unbroken(
-  readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'),
+  readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'),
 )
 
 // Why: CR-710 rewrote this clause (FR-054 reads instants and counts working time in minutes).

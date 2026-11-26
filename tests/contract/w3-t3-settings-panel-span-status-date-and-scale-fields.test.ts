@@ -1,6 +1,6 @@
 // W3 tester 3: the export span, status date and display scale fields of the document settings panel.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -25,9 +25,9 @@ import { contextOf } from './cr-606-stage'
 import { bare, bareAll, specTable, unbroken } from './spec-table'
 
 const SPEC = join(process.cwd(), 'docs', 'spec')
-const REQUIREMENTS = unbroken(readFileSync(join(SPEC, '01-04-requirements.md'), 'utf8').replace(/\r\n/g, '\n'))
+const REQUIREMENTS = unbroken(readRepoFile(join(SPEC, '01-04-requirements.md'), 'utf8').replace(/\r\n/g, '\n'))
 
-const WORDS = JSON.parse(readFileSync(join(SPEC, '_source', 'display-words.json'), 'utf8')) as {
+const WORDS = JSON.parse(readRepoFile(join(SPEC, '_source', 'display-words.json'), 'utf8')) as {
   readonly icons: readonly { readonly specTableRowId: string; readonly label: Record<DisplayLanguage, string> }[]
 }
 
@@ -68,7 +68,7 @@ const statusDateWordOf = (language: DisplayLanguage): string =>
 
 const TEMPLATE = ((): Document => {
   const read = documentFromJson(
-    readFileSync(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
+    readRepoFile(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
   )
   if (!read.ok) throw new Error(`the bundled template is not GRS JSON: ${JSON.stringify(read.faults)}`)
   return read.document

@@ -1,6 +1,6 @@
 // CR-781 / CR-797 spec-only unit cases: IC-107 looks pressed while the report window is open (RW-1, S-451), and IC-168 (the End Diagnostics entry is retired) stands first on the RW-3 line with its word.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -18,7 +18,7 @@ import { settingDefaultOf } from '../fixtures/setting-default'
 
 type Language = 'ja' | 'en'
 
-const WORDS = JSON.parse(readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8')) as {
+const WORDS = JSON.parse(readRepoFile(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8')) as {
   readonly icons: readonly { readonly specTableRowId: string; readonly label: Record<Language, string> }[]
 }
 const wordOf = (row: string, language: Language): string => {

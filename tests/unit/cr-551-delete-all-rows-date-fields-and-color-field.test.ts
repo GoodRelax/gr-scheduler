@@ -1,6 +1,6 @@
 // CR-551 items 13-16: deleting every task group from the head (HF-20, CD-6, QN-10), the date fields and the color rows
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { afterEach, describe, expect, it } from 'vitest'
@@ -21,8 +21,8 @@ import {
 import { NO_MODS, pointerOf, taskGroupDocument, taskOf, SCREEN } from './cr-541-stage'
 
 const SPEC = join(process.cwd(), 'docs', 'spec')
-const REQUIREMENTS = unbroken(readFileSync(join(SPEC, '01-04-requirements.md'), 'utf8'))
-const WORDS = JSON.parse(readFileSync(join(SPEC, '_source', 'display-words.json'), 'utf8')) as {
+const REQUIREMENTS = unbroken(readRepoFile(join(SPEC, '01-04-requirements.md'), 'utf8'))
+const WORDS = JSON.parse(readRepoFile(join(SPEC, '_source', 'display-words.json'), 'utf8')) as {
   questions: { specTableRowId: string; text: { ja: string } }[]
   confirmation: { answer: string; text: { ja: string } }[]
   colorNames: { spelling: string; text: { ja: string } }[]

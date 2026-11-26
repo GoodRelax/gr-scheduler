@@ -1,6 +1,6 @@
 // see CR-796, AG-12, design-mcp-relay 3.1 (tool list), T-107, T-108
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
@@ -9,7 +9,7 @@ import { describe, expect, it } from 'vitest'
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..')
 
 function readText(relative: string): string {
-  return readFileSync(resolve(ROOT, relative), 'utf8')
+  return readRepoFile(resolve(ROOT, relative), 'utf8')
 }
 
 function readJson(relative: string): any {

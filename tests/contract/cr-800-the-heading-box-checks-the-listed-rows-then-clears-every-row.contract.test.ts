@@ -1,6 +1,6 @@
 // CR-800 / CR-801 spec-only contract: the heading cell of the check column holds a box and no funnel (SQ-10, SV-7); the box is checked while any row of the table is checked, listed or kept out of view, and empty when none is (empty at first); pressing it while empty checks the listed rows and leaves the rows kept out of view as they were, and pressing it while checked clears every row of the table, the unlisted ones and the (Unassigned) row included (SQ-10, DT-8, RQ-1); the eye is off only while no row is checked (TV-5, IC-143, JDG-2820, JDG-2825); one press is one view change (TV-6, UN-20).
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -49,10 +49,10 @@ type Key = number | 'unassigned'
 type Heading = 'checked' | 'empty'
 
 const SPEC = join(process.cwd(), 'docs', 'spec')
-const read = (...parts: string[]): string => unbroken(readFileSync(join(SPEC, ...parts), 'utf8'))
+const read = (...parts: string[]): string => unbroken(readRepoFile(join(SPEC, ...parts), 'utf8'))
 const REQUIREMENTS = read('01-04-requirements.md')
 const GLOSSARY = read('_assets', 'tbl-glossary.md')
-const DISPLAY_WORDS = readFileSync(join(SPEC, '_source', 'display-words.json'), 'utf8')
+const DISPLAY_WORDS = readRepoFile(join(SPEC, '_source', 'display-words.json'), 'utf8')
 
 const cellOf = (table: string, id: string, heading: string): string => {
   const row = specTable(table).rows.find((one) => one.id === id)

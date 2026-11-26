@@ -1,6 +1,7 @@
 // DFC-1780: `Untitled` (FR-035 tab heading, OP-16 step 3) is spelled in one place in src/, published by ScreenRenderer (T-064 PI-37), and read by both.
 
-import { readdirSync, readFileSync, statSync } from 'node:fs'
+import { readdirSync, statSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -16,7 +17,7 @@ import {
 } from './cr-610-file-flow-stage'
 import { specTable, unbroken } from './spec-table'
 
-const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
+const REQUIREMENTS = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
 // Why: each clause is cut from the manuscript as check 39 reads it, so the cases cannot drift from the words they test.
 const FR_035_UNTITLED = '`title` が `null` の間、`GRS` は、タブの見出しを `Untitled` にすること。'
@@ -54,7 +55,7 @@ describe('R2.21 / PI-37 (MUST): ScreenRenderer publishes the word, and src/ spel
         const path = join(folder, name)
         if (statSync(path).isDirectory()) walk(path)
         else if (/\.tsx?$/.test(name)) {
-          for (const [at, line] of readFileSync(path, 'utf8').split('\n').entries()) {
+          for (const [at, line] of readRepoFile(path, 'utf8').split('\n').entries()) {
             if (/^\s*\/\//.test(line)) continue
             if (/(['"`])Untitled\1/.test(line)) found.push(`${path}:${at + 1}`)
           }

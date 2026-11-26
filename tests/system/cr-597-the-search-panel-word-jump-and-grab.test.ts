@@ -1,7 +1,7 @@
 // CR-597 on the shipped build: the Search Panel's typed word (SV-5), row jump (SJ-1..SJ-4) and heading grab (GR-24, SV-10, SV-11).
 
 import { expect, test, type Browser, type Page } from '@playwright/test'
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 import { bare, specTable, unbroken } from '../contract/spec-table'
 import { CLEARING_UP_MS, launchReferenceBrowser } from './live-app'
@@ -20,8 +20,8 @@ import {
 } from './cr-570-tree-state-stage'
 import { rowOf } from './sws-case'
 
-const DESIGN = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '05-07-design.md'), 'utf8'))
-const STATE_MACHINES = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '_assets', 'tbl-state-machines.md'), 'utf8'))
+const DESIGN = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '05-07-design.md'), 'utf8'))
+const STATE_MACHINES = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '_assets', 'tbl-state-machines.md'), 'utf8'))
 
 const IF_9_WORD =
   '上の MUST NOT の例外は、検索パネル（`U-64`）の入力欄（`FR-151` の 表 T-330 の `SV-2`）の 1 つだけとする —— 面は、この欄の語が変わるたびに、打ちかけの語をそのまま返すこと（MUST）'

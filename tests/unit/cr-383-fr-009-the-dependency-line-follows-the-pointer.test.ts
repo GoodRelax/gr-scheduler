@@ -1,6 +1,6 @@
 // CR-383 / FR-009 / DFC-591: the dependency line drawn while it is being pulled.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { afterEach, describe, expect, it } from 'vitest'
@@ -21,7 +21,7 @@ import { bare, specTable, unbroken } from '../contract/spec-table'
 import { SETTINGS_CONSTANTS } from '../../src/entity/document-model/document-settings/document-settings'
 
 const REQUIREMENTS = unbroken(
-  readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'),
+  readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'),
 )
 
 const FR_009_DRAFT_FOLLOWS =
@@ -111,7 +111,7 @@ const DEPENDENCY_ARMING_ENTRY: IconId = ((): string => {
 })()
 
 const TEMPLATE = JSON.parse(
-  readFileSync(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
+  readRepoFile(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
 ) as Record<string, any>
 
 const TASK_GROUP_A = '11111111-1111-4111-8111-111111111111'

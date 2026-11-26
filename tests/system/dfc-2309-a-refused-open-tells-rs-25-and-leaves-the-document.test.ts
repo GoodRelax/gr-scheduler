@@ -1,15 +1,15 @@
 // DFC-2309 / DFC-1261 / DFC-656 spec-only system test on the built dist/index.html: a file that IC-1 opens and the reader refuses as RS-25 is told by NT-1 (FR-076, table T-233) and the open document does not change (FR-023).
 import { expect, test, type Page } from '@playwright/test'
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { resolve } from 'node:path'
 import { VIEWPORT, answerConfirmation, enableAgentApi, icon, launch, notificationText, press, readDocument, settle } from '../use-case/uc-harness'
 
 test.use({ viewport: VIEWPORT, locale: 'en-US' })
 
 const SPEC = resolve('docs', 'spec')
-const REQUIREMENTS = readFileSync(resolve(SPEC, '01-04-requirements.md'), 'utf8').replace(/\r\n/g, '\n')
-const REASONS_TABLE = readFileSync(resolve(SPEC, '_assets', 'tbl-notice-reasons.md'), 'utf8').replace(/\r\n/g, '\n')
-const WORDS = JSON.parse(readFileSync(resolve(SPEC, '_source', 'display-words.json'), 'utf8')) as {
+const REQUIREMENTS = readRepoFile(resolve(SPEC, '01-04-requirements.md'), 'utf8').replace(/\r\n/g, '\n')
+const REASONS_TABLE = readRepoFile(resolve(SPEC, '_assets', 'tbl-notice-reasons.md'), 'utf8').replace(/\r\n/g, '\n')
+const WORDS = JSON.parse(readRepoFile(resolve(SPEC, '_source', 'display-words.json'), 'utf8')) as {
   reasons: { specTableRowId: string; text: { ja: string; en: string }; nextStep: { ja: string; en: string } }[]
 }
 

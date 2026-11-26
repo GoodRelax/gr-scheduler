@@ -88,7 +88,7 @@
 //     になる実績を描いて示すこと（MUST）」. The picture is handed no gesture
 //     either, so the drag preview has no surface to be asked about.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -138,7 +138,7 @@ const GA_18 = rowOf('T-266', 'GA-18')
 const NS_3 = rowOf('T-231', 'NS-3')
 
 const REQUIREMENTS = unbroken(
-  readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'),
+  readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'),
 )
 
 const FR_043_A_MILESTONE_DUMMY_IS_THE_SAME_DAY_ACTUAL =

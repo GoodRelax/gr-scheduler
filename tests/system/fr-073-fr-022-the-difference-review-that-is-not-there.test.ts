@@ -40,7 +40,8 @@
 // another case has been measured in this project to leave the run unfinished.
 
 import { expect, test, type Browser, type Page } from '@playwright/test'
-import { existsSync, readFileSync } from 'node:fs'
+import { existsSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { bare, specTable, type SpecTable } from '../contract/spec-table'
@@ -118,7 +119,7 @@ const REASON_NEWER_VERSION = rowOf(T233, 'RS-48').id
  */
 const REASON_WORDS: readonly string[] = (() => {
   const raw = JSON.parse(
-    readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8'),
+    readRepoFile(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8'),
   ) as { reasons?: { specTableRowId: string; text?: { ja?: string; en?: string } }[] }
   const found = (raw.reasons ?? []).find((one) => one.specTableRowId === REASON_NEWER_VERSION)
   const said = [found?.text?.ja ?? '', found?.text?.en ?? ''].filter((one) => one !== '')

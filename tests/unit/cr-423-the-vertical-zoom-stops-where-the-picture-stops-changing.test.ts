@@ -1,6 +1,6 @@
 // see CR-423, CR-570, T-262, T-328, FR-031
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -21,7 +21,7 @@ import { selfAndDescendants, stage as fakeBrowser, wiringOf, type FakeElement } 
 import { DEFAULT_DISPLAY_SCALE, DISPLAY_SCALE_STEPS } from '../fixtures/display-scale'
 
 const REQUIREMENTS = unbroken(
-  readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'),
+  readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'),
 )
 
 const FR_016_BY_T_262 = '縦軸だけを動かす入力が端で絵を変えないとき、`GRS` は表 T-262 に従うこと。'
@@ -118,7 +118,7 @@ interface ScaleEcho {
 }
 
 const SCALE_ECHO: readonly ScaleEcho[] = (
-  JSON.parse(readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8')) as {
+  JSON.parse(readRepoFile(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8')) as {
     scaleEcho: ScaleEcho[]
   }
 ).scaleEcho
@@ -172,7 +172,7 @@ describe('CR-423 -- the premises read from the manuscript', () => {
 })
 
 const TEMPLATE = JSON.parse(
-  readFileSync(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
+  readRepoFile(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
 ) as Record<string, any>
 
 interface RowSpec {

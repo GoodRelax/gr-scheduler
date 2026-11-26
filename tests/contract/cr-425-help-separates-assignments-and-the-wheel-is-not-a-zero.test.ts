@@ -1,6 +1,6 @@
 // CR-425, CR-770: the generated help roster carries the keys alone, the screen spells a chord Ctrl+A and joins two assignments with the dictionary's word, and IC-102 is drawn as figure F-019.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -9,7 +9,7 @@ import { assignmentWords, keysWords } from '../../src/adapter/screen-renderer/to
 import { specTable, unbroken } from './spec-table'
 
 const ROOT = process.cwd()
-const REQUIREMENTS = unbroken(readFileSync(join(ROOT, 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
+const REQUIREMENTS = unbroken(readRepoFile(join(ROOT, 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
 const FR_036_THE_SEPARATOR =
   '1 つの項目に割当が 2 つ以上あるとき、`GRS` は、割当と割当のあいだに、辞書（`FR-038`）の `keyNotation` の `alternative` の語を置いて並べること'
@@ -60,7 +60,7 @@ interface RosterEntry {
 }
 
 const ROSTER = JSON.parse(
-  readFileSync(join(ROOT, 'src', 'adapter', 'screen-renderer', 'help-roster.json'), 'utf8'),
+  readRepoFile(join(ROOT, 'src', 'adapter', 'screen-renderer', 'help-roster.json'), 'utf8'),
 ) as { readonly entries: readonly RosterEntry[] }
 
 interface Words {
@@ -69,7 +69,7 @@ interface Words {
 }
 
 const DICTIONARY = JSON.parse(
-  readFileSync(join(ROOT, 'src', 'adapter', 'screen-renderer', 'display-words.json'), 'utf8'),
+  readRepoFile(join(ROOT, 'src', 'adapter', 'screen-renderer', 'display-words.json'), 'utf8'),
 ) as {
   readonly keyNotation: readonly { readonly part: string; readonly text: Words }[]
   readonly assignments: readonly { readonly specTableRowId: string; readonly press: Words }[]
@@ -155,10 +155,10 @@ interface GlyphElement {
 }
 
 const GLYPHS = JSON.parse(
-  readFileSync(join(ROOT, 'src', 'framework', 'dom-screen-surface', 'icon-glyphs.json'), 'utf8'),
+  readRepoFile(join(ROOT, 'src', 'framework', 'dom-screen-surface', 'icon-glyphs.json'), 'utf8'),
 ) as { readonly glyphs: readonly { readonly specTableRowId: string; readonly elements: readonly GlyphElement[] }[] }
 
-const FIGURE = readFileSync(join(ROOT, 'docs', 'spec', '_assets', 'fig-icons.svg'), 'utf8')
+const FIGURE = readRepoFile(join(ROOT, 'docs', 'spec', '_assets', 'fig-icons.svg'), 'utf8')
 
 // Spec: F-019, IC-102
 const figureElementsOf = (specTableRowId: string): readonly GlyphElement[] => {

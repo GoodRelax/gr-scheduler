@@ -1,6 +1,6 @@
 // CR-572: the saved documentSettings holds the keys of tables T-202 and T-203 and nothing else.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -13,7 +13,7 @@ import startupTemplate from '../../src/framework/single-html-shell/startup-templ
 import { specTable, unbroken } from './spec-table'
 
 const SPEC = join(process.cwd(), 'docs', 'spec')
-const read = (...parts: string[]): string => unbroken(readFileSync(join(SPEC, ...parts), 'utf8'))
+const read = (...parts: string[]): string => unbroken(readRepoFile(join(SPEC, ...parts), 'utf8'))
 
 const REQUIREMENTS = read('01-04-requirements.md')
 const SETTINGS_BOOK = read('_assets', 'tbl-settings.md')
@@ -106,7 +106,7 @@ describe('CR-572 -- the manuscript these cases are driven by', () => {
   })
 
   it('FR-024: the published schema, which a written document conforms to, lists exactly the T-202 + T-203 keys', () => {
-    const schema = JSON.parse(readFileSync(join(SPEC, '_source', 'grs-document.schema.json'), 'utf8')) as {
+    const schema = JSON.parse(readRepoFile(join(SPEC, '_source', 'grs-document.schema.json'), 'utf8')) as {
       properties: { documentSettings: { required: string[]; properties: Record<string, unknown> } }
     }
     expect([...schema.properties.documentSettings.required].sort()).toEqual([...STORED_KEYS].sort())

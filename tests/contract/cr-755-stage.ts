@@ -1,6 +1,6 @@
 // CR-755 spec-only stage: the manuscripts, table T-376 read as rows, and the dictionary words of the time zone field.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import type { DisplayLanguage } from '../../src/adapter/screen-renderer/screen-renderer'
@@ -9,13 +9,13 @@ import { bare, specTable, unbroken } from './spec-table'
 export type Loose = Record<string, any>
 
 const SPEC = join(process.cwd(), 'docs', 'spec')
-const read = (...parts: string[]): string => unbroken(readFileSync(join(SPEC, ...parts), 'utf8').replace(/\r\n/g, '\n'))
+const read = (...parts: string[]): string => unbroken(readRepoFile(join(SPEC, ...parts), 'utf8').replace(/\r\n/g, '\n'))
 
 export const REQUIREMENTS = read('01-04-requirements.md')
 export const STATE_MACHINE_BOOK = read('_assets', 'tbl-state-machines.md')
 const withoutBreakMarks = (_key: string, value: unknown): unknown => (typeof value === 'string' ? value.replace(/\|/g, '') : value)
-export const WORDS = JSON.parse(readFileSync(join(SPEC, '_source', 'display-words.json'), 'utf8'), withoutBreakMarks) as Loose
-export const SCHEMA = JSON.parse(readFileSync(join(SPEC, '_source', 'grs-document.schema.json'), 'utf8')) as Loose
+export const WORDS = JSON.parse(readRepoFile(join(SPEC, '_source', 'display-words.json'), 'utf8'), withoutBreakMarks) as Loose
+export const SCHEMA = JSON.parse(readRepoFile(join(SPEC, '_source', 'grs-document.schema.json'), 'utf8')) as Loose
 
 // Spec: T-376
 export interface ZoneRow {

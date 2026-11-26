@@ -1,6 +1,6 @@
 // Spec-only cases for CR-567: an imported Task with no children makes no task group
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -18,9 +18,9 @@ const OWN_TASK_GROUP_SENTENCE = '`GRS` は、子を持つ `Task` から作った
 const CAPPED_PARENT_SENTENCE =
   '親の `Task` に器が無いとき（親が上限を超える段に在るとき）、`GRS` は、子を持たない `Task` を、`IMPS-911` のとおり最も深い段のタスクグループに載せること。'
 
-const REQUIREMENTS = readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8')
+const REQUIREMENTS = readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8')
 
-const TEMPLATE_TEXT = readFileSync(
+const TEMPLATE_TEXT = readRepoFile(
   join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'),
   'utf8',
 )
@@ -355,7 +355,7 @@ describe('CR-567 -- FR-058 below and at the S-125 cap', () => {
 })
 
 describe('CR-567 -- FR-058 on sample-schedule/sample-large-erp-program.ja.xml', () => {
-  const text = readFileSync(join(process.cwd(), 'sample-schedule', 'sample-large-erp-program.ja.xml'), 'utf8')
+  const text = readRepoFile(join(process.cwd(), 'sample-schedule', 'sample-large-erp-program.ja.xml'), 'utf8')
   const everyFileTask = tasksInFile(text)
   const fileTasks = everyFileTask.filter((each) => !(each.uid === 0 && each.level === 0))
   const parents = parentsInFile(fileTasks)

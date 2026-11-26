@@ -1,6 +1,6 @@
 // CR-712 wave 1: tables T-233 and T-234 are printed from _source/notice-reasons.json, and so is the roster src/ reads.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -10,11 +10,11 @@ import { NOTICE_MANNER_OF_REASON } from '../../src/use-case/advance-screen-sessi
 
 const SPEC = join(process.cwd(), 'docs', 'spec')
 
-const DESIGN = unbroken(readFileSync(join(SPEC, '05-07-design.md'), 'utf8'))
+const DESIGN = unbroken(readRepoFile(join(SPEC, '05-07-design.md'), 'utf8'))
 
-const REQUIREMENTS = readFileSync(join(SPEC, '01-04-requirements.md'), 'utf8')
+const REQUIREMENTS = readRepoFile(join(SPEC, '01-04-requirements.md'), 'utf8')
 
-const PRINTED = readFileSync(join(SPEC, '_assets', 'tbl-notice-reasons.md'), 'utf8').replace(/\r\n/g, '\n')
+const PRINTED = readRepoFile(join(SPEC, '_assets', 'tbl-notice-reasons.md'), 'utf8').replace(/\r\n/g, '\n')
 
 interface ReasonEntry {
   readonly id: string
@@ -48,7 +48,7 @@ interface NoticeRoster {
 }
 
 const ROSTER = JSON.parse(
-  readFileSync(join(SPEC, '_source', 'notice-reasons.json'), 'utf8'),
+  readRepoFile(join(SPEC, '_source', 'notice-reasons.json'), 'utf8'),
 ) as NoticeRoster
 
 const SECTION_6_2_ROSTER_IS_A_MANUSCRIPT =
@@ -76,7 +76,7 @@ const STANDING_IN_ROW = (cells: readonly string[]): string => `| ${cells.join(' 
 const INVARIANT_ROW = /^\| (IV-\d+) \|/
 
 function invariantRows(): readonly string[] {
-  const lines = readFileSync(join(SPEC, '05-07-design.md'), 'utf8').replace(/\r\n/g, '\n').split('\n')
+  const lines = readRepoFile(join(SPEC, '05-07-design.md'), 'utf8').replace(/\r\n/g, '\n').split('\n')
   const at = lines.findIndex((line) => line.startsWith('**表 T-220 —'))
   const out: string[] = []
   for (const line of lines.slice(at + 1)) {

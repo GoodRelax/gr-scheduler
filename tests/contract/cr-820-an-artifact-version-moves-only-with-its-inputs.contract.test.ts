@@ -1,7 +1,8 @@
 // CR-820 spec-only tests (design-mcp-relay section 6): an artifact version moves only with its inputs.
 
 import { spawnSync } from 'node:child_process'
-import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
 import { pathToFileURL } from 'node:url'
@@ -93,7 +94,7 @@ function tool(root: string, args: string[]): { status: number | null; output: st
   return { status: done.status, output: `${done.stdout}${done.stderr}` }
 }
 
-const read = (root: string, path: string): string => readFileSync(join(root, path), 'utf8')
+const read = (root: string, path: string): string => readRepoFile(join(root, path), 'utf8')
 
 // Why: a first commit holds inputs and a version together, so the starting state is the one a bump leaves behind.
 function repoWithBumpedVersions(): string {
@@ -159,13 +160,13 @@ describe('CR-820 relay_version reads the file, never git', () => {
     const printed = JSON.parse(done.stdout) as Version
     const { buildVersion } = await relayVersion()
     expect(printed).toEqual(buildVersion())
-    const file = JSON.parse(readFileSync(join(process.cwd(), VERSIONS_FILE), 'utf8')) as { grsRelayBuiltAt: string }
+    const file = JSON.parse(readRepoFile(join(process.cwd(), VERSIONS_FILE), 'utf8')) as { grsRelayBuiltAt: string }
     expect(printed.builtAt).toBe(file.grsRelayBuiltAt)
     expect(printed.builtAt).toMatch(BUILT_AT)
   })
 
   it('the repository file lists the relay inputs and the demo inputs the specification names', () => {
-    const file = JSON.parse(readFileSync(join(process.cwd(), VERSIONS_FILE), 'utf8')) as {
+    const file = JSON.parse(readRepoFile(join(process.cwd(), VERSIONS_FILE), 'utf8')) as {
       grsRelayInputs: string[]
       serverSyncDemoBuiltAt: string
       serverSyncDemoInputs: string[]

@@ -1,6 +1,6 @@
 // CR-408: the property panel boundary is held by GR-22 and counts from the drawn width; text fields wrap inside the panel.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { afterEach, describe, expect, it } from 'vitest'
@@ -30,7 +30,7 @@ import {
 } from '../fixtures/fake-browser'
 import { bare, specTable, unbroken } from '../contract/spec-table'
 
-const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
+const REQUIREMENTS = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
 const CLAUSES: readonly (readonly [string, string])[] = [
   ['FR-052 (MUST) -- the property panel counts from the width drawn at the press', '境界を掴んでいる間、`GRS` は、プロパティパネルの幅を、境界を押した時点に描いていた幅から、ポインタが動いたぶんだけ変えること。'],
@@ -94,7 +94,7 @@ describe('CR-408 -- the premises read from the manuscript', () => {
 })
 
 const TEMPLATE = JSON.parse(
-  readFileSync(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
+  readRepoFile(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
 ) as Record<string, unknown>
 
 const ROW_ID = '11111111-1111-4111-8111-111111111111'

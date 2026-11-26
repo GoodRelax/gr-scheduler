@@ -59,7 +59,7 @@
 //     measurements because that is where appendix version 1.43 says FD-6's
 //     answer is carried; no case claims a shape or a color.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -110,7 +110,7 @@ const cellOf = (tableId: string, specTableRowId: string): string => {
  * instead, which is what Chapter 1.9 (:274) makes the first column for.
  */
 const fadeRow = (specTableRowId: string): string => {
-  const text = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
+  const text = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
   const line = text.split('\n').find((one) => one.startsWith(`| ${specTableRowId} |`))
   if (line === undefined) throw new Error(`no row ${specTableRowId} in 01-04-requirements.md`)
   return line

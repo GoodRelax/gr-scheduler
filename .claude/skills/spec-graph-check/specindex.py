@@ -10,10 +10,14 @@ forbids, so it is parsed once here.
 NOTE ON NON-ASCII: the patterns hold Japanese text because the specification
 is written in Japanese; those code points are data, not prose.
 """
-import io
 import os
 import re
 import collections
+import sys
+
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                '..', '..', '..', 'tools'))
+import spec_files  # noqa: E402
 
 # ⛔ Imported, never restated: do not keep a local copy of the retired set
 # here. A copy drifts from md-checks.py's, and `known` below -- which graph.py
@@ -40,8 +44,8 @@ def discover(root='.'):
         full = os.path.join(root, d)
         if not os.path.isdir(full):
             continue
-        for name in sorted(os.listdir(full)):
-            if name.endswith('.md') and os.path.isfile(os.path.join(full, name)):
+        for name in spec_files.listed_names(full, sorted(os.listdir(full)), root):
+            if name.endswith('.md') and spec_files.spec_file_exists(d + '/' + name, root):
                 out.append(d + '/' + name)
     return out
 
@@ -142,10 +146,9 @@ class Index(object):
 def build(root='.'):
     idx = Index()
     for rel in discover(root):
-        path = os.path.join(root, rel)
-        if not os.path.exists(path):
+        if not spec_files.spec_file_exists(rel, root):
             continue
-        lines = io.open(path, encoding='utf-8').read().splitlines()
+        lines = spec_files.read_spec_file(rel, root).splitlines()
         idx.lines[rel] = lines
 
         # A "**表 T-nnn —" heading owns every "|" block that follows it until

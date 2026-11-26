@@ -1,6 +1,6 @@
 // CR-405, CR-622, CR-635, CR-665: the help lays its framed blocks out in the columns of T-256, lists T-255, and scrolls down.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { afterEach, beforeAll, describe, expect, it } from 'vitest'
@@ -34,7 +34,7 @@ import {
 } from '../fixtures/fake-browser'
 import { bare, bareAll, specTable, unbroken, type SpecTable } from '../contract/spec-table'
 
-const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
+const REQUIREMENTS = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
 const CLAUSES: readonly (readonly [string, string])[] = [
   ['FR-036 (MUST) -- the help also shows the rows of T-255', '表 T-023 の `MK-2` / `MK-5` / `MK-7` と、表 T-255 の行を示すこと'],
@@ -404,7 +404,7 @@ describe('FR-036 + T-256 (MUST) -- the roster the help is described from', () =>
 
   it('FR-038 holds a heading word for every block, and words for BF-1, in both languages', () => {
     const words = JSON.parse(
-      readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8'),
+      readRepoFile(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8'),
     ) as Record<string, unknown>
     const texts: { specTableRowId?: string; block?: string; text?: Record<string, string> }[] = Object.values(words)
       .filter((one): one is unknown[] => Array.isArray(one))
@@ -553,7 +553,7 @@ describe('FR-036 (MUST / MUST NOT) -- the help box scrolls down, and not sideway
 })
 
 const TEMPLATE = JSON.parse(
-  readFileSync(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
+  readRepoFile(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
 ) as Document
 
 const SCREEN: FrameEnvironment = { width: 1400, height: 800, appHeaderHeight: 56, scrollbarThickness: 8 }

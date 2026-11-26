@@ -66,6 +66,9 @@ import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.abspath(os.path.join(HERE, '..', '..', '..'))
+sys.path.insert(0, os.path.join(ROOT, 'tools'))
+import spec_files  # noqa: E402
+
 BASELINE = os.path.join(HERE, 'line-break-baseline.txt')
 
 BOOKS = [
@@ -197,9 +200,9 @@ def scan():
     found = {}
     for rel in BOOKS:
         path = os.path.join(ROOT, rel)
-        if not os.path.exists(path):
+        if not spec_files.spec_file_exists(path):
             continue
-        lines = io.open(path, encoding='utf-8').read().split('\n')
+        lines = spec_files.read_spec_file(path).split('\n')
         fenced = False
         open_ends = []
         for n, line in enumerate(lines, 1):

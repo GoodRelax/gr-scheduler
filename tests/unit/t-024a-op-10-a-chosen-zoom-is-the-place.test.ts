@@ -121,7 +121,7 @@
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { afterEach, describe, expect, it } from 'vitest'
@@ -245,7 +245,7 @@ const PRESS_F: KeyInput = { kind: 'key', key: 'F', modifiers: NO_MODS }
 // ⛔⛔ exclusion never operates -- what is borrowed is a valid document, not the
 // template's own branch.
 const TEMPLATE = JSON.parse(
-  readFileSync(
+  readRepoFile(
     join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'),
     'utf8',
   ),

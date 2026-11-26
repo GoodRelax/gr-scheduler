@@ -1,6 +1,6 @@
 // Contract test: FR-151 table T-330 SV-4 / SV-8 and table T-331 against searchRowsOf, isSearchWordFound and taskGroupNameOf (PI-1).
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -16,7 +16,7 @@ import {
 import { isSearchWordFound } from '../../src/entity/document-model/schedule/schedule-search'
 import { specTable, unbroken, type SpecRow } from './spec-table'
 
-const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
+const REQUIREMENTS = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
 function rowOf(table: string, id: string): SpecRow {
   const found = specTable(table).rows.find((one) => one.id === id)
@@ -74,7 +74,7 @@ const T_331_FIELDS: Readonly<Record<string, { readonly table: 'タスク' | 'コ
 // no task group goes, so this file never makes one.
 
 const TEMPLATE = JSON.parse(
-  readFileSync(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
+  readRepoFile(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
 ) as { readonly schedule: Record<string, unknown> }
 type Loose = Record<string, unknown>
 const templateTasks = TEMPLATE.schedule['tasks'] as readonly Loose[]

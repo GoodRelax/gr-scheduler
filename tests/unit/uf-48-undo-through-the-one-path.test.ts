@@ -111,7 +111,7 @@
 //     the CALLER declares, never the incoming document's), and a person at a
 //     keyboard declares nothing a test could make stale from outside.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { afterEach, describe, expect, it, vi } from 'vitest'
@@ -171,7 +171,7 @@ const TEMPLATE_PATH = join(
   'single-html-shell',
   'startup-template.json',
 )
-const TEMPLATE = JSON.parse(readFileSync(TEMPLATE_PATH, 'utf8')) as Record<string, unknown>
+const TEMPLATE = JSON.parse(readRepoFile(TEMPLATE_PATH, 'utf8')) as Record<string, unknown>
 
 const ALPHA = '11111111-1111-4111-8111-111111111111'
 const BETA = '22222222-2222-4222-8222-222222222222'

@@ -1,5 +1,5 @@
 // Reads docs/spec/_source/state-machines.json (stateMachines[], NDD appendix A.6) as the region view of state_machine_source.py, test side.
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 type Json = Record<string, any>
@@ -46,7 +46,7 @@ function viewMachine(machine: Json): Json {
 // Why: the tests assert the content of the tables, not the layout of the file; one view keeps them on what the generators read.
 export function readStateMachineView(): Json {
   const doc = JSON.parse(
-    readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'state-machines.json'), 'utf8'),
+    readRepoFile(join(process.cwd(), 'docs', 'spec', '_source', 'state-machines.json'), 'utf8'),
   ) as Json
   const machines = doc['stateMachines'] as readonly Json[]
   return {

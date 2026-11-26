@@ -30,7 +30,7 @@
 // holdable: the task group this invariant makes carries no `Task` and no member, so
 // there is nothing about it for a count of what disappears to pick up.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -67,7 +67,7 @@ import displayWords from '../../src/adapter/screen-renderer/display-words.json'
 // 1. The manuscript, read rather than copied.
 // ---------------------------------------------------------------------------
 
-const REQUIREMENTS = unbroken(readFileSync(
+const REQUIREMENTS = unbroken(readRepoFile(
   join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'),
   'utf8',
 ))

@@ -108,7 +108,7 @@
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { afterEach, describe, expect, it } from 'vitest'
@@ -185,7 +185,7 @@ const TEMPLATE_PATH = join(
   'single-html-shell',
   'startup-template.json',
 )
-const TEMPLATE = JSON.parse(readFileSync(TEMPLATE_PATH, 'utf8')) as Record<string, unknown>
+const TEMPLATE = JSON.parse(readRepoFile(TEMPLATE_PATH, 'utf8')) as Record<string, unknown>
 
 const ALPHA = '11111111-1111-4111-8111-111111111111'
 const BETA = '22222222-2222-4222-8222-222222222222'
@@ -1230,7 +1230,7 @@ describe('FR-018 -- holding a zoom entrance down', () => {
     // FR-018 (MUST): 「繰り返す入口は … 表 T-109 の `IC-12` 〜 `IC-15` に限ること
     // （MUST）」 —— 「`IC-10`（全体表示）と `IC-11`（全画面）は繰り返しても
     // 同じ結果にしかならない」.
-    const requirements = unbroken(readFileSync(
+    const requirements = unbroken(readRepoFile(
       join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'),
       'utf8',
     ))
@@ -1251,9 +1251,9 @@ describe('FR-018 -- holding a zoom entrance down', () => {
 
   it('the manuscript still says it, word for word: FR-018 and FT-4 of table T-078', () => {
     const requirements = unbroken(
-      readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'),
+      readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'),
     )
-    const design = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '05-07-design.md'), 'utf8'))
+    const design = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '05-07-design.md'), 'utf8'))
     expect(requirements).toContain(FR_018_REPEATS)
     expect(requirements).toContain(FR_018_NOT_ONCE)
     expect(requirements).toContain(FR_018_ONLY_FOUR)
@@ -1435,7 +1435,7 @@ describe('the tables these ten entrances are driven by', () => {
     expect(ids, 'IC-49 was the entrance to the retired `double-vertical`').not.toContain('IC-49')
     expect(ids, 'the seats are left empty, so the rows around them stayed').toContain('IC-45')
     // Step: read the height the glossary states above table T-109
-    const glossary = readFileSync(join(process.cwd(), 'docs', 'spec', '_assets', 'tbl-glossary.md'), 'utf8')
+    const glossary = readRepoFile(join(process.cwd(), 'docs', 'spec', '_assets', 'tbl-glossary.md'), 'utf8')
     const stated = /\*\*(\d+) 行ある。\*\*/.exec(glossary.slice(glossary.indexOf('T-109')))
     expect(stated, 'the glossary no longer states the height of table T-109').not.toBeNull()
     expect(ids.length, 'table T-109 stands at the height its preamble states').toBe(Number((stated as RegExpExecArray)[1]))
@@ -1445,7 +1445,7 @@ describe('the tables these ten entrances are driven by', () => {
     // FR-048 (MUST NOT): 「消すための別の入口を置いてはならない」. ⭐ Read as
     // the whole of table T-109 rather than as the guide-cursor group alone,
     // because the MUST covers カーソル 3 種.
-    const requirements = unbroken(readFileSync(
+    const requirements = unbroken(readRepoFile(
       join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'),
       'utf8',
     ))

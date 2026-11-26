@@ -131,7 +131,7 @@
 //     unchanged, that no box is measured on that path, and that the answer is
 //     the entry the node the HOST landed on belongs to.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -171,7 +171,7 @@ import { unbroken } from '../contract/spec-table'
 // ---------------------------------------------------------------------------
 
 const specText = (...parts: string[]): string =>
-  unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', ...parts), 'utf8'))
+  unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', ...parts), 'utf8'))
 
 /** The row of table T-103 that settles the name of this surface. */
 const U_55 = 'U-55'
@@ -214,7 +214,7 @@ const questionRow = (at: number): string =>
  * words from a requirement and from a table, and a bench may not mint one either.
  */
 const DISPLAY_WORDS = JSON.parse(
-  readFileSync(
+  readRepoFile(
     join(process.cwd(), 'src', 'adapter', 'screen-renderer', 'display-words.json'),
     'utf8',
   ),
@@ -302,7 +302,7 @@ interface Roster {
  * file. ⛔ The two row ids are never written down here.
  */
 const ROSTER: Roster = JSON.parse(
-  readFileSync(
+  readRepoFile(
     join(process.cwd(), 'src', 'adapter', 'screen-renderer', 'icon-roster.json'),
     'utf8',
   ),
@@ -333,7 +333,7 @@ const ENTRY_ROWS: readonly string[] = ON_THE_CONFIRMATION.map((one) => one.specT
 const MANUSCRIPT_ANSWERS: readonly { readonly answer: string; readonly text: Record<string, string> }[] =
   (
     JSON.parse(
-      readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8'),
+      readRepoFile(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8'),
     ) as {
       confirmation: { answer: string; text: Record<string, string> }[]
     }

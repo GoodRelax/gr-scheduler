@@ -119,7 +119,7 @@
 //   3. WHICH of two 面 `Esc` takes first, and everything else about `Esc` --
 //      tests/unit/in-4-escape-closes-the-panel.test.ts owns that rule.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { afterEach, describe, expect, it } from 'vitest'
@@ -175,7 +175,7 @@ const SK_19 = rowOf('T-036', 'SK-19').cells.join(' ')
 const SK_3 = rowOf('T-036', 'SK-3').cells.join(' ')
 
 /** `FR-072`'s STATEMENT and the closing rule of table T-036, as the file holds them. */
-const REQUIREMENTS = unbroken(readFileSync(
+const REQUIREMENTS = unbroken(readRepoFile(
   join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'),
   'utf8',
 ))
@@ -224,7 +224,7 @@ const TEMPLATE_PATH = join(
   'single-html-shell',
   'startup-template.json',
 )
-const TEMPLATE = JSON.parse(readFileSync(TEMPLATE_PATH, 'utf8')) as Record<string, unknown>
+const TEMPLATE = JSON.parse(readRepoFile(TEMPLATE_PATH, 'utf8')) as Record<string, unknown>
 
 const ALPHA = '11111111-1111-4111-8111-111111111111'
 const BETA = '22222222-2222-4222-8222-222222222222'

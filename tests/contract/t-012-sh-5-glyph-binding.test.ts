@@ -1,6 +1,6 @@
 // Unit test: the join between SH-5's marks, milestoneGlyph's spellings, and T-109's palette rows.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -32,14 +32,14 @@ const MARKS: readonly string[] = ((): readonly string[] => {
   return (row.by[MARK_COLUMN] ?? '').split(/\s+/u).filter((one) => one.length > 0)
 })()
 
-const REQUIREMENTS = unbroken(readFileSync(
+const REQUIREMENTS = unbroken(readRepoFile(
   join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'),
   'utf8',
 ))
 
 const GLYPHS: readonly string[] = ((): readonly string[] => {
   const erd = JSON.parse(
-    readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'erd.json'), 'utf8'),
+    readRepoFile(join(process.cwd(), 'docs', 'spec', '_source', 'erd.json'), 'utf8'),
   ) as {
     readonly entities: readonly {
       readonly name: string
@@ -102,7 +102,7 @@ interface RosterIcon {
 
 const ROSTER: readonly RosterIcon[] = (
   JSON.parse(
-    readFileSync(
+    readRepoFile(
       join(process.cwd(), 'src', 'adapter', 'screen-renderer', 'icon-roster.json'),
       'utf8',
     ),

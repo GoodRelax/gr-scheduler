@@ -1,6 +1,6 @@
 // DFC-2030 spec-only cases: a task body drag moves the highlight and comment boxes the Selection holds (T-270, SL-1, SL-7, CY-4, FR-031).
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { afterEach, describe, expect, it } from 'vitest'
@@ -21,7 +21,7 @@ import type { TaskGroupPlacement } from '../../src/entity/layout-engine/schedule
 import { frameLoop, type FrameEnvironment, type FrameLoop, type ScreenWiring } from '../../src/framework/single-html-shell/frame-loop'
 import { specTable, unbroken } from './spec-table'
 
-const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
+const REQUIREMENTS = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
 const rowText = (table: string, id: string): string => {
   const found = specTable(table).rows.find((one) => one.id === id)
@@ -65,7 +65,7 @@ afterEach(() => {
 })
 
 const TEMPLATE = JSON.parse(
-  readFileSync(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
+  readRepoFile(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
 ) as Record<string, Record<string, unknown>>
 
 const task = (uid: number, name: string, start: string, finish: string): Task =>

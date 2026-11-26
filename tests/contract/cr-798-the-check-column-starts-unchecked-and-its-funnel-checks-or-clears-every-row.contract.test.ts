@@ -1,6 +1,6 @@
 // CR-798 / CR-800 spec-only contract: every row of the three tables starts unchecked (TV-2, TV-9, TV-13, S-561, S-565, S-569, S-570), the Schedule Filter draws only the checked rows (TV-1, TV-2, TV-13), the eye is off only while nothing is checked and works with every row checked (TV-5), the check column holds a heading box and no funnel (SV-7, SQ-10, DT-8, RQ-1), the box checks the listed rows and then clears every row (SQ-10), the check column keeps no column filter (S-562) and a jump to an undrawn task checks its row (SJ-0).
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -54,7 +54,7 @@ type TableName = 'searchPanel' | 'delayDiagnosticsReport' | 'resourceList'
 type Visibility = TableView['visibility']
 
 const SPEC = join(process.cwd(), 'docs', 'spec')
-const read = (...parts: string[]): string => unbroken(readFileSync(join(SPEC, ...parts), 'utf8'))
+const read = (...parts: string[]): string => unbroken(readRepoFile(join(SPEC, ...parts), 'utf8'))
 const REQUIREMENTS = read('01-04-requirements.md')
 const GLOSSARY = read('_assets', 'tbl-glossary.md')
 const SETTINGS_BOOK = read('_assets', 'tbl-settings.md')

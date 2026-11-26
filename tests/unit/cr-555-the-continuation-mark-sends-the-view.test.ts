@@ -1,6 +1,6 @@
 // CR-555, CR-596: a click on the continuation mark sends the view to the far end (T-303 EL-10 .. EL-12).
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -73,7 +73,7 @@ const PE_12_MARK_SENDS =
   '続きの印を押して離したとき、`GRS` は、線を選ばず、選択を空にしたうえで `FR-009` の 表 T-303 の `EL-10` 〜 `EL-12` に従って印の先へ送り'
 const FR_018_DEPTH_ONE = '`FR-018` は深さ 1 を倍率で落とさない'
 
-const REQUIREMENTS = readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8')
+const REQUIREMENTS = readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8')
 
 const S_87 = numberIn(cellOf('T-205', 'S-87', '既定'))
 const S_88 = numberIn(cellOf('T-205', 'S-88', '既定'))
@@ -122,7 +122,7 @@ interface Line {
 const ENVIRONMENT = { width: 1600, height: 700, appHeaderHeight: 56, scrollbarThickness: 8, propertyPanelWidth: 0 }
 
 const TEMPLATE = JSON.parse(
-  readFileSync(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
+  readRepoFile(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
 ) as Record<string, any>
 
 const iso = (day: number): string => new Date(Date.UTC(2026, 1, 2) + day * 86400000).toISOString().slice(0, 10)

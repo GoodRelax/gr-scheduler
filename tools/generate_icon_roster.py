@@ -50,6 +50,7 @@ import os
 import re
 import sys
 
+import spec_files
 import spec_tables
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -183,7 +184,7 @@ def read_lines(path):
 
     @purity semi-pure-mutable
     """
-    return io.open(path, encoding='utf-8').read().splitlines()
+    return spec_files.read_spec_file(path).splitlines()
 
 
 def stated_row_count(section):

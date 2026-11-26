@@ -33,7 +33,7 @@
 //   T-207    S-100 -- the default watermark unlock password.
 // ---------------------------------------------------------------------------
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { afterEach, describe, expect, it } from 'vitest'
@@ -91,7 +91,7 @@ const DEFAULT_PASSWORD = bare(rowOf('T-207', 'S-100').by[VALUE_COLUMN] ?? '')
 const PROCEED = 'proceed'
 
 /** FR-020's sentences these cases stand on, quoted from the manuscript. */
-const REQUIREMENTS = unbroken(readFileSync(
+const REQUIREMENTS = unbroken(readRepoFile(
   join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'),
   'utf8',
 ))
@@ -106,7 +106,7 @@ const FR_020_NOT_IN_THE_DOCUMENT =
 // ---------------------------------------------------------------------------
 
 const TEMPLATE = JSON.parse(
-  readFileSync(
+  readRepoFile(
     join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'),
     'utf8',
   ),

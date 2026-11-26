@@ -1,6 +1,6 @@
 // DFC-991: the drawn task group boxes of the Task Group Panel are published by ScreenRenderer (PI-37) and are the boxes the screen draws (SC-1, FR-098).
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { afterEach, describe, expect, it } from 'vitest'
@@ -9,7 +9,7 @@ import * as screenRenderer from '../../src/adapter/screen-renderer/screen-render
 import { unbroken } from '../contract/spec-table'
 import { taskGroupDocument, shell, type ShellBench } from './cr-541-stage'
 
-const PUBLISHED = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '_assets', 'tbl-published-entries.md'), 'utf8'))
+const PUBLISHED = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '_assets', 'tbl-published-entries.md'), 'utf8'))
 
 const benches: ShellBench[] = []
 afterEach(() => {

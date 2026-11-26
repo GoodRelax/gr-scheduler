@@ -1,6 +1,6 @@
 // W3 tester 3: FR-068 -- the copied image-to-data prompt is built from the screen language's manuscript at the moment of the copy.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { afterEach, describe, expect, it } from 'vitest'
@@ -13,7 +13,7 @@ afterEach(restoreAnimationFrames)
 
 const SOURCE = join(process.cwd(), 'docs', 'spec', '_source')
 const REQUIREMENTS = unbroken(
-  readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8').replace(/\r\n/g, '\n'),
+  readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8').replace(/\r\n/g, '\n'),
 )
 
 const CLAUSE_SCREEN_LANGUAGE = '`GRS` は、コピーした瞬間の画面の言語（`FR-038` の `S-99`、`screenLanguage`）の原稿から、プロンプトを作ること。'
@@ -24,7 +24,7 @@ const LANGUAGES: readonly DisplayLanguage[] = ['ja', 'en']
 
 // Why: the manuscript's first line is its own role line; its longest plain line tells the language apart.
 function markerLineOf(language: DisplayLanguage): string {
-  const lines = readFileSync(join(SOURCE, `image-to-grs-json-prompt.${language}.md`), 'utf8')
+  const lines = readRepoFile(join(SOURCE, `image-to-grs-json-prompt.${language}.md`), 'utf8')
     .replace(/\r\n/g, '\n')
     .split('\n')
     .slice(1)

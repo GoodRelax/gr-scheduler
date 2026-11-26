@@ -1,6 +1,6 @@
 // CR-424: the property panel width never goes under S-248 by a drag, starts at the default width of the kind shown as a screen value (CR-572, CR-787), and IC-17 after a close shows the settings.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { afterEach, describe, expect, it } from 'vitest'
@@ -21,7 +21,7 @@ import type { Document } from '../../src/entity/document-model/document/document
 import { frameLoop, type FrameEnvironment, type FrameLoop } from '../../src/framework/single-html-shell/frame-loop'
 import { bare, specTable, unbroken } from '../contract/spec-table'
 
-const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
+const REQUIREMENTS = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
 // Why: CR-787 -- the width starts at the default width of the kind shown (S-171 the settings face, S-602 a Task).
 const FR_052_STARTS_AT_THE_KIND_DEFAULT =
@@ -96,7 +96,7 @@ describe('CR-424 -- the premises read from the manuscript', () => {
 })
 
 const TEMPLATE = JSON.parse(
-  readFileSync(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
+  readRepoFile(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
 ) as Record<string, any>
 
 const ROW_ID = '11111111-1111-4111-8111-111111111111'

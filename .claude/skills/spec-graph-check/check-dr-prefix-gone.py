@@ -42,6 +42,10 @@ import re
 import subprocess
 import sys
 
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                '..', '..', '..', 'tools'))
+import spec_files  # noqa: E402
+
 PATTERN = re.compile(r'(?<![A-Za-z0-9_-])([DdRr])-([0-9]+)')
 
 TREES = [
@@ -166,7 +170,19 @@ def say(message):
 
 def tracked(root):
     out = subprocess.check_output(['git', 'ls-files'], cwd=root)
-    return [p for p in out.decode('utf-8').split('\n') if p.strip()]
+    rels = [p for p in out.decode('utf-8').split('\n') if p.strip()]
+    # Why: a split document is tracked as its parts and is read whole, by its old name.
+    spec = [p for p in rels if p.rsplit('/', 1)[0] == 'docs/spec']
+    names = spec_files.listed_names(os.path.join(root, 'docs', 'spec'),
+                                    [p.rsplit('/', 1)[1] for p in spec], os.path.abspath(root))
+    return sorted((set(rels) - set(spec)) | set('docs/spec/' + n for n in names))
+
+
+def read_text(root, rel):
+    if (rel.rsplit('/', 1)[0] == 'docs/spec'
+            and spec_files.is_split_document(rel, os.path.abspath(root))):
+        return spec_files.read_spec_file(rel, os.path.abspath(root))
+    return io.open(os.path.join(root, rel), 'rb').read().decode('utf-8')
 
 
 def main(argv):
@@ -181,7 +197,7 @@ def main(argv):
         if any(rel.startswith(t) for t, _ in TREES) or rel in files:
             continue
         try:
-            text = io.open(os.path.join(root, rel), 'rb').read().decode('utf-8')
+            text = read_text(root, rel)
         except (IOError, OSError, UnicodeDecodeError):
             continue
         scanned += 1

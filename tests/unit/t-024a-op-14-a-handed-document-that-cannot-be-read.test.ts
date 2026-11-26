@@ -56,7 +56,7 @@
 // requirement that is not met. No case below pretends otherwise; they hold the
 // two links that are reachable and name the one that is not.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { afterEach, describe, expect, it } from 'vitest'
@@ -112,7 +112,7 @@ interface ReasonWords {
  * The road from here to `src/` is `npm run words:check`, not this file.
  */
 const MANUSCRIPT_WORDS = JSON.parse(
-  readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8'),
+  readRepoFile(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8'),
 ) as { reasons: ReasonWords[] }
 
 const wordsFor = (specTableRowId: string): ReasonWords => {
@@ -128,7 +128,7 @@ const wordsFor = (specTableRowId: string): ReasonWords => {
 // ---------------------------------------------------------------------------
 
 const TEMPLATE = JSON.parse(
-  readFileSync(
+  readRepoFile(
     join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'),
     'utf8',
   ),

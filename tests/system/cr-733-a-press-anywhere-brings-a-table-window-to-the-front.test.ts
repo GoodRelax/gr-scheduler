@@ -1,14 +1,14 @@
 // CR-733 on the shipped build: a press anywhere in a table window brings it to the front (WB-11).
 
 import { expect, test, type Browser, type Page } from '@playwright/test'
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 import { bare, specTable, unbroken } from '../contract/spec-table'
 import { CLEARING_UP_MS, launchReferenceBrowser } from './live-app'
 import { ERP_SAMPLE, keyOf, openDocument, openStage, pressEntrance, settle, type Stage } from './cr-570-tree-state-stage'
 import { rowOf } from './sws-case'
 
-const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
+const REQUIREMENTS = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 const cellOf = (table: string, id: string, heading: string): string => unbroken(rowOf(specTable(table), id).by[heading] ?? '')
 
 const WB_11_PRESS = 'ウィンドウのどこか（タイトルバー —— 帯（表 T-023d の `GR-24`）とタイトルバーの入口 —— ・縁（同表の `GR-25`）・本文）を押したら、押した時点で、そのウィンドウを'

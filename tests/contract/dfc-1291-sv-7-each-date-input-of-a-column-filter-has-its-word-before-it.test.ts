@@ -1,6 +1,6 @@
 // DFC-1291 spec-only cases: T-330 SV-7 -- the two date inputs of a column filter each carry the dictionary word ("from" / "until") as a label to their left.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -21,7 +21,7 @@ import {
 import { FakeText, selfAndDescendants, stage, type FakeElement, type FakeNode } from '../fixtures/fake-browser'
 import { specTable, unbroken } from './spec-table'
 
-const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
+const REQUIREMENTS = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
 // Spec: SV-7
 const SV_7_LABELS =
@@ -29,7 +29,7 @@ const SV_7_LABELS =
 
 type Words = Record<DisplayLanguage, string>
 const WORDS = JSON.parse(
-  readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8'),
+  readRepoFile(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8'),
 ) as { readonly searchPanel: readonly { readonly part: string; readonly text: Words }[] }
 
 const wordOf = (part: string, language: DisplayLanguage): string => {
@@ -44,7 +44,7 @@ const DATE_COLUMNS = specTable('T-331')
   .map((row) => [row.id, row.by['表'] === 'コメントボックス' ? 'commentBoxes' : 'tasks'] as const)
 
 const TEMPLATE = JSON.parse(
-  readFileSync(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
+  readRepoFile(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
 ) as { readonly schedule: unknown }
 const SCHEDULE = TEMPLATE.schedule as Schedule
 const CANVAS: ScreenRect = { x: 0, y: 56, width: 1000, height: 600 }

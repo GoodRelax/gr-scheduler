@@ -1,14 +1,15 @@
 // CR-669 on the shipped build: the help maximizes, moves and widens only within the Schedule Canvas, and brackets its added words.
 
 import { expect, test, type Browser, type Page } from '@playwright/test'
-import { existsSync, readFileSync } from 'node:fs'
+import { existsSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { bare, specTable, unbroken } from '../contract/spec-table'
 import { CLEARING_UP_MS, launchReferenceBrowser, readSettledDrawnSvg } from './live-app'
 import { rowOf } from './sws-case'
 
-const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
+const REQUIREMENTS = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
 // Why: each constant ends exactly at its marker, cut from the manuscript as check 39 reads it.
 const FR_036_MAXIMIZED =
@@ -49,7 +50,7 @@ const CLOSE = iconOf('IC-52')
 type Language = 'ja' | 'en'
 type Words = Readonly<Record<Language, string>>
 
-const WORDS = JSON.parse(readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8')) as {
+const WORDS = JSON.parse(readRepoFile(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8')) as {
   readonly icons: readonly { readonly specTableRowId: string; readonly label: Words }[]
   readonly helpNotes: readonly { readonly specTableRowId: string; readonly text: Words }[]
 }

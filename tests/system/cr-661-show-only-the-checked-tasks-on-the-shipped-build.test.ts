@@ -1,7 +1,7 @@
 // CR-661 on the shipped build, read after CR-722: narrow to one assignee, check its rows in the Visibility column (SQ-10), press IC-143; the band, minimize and close, SJ-0's three doors, undo, save and export.
 
 import { expect, test, type Browser, type Page } from '@playwright/test'
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 import { bare, specTable, unbroken } from '../contract/spec-table'
 import { validateDocument } from '../fixtures/grs-document'
@@ -9,7 +9,7 @@ import { CLEARING_UP_MS, launchReferenceBrowser } from './live-app'
 import { UNDO, keyOf, openDocument, openStage, pressEntrance, readTree, saveDocument, settle, stateOf, type Stage } from './cr-570-tree-state-stage'
 import { rowOf } from './sws-case'
 
-const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
+const REQUIREMENTS = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
 // Why: each constant ends exactly at its marker, cut from the manuscript as check 39 reads it.
 const FR_151_RULES =
@@ -64,7 +64,7 @@ const settingPx = (id: string): number => Number(/^(\d+)px/.exec(unbroken(rowOf(
 const BAND_HEIGHT = settingPx('S-497')
 
 const TEMPLATE = JSON.parse(
-  readFileSync(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
+  readRepoFile(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
 ) as { $schema: string; schemaVersion: string; schedule: Record<string, any>; documentSettings: Record<string, unknown>; documentStamp: unknown }
 
 // Why: January 2026; Sato carries Alpha (task group C under the folded task group P) and Charlie (task group Q); Tanaka carries Bravo and

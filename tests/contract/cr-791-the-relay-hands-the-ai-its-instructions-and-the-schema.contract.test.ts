@@ -1,6 +1,6 @@
 // CR-791 spec-only tests: the relay hands the AI its instructions and the one schema resource (AG-12 (8)).
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 import { PassThrough } from 'node:stream'
 
@@ -25,9 +25,9 @@ const RESOURCE_NOT_FOUND = -32002
 const INSTRUCTIONS_HEADING =
   'MCP の初期化の答えに載せる案内'
 
-const DOCUMENT_SCHEMA = readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'grs-document.schema.json'), 'utf8')
-const COMMANDS_SCHEMA = readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'grs-commands.schema.json'), 'utf8')
-const MEMBERS_TABLE = readFileSync(join(process.cwd(), 'docs', 'spec', '_assets', 'tbl-agent-api-members.md'), 'utf8')
+const DOCUMENT_SCHEMA = readRepoFile(join(process.cwd(), 'docs', 'spec', '_source', 'grs-document.schema.json'), 'utf8')
+const COMMANDS_SCHEMA = readRepoFile(join(process.cwd(), 'docs', 'spec', '_source', 'grs-commands.schema.json'), 'utf8')
+const MEMBERS_TABLE = readRepoFile(join(process.cwd(), 'docs', 'spec', '_assets', 'tbl-agent-api-members.md'), 'utf8')
 
 const PAGE_HTML = new Uint8Array(Buffer.from('<!doctype html><html><body>page</body></html>\n', 'utf8'))
 

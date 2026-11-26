@@ -35,7 +35,7 @@ import { expect, test } from '@playwright/test'
 import type { Browser, Page } from '@playwright/test'
 import { createServer, type Server } from 'node:http'
 import type { Socket } from 'node:net'
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { specTable } from '../contract/spec-table'
@@ -2263,7 +2263,7 @@ test.describe.configure({ timeout: SWEEP_MS })
 
 test.beforeAll(async () => {
   test.setTimeout(SWEEP_MS)
-  const bytes = readFileSync(DELIVERABLE)
+  const bytes = readRepoFile(DELIVERABLE)
   server = createServer((_request, response) => {
     response.writeHead(200, { 'content-type': 'text/html; charset=utf-8' })
     response.end(bytes)

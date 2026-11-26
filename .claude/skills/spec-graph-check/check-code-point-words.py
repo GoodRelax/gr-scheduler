@@ -63,6 +63,8 @@ import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(HERE)))
+sys.path.insert(0, os.path.join(ROOT, 'tools'))
+import spec_files  # noqa: E402
 EXEMPT = os.path.join(HERE, 'code-point-words-exempt.txt')
 REL_EXEMPT = '.claude/skills/spec-graph-check/code-point-words-exempt.txt'
 TREES = ('src/', 'tests/')
@@ -427,12 +429,23 @@ def tracked(prefix):
     return [p for p in out.decode('utf-8').split('\n') if p.strip()]
 
 
+def tracked_spec():
+    rels = tracked('docs/spec')
+    # Why: a split document is tracked as its parts and is read whole, by its old name.
+    top = [p for p in rels if p.rsplit('/', 1)[0] == 'docs/spec']
+    names = spec_files.listed_names(os.path.join(ROOT, 'docs', 'spec'),
+                                    [p.rsplit('/', 1)[1] for p in top], ROOT)
+    return sorted((set(rels) - set(top)) | set('docs/spec/' + n for n in names))
+
+
 def spec_haystack():
     parts = []
-    for rel in tracked('docs/spec'):
+    for rel in tracked_spec():
         path = os.path.join(ROOT, rel)
         if rel.endswith(SPEC_TEXT_EXT):
-            parts.append(io.open(path, encoding='utf-8').read())
+            parts.append(spec_files.read_spec_file(path)
+                         if spec_files.is_split_document(rel)
+                         else io.open(path, encoding='utf-8').read())
         elif rel.endswith('.json'):
             sink = []
             json_strings(json.load(io.open(path, encoding='utf-8')), sink)
