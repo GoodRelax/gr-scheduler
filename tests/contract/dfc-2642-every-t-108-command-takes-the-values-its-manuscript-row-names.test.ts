@@ -1,6 +1,6 @@
 // DFC-2642 spec-only cases: every command of table T-108 is taken in the shape its manuscript row names -- the values it carries, no more and no fewer -- by PI-20 commandShapeFaults and by applyCommands (AM-7).
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { afterEach, describe, expect, it } from 'vitest'
@@ -11,8 +11,8 @@ import { shell, taskGroupDocument, TEMPLATE, type ShellBench } from '../unit/cr-
 import { specTable, unbroken } from './spec-table'
 
 const SPEC = join(process.cwd(), 'docs', 'spec')
-const readJson = (...parts: string[]): any => JSON.parse(readFileSync(join(SPEC, ...parts), 'utf8'))
-const readText = (...parts: string[]): string => unbroken(readFileSync(join(SPEC, ...parts), 'utf8').replace(/\r\n/g, '\n'))
+const readJson = (...parts: string[]): any => JSON.parse(readRepoFile(join(SPEC, ...parts), 'utf8'))
+const readText = (...parts: string[]): string => unbroken(readRepoFile(join(SPEC, ...parts), 'utf8').replace(/\r\n/g, '\n'))
 
 const MANUSCRIPT = readJson('_source', 'document-commands.json')
 const ERD = readJson('_source', 'erd.json')

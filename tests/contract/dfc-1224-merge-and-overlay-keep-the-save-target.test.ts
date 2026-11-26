@@ -1,6 +1,6 @@
 // Unit test: DFC-1224 -- only a replace (IC-71) makes the chosen file the save target (FR-060, T-290).
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { afterEach, describe, expect, it } from 'vitest'
@@ -72,13 +72,13 @@ const CONFIRMATION = bare(cellOf(T_103, 'U-55', T_103_NAME))
 const PROCEED_ANSWER = 'proceed'
 
 const REQUIREMENTS = unbroken(
-  readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'),
+  readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'),
 )
 const THE_SAVE_TARGET_MUST =
   '合流か重ね（表 T-024a の `OP-3`）で開いた後も、`GRS` は、上書きする先をそれまでのままとすること。'
 
 const TEMPLATE = JSON.parse(
-  readFileSync(
+  readRepoFile(
     join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'),
     'utf8',
   ),

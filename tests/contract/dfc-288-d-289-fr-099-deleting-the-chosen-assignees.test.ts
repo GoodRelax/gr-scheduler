@@ -102,7 +102,7 @@
 //      FR-029's other half and the renderer's;
 //      tests/unit/fr-029-the-reason-a-press-carries.test.ts owns the family.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { afterEach, describe, expect, it } from 'vitest'
@@ -136,7 +136,7 @@ import { bare, specTable, type SpecRow, type SpecTable, unbroken } from './spec-
 // 1. The manuscript, read at run time rather than copied
 // ===========================================================================
 
-const REQUIREMENTS = unbroken(readFileSync(
+const REQUIREMENTS = unbroken(readRepoFile(
   join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'),
   'utf8',
 ))
@@ -209,7 +209,7 @@ interface DictionaryWords {
 }
 
 const WORDS = JSON.parse(
-  readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8'),
+  readRepoFile(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8'),
 ) as DictionaryWords
 
 const reasonWords = (specTableRowId: string): string => {
@@ -237,7 +237,7 @@ const RS_27 = 'RS-27'
 // ===========================================================================
 
 const TEMPLATE = JSON.parse(
-  readFileSync(
+  readRepoFile(
     join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'),
     'utf8',
   ),

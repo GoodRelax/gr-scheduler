@@ -1,6 +1,6 @@
 // CR-718 spec-only cases: the import validation refuses under the table T-220 row that holds (IV-10, IV-14), not under a setting or a requirement (FR-076, FR-023).
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -14,7 +14,7 @@ import {
 } from '../../src/use-case/validate-imported-document/validate-imported-document'
 import { specTable, unbroken } from './spec-table'
 
-const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
+const REQUIREMENTS = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
 const AN_IMPORT_REFUSAL_CARRIES_ITS_T_220_ROW =
   '取り込みの検証が拒んだとき、`GRS` は `NT-1` の通知に、拒んだ Chapter 6.1 の 表 T-220 の行の行 ID を理由として運ぶこと。`FR-038` の辞書は、取り込みの検証が拒んだときの語と次の一手を、表 T-220 の行 ID で持つこと。'

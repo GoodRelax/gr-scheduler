@@ -17,6 +17,7 @@ import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 import { newestRelease, releaseNotesIn } from './release_version.mjs'
+import { listedPaths, readSpecDocument, splitDocuments } from './spec_files.mjs'
 
 const ROOT = dirname(dirname(fileURLToPath(import.meta.url)))
 const TABLE = 'docs/development-rules/10-versions.md'
@@ -114,10 +115,14 @@ function trackedTextFiles(root) {
   const names = execFileSync('git', ['ls-files', '-z'], { cwd: root, encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 })
     .split('\0')
     .filter((name) => TEXT.test(name))
+  // Why: a split document is checked and reported under its old path, at its whole-document lines.
+  const whole = new Set(splitDocuments(root).map((one) => one.path))
+  const listed = listedPaths(root, names).sort((a, b) => Buffer.compare(Buffer.from(a), Buffer.from(b)))
   const files = {}
-  for (const name of names) {
+  for (const name of listed) {
     try {
-      files[name] = readFileSync(join(root, name), 'utf8').replace(/\r\n/g, '\n')
+      const text = whole.has(name) ? readSpecDocument(root, name) : readFileSync(join(root, name), 'utf8')
+      files[name] = text.replace(/\r\n/g, '\n')
     } catch {
       // Why: a file deleted in the working tree but still in the index is not there to state anything.
     }

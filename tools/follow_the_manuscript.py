@@ -47,6 +47,8 @@ import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
+sys.path.insert(0, HERE)
+import spec_files  # noqa: E402
 
 BOOKS = [
     'docs/spec/01-04-requirements.md',
@@ -78,9 +80,9 @@ def manuscripts():
     out = []
     for rel in BOOKS:
         path = os.path.join(ROOT, rel)
-        if not os.path.exists(path):
+        if not spec_files.spec_file_exists(path):
             continue
-        text = HARD.sub(u'', BREAK.sub(u'', io.open(path, encoding='utf-8').read()))
+        text = HARD.sub(u'', BREAK.sub(u'', spec_files.read_spec_file(path)))
         keep = [i for i, c in enumerate(text) if c != u'*']
         out.append((text, u''.join(text[i] for i in keep), keep))
     return out

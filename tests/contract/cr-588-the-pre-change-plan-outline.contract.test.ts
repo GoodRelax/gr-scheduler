@@ -1,6 +1,6 @@
 // CR-588: FR-015 table T-339 -- the outline of the pre-change plan (the baseline overlay).
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -65,7 +65,7 @@ const VG_5_SCALED = '枠線（その形の枠線の太さの列 `AT-104` の値�
 const S_444_NOT_SCALED = '表示の倍率を掛けない —— `S-104` と `S-175` と同じく、表 T-252 に行を持たない'
 
 const REQUIREMENTS = unbroken(
-  readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8').replace(/\r\n/g, '\n'),
+  readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8').replace(/\r\n/g, '\n'),
 )
 
 const blText = (id: string): string => unbroken(rowOf('T-339', id).by[RULE] ?? '')

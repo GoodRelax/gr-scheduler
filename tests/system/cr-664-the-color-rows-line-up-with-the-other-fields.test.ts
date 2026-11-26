@@ -1,6 +1,6 @@
 // CR-664 / CR-689 (FR-006, CV-9): the color rows of the properties panel share the other rows' name edge and value edge, swept live.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { expect, test, type Browser, type Page } from '@playwright/test'
@@ -8,7 +8,7 @@ import { bare, specTable, unbroken } from '../contract/spec-table'
 import { CLEARING_UP_MS, launchReferenceBrowser, readSettledDrawnSvg, screenOf, taskBodyPoint } from './live-app'
 import { rowOf } from './sws-case'
 
-const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
+const REQUIREMENTS = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
 const FR_006_RIGHT_ALIGNED = '`GRS` は、項目名を値の欄の左に置くこと。 | FR-006 |\n| IMPS-32 | 項目名の寄せ | `GRS` は、項目名を右詰めにすること。'
 const FR_006_SAME_EDGES =

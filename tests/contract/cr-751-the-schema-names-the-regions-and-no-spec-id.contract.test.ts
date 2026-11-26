@@ -1,6 +1,6 @@
 // CR-751 (spec-only): the generated schema states the T-376 regions as enums, the S-582 span limit as maxItems, the minute-level reading, and names no specification ID (Chapter 6.2, JDG-2039).
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -11,7 +11,7 @@ import { bare, specTable } from './spec-table'
 type Json = Record<string, any>
 
 const SOURCE = join(process.cwd(), 'docs', 'spec', '_source')
-const SCHEMA = JSON.parse(readFileSync(join(SOURCE, 'grs-document.schema.json'), 'utf8')) as Json
+const SCHEMA = JSON.parse(readRepoFile(join(SOURCE, 'grs-document.schema.json'), 'utf8')) as Json
 const DEFS = SCHEMA['$defs'] as Json
 const SETTINGS = SCHEMA['properties']['documentSettings']['properties'] as Json
 
@@ -28,7 +28,7 @@ const REGION_KEYS: readonly (readonly [string, Json, readonly string[]])[] = [
   ['documentSettings.displayTimeZones items', SETTINGS['displayTimeZones']['items'], REGIONS],
 ]
 
-const PREFIX_SOURCE = JSON.parse(readFileSync(join(SOURCE, 'row-id-prefixes.json'), 'utf8')) as Json
+const PREFIX_SOURCE = JSON.parse(readRepoFile(join(SOURCE, 'row-id-prefixes.json'), 'utf8')) as Json
 const REQUIREMENT_AND_TABLE_PREFIXES = ['FR', 'NFR', 'UC', 'T', 'F', 'DOC']
 const PREFIXES: readonly string[] = [
   ...(PREFIX_SOURCE['prefixes'] as Json[]).map((one) => String(one['prefix'])),

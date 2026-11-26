@@ -1,6 +1,6 @@
 // CR-550: the Dual Cursor readout beside the pointer (DC-3) and EZ-6 standing down in the mode.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -38,7 +38,7 @@ import {
 } from '../../src/use-case/advance-screen-session/advance-screen-session'
 import { unbroken } from '../contract/spec-table'
 
-const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
+const REQUIREMENTS = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
 const DC_3_THREE_LINES = '本モードにいるあいだ、ポインタのそばに 3 行を小さく示すこと（MUST）'
 const DC_3_BY_DATE =

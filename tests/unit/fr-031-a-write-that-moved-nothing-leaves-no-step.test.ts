@@ -1,6 +1,6 @@
 // Unit tests for the ruling of 2026-09-08 written into FR-031: a write that changed no value of the document leaves no undo step.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -28,7 +28,7 @@ import { bare, specTable, unbroken } from '../contract/spec-table'
 
 const DEFAULT_TASK_GROUP_NAME_FIXTURE = 'fixture default task group name'
 
-const REQUIREMENTS = unbroken(readFileSync(
+const REQUIREMENTS = unbroken(readRepoFile(
   join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'),
   'utf8',
 ))
@@ -82,7 +82,7 @@ const CM_9 = bare(rowOf('T-108', 'CM-9').by['確定名'] ?? '')
 // Spec: T-108, CM-67
 const CM_67 = bare(rowOf('T-108', 'CM-67').by['確定名'] ?? '')
 
-const TEMPLATE_TEXT = readFileSync(
+const TEMPLATE_TEXT = readRepoFile(
   join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'),
   'utf8',
 )

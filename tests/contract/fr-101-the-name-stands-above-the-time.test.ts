@@ -69,7 +69,7 @@
 //      には掛けない」, so the pair's relative size is a rule about the MOMENT
 //      only and belongs to a case about `S-210`, not about the order.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -98,12 +98,12 @@ import { bare, specTable, unbroken } from './spec-table'
 // The manuscripts, read at run time rather than copied here (Chapter 1.9).
 // ---------------------------------------------------------------------------
 
-const REQUIREMENTS = unbroken(readFileSync(
+const REQUIREMENTS = unbroken(readRepoFile(
   join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'),
   'utf8',
 ))
 
-const DESIGN = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '05-07-design.md'), 'utf8'))
+const DESIGN = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '05-07-design.md'), 'utf8'))
 
 /** ⛔ THE GROUND OF THIS WHOLE FILE, read rather than typed. */
 const THE_ORDER_MUST = '`GRS` は、ファイルの名前を時刻の上に置くこと。'

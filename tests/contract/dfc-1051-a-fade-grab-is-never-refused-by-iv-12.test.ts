@@ -1,6 +1,6 @@
 // DFC-1051 spec-only tests: FD-6 note -- the number of days a fade grab point (GA-7 / GA-8) lets one pull is a number IV-12 accepts.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { afterEach, describe, expect, it } from 'vitest'
@@ -22,7 +22,7 @@ import {
 } from '../unit/cr-430-stage'
 import { unbroken } from './spec-table'
 
-const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
+const REQUIREMENTS = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
 // Why: each constant ends exactly at its marker, cut from the manuscript as check 39 reads it.
 const FD_6_SAME_COUNT =

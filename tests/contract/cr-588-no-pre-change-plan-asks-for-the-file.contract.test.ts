@@ -1,6 +1,6 @@
 // CR-588 contract: IC-4 with no pre-change plan asks for the file (OP-15), and the overlay import turns S-69 on (FR-015).
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -57,9 +57,9 @@ import { readStateMachineView } from './state-machine-manuscript'
 type Loose = Record<string, unknown>
 
 const SPEC = join(process.cwd(), 'docs', 'spec')
-const REQUIREMENTS = unbroken(readFileSync(join(SPEC, '01-04-requirements.md'), 'utf8'))
-const GLOSSARY = unbroken(readFileSync(join(SPEC, '_assets', 'tbl-glossary.md'), 'utf8'))
-const SETTINGS_TABLE = unbroken(readFileSync(join(SPEC, '_assets', 'tbl-settings.md'), 'utf8'))
+const REQUIREMENTS = unbroken(readRepoFile(join(SPEC, '01-04-requirements.md'), 'utf8'))
+const GLOSSARY = unbroken(readRepoFile(join(SPEC, '_assets', 'tbl-glossary.md'), 'utf8'))
+const SETTINGS_TABLE = unbroken(readRepoFile(join(SPEC, '_assets', 'tbl-settings.md'), 'utf8'))
 
 const IC_4_ASKS = '⭐ **重ねる予定が無いときは切り替えず、変更前の予定にするファイルを選ばせる**（表 T-024a の `OP-15`）'
 const OP_15_OPENS_THE_CHOOSER = '**`OP-2` のファイル選択と同じ画面を開き、選んだファイルを重ねる用途で開くこと（MUST）**'
@@ -410,7 +410,7 @@ describe('fileFlow (control) -- the chooser and reopen routes keep OP-3 and OP-4
 const TEMPLATE_PATH = join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json')
 
 const START = ((): Document => {
-  const read = documentFromJson(readFileSync(TEMPLATE_PATH, 'utf8'))
+  const read = documentFromJson(readRepoFile(TEMPLATE_PATH, 'utf8'))
   if (!read.ok) throw new Error(`the bundled template is not GRS JSON: ${JSON.stringify(read.faults)}`)
   return read.document
 })()

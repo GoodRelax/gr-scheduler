@@ -1,7 +1,7 @@
 // DFC-2950 / JDG-2446: a change to the document shape raises the format version (FR-073, DR-4 of table T-052, Chapter 6.2).
 
 import { createHash } from 'node:crypto'
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -9,7 +9,7 @@ import { describe, expect, it } from 'vitest'
 import { validateDocument } from '../fixtures/grs-document'
 import { specTable, unbroken } from './spec-table'
 
-const READ = (...parts: string[]): string => readFileSync(join(process.cwd(), ...parts), 'utf8').replace(/\r\n/g, '\n')
+const READ = (...parts: string[]): string => readRepoFile(join(process.cwd(), ...parts), 'utf8').replace(/\r\n/g, '\n')
 
 const REQUIREMENTS = unbroken(READ('docs', 'spec', '01-04-requirements.md'))
 const DESIGN = unbroken(READ('docs', 'spec', '05-07-design.md'))

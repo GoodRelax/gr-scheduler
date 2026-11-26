@@ -1,6 +1,6 @@
 // CR-795 spec-only contract: a marker press on DG-1 to DG-3 skips cycling only while the report window is open and the row is not marked (RW-19).
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -34,8 +34,8 @@ const NOTE_OPEN_ONLY =
   '遅延診断レポートの窓が開いているあいだ（最小化を含む）、`DG-1` 〜 `DG-3` で描いた進捗マーカー（表 T-266 の `GA-18`）を押して離した入力で、そのタスクの行にいまの行の印が付いていなければ'
 
 const SPEC = join(process.cwd(), 'docs', 'spec')
-const REQUIREMENTS = unbroken(readFileSync(join(SPEC, '01-04-requirements.md'), 'utf8'))
-const PUBLISHED = readFileSync(join(SPEC, '_source', 'published-entries.json'), 'utf8')
+const REQUIREMENTS = unbroken(readRepoFile(join(SPEC, '01-04-requirements.md'), 'utf8'))
+const PUBLISHED = readRepoFile(join(SPEC, '_source', 'published-entries.json'), 'utf8')
 
 const cellOf = (table: string, id: string, heading: string): string =>
   unbroken(specTable(table).rows.find((one) => one.id === id)?.by[heading] ?? '')

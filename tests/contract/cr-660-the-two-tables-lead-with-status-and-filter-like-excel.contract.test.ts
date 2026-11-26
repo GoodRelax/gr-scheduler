@@ -1,6 +1,6 @@
 // CR-660 spec-only contract: the two table windows lead with status, progress and task, and the column filter searches and closes like a spreadsheet (FR-151 T-330 / T-331, FR-134 T-346 / T-347, T-206).
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -87,10 +87,10 @@ function found<T>(value: T | undefined | null, what: string): T {
   return value
 }
 
-const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
+const REQUIREMENTS = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
 type Words = Record<DisplayLanguage, string>
-const WORDS = JSON.parse(readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8')) as {
+const WORDS = JSON.parse(readRepoFile(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8')) as {
   readonly searchPanel: readonly { readonly part: string; readonly text: Words }[]
   readonly searchColumns: readonly { readonly specTableRowId: string; readonly text: Words }[]
   readonly delayReportColumns: readonly { readonly specTableRowId: string; readonly text: Words }[]
@@ -126,7 +126,7 @@ function settingPx(row: string): number {
 
 type Loose = Record<string, unknown>
 const TEMPLATE = JSON.parse(
-  readFileSync(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
+  readRepoFile(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
 ) as { readonly schedule: Loose }
 const firstOf = (key: string): Loose => ((TEMPLATE.schedule[key] as readonly Loose[])[0] ?? {}) as Loose
 const D = (day: string): string => `${day}T00:00:00`

@@ -1,6 +1,6 @@
 // CR-611 spec-only tests: SK-25 / FR-095 / table T-342 -- N asks, then replaces the document with the empty document.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -28,21 +28,21 @@ import { bare, specTable } from './spec-table'
 
 const SK_25 = keyOfRow('SK-25')
 const T_342 = specTable('T-342')
-const ERD = JSON.parse(readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'erd.json'), 'utf8')) as {
+const ERD = JSON.parse(readRepoFile(join(process.cwd(), 'docs', 'spec', '_source', 'erd.json'), 'utf8')) as {
   entities: { name: string; columns: { name: string; json: { null: boolean } }[] }[]
 }
 const BASE_DOCUMENT = JSON.parse(
   (
     JSON.parse(
-      readFileSync(join(process.cwd(), 'src', 'adapter', 'screen-renderer', 'image-to-grs-json-prompt.json'), 'utf8'),
+      readRepoFile(join(process.cwd(), 'src', 'adapter', 'screen-renderer', 'image-to-grs-json-prompt.json'), 'utf8'),
     ) as { emptyDocument: string }
   ).emptyDocument,
 ) as Record<string, any>
 const HELP_ROSTER = JSON.parse(
-  readFileSync(join(process.cwd(), 'src', 'adapter', 'screen-renderer', 'help-roster.json'), 'utf8'),
+  readRepoFile(join(process.cwd(), 'src', 'adapter', 'screen-renderer', 'help-roster.json'), 'utf8'),
 ) as unknown
 const GENERATED_WORDS = JSON.parse(
-  readFileSync(join(process.cwd(), 'src', 'adapter', 'screen-renderer', 'display-words.json'), 'utf8'),
+  readRepoFile(join(process.cwd(), 'src', 'adapter', 'screen-renderer', 'display-words.json'), 'utf8'),
 ) as Record<string, any>
 
 const ASKS_WITH_UNSAVED =

@@ -87,7 +87,7 @@
 //  3. THE PICTURE'S OWN CONTENT. `FR-025` and 表 T-041's `WY-2` own that, and
 //     tests/unit/uf-45-46.test.ts asks it.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { afterEach, describe, expect, it } from 'vitest'
@@ -132,7 +132,7 @@ import { SETTINGS_CONSTANTS } from '../../src/entity/document-model/document-set
 // 1. The manuscript, read at run time rather than copied
 // ===========================================================================
 
-const REQUIREMENTS = unbroken(readFileSync(
+const REQUIREMENTS = unbroken(readRepoFile(
   join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'),
   'utf8',
 ))
@@ -247,7 +247,7 @@ interface ReasonWords {
 
 const REASON_WORDS: readonly ReasonWords[] = (
   JSON.parse(
-    readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8'),
+    readRepoFile(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8'),
   ) as { reasons: ReasonWords[] }
 ).reasons
 
@@ -267,7 +267,7 @@ function wordsFor(specTableRowId: string): ReasonWords {
 // ===========================================================================
 
 const TEMPLATE = JSON.parse(
-  readFileSync(
+  readRepoFile(
     join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'),
     'utf8',
   ),

@@ -1,6 +1,6 @@
 // CR-796 slice 2 spec-only tests: tool inputs carry no oneOf / anyOf / type list, and the command shapes live in a second resource (AG-12 (8)).
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 import { PassThrough } from 'node:stream'
 
@@ -42,7 +42,7 @@ const sleep = (ms: number): Promise<void> => new Promise((resolve) => setTimeout
 
 // Why: the confirmed names of table T-108 are read from the printed table, in table order, never typed here.
 function commandNamesOfT108(): string[] {
-  const text = readFileSync(join(SPEC, '_assets', 'tbl-document-commands.md'), 'utf8')
+  const text = readRepoFile(join(SPEC, '_assets', 'tbl-document-commands.md'), 'utf8')
   const names: string[] = []
   for (const line of text.split(/\r?\n/)) {
     if (!/^\| CM-\d+ \|/.test(line)) continue
@@ -61,7 +61,7 @@ interface Tool {
 
 function toolsOfDescriptions(): readonly Tool[] {
   const path = join(ROOT, 'src', 'adapter', 'mcp-tool-translator', 'mcp-tool-descriptions.json')
-  const parsed = JSON.parse(readFileSync(path, 'utf8')) as { tools: Tool[] }
+  const parsed = JSON.parse(readRepoFile(path, 'utf8')) as { tools: Tool[] }
   return parsed.tools
 }
 
@@ -138,19 +138,19 @@ describe('CR-796 s2 -- grs-commands.schema.json, the printed shape of every comm
   }
 
   it('the file exists under docs/spec/_source and parses as a JSON object', () => {
-    const parsed: unknown = JSON.parse(readFileSync(path, 'utf8'))
+    const parsed: unknown = JSON.parse(readRepoFile(path, 'utf8'))
     expect(isObject(parsed)).toBe(true)
   })
 
   it('it has one branch per T-108 command, each with properties.kind.const equal to the confirmed name', () => {
-    const consts = branchesOf(JSON.parse(readFileSync(path, 'utf8'))).map(
+    const consts = branchesOf(JSON.parse(readRepoFile(path, 'utf8'))).map(
       (branch) => ((branch['properties'] as Json)['kind'] as Json)['const'],
     )
     expect([...consts].sort()).toEqual([...commandNamesOfT108()].sort())
   })
 
   it('it names its manuscript, document-commands.json', () => {
-    expect(readFileSync(path, 'utf8')).toContain('document-commands.json')
+    expect(readRepoFile(path, 'utf8')).toContain('document-commands.json')
   })
 })
 
@@ -250,7 +250,7 @@ describe('CR-796 s2 -- the relay serves two resources (AG-12 (8), design-mcp-rel
 // Spec: AM-27, TV-5, TV-8, S-560
 describe('CR-796 s2 -- AM-27: an empty list turns the Search Panel schedule filter off', () => {
   const template = JSON.parse(
-    readFileSync(join(ROOT, 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
+    readRepoFile(join(ROOT, 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
   ) as Document
 
   const HISTORY_LIMITS = {
@@ -341,7 +341,7 @@ describe('CR-796 s2 -- AM-27: an empty list turns the Search Panel schedule filt
 
 // Spec: AG-12, AM-7, AM-27
 describe('CR-796 s2 -- the clauses slice 2 added, held verbatim', () => {
-  const requirements = unbroken(readFileSync(join(SPEC, '01-04-requirements.md'), 'utf8'))
+  const requirements = unbroken(readRepoFile(join(SPEC, '01-04-requirements.md'), 'utf8'))
   const rowOfAG12 = (): string => {
     const at = requirements.indexOf('| AG-12 |')
     expect(at).toBeGreaterThan(-1)

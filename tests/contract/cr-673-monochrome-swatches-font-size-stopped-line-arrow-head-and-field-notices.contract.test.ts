@@ -1,6 +1,6 @@
 // CR-673 spec-only cases: FR-041 gray hue swatches, the IC-127 word, FR-109 stopped actual line, PK-4 head width, IF-9 notices.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { afterEach, describe, expect, it } from 'vitest'
@@ -38,8 +38,8 @@ import {
 import { bare, specTable, unbroken } from './spec-table'
 
 const SPEC = join(process.cwd(), 'docs', 'spec')
-const REQUIREMENTS = unbroken(readFileSync(join(SPEC, '01-04-requirements.md'), 'utf8'))
-const DESIGN = unbroken(readFileSync(join(SPEC, '05-07-design.md'), 'utf8'))
+const REQUIREMENTS = unbroken(readRepoFile(join(SPEC, '01-04-requirements.md'), 'utf8'))
+const DESIGN = unbroken(readRepoFile(join(SPEC, '05-07-design.md'), 'utf8'))
 
 const rowOf = (table: string, id: string) => {
   const found = specTable(table).rows.find((one) => one.id === id)
@@ -129,7 +129,7 @@ const isAchromatic = (rgb: Rgb): boolean =>
 const TEMPLATE_PATH = join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json')
 
 const TEMPLATE_DOCUMENT = ((): Document => {
-  const read = documentFromJson(readFileSync(TEMPLATE_PATH, 'utf8'))
+  const read = documentFromJson(readRepoFile(TEMPLATE_PATH, 'utf8'))
   if (!read.ok) throw new Error(`the bundled template is not GRS JSON: ${JSON.stringify(read.faults)}`)
   return read.document
 })()
@@ -288,7 +288,7 @@ type Word = { readonly ja: string; readonly en: string }
 type IconWord = { readonly specTableRowId: string; readonly label: Word; readonly hint: Word }
 
 const iconsIn = (path: string): readonly IconWord[] =>
-  (JSON.parse(readFileSync(path, 'utf8')) as { readonly icons: readonly IconWord[] }).icons
+  (JSON.parse(readRepoFile(path, 'utf8')) as { readonly icons: readonly IconWord[] }).icons
 
 const labelIn = (icons: readonly IconWord[], row: string): Word => {
   const found = icons.find((one) => one.specTableRowId === row)
@@ -318,7 +318,7 @@ afterEach(() => {
   else (globalThis as Record<string, unknown>)['requestAnimationFrame'] = realRaf
 })
 
-const TEMPLATE_RAW = JSON.parse(readFileSync(TEMPLATE_PATH, 'utf8')) as Record<string, Record<string, unknown>>
+const TEMPLATE_RAW = JSON.parse(readRepoFile(TEMPLATE_PATH, 'utf8')) as Record<string, Record<string, unknown>>
 
 const ACTUAL_START = '2026-04-06'
 const STOP_DAY = '2026-04-08'

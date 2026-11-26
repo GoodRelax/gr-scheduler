@@ -1,6 +1,7 @@
 // CR-767 spec-only contract: guard conditions printed from each region's list, entry / exit effects in UML order, and the fig-sm-<machine>.svg diagrams (5.5, T-250 SD-1 / SD-3).
 
-import { existsSync, readdirSync, readFileSync } from 'node:fs'
+import { existsSync, readdirSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -50,8 +51,8 @@ const MANUSCRIPT_PATH = 'docs/spec/_source/state-machines.json'
 const REGIONS = (
   readStateMachineView() as { readonly regions: readonly RawRegion[] }
 ).regions
-const PRINTED = readFileSync(join(ASSETS, 'tbl-state-machines.md'), 'utf8').replace(/\r\n/g, '\n')
-const DESIGN = unbroken(readFileSync(join(SPEC, '05-07-design.md'), 'utf8'))
+const PRINTED = readRepoFile(join(ASSETS, 'tbl-state-machines.md'), 'utf8').replace(/\r\n/g, '\n')
+const DESIGN = unbroken(readRepoFile(join(SPEC, '05-07-design.md'), 'utf8'))
 
 const SECTION_5_5_GENERATES =
   '原稿から、ガードの式の書き方、領域ごとの出来事の定義・ガードの一覧・優先順の表と、ステートマシンごとの状態遷移図（UML）・状態遷移表・状態の一覧を生成し'
@@ -63,7 +64,7 @@ const SD_3_CONDITIONS =
   'ガードの条件は領域ごとのガードの一覧が式で持ち（式の書き方は原稿の頭に 1 度だけ定める）、升と一覧はその式を刷る。'
 const SD_3_NOT_REPEATED = 'entry ／ exit の副作用は、その状態へ入る（出る）升に重ねて書かない。'
 const UML_ORDER = 'as UML runs them: exit, then the transition\'s effect, then entry. A transition to itself neither enters nor leaves.'
-const SCHEMA = readFileSync(join(process.cwd(), 'docs', 'development-rules', 'manuscript-schemas', 'state-machines.schema.json'), 'utf8')
+const SCHEMA = readRepoFile(join(process.cwd(), 'docs', 'development-rules', 'manuscript-schemas', 'state-machines.schema.json'), 'utf8')
 
 describe('CR-767 -- the clauses these cases are driven by', () => {
   it.each([SECTION_5_5_GENERATES, SECTION_5_5_NO_HAND_EDIT, SECTION_5_5_CONDITIONS, SD_1_ENTRY_EXIT, SD_3_CONDITIONS, SD_3_NOT_REPEATED])(
@@ -554,7 +555,7 @@ describe('5.5: each machine section links its UML diagram fig-sm-<machine>.svg, 
     expect(section).toContain(`[![${name}](fig-sm-${name}.svg)](fig-sm-${name}.svg)`)
     const file = join(ASSETS, `fig-sm-${name}.svg`)
     expect(existsSync(file), `fig-sm-${name}.svg exists`).toBe(true)
-    const banner = /<!--([\s\S]*?)-->/.exec(readFileSync(file, 'utf8'))?.[1] ?? ''
+    const banner = /<!--([\s\S]*?)-->/.exec(readRepoFile(file, 'utf8'))?.[1] ?? ''
     expect(banner, 'the banner names the manuscript').toContain(MANUSCRIPT_PATH)
     expect(banner, 'the banner carries a fingerprint').toMatch(/fingerprint sha256:[0-9a-f]{64}/)
   })

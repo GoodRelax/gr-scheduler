@@ -1,6 +1,6 @@
 // DFC-920: every color spelling the copied image-to-data prompt (FR-068) allows is one the GRS JSON read path opens (AT-102, AT-58).
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { afterEach, describe, expect, it } from 'vitest'
@@ -14,7 +14,7 @@ import { exportStage, restoreAnimationFrames, SMALL_SCREEN, templateDocument } f
 afterEach(restoreAnimationFrames)
 
 const FIGURE = unbroken(
-  readFileSync(join(process.cwd(), 'docs', 'spec', '_assets', 'fig-erd-detail.md'), 'utf8').replace(/\r\n/g, '\n'),
+  readRepoFile(join(process.cwd(), 'docs', 'spec', '_assets', 'fig-erd-detail.md'), 'utf8').replace(/\r\n/g, '\n'),
 )
 
 // Why: each clause is cut from the manuscript as check 39 reads it, so the cases cannot drift from the words they test.

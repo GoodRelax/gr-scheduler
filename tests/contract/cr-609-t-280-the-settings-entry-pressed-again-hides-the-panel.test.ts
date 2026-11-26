@@ -1,6 +1,6 @@
 // CR-609 (wave 3): table T-280, the settings entry pressed while the settings are shown hides the panel; the selection stays.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -14,7 +14,7 @@ import {
 import { unbroken } from './spec-table'
 import { readStateMachineView } from './state-machine-manuscript'
 
-const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
+const REQUIREMENTS = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
 // Spec: FR-072
 const FR_072_CLOSES_WHILE_SHOWN =

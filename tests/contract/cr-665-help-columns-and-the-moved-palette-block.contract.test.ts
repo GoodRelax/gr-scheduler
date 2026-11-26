@@ -1,6 +1,6 @@
 // CR-665 spec-only tests: table T-256 places the help blocks, the palette's align group moves under the Task Group Panel, and the open details leave the help.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -20,7 +20,7 @@ import { emptyScreenSession, type ScreenSession } from '../../src/use-case/advan
 
 import { bare, specTable, unbroken } from './spec-table'
 
-const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
+const REQUIREMENTS = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
 // Why: each constant ends exactly at its marker, cut from the manuscript as check 39 reads it.
 const T_256_SPLIT =

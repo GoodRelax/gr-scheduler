@@ -43,7 +43,7 @@
 //            最小化していない).
 // ---------------------------------------------------------------------------
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { afterEach, describe, expect, it } from 'vitest'
@@ -130,7 +130,7 @@ const PALETTE_KEY = ((): string => {
 })()
 
 /** FR-053's sentence these cases stand on, quoted from the manuscript. */
-const REQUIREMENTS = unbroken(readFileSync(
+const REQUIREMENTS = unbroken(readRepoFile(
   join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'),
   'utf8',
 ))
@@ -143,7 +143,7 @@ const FR_053_RE_SHOWING_CLEARS_IT =
 // ---------------------------------------------------------------------------
 
 const TEMPLATE = JSON.parse(
-  readFileSync(
+  readRepoFile(
     join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'),
     'utf8',
   ),

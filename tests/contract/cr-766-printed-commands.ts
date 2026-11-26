@@ -1,11 +1,11 @@
 // CR-766 spec-only reader: table T-108 as _assets/tbl-document-commands.md prints it, one parsed row per line.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 const PRINTED = join(process.cwd(), 'docs', 'spec', '_assets', 'tbl-document-commands.md')
 
-export const PRINTED_TEXT: string = readFileSync(PRINTED, 'utf8').replace(/\r\n/g, '\n')
+export const PRINTED_TEXT: string = readRepoFile(PRINTED, 'utf8').replace(/\r\n/g, '\n')
 
 export const T_108_HEADINGS = ['行 ID', '群', '確定名', '組', '運ぶ値', '何を担うか', '正'] as const
 

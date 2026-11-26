@@ -1,6 +1,6 @@
 // CR-722 spec-only stage: a small document with two resources, the three tables' Visibility, and the seam names of CR-722 section 5.1.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import type { DisplayLanguage } from '../../src/adapter/screen-renderer/screen-renderer'
@@ -12,12 +12,12 @@ import { unbroken } from './spec-table'
 
 export type { TableVisibility, VisibilityTable }
 
-export const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
+export const REQUIREMENTS = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
 type Loose = Record<string, unknown>
 
 const TEMPLATE = JSON.parse(
-  readFileSync(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
+  readRepoFile(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
 ) as { readonly schedule: Loose }
 const firstOf = (key: string): Loose => ((TEMPLATE.schedule[key] as readonly Loose[])[0] ?? {}) as Loose
 const D = (day: string): string => `${day}T00:00:00`
@@ -115,7 +115,7 @@ export function drawn(tables: Tables, schedule: Schedule = SCHEDULE): readonly n
 
 // Why: the dictionary is the spec's own file; a word is read from it, never retyped here.
 type Words = Record<DisplayLanguage, string>
-const WORDS = JSON.parse(readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8')) as Record<
+const WORDS = JSON.parse(readRepoFile(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8')) as Record<
   string,
   readonly { readonly part?: string; readonly specTableRowId?: string; readonly name?: string; readonly text?: Words; readonly heading?: Words }[]
 >

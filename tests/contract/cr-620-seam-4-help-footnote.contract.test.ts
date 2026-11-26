@@ -1,6 +1,6 @@
 // CR-620 seam 4, re-pointed by CR-785: the IC-20 item of the help carries a link to S-350 (FR-036, FR-038, FR-073), through screenViewFromRegions (PI-37).
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -36,7 +36,7 @@ interface Manuscript {
 }
 
 const MANUSCRIPT = JSON.parse(
-  readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8'),
+  readRepoFile(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8'),
 ) as Manuscript
 
 const AGENT_API_LINKS = (MANUSCRIPT.helpLinks ?? []).filter((one) => one.link === 'agentApi')

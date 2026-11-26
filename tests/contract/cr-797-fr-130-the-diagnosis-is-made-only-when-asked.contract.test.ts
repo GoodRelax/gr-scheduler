@@ -1,6 +1,6 @@
 // CR-797 spec-only contract: the diagnosis is made again only on IC-107 (window closed) and IC-168 (FR-130); a marker pressed or pulled drops its own DG-1..DG-3 mark until then (PE-8); issued fix rows leave the proposals (RW-16).
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -42,8 +42,8 @@ const RW_3_ORDER = '`GRS` は、タイトルバーの下の 1 行に、左から
 const RW_3_EVERY_TABLE = '`GRS` は、`IC-168` を 3 つの表（`RW-11`）のどれを出しているときも置くこと。'
 
 const SPEC = join(process.cwd(), 'docs', 'spec')
-const REQUIREMENTS = unbroken(readFileSync(join(SPEC, '01-04-requirements.md'), 'utf8'))
-const PUBLISHED = readFileSync(join(SPEC, '_source', 'published-entries.json'), 'utf8')
+const REQUIREMENTS = unbroken(readRepoFile(join(SPEC, '01-04-requirements.md'), 'utf8'))
+const PUBLISHED = readRepoFile(join(SPEC, '_source', 'published-entries.json'), 'utf8')
 const cellOf = (table: string, id: string, heading: string): string =>
   unbroken(specTable(table).rows.find((one) => one.id === id)?.by[heading] ?? '')
 

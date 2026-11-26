@@ -1,6 +1,6 @@
 // DFC-2641 spec-only cases: for every member of table T-107, the MCP tool input keys are the manuscript's argument names and a tool call under them reaches the AgentApi member with those arguments, in the manuscript's order.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -10,8 +10,8 @@ import { mcpToolList, relayedCallOf } from '../../src/adapter/mcp-tool-translato
 import { unbroken } from './spec-table'
 
 const SPEC = join(process.cwd(), 'docs', 'spec')
-const MANUSCRIPT = JSON.parse(readFileSync(join(SPEC, '_source', 'agent-api-members.json'), 'utf8'))
-const RELAY_DESIGN = unbroken(readFileSync(join(SPEC, '_assets', 'design-mcp-relay.md'), 'utf8').replace(/\r\n/g, '\n'))
+const MANUSCRIPT = JSON.parse(readRepoFile(join(SPEC, '_source', 'agent-api-members.json'), 'utf8'))
+const RELAY_DESIGN = unbroken(readRepoFile(join(SPEC, '_assets', 'design-mcp-relay.md'), 'utf8').replace(/\r\n/g, '\n'))
 
 // Spec: AG-12, T-107
 const INPUT_KEYS_ARE_ARGUMENTS = '1 つのオブジェクトとし、鍵はそのメンバの引数の名とする。'

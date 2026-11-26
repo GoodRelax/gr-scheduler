@@ -115,7 +115,7 @@
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { afterEach, describe, expect, it } from 'vitest'
@@ -189,7 +189,7 @@ function pointNamedBy(grabTaskGroup: string): number {
  * still read out of the manuscript rather than copied, for the same reason.
  */
 function fadeOutlinePoints(): Map<number, { readonly x: string; readonly y: string }> {
-  const text = unbroken(readFileSync(join(SPEC, '01-04-requirements.md'), 'utf8')).split('\n')
+  const text = unbroken(readRepoFile(join(SPEC, '01-04-requirements.md'), 'utf8')).split('\n')
   const at = text.findIndex((line) => line.startsWith('**表 T-012a —'))
   if (at < 0) throw new Error('the specification has no table T-012a')
   const points = new Map<number, { x: string; y: string }>()
@@ -227,7 +227,7 @@ const TEMPLATE_PATH = join(
   'single-html-shell',
   'startup-template.json',
 )
-const TEMPLATE = JSON.parse(readFileSync(TEMPLATE_PATH, 'utf8')) as Record<string, unknown>
+const TEMPLATE = JSON.parse(readRepoFile(TEMPLATE_PATH, 'utf8')) as Record<string, unknown>
 
 const ROW_ID = '11111111-1111-4111-8111-111111111111'
 

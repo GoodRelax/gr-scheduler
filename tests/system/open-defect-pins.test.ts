@@ -7,7 +7,7 @@
 // still reaches the product, so a case cannot pass by pressing something inert.
 
 import { expect, test, type Browser, type Page } from '@playwright/test'
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 import { specTable, unbroken, type SpecTable } from '../contract/spec-table'
 import { DEFAULT_DISPLAY_RATIO } from '../fixtures/display-scale'
@@ -38,7 +38,7 @@ const SCREEN_ROW = 'MC-6'
 const BASE_SCREEN = screenOf(rowOf(T025, SCREEN_ROW))
 
 const REQUIREMENTS = unbroken(
-  readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'),
+  readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'),
 )
 
 // Why: the headings are Japanese and rule 03 section 5 keeps this file ASCII,
@@ -796,7 +796,7 @@ const LEDGERS: readonly string[] = ['defects.md', 'fixed-defects.md']
 // control -- so this only checks the row still exists in the ledger pair.
 test('every defect pinned in this file is still a row of the ledger', () => {
   const written = LEDGERS.map((file) =>
-    readFileSync(join(process.cwd(), 'docs', 'development-records', file), 'utf8'),
+    readRepoFile(join(process.cwd(), 'docs', 'development-records', file), 'utf8'),
   )
   for (const pin of PINNED) {
     expect(

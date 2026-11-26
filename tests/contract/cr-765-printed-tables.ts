@@ -1,11 +1,11 @@
 // CR-765 spec-only reader: tables T-107 and T-400 as _assets/tbl-agent-api-members.md prints them, one parsed row per line.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 const PRINTED = join(process.cwd(), 'docs', 'spec', '_assets', 'tbl-agent-api-members.md')
 
-export const PRINTED_TEXT: string = readFileSync(PRINTED, 'utf8').replace(/\r\n/g, '\n')
+export const PRINTED_TEXT: string = readRepoFile(PRINTED, 'utf8').replace(/\r\n/g, '\n')
 
 export const T_107_HEADINGS = ['行 ID', '群', '確定名', '品詞と純粋性', '引数', '戻り値', '何を担うか', '正'] as const
 export const T_400_HEADINGS = ['行 ID', '型の名', '欄', '正'] as const

@@ -1,6 +1,6 @@
 // CR-419: task and milestone names draw at S-245, and every text GRS draws uses the S-246 typeface list.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { afterEach, describe, expect, it } from 'vitest'
@@ -31,7 +31,7 @@ import {
 } from '../fixtures/fake-browser'
 import { DEFAULT_DISPLAY_SCALE } from '../fixtures/display-scale'
 
-const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
+const REQUIREMENTS = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
 const FR_039_ONE_TYPEFACE_LIST =
   '`GRS` は、画面に描くすべての字と、書き出す絵の字を、`_assets/tbl-settings.md` の 表 T-206 の `S-246` の書体の並びで描くこと。'
@@ -226,7 +226,7 @@ describe.each(['screen', 'export'] as const)(`FR-039 (MUST) -- the %s picture`, 
 })
 
 const TEMPLATE = JSON.parse(
-  readFileSync(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
+  readRepoFile(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
 ) as Record<string, any>
 
 const SCREEN: FrameEnvironment = { width: 1400, height: 800, appHeaderHeight: 56, scrollbarThickness: 8 }

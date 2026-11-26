@@ -1,14 +1,14 @@
 // CR-822 / JDG-2986: a change to the Agent API call shapes raises the Agent API version (AG-1 of table T-035).
 
 import { createHash } from 'node:crypto'
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
 
 import { unbroken } from './spec-table'
 
-const READ = (...parts: string[]): string => readFileSync(join(process.cwd(), ...parts), 'utf8').replace(/\r\n/g, '\n')
+const READ = (...parts: string[]): string => readRepoFile(join(process.cwd(), ...parts), 'utf8').replace(/\r\n/g, '\n')
 
 const MEMBERS = JSON.parse(READ('docs', 'spec', '_source', 'agent-api-members.json')) as Record<string, any>
 const REQUIREMENTS = unbroken(READ('docs', 'spec', '01-04-requirements.md'))

@@ -1,6 +1,6 @@
 // CR-813 spec-only cases: RW-20 / IO-9 / IC-169 (the Fix Log saves as .tsv), FM-6 (Property), PTL-15 (derived parent label).
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
 
@@ -28,7 +28,7 @@ import { specTable } from '../contract/spec-table'
 type Word = { readonly ja: string; readonly en: string }
 type Entry = Readonly<Record<string, unknown>> & { readonly text?: Word; readonly label?: Word; readonly hint?: Word }
 
-const read = (...parts: string[]): string => readFileSync(join(process.cwd(), ...parts), 'utf-8')
+const read = (...parts: string[]): string => readRepoFile(join(process.cwd(), ...parts), 'utf-8')
 
 const MANUSCRIPT = JSON.parse(read('docs', 'spec', '_source', 'display-words.json')) as Record<string, readonly Entry[]>
 const GENERATED_COPY = JSON.parse(read('src', 'adapter', 'screen-renderer', 'display-words.json')) as Record<string, readonly Entry[]>

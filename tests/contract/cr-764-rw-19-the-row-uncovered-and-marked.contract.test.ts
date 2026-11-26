@@ -1,6 +1,6 @@
 // CR-764 spec-only contract: what the report window does with the row of a pressed diagnosis marker (RW-19 steps 2 to 4).
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -43,8 +43,8 @@ interface PublishedEntry {
 }
 
 const SPEC = join(process.cwd(), 'docs', 'spec')
-const REQUIREMENTS = unbroken(readFileSync(join(SPEC, '01-04-requirements.md'), 'utf8'))
-const PUBLISHED = JSON.parse(readFileSync(join(SPEC, '_source', 'published-entries.json'), 'utf8')) as unknown
+const REQUIREMENTS = unbroken(readRepoFile(join(SPEC, '01-04-requirements.md'), 'utf8'))
+const PUBLISHED = JSON.parse(readRepoFile(join(SPEC, '_source', 'published-entries.json'), 'utf8')) as unknown
 
 const cellOf = (table: string, id: string, heading: string): string =>
   unbroken(found(specTable(table).rows.find((one) => one.id === id), `${table} ${id}`).by[heading] ?? '')
@@ -65,7 +65,7 @@ function publishedNoteOf(name: string): string {
 }
 
 const TEMPLATE = JSON.parse(
-  readFileSync(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
+  readRepoFile(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
 ) as { readonly schedule: Loose }
 const firstOf = (key: string): Loose => ((TEMPLATE.schedule[key] as readonly Loose[])[0] ?? {}) as Loose
 

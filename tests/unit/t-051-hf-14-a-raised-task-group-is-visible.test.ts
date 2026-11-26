@@ -70,7 +70,7 @@
 //      the letter of the row.
 // ===========================================================================
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { afterEach, describe, expect, it } from 'vitest'
@@ -111,7 +111,7 @@ import { bare, bareAll, specTable, unbroken } from '../contract/spec-table'
 // The manuscripts, read at run time rather than copied (Chapter 1.9)
 // ===========================================================================
 
-const REQUIREMENTS = unbroken(readFileSync(
+const REQUIREMENTS = unbroken(readRepoFile(
   join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'),
   'utf8',
 ))
@@ -182,7 +182,7 @@ const GROUP_LOD_BASE = px('T-205', 'S-87')
 // ===========================================================================
 
 const TEMPLATE = JSON.parse(
-  readFileSync(
+  readRepoFile(
     join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'),
     'utf8',
   ),

@@ -1,13 +1,13 @@
 // DFC-1280, DFC-1410: table T-280 / T-283 / T-290 name the Esc words, the close targets and the confirmation questions the screen sends.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
 
 import { specTable } from './spec-table'
 
-const TABLES = readFileSync(join(process.cwd(), 'docs', 'spec', '_assets', 'tbl-state-machines.md'), 'utf8')
+const TABLES = readRepoFile(join(process.cwd(), 'docs', 'spec', '_assets', 'tbl-state-machines.md'), 'utf8')
 const lineOf = (needle: string): string => TABLES.split('\n').find((line) => line.startsWith(needle)) ?? ''
 
 describe('DFC-1280 -- the words of an Esc rung and of a close target are named', () => {

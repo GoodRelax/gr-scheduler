@@ -1,6 +1,6 @@
 // DFC-806 / JDG-410: a double click on a highlight box puts the panel up and focuses its frame color field (MK-13, PR-22).
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { afterEach, describe, expect, it } from 'vitest'
@@ -21,7 +21,7 @@ import {
 } from '../fixtures/fake-browser'
 import { pointerOf, taskGroupDocument, taskOf, SCREEN } from '../unit/cr-541-stage'
 
-const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
+const REQUIREMENTS = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
 const verticalIn = (table: string, id: string) => {
   const found = specTable(table).rows.find((one) => one.id === id)

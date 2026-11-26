@@ -1,6 +1,6 @@
 // FR-021: an imported file's outline base comes back unchanged on a plain round trip.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -16,7 +16,7 @@ import { specTable, unbroken } from '../contract/spec-table'
 const LAST_SAVED_AT = '2026-10-03T09:00:00'
 
 
-const REQUIREMENTS = unbroken(readFileSync(
+const REQUIREMENTS = unbroken(readRepoFile(
   join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'),
   'utf8',
 ))
@@ -191,7 +191,7 @@ const BASE_ZERO_ROWS: readonly Row[] = [
 
 
 const TEMPLATE = JSON.parse(
-  readFileSync(
+  readRepoFile(
     join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'),
     'utf8',
   ),

@@ -1,6 +1,6 @@
 // DFC-2260 spec-only cases: FR-029 / T-280 -- while U-56 or U-61 awaits its answer, the palette entrances that would only be refused with RS-27 (IC-62, and IC-41 while the watermark shows) are drawn faint; pressing one tells RS-27 and changes no surface.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -16,7 +16,7 @@ import {
 import { unbroken } from './spec-table'
 import { jsonBytes, paletteStage, surfaceOfEntrance, there, type PaletteStage } from './wp-p1-palette-stage'
 
-const MACHINES = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '_assets', 'tbl-state-machines.md'), 'utf8'))
+const MACHINES = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '_assets', 'tbl-state-machines.md'), 'utf8'))
 
 const FR_029_FAINT =
   '`GRS` は、押してもいま文書にも画面にも何も変えられない入口を薄く描くこと。'

@@ -1,6 +1,6 @@
 // CR-761 spec-only contract: a column filter's value list follows the sort and is made from the rows the word keeps (SV-7).
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -52,15 +52,15 @@ const T_347_STATUS = '`GRS` は、ステータスの欄の昇順を `DT-1` の�
 const T_374_SAME = '`GRS` は、表 T-374 の表の並べ替え・列のフィルタ・列の幅の変え方・見出し行の縦の固定を、表 T-346 の `RW-9` ・ `RW-10` と同じ作りとすること。'
 const HIDDEN_VALUES_BLANK = '空のセルの項目（「（空白）」）は空の文字列。'
 
-const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
-const SETTINGS_BOOK = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '_assets', 'tbl-settings.md'), 'utf8'))
+const REQUIREMENTS = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
+const SETTINGS_BOOK = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '_assets', 'tbl-settings.md'), 'utf8'))
 
 const cellOf = (table: string, id: string, heading: string): string =>
   unbroken(found(specTable(table).rows.find((one) => one.id === id), `${table} ${id}`).by[heading] ?? '')
 
 // Why: the dictionary is the spec's own file; a word is read from it, never retyped here.
 type Words = Record<DisplayLanguage, string>
-const WORDS = JSON.parse(readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8')) as Record<
+const WORDS = JSON.parse(readRepoFile(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8')) as Record<
   string,
   readonly { readonly part?: string; readonly specTableRowId?: string; readonly text?: Words }[]
 >
@@ -88,7 +88,7 @@ describe('CR-761 -- the clauses this file is driven by', () => {
 
 type Loose = Record<string, unknown>
 const TEMPLATE = JSON.parse(
-  readFileSync(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
+  readRepoFile(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
 ) as { readonly schedule: Loose }
 const firstOf = (key: string): Loose => ((TEMPLATE.schedule[key] as readonly Loose[])[0] ?? {}) as Loose
 const D = (day: string): string => `${day}T00:00:00`

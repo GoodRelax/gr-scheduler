@@ -42,11 +42,14 @@ Case row, so deleting a row cannot silence the check.
 NOTE ON NON-ASCII: the patterns hold Japanese text because the
 specification is written in Japanese; those code points are data.
 """
-import io
 import json
 import os
 import re
 import sys
+
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                '..', '..', '..', 'tools'))
+import spec_files  # noqa: E402
 
 ARGS = [a for a in sys.argv[1:] if a != '--self-test']
 ROOT = ARGS[0] if ARGS else '.'
@@ -100,10 +103,9 @@ def row_id(line):
 
 
 def read(rel):
-    path = os.path.join(ROOT, rel)
-    if not os.path.exists(path):
+    if not spec_files.spec_file_exists(rel, ROOT):
         return []
-    return io.open(path, encoding='utf-8').read().splitlines()
+    return spec_files.read_spec_file(rel, ROOT).splitlines()
 
 
 def paragraphs_by_line(lines):
@@ -243,7 +245,7 @@ def spec_markdown():
     found = []
     for here, dirs, names in os.walk(os.path.join(ROOT, 'docs', 'spec')):
         dirs[:] = [d for d in dirs if d not in ('output', '__pycache__')]
-        for name in sorted(names):
+        for name in spec_files.listed_names(here, sorted(names), ROOT):
             if name.endswith('.md'):
                 found.append(os.path.relpath(os.path.join(here, name), ROOT)
                              .replace(os.sep, '/'))
@@ -352,7 +354,7 @@ def spelling_targets():
     for top in (('docs', 'spec'), ('docs', 'guides')):
         for here, dirs, names in os.walk(os.path.join(ROOT, *top)):
             dirs[:] = [d for d in dirs if d not in ('output', '__pycache__')]
-            for name in sorted(names):
+            for name in spec_files.listed_names(here, sorted(names), ROOT):
                 if name.endswith(('.md', '.json')):
                     found.append(os.path.relpath(os.path.join(here, name),
                                                  ROOT).replace(os.sep, '/'))

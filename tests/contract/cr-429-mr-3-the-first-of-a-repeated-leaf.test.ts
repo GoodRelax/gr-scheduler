@@ -1,6 +1,6 @@
 // CR-429: a leaf that arrives twice under one parent is read once, the first, and the rest are counted for RS-60.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -36,7 +36,7 @@ interface ReasonEntry {
 }
 
 function reasonIn(path: string, specTableRowId: string): ReasonEntry | undefined {
-  const raw = JSON.parse(readFileSync(join(process.cwd(), ...path.split('/')), 'utf8')) as { reasons: ReasonEntry[] }
+  const raw = JSON.parse(readRepoFile(join(process.cwd(), ...path.split('/')), 'utf8')) as { reasons: ReasonEntry[] }
   return raw.reasons.find((each) => each.specTableRowId === specTableRowId)
 }
 

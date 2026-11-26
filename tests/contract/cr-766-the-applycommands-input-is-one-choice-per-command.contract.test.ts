@@ -1,6 +1,6 @@
 // CR-766 / CR-796 spec-only tests: the commands of table T-108 are one closed choice each in the second relay resource, grs-commands.schema.json; the MCP input of applyCommands (AM-7) holds the stamp and, per command, only its kind.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { Ajv2020 } from 'ajv/dist/2020.js'
@@ -14,15 +14,15 @@ type Json = Record<string, unknown>
 
 const ROOT = process.cwd()
 const DESCRIPTIONS = JSON.parse(
-  readFileSync(join(ROOT, 'src', 'adapter', 'mcp-tool-translator', 'mcp-tool-descriptions.json'), 'utf8'),
+  readRepoFile(join(ROOT, 'src', 'adapter', 'mcp-tool-translator', 'mcp-tool-descriptions.json'), 'utf8'),
 ) as { tools: { name: string; inputSchema: Json }[] }
-const DOCUMENT_SCHEMA = JSON.parse(readFileSync(join(ROOT, 'docs', 'spec', '_source', 'grs-document.schema.json'), 'utf8')) as {
+const DOCUMENT_SCHEMA = JSON.parse(readRepoFile(join(ROOT, 'docs', 'spec', '_source', 'grs-document.schema.json'), 'utf8')) as {
   $defs: Record<string, Json>
   properties: { documentSettings: { properties: Record<string, Json> } }
 }
-const RELAY_DESIGN = unbroken(readFileSync(join(ROOT, 'docs', 'spec', '_assets', 'design-mcp-relay.md'), 'utf8'))
+const RELAY_DESIGN = unbroken(readRepoFile(join(ROOT, 'docs', 'spec', '_assets', 'design-mcp-relay.md'), 'utf8'))
 
-const COMMANDS_RESOURCE = JSON.parse(readFileSync(join(ROOT, 'docs', 'spec', '_source', 'grs-commands.schema.json'), 'utf8')) as {
+const COMMANDS_RESOURCE = JSON.parse(readRepoFile(join(ROOT, 'docs', 'spec', '_source', 'grs-commands.schema.json'), 'utf8')) as {
   oneOf: Json[]
   $defs: Record<string, Json>
 }

@@ -1,6 +1,6 @@
 // DFC-1653: T-109 preamble -- a surface's entrances stand in one order: the groups gather into blocks, a block opens where its first row stands, rows keep the table's order.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -16,7 +16,7 @@ import { settingDefaultOf } from '../fixtures/setting-default'
 import { bare, specTable, unbroken } from './spec-table'
 import { templateDocument } from './w3-t3-frame-stage'
 
-const GLOSSARY = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '_assets', 'tbl-glossary.md'), 'utf8').replace(/\r\n/g, '\n'))
+const GLOSSARY = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '_assets', 'tbl-glossary.md'), 'utf8').replace(/\r\n/g, '\n'))
 
 // Why: each clause is cut from the manuscript as check 39 reads it, so the cases cannot drift from the words they test.
 const T_109_ORDER =

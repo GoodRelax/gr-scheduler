@@ -3,14 +3,14 @@
 // Why: the clause is about pointer travel in screen px, which only a real browser delivers.
 
 import { expect, test, type Page } from '@playwright/test'
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { bare, specTable, unbroken } from '../contract/spec-table'
 import { answerConfirmation, enableAgentApi, readDocument, settle } from '../use-case/uc-harness'
 
 const SPEC = join(process.cwd(), 'docs', 'spec')
-const REQUIREMENTS = unbroken(readFileSync(join(SPEC, '01-04-requirements.md'), 'utf8'))
+const REQUIREMENTS = unbroken(readRepoFile(join(SPEC, '01-04-requirements.md'), 'utf8'))
 
 // Spec: FR-039
 const FR_039_UNROUNDED =
@@ -52,7 +52,7 @@ function floorAt(ratio: number): number {
   return S_37 * ratio * S_125 + S_138 * S_235 + 4 * (S_138 + S_243 * 2 + S_237 * 2) * S_235
 }
 
-const TEMPLATE_TEXT = readFileSync(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8')
+const TEMPLATE_TEXT = readRepoFile(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8')
 
 // Why: a headless browser has no file handles; a dropped file is handed over as one.
 const HOST_STUB = `(() => {

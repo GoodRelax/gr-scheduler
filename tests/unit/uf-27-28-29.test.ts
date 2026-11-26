@@ -39,7 +39,7 @@
 // driven by a fixed copy of that table, one test walking every row. T_107,
 // T_035_UNWIRED and T_067_WS1 below are those copies.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { afterEach, describe, expect, it } from 'vitest'
@@ -201,7 +201,7 @@ const TEMPLATE_PATH = join(
   'single-html-shell',
   'startup-template.json',
 )
-const TEMPLATE = JSON.parse(readFileSync(TEMPLATE_PATH, 'utf8')) as Record<string, unknown>
+const TEMPLATE = JSON.parse(readRepoFile(TEMPLATE_PATH, 'utf8')) as Record<string, unknown>
 
 type Loose = Record<string, unknown>
 

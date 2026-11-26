@@ -1,6 +1,6 @@
 // CR-653 section 9 on the shipped build: an icon description takes no press, and moving onto it puts it away.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { expect, test, type Browser, type Page } from '@playwright/test'
@@ -63,7 +63,7 @@ const numberOf = (cell: string): number => {
 const S_124_MS = numberOf(rowOf(specTable('T-212'), 'S-124').by['値'] ?? '')
 
 // Spec: FR-038, EZ-2
-const WORDS = JSON.parse(readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8')) as {
+const WORDS = JSON.parse(readRepoFile(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8')) as {
   readonly icons: readonly { readonly specTableRowId: string; readonly hint?: { readonly ja: string; readonly en: string } }[]
 }
 const HINTS: ReadonlyMap<string, readonly string[]> = new Map(

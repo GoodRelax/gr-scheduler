@@ -1,6 +1,6 @@
 // CR-670 spec-only cases: DT-5 / DT-6 date joins, DT-7 words (aspects, walls over DX-6), DX-10 late days, RW-4 glyph slots.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -61,7 +61,7 @@ type Language = 'ja' | 'en'
 const LANGUAGES: readonly Language[] = ['ja', 'en']
 
 const DICTIONARY = JSON.parse(
-  readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf-8'),
+  readRepoFile(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf-8'),
 ) as Record<string, readonly Entry[]>
 
 const wordIn = (section: string, keyField: string, key: string): Word => {
