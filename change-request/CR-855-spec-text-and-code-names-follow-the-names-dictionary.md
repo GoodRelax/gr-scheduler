@@ -2,7 +2,7 @@
 
 > 起草の状態: 起草と、道具で当てる表の用意まで（2026-11-27、develop `e053fb30a`）。仕様のファイル（`docs/spec/`）は、B9（仕様のファイルの分割）が develop に入るまで触らない（BOSS の順番の決まり）。コードの識別子（6 節）は `CR-851` が develop に入った後に当てる。
 > ID の帯: BOSS から番号 `CR-855`、裁定 `JDG-3996`〜`JDG-4005`、台帳 `DFC-3661`〜`DFC-3665` を受けた。本書はまだどれも使っていない。
-> 当てるもの: `JDG-3351`〜`JDG-3379`（用語の裁定 1 枚目と 2 枚目、`studies/76-grs-json-beta-shape/terms/6-cr855-handoff.md`）、`JDG-3512`（Delay Diagnosis）、`JDG-3742`（Progress Status Mark）、`CR-857` から回った `JDG-3463`・`JDG-3469`・`JDG-3486`（付録 A の「`CR-855`」の行）。`JDG-3470` は 5.4 節で扱いを問う。
+> 当てるもの: `JDG-3351`〜`JDG-3379`（用語の裁定 1 枚目と 2 枚目、`studies/76-grs-json-beta-shape/terms/6-cr855-handoff.md`）、`JDG-3512`（Delay Diagnosis）、`JDG-3742`（Progress Status Mark）、`CR-857` から回った `JDG-3463`・`JDG-3469`・`JDG-3486`（付録 A の「`CR-855`」の行）。`JDG-3470` は仕様の 1 章の当てへ回した（5.4 節）。
 > 一覧: 前の名と新しい名の組は `studies/83-beta-rename-inventory/renames.tsv` の `CR-855` の行（`RN-304`〜`RN-350`）である。本書は行の番号でそれを指し、名を写し直さない。
 
 ---
@@ -49,8 +49,8 @@
 
 ### ④ 持ち主に問うこと
 
-- 5.4 節の `JDG-3470`（目標と課題を足す）は名の改めでなく仕様の変更である。本書で当てるか別の席にするかを BOSS に問う。
-- 1.2 節の凍結した原稿の語（Delay Diagnostics など 14 行）は持ち主に出す（BOSS がまとめて問う）。
+- 1.2 節の凍結した原稿の説明の文に残る前の語 10 行は持ち主の件である。BOSS が BGQA の問 24（Delay Diagnostics と date の 2 種類を問うている）に足す（BOSS、2026-11-27）。
+- BOSS に問うて答えを受けたこと（2026-11-27）: `JDG-3470` は本書で当てない（5.4 節）。コードの識別子は `CR-851` が develop に入った後に道具で当てる（3 節の段 C）。`S-16` の改名は `CR-851` の席へ渡す（5.3 節。BOSS が `CR-851` に伝える）。
 
 ---
 
@@ -75,9 +75,10 @@
 |---|---|---|
 | GRS JSON のキー・値・型、文書の命令、Agent API の名（study 83 の `CR-851` の 303 行） | `CR-851` | `JDG-3349`・`JDG-3807` |
 | `shapeHeightOf.endpointSpan` → `shapeHeightOf.dumbbell`（`S-16`、`K-16` の英語） | `CR-851`（値の改名と同じ巡） | 5.3 節 |
-| 凍結した契約の原稿（`grs-document.schema.json`・`grs-commands.schema.json`・`agent-api-members.json`・`document-commands.json`）の説明の文に残る前の語 | 持ち主（BOSS がまとめて問う）と `CR-851` | `JDG-3807`。数は下の表 |
+| 凍結した契約の原稿（`grs-document.schema.json`・`grs-commands.schema.json`・`agent-api-members.json`・`document-commands.json`）の説明の文に残る前の語 | 持ち主（BOSS が BGQA の問 24 に足す） | `JDG-3807`。数は下の表 |
 | `isProgressMarkerVisible`・`isDependencyLineVisible`・`readDelayDiagnostics`・`runDelayDiagnostics` | `CR-851` | GRS JSON のキーと Agent API の道具の名 |
 | 仮の名（辞書の `xProvisional`） | —— | 当てない。`e053fb30a` の辞書には 0 件 |
+| `JDG-3470`（目標 `GL-010` と課題 `CH-8` を足し、表 T-054・表 T-106・about のページを改める） | 仕様の 1 章の当て（BOSS が席へ回す） | 1 章は B5 の下書きを持ち主が BGQA10 で見ている最中なので、その当てと一緒にする（BOSS、2026-11-27） |
 | ふるまいが変わる裁定（`JDG-3355` のプロジェクト名をプロパティパネルで直す、`JDG-3356` の休日設定をツールウィンドウにする） | `CR-856` | 名の改めだけにする |
 
 凍結した原稿に残る前の語（`e053fb30a`、study 83 の式で数えた）:
@@ -239,12 +240,13 @@
 ### 5.3 `shapeHeightOf.endpointSpan`（`S-16`）は `CR-851` と同じ巡
 
 - src は `settings.shapeHeightOf[shapeKind]` と形の値で鍵を引く（`shape-cross-sections.ts`）。鍵だけを `dumbbell` にすると、値が `endpointSpan` のあいだダンベルの高さが引けない。値の改名（`JDG-3696`・`JDG-3711`）は `CR-851` が当てる。
-- だから `settings.json` の `S-16` の鍵、`display-words.json` の `K-16` の英語、`glossary-tables.json` の `shapeHeightOfEndpointSpan` は `CR-851` の席が値と一緒に改める。BOSS が `CR-851` の席へ渡す。
+- だから `settings.json` の `S-16` の鍵、`display-words.json` の `K-16` の英語、`glossary-tables.json` の `shapeHeightOfEndpointSpan` は `CR-851` の席が値と一緒に改める。BOSS が `CR-851` の席へ伝える（BOSS の答え、2026-11-27）。
 
-### 5.4 `JDG-3470`（目標と課題を足す）—— 扱いを問う
+### 5.4 `JDG-3470`（目標と課題を足す）—— 1 章の当てへ回した
 
 - 裁定は 表 T-106 を 8 語にし、表 T-054 の `CH-1`・`CH-5` に語を付け、AI 連携の目標と課題を 1 つずつ足し、about のページの価値の並びを改める。`CR-857` の付録 A は本書に回した。
-- 目標 `GL-010` と課題 `CH-8` を足すのは名の改めでなく仕様の変更で、検査 22 の範囲（`CH-[1-7]|GL-00[1-9]`）も広げる。本書で当てるか、別の席にするかを BOSS に問う。
+- 目標 `GL-010` と課題 `CH-8` を足すのは名の改めでなく仕様の変更で、検査 22 の範囲（`CH-[1-7]|GL-00[1-9]`）も広げる。
+- BOSS の答え（2026-11-27）: 本書では当てない。仕様の 1 章（目標・課題）は B5 の下書きを持ち主が BGQA10 で見ている最中なので、その当てと一緒にする。BOSS が 1 章の当ての席へ回す。
 
 ### 5.5 `CR-857` から回った語
 
