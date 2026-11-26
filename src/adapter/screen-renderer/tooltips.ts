@@ -86,7 +86,7 @@ const CHORD_JOIN = '+'
 
 const PLUS_KEY = '+'
 
-// see FR-036, JDG-2248
+// Spec: FR-036, IMPS-1174, IMPS-1179
 /** @purity pure */
 export function keysWords(keys: readonly (readonly string[])[] | null, language: DisplayLanguage): string | null {
   if (keys === null || keys.length === 0) return null
@@ -96,7 +96,7 @@ export function keysWords(keys: readonly (readonly string[])[] | null, language:
     .join(KEY_NOTATION_WORDS.get('alternative')?.[language] ?? '')
 }
 
-// Spec: EZ-2, FR-036
+// Spec: EZ-2, FR-036, IMPS-1173, IMPS-1174
 /** @purity pure */
 export function assignmentWords(keys: string | null, press: string | null, language: DisplayLanguage): string | null {
   const written = [keys, press]
@@ -196,7 +196,6 @@ function hintDayOf(text: string | null, side: DateTimeSide): HintDay | null {
   return day === null ? null : { day, text, side }
 }
 
-// Spec: TX-2, FR-156, S-574, S-576
 type HintTimes = Pick<DocumentSettings, 'isTimeOfDayVisible' | 'viewTimeZone'>
 
 const NO_HINT_TIMES: HintTimes = { isTimeOfDayVisible: false, viewTimeZone: null }
@@ -384,7 +383,7 @@ function deadlineDayText(task: Task, context: HintContext, language: DisplayLang
   return `${deadlineWord(language)} ${hintDayText(at, context, language)}`
 }
 
-// Spec: TL-9, TL-13
+// Spec: TL-9, TL-13, DA-6
 /** @purity pure */
 function deadlineRow(task: Task, context: HintContext, language: DisplayLanguage): TooltipRow | null {
   const at = hintDayOf(task.deadline, 'finish')
@@ -396,7 +395,7 @@ const LATE_WORDS = displayWords.delayReportStatuses.find((entry) => entry.specTa
 const WORKING_DAYS_UNIT_PART = 'workingDaysUnit'
 const WORKING_DAYS_WORDS = displayWords.propertyField.find((entry) => entry.part === WORKING_DAYS_UNIT_PART)?.text
 
-// Spec: TL-12, FR-047, DX-10, DG-4
+// Spec: TL-12, FR-047, DX-10, DG-4, IMPS-541
 // Why: DX-10's count under DG-4's word, so the tip and the report never differ on one delay.
 /** @purity pure */
 function lateRow(task: Task, schedule: Schedule, statusDate: CalendarDay | null, language: DisplayLanguage): TooltipRow | null {
@@ -406,7 +405,7 @@ function lateRow(task: Task, schedule: Schedule, statusDate: CalendarDay | null,
   return labeledRow(LATE_WORDS?.[language] ?? LATE_ROW, `${days} ${unit}`)
 }
 
-// Spec: TL-1, TL-13, TL-14
+// Spec: TL-1, TL-13, TL-14, TL-4, IMPS-1922, IMPS-1923, IMPS-1924
 /** @purity pure */
 function taskHintRows(
   task: Task,
@@ -428,7 +427,7 @@ function taskHintRows(
   return rows.filter((one): one is TooltipRow => one !== null)
 }
 
-// Spec: TL-2
+// Spec: TL-2, DA-6
 /** @purity pure */
 export function deadlineHint(task: Task, schedule: Schedule | null, language: DisplayLanguage, times = NO_HINT_TIMES): string | null {
   const context = hintContextOf(schedule, task.uid, times)
@@ -560,7 +559,7 @@ function taskTooltipOf(
   return { anchor: holder, text: shown.text, assignment: null, at: pointer, ...rows }
 }
 
-// Spec: EZ-2, EZ-6, FR-037, IN-3
+// Spec: EZ-2, EZ-6, FR-037, IN-3, IMPS-1182
 /** @purity pure */
 export function tooltipsFromScreenView(
   shown: Omit<ScreenView, 'tooltips'>,

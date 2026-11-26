@@ -22,7 +22,6 @@ import type { DocumentCommand } from './edit-document'
 import type { TreeStateEvent } from './task-group-folding'
 import { levelZeroWritesFor, treeStateWritesFor } from './task-group-folding'
 
-// Spec: SJ-1
 export type SearchJumpTarget = LandedTarget
 
 export type SearchJumpPlan = {
@@ -39,7 +38,6 @@ export interface SearchJumpReach {
   readonly landing: SearchJumpLanding | null
 }
 
-// Spec: SJ-5, SJ-6, U-50
 // Why: read off a picture drawn after SJ-2's reveal: the reveal moves every task group below the one it opens.
 export interface SearchJumpLanding {
   readonly shapeFromDatePx: number
@@ -52,7 +50,6 @@ export interface SearchJumpLanding {
 
 type UnstoredZoom = Pick<DocumentSettings, 'zoomX' | 'zoomY'>
 
-// Spec: SJ-6, SJ-10
 interface DrawnCommentBoxes {
   readonly commentBoxes: readonly { readonly id: string; readonly anchor: { readonly x: number }; readonly body: ScreenRect }[]
 }
@@ -82,7 +79,7 @@ function placeOf(schedule: Schedule, target: SearchJumpTarget): JumpPlace | null
   return { taskGroupId: heldTaskGroup(box.anchorTaskGroupId), date: commentBoxShownDateOf(schedule, box) }
 }
 
-// Spec: SJ-2, T-328
+// Spec: SJ-2, T-328, IMPS-1855
 /** @purity pure */
 function revealWrites(document: Document, taskGroupId: string | null): readonly DocumentCommand[] {
   if (taskGroupId === null) return []
@@ -202,7 +199,7 @@ function downOf(row: string, reach: SearchJumpReach): Pick<ScrollAnchor, 'scroll
   return taskGroupAnchorIn(landing.scrollingTaskGroups, topEdge, atTop)
 }
 
-// Spec: SJ-5, SJ-6, SJ-7
+// Spec: SJ-5, SJ-6, SJ-7, IMPS-1856
 /** @purity pure */
 function scrollWriteTo(document: Document, place: JumpPlace, reach: SearchJumpReach): DocumentCommand | null {
   const held = document.documentSettings
@@ -221,7 +218,7 @@ function scrollWriteTo(document: Document, place: JumpPlace, reach: SearchJumpRe
   return { kind: 'setScrollPosition', scrollDate, scrollTaskGroupId, scrollDateFraction, scrollTaskGroupFraction }
 }
 
-// Spec: T-332
+// Spec: T-332, IMPS-1859
 /** @purity pure */
 export function searchJumpWrites(
   document: Document,

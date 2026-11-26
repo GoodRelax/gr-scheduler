@@ -35,10 +35,8 @@ export interface HeldTableWindows {
   readonly holdResourceList: (window: ResourceListWindow | null) => void
 }
 
-// Spec: TV-1, TV-2, FR-151
 export type TableViewsHeld = { readonly [T in VisibilityTable]: TableView }
 
-// Spec: TV-1, TV-2
 type TableVisibilities = { readonly [T in VisibilityTable]: TableVisibility }
 
 export type TableViewChanges = { readonly [T in VisibilityTable]?: TableView }
@@ -165,7 +163,7 @@ function viewWithFilterOff(table: VisibilityTable, view: TableView): TableView {
   return letGo === null ? view : letGo.view
 }
 
-// Spec: CM-92, UN-20, TV-6
+// Spec: CM-92, UN-20, TV-6, IMPS-1864, IMPS-1865
 /** @purity pure */
 function tableViewWrites(document: Document, held: TableViewsHeld, changes: TableViewChanges): readonly DocumentCommand[] {
   const tables = VISIBILITY_TABLES.filter((table) => !isSameView(changes[table] ?? held[table], held[table]))
@@ -217,7 +215,7 @@ function jumpViewChangesOf(
   }
 }
 
-// see TV-7, JDG-2810
+// Spec: TV-7
 // Why: a task made while a filter is on enters the search table checked; the next view write keeps it in the list.
 /** @purity pure */
 function searchViewWithCreated(view: TableView, created: ReadonlySet<number>): TableView {
@@ -227,7 +225,7 @@ function searchViewWithCreated(view: TableView, created: ReadonlySet<number>): T
   return { ...view, visibility: { ...view.visibility, shownTaskUids: [...held, ...added] } }
 }
 
-// see TV-1, TV-7, FR-151, DFC-1820
+// Spec: TV-1, TV-7, FR-151
 /** @purity non-pure */
 function tableViewsKeeper() {
   let readFrom: DocumentSettings['tableViews'] | null = null
@@ -281,7 +279,7 @@ function createdTasksKeeper() {
   }
 }
 
-// see TV-1, TV-3, TD-8, DFC-1820
+// Spec: TV-1, TV-3, TD-8
 // Why: one set per held input, so the picture inputs keep their identity while nothing they read moved (DFC-1820).
 /** @purity non-pure */
 function drawnSetKeeper() {
@@ -296,7 +294,7 @@ function drawnSetKeeper() {
   }
 }
 
-// Spec: OP-18, TV-8, TV-12, WB-2, AM-27
+// Spec: OP-18, TV-8, TV-12, WB-2, AM-27, IMPS-1866
 /** @purity non-pure */
 function openSearchPanelMinimized(hands: FrameLoopHands, windows: HeldTableWindows, isReplaced: boolean): void {
   const shown = hands.readSession().screen.searchPanelDisplayState
@@ -306,7 +304,7 @@ function openSearchPanelMinimized(hands: FrameLoopHands, windows: HeldTableWindo
   if (panel.table !== 'tasks') windows.holdSearchPanel({ ...panel, table: 'tasks' })
 }
 
-// Spec: OP-18, TV-8, TV-12, WB-2, FR-130, S-445, S-564
+// Spec: OP-18, TV-8, TV-12, WB-2, FR-130, S-445, S-564, IMPS-1866
 // Why: the report's table is narrowed by the diagnosis, so its filter coming on starts the diagnosis (OP-18).
 /** @purity non-pure */
 function openTableWindowMinimized(
@@ -327,7 +325,7 @@ function openTableWindowMinimized(
   if (list === null || isReplaced) windows.holdResourceList({ ...(list ?? windows.reopenedResourceList()), shown: 'minimized' })
 }
 
-// Spec: OP-18, TV-8, AM-27
+// Spec: OP-18, TV-8, AM-27, IMPS-1866
 /** @purity non-pure */
 function appliedFilterFollower() {
   let seen: DocumentSettings['tableViews'] | null = null
@@ -364,7 +362,7 @@ type Diagnosis = { readonly readReportTaskUids: () => ReadonlySet<number> | null
 
 type CreatedTasks = ReturnType<typeof createdTasksKeeper>
 
-// Spec: CM-92, UN-20, TV-6, TV-8, SJ-0
+// Spec: CM-92, UN-20, TV-6, TV-8, SJ-0, IMPS-1863
 /** @purity non-pure */
 function tableViewWriterOf(hands: FrameLoopHands, windows: HeldTableWindows, views: () => TableViewsHeld, judged: { readonly diagnosis: Diagnosis; readonly created: CreatedTasks }) {
   /** @purity non-pure */
@@ -421,7 +419,7 @@ function frameFollowerOf(hands: FrameLoopHands, windows: HeldTableWindows, views
   }
 }
 
-// Spec: TV-1, TV-2, TV-6, TV-7, TV-8, TV-9, TV-13, SJ-0, SJ-9, EL-21, AM-26, AM-27, OP-18, UN-20
+// Spec: TV-1, TV-2, TV-6, TV-7, TV-8, TV-9, TV-13, SJ-0, SJ-9, EL-21, AM-26, AM-27, OP-18, UN-20, IMPS-1862
 /** @purity non-pure */
 export function shownTasksHoldOf(hands: FrameLoopHands, windows: HeldTableWindows, diagnosis: Diagnosis) {
   const viewsOf = tableViewsKeeper()

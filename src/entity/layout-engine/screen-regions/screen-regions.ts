@@ -57,7 +57,7 @@ function rectHoldsPoint(area: ScreenRect, x: number, y: number): boolean {
   return x >= area.x && x < area.x + area.width && y >= area.y && y < area.y + area.height
 }
 
-// Spec: FR-039, T-252
+// Spec: FR-039, T-252, IMPS-1223, IMPS-1228
 // Trap: never answer a non-finite ratio. Callers multiply with it directly, and a NaN
 // would travel silently -- as a refused panel drag, or as a shape drawn nowhere.
 /** @purity pure */
@@ -101,7 +101,6 @@ function entranceOuterWidthPx(): number {
   return entranceOuterHeightPx() + NOT_STORED_ENTRANCE_SIZES['S-237'] * 2
 }
 
-// Spec: HF-4
 const ROW_CONTROL_COLUMNS = 4
 
 const TASK_GROUP_CONTROL_LATTICE_RANKS = 2
@@ -112,7 +111,6 @@ export function taskGroupControlLatticeHeightPx(): number {
   return entranceOuterHeightPx() * NOT_STORED_CHROME_SCALE['S-235'] * TASK_GROUP_CONTROL_LATTICE_RANKS
 }
 
-// Spec: FR-039, T-252
 /** @purity pure */
 function drawnTaskGroupPanelWidthPx(settings: DocumentSettings, ratio: number): number {
   const indents = SETTINGS_CONSTANTS.taskGroupTitleIndent * ratio * SETTINGS_CONSTANTS.maxGroupDepth
@@ -124,6 +122,7 @@ function drawnTaskGroupPanelWidthPx(settings: DocumentSettings, ratio: number): 
 
 const DRAWN_AT_RATIO = '__drawnAtDisplayRatio'
 
+// Spec: VG-3, IMPS-802, DS-5, IMPS-1224, IMPS-1225, IMPS-1226, IMPS-1227, IMPS-1252, IMPS-1253
 // Trap: the stored values are never rewritten (FR-039 MUST NOT). Each drawing side
 // multiplies the STORED settings once on its way in; none of them scales a scaled value.
 /** @purity pure */
@@ -145,7 +144,6 @@ export function drawnSettingsOf(settings: DocumentSettings): DrawnSettings {
   return merged as unknown as DrawnSettings
 }
 
-// Spec: FR-017, FR-156, S-2, S-575
 const RULER_BAND_ROWS = 3
 
 /** @purity pure */
@@ -158,11 +156,13 @@ export function rulerZoneRowHeightOf(drawn: DrawnSettings): number {
   return drawn.rulerHeightPx / RULER_BAND_ROWS
 }
 
+// Spec: IMPS-716
 /** @purity pure */
 export function rulerBandHeightOf(drawn: DrawnSettings): number {
   return drawn.rulerHeightPx + rulerZoneRowsOf(drawn).length * rulerZoneRowHeightOf(drawn)
 }
 
+// Spec: UZ-11, IMPS-1254, IMPS-1757, IMPS-1758, IMPS-1761, IMPS-1770, IMPS-1774, SC-3
 /** @purity pure */
 export function regionsFromScreen(
   env: ScreenEnvironment,

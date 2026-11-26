@@ -26,7 +26,6 @@ const HOST_DELETE_KEY = 'Delete'
 
 const HOST_BACKSPACE_KEY = 'Backspace'
 
-// Spec: SK-3
 const HOST_DELETE_KEYS: ReadonlySet<unknown> = new Set([HOST_DELETE_KEY, HOST_BACKSPACE_KEY])
 
 const HOST_DATE_INPUT_TYPE = 'date'
@@ -210,6 +209,7 @@ function fieldListenersOf(propertiesPanel: HTMLElement) {
   }
 }
 
+// Spec: IMPS-3
 /** @purity non-pure */
 export function fieldEditingOf(host: Document, propertiesPanel: HTMLElement) {
   const { listen, watchAlso } = fieldListenersOf(propertiesPanel)
@@ -218,7 +218,6 @@ export function fieldEditingOf(host: Document, propertiesPanel: HTMLElement) {
   let commitsHandedOut = 0
   const fieldEditNotices: FieldEditNotice[] = []
 
-  // Spec: IF-9
   /** @purity non-pure */
   function noteFieldEdit(kind: FieldEditNotice['kind'], row: string): void {
     fieldEditNotices.push({ kind, row })
@@ -240,7 +239,7 @@ export function fieldEditingOf(host: Document, propertiesPanel: HTMLElement) {
 
   const typedControlsByTaskGroup = new Map<string, TextEntryControl>()
 
-  // Spec: MK-13
+  // Spec: MK-13, IMPS-1960
   /** @purity non-pure */
   function focusPropertyField(row: string): boolean {
     if (row === DOCUMENT_TITLE_TASK_GROUP) {
@@ -260,6 +259,7 @@ export function fieldEditingOf(host: Document, propertiesPanel: HTMLElement) {
     return control === undefined || focusAndChoose(control)
   }
 
+  // Spec: IMPS-1961
   /** @purity non-pure */
   function focusAndChoose(control: TextEntryControl): boolean {
     if (typeof control.focus === 'function') control.focus()
@@ -284,7 +284,6 @@ export function fieldEditingOf(host: Document, propertiesPanel: HTMLElement) {
     return key === HOST_ENTER || key === HOST_ESCAPE_KEY
   }
   let heldTextControl: TextEntryControl | null = null
-  // Spec: IF-9, T-292
   /** @purity non-pure */
   function holdText(control: TextEntryControl | null): void {
     const was = heldTextControl
@@ -445,7 +444,7 @@ export function fieldEditingOf(host: Document, propertiesPanel: HTMLElement) {
   const WATERMARK_UNLOCK_ROW = 'U-60'
   const DOCUMENT_TITLE_KEY: PropertyFieldKey = { holder: 'project', column: 'title' }
 
-  // Spec: FR-035
+  // Spec: FR-035, IMPS-1220
   /** @purity non-pure */
   function openDocumentTitleField(): void {
     const box = documentTitleBox
@@ -552,7 +551,6 @@ export function fieldEditingOf(host: Document, propertiesPanel: HTMLElement) {
     })
   }
 
-  // Spec: FR-020
   /** @purity semi-pure-mutable */
   function readWatermarkUnlockAnswer(): string {
     return watermarkUnlockEntry === null ? '' : watermarkUnlockEntry.value
@@ -561,7 +559,6 @@ export function fieldEditingOf(host: Document, propertiesPanel: HTMLElement) {
   // Why: held by focus, not by contents: a keydown is answered before the character lands,
   // so the first keystroke would reach table T-036.
   let isWatermarkUnlockHeld = false
-  // Spec: IF-9, T-292
   /** @purity non-pure */
   function holdWatermarkUnlock(isHeld: boolean): void {
     if (isHeld === isWatermarkUnlockHeld) return
@@ -569,7 +566,6 @@ export function fieldEditingOf(host: Document, propertiesPanel: HTMLElement) {
     noteFieldEdit(isHeld ? 'began' : 'ended', WATERMARK_UNLOCK_ROW)
   }
   let isWatermarkUnlockTakenBack = false
-  // Spec: FR-020
   /** @purity non-pure */
   function watchWatermarkUnlock(surface: HTMLElement): void {
     // Why: focused here, not by the browser: the input seam prevents this pointerdown, and a
@@ -633,7 +629,6 @@ export function fieldEditingOf(host: Document, propertiesPanel: HTMLElement) {
     return held
   }
 
-  // Spec: IF-9
   /** @purity semi-pure-mutable */
   function readFieldEditNotices(): readonly FieldEditNotice[] {
     return fieldEditNotices.splice(0)

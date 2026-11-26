@@ -19,7 +19,7 @@ export interface DependencyEnd {
   readonly edge: 'start' | 'finish'
 }
 
-// Spec: FR-009
+// Spec: IMPS-1528, IMPS-1529, IMPS-1672
 // Why: the labels count as well as the drawn shapes, since the tool that draws a line may land
 // anywhere on the Task.
 /** @purity pure */
@@ -31,7 +31,7 @@ function isOnTheTask(shape: TaskShape, x: number, y: number): boolean {
     (assignee !== null && isInsideRect(x, y, assignee))
 }
 
-// Spec: FR-009, PTD-3, FR-098, EL-1
+// Spec: FR-009, PTD-3, FR-098, EL-1, IMPS-320, IMPS-321, IMPS-322, IMPS-323, IMPS-324, IMPS-325, IMPS-326, IMPS-328, IMPS-1673, IMPS-1674, IMPS-1675
 // Trap: a given uid tests no containment: the press may have reached the Task through ink outside its bar.
 /** @purity pure */
 export function dependencyEndAtPointer(

@@ -4,7 +4,6 @@
 // @purity    n/a
 // @seam      FileStore, implemented in another layer (LR-5)
 
-// Spec: OP-2, OP-13, OP-15
 export type OpenRoute = 'chooser' | 'drop' | 'reopen' | 'baseline'
 
 export type FileStoreFaultReason =
@@ -56,14 +55,11 @@ export interface ChosenFileWrite {
   askToWriteOver(destination: ChosenWriteDestination): Promise<boolean>
 }
 
-// Spec: IF-3
 export interface FileStore {
   readFileToOpen(route: OpenRoute): Promise<FileReading>
 
-  // Spec: FR-060, T-290
   adoptFileReadToOpen(): void
 
-  // Spec: FR-095
   forgetOpenedFile(): void
 
   readOpenedFileState(): Promise<OpenedFileState>
@@ -74,7 +70,6 @@ export interface FileStore {
 
   writeChosenFile(write: ChosenFileWrite): Promise<FileWriting>
 
-  // Spec: IF-3, FR-068, IO-10
   // Why: optional: a host with no page (Node, a test's store) has no download to hand a file to.
   downloadFile?(fileName: string, bytes: Uint8Array): void
 }

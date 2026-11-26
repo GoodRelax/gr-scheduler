@@ -35,6 +35,7 @@ export interface ChangeLogEntry {
 }
 // </generated>
 
+// Spec: IMPS-1062, IMPS-1063
 /** @purity pure */
 export function advancedStamp(
   stamp: DocumentStamp,
@@ -50,6 +51,7 @@ export function advancedStamp(
   }
 }
 
+// Spec: IMPS-1067
 /** @purity pure */
 export function isStampMatched(read: DocumentStamp, current: DocumentStamp): boolean {
   return (

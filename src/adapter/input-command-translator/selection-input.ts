@@ -45,7 +45,6 @@ import {
 } from './input-command-translator'
 import { isContinuationMarkClick } from './item-grab'
 
-// Spec: PE-1, PE-6
 const BODY_GRAB_TASK_GROUPS: ReadonlySet<string> = new Set(['GA-9', 'GA-14', 'GA-15'])
 
 /** @purity pure */
@@ -72,7 +71,7 @@ function itemRefOf(schedule: Schedule, item: Item): ItemRef | null {
   }
 }
 
-// Spec: SL-2, T-023c
+// Spec: SL-2, T-023c, IMPS-227
 // Why: the progress marker of a Task nothing else draws still answers its own act (JDG-187); it picks nothing.
 /** @purity pure */
 function pickableRefOf(context: InputContext, item: Item): ItemRef | null {
@@ -81,7 +80,7 @@ function pickableRefOf(context: InputContext, item: Item): ItemRef | null {
   return isDrawn ? itemRefOf(context.document.schedule, item) : null
 }
 
-// Spec: SL-5, T-023c
+// Spec: SL-5, T-023c, IMPS-227
 /** @purity pure */
 function everythingSelectable(context: InputContext): readonly ItemRef[] {
   const geometry = context.geometry
@@ -133,7 +132,7 @@ function pickRowOf(press: PointerPress, release: PointerInput, context: InputCon
   return isParentPickingCtrlClick(press, release, context) ? 'PTD-3' : pressedRowOf(press, context)
 }
 
-// Spec: SL-7, PTL-5
+// Spec: SL-7, PTL-5, IMPS-1649
 /** @purity pure */
 function isChoiceKeptByDrag(grab: GrabTaskGroup, ref: ItemRef, press: PointerPress, release: PointerInput,
                            context: InputContext): boolean {
@@ -150,7 +149,7 @@ function isShiftBodyMove(press: PointerPress, release: PointerInput, context: In
   return isMoveArm && isDateKeepingDrag(press) && hasDraggedPastThreshold(press, release)
 }
 
-// Spec: SL-2, SL-7, T-270
+// Spec: SL-2, SL-7, T-270, IMPS-1678, IMPS-1647, IMPS-1652, IMPS-1654, SL-7a
 /** @purity pure */
 function selectionAfterDrag(press: PointerPress, release: PointerInput, context: InputContext,
                             grab: GrabTaskGroup, ref: ItemRef): Selection {
@@ -173,7 +172,7 @@ function isSelectionRung(context: InputContext, judgedRung: EscapeTarget | null 
   return rung === 'selection'
 }
 
-// Spec: T-023c
+// Spec: T-023c, AR-1, MK-11, MK-6, SL-6
 /** @purity pure */
 export function selectionFromInput(
   input: HumanInput,

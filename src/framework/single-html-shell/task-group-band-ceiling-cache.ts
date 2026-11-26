@@ -59,14 +59,12 @@ function isSameBand(held: HeldCeiling, context: InputContext, drawnZoomX: number
   )
 }
 
-// see FR-016, DFC-2314
 // Why: one zoom notch asks at the drawn zoomX and at the zoomX of each step it may take; one held
 // answer was replaced by the next zoomX on every ask, so the band was solved again every frame.
 const HELD_ZOOM_X_COUNT = 4
 
 /** @purity non-pure */
 export function taskGroupBandCeilingCacheOf() {
-  // Spec: FR-016
   // Trap: keyed on all the band is laid out from but zoomY and the scroll place; the zoomX is
   // the one the translator measures at, never the stored zoomX, which OP-10 may not draw.
   let bandCeilingsFrom: readonly HeldCeiling[] = []

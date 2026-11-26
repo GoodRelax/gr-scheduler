@@ -5,7 +5,7 @@
 
 import type { Schedule, TaskGroup } from './schedule-entities'
 
-// Spec: AT-53, AT-54
+// Spec: IMPS-915
 /** @purity pure */
 function nameOfTaskGroup(schedule: Schedule, taskGroup: TaskGroup): string {
   if (taskGroup.name !== null) return taskGroup.name

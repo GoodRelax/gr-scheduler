@@ -40,14 +40,12 @@ export type WholeScheduleShiftCommand =
 
 const COMMAND_ROW = 'CM-99'
 
-// Spec: WH-7
 const TASK_COLUMNS = DATE_COLUMNS.Task as readonly (keyof Task & string)[]
 const BASELINE_COLUMNS = ['start', 'finish'] as const
 const HIGHLIGHT_COLUMNS = DATE_COLUMNS.HighlightBox
 const COMMENT_COLUMNS = DATE_COLUMNS.CommentBox
 const SETTINGS_COLUMNS = ['scrollDate', 'fitSpanStart', 'fitSpanFinish'] as const
 
-// Spec: WH-6
 const DATE_PART = /^(\s*)\d{4}-\d{2}-\d{2}/
 const DATE_PART_LENGTH = 10
 
@@ -160,7 +158,7 @@ function walkRefusalOf(error: unknown): Refusal {
   throw error
 }
 
-// Spec: CM-99, FR-159, T-379, WH-9, WH-10
+// Spec: CM-99, FR-159, T-379, WH-9, WH-10, IMPS-752, IMPS-753
 // Why: no task with a start, or no working day to move, writes nothing and leaves no undo step (WH-9).
 /** @purity pure */
 export function wholeScheduleShifted(document: Document, command: WholeScheduleShiftCommand): EditResult {
@@ -205,7 +203,7 @@ function shiftExampleOf(tasks: readonly Task[], shift: WorkingDayShift) {
   return { name: task.name, before: dayKeyOf(day), after: dayKeyOf(shift.moveDay(day).day) }
 }
 
-// Spec: WH-11, QN-15, FR-159
+// Spec: WH-11, QN-15, FR-159, IMPS-751
 // Why: what the question shows before the write; null when the Apply button would move nothing (WH-12).
 /** @purity pure */
 export function wholeScheduleShiftPreviewOf(document: Document, newStartDate: string) {

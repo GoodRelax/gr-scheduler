@@ -13,7 +13,7 @@ export function thinEndHalfHeightOf(shapeKind: ShapeKind, settings: DrawnSetting
   return (shapeKind === 'arrow' ? settings.thinArrowHeadHeight : settings.spanDotSize) / 2
 }
 
-// Spec: T-012, XS-5, XS-6
+// Spec: T-012, XS-5, XS-6, IMPS-1681, IMPS-1684, IMPS-1697, IMPS-1700
 /** @purity pure */
 export function shapeHeightOf(shapeKind: ShapeKind, settings: DrawnSettings): number {
   if (!isLaidBelow(shapeKind)) return planHeightOf(shapeKind, settings)
@@ -21,7 +21,7 @@ export function shapeHeightOf(shapeKind: ShapeKind, settings: DrawnSettings): nu
   return stroke + settings.actualGap + stroke / 2 + thinEndHalfHeightOf(shapeKind, settings)
 }
 
-// Spec: OC-10, XS-4
+// Spec: OC-10, XS-4, IMPS-1697, IMPS-1704, IMPS-1705
 // Trap: the tier is the font size, never S-233; that ratio moves every stacked task group.
 /** @purity pure */
 export function labelLiftOf(shapeKind: ShapeKind, settings: DrawnSettings): number {
@@ -45,7 +45,7 @@ export function outlineWidthOf(strokeWidthPx: number | null | undefined, setting
   return strokeWidthPx * displayRatioOf(settings)
 }
 
-// Spec: VG-5
+// Spec: VG-5, IMPS-1703
 /** @purity pure */
 export function drawnEdgeOverhangOf(shapeKind: ShapeKind, outlineWidth: number): number {
   return isLaidBelow(shapeKind) ? 0 : outlineWidth / 2
@@ -60,11 +60,13 @@ export function drawnExtentOf(
   return reservedHeight(shapeKind, settings) + drawnEdgeOverhangOf(shapeKind, outlineWidth) * 2
 }
 
+// Spec: IMPS-1687
 /** @purity pure */
 export function isLaidBelow(shapeKind: ShapeKind): boolean {
   return shapeKind === 'arrow' || shapeKind === 'endpointSpan'
 }
 
+// Spec: IMPS-398
 /** @purity pure */
 export function actualPlacementOf(shapeKind: ShapeKind): 'inside' | 'below' | 'sideways' {
   if (shapeKind === 'milestone') return 'sideways'
@@ -92,21 +94,21 @@ export function zoomYAtPlanHeightFloor(settings: DrawnSettings): number {
   return planHeightFloor(settings) / settings.basePlanHeight
 }
 
-// Spec: FR-094
+// Spec: FR-094, IMPS-1898, DS-8
 /** @purity pure */
 export function planHeightOf(shapeKind: ShapeKind, settings: DrawnSettings): number {
   const ratio = settings.shapeHeightOf[shapeKind]
   return Math.max(planHeightFloor(settings), settings.basePlanHeight * settings.zoomY) * ratio
 }
 
-// Spec: FR-094
+// Spec: FR-094, IMPS-1897, IMPS-1900
 /** @purity pure */
 export function markerDiameterOf(shapeKind: ShapeKind, nameFontSize: number,
                                  settings: DrawnSettings): number {
   return isLaidBelow(shapeKind) ? nameFontSize : settings.markerSize
 }
 
-// Spec: FR-077, FR-094
+// Spec: FR-077, FR-094, IMPS-1899, IMPS-800, IMPS-802
 /** @purity pure */
 export function labelFontSize(shapeKind: ShapeKind, settings: DrawnSettings): number {
   const actual = planHeightOf(shapeKind, settings) * settings.actualOfPlan
@@ -114,7 +116,7 @@ export function labelFontSize(shapeKind: ShapeKind, settings: DrawnSettings): nu
   return Math.max(settings.fontMin, actual * settings.fontOfActual * scale)
 }
 
-// Spec: FR-016, FR-077, FR-094, PI-5, T-252, DS-1
+// Spec: FR-016, FR-077, FR-094, PI-5, T-252, DS-1, IMPS-1470, IMPS-1471, IMPS-1473, IMPS-1472, IMPS-800
 // Why: the largest of three: below either floor the name does not grow, so the floor's release answers.
 /** @purity pure */
 export function zoomYAtRectangleLabelFont(fontPx: number, storedSettings: DocumentSettings): number {

@@ -53,7 +53,7 @@ function isSameNumbers(a: readonly number[], b: readonly number[]): boolean {
   return a.length === b.length && a.every((one, at) => one === b[at])
 }
 
-// Spec: FR-135, T-351
+// Spec: FR-135, T-351, IMPS-1406
 // Why: the owners kept while arrows are picked are the ones drawn just before, so a Shift click reaches a second arrow.
 /** @purity pure */
 export function parentTaskFamiliesOf(
@@ -102,7 +102,7 @@ function isParentTaskArmed(session: ScreenSession): boolean {
   return armedOf(session.screen.armModeState)?.kind === 'parentTaskArmed'
 }
 
-// Spec: FR-135, S-484, AR-7
+// Spec: FR-135, S-484, AR-7, IMPS-1406
 /** @purity non-pure */
 function parentTaskViewOf() {
   let isShown = false

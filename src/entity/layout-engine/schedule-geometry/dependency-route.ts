@@ -30,22 +30,18 @@ export interface LinkEnd {
   readonly drawnBottom: number
 }
 
-// Spec: EL-1, EL-2, EL-9
 export interface SightedEnd {
   readonly end: LinkEnd
   readonly far: FarEndGeometry
 }
 
-// Spec: EL-9
 const CONTINUATION_DOT_COUNT = 3
 
-// Spec: DP-1, DP-3
 /** @purity pure */
 function exitsRight(linkType: number): boolean {
   return linkType === 1 || linkType === 0
 }
 
-// Spec: DP-3, DP-4
 /** @purity pure */
 function sameSide(linkType: number): boolean {
   return linkType === 0 || linkType === 3
@@ -56,11 +52,10 @@ function sameSide(linkType: number): boolean {
 /** @purity pure */
 function drawnOverhangOf(placed: TaskPlacement, settings: DrawnSettings): number {
   const isLine = placed.shapeKind === 'arrow' || placed.shapeKind === 'endpointSpan'
-  // Spec: AT-104
   return isLine ? 0 : (placed.outlineWidth ?? settings.planStroke) / 2
 }
 
-// Spec: FR-009, EL-1
+// Spec: FR-009, EL-1, IMPS-372, IMPS-373
 /** @purity pure */
 export function placedEndOf(placed: TaskPlacement, settings: DrawnSettings): LinkEnd {
   const thin = isThinShape(placed.shapeKind)
@@ -118,7 +113,7 @@ export function laneSpansOf(layout: ScheduleLayout, settings: DrawnSettings): re
 
 const SAME_HEIGHT_PX = 0.5
 
-// see LF-5, VG-2, VG-5, JDG-2110
+// Spec: LF-5, VG-2, VG-5, IMPS-1335
 /** @purity pure */
 function corridorY(from: Anchored, to: Anchored, course: 'sameLane' | 'down' | 'up', settings: DrawnSettings,
                    lanes: readonly LaneSpan[]): number {
@@ -134,7 +129,6 @@ function corridorY(from: Anchored, to: Anchored, course: 'sameLane' | 'down' | '
   return (from.top + (above.length <= 1 ? to.bottom : above[above.length - 1]!.bottom)) / 2
 }
 
-// Spec: T-222
 // Why: argued, NOT measured (JDG-138): an x of 1e9 px, a thousand years of days at the widest S-1 x S-236 x S-98,
 // has an ulp near 1.2e-7 px, so a few rounded terms stay under this, and no screen resolves a millionth of a pixel.
 const DRAWN_PX_ROUNDING = 1e-6
@@ -157,7 +151,7 @@ function opposedPatternOf(sameLane: boolean, below: boolean, x2ReachesX1: boolea
   return below ? 'RP-4' : 'RP-5'
 }
 
-// Spec: T-222
+// Spec: IMPS-1326, IMPS-1335, IMPS-315, IMPS-374, IMPS-383, RP-1, RP-6, RP-7, RP-8, RT-2, RT-3, SWS-3, RT-1
 /** @purity pure */
 function routeOf(from: Anchored, to: Anchored, linkType: number, settings: DrawnSettings,
                  lanes: readonly LaneSpan[]): Route {
@@ -243,6 +237,7 @@ function headingOf(points: Path): Point {
   return point(1, 0)
 }
 
+// Spec: IMPS-1335
 /** @purity pure */
 export function arrowHeadOf(points: Path, length: number, base: number): Path {
   const tip = points[points.length - 1]
@@ -296,7 +291,7 @@ function continuationDotsOf(line: Path, ratio: number): Pick<ContinuationGeometr
   return { dots, radius: diameter / 2 }
 }
 
-// Spec: EL-9, EL-10, EL-11, EL-12
+// Spec: EL-9, EL-10, EL-11, EL-12, IMPS-386
 /** @purity pure */
 function continuationOf(line: Path, farEnd: SightedEnd, ratio: number): ContinuationGeometry {
   return { ...continuationDotsOf(line, ratio), farUid: farEnd.end.taskUid, far: farEnd.far }
@@ -317,7 +312,7 @@ export function unseenEndStubOf(from: Point, toward: number, settings: DrawnSett
 
 type ElidedParts = Pick<DependencyGeometry, 'drawnPoints' | 'continuation' | 'head'>
 
-// Spec: EL-3, EL-4, EL-5, EL-6
+// Spec: EL-3, EL-4, EL-5, EL-6, IMPS-316, NG-3
 /** @purity pure */
 function elidedPartsOf(inputs: GeometryInputs, points: Path, isLevel: boolean, ends: {
   readonly elision: Elision
@@ -346,6 +341,7 @@ function elidedPartsOf(inputs: GeometryInputs, points: Path, isLevel: boolean, e
   }
 }
 
+// Spec: IMPS-1325, IMPS-384, RT-1
 /** @purity pure */
 export function routedDependency(inputs: GeometryInputs, predecessor: SightedEnd, successor: SightedEnd,
                           linkType: number, elision: Elision, lanes: readonly LaneSpan[]): DependencyGeometry {

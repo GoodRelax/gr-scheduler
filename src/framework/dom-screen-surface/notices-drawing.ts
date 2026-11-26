@@ -39,7 +39,7 @@ export function keepFromInput(element: HTMLElement): void {
   })
 }
 
-// Spec: FR-073, FR-069, CN-6
+// Spec: FR-073, FR-069, CN-6, IMPS-1010, IMPS-1011, IMPS-1089, IMPS-1090
 // Why: the help passes its own look (FR-036, S-503); the header branding and the notices keep STYLE.noticeLink.
 /** @purity non-pure */
 export function linkElement(
@@ -73,7 +73,7 @@ export function nextStepElement(host: Document, text: string, link?: LinkedWords
   return line
 }
 
-// Spec: NT-1, NT-3a, NT-8
+// Spec: NT-1, NT-3a, NT-8, NT-5, NT-6, NT-9
 /** @purity non-pure */
 export function noticeElement(host: Document, notice: Notice): HTMLElement {
   const drawn = made(host, 'div', STYLE.notice)
@@ -118,7 +118,7 @@ export function confirmationAnswerElement(
   return drawn
 }
 
-// Spec: U-55, NT-7, FR-032, FR-076, T-258
+// Spec: U-55, NT-7, FR-032, FR-076, T-258, CQ-4, IMPS-258, IMPS-259, IMPS-260, IMPS-263, IMPS-264, CQ-1, CQ-3, IMPS-1138
 /** @purity non-pure */
 export function confirmationElement(host: Document, confirmation: Confirmation): HTMLElement {
   const at = confirmation.at
@@ -153,7 +153,6 @@ export function confirmationElement(host: Document, confirmation: Confirmation):
   const header = made(host, 'div', STYLE.confirmationHeader)
   header.setAttribute(CONFIRMATION_PART_ATTRIBUTE, 'header')
   header.replaceChildren(text, answers)
-  // Spec: CQ-4
   if (items.length === 0) {
     drawn.replaceChildren(header)
     return drawn

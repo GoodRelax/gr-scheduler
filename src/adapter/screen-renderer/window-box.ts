@@ -8,17 +8,14 @@ import type { SearchPanelSession } from '../../use-case/advance-screen-session/a
 
 export type WindowShown = 'normal' | 'minimized' | 'maximized'
 
-// Spec: WB-6, S-419, S-455
 export type WindowPlace = Pick<SearchPanelSession, 'at' | 'size'>
 
 export const DEFAULT_WINDOW_PLACE: WindowPlace = { at: null, size: null }
 
 export type WindowEdge = 'top' | 'bottom' | 'left' | 'right' | 'topLeft' | 'topRight' | 'bottomLeft' | 'bottomRight'
 
-// Spec: GR-24, GR-25
 export type WindowGrabRegion = 'titleBand' | WindowEdge
 
-// Spec: S-423, S-424
 export interface WindowFloor {
   readonly width: number
   readonly height: number

@@ -30,7 +30,6 @@ export interface CalendarDraftRange {
   readonly end: string
 }
 
-// Spec: T-280, FR-088, WC-2, WC-3, WC-4, WC-8
 export interface CalendarDraft {
   readonly workingDayTypes: readonly number[]
   readonly weekStartDay: number
@@ -40,7 +39,6 @@ export interface CalendarDraft {
 
 export type CalendarDraftRangeSide = 'start' | 'end'
 
-// Spec: WC-10
 export type CalendarDraftRefusal =
   | { readonly kind: 'timeNotReadable'; readonly rangeIndex: number; readonly side: CalendarDraftRangeSide; readonly text: string }
   | { readonly kind: 'startNotBeforeEnd'; readonly rangeIndex: number }
@@ -52,7 +50,6 @@ export type CalendarDraftRefusal =
 const MINUTES_PER_HOUR = 60
 const MINUTES_PER_DAY = 1440
 
-// Spec: WC-8, T-375
 const CLOCK_TEXT = /^(\d{1,2}):([0-5]\d)$/
 
 const RANGE_ADDED_AFTER_MINUTES = 60
@@ -144,7 +141,7 @@ export function shownCalendarDraft(draft: CalendarDraft | null, schedule: Schedu
   return draft ?? calendarDraftOf(schedule)
 }
 
-// Spec: WC-9
+// Spec: WC-9, IMPS-730
 /** @purity pure */
 export function otherHoursDayTypesOf(draft: CalendarDraft, schedule: Schedule): readonly number[] {
   const working = new Set(draft.workingDayTypes)
@@ -166,7 +163,7 @@ export function withWeekStart(draft: CalendarDraft, weekStartDay: number): Calen
   return draft.weekStartDay === weekStartDay ? draft : { ...draft, weekStartDay }
 }
 
-// Spec: IC-163, WC-8, S-582
+// Spec: IC-163, WC-8, S-582, IMPS-729
 /** @purity pure */
 export function canAddRange(draft: CalendarDraft): boolean {
   return draft.ranges.length < SETTINGS_CONSTANTS.workingTimesPerDayMax
@@ -177,7 +174,7 @@ export function canDeleteRange(draft: CalendarDraft): boolean {
   return draft.ranges.length > 1
 }
 
-// Spec: IC-163, WC-8
+// Spec: IC-163, WC-8, IMPS-729
 // Why: an hour after the latest end that reads, moved back inside the day, so no refusal shows on the press.
 /** @purity pure */
 export function withRangeAdded(draft: CalendarDraft): CalendarDraft {
@@ -222,7 +219,7 @@ function nextExceptionOrdinal(draft: CalendarDraft, schedule: Schedule): number 
   return held.reduce((high, one) => Math.max(high, one), -1) + 1
 }
 
-// Spec: IC-135, WC-6, EX-13
+// Spec: IC-135, WC-6, EX-13, IMPS-728
 /** @purity pure */
 export function withExceptionAdded(draft: CalendarDraft, schedule: Schedule, today: CalendarDay): CalendarDraft {
   const added: Exception = {
@@ -257,7 +254,7 @@ export function withExceptionDeleted(draft: CalendarDraft, ordinal: number): Cal
   return exceptions.length === draft.exceptions.length ? draft : { ...draft, exceptions }
 }
 
-// Spec: IC-137, WC-4, AT-81
+// Spec: IC-137, WC-4, AT-81, IMPS-728
 /** @purity pure */
 export function withExceptionKindToggled(draft: CalendarDraft, ordinal: number): CalendarDraft {
   return withException(draft, ordinal, (held) =>
@@ -347,7 +344,7 @@ function exceptionRefusals(draft: CalendarDraft): readonly CalendarDraftRefusal[
   return refusals
 }
 
-// Spec: WC-10, IV-17, IV-24
+// Spec: WC-10, IV-17, IV-24, IMPS-723
 /** @purity pure */
 export function calendarDraftRefusalsOf(draft: CalendarDraft): readonly CalendarDraftRefusal[] {
   const weekdays: readonly CalendarDraftRefusal[] = draft.workingDayTypes.length === 0 ? [{ kind: 'noWorkingWeekday' }] : []

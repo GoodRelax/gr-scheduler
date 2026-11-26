@@ -75,7 +75,6 @@ export type RelayedCall = {
   [K in keyof AgentApi]: { readonly member: K; readonly params: RelayedParams[K] }
 }[keyof AgentApi]
 
-// Spec: AG-9a
 export type RelayedAnswer =
   | { readonly result: unknown }
   | { readonly error: { readonly code: number; readonly message: string } }
@@ -129,14 +128,12 @@ function isParameterized(member: keyof AgentApi): member is ParameterizedMember 
   return Object.prototype.hasOwnProperty.call(MEMBER_PARAMETERS, member)
 }
 
-// Spec: AM-17
 /** @purity non-pure */
 function answerWatch(api: AgentApi, sendNotice: (notice: unknown) => void): RelayedAnswer {
   const watch = api.watchChanges((notice) => sendNotice(notice))
   return { result: { hasReplacedEarlierWatch: watch.hasReplacedEarlierWatch } }
 }
 
-// Spec: AM-14
 /** @purity non-pure */
 async function answerPng(api: AgentApi): Promise<RelayedAnswer> {
   const exported: AgentExport<Uint8Array> = await api.exportPng()

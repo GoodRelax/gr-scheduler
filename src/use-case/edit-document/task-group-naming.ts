@@ -11,7 +11,7 @@ import { refused, edited, reject } from './edit-document'
 import type { TaskGroupCommandOf } from './edit-task-group'
 import { depthOf, withTaskGroup, withScheduleParts } from './edit-task-group'
 
-// Spec: CM-26, FR-085, FR-058, AT-153
+// Spec: CM-26, FR-085, FR-058, AT-153, IMPS-1952, IMPS-1953, IMPS-1954, IMPS-915
 /** @purity pure */
 export function createTaskGroup(
   document: Document,

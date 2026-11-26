@@ -28,7 +28,6 @@ export type { DependencyEnd } from './dependency-end'
 export { isTaskDrawn, selectionWithinDrawn, selectionWithinDrawnTaskGroups } from './drawn-selection'
 export { itemsInMarquee } from './marquee'
 
-// Spec: SL-1
 export type Item =
   | { readonly kind: 'task'; readonly taskUid: number }
   | { readonly kind: 'dependency'; readonly predecessorUid: number; readonly successorUid: number }
@@ -37,7 +36,6 @@ export type Item =
   | { readonly kind: 'statusLine' }
   | { readonly kind: 'parentTaskLink'; readonly childUid: number; readonly isStated: boolean }
 
-// Spec: T-266, GR-23
 export type GrabArea =
   | 'GA-1' | 'GA-2' | 'GA-3' | 'GA-4' | 'GA-5' | 'GA-6' | 'GA-7' | 'GA-8'
   | 'GA-9' | 'GA-10' | 'GA-11' | 'GA-12' | 'GA-13' | 'GA-14' | 'GA-15' | 'GA-16'
@@ -45,7 +43,6 @@ export type GrabArea =
   | 'GR-10' | 'GR-11' | 'GR-14' | 'GR-16'
   | 'PTL-10'
 
-// Spec: GR-14
 // Why: 'body' reads as "move the whole thing", which a highlight box answers on its frame alone.
 export type BoxPart =
   | { readonly kind: 'body' }
@@ -67,15 +64,14 @@ export interface Hit {
 
 export type PointerResolution = 'press' | 'doubleClick' | 'hint'
 
-// Spec: EZ-6, GR-23, GR-26, GR-27
 export interface HintHolder {
   readonly kind: 'task' | 'deadline' | 'baseline'
   readonly taskUid: number
 }
 
-// Spec: T-206
 export type GrabSizes = typeof NOT_STORED_SIZES
 
+// Spec: DS-7, IMPS-1611
 // Why: no display scale argument: DS-7 keeps every grab margin at its own size whatever the chart is drawn at.
 /** @purity pure */
 export function grabSizesOf(): GrabSizes {
@@ -183,7 +179,6 @@ function isInsideOutline(x: number, y: number, points: Path): boolean {
     if (a.y <= y && b.y > y && side > 0) winding += 1
     if (a.y > y && b.y <= y && side < 0) winding -= 1
   }
-  // Spec: LF-18, HT-1
   // Why: non-zero, not even-odd: a milestone's head over its torso overlaps, and both are drawn ink.
   return winding !== 0
 }
@@ -207,7 +202,6 @@ function isOnTheStroke(x: number, y: number, points: Path, half: number): boolea
   return false
 }
 
-// Spec: T-012, T-271
 type ShapeFamily = 'bar' | 'line' | 'milestone'
 
 /** @purity pure */
@@ -254,7 +248,7 @@ type Drawn = {
   readonly covers: (x: number, y: number) => boolean
 }
 
-// Spec: HT-1
+// Spec: HT-1, IMPS-230
 // Why: an outline answers inside its figure, a line inside its band; a notch is outside both.
 /** @purity pure */
 function drawnOfBar(bar: BarGeometry | null): Drawn | null {
@@ -292,6 +286,7 @@ function midlineOf(plan: ScreenRect | null, below: ScreenRect | null): number | 
   return (centerOf(plan).y + centerOf(below).y) / 2
 }
 
+// Spec: IMPS-230, IMPS-1612
 // Trap: reads the first dummy's ink only; task-figures.ts gives every dummy of a Task the same one.
 /** @purity pure */
 export function shapeOf(task: TaskGeometry): TaskShape {
@@ -337,7 +332,6 @@ function verticalDistanceOf(shape: TaskShape, y: number): number {
   return nearest
 }
 
-// Spec: T-268
 type TypeName =
   | 'fade'
   | 'markerOutside'
@@ -351,20 +345,17 @@ type TypeName =
   | 'milestonePlan'
   | 'body'
 
-// Spec: T-268
 // Trap: the two columns part in one place only, where the dependency line stands.
 const ON_SHAPE_ORDER: readonly TypeName[] = [
   'fade', 'markerOutside', 'resume', 'dummy', 'actualEnd',
   'dependencyContinuation', 'dependency', 'planEnd', 'markerInside', 'milestonePlan', 'body',
 ]
 
-// Spec: T-268
 const OFF_SHAPE_ORDER: readonly TypeName[] = [
   'fade', 'dependencyContinuation', 'dependency', 'markerOutside', 'resume', 'dummy',
   'actualEnd', 'planEnd', 'markerInside', 'milestonePlan', 'body',
 ]
 
-// Spec: HT-3
 // Why: a list of its own, not a swap: every other type falls behind both of these two.
 const ON_MARKER_BOX_ORDER: readonly TypeName[] = [
   'dummy', 'actualEnd', 'markerOutside', 'markerInside', 'resume',
@@ -418,7 +409,6 @@ function downOf(box: ScreenRect): Span {
   return { from: box.y, to: bottomOf(box) }
 }
 
-// Spec: T-266
 /** @purity pure */
 function bandSpan(band: ScreenRect, over: number): Span {
   return { from: band.y - over, to: bottomOf(band) + over }
@@ -439,7 +429,7 @@ function centeredSpan(at: number, width: number): Span {
   return { from: at - width / 2, to: at + width / 2 }
 }
 
-// Spec: XS-7
+// Spec: XS-7, IMPS-1690, IMPS-1691, IMPS-1693
 /** @purity pure */
 function clippedToMidline(down: Span, midline: number | null, side: 'above' | 'below'): Span {
   if (midline === null) return down
@@ -448,7 +438,7 @@ function clippedToMidline(down: Span, midline: number | null, side: 'above' | 'b
     : { from: Math.max(down.from, midline), to: down.to }
 }
 
-// Spec: GA-21, GA-22
+// Spec: GA-21, GA-22, IMPS-1617
 /** @purity pure */
 function clippedAcross(across: Span, at: number, side: 'left' | 'right'): Span {
   return side === 'left'
@@ -470,7 +460,7 @@ function lineEndOf(bar: BarGeometry, side: 'left' | 'right'): Point {
   return head === null ? bar.to : centerOf(head)
 }
 
-// Spec: GA-1, GA-2, GA-10, GA-11, GA-15
+// Spec: GA-1, GA-2, GA-10, GA-11, GA-15, IMPS-1690
 /** @purity pure */
 function planRegionsOf(shape: TaskShape, sizes: GrabSizes): readonly (Region | null)[] {
   const band = shape.planBand
@@ -527,7 +517,7 @@ function actualStartInwardOf(shape: TaskShape, sizes: GrabSizes, half: number): 
   return toCenter >= 0 ? Math.min(inward, toCenter) : inward
 }
 
-// Spec: GA-3, GA-4, GA-12, GA-13, GA-16
+// Spec: GA-3, GA-4, GA-12, GA-13, GA-16, IMPS-1691
 /** @purity pure */
 function actualRegionsOf(shape: TaskShape, sizes: GrabSizes): readonly (Region | null)[] {
   const band = shape.actualBand
@@ -573,7 +563,7 @@ function actualRegionsOf(shape: TaskShape, sizes: GrabSizes): readonly (Region |
   ]
 }
 
-// Spec: GA-5, GA-6, GA-17, GA-21, GA-22
+// Spec: GA-5, GA-6, GA-17, GA-21, GA-22, IMPS-436, IMPS-437, IMPS-443, IMPS-447, IMPS-1612, IMPS-1613, IMPS-1615, IMPS-1616, IMPS-1617
 // Why: the family decides, not the mark's own row, which the three of them do not share.
 /** @purity pure */
 function dummyRegionsOf(shape: TaskShape, sizes: GrabSizes): readonly (Region | null)[] {
@@ -618,7 +608,7 @@ function dummyRegionsOf(shape: TaskShape, sizes: GrabSizes): readonly (Region | 
   ]
 }
 
-// Spec: GA-7, GA-8
+// Spec: GA-7, GA-8, IMPS-1903
 // Trap: never test the selection here; task-figures.ts already empties an unselected Task.
 /** @purity pure */
 function fadeRegionsOf(shape: TaskShape, sizes: GrabSizes): readonly (Region | null)[] {
@@ -638,7 +628,7 @@ function fadeRegionsOf(shape: TaskShape, sizes: GrabSizes): readonly (Region | n
   })
 }
 
-// Spec: GA-18, TY-7, FR-013
+// Spec: GA-18, TY-7, FR-013, IMPS-488, IMPS-489, IMPS-1627, IMPS-1707
 // Why: read off the actual's own run, since the two places take different seats in the order.
 /** @purity pure */
 function markerRegionOf(shape: TaskShape, sizes: GrabSizes): Region | null {
@@ -661,7 +651,7 @@ function markerRegionOf(shape: TaskShape, sizes: GrabSizes): Region | null {
   )
 }
 
-// Spec: GA-20, XS-12
+// Spec: GA-20, XS-12, IMPS-1732
 /** @purity pure */
 function resumeRegionOf(shape: TaskShape, sizes: GrabSizes): Region | null {
   const box = shape.resumeBox
@@ -696,6 +686,7 @@ function bodyRegionOf(shape: TaskShape): Region | null {
   return { ...region, covers: (x, y) => isInsideOutline(x, y, points) }
 }
 
+// Spec: IMPS-1609
 /** @purity pure */
 function regionsOfTask(shape: TaskShape, sizes: GrabSizes): readonly (Region | null)[] {
   return [
@@ -781,7 +772,6 @@ function isCovering(region: Region | null, x: number, y: number): region is Regi
   return region !== null && region.covers(x, y)
 }
 
-// Spec: FR-098, S-78, HT-1
 // Why: what a scrolling task group draws is cut at the top of the area below the band, so no point in the band reaches it.
 export type BandCut = NonNullable<ScheduleGeometry['pinnedBand']> | null
 
@@ -797,7 +787,6 @@ export function isLineScrolling(cut: BandCut, line: DependencyGeometry, isWholeR
   return cut !== null && !isLinkInBand(cut, line, isWholeRoute)
 }
 
-// Spec: EL-16, EL-19
 // Why: the line the landing mark is on, while it shows; the drawing draws it whole, so the band cuts it as a whole line.
 type LandedLink = { readonly predecessorUid: number; readonly successorUid: number } | null
 
@@ -847,7 +836,6 @@ type LineRegions = {
 
 type DeadlineBox = { readonly taskUid: number; readonly box: ScreenRect }
 
-// see T-023d, DFC-1811
 // Why: no region depends on the point; built once per drawn geometry, not once per input (a walk of every Task).
 export interface PointerWalk {
   readonly geometry: ScheduleGeometry
@@ -889,6 +877,7 @@ function deadlineBoxesOf(geometry: ScheduleGeometry): readonly DeadlineBox[] {
   return boxes
 }
 
+// Spec: IMPS-1492, IMPS-1493
 /** @purity pure */
 export function pointerWalkOf(geometry: ScheduleGeometry, sizes: GrabSizes, landed: LandedLink = null): PointerWalk {
   const cut = geometry.pinnedBand ?? null
@@ -953,7 +942,7 @@ function keptByVerticalNearness(
   return regions.filter((one) => one.taskUid === null || distances.get(one.taskUid) === nearest)
 }
 
-// Spec: HT-3
+// Spec: HT-3, IMPS-1626, IMPS-1627, IMPS-1609
 /** @purity pure */
 function orderFor(onShape: boolean, onMarkerBox: boolean): readonly TypeName[] {
   if (onMarkerBox) return ON_MARKER_BOX_ORDER
@@ -971,7 +960,7 @@ function nearnessOrder(one: readonly number[] | undefined, held: readonly number
   return 0
 }
 
-// Spec: HT-4
+// Spec: HT-4, IMPS-1608, IMPS-1609
 // Trap: never the painting order; FR-110 owns that, and this step is forbidden to read it.
 /** @purity pure */
 function beats(one: Region, held: Region, order: readonly TypeName[], x: number, y: number): boolean {
@@ -987,6 +976,7 @@ function beats(one: Region, held: Region, order: readonly TypeName[], x: number,
   return one.finishSide && !held.finishSide
 }
 
+// Spec: IMPS-1626
 /** @purity pure */
 function bestOf(regions: readonly Region[], order: readonly TypeName[], x: number, y: number): Hit | null {
   let held: Region | null = null
@@ -1001,7 +991,7 @@ function isInsideOrNull(box: ScreenRect | null, x: number, y: number): boolean {
   return box !== null && isInsideRect(x, y, box)
 }
 
-// Spec: GR-23, T-267
+// Spec: GR-23, T-267, IMPS-1621, IMPS-1625, IMPS-1742, IMPS-1692, IMPS-1608
 /** @purity pure */
 function scheduleShapeHitOf(walk: PointerWalk, covered: readonly TaskShape[], x: number, y: number): Hit | null {
   const onShape = covered.length > 0
@@ -1034,7 +1024,7 @@ function labelHitOf(geometry: ScheduleGeometry, x: number, y: number): Hit | nul
   return null
 }
 
-// Spec: HB-8, HB-9, HB-10, HB-11
+// Spec: HB-8, HB-9, HB-10, HB-11, IMPS-1531, IMPS-1562
 // Trap: keep T-246's printed order, the upper (or left) point first in a row: a tie keeps the first point met.
 /** @purity pure */
 function grabPointsOf(box: HighlightGeometry): readonly { readonly at: Point; readonly part: BoxPart }[] {
@@ -1062,7 +1052,7 @@ function grabPointsOf(box: HighlightGeometry): readonly { readonly at: Point; re
   return points
 }
 
-// Spec: GR-14, HB-8, HB-9, HB-10, HB-11
+// Spec: GR-14, HB-8, HB-9, HB-10, HB-11, IMPS-1532, IMPS-1562
 // Why: the nearest point, not the first: on a one-day, one-task-group box at low zoom the eight reaches overlap.
 /** @purity pure */
 function nearestGrabPointOf(box: HighlightGeometry, x: number, y: number, reach: number): BoxPart | null {
@@ -1079,7 +1069,7 @@ function nearestGrabPointOf(box: HighlightGeometry, x: number, y: number, reach:
   return found
 }
 
-// Spec: GR-14, HT-1
+// Spec: GR-14, HT-1, IMPS-1534, IMPS-1535
 // Why: a closed polyline, not a rectangle with a hole, so that a reach of nothing still leaves the
 // drawn line itself answering over a Task.
 /** @purity pure */
@@ -1104,7 +1094,7 @@ function highlightHit(box: HighlightGeometry, boxPart: BoxPart): Hit {
   return { item: { kind: 'highlightBox', id: box.id }, grab: 'GR-14', boxPart }
 }
 
-// Spec: GR-14, ZO-9
+// Spec: GR-14, ZO-9, IMPS-1537, IMPS-1549, IMPS-1550, IMPS-1551, IMPS-1560, IMPS-834
 /** @purity pure */
 function commentBoxHitOf(boxes: readonly CommentGeometry[], x: number, y: number, sizes: GrabSizes): Hit | null {
   // Why: the tip before the body, or the body takes its place; front first, as a later box is drawn in front.
@@ -1125,7 +1115,7 @@ function commentBoxHitOf(boxes: readonly CommentGeometry[], x: number, y: number
   return null
 }
 
-// Spec: GR-14, ZO-8, ZO-9
+// Spec: GR-14, ZO-8, ZO-9, IMPS-1530, IMPS-1531, IMPS-1532, IMPS-1536, IMPS-1561, IMPS-1564, IMPS-1567, IMPS-1569, IMPS-834
 /** @purity pure */
 function noteHitOf(
   geometry: ScheduleGeometry,
@@ -1160,7 +1150,7 @@ function statusLineHitOf(geometry: ScheduleGeometry, x: number, y: number, sizes
   return on ? { item: { kind: 'statusLine' }, grab: 'GR-16' } : null
 }
 
-// Spec: FR-135, S-485, PTL-10, PTL-12
+// Spec: FR-135, S-485, PTL-10, PTL-12, IMPS-1411
 /** @purity pure */
 function parentTaskLinkHitOf(geometry: ScheduleGeometry, x: number, y: number): Hit | null {
   for (const arrow of geometry.parentTasks?.arrows ?? []) {
@@ -1171,7 +1161,7 @@ function parentTaskLinkHitOf(geometry: ScheduleGeometry, x: number, y: number): 
   return null
 }
 
-// Spec: GR-26, DA-2
+// Spec: GR-26, DA-2, DA-6
 /** @purity pure */
 function deadlineHintOf(boxes: readonly DeadlineBox[], x: number, y: number): HintHolder | null {
   const found = boxes.find((one) => isInsideRect(x, y, one.box))
@@ -1193,7 +1183,7 @@ function baselineHintOf(geometry: ScheduleGeometry, x: number, y: number): HintH
   return null
 }
 
-// Spec: EZ-6, GR-26, GR-27
+// Spec: EZ-6, GR-26, GR-27, IMPS-1494, IMPS-1526, IMPS-1527
 // Why: the press rows in their printed order with the two hint rows set between; the first row holding the point answers, and one with no hint answers none.
 /** @purity pure */
 function hintPastNotesOf(walk: PointerWalk, pressed: Hit | null, x: number, y: number): HintHolder | null {
@@ -1208,7 +1198,7 @@ export interface PointerAnswers {
   readonly hint: HintHolder | null
 }
 
-// see T-023d, EZ-6, DFC-1810
+// Spec: T-023d, EZ-6, IMPS-1493, IMPS-1520, IMPS-1524, IMPS-1525, IMPS-1598, MK-9a, IMPS-1415
 // Why: the press rows and the hint rows share the notes and the schedule shapes, so one walk answers both.
 // Trap: keep the printed order -- the notes, the schedule shapes, the status line; sorting by row ID reverses it.
 /** @purity pure */
@@ -1223,7 +1213,7 @@ export function answersAtPointer(walk: PointerWalk, x: number, y: number): Point
   }
 }
 
-// Spec: GR-14, AR-5, LF-15
+// Spec: GR-14, AR-5, LF-15, IMPS-1553, IMPS-1555
 // Why: the snap reach is the tip's own reach (S-292), so a tip grabbed and dropped in place snaps back to its point;
 // a tie keeps the earlier point of anchorSnapsOf's list (tasks before highlight boxes, then AT-167's order).
 /** @purity pure */
@@ -1247,7 +1237,6 @@ export function anchorSnapAt(
   return best
 }
 
-// Spec: T-023d, EL-17, EL-19
 export function itemAtPointer(
   geometry: ScheduleGeometry, x: number, y: number, sizes: GrabSizes, resolving: 'hint', landed?: LandedLink,
 ): HintHolder | null
@@ -1255,6 +1244,7 @@ export function itemAtPointer(
   geometry: ScheduleGeometry, x: number, y: number, sizes: GrabSizes, resolving?: 'press' | 'doubleClick',
   landed?: LandedLink,
 ): Hit | null
+// Spec: IMPS-1521, IMPS-1522, IMPS-1523, IMPS-327
 /** @purity pure */
 export function itemAtPointer(
   geometry: ScheduleGeometry,

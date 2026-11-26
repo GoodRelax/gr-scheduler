@@ -19,14 +19,12 @@ import type { CommentBox, HighlightBox, Schedule, Task } from './schedule-entiti
 import { taskGroupRankById } from './schedule-invariants'
 import { progressMarkerOf, type ProgressMarker } from './task-delay'
 
-// Spec: T-331
 export type TaskSearchRow = {
   readonly taskUid: number
   readonly name: string
   readonly assigneeNames: readonly string[]
   readonly plannedStart: string | null
   readonly plannedFinish: string | null
-  // Spec: SQ-11, SQ-12, SQ-13
   readonly percentComplete: number | null
   readonly actualStart: string | null
   readonly actualFinish: string | null
@@ -43,7 +41,6 @@ function progressOf(task: Task): Pick<TaskSearchRow, 'percentComplete' | 'actual
   return { percentComplete: task.percentComplete, actualStart: task.actualStart, actualFinish: task.actualFinish }
 }
 
-// Spec: T-331
 export type CommentBoxSearchRow = {
   readonly commentBoxId: string
   readonly text: string
@@ -52,7 +49,6 @@ export type CommentBoxSearchRow = {
   readonly taskGroupId: string | null
 }
 
-// Spec: T-331
 export type SearchRows = {
   readonly taskRows: readonly TaskSearchRow[]
   readonly commentBoxRows: readonly CommentBoxSearchRow[]
@@ -155,7 +151,7 @@ function statusDayOf(schedule: Schedule): CalendarDay | null {
   return dayOf(schedule.project?.statusDate ?? null)
 }
 
-// Spec: SV-4, T-331, SQ-5, SQ-14
+// Spec: SV-4, T-331, SQ-5, SQ-14, IMPS-1858, IMPS-1860
 /** @purity pure */
 export function searchRowsOf(
   schedule: Schedule,
@@ -221,7 +217,7 @@ function rankedCommentBox(
   return { row, rank: rankOf(taskGroupId), at: instantOf(shown), key: box.id }
 }
 
-// Spec: FR-019, SQ-9, SJ-6
+// Spec: FR-019, SQ-9, SJ-6, IMPS-835
 // Why: the one reading of the instant a tip stands at: its target's point if snapped, else the free point.
 // The search row, the jump and the release on a deleted target all read it, so they agree with the drawn box.
 /** @purity pure */

@@ -39,7 +39,7 @@ function taskGroupKeptOf(context: InputContext): TaskGroupAnchor {
   return { scrollTaskGroupId: drawn.scrollTaskGroupId, scrollTaskGroupFraction: drawn.scrollTaskGroupFraction }
 }
 
-// Spec: FR-016, MK-1, S-176
+// Spec: FR-016, MK-1, S-176, IMPS-1504
 // Trap: the device distance itself, never whole task groups: a band taller than a notch never moved.
 // Provisional: OPQ-1
 /** @purity pure */
@@ -63,7 +63,7 @@ function isWheelHere(context: InputContext, x: number, y: number): boolean {
 }
 
 
-// Spec: MK-1, MK-2, MK-3, MK-4, MK-5, MK-10, FR-016, SV-15
+// Spec: MK-1, MK-2, MK-3, MK-4, MK-5, MK-10, FR-016, SV-15, IMPS-1516
 /** @purity pure */
 export function commandFromWheel(
   input: WheelInput,

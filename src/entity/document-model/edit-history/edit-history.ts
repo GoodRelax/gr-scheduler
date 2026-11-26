@@ -37,6 +37,7 @@ function totalSize<TStep>(held: readonly HeldStep<TStep>[]): number {
   return held.reduce((sum, one) => sum + one.sizeBytes, 0)
 }
 
+// Spec: IMPS-206, IMPS-207
 /** @purity pure */
 export function historyWithStep<TStep>(
   history: EditHistory<TStep>,
@@ -73,7 +74,7 @@ export function previousStep<TStep>(
   }
 }
 
-// Spec: FR-031, PI-12
+// Spec: FR-031, PI-12, IMPS-204
 /** @purity pure */
 export function nextStep<TStep>(
   history: EditHistory<TStep>,

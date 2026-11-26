@@ -17,7 +17,7 @@ import { wbsSubtreesOf } from './edit-task-group'
 import { nearestDerivedTaskUid } from './task-group-order'
 import { pastedCopyOf } from './task-plan-actual'
 
-// Spec: CM-8, FR-033, DU-1
+// Spec: CM-8, FR-033, DU-1, IMPS-295
 // Why: the one owner of the copies' UIDs, so the shell picks the copies (T-308 CY-8) without a second count.
 /** @purity pure */
 export function pastedUidsOf(schedule: Schedule, sourceUids: readonly number[]): ReadonlyMap<number, number> {
@@ -38,7 +38,7 @@ function shiftedPlan(task: Task, landing: PasteLanding | undefined, within: Work
   return { ...task, start: textOfInstant(plan[0] + minutes), finish: textOfInstant(plan[1] + minutes) }
 }
 
-// Spec: CM-8, CM-28, DU-1
+// Spec: CM-8, CM-28, DU-1, IMPS-291, IMPS-292, IMPS-294
 /** @purity pure */
 export function copiedTask(one: Task, chosen: ReadonlySet<number>, remap: ReadonlyMap<number, number>): Task {
   return {
@@ -51,7 +51,7 @@ export function copiedTask(one: Task, chosen: ReadonlySet<number>, remap: Readon
   }
 }
 
-// Spec: DU-1, HM-12, FR-058
+// Spec: DU-1, HM-12, FR-058, IMPS-294
 /** @purity pure */
 export function withInferredCopyParents(
   after: Schedule,
@@ -78,7 +78,7 @@ export function withInferredCopyParents(
   return settled
 }
 
-// Spec: CM-8, FR-033
+// Spec: CM-8, FR-033, IMPS-286, IMPS-293, IMPS-296, IMPS-297
 /** @purity pure */
 export function pasteTasks(
   document: Document,
@@ -90,7 +90,6 @@ export function pasteTasks(
   if (command.sourceUids.length === 0 || missing.length > 0) {
     return refused([reject('CM-8', 'IV-2', `no Task with uid ${missing.join(', ') || '(none given)'}`)])
   }
-  // STOP: spec does not decide who passes ST-7's cap (S-89) to FR-033's refusal. Looked in ST-1, T-038, T-067 (PND-179)
   const chosen: ReadonlySet<number> = new Set(command.sourceUids)
 
   const remap = pastedUidsOf(schedule, command.sourceUids)

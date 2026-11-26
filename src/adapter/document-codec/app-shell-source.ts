@@ -7,7 +7,6 @@
 export interface AppShell {
   readonly html: string
   readonly embeddedDocumentElementId: string
-  // Spec: FR-067
   readonly omittedElementIds: readonly string[]
 }
 

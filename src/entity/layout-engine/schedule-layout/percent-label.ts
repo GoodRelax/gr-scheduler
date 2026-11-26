@@ -7,7 +7,7 @@ import { planActualState, type Task } from '../../document-model/schedule/schedu
 
 const PERCENT_MARK = '%'
 
-// Spec: FR-090
+// Spec: FR-090, IMPS-921, IMPS-923
 /** @purity pure */
 export function percentLabelOf(task: Task): string {
   if (planActualState(task) === 'notStarted') return ''
@@ -17,7 +17,7 @@ export function percentLabelOf(task: Task): string {
 
 const OC2_SEPARATOR = ' : '
 
-// Spec: OC-2, FR-090
+// Spec: OC-2, FR-090, IMPS-1713, IMPS-1719, IMPS-925, IMPS-926, IMPS-927, IMPS-924
 /** @purity pure */
 export function outsideLabelOf(assignee: string, percent: string): string {
   if (assignee === '') return percent

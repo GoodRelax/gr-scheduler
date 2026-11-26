@@ -17,7 +17,7 @@ function hexOfByte(value: number): string {
   return high + low
 }
 
-// Spec: FR-020, S-101
+// Spec: WM-6
 /** @purity semi-pure-mutable */
 async function sha256HexOf(text: string): Promise<string | null> {
   const digester = globalThis.crypto?.subtle
@@ -32,7 +32,7 @@ async function sha256HexOf(text: string): Promise<string | null> {
   }
 }
 
-// Spec: FR-020, FR-086, S-99c, S-101
+// Spec: WM-12, IMPS-869
 /** @purity semi-pure-mutable */
 function watermarkUnlockDigest(): string {
   const set = readBrowserStored('S-99c')
@@ -51,7 +51,7 @@ export function answerWatermarkUnlock(hands: WatermarkUnlockHands, isProceeding:
   return true
 }
 
-// Spec: FR-020, RS-41
+// Spec: FR-020, RS-41, IMPS-869, WM-8
 /** @purity non-pure */
 export async function matchWatermarkUnlock(hands: WatermarkUnlockHands, answer: string): Promise<void> {
   const given = await sha256HexOf(answer)

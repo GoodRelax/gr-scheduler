@@ -7,7 +7,6 @@ import type { Document } from '../../entity/document-model/document/document'
 import type { DocumentCommand } from './edit-document'
 import { subtreeOf, wbsSubtreesOf } from './edit-task-group'
 
-// Spec: T-234, NT-7
 // Why: the question and the names only; the shell that raises it adds the manner (NT-7).
 export interface DeletionQuestion {
   readonly question: 'QN-1' | 'QN-2' | 'QN-3' | 'QN-10' | 'QN-16'
@@ -30,7 +29,7 @@ export function confirmationOwedBy(
   return deletionOwedBy(held, commands, asked)
 }
 
-// Spec: FR-032, T-234
+// Spec: IMPS-235, IMPS-236, IMPS-244, IMPS-258, IMPS-260, IMPS-262, T-234
 /** @purity pure */
 function deletionOwedBy(
   held: Document,
@@ -73,7 +72,7 @@ function deletionOwedBy(
   return { question, items }
 }
 
-// Spec: FR-099, QN-3, CD-5
+// Spec: FR-099, QN-3, CD-5, IMPS-274, IMPS-275, IMPS-276
 /** @purity pure */
 export function confirmationOwedByResourceDeletion(
   uids: readonly number[],

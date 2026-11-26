@@ -20,12 +20,13 @@ const PREFERS_DARK_QUERY = '(prefers-color-scheme: dark)'
 
 const DISPLAY_LANGUAGES: Readonly<Record<DisplayLanguage, true>> = { ja: true, en: true }
 
-// Spec: FR-038
+// Spec: IMPS-1183
 /** @purity pure */
 function isDisplayLanguage(value: string): value is DisplayLanguage {
   return Object.prototype.hasOwnProperty.call(DISPLAY_LANGUAGES, value)
 }
 
+// Spec: IO-5
 /** @purity semi-pure-mutable */
 export function readBrowserStored(row: BrowserStoredRow): string | null {
   try {
@@ -36,6 +37,7 @@ export function readBrowserStored(row: BrowserStoredRow): string | null {
   }
 }
 
+// Spec: WP-7
 /** @purity non-pure */
 export function writeBrowserStored(row: BrowserStoredRow, value: string): void {
   try {
@@ -44,7 +46,7 @@ export function writeBrowserStored(row: BrowserStoredRow, value: string): void {
   }
 }
 
-// Spec: FR-153, T-345, WP-4, WP-5, WP-6
+// Spec: FR-153, T-345, WP-4, WP-5, WP-6, IMPS-987, WP-1, WP-2, WP-3
 // Why: every key of GRS's prefix but S-99c's, old ones too (WP-5); never clear(), which would take
 // other pages' values sharing the origin (WP-6). A refusing host is left alone; the reload follows.
 /** @purity non-pure */
@@ -63,7 +65,7 @@ export function clearBrowserStoredForReset(): void {
   }
 }
 
-// Spec: FR-038, S-99
+// Spec: FR-038, S-99, IMPS-1192, IO-5
 /** @purity semi-pure-mutable */
 export function startupDisplayLanguage(): DisplayLanguage {
   const stored = readBrowserStored('S-99')
@@ -71,7 +73,7 @@ export function startupDisplayLanguage(): DisplayLanguage {
   return globalThis.navigator?.language?.toLowerCase().startsWith('ja') === true ? 'ja' : 'en'
 }
 
-// Spec: FR-039, S-72
+// Spec: FR-039, S-72, IMPS-1205, IMPS-1206, IMPS-1208
 // Why: read once per start and never written back; the page follows the browser on the next start.
 /** @purity semi-pure-mutable */
 export function startupThemePreference(): 'light' | 'dark' {
@@ -82,7 +84,7 @@ export function startupThemePreference(): 'light' | 'dark' {
   }
 }
 
-// Spec: FR-065, S-99b
+// Spec: FR-065, S-99b, IMPS-1069
 /** @purity semi-pure-mutable */
 export function isStartupAgentApiEnabled(): boolean {
   return readBrowserStored('S-99b') === String(true)

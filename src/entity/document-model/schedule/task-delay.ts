@@ -8,7 +8,7 @@ import { planActualState } from './plan-actual-state'
 import type { Task } from './schedule-entities'
 import { workingDaysBetween, type WorkingCalendar } from './working-calendar'
 
-// Spec: T-021b
+// Spec: T-021b, IMPS-540, IMPS-513
 /** @purity pure */
 export function delayStart(task: Task): { readonly row: string; readonly from: string | null } | null {
   switch (planActualState(task)) {
@@ -24,6 +24,7 @@ export function delayStart(task: Task): { readonly row: string; readonly from: s
   }
 }
 
+// Spec: IMPS-540, IMPS-544, IMPS-513
 /** @purity pure */
 export function isDelayed(task: Task, statusDate: CalendarDay | null): boolean {
   if (statusDate === null) return false
@@ -33,10 +34,9 @@ export function isDelayed(task: Task, statusDate: CalendarDay | null): boolean {
   return compareDays(statusDate, from) > 0
 }
 
-// Spec: T-021, T-315
 export type ProgressMarker = 'PM-1a' | 'PM-1' | 'PM-2' | 'PM-3' | 'PM-4' | 'DG-1' | 'DG-2' | 'DG-3'
 
-// Spec: PI-1, RV-5, SQ-5, T-021, T-315
+// Spec: PI-1, RV-5, SQ-5, T-021, T-315, IMPS-604, IMPS-504, IMPS-505, IMPS-507, IMPS-508, PM-1a, PM-2, PM-3
 /** @purity pure */
 export function progressMarkerOf(task: Task, statusDate: CalendarDay | null,
                                  diagnosed?: 'DG-1' | 'DG-2' | 'DG-3'): ProgressMarker {

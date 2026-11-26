@@ -16,17 +16,14 @@ import {
   type FrameLoopHands,
 } from './frame-loop'
 
-// Spec: FR-102, IR-1, IR-2, IR-3
 // Trap: the dash the record already writes for an empty value; IR-2's third value of S-99h is none.
 const UNREAD_IN_RECORD = '-'
 
 const PANEL_NOT_SHOWN_IN_RECORD = 'none'
 
-// Spec: IR-1
 // Trap: single-html-shell.ts answers this when the focus is on no field and no entrance.
 export const FOCUS_ON_DOCUMENT_BODY = 'body'
 
-// Spec: T-280
 // Why: paletteDisplayStateMachine.hidden has no child, so a hidden palette is never minimized.
 /** @purity pure */
 function paletteMinimizedForRecordOf(session: ScreenSession): boolean {
@@ -54,6 +51,7 @@ export function interactionRecorderOf(hands: InteractionRecordHands): Interactio
   let interactionRecordBeganAt = 0
   let interactionRecordOffered = 0
 
+  // Spec: IMPS-824
   /** @purity non-pure */
   function appendRecordedLine(what: string, detail: string): void {
     interactionRecordOffered += 1
@@ -65,6 +63,7 @@ export function interactionRecorderOf(hands: InteractionRecordHands): Interactio
     }
   }
 
+  // Spec: IMPS-824
   /** @purity semi-pure-mutable */
   function interactionRecordText(): string {
     const head = [
@@ -77,7 +76,7 @@ export function interactionRecorderOf(hands: InteractionRecordHands): Interactio
     return [...head, ...recordedLines].join('\n')
   }
 
-  // Spec: IC-76, FR-102
+  // Spec: IMPS-821
   /** @purity non-pure */
   function beginInteractionRecord(): void {
     recordedLines.length = 0
@@ -87,6 +86,7 @@ export function interactionRecorderOf(hands: InteractionRecordHands): Interactio
     recordLine(hands, recorder, 'record', 'started entrance=IC-76')
   }
 
+  // Spec: IMPS-821, IMPS-822
   /** @purity non-pure */
   function handInteractionRecordToClipboard(): void {
     appendRecordedLine('record', 'stopped entrance=IC-76')
@@ -135,6 +135,7 @@ function recordedKey(key: string): string {
   return key.length <= 1 ? '#' : key
 }
 
+// Spec: IMPS-823
 /** @purity non-pure */
 export function recordHappening(
   hands: InteractionRecordHands,
@@ -161,7 +162,7 @@ export function recordHappening(
   recordLine(hands, recorder, 'in.key', `key=${recordedKey(input.key)} ${mods}`)
 }
 
-// Spec: FR-102, IF-1
+// Spec: FR-102, IF-1, IR-2, IMPS-823, IR-4
 // Why: svg is the picture beneath and the marquee overlay joined, so a held marquee still counts (CR-736).
 // Trap: SVG names are camelCase (clipPath); a lower-case-only pattern drops them from IR-4's census (DFC-2710).
 /** @purity non-pure */
@@ -196,7 +197,7 @@ export function recordFrame(
   )
 }
 
-// Spec: IR-3
+// Spec: IR-3, IR-2
 /** @purity semi-pure-mutable */
 function recordedNoticeReasons(hands: InteractionRecordHands): string {
   const standing = standingNoticesIn(hands.readSession())

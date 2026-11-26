@@ -103,7 +103,7 @@ function isPressInPlace(grab: string, press: PointerPress, release: PointerInput
   return isPressOnly && !hasDraggedPastThreshold(press, release)
 }
 
-// Spec: T-023d, MK-13
+// Spec: T-023d, MK-13, GO-10, IMPS-517, IMPS-1678, GO-1, GO-2, IMPS-1599, IMPS-1646, IMPS-1652, IMPS-1656, PE-13, PE-3, IMPS-457
 /** @purity pure */
 export function commandFromGrab(
   release: PointerInput,
@@ -137,12 +137,10 @@ export function commandFromGrab(
   // switch and reaches a second destination (for GA-6, a 0px actual).
   if (isPressInPlace(hit.grab, press, release)) return CONSUMED_ELSEWHERE
 
-  // Spec: GR-14, CM-54
   if (item.kind === 'highlightBox' && hit.grab === 'GR-14') {
     return highlightBoxRangeWrite(context, press, release, item.id, hit.boxPart ?? { kind: 'body' })
   }
 
-  // Spec: GR-14, CM-50, CM-51
   if (item.kind === 'commentBox' && hit.grab === 'GR-14') {
     return commentBoxMoveWrite(context, press, release, item.id, hit.boxPart?.kind === 'anchor')
   }
@@ -203,7 +201,6 @@ export function commandFromGrab(
       // Why: unreachable: PS-1, FR-011, PV-2, GO-6 and GO-7 never leave a started Task without a last day.
       const lastDay = actualLastDay(task)
       if (task.actualStart === null || lastDay === null) return CONSUMED_ELSEWHERE
-      // Spec: GO-10
       const earliest = dayShifted(lastDay, 1)
       const resume = compareDay(dropped, earliest) < 0 ? earliest : dropped
       const project = context.document.schedule.project
@@ -232,7 +229,7 @@ function grabbedHitOf(press: PointerPress, context: InputContext): Hit | null {
   return isSwallowedSecondPress(press, context) ? null : press.hit
 }
 
-// Spec: MK-13
+// Spec: MK-13, IMPS-1522
 /** @purity pure */
 function doubleClickOf(hit: Hit): TranslatedInput | null {
   const item = hit.item
@@ -334,7 +331,7 @@ function farEndZoomWrites(
   ]
 }
 
-// see PE-8, PE-10, DFC-2980
+// Spec: PE-8, PE-10
 // Why: read from the picture drawn at the press: the held picture already draws the pull, the document does not.
 /** @purity pure */
 function markerPullRow(context: InputContext, press: PointerPress, uid: number): 'PE-8' | 'PE-10' {
@@ -362,7 +359,7 @@ function rightEdgeOfBar(bar: BarGeometry): number | null {
   return xs.length === 0 ? null : Math.max(...xs)
 }
 
-// Spec: GO-3, GO-4, GO-5
+// Spec: GO-3, GO-4, GO-5, PE-3, PE-7
 /** @purity pure */
 function actualEndWrite(
   context: InputContext,
@@ -381,7 +378,7 @@ function actualEndWrite(
 
 type DummyHold = Extract<DocumentCommand, { readonly kind: 'beginTaskActual' }>['grabbed']
 
-// Spec: CM-14, T-266
+// Spec: IMPS-437
 /** @purity pure */
 function dummyHoldOf(grab: 'GA-5' | 'GA-6' | 'GA-17' | 'GA-21' | 'GA-22'): DummyHold {
   switch (grab) {
@@ -406,7 +403,7 @@ function releasedPairOf(context: InputContext, release: PointerInput,
   return start === null || finish === null ? null : { start, finish }
 }
 
-// Spec: GO-6, GO-7, GO-8, FR-103, T-378
+// Spec: GO-6, GO-7, GO-8, FR-103, T-378, IMPS-438
 // Why: read as every other end is (releasedText): with time of day shown the snapped instant, never the day (DFC-2572).
 /** @purity pure */
 function dummyReleaseWrite(
@@ -466,7 +463,7 @@ function markerPullWrite(
   ])
 }
 
-// Spec: PE-1, PE-6, SL-1, SL-7, MK-16
+// Spec: PE-1, PE-6, SL-1, SL-7, MK-16, IMPS-1648
 // Why: the Selection's boxes go in the same bundle as its tasks, so one drag is one undo step (FR-031).
 /** @purity pure */
 function bodyMoveWrites(
@@ -505,12 +502,14 @@ function bodyMoveWrites(
 
 type ReleasedSide = 'start' | 'finish'
 
+// Spec: IMPS-1602
 // Why: a 00:00 boundary begins the start side's day, ends the finish side's (FR-103); a milestone's start is a finish (WT-5).
 /** @purity pure */
 function dayOfBoundary(boundary: number, side: ReleasedSide, isMilestone: boolean): CalendarDay {
   return dayOfInstant(side === 'start' && !isMilestone ? boundary : boundary - 1)
 }
 
+// Spec: GO-2, IMPS-1602, IMPS-1603
 // Why: with time of day shown the nearest day boundary is read on the side (FR-103); hidden, the day column (SG-1).
 /** @purity pure */
 function releasedDay(context: InputContext, release: PointerInput, side: ReleasedSide, isMilestone: boolean): CalendarDay | null {
@@ -520,7 +519,7 @@ function releasedDay(context: InputContext, release: PointerInput, side: Release
   return boundary === null ? null : dayOfBoundary(boundary, side, isMilestone)
 }
 
-// Spec: FR-046, T-378, SG-1, SG-2, WT-4
+// Spec: FR-046, T-378, SG-1, SG-2, WT-4, IMPS-517, IMPS-518, IMPS-519, IMPS-520, IMPS-1604
 /** @purity pure */
 function releasedStatusDate(context: InputContext, release: PointerInput): string | null {
   const snap = snapMinutesOfView(context)
@@ -532,7 +531,7 @@ function releasedStatusDate(context: InputContext, release: PointerInput): strin
   return instant === null ? null : textOfInstant(instant)
 }
 
-// Spec: FR-103, T-378, T-350
+// Spec: GO-1, IMPS-1600, IMPS-1601, IMPS-1607
 // Why: the released place as the text written; a whole-day unit keeps the day's default time of T-350.
 /** @purity pure */
 function releasedText(context: InputContext, release: PointerInput, side: ReleasedSide, isMilestone: boolean): string | null {
@@ -554,7 +553,7 @@ interface DragSpan {
   readonly dayCount: number
 }
 
-// Spec: PE-1, T-378, FR-103
+// Spec: PE-1, T-378, FR-103, IMPS-425, IMPS-426
 // Why: both ends move by the same elapsed time; the snap lands on the start, so the length in minutes is kept.
 /** @purity pure */
 function planMoveWrite(context: InputContext, task: Task, drag: DragSpan): DocumentCommand | null {
@@ -586,6 +585,7 @@ function pulledMinutesOf(context: InputContext, press: PointerPress, release: Po
   return ((release.x - press.at.x) / context.layout.pxPerDay) * MINUTES_PER_CALENDAR_DAY
 }
 
+// Spec: IMPS-1653
 // Why: the grabbed Task's start lands on the nearest day boundary (FR-103); every moved item takes that one count.
 /** @purity pure */
 function bodyDayCount(context: InputContext, press: PointerPress, release: PointerInput, uid: number): number {
@@ -645,7 +645,7 @@ function highlightBoxShiftWrite(
   return highlightRangeWrite(context, box, { upper, lower, left: dayShifted(early, days), right: dayShifted(late, days) })
 }
 
-// Spec: FR-019
+// Spec: IMPS-830
 // Why: a box with no anchor date stands at the document's start date, as commentGeometry draws it.
 /** @purity pure */
 function stoodDayOf(context: InputContext, box: CommentBox): CalendarDay | null {
@@ -674,7 +674,6 @@ function commentBoxShiftWrite(
   return { kind: 'setCommentBoxAnchor', commentBoxId: box.id, anchor: { ...heldAnchorOf(box), date, taskGroupId } }
 }
 
-// Spec: FR-019, CM-50
 /** @purity pure */
 function heldAnchorOf(box: CommentBox): Omit<AnnotationAnchor, 'date' | 'taskGroupId'> {
   return {
@@ -713,7 +712,7 @@ function orderedDays(start: CalendarDay, end: CalendarDay): { readonly early: Ca
   return compareDay(start, end) <= 0 ? { early: start, late: end } : { early: end, late: start }
 }
 
-// Spec: PE-1, SL-7
+// Spec: PE-1, SL-7, IMPS-1650, IMPS-1651
 // Why: one shift for the whole selection: a per-item clamp would spread a selection that
 // started a task group apart, and the table asks for the same number of task groups for all of them.
 /** @purity pure */
@@ -748,7 +747,7 @@ function layoutAtPressOf(context: InputContext, press: PointerPress): InputConte
   return taskGroups === undefined ? context.layout : { ...context.layout, taskGroups }
 }
 
-// Spec: PE-1, CY-6
+// Spec: PE-1, CY-6, IMPS-1650
 /** @purity pure */
 function shiftWithinTaskGroups(taskGroups: readonly TaskGroupPlacement[], held: readonly number[], asked: number): number {
   if (held.length === 0) return 0
@@ -770,7 +769,7 @@ function copyShiftMinutes(context: InputContext, press: PointerPress, release: P
   return snappedStartShift(plan[0], pulledMinutesOf(context, press, release), snap)
 }
 
-// Spec: PTD-7, CY-3, CY-5, CY-6, CY-8, CY-9, CM-8, DU-1, FR-103, T-378
+// Spec: PTD-7, CY-3, CY-5, CY-6, CY-8, CY-9, CM-8, DU-1, FR-103, T-378, MK-15, IMPS-304, IMPS-305
 // Why: one CM-8 with the landing is one undo step (FR-031); task groups count the chosen Tasks' copies, not CY-4's boxes.
 /** @purity pure */
 export function copyDragWrite(context: InputContext, press: PointerPress, release: PointerInput): TranslatedInput {
@@ -819,7 +818,7 @@ function nearestDrawnTaskGroupBoundary(taskGroups: readonly TaskGroupPlacement[]
   return nearest
 }
 
-// Spec: MK-13, PR-21, PR-22
+// Spec: MK-13, PR-21, PR-22, IMPS-1026
 /** @purity pure */
 function boxFieldTargetOf(item: Hit['item']): InPlaceTarget | null {
   if (item.kind === 'commentBox') return { kind: 'commentBoxText', id: item.id }
@@ -890,7 +889,7 @@ function grabPointRange(
   return { upper, lower, left, right }
 }
 
-// Spec: GR-14, CM-54, HB-1, HB-2, HB-3, HB-4, HB-5, HB-6, HB-7
+// Spec: GR-14, CM-54, HB-1, HB-2, HB-3, HB-4, HB-5, HB-6, HB-7, IMPS-1533, IMPS-1563, IMPS-1570, IMPS-1571
 /** @purity pure */
 function highlightBoxRangeWrite(
   context: InputContext,
@@ -960,7 +959,7 @@ function highlightTaskGroupSpanOf(
   return { upperAt: Math.min(topAt, bottomAt), lowerAt: Math.max(topAt, bottomAt) }
 }
 
-// Spec: CM-54, FR-019, WT-10
+// Spec: CM-54, FR-019, WT-10, IMPS-1533
 // Trap: normalize here, not in edit-annotation.ts: CM-54 checks no direction, so a reversed pair would be stored as dragged.
 /** @purity pure */
 function highlightRangeWrite(
@@ -991,7 +990,7 @@ function heldOrWritten(held: string | null, day: CalendarDay, write: (day: Calen
   return held !== null && heldDay !== null && compareDay(heldDay, day) === 0 ? held : write(day)
 }
 
-// Spec: GR-14, CM-51
+// Spec: GR-14, CM-51, IMPS-1538, IMPS-1539
 // Why: the body and the leader move the text box alone, so the comment keeps pointing at its task.
 /** @purity pure */
 function commentBoxMoveWrite(
@@ -1010,7 +1009,7 @@ function commentBoxMoveWrite(
   return changed([{ kind: 'setCommentBoxBodyOffsetPx', commentBoxId: id, dx: offset.dx + pull.dx, dy: offset.dy + pull.dy }])
 }
 
-// Spec: GR-14, CM-50, CM-51, RS-44
+// Spec: GR-14, CM-50, CM-51, RS-44, IMPS-1540, IMPS-1541, IMPS-1542, IMPS-1543
 // Why: CM-50 and CM-51 in one bundle, one undo (FR-031): CM-50 alone would carry the box with the anchor.
 /** @purity pure */
 function commentAnchorMoveWrite(
@@ -1048,7 +1047,7 @@ function isReleasedInPlace(box: CommentBox, anchor: AnnotationAnchor, stood: Poi
   return isSameTarget && Math.abs(at.x - stood.x) < 0.5 && Math.abs(at.y - stood.y) < 0.5
 }
 
-// Spec: FR-016, FD-5, RV-6
+// Spec: FR-016, FD-5, RV-6, IMPS-1585, IMPS-1587, IMPS-1588, IMPS-1903, IMPS-1905, PE-11
 // Why: compared in days, not pixels -- the table forbids a drag threshold; an unset end released on the day it
 // stood on stays unset instead of turning into an explicit 0, which draws flat.
 /** @purity pure */
@@ -1070,7 +1069,7 @@ function fadeEndWrite(context: InputContext, release: PointerInput, uid: number,
   ])
 }
 
-// Spec: FD-6, IV-12
+// Spec: FD-6, IV-12, IMPS-1586
 /** @purity pure */
 function clampedFadeDays(task: Task, grab: 'GA-7' | 'GA-8', pulled: number, span: number): number {
   const other = grab === 'GA-7' ? task.fadeOutDays : task.fadeInDays
@@ -1101,7 +1100,7 @@ function actualEndPlacement(
   return placementAt(moved)
 }
 
-// Spec: SL-7, SL-4, MK-16
+// Spec: SL-7, SL-4, MK-16, IMPS-1654
 /** @purity pure */
 function movedTaskUids(context: InputContext, grabbed: number, press: PointerPress): readonly number[] {
   if (!isSelectionMoved(context, grabbed, press)) return [grabbed]

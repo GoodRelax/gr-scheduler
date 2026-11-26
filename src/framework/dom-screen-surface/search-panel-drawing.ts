@@ -45,7 +45,6 @@ type SearchColumnView = SearchPanelView['columns'][number]
 
 type SearchRowView = SearchPanelView['rows'][number]
 
-// Spec: SJ-1, SQ-10, DT-8, RQ-1, RQ-3
 export interface DrawnRow {
   readonly cells: readonly string[]
   readonly glyph?: SearchRowView['glyph']
@@ -72,7 +71,6 @@ type SearchFilterMenuView = NonNullable<SearchPanelView['filterMenu']>
 
 type SearchFilterValueView = Extract<SearchFilterMenuView, { kind: 'values' }>['values'][number]
 
-// Spec: T-330, T-346, T-370, RW-3, RW-4, RO-3
 export type TableWindowView = Omit<SearchPanelView, 'table' | 'rows'> & {
   readonly rows: readonly DrawnRow[]
   readonly chosenAt?: number
@@ -87,14 +85,12 @@ export type TableWindowView = Omit<SearchPanelView, 'table' | 'rows'> & {
   readonly rowRevealed?: { readonly at: number; readonly count: number } | null
 }
 
-// Spec: T-337, RW-5, SQ-10, DT-8, RQ-1
 export interface TableWindowIdentity {
   readonly window: WindowName
   readonly role: string
   readonly visibilityColumn: string
 }
 
-// Spec: SV-6, SV-17, SV-18, RW-9, SQ-5, DT-1
 export type DrawnTable = Pick<TableWindowView, 'columns' | 'rows' | 'jumpAt' | 'glyphAt' | 'showAt' | 'showHeading' | 'chosenAt' | 'fixTable'>
 
 const SEARCH_PANEL_ROLE = 'Search Panel'
@@ -109,12 +105,10 @@ const SUMMARY_ITEM_STYLE = 'white-space:nowrap;'
 
 export const SEARCH_WORD_FIELD_ATTRIBUTE = 'data-search-word'
 
-// Spec: SV-2, IF-9
 export const SEARCH_WORD_ROW = 'SV-2'
 
 const FIELD_ROW_ATTRIBUTE = 'data-field-row'
 
-// Spec: SV-7, IN-5a
 export const SEARCH_FILTER_ROW = 'SV-7'
 
 export const SEARCH_FILTER_COLUMN_ATTRIBUTE = 'data-search-filter-column'
@@ -133,19 +127,16 @@ export const SEARCH_JUMP_TASK_ATTRIBUTE = 'data-search-task'
 
 export const SEARCH_JUMP_COMMENT_BOX_ATTRIBUTE = 'data-search-comment-box'
 
-// Spec: RW-13
 const SEARCH_JUMP_RELATED_ATTRIBUTE = 'data-search-related'
 
 const SEARCH_JUMP_OPEN_FIELD_ATTRIBUTE = 'data-search-open-field'
 
-// Spec: RW-16, FM-1, FM-8
 const DELAY_FIX_KEY_ATTRIBUTE = 'data-delay-fix-key'
 
 const DELAY_FIX_PART_ATTRIBUTE = 'data-delay-fix-part'
 
 const TABLE_BOX_ATTRIBUTE = 'data-table-box'
 
-// Spec: RW-11, RW-12, T-374
 const FIX_TABLE_ROLES = { proposals: 'Delay Fix Proposals', log: 'Delay Fix Log' } as const
 
 const DELAY_FIX_FOOTER_ROLE = 'Delay Fix Footer'
@@ -165,7 +156,6 @@ const FIX_AFTER_COLUMN = 'FM-8'
 
 const UID_JOIN = ','
 
-// Spec: T-374, S-481, S-478
 const FIX_COLUMN_WIDTH_ROWS: { readonly [column: string]: keyof typeof NOT_STORED_SEARCH_PANEL_SIZES } = {
   'FM-4': 'S-481',
   'FM-5': 'S-478',
@@ -181,7 +171,6 @@ const VISIBILITY_KEY_ATTRIBUTE = 'data-visibility-key'
 
 const SHOWN_ALL_ATTRIBUTE = 'data-search-shown-all'
 
-// Spec: SQ-10, DT-8, RQ-1, S-496
 const VISIBILITY_COLUMNS: readonly string[] = ['SQ-10', 'DT-8', 'RQ-1']
 
 const NO_BORDER_ATTRIBUTE = 'data-no-border'
@@ -231,7 +220,6 @@ const FILTER_BOUND_WORD_STYLE = 'margin-right:0.25em;'
 
 const GLYPH_STYLE = 'display:inline-block;width:1em;height:1em;vertical-align:-0.125em;margin-right:0.25em;'
 
-// Spec: SV-17, S-425
 const CELL_PADDING_EM = 0.25
 
 const CELL_RULE_PX = 1
@@ -241,7 +229,6 @@ function cellStyle(): string {
   return `border:${CELL_RULE_PX}px solid ${PAINT.rule};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:0 ${CELL_PADDING_EM}em;`
 }
 
-// Spec: SV-6
 // Why: front to back; unstacked sticky cells paint in tree order, so a fixed body cell would cover the header.
 const TABLE_CELL_STACK = ['fixedHeaderCell', 'headerCell', 'fixedBodyCell'] as const
 
@@ -276,13 +263,12 @@ function jumpCellStyle(): string {
 
 type SearchJumpCell = NonNullable<ScreenPart['searchJumpTarget']>
 
-// Spec: SV-18, RW-9, S-425
 export interface ColumnSizing {
   readonly floor: number
   readonly measured: ReadonlyMap<string, number>
 }
 
-// Spec: S-425, SV-18, IC-122, SV-7, S-465
+// Spec: S-425, SV-18, IC-122, SV-7, S-465, IMPS-690
 /** @purity pure */
 export function measuredWidthFloor(fontPx: number): number {
   return Math.ceil(entranceOuterWidthPx() + CELL_PADDING_EM * 2 * fontPx + NOT_STORED_SEARCH_PANEL_SIZES['S-465'] + CELL_RULE_PX)
@@ -293,6 +279,7 @@ export function unmeasuredSizing(fontPx: number): ColumnSizing {
   return { floor: measuredWidthFloor(fontPx), measured: new Map() }
 }
 
+// Spec: IMPS-687
 /** @purity pure */
 function tableRowWidthPx(column: SearchColumnView): number {
   const row = SEARCH_COLUMN_WIDTH_ROWS[column.column] ?? FIX_COLUMN_WIDTH_ROWS[column.column]
@@ -429,7 +416,7 @@ function filteredEntryStyle(): string {
   return `background:transparent;color:${PAINT.ground};border-color:${PAINT.ground};`
 }
 
-// Spec: SV-7, SV-18, FR-106
+// Spec: SV-7, SV-18, FR-106, IMPS-1635, IMPS-1636
 /** @purity non-pure */
 function headerCellElement(
   host: Document,
@@ -507,7 +494,7 @@ function filterValueLine(host: Document, shown: SearchFilterValueView, fontPx: n
   return line
 }
 
-// Spec: SV-7
+// Spec: SV-7, IMPS-48
 // Why: one line per bound, the word on its left, so which input starts the range reads at a glance.
 /** @purity non-pure */
 function filterDateFields(host: Document, menu: Extract<SearchFilterMenuView, { kind: 'dates' }>, fontPx: number): HTMLElement {
@@ -620,7 +607,7 @@ function fixCheckElement(host: Document, fix: FixCell): HTMLElement | null {
   return box
 }
 
-// Spec: FM-8, T-373
+// Spec: FM-8, T-373, IMPS-48
 /** @purity non-pure */
 function fixAfterElement(host: Document, fix: FixCell): HTMLElement | null {
   if (fix.choices !== null) {
@@ -942,7 +929,7 @@ function shownRightOf(tableBox: Element): number {
   return Math.min(shown.right, shown.left + (inner.clientLeft ?? 0) + inner.clientWidth)
 }
 
-// Spec: GR-28, SV-18, RW-9
+// Spec: GR-28, SV-18, RW-9, IMPS-689
 // Why: on the heading row only, within S-465 of a column's right border; an entrance and GR-24 / GR-25 answer first.
 /** @purity semi-pure-mutable */
 function columnBorderAt(window: Element, placed: PlacedWindow, asked: PointAsked, widthFloor: number): NonNullable<ScreenPart['windowGrab']> | null {

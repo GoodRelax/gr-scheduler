@@ -17,7 +17,7 @@ import { checkDay, visualOf, withSchedule, type TaskCommand } from './edit-task'
 import { repriced } from './percent-complete'
 import { planDatesEdited } from './task-plan-actual'
 
-// Spec: CM-6, FR-001
+// Spec: CM-6, FR-001, IMPS-482, IMPS-1886, TC-11, TC-12, TC-2
 /** @purity pure */
 export function createTask(
   document: Document,

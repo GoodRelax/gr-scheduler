@@ -142,7 +142,7 @@ function boxStrokeRefusal(strokeColor: string | null): Refusal | null {
   return reject('CM-55', 'CV-1', `not a palette name or a custom color: ${strokeColor}`)
 }
 
-// Spec: IV-9, FR-019, FR-007
+// Spec: IV-9, FR-019, FR-007, IMPS-848, IMPS-123
 /** @purity pure */
 function boxDrawnWithNothing(box: HighlightBox): boolean {
   return box.fillColor === TRANSPARENT && box.strokeColor === TRANSPARENT
@@ -157,7 +157,7 @@ function lookColorRefusal(command: string, color: string | null, allowsTranspare
 
 type AnnotationNumberRow = keyof typeof NOT_STORED_ANNOTATION_BOUNDS
 
-// Spec: T-217, FR-019
+// Spec: IMPS-29, IMPS-836, T-217, IMPS-1031
 // Why: refused, not clamped: a clamped write would store a value other than the one the command placed.
 /** @purity pure */
 function lookNumberRefusal(command: string, row: AnnotationNumberRow, value: number | null): Refusal | null {
@@ -199,7 +199,7 @@ function hasGroup(document: Document, taskGroupId: string): boolean {
   return document.schedule.taskGroups.some((one) => one.id === taskGroupId)
 }
 
-// Spec: FR-019, CM-46, CM-50
+// Spec: FR-019, CM-46, CM-50, IMPS-831
 // Why: a key the anchor leaves out is written as null, so a free point never keeps a target it no longer stands on.
 /** @purity pure */
 export function anchorColumnsOf(anchor: AnnotationAnchor) {
@@ -245,7 +245,7 @@ function anchorRefusals(command: string, document: Document, anchor: AnnotationA
   return found
 }
 
-// Spec: FR-019, AT-163, AT-164, AT-165, AT-166, AT-167
+// Spec: IMPS-831, AT-163, AT-164, AT-165, AT-166, AT-167
 // Why: refused, not repaired: a command that names half a target would store a tip that draws as a free point.
 /** @purity pure */
 function anchorTargetRefusals(command: string, document: Document, columns: CommentAnchorColumns): Refusal[] {
@@ -280,7 +280,7 @@ export interface ReleasedTargets {
   readonly isKeptTaskGroup: (taskGroupId: string) => boolean
 }
 
-// Spec: FR-019, CM-7, CM-53
+// Spec: FR-019, CM-7, CM-53, IMPS-833
 // Why: released inside the deleting command, so one undo brings back the target and the tip together (FR-031);
 // read on the schedule before the delete, while the target is still there to say where it stood.
 /** @purity pure */
@@ -297,7 +297,7 @@ export function commentBoxesReleasedFrom(schedule: Schedule, gone: ReleasedTarge
 
 type SnapPoint = NonNullable<CommentBox['anchorSnapPoint']>
 
-// Spec: FR-019
+// Spec: IMPS-833
 // Why: the instant and the band come from the document's own dates; the height within the band stays as it was
 // when the tip snapped, since only the layout knows where a bar stands inside its band.
 /** @purity pure */
@@ -324,7 +324,7 @@ function releasedAnchorOf(schedule: Schedule, box: CommentBox, gone: ReleasedTar
   return highlight === undefined ? { ...held, anchorDate } : releasedFromHighlight({ ...held, anchorDate }, highlight, point, gone)
 }
 
-// Spec: FR-019
+// Spec: IMPS-833
 // Why: the band the tip snapped in while the Task still sits there, else the Task's first band that stays.
 /** @purity pure */
 function taskBandOf(schedule: Schedule, uid: number, held: string | null, gone: ReleasedTargets): string | null {
@@ -350,7 +350,7 @@ function releasedFromHighlight(
 
 type FrontCommand = Extract<AnnotationCommand, { kind: 'bringCommentBoxToFront' | 'bringHighlightBoxToFront' }>
 
-// Spec: FR-019, CM-100, CM-101, ZO-8, ZO-9
+// Spec: FR-019, CM-100, CM-101, ZO-8, ZO-9, IMPS-834
 // Why: the array order is the drawing order (later in front), so the box moves to the end; already last is no edit.
 /** @purity pure */
 function broughtToFront(document: Document, command: FrontCommand): EditResult {
@@ -407,7 +407,7 @@ function rangeRefusals(command: string, document: Document, range: HighlightRang
 
 // Trap: a no-op must return edited(document) itself: document-change-plan.ts compares the
 // schedule by reference, so a rebuilt one moves the schedule instant.
-// Spec: T-108, FR-019
+// Spec: T-108, FR-019, IMPS-825, IMPS-828, CD-4, IMPS-845
 /** @purity pure */
 export function editAnnotation(document: Document, command: AnnotationCommand): EditResult {
   if (isCommentBoxLookCommand(command)) return editCommentBoxLook(document, command)
@@ -428,7 +428,6 @@ export function editAnnotation(document: Document, command: AnnotationCommand): 
         leaderShapeKind: null,
         text: null,
         ...anchorColumnsOf(command.anchor),
-        // Spec: S-600, LF-17
         // Why: up and right of the tip, so the tip and its leader stand out at the lower left; at 0 no leader is drawn.
         bodyOffsetPx: { dx: NOT_STORED_ANNOTATION_SIZES['S-600'], dy: -NOT_STORED_ANNOTATION_SIZES['S-600'] },
         strokeColor: null,
@@ -562,7 +561,7 @@ function isHighlightBoxLookCommand(command: AnnotationCommand): command is Highl
   return HIGHLIGHT_BOX_LOOK_KINDS.has(command.kind)
 }
 
-// Spec: CM-55, CM-77, CM-78, CM-79, FR-019
+// Spec: IMPS-836, CM-55, CM-77, CM-78, CM-79
 /** @purity pure */
 function highlightBoxLookChange(
   command: HighlightBoxLookCommand,
@@ -622,7 +621,7 @@ type CommentBoxLookCommand = Extract<
   }
 >
 
-// Spec: FR-019
+// Spec: IMPS-856
 // Why: the line and the text may not be transparent: a vanished leader no longer says what the note is about,
 // and vanished text empties the note.
 /** @purity pure */
@@ -647,7 +646,7 @@ function isCommentBoxLookCommand(command: AnnotationCommand): command is Comment
   return COMMENT_BOX_LOOK_KINDS.has(command.kind)
 }
 
-// Spec: CM-48, CM-49, CM-80, CM-81, CM-82, CM-83, CM-84, CM-103, FR-019
+// Spec: IMPS-836, CM-48, CM-49, CM-80, CM-81, CM-82, CM-83, CM-84, CM-103, IMPS-1025, IMPS-852
 /** @purity pure */
 function commentBoxLookChange(
   command: CommentBoxLookCommand,
@@ -687,7 +686,6 @@ function commentBoxLookChange(
         refusal: opaqueColorRefusal('CM-84', command.textColor),
         look: { textColor: command.textColor },
       }
-    // Spec: FR-097, S-624
     case 'setCommentBoxFontSizePx':
       return {
         commandRow: 'CM-103',

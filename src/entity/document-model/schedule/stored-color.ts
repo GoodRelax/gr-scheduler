@@ -7,7 +7,6 @@ import { COLUMN_SHAPES } from './schedule-entities'
 
 export const TRANSPARENT = 'transparent'
 
-// Spec: CV-2
 export interface CustomColor {
   readonly light: string | null
   readonly dark: string | null
@@ -17,10 +16,9 @@ const SIDE_HEX = /^#[0-9a-fA-F]{6}$/
 
 const CUSTOM_SIDES_CUT = '/'
 
-// Spec: CV-1, T-294
 const PALETTE_SPELLINGS: readonly string[] = COLUMN_SHAPES.TaskVisual['fillColor']?.choices ?? []
 
-// Spec: CV-2
+// Spec: CV-2, IMPS-122
 /** @purity pure */
 export function customColorOf(stored: string): CustomColor | null {
   const sides = stored.split(CUSTOM_SIDES_CUT)
@@ -41,14 +39,14 @@ export function customSideOf(color: CustomColor, dark: boolean): string {
   return drawn ?? ''
 }
 
-// Spec: CV-1, CV-2, FR-019
+// Spec: CV-1, CV-2, FR-019, IMPS-125
 /** @purity pure */
 export function isStoredColor(text: string, allowsTransparent: boolean): boolean {
   if (PALETTE_SPELLINGS.includes(text)) return allowsTransparent || text !== TRANSPARENT
   return customColorOf(text) !== null
 }
 
-// Spec: CV-4
+// Spec: CV-4, IMPS-121
 // Why: null when chosen is not one #rrggbb, i.e. not a pick from the custom entrance.
 /** @purity pure */
 export function customColorChosen(previous: string | null, chosen: string, dark: boolean): string | null {

@@ -44,7 +44,6 @@ export type HumanInput = PointerInput | WheelInput | KeyInput
 
 export type InputWatcher = (input: HumanInput) => void
 
-// Spec: IF-2
 export interface InputSource {
   /** @purity non-pure */
   watchInput(receive: InputWatcher): void

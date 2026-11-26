@@ -39,28 +39,21 @@ export type ImportVerdict =
 
 const BYTES_PER_MEGABYTE = 1024 * 1024
 
-// Spec: IV-4, T-233
 // Why: a ring is refused under the table T-220 row it breaks, so NT-1 tells the IV-4 words, not RS-15.
 const PARENT_RING_ROW = 'IV-4'
 
-// Spec: IV-14, T-214, T-233
 // Why: a day outside S-119..S-120 breaks IV-14, so the refusal carries that row, not the setting (CR-718).
 const UNUSABLE_DATE_ROW = 'IV-14'
 
-// Spec: IV-10, FR-012, T-233
 const FINISH_BEFORE_START_ROW = 'IV-10'
 
-// Spec: FR-023, FR-076, T-211, T-233
 // Why: no T-220 row owns these refusals, so each carries its own T-233 row, never RS-15 (CR-719).
 const OVER_MAX_BYTES_ROW = 'RS-78'
 
-// Spec: FR-023, FR-076, T-211, T-233
 const OVER_MAX_ITEMS_ROW = 'RS-79'
 
-// Spec: FR-023, FR-076, T-211, T-233
 const OVER_MAX_DEPTH_ROW = 'RS-80'
 
-// Spec: FR-012, FR-076, T-233
 const UNDATED_TASK_ROW = 'RS-81'
 
 /** @purity pure */
@@ -75,6 +68,7 @@ interface AcceptedDays {
 
 const NO_REFUSALS: readonly ValidationRefusal[] = []
 
+// Spec: IMPS-932, IMPS-934
 /** @purity pure */
 function sweepDateColumns<TRow extends object>(
   row: TRow,
@@ -109,6 +103,7 @@ interface WbsShape {
   readonly rings: readonly (readonly number[])[]
 }
 
+// Spec: IMPS-931
 /** @purity pure */
 function wbsShapeOf(tasks: readonly Task[]): WbsShape {
   const byUid = new Map<number, Task>()
@@ -176,7 +171,7 @@ function deepestOf(depthByUid: ReadonlyMap<number, number>):
   return deepest
 }
 
-// Spec: FR-023, FR-012, NFR-009, T-211, T-214
+// Spec: FR-023, FR-012, NFR-009, T-211, T-214, IMPS-933, IMPS-938, IMPS-939, IMPS-477, IMPS-478, IMPS-479, IMPS-480, IMPS-481, IMPS-483, IMPS-484
 /** @purity pure */
 export function validateImportedDocument(
   candidate: ImportCandidate,
@@ -277,7 +272,6 @@ export function validateImportedDocument(
       )
     }
 
-    // Spec: IV-21
     const reversed = reversedActualMinutesOf(within, task)
     if (reversed !== null && reversed < 0) {
       found.push(

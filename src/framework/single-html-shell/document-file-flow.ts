@@ -99,13 +99,10 @@ import {
 import type { HeldViewPlace } from './view-place'
 import startupTemplateManifest from './startup-template-manifest.json'
 
-// Spec: BT-1, FR-067
 export const EMBEDDED_DOCUMENT_ELEMENT_ID = 'embedded-document'
 
-// Spec: FR-027, FR-067
 export const STARTUP_TEMPLATE_ELEMENT_ID: string = startupTemplateManifest.containerElementId
 
-// Spec: FR-067
 const OPEN_ROUTE_CONTAINER_ORDER: readonly string[] = [EMBEDDED_DOCUMENT_ELEMENT_ID, STARTUP_TEMPLATE_ELEMENT_ID]
 
 const DIAGNOSTIC_FIX_BACKUP_SAVED: SessionEvent = { type: 'diagnosticFixBackupSaved' }
@@ -114,7 +111,6 @@ const NOT_OPENABLE_HTML_REASON: Extract<NoticeReason, 'RS-67'> = 'RS-67'
 
 const OVERWRITE_QUESTION: ConfirmationQuestion = 'QN-4'
 
-// Spec: OP-16
 type IncomingFile = Extract<FileOperationState, { readonly kind: 'awaitingOpenChoice' }>['incomingFile']
 
 type JsonRefusalReason = Extract<ReturnType<typeof documentFromJson>, { readonly ok: false }>['reason']
@@ -129,15 +125,12 @@ const SEVERAL_FILES_DROPPED_REASON: NoticeReason = 'RS-14'
 
 const SETTINGS_CLAMPED_REASON: NoticeReason = 'RS-51'
 
-// Spec: FR-012
 const PERCENT_COMPLETE_RECOUNTED_REASON: NoticeReason = 'RS-52'
 
-// Spec: MR-3
 const DUPLICATE_LEAVES_REASON: NoticeReason = 'RS-60'
 
 const OVERLAY_NOT_DRAWN_REASON: NoticeReason = 'RS-16'
 
-// Spec: MG-14
 const MERGE_OVERWROTE_REASON: NoticeReason = 'RS-71'
 
 const MERGE_KEPT_REASON: NoticeReason = 'RS-72'
@@ -146,13 +139,10 @@ const NEWER_FORMAT_UNREAD_REASON: NoticeReason = 'RS-48'
 
 const NEWER_FORMAT_OPENED_REASON: NoticeReason = 'RS-63'
 
-// Spec: IF-3
 const READING_BROKE_REASON: NoticeReason = 'RS-75'
 
-// Spec: IF-3
 const WRITING_BROKE_REASON: NoticeReason = 'RS-76'
 
-// Spec: EX-3
 const WORK_NOT_REWRITTEN_REASON: NoticeReason = 'RS-77'
 
 const WORK_COLUMN = 'Work'
@@ -174,23 +164,19 @@ const NOTICE_REASON_OF_EMBEDDED_HTML_FAULT: Readonly<
 
 const NO_DROPPED_SEEDS: ReadonlySet<number> = new Set<number>()
 
-// Spec: FT-1, OP-2
 export const OPEN_ROUTE_FROM_DROP: OpenRoute = 'drop'
 
 export const OPEN_ROUTE_FROM_CHOOSER: OpenRoute = 'chooser'
 
 export const OPEN_ROUTE_REOPEN: OpenRoute = 'reopen'
 
-// Spec: SK-11, IO-2
 const SAVE_FORM: SaveFileForm = 'IO-2'
 
-// Spec: FR-096, T-024
 /** @purity pure */
 function extensionOfForm(form: SaveFileForm): string {
   return extensionOfFormat(form)
 }
 
-// Spec: T-024
 /** @purity pure */
 function saveFormOfExportFormat(format: ExportFormatId): SaveFileForm | null {
   return SAVE_FILE_FORMS.find((form) => form === format) ?? null
@@ -221,20 +207,20 @@ function defaultDocumentSettings(): DocumentSettings {
 
 const DEFAULT_DOCUMENT_SETTINGS: DocumentSettings = defaultDocumentSettings()
 
-// Spec: FR-096, T-352
+// Spec: IMPS-1036
 /** @purity pure */
 function suggestedFileNameOf(project: Project, form: SaveFileForm): string {
   return exportFileNameOf(project.title ?? '', extensionOfForm(form))
 }
 
-// Spec: AT-140, HS-11
+// Spec: AT-140, HS-11, IMPS-994
 // Why: only the bytes carry the stamp; the held document keeps the one it was opened with (HS-11).
 /** @purity pure */
 export function documentStampedAt(document: Document, savedAt: string | null): Document {
   return { ...document, documentStamp: { ...document.documentStamp, fileSavedAt: savedAt } }
 }
 
-// Spec: AT-140, FR-101, HS-11
+// Spec: AT-140, FR-101, HS-11, IMPS-993
 /** @purity pure */
 function savedDocumentText(document: Document, savedAt: string): string {
   return jsonFromDocument(documentStampedAt(document, savedAt))
@@ -250,7 +236,7 @@ interface ExportedText {
   readonly unlistedNoticeCount: number
 }
 
-// Spec: FR-096, AT-140, DV-12, EX-6
+// Spec: FR-096, AT-140, DV-12, EX-6, IMPS-994
 /** @purity pure */
 function exportedText(form: SaveFileForm, document: Document, moment: WriteMoment): ExportedText | null {
   switch (form) {
@@ -290,13 +276,12 @@ interface RefusedIntake {
   readonly refusal: JsonRefusalReason | typeof NOT_OPENABLE_HTML_REASON
 }
 
-// Spec: T-233, RS-15
 // Why: table T-233 has no row for why an MSPDI could not be read, so each fault falls to RS-15.
 interface UnreadableMspdi {
   readonly unlistedFaultCount: number
 }
 
-// Spec: OP-12, FR-073
+// Spec: OP-12, FR-073, IMPS-1074, IMPS-1075, IMPS-469, IMPS-1071
 /** @purity pure */
 function decodedDocument(
   format: ExchangeFormat,
@@ -337,7 +322,7 @@ function decodedDocument(
     : { unlistedFaultCount: read.faults.length }
 }
 
-// Spec: FR-073, FR-076, RS-15, RS-25, RS-64, RS-67
+// Spec: IMPS-1007
 /** @purity non-pure */
 function acceptedIntake(
   hands: Pick<DocumentFileFlowHands, 'raiseNotice'>,
@@ -352,7 +337,7 @@ function acceptedIntake(
   return null
 }
 
-// Spec: T-233, RS-15
+// Spec: IMPS-1126
 // Why: the MSPDI codec words its notices for a reader, not by a row of table T-220, so they share RS-15.
 /** @purity non-pure */
 function tellUnlisted(hands: Pick<DocumentFileFlowHands, 'raiseNotice'>, count: number): void {
@@ -367,7 +352,7 @@ interface NewerFormatReading {
 
 const NOT_NEWER: NewerFormatReading = { isNewerFormat: false, couldNotBeRead: [], isUnreadAsked: false }
 
-// Spec: FR-073, RS-48, RS-63
+// Spec: IMPS-1000, IMPS-1003, IMPS-1008
 /** @purity non-pure */
 function tellNewerFormat(hands: Pick<DocumentFileFlowHands, 'raiseNotice'>, reading: NewerFormatReading): void {
   const { isNewerFormat, couldNotBeRead, isUnreadAsked } = reading
@@ -392,7 +377,7 @@ function taskIndexOfRefusal(at: string): number | null {
   return Number.isInteger(index) && index >= 0 ? index : null
 }
 
-// Spec: FR-023, CD-1
+// Spec: FR-023, CD-1, IMPS-935, IMPS-936
 /** @purity pure */
 function taskUidsWithAnUnusableDate(
   refusals: readonly { readonly rule: string; readonly at: string }[],
@@ -468,7 +453,7 @@ function fileSavedReadingOf(hands: Pick<DocumentFileFlowHands, 'files'>) {
       fileSaved = savedAt === null ? NO_FILE_SAVED : { fileSavedAt: savedAt, fileSavedByteLength: byteLength }
       hasSavedOpenedFile = false
     },
-    // Spec: FR-095, HS-5
+    // Spec: FR-095, HS-5, IMPS-1056
     /** @purity non-pure */
     forgetOpenedFile(): void {
       hands.files?.forgetOpenedFile()
@@ -483,7 +468,6 @@ type CheckedFixRows = readonly DelayFixRow[]
 
 export type CarriedFixBundle = Extract<SessionEffect, { readonly type: 'issueDelayFixBundle' }>['fixBundle']
 
-// Spec: DX-12, FM-2
 // Why: the log rows carry the minute they were fixed, so the window, the Markdown and AM-19 read one log.
 interface LandedFixBundle {
   readonly logRows: readonly DelayFixLogRow[]
@@ -500,6 +484,7 @@ function isFixBundleStanding(held: HeldNow, landed: LandedFixBundle): boolean {
   return done.some((one, at) => one.step.document === landed.before && (done[at + 1]?.step.document ?? held.document) === landed.after)
 }
 
+// Spec: IMPS-650
 // Why: the write path refuses a bundle whole and names no row, so the rows are replayed one by one to name it.
 /** @purity pure */
 function firstRefusedFixRow(
@@ -524,6 +509,7 @@ function delayFixBundleHoldOf(hands: DocumentFileFlowHands) {
   let landed: readonly LandedFixBundle[] = []
   let telling: DelayFixTelling | null = null
   return {
+    // Spec: IMPS-647, IMPS-649, IMPS-651, IMPS-652
     /** @purity non-pure */
     issueDelayFixBundle(carried: CarriedFixBundle, frame: FrameValues | null): void {
       const fixBundle = carried as CheckedFixRows | null
@@ -591,7 +577,7 @@ export function documentFileFlowOf(
     })
   }
 
-  // Spec: FR-022, T-032a, T-290
+  // Spec: IMPS-900
   /** @purity non-pure */
   function askWhichFileToTakeFrom(
     mergeCandidates: readonly MergeCandidateLine[],
@@ -614,6 +600,7 @@ export function documentFileFlowOf(
       .finally(() => hands.endFileOperation(DOCUMENT_OPEN_FAILED))
   }
 
+  // Spec: IMPS-1050
   /** @purity non-pure */
   function beginWritingDocumentFile(writeForm: FileFlowWriteForm): void {
     const store = hands.files
@@ -684,7 +671,6 @@ export function answerOpenChoice(hands: DocumentFileFlowHands, openChoice: OpenC
   hands.sendToSession({ type: 'openChoiceAnswered', openChoice, question: discardQuestionOf(hands.readHeld().document) }, frame)
 }
 
-// Spec: T-290, FR-023, FR-076, MG-14
 type ReportedLines = Omit<Extract<SessionEvent, { readonly type: 'documentOpenLanded' }>, 'type' | 'openedFileName' | 'openChoice'>
 
 interface ReadingTally {
@@ -692,7 +678,7 @@ interface ReadingTally {
   readonly counted: () => ReportedLines['reportedCounts']
 }
 
-// Spec: FR-076, U-62, T-233, T-290
+// Spec: IMPS-1133
 // Why: held until the reading lands, and dropped with the tally when it does not (nothing was taken in).
 /** @purity non-pure */
 function readingTallyOf(outer: DocumentFileFlowHands): ReadingTally {
@@ -706,7 +692,7 @@ function readingTallyOf(outer: DocumentFileFlowHands): ReadingTally {
   return { hands: { ...outer, raiseNotice }, counted: () => [...counts].map(([reason, count]) => ({ reason, count })) }
 }
 
-// Spec: FR-076, T-220, NT-3, NT-1
+// Spec: FR-076, T-220, NT-3, NT-1, IMPS-1134, IMPS-1135
 // Why: a rule that is no row of table T-220 has no words of its own, so it falls to RS-15.
 /** @purity non-pure */
 function tellImportRefusals(
@@ -721,7 +707,7 @@ function tellImportRefusals(
   for (const [row, count] of counts) hands.raiseNotice(row, count > 1 ? count : null)
 }
 
-// Spec: AM-8, FR-012, RS-52
+// Spec: IMPS-470
 /** @purity non-pure */
 function handedReadingOf(hands: Pick<DocumentFileFlowHands, 'raiseNotice'>, handed: HandedImport) {
   const recounted = handed.recountedCount ?? 0
@@ -761,7 +747,7 @@ function missingTaskNamesOf(current: Document, report: ImportReport | null): Rep
   return current.schedule.tasks.filter((task) => missing.has(task.uid)).map((task) => task.name)
 }
 
-// Spec: MG-14, RS-71, RS-72, OP-15, RS-16
+// Spec: MG-14, RS-71, RS-72, OP-15, RS-16, IMPS-1457
 // Why: a zero count tells nothing (MG-14); an overlay or a replacement is no merge.
 /** @purity non-pure */
 function tellImportReport(hands: Pick<DocumentFileFlowHands, 'raiseNotice'>, report: ImportReport): void {
@@ -791,7 +777,7 @@ function landImportedDocument(
   landOpenedDocument(reading.hands, lines, request.choice, newer)
 }
 
-// Spec: FR-060, FR-101, HS-6, T-290
+// Spec: FR-060, FR-101, HS-6, T-290, IMPS-968
 // Why: only a replace makes the file read the save target; a merge or an overlay makes a document no file holds.
 /** @purity non-pure */
 function landReplacedDocument(
@@ -978,10 +964,9 @@ async function reopenDocumentIntoHold(
   await openDocumentIntoHold(hands, flow, store, OPEN_ROUTE_REOPEN)
 }
 
-// Spec: RS-89, FR-054, FR-088
 export const WORKING_TIMES_UNLIKE_DAY_REASON: NoticeReason = 'RS-89'
 
-// Spec: FR-156, BK-4
+// Spec: FR-156, BK-4, IMPS-745
 // Why: MSPDI holds no zone, so a read MSPDI is the PC's standard time, told to nobody (FR-156).
 /** @purity semi-pure-mutable */
 function withSystemTimeZone(document: Document): Document {
@@ -989,13 +974,13 @@ function withSystemTimeZone(document: Document): Document {
   return { ...document, schedule: { ...document.schedule, project: { ...project, scheduleDataTimeZone: readSystemStandardTimeZone() } } }
 }
 
-// Spec: RS-89, FR-054, FR-088
+// Spec: FR-304
 /** @purity non-pure */
 function tellOpenedCalendar(hands: Pick<DocumentFileFlowHands, 'raiseNotice'>, opened: Document): void {
   if (isWorkingDayUnlikeMinutesPerDay(opened.schedule)) hands.raiseNotice(WORKING_TIMES_UNLIKE_DAY_REASON, null)
 }
 
-// Spec: RS-51, RS-52, RS-60, RS-15
+// Spec: IMPS-470
 /** @purity non-pure */
 function tellDecodedIntake(hands: Pick<DocumentFileFlowHands, 'raiseNotice'>, decoded: DecodedIntake): void {
   if (decoded.clampedCount > 0) hands.raiseNotice(SETTINGS_CLAMPED_REASON, decoded.clampedCount)
@@ -1004,14 +989,13 @@ function tellDecodedIntake(hands: Pick<DocumentFileFlowHands, 'raiseNotice'>, de
   tellUnlisted(hands, decoded.unlistedNoticeCount)
 }
 
-// Spec: FR-012, RS-52
 type HandedFirstReading = Pick<HandedImport, 'unreadColumns' | 'isNewerFormat'> & {
   readonly recountedCount?: number
 }
 
 const ASKED_MERGE_SURFACE = 'U-61'
 
-// see AG-12, AV-15, OP-3, U-61, DFC-3252
+// Spec: AG-12, AV-15, OP-3, U-61, IMPS-905
 /** @purity non-pure */
 function askingOpeningFlow(flow: OpeningFlow, onAsked: (asked: typeof ASKED_MERGE_SURFACE) => void): OpeningFlow {
   return {
@@ -1031,7 +1015,7 @@ function askingOpeningFlow(flow: OpeningFlow, onAsked: (asked: typeof ASKED_MERG
   }
 }
 
-// Spec: AM-8, FR-022, FR-073
+// Spec: AM-8, FR-022, FR-073, IMPS-904, IMPS-905
 // Trap: the handed document's unread columns were dropped at its first decode; a caller holding that reading passes it.
 /** @purity non-pure */
 export async function takeInHandedDocument(
@@ -1062,7 +1046,7 @@ export async function takeInHandedDocument(
   }
 }
 
-// Spec: FR-096, FR-060, SX-1
+// Spec: FR-096, FR-060, SX-1, IMPS-971, DI-5, IMPS-1048
 // Why: a file opened as MSPDI or as a single .html is not written over with GRS JSON; its first save
 // asks for a file. OP-12 opens a file only when its extension names its format, so the extension tells.
 /** @purity pure */
@@ -1091,7 +1075,7 @@ function byteLengthOfText(text: string): number {
   return new TextEncoder().encode(text).length
 }
 
-// Spec: SK-11, FR-060, FR-096
+// Spec: SK-11, FR-060, FR-096, IMPS-967, IMPS-971, DI-5, IMPS-1048
 /** @purity non-pure */
 async function saveHeldDocumentToFile(
   hands: DocumentFileFlowHands,
@@ -1138,6 +1122,7 @@ async function backupHeldDocumentToFile(
   hands.raiseFileFault(writing.fault)
 }
 
+// Spec: IMPS-646
 // Why: the overwrite before a fix is the very save of SK-11; only the backup takes its own road.
 /** @purity non-pure */
 function documentFileWriting(
@@ -1158,7 +1143,7 @@ function documentFileWriting(
   }
 }
 
-// Spec: FR-096, SK-12, T-340
+// Spec: FR-096, SK-12, T-340, IMPS-1049, IMPS-1050
 /** @purity non-pure */
 async function exportHeldDocumentToFile(
   hands: DocumentFileFlowHands,
@@ -1200,7 +1185,7 @@ function tellMspdiWritten(hands: Pick<DocumentFileFlowHands, 'raiseNotice'>, wri
   tellUnlisted(hands, noticeCount)
 }
 
-// Spec: IO-3, IO-4, IO-7, ST-7
+// Spec: IO-3, IO-4, IO-7, ST-7, IX-6, IX-7
 /** @purity non-pure */
 async function exportPictureContent(
   hands: DocumentFileFlowHands,
@@ -1237,7 +1222,7 @@ async function exportPictureContent(
   }
 }
 
-// Spec: IO-4
+// Spec: IO-4, IX-6
 /** @purity non-pure */
 async function rasteredContent(
   hands: DocumentFileFlowHands,

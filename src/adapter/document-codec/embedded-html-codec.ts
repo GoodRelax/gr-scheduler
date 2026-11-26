@@ -46,11 +46,13 @@ function isUsableElementId(elementId: string): boolean {
   return elementId !== '' && !BREAKING_ELEMENT_ID_CHARACTER.test(elementId)
 }
 
+// Spec: IMPS-1070
 /** @purity pure */
 function embeddedJson(document: Document): string {
   return jsonFromDocument(document).replaceAll('<', '\\u003c')
 }
 
+// Spec: IMPS-1070
 /** @purity pure */
 function containerHtml(elementId: string, json: string): string {
   return `<script type="${CONTAINER_TYPE}" id="${elementId}">${json}</script>`
@@ -126,7 +128,7 @@ function htmlWithContainer(html: string, elementId: string, json: string): Embed
   return { ok: true, html: `${html.slice(0, only.begin)}${container}${html.slice(only.end)}` }
 }
 
-// Spec: FR-067
+// Spec: IMPS-1073
 /** @purity pure */
 function htmlWithout(html: string, elementIds: readonly string[]): string {
   let left = html
@@ -140,7 +142,7 @@ function htmlWithout(html: string, elementIds: readonly string[]): string {
   return left
 }
 
-// Spec: IO-7, FR-067, PI-20
+// Spec: IO-7, FR-067, PI-20, IMPS-1075, IMPS-1071
 // Why: the ids are tried in the order given and the first one found decides, so the read order is the caller's.
 /** @purity pure */
 export function documentFromEmbeddedHtml(
@@ -158,7 +160,7 @@ export function documentFromEmbeddedHtml(
   return { ok: false, reason: 'entryCountNotOne', entryCount: 0 }
 }
 
-// Spec: IO-7, FR-067
+// Spec: IO-7, FR-067, IMPS-1073
 /** @purity semi-pure-mutable */
 export async function exportEmbeddedHtml(
   source: AppShellSource,

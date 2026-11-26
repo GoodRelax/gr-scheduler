@@ -11,7 +11,7 @@ import {
   type PointerPress,
 } from './input-command-translator'
 
-// Spec: DC-1, DC-2, DC-3, T-378, TX-6
+// Spec: DC-1, DC-2, DC-3, T-378, TX-6, IMPS-1604
 // Why: the instant the line stands on; on the day unit it is the day's 00:00, the text the day was placed as before.
 /** @purity pure */
 function cursorDateAtX(context: InputContext, x: number): string | null {
@@ -24,8 +24,6 @@ function cursorDateAtX(context: InputContext, x: number): string | null {
 export function screenEventFromDualCursorEntry(context: InputContext): ScreenValuesEvent {
   const taskGroupArea = context.regions.taskGroupArea
   const atCenter = cursorDateAtX(context, taskGroupArea.x + taskGroupArea.width / 2)
-  // STOP: spec does not decide IC-45 where the axis has no day. Looked in DC-1, BO-1
-  // @provisional PND-313
   return {
     type: 'dualCursorEntryPressed',
     date: atCenter ?? '',

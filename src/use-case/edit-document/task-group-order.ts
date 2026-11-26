@@ -90,7 +90,7 @@ function withWbsOrderFollowingTheTaskGroups(document: Document, taskGroups: read
   return withScheduleParts(moved, { tasks: tasksRankedByTheTaskGroupTree(moved.schedule) })
 }
 
-// Spec: CM-35, FR-005
+// Spec: CM-35, FR-005, HM-8
 /** @purity pure */
 export function reorderTaskGroupSiblings(
   document: Document,
@@ -123,14 +123,13 @@ export function reorderTaskGroupSiblings(
   return edited(withWbsOrderFollowingTheTaskGroups(document, ordered))
 }
 
-// Spec: CM-73
 // Trap: ranked by `order`, not by the array: a bundle of moves (QN-16) leaves the array out of tree order.
 /** @purity pure */
 function siblingsByOrder(groups: readonly TaskGroup[], parentId: string | null, without: string): readonly TaskGroup[] {
   return groups.filter((one) => one.id !== without && one.parentId === parentId).sort((a, b) => a.order - b.order)
 }
 
-// Spec: CM-73, FR-005
+// Spec: CM-73, FR-005, HM-5, HM-6
 /** @purity pure */
 export function moveTaskGroup(
   document: Document,

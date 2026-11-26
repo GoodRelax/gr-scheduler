@@ -46,7 +46,7 @@ function tooltipStyle(): string {
   )
 }
 
-// Spec: IN-3, EZ-2
+// Spec: IN-3, EZ-2, UZ-2
 /** @purity non-pure */
 export function tooltipElement(
   host: Document,

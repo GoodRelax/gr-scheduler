@@ -64,7 +64,6 @@ export type MspdiDecoding =
       readonly ok: true
       readonly document: Document
       readonly notices: readonly MspdiNotice[]
-      // Spec: MR-3, RS-60
       readonly duplicateLeaves: number
     }
   | { readonly ok: false; readonly faults: readonly MspdiFault[] }
@@ -74,15 +73,12 @@ export interface MspdiEncoding {
   readonly notices: readonly MspdiNotice[]
 }
 
-// Spec: EX-15
 // Why: the XSD's namespace, written for a document not imported; reading matches local names in any namespace.
 export const MSPDI_NAMESPACE = 'http://schemas.microsoft.com/project/2007'
 
-// Spec: EX-15
 // Why: XML reserves names that begin with xml, so the key never meets a carried leaf of the Project.
 const CARRIED_NAMESPACE = 'xmlns'
 
-// Spec: FR-011, T-019
 // Why: '#' is in no XML name, so the key never meets a carried leaf; its value is the ActualDuration the
 // stop was counted from, and the stop stays unwritten only while that original is still carried unchanged.
 const STOP_COUNTED_FROM = '#StopCountedFrom'
@@ -122,6 +118,7 @@ function leafText(element: XmlElement): string {
   return element.children.length === 0 ? element.text : ''
 }
 
+// Spec: MR-1
 /** @purity pure */
 export function childOf(element: XmlElement, name: string): XmlElement | null {
   return element.children.find((child) => child.name === name) ?? null
@@ -189,6 +186,7 @@ interface CarrySplit {
   readonly carryElements: readonly CarryElement[]
 }
 
+// Spec: DF-2, IMPS-878
 /** @purity pure */
 function carrySplit(element: XmlElement, consumed: readonly string[]): CarrySplit {
   const carry: Record<string, string> = {}
@@ -205,6 +203,7 @@ function carrySplit(element: XmlElement, consumed: readonly string[]): CarrySpli
   return { carry, carryElements }
 }
 
+// Spec: DF-2
 /** @purity pure */
 function carriedElement(element: XmlElement, ordinal: number): CarryElement {
   const fields: Record<string, string> = {}
@@ -323,7 +322,7 @@ interface ImportRun {
   readonly notices: MspdiNotice[]
 }
 
-// Spec: FR-021, FR-023
+// Spec: FR-021, FR-023, IO-1
 /** @purity pure */
 export function documentFromMspdi(text: string, current: Document): MspdiDecoding {
   const reading = readXml(withoutLeadingByteOrderMark(text))
@@ -363,6 +362,7 @@ function withSourceNamespace(schedule: Schedule, namespace: string | null): Sche
 
 export const BYTE_ORDER_MARK = '\uFEFF'
 
+// Spec: IMPS-930
 /** @purity pure */
 export function withoutLeadingByteOrderMark(text: string): string {
   return text.startsWith(BYTE_ORDER_MARK) ? text.slice(BYTE_ORDER_MARK.length) : text
@@ -401,7 +401,6 @@ function scheduleFromRoot(root: XmlElement, current: Document, run: ImportRun): 
     project: {
       ...project,
       uidHighWaterMark: highWaterMark,
-      // Spec: AT-143
       sourceFormat: mspdiVersionOfCarried({ ...read, project }),
     },
     taskGroups: rows.taskGroups,
@@ -416,6 +415,7 @@ function scheduleFromRoot(root: XmlElement, current: Document, run: ImportRun): 
   }, run)
 }
 
+// Spec: IMPS-877
 /** @purity pure */
 function projectFromRoot(
   root: XmlElement,
@@ -479,7 +479,7 @@ const DEFAULT_START_TIME = 'DefaultStartTime'
 
 const DEFAULT_FINISH_TIME = 'DefaultFinishTime'
 
-// Spec: AT-154, AT-155
+// Spec: IMPS-876
 /** @purity pure */
 function timeColumn(element: XmlElement, name: string): string | null {
   const text = textColumn(element, name)
@@ -518,12 +518,11 @@ interface TasksReading {
   readonly outlineBase: number
 }
 
-// Spec: MR-4
 // Why: MS Project writes one project summary task per file; UID and OutlineLevel tell it, never ID (DV-4).
 const PROJECT_SUMMARY_UID = 0
 const PROJECT_SUMMARY_OUTLINE_LEVEL = 0
 
-// Spec: MR-4
+// Spec: MR-4, IMPS-874
 /** @purity pure */
 function isProjectSummary(element: XmlElement): boolean {
   return integerColumn(element, 'UID') === PROJECT_SUMMARY_UID
@@ -542,6 +541,7 @@ function summaryTargetOf(root: XmlElement): SummaryTarget {
   return (element, column) => hasSummary && integerColumn(element, column) === PROJECT_SUMMARY_UID
 }
 
+// Spec: IMPS-873
 /** @purity pure */
 function outlineBaseOf(collection: XmlElement): number {
   for (const element of collection.children) {
@@ -552,7 +552,7 @@ function outlineBaseOf(collection: XmlElement): number {
   return 1
 }
 
-// Spec: DF-3, FR-021, MR-4
+// Spec: DF-3, FR-021, MR-4, IMPS-874, IMPS-914, IMPS-1975, IMPS-1976
 /** @purity pure */
 function tasksFromRoot(root: XmlElement, run: ImportRun): TasksReading {
   const collection = childOf(root, 'Tasks')
@@ -625,6 +625,7 @@ interface TaskColumnsOfFile {
   readonly summaryTarget: SummaryTarget
 }
 
+// Spec: IMPS-418, IMPS-419
 /** @purity pure */
 function taskFromElement(
   element: XmlElement,
@@ -661,7 +662,7 @@ function taskFromElement(
   }
 }
 
-// Spec: FR-011, AT-141
+// Spec: IMPS-420, IMPS-423
 /** @purity pure */
 function withStopsFromActualDurations(schedule: Schedule, run: ImportRun): Schedule {
   const within = workingCalendarOf(schedule)
@@ -683,7 +684,7 @@ function withStopsFromActualDurations(schedule: Schedule, run: ImportRun): Sched
   return { ...schedule, tasks }
 }
 
-// Spec: FR-011, FR-054
+// Spec: IMPS-756
 /** @purity pure */
 function minutesOfActualDuration(raw: string | null, at: string, run: ImportRun): number | null {
   if (raw === null || raw.trim() === '') return null
@@ -700,7 +701,7 @@ interface LinksReading {
   readonly carried: readonly CarryElement[]
 }
 
-// Spec: MR-4
+// Spec: MR-4, IMPS-362, DF-4
 // Trap: a carried link keeps the ordinal among the Task's children, which splicing reads; EX-10 writes it
 // before the Task's written links, so its order among them holds only when it came first.
 /** @purity pure */
@@ -792,7 +793,6 @@ function assignmentsFromRoot(root: XmlElement, run: ImportRun): AssignmentsReadi
       ))
       return
     }
-    // Spec: MR-4
     if (summaryTarget(element, 'TaskUID')) {
       carriedRows.push(carriedElement(element, ordinal))
       return
@@ -871,7 +871,7 @@ function weekDaysOfCalendar(calendar: XmlElement): readonly WeekDay[] {
 
 const WORKING_TIMES = 'WorkingTimes'
 
-// Spec: AT-158, AT-159, AT-160
+// Spec: IMPS-759
 /** @purity pure */
 function workingTimesOf(day: XmlElement): readonly WorkingTime[] {
   const held = childOf(day, WORKING_TIMES)
@@ -887,6 +887,7 @@ function consumedWithWorkingTimes(consumed: readonly string[], workingTimes: rea
   return workingTimes.length === 0 ? consumed : [...consumed, WORKING_TIMES]
 }
 
+// Spec: IMPS-758
 /** @purity pure */
 function exceptionsOfCalendar(
   calendar: XmlElement,
@@ -927,7 +928,7 @@ export interface ExportRun {
   readonly notices: MspdiNotice[]
 }
 
-// Spec: FR-021, DV-12
+// Spec: FR-021, DV-12, IO-1
 // Why: the moment of the write is handed in (local wall time, no zone, to the second), so this stays pure.
 /** @purity pure */
 export function mspdiFromDocument(document: Document, lastSaved: string): MspdiEncoding {
@@ -941,7 +942,7 @@ export function mspdiFromDocument(document: Document, lastSaved: string): MspdiE
   return { text: writtenXml(root, schedule.project.carry[CARRIED_NAMESPACE] ?? MSPDI_NAMESPACE), notices: run.notices }
 }
 
-// Spec: FR-021, DV-12
+// Spec: IMPS-876, DV-12
 /** @purity pure */
 function writtenProjectColumns(project: Project, lastSaved: string): PlacedChild[] {
   return [
@@ -1014,7 +1015,6 @@ function isCarriedRow(carried: CarryElement): boolean {
   return Object.hasOwn(CARRIED_ROW_PATHS, carried.name)
 }
 
-// Spec: DV-2, EX-1
 const GRS_SAVE_VERSION = '12'
 
 // Why: ISO 4217's no-currency code, since no column of the document holds money.
@@ -1042,6 +1042,7 @@ function latestTaskFinish(schedule: Schedule): string | null {
   return latest
 }
 
+// Spec: IMPS-873
 /** @purity pure */
 function writtenTasks(
   schedule: Schedule,
@@ -1137,7 +1138,7 @@ function taskDepths(tasks: readonly Task[]): ReadonlyMap<number, number> {
   return depths
 }
 
-// Spec: DV-6
+// Spec: EX-2
 /** @purity pure */
 function outlineNumbers(
   tasks: readonly Task[],
@@ -1159,6 +1160,7 @@ function outlineNumbers(
   return numbers
 }
 
+// Spec: IMPS-1976
 /** @purity pure */
 function writtenTask(
   task: Task,
@@ -1210,7 +1212,6 @@ function writtenTask(
 // Why: GRS writes these for a grs document and would write each twice if a merged task carried them too.
 const CONSTRAINT_LEAVES: readonly string[] = ['ConstraintType', 'ConstraintDate']
 
-// Spec: EX-11
 const MUST_START_ON = '2'
 
 // Spec: EX-11, EX-12, DV-8
@@ -1225,7 +1226,6 @@ function writtenConstraintOfGrs(task: Task, schedule: Schedule, run: ExportRun):
     leaf('ConstraintType', MUST_START_ON),
     leaf('ConstraintDate', startText),
   ]
-  // Spec: DV-8
   if (task.carry['Duration'] !== undefined) return constraint
   try {
     const minutes = plannedDurationMinutesOf(workingCalendarOf(schedule), task)
@@ -1247,7 +1247,7 @@ function withoutLeaves(
   return Object.fromEntries(Object.entries(leaves).filter(([name]) => !names.includes(name)))
 }
 
-// Spec: FR-011, AT-141
+// Spec: IMPS-410, IMPS-422, IMPS-423
 // Trap: a document read before AT-141 may still carry Stop; writing both puts two Stop elements in one Task.
 /** @purity pure */
 function writtenStop(task: Task): PlacedChild[] {
@@ -1257,7 +1257,7 @@ function writtenStop(task: Task): PlacedChild[] {
   return optionalLeaf('Stop', task.stop)
 }
 
-// Spec: DV-11, T-019
+// Spec: IMPS-416, IMPS-393, IMPS-394
 /** @purity pure */
 function writtenActualDuration(
   task: Task,
@@ -1279,6 +1279,7 @@ function writtenActualDuration(
   }
 }
 
+// Spec: IMPS-362
 /** @purity pure */
 function writtenDependency(dependency: Dependency): PlacedChild {
   const named: PlacedChild[] = [
@@ -1404,7 +1405,7 @@ function writtenException(exception: Exception): XmlElement {
   }
 }
 
-// Spec: AT-158, AT-159, AT-161, AT-162
+// Spec: IMPS-759
 /** @purity pure */
 function writtenWorkingTimes(path: ParentPath, workingTimes: readonly WorkingTime[]): PlacedChild[] {
   if (workingTimes.length === 0) return []

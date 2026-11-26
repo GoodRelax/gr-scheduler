@@ -72,7 +72,7 @@ function decodedText(raw: string): string | null {
 }
 
 // Why: an explicit stack, since nothing bounds nesting before validation and recursion would overflow.
-// Spec: FR-023
+// Spec: FR-023, IMPS-929, MR-2
 /** @purity pure */
 export function readXml(text: string): XmlReading {
   const stack: OpenElement[] = []

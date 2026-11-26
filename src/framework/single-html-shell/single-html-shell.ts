@@ -73,7 +73,6 @@ function readDeliveredHtml(): string {
   return `${prologue}${document.documentElement.outerHTML}\n`
 }
 
-// Spec: FR-102, IR-1
 // Trap: the two attributes dom-screen-surface.ts draws; a field answers its T-016 row, an entrance
 // its T-109 row, and nothing of the value is read, so no document contents reach the record.
 const FOCUS_ROW_ATTRIBUTES: readonly string[] = ['data-field-row', 'data-icon']
@@ -108,7 +107,7 @@ function focusPositionOfPage(): string {
   return FOCUS_ON_DOCUMENT_BODY
 }
 
-// Spec: FR-071
+// Spec: IMPS-814
 /** @purity semi-pure-mutable */
 function isPageFullScreen(): boolean {
   // Trap: undefined, not null, where the Fullscreen API is absent; that must read as not full screen.
@@ -184,7 +183,7 @@ function pageEscapeKeyLock(): EscapeKeyLock {
   return escapeKeyLockOf((navigator as { readonly keyboard?: unknown }).keyboard)
 }
 
-// Spec: FR-071, UF-48
+// Spec: IMPS-813, IMPS-816
 /** @purity non-pure */
 function pageFullScreenHost(): FullScreenHost {
   const root = document.documentElement
@@ -205,7 +204,6 @@ function pageFullScreenHost(): FullScreenHost {
   }
 }
 
-// Spec: IF-8
 /** @purity semi-pure-mutable */
 function appShellSource(): AppShellSource {
   return {
@@ -242,7 +240,7 @@ function shippedDocumentOf(read: ReturnType<typeof documentFromJson>, what: stri
   return read.document
 }
 
-// Spec: BT-4, FR-027, FR-023
+// Spec: BT-4, FR-027, FR-023, IMPS-1019, IMPS-1022
 // Why: null where the page carries no template container, as an exported .html does.
 /** @purity semi-pure-mutable */
 function startupTemplateDocument(): Document | null {
@@ -287,7 +285,6 @@ function shippedDocuments(): ShippedDocuments {
   return { template: shipped ?? startingAfresh, isTemplateShipped: shipped !== null, startingAfresh }
 }
 
-// Spec: T-050, RD-6
 // Why: the empty document carries no task group; this replacement lands it with the one task group every document holds.
 /** @purity non-pure */
 function holdWithItsTaskGroup(running: FrameLoop, chosen: Document, shipped: ShippedDocuments): void {
@@ -314,7 +311,7 @@ const NEWER_FORMAT_OPENED_REASON: StartupNoticeReason = 'RS-63'
 
 const NEWER_FORMAT_REFUSED_REASON: StartupNoticeReason = 'RS-64'
 
-// Spec: FR-073, RS-48, RS-63
+// Spec: IMPS-1008
 /** @purity pure */
 function newerFormatReasonOf(unreadColumns: readonly string[]): StartupNoticeReason {
   return unreadColumns.length > 0 ? NEWER_FORMAT_UNREAD_REASON : NEWER_FORMAT_OPENED_REASON
@@ -340,14 +337,13 @@ function startupReadingsOf(read: ReturnType<typeof documentFromJson>): StartupRe
   }
 }
 
-// Spec: FR-073, RS-64
+// Spec: IMPS-1007, IMPS-1071
 /** @purity pure */
 function startupNoticeReasonOf(code: StartupNoticeCode, isRefusedAsNewer: boolean): StartupNoticeReason {
   return code === 'embeddedUnreadable' && isRefusedAsNewer ? NEWER_FORMAT_REFUSED_REASON : STARTUP_NOTICE_REASON[code]
 }
 
 // Spec: BT-1, FR-088, FR-067
-// STOP: spec does not decide running FR-023's validation over BT-1. Looked in FR-023, FR-067, OP-5, T-008 (PND-452)
 /** @purity semi-pure-mutable */
 function embeddedStartupDocument(): StartupReadings & {
   readonly candidate: EmbeddedCandidate
@@ -379,7 +375,7 @@ function embeddedStartupDocument(): StartupReadings & {
   }
 }
 
-// Spec: FR-051, S-205
+// Spec: IMPS-1759, IMPS-1762, IMPS-1763, IMPS-1764, IMPS-1765
 /** @purity non-pure */
 function measuredScrollbarThickness(): number {
   const probe = document.createElement('div')
@@ -394,7 +390,6 @@ function measuredScrollbarThickness(): number {
   return Math.max(environmentDefault / 2, NOT_STORED_SCROLLBAR_SIZES['S-205'])
 }
 
-// Spec: FR-038
 /** @purity semi-pure-mutable */
 function screenLanguage(): DisplayLanguage {
   return startupDisplayLanguage()
@@ -455,7 +450,7 @@ function environmentOf(
   }
 }
 
-// Spec: T-077, FR-065, AG-12, RS-90
+// Spec: T-077, FR-065, AG-12, RS-90, IMPS-1058
 /** @purity non-pure */
 function publishAgentApiWhileEnabled(running: FrameLoop, schemaVersion: string): void {
   const host = globalThis as unknown as Record<string, unknown>
@@ -478,6 +473,7 @@ function publishAgentApiWhileEnabled(running: FrameLoop, schemaVersion: string):
   })
 }
 
+// Spec: IMPS-977, IMPS-982
 /** @purity non-pure */
 function boot(): void {
   // Trap: must stay the first statement; the lines below write the screen into the page IF-8 hands out.
@@ -535,6 +531,7 @@ function boot(): void {
 
   let documentLanguageWritten = ''
 
+  // Spec: IMPS-1185
   /** @purity non-pure */
   function nameDocumentLanguage(language: string): void {
     if (language === documentLanguageWritten) return
@@ -545,6 +542,7 @@ function boot(): void {
   // Trap: null, not '': a sentinel that could be a heading leaves that document with the build's own tab heading.
   let browserTabHeadingWritten: string | null = null
 
+  // Spec: IMPS-311, IMPS-313, IMPS-314
   // Why: here, not in the renderer, whose redraw stops during an in-place edit, when the name is typed.
   /** @purity non-pure */
   function nameBrowserTab(documentTitle: string | null): void {

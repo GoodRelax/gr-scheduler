@@ -112,7 +112,7 @@ function drawnTaskGroupIndentOf(context: InputContext): number {
   return SETTINGS_CONSTANTS.taskGroupTitleIndent * displayRatioOf(context.document.documentSettings)
 }
 
-// Spec: HF-15, S-37, FR-004, HM-3a
+// Spec: HF-15, S-37, FR-004, HM-3a, IMPS-1973
 /** @purity pure */
 export function taskGroupGrabLandingAt(
   context: InputContext,
@@ -305,7 +305,7 @@ function isWhereItStands(context: InputContext, heldTaskGroupId: string, landing
 
 const DEPTH_CAP_QUESTION = 'QN-16'
 
-// Spec: HF-15, FR-085, CM-73, QN-16
+// Spec: HF-15, FR-085, CM-73, QN-16, HM-8, IMPS-1955
 /** @purity pure */
 export function commandFromRowGrab(
   release: PointerInput,

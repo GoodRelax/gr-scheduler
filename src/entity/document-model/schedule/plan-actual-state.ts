@@ -13,7 +13,7 @@ export type PlanActualState =
   | 'suspendedResumePlanned'
   | 'inProgress'
 
-// Spec: T-019a
+// Spec: T-019a, IMPS-390, IMPS-391, IMPS-392, IMPS-565, IMPS-454
 /** @purity pure */
 export function planActualState(task: Task): PlanActualState {
   if (task.actualStart === null) return 'notStarted'
@@ -23,7 +23,7 @@ export function planActualState(task: Task): PlanActualState {
   return 'inProgress'
 }
 
-// Spec: T-022, RV-1, FR-014, VS-6
+// Spec: T-022, RV-1, FR-014, VS-6, IMPS-1439, PL-1, PL-2, PL-3, PL-4
 // Why: the progress line and the VS-6 check read the one day, so the rule of T-022 lives in one place.
 // Trap: the in-progress day is read off stop here, not through actualLastDay, whose unit imports this one.
 /** @purity pure */

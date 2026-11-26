@@ -29,7 +29,6 @@ const TITLE_GAP_STYLE = 'flex:1;'
 
 type WindowGrab = NonNullable<ScreenPart['windowGrab']>
 
-// Spec: WB-1, WB-3
 export interface PlacedWindow {
   readonly window: WindowName
   readonly shown: WindowShown
@@ -103,7 +102,7 @@ function isOnTitleBand(start: Element, window: Element): boolean {
   return false
 }
 
-// Spec: IF-9, GR-24, GR-25, WB-8, WB-9
+// Spec: IF-9, GR-24, GR-25, WB-8, WB-9, IMPS-1639
 // Why: only a normal window has an edge (GR-25), and it answers before the title band (GR-24).
 /** @purity semi-pure-mutable */
 function windowGrabAt(window: Element, placed: PlacedWindow, asked: PointAsked): WindowGrab | null {

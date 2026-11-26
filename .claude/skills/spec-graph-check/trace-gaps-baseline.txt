@@ -15,7 +15,10 @@
 #     rows, +878 with the existing rows that got a traces column; B8a the rest,
 #     +1448) carry no implementation or test mark yet.
 # B11/B12 add the marks; B13 drives the lines to 0.
+# LOWERED for stage B11a (2026-11-27, JDG-3966): src Spec lines now name the traces rows the
+#   functions implement (2,513 links judged by 8 bodies). leaf-unbuilt 44 -> 37, below-unbuilt
+#   2334 -> 1988; most of the rest have a src mark and wait for a test mark (B11b).
 no-parent 3
 no-child 0
-leaf-unbuilt 44
-below-unbuilt 2334
+leaf-unbuilt 37
+below-unbuilt 1988

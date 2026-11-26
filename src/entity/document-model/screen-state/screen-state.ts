@@ -6,7 +6,6 @@
 
 import type { TableViews } from '../document-settings/document-settings'
 
-// Spec: PV-4, PV-5
 export interface RememberedActual {
   readonly actualStart: string | null
   readonly actualFinish: string | null
@@ -14,7 +13,6 @@ export interface RememberedActual {
   readonly carriedActualDuration: string | null
 }
 
-// Spec: T-335, RG-16
 // Why: the words of escapePressed.rung that RG-16 names: the three table windows (T-353) and the help.
 export type WindowName = keyof TableViews | 'helpModal'
 
@@ -34,7 +32,6 @@ export type EscapeTarget =
 
 export type DualCursorSide = 'cursorA' | 'cursorB'
 
-// Spec: RG-16, RW-5, RO-6
 export interface WindowStanding {
   readonly isSearchPanelStanding?: boolean
   readonly isHelpStanding?: boolean
@@ -99,7 +96,7 @@ export function windowClosedByEscape(standing: WindowStanding): WindowName | nul
   return windowsFrontToBack(standing).find((window) => isWindowStanding(standing, window)) ?? null
 }
 
-// Spec: IN-4, T-283
+// Spec: IN-4, T-283, SK-8
 /** @purity pure */
 export function escapeTarget(context: EscapeContext): EscapeTarget | null {
   if (context.isNoticeStanding === true) return 'notice'

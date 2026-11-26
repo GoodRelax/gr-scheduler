@@ -7,7 +7,6 @@
 
 import { NO_EFFECTS, unchanged, type Step } from './session-step'
 
-// Spec: NT-3, IR-3
 export interface StandingNotice {
   readonly reason: string
   readonly affectedCount: number | null
@@ -613,7 +612,6 @@ type NoticeStep = Step<NoticeValues, NoticeValuesEffect>
 
 type EventOf<T extends NoticeValuesEvent['type']> = Extract<NoticeValuesEvent, { readonly type: T }>
 
-// Spec: T-286
 export const emptyNoticeValues: NoticeValues = { ...NOTICE_VALUES_INITIAL_AXES }
 
 // Why: an empty list is the kind `hidden`, so a `shown` kind never holds an empty list.
@@ -628,7 +626,7 @@ function withDelivery(values: NoticeValues, delivery: ChangeDeliveryState, effec
   return { state: { ...values, changeDeliveryState: delivery }, effects }
 }
 
-// Spec: FR-076, NT-2, T-233
+// Spec: FR-076, NT-2, T-233, IMPS-1132
 // Why: the guard language's noticeDisplay; the generated judgments call it by this name (SD-3).
 /** @purity pure */
 function noticeDisplay(reason: string): (typeof NOTICE_DISPLAY_OF_REASON)[NoticeReason] | null {
@@ -671,7 +669,7 @@ function withoutReason(values: NoticeValues, reason: string): NoticeStep {
   return withStanding(values, standingOf(values).filter((one) => one.reason !== reason))
 }
 
-// Spec: T-286, NT-3, FR-076
+// Spec: T-286, NT-3, FR-076, IMPS-1132
 /** @purity pure */
 function onNoticeRaised(values: NoticeValues, event: EventOf<'noticeRaised'>): NoticeStep {
   if (NOTICE_VALUES_GUARDS.isHiddenReason(event)) return unchanged(values)
@@ -705,14 +703,12 @@ function onNoticeTimeElapsed(values: NoticeValues, event: EventOf<'noticeTimeEla
   return NOTICE_VALUES_GUARDS.isOnlyOneStanding(values) ? withStanding(values, []) : withoutReason(values, event.reason)
 }
 
-// Spec: T-286, WS-2
 /** @purity pure */
 function onDocumentReplaced(values: NoticeValues): NoticeStep {
   if (values.changeDeliveryState.kind === 'delivering') return unchanged(values)
   return withDelivery(values, { kind: 'delivering' }, NO_EFFECTS)
 }
 
-// Spec: T-286, RS-23
 /** @purity pure */
 function onChangeDelivered(values: NoticeValues, event: EventOf<'changeDelivered'>): NoticeStep {
   if (values.changeDeliveryState.kind === 'idle') return unchanged(values)

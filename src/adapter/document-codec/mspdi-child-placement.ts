@@ -13,7 +13,6 @@ interface ParentOrder {
   readonly pj15Only: ReadonlySet<string>
 }
 
-// Spec: EX-1, EX-10, AT-143
 export const PARENT_ORDERS: ReadonlyMap<string, ParentOrder> = new Map(
   Object.entries(childOrder.parents).map(([path, row]) => [path, {
     isAll: row.all,
@@ -38,7 +37,7 @@ export interface PlacedChild {
 // under such a row an undeclared child is placed among the carried siblings of its own kind (EX-10).
 type ChildAnchors = 'kind' | 'siblings'
 
-// Spec: EX-10
+// Spec: EX-10, IMPS-878
 /** @purity pure */
 export function writtenChildren(
   path: string,

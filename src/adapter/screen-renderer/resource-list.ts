@@ -13,6 +13,7 @@ import {
   type TableView,
 } from '../../use-case/advance-screen-session/advance-screen-session'
 import displayWords from './display-words.json'
+import iconRoster from './icon-roster.json'
 import type { CommandItem, DisplayLanguage, IconId } from './screen-renderer'
 import { displayLanguageOf } from './screen-renderer'
 import type { SearchPanelView } from './search-panel'
@@ -57,7 +58,7 @@ import {
 import { iconLabel } from './tooltips'
 import { windowPlaceInRange } from './window-box'
 
-const RESOURCE_LIST = 'Resource List'
+const RESOURCE_LIST = iconRoster.uiPartNames['U-49']
 
 const TEXT_SIZE_ENTRY: IconId = 'IC-127'
 const CHOOSE_ALL_ENTRY: IconId = 'IC-63'
@@ -75,7 +76,6 @@ const VISIBILITY_COLUMN = 'RQ-1'
 const CHOSEN_COLUMN = 'RQ-3'
 const COUNT_COLUMN = 'RQ-4'
 
-// Spec: RO-7
 const FIXED_COLUMN_COUNT = RESOURCE_LIST_COLUMNS.indexOf('RQ-2') + 1
 
 const MEASURED_COLUMNS: readonly string[] = [CHOSEN_COLUMN, COUNT_COLUMN]
@@ -92,7 +92,6 @@ const COLUMN_WORDS: ReadonlyMap<string, LanguageWord> = new Map(displayWords.res
 const LIST_WORDS: ReadonlyMap<string, LanguageWord> = new Map(displayWords.resourceList.map((entry) => [entry.part, entry.text]))
 const PANEL_WORDS: ReadonlyMap<string, LanguageWord> = new Map(displayWords.searchPanel.map((entry) => [entry.part, entry.text]))
 
-// Spec: RO-1, RO-6, S-545, S-546
 export const OPENED_RESOURCE_LIST: TableWindowState = {
   shown: 'normal',
   panel: emptySearchPanelSession,
@@ -107,7 +106,6 @@ export interface ResourceListRowView {
   readonly chosenEntry: CommandItem | null
 }
 
-// Spec: FR-099, T-370, T-371
 export interface ResourceListView extends Omit<SearchPanelView, 'table' | 'rows' | 'jumpAt' | 'glyphAt'> {
   readonly isInFront: boolean
   readonly choiceEntries: readonly CommandItem[]
@@ -131,11 +129,13 @@ interface LinesInput {
   readonly language: DisplayLanguage
 }
 
+// Spec: RQ-2
 /** @purity pure */
 function nameText(name: string, language: DisplayLanguage): string {
   return name === '' ? wordOf(PANEL_WORDS.get('noName'), language) : name
 }
 
+// Spec: RQ-5
 // Why: task uids in the task group tree's order, then Task.start, then Task.uid -- the search table's order (RQ-5).
 /** @purity pure */
 function tasksOfEachResource(schedule: Schedule): { readonly byResource: ReadonlyMap<number, readonly number[]>; readonly unassigned: readonly number[] } {
@@ -166,6 +166,7 @@ function referencedResourcesOf(schedule: Schedule): ReadonlySet<number> {
   return new Set(schedule.assignments.map((seat) => seat.resourceUid).filter((uid): uid is number => uid !== null))
 }
 
+// Spec: IMPS-281, IMPS-284, RQ-4, RQ-5
 /** @purity pure */
 function lineOf(key: VisibilityKey, name: string, taskUids: readonly number[], facts: { readonly isChosen: boolean | null; readonly isReferenced: boolean }, input: LinesInput, namesByUid: ReadonlyMap<number, string>): ResourceLine {
   const taskNameValues = taskUids.map((uid) => namesByUid.get(uid) ?? '')
@@ -204,12 +205,12 @@ function chosenValueOf(line: ResourceLine): string {
   return line.isChosen ? CHOSEN_VALUE : UNCHOSEN_VALUE
 }
 
+// Spec: RQ-4
 /** @purity pure */
 function compareCounts(a: string, b: string): number {
   return Number(a) - Number(b)
 }
 
-// Spec: T-371, SV-7, SV-8
 const LINE_TABLE: TableColumns<ResourceLine> = {
   values: {
     'RQ-2': (line) => [line.nameValue],
@@ -221,7 +222,7 @@ const LINE_TABLE: TableColumns<ResourceLine> = {
   orders: { [COUNT_COLUMN]: compareCounts },
 }
 
-// see RQ-1, SV-7, JDG-2811
+// Spec: RQ-1, SV-7
 // Why: the Visibility column holds no filter values and no sort, so the list's columns are the table's own.
 /** @purity pure */
 function lineColumnsOf(_view: TableView): TableColumns<ResourceLine> {
@@ -280,14 +281,14 @@ function lineTableOf(
   }
 }
 
-// see TV-5, TV-13, JDG-2820
+// Spec: TV-5, TV-13
 // Why: one checked resource row, or the checked (Unassigned) row, is enough to apply.
 /** @purity pure */
 function resourceFilterReadinessOf(view: TableView, schedule: Schedule): ScheduleFilterReadiness {
   return scheduleFilterReadinessOf('resourceList', view.visibility, () => resourceUidsOf(schedule))
 }
 
-// Spec: FR-029, FR-099, IC-63, IC-64, IC-65, IC-66, RO-3
+// Spec: FR-029, FR-099, IC-63, IC-64, IC-65, IC-66, RO-3, IMPS-269, IMPS-273
 // Why: counted on the listed rows, as IC-63 and IC-65 choose among them; IC-65 replaces the choice,
 // so it is idle once the choice already is exactly the listed unreferenced resources.
 /** @purity pure */
@@ -302,7 +303,7 @@ function isChoiceUsable(entry: IconId, listed: readonly ResourceLine[], all: rea
   return unreferenced.size > 0 && !isSameChoice
 }
 
-// Spec: RO-3
+// Spec: RO-3, IMPS-269, IMPS-270, IMPS-271
 /** @purity pure */
 function choiceEntriesOf(listed: readonly ResourceLine[], all: readonly ResourceLine[], language: DisplayLanguage): readonly CommandItem[] {
   return CHOICE_ENTRIES.map((icon) => ({ ...entryOf(icon, language), isEnabled: isChoiceUsable(icon, listed, all) }))
@@ -315,7 +316,7 @@ function rowViewOf(view: TableView, line: ResourceLine, language: DisplayLanguag
   return { key: line.key, cells: line.cells, isShown: isRowShown('resourceList', view.visibility, line.key), chosenEntry }
 }
 
-// Spec: FR-099, T-370, T-371, RO-2, RO-3, RO-8, S-568
+// Spec: FR-099, T-370, T-371, RO-2, RO-3, RO-8, S-568, IMPS-278, IMPS-280
 /** @purity pure */
 export function resourceListFromWindow(
   session: ScreenSession,
@@ -353,7 +354,7 @@ export function resourceListFromWindow(
   }
 }
 
-// Spec: RO-3, IC-63, IC-65
+// Spec: RO-3, IC-63, IC-65, IMPS-270, IMPS-273
 // Why: the Resource uids the table lists now, after its word and column filters -- the ones IC-63 and IC-65 choose among.
 /** @purity pure */
 export function resourceListListedUidsOf(
@@ -366,7 +367,7 @@ export function resourceListListedUidsOf(
   return listedLinesOf({ word: window.panel.word, view }, all).flatMap((line) => (line.key === UNASSIGNED_ROW_KEY ? [] : [line.key]))
 }
 
-// Spec: AM-28, AV-17, T-371
+// Spec: AM-28, AV-17, T-371, IMPS-281, IMPS-284
 /** @purity pure */
 export function resourceListColumnHeadings(): readonly SearchColumnHeading[] {
   return columnHeadingsOf(RESOURCE_LIST_COLUMNS, COLUMN_WORDS, () => false)
@@ -401,7 +402,7 @@ export function resourceListTableRows(
   }))
 }
 
-// Spec: T-370, SV-7, SV-8, WB-2, WB-3, RO-1, RO-2, IC-153, IC-143, TV-8, UN-20
+// Spec: T-370, SV-7, SV-8, WB-2, WB-3, RO-1, RO-2, IC-153, IC-143, TV-8, UN-20, IMPS-279
 // Why: { window: null } is a close; null is an entry the window does not answer.
 /** @purity pure */
 export function resourceListAfterEntry(

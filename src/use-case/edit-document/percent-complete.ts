@@ -13,7 +13,7 @@ import {
   type WorkingTimeCounter,
 } from '../../entity/document-model/schedule/schedule'
 
-// Spec: FR-012, FR-090, EX-5
+// Spec: FR-012, FR-090, EX-5, IMPS-416, IMPS-462, IMPS-473, IMPS-474, IMPS-476, IMPS-485, IMPS-486, IMPS-922
 /** @purity pure */
 function percentCompleteOf(count: WorkingTimeCounter, task: Task): number | null {
   const span = count.plannedLengthMinutes(task)
@@ -23,13 +23,12 @@ function percentCompleteOf(count: WorkingTimeCounter, task: Task): number | null
   return Math.round(((count.actualLengthMinutes(task) ?? 0) * 100) / span)
 }
 
-// Spec: FR-012
+// Spec: FR-012, IMPS-463
 /** @purity pure */
 export function repriced(within: WorkingCalendar, task: Task): Task {
   return repricedBy(workingTimeCounterOf(within), task)
 }
 
-// Spec: FR-012
 /** @purity pure */
 function repricedBy(count: WorkingTimeCounter, task: Task): Task {
   return { ...task, percentComplete: percentCompleteOf(count, task) }

@@ -24,10 +24,8 @@ import displayWords from './display-words.json'
 
 export const HOLIDAY_SETTINGS_SURFACE = 'Holiday Settings'
 
-// Spec: IC-52, WC-1
 const CLOSE_SURFACE_ENTRY: IconId = 'IC-52'
 
-// Spec: T-344, T-109
 const WEEKDAY_ENTRY: IconId = 'IC-133'
 const WEEK_START_ENTRY: IconId = 'IC-134'
 const ADD_EXCEPTION_ENTRY: IconId = 'IC-135'
@@ -38,7 +36,6 @@ const ADD_RANGE_ENTRY: IconId = 'IC-163'
 const REMOVE_RANGE_ENTRY: IconId = 'IC-164'
 const TIME_FIELD_ENTRY: IconId = 'IC-165'
 
-// Spec: T-344, T-292
 const WEEK_START_ROW = 'WC-3'
 const EXCEPTION_ROW = 'WC-4'
 const WORKING_HOURS_ROW = 'WC-8'
@@ -50,14 +47,12 @@ const RANGE_JOIN = '-'
 
 export type HolidaySettingsFieldColumn = 'weekStartDay' | 'fromTime' | 'toTime' | 'name' | 'fromDate' | 'toDate'
 
-// Spec: WC-3, WC-4, WC-8, WC-10, S-154
 export interface HolidaySettingsCell {
   readonly row: string
   readonly control: PropertyControl
   readonly isRefused: boolean
 }
 
-// Spec: IF-9, WC-2, WC-4, IC-133, IC-137
 // Why: the target says which weekday or row a repeated entrance means; a set word is drawn in place of the label.
 export interface HolidaySettingsEntry {
   readonly item: CommandItem
@@ -71,7 +66,6 @@ export interface HolidayWorkingTimeLine {
   readonly remove: HolidaySettingsEntry
 }
 
-// Spec: WC-4, WC-5
 export interface HolidayExceptionLine {
   readonly name: HolidaySettingsCell
   readonly from: HolidaySettingsCell | null
@@ -81,7 +75,6 @@ export interface HolidayExceptionLine {
   readonly remove: HolidaySettingsEntry
 }
 
-// Spec: U-65, FR-088, T-344, T-257
 export interface HolidaySettingsBody {
   readonly isDrafted: boolean
   readonly weekdaysHeading: string
@@ -123,7 +116,6 @@ function filled(pattern: string, slots: Readonly<Record<string, string>>): strin
   return Object.entries(slots).reduce((text, [slot, value]) => text.replace(`{${slot}}`, value), pattern)
 }
 
-// Spec: AT-73
 /** @purity pure */
 function weekdayWordOf(dayType: number, language: DisplayLanguage): string {
   return WEEKDAY_WORDS[dayType - 1]?.[language] ?? String(dayType)
@@ -139,6 +131,7 @@ function entryOf(
   return { item, target: place.target ?? null, word: place.word ?? null }
 }
 
+// Spec: IMPS-48
 /** @purity pure */
 function cellOf(
   row: string,
@@ -217,7 +210,7 @@ function workingTimeLinesOf(
   })
 }
 
-// Spec: WC-9, FR-088
+// Spec: WC-9, FR-088, IMPS-730
 /** @purity pure */
 function otherHoursLineOf(draft: CalendarDraft, schedule: Schedule, language: DisplayLanguage): string | null {
   const unlike = otherHoursDayTypesOf(draft, schedule)
@@ -283,7 +276,7 @@ function refusedExceptionOrdinals(refusals: readonly CalendarDraftRefusal[]): Re
   }))
 }
 
-// Spec: WC-4, WC-5, IC-136, IC-137, AT-82
+// Spec: WC-4, WC-5, IC-136, IC-137, AT-82, IMPS-728
 // Why: the target is the row's place in the draft's list; a repeating row's name is shown, not edited (WC-5).
 /** @purity pure */
 function exceptionLineOf(exception: Exception, index: number, isRefused: boolean, language: DisplayLanguage): HolidayExceptionLine {
@@ -341,7 +334,7 @@ function upperBodyOf(draft: CalendarDraft, schedule: Schedule, refusals: readonl
   }
 }
 
-// Spec: U-65, FR-088, T-344, WC-1, WC-10, FR-029, T-280
+// Spec: U-65, FR-088, T-344, WC-1, WC-10, FR-029, T-280, IMPS-726
 // Why: drafted, the surface reads the draft; untouched, the document's calendar (CR-743 X-b). IC-138 dims while a refusal stands.
 /** @purity pure */
 export function holidaySettingsOf(
