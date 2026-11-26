@@ -503,3 +503,5 @@ AI-C の独立レビュー（`JDG-3785`、`agent-api-names-ai-c-review.md`）の
 | 25 | `watchChanges.watcher`・`ChangeNotice.watcher` の値は、刻印の書き手の名 `Editor.name` と同じ文字列（説明の文で言う。名は今のまま） |
 
 持ち主が BGQA7 の 11 巡目で決めた名: 問 13 `grabbedArea` → `grabbedPoint`（`JDG-3786`）、問 20 `CommandRefusal.field` → `jsonPointer`（`JDG-3787`）。上の表に当てた。
+
+仮の名（2026-11-27）: BGQA7 で答えの無い 13 問は、持ち主の指示（`JDG-3788`）で席の推しの名を仮に採った（`JDG-3789`）。一覧は `agent-api-provisional-names.md`（`PN-1`〜`PN-13`）。β の後に持ち主が見直す。

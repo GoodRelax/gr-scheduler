@@ -21,8 +21,8 @@ const AGENT_API_VERSION = String(MEMBERS['version'])
 const INSTANT_FORM = /^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$/
 
 // Why: only what a caller depends on is fingerprinted -- names, kinds, arguments, return and value types.
-// Row IDs, groups, purity and every prose cell (meaning, carries, source, label) are left out.
-const NOT_CALL_SHAPE_KEYS: readonly string[] = ['id', 'group', 'purity', 'carries', 'source', 'meaning', 'label']
+// Row IDs, groups, purity, every prose cell and the xProvisional mark of an unsettled name (JDG-3789) are left out.
+const NOT_CALL_SHAPE_KEYS: readonly string[] = ['id', 'group', 'purity', 'carries', 'source', 'meaning', 'label', 'xProvisional']
 
 function callShapeOf(value: unknown): unknown {
   if (Array.isArray(value)) return value.map(callShapeOf)

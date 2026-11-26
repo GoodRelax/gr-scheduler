@@ -22,8 +22,12 @@ record <rows.tsv>
     {from: the old label, version: CR-855, reason, basis, xAppliedToSpec: false}
     (xLanguage: en or ja says which label it was). Refused, with nothing written:
     an unknown key, a new name equal to the old one, a new name that is a
-    former name of a term (A.2: a former name is never reused), and a term in
-    a frozen contract group (GRS JSON, document commands, Agent API: JDG-3807).
+    former name of a term (A.2: a former name is never reused), a term in
+    a frozen contract group (GRS JSON, document commands, Agent API: JDG-3807),
+    and a new en label that makes a head pair (one name the leading words of
+    another) missing from tools/name-head-pairs-baseline.tsv (tools/name_heads.py).
+    The frozen contracts are renamed by tools/apply_contract_renames.py, only
+    after the owner's ruling; it shares this tool's replacement code.
 
 apply
     Replaces every former name of a pending rename in the files below, all
@@ -64,6 +68,9 @@ import os
 import re
 import sys
 from collections import Counter, OrderedDict
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import name_heads  # noqa: E402
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 GLOSSARY = os.path.join(ROOT, 'docs', 'spec', '_source', 'glossary.json')
@@ -285,6 +292,11 @@ def record(path):
             problems.append('line %d: %s already has a pending %s rename' % (number, key, language))
             continue
         planned.append((term, language, old, new, basis, row))
+    # The owner (2026-11-27): a new name is not the head of another name, nor
+    # another name the head of it, unless the pair is in the baseline.
+    for head, name in name_heads.new_pairs([p[3] for p in planned if p[1] == 'en']):
+        problems.append('head pair not in %s: %s is the head of %s' % (
+            rel(name_heads.BASELINE), name_heads.spell(head), name_heads.spell(name)))
     if problems:
         for p in problems:
             say('  ' + p)
@@ -401,7 +413,14 @@ def self_test():
     if not problems:
         bad += 1
         say('FAIL     a former name sent to two names was not refused')
-    say('%s self-test: %d case(s)' % ('OK      ' if not bad else 'FAIL    ', len(cases) + 2))
+    inv = name_heads.Inventory()
+    for name in ('Fit All', 'Search Panel'):
+        inv.add('t', 'k', name)
+    fresh = name_heads.new_pairs(['Fit', 'Search Panel Rows', 'Fixed'], inv, set())
+    if [name_heads.pair_line(p) for p in fresh] != ['fit\tfitAll', 'searchPanel\tsearchPanelRows']:
+        bad += 1
+        say('FAIL     head pairs of new labels %r' % fresh)
+    say('%s self-test: %d case(s)' % ('OK      ' if not bad else 'FAIL    ', len(cases) + 3))
     return 1 if bad else 0
 
 

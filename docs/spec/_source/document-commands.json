@@ -250,6 +250,15 @@
       }
      ]
     }
+   ],
+   "xProvisional": [
+    {
+     "provisionalRow": "PN-6",
+     "basis": "JDG-3789",
+     "alphaName": "PlanActualPlacement",
+     "provisionalName": null,
+     "note": "shape: flattened into the values of setTaskProgressStatus; the discriminant state becomes progressStatus"
+    }
    ]
   },
   {
@@ -294,7 +303,15 @@
      "null": true,
      "meaning": {
       "ja": "持ち回りの `ActualDuration`（`G-13`）"
-     }
+     },
+     "xProvisional": [
+      {
+       "provisionalRow": "PN-12",
+       "basis": "JDG-3789",
+       "alphaName": "carriedActualDuration",
+       "provisionalName": "passthroughActualDuration"
+      }
+     ]
     }
    ]
   },
@@ -413,7 +430,15 @@
      ],
      "meaning": {
       "ja": "並べ替え"
-     }
+     },
+     "xProvisional": [
+      {
+       "provisionalRow": "PN-12",
+       "basis": "JDG-3789",
+       "alphaName": "sort",
+       "provisionalName": "columnSort"
+      }
+     ]
     }
    ]
   },
@@ -431,7 +456,15 @@
      ],
      "meaning": {
       "ja": "チェックを入れた（「表示」の）タスクの `Task.uid`（検索の表と遅延診断の表が書き、担当リストでは空の並び）"
-     }
+     },
+     "xProvisional": [
+      {
+       "provisionalRow": "PN-12",
+       "basis": "JDG-3789",
+       "alphaName": "shownTaskUids",
+       "provisionalName": "checkedTaskUids"
+      }
+     ]
     },
     {
      "name": "shownResourceUids",
@@ -440,7 +473,15 @@
      "column": "S-569",
      "meaning": {
       "ja": "チェックを入れた（「表示」の）担当の `Resource.uid`（担当リストだけが書き、ほかの表では空の並び）"
-     }
+     },
+     "xProvisional": [
+      {
+       "provisionalRow": "PN-12",
+       "basis": "JDG-3789",
+       "alphaName": "shownResourceUids",
+       "provisionalName": "checkedResourceUids"
+      }
+     ]
     },
     {
      "name": "isUnassignedShown",
@@ -448,7 +489,15 @@
      "column": "S-570",
      "meaning": {
       "ja": "担当の無い行にチェックが入っている（「表示」）か（担当リストだけが書く）"
-     }
+     },
+     "xProvisional": [
+      {
+       "provisionalRow": "PN-12",
+       "basis": "JDG-3789",
+       "alphaName": "isUnassignedShown",
+       "provisionalName": "isUnassignedChecked"
+      }
+     ]
     },
     {
      "name": "isScheduleFilterApplied",
@@ -666,7 +715,16 @@
    },
    "source": {
     "ja": "`FR-156`"
-   }
+   },
+   "xProvisional": [
+    {
+     "provisionalRow": "PN-7",
+     "basis": "JDG-3789",
+     "alphaName": "setScheduleDataTimeZone",
+     "provisionalName": "setScheduleDataTimeZone",
+     "note": "the list folds this into editProject.set.scheduleDataTimeZone; the seat keeps a command of its own, argument scheduleDataTimeZone"
+    }
+   ]
   },
   {
    "id": "CM-98",
@@ -992,7 +1050,16 @@
      "type": "PlanActualPlacement",
      "meaning": {
       "ja": "置く予実（表 T-019 の行と、その行が値を持つ列）"
-     }
+     },
+     "xProvisional": [
+      {
+       "provisionalRow": "PN-6",
+       "basis": "JDG-3789",
+       "alphaName": "place",
+       "provisionalName": "progressStatus",
+       "note": "shape: flat; progressStatus is the state name and actualStart, stop, resume, actualFinish become its siblings"
+      }
+     ]
     }
    ],
    "carries": {
