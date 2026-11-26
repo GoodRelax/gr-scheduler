@@ -1,6 +1,6 @@
 // Pins CR-584 section 8 at its seams: the ruler tiers S-83 / S-84 (FR-017, T-205) and the exported picture (IX-10, EP-1).
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -28,7 +28,7 @@ import { DEFAULT_DISPLAY_RATIO, DEFAULT_DISPLAY_SCALE, S_235 } from '../fixtures
 import { settingDefaultOf } from '../fixtures/setting-default'
 
 const MANUSCRIPT: unknown = JSON.parse(
-  readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'settings.json'), 'utf8'),
+  readRepoFile(join(process.cwd(), 'docs', 'spec', '_source', 'settings.json'), 'utf8'),
 )
 
 interface ManuscriptRow {

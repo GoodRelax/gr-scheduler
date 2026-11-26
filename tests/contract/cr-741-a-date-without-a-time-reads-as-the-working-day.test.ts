@@ -1,6 +1,6 @@
 // CR-741 (spec-only): FR-054 reads a date without a time as the working day and cuts seconds to the minute; FR-011 puts a stop on the earliest instant.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -40,8 +40,8 @@ import {
 } from './cr-710-w1-stage'
 import { unbroken } from './spec-table'
 
-const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
-const DESIGN = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '05-07-design.md'), 'utf8'))
+const REQUIREMENTS = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
+const DESIGN = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '05-07-design.md'), 'utf8'))
 
 // Spec: FR-054, FR-011, IV-14
 // Why: the three new MUST sentences are quoted as the specification writes them, so a reworded sentence goes red here.

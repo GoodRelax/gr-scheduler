@@ -1,6 +1,6 @@
 // CR-768 spec-only bench: table T-024 read by its headings, and the generated regions of src read as text.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { bare, specTable, unbroken } from './spec-table'
@@ -64,7 +64,7 @@ export const mediaTypeOf = (id: string): string => {
 
 const SPEC = join(process.cwd(), 'docs', 'spec')
 
-export const REQUIREMENTS = unbroken(readFileSync(join(SPEC, '01-04-requirements.md'), 'utf8').replace(/\r\n/g, '\n'))
+export const REQUIREMENTS = unbroken(readRepoFile(join(SPEC, '01-04-requirements.md'), 'utf8').replace(/\r\n/g, '\n'))
 
 export function requirementText(uid: string): string {
   const from = REQUIREMENTS.indexOf(`**UID**: ${uid}\n`)
@@ -74,7 +74,7 @@ export function requirementText(uid: string): string {
 }
 
 export const sourceText = (relative: string): string =>
-  readFileSync(join(process.cwd(), relative), 'utf8').replace(/\r\n/g, '\n')
+  readRepoFile(join(process.cwd(), relative), 'utf8').replace(/\r\n/g, '\n')
 
 const REGION = /\/\/ <generated[^\n]*\n[\s\S]*?\n\/\/ <\/generated>/g
 

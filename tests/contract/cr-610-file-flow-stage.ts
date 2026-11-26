@@ -1,6 +1,6 @@
 // CR-610 / CR-611 / CR-612 / CR-619: the shared bench the spec-only file-flow cases drive the shell through.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { afterEach, expect } from 'vitest'
@@ -40,20 +40,20 @@ import { bare, specTable, unbroken, type SpecTable } from './spec-table'
 import { readStateMachineView } from './state-machine-manuscript'
 
 export const REQUIREMENTS = unbroken(
-  readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'),
+  readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'),
 )
-export const DESIGN = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '05-07-design.md'), 'utf8'))
+export const DESIGN = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '05-07-design.md'), 'utf8'))
 export const STATE_MACHINES_SOURCE = readStateMachineView() as { readonly regions: readonly Record<string, any>[] }
 export { SETTINGS_SOURCE, settingNumber, settingRow } from '../fixtures/setting-number'
 export const SPEC_WORDS = JSON.parse(
-  readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8'),
+  readRepoFile(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8'),
 ) as Record<string, any>
-export const TEMPLATE_TEXT = readFileSync(
+export const TEMPLATE_TEXT = readRepoFile(
   join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'),
   'utf8',
 )
 // Why: the shell hands the frame loop the bundled empty document for FR-095; the bench hands the same file.
-const EMPTY_DOCUMENT_TEXT = readFileSync(
+const EMPTY_DOCUMENT_TEXT = readRepoFile(
   join(process.cwd(), 'src', 'framework', 'single-html-shell', 'empty-document.json'),
   'utf8',
 )

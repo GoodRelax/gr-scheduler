@@ -1,6 +1,6 @@
 // CR-559: comment box bundles, the anchor handle, the LF-17 corner and the five look columns.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { afterEach, describe, expect, it } from 'vitest'
@@ -26,9 +26,9 @@ import { boxOfBar } from './cr-430-bench'
 import { DEFAULT_DISPLAY_RATIO } from '../fixtures/display-scale'
 
 const SPEC = join(process.cwd(), 'docs', 'spec')
-const REQUIREMENTS = unbroken(readFileSync(join(SPEC, '01-04-requirements.md'), 'utf8').replace(/\r\n/g, '\n'))
-const DESIGN = unbroken(readFileSync(join(SPEC, '05-07-design.md'), 'utf8').replace(/\r\n/g, '\n'))
-const DOCUMENT_COMMANDS = readFileSync(join(SPEC, '_assets', 'tbl-document-commands.md'), 'utf8').replace(/\r\n/g, '\n')
+const REQUIREMENTS = unbroken(readRepoFile(join(SPEC, '01-04-requirements.md'), 'utf8').replace(/\r\n/g, '\n'))
+const DESIGN = unbroken(readRepoFile(join(SPEC, '05-07-design.md'), 'utf8').replace(/\r\n/g, '\n'))
+const DOCUMENT_COMMANDS = readRepoFile(join(SPEC, '_assets', 'tbl-document-commands.md'), 'utf8').replace(/\r\n/g, '\n')
 
 // Spec: T-023d
 const BODY_OR_LEADER_MOVES_ALONE =
@@ -154,7 +154,7 @@ const RS_44_WORDS = ((): string => {
 })()
 
 const TEMPLATE = JSON.parse(
-  readFileSync(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
+  readRepoFile(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
 ) as Record<string, Record<string, unknown>>
 
 const LETTERS = ['A', 'B', 'C', 'D', 'E', 'F'] as const

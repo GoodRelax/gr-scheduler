@@ -1,6 +1,6 @@
 // UF-123 session-effects.ts: runSessionEffects hands effects on in order, EffectRunners asks for every kind, unwiredEffect throws.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -14,7 +14,7 @@ import type { SessionEffect } from '../../src/use-case/advance-screen-session/ad
 import { unbroken } from '../contract/spec-table'
 import { readStateMachineView } from '../contract/state-machine-manuscript'
 
-const DESIGN = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '05-07-design.md'), 'utf8'))
+const DESIGN = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '05-07-design.md'), 'utf8'))
 
 const UF_123_IN_ORDER = 'ステートマシンが返した副作用を、返った順に 1 つずつ種類ごとの実行へ渡すこと（`runSessionEffects`）'
 const UF_123_EVERY_KIND = '`EffectRunners` —— 副作用の種類の全数を 1 つ残らず求める。'

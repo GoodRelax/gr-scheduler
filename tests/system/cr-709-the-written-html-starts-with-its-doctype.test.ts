@@ -1,12 +1,12 @@
 // CR-709 spec-only system test on the built dist/index.html: table T-024 IO-7 -- the written single .html starts with its doctype.
 import { expect, test, type Page } from '@playwright/test'
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { resolve } from 'node:path'
 import { VIEWPORT, launch, press, savedFiles, settle } from '../use-case/uc-harness'
 
 test.use({ viewport: VIEWPORT, locale: 'en-US' })
 
-const REQUIREMENTS = readFileSync(resolve('docs/spec/01-04-requirements.md'), 'utf8').replace(/<br>/g, '')
+const REQUIREMENTS = readRepoFile(resolve('docs/spec/01-04-requirements.md'), 'utf8').replace(/<br>/g, '')
 
 // Why: ends exactly at its marker, cut from the manuscript as check 39 reads it.
 // Spec: IO-7

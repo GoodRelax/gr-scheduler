@@ -1,14 +1,14 @@
 // CR-727 spec-only system tests on the built dist/index.html: the window counts file drags in and out (OP-17, FT-1), so moving over a child never hides the Drop Cue.
 import { expect, test, type Page } from '@playwright/test'
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { resolve } from 'node:path'
 import { VIEWPORT, launch, openThroughIc1, settle } from '../use-case/uc-harness'
 
 test.use({ viewport: VIEWPORT, locale: 'en-US' })
 
 const SPEC = resolve('docs', 'spec')
-const OP_17_TEXT = readFileSync(resolve(SPEC, '01-04-requirements.md'), 'utf8')
-const WORDS = JSON.parse(readFileSync(resolve(SPEC, '_source', 'display-words.json'), 'utf8')) as {
+const OP_17_TEXT = readRepoFile(resolve(SPEC, '01-04-requirements.md'), 'utf8')
+const WORDS = JSON.parse(readRepoFile(resolve(SPEC, '_source', 'display-words.json'), 'utf8')) as {
   dropCue: { part: string; text: { ja: string; en: string } }[]
 }
 const CUE_WORDS = WORDS.dropCue.find((one) => one.part === 'dropToOpen')?.text
@@ -19,7 +19,7 @@ const OP_17_ONLY_FILES = 'ファイルを持つドラッグ（閲覧環境が渡
 const OP_17_REFUSED = '⚠️ ドロップしても受け付けないあいだ'
 const CUE = '[data-role="Drop Cue"]'
 // Why: a drop of something the app cannot read raises a notice and no chooser, so the dragged file is a real GRS JSON document.
-const DOCUMENT_TEXT = readFileSync(resolve('src', 'framework', 'single-html-shell', 'empty-document.json'), 'utf8')
+const DOCUMENT_TEXT = readRepoFile(resolve('src', 'framework', 'single-html-shell', 'empty-document.json'), 'utf8')
 
 test('the clauses these cases drive are still in the manuscript', () => {
   const flat = OP_17_TEXT.replace(/\r?\n/g, '')

@@ -45,7 +45,7 @@
 //     already the entrance HR-2's own RATIONALE names as the way back, and no
 //     case here presses it.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { afterEach, describe, expect, it } from 'vitest'
@@ -79,7 +79,7 @@ import { bare, bareAll, specTable, unbroken } from '../contract/spec-table'
 // 1. The manuscript, read at run time rather than copied
 // ===========================================================================
 
-const REQUIREMENTS = unbroken(readFileSync(
+const REQUIREMENTS = unbroken(readRepoFile(
   join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'),
   'utf8',
 ))
@@ -138,7 +138,7 @@ const HEAD_ADD_TASK_GROUP = entranceFor('HF-17')
 // ===========================================================================
 
 const TEMPLATE = JSON.parse(
-  readFileSync(
+  readRepoFile(
     join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'),
     'utf8',
   ),

@@ -1,7 +1,8 @@
 // CR-565 on the shipped build: a dropped newer document opens, tells RS-63, and leads to S-350 by a link (FR-073).
 
 import { expect, test, type Browser, type Page } from '@playwright/test'
-import { existsSync, readFileSync } from 'node:fs'
+import { existsSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { bare, specTable } from '../contract/spec-table'
@@ -17,7 +18,7 @@ const OPEN_ENTRANCE = rowOf(specTable('T-109'), 'IC-1').id
 const CONFIRMATION = `[data-role="${bare(rowOf(specTable('T-103'), 'U-55').cells[0] ?? '')}"]`
 const PROCEED_WORD: string = (() => {
   const raw = JSON.parse(
-    readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8'),
+    readRepoFile(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8'),
   ) as { confirmation: { answer: string; text: { en: string } }[] }
   const found = raw.confirmation.find((one) => one.answer === 'proceed')
   if (found === undefined) throw new Error('the dictionary holds no proceed answer')
@@ -36,12 +37,12 @@ async function pressIcon(page: Page, icon: string): Promise<void> {
 }
 
 const TEMPLATE = JSON.parse(
-  readFileSync(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
+  readRepoFile(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
 ) as Record<string, unknown>
 
 const RS_63_WORDS: readonly string[] = (() => {
   const raw = JSON.parse(
-    readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8'),
+    readRepoFile(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8'),
   ) as { reasons: { specTableRowId: string; text: { ja: string; en: string } }[] }
   const found = raw.reasons.find((one) => one.specTableRowId === 'RS-63')
   if (found === undefined) throw new Error('the dictionary holds no RS-63')

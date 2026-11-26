@@ -1,6 +1,6 @@
 // CR-430, CR-441: table T-270 (ten rows, PE-0..PE-13) -- what a press and a drag do, and what FR-107 keeps still.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { afterEach, describe, expect, it } from 'vitest'
@@ -37,7 +37,7 @@ import {
   type Stage,
 } from '../unit/cr-430-stage'
 
-const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
+const REQUIREMENTS = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
 const FR_107_ONLY_THESE =
   '`GRS` は、日程表の上の直接操作では、利用者が実績（ダミーを含む）を掴んで意図して動かしたとき、または進捗マーカーを押す・引くとき（表 T-270 の `PE-8` と `PE-10` と「押下の巡り」の段）にだけ、実績の日付を変えること。'

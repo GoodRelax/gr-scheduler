@@ -1,5 +1,5 @@
 import { createHash, randomBytes } from 'node:crypto'
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { connect, type Socket } from 'node:net'
 import { PassThrough } from 'node:stream'
 
@@ -9,8 +9,8 @@ import { startMcpRelay, type McpRelay } from '../../src/framework/mcp-relay-serv
 
 type Json = Record<string, unknown>
 
-const REAL_DOCUMENT_SCHEMA = readFileSync('docs/spec/_source/grs-document.schema.json', 'utf8')
-const REAL_COMMANDS_SCHEMA = readFileSync('docs/spec/_source/grs-commands.schema.json', 'utf8')
+const REAL_DOCUMENT_SCHEMA = readRepoFile('docs/spec/_source/grs-document.schema.json', 'utf8')
+const REAL_COMMANDS_SCHEMA = readRepoFile('docs/spec/_source/grs-commands.schema.json', 'utf8')
 
 const SMALL_DOCUMENT = JSON.stringify({
   title: 'small document',
@@ -334,7 +334,7 @@ async function initializeInstructions(client: StdioClient): Promise<string> {
 }
 
 function notesInSpec(): string {
-  const text = readFileSync('docs/spec/_assets/tbl-agent-api-members.md', 'utf8').replace(/\r\n/g, '\n')
+  const text = readRepoFile('docs/spec/_assets/tbl-agent-api-members.md', 'utf8').replace(/\r\n/g, '\n')
   const heading = text.indexOf('**スキーマの注意')
   const open = text.indexOf('```text\n', heading)
   const close = text.indexOf('\n```', open + 8)

@@ -1,6 +1,7 @@
 // Tables T-247 and T-248 (CR-378) read against the imports of src/.
 
-import { existsSync, readdirSync, readFileSync } from 'node:fs'
+import { existsSync, readdirSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { dirname, join, normalize, relative, sep } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -111,7 +112,7 @@ function typeOnlyClause(typeKeyword: string | undefined, clause: string | undefi
 const SOURCE_FILES = filesUnder(SRC).filter((one) => one.endsWith('.ts'))
 
 const READINGS = SOURCE_FILES.map((file) => {
-  const text = readFileSync(file, 'utf8').replace(/^\s*\/\/.*$/gm, '')
+  const text = readRepoFile(file, 'utf8').replace(/^\s*\/\/.*$/gm, '')
   const sites: Site[] = [...text.matchAll(IMPORT)].map((hit) => ({
     file,
     specifier: hit[3] ?? hit[4] ?? '',
@@ -286,7 +287,7 @@ describe('CR-378 table T-248: where a `.json` under src/ sits, read against src/
 describe('CR-378 section 5.3: DEFAULT_TASK_GROUP_NAME is published by ScreenRenderer', () => {
   const manuscriptTaskGroupWord = ((): string => {
     const words = JSON.parse(
-      readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8'),
+      readRepoFile(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8'),
     ) as { defaultNames?: readonly { use: string; text: Record<string, string> }[] }
     const found = (words.defaultNames ?? []).find((one) => one.use === 'taskGroup')
     if (found === undefined) throw new Error('the dictionary has no defaultNames entry for `taskGroup`')

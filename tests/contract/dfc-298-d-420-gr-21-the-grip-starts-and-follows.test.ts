@@ -62,7 +62,7 @@
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { afterEach, describe, expect, it } from 'vitest'
@@ -249,7 +249,7 @@ const TEMPLATE_PATH = join(
 
 /** BT-4 of table T-034 -- the template FR-027 starts a reader with. */
 const fixtureDocument = (): Document =>
-  JSON.parse(readFileSync(TEMPLATE_PATH, 'utf8')) as unknown as Document
+  JSON.parse(readRepoFile(TEMPLATE_PATH, 'utf8')) as unknown as Document
 
 // Spec: OP-10, T-024a, FR-055, S-77, S-78
 // Why: at the fit the whole schedule is in view and the grip has no room to run; a scroll keeps the fit's zoom (DFC-2410).

@@ -1,6 +1,7 @@
 // CR-766 spec-only tests: table T-108 is printed from one manuscript, with a column of the values each command carries.
 
-import { readFileSync, readdirSync, statSync } from 'node:fs'
+import { readdirSync, statSync } from 'node:fs'
+import { readRepoFile, specDocumentParts, splitDocumentNames } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -17,9 +18,9 @@ import {
 import { specTable, unbroken } from './spec-table'
 
 const SPEC = join(process.cwd(), 'docs', 'spec')
-const GLOSSARY = unbroken(readFileSync(join(SPEC, '_assets', 'tbl-glossary.md'), 'utf8'))
-const ERD_DETAIL = readFileSync(join(SPEC, '_assets', 'fig-erd-detail.md'), 'utf8')
-const SETTINGS = readFileSync(join(SPEC, '_assets', 'tbl-settings.md'), 'utf8')
+const GLOSSARY = unbroken(readRepoFile(join(SPEC, '_assets', 'tbl-glossary.md'), 'utf8'))
+const ERD_DETAIL = readRepoFile(join(SPEC, '_assets', 'fig-erd-detail.md'), 'utf8')
+const SETTINGS = readRepoFile(join(SPEC, '_assets', 'tbl-settings.md'), 'utf8')
 const PRINTED = unbroken(PRINTED_TEXT)
 
 const table = printedCommands()
@@ -42,7 +43,7 @@ const RETIRED_SENTENCES = ['引数・戻り値は `src/` の公開エントリ�
 
 // Why: the retired numbers live in the manuscript only (CR-766 X-k), never in the printed file.
 const RETIRED_IDS = (
-  JSON.parse(readFileSync(join(SPEC, '_source', 'document-commands.json'), 'utf8')) as { retired: string[] }
+  JSON.parse(readRepoFile(join(SPEC, '_source', 'document-commands.json'), 'utf8')) as { retired: string[] }
 ).retired
 const SHAPES = [
   'AnnotationAnchor',
@@ -204,7 +205,10 @@ describe('the glossary and PI-8 point at the printed table; no pointer is left a
       if (statSync(path).isDirectory()) return name === 'output' ? [] : markdownUnder(path)
       return name.endsWith('.md') ? [path] : []
     })
-  const files = markdownUnder(SPEC).map((path) => [path.slice(SPEC.length + 1), unbroken(readFileSync(path, 'utf8'))] as const)
+  const partFiles = new Set(splitDocumentNames().flatMap((name) => specDocumentParts(name)))
+  const files = [...markdownUnder(SPEC).filter((path) => !partFiles.has(path)), ...splitDocumentNames().map((name) => join(SPEC, name))].map(
+    (path) => [path.slice(SPEC.length + 1), unbroken(readRepoFile(path, 'utf8'))] as const,
+  )
 
   it('no file of the specification names tbl-glossary.md as the place of T-108', () => {
     const stale = /tbl-glossary\.md`? の 表 T-108/

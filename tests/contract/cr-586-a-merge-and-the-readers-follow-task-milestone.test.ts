@@ -1,6 +1,6 @@
 // CR-586 spec-only cases: an MSPDI merge realigns the kept shape (MG-8), and ND-1 / ND-2 and the FS rule read Task.milestone.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -22,7 +22,7 @@ import { bare, specTable, unbroken, type SpecRow, type SpecTable } from './spec-
 const LAST_SAVED_AT = '2026-10-03T09:00:00'
 
 const REQUIREMENTS = unbroken(
-  readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'),
+  readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'),
 )
 
 const T_032: SpecTable = specTable('T-032')
@@ -63,7 +63,7 @@ describe('CR-586 premise -- the clauses these cases are built from', () => {
 
 type Json = Record<string, any>
 
-const TEMPLATE_TEXT = readFileSync(
+const TEMPLATE_TEXT = readRepoFile(
   join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'),
   'utf8',
 )

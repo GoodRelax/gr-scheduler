@@ -1,6 +1,6 @@
 // CR-756 spec-only stage: the manuscript, a document with timed plans on the default calendar, and a frame loop.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import type { Document } from '../../src/entity/document-model/document/document'
@@ -14,11 +14,11 @@ import { specTable, unbroken } from './spec-table'
 export type Loose = Record<string, any>
 
 export const REQUIREMENTS = unbroken(
-  readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8').replace(/\r\n/g, '\n'),
+  readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8').replace(/\r\n/g, '\n'),
 )
 
 const TEMPLATE = JSON.parse(
-  readFileSync(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
+  readRepoFile(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
 ) as Loose
 
 // Spec: T-206, S-585

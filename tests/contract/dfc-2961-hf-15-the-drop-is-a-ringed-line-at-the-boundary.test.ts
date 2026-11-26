@@ -16,7 +16,7 @@ import {
   type CarryBench,
   type PageBox,
 } from './dfc-2960-carry-bench'
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 import type { Document } from '../../src/entity/document-model/document/document'
 
@@ -27,7 +27,7 @@ afterEach(() => {
   else GLOBAL['requestAnimationFrame'] = realRaf
 })
 
-const SETTINGS = readFileSync(join(process.cwd(), 'docs', 'spec', '_assets', 'tbl-settings.md'), 'utf8')
+const SETTINGS = readRepoFile(join(process.cwd(), 'docs', 'spec', '_assets', 'tbl-settings.md'), 'utf8')
 
 const HF_15_LINE = 'タスクグループを握っている間、`GRS` は、選んだ隙間に、選んだ段の字下げの位置からパネルの右端まで、差し込み線を引くこと。'
 const HF_15_ON_BOUNDARY = '`GRS` は、差し込み線を、選んだ隙間の境目（上下 2 つのタスクグループのあいだ）に立てること。'

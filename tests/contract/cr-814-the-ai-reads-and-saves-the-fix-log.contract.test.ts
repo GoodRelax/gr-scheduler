@@ -1,5 +1,6 @@
 import { createHash, randomBytes } from 'node:crypto'
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync } from 'node:fs'
+import { existsSync, mkdirSync, mkdtempSync, rmSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { connect, type Socket } from 'node:net'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
@@ -674,7 +675,7 @@ describe('AM-34 the relay: exportFixLogTsv is a tool and saves a .tsv into the s
 
     expect(saved['ok']).toBe(true)
     expect(String(saved['savedTo']).endsWith('log.tsv')).toBe(true)
-    expect(readFileSync(join(folder, 'log.tsv'), 'utf8')).toBe('Heading\r\nrow\r\n')
+    expect(readRepoFile(join(folder, 'log.tsv'), 'utf8')).toBe('Heading\r\nrow\r\n')
     expect(page.callsOf('exportFixLogTsv')).toHaveLength(1)
   })
 
@@ -698,7 +699,7 @@ describe('AM-34 the relay: exportFixLogTsv is a tool and saves a .tsv into the s
 
 describe('AM-30 readSchema notes -- the Comment boxes line', () => {
   it('the members table holds the line naming CommentBox.fontSizePx, 8 to 24 and null drawing 10', () => {
-    const members = readFileSync(join(process.cwd(), 'docs', 'spec', '_assets', 'tbl-agent-api-members.md'), 'utf8')
+    const members = readRepoFile(join(process.cwd(), 'docs', 'spec', '_assets', 'tbl-agent-api-members.md'), 'utf8')
 
     expect(members).toMatch(/Comment boxes\. CommentBox\.fontSizePx[^\n]*8 to 24[^\n]*null draws 10/)
   })

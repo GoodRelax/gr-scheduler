@@ -1,6 +1,6 @@
 // CR-749 (spec-only): PI-1 workingTimeCounterOf and finishSideDayFrom give the answers the single-Task functions give (FR-011, FR-012, FR-054), called as T-064 PI-1 states (CR-752).
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -26,7 +26,7 @@ import {
 } from './cr-710-w1-stage'
 import { unbroken } from './spec-table'
 
-const PUBLISHED = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '_assets', 'tbl-published-entries.md'), 'utf8'))
+const PUBLISHED = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '_assets', 'tbl-published-entries.md'), 'utf8'))
 
 // Spec: PI-1
 describe('PI-1 names the counter and the day reader CR-749 publishes', () => {

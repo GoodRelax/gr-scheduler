@@ -165,6 +165,21 @@ EXEMPT = {
                 'comment box text size), one more 数値 token, with its column '
                 '(JDG-300).'),
     },
+    'spec-files.json': {
+        '/documents[]/parts[]/startsAt': (
+            19, 'a QUOTATION, not prose: each value is a heading line of the '
+                'specification, matched byte for byte where the part is cut '
+                '(plan B9, 2026-11-27); it moves only with that heading.'),
+        '/documents[]/parts[]/title': (
+            19, 'the StrictDoc title of a part file, written into its header '
+                'by tools/spec_files.py; it follows the title of the first '
+                'part, which the Markdown file holds in one language as every '
+                'document of docs/spec does (plan B9, 2026-11-27).'),
+        '/marker': (
+            1, 'a FIXED LINE, not prose: tools/spec_files.py finds the end of '
+               'a part header by this exact line, so a second language would '
+               'be a second marker (plan B9, 2026-11-27).'),
+    },
 }
 
 

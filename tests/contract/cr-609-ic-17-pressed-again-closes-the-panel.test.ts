@@ -1,6 +1,6 @@
 // CR-609 (wave 3): through the shell, IC-17 pressed again while the settings are shown closes the panel and drops EN-4.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { afterEach, describe, expect, it } from 'vitest'
@@ -16,7 +16,7 @@ import type { Document } from '../../src/entity/document-model/document/document
 import { frameLoop, type FrameEnvironment } from '../../src/framework/single-html-shell/frame-loop'
 import { bare, specTable, unbroken } from './spec-table'
 
-const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
+const REQUIREMENTS = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
 // Spec: FR-072
 const FR_072_CLOSES_WHILE_SHOWN =
@@ -59,7 +59,7 @@ const IC_17 = settingsEntrance()
 const APP_HEADER = bare(specTable('T-109').rows.find((one) => one.id === IC_17)?.by['面'] ?? '')
 
 const TEMPLATE = JSON.parse(
-  readFileSync(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
+  readRepoFile(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
 ) as Record<string, any>
 
 const ROW_ID = '11111111-1111-4111-8111-111111111111'

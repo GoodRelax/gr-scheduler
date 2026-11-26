@@ -1,6 +1,6 @@
 // The place of the latest version (S-350), of the repository (S-459), of the latest schema (S-540) and of the about page (S-583) read from the settings manuscript, and the seat a word names S-350 by.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 interface SettingsManuscript {
@@ -11,7 +11,7 @@ interface SettingsManuscript {
 }
 
 const SETTINGS = JSON.parse(
-  readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'settings.json'), 'utf8'),
+  readRepoFile(join(process.cwd(), 'docs', 'spec', '_source', 'settings.json'), 'utf8'),
 ) as SettingsManuscript
 
 const defaultAddressOf = (id: string): string => {

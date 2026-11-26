@@ -1,6 +1,6 @@
 // CR-386 / FR-002 / DFC-605: planned dates written after the name label, switched by IC-103.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { afterEach, describe, expect, it } from 'vitest'
@@ -29,7 +29,7 @@ import { bare, specTable, unbroken } from '../contract/spec-table'
 import { DEFAULT_DISPLAY_SCALE } from '../fixtures/display-scale'
 
 const REQUIREMENTS = unbroken(
-  readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'),
+  readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'),
 )
 
 const FR_002_NAME_SPACE_DATES =
@@ -123,7 +123,7 @@ describe('the derivation above, read against table T-251 by hand', () => {
 })
 
 const TEMPLATE = JSON.parse(
-  readFileSync(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
+  readRepoFile(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
 ) as Record<string, any>
 
 const PX_PER_DAY_AT_1X = 20

@@ -1,6 +1,6 @@
 // CR-780 spec-only cases: a write that leaves the document as it was raises no unsaved edits (FR-100, ZE-4, T-290, QN-5).
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { afterEach, describe, expect, it } from 'vitest'
@@ -15,7 +15,7 @@ import { exportStage, restoreAnimationFrames, type ExportStage } from './w3-t3-f
 afterEach(restoreAnimationFrames)
 
 const REQUIREMENTS = unbroken(
-  readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8').replace(/\r\n/g, '\n'),
+  readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8').replace(/\r\n/g, '\n'),
 )
 
 const CLAUSE_UNCHANGED_WRITE_RAISES_NOTHING =

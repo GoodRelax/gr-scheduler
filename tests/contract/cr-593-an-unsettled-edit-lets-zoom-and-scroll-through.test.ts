@@ -1,6 +1,6 @@
 // CR-593 spec-only cases, use-case level: an unsettled edit lets only UN-8 writes through WS-2.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -19,8 +19,8 @@ import startupTemplate from '../../src/framework/single-html-shell/startup-templ
 import { bare, specTable, unbroken } from './spec-table'
 
 const SPEC = join(process.cwd(), 'docs', 'spec')
-const DESIGN = unbroken(readFileSync(join(SPEC, '05-07-design.md'), 'utf8'))
-const REQUIREMENTS = unbroken(readFileSync(join(SPEC, '01-04-requirements.md'), 'utf8'))
+const DESIGN = unbroken(readRepoFile(join(SPEC, '05-07-design.md'), 'utf8'))
+const REQUIREMENTS = unbroken(readRepoFile(join(SPEC, '01-04-requirements.md'), 'utf8'))
 
 const WS_2_REFUSES = '**身振りの最中・編集入力の確定前・通知の配布中は拒否する**'
 const WS_2_EXEMPT =

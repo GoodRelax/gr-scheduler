@@ -1,6 +1,6 @@
 // CR-754 spec-only stage: manuscripts, the marked dictionary, the startup document, its properties panel and that panel drawn.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { documentFromJson } from '../../src/adapter/document-codec/document-codec'
@@ -25,13 +25,13 @@ import { bare, specTable, unbroken } from './spec-table'
 export type Loose = Record<string, any>
 
 const SPEC = join(process.cwd(), 'docs', 'spec')
-const read = (...parts: string[]): string => unbroken(readFileSync(join(SPEC, ...parts), 'utf8').replace(/\r\n/g, '\n'))
+const read = (...parts: string[]): string => unbroken(readRepoFile(join(SPEC, ...parts), 'utf8').replace(/\r\n/g, '\n'))
 
 export const REQUIREMENTS = read('01-04-requirements.md')
 export const SETTINGS_BOOK = read('_assets', 'tbl-settings.md')
 
 // Why: read WITH its break marks -- FR-038 lets a panel item name carry `|` where it may wrap.
-export const MARKED_WORDS = JSON.parse(readFileSync(join(SPEC, '_source', 'display-words.json'), 'utf8')) as Loose
+export const MARKED_WORDS = JSON.parse(readRepoFile(join(SPEC, '_source', 'display-words.json'), 'utf8')) as Loose
 
 export const BREAK_MARK = '|'
 export const LANGUAGES: readonly DisplayLanguage[] = ['ja', 'en']
@@ -90,7 +90,7 @@ const TEMPLATE_PATH = join(process.cwd(), 'src', 'framework', 'single-html-shell
 
 /** @purity non-pure */
 function templateDocument(): Document {
-  const opened = documentFromJson(readFileSync(TEMPLATE_PATH, 'utf8'))
+  const opened = documentFromJson(readRepoFile(TEMPLATE_PATH, 'utf8'))
   if (!opened.ok) throw new Error(`the bundled template is not GRS JSON: ${JSON.stringify(opened.faults)}`)
   return opened.document
 }

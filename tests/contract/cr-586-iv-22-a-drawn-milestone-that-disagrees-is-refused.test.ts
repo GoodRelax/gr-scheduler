@@ -1,6 +1,6 @@
 // CR-586 spec-only cases: IV-22 (T-220) through scheduleViolations and the GRS JSON open path (FR-076).
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { afterEach, describe, expect, it } from 'vitest'
@@ -30,7 +30,7 @@ import {
 import { bare, specTable, unbroken, type SpecRow, type SpecTable } from './spec-table'
 
 const SPEC = join(process.cwd(), 'docs', 'spec')
-const REQUIREMENTS = unbroken(readFileSync(join(SPEC, '01-04-requirements.md'), 'utf8'))
+const REQUIREMENTS = unbroken(readRepoFile(join(SPEC, '01-04-requirements.md'), 'utf8'))
 
 const T_220: SpecTable = specTable('T-220')
 const T_036: SpecTable = specTable('T-036')
@@ -76,7 +76,7 @@ describe('CR-586 premise -- the clauses these cases are built from', () => {
   })
 })
 
-const TEMPLATE_TEXT = readFileSync(
+const TEMPLATE_TEXT = readRepoFile(
   join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'),
   'utf8',
 )
@@ -330,7 +330,7 @@ interface InvariantWords {
 }
 
 const IV_22_WORDS: string = (() => {
-  const words = JSON.parse(readFileSync(join(SPEC, '_source', 'display-words.json'), 'utf8')) as {
+  const words = JSON.parse(readRepoFile(join(SPEC, '_source', 'display-words.json'), 'utf8')) as {
     invariants: InvariantWords[]
   }
   const found = words.invariants.find((one) => one.specTableRowId === 'IV-22')

@@ -1,6 +1,6 @@
 // Spec-only cases for CR-569: the project summary task is carried, not a task group
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -35,10 +35,10 @@ const AT_139_NOT_COUNTED = 'プロジェクトの要約タスクは数えない 
 const FR_058_SENTENCE =
   '⭐ プロジェクトの要約タスクは `Task` にならない（表 T-265 の `MR-4`）—— 要約タスクの直下のタスクは親を持たない `Task` になり、`IMPS-913` のとおり自分のタスクグループを持って最上位に並ぶ。'
 
-const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
-const ERD_DETAIL = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '_assets', 'fig-erd-detail.md'), 'utf8'))
+const REQUIREMENTS = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
+const ERD_DETAIL = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '_assets', 'fig-erd-detail.md'), 'utf8'))
 
-const TEMPLATE_TEXT = readFileSync(
+const TEMPLATE_TEXT = readRepoFile(
   join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'),
   'utf8',
 )
@@ -333,7 +333,7 @@ describe(`CR-569 -- JDG-581: ${NOT_WRITTEN_FOR_GRS}`, () => {
 })
 
 describe('CR-569 -- JDG-580 on sample-schedule/sample-large-erp-program.ja.xml', () => {
-  const text = readFileSync(join(process.cwd(), 'sample-schedule', 'sample-large-erp-program.ja.xml'), 'utf8')
+  const text = readRepoFile(join(process.cwd(), 'sample-schedule', 'sample-large-erp-program.ja.xml'), 'utf8')
   const document = accepted(text)
 
   it('opens with 12 top task groups, the first of them 1. プログラム管理', () => {

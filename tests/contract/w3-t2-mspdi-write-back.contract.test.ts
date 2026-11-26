@@ -1,6 +1,6 @@
 // W3 spec-only tester 2: EX-15, EX-16 and FR-021's Stop rule of 01-04-requirements.md, through the DocumentCodec public entry (PI-20).
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -11,7 +11,7 @@ import { currentDocument, day, hours, pj12Fixture, templateDocument, withTask, w
 import { childrenNamed, leaf, mspdiText, node, nodeAt, parseXml, textAt, type Spec, type XmlNode } from '../unit/cr-429-mspdi-schema'
 import { unbroken } from './spec-table'
 
-const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
+const REQUIREMENTS = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
 // Spec: EX-15, T-033
 const EX_15_GRS_MADE =
@@ -31,7 +31,7 @@ const PJ12_NAMESPACE = 'http://schemas.microsoft.com/project/2007'
 const SAVED_AT = '2026-10-07T09:00:00'
 
 // Spec: EX-6
-const ROSTER = JSON.parse(readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'mspdi-custom-fields.json'), 'utf8')) as {
+const ROSTER = JSON.parse(readRepoFile(join(process.cwd(), 'docs', 'spec', '_source', 'mspdi-custom-fields.json'), 'utf8')) as {
   readonly frames: readonly { readonly name: string; readonly fieldId: number; readonly prefers: string; readonly alias: string }[]
 }
 const FADE_IN_FRAME = ROSTER.frames.find((one) => one.prefers === 'fadeInDays')

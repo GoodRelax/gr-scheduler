@@ -1,6 +1,6 @@
 // Pins what the spec asks of the dividers and scrollbars the DOM surface draws (CR-439).
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -35,7 +35,7 @@ if (!Object.getOwnPropertyDescriptor(FakeElement.prototype, 'parentElement')) {
 }
 
 const REQUIREMENTS = unbroken(
-  readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'),
+  readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'),
 )
 
 function rowText(table: string, id: string): string {

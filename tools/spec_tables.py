@@ -34,9 +34,12 @@ WHAT THIS READER DOES THAT THE ELEVEN DID NOT:
     rows, a heading that is not there: each is an error naming the table, not
     an empty list that becomes a short roster.
 """
-import io
 import os
 import re
+import sys
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import spec_files  # noqa: E402
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
@@ -127,7 +130,7 @@ def read(rel, table_id):
     @purity semi-pure-mutable
     """
     path = os.path.join(ROOT, rel)
-    lines = io.open(path, encoding='utf-8').read().split('\n')
+    lines = spec_files.read_spec_file(path).split('\n')
 
     table = None
     inside = False

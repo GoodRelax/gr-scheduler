@@ -65,6 +65,8 @@ import tempfile
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
+sys.path.insert(0, HERE)
+import spec_files  # noqa: E402
 REL_PREFIXES = 'docs/spec/_source/row-id-prefixes.json'
 SELF = 'tools/renumber_ids.py'
 SKIPPED = ('dist/', SELF)
@@ -77,6 +79,7 @@ RANGE_AFTER = re.compile(u'^\\s*(?:\\.\\.|\u301c|~|\u2013)\\s*[0-9]+')
 ROW_START = re.compile(r'^\|\s*`?([A-Z]{1,4})-([0-9]+)[a-z]?`?\s*\|')
 TABLE_HEADING = re.compile(u'^\\*\\*\u8868 (T)-([0-9]+)[a-z]?')
 CR_FILE = re.compile(r'^change-request/(CR)-([0-9]+)-')
+TRACKED_PROVISIONAL = re.compile(r'[A-Z]{1,4}-9[0-9]{4}')
 
 
 def say(message):
@@ -202,6 +205,24 @@ def rewrite(text, mapping):
     return marked, len(tokens)
 
 
+def part_owners():
+    """{part path: old path} of the split specification documents."""
+    return dict(('docs/spec/' + part, 'docs/spec/' + document)
+                for document in spec_files.document_names(ROOT)
+                for part in spec_files.part_files(document, ROOT))
+
+
+def as_documents(names):
+    """NAMES with each split document's parts replaced, once, by its old path."""
+    owner = part_owners()
+    out = []
+    for name in names:
+        name = owner.get(name, name)
+        if name not in out:
+            out.append(name)
+    return out
+
+
 def decode(data):
     if b'\0' in data:
         return None
@@ -224,11 +245,16 @@ def ranges_touching(name, text, mapping):
 
 def apply_to_working_tree(mapping, dry_run):
     changed, warnings = [], []
-    for name in file_names(None):
+    split = set(part_owners().values())
+    # Why: a split document is rewritten and reported whole, under its old path.
+    for name in as_documents(file_names(None)):
         if name.startswith(SKIPPED):
             continue
-        with open(os.path.join(ROOT, name), 'rb') as handle:
-            text = decode(handle.read())
+        if name in split:
+            text = spec_files.read_document(name, ROOT)
+        else:
+            with open(os.path.join(ROOT, name), 'rb') as handle:
+                text = decode(handle.read())
         if text is None:
             continue
         warnings.extend(ranges_touching(name, text, mapping))
@@ -238,6 +264,9 @@ def apply_to_working_tree(mapping, dry_run):
             continue
         changed.append((name, new_name, count))
         if dry_run:
+            continue
+        if name in split:
+            spec_files.write_document(name, new_text, ROOT)
             continue
         with open(os.path.join(ROOT, name), 'wb') as handle:
             handle.write(new_text.encode('utf-8'))
@@ -427,8 +456,19 @@ def mode_check():
                           cwd=ROOT, capture_output=True)
     if done.returncode not in (0, 1):
         raise SystemExit('git grep: %s' % done.stderr.decode('utf-8', 'replace'))
+    hits = []
+    owner = part_owners()
     for line in lines_of(done.stdout):
         name, number, body = (line.split(':', 2) + ['', ''])[:3]
+        if name in owner:
+            continue
+        hits.append((name, number, body))
+    # Why: a split document is searched whole, so a hit names its old path and whole-document line.
+    for document in sorted(set(owner[name] for name in lines_of(git(['ls-files'])) if name in owner)):
+        for number, body in enumerate(spec_files.read_document(document, ROOT).split('\n'), 1):
+            if TRACKED_PROVISIONAL.search(body):
+                hits.append((document, str(number), body))
+    for name, number, body in sorted(hits, key=lambda hit: hit[0]):
         for hit in AN_ID.finditer(body):
             if hit.group(1) in prefixes and is_provisional(hit.group(2)):
                 found.append('%s:%s  %s is provisional' % (name, number, hit.group(0)))

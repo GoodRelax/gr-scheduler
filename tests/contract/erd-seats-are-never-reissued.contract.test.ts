@@ -1,6 +1,6 @@
 // Contract: ET-/AT-/RL-/DV- seat numbers are never reissued (Chapter 5.4, table T-218 TS-5).
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -8,7 +8,7 @@ import { describe, expect, it } from 'vitest'
 import { specTable, type SpecRow, unbroken } from './spec-table'
 
 const MANUSCRIPT = JSON.parse(
-  readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'erd.json'), 'utf8'),
+  readRepoFile(join(process.cwd(), 'docs', 'spec', '_source', 'erd.json'), 'utf8'),
 ) as {
   readonly entities: readonly {
     readonly seat: number
@@ -101,7 +101,7 @@ const printedOf = (family: Family): ReadonlyMap<number, SpecRow> => {
   return rows
 }
 
-const DESIGN = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '05-07-design.md'), 'utf8'))
+const DESIGN = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '05-07-design.md'), 'utf8'))
 
 // Why: rule 03 section 5 keeps code ASCII but allows the exact clause text
 // here -- matching it against the manuscript is what tests the specification.

@@ -97,6 +97,9 @@ import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(HERE)))
+sys.path.insert(0, os.path.join(ROOT, 'tools'))
+import spec_files  # noqa: E402
+
 SPEC = os.path.join(ROOT, 'docs', 'spec')
 MANUSCRIPT = os.path.join(SPEC, '_source', 'display-words.json')
 BASELINE = os.path.join(HERE, 'dictionary-table-pairing.txt')
@@ -165,10 +168,9 @@ def spec_table(table_id):
     caption_prefix = u'%s%s —' % (CAPTION_MARK, table_id)
     for rel in FILES:
         path = os.path.join(SPEC, rel)
-        if not os.path.exists(path):
+        if not spec_files.spec_file_exists(path):
             continue
-        with io.open(path, encoding='utf-8') as handle:
-            lines = handle.read().split('\n')
+        lines = spec_files.read_spec_file(path).split('\n')
         at = None
         for i, line in enumerate(lines):
             if line.startswith(caption_prefix):

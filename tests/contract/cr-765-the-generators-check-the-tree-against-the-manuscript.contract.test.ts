@@ -1,7 +1,8 @@
 // CR-765 spec-only tests: the generators of table T-107 print the code from one manuscript and go red when the two part.
 
 import { spawnSync } from 'node:child_process'
-import { cpSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
+import { cpSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
 
@@ -69,7 +70,7 @@ const scratchCopy = (): string => {
 
 const editManuscript = (copy: string, edit: (manuscript: Manuscript) => void): void => {
   const path = join(copy, MANUSCRIPT)
-  const manuscript = JSON.parse(readFileSync(path, 'utf8')) as Manuscript
+  const manuscript = JSON.parse(readRepoFile(path, 'utf8')) as Manuscript
   edit(manuscript)
   writeFileSync(path, JSON.stringify(manuscript, null, 1), 'utf8')
 }
@@ -173,7 +174,7 @@ describe('on a scratch copy outside the repository: an untouched copy is green, 
   it('a hand edit inside the generated region of the code is caught the same way', () => {
     const copy = scratchCopy()
     const unit = join(copy, MEMBERS_UNIT)
-    const text = readFileSync(unit, 'utf8')
+    const text = readRepoFile(unit, 'utf8')
     expect(text).toContain("const AGENT_API_VERSION = '2026-10-19T01:15:00Z'")
     writeFileSync(unit, text.replace("const AGENT_API_VERSION = '2026-10-19T01:15:00Z'", "const AGENT_API_VERSION = '2099-01-01T00:00:00Z'"), 'utf8')
     const ran = run(copy, GENERATOR)

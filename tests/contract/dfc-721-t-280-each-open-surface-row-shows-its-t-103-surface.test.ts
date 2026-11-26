@@ -1,6 +1,6 @@
 // DFC-721 spec-only cases: T-280 -- every U row openSurfaceStateMachine.open carries as surfaceName opens the surface table T-103 names for that row, headed by the FR-038 dictionary word, and FR-074 / FR-088 are no surface names.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -24,7 +24,7 @@ const HOLIDAY_SETTINGS_ROW = 'U-65'
 const NOT_ROWS_OF_T_280 = ['FR-074', 'FR-088'] as const
 
 const DICTIONARY_COMMENT = JSON.stringify(
-  (JSON.parse(readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8')) as Record<string, unknown>)[
+  (JSON.parse(readRepoFile(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8')) as Record<string, unknown>)[
     '$comment'
   ],
 )

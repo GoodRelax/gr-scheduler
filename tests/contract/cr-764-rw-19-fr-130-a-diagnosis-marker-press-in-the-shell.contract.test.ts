@@ -1,6 +1,6 @@
 // CR-764 spec-only contract over the shell: a press on a diagnosis marker opens the report at its row, and IC-107 with the report closed runs the diagnosis again.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -37,12 +37,12 @@ const FR_130_THE_SAME_ENTRY =
   '診断を出している間、遅延診断レポートの窓（`FR-134` の 表 T-346 の `RW-1`）が開いているとき（最小化を含む）、`IC-107` を押したとき、`GRS` は、窓の `IC-52` と同じく窓だけを閉じること。'
 
 const SPEC = join(process.cwd(), 'docs', 'spec')
-const REQUIREMENTS = unbroken(readFileSync(join(SPEC, '01-04-requirements.md'), 'utf8'))
+const REQUIREMENTS = unbroken(readRepoFile(join(SPEC, '01-04-requirements.md'), 'utf8'))
 type Words = { readonly ja: string; readonly en: string }
 type IconWords = { readonly specTableRowId: string; readonly hint?: Words }
-const SPEC_WORDS = JSON.parse(readFileSync(join(SPEC, '_source', 'display-words.json'), 'utf8')) as { readonly icons: readonly IconWords[] }
+const SPEC_WORDS = JSON.parse(readRepoFile(join(SPEC, '_source', 'display-words.json'), 'utf8')) as { readonly icons: readonly IconWords[] }
 const SHIPPED_WORDS = JSON.parse(
-  readFileSync(join(process.cwd(), 'src', 'adapter', 'screen-renderer', 'display-words.json'), 'utf8'),
+  readRepoFile(join(process.cwd(), 'src', 'adapter', 'screen-renderer', 'display-words.json'), 'utf8'),
 ) as { readonly icons: readonly IconWords[] }
 
 const cellOf = (table: string, id: string, heading: string): string =>

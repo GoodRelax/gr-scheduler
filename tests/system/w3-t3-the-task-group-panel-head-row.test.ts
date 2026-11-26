@@ -1,6 +1,6 @@
 // W3 tester 3: the head row of the Task Group Panel, live -- its right margin is S-313 and Tab walks it left to right.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { expect, test, type Browser, type Page } from '@playwright/test'
@@ -8,7 +8,7 @@ import { bare, bareAll, specTable, unbroken } from '../contract/spec-table'
 import { CLEARING_UP_MS, launchReferenceBrowser, readSettledDrawnSvg, screenOf } from './live-app'
 import { rowOf } from './sws-case'
 
-const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8').replace(/\r\n/g, '\n'))
+const REQUIREMENTS = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8').replace(/\r\n/g, '\n'))
 
 const CLAUSE_RIGHT_MARGIN =
   '`GRS` は、頭の並びのいちばん右の操作子（すべて消す）の外形と、タスクグループパネルの右端とのあいだを、タスクグループの並び（`HF-4`）と同じく `_assets/tbl-settings.md` の 表 T-206 の `S-313` とすること'

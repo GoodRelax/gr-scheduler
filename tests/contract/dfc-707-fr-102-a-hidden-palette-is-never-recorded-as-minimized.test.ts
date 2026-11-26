@@ -1,6 +1,6 @@
 // DFC-707 spec-only cases: FR-102 / T-280 -- the record's frame lines tell the palette as minimized only while it is shown and minimized; a hidden palette has no fold to tell.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -9,8 +9,8 @@ import type { Clipboard, ClipboardContent } from '../../src/adapter/clipboard-ga
 import { keyOfRow, shellStage, surfaceOfEntrance, type ShellStage } from './cr-610-file-flow-stage'
 import { unbroken } from './spec-table'
 
-const MACHINES = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '_assets', 'tbl-state-machines.md'), 'utf8'))
-const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
+const MACHINES = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '_assets', 'tbl-state-machines.md'), 'utf8'))
+const REQUIREMENTS = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
 // Why: the state list, not the diagram -- the diagram became an SVG figure, which a text match
 // cannot read.

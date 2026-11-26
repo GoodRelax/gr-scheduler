@@ -51,6 +51,8 @@ import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(HERE)))
+sys.path.insert(0, os.path.join(ROOT, 'tools'))
+import spec_files  # noqa: E402
 RECORDS = os.path.join(ROOT, 'docs', 'development-records')
 LIST = os.path.join(RECORDS, 'pending-decisions.md')
 
@@ -125,12 +127,12 @@ def opq_rows_and_spec_marks():
     rows, malformed, marks = {}, [], {}
     for here, dirs, files in os.walk(SPEC):
         dirs[:] = sorted(d for d in dirs if d not in ('output', '__pycache__'))
-        for name in sorted(files):
+        for name in spec_files.listed_names(here, sorted(files)):
             if not name.endswith('.md'):
                 continue
             path = os.path.join(here, name)
             rel = os.path.relpath(path, ROOT).replace('\\', '/')
-            for line in io.open(path, encoding='utf-8', errors='replace'):
+            for line in io.StringIO(spec_files.read_spec_file(path)):
                 line = line.strip()
                 row = OPQ_ROW.match(line)
                 if row:

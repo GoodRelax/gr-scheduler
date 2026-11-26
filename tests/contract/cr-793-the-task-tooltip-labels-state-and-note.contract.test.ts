@@ -1,6 +1,6 @@
 // CR-793 (table T-348 TL-8 / TL-9 / TL-12 / TL-13 / TL-14, SQ-5, S-439 / S-621 / S-622): the task tooltip's state, note and two columns.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -24,7 +24,7 @@ import { unbroken } from './spec-table'
 type Language = 'ja' | 'en'
 const LANGUAGES = ['ja', 'en'] as const
 
-const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
+const REQUIREMENTS = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
 const TL_8_FORM = '進捗の語、`:`、半角空白 1 つ、`percentComplete`、半角空白 1 つ、`(`、状態の語、`)` の順に書くこと（MUST）'
 const TL_8_SAME_AS_SQ_5 = '⭐ 状態の語は、検索パネルの 表 T-331 の `SQ-5` と同じ判定で選んだ状態の語とすること（MUST）'
@@ -47,7 +47,7 @@ interface Worded {
   readonly text?: Readonly<Record<Language, string>>
   readonly label?: Readonly<Record<Language, string>>
 }
-const WORDS = JSON.parse(readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8')) as {
+const WORDS = JSON.parse(readRepoFile(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8')) as {
   readonly delayReportColumns: readonly Worded[]
   readonly delayReportStatuses: readonly Worded[]
   readonly planActualStates: readonly Worded[]
@@ -83,7 +83,7 @@ const rowOfSettings = (id: string): SettingsRow => {
       Object.values(node).forEach(walk)
     }
   }
-  walk(JSON.parse(readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'settings.json'), 'utf8')))
+  walk(JSON.parse(readRepoFile(join(process.cwd(), 'docs', 'spec', '_source', 'settings.json'), 'utf8')))
   const [first] = found
   if (first === undefined) throw new Error(`settings.json has no row ${id}`)
   return first

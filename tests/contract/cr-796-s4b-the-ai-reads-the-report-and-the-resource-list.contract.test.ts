@@ -1,6 +1,6 @@
 // CR-796 slice 4b: the AI reads the Delay Diagnostics Report and the Resource List in pages (AM-28, AV-17..AV-20, AM-19, T-347, T-371).
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -18,7 +18,7 @@ import { specTable, unbroken } from './spec-table'
 type Loose = Record<string, unknown>
 
 const TEMPLATE = JSON.parse(
-  readFileSync(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
+  readRepoFile(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
 ) as Loose & { readonly schedule: Loose; readonly documentSettings: Loose }
 
 const templateTasks = TEMPLATE.schedule['tasks'] as readonly Loose[]
@@ -554,7 +554,7 @@ describe('AM-28 readTableRows -- a table the call does not name is refused as ma
 
 // Spec: AM-28, AM-25
 describe('AM-28 / AM-25 -- the Search Panel is read by readSearchRows, one table one road', () => {
-  const text = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '_assets', 'tbl-agent-api-members.md'), 'utf8'))
+  const text = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '_assets', 'tbl-agent-api-members.md'), 'utf8'))
   const rowLine = text.split('\n').find((line) => line.startsWith('| AM-28 |')) ?? ''
 
   it('the printed AM-28 row says the Search Panel table is read by readSearchRows (AM-25)', () => {

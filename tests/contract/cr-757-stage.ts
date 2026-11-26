@@ -1,6 +1,6 @@
 // CR-757 spec-only stage: manuscripts, a document builder with its own calendar, the write path with undo, and a frame loop.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { documentFromJson } from '../../src/adapter/document-codec/document-codec'
@@ -36,7 +36,7 @@ import { readStateMachineView } from './state-machine-manuscript'
 export type Loose = Record<string, any>
 
 const SPEC = join(process.cwd(), 'docs', 'spec')
-const read = (...parts: string[]): string => unbroken(readFileSync(join(SPEC, ...parts), 'utf8').replace(/\r\n/g, '\n'))
+const read = (...parts: string[]): string => unbroken(readRepoFile(join(SPEC, ...parts), 'utf8').replace(/\r\n/g, '\n'))
 
 export const REQUIREMENTS = read('01-04-requirements.md')
 export const DESIGN = read('05-07-design.md')
@@ -47,10 +47,10 @@ export const STATE_MACHINES_SOURCE = readStateMachineView() as {
   readonly regions: readonly Loose[]
 }
 const withoutBreakMarks = (_key: string, value: unknown): unknown => (typeof value === 'string' ? value.replace(/\|/g, '') : value)
-export const WORDS = JSON.parse(readFileSync(join(SPEC, '_source', 'display-words.json'), 'utf8'), withoutBreakMarks) as Loose
+export const WORDS = JSON.parse(readRepoFile(join(SPEC, '_source', 'display-words.json'), 'utf8'), withoutBreakMarks) as Loose
 
 const TEMPLATE = JSON.parse(
-  readFileSync(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
+  readRepoFile(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
 ) as Loose
 const BUILT_VERSION: string = TEMPLATE['schemaVersion']
 

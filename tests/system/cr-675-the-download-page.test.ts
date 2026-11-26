@@ -1,7 +1,8 @@
 // CR-675 spec-only tests: the download page of S-350 (docs/download/index.html), read as a black box against design-mcp-relay.md section 6.
 
 import { createHash } from 'node:crypto'
-import { copyFileSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
+import { copyFileSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { createServer } from 'node:http'
 import { type AddressInfo } from 'node:net'
 import { basename, join, resolve } from 'node:path'
@@ -11,8 +12,8 @@ import { expect, test, type Browser, type Page } from '@playwright/test'
 import { unbroken } from '../contract/spec-table'
 
 const SPEC = join(process.cwd(), 'docs', 'spec')
-const DESIGN = unbroken(readFileSync(join(SPEC, '_assets', 'design-mcp-relay.md'), 'utf8'))
-const SETTINGS = unbroken(readFileSync(join(SPEC, '_assets', 'tbl-settings.md'), 'utf8'))
+const DESIGN = unbroken(readRepoFile(join(SPEC, '_assets', 'design-mcp-relay.md'), 'utf8'))
+const SETTINGS = unbroken(readRepoFile(join(SPEC, '_assets', 'tbl-settings.md'), 'utf8'))
 
 const DESIGN_SELF_CONTAINED = '頁は外の資源を読まない —— 頁の中の書式とスクリプトは、頁の Content Security Policy に SHA-256 を書いたものだけが動く。'
 const DESIGN_TOP_BUTTON = '最上部の大きなボタン —— 押すと `GRS.html` をダウンロードする。'
@@ -50,16 +51,16 @@ const SWITCH_NAME: Record<Lang, string> = { en: SWITCH_EN, ja: SWITCH_JA }
 // Why: a break test points every case at a damaged scratch copy through this variable; unset, the real page is read.
 const PAGE_FILE = resolve(process.cwd(), process.env['GRS_DOWNLOAD_PAGE'] ?? join('docs', 'download', 'index.html'))
 const PAGE_URL = pathToFileURL(PAGE_FILE).href
-const SOURCE = readFileSync(PAGE_FILE, 'utf8')
+const SOURCE = readRepoFile(PAGE_FILE, 'utf8')
 const QUIET_MS = 2_000
 const WIDE = { width: 1280, height: 800 }
 const NARROW = { width: 375, height: 812 }
 
 type Labeled = { specTableRowId: string; label?: Record<Lang, string> }
 type Glyph = { specTableRowId: string; elements: { tag: string; attributes: { name: string; value: string }[] }[] }
-const WORDS = JSON.parse(readFileSync(join(SPEC, '_source', 'display-words.json'), 'utf8')) as { icons: Labeled[] }
+const WORDS = JSON.parse(readRepoFile(join(SPEC, '_source', 'display-words.json'), 'utf8')) as { icons: Labeled[] }
 const GLYPHS = JSON.parse(
-  readFileSync(join(process.cwd(), 'src', 'framework', 'dom-screen-surface', 'icon-glyphs.json'), 'utf8'),
+  readRepoFile(join(process.cwd(), 'src', 'framework', 'dom-screen-surface', 'icon-glyphs.json'), 'utf8'),
 ) as { viewBox: string; glyphs: Glyph[] }
 
 // Spec: IC-1, IC-2, IC-20
@@ -166,7 +167,7 @@ async function servedCopy(): Promise<{ url: string; close: () => void }> {
   const server = createServer((asked, answer) => {
     const name = basename(decodeURIComponent(new URL(asked.url ?? '/', 'http://x').pathname)) || 'index.html'
     try {
-      const body = readFileSync(join(folder, name))
+      const body = readRepoFile(join(folder, name))
       answer.writeHead(200, { 'content-type': name.endsWith('.html') ? 'text/html; charset=utf-8' : 'application/octet-stream' })
       answer.end(body)
     } catch {

@@ -1,7 +1,7 @@
 // CR-850 on the dev server: at the hour tier the status date field, the grabs, the cursors and the Dual Cursor interval read 15 minutes; the day tier reads whole days.
 
 import { expect, test, type Browser, type Page } from '@playwright/test'
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 import { specTable, unbroken } from '../contract/spec-table'
 import { validateDocument } from '../fixtures/grs-document'
@@ -10,7 +10,7 @@ import { CLEARING_UP_MS, launchReferenceBrowser, readSettledDrawnSvg } from './l
 import { rowOf } from './sws-case'
 import { taskGroupsDocument } from './w3-t1-stage'
 
-const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
+const REQUIREMENTS = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
 const FR_046_FIELD = '時刻を表示している間、欄で日付と時刻を確定したとき、`GRS` は、打った分を丸めずに `statusDate` に書くこと'
 const T_378_READERS = '`GRS` は、表 T-378 の単位を、掴み代のほか、基準日線のドラッグ（`FR-046`）、デュアルカーソルの線（`FR-082` の 表 T-029a の `DC-3`）、ガイドカーソルの札（表 T-029 の `CU-3`）にも当てること'

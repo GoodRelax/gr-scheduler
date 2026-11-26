@@ -101,7 +101,7 @@
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { afterEach, describe, expect, it } from 'vitest'
@@ -168,7 +168,7 @@ const MARKS: readonly string[] = ((): readonly string[] => {
  * 印との対応だけである」.
  */
 const NOTE_PAIRING: ReadonlyMap<string, string> = ((): ReadonlyMap<string, string> => {
-  const text = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
+  const text = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
   const lines = paragraphsOf(text).filter(
     (one) => one.includes('`SH-5`') && one.includes('milestoneGlyph') && one.includes('＝'),
   )
@@ -231,7 +231,7 @@ const ENTRANCES: readonly Entrance[] = T_109.rows
 
 const ROSTER: readonly { readonly specTableRowId: string; readonly armsShape?: string | null }[] = (
   JSON.parse(
-    readFileSync(
+    readRepoFile(
       join(process.cwd(), 'src', 'adapter', 'screen-renderer', 'icon-roster.json'),
       'utf8',
     ),
@@ -251,7 +251,7 @@ const rosterShapeOf = (row: string): string | null => {
 // BT-4 of 表 T-034 -- the template FR-027 keeps exactly one of. The calendar,
 // the project and the settings come from it.
 const TEMPLATE = JSON.parse(
-  readFileSync(
+  readRepoFile(
     join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'),
     'utf8',
   ),

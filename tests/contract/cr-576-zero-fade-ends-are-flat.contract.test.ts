@@ -1,6 +1,6 @@
 // CR-576 wave 3 assertion 7: chevron ends by fade (null, 0, n), the actual bar, rectangles (FD-4, FD-5, FD-6a).
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -30,7 +30,7 @@ import {
 import { regionsFromScreen } from '../../src/entity/layout-engine/screen-regions/screen-regions'
 import { bare, specTable, unbroken } from './spec-table'
 
-const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
+const REQUIREMENTS = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
 // Spec: FD-5
 const FD_5_PER_END =

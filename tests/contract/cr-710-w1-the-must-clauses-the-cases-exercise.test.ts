@@ -1,11 +1,11 @@
 // CR-710 wave 1 (spec-only): the MUST clauses of FR-011, FR-012, FR-054 and FR-088 that the cr-710-w1 cases exercise, held as the manuscript writes them.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
 
-const MANUSCRIPT = readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8')
+const MANUSCRIPT = readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8')
 
 const CLAUSES: readonly (readonly [string, string])[] = [
   ["FR-011", "`GRS` は、間にある非稼働日を、実績の長さに数えないこと。"],

@@ -1,7 +1,7 @@
 // CR-614 spec-only tests: chapter 2 knows the local MCP relay -- SEAM-B (relay side), SEAM-C, and the rows of tables T-007 / T-008.
 
 import { createHash, randomBytes } from 'node:crypto'
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { connect, type Socket } from 'node:net'
 import { networkInterfaces } from 'node:os'
 import { join } from 'node:path'
@@ -414,7 +414,7 @@ describe('SEAM-A / SEAM-B page side are held by tests/nfr/nfr-004-single-file.te
     expect(route('CHN-14').slice(0, 2)).toEqual(['DEV-1', 'DEV-6'])
     expect(route('CHN-14')[ROUTE_METHOD], `CHN-14 method: "${QUOTE.sameAsAbove}" (CHN-13's)`).toBe(QUOTE.sameAsAbove)
 
-    const lines = readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8').split('\n')
+    const lines = readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8').split('\n')
     const caption = lines.findIndex((line) => line.startsWith(QUOTE.t008Caption))
     expect(caption, 'T-008 caption found').toBeGreaterThanOrEqual(0)
     const note = lines.slice(caption + 1).find((line) => line.startsWith('>')) ?? ''

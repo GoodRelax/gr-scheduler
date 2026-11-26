@@ -1,6 +1,6 @@
 // CR-585 spec-only tests: monochrome grays the rows of table T-236 on chrome, ground and export alike.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -14,8 +14,8 @@ import {
 import { bare, specTable, unbroken } from './spec-table'
 
 const SPEC = join(process.cwd(), 'docs', 'spec')
-const REQUIREMENTS = unbroken(readFileSync(join(SPEC, '01-04-requirements.md'), 'utf8'))
-const SETTINGS_MD = unbroken(readFileSync(join(SPEC, '_assets', 'tbl-settings.md'), 'utf8'))
+const REQUIREMENTS = unbroken(readRepoFile(join(SPEC, '01-04-requirements.md'), 'utf8'))
+const SETTINGS_MD = unbroken(readRepoFile(join(SPEC, '_assets', 'tbl-settings.md'), 'utf8'))
 
 const CLAUSE_FOLLOW_T236 = '`GRS` は、画面の色を `_assets/tbl-settings.md` の 表 T-236 に従わせること。'
 const CLAUSE_GROUND = '`GRS` は、地の色を自分で塗ること。'

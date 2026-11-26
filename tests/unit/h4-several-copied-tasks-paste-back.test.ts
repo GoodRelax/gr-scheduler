@@ -1,6 +1,6 @@
 // H4 spec-only cases: several selected Tasks are copied and pasted back (FR-033, CM-8, Q16).
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { afterEach, describe, expect, it } from 'vitest'
@@ -37,7 +37,7 @@ const COPY_TAKEN_ROW =
 const CR_541_ROW_8 = '| 8 | Q16 で行と `Task` が両方選ばれたとき | いまの振る舞い（行を写す）のまま。何も書かない | そのまま |'
 
 const readText = (...parts: string[]): string =>
-  readFileSync(join(process.cwd(), ...parts), 'utf8').replace(/\r\n/g, '\n')
+  readRepoFile(join(process.cwd(), ...parts), 'utf8').replace(/\r\n/g, '\n')
 const DOCUMENT_COMMANDS = unbroken(readText('docs', 'spec', '_assets', 'tbl-document-commands.md'))
 const STATE_MACHINES = unbroken(readText('docs', 'spec', '_assets', 'tbl-state-machines.md'))
 const CR_541 = readText('change-request', 'CR-541-land-the-2026-09-22-rulings-in-the-specification.md')

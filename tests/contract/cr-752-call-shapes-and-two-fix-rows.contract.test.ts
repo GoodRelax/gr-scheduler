@@ -1,6 +1,6 @@
 // CR-752 (spec-only): RW-16 two fix rows on one Task, and the T-064 PI-1 call shapes of four names.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -41,8 +41,8 @@ import {
 import { unbroken } from './spec-table'
 
 // Why: the generated table T-064 (from published-entries.json) is read with its line breaks joined, as cr-749 does.
-const PUBLISHED = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '_assets', 'tbl-published-entries.md'), 'utf8'))
-const SOURCE = JSON.parse(readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'published-entries.json'), 'utf8')) as unknown
+const PUBLISHED = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '_assets', 'tbl-published-entries.md'), 'utf8'))
+const SOURCE = JSON.parse(readRepoFile(join(process.cwd(), 'docs', 'spec', '_source', 'published-entries.json'), 'utf8')) as unknown
 
 // Why: the two openings the brief names, written as escapes so this file stays ASCII: "yobikata:" (how to call) and "ran:" (fields).
 const HOW_TO_CALL = '\u547c\u3073\u65b9:'

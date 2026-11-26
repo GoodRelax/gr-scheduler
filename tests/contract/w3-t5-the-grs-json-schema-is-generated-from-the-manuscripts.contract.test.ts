@@ -1,7 +1,7 @@
 // W3 spec-only tester 5: 05-07 section 6 -- the GRS JSON schema is a product generated from erd.json and settings.json.
 
 import { spawnSync } from 'node:child_process'
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -9,7 +9,7 @@ import { describe, expect, it } from 'vitest'
 import { unbroken } from './spec-table'
 
 const SOURCE = join(process.cwd(), 'docs', 'spec', '_source')
-const DESIGN = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '05-07-design.md'), 'utf8'))
+const DESIGN = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '05-07-design.md'), 'utf8'))
 
 const SCHEMA_IS_GENERATED = '`GRS JSON` のスキーマは、原稿から起こす生成物とすること。'
 const TWO_MANUSCRIPTS = '`GRS JSON` のスキーマを起こす原稿は、日程データの群の `_source/erd.json` と、見せ方の群の `_source/settings.json` の 2 つとすること。'
@@ -23,8 +23,8 @@ interface PublishedSchema {
   readonly $defs: Readonly<Record<string, { readonly properties?: Readonly<Record<string, unknown>> }>>
 }
 
-const ERD = JSON.parse(readFileSync(join(SOURCE, 'erd.json'), 'utf8')) as { readonly entities: readonly ErdEntity[] }
-const SCHEMA = JSON.parse(readFileSync(join(SOURCE, 'grs-document.schema.json'), 'utf8')) as PublishedSchema
+const ERD = JSON.parse(readRepoFile(join(SOURCE, 'erd.json'), 'utf8')) as { readonly entities: readonly ErdEntity[] }
+const SCHEMA = JSON.parse(readRepoFile(join(SOURCE, 'grs-document.schema.json'), 'utf8')) as PublishedSchema
 
 describe('W3-T5 -- the manuscript these cases are driven by', () => {
   it.each([SCHEMA_IS_GENERATED, TWO_MANUSCRIPTS])('05-07 still says: %s', (clause) => {

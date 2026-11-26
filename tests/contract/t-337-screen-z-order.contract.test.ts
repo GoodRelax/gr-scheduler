@@ -1,6 +1,6 @@
 // FR-152 table T-337: the data-uz layers of the screen stack by z-index in the front-to-back order the table gives.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -30,7 +30,7 @@ import {
 } from '../fixtures/fake-browser'
 import { bare, specTable, unbroken } from './spec-table'
 
-const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
+const REQUIREMENTS = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
 const FR_152_ONE_TABLE =
   '`GRS` は、画面の上で重なる UI パーツの前後（どれが手前に見え、どれが押下を受けるか）を 1 つの表で決めること。'
