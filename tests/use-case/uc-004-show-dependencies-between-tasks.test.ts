@@ -6,7 +6,7 @@ import { VIEWPORT, answerConfirmation, drag, enableAgentApi, figureBox, icon, la
 test.use({ viewport: VIEWPORT, locale: 'en-US' })
 
 const TASK_GROUP_Y = 83
-// Why: the tasks are placed by pixel on a document that opens on today; with a real clock B is not drawn after the first link on Wed to Fri.
+// Why: the view opens on today and the status line stays on the sample's statusDate; on 11-25 to 11-27 it stands within S-137 of B's press at x 900, which then grabs the line (GR-16, DFC-3626).
 const PINNED_NOW = new Date('2026-11-09T09:00:00')
 const PANEL = '[data-role="Properties Panel"] '
 

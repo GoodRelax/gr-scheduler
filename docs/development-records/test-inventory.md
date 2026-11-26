@@ -15,10 +15,10 @@ what this reading does not see.
 | `contract` | TS-5 | VT-2 | 474 | 6263 | 8 | 4 | 11 | 6 |
 | `integration` | TS-2 | - | 3 | 76 | 0 | 0 | 0 | 0 |
 | `nfr` | TS-4 | VT-3 | 3 | 17 | 0 | 0 | 0 | 0 |
-| `system` | TS-3 | - | 105 | 666 | 0 | 0 | 0 | 1 |
+| `system` | TS-3 | - | 106 | 668 | 0 | 0 | 0 | 1 |
 | `unit` | TS-6 | - | 197 | 4108 | 1 | 1 | 2 | 0 |
 | `use-case` | TS-1 | VT-1 | 14 | 17 | 1 | 2 | 0 | 0 |
-| **all** | | | 796 | 11147 | 10 | 7 | 13 | 7 |
+| **all** | | | 797 | 11149 | 10 | 7 | 13 | 7 |
 
 "Case sites" counts the `it(` / `test(` / `.each` calls in the source; a site driven by
 `.each` or a loop runs more cases than it counts here.
@@ -839,6 +839,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/system/dfc-2980-the-marker-pull-writes-the-actual-in-the-shipped-build.test.ts` | 1 | FR-095, FR-107 | - | T-245, T-267, T-270 | GA-5, GO-9, PE-8, QN-5 | - | - | - | - |
 | `tests/system/dfc-3007-dfc-3008-the-download-and-overview-pages-point-at-each-other.test.ts` | 2 | - | - | - | S-350, S-583 | - | - | - | - |
 | `tests/system/dfc-3101-to-dfc-3103-keys-typed-into-an-entry-stay-in-the-entry.test.ts` | 4 | - | - | T-036 | IN-5a, IN-6, PR-1, PR-4, PR-16, SK-16, SK-16b, SV-2 | - | - | - | - |
+| `tests/system/dfc-3626-an-armed-press-on-the-status-line-grabs-the-line.test.ts` | 2 | UC-004 | - | T-023b | AR-2, AR-3, GR-16, IC-106, PTD-4, S-137, TC-6 | - | - | - | - |
 | `tests/system/display-words-reasons-and-watermark.test.ts` | 5 | - | - | T-025, T-103, T-233, T-234 | IC-66, QN-3, U-14 | - | - | - | - |
 | `tests/system/divider-color-corner-and-sticky-field.test.ts` | 4 | FR-006, FR-019, FR-029, FR-039, FR-065, FR-072 | - | T-016, T-023b, T-025, T-109, T-206, T-217, T-236 | AM-3, AT-19, IC-16, IC-17, IN-2, MK-13, PR-21, PR-28, S-72, S-132, S-134, S-149, S-193, S-208 | - | - | - | - |
 | `tests/system/drawn-svg-normalization.sws.test.ts` | 4 | FR-020, SWS-7 | - | T-025, T-218, T-231 | NS-1, TS-3, WY-2 | - | - | - | - |
@@ -1070,7 +1071,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/use-case/uc-001-place-a-task-and-set-its-period.test.ts` | 1 | FR-001, FR-002, FR-003, FR-091, FR-109, UC-001 | VT-1 | T-012, T-334 | IC-23, LP-3, S-35, SH-1, ST-2, ST-3, ST-5, TC-6, TC-9, VT-1 | - | - | - | - |
 | `tests/use-case/uc-002-build-task-groups-as-a-hierarchy.test.ts` | 1 | FR-005, FR-024, FR-042, FR-085, UC-002 | VT-1 | T-015, T-334, T-338 | GR-20, HF-15, HF-16, HF-17, HM-1, HM-2, HR-1a, HR-4, HR-6, IC-58, IC-59, IC-77, IO-2, MH-2, VT-1 | - | - | - | - |
 | `tests/use-case/uc-003-edit-task-attributes.test.ts` | 1 | FR-006, FR-007, FR-008, FR-031, FR-038, FR-039, FR-049, FR-072, FR-083, FR-089, FR-090, FR-103, UC-003 | VT-1 | T-016, T-206, T-334 | AS-3, AS-5, AS-12, IC-16, IC-17, IC-42, MK-13, PR-3, PR-16, PR-39, PR-40, S-60, S-61, S-72, SP-2, VT-1 | - | - | - | - |
-| `tests/use-case/uc-004-show-dependencies-between-tasks.test.ts` | 1 | FR-009, UC-004 | VT-1 | T-018, T-018a, T-023b, T-028, T-213, T-334 | AR-4, DP-1, DP-3, IC-61, IN-4, S-201, VT-1 | - | - | - | - |
+| `tests/use-case/uc-004-show-dependencies-between-tasks.test.ts` | 1 | FR-009, UC-004 | VT-1 | T-018, T-018a, T-023b, T-028, T-213, T-334 | AR-4, DP-1, DP-3, GR-16, IC-61, IN-4, S-137, S-201, VT-1 | - | - | - | - |
 | `tests/use-case/uc-005-record-actuals.test.ts` | 2 | FR-011, FR-012, FR-013, FR-030, FR-043, UC-005 | VT-1 | T-019, T-021, T-021a, T-334 | PV-1, PV-2, PV-3, PV-4, VT-1 | - | - | - | - |
 | `tests/use-case/uc-006-find-delays.test.ts` | 1 | FR-013, FR-014, FR-015, FR-046, FR-047, UC-006 | VT-1 | T-021b, T-022, T-334 | DL-1, DL-2, EZ-6, GR-16, IC-1, IC-4, IC-73, OC-8, OP-3, OP-9, OP-19, PM-4, TL-12, VT-1 | - | - | - | - |
 | `tests/use-case/uc-007-bring-the-range-into-view.test.ts` | 1 | FR-016, FR-017, FR-018, FR-098, UC-007 | VT-1 | T-005a, T-205, T-334 | IC-60, MK-1, MK-2, MK-4, MK-7, PTD-1, PTD-5, S-8, S-83, S-84, S-85, VT-1, ZO-6 | - | - | - | - |
