@@ -47,7 +47,7 @@ const CLAUSES = [
 ]
 
 const STOP_FROM_DURATION =
-  '完了していないのに `Stop` を持たない `Task` は、`actualStart` から `ActualDuration` の分だけ稼働時間を進めた瞬間を `stop` に置くこと（MUST）'
+  '交換相手から取り込むとき、もし完了していない `Task` が `Stop` を持たない場合、`GRS` は、`actualStart` から `ActualDuration` の分だけ稼働時間を進めた瞬間を `stop` に置くこと'
 
 describe('the clauses these cases are built from still read as quoted', () => {
   it.each(CLAUSES)('%s', (clause) => {
