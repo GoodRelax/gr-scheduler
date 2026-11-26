@@ -873,6 +873,16 @@
    "xOwner": "spec"
   },
   {
+   "prefix": "IMPS",
+   "standsFor": "Implementation Specification",
+   "meaning": {
+    "en": "One implementation specification: an EARS sentence that states an internal decision meeting a requirement, with the requirement it traces (ANMS v0.36 Chapter 5)",
+    "ja": "実装仕様の 1 行。要求を満たす内部の決め事を EARS の文で書き、traces の列に要求を持つ（ANMS v0.36 の第 5 章）"
+   },
+   "section": "T-600",
+   "xOwner": "spec"
+  },
+  {
    "prefix": "IN",
    "standsFor": "Input",
    "meaning": {
@@ -1745,7 +1755,7 @@
     "en": "One clause that sets, per selection state, what pressing a shape in the palette means",
     "ja": "パレットの形状を押したときの意味を、選択の状態ごとに定める条"
    },
-   "section": "FR-083",
+   "section": "T-453",
    "xOwner": "spec"
   },
   {

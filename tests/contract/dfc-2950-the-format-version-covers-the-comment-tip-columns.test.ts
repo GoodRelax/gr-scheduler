@@ -11,12 +11,12 @@ import { ERD_DETAIL, REQUIREMENTS, documentObject } from '../unit/cr-646-stage'
 import { BAR_UID, COMMENT_ID, HIGHLIGHT_ID, OTHER_COMMENT_ID, april, commentRow, groupOf, highlightRow, tasksOf } from './cr-777-stage'
 
 const FR_073_RAISE =
-  '文書の形（`_assets/fig-erd-detail.md` の 表 T-058 の列と、表 T-052 の鍵）が変われば、形式の版は、それまでのどの版よりも新しい時刻になること（MUST）'
+  '文書の形（`_assets/fig-erd-detail.md` の 表 T-058 の列と、表 T-052 の鍵）が変わったとき、形式の版は、それまでのどの版よりも新しい時刻になること。'
 const FR_073_ONE_PLACE = '値の置き場は 表 T-052 の `DR-4` の 1 か所である'
-const FR_073_OLDER_READABLE = '⛔ **「読めない版」とは、この造りが知る最大の版より新しいことである（MUST）。**'
+const FR_073_OLDER_READABLE = '`GRS` は、動いている `GRS` の造りが知る最大の版より新しい版を、読めない版とすること。'
 const DR_4_CONST = '刊行するスキーマは `schemaVersion` を、その造りの版の `const` で示すこと（MUST）'
 const DR_4_TEMPLATE = '値は `FR-027` のテンプレートが載せる版と同じ 1 か所から採る。'
-const FR_024_BUILD_VERSION = '載せる形式の版は、この造りの版とすること（MUST）'
+const FR_024_BUILD_VERSION = '`GRS` は、載せる形式の版を、この造りの版とすること。'
 
 // Why: AT-163 .. AT-167, the comment tip columns whose addition is the shape change DFC-2950 is about.
 const TIP_COLUMNS = ['AT-163', 'AT-164', 'AT-165', 'AT-166', 'AT-167'] as const

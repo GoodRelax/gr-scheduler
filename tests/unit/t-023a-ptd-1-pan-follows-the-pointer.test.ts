@@ -606,7 +606,7 @@ describe('the manuscript still states the rule this file is about', () => {
     )
     expect(rows[1], 'table T-023a: PTD-1 follows PTD-7').toBe('PTD-1')
     expect(resultOf('PTD-1'), 'table T-023a PTD-1: ただし上の `PTD-7` ... が先に立つ').toContain(
-      'が先に立つ',
+      '`GRS` は、`PTD-7`（選択に含まれるタスクの本体から始めた `Ctrl` だけか `Ctrl` ＋ `Shift` の左ドラッグ）を `PTD-1` より先に立てること。',
     )
   })
 
@@ -622,7 +622,7 @@ describe('the manuscript still states the rule this file is about', () => {
     expect(
       result,
       'table T-023a PTD-1: 握っているあいだ、縦横の両方向でポインタに追従させること（MUST）',
-    ).toContain('握っているあいだ、縦横の両方向でポインタに追従させること（MUST）')
+    ).toContain('握っている間、`GRS` は、日程表を縦横の両方向でポインタに追従させること')
     expect(result, 'and the reason it gives').toContain(
       '離すまで動かないと、掴めていないのと見分けがつかない',
     )
@@ -638,7 +638,7 @@ describe('the manuscript still states the rule this file is about', () => {
     // the travel to 表 T-023d, and 表 T-023d must still state it word for word
     // -- `equalTravelLine()` throws if that seat is gone.
     expect(result, 'table T-023a PTD-1: 距離は 表 T-023d の等倍の定めのままである').toContain(
-      '距離は 表 T-023d の等倍の定めのままである',
+      '`GRS` は、パンの距離を 表 T-023d の等倍の定めのままにすること',
     )
     expect(
       equalTravelLine(),
@@ -648,7 +648,7 @@ describe('the manuscript still states the rule this file is about', () => {
       '追従は絵の話であって、距離の規則を変えるものではない',
     )
     // The row it outranks has to exist for that clause to mean anything.
-    expect(resultOf('PTD-3'), 'table T-023a PTD-3: そのものへの操作').toContain('そのものへの操作')
+    expect(resultOf('PTD-3'), 'table T-023a PTD-3: そのものへの操作').toContain('`GRS` は、当たったものへの操作を行うこと。')
   })
 
   it('still states 等倍 where PTD-1 points, and forbids landing only on the lock', () => {

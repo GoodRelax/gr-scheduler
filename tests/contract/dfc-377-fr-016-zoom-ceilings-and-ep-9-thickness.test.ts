@@ -10,7 +10,7 @@
 // plus a run of check-must-clause-coverage.py's own held/not-held test): NINE
 // of the eighteen are already held, verbatim, by
 // tests/system/user-reported-fixes.test.ts (grep confirms: 「拡大の側には」、
-// 「縦軸でも掴んだタスクグループを留めること」、「Adapter に自前の割付けをさせてはならない」
+// 「縦軸でも掴んだタスクグループを留めること」、「Adapter に自前の割付けをさせないこと」
 // and six neighbors). ⭐ THE REMAINING NINE -- four of FR-016's, five of
 // EP-9's -- are what this file holds. The count and the location the brief
 // handed over were both checked against the manuscript and the commit that
@@ -132,13 +132,13 @@ const REQUIREMENTS = unbroken(readFileSync(
  * **上限に達した」, which no single-quoted TS literal can carry.
  */
 const FR_016_CEILING_HIT_NOT_A_DEAD_ENTRANCE =
-  '限に達したことを、押しても何も起きない入口で示してはならない（MUST NOT）'
+  '`GRS` は、上限に達したことを、押しても何も起きない入口で示さないこと。'
 
 const FR_016_TASK_GROUP_POSITION_NOT_BY_ARITHMETIC =
-  '` の下限・`LF-3` の下限・表 T-014 の段数・`FR-018` が描くタスクグループそのものを変えること）ので、**倍率から位置を算で求めてはならない（MUST NOT）'
+  '`GRS` は、倍率から縦軸の位置を算で求めないこと。'
 
 const FR_016_TASK_GROUP_POSITION_MEMBER_IS_PI_5 =
-  'ること）ので、**倍率から位置を算で求めてはならない（MUST NOT）。**⭐ その倍率でのタスクグループの位置を答えるメンバを、表 T-064 の `PI-5` に置くこと（MUST）'
+  '`GRS` は、指定の倍率でのタスクグループの位置を答えるメンバを、表 T-064 の `PI-5` に置くこと。'
 
 // -- T-076 EP-9, the Panel Divider's thickness (five of the eighteen) -------
 
@@ -389,9 +389,9 @@ describe('T-076 EP-9 (MUST) -- 「画面と書き出しも同じ 1 か所を読�
 // ===========================================================================
 //
 // ⭐ `taskGroupPlacesAtZoomY`'s own head comment (schedule-layout.ts, read as a
-// published contract) quotes both clauses this section presses: 「その倍率
-// でのタスクグループの位置を答えるメンバを、表 T-064 の `PI-5` に置くこと（MUST）」 and
-// 「倍率から位置を算で求めてはならない（MUST NOT）」, and says why a caller's
+// published contract) quotes both clauses this section presses: 「指定の倍率
+// でのタスクグループの位置を答えるメンバを、表 T-064 の `PI-5` に置くこと」 and
+// 「倍率から縦軸の位置を算で求めないこと」, and says why a caller's
 // own arithmetic is wrong -- FR-094's floor, LF-3's second floor, table
 // T-014's lane count and FR-018's level of detail all move under `zoomY` and
 // none of them is a scale factor. The case below does not re-derive that

@@ -25,15 +25,15 @@ vi.mock('../../src/use-case/advance-screen-session/advance-screen-session', asyn
 
 const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
-const TC_8_CARRIES_THE_REASON = '⭐ 作らなかった理由として 表 T-233 の `RS-53` を運ぶこと（MUST）'
-const A_CLICK_MAKES_NO_BAR_TASK = '⛔ クリックでは、バーの形状のタスクを作らないこと（MUST NOT）'
+const TC_8_CARRIES_THE_REASON = 'もしクリックでバーの形状のタスクを作らなかった場合、`GRS` は、作らなかった理由として 表 T-233 の `RS-53` を `FR-029` の運び方で運ぶこと。'
+const A_CLICK_MAKES_NO_BAR_TASK = '`GRS` は、クリックではバーの形状のタスクを作らないこと。'
 const A_BAR_SHAPE_DRAG_MAKES_THE_SPAN =
-  '⭐ バーの形状（表 T-012 の `SH-1` 〜 `SH-4`）を構えてドラッグしたときは、引いた期間のタスクを作ること（MUST）'
-const A_MILESTONE_IS_PLACED_BY_A_PRESS_ALONE = '⛔ マイルストーンは押すだけで置くこと（MUST）'
+  'バーの形状（表 T-012 の `SH-1` 〜 `SH-4`）を構えている間、ドラッグしたとき、`GRS` は引いた期間のタスクを作ること。'
+const A_MILESTONE_IS_PLACED_BY_A_PRESS_ALONE = 'マイルストーンの形状を構えている間、押したとき、`GRS` は押しただけでマイルストーンを置くこと。'
 const A_HIDDEN_REASON_STANDS_NO_CARD =
-  '「出さない」の理由は、上げられても通知の欄に 1 枚を立てない —— 行は理由として残り、`Agent API` の拒否の値（表 T-035 の `AG-9a`）はその行を運ぶ。'
+  '表示の仕方が「出さない」の理由が上がったとき、`GRS` は通知の欄に 1 枚を立てないこと。`GRS` は、`Agent API` の拒否の値（表 T-035 の `AG-9a`）に、「出さない」の理由の行を運ぶこと。'
 const THE_TEXT_DOES_NOT_DECIDE_AGAIN =
-  '⛔ 要求の本文に「告げる」と書かれていても、出すかどうかを本文で決め直してはならない（MUST NOT） —— 欄が唯一の正である。'
+  '要求の本文は、「告げる」と書いていても、理由を出すかどうかを本文で決め直さないこと。'
 
 describe('FR-001 / FR-076 -- the clauses this file is driven by still stand', () => {
   it.each([

@@ -38,11 +38,11 @@ import { DEFAULT_DISPLAY_SCALE, DISPLAY_SCALE_STEPS, S_235, S_236 } from '../fix
 const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
 const FR_039_THE_DRAWN_RATIO =
-  '描く比は、`S-234` を 100 で割り、同書の 表 T-206 の `S-236` を掛けた値とすること（MUST） —— 既定の 100 で 2026-09-16 の出荷ビルドの 5/8（100 ÷ 100 × 0.625）、200 で出荷ビルドの 5/4（200 ÷ 100 × 0.625 ＝ 1.25）に立つ。'
+  '`GRS` は、描く比を、`_assets/tbl-settings.md` の 表 T-202 の `S-234` を 100 で割り、同書の 表 T-206 の `S-236` を掛けた値とすること。'
 const FR_039_HEADER_AND_PALETTE_KEEP_THEIR_SIZE =
   '⚠️ `App Header` と `Command Palette` の大きさは描く比を読まないので、`S-236` を変えても動かない'
 const FR_077_THE_FLOOR =
-  '⭐ 可読の下限は、`_assets/tbl-settings.md` の 表 T-201 の `S-8` に、`FR-039` の表示の倍率の描く比を掛けた値とすること（MUST）'
+  '`GRS` は、可読の下限を、`_assets/tbl-settings.md` の 表 T-201 の `S-8` に、`FR-039` の表示の倍率の描く比を掛けた値とすること'
 
 // Spec: T-201, T-206
 const firstNumber = (table: string, id: string, column: string): number => {

@@ -21,12 +21,12 @@ import {
 } from './cr-754-stage'
 
 // Spec: FR-006
-const FR_006_EMPTY_IS_AS_WIDE = '`S-590` を掛けた幅とすること（MUST）。⭐ 値が空でも同じ幅とすること（MUST）'
-const FR_006_NOT_THE_ESTIMATE = '⛔ 書式の字を `FR-093` の概算で測ってはならない（MUST NOT）'
-const FR_006_OTHER_DATE_FIELDS = '⭐ 本段の日付と日時の要る幅は、`GRS` が描くほかの日付の欄にも当てること（MUST）'
+const FR_006_EMPTY_IS_AS_WIDE = '`GRS` は、値が空の日付の欄にも、`IMPS-44`・`IMPS-45` の幅を割ること。'
+const FR_006_NOT_THE_ESTIMATE = '`GRS` は、日付の欄の書式の字を `FR-093` の概算で測らないこと。'
+const FR_006_OTHER_DATE_FIELDS = '`GRS` は、`IMPS-44`・`IMPS-45` の日付と日時の要る幅を、`GRS` が描くほかの日付の欄 —— 休日の設定の例外日（`FR-088` の 表 T-344 の `WC-4`）・検索パネルの日付の絞り込み（`FR-151` の 表 T-330 の `SV-7`）・遅延診断の直す案の日付の候補（`FR-133` の 表 T-374 の `FM-8`） —— にも当てること。'
 const FR_006_DATE_ROOM =
-  '⭐ ただし日付の欄の要る幅は、`FR-093` の概算によらず、画面に出ている欄の形で決めること（MUST）'
-const FR_006_ACTUAL_LENGTH = 'その幅は、並ぶ日付の欄と同じ行（時刻を表示しているときは `S-590`）の幅である。'
+  '`GRS` は、日付の欄の要る幅を、`FR-093` の概算によらず、画面に出ている欄の形で決めること。'
+const FR_006_ACTUAL_LENGTH = '`GRS` は、実績の長さの欄（表 T-016 の `PR-5`）の入力を、並ぶ日付の欄の入力と等しい幅（時刻を表示しているときは `S-590` の幅）にすること。'
 
 // Spec: S-589, S-590
 const DATE_ROOM = settingValue('S-589')

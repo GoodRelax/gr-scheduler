@@ -25,26 +25,26 @@ import {
 import { specTable } from './spec-table'
 
 // Spec: FR-006
-const FR_006_SHOWN_FOR = '⭐ 対象が `Task` の行は、さらに同表の `出す種類` の欄で絞ること（MUST）'
+const FR_006_SHOWN_FOR = '`GRS` は、`Task.milestone` が偽のタスクには、表 T-016 の `出す種類` の欄が `task` か `both` の行だけを出すこと。'
 const FR_006_BY_MILESTONE =
-  '`Task.milestone`（`_assets/fig-erd-detail.md` の `AT-30`）が真のタスクには `milestone` か `both` の行だけを、偽のタスクには `task` か `both` の行だけを出す。'
-const FR_006_NOT_BY_SHAPE = '⛔ 絞る鍵を図形の列に取ってはならない（MUST NOT）'
-const FR_006_ONLY_SAME_TARGET = '⛔ いま選ばれているものと同じ「対象」を持つ行だけを出すこと（MUST）。'
+  '`GRS` は、`Task.milestone`（`_assets/fig-erd-detail.md` の `AT-30`）が真のタスクには、表 T-016 の `出す種類` の欄が `milestone` か `both` の行だけを出すこと。'
+const FR_006_NOT_BY_SHAPE = '`GRS` は、行を絞る鍵を、図形の列ではなく、名称ラベルの `ND-1` ・ `ND-2` の書き分けの鍵（表 T-251 の下の段）にすること。'
+const FR_006_ONLY_SAME_TARGET = '`GRS` は、いま選んでいるものと等しい「対象」（表 T-016 の `対象` の欄）を持つ行だけを出すこと。'
 const FR_006_PR_1_BY_KIND =
-  '名が何の名かを言う行（同表の `PR-1`）は、`FR-038` の辞書がマイルストーンのときの名も同じ行 ID で持ち、選んでいるものの種類の名で出すこと（MUST）'
+  '`GRS` は、タスクとマイルストーンの両方に出す行のうち名が何の名かを言う行（表 T-016 の `PR-1`）を、`FR-038` の辞書が `PR-1` の行 ID でタスクとマイルストーンの種類ごとに持つ名のうち、選んでいるものの種類の名で出すこと。'
 const FR_006_COLOR_NAME_LEFT =
-  '⭐ 色の行（入力の型が `色` の行）も同じであり、項目名は色の欄の 1 段目の左に置き、色の欄の 2 つの段は値の欄の左端から始めること（MUST）'
+  '`GRS` は、色の行（入力の型が `色` の行）の項目名を、色の欄の 1 段目の左に置くこと（表 T-017b の `CV-9`）。'
 const FR_006_VISUAL_ORDER =
-  '⭐ 見た目の行どうしは、どの対象でも 枠線の幅 → 枠線の色 → 塗りの色 → 塗りの透過率 → 字の色 の順に並べ、1 つの行に色を 1 つだけ持たせること（MUST）'
+  '`GRS` は、どの対象でも、見た目の行を 枠線の幅 → 枠線の色 → 塗りの色 → 塗りの透過率 → 字の色 の順に並べること。'
 // Spec: FR-009
 const FR_009_ROWS =
-  '依存線を選んだときにプロパティパネルへ出す項目は、表 T-016 の `対象` が `Dependency` の行（種別・ラグ・両端）とすること（MUST）'
-const FR_009_LAG_ONLY = '⭐ 編集できるのはラグだけであり、種別と両端は同表が読み取り専用と記す'
+  '依存線を選んだとき、`GRS` は、プロパティパネルに、表 T-016 の `対象` が `Dependency` の行（種別・ラグ・両端）を出すこと。'
+const FR_009_LAG_ONLY = '`GRS` は、依存線の項目のうち、ラグだけを編集できるようにすること（種別と両端は 表 T-016 が読み取り専用と記す）。'
 const FR_009_ABBREVIATION_AND_ENDS =
-  '⭐ 種別は本要求の 表 T-018 の `名` の欄の略号で、両端はタスクの名と `uid` で示すこと（MUST）'
+  '`GRS` は、プロパティパネルで、依存線の両端をタスクの名と `uid` で示すこと。'
 const T_018_ABBREVIATION =
-  '⭐ 画面に依存の種別を出すときは、本表の `名` の欄の略号（括弧の前の `FS` / `SF` / `FF` / `SS`）で出すこと（MUST）。'
-const T_018_NO_NUMBER = '⛔ 保存した数（`linkType`）をそのまま出してはならない（MUST NOT）'
+  '`GRS` は、画面に依存の種別を出すとき、表 T-018 の `名` の欄の略号（括弧の前の `FS` / `SF` / `FF` / `SS`）で出すこと。'
+const T_018_NO_NUMBER = '`GRS` は、保存した数（`linkType`）をそのまま画面に出さないこと。'
 // Spec: PR-37, PR-38
 const PR_37_ORDER = '並びは先行の `uid` の昇順。'
 const PR_38_ORDER = '並びは後続の `uid` の昇順。'

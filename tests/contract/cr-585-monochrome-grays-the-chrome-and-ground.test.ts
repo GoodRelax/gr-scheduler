@@ -17,13 +17,13 @@ const SPEC = join(process.cwd(), 'docs', 'spec')
 const REQUIREMENTS = unbroken(readFileSync(join(SPEC, '01-04-requirements.md'), 'utf8'))
 const SETTINGS_MD = unbroken(readFileSync(join(SPEC, '_assets', 'tbl-settings.md'), 'utf8'))
 
-const CLAUSE_FOLLOW_T236 = '画面の色は `_assets/tbl-settings.md` の 表 T-236 に従うこと（MUST）'
-const CLAUSE_GROUND = '地の色を自分で塗ること（MUST）。'
+const CLAUSE_FOLLOW_T236 = '`GRS` は、画面の色を `_assets/tbl-settings.md` の 表 T-236 に従わせること。'
+const CLAUSE_GROUND = '`GRS` は、地の色を自分で塗ること。'
 const CLAUSE_MONOCHROME =
-  '⭐ モノクロ（`_assets/tbl-settings.md` の 表 T-203 の `S-74`）が入っているあいだは、同書の 表 T-236 のすべての行を（色相の欄が ○ の行も — の行も）、日程の図の中にも画面の枠（罫 `S-149`・パネルの地 `S-150`・強調 `S-151`・掴み代の印 `S-231`・文字 `S-147`・押下の緑 `S-183` ほか）にも、無彩色にして描くこと（MUST）'
-const CLAUSE_SAME_VALUE = '⭐ 画面と書き出した絵とで、同じ行を同じ値で塗ること（MUST）'
+  'モノクロ（`_assets/tbl-settings.md` の 表 T-203 の `S-74`）が入っている間、`GRS` は、`_assets/tbl-settings.md` の 表 T-236 のすべての行を（色相の欄が ○ の行も — の行も）、日程の図の中にも画面の枠（罫 `S-149`・パネルの地 `S-150`・強調 `S-151`・掴み代の印 `S-231`・文字 `S-147`・押下の緑 `S-183` ほか）にも、例外を置かずに無彩色にして描くこと。'
+const CLAUSE_SAME_VALUE = '`GRS` は、表 T-236 の行のどれも、画面と書き出した絵とで等しい値で塗ること。'
 const CLAUSE_ANY_HUE_COLUMN =
-  '⚠️ 本段落は、色相の欄を問わず 表 T-236 のすべての行を灰にする —— 色相の欄が決めるのはテーマ色に追随するかだけである。'
+  '⚠️ `IMPS-168` は、色相の欄を問わず 表 T-236 のすべての行を灰にする —— 色相の欄が決めるのはテーマ色に追随するかだけである（`IMPS-138`）。'
 // Why: no MUST states how the gray is chosen; table T-294's preamble is the one sentence that
 // names the method the specification measures monochrome by, so case (7) rests on it.
 const CLAUSE_KEEP_LIGHTNESS = 'モノクロは、その値を HSL の明度を保ったまま彩度 0 にして測った'

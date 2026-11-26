@@ -142,7 +142,7 @@ const REQUIREMENTS = unbroken(
 )
 
 const FR_043_A_MILESTONE_DUMMY_IS_THE_SAME_DAY_ACTUAL =
-  '⭐ その姿は、予定と実績のマイルストーンが同じ日にあるときの絵で、実績をダミーに置き換えたものとすること（MUST）'
+  '`GRS` は、マイルストーンのダミーを、予定と実績のマイルストーンが同じ日にあるときの絵で実績をダミーに置き換えた姿とし、大きさ・縦位置・重ね順を同じ日の実績のマイルストーンと同じにして描くこと（`DM-8` / `DM-9`、`05-07-design.md` の 表 T-221 の `LF-10`）。'
 
 /** Every number a cell writes, in the order it writes them. */
 const numbersOf = (cell: string): number[] => (cell.match(/\d+(?:\.\d+)?/g) ?? []).map(Number)
@@ -225,9 +225,9 @@ const NARROW_DAY_ZOOM = 0.5 / DEFAULT_DISPLAY_RATIO
 const WIDE_DAY_ZOOM = 8 / DEFAULT_DISPLAY_RATIO
 
 const DM_3_THE_WIDTH =
-  '⭐ ダミーを描く幅は、そのタスクの進捗マーカーの径に `_assets/tbl-settings.md` の 表 T-206 の `S-247` を掛けた幅と、同表の `S-180` の小さい方とすること（MUST）'
+  '`GRS` は、ダミーを描く幅を、ダミーを描くタスクの進捗マーカーの径に `_assets/tbl-settings.md` の 表 T-206 の `S-247` を掛けた幅と、表 T-206 の `S-180` の小さい方とすること。'
 const DM_3_NOT_CUT_BY_A_DAY =
-  '左端は `DM-1` の位置に揃えること（MUST）。⛔ 1 日ぶんの幅で印の幅を切ってはならない（MUST NOT）'
+  '`GRS` は、ダミーを描く幅の左端を `DM-1` の位置に揃えること。`GRS` は、印の幅を 1 日ぶんの幅で切らないこと。'
 
 // ---------------------------------------------------------------------------
 // The document under test. Plain data; every builder returns a fresh object.

@@ -52,9 +52,9 @@ const ROSTER = JSON.parse(
 ) as NoticeRoster
 
 const SECTION_6_2_ROSTER_IS_A_MANUSCRIPT =
-  '⭐ 知らせの名簿の原稿は `_source/notice-reasons.json` とし、`_assets/tbl-notice-reasons.md` の 表 T-233・表 T-234 はそこから起こす生成物とする（MUST）。同文書を手で直してはならない（MUST NOT）'
+  '知らせの名簿の原稿は、`_source/notice-reasons.json` とすること。`_assets/tbl-notice-reasons.md` の 表 T-233・表 T-234 は、`_source/notice-reasons.json` から起こす生成物とすること。`_assets/tbl-notice-reasons.md` を手で直さないこと。'
 
-const SECTION_6_2_NO_WORDS = '⭐ 同原稿は、理由と問いの行 ID・場面・作法・出典・表示の仕方を持ち、語を持たない'
+const SECTION_6_2_NO_WORDS = '`_source/notice-reasons.json` は、理由と問いの行 ID・場面・作法・出典・表示の仕方を持つこと。`_source/notice-reasons.json` は、語を持たないこと。'
 
 const FR_076_POINTS_AT_THE_PRINT = '表 T-233 の全行は `_assets/tbl-notice-reasons.md` が持つ'
 

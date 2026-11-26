@@ -59,10 +59,10 @@ const printedTransitions = (): readonly { readonly state: string; readonly event
 const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
 const FR_018_BY_T_328 =
-  '値を書き換える入口と先の値は、段 0 の折りたたみ（`_assets/tbl-settings.md` の 表 T-203 の `S-418`）を含めて、`_assets/tbl-state-machines.md` の 表 T-328 に従うこと（MUST）'
-const FR_018_NO_OTHER_WRITER = '同表に無い操作で値を書き換えてはならない（MUST NOT）'
+  '`GRS` は、`treeState` の値を書き換える入口と先の値を、段 0 の折りたたみ（`_assets/tbl-settings.md` の 表 T-203 の `S-418`）を含めて、`_assets/tbl-state-machines.md` の 表 T-328 に従わせること。'
+const FR_018_NO_OTHER_WRITER = '`GRS` は、表 T-328 に無い操作で `treeState` の値を書き換えないこと。'
 const FR_018_BY_T_329 =
-  'タスクグループの木の状態（`_assets/fig-erd-detail.md` の `AT-153`、`TaskGroup.treeState`）によって、本要求の対象から外すタスクグループを 表 T-329 に従って決めること（MUST）'
+  '`GRS` は、タスクグループの木の状態（`_assets/fig-erd-detail.md` の `AT-153`、`TaskGroup.treeState`）によって、本要求の対象から外すタスクグループを 表 T-329 に従って決めること。'
 
 // Spec: T-328
 // Why: one tree reaches every guard of the table: an ancestor of the pressed task group, the pressed task group,
@@ -82,7 +82,7 @@ const PRESSED = 'P'
 // relation isRevealedTaskGroupOrAncestor has to tell apart.
 const REVEALED = 'G'
 const SJ_2_OPENS =
-  '飛ぶ先のタスクグループ（タスクは `AT-61`、コメントボックスは `AT-114`）と、その祖先のすべての `treeState` を `expanded` にする —— 今の値が `hidden` でも、確かめを問わない。'
+  '`GRS` は、飛ぶ先のタスクグループ（タスクは `AT-61`、コメントボックスは `AT-114`）と、飛ぶ先のタスクグループの祖先のすべての `treeState` を `expanded` にすること。'
 
 const TEMPLATE = JSON.parse(
   readFileSync(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
@@ -191,7 +191,7 @@ describe('table T-328 -- the manuscript this contract walks', () => {
 
   it('FR-018 sends every write of a tree value to table T-328, and every drawing to table T-329', () => {
     expect(REQUIREMENTS).toContain(FR_018_BY_T_328)
-    expect(REQUIREMENTS).toContain(`${FR_018_BY_T_328} —— ${FR_018_NO_OTHER_WRITER}`)
+    expect(REQUIREMENTS).toContain(`${FR_018_BY_T_328}${FR_018_NO_OTHER_WRITER}`)
     expect(REQUIREMENTS).toContain(FR_018_BY_T_329)
   })
 
@@ -255,7 +255,7 @@ describe('SD-3: a cell the table leaves empty writes nothing (the same reference
 describe(`table T-332 SJ-2 -- ${SJ_2_OPENS}`, () => {
   it('the requirement still says it, word for word, and names taskGroupRevealAsked of table T-328', () => {
     expect(REQUIREMENTS).toContain(SJ_2_OPENS)
-    expect(REQUIREMENTS).toContain('規則はタスクグループの木のステートマシン（表 T-328）の出来事 `taskGroupRevealAsked` が持つ。')
+    expect(REQUIREMENTS).toContain('`GRS` は、`SJ-2` の展開を、タスクグループの木のステートマシン（表 T-328）の出来事 `taskGroupRevealAsked` に従わせること。')
   })
 
   it('opens the task group jumped to and every ancestor, a hidden one included, and nothing else', () => {

@@ -20,10 +20,10 @@ const SETTINGS_BOOK = read('_assets', 'tbl-settings.md')
 
 const ONLY_CONTENT_IS_HELD =
   '第 1 段で絵が変わり、**かつ** 第 2 段で文書の内容であるものだけを文書が持つ（`documentSettings`）。'
-const WRITE_EVERY_KEY = '設定値は既定値と一致していても省略せず、常に全項目を書き出すこと（MUST）'
+const WRITE_EVERY_KEY = '`GRS` は、設定値を、既定値と一致していても省略せず、常に全項目を書き出すこと'
 const NO_CONSTANT_NO_VIEWER_VALUE =
-  '画面のどの操作も書き換えない値（道具の定数）と、見る人の画面の値（`_assets/tbl-settings.md` の 表 T-206）を見せ方に入れてはならない（MUST NOT）'
-const THIS_BUILDS_VERSION = '載せる形式の版は、この造りの版とすること（MUST）'
+  '`GRS` は、画面のどの操作も書き換えない値（道具の定数）と、見る人の画面の値（`_assets/tbl-settings.md` の 表 T-206）を、見せ方の群に入れないこと'
+const THIS_BUILDS_VERSION = '`GRS` は、載せる形式の版を、この造りの版とすること'
 const GROUP_IS_DECIDED_BY_T_052 = 'どちらの群に属するかの判定は表 T-052 が持つ'
 
 const STORED_TABLES = ['T-202', 'T-203'] as const

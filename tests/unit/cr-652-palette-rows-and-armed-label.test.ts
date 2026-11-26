@@ -28,10 +28,11 @@ const REQUIREMENTS = unbroken(
   readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'),
 )
 
-const FR_053_ROW_CAP = '1 つの群の入口は、1 段に `_assets/tbl-settings.md` の 表 T-206 の `S-488` の数までを並べること（MUST）'
+const FR_053_ROW_CAP = '`GRS` は、1 つの群の入口を、1 段に `_assets/tbl-settings.md` の 表 T-206 の `S-488` の数までを並べること。'
 const FR_053_WRAP_EXAMPLES = '13 個は 7 と 6、14 個は 7 と 7、20 個は 10 と 10'
-const FR_053_NO_RULE_BETWEEN_ROWS = '群の境目の線（`S-143`）を、折った段のあいだに引いてはならない（MUST NOT）'
-const FR_053_ARMED_LABEL = '`S-489` の大きさで描き、`S-235` も `S-234` も掛けてはならない（MUST NOT）'
+const FR_053_NO_RULE_BETWEEN_ROWS = '`GRS` は、群の境目の線（`S-143`）を、折った段のあいだに引かないこと。'
+const FR_053_ARMED_LABEL = '`GRS` は、いま構えているものの名称ラベル（`_assets/tbl-glossary.md` の 表 T-109 の `IC-54`）の字を、表 T-206 の `S-489` の大きさで描くこと。'
+const FR_053_ARMED_LABEL_NO_SCALE = '`GRS` は、いま構えているものの名称ラベルの字に、`S-235` も `S-234` も掛けないこと。'
 
 function rowOf(table: string, id: string) {
   const found = specTable(table).rows.find((one) => one.id === id)
@@ -156,7 +157,7 @@ function fontSizePxOf(element: FakeElement): number {
 
 describe('CR-652 FR-053 / S-488 / S-489 / S-216 / IC-54 -- the manuscript still says what these cases read', () => {
   it('FR-053 still carries the row cap, the wrap examples, the S-143 ban and the IC-54 size rule', () => {
-    for (const clause of [FR_053_ROW_CAP, FR_053_WRAP_EXAMPLES, FR_053_NO_RULE_BETWEEN_ROWS, FR_053_ARMED_LABEL]) {
+    for (const clause of [FR_053_ROW_CAP, FR_053_WRAP_EXAMPLES, FR_053_NO_RULE_BETWEEN_ROWS, FR_053_ARMED_LABEL, FR_053_ARMED_LABEL_NO_SCALE]) {
       expect(REQUIREMENTS).toContain(clause)
     }
     expect(unbroken(rowOf('T-109', 'IC-54').cells.join(' '))).toContain('Command Palette')

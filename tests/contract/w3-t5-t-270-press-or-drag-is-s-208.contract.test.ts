@@ -15,7 +15,7 @@ const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '
 
 // Spec: T-270
 const T_270_ONE_DISTANCE =
-  '⭐ 押して離す（動かさない）と引くを分ける距離は、本表のすべての行で `_assets/tbl-settings.md` の 表 T-206 の `S-208` とすること（MUST）'
+  '`GRS` は、押して離す（動かさない）と引くを分ける距離を、表 T-270 のすべての行で `_assets/tbl-settings.md` の 表 T-206 の `S-208` にすること'
 const T_270_EITHER_AXIS = '押した点から横か縦のどちらかへ `S-208` を超えて離せば引く、どちらも超えなければ押して離すである。'
 
 /** @purity pure */

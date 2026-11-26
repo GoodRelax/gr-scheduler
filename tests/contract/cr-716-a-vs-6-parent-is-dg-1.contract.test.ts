@@ -131,12 +131,12 @@ describe('CR-716 -- the sentences these cases are driven by', () => {
   })
 
   it.each([
-    '表 T-311 の `VS-6` が許す日数は、文書の `Project.parentTaskProgressToleranceDays`（`_assets/tbl-settings.md` の 表 T-216 の `S-487`）とすること（MUST）。',
+    '`GRS` は、表 T-311 の `VS-6` が許す日数を、文書の `Project.parentTaskProgressToleranceDays`（`_assets/tbl-settings.md` の 表 T-216 の `S-487`）とすること。',
     '各 `Task` の進捗マーカーを 表 T-315 の状態のうち優先順の最も高いもので描くこと。',
     '紫を最上位に置くのは、信用できない数字の上に出た赤や `!!` は誤りでありうるからである。',
     '親の進み具合の点が配下の点から外れる疑義（表 T-311 の `VS-6`）も紫に入れる',
     '疑義と記載漏れは、表 T-315 が `DG-1` とするもの（表 T-311 の `VS-6`、表 T-312 の `VO-3` の先行と `VO-5`）のほかはマーカーを塗らない',
-    '⛔ `GRS` は断定しない。マーカーを塗らない —— ただし `VS-6` の親は 表 T-315 の `DG-1` とする（理由はその行）。',
+    '`GRS` は、疑義（表 T-311）でマーカーを塗らず、`VS-6` の親だけを 表 T-315 の `DG-1` とすること。',
   ])('the requirements still say: %s', (sentence) => {
     expect(REQUIREMENTS).toContain(sentence)
   })

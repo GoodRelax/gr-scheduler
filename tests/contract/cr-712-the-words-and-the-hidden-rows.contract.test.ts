@@ -38,20 +38,21 @@ const MG_10_ALWAYS_ON_U_61 =
   '「別のものとして取り込む」を選ばせる面（`_assets/tbl-glossary.md` の `U-61`）に、そのタスクが元の外部 WBS マスタへ戻せなくなることを、選ぶ前から常に示すこと（MUST）'
 const MG_10_NOT_A_NOTICE = '通知にしない —— 選ぶ人が選ぶ前に読むものであり、`OK` を押させるものではない'
 const T_233_REFUSAL_CARRIES_THE_ROW =
-  '取り込みの検証が拒んだとき、`NT-1` の通知が運ぶ理由は、拒んだ 表 T-220 の行の行 ID とすること（MUST）'
-const FR_029_CARRY_THE_REASON = '押されたときに限り、行えない理由を通知の仕組みへ運ぶこと（MUST）'
+  '取り込みの検証が拒んだとき、`GRS` は `NT-1` の通知に、拒んだ Chapter 6.1 の 表 T-220 の行の行 ID を理由として運ぶこと。'
+const FR_029_CARRY_THE_REASON = '利用者が薄く描いた入口を押したときに限り、`GRS` は行えない理由を通知の仕組みへ運ぶこと'
 const FR_029_THE_COLUMN_DECIDES =
-  'その理由を画面に出すかどうかは同表の表示の仕方の欄が決める —— 薄さが行えないことを既に示しているので、多くの行は出さない'
-const FR_029_FALLBACK_HIDDEN = '落ち先が `RS-27` である（出さない）'
+  '行えない理由を画面に出すかどうかは 表 T-233 の表示の仕方の欄が決める —— 薄さが行えないことを既に示しているので、多くの行は出さない'
+const FR_029_FALLBACK_HIDDEN = 'もし押された入口の場面に当たる行が 表 T-233 に無い場合、`GRS` は落ち先の `RS-27`（出さない）を運ぶこと。'
 const FR_029_OLD_TELL = '行えない理由を通知すること（MUST）'
 const NT_7_DROPPED_AS_RS_27 =
   '画面からの書き込み（取り消し・やり直しを含む）は 表 T-233 の `RS-27` として捨て（同行は出さない —— 問いが画面に立っているので、受けなかったことは見える）、`Agent API` の書き込みは 表 T-035 の `AG-9` のとおり拒むこと（MUST）'
-const HF_14_NO_TASK_GROUP_WHEN_FAINT = '⛔ 薄いまま押されたときは、そのタスクグループの配下に新しいタスクグループを立てないこと（MUST）'
-const HF_14_CARRIES_RS_46 = '運ぶ理由は 表 T-233 の `RS-46` とすること（MUST）'
-const FR_019_NOT_MADE = '指す `TaskGroup` が無い縦位置で置こうとしたときは、作らないこと（MUST）'
-const FR_019_CARRIES_RS_44 = '運ぶ理由は 表 T-233 の `RS-44` とする'
-const FR_019_SEEN_ON_SCREEN = '理由は出さない —— 置かれなかったことは画面で見える'
-const WL_9_CARRIES_RS_55 = '何も書かない。運ぶ理由は 表 T-233 の `RS-55`（Chapter 6.1 の 表 T-220 の `IV-4`）'
+const HF_14_NO_TASK_GROUP_WHEN_FAINT = 'もし薄い配下に足す操作子を押した場合、`GRS` は、押したタスクグループの配下に新しいタスクグループを立てないこと。'
+const HF_14_CARRIES_RS_46 = 'もし薄い配下に足す操作子を押した場合、`GRS` は、運ぶ理由を 表 T-233 の `RS-46` とすること。'
+const FR_019_NOT_MADE = 'もし作成者が、指す `TaskGroup` が無い縦位置で注記を置こうとした場合、`GRS` は、注記を作らないこと。'
+const FR_019_CARRIES_RS_44 =
+  'もし作成者が、指す `TaskGroup` が無い縦位置で注記を置こうとした場合、`GRS` は、表 T-233 の `RS-44` を理由として運ぶこと。'
+const FR_019_SEEN_ON_SCREEN = '`GRS` は、`RS-44` の理由を出さないこと。'
+const WL_9_CARRIES_RS_55 = '`GRS` は、表 T-233 の `RS-55`（Chapter 6.1 の 表 T-220 の `IV-4`）を理由として運ぶこと。'
 
 // Why: the E-08 words copied from CR-712 section 4, so a word changed in the dictionary alone goes red.
 // Why: CR-770 (JDG-2251) rewrote the English to the UI writing convention (a final period, try again); the ja stay CR-712's.
@@ -151,7 +152,7 @@ describe('E-03 -- the sentences a hidden row would break are rewritten to carry,
     expect(REQUIREMENTS).toContain(FR_029_THE_COLUMN_DECIDES)
     expect(REQUIREMENTS).toContain(FR_029_FALLBACK_HIDDEN)
     expect(REQUIREMENTS).not.toContain(FR_029_OLD_TELL)
-    expect(REQUIREMENTS).toMatch(/行えない理由を通知の仕組みへ運ぶこと（MUST）[」』]と両立しない/)
+    expect(REQUIREMENTS).toMatch(/押されたときに限り、行えない理由を通知の仕組みへ運ぶ[」』]と両立しない/)
   })
 
   it('NT-7 drops a screen write as RS-27 without showing it', () => {

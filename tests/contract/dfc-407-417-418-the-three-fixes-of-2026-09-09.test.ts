@@ -267,7 +267,7 @@ describe("DFC-407: a not-started milestone's dummy is its own figure (FR-043)", 
     )
 
   it('draws the same figure whether or not the plan is shown', () => {
-    // ⭐ 「ダミーの図形は、そのマイルストーンの実績の図形と同じとすること（MUST）」.
+    // ⭐ 「マイルストーンのダミーの図形を、マイルストーンの実績の図形と同じにすること」.
     // The plan being hidden (S-64) says nothing about the dummy, so the two
     // pictures must place the same figure -- which is why the two point counts
     // are compared with each other rather than with a number typed here.
@@ -277,7 +277,7 @@ describe("DFC-407: a not-started milestone's dummy is its own figure (FR-043)", 
   })
 
   it('is not the rectangle, with the plan hidden', () => {
-    // ⛔ 「矩形で描いてはならない（MUST NOT）」. A rectangle is four corners; the
+    // ⛔ 「マイルストーンのダミーを矩形で描かないこと」. A rectangle is four corners; the
     // star of SH-5 is not four of anything. ⚠️ Only a glyph whose outline has
     // more corners than a rectangle can state this, which is why the case names
     // one rather than sweeping all fifteen.

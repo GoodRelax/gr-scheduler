@@ -19,7 +19,7 @@ const AG_9A_REASON =
   '取り込みの検証（`FR-023`）が拒んだときの理由の区分は、拒んだ `05-07-design.md` の 表 T-220 の行の行 ID とすること（MUST）'
 const AG_9A_NOT_ONE = '理由の区分を 1 つの値へ潰してはならない（MUST NOT）'
 const RS_25 = '| RS-25 | 読んだ `GRS JSON` の列が、決められた形に合わない |'
-const CV_1 = '描いた値（`#rrggbb`）を保存してはならない（MUST NOT）'
+const CV_1 = 'パレット色を選んだとき、`GRS` は、描いた値（`#rrggbb`）を保存しないこと。'
 const AM_8 = '| AM-8 | 書く | `importDocument` |'
 
 // Why: a drawn value in a color column, which CV-1 forbids and the column's shape does not take.

@@ -59,12 +59,12 @@ const WORDS = JSON.parse(readFileSync(join(SPEC, '_source', 'display-words.json'
 }
 
 // Why: each constant ends exactly at its marker, cut from section 4 of CR-712 as check 39 reads it.
-const FR_076_THE_COLUMN_HOLDS_IT = '理由ごとに画面へどう出すかは、表 T-233 の「表示の仕方」の欄が持つ（MUST）'
+const FR_076_THE_COLUMN_HOLDS_IT = '`GRS` は、理由ごとに画面へどう出すかを、表 T-233 の「表示の仕方」の欄に従わせること'
 const FR_076_HIDE_IS_CARRIED =
-  '「出さない」の理由は、上げられても通知の欄に 1 枚を立てない —— 行は理由として残り、`Agent API` の拒否の値（表 T-035 の `AG-9a`）はその行を運ぶ。'
-const FR_076_NOT_DECIDED_AGAIN = '要求の本文に「告げる」と書かれていても、出すかどうかを本文で決め直してはならない（MUST NOT）'
-const FR_076_A_NEW_ROW_HAS_WORDS = '相乗り（表 T-233 のまとめ方の欄の「語は …」）を持たない行を足すときは、辞書の原稿にも項を足すこと（MUST）'
-const FR_076_A_RIDING_ROW_HAS_NONE = '相乗りする行の項を辞書に持ってはならない（MUST NOT）'
+  '表示の仕方が「出さない」の理由が上がったとき、`GRS` は通知の欄に 1 枚を立てないこと。`GRS` は、`Agent API` の拒否の値（表 T-035 の `AG-9a`）に、「出さない」の理由の行を運ぶこと。'
+const FR_076_NOT_DECIDED_AGAIN = '要求の本文は、「告げる」と書いていても、理由を出すかどうかを本文で決め直さないこと'
+const FR_076_A_NEW_ROW_HAS_WORDS = '表 T-233 に相乗り（表 T-233 のまとめ方の欄の「語は …」）を持たない行を足す者は、`FR-038` の辞書の原稿にも項を足すこと'
+const FR_076_A_RIDING_ROW_HAS_NONE = '`FR-038` の辞書は、相乗りする行の項を持たないこと'
 
 // Why: the rows by display, copied from CR-712 section 3.2, so a row moved in the manuscript alone goes red.
 const HIDDEN = [

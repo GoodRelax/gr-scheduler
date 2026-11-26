@@ -41,17 +41,17 @@ const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '
 
 // Spec: FR-011
 const FR_011_CLAUSES = [
-  '実績の長さは、`actualStart` から実績の終わり（完了なら `actualFinish`、それ以外は `stop`）の瞬間までの、文書の暦（`FR-054`）の稼働時間の合計（分）とすること（MUST）。',
-  '間にある非稼働日を数えてはならない（MUST NOT）',
+  '`GRS` は、`IMPS-413` の場合を除き、実績の長さを、`actualStart` から実績の終わり（完了なら `actualFinish`、完了していなければ `stop`）の瞬間までの、文書の暦（`FR-054`）の稼働時間の合計（分）にすること。',
+  '`GRS` は、間にある非稼働日を、実績の長さに数えないこと。',
   '例: 月〜金が稼働日で時間帯が 08:00〜12:00・13:00〜17:00 の暦で、金 08:00 〜 土 17:00 は 960 分（2d）、土 08:00 〜 土 17:00 は 480 分（1d）、同じ日の 10:00 〜 12:00 は 120 分（2h）、同じ日の 08:00 〜 17:00 は 480 分（1d）である。',
-  '終わりが `actualStart` より前のときの長さは、終わりから `actualStart` までの稼働時間の合計に負の符号を付けたものとする。',
-  '`actualStart` から `ActualDuration` の分だけ稼働時間を進めた瞬間を `stop` に置くこと（MUST） —— 0 なら `actualStart`、負なら `actualStart` から同じ分だけ戻った瞬間である',
+  '`GRS` は、終わりが `actualStart` より前のときの長さを、終わりから `actualStart` までの稼働時間の合計に負の符号を付けたものにすること。',
+  '`GRS` は、`actualStart` から `ActualDuration` の分だけ稼働時間を進めた瞬間を `stop` に置くこと —— 0 なら `actualStart`、負なら `actualStart` から同じ分だけ戻った瞬間である',
 ]
 
 // Spec: FR-012
 const FR_012_CLAUSES = [
-  '予定の期間は、`start` から `finish` までを、`FR-011` が実績の長さを数える規則で数えた稼働時間（分）とすること（MUST）',
-  'マイルストーンの予定の期間は 0 とする',
+  '`GRS` は、予定の期間を、`start` から `finish` までを `FR-011` が実績の長さを数える規則で数えた稼働時間（分）とすること。',
+  '`GRS` は、マイルストーンの予定の期間を 0 とすること',
 ]
 
 describe('the clauses these cases are built from still read as quoted', () => {

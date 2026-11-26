@@ -34,16 +34,16 @@
 // THE ROWS THESE CASES ANSWER TO (rule 03 §3: name the row, do not copy it)
 // ---------------------------------------------------------------------------
 //
-//   `FR-006`  「プロパティパネルが選択を出しているとき、`GRS` は、**表 T-016 の
-//             項目**をプロパティパネルに出し、**同表が読み取り専用と記した項目を
-//             除いて**編集できるようにすること」, and 「**入力の形は同表の「入力の
+//   `FR-006`  「プロパティパネルが選択を出している間、`GRS` は、表 T-016 の項目
+//             のうち表 T-016 が読み取り専用と記した項目を除く項目を、プロパティ
+//             パネルで編集できるようにすること」, and 「**入力の形は同表の「入力の
 //             型」の欄に従うこと（MUST）**」
 //   表 T-016  `PR-1` `name` 入力の型 文字, 対象 `Task`; `PR-2` `notes` 入力の型
 //             複数行, 対象 `Task`. ⭐ Neither is marked 読み取り専用 -- `PR-9` is
 //             the row that is, and it is read here to prove the mark exists and
 //             that these two do not carry it
-//   表 T-036  `SK-19` 「…ほかに何も出ていないときは、**その場の編集を確定する**
-//             （名称・担当名・タスクグループ名・文書名・**プロパティの入力**）」, assignment
+//   表 T-036  `SK-19` 「出ている通知が無い間、 `Enter` を押したとき、`GRS` は、その場の編集
+//             （名称・担当名・タスクグループ名・文書名・プロパティの入力）を確定すること」, assignment
 //             `Enter` -- the key these cases press, read out of the 割当 column
 //   表 T-065  `IF-9` CR-361 「…**プロパティパネルの欄で確定した値を、その欄が名乗る行 ID
 //             とともに返し**…」 -- the seam a settled value leaves on, and the
@@ -140,7 +140,7 @@ const REQUIREMENTS = unbroken(readFileSync(
 
 /** ⛔ THE GROUND OF THIS FILE, read rather than typed. */
 const FR_006_STATEMENT =
-  '**表 T-016 の項目**をプロパティパネルに出し、**同表が読み取り専用と記した項目を除いて**編集できるようにすること'
+  'プロパティパネルが選択を出している間、`GRS` は、表 T-016 の項目のうち表 T-016 が読み取り専用と記した項目を除く項目を、プロパティパネルで編集できるようにすること。'
 
 /** The `GRS JSON` column 表 T-016 gives one row. ⚠️ Not the name shown on screen. */
 const columnOf = (id: string): string => bare(rowOf(T_016, id).by['列（`GRS JSON`）'] ?? '')
@@ -173,7 +173,7 @@ function keyOf(id: string): KeyInput {
   }
 }
 
-/** `SK-19` -- 「その場の編集を確定する」. */
+/** `SK-19` -- 「その場の編集（名称・担当名・タスクグループ名・文書名・プロパティの入力）を確定すること」. */
 const SK_19 = keyOf('SK-19')
 
 /** The settled name one row of 表 T-103 gives, which reaches the DOM as `data-role`. */
@@ -494,7 +494,7 @@ describe('the manuscript still says what these cases read', () => {
     expect(columnOf('PR-2')).toBe('notes')
     expect(Object.keys(FORM_OF_KIND)).toContain(inputFormOf('PR-1'))
     expect(Object.keys(FORM_OF_KIND)).toContain(inputFormOf('PR-2'))
-    // ⛔ THE MARK EXISTS, so 「読み取り専用と記した項目を除いて」 has something to
+    // ⛔ THE MARK EXISTS, so 「表 T-016 が読み取り専用と記した項目を除く」 has something to
     // exclude -- and neither of these two carries it.
     expect(wholeRowOf(READ_ONLY_ROW)).toContain(READ_ONLY_MARK)
     for (const row of TYPED_ROWS) expect(wholeRowOf(row)).not.toContain(READ_ONLY_MARK)
@@ -502,7 +502,7 @@ describe('the manuscript still says what these cases read', () => {
 
   it('⭐ 表 T-036 still has SK-19 settle the panel’s typing, on `Enter`', () => {
     const sk19 = rowOf(T_036, 'SK-19').cells.join(' ')
-    expect(sk19).toContain('その場の編集を確定する')
+    expect(sk19).toContain('出ている通知が無い間、 `Enter` を押したとき、`GRS` は、その場の編集（名称・担当名・タスクグループ名・文書名・プロパティの入力）を確定すること。')
     expect(sk19).toContain('プロパティの入力')
     expect(SK_19.key).toBe('Enter')
     expect(SK_19.modifiers).toEqual({ ctrl: false, shift: false, alt: false, meta: false })

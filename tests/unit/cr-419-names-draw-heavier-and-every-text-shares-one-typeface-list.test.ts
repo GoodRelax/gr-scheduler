@@ -34,12 +34,12 @@ import { DEFAULT_DISPLAY_SCALE } from '../fixtures/display-scale'
 const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
 const FR_039_ONE_TYPEFACE_LIST =
-  '⭐ 画面に描くすべての字と、書き出す絵の字を、`_assets/tbl-settings.md` の 表 T-206 の `S-246` の書体の並びで描くこと（MUST）'
-const FR_039_NOT_PER_SURFACE = '⛔ 面ごとに書体の並びを変えてはならない（MUST NOT）'
+  '`GRS` は、画面に描くすべての字と、書き出す絵の字を、`_assets/tbl-settings.md` の 表 T-206 の `S-246` の書体の並びで描くこと。'
+const FR_039_NOT_PER_SURFACE = '`GRS` は、面ごとに書体の並びを変えないこと。'
 const FR_039_NAMES_ARE_HEAVIER =
-  '⭐ 表 T-012 の形状の名称ラベル（表 T-038 の `OC-1`）だけを、同書の 表 T-206 の `S-245` の太さで描くこと（MUST）'
+  '`GRS` は、表 T-012 の形状の名称ラベル（表 T-038 の `OC-1`）を、`_assets/tbl-settings.md` の 表 T-206 の `S-245` の太さで描くこと。'
 const FR_039_NOTHING_ELSE_IS_HEAVIER =
-  'タスクとマイルストーンの名前を、タスクグループ名や担当と完了率の札より目立たせる。⛔ ほかの字をその太さで描いてはならない（MUST NOT）'
+  '`GRS` は、名称ラベルのほかの字を `S-245` の太さで描かないこと。'
 
 const cellOf = (table: string, id: string, column: string): string => {
   const row = specTable(table).rows.find((one) => one.id === id)

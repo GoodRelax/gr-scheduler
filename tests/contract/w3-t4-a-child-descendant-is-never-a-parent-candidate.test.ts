@@ -9,8 +9,8 @@ import { taskGroupDocument, taskOf } from '../unit/cr-541-stage'
 import { REQUIREMENTS } from './cr-610-file-flow-stage'
 
 const FR_135_NO_DESCENDANT =
-  'M-18`（`setTaskParentTask`）で行い、取り消しの 1 段とし、未保存の編集を立てること（MUST）。番号の枠を付ける候補から、その子の子孫を除くこと（MUST）'
-const IP_4_NO_DESCENDANT = '⛔ 子の子孫を並べない —— 子孫を親に選ぶと WBS の輪になる'
+  '`GRS` は、番号の枠を付ける候補から、子の子孫を除くこと。'
+const IP_4_NO_DESCENDANT = '`GRS` は、`IP-4` に子の子孫を並べないこと。'
 
 // Why: two bars above that both enclose the child leave its parent undecided (IP-3), so the frames are numbered.
 const ABOVE_ONE = 1

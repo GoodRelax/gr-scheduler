@@ -556,12 +556,12 @@ describe('the specification still says what these cases are driven by', () => {
   it('表 T-051 still holds HF-15, and every MUST these cases assert is still in it', () => {
     const hf15 = saysOf('T-051', 'HF-15')
     for (const clause of [
-      'タスクグループを掴んで動かせること（MUST）',
-      'そのタスクグループの配下ごと動かすこと（MUST）',
-      '上限は、掴んでいるタスクグループ自身が `FR-004` の深さの上限を超えないところまで下げること（MUST）',
-      '配下が深さの上限を超える段も選べること（MUST）',
-      '書き込む前に 表 T-234 の `QN-16` で問うこと（MUST）',
-      '黙って止めてはならない（MUST NOT）',
+      '`GRS` は、タスクグループを掴んで動かせるようにすること（掴み代は 表 T-023d の `GR-20`）。',
+      '`GRS` は、運んだタスクグループを配下ごと動かすこと。',
+      '`GRS` は、上限を、掴んでいるタスクグループ自身が `FR-004` の深さの上限を超えないところまで下げること。',
+      '`GRS` は、配下が深さの上限を超える段も選べるようにすること。',
+      '配下が深さの上限を超える段で離したとき、`GRS` は、書き込む前に 表 T-234 の `QN-16` で問うこと。',
+      '配下が深さの上限を超える段で離したとき、`GRS` は、黙って止めないこと。',
     ]) {
       expect(hf15, `表 T-051 の HF-15 no longer says 「${clause}」`).toContain(clause)
     }
@@ -577,9 +577,9 @@ describe('the specification still says what these cases are driven by', () => {
     const gr20 = saysOf('T-023d', 'GR-20')
     expect(gr20).toContain('タスクグループの左端に敷く掴み代')
     expect(gr20).toContain('`S-138`')
-    expect(gr20).toContain('掴めばタスクグループを動かす')
+    expect(gr20).toContain('掴み代を掴んだとき、`GRS` はタスクグループを動かすこと（表 T-051 の `HF-15`）。')
     expect(gr20, '表 T-023d no longer keeps a pinned task group out of the grab').toContain(
-      'ピン止めしているタスクグループは掴めないこと（MUST NOT）',
+      '`GRS` は、ピン止めしているタスクグループの掴みを成立させないこと。',
     )
     // 「上の行ほど優先すること（MUST）」 -- GR-20 is a row of that table, so it
     // is bound by the priority order like every other.
@@ -604,7 +604,7 @@ describe('the specification still says what these cases are driven by', () => {
     expect(cm73.cells.join(' ')).toContain('タスクグループの親と並びを変える')
     expect(cm73.cells.join(' ')).toContain('`HF-15`')
     expect(saysOf('T-027', 'UN-4')).toContain(
-      '掴んで動かす 1 回のドラッグは、親をまたぐことも、またがないこともあり、どちらも 1 段である',
+      '`GRS` は、掴んで動かす 1 回のドラッグを、親をまたいでも、またがなくても 1 段とすること。',
     )
   })
 
@@ -615,15 +615,15 @@ describe('the specification still says what these cases are driven by', () => {
     // sibling rank to HM-9 -- which is why the release now reaches `Task`.
     const hm9 = saysOf('T-015a', 'HM-9')
     expect(hm9, '表 T-015a の HM-9 no longer sends the order to the WBS').toContain(
-      '並べ替えた順序も WBS へ伝わること（MUST）',
+      '`GRS` は、並べ替えた順序も WBS へ伝えること。',
     )
     expect(hm9, 'HM-9 no longer decides the rank by the task group tree').toContain(
-      '各 `Task` の、同じ親タスクを持つ兄弟の中での順位は、その `Task` を描いているタスクグループの、タスクグループの木における位置で決めること（MUST）',
+      '`GRS` は、各 `Task` の、同じ親タスクを持つ兄弟の中での順位を、`Task` を描いているタスクグループの、タスクグループの木における位置で決めること。',
     )
 
     const hm3 = saysOf('T-015a', 'HM-3')
     expect(hm3, 'HM-3 no longer forbids the parent task moving').toContain(
-      '親タスクを変えてはならない（MUST NOT）',
+      '`GRS` は、タスクバーを別のタスクグループへ移す操作で、親タスクを変えないこと。',
     )
     expect(hm3, 'HM-3 no longer leaves the sibling order to HM-9').toContain(
       '同じ親の下での順序は `HM-9` に従い',
@@ -636,7 +636,7 @@ describe('the specification still says what these cases are driven by', () => {
   })
 
   it('FR-085 still owns the depth cap, and S-125 still counts a root task group as depth 1', () => {
-    expect(REQUIREMENTS).toContain('深さの上限は `FR-004` に従う（値は表 T-211 の `S-125`）')
+    expect(REQUIREMENTS).toContain('`GRS` は、作るタスクグループの深さの上限を `FR-004` に従わせること（値は表 T-211 の `S-125`）。')
     expect(saysOf('T-211', 'S-125')).toContain('根のタスクグループを深さ 1 と数える')
     expect(S_125_MAX_DEPTH).toBeGreaterThanOrEqual(3)
   })

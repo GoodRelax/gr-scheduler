@@ -67,7 +67,7 @@ const lineHolding = (tokens: readonly string[]): string => {
   return found
 }
 
-const FITS_NOTE_TOKENS = ['`S-584`', '`S-32`', '`S-31`', '`S-260`', 'MUST'] as const
+const FITS_NOTE_TOKENS = ['`S-584`', '`S-32`', '`S-31`', '`S-260`', '表 T-273 の「入る」とすること'] as const
 
 describe('CR-758 -- the manuscript these cases are driven by', () => {
   it.each([
@@ -78,7 +78,7 @@ describe('CR-758 -- the manuscript these cases are driven by', () => {
     ['T-221 LF-5', 'T-221', 'LF-5', ['`VG-2`', '`x2`']],
     ['T-222 RP-2', 'T-222', 'RP-2', ['`x1`', '`LF-5`', '`x2`', '`RP-4`']],
     ['T-222 RP-3', 'T-222', 'RP-3', ['`RP-2`']],
-    ['T-303 EL-19', 'T-303', 'EL-19', ['`GA-19`', '`GA-24`', '`PE-12`', '`FR-108`', 'MUST']],
+    ['T-303 EL-19', 'T-303', 'EL-19', ['`GA-19`', '`GA-24`', '`PE-12`', '`FR-108`', '描いた経路の全体と後続の入口の矢じりにすること']],
     ['T-303 EL-16', 'T-303', 'EL-16', ['`HT-1`', '`VG-4`', '`EL-19`']],
     ['T-266 GA-19', 'T-266', 'GA-19', ['`S-285`']],
   ] as const)('%s still names the rows these cases read', (_name, table, id, tokens) => {
@@ -956,7 +956,7 @@ describe('CR-758 case 9 -- FR-013 / T-266 GA-18: the S-584 gap between the bar e
   it('T-266 GA-18 points at FR-013, and T-267 HT-3 names S-584', () => {
     expect(rowText('T-266', 'GA-18'), 'T-266 GA-18').toContain('`FR-013`')
     expect(rowText('T-267', 'HT-3'), 'T-267 HT-3').toContain('`S-584`')
-    expect(lineHolding(['`S-584`', 'MUST NOT']).length, 'FR-013').toBeGreaterThan(0)
+    expect(lineHolding(['`S-584`', '予定の本体も予定の終了も掴ませないこと']).length, 'FR-013').toBeGreaterThan(0)
     expect(lineHolding(['`FR-104`', '`GA-18`']).length, 'FR-013 names GA-18 as what answers the gap').toBeGreaterThan(0)
   })
 
@@ -1004,9 +1004,9 @@ describe('CR-758 case 9 -- FR-013 / T-266 GA-18: the S-584 gap between the bar e
 
 describe('CR-758 clauses held verbatim (EL-19, FR-013, GA-18)', () => {
   const CLAUSES = [
-    ['EL-19', '描いた経路の全体と後続の入口の矢じりとすること（MUST）'],
-    ['FR-013', '基準の端と進捗マーカーのあいだの隙間（表 T-201 の `S-584`）を押したポインタに、予定の本体か予定の終了を掴ませてはならない（MUST NOT）'],
-    ['GA-18', '再開アイコンの右に並ぶときはアイコンの掴む箱の右端）まで延ばすこと（MUST）'],
+    ['EL-19', '`GRS` は、印を付けた線の掴み代（`FR-104` の 表 T-266 の `GA-19`）を、描いた経路の全体と後続の入口の矢じりにすること'],
+    ['FR-013', '`GRS` は、基準の端と進捗マーカーのあいだの隙間（表 T-201 の `S-584`）を押したポインタに、予定の本体も予定の終了も掴ませないこと。'],
+    ['GA-18', '`GRS` は、左を、マーカーが離れて立つ端（表 T-273 の「マーカーの位置」の棒の端、再開アイコンの右に並ぶときはアイコンの掴む箱の右端）まで延ばすこと'],
   ] as const
 
   it.each(CLAUSES)('%s: the clause stands in the requirements as the cases above read it', (_id, clause) => {

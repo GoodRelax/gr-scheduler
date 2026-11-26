@@ -21,14 +21,14 @@ import {
 } from './cr-754-stage'
 
 // Spec: FR-072, T-369, T-380
-const T_369_AFTER_FO_16 = '本表に行を持たない設定の値は、本要求の読むだけの行として `FO-16` の後に、表 T-380 の組と並びで置くこと（MUST）'
-const T_369_HEADINGS = '⭐ 読むだけの行の前に、`FR-038` の辞書の `readOnlySettings` の `heading` の語の 1 行を置き、組ごとに見出しを置くこと（MUST）'
-const T_369_FOLDABLE = '見出しを押すとその組を畳め、初めはどの組も開いている。'
-const T_369_WORDS = '⭐ 行の名は 表 T-380 の「名の語」、値は同表の「値の見せ方」の字とすること（MUST）'
+const T_369_AFTER_FO_16 = '`GRS` は、表 T-369 に行を持たない設定の値を、読むだけの行として `FO-16` の後に、表 T-380 の組と並びで置くこと。'
+const T_369_HEADINGS = '`GRS` は、読むだけの行の前に、`FR-038` の辞書の `readOnlySettings` の `heading` の語の 1 行を置くこと。'
+const T_369_FOLDABLE = '組の見出しを押したとき、`GRS` は、見出しの組を畳むこと。'
+const T_369_WORDS = '`GRS` は、読むだけの行の名を 表 T-380 の「名の語」とすること。'
 const T_369_NO_RAW =
-  '⛔ 値を保存の字のまま（`true`・`auto`・`0.8666666666666667`・`2026-03-29T00:00:00` など）見せてはならない（MUST NOT）'
-const T_369_NO_CONTROL = '⛔ 読むだけの行に操作子を置いてはならない（MUST NOT）'
-const T_369_FO_12 = '⭐ 数の欄の右に単位の語を置く —— 名からは単位を外し、名は 2 行（`FR-006` の折り方）に収める'
+  '`GRS` は、読むだけの行の値を保存の字のまま（例: `true`・`auto`・`0.8666666666666667`・`2026-03-29T00:00:00`）見せないこと。'
+const T_369_NO_CONTROL = '`GRS` は、読むだけの行に操作子を置かないこと。'
+const T_369_FO_12 = '`GRS` は、日数の数の欄の右に単位の語を置くこと。'
 
 const SECTION = 'readOnlySettings'
 const TIME_SHIFT = 'IC-162'

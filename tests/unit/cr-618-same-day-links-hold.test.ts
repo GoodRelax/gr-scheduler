@@ -11,12 +11,12 @@ import { REQUIREMENTS, taskGroupDocument, taskOf } from './cr-541-stage'
 const VC_15_FORMULA =
   '予定の日付が依存の向きに反する（FS: 後続の `start` ≥ 先行の `finish` ＋ `linkLag`、SS: 後続の `start` ≥ 先行の `start` ＋ `linkLag`、FF: 後続の `finish` ≥ 先行の `finish` ＋ `linkLag`、SF: 後続の `finish` ≥ 先行の `start` ＋ `linkLag`）。'
 const VC_15_SAME_DAY = '⭐ 4 つの式を、すべての文書で瞬間（日と時刻の対、`FR-054`）で比べる —— 同じ瞬間は反せず、1 分でも前なら反する'
-const VC_15_NOT_ND_3 = '⛔ `ND-3` の「終了日はその日を含む」を、FS の 1 日の差に数えてはならない（MUST NOT）'
+const VC_15_NOT_ND_3 = '`GRS` は、`ND-3` の「終了日はその日を含む」を、FS の 1 日の差に数えないこと。'
 const VS_4_ACTUALS = '実績の日付が依存の向きに反する（式は `VC-15` を実績の列に当てたもの）'
-const BD_2_SAME_DAY = 'すべての文書で瞬間で読み、FS の後続の最早開始は、先行の見込み終了の瞬間 ＋ `linkLag` である'
-const BD_2_NOT_BELOW_START = '⭐ 最早開始は `start` を下回らない'
-const BD_2_NOT_PUSHED_TO_STATUS = '⭐ 未着手の `Task` の最早開始は、基準日で押し上げない'
-const BD_1_STARTED = '着手済みで未完了は 基準日 ＋ 残り とし、`finish` より前にはしない'
+const BD_2_SAME_DAY = '`GRS` は、依存が課す最早の瞬間を 表 T-310 の `VC-15` の式と同じく、すべての文書で瞬間で読み、FS の後続の最早開始を、先行の見込み終了の瞬間 ＋ `linkLag` とすること。'
+const BD_2_NOT_BELOW_START = '`GRS` は、最早開始を `start` より前にしないこと。'
+const BD_2_NOT_PUSHED_TO_STATUS = '`GRS` は、未着手の `Task` の最早開始を、基準日で押し上げないこと。'
+const BD_1_STARTED = '`GRS` は、着手済みで未完了の `Task` の見込み終了を 基準日 ＋ 残り（基準日の瞬間（`Project.statusDate`）から残りの分だけ文書の暦の稼働時間を進めた瞬間）とすること。'
 const DQ_2 = 'max(0, 最早開始 − `start`) —— 巻き添え'
 const DQ_3 = 'max(0, `DQ-1` − (最早開始 ＋ 計画期間)) —— 発生源'
 const DW_1_PURPLE = '原因の `Task` と、その依存の下流すべて'
@@ -24,9 +24,9 @@ const DG_1_WHEN =
   '表 T-310 の指摘を持つ、表 T-311 の `VS-6` の指摘を持つ、表 T-312 の `VO-3`（先行の側）か `VO-5` の指摘を持つ、または 表 T-316 が紫とする'
 const DG_2_WHEN = '`DQ-4` が `S-397` 以上で、完了（`PS-2`）しておらず、表 T-312 の `VO-3` の指摘を持たない'
 const FR_131_ONE_EACH =
-  '`GRS` は、開いている文書モデルを、矛盾（表 T-310）・疑義（表 T-311）・記載漏れ（表 T-312）の観点ですべて調べ、当たった 1 件ごとに指摘を 1 つ作ること。'
+  '`GRS` は、表 T-310 〜 表 T-312 の観点に当たった 1 件ごとに、指摘を 1 つ作ること。'
 const FR_132_WORKING_DAYS =
-  '量はすべて文書の暦の稼働時間の分で数え（表 T-314）、`S-397` と比べるときだけ、`Project.minutesPerDay` 分（空なら `S-128`）を 1 日として稼働日へ切り上げること（MUST、暦は `FR-054`）'
+  '`GRS` は、`S-397` と比べるときだけ、`Project.minutesPerDay` 分（空なら `S-128`）を 1 日として稼働日へ切り上げること。'
 
 function cellOf(table: string, id: string, heading: string): string {
   const row = specTable(table).rows.find((one) => one.id === id)

@@ -15,16 +15,18 @@ import { unbroken } from './spec-table'
 const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
 const CF_2 =
-  'd` の 表 T-236 の `S-155`・`S-156`・`S-157`・`S-151` を、同表の値の明度に「向き × k × その行の比」を足した明度で描くこと（MUST）'
+  '`GRS` は、`_assets/tbl-settings.md` の 表 T-236 の `S-155`・`S-156`・`S-157`・`S-151` を、表 T-236 の値の明度に「向き × k × 行の比」を足した明度で描くこと。'
 const CF_3 =
-  'T-206 の `S-520` 刻みで `S-521` まで増やし、表 T-017a の `CT-3`・`CT-4`・`CT-5` をすべて満たす最小の k とすること（MUST）'
+  '`GRS` は、k を 0 から 表 T-206 の `S-520` 刻みで `S-521` まで増やし、表 T-017a の `CT-3`・`CT-4`・`CT-5` をすべて満たす最小の k を選ぶこと。'
 const FR_041_SOLVE =
-  'そこから規則で解いて求めること（MUST）—— **解いた結果を保存すると、規則を直したときに古い値が残って規則と絵が食い違う。**解き方は 表 T-366 に従うこと（MUST）'
-const CF_3_GROUND = 'このとき地は、表 T-236 の `S-146` の値を彩度 0 にした色で測る。'
-const CF_3_CAP = '`S-521` でも満たさなければ `S-521` とする。'
-const CF_2_DIRECTION = '向きは明るいテーマで −1（暗くする）、暗いテーマで ＋1（明るくする）とする。'
-const CF_2_ROUNDING = '足した明度は 0 〜 100 に収め、小数第 1 位に丸める。'
-const CF_6 = '比は WCAG 2.1 のコントラスト比とし、HSL を 8 ビットの sRGB に丸めた値から求めること（MUST）'
+  '`GRS` は、地の彩度・予定と実績と輪郭線の明度の寄せ幅・タスクグループの帯の色を、`themeHue` / `isThemeMonochrome` / `themePreference` から規則で解いて求めること。'
+const FR_041_SOLVE_BY_T_366 =
+  '`GRS` は、`IMPS-146` の色を 表 T-366 に従って解くこと（数は `_assets/tbl-settings.md` の 表 T-236 と、`_assets/tbl-settings.md` の 表 T-206 の `S-520` 〜 `S-526` が持つ）。'
+const CF_3_GROUND = '`GRS` は、k を選ぶために比を測るとき、地を 表 T-236 の `S-146` の値を彩度 0 にした色で測ること。'
+const CF_3_CAP = 'もし k が `S-521` でも k の条件を満たさない場合、`GRS` は、k を `S-521` とすること。'
+const CF_2_DIRECTION = '`GRS` は、明度の寄せの比を`_assets/tbl-settings.md` の 表 T-206 の `S-522` 〜 `S-525` とし、向きを明るいテーマで −1（暗くする）、暗いテーマで ＋1（明るくする）とすること。'
+const CF_2_ROUNDING = '`GRS` は、明度の寄せで足した明度を 0 〜 100 に収め、小数第 1 位に丸めること。'
+const CF_6 = '`GRS` は、比を WCAG 2.1 のコントラスト比とし、HSL を 8 ビットの sRGB に丸めた値から求めること（`_assets/tbl-settings.md` の 表 T-294 の前文と同じ）。'
 const CF_3_MEASURED = '明るいテーマで 360 の色相のうち 131 が k ＞ 0（最大 6）、暗いテーマで 15（最大 2）。'
 
 // Spec: S-520, S-521
@@ -137,7 +139,7 @@ const sameRgb = (one: Rgb, other: Rgb): boolean =>
   Math.abs(one.r - other.r) <= 1 && Math.abs(one.g - other.g) <= 1 && Math.abs(one.b - other.b) <= 1
 
 describe('FR-041 / T-366 -- the manuscript these cases are driven by', () => {
-  it.each([CF_2, CF_3, FR_041_SOLVE, CF_3_GROUND, CF_3_CAP, CF_2_DIRECTION, CF_2_ROUNDING, CF_6, CF_3_MEASURED])(
+  it.each([CF_2, CF_3, FR_041_SOLVE, FR_041_SOLVE_BY_T_366, CF_3_GROUND, CF_3_CAP, CF_2_DIRECTION, CF_2_ROUNDING, CF_6, CF_3_MEASURED])(
     '01-04 still says: %s',
     (clause) => {
       expect(REQUIREMENTS).toContain(clause)

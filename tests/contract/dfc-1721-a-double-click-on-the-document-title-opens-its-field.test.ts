@@ -38,8 +38,8 @@ const verticalIn = (table: string, id: string) => {
 
 // Why: each clause is cut from the manuscript as check 39 reads it, so the cases cannot drift from the words they test.
 const MK_13_DOCUMENT_TITLE =
-  '表 T-036 の `SK-9` が開くのと同じ、その場で編集する欄（`FR-035`）を開くこと（MUST）'
-const MK_13_NOT_ONE_PRESS = '⛔ 1 回の押下で開いてはならない（MUST NOT） —— ヘッダーの押し違いで欄が開く'
+  '表 T-036 の `SK-9` が開くのと同じ、その場で編集する欄（`FR-035`）を開くこと。'
+const MK_13_NOT_ONE_PRESS = '`GRS` は、`Document Title` の 1 回の押下でその場で編集する欄を開かないこと。'
 
 describe('DFC-1721 the manuscript these cases are driven by', () => {
   it('MK-13 still names the Document Title and the F2 field', () => {

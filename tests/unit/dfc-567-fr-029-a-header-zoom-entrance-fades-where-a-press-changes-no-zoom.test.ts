@@ -7,19 +7,19 @@ import { DEFAULT_DISPLAY_SCALE } from '../fixtures/display-scale'
 import { numberIn, REQUIREMENTS, rowOf, shell, taskGroupDocument, type ShellBench, type TaskGroupSeed } from './cr-541-stage'
 
 const FR_029_FAINT =
-  'その入口を押しても、いま文書にも画面にも何も変えられないときは、その入口を薄く描くこと（MUST）'
-const FR_029_EVERY_SURFACE = '本規則は `_assets/tbl-glossary.md` の 表 T-109 の全行に当たる —— タスクグループの操作子もパレットもヘッダーも同じである。'
-const FR_016_THE_RANGE = 'ズームの倍率は表 T-203 の `S-75` / `S-76` が持つ範囲へ収めること（MUST）'
+  '`GRS` は、押してもいま文書にも画面にも何も変えられない入口を薄く描くこと。'
+const FR_029_EVERY_SURFACE = '`GRS` は、`IMPS-1108` 〜 `IMPS-1115` の薄さの規則を、`_assets/tbl-glossary.md` の 表 T-109 の全行の入口に当てること（タスクグループの操作子もパレットもヘッダーも同じである）。'
+const FR_016_THE_RANGE = '`GRS` は、ズームの倍率を表 T-203 の `S-75` / `S-76` が持つ範囲へ収めること。'
 const FR_016_ZOOM_X_CEILING =
-  '⭐ 日付の軸（`zoomX`）の上限は、見えている範囲が `_assets/tbl-settings.md` の 表 T-206 の `S-229` 日を下回らない倍率とすること（MUST） —— `Task Group Area` の幅 ÷（`S-229` × 等倍のときの 1 日の幅）である。'
-const FR_016_DAY_WIDTH_SCALED = 'ここでいう等倍のときの 1 日の幅は、`FR-039` の表示の倍率の描く比を掛けたあとの `S-1` である'
-const FR_016_NO_DEAD_ENTRANCE = '⛔ 上限に達したことを、押しても何も起きない入口で示してはならない（MUST NOT） —— 作法は `FR-029` に従う。'
+  '`GRS` は、日付の軸（`zoomX`）の上限を、見えている範囲が `_assets/tbl-settings.md` の 表 T-206 の `S-229` 日を下回らない倍率 —— `Task Group Area` の幅 ÷（`S-229` × 等倍のときの 1 日の幅） —— にすること。'
+const FR_016_DAY_WIDTH_SCALED = '等倍のときの 1 日の幅は、`FR-039` の表示の倍率の描く比を掛けたあとの `S-1` とする。'
+const FR_016_NO_DEAD_ENTRANCE = '`GRS` は、上限に達したことを、押しても何も起きない入口で示さないこと。'
 const ZE_1_THE_LOWER_END =
-  '⭐ いまの `zoomY` が次の ① と ② をともに満たすとき、縦軸は縮める側の端にあるとすること（MUST）'
+  '`GRS` は、いまの `zoomY` が次の ① と ② をともに満たすとき、縦軸を縮める側の端にあるとすること。'
 const ZE_2_NO_WRITE_AT_THE_END =
-  '端にあるときに縮める入力（表 T-023 の `MK-4` の縮める向き、`_assets/tbl-glossary.md` の 表 T-109 の `IC-14`、表 T-036 の `SK-16c`）を受けたら、`zoomY` を書き換えてはならない（MUST NOT）'
+  '縦軸が縮める側の端にある間、縮める入力（表 T-023 の `MK-4` の縮める向き、`_assets/tbl-glossary.md` の 表 T-109 の `IC-14`、表 T-036 の `SK-16c`）を受けたとき、`GRS` は `zoomY` を書き換えないこと。'
 const ZE_3_NO_WRITE_AT_THE_CEILING =
-  '拡げる入力（`MK-4` の拡げる向き、`IC-15`、`SK-16a`）で、本要求の上限で止めた値がいまの `zoomY` と等しいときは、`zoomY` を書き換えてはならない（MUST NOT）'
+  '拡げる入力（`MK-4` の拡げる向き、`IC-15`、`SK-16a`）を受けたとき、縦軸の上限（`IMPS-1469`）で止めた値がいまの `zoomY` と等しければ、`GRS` は `zoomY` を書き換えないこと。'
 const T_262_END_IS_FR_029 = '⚠️ 端で押した `IC-14` / `IC-15` は `FR-029` の「押しても何も変えられない入口」に当たる'
 
 describe('DFC-567 part 3 -- the manuscript these cases are driven by', () => {

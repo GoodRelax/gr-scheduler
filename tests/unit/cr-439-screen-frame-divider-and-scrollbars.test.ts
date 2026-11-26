@@ -52,9 +52,9 @@ function englishName(id: string): string {
 
 const IF_9_DRAW = '作った記述を画面に載せ'
 const IF_9_PART_AT = '画面上の点がどの UI パーツ（表 T-103）のどの入口（表 T-109）の上か'
-const SC_4 = '横・縦とも常時表示する。内容が収まっていても消さない'
+const SC_4 = '`GRS` は、スクロールバーを、横・縦とも常時表示すること。'
 const FR_052_NO_BAND =
-  'プロパティパネルを出していないあいだ（`S-99h`）、その境界に掴み帯を敷かないこと（MUST）'
+  'プロパティパネルを出していない間（`S-99h`）、`GRS` は、プロパティパネルの境界に掴み帯を敷かないこと。'
 
 const SCROLLBARS = englishName('U-21')
 const PANEL_DIVIDER = englishName('U-24')

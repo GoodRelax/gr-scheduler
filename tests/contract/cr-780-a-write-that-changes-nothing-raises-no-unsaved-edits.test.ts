@@ -19,7 +19,7 @@ const REQUIREMENTS = unbroken(
 )
 
 const CLAUSE_UNCHANGED_WRITE_RAISES_NOTHING =
-  '⭐ 書き込みが文書を変えなかったとき（取り消しの手が増えないとき —— 手で同じ値に打ち直した、掴んだものを元の所で離した）は、未保存の編集を立ててはならない（MUST NOT）'
+  '書き込みが文書を変えなかったとき（取り消しの手が増えないとき —— 手で同じ値に打ち直した、掴んだものを元の所で離した）、`GRS` は、未保存の編集を立てないこと。'
 
 const TASK_GROUP_TITLE_DIVIDER = 'taskGroupPanel'
 const HIGHLIGHT_ID = 'cr780-highlight-box'

@@ -22,33 +22,33 @@ import { DESIGN, DISPLAY_WORDS, REQUIREMENTS } from './cr-541-stage'
 
 // Spec: FR-024
 const FR_024_FITS_THE_SCHEMA =
-  '書き出す `GRS JSON` は、その造りが刊行するスキーマ（`_source/grs-document.schema.json`）に適合すること（MUST）'
-const FR_024_NO_KEY_WRITTEN_BACK = '⛔ 読んだ文書が持っていた、スキーマに無い鍵を書き戻してはならない（MUST NOT）'
-const FR_024_OWN_VERSION = '同じ造りのスキーマが拒む。⭐ 載せる形式の版は、この造りの版とすること（MUST）'
+  '`GRS` は、書き出す `GRS JSON` を、その造りが刊行するスキーマ（`_source/grs-document.schema.json`）に適合させること。'
+const FR_024_NO_KEY_WRITTEN_BACK = '`GRS` は、読んだ文書が持っていた、スキーマに無い鍵を書き戻さないこと。'
+const FR_024_OWN_VERSION = '`GRS` は、載せる形式の版を、この造りの版とすること。'
 // Spec: OP-6
 const OP_6_DROPPED_NOT_WRITTEN_BACK = '範囲へ収める（表 T-233 の `RS-51`）。⛔ 捨てた鍵を書き戻してはならない（MUST NOT）'
 // Spec: FR-073
-const FR_073_NOT_REFUSED_FOR_BEING_NEWER = '⛔ 版が新しいことを理由に拒んではならない（MUST NOT）'
-const FR_073_NOT_OPENED_SILENTLY = '日程データの群が合わない場合だけである。黙って開いてもならない（MUST NOT）'
-const FR_073_DROPPED_ON_GOING_ON = '⛔ 続けたときは、読めなかった列を捨てて開くこと（MUST）'
-const FR_073_NOT_CARRIED = '開くこと（MUST）。持ち回って書き戻してはならない（MUST NOT）'
-const FR_073_NOT_DROPPED_UNLISTED = '続ける前に並べて見せた一覧が告げている** —— 並べずに捨ててはならない（MUST NOT）'
-const FR_073_RS_63 = '⭐ 読めなかった列が 1 つも無いときは、問わずに開き、表 T-233 の `RS-63` を告げること（MUST）'
+const FR_073_NOT_REFUSED_FOR_BEING_NEWER = '`GRS` は、版が新しいことを理由に文書を拒まないこと —— 拒むのは、日程データの群が合わない場合（`IMPS-1007`）だけである。'
+const FR_073_NOT_OPENED_SILENTLY = '`GRS` は、読めない版の文書を黙って開かないこと。'
+const FR_073_DROPPED_ON_GOING_ON = '作成者が続けることを選んだとき、`GRS` は、読めなかった列を捨てて文書を開くこと。'
+const FR_073_NOT_CARRIED = '`GRS` は、読めなかった列を持ち回って書き戻さないこと。'
+const FR_073_NOT_DROPPED_UNLISTED = '`GRS` は、読めなかった列を、続ける前に並べて見せずに捨てないこと。'
+const FR_073_RS_63 = 'もし読めない版の文書に読めなかった列が 1 つも無い場合、`GRS` は、問わずに文書を開くこと。読めなかった列が 1 つも無い読めない版の文書を開いたとき、`GRS` は、表 T-233 の `RS-63` を告げること。'
 const FR_073_SCHEDULE_REFUSED_WHOLE =
-  '⛔ 日程データの群がこの造りのスキーマに合わない文書は、版によらず文書ごと拒むこと（MUST）'
+  'もし文書の日程データの群が動いている造りのスキーマに合わない場合、`GRS` は版によらず文書ごと拒むこと。'
 const FR_073_LEAD_TO_THE_LATEST =
-  'どの理由（`RS-48` ・ `RS-63` ・ `RS-64`）を告げるときも、最新版を入手する所を案内すること（MUST）'
-const FR_073_NOT_COPIED_INTO_WORDS = '`S-350` が持つ。⛔ 所を語に書き写してはならない（MUST NOT）'
-const FR_073_A_LINK = '1 か所にするためである。⭐ 差し込んだ所は、押せるリンクとして示すこと（MUST）'
-const FR_073_NO_REFERENCE = '⛔ 開いた頁へ、この頁への参照と参照元を渡してはならない（MUST NOT）'
+  '`GRS` が 表 T-233 の `RS-48`・`RS-63`・`RS-64` のどの理由を告げるときも、`GRS` は、最新版を入手する所（`_assets/tbl-settings.md` の 表 T-206 の `S-350`）を案内すること。'
+const FR_073_NOT_COPIED_INTO_WORDS = '`GRS` は、最新版を入手する所を、告げる語に書き写さないこと。'
+const FR_073_A_LINK = '`GRS` は、差し込んだ所を、字を `S-350` の値そのものとした押せるリンクとして示すこと。'
+const FR_073_NO_REFERENCE = '`GRS` は、開いた頁へ、`GRS` の頁への参照と参照元を渡さないこと。'
 // Spec: T-220
 const SCHEMA_STAYS_STRICT =
-  '`documentSettings` の群にも、欠けている鍵と知らない鍵を拒む条件と、鍵ごとの型・列挙・下限・上限を持たせたままとすること（MUST）'
+  '刊行するスキーマ（`_source/grs-document.schema.json`）は、`documentSettings` の群にも、欠けている鍵と知らない鍵を拒む条件と、鍵ごとの型・列挙・下限・上限を持たせたままとすること。'
 const READER_DOES_NOT_REFUSE_SETTINGS =
-  '⛔ 読む路では、`documentSettings` の群の鍵を理由に文書を拒んではならない（MUST NOT）'
+  '`GRS JSON` を読むとき、`GRS` は、`documentSettings` の群の鍵を理由に文書を拒まないこと。'
 const READER_LOOKS_AT_TYPE_AND_ENUM =
-  '⭐ 読む路が同群の値について見るのは、鍵ごとの型と、原稿が値を綴った列挙だけとする（MUST）'
-const NO_LENIENCY_FOR_SCHEDULE = '⛔ 日程データの群にこの寛さを当ててはならない（MUST NOT）'
+  '`GRS JSON` を読むとき、`GRS` は、`documentSettings` の群の値について、鍵ごとの型と、原稿が値を綴った列挙だけを見ること。'
+const NO_LENIENCY_FOR_SCHEDULE = '`GRS` は、`IMPS-1314`・`IMPS-1315` の寛さを日程データの群に当てないこと。'
 
 const REQUIREMENT_CLAUSES: readonly (readonly [string, string])[] = [
   ['FR-024 (MUST) the written document fits the published schema', FR_024_FITS_THE_SCHEMA],

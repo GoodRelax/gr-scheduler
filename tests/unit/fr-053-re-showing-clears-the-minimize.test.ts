@@ -135,7 +135,7 @@ const REQUIREMENTS = unbroken(readFileSync(
   'utf8',
 ))
 const FR_053_RE_SHOWING_CLEARS_IT =
-  '`S-99e` が非表示から表示へ変わったとき、`S-200` を最小化していない側へ戻すこと（MUST）'
+  '`S-99e` が非表示から表示へ変わったとき、`GRS` は `S-200` を最小化していない側へ戻すこと。'
 
 // ---------------------------------------------------------------------------
 // The document these cases drive. Copied from

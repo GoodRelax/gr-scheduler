@@ -12,12 +12,11 @@
 // ⭐ THE CLAUSE, VERBATIM (docs/spec/01-04-requirements.md, 表 T-014 の `ST-7`)
 // ---------------------------------------------------------------------------
 //
-//   「ただし 1 つの `TaskGroup` あたりの段数に安全弁を置き、達したらそこで処理を
-//    止め、達したことを判別できる値で返して人に通知すること（MUST）。例外を投げ
-//    てはならない（MUST NOT）」
-//   「⛔⛔ 通知先を画面を描く経路に限ってはならない（MUST NOT） —— 絵を書き出す
-//    経路（`FR-080`）で達したときも、書き出しを終えたあとで同じ通知を画面に上げ
-//    ること（MUST）」（利用者の裁定 2026-09-06）
+//   「ただし、`GRS` は、1 つの `TaskGroup` あたりの段数に安全弁を置くこと。」 and the
+//    four sentences after it in the same cell (stop, return a value, tell, never throw).
+//   「`GRS` は、安全弁の通知先を画面を描く経路に限らないこと。絵を書き出す経路
+//    （`FR-080`）で安全弁に達したとき、`GRS` は、書き出しを終えたあとで同じ通知を
+//    画面に上げること。」（利用者の裁定 2026-09-06）
 //   「安全弁の値（`S-89`）は「許される段数の上限」であること（MUST）」
 //
 // and the reason it hands the person (表 T-233):
@@ -27,8 +26,8 @@
 //
 // and the entrance the picture takes to the clipboard (`FR-025`):
 //
-//   「`IO-6`（クリップボード）の入口は 表 T-109 の `IC-3` とし、選択面を開かずに
-//    直ちに送ること（MUST）」
+//   「`GRS` は、`IO-6`（クリップボード）の入口を 表 T-109 の `IC-3` とすること。
+//    `IC-3` が押されたとき、`GRS` は、選択面を開かずに直ちに送ること。」
 //
 // ---------------------------------------------------------------------------
 // ⛔ WHY THIS FILE EXISTS BESIDE tests/unit/st-7-rs-24-the-stack-safety-valve-
@@ -148,28 +147,28 @@ const REQUIREMENTS = unbroken(readFileSync(
  * check 39 takes is a window this file actually holds.
  */
 const ST_7_STOP_AND_TELL_ON_A_VALUE =
-  '達したらそこで処理を止め、達したことを判別できる値で返して人に通知すること（MUST）'
+  '段数が安全弁に達したとき、`GRS` は、達したところで処理を止めること。段数が安全弁に達したとき、`GRS` は、達したことを判別できる値で返すこと。段数が安全弁に達したとき、`GRS` は、達したことを人に通知すること。'
 
-const ST_7_NO_EXCEPTION = '例外を投げてはならない（MUST NOT）'
+const ST_7_NO_EXCEPTION = '段数が安全弁に達したとき、`GRS` は例外を投げないこと。'
 
 /** ⭐⭐ THE CLAUSE CR-368 ADDED, which is the whole of DFC-345. */
 const ST_7_NOT_ONLY_THE_SCREEN_ROAD =
-  '通知先を画面を描く経路に限ってはならない（MUST NOT）'
+  '`GRS` は、安全弁の通知先を画面を描く経路に限らないこと。'
 
 const ST_7_TELL_AFTER_THE_EXPORT =
-  '絵を書き出す経路（`FR-080`）で達したときも、書き出しを終えたあとで同じ通知を画面に上げること（MUST）'
+  '絵を書き出す経路（`FR-080`）で安全弁に達したとき、`GRS` は、書き出しを終えたあとで同じ通知を画面に上げること。'
 
 /** The boundary the row states, so 「reached」 is not read two ways here either. */
 const ST_7_CAP_IS_THE_HIGHEST_ALLOWED =
-  '安全弁の値（`S-89`）は「許される段数の上限」であること（MUST）'
+  '`GRS` は、安全弁の値（`_assets/tbl-settings.md` の `S-89`）を「許される段数の上限」として扱うこと。'
 
 /** `FR-025`'s entrance for `IO-6` -- why `IC-3` is what these cases press. */
 const FR_025_IC_3_SENDS_AT_ONCE =
-  '`IO-6`（クリップボード）の入口は 表 T-109 の `IC-3` とし、選択面を開かずに直ちに送ること（MUST）'
+  '`GRS` は、`IO-6`（クリップボード）の入口を 表 T-109 の `IC-3` とすること。`IC-3` が押されたとき、`GRS` は、選択面を開かずに直ちに送ること。'
 
 /** `SK-19`'s first duty -- how a standing telling is taken down between roads. */
 const SK_19_DISMISSES_ONE =
-  '出ている通知があるときは、それを 1 つ消すこと（MUST）'
+  '出ている通知がある間、 `Enter` を押したとき、`GRS` は、出ている通知を 1 つ消すこと（作法は 表 T-037 の `NT-8`）。'
 
 const T_036: SpecTable = specTable('T-036')
 const T_037: SpecTable = specTable('T-037')
@@ -218,7 +217,7 @@ function keyOf(id: string): KeyInput {
 
 /** `SK-12` -- `FR-096`'s one entrance, which begins with the choice of a format. */
 const SK_12 = keyOf('SK-12')
-/** `SK-19` -- 「出ている通知があるときは、それを 1 つ消すこと（MUST）」. */
+/** `SK-19` -- 「出ている通知がある間、 `Enter` を押したとき、`GRS` は、出ている通知を 1 つ消すこと」. */
 const SK_19 = keyOf('SK-19')
 
 /**
@@ -659,9 +658,8 @@ describe('表 T-014 の ST-7 -- the manuscript this file is driven by', () => {
 
 describe('ST-7 (MUST) -- a task group that reaches the valve is TOLD, not merely stopped', () => {
   it('⭐⭐ a document past the cap puts a telling carrying RS-24 on the screen', async () => {
-    // 「達したらそこで処理を止め、達したことを判別できる値で返して人に通知すること
-    //  （MUST）」 -- the second verb. ⛔ DFC-271: 「段数の安全弁に達しても、人に何も
-    // 告げない」, measured as 「`grep -rn "RS-24" src/` は 0 件」.
+    // 「段数が安全弁に達したとき、`GRS` は、達したことを人に通知すること。」 (表 T-014 の
+    //  `ST-7`) -- the telling. ⛔ DFC-271: 「段数の安全弁に達しても、人に何も告げない」, measured as 「`grep -rn "RS-24" src/` は 0 件」.
     const built = stage(documentOfOverlaps(CAP + 1))
 
     const told = built.notices()
@@ -752,9 +750,9 @@ describe('ST-7 (MUST NOT) -- the telling is not the screen road’s alone', () =
   })
 
   it('⭐⭐ IO-6: after the picture goes to the clipboard, the valve is told again', async () => {
-    // 「絵を書き出す経路（`FR-080`）で達したときも、書き出しを終えたあとで同じ通知
-    //  を画面に上げること（MUST）」, and `FR-025`: 「`IO-6`（クリップボード）の入口
-    //  は 表 T-109 の `IC-3` とし、選択面を開かずに直ちに送ること（MUST）」.
+    // 「絵を書き出す経路（`FR-080`）で安全弁に達したとき、`GRS` は、書き出しを終えたあとで
+    //  同じ通知を画面に上げること。」, and `FR-025`: 「`GRS` は、`IO-6`（クリップボード）の入口を 表 T-109 の
+    //  `IC-3` とすること。`IC-3` が押されたとき、`GRS` は、選択面を開かずに直ちに送ること。」.
     const built = stage(documentOfOverlaps(CAP + 1))
     await built.clearNotices()
 

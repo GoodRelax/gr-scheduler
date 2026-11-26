@@ -12,8 +12,8 @@ const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '
 const DESIGN = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '05-07-design.md'), 'utf8'))
 
 const FR_153_ONLY_WHAT_T_345_CLEARS =
-  '続けると答えられたときに消すのは、`localStorage` の `GRS` の鍵のうち、表 T-345 が「消す」とするものだけとすること（MUST）'
-const FR_153_NEVER_WHOLE = '⛔ `localStorage` をまるごと消してはならない（MUST NOT）'
+  '続けると答えられたとき、`GRS` は、`localStorage` の `GRS` の鍵のうち、表 T-345 が「消す」とするものだけを消すこと。'
+const FR_153_NEVER_WHOLE = '`GRS` は、`localStorage` をまるごと消さないこと'
 const UF_159_CLEARS_BY_PREFIX = '消すときも、共通の接頭辞で `GRS` の鍵を見分け、ほかの鍵に触れない（同表の `WP-6`）'
 const UF_159_SILENT = '鍵に共通の接頭辞を付け、読めない値は無いものとし、書けないときは何もしない。'
 

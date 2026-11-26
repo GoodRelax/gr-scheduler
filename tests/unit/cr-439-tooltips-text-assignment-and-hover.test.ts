@@ -33,7 +33,7 @@ const EZ_2_ASSIGNMENT = '説明の後ろに、その行の割当も出すこと�
 const EZ_2_SIZE = '字の大きさは 表 T-206 の `S-204` が定める係数で決めること（MUST）'
 const EZ_6_WHOLE_NAME = '**名前は打ち切らずに全文を出すこと（MUST）**'
 const IN_3_TAKES_NO_POINTER = '⭐ ツールチップはポインタを受け取らず、下へ通すこと（MUST）（`FR-152` の 表 T-337 の `UZ-2`）'
-const UZ_2_PASSES_THE_PRESS = '押下を受けず、下へ通すこと（MUST）—— 説明は短く、押すものを持たないので、覆った入口から押す手を奪ってはならない'
+const UZ_2_PASSES_THE_PRESS = '`GRS` は、`Tooltip` に押下を受けさせず、押下を下へ通すこと。説明は短く、押すものを持たないので、覆った入口から押す手を奪わない'
 const IN_3_THE_OLD_CLAUSE = 'ポインタを乗せられること'
 
 const TOOLTIP = bare(rowOf('T-103', 'U-53').by['確定名（英）'] ?? '')

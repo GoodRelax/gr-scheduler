@@ -32,18 +32,17 @@
 // THE ROWS THESE CASES ANSWER TO (rule 03 §3: name the row, do not copy it)
 // ---------------------------------------------------------------------------
 //
-//   表 T-036 `SK-11` 「保存する（`FR-096` の定めにより `GRS JSON` で書く。上書き
-//            先は `FR-060`）」, 割当 `Ctrl+S` -- the key these cases press, read
+//   表 T-036 `SK-11` 「`SK-11` で保存したとき、`GRS` は、`FR-096` の定めにより
+//            `GRS JSON` で書くこと。」, 割当 `Ctrl+S` -- the key these cases press, read
 //            out of that column rather than typed
 //   `FR-060` 「作成者が開いたファイルを保存するとき、`GRS` は、**同じファイルへ上書
-//            きできるようにすること。**」, with ⭐「**その速い道は 表 T-036 の
-//            `SK-11` である（MUST）** —— **`IC-2` は `FR-096` の選択面を開く**の
-//            で、問わずに上書きする経路は鍵のほうが持つ」
+//            きできるようにすること。**」, with ⭐「`GRS` は、問わずに上書きする速い道を 表 T-036 の
+//            `SK-11` とすること —— `IC-2` は `FR-096` の選択面を開くので、問わずに上書きする経路は鍵のほうが持つ。」
 //   表 T-227 `DI-5` 「開いたファイルへの上書き保存 | **`FR-060` の経路では問わない
 //            こと（MUST）** —— **開いたファイルは、定義によりこの文書のファイルで
 //            ある。** 問うと、プロジェクト名を直しただけで毎回問われる」
-//   `FR-096` 「表 T-036 の `SK-11`（保存する）は、どの形式から開いた文書であっても
-//            `GRS JSON` で書くこと（MUST）」
+//   `FR-096` 「作成者が 表 T-036 の `SK-11`（保存する）で書いたとき、`GRS` は、どの形式から開いた文書も
+//            `GRS JSON` で書くこと。」
 //   表 T-024 `IO-2` -- `GRS JSON`, the form those bytes are in
 //   表 T-034 `BT-4`, the bundled template: the one document whose values the
 //            specification has actually decided
@@ -121,11 +120,11 @@ const REQUIREMENTS = unbroken(readFileSync(
 ))
 
 /** `FR-060`'s ⭐ clause -- the reason the KEY and not the icon is pressed here. */
-const THE_FAST_ROAD_MUST = 'その速い道は 表 T-036 の `SK-11` である（MUST）'
+const THE_FAST_ROAD_MUST = '`GRS` は、問わずに上書きする速い道を 表 T-036 の `SK-11` とすること'
 
 /** `FR-096`'s clause that fixes the form those bytes are in. */
 const THE_FORM_MUST =
-  '表 T-036 の `SK-11`（保存する）は、どの形式から開いた文書であっても `GRS JSON` で書くこと（MUST）'
+  '作成者が 表 T-036 の `SK-11`（保存する）で書いたとき、`GRS` は、どの形式から開いた文書も `GRS JSON` で書くこと。'
 
 // Spec: FR-036, T-036
 const assignmentsIn = (cell: string): readonly (readonly string[])[] =>
@@ -313,7 +312,7 @@ describe('the manuscript still says what these cases read', () => {
     // ⚠️ The raw cell, not `bare`: that helper answers the FIRST code span of a
     // cell, and this claim is about a phrase the cell holds further along.
     const action = rowOf(T_036, 'SK-11').by['操作'] ?? ''
-    expect(action, '表 T-036 の `SK-11`: 上書き先は `FR-060`').toContain('上書き先は `FR-060`')
+    expect(action, '表 T-036 の `SK-11`: 上書き先は `FR-060`').toContain('`SK-11` で保存したとき、`GRS` は、上書き先を `FR-060` に従わせること。')
   })
 
   it('⭐ FR-060 still calls SK-11 the fast road, and FR-096 still fixes the form', () => {
@@ -334,8 +333,8 @@ describe('the manuscript still says what these cases read', () => {
 
 describe('FR-060 -- `Ctrl` ＋ `S` on a document that is already in a file', () => {
   it('⛔ writes over that very file, through the member that names it', async () => {
-    // 「同じファイルへ上書きできるようにすること」, and ⭐「その速い道は 表 T-036 の
-    // `SK-11` である（MUST）」.
+    // 「同じファイルへ上書きできるようにすること」, and ⭐「`GRS` は、
+    // 問わずに上書きする速い道を 表 T-036 の `SK-11` とすること」.
     // GOES RED IF: the press takes the chooser road, or takes no road at all --
     // both leave `overwritten` empty.
     const one = bench(templateDocument())
@@ -372,7 +371,7 @@ describe('FR-060 -- `Ctrl` ＋ `S` on a document that is already in a file', () 
   })
 
   it('⛔ FR-096 (MUST): what lands on that file is GRS JSON, the whole document', async () => {
-    // 「どの形式から開いた文書であっても `GRS JSON` で書くこと（MUST）」, and
+    // 「どの形式から開いた文書も `GRS JSON` で書くこと」, and
     // 表 T-024 の `IO-2` is that form. ⭐ Read back through the codec rather than
     // matched against a string, so "wrote something" cannot pass for "wrote the
     // document".

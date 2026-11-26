@@ -187,8 +187,8 @@ describe('CR-651 -- the rows these cases are driven by', () => {
     ['T-311', 'VS-6', '観点', '子を持つ子孫の点は数えない'],
     // Why: CR-710 counts the distance in working minutes and holds it against S-487 x minutesPerDay.
     ['T-311', 'VS-6', '観点', '外れは文書の暦（`FR-054`）の稼働時間の分で、親の点から外れた側の端の点まで数え'],
-    ['T-022', 'PL-3', '頂点', '`resume` < 基準日 なら `resume` に打つ'],
-    ['T-022', 'PL-4', '頂点', '`start` < 基準日 なら `start` に打つ'],
+    ['T-022', 'PL-3', '頂点', 'もし `resume` < 基準日 の場合、`GRS` は、`resume` に頂点を打つこと。'],
+    ['T-022', 'PL-4', '頂点', 'もし `start` < 基準日 の場合、`GRS` は、`start` に頂点を打つこと。'],
     ['T-108', 'CM-87', '正', '`FR-131`'],
   ] as const)('%s %s still says: %s', (table, id, heading, sentence) => {
     expect(cellOf(table, id, heading)).toContain(sentence)

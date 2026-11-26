@@ -25,43 +25,43 @@ const REQUIREMENTS = unbroken(readFileSync(join(SPEC, '01-04-requirements.md'), 
 const DESIGN = unbroken(readFileSync(join(SPEC, '05-07-design.md'), 'utf8').replace(/\r\n/g, '\n'))
 
 // Spec: T-023d
-const EIGHT_THEN_FRAME = '⭐ 同表の `HB-8` 〜 `HB-11` の 8 つの掴み点を先に、`HB-12` の枠をその後に応えさせること（MUST）。'
+const EIGHT_THEN_FRAME = '`GRS` は、表 T-246 の `HB-8` 〜 `HB-11` の 8 つの掴み点を先に、`HB-12` の枠を後に応えさせること。'
 const NEAREST_WINS =
-  '⭐ 8 つの掴み点は 1 つの段とし、押した点を掴み代に含む点のうち、押した点にいちばん近い点を採ること（MUST）'
-const TIE_ORDER = '距離が等しいときは同表の上の行を採り、同じ行の 2 点では上の点（左右の辺の中点は左）を採る。'
+  '`GRS` は、8 つの掴み点を 1 つの段とし、押した点を掴み代に含む点のうち、押した点にいちばん近い点を採ること。'
+const TIE_ORDER = '距離が等しいとき、`GRS` は、表 T-246 の先の行を採り、同じ行の 2 点では上の点（左右の辺の中点は左）を採ること。'
 const DRAWN_WHILE_SELECTED =
-  '⭐ 掴み点は、その箱を選んでいるあいだだけ描くこと（MUST） —— 1 辺 `S-372` の正方形を点に中心を合わせて置き、地を `_assets/tbl-settings.md` の 表 T-236 の `S-146`、縁を同表の `S-151`、縁の太さを 表 T-206 の `S-174` で描く。'
-const POINTS_AT_ZO_10 = '重ね順は `FR-110` の 表 T-020 の `ZO-10` とすること（MUST）。'
+  '`GRS` は、掴み点を、箱を選んでいる間だけ描くこと —— 1 辺 `S-372` の正方形を点に中心を合わせて置き、地を `_assets/tbl-settings.md` の 表 T-236 の `S-146`、縁を 表 T-236 の `S-151`、縁の太さを 表 T-206 の `S-174` で描く。'
+const POINTS_AT_ZO_10 = '`GRS` は、掴み点の重ね順を `FR-110` の 表 T-020 の `ZO-10` とすること。'
 const UNDRAWN_STILL_ANSWER =
-  '⭐ 描いていない掴み点も応えること（MUST） —— 選んでいない箱の隅も、今までどおり引けば大きさを変える。'
+  '`GRS` は、描いていない掴み点も応えさせること。'
 const FRAME_ON_A_SHAPE =
-  '⚠️ 描いた形の上では、枠は描いた線そのもの（線の中心から、描いた太さ `AT-145` の半分）でだけ応えること（MUST）'
-const POINTS_ON_A_SHAPE = '⭐ 掴み点は、描いた形の上でも同じ掴み代で応えること（MUST）'
+  '描いた形の上では、`GRS` は、枠を描いた線そのもの（線の中心から、描いた太さ `AT-145` の半分）でだけ応えさせること。'
+const POINTS_ON_A_SHAPE = '`GRS` は、掴み点を、描いた形の上でも同じ掴み代で応えさせること。'
 const INSIDE_PASSES_THROUGH =
-  '⛔ 囲んだ内側を掴み代にしてはならない（MUST NOT） —— 内側の押下は下のタスクへ素通しにすること（MUST）。'
+  '`GRS` は、囲んだ内側を掴み代にせず、内側の押下を下のタスクへ素通しにすること。'
 // Spec: FR-106
 const FR_106_HIGHLIGHT =
-  '⭐ ハイライトボックスの掴み代（表 T-023d の `GR-14`）では、`FR-016` の 表 T-246 の `HB-8` 〜 `HB-12` が名指す形とすること（MUST）'
+  '`GRS` は、ハイライトボックスの掴み代（表 T-023d の `GR-14`）では、表 T-246 の `HB-8` 〜 `HB-12` が名指す形にすること。'
 // Spec: FR-019
 // Why: the fill's null is no longer T-217's default but the theme color (CR-606 E-31).
-const NULL_DRAWS_THE_DEFAULT = '⭐ 線の太さと透過率の列が `null` のときは、表 T-217 の同じ列の既定で描くこと（MUST）'
+const NULL_DRAWS_THE_DEFAULT = '線の太さと透過率の列が `null` のとき、`GRS` は、表 T-217 の同じ列の既定で描くこと。'
 const NULL_FILL_IS_THE_THEME =
-  '⭐ 塗りの色の列が `null` のときは、テーマの色（`_assets/tbl-settings.md` の 表 T-236 の `S-155`）で塗ること（MUST）'
-const PLACED_UNFILLED = '⭐ 置くとき（表 T-108 の `CM-52`）は、塗りの色の列に 表 T-217 の `S-370`（透明）をコピーすること（MUST）'
-const OPACITY = '不透明度を 1 − `AT-147` ÷ 100 として塗ること（MUST）'
-const TRANSPARENT_IS_NOT_FILLED = '塗りの色が透明の箱は塗らない —— 後ろが見える。'
-const FILL_AT_ZO_14 = '⭐ 塗りは `FR-110` の 表 T-020 の `ZO-14` に描くこと（MUST）'
-const CLAMPED_NOT_REWRITTEN = '範囲へ寄せて描き、文書を書き換えないこと（MUST）'
+  '塗りの色の列が `null` のとき、`GRS` は、テーマの色（`_assets/tbl-settings.md` の 表 T-236 の `S-155`）で塗ること。'
+const PLACED_UNFILLED = 'ハイライトボックスを置くとき（表 T-108 の `CM-52`）、`GRS` は、塗りの色の列に 表 T-217 の `S-370`（透明）をコピーすること。'
+const OPACITY = '不透明度を 1 − `AT-147` ÷ 100 として塗ること（`AT-147` は透過率であり、0 は不透明、100 は透明）。'
+const TRANSPARENT_IS_NOT_FILLED = '`GRS` は、塗りの色が透明の箱を塗らないこと。'
+const FILL_AT_ZO_14 = '`GRS` は、塗りを `FR-110` の 表 T-020 の `ZO-14` に描くこと。'
+const CLAMPED_NOT_REWRITTEN = '`GRS` は、範囲へ寄せて描くこと。表 T-217 の数値の列が範囲の外の値を持つ文書を読んだとき、`GRS` は、文書を書き換えないこと。'
 const OUT_OF_RANGE_REFUSED =
-  '⭐ 同じ範囲の外の値を置く命令（表 T-108 の `CM-77` ・ `CM-79` ・ `CM-81` ・ `CM-83`）は拒むこと（MUST）'
-const NO_TRANSPARENT_OUTLINE = 'ハイライトボックスの枠の線にも、タスクと同じく透明（線なし）を選ばせること（MUST）'
-const NOT_BOTH_TRANSPARENT = '⛔ ただし、塗りと枠の線を同時に透明にすることを許してはならない（MUST NOT）'
-const FILL_MAY_BE_TRANSPARENT = '⭐ 塗りには透明を選ばせてよい'
+  '`GRS` は、同じ範囲の外の値を置く命令（表 T-108 の `CM-77` ・ `CM-79` ・ `CM-81` ・ `CM-83`）を拒むこと。'
+const NO_TRANSPARENT_OUTLINE = '`GRS` は、ハイライトボックスの枠の線にも、タスクと同じく透明（線なし）を選ばせること。'
+const NOT_BOTH_TRANSPARENT = '`GRS` は、塗りと枠の線を同時に透明にすることを許さないこと。'
+const FILL_MAY_BE_TRANSPARENT = '`GRS` は、塗りに透明を選ばせてもよい'
 // Why: 05-07-design reads a GRS JSON document this way before the schema runs.
 const MISSING_COLUMNS_READ_AS_NULL =
-  '⭐ 同じくスキーマを走らせる前に、`_assets/fig-erd-detail.md` の `AT-145` ・ `AT-146` ・ `AT-147` の列を持たない `HighlightBox` の項と、`AT-148` 〜 `AT-152` と `AT-168` の列を持たない `CommentBox` の項には、その列を `null` として足して読むこと（MUST）'
-const WHATEVER_THE_VERSION = '⭐ 形式の版（`FR-073`）によらずに足す'
-const SILENTLY = '足したことを通知してはならない（MUST NOT）'
+  '`GRS JSON` を読むとき、`GRS` は、スキーマを走らせる前に、`_assets/fig-erd-detail.md` の `AT-145` ・ `AT-146` ・ `AT-147` の列を持たない `HighlightBox` の項と、`AT-148` 〜 `AT-152` と `AT-168` の列を持たない `CommentBox` の項に、欠けている列を `null` として足すこと。'
+const WHATEVER_THE_VERSION = '`GRS` は、欠けている列を形式の版（`FR-073`）によらずに足すこと。'
+const SILENTLY = '`GRS` は、欠けている列を足したことを通知しないこと。'
 
 const cellOf = (table: string, row: string, heading: string): string => {
   const found = specTable(table).rows.find((one) => one.id === row)

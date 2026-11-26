@@ -6,7 +6,7 @@ import type { FrameValues } from '../../src/framework/single-html-shell/frame-lo
 import { numberIn, REQUIREMENTS, taskGroupDocument, rowOf, shell, type TaskGroupSeed, type ShellBench } from '../unit/cr-541-stage'
 
 // Spec: FR-094
-const FR_094_ONE_FLOOR = '縦の寸法を止める床は、形状の比を掛ける前の予定の縦幅に 1 度だけ当てること（MUST）。'
+const FR_094_ONE_FLOOR = '`GRS` は、縦の寸法を止める床を、形状の比を掛ける前の予定の縦幅に 1 度だけ当てること。'
 
 const S_4 = numberIn(rowOf('T-201', 'S-4').by['既定値'] ?? '')
 const S_5 = numberIn(rowOf('T-201', 'S-5').by['既定値'] ?? '')

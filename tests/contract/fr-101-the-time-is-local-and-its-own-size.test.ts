@@ -17,18 +17,18 @@
 // The rules these cases answer to, quoted
 // ---------------------------------------------------------------------------
 //
-//   FR-101 「**画面に出す時刻は、読む人のローカル時刻とすること（MUST）。保管は
-//          UTC のままとすること（MUST）**（利用者の指示 2026-08-27）—— **保管の綴り
+//   FR-101 「`GRS` は、画面に出す時刻を、読む人のローカル時刻とすること。 ……
+//          `GRS` は、時刻の保管を UTC のままとすること —— 保管の綴り
 //          は 表 T-058 の `AT-140`（`documentStamp.fileSavedAt`）が持ち、本要求は
-//          動かさない。**」 —— ⚠️ re-anchored 2026-09-11: the column the sentence
+//          動かさない。」 —— ⚠️ re-anchored 2026-09-11: the column the sentence
 //          points at was `AT-127` until the ruling of that day gave the document
 //          its own `AT-140`. The rule these cases test is unchanged.
-//   FR-101 「⛔ **画面に UTC をそのまま出してはならない（MUST NOT）** —— **書いた
-//          のが何時かを読むための時刻であり、読む人の時計と違う時刻はその問いに
-//          答えていない。**」
-//   FR-101 「**更新日時の字の大きさは `_assets/tbl-settings.md` の 表 T-206 の
-//          `S-210` が定める係数で決めること（MUST）。px で持ってはならない（MUST
-//          NOT）**（`NFR-007` の WCAG 1.4.4）。」
+//   FR-101 「`GRS` は、画面に UTC をそのまま出さないこと。 …… 書いた
+//          のが何時かを読むための時刻であり、読む人の時計と違う時刻は、何時に書いたかの問いに
+//          答えていない。」
+//   FR-101 「`GRS` は、更新日時の字の大きさを `_assets/tbl-settings.md` の 表 T-206 の
+//          `S-210` が定める係数で決めること。`GRS` は、更新日時の字の大きさを px で持たないこと
+//          （`NFR-007` の WCAG 1.4.4）。」
 //   S-210  表 T-206:「ヘッダーの更新日時の文字の大きさの係数（`FR-101`）」, ⛔
 //          「**px で持たない理由も、掛ける相手も `S-203` と同じである。**」 -- and
 //          `S-203` says its multiplicand is 「宿主の地の文字」, the size the host
@@ -98,8 +98,8 @@ const REQUIREMENTS = unbroken(readFileSync(
 ))
 
 /** ⛔ The two sentences this file rests on, read rather than trusted. */
-const THE_LOCAL_MUST = '画面に出す時刻は、読む人のローカル時刻とすること（MUST）'
-const THE_SIZE_MUST = '表 T-206 の `S-210` が定める係数で決めること（MUST）'
+const THE_LOCAL_MUST = '`GRS` は、画面に出す時刻を、読む人のローカル時刻とすること。'
+const THE_SIZE_MUST = '`GRS` は、更新日時の字の大きさを `_assets/tbl-settings.md` の 表 T-206 の `S-210` が定める係数で決めること。'
 
 /** The settled name one row of table T-103 gives, which reaches the DOM as `data-role`. */
 function settledName(specTableRowId: string): string {
@@ -156,8 +156,8 @@ const HS_7_CHROME_FIRST =
 /**
  * The moment the file was last written to, spelled the way it is STORED.
  *
- * ⭐ UTC, because FR-101 keeps the storage there --「保管は UTC のままとすること
- * （MUST）」-- and the whole point of the case is that what is SHOWN is not this.
+ * ⭐ UTC, because FR-101 keeps the storage there --「`GRS` は、時刻の保管を UTC のままとすること」
+ * -- and the whole point of the case is that what is SHOWN is not this.
  * ⚠️ The hour is deliberately near a day boundary so that a zone either side of
  * UTC moves the DATE as well as the clock, and a case cannot pass on the digits
  * of the day alone.
@@ -317,7 +317,7 @@ describe('the manuscripts still say what these cases read', () => {
     expect(REQUIREMENTS, 'FR-101 no longer sizes the moment by S-210').toContain(THE_SIZE_MUST)
     expect(REQUIREMENTS, 'HS-7 no longer multiplies S-235 in first').toContain(HS_7_CHROME_FIRST)
     expect(REQUIREMENTS, 'FR-101 no longer forbids UTC on the screen').toContain(
-      '画面に UTC をそのまま出してはならない（MUST NOT）',
+      '`GRS` は、画面に UTC をそのまま出さないこと。',
     )
   })
 
@@ -336,8 +336,8 @@ describe('the manuscripts still say what these cases read', () => {
 
 describe('FR-101 (MUST / MUST NOT) -- the moment is sized by S-210 and not by px', () => {
   it('⛔ MUST: the moment ends up `S-210` of the size the host gives', () => {
-    // FR-101:「**更新日時の字の大きさは …… `S-210` が定める係数で決めること
-    // （MUST）**」. ⭐ Asked as the product along the chain from the moment up to
+    // FR-101:「`GRS` は、更新日時の字の大きさを …… `S-210` が定める係数で決めること。」
+    // ⭐ Asked as the product along the chain from the moment up to
     // the `App Header`, because a font size inherits and no row says which box
     // states it (point 2 of the head comment).
     const { header, moment } = drawn()
@@ -351,7 +351,7 @@ describe('FR-101 (MUST / MUST NOT) -- the moment is sized by S-210 and not by px
   })
 
   it('⛔ MUST NOT: no size on that chain is held as px', () => {
-    // FR-101:「**px で持ってはならない（MUST NOT）**（`NFR-007` の WCAG 1.4.4）」.
+    // FR-101:「`GRS` は、更新日時の字の大きさを px で持たないこと（`NFR-007` の WCAG 1.4.4）。」.
     // ⭐ A px anywhere between the moment and the header pins the moment to a
     // length, whichever box states it -- so the whole chain is read.
     const { header, moment } = drawn()
@@ -367,8 +367,8 @@ describe('FR-101 (MUST / MUST NOT) -- the moment is sized by S-210 and not by px
 describe("FR-101 (MUST / MUST NOT) -- the moment is the reader's local time", () => {
   for (const zone of ZONES) {
     it(`⛔ MUST: names the stored instant on a clock in ${zone}`, () => {
-      // FR-101:「**画面に出す時刻は、読む人のローカル時刻とすること（MUST）。保管は
-      // UTC のままとすること（MUST）**」.
+      // FR-101:「`GRS` は、画面に出す時刻を、読む人のローカル時刻とすること。 …… `GRS` は、時刻の保管を
+      // UTC のままとすること」.
       process.env.TZ = zone
       const offset = new Date(STORED_AT).getTimezoneOffset()
       // ⛔ WITHOUT THIS THE CASE COULD PASS ON A HOST THAT IGNORED THE ZONE: at
@@ -388,7 +388,7 @@ describe("FR-101 (MUST / MUST NOT) -- the moment is the reader's local time", ()
     })
 
     it(`⛔ MUST NOT: draws no UTC reading of it in ${zone}`, () => {
-      // FR-101:「⛔ **画面に UTC をそのまま出してはならない（MUST NOT）**」.
+      // FR-101:「`GRS` は、画面に UTC をそのまま出さないこと。」.
       process.env.TZ = zone
       expect(new Date(STORED_AT).getTimezoneOffset()).not.toBe(0)
 

@@ -66,8 +66,8 @@ const encloses = (outer: string, inner: string): boolean => {
 
 describe('RW-13 / SJ-4 -- the manuscript these cases read', () => {
   it('SJ-4 keeps its MUST NOT and names RW-13 as its only exception', () => {
-    expect(rowText('T-332', 'SJ-4')).toContain('表 T-346 の `RW-13` だけである')
-    expect(REQUIREMENTS).toContain('飛ぶことを理由に、プロパティパネル（`_assets/tbl-settings.md` の `S-99h`）を出したり閉じたりしてはならない（MUST NOT）')
+    expect(rowText('T-332', 'SJ-4')).toContain('`GRS` は、表 T-346 の `RW-13` のほかでは、飛ぶことを理由に、プロパティパネル（`_assets/tbl-settings.md` の `S-99h`）を出したり閉じたりしないこと（閉じていれば閉じたまま、出ていれば出たままとする）。')
+    expect(REQUIREMENTS).toContain('`GRS` は、表 T-346 の `RW-13` のほかでは、飛ぶことを理由に、プロパティパネル（`_assets/tbl-settings.md` の `S-99h`）を出したり閉じたりしないこと（閉じていれば閉じたまま、出ていれば出たままとする）。')
   })
 
   it('S-573 is a color of its own, neither of the two colors of the landing ring (S-587)', () => {

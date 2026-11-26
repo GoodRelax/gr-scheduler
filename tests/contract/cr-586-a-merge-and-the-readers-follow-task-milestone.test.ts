@@ -44,10 +44,10 @@ const MG_8_REALIGN =
 const ND_BY_TASK_MILESTONE =
   '⭐ `ND-1` と `ND-2` のどちらで書くかは、`Task.milestone` だけで決めること（MUST） —— 描いた形（`TaskVisual.shapeKind`）で決めてはならない（MUST NOT）。'
 // Spec: FR-009
-const FS_WHEN_MILESTONE = 'マイルストーンが端に来る依存は、画面上で作るとき FS とすること（MUST）。'
+const FS_WHEN_MILESTONE = '画面上でマイルストーンが端に来る依存を作るとき、`GRS` は、依存の種別を FS にすること。'
 const FS_MILESTONE_IS_TASK_MILESTONE =
-  '⭐ 本段の「マイルストーン」は、`Task.milestone` が真の `Task` とすること（MUST） —— 描いた形は数えない。'
-const EDGES_ARE_THE_KIND = '引き出した辺と引き入れた辺の組合せは、4 つの種別と 1 対 1 に対応する（MUST）。'
+  '`GRS` は、`IMPS-343` 〜 `IMPS-346` の「マイルストーン」を、`Task.milestone` が真の `Task` とすること（描いた形は数えない）。'
+const EDGES_ARE_THE_KIND = '`GRS` は、引き出した辺と引き入れた辺の組合せを、4 つの種別と 1 対 1 に対応させること。'
 
 describe('CR-586 premise -- the clauses these cases are built from', () => {
   it('T-032 MG-8, the T-251 closing paragraph and FR-009 still read as quoted', () => {

@@ -324,8 +324,8 @@ const PAIRED_ON_2026_09_03: Readonly<Record<string, string>> = {
   //   carry both; neither says only that the calendar moved, which is the half
   //   that would leave a reader wondering why a number they never touched had
   //   changed. The next step names the ONE road FR-012 leaves open and no
-  //   other: 「暦の変更と同じ書き込みの中で行うこと（MUST）。別の書き込みに分け
-  //   てはならない（MUST NOT）」, so undo gives back the calendar and the
+  //   other: 「`GRS` は、完了率の数え直しを暦の変更と同じ書き込みの中で行うこと。…
+  //   暦の変更と別の書き込みに分けないこと」, so undo gives back the calendar and the
   //   percent complete together -- which is exactly what both next steps say.
   // ⭐ THE COUNT IS NOT IN THE WORD, AND SHOULD NOT BE. The row's 作法 is
   //   `NT-3`, which is where 「対象の件数を添えること」 lives, and NT-3 names
@@ -354,7 +354,7 @@ const PAIRED_ON_2026_09_03: Readonly<Record<string, string>> = {
   //   say what to do instead); CR-712 made the row hidden, and its words stay for
   //   the day it is shown again.
   // ⭐ IT NAMES THE MILESTONE, AND THAT IS NOT A SECOND SCENE. FR-001 keeps
-  //   「マイルストーンは押すだけで置くこと（MUST）」 and RS-53's own note says a
+  //   「マイルストーンの形状を構えている間、押したとき、`GRS` は押しただけでマイルストーンを置くこと」 and RS-53's own note says a
   //   point never raises this row, so telling the reader where the press they
   //   just made IS the right gesture is the same one answer, not another row's.
   // ⚠️ IT STAYS CLEAR OF `RS-27`, the fallback: that row is about an ENTRANCE
@@ -376,7 +376,7 @@ const PAIRED_ON_2026_09_03: Readonly<Record<string, string>> = {
   //   themselves are not spelled here; they are the dictionary's (FR-038, MUST
   //   NOT).
   // ⭐ THE ARMING STAYING UP IS THE HALF THE ROW INSISTS ON, and the words carry
-  //   it. FR-083 (MUST) says 「形状の変更が拒まれたときも、構えは立てること」 and
+  //   it. FR-083 (MUST) says 「もし `GRS` が形状の変更を拒んだ場合（`CM-20`）、`GRS` は押した入口の形状を構えること」 and
   //   the row repeats that the arm is still standing -- so a word that only said
   //   "that cannot be done" would leave a person believing their press was
   //   thrown away entirely, which is the opposite of what the row states.
@@ -456,8 +456,8 @@ const PAIRED_ON_2026_09_03: Readonly<Record<string, string>> = {
   //   and an endpoint that is neither task nor milestone -- and only the first
   //   is this row's. The words name only the first, so they cannot be read
   //   over a refusal this row is not carried for.
-  // ⭐ THE NEXT STEP IS THE ROAD THE SAME CLAUSE LEAVES STANDING: 「引きかけの
-  //   矢印だけを捨てて構えは解除しない」, so the arming survives the refusal and
+  // ⭐ THE NEXT STEP IS THE ROAD THE SAME CLAUSE LEAVES STANDING: 「もし `GRS` が依存を作ることを拒んだ場合、`GRS` は、引きかけの
+  //   矢印だけを捨てること。…`GRS` は、構えを解除しないこと」, so the arming survives the refusal and
   //   drawing to another task is the very next thing a person can do.
   // ⇒ the words tell the scene.
   'RS-56': '87208aab9b1738c9',
@@ -585,9 +585,9 @@ const fingerprintOf = (specTableRowId: string): string => {
 
 describe('table T-233 -- every row has its word, and no word has no row', () => {
   it('holds a reason for every row of the table and no reason outside it (MUST)', () => {
-    // 表 T-037's closing: 「通知が運ぶ理由は 表 T-233 の行とすること（MUST）。
-    // 同表に無い理由を運んではならない（MUST NOT）」 and 「行を足すときは、辞書
-    // の原稿にも項を足すこと（MUST）」. Both directions, so neither side can
+    // 表 T-037's closing: 「`GRS` は、通知が運ぶ理由を 表 T-233 の行とすること。
+    // `GRS` は、表 T-233 に無い理由を運ばないこと」 and 「を持たない行を足す者は、`FR-038` の辞書
+    // の原稿にも項を足すこと」. Both directions, so neither side can
     // grow alone.
     expect([...DELIVERED.map((one) => one.specTableRowId)].sort()).toEqual([...ROWS_WITH_OWN_WORDS].sort())
   })

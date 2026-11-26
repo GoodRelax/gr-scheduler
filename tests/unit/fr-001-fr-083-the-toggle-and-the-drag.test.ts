@@ -173,21 +173,21 @@ const REQUIREMENTS = unbroken(readFileSync(
  * ⚠️ HELD AT 28 CHARACTERS, CHECK 39's FLOOR. Every longer window of this
  * marker reaches back across the blank line before its paragraph.
  */
-const SP_4_DOES_NOT_TURN_ON_THE_SELECTION = '*`SP-4` は選択の有無で変わらないこと（MUST）'
+const SP_4_DOES_NOT_TURN_ON_THE_SELECTION = '構えている入口を再び押したとき、`GRS` は、選択の有無によらず構えを解除すること（表 T-023b の注）。'
 
 const SP_4_DISARM_IS_NOT_REFUSED_FOR_A_SELECTION =
-  '構えを解除するかどうかを人が選べるようにする。**既に構えている入口を再び押したなら、何を選んでいても構えは解除される。**⛔ 選んでいるものが在ることを理由に、この解除を拒んではならない（MUST NOT）'
+  '`GRS` は、選択が在ることを理由に `SP-4` の解除を拒まないこと。'
 
 const T_023B_THE_REPRESS_MEANS_THE_SAME =
-  '`、またはパレットの同じ入口の再押下とすること（MUST）**（入口はトグルとし、解く手を人が選べるようにする） —— ⛔ 選んでいるものの有無で、この再押下の意味を変えてはならない（MUST NOT）'
+  '`GRS` は、選んでいるものの有無で、パレットの同じ入口の再押下の意味を変えないこと。'
 
 /** ⚠️ HELD AT 28 CHARACTERS, for the reason `SP_4_DOES_NOT_TURN_ON_THE_SELECTION` gives. */
-const EVERY_TASK_GROUP_ARMS_THE_PRESSED_SHAPE = '**どの行でも、押した入口の形状を構えること（MUST）'
+const EVERY_TASK_GROUP_ARMS_THE_PRESSED_SHAPE = '構えている入口ではない入口を押したとき、`GRS` は、選択の有無によらず押した入口の形状を構えること。'
 
 // RE-CUT: CR-375 dropped the dated citation this window used to open on;
 // re-cut short, right after the MUST that precedes it.
 const ARMING_IS_NOT_REFUSED_FOR_A_SELECTION =
-  'T）**—— ⛔ **選んでいるものが在ることを理由に、構えを拒んではならない（MUST NOT）'
+  '`GRS` は、選んでいるものが在ることを理由に構えを拒まないこと。'
 
 /**
  * ⭐ THE CLAUSE DFC-389 / DFC-402 ARE MEASURED AGAINST (2026-09-08). A palette press
@@ -196,19 +196,19 @@ const ARMING_IS_NOT_REFUSED_FOR_A_SELECTION =
  * ⚠️ HELD AT 90 -- the 120-character window crosses the paragraph break.
  */
 const FR_083_THE_ARMING_STANDS_THROUGH_A_REFUSAL =
-  'を変えることは、そのまま残る** —— **2 つは同じ押しの 2 つの結果であり、どちらかを選ぶものではない。**⛔ **形状の変更が拒まれたときも、構えは立てること（MUST）'
+  'もし `GRS` が形状の変更を拒んだ場合（`CM-20`）、`GRS` は押した入口の形状を構えること。'
 
 // -- Ruling B: a bar-shaped task needs a drag ------------------------------
 
 const BAR_SHAPE_DRAG_MAKES_THE_SPAN =
-  '⭐ バーの形状（表 T-012 の `SH-1` 〜 `SH-4`）を構えてドラッグしたときは、引いた期間のタスクを作ること（MUST）'
+  'バーの形状（表 T-012 の `SH-1` 〜 `SH-4`）を構えている間、ドラッグしたとき、`GRS` は引いた期間のタスクを作ること。'
 
 const FR_001_A_CLICK_MAKES_NO_BAR_TASK =
-  '⛔ クリックでは、バーの形状のタスクを作らないこと（MUST NOT）'
+  '`GRS` は、クリックではバーの形状のタスクを作らないこと。'
 
 // Why: CR-718 made TC-8 carry RS-53 and leave showing it to the T-233 display column (FR-076).
 const FR_001_TELLS_IT_MADE_NOTHING =
-  '⭐ 作らなかった理由として 表 T-233 の `RS-53` を運ぶこと（MUST）'
+  'もしクリックでバーの形状のタスクを作らなかった場合、`GRS` は、作らなかった理由として 表 T-233 の `RS-53` を `FR-029` の運び方で運ぶこと。'
 
 // ⛔ FR-083's SECOND COPY OF FR-001's PROHIBITION IS GONE, AND THAT IS THE
 // MANUSCRIPT MOVING, NOT COVERAGE BEING DROPPED (2026-09-08). FR-083's
@@ -223,13 +223,13 @@ const FR_001_TELLS_IT_MADE_NOTHING =
 // -- Ruling B's control half: the milestone is exempt, both ways ------------
 
 const MILESTONE_IS_PLACED_BY_A_PRESS_ALONE =
-  '⛔ マイルストーンは押すだけで置くこと（MUST）'
+  'マイルストーンの形状を構えている間、押したとき、`GRS` は押しただけでマイルストーンを置くこと。'
 
 const MILESTONE_LANDS_ON_THE_PRESSED_POINT =
-  '⛔ マイルストーンは押すだけで置くこと（MUST）。引いても、押した点に置くこと（MUST）'
+  'マイルストーンの形状を構えている間、引いたとき、`GRS` は押した点にマイルストーンを置くこと。'
 
 const MILESTONE_IS_NOT_REFUSED_FOR_A_DRAG =
-  'MUST）。引いても、押した点に置くこと（MUST） —— **マイルストーンは長さを持たないので、引いた長さに意味が無い。**⛔ **引いたことを理由に拒んではならない（MUST NOT）'
+  '`GRS` は、引いたことを理由にマイルストーンを置く操作を拒まないこと。'
 
 // -- Ruling C: the picture a held press owes, and the one press that ends it --
 //
@@ -240,26 +240,26 @@ const MILESTONE_IS_NOT_REFUSED_FOR_A_DRAG =
 // Ruling A is its first clause; the constants below are its second and fourth.
 
 const PD_4_DRAWS_WHAT_WOULD_BE_PLACED =
-  '注記を構えている**（表 T-023b の AR-2 / AR-3 / AR-5 / AR-6） | 構えているものを**作る**。⭐ 押しているあいだ、置くことになる姿を、表 T-023d の閉じの規則と同じ作法で描くこと（MUST）'
+  '押している間、`GRS` は、置くことになる姿を、表 T-023d の閉じの規則と同じ作法で描くこと。'
 
 const PD_4_STRETCHES_THE_WAY_THE_POINTER_WENT =
-  'd の閉じの規則と同じ作法で描くこと（MUST）—— ⚠️ **あちらは掴み領域の規則であり、本行は掴んでいないので自分で述べる必要がある。**⭐ **伸びる向きは、引いた向きとすること（MUST）'
+  '`GRS` は、置くことになる姿を、引いた向きへ伸ばすこと。'
 
 const PD_4_THE_DRAFT_IS_THE_ARMED_SHAPE =
-  '）—— ⚠️ **あちらは掴み領域の規則であり、本行は掴んでいないので自分で述べる必要がある。**⭐ **伸びる向きは、引いた向きとすること（MUST）。**⛔ その姿は、構えているタスクグループが 表 T-012 で持つ形状とすること（MUST）'
+  '`GRS` は、置くことになる姿を、構えているタスクグループが 表 T-012 で持つ形状だけで描くこと。'
 
 const PD_4_NO_OTHER_SHAPE_IS_DRAWN =
-  '行は掴んでいないので自分で述べる必要がある。**⭐ **伸びる向きは、引いた向きとすること（MUST）。**⛔ その姿は、構えているタスクグループが 表 T-012 で持つ形状とすること（MUST）。ほかの形状で描いてはならない（MUST NOT）'
+  '構えているタスクグループが 表 T-012 で持つ形状だけで描くこと'
 
 const PD_4_THE_SHAPE_IS_NOT_KEPT_IN_TWO_PLACES =
-  '2 で持つ形状とすること（MUST）。ほかの形状で描いてはならない（MUST NOT）—— **置こうとしている物と違う形が出る。**⛔ **形状を 2 か所に持たせてはならない（MUST NOT）'
+  '`GRS` は、形状を 2 か所に持たせないこと。'
 
 const PD_4_NOTHING_IS_WRITTEN_WHILE_HELD =
-  '*置こうとしている物と違う形が出る。**⛔ **形状を 2 か所に持たせてはならない（MUST NOT）** —— **描く側と置く側が同じ表を引くこと（MUST）。**⛔ **押しているあいだ値を文書へ書いてはならない（MUST NOT）'
+  '押している間、`GRS` は値を文書へ書かないこと（`FR-031`）。'
 
 /** ⚠️ HELD AT 60 -- the longer windows reach back across the paragraph break. */
 const FR_091_ONE_PRESS_CLOSES_AND_LETS_GO =
-  '後の名称を `Enter` で確定したときは、同じ 1 回の押下でプロパティパネルを閉じ、その選択を解除すること（MUST）'
+  '作った直後の名称を `Enter` で確定したとき、`GRS` は、同じ 1 回の押下でプロパティパネルを閉じること。'
 
 /** Every clause this file holds, with the name the two rulings know it by. */
 const CLAUSES: readonly (readonly [string, string])[] = [
@@ -282,6 +282,7 @@ const CLAUSES: readonly (readonly [string, string])[] = [
   ['T-023a PTD-4 (MUST NOT) -- the shape is not kept in two places', PD_4_THE_SHAPE_IS_NOT_KEPT_IN_TWO_PLACES],
   ['T-023a PTD-4 (MUST NOT) -- nothing is written to the document while held', PD_4_NOTHING_IS_WRITTEN_WHILE_HELD],
   ['FR-091 (MUST) -- one press closes the panel and lets that selection go', FR_091_ONE_PRESS_CLOSES_AND_LETS_GO],
+  ['FR-091 (MUST) -- one press closes the panel and lets that selection go', '作った直後の名称を `Enter` で確定したとき、`GRS` は、同じ 1 回の押下で作ったタスクの選択を解除すること。'],
 ]
 
 describe('the manuscript these cases are driven by', () => {

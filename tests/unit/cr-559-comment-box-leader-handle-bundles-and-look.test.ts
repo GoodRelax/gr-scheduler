@@ -32,45 +32,46 @@ const DOCUMENT_COMMANDS = readFileSync(join(SPEC, '_assets', 'tbl-document-comma
 
 // Spec: T-023d
 const BODY_OR_LEADER_MOVES_ALONE =
-  '⭐ 本体（本文の箱の全体）か引出し線（線から左右へ同表の `S-291`）を掴んで引いたときは、本文の箱だけを動かし、線先は動かさないこと（MUST） —— 本文の箱は引いた量だけ動かし、線先の日とタスクグループは今のままとする（箱を空いた所へよけるたびに指す先が変わると、どのタスクについてのコメントかが崩れる）。'
+  '本体（本文の箱の全体）か引出し線（線から左右へ `_assets/tbl-settings.md` の 表 T-206 の `S-291`）を掴んで引いたとき、`GRS` は、本文の箱だけを引いた量だけ動かし、線先の日とタスクグループを今のままにすること。'
 const ONE_BUNDLE =
-  'その動きは、`_assets/tbl-document-commands.md` の 表 T-108 の `CM-51`（ずれ）だけを書くこと（MUST） —— `CM-50`（線先）は書かない。'
+  '`GRS` は、`IMPS-1538` の動きを、`_assets/tbl-document-commands.md` の 表 T-108 の `CM-51`（ずれ）だけで書くこと（`CM-50`（線先）は書かない）。'
 const BODY_NO_TASK_GROUP =
-  '離した位置の下に描かれたタスクグループが無いときは、どちらも動かさず、表 T-233 の `RS-44` を運ぶ —— 表 T-246 の `HB-3` と同じ扱いである。'
+  '線先を引いて離した位置の下に描かれたタスクグループが無いとき、`GRS` は、本文の箱と線先のどちらも動かさず、表 T-233 の `RS-44` を運ぶこと。'
 const ANCHOR_MOVES_ALONE =
-  '⭐ 線先（線先から同表の `S-292`）を掴んで引いたときは、線先だけを動かし、本文の箱を画面の上で動かさないこと（MUST） —— `CM-50` で線先を、`CM-51` で、置き直した線先を描く点から押したときの本文の箱の左下隅までのずれを、1 つの束にして書く。'
-const ONE_UNDO = '⭐ 線先を引いたときの 2 つは 1 つの束なので、1 度の取り消し（`FR-031`）で 2 つとも戻る。'
+  '線先（線先から 表 T-206 の `S-292`）を掴んで引いたとき、`GRS` は、線先だけを動かし、本文の箱を画面の上で動かさないこと。'
+const ONE_UNDO = '`GRS` は、`IMPS-1541` の束を、1 度の取り消し（`FR-031`）で 2 つとも戻すこと。'
 const HANDLE_WHILE_SELECTED =
-  '⭐ コメントボックスを選んでいるあいだ（表 T-023c の `SL-8`）は、線先に四角の印を描き、線先を掴めることを示すこと（MUST）。'
+  'コメントボックスを選んでいる間（表 T-023c の `SL-8`）、`GRS` は、線先に四角の印を描き、線先を掴めることを示すこと。'
 const HANDLE_SHAPE =
-  '印は、線先の点を中心とする一辺 `_assets/tbl-settings.md` の 表 T-206 の `S-376` の正方形とし、中を同書の 表 T-236 の `S-146`、縁を同表の `S-151` で、縁の太さを 表 T-206 の `S-174` で描くこと（MUST）。'
-const HANDLE_NOT_SCALED = '⛔ 印に倍率を掛けてはならない（MUST NOT） —— 印が示す掴み代 `S-292` は画面の px である。'
-const HANDLE_AT_ZO_10 = '重ね順は 表 T-020 の `ZO-10` とする —— 線先が本文の箱の中やタスクの上に在っても、印は隠れない。'
-const NO_HANDLE_UNSELECTED = '⛔ 選んでいないコメントボックスの線先に印を描いてはならない（MUST NOT）'
-const HANDLE_KEEPS_THE_REACH = '⚠️ 印は見せ方だけであり、掴み代を変えない —— 線先は、選んでいてもいなくても `S-292` で応える。'
+  '`GRS` は、線先の印を、線先の点を中心とする一辺 `_assets/tbl-settings.md` の 表 T-206 の `S-376` の正方形とし、中を `_assets/tbl-settings.md` の 表 T-236 の `S-146`、縁を 表 T-236 の `S-151`、縁の太さを 表 T-206 の `S-174` で描くこと。'
+const HANDLE_NOT_SCALED = '`GRS` は、線先の印に倍率を掛けないこと。'
+const HANDLE_AT_ZO_10 = '`GRS` は、線先の印の重ね順を 表 T-020 の `ZO-10` とすること。'
+const NO_HANDLE_UNSELECTED = '`GRS` は、選んでいないコメントボックスの線先に印を描かないこと。'
+const HANDLE_KEEPS_THE_REACH = '`GRS` は、線先を、選んでいてもいなくても `S-292` で応えさせること（線先の印は掴み代を変えない）。'
 const BODY_DOES_NOT_PASS_THROUGH =
-  '⛔ 本文の箱の中を素通しにしてはならない（MUST NOT） —— 箱の中は、塗りの透過率（`_assets/fig-erd-detail.md` の `AT-151`、`FR-019`）によらず本体として応える。'
+  '`GRS` は、本文の箱の中を素通しにせず、塗りの透過率（`_assets/fig-erd-detail.md` の `AT-151`、`FR-019`）によらず本体として応えさせること。'
 // Spec: FR-106
 const FR_106_ANCHOR =
-  '⭐ コメントボックスの線先の掴み代（表 T-023d の `GR-14`、`_assets/tbl-settings.md` の 表 T-206 の `S-292`）では、表 T-269 の `PK-11` とすること（MUST）'
+  '`GRS` は、コメントボックスの線先の掴み代（表 T-023d の `GR-14`、`_assets/tbl-settings.md` の 表 T-206 の `S-292`）では、表 T-269 の `PK-11` にすること。'
 // Spec: FR-019
 const LEADER_ONE_CORNER =
-  '⭐ 描き方はこうである（MUST）: 留めた点と、本文の箱の 4 隅のうち `05-07-design.md` の 表 T-221 の `LF-17` が選ぶ 1 隅とを、1 本の線で結ぶこと。'
+  '`GRS` は、留めた点と、本文の箱の 4 隅のうち `05-07-design.md` の 表 T-221 の `LF-17` が選ぶ 1 隅とを、1 本の線で結んで引出しを描くこと。'
 const NULLS_DRAW_DEFAULTS =
-  '⭐ 太さと透過率の列が `null` のときは 表 T-217 の同じ列の既定で、色の 3 列が `null` のときは、線を注記の色（`_assets/tbl-settings.md` の 表 T-236 の `S-312`）、塗りを地の色（同表の `S-146`）、字を文字の色（同表の `S-147`）で描き、字の大きさの列（`AT-168`）が `null` のときは 表 T-217 の `S-624` の既定で描くこと（MUST） —— 線・塗り・字の色の 5 列がすべて `null` の箱は、列を足す前と同じ線と色になる。'
-const PLACED_WITH_NULLS = '⭐ 置くとき（`_assets/tbl-document-commands.md` の 表 T-108 の `CM-46`）は 6 列を `null` とすること（MUST）'
-const ONE_COLOR_ONE_WIDTH = '⭐ 枠と引出し線は 1 つの色と 1 つの太さで描く'
-const WIDTH_NOT_SCALED = '⛔ 線の太さに倍率を掛けてはならない（MUST NOT）'
+  '太さと透過率の列が `null` のとき、`GRS` は、`IMPS-845` の 1 文目と同じく、表 T-217 の同じ列の既定で描くこと。色の 3 列が `null` のとき、`GRS` は、線を注記の色（`_assets/tbl-settings.md` の 表 T-236 の `S-312`）、塗りを地の色（表 T-236 の `S-146`）、字を文字の色（表 T-236 の `S-147`）で描くこと。字の大きさの列（`AT-168`）が `null` のとき、`GRS` は、表 T-217 の `S-624` の既定で描くこと。'
+const PLACED_WITH_NULLS = 'コメントボックスを置くとき（`_assets/tbl-document-commands.md` の 表 T-108 の `CM-46`）、`GRS` は、6 列を `null` とすること。'
+const ONE_COLOR_ONE_WIDTH = '`GRS` は、枠と引出し線を 1 つの色と 1 つの太さで描くこと。'
+const WIDTH_NOT_SCALED = '`GRS` は、線の太さに倍率を掛けないこと。'
 const FILL_RULE =
-  '⭐ `CommentBox.fillColor`（`AT-150`）は、本文の箱の中を、その色の塗りの値で、不透明度を 1 − `AT-151` ÷ 100 として塗ること（MUST）'
-const STROKE_RULE = '⭐ `CommentBox.strokeColor`（`AT-148`）は、本文の箱の枠と引出し線を、その色の縁の値で描くこと（MUST）'
-const TEXT_RULE = '⭐ `CommentBox.textColor`（`AT-152`）は、本文の字を、その色の縁の値で描くこと（MUST）'
-const FILL_ONLY = '透過率は塗りにだけ掛け、枠・引出し線・字には掛けない。'
-const NO_TRANSPARENT_LINE_OR_TEXT = '⛔ コメントボックスの線の色と字の色に透明を選ばせてはならない（MUST NOT）'
-const FILL_MAY_BE_TRANSPARENT = '塗りには透明を選ばせてよい。'
-const CLAMPED_NOT_REWRITTEN = '範囲へ寄せて描き、文書を書き換えないこと（MUST）'
+  '`GRS` は、本文の箱の中を、`CommentBox.fillColor`（`AT-150`）の色の塗りの値で、不透明度を 1 − `AT-151` ÷ 100 として塗ること'
+const STROKE_RULE = '`GRS` は、本文の箱の枠と引出し線を、`CommentBox.strokeColor`（`AT-148`）の色の縁の値で描くこと'
+const TEXT_RULE = '`GRS` は、本文の字を、`CommentBox.textColor`（`AT-152`）の色の縁の値で描くこと'
+const FILL_ONLY = '`GRS` は、透過率を塗りにだけ掛け、枠・引出し線・字には掛けないこと。'
+const NO_TRANSPARENT_LINE_OR_TEXT = '`GRS` は、コメントボックスの線の色と字の色に透明を選ばせないこと。'
+const FILL_MAY_BE_TRANSPARENT = '`GRS` は、塗りに透明を選ばせてもよい。'
+const CLAMPED_NOT_REWRITTEN =
+  '`GRS` は、範囲へ寄せて描くこと。表 T-217 の数値の列が範囲の外の値を持つ文書を読んだとき、`GRS` は、文書を書き換えないこと。'
 const OUT_OF_RANGE_REFUSED =
-  '⭐ 同じ範囲の外の値を置く命令（表 T-108 の `CM-77` ・ `CM-79` ・ `CM-81` ・ `CM-83`）は拒むこと（MUST）'
+  '`GRS` は、同じ範囲の外の値を置く命令（表 T-108 の `CM-77` ・ `CM-79` ・ `CM-81` ・ `CM-83`）を拒むこと。'
 // Spec: LF-17
 const LF_17_SIDE = '横は、留めた点（`LF-15`）が本文の箱の横の中点より右に在れば右、そうでなければ左の隅とする。'
 const LF_17_UPDOWN = '縦は、留めた点が箱の縦の中点より上に在れば上、そうでなければ下の隅とする。'
@@ -78,9 +79,9 @@ const LF_17_TIE = '⭐ 中点に等しいときは左と下を採る'
 const LF_17_INSIDE = '⭐ 留めた点が本文の箱の中（縁を含む）に在るときは、引出し線を描かない'
 const LF_17_HANDLE_INSIDE = '⚠️ 線先の印（同書の 表 T-023d の結び）はそのときも描く'
 const MISSING_COLUMNS_READ_AS_NULL =
-  '`AT-148` 〜 `AT-152` と `AT-168` の列を持たない `CommentBox` の項には、その列を `null` として足して読むこと（MUST）'
-const WHATEVER_THE_VERSION = '⭐ 形式の版（`FR-073`）によらずに足す'
-const SILENTLY = '足したことを通知してはならない（MUST NOT）'
+  '`AT-148` 〜 `AT-152` と `AT-168` の列を持たない `CommentBox` の項に、欠けている列を `null` として足すこと。'
+const WHATEVER_THE_VERSION = '`GRS` は、欠けている列を形式の版（`FR-073`）によらずに足すこと。'
+const SILENTLY = '`GRS` は、欠けている列を足したことを通知しないこと。'
 
 const CM_ROWS = [
   ['CM-80', 'setCommentBoxStrokeColor'],
@@ -468,6 +469,7 @@ describe('CR-559 premises: the clauses these cases read, and the fixture they st
       ONE_BUNDLE,
       BODY_NO_TASK_GROUP,
       ANCHOR_MOVES_ALONE,
+      '`GRS` は、`IMPS-1540` の動きを、`CM-50` で線先を、`CM-51` で置き直した線先を描く点から押したときの本文の箱の左下隅までのずれを、1 つの束にして書くこと。',
       ONE_UNDO,
       HANDLE_WHILE_SELECTED,
       HANDLE_SHAPE,

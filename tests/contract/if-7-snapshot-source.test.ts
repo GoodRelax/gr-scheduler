@@ -330,8 +330,8 @@ describe(`IF-7 ${bare(IF_7['インターフェース'] ?? '')} -- the picture th
 describe('IF-7 -- the environment the picture is built in is not the one on the screen', () => {
   it('the shell closes the properties panel and gives its room to the schedule (FR-080, MUST)', () => {
     // FR-080 (MUST) writes the properties panel as closed for the export and
-    // (MUST NOT) leaves its place blank: 「閉じたぶんの場所は日程に使う —— 画面で
-    // 閉じたときと同じ絵になる」.
+    // (MUST NOT) leaves its place blank: 「`GRS` は、閉じたぶんの場所を日程に使うこと
+    // —— 画面で閉じたときと同じ絵になる」.
     //
     // ⚠️ ASKED OF A SCREEN THAT HAS THE PANEL OPEN. A shell starts with the
     // panel not shown (S-99h), so its screen already agrees with the export --

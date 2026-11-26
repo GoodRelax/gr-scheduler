@@ -17,10 +17,10 @@ const REQUIREMENTS = unbroken(readFileSync(join(SPEC, '01-04-requirements.md'), 
 
 // Spec: FR-019, CM-46
 const CM_46_FIVE_NULLS =
-  '⭐ 置くとき（`_assets/tbl-document-commands.md` の 表 T-108 の `CM-46`）は 6 列を `null` とすること（MUST）'
+  'コメントボックスを置くとき（`_assets/tbl-document-commands.md` の 表 T-108 の `CM-46`）、`GRS` は、6 列を `null` とすること。'
 // Spec: FR-057, CM-39
 const CM_39_WRITER_ALIGNS =
-  '例外日の `fromDate` ／ `toDate` は、`CM-39`（`_assets/tbl-document-commands.md` の 表 T-108）を受けて文書へ書く側が、足した行と日の動いた列だけを `WT-6` ／ `WT-7` の時刻で書くこと（MUST）'
+  '`CM-39`（`_assets/tbl-document-commands.md` の 表 T-108）を受けて文書へ書く側は、例外日の `fromDate` ／ `toDate` のうち、足した行と日の動いた列だけを `WT-6` ／ `WT-7` の時刻で書くこと。'
 // Spec: UF-16
 const UF_16_ONLY_UNIT = '例外日の日付の時刻を揃えるのは本ユニットだけである（`_assets/tbl-document-commands.md` の `CM-39`）。'
 

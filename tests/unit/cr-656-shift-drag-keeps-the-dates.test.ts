@@ -57,14 +57,14 @@ describe('CR-656 -- the rows these cases are driven by', () => {
     expect(text).toContain('タスクの本体の上から始める、`Shift` だけを伴う左ドラッグ')
     expect(text).toContain('表 T-023a の `PTD-3`')
     expect(text).toContain('日付を変えず、タスクグループだけを移す')
-    expect(text).toContain('選択に含まれないタスクから始めれば、そのタスクを選択に足し、選択の全部を移す（表 T-023c の `SL-4`）')
+    expect(text).toContain('選択に含まれないタスクから始めたとき、`GRS` は、始めたタスクを選択に足し、選択の全部を移すこと（表 T-023c の `SL-4`）。')
   })
 
   it('MK-7 / MK-15: Ctrl alone or Ctrl + Shift; with Shift the copy keeps the dates (CY-5)', () => {
     expect(rowText('T-023', 'MK-7')).toContain('`Ctrl` だけか `Ctrl` ＋ `Shift` を伴うドラッグ')
     const mk15 = rowText('T-023', 'MK-15')
     expect(mk15).toContain('`Ctrl` だけか `Ctrl` ＋ `Shift` を伴う左ドラッグ')
-    expect(mk15).toContain('`Shift` を伴えば日付を変えずにコピーする')
+    expect(mk15).toContain('`Shift` を伴うとき、`GRS` は日付を変えずにコピーすること（表 T-308 の `CY-5`）。')
   })
 
   // Why: CR-850 retired MK-17, so MK-12 no longer carves the Alt grab drag out of the unassigned combination.
@@ -72,42 +72,42 @@ describe('CR-656 -- the rows these cases are driven by', () => {
     const row = rowOf('T-023', 'MK-12')
     expect(flat(row.cells[0] ?? '')).toBe('割当の無い修飾キー付きドラッグ（`Alt` ＋ ドラッグ）')
     expect(rowText('T-023', 'MK-12')).toContain('`Ctrl` ＋ `Shift` ＋ ドラッグは割当を持つ（`MK-7` ・ `MK-15`）')
-    expect(rowText('T-023', 'MK-12')).toContain('当たっていれば `PTD-3` によりそのものへの操作になる')
+    expect(rowText('T-023', 'MK-12')).toContain('`GRS` は、`MK-12` の組合せで何が起きるかを表 T-023a の判定順序で決めること。')
   })
 
   it('PTD-7 / PTD-1: Ctrl alone or Ctrl + Shift; the background and unselected things pan even with Shift', () => {
     expect(rowText('T-023a', 'PTD-7')).toContain('`Ctrl` だけか `Ctrl` ＋ `Shift` を伴う左ドラッグで、`Dual Cursor` モード中でなく')
     const ptd1 = rowText('T-023a', 'PTD-1')
     expect(ptd1).toContain('中ボタンドラッグ、または `Ctrl` だけか `Ctrl` ＋ `Shift` を伴う左ドラッグ')
-    expect(ptd1).toContain('背景と、選択に含まれないものの上から始めた `Ctrl` ドラッグは、`Shift` を伴っても本行である')
+    expect(ptd1).toContain('`GRS` は、背景と、選択に含まれないものの上から始めた `Ctrl` ドラッグを、`Shift` を伴っても `PTD-1` とすること。')
   })
 
   it('PTD-3: a Shift-only drag from a task body keeps the dates and changes task groups only', () => {
-    expect(rowText('T-023a', 'PTD-3')).toContain('`Shift` だけを伴ってタスクの本体から引いたときは、日付を変えずにタスクグループだけを移す（表 T-023 の `MK-16`')
+    expect(rowText('T-023a', 'PTD-3')).toContain('`Shift` だけを伴ってタスクの本体から引いたとき、`GRS` は、日付を変えずにタスクグループだけを移すこと（表 T-023 の `MK-16`、効果は `FR-107` の 表 T-270）。')
   })
 
   it('SL-4: a Shift body drag adds the pressed task and moves the whole selection; a click still adds or removes one', () => {
     const text = rowText('T-023c', 'SL-4')
-    expect(text).toContain('クリックなら 1 つずつ増減し')
-    expect(text).toContain('タスクの本体を引けば、押したタスクを選択に足し（含まれていれば選択はそのまま）、選択の全部を動かす（表 T-023 の `MK-16`）')
-    expect(text).toContain('引いたときは増減しない')
-    expect(text).toContain('`Shift` で引いたときは、`SL-7a` のとおり掴んだ 1 つに絞る')
+    expect(text).toContain('`Shift` を併用してクリックしたとき、`GRS` は、選択を 1 つずつ増減すること。')
+    expect(text).toContain('`Shift` を併用してタスクの本体を引いたとき、`GRS` は、選択の全部を動かすこと（表 T-023 の `MK-16`）。')
+    expect(text).toContain('`Shift` を併用してタスクの本体を引いたとき、`GRS` は、選択を増減せず、離した後も全部を選んだままとすること（`FR-107` の 表 T-270）。')
+    expect(text).toContain('端・フェードの掴み点・進捗マーカー・ダミー・再開アイコンを `Shift` を併用して引いたとき、`GRS` は、`SL-7a` のとおり選択を掴んだ 1 つに絞ること。')
   })
 
   it('T-270: a Shift-only body drag applies only the vertical part and reads Shift at the press', () => {
     expect(REQUIREMENTS).toContain(
-      '`Shift` だけを伴って本体（`PE-1` ・ `PE-6`）を引いたときは、横の成分を当てず、縦だけを当てること（MUST） —— 選択の全部を、横は 0 日、縦は同じ数のタスクグループぶんだけ動かし、予定も実績も日付を変えない（表 T-023 の `MK-16`）。',
+      '`Shift` だけを伴って本体（`PE-1` ・ `PE-6`）を引いたとき、`GRS` は、横の成分を当てず、縦だけを当てること —— 選択の全部を、横は 0 日、縦は同じ数のタスクグループぶんだけ動かし、予定も実績も日付を変えない（表 T-023 の `MK-16`）。',
     )
-    expect(REQUIREMENTS).toContain('押したタスクが選択に含まれないときは、それを選択に足してから全部を動かすこと（MUST）（表 T-023c の `SL-4`）。')
-    expect(REQUIREMENTS).toContain('`Shift` は押した時点で読み、押しているあいだに押しても離しても変えないこと（MUST）')
+    expect(REQUIREMENTS).toContain('`IMPS-1653` で押したタスクが選択に含まれないとき、`GRS` は、押したタスクを選択に足してから全部を動かすこと（表 T-023c の `SL-4`）。')
+    expect(REQUIREMENTS).toContain('`GRS` は、`Shift` を押した時点で読み、押している間に `Shift` を押しても離しても変えないこと —— `FR-033` の 表 T-308 の `CY-11` と同じ読みである。')
   })
 
   it('CY-1 / CY-2 / CY-5 / CY-7 / CY-11: Ctrl + Shift copies with a 0 shift, unstarted, judged at the press', () => {
     expect(rowText('T-308', 'CY-1')).toContain('`Ctrl` だけか `Ctrl` ＋ `Shift` を伴って押した、選択に含まれるタスク（マイルストーンを含む）の本体')
-    expect(rowText('T-308', 'CY-2')).toContain('表 T-023a の `PTD-1` のパンである')
-    expect(rowText('T-308', 'CY-5')).toContain('`Shift` も伴って押したときは量を 0 とし、コピーの予定をコピー元と同じ日時とすること（MUST）')
-    expect(rowText('T-308', 'CY-7')).toContain('コピーは実績を持たない')
-    expect(rowText('T-308', 'CY-11')).toContain('押した時点の修飾キーで決め、押しているあいだに `Ctrl` や `Shift` を押しても離しても変えないこと（MUST）')
+    expect(rowText('T-308', 'CY-2')).toContain('選択に含まれないものの上から `Ctrl` だけか `Ctrl` ＋ `Shift` を伴って引いたとき、`GRS` は、押したものを選び直してコピーせずに、表 T-023a の `PTD-1` のパンを行うこと。')
+    expect(rowText('T-308', 'CY-5')).toContain('`Shift` も伴って押したとき、`GRS` は、量を 0 として、コピーの予定をコピー元と同じ日時にすること。')
+    expect(rowText('T-308', 'CY-7')).toContain('`GRS` は、コピーを、表 T-223 の `DU-1` のとおり、実績を持たない未着手として作ること（貼り付けと同じ）。')
+    expect(rowText('T-308', 'CY-11')).toContain('`GRS` は、押した時点の修飾キーで決めること（押しているあいだに `Ctrl` や `Shift` を押しても離しても変えない）。')
   })
 
   // Why: CR-785 moved MK-16 from the rows the help shows to the rows that are known by touching; CR-850 then retired MK-17 from that list.

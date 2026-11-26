@@ -1,8 +1,8 @@
 // 表 T-023b の締めの段落 (docs/spec/01-04-requirements.md):
 //
-//   「**`Dual Cursor` モード（表 T-029a）に入るときも構えを外すこと（MUST）**
-//    —— 同モードは作成・移動・編集を受け付けないので、構えたまま入れると何も
-//    起きない構えが残る。」
+//   「`Dual Cursor` モード（表 T-029a）に入るとき、`GRS` は構えを外すこと。…
+//    `IMPS-1503` —— `Dual Cursor` モードは作成・移動・編集を受け付けないので、
+//    構えたまま入れると何も起きない構えが残る。」
 //
 // The unit driven is `screenStateFromInput` of UF-48 `input-command-translator`
 // (component `InputCommandTranslator`, CP-18 of table T-062, published as PI-18
@@ -47,9 +47,9 @@
 // THE ROWS THESE CASES REST ON
 // ---------------------------------------------------------------------------
 //   T-023b 締め   the clause quoted at the head, and the two beside it that
-//                 make the control below meaningful: 「**構えは持続すること
-//                 （MUST）。**」 and 「**解除は `Esc`、またはパレットの同じ入口
-//                 の再押下とすること（MUST）**」
+//                 make the control below meaningful: 「`GRS` は、構えを持続
+//                 させること。」 and 「`Esc` か、パレットの同じ入口の再押下を受けたとき、
+//                 `GRS` は構えを解除すること（入口はトグルとする）。」
 //   T-023b AR-1.. the six values an arm may take
 //   T-029a DC-1   「入る | パレットの `Dual Cursor` の入口を押す」 -- so the
 //                 press this file makes IS the entrance the clause speaks of
@@ -58,7 +58,7 @@
 //                 say which of the two a press is
 //   T-109 IC-45   「`Command Palette` | カーソル | デュアルカーソルの 2 本を
 //                 置く（`S-65`）| `FR-082` |」 -- the row that entrance is
-//   T-023a PTD-2   「`Dual Cursor` モード中 | **当たり判定を行わない。**」 -- the
+//   T-023a PTD-2   「`Dual Cursor` モード中 | `GRS` は、当たり判定を行わないこと。」 -- the
 //                 reason the clause gives, stated as its own row
 //   FR-083 SP-1 / SP-4  what a palette press means when nothing is selected:
 //                 arm it, and un-arm it on a second press. These are the
@@ -128,10 +128,10 @@ import { specTable, unbroken } from './spec-table'
 // the selection), so the anchor now starts at the exclusivity sentence -- which
 // is still the same paragraph, and still what makes 「入るとき」 legible.
 const THE_CLAUSE =
-  '構えの各値は排他であり、依存線を構えれば図形の構えは外れる。`Dual Cursor` モード（表 T-029a）に入るときも構えを外すこと（MUST）'
+  '`Dual Cursor` モード（表 T-029a）に入るとき、`GRS` は構えを外すこと。'
 
 /** The reason the same paragraph gives, which is why 「入るとき」 is not 「出るとき」. */
-const THE_REASON = '同モードは作成・移動・編集を受け付けないので、構えたまま入れると何も起きない構えが残る'
+const THE_REASON = '`IMPS-1503` —— `Dual Cursor` モードは作成・移動・編集を受け付けないので、構えたまま入れると何も起きない構えが残る。'
 
 const REQUIREMENTS = unbroken(readFileSync(
   join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'),
@@ -381,7 +381,7 @@ describe('DFC-295 -- the manuscript this file is driven by', () => {
 })
 
 // ===========================================================================
-// 4. 「`Dual Cursor` モード（表 T-029a）に入るときも構えを外すこと（MUST）」
+// 4. 「`Dual Cursor` モード（表 T-029a）に入るとき、`GRS` は構えを外すこと。」
 // ===========================================================================
 
 describe('T-023b closing paragraph (MUST) -- entering the Dual Cursor drops the arm', () => {
@@ -473,7 +473,7 @@ describe('FR-083 SP-1 / SP-4 -- the arming entrances still arm and still un-arm'
   })
 
   it('SP-4: pressing the entrance that is already armed un-arms it', () => {
-    // 「解除は `Esc`、またはパレットの同じ入口の再押下とすること（MUST）」 -- so
+    // 「`Esc` か、パレットの同じ入口の再押下を受けたとき、`GRS` は構えを解除すること」 -- so
     // the second press of the SAME entrance answers AR-1, and that is a
     // different fact from IC-45's. ⚠️ The clause lost its DFC-383 「何も選んでいないとき
     // の」 on 2026-09-07 (the user's ruling 「トグルにせよ」); every case in this
@@ -488,8 +488,8 @@ describe('FR-083 SP-1 / SP-4 -- the arming entrances still arm and still un-arm'
 
   it('the guide-cursor entrances touch the arm at neither end (FR-048)', () => {
     // ⚠️ 表 T-029a's closing note: 「`+`（十字）と `|`（縦 1 本）のガイドカーソル
-    // は表示だけであり、編集を妨げない。**排他になるのは `Dual Cursor` だけで
-    // ある。**」 -- so the guide-cursor entrances are the nearest neighbors of
+    // は表示だけである。」 and `IMPS-860`: 「`GRS` は、編集を受け付けない排他を、`Dual Cursor`
+    // のモード（`DC-5`）だけに掛けること。」 -- so the guide-cursor entrances are the nearest neighbors of
     // IC-45 that must NOT drop the arm, and they are what stops "any cursor
     // entrance clears it" from passing.
     // ⭐ TWO, NOT FOUR: 表 T-109 gives FR-048 exactly the pair below, because

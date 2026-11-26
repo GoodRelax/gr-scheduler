@@ -270,7 +270,7 @@ const STARTING_STAMP = {
   fileSavedAt: null,
 } as const
 
-const SJ_2_NO_STEP = '1 つも変わらなければ段を積まない'
+const SJ_2_NO_STEP = '`SJ-2` で `treeState` の値が 1 つも変わらないとき、`GRS` は、取り消しの段を積まないこと。'
 
 const OPEN_SCHEDULE: Loose = {
   ...SMALL_SCHEDULE,
@@ -1486,7 +1486,7 @@ describe('FR-028 -- accepted or refused, always as a value', () => {
 
   // ⛔⛔ THIS CASE COVERED ALL FIFTEEN CALLS UNTIL 2026-09-07 (台帳 DFC-356), AND
   // ITS BLANKET CLAIM WAS NOT THE SPECIFICATION'S. FR-028 (MUST NOT) forbids the
-  // THROW -- 「受理したか否かを値で返すこと。例外を投げてはならない（MUST NOT）」 --
+  // THROW -- 「`GRS` は、受理したか否かを値で返すこと。`GRS` は、`Agent API` の呼び出しで例外を投げないこと。」 --
   // and says nothing about waiting; AG-7 asks an export to come back as a value
   // rather than as a download dialogue, and AG-8 asks a FAILED image to come
   // back as a value. ⭐ A promise that always settles is both of those.

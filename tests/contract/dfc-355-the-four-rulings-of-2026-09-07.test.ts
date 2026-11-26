@@ -129,17 +129,17 @@ const NOTICE_ROSTER = unbroken(readFileSync(
 // -- FR-012, the percent complete a calendar edit moves --------------------
 
 const FR_012_RECOUNT_ON_CALENDAR_EDIT =
-  '`FR-011` が日付から数えた実績の長さである —— 文書の列ではない。 日付を編集したときは再計算すること。⭐ **稼働日の暦を編集したときも、格納済みの完了率を数え直すこと（MUST）'
+  '稼働日の暦が変わったとき、`GRS` は、格納済みの完了率を数え直すこと。'
 
 // Why: CR-710 rewrote this clause (FR-054 reads instants and counts working time in minutes).
 const FR_012_TELL_WITH_A_COUNT =
-  'T）**—— 分子も分母も文書の暦の稼働時間で数えるので、暦が変われば日付が 1 日も動かなくても正しい値が変わる。⛔ 数え直したことを、値が変わった `Task` の件数を添えて告げること（MUST）'
+  '`GRS` が暦の編集で完了率を数え直したとき、`GRS` は、数え直したことを、値が変わった `Task` の件数を添えて告げること（作法は 表 T-037 の `NT-3`、理由は 表 T-233 の `RS-52`）。'
 
 const FR_012_SAME_WRITE =
-  '直したことを、値が変わった `Task` の件数を添えて告げること（MUST） —— 作法は 表 T-037 の `NT-3`、理由は 表 T-233 の `RS-52` が持つ。⛔ 暦の変更と同じ書き込みの中で行うこと（MUST）'
+  '稼働日の暦が変わったとき、`GRS` は、完了率の数え直しを暦の変更と同じ書き込みの中で行うこと。'
 
 const FR_012_NOT_A_SECOND_WRITE =
-  'えて告げること（MUST） —— 作法は 表 T-037 の `NT-3`、理由は 表 T-233 の `RS-52` が持つ。⛔ 暦の変更と同じ書き込みの中で行うこと（MUST）。別の書き込みに分けてはならない（MUST NOT）'
+  '`GRS` は、完了率の数え直しを、暦の変更と別の書き込みに分けないこと。'
 
 // -- T-233 RS-52, the reason the telling carries ---------------------------
 
@@ -149,13 +149,13 @@ const RS_52_NEVER_SILENTLY =
 // -- T-023d GR-21 and FR-051, the grip ------------------------------------
 
 const GR_21_LENGTH_IS_THE_VISIBLE_FRACTION =
-  'は `FR-051` が環境から確定させ、下限は `_assets/tbl-settings.md` の 表 T-206 の `S-205` が持つ）。⭐ 長さは、帯の長さに対する「見えている範囲 ÷ 全体」の割合とすること（MUST）'
+  '`GRS` は、つまみの長さを、帯の長さに対する「見えている範囲 ÷ 全体」の割合にすること。'
 
 const GR_21_FLOOR_IS_S_205 =
-  ' が持つ）。⭐ 長さは、帯の長さに対する「見えている範囲 ÷ 全体」の割合とすること（MUST） —— **新しい設定値を立てない（割合は既にある値から導ける）。**⭐ **ただし長さの下限を `S-205` とすること（MUST）'
+  '`GRS` は、つまみの長さの下限を `S-205` にすること。'
 
 const FR_051_SCROLLBAR_MOVES_THE_VIEW =
-  'TATEMENT**: `GRS` は、画面の各部を**表 T-031 の規則**でスクロールさせること。**スクロールバーの操作でも表示位置を変えられるようにすること（MUST）'
+  '`GRS` は、スクロールバーの操作でも表示位置を変えられるようにすること。'
 
 // -- FR-020, where the trail is said to be a trail -------------------------
 
@@ -207,16 +207,16 @@ const EP_1_DOES_NOT_MEASURE_THE_DOM =
  * this marker reaches back over the paragraph break before 「⛔ **前回」, and a
  * window carrying a line break is not one single-quoted literal.
  */
-const FR_060_DOES_NOT_REMEMBER_THE_FILE = '開いていたファイルを覚えてはならない（MUST NOT）'
+const FR_060_DOES_NOT_REMEMBER_THE_FILE = '`GRS` は、前回開いていたファイルを覚えないこと。'
 
 const FR_060_NO_STARTUP_RESTORE_OFFER =
-  ' NOT）**。⇒ **起動時に権限の復帰を申し出てもならない（MUST NOT）'
+  '`GRS` は、起動時に権限の復帰を申し出ないこと。'
 
 const FR_060_THE_PERSON_CHOOSES_AGAIN =
-  '**。⇒ **起動時に権限の復帰を申し出てもならない（MUST NOT）** —— **覚えていないので、申し出る相手が存在しない。**⭐ **起動した直後の最初の保存で、人がファイルを選び直すのが本仕様である（MUST）'
+  '起動した直後の最初の保存のとき、`GRS` は、人にファイルを選び直させること'
 
 const FR_060_NO_HANDLE_IN_BROWSER_STORAGE =
-  'ある（MUST）** —— 上書きが成り立つのは、**同じ起動のうちに一度保存先を決めたあと**である。⛔ そのためにファイルの取っ手を `localStorage` や `IndexedDB` へ保存してはならない（MUST NOT）'
+  '`GRS` は、ファイルの取っ手を `localStorage` や `IndexedDB` へ保存しないこと。'
 
 /** Every clause this file holds, with the name it is known by in the ledger. */
 const CLAUSES: readonly (readonly [string, string])[] = [
@@ -362,7 +362,7 @@ function watchBrowserStores(): StorageWatch {
 
 describe('FR-060 -- the overwrite target is this run’s, and nobody else’s', () => {
   it('⛔ a second run does not remember the file the first one opened', async () => {
-    // FR-060 (MUST NOT): 「前回開いていたファイルを覚えてはならない」, and (MUST)
+    // FR-060 (MUST NOT): 「`GRS` は、前回開いていたファイルを覚えないこと」, and (MUST)
     // 「起動した直後の最初の保存で、人がファイルを選び直す」.
     // ⭐ A RUN IS A CONSTRUCTION. `fileSystemAccessFileStore` is what the shell
     // builds once per page load, so a second call to the factory IS the next
@@ -389,8 +389,8 @@ describe('FR-060 -- the overwrite target is this run’s, and nobody else’s', 
   })
 
   it('⛔ opening and overwriting put nothing into localStorage or IndexedDB', async () => {
-    // FR-060 (MUST NOT): 「ファイルの取っ手を `localStorage` や `IndexedDB` へ
-    // 保存してはならない」.
+    // FR-060 (MUST NOT): 「`GRS` は、ファイルの取っ手を `localStorage` や `IndexedDB`
+    // へ保存しないこと」.
     const watch = watchBrowserStores()
     try {
       const store = fileSystemAccessFileStore(standInBrowser(standInHandle('plan.json')))
@@ -410,7 +410,7 @@ describe('FR-060 -- the overwrite target is this run’s, and nobody else’s', 
   })
 
   it('⛔ nothing is offered back at start-up, because nothing was kept', async () => {
-    // FR-060 (MUST NOT): 「起動時に権限の復帰を申し出てもならない」 -- and the
+    // FR-060 (MUST NOT): 「`GRS` は、起動時に権限の復帰を申し出ないこと」 -- and the
     // reason the requirement gives for it is 「覚えていないので、申し出る相手が
     // 存在しない」. ⭐ THAT IS THE SHAPE PRESSED HERE: on a fresh run there is
     // no file to offer, so an offer could only be about a file the run invented.

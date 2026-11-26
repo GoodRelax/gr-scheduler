@@ -507,7 +507,7 @@ const T_036_DRIVEN = [
  * the button table T-023 gives no row at all.
  */
 const MK_10_CTRL_P = '`Ctrl+P`（印刷）まで奪うと、ブラウザの機能が使えなくなる'
-const MK_10_CTRL_F = '⚠️ `Ctrl+F` は 表 T-036 の `SK-24` に割り当てたので、止める側である'
+const MK_10_CTRL_F = '`GRS` は、表 T-036 の `SK-24` に割り当てた `Ctrl+F` のブラウザの既定動作も止めること。'
 
 const NOT_ASSIGNED = [
   { why: 'MK-10 names it: `Ctrl+P`（印刷）', input: () => key('P', { ctrl: true }) },
@@ -1246,12 +1246,12 @@ describe('the specification still says what these cases copy', () => {
   })
 
   it('table T-036 still calls itself the whole roster of shortcut assignments', () => {
-    expect(REQUIREMENTS).toContain('本表がショートカットキーの割当の全数である')
+    expect(REQUIREMENTS).toContain('`GRS` は、表 T-036 に無いショートカットキーを持たないこと。')
   })
 
   it('MK-10 still names Ctrl+P as one this tool must not take, and Ctrl+F as SK-24, so taken', () => {
     const mk10 = rowOf('T-023', 'MK-10').cells.join(' ')
-    expect(mk10).toContain('割り当てていない組合せを止めてはならない（MUST NOT）')
+    expect(mk10).toContain('`GRS` は、割り当てていない組合せのブラウザの既定動作を止めないこと')
     expect(mk10).toContain(MK_10_CTRL_P)
     expect(mk10).toContain(MK_10_CTRL_F)
   })
@@ -1267,14 +1267,14 @@ describe('the specification still says what these cases copy', () => {
   })
 
   it('FR-046 still requires the reader’s local calendar day and forbids UTC', () => {
-    expect(REQUIREMENTS).toContain('ここでいう本日は、読む人の機のローカルの暦の日とすること（MUST）')
-    expect(REQUIREMENTS).toContain('UTC の暦の日を用いてはならない（MUST NOT）')
+    expect(REQUIREMENTS).toContain('`GRS` は、`IMPS-515` の本日を、読む人の機のローカルの暦の日とすること。')
+    expect(REQUIREMENTS).toContain('`GRS` は、`IMPS-515` の本日に UTC の暦の日を用いないこと。')
   })
 
   it('FR-063 still spells both instants ISO 8601, UTC, to the second', () => {
-    expect(REQUIREMENTS).toContain('刻はいずれも `ISO 8601`・UTC・秒までとすること（MUST）')
+    expect(REQUIREMENTS).toContain('`GRS` は、2 つの刻を、いずれも `ISO 8601`・UTC・秒までで書くこと')
     expect(REQUIREMENTS).toContain(
-      '見せ方の群だけを変える更新で、日程データの群の刻を動かしてはならない（MUST NOT）',
+      '`GRS` は、見せ方の群だけを変える更新で、日程データの群の刻を動かさないこと',
     )
   })
 
@@ -1302,16 +1302,16 @@ describe('the specification still says what these cases copy', () => {
     // one. A re-ordering of that table lands here.
     const t023d = specTable('T-023d')
     expect(t023d.rows[0]?.id, 'table T-023d no longer opens with the palette band').toBe('GR-19')
-    expect(REQUIREMENTS).toContain('上の行ほど優先すること（MUST）')
+    expect(REQUIREMENTS).toContain('`GRS` は、表 T-023d で先に並ぶ `GR` の行ほど優先すること。')
 
     const gr19 = t023d.rows[0]?.cells.join(' ') ?? ''
     expect(gr19).toContain(U_26_PART)
-    expect(gr19).toContain('掴めばパレットを動かす')
+    expect(gr19).toContain('掴み帯を掴んだとき、`GRS` はパレットを動かすこと（`FR-053`）。')
     expect(gr19).toContain('FR-053')
   })
 
   it('FR-053 still makes the palette something the person drags', () => {
-    expect(REQUIREMENTS).toContain('作成者がドラッグで動かせるようにすること')
+    expect(REQUIREMENTS).toContain('`GRS` は、作成者がコマンドパレットをドラッグで動かせるようにすること。')
   })
 
   it('table T-109 still answers the band by a row that is NOT a button', () => {

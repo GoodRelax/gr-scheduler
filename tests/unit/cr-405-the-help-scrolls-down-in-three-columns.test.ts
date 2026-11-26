@@ -37,23 +37,23 @@ import { bare, bareAll, specTable, unbroken, type SpecTable } from '../contract/
 const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
 const CLAUSES: readonly (readonly [string, string])[] = [
-  ['FR-036 (MUST) -- the help also shows the rows of T-255', '下の 表 T-255 の行を示すこと（MUST）'],
-  ['FR-036 (MUST) -- every block carries a heading (CR-635)', 'どの塊にも見出しを刷ること（MUST）'],
-  ['T-255 (MUST NOT) -- a row whose combination T-036 holds is not listed', '表 T-036 のいずれかの行が同じ組を `割当` に持つ本表の行を、ヘルプに載せてはならない（MUST NOT）'],
-  ['T-255 (MUST NOT) -- no row of T-255 is placed in T-036', '本表の行を 表 T-036 に置いてはならない（MUST NOT）'],
-  ['FR-036 (MUST) -- blocks go to the columns T-256 names', '塊をどの段に、どの順で置くかは 表 T-256 に従うこと（MUST）'],
-  ['T-256 (MUST) -- columns stand left to right in row order', '⭐ 段は本表の行の順に左から並べること（MUST）'],
-  ['FR-036 (MUST) -- as many columns as S-202 and T-256 rows', 'その数と 表 T-256 の行の数を一致させること（MUST）'],
-  ['FR-036 (MUST) -- no flowing into columns', '段へは流し込まずに、表 T-256 が名指す段へ塊を置くこと（MUST）'],
-  ['FR-036 (MUST) -- the body region scrolls down', '⭐ 段が本文の領域に入り切らないときは、本文の領域を縦にスクロールさせること（MUST）'],
-  ['FR-036 (MUST) -- opened at its default size, the body does not scroll sideways', '⭐ 開いたとき（表 T-335 の `WB-1` の既定の大きさ）は、段の並びを本文の領域の幅に収め、横にスクロールさせないこと（MUST）。'],
-  ['FR-036 (MUST NOT) -- a column is not bound to the body region height', '⛔ 段の高さを本文の領域の高さで縛ってはならない（MUST NOT）'],
-  ['FR-036 (MUST) -- every block in a frame of its own (CR-622)', '⭐ 塊を 1 つずつ枠で囲むこと（MUST）'],
-  ['FR-036 (MUST) -- the frame line and every space around it (CR-622)', 'どれも `_assets/tbl-settings.md` の 表 T-206 の `S-457` とし、枠の線は 表 T-236 の `S-149` の色、表 T-206 の `S-437` の太さとすること（MUST）。'],
-  ['FR-036 (MUST) -- group lines stay inside the Command Palette block (CR-622)', '`Command Palette` の塊の中の群の境目は、線で示すこと（MUST）。'],
-  ['FR-036 (MUST NOT) -- the rows the help leaves off (CR-635, CR-665)', '・`Holiday Settings`・`Open Chooser`・`Difference Review` の面だけ（`Help Modal` を併せて持つものを含む）である行と、`IC-52`・`IC-53`・`IC-75` を、段に載せてはならない（MUST NOT）'],
-  ['FR-036 (MUST) -- the palette group T-256 names moves under the Task Group Panel (CR-665)', '⭐ `Command Palette` の入口を 2 つの塊に分け、表 T-109 の `群` が `揃える` の行を、`HC-4` の `Task Group Panel` の塊の下の塊へ移すこと（MUST）'],
-  ['FR-036 (MUST) -- an assignment whose entrance is left off sits with the ones that have none (CR-637)', '⭐ 入口の項目が段に載らない割当は、上の「入口の項目の割当の場所に置く」に代えて、入口を持たない割当と同じ塊に置くこと（MUST）'],
+  ['FR-036 (MUST) -- the help also shows the rows of T-255', '表 T-023 の `MK-2` / `MK-5` / `MK-7` と、表 T-255 の行を示すこと'],
+  ['FR-036 (MUST) -- every block carries a heading (CR-635)', '`GRS` は、どの塊にも見出しを刷ること'],
+  ['T-255 (MUST NOT) -- a row whose combination T-036 holds is not listed', '`GRS` は、表 T-036 のいずれかの行が同じ組を `割当` に持つ 表 T-255 の行を、ヘルプに載せないこと。'],
+  ['T-255 (MUST NOT) -- no row of T-255 is placed in T-036', '表 T-036 は、表 T-255 の行を持たないこと。'],
+  ['FR-036 (MUST) -- blocks go to the columns T-256 names', '`GRS` は、塊をどの段に、どの順で置くかを 表 T-256 に従わせること。'],
+  ['T-256 (MUST) -- columns stand left to right in row order', '`GRS` は、段を 表 T-256 の行の順に左から並べること'],
+  ['FR-036 (MUST) -- as many columns as S-202 and T-256 rows', '仕様の書き手は、`S-202` の段の数と 表 T-256 の行の数を一致させること。'],
+  ['FR-036 (MUST) -- no flowing into columns', '`GRS` は、段へ塊を流し込まずに、表 T-256 が名指す段へ塊を置くこと。'],
+  ['FR-036 (MUST) -- the body region scrolls down', '段が本文の領域に入り切らないとき、`GRS` は本文の領域を縦にスクロールさせること。'],
+  ['FR-036 (MUST) -- opened at its default size, the body does not scroll sideways', 'ヘルプを開いたとき（表 T-335 の `WB-1` の既定の大きさ）、`GRS` は段の並びを本文の領域の幅に収め、横にスクロールさせないこと。'],
+  ['FR-036 (MUST NOT) -- a column is not bound to the body region height', '`GRS` は、段の高さを本文の領域の高さで縛らないこと。'],
+  ['FR-036 (MUST) -- every block in a frame of its own (CR-622)', '`GRS` は、塊を 1 つずつ枠で囲むこと。'],
+  ['FR-036 (MUST) -- the frame line and every space around it (CR-622)', 'どれも `_assets/tbl-settings.md` の 表 T-206 の `S-457` とすること。`GRS` は、枠の線を 表 T-236 の `S-149` の色、表 T-206 の `S-437` の太さとすること。'],
+  ['FR-036 (MUST) -- group lines stay inside the Command Palette block (CR-622)', '`GRS` は、`Command Palette` の塊の中の群の境目を線で示すこと。'],
+  ['FR-036 (MUST NOT) -- the rows the help leaves off (CR-635, CR-665)', '・`Holiday Settings`・`Open Chooser`・`Difference Review` の面だけ（`Help Modal` を併せて持つものを含む）である行と、`IC-52`・`IC-53`・`IC-75` を、段に載せないこと。'],
+  ['FR-036 (MUST) -- the palette group T-256 names moves under the Task Group Panel (CR-665)', '`GRS` は、`Command Palette` の入口を 2 つの塊に分け、表 T-109 の `群` が `揃える` の行を、`HC-4` の `Task Group Panel` の塊の下の塊へ移すこと。'],
+  ['FR-036 (MUST) -- an assignment whose entrance is left off sits with the ones that have none (CR-637)', '`GRS` は、入口の項目が段に載らない割当を、`IMPS-1141` の「入口の項目の割当の場所に置く」に代えて、入口を持たない割当と同じ塊に置くこと。'],
 ]
 
 describe('CR-405 -- the manuscript these cases are driven by', () => {
@@ -112,7 +112,7 @@ const S_458 = Number.parseFloat(bare(rowOf(T_206, 'S-458').by[H_DEFAULT] ?? ''))
 
 const LEFT_OFF_CLAUSE = CLAUSES.find(([name]) => name.includes('leaves off'))?.[1] ?? ''
 const LEFT_OFF_AT = REQUIREMENTS.indexOf(LEFT_OFF_CLAUSE)
-const LEFT_OFF_SENTENCE = REQUIREMENTS.slice(REQUIREMENTS.lastIndexOf('⛔ 表 T-109 のうち', LEFT_OFF_AT), LEFT_OFF_AT + LEFT_OFF_CLAUSE.length)
+const LEFT_OFF_SENTENCE = REQUIREMENTS.slice(REQUIREMENTS.lastIndexOf('`GRS` は、表 T-109 のうち、', LEFT_OFF_AT), LEFT_OFF_AT + LEFT_OFF_CLAUSE.length)
 const LEFT_OFF_NAMES = [...LEFT_OFF_SENTENCE.matchAll(/`([^`]+)`/g)].map((found) => found[1] ?? '')
 const LEFT_OFF_ICONS = LEFT_OFF_NAMES.filter((name) => /^IC-\d+$/.test(name))
 const LEFT_OFF_SURFACES = LEFT_OFF_NAMES.filter((name) => !/^IC-\d+$/.test(name) && name !== H_SURFACE)

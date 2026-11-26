@@ -15,9 +15,9 @@ const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '
 const WT_4_STOP_FROM_DURATION =
   '⚠️ `FR-011` が `ActualDuration` から `Task.stop` を置くときは、その段が置く瞬間とする（既定の終了時刻とは限らない） —— 分で数えた実績の長さを寄せで変えない'
 const FR_011_STOP_FROM_DURATION =
-  '完了していないのに `Stop` を持たない `Task` は、`actualStart` から `ActualDuration` の分だけ稼働時間を進めた瞬間を `stop` に置くこと（MUST）'
+  '交換相手から取り込むとき、もし完了していない `Task` が `Stop` を持たない場合、`GRS` は、`actualStart` から `ActualDuration` の分だけ稼働時間を進めた瞬間を `stop` に置くこと'
 const FR_011_EARLIEST_INSTANT =
-  '⭐ 同じ稼働時間に当たる瞬間が 2 つ以上あるとき（時間帯の終わりと、次の時間帯の始まり）は、最も早い瞬間に置くこと（MUST）'
+  '`IMPS-420`・`IMPS-424` で `stop` を置くとき、もし同じ稼働時間に当たる瞬間が 2 つ以上ある場合（時間帯の終わりと、次の時間帯の始まり）、`GRS` は、最も早い瞬間に置くこと'
 const WT_SAME_ON_EVERY_WRITE = '`GRS JSON` へ書くときも MSPDI へ書き出すときも同じである（`FR-024`）'
 
 describe('the clauses these cases are built from still read as quoted', () => {

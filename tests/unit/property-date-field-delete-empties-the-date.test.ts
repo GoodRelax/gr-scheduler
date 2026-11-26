@@ -53,7 +53,7 @@ const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '
 const RULING_2026_09_23 = 'user ruling 2026-09-23: Delete or Backspace while editing a date empties the whole date'
 const JDG_366_NO_DATELESS_TASK =
   '⚠️ 日付を欠くタスクは不変条件 `IV-10` が許すが、今は作る道も開く道も無い（画面から作るタスクは必ず両方の日付を持ち、日付を欠くタスクを含むファイルは開けない）。'
-const FR_044_CLEARING_RESUME = '置いた再開日を消したときは、`resumeValid` を `false` に戻すこと（MUST）'
+const FR_044_CLEARING_RESUME = '置いた再開日を消したとき、`GRS` は、`resumeValid` を `false` に戻すこと。'
 
 const T_016 = specTable('T-016')
 const columnsOf = (id: string): readonly string[] =>

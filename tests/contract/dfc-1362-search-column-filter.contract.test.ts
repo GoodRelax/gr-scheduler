@@ -41,43 +41,43 @@ function rowOf(table: string, id: string): SpecRow {
 const cellOf = (table: string, id: string, heading: string): string => unbroken(rowOf(table, id).by[heading] ?? '')
 
 const SV_4_MATCH =
-  '語が、タスクの表では名前（`SQ-1`）か担当名のどれか 1 つ（`SQ-2`）、コメントボックスの表では本文（`SQ-7`）の一部と一致する行を載せる。'
-const SV_4_NFKC = '比べる前に両方を `NFKC` で正規化し、大文字と小文字を畳む —— 全角と半角、大文字と小文字を区別しない。'
+  '`GRS` は、タスクの表では名前（`SQ-1`）か担当名のどれか 1 つ（`SQ-2`）の一部と語が一致する行を、コメントボックスの表では本文（`SQ-7`）の一部と語が一致する行を載せること。'
+const SV_4_NFKC = '`GRS` は、語と相手を比べる前に、語と相手の両方を `NFKC` で正規化すること（全角と半角を区別しない）。'
 const SV_4_KANA =
-  'ひらがなとカタカナは区別する（例: 語「ｐｍ」は「PM レビュー」に当たり、語「れびゅー」は「レビュー」に当たらない）。'
+  '`GRS` は、ひらがなとカタカナを区別して比べること（例: 語「ｐｍ」は「PM レビュー」に当たり、語「れびゅー」は「レビュー」に当たらない）。'
 // Why: the three words of the SV-4 example, taken from that sentence so a changed example reddens the first case.
 const EXAMPLE_FULL_WIDTH = 'ｐｍ'
 const EXAMPLE_HIRAGANA = 'れびゅー'
 const EXAMPLE_KATAKANA = 'レビュー'
-const SV_4_EMPTY = '語が空のときはすべての行を載せる。'
-const SV_4_NAMELESS = '名前が空のタスクも表に載るが、名前の側では空でない語に当たらない'
+const SV_4_EMPTY = '語が空の間、`GRS` は、すべての行を載せること。'
+const SV_4_NAMELESS = '`GRS` は、名前が空のタスクを、名前の側では空でない語に当てないこと。'
 const FR_151_NOT_SEARCHED =
-  '⛔ 探すものに `Task.notes`（`_assets/fig-erd-detail.md` の `AT-32`）とタスクグループ名（`AT-53`）を含めてはならない（MUST NOT）'
+  '`GRS` は、語を比べる相手に `Task.notes`（`_assets/fig-erd-detail.md` の `AT-32`）とタスクグループ名（`AT-53`）を含めないこと。'
 
-const SV_7_ENTRY = 'どの列の見出しにも `IC-122` を置き、押すとフィルタを開く。'
+const SV_7_ENTRY = '`IC-122` を押したとき、`GRS` は、押した列のフィルタを開くこと。'
 const SV_7_CONTENTS =
-  '操作の段は、フィルタの中の検索欄と、`IC-125`（すべてチェック）・`IC-126`（チェックをすべて外す）・`IC-123`（昇順）・`IC-124`（降順）の行である。'
+  '`GRS` は、操作の段に、フィルタの中の検索欄と、`IC-125`（すべてチェック）・`IC-126`（チェックをすべて外す）・`IC-123`（昇順）・`IC-124`（降順）の行を置くこと。'
 const SV_7_ITEMS =
-  '値の一覧は、担当名の列では 1 人ずつ、ほかの列ではセルの値ごとに 1 項目、空のセルは「（空白）」の 1 項目。'
-const SV_7_DATES = '日付の列は、値の一覧とフィルタの中の検索欄の代わりに、操作の段（`IC-123`・`IC-124`）の下で「いつから」「いつまで」を宿主の日付の入力で選ばせる。'
-const SV_7_ALL = '列のフィルタどうし、語と列のフィルタは、すべてを満たす行だけを残す。'
-const SV_7_ASSIGNEES = '担当名の列は、担当のうち 1 人でもチェックした値なら残す。'
-const SV_7_BLANK_DATES = '日付の列に「いつから」か「いつまで」を置くと、その日付の空の行は外す。'
-const SV_7_ONE_OPEN = '開いているフィルタは一度に 1 つ'
+  '`GRS` は、値の一覧の項目を、担当名の列では 1 人ずつ、ほかの列ではセルの値ごとに 1 つ作ること。'
+const SV_7_DATES = '`GRS` は、日付の列のフィルタでは、値の一覧とフィルタの中の検索欄の代わりに、操作の段（`IC-123`・`IC-124`）の下で「いつから」「いつまで」を宿主の日付の入力で選ばせること。'
+const SV_7_ALL = '`GRS` は、列のフィルタどうしと、語と列のフィルタについて、すべてを満たす行だけを残すこと。'
+const SV_7_ASSIGNEES = '`GRS` は、担当名の列のフィルタでは、担当のうち 1 人でもチェックした値の行を残すこと。'
+const SV_7_BLANK_DATES = '日付の列に「いつから」か「いつまで」を置いたとき、`GRS` は、置いた列の日付が空の行を外すこと。'
+const SV_7_ONE_OPEN = '`GRS` は、開いているフィルタを一度に 1 つにすること。'
 
-const SV_8_ONE = '並べ替える列は 1 つ。'
+const SV_8_ONE = '`GRS` は、並べ替える列を 1 つにすること。'
 const SV_8_STATES =
-  '状態の列（`SQ-5`）の昇順は 信用できない・要修正 → ボトルネック → ボトルネック経路 → 遅れ → 未着手 → 進行中 → 完了 → 中断・再開予定あり → 中断・再開日未定、降順はその逆'
-const SV_8_TIES = '同じ値の行は既定の並びを保ち、空の値は向きによらず末尾。'
+  '状態の列（`SQ-5`）で昇順に並べ替えたとき、`GRS` は、行を 信用できない・要修正 → ボトルネック → ボトルネック経路 → 遅れ → 未着手 → 進行中 → 完了 → 中断・再開予定あり → 中断・再開日未定 の順に並べること。'
+const SV_8_TIES = '`GRS` は、値が同じ行の既定の並びを保つこと。'
 const SV_8_DEFAULT =
-  '既定の並びは、タスクグループの木の上からの並び → `SQ-3`（コメントボックスは `SQ-9`）→ `Task.uid`（コメントボックスは `id`）'
+  '`GRS` は、既定の並びを、タスクグループの木の上からの並び → `SQ-3`（コメントボックスは `SQ-9`）→ `Task.uid`（コメントボックスは `id`）の順で決めること。'
 
-const SV_3_ONE = '表は一度に 1 つだけ出す。'
-const SV_12_ONLY_TITLE = '`FR-036` の 表 T-335 の `WB-2`・`WB-5`（入口は `IC-129`）'
+const SV_3_ONE = '`GRS` は、検索パネルに表を一度に 1 つだけ出すこと。'
+const SV_12_ONLY_TITLE = '`GRS` は、検索パネルの最小化を `FR-036` の 表 T-335 の `WB-2`・`WB-5` に従わせること（入口は `IC-129`）。'
 
-const SV_14_ESC = '列のフィルタが開いていれば、`Esc` はまずフィルタだけを閉じ、次の `Esc` でパネルを閉じる。'
-const SV_14_REMEMBER = '語・表の切り替え・列の幅・位置・大きさは、同じ画面のあいだ覚え、開き直したときに戻す'
-const SV_14_STAYS = '表示の列の値（`SQ-10`）・列のフィルタ・並べ替えは、閉じても残る —— 文書が持つ'
+const SV_14_ESC = '列のフィルタが開いている間、 `Esc` を押したとき、`GRS` は、列のフィルタだけを閉じること。'
+const SV_14_REMEMBER = '`GRS` は、語・表の切り替え・列の幅・位置・大きさを、同じ画面のあいだ覚えること。'
+const SV_14_STAYS = '検索パネルを閉じたとき、`GRS` は、表示の列の値（`SQ-10`）・列のフィルタ・並べ替えを残すこと。'
 
 const IN_4_ORDER =
   '消費する階層は 出ている通知 → 確定していないその場の編集 → 開いている面 → 進行中のドラッグ・引きかけの矢印 → 開いているウィンドウ → プロパティパネル → 構え → 選択 → `Dual Cursor` モード → 出ている説明 → 全画面表示 の順とすること（MUST）'
@@ -386,12 +386,14 @@ const iconsOf = (menu: Menu): readonly string[] => menu.entries.map((one) => one
 describe('FR-151 / T-330 / T-331 / T-109 / T-028 -- the clauses this file is driven by', () => {
   it('SV-4, SV-7, SV-8, SV-14 and IN-4 still read this way', () => {
     const say = (id: string): string => cellOf('T-330', id, '定め')
-    for (const clause of [SV_4_MATCH, SV_4_NFKC, SV_4_KANA, SV_4_EMPTY, SV_4_NAMELESS]) expect(say('SV-4')).toContain(clause)
+    for (const clause of [SV_4_MATCH, SV_4_NFKC, '`GRS` は、語と相手を比べる前に、語と相手の両方の大文字と小文字を畳むこと（大文字と小文字を区別しない）。', SV_4_KANA, SV_4_EMPTY, SV_4_NAMELESS, '`GRS` は、名前が空のタスクを、名前が空であることを理由に表から外さないこと。']) expect(say('SV-4')).toContain(clause)
     for (const word of [EXAMPLE_FULL_WIDTH, EXAMPLE_HIRAGANA, EXAMPLE_KATAKANA]) expect(SV_4_KANA).toContain(`「${word}」`)
     for (const clause of [
       SV_7_ENTRY,
+      '`GRS` は、[表示] の列（表 T-331 の `SQ-10`）を除く、どの列の見出しにも `IC-122` を置くこと。',
       SV_7_CONTENTS,
       SV_7_ITEMS,
+      '`GRS` は、空のセルを、値の一覧の「（空白）」の 1 項目にまとめること。',
       SV_7_DATES,
       SV_7_ALL,
       SV_7_ASSIGNEES,
@@ -400,7 +402,7 @@ describe('FR-151 / T-330 / T-331 / T-109 / T-028 -- the clauses this file is dri
     ]) {
       expect(say('SV-7')).toContain(clause)
     }
-    for (const clause of [SV_8_ONE, SV_8_STATES, SV_8_TIES, SV_8_DEFAULT]) expect(say('SV-8')).toContain(clause)
+    for (const clause of [SV_8_ONE, SV_8_STATES, '状態の列（`SQ-5`）で降順に並べ替えたとき、`GRS` は、行を昇順の逆の順に並べること。', SV_8_TIES, '`GRS` は、空の値の行を、向きによらず末尾に置くこと。', SV_8_DEFAULT]) expect(say('SV-8')).toContain(clause)
     expect(say('SV-3')).toContain(SV_3_ONE)
     expect(say('SV-12')).toContain(SV_12_ONLY_TITLE)
     expect(say('SV-14')).toContain(SV_14_ESC)
@@ -419,7 +421,7 @@ describe('FR-151 / T-330 / T-331 / T-109 / T-028 -- the clauses this file is dri
     for (const id of ['SQ-5', 'SQ-6', 'SQ-7', 'SQ-8']) expect(cellOf('T-331', id, 'フィルタ')).toBe('値の一覧')
     for (const [icon, words] of Object.entries(IC_WORDS)) expect(cellOf('T-109', icon, '何の入口か'), icon).toBe(words)
     expect(BLANK_JA).toBe('（空白）')
-    expect(cellOf('T-331', 'SQ-10', 'フィルタ')).toBe('持たない —— 見出しに `IC-122` を置かない（表 T-330 の `SV-7`）')
+    expect(cellOf('T-331', 'SQ-10', 'フィルタ')).toBe('持たない（表 T-330 の `SV-7`）')
     expect(TASK_COLUMNS).toEqual(['SQ-10', 'SQ-5', 'SQ-11', 'SQ-14', 'SQ-1', 'SQ-2', 'SQ-3', 'SQ-4', 'SQ-12', 'SQ-13', 'SQ-6'])
     expect(COMMENT_COLUMNS).toEqual(['SQ-7', 'SQ-8', 'SQ-9'])
   })

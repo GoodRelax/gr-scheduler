@@ -28,7 +28,7 @@ const IR_3_READABLE =
   '⚠️ 取り込みを拒んだ通知は 表 T-220 の行を運ぶ（`FR-076`、表 T-035 の `AG-9a`）—— 記録からも、検証のどの行で拒んだかが読める'
 // Spec: T-233
 const T_233_CARRIES_THE_ROW =
-  '⭐ ⇒ 取り込みの検証が拒んだとき、`NT-1` の通知が運ぶ理由は、拒んだ 表 T-220 の行の行 ID とすること（MUST）'
+  '取り込みの検証が拒んだとき、`GRS` は `NT-1` の通知に、拒んだ Chapter 6.1 の 表 T-220 の行の行 ID を理由として運ぶこと。'
 
 const rowOf = (table: string, id: string) => {
   const found = specTable(table).rows.find((one) => one.id === id)

@@ -24,13 +24,13 @@ const REQUIREMENTS = unbroken(readFileSync(
 const FR_021 = ((): string => {
   const at = REQUIREMENTS.indexOf('**UID**: FR-021')
   if (at < 0) throw new Error('FR-021 is not in 01-04-requirements.md')
-  const end = REQUIREMENTS.indexOf('**ORIGIN**', at)
+  const end = REQUIREMENTS.indexOf('**Relations**', at)
   return REQUIREMENTS.slice(at, end < 0 ? at + 4000 : end)
 })()
 
-const THE_CLAUSE = '⛔ **段の起点は、取り込んだファイルのものを保つこと（MUST）**'
+const THE_CLAUSE = '`GRS` は、段の起点を、取り込んだファイルのものに保つこと。'
 
-const WHERE_THE_BASE_LIVES = '起点は 表 T-058 の `Project.outlineBase` が持ち、既定は 1 とする'
+const WHERE_THE_BASE_LIVES = '`GRS` は、段の起点を 表 T-058 の `Project.outlineBase` に持つこと。`GRS` は、`Project.outlineBase` の既定を 1 とすること。'
 
 const T_058 = specTable('T-058')
 const T_059 = specTable('T-059')
@@ -253,9 +253,9 @@ describe('FR-021 -- the manuscript this file is driven by', () => {
 
   it('still reads the project summary task out of the count, so the MS Project shape starts at 1', () => {
     expect(FR_021).toContain(
-      '⭐ **プロジェクトの要約タスクは `Task` にせず、原形のまま持ち回る** —— 読み方は 表 T-265 の `MR-4`、書き戻し方は 表 T-033 の `EX-5` が持つ。',
+      '`GRS` は、プロジェクトの要約タスクを `Task` にせず、原形のまま持ち回ること（読み方は 表 T-265 の `MR-4`、書き戻し方は 表 T-033 の `EX-5` が持つ）。',
     )
-    expect(FR_021).toContain('⇒ 要約タスクを起点に数えないので、測った 7 つはどれも起点が 1 になる。')
+    expect(FR_021).toContain('⇒ 要約タスクを起点に数えないので（`IMPS-874`）、測った 7 つはどれも起点が 1 になる。')
     expect(columnRow('Project', 'outlineBase').cells.join(' ')).toContain(
       'プロジェクトの要約タスクは数えない —— 表 T-265 の `MR-4`',
     )

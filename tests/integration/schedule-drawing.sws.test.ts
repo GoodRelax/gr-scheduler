@@ -162,7 +162,7 @@ const rowOf = (table: SpecTable, id: string) => {
 /** The last column of a row: T-221 writes the formula there, T-222 the route. */
 const formulaOf = (table: SpecTable, id: string): string => {
   const cells = rowOf(table, id).cells
-  return cells[cells.length - 1] ?? ''
+  return cells[cells.length - (table.headings[table.headings.length - 1] === 'traces' ? 2 : 1)] ?? ''
 }
 
 /**
@@ -893,7 +893,7 @@ describe('SWS-2 -- decide a task group band and where it sits (FR-003)', () => {
       // Step: LF-2 sums each lane to its drawn edge (VG-5) and adds one VG-2 gap per lane, the bottom one included.
       mentions(T221, 'LF-2', 'VG-5', 'VG-2', '段数と同じ数')
       mentions(T221, 'LF-3', 'HF-1', '帯高の床に数えない')
-      mentions(T051, 'HF-19', 'タスクグループの帯高の下限にしてはならない（MUST NOT）')
+      mentions(T051, 'HF-19', '`GRS` は、`HF-1` の格子（`HF-4` の並び、2 段）が縦に取る高さを、タスクグループの帯高の下限にしないこと。')
       let belowTheLattice = 0
       for (const [name, drawn] of bandDocuments()) {
         for (const taskGroup of drawn.layout.taskGroups) {

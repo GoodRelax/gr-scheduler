@@ -269,8 +269,8 @@ describe('the rows these cases read are still in the manuscript', () => {
     // ⛔ GOES RED IF THE ROW IS REWORDED. The whole ordering these cases hold is
     // the row's own 「出ている通知があるときは ... ほかに何も出ていないときは」.
     const said = rowOf(T_036, 'SK-19').cells.join(' ')
-    expect(said).toContain('出ている通知があるとき')
-    expect(said).toContain('ほかに何も出ていないとき')
+    expect(said).toContain('出ている通知がある間')
+    expect(said).toContain('出ている通知が無い間')
   })
 })
 

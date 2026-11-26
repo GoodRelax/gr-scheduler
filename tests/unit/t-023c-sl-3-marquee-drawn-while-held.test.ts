@@ -160,7 +160,7 @@ function rowOf(tableId: string, specTableRowId: string): Readonly<Record<string,
 function ruleOf(tableId: string, specTableRowId: string): string {
   const found = specTable(tableId).rows.find((one) => one.id === specTableRowId)
   if (found === undefined) throw new Error(`table ${tableId} has no row ${specTableRowId}`)
-  const cell = found.cells[found.cells.length - 1]
+  const cell = found.cells[found.cells.length - 2]
   if (cell === undefined || cell.length === 0) {
     throw new Error(`table ${tableId} row ${specTableRowId} states nothing`)
   }
@@ -699,7 +699,7 @@ describe('the manuscript still states the two rules this file is about', () => {
     expect(
       rule,
       'table T-023c SL-3: 握っているあいだ、取ろうとしている矩形を描くこと（MUST）',
-    ).toContain('握っているあいだ、取ろうとしている矩形を描くこと（MUST）')
+    ).toContain('範囲で選ぶドラッグを握っている間、`GRS` は、取ろうとしている矩形を描くこと')
     expect(rule, 'and the reason it gives').toContain(
       '描かないと、「完全に囲まれた」かどうかを人が離す前に確かめられない',
     )
@@ -730,7 +730,7 @@ describe('the manuscript still states the two rules this file is about', () => {
     const rule = ruleOf('T-020', 'ZO-6')
     expect(rule, 'table T-020 ZO-6: 範囲選択の矩形（表 T-023c の `SL-3`）').toContain('SL-3')
     expect(rule, 'table T-020 ZO-6: 握っているあいだだけ描き、離したら消すこと（MUST）').toContain(
-      '握っているあいだだけ描き、離したら消すこと（MUST）',
+      '範囲選択（表 T-023c の `SL-3`）で押下を握っている間だけ、`GRS` は範囲選択の矩形を描くこと',
     )
     expect(rule, 'and the reason it gives').toContain(
       '離した時点で残るのは選択そのものであり、矩形ではない',

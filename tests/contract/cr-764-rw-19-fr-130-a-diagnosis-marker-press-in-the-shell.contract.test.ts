@@ -16,25 +16,25 @@ import { windowStage, type WindowStage } from './cr-760-stage'
 import { specTable, unbroken } from './spec-table'
 
 const RW_19_STEPS_IN_ORDER =
-  '遅延診断レポートの窓が開いているあいだ（最小化（`IC-129`）を含む —— `RW-1`）、日程表で `FR-133` の 表 T-315 の `DG-1` 〜 `DG-3` で描いた進捗マーカー（表 T-266 の `GA-18`）を押して離したとき、そのタスクの行に下の ④ のいまの行の印が付いていなければ、状態を巡らせず（表 T-270 の `PE-8`・`PE-10` の例外）、次をこの順に行うこと（MUST）'
+  '遅延診断レポートの窓が開いている間（最小化（`IC-129`）を含む —— `RW-1`）、日程表で `FR-133` の 表 T-315 の `DG-1` 〜 `DG-3` で描いた進捗マーカー（表 T-266 の `GA-18`）を押して離したとき、押したタスクの行に ④ のいまの行の印が付いていなければ、`GRS` は、次をこの順に行うこと'
 const RW_19_FIRST = '① 最小化していれば戻し（`IC-129`）、手前に出す'
 const RW_19_SECOND = '② 診断結果の表（`RW-11` の `IC-154`）を出していなければ出す'
 const RW_19_FOURTH = '④ 行を表の中に送り、`RW-14` と同じいまの行の印を付ける。'
-const RW_19_DG_4_CYCLES = '⭐ `DG-4`（`!`）と、どの状態でもないマーカーは今どおり巡る'
-const RW_19_PULL = '⚠️ 引く操作（`PE-8` の「引く」の欄）は変えない。'
-const RW_19_ONE_MARK = '⚠️ いまの行の印は表に 1 つで、次に別のタスクのマーカーで ① 〜 ④ を行うまで残る —— 巡らせる押下は印を動かさない。'
-const RW_19_MARK_GONE = '診断を作り直してその行が無くなれば消える。'
-const RW_19_FIXES_STILL = '⚠️ 修正案の表とそのいまの行（`RW-14`）は動かさない（利用者が定めた）。'
-const RW_19_SELECTED = '⚠️ 押したタスクは今どおり選ぶ（`FR-107`）。'
-const RW_19_VIEW_STILL = '日程表の見る位置は動かさない'
-const RW_1_REOPENED = '窓だけを閉じたあとは、日程表のマーカーを押しても開かない（`RW-19`）—— 開き直すのは下の `IC-107` であり、開くのは閉じたときの位置と大きさである。'
-const RW_1_IC_107 = '`IC-107` を押せば診断をやり直して開く（`FR-130`）'
+const RW_19_DG_4_CYCLES = '`GRS` は、`DG-4`（`!`）と、どの状態でもないマーカーを、今どおり巡らせること。'
+const RW_19_PULL = '`GRS` は、引く操作（`PE-8` の「引く」の欄）を変えないこと。'
+const RW_19_ONE_MARK = '`GRS` は、いまの行の印を、次に別のタスクのマーカーで ① 〜 ④ を行うまで残すこと。'
+const RW_19_MARK_GONE = '`GRS` が診断を作り直して印の付いた行が無くなったとき、`GRS` は、いまの行の印を消すこと。'
+const RW_19_FIXES_STILL = '`GRS` は、`RW-19` の押下で、修正案の表と修正案の表のいまの行（`RW-14`）を動かさないこと。'
+const RW_19_SELECTED = '`GRS` は、押したタスクを今どおり選ぶこと（`FR-107`）。'
+const RW_19_VIEW_STILL = '`GRS` は、`RW-19` の押下で日程表の見る位置を動かさないこと。'
+const RW_1_REOPENED = '窓だけを閉じている間、日程表のマーカーを押したとき、`GRS` は、窓を開かないこと（`RW-19`）。'
+const RW_1_IC_107 = '窓だけを閉じている間、`IC-107` を押したとき、`GRS` は、診断をやり直して窓を開くこと（`FR-130`）。'
 const PE_8_EXCEPTION =
-  '⚠️ 遅延診断レポートの窓が開いているあいだ、`FR-133` の 表 T-315 の `DG-1` 〜 `DG-3` で描いたマーカーは、そのタスクの行にいまの行の印が付いていなければ巡らせない —— `FR-134` の 表 T-346 の `RW-19` に従う'
-const PE_10_EXCEPTION = '⚠️ 遅延診断レポートの窓が開いているあいだの例外は `PE-8` と同じ（`RW-19`）'
+  '遅延診断レポートの窓が開いている間、`FR-133` の 表 T-315 の `DG-1` 〜 `DG-3` で描いたマーカーを押したとき、`GRS` は、マーカーのタスクの行にいまの行の印が付いていなければ巡らせないこと（`FR-134` の 表 T-346 の `RW-19` に従う）。'
+const PE_10_EXCEPTION = '遅延診断レポートの窓が開いている間、`GRS` は、`PE-10` にも `PE-8` と同じ例外を当てること（`RW-19`）。'
 // Why: CR-781 rewrote this sentence of FR-130: an open window (minimized included) is closed alone like IC-52, and the marks stay.
 const FR_130_THE_SAME_ENTRY =
-  '診断を出しているあいだに同じ入口を押したら、遅延診断レポートの窓（`FR-134` の 表 T-346 の `RW-1`）が開いていれば（最小化を含む）、窓の `IC-52` と同じく窓だけを閉じ、窓だけを閉じていれば（`IC-52`）いまの文書で診断をやり直し、その結果をマーカーと一覧に出して窓を開くこと（MUST）'
+  '診断を出している間、遅延診断レポートの窓（`FR-134` の 表 T-346 の `RW-1`）が開いているとき（最小化を含む）、`IC-107` を押したとき、`GRS` は、窓の `IC-52` と同じく窓だけを閉じること。'
 
 const SPEC = join(process.cwd(), 'docs', 'spec')
 const REQUIREMENTS = unbroken(readFileSync(join(SPEC, '01-04-requirements.md'), 'utf8'))
@@ -175,12 +175,14 @@ describe('CR-764 -- the clauses this file is driven by', () => {
     const rw19 = cellOf('T-346', 'RW-19', '定め')
     for (const clause of [
       RW_19_STEPS_IN_ORDER,
+      '`RW-19` の ① 〜 ④ を行うとき、`GRS` は、状態を巡らせないこと（表 T-270 の `PE-8`・`PE-10` の例外）。',
       RW_19_FIRST,
       RW_19_SECOND,
       RW_19_FOURTH,
       RW_19_DG_4_CYCLES,
       RW_19_PULL,
       RW_19_ONE_MARK,
+      '`GRS` は、巡らせる押下でいまの行の印を動かさないこと。',
       RW_19_MARK_GONE,
       RW_19_FIXES_STILL,
       RW_19_SELECTED,

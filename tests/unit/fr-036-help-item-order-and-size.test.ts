@@ -123,10 +123,10 @@ const REQUIREMENTS = unbroken(readFileSync(
 
 /** ⛔ THE ORDER, read rather than typed. The user's ruling of 2026-08-29. */
 const THE_ORDER_MUST =
-  '一覧の各項目は、入口の図形・その行の説明・その行の割当の 3 つを、この順に並べること（MUST）'
+  '`GRS` は、一覧の各項目に、入口の図形・項目の行の説明・項目の行の割当の 3 つを、この順に並べること。'
 
 /** ⛔ The size, sent to a ratio and never to a px. */
-const THE_SIZE_MUST = '一覧の字の大きさは `_assets/tbl-settings.md` の 表 T-206 の `S-203` が定める係数で決めること（MUST）'
+const THE_SIZE_MUST = '`GRS` は、一覧の字の大きさを `_assets/tbl-settings.md` の 表 T-206 の `S-203` が定める係数で決めること。'
 
 const T_206 = specTable('T-206')
 const VALUE_COLUMN = '既定'

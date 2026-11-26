@@ -11,9 +11,9 @@ import { bare, specTable, unbroken } from './spec-table'
 const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
 // Why: each constant ends exactly at its marker, cut from the manuscript as check 39 reads it.
-const CF_1 = 'CF-2` 〜 `CF-4` を、この順に 1 回解くこと（MUST）。解いた値を保存してはならない（MUST NOT）'
-const CF_4 = '| CF-4 | 地の彩度 | モノクロでなければ、`S-146` の彩度を次のとおり解くこと（MUST）'
-const CF_6 = '| CF-6 | 測り方 | 比は WCAG 2.1 のコントラスト比とし、HSL を 8 ビットの sRGB に丸めた値から求めること（MUST）'
+const CF_1 = '`GRS` は、描く前に `CF-2` → `CF-3` → `CF-4` の順に 1 回解くこと（解いた値は表 T-384 の `IMPS-143` のとおり保存しない）。'
+const CF_4 = '| CF-4 | 地の彩度 | モノクロでない間、`GRS` は、`S-146` の彩度を次の文のとおり解くこと。'
+const CF_6 = '| CF-6 | 測り方 | `GRS` は、比を WCAG 2.1 のコントラスト比とし、HSL を 8 ビットの sRGB に丸めた値から求めること（`_assets/tbl-settings.md` の 表 T-294 の前文と同じ）。'
 const CF_3_MEASURED = '明るいテーマで 360 の色相のうち 131 が k ＞ 0（最大 6）、暗いテーマで 15（最大 2）'
 
 const TABLES = new Map<string, ReturnType<typeof specTable>>()

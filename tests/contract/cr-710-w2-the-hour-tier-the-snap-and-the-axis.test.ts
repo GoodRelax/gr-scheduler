@@ -27,25 +27,25 @@ const DESIGN = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '05-07-
 
 describe('the clauses these cases are built from still read as quoted', () => {
   it('FR-017: the thresholds are fixed, the hour digits thin out by the narrowest stride that fits, the lines are not solid at 30 minutes', () => {
-    expect(REQUIREMENTS).toContain('しきい値の 3 本（時刻を表示するときは 4 本）は固定値とし、実行時に導出してはならない（MUST NOT）')
-    expect(REQUIREMENTS).toContain('になる最も細かいものとすること（MUST）（利用者の判断）')
-    expect(REQUIREMENTS).toContain('⛔ 30 分の線を実線で引いてはならない（MUST NOT）')
+    expect(REQUIREMENTS).toContain('`GRS` は、しきい値の 3 本（時刻を表示するときは 4 本）を固定値とし、実行時に導出しないこと。')
+    expect(REQUIREMENTS).toContain('になる最も細かいものとすること（利用者の判断）')
+    expect(REQUIREMENTS).toContain('`GRS` は、30 分の線を実線で引かないこと')
   })
 
   it('FR-016: the zoomX ceiling with the time of day on is the width of one hour at S-579 and the zoom goes back when the time is turned off', () => {
-    expect(REQUIREMENTS).toContain('の `zoomX` の上限は、1 時間の幅が `_assets/tbl-settings.md` の 表 T-206 の `S-579` になる倍率 —— 24 × `S-579` ÷ `S-1` —— とすること（MUST）')
-    expect(REQUIREMENTS).toContain('時刻の表示を切ったとき、`zoomX` が日付の軸の上限を超えていれば、その上限へ戻すこと（MUST）')
+    expect(REQUIREMENTS).toContain('`GRS` は、`zoomX` の上限を、1 時間の幅が `_assets/tbl-settings.md` の 表 T-206 の `S-579` になる倍率 —— 24 × `S-579` ÷ `S-1` —— にすること。')
+    expect(REQUIREMENTS).toContain('時刻の表示を切ったとき、`zoomX` が日付の軸の上限（`IMPS-1462`）を超えていれば、`GRS` は `zoomX` を日付の軸の上限へ戻すこと。')
   })
 
   it('FR-103: a released position is read as an instant snapped by table T-378, and Alt selects no unit (CR-850)', () => {
-    expect(REQUIREMENTS).toContain('離した位置は、表 T-378 の単位で寄せた瞬間として読むこと（MUST）')
+    expect(REQUIREMENTS).toContain('`GRS` は、離した位置を、表 T-378 の単位で寄せた瞬間として読むこと。')
     expect(REQUIREMENTS).toContain('（欠番 —— CR-850 で消した —— `Alt` は寄せの単位を選ばず、利用者が `Alt` の 1 分は要らないと定めた）')
   })
 
   it('FR-158: every place that shows a date-time is a row of table T-375', () => {
-    expect(REQUIREMENTS).toContain('⭐ 日時を見せる所は本表がすべてを持つ（MUST）')
-    expect(REQUIREMENTS).toContain('新しく日時を見せる所を作るときは、本表に行を足すこと（MUST）')
-    expect(REQUIREMENTS).toContain('保存する値（`GRS JSON`・MSPDI）は、切り替えによらず時刻まで書くこと（MUST）')
+    expect(REQUIREMENTS).toContain('`GRS` は、日時を見せる所のすべてを 表 T-375 の行として持つこと。')
+    expect(REQUIREMENTS).toContain('`GRS` に新しく日時を見せる所を作るときは、表 T-375 に行を足すこと。')
+    expect(REQUIREMENTS).toContain('`GRS` は、保存する値（`GRS JSON`・MSPDI）に、「時刻を表示する」の切り替えによらず時刻まで書くこと。')
   })
 
   it('RV-1 and RV-6: a bar stands on the instants when the time of day is shown', () => {

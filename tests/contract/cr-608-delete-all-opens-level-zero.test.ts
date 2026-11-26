@@ -31,13 +31,13 @@ const WORDS = JSON.parse(readFileSync(join(SPEC, '_source', 'display-words.json'
   confirmation: { answer: string; text: { ja: string } }[]
 }
 
-const HF_20_OPENS = '消すときは、段 0 の折りたたみ（`_assets/tbl-settings.md` の `S-418`）を展開すること（MUST）'
+const HF_20_OPENS = 'すべて消すとき、`GRS` は、段 0 の折りたたみ（`_assets/tbl-settings.md` の `S-418`）を展開すること（`_assets/tbl-state-machines.md` の 表 T-328 の `everyTaskGroupDeletePressed` の根の升）。'
 const HF_20_ONE_STEP = '取り消し 1 回で、消す前のタスクグループと折りたたみへ戻る'
-const HF_20_NO_VIEW_WRITE = '倍率と表示位置は書かない'
+const HF_20_NO_VIEW_WRITE = 'すべて消すとき、`GRS` は、倍率と表示位置を書かないこと。'
 const FR_032_VALUE = 'そのタスクグループの `treeState` も `temporarilyExpanded` とすること（MUST）'
 const FR_032_ANY_ROAD = 'タスクグループを 0 にしたのがどの操作でも同じ値で立てる'
 const OP_10_FIT = '`FR-055` の全体表示が選ぶ倍率と表示位置にすること（MUST）'
-const CD_2_NULL = 'そのタスクグループを指す表示位置（同 `S-78`）は消さず `null` へ戻す'
+const CD_2_NULL = '`GRS` は、タスクグループを消すとき、消すタスクグループを指す表示位置（`_assets/tbl-settings.md` の `S-78`）を消さずに `null` へ戻すこと。'
 
 const rowOf = (table: string, id: string) => {
   const found = specTable(table).rows.find((one) => one.id === id)

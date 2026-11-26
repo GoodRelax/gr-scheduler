@@ -24,26 +24,26 @@ const REQUIREMENTS = unbroken(
   readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'),
 )
 
-const FR_016_BY_T_262 = '⭐ 縦軸だけを動かす入力が端で絵を変えないときの扱いは、表 T-262 に従うこと（MUST）'
+const FR_016_BY_T_262 = '縦軸だけを動かす入力が端で絵を変えないとき、`GRS` は表 T-262 に従うこと。'
 const ZE_1_THE_LOWER_END =
-  '⭐ いまの `zoomY` が次の ① と ② をともに満たすとき、縦軸は縮める側の端にあるとすること（MUST）'
+  '`GRS` は、いまの `zoomY` が次の ① と ② をともに満たすとき、縦軸を縮める側の端にあるとすること。'
 const ZE_2_NO_WRITE_AT_THE_END =
-  '端にあるときに縮める入力（表 T-023 の `MK-4` の縮める向き、`_assets/tbl-glossary.md` の 表 T-109 の `IC-14`、表 T-036 の `SK-16c`）を受けたら、`zoomY` を書き換えてはならない（MUST NOT）'
+  '縦軸が縮める側の端にある間、縮める入力（表 T-023 の `MK-4` の縮める向き、`_assets/tbl-glossary.md` の 表 T-109 の `IC-14`、表 T-036 の `SK-16c`）を受けたとき、`GRS` は `zoomY` を書き換えないこと。'
 const ZE_2_ENTERING_WRITES_THE_STEP =
-  '⭐ 端の外から縮める入力で端の中へ入るときは、`S-53` で刻んだ値（`S-76` の下限で止める）を書くこと（MUST）'
+  '端の外から縮める入力で端の中へ入るとき、`GRS` は `S-53` で刻んだ値（`S-76` の下限で止める）を書くこと。'
 const ZE_3_NO_WRITE_AT_THE_CEILING =
-  '拡げる入力（`MK-4` の拡げる向き、`IC-15`、`SK-16a`）で、本要求の上限で止めた値がいまの `zoomY` と等しいときは、`zoomY` を書き換えてはならない（MUST NOT）'
-const ZE_4_NO_UNSAVED_EDIT = '`ZE-2` と `ZE-3` で書き換えないときは、未保存の編集を立ててはならない（MUST NOT）'
-const ZE_5_THE_MESSAGE = '`ZE-2` と `ZE-3` のときは、`FR-039` の 表 T-260 のメッセージを出すこと（MUST）'
+  '拡げる入力（`MK-4` の拡げる向き、`IC-15`、`SK-16a`）を受けたとき、縦軸の上限（`IMPS-1469`）で止めた値がいまの `zoomY` と等しければ、`GRS` は `zoomY` を書き換えないこと。'
+const ZE_4_NO_UNSAVED_EDIT = '`ZE-2` と `ZE-3` で `zoomY` を書き換えないとき、`GRS` は未保存の編集を立てないこと。'
+const ZE_5_THE_MESSAGE = '`ZE-2` と `ZE-3` のとき、`GRS` は `FR-039` の 表 T-260 のメッセージを出すこと。'
 const ZE_5_ITS_TEXT =
-  '中身は、`zoomY` に 100 を掛けて小数点以下を四捨五入した数に `%` を付け、`ZE-2` では最小であることを示す語を、`ZE-3` では最大であることを示す語を添えたものとすること（MUST）'
+  '`GRS` は、メッセージの中身を、`zoomY` に 100 を掛けて小数点以下を四捨五入した数に `%` を付け、`ZE-2` では最小であることを示す語を、`ZE-3` では最大であることを示す語を添えたものにすること（例: `176%（最大）`）。'
 const ZE_5_ONE_MESSAGE =
-  '⭐ 消えるとき・続けて押したとき・通知との違いは同表の `SE-3`〜`SE-5` のとおりとし、表示の倍率を示すメッセージと同じ 1 つのメッセージとして扱うこと（MUST）'
-const T_262_NOT_FOR_MK_2 = '⚠️ 本表は `MK-2`（両軸のズーム）に当てない'
-const UN_8_ZOOM_IS_NO_STEP = '⚠️ 縦軸のズームは、もともと取り消しの対象外である（表 T-027 の `UN-8`）'
-const FR_031_SHRINK_TWO_WRITES = '⭐ 縦軸を縮める 1 回の入力も、同じ形で 2 つの書き込みに分けること（MUST）'
-const FR_031_AT_THE_END_ONLY_THE_TREE = '⚠️ 縮める側の端で倍率を書き換えないとき（`FR-016` の 表 T-262 の `ZE-2`）は ① を書かず、② だけを書く'
-const FR_018_ONLY_T_328 = '⭐ 値を書き換える入口と先の値は、段 0 の折りたたみ（`_assets/tbl-settings.md` の 表 T-203 の `S-418`）を含めて、`_assets/tbl-state-machines.md` の 表 T-328 に従うこと（MUST） —— 同表に無い操作で値を書き換えてはならない（MUST NOT）'
+  '`GRS` は、`ZE-5` のメッセージと表示の倍率を示すメッセージを、1 つのメッセージとして扱うこと。'
+const T_262_NOT_FOR_MK_2 = '`GRS` は、表 T-262 の規則を `MK-2`（両軸のズーム）に当てないこと。'
+const UN_8_ZOOM_IS_NO_STEP = '⚠️ `ZE-4` —— 縦軸のズームは、もともと取り消しの対象外である（表 T-027 の `UN-8`）。'
+const FR_031_SHRINK_TWO_WRITES = '縦軸を縮める入力が 1 回あったとき、`GRS` は、縮める側の端で倍率を書き換えないとき（`IMPS-223`）を除き、入力を 2 つの書き込みに分け、① 倍率を置く書き込み（表 T-108 の `CM-65`、表 T-027 の `UN-8` により段を積まない）の後に、② `temporarilyExpanded` のタスクグループをすべて `auto` へ戻す書き込み（表 T-108 の `CM-85`、表 T-027 の `UN-14` により段を 1 つ積む）を行うこと。'
+const FR_031_AT_THE_END_ONLY_THE_TREE = '縮める側の端で倍率を書き換えないとき（`FR-016` の 表 T-262 の `ZE-2`）、`GRS` は、`IMPS-222` の ① を書かず、② だけを書くこと。'
+const FR_018_ONLY_T_328 = '⭐ `GRS` は、`treeState` の値を書き換える入口と先の値を、段 0 の折りたたみ（`_assets/tbl-settings.md` の 表 T-203 の `S-418`）を含めて、`_assets/tbl-state-machines.md` の 表 T-328 に従わせること。`GRS` は、表 T-328 に無い操作で `treeState` の値を書き換えないこと。'
 
 describe('CR-423 -- the manuscript these cases are driven by', () => {
   it.each([

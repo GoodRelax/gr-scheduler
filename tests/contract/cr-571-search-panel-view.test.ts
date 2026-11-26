@@ -47,29 +47,29 @@ function rowOf(table: string, id: string): SpecRow {
 const cellOf = (table: string, id: string, heading: string): string => unbroken(rowOf(table, id).by[heading] ?? '')
 
 const SV_1_ORDER =
-  '左から、面の名（`FR-038` の辞書）・タスクの表の入口 `IC-118`・コメントボックスの表の入口 `IC-119`・列のフィルタと並べ替えを戻す入口 `IC-153`・スケジュールフィルタの入口 `IC-143`（表 T-353 —— タスクの表を出しているときだけ置き、スケジュールフィルタを掛けているあいだは 表 T-237 の `EN-8` で描く（表 T-353 の `TV-12`））。'
+  '`GRS` は、検索パネルのタイトルバーに、左から、面の名（`FR-038` の辞書）・タスクの表の入口 `IC-118`・コメントボックスの表の入口 `IC-119`・列のフィルタと並べ替えを戻す入口 `IC-153`・日程抽出の入口 `IC-143`（表 T-353 —— `IC-143` の色は 表 T-353 の `TV-12`）を置くこと。'
 const SV_1_RIGHT =
-  '右端に、左から `IC-127`（字の大きさ）・`IC-129`（最小化）・`IC-130`（最大化 —— 最大化しているあいだは同じ場所に `IC-131`）・`IC-52`（閉じる）。'
-const SV_1_TITLE_FONT = 'タイトルバーの面の名の字は `SV-16` の段に従う —— 入口の図形は段に従わない。'
-const SV_1_GRAB = 'タイトルバーは掴んで動かす帯である（表 T-023d の `GR-24`）'
-const SV_2_FIELD = 'タイトルバーの下に 1 行。'
-const SV_2_REFOCUS = '`SK-24` か `IC-117` を押したとき、パネルが出ていれば、パネルを前に出し（`FR-036` の 表 T-335 の `WB-11`）、焦点をここへ戻し、打ってある語をすべて選ぶこと（MUST）'
-const SV_3_ONE = '表は一度に 1 つだけ出す。'
-const SV_3_DEFAULT = '既定はタスクの表。'
-const SV_3_CHOSEN = '出している表の入口は 表 T-237 の `EN-6`（排他の選択のうち選ばれているもの）で示す'
-const SV_6_FIXED = '横は、タスクの表は `SQ-1` まで（表 T-331 の並びで 表示・ステータス・進捗・タスク種別・タスク の 5 列）、コメントボックスの表は `SQ-7` までを左に固定し'
+  '`GRS` は、タイトルバーの右端に、左から `IC-127`（字の大きさ）・`IC-129`（最小化）・`IC-130`（最大化）・`IC-52`（閉じる）を置くこと。'
+const SV_1_TITLE_FONT = '`GRS` は、タイトルバーの面の名の字を `SV-16` の段に従わせること。'
+const SV_1_GRAB = '`GRS` は、タイトルバーを、掴んで動かす帯（表 T-023d の `GR-24`）とすること。'
+const SV_2_FIELD = '`GRS` は、入力欄をタイトルバーの下に 1 行で置くこと。'
+const SV_2_REFOCUS = '検索パネルが出ている間、 `SK-24` か `IC-117` を押したとき、`GRS` は、焦点を入力欄へ戻すこと。'
+const SV_3_ONE = '`GRS` は、検索パネルに表を一度に 1 つだけ出すこと。'
+const SV_3_DEFAULT = '`GRS` は、既定でタスクの表を出すこと。'
+const SV_3_CHOSEN = '`GRS` は、出している表の入口を 表 T-237 の `EN-6`（排他の選択のうち選んでいるもの）で示すこと。'
+const SV_6_FIXED = '`GRS` は、横には、タスクの表では `SQ-1` まで（表 T-331 の並びで 表示・ステータス・進捗・タスク種別・タスク の 5 列）、コメントボックスの表では `SQ-7` までを左に固定すること（表 T-257 の `RR-4` と同じ形）。'
 const SV_9_SIZE =
-  '幅は `Schedule Canvas`（`U-32`）の幅に `_assets/tbl-settings.md` の 表 T-206 の `S-421` を、高さはその高さに `S-422` を掛けた大きさ。'
-const SV_9_CORNER = '左下の角を `Schedule Canvas` の左下に合わせる。'
-const SV_12_ONLY_TITLE = '`FR-036` の 表 T-335 の `WB-2`・`WB-5`（入口は `IC-129`）'
+  '`GRS` は、検索パネルの既定の幅を、`Schedule Canvas`（`U-32`）の幅に `_assets/tbl-settings.md` の 表 T-206 の `S-421` を掛けた幅にすること。'
+const SV_9_CORNER = '`GRS` は、検索パネルの左下の角を `Schedule Canvas` の左下に合わせること。'
+const SV_12_ONLY_TITLE = '`GRS` は、検索パネルの最小化を `FR-036` の 表 T-335 の `WB-2`・`WB-5` に従わせること（入口は `IC-129`）。'
 const SV_12_BOTTOM = 'タイトルバーを中身の幅に縮め、最小化する前の箱の下の縁に、右の端をそろえて置く（元の箱の右下の角）'
-const SV_13_FILL = '範囲は `Schedule Canvas` いっぱい。'
+const SV_13_FILL = '`GRS` は、検索パネルを最大化する範囲を `Schedule Canvas` いっぱいにすること。'
 const SV_13_LABEL = '最大化の入口は、`WB-3` のあいだだけ `IC-131` に替えて同じ場所に描く（`IC-67`・`IC-68` と同じ組み）'
-const SV_16_PX = '表・入力欄・タイトルバーの面の名の字は、`S-429` が選ぶ `_assets/tbl-settings.md` の 表 T-333 の段の px。'
+const SV_16_PX = '`GRS` は、表・入力欄・タイトルバーの面の名の字を、`S-429` が選ぶ `_assets/tbl-settings.md` の 表 T-333 の段の px で描くこと。'
 const SV_16_CYCLE =
-  '`IC-127` を押すたびに表 T-333 の並びの次の段へ移り、末尾の段の次は先頭の段へ戻る（`IC-99` と同じ巡り方）。'
-const SV_16_RULE = '罫線は表 T-257 の `RR-5` と同じく、すべての欄のあいだに画面の 1px で引く。'
-const SV_17_ELLIPSIS = 'セルの字は折り返さず、入らない分を省略記号で切る。'
+  ' `IC-127` を押したとき、`GRS` は、字の段を 表 T-333 の並びの次の段へ移すこと。'
+const SV_16_RULE = '`GRS` は、罫線を、表 T-257 の `RR-5` と同じく、すべての欄のあいだに画面の 1px で引くこと。'
+const SV_17_ELLIPSIS = '`GRS` は、セルの字を折り返さずに、入らない分を省略記号で切ること。'
 const IC_127_CYCLE = '押すたびに `tbl-settings.md` の 表 T-333 の並びの次の段へ移り、末尾の次は先頭へ戻る'
 const T_333_ORDER = '⭐ 段の並びは本表の上からの順であり、`IC-127` はこの順に巡る。'
 const S_442_DEFAULT = '出していない'
@@ -328,7 +328,7 @@ describe('FR-151 tables T-330 / T-331 / T-333 -- the clauses these cases are dri
     expect(cellOf('T-335', 'WB-2', '置き場と大きさ')).toContain(SV_12_BOTTOM)
     expect(say('SV-13')).toContain(SV_13_FILL)
     expect(cellOf('T-335', 'WB-4', '描くもの')).toContain(SV_13_LABEL)
-    for (const clause of [SV_16_PX, SV_16_CYCLE, SV_16_RULE]) expect(say('SV-16')).toContain(clause)
+    for (const clause of [SV_16_PX, SV_16_CYCLE, '字の段が末尾の段の間、 `IC-127` を押したとき、`GRS` は、字の段を先頭の段へ戻すこと（`IC-99` と同じ巡り方）。', SV_16_RULE]) expect(say('SV-16')).toContain(clause)
     expect(say('SV-17')).toContain(SV_17_ELLIPSIS)
   })
 

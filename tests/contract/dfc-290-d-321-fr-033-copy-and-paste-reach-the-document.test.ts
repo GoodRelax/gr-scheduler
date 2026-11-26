@@ -10,17 +10,17 @@
 // ⭐ THE CLAUSES, VERBATIM (docs/spec/01-04-requirements.md, `FR-033`)
 // ---------------------------------------------------------------------------
 //
-//   STATEMENT: 「作成者がタスクを選んでコピーし貼り付けたとき、`GRS` は、**選ば
-//    れた `Task` だけを**複製すること。タスクグループパネルでは、
-//    選ばれた `TaskGroup` を**部分木ごと**複製すること。」
-//   「複製した `Task` は、複製元と同じタスクグループに載せること（MUST）」
-//   「段が表 T-014 の `ST-7` の安全弁に達したときは、貼り付けを受け付けず、表 T-233
-//    の `RS-24` として通知の仕組みへ運ぶこと（MUST）」（CR-719 E-08）
-//   「複製した `Task` に、複製元と同じ `UID` を使ってはならない（MUST NOT）」
-//   「複製に `TaskOrigin` を付けてはならない（MUST NOT）」
-//   「貼り付け先は、選んでいるタスクグループの子とすること（MUST）」
-//   「複製に使う置き場はアプリの中に持つこと（MUST）。OS のクリップボードから読み
-//    込んではならない（MUST NOT）」
+//   STATEMENT: 「作成者がタスクを選んでコピーし貼り付けたとき、`GRS` は、選ばれた
+//    `Task` だけを複製すること。」 `IMPS-285`: 「選ばれた `TaskGroup` を部分木ごと複製すること。」
+//   「複製した各 `Task` を、複製元と同じタスクグループに載せること」（`IMPS-286`）
+//   「もし段が 表 T-014 の `ST-7` の安全弁に達した場合、`GRS` は、貼り付けを受け付けない
+//    こと。」 「表 T-233 の `RS-24` を理由として、`FR-076` の作法で通知の仕組みへ運ぶ
+//    こと。」（CR-719 E-08）
+//   「`GRS` は、複製した `Task` に、複製元と同じ `UID` を使わないこと。」
+//   「`GRS` は、複製に `TaskOrigin` を付けないこと。」
+//   「`GRS` は、貼り付け先を、選んでいるタスクグループの子にすること。」
+//   「`GRS` は、複製に使う置き場をアプリの中に持つこと。」 「`GRS` は、OS の
+//    クリップボードから読み込まないこと。」
 //
 // and 表 T-223 の `DU-1` / `DU-2`, which say what travels with each of the two.
 //
@@ -125,24 +125,24 @@ const REQUIREMENTS = unbroken(readFileSync(
  * clauses. ⭐ Each ends at its own marker's closing parenthesis.
  */
 const FR_033_STATEMENT =
-  '作成者がタスクを選んでコピーし貼り付けたとき、`GRS` は、**選ばれた `Task` だけを**複製すること。タスクグループパネルでは、選ばれた `TaskGroup` を**部分木ごと**複製すること。'
+  '作成者がタスクを選んでコピーし貼り付けたとき、`GRS` は、選ばれた `Task` だけを複製すること。'
 
-const FR_033_SAME_TASK_GROUP = '複製した `Task` は、複製元と同じタスクグループに載せること（MUST）'
+const FR_033_SAME_TASK_GROUP = '`Task` を単独で（タスクグループごとではなく）貼り付けたとき、`GRS` は、`IMPS-287` の場合を除き、複製した各 `Task` を、複製元と同じタスクグループに載せること。'
 
 const FR_033_NO_SAME_UID =
-  '複製した `Task` に、複製元と同じ `UID` を使ってはならない（MUST NOT）'
+  '`GRS` は、複製した `Task` に、複製元と同じ `UID` を使わないこと。'
 
-const FR_033_NO_TASK_ORIGIN = '複製に `TaskOrigin` を付けてはならない（MUST NOT）'
+const FR_033_NO_TASK_ORIGIN = '`GRS` は、複製に `TaskOrigin` を付けないこと。'
 
-const FR_033_PASTE_UNDER_THE_CHOSEN_TASK_GROUP = '貼り付け先は、選んでいるタスクグループの子とすること（MUST）'
+const FR_033_PASTE_UNDER_THE_CHOSEN_TASK_GROUP = '`GRS` は、貼り付け先を、選んでいるタスクグループの子にすること。'
 
 /** ⭐ The clause that ties this requirement to 表 T-014 の `ST-7`. */
 const FR_033_REFUSE_AT_THE_VALVE =
-  '段が表 T-014 の `ST-7` の安全弁に達したときは、貼り付けを受け付けず、表 T-233 の `RS-24` として通知の仕組みへ運ぶこと（MUST）'
+  'もし段が 表 T-014 の `ST-7` の安全弁に達した場合、`GRS` は、貼り付けを受け付けないこと。'
 
 /** 表 T-233's closing rule -- what a telling may carry at all. */
 const T_233_ONLY_ITS_OWN_ROWS =
-  ' 通知が運ぶ理由は 表 T-233 の行とすること（MUST）。同表に無い理由を運んではならない（MUST NOT）'
+  '`GRS` は、通知が運ぶ理由を 表 T-233 の行とすること。`GRS` は、表 T-233 に無い理由を運ばないこと'
 
 const T_036: SpecTable = specTable('T-036')
 const T_037: SpecTable = specTable('T-037')
@@ -483,7 +483,7 @@ describe('FR-033 -- the manuscript this file is driven by', () => {
   })
 
   it('表 T-223 still copies no WBS descendant that was not chosen, and cascades a task group to the task groups below it', () => {
-    expect(rowOf(T_223, 'DU-1').cells.join(' ')).toContain('選ばれていない子孫タスクを複製してはならない')
+    expect(rowOf(T_223, 'DU-1').cells.join(' ')).toContain('`GRS` は、選ばれていない子孫タスクを複製しないこと。')
     expect(rowOf(T_223, 'DU-2').cells.join(' ')).toContain('配下のタスクグループ')
   })
 
@@ -531,7 +531,7 @@ describe('FR-033 -- SK-4 then SK-5 on a chosen Task duplicates that Task only', 
   })
 
   it('and the copied Task sits on the task group its original sits on (MUST)', () => {
-    // 「複製した `Task` は、複製元と同じタスクグループに載せること（MUST）」 -- 載るタスクグループが決まら
+    // 「複製した各 `Task` を、複製元と同じタスクグループに載せること」 -- 載るタスクグループが決まら
     // ないと、表 T-050 の `CD-2` が消す範囲も決まらない。
     const built = stage(documentOfTwoTaskGroups())
     built.pressTask(PARENT_TASK)
@@ -546,7 +546,7 @@ describe('FR-033 -- SK-4 then SK-5 on a chosen Task duplicates that Task only', 
   })
 
   it('and no TaskOrigin is put on a copy (MUST NOT)', () => {
-    // 「複製に `TaskOrigin` を付けてはならない（MUST NOT）」 —— 交換相手から来たもの
+    // 「`GRS` は、複製に `TaskOrigin` を付けないこと。」 —— 交換相手から来たもの
     // ではないので、合流の照合対象にしない。
     const built = stage(documentOfTwoTaskGroups())
     built.pressTask(PARENT_TASK)
@@ -560,7 +560,7 @@ describe('FR-033 -- SK-4 then SK-5 on a chosen Task duplicates that Task only', 
 
 describe('FR-033 -- SK-4 then SK-5 on a chosen task group duplicates the task group subtree', () => {
   it('⭐⭐ the pair of keys leaves two more task groups in the document', () => {
-    // 「タスクグループパネルでは、選ばれた `TaskGroup` を**部分木ごと**複製すること」, and
+    // 「`GRS` は、選ばれた `TaskGroup` を部分木ごと複製すること」 (`IMPS-285`), and
     // 表 T-223 の `DU-2` names 「配下のタスクグループ」 as what travels with it.
     const built = stage(documentOfTwoTaskGroups())
     built.pressRow(PARENT_TASK_GROUP)
@@ -576,8 +576,8 @@ describe('FR-033 -- SK-4 then SK-5 on a chosen task group duplicates the task gr
   })
 
   it('and the Tasks on the copied task groups come with them (DU-2)', () => {
-    // 「そのタスクグループに載っているすべての `Task`」 and
-    // 「⚠️ **複製した `Task` は複製したタスクグループに載せる。**」
+    // 「複製するタスクグループに載っているすべての `Task`」 and
+    // 「`GRS` は、複製した `Task` を、複製したタスクグループに載せること。」
     const built = stage(documentOfTwoTaskGroups())
     built.pressRow(PARENT_TASK_GROUP)
 
@@ -615,7 +615,7 @@ describe('FR-033 -- what does NOT change the document', () => {
   })
 
   it('⭐ SK-4 on its own leaves the document exactly as it was -- a copy is not an edit', () => {
-    // 「複製に使う置き場はアプリの中に持つこと（MUST）」 -- a store, not a change:
+    // 「`GRS` は、複製に使う置き場をアプリの中に持つこと。」 -- a store, not a change:
     // FR-031 counts an undo step from a WRITE, and taking a copy writes nothing.
     const built = stage(documentOfTwoTaskGroups())
     built.pressTask(PARENT_TASK)
@@ -631,9 +631,9 @@ describe('FR-033 -- what does NOT change the document', () => {
 // 7. ⭐⭐ FR-033 x 表 T-014 の ST-7 -- the paste that is refused at the valve
 // ===========================================================================
 //
-// 「段が表 T-014 の `ST-7` の安全弁に達したときは、貼り付けを受け付けず、表 T-233 の
-//  `RS-24` として通知の仕組みへ運ぶこと（MUST） —— 作法は `FR-076` に従う。貼り付け
-//  だけに逃げ道を作ると、安全弁が場所によって効いたり効かなかったりする。」（CR-719 E-08）
+// 「もし段が 表 T-014 の `ST-7` の安全弁に達した場合、`GRS` は、貼り付けを受け付けないこと。」
+//  「表 T-233 の `RS-24` を理由として、`FR-076` の作法で通知の仕組みへ運ぶこと。」 `IMPS-288`:
+//  「貼り付けだけに逃げ道を作ると、安全弁が場所によって効いたり効かなかったりする。」（CR-719 E-08）
 //
 // ⭐ THE CAP IS `S-89`, A TOOL CONSTANT SINCE CR-572: no document can lower it,
 // so the fixture stacks the parent task group up to one under it and reads the number
@@ -679,9 +679,9 @@ describe('FR-033 (MUST) -- a paste that would pass the safety valve is refused A
   })
 
   it('⭐ and the refusal is TOLD, in the words FR-038 holds for a row of 表 T-233', () => {
-    // 「表 T-233 の `RS-24` として通知の仕組みへ運ぶこと（MUST）」, and 表 T-233's closing
-    // rule: 「通知が運ぶ理由は 表 T-233 の行とすること（MUST）。同表に無い理由を運
-    // んではならない（MUST NOT）」.
+    // 「表 T-233 の `RS-24` を理由として、`FR-076` の作法で通知の仕組みへ運ぶこと」, and 表 T-233's closing
+    // rule: 「`GRS` は、通知が運ぶ理由を 表 T-233 の行とすること。`GRS` は、表 T-233
+    // に無い理由を運ばないこと」.
     // ⛔ WHICH row is not asserted here (see the head of this file).
     expect(REQUIREMENTS).toContain(T_233_ONLY_ITS_OWN_ROWS)
     const built = stage(documentOfTwoTaskGroups(AT_THE_CAP), TALL)

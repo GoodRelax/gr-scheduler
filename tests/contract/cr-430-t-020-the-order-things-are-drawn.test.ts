@@ -34,7 +34,7 @@ const FR_110_THE_THREE_IN_FRONT =
 const ZO_THE_ACTUAL_NEVER_COVERS_THE_NAME = '**実績バーが名称ラベルを覆ってはならない（MUST NOT）。**'
 const ZO_6_ONLY_WHILE_HELD =
   '⛔ **握っているあいだだけ描き、離したら消すこと（MUST）** —— **離した時点で残るのは選択そのものであり、矩形ではない**'
-const ZO_15_PLACE = '予定バーと実績バーより手前、依存線（`ZO-4`）より奥とする'
+const ZO_15_PLACE = '`GRS` は、変更前の予定の輪郭を、予定バーと実績バーより手前、依存線（`ZO-4`）より奥に描くこと。'
 const ZO_THE_ROW_ORDER_IS_NOT_THE_ID_ORDER =
   '本表の並び順と行 ID の順は一致しない —— ほかの行から名指されている行 ID を変えないためである。'
 

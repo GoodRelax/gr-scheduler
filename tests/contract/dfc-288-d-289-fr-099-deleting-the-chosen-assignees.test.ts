@@ -79,8 +79,8 @@
 //                 as.
 //   表 T-234 QN-3 「担当を消すことで解かれる割当があるとき | 挙げる —— 解かれる
 //                 割当のタスクの名前」, 正 `FR-099`.
-//   表 T-050 CD-5 「担当（`Resource`）| **その担当を指す割当**（`Assignment`）。
-//                 ⚠️ **タスクは消えない** —— 担当が外れるだけである」 -- the chain,
+//   表 T-050 CD-5 「`GRS` は、担当を消すとき、消す担当を指す割当（`Assignment`）…
+//                 消す担当の割当を持つ `Task` を消さないこと」, and 「担当が外れるだけである」 -- the chain,
 //                 and the reason a case counts the Tasks afterwards.
 //   表 T-037 NT-7 「**続けてよいかを問うとき** | **何が起きるかを示したうえで、続ける
 //                 か取りやめるかを選ばせること（MUST）。** 消えるもの・解かれるものが
@@ -153,7 +153,7 @@ const REQUIREMENTS = unbroken(readFileSync(
  * hold nothing at all.
  */
 const FR_099_TWO_WAYS_OF_DELETING =
-  'を出し、そこから担当を消せるようにすること。**入口はコマンドパレットとすること（MUST）。** 消し方は、**どの割当からも参照されていない担当をまとめて消すこと**と、**選んだ担当を消すこと**の 2 つとすること（MUST）'
+  '`GRS` は、担当の消し方を、どの割当からも参照されていない担当をまとめて消すことと、選んだ担当を消すことの 2 つにすること。'
 
 /**
  * ⚠️ THESE TWO STOP SHORT OF THE PARAGRAPH BREAK. Their 120- and 90-character
@@ -162,13 +162,13 @@ const FR_099_TWO_WAYS_OF_DELETING =
  * changing its bytes -- so what is written here is the longest window of each
  * that is one unbroken run of manuscript.
  */
-const FR_099_NAME_THE_TASKS = 'で解かれる割当があるときは、そのタスクの名前を示して確認を求めること（MUST）'
+const FR_099_NAME_THE_TASKS = 'もし担当を消すことで割当が解ける場合、`GRS` は、確認で、割当が解けるタスクの名前を示すこと。'
 
 const FR_099_NOT_A_COUNT =
-  'る割当があるときは、そのタスクの名前を示して確認を求めること（MUST）。件数だけを示してはならない（MUST NOT）'
+  '`GRS` は、担当の削除で解かれる割当を確認するとき、タスクを件数だけで示さないこと。'
 
 /** FR-099's own reason there is exactly one deleting entrance. */
-const FR_099_ONE_ENTRANCE = 'まとめて選ぶ操作と、選んだ担当を消す操作の 2 手で果たすこと（MUST）'
+const FR_099_ONE_ENTRANCE = '未参照の担当の全員をまとめて選ぶ操作と、選んだ担当を消す操作の 2 手で果たすこと。'
 
 const T_109: SpecTable = specTable('T-109')
 const T_234: SpecTable = specTable('T-234')
@@ -531,7 +531,7 @@ describe('FR-099 -- the manuscript this file is driven by', () => {
 
   it('表 T-050 CD-5 still says the Tasks themselves survive', () => {
     const row = rowOf(T_050, 'CD-5').cells.join(' ')
-    expect(row).toContain('タスクは消えない')
+    expect(row).toContain('`GRS` は、担当を消すとき、消す担当の割当を持つ `Task` を消さないこと。')
   })
 
   it('表 T-109 still puts IC-62 on the palette and IC-66 / IC-68 on the roster', () => {
@@ -598,7 +598,7 @@ describe('FR-099 (MUST) -- IC-66 deletes the CHOSEN assignees', () => {
     expect(namesOf(after, 'resources'), 'the chosen assignee is gone').toEqual([
       RESOURCE_NAMES[BORIS],
     ])
-    // ⭐ 表 T-050 の `CD-5`: 「⚠️ **タスクは消えない** —— 担当が外れるだけである」.
+    // ⭐ 表 T-050 の `CD-5`: 「`GRS` は、担当を消すとき、消す担当の割当を持つ `Task` を消さないこと」.
     expect(namesOf(after, 'tasks'), 'CD-5 (⚠️): a Task must not go with an assignee').toEqual([
       TASK_NAMES[ALPHA],
       TASK_NAMES[BETA],

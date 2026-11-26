@@ -45,7 +45,7 @@
 //   表 T-028 `IN-5a` 「**単文字キーと `Delete` / `Backspace` は、文字入力を確定
 //            していない間は効かないこと（MUST NOT）**」, whose gate is the answer
 //            asserted in section 3
-//   表 T-036 `SK-19` 「その場の編集を確定する（…プロパティの入力）」, `Enter`
+//   表 T-036 `SK-19` 「その場の編集（名称・担当名・タスクグループ名・文書名・プロパティの入力）を確定すること」, `Enter`
 //   表 T-065 `IF-9` -- the two answers these cases read: the settled value with
 //            the row it names, and whether text stands unsettled
 //   `FR-031` / 表 T-027 `UN-3` -- why a second write of the same value is a
@@ -512,9 +512,9 @@ describe('IN-5a (MUST NOT) -- the unchanged value does not open the single-key g
 
     it(`⭐ ${row}: and the settling SK-19 is what lets go of it`, () => {
       // ⚠️ THE OTHER DIRECTION, so that the two cases above are not passed by a
-      // unit that simply always answers 真. `SK-19`'s second stage 「確定していない
-      // その場の編集が 1 つも無いときは、プロパティパネルを…出すのをやめること
-      // （MUST）」 has nothing to stand on unless the answer can become 偽.
+      // unit that simply always answers 真. `SK-19`'s second stage 「出ている通知も確定していないその場の編集も無く、
+      // プロパティパネルを出している間、 `Enter` を押したとき、`GRS` は、
+      // プロパティパネルを出すのをやめること」 has nothing to stand on unless the answer can become 偽.
       const built = drawnPanel()
       const control = enterField(built, row)
       expect(textStandsUnsettled(built)).toBe(true)

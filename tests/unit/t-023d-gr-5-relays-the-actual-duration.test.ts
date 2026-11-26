@@ -61,7 +61,7 @@ const GO_5_LAST_DAY_STANDS = '実績の最後の日（`actualFinish` または `
 
 const GO_5_NO_LENGTH_COLUMN = '長さは `FR-011` が日付から数え直す'
 
-const GO_4_LAST_DAY = '持っているほうの最後の日（`actualFinish` または `stop`）も、置き直した `actualStart` と同じ日とする'
+const GO_4_LAST_DAY = '`GRS` は、持っているほうの最後の日（`actualFinish` または `stop`）も、置き直した `actualStart` と同じ日にすること'
 
 const TEMPLATE_PATH = join(
   process.cwd(),
@@ -389,7 +389,7 @@ describe('表 T-245 -- the rows this file is driven by', () => {
   })
 
   it('GO-5 still forbids moving the actual bar bodily (MUST NOT)', () => {
-    expect(GO_5_PUTS).toContain('実績を平行移動させてはならない（MUST NOT）')
+    expect(GO_5_PUTS).toContain('`GRS` は、実績の開始を掴んで離したとき、実績を平行移動させないこと')
   })
 
   it('GO-5 still holds no length column of its own', () => {

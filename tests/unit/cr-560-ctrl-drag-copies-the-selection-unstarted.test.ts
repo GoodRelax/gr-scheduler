@@ -101,13 +101,13 @@ describe('CR-560 premises: the clauses read this way', () => {
 
   it('T-223 DU-1: a copy is made unstarted on every road', () => {
     const du1 = cellsOf('T-223', 'DU-1')
-    expect(du1).toContain('実績は複製してはならない（MUST NOT）')
-    expect(du1).toContain('`resumeValid` は `false`')
+    expect(du1).toContain('`GRS` は、実績を複製しないこと。')
+    expect(du1).toContain('`resumeValid` を `false`')
     expect(du1).toContain('`ActualDuration`')
-    expect(du1).toContain('`percentComplete` は 0 とする')
-    expect(du1).toContain('`CM-28` は `DU-2` から本行へ連鎖する')
+    expect(du1).toContain('`percentComplete` を 0 にすること')
+    expect(du1).toContain('`CM-28` は `DU-2` から `DU-1` へ連鎖する')
     expect(du1).toContain('`Ctrl` ドラッグ（表 T-308）')
-    expect(du1).toContain('マイルストーンも同じである')
+    expect(du1).toContain('`Task`（マイルストーンを含む）をコピーするすべての道に当てること')
   })
 
   it('T-269 PK-16 is the copy shape and IN-2 gives it to the held copy drag, crosshair to arming', () => {
@@ -739,10 +739,10 @@ describe('T-308 through the shell: a Ctrl drag on the selection copies it', () =
 
 describe('T-308 CY-6 through the shell: a copy drag that moves in steps counts the task groups drawn at the press', () => {
   it('premise: CY-6 counts task groups on the task groups drawn on screen; PTD-7 draws the copy while held', () => {
-    expect(cellsOf('T-308', 'CY-6')).toContain('すべてのコピーを、引いたタスクグループ数だけ移したタスクグループに載せること（MUST）')
-    expect(cellsOf('T-308', 'CY-6')).toContain('タスクグループ数は画面に描いたタスクグループで数え')
-    expect(cellsOf('T-023a', 'PTD-7')).toContain('押しているあいだ、コピーを置くことになる所にコピーを描き、コピー元はそのまま描くこと（MUST）')
-    expect(cellsOf('T-023a', 'PTD-7')).toContain('追従は絵であって編集ではない')
+    expect(cellsOf('T-308', 'CY-6')).toContain('`GRS` は、すべてのコピーを、引いたタスクグループ数だけ移したタスクグループに載せること。')
+    expect(cellsOf('T-308', 'CY-6')).toContain('`GRS` は、`CY-6` のタスクグループ数を、画面に描いたタスクグループで数えること')
+    expect(cellsOf('T-023a', 'PTD-7')).toContain('押している間、`GRS` は、表 T-023d の閉じの規則と同じ作法で、コピーを置くことになる所にコピーを描き、コピー元をそのまま描くこと。')
+    expect(cellsOf('T-023a', 'PTD-7')).toContain('押している間、`GRS` は値を文書へ書かないこと（`FR-031`）。')
   })
 
   it('3 days right and half a task group down, then on to one task group down: the copy lands in the next task group, as one move puts it', () => {

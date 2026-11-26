@@ -26,9 +26,9 @@ const REQUIREMENTS = unbroken(
 )
 
 const FR_039_THE_RATIO =
-  '描く比は、`S-234` を 100 で割り、同書の 表 T-206 の `S-236` を掛けた値とすること（MUST） —— 既定の 100 で 2026-09-16 の出荷ビルドの 5/8（100 ÷ 100 × 0.625）、200 で出荷ビルドの 5/4（200 ÷ 100 × 0.625 ＝ 1.25）に立つ。'
-const FR_039_OPEN_AT_THE_STORED_STEP = '⭐ 文書を開いたときは、文書が保存している `S-234` の値で描くこと（MUST） —— 既定の 100 に置き換えない。'
-const FR_039_NO_ROUNDING_TO_A_STEP = '⛔ `S-234` の型の欄の段に無い値を、近い段へ読み替えてはならない（MUST NOT）'
+  '`GRS` は、描く比を、`_assets/tbl-settings.md` の 表 T-202 の `S-234` を 100 で割り、同書の 表 T-206 の `S-236` を掛けた値とすること。'
+const FR_039_OPEN_AT_THE_STORED_STEP = '文書を開いたとき、`GRS` は、既定の 100 に置き換えずに、文書が保存している `S-234` の値で描くこと。'
+const FR_039_NO_ROUNDING_TO_A_STEP = '`GRS` は、`S-234` の型の欄の段に無い値を、近い段へ読み替えないこと'
 const FR_077_FIVE_EIGHTHS_OF_THE_SHIPPED_BUILD =
   '既定の倍率で字を 2026-09-16 の出荷ビルドの 5/8 まで縮めることを利用者が定めた（既定の 100 の描く比は `_assets/tbl-settings.md` の 表 T-206 の `S-236` の 0.625）'
 

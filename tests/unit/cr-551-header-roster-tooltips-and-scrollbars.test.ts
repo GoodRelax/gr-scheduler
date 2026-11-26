@@ -94,7 +94,7 @@ function bench(document: Record<string, unknown>): Bench {
 const oneTaskGroupDocument = (settings: Record<string, unknown> = {}) => taskGroupDocument([{ id: 'g1', parentId: null }], settings)
 
 const FR_041_PLACE =
-  'モノクロを選ぶ入口を `App Header` の、明暗テーマの入口（`_assets/tbl-glossary.md` の 表 T-109 の `IC-16`）の左に置くこと（MUST）'
+  '`GRS` は、モノクロを選ぶ入口を、`App Header` の、明暗テーマの入口（`_assets/tbl-glossary.md` の 表 T-109 の `IC-16`）の左に置くこと。'
 const IC_100_LEFT_OF_IC_16 = '本行は明暗テーマの入口（`IC-16`）の左に並べる（`FR-041`）'
 
 describe('IC-100 -- the monochrome entrance', () => {
@@ -232,10 +232,10 @@ describe('IN-7 (table T-028) -- tooltips', () => {
   })
 })
 
-const FR_051_BAND_TO_BAR = 'その余白にも、タスクグループの帯の地を、縦の `Scrollbars` の左端まで続けて塗ること（MUST）'
-const FR_051_NOT_IN_VERTICAL = 'タスクグループの帯の地も日程の形も、縦の `Scrollbars` の帯の中へ描いてはならない（MUST NOT）。'
-const FR_051_BOTTOM = '横の `Scrollbars` は、`GRS` が占める画面の下端に接して置くこと（MUST）。'
-const FR_051_NOT_IN_HORIZONTAL = '日程（タスクグループの帯・形・罫線）を横の `Scrollbars` の帯の中へ描いてはならない（MUST NOT）'
+const FR_051_BAND_TO_BAR = '`GRS` は、`canvasPadding` の余白にも、タスクグループの帯の地を、縦の `Scrollbars` の左端まで続けて塗ること。'
+const FR_051_NOT_IN_VERTICAL = '`GRS` は、タスクグループの帯の地も日程の形も、縦の `Scrollbars` の帯の中へ描かないこと。'
+const FR_051_BOTTOM = '`GRS` は、横の `Scrollbars` を、`GRS` が占める画面の下端に接して置くこと。'
+const FR_051_NOT_IN_HORIZONTAL = '`GRS` は、日程（タスクグループの帯・形・罫線）を、横の `Scrollbars` の帯の中へ描かないこと。'
 
 interface Box {
   readonly x: number

@@ -58,7 +58,7 @@ describe('CR-646 the manuscript as these cases read it', () => {
   // Why: CR-699 (JDG-1677) raises the version to the instant a change lands, not the day.
   it('FR-073: a shape change raises the version once, to the instant it is applied, and is not read across', () => {
     // Why: CR-822 (JDG-2985) moved when and how often the version is raised to docs/development-rules/10-versions.md.
-    expect(REQUIREMENTS).toContain('形式の版は、それまでのどの版よりも新しい時刻になること（MUST）')
+    expect(REQUIREMENTS).toContain('文書の形（`_assets/fig-erd-detail.md` の 表 T-058 の列と、表 T-052 の鍵）が変わったとき、形式の版は、それまでのどの版よりも新しい時刻になること。')
     expect(VERSION_TABLE).toContain('1 つの変更要求の中で版を上げるのは 1 度だけとする')
     expect(REQUIREMENTS).toContain('は、版を上げても古い形の文書を読み替えない')
   })

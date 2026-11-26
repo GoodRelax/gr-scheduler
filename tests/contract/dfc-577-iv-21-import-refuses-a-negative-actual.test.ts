@@ -36,7 +36,7 @@ const IV_21_FLOOR_IS_NOT_ITS_CONCERN = '⚠️ **0 以上で床を下回る値�
 
 // Why: CR-710 rewrote this clause (FR-054 reads instants and counts working time in minutes).
 const FR_011_NEGATIVE_LENGTH =
-  '終わりが `actualStart` より前のときの長さは、終わりから `actualStart` までの稼働時間の合計に負の符号を付けたものとする。'
+  '`GRS` は、終わりが `actualStart` より前のときの長さを、終わりから `actualStart` までの稼働時間の合計に負の符号を付けたものにすること。'
 
 const OP_5_REGARDLESS_OF_PATH = '経路によらず `FR-023` の検証を通すこと（MUST）。'
 

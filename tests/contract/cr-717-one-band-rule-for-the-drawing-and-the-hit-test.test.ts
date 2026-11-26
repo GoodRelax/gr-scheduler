@@ -20,7 +20,7 @@ import { drawnSettingsOf, regionsFromScreen } from '../../src/entity/layout-engi
 import { SCREEN, day, scheduleOf, taskOf } from '../unit/cr-430-cross-section-scene'
 
 const ONE_RULE =
-  '⭐ 依存線が帯の中に在るかの判じは 1 つとし、描く側と当たり判定（表 T-023d）が同じ判じを読むこと（MUST）'
+  '⭐ `GRS` は、依存線が帯の中に在るかの判じを 1 つとし、描く側と当たり判定（表 T-023d）に同じ判じを読ませること'
 const REQUIREMENTS = readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8')
 
 const PINNED_UID = 1

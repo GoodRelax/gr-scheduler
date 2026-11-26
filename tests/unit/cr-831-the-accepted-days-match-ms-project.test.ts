@@ -66,8 +66,8 @@ const PADDED_TWO_DIGIT_YEAR = '0075-03-03T08:00:00'
 const S_119_EXPORT_NOTE =
   '⭐ 書き出しは範囲を確かめ直さない —— どの入口（画面の入力・ファイルを開く・`Agent API`）も範囲の外の日付を文書に入れないので、書き出す日付は範囲に収まっている'
 const IV_14 = '日付と日時の列が、日時として読め（時刻は 1 分の単位）、受け入れる日付の範囲に収まること。'
-const JUDGED_AFTER_EACH_OPERATION = '⭐ 本表の行は、操作が終わった文書について判ずること（MUST）'
-const FR_023_RANGE = '受け入れる日付の範囲を表 T-214 に従って持つこと（MUST）。'
+const JUDGED_AFTER_EACH_OPERATION = '`GRS` は、表 T-220 の行を、操作が終わった文書について判ずること。'
+const FR_023_RANGE = '`GRS` は、受け入れる日付の範囲を表 T-214 に従って持つこと。'
 
 describe('CR-831 the manuscript as these cases read it', () => {
   it('T-214: S-119 importMinDate is 1984-01-01 and S-120 importMaxDate is 2149-12-31', () => {

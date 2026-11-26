@@ -172,9 +172,9 @@ const taskGroupAreaOf = (loop: FrameLoop) => {
 }
 
 const FR_055_MARGIN =
-  '横は、表 T-038 に従って測った実寸の左右に、`Task Group Area` の幅に `_assets/tbl-settings.md` の 表 T-206 の `S-332` を掛けた余白を片側ずつ残して収めること（MUST）'
-const FR_055_PICTURE = '横の実寸は、採った段と、その段が着地する縦の倍率で描いた絵で測ること（MUST）'
-const FR_055_NOT_SNAPPED = '日の境目へ切り捨ててはならない（MUST NOT）'
+  '`GRS` は、横を、表 T-038 に従って測った実寸の左右に、`Task Group Area` の幅に `_assets/tbl-settings.md` の 表 T-206 の `S-332` を掛けた余白を片側ずつ残して収めること'
+const FR_055_PICTURE = '`GRS` は、横の実寸を、採った段と、採った段が着地する縦の倍率で描いた絵で測ること。'
+const FR_055_NOT_SNAPPED = '`GRS` は、左端の表示位置を日の境目へ切り捨てないこと。'
 
 function fitted(settings: Record<string, unknown> = {}): Bench {
   const built = bench(documentOf(SEEDS, { zoomX: 4, scrollDate: '2026-03-01', ...settings }))
@@ -245,11 +245,11 @@ describe('FR-055 -- the fit leaves a margin on each side', () => {
   })
 })
 
-const FR_046_CENTER = '基準日線を出す操作では、倍率を変えずに、基準日線が `Task Group Area` の横の中点に来るよう表示位置を横に送ること（MUST）'
-const FR_046_NOT_VERTICAL = '縦の表示位置は動かさないこと（MUST）。'
-const FR_046_INK = '基準日線は、色を `_assets/tbl-settings.md` の 表 T-236 の `S-163`、太さを同書の 表 T-206 の `S-333` で描くこと（MUST）'
-const FR_046_EN_7 = '基準日線を描いているあいだ、基準日の入口（`_assets/tbl-glossary.md` の 表 T-109 の `IC-44`）を `FR-029` の 表 T-237 の `EN-7` で塗ること（MUST）'
-const FR_106_PK_10 = '基準日線の掴み代（表 T-023d の `GR-16`）と、パネルの境界の掴み帯（同表の `GR-22`）では、表 T-269 の `PK-10` とすること（MUST）'
+const FR_046_CENTER = '基準日線を出す操作をしたとき、`GRS` は、倍率を変えずに、基準日線が `Task Group Area` の横の中点に来るよう表示位置を横に送ること。'
+const FR_046_NOT_VERTICAL = '基準日線を出す操作をしたとき、`GRS` は、縦の表示位置を動かさないこと。'
+const FR_046_INK = '`GRS` は、基準日線を、色を `_assets/tbl-settings.md` の 表 T-236 の `S-163`、太さを `_assets/tbl-settings.md` の 表 T-206 の `S-333` で描くこと。'
+const FR_046_EN_7 = '基準日線を描いている間、`GRS` は、基準日の入口（`_assets/tbl-glossary.md` の 表 T-109 の `IC-44`）を `FR-029` の 表 T-237 の `EN-7` で塗ること。'
+const FR_106_PK_10 = '`GRS` は、基準日線の掴み代（表 T-023d の `GR-16`）と、パネルの境界の掴み帯（表 T-023d の `GR-22`）では、表 T-269 の `PK-10` にすること。'
 
 // Spec: PK-10
 const PK_10_SPELLING = /`([a-z-]+)`/.exec(verticalIn('T-269', 'PK-10').cells[1] ?? '')?.[1] ?? ''
@@ -342,8 +342,8 @@ describe('FR-046 / FR-106 -- the status-date line', () => {
   })
 })
 
-const FR_048_EXCLUSIVE = '`Dual Cursor` のモード（`CU-2`）とガイドカーソル（`CU-3`）の 2 つの値は 1 つの排他の選択とし、1 つを選ぶと他を消すこと（MUST）'
-const FR_048_INK = '`CU-2` と `CU-3` の線は、色を `_assets/tbl-settings.md` の 表 T-236 の `S-195`、太さを同書の 表 T-206 の `S-194` で描くこと（MUST）'
+const FR_048_EXCLUSIVE = '`GRS` は、`Dual Cursor` のモード（`CU-2`）とガイドカーソル（`CU-3`）の 2 つの値を、1 つの排他の選択とすること（規則は 表 T-029a の `DC-9` が持つ）。閲覧者が `CU-2` と `CU-3` の一方を選んだとき、`GRS` は、他方を消すこと。'
+const FR_048_INK = '`GRS` は、`CU-2` と `CU-3` の線を、色を `_assets/tbl-settings.md` の 表 T-236 の `S-195`、太さを `_assets/tbl-settings.md` の 表 T-206 の `S-194` で描くこと。'
 const DC_9_ENTER = '本モードに入るときは、`S-66` を `\'none\'` にすること（MUST）。'
 const DC_9_GUIDE_PRESSED = '本モードにいるあいだにガイドカーソルの入口を押したときは、本モードを出て（`DC-7` が 2 本を消す）、押した値を `S-66` に書くこと（MUST）'
 const DC_3_SIZE = '文字の大きさは `_assets/tbl-settings.md` の 表 T-206 の `S-334` とし、同表の `S-340` を下回らせない。'

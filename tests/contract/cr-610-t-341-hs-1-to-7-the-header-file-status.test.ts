@@ -33,7 +33,7 @@ const S_210 = settingNumber('S-210')
 const LOWER_LINE = /^(\d{4}\/\d{2}\/\d{2} \d{2}:\d{2}:\d{2}) {2}(\d+\.\d\[kB\])$/
 const OPENED_STAMP = '2026-05-04T03:02:01Z'
 const TO_THE_TABLE =
-  '名前と時刻の 2 段の並べ方、時刻と大きさの綴り、字の大きさ、`App Header` の高さとの関係は、表 T-341 に従うこと（MUST）'
+  '`GRS` は、名前と時刻の 2 段の並べ方、時刻と大きさの綴り、字の大きさ、`App Header` の高さとの関係を、表 T-341 に従わせること'
 
 const lowerText = (built: ShellStage): string => oneByRole(built.domRoot(), SAVED_AT).textContent
 const upperText = (built: ShellStage): string => oneByRole(built.domRoot(), NAME).textContent

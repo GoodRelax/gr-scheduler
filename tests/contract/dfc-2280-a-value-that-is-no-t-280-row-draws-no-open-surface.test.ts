@@ -20,7 +20,7 @@ import {
 const T_280_OPEN_CARRIES = '`openSurfaceStateMachine.open` —— 運ぶ値 `surfaceName`'
 const S_99G_PANEL_IS_NO_SURFACE = '⚠️ プロパティパネルは面ではない'
 const S_99G_HELP_IS_NO_SURFACE = '⭐ **ヘルプ（`U-30` の `Help Modal`）は面ではない**'
-const FR_072_NO_TITLE_BAR = '⛔ **パネルの先頭にタイトルバーを置いてはならない（MUST NOT）**'
+const FR_072_NO_TITLE_BAR = '`GRS` は、プロパティパネルの先頭にタイトルバーを置かないこと。'
 
 const SEARCH_PANEL = 'Search Panel'
 const DELAY_REPORT = 'Delay Diagnostics Report'

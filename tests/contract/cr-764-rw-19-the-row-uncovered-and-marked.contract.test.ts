@@ -26,14 +26,14 @@ import { CANVAS, NO_VIEW, found } from './cr-721-stage'
 import { specTable, unbroken } from './spec-table'
 
 const RW_19_STEPS_IN_ORDER =
-  '遅延診断レポートの窓が開いているあいだ（最小化（`IC-129`）を含む —— `RW-1`）、日程表で `FR-133` の 表 T-315 の `DG-1` 〜 `DG-3` で描いた進捗マーカー（表 T-266 の `GA-18`）を押して離したとき、そのタスクの行に下の ④ のいまの行の印が付いていなければ、状態を巡らせず（表 T-270 の `PE-8`・`PE-10` の例外）、次をこの順に行うこと（MUST）'
+  '遅延診断レポートの窓が開いている間（最小化（`IC-129`）を含む —— `RW-1`）、日程表で `FR-133` の 表 T-315 の `DG-1` 〜 `DG-3` で描いた進捗マーカー（表 T-266 の `GA-18`）を押して離したとき、押したタスクの行に ④ のいまの行の印が付いていなければ、`GRS` は、次をこの順に行うこと'
 const RW_19_SECOND = '② 診断結果の表（`RW-11` の `IC-154`）を出していなければ出す'
 const RW_19_THIRD =
-  '③ そのタスクの行が語（`RW-3`）か列のフィルタ（`FR-151` の 表 T-330 の `SV-7`）で隠れていれば、その行を隠している条件だけを外す —— 語が行に合わなければ語を空にし、行の値を外している列のフィルタではその値にチェックを入れ直し、行の日付を範囲の外に置く日付の列（`DT-5`・`DT-6`）のフィルタではその列の範囲を外す。'
+  '③ 押したタスクの行が語（`RW-3`）か列のフィルタ（`FR-151` の 表 T-330 の `SV-7`）で隠れていれば、行を隠している条件だけを外す —— 語が行に合わなければ語を空にし、行の値を外している列のフィルタでは行の値にチェックを入れ直し、行の日付を範囲の外に置く日付の列（`DT-5`・`DT-6`）のフィルタでは列の範囲を外す。'
 const RW_19_OTHERS_KEPT = 'ほかの列のフィルタと並べ替えは変えない'
 const RW_19_FOURTH = '④ 行を表の中に送り、`RW-14` と同じいまの行の印を付ける。'
-const RW_19_ONE_MARK = '⚠️ いまの行の印は表に 1 つで、次に別のタスクのマーカーで ① 〜 ④ を行うまで残る —— 巡らせる押下は印を動かさない。'
-const RW_19_FIXES_STILL = '⚠️ 修正案の表とそのいまの行（`RW-14`）は動かさない（利用者が定めた）。'
+const RW_19_ONE_MARK = '`GRS` は、いまの行の印を表に 1 つだけ付けること。'
+const RW_19_FIXES_STILL = '`GRS` は、`RW-19` の押下で、修正案の表と修正案の表のいまの行（`RW-14`）を動かさないこと。'
 const T_347_ONE_ROW = '1 つの `Task` は 1 行で、上の順で先に当たるものを出す'
 
 type Loose = Record<string, unknown>
@@ -197,7 +197,18 @@ const filterOn = (view: TableView, column: string): TableView['columnFilters'][n
 describe('CR-764 -- the clauses this file is driven by', () => {
   it('T-346 RW-19, T-347 and the published entries still read this way', () => {
     const rw19 = cellOf('T-346', 'RW-19', '定め')
-    for (const clause of [RW_19_STEPS_IN_ORDER, RW_19_SECOND, RW_19_THIRD, RW_19_OTHERS_KEPT, RW_19_FOURTH, RW_19_ONE_MARK, RW_19_FIXES_STILL]) {
+    for (const clause of [
+      RW_19_STEPS_IN_ORDER,
+      '`RW-19` の ① 〜 ④ を行うとき、`GRS` は、状態を巡らせないこと（表 T-270 の `PE-8`・`PE-10` の例外）。',
+      RW_19_SECOND,
+      RW_19_THIRD,
+      RW_19_OTHERS_KEPT,
+      RW_19_FOURTH,
+      RW_19_ONE_MARK,
+      '`GRS` は、いまの行の印を、次に別のタスクのマーカーで ① 〜 ④ を行うまで残すこと。',
+      '`GRS` は、巡らせる押下でいまの行の印を動かさないこと。',
+      RW_19_FIXES_STILL,
+    ]) {
       expect(rw19, clause).toContain(clause)
     }
     expect(REQUIREMENTS).toContain(T_347_ONE_ROW)

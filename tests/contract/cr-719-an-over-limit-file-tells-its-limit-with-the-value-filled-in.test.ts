@@ -6,8 +6,8 @@ import { OPEN_CHOOSER, shellStage, UTF8, type ShellStage } from './cr-610-file-f
 import { assertReadable, filled, firstTask, grsJsonOf, LIMITS, BYTES_PER_MEGABYTE, REQUIREMENTS, settleLoop, templateDocument, wordsOf } from './cr-719-stage'
 import { specTable } from './spec-table'
 
-const FR_076_NO_COPIED_SETTING_VALUE = '設定値を理由の語に書き写してはならない（MUST NOT）'
-const FR_023_NO_PARTIAL_APPLY = '部分的に適用してはならない（MUST NOT）'
+const FR_076_NO_COPIED_SETTING_VALUE = '`FR-038` の辞書は、設定値を理由の語に書き写さないこと。'
+const FR_023_NO_PARTIAL_APPLY = '`GRS` は、取り込まない入力を部分的に適用しないこと。'
 const NT_1_SAYS_WHY_IN_WORDS = 'どの項目が、なぜ誤りかを文字で示すこと（MUST）'
 
 describe('FR-076 / FR-023 -- the clauses this file is driven by still stand', () => {

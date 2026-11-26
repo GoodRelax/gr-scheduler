@@ -11,10 +11,10 @@ import { BREAK_MARK, drawnPanel, LANGUAGES, MARKED_WORDS, REQUIREMENTS, settings
 
 // Spec: FR-006, FR-038
 const FR_006_BREAK_AT_MARKS =
-  '⭐ 項目名が項目名の欄の 1 行に収まらないときは、`FR-038` の辞書がその語に持つ折り目でだけ折り、折った行の長さがなるべくそろう折り目を選ぶこと（MUST）'
-const FR_006_UNMARKED = '折り目を持たない語は、空白で折る（英語の語）。'
-const FR_038_MARK_NEVER_SHOWN = '印は語の一部ではなく、語を出すどの所（パレット・ヘルプ・ツールチップ・`Agent API`）にも出してはならない（MUST NOT）'
-const FR_038_GENERATOR = '生成器が印を外した語と、印で切った区切りの並びを出す。'
+  '項目名が項目名の欄の 1 行に収まらないとき、`GRS` は、`FR-038` の辞書が語に持つ折り目でだけ項目名を折ること（折り目を持たない語は `IMPS-38`、1 つの区切りが欄より長いときは `IMPS-39` を除く）。'
+const FR_006_UNMARKED = '`GRS` は、折り目を持たない語（英語の語）を空白で折ること。'
+const FR_038_MARK_NEVER_SHOWN = '`GRS` は、パネルの項目名に使う語の中の印 `|`（2 行に折ってよい位置）を、語を出すどの所（パレット・ヘルプ・ツールチップ・`Agent API`）にも出さないこと。'
+const FR_038_GENERATOR = '生成器は、`FR-381` の印を外した語と、印で切った区切りの並びを出すこと。'
 
 const GENERATED_WORDS = JSON.parse(
   readFileSync(join(process.cwd(), 'src', 'adapter', 'screen-renderer', 'display-words.json'), 'utf8'),

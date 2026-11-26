@@ -40,14 +40,14 @@ const STATE_MACHINES = unbroken(
 )
 
 const KEEP_THE_TARGET_MUST =
-  '合流と重ね（表 T-024a の `OP-3`）で開いた後も、上書きする先はそれまでのままとすること（MUST）'
+  '合流か重ね（表 T-024a の `OP-3`）で開いた後も、`GRS` は、上書きする先をそれまでのままとすること。'
 const ONLY_A_REPLACE = '読んだファイルを上書きする先にするのは置き換えだけである'
 const MERGE_MAKES_NO_FILE = '合流・重ねは、ファイルに無い文書を作る'
 const REPLACE_IS_THE_FILE = '置き換えは、開いたファイルと同じ文書にする'
 const MSPDI_HAS_NO_TARGET = 'MSPDI で開いた文書の最初の `SK-11` は上書きする先を持たない'
 const CHECK_BEFORE_OP_3 = '`OP-3` を問う前に通すこと（MUST）'
 const ONE_ENTRANCE = '1 つ目のファイルも 2 つ目以降も同じ経路で入る'
-const FIRST_SAVE_CHOOSES = '起動した直後の最初の保存で、人がファイルを選び直すのが本仕様である（MUST）'
+const FIRST_SAVE_CHOOSES = '起動した直後の最初の保存のとき、`GRS` は、人にファイルを選び直させること'
 
 const cellOf = (
   table: { readonly id: string; readonly rows: readonly { id: string; cells: readonly string[] }[] },
