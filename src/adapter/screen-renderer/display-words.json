@@ -844,8 +844,8 @@
     "en": "Retract Into Parent"
    },
    "hint": {
-    "ja": "このタスクグループ自身を折りたたむ",
-    "en": "Collapse this task group itself"
+    "ja": "このタスクグループ自身を親に格納する",
+    "en": "Retract this task group itself into its parent"
    }
   },
   {
@@ -862,7 +862,7 @@
   {
    "specTableRowId": "IC-90",
    "label": {
-    "ja": "一階層展開",
+    "ja": "1 階層展開",
     "en": "Expand One Level"
    },
    "hint": {
@@ -950,11 +950,11 @@
   {
    "specTableRowId": "IC-143",
    "label": {
-    "ja": "チェックによりスケジュールを絞り込み",
+    "ja": "チェックで日程抽出",
     "en": "Filter Schedule by Checks"
    },
    "hint": {
-    "ja": "スケジュールフィルタの切替。この表で「表示」の行のタスクだけを日程表に描く",
+    "ja": "日程抽出の切替。この表で「表示」の行のタスクだけを日程表に描く",
     "en": "Turn the Schedule Filter on or off: draw only the tasks this table shows"
    }
   },
@@ -1434,7 +1434,7 @@
   {
    "specTableRowId": "IC-92",
    "label": {
-    "ja": "一階層展開",
+    "ja": "1 階層展開",
     "en": "Expand One Level"
    },
    "hint": {
@@ -3964,7 +3964,7 @@
     "en": "No child of this task group is out of the picture to bring back."
    },
    "nextStep": {
-    "ja": "配下を折りたたむか、直下のタスクグループを隠してから、もう一度押してください",
+    "ja": "配下を折りたたむか、直下のタスクグループを親に格納してから、もう一度押してください",
     "en": "Collapse what is under this task group, or hide one of its children, then try again."
    }
   },
@@ -6215,7 +6215,7 @@
   {
    "part": "scheduleFilter",
    "text": {
-    "ja": "チェックによりスケジュールを絞り込み",
+    "ja": "チェックで日程抽出",
     "en": "Filter Schedule by Checks"
    }
   },
@@ -6852,21 +6852,21 @@
   {
    "part": "nothingChecked",
    "text": {
-    "ja": "この表にチェックの入った行が無いので、スケジュールフィルタを掛けると日程表が空になります",
+    "ja": "この表にチェックの入った行が無いので、日程抽出すると日程表が空になります",
     "en": "No row in this table is checked, so the Schedule Filter would leave the schedule empty"
    }
   },
   {
    "part": "scheduleFilterBar",
    "text": {
-    "ja": "{tables}のスケジュールフィルタを掛けています（{total} 件中 {shown} 件）",
+    "ja": "{tables}で日程抽出しています（{total} 件中 {shown} 件）",
     "en": "Schedule Filter on {tables} ({shown} of {total})"
    }
   },
   {
    "part": "scheduleFilterOff",
    "text": {
-    "ja": "スケジュールフィルタを解除",
+    "ja": "日程抽出を解除",
     "en": "Turn Off Schedule Filter"
    }
   },

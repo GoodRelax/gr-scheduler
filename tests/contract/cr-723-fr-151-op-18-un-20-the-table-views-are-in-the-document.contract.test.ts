@@ -39,7 +39,7 @@ const UN_20_SJ = '⭐ 飛ぶ（`SJ-0`）ために行を「表示」にしたこ�
 const UN_20_OUT = '⚠️ 語・ウィンドウの位置と大きさ・最小化と最大化・列の幅・開いているフィルタは対象外 —— 文書に保存しない（`FR-151`）'
 const CD_1_TAIL = '表の見え方でその `Task` を「表示」とする値（`_assets/tbl-settings.md` の `S-561`・`S-565`）'
 const CD_5_TAIL = '表の見え方でその担当を「表示」とする値（`_assets/tbl-settings.md` の `S-569`）も消える'
-const S_445_EXCEPTION = '⭐ 例外: 開いた文書が遅延診断レポートの表のスケジュールフィルタを掛けている（表 T-203 の `S-564` が真）ときは、開いたときに診断を始める（表 T-024a の `OP-18` —— 利用者が定めた）。'
+const S_445_EXCEPTION = '⭐ 例外: 開いた文書が遅延診断レポートの表で日程抽出している（表 T-203 の `S-564` が真）ときは、開いたときに診断を始める（表 T-024a の `OP-18` —— 利用者が定めた）。'
 
 describe('CR-723 -- FR-151, FR-134, FR-099 narrow what is not saved and say what is', () => {
   it('FR-151 (MUST NOT): the panel, its place, size, word and column widths are still not saved', () => {
@@ -148,7 +148,7 @@ describe('CR-723 -- UN-20 is the undo row of a view, CD-1 and CD-5 take the hidd
     expect(row).toBeDefined()
     const cells = row?.cells.map((one) => unbroken(one)).join(' | ') ?? ''
     expect(cells).toContain('`setTableView`')
-    expect(cells).toContain('表 1 つの見え方（表示の列の値・スケジュールフィルタの入切・列のフィルタ・並べ替え')
+    expect(cells).toContain('表 1 つの見え方（表示の列の値・日程抽出の入切・列のフィルタ・並べ替え')
     expect(AGENT_API_MEMBERS).toContain('出す命令は `setTableView`（表 T-108 の `CM-92`）1 つであり、未保存の編集（`FR-100`）で取り消しの 1 段である（`FR-031` の 表 T-027 の `UN-20`）')
   })
 })

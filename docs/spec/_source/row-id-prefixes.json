@@ -794,7 +794,7 @@
    "standsFor": "",
    "meaning": {
     "en": "One clause of the controls for collapsing and hiding per task group",
-    "ja": "タスクグループごとの折りたたみと隠しの操作面の条"
+    "ja": "タスクグループごとの折りたたみと格納の操作面の条"
    },
    "section": "T-051",
    "xOwner": "spec"
@@ -824,7 +824,7 @@
    "standsFor": "Hierarchy",
    "meaning": {
     "en": "A kind of hierarchy operation (expand, collapse, hide)",
-    "ja": "階層の操作（展開・折りたたみ・隠し）の種別"
+    "ja": "階層の操作（展開・折りたたみ・格納）の種別"
    },
    "section": "T-015",
    "xOwner": "spec"
@@ -1893,7 +1893,7 @@
    "standsFor": "Task Visibility",
    "meaning": {
     "en": "The rules of the Schedule Filter, which narrows the tasks drawn on the schedule by the shown columns of the three tables (Search, Delay Diagnostics Report, Resource List) and the Schedule Filter",
-    "ja": "3 つの表（検索・遅延診断レポート・担当リスト）の表示の列とスケジュールフィルタで日程表に描くタスクを絞る、スケジュールフィルタの規則"
+    "ja": "3 つの表（検索・遅延診断レポート・担当リスト）の表示の列のチェックで日程表に描くタスクを抽出する、日程抽出の規則"
    },
    "section": "T-353",
    "xOwner": "spec"

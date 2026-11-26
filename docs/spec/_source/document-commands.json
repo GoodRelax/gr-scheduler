@@ -459,7 +459,7 @@
       "S-568"
      ],
      "meaning": {
-      "ja": "スケジュールフィルタを掛けているか"
+      "ja": "日程抽出しているか"
      }
     }
    ]
@@ -3069,7 +3069,7 @@
    "values": [],
    "carries": {
     "ja": [
-     "隠したタスクグループを除くすべてのタスクグループの木の状態を `auto` へ戻す"
+     "格納したタスクグループを除くすべてのタスクグループの木の状態を `auto` へ戻す"
     ],
     "en": [
      "Returns the tree state of every task group to `auto`, except task groups that are hidden."
@@ -3290,7 +3290,7 @@
    ],
    "carries": {
     "ja": [
-     "表 1 つの見え方（表示の列の値・スケジュールフィルタの入切・列のフィルタ・並べ替え —— `_assets/tbl-settings.md` の 表 T-203 の `S-560` 〜 `S-572`）を置き換える"
+     "表 1 つの見え方（表示の列の値・日程抽出の入切・列のフィルタ・並べ替え —— `_assets/tbl-settings.md` の 表 T-203 の `S-560` 〜 `S-572`）を置き換える"
     ],
     "en": [
      "Replaces how one table looks: the displayed column values, whether the schedule filter is on, the column filters and the sort order.",

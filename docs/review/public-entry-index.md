@@ -299,7 +299,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `hasRoomBelowPinsIn` | entry | function | `src/entity/layout-engine/schedule-layout/pinned-band.ts#hasRoomBelowPinsIn` | PI-5 | タスクグループの領域の中で、固定したタスクグループの帯の下に、そのタスクグループを描く余地が残るか。 |
 | `hasUndecidedResume` | entry | function | `src/entity/layout-engine/schedule-layout/label-placement.ts#hasUndecidedResume` | -- | function hasUndecidedResume(task: Task, shapeKind: ShapeKind): boolean |
 | `inTreeOrder` | entry | function | `src/entity/layout-engine/schedule-layout/drawn-task-groups.ts#inTreeOrder` | PI-5 | タスクグループを木の順（`05-07-design.md` の 表 T-068 の `LC-9`）に並べる。 |
-| `isDroppedByTreeState` | entry | function | `src/entity/layout-engine/schedule-layout/drawn-task-groups.ts#isDroppedByTreeState` | PI-5 | そのタスクグループが、人が折りたたんだタスクグループか隠したタスクグループのために描かれないか —— タスクグループそのものが隠されている、祖先が折りたたまれているか隠されている、段 0 が折りたたまれている（`FR-018` の 表 T-329 の `TD-1` ／ `TD-2` ／ `TD-3`）。 |
+| `isDroppedByTreeState` | entry | function | `src/entity/layout-engine/schedule-layout/drawn-task-groups.ts#isDroppedByTreeState` | PI-5 | そのタスクグループが、人が折りたたんだタスクグループか格納したタスクグループのために描かれないか —— タスクグループそのものが格納されている、祖先が折りたたまれているか格納されている、段 0 が折りたたまれている（`FR-018` の 表 T-329 の `TD-1` ／ `TD-2` ／ `TD-3`）。 |
 | `isPlanSpanningYears` | entry | function | `src/entity/layout-engine/schedule-layout/name-label.ts#isPlanSpanningYears` | PI-5 | 文書のすべてのタスクとマイルストーンの予定の日が 2 つ以上の暦年にまたがるか。 |
 | `keptInViewByTreeState` | entry | function | `src/entity/layout-engine/schedule-layout/group-level-of-detail.ts#keptInViewByTreeState` | PI-5 | `expanded` と `temporarilyExpanded` が倍率によらず描かせるタスクグループ。 |
 | `labeledAssigneeUidOf` | entry | function | `src/entity/layout-engine/schedule-layout/assignee-label.ts#labeledAssigneeUidOf` | PI-5 | 担当ラベルが名を出す担当、すなわち `FR-059` の絞りで残る担当のうち、割当の並びで先頭の 1 名（主担当、`FR-008` の 表 T-225 の `AS-13`）の資源の `uid`。 |
@@ -567,7 +567,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `SearchJumpTarget` | entry | type | `src/use-case/edit-document/search-jump.ts#SearchJumpTarget` | PI-9 | 型。 |
 | `searchJumpWrites` | entry | function | `src/use-case/edit-document/search-jump.ts#searchJumpWrites` | PI-9 | 検索の表の行を押して飛ぶときの書き込み —— タスクグループと祖先を展開し、表示を寄せる（`FR-151` の 表 T-332）。 |
 | `SettingsLimits` | entry | interface | `src/use-case/edit-document/edit-document-settings.ts#SettingsLimits` | PI-9 | 型。 |
-| `shownTasksRevealWrites` | entry | function | `src/use-case/edit-document/search-jump.ts#shownTasksRevealWrites` | PI-9 | スケジュールフィルタを掛けているあいだに表示の列で「表示」にしたタスクのタスクグループと祖先を展開する書き込み（`FR-151` の 表 T-353 の `TV-6`、表 T-332 の `SJ-2`）。 |
+| `shownTasksRevealWrites` | entry | function | `src/use-case/edit-document/search-jump.ts#shownTasksRevealWrites` | PI-9 | 日程抽出しているあいだに表示の列で「表示」にしたタスクのタスクグループと祖先を展開する書き込み（`FR-151` の 表 T-353 の `TV-6`、表 T-332 の `SJ-2`）。 |
 | `TableView` | entry | interface | `src/use-case/edit-document/edit-document-settings.ts#TableView` | PI-9 | 型。 |
 | `tableViewOf` | entry | function | `src/use-case/edit-document/edit-document-settings.ts#tableViewOf` | PI-9 | 文書の設定から 1 つの表の見え方を読む（`FR-151`）。 |
 | `tableViewsKeptIn` | entry | function | `src/use-case/edit-document/edit-document-settings.ts#tableViewsKeptIn` | PI-9 | 表の見え方から、日程に無い `Task.uid`・`Resource.uid` を外す（表 T-024a の `OP-18`、表 T-050 の `CD-1`・`CD-2`・`CD-5`）。 |
@@ -1516,7 +1516,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `resourceListWithFilterClosed` | entry | function | `src/adapter/screen-renderer/resource-list.ts#resourceListWithFilterClosed` | PI-37 | 開いている列のフィルタを閉じたウィンドウの値を答える（表 T-330 の `SV-14`）。 |
 | `RulerAbbreviation` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#RulerAbbreviation` | PI-37 | 型。 |
 | `rulerWeekdayWords` | entry | function | `src/adapter/screen-renderer/screen-renderer.ts#rulerWeekdayWords` | PI-37 | 目盛の第 4 段が刷る曜日 7 語。 |
-| `scheduleFilterBarOf` | entry | function | `src/adapter/screen-renderer/table-window.ts#scheduleFilterBarOf` | PI-37 | スケジュールフィルタの帯（`U-67`）の語を、掛けている表の名・文書のタスクの数・描いているタスクの数から作る（表 T-353 の `TV-11`）。 |
+| `scheduleFilterBarOf` | entry | function | `src/adapter/screen-renderer/table-window.ts#scheduleFilterBarOf` | PI-37 | チェックで日程抽出バー（`U-67`）の語を、日程抽出している表の名・文書のタスクの数・描いているタスクの数から作る（表 T-353 の `TV-11`）。 |
 | `ScheduleFilterBarView` | entry | interface | `src/adapter/screen-renderer/table-window.ts#ScheduleFilterBarView` | PI-37 | 型。 |
 | `ScreenFrame` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#ScreenFrame` | -- | interface ScreenFrame |
 | `ScreenPart` | entry | interface | `src/adapter/screen-renderer/screen-surface.ts#ScreenPart` | -- | interface ScreenPart |
@@ -1545,7 +1545,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `tableViewsOnTheirColumns` | entry | function | `src/adapter/screen-renderer/table-window.ts#tableViewsOnTheirColumns` | PI-37 | 表の見え方から、その表に無い列の行 ID（表 T-372 の `column`）を持つ列のフィルタと並べ替えを外す（表 T-024a の `OP-18`）。 |
 | `TableWindowState` | entry | interface | `src/adapter/screen-renderer/table-window.ts#TableWindowState` | PI-37 | 型。 |
 | `tableWithScheduleFilterOff` | entry | function | `src/adapter/screen-renderer/table-window.ts#tableWithScheduleFilterOff` | -- | function tableWithScheduleFilterOff(view: TableView): TableView |
-| `tableWithScheduleFilterToggled` | entry | function | `src/adapter/screen-renderer/table-window.ts#tableWithScheduleFilterToggled` | PI-37 | 表のスケジュールフィルタの入切を返す（表 T-353 の `TV-5`・`TV-8`）。 |
+| `tableWithScheduleFilterToggled` | entry | function | `src/adapter/screen-renderer/table-window.ts#tableWithScheduleFilterToggled` | PI-37 | 表の日程抽出の入切を返す（表 T-353 の `TV-5`・`TV-8`）。 |
 | `TaskGroupDropCue` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#TaskGroupDropCue` | -- | interface TaskGroupDropCue |
 | `TaskGroupExpander` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#TaskGroupExpander` | -- | interface TaskGroupExpander |
 | `TaskGroupGrabCopy` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#TaskGroupGrabCopy` | -- | interface TaskGroupGrabCopy |
@@ -1916,7 +1916,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `hasCalendarDraftRefusal` | entry | function | `src/use-case/advance-screen-session/calendar-draft.ts#hasCalendarDraftRefusal` | -- | function hasCalendarDraftRefusal(draft: CalendarDraft): boolean |
 | `isHelpStandingIn` | entry | function | `src/use-case/advance-screen-session/screen-values.ts#isHelpStandingIn` | PI-39 | ヘルプが立っているか（`helpDisplayStateMachine` が `shown.normal` か `shown.maximized`）。 |
 | `isWindowStandingIn` | entry | function | `src/use-case/advance-screen-session/screen-values.ts#isWindowStandingIn` | PI-39 | ウィンドウ（`FR-036` の 表 T-335）が立っているか —— 表示のステートマシンが `shown.normal` か `shown.maximized`。 |
-| `NO_ROW_CHECKED` | entry | const | `src/use-case/advance-screen-session/screen-values.ts#NO_ROW_CHECKED` | PI-39 | `TableVisibility` の初めの値 —— どの行もチェックが外れ（「非表示」）、スケジュールフィルタを掛けていない（表 T-353 の `TV-2`） |
+| `NO_ROW_CHECKED` | entry | const | `src/use-case/advance-screen-session/screen-values.ts#NO_ROW_CHECKED` | PI-39 | `TableVisibility` の初めの値 —— どの行もチェックが外れ（「非表示」）、日程抽出していない（表 T-353 の `TV-2`） |
 | `NOTICE_DISPLAY_OF_REASON` | entry | const | `src/use-case/advance-screen-session/notice-values.ts#NOTICE_DISPLAY_OF_REASON` | PI-39 | 理由ごとの表示の仕方 —— 表 T-233 の表示の仕方の欄（`show` ・ `autoDismiss` ・ `hide` ・ `report`）と、取り込みの拒否が運ぶ 表 T-220 の行の家族の値（`_source/notice-reasons.json` から生成）。 |
 | `NOTICE_MANNER_OF_REASON` | entry | const | `src/use-case/advance-screen-session/notice-values.ts#NOTICE_MANNER_OF_REASON` | PI-39 | 理由ごとの作法 —— 表 T-233 の作法の欄（表 T-037 の行）。 |
 | `NOTICE_WORDS_ROW_OF_REASON` | entry | const | `src/use-case/advance-screen-session/notice-values.ts#NOTICE_WORDS_ROW_OF_REASON` | PI-39 | 理由ごとに語を刷る行 —— 表 T-233 のまとめ方の欄（相乗りしない行は自身、`_source/notice-reasons.json` から生成）。 |
@@ -1939,7 +1939,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `TableView` | entry | interface | `src/use-case/edit-document/edit-document-settings.ts#TableView` | PI-39 | 型。 |
 | `tableViewOf` | entry | function | `src/use-case/edit-document/edit-document-settings.ts#tableViewOf` | PI-39 | `PI-9` の `tableViewOf` を、同じ理由で公開する —— 読み手は 1 本である |
 | `TableVisibility` | entry | type | `src/use-case/advance-screen-session/screen-values.ts#TableVisibility` | PI-39 | 型。 |
-| `VISIBILITY_TABLES` | entry | const | `src/use-case/advance-screen-session/screen-values.ts#VISIBILITY_TABLES` | PI-39 | `VisibilityTable` の 3 つの名を、表 T-109 が `IC-143` の面を並べる順（検索・遅延診断レポート・担当リスト）に並べたもの —— スケジュールフィルタの帯が表の名を並べる順（表 T-353 の `TV-11`）。 |
+| `VISIBILITY_TABLES` | entry | const | `src/use-case/advance-screen-session/screen-values.ts#VISIBILITY_TABLES` | PI-39 | `VisibilityTable` の 3 つの名を、表 T-109 が `IC-143` の面を並べる順（検索・遅延診断レポート・担当リスト）に並べたもの —— チェックで日程抽出バーが表の名を並べる順（表 T-353 の `TV-11`）。 |
 | `VisibilityTable` | entry | type | `src/use-case/advance-screen-session/screen-values.ts#VisibilityTable` | PI-39 | 型。 |
 | `WindowName` | entry | type | `src/entity/document-model/screen-state/screen-state.ts#WindowName` | PI-39 | 型。 |
 | `withExceptionAdded` | entry | function | `src/use-case/advance-screen-session/calendar-draft.ts#withExceptionAdded` | PI-39 | 例外日の行を 1 つ足した後の下書き —— `IC-135`、`WC-6` |

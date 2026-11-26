@@ -400,7 +400,7 @@ function entranceForRule(rule: string): string {
  * with the row of 表 T-051 that is its 正.
  *
  * ⭐ 表 T-109, docs/spec/_assets/tbl-glossary.md:
- *   | IC-59 | `Task Group Panel` | — | このタスクグループを隠す              | 表 T-051 の `HF-3`  |
+ *   | IC-59 | `Task Group Panel` | — | このタスクグループを親に格納する      | 表 T-051 の `HF-3`  |
  *   | IC-90 | `Task Group Panel` | — | タスクグループの配下を 1 階層だけ展開する | 表 T-051 の `HF-13` |
  *   | IC-77 | `Task Group Panel` | — | タスクグループの配下をすべて折りたたむ      | 表 T-051 の `HF-11` |
  *   | IC-58 | `Task Group Panel` | — | タスクグループの配下をすべて展開する      | 表 T-051 の `HF-2`  |
@@ -421,7 +421,7 @@ function entranceForRule(rule: string): string {
  * nothing but telling a press on one from a press on another.
  */
 const T_109_TASK_GROUP_EXPANDER = [
-  { row: entranceForRule('HF-3'), rule: 'HF-3', gist: 'このタスクグループを隠す', side: 'hiding' },
+  { row: entranceForRule('HF-3'), rule: 'HF-3', gist: 'このタスクグループを親に格納する', side: 'hiding' },
   {
     row: entranceForRule('HF-13'),
     rule: 'HF-13',

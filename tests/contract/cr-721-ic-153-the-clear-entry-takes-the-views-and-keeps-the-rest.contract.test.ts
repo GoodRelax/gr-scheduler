@@ -37,7 +37,7 @@ const SV_1_CLEARS =
 const SV_1_NOTHING = '列のフィルタも並べ替えも掛かっていないあいだは、`IC-153` を効かなくする（`FR-092`）。'
 const IC_153_CLEARS =
   'その表のすべての列のフィルタをクリアし、並びを既定の並び（`FR-151` の 表 T-330 の `SV-8`）へ戻す。'
-const IC_153_KEEPS = '⭐ 語・表示の列の値・スケジュールフィルタ（`IC-143`）は変えない。'
+const IC_153_KEEPS = '⭐ 語・表示の列の値・日程抽出（`IC-143`）は変えない。'
 const IC_153_NOTHING = '戻すものが無いあいだは効かない'
 
 describe('CR-721 the manuscript these cases are driven by', () => {
