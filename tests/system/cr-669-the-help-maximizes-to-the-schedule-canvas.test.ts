@@ -12,22 +12,22 @@ const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '
 
 // Why: each constant ends exactly at its marker, cut from the manuscript as check 39 reads it.
 const FR_036_MAXIMIZED =
-  'ヘルプを最大化したときに占める範囲は、`Schedule Canvas`（`_assets/tbl-glossary.md` の `U-32`）の全体とする（MUST）'
+  '`GRS` は、ヘルプを最大化したときに占める範囲を、`Schedule Canvas`（`_assets/tbl-glossary.md` の `U-32`）の全体とすること'
 const WB_8_FOLLOWS = 'タイトルバーの帯（表 T-023d の `GR-24`）を握っているあいだ、ウィンドウをポインタに追従させること（MUST）'
 const WB_8_RANGE = 'ウィンドウを、ウィンドウごとの範囲（`WB-3` と同じ）の外へ出してはならない（MUST NOT）'
 const WB_9_FOLLOWS = '縁と角（表 T-023d の `GR-25`）を握っているあいだ、ウィンドウの大きさをポインタに追従させること（MUST）'
 const WB_9_RANGE = 'ウィンドウごとの範囲の外へ広げてはならない（MUST NOT）'
-const FR_036_BRACKETS = '⭐ `IC-54` の項目に添える語は、丸括弧で囲むこと（MUST）'
-const T_337_THE_FRONT_ONE_TAKES_THE_PRESS = '⭐ 押下は、その点で最も手前に描かれた UI パーツが受けること（MUST）'
+const FR_036_BRACKETS = '`GRS` は、`IC-54` の項目に添える語を丸括弧で囲むこと。'
+const T_337_THE_FRONT_ONE_TAKES_THE_PRESS = '`GRS` は、押下を、押下の点で最も手前に描いた UI パーツに受けさせること'
 const FR_036_ONE_SCREEN =
-  'ない環境の両方で、ヘルプの言語が日本語でも英語でも、開いたときの大きさ（表 T-335 の `WB-1`）で全部の塊とライセンスの行（`FR-069`）を 1 画面に収め、縦にも横にもスクロールを要さないこと（MUST）'
+  'ない環境の両方で、ヘルプの言語が日本語でも英語でも、開いたときの大きさ（表 T-335 の `WB-1`）で全部の塊とライセンスの行（`FR-069`）を 1 画面に収め、縦にも横にもスクロールを要さないこと'
 const S_203_FITS_BOTH =
-  '⭐ 収めるためにヘルプの字を小さくしてよい —— `_assets/tbl-settings.md` の 表 T-206 の `S-203` は、上の 2 つの環境で日英の両方が収まる値とすること（MUST）'
+  '`GRS` は、`IMPS-1165` を満たすためにヘルプの字を小さくしてもよい。`_assets/tbl-settings.md` の 表 T-206 の `S-203` は、`IMPS-1165` の 2 つの環境で日英の両方が収まる値とすること。'
 // Why: plain sentences the cases below lean on; no marker of their own.
 const WB_3_RANGE = 'ヘルプ・検索パネル・遅延診断レポートの窓・担当リストのウィンドウのどれも `Schedule Canvas`（`U-32`）の全体'
 const FR_036_HEADER_STAYS = 'ヘルプを実物の横へ寄せて見比べるあいだも、`App Header` の入口は隠れない'
 const FR_036_ONE_SPACE = '項目の説明は名の語と添える語を半角の空白 1 つで繋ぐ'
-const FR_036_IN_THE_DICTIONARY = '括弧は辞書の語の中に持ち、描き手は足さない'
+const FR_036_IN_THE_DICTIONARY = '`FR-038` の辞書は、丸括弧を語の中に持つこと。`GRS` は、描くときに丸括弧を足さないこと。'
 const FR_036_LOW_SCREEN = '⚠️ 後者の環境の閲覧環境の窓は、CSS で約 1280 × 627 である'
 const FR_038_HELP_LANGUAGE_ONLY = '画面の言語だけを替え、ヘルプの言語を替えない'
 

@@ -161,13 +161,11 @@ function quotedReasons(): QuotedReason[] {
 const INSTANT_SHAPE = 'YYYY-MM-DDThh:mm:ssZ'
 const INSTANT = /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z/
 
-function statementOfFr020(): string {
+function instantRuleOfFr020(): string {
   const text = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
   const lines = text.split('\n')
-  const at = lines.indexOf('**UID**: FR-020')
-  if (at < 0) throw new Error('01-04-requirements.md holds no requirement FR-020')
-  const said = lines.slice(at, at + 8).find((line) => line.startsWith('**STATEMENT**'))
-  if (said === undefined) throw new Error('FR-020 has no STATEMENT this file can read')
+  const said = lines.find((line) => line.startsWith('| IMPS-870 |'))
+  if (said === undefined) throw new Error('01-04-requirements.md holds no row IMPS-870 of FR-020')
   return said
 }
 
@@ -424,7 +422,7 @@ test('DFC-354: the watermark is stamped when the document opens and when it chan
   test.setTimeout(180_000)
 
   expect(
-    statementOfFr020(),
+    instantRuleOfFr020(),
     `FR-020 no longer spells the instant as ${INSTANT_SHAPE}, so the shape this case matches ` +
       'against is not the one the requirement asks for',
   ).toContain(INSTANT_SHAPE)

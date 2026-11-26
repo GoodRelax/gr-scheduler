@@ -10,10 +10,10 @@ import { rowOf } from './sws-case'
 
 const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
-const FR_006_RIGHT_ALIGNED = '⛔ **項目名は値の欄の左に置き、右詰めにすること（MUST）'
+const FR_006_RIGHT_ALIGNED = '`GRS` は、項目名を値の欄の左に置くこと。 | FR-006 |\n| IMPS-32 | 項目名の寄せ | `GRS` は、項目名を右詰めにすること。'
 const FR_006_SAME_EDGES =
-  '⭐ 色の行（入力の型が `色` の行）も同じであり、項目名は色の欄の 1 段目の左に置き、色の欄の 2 つの段は値の欄の左端から始めること（MUST）'
-const CV_9_TWO_ROWS = '⭐ 欄は見本の 2 段だけとし、項目名は 1 段目の左に置くこと（MUST）（`FR-006`）'
+  '`GRS` は、色の行（入力の型が `色` の行）の項目名を、色の欄の 1 段目の左に置くこと（表 T-017b の `CV-9`）。 | FR-006 |\n| IMPS-34 | 色の欄の 2 つの段の始まり | `GRS` は、色の欄の 2 つの段を、値の欄の左端から始めること。'
+const CV_9_TWO_ROWS = '`GRS` は、色の欄を見本の 2 段だけとすること（項目名は `FR-006` の `IMPS-33` のとおり 1 段目の左に置く）。'
 
 const roleOf = (id: string): string =>
   `[data-role="${bare(specTable('T-103').rows.find((one) => one.id === id)?.by['確定名（英）'] ?? '')}"]`

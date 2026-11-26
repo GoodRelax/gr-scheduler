@@ -25,7 +25,7 @@ import {
 import { rowOf } from './sws-case'
 
 const IN_3_TAKES_NO_POINTER = '⭐ ツールチップはポインタを受け取らず、下へ通すこと（MUST）（`FR-152` の 表 T-337 の `UZ-2`）'
-const UZ_2_PASSES_THE_PRESS = '押下を受けず、下へ通すこと（MUST）—— 説明は短く、押すものを持たないので、覆った入口から押す手を奪ってはならない'
+const UZ_2_PASSES_THE_PRESS = '`GRS` は、`Tooltip` に押下を受けさせず、押下を下へ通すこと。説明は短く、押すものを持たないので、覆った入口から押す手を奪わない'
 const EZ_2_LEAVING = 'ポインタがそのアイコンの外へ出たら、説明を消し、次に入った対象で待ちを数え直すこと（MUST）'
 const EZ_2_THE_BOX_IS_OUTSIDE = '説明の箱の上へ動いたことも、アイコンの外へ出たことに数える（説明はポインタを受け取らない —— `IN-3`）。'
 const GR_19_NO_PRESS_IN_FRONT = '押下を受けないもの（`UZ-1`・`UZ-2`）'

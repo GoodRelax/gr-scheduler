@@ -120,7 +120,7 @@ const PRESS_OR_DRAG_PX = numberIn(
 
 // Table T-036 holds three cells after the row ID -- what the key does, the
 // assignment, and the entrance the assignment moves.
-const T036_COLUMNS = 3
+const T036_COLUMNS = 4
 const T036_ASSIGNMENT = 1
 
 // Why: the assignment column marks each key on its own and joins them with a
@@ -212,7 +212,7 @@ const AGENT_API_ENTRANCE = (() => {
 
 /** `SK-13` -- opens the help, which is one of the faces `S-99g` counts. */
 const SK13_KEY = (() => {
-  const found = /`([^`]+)`/.exec(cellOf(T036, 'SK-13', 1, 3))
+  const found = /`([^`]+)`/.exec(cellOf(T036, 'SK-13', 1, T036_COLUMNS))
   if (found === null) throw new Error('table T-036 row SK-13 names no key this file can read')
   return asDriven(found[1] ?? '')
 })()

@@ -10,8 +10,8 @@ import { rowOf } from './sws-case'
 
 const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
-const MH_4_KEEP_TEXT = '⛔ 編集している入力の字と焦点を動かしてはならない（MUST NOT）'
-const MK_1_SCROLL = '| MK-1 | ホイール（修飾なし） | **縦スクロール**（ズームではない） |'
+const MH_4_KEEP_TEXT = '`GRS` は、現在の高さを書き換えるとき、編集している入力の字と焦点を動かさないこと。'
+const MK_1_SCROLL = '| MK-1 | ホイール（修飾なし） | 縦スクロール（ズームではない） |'
 
 const roleOf = (id: string): string =>
   `[data-role="${bare(specTable('T-103').rows.find((one) => one.id === id)?.by['確定名（英）'] ?? '')}"]`

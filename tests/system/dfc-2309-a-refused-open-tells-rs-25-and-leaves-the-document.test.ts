@@ -15,7 +15,7 @@ const WORDS = JSON.parse(readFileSync(resolve(SPEC, '_source', 'display-words.js
 
 const NT_1_SAYS_WHY_IN_WORDS = 'どの項目が、なぜ誤りかを文字で示すこと（MUST）'
 const NT_1_ROW = '| NT-1 | 入力を受け付けないとき |'
-const FR_023_NO_PARTIAL_APPLY = '部分的に適用してはならない（MUST NOT）'
+const FR_023_NO_PARTIAL_APPLY = '`GRS` は、取り込まない入力を部分的に適用しないこと。'
 const RS_25_IS_SHOWN_BY_NT_1 = /^\| RS-25 \|[^|]*\| `NT-1` \| 出す \|/m
 
 const RS_25 = WORDS.reasons.find((one) => one.specTableRowId === 'RS-25')

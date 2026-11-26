@@ -12,10 +12,10 @@ import { rowOf } from './sws-case'
 const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
 // Why: each constant ends exactly at its marker, cut from the manuscript as check 39 reads it.
-const FR_031_ONLY_THESE = '確認ダイアログを増やす代わりにこれが要る。例外は、取り消しで取り戻せないものを失う場面に限る（MUST）'
-const FR_031_NO_OTHER = 'それ以外の場面で確認を求めてはならない（MUST NOT）'
+const FR_031_ONLY_THESE = '確認ダイアログを増やす代わりに取り消しが要る。'
+const FR_031_NO_OTHER = '`GRS` は、取り消しで取り戻せないものを失う場面（連鎖して消える範囲が大きく、取り消しで戻せても「何が消えたか」を人が把握できない場合も、取り消しの履歴ごと捨てる場合も、相手のファイルを上書きする場合も含む）のほかで、確認を求めないこと。'
 // Why: CR-710 widened the clause from the released day to the released place (day or time).
-const FR_103_NO_SNAP = '⛔ **掴んだ端点を置いた所を、稼働日・稼働時間へ寄せてはならない（MUST NOT）'
+const FR_103_NO_SNAP = '`GRS` は、掴んだ端点を置いた所を、稼働日・稼働時間へ寄せないこと。'
 
 test.describe('CR-701 the manuscript these cases are driven by', () => {
   for (const clause of [FR_031_ONLY_THESE, FR_031_NO_OTHER, FR_103_NO_SNAP]) {

@@ -767,16 +767,16 @@ test('DFC-232: a task drawn on empty ground leaves a name field under the keyboa
 const CLAUSES: readonly (readonly [string, string])[] = [
   [
     'T-266 closing (MUST) -- the mark is halved at its middle, left for GA-5 and right for GA-6',
-    '⭐ 矩形では、印（幅は 表 T-240 の `DM-3`）を横幅の中央で左右に割り、左半分を開始側（`GA-5`）、右半分を終了側（`GA-6`）とすること（MUST）。',
+    '矩形では、`GRS` は、印（幅は 表 T-240 の `DM-3`）を横幅の中央で左右に割り、左半分を開始側（`GA-5`）、右半分を終了側（`GA-6`）とすること。',
   ],
   [
     'T-266 closing (MUST NOT) -- that hit area is never a box wider than the mark',
-    '⛔ 矩形のダミーの掴み代を印の外へ広げてはならない（MUST NOT）。',
+    '`GRS` は、矩形のダミーの掴み代を印の外へ広げないこと。',
   ],
 ]
 
 const DM_3_THE_DRAWN_WIDTH =
-  'ダミーを描く幅は、そのタスクの進捗マーカーの径に `_assets/tbl-settings.md` の 表 T-206 の `S-247` を掛けた幅と、同表の `S-180` の小さい方とすること（MUST）'
+  '`GRS` は、ダミーを描く幅を、ダミーを描くタスクの進捗マーカーの径に `_assets/tbl-settings.md` の 表 T-206 の `S-247` を掛けた幅と、表 T-206 の `S-180` の小さい方とすること'
 
 test('the manuscript still states the mark this file measures, word for word', () => {
   for (const [name, clause] of CLAUSES) {

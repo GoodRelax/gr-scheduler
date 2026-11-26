@@ -12,19 +12,19 @@ const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '
 
 // Why: each constant is cut from the manuscript as it stands; the cases below are driven by them.
 const FR_069_STRETCH =
-  '⭐ 全文と帰属表示を開いたら、表 T-335 の `WB-1` のヘルプの窓の下の縁を、同表の `WB-3` の範囲の下端まで伸ばすこと（MUST）'
+  '作成者がヘルプで全文と帰属表示を開いたとき、`GRS` は、表 T-335 の `WB-1` のヘルプの窓の下の縁を、同表の `WB-3` の範囲の下端まで伸ばすこと'
 const FR_069_SCROLLS_INSIDE = '全文は窓の本文の中でスクロールして読み、スクロールバーは窓の右側に出る'
-const FR_069_FOLD_BACK = '⭐ もう一度押してたたんだら、窓を開く前の大きさに戻すこと（MUST）'
-const FR_069_ONLY_THE_DRAWN_BOX = '伸ばすのは描く箱だけであり、`WB-8`・`WB-9` が決める位置と大きさは変えない'
-const FR_069_MOVE_KEEPS_BOTTOM = '⚠️ 開いているあいだに `WB-8` で動かしても、下の縁は範囲の下端に留まる'
+const FR_069_FOLD_BACK = '作成者が全文と帰属表示を開く入口をもう一度押してたたんだとき、`GRS` は、ヘルプの窓を開く前の大きさに戻すこと。'
+const FR_069_ONLY_THE_DRAWN_BOX = '全文と帰属表示を開いて窓の下の縁を伸ばすとき、`GRS` は、`WB-8`・`WB-9` が決める窓の位置と大きさを変えないこと。'
+const FR_069_MOVE_KEEPS_BOTTOM = '`GRS` は、全文と帰属表示を開いているあいだに作成者が `WB-8` で窓を動かしても、窓の下の縁を範囲の下端に留めること。'
 const FR_069_NOT_WB_2 = '⚠️ `WB-2` は本文を描かないので伸ばさず、`WB-3` は既に範囲いっぱいである'
-const FR_069_NOT_SAVED = '⚠️ 開いているかどうかは窓の状態と同じく保存せず、ヘルプを閉じたら捨てる（`WB-6`）'
-const FR_069_FOLDED_AT_OPEN = '⛔ 全文と帰属表示を、ヘルプを開いたときに開いた形で出してはならない（MUST NOT）'
-const FR_069_ENTRANCE_WORD = '折りたたんだ全文を開く入口の語は、`FR-038` の辞書が持つこと（MUST）'
+const FR_069_NOT_SAVED = '`GRS` は、全文と帰属表示を開いているかどうかを、窓の状態と同じく保存しないこと。作成者がヘルプを閉じたとき、`GRS` は、全文と帰属表示を開いているかどうかを捨てること（`WB-6`）。'
+const FR_069_FOLDED_AT_OPEN = '`GRS` は、ヘルプを開いたときに、全文と帰属表示を開いた形で出さないこと。'
+const FR_069_ENTRANCE_WORD = '`FR-038` の辞書は、ライセンスの名の行の語と、折りたたんだ全文を開く入口の語を持つこと。'
 const WB_2_PLACE = '最小化する前の箱の下の縁に、右の端をそろえて置く'
 const WB_3_RANGE = '`App Header` の下の縁からウィンドウの下の端まで'
 const FR_036_ONE_SCREEN_AT_WB_1 = '開いたときの大きさ（表 T-335 の `WB-1`）で全部の塊とライセンスの行（`FR-069`）を 1 画面に収め'
-const T_337_THE_FRONT_ONE_TAKES_THE_PRESS = '⭐ 押下は、その点で最も手前に描かれた UI パーツが受けること（MUST）'
+const T_337_THE_FRONT_ONE_TAKES_THE_PRESS = '`GRS` は、押下を、押下の点で最も手前に描いた UI パーツに受けさせること'
 
 const SHIPPED_BUILD = join(process.cwd(), 'dist', 'index.html')
 const T_103 = specTable('T-103')

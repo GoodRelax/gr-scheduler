@@ -125,7 +125,8 @@ const FRAME_TIME_P95_CEILING_MS = 16.7
  * this file with it.
  */
 const TARGET_TASKS = ((): number => {
-  const cell = rowOf(T025, 'MC-7').cells[rowOf(T025, 'MC-7').cells.length - 1] ?? ''
+  const mc7 = rowOf(T025, 'MC-7')
+  const cell = mc7.cells[mc7.cells.length - ('traces' in mc7.by ? 2 : 1)] ?? ''
   const found = /(\d+)\s*`?Task/.exec(cell)
   const n = Number(found?.[1] ?? '')
   if (!Number.isInteger(n)) throw new Error('table T-025 row MC-7 states no Task count this file can read')

@@ -20,7 +20,7 @@ const NOTICE_ROSTER = unbroken(readFileSync(
 const FR_020_LAYS_IT_ON =
   '開いた者の名前と実行時の日時を、`Task Group Area`（`_assets/tbl-glossary.md` の `U-50`）へ斜めに繰り返し薄く重ねること'
 const FR_020_ISO_8601 =
-  '`GRS` は、透かしの日時を UTC とし、`ISO 8601`（`RFC 3339` の書式。`YYYY-MM-DDThh:mm:ssZ`）で秒まで示すこと。'
+  '`GRS` は、透かしの日時を UTC とし、`ISO 8601`（`RFC 3339` の書式、`YYYY-MM-DDThh:mm:ssZ`）で秒まで示すこと。'
 const FR_020_NOT_SAVED = '`GRS` は、透かしの設定を文書に保存しないこと。'
 const FR_020_NOT_OUTSIDE_TASK_GROUP_AREA = '`GRS` は、`Task Group Area` の外へ透かしを重ねないこと。'
 const FR_020_HIDE_PROPAGATES_TO_EXPORT =

@@ -10,7 +10,7 @@ const REFERENCE_CHANNEL = 'msedge'
 /** @purity pure */
 export function screenOf(row: SpecRow): { width: number; height: number } {
   // Why: written as an escape, not the character itself, to keep this file ASCII.
-  const found = /(\d+)\s*[x\u00d7]\s*(\d+)/.exec(row.cells[row.cells.length - 1] ?? '')
+  const found = /(\d+)\s*[x\u00d7]\s*(\d+)/.exec(row.cells[row.cells.length - ('traces' in row.by ? 2 : 1)] ?? '')
   const width = Number(found?.[1] ?? '')
   const height = Number(found?.[2] ?? '')
   if (!Number.isInteger(width) || !Number.isInteger(height)) {

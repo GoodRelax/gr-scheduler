@@ -73,7 +73,8 @@ export function rowOf(table: SpecTable, id: string): SpecRow {
 
 // Why: read by position, not heading -- headings are Japanese and rule 03
 // section 5 keeps this tree ASCII; a caller needing another column guards it.
+// Why: a trailing `traces` column (ASCII heading) names parents, not content, so it is skipped.
 /** @purity pure */
 export function lastCellOf(row: SpecRow): string {
-  return row.cells[row.cells.length - 1] ?? ''
+  return row.cells[row.cells.length - ('traces' in row.by ? 2 : 1)] ?? ''
 }

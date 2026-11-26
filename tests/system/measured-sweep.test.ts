@@ -205,12 +205,12 @@ const T212_COLUMNS = 5
 const T212_VALUE = 1
 
 /** Columns of table T-036 after the row ID: what it does, the assignment, the shape. */
-const T036_COLUMNS = 3
+const T036_COLUMNS = 4
 const T036_ASSIGNMENT = 1
 const T036_ENTRANCE = 2
 
 /** Columns of table T-023 after the row ID: the operation, what it does, the entrance. */
-const T023_COLUMNS = 3
+const T023_COLUMNS = 4
 const T023_ENTRANCE = 2
 
 /** Columns of table T-016 after the row ID: column, input kind, subject, kinds shown for, note, MSPDI. */
@@ -232,7 +232,7 @@ const T233_SITUATION = 0
  * Columns of table T-024 after the row ID: format, direction, ending, media type,
  * offered on IC-2, the first character a reader sees, what it is for, the note.
  */
-const T024_COLUMNS = 8
+const T024_COLUMNS = 9
 const T024_ENDING = 2
 const T024_FIRST_CHARACTER = 5
 
@@ -526,12 +526,13 @@ function surfacesOf(cell: string): readonly string[] {
 // Why: so a surface it gains is swept unedited; ASCII names drop the quoted column heading.
 /** @purity semi-pure-mutable */
 function helpBarred(): { readonly surfaces: ReadonlySet<string>; readonly rows: ReadonlySet<string> } {
-  const opening = `${String.fromCharCode(0x26d4)} ${String.fromCharCode(0x8868)} T-109 ` +
-    String.fromCharCode(0x306e, 0x3046, 0x3061)
+  const opening = `${String.fromCharCode(0x8868)} T-109 ` +
+    String.fromCharCode(0x306e, 0x3046, 0x3061, 0x3001)
   const requirements = readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8')
-  const line = requirements.split(/\r?\n/).find((one) => one.startsWith(opening))
+  const line = requirements.split(/\r?\n/).find((one) => one.includes(opening))
   if (line === undefined) throw new Error('FR-036 no longer holds the sentence that keeps rows of table T-109 off the help')
-  const sentence = line.slice(0, line.indexOf('MUST NOT'))
+  const from = line.slice(line.indexOf(opening))
+  const sentence = from.slice(0, from.indexOf(String.fromCharCode(0x3002)))
   const named = surfacesOf(sentence)
   const rows = new Set(named.filter((one) => /^IC-\d+$/.test(one)))
   const surfaces = new Set(
@@ -2831,7 +2832,7 @@ test('DFC-220: a picture too tall to draw is refused as RS-43, and the other for
 /** Table T-238 (`FR-017`) -- what each tier of the ruler prints, read at read time. */
 const T238: SpecTable = specTable('T-238')
 /** Columns of table T-238 after the row ID: the tier, then its three lines. */
-const T238_COLUMNS = 4
+const T238_COLUMNS = 5
 const T238_FIRST_LINE = 1
 const T238_SECOND_LINE = 2
 

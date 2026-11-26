@@ -12,9 +12,9 @@ const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '
 
 // Why: each constant ends exactly at its marker, cut from the manuscript as check 39 reads it.
 const FR_071_LOCK =
-  '全画面表示に入ることをブラウザに求める押下の中で、閲覧環境が Keyboard Lock（`navigator.keyboard`）を持つなら `Escape` の鍵をかけることを求め、全画面表示を出たことを受けたら鍵を放すこと（MUST）'
+  '閲覧環境が Keyboard Lock（`navigator.keyboard`）を持つ場合、全画面表示に入ることをブラウザに求める押下の中で、`GRS` は、`Escape` の鍵をかけることを求めること。全画面表示を出たことを受けたとき、`GRS` は、`Escape` の鍵を放すこと。'
 const FR_071_SILENT =
-  'ら鍵を放すこと（MUST） —— 鍵が無いと、ブラウザが `Esc` をページより先に取り、表 T-028 の `IN-4` の段より先に全画面表示を解く。⛔ 鍵を断られたこと・閲覧環境が持たないことを通知してはならない（MUST NOT）'
+  'もし鍵を断られた場合、または閲覧環境が Keyboard Lock を持たない場合、`GRS` は、断られたこと・持たないことを通知しないこと。'
 const IN_4_HELD_ESC =
   '示の段は、全画面表示を出ることをブラウザに求める（`FR-071` の入口の押下と同じ求め）。⛔ 押しっぱなしの `Esc` の繰り返し（`KeyboardEvent.repeat` が真の押下）で段を消費してはならない（MUST NOT）'
 

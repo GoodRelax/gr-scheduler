@@ -32,7 +32,7 @@ function cellOf(table: SpecTable, id: string, column: number, columns: number): 
 
 // Why: table T-036 holds three cells after the row ID -- what the key does,
 // the assignment, and the entrance the assignment moves.
-const T036_COLUMNS = 3
+const T036_COLUMNS = 4
 const T036_ASSIGNMENT = 1
 
 // Why: table T-036 writes the modifier as Ctrl (what a keyboard prints on

@@ -45,14 +45,14 @@ import {
 } from './cr-570-tree-state-stage'
 
 const HF_2_BY_T_328 =
-  '押したときにタスクグループが取る値は、`_assets/tbl-state-machines.md` の 表 T-328 の `allBelowOpenPressed` の行に従うこと（MUST）'
-const HF_3_BY_T_328 = '隠すときにタスクグループが取る値は `_assets/tbl-state-machines.md` の 表 T-328 の `hidePressed` の行に従うこと（MUST）'
+  '展開する操作子を押したとき、`GRS` は、タスクグループが取る値を `_assets/tbl-state-machines.md` の 表 T-328 の `allBelowOpenPressed` の行に従わせること'
+const HF_3_BY_T_328 = '親に格納する操作子を押したとき、`GRS` は、タスクグループが取る値を `_assets/tbl-state-machines.md` の 表 T-328 の `hidePressed` の行に従わせること'
 const HF_8_BY_T_328 =
-  '人が全体表示（`FR-055`）を求めたとき、タスクグループと段 0 の値を `_assets/tbl-state-machines.md` の 表 T-328 の `fitPressed` の行と根の升に従って戻すこと（MUST）'
-const HF_10_BY_T_328 = '押したときにタスクグループと段 0 が取る値は 表 T-328 の `everyTaskGroupOpenPressed` の行と根の升に従うこと（MUST）'
-const HF_11_BY_T_328 = '折りたたむときにタスクグループが取る値は 表 T-328 の `allBelowFoldPressed` の行に従うこと（MUST）'
-const HF_13_BY_T_328 = '押したタスクグループと格納した直下の子が取る値は 表 T-328 の `oneLevelOpenPressed` の行に従うこと（MUST）'
-const FR_031_SHRINK_WRITES_TWICE = '縦軸を縮める 1 回の入力も、同じ形で 2 つの書き込みに分けること（MUST）'
+  '人が全体表示（`FR-055`）を求めたとき、`GRS` は、タスクグループと段 0 の値を `_assets/tbl-state-machines.md` の 表 T-328 の `fitPressed` の行と根の升に従って戻すこと'
+const HF_10_BY_T_328 = '`HF-10` の操作子を押したとき、`GRS` は、タスクグループと段 0 が取る値を 表 T-328 の `everyTaskGroupOpenPressed` の行と根の升に従わせること'
+const HF_11_BY_T_328 = '配下をすべて折りたたむ操作子を押したとき、`GRS` は、タスクグループが取る値を 表 T-328 の `allBelowFoldPressed` の行に従わせること'
+const HF_13_BY_T_328 = '1 階層だけ展開する操作子を押したとき、`GRS` は、押したタスクグループと格納した直下の子が取る値を 表 T-328 の `oneLevelOpenPressed` の行に従わせること'
+const FR_031_SHRINK_WRITES_TWICE = '縦軸を縮める入力が 1 回あったとき、`GRS` は、縮める側の端で倍率を書き換えないとき（`IMPS-223`）を除き、入力を 2 つの書き込みに分け'
 
 let browser: Browser | null = null
 
