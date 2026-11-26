@@ -1,6 +1,6 @@
 // CR-712 wave 2 spec-only cases: NT-2 timed notices, S-542, and the notices machine of table T-286.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -17,11 +17,11 @@ import { readStateMachineView } from './state-machine-manuscript'
 const ROOT = process.cwd()
 const SPEC = join(ROOT, 'docs', 'spec')
 
-const REQUIREMENTS = unbroken(readFileSync(join(SPEC, '01-04-requirements.md'), 'utf8'))
+const REQUIREMENTS = unbroken(readRepoFile(join(SPEC, '01-04-requirements.md'), 'utf8'))
 
-const DESIGN = unbroken(readFileSync(join(SPEC, '05-07-design.md'), 'utf8'))
+const DESIGN = unbroken(readRepoFile(join(SPEC, '05-07-design.md'), 'utf8'))
 
-const CLOCK_WAKES = readFileSync(join(ROOT, 'src', 'framework', 'single-html-shell', 'frame-clock-wakes.ts'), 'utf8')
+const CLOCK_WAKES = readRepoFile(join(ROOT, 'src', 'framework', 'single-html-shell', 'frame-clock-wakes.ts'), 'utf8')
 
 const NT_2_READ_BEFORE_IT_GOES = '読み終える前に消えないようにするか、止める・延ばす・無効にする手段を持つこと（MUST）'
 const NT_2_ONLY_TIMED_ROWS = '時間で消すのは、表 T-233 の表示の仕方が「時間で消す」の理由の通知だけとする（MUST）'

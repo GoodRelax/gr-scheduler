@@ -1,6 +1,6 @@
 // CR-768 part C spec-only cases: the task group tree's guard judgments are generated from the manuscript (SD-5, T-328).
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -52,7 +52,7 @@ const MACHINE = ((): RawRegion['machines'][number] => {
 })()
 const GUARD_NAMES = REGION.guards.map((g) => g.name)
 
-const DESIGN = unbroken(readFileSync(join(SPEC, '05-07-design.md'), 'utf8'))
+const DESIGN = unbroken(readRepoFile(join(SPEC, '05-07-design.md'), 'utf8'))
 const SD_5_GENERATES =
   'その領域は、出来事・状態遷移表・状態遷移図・状態の一覧と、ガードの名の型・ガードごとの判定・遷移表の定数だけを生成する'
 const SD_5_ONE_INPUT =
@@ -62,7 +62,7 @@ const TASK_GROUP_TERM_NULL = '根の升にはタスクグループが無く、`n
 // Spec: SD-5, RA-2
 // Why: JDG-139 stage 3 -- the unit keeps its generated tables unexported, so they are read as the printed text.
 const GENERATED = ((): string => {
-  const text = readFileSync(join(process.cwd(), REGION.unit), 'utf8').replace(/\r\n/g, '\n')
+  const text = readRepoFile(join(process.cwd(), REGION.unit), 'utf8').replace(/\r\n/g, '\n')
   const open = text.indexOf('// <generated -- do not edit by hand>\n// From docs/spec/_source/state-machines.json')
   const close = text.indexOf('// </generated>', open)
   if (open < 0 || close < 0) throw new Error(`${REGION.unit} has no generated region from state-machines.json`)
@@ -101,7 +101,7 @@ const TREE: readonly TreeRow[] = [
 const ABSENT = 'Z'
 
 const TEMPLATE = JSON.parse(
-  readFileSync(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
+  readRepoFile(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
 ) as { readonly schedule: Schedule }
 const TEMPLATE_GROUP: TaskGroup = ((): TaskGroup => {
   const first = TEMPLATE.schedule.taskGroups[0]

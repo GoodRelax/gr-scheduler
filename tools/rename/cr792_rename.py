@@ -217,8 +217,11 @@ def apply():
     for path in live_files():
         full = os.path.join(rc.ROOT, path)
         try:
-            text = io.open(full, 'rb').read().decode('utf-8')
-        except (UnicodeDecodeError, OSError):
+            if rc.is_split_document(path):
+                text = rc.spec_files.read_document(path, rc.ROOT)
+            else:
+                text = io.open(full, 'rb').read().decode('utf-8')
+        except (UnicodeDecodeError, OSError, ValueError):
             continue
         if rc.is_generated(path, text.replace('\r\n', '\n')):
             continue
@@ -233,7 +236,10 @@ def apply():
         new = TOKEN.sub(swap, text)
         if hits:
             assert new.count('\r\n') == text.count('\r\n'), path
-            io.open(full, 'wb').write(new.encode('utf-8'))
+            if rc.is_split_document(path):
+                rc.spec_files.write_document(path, new, rc.ROOT)
+            else:
+                io.open(full, 'wb').write(new.encode('utf-8'))
             files += 1
             counts.update(hits)
     for old in sorted(counts):

@@ -1,6 +1,6 @@
 // CR-430: table T-245 rows GO-5..GO-10 -- the values a released grab puts, and the ones it leaves standing.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { afterEach, describe, expect, it } from 'vitest'
@@ -34,7 +34,7 @@ import {
   type Stage,
 } from './cr-430-stage'
 
-const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
+const REQUIREMENTS = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
 const FR_103_STATEMENT =
   '`FR-104` の 表 T-266 の掴み代を掴んで離したとき、`GRS` は表 T-245 に従って値を置くこと。'

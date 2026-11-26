@@ -1,6 +1,6 @@
 // CR-806 spec-only cases: CM-36 says a milestone end makes the line FS (FR-009); CM-39 refuses empty working times (IV-24, S-580, S-582)
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -19,8 +19,8 @@ const SS = 3
 
 type Loose = Record<string, any>
 
-const SCHEMA = JSON.parse(readFileSync(join(SPEC, '_source', 'grs-commands.schema.json'), 'utf8')) as Loose
-const SETTINGS = JSON.parse(readFileSync(join(SPEC, '_source', 'settings.json'), 'utf8')) as unknown
+const SCHEMA = JSON.parse(readRepoFile(join(SPEC, '_source', 'grs-commands.schema.json'), 'utf8')) as Loose
+const SETTINGS = JSON.parse(readRepoFile(join(SPEC, '_source', 'settings.json'), 'utf8')) as unknown
 
 // Why: the schema may keep each branch inline under oneOf or under $defs keyed by the command name.
 function branchOf(name: string): Loose {
@@ -74,7 +74,7 @@ describe('CR-806 CM-36: the createDependency text says a milestone end makes the
   })
 
   it('FR-009 table T-018 numbers FS as 1 and SS as 3', () => {
-    const table = readFileSync(join(SPEC, '01-04-requirements.md'), 'utf8')
+    const table = readRepoFile(join(SPEC, '01-04-requirements.md'), 'utf8')
     expect(table).toMatch(/\| DP-1 \| 1 \| FS/)
     expect(table).toMatch(/\| DP-4 \| 3 \| SS/)
   })

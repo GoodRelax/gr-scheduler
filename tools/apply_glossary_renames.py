@@ -69,6 +69,8 @@ import sys
 from collections import Counter, OrderedDict
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, os.path.join(ROOT, 'tools'))
+import spec_files  # noqa: E402
 GLOSSARY = os.path.join(ROOT, 'docs', 'spec', '_source', 'glossary.json')
 VERSION = 'CR-855'
 CONTRACT_USES = ('grsJsonSchema', 'commandSchema', 'agentApi')
@@ -84,11 +86,11 @@ def say(text):
 
 
 def read(path):
-    return io.open(path, encoding='utf-8', newline='').read()
+    return spec_files.read_spec_file(path)
 
 
 def write(path, text):
-    io.open(path, 'w', encoding='utf-8', newline='').write(text)
+    spec_files.write_spec_file(path, text)
 
 
 def load_glossary():
@@ -106,7 +108,7 @@ def rel(path):
 def walk(top, suffix):
     for here, dirs, files in os.walk(top):
         dirs[:] = [d for d in dirs if d not in ('node_modules', 'output', '.git')]
-        for name in sorted(files):
+        for name in sorted(spec_files.listed_names(here, files)):
             if name.endswith(suffix):
                 yield os.path.join(here, name)
 

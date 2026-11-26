@@ -1,6 +1,6 @@
 // GO-3 of table T-245 (FR-103): the day an actual end is released on is the last actual day, rest days included.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { afterEach, describe, expect, it } from 'vitest'
@@ -40,7 +40,7 @@ import { validateDocument } from '../fixtures/grs-document'
 import { DEFAULT_DISPLAY_RATIO } from '../fixtures/display-scale'
 
 const REQUIREMENTS = unbroken(
-  readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'),
+  readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'),
 )
 
 const GO_3_LAST_DAY_NOT_RIGHT_EDGE =
@@ -76,7 +76,7 @@ const cellOf = (row: string, heading: string): string => {
 const PUTS = '置く値'
 
 const TEMPLATE = JSON.parse(
-  readFileSync(
+  readRepoFile(
     join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'),
     'utf8',
   ),

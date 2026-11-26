@@ -2,7 +2,7 @@
 
 // see IN-2, GA-5, GA-6, GA-17, GA-16, FR-043, CR-388
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { afterEach, describe, expect, it } from 'vitest'
@@ -47,7 +47,7 @@ it('T-028 IN-2 -- the manuscript still sends every grab margin to table T-269', 
 })
 
 it('T-266 -- the manuscript still gives the two rectangle dummy ends their filled arrows, and the milestone dummy its disc', () => {
-  const requirements = readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8')
+  const requirements = readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8')
   expect(requirements, GA_5_POINTER).toContain(GA_5_POINTER)
   expect(requirements, GA_6_POINTER).toContain(GA_6_POINTER)
   expect(requirements, GA_17_POINTER).toContain(GA_17_POINTER)
@@ -70,7 +70,7 @@ interface Template {
   readonly documentStamp: unknown
 }
 
-const TEMPLATE = JSON.parse(readFileSync(TEMPLATE_PATH, 'utf8')) as Template
+const TEMPLATE = JSON.parse(readRepoFile(TEMPLATE_PATH, 'utf8')) as Template
 
 const BAR_TASK_GROUP = '11111111-1111-4111-8111-111111111111'
 const STONE_TASK_GROUP = '22222222-2222-4222-8222-222222222222'

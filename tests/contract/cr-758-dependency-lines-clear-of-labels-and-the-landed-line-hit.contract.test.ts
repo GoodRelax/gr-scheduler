@@ -1,6 +1,6 @@
 // CR-758 spec-only cases (written from docs/spec alone): dependency lines clear of the labels and markers, and the landed line answering where it is drawn.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -29,7 +29,7 @@ const rowOf = (table: string, id: string): { readonly cells: readonly string[]; 
 const rowText = (table: string, id: string): string => rowOf(table, id).cells.join(' | ')
 
 // Why: the T-273 notes live outside the table rows, so the clause is read from the requirements text itself.
-const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
+const REQUIREMENTS = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
 const numberIn = (cell: string): number => {
   const found = /-?\d+(?:\.\d+)?/.exec(cell.replace(/`/g, ''))

@@ -1,6 +1,6 @@
 // CR-823 spec-only tests: the two address prompts and the restart advice of the S-350 download page, against design-mcp-relay.md section 6.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { createServer } from 'node:http'
 import { type AddressInfo } from 'node:net'
 import { join, resolve } from 'node:path'
@@ -9,8 +9,8 @@ import { expect, test, type BrowserContext, type Page } from '@playwright/test'
 import { unbroken } from '../contract/spec-table'
 
 const SPEC = join(process.cwd(), 'docs', 'spec')
-const DESIGN = unbroken(readFileSync(join(SPEC, '_assets', 'design-mcp-relay.md'), 'utf8'))
-const MEMBERS = unbroken(readFileSync(join(SPEC, '_assets', 'tbl-agent-api-members.md'), 'utf8'))
+const DESIGN = unbroken(readRepoFile(join(SPEC, '_assets', 'design-mcp-relay.md'), 'utf8'))
+const MEMBERS = unbroken(readRepoFile(join(SPEC, '_assets', 'tbl-agent-api-members.md'), 'utf8'))
 
 const DESIGN_STEPS =
   'AI 連携を使い始める手順 —— 束をダウンロードする・AI のアプリにインストールする・インストールされて有効であることを確かめる・AI に開く所を尋ねる・その所を開く・文書を開く・`IC-20` を押す・AI に頼む・保存する、の順である。'
@@ -121,7 +121,7 @@ const switchOf = (page: Page, lang: Lang) => page.getByRole('button', { name: SW
 
 // Why: the clipboard API needs a secure context, which file:// is not; loopback HTTP is one.
 async function served(): Promise<{ url: string; close: () => void }> {
-  const body = readFileSync(PAGE_FILE)
+  const body = readRepoFile(PAGE_FILE)
   const server = createServer((asked, answer) => {
     const path = new URL(asked.url ?? '/', 'http://x').pathname
     if (path === '/' || path === '/index.html') {

@@ -1,7 +1,8 @@
 // CR-796 slice 7 spec-only tests: the relay saves an export into the save folder -- fileName / overwrite, AV-21, .bak (AG-12 (9), design 3.1, 5, 7).
 
 import { createHash, randomBytes } from 'node:crypto'
-import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, realpathSync, rmSync, symlinkSync, writeFileSync } from 'node:fs'
+import { existsSync, mkdirSync, mkdtempSync, readdirSync, realpathSync, rmSync, symlinkSync, writeFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { connect, type Socket } from 'node:net'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
@@ -367,13 +368,13 @@ describe('AG-12 (9): a save writes the page value into the save folder and answe
     const expected = bytesOfValue(method, content[method] ?? '')
     expect(structuredOf(result)).toEqual({ ok: true, savedTo: placeIn(place.folder, name), bytes: expected.length, backedUpTo: null })
     expect(filesUnder(place.folder)).toEqual([name])
-    expect(readFileSync(join(place.folder, name)).equals(expected)).toBe(true)
+    expect(readRepoFile(join(place.folder, name)).equals(expected)).toBe(true)
   })
 
   it('AM-14: for exportPng the base64 is decoded -- the bytes on disk are the image, not the base64 text', async () => {
     const { started, place } = await savingSetup()
     const result = await started.client.callTool('exportPng', { fileName: 'picture.png' })
-    const onDisk = readFileSync(join(place.folder, 'picture.png'))
+    const onDisk = readRepoFile(join(place.folder, 'picture.png'))
     expect(onDisk.equals(PNG_BYTES)).toBe(true)
     expect(structuredOf(result)['bytes']).toBe(PNG_BYTES.length)
   })
@@ -383,7 +384,7 @@ describe('AG-12 (9): a save writes the page value into the save folder and answe
     expect(existsSync(place.folder)).toBe(false)
     const result = await started.client.callTool('exportJson', { fileName: 'first.json' })
     expect(structuredOf(result)['ok']).toBe(true)
-    expect(readFileSync(join(place.folder, 'first.json'), 'utf8')).toBe(FIRST_TEXT)
+    expect(readRepoFile(join(place.folder, 'first.json'), 'utf8')).toBe(FIRST_TEXT)
   })
 
   it('design 3.1: the page is not handed fileName or overwrite -- the relay reads them and does not carry them', async () => {
@@ -401,7 +402,7 @@ describe('AG-12 (9): a save writes the page value into the save folder and answe
     const { started, place, content } = await savingSetup()
     content['exportJson'] = 'this is not json at all {'
     await started.client.callTool('exportJson', { fileName: 'as-is.json' })
-    expect(readFileSync(join(place.folder, 'as-is.json'), 'utf8')).toBe('this is not json at all {')
+    expect(readRepoFile(join(place.folder, 'as-is.json'), 'utf8')).toBe('this is not json at all {')
   })
 
   it('design 5: a page that refuses the export is carried as the page said it -- nothing is written', async () => {
@@ -528,7 +529,7 @@ describe('AG-12 (9): a file that exists is not replaced unless overwrite is true
     const result = await started.client.callTool('exportJson', { fileName: 'a.json' })
     expect(structuredOf(result)['ok']).toBe(false)
     expect(reasonOf(result)).toBe('fileExists')
-    expect(readFileSync(join(place.folder, 'a.json'), 'utf8')).toBe(FIRST_TEXT)
+    expect(readRepoFile(join(place.folder, 'a.json'), 'utf8')).toBe(FIRST_TEXT)
     expect(filesUnder(place.folder)).toEqual(['a.json'])
   })
 
@@ -538,7 +539,7 @@ describe('AG-12 (9): a file that exists is not replaced unless overwrite is true
     content['exportJson'] = 'second'
     const result = await started.client.callTool('exportJson', { fileName: 'a.json', overwrite: false })
     expect(reasonOf(result)).toBe('fileExists')
-    expect(readFileSync(join(place.folder, 'a.json'), 'utf8')).toBe(FIRST_TEXT)
+    expect(readRepoFile(join(place.folder, 'a.json'), 'utf8')).toBe(FIRST_TEXT)
   })
 
   it(`${CLAUSE_BACKUP} -- overwrite true replaces the file and the old content is a.json.bak`, async () => {
@@ -547,8 +548,8 @@ describe('AG-12 (9): a file that exists is not replaced unless overwrite is true
     content['exportJson'] = 'second'
     const result = await started.client.callTool('exportJson', { fileName: 'a.json', overwrite: true })
     expect(structuredOf(result)).toEqual({ ok: true, savedTo: placeIn(place.folder, 'a.json'), bytes: 6, backedUpTo: placeIn(place.folder, 'a.json.bak') })
-    expect(readFileSync(join(place.folder, 'a.json'), 'utf8')).toBe('second')
-    expect(readFileSync(join(place.folder, 'a.json.bak'), 'utf8')).toBe(FIRST_TEXT)
+    expect(readRepoFile(join(place.folder, 'a.json'), 'utf8')).toBe('second')
+    expect(readRepoFile(join(place.folder, 'a.json.bak'), 'utf8')).toBe(FIRST_TEXT)
     expect(filesUnder(place.folder)).toEqual(['a.json', 'a.json.bak'])
   })
 
@@ -560,8 +561,8 @@ describe('AG-12 (9): a file that exists is not replaced unless overwrite is true
     content['exportJson'] = 'third!'
     const result = await started.client.callTool('exportJson', { fileName: 'a.json', overwrite: true })
     expect(structuredOf(result)['backedUpTo']).toBe(placeIn(place.folder, 'a.json.bak'))
-    expect(readFileSync(join(place.folder, 'a.json'), 'utf8')).toBe('third!')
-    expect(readFileSync(join(place.folder, 'a.json.bak'), 'utf8')).toBe('second')
+    expect(readRepoFile(join(place.folder, 'a.json'), 'utf8')).toBe('third!')
+    expect(readRepoFile(join(place.folder, 'a.json.bak'), 'utf8')).toBe('second')
     expect(filesUnder(place.folder)).toEqual(['a.json', 'a.json.bak'])
   })
 
@@ -579,8 +580,8 @@ describe('AG-12 (9): a file that exists is not replaced unless overwrite is true
     content['exportPng'] = newer.toString('base64')
     const result = await started.client.callTool('exportPng', { fileName: 'picture.png', overwrite: true })
     expect(structuredOf(result)['backedUpTo']).toBe(placeIn(place.folder, 'picture.png.bak'))
-    expect(readFileSync(join(place.folder, 'picture.png')).equals(newer)).toBe(true)
-    expect(readFileSync(join(place.folder, 'picture.png.bak')).equals(PNG_BYTES)).toBe(true)
+    expect(readRepoFile(join(place.folder, 'picture.png')).equals(newer)).toBe(true)
+    expect(readRepoFile(join(place.folder, 'picture.png.bak')).equals(PNG_BYTES)).toBe(true)
   })
 
   it('design 7: confirmBeforeOverwrite false -- an existing file is replaced without overwrite, and the .bak is still kept', async () => {
@@ -589,8 +590,8 @@ describe('AG-12 (9): a file that exists is not replaced unless overwrite is true
     content['exportJson'] = 'second'
     const result = await started.client.callTool('exportJson', { fileName: 'a.json' })
     expect(structuredOf(result)).toEqual({ ok: true, savedTo: placeIn(place.folder, 'a.json'), bytes: 6, backedUpTo: placeIn(place.folder, 'a.json.bak') })
-    expect(readFileSync(join(place.folder, 'a.json'), 'utf8')).toBe('second')
-    expect(readFileSync(join(place.folder, 'a.json.bak'), 'utf8')).toBe(FIRST_TEXT)
+    expect(readRepoFile(join(place.folder, 'a.json'), 'utf8')).toBe('second')
+    expect(readRepoFile(join(place.folder, 'a.json.bak'), 'utf8')).toBe(FIRST_TEXT)
   })
 
   it('AG-12 (9): the relay reads no file -- an overwrite answer does not carry the old content', async () => {
@@ -604,7 +605,7 @@ describe('AG-12 (9): a file that exists is not replaced unless overwrite is true
 
 // Spec: AG-12
 describe('AG-12 (9) -- the clauses slice 7 added, held verbatim', () => {
-  const requirements = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
+  const requirements = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
   const clauses = [CLAUSE_WRITES, CLAUSE_OUTSIDE, CLAUSE_EXISTS, CLAUSE_BACKUP, CLAUSE_NO_DOCUMENT]
   it.each(clauses)('the specification says: %s', (clause) => {
     expect(requirements).toContain(clause)

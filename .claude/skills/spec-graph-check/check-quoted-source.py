@@ -54,7 +54,9 @@ import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(HERE)))
-SPEC = os.path.join(ROOT, 'docs', 'spec')
+sys.path.insert(0, os.path.join(ROOT, 'tools'))
+import spec_files  # noqa: E402
+SPEC =os.path.join(ROOT, 'docs', 'spec')
 CHANGELOG = os.path.join(ROOT, 'docs', 'development-records', 'changelog.md')
 BASELINE = os.path.join(HERE, 'quoted-source-baseline.txt')
 REL_BASELINE = '.claude/skills/spec-graph-check/quoted-source-baseline.txt'
@@ -159,12 +161,12 @@ def manuscripts():
     """
     found = []
     for base, _dirs, names in os.walk(SPEC):
-        for name in sorted(names):
+        for name in spec_files.listed_names(base, sorted(names)):
             if not name.endswith('.md'):
                 continue
             path = os.path.join(base, name)
             try:
-                text = io.open(path, encoding='utf-8', errors='replace').read()
+                text = spec_files.read_spec_file(path)
             except OSError:
                 continue
             found.append((os.path.relpath(path, ROOT).replace('\\', '/'),

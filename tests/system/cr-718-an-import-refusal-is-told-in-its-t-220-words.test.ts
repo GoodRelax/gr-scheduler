@@ -1,7 +1,7 @@
 // CR-718 spec-only cases on the shipped build: a refused file is told in the words of its table T-220 row (IV-10, IV-14), never as RS-15 (FR-076).
 
 import { expect, test, type Page } from '@playwright/test'
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 import { unbroken } from '../contract/spec-table'
 import { VIEWPORT, enableAgentApi, icon, launch, readDocument, settle } from '../use-case/uc-harness'
@@ -11,14 +11,14 @@ test.use({ viewport: VIEWPORT, locale: 'en-US' })
 
 const SPEC = join(process.cwd(), 'docs', 'spec')
 
-const REQUIREMENTS = unbroken(readFileSync(join(SPEC, '01-04-requirements.md'), 'utf8'))
+const REQUIREMENTS = unbroken(readRepoFile(join(SPEC, '01-04-requirements.md'), 'utf8'))
 
 interface Words {
   readonly ja: string
   readonly en: string
 }
 
-const WORDS = JSON.parse(readFileSync(join(SPEC, '_source', 'display-words.json'), 'utf8')) as {
+const WORDS = JSON.parse(readRepoFile(join(SPEC, '_source', 'display-words.json'), 'utf8')) as {
   readonly reasons: readonly { readonly specTableRowId: string; readonly text: Words }[]
   readonly invariants: readonly { readonly specTableRowId: string; readonly text: Words }[]
 }
@@ -34,7 +34,7 @@ const OPEN_CHOOSER = '[data-role="Open Chooser"]'
 // Spec: S-119, T-214
 // Why: the first accepted day is read off the table, so the file below is one day short of it.
 const IMPORT_MIN_DATE = (() => {
-  const text = readFileSync(join(SPEC, '_assets', 'tbl-settings.md'), 'utf8')
+  const text = readRepoFile(join(SPEC, '_assets', 'tbl-settings.md'), 'utf8')
   const found = /\| S-119 \| `importMinDate` \| `(\d{4}-\d{2}-\d{2})`/.exec(text)
   if (found === null) throw new Error('table T-214 S-119 states no date')
   return found[1]!

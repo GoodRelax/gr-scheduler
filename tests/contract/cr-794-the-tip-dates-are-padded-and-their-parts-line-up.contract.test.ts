@@ -1,6 +1,6 @@
 // CR-794 (table T-348 TL-10 / TL-13, TX-2): the task tip writes yyyy/mm/dd and lines up each part of its days.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -22,7 +22,7 @@ import { unbroken } from './spec-table'
 type Language = 'ja' | 'en'
 type Labeled = Extract<TooltipRow, { kind: 'labeled' }>
 
-const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
+const REQUIREMENTS = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
 const TL_10_PADDED = '年（西暦の 4 桁）、`/`、月、`/`、日 の順とし、月と日は 2 桁に 0 で埋めること（MUST）'
 const TL_10_NOT_THE_NAME_LABEL = '⚠️ 名称ラベルの日（表 T-251 の `ND-4`・`ND-5`）とは違う形である'

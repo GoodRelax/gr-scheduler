@@ -1,6 +1,6 @@
 // CR-646: the documents, the MSPDI text and the frame-loop stage the cr-646-*.test.ts files share.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import type {
@@ -24,23 +24,23 @@ import { unbroken } from '../contract/spec-table'
 
 const ROOT = process.cwd()
 
-export const REQUIREMENTS = unbroken(readFileSync(join(ROOT, 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
-export const DESIGN = unbroken(readFileSync(join(ROOT, 'docs', 'spec', '05-07-design.md'), 'utf8'))
-export const ERD_DETAIL = unbroken(readFileSync(join(ROOT, 'docs', 'spec', '_assets', 'fig-erd-detail.md'), 'utf8'))
-export const SCHEMA_TEXT = readFileSync(join(ROOT, 'docs', 'spec', '_source', 'grs-document.schema.json'), 'utf8')
+export const REQUIREMENTS = unbroken(readRepoFile(join(ROOT, 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
+export const DESIGN = unbroken(readRepoFile(join(ROOT, 'docs', 'spec', '05-07-design.md'), 'utf8'))
+export const ERD_DETAIL = unbroken(readRepoFile(join(ROOT, 'docs', 'spec', '_assets', 'fig-erd-detail.md'), 'utf8'))
+export const SCHEMA_TEXT = readRepoFile(join(ROOT, 'docs', 'spec', '_source', 'grs-document.schema.json'), 'utf8')
 export const SCHEMA = JSON.parse(SCHEMA_TEXT) as Record<string, any>
-export const ERD_TEXT = readFileSync(join(ROOT, 'docs', 'spec', '_source', 'erd.json'), 'utf8')
+export const ERD_TEXT = readRepoFile(join(ROOT, 'docs', 'spec', '_source', 'erd.json'), 'utf8')
 export const PUBLISHED_ENTRIES = JSON.parse(
-  readFileSync(join(ROOT, 'docs', 'spec', '_source', 'published-entries.json'), 'utf8'),
+  readRepoFile(join(ROOT, 'docs', 'spec', '_source', 'published-entries.json'), 'utf8'),
 ) as { rows: { id: string; members: { name?: string }[] }[] }
 export const MANIFEST = JSON.parse(
-  readFileSync(join(ROOT, 'src', 'framework', 'single-html-shell', 'startup-template-manifest.json'), 'utf8'),
+  readRepoFile(join(ROOT, 'src', 'framework', 'single-html-shell', 'startup-template-manifest.json'), 'utf8'),
 ) as Record<string, any>
 
-const SETTINGS = JSON.parse(readFileSync(join(ROOT, 'docs', 'spec', '_source', 'settings.json'), 'utf8')) as unknown
+const SETTINGS = JSON.parse(readRepoFile(join(ROOT, 'docs', 'spec', '_source', 'settings.json'), 'utf8')) as unknown
 
 const TEMPLATE = JSON.parse(
-  readFileSync(join(ROOT, 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
+  readRepoFile(join(ROOT, 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
 ) as Record<string, any>
 
 // Spec: T-209

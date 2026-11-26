@@ -1,6 +1,6 @@
 // Contract test: FR-151 SV-4 / SV-7 / SV-8 / SV-14 and T-028 IN-4 against the Search Panel filter seams (DFC-1362).
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -93,12 +93,12 @@ const IC_WORDS: Readonly<Record<string, string>> = {
   'IC-126': '一覧に出ているすべての値のチェックを外すプロパティパネルでは、担当の欄の一覧に出ている、就いている担当をすべて外す（`FR-008` の 表 T-225 の `AS-5`）',
 }
 
-const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
+const REQUIREMENTS = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
 
 type Words = Record<DisplayLanguage, string>
 const WORDS = JSON.parse(
-  readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8'),
+  readRepoFile(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8'),
 ) as {
   readonly searchPanel: readonly { readonly part: string; readonly text: Words }[]
   readonly planActualStates: readonly { readonly specTableRowId: string; readonly text: Words }[]
@@ -129,7 +129,7 @@ const CHECK_COLUMN = 'SQ-10'
 
 type Loose = Record<string, unknown>
 const TEMPLATE = JSON.parse(
-  readFileSync(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
+  readRepoFile(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
 ) as { readonly schedule: Loose }
 const firstOf = (key: string): Loose => ((TEMPLATE.schedule[key] as readonly Loose[])[0] ?? {}) as Loose
 

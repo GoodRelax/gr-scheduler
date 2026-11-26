@@ -1,6 +1,6 @@
 // CR-806 items 11 and 14: the commands schema has $defs, and the page counts the AI fit (CM-102, AM-7, AM-30).
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 import { PassThrough } from 'node:stream'
 
@@ -30,9 +30,9 @@ import { bare, specTable } from './spec-table'
 
 type Json = Record<string, unknown>
 
-const REAL_DOCUMENT_SCHEMA = readFileSync('docs/spec/_source/grs-document.schema.json', 'utf8')
-const REAL_COMMANDS_SCHEMA = readFileSync('docs/spec/_source/grs-commands.schema.json', 'utf8')
-const COMMANDS_SOURCE = JSON.parse(readFileSync('docs/spec/_source/document-commands.json', 'utf8')) as {
+const REAL_DOCUMENT_SCHEMA = readRepoFile('docs/spec/_source/grs-document.schema.json', 'utf8')
+const REAL_COMMANDS_SCHEMA = readRepoFile('docs/spec/_source/grs-commands.schema.json', 'utf8')
+const COMMANDS_SOURCE = JSON.parse(readRepoFile('docs/spec/_source/document-commands.json', 'utf8')) as {
   readonly rows: readonly Json[]
 }
 const TEMPLATE_PATH = join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json')
@@ -235,7 +235,7 @@ const CHANGE_WATCHERS = emptyChangeWatchers()
 const AI = 'cr-806 agent'
 
 const startDocument = (): Document => {
-  const read = documentFromJson(readFileSync(TEMPLATE_PATH, 'utf8'))
+  const read = documentFromJson(readRepoFile(TEMPLATE_PATH, 'utf8'))
   if (!read.ok) throw new Error(`the bundled template is not GRS JSON: ${JSON.stringify(read.faults)}`)
   return read.document
 }

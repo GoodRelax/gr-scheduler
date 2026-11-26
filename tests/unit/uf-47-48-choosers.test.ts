@@ -52,7 +52,7 @@
 // and read what reached `ScreenSurface` and `FileStore`. That is the same road
 // tests/unit/uf-47-48.test.ts and tests/unit/uf-48-input.test.ts take.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { afterEach, describe, expect, it } from 'vitest'
@@ -312,7 +312,7 @@ interface ExchangeFormat {
 
 const EXCHANGE_FORMATS: readonly ExchangeFormat[] = (
   JSON.parse(
-    readFileSync(
+    readRepoFile(
       join(process.cwd(), 'src', 'adapter', 'document-codec', 'exchange-formats.json'),
       'utf8',
     ),
@@ -340,7 +340,7 @@ interface ReasonWords {
 }
 
 const MANUSCRIPT_WORDS = JSON.parse(
-  readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8'),
+  readRepoFile(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8'),
 ) as {
   reasons: ReasonWords[]
   confirmation: { answer: string; text: Readonly<Record<DisplayLanguage, string>> }[]
@@ -444,7 +444,7 @@ const TEMPLATE_PATH = join(
   'single-html-shell',
   'startup-template.json',
 )
-const TEMPLATE = JSON.parse(readFileSync(TEMPLATE_PATH, 'utf8')) as Record<string, unknown>
+const TEMPLATE = JSON.parse(readRepoFile(TEMPLATE_PATH, 'utf8')) as Record<string, unknown>
 
 const HERE_TASK_GROUP = '11111111-1111-4111-8111-111111111111'
 const THERE_TASK_GROUP = '22222222-2222-4222-8222-222222222222'

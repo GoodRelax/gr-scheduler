@@ -1,6 +1,6 @@
 // CR-556: the deadline drawn as a green down-pointing arrow (FR-045, table T-304).
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -118,7 +118,7 @@ interface PropertyWords {
 }
 const PR_10_WORD = ((): Readonly<Record<'ja' | 'en', string>> => {
   const words = (
-    JSON.parse(readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8')) as {
+    JSON.parse(readRepoFile(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8')) as {
       properties: PropertyWords[]
     }
   ).properties

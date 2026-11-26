@@ -1,6 +1,6 @@
 // DFC-732 spec-only cases: T-263 IR-3 -- while a notice told for a refused import stands, every frame line of the record carries the T-220 row that refused it.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { afterEach, describe, expect, it } from 'vitest'
@@ -19,7 +19,7 @@ import type { Document } from '../../src/entity/document-model/document/document
 import { frameLoop, type FrameEnvironment, type FrameLoop, type ScreenWiring } from '../../src/framework/single-html-shell/frame-loop'
 import { bare, specTable, unbroken } from './spec-table'
 
-const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
+const REQUIREMENTS = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
 // Spec: IR-3
 const IR_3_ROW_ID =
@@ -38,7 +38,7 @@ const rowOf = (table: string, id: string) => {
 
 type Json = Record<string, any>
 
-const TEMPLATE_TEXT = readFileSync(
+const TEMPLATE_TEXT = readRepoFile(
   join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'),
   'utf8',
 )

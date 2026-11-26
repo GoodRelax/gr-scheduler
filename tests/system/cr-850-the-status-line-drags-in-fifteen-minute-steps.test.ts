@@ -2,7 +2,7 @@
 
 import { expect, test, type Browser, type Page } from '@playwright/test'
 import { specTable, unbroken } from '../contract/spec-table'
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 import { validateDocument } from '../fixtures/grs-document'
 import { BASE_SCREEN, openDocument, pressEntrance } from './cr-570-tree-state-stage'
@@ -10,7 +10,7 @@ import { CLEARING_UP_MS, launchReferenceBrowser, readSettledDrawnSvg } from './l
 import { rowOf } from './sws-case'
 import { taskGroupsDocument } from './w3-t1-stage'
 
-const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
+const REQUIREMENTS = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
 const FR_046_DRAG =
   '基準日線を離したとき、`GRS` は、離した位置を `FR-103` の 表 T-378 の単位で寄せて読むこと。'

@@ -1,6 +1,6 @@
 // CR-616 spec-only tests: FR-013 / FR-133 / T-236 / T-315 -- the DG marks take the chosen grounds, one dark edge.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -23,7 +23,7 @@ import {
 import { bare, specTable, unbroken } from './spec-table'
 import { taskGroupDocument, SCREEN, taskOf } from '../unit/cr-541-stage'
 
-const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
+const REQUIREMENTS = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
 const FR_013_EDGE =
   '`GRS` は、マーカーの円の縁を、マーカーの記号と同じ色で、`_assets/tbl-settings.md` の 表 T-201 の `S-24` の太さに描くこと。'

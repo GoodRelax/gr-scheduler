@@ -23,9 +23,12 @@ import io
 import os
 import re
 import subprocess
+import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(os.path.dirname(HERE))
+sys.path.insert(0, os.path.dirname(HERE))
+import spec_files  # noqa: E402
 
 
 def set_root(path):
@@ -71,13 +74,39 @@ def git_files():
     if os.path.exists(os.path.join(ROOT, '.git')):
         out = subprocess.run(['git', 'ls-files'], cwd=ROOT, capture_output=True,
                              text=True, encoding='utf-8').stdout
-        return [line for line in out.split('\n') if line]
+        return as_documents([line for line in out.split('\n') if line])
     found = []
     for here, dirs, names in os.walk(ROOT):
         dirs[:] = [d for d in dirs if d not in ('node_modules', '.git', 'output')]
         for name in names:
             found.append(os.path.relpath(os.path.join(here, name), ROOT).replace(os.sep, '/'))
-    return sorted(found)
+    return as_documents(found)
+
+
+def split_documents():
+    """{old path: [part path]} of the split documents; empty in a tree from before the split."""
+    if not os.path.isfile(os.path.join(ROOT, spec_files.MANIFEST)):
+        return {}
+    return dict(('docs/spec/' + document,
+                 ['docs/spec/' + part for part in spec_files.part_files(document, ROOT)])
+                for document in spec_files.document_names(ROOT))
+
+
+def as_documents(paths):
+    """PATHS (in sorted order) with each split document's parts replaced by its old path."""
+    owner = dict((part, document) for document, parts in split_documents().items()
+                 for part in parts)
+    out = [path for path in paths if path not in owner]
+    for document in sorted(set(owner[path] for path in paths if path in owner)):
+        at = 0
+        while at < len(out) and out[at] < document:
+            at += 1
+        out.insert(at, document)
+    return out
+
+
+def is_split_document(path):
+    return path in split_documents()
 
 
 def is_live(path):
@@ -90,7 +119,10 @@ def is_live(path):
 
 def read_text(path):
     """The text with line endings normalized to LF, and the count of CRLF."""
-    raw = io.open(os.path.join(ROOT, path), 'rb').read()
+    if is_split_document(path):
+        raw = spec_files.read_document(path, ROOT).encode('utf-8')
+    else:
+        raw = io.open(os.path.join(ROOT, path), 'rb').read()
     text = raw.decode('utf-8')
     return text.replace('\r\n', '\n'), raw.count(b'\r\n')
 
@@ -100,7 +132,10 @@ def write_text(path, text, crlf_before):
     lines = text.count('\n')
     use_crlf = crlf_before * 2 > lines
     data = text.replace('\n', '\r\n') if use_crlf else text
-    io.open(os.path.join(ROOT, path), 'wb').write(data.encode('utf-8'))
+    if is_split_document(path):
+        spec_files.write_document(path, data, ROOT)
+    else:
+        io.open(os.path.join(ROOT, path), 'wb').write(data.encode('utf-8'))
     return data.count('\r\n') if use_crlf else 0
 
 

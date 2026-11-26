@@ -58,7 +58,7 @@
 //   - the shape of the value a refusal returns to an `Agent API` caller. AG-9a
 //     owns that, and it is CP-17's face, not this one's.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -707,7 +707,7 @@ describe('表 T-230 -- the whole set of callers, before any of them is driven', 
     // ⚠️ RD-5 is a retired seat, so the count is six over rows numbered up to
     // seven.
     expect(ROWS).toHaveLength(6)
-    const closing = unbroken(readFileSync(join(SPEC, '05-07-design.md'), 'utf8'))
+    const closing = unbroken(readRepoFile(join(SPEC, '05-07-design.md'), 'utf8'))
     expect(closing, 'the prose under table T-230 counts the rows it prints').toContain(
       `本表の ${ROWS.length} つが、まるごと差し替える呼び手の全数である`,
     )

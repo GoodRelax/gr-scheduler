@@ -1,12 +1,12 @@
 // Test-side bodies of the named functions of guardLanguage (state-machines.json), written from the specification.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 export type GuardFunction = (...args: readonly unknown[]) => unknown
 
 const ROSTER = (
-  JSON.parse(readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'notice-reasons.json'), 'utf8')) as {
+  JSON.parse(readRepoFile(join(process.cwd(), 'docs', 'spec', '_source', 'notice-reasons.json'), 'utf8')) as {
     readonly reasons: readonly { readonly id: string; readonly display: string; readonly wordsOf?: string }[]
   }
 ).reasons

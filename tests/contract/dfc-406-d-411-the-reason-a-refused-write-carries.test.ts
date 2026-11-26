@@ -73,7 +73,7 @@
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { afterEach, describe, expect, it } from 'vitest'
@@ -157,7 +157,7 @@ const TEMPLATE_PATH = join(
 
 /** BT-4 of table T-034 -- the template FR-027 starts a reader with. */
 function templateDocument(): Document {
-  const read = documentFromJson(readFileSync(TEMPLATE_PATH, 'utf8'))
+  const read = documentFromJson(readRepoFile(TEMPLATE_PATH, 'utf8'))
   if (!read.ok) {
     throw new Error(`the bundled template is not GRS JSON: ${JSON.stringify(read.faults)}`)
   }
@@ -382,7 +382,7 @@ describe('DFC-406 / table T-233: a write IV-2 refuses is told the row whose 正 
     // ⭐ THE SAME COMMAND AS THE `RS-55` CASE ABOVE, refused on a different rule
     // (`IV-2`, a foreign key pointing at nothing) -- so what separates the two
     // cases is the rule alone, which is what the routing reads.
-    expect(unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8')))
+    expect(unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8')))
       .toContain(FR_076_A_T_220_REFUSAL_CARRIES_ITS_ROW)
     expect(authorityOf(RS_82)).toContain('IV-2')
     const document = templateDocument()

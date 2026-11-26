@@ -21,7 +21,6 @@ Exit code 1 if any check reports a finding.
 NOTE ON NON-ASCII: the patterns below hold Japanese text because the
 specification is written in Japanese; those code points are data.
 """
-import io
 import os
 import re
 import sys
@@ -31,6 +30,7 @@ ROOT = sys.argv[1] if len(sys.argv) > 1 else '.'
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import specindex                                    # noqa: E402
+import spec_files                                   # noqa: E402
 # The retired seats are imported rather than written here because a second
 # copy of them in specindex.py drifted away from this one the day after both
 # were written and no check could see it; retired.py holds data and runs
@@ -67,10 +67,9 @@ uids = set()
 lines_by_file = {}
 
 for rel in FILES:
-    path = os.path.join(ROOT, rel)
-    if not os.path.exists(path):
+    if not spec_files.spec_file_exists(rel, ROOT):
         continue
-    lines = io.open(path, encoding='utf-8').read().splitlines()
+    lines = spec_files.read_spec_file(rel, ROOT).splitlines()
     lines_by_file[rel] = lines
 
     # A "**表 T-nnn —" heading owns every "|" block that follows it until the
@@ -236,10 +235,9 @@ for rel, lines in lines_by_file.items():
 # The fix is a blank line, which is what markdown wants there anyway.
 
 for rel in FILES:
-    path = os.path.join(ROOT, rel)
-    if not os.path.exists(path):
+    if not spec_files.spec_file_exists(rel, ROOT):
         continue
-    lines = io.open(path, encoding='utf-8').read().split(chr(10))
+    lines = spec_files.read_spec_file(rel, ROOT).split(chr(10))
     under_a_row = False
     fenced = False
     for i, line in enumerate(lines, 1):

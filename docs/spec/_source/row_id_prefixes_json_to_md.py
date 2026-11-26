@@ -79,6 +79,8 @@ from spec_md_printing import say, separate_tables, broken_prose, broken
 HERE = os.path.dirname(os.path.abspath(__file__))
 SPEC = os.path.dirname(HERE)
 ROOT = os.path.dirname(os.path.dirname(SPEC))
+sys.path.insert(0, os.path.join(ROOT, 'tools'))
+import spec_files  # noqa: E402
 ASSETS = os.path.join(SPEC, '_assets')
 SRC = os.path.join(HERE, 'row-id-prefixes.json')
 SCHEMA = os.path.join(HERE, '..', '..', 'development-rules', 'manuscript-schemas', 'row-id-prefixes.schema.json')
@@ -147,7 +149,7 @@ def manuscripts(tree):
     out = []
     for base, dirs, names in os.walk(os.path.join(ROOT, *tree.split('/'))):
         dirs[:] = [d for d in dirs if d not in SKIP_DIRS]
-        for name in sorted(names):
+        for name in spec_files.listed_names(base, sorted(names)):
             path = os.path.join(base, name)
             relative = os.path.relpath(path, ROOT).replace(os.sep, '/')
             if name.endswith('.md') and relative not in SKIP_FILES:
@@ -157,7 +159,7 @@ def manuscripts(tree):
 
 def read(path):
     """A manuscript's lines, whatever line ending it was written with."""
-    return io.open(path, encoding='utf-8', newline='').read() \
+    return spec_files.read_spec_file(path) \
         .replace('\r\n', '\n').split('\n')
 
 

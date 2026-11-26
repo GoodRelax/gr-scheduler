@@ -1,6 +1,6 @@
 // DFC-587: the entrances the surface draws on the title rows of the help and the Properties Panel.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -66,7 +66,7 @@ const THEME_HUE = Number(bare(specTable('T-216').rows.find((row) => row.id === '
 const THEME: ScreenTheme = { preference: 'light', hue: THEME_HUE }
 
 const WORDS = JSON.parse(
-  readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8'),
+  readRepoFile(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8'),
 ) as { readonly icons: readonly { readonly specTableRowId: string; readonly label: Record<DisplayLanguage, string> }[] }
 
 const legendWord = (language: DisplayLanguage): string =>

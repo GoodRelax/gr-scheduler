@@ -89,6 +89,8 @@ import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(HERE)))
+sys.path.insert(0, os.path.join(ROOT, 'tools'))
+import spec_files as spec_documents  # noqa: E402
 
 REL_CRS = 'change-request'
 REL_PREFIXES = 'docs/spec/_source/row-id-prefixes.json'
@@ -136,6 +138,10 @@ def read_text(path):
 def spec_files():
     found = []
     for pattern in SPEC_GLOBS:
+        if pattern == 'docs/spec/*.md':
+            # Why: a split document is listed once, by its old name, not as its parts.
+            found.extend(path_of('docs/spec/' + name) for name in spec_documents.markdown_names(ROOT))
+            continue
         found.extend(sorted(glob.glob(path_of(pattern))))
     return found
 
@@ -145,7 +151,7 @@ def tree_state():
     ids = set()
     tables = set()
     for path in spec_files():
-        body = read_text(path)
+        body = spec_documents.read_spec_file(path, ROOT).replace('\r\n', '\n')
         ids.update(re.findall(r'\b([A-Z]{1,4}-[0-9]+[a-z]?)\b', body))
         for line in body.split('\n'):
             match = TABLE_HEADING.match(line)

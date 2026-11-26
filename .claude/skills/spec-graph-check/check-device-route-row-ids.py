@@ -58,6 +58,10 @@ import os
 import re
 import sys
 
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                '..', '..', '..', 'tools'))
+import spec_files  # noqa: E402
+
 SPEC = os.path.join('docs', 'spec', '01-04-requirements.md')
 TESTS = 'tests'
 
@@ -88,11 +92,11 @@ def manuscript_rows(root):
     """{table id: set of row ids} for the two tables."""
     found = {'T-007': set(), 'T-008': set()}
     path = os.path.join(root, SPEC)
-    if not os.path.exists(path):
+    if not spec_files.spec_file_exists(path, os.path.abspath(root)):
         return None
     current = None
-    for line in io.open(path, encoding='utf-8'):
-        line = line.rstrip('\n').rstrip('\r')
+    for line in spec_files.read_spec_file(path, os.path.abspath(root)).split('\n'):
+        line = line.rstrip('\r')
         m = CAPTION.match(line)
         if m:
             current = m.group(1)

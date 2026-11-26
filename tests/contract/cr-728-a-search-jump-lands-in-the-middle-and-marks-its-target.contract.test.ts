@@ -1,6 +1,6 @@
 // CR-728 spec-only cases: SJ-5, SJ-6, SJ-9, SJ-10 of table T-332 and the landing mark of table T-280.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { afterEach, describe, expect, it } from 'vitest'
@@ -53,8 +53,8 @@ const numberIn = (cell: string): number => {
   return Number(found[0])
 }
 
-const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
-const STATE_MACHINES = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '_assets', 'tbl-state-machines.md'), 'utf8'))
+const REQUIREMENTS = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
+const STATE_MACHINES = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '_assets', 'tbl-state-machines.md'), 'utf8'))
 
 
 const SJ_10_MARK = '飛んだとき、`GRS` は、飛ぶ先のタスクかコメントボックスに、飛んだ先の印を付けること。'
@@ -174,7 +174,7 @@ const S_428 = T206('S-428')
 type Loose = Record<string, any>
 
 const TEMPLATE = JSON.parse(
-  readFileSync(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
+  readRepoFile(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
 ) as Record<string, any>
 
 const ENVIRONMENT = { width: 1600, height: 700, appHeaderHeight: 56, scrollbarThickness: 8, propertyPanelWidth: 0 }

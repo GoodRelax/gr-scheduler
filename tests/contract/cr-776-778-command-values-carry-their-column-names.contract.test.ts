@@ -1,6 +1,6 @@
 // CR-776 / CR-778: command values carry their column names; PI-39 drops the grab axis type.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { afterEach, describe, expect, it } from 'vitest'
@@ -10,7 +10,7 @@ import { shell, taskGroupDocument, taskOf, TEMPLATE, type ShellBench } from '../
 import { readStateMachineView } from './state-machine-manuscript'
 
 const SOURCE = join(process.cwd(), 'docs', 'spec', '_source')
-const readJson = (name: string): any => JSON.parse(readFileSync(join(SOURCE, name), 'utf8'))
+const readJson = (name: string): any => JSON.parse(readRepoFile(join(SOURCE, name), 'utf8'))
 
 const COMMANDS = readJson('document-commands.json')
 const ERD = readJson('erd.json')
@@ -219,7 +219,7 @@ describe('CR-778 -- table T-064 PI-39 drops GrabbedVerticalAxis; the grab state 
     expect(row, 'PI-39 still exists').toBeDefined()
     expect(row.members.map((m: any) => m.name)).not.toContain('GrabbedVerticalAxis')
     expect(JSON.stringify(PUBLISHED)).not.toContain('GrabbedVerticalAxis')
-    const table = readFileSync(join(process.cwd(), 'docs', 'spec', '_assets', 'tbl-published-entries.md'), 'utf8')
+    const table = readRepoFile(join(process.cwd(), 'docs', 'spec', '_assets', 'tbl-published-entries.md'), 'utf8')
     expect(table).not.toContain('GrabbedVerticalAxis')
   })
 

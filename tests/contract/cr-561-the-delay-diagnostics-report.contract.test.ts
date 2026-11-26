@@ -1,5 +1,5 @@
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -10,7 +10,7 @@ import * as scheduleEntry from '../../src/entity/document-model/schedule/schedul
 import { bare, specTable, unbroken } from './spec-table'
 import { taskGroupDocument, taskOf } from '../unit/cr-541-stage'
 
-const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
+const REQUIREMENTS = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
 const FR_130_NO_STATUS = 'もし基準日（`Project.statusDate`）が `null` の場合、`GRS` は、診断を行わないこと。'
 const FR_130_NO_WRITE = '`GRS` は、診断で文書を変えないこと —— タスク・依存・実績・`S-63` を書かない。'

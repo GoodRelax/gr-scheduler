@@ -1,6 +1,6 @@
 // CR-731 spec-only stage: small documents the viewpoints of T-310 to T-312 find, the seam names of CR-731 section 5 (looked up, never assumed), and the one write path.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { documentFromJson } from '../../src/adapter/document-codec/document-codec'
@@ -22,7 +22,7 @@ import { readStateMachineView } from './state-machine-manuscript'
 export type Loose = Record<string, unknown>
 
 const SPEC = join(process.cwd(), 'docs', 'spec')
-const read = (...parts: string[]): string => unbroken(readFileSync(join(SPEC, ...parts), 'utf8'))
+const read = (...parts: string[]): string => unbroken(readRepoFile(join(SPEC, ...parts), 'utf8'))
 
 export const REQUIREMENTS = read('01-04-requirements.md')
 export const DESIGN = read('05-07-design.md')
@@ -30,11 +30,11 @@ export const GLOSSARY = read('_assets', 'tbl-glossary.md')
 export const SETTINGS_BOOK = read('_assets', 'tbl-settings.md')
 export const STATE_MACHINE_BOOK = read('_assets', 'tbl-state-machines.md')
 export const STATE_MACHINES_SOURCE = readStateMachineView() as { readonly regions: readonly Record<string, any>[] }
-export const WORDS = JSON.parse(readFileSync(join(SPEC, '_source', 'display-words.json'), 'utf8')) as Record<string, any>
-export const SETTINGS_SOURCE = JSON.parse(readFileSync(join(SPEC, '_source', 'settings.json'), 'utf8')) as unknown
+export const WORDS = JSON.parse(readRepoFile(join(SPEC, '_source', 'display-words.json'), 'utf8')) as Record<string, any>
+export const SETTINGS_SOURCE = JSON.parse(readRepoFile(join(SPEC, '_source', 'settings.json'), 'utf8')) as unknown
 
 export const TEMPLATE = JSON.parse(
-  readFileSync(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
+  readRepoFile(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
 ) as Record<string, any>
 export const BUILT_VERSION: string = TEMPLATE['schemaVersion']
 

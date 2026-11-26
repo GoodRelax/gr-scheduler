@@ -1,7 +1,7 @@
 // CR-660 on the shipped build: column order and fixed columns, the filter's search field and how it closes, status glyphs, the link color, default widths and grips (T-330, T-331, T-346, T-347).
 
 import { expect, test, type Browser, type Page } from '@playwright/test'
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 import { bare, specTable, unbroken } from '../contract/spec-table'
 import { CLEARING_UP_MS, launchReferenceBrowser, readSettledDrawnSvg } from './live-app'
@@ -37,7 +37,7 @@ const DT_4_LINK = '`SQ-1` と同じ（`S-503` の色と下線を含む）。'
 const U_32_NOT_THE_BOX =
   '⛔ `Schedule Canvas` の範囲を、`data-role` に `Schedule Canvas` を持つ要素の箱から読んではならない（MUST NOT）'
 
-const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
+const REQUIREMENTS = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 const cellOf = (table: string, id: string, heading: string): string => unbroken(rowOf(specTable(table), id).by[heading] ?? '')
 
 const T_103 = specTable('T-103')
@@ -87,7 +87,7 @@ function rgbOf(hex: string): string {
 
 const LINK = { light: rgbOf(bare(cellOf('T-236', 'S-503', '明るいテーマ'))), dark: rgbOf(bare(cellOf('T-236', 'S-503', '暗いテーマ'))) }
 
-const WORDS = JSON.parse(readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8')) as {
+const WORDS = JSON.parse(readRepoFile(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8')) as {
   readonly planActualStates: readonly { readonly specTableRowId: string; readonly text: { readonly ja: string; readonly en: string } }[]
   readonly delayReportStatuses: readonly { readonly specTableRowId: string; readonly text: { readonly ja: string; readonly en: string } }[]
 }

@@ -64,7 +64,7 @@
 // decide what a case expects: every expected value below is a clause's own
 // wording, a row of table T-206, or a row of the generated dictionary.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -116,12 +116,12 @@ import { bare, specTable, unbroken } from './spec-table'
 // 1. The eighteen clauses, verbatim, and the manuscript they came from
 // ===========================================================================
 
-const REQUIREMENTS = unbroken(readFileSync(
+const REQUIREMENTS = unbroken(readRepoFile(
   join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'),
   'utf8',
 ))
 
-const NOTICE_ROSTER = unbroken(readFileSync(
+const NOTICE_ROSTER = unbroken(readRepoFile(
   join(process.cwd(), 'docs', 'spec', '_assets', 'tbl-notice-reasons.md'),
   'utf8',
 ))

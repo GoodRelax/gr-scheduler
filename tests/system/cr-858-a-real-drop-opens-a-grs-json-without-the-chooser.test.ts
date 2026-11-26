@@ -1,20 +1,21 @@
 // CR-858 on the dev server with real browser drops (CDP Input.dispatchDragEvent): one dropped file opens as a replace without the Open Chooser, several dropped files open none (FR-087 T-024a OP-19, OP-11, OP-4).
 import { expect, test, type Page } from '@playwright/test'
-import { readFileSync, writeFileSync } from 'node:fs'
+import { writeFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { resolve } from 'node:path'
 import { HOST_STUB, VIEWPORT, answerConfirmation, enableAgentApi, openThroughIc1, readDocument, settle } from '../use-case/uc-harness'
 import { taskGroupsDocument } from './w3-t1-stage'
 
 test.use({ viewport: VIEWPORT, locale: 'en-US' })
 
-const REQUIREMENTS = readFileSync(resolve('docs', 'spec', '01-04-requirements.md'), 'utf8').replace(/\r?\n/g, '')
+const REQUIREMENTS = readRepoFile(resolve('docs', 'spec', '01-04-requirements.md'), 'utf8').replace(/\r?\n/g, '')
 
 const OP_19_OPENS_WITHOUT_CHOOSER =
   '人がファイルを 1 つウィンドウへドロップしたとき、`GRS` は、`Open Chooser`（`_assets/tbl-glossary.md` の `U-56`）を出さずに、`OP-3` の 3 択を置き換えに定めて開くこと（MUST）'
 const OP_19_KEEPS_OP_4 = '`OP-4` の確認は掛かること（MUST）'
 const OP_11_SEVERAL_OPEN_NONE =
   '人が 2 つ以上のファイルを同時にウィンドウへドロップしたとき、`GRS` は、どのファイルも開かずに断り、現在の文書を変えないこと（MUST）'
-const WORDS = JSON.parse(readFileSync(resolve('docs', 'spec', '_source', 'display-words.json'), 'utf8')) as {
+const WORDS = JSON.parse(readRepoFile(resolve('docs', 'spec', '_source', 'display-words.json'), 'utf8')) as {
   readonly reasons: readonly { readonly specTableRowId: string; readonly text: { readonly ja: string; readonly en: string } }[]
 }
 const RS_14_EN = WORDS.reasons.find((one) => one.specTableRowId === 'RS-14')?.text.en ?? ''
@@ -223,7 +224,7 @@ for (const name of ['cr-858-picked.json', 'sample-medium-sfa-webapp.en.xml'] as 
   test(`Given any document, When a person picks ${name} in the file dialog, Then GRS raises the Open Chooser with its three choices`, async ({ page }) => {
     await page.addInitScript(HOST_STUB)
     await openDevServer(page)
-    const text = name.endsWith('.json') ? taskGroupsDocument({ rows: 3 }) : readFileSync(MSPDI_SAMPLE, 'utf8')
+    const text = name.endsWith('.json') ? taskGroupsDocument({ rows: 3 }) : readRepoFile(MSPDI_SAMPLE, 'utf8')
     await openThroughIc1(page, name, text, null)
     await expect(page.locator(OPEN_CHOOSER), 'OP-19: the file dialog keeps the OP-3 choices').toHaveCount(1)
     for (const entry of ['IC-71', 'IC-72', 'IC-73']) await expect(page.locator(`${OPEN_CHOOSER} [data-icon="${entry}"]`)).toHaveCount(1)

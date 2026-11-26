@@ -1,6 +1,6 @@
 // CR-576 section 8 claims 3, 4, 5 and 6 on the shipped build: the icon hint waits from entering, the task hint waits from the stop.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { expect, test, type Browser, type Page } from '@playwright/test'
@@ -42,7 +42,7 @@ const CLAUSES: readonly string[] = [
   IN_4_EXPLANATION_RUNG,
 ]
 
-const MACHINE_TABLES = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '_assets', 'tbl-state-machines.md'), 'utf8'))
+const MACHINE_TABLES = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '_assets', 'tbl-state-machines.md'), 'utf8'))
 
 const numberOf = (cell: string): number => {
   const found = /-?\d+(?:\.\d+)?/.exec(bare(cell).replace(/`/g, ''))
@@ -62,7 +62,7 @@ const TOOLTIP = `[data-role="${bare(rowOf(specTable('T-103'), 'U-53').by['確定
 const PRESSED_ON_OPENING = rowOf(specTable('T-109'), 'IC-20').id
 
 // Spec: FR-038, EZ-2
-const WORDS = JSON.parse(readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8')) as {
+const WORDS = JSON.parse(readRepoFile(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8')) as {
   readonly icons: readonly { readonly specTableRowId: string; readonly hint?: { readonly ja: string; readonly en: string } }[]
 }
 const HINTS: ReadonlyMap<string, readonly string[]> = new Map(

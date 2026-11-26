@@ -1,6 +1,6 @@
 // CR-583: T-221 LF-10 / LF-18, figure F-044 -- milestone figures centered on their box, drawn in layers.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -22,7 +22,7 @@ import { unbroken } from './spec-table'
 
 
 const SPEC = join(process.cwd(), 'docs', 'spec')
-const readText = (path: string): string => readFileSync(path, 'utf8').replace(/\r\n/g, '\n')
+const readText = (path: string): string => readRepoFile(path, 'utf8').replace(/\r\n/g, '\n')
 const plain = (text: string): string => unbroken(text).replace(/\*\*/g, '')
 
 const DESIGN = plain(readText(join(SPEC, '05-07-design.md')))

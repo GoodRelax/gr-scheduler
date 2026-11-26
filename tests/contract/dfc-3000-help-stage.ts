@@ -1,6 +1,6 @@
 // DFC-3000 stage: the Help and the App Header built through public entries only, shared by DFC-3000 .. DFC-3006.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import {
@@ -39,7 +39,7 @@ export const LANGUAGES: readonly DisplayLanguage[] = ['ja', 'en']
 
 const SPEC = join(process.cwd(), 'docs', 'spec')
 
-export const REQUIREMENTS: string = unbroken(readFileSync(join(SPEC, '01-04-requirements.md'), 'utf8').replace(/\r\n/g, '\n'))
+export const REQUIREMENTS: string = unbroken(readRepoFile(join(SPEC, '01-04-requirements.md'), 'utf8').replace(/\r\n/g, '\n'))
 
 export function requirementText(uid: string): string {
   const at = REQUIREMENTS.indexOf(`**UID**: ${uid}\n`)
@@ -56,7 +56,7 @@ interface Dictionary {
 }
 
 // Spec: FR-038
-export const DICTIONARY = JSON.parse(readFileSync(join(SPEC, '_source', 'display-words.json'), 'utf8')) as Dictionary
+export const DICTIONARY = JSON.parse(readRepoFile(join(SPEC, '_source', 'display-words.json'), 'utf8')) as Dictionary
 
 export function linkWords(link: string, language: DisplayLanguage): string {
   const found = (DICTIONARY.helpLinks ?? []).find((one) => one.link === link)?.text[language]
