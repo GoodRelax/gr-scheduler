@@ -21,7 +21,7 @@ import {
 
 const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
-const FR_021_READS_BY_T_265 = '**取り込むときの読み方は表 T-265 に従うこと（MUST）。**'
+const FR_021_READS_BY_T_265 = '`GRS` は、取り込むときの読み方を表 T-265 に従わせること。'
 
 const EX_1_BOTH_VERSIONS =
   '書き出したものは、pj15 だけが持つ要素を含まないとき pj12 に、含むとき pj15 に妥当であること（MUST）。'
