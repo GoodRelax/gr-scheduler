@@ -147,7 +147,7 @@ export function everyTaskGroupDeleted(context: InputContext): TranslatedInput {
 export function treeWritesOf(context: InputContext, event: TreeStateEvent): readonly DocumentCommand[] {
   const document = context.document
   return [
-    ...treeStateWritesFor(document.schedule, event),
+    ...treeStateWritesFor(document.schedule, event, document.documentSettings.pinnedTaskGroupIds),
     ...levelZeroWritesFor(document.documentSettings.levelZeroTreeState, event),
   ]
 }

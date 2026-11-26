@@ -429,7 +429,7 @@ describe('FR-018 table T-329 -- an expanded task group, its ancestors and its di
     }
   })
 
-  it('TD-1 .. TD-3 beat TD-5 .. TD-7: an ancestor fold, a hidden ancestor and a folded level zero win', () => {
+  it('TD-1 .. TD-3 beat TD-6 .. TD-7: an ancestor fold, a hidden ancestor and a folded level zero win', () => {
     const zoomY = 0.8
     const underFold = named(layoutOf(smallDocument({ zoomY, expanded: [R], folded: [B] })))
     expect(underFold).not.toContain('R')

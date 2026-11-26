@@ -901,13 +901,11 @@ describe(`(a) EL-20 / EL-21 -- ${EL_21_OPEN}`, () => {
     expect(treeWritesOf(writes), 'EL-21 applies only to an EL-20 end').toEqual({})
   })
 
-  it(`${EL_20_HIDDEN}: a pinned task group that is hidden is an end like any other -- the release opens it and marks the landing`, () => {
+  it('CR-862 (TD-2): a pinned task group that is hidden is drawn, so its Task is drawn and that end is no EL-20 end', () => {
     const scene = sceneOf(HIDDEN_PINNED_AT_THE_TOP)
-    expect(placementOf(scene, 2), 'premise: Task 2 is not drawn').toBeUndefined()
-    expect(maybeLineOf(scene, 1, 2)?.continuation?.farUid, `${EL_20_NOT_SEEN} / ${EL_20_NOT_DROPPED}`).toBe(2)
-    const { out } = release(scene, markOf(scene, 1, 2))
-    expect(treeWritesOf(writesOf(out))['b'], EL_21_OPEN).toBe('expanded')
-    expect(landingOf(out), EL_16_MARK).toEqual({ predecessorUid: 1, successorUid: 2, landedTaskUid: 2 })
+    expect(scene.rows.map((one) => one.taskGroupId), 'CR-862 TD-2: the hidden pinned task group b is drawn').toContain('b')
+    expect(placementOf(scene, 2), 'CR-862 TD-2: Task 2 in the drawn pinned task group is drawn').toBeDefined()
+    expect(maybeLineOf(scene, 1, 2)?.continuation?.farUid, 'CR-862 section 4 (EL-20 row): the end in a drawn pinned task group is no EL-20 end').toBeUndefined()
   })
 
   it('control: an end already drawn opens nothing -- the send writes the view only', () => {
