@@ -1,15 +1,15 @@
 // `FR-035` (docs/spec/01-04-requirements.md) and 表 T-036 の `SK-9`
 // (:2515):
 //
-//   FR-035 STATEMENT 「作成者が文書名を選んだとき、`GRS` は、その場で編集できる
-//                    ようにすること。」
+//   FR-035 STATEMENT 「作成者が文書名を選んだとき、`GRS` は、文書名をその場で
+//                    編集できるようにすること。」
 //   T-036 SK-9       「文書名を編集する | `F2` | — |」
-//   FR-035 RATIONALE 「**`title` に空文字を受け付けてはならない（MUST NOT）**」
+//   FR-035 RATIONALE 「`GRS` は、`title` に空文字を受け付けないこと。」
 //   T-028 IN-4       「⛔ **取り消したときは、編集を始める前の値へ戻すこと
 //                    （MUST）。書きかけの文字を文書へ書いてはならない
 //                    （MUST NOT）**（`FR-031`）」
-//   T-036 SK-19      「ほかに何も出ていないときは、**その場の編集を確定する**
-//                    （名称・担当名・タスクグループ名・文書名・プロパティの入力）」
+//   T-036 SK-19      「出ている通知が無い間、 `Enter` を押したとき、`GRS` は、その場の編集
+//                    （名称・担当名・タスクグループ名・文書名・プロパティの入力）を確定すること」
 //   T-065 IF-9       「編集できる欄で確定した値を、その欄が名乗る行 ID とともに
 //                    返し（⭐ **行 ID は 表 T-016 の行に限らない。****ヘッダーの
 //                    文書名の欄は 表 T-103 の `U-27` を名乗る**）」
@@ -21,8 +21,8 @@
 // The ledger's summary of DFC-322 says the field opens 「焦点が入り、既存の文字が
 // 全選択され」. ⛔ NO ROW OF THE SPECIFICATION SAYS THAT ABOUT THE DOCUMENT
 // NAME. Searched 2026-09-06 for 全選択 / 焦点を置 across 01-04-requirements.md,
-// 05-07-design.md and _assets/: the clause 「編集できる状態にして焦点を置き、
-// **既にある文字をすべて選んだ状態にすること（MUST）**」 appears TWICE, in
+// 05-07-design.md and _assets/: the clause 「既にある文字をすべて選んだ状態に
+// すること」 appears TWICE, in
 // `MK-13` of 表 T-023 (:2331) and in `FR-085` (:1281), and both times it is
 // about a TASK's name (表 T-016 の `PR-1`) or a TASK GROUP's name (`AT-53`). `SK-9`
 // carries no such sentence and neither does `FR-035`.
@@ -120,16 +120,16 @@ import { specTable, unbroken } from './spec-table'
  * and admits 日本語そのものを扱う処理 as the exception -- these strings ARE the
  * clauses.
  */
-const FR_035_STATEMENT = '**STATEMENT**: 作成者が文書名を選んだとき、`GRS` は、その場で編集できるようにすること。'
+const FR_035_STATEMENT = '**STATEMENT**: 作成者が文書名を選んだとき、`GRS` は、文書名をその場で編集できるようにすること。'
 
 const FR_035_NO_EMPTY_STRING =
-  'にも、いま開いている日程表が判る文書名を出すこと（MUST）** —— 同じ機で 2 つの文書を同時に開くことが実際に起きる構成なので、タブの見出しが同じだと選べない。 **`title` に空文字を受け付けてはならない（MUST NOT）'
+  '`GRS` は、`title` に空文字を受け付けないこと。'
 
 const IN_4_NOTHING_HALF_TYPED_IS_WRITTEN =
   'S-8` の次の一手が「確定するか取り消すか」と既に述べており、取り消す手立てが 1 つも定まっていなかった。⛔ 取り消したときは、編集を始める前の値へ戻すこと（MUST）。書きかけの文字を文書へ書いてはならない（MUST NOT）'
 
 const SK_19_SETTLES_THE_IN_PLACE_EDIT =
-  'さない。** ほかに何も出ていないときは、**その場の編集を確定する**（名称・担当名・タスクグループ名・文書名・プロパティの入力）。'
+  '出ている通知が無い間、 `Enter` を押したとき、`GRS` は、その場の編集（名称・担当名・タスクグループ名・文書名・プロパティの入力）を確定すること。'
 
 /** IF-9's widening, the ruling CR-361 rests on. Its file is Chapter 5-7. */
 const IF_9_THE_FIELD_NAMES_U_27 = 'ヘッダーの文書名の欄は 表 T-103 の `U-27` を名乗る'
@@ -354,7 +354,7 @@ describe('T-036 SK-9 / FR-035 -- F2 opens the document name for editing in place
   })
 
   it('opens it whatever the document name is now, including none at all', () => {
-    // FR-035 gives `null` a meaning of its own (「`title` が `null` のときは」),
+    // FR-035 gives `null` a meaning of its own (「`title` が `null` の間」),
     // so a document that has never been named is still one whose name F2 opens.
     for (const before of [NAME_BEFORE, null]) {
       const answer = commandFromInput(
@@ -444,7 +444,7 @@ describe('IF-9 + FR-035 -- a settled name reaches Project.title', () => {
 })
 
 // ===========================================================================
-// 7. 「`title` に空文字を受け付けてはならない（MUST NOT）」
+// 7. 「`GRS` は、`title` に空文字を受け付けないこと。」
 // ===========================================================================
 
 describe('FR-035 (MUST NOT) -- an emptied name is never committed', () => {
@@ -471,8 +471,8 @@ describe('FR-035 (MUST NOT) -- an emptied name is never committed', () => {
   })
 
   it('still accepts null, which FR-035 gives a meaning of its own', () => {
-    // 「**`title` が `null` のときは、タブの見出しを `Untitled` とすること
-    // （MUST）**」 -- so `null` is a state the document may hold, and only the
+    // 「`title` が `null` の間、`GRS` は、タブの見出しを `Untitled` に
+    // すること。」 -- so `null` is a state the document may hold, and only the
     // empty string is forbidden. ⚠️ The tab heading itself is out of scope
     // here; what this case holds is that the two absences are NOT the same.
     const cleared = editProject(documentWithTitle(NAME_BEFORE), {

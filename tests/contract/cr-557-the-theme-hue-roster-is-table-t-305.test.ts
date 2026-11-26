@@ -12,8 +12,8 @@ const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '
 const ROSTER_PATH = join(process.cwd(), 'src', 'adapter', 'screen-renderer', 'theme-hue-roster.json')
 
 const CLAUSE_ROWS_IN_ORDER =
-  'その欄には 表 T-305 の行を同表の順に、1 段に `_assets/tbl-settings.md` の 表 T-206 の `S-368` 個ずつ並べ、押された行の色相で 表 T-108 の `CM-5` を 1 回発行すること（MUST）。'
-const NOTE_TH_1 = '⚠️ `TH-1` は `_assets/tbl-settings.md` の `S-73` の既定と同じ色相を指す'
+  '`GRS` は、テーマ色の欄に、表 T-305 の行を表 T-305 の順に、1 段に `_assets/tbl-settings.md` の 表 T-206 の `S-368` 個ずつ並べること。'
+const NOTE_TH_1 = '`IMPS-170` —— `TH-1` は `_assets/tbl-settings.md` の `S-73` の既定と同じ色相を指す'
 
 const S_73 = specTable('T-216').rows.find((one) => one.id === 'S-73')
 const HUE_MIN = Number(bare(S_73?.by['下限'] ?? ''))

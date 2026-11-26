@@ -2680,7 +2680,7 @@ describe('the tables are read by position, so the positions are pinned', () => {
     //   は、その割当が動かす 表 T-109 の行を名指すこと（MUST）。行 ID で書き、割
     //   当の綴りも入口の説明もコピーしてはならない（MUST NOT）**」 -- appended, so the
     // position read below did not move.
-    expect(T_036.headings.length).toBe(4)
+    expect(T_036.headings.length).toBe(5)
     // ⛔ THE COUNT ALONE IS NOT THE GUARD, the same way table T-109 is pinned
     // above: the new column is pinned by what stands in it, and what stands in
     // SK-12's is the very row FR-096 (MUST) names as its one entrance.

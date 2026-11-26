@@ -46,13 +46,13 @@ const FR_029_FALLBACK_HIDDEN = 'もし押された入口の場面に当たる行
 const FR_029_OLD_TELL = '行えない理由を通知すること（MUST）'
 const NT_7_DROPPED_AS_RS_27 =
   '画面からの書き込み（取り消し・やり直しを含む）は 表 T-233 の `RS-27` として捨て（同行は出さない —— 問いが画面に立っているので、受けなかったことは見える）、`Agent API` の書き込みは 表 T-035 の `AG-9` のとおり拒むこと（MUST）'
-const HF_14_NO_TASK_GROUP_WHEN_FAINT = '⛔ 薄いまま押されたときは、そのタスクグループの配下に新しいタスクグループを立てないこと（MUST）'
-const HF_14_CARRIES_RS_46 = '運ぶ理由は 表 T-233 の `RS-46` とすること（MUST）'
+const HF_14_NO_TASK_GROUP_WHEN_FAINT = 'もし薄い配下に足す操作子を押した場合、`GRS` は、押したタスクグループの配下に新しいタスクグループを立てないこと。'
+const HF_14_CARRIES_RS_46 = 'もし薄い配下に足す操作子を押した場合、`GRS` は、運ぶ理由を 表 T-233 の `RS-46` とすること。'
 const FR_019_NOT_MADE = 'もし作成者が、指す `TaskGroup` が無い縦位置で注記を置こうとした場合、`GRS` は、注記を作らないこと。'
 const FR_019_CARRIES_RS_44 =
   'もし作成者が、指す `TaskGroup` が無い縦位置で注記を置こうとした場合、`GRS` は、表 T-233 の `RS-44` を理由として運ぶこと。'
 const FR_019_SEEN_ON_SCREEN = '`GRS` は、`RS-44` の理由を出さないこと。'
-const WL_9_CARRIES_RS_55 = '何も書かない。運ぶ理由は 表 T-233 の `RS-55`（Chapter 6.1 の 表 T-220 の `IV-4`）'
+const WL_9_CARRIES_RS_55 = '`GRS` は、表 T-233 の `RS-55`（Chapter 6.1 の 表 T-220 の `IV-4`）を理由として運ぶこと。'
 
 // Why: the E-08 words copied from CR-712 section 4, so a word changed in the dictionary alone goes red.
 // Why: CR-770 (JDG-2251) rewrote the English to the UI writing convention (a final period, try again); the ja stay CR-712's.

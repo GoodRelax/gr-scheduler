@@ -1694,9 +1694,9 @@ test('DFC-105: a help item reads shape, description, assignment, drawn at S-203'
 
 // GOES RED IF: double-clicking a task's body leaves the panel closed, or puts
 // the focus somewhere other than the name field, or leaves the text it holds
-// unselected. Table T-023 row `MK-13` (MUST) says of a task 「（名称ラベルと本体
-// のどちらでも） ＝ プロパティパネルを出し、名称の欄（表 T-016 の `PR-1`）を編集
-// できる状態にして焦点を置き、既にある文字をすべて選んだ状態にすること（MUST）」.
+// unselected. Table T-023 row `MK-13` (MUST) says of a task 「タスク（名称ラベルと本体
+// のどちらでも）のダブルクリックで、プロパティパネルを出し、名称の欄（表 T-016 の `PR-1`）を編集
+// できる状態にして焦点を置くこと ... 名称の欄の既にある文字をすべて選んだ状態にすること」.
 //
 // ⭐ THE SELECTION IS THE HALF THE LEDGER SAYS WAS NEVER MEASURED. The 実物確認
 // column of DFC-43 records a run of 2026-09-01 that watched the panel open and
@@ -2643,7 +2643,7 @@ test('DFC-65: the time the header prints is the reader own clock, not UTC', asyn
 // GOES RED IF: the key of table T-036 row `SK-11` writes something that is not
 // `GRS JSON`, or opens the dialogue a second time, or writes to a second file,
 // or puts a question on the screen on either press. `SK-11` says 「`FR-096` の
-// 定めにより `GRS JSON` で書く。上書き先は `FR-060`」, and table T-227 row `DI-5`
+// 定めにより `GRS JSON` で書くこと ... 上書き先を `FR-060` に従わせること」, and table T-227 row `DI-5`
 // (MUST) has the route of `FR-060` ask nothing.
 //
 // ⭐ WHAT THIS ADDS OVER DFC-66, which presses the same key. That case is about
@@ -2845,13 +2845,13 @@ function tierLine(specTableRowId: string, column: number): string {
 // stops making the span that was drawn; or if a milestone stops being placed by
 // the press alone.
 //
-// `FR-001` (MUST NOT) 「クリックでは、バーの形状のタスクを作らないこと（MUST NOT）」
-// -- 「タスクは期間を持つものであり、引いていない押下はその期間を言っていない。」
+// `FR-001` (MUST NOT) 「クリックではバーの形状のタスクを作らないこと」
+// -- 「タスクは期間を持つものであり、引いていない押下は期間を言っていない。」
 // TC-8 (MUST) carries RS-53 for the press that made nothing; whether it is shown
 // is the T-233 display column's (FR-076, CR-718), so this case does not read it.
-// (MUST) 「引いた期間のタスクを作ること（MUST）」 for the drag.
+// (MUST) 「引いた期間のタスクを作ること」 for the drag.
 // (MUST) 「マイルストーンは押すだけで置くこと（MUST）。引いても、押した点に置くこと
-// （MUST）」, and (MUST NOT) 「引いたことを理由に拒んではならない（MUST NOT）」.
+// （MUST）」, and (MUST NOT) 「引いたことを理由にマイルストーンを置く操作を拒まないこと」.
 //
 // ⛔⛔ THE CASE THAT STOOD HERE MEASURED THE MONTH-END CLAMP, and the clamp is
 // gone with the road that needed it: FR-001 itself records that 「クリックで作る
@@ -2900,7 +2900,7 @@ test('DFC-210: a bar shape needs a drag, a milestone needs only a press', async 
      *
      * ⛔⛔ AND A BAR THAT ONLY MOVED IS NOT A BAR THAT WAS MADE. `FR-043` (MUST)
      * puts the created task on 「ドラッグを始めた縦位置が指す `TaskGroup`」 and,
-     * 「指す `TaskGroup` が無いときはタスクグループを 1 つ作ってそこへ載せること（MUST）」 --
+     * 「もしドラッグを始めた縦位置が `TaskGroup` を指さない場合、`GRS` はタスクグループを 1 つ作って、作ったタスクグループへ作ったタスクを載せること」 --
      * so a drag on clear ground can insert a task group, and every bar BELOW it slides
      * down by one task group's height. Its x, its width and its height are all the ones
      * it already had; only its y is new, which is exactly the one field the
@@ -2979,7 +2979,7 @@ test('DFC-210: a bar shape needs a drag, a milestone needs only a press', async 
       `a ${dragPx}px drag drew a bar ${drew[2]}px wide, which is not the span that was drawn`,
     ).toBeGreaterThan(dragPx * 0.6)
     // ⛔ THE UPPER BOUND IS THE HALF THAT KEEPS THE TITLE. Without it a bar of
-    // any span at all would answer 「引いた期間のタスクを作ること（MUST）」, and
+    // any span at all would answer 「引いた期間のタスクを作ること」, and
     // the band would stop saying that the span is the DRAG's. ⚠️ It is judged on
     // the shape the gesture ADDED -- see `madeNear` -- and not on the widest
     // thing that changed, because a task group inserted below the drag slides bars that
@@ -3129,7 +3129,7 @@ function stepPerTier(byDepth: ReadonlyMap<number, number>, what: string, room: n
 // ごとに ... インデントしろ」 -- and measured, before CR-287, at screen minus
 // picture of -8 / -4 / 0 / +4 / +8 px over tiers 1..5, because each side worked
 // the number out for itself. `FR-085` (MUST) names one indent for both:
-// 「そのタスクグループの深さぶんのインデント」 (`taskGroupTitleIndent`, `S-37`), and
+// 「タスクグループの深さぶんのインデント」 (`taskGroupTitleIndent`, `S-37`), and
 // `S-37` says 「1 段深くなるごとにこの幅だけ字下げする」.
 //
 // ⛔ THE PICTURE IS WRITTEN SMALLER THAN THE SCREEN, AND THAT IS NOT THE DEFECT.
@@ -3307,7 +3307,7 @@ async function panelLinesOnScreen(page: Page): Promise<PanelLine[]> {
  *
  * ⛔ THE HEAD'S BAND IS CUT OFF DELIBERATELY, and `HF-12` of table T-051 is the
  * reason: folding every task group 「タスクグループが 1 つも描かれない状態になりうる」 and the head
- * then 「頭にいまいくつのタスクグループを折りたたみ込んでいるかを示すこと（MUST）」. That count stands in
+ * then 「頭にいまいくつのタスクグループを折りたたみ込んでいるかを示すこと」. That count stands in
  * the head, above the tree, and it is not a task group -- counting it as one would have
  * a build that obeys `HF-12` reported as drawing a task group the screen does not.
  * `EP-1`'s `Document Title` sits higher still and is cut off by the same edge.
@@ -3901,12 +3901,12 @@ test('DFC-233: the settings surface prints dictionary words and no raw identifie
 
 // GOES RED IF: a task group added at the shallowest tier, or added under a task group standing
 // at the foot of the panel, is not drawn once its name is settled -- or is drawn
-// outside the panel's own box. Table T-051 row `HF-17` (MUST) reads 「⛔ **足した
-// タスクグループが描かれていないときは、そのタスクグループが見える位置まで表示位置を送ること（MUST）。
-// 打ち込み口だけを送ってはならない（MUST NOT）** —— **口だけ送ると、確定した
-// あとにタスクグループがどこへ行ったか読めない。**⚠️ **送り方は `HF-9` に従う。**⭐ **`HF-14`
-// （配下に足す）も同じとすること（MUST）** —— **押したタスクグループが画面の下端に在るときに
-// 同じことが起きる。**」
+// outside the panel's own box. Table T-051 row `HF-17` (MUST) reads 「足した
+// タスクグループが描かれていないとき、`GRS` は、足したタスクグループが見える位置まで表示位置を送ること。
+// `GRS` は、打ち込み口だけを送らないこと。`GRS` は、表示位置の送り方を `HF-9` に従わせること。
+// `HF-14`（配下に足す）で足したタスクグループが描かれていないときも、`GRS` は、足したタスクグループが
+// 見える位置まで表示位置を送ること ... 口だけ送ると、確定したあとにタスクグループがどこへ行ったか読めない
+// ... 押したタスクグループが画面の下端に在るときに同じことが起きる」
 //
 // ⭐ THE NAME IS WHAT MAKES THE TASK GROUP FINDABLE. `HF-14` (MUST) has the task group stand
 // with an empty name and (MUST) throws it away if the name is settled empty, so

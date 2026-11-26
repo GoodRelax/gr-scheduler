@@ -43,14 +43,14 @@
 // The rules these cases answer to
 // ---------------------------------------------------------------------------
 //
-//   FR-053   ⭐ 「掴み帯の右端に、掴めることを示す 表 T-109 の `IC-53` を置き、その
-//            右に最小化の入口（同表の `IC-75`）を置くこと（MUST）。」
-//            ⛔ 「帯そのものを取り去ってはならない（MUST NOT）」 —— 「掴める面が隅
+//   FR-053   ⭐ 「掴み帯の右端に、掴めることを示す 表 T-109 の `IC-53` を置くこと ...
+//            `IC-53` の右に、最小化の入口（表 T-109 の `IC-75`）を置くこと。」
+//            ⛔ 「掴み帯そのものを取り去らないこと」 —— 「掴める面が隅
 //            の点だけになると、掴めない位置へ置けてしまったときに二度と動かせなく
 //            なる」（表 T-023d の `GR-19` の理由）。
-//            ⛔ 「最小化しているあいだに出すのは掴み帯だけとし、ほかは何も出さない
-//            こと（MUST）」 —— 「帯には ... `IC-53` と、最小化の入口（同表の
-//            `IC-75`）が載ったままである。」
+//            ⛔ 「パレットを最小化している間、`GRS` は、`S-206` の間の記録の入口を除き、
+//            掴み帯だけを出し、ほかは何も出さないこと」 —— 「掴み帯に、掴めることを示す 表 T-109 の `IC-53` と、最小化の入口（表 T-109 の
+//            `IC-75`）を載せたままにすること。」
 //            ⚠️ 「その 2 つが載っても、帯の高さは ... `S-135a` のままである。」
 //   T-109    IC-53 | `Command Palette` | 「掴んで動かせることを示す。**ボタンでは
 //            ない**」 | `FR-053`
@@ -87,8 +87,8 @@
 //      上げを対象外にしたため」. 表 T-237 states the five states an entrance is
 //      PAINTED for, and none of its five rows is the minimize: `EN-5` is 「その
 //      入口が表示・非表示を切り替えるものを、いま表示している」 and FR-053 says in
-//      as many words 「非表示（`S-99e`）とは別の状態である —— 最小化は出ている状態
-//      の一種であり」, so reading `EN-5` onto IC-75 would be minting a rule.
+//      as many words 「最小化は非表示（`S-99e`）とは別の状態であり、出ている状態
+//      の一種である」, so reading `EN-5` onto IC-75 would be minting a rule.
 //      ⇒ Reported to the ledger, not asserted here.
 //   2. HOW FAR APART the two marks are drawn, or what padding the band keeps at
 //      its right edge. ⛔ No row states either. `S-135a` states the band's
@@ -141,10 +141,10 @@ const REQUIREMENTS = unbroken(readFileSync(
 
 /** The sentence CR-273 put into FR-053. ⛔ THE WHOLE GROUND OF THIS FILE. */
 const THE_PLACEMENT_MUST =
-  '掴み帯の右端に、掴めることを示す 表 T-109 の `IC-53` を置き、その右に最小化の入口（同表の `IC-75`）を置くこと（MUST）'
+  '`GRS` は、掴み帯の右端に、掴めることを示す 表 T-109 の `IC-53` を置くこと。'
 
 /** ⛔ The band may not be taken away to make room for the marks. */
-const THE_BAND_STAYS = '帯そのものを取り去ってはならない（MUST NOT）'
+const THE_BAND_STAYS = '`GRS` は、掴み帯そのものを取り去らないこと。'
 
 /** U-26 of table T-103 -- the settled name that reaches the DOM as `data-role`. */
 const U_26 = ((): string => {
@@ -391,7 +391,7 @@ describe('the manuscripts still say what these cases read', () => {
 
 describe('FR-053 (MUST) -- the band carries IC-53 and IC-75, and nothing else', () => {
   it('⭐ both marks are drawn, on ONE band, which is a child of the palette', () => {
-    // 「帯には ... `IC-53` と、最小化の入口（同表の `IC-75`）が載ったままである」.
+    // 「掴み帯に、掴めることを示す 表 T-109 の `IC-53` と、最小化の入口（表 T-109 の `IC-75`）を載せたままにすること」.
     // ⭐ THIS IS ALSO WHAT DFC-103 OWES: nothing anywhere asked where IC-75 is
     // DRAWN. `CommandPalette.minimize` carries it in the description
     // (the fr-053 minimised-band unit test read it there) and
@@ -429,7 +429,7 @@ describe('FR-053 (MUST) -- the band carries IC-53 and IC-75, and nothing else', 
   })
 
   it('⛔ MUST: IC-53 sits at the band’s RIGHT END', () => {
-    // 「掴み帯の右端に、掴めることを示す 表 T-109 の `IC-53` を置き」.
+    // 「掴み帯の右端に、掴めることを示す 表 T-109 の `IC-53` を置くこと」.
     // ⚠️ WHAT THIS SEAM CAN SEE is what the unit WROTE, and there is no layout
     // engine here to ask where a box landed -- so what is asked is that the
     // band, or the mark itself, states that the content ends at the right edge.
@@ -449,7 +449,7 @@ describe('FR-053 (MUST) -- the band carries IC-53 and IC-75, and nothing else', 
   })
 
   it('⛔ MUST: IC-75 comes after IC-53, which is what 「その右に」 means', () => {
-    // 「その右に最小化の入口（同表の `IC-75`）を置くこと（MUST）」, and 表 T-109's
+    // 「`IC-53` の右に、最小化の入口（表 T-109 の `IC-75`）を置くこと」, and 表 T-109's
     // own cell for IC-75: 「`IC-53` の右に並ぶ」.
     // ⚠️ WHAT THIS SEAM CAN SEE IS THE ORDER THE NODES WERE PUT IN, which is
     // left-to-right for the writing direction this band is drawn in. A band
@@ -470,7 +470,7 @@ describe('FR-053 (MUST) -- the band carries IC-53 and IC-75, and nothing else', 
   })
 
   it('⛔ nothing of table T-109 is drawn to the right of IC-75 on the band', () => {
-    // 「その右に最小化の入口 ... を置くこと（MUST）」 -- IC-75 is the last thing the
+    // 「`IC-53` の右に、最小化の入口 ... を置くこと」 -- IC-75 is the last thing the
     // sentence puts on the band, so a third mark after it is a mark the
     // sentence did not place. ⚠️ It asks only about ROWS OF 表 T-109: whether a
     // band may carry anything else at all is settled by FR-053 for the
@@ -496,8 +496,8 @@ describe('FR-053 (MUST) -- minimizing moves neither mark', () => {
   const MINIMIZED = paletteWith({ isMinimized: true, groups: [], armedText: null })
 
   it('⭐ the band still carries both, in the same order', () => {
-    // 「最小化しているあいだに出すのは掴み帯だけとし ... 帯には ... `IC-53` と、
-    //   最小化の入口（同表の `IC-75`）が載ったままである」.
+    // 「掴み帯だけを出し、ほかは何も出さないこと ... 掴み帯に、掴めることを示す 表 T-109 の `IC-53` と、
+    //   最小化の入口（表 T-109 の `IC-75`）を載せたままにすること」.
     // ⚠️ tests/unit/uf-71.test.ts:2611 already asks that BOTH ARE THERE, with
     // `arrayContaining`, which passes in either order. This asks the order.
     // GOES RED IF: the minimized band draws them the other way round, or drops

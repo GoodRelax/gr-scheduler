@@ -8,7 +8,7 @@ import { drawnPanel, LANGUAGES, REQUIREMENTS, taskPanel } from './cr-754-stage'
 
 // Spec: FR-006
 const FR_006_ACTUAL_LENGTH =
-  '⭐ 実績の長さの欄（表 T-016 の `PR-5`）の入力は、日付の欄の入力と同じ幅とし、その右に単位の語を置くこと（MUST）'
+  '`GRS` は、実績の長さの欄（表 T-016 の `PR-5`）の入力を、並ぶ日付の欄の入力と等しい幅（時刻を表示しているときは `S-590` の幅）にすること。'
 
 const ACTUAL_LENGTH_ROW = 'PR-5'
 const DATE_ROWS_BESIDE_IT = ['PR-4', 'PR-6']

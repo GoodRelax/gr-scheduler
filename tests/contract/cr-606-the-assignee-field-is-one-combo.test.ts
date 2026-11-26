@@ -32,29 +32,29 @@ import { specTable, unbroken } from './spec-table'
 // Spec: AS-5
 // Why: CR-788 replaced the one-line-per-person combo with one field and an Excel-style checked list (JDG-2472).
 const AS_5_ONE_FIELD =
-  '⭐ 担当の欄はタスクに 1 つとし、閉じているあいだは主担当（`AS-13`）の名を出し、ほかにも就いているときはその後に `FR-059` の印「, …」を続けること（MUST）'
-const AS_5_NOBODY = '就いている担当がいないときは何も出さない。'
-const AS_5_OPENS = '⭐ 欄を押すと欄の下に担当の一覧を開き、欄をもう一度押すか一覧と欄の外を押すと閉じること（MUST）'
+  '`GRS` は、担当の欄をタスクに 1 つとすること。担当の欄が閉じている間、`GRS` は、主担当（`AS-13`）の名を出すこと。担当の欄が閉じている間、主担当のほかにも担当が就いているとき、`GRS` は、主担当の名の後に `FR-059` の印「, …」を続けること。'
+const AS_5_NOBODY = '就いている担当がいないとき、`GRS` は、担当の欄に何も出さないこと。'
+const AS_5_OPENS = '担当の欄を押したとき、`GRS` は、欄の下に担当の一覧を開くこと。担当の欄をもう一度押すか、一覧と欄の外を押したとき、`GRS` は、担当の一覧を閉じること。'
 const AS_5_LIST_SHAPE =
-  '⭐ 一覧は、上から、絞り込みの欄、操作の段（`IC-125`・`IC-126`・`IC-123`・`IC-124`）、担当ごとのチェックと名の行とすること（MUST）。'
-const AS_5_ROWS = '担当の行は担当リストのすべての担当とし、名の昇順に並べ、`IC-123`（昇順）と `IC-124`（降順）で向きを変える。'
-const AS_5_SAME_NAME = '同じ名の担当は `uid` の昇順とする（`uid` を添えるのは `AS-6`）。'
-const AS_5_FILTER = '⭐ 絞り込みの欄は、打つたびに、名が打った字を含む担当だけを一覧に出すこと（MUST）'
-const AS_5_SV_4 = '比べ方は 表 T-330 の `SV-4` と同じとすること（MUST）'
+  '`GRS` は、担当の一覧を、上から、絞り込みの欄、操作の段（`IC-125`・`IC-126`・`IC-123`・`IC-124`）、担当ごとのチェックと名の行とすること。'
+const AS_5_ROWS = '`GRS` は、担当の行を担当リストのすべての担当とすること。`GRS` は、担当の行を名の昇順に並べること。`IC-123`（昇順）か `IC-124`（降順）を押したとき、`GRS` は、担当の行の並びの向きを押した向きに変えること。'
+const AS_5_SAME_NAME = '`GRS` は、名の等しい担当を `uid` の昇順に並べること（`uid` を添えるのは `AS-6`）。'
+const AS_5_FILTER = '絞り込みの欄に字を打ったとき、`GRS` は、打つたびに、名が打った字を含む担当だけを一覧に出すこと。'
+const AS_5_SV_4 = '`GRS` は、絞り込みの欄の比べ方を 表 T-330 の `SV-4` と等しくすること。'
 const AS_5_ADD_ITEM =
-  '⭐ 打った字と等しい名の担当がいないときは、一覧の末尾に、打った字を名とする担当を足す項目を 1 つ出すこと（MUST）（語は `FR-038` の辞書）。'
-const AS_5_NOT_ON_DASH = '⛔ 打った字が `-` のときは出してはならない（MUST NOT）'
-const AS_5_ONE_PRESS = '⭐ チェックを付けると就け（`AS-12`）、外すと解き（`AS-3`）、どちらも押した 1 回で書くこと（MUST）'
+  '打った字と等しい名の担当がいないとき、`GRS` は、一覧の末尾に、打った字を名とする担当を足す項目を 1 つ出すこと（語は `FR-038` の辞書）。'
+const AS_5_NOT_ON_DASH = '打った字が `-` のとき、`GRS` は、足す項目を出さないこと（`AS-4`）。'
+const AS_5_ONE_PRESS = 'チェックを付ける（`AS-12`）か外した（`AS-3`）とき、`GRS` は、押した 1 回で書くこと。'
 // Spec: AS-3, AS-6, AS-7, AS-12
-const AS_3_ONLY_THAT_ONE = '⭐ 解くのはチェックを外した担当の割当だけであり、ほかの割当を解いてはならない（MUST NOT）。'
-const AS_6_ONLY_COLLAPSING = '⚠️ **添えてよいのは潰れる候補だけである**'
-const AS_7_ONLY_THE_ADD_ITEM = '⛔ `Resource` を作るのは、`AS-5` の足す項目を選んだときだけとすること（MUST）。'
+const AS_3_ONLY_THAT_ONE = '担当の欄の一覧で就いている担当のチェックを外したとき、`GRS` は、チェックを外した担当の割当を解くこと（表 T-108 の `CM-45`）。チェックを外したとき、`GRS` は、チェックを外した担当の割当のほかの割当を解かないこと。'
+const AS_6_ONLY_COLLAPSING = '名の等しい候補が 2 つ以上あるときに限り、`GRS` は、名の等しい候補にだけ `uid` を添えてもよい。'
+const AS_7_ONLY_THE_ADD_ITEM = '`GRS` は、`Resource` を、`AS-5` の足す項目を選んだときだけ作ること。'
 const AS_7_NOT_BY_TYPING =
-  '打っただけの字（何も選ばずに `Enter` を押した・焦点が欄を離れた）で作ってはならない（MUST NOT）'
-const AS_12_ADDS = 'ほかの割当を解いてはならない（MUST NOT） —— チェックを付けるのは足すことである。'
+  '`GRS` は、打っただけの字（何も選ばずに `Enter` を押した・焦点が欄を離れた）で `Resource` を作らないこと。'
+const AS_12_ADDS = 'チェックを付けたとき、`GRS` は、ほかの割当を解かないこと。'
 // Spec: SV-4
-const SV_4_FOLD = '比べる前に両方を `NFKC` で正規化し、大文字と小文字を畳む —— 全角と半角、大文字と小文字を区別しない。'
-const SV_4_EMPTY = '語が空のときはすべての行を載せる。'
+const SV_4_FOLD = '`GRS` は、語と相手を比べる前に、語と相手の両方を `NFKC` で正規化すること（全角と半角を区別しない）。`GRS` は、語と相手を比べる前に、語と相手の両方の大文字と小文字を畳むこと（大文字と小文字を区別しない）。'
+const SV_4_EMPTY = '語が空の間、`GRS` は、すべての行を載せること。'
 
 const cellOf = (table: string, id: string): string =>
   unbroken((specTable(table).rows.find((one) => one.id === id)?.cells ?? []).join(' '))

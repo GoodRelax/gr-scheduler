@@ -66,14 +66,14 @@ const wordOf = (part: string, language: 'ja' | 'en'): string => {
 const QN_12_TWO = '答えは辞書の `parentTaskChoice` の 2 つの語の択であり、`Yes` / `No` ではない。'
 const QN_12_FIRST = '1 つ目の択は、`AR-7` を構えていれば「親タスクと子タスクの関係を定義するため子タスクを選択」、構えていなければ「タスクを選択」と短くする。'
 const QN_12_NEAR = '面はポインタの近くに立ち、`Esc` か面の外を押せば選ばずに閉じる（`PTL-14`）'
-const WL_POINTER = '⭐ ポインタの形は、`AR-7` を構えているあいだは日程表の描画領域の全体で 表 T-269 の `PK-17` とし、構えずに親タスク表示だけが入のときは実線の矢印の上でだけ `PK-17`、破線の矢印の上で `PK-18` とすること（MUST）。'
-const FR_135_SCREEN_ONLY = '家族の矢印と、`?`・候補の枠と番号は、依存線と同じ重ね順（`FR-110` の 表 T-020 の `ZO-4`）に描き、画面にだけ描くこと（MUST）'
-const FR_135_SELECTED = '選んだ矢印は、依存線と同じく、その太さに 表 T-206 の `S-447` を足した太さで描くこと（MUST）（表 T-023c の `SL-8`）。'
+const WL_POINTER = '`AR-7` を構えている間、`GRS` は、ポインタの形を日程表の描画領域の全体で 表 T-269 の `PK-17` とすること。'
+const FR_135_SCREEN_ONLY = '`GRS` は、家族の矢印と、`?`・候補の枠と番号を画面にだけ描き、書き出す絵（表 T-076）には描かないこと。'
+const FR_135_SELECTED = '`GRS` は、選んだ矢印を、依存線と同じく、矢印の太さに 表 T-206 の `S-447` を足した太さで描くこと（表 T-023c の `SL-8`）。'
 
 describe('CR-631 -- the manuscript these cases are driven by', () => {
   it('T-234 QN-12, T-351 PTL-13 / PTL-14 and the closing pointer rule still say it', () => {
     for (const clause of [QN_12_TWO, QN_12_FIRST, QN_12_NEAR]) expect(flat(rowText('T-234', 'QN-12')), clause).toContain(flat(clause))
-    expect(flat(rowText('T-351', 'PTL-13'))).toContain('混ざった選択を残さず、ポインタの近くに 表 T-234 の `QN-12` の 2 択を出す。')
+    expect(flat(rowText('T-351', 'PTL-13'))).toContain('`GRS` は、ポインタの近くに 表 T-234 の `QN-12` の 2 択を出すこと。')
     expect(flat(rowText('T-351', 'PTL-14'))).toContain('混ざる前の選択に戻す')
     for (const clause of [WL_POINTER, FR_135_SCREEN_ONLY, FR_135_SELECTED]) expect(REQUIREMENTS, clause).toContain(clause)
   })

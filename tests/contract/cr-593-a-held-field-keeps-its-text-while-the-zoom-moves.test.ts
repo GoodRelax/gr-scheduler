@@ -29,8 +29,8 @@ const WS_2_EXEMPT =
 const WS_2_UNTOUCHED = '確定される欄の値にも取り消しの段にも触れず'
 const WS_2_WHY_MH_4 = '同書の 表 T-338 の `MH-4` が欄を編集しながら倍率を変えることを求める'
 const AG_9_EDITING = '人が編集入力を確定していない間（プロパティパネルで入力中など）も同じく拒否すること（MUST）'
-const MH_4_WHILE_EDITING = '欄を編集しているあいだも書き換えること（MUST）。'
-const MH_4_KEEP_INPUT = '⛔ 編集している入力の字と焦点を動かしてはならない（MUST NOT）'
+const MH_4_WHILE_EDITING = '欄を編集している間も、`GRS` は、現在の高さを書き換えること。'
+const MH_4_KEEP_INPUT = '`GRS` は、現在の高さを書き換えるとき、編集している入力の字と焦点を動かさないこと。'
 
 describe('CR-593 shell -- the manuscript these cases are driven by', () => {
   it.each([WS_2_EXEMPT, WS_2_UNTOUCHED, WS_2_WHY_MH_4])('05-07 still says it, word for word: %s', (clause) => {

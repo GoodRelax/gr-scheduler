@@ -39,7 +39,7 @@ const WH_2_RANGE = '日付の欄は 表 T-214 の範囲の日だけを受ける�
 const WH_12_BUTTON = '新しい開始日の日付の欄の右に、語を辞書の `wholeScheduleShiftField` の `apply` の語とするボタンを置き、押されたら下書きの日で問いを出すこと（MUST）'
 const WH_12_DIM = '⭐ 新しい開始日が空のあいだ、開始を持つ `Task` が無いあいだ（`WH-1`）、ずらす稼働日が 0 のあいだ（`WH-9`）は、押せないものとすること（MUST）'
 const WH_12_NO_TOOLTIP = 'ツールチップも持たない（利用者の判断）'
-const FO_17_ABOVE_FO_16 = '⭐ `FO-16` の上に置く（利用者の指示）'
+const FO_17_ABOVE_FO_16 = '`GRS` は、全体日程シフトの欄を `FO-16` の上に置くこと。'
 const FR_159_ONE_UNDO = '`GRS` は、移した結果をまとめて 1 度に書き、取り消しを 1 度押せば全部の日付が元へ戻るようにすること'
 
 // Spec: T-369

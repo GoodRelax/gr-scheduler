@@ -470,13 +470,13 @@ describe('the manuscript still says what these cases read', () => {
 
   it('⭐⭐ HF-14 (MUST): a press raises the task group at once, named from the dictionary, on FR-085s own road', () => {
     expect(says('T-051', 'HF-14')).toContain(
-      '押された瞬間に、既定の名前でタスクグループを立てること（MUST）。そのタスクグループのプロパティパネルを出し、名前の欄で名づけさせること（MUST）',
+      '配下に足す操作子を押したとき、`GRS` は、押した瞬間に既定の名前でタスクグループを立てること。配下に足す操作子を押したとき、`GRS` は、立てたタスクグループのプロパティパネルを出し、名前の欄で名づけさせること。',
     )
     expect(says('T-051', 'HF-14')).toContain(
-      '改名と別の道を作ってはならない（MUST NOT）。道は `FR-085` が改名について定めるものと同じものとすること（MUST）。',
+      '`GRS` は、名づけの道を、`FR-085` が改名について定める道と同じものにすること。`GRS` は、改名と別の名づけの道を作らないこと。',
     )
     expect(says('T-051', 'HF-14')).toContain(
-      '既定の名前は表示語として持つこと（MUST）。仕様書が規則として綴りを刷ってはならない（MUST NOT）',
+      '`GRS` は、既定の名前を表示語として持つこと（置き場は `FR-038` の辞書）。',
     )
   })
 
@@ -506,16 +506,16 @@ describe('the manuscript still says what these cases read', () => {
   })
 
   it('⭐⭐ HF-17 (MUST): 段 0s own add-task-group entrance defers its naming to HF-14, word for word', () => {
-    expect(says('T-051', 'HF-17')).toContain('名前の扱いは `HF-14` に従う。')
-    expect(says('T-051', 'HF-17')).toContain('`HF-14`（配下に足す）も同じとすること（MUST）')
+    expect(says('T-051', 'HF-17')).toContain('`GRS` は、`HF-17` で足したタスクグループの名前の扱いを `HF-14` に従わせること。')
+    expect(says('T-051', 'HF-17')).toContain('`HF-14`（配下に足す）で足したタスクグループが描かれていないときも、`GRS` は、足したタスクグループが見える位置まで表示位置を送ること。')
   })
 
   it('⭐ FR-085 states the very road HF-14 points HF-17 at', () => {
     expect(REQUIREMENTS).toContain(
-      'タスクグループ名を変える経路は、タスクグループパネルでその名前をダブルクリックすること',
+      'タスクグループパネルでタスクグループ名をダブルクリックしたとき（表 T-023 の `MK-13`）、`GRS` はプロパティパネルを出すこと。',
     )
     expect(REQUIREMENTS).toContain(
-      '名前の欄（`_assets/fig-erd-detail.md` の `AT-53`）を編集できる状態にして焦点を置き、既にある文字をすべて選んだ状態にすること（MUST）',
+      'タスクグループ名をダブルクリックしたとき、`GRS` は、名前の欄（`_assets/fig-erd-detail.md` の `AT-53`）を編集できる状態にして焦点を置くこと。',
     )
   })
 

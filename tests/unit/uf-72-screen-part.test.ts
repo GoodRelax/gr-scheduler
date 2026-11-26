@@ -229,7 +229,7 @@ const T_023D = specTable('T-023d')
 const T_023D_TOP_TASK_GROUP = T_023D.rows[0]
 
 /** The preamble of 表 T-023d, which is what makes the first row the winner. */
-const T_023D_PRIORITY_PREAMBLE = '上の行ほど優先すること（MUST）'
+const T_023D_PRIORITY_PREAMBLE = '`GRS` は、表 T-023d で先に並ぶ `GR` の行ほど優先すること。'
 
 /** 表 T-103 — the settled names these cases look for. */
 const T_103_PARTS = [
@@ -443,7 +443,7 @@ const T_109_TASK_GROUP_EXPANDER = [
  */
 const T_051_HF1_FOUR_CONTROLS =
   '隠す操作子と、配下を 1 階層展開する操作子と、配下をすべて折りたたむ操作子と、配下をすべて展開する操作子を 1 つずつ'
-const T_051_HF1_IS_A_LATTICE = '並びは 2 × 2 の格子とすること（MUST）'
+const T_051_HF1_IS_A_LATTICE = '`GRS` は、`HF-1` の 4 つの操作子を 2 × 2 の格子に並べること'
 // ⭐⭐ REWORDED 2026-09-05, RULE UNCHANGED. The list is column-major and
 // the old wording read as four controls in a line -- see DFC-260.
 const T_051_HF1_LEFT_TO_RIGHT = '左の列を上から 隠す・1 階層展開する'
@@ -457,14 +457,14 @@ const T_051_HF1_LEFT_TO_RIGHT = '左の列を上から 隠す・1 階層展開�
  * again, and it is what took the run's left edge off HF-15's grab strip.
  */
 const T_051_HF4_THE_WHOLE_RUN =
-  '折りたたみの 4 つ（`HF-1` の格子）、消すと足すの縦の対、ピン止めの順に、左から右へ置くこと（MUST）'
+  '`GRS` は、折りたたみの 4 つ（`HF-1` の格子）、消すと足すの縦の対、ピン止めの順に、左から右へ操作子を置くこと。'
 
 /** 表 T-051 `HF-4` — which of the pair stands on top, ruled the same day. */
-const T_051_HF4_DELETE_ABOVE_ADD = '消すを上、足すを下に置くこと（MUST）'
+const T_051_HF4_DELETE_ABOVE_ADD = '`GRS` は、消すを上、足すを下に置くこと。'
 
 /** 表 T-051 `HF-10` — the run at the panel's head, all five on one line (CR-587). */
 const T_051_HF10_THE_HEAD_RUN =
-  '頭の並びは、左から すべて折りたたむ・1 階層展開する・すべて展開する・足す・すべて消すの順に、1 行に並べること（MUST）'
+  '`GRS` は、頭の並びを、左から すべて折りたたむ・1 階層展開する・すべて展開する・足す・すべて消すの順に、1 行に並べること。'
 
 /** 表 T-051 `HF-10` — why the head is one line and not two tiers. */
 const T_051_HF10_NOT_TWO_TIERS =
@@ -474,11 +474,11 @@ const T_051_HF10_NOT_TWO_TIERS =
 const T_051_HF20_LAST_IN_THE_RUN = '並びの最後、`HF-17`（最も浅い段へ足す）の右隣である。'
 
 /** 表 T-051 `HF-15` — the MUST of that row this drawing unit still reads. */
-const T_051_HF15_THE_STRIP_IS_ALWAYS_DRAWN = '掴み代は常に描くこと（MUST）'
+const T_051_HF15_THE_STRIP_IS_ALWAYS_DRAWN = '`GRS` は、掴み代を常に描くこと。'
 
 /** 表 T-051 `HF-18` — the count a task group shows for what it holds folded. */
 const T_051_HF18_THE_COUNT =
-  '配下に折りたたみ込んでいるタスクグループがあるとき、そのタスクグループの数をタスクグループに示すこと（MUST）'
+  '配下に折りたたみ込んでいるタスクグループがあるとき、`GRS` は、折りたたみ込んでいるタスクグループの数をタスクグループに示すこと。'
 
 /**
  * `HF-1`'s lattice, LEFT TO RIGHT, each place with the row of 表 T-051 that owns
@@ -522,18 +522,18 @@ const T_051_EXPANDER = [
   // はならない（MUST NOT）** —— **同じ MUST が 2 か所に載ると、必ず離れていく**」.
   // ⭐ SO THE GIST READ HERE IS THE DELEGATION ITSELF, and the effect each one
   // delegates to is read from 表 T-015 by the rows below it.
-  { row: 'HF-2', gist: '展開する操作子の職務は 表 T-015 の `HR-3` である（MUST）' },
+  { row: 'HF-2', gist: '`GRS` は、展開する操作子の職務を 表 T-015 の `HR-3` にすること。' },
   // ⛔ `HF-3` IS NO LONGER 「そのタスクグループ自身を折りたたむ」. 利用者の裁定 2026-08-30 gave it
   // 表 T-015 の `HR-6` instead, and 2026-08-31 put that as a delegation too.
-  { row: 'HF-3', gist: '隠す操作子の職務は 表 T-015 の `HR-6` である（MUST）' },
+  { row: 'HF-3', gist: '`GRS` は、隠す操作子の職務を 表 T-015 の `HR-6` にすること。' },
   // ⛔⛔ `HF-11` IS `HR-4`, WHICH FOLDS THE PRESSED TASK GROUP ITSELF. The row records
   // what the old wording cost: 「**2026-08-31 まで、本行は「そのタスクグループ自身を折りたたんでは
   // ならない」と定めていた**」.
-  { row: 'HF-11', gist: '配下をすべて折りたたむ操作子は、表 T-015 の `HR-4` を行うこと（MUST）' },
-  { row: 'HF-13', gist: '1 階層だけ展開する操作子を、タスクグループごとに 1 つ置くこと（MUST）' },
+  { row: 'HF-11', gist: '`GRS` は、配下をすべて折りたたむ操作子で、表 T-015 の `HR-4` を行うこと（見本と同じ動作に揃える）。' },
+  { row: 'HF-13', gist: '`GRS` は、1 階層だけ展開する操作子を、タスクグループごとに 1 つ置くこと。' },
   // ⭐ AND `HF-13`'s JOB SENTENCE, which is the one the case below leans on: the
   // one-level entrance is 表 T-015 の `HR-7` and nothing else.
-  { row: 'HF-13', gist: 'その職務は 表 T-015 の `HR-7` である（MUST）' },
+  { row: 'HF-13', gist: '`GRS` は、1 階層だけ展開する操作子の職務を 表 T-015 の `HR-7` にすること（見本と同じ動作に揃える）。' },
 ] as const
 
 /**
@@ -550,7 +550,7 @@ const T_103_U47_HOLDS_NO_COUNT = /\d+\s*つで\s*1\s*組/
 
 /** 表 T-023a's own note, which the 面 table under it belongs to. */
 const T_023A_ONLY_THE_DRAWING_AREA =
-  '判定順序を適用するのは日程の描画領域だけとすること（MUST）。'
+  '`GRS` は、判定順序を日程の描画領域だけに適用すること。'
 
 /** The MUST under 表 T-065 that puts the answer on the side that drew it. */
 const T_065_THE_SIDE_THAT_DREW_IT =
@@ -2732,9 +2732,9 @@ describe('表 T-051 HF-13 -- 1 階層だけ展開する操作子を、タスク�
     const hf13 = specTable('T-051').rows.find((one) => one.id === 'HF-13')
     expect(hf13, '表 T-051 no longer holds HF-13').toBeDefined()
     const cells = hf13?.cells.join(' ') ?? ''
-    expect(cells).toContain('1 階層だけ展開する操作子を、タスクグループごとに 1 つ置くこと（MUST）')
-    expect(cells).toContain('同じ入口に兼ねさせてはならない（MUST NOT）')
-    expect(cells).toContain('展開できる直下の子が 1 つも無いときは')
+    expect(cells).toContain('`GRS` は、1 階層だけ展開する操作子を、タスクグループごとに 1 つ置くこと。')
+    expect(cells).toContain('`GRS` は、1 つの入口に `HF-13` と `HF-2` を兼ねさせないこと。')
+    expect(cells).toContain('展開できる直下の子が 1 つも無いとき、`GRS` は、1 階層だけ展開する操作子を `FR-029` に従って薄く描くこと。')
     // ⭐ The join this file leans on: HF-13 names its own entrance, and
     // `entranceForRule` finds the same row from the other side of 表 T-109.
     expect(cells).toContain(`\`${IC_OPEN_ONE_LEVEL}\``)
@@ -2756,9 +2756,9 @@ describe('表 T-051 HF-13 -- 1 階層だけ展開する操作子を、タスク�
     const hr7 = specTable('T-015').rows.find((one) => one.id === 'HR-7')
     expect(hr7, '表 T-015 no longer holds HR-7').toBeDefined()
     const cells = hr7?.cells.join(' ') ?? ''
-    expect(cells).toContain('選択した `TaskGroup` の折りたたみだけを解くこと（MUST）')
+    expect(cells).toContain('子を 1 階層展開を押したとき、`GRS` は、選択した `TaskGroup` の折りたたみだけを解くこと（見本と同じ動作に揃える）')
     expect(cells).toContain('直下の子が描かれ、孫より下は折りたたまれたままになる')
-    expect(cells).toContain('孫より下の折りたたみに触れてはならない（MUST NOT）')
+    expect(cells).toContain('子を 1 階層展開を押したとき、`GRS` は、孫より下の折りたたみに触れないこと。')
   })
 })
 
@@ -2819,13 +2819,13 @@ describe('表 T-051 HF-14 -- 配下にタスクグループを足す操作子を
     const cells = hf14?.cells.join(' ') ?? ''
 
     // ⭐ WHAT THIS UNIT DRAWS AND ANSWERS FOR -- unchanged since 2026-08-30.
-    expect(cells).toContain('配下にタスクグループを足す操作子を、タスクグループごとに 1 つ置くこと（MUST）')
-    expect(cells).toContain('足したタスクグループは末子とすること（MUST）')
+    expect(cells).toContain('`GRS` は、配下にタスクグループを足す操作子を、タスクグループごとに 1 つ置くこと（表 T-015 の `HR-8`）。')
+    expect(cells).toContain('`GRS` は、足したタスクグループを末子とすること。')
     expect(cells).toContain(`\`${IC_ADD_CHILD}\``)
     // ⛔ AND THE ONE DRAWING RULE THE NAMING CHANGE DID NOT TOUCH: a task group already
     // at `FR-085`'s depth limit still carries the entrance, drawn faint.
     expect(cells).toContain(
-      'そのタスクグループの深さが `FR-085` の上限に達しているときは、`FR-029` に従って薄く描くこと（MUST）',
+      '押したタスクグループの深さが `FR-085` の上限に達しているとき、`GRS` は、配下に足す操作子を `FR-029` に従って薄く描くこと。',
     )
 
     // ⭐⭐ WHAT CHANGED ON 2026-09-04 (利用者の裁定 2026-09-03): the task group is stood
@@ -2833,9 +2833,9 @@ describe('表 T-051 HF-14 -- 配下にタスクグループを足す操作子を
     // `FR-085` gives renaming. ⚠️ Not this unit's to carry out -- read here for
     // the reason HR-8 is read below: the press it draws must not be planned into
     // a second, in-place naming road.
-    expect(cells).toContain('押された瞬間に、既定の名前でタスクグループを立てること（MUST）')
-    expect(cells).toContain('そのタスクグループのプロパティパネルを出し、名前の欄で名づけさせること（MUST）')
-    expect(cells).toContain('改名と別の道を作ってはならない（MUST NOT）')
+    expect(cells).toContain('配下に足す操作子を押したとき、`GRS` は、押した瞬間に既定の名前でタスクグループを立てること。')
+    expect(cells).toContain('配下に足す操作子を押したとき、`GRS` は、立てたタスクグループのプロパティパネルを出し、名前の欄で名づけさせること。')
+    expect(cells).toContain('`GRS` は、改名と別の名づけの道を作らないこと。')
 
     // ⛔⛔ THE THREE MUSTS THIS CASE USED TO HOLD DOWN ARE WITHDRAWN: 「**その禁止
     // の理由は「改名の入口が 1 つも無い」であり、`FR-085` が 2026-09-01 に改名の道
@@ -2850,7 +2850,7 @@ describe('表 T-051 HF-14 -- 配下にタスクグループを足す操作子を
     // ⚠️ NOT THIS UNIT'S TO CARRY OUT -- read for the reason HR-7 is read above.
     const hr8 = specTable('T-015').rows.find((one) => one.id === 'HR-8')
     expect(hr8, '表 T-015 no longer holds HR-8').toBeDefined()
-    expect(hr8?.cells.join(' ')).toContain('足す先は配下とすること（MUST）')
+    expect(hr8?.cells.join(' ')).toContain('配下に足すを押したとき、`GRS` は、選択した `TaskGroup` の同じ段ではなく配下にタスクグループを 1 つ足すこと。')
   })
 })
 
@@ -3081,7 +3081,7 @@ describe('the Task Group Expander at the edges -- R3.4, the bare panel, and a re
 // ===========================================================================
 
 /** 表 T-051 HF-5, copied from docs/spec/01-04-requirements.md. */
-const T_051_HF5_SAME_SIZE = '操作子を同じ大きさで描くこと（MUST）'
+const T_051_HF5_SAME_SIZE = '`GRS` は、タスクグループ名の文字サイズにかかわらず、操作子を同じ大きさで描くこと。'
 
 /** FR-098's MUST, copied from docs/spec/01-04-requirements.md. */
 const FR_098_ONE_PER_TASK_GROUP = '`GRS` は、ピン止めの操作子（`Task Group Pin`）を、タスクグループパネルの各タスクグループに 1 つ置くこと。'
@@ -3493,10 +3493,10 @@ const FR_098_SAME_AS_THE_EXPANDER = '置き方・大きさ・濃さと'
 
 /** 表 T-051 HF-4, copied from docs/spec/01-04-requirements.md. */
 const T_051_HF4_RIGHT_EDGE =
-  'タスクグループ名の長さにかかわらず、操作子をタスクグループパネルの右端に揃えること（MUST）'
+  '`GRS` は、タスクグループ名の長さにかかわらず、操作子をタスクグループパネルの右端に揃えること。'
 
 /** FR-085's rule that the depth is spent as an indent, copied from :1272. */
-const FR_085_INDENT_BY_DEPTH = 'そのタスクグループの深さぶんのインデント'
+const FR_085_INDENT_BY_DEPTH = 'タスクグループの深さぶんのインデント（`taskGroupTitleIndent`、表 T-201 の `S-37`）'
 
 /**
  * A number out of a settings table, read at the moment this file is read so a
@@ -3851,7 +3851,7 @@ describe('表 T-051 HF-4 / FR-098 -- the controls hold the right edge whatever t
     const hf4 = specTable('T-051').rows.find((one) => one.id === 'HF-4')
     expect(hf4, '表 T-051 no longer holds HF-4').toBeDefined()
     expect(hf4?.cells.join(' ')).toContain('タスクグループ名の長さにかかわらず')
-    expect(hf4?.cells.join(' ')).toContain('右端に揃えること（MUST）')
+    expect(hf4?.cells.join(' ')).toContain('操作子をタスクグループパネルの右端に揃えること。')
     expect(specText('01-04-requirements.md')).toContain(T_051_HF4_RIGHT_EDGE)
     // ⭐ FR-098 does not restate the rule; it refers the 置き方 to HF-4 .. HF-6.
     expect(specText('01-04-requirements.md')).toContain(FR_098_SAME_AS_THE_EXPANDER)
@@ -4050,10 +4050,10 @@ function restingDeclaration(
 
 /** 表 T-051 HF-6's two rules, copied from docs/spec/01-04-requirements.md. */
 const T_051_HF6_ONLY_WHILE_POINTED =
-  '操作子は、そのタスクグループ名か、そのタスクグループのために描いた操作子の群（下の段が地を敷く範囲）にポインタが乗っているあいだだけ描くこと（MUST）'
+  '`GRS` は、操作子を、タスクグループ名か、タスクグループのために描いた操作子の群（地を敷く範囲）にポインタが乗っているあいだだけ描くこと。'
 const T_051_HF6_THE_GROUP_STAYS =
-  '一度あるタスクグループのために描いた群は、ポインタがその群から外れて群が消えるまで、そのタスクグループの操作子であり続けること（MUST）'
-const T_051_HF6_ROOM_UNCHANGED = '描かないあいだも、確保する場所を変えてはならない（MUST NOT）'
+  '`GRS` は、一度あるタスクグループのために描いた群を、ポインタが群から外れて群が消えるまで、描き始めたタスクグループの操作子のままにすること。'
+const T_051_HF6_ROOM_UNCHANGED = '`GRS` は、操作子を描かないあいだも、確保する場所を変えないこと（規則と理由は `FR-085` が持つ）。'
 
 /**
  * One way of stopping a node being drawn, and whether it leaves the room the
@@ -4269,10 +4269,10 @@ describe('表 T-051 HF-6 / FR-098 -- the task group controls are drawn only whil
     const hf6 = (specTable('T-051').rows.find((one) => one.id === 'HF-6')?.cells ?? []).join(' ')
 
     expect(hf6).toContain(
-      'ピン止めしているタスクグループの `IC-60` だけは、ポインタが乗っていなくても描くこと（MUST）',
+      'タスクグループをピン止めしている間、`GRS` は、ピン止めしているタスクグループの `IC-60` を、ポインタが乗っていなくても描くこと（`HF-6` の唯一の例外）。',
     )
-    expect(hf6).toContain('本行の最初の MUST の唯一の例外である')
-    expect(hf6).toContain('ほかの操作子を常時描いてはならない（MUST NOT）')
+    expect(hf6).toContain('ポインタが乗っていなくても描くこと（`HF-6` の唯一の例外）')
+    expect(hf6).toContain('`GRS` は、`IC-60` のほかの操作子を常時描かないこと。')
   })
 
   it('GIVEN nothing has been drawn yet WHEN the sheet is read THEN no rule of it draws these controls on its own (BO-1 of 表 T-077, the empty case)', () => {
@@ -4333,9 +4333,9 @@ describe('表 T-051 HF-6 / FR-098 -- the task group controls are drawn only whil
 // ===========================================================================
 
 /** 表 T-051 HF-5's three placement rules, copied from docs/spec/01-04-requirements.md. */
-const T_051_HF5_LEVEL_WITH_TOP = '名前が操作子より大きいときは、名前の上端に揃えること（MUST）'
-const T_051_HF5_NOT_CENTERED = '中央で揃えてはならない（MUST NOT）'
-const T_051_HF5_NOT_SET_DOWN = '上端から下げてはならない（MUST NOT）'
+const T_051_HF5_LEVEL_WITH_TOP = '名前が操作子より大きいとき、`GRS` は、操作子を名前の上端に揃えること。'
+const T_051_HF5_NOT_CENTERED = '名前が操作子より大きいとき、`GRS` は、操作子を中央で揃えないこと。'
+const T_051_HF5_NOT_SET_DOWN = '名前が操作子より大きいとき、`GRS` は、操作子を上端から下げないこと。'
 
 /** The declarations that would center a control on the line it sits in. */
 const CENTERING_PROPERTIES = [
@@ -4695,8 +4695,8 @@ describe('GR-20 of 表 T-023d -- タスクグループの左端に敷く掴み�
     const says = (gr20?.cells ?? []).join(' ')
     expect(says).toContain('タスクグループの左端に敷く掴み代')
     expect(says).toContain('`S-138`')
-    expect(says).toContain('ピン止めしているタスクグループは掴めないこと（MUST NOT）')
-    expect(says).toContain('掴めばタスクグループを動かす')
+    expect(says).toContain('`GRS` は、ピン止めしているタスクグループの掴みを成立させないこと。')
+    expect(says).toContain('掴み代を掴んだとき、`GRS` はタスクグループを動かすこと')
     expect(S_138_STRIP_WIDTH, 'S-138 no longer states a width').toBeGreaterThan(0)
   })
 })
@@ -4990,7 +4990,7 @@ describe('表 T-051 HF-1 (MUST) -- the four folding controls, left to right in a
     expect(says).toContain(T_051_HF1_IS_A_LATTICE)
     expect(says).toContain(T_051_HF1_LEFT_TO_RIGHT)
     // ⛔ THE MUST NOT THAT MAKES THE LATTICE A LATTICE.
-    expect(says).toContain('1 本と 2 本を混ぜて並べてはならない（MUST NOT）')
+    expect(says).toContain('`GRS` は、1 本と 2 本を混ぜて並べないこと。')
 
     // ⭐ AND THE ORDER THIS FILE DRIVES BY IS THAT SENTENCE'S OWN. Each word of
     // it is looked for after the one before, so a manuscript that re-ordered the
@@ -5143,9 +5143,9 @@ describe('表 T-051 HF-4 (MUST) -- the whole run of a task group, left to right'
     const says = (hf4?.cells ?? []).join(' ')
 
     expect(says).toContain(T_051_HF4_THE_WHOLE_RUN)
-    expect(says).toContain('足すと消すのあいだに他の操作子を挟んではならない（MUST NOT）')
+    expect(says).toContain('`GRS` は、足すと消すのあいだに他の操作子を挟まないこと')
     expect(says).toContain(
-      'ピン止めの操作子（表 T-109 の `IC-60`）を、並びのいちばん外（右端）に置くこと（MUST）',
+      '`GRS` は、ピン止めの操作子（表 T-109 の `IC-60`）を、並びのいちばん外（右端）に置くこと。',
     )
     // ⭐⭐ WHICH OF THE PAIR IS ON TOP IS THE ROW'S OWN, ruled 2026-09-05.
     expect(says).toContain(T_051_HF4_DELETE_ABOVE_ADD)
@@ -5275,7 +5275,7 @@ describe('表 T-051 HF-10 (MUST) -- the run at the panel’s head, left to right
     // ⛔ THE OUTERMOST OF THE HEAD IS NOT 「すべて展開する」, which that row says
     // itself: 「**本行の「すべて展開する」を並びのいちばん外へ置いてはならない
     // （MUST NOT）** —— **頭もタスクグループも、折りたたみの外に立つのはタスクグループを足す入口と消す入口である。**」.
-    expect(hf10).toContain('本行の「すべて展開する」を並びのいちばん外へ置いてはならない（MUST NOT）')
+    expect(hf10).toContain('`GRS` は、`HF-10` の「すべて展開する」を並びのいちばん外へ置かないこと。')
 
     expect(hf10, 'HF-10 names the reason the head is not two tiers').toContain(T_051_HF10_NOT_TWO_TIERS)
     const hf20 = (specTable('T-051').rows.find((one) => one.id === 'HF-20')?.cells ?? []).join(' ')
@@ -5399,7 +5399,7 @@ describe('表 T-051 HF-15 (MUST) -- the held task group takes a ground, and the 
     const hf15 = (specTable('T-051').rows.find((one) => one.id === 'HF-15')?.cells ?? []).join(' ')
 
     expect(hf15).toContain(T_051_HF15_THE_STRIP_IS_ALWAYS_DRAWN)
-    expect(hf15).toContain('太さは 表 T-206 の `S-213` とすること（MUST）')
+    expect(hf15).toContain('`GRS` は、差し込み線と丸の色を 表 T-236 の `S-151`、太さを 表 T-206 の `S-213` とすること。')
   })
 
   it('⭐ MUST GIVEN a task group is held WHEN it is compared with the same task group unheld THEN it is given a ground of its own (HF-15: the held task group takes a ground)', () => {
@@ -5460,15 +5460,15 @@ describe('表 T-051 HF-18 (MUST) -- the count of what a task group holds folded 
     const hf18 = (specTable('T-051').rows.find((one) => one.id === 'HF-18')?.cells ?? []).join(' ')
 
     expect(hf18).toContain(T_051_HF18_THE_COUNT)
-    expect(hf18).toContain('そのタスクグループ自身にも印を付けること（MUST）')
+    expect(hf18).toContain('配下に折りたたみ込んでいるタスクグループがあるとき、`GRS` は、折りたたみ込んでいるタスクグループ自身にも印を付けること。')
     // ⭐ THE SHAPE THE SAMPLE SETTLED (2026-08-31): where the number stands and
     // what stands in front of it. ⛔ Before that day HF-18 stated neither, and
     // the implementation invented both -- the count was drawn over the second
     // character of the task group's name.
-    expect(hf18).toContain('置く先はタスクグループの右端とすること（MUST）')
-    expect(hf18).toContain('数の前に、折りたたみ込みを表す印を 1 つ置くこと（MUST）')
-    expect(hf18).toContain('色は 表 T-236 の `S-153` とする')
-    expect(hf18).toContain('`HF-6` の対象ではない')
+    expect(hf18).toContain('`GRS` は、数を置く先をタスクグループの右端とすること。')
+    expect(hf18).toContain('`GRS` は、数の前に、折りたたみ込みを表す印を 1 つ置くこと。')
+    expect(hf18).toContain('`GRS` は、左の辺の帯の色を 表 T-236 の `S-153` とすること。')
+    expect(hf18).toContain('`GRS` は、数と左の辺の帯を `HF-6` の対象にしないこと。')
     expect(themeColorsOf('S-153').filter((one) => one !== ''), '表 T-236 S-153').toHaveLength(2)
   })
 
@@ -5537,7 +5537,7 @@ describe('表 T-051 HF-18 (MUST) -- the count of what a task group holds folded 
 })
 
 const IN_3_TAKES_NO_POINTER = '\u2b50 \u30c4\u30fc\u30eb\u30c1\u30c3\u30d7\u306f\u30dd\u30a4\u30f3\u30bf\u3092\u53d7\u3051\u53d6\u3089\u305a\u3001\u4e0b\u3078\u901a\u3059\u3053\u3068\uff08MUST\uff09'
-const UZ_2_PASSES_THE_PRESS = '\u62bc\u4e0b\u3092\u53d7\u3051\u305a\u3001\u4e0b\u3078\u901a\u3059\u3053\u3068\uff08MUST\uff09\u2014\u2014 \u8aac\u660e\u306f\u77ed\u304f\u3001\u62bc\u3059\u3082\u306e\u3092\u6301\u305f\u306a\u3044\u306e\u3067\u3001\u8986\u3063\u305f\u5165\u53e3\u304b\u3089\u62bc\u3059\u624b\u3092\u596a\u3063\u3066\u306f\u306a\u3089\u306a\u3044'
+const UZ_2_PASSES_THE_PRESS = '`GRS` \u306f\u3001`Tooltip` \u306b\u62bc\u4e0b\u3092\u53d7\u3051\u3055\u305b\u305a\u3001\u62bc\u4e0b\u3092\u4e0b\u3078\u901a\u3059\u3053\u3068\u3002'
 const TOOLTIP_PART = bare(specTable('T-103').rows.find((one) => one.id === 'U-53')?.by['\u78ba\u5b9a\u540d\uff08\u82f1\uff09'] ?? '')
 const TIPPED_ENTRY = 'IC-23'
 const COVERED_ENTRY = 'IC-61'

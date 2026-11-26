@@ -64,12 +64,12 @@
 //                 `PA-2` 進行中: `resume` 空 / `resumeValid` `true`.
 //                 ⇒ the erase the clause rules on is exactly `PA-3` → `PA-4`.
 //   表 T-019a     the discrimination, applied 「上から順に当て、最初に当たった行の
-//                 状態とすること（MUST）」: `PS-3` 「`resumeValid` が `false`」 →
+//                 状態とすること」: `PS-3` 「`resumeValid` が `false`」 →
 //                 中断・再開日未定, `PS-5` 「上のどれにも当たらない」 → 進行中.
 //                 ⭐ READ AND WALKED at the foot of this file rather than
 //                 restated, so a case names the STATE the clause names.
-//   `FR-006`      「**表 T-016 の項目**をプロパティパネルに出し、**同表が読み取り
-//                 専用と記した項目を除いて**編集できるようにすること」 -- why
+//   `FR-006`      「表 T-016 の項目のうち表 T-016 が読み取り専用と記した項目を
+//                 除く項目を、プロパティパネルで編集できるようにすること」 -- why
 //                 `PR-7` has a control at all, asserted as a premise.
 //
 // ---------------------------------------------------------------------------
@@ -80,7 +80,7 @@
 //      So these cases run whatever the translator answers with through
 //      `editTask` and read the columns back.
 //   2. THE RESUME ICON. The same STATEMENT carries two more MUSTs about drawing
-//      it (「中断のあいだは再開アイコンを描くこと（MUST）」); those are the
+//      it (「`Task` が中断している間、`GRS` は、再開アイコンを描くこと」); those are the
 //      renderer's and are not this seam's.
 //   3. HOW THE PANEL SPELLS AN EMPTY DATE. `FieldCommit.text` is a string and
 //      an erased date field settles as the empty one; nothing here rules on
@@ -161,14 +161,14 @@ const REQUIREMENTS = unbroken(readFileSync(
  * sentence and stopped before the marker would hold nothing at all.
  */
 const FR_044_ERASING_SENDS_IT_BACK =
-  ' 置かないと表 T-019a の `PS-3` が先に当たり、日付を置いても状態が変わらない。**再開日を未定のままにもできること。** 置いた再開日を消したときは、`resumeValid` を `false` に戻すこと（MUST）'
+  '置いた再開日を消したとき、`GRS` は、`resumeValid` を `false` に戻すこと。'
 
 /** The other half of the same pair -- putting a date puts `true`. */
 const FR_044_PUTTING_ONE_SETS_IT =
-  'STATEMENT**: `Task` が中断しているあいだ、`GRS` は、作成者が再開予定日を画面上で置き、置いた後に動かせるようにすること。再開予定日を置いたとき、`resumeValid` を `true` にすること（MUST）'
+  '再開予定日を置いたとき、`GRS` は、`resumeValid` を `true` にすること。'
 
 /** The failure the requirement names for itself, and the one DFC-286 measured. */
-const FR_044_THE_NAMED_FAILURE = '戻さないと表 T-019a の `PS-5` に落ち、**日付を消しただけで中断が黙って解ける。**'
+const FR_044_THE_NAMED_FAILURE = '`IMPS-455` —— `resumeValid` を `false` に戻さないと表 T-019a の `PS-5` に落ち、日付を消しただけで中断が黙って解ける。'
 
 // ===========================================================================
 // 2. 表 T-016 and 表 T-019 / T-019a, read at run time
@@ -466,8 +466,8 @@ const theTask = (document: Document): Record<string, unknown> =>
   >
 
 /**
- * 表 T-019a, walked rather than restated: 「判別は上から順に当て、最初に当たった行
- * の状態とすること（MUST）」.
+ * 表 T-019a, walked rather than restated: 「表 T-019a の判別を上から順に当て、最初に
+ * 当たった行の状態とすること」.
  *
  * ⭐ THE CONDITIONS ARE THIS FILE'S READING OF THE TABLE'S 条件 CELLS, and each
  * one is asserted against that cell below before any case leans on it -- so a
@@ -550,7 +550,7 @@ describe('FR-044 -- the manuscript this file is driven by', () => {
 })
 
 // ===========================================================================
-// 6. 「置いた再開日を消したときは、`resumeValid` を `false` に戻すこと（MUST）」
+// 6. 「置いた再開日を消したとき、`GRS` は、`resumeValid` を `false` に戻すこと」
 // ===========================================================================
 
 describe('FR-044 (MUST) -- erasing a resume date that was put', () => {
@@ -610,14 +610,14 @@ describe('FR-044 (MUST) -- erasing a resume date that was put', () => {
 //   ⛔ PA-4              | a date       | PA-4 -- THE DATE IS DROPPED
 //
 // ⛔⛔ AND THE REQUIREMENT NAMED THIS FAILURE IN ITS OWN WORDS, beside the very
-// MUST it breaks: 「**再開予定日を置いたとき、`resumeValid` を `true` にすること
-// （MUST）** —— 置かないと表 T-019a の `PS-3` が先に当たり、**日付を置いても状態が
-// 変わらない**」. `PA-4` carries `resumeValid` `false`, so `PS-3` catches it first
+// MUST it breaks: 「再開予定日を置いたとき、`GRS` は、`resumeValid` を `true` に
+// すること ... `resumeValid` を `true` にしないと表 T-019a の `PS-3` が先に当たり、
+// 日付を置いても状態が変わらない」. `PA-4` carries `resumeValid` `false`, so `PS-3` catches it first
 // and the placement comes back on `PA-4` with no `resume` at all.
 //
 // ⭐⭐ AND `PA-4` IS THE ONLY STATE THAT MATTERS FOR THAT MUST. The same
-// STATEMENT lets a person suspend a task without naming a day -- 「**再開日を未定
-// のままにもできること。**」 -- so 中断・再開日未定 is exactly where somebody
+// STATEMENT lets a person suspend a task without naming a day -- 「再開日を未定の
+// ままにもできるようにすること」 -- so 中断・再開日未定 is exactly where somebody
 // stands when they later decide the day. From `PA-3` the act is a MOVE (which
 // works, above) and from `PA-2` it is not a suspension the person asked for.
 // ⇒ the entrance FR-044's first MUST exists for is the one that does not work.

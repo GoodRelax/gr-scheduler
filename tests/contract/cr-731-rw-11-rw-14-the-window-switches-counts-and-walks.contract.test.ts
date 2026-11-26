@@ -245,7 +245,7 @@ describe('item 17 -- RW-2: IC-143 stands on the diagnosis table only, and the fi
   const planDrawn = (stage: WindowStage, uid: number): boolean => stage.svg().includes(`data-figure="task-${String(uid)}-plan"`)
 
   it('the manuscript says IC-143 is placed only with the diagnosis table', () => {
-    expect(REQUIREMENTS).toContain('`IC-143` は診断結果の表を出しているときだけ置く')
+    expect(REQUIREMENTS).toContain('`GRS` は、`IC-143` を診断結果の表を出しているときだけ置くこと（`SV-1` がタスクの表を出しているときだけ置くのと同じ）。')
   })
 
   it('IC-143 is there on the diagnosis table, gone on the proposals, back on the diagnosis again', async () => {

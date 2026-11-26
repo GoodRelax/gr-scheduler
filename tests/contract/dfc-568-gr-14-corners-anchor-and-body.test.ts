@@ -57,39 +57,39 @@ const DESIGN = unbroken(readFileSync(join(SPEC, '05-07-design.md'), 'utf8'))
 const DOCUMENT_COMMANDS = readFileSync(join(SPEC, '_assets', 'tbl-document-commands.md'), 'utf8')
 const ERD_DETAIL = readFileSync(join(SPEC, '_assets', 'fig-erd-detail.md'), 'utf8')
 
-const GR_14_SPLIT = '⭐ `GR-14` の場所は、箱の種類で分けること（MUST）。'
+const GR_14_SPLIT = '`GRS` は、`GR-14` の場所を箱の種類で分けること。'
 // Why: CR-558 gave the highlight box eight grab points and a frame; these are the clauses as they read now.
 const HIGHLIGHT_PARTS =
-  'ハイライトボックスは、8 つの掴み点（四隅と 4 辺の中点）と枠を持つ —— 場所・掴み代・引いたときに変わるもの・ポインタの形は 表 T-246 の `HB-8` 〜 `HB-12` に、応える順は本結びの後の段に従うこと（MUST）。'
+  '`GRS` は、ハイライトボックスに、8 つの掴み点（四隅と 4 辺の中点）と枠を持たせること。'
 const HIGHLIGHT_CM_54 =
-  'どれを掴んで離しても、`_assets/tbl-document-commands.md` の 表 T-108 の `CM-54` で書くこと（MUST） —— 掴み点を掴めば囲む範囲の大きさを変え、枠を掴めば大きさを変えずに動かす。'
+  'ハイライトボックスのどれを掴んで離したときも、`GRS` は `_assets/tbl-document-commands.md` の 表 T-108 の `CM-54` で書くこと。'
 const HIGHLIGHT_COLUMNS =
-  '⭐ ハイライトボックスの位置と大きさを持つ列は囲む範囲の 4 列（`_assets/fig-erd-detail.md` の `AT-117` 〜 `AT-120`）だけであり、それを書く命令は同表に `CM-54` 1 つしか無い。'
-const COMMENT_PARTS = 'コメントボックスは本体・引出し線・線先を持つ。'
+  '`IMPS-1533` —— ハイライトボックスの位置と大きさを持つ列は囲む範囲の 4 列（`_assets/fig-erd-detail.md` の `AT-117` 〜 `AT-120`）だけであり、4 列を書く命令は 表 T-108 に `CM-54` 1 つしか無い。'
+const COMMENT_PARTS = '`GRS` は、コメントボックスに、本体・引出し線・線先を持たせること。'
 // Why: CR-559 rewrote the comment box clauses; CR-773 (JDG-2400): the body and the leader write CM-51 alone, the anchor writes CM-50 and CM-51 as one bundle.
 const COMMENT_BODY_MOVES_ALONE =
-  '⭐ 本体（本文の箱の全体）か引出し線（線から左右へ同表の `S-291`）を掴んで引いたときは、本文の箱だけを動かし、線先は動かさないこと（MUST） —— 本文の箱は引いた量だけ動かし、線先の日とタスクグループは今のままとする（箱を空いた所へよけるたびに指す先が変わると、どのタスクについてのコメントかが崩れる）。'
+  '本体（本文の箱の全体）か引出し線（線から左右へ `_assets/tbl-settings.md` の 表 T-206 の `S-291`）を掴んで引いたとき、`GRS` は、本文の箱だけを引いた量だけ動かし、線先の日とタスクグループを今のままにすること。'
 const COMMENT_BODY_WRITES_CM_51 =
-  'その動きは、`_assets/tbl-document-commands.md` の 表 T-108 の `CM-51`（ずれ）だけを書くこと（MUST） —— `CM-50`（線先）は書かない。'
+  '`GRS` は、`IMPS-1538` の動きを、`_assets/tbl-document-commands.md` の 表 T-108 の `CM-51`（ずれ）だけで書くこと（`CM-50`（線先）は書かない）。'
 const COMMENT_ANCHOR_ALONE =
-  '⭐ 線先（線先から同表の `S-292`）を掴んで引いたときは、線先だけを動かし、本文の箱を画面の上で動かさないこと（MUST） —— `CM-50` で線先を、`CM-51` で、置き直した線先を描く点から押したときの本文の箱の左下隅までのずれを、1 つの束にして書く。'
+  '線先（線先から 表 T-206 の `S-292`）を掴んで引いたとき、`GRS` は、線先だけを動かし、本文の箱を画面の上で動かさないこと。'
 const COMMENT_NO_CORNERS =
-  '⛔ コメントボックスに四隅を持たせてはならない（MUST NOT） —— 本文の箱の大きさは `FR-097` が本文に合わせて決めており、文書は大きさの列を持たない（`AT-110` 〜 `AT-115`）。'
+  '`GRS` は、コメントボックスに四隅を持たせないこと。'
 const INSIDE_PASSES_THROUGH =
-  '⛔ 囲んだ内側を掴み代にしてはならない（MUST NOT） —— 内側の押下は下のタスクへ素通しにすること（MUST）。'
-const T_246_HOLDS_THE_VALUES = '**ハイライトボックスの掴み点と枠の場所・掴み代・ポインタの形と、離したときに置く値は 表 T-246 が持つ。**'
+  '`GRS` は、囲んだ内側を掴み代にせず、内側の押下を下のタスクへ素通しにすること。'
+const T_246_HOLDS_THE_VALUES = 'ハイライトボックスの掴み点と枠の場所・掴み代・ポインタの形と、離したときに置く値は 表 T-246 が持つ。'
 const T_246_NO_NEW_REFUSAL =
-  '⚠️ 同表は新しい拒み方を立てない —— 拒むときの理由は 表 T-233 の `RS-44` であり、運ぶ作法は `FR-029` に従う。'
+  'もし 表 T-246 の置き方を拒む場合、`GRS` は、新しい拒み方を立てず、表 T-233 の `RS-44` を理由として `FR-029` の作法で運ぶこと。'
 const ANCHOR_READ =
-  '⭐ 線先は離した位置で読むこと（MUST） —— 置くとき（表 T-023b の `AR-5`）と同じ読みであり、引いた量では読まない。'
+  '`GRS` は、線先を、引いた量ではなく離した位置で読むこと。'
 const ANCHOR_SAME_AS_PLACING =
-  '置くとき（表 T-023b の `AR-5`）と同じ読みであり、引いた量では読まない。'
+  '`IMPS-1552` —— 置くとき（表 T-023b の `AR-5`）と同じ読みである。'
 const ANCHOR_NO_TASK_GROUP =
-  '離した点の下に描かれたタスクグループが無く、吸着する点も無いときは動かさず、表 T-233 の `RS-44` を運ぶ —— 置くときにタスクグループが無ければ作らない `FR-019` と同じである。'
+  '離した点の下に描かれたタスクグループが無く、吸着する点も無いとき、`GRS` は線先を動かさず、表 T-233 の `RS-44` を運ぶこと。'
 const ANCHOR_NOT_NEAREST =
-  '⛔ 日の列の中央にも、帯の縦の中央にも寄せてはならない（MUST NOT） —— 寄せると、線先が離した点から帯の高さの半分までずれて描かれる。'
+  '`GRS` は、自由点を、日の列の中央にも、帯の縦の中央にも寄せないこと。'
 const ANCHOR_HORIZONTAL =
-  '⭐ 吸着する点が無いときは、離した点そのものを自由点として持つこと（MUST） —— 横は離した点の日時（分まで）、縦は離した点の下に描かれたタスクグループと、その帯の中の高さとする（`FR-019` の ①）。'
+  '吸着する点が無いとき、`GRS` は、離した点そのものを自由点として持つこと —— 横は離した点の日時（分まで）、縦は離した点の下に描かれたタスクグループと、帯の中の高さとする（`FR-019` の ①）。'
 const FR_019_BODY_OFFSET =
   '`GRS` は、コメントボックスの本文の箱を、留めた点からのずれで置くこと。`GRS` は、ずれ（`bodyOffsetPx`）を、留めた点から本文の箱の左下隅へのずれとすること。'
 const FR_019_POINT_IS_LF_15 =
@@ -103,44 +103,44 @@ const LF_15_BODY_FOLLOWS = '⚠️ 本文の箱は線先からのずれで置く
 const IV_19 ='ハイライトボックスの `start` が `finish` より後でないこと、および `topTaskGroupId` が `bottomTaskGroupId` より下でないこと。'
 
 const HB_1_ROW =
-  '| HB-1 | 四隅を向かいの隅へ寄せて縮める | 開始日 ＝ 終了日、上端のタスクグループ ＝ 下端のタスクグループまで縮められる。<br>別の下限は置かない |'
-const HB_1 = '開始日 ＝ 終了日、上端のタスクグループ ＝ 下端のタスクグループまで縮められる。'
+  '| HB-1 | 四隅を向かいの隅へ寄せて縮める | `GRS` は、開始日 ＝ 終了日、上端のタスクグループ ＝ 下端のタスクグループまで縮めさせ、別の下限を置かないこと。 |'
+const HB_1 = '`GRS` は、開始日 ＝ 終了日、上端のタスクグループ ＝ 下端のタスクグループまで縮めさせ、別の下限を置かないこと。'
 const HB_2_ROW =
-  '| HB-2 | 隅を向かいの隅の先まで引く | 拒まない。<br>`start` と `finish`、`topTaskGroupId` と `bottomTaskGroupId` を入れ替えて持つ。<br>上下は `FR-019` の「タスクグループの木における順位で判ずる」規則で判ずる |'
-const HB_2 = '`start` と `finish`、`topTaskGroupId` と `bottomTaskGroupId` を入れ替えて持つ。'
+  '| HB-2 | 隅を向かいの隅の先まで引く | `GRS` は、隅を向かいの隅の先まで引く置き方を拒まないこと。<br>`GRS` は、`start` と `finish`、`topTaskGroupId` と `bottomTaskGroupId` を入れ替えて持つこと。<br>上下は `FR-019` の「タスクグループの木における順位で判ずる」規則で判ずる。 |'
+const HB_2 = '`GRS` は、`start` と `finish`、`topTaskGroupId` と `bottomTaskGroupId` を入れ替えて持つこと。'
 const HB_2_TREE = '上下は `FR-019` の「タスクグループの木における順位で判ずる」規則で判ずる'
 const HB_3_ROW =
-  '| HB-3 | 本体を縦に動かす | `topTaskGroupId` と `bottomTaskGroupId` を、画面に描かれたタスクグループを単位に、同じ数だけずらす。<br>離した時点で `HB-2` と同じく木の順位で持ち直す。<br>ずらした先に描かれたタスクグループが無いときは動かさず、`RS-44` を運ぶ |'
-const HB_3 = '`topTaskGroupId` と `bottomTaskGroupId` を、画面に描かれたタスクグループを単位に、同じ数だけずらす。'
-const HB_3_NO_TASK_GROUP = 'ずらした先に描かれたタスクグループが無いときは動かさず、`RS-44` を運ぶ'
+  '| HB-3 | 本体を縦に動かす | `GRS` は、`topTaskGroupId` と `bottomTaskGroupId` を、画面に描かれたタスクグループを単位に、同じ数だけずらすこと。<br>離した時点で、`GRS` は `HB-2` と同じく木の順位で持ち直すこと。<br>もしずらした先に描かれたタスクグループが無い場合、`GRS` は箱を動かさず、`RS-44` を運ぶこと。 |'
+const HB_3 = '`GRS` は、`topTaskGroupId` と `bottomTaskGroupId` を、画面に描かれたタスクグループを単位に、同じ数だけずらすこと。'
+const HB_3_NO_TASK_GROUP = 'もしずらした先に描かれたタスクグループが無い場合、`GRS` は箱を動かさず、`RS-44` を運ぶこと。'
 const HB_3_FOLDED =
   '⚠️ 折りたたんだタスクグループやピン留めしたタスクグループ（`FR-098`）をまたぐと、保存される範囲が文書のタスクグループの数で伸び縮みする'
 const HB_4_HEAD = '| HB-4 | 四隅を横に動かす |'
-const HB_4_NEAREST = '離した点に一番近い日の列の境目へ、掴んだ隅を合わせる。'
+const HB_4_NEAREST = '`GRS` は、離した点に一番近い日の列の境目へ、掴んだ隅を合わせること。'
 const HB_4_TIE = '左右の 2 つの境目から等しい距離のときは、後の日の側の境目を採る。'
-const HB_4_DAYS = '左の隅はその境目の右の日を `start` に、右の隅はその境目の左の日を `finish` に置く。'
-const HB_4_KEEP = '向かいの辺の日は据え置く。'
-const HB_4_REACH = '境目が向かいの辺に届いたときは `HB-6` に従う'
+const HB_4_DAYS = '`GRS` は、左の隅を合わせた境目の右の日を `start` に、右の隅を合わせた境目の左の日を `finish` に置くこと。'
+const HB_4_KEEP = '`GRS` は、向かいの辺の日を据え置くこと。'
+const HB_4_REACH = '境目が向かいの辺に届いたとき、`GRS` は `HB-6` に従うこと。'
 const HB_5_HEAD = '| HB-5 | 四隅を縦に動かす |'
 const HB_5_GAP =
-  'タスクグループの境目は、画面に描かれたタスクグループの帯と帯のあいだの隙間とする —— タスクグループは `HB-3` と同じく画面に描かれたタスクグループで数え、ピン留めしたタスクグループ（`FR-098`）は上に描かれたとおりに数える。'
+  '`GRS` は、タスクグループの境目を、画面に描かれたタスクグループの帯と帯のあいだの隙間とすること —— タスクグループは `HB-3` と同じく画面に描かれたタスクグループで数え、ピン留めしたタスクグループ（`FR-098`）は上に描かれたとおりに数える。'
 const HB_5_DISTANCE = '境目までの距離は隙間の範囲までの距離とし、隙間の中では 0 とする。'
 const HB_5_ENDS = '最初に描かれた帯より上は最初のタスクグループの上の境目、最後に描かれた帯より下は最後のタスクグループの下の境目とする。'
 const HB_5_TIE = '上下の 2 つの境目から等しい距離のときは、下の境目を採る。'
 const HB_5_TASK_GROUPS =
-  '上の隅はその境目のすぐ下に描かれたタスクグループを `topTaskGroupId` に、下の隅はその境目のすぐ上に描かれたタスクグループを `bottomTaskGroupId` に置く。'
+  '`GRS` は、上の隅を合わせた境目のすぐ下に描かれたタスクグループを `topTaskGroupId` に、下の隅を合わせた境目のすぐ上に描かれたタスクグループを `bottomTaskGroupId` に置くこと。'
 const HB_5_HORIZONTAL = '横にだけ引いて離したときはタスクグループが変わらない'
 const HB_5_NO_REFUSAL = 'タスクグループが 1 つでも描かれていれば、どこで離しても一番近い境目が在るので、`RS-44` で拒む場面は生じない。'
 const HB_6_HEAD = '| HB-6 | 隅を向かいの辺に届くまで、または越えて引く |'
 const HB_6_RIGHT =
-  '右の隅を合わせた境目 b が s の左の境目か、それより左に在るときは、`start` ＝ b の右の日、`finish` ＝ s とする。'
+  '右の隅を合わせた境目 b が s の左の境目か、s の左の境目より左に在るときは、`start` ＝ b の右の日、`finish` ＝ s とする。'
 const HB_6_LEFT =
-  '左の隅を合わせた境目 b が e の右の境目か、それより右に在るときは、`start` ＝ e、`finish` ＝ b の左の日とする。'
+  '左の隅を合わせた境目 b が e の右の境目か、e の右の境目より右に在るときは、`start` ＝ e、`finish` ＝ b の左の日とする。'
 const HB_6_BOTTOM_UP =
-  '下の隅を合わせた境目が `topTaskGroupId` のタスクグループの上の境目か、それより上に在るときは、`topTaskGroupId` ＝ その境目のすぐ下のタスクグループ、`bottomTaskGroupId` ＝ 元の `topTaskGroupId` のタスクグループとする。'
+  '下の隅を合わせた境目が `topTaskGroupId` のタスクグループの上の境目か、境目より上に在るときは、`topTaskGroupId` ＝ 合わせた境目のすぐ下のタスクグループ、`bottomTaskGroupId` ＝ 元の `topTaskGroupId` のタスクグループとする。'
 const HB_6_TOP_DOWN =
-  '上の隅を合わせた境目が `bottomTaskGroupId` のタスクグループの下の境目か、それより下に在るときは、`topTaskGroupId` ＝ 元の `bottomTaskGroupId` のタスクグループ、`bottomTaskGroupId` ＝ その境目のすぐ上のタスクグループとする。'
-const HB_6_NORMALIZE = '離した時点で `HB-2` と同じく木の順位で持ち直す'
+  '上の隅を合わせた境目が `bottomTaskGroupId` のタスクグループの下の境目か、境目より下に在るときは、`topTaskGroupId` ＝ 元の `bottomTaskGroupId` のタスクグループ、`bottomTaskGroupId` ＝ 合わせた境目のすぐ上のタスクグループとする。'
+const HB_6_NORMALIZE = '離した時点で、`GRS` は、`HB-2` の上下の規則を `HB-6` の箱にも当てること'
 const HB_6_EXAMPLE =
   '例: 箱の日が 5 日 〜 7 日のとき、右の隅を 9 日の左の境目で離すと 5 日 〜 8 日、8 日の左で 5 日 〜 7 日、6 日の左で 5 日 〜 5 日、5 日の左で 5 日 〜 5 日、4 日の左で 4 日 〜 5 日、3 日の左で 3 日 〜 5 日となる。'
 const HB_6_WIDTHS = '幅は順に 4・3・1・1・2・3 日であり、どの幅にも届く位置が在る'

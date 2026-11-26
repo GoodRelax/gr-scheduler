@@ -32,9 +32,9 @@ const verticalIn = (table: string, id: string) => {
 }
 
 const CV_9_MONO =
-  '`FR-041` のモノクロ（`_assets/tbl-settings.md` の 表 T-203 の `S-74`）が入っているあいだは、名の見本と、テーマに戻す入口・カスタムカラーの入口の見本を、同じ色を `CV-7` で無彩色にした値で塗ること（MUST）'
-const CV_9_KEPT = '（透明の市松はそのまま）'
-const CV_7 = '`FR-041` のモノクロは、`CV-6` で決まった値を無彩色にして描くこと（MUST）'
+  '`FR-041` のモノクロ（`_assets/tbl-settings.md` の 表 T-203 の `S-74`）が入っている間、`GRS` は、名の見本と、テーマに戻す入口・カスタムカラーの入口の見本を、モノクロでないときに塗る色を `CV-7` で無彩色にした値で塗ること（透明の入口の市松を除く）。'
+const CV_9_KEPT = '（透明の入口の市松を除く）'
+const CV_7 = '`FR-041` のモノクロの間、`GRS` は、`CV-6` で決まった値を無彩色にして描くこと。'
 
 // Spec: S-74
 const MONO_KEY = bare(verticalIn('T-203', 'S-74').by['キー'] ?? '')

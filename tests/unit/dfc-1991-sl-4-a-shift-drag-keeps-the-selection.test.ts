@@ -26,12 +26,12 @@ const S_208 = numberIn(cellOf('T-206', 'S-208', '既定'))
 describe('DFC-1991 -- the rows these cases are driven by', () => {
   it('SL-4: Shift adds or removes one at a time on a click, and adds what a range selection encloses', () => {
     const text = flat(rowText('T-023c', 'SL-4'))
-    expect(text).toContain('`Shift` を併用する。')
-    expect(text).toContain('クリックなら 1 つずつ増減し')
+    expect(text).toContain('`Shift` を併用して選んだとき、`GRS` は、選択を広げること。')
+    expect(text).toContain('`Shift` を併用してクリックしたとき、`GRS` は、選択を 1 つずつ増減すること。')
   })
 
   it('SL-7a: dragging an end narrows the selection to the grabbed one', () => {
-    expect(flat(rowText('T-023c', 'SL-7a'))).toContain('選択を掴んだ 1 つに絞り、そのタスクだけをリサイズすること（MUST）')
+    expect(flat(rowText('T-023c', 'SL-7a'))).toContain('端をドラッグしたとき、`GRS` は、選択を掴んだ 1 つに絞ること。端をドラッグしたとき、`GRS` は、掴んだタスクだけをリサイズすること。')
   })
 
   it('S-208: the row of table T-206 is a positive number', () => {
@@ -39,7 +39,7 @@ describe('DFC-1991 -- the rows these cases are driven by', () => {
   })
 
   it('TC-5: a move past S-208 is a drag and a move within it is a click', () => {
-    expect(flat(rowText('T-239', 'TC-5'))).toContain('`S-208` を超えて動いたときをドラッグとし、超えないときをクリックとすること（MUST）')
+    expect(flat(rowText('T-239', 'TC-5'))).toContain('`GRS` は、`_assets/tbl-settings.md` の 表 T-206 の `S-208` を超えて動いた押下をドラッグとし、超えない押下をクリックとすること。')
   })
 })
 

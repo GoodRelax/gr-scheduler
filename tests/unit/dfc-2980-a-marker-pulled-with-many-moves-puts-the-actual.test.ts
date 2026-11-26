@@ -45,9 +45,9 @@ const RF_1_REFERENCE_IS_THE_ACTUAL =
   '| RF-1 | する | 実績（ダミーを含む —— まだ始まっていない実績はダミーであり、幅は 表 T-240 の `DM-3`、マイルストーンはダミーの菱形） |'
 
 const GO_9_ROW_START = '| GO-9 | 進捗マーカーを引く（`FR-107` の 表 T-270 の `PE-8`） |'
-const GO_9_ACTUAL_RIGHT = '実績の右に立つときは、実績の最後の日 ＝ 離した所そのもの（`GO-3` と同じ所作）。'
-const GO_9_DUMMY_RIGHT = '未着手のダミーの右に立つときは、`actualStart` ＝ 予定の開始日'
-const GO_9_LEFT_OF_PLAN_START = '⚠️ 予定の開始より左で離したときは、予定の開始に表 T-240 の `DM-2` の長さの実績を置く'
+const GO_9_ACTUAL_RIGHT = '実績の右に立つときは、実績の最後の日 ＝ 離した所そのもの（`GO-3` と同じ所作）'
+const GO_9_DUMMY_RIGHT = '進捗マーカーが未着手のダミーの右に立つとき、`GRS` は、`actualStart` ＝ 予定の開始日（時刻を表示しているときは予定の開始の瞬間 —— 表 T-240 の `DM-1`）、実績の最後の日 ＝ 離した所そのもの、と置くこと。'
+const GO_9_LEFT_OF_PLAN_START = '予定の開始より左で離したとき、`GRS` は、予定の開始に 表 T-240 の `DM-2` の長さの実績を置くこと（時刻を表示しているときは `GO-6` の時刻の段と同じ長さ）。'
 
 // Spec: S-208
 const DRAG_THRESHOLD_PX = (() => {

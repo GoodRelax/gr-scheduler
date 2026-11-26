@@ -878,10 +878,10 @@ describe('the manuscript still says what these cases read', () => {
     )
     expect(NAME_TASK_GROUP, 'the task\'s clause, not the comment box\'s').not.toBe('PR-21')
     expect(MK_13, 'MK-13 still puts the focus in the name field').toContain(
-      '編集できる状態にして焦点を置き',
+      '`GRS` は、タスク（名称ラベルと本体のどちらでも）のダブルクリックで、プロパティパネルを出し、名称の欄（表 T-016 の `PR-1`）を編集できる状態にして焦点を置くこと。',
     )
     expect(MK_13, 'MK-13 still asks for every character to be chosen').toContain(
-      '既にある文字をすべて選んだ状態にすること（MUST）',
+      '`GRS` は、タスクのダブルクリックで、名称の欄の既にある文字をすべて選んだ状態にすること。',
     )
   })
 
@@ -1073,7 +1073,7 @@ describe('表 T-225 AS-1 -- 担当の欄を編集できる状態にして焦点�
     // ⛔ AND THE ROAD IT IS NOT. AS-1 forbids an editor drawn on the schedule
     // itself, which is what makes the panel the only place a focus can land.
     expect(AS_1, 'AS-1 still forbids an in-place editor').toContain(
-      'その場で打ち換える器を置いてはならない',
+      '`GRS` は、担当ラベルの上に打ち換える器を置かないこと。',
     )
   })
 

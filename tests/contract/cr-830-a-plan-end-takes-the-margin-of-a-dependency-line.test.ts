@@ -37,10 +37,10 @@ import { unbroken } from './spec-table'
 
 const ACROSS = '横'
 
-const GA_19_OFF_SHAPE = 'ただし形の外でも、予定の端（`GA-1` ／ `GA-2` ／ `GA-10` ／ `GA-11`）の掴み代が覆う点では、'
+const GA_19_OFF_SHAPE = 'ただし、形の外でも、予定の端（`GA-1` ／ `GA-2` ／ `GA-10` ／ `GA-11`）の掴み代が覆う点では、'
 const GA_19_DRAWN_ONLY =
-  '描いた線そのもの（本線と矢じり、`S-285` を足さない —— 表 T-267 の `HT-1` と同じ読み）でだけ応えること（MUST）'
-const GA_19_ORDER_KEPT = '応える順（表 T-268 の `TY-2`）は変えない'
+  '`GRS` は、依存線を描いた線そのもの（本線と矢じり、`S-285` を足さない —— 表 T-267 の `HT-1` と同じ読み）でだけ応えさせること'
+const GA_19_ORDER_KEPT = '`GRS` は、依存線の応える順（表 T-268 の `TY-2`）を変えないこと'
 const GA_19_SHORT_LINE = '描いた線の上では線が先に応えるので、端と端のあいだの短い線も、描いた所で選べる'
 const GA_19_MARGIN = '線の縁から左右へ `S-285`。'
 const HT_1_DRAWN = '依存線の描いた線は本線と矢じりであり'

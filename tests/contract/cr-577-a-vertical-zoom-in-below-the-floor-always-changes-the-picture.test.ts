@@ -25,30 +25,30 @@ import { specTable, unbroken } from './spec-table'
 const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
 const ZE_6_RULE =
-  '⭐ いまの `zoomY` で `ZE-1` の ① が成り立つとき、拡げる入力（表 T-023 の `MK-4` の拡げる向き、`_assets/tbl-glossary.md` の 表 T-109 の `IC-15`、表 T-036 の `SK-16a`）を受けたら、次の ① と ② のうち小さいほうを目標とし、`S-53` で刻んだ値と目標のうち大きいほうを書くこと（MUST）。'
+  'いまの `zoomY` で `ZE-1` の ① が成り立つ間、拡げる入力（表 T-023 の `MK-4` の拡げる向き、`_assets/tbl-glossary.md` の 表 T-109 の `IC-15`、表 T-036 の `SK-16a`）を受けたとき、`GRS` は、次の ① と ② のうち小さいほうを目標とし、`S-53` で刻んだ値と目標のうち大きいほうを書くこと。'
 const ZE_6_ONE =
   '① いまの `zoomY` より大きい、`FR-018` のしきい値（`_assets/tbl-settings.md` の 表 T-205 の `S-87` × `S-88`^(深さ − 2)）のうち、`FR-018` が描くタスクグループがいまと変わる最小のもの —— 描くタスクグループが変わらないしきい値は数えない。'
 const ZE_6_TWO = '② `ZE-1` の ① が成り立たなくなる境目の倍率（表 T-201 の `S-6` ÷ `S-5` ÷ `S-4`）に `S-53` を掛けた値。'
-const ZE_6_CLAMP = '書く値は本要求の上限で止めること（MUST）。'
-const ZE_6_EQUAL = '止めた値がいまの `zoomY` と等しいときは `ZE-3` に従う。'
-const ZE_6_NOT_MK_2 = '⛔ `MK-2` には当てない（表の後の注のとおり）'
+const ZE_6_CLAMP = '`GRS` は、`ZE-6` で書く値を縦軸の上限（`IMPS-1469`）で止めること。'
+const ZE_6_EQUAL = '止めた値がいまの `zoomY` と等しいとき、`GRS` は `ZE-3` に従うこと。'
+const ZE_6_NOT_MK_2 = '`GRS` は、表 T-262 の規則を `MK-2`（両軸のズーム）に当てないこと。'
 const ZE_1_ONE =
-  '① 形状の比を掛ける前の予定の縦幅が `FR-094` の床で止まっている —— `_assets/tbl-settings.md` の 表 T-201 の `S-4` × `zoomY` が、同表の `S-4` の下限（`S-6` ÷ `S-5`）以下である。'
+  '① 形状の比を掛ける前の予定の縦幅が `FR-094` の床で止まっている —— `_assets/tbl-settings.md` の 表 T-201 の `S-4` × `zoomY` が、表 T-201 の `S-4` の下限（`S-6` ÷ `S-5`）以下である。'
 const ZE_3_NO_WRITE =
-  '拡げる入力（`MK-4` の拡げる向き、`IC-15`、`SK-16a`）で、本要求の上限で止めた値がいまの `zoomY` と等しいときは、`zoomY` を書き換えてはならない（MUST NOT）'
-const ZE_4_NO_UNSAVED = '`ZE-2` と `ZE-3` で書き換えないときは、未保存の編集を立ててはならない（MUST NOT）'
-const ZE_5_MESSAGE = '`ZE-2` と `ZE-3` のときは、`FR-039` の 表 T-260 のメッセージを出すこと（MUST）。'
+  '拡げる入力（`MK-4` の拡げる向き、`IC-15`、`SK-16a`）を受けたとき、縦軸の上限（`IMPS-1469`）で止めた値がいまの `zoomY` と等しければ、`GRS` は `zoomY` を書き換えないこと。'
+const ZE_4_NO_UNSAVED = '`ZE-2` と `ZE-3` で `zoomY` を書き換えないとき、`GRS` は未保存の編集を立てないこと。'
+const ZE_5_MESSAGE = '`ZE-2` と `ZE-3` のとき、`GRS` は `FR-039` の 表 T-260 のメッセージを出すこと。'
 const ZE_5_TEXT =
-  '中身は、`zoomY` に 100 を掛けて小数点以下を四捨五入した数に `%` を付け、`ZE-2` では最小であることを示す語を、`ZE-3` では最大であることを示す語を添えたものとすること（MUST）'
+  '`GRS` は、メッセージの中身を、`zoomY` に 100 を掛けて小数点以下を四捨五入した数に `%` を付け、`ZE-2` では最小であることを示す語を、`ZE-3` では最大であることを示す語を添えたものにすること（例: `176%（最大）`）。'
 const ZE_2_NO_WRITE =
-  '端にあるときに縮める入力（表 T-023 の `MK-4` の縮める向き、`_assets/tbl-glossary.md` の 表 T-109 の `IC-14`、表 T-036 の `SK-16c`）を受けたら、`zoomY` を書き換えてはならない（MUST NOT）。'
-const FR_016_ZE_6 = '⚠️ 縦軸の床より下で拡げるときは、表 T-262 の `ZE-6` が書く値を決める。'
-const FR_016_ONE_NOTCH = '**1 ノッチで動く倍率は表 T-201 の `S-53` に従うこと。**'
-const FR_016_CEILING_START_FREE = '⭐ 縦軸の上限は、拡大を始めた倍率に依らないこと（MUST）'
+  '縦軸が縮める側の端にある間、縮める入力（表 T-023 の `MK-4` の縮める向き、`_assets/tbl-glossary.md` の 表 T-109 の `IC-14`、表 T-036 の `SK-16c`）を受けたとき、`GRS` は `zoomY` を書き換えないこと。'
+const FR_016_ZE_6 = '`IMPS-1459` —— 縦軸の床より下で拡げるときに書く値は、表 T-262 の `ZE-6` が決める。'
+const FR_016_ONE_NOTCH = '`GRS` は、1 ノッチで動く倍率を表 T-201 の `S-53` に従わせること（縦軸の床より下で拡げるときは表 T-262 の `ZE-6` に従う）。'
+const FR_016_CEILING_START_FREE = '`GRS` は、縦軸の上限を、拡大を始めた倍率によらず同じ倍率にすること。'
 const FR_018_REPEAT =
   '入口を押し続けたとき、`GRS` は、`_assets/tbl-settings.md` の 表 T-206 の `S-172` が定める待ち時間ののち、表 T-206 の `S-173` が定める間隔で倍率を刻み続けること。'
 const FR_018_ZE_6_HELD = '⚠️ 表 T-262 の `ZE-6` は 1 回押しにも押し続けにも同じく当たる'
-const T_262_NOT_MK_2 = '⚠️ 本表は `MK-2`（両軸のズーム）に当てない'
+const T_262_NOT_MK_2 = '`GRS` は、表 T-262 の規則を `MK-2`（両軸のズーム）に当てないこと。'
 
 describe('CR-577 -- the manuscript these cases are driven by', () => {
   it.each([

@@ -49,7 +49,7 @@ const englishNames = (id: string): string[] =>
   (rowOf('T-103', id).by['確定名（英）'] ?? '').split('/').map((one) => one.replace(/[`*]/g, '').trim())
 
 const FR_036 = '利用者がヘルプを開いたとき、`GRS` は、ショートカットキーとアイコンの一覧を画面上で示すこと。'
-const FR_099 = '作成者が担当リストを求めたとき、`GRS` は、文書が持つ担当の一覧を出し、そこから担当を消せるようにすること。'
+const FR_099 = '作成者が担当リストを求めたとき、`GRS` は、文書が持つ担当の一覧を出すこと。'
 const FR_023 = '`GRS` は、`innerHTML` への直挿しを行わないこと。'
 const U_62 = '1 回の読込（開く・開き直す・合流させる・重ねる・起動時に渡された文書を読む）の結果を、理由ごとに並べて告げる面'
 const IF_9_FORMAT = '書き出しの選択面では 表 T-024 のどの形式の上かを答える'
@@ -169,7 +169,7 @@ const CHOOSER: OpenModal = {
 
 describe('CR-439 open surfaces -- the clauses still stand', () => {
   it('FR-036, FR-099, FR-023, U-62 and IF-9 still say what these cases test', () => {
-    for (const clause of [FR_036, FR_099, FR_023]) expect(REQUIREMENTS).toContain(clause)
+    for (const clause of [FR_036, FR_099, '`GRS` は、担当リストから担当を消せるようにすること。', FR_023]) expect(REQUIREMENTS).toContain(clause)
     expect(rowText('T-103', 'U-62')).toContain(U_62)
     expect(rowText('T-065', 'IF-9')).toContain(IF_9_FORMAT)
     expect(rowText('T-065', 'IF-9')).toContain(IF_9_ENTRY_OR_FORMAT)

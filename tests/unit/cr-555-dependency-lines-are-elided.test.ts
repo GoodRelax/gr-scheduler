@@ -55,8 +55,8 @@ const DOT_MARGIN = T206('S-363')
 
 const SL_3_WHOLLY = '矩形に完全に囲まれた対象だけを取ること'
 const T_303_MARK_IS_PART_OF_THE_LINE = '⭐ 続きの印はその依存線の一部である'
-const EL_20_NOT_SEEN = 'その端は見えていない端とすること（MUST）。'
-const EL_20_STAND = '経路を引くために立つ所は `EL-2` と同じとする —— 描かれている最も近い祖先のタスクグループの帯の下端であり'
+const EL_20_NOT_SEEN = 'のために描いていないとき（`FR-018` の 表 T-329 の `TD-1` ／ `TD-2` ／ `TD-3`）、端を見えていない端とすること。'
+const EL_20_STAND = '`GRS` は、経路を引くために、`EL-20` の端を、`EL-2` と同じ所 —— 描いている最も近い祖先のタスクグループの帯の下端 —— に立たせること'
 
 const EPS = 1e-6
 // Why: the SVG prints two decimals.

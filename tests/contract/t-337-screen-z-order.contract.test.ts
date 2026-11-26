@@ -33,13 +33,13 @@ import { bare, specTable, unbroken } from './spec-table'
 const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
 const FR_152_ONE_TABLE =
-  '`GRS` は、画面の上で重なる UI パーツの前後（どれが手前に見え、どれが押下を受けるか）を 1 つの表で決めること（MUST）。'
-const FR_152_FOLLOW_T_337 = '前後は表 T-337 に従うこと。'
+  '`GRS` は、画面の上で重なる UI パーツの前後（どれが手前に見え、どれが押下を受けるか）を 1 つの表で決めること。'
+const FR_152_FOLLOW_T_337 = '`GRS` は、画面の上で重なる UI パーツの前後を、表 T-337 の順にすること。'
 const T_337_CAPTION = '**表 T-337 — 画面の重ね順（前面から背面へ）**'
 const T_337_NO_PART_WITHOUT_A_ROW =
-  '⛔ 本表に行の無い UI パーツを画面に重ねてはならない（MUST NOT） —— 新しく重なる UI パーツを足す日は、本表に行を足すこと（MUST）。'
-const T_337_THE_FRONT_ONE_TAKES_THE_PRESS = '⭐ 押下は、その点で最も手前に描かれた UI パーツが受けること（MUST）。'
-const T_337_ROW_ORDER_IS_NOT_ID_ORDER = '⚠️ 本表の並び順と行 ID の順は一致しない —— 理由は 表 T-020 の注と同じである。'
+  '`GRS` は、表 T-337 に行の無い UI パーツを画面に重ねないこと。'
+const T_337_THE_FRONT_ONE_TAKES_THE_PRESS = '`GRS` は、押下を、押下の点で最も手前に描いた UI パーツに受けさせること。'
+const T_337_ROW_ORDER_IS_NOT_ID_ORDER = '⚠️ 表 T-337 の並び順と行 ID の順は一致しない —— 理由は 表 T-020 の注と同じである。'
 
 const CLAUSES: readonly (readonly [string, string])[] = [
   ['FR-152 (MUST) -- one table decides the front and back of the UI parts', FR_152_ONE_TABLE],

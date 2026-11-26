@@ -127,7 +127,7 @@ function tasksOf(built: Stage): readonly Task[] {
 describe('DFC-3479 -- the rows these cases are driven by', () => {
   it('T-270: the press / pull boundary is S-208 on every row, horizontally or vertically', () => {
     expect(REQUIREMENTS).toContain(
-      '⭐ 押して離す（動かさない）と引くを分ける距離は、本表のすべての行で `_assets/tbl-settings.md` の 表 T-206 の `S-208` とすること（MUST） —— 押した点から横か縦のどちらかへ `S-208` を超えて離せば引く、どちらも超えなければ押して離すである。',
+      '`GRS` は、押して離す（動かさない）と引くを分ける距離を、表 T-270 のすべての行で `_assets/tbl-settings.md` の 表 T-206 の `S-208` にすること —— 押した点から横か縦のどちらかへ `S-208` を超えて離せば引く、どちらも超えなければ押して離すである。',
     )
     expect(S_208, 'T-206 S-208 is 6px').toBe(6)
   })

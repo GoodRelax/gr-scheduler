@@ -18,7 +18,7 @@ const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '
 // Why: each constant ends exactly at its marker, cut from the manuscript as check 39 reads it.
 // Spec: CT-4
 const CT_4_LINE_COLOR =
-  '予定の線・矢じり・端点を、予定の輪郭線と同じ色（表 T-017b の `CV-6` の縁の値 —— テーマに従うときは `_assets/tbl-settings.md` の `S-156`）で描くこと（MUST）'
+  '`GRS` は、縁取りを描かない形（表 T-012 の `SH-3` / `SH-4`）の予定の線・矢じり・端点を、予定の輪郭線と等しい色（表 T-017b の `CV-6` の縁の値、テーマに従うときは `_assets/tbl-settings.md` の `S-156`）で描くこと。'
 // Spec: FR-102
 const FR_102_START_AND_STOP =
   '利用者が記録を始めたとき、`GRS` は、始めたことと押した入口の行 ID を 1 行に書くこと（綴りは `started entrance=IC-76`）。利用者が記録を止めたとき、`GRS` は、記録をクリップボードへ渡す前に、止めたことと押した入口の行 ID を記録の最後の行に書くこと（綴りは `stopped entrance=IC-76`）。'

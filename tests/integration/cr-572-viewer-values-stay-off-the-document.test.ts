@@ -43,20 +43,20 @@ const FR_039_REMEMBERED_NOWHERE =
 const FR_039_FONT_REACHES_THE_RULER = '文字サイズが変わったとき、`GRS` は、目盛の文字と目盛の帯の高さを、変わった文字サイズに追随させること。'
 const FR_039_FONT_IS_AN_EDIT = '文字サイズか表示の倍率が変わったとき、`GRS` は、変わった結果を文書の編集として保存すること。'
 const FR_041_ONLY_TWO_ARE_SAVED =
-  '保存するのは `themeHue` / `isThemeMonochrome` の 2 つだけとし、明暗（`themePreference`）は画面の値とし（`FR-039`）'
+  '`GRS` は、色について `themeHue` / `isThemeMonochrome` の 2 つだけを文書に保存すること。'
 // Why: CR-787 -- the width starts at the default of the kind shown; the settings face IC-17 shows is S-171.
 const FR_052_STARTS_AT_THE_KIND_DEFAULT =
-  'プロパティパネルの幅は画面の値とし、出している中身の種の既定の幅から始めること（MUST）'
+  '`GRS` は、プロパティパネルの幅を、出している中身の種の既定の幅から始めること'
 const FR_052_SETTINGS_FACE_IS_S_171 = '文書の設定の面は `S-171`'
-const FR_052_EVERY_START = '起動のたびに既定の幅から始め、覚えない。'
-const FR_052_WRITES_NOWHERE = 'プロパティパネルの幅を、文書にもブラウザの保管庫にも書いてはならない（MUST NOT）'
+const FR_052_EVERY_START = '`GRS` が起動したとき、`GRS` は、プロパティパネルの幅を既定の幅から始めること。'
+const FR_052_WRITES_NOWHERE = '`GRS` は、プロパティパネルの幅を、文書にもブラウザの保管庫にも書かないこと。'
 const FR_063_SETTINGS_STAMP_MOVES =
   '`GRS` は、見せ方の群だけを変えた更新でも、どちらの群であれ動いた刻と最後に書いた者を更新すること（例外は `FR-364`）。'
 const FR_063_SCHEDULE_STAMP_STAYS = '`GRS` は、見せ方の群だけを変える更新で、日程データの群の刻を動かさないこと。'
 const FR_063_NOT_IN_THE_LOOK =
   '`GRS` は、画面のどの操作も書き換えない値（道具の定数）と、見る人の画面の値（`_assets/tbl-settings.md` の 表 T-206）を、見せ方の群に入れないこと。'
 const FR_080_THE_SCREEN_SHRUNK = '`GRS` が占める画面の全体を'
-const FR_041_SCREEN_AND_PICTURE_ALIKE = '画面と書き出した絵とで、同じ行を同じ値で塗ること（MUST）'
+const FR_041_SCREEN_AND_PICTURE_ALIKE = '`GRS` は、表 T-236 の行のどれも、画面と書き出した絵とで等しい値で塗ること。'
 const DC_7_CLEARS = 'モードを出たら、置いた 2 本を消すこと（MUST）'
 const DC_7_TO_NULL = '消したときは `dualCursor` を `null` へ戻すこと（MUST）'
 const DC_6_NOT_IN_THE_DOCUMENT = '2 本の日付は画面の値であり（`_assets/tbl-settings.md` の 表 T-206 の `S-65`）、文書に入らない'

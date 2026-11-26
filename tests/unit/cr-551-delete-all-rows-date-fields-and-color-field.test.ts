@@ -193,9 +193,9 @@ const inField = (built: Bench, row: string): FakeElement[] =>
   selfAndDescendants(panelRoot(built)).filter((one) => one.getAttribute('data-field-row') === row)
 
 
-const HF_20 = '`HF-10` の操作子の並びに、すべてのタスクグループを消す操作子を 1 つ置くこと（MUST）'
-const CD_6_ONE_TASK_GROUP = 'タスクグループが 0 になるので、本表の後の段により、同じ操作の一部として深さ `L1` のタスクグループが 1 つ作られる（取り消し 1 回で戻る）'
-const E_36_HEAD = '頭が持つ入口が 5 つ、タスクグループが持つ入口が 7 つであることは、この 1 つの違いから出る（MUST）'
+const HF_20 = '`GRS` は、`HF-10` の操作子の並びに、すべてのタスクグループを消す操作子を 1 つ置くこと（タスクグループごとの削除（表 T-109 の `IC-82`）を段 0 で押すもの、入口は 表 T-109 の `IC-106`）。'
+const CD_6_ONE_TASK_GROUP = '`CD-6` —— タスクグループが 0 になるので、表 T-050 の後の段により、同じ操作の一部として深さ `L1` のタスクグループが 1 つできる（取り消し 1 回で戻る）。'
+const E_36_HEAD = '`GRS` は、頭が持つ入口を 5 つ、タスクグループが持つ入口を 7 つとすること。'
 
 const QN_10 = WORDS.questions.find((one) => one.specTableRowId === 'QN-10')?.text.ja ?? ''
 const YES = (WORDS.confirmation.find((one) => one.answer === 'proceed')?.text.ja ?? '').slice(0, 1).toUpperCase()
@@ -277,13 +277,13 @@ describe('HF-20 / CD-6 / QN-10 -- the head deletes every task group', () => {
 })
 
 
-const FR_006_DELETE = '日付の欄（表 T-016 の入力の型が `日付` か `日時` の行）を編集しているあいだに `Delete` か `Backspace` を押したときは、欄の字をすべて消して空にすること（MUST）'
+const FR_006_DELETE = '日付の欄（表 T-016 の入力の型が `日付` か `日時` の行）を編集している間、`Delete` か `Backspace` を押したとき、`GRS` は、日付の欄の字をすべて消して欄を空にすること。'
 const FR_006_EMPTY_COMMIT =
-  '空のまま確定したときは、`start` ／ `finish` の欄なら何も書かずに欄を元の値へ戻し、それ以外の日付の欄なら `null` を書くこと（MUST）'
+  '`start` か `finish` の欄を空のまま確定したとき、`GRS` は、値を書かずに欄を元の値へ戻すこと。'
 const FR_006_COLOR_LAST =
-  '見た目の行（表 T-016 の入力の型に `色` を含む行と、塗りの透過率・枠線の幅の行）は、同じ対象の行の並びの末尾に置くこと（MUST）'
+  '`GRS` は、見た目の行（表 T-016 の入力の型に `色` を含む行と、塗りの透過率・枠線の幅の行）を、対象ごとの行の並びの末尾に置くこと。'
 const FR_006_WIDTH_AFTER =
-  '見た目の行どうしは、どの対象でも 枠線の幅 → 枠線の色 → 塗りの色 → 塗りの透過率 → 字の色 の順に並べ、1 つの行に色を 1 つだけ持たせること（MUST）'
+  '`GRS` は、どの対象でも、見た目の行を 枠線の幅 → 枠線の色 → 塗りの色 → 塗りの透過率 → 字の色 の順に並べること。'
 // Why: the columns of the look rows in FR-006's order; TaskGroup.color is the task group band's fill.
 const LOOK_ORDER: readonly string[] = ['strokeWidthPx', 'strokeColor', 'fillColor', 'fillTransparencyPercent', 'textColor']
 const LOOK_ALIAS: Readonly<Record<string, string>> = { color: 'fillColor' }
@@ -397,23 +397,23 @@ describe('FR-006 E-28 -- the look rows are last in their object order', () => {
 })
 
 
-const CV_9_TWO_ROWS = '⭐ 欄は見本の 2 段だけとし、項目名は 1 段目の左に置くこと（MUST）（`FR-006`）'
+const CV_9_TWO_ROWS = '`GRS` は、色の欄を見本の 2 段だけとすること（項目名は `FR-006` の `IMPS-33` のとおり 1 段目の左に置く）。'
 const CV_9_ORDER =
-  '⭐ 並べ方は次のとおりとすること（MUST）: ① 1 段目 —— 透明を除く名を同表の行の順に前から `_assets/tbl-settings.md` の 表 T-206 の `S-338` 個並べ、その後ろにテーマに戻す入口を置く。'
-const CV_9_ORDER_SECOND_ROW = '② 2 段目 —— 残りの名を同じ順に並べ、その後ろに透明の入口、カスタムカラーの入口をこの順に置く。'
-const CV_9_NO_WORD = '⭐ 入口はどれも名の見本と同じ寸法の見本とし、語を見本の外に書いてはならない（MUST NOT）'
+  '`GRS` は、色の欄の 1 段目に、透明を除く名を 表 T-294 の行の順に前から `_assets/tbl-settings.md` の 表 T-206 の `S-338` 個並べ、名の後ろにテーマに戻す入口を置くこと。'
+const CV_9_ORDER_SECOND_ROW = '`GRS` は、色の欄の 2 段目に、1 段目に並べなかった名を 表 T-294 の行の順に並べ、名の後ろに透明の入口、カスタムカラーの入口の順に置くこと。'
+const CV_9_NO_WORD = '`GRS` は、色の欄の入口の語を見本の外に書かないこと。'
 const CV_9_TRANSPARENT_WORD =
-  '透明の入口は、塗りの欄（`fillColor` と `TaskGroup.color`）では塗りの無いことを、線の欄（`strokeColor`）では線の無いことを言う語'
+  '`GRS` は、透明の入口のツールチップを、塗りの欄（`fillColor` と `TaskGroup.color`）では塗りの無いことを言う語、線の欄（`strokeColor`）では線の無いことを言う語とすること。'
 const CV_9_CHOSEN =
-  '⭐ 欄の値を示す見本を、太い縁で囲むこと（MUST） —— 値が `null` ならテーマに戻す入口、透明なら透明の入口、パレット色ならその名の見本、カスタムカラーならカスタムカラーの入口である。'
+  '`GRS` は、欄の値を示す見本 —— 値が `null` ならテーマに戻す入口、透明なら透明の入口、パレット色なら名の見本、カスタムカラーならカスタムカラーの入口 —— を、太い縁で囲むこと。'
 const CV_9_THEME =
-  'テーマに戻す入口は `CV-5` の「戻す入口」（`FR-007`）であり、押したらその欄の色をテーマ追随（`null`）へ戻すこと（MUST）'
-const CV_9_HOST_INPUT = '閲覧環境の色の入力（`input type=color`）は、カスタムカラーの入口を押したときにだけ出すこと（MUST）'
-const CV_9_EMPTY_SLOT = 'その欄に並べない名と入口（下の 2 つ）の場所は空けたままとし、後ろの名や入口を詰めてはならない（MUST NOT）'
+  'テーマに戻す入口（`CV-5` の「戻す入口」、表 T-383 の `IMPS-135`）を押したとき、`GRS` は、欄の色をテーマ追随（`null`）へ戻すこと（カスタムカラーなら `CV-5` のとおり 2 つの値を両方捨てる）。'
+const CV_9_HOST_INPUT = '`GRS` は、閲覧環境の色の入力（`input type=color`）を、カスタムカラーの入口を押したときにだけ出すこと。'
+const CV_9_EMPTY_SLOT = '`GRS` は、欄に並べない名と入口（コメントボックスの線の欄と字の欄の透明、タスクグループの色の欄の黒）の場所を空けたままとし、後ろの名や入口を詰めないこと。'
 const CV_9_CUSTOM_VALUE =
-  '⭐ 欄の値がカスタムカラーのときは、カスタムカラーの入口の見本を、`CV-3` で決まった、いま描いている明暗の値で塗り、そのツールチップに値を添えること（MUST）'
+  '欄の値がカスタムカラーのとき、`GRS` は、カスタムカラーの入口の見本を、`CV-3` で決まった、いま描いている明暗の値で塗ること。'
 const CV_9_CHECKER =
-  '透明の入口の見本は市松とする —— 1 辺を 表 T-206 の `S-335` 個のますに割り、ますを 表 T-236 の `S-336` と `S-337` で交互に塗る。'
+  '`GRS` は、透明の入口の見本を、1 辺を 表 T-206 の `S-335` 個のますに割り、ますを 表 T-236 の `S-336` と `S-337` で交互に塗った市松とすること。'
 
 const THEME_GLYPH = wordOf('themeGlyph')
 const CUSTOM_GLYPH = wordOf('customGlyph')
@@ -491,12 +491,14 @@ describe('CV-9 -- the color field', () => {
       CV_9_ORDER,
       CV_9_ORDER_SECOND_ROW,
       CV_9_NO_WORD,
+      '`GRS` は、色の欄の入口をどれも、名の見本と等しい寸法の見本とすること。',
       CV_9_TRANSPARENT_WORD,
       CV_9_CHOSEN,
       CV_9_THEME,
       CV_9_HOST_INPUT,
       CV_9_EMPTY_SLOT,
       CV_9_CUSTOM_VALUE,
+      '欄の値がカスタムカラーのとき、`GRS` は、カスタムカラーの入口のツールチップに値を添えること。',
       CV_9_CHECKER,
     ]) {
       expect(REQUIREMENTS).toContain(clause)

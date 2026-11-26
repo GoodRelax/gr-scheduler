@@ -70,8 +70,8 @@ const OP_15_NO_PLAN_MEANS_ZERO =
   '⭐ 「重ねる予定が無い」とは、文書の `BaselineTask`（`_assets/fig-erd-detail.md` の `ET-18`）が 0 件であることとする —— `OP-9` の「一致が 1 つも無いときは枠が空になる」の後もこれに当たる。'
 const OP_15_WITH_A_PLAN_ONLY_TOGGLES = '⚠️ 重ねる予定が在るときの `IC-4` は `S-69` を切り替えるだけであり、本行に当たらない'
 const FR_015_TURNS_S_69_ON =
-  '⭐ 重ねを読み込んだときは、`_assets/tbl-settings.md` の 表 T-202 の `S-69` を真にすること（MUST）'
-const UN_18_ONE_STEP = '| UN-18 | 対象 | 重ねの取り込み（表 T-024a の `OP-9`、`FR-015`）。取り込み 1 回を 1 段とする'
+  '重ねを読み込んだとき、`GRS` は、`_assets/tbl-settings.md` の 表 T-202 の `S-69` を真にすること。'
+const UN_18_ONE_STEP = '| UN-18 | 対象 | 重ねの取り込み（表 T-024a の `OP-9`、`FR-015`）。`GRS` は、重ねの取り込みを、取り込み 1 回ごとに 1 段とすること。'
 // Why: CR-710 names the time-of-day toggle of FR-158 in UN-7 (JDG-1975).
 const UN_7_TOGGLES_OUTSIDE = '| UN-7 | 対象外 | 表示の切り替え（各トグル。`FR-158` の「時刻を表示する」を含む） |'
 const S_69_ROW = '| S-69 | `isBaselineVisible` | 真偽 | `false` |'

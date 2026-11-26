@@ -8,11 +8,11 @@ import { bare, bareAll, specTable } from '../contract/spec-table'
 import { selfAndDescendants, stage, styleMap, wiringOf, type FakeElement } from '../fixtures/fake-browser'
 import { REQUIREMENTS, taskGroupDocument, rowOf, shell, type TaskGroupSeed, type ShellBench } from './cr-541-stage'
 
-const Q02 = '⭐ 押したときにタスクグループが取る値は、`_assets/tbl-state-machines.md` の 表 T-328 の `allBelowOpenPressed` の行に従うこと（MUST）'
-const Q03 = '⭐ 押しても何も変わらないときだけ、`FR-029` に従って薄く描くこと（MUST）'
-const Q04 = '⭐ 並びのいちばん右の操作子の外形と、タスクグループパネルの右端とのあいだを、`_assets/tbl-settings.md` の 表 T-206 の `S-313` とすること（MUST）'
-const Q05 = '⭐ 押したときにタスクグループと段 0 が取る値は 表 T-328 の `everyTaskGroupOpenPressed` の行と根の升に従うこと（MUST）'
-const Q06 = '⭐ 描かれていないタスクグループ（`FR-018` の 表 T-329）が 1 つも無いときだけ、`FR-029` に従って薄く描くこと（MUST）'
+const Q02 = '展開する操作子を押したとき、`GRS` は、タスクグループが取る値を `_assets/tbl-state-machines.md` の 表 T-328 の `allBelowOpenPressed` の行に従わせること。'
+const Q03 = '`GRS` は、展開する操作子を、押しても何も変わらないときだけ `FR-029` に従って薄く描くこと。'
+const Q04 = '`GRS` は、並びのいちばん右の操作子の外形と、タスクグループパネルの右端とのあいだを、`_assets/tbl-settings.md` の 表 T-206 の `S-313` とすること。'
+const Q05 = '`HF-10` の操作子を押したとき、`GRS` は、タスクグループと段 0 が取る値を 表 T-328 の `everyTaskGroupOpenPressed` の行と根の升に従わせること。'
+const Q06 = '`GRS` は、描かれていないタスクグループ（`FR-018` の 表 T-329）が 1 つも無いときだけ、`HF-10` の操作子を `FR-029` に従って薄く描くこと。'
 const FR_018_ONLY_T_328 = '⭐ `GRS` は、`treeState` の値を書き換える入口と先の値を、段 0 の折りたたみ（`_assets/tbl-settings.md` の 表 T-203 の `S-418`）を含めて、`_assets/tbl-state-machines.md` の 表 T-328 に従わせること。`GRS` は、表 T-328 に無い操作で `treeState` の値を書き換えないこと。'
 
 const TASK_GROUP_PANEL = bare(rowOf('T-103', 'U-22').by['確定名（英）'] ?? '')

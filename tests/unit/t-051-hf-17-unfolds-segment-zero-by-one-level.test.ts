@@ -86,10 +86,10 @@ const REQUIREMENTS = unbroken(readFileSync(
 
 /** ⭐⭐ THE CLAUSE CR-368 ADDED TO HF-17 ON 2026-09-06, verbatim. */
 const HF_17_OPENS_ONE_LEVEL =
-  '本行でタスクグループを足すとき、段 0 が折りたたまれていれば（`_assets/tbl-settings.md` の `S-418`）1 階層だけ展開すること（MUST）。すべて展開してはならない（MUST NOT）'
+  '`HF-17` でタスクグループを足すとき、段 0 が折りたたまれていれば（`_assets/tbl-settings.md` の `S-418`）、`GRS` は、段 0 を 1 階層だけ展開すること。`HF-17` でタスクグループを足すとき、`GRS` は、段 0 をすべて展開しないこと。'
 
 /** 表 T-015 の `HR-2` -- the rule that lets a fixture fold 段 0 in the first place. */
-const HR_2_FOLDS_LEVEL_ZERO_TOO = '最も浅い段のタスクグループも折りたたむこと（MUST）'
+const HR_2_FOLDS_LEVEL_ZERO_TOO = '全折りたたみを押したとき、`GRS` は、最も浅い段のタスクグループも折りたたむこと。'
 
 describe('the manuscript this file is driven by', () => {
   it('still asks HF-17 to open exactly one level, never every fold', () => {

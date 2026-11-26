@@ -27,8 +27,8 @@ import { templateDocument } from './w3-t3-frame-stage'
 const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
 // Why: each constant is cut from the manuscript as check 39 reads it, so the cases cannot drift from the words they test.
-const BR_2_TITLE_LEFT = '`Document Title` の左端は、席の右に `BR-7` の縦線とその両脇の隔たりを置いた右とすること（MUST）'
-const BR_2_NO_MEASURING = '⛔ 字の実寸を測って題を置いてはならない（MUST NOT）'
+const BR_2_TITLE_LEFT = '`GRS` は、`Document Title` の左端を、席の右に `BR-7` の縦線と縦線の両脇の隔たりを置いた右にすること'
+const BR_2_NO_MEASURING = '`GRS` は、字の実寸を測って `Document Title` を置かないこと。'
 const EP_1_ONE_ROW = '字の大きさと左の余白は、画面と書き出しが同じ 1 つの行を読むこと（MUST）'
 const EP_1_NO_EXPORT_CONSTANT = '⛔ **書き出し専用の定数を持ってはならない（MUST NOT）**'
 

@@ -12,13 +12,13 @@ import { editTaskGroup, type TaskGroupCommand } from '../../src/use-case/edit-do
 import { editTask } from '../../src/use-case/edit-document/edit-task'
 
 const PAIRED =
-  'コピー元の親もコピーするときは、コピーの親タスクをその親のコピーとすること（MUST）'
+  '`GRS` は、コピー元の親もコピーするとき、コピーの親タスクを、コピー元の親のコピーにすること。'
 const INFERRED =
-  'コピー元の親をコピーしないとき（コピー元が親を持たないときを含む）は、コピーの親タスクを、コピーを載せたタスクグループから推定すること（MUST）'
+  '`GRS` は、コピー元の親をコピーしないとき（コピー元が親を持たないときを含む）、コピーの親タスクを、コピーを載せたタスクグループから推定すること'
 const OWN_TASK_GROUP =
-  '⚠️ コピーを載せたタスクグループの導出元がコピー自身かコピー元であるときは、そのタスクグループの親のタスクグループからたどる'
+  'もしコピーを載せたタスクグループの導出元がコピー自身かコピー元である場合、`GRS` は、`DU-1` のたどりを、コピーを載せたタスクグループの親のタスクグループから始めること。'
 const DERIVED_TASK_GROUP =
-  '導出元を持つタスクグループをコピーしたとき、導出元の `Task` も一緒にコピーするならコピーのタスクグループの導出元をそのコピーとし、コピーしないならコピーのタスクグループ名を確定させて導出元を空にすること（MUST）'
+  '導出元を持つタスクグループを導出元の `Task` と一緒にコピーしたとき、`GRS` は、コピーのタスクグループの導出元を、導出元の `Task` のコピーにすること。'
 
 const REQUIREMENTS = readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8')
 const TEMPLATE_TEXT = readFileSync(
@@ -28,7 +28,14 @@ const TEMPLATE_TEXT = readFileSync(
 const DEFAULT_TASK_GROUP_NAME = 'Row'
 
 describe('T-223 DU-1 / DU-2 -- the clauses this file is driven by still stand', () => {
-  it.each([PAIRED, INFERRED, OWN_TASK_GROUP, DERIVED_TASK_GROUP])('%s', (clause) => {
+  it.each([
+    PAIRED,
+    INFERRED,
+    OWN_TASK_GROUP,
+    DERIVED_TASK_GROUP,
+    '導出元を持つタスクグループを、導出元の `Task` をコピーせずにコピーしたとき、`GRS` は、コピーのタスクグループ名を、表 T-389 の `IMPS-237`・`IMPS-241` と同じ作法で確定させること。',
+    '導出元を持つタスクグループを、導出元の `Task` をコピーせずにコピーしたとき、`GRS` は、コピーのタスクグループの導出元を空にすること。',
+  ])('%s', (clause) => {
     expect(REQUIREMENTS).toContain(clause)
   })
 })

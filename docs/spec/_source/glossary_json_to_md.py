@@ -297,16 +297,20 @@ def table_differences(doc, text):
     return differences
 
 
-def unapplied_renames(term):
-    """The renames of a term the specification has not taken yet."""
-    return [r for r in term.get('renames', []) if r.get('xAppliedToSpec') is False]
+def unapplied_renames(term, language=None):
+    """The renames of a term the specification has not taken yet, for one
+    language: None is the English name or written name, 'ja' is label.ja
+    (renames[].xLanguage)."""
+    return [r for r in term.get('renames', [])
+            if r.get('xAppliedToSpec') is False and r.get('xLanguage') == language]
 
 
 def printed_name(term, form):
     """The name a placeholder prints. An English form prints the former name
     while the rename carries xAppliedToSpec: false (D3 of CR-857 step 2)."""
     if form == 'ja':
-        return term['label']['ja']
+        pending_ja = unapplied_renames(term, 'ja')
+        return pending_ja[0]['from'] if pending_ja else term['label']['ja']
     pending = unapplied_renames(term)
     written = pending[0]['from'] if pending else written_name(term)
     if form == 'owned':
@@ -402,7 +406,6 @@ def layout_problems(doc, layout, icons):
     if found:
         return found
     by_key = {t['key']: t for t in doc['terms']}
-    printed = set()
     seen = Counter()
     for block in table_blocks(layout):
         fields = [c['field'] for c in block['columns']]
@@ -434,8 +437,6 @@ def layout_problems(doc, layout, icons):
                     elif form == 'owned' and 'xOwner' not in term:
                         found.append('%s row %s: {owned:%s} on a term without xOwner'
                                      % (block['id'], row['id'], key))
-                    elif form != 'ja':
-                        printed.add(key)
     icon_blocks = [b for b in table_blocks(layout) if b['kind'] == 'icons']
     if len(icon_blocks) != 1 or icon_blocks[0].get('source') != 'icons.json':
         found.append('the layout must hold exactly one icons block, source icons.json')
@@ -448,13 +449,14 @@ def layout_problems(doc, layout, icons):
                              % (icon['id'], rid))
     found += ['row id %s written %d times' % (k, n) for k, n in seen.items() if n > 1]
     for t in doc['terms']:
-        pending = unapplied_renames(t)
-        if len(pending) > 1:
-            found.append('term %s: %d renames carry xAppliedToSpec: false; one may'
-                         % (t['key'], len(pending)))
-        elif pending and t['key'] not in printed:
-            found.append('term %s: the rename from %s carries xAppliedToSpec: false, '
-                         'and no table prints the term' % (t['key'], pending[0]['from']))
+        # A pending rename may name a term no table prints: the former name
+        # still stands in the prose, and tools/apply_glossary_renames.py
+        # replaces it there. One pending rename per language at most.
+        for language in (None, 'ja'):
+            pending = unapplied_renames(t, language)
+            if len(pending) > 1:
+                found.append('term %s: %d renames (%s) carry xAppliedToSpec: false; one may'
+                             % (t['key'], len(pending), language or 'en'))
     return found
 
 

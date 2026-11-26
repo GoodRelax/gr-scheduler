@@ -69,47 +69,47 @@ const S_483 = timeOfRow('S-483')
 describe('CR-753 -- the spec sentences these cases are driven by', () => {
   it('CY-5: the amount is counted and snapped as the body move counts it (PE-1 / PE-6, T-378)', () => {
     const text = rowText('T-308', 'CY-5')
-    expect(text).toContain('すべてのコピーの予定を、引いた量だけずらすこと（MUST）')
-    expect(text).toContain('本体を引いて動かすとき（表 T-270 の `PE-1` ・ `PE-6`）と同じとする')
-    expect(text).toContain('押した点の下のタスクの開始で寄せた量を求め、その 1 つの量をすべてのコピーに当てる')
+    expect(text).toContain('`GRS` は、すべてのコピーの予定を、引いた量だけずらすこと。')
+    expect(text).toContain('本体を引いて動かすとき（表 T-270 の `PE-1` ・ `PE-6`）と同じにすること')
+    expect(text).toContain('押した点の下のタスクの開始で寄せた量を求め、求めた 1 つの量をすべてのコピーに当てる')
   })
 
   it('CY-5: with the time shown and a day snap, the copy lands on the day the body move lands on', () => {
     const text = rowText('T-308', 'CY-5')
     expect(text).toContain('離した位置に最も近い日の境')
-    expect(text).toContain('同じ引きは、移しても写しても同じ日に着く')
+    expect(text).toContain('時刻を表示し、寄せの単位が日（表 T-378 の `SG-1`）の間、`GRS` は、押した点の下のタスクの開始が `FR-103` の読み（離した位置に最も近い日の境）で着く日までの日数を、すべてのコピーに当てること。')
   })
 
   it('CY-5: the 15-minute snap shifts by the snapped minutes; the copy keeps its time and length', () => {
     const text = rowText('T-308', 'CY-5')
-    expect(text).toContain('15 分で寄せるとき（`SG-2`）は、寄せた分だけずらすこと（MUST）')
+    expect(text).toContain('15 分で寄せる（`SG-2`）間、`GRS` は、寄せた分だけコピーをずらすこと')
     expect(text).toContain('同じ日の中にも写せる')
-    expect(text).toContain('コピーはコピー元の時刻と長さを保つ')
+    expect(text).toContain('`GRS` は、コピーにコピー元の時刻と長さを保たせること')
     expect(text).toContain('着いた日に既定の時刻（表 T-350）を書かない')
-    expect(text).toContain('`Shift` も伴って押したときは量を 0 とし、コピーの予定をコピー元と同じ日時とすること（MUST）')
+    expect(text).toContain('`Shift` も伴って押したとき、`GRS` は、量を 0 として、コピーの予定をコピー元と同じ日時にすること。')
   })
 
   it('CY-7: a copy has no actual', () => {
-    expect(rowText('T-308', 'CY-7')).toContain('コピーは実績を持たない')
+    expect(rowText('T-308', 'CY-7')).toContain('`GRS` は、コピーを、表 T-223 の `DU-1` のとおり、実績を持たない未着手として作ること（貼り付けと同じ）。')
   })
 
   it('CY-9: a release with amount 0 and 0 task groups copies nothing and keeps the selection', () => {
     const text = rowText('T-308', 'CY-9')
     expect(text).toContain('引いた量（`CY-5`）とタスクグループ数がともに 0 である')
-    expect(text).toContain('いずれも文書に書かず、選択も変えないこと（MUST）')
+    expect(text).toContain('次のいずれかで離したとき、`GRS` は、文書に書かないこと。')
   })
 
   it('PTD-7: the copy is drawn while held where the release puts it, on the same day', () => {
     const text = rowText('T-023a', 'PTD-7')
-    expect(text).toContain('押しているあいだ、コピーを置くことになる所にコピーを描き、コピー元はそのまま描くこと（MUST）')
-    expect(text).toContain('置くことになる所の日数は、離したときと同じ 表 T-308 の `CY-5` の日数である')
+    expect(text).toContain('押している間、`GRS` は、表 T-023d の閉じの規則と同じ作法で、コピーを置くことになる所にコピーを描き、コピー元をそのまま描くこと。')
+    expect(text).toContain('`GRS` は、置くことになる所の日数を、離したときと同じ 表 T-308 の `CY-5` の日数にすること')
     expect(text).toContain('描いた所と離して置かれる所はずれない')
   })
 
   it('FR-103 / T-378: the day of a day snap with the time shown is the nearest day boundary', () => {
-    expect(REQUIREMENTS).toContain('離した位置は、表 T-378 の単位で寄せた瞬間として読むこと（MUST）')
-    expect(REQUIREMENTS).toContain('離した位置に最も近い日の境（`00:00`）を `FR-054` の側で読んだ日とすること（MUST）')
-    expect(REQUIREMENTS).toContain('時刻を表示しないときは、離した位置が落ちる日の列の日とする')
+    expect(REQUIREMENTS).toContain('`GRS` は、離した位置を、表 T-378 の単位で寄せた瞬間として読むこと。')
+    expect(REQUIREMENTS).toContain('寄せた日を、離した位置に最も近い日の境（`00:00`）を `FR-054` の側で読んだ日とすること')
+    expect(REQUIREMENTS).toContain('時刻を表示しない間、`GRS` は、寄せた日を、離した位置が落ちる日の列の日とすること')
     expect(rowText('T-378', 'SG-1')).toContain('目盛が時の段（`FR-017` の 表 T-238 の `TM-5`）に達していない')
     expect(rowText('T-378', 'SG-2')).toContain('時刻を表示し、目盛が時の段にある')
     expect(rowText('T-378', 'SG-2')).toContain('30 分の点線が出る段、`_assets/tbl-settings.md` の 表 T-205 の `S-578` 以上も含む')

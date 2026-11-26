@@ -245,11 +245,11 @@ describe('FR-055 -- the fit leaves a margin on each side', () => {
   })
 })
 
-const FR_046_CENTER = '基準日線を出す操作では、倍率を変えずに、基準日線が `Task Group Area` の横の中点に来るよう表示位置を横に送ること（MUST）'
-const FR_046_NOT_VERTICAL = '縦の表示位置は動かさないこと（MUST）。'
-const FR_046_INK = '基準日線は、色を `_assets/tbl-settings.md` の 表 T-236 の `S-163`、太さを同書の 表 T-206 の `S-333` で描くこと（MUST）'
-const FR_046_EN_7 = '基準日線を描いているあいだ、基準日の入口（`_assets/tbl-glossary.md` の 表 T-109 の `IC-44`）を `FR-029` の 表 T-237 の `EN-7` で塗ること（MUST）'
-const FR_106_PK_10 = '基準日線の掴み代（表 T-023d の `GR-16`）と、パネルの境界の掴み帯（同表の `GR-22`）では、表 T-269 の `PK-10` とすること（MUST）'
+const FR_046_CENTER = '基準日線を出す操作をしたとき、`GRS` は、倍率を変えずに、基準日線が `Task Group Area` の横の中点に来るよう表示位置を横に送ること。'
+const FR_046_NOT_VERTICAL = '基準日線を出す操作をしたとき、`GRS` は、縦の表示位置を動かさないこと。'
+const FR_046_INK = '`GRS` は、基準日線を、色を `_assets/tbl-settings.md` の 表 T-236 の `S-163`、太さを `_assets/tbl-settings.md` の 表 T-206 の `S-333` で描くこと。'
+const FR_046_EN_7 = '基準日線を描いている間、`GRS` は、基準日の入口（`_assets/tbl-glossary.md` の 表 T-109 の `IC-44`）を `FR-029` の 表 T-237 の `EN-7` で塗ること。'
+const FR_106_PK_10 = '`GRS` は、基準日線の掴み代（表 T-023d の `GR-16`）と、パネルの境界の掴み帯（表 T-023d の `GR-22`）では、表 T-269 の `PK-10` にすること。'
 
 // Spec: PK-10
 const PK_10_SPELLING = /`([a-z-]+)`/.exec(verticalIn('T-269', 'PK-10').cells[1] ?? '')?.[1] ?? ''

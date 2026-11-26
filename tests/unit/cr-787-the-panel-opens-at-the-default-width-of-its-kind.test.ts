@@ -17,15 +17,15 @@ const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '
 
 // Spec: FR-052
 const FR_052_STARTS =
-  '⭐ プロパティパネルの幅は画面の値とし、出している中身の種の既定の幅から始めること（MUST）'
+  '`GRS` は、プロパティパネルの幅を、出している中身の種の既定の幅から始めること'
 const FR_052_ROWS =
-  '文書の設定の面は `S-171`、表 T-016 の `適用先` が `Task`・`TaskGroup`・`CommentBox`・`HighlightBox`・`Dependency` の物は `S-602`〜`S-606`（この順）。'
-const FR_052_WIDEST = 'いくつもの種を一度に出しているときは、その種の既定の幅のうち最も広いものから始める。'
-const FR_052_KIND_CHANGE = '⭐ 出す中身の種が変わったら、新しい種の既定の幅へ戻すこと（MUST）'
-const FR_052_SAME_KIND = '同じ種の別の物を出したときと、パネルを閉じて同じ種で開き直したときは、人が境界で決めた幅を保つ。'
-const FR_052_WRITES_NOTHING = '⛔ プロパティパネルの幅を、文書にもブラウザの保管庫にも書いてはならない（MUST NOT）'
+  '文書の設定の面は `S-171`、表 T-016 の `適用先` が `Task`・`TaskGroup`・`CommentBox`・`HighlightBox`・`Dependency` の物は `S-602`〜`S-606`（`Task` から `Dependency` まで、挙げた順）。'
+const FR_052_WIDEST = 'いくつもの種を一度に出しているとき、`GRS` は、プロパティパネルの幅を、出している種の既定の幅のうち最も広いものから始めること。'
+const FR_052_KIND_CHANGE = '出す中身の種が変わったとき、`GRS` は、プロパティパネルの幅を、新しい種の既定の幅へ戻すこと。'
+const FR_052_SAME_KIND = '同じ種の別の物を出したときと、パネルを閉じて同じ種で開き直したとき、`GRS` は、人が境界で決めた幅を保つこと。'
+const FR_052_WRITES_NOTHING = '`GRS` は、プロパティパネルの幅を、文書にもブラウザの保管庫にも書かないこと。'
 // Spec: FR-072
-const FR_072_FOLLOWS = '⚠️ **出しているあいだは、選択が動けば中身がそれに移る**'
+const FR_072_FOLLOWS = 'プロパティパネルを出している間、選択が動いたとき、`GRS` は、中身を動いた先の選択へ移すこと（STATEMENT の「最後の操作」）。'
 
 const settingOf = (id: string): number => {
   const row = specTable('T-206').rows.find((one) => one.id === id)

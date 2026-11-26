@@ -37,10 +37,12 @@ import {
 const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
 const FR_103_STATEMENT =
-  '`FR-104` の 表 T-266 の掴み代を掴んで離したとき、`GRS` は、**表 T-245 に従って**値を置き、同表が据え置くとする値を変えないこと。'
+  '`FR-104` の 表 T-266 の掴み代を掴んで離したとき、`GRS` は表 T-245 に従って値を置くこと。'
+const FR_103_KEEPS = '`GRS` は、表 T-245 が据え置くとする値を変えないこと。'
 const T_245_NO_WORKING_DAY_SNAP =
-  '⛔ **掴んだ端点を置いた所を、稼働日・稼働時間へ寄せてはならない（MUST NOT）** —— **休日に働くことがあり、寄せると人が置いた日と違う日が入る。**'
-const T_245_NO_NEW_REFUSALS = '⛔ 本要求は新しい拒み方を立てない。'
+  '`GRS` は、掴んだ端点を置いた所を、稼働日・稼働時間へ寄せないこと。'
+const T_245_NO_WORKING_DAY_SNAP_WHY = '`IMPS-1607` —— 休日に働くことがあり、寄せると人が置いた日と違う日が入る。'
+const T_245_NO_NEW_REFUSALS = '`GRS` は、`FR-103` のために新しい拒み方を立てないこと。'
 const FR_043_IS_ABOUT_DRAWING =
   '⚠️ `FR-043` がダミーを予定の開始日に「立てる」と定めているのは描く位置の話であり、落とす先の話ではない。'
 
@@ -102,7 +104,7 @@ const lastActualDayOf = (one: Stage, uid: number): string | null => {
 }
 
 describe('CR-430 -- the manuscript these cases are driven by', () => {
-  it.each([FR_103_STATEMENT, T_245_NO_WORKING_DAY_SNAP, T_245_NO_NEW_REFUSALS, FR_043_IS_ABOUT_DRAWING])(
+  it.each([FR_103_STATEMENT, FR_103_KEEPS, T_245_NO_WORKING_DAY_SNAP, T_245_NO_WORKING_DAY_SNAP_WHY, T_245_NO_NEW_REFUSALS, FR_043_IS_ABOUT_DRAWING])(
     'still says it, word for word: %s',
     (clause) => {
       expect(REQUIREMENTS).toContain(clause)
@@ -125,7 +127,7 @@ describe('CR-430 -- the manuscript these cases are driven by', () => {
 
 describe('control -- a quotation this file leans on can go red', () => {
   it('one character off the working-day rule is not in the manuscript', () => {
-    expect(REQUIREMENTS).not.toContain(T_245_NO_WORKING_DAY_SNAP.replace('寄せてはならない', ' 寄せてはならない'))
+    expect(REQUIREMENTS).not.toContain(T_245_NO_WORKING_DAY_SNAP.replace('寄せないこと', ' 寄せないこと'))
   })
 })
 

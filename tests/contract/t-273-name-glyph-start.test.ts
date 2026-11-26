@@ -30,9 +30,9 @@ const EDGE_GAP = stored('S-584') * RATIO
 const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
 const FR_002_WRITE_START_IS_T_273 =
-  '⭐ 字を書き出す位置は `FR-109` の 表 T-273 が持つ（`_assets/tbl-settings.md` の 表 T-201 の `S-31` ／ `S-32` ／ `S-301` のいずれか 1 つを、基準の端か進捗マーカーの右端に足した位置）。'
+  '⭐ 字を書き出す位置は `FR-109` の 表 T-273 が持つ（`S-31` ／ `S-32` ／ `S-301` のいずれか 1 つを、基準の端か進捗マーカーの右端に足した位置）。'
 const FR_002_NOT_TWICE =
-  '⛔ その値を 2 回数えてはならない（MUST NOT） —— 同表が与えるのは基準の端から**字そのもの**までの長さであり、箱の内側の余白ではない。'
+  '`GRS` は、`FR-109` の 表 T-273 が与える長さ（`_assets/tbl-settings.md` の 表 T-201 の `S-31` ／ `S-32` ／ `S-301` のいずれか 1 つ）を 2 回数えないこと。'
 
 const NAME_FROM = '名前の書き出し'
 const says = (row: string): string => `T-273 ${row} ${NAME_FROM}: ${cellOf('T-273', row, NAME_FROM)}; ${FR_002_NOT_TWICE}`

@@ -34,12 +34,12 @@ const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '
 
 // Why: one row since CR-441 -- the plan's white and the actual's black are the two fills of PK-1.
 const PK_1_SQUARE =
-  '| PK-1 | 箱の矢印 | 幅の広い箱型の矢印（← ／ →） | 予定は 白 ／ 黒、実績とダミーは 黒 ／ 白（本表の結びの約束） | 丸め | 一辺 `S-249` | 中心 |'
+  '| PK-1 | 箱の矢印 | 幅の広い箱型の矢印（← ／ →） | 予定は 白 ／ 黒、実績とダミーは 黒 ／ 白（`IMPS-1641` の約束） | 丸め | 一辺 `S-249` | 中心 |'
 const FR_106_COLORS =
-  '⭐ 白 ＝ 予定、黒 ＝ 実績とダミー、の約束を、箱の矢印と円で揃えること（MUST）。'
+  '`GRS` は、白 ＝ 予定、黒 ＝ 実績とダミー、の約束を、箱の矢印と円で揃えること。'
 const FR_106_FALLBACK =
-  '⭐ 画像のポインタを描けない環境では、動く向きを示す環境の形に替えること（MUST）'
-const FR_106_NO_DISPLAY_SCALE = '⛔ ポインタの画像に表示の倍率を掛けてはならない（MUST NOT）'
+  'もし画像のポインタを描けない環境である場合、`GRS` は、動く向きを示す環境の形に替えること'
+const FR_106_NO_DISPLAY_SCALE = '`GRS` は、ポインタの画像に表示の倍率を掛けないこと。'
 
 describe('CR-427 -- the manuscript these cases are driven by', () => {
   it.each([PK_1_SQUARE, FR_106_COLORS, FR_106_FALLBACK, FR_106_NO_DISPLAY_SCALE])(
@@ -424,7 +424,7 @@ describe('CR-427 section 9 -- what the change request leaves open', () => {
   // Why: DFC-3447 -- PND-445 (JDG-300) asked for the host default where IN-2 named no shape; table T-266 now names
   // Why: PK-3 for GA-7 / GA-8 and PK-5 for GA-15 .. GA-17, so the case follows the manuscript as it stands.
   it('GA-7 / GA-8 / GA-15 / GA-16 / GA-17: milestone figures and the fade corners show the T-269 shape table T-266 names (PK-3, PK-5) with their fallbacks, not the host default (CR-427 questions 1 and 2, DFC-3447)', () => {
-    const T_269_PK_5_ON_MILESTONES = '⭐ マイルストーンの上の「掴めることの合図」（同じく `IN-2`）は、`PK-5` に置き換わる。'
+    const T_269_PK_5_ON_MILESTONES = '`GRS` は、マイルストーンの上の「掴めることの合図」（表 T-028 の `IN-2`）を `PK-5` に置き換えること。'
     const T_269_FALLBACKS =
       '端の箱の矢印・フェードの三角・マイルストーンの実績とダミーの ●・再開の折れ矢印は `ew-resize`、マイルストーンの予定の ○ は `move`（横にも縦にも動く）'
     const T_269_PK_3 = '| PK-3 | 三角 入 ／ 出 | 直角三角形。入は左上へ、出は右下へ広がる | 白 ／ 黒 | 丸め | `S-294` | 直角の頂点 |'

@@ -40,8 +40,8 @@ const BELOW_FONT_MIN = '既定と下限は `fontMin`（表 T-201 の `S-8`）を
 const FLOOR_NOT_APPLIED = '`GRS` は、コメントボックスの文字の大きさに、`FR-077` の可読の下限を当てないこと。'
 const BOX_FONT_NOT_FLOORED = 'コメントボックスの字は本要求の下限に当てない（`FR-097`、利用者が定めた）。'
 // Spec: FR-006
-const FR_006_FONT_SIZE_BELOW_BODY = 'コメントボックスの字の大きさ（表 T-016 の `PR-50`）は見た目の行に数えず、本文の欄（`PR-21`）のすぐ下に置くこと（MUST）'
-const FR_006_LOOK_ORDER = '見た目の行どうしは、どの対象でも 枠線の幅 → 枠線の色 → 塗りの色 → 塗りの透過率 → 字の色 の順に並べ'
+const FR_006_FONT_SIZE_BELOW_BODY = '`GRS` は、コメントボックスの字の大きさ（表 T-016 の `PR-50`）の行を、見た目の行に数えずに、本文の欄（`PR-21`）のすぐ下に置くこと。'
+const FR_006_LOOK_ORDER = '`GRS` は、どの対象でも、見た目の行を 枠線の幅 → 枠線の色 → 塗りの色 → 塗りの透過率 → 字の色 の順に並べること。'
 // Spec: PR-48
 const PR_48_BELOW_FONT_SIZE = '本文の欄とフォントサイズの欄（`PR-50`）のすぐ下に置く'
 // Spec: PR-50

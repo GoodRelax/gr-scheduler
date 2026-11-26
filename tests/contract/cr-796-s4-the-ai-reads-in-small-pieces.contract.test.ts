@@ -488,7 +488,7 @@ describe('AV-17 columns -- the task table columns, by the row ids of table T-331
   // Why: a filter cell that says 'same as above' repeats the row above it in table T-331 (SQ-4 repeats SQ-3)
   const allRows = specTable('T-331').rows
   const filterCellOf = (row: (typeof allRows)[number]): string => {
-    const cell = row.cells[row.cells.length - 1] ?? ''
+    const cell = row.cells[row.cells.length - 2] ?? ''
     const at = allRows.findIndex((one) => one.id === row.id)
     return cell.trim() === '同上' && at > 0 ? filterCellOf(allRows[at - 1]!) : cell
   }

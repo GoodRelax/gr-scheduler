@@ -23,8 +23,8 @@ import {
 } from '../unit/cr-826-stage'
 
 const NOT_DRAWN_CLAUSE =
-  '⛔ 予定の開始（`start`）の日が基準日より後で、まだ着手していない（`actualStart` が無い）`Task` に、`DG-1`（`?`）と `DG-2`（炎）を描いてはならない（MUST NOT）'
-const REPORT_UNCHANGED_CLAUSE = '⛔ 外すのは日程表の印だけとし、診断の結果を変えてはならない（MUST NOT）'
+  '`GRS` は、予定の開始（`start`）の日が基準日より後で、まだ着手していない（`actualStart` が無い）`Task` に、`DG-1`（`?`）と `DG-2`（炎）を描かないこと。'
+const REPORT_UNCHANGED_CLAUSE = '`GRS` は、`IMPS-615` で日程表の印だけを外し、診断の結果を変えないこと。'
 
 describe('FR-133: ⛔ 予定の開始（`start`）の日が基準日より後で、まだ着手していない（`actualStart` が無い）`Task` に、`DG-1`（`?`）と `DG-2`（炎）を描いてはならない（MUST NOT）', () => {
   it('the requirements still carry the clause', () => {

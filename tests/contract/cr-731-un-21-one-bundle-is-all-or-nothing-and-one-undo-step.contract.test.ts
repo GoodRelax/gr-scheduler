@@ -31,7 +31,7 @@ describe('FR-155 / UN-21 -- the manuscript these cases read', () => {
 
   it('UN-21 makes what one approval mended one step, apart from the step of a table view (UN-20)', () => {
     const cell = cellOf('T-027', 'UN-21', '操作')
-    expect(cell).toContain('1 回の了承で発行した束を 1 段とする')
+    expect(cell).toContain('`GRS` は、遅延診断の直しを、1 回の了承で発行した束ごとに 1 段とすること')
     expect(cell).toContain('1 度の取り消しでまとめて戻る')
     expect(cell).toContain('直しの束は表の見え方を書かない')
   })

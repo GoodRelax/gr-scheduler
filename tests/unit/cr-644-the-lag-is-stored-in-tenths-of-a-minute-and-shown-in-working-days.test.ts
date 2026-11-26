@@ -20,20 +20,20 @@ import { DESIGN, REQUIREMENTS, numberIn, taskGroupDocument, rowOf, taskOf } from
 
 // Spec: FR-009
 const FR_009_SHOWN_AND_TYPED =
-  '⭐ プロパティパネルは、時刻を表示しない文書（`FR-158`）では形式 `7` のラグを稼働日で、形式 `5`・`3` のラグを下の段の字面（`3h`・`30m`）で見せ、整数の稼働日で打たせ、時刻を表示する文書では `d` ／ `h` ／ `m` で見せて打たせること（MUST） —— 保存は 0.1 分であり（`_assets/fig-erd-detail.md` の `AT-47`）、1 稼働日（`1d`）を `Project.minutesPerDay` 分（空なら `S-128`）として換算する。'
+  '文書が時刻を表示しない（`FR-158`）間、`GRS` は、プロパティパネルで、形式 `7` のラグを稼働日で、形式 `5`・`3` のラグを `IMPS-361` の字面（`3h`・`30m`）で見せること。'
 const FR_009_WRITTEN =
-  '打たれたラグを書くときは、`linkLag` に打たれた長さの分 × 10 を、`lagFormat` に打った単位の形式を書くこと（MUST） —— `d`（稼働日）は `7`、`h` は `5`、`m` は `3` である（利用者の判断）。'
-const FR_009_CREATED = '依存を作るときも同じく書く'
-const FR_009_UNDERSTOOD = '⭐ `GRS` が解するラグの形式は `lagFormat` が `7`（稼働日）・`5`（時）・`3`（分）のものとする（`AT-48`）。'
+  '打ったラグを書くとき、`GRS` は、`linkLag` に、打った長さの分 × 10 を書くこと。'
+const FR_009_CREATED = '依存を作るとき、`GRS` は、ラグを `IMPS-354` 〜 `IMPS-356` と同じく書くこと。'
+const FR_009_UNDERSTOOD = '`GRS` は、`lagFormat` が `7`（稼働日）・`5`（時）・`3`（分）のラグを解すること（`AT-48`）。'
 const FR_009_LITERAL =
-  'ほかの形式のラグは、MS Project の字面 —— その形式の単位で表した数に、交換相手の XSD の記号を添えたもの（`2ed`・`1w`） —— で見せるだけにし、値と形式は往復でそのまま保つこと（MUST）'
-const FR_009_MINUTES = '長さを決められない形式（百分率・経過の月・空の形式、長さを決める列が空のとき）は、分の字面（`2880m`）で見せる'
-const FR_009_DECIMALS = '見せる数は小数 2 桁までとする'
+  '`GRS` は、ほかの形式のラグを、MS Project の字面 —— 形式の単位で表した数に、交換相手の XSD の記号を添えたもの（`2ed`・`1w`） —— で見せるだけにすること。'
+const FR_009_MINUTES = '`GRS` は、長さを決められない形式（百分率・経過の月・空の形式、長さを決める列が空のとき）のラグを、分の字面（`2880m`）で見せること。'
+const FR_009_DECIMALS = '`GRS` は、ラグの見せる数を小数 2 桁までにすること。'
 // Spec: VC-15, BD-2
 const VC_15_LAG = '⭐ `linkLag` は稼働時間の分として数え（`FR-009` の換算 —— 形式 `7`・`5`・`3`）、先行の瞬間から文書の暦の稼働時間で進めた瞬間と比べる。'
-const VC_15_NOT_JUDGED = '⛔ `FR-009` が解さない形式で `linkLag` が 0 でない依存を、本行で判じてはならない（MUST NOT）'
-const BD_2_LAG = '⭐ `linkLag` は `VC-15` と同じく稼働時間の分で数え、文書の暦で進める。'
-const BD_2_ZERO = '`FR-009` が解さない形式のラグは 0 として流す'
+const VC_15_NOT_JUDGED = '`GRS` は、`FR-009` が解さない形式で `linkLag` が 0 でない依存を、`VC-15` で判じないこと。'
+const BD_2_LAG = '`GRS` は、`linkLag` を `VC-15` と同じく稼働時間の分で数え、文書の暦で進めること。'
+const BD_2_ZERO = '`GRS` は、`FR-009` が解さない形式のラグを 0 として流すこと。'
 // Spec: UF-128
 const UF_128 = '文書の暦で稼働日を判じ、数え、進め、ラグを稼働日へ換算する'
 
@@ -286,7 +286,7 @@ describe(`BD-2 -- ${BD_2_LAG}`, () => {
 
 // see FR-009, TX-3, DFC-2465
 const FR_009_DAY_DOCUMENT_LITERAL =
-  '時を単位に打たれたラグを日の文書で稼働日の小数（`0.38`）に換えないのは、日の文書の見せ方を今のまま保つからである（利用者の判断）'
+  '時を単位に打ったラグを日の文書で稼働日の小数（`0.38`）に換えないのは、日の文書の見せ方を今のまま保つからである（利用者の判断）'
 const TX_3_LAG = '時刻を表示しないときは整数の稼働日 —— 形式 `5`・`3` のラグは字面で見せる、`FR-009`'
 const MINUTES = 3
 
@@ -316,8 +316,8 @@ describe('DFC-2465 FR-009 PR-42: a document that does not show the time of day s
 
 // see FR-009, TX-10, DFC-2466
 const FR_009_FINEST_UNIT =
-  '⭐ 2 つ以上の単位で打たれたとき（`1d 2h`）は、打たれた単位のうち最も細かいものの形式を書くこと（MUST） —— `1d 2h` は `5`、`2h 30m` は `3` である。'
-const FR_009_BARE_NUMBER = '単位の無い整数は稼働日（`7`）と読む。'
+  '2 つ以上の単位で打ったラグを書くとき（`1d 2h`）、`GRS` は、打った単位のうち最も細かいものの形式を書くこと —— `1d 2h` は `5`、`2h 30m` は `3` である。'
+const FR_009_BARE_NUMBER = '`GRS` は、単位の無い整数のラグを稼働日（`7`）と読むこと。'
 
 describe('DFC-2466 FR-009 CM-38: a lag typed in two or more units writes the format of the finest unit typed', () => {
   it('FR-009 still reads as quoted', () => {

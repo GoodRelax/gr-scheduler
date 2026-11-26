@@ -7,9 +7,9 @@ import { bare, specTable } from './spec-table'
 import { REQUIREMENTS, T_016, documentOf, fieldOf, panelOf, taskItem, taskOf } from './cr-606-stage'
 
 // Spec: FR-006
-const FR_006_DATE_IS_WIDER = '⭐ 値が空でも同じ幅とすること（MUST）'
-const FR_006_NO_NARROWER = '⛔ 1 つの操作子に、その値を出すのに要る幅より狭い幅を割ってはならない（MUST NOT）'
-const FR_006_DATE_AID = '同表の `S-590` を掛けた幅とすること（MUST）'
+const FR_006_DATE_IS_WIDER = '`GRS` は、値が空の日付の欄にも、`IMPS-44`・`IMPS-45` の幅を割ること。'
+const FR_006_NO_NARROWER = '`GRS` は、1 つの操作子に、値を出すのに要る幅（`FR-093` の概算に、操作子の字の大きさへ `_assets/tbl-settings.md` の 表 T-206 の `S-199` を掛けた幅を足した幅）より狭い幅を割らないこと（`IMPS-55`・`IMPS-61` の操作子を除き、日付の欄の要る幅は `IMPS-43` で決める）。'
+const FR_006_DATE_AID = '`GRS` は、`FR-158` の 表 T-375 の `TX-3` で時刻を伴う日付と時刻の欄になった欄だけを、操作子の字の大きさに表 T-206 の `S-590` を掛けた幅とすること。'
 
 const numberIn = (cell: string): number => {
   const found = /-?\d+(?:\.\d+)?/.exec(bare(cell).replace(/`/g, ''))

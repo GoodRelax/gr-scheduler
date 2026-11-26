@@ -343,7 +343,7 @@ const refusalNoticeIn = (notices: readonly Notice[]): Notice | undefined =>
 
 // Spec: CV-9
 const CV_9_REFUSED =
-  '⛔ 一覧の外の名（黒）は、`CM-30`（`FR-042`）も、`GRS JSON` の取り込み（`05-07-design.md` の 表 T-220 の前文のスキーマ、拒んだときの理由は 表 T-233 の `RS-25`）も受けてはならない（MUST NOT）'
+  '`GRS` は、タスクグループの色の欄が並べる名の一覧の外の名（黒）を、`CM-30`（`FR-042`）でも、`GRS JSON` の取り込み（`05-07-design.md` の 表 T-220 の前文のスキーマ、拒んだときの理由は 表 T-233 の `RS-25`）でも受けないこと。'
 const BLACK = bare(rowOf(specTable('T-294'), 'S-315').by['保存する綴り'] ?? '')
 
 describe('the GRS JSON open path refuses IV-22 and a bandless task group color (CR-586 seam S-5, FR-076, T-233 closing)', () => {

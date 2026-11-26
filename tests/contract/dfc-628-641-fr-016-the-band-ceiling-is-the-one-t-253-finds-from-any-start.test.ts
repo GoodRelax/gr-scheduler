@@ -7,13 +7,13 @@ import { keyOf, REQUIREMENTS, taskGroupDocument, shell, taskOf, type ShellBench 
 
 // Spec: FR-016
 const FR_016_FIRST_REACH =
-  '⭐ 縦軸（`zoomY`）の上限は、いちばん高いタスクグループの帯の高さが、初めて `Task Group Area` の高さ以上になった倍率とし、その倍率を 表 T-253 の手順で探すこと（MUST）'
+  '`GRS` は、縦軸（`zoomY`）の帯の側の上限を、いちばん高いタスクグループの帯の高さが初めて `Task Group Area` の高さ以上になった倍率にすること（表 T-253 の手順が調べるどの倍率も含まないほど狭い区間は見落としてよい）。'
 const FR_016_ANY_START =
-  '⭐ 縦軸の上限は、拡大を始めた倍率に依らないこと（MUST） —— いまの `zoomY` だけが違う 2 つの状態は、同じ上限を持つ。'
+  '`GRS` は、縦軸の上限を、拡大を始めた倍率によらず同じ倍率にすること。'
 // Spec: T-253
-const BC_1_LADDER = '次の倍率を、1 つ前の倍率に同書の 表 T-206 の `S-238` を掛けた値とする。'
+const BC_1_LADDER = '次の倍率は、1 つ前の倍率に `_assets/tbl-settings.md` の 表 T-206 の `S-238` を掛けた値とする。'
 const BC_2_EQUAL_REACHES = '帯の高さが `Task Group Area` の高さと等しいときも、達したとする。'
-const BC_5_UPPER_END = '帯の側の上限は、止めたときの上端とする。'
+const BC_5_UPPER_END = '`GRS` は、帯の側の上限を、止めたときの上端にすること。'
 
 // Spec: S-54, S-55, S-238, S-239
 const ZOOM_MIN = settingNumber('S-54')

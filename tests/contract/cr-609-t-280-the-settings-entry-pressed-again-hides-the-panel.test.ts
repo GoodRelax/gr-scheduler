@@ -18,14 +18,14 @@ const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '
 
 // Spec: FR-072
 const FR_072_CLOSES_WHILE_SHOWN =
-  '⭐ パネルが文書の設定を出しているあいだに、設定を出す入口をもう一度押したときは、プロパティパネルを閉じること（MUST）'
-const FR_072_EITHER_WAY = '直前の選択物が在っても無くても同じとし、選択物へは戻さない'
-const FR_072_OPENING_KEEPS_THE_SELECTION = '設定を開いても選択を解除しないこと。'
-const FR_072_CLOSING_KEEPS_THE_SELECTION = '⛔ **パネルを出すのをやめても、選択を解除してはならない（MUST NOT）**'
+  'プロパティパネルが文書の設定を出している間、設定を出す入口を再び押したとき、`GRS` は、直前の選択物の有無によらず、中身を選択物へ戻さずにプロパティパネルを閉じること（`_assets/tbl-state-machines.md` の 表 T-280 の `propertiesPanelContentStateMachine`）。'
+const FR_072_EITHER_WAY = '直前の選択物の有無によらず、中身を選択物へ戻さずにプロパティパネルを閉じること'
+const FR_072_OPENING_KEEPS_THE_SELECTION = '文書の設定を開いたとき、`GRS` は、選択を解除しないこと。'
+const FR_072_CLOSING_KEEPS_THE_SELECTION = 'プロパティパネルを出すのをやめたとき、`GRS` は、選択を解除しないこと。'
 const FR_072_SETTINGS_AFTER_A_CLOSE =
-  '⭐ 文書の設定を出したままパネルを閉じたあとに、設定を出す入口を押したときは、設定を出すこと（MUST）'
-const FR_072_A_CLOSE_IS_NOT_AGAIN = '閉じたあとの押しは、上の「もう一度」に数えない。'
-const FR_072_NOT_THE_SELECTION_AFTER_A_CLOSE = '⛔ 閉じたあとの押しで、中身を直前の選択物へ切り替えてはならない（MUST NOT）'
+  '文書の設定を出したままプロパティパネルを閉じたあとに設定を出す入口を押したとき、`GRS` は、文書の設定を出すこと（閉じたあとの押しは `IMPS-83` の「再び押した」に数えない）。'
+const FR_072_A_CLOSE_IS_NOT_AGAIN = '閉じたあとの押しは `IMPS-83` の「再び押した」に数えない'
+const FR_072_NOT_THE_SELECTION_AFTER_A_CLOSE = '文書の設定を出したままプロパティパネルを閉じたあとに設定を出す入口を押したとき、`GRS` は、中身を直前の選択物へ切り替えないこと。'
 
 describe('CR-609 -- FR-072 still says it, word for word', () => {
   it.each([

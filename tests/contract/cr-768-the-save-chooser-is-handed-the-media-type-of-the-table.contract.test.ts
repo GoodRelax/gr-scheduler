@@ -14,7 +14,7 @@ import { specTable } from './spec-table'
 const FR_096_NAME_ENDS_WITH = '`GRS` は、書き出した先の名前が、選んだ行の拡張子で終わることを保証すること。'
 const FR_096_MEDIA_TYPE_FROM_TABLE =
   '宿主に「選んだ行の拡張子の形式である」ことを伝える手立てがある場合、`GRS` は、表 T-024 の「保存の選択面に渡す媒体の型」の欄の値で伝えること。'
-const RW_7_HANDS_THE_MEDIA_TYPE = '保存の選択面には同じ行の媒体の型を渡す'
+const RW_7_HANDS_THE_MEDIA_TYPE = '`GRS` は、保存の選択面に、表 T-024 の `IO-8` の行の媒体の型を渡すこと（`FR-096` の拡張子と媒体の型の定めと同じ）。'
 
 const PLAIN_SHELL =
   '<!doctype html><html lang="en"><head><meta charset="utf-8">' +
