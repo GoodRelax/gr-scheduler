@@ -29,7 +29,7 @@ const HF_14_TEMPORARY = '縦を縮める最初の入力をしたとき、`GRS` �
 const HF_14_ONE_PARENT = '`GRS` は、展開するタスクグループを押した親 1 つだけとすること。'
 const HF_14_NO_ANCESTOR = '`GRS` は、押した親の先祖を書き換えないこと。'
 const UN_14_ONE_STEP = '1 回の押下がタスクグループの木の状態を書き換えたとき、`GRS` は、書き換えたタスクグループがいくつでも、1 つの段に入れること。'
-const FR_018_ADDED = '足したタスクグループと、足した先の親も同じ値で立つ（`AT-153`、同表の `childTaskGroupAddPressed`、表 T-051 の `HF-14`）'
+const FR_018_ADDED = '足したタスクグループと、足した先の親も同じ値で立つ（`AT-153`、表 T-328 の `childTaskGroupAddPressed`、表 T-051 の `HF-14`）'
 
 const TASK_GROUP_PANEL = bare(rowOf('T-103', 'U-22').by['確定名（英）'] ?? '')
 

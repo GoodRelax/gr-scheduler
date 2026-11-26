@@ -27,16 +27,16 @@ const ERD = unbroken(readFileSync(join(SPEC, '_assets', 'fig-erd-detail.md'), 'u
 
 // Spec: FR-088
 const FR_088_MAKE =
-  '⭐ 文書の暦が 表 T-209 の既定に解けるとき、`CM-39` は同じ書き込みで `Calendar` を 1 行作り、`Project.calendarUid` に指させてから、曜日と例外日を書くこと（MUST） —— 作らないと、新しい文書では暦を 1 つも直せない。'
+  '⭐ 文書の暦が 表 T-209 の既定に解けるとき、`CM-39` は同じ書き込みで `Calendar` を 1 行作り、`Project.calendarUid` に指させてから、曜日と例外日を書くこと。'
 const FR_088_UID = '作る暦の `uid` は `Project.uidHighWaterMark`（`AT-20`）に従って採り、`isBaseCalendar` を真とする。'
-const FR_088_EXCEPTIONS = '例外日は、繰り返しの無いもの（表 T-058 の `AT-82` が言う繰り返しの無い例外日）を足し、直し、消せること（MUST）。'
-const FR_088_DAY_WORKING = '行ごとに休みか稼働か（`AT-81`）を選べること（MUST） —— 交換相手の `Exception` がその両方を持つ。'
+const FR_088_EXCEPTIONS = '`GRS` は、繰り返しの無い例外日（表 T-058 の `AT-82` が言う繰り返しの無い例外日）を、足し、直し、消せるようにすること。'
+const FR_088_DAY_WORKING = '`GRS` は、例外日の行ごとに休みか稼働か（`AT-81`）を選べるようにすること —— 交換相手の `Exception` が休みと稼働の両方を持つ。'
 const FR_088_RECURRING_DELETE =
-  '⚠️ 取り込んだ繰り返しの例外日は、一覧に出して消せるようにし、直させてはならない（MUST NOT） —— 繰り返しを展開しない（`FR-054`）ので、直した結果を画面で確かめられない。'
-const FR_088_UNDO = '**変更は取り消しの対象とすること（MUST）**（表 T-027 の `UN-13`）。'
+  '⚠️ `GRS` は、取り込んだ繰り返しの例外日を、一覧に出して消せるようにし、直させないこと。'
+const FR_088_UNDO = '`GRS` は、暦の変更を取り消しの対象とすること（表 T-027 の `UN-13`）。'
 // Spec: FR-054
 const FR_054_RESOLVE =
-  '指していないとき、および指す先が無いときは、`isBaseCalendar` が真の `Calendar` のうち `ordinal` が最小のものとし、それも無いときは表 T-209 の既定とすること（MUST）。'
+  '`Project.calendarUid` が指していないとき、および指す先が無いとき、`GRS` は、`isBaseCalendar` が真の `Calendar` のうち `ordinal` が最小のものを文書の暦とし、そのような `Calendar` も無いときは表 T-209 の既定を文書の暦とすること。'
 // Spec: CM-39
 // Why: CR-710 added the one working time set of WC-8 to what CM-39 carries.
 const CM_39_DOES = '暦（稼働する曜日・稼働日の時間帯の 1 組・例外日）と週の始まりを直す。'

@@ -17,15 +17,15 @@ const DESIGN = unbroken(READ('docs', 'spec', '05-07-design.md'))
 const VERSION_TABLE = unbroken(READ('docs', 'development-rules', '10-versions.md'))
 
 // Why: each clause is cut from the manuscript as check 39 reads it, ending right before its (MUST) marker.
-const FR_073_RAISE_TO_INSTANT = '変われば、形式の版は、それまでのどの版よりも新しい時刻になること'
-const FR_073_RAISE_TO_INSTANT_WITH_MARKER = `${FR_073_RAISE_TO_INSTANT}（MUST）`
-const FR_073_FORM = '書式は RFC 3339 の UTC の `YYYY-MM-DDTHH:MM:SSZ` とすること（MUST）'
-const FR_073_STRING_ORDER = '判別は文字列の大小で行うこと（MUST）'
+const FR_073_RAISE_TO_INSTANT = '文書の形（`_assets/fig-erd-detail.md` の 表 T-058 の列と、表 T-052 の鍵）が変わったとき、形式の版は、それまでのどの版よりも新しい時刻になること'
+const FR_073_RAISE_TO_INSTANT_WITH_MARKER = `${FR_073_RAISE_TO_INSTANT}。`
+const FR_073_FORM = '`GRS` は、形式の版を RFC 3339 の UTC の `YYYY-MM-DDTHH:MM:SSZ` の書式で書くこと'
+const FR_073_STRING_ORDER = '`GRS` は、版の判別を文字列の大小で行うこと'
 const TABLE_RAISE_AT_THE_CHANGE = '文書の形（表 T-058 の列と 表 T-052 の鍵）を変える変更を当てる時刻'
 const TABLE_ONE_RAISE_PER_CR = '1 つの変更要求の中で版を上げるのは 1 度だけとする'
-const FR_073_NO_LEDGER_ROW_BEFORE_USE = '⛔ 公式運用の前は、台帳に行を足してはならない（MUST NOT）'
-const CH_6_2_VERSION_CONST = '⭐ `schemaVersion` は、その造りの版を `const` で言うこと（MUST）'
-const CH_6_2_LEDGER_EMPTY_BEFORE_USE = '⚠️ 公式運用の前（`S-541` が `null`）は、台帳は空の配列である'
+const FR_073_NO_LEDGER_ROW_BEFORE_USE = '`S-541` が `null` の間、どの変更も、刊行するスキーマの変更の台帳（`05-07-design.md` の Chapter 6.2）に行を足さないこと'
+const CH_6_2_VERSION_CONST = '起こしたスキーマで、`schemaVersion` は、造りの版を `const` で言うこと'
+const CH_6_2_LEDGER_EMPTY_BEFORE_USE = '公式運用の前（`S-541` が `null`）の間、変更の台帳は空の配列であること'
 
 const SCHEMA = JSON.parse(READ('docs', 'spec', '_source', 'grs-document.schema.json')) as Record<string, any>
 const ERD = JSON.parse(READ('docs', 'spec', '_source', 'erd.json')) as Record<string, any>

@@ -1234,7 +1234,7 @@ describe('FR-018 -- holding a zoom entrance down', () => {
       join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'),
       'utf8',
     ))
-    expect(requirements).toContain('繰り返す入口は')
+    expect(requirements).toContain('`GRS` は、繰り返す入口を')
     expect(requirements).toContain('S-172')
     expect(requirements).toContain('S-173')
     for (const row of ['IC-12', 'IC-13', 'IC-14', 'IC-15']) {
@@ -1243,10 +1243,10 @@ describe('FR-018 -- holding a zoom entrance down', () => {
   })
 
   const FR_018_REPEATS =
-    '入口を押し続けたときは、`_assets/tbl-settings.md` の 表 T-206 の `S-172` が定める待ち時間ののち、同表の `S-173` が定める間隔で倍率を刻み続けること（MUST）。'
-  const FR_018_NOT_ONCE = '押し続けても 1 度しか刻まない形にしてはならない（MUST NOT）。'
+    '入口を押し続けたとき、`GRS` は、`_assets/tbl-settings.md` の 表 T-206 の `S-172` が定める待ち時間ののち、表 T-206 の `S-173` が定める間隔で倍率を刻み続けること。'
+  const FR_018_NOT_ONCE = '`GRS` は、入口を押し続けても 1 度しか刻まない形にしないこと'
   const FR_018_ONLY_FOUR =
-    '繰り返す入口は `_assets/tbl-glossary.md` の 表 T-109 の `IC-12` 〜 `IC-15` に限ること（MUST）'
+    '`GRS` は、繰り返す入口を `_assets/tbl-glossary.md` の 表 T-109 の `IC-12` 〜 `IC-15` に限ること'
   const FT_4_HOLD = '`FR-018` の押し続け（`S-172` / `S-173`）'
 
   it('the manuscript still says it, word for word: FR-018 and FT-4 of table T-078', () => {
@@ -1449,8 +1449,8 @@ describe('the tables these ten entrances are driven by', () => {
       join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'),
       'utf8',
     ))
-    expect(requirements).toContain('もう一度押せば消えること（MUST）')
-    expect(requirements).toContain('消すための別の入口を置いてはならない（MUST NOT）')
+    expect(requirements).toContain('閲覧者がカーソル 3 種のどれかを出した入口をもう一度押したとき、`GRS` は、押した入口が出したカーソルを消すこと。')
+    expect(requirements).toContain('`GRS` は、カーソルを消すための別の入口を置かないこと。')
     for (const one of specTable('T-109').rows) {
       const cell = one.cells[T_109_ENTRANCE] ?? ''
       expect(

@@ -207,16 +207,16 @@ const EP_1_DOES_NOT_MEASURE_THE_DOM =
  * this marker reaches back over the paragraph break before 「⛔ **前回」, and a
  * window carrying a line break is not one single-quoted literal.
  */
-const FR_060_DOES_NOT_REMEMBER_THE_FILE = '開いていたファイルを覚えてはならない（MUST NOT）'
+const FR_060_DOES_NOT_REMEMBER_THE_FILE = '`GRS` は、前回開いていたファイルを覚えないこと。'
 
 const FR_060_NO_STARTUP_RESTORE_OFFER =
-  ' NOT）**。⇒ **起動時に権限の復帰を申し出てもならない（MUST NOT）'
+  '`GRS` は、起動時に権限の復帰を申し出ないこと。'
 
 const FR_060_THE_PERSON_CHOOSES_AGAIN =
-  '**。⇒ **起動時に権限の復帰を申し出てもならない（MUST NOT）** —— **覚えていないので、申し出る相手が存在しない。**⭐ **起動した直後の最初の保存で、人がファイルを選び直すのが本仕様である（MUST）'
+  '起動した直後の最初の保存のとき、`GRS` は、人にファイルを選び直させること'
 
 const FR_060_NO_HANDLE_IN_BROWSER_STORAGE =
-  'ある（MUST）** —— 上書きが成り立つのは、**同じ起動のうちに一度保存先を決めたあと**である。⛔ そのためにファイルの取っ手を `localStorage` や `IndexedDB` へ保存してはならない（MUST NOT）'
+  '`GRS` は、ファイルの取っ手を `localStorage` や `IndexedDB` へ保存しないこと。'
 
 /** Every clause this file holds, with the name it is known by in the ledger. */
 const CLAUSES: readonly (readonly [string, string])[] = [
@@ -362,7 +362,7 @@ function watchBrowserStores(): StorageWatch {
 
 describe('FR-060 -- the overwrite target is this run’s, and nobody else’s', () => {
   it('⛔ a second run does not remember the file the first one opened', async () => {
-    // FR-060 (MUST NOT): 「前回開いていたファイルを覚えてはならない」, and (MUST)
+    // FR-060 (MUST NOT): 「`GRS` は、前回開いていたファイルを覚えないこと」, and (MUST)
     // 「起動した直後の最初の保存で、人がファイルを選び直す」.
     // ⭐ A RUN IS A CONSTRUCTION. `fileSystemAccessFileStore` is what the shell
     // builds once per page load, so a second call to the factory IS the next
@@ -389,8 +389,8 @@ describe('FR-060 -- the overwrite target is this run’s, and nobody else’s', 
   })
 
   it('⛔ opening and overwriting put nothing into localStorage or IndexedDB', async () => {
-    // FR-060 (MUST NOT): 「ファイルの取っ手を `localStorage` や `IndexedDB` へ
-    // 保存してはならない」.
+    // FR-060 (MUST NOT): 「`GRS` は、ファイルの取っ手を `localStorage` や `IndexedDB`
+    // へ保存しないこと」.
     const watch = watchBrowserStores()
     try {
       const store = fileSystemAccessFileStore(standInBrowser(standInHandle('plan.json')))
@@ -410,7 +410,7 @@ describe('FR-060 -- the overwrite target is this run’s, and nobody else’s', 
   })
 
   it('⛔ nothing is offered back at start-up, because nothing was kept', async () => {
-    // FR-060 (MUST NOT): 「起動時に権限の復帰を申し出てもならない」 -- and the
+    // FR-060 (MUST NOT): 「`GRS` は、起動時に権限の復帰を申し出ないこと」 -- and the
     // reason the requirement gives for it is 「覚えていないので、申し出る相手が
     // 存在しない」. ⭐ THAT IS THE SHAPE PRESSED HERE: on a fresh run there is
     // no file to offer, so an offer could only be about a file the run invented.

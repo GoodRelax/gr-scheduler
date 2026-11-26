@@ -26,8 +26,8 @@
 //
 // and the entrance the picture takes to the clipboard (`FR-025`):
 //
-//   「`IO-6`（クリップボード）の入口は 表 T-109 の `IC-3` とし、選択面を開かずに
-//    直ちに送ること（MUST）」
+//   「`GRS` は、`IO-6`（クリップボード）の入口を 表 T-109 の `IC-3` とすること。
+//    `IC-3` が押されたとき、`GRS` は、選択面を開かずに直ちに送ること。」
 //
 // ---------------------------------------------------------------------------
 // ⛔ WHY THIS FILE EXISTS BESIDE tests/unit/st-7-rs-24-the-stack-safety-valve-
@@ -164,7 +164,7 @@ const ST_7_CAP_IS_THE_HIGHEST_ALLOWED =
 
 /** `FR-025`'s entrance for `IO-6` -- why `IC-3` is what these cases press. */
 const FR_025_IC_3_SENDS_AT_ONCE =
-  '`IO-6`（クリップボード）の入口は 表 T-109 の `IC-3` とし、選択面を開かずに直ちに送ること（MUST）'
+  '`GRS` は、`IO-6`（クリップボード）の入口を 表 T-109 の `IC-3` とすること。`IC-3` が押されたとき、`GRS` は、選択面を開かずに直ちに送ること。'
 
 /** `SK-19`'s first duty -- how a standing telling is taken down between roads. */
 const SK_19_DISMISSES_ONE =
@@ -751,8 +751,8 @@ describe('ST-7 (MUST NOT) -- the telling is not the screen road’s alone', () =
 
   it('⭐⭐ IO-6: after the picture goes to the clipboard, the valve is told again', async () => {
     // 「絵を書き出す経路（`FR-080`）で安全弁に達したとき、`GRS` は、書き出しを終えたあとで
-    //  同じ通知を画面に上げること。」, and `FR-025`: 「`IO-6`（クリップボード）の入口
-    //  は 表 T-109 の `IC-3` とし、選択面を開かずに直ちに送ること（MUST）」.
+    //  同じ通知を画面に上げること。」, and `FR-025`: 「`GRS` は、`IO-6`（クリップボード）の入口を 表 T-109 の
+    //  `IC-3` とすること。`IC-3` が押されたとき、`GRS` は、選択面を開かずに直ちに送ること。」.
     const built = stage(documentOfOverlaps(CAP + 1))
     await built.clearNotices()
 

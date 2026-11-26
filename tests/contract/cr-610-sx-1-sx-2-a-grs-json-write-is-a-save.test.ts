@@ -15,10 +15,10 @@ import { specTable } from './spec-table'
 const T_340 = specTable('T-340')
 
 const SX_1_MOVES_THE_TARGET =
-  '書けたファイルが上書きする先になるかは、`FR-096` の 表 T-340 に従うこと（MUST）'
-const FORM_NOT_ENTRANCE = '書けた後に何が動くかは、入口ではなく書いた形式で決まる'
+  '`GRS` は、書けたファイルが上書きする先になるかを、`FR-096` の 表 T-340 に従って決めること'
+const FORM_NOT_ENTRANCE = '`GRS` は、書けた後に動くものを、入口ではなく書いた形式で決めること。'
 // Why: CR-731 added SX-3, so the note now says "every row" where it said "either row".
-const NOTHING_MOVES_ON_FAILURE = '書けなかったときは、どの行でも何も動かさないこと（MUST）'
+const NOTHING_MOVES_ON_FAILURE = 'もし書けなかった場合、`GRS` は、表 T-340 のどの行のものも動かさないこと。'
 
 const PLAIN_SHELL =
   '<!doctype html><html lang="en"><head><meta charset="utf-8">' +

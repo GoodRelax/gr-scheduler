@@ -30,7 +30,7 @@ const FR_013_EDGE =
 const FR_013_DELAY = '`GRS` は、遅れ（表 T-021 の `PM-4`）のマーカーの地を `_assets/tbl-settings.md` の 表 T-236 の `S-326` で、記号を 表 T-236 の `S-327` で塗ること。'
 const FR_133_SHAPE = '`GRS` は、表 T-315 の状態の区別を色だけに頼らないこと。'
 const FR_133_CLOSE = '⭐ `!!`（`DG-3`）と `!`（`DG-4`）は色が近い（ともに黄の系統） —— 見分けは記号の形が担う。'
-const NFR_007_TEXT = '`GRS` は、文字について 4.5 : 1、図形と操作できる要素について 3 : 1 のコントラスト比を満たすこと'
+const NFR_007_TEXT = '`GRS` は、いま行えることを持たない入口（`FR-029`）と透かし（`FR-020`）を除き、文字について 4.5 : 1、図形と操作できる要素について 3 : 1 のコントラスト比を満たすこと'
 
 type Theme = 'light' | 'dark'
 const THEMES: readonly Theme[] = ['light', 'dark']

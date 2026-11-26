@@ -384,7 +384,7 @@ src/
 | UF-127 | `Schedule` | `plan-actual-state.ts` | `pure` | `Task` の予実の状態を表 T-019a の手順で判別し、その状態から 表 T-022 の頂点を打つ日を答える（`FR-010` ・ `FR-014` ・ `FR-131`） | `FR-010`（`OW-1`） |
 | UF-170 | `Schedule` | `calendar-day.ts` | `pure` | 暦の日付（`CalendarDay`）を字と相互に変え、比べ、日の番号で数える（`EX-2`・`EX-7`・`FD-6`）。<br>日を表す鍵の字（時刻を持たない読みのための字）と、丸 1 日の始まりと終わりの字（`01-04-requirements.md` の 表 T-350 の `WT-6`〜`WT-8`）を別に作る | — |
 | UF-202 | `Schedule` | `time-zone.ts` | `pure` | 表 T-376 のタイムゾーン（`01-04-requirements.md` の `FR-156`）を、生成した一覧から持ち、値が表の鍵か・標準時の行の鍵かを判じ、表 T-376 の行の固定の UTC の差で読む時計（日程データの壁時計の分と、見せる基準の壁時計の分の換算）を作る。<br>この PC の標準時の差を 表 T-376 の標準時の行へ寄せるのも本ユニットだけである（同要求） | — |
-| UF-128 | `Schedule` | `working-calendar.ts` | `pure` | 文書の暦で稼働日を判じ、数え、進め、ラグを稼働日へ換算する（`FR-054`・`FR-009`）。<br>予定の長さ（`_assets/fig-erd-detail.md` の `DV-8`）を数えるのも本ユニットだけである。<br>繰り返しの無い例外日を見分ける述語（同書の `AT-82`）を持つのも本ユニットだけであり、取り込み・書き出し・稼働日の数え・非稼働日の塗りがそれを使う。<br>文書の既定の時刻（`Project.defaultStartTime` ／ `defaultFinishTime`、空なら `S-482` ／ `S-483`）で、開始の側と終了の側の日時の字を作る（`01-04-requirements.md` の 表 T-350） | `FR-054`（`OW-2`） |
+| UF-128 | `Schedule` | `working-calendar.ts` | `pure` | 文書の暦で稼働日を判じ、数え、進め、ラグを稼働日へ換算する（`FR-054`・`FR-009`）。<br>予定の長さ（`_assets/fig-erd-detail.md` の `DV-8`）を数えるのも本ユニットだけである。<br>繰り返しの無い例外日を見分ける述語（同書の `AT-82`）を持つのも本ユニットだけであり、取り込み・書き出し・稼働日の数え・非稼働日の塗りがそれを使う。<br>文書の既定の時刻（`Project.defaultStartTime` ／ `defaultFinishTime`、空なら `S-482` ／ `S-483`）で、開始の側と終了の側の日時の字を作る（`01-04-requirements.md` の 表 T-350） | `FR-054`（`OW-2`）・`FR-303`（`OW-2`）・`FR-304`（`OW-2`） |
 | UF-129 | `Schedule` | `task-delay.ts` | `pure` | `Task` が遅れているかと、遅れの稼働日数を表 T-021b の起点と終点から判ずる（`FR-047`） | `FR-047`（`OW-1`） |
 | UF-130 | `Schedule` | `stored-color.ts` | `pure` | 選んだ色の保存の綴り —— パレット色の名とカスタムカラーの明暗の 2 値 —— を表 T-017b の `CV-1`〜`CV-4` に従って作り・読み・確かめる | — |
 | UF-131 | `Schedule` | `schedule-invariants.ts` | `pure` | 文書の不変条件を表 T-220 の行ごとに判じ、違反の箇所を返す | — |
@@ -394,17 +394,17 @@ src/
 | UF-192 | `Schedule` | `delay-diagnostics-report-table.ts` | `pure` | 遅延診断レポートの表（`01-04-requirements.md` の 表 T-347）の行を、`AM-19` と同じレポートから既定の並びで作り、修正案と修正の記録の表（表 T-374）の行を既定の並びと欄の書き方で作り、コピーと書き出しの Markdown の文字列（表 T-346 の `RW-6`）を 1 つの関数で作る（`delayDiagnosticsReportMarkdown`） | — |
 | UF-201 | `Schedule` | `delay-fixes.ts` | `pure` | 遅延診断の指摘ごとに、表 T-373 の修正のしかたで修正案の行を作り、チェックの入った行を結びの順で写しへ当てて連鎖の行を探し、チェックの入った行から 1 つの束の命令と修正の記録の行（表 T-317 の `DX-11` ・ `DX-12`）を作る（`proposeDelayFixes` ・ `delayFixCommands` ・ `delayFixLogRowsOf`） | `FR-155`（`OW-2`） |
 | UF-2 | `DocumentSettings` | `document-settings.ts` | `pure` | `CP-2` | `FR-039`（`OW-2`）・`FR-041`（`OW-2`）・`FR-049`（`OW-2`） |
-| UF-3 | `DocumentStamp` | `document-stamp.ts` | `pure` | `CP-3` | `FR-063`（`OW-2`） |
+| UF-3 | `DocumentStamp` | `document-stamp.ts` | `pure` | `CP-3` | `FR-063`（`OW-2`）・`FR-364`（`OW-2`） |
 | UF-4 | `EditHistory` | `edit-history.ts` | `pure` | `CP-4` | `FR-031`（`OW-2`） |
 | UF-5 | `ScheduleLayout` | `schedule-layout.ts` | `pure` | 表 T-068 の順に 1 度だけ通して、タスクとタスクグループの置き場を決め、段を割り当てる（`FR-003`・表 T-014） —— 各段の値を兄弟に問い（`LC-1` 〜 `LC-6`）、タスクごとに形・予定の幅・実績とダミーの届き・フェードの切り詰めを測り、占有幅を合算して（`LC-7`・表 T-038）、段の間の隙間（`VG-2`）と帯高と縦位置を決める（`LC-9`）。<br>置き場の型と生成の定数と 1 回の走行の暦の読みを持ち、兄弟の名を束ねて 表 T-064 の `PI-5` のとおりに公開する | `FR-003`（`OW-1`） |
 | UF-132 | `ScheduleLayout` | `time-axis.ts` | `pure` | 日付と横の位置を対応づける時間軸を敷く（`FR-017`・`LC-3`）。<br>ルーラーの粒度を選び（表 T-252、表 T-005a の `L-1`）、目盛を間引き（`LF-1`）、タスクグループを置かずに軸だけを答える（`DC-3`） | `FR-017`（`OW-1`）・`FR-158`（`OW-2`） |
 | UF-133 | `ScheduleLayout` | `label-width.ts` | `pure` | ラベルの幅を、全角 2・半角 1 の単位数 × 字の大きさ × `labelCoef` で概算する（`FR-093`・`LC-5`） | `FR-093`（`OW-1`） |
 | UF-134 | `ScheduleLayout` | `assignee-label.ts` | `pure` | 担当の札の字を、割当の並びで先頭の作業資源（主担当）の名と、ほかにもいるときの印「, …」で書く（`FR-059`・`AS-13`）。<br>材料・費用・名の空の資源を出さず（`AT-87`・`AT-88`）、担当ラベルが名を出す資源を答える（`AS-1`） | `FR-059`（`OW-2`） |
-| UF-135 | `ScheduleLayout` | `percent-label.ts` | `pure` | 完了率の札の字を整数と `%` で書き、担当の札と 1 枚に繋ぐ（`FR-090`・`OC-2`）。<br>未着手は書かない | `FR-090`（`OW-2`） |
+| UF-135 | `ScheduleLayout` | `percent-label.ts` | `pure` | 完了率の札の字を整数と `%` で書き、担当の札と 1 枚に繋ぐ（`FR-090`・`OC-2`）。<br>未着手は書かない | `FR-090`（`OW-2`）・`FR-340`（`OW-2`） |
 | UF-136 | `ScheduleLayout` | `name-label.ts` | `pure` | 名称ラベルの字を書く（`FR-002`・`LC-4`） —— 名を打ち切り、予定日を添え、年を書くかを文書全体で決める（`ND-1` 〜 `ND-5`・`S-232`）。<br>予定日の字を名の字の `S-325` 倍で測って、ラベルの幅を答える | `FR-002`（`OW-2`） |
 | UF-137 | `ScheduleLayout` | `shape-cross-sections.ts` | `pure` | 形ごとの縦の断面（表 T-271 の `XS-1` 〜 `XS-9`）を、縦の倍率から決める（表 T-012）。<br>字を可読の下限より小さくせず（`FR-077`）、同じ式を逆に解いて、名の字の大きさから縦の倍率を答える | `FR-077`（`OW-2`） |
 | UF-138 | `ScheduleLayout` | `drawn-task-groups.ts` | `pure` | 描くタスクグループを選ぶ —— 折りたたんだタスクグループと隠したタスクグループを落とし（`LC-1`・`HF-7`・`HR-2`）、残りを木の順に並べる | — |
-| UF-139 | `ScheduleLayout` | `group-level-of-detail.ts` | `pure` | 縦の倍率に応じて描くタスクグループの深さを減らす（表 T-005a の `L-3`、`FR-018`・`LC-2`）。<br>`expanded` と `temporarilyExpanded` が残すタスクグループを答え（`01-04-requirements.md` の 表 T-329 の `TD-6`・`TD-7`）、深さごとに要る倍率を 1 つの式で答える（`S-87`・`S-88`） | `FR-018`（`OW-2`） |
+| UF-139 | `ScheduleLayout` | `group-level-of-detail.ts` | `pure` | 縦の倍率に応じて描くタスクグループの深さを減らす（表 T-005a の `L-3`、`FR-018`・`LC-2`）。<br>`expanded` と `temporarilyExpanded` が残すタスクグループを答え（`01-04-requirements.md` の 表 T-329 の `TD-6`・`TD-7`）、深さごとに要る倍率を 1 つの式で答える（`S-87`・`S-88`） | `FR-018`（`OW-2`）・`FR-305`（`OW-2`） |
 | UF-140 | `ScheduleLayout` | `label-placement.ts` | `pure` | 札の基準を選び（`RF-1`・`RF-3`、実績の無いタスクではダミーの帯）、名称・進捗マーカー・担当の札を形に隠れない所へ置く（`FR-109`・`LC-6`・表 T-272・表 T-273）。<br>未定の再開アイコンのぶん外へずらす（`GA-20`・`XS-10`） | `FR-109`（`OW-1`） |
 | UF-141 | `ScheduleLayout` | `pinned-band.ts` | `pure` | ピン止めしたタスクグループを上の帯へ持ち上げ、入りきらないタスクグループを落とす（`FR-098`・`LF-14`）。<br>残りのタスクグループとタスクを帯の下へずらす | — |
 | UF-142 | `ScheduleLayout` | `task-group-scroll.ts` | `pure` | 縦の表示位置（`OP-10a`・`S-176`）から、ピン止めでないタスクグループとタスクをずらす | — |
@@ -437,9 +437,9 @@ src/
 | UF-79 | `EditDocument` | `task-group-folding.ts` | `pure` | タスクグループの木の状態を、1 つのタスクグループまたは全タスクグループについて書き換え、入口ごとの先の値を `_assets/tbl-state-machines.md` の 表 T-328 の遷移表から引く | `FR-004`（`OW-2`） |
 | UF-80 | `EditDocument` | `task-group-order.ts` | `pure` | 兄弟のタスクグループの並びと親を、表 T-015a に従って変える | `FR-005`（`OW-2`） |
 | UF-13 | `EditDocument` | `edit-dependency.ts` | `pure` | `Dependency` の編集 | — |
-| UF-14 | `EditDocument` | `edit-annotation.ts` | `pure` | 注記（`CommentBox` と `HighlightBox`）の編集 | `FR-019`（`OW-2`） |
+| UF-14 | `EditDocument` | `edit-annotation.ts` | `pure` | 注記（`CommentBox` と `HighlightBox`）の編集 | `FR-019`（`OW-2`）・`FR-320`（`OW-2`）・`FR-321`（`OW-2`）・`FR-322`（`OW-2`）・`FR-323`（`OW-2`）・`FR-324`（`OW-2`） |
 | UF-15 | `EditDocument` | `edit-resource.ts` | `pure` | `Resource` と `Assignment` の編集 | `FR-008`（`OW-2`） |
-| UF-16 | `EditDocument` | `edit-calendar.ts` | `pure` | `Calendar` の編集。<br>例外日の日付の時刻を揃えるのは本ユニットだけである（`_assets/tbl-document-commands.md` の `CM-39`）。 | `FR-088`（`OW-2`） |
+| UF-16 | `EditDocument` | `edit-calendar.ts` | `pure` | `Calendar` の編集。<br>例外日の日付の時刻を揃えるのは本ユニットだけである（`_assets/tbl-document-commands.md` の `CM-39`）。 | `FR-088`（`OW-2`）・`FR-300`（`OW-2`） |
 | UF-17 | `EditDocument` | `edit-project.ts` | `pure` | `Project` の編集 | `FR-035`（`OW-2`）・`FR-046`（`OW-2`） |
 | UF-18 | `EditDocument` | `edit-document-settings.ts` | `pure` | `DocumentSettings` の編集 | — |
 | UF-162 | `EditDocument` | `deletion-confirmations.ts` | `pure` | 削除が消すもの・解くものを数え、表 T-234 の問い（`QN-1`・`QN-2`・`QN-3`・`QN-10`）を立てるかを決める（`FR-032`・`FR-099`） —— タスクグループと共に消えるタスクグループとタスクを数え（表 T-050 の `CD-1`・`CD-2`・`CD-6`）、担当の外しで解かれるタスクを並べる（`CD-5`）<br>告げ方（表 T-037 の `NT-7`）は持たない | — |
@@ -448,11 +448,11 @@ src/
 | UF-19 | `ImportDocument` | `import-document.ts` | `pure` | `CP-10` | `FR-015`（`OW-2`）・`FR-022`（`OW-2`）・`FR-056`（`OW-1`）・`FR-087`（`OW-1`） |
 | UF-20 | `UndoEdit` | `undo-edit.ts` | `pure` | `CP-11` | — |
 | UF-21 | `RedoEdit` | `redo-edit.ts` | `pure` | `CP-12` | — |
-| UF-22 | `ValidateImportedDocument` | `validate-imported-document.ts` | `pure` | `CP-13` | `FR-023`（`OW-4`）・`NFR-009`（`OW-4`） |
+| UF-22 | `ValidateImportedDocument` | `validate-imported-document.ts` | `pure` | `CP-13` | `FR-023`（`OW-4`）・`FR-341`（`OW-4`）・`FR-342`（`OW-4`）・`NFR-009`（`OW-4`） |
 | UF-23 | `ChooseStartupDocument` | `choose-startup-document.ts` | `pure` | `CP-14` | `FR-027`（`OW-2`）・`FR-062`（`OW-1`） |
 | UF-24 | `NotifyChangeWatchers` | `notify-change-watchers.ts` | `non-pure` | 購読の登録・解除と、配ること | — |
 | UF-25 | `NotifyChangeWatchers` | `change-notice.ts` | `pure` | まだ受け取っていない変更を選ぶ | — |
-| UF-27 | `AgentApiEndpoint` | `agent-api-endpoint.ts` | `non-pure` | 設置と公開点の管理 | `FR-064`（`OW-3`）・`FR-065`（`OW-2`） |
+| UF-27 | `AgentApiEndpoint` | `agent-api-endpoint.ts` | `non-pure` | 設置と公開点の管理 | `FR-064`（`OW-3`）・`FR-065`（`OW-2`）・`FR-365`（`OW-2`） |
 | UF-28 | `AgentApiEndpoint` | `agent-api-members.ts` | `non-pure` | 表 T-107 の 27 メンバの結線 | `FR-028`（`OW-2`） |
 | UF-185 | `AgentApiEndpoint` | `relayed-call.ts` | `non-pure` | 取次が運んだ呼び出しを 1 つずつ、表 T-107 の同じ確定名のメンバへ渡し、答えを運べる値にして返す（`answerRelayedCall`） —— 画像のバイト列は base64 の文字列にし、購読した変更は渡された送り口へ流す（`_assets/design-mcp-relay.md` の 3.2 ・ 3.3）。<br>呼び出しと答えの型（`RelayedCall` ・ `RelayedAnswer`）を宣言する | — |
 | UF-29 | `AgentApiEndpoint` | `snapshot-source.ts` | `—` | `SnapshotSource` の宣言（`IF-7`） | — |
@@ -476,24 +476,24 @@ src/
 | UF-82 | `SvgRenderer` | `schedule-grid.ts` | `pure` | チャートの格子 —— タスクグループの帯と横罫、日付の縦罫、目盛の帯 —— を 1 つの刻みから描く | `FR-089`（`OW-2`） |
 | UF-83 | `SvgRenderer` | `schedule-overlays.ts` | `pure` | タスクに属さない重ね描き —— 進捗線・状態線・二重カーソル・ガイドカーソル・注記・透かし | — |
 | UF-33 | `SvgRenderer` | `svg-surface.ts` | `—` | `SvgSurface` の宣言（`IF-1`） | — |
-| UF-34 | `DocumentCodec` | `document-codec.ts` | `pure` | 3 つの符号器を束ねて公開する | `FR-096`（`OW-3`） |
-| UF-35 | `DocumentCodec` | `json-codec.ts` | `pure` | `GRS JSON` の文字列と文書を相互に変える（`FR-024`・`FR-073`） —— 形式の版を判じて新しい版の知らない鍵を並べて捨て（`OP-7`・`FR-073`）、退いた列を外し（表 T-297）、古い版の欠けた列を埋め（`AT-141`〜`AT-143`・`GP-1`）、`documentSettings` の解釈できない鍵を捨てるか既定値に戻し（`OP-6`）、スキーマの外れで拒み（`RS-25`・`RS-64`）、設定値を範囲へ寄せて数え（`OP-6`・`PI-2`）、完了率を日付から数え直して数える（`FR-012`・`RS-52`）。<br>スキーマに照らす問いは兄弟に問い、外れの型を出し直す | `FR-024`（`OW-1`）・`FR-073`（`OW-2`） |
+| UF-34 | `DocumentCodec` | `document-codec.ts` | `pure` | 3 つの符号器を束ねて公開する | `FR-096`（`OW-3`）・`FR-362`（`OW-3`）・`FR-363`（`OW-3`） |
+| UF-35 | `DocumentCodec` | `json-codec.ts` | `pure` | `GRS JSON` の文字列と文書を相互に変える（`FR-024`・`FR-073`） —— 形式の版を判じて新しい版の知らない鍵を並べて捨て（`OP-7`・`FR-073`）、退いた列を外し（表 T-297）、古い版の欠けた列を埋め（`AT-141`〜`AT-143`・`GP-1`）、`documentSettings` の解釈できない鍵を捨てるか既定値に戻し（`OP-6`）、スキーマの外れで拒み（`RS-25`・`RS-64`）、設定値を範囲へ寄せて数え（`OP-6`・`PI-2`）、完了率を日付から数え直して数える（`FR-012`・`RS-52`）。<br>スキーマに照らす問いは兄弟に問い、外れの型を出し直す | `FR-024`（`OW-1`）・`FR-073`（`OW-2`）・`FR-360`（`OW-2`）・`FR-361`（`OW-2`） |
 | UF-152 | `DocumentCodec` | `grs-json-schema.ts` | `pure` | `GRS JSON` のスキーマ（表 T-220 の前文、`grs-document.schema.json`）を持ち、それに照らして答える —— 値の外れを並べ（`FR-023`・`RS-25`）、実体を持つ集まりの名を答える（表 T-297）。<br>節の表は生成器が刷り、11 の語だけを解し、知らない鍵の外れを名乗らせる（`isUnknownKeyFault`）。<br>日時の `pattern` と形式の版の `const` は節の表に刷らない —— 日時は `FR-023` が、版は `FR-073` が判じる（Chapter 6.1） | — |
 | UF-36 | `DocumentCodec` | `mspdi-codec.ts` | `pure` | `MSPDI` の要素の木と文書を、列ごとに相互に写す（`FR-021`・`FR-057`） —— 読まない子を `carry` に控えて書くとき元の位置へ戻し（`DF-3`・`MR-3`・`RS-60`）、プロジェクトの要約タスクを `Task` にせず原形のまま控え（`MR-4`・`EX-5`）、版を判じ（`EX-1`・`AT-143`）、書き出すときに作る値を作り（表 T-059）、実績の長さを停止日に直し（`FR-011`・`AT-141`）、制約の 2 列を写す（`EX-11`・`EX-12`）。<br>XML の文字列と要素の木の変換は `mspdi-xml.ts` に、書き出す要素の子の並び（`EX-10`）は `mspdi-child-placement.ts` に、フェード日数と拡張領域の枠（`EX-6`・`EX-8`）は `mspdi-fade-frames.ts` に、取り込んだタスクのタスクグループと所属（`FR-058`）は `mspdi-imported-task-groups.ts` に問う。<br>兄弟が使う要素の木の語彙と、外へ見せる入口と型を持ち、外れの型を出し直す | `FR-021`（`OW-2`）・`FR-057`（`OW-1`） |
 | UF-153 | `DocumentCodec` | `mspdi-xml.ts` | `pure` | XML の文字列と要素の木を相互に変える。<br>宣言に無い属性と、定義の無い実体参照を拒み（`FR-023`）、入れ子を明示のスタックで読み、UTF-8 の宣言と名前空間を置いて書く（`CN-5`） | — |
 | UF-154 | `DocumentCodec` | `mspdi-child-placement.ts` | `pure` | 書き出す要素の子を、交換相手のスキーマの `xsd:sequence` の順に置く（`EX-10`） —— 持ち回った子を届いた順で戻し、宣言の無い子を宣言された隣に付ける。<br>順の名簿（`pj15` だけが宣言する子の印を含む）を `mspdi-child-order.json` から持ち、`xsd:all` の親と名簿に無い親の子は届いた順に置く | — |
 | UF-155 | `DocumentCodec` | `mspdi-fade-frames.ts` | `pure` | フェード日数を、`MSPDI` の拡張領域の枠と相互に写す（`EX-6`・`EX-8`） —— 枠の定義を 1 度だけ書く。<br>名簿（`mspdi-custom-fields.json`）の順に使われていない枠を探し、取り込み元の枠を上書きせず、書けなければ告げ、読むときは `Alias` で名乗った枠だけを取る | — |
 | UF-156 | `DocumentCodec` | `mspdi-imported-task-groups.ts` | `pure` | 取り込んだタスクの WBS の木から、タスクグループと所属を作る（`FR-058`）。<br>子を持たないタスクにはタスクグループを作らず親のタスクグループへ載せ、`maxGroupDepth` の深さで止めて、深いタスクは最も深い祖先のタスクグループへ載せ、タスクグループの ID をタスクの UID から作る（`AT-51`） | — |
-| UF-37 | `DocumentCodec` | `embedded-html-codec.ts` | `semi-pure-mutable` | 単一 `.html` の書き出しと、埋め込まれた文書の取り出し | `FR-067`（`OW-2`） |
+| UF-37 | `DocumentCodec` | `embedded-html-codec.ts` | `semi-pure-mutable` | 単一 `.html` の書き出しと、埋め込まれた文書の取り出し | `FR-067`（`OW-2`）・`FR-366`（`OW-2`） |
 | UF-38 | `DocumentCodec` | `app-shell-source.ts` | `—` | `AppShellSource` の宣言（`IF-8`） | — |
-| UF-39 | `ImageExporter` | `image-exporter.ts` | `semi-pure-mutable` | `CP-21` の残り | `FR-025`（`OW-2`） |
+| UF-39 | `ImageExporter` | `image-exporter.ts` | `semi-pure-mutable` | `CP-21` の残り | `FR-025`（`OW-2`）・`FR-343`（`OW-2`） |
 | UF-40 | `ImageExporter` | `rasterizer.ts` | `—` | `Rasterizer` の宣言（`IF-6`） | — |
-| UF-41 | `FileGateway` | `file-gateway.ts` | `semi-pure-mutable` ／ `non-pure` | `CP-22` の残り | `FR-060`（`OW-2`） |
+| UF-41 | `FileGateway` | `file-gateway.ts` | `semi-pure-mutable` ／ `non-pure` | `CP-22` の残り | `FR-060`（`OW-2`）・`FR-344`（`OW-2`） |
 | UF-42 | `FileGateway` | `file-store.ts` | `—` | `FileStore` の宣言（`IF-3`） | — |
 | UF-45 | `ClipboardGateway` | `clipboard-gateway.ts` | `non-pure` | `CP-24` の残り | — |
 | UF-46 | `ClipboardGateway` | `clipboard.ts` | `—` | `Clipboard` の宣言（`IF-5`） | — |
 | UF-47 | `SingleHtmlShell` | `single-html-shell.ts` | `non-pure` | 起動と結線（順序は 表 T-077）、埋め込みの入れ物、公開点を置くこと、`AppShellSource` の実装 | `NFR-011`（`OW-2`） |
-| UF-48 | `SingleHtmlShell` | `frame-loop.ts` | `non-pure` | 現在値の保持（保存しない画面とセッションの値は、セッションの現在値（`PI-39` の `ScreenSession`）1 つとして持つ。<br>出来事は 1 本の送り口 `sendToSession` だけを通し、`advanceScreenSession` で 1 段進めて参照を差し替え、返った副作用をその同じ呼び出しの中で `UF-123` の実行に渡す —— `SF-6` ・ `SF-7`。<br>`Esc` の段は `escapeTarget` で決めて 1 段 1 行で送る（表 T-283）。<br>描き手へは根の状態と `ScreenViewReadings` を渡す）、フレームを起こす契機の観測（表 T-078）、フレーム先頭の収集と計算、描画と入力への配り、`SnapshotSource` の実装、全画面表示をブラウザに求めることと、ブラウザが告げた全画面表示の変化を 表 T-206 の `S-99f` へ写すこと（`FR-071`）。<br>⭐ 全画面表示の求めは、入口の入力（表 T-078 の `FT-1`）を受けたその呼び出しの中で、フレームを待たずに出すこと（MUST） —— ブラウザは利用者の操作による活性の中で出された求めしか受け付けず、活性をどこまで持ち越すかはブラウザごとに違うので、入力を受けた呼び出しの中で出すことだけが、どのブラウザでも活性の中にある。<br>ポインタの形は `pointer-shape.ts` に、掴んで動かす間の先の描画は `held-press-preview.ts` に、ブラウザに残す値の読み書きは `browser-stored-values.ts` に、操作の記録は `interaction-record.ts` に、表示の場所は `view-place.ts` に、時間でフレームを起こす待ちは `frame-clock-wakes.ts` に、名前付けと入力欄の出来事は `field-entry.ts` に、文書のファイルの流れは `document-file-flow.ts` に、透かしの解除の門は `watermark-unlock.ts` に、縦軸のズームの天井の使い回しは `task-group-band-ceiling-cache.ts` に、コピーと貼り付けは `copy-and-paste.ts` に問う。<br>削除が負う問いを立てるかは `EditDocument`（`PI-9`）に問い、告げ方（`NT-7`）だけを添える。<br>兄弟が共有する語彙（問いの型・告げ方）と、兄弟が閉包の値を読む手の束（`FrameLoopHands`）を持つ。<br>⚠️ 本ユニットは `R2.2a` と `R2.2b` を満たさない —— セッションを 1 段進めることとフレームを計算して配ることが 1 つの周期に残る。<br>2 つは多くの変更で共に書き換わってきたので、いまは 1 つの周期に置く | `FR-068`（`OW-2`）・`FR-100`（`OW-2`）・`NFR-002`（`OW-4`）・`NFR-003`（`OW-4`）・`NFR-010`（`OW-1`） |
+| UF-48 | `SingleHtmlShell` | `frame-loop.ts` | `non-pure` | 現在値の保持（保存しない画面とセッションの値は、セッションの現在値（`PI-39` の `ScreenSession`）1 つとして持つ。<br>出来事は 1 本の送り口 `sendToSession` だけを通し、`advanceScreenSession` で 1 段進めて参照を差し替え、返った副作用をその同じ呼び出しの中で `UF-123` の実行に渡す —— `SF-6` ・ `SF-7`。<br>`Esc` の段は `escapeTarget` で決めて 1 段 1 行で送る（表 T-283）。<br>描き手へは根の状態と `ScreenViewReadings` を渡す）、フレームを起こす契機の観測（表 T-078）、フレーム先頭の収集と計算、描画と入力への配り、`SnapshotSource` の実装、全画面表示をブラウザに求めることと、ブラウザが告げた全画面表示の変化を 表 T-206 の `S-99f` へ写すこと（`FR-071`）。<br>⭐ 全画面表示の求めは、入口の入力（表 T-078 の `FT-1`）を受けたその呼び出しの中で、フレームを待たずに出すこと（MUST） —— ブラウザは利用者の操作による活性の中で出された求めしか受け付けず、活性をどこまで持ち越すかはブラウザごとに違うので、入力を受けた呼び出しの中で出すことだけが、どのブラウザでも活性の中にある。<br>ポインタの形は `pointer-shape.ts` に、掴んで動かす間の先の描画は `held-press-preview.ts` に、ブラウザに残す値の読み書きは `browser-stored-values.ts` に、操作の記録は `interaction-record.ts` に、表示の場所は `view-place.ts` に、時間でフレームを起こす待ちは `frame-clock-wakes.ts` に、名前付けと入力欄の出来事は `field-entry.ts` に、文書のファイルの流れは `document-file-flow.ts` に、透かしの解除の門は `watermark-unlock.ts` に、縦軸のズームの天井の使い回しは `task-group-band-ceiling-cache.ts` に、コピーと貼り付けは `copy-and-paste.ts` に問う。<br>削除が負う問いを立てるかは `EditDocument`（`PI-9`）に問い、告げ方（`NT-7`）だけを添える。<br>兄弟が共有する語彙（問いの型・告げ方）と、兄弟が閉包の値を読む手の束（`FrameLoopHands`）を持つ。<br>⚠️ 本ユニットは `R2.2a` と `R2.2b` を満たさない —— セッションを 1 段進めることとフレームを計算して配ることが 1 つの周期に残る。<br>2 つは多くの変更で共に書き換わってきたので、いまは 1 つの周期に置く | `FR-068`（`OW-2`）・`FR-367`（`OW-2`）・`FR-368`（`OW-2`）・`FR-100`（`OW-2`）・`NFR-002`（`OW-4`）・`NFR-003`（`OW-4`）・`NFR-010`（`OW-1`） |
 | UF-157 | `SingleHtmlShell` | `pointer-shape.ts` | `non-pure` | 指している掴み代に応じて、表 T-269 のポインタの形を描いて返す（`IN-2`・`FR-106`） —— 形の選び方は 表 T-266 の欄から読み、押している間は押した点の形を保ち、依存線を構えているあいだは形を出さない | `FR-106`（`OW-1`） |
 | UF-158 | `SingleHtmlShell` | `held-press-preview.ts` | `semi-pure-mutable` | 掴んで動かす間、離したときの結果を先に描く文書と依存線を作る（表 T-023d・`PTD-3`・`PTD-5`・`FR-009`） —— 先に描く掴みの行を持ち、範囲選択の矩形を求め、保持中の文書から 1 度だけ当てる。<br>拒まれた引きは描かない | — |
 | UF-159 | `SingleHtmlShell` | `browser-stored-values.ts` | `non-pure` | ブラウザに残す値（表 T-206 の `S-99`〜`S-99c`）を読み書きし、GRS リセット（`01-04-requirements.md` の `FR-153`）では同書の 表 T-345 が「消す」とする鍵を消す —— 起動時の画面の言語と `Agent API` の記憶を読む（`FR-038`・`FR-065`）。<br>鍵に共通の接頭辞を付け、読めない値は無いものとし、書けないときは何もしない。<br>⭐ 消すときも、共通の接頭辞で `GRS` の鍵を見分け、ほかの鍵に触れない（同表の `WP-6`） | `FR-153`（`OW-1`） |
@@ -521,10 +521,10 @@ src/
 | UF-57 | `Document` | `document.ts` | `pure` | `CP-34` | — |
 | UF-58 | `ScreenRegions` | `screen-regions.ts` | `pure` | `CP-35` | `FR-051`（`OW-2`） |
 | UF-59 | `ScreenState` | `screen-state.ts` | `pure` | `CP-36` | — |
-| UF-60 | `ScreenRenderer` | `screen-renderer.ts` | `pure` | 同じコンポーネントのほかのファイルを束ねて公開し、画面の言語とヘルプの言語を運ぶ（`FR-038`） | `FR-029`（`OW-3`）・`FR-038`（`OW-3`） |
+| UF-60 | `ScreenRenderer` | `screen-renderer.ts` | `pure` | 同じコンポーネントのほかのファイルを束ねて公開し、画面の言語とヘルプの言語を運ぶ（`FR-038`） | `FR-029`（`OW-3`）・`FR-038`（`OW-3`）・`FR-380`（`OW-3`）・`FR-381`（`OW-3`） |
 | UF-61 | `ScreenRenderer` | `screen-frame.ts` | `pure` | `App Header`・`Panel Divider`・`Scrollbars` の割り付け（`FR-051` / `FR-052`）、つまみが表す全体の測り（`GR-21` —— 内容の範囲といま見えている範囲の和。<br>押した時点の全体を保つのは値を持つ `SingleHtmlShell` である）と、全画面表示かどうか（表 T-206 の `S-99f`）を記述へ運ぶこと（`FR-071`）。<br>⚠️ 画面を広げるのはブラウザであり、本ユニットは全画面表示のために割り付けを変えない | `FR-052`（`OW-2`） |
 | UF-62 | `ScreenRenderer` | `app-header-items.ts` | `pure` | `Branding` の字と押した先の所（`FR-051` の 表 T-349）・`Document Title`（`FR-035`）・`Opened File Name` と `File Saved At`（`FR-101`）・`Agent API` が有効であることの表示（`FR-065`）・画面の言語の切替（`FR-038`）。<br>⚠️ **`FR-101` の「名前を時刻の上に置く」は本ユニットの責務ではない** —— 本ユニットは名前と時刻と大きさの 3 つの値を運ぶだけであり、**順序を運ぶ欄を持たない**。<br>上下の関係を負うのは `UF-104` である | — |
-| UF-63 | `ScreenRenderer` | `task-group-panel.ts` | `pure` | `Task Group Panel` と `Task Group Title Tree`（`FR-085` / `FR-005` / `FR-098`） | `FR-098`（`OW-2`） |
+| UF-63 | `ScreenRenderer` | `task-group-panel.ts` | `pure` | `Task Group Panel` と `Task Group Title Tree`（`FR-085` / `FR-005` / `FR-098`） | `FR-098`（`OW-2`）・`FR-306`（`OW-2`）・`FR-307`（`OW-2`） |
 | UF-64 | `ScreenRenderer` | `properties-panel.ts` | `pure` | `Properties Panel`（`FR-006` / `FR-072`） | `FR-006`（`OW-2`）・`FR-072`（`OW-1`） |
 | UF-65 | `ScreenRenderer` | `command-palette.ts` | `pure` | `Command Palette`（`FR-053` / `FR-083`） | `FR-078`（`OW-2`） |
 | UF-66 | `ScreenRenderer` | `open-modals.ts` | `pure` | 重ねて開く面（定義は 表 T-028 の `IN-4`）—— `FR-036` / `FR-074` / `FR-088` | `FR-036`（`OW-2`）・`FR-074`（`OW-2`） |
@@ -571,10 +571,10 @@ src/
 
 **「負う要求」の欄の結び。**
 
-`01-04-requirements.md` が持つ要求は 139 件である（`FR` が 126 件、`NFR` が 13 件）。  
-そのうち 125 件は、上の欄が起点のユニットを名指している。
+`01-04-requirements.md` が持つ要求は 170 件である（`FR` が 157 件、`NFR` が 13 件）。  
+そのうち 152 件は、上の欄が起点のユニットを名指している。
 
-⛔ **起点のユニットを持たない要求が 5 件ある** —— どれも 表 T-277 の `OW-5` である。  
+⛔ **起点のユニットを持たない要求が 7 件ある** —— どれも 表 T-277 の `OW-5` である。  
 `OW-5` は表 T-075 の欄に立たないので、確かめる手立てを本段が名指す。
 
 - `FR-092`（マニュアルを読まずに使えるようにする手立て）—— 表 T-040 の手立ては、どのユニットも単独では備えられない。
@@ -584,12 +584,14 @@ src/
   同要求が求めるとおり、`file://` で開いた状態と `http://` で開いた状態の両方で同じ母数を掃く。
 - `FR-030`（色だけで伝えない）—— `tests/use-case/uc-005-record-actuals.test.ts`（表 T-021 の進捗マーカーは、状態ごとに形が違う）と `tests/system/nfr-004-file-scheme-sweep.sws.test.ts`（表 T-023c の `SL-8`、選択を破線の枠でも示す）。
 - `FR-069`（ライセンス全文を成果物の中に持つ）—— 検査 27 が走らせる `tools/generate_license.py --check`。
+- `FR-369`（`FR-069` の子）—— `FR-069` と同じく、検査 27 が走らせる `tools/generate_license.py --check`。
+- `FR-370`（`FR-069` の子）—— `FR-069` と同じく、検査 27 が走らせる `tools/generate_license.py --check`。
 
-⚠️ **起点をまだ書いていない要求が 9 件ある。**  
+⚠️ **起点をまだ書いていない要求が 11 件ある。**  
 ⛔ これは「持ち主が無い」ではなく「まだ決めていない」である。  
 理由は 3 つに分かれる。
 
-- **仕様が起点のユニットを決めていない（4 件）** —— `FR-130` ・ `FR-133` ・ `FR-156` ・ `FR-157`。
+- **仕様が起点のユニットを決めていない（6 件）** —— `FR-130` ・ `FR-133` ・ `FR-156` ・ `FR-157` ・ `FR-301` ・ `FR-302`。
   ⚠️ どの行も起点を名指していない。
   ⛔ どれが正かは、本節では決めない。
 - **1 つのユニットの性質ではなく、木の全体の性質であり、確かめる手立てもまだ無い（4 件）** —— `NFR-005` ・ `NFR-006` ・ `NFR-008` ・ `NFR-012`。
@@ -1262,122 +1264,166 @@ flowchart TB
 
 **Type**: SECTION
 
-**文書の不変条件の全数を 表 T-220 に示す** —— 表 T-060 の `LY-1` が、その全数を本節が持つと定めている。  
-`scheduleViolations`（表 T-064 の `PI-1`）は本表を駆動して回ること（MUST）。  
-⭐ 本表の行は、操作が終わった文書について判ずること（MUST） —— 操作の途中の文書を数え上げると、偽の違反が出る。  
+**文書の不変条件の全数を 表 T-220 に示す** —— 表 T-060 の `LY-1` が、その全数を本節が持つと定めている。
+
+**表 T-720 — 文書の不変条件の判じ方の実装仕様**
+
+| 行 ID | 何についてか | 実装仕様 | traces |
+| --- | --- | --- | --- |
+| IMPS-1300 | 表 T-220 を回す者 | `scheduleViolations`（表 T-064 の `PI-1`）は、表 T-220 を駆動して回ること。 | FR-023 |
+| IMPS-1301 | 判ずる時点 | `GRS` は、表 T-220 の行を、操作が終わった文書について判ずること。<br>`GRS` は、操作が終わった時点で判ずることを、`IV-20` だけでなく表 T-220 のすべての行に当てること。 | FR-023 |
+| IMPS-1302 | 行ごとの条件 | 表 T-220 の条件を、行ごとに書き下さないこと。 | FR-023 |
+
+`IMPS-1301` —— 操作の途中の文書を数え上げると、偽の違反が出る。  
+`IMPS-1301` —— ほかの行が今まで黙っていられたのは、静止した文書についての条件しか述べておらず、操作の途中の状態を持たなかったからである。  
 ⚠️ ユースケースの層はタスクグループが 0 の文書を返す —— 1 つのタスクグループが戻るのはその外側であり、`tests/unit/t-050-a-document-always-holds-one-task-group.test.ts` が押さえる。  
 ユースケースの層の側に単体試験は置かない —— `edit-task-group.ts` は `pure` であり、`docs/development-rules/04-verification.md` の省略の表が `pure` の関数の単体試験を省く。  
 ⭐ 何をもって 1 つの操作とするかは `01-04-requirements.md` の 表 T-050 の直下が持つ。  
-⚠️ この時点は本表のすべての行に掛かる。  
-`IV-20` だけの断りにしない —— ほかの行が今まで黙っていられたのは、静止した文書についての条件しか述べておらず、操作の途中の状態を持たなかったからである。  
-行ごとに条件を書き下してはならない（MUST NOT） —— 表を指す要求を検証するテストの駆動の仕方は、1.9 が名指す `spec-writing-rules.md` が持つ。
+`IMPS-1302` —— 表を指す要求を検証するテストの駆動の仕方は、1.9 が名指す `spec-writing-rules.md` が持つ。
 
-⚠️ **本表は、生成したスキーマが持てない条件だけを持つ** —— `_source/grs-document.schema.json` は、列ごとの型と、`null` を許すかと、文字列の長さと、数値の範囲と、原稿が値を綴った列挙を既に強制する。  
-**1 つの列だけで決まる条件を本表に書いてはならない（MUST NOT）** —— 二重に持つことになる。  
-⚠️ スキーマが配列の本数の上限（`maxItems`、例: 時間帯の `S-582`）を刷っても、読む路はそれで文書ごと拒まない —— 上限は書き手への約束であり、本数を読む条件は本表の行（時間帯なら `IV-24`）が持つ。  
-⭐ **足りないものは原稿の側を直し、スキーマに強制させること（MUST）。**  
-⭐ そのスキーマを、`GRS JSON` を読む路で実際に走らせること（MUST）。  
-走らせずに上の免除を根拠にしてはならない（MUST NOT） —— 免除は「別の者が強制している」ことを前提にしており、**誰も走らせなければ、その列は誰にも見られない。**  
-⭐ 走らせるのは文書を組み立てる側（Chapter 5.2 の `CP-20`）とする（MUST） —— 列の形が違うものは、文書になる前に落ちるべきだからである。  
-⭐ スキーマを走らせる前に、表 T-297 の列を捨てて読むこと（MUST） —— 仕様が落とした列を、保存済みの文書はまだ持っている。  
-捨てた列を通知してはならず、書き戻してもならない（MUST NOT） —— 読む人の側に直せることが何も無い。  
-⭐ 同じくスキーマを走らせる前に、`_assets/fig-erd-detail.md` の `AT-145` ・ `AT-146` ・ `AT-147` の列を持たない `HighlightBox` の項と、`AT-148` 〜 `AT-152` と `AT-168` の列を持たない `CommentBox` の項には、その列を `null` として足して読むこと（MUST） —— 列を足す前に保存した文書は、その鍵を持たない。  
-⭐ 形式の版（`FR-073`）によらずに足す —— `null` は `_assets/tbl-settings.md` の 表 T-217 の既定か、`01-04-requirements.md` の `FR-019` が名指す色で描く値なので、どの版の文書でも絵が変わらない。  
-⚠️ `AT-168` だけは、列を足す前の造りが文書の文字サイズで描いていた大きさと違う既定（同表の `S-624`）で描く —— 利用者が既定を 1 つの px に定めた（`FR-019`）。  
-足したことを通知してはならない（MUST NOT） —— 読む人の側に直すことが何も無い。  
+**表 T-721 — スキーマを走らせる読む路の実装仕様**
+
+| 行 ID | 何についてか | 実装仕様 | traces |
+| --- | --- | --- | --- |
+| IMPS-1303 | 表 T-220 が持つ条件 | 表 T-220 は、生成したスキーマが持てない条件だけを持つこと。<br>表 T-220 は、1 つの列だけで決まる条件を持たないこと。 | FR-023 |
+| IMPS-1304 | 配列の本数の上限 | `GRS JSON` を読むとき、`GRS` は、スキーマが刷る配列の本数の上限（`maxItems`、例: 時間帯の `S-582`）を理由に文書ごと拒まないこと。 | FR-023 |
+| IMPS-1305 | スキーマに足りない条件 | スキーマに足りない条件は、原稿の側を直して、スキーマに強制させること。 | FR-023 |
+| IMPS-1306 | スキーマを走らせること | `GRS JSON` を読むとき、`GRS` は、生成したスキーマ（`_source/grs-document.schema.json`）を実際に走らせること。<br>スキーマを走らせずに、`IMPS-1303` の免除（1 つの列だけで決まる条件を表 T-220 に持たないこと）を根拠にしないこと。 | FR-023 |
+| IMPS-1307 | スキーマを走らせる側 | `GRS JSON` を読むとき、文書を組み立てる側（Chapter 5.2 の `CP-20`）は、スキーマを走らせること。 | FR-023 |
+| IMPS-1308 | 退役した列 | `GRS JSON` を読むとき、`GRS` は、スキーマを走らせる前に、表 T-297 の列を捨てること。<br>`GRS` は、捨てた列を通知しないこと。<br>`GRS` は、捨てた列を書き戻さないこと。 | FR-023 |
+| IMPS-1309 | 注記の見た目の列の補い | `GRS JSON` を読むとき、`GRS` は、スキーマを走らせる前に、`_assets/fig-erd-detail.md` の `AT-145` ・ `AT-146` ・ `AT-147` の列を持たない `HighlightBox` の項と、`AT-148` 〜 `AT-152` と `AT-168` の列を持たない `CommentBox` の項に、欠けている列を `null` として足すこと。<br>`GRS` は、欠けている列を形式の版（`FR-073`）によらずに足すこと。<br>`GRS` は、欠けている列を足したことを通知しないこと。 | FR-023, FR-019 |
+
+`IMPS-1303` —— 1 つの列だけで決まる条件を表 T-220 にも書くと、二重に持つことになる。  
+`_source/grs-document.schema.json` は、列ごとの型と、`null` を許すかと、文字列の長さと、数値の範囲と、原稿が値を綴った列挙を既に強制する。  
+`IMPS-1304` —— 上限は書き手への約束であり、本数を読む条件は表 T-220 の行（時間帯なら `IV-24`）が持つ。  
+`IMPS-1306` —— 免除は「別の者が強制している」ことを前提にしており、**誰も走らせなければ、その列は誰にも見られない。**  
+`IMPS-1307` —— 列の形が違うものは、文書になる前に落ちるべきだからである。  
+`IMPS-1308` —— 仕様が落とした列を、保存済みの文書はまだ持っている。  
+捨てた列について、読む人の側に直せることが何も無い。  
+`IMPS-1309` —— 列を足す前に保存した文書は、その鍵を持たない。  
+`null` は `_assets/tbl-settings.md` の 表 T-217 の既定か、`01-04-requirements.md` の `FR-019` が名指す色で描く値なので、どの版の文書でも絵が変わらない。  
+足したことについて、読む人の側に直すことが何も無い。  
+⚠️ `AT-168` だけは、列を足す前の造りが文書の文字サイズで描いていた大きさと違う既定（同表の `S-624`）で描く —— 利用者が既定を 1 つの px に定めた（`FR-019`）。
 
 **表 T-297 — 退役した列（読むときに捨てる）**
 
-| 行 ID | 実体 | 列 | 捨てる理由 |
+| 行 ID | 実体 | 列 | 捨てる理由 | traces |
+| --- | --- | --- | --- | --- |
+| RK-1 | `TaskVisual` | `nameAnchor` | 名称ラベルの位置を人が指定する手段を持たない（`FR-002`） | FR-023 |
+| RK-2 | `TaskVisual` | `nameAlign` | 同上 | FR-023 |
+
+**表 T-722 — 退役した列と公式運用の宣言の実装仕様**
+
+| 行 ID | 何についてか | 実装仕様 | traces |
 | --- | --- | --- | --- |
-| RK-1 | `TaskVisual` | `nameAnchor` | 名称ラベルの位置を人が指定する手段を持たない（`FR-002`） |
-| RK-2 | `TaskVisual` | `nameAlign` | 同上 |
+| IMPS-1310 | 運用の前に消した列 | 表 T-297 は、運用の前に形を変えて消した列の行を持たないこと。 | FR-023, FR-073 |
+| IMPS-1311 | 公式運用の後に消す列 | 公式運用の後に消す列は、表 T-297 ではなく、刊行するスキーマの変更の台帳（Chapter 6.2）に「削除」の行として足すこと。 | FR-073 |
+| IMPS-1312 | 公式運用を宣言する変更 | 公式運用を宣言する変更は、宣言の前に置いた補いと読み替えを消すこと。<br>消すのは 5 つ —— 表 T-297 の行（`RK-1`・`RK-2`）、`TaskGroup.editPermission` を `null` で補うこと（`01-04-requirements.md` の `GP-1`）、注記の見た目 9 列（`_assets/fig-erd-detail.md` の `AT-145` 〜 `AT-152` と `AT-168`）を `null` で補うこと、`Project.sourceFormat`（`AT-143`）を補うこと、`actualDuration` から `stop`（`AT-141`）へ読み替えること（`01-04-requirements.md` の `FR-011`）。<br>公式運用を宣言する変更は、表 T-297 を変更の台帳へ畳むこと。<br>公式運用を宣言する変更は、変更の台帳を空から始めること。 | FR-073 |
 
-⚠️ 運用の前に形を変えて消した列は、本表に足さない —— その列を持つ文書は読み替えず、日程データの群が合わない文書として拒む（`01-04-requirements.md` の `FR-073`）。  
+`IMPS-1310` —— 運用の前に形を変えて消した列を持つ文書は読み替えず、日程データの群が合わない文書として拒む（`01-04-requirements.md` の `FR-073`）。  
 形を変えた造りは形式の版を上げるので、古い造りには版が新しいことが告げられる。  
-⭐ 公式運用の後に消す列は、本表ではなく、刊行するスキーマの変更の台帳（Chapter 6.2）に「削除」の行として足す —— 同じ意味の表を 2 つ持たない。
+`IMPS-1311` —— 同じ意味の表を 2 つ持たない。  
+`IMPS-1312` —— 宣言の前に運用中の文書は無い —— 残せば、台帳に載らない読み替えが残り、「台帳は最新の `GRS` が古い文書にすることの全件」が偽になる。
 
-⭐ **公式運用を宣言する変更は、宣言の前に置いた補いと読み替えを消し、本表を台帳へ畳んで、台帳を空から始めること（MUST）。**  
-消すのは 5 つ —— 本表の行（`RK-1`・`RK-2`）、`TaskGroup.editPermission` を `null` で補うこと（`01-04-requirements.md` の `GP-1`）、注記の見た目 9 列（`_assets/fig-erd-detail.md` の `AT-145` 〜 `AT-152` と `AT-168`）を `null` で補うこと、`Project.sourceFormat`（`AT-143`）を補うこと、`actualDuration` から `stop`（`AT-141`）へ読み替えること（`01-04-requirements.md` の `FR-011`）。  
-宣言の前に運用中の文書は無い —— 残せば、台帳に載らない読み替えが残り、「台帳は最新の `GRS` が古い文書にすることの全件」が偽になる。
+**表 T-723 — 読む路の照合の実装仕様**
 
-⭐ 刊行するスキーマ（`_source/grs-document.schema.json`）は書く者の約束であり、`documentSettings` の群にも、欠けている鍵と知らない鍵を拒む条件と、鍵ごとの型・列挙・下限・上限を持たせたままとすること（MUST） —— `01-04-requirements.md` の `FR-024` は、書き出す文書がこのスキーマに適合することを求めている。  
-⛔ 読む路では、`documentSettings` の群の鍵を理由に文書を拒んではならない（MUST NOT） —— 知らない鍵は捨て、欠けている鍵は既定値で補い、型か列挙が合わない値はその鍵だけ既定値とする（表 T-024a の `OP-6`）。  
-⚠️ **同群については、刊行するスキーマが拒む文書を読む路が開く** —— 食い違う向きはこの 1 つだけであり、読む路が開いた文書を書き出せば、スキーマに合う文書になる（`FR-024`）。  
-⭐ 読む路が同群の値について見るのは、鍵ごとの型と、原稿が値を綴った列挙だけとする（MUST）。  
-下限・上限に反することを拒む条件を当ててはならない（MUST NOT） —— ⛔ 範囲は 表 T-064 の `PI-2` が持つ `clampedSettings` の仕事であり、それは範囲外の値を拒まずに動かして収める。  
+| 行 ID | 何についてか | 実装仕様 | traces |
+| --- | --- | --- | --- |
+| IMPS-1313 | 刊行するスキーマの `documentSettings` の群 | 刊行するスキーマ（`_source/grs-document.schema.json`）は、`documentSettings` の群にも、欠けている鍵と知らない鍵を拒む条件と、鍵ごとの型・列挙・下限・上限を持たせたままとすること。 | FR-024 |
+| IMPS-1314 | 読む路と `documentSettings` の群の鍵 | `GRS JSON` を読むとき、`GRS` は、`documentSettings` の群の鍵を理由に文書を拒まないこと。 | FR-023, FR-024 |
+| IMPS-1315 | 読む路が `documentSettings` の群の値について見るもの | `GRS JSON` を読むとき、`GRS` は、`documentSettings` の群の値について、鍵ごとの型と、原稿が値を綴った列挙だけを見ること。<br>`GRS` は、`documentSettings` の群の値に、下限・上限に反することを拒む条件を当てないこと。 | FR-023 |
+| IMPS-1316 | 日程データの群 | `GRS` は、`IMPS-1314`・`IMPS-1315` の寛さを日程データの群に当てないこと。<br>もし日程データの群がスキーマに合わない場合、`GRS` は文書ごと拒むこと（配列の本数の上限（`IMPS-1304`）と、照合に載せないもの（`IMPS-1317`）と、新しい版の知らない列（`IMPS-1319`）を除く）。 | FR-023 |
+| IMPS-1317 | 照合に載せないもの | `GRS` は、刊行するスキーマが日時の列に言う `pattern` を、`GRS JSON` を読む路の照合に載せないこと。<br>`GRS` は、文書の形式の版（`schemaVersion` の `const`）も照合に載せないこと。 | FR-023, FR-073 |
+| IMPS-1318 | 時刻の列の形 | `GRS` は、時刻の列（`_assets/fig-erd-detail.md` の `AT-154` ・ `AT-155`）の形（`xsd:time` の字面の `pattern`）を照合に載せること。<br>もし時刻の列が形に合わない場合、`GRS` は文書ごと拒むこと。 | FR-023 |
+| IMPS-1319 | 新しい版の知らない列 | もし形式の版がこの造りの知る最大の版より新しい文書を読む場合、`GRS` は、知らない列だけを拒まずに並べて見せること（`01-04-requirements.md` の `FR-073`）。<br>`GRS` は、続けたときに知らない列を捨てること。 | FR-073 |
+| IMPS-1320 | `MSPDI` の路 | `GRS` は、`GRS JSON` を読む路のスキーマの照合を、`MSPDI` の路に当てないこと。 | FR-021, FR-023 |
+
+`IMPS-1313` —— 刊行するスキーマは書く者の約束であり、`01-04-requirements.md` の `FR-024` は、書き出す文書がこのスキーマに適合することを求めている。  
+⚠️ `documentSettings` の群については、刊行するスキーマが拒む文書を読む路が開く —— 食い違う向きはこの 1 つだけであり、読む路が開いた文書を書き出せば、スキーマに合う文書になる（`FR-024`）。  
+`IMPS-1314` —— 知らない鍵は捨て、欠けている鍵は既定値で補い、型か列挙が合わない値はその鍵だけ既定値とする（表 T-024a の `OP-6`）。  
+`IMPS-1315` —— ⛔ 範囲は 表 T-064 の `PI-2` が持つ `clampedSettings` の仕事であり、それは範囲外の値を拒まずに動かして収める。  
 ⚠️ **拒めば、見せ方の 1 鍵が範囲を外れただけで文書全体が開けなくなる** —— `OP-6` が読む側に求めている寛さと逆になる。  
-⛔ 日程データの群にこの寛さを当ててはならない（MUST NOT） —— 日程データの群がスキーマに合わない文書は、文書ごと拒む。  
-一部を黙って落とすと、欠けたことが見えないまま日程が読まれる。  
-⚠️ **ただし日時の形（刊行するスキーマが日時の列に言う `pattern`）は、読む路の照合に載せない** —— 日時の列が使えない値を持つ行は、`01-04-requirements.md` の `FR-023` が行ごと落として告げる（`IV-14`）。  
+`IMPS-1316` —— 一部を黙って落とすと、欠けたことが見えないまま日程が読まれる。  
+`IMPS-1317` —— 日時の列が使えない値を持つ行は、`01-04-requirements.md` の `FR-023` が行ごと落として告げる（`IV-14`）。  
 照合が文書ごと拒めば、その MUST とぶつかる。  
 刊行するスキーマは、その形を書き手への約束として言う（`FR-024`）。  
-⚠️ 文書の形式の版（`schemaVersion` の `const`）も照合に載せない —— 版は照合の前に `FR-073` が判じる。  
-⛔ **時刻の列（`_assets/fig-erd-detail.md` の `AT-154` ・ `AT-155`）の形（`xsd:time` の字面の `pattern`）は照合に載せる（MUST）** —— 文書に 1 つしか無い `Project` の列なので、日時のように行ごと落とす道が無い。  
-合わない文書は文書ごと拒む。  
-⚠️ 形式の版がこの造りの知る最大の版より新しい文書の、知らない列だけは拒まずに並べて見せ、続けたときに捨てる（`01-04-requirements.md` の `FR-073`）。  
-⚠️ **`MSPDI` の路には当てない** —— あちらは文書を自分で組み立てるので、**当てても自作物の自己点検にしかならない。**
+形式の版は照合の前に `FR-073` が判じる。  
+`IMPS-1318` —— 時刻の列は文書に 1 つしか無い `Project` の列なので、日時のように行ごと落とす道が無い。  
+`IMPS-1320` —— `MSPDI` の路は文書を自分で組み立てるので、**当てても自作物の自己点検にしかならない。**
 
 **表 T-220 — 文書の不変条件**
 
-| 行 ID | 不変条件 | 判定に要るもの | 種別 |
-| --- | --- | --- | --- |
-| IV-1 | 主キーの値が、それが並ぶ配列の中で重複しないこと | 表 T-058 の鍵の欄が `PK` または `PK,FK` とする列 | 一意 |
-| IV-2 | 外部キーが非 `null` のとき、それが指す先の行が同じ文書にあること | 表 T-058 の鍵の欄が `FK` または `PK,FK` とする列と、表 T-057 が定めるその指し先 | 参照 |
-| IV-3 | ピン止めしたタスクグループが、実在する `TaskGroup` を指すこと。<br>⚠️ **表示位置は対象外** —— 指す先が無いときの扱いは表 T-024a の `OP-10` が持ち、2 本の違いは 5.4 が持つ | `_assets/tbl-settings.md` の `S-126` と、`TaskGroup` の主キーの集合 | 参照 |
-| IV-4 | `Task.parentTaskUid` がたどる親タスクと子タスクの関係に輪が無いこと | `Task` の主キーと `parentTaskUid` | 構造 |
-| IV-5 | `TaskGroup.parentId` がたどる入れ子の深さが、タスクグループの深さの上限を超えないこと。<br>⚠️ **WBS の深さは対象外** —— 上限を持たない | `TaskGroup` の主キーと `parentId`、`_assets/tbl-settings.md` の `S-125` | 構造 |
-| IV-6 | どの `Task` も、ちょうど 1 つの `TaskGroupMember` から指されること | `Task` の主キーと `TaskGroupMember.taskUid` | 構造 |
-| IV-23 | どの `Task` も、ちょうど 1 つの `TaskVisual` から指されること。<br>⭐ 色も形も決めていない `Task` は、`taskUid` のほかがすべて `null` の 1 つを持つ —— 無いときの描き方を別に定めずに済む | `Task` の主キーと `TaskVisual.taskUid` | 構造 |
-| IV-7 | 暦が 1 つ以上あること | `Calendar` の並び | 構造 |
-| IV-17 | `FR-054` が解いた文書の暦が、稼働する曜日を 1 つ以上持つこと。<br>⚠️ **解かれなかった暦は対象外** —— 数え上げに使わない暦は、稼働する曜日を 1 つも持たなくてよい | `FR-054` の解き方と、その暦の `WeekDay` の並び | 構造 |
-| IV-8 | `TaskGroup` の `name` と `derivedFromTaskUid` が同時に `null` でないこと | その 2 列 | 組合せ |
-| IV-9 | `TaskVisual` と `HighlightBox` のそれぞれで、`fillColor` と `strokeColor` が同時に透明でないこと | 実体ごとのその 2 列と、透明を表す値（`_assets/tbl-glossary.md` の `P-19`） | 組合せ |
-| IV-10 | `start` と `finish` がともに非 `null` の `Task` で、`finish` が `start` より前でないこと | その 2 列 | 組合せ |
-| IV-11 | `fadeInDays` または `fadeOutDays` を持つ `Task` が、`finish` を持つこと | その 3 列 | 組合せ |
-| IV-12 | `fadeInDays` と `fadeOutDays` の和が、その `Task` の期間を超えないこと。<br>⭐ **日数は暦日で数えること（MUST）** —— ⛔ 稼働日で数えると `FD-6`（暦日）と食い違う。<br>`FD-6` が正である。<br>⛔ ここでいう「期間」は、表 T-012a の `FD-6` と同じく暦日で数えること（MUST） | その 2 列と `start` ／ `finish` | 組合せ |
-| IV-14 | 日付と日時の列が、日時として読め（時刻は 1 分の単位）、受け入れる日付の範囲に収まること。<br>⭐ 秒が `00` でない時刻は分へ切り捨てて読むので、本行に反しない —— 時刻を書いていない日付の字も読める（どちらの読みも `FR-054`）。<br>⭐ 時刻を書いた字は、時を 2 桁で書いたものだけが読める —— `2026-01-05T8:00:00` は読めない（`FR-054`）。<br>⚠️ **空文字は「読めない」側である** —— 空を許す列の空は `null` である | 表 T-058 の型の欄が日付または日時とする列と、表 T-214 | 範囲 |
-| IV-15 | `TaskOrigin.lastSeenImportSequence` が `Project.importSequence` を超えないこと | その 2 列 | 範囲 |
-| IV-16 | 下限または上限の欄が別の設定値を名指している設定値が、その欄の式を満たすこと。<br>⚠️ **欄が画面の寸法を指すものは対象外** —— 静止した文書だけでは判定できない | `_assets/tbl-settings.md` の下限・上限の欄 | 範囲 |
-| IV-19 | ハイライトボックスの `start` が `finish` より後でないこと、および `topTaskGroupId` が `bottomTaskGroupId` より下でないこと。<br>⭐ `IV-10` が `Task` の 2 列について定めるものを、注記の 4 列について定める。<br>⚠️ **ドラッグから来た値は本行の対象ではない** —— `FR-019` が離した時点で正規化すると定めており、正規化された値は本行を必ず満たす。<br>⛔ **正規化が描かれた `y` で上下を決めると、この一文は偽になる** —— ピン留めしたタスクグループから木の上のタスクグループへ引くと満たさない（木の順位 7 から 0 へ引くと、`topTaskGroupId` ＝ 7 ／ `bottomTaskGroupId` ＝ 0 が入る）。<br>⭐ `FR-019` の正規化はタスクグループの木の順位で判ずるので、この一文は真である。<br>⛔ **打ち込みと取り込みから来た値には効かせること（MUST）** —— そちらに向きが無いとは言えない | その 4 列 | 組合せ |
-| IV-18 | `TaskGroup.parentId` がたどる親子に輪が無いこと。<br>⚠️ **`IV-4` は `Task.parentTaskUid` だけを見る** —— 表 T-015a の `HM-4` が禁じるのは画面の上での移動、`FR-023` が見るのは取り込みの WBS であり、この輪はどちらにも掛からない | `TaskGroup` の主キーと `parentId` | 構造 |
-| IV-20 | 文書が `TaskGroup` を 1 つ以上持つこと。<br>⭐ 原本は 表 T-050 の直下の「文書は、`TaskGroup` を必ず 1 つ以上持つこと（MUST）」である | `TaskGroup` の並び | 構造 |
-| IV-21 | `actualStart` と実績の最後の日（完了なら `actualFinish`、それ以外は `stop`）がともに非 `null` の `Task` で、`FR-011` が日付から数えた実績の長さが 0 を下回らないこと。<br>⭐ `IV-10` が予定の 2 列について定めるものを、実績の日付について定める —— 下回る値は実績の両端が入れ替わった置き方であり、拒んで告げる。<br>⚠️ **0 以上で床を下回る値は本行の対象ではない** —— 着手しているタスクの床（`_assets/tbl-settings.md` の `S-129`）は `FR-011` が持つ | その 3 列と、`FR-054` が解いた文書の暦 | 組合せ |
-| IV-22 | `TaskVisual.shapeKind` が非 `null` のとき、それが `'milestone'` であることと、その `TaskVisual` が指す `Task` の `milestone` が真であることが一致すること。<br>⭐ マイルストーンかどうかの正は `Task.milestone` であり、形は描き方だけを持つ（`01-04-requirements.md` の 表 T-005 の `G-1`） —— 食い違う文書では、描いた形と、名称ラベルに添える予定日（同書の 表 T-251）と依存の種別（同書の `FR-009`）が別のことを言う。<br>⚠️ **`shapeKind` が `null` の `TaskVisual` は対象外** —— 形を `Task.milestone` から解く（`_assets/fig-erd-detail.md` の `AT-100`）。<br>⚠️ 画面の上の編集は食い違いを作らない —— 作るときは同書の 表 T-239 の `TC-1` が形から真偽値を決め、置いた後は同書の `FR-083` が期間を持つ形とマイルストーンの乗り換えを禁じる。<br>MSPDI の上書きで `Task.milestone` だけが変わるときは、本行で拒まず、同書の 表 T-032 の `MG-8` が形を揃える —— 取り込み元での変更であって、壊れたファイルではない | その 2 列と、`TaskVisual` から `Task` への外部キー（表 T-057） | 組合せ |
-| IV-24 | 1 つの曜日・例外日の時間帯は 0 本（稼働でない日）か 1 〜 `_assets/tbl-settings.md` の 表 T-211 の `S-582` 本で、どれも始まりが終わりより前（終わりの `00:00:00` は 24:00）であり、互いに重ならないこと。<br>⭐ 数えられない暦を作らない —— `IV-17` と同じ筋である。<br>⚠️ 接する時間帯（12:00 に終わり 12:00 に始まる）は重ならない | `WeekDay` と `Exception` の時間帯（`_assets/fig-erd-detail.md` の `AT-158` ／ `AT-159`）と、その `WorkingTime` の 2 列（`AT-161` ／ `AT-162`） | 組合せ |
+| 行 ID | 不変条件 | 判定に要るもの | 種別 | traces |
+| --- | --- | --- | --- | --- |
+| IV-1 | 主キーの値が、それが並ぶ配列の中で重複しないこと | 表 T-058 の鍵の欄が `PK` または `PK,FK` とする列 | 一意 | FR-023 |
+| IV-2 | 外部キーが非 `null` のとき、それが指す先の行が同じ文書にあること | 表 T-058 の鍵の欄が `FK` または `PK,FK` とする列と、表 T-057 が定めるその指し先 | 参照 | FR-023 |
+| IV-3 | ピン止めしたタスクグループが、実在する `TaskGroup` を指すこと。<br>⚠️ **表示位置は対象外** —— 指す先が無いときの扱いは表 T-024a の `OP-10` が持ち、2 本の違いは 5.4 が持つ | `_assets/tbl-settings.md` の `S-126` と、`TaskGroup` の主キーの集合 | 参照 | FR-023 |
+| IV-4 | `Task.parentTaskUid` がたどる親タスクと子タスクの関係に輪が無いこと | `Task` の主キーと `parentTaskUid` | 構造 | FR-023 |
+| IV-5 | `TaskGroup.parentId` がたどる入れ子の深さが、タスクグループの深さの上限を超えないこと。<br>⚠️ **WBS の深さは対象外** —— 上限を持たない | `TaskGroup` の主キーと `parentId`、`_assets/tbl-settings.md` の `S-125` | 構造 | FR-023 |
+| IV-6 | どの `Task` も、ちょうど 1 つの `TaskGroupMember` から指されること | `Task` の主キーと `TaskGroupMember.taskUid` | 構造 | FR-023 |
+| IV-23 | どの `Task` も、ちょうど 1 つの `TaskVisual` から指されること。<br>⭐ 色も形も決めていない `Task` は、`taskUid` のほかがすべて `null` の 1 つを持つ —— 無いときの描き方を別に定めずに済む | `Task` の主キーと `TaskVisual.taskUid` | 構造 | FR-023 |
+| IV-7 | 暦が 1 つ以上あること | `Calendar` の並び | 構造 | FR-023 |
+| IV-17 | `FR-054` が解いた文書の暦が、稼働する曜日を 1 つ以上持つこと。<br>⚠️ **解かれなかった暦は対象外** —— 数え上げに使わない暦は、稼働する曜日を 1 つも持たなくてよい | `FR-054` の解き方と、その暦の `WeekDay` の並び | 構造 | FR-023 |
+| IV-8 | `TaskGroup` の `name` と `derivedFromTaskUid` が同時に `null` でないこと | その 2 列 | 組合せ | FR-023 |
+| IV-9 | `TaskVisual` と `HighlightBox` のそれぞれで、`fillColor` と `strokeColor` が同時に透明でないこと | 実体ごとのその 2 列と、透明を表す値（`_assets/tbl-glossary.md` の `P-19`） | 組合せ | FR-023 |
+| IV-10 | `start` と `finish` がともに非 `null` の `Task` で、`finish` が `start` より前でないこと | その 2 列 | 組合せ | FR-023 |
+| IV-11 | `fadeInDays` または `fadeOutDays` を持つ `Task` が、`finish` を持つこと | その 3 列 | 組合せ | FR-023 |
+| IV-12 | `fadeInDays` と `fadeOutDays` の和が、その `Task` の期間を超えないこと。<br>⭐ **日数は暦日で数えること（MUST）** —— ⛔ 稼働日で数えると `FD-6`（暦日）と食い違う。<br>`FD-6` が正である。<br>⛔ ここでいう「期間」は、表 T-012a の `FD-6` と同じく暦日で数えること（MUST） | その 2 列と `start` ／ `finish` | 組合せ | FR-023 |
+| IV-14 | 日付と日時の列が、日時として読め（時刻は 1 分の単位）、受け入れる日付の範囲に収まること。<br>⭐ 秒が `00` でない時刻は分へ切り捨てて読むので、本行に反しない —— 時刻を書いていない日付の字も読める（どちらの読みも `FR-054`）。<br>⭐ 時刻を書いた字は、時を 2 桁で書いたものだけが読める —— `2026-01-05T8:00:00` は読めない（`FR-054`）。<br>⚠️ **空文字は「読めない」側である** —— 空を許す列の空は `null` である | 表 T-058 の型の欄が日付または日時とする列と、表 T-214 | 範囲 | FR-023 |
+| IV-15 | `TaskOrigin.lastSeenImportSequence` が `Project.importSequence` を超えないこと | その 2 列 | 範囲 | FR-023 |
+| IV-16 | 下限または上限の欄が別の設定値を名指している設定値が、その欄の式を満たすこと。<br>⚠️ **欄が画面の寸法を指すものは対象外** —— 静止した文書だけでは判定できない | `_assets/tbl-settings.md` の下限・上限の欄 | 範囲 | FR-023 |
+| IV-19 | ハイライトボックスの `start` が `finish` より後でないこと、および `topTaskGroupId` が `bottomTaskGroupId` より下でないこと。<br>⭐ `IV-10` が `Task` の 2 列について定めるものを、注記の 4 列について定める。<br>⚠️ **ドラッグから来た値は本行の対象ではない** —— `FR-019` が離した時点で正規化すると定めており、正規化された値は本行を必ず満たす。<br>⛔ **正規化が描かれた `y` で上下を決めると、この一文は偽になる** —— ピン留めしたタスクグループから木の上のタスクグループへ引くと満たさない（木の順位 7 から 0 へ引くと、`topTaskGroupId` ＝ 7 ／ `bottomTaskGroupId` ＝ 0 が入る）。<br>⭐ `FR-019` の正規化はタスクグループの木の順位で判ずるので、この一文は真である。<br>⛔ **打ち込みと取り込みから来た値には効かせること（MUST）** —— そちらに向きが無いとは言えない | その 4 列 | 組合せ | FR-023 |
+| IV-18 | `TaskGroup.parentId` がたどる親子に輪が無いこと。<br>⚠️ **`IV-4` は `Task.parentTaskUid` だけを見る** —— 表 T-015a の `HM-4` が禁じるのは画面の上での移動、`FR-023` が見るのは取り込みの WBS であり、この輪はどちらにも掛からない | `TaskGroup` の主キーと `parentId` | 構造 | FR-023 |
+| IV-20 | 文書が `TaskGroup` を 1 つ以上持つこと。<br>⭐ 原本は 表 T-050 の直下の「文書は、`TaskGroup` を必ず 1 つ以上持つこと（MUST）」である | `TaskGroup` の並び | 構造 | FR-023 |
+| IV-21 | `actualStart` と実績の最後の日（完了なら `actualFinish`、それ以外は `stop`）がともに非 `null` の `Task` で、`FR-011` が日付から数えた実績の長さが 0 を下回らないこと。<br>⭐ `IV-10` が予定の 2 列について定めるものを、実績の日付について定める —— 下回る値は実績の両端が入れ替わった置き方であり、拒んで告げる。<br>⚠️ **0 以上で床を下回る値は本行の対象ではない** —— 着手しているタスクの床（`_assets/tbl-settings.md` の `S-129`）は `FR-011` が持つ | その 3 列と、`FR-054` が解いた文書の暦 | 組合せ | FR-023 |
+| IV-22 | `TaskVisual.shapeKind` が非 `null` のとき、それが `'milestone'` であることと、その `TaskVisual` が指す `Task` の `milestone` が真であることが一致すること。<br>⭐ マイルストーンかどうかの正は `Task.milestone` であり、形は描き方だけを持つ（`01-04-requirements.md` の 表 T-005 の `G-1`） —— 食い違う文書では、描いた形と、名称ラベルに添える予定日（同書の 表 T-251）と依存の種別（同書の `FR-009`）が別のことを言う。<br>⚠️ **`shapeKind` が `null` の `TaskVisual` は対象外** —— 形を `Task.milestone` から解く（`_assets/fig-erd-detail.md` の `AT-100`）。<br>⚠️ 画面の上の編集は食い違いを作らない —— 作るときは同書の 表 T-239 の `TC-1` が形から真偽値を決め、置いた後は同書の `FR-083` が期間を持つ形とマイルストーンの乗り換えを禁じる。<br>MSPDI の上書きで `Task.milestone` だけが変わるときは、本行で拒まず、同書の 表 T-032 の `MG-8` が形を揃える —— 取り込み元での変更であって、壊れたファイルではない | その 2 列と、`TaskVisual` から `Task` への外部キー（表 T-057） | 組合せ | FR-023 |
+| IV-24 | 1 つの曜日・例外日の時間帯は 0 本（稼働でない日）か 1 〜 `_assets/tbl-settings.md` の 表 T-211 の `S-582` 本で、どれも始まりが終わりより前（終わりの `00:00:00` は 24:00）であり、互いに重ならないこと。<br>⭐ 数えられない暦を作らない —— `IV-17` と同じ筋である。<br>⚠️ 接する時間帯（12:00 に終わり 12:00 に始まる）は重ならない | `WeekDay` と `Exception` の時間帯（`_assets/fig-erd-detail.md` の `AT-158` ／ `AT-159`）と、その `WorkingTime` の 2 列（`AT-161` ／ `AT-162`） | 組合せ | FR-023 |
 
 `IV-14` が `uuid` の形の列を確かめるかは、未決である（未決: OPQ-3）。
 
-**判定に要るものを、列の名前で並べていない（MUST NOT）** —— 列を足すたびに本表と原稿の 2 か所を直すことになる。  
+**表 T-724 — 不変条件の判定に要るものの実装仕様**
+
+| 行 ID | 何についてか | 実装仕様 | traces |
+| --- | --- | --- | --- |
+| IMPS-1321 | 判定に要るもの | 表 T-220 は、判定に要るものを列の名前で並べないこと。 | FR-023 |
+
+`IMPS-1321` —— 列を足すたびに表 T-220 と原稿の 2 か所を直すことになる。  
 ⭐ **鍵の欄と型の欄を指しておけば、原稿から引ける。**
 
 レイアウトの計算（表 T-068）のうち、要求が材料までしか持たないものの算式を 表 T-221 に示す。
 
 **表 T-221 — レイアウトの算式**
 
-| 行 ID | 求めるもの | 算式 |
-| --- | --- | --- |
-| LF-1 | 目盛の刻みの間隔 | 段階ごとに固定とする。<br>⭐ **刻むのは段ではなく行であり、その行が刷る単位に 1 つ刻むこと（MUST）** —— **どの行が何を刷るかは `FR-017` の 表 T-238 が持つ。<br>**⇒ 年を刷る行は 1 年、月を刷る行は 1 か月、週の始まりの日を刷る行は 7 日、日と曜日を刷る行は 1 日に 1 つである。<br>⭐ **日の段と曜日の段が同じ間隔なのは、同じ軸を 2 段に割ったものだからである**（`FR-017`）—— **別の間隔にすると、その日のものでない曜日が日の下に並ぶ。<br>**⭐ 実測（出荷ビルド）: 月の段の年の行は 1 回、月の行は 12 回刻んだ。<br>⇒ **行を単位にすれば、段が割れても文を書き足さずに済む。<br>**⛔ **これ以外の間隔を採ってはならない（MUST NOT）**—— 間引いた段では読む人が刻みの単位を数え直すことになり、2 日おきと 3 日おきが倍率で入れ替わる。<br> ⭐ **週の段の起点は `Project.weekStartDay` が持つ**（`FR-054`）。<br>**ラベルが 1 刻みに収まることは段階の側が保証する** —— しきい値の導き方は 表 T-205 の注が持つ |
-| LF-2 | タスクグループの帯高 | 段ごとに、その段に載る `Task` が縦に取る高さ（`01-04-requirements.md` の `FR-094` の 表 T-259 の `VG-5` が測る描いた端まで）の最大を採り、それらを合計して、段と段のあいだと、いちばん下の段の下に、同表の `VG-2` の隙間を 1 つずつ加える（段数と同じ数）。<br>⭐ いちばん下の段の下にも加えるのは、次のタスクグループのいちばん上の段とのあいだに同じ隙間を空けるためである（同表の `VG-1`）。<br>**`Task` を 1 つも持たない段は、矩形が縦に取る高さとする** |
-| LF-3 | タスクグループの縦位置 | 前のタスクグループの縦位置に、前のタスクグループの帯高と `taskGroupGap` を加える。<br>帯高は矩形が縦に取る高さを下回らない。<br>⭐ 帯高は、そのタスクグループ名（タスクグループパネルに刷るタスクグループ名、`FR-085`）の字の箱が縦に取る高さも下回らない —— タスクグループ名が見えないと何のタスクグループか分からなくなる。<br>⚠️ 表示の倍率（`FR-039`）を上げたまま縦に縮めたときに効く床である。<br>⚠️ **タスクグループの操作子（`01-04-requirements.md` の 表 T-051 の `HF-1` の格子）が縦に取る高さは、帯高の床に数えない** —— 数えると、`Task` が 1 段しかないタスクグループも格子の高さまで広がる。<br>格子が帯からはみ出す扱いは同表の `HF-19` と `HF-6` が、最後のタスクグループの下の余白は `LF-16` が持つ |
-| LF-5 | 段間の通路の高さ | 下へ向かうときは先行の下端と、描いた順で先行のすぐ下の段の上端との中点、上へ向かうときは先行の上端と、描いた順で先行のすぐ上の段の下端との中点、同じ段どうしのときはその段の下端に、`01-04-requirements.md` の 表 T-259 の `VG-2` の隙間の半分を加えた高さ。<br>⭐ 先行と後続のあいだに別の段があっても、横の走りはその段の真ん中ではなく先行のすぐ隣の段間を通り、後続の入口の手前（`x2`）で縦に降りる（上へ向かうときは上る） —— 別の段の形・札・マーカー・名前の下を横に走らない（利用者が定めた）。<br>⚠️ 隣り合う段どうしでは、先行と後続の中点と同じ高さである |
-| LF-6 | 矢羽根の切り欠き | 予定側は、横幅に `chevronNotchOfWidth` を掛けた値と、縦幅に `chevronNotchOfHeight` を掛けた値の小さいほう。<br>実績側は予定側に `actualOfPlan` を掛けた値とし、**2 度目の頭打ちを当ててはならない（MUST NOT）** |
-| LF-7 | 矢じりと端点の点 | 矢じりの横幅は、`thinArrowHeadLength` と、横幅に `arrowHeadOfSpan` を掛けた値の小さいほう。<br>矢じりの縦幅は `thinArrowHeadHeight`。<br>端点スパンの点の径は `spanDotSize`。<br>⛔ **どれも線の太さから導かない** —— 値と式は `01-04-requirements.md` の `FR-109` の 表 T-271 の `XS-5` が持つ |
-| LF-8 | 細線の太さ | `thinStrokeWidth` とする。<br>⛔ 予定の縦幅から導かない —— 太さは 1 つの設定値である |
-| LF-9 | 実績バーの縦の置き場 | 内側に重ねる形状は、予定の縦幅から実績の縦幅を引いた差の半分だけ下げる。<br>下へずらす形状は、予定の線の下の縁から `actualGap` だけ下に実績の線の上の縁を置く（`01-04-requirements.md` の `FR-109` の 表 T-271 の `XS-6`）|
-| LF-10 | マイルストーンの図形の大きさ | 予定は、その `Task` の予定の縦幅を一辺とする図形とし、`start` の位置を中心に置く。<br>実績はそれに `actualOfPlan` を掛けた大きさとし、実績の日付を中心に置く。<br>**上下の中心は予定と同じとする**。<br>⭐ **図形の中心は、その図形の外接枠の中心とする（上下も左右も）**。<br>⛔ 頂点を置いた円の中心を中心としてはならない —— △ ▽ 五角形 ☆ が上下にずれ、横に並べたとき揃って見えない |
-| LF-11 | マーカーと再開アイコンの置き場 | 横は `01-04-requirements.md` の `FR-109` の 表 T-272 と 表 T-273 が持つ。<br>縦は同要求の 表 T-271 が持つ（矩形は `XS-3`、線だけの形は 1 段目の `XS-4`、再開アイコンは `XS-10` ／ `XS-12`）。<br>マーカーは `markerSize` を一辺とする正方形で置く。<br>⛔ **本行は寸法だけを持ち、場所を持たない** —— 場所を 2 か所に書くと必ず離れていく |
-| LF-12 | イナズマ線の頂点の縦位置 | 段ごとに、その段の上端に**矩形**の予定の縦幅の半分を加えた高さ。<br>線の上端と下端は基準日の位置とし、最初のタスクグループの上と最後のタスクグループの下へ `progressLineOverhang` だけ伸ばす |
-| LF-13 | 再開アイコンの形 | 下端をマーカーの下端に、矢先の高さをマーカーの中心に置いた L 字の折れ矢印とする（矩形で再開日があるとき —— `01-04-requirements.md` の `FR-109` の 表 T-271 の `XS-10`）。<br>腕の長さは図形の一辺に `resumeArmOfMarker` を、矢じりの大きさに `resumeHeadOfMarker` を掛けた値。<br>`resumeValid` が偽のときは一辺に `resumeScaleInvalid` を掛け、濃さに `resumeOpacityInvalid` を掛ける。<br>⚠️ 同表の `XS-10` の未定のアイコンと `XS-12`（線だけの形の 3 段目のアイコン）の縦は同表が持ち、本行は持たない。<br>⛔ **本行が持つのは形だけである** —— 横の位置は 表 T-273 の結びが持つ |
-| LF-14 | ピン止めしたタスクグループの帯（`FR-098`）| 帯の高さは、帯に置くタスクグループの帯高（`LF-2`）を合計し、タスクグループとタスクグループのあいだに `taskGroupGap` をその数から 1 を引いた数だけ加えたものとする。<br>**帯へ上げたタスクグループは `LF-3` の連なりから除き、抜けた場所は詰める。<br>** スクロールするタスクグループが並ぶのは、`Task Group Area` の高さから帯の高さと `taskGroupGap` 1 つぶんを引いた残りとする |
-| LF-15 | コメントボックスの線先の置き場 | ⭐ 自由点（`01-04-requirements.md` の `FR-019` の ①） —— 横は `anchorDate` の日時（分まで）を時間軸に置いた位置、縦は `anchorTaskGroupId` のタスクグループが描かれた帯（`LF-2` / `LF-3`、ピン止めしたタスクグループは `LF-14`）の上端から、帯の高さに `anchorBandFraction` を掛けた所とする（`null` は 0.5、帯の縦の中央）。<br>⚠️ 日の列の中央へは寄せない —— 線先は離した点そのものに立つ（同書の 表 T-023d の結び）。<br>⭐ 吸着した点（同 ②） —— 対象の図形を囲む矩形の 8 点とする。<br>並びは左上・上・右上・右・右下・下・左下・左（`anchorSnapPoint` の値の順）。<br>タスクは、`anchorTaskFigure` の図形（予定バー・実績バー・マイルストーンの図形）のうち `anchorTaskGroupId` の帯に描いたもの（その帯に無ければ、最初に描いたもの）を、ハイライトボックスは描いた箱（`FR-019`）を囲む。<br>⭐ マイルストーンの図形の四隅の点は、矩形の隅ではなく、隣り合う 2 辺の中点の中ほどとする —— 菱形では 4 辺の中点であり、8 点がどれも描いた形の上に立つ。<br>⭐ 8 点の並びは 1 つの関数が持ち、描く側と、離した点を吸着させる側が同じ並びを読む（`01-04-requirements.md` の 表 T-023d の結び）。<br>⚠️ 本文の箱は線先からのずれで置く（`FR-019`）ので、ずれを書かずに線先だけを書くと、箱も線先と共に動く —— 掴んで引いたときに何を書くかは、同書の 表 T-023d の結びが持つ |
-| LF-17 | コメントボックスの引出し線が本文の箱から出る隅 | 横は、留めた点（`LF-15`）が本文の箱の横の中点より右に在れば右、そうでなければ左の隅とする。<br>縦は、留めた点が箱の縦の中点より上に在れば上、そうでなければ下の隅とする。<br>⭐ この 2 つで選ぶ隅は、4 隅のうち留めた点に最も近い隅である —— 横の差と縦の差をそれぞれ最も小さくする隅が、直線の距離も最も小さくする。<br>⭐ 中点に等しいときは左と下を採る —— 等しい 2 隅のどちらを採っても線の長さは同じであり、左下はずれの基準隅（`01-04-requirements.md` の `FR-019`）と同じ隅である。<br>⭐ 留めた点が本文の箱の中（縁を含む）に在るときは、引出し線を描かない —— 箱から外へ出る線が無く、隅から中の点へ引くと本文の上を横切る。<br>⚠️ 線先の印（同書の 表 T-023d の結び）はそのときも描く（重ね順は同書の 表 T-020 の `ZO-10`）ので、選んでいれば箱の中の線先も見えて掴める |
-| LF-16 | タスクグループの並びの下の余白 | スクロールするタスクグループ（`LF-14` の帯へ上げたタスクグループを除く）のいちばん下のタスクグループの下に、タスクグループの操作子の格子（`01-04-requirements.md` の 表 T-051 の `HF-1`）が縦に取る高さからそのタスクグループの帯高を引いた長さの余白を加える。<br>引いた長さが 0 を下回るとき（帯高が格子以上のとき）と、スクロールするタスクグループが 1 つも無いときは 0 とする。<br>格子が縦に取る高さは、入口 1 つの縦（`_assets/tbl-settings.md` の 表 T-206 の `S-138` ＋ `S-243` × 2）の 2 段ぶんに、`FR-029` のとおり `S-235` を掛けた長さとする —— 枠の線の太さ（`S-237`）は数えない（`FR-029` は `S-237` を外形の幅に加え、外形の縦は定めない）。<br>⚠️ **格子の高さを数で書かない** —— 操作子 1 つの外形は `_assets/tbl-settings.md` の 表 T-206 の `S-138` と `S-243` が決めており、格子はその 2 段ぶんである。<br>⛔ 同表の値をコピーしない。<br>⚠️ 格子の高さは、表示の倍率（`FR-039` の 表 T-252 の `DS-7`）にも閲覧者の文字サイズにも追随しない —— `S-138` がそう定めている。<br>⭐ 余白は縦のスクロールの全体（`01-04-requirements.md` の 表 T-023d の `GR-21` の「全体」）に入る —— タスクグループパネルは縦を本体と連動させる（同書の 表 T-031 の `SC-1`）ので、タスクグループパネルと `Task Group Area` の両方で、最後のタスクグループの操作子が下端で切れない。<br>⭐ `FR-055` が収まるかを見る縦の高さにも入る。<br>⚠️ 余白には何も描かない。<br>タスクグループではないので、その縦位置はタスクグループの無い縦位置である（同書の 表 T-239 の `TC-3`）。<br>⚠️ `canvasPadding`（`_assets/tbl-settings.md` の 表 T-201 の `S-56`）とは別の量であり、兼ねない —— `canvasPadding` を縦に取る場所は `FR-051` が持つ |
-| LF-18 | マイルストーンの図形の線と塗り | 外形は塗り、縁の線で囲む。<br>絵の中の線（箱の稜線・円筒と杯の上面の手前の弧・フロッピーの窓・顔の口）は、塗りに穴を開けずに、塗りの上に線で描く。<br>顔の目は点で塗る。<br>書類の折り返しは、塗りの上に薄く塗った面（`shade`）で描く —— 面は紙の裏を見せ、角が折れていると読ませる。<br>線だけでは、角の欠けた四角と読まれうる。<br>⭐ 中の線・点・面の色は、予定では予定の縁の色、実績とダミーでは予定の塗りの色とする —— 実績の塗りは濃いので、縁の色では見えない。<br>カスタムカラーのタスクでは、そのタスクの予定の塗りの色である。<br>⭐ 重なる部分は、奥から順に描く —— 人は胴の上に頭、杯は取っ手の上に胴。<br>⭐ 円・顔の輪郭・円筒・杯の丸みは曲線で描き、多角形で近似しない —— 多角形は拡大すると角が見える。<br>⭐ 形そのもの（単位の正方形の中の座標）は 図 F-044 が持つ。<br>⭐ `_assets/tbl-glossary.md` の 図 F-019 のグリフは同じ形を線だけで描く。<br>違いは 2 つだけとする —— 杯の取っ手は 1 本の線（小さな箱では二重の線が潰れて 1 つの塊になる）、人の肩の線は頭の輪郭で止める（線だけの絵には、胴を隠す塗りが無いため） |
-| LF-19 | 目盛ラベルの横の置き場 | 各ラベルは、その行の自分の刻みの線の位置から右へ書き出す —— 刻みの線とラベルのあいだは空けない。<br>⭐ 刻みの線が帯の左端より左に在るラベル（帯の左端より前から始まる期間のラベル）は、帯の左端から書き出す —— 寄せなければ、左端に掛かる期間の名が帯から消え、帯の中に刻みが 1 つも立たない行（`TM-1` の `yyyy` で 1 年より短い期間を出すときなど）は空になる。<br>⛔ 寄せたラベルの右端（帯の左端にそのラベルの幅を足した位置）が、同じ行の次のラベルの書き出しから `S-135` を引いた位置を越えるあいだは、寄せたラベルを描いてはならない（MUST NOT） —— 2 つのラベルが重なり、どちらも読めなくなる。<br>越えないあいだは寄せて描く。<br>次のラベルが帯の右端より右に在るときも寄せて描く —— 重なる相手が無い。<br>⛔ 寄せたラベルを次のラベルの手前まで左へずらし、帯の左端で切ってはならない（MUST NOT） —— 字の欠けた名が残る。<br>⭐ ラベルの幅は `FR-093` の概算（`S-30`）とし、描いた字を測らない —— 帯は毎フレーム描く。<br>⚠️ 判じは行ごとに行う —— `TM-4` の `d` と曜は同じ刻みに立つが幅が違うので、片方だけが消えることがある。<br>⚠️ 寄せないラベルは自分の刻みから書き出すので、`LF-1` の「ラベルが 1 刻みに収まることは段階の側が保証する」が当たる —— 寄せたラベルだけがその保証の外に出るので、本行がその衝突を見る |
+| 行 ID | 求めるもの | 算式 | traces |
+| --- | --- | --- | --- |
+| LF-1 | 目盛の刻みの間隔 | 段階ごとに固定とする。<br>⭐ **刻むのは段ではなく行であり、その行が刷る単位に 1 つ刻むこと（MUST）** —— **どの行が何を刷るかは `FR-017` の 表 T-238 が持つ。<br>**⇒ 年を刷る行は 1 年、月を刷る行は 1 か月、週の始まりの日を刷る行は 7 日、日と曜日を刷る行は 1 日に 1 つである。<br>⭐ **日の段と曜日の段が同じ間隔なのは、同じ軸を 2 段に割ったものだからである**（`FR-017`）—— **別の間隔にすると、その日のものでない曜日が日の下に並ぶ。<br>**⭐ 実測（出荷ビルド）: 月の段の年の行は 1 回、月の行は 12 回刻んだ。<br>⇒ **行を単位にすれば、段が割れても文を書き足さずに済む。<br>**⛔ **これ以外の間隔を採ってはならない（MUST NOT）**—— 間引いた段では読む人が刻みの単位を数え直すことになり、2 日おきと 3 日おきが倍率で入れ替わる。<br> ⭐ **週の段の起点は `Project.weekStartDay` が持つ**（`FR-054`）。<br>**ラベルが 1 刻みに収まることは段階の側が保証する** —— しきい値の導き方は 表 T-205 の注が持つ | FR-017 |
+| LF-2 | タスクグループの帯高 | 段ごとに、その段に載る `Task` が縦に取る高さ（`01-04-requirements.md` の `FR-094` の 表 T-259 の `VG-5` が測る描いた端まで）の最大を採り、それらを合計して、段と段のあいだと、いちばん下の段の下に、同表の `VG-2` の隙間を 1 つずつ加える（段数と同じ数）。<br>⭐ いちばん下の段の下にも加えるのは、次のタスクグループのいちばん上の段とのあいだに同じ隙間を空けるためである（同表の `VG-1`）。<br>**`Task` を 1 つも持たない段は、矩形が縦に取る高さとする** | FR-003 |
+| LF-3 | タスクグループの縦位置 | 前のタスクグループの縦位置に、前のタスクグループの帯高と `taskGroupGap` を加える。<br>帯高は矩形が縦に取る高さを下回らない。<br>⭐ 帯高は、そのタスクグループ名（タスクグループパネルに刷るタスクグループ名、`FR-085`）の字の箱が縦に取る高さも下回らない —— タスクグループ名が見えないと何のタスクグループか分からなくなる。<br>⚠️ 表示の倍率（`FR-039`）を上げたまま縦に縮めたときに効く床である。<br>⚠️ **タスクグループの操作子（`01-04-requirements.md` の 表 T-051 の `HF-1` の格子）が縦に取る高さは、帯高の床に数えない** —— 数えると、`Task` が 1 段しかないタスクグループも格子の高さまで広がる。<br>格子が帯からはみ出す扱いは同表の `HF-19` と `HF-6` が、最後のタスクグループの下の余白は `LF-16` が持つ | FR-003 |
+| LF-5 | 段間の通路の高さ | 下へ向かうときは先行の下端と、描いた順で先行のすぐ下の段の上端との中点、上へ向かうときは先行の上端と、描いた順で先行のすぐ上の段の下端との中点、同じ段どうしのときはその段の下端に、`01-04-requirements.md` の 表 T-259 の `VG-2` の隙間の半分を加えた高さ。<br>⭐ 先行と後続のあいだに別の段があっても、横の走りはその段の真ん中ではなく先行のすぐ隣の段間を通り、後続の入口の手前（`x2`）で縦に降りる（上へ向かうときは上る） —— 別の段の形・札・マーカー・名前の下を横に走らない（利用者が定めた）。<br>⚠️ 隣り合う段どうしでは、先行と後続の中点と同じ高さである | FR-009 |
+| LF-6 | 矢羽根の切り欠き | 予定側は、横幅に `chevronNotchOfWidth` を掛けた値と、縦幅に `chevronNotchOfHeight` を掛けた値の小さいほう。<br>実績側は予定側に `actualOfPlan` を掛けた値とし、**2 度目の頭打ちを当ててはならない（MUST NOT）** | FR-094 |
+| LF-7 | 矢じりと端点の点 | 矢じりの横幅は、`thinArrowHeadLength` と、横幅に `arrowHeadOfSpan` を掛けた値の小さいほう。<br>矢じりの縦幅は `thinArrowHeadHeight`。<br>端点スパンの点の径は `spanDotSize`。<br>⛔ **どれも線の太さから導かない** —— 値と式は `01-04-requirements.md` の `FR-109` の 表 T-271 の `XS-5` が持つ | FR-094 |
+| LF-8 | 細線の太さ | `thinStrokeWidth` とする。<br>⛔ 予定の縦幅から導かない —— 太さは 1 つの設定値である | FR-094 |
+| LF-9 | 実績バーの縦の置き場 | 内側に重ねる形状は、予定の縦幅から実績の縦幅を引いた差の半分だけ下げる。<br>下へずらす形状は、予定の線の下の縁から `actualGap` だけ下に実績の線の上の縁を置く（`01-04-requirements.md` の `FR-109` の 表 T-271 の `XS-6`）| FR-094 |
+| LF-10 | マイルストーンの図形の大きさ | 予定は、その `Task` の予定の縦幅を一辺とする図形とし、`start` の位置を中心に置く。<br>実績はそれに `actualOfPlan` を掛けた大きさとし、実績の日付を中心に置く。<br>**上下の中心は予定と同じとする**。<br>⭐ **図形の中心は、その図形の外接枠の中心とする（上下も左右も）**。<br>⛔ 頂点を置いた円の中心を中心としてはならない —— △ ▽ 五角形 ☆ が上下にずれ、横に並べたとき揃って見えない | FR-094 |
+| LF-11 | マーカーと再開アイコンの置き場 | 横は `01-04-requirements.md` の `FR-109` の 表 T-272 と 表 T-273 が持つ。<br>縦は同要求の 表 T-271 が持つ（矩形は `XS-3`、線だけの形は 1 段目の `XS-4`、再開アイコンは `XS-10` ／ `XS-12`）。<br>マーカーは `markerSize` を一辺とする正方形で置く。<br>⛔ **本行は寸法だけを持ち、場所を持たない** —— 場所を 2 か所に書くと必ず離れていく | FR-094 |
+| LF-12 | イナズマ線の頂点の縦位置 | 段ごとに、その段の上端に**矩形**の予定の縦幅の半分を加えた高さ。<br>線の上端と下端は基準日の位置とし、最初のタスクグループの上と最後のタスクグループの下へ `progressLineOverhang` だけ伸ばす | FR-014 |
+| LF-13 | 再開アイコンの形 | 下端をマーカーの下端に、矢先の高さをマーカーの中心に置いた L 字の折れ矢印とする（矩形で再開日があるとき —— `01-04-requirements.md` の `FR-109` の 表 T-271 の `XS-10`）。<br>腕の長さは図形の一辺に `resumeArmOfMarker` を、矢じりの大きさに `resumeHeadOfMarker` を掛けた値。<br>`resumeValid` が偽のときは一辺に `resumeScaleInvalid` を掛け、濃さに `resumeOpacityInvalid` を掛ける。<br>⚠️ 同表の `XS-10` の未定のアイコンと `XS-12`（線だけの形の 3 段目のアイコン）の縦は同表が持ち、本行は持たない。<br>⛔ **本行が持つのは形だけである** —— 横の位置は 表 T-273 の結びが持つ | FR-094 |
+| LF-14 | ピン止めしたタスクグループの帯（`FR-098`）| 帯の高さは、帯に置くタスクグループの帯高（`LF-2`）を合計し、タスクグループとタスクグループのあいだに `taskGroupGap` をその数から 1 を引いた数だけ加えたものとする。<br>**帯へ上げたタスクグループは `LF-3` の連なりから除き、抜けた場所は詰める。<br>** スクロールするタスクグループが並ぶのは、`Task Group Area` の高さから帯の高さと `taskGroupGap` 1 つぶんを引いた残りとする | FR-098 |
+| LF-15 | コメントボックスの線先の置き場 | ⭐ 自由点（`01-04-requirements.md` の `FR-019` の ①） —— 横は `anchorDate` の日時（分まで）を時間軸に置いた位置、縦は `anchorTaskGroupId` のタスクグループが描かれた帯（`LF-2` / `LF-3`、ピン止めしたタスクグループは `LF-14`）の上端から、帯の高さに `anchorBandFraction` を掛けた所とする（`null` は 0.5、帯の縦の中央）。<br>⚠️ 日の列の中央へは寄せない —— 線先は離した点そのものに立つ（同書の 表 T-023d の結び）。<br>⭐ 吸着した点（同 ②） —— 対象の図形を囲む矩形の 8 点とする。<br>並びは左上・上・右上・右・右下・下・左下・左（`anchorSnapPoint` の値の順）。<br>タスクは、`anchorTaskFigure` の図形（予定バー・実績バー・マイルストーンの図形）のうち `anchorTaskGroupId` の帯に描いたもの（その帯に無ければ、最初に描いたもの）を、ハイライトボックスは描いた箱（`FR-019`）を囲む。<br>⭐ マイルストーンの図形の四隅の点は、矩形の隅ではなく、隣り合う 2 辺の中点の中ほどとする —— 菱形では 4 辺の中点であり、8 点がどれも描いた形の上に立つ。<br>⭐ 8 点の並びは 1 つの関数が持ち、描く側と、離した点を吸着させる側が同じ並びを読む（`01-04-requirements.md` の 表 T-023d の結び）。<br>⚠️ 本文の箱は線先からのずれで置く（`FR-019`）ので、ずれを書かずに線先だけを書くと、箱も線先と共に動く —— 掴んで引いたときに何を書くかは、同書の 表 T-023d の結びが持つ | FR-094, FR-019 |
+| LF-17 | コメントボックスの引出し線が本文の箱から出る隅 | 横は、留めた点（`LF-15`）が本文の箱の横の中点より右に在れば右、そうでなければ左の隅とする。<br>縦は、留めた点が箱の縦の中点より上に在れば上、そうでなければ下の隅とする。<br>⭐ この 2 つで選ぶ隅は、4 隅のうち留めた点に最も近い隅である —— 横の差と縦の差をそれぞれ最も小さくする隅が、直線の距離も最も小さくする。<br>⭐ 中点に等しいときは左と下を採る —— 等しい 2 隅のどちらを採っても線の長さは同じであり、左下はずれの基準隅（`01-04-requirements.md` の `FR-019`）と同じ隅である。<br>⭐ 留めた点が本文の箱の中（縁を含む）に在るときは、引出し線を描かない —— 箱から外へ出る線が無く、隅から中の点へ引くと本文の上を横切る。<br>⚠️ 線先の印（同書の 表 T-023d の結び）はそのときも描く（重ね順は同書の 表 T-020 の `ZO-10`）ので、選んでいれば箱の中の線先も見えて掴める | FR-094, FR-019 |
+| LF-16 | タスクグループの並びの下の余白 | スクロールするタスクグループ（`LF-14` の帯へ上げたタスクグループを除く）のいちばん下のタスクグループの下に、タスクグループの操作子の格子（`01-04-requirements.md` の 表 T-051 の `HF-1`）が縦に取る高さからそのタスクグループの帯高を引いた長さの余白を加える。<br>引いた長さが 0 を下回るとき（帯高が格子以上のとき）と、スクロールするタスクグループが 1 つも無いときは 0 とする。<br>格子が縦に取る高さは、入口 1 つの縦（`_assets/tbl-settings.md` の 表 T-206 の `S-138` ＋ `S-243` × 2）の 2 段ぶんに、`FR-029` のとおり `S-235` を掛けた長さとする —— 枠の線の太さ（`S-237`）は数えない（`FR-029` は `S-237` を外形の幅に加え、外形の縦は定めない）。<br>⚠️ **格子の高さを数で書かない** —— 操作子 1 つの外形は `_assets/tbl-settings.md` の 表 T-206 の `S-138` と `S-243` が決めており、格子はその 2 段ぶんである。<br>⛔ 同表の値をコピーしない。<br>⚠️ 格子の高さは、表示の倍率（`FR-039` の 表 T-252 の `DS-7`）にも閲覧者の文字サイズにも追随しない —— `S-138` がそう定めている。<br>⭐ 余白は縦のスクロールの全体（`01-04-requirements.md` の 表 T-023d の `GR-21` の「全体」）に入る —— タスクグループパネルは縦を本体と連動させる（同書の 表 T-031 の `SC-1`）ので、タスクグループパネルと `Task Group Area` の両方で、最後のタスクグループの操作子が下端で切れない。<br>⭐ `FR-055` が収まるかを見る縦の高さにも入る。<br>⚠️ 余白には何も描かない。<br>タスクグループではないので、その縦位置はタスクグループの無い縦位置である（同書の 表 T-239 の `TC-3`）。<br>⚠️ `canvasPadding`（`_assets/tbl-settings.md` の 表 T-201 の `S-56`）とは別の量であり、兼ねない —— `canvasPadding` を縦に取る場所は `FR-051` が持つ | FR-003 |
+| LF-18 | マイルストーンの図形の線と塗り | 外形は塗り、縁の線で囲む。<br>絵の中の線（箱の稜線・円筒と杯の上面の手前の弧・フロッピーの窓・顔の口）は、塗りに穴を開けずに、塗りの上に線で描く。<br>顔の目は点で塗る。<br>書類の折り返しは、塗りの上に薄く塗った面（`shade`）で描く —— 面は紙の裏を見せ、角が折れていると読ませる。<br>線だけでは、角の欠けた四角と読まれうる。<br>⭐ 中の線・点・面の色は、予定では予定の縁の色、実績とダミーでは予定の塗りの色とする —— 実績の塗りは濃いので、縁の色では見えない。<br>カスタムカラーのタスクでは、そのタスクの予定の塗りの色である。<br>⭐ 重なる部分は、奥から順に描く —— 人は胴の上に頭、杯は取っ手の上に胴。<br>⭐ 円・顔の輪郭・円筒・杯の丸みは曲線で描き、多角形で近似しない —— 多角形は拡大すると角が見える。<br>⭐ 形そのもの（単位の正方形の中の座標）は 図 F-044 が持つ。<br>⭐ `_assets/tbl-glossary.md` の 図 F-019 のグリフは同じ形を線だけで描く。<br>違いは 2 つだけとする —— 杯の取っ手は 1 本の線（小さな箱では二重の線が潰れて 1 つの塊になる）、人の肩の線は頭の輪郭で止める（線だけの絵には、胴を隠す塗りが無いため） | FR-078 |
+| LF-19 | 目盛ラベルの横の置き場 | 各ラベルは、その行の自分の刻みの線の位置から右へ書き出す —— 刻みの線とラベルのあいだは空けない。<br>⭐ 刻みの線が帯の左端より左に在るラベル（帯の左端より前から始まる期間のラベル）は、帯の左端から書き出す —— 寄せなければ、左端に掛かる期間の名が帯から消え、帯の中に刻みが 1 つも立たない行（`TM-1` の `yyyy` で 1 年より短い期間を出すときなど）は空になる。<br>⛔ 寄せたラベルの右端（帯の左端にそのラベルの幅を足した位置）が、同じ行の次のラベルの書き出しから `S-135` を引いた位置を越えるあいだは、寄せたラベルを描いてはならない（MUST NOT） —— 2 つのラベルが重なり、どちらも読めなくなる。<br>越えないあいだは寄せて描く。<br>次のラベルが帯の右端より右に在るときも寄せて描く —— 重なる相手が無い。<br>⛔ 寄せたラベルを次のラベルの手前まで左へずらし、帯の左端で切ってはならない（MUST NOT） —— 字の欠けた名が残る。<br>⭐ ラベルの幅は `FR-093` の概算（`S-30`）とし、描いた字を測らない —— 帯は毎フレーム描く。<br>⚠️ 判じは行ごとに行う —— `TM-4` の `d` と曜は同じ刻みに立つが幅が違うので、片方だけが消えることがある。<br>⚠️ 寄せないラベルは自分の刻みから書き出すので、`LF-1` の「ラベルが 1 刻みに収まることは段階の側が保証する」が当たる —— 寄せたラベルだけがその保証の外に出るので、本行がその衝突を見る | FR-017 |
 
-⚠️ **`Task` が 1 つで縦に取る高さは本表が持たない** —— 表 T-012 の「実績の置き方」の欄と、`FR-094` の床の規則が既に持っている —— 上へずらした名称ラベルのぶんは `01-04-requirements.md` の 表 T-038 の `OC-10` が持ち、その 1 段目の高さは同書の `FR-109` の 表 T-271 の `XS-4` が字の大きさで数える。  
-⚠️ `TaskGroup.minHeightPx` の指定があるときは `FR-042` が優先する —— 指定は下限であり、段数がそれより高い帯を要するときは超えて広げる。  
+⚠️ **`Task` が 1 つで縦に取る高さは本表が持たない** —— 表 T-012 の「実績の置き方」の欄と、`FR-094` の床の規則が既に持っている —— 上へずらした名称ラベルのぶんは `01-04-requirements.md` の 表 T-038 の `OC-10` が持ち、その 1 段目の高さは同書の `FR-109` の 表 T-271 の `XS-4` が字の大きさで数える。
+
+**表 T-725 — タスクグループの帯高の下限の実装仕様**
+
+| 行 ID | 何についてか | 実装仕様 | traces |
+| --- | --- | --- | --- |
+| IMPS-1322 | `TaskGroup.minHeightPx` の指定 | もし `TaskGroup.minHeightPx` の指定がある場合、`GRS` は、タスクグループの帯高に `FR-042` を優先させること。<br>もし段数が指定より高い帯を要する場合、`GRS` は、帯高を指定を超えて広げること。 | FR-003, FR-042 |
+
+`IMPS-1322` —— `TaskGroup.minHeightPx` の指定は下限である。  
 描くときに指定へ掛ける比は `01-04-requirements.md` の `FR-039` の 表 T-252 の `DS-13` が持つ（表示の倍率の段だけで、縦のズームと `S-236` は掛けない）。  
 ⚠️ `LF-12` が矩形の縦幅を使うのは、段に載る `Task` の形状によらず同じ高さに頂点を打つためである —— 形状で高さが変わると、同じタスクグループの段どうしで頂点の高さが揃わない。
 
@@ -1387,31 +1433,34 @@ flowchart TB
 
 ⭐ 本図はチャートのマイルストーンの形の正であり、`01-04-requirements.md` の 表 T-012 の `SH-5` の順に 15 形を並べる。  
 各形は一辺 2 の単位の正方形の中に在り（y は下向き）、外接枠の中心を原点に置く（表 T-221 の `LF-10`）。  
-予定と実績は、単位の正方形の一辺を `LF-10` の大きさへ写して描く。  
-要素の class は描き方の役である —— `body` は塗りと縁、`inner` は塗りの上の線、`dot` は塗った点、`shade` は薄く塗った面である（`LF-18`）。  
-⭐ `_assets/tbl-glossary.md` の 図 F-019 のグリフとの違いは `LF-18` の 2 つだけとする —— ほかの違いがあれば、`npm run gen` がチャートの形の表を刷らずに止まる。
+要素の class は描き方の役である —— `body` は塗りと縁、`inner` は塗りの上の線、`dot` は塗った点、`shade` は薄く塗った面である（`LF-18`）。
+
+**表 T-726 — マイルストーンの図形の実装仕様**
+
+| 行 ID | 何についてか | 実装仕様 | traces |
+| --- | --- | --- | --- |
+| IMPS-1323 | 予定と実績の大きさ | `GRS` は、マイルストーンの予定と実績を、図 F-044 の単位の正方形の一辺を 表 T-221 の `LF-10` の大きさへ写して描くこと。 | FR-078, FR-094 |
+| IMPS-1324 | グリフとの違い | 図 F-044 の形は、`_assets/tbl-glossary.md` の 図 F-019 のグリフとの違いを、表 T-221 の `LF-18` の 2 つだけとすること。 | FR-078 |
+
+`IMPS-1324` —— ほかの違いがあれば、`npm run gen` がチャートの形の表を刷らずに止まる。
 
 **依存線の経路の分岐を 表 T-222 に示す。**
 
 **表 T-222 — 依存線の経路の分岐**
 
 出口が右辺の向きで書く。  
-出口が左辺のとき（`SF` / `SS`）は x の符号を反転して同じ規則を当てること（MUST）。  
-規則を 2 組持ってはならない（MUST NOT）。  
-`x1` は出口辺に出口の走り（`dependencyLeadOut`）を足した位置とする。  
-`x2` は、対向族では入口辺から入口の走り（`dependencyLeadIn`）を引いた位置、同側族では入口辺に入口の走りを足した位置とする。  
 族は 表 T-018 が持つ。
 
-| 行 ID | 族 | 状況 | 折れ点 | 経路 |
-| --- | --- | --- | :-: | --- |
-| RP-1 | 対向 | 同じ段で、入口辺と出口辺の間隔が入口の走り以上 | 0 | 出口辺から入口辺へ水平に 1 本 |
-| RP-2 | 対向 | 下の段で、`x2` が `x1` 以上 | 4 | 出口辺 → `x1` → 通路（`LF-5`）→ `x2` → 入口辺 —— `RP-4` と同じ形である。<br>⭐ 先行の段の高さのまま横に走ると先行の進捗マーカーと名前の下を、後続の段の高さで横に走ると後続の担当と進捗の札の下を通るので、横の走りは段間の通路に置く（利用者が定めた） |
-| RP-3 | 対向 | 上の段で、`x2` が `x1` 以上 | 4 | `RP-2` の上下を返したもの |
-| RP-4 | 対向 | 下の段で `x2` が `x1` を下回る、または同じ段で `RP-1` に当たらない | 4 | 出口辺 → `x1` → 通路（`LF-5`）→ `x2` → 入口辺 |
-| RP-5 | 対向 | 上の段で、`x2` が `x1` を下回る | 4 | `RP-4` の上下を返したもの |
-| RP-6 | 同側 | 下の段 | 2 | 出口辺 → `x1` と `x2` の大きいほう → 下降 → 入口辺 |
-| RP-7 | 同側 | 上の段 | 2 | `RP-6` の上下を返したもの |
-| RP-8 | 同側 | 同じ段 | 4 | 出口辺 → `x1` → 通路（`LF-5`）→ `x2` → 入口辺。<br>⚠️ `x1` と `x2` の差が出口の走りを下回るときは、`x1` を `x2` に出口の走りを足した位置へ押し出す —— 2 本の垂直線が重なると、行きと帰りの区別が付かない |
+| 行 ID | 族 | 状況 | 折れ点 | 経路 | traces |
+| --- | --- | --- | :-: | --- | --- |
+| RP-1 | 対向 | 同じ段で、入口辺と出口辺の間隔が入口の走り以上 | 0 | 出口辺から入口辺へ水平に 1 本 | FR-009 |
+| RP-2 | 対向 | 下の段で、`x2` が `x1` 以上 | 4 | 出口辺 → `x1` → 通路（`LF-5`）→ `x2` → 入口辺 —— `RP-4` と同じ形である。<br>⭐ 先行の段の高さのまま横に走ると先行の進捗マーカーと名前の下を、後続の段の高さで横に走ると後続の担当と進捗の札の下を通るので、横の走りは段間の通路に置く（利用者が定めた） | FR-009 |
+| RP-3 | 対向 | 上の段で、`x2` が `x1` 以上 | 4 | `RP-2` の上下を返したもの | FR-009 |
+| RP-4 | 対向 | 下の段で `x2` が `x1` を下回る、または同じ段で `RP-1` に当たらない | 4 | 出口辺 → `x1` → 通路（`LF-5`）→ `x2` → 入口辺 | FR-009 |
+| RP-5 | 対向 | 上の段で、`x2` が `x1` を下回る | 4 | `RP-4` の上下を返したもの | FR-009 |
+| RP-6 | 同側 | 下の段 | 2 | 出口辺 → `x1` と `x2` の大きいほう → 下降 → 入口辺 | FR-009 |
+| RP-7 | 同側 | 上の段 | 2 | `RP-6` の上下を返したもの | FR-009 |
+| RP-8 | 同側 | 同じ段 | 4 | 出口辺 → `x1` → 通路（`LF-5`）→ `x2` → 入口辺。<br>⚠️ `x1` と `x2` の差が出口の走りを下回るときは、`x1` を `x2` に出口の走りを足した位置へ押し出す —— 2 本の垂直線が重なると、行きと帰りの区別が付かない | FR-009 |
 
 **0 折れは対向族にしかない。**  
 同側族は 2 本の走りが同じ向きを向くので、水平 1 本にならない。  
@@ -1420,65 +1469,90 @@ flowchart TB
 ⚠️ 垂直に動く部分が他の図形を横切ることは 表 T-018a の `RT-5` が既に許容している。  
 避ける経路は存在しないことがある —— `Task` の横位置は日付が決めるので動かせない。
 
-**MSPDI を比べる前の正規化の全数を 表 T-228 に示す。**  
-双方へ同じ段取りを当てること（MUST）。  
-片側だけに当ててはならない（MUST NOT） —— 揃えずに比べると、通るかどうかがその日の実装で決まる。  
-⚠️ **本表が持つのは規格に足す分だけである** —— 属性の並びと自己終了タグの綴り方は `NR-1` の規格が既に揃えるので、本表に書いてはならない（MUST NOT）。  
-コピーすると、規格が改訂されたとき仕様書だけが古くなる。
+**表 T-727 — 依存線の経路の分岐の実装仕様**
+
+| 行 ID | 何についてか | 実装仕様 | traces |
+| --- | --- | --- | --- |
+| IMPS-1325 | 出口が左辺のとき | もし出口が左辺の場合（`SF` / `SS`）、`GRS` は、x の符号を反転して表 T-222 の同じ規則を当てること。<br>`GRS` は、経路の規則を 2 組持たないこと。 | FR-009 |
+| IMPS-1326 | `x1` と `x2` | `GRS` は、`x1` を、出口辺に出口の走り（`dependencyLeadOut`）を足した位置とすること。<br>`GRS` は、`x2` を、対向族では入口辺から入口の走り（`dependencyLeadIn`）を引いた位置、同側族では入口辺に入口の走りを足した位置とすること。 | FR-009 |
+
+**MSPDI を比べる前の正規化の全数を 表 T-228 に示す。**
 
 **表 T-228 — MSPDI を比べる前の正規化**
 
-| 行 ID | 段取り | 規則 |
-| --- | --- | --- |
-| NR-1 | 規格を当てる | **W3C Canonical XML 1.1**（`https://www.w3.org/TR/2008/REC-xml-c14n11-20080502/`）を当て、**注釈を含めない形**を用いる。<br>⚠️ **短縮名の URL は版の指定にならない** —— `xml-c14n` は 1.0 ではなく 1.1 を返す |
-| NR-2 | 要素の間の空白を落とす | `NR-1` の**前に**、要素の子を持つ要素の直下にある、空白だけの文字ノードを落とす。<br>⛔ **葉の要素の中の空白は落とさない** —— そちらは値である。<br>⚠️ 根拠は、交換相手が混在内容を持つ型を 1 つも持たないことである |
-| NR-3 | 接頭辞を合否から外す | `NR-1` の**あと**に、要素名と属性名を、名前空間 URI と局所名の対として読む。<br>⚠️ **規格の出力を書き換えるのではなく、比べ方を定める** —— 規格が接頭辞を守るのは、内容や属性値の中の `XPath` が接頭辞を参照しうるためであり、交換相手はその型を持たない |
-| NR-4 | 型付きの値の綴りを揃える | `NR-1` の**前に**、交換相手のスキーマが型を与える要素の値を、`XML Schema Part 2` がその型に定める**標準字句表現**へ揃える。<br>⛔ **標準字句表現を持たない型と、型が与えられていない要素の値は書き換えない** —— 型を知らないものを揃えると、値そのものを変える |
-| NR-5 | 時間の量を比べる | 交換相手のスキーマが `xsd:duration` を与える要素は、**字句ではなく時間の量として**比べる。<br>⛔ **年と月を持つ値は量として読まない** —— 長さが数え始めに依るので、比べようがない。<br>⚠️ `NR-4` ではなく別の段取りにしているのは、この型に標準字句表現が無く、揃える先が存在しないためである |
-| NR-6 | 名前の違う兄弟の順を合否から外す | `NR-1` の**前に**、各要素の子を名前ごとの列に分けて比べる。<br>名前の違う子どうしの順は比べない。<br>⛔ 同じ名前の子の順は比べる —— 並びが意味を持つ（表 T-265 の `MR-2`）。<br>⚠️ 規格は子の順を守るので、本行が無いと、順の乱れた入力を `EX-10` どおりに書き直しただけで `FR-021` の往復が不一致になる |
-| NR-7 | 書き出すたびに作る値を合否から外す | `NR-1` の**前に**、双方から `Project/LastSaved` を落とす。<br>⭐ 文書は列に持たず、書き出すその瞬間から作る値である（`_assets/fig-erd-detail.md` の 表 T-059 の `DV-12`） —— 往復で必ず変わり、`documentStamp.fileSavedAt` を突き合わせから外す（`01-04-requirements.md` の `FR-101`）のと同じ扱いである |
+| 行 ID | 段取り | 規則 | traces |
+| --- | --- | --- | --- |
+| NR-1 | 規格を当てる | **W3C Canonical XML 1.1**（`https://www.w3.org/TR/2008/REC-xml-c14n11-20080502/`）を当て、**注釈を含めない形**を用いる。<br>⚠️ **短縮名の URL は版の指定にならない** —— `xml-c14n` は 1.0 ではなく 1.1 を返す | FR-021 |
+| NR-2 | 要素の間の空白を落とす | `NR-1` の**前に**、要素の子を持つ要素の直下にある、空白だけの文字ノードを落とす。<br>⛔ **葉の要素の中の空白は落とさない** —— そちらは値である。<br>⚠️ 根拠は、交換相手が混在内容を持つ型を 1 つも持たないことである | FR-021 |
+| NR-3 | 接頭辞を合否から外す | `NR-1` の**あと**に、要素名と属性名を、名前空間 URI と局所名の対として読む。<br>⚠️ **規格の出力を書き換えるのではなく、比べ方を定める** —— 規格が接頭辞を守るのは、内容や属性値の中の `XPath` が接頭辞を参照しうるためであり、交換相手はその型を持たない | FR-021 |
+| NR-4 | 型付きの値の綴りを揃える | `NR-1` の**前に**、交換相手のスキーマが型を与える要素の値を、`XML Schema Part 2` がその型に定める**標準字句表現**へ揃える。<br>⛔ **標準字句表現を持たない型と、型が与えられていない要素の値は書き換えない** —— 型を知らないものを揃えると、値そのものを変える | FR-021 |
+| NR-5 | 時間の量を比べる | 交換相手のスキーマが `xsd:duration` を与える要素は、**字句ではなく時間の量として**比べる。<br>⛔ **年と月を持つ値は量として読まない** —— 長さが数え始めに依るので、比べようがない。<br>⚠️ `NR-4` ではなく別の段取りにしているのは、この型に標準字句表現が無く、揃える先が存在しないためである | FR-021 |
+| NR-6 | 名前の違う兄弟の順を合否から外す | `NR-1` の**前に**、各要素の子を名前ごとの列に分けて比べる。<br>名前の違う子どうしの順は比べない。<br>⛔ 同じ名前の子の順は比べる —— 並びが意味を持つ（表 T-265 の `MR-2`）。<br>⚠️ 規格は子の順を守るので、本行が無いと、順の乱れた入力を `EX-10` どおりに書き直しただけで `FR-021` の往復が不一致になる | FR-021 |
+| NR-7 | 書き出すたびに作る値を合否から外す | `NR-1` の**前に**、双方から `Project/LastSaved` を落とす。<br>⭐ 文書は列に持たず、書き出すその瞬間から作る値である（`_assets/fig-erd-detail.md` の 表 T-059 の `DV-12`） —— 往復で必ず変わり、`documentStamp.fileSavedAt` を突き合わせから外す（`01-04-requirements.md` の `FR-101`）のと同じ扱いである | FR-021 |
 
 ⭐ `GRS` が `xsd:duration` を書き出すときの綴りは 表 T-033 の `EX-9` が持つ。  
 正は W3C の公式文書であり、事実はローカル複製で確かめる（`docs/reference/README.md`）。  
 突き合わせの記録は `docs/review/c14n-vs-fr021-2026-08-22.md` が持つ。
 
-**書き出した絵を比べる前の正規化と、一致の判定の全数を 表 T-231 に示す。**  
-双方へ同じ段取りを当てること（MUST）。  
-片側だけに当ててはならない（MUST NOT）。  
-⚠️ **本表が持つのは規格に足す分と、判定の境だけである** —— 属性の並びと自己終了タグの綴り方は `NS-1` の規格が既に揃えるので、本表に書いてはならない（MUST NOT）。
+**表 T-728 — MSPDI を比べる前の正規化の実装仕様**
+
+| 行 ID | 何についてか | 実装仕様 | traces |
+| --- | --- | --- | --- |
+| IMPS-1327 | 双方へ当てる | 2 つの MSPDI を比べるとき、`GRS` は、表 T-228 の同じ段取りを双方へ当てること。<br>`GRS` は、表 T-228 の段取りを片側だけに当てないこと。 | FR-021 |
+| IMPS-1328 | 表 T-228 が持つもの | 表 T-228 は、`NR-1` の規格に足す分だけを持つこと。<br>表 T-228 は、`NR-1` の規格が既に揃える属性の並びと自己終了タグの綴り方を持たないこと。 | FR-021 |
+
+`IMPS-1327` —— 揃えずに比べると、通るかどうかがその日の実装で決まる。  
+`IMPS-1328` —— コピーすると、規格が改訂されたとき仕様書だけが古くなる。
+
+**書き出した絵を比べる前の正規化と、一致の判定の全数を 表 T-231 に示す。**
 
 **表 T-231 — 書き出した絵を比べる前の正規化と、一致の判定**
 
-| 行 ID | 段取り | 規則 |
-| --- | --- | --- |
-| NS-1 | 規格を当てる | **W3C Canonical XML 1.1**（`https://www.w3.org/TR/2008/REC-xml-c14n11-20080502/`）を当て、**注釈を含めない形**を用いる。<br>⚠️ **短縮名の URL は版の指定にならない** —— `xml-c14n` は 1.0 ではなく 1.1 を返す |
-| NS-2 | 要素の間の空白を落とす | `NS-1` の**前に**、要素の子を持つ要素の直下にある、空白だけの文字ノードを落とす。<br>⛔ **葉の要素の中の空白は落とさない** —— そちらは値である |
-| NS-3 | 数の綴りを揃える | `NS-1` の**前に**、座標と寸法を **0.01 px の格子**へ丸めた綴りにする。<br>⛔ **書き出す側と写し取った側の両方に当てること（MUST）** —— 片側だけを丸めると、判定に含めない差との境が引けない |
-| NS-4 | `id` を定数に限る | 書き出す `SVG` の `id` は、成果物の中で不変の定数だけとすること（MUST）。<br>走るたびに変わる値から作ってはならない（MUST NOT） —— 変えると `NS-1` の出力が毎回変わり、`WY-2` が決して通らない |
-| NS-5 | `WY-2` と `WY-4` の相手を定める | **同じ走りの中で 2 回書き出したもの同士**とする（`WY-4` は、2 回のあいだに窓の大きさ・表示位置・ズーム・パネルの開閉を変える）。<br>⛔ **版元に置いた見本と比べてはならない（MUST NOT）** —— `WY-2` が測るのは書き出しの経路が決定的かどうかであり、機と版をまたぐ浮動小数の再現性はその射程に無い |
-| NS-6 | `WY-3` の許容差を定める | 双方を `NS-3` の格子へ丸めたうえで、外接矩形の各辺の差の絶対値が `1.0` px 未満であれば一致とする。<br> ⚠️ **端数が必ず出る理由は 表 T-041 の `WY-3` の欄が持つ** |
+| 行 ID | 段取り | 規則 | traces |
+| --- | --- | --- | --- |
+| NS-1 | 規格を当てる | **W3C Canonical XML 1.1**（`https://www.w3.org/TR/2008/REC-xml-c14n11-20080502/`）を当て、**注釈を含めない形**を用いる。<br>⚠️ **短縮名の URL は版の指定にならない** —— `xml-c14n` は 1.0 ではなく 1.1 を返す | FR-080 |
+| NS-2 | 要素の間の空白を落とす | `NS-1` の**前に**、要素の子を持つ要素の直下にある、空白だけの文字ノードを落とす。<br>⛔ **葉の要素の中の空白は落とさない** —— そちらは値である | FR-080 |
+| NS-3 | 数の綴りを揃える | `NS-1` の**前に**、座標と寸法を **0.01 px の格子**へ丸めた綴りにする。<br>⛔ **書き出す側と写し取った側の両方に当てること（MUST）** —— 片側だけを丸めると、判定に含めない差との境が引けない | FR-080 |
+| NS-4 | `id` を定数に限る | 書き出す `SVG` の `id` は、成果物の中で不変の定数だけとすること（MUST）。<br>走るたびに変わる値から作ってはならない（MUST NOT） —— 変えると `NS-1` の出力が毎回変わり、`WY-2` が決して通らない | FR-080 |
+| NS-5 | `WY-2` と `WY-4` の相手を定める | **同じ走りの中で 2 回書き出したもの同士**とする（`WY-4` は、2 回のあいだに窓の大きさ・表示位置・ズーム・パネルの開閉を変える）。<br>⛔ **版元に置いた見本と比べてはならない（MUST NOT）** —— `WY-2` が測るのは書き出しの経路が決定的かどうかであり、機と版をまたぐ浮動小数の再現性はその射程に無い | FR-080 |
+| NS-6 | `WY-3` の許容差を定める | 双方を `NS-3` の格子へ丸めたうえで、外接矩形の各辺の差の絶対値が `1.0` px 未満であれば一致とする。<br> ⚠️ **端数が必ず出る理由は 表 T-041 の `WY-3` の欄が持つ** | FR-080 |
 
 ⚠️ **本表は 表 T-228 の兄弟である。**  
-⛔ **あちらを広げてはならない** —— 表 T-228 の親は `FR-021`（交換相手との往復）であり、`NR-4` と `NR-5` は交換相手のスキーマに固有である。  
 ⭐ `NS-1` と `NS-2` が同じ規格と同じ段取りを採るのは、どちらも `XML` だからにすぎない。
 
-**単一 HTML の内容セキュリティ方針の全数を 表 T-232 に示す。**  
-⛔ **本表に無い指令を足してはならない（MUST NOT）** —— 開けた取得元は、開けた理由が読めなければならない。
+**表 T-729 — 書き出した絵を比べる前の正規化の実装仕様**
+
+| 行 ID | 何についてか | 実装仕様 | traces |
+| --- | --- | --- | --- |
+| IMPS-1329 | 双方へ当てる | 2 つの `SVG` を比べるとき、`GRS` は、表 T-231 の同じ段取りを双方へ当てること。<br>`GRS` は、表 T-231 の段取りを片側だけに当てないこと。 | FR-080 |
+| IMPS-1330 | 表 T-231 が持つもの | 表 T-231 は、`NS-1` の規格に足す分と、判定の境だけを持つこと。<br>表 T-231 は、`NS-1` の規格が既に揃える属性の並びと自己終了タグの綴り方を持たないこと。 | FR-080 |
+| IMPS-1331 | 表 T-228 の範囲 | 表 T-228 を、書き出した絵の比較へ広げないこと。 | FR-021, FR-080 |
+
+`IMPS-1331` —— 表 T-228 の親は `FR-021`（交換相手との往復）であり、`NR-4` と `NR-5` は交換相手のスキーマに固有である。
+
+**単一 HTML の内容セキュリティ方針の全数を 表 T-232 に示す。**
 
 **表 T-232 — 単一 HTML の内容セキュリティ方針**
 
-| 行 ID | 指令 | 値と理由 |
-| --- | --- | --- |
-| PO-1 | `default-src` | `'none'`。<br>**土台を閉じ、要るものだけを個別に開ける。<br>** ⛔ 開けていない取得元は、すべて本行が拒む |
-| PO-2 | `img-src` | `data:`。<br>**値は 表 T-003 の `CN-8` が持つ。<br>** ⛔ `blob:` を足さない —— 絵を `<img>` へ渡す道は `data:` の URL である |
-| PO-3 | `style-src` | `'unsafe-inline'`。<br>⚠️ **成果物は 1 枚なので、様式は要素に直に載る。<br>** ⛔ 外部の様式表は `PO-1` が拒む |
-| PO-4 | `script-src` | 埋め込んだスクリプトの `sha256` を 1 つだけ置くこと（MUST）。<br>`'unsafe-inline'` を書いてはならない（MUST NOT） —— それでは注入されたスクリプトも走る。<br>⛔ `nonce` は採れない —— サーバーが要り、`NFR-004` はファイルを直接開いた状態での判定を MUST としている |
-| PO-5 | `base-uri` | `'none'`。<br>⚠️ **`PO-1` は本指令に及ばない** —— 足さないと、注入された基底 URL が相対参照の行き先を変えられる |
-| PO-6 | `form-action` | `'none'`。<br>⚠️ **`PO-1` は本指令にも及ばない** |
-| PO-7 | `connect-src` | `'self'`。<br>取次が配ったページは、同じ origin の取次へ WebSocket で繋ぐ（`FR-150`、表 T-035 の `AG-12` の ①）。<br>⛔ ほかの取得元を足さない —— 本行が無ければ、`PO-1` がその接続も拒む |
+| 行 ID | 指令 | 値と理由 | traces |
+| --- | --- | --- | --- |
+| PO-1 | `default-src` | `'none'`。<br>**土台を閉じ、要るものだけを個別に開ける。<br>** ⛔ 開けていない取得元は、すべて本行が拒む | NFR-009 |
+| PO-2 | `img-src` | `data:`。<br>**値は 表 T-003 の `CN-8` が持つ。<br>** ⛔ `blob:` を足さない —— 絵を `<img>` へ渡す道は `data:` の URL である | NFR-009 |
+| PO-3 | `style-src` | `'unsafe-inline'`。<br>⚠️ **成果物は 1 枚なので、様式は要素に直に載る。<br>** ⛔ 外部の様式表は `PO-1` が拒む | NFR-009 |
+| PO-4 | `script-src` | 埋め込んだスクリプトの `sha256` を 1 つだけ置くこと（MUST）。<br>`'unsafe-inline'` を書いてはならない（MUST NOT） —— それでは注入されたスクリプトも走る。<br>⛔ `nonce` は採れない —— サーバーが要り、`NFR-004` はファイルを直接開いた状態での判定を MUST としている | NFR-009, NFR-004 |
+| PO-5 | `base-uri` | `'none'`。<br>⚠️ **`PO-1` は本指令に及ばない** —— 足さないと、注入された基底 URL が相対参照の行き先を変えられる | NFR-009 |
+| PO-6 | `form-action` | `'none'`。<br>⚠️ **`PO-1` は本指令にも及ばない** | NFR-009 |
+| PO-7 | `connect-src` | `'self'`。<br>取次が配ったページは、同じ origin の取次へ WebSocket で繋ぐ（`FR-150`、表 T-035 の `AG-12` の ①）。<br>⛔ ほかの取得元を足さない —— 本行が無ければ、`PO-1` がその接続も拒む | NFR-009, FR-150 |
 
-**ハッシュは、埋め込んだスクリプトの本文そのものから作ること（MUST）。**  
-⚠️ 本文に制御文字が 1 つ混じるとブラウザの読む字面が変わり、ハッシュが合わずに画面全体が出なくなる。
+**表 T-730 — 単一 HTML の内容セキュリティ方針の実装仕様**
+
+| 行 ID | 何についてか | 実装仕様 | traces |
+| --- | --- | --- | --- |
+| IMPS-1332 | 足す指令 | 成果物を組み立てるとき、`GRS` は、表 T-232 に無い指令を内容セキュリティ方針に足さないこと。 | NFR-009 |
+| IMPS-1333 | ハッシュの元 | `GRS` は、`PO-4` のハッシュを、埋め込んだスクリプトの本文そのものから作ること。 | NFR-009 |
+
+`IMPS-1332` —— 開けた取得元は、開けた理由が読めなければならない。  
+`IMPS-1333` —— 本文に制御文字が 1 つ混じるとブラウザの読む字面が変わり、ハッシュが合わずに画面全体が出なくなる。
 
 #### 目盛の刻みの間隔とラベルの置き場を決める
 
@@ -1501,10 +1575,16 @@ flowchart TB
 **Type**: SW_SPEC
 **UID**: SWS-2
 
-**STATEMENT**: 段を割り当てたあと、`GRS` は、タスクグループの帯高と縦位置を 表 T-221 の `LF-2` と `LF-3` に従って決め、タスクグループの並びの下の余白を同表の `LF-16` に従って置くこと。
+**STATEMENT**: 段を割り当てたあと、`GRS` は、タスクグループの帯高と縦位置を 表 T-221 の `LF-2` と `LF-3` に従って決めること。
 
 **RATIONALE**: 表 T-014 の `ST-9` が定めた、その決まり方である。  
 ⚠️ 空の段と空のタスクグループが矩形 1 段ぶんを取るのは、タスクグループの帯が消えてタスクグループ見出しと縦位置がずれるのを防ぐためである。
+
+**表 T-731 — タスクグループの帯高と縦位置の実装仕様**
+
+| 行 ID | 何についてか | 実装仕様 | traces |
+| --- | --- | --- | --- |
+| IMPS-1334 | タスクグループの並びの下の余白 | 段を割り当てたあと、`GRS` は、タスクグループの並びの下の余白を 表 T-221 の `LF-16` に従って置くこと。 | FR-003 |
 
 **Relations**:
 
@@ -1517,11 +1597,17 @@ flowchart TB
 **Type**: SW_SPEC
 **UID**: SWS-3
 
-**STATEMENT**: 依存線を引くとき、`GRS` は、経路を 表 T-222 の分岐で選び、走りの長さを `_assets/tbl-settings.md` の 表 T-201 の `dependencyLeadOut` と `dependencyLeadIn` から、矢じりを同表の `dependencyArrowLength` と `dependencyArrowWidth` から、段間の通路を 表 T-221 の `LF-5` に従って決めること。
+**STATEMENT**: 依存線を引くとき、`GRS` は、経路を 表 T-222 の分岐で選ぶこと。
 
 **RATIONALE**: 表 T-018a の `RT-1` が定めた本数を、どの場面で採るかである。  
 ⚠️ 分岐が入力だけから決まる形にしてあるのは、同表の `RT-3` が要求するためである。  
 可視の障害物を見ないので、`FR-009` も同時に満たす。
+
+**表 T-732 — 依存線の経路の実装仕様**
+
+| 行 ID | 何についてか | 実装仕様 | traces |
+| --- | --- | --- | --- |
+| IMPS-1335 | 走りと矢じりと通路 | 依存線を引くとき、`GRS` は、走りの長さを `_assets/tbl-settings.md` の 表 T-201 の `dependencyLeadOut` と `dependencyLeadIn` から、矢じりを同表の `dependencyArrowLength` と `dependencyArrowWidth` から、段間の通路を 表 T-221 の `LF-5` に従って決めること。 | FR-009 |
 
 **Relations**:
 
@@ -1619,14 +1705,7 @@ flowchart TB
 **Type**: SECTION
 
 設定値（`documentSettings`）の既定値と範囲は `_assets/tbl-settings.md`（`DOC-TBL-SETTINGS`）が持つ。  
-本節はそこを指し、値を再掲しないこと（MUST NOT）。  
 名前の正は `_assets/tbl-glossary.md` の表 T-104 である。
-
-**交換相手のスキーマからの引用は、表 T-003 の `CN-7` に従うこと。**  
-**正は A.1 が版ごとに定める**。  
-事実はローカル複製（`docs/reference/mspdi/pj12/mspdi_pj12.xsd`、`docs/reference/mspdi/pj15/mspdi_pj15.xsd`）で確かめる（`docs/reference/README.md`）。  
-引用は版の入ったファイル名と行番号で書くこと（MUST）。  
-ハッシュが A.1 と合わない複製の行番号で引いてはならない（MUST NOT）。
 
 エンティティ・関係・列の全数を 図 F-011 と 表 T-056・表 T-057・表 T-058 に示す（`_assets/fig-erd-detail.md`）。  
 → [LINK: DOC-FIG-ERD-DETAIL]**文書が持たず、書き出すときに作る値は 表 T-059 が持つ。**  
@@ -1643,16 +1722,11 @@ flowchart TB
 ⚠️ `carry` の器を持たないものは、交換相手に対応が無いか、対応があっても解釈しない要素を持たない。  
 持たせると、書き戻す先が無い値を抱えることになる。
 
-⚠️ **`carry` の中身を表にコピーしてはならない（MUST NOT）**（表 T-003 の `CN-7`）。
-
 **図 F-011 の列の欄は左から型・名前・鍵・出自である。**  
 鍵の欄の `PK` が主キー、`FK` が外部キー、`PK,FK` が主キーを兼ねる外部キーである。  
 鍵を持つ列は、名前を太字にしている。  
 多重度は線の端の記号が表す。  
-丸が 0 でもよいこと、縦棒が 1 であること、鳥の足が多であることを表す。  
-**辺のラベルには、その線が何を表すかを書く。**  
-⭐ 規則を運ぶときは、その規則を持つ席の指し先だけを添える。  
-⚠️ **規則そのものをラベルへ書き写さない** —— 図は `_source/erd.json` からの生成物であり、ここにコピーすれば規則が 2 か所に在ることになる。
+丸が 0 でもよいこと、縦棒が 1 であること、鳥の足が多であることを表す。
 
 ⚠️ **型の括弧の中身（範囲・値の数・単位）は、図では出自の欄に回している。**  
 図の型の欄には 1 語しか置けないためである。  
@@ -1665,148 +1739,190 @@ flowchart TB
 **出自の 4 区分** —— `Own` は交換相手から取り込んでそのまま書き戻すもの、`Consume` は取り込んで解釈し、書き出すときに作り直すもの、`GRS` は本ソフトウェアが新たに持つもの、`Carry` は解釈せずに持ち回る器である。
 
 ⭐ `ET-` / `AT-` / `RL-` / `DV-` の番号は席番号である。  
-一度与えた番号を振り直してはならない（MUST NOT）。  
  原稿（`_source/erd.json`）の行がそれぞれ自分の `seat` を持ち、生成器はそれを印字する。  
 **行を足しても、それ以降の番号は動かない。**  
-⭐ **要求の `UID` と同じ規則である**（Chapter 1）—— **番号が動くとトレースの鎖が切れる。**  
-⛔ 番号を表の中の位置から取ってはならない（MUST NOT） —— 位置を番号にすると、行を足したときに参照が黙ってずれる。  
-**外から指すときは名前で指すこと** —— エンティティは名前で、列はエンティティ名と列名の対で指す（`Task.parentTaskUid` の形。  
-表 T-006a の `W-7`）。
+⭐ **要求の `UID` と同じ規則である**（Chapter 1）—— **番号が動くとトレースの鎖が切れる。**
 
-**表 T-059 のものを文書は持たない。**  
-持つと、元になった列と食い違ったときにどちらが正かを決める規則が要る。
+**表 T-733 — 設定値の参照と引用と番号の実装仕様**
+
+| 行 ID | 何についてか | 実装仕様 | traces |
+| --- | --- | --- | --- |
+| IMPS-1336 | 設定値の既定値と範囲 | 6.2 Data Schema は、設定値（`documentSettings`）の既定値と範囲を `_assets/tbl-settings.md` で指すこと。<br>6.2 Data Schema は、既定値と範囲の値を再掲しないこと。 | FR-024 |
+| IMPS-1337 | 交換相手のスキーマからの引用 | 交換相手のスキーマからの引用は、表 T-003 の `CN-7` に従うこと。<br>交換相手のスキーマの事実は、ローカル複製（`docs/reference/mspdi/pj12/mspdi_pj12.xsd`、`docs/reference/mspdi/pj15/mspdi_pj15.xsd`）で確かめること（`docs/reference/README.md`）。 | FR-021 |
+| IMPS-1338 | 引用の書き方 | 交換相手のスキーマからの引用は、版の入ったファイル名と行番号で書くこと。<br>交換相手のスキーマからの引用は、ハッシュが A.1 と合わない複製の行番号で引かないこと。 | FR-021 |
+| IMPS-1339 | `carry` の中身 | 仕様書の表は、`carry` の中身をコピーしないこと（表 T-003 の `CN-7`）。 | FR-021 |
+| IMPS-1340 | 図 F-011 の辺のラベル | 図 F-011 の辺のラベルは、その線が何を表すかを書くこと。<br>辺のラベルが規則を運ぶとき、辺のラベルは、規則を持つ席の指し先だけを添えること。<br>辺のラベルは、規則そのものを書き写さないこと。 | FR-024 |
+| IMPS-1341 | `ET-` / `AT-` / `RL-` / `DV-` の番号 | 一度与えた `ET-` / `AT-` / `RL-` / `DV-` の番号を、振り直さないこと。<br>`ET-` / `AT-` / `RL-` / `DV-` の番号を、表の中の位置から取らないこと。 | FR-024 |
+| IMPS-1342 | 外から指すとき | 外から指すときは、エンティティを名前で、列をエンティティ名と列名の対で指すこと（`Task.parentTaskUid` の形。<br>表 T-006a の `W-7`）。 | FR-024 |
+
+`IMPS-1337` —— 交換相手のスキーマの正は、A.1 が版ごとに定める。  
+`IMPS-1340` —— 図は `_source/erd.json` からの生成物であり、規則をラベルへコピーすれば規則が 2 か所に在ることになる。  
+`IMPS-1341` —— 位置を番号にすると、行を足したときに参照が黙ってずれる。
 
 ⚠️ **予実の状態・遅れ・進捗の記号は 表 T-059 に含まない** —— いずれも 文書にも交換相手にも書かないためである。  
 **それらは Chapter 5.5 が持つ。**  
 ⚠️ **実績の長さ（`FR-011` が日付から数える）だけは、交換相手へ書き出す行を持つ** —— それが 表 T-059 の `DV-11` である（文書の列に持たない規則は `FR-011` が持つ。  
 実績の最後の日は文書の列 `stop` と `actualFinish` が持ち、交換相手の `Stop` と `ActualFinish` へそのまま書く —— 取り込み元が `Stop` を持たなかった `Task` の例外は `FR-011` が持つ）。
 
-**`GRS JSON` のスキーマは、原稿から起こす生成物とする（MUST）** —— 本節はスキーマ本体を持たない。  
-図と表が持つ列の構成を 2 か所で抱えることになるためである。
+**表 T-734 — スキーマの原稿の実装仕様**
 
-**起こす原稿は 2 つとする（MUST）** —— 日程データの群は `_source/erd.json`、見せ方の群は `_source/settings.json` である。  
-前者は 図 F-011 と 表 T-056・表 T-057・表 T-058・表 T-059 を書き出している原稿であり、後者は値の正であって 表 T-201 以降を書き出している。  
-⚠️ どちらも既にあるものであり、値をコピーした 3 つ目の原稿を作ってはならない（MUST NOT）。
+| 行 ID | 何についてか | 実装仕様 | traces |
+| --- | --- | --- | --- |
+| IMPS-1343 | 表 T-059 の値 | `GRS` は、表 T-059 の値を文書に持たないこと。 | FR-024 |
+| IMPS-1344 | `GRS JSON` のスキーマ | `GRS JSON` のスキーマは、原稿から起こす生成物とすること。<br>6.2 Data Schema は、スキーマ本体を持たないこと。 | FR-024 |
+| IMPS-1345 | 起こす原稿の数 | `GRS JSON` のスキーマを起こす原稿は、日程データの群の `_source/erd.json` と、見せ方の群の `_source/settings.json` の 2 つとすること。<br>値をコピーした 3 つ目の原稿を作らないこと。 | FR-024 |
+| IMPS-1346 | 原稿の置き場 | 原稿は `_source/` に置くこと。<br>原稿を `_assets/` に置かないこと。 | FR-024 |
+| IMPS-1347 | 刊行される散文の欄 | 原稿の散文のうち刊行される欄は、言語ごとの辞書として持つこと。 | FR-024 |
+| IMPS-1348 | 分類を述べる欄 | 原稿は、分類を述べる欄（表 T-058 の型の欄と `null` の欄）を辞書にしないこと。<br>原稿は、分類を分類として持つこと。<br>生成器は、分類の言語ごとの表示を刷ること。 | FR-024 |
+| IMPS-1349 | 拡張領域の枠の原稿 | 交換相手から借りる拡張領域の枠の原稿は、`_source/mspdi-custom-fields.json` とすること。<br>`_source/mspdi-custom-fields.json` は、枠の番号と `Alias` と型を持つこと。<br>枠の番号を本仕様書へコピーしないこと。<br>枠の番号をコードに打たないこと。 | FR-057, FR-021 |
+| IMPS-1350 | 拡張領域の枠の原稿の名乗り | `_source/mspdi-custom-fields.json` は、枠の番号が `GRS` の決定ではなく Microsoft の `PjCustomField` 列挙からの引用であることと、引用の出典を自ら名乗ること。<br>`_source/mspdi-custom-fields.json` は、正が外部の列挙表であり、手元の正典で裏付けられるのは `Text1` の 1 件だけであることも書くこと。 | FR-057, FR-021 |
 
-⭐ 原稿は `_source/` に置くこと（MUST）。  
-`_assets/` に置いてはならない（MUST NOT） —— **原稿は言語に属さないからである。**  
+`IMPS-1343` —— 文書が表 T-059 の値を持つと、元になった列と食い違ったときにどちらが正かを決める規則が要る。  
+`IMPS-1344` —— 図と表が持つ列の構成を 2 か所で抱えることになるためである。  
+`IMPS-1345` —— `_source/erd.json` は 図 F-011 と 表 T-056・表 T-057・表 T-058・表 T-059 を書き出している原稿であり、`_source/settings.json` は値の正であって 表 T-201 以降を書き出している。  
+どちらも既にあるものである。  
+`IMPS-1346` —— 原稿は言語に属さないからである。  
 刊行物を日英で出すとき `_assets/` は言語ごとに分かれるので、そこに原稿を置けば原稿そのものが 2 つに割れ、値が 2 か所に在ることになる。  
-⚠️ **散文のうち刊行される欄は、言語ごとの辞書として持つこと（MUST）** —— 後から言語を足す作業を、書き直しではなく記入にするためである。  
-⛔ **分類を述べる欄を辞書にしてはならない（MUST NOT）** —— 表 T-058 の型の欄と `null` の欄がそれである。  
-**日本語で書かれていても散文ではない。**  
-⚠️ **辞書にすると「可」という表示の語を原稿へ焼き付けることになる** —— 分類は分類として持ち、言語ごとの表示は生成器が刷ること（MUST）。
+`IMPS-1347` —— 後から言語を足す作業を、書き直しではなく記入にするためである。  
+`IMPS-1348` —— 表 T-058 の型の欄と `null` の欄は、日本語で書かれていても散文ではない。  
+辞書にすると「可」という表示の語を原稿へ焼き付けることになる。  
+`IMPS-1349` —— 表 T-033 の `EX-6` と `EX-8` が規則を持つ。  
+同じ数を 2 か所に書けば、片方が必ず腐る（1.9）。
 
-⭐ 交換相手から借りる拡張領域の枠の原稿は `_source/mspdi-custom-fields.json` とする（MUST） —— 表 T-033 の `EX-6` と `EX-8` が規則を持ち、**番号と `Alias` と型はこの原稿が持つ。**  
-⛔ 番号を本仕様書へコピーしてはならない（MUST NOT）。  
-コードに打ってもならない（MUST NOT） —— **同じ数を 2 か所に書けば、片方が必ず腐る**（1.9）。  
-⚠️ 番号は `GRS` の決定ではなく、Microsoft の `PjCustomField` 列挙からの引用である —— その旨と出典は原稿自身が名乗る。  
-⭐ 正は外部の列挙表であり、手元の正典で裏付けられるのは `Text1` の 1 件だけであることも、原稿に書かせる（MUST）。
-
-⭐ 画面に刷る語の原稿は `_source/display-words.json` とする（MUST） —— `FR-038` が「画面に刷る語は言語ごとの辞書として 1 か所に持つ」と課したものの置き場である。  
-⛔ 同原稿は語だけを持ち、どの語が要るかの名簿を持ってはならない（MUST NOT） —— 名簿は、その語を画面へ出すことを課した要求の側が既に持っており（`FR-036` が名指す表がその形である）、**生成器が毎回そこから起こして原稿と突き合わせる。**  
-⛔ ここへ表を並べ直してはならない（MUST NOT） —— 要求が表を足した日に、この席だけが古くなる。  
 ⚠️ **表 T-104 も生成器が名簿を起こす表である** —— 設定の面が出す名の在り処であり、設定の面にも 表 T-006a の `W-2` が及ぶ。  
-⚠️ **本原稿は `GRS JSON` のスキーマを起こさない** —— 上の「起こす原稿は 2 つ」はスキーマの原稿の数であり、本原稿はそこに数えない。  
-⛔ **語を仕様書の表へ刷ってはならない（MUST NOT）** —— 空の欄が並ぶだけで、規則を 1 つも述べない表になる。  
-**語が届く先は `src/` の生成物 1 本とし（MUST）**、その素性は下の道標の規則に従う。
+⚠️ `_source/display-words.json` は `GRS JSON` のスキーマを起こさない —— `IMPS-1345` の「起こす原稿は 2 つ」はスキーマの原稿の数であり、`_source/display-words.json` はそこに数えない。
 
-⭐ 知らせの名簿の原稿は `_source/notice-reasons.json` とし、`_assets/tbl-notice-reasons.md` の 表 T-233・表 T-234 はそこから起こす生成物とする（MUST）。  
-同文書を手で直してはならない（MUST NOT）。  
-⭐ 同原稿は、理由と問いの行 ID・場面・作法・出典・表示の仕方を持ち、語を持たない —— 語は `_source/display-words.json` が行 ID で持つ。  
-⚠️ 辞書の生成器は、理由と問いの名簿をこの原稿から起こして辞書と突き合わせる —— 上で名簿を持つとした要求の側が、この原稿である。
+**表 T-735 — 語と知らせとプロンプトの原稿の実装仕様**
 
-⭐ 日程の画像をデータ化するプロンプト（`01-04-requirements.md` の `FR-068`）の原稿は、`_source/image-to-grs-json-prompt.ja.md` と `_source/image-to-grs-json-prompt.en.md` の 2 つとする（MUST） —— 言語ごとに 1 つであり、言語を足す作業は原稿を 1 つ足す記入で済む。  
-⛔ 原稿に `GRS JSON` のスキーマと土台の文書をコピーしてはならない（MUST NOT） —— 土台の文書は生成器が原稿の後ろへ連ね、スキーマは生成器が同じ生成物に入れて、押したときに 表 T-024 の `IO-10` のファイルとしてダウンロードに渡る（`FR-068`）。  
-コピーすれば、スキーマの原稿（上の「起こす原稿は 2 つ」）と初期テンプレート（`FR-027`）から離れる。  
-⚠️ 原稿は 1 行目で、唯一の正であることと、起こす生成物と、作り直し方を名乗る。  
-その 1 行はプロンプトに入れない。  
-**プロンプトが届く先は `src/` の生成物 1 本とし（MUST）**、その素性は下の道標の規則に従う。
+| 行 ID | 何についてか | 実装仕様 | traces |
+| --- | --- | --- | --- |
+| IMPS-1351 | 画面に刷る語の原稿 | 画面に刷る語の原稿は、`_source/display-words.json` とすること。 | FR-038 |
+| IMPS-1352 | 語の名簿 | `_source/display-words.json` は、語だけを持つこと。<br>`_source/display-words.json` は、どの語が要るかの名簿を持たないこと。<br>生成器は、名簿を要求の側から毎回起こして、`_source/display-words.json` と突き合わせること。<br>名簿の表を、`_source/display-words.json` にも 6.2 Data Schema にも並べ直さないこと。 | FR-038 |
+| IMPS-1353 | 仕様書の表 | 語を仕様書の表へ刷らないこと。 | FR-038 |
+| IMPS-1354 | 語が届く先 | `_source/display-words.json` の語が届く先は、`src/` の生成物 1 本とすること。<br>語の生成物の素性は、`IMPS-1366`（道標）に従うこと。 | FR-038 |
+| IMPS-1355 | 知らせの名簿の原稿 | 知らせの名簿の原稿は、`_source/notice-reasons.json` とすること。<br>`_assets/tbl-notice-reasons.md` の 表 T-233・表 T-234 は、`_source/notice-reasons.json` から起こす生成物とすること。<br>`_assets/tbl-notice-reasons.md` を手で直さないこと。<br>`_source/notice-reasons.json` は、理由と問いの行 ID・場面・作法・出典・表示の仕方を持つこと。<br>`_source/notice-reasons.json` は、語を持たないこと。 | FR-076, FR-038 |
+| IMPS-1356 | 理由と問いの名簿の突き合わせ | 辞書の生成器は、理由と問いの名簿を `_source/notice-reasons.json` から起こして、辞書と突き合わせること。 | FR-038 |
+| IMPS-1357 | プロンプトの原稿 | 日程の画像をデータ化するプロンプト（`01-04-requirements.md` の `FR-068`）の原稿は、`_source/image-to-grs-json-prompt.ja.md` と `_source/image-to-grs-json-prompt.en.md` の 2 つとすること。 | FR-068 |
+| IMPS-1358 | プロンプトの原稿に入れないもの | プロンプトの原稿に、`GRS JSON` のスキーマと土台の文書をコピーしないこと。<br>生成器は、土台の文書をプロンプトの原稿の後ろへ連ねること。<br>生成器は、`GRS JSON` のスキーマを、プロンプトと同じ生成物に入れること。 | FR-068 |
+| IMPS-1359 | プロンプトの原稿の 1 行目 | プロンプトの原稿は、1 行目で、唯一の正であることと、起こす生成物と、作り直し方を名乗ること。<br>プロンプトの原稿の 1 行目を、プロンプトに入れないこと。 | FR-068 |
+| IMPS-1360 | プロンプトが届く先 | プロンプトが届く先は、`src/` の生成物 1 本とすること。<br>プロンプトの生成物の素性は、`IMPS-1366`（道標）に従うこと。 | FR-068 |
 
-日程データの群の原稿は、生成に要る型と、値の範囲と、空を許すかどうかを、機械が読める形で持つこと（MUST） ⚠️ **どの鍵をどう足すかは原稿の作りであり、本節は定めない**。
-
-⭐ 見せ方の群の原稿も機械が読める形とし、`_assets/tbl-settings.md` はそこから起こす生成物とする（MUST）。  
-同文書を手で直してはならない（MUST NOT）。  
-⭐ 見せ方の群の値が欄を持つ形（列のフィルタ・並べ替え）であるときは、形も同原稿が 1 度だけ持ち（`_assets/tbl-settings.md` の 表 T-372）、スキーマの定義（`$defs`）はそこから起こす —— 3 つの表が同じ形を持つので、行ごとに形を書けば 3 つのコピーになる。  
-⚠️ 上の「起こす原稿は 2 つ」は破れない —— 形は見せ方の群の原稿の中に在る。
+`IMPS-1351` —— `FR-038` が「画面に刷る語は言語ごとの辞書として 1 か所に持つ」と課したものの置き場である。  
+`IMPS-1352` —— 名簿は、その語を画面へ出すことを課した要求の側が既に持っている（`FR-036` が名指す表がその形である）。  
+要求が表を足した日に、並べ直した席だけが古くなる。  
+`IMPS-1353` —— 空の欄が並ぶだけで、規則を 1 つも述べない表になる。  
+`IMPS-1355` —— 語は `_source/display-words.json` が行 ID で持つ。  
+`IMPS-1356` —— `IMPS-1352` で名簿を持つとした要求の側が、`_source/notice-reasons.json` である。  
+`IMPS-1357` —— 言語ごとに 1 つであり、言語を足す作業は原稿を 1 つ足す記入で済む。  
+`IMPS-1358` —— スキーマは、押したときに 表 T-024 の `IO-10` のファイルとしてダウンロードに渡る（`FR-068`）。  
+コピーすれば、スキーマの原稿（`IMPS-1345`）と初期テンプレート（`FR-027`）から離れる。
 
 機械が読める原稿から起こす理由は 2 つある —— **(1)** 仕様書を日英で刊行すると表も行も 2 倍になり、値が 2 か所に在ることになる。  
-**(2)** 手で持つと、値を打ち直したときに生成物も型もテストも 1 つとして知らせない。  
-⭐ **移し替えは往復のバイト一致で検証すること（MUST）** —— 原稿から起こした文書が元の文書と 1 バイトも違わないことが、移し替えで何も落ちていないことの証明である。
+**(2)** 手で持つと、値を打ち直したときに生成物も型もテストも 1 つとして知らせない。
 
-**生成物は、原稿から作り直した結果と一致すること（MUST）** —— **生成物を手で直してはならない（MUST NOT）**。  
-5.2 が `_source/components.json` の生成物に同じ MUST NOT を定めている。
+**表 T-736 — 原稿と生成物の実装仕様**
 
-⭐ 生成物は、自分がどの原稿から起こされたかと、作り直し方を、自ら述べること（MUST） —— **述べていない生成物は、いずれ手で直される。**  
-⚠️ `_assets/tbl-settings.md` は「本書が設定値の正である」と書いたまま生成物になり、その 1 文が偽になっていた —— 道標が無いことより、古い道標が残っていることのほうが危ない。  
-**述べる内容は、生成物であること・原稿の名前・作り直す手順の 3 つとする。**
+| 行 ID | 何についてか | 実装仕様 | traces |
+| --- | --- | --- | --- |
+| IMPS-1361 | 日程データの群の原稿 | 日程データの群の原稿は、生成に要る型と、値の範囲と、空を許すかどうかを、機械が読める形で持つこと。 | FR-024 |
+| IMPS-1362 | 見せ方の群の原稿 | 見せ方の群の原稿（`_source/settings.json`）も、機械が読める形とすること。<br>`_assets/tbl-settings.md` は、見せ方の群の原稿から起こす生成物とすること。<br>`_assets/tbl-settings.md` を手で直さないこと。 | FR-024 |
+| IMPS-1363 | 欄を持つ形の値 | 見せ方の群の値が欄を持つ形（列のフィルタ・並べ替え）であるとき、見せ方の群の原稿は、形を 1 度だけ持つこと（`_assets/tbl-settings.md` の 表 T-372）。<br>生成器は、スキーマの定義（`$defs`）を、見せ方の群の原稿が持つ形から起こすこと。 | FR-024 |
+| IMPS-1364 | 移し替えの検証 | 原稿への移し替えは、往復のバイト一致で検証すること。 | FR-024 |
+| IMPS-1365 | 生成物と原稿の一致 | 生成物は、原稿から作り直した結果と一致すること。<br>生成物を手で直さないこと。 | FR-024 |
+| IMPS-1366 | 生成物の道標 | 生成物は、自分がどの原稿から起こされたかと、作り直し方を、自ら述べること。<br>生成物が述べる内容は、生成物であること・原稿の名前・作り直す手順の 3 つとすること。 | FR-024 |
 
-⭐ 起こしたスキーマは言語に属さない（MUST）。  
-日本語を持ってはならない（MUST NOT）。  
-言語ごとに 2 つ持ってはならない（MUST NOT） —— `FR-024` の文書形式の契約であり、機械と交換相手が読むものであって、読み物ではないからである。  
-⚠️ **説明の欄は原稿の `en` から採る** —— 原稿は 表 T-056 に刷る `ja` と対で持つ。  
-⛔ **刊行物を日英で分けるとき、本ファイルを分けてはならない（MUST NOT）。**
+`IMPS-1361` —— どの鍵をどう足すかは原稿の作りであり、6.2 Data Schema は定めない。  
+`IMPS-1363` —— 3 つの表が同じ形を持つので、行ごとに形を書けば 3 つのコピーになる。  
+⚠️ `IMPS-1345` の「起こす原稿は 2 つ」は破れない —— 形は見せ方の群の原稿の中に在る。  
+`IMPS-1364` —— 原稿から起こした文書が元の文書と 1 バイトも違わないことが、移し替えで何も落ちていないことの証明である。  
+`IMPS-1365` —— 5.2 が `_source/components.json` の生成物に同じ MUST NOT を定めている。  
+`IMPS-1366` —— 述べていない生成物は、いずれ手で直される。  
+⚠️ `_assets/tbl-settings.md` は「本書が設定値の正である」と書いたまま生成物になり、その 1 文が偽になっていた —— 道標が無いことより、古い道標が残っていることのほうが危ない。
 
-⭐ **起こしたスキーマの読み手は、スキーマだけを渡されて文書を書く者とする（MUST）** —— `AI` を含む。  
-文書が外で書かれて `GRS` へ持ち込まれるとき、書き手が持つのはスキーマだけだからである。  
-**語るのは名と構造が先である** —— 型・形・範囲・既定値・定数で言えることは、説明（`description`）に書かない。  
-**説明は概要と理由だけとすること（MUST）。**  
-何であるかを説明で補わなければ読めないなら、それは名か構造の欠陥である。  
-⛔ 説明に本仕様書の ID（要求・表・行の ID）を書いてはならない（MUST NOT） —— スキーマだけを持つ読み手には引けない。  
-⚠️ **交換相手から採った列は、名も値も交換相手のままとする**（整数の符号を名前の列挙に替えない） —— 符号の意味が名から読めないのは交換相手の側の事情なので、その意味は説明で補ってよい。  
-列の説明は、原稿の列が持つ `schemaNote` の `en` から採る。  
-見せ方の群の鍵の説明も同じく、`_source/settings.json` のその行が持つ `schemaNote` の `en` から採る。  
-⚠️ `schemaNote` は要る列にだけ置く —— 名と型で足りる列に説明を足すと、読み手が拾うべき 1 文が埋もれる。  
-⭐ **スキーマの説明は、日時の種類を使い分ける理由を言うこと（MUST）** —— 予定の日時は帯の無い現地時刻である（交換相手のまま往復するため）。  
-`GRS` が書く時刻は開始の側・終了の側・丸 1 日で分ける（`01-04-requirements.md` の 表 T-350 —— 時刻なしで入れた日付に交換相手が当てる時刻であり、時刻を扱う日にもそのまま正しい瞬間になるため）。  
-記録の刻は UTC とし、文書の刻印に置く（読む人の現地時刻で示し、書いても群の刻を動かさないため）。  
-最後に保存した日時は持たず、書き出すときに作る（保存の時刻を 1 か所に持ち、保存を日程の変更に数えないため）。
+**表 T-737 — 起こしたスキーマの中身の実装仕様**
 
-⭐ **見せ方の群の各鍵には既定値を、文書に保存しない定数の鍵を名指す上下限には数を、スキーマに刷る（MUST）** —— 既定値と違う値を当て推量で書かせないためである。  
-⭐ その値は刷られた表ではなく `_source/settings.json` から、`src/` の型を起こす生成器と同じ読み方で読むこと（MUST） —— 式で書かれた既定値は刷られた表からは採れず、別の読み方で解けば 3 つ目のコピーになる。  
-⚠️ 保存する鍵を名指す上下限（`rulerHeightPx` を名指す `rulerFontSizePx` の上限など）は数に解かない —— 文書ごとに動く値であり、既定値で解いた数は既定値のときにしか正しくない。  
-`Project.themeHue` の既定値も同じ形で、原稿の列が名指す設定の行（`S-73`）から読む。  
-⭐ 持ち回りの器（`carry`）は、どのエンティティの器も 1 つの定義を指す —— 器を空にしてよい理由を 1 か所で言うためである。  
-⭐ 日時の列は 1 つの日時の定義を指し、その定義が形を `xsd:dateTime` の字面の `pattern` で言うこと（MUST） —— 書き手に日付だけで書かせないためである。  
+| 行 ID | 何についてか | 実装仕様 | traces |
+| --- | --- | --- | --- |
+| IMPS-1367 | 言語 | 起こしたスキーマは、言語に属さないこと。<br>起こしたスキーマは、日本語を持たないこと。<br>起こしたスキーマを、言語ごとに 2 つ持たないこと。 | FR-024 |
+| IMPS-1368 | 説明の採り方 | 起こしたスキーマの説明の欄は、原稿の `en` から採ること。<br>列の説明は、原稿の列が持つ `schemaNote` の `en` から採ること。<br>見せ方の群の鍵の説明は、`_source/settings.json` の行が持つ `schemaNote` の `en` から採ること。 | FR-024 |
+| IMPS-1369 | 刊行物を日英で分けるとき | 刊行物を日英で分けるとき、起こしたスキーマのファイルを分けないこと。 | FR-024 |
+| IMPS-1370 | 読み手 | 起こしたスキーマの読み手は、スキーマだけを渡されて文書を書く者（`AI` を含む）とすること。 | FR-024 |
+| IMPS-1371 | 名と構造と説明 | 起こしたスキーマは、名と構造で先に語ること。<br>型・形・範囲・既定値・定数で言えることを、説明（`description`）に書かないこと。<br>説明は、概要と理由だけとすること。 | FR-024 |
+| IMPS-1372 | 説明の中の ID | 説明に、本仕様書の ID（要求・表・行の ID）を書かないこと。 | FR-024 |
+| IMPS-1373 | 交換相手から採った列 | 起こしたスキーマは、交換相手から採った列の名も値も、交換相手のままとすること（整数の符号を名前の列挙に替えない）。<br>交換相手から採った列の符号の意味は、説明で補ってもよい。 | FR-024, FR-021 |
+| IMPS-1374 | `schemaNote` を置く列 | `schemaNote` は、要る列にだけ置くこと。 | FR-024 |
+| IMPS-1375 | 日時の種類の理由 | スキーマの説明は、日時の種類を使い分ける理由を言うこと。<br>予定の日時は帯の無い現地時刻である（交換相手のまま往復するため）。<br>`GRS` が書く時刻は開始の側・終了の側・丸 1 日で分ける（`01-04-requirements.md` の 表 T-350 —— 時刻なしで入れた日付に交換相手が当てる時刻であり、時刻を扱う日にもそのまま正しい瞬間になるため）。<br>記録の刻は UTC とし、文書の刻印に置く（読む人の現地時刻で示し、書いても群の刻を動かさないため）。<br>最後に保存した日時は持たず、書き出すときに作る（保存の時刻を 1 か所に持ち、保存を日程の変更に数えないため）。 | FR-024 |
+| IMPS-1376 | 既定値と上下限の数 | 起こしたスキーマには、見せ方の群の各鍵の既定値と、文書に保存しない定数の鍵を名指す上下限の数を刷ること。 | FR-024 |
+| IMPS-1377 | 値の読み方 | `IMPS-1376` の値を、刷られた表ではなく `_source/settings.json` から、`src/` の型を起こす生成器と同じ読み方で読むこと。<br>`Project.themeHue` の既定値も同じ形で、原稿の列が名指す設定の行（`S-73`）から読むこと。 | FR-024 |
+| IMPS-1378 | 保存する鍵を名指す上下限 | 保存する鍵を名指す上下限（例: `rulerHeightPx` を名指す `rulerFontSizePx` の上限）を、数に解かないこと。 | FR-024 |
+| IMPS-1379 | 持ち回りの器 | 起こしたスキーマで、持ち回りの器（`carry`）は、どのエンティティの器も 1 つの定義を指すこと。 | FR-024, FR-021 |
+| IMPS-1380 | 日時の列 | 起こしたスキーマで、日時の列は 1 つの日時の定義を指すこと。<br>日時の定義は、形を `xsd:dateTime` の字面の `pattern` で言うこと。 | FR-024 |
+| IMPS-1381 | `schemaVersion` | 起こしたスキーマで、`schemaVersion` は、造りの版を `const` で言うこと。 | FR-024, FR-073 |
+| IMPS-1382 | 時刻の列 | 起こしたスキーマで、時刻の列（表 T-058 が型を時刻とする列）は 1 つの時刻の定義を指すこと。<br>時刻の定義は、形を `xsd:time` の字面の `pattern` で言うこと。 | FR-024 |
+
+`IMPS-1367` —— 起こしたスキーマは `FR-024` の文書形式の契約であり、機械と交換相手が読むものであって、読み物ではないからである。  
+`IMPS-1368` —— 原稿は 表 T-056 に刷る `ja` と対で持つ。  
+`IMPS-1370` —— 文書が外で書かれて `GRS` へ持ち込まれるとき、書き手が持つのはスキーマだけだからである。  
+`IMPS-1371` —— 何であるかを説明で補わなければ読めないなら、それは名か構造の欠陥である。  
+`IMPS-1372` —— スキーマだけを持つ読み手には引けない。  
+`IMPS-1373` —— 符号の意味が名から読めないのは交換相手の側の事情である。  
+`IMPS-1374` —— 名と型で足りる列に説明を足すと、読み手が拾うべき 1 文が埋もれる。  
+`IMPS-1376` —— 既定値と違う値を当て推量で書かせないためである。  
+`IMPS-1377` —— 式で書かれた既定値は刷られた表からは採れず、別の読み方で解けば 3 つ目のコピーになる。  
+`IMPS-1378` —— 文書ごとに動く値であり、既定値で解いた数は既定値のときにしか正しくない。  
+`IMPS-1379` —— 器を空にしてよい理由を 1 か所で言うためである。  
+`IMPS-1380` —— 書き手に日付だけで書かせないためである。  
 小数秒と帯を許すのは、交換相手から取り込んだ値が綴りのまま往復するからである（`01-04-requirements.md` の 表 T-033 の `EX-4`）。  
 `_assets/tbl-settings.md` の `S-77`（`scrollDate`）も同じ `pattern` を持つ。  
-⭐ `schemaVersion` は、その造りの版を `const` で言うこと（MUST） —— 値の正は 1 つである（表 T-052 の `DR-4`）。  
-⚠️ どちらも読む路の照合には載せない（Chapter 6.1）。  
-⭐ 時刻の列（表 T-058 が型を時刻とする列）は 1 つの時刻の定義を指し、その定義が形を `xsd:time` の字面の `pattern` で言うこと（MUST）。  
-⛔ こちらは読む路の照合に載せる（Chapter 6.1） —— `Project` の列なので、行ごと落とす道が無い。
+`IMPS-1381` —— 値の正は 1 つである（表 T-052 の `DR-4`）。  
+⚠️ 日時の `pattern` と `schemaVersion` の `const` は、どちらも読む路の照合には載せない（Chapter 6.1 の `IMPS-1317`）。  
+⛔ 時刻の `pattern` は読む路の照合に載せる（Chapter 6.1 の `IMPS-1318`） —— `Project` の列なので、行ごと落とす道が無い。
 
-⭐ **刊行するスキーマの `$id` は、`_assets/tbl-settings.md` の 表 T-206 の `S-540` の所とすること（MUST）** —— スキーマだけを持つ人が、そこを開けば最新のスキーマに届く。  
-⚠️ `S-540` は、開けば JSON が返る所でなければならない —— 書いた所が開けなければ、辿れない。  
-⭐ **書き出す `GRS JSON` は、ルートの先頭の鍵に `"$schema"` を書き、値を `S-540` の所とすること（MUST）** —— 文書だけを渡された人・AI・エディタが、そこからスキーマへ辿れる。  
+**表 T-738 — スキーマの所と変更の台帳の実装仕様**
+
+| 行 ID | 何についてか | 実装仕様 | traces |
+| --- | --- | --- | --- |
+| IMPS-1383 | `$id` | 刊行するスキーマの `$id` は、`_assets/tbl-settings.md` の 表 T-206 の `S-540` の所とすること。<br>`S-540` は、開けば JSON が返る所とすること。 | FR-024 |
+| IMPS-1384 | 書き出す `"$schema"` | `GRS JSON` を書き出すとき、`GRS` は、ルートの先頭の鍵に `"$schema"` を書くこと。<br>`GRS` は、`"$schema"` の値を `S-540` の所とすること。<br>`GRS` は、`"$schema"` の値に、読んだ値でなく `S-540` の今の値を書くこと。 | FR-024 |
+| IMPS-1385 | ルートの `"$schema"` | 刊行するスキーマのルートは、`"$schema"` を必須の鍵として受けること。<br>刊行するスキーマは、`"$schema"` の型を文字列だけで縛ること。<br>刊行するスキーマは、`"$schema"` を `const` にしないこと。 | FR-024 |
+| IMPS-1386 | 読む路と `"$schema"` | `GRS JSON` を読むとき、`GRS` は、`"$schema"` の値を理由に文書を拒まないこと。 | FR-023, FR-073 |
+| IMPS-1387 | 変更の台帳 | 刊行するスキーマは、ルートの注釈の語 `x-grsChanges` に、変更の台帳を配列で持つこと。<br>変更の台帳は、1 件の変更を 1 要素とし、古い順に末尾へ足すだけとすること（前の要素を書き換えない）。<br>変更の台帳の正は、`_source/grs-json-changes.json` とすること。<br>生成器は、`_source/grs-json-changes.json` から変更の台帳を刷ること。 | FR-073, FR-024 |
+| IMPS-1388 | 書き出す文書と台帳 | `GRS JSON` を書き出すとき、`GRS` は、変更の台帳を載せないこと。 | FR-073 |
+| IMPS-1389 | 古い文書の読み方 | 古い文書を読むとき、最新の `GRS` は、変更の台帳の種別に従って読むこと。<br>`added` は行の既定値で補って読む、`removed` は捨てて読み告げない（Chapter 6.1 の 表 T-297 と同じ）、`renamed` は新しい名へ移して読む、`converted` は行が名指す規則で読む、`refused` は文書ごと拒む（`01-04-requirements.md` の 表 T-233 の `RS-25`）。 | FR-073 |
+| IMPS-1390 | 公式運用の前の台帳 | 公式運用の前（`S-541` が `null`）の間、変更の台帳は空の配列であること（`01-04-requirements.md` の `FR-073`）。 | FR-073 |
+
+`IMPS-1383` —— スキーマだけを持つ人が、`S-540` を開けば最新のスキーマに届く。  
+書いた所が開けなければ、辿れない。  
+`IMPS-1384` —— 文書だけを渡された人・AI・エディタが、`S-540` からスキーマへ辿れる。  
 JSON を扱うエディタの多くは、データの文書の `"$schema"` を読んでスキーマを引き、照合と補完に使う。  
-書き出すときは、読んだ値でなく `S-540` の今の値を書く。  
-⭐ **刊行するスキーマのルートは、`"$schema"` を必須の鍵として受けること（MUST）** —— ルートは閉じているので、受けなければ自分の書いた文書を拒む。  
-型は文字列だけを縛り、`const` にしない。  
-⛔ 読む路は、`"$schema"` の値を理由に文書を拒んではならない（MUST NOT） —— 互換は形式の版が判じる（`01-04-requirements.md` の `FR-073`）。  
-所が移っても、古い所を書いた文書は読める。
-
-⭐ **刊行するスキーマは、ルートの注釈の語 `x-grsChanges` に、変更の台帳を配列で持つこと（MUST）。**  
-1 件の変更を 1 要素とし、古い順に末尾へ足すだけとする —— 前の要素を書き換えない。  
-台帳の正は `_source/grs-json-changes.json` であり、生成器が刷る。  
-1 要素の欄と種別ごとの欄は、その原稿を縛る `docs/development-rules/manuscript-schemas/grs-json-changes.schema.json` が持つ。  
-⛔ 書き出す `GRS JSON` に台帳を載せてはならない（MUST NOT） —— 古い文書は自分より後の変更を知りようがなく、最新のスキーマが全件を持てば足りる。  
-⭐ 古い文書を最新の `GRS` がどう読むかは種別が決める —— `added` は行の既定値で補って読む、`removed` は捨てて読み告げない（Chapter 6.1 の 表 T-297 と同じ）、`renamed` は新しい名へ移して読む、`converted` は行が名指す規則で読む、`refused` は文書ごと拒む（`01-04-requirements.md` の 表 T-233 の `RS-25`）。  
+`IMPS-1385` —— ルートは閉じているので、受けなければ自分の書いた文書を拒む。  
+`IMPS-1386` —— 互換は形式の版が判じる（`01-04-requirements.md` の `FR-073`）。  
+所が移っても、古い所を書いた文書は読める。  
+`IMPS-1387` —— 1 要素の欄と種別ごとの欄は、`_source/grs-json-changes.json` を縛る `docs/development-rules/manuscript-schemas/grs-json-changes.schema.json` が持つ。  
+`IMPS-1388` —— 古い文書は自分より後の変更を知りようがなく、最新のスキーマが全件を持てば足りる。  
 ⚠️ 語は JSON Schema の語ではない —— JSON Schema 2020-12 は知らない語を注釈として通すので、台帳は照合を変えない。  
-頭の `x-` は、規格の外の語だと読み手に告げる —— JSON Schema の計画が即席の注釈の語に勧めた慣習であり、OpenAPI の拡張の語も同じ慣習である。  
-⚠️ 公式運用の前（`S-541` が `null`）は、台帳は空の配列である（`01-04-requirements.md` の `FR-073`）。
+頭の `x-` は、規格の外の語だと読み手に告げる —— JSON Schema の計画が即席の注釈の語に勧めた慣習であり、OpenAPI の拡張の語も同じ慣習である。
 
-起こしたスキーマの置き場は `_source/grs-document.schema.json` とする（MUST） —— **言語に属さないものは `_source/` に置く**という上の規則の帰結である。  
 ⚠️ **`_source/` は原稿だけの場所ではない** —— `overview.json` と `.drawio` も `components.json` から起こした生成物である。  
-⛔ だからフォルダ名では素性が分からない。  
-各ファイルが自分で名乗ること（MUST） —— 原稿なら「編集せよ」、生成物なら「手で直すな」と、**どこから起こしたかと作り直し方を添えて。**  
-⚠️ **README で代えてはならない（MUST NOT）** —— 検索結果からファイルを直接開いた者には届かない。  
-⭐ 起こすのは `_source/erd_json_to_schema.py` であり、日程データの群は `_source/erd.json` から、見せ方の群は `_assets/tbl-settings.md` から読む —— **後者は上の生成物であって原稿ではない。**  
-⚠️ **見せ方の群を刷られた表から読むのはわざとである** —— **同じ原稿を読む者はもう 1 つあり**（`src/` の型を起こす生成器は `_source/settings.json` を直に読む）、同じ原稿を別々の形で読む 2 つが食い違うことが、表の欄を読み違えたことを捕まえる。  
-⚠️ **ただし型の欄が機械で読めない行だけは、スキーマを起こす側も原稿を直に読む** —— 刷られた表から採れないものを推し量らせないためであり、どの行がそれに当たるかは生成器自身が名乗る。  
-⚠️ **中身をここへコピーしてはならない（MUST NOT）**（1.9）。
+⛔ だからフォルダ名では素性が分からない。
 
-**スキーマは、原稿が綴っていない値を作らないこと（MUST）** —— 列挙の値を原稿が綴っていない列は、素の文字列に広がる。  
-どれを広げたかは生成物自身が残す。  
-⚠️ スキーマ検証を通ったことをもって、本仕様書に適合したとみなしてはならない（MUST NOT） —— スキーマが見るのは形であり、規則と理由の正は要求の側である。
+**表 T-739 — 起こしたスキーマの置き場と生成器の実装仕様**
+
+| 行 ID | 何についてか | 実装仕様 | traces |
+| --- | --- | --- | --- |
+| IMPS-1391 | 起こしたスキーマの置き場 | 起こしたスキーマの置き場は、`_source/grs-document.schema.json` とすること。 | FR-024 |
+| IMPS-1392 | `_source/` のファイルの名乗り | `_source/` の各ファイルは、自分で素性を名乗ること —— 原稿なら「編集せよ」、生成物なら「手で直すな」と、どこから起こしたかと作り直し方を添えて。<br>`_source/` の各ファイルの名乗りを、README で代えないこと。 | FR-024 |
+| IMPS-1393 | スキーマを起こす生成器 | `_source/erd_json_to_schema.py` は、スキーマを起こすとき、日程データの群を `_source/erd.json` から、見せ方の群を `_assets/tbl-settings.md` から読むこと。<br>型の欄が機械で読めない行だけは、`_source/erd_json_to_schema.py` も見せ方の群の原稿（`_source/settings.json`）を直に読むこと。<br>`_source/erd_json_to_schema.py` は、型の欄が機械で読めない行がどれかを、自身で名乗ること。 | FR-024 |
+| IMPS-1394 | 型の欄が機械で読めない行の名簿 | 6.2 Data Schema へ、型の欄が機械で読めない行の名簿（`_source/erd_json_to_schema.py` が名乗る中身）をコピーしないこと（1.9）。 | FR-024 |
+| IMPS-1395 | 原稿が綴っていない値 | 起こしたスキーマは、原稿が綴っていない値を作らないこと。<br>列挙の値を原稿が綴っていない列は、素の文字列に広がる。<br>起こしたスキーマの生成物は、素の文字列に広げた列を自身で残すこと。 | FR-024 |
+| IMPS-1396 | スキーマ検証と適合 | スキーマ検証を通ったことをもって、本仕様書に適合したとみなさないこと。 | FR-024 |
+
+`IMPS-1391` —— 言語に属さないものは `_source/` に置くという `IMPS-1346` の規則の帰結である。  
+`IMPS-1392` —— README は、検索結果からファイルを直接開いた者には届かない。  
+`IMPS-1393` —— `_assets/tbl-settings.md` は `IMPS-1362` の生成物であって原稿ではない。  
+型の欄が機械で読めない行を原稿から直に読むのは、刷られた表から採れないものを推し量らせないためである。  
+⚠️ **見せ方の群を刷られた表から読むのはわざとである** —— **同じ原稿を読む者はもう 1 つあり**（`src/` の型を起こす生成器は `_source/settings.json` を直に読む）、同じ原稿を別々の形で読む 2 つが食い違うことが、表の欄を読み違えたことを捕まえる。  
+`IMPS-1396` —— スキーマが見るのは形であり、規則と理由の正は要求の側である。
 
 ## Chapter 7. Test Strategy (テスト戦略)
 

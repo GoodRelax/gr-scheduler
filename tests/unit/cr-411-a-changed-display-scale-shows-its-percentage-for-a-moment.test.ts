@@ -24,7 +24,7 @@ const REQUIREMENTS = unbroken(
 )
 
 const FR_039_A_MESSAGE_EVERY_PRESS =
-  '⭐ 表示の倍率を変える入口と割当が押されるたびに、いまの倍率を示すメッセージを 表 T-260 に従って出すこと（MUST）'
+  '表示の倍率を変える入口か割当を押したとき、`GRS` は、押すたびに、いまの倍率を示すメッセージを 表 T-260 に従って出すこと。'
 const SE_1_EVERY_PRESS = '`IC-104` / `IC-105` と 表 T-036 の `SK-22` / `SK-23` が押されるたびに出すこと（MUST）'
 const SE_1_EVEN_UNCHANGED =
   '押しても倍率が変わらなかったとき（いちばん大きい段で上げる側、いちばん小さい段で下げる側）も出すこと（MUST）'

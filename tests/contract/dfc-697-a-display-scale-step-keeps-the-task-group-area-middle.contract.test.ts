@@ -9,7 +9,7 @@ import { keyOf, REQUIREMENTS, taskGroupDocument, shell, type TaskGroupSeed, type
 
 // Spec: FR-039
 const FR_039_HOLD_THE_MIDDLE =
-  '⭐ 表示の倍率を変えたとき、`Task Group Area` の横の中点が指す日付と、縦の中点が指すタスクグループを動かさないこと（MUST）'
+  '表示の倍率が変わったとき、`GRS` は、`Task Group Area` の横の中点が指す日付と、縦の中点が指すタスクグループを動かさないこと。'
 
 const TASK_GROUP_COUNT = 60
 const SEATED_TASK_GROUP = 'task-group-20'

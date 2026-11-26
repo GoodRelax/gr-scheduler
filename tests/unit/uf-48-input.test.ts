@@ -1272,9 +1272,9 @@ describe('the specification still says what these cases copy', () => {
   })
 
   it('FR-063 still spells both instants ISO 8601, UTC, to the second', () => {
-    expect(REQUIREMENTS).toContain('刻はいずれも `ISO 8601`・UTC・秒までとすること（MUST）')
+    expect(REQUIREMENTS).toContain('`GRS` は、2 つの刻を、いずれも `ISO 8601`・UTC・秒までで書くこと')
     expect(REQUIREMENTS).toContain(
-      '見せ方の群だけを変える更新で、日程データの群の刻を動かしてはならない（MUST NOT）',
+      '`GRS` は、見せ方の群だけを変える更新で、日程データの群の刻を動かさないこと',
     )
   })
 

@@ -20,8 +20,9 @@ import { specTable } from './spec-table'
 
 const RS_68 = reasonWords('RS-68')
 const ONE_SPELLING = '大きさは読んだ中身のバイト数とし、`FR-101` の 表 T-341 の `HS-3` のとおり綴ること（MUST）'
-const COPY_TOLD = 'クリップボードへ送れたときは、送ったことを告げること（MUST） —— 運ぶ理由は 表 T-233 の `RS-68` とする。'
-const NOT_TOLD = '送れなかったときは、この知らせを出してはならない（MUST NOT）'
+const COPY_TOLD = '`GRS` が `IO-6`（表 T-024）の画像をクリップボードへ送れたとき、`GRS` は、送ったことを告げること。'
+const COPY_TOLD_WITH_RS_68 = '`GRS` は、送ったことを告げる理由を 表 T-233 の `RS-68` として運ぶこと。'
+const NOT_TOLD = '`IO-6` の画像をクリップボードへ送れなかったとき、`GRS` は、送ったことの知らせを出さないこと。'
 const PNG_BYTES = new Uint8Array([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a])
 
 const rasterizer: Rasterizer = { rasterizePng: async () => ({ ok: true, pngBytes: PNG_BYTES }) }
@@ -45,6 +46,7 @@ describe('OP-16 / FR-025 / RS-68 -- the manuscript still says it', () => {
   it('OP-16 spells the size read by HS-3; FR-025 tells a copy with RS-68 and only a copy that happened', () => {
     expect(REQUIREMENTS).toContain(ONE_SPELLING)
     expect(REQUIREMENTS).toContain(COPY_TOLD)
+    expect(REQUIREMENTS).toContain(COPY_TOLD_WITH_RS_68)
     expect(REQUIREMENTS).toContain(NOT_TOLD)
     expect(specTable('T-233').rows.find((one) => one.id === 'RS-68')?.cells.join(' ')).toContain('NT-5')
   })

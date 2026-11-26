@@ -34,7 +34,7 @@ const CV_9_COMMENT_NO_TRANSPARENT = '`GRS` は、コメントボックスの線�
 const CV_9_THEME_ENTRY_IS_NULL = 'テーマに戻す入口（`CV-5` の「戻す入口」、表 T-383 の `IMPS-135`）を押したとき、`GRS` は、欄の色をテーマ追随（`null`）へ戻すこと（カスタムカラーなら `CV-5` のとおり 2 つの値を両方捨てる）。'
 // Spec: FR-019
 const FR_019_NULL_ENTRIES =
-  '色の欄のテーマに戻す入口（表 T-017b の `CV-9`）は、塗りを `null`（テーマの色 `S-155` で塗る）へ、枠の線を `null`（注記の色 `S-312` で描く —— ツールチップの語は既定の色）へ戻す。'
+  '作成者が色の欄のテーマに戻す入口（表 T-017b の `CV-9`）を押したとき、`GRS` は、塗りを `null`（テーマの色 `S-155` で塗る）へ、枠の線を `null`（注記の色 `S-312` で描く —— ツールチップの語は既定の色）へ戻すこと。'
 // Spec: PR-28, PR-45, PR-46
 const COMMENT_BOX_NULLS = [
   ['PR-28', '`null` ＝ `FR-019` が名指す注記の色（`_assets/tbl-settings.md` の 表 T-236 の `S-312`）'],

@@ -43,7 +43,7 @@ const T_262_NOT_FOR_MK_2 = '`GRS` は、表 T-262 の規則を `MK-2`（両軸�
 const UN_8_ZOOM_IS_NO_STEP = '⚠️ `ZE-4` —— 縦軸のズームは、もともと取り消しの対象外である（表 T-027 の `UN-8`）。'
 const FR_031_SHRINK_TWO_WRITES = '縦軸を縮める入力が 1 回あったとき、`GRS` は、縮める側の端で倍率を書き換えないとき（`IMPS-223`）を除き、入力を 2 つの書き込みに分け、① 倍率を置く書き込み（表 T-108 の `CM-65`、表 T-027 の `UN-8` により段を積まない）の後に、② `temporarilyExpanded` のタスクグループをすべて `auto` へ戻す書き込み（表 T-108 の `CM-85`、表 T-027 の `UN-14` により段を 1 つ積む）を行うこと。'
 const FR_031_AT_THE_END_ONLY_THE_TREE = '縮める側の端で倍率を書き換えないとき（`FR-016` の 表 T-262 の `ZE-2`）、`GRS` は、`IMPS-222` の ① を書かず、② だけを書くこと。'
-const FR_018_ONLY_T_328 = '⭐ 値を書き換える入口と先の値は、段 0 の折りたたみ（`_assets/tbl-settings.md` の 表 T-203 の `S-418`）を含めて、`_assets/tbl-state-machines.md` の 表 T-328 に従うこと（MUST） —— 同表に無い操作で値を書き換えてはならない（MUST NOT）'
+const FR_018_ONLY_T_328 = '⭐ `GRS` は、`treeState` の値を書き換える入口と先の値を、段 0 の折りたたみ（`_assets/tbl-settings.md` の 表 T-203 の `S-418`）を含めて、`_assets/tbl-state-machines.md` の 表 T-328 に従わせること。`GRS` は、表 T-328 に無い操作で `treeState` の値を書き換えないこと。'
 
 describe('CR-423 -- the manuscript these cases are driven by', () => {
   it.each([

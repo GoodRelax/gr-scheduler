@@ -11,8 +11,8 @@ import { unbroken } from './spec-table'
 const SOURCE = join(process.cwd(), 'docs', 'spec', '_source')
 const DESIGN = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '05-07-design.md'), 'utf8'))
 
-const SCHEMA_IS_GENERATED = '**`GRS JSON` のスキーマは、原稿から起こす生成物とする（MUST）'
-const TWO_MANUSCRIPTS = '**起こす原稿は 2 つとする（MUST）** —— 日程データの群は `_source/erd.json`、見せ方の群は `_source/settings.json` である。'
+const SCHEMA_IS_GENERATED = '`GRS JSON` のスキーマは、原稿から起こす生成物とすること。'
+const TWO_MANUSCRIPTS = '`GRS JSON` のスキーマを起こす原稿は、日程データの群の `_source/erd.json` と、見せ方の群の `_source/settings.json` の 2 つとすること。'
 
 interface ErdEntity {
   readonly name: string

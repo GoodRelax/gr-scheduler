@@ -34,7 +34,7 @@ const AT_153_DEFAULT =
 const AT_153_DU_2 = '貼り付けたコピーは `01-04-requirements.md` の 表 T-223 の `DU-2` に従う'
 const DU_2_VALUE =
   '複製元が `collapsed` か `hidden` なら複製元の値にし、`expanded` か `temporarilyExpanded` なら `auto` にすること。'
-const FR_018_NO_OTHER_WRITER = '同表に無い操作で値を書き換えてはならない（MUST NOT）'
+const FR_018_NO_OTHER_WRITER = '`GRS` は、表 T-328 に無い操作で `treeState` の値を書き換えないこと。'
 
 type Guard = { readonly name: string; readonly not?: boolean }
 type Branch = { readonly to: TreeState; readonly guard?: readonly Guard[] }

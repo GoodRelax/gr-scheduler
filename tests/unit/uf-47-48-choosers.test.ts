@@ -2565,7 +2565,7 @@ describe('FR-076 -- a notice raised while a document is written out', () => {
 
 describe('the tables are read by position, so the positions are pinned', () => {
   it('table T-024 prints format, direction and extension in that order, and its rows in FR-096 order', () => {
-    expect(T_024.headings.length).toBe(9)
+    expect(T_024.headings.length).toBe(10)
     // ⭐⭐ THE ROW ORDER IS PINNED BECAUSE IT IS NOW A REQUIREMENT, and this is
     // the one file that may pin it. 「⭐ **選択面が形式を並べる順は、表 T-024 の
     //   行の並びとすること（MUST）**—— ⛔ **順を本要求

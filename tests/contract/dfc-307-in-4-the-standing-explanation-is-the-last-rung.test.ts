@@ -148,7 +148,7 @@ import { specTable, unbroken } from './spec-table'
  * this file red rather than leaving it holding a rule nobody writes any more.
  */
 const IN_3_THE_TWO =
-  '表 T-269 が画像で定める形は、本ツールが描いて宿主へ渡す |\n| IN-3 | ツールチップは、次の 2 つをすべて満たすこと（MUST）'
+  '表 T-269 が画像で定める形は、本ツールが描いて宿主へ渡す | FR-040 |\n| IN-3 | ツールチップは、次の 2 つをすべて満たすこと（MUST）'
 
 const IN_3_UNTIL_THE_TRIGGER_GOES =
   '手立てがあること。**引き金が外れるまで出ていること** —— ポインタまたはフォーカスがその対象から外れるか、人が消すか、その内容が有効でなくなるまで、消してはならない（MUST NOT）'

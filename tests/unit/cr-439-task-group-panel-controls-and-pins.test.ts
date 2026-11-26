@@ -54,8 +54,8 @@ const HF_2_ARMED = '`GRS` は、押したタスクグループの配下に `FR-0
 const HF_6_KEEP_PLACE = '`GRS` は、操作子を描かないあいだも、確保する場所を変えないこと（規則と理由は `FR-085` が持つ）。'
 const HF_6_PIN = 'タスクグループをピン止めしている間、`GRS` は、ピン止めしているタスクグループの `IC-60` を、ポインタが乗っていなくても描くこと（`HF-6` の唯一の例外）。'
 const HF_15_MARK = '`GRS` は、掴み代の印を、縦に並べた 2 本の三点リーダ（`⋮⋮` U+22EE を 2 つ）とすること。'
-const FR_098_ONCE = '同じタスクグループを本来の縦位置にも描いてはならない（MUST NOT）'
-const FR_029_NOT_DISABLED = '薄く描いた入口を、宿主の意味で無効にしてはならない（MUST NOT）'
+const FR_098_ONCE = '`GRS` は、ピン止めしたタスクグループを本来の縦位置にも描かないこと'
+const FR_029_NOT_DISABLED = '`GRS` は、薄く描いた入口を、宿主の意味で無効にしないこと。'
 
 const TASK_GROUP_PANEL = englishName('U-22')
 const TASK_GROUP_EXPANDER = englishName('U-47')

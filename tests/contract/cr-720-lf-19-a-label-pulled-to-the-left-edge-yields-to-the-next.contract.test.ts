@@ -14,7 +14,7 @@ const REQUIREMENTS = unbroken(
 describe('CR-720 -- the sentences of LF-19 and of FR-017 that place a ruler label', () => {
   it('FR-017 sends the place of a label to LF-19', () => {
     expect(REQUIREMENTS).toContain(
-      '目盛ラベルの横の置き場は、`05-07-design.md` の 表 T-221 の `LF-19` に従うこと（MUST）',
+      '`GRS` は、目盛ラベルの横の置き場を `05-07-design.md` の 表 T-221 の `LF-19` に従わせること',
     )
   })
 

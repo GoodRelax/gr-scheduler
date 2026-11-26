@@ -25,8 +25,8 @@ import {
 } from './cr-757-stage'
 import { specTable, unbroken } from './spec-table'
 
-const FR_159_ONE_WRITE = '移した結果はまとめて 1 度に書き、取り消しを 1 度押せば全部の日付が元へ戻ること（MUST）'
-const FR_159_NOT_THE_CALENDAR = '⛔ 暦（曜日の稼働・時間帯・例外日）を動かしてはならない（MUST NOT）'
+const FR_159_ONE_WRITE = '`GRS` は、移した結果をまとめて 1 度に書き、取り消しを 1 度押せば全部の日付が元へ戻るようにすること'
+const FR_159_NOT_THE_CALENDAR = '⛔ `GRS` は、全体日程シフトで暦（曜日の稼働・時間帯・例外日）を動かさないこと'
 const UN_13_NAMES_IT = '`GRS` は、タイムシフト（`FR-157`）と全体日程シフト（`FR-159`）を、1 回の実行ごとに 1 段とすること。'
 const WH_6_TIME_KEPT = '日の部分だけを替え、時刻は保つ'
 const WH_6_TEXT_FORM = '時刻の無い字は時刻の無いまま、秒の有無も変えない'

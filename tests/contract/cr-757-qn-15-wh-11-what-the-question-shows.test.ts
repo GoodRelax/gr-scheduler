@@ -30,7 +30,7 @@ import { specTable, unbroken } from './spec-table'
 const WH_11_SHOWS =
   '最初のタスクの開始日と新しい開始日（`WH-2` で寄せたときはその 1 行も）、ずらす稼働日の数（正負）、書き換える `Task` の件数、前の稼働日へ寄せる日付の件数（`WH-5`）、移した後に開始か終了が稼働時間の外に出る `Task` の件数、例 1 つ（文書の並びで最初に開始を持つ `Task` の名と、前後の日付）'
 const TX_12_NO_TIME = '⭐ 時刻を表示していても時刻を添えない —— 全体日程シフトは日の単位で動かす'
-const FR_159_ASKS = '表 T-379 の `WH-11` が示すものを示して続けてよいかを問い（表 T-037 の `NT-7`、問いの文は 表 T-234 の `QN-15`）'
+const FR_159_ASKS = '`GRS` は、表 T-379 の `WH-11` が示すものを示して続けてよいかを問うこと（表 T-037 の `NT-7`、問いの文は 表 T-234 の `QN-15`）。'
 
 const PARTS = ['name', 'apply', 'currentStart', 'newStartUnit', 'startLine', 'workingDaysLine', 'pulledCountLine', 'holidayStartLine'] as const
 
@@ -218,7 +218,7 @@ describe(`UF-207 -- ${UF_207_ONE_MAPPING}`, () => {
 })
 
 const FR_054_DATE_ONLY_MILESTONE =
-  '終了の側の列（`WT-2`・`WT-4`、`WT-5` のマイルストーンの開始の側）ではその日の最後の時間帯の終わりの瞬間と読むこと（MUST）'
+  '終了の側の列（`WT-2`・`WT-4`、`WT-5` のマイルストーンの開始の側）ではその日の最後の時間帯の終わりの瞬間と読むこと'
 
 const outsideOf = (gate: { readonly start: string; readonly finish: string } | null): number | undefined =>
   wholeScheduleShiftPreviewOf(

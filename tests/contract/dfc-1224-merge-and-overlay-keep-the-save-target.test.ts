@@ -75,7 +75,7 @@ const REQUIREMENTS = unbroken(
   readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'),
 )
 const THE_SAVE_TARGET_MUST =
-  '合流と重ね（表 T-024a の `OP-3`）で開いた後も、上書きする先はそれまでのままとすること（MUST）'
+  '合流か重ね（表 T-024a の `OP-3`）で開いた後も、`GRS` は、上書きする先をそれまでのままとすること。'
 
 const TEMPLATE = JSON.parse(
   readFileSync(

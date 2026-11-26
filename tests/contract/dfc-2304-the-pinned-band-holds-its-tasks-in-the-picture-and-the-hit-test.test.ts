@@ -24,13 +24,13 @@ import { SCREEN, day, scheduleOf, taskOf } from '../unit/cr-430-cross-section-sc
 
 const REQUIREMENTS = readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8')
 
-const FR_098_LIFT = 'ピン止めしたタスクグループは、スクロールする領域から抜いて画面の上端へ固定すること（MUST）'
-const FR_098_ONCE = '同じタスクグループを本来の縦位置にも描いてはならない（MUST NOT）'
-const FR_098_NOT_UNDER = 'スクロールするタスクグループを帯の下へ潜らせてはならない（MUST NOT）'
+const FR_098_LIFT = '`GRS` は、ピン止めしたタスクグループを、スクロールする領域から抜いて画面の上端へ固定すること。'
+const FR_098_ONCE = '`GRS` は、ピン止めしたタスクグループを本来の縦位置にも描かないこと'
+const FR_098_NOT_UNDER = '`GRS` は、スクロールするタスクグループを帯の下へ潜らせないこと'
 const FR_098_EVERY_FIGURE =
-  'タスクグループの地だけでなく、そのタスクグループのバー・ラベル・進捗マーカー・依存線を含めて、帯が占める場所へ 1 つも描いてはならない（MUST NOT）'
+  '`GRS` は、スクロールするタスクグループの地だけでなく、スクロールするタスクグループのバー・ラベル・進捗マーカー・依存線を含めて、帯が占める場所へ 1 つも描かないこと。'
 const FR_098_CUT_AT = '切る先は残りの領域の上端であり'
-const FR_098_SCROLL_IS_NO_REASON = '縦にスクロールしたことは理由にならない（MUST NOT）'
+const FR_098_SCROLL_IS_NO_REASON = '⛔ `GRS` は、縦にスクロールしたことを、ピン止めしたタスクグループを描かない理由にしないこと'
 const EL_1_UNDER_IS_NOT_SEEN = '`GRS` は、帯の下へ潜ったタスクグループの端を、見えていない端とすること。'
 const SL_2_CLICK = '| SL-2 | 1 つ選ぶ | 対象をクリックしたとき、`GRS` は、直前の選択をクリックした対象に置き換えること。'
 

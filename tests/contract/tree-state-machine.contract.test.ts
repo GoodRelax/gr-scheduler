@@ -59,10 +59,10 @@ const printedTransitions = (): readonly { readonly state: string; readonly event
 const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
 const FR_018_BY_T_328 =
-  '値を書き換える入口と先の値は、段 0 の折りたたみ（`_assets/tbl-settings.md` の 表 T-203 の `S-418`）を含めて、`_assets/tbl-state-machines.md` の 表 T-328 に従うこと（MUST）'
-const FR_018_NO_OTHER_WRITER = '同表に無い操作で値を書き換えてはならない（MUST NOT）'
+  '`GRS` は、`treeState` の値を書き換える入口と先の値を、段 0 の折りたたみ（`_assets/tbl-settings.md` の 表 T-203 の `S-418`）を含めて、`_assets/tbl-state-machines.md` の 表 T-328 に従わせること。'
+const FR_018_NO_OTHER_WRITER = '`GRS` は、表 T-328 に無い操作で `treeState` の値を書き換えないこと。'
 const FR_018_BY_T_329 =
-  'タスクグループの木の状態（`_assets/fig-erd-detail.md` の `AT-153`、`TaskGroup.treeState`）によって、本要求の対象から外すタスクグループを 表 T-329 に従って決めること（MUST）'
+  '`GRS` は、タスクグループの木の状態（`_assets/fig-erd-detail.md` の `AT-153`、`TaskGroup.treeState`）によって、本要求の対象から外すタスクグループを 表 T-329 に従って決めること。'
 
 // Spec: T-328
 // Why: one tree reaches every guard of the table: an ancestor of the pressed task group, the pressed task group,
@@ -191,7 +191,7 @@ describe('table T-328 -- the manuscript this contract walks', () => {
 
   it('FR-018 sends every write of a tree value to table T-328, and every drawing to table T-329', () => {
     expect(REQUIREMENTS).toContain(FR_018_BY_T_328)
-    expect(REQUIREMENTS).toContain(`${FR_018_BY_T_328} —— ${FR_018_NO_OTHER_WRITER}`)
+    expect(REQUIREMENTS).toContain(`${FR_018_BY_T_328}${FR_018_NO_OTHER_WRITER}`)
     expect(REQUIREMENTS).toContain(FR_018_BY_T_329)
   })
 

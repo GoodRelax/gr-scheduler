@@ -110,7 +110,7 @@ const REQUIREMENTS = unbroken(readFileSync(
   'utf8',
 ))
 const FR_019_REFUSES_AND_SAYS_WHY =
-  '指す `TaskGroup` が無い縦位置で置こうとしたときは、作らないこと（MUST）'
+  'もし作成者が、指す `TaskGroup` が無い縦位置で注記を置こうとした場合、`GRS` は、注記を作らないこと。'
 
 const RS_44_DISPLAY = bare(specTable('T-233').rows.find((one) => one.id === 'RS-44')?.by['表示の仕方'] ?? '')
 

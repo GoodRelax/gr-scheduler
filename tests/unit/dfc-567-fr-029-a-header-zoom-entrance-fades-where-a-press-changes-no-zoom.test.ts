@@ -7,8 +7,8 @@ import { DEFAULT_DISPLAY_SCALE } from '../fixtures/display-scale'
 import { numberIn, REQUIREMENTS, rowOf, shell, taskGroupDocument, type ShellBench, type TaskGroupSeed } from './cr-541-stage'
 
 const FR_029_FAINT =
-  'その入口を押しても、いま文書にも画面にも何も変えられないときは、その入口を薄く描くこと（MUST）'
-const FR_029_EVERY_SURFACE = '本規則は `_assets/tbl-glossary.md` の 表 T-109 の全行に当たる —— タスクグループの操作子もパレットもヘッダーも同じである。'
+  '`GRS` は、押してもいま文書にも画面にも何も変えられない入口を薄く描くこと。'
+const FR_029_EVERY_SURFACE = '`GRS` は、`IMPS-1108` 〜 `IMPS-1115` の薄さの規則を、`_assets/tbl-glossary.md` の 表 T-109 の全行の入口に当てること（タスクグループの操作子もパレットもヘッダーも同じである）。'
 const FR_016_THE_RANGE = '`GRS` は、ズームの倍率を表 T-203 の `S-75` / `S-76` が持つ範囲へ収めること。'
 const FR_016_ZOOM_X_CEILING =
   '`GRS` は、日付の軸（`zoomX`）の上限を、見えている範囲が `_assets/tbl-settings.md` の 表 T-206 の `S-229` 日を下回らない倍率 —— `Task Group Area` の幅 ÷（`S-229` × 等倍のときの 1 日の幅） —— にすること。'

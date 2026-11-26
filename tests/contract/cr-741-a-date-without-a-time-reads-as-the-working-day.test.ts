@@ -45,19 +45,19 @@ const DESIGN = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '05-07-
 
 // Spec: FR-054, FR-011, IV-14
 // Why: the three new MUST sentences are quoted as the specification writes them, so a reworded sentence goes red here.
-const SECONDS_CUT = '⭐ 秒が `00` でない時刻（`2026-01-05T08:00:30`）は、分へ切り捨てて読むこと（MUST）'
+const SECONDS_CUT = '⭐ `GRS` は、秒が `00` でない時刻（`2026-01-05T08:00:30`）を、分へ切り捨てて読むこと'
 const DATE_ONLY_READ =
-  '⭐ 時刻を書いていない日付の字（`2026-01-05`）は、表 T-350 の開始の側の列（`WT-1`・`WT-3`）ではその日の最初の時間帯の始まり、終了の側の列（`WT-2`・`WT-4`、`WT-5` のマイルストーンの開始の側）ではその日の最後の時間帯の終わりの瞬間と読むこと（MUST）'
+  '⭐ `GRS` は、時刻を書いていない日付の字（`2026-01-05`）を、表 T-350 の開始の側の列（`WT-1`・`WT-3`）ではその日の最初の時間帯の始まり、終了の側の列（`WT-2`・`WT-4`、`WT-5` のマイルストーンの開始の側）ではその日の最後の時間帯の終わりの瞬間と読むこと'
 const EARLIEST_INSTANT =
   '`IMPS-420`・`IMPS-424` で `stop` を置くとき、もし同じ稼働時間に当たる瞬間が 2 つ以上ある場合（時間帯の終わりと、次の時間帯の始まり）、`GRS` は、最も早い瞬間に置くこと'
 const IV_14_SECONDS =
   '⭐ 秒が `00` でない時刻は分へ切り捨てて読むので、本行に反しない —— 時刻を書いていない日付の字も読める（どちらの読みも `FR-054`）。'
-const NOT_MIDNIGHT = '⚠️ `00:00:00` と読まない —— 終了の側で前の日の終わりになり、日付だけの文書の最後の日が 1 日消える。'
-const NON_WORKING_DAY_SET = 'その日の時間帯は上の段の稼働時間とし、非稼働日では `FR-088` の 表 T-344 の `WC-8` の 1 組とする。'
+const NOT_MIDNIGHT = '⚠️ 日付だけの字を `00:00:00` と読まない —— 終了の側で前の日の終わりになり、日付だけの文書の最後の日が 1 日消える。'
+const NON_WORKING_DAY_SET = 'その日の時間帯は `IMPS-759` の稼働時間とし、非稼働日では `FR-088` の 表 T-344 の `WC-8` の 1 組とする。'
 
 describe('the three MUST sentences of CR-741 read as quoted', () => {
   it('FR-054 cuts a time with seconds to the minute', () => {
-    expect(REQUIREMENTS).toContain('⭐ 秒が `00` でない時刻（`2026-01-05T08:00:30`）は、分へ切り捨てて読むこと（MUST）')
+    expect(REQUIREMENTS).toContain('⭐ `GRS` は、秒が `00` でない時刻（`2026-01-05T08:00:30`）を、分へ切り捨てて読むこと')
   })
 
   it('FR-054 reads a date without a time as the first start and the last end of the day', () => {

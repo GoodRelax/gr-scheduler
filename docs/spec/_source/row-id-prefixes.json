@@ -879,7 +879,7 @@
     "en": "One implementation specification: an EARS sentence that states an internal decision meeting a requirement, with the requirement it traces (ANMS v0.36 Chapter 5)",
     "ja": "実装仕様の 1 行。要求を満たす内部の決め事を EARS の文で書き、traces の列に要求を持つ（ANMS v0.36 の第 5 章）"
    },
-   "section": "T-381",
+   "section": "T-600",
    "xOwner": "spec"
   },
   {

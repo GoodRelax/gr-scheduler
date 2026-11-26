@@ -28,10 +28,10 @@ import { DEFAULT_TASK_GROUP_NAME } from '../../src/adapter/screen-renderer/scree
 
 
 const FR_028_NEVER_THROWS =
-  'TEMENT**: `Agent API` が有効化されているとき、`GRS` は、人が UI で行える編集・確認・出力と同じことを関数の呼び出しで行えるようにし、受理したか否かを値で返すこと。例外を投げてはならない（MUST NOT）'
+  '呼び手が `Agent API` の関数を呼んだとき、`GRS` は、受理したか否かを値で返すこと。`GRS` は、`Agent API` の呼び出しで例外を投げないこと。'
 
 const AG_9A_WHAT_A_REFUSAL_CARRIES =
-  'ードのダイアログを出さずに値で返せること |\n| AG-8 | 画像化に失敗したときも、呼び出した側が**失敗を値で受け取れること** |\n| AG-9a | **拒否の値には、拒否された対象・理由の区分・現在の刻印を含めること（MUST）'
+  'ードのダイアログを出さずに値で返せること | FR-064 |\n| AG-8 | 画像化に失敗したときも、呼び出した側が**失敗を値で受け取れること** | FR-064 |\n| AG-9a | **拒否の値には、拒否された対象・理由の区分・現在の刻印を含めること（MUST）'
 
 const REQUIREMENTS = unbroken(readFileSync(
   join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'),
@@ -197,7 +197,7 @@ const applying = (api: AgentApi, request: unknown): AgentWriteOutcome =>
 describe('DFC-325 -- the manuscript these cases are driven by', () => {
   it('still forbids the Agent API to throw, without qualifying it', () => {
     expect(REQUIREMENTS).toContain(FR_028_NEVER_THROWS)
-    expect(FR_028_NEVER_THROWS).toContain('受理したか否かを値で返すこと。例外を投げてはならない（MUST NOT）')
+    expect(FR_028_NEVER_THROWS).toContain('受理したか否かを値で返すこと。`GRS` は、`Agent API` の呼び出しで例外を投げないこと。')
   })
 
   it('still requires a refusal to carry the target, the category and the stamp', () => {

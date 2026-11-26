@@ -6,11 +6,11 @@ import { LANGUAGES, REQUIREMENTS, T_109_ROWS, drawnHelp, helpOf } from './dfc-30
 import { selfAndDescendants } from '../fixtures/fake-browser'
 import { specTable } from './spec-table'
 
-const FR_036_SHOWS_T_109 = 'ヘルプは、`_assets/tbl-glossary.md` の 表 T-109 の行と'
-const FR_036_HELP_ONLY = '⭐ 表 T-109 のうち `面` が `Help Modal` だけの行は、段に載せないこと（MUST）'
+const FR_036_SHOWS_T_109 = '`GRS` は、ヘルプに、`_assets/tbl-glossary.md` の 表 T-109 の行と'
+const FR_036_HELP_ONLY = '`GRS` は、表 T-109 のうち `面` が `Help Modal` だけの行を、段に載せないこと。'
 const FR_036_LEFT_OUT =
-  '⛔ 表 T-109 のうち、`面` が `Search Panel`・`Delay Diagnostics Report`・`Properties Panel`・`Resource List`・`Holiday Settings`・`Open Chooser`・`Difference Review` の面だけ（`Help Modal` を併せて持つものを含む）である行と、`IC-52`・`IC-53`・`IC-75` を、段に載せてはならない（MUST NOT）'
-const FR_036_MERGED = '⭐ 表 T-109 で `構え` の欄が `AR-3` の行と `IC-50` は、1 つの項目にまとめること（MUST）'
+  '`GRS` は、表 T-109 のうち、`面` が `Search Panel`・`Delay Diagnostics Report`・`Properties Panel`・`Resource List`・`Holiday Settings`・`Open Chooser`・`Difference Review` の面だけ（`Help Modal` を併せて持つものを含む）である行と、`IC-52`・`IC-53`・`IC-75` を、段に載せないこと。'
+const FR_036_MERGED = '`GRS` は、表 T-109 で `構え` の欄が `AR-3` の行と `IC-50` を、1 つの項目にまとめること。'
 
 // Why: the dialogue entrance the row asked to drop is retired from table T-109, so it is caught as an IC row the table does not hold.
 const IC_ID = /^IC-\d+$/

@@ -380,7 +380,7 @@ interface Finished {
  * this file down with it, none of them having measured anything at all.
  * ⛔ THE PRODUCT IS NOT WHAT IS WRONG THERE. Making `AM-8` answer at the call
  * would break the same requirement's three MUSTs -- 「呼ぶ側が機械であっても、
- * 選ぶのは人であること（MUST）」 above all -- and let an unattended run through.
+ * `GRS` は人に選ばせること。」 above all -- and let an unattended run through.
  * ⭐ SO THE WAITING IS SPLIT: one visit starts the merge and leaves the promise
  * behind, Playwright reads the surface and presses the answer, and a third visit
  * collects what the promise settled to.
@@ -605,7 +605,7 @@ async function sweep(page: Page): Promise<Measured> {
   // ---- the person answers -------------------------------------------------
   //
   // ⭐⭐ THIS IS THE PART A `page.evaluate` CANNOT DO, and the whole reason the
-  // sweep is split: 「呼ぶ側が機械であっても、選ぶのは人であること（MUST）」.
+  // sweep is split: 「呼ぶ側が機械であっても、`GRS` は人に選ばせること。」.
   // The press goes through a real pointer on an entrance of table T-109, the
   // same road a person has.
   // ⚠️ NOTHING IS ASSERTED HERE. Whether the surface stood at all is judged

@@ -198,12 +198,12 @@ const REQUIREMENTS = unbroken(readFileSync(
   'utf8',
 ))
 
-const FR_029_ONLY_WHEN_PRESSED = '押されたときに限り、行えない理由を通知の仕組みへ運ぶこと（MUST）'
+const FR_029_ONLY_WHEN_PRESSED = '利用者が薄く描いた入口を押したときに限り、`GRS` は行えない理由を通知の仕組みへ運ぶこと'
 const FR_029_THE_MATCHING_ROW =
-  '運ぶ理由は、押された入口の場面に当たる同要求の 表 T-233 の行とすること（MUST）'
-const FR_029_NOT_THE_FALLBACK = '当たる行があるのに落ち先を運んではならない（MUST NOT）'
-const FR_029_RS_27_IS_THE_FALLBACK = 'どの入口にも当たる行が無いときの落ち先が `RS-27` である'
-const FR_029_NOT_ON_HOVER = 'ポインタが乗っただけで理由を出してはならない（MUST NOT）'
+  '`GRS` は、運ぶ理由を、押された入口の場面に当たる `FR-076` の 表 T-233 の行とすること。'
+const FR_029_NOT_THE_FALLBACK = '押された入口の場面に当たる行が 表 T-233 にあるとき、`GRS` は落ち先を運ばないこと。'
+const FR_029_RS_27_IS_THE_FALLBACK = 'もし押された入口の場面に当たる行が 表 T-233 に無い場合、`GRS` は落ち先の `RS-27`（出さない）を運ぶこと。'
+const FR_029_NOT_ON_HOVER = '`GRS` は、ポインタが入口に乗っただけで、行えない理由を出さないこと。'
 const T_051_ONLY_DRAWN_TASK_GROUPS =
   '`GRS` は、描かれていないタスクグループの折りたたみを数えないこと（`IMPS-1981` の例外を除く）。'
 const T_051_NO_CHANGE_MEANS_SPENT =

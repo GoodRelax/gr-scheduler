@@ -91,11 +91,11 @@ const ANCHOR_NOT_NEAREST =
 const ANCHOR_HORIZONTAL =
   '吸着する点が無いとき、`GRS` は、離した点そのものを自由点として持つこと —— 横は離した点の日時（分まで）、縦は離した点の下に描かれたタスクグループと、帯の中の高さとする（`FR-019` の ①）。'
 const FR_019_BODY_OFFSET =
-  '⛔ コメントボックスの本文の箱は、留めた点からのずれで置き、その基準隅を左下とすること（MUST） —— **ずれ（`bodyOffsetPx`）は、留めた点から本文の**左下隅**へのものである。**'
+  '`GRS` は、コメントボックスの本文の箱を、留めた点からのずれで置くこと。`GRS` は、ずれ（`bodyOffsetPx`）を、留めた点から本文の箱の左下隅へのずれとすること。'
 const FR_019_POINT_IS_LF_15 =
   '⭐ 自由点と 8 点を描く位置は `05-07-design.md` の 表 T-221 の `LF-15` が持つ。'
 const FR_019_LEADER =
-  '⭐ 描き方はこうである（MUST）: 留めた点と、本文の箱の 4 隅のうち `05-07-design.md` の 表 T-221 の `LF-17` が選ぶ 1 隅とを、1 本の線で結ぶこと。'
+  '`GRS` は、留めた点と、本文の箱の 4 隅のうち `05-07-design.md` の 表 T-221 の `LF-17` が選ぶ 1 隅とを、1 本の線で結んで引出しを描くこと。'
 const LF_15 =
   '⭐ 自由点（`01-04-requirements.md` の `FR-019` の ①） —— 横は `anchorDate` の日時（分まで）を時間軸に置いた位置'
 const LF_15_BODY_FOLLOWS = '⚠️ 本文の箱は線先からのずれで置く（`FR-019`）ので、ずれを書かずに線先だけを書くと、箱も線先と共に動く'
@@ -154,9 +154,9 @@ const specRowLine = (head: string): string => {
   return found[0]!
 }
 
-const FR_019_TREE_ORDER = '⛔ その「下」は、タスクグループの木における順位で判ずること（MUST）。'
+const FR_019_TREE_ORDER = '`GRS` は、3 文目の「下」を、タスクグループの木における順位で判ずること。'
 const FR_019_WIDTH =
-  '⭐ **横は日の列で囲む** —— 箱の左端は `start` の日の列の左端、右端は `finish` の日の列の右端とし、`start` ＝ `finish` の箱は 1 日の幅で描くこと（MUST）。'
+  '`GRS` は、ハイライトボックスの横を日の列で囲み、箱の左端を `start` の日の列の左端、右端を `finish` の日の列の右端として描くこと。`GRS` は、`start` ＝ `finish` の箱を 1 日の幅で描くこと。'
 const FR_019_ZERO_WIDTH = '⚠️ **幅 0 で描くと、本体（表 T-023d の `GR-14`）を掴む所が消える**'
 
 const CM_54_ROW = '| CM-54 | `HighlightBox` | `setHighlightBoxRange` |'

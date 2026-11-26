@@ -15,8 +15,8 @@
 //   ならない（MUST NOT）** —— 理由の語は `FR-038` の辞書が持ち、辞書は行 ID で引く。
 //
 // ⭐ THE REASON THE THREE GATES LAND ON `RS-27` and not on a row of their own is
-// FR-029's own fall-through: 「⚠️ **どの入口にも当たる行が無いときの落ち先が
-// `RS-27` である（出さない）。**」, and 表 T-233 spells that row 「押した入口が、いま行えること
+// FR-029's own fall-through: 「もし押された入口の場面に当たる行が 表 T-233 に無い場合、
+// `GRS` は落ち先の `RS-27`（出さない）を運ぶこと。」, and 表 T-233 spells that row 「押した入口が、いま行えること
 // を持たない | `NT-1` | 出さない | — | `FR-029`」.
 //
 // ---------------------------------------------------------------------------
@@ -150,14 +150,14 @@ const REQUIREMENTS = unbroken(readFileSync(
  * would hold nothing at all.
  */
 const FR_029_TELL_ON_A_PRESS =
-  '金が消える。 押されたときに限り、行えない理由を通知の仕組みへ運ぶこと（MUST）。作法は `FR-076` の 表 T-037 の `NT-1` に従い、運ぶ理由は、押された入口の場面に当たる同要求の 表 T-233 の行とすること（MUST）'
+  '利用者が薄く描いた入口を押したときに限り、`GRS` は行えない理由を通知の仕組みへ運ぶこと（例外は `IMPS-1114`）。`GRS` は、行えない理由を運ぶ作法を `FR-076` の 表 T-037 の `NT-1` に従わせること。`GRS` は、運ぶ理由を、押された入口の場面に当たる `FR-076` の 表 T-233 の行とすること。'
 
 /** ⭐ The closing rule of 表 T-233, which is what makes `RS-27` a row and not a sentence. */
 const T_233_ONLY_ITS_OWN_ROWS =
-  ' 通知が運ぶ理由は 表 T-233 の行とすること（MUST）。同表に無い理由を運んではならない（MUST NOT）'
+  '`GRS` は、通知が運ぶ理由を 表 T-233 の行とすること。`GRS` は、表 T-233 に無い理由を運ばないこと（例外は `IMPS-1134` の取り込みの検証の拒否の 1 つだけである）。'
 
 /** FR-029's own fall-through -- why these three gates land on `RS-27`. */
-const FR_029_RS_27_IS_THE_FALLBACK = 'どの入口にも当たる行が無いときの落ち先が `RS-27` である'
+const FR_029_RS_27_IS_THE_FALLBACK = 'もし押された入口の場面に当たる行が 表 T-233 に無い場合、`GRS` は落ち先の `RS-27`（出さない）を運ぶこと。'
 
 /** `OP-13`'s guard, which is why the reload gate is driven with a file already open. */
 const OP_13_NOTHING_TO_REREAD = '開いているファイルが無いときは何もしないこと（MUST）'

@@ -10,9 +10,9 @@ import { stage, type FakeElement } from '../fixtures/fake-browser'
 import { unbroken } from '../contract/spec-table'
 
 const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
-const FR_069_NEW_TAB = '⭐ 著作権表示を押したら、閲覧環境の新しいタブで、同書の 表 T-206 の `S-459`（本ソフトウェアのリポジトリの所）の頁を開くこと（MUST）'
-const FR_069_NO_REFERRER = '⛔ 開いた頁へは、`GRS` の頁への参照も参照元も渡してはならない（MUST NOT）'
-const FR_069_NOT_TRANSLATED = '⭐ 著作権表示は、ヘルプの言語によらず原文の綴りのまま出すこと（MUST）'
+const FR_069_NEW_TAB = '人がヘルプの著作権表示を押したとき、`GRS` は、閲覧環境の新しいタブで、`_assets/tbl-settings.md` の 表 T-206 の `S-459`（本ソフトウェアのリポジトリの所）の頁を開くこと。'
+const FR_069_NO_REFERRER = '人がヘルプの著作権表示を押したとき、`GRS` は、新しいタブで開いた頁へ、`GRS` の頁への参照も参照元も渡さないこと。'
+const FR_069_NOT_TRANSLATED = '`GRS` は、著作権表示を、ヘルプの言語によらず原文の綴りのまま出すこと。'
 
 const ADDRESS = 'https://example.invalid/repository'
 const NOTICE = 'Copyright 2026 Someone'

@@ -18,8 +18,8 @@ describe('CR-740 the manuscript these cases are driven by', () => {
   })
 
   it('FR-102 points at IR-4 for the shape of the drawn picture, and records a frame line for every frame drawn', () => {
-    expect(REQUIREMENTS).toContain('記録するのは、操作と、表 T-263 の画面の状態（描かれた絵の形は同表の `IR-4`）だけとする（MUST）')
-    expect(REQUIREMENTS).toContain('画面の状態は、描いたフレームごとに書くこと（MUST）')
+    expect(REQUIREMENTS).toContain('`GRS` は、記録するものを、操作と、表 T-263 の画面の状態（描かれた絵の形は 表 T-263 の `IR-4`）だけとすること')
+    expect(REQUIREMENTS).toContain('`GRS` は、画面の状態を、描いたフレームごとに書くこと')
   })
 })
 

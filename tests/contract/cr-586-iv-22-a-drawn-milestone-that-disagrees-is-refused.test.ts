@@ -51,7 +51,7 @@ const IV_22_RULE =
 const IV_22_NULL_EXEMPT = '⚠️ **`shapeKind` が `null` の `TaskVisual` は対象外**'
 // Spec: T-233
 const T_233_CLOSING =
-  '⭐ ⇒ 取り込みの検証が拒んだとき、`NT-1` の通知が運ぶ理由は、拒んだ 表 T-220 の行の行 ID とすること（MUST）'
+  '取り込みの検証が拒んだとき、`GRS` は `NT-1` の通知に、拒んだ Chapter 6.1 の 表 T-220 の行の行 ID を理由として運ぶこと。'
 // Spec: T-251
 const NO_MISMATCHED_DOCUMENT =
   '⚠️ 2 つが食い違う文書は作らせない —— `GRS JSON` から来た食い違いは `05-07-design.md` の 表 T-220 の `IV-22` が取り込みで拒み'

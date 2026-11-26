@@ -36,9 +36,9 @@ const IN_5B_RETRY =
 const IN_5B_UNTIL = '置き直しは、焦点が入るか、求めが取り下げられる（`IN-5a` の後の段）まで続けること（MUST）'
 const IN_5B_NOT_STOLEN = '⛔ 置き直すために、人が別の欄や入口へ動かした焦点を奪ってはならない（MUST NOT）'
 const FR_102_ONLY_THESE =
-  '**記録するのは、操作と、表 T-263 の画面の状態（描かれた絵の形は同表の `IR-4`）だけとする（MUST）。**'
+  '`GRS` は、記録するものを、操作と、表 T-263 の画面の状態（描かれた絵の形は 表 T-263 の `IR-4`）だけとすること。'
 // Why: CR-742 section 4.5 moved the drawn picture's shape into T-263 as IR-4; the per-frame clause now stands on its own line.
-const FR_102_EVERY_FRAME = '⭐ 画面の状態は、描いたフレームごとに書くこと（MUST）'
+const FR_102_EVERY_FRAME = '`GRS` は、画面の状態を、描いたフレームごとに書くこと。'
 const IR_1_FOCUS = '| IR-1 | 焦点の位置 | 焦点を持つ要素の種類を書くこと（MUST）'
 const IR_1_NO_CONTENT = 'どれでもなければ文書の本体。⛔ 欄の中身を書いてはならない（MUST NOT）'
 const IR_2_PANEL =

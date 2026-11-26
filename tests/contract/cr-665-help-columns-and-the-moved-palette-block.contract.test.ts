@@ -24,12 +24,12 @@ const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '
 
 // Why: each constant ends exactly at its marker, cut from the manuscript as check 39 reads it.
 const T_256_SPLIT =
-  '4` は後から足した段である）。⭐ `Command Palette` の入口を 2 つの塊に分け、表 T-109 の `群` が `揃える` の行を、`HC-4` の `Task Group Panel` の塊の下の塊へ移すこと（MUST）'
+  '`GRS` は、`Command Palette` の入口を 2 つの塊に分け、表 T-109 の `群` が `揃える` の行を、`HC-4` の `Task Group Panel` の塊の下の塊へ移すこと。'
 const T_256_CONTINUED_HEADING =
-  '段目をタスクグループパネルの下の枠へ移すと定めた。群は名で名指す —— 群の中の行は 表 T-109 の `群` の欄が決めるので、行が群を移っても本表は書き換えない。⭐ 移した塊の見出しは、パレットの続きであることを言う語とすること（MUST）'
+  '表 T-256 は、群を名で名指すこと。`GRS` は、移した塊の見出しを、パレットの続きであることを言う語とすること'
 const FR_036_LEFT_OFF =
-  's`・`Open Chooser`・`Difference Review` の面だけ（`Help Modal` を併せて持つものを含む）である行と、`IC-52`・`IC-53`・`IC-75` を、段に載せてはならない（MUST NOT）'
-const T_256_USER_WORDS = '（利用者が「コマンドパレット（続き）」と定めた）'
+  's`・`Open Chooser`・`Difference Review` の面だけ（`Help Modal` を併せて持つものを含む）である行と、`IC-52`・`IC-53`・`IC-75` を、段に載せないこと。'
+const T_256_USER_WORDS = '（語は `FR-038` の辞書が持つ。利用者が「コマンドパレット（続き）」と定めた）'
 
 const CLAUSES: readonly (readonly [string, string])[] = [
   ['T-256 (MUST) the align group moves under the Task Group Panel', T_256_SPLIT],

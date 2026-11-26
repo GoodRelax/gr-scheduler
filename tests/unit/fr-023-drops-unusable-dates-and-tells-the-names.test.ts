@@ -96,15 +96,15 @@ const REQUIREMENTS = unbroken(readFileSync(
 
 /** ⭐⭐ 利用者の裁定 2026-09-06: drop the row and take the rest in, never ask. */
 const FR_023_DROP_AND_TAKE_IN =
-  '⚠️ **空文字を特例にしない** —— 列が空を許すときの空は `null` であり（`FR-024` の契約）、空文字はその契約の外にある。 その行を落として残りを取り込むこと（MUST）。人に選ばせてはならない（MUST NOT）'
+  'その行を落として残りを取り込むこと。\n\n**表 T-647 — 使えない日付を持つ行を落として取り込むことの実装仕様**\n\n| 行 ID | 何についてか | 実装仕様 | traces |\n| --- | --- | --- | --- |\n| IMPS-934 | 文書が使えない日付 | `GRS` は、日付の列が「文書が使えない日付」を持つ入力を、黙って取り込まないこと。「文書が使えない日付」とは、日として読めない値（空文字を含む）と、表 T-214 の範囲の外にある値をいう。`GRS` は、空文字を特例にしないこと。 | FR-341 |\n| IMPS-935 | 人に選ばせること | `GRS` は、使えない日付を持つ入力の扱いを人に選ばせないこと。'
 
 /** ⭐ CD-1's cascade, and the MUST to tell the dropped names afterwards. */
 const FR_023_CD1_AND_TELL_NAMES =
-  'が人を待たせる。** **落としたものは 表 T-050 の `CD-1` に従うこと（MUST）** —— ⭐ **取り除く連鎖を 2 通り持たない。** **取り込んだあとで、落とした `Task` の名前を並べて告げること（MUST）'
+  '`GRS` は、落としたものを 表 T-050 の `CD-1` に従わせること。 | FR-341 |\n| IMPS-937 | 落とした `Task` を告げること | 取り込んだあとで、`GRS` は、落とした `Task` の名前を並べて告げること'
 
 /** ⛔ MUST NOT a count, MUST NOT translated. */
 const FR_023_NOT_COUNT_NOT_TRANSLATED =
-  'NT-8` が持つ。 ⛔ **件数だけを告げて済ませてはならない（MUST NOT）** —— **どれが落ちたかを人が知らなければ、元のファイルを直すことができない。** ⚠️ **名前は文書の値であるので訳さない（MUST NOT）'
+  'NT-8` が持つ。`GRS` は、落とした `Task` の件数だけを告げて済ませないこと。`GRS` は、告げる名前を訳さないこと。'
 
 describe('FR-023 -- the manuscript this file is driven by', () => {
   it('still drops the row and takes the rest in, without asking', () => {

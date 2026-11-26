@@ -44,24 +44,24 @@ const FR_106_HIGHLIGHT =
   '`GRS` は、ハイライトボックスの掴み代（表 T-023d の `GR-14`）では、表 T-246 の `HB-8` 〜 `HB-12` が名指す形にすること。'
 // Spec: FR-019
 // Why: the fill's null is no longer T-217's default but the theme color (CR-606 E-31).
-const NULL_DRAWS_THE_DEFAULT = '⭐ 線の太さと透過率の列が `null` のときは、表 T-217 の同じ列の既定で描くこと（MUST）'
+const NULL_DRAWS_THE_DEFAULT = '線の太さと透過率の列が `null` のとき、`GRS` は、表 T-217 の同じ列の既定で描くこと。'
 const NULL_FILL_IS_THE_THEME =
-  '⭐ 塗りの色の列が `null` のときは、テーマの色（`_assets/tbl-settings.md` の 表 T-236 の `S-155`）で塗ること（MUST）'
-const PLACED_UNFILLED = '⭐ 置くとき（表 T-108 の `CM-52`）は、塗りの色の列に 表 T-217 の `S-370`（透明）をコピーすること（MUST）'
-const OPACITY = '不透明度を 1 − `AT-147` ÷ 100 として塗ること（MUST）'
-const TRANSPARENT_IS_NOT_FILLED = '塗りの色が透明の箱は塗らない —— 後ろが見える。'
-const FILL_AT_ZO_14 = '⭐ 塗りは `FR-110` の 表 T-020 の `ZO-14` に描くこと（MUST）'
-const CLAMPED_NOT_REWRITTEN = '範囲へ寄せて描き、文書を書き換えないこと（MUST）'
+  '塗りの色の列が `null` のとき、`GRS` は、テーマの色（`_assets/tbl-settings.md` の 表 T-236 の `S-155`）で塗ること。'
+const PLACED_UNFILLED = 'ハイライトボックスを置くとき（表 T-108 の `CM-52`）、`GRS` は、塗りの色の列に 表 T-217 の `S-370`（透明）をコピーすること。'
+const OPACITY = '不透明度を 1 − `AT-147` ÷ 100 として塗ること（`AT-147` は透過率であり、0 は不透明、100 は透明）。'
+const TRANSPARENT_IS_NOT_FILLED = '`GRS` は、塗りの色が透明の箱を塗らないこと。'
+const FILL_AT_ZO_14 = '`GRS` は、塗りを `FR-110` の 表 T-020 の `ZO-14` に描くこと。'
+const CLAMPED_NOT_REWRITTEN = '`GRS` は、範囲へ寄せて描くこと。表 T-217 の数値の列が範囲の外の値を持つ文書を読んだとき、`GRS` は、文書を書き換えないこと。'
 const OUT_OF_RANGE_REFUSED =
-  '⭐ 同じ範囲の外の値を置く命令（表 T-108 の `CM-77` ・ `CM-79` ・ `CM-81` ・ `CM-83`）は拒むこと（MUST）'
-const NO_TRANSPARENT_OUTLINE = 'ハイライトボックスの枠の線にも、タスクと同じく透明（線なし）を選ばせること（MUST）'
-const NOT_BOTH_TRANSPARENT = '⛔ ただし、塗りと枠の線を同時に透明にすることを許してはならない（MUST NOT）'
-const FILL_MAY_BE_TRANSPARENT = '⭐ 塗りには透明を選ばせてよい'
+  '`GRS` は、同じ範囲の外の値を置く命令（表 T-108 の `CM-77` ・ `CM-79` ・ `CM-81` ・ `CM-83`）を拒むこと。'
+const NO_TRANSPARENT_OUTLINE = '`GRS` は、ハイライトボックスの枠の線にも、タスクと同じく透明（線なし）を選ばせること。'
+const NOT_BOTH_TRANSPARENT = '`GRS` は、塗りと枠の線を同時に透明にすることを許さないこと。'
+const FILL_MAY_BE_TRANSPARENT = '`GRS` は、塗りに透明を選ばせてもよい'
 // Why: 05-07-design reads a GRS JSON document this way before the schema runs.
 const MISSING_COLUMNS_READ_AS_NULL =
-  '⭐ 同じくスキーマを走らせる前に、`_assets/fig-erd-detail.md` の `AT-145` ・ `AT-146` ・ `AT-147` の列を持たない `HighlightBox` の項と、`AT-148` 〜 `AT-152` と `AT-168` の列を持たない `CommentBox` の項には、その列を `null` として足して読むこと（MUST）'
-const WHATEVER_THE_VERSION = '⭐ 形式の版（`FR-073`）によらずに足す'
-const SILENTLY = '足したことを通知してはならない（MUST NOT）'
+  '`GRS JSON` を読むとき、`GRS` は、スキーマを走らせる前に、`_assets/fig-erd-detail.md` の `AT-145` ・ `AT-146` ・ `AT-147` の列を持たない `HighlightBox` の項と、`AT-148` 〜 `AT-152` と `AT-168` の列を持たない `CommentBox` の項に、欠けている列を `null` として足すこと。'
+const WHATEVER_THE_VERSION = '`GRS` は、欠けている列を形式の版（`FR-073`）によらずに足すこと。'
+const SILENTLY = '`GRS` は、欠けている列を足したことを通知しないこと。'
 
 const cellOf = (table: string, row: string, heading: string): string => {
   const found = specTable(table).rows.find((one) => one.id === row)

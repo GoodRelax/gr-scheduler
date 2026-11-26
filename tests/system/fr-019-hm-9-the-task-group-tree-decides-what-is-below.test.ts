@@ -477,7 +477,7 @@ test('the task group tree, and not the screen, decides what is below (FR-019 / I
             .toBe(true)
           // ⭐ Held verbatim -- check 39 (must-clause-coverage), row `FR-019`,
           // manuscript text ending at its own marker:
-          // 「⛔⛔ **ハイライトボックスはドラッグでのみ置くこと（MUST）。クリックでは置かないこと（MUST NOT）」
+          // 「`GRS` は、ハイライトボックスをドラッグでのみ置くこと。」「`GRS` は、クリックではハイライトボックスを置かないこと。」
           expect
             .soft(REACH_PX, 'the drag travels further than S-208, so it is a drag')
             .toBeGreaterThan(PRESS_OR_DRAG_PX)
@@ -493,7 +493,7 @@ test('the task group tree, and not the screen, decides what is below (FR-019 / I
             placed = true
             // ⭐ Held verbatim -- check 39, row `FR-019`, manuscript text ending
             // at its own marker:
-            // 「）—— **`start` が `finish` より後のとき、および `topTaskGroupId` が `bottomTaskGroupId` より下のときは、入れ替えて持つこと（MUST）。**⛔ **拒んではならない（MUST NOT）」
+            // 「`start` が `finish` より後のとき、`GRS` は、`start` と `finish` を入れ替えて持つこと。`topTaskGroupId` が `bottomTaskGroupId` より下のとき、`GRS` は、`topTaskGroupId` と `bottomTaskGroupId` を入れ替えて持つこと。作成者がハイライトボックスのドラッグを離したとき、`GRS` は、引いた向きを理由にハイライトボックスを拒まないこと。」
             expect
               .soft(
                 String(box.start) <= String(box.finish),
@@ -589,7 +589,7 @@ test('the task group tree, and not the screen, decides what is below (FR-019 / I
 
         // ⭐ Held verbatim -- check 39, row `FR-019`, manuscript text ending at
         // its own marker:
-        // 「* —— **同じファイルを、留めていない人が開いても同じ意味でなければならない。**⭐⭐ **描く側は逆である** —— **画面に出ている 2 つのタスクグループを囲んで描くこと（MUST）。**⛔ **木の順で描いてはならない（MUST NOT）」
+        // 「`GRS` は、ハイライトボックスを、画面に出ている 2 つのタスクグループを囲んで描くこと。`GRS` は、ハイライトボックスを木の順で描かないこと。」
         const outlines = await drawnOutlines(page)
         expect
           .soft(outlines.length, 'FR-019: the placed highlight box is drawn as an outline')

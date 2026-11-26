@@ -23,8 +23,8 @@ const SE_5_NO_REASON =
   '⭐ 端の段で押して倍率が変わらなかった入口（`SE-1` の後段と、縦軸のズームの 表 T-262 の `ZE-2` / `ZE-3`）には、`FR-029` の行えない理由の通知を出してはならない（MUST NOT）'
 const SE_5_STILL_FAINT = '⚠️ その入口を `FR-029` のとおり薄く描くことは変わらない'
 const FR_029_THE_EXCEPTION =
-  '⚠️ 表示の倍率と縦軸のズームの入口を端の段で押したときは、この通知を出さない —— その例外は `FR-039` の 表 T-260 の `SE-5` が持つ。'
-const FR_029_CARRY_WHEN_PRESSED = '押されたときに限り、行えない理由を通知の仕組みへ運ぶこと（MUST）'
+  '利用者が表示の倍率と縦軸のズームの入口を端の段で押したとき、`GRS` は `IMPS-1112` の通知を出さないこと（例外の規則は `FR-039` の 表 T-260 の `SE-5` が持つ）。'
+const FR_029_CARRY_WHEN_PRESSED = '利用者が薄く描いた入口を押したときに限り、`GRS` は行えない理由を通知の仕組みへ運ぶこと（例外は `IMPS-1114`）。'
 const ZE_5_THE_MESSAGE = '`ZE-2` と `ZE-3` のとき、`GRS` は `FR-039` の 表 T-260 のメッセージを出すこと。'
 
 describe('DFC-3446 -- the manuscript these cases are driven by (JDG-300 Q9 as landed)', () => {

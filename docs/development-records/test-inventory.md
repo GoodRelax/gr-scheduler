@@ -37,7 +37,7 @@ Nodes with the prefixes `FR`, `NFR`, `UC`, `SWS`. A node named only in a test of
 
 | prefix | nodes | named by a test | named by none |
 | --- | --: | --: | --- |
-| FR | 126 | 118 | FR-010, FR-040, FR-079, FR-081, FR-150, FR-160, FR-161, FR-162 |
+| FR | 157 | 118 | FR-010, FR-040, FR-079, FR-081, FR-150, FR-160, FR-161, FR-162, FR-300, FR-301, FR-302, FR-303, FR-304, FR-305, FR-306, FR-307, FR-320, FR-321, FR-322, FR-323, FR-324, FR-340, FR-341, FR-342, FR-343, FR-344, FR-360, FR-361, FR-362, FR-363, FR-364, FR-365, FR-366, FR-367, FR-368, FR-369, FR-370, FR-380, FR-381 |
 | NFR | 13 | 9 | NFR-005, NFR-006, NFR-008, NFR-012 |
 | UC | 15 | 14 | UC-015 |
 | SWS | 8 | 8 | - |
@@ -621,7 +621,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/contract/dfc-2911-the-tip-stands-free-or-snaps-to-eight-points-and-follows.test.ts` | 9 | FR-019 | - | T-023d, T-206 | AT-113, AT-114, AT-163, AT-164, AT-165, AT-166, AT-167, CM-7, CM-11, CM-53, CM-54, GR-14, LF-15, LF-17, S-292 | - | - | - | - |
 | `tests/contract/dfc-2912-a-highlight-box-released-unmoved-is-no-edit.test.ts` | 13 | FR-031, FR-100, FR-103 | - | T-246 | GR-14, HB-3, HB-4, HB-7, HB-10, HB-11, HB-12 | - | - | - | - |
 | `tests/contract/dfc-294-t-019-the-carried-original-is-dropped-only-by-an-actual-edit.test.ts` | 11 | FR-012, FR-043 | - | T-019, T-033, T-059, T-108, T-218 | CM-9, CM-11, CM-13, CM-14, CM-15, DV-11, EX-2, PA-1, PS-2, TS-2, TS-6 | - | - | - | - |
-| `tests/contract/dfc-295-entering-the-dual-cursor-drops-the-arm.test.ts` | 13 | FR-048, FR-082, FR-083 | VT-2 | T-023a, T-023b, T-027, T-028, T-029a, T-062, T-064, T-103, T-109, T-218, T-280 | AR-1, AR-4, AR-7, CP-18, DC-1, DC-2, DC-4, DC-9, IC-45, IN-1, IN-4, PI-18, PTD-2, PTD-5, S-65, SP-1, SP-4, TS-6, U-26, UF-48, UN-16 | - | - | - | - |
+| `tests/contract/dfc-295-entering-the-dual-cursor-drops-the-arm.test.ts` | 13 | FR-048, FR-082, FR-083 | VT-2 | T-023a, T-023b, T-027, T-028, T-029a, T-062, T-064, T-103, T-109, T-218, T-280 | AR-1, AR-4, AR-7, CP-18, DC-1, DC-2, DC-4, DC-5, DC-9, IC-45, IN-1, IN-4, PI-18, PTD-2, PTD-5, S-65, SP-1, SP-4, TS-6, U-26, UF-48, UN-16 | - | - | - | - |
 | `tests/contract/dfc-2950-fr-073-a-shape-change-raises-the-format-version.contract.test.ts` | 18 | FR-024, FR-073 | - | T-052, T-058 | DR-4, S-541 | - | - | - | - |
 | `tests/contract/dfc-2950-the-format-version-covers-the-comment-tip-columns.test.ts` | 9 | FR-024, FR-027, FR-073 | - | - | AT-163, AT-164, AT-165, AT-166, AT-167, DR-4, RS-25 | - | - | - | - |
 | `tests/contract/dfc-2951-a-placed-comment-box-sticks-out-takes-text-and-shows-the-palm.test.ts` | 16 | FR-019, FR-106 | - | T-217, T-269 | AR-5, CM-46, LF-17, PK-8, PK-11, PR-21, S-600 | - | - | - | - |
@@ -667,7 +667,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/contract/dfc-612-fr-085-a-task-group-name-is-cut-once-and-the-rest-is-hidden.test.ts` | 4 | FR-085 | - | - | - | - | - | - | - |
 | `tests/contract/dfc-615-mk-5-a-horizontal-scroll-leaves-the-task-group-anchor-alone.test.ts` | 2 | - | - | T-023 | MK-5 | - | - | - | - |
 | `tests/contract/dfc-628-641-fr-016-the-band-ceiling-is-the-one-t-253-finds-from-any-start.test.ts` | 8 | FR-016 | - | T-253 | BC-1, BC-2, BC-3, BC-4, BC-5, S-54, S-55, S-238, S-239 | - | - | - | - |
-| `tests/contract/dfc-66-fr-101-a-save-names-the-file-it-wrote.test.ts` | 8 | FR-036, FR-060, FR-063, FR-096, FR-101, NFR-010 | - | T-034, T-036, T-062, T-066, T-067, T-075, T-077, T-078, T-103, T-218 | BO-1, BT-4, CP-25, CS-4, FT-1, IF-3, SK-11, TS-6, U-58, U-59, UF-48, UF-62, UF-71 | - | - | - | - |
+| `tests/contract/dfc-66-fr-101-a-save-names-the-file-it-wrote.test.ts` | 8 | FR-036, FR-060, FR-063, FR-096, FR-101, NFR-010 | - | T-034, T-036, T-062, T-066, T-067, T-075, T-077, T-078, T-103, T-218 | BO-1, BT-4, CP-25, CS-4, FT-1, IF-3, SK-11, TS-6, U-27, U-58, U-59, UF-48, UF-62, UF-71 | - | - | - | - |
 | `tests/contract/dfc-685-a-dateless-pasted-copy-drops-its-slack.test.ts` | 3 | FR-023 | - | - | CM-8, EX-12 | - | - | - | yes |
 | `tests/contract/dfc-697-a-display-scale-step-keeps-the-task-group-area-middle.contract.test.ts` | 2 | FR-039 | - | - | DS-1, DS-9, S-234 | - | - | - | - |
 | `tests/contract/dfc-699-fr-016-t-253-the-vertical-zoom-ceiling-follows-the-task-groups-the-detail-level-draws.test.ts` | 3 | FR-016, FR-018 | - | T-253 | SK-16a | - | - | - | - |

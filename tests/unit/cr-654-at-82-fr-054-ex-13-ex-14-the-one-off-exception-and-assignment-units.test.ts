@@ -25,7 +25,7 @@ const AT_82_PREDICATE =
   '繰り返しの無い例外日とは、本列が `9` か空の行と、`1` で `carry` の `Period`（繰り返しの間隔）が無いか `1` の行である'
 const AT_82_ADDED = '`GRS` が足す例外日は `1` とする'
 // Spec: FR-054
-const FR_054_NOT_COUNTED = '稼働日の数えに使ってはならない（MUST NOT）'
+const FR_054_NOT_COUNTED = '`GRS` は、繰り返しの例外日（`_assets/fig-erd-detail.md` の `AT-82` が言う繰り返しの無い例外日でない行）を、稼働日の数えに使わないこと。'
 // Spec: WC-6, T-344
 const WC_6_KIND = '休みとし、`AT-82` を `1` とする'
 // Spec: EX-13, EX-14, T-033

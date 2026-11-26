@@ -3,7 +3,19 @@
 # Started 2026-11-24 on 9994f6d0c at the measured tree (study 82, A16); stage
 # B8 links the implementation tables (traces column) and B13 drives every line
 # to 0. Raising a line needs the owner's OK (JDG-520).
-no-parent 0
+# Raised for stage B8 with the owner's OK (BGQA10 question 7; JDG-3881: add the
+# two seats' counts), measured on the merged tree of B8a (6d996a61b) and B8b
+# (d10d0b5af):
+#   no-parent 0 -> 3: B8a gave the retired rows MK-17, SG-3 and SG-4 a traces
+#     cell of "—" (rows kept as gaps, no parent to name).
+#   leaf-unbuilt 29 -> 44: child requirements of B8a (FR-160..FR-162) and B8b
+#     (FR-300..FR-381) carry no implementation mark yet; on the B8b branch alone
+#     the count was 51, the merged tree measures 44.
+#   below-unbuilt 8 -> 2334: the new IMPS rows (B8b IMPS-700..IMPS-1396, 636
+#     rows, +878 with the existing rows that got a traces column; B8a the rest,
+#     +1448) carry no implementation or test mark yet.
+# B11/B12 add the marks; B13 drives the lines to 0.
+no-parent 3
 no-child 0
-leaf-unbuilt 29
-below-unbuilt 8
+leaf-unbuilt 44
+below-unbuilt 2334
