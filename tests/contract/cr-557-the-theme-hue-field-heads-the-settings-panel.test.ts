@@ -1,6 +1,6 @@
 // CR-557 seams S-2 and S-4: the theme hue field of the document settings panel, from docs/spec alone.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -38,9 +38,9 @@ import {
 import { bare, specTable, unbroken } from './spec-table'
 
 const SPEC = join(process.cwd(), 'docs', 'spec')
-const REQUIREMENTS = unbroken(readFileSync(join(SPEC, '01-04-requirements.md'), 'utf8'))
+const REQUIREMENTS = unbroken(readRepoFile(join(SPEC, '01-04-requirements.md'), 'utf8'))
 
-const WORDS = JSON.parse(readFileSync(join(SPEC, '_source', 'display-words.json'), 'utf8')) as {
+const WORDS = JSON.parse(readRepoFile(join(SPEC, '_source', 'display-words.json'), 'utf8')) as {
   readonly themeHues: readonly { readonly specTableRowId: string; readonly text: Record<DisplayLanguage, string> }[]
   readonly settings: readonly { readonly specTableRowId: string; readonly label: Record<DisplayLanguage, string> }[]
   readonly colorField: readonly { readonly part: string; readonly text: Record<DisplayLanguage, string> }[]
@@ -171,7 +171,7 @@ function paintsOf(control: PropertyControl): readonly string[] {
 const TEMPLATE_PATH = join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json')
 
 function templateDocument(): Document {
-  const read = documentFromJson(readFileSync(TEMPLATE_PATH, 'utf8'))
+  const read = documentFromJson(readRepoFile(TEMPLATE_PATH, 'utf8'))
   if (!read.ok) throw new Error(`the bundled template is not GRS JSON: ${JSON.stringify(read.faults)}`)
   return read.document
 }

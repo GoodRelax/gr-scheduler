@@ -1,6 +1,6 @@
 // DFC-582: every IV- row of table T-220 has an entry in the dictionary section invariants.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -18,7 +18,7 @@ interface Entry {
 }
 
 const invariantsOf = (path: string): readonly Entry[] => {
-  const raw = JSON.parse(readFileSync(path, 'utf8')) as Record<string, unknown>
+  const raw = JSON.parse(readRepoFile(path, 'utf8')) as Record<string, unknown>
   const section = raw['invariants']
   return Array.isArray(section) ? (section as Entry[]) : []
 }
@@ -28,7 +28,7 @@ const IV_ROWS: readonly string[] = specTable('T-220')
   .filter((id) => id.startsWith('IV-'))
 
 const SHARING: Readonly<Record<string, string>> = (
-  JSON.parse(readFileSync(join(ROOT, 'docs', 'spec', '_source', 'notice-reasons.json'), 'utf8')) as {
+  JSON.parse(readRepoFile(join(ROOT, 'docs', 'spec', '_source', 'notice-reasons.json'), 'utf8')) as {
     readonly invariantRefusals: { readonly wordsOf?: Record<string, string> }
   }
 ).invariantRefusals.wordsOf ?? {}

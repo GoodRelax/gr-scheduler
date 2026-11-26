@@ -1,6 +1,6 @@
 // CR-645: reading a GRS JSON recounts percentComplete from the dates and tells RS-52; MSPDI keeps its value (FR-012, FR-021).
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { afterEach, describe, expect, it } from 'vitest'
@@ -24,11 +24,11 @@ import { bare, specTable, type SpecRow, type SpecTable } from '../contract/spec-
 const LAST_SAVED_AT = '2026-10-03T09:00:00'
 
 const SPEC_DIR = join(process.cwd(), 'docs', 'spec')
-const REQUIREMENTS = readFileSync(join(SPEC_DIR, '01-04-requirements.md'), 'utf8').replace(/\r\n/g, '\n')
-const SCHEMA_TEXT = readFileSync(join(SPEC_DIR, '_source', 'grs-document.schema.json'), 'utf8')
+const REQUIREMENTS = readRepoFile(join(SPEC_DIR, '01-04-requirements.md'), 'utf8').replace(/\r\n/g, '\n')
+const SCHEMA_TEXT = readRepoFile(join(SPEC_DIR, '_source', 'grs-document.schema.json'), 'utf8')
 
 const TEMPLATE = JSON.parse(
-  readFileSync(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
+  readRepoFile(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
 ) as Record<string, any>
 
 function rowOf(table: SpecTable, id: string): SpecRow {
@@ -248,7 +248,7 @@ interface ReasonEntry {
 
 function reasonTextOf(specTableRowId: string): string {
   const path = join(process.cwd(), 'src', 'adapter', 'screen-renderer', 'display-words.json')
-  const raw = JSON.parse(readFileSync(path, 'utf8')) as { reasons: ReasonEntry[] }
+  const raw = JSON.parse(readRepoFile(path, 'utf8')) as { reasons: ReasonEntry[] }
   const found = raw.reasons.find((each) => each.specTableRowId === specTableRowId)
   if (found === undefined) throw new Error(`the dictionary holds no row ${specTableRowId}`)
   return found.text.ja

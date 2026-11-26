@@ -1,6 +1,7 @@
 // CR-671 on the shipped build: FR-006 choosers of document names (PR-15, PR-16) fit the panel, cut with an ellipsis, keep the value.
 
-import { existsSync, readFileSync } from 'node:fs'
+import { existsSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
 
@@ -9,7 +10,7 @@ import { bare, specTable, unbroken } from '../contract/spec-table'
 import { CLEARING_UP_MS, DRAWN_SVG, launchReferenceBrowser, readSettledDrawnSvg, screenOf } from './live-app'
 import { rowOf } from './sws-case'
 
-const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
+const REQUIREMENTS = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
 // Why: each constant ends exactly at its marker, cut from the manuscript as check 39 reads it.
 const FR_006_FITS =
@@ -39,7 +40,7 @@ const S_248 = settingPx('S-248')
 
 type Loose = Record<string, unknown>
 const TEMPLATE = JSON.parse(
-  readFileSync(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
+  readRepoFile(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
 ) as { readonly schedule: { readonly tasks: readonly Loose[]; readonly assignments: readonly Loose[]; readonly resources: readonly Loose[] } }
 
 // Why: the first Task of the startup document with both a parent task and an assignee.

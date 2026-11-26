@@ -1,6 +1,6 @@
 // CR-760 spec-only clauses: the sentences of docs/spec the marker status and the Task Type cases are driven by
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 export const SQ_5_VALUE =
@@ -60,7 +60,7 @@ export const PI_1_CALL =
   '呼び方: `Task`、基準日（`CalendarDay`、無いこともある）、遅延診断を出しているあいだのそのタスクの 表 T-315 の行（`DG-1` 〜 `DG-3`、無いこともある）の順に渡し、答えは 表 T-021 か 表 T-315 の行 ID（`PM-1a`・`PM-1`・`PM-2`・`PM-3`・`PM-4`・`DG-1`・`DG-2`・`DG-3`）の 1 つ'
 export const PI_1_NO_COPY = '—— ⛔ 優先の順をコピーして持たせてはならない（MUST NOT） —— コピーすれば、表の値と日程表のマーカーが食い違う'
 
-const PUBLISHED = JSON.parse(readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'published-entries.json'), 'utf8')) as unknown
+const PUBLISHED = JSON.parse(readRepoFile(join(process.cwd(), 'docs', 'spec', '_source', 'published-entries.json'), 'utf8')) as unknown
 
 // Spec: PI-1
 export function publishedNoteOf(name: string): readonly string[] {

@@ -1,12 +1,12 @@
 // The shared fixture for anything that reads or writes a `GRS JSON` document.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 import { Ajv2020, type ErrorObject, type ValidateFunction } from 'ajv/dist/2020.js'
 
 const SCHEMA_PATH = join(process.cwd(), 'docs', 'spec', '_source', 'grs-document.schema.json')
 
-export const documentSchema: unknown = JSON.parse(readFileSync(SCHEMA_PATH, 'utf8'))
+export const documentSchema: unknown = JSON.parse(readRepoFile(SCHEMA_PATH, 'utf8'))
 
 // Why: the published schema is the writer's promise (FR-024), so its date
 // pattern and version const hold here though the reader drops them (CR-643).

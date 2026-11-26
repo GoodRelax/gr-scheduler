@@ -1,6 +1,6 @@
 // CR-593 spec-only cases, shell level: a half-typed field lets the zoom and scroll move and nothing else.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { afterEach, describe, expect, it } from 'vitest'
@@ -21,8 +21,8 @@ import { byRole, selfAndDescendants, surfaceOf, wire, type FakeElement, type Fak
 import { bare, specTable, unbroken } from './spec-table'
 
 const SPEC = join(process.cwd(), 'docs', 'spec')
-const DESIGN = unbroken(readFileSync(join(SPEC, '05-07-design.md'), 'utf8'))
-const REQUIREMENTS = unbroken(readFileSync(join(SPEC, '01-04-requirements.md'), 'utf8'))
+const DESIGN = unbroken(readRepoFile(join(SPEC, '05-07-design.md'), 'utf8'))
+const REQUIREMENTS = unbroken(readRepoFile(join(SPEC, '01-04-requirements.md'), 'utf8'))
 
 const WS_2_EXEMPT =
   '⚠️ 編集入力の確定前でも、`01-04-requirements.md` の 表 T-027 の `UN-8`（ズーム・スクロール・パン）だけから成る書き込みは拒否しない'
@@ -43,7 +43,7 @@ describe('CR-593 shell -- the manuscript these cases are driven by', () => {
 })
 
 const TEMPLATE = JSON.parse(
-  readFileSync(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
+  readRepoFile(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
 ) as Record<string, any>
 const BUILT_VERSION = TEMPLATE.schemaVersion as string
 

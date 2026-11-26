@@ -1,6 +1,6 @@
 // CR-389 / FR-071 / UF-48 / FT-6: full screen is asked of the browser, and S-99f copies what the browser answers.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { afterEach, describe, expect, it } from 'vitest'
@@ -23,8 +23,8 @@ import type { Document } from '../../src/entity/document-model/document/document
 import { frameLoop, type FrameEnvironment, type FrameLoop } from '../../src/framework/single-html-shell/frame-loop'
 import { bare, bareAll, specTable, unbroken } from '../contract/spec-table'
 
-const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
-const DESIGN = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '05-07-design.md'), 'utf8'))
+const REQUIREMENTS = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
+const DESIGN = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '05-07-design.md'), 'utf8'))
 
 const FR_071_FULLSCREEN_API =
   '`GRS` は、ブラウザの全画面表示の機能（Fullscreen API）を使い、文書全体（`document.documentElement`）を全画面にすること。'
@@ -128,7 +128,7 @@ interface ReasonWords {
 // Spec: FR-038, T-233
 const reasonWords = (specTableRowId: string): ReasonWords => {
   const raw = JSON.parse(
-    readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8'),
+    readRepoFile(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8'),
   ) as { readonly reasons: readonly ReasonWords[] }
   const found = raw.reasons.find((one) => one.specTableRowId === specTableRowId)
   if (found === undefined) throw new Error(`the dictionary manuscript holds no reason ${specTableRowId}`)
@@ -136,7 +136,7 @@ const reasonWords = (specTableRowId: string): ReasonWords => {
 }
 
 const TEMPLATE = JSON.parse(
-  readFileSync(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
+  readRepoFile(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
 ) as Document
 
 const SCREEN: FrameEnvironment = { width: 1400, height: 800, appHeaderHeight: 56, scrollbarThickness: 8 }

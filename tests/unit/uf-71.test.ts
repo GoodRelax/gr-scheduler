@@ -113,7 +113,7 @@
 //     a provisional decision, and SC-3 of 表 T-031 speaks of the panel not
 //     scrolling away rather than of a background, so nothing here decides it
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it, vi } from 'vitest'
@@ -290,7 +290,7 @@ interface GlyphElement {
 }
 
 const ICON_GLYPHS = JSON.parse(
-  readFileSync(
+  readRepoFile(
     join(process.cwd(), 'src', 'framework', 'dom-screen-surface', 'icon-glyphs.json'),
     'utf8',
   ),
@@ -1307,7 +1307,7 @@ describe('IF-9 / PI-38 -- the seam is realized and not widened', () => {
   ] as const
 
   it('IF-9 names a sixth supply, the typed search word, which readSearchWord serves (CR-597)', () => {
-    const design = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '05-07-design.md'), 'utf8'))
+    const design = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '05-07-design.md'), 'utf8'))
     expect(design).toContain(
       '面は、この欄の語が変わるたびに、打ちかけの語をそのまま返すこと（MUST）',
     )
@@ -1871,7 +1871,7 @@ describe('HF-14 of 表 T-051 (MUST) -- 既定の名前でタスクグループ�
     // dictionary FR-038 keeps. ⛔ Nothing here types 「No name」: the two names
     // that ARE typed are the two the manuscript itself spells, and the word is
     // whatever the dictionary holds under them.
-    const requirements = unbroken(readFileSync(
+    const requirements = unbroken(readRepoFile(
       join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'),
       'utf8',
     ))
@@ -1880,7 +1880,7 @@ describe('HF-14 of 表 T-051 (MUST) -- 既定の名前でタスクグループ�
     )
     expect(pointer, '表 T-050 no longer points at the dictionary for the default name').not.toBeNull()
     const dictionary = JSON.parse(
-      readFileSync(
+      readRepoFile(
         join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'),
         'utf8',
       ),
@@ -2644,7 +2644,7 @@ describe('FR-038 -- the words are carried, and the language is readable before t
 
   // Why: the view is in `ja` and HELP_MODAL carries helpLanguage `en`, so the two differ.
   it('⭐ ヘルプの言語が画面の言語と違うあいだは、ヘルプの領域にヘルプの言語を名乗らせること（MUST）', () => {
-    const requirements = unbroken(readFileSync(
+    const requirements = unbroken(readRepoFile(
       join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'),
       'utf8',
     ))
@@ -3198,7 +3198,7 @@ describe('the manuscript still says what the S-138 cases copy', () => {
   })
 
   it('FR-029 still points at S-138 and still forbids the surface to change it', () => {
-    const requirements = unbroken(readFileSync(
+    const requirements = unbroken(readRepoFile(
       join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'),
       'utf8',
     ))
@@ -3218,7 +3218,7 @@ describe('the manuscript still says what the S-138 cases copy', () => {
   })
 
   it("FR-029 still forbids the gap to follow the reader's text size", () => {
-    const requirements = unbroken(readFileSync(
+    const requirements = unbroken(readRepoFile(
       join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'),
       'utf8',
     ))

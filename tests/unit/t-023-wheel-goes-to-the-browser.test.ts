@@ -109,7 +109,7 @@
 //   5. THE POINTER. The rule is about the wheel and the keys; PTD-1 〜 PTD-5 of
 //      table T-023a are not in its subject and nothing here presses a button.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { afterEach, describe, expect, it } from 'vitest'
@@ -145,7 +145,7 @@ import { validateDocument } from '../fixtures/grs-document'
 // ===========================================================================
 
 const SPEC = join(process.cwd(), 'docs', 'spec')
-const REQUIREMENTS = unbroken(readFileSync(join(SPEC, '01-04-requirements.md'), 'utf8')).split('\n')
+const REQUIREMENTS = unbroken(readRepoFile(join(SPEC, '01-04-requirements.md'), 'utf8')).split('\n')
 
 /** The paragraph that carries the closing rule, found by the words it opens with. */
 function closingRuleLine(): string {
@@ -282,7 +282,7 @@ const TEMPLATE_PATH = join(
   'single-html-shell',
   'startup-template.json',
 )
-const TEMPLATE = JSON.parse(readFileSync(TEMPLATE_PATH, 'utf8')) as Record<string, unknown>
+const TEMPLATE = JSON.parse(readRepoFile(TEMPLATE_PATH, 'utf8')) as Record<string, unknown>
 
 const ALPHA = '11111111-1111-4111-8111-111111111111'
 const BETA = '22222222-2222-4222-8222-222222222222'

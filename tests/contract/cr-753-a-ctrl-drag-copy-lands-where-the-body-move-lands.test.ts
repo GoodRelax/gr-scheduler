@@ -1,6 +1,6 @@
 // CR-753 spec-only cases: a Ctrl drag copy (PTD-7, CY-5, CY-9) lands where the body move (PE-1) lands, keeping its time.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { afterEach, describe, expect, it } from 'vitest'
@@ -30,7 +30,7 @@ import { NOT_STORED_ZOOM_BOUNDS, type DocumentCommand } from '../../src/use-case
 import { bare, specTable, unbroken } from './spec-table'
 
 const SPEC = join(process.cwd(), 'docs', 'spec')
-const REQUIREMENTS = unbroken(readFileSync(join(SPEC, '01-04-requirements.md'), 'utf8'))
+const REQUIREMENTS = unbroken(readRepoFile(join(SPEC, '01-04-requirements.md'), 'utf8'))
 
 const flat = (text: string): string => text.replace(/<br\s*\/?>/g, '').replace(/\*\*/g, '').replace(/\s*\n\s*/g, '')
 
@@ -136,7 +136,7 @@ const SOURCE = 1
 const SOURCE_NAME = 'Source'
 
 const TEMPLATE = JSON.parse(
-  readFileSync(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
+  readRepoFile(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
 ) as Record<string, Record<string, unknown>>
 
 const RULER_FONT = SETTINGS_DEFAULTS['rulerFontSizePx'] as number

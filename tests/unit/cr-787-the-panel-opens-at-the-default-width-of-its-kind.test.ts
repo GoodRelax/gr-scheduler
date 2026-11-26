@@ -1,6 +1,6 @@
 // CR-787 (spec-only): FR-052 -- the property panel starts at the default width of the kind it shows, the widest of several, and resets only when the kind changes.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { afterEach, describe, expect, it } from 'vitest'
@@ -13,7 +13,7 @@ import { frameLoop, type FrameLoop } from '../../src/framework/single-html-shell
 import { bare, specTable, unbroken } from '../contract/spec-table'
 import { SCREEN, taskGroupDocument, taskOf } from './cr-541-stage'
 
-const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
+const REQUIREMENTS = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
 // Spec: FR-052
 const FR_052_STARTS =

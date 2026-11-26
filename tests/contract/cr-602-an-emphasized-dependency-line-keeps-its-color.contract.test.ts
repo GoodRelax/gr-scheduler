@@ -1,6 +1,6 @@
 // CR-602 spec-only cases: an emphasized dependency line keeps S-159 and adds S-447, and its end Tasks' plans are traced.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { afterEach, describe, expect, it } from 'vitest'
@@ -89,7 +89,7 @@ const S_447_AT_100 = '表示の倍率 100（描く比 0.625、`S-236`）では�
 const S_447_PX = '画面の px である —— 表示の倍率（`FR-039`）にもズームにも追随させない'
 const FR_009_PLAN_OFF =
   '`GRS` は、端点のいずれかを描いていないとき —— 予定を持たない `Task` が端点になる場合と、予定を表示していないとき（`_assets/tbl-settings.md` の 表 T-202 の `S-227` が偽） —— 依存線を描かないこと。'
-const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
+const REQUIREMENTS = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
 describe('CR-602 -- the manuscript these cases are driven by', () => {
   it.each([
@@ -162,7 +162,7 @@ interface Pt {
 const ENVIRONMENT = { width: 1600, height: 700, appHeaderHeight: 56, scrollbarThickness: 8, propertyPanelWidth: 0 }
 
 const TEMPLATE = JSON.parse(
-  readFileSync(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
+  readRepoFile(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
 ) as Record<string, any>
 
 const iso = (day: number): string => new Date(Date.UTC(2026, 1, 2) + day * 86400000).toISOString().slice(0, 10)

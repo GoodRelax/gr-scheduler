@@ -1,6 +1,6 @@
 // CR-427: the four end points show T-269 arrow images of S-249 px with a center hotspot, falling back to ew-resize.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { afterEach, describe, expect, it } from 'vitest'
@@ -30,7 +30,7 @@ import {
   stage,
 } from './cr-430-stage'
 
-const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
+const REQUIREMENTS = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
 // Why: one row since CR-441 -- the plan's white and the actual's black are the two fills of PK-1.
 const PK_1_SQUARE =
@@ -63,7 +63,7 @@ describe('table T-206 S-249', () => {
 })
 
 const TEMPLATE = JSON.parse(
-  readFileSync(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
+  readRepoFile(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
 ) as Record<string, any>
 
 const BAR_UID = 1

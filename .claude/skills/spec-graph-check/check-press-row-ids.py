@@ -49,6 +49,10 @@ import os
 import re
 import sys
 
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                '..', '..', '..', 'tools'))
+import spec_files  # noqa: E402
+
 SPEC = os.path.join('docs', 'spec', '01-04-requirements.md')
 CODE = os.path.join('src', 'adapter', 'input-command-translator',
                     'input-command-translator.ts')
@@ -79,12 +83,11 @@ def say(message):
 
 
 def rows_of_table(root):
-    path = os.path.join(root, SPEC)
-    if not os.path.exists(path):
+    if not spec_files.spec_file_exists(SPEC, root):
         return None, '%s is missing' % SPEC
     found = []
     inside = False
-    for line in io.open(path, encoding='utf-8'):
+    for line in io.StringIO(spec_files.read_spec_file(SPEC, root)):
         if CAPTION.search(line):
             inside = True
             continue

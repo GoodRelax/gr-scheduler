@@ -228,6 +228,8 @@ import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(HERE)))
+sys.path.insert(0, os.path.join(ROOT, 'tools'))
+import spec_files  # noqa: E402
 SRC = os.path.join(ROOT, 'src')
 TESTS = os.path.join(ROOT, 'tests')
 BASELINE = os.path.join(HERE, 'comment-rules-baseline.txt')
@@ -388,15 +390,13 @@ def read_open_questions():
     found = set()
     for base, dirs, names in os.walk(SPEC_DIR):
         dirs[:] = sorted(d for d in dirs if d not in ('output', 'node_modules'))
-        for name in names:
+        for name in spec_files.listed_names(base, names):
             if not name.endswith('.md'):
                 continue
-            with io.open(os.path.join(base, name), encoding='utf-8',
-                         errors='replace') as handle:
-                for line in handle:
-                    match = OPQ_ROW.match(line.strip())
-                    if match:
-                        found.add(match.group(1))
+            for line in spec_files.read_spec_file(os.path.join(base, name)).split('\n'):
+                match = OPQ_ROW.match(line.strip())
+                if match:
+                    found.add(match.group(1))
     return frozenset(found)
 
 

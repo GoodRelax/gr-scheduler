@@ -4,15 +4,15 @@
 // Why: every word and row is read from docs/spec at read time; the page is the built dist/index.html (uc-harness).
 
 import { expect, test, type Page } from '@playwright/test'
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { specTable, unbroken } from '../contract/spec-table'
 import { VIEWPORT, icon, launch, press, settle } from '../use-case/uc-harness'
 
-const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
-const WORDS = JSON.parse(readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8')) as unknown
-const TEMPLATE_TEXT = readFileSync(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8')
+const REQUIREMENTS = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
+const WORDS = JSON.parse(readRepoFile(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8')) as unknown
+const TEMPLATE_TEXT = readRepoFile(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8')
 
 const MK_13_ONE_PRESS =
   '（`FR-035`）を開くこと。`GRS` は、`Document Title` の 1 回の押下でその場で編集する欄を開かないこと。'

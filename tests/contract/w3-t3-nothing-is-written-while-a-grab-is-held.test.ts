@@ -1,6 +1,6 @@
 // W3 tester 3: T-023d -- while a schedule shape, a highlight box or the Status Line is held, nothing reaches the document.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { afterEach, describe, expect, it } from 'vitest'
@@ -13,7 +13,7 @@ import { exportStage, restoreAnimationFrames, type ExportStage } from './w3-t3-f
 afterEach(restoreAnimationFrames)
 
 const REQUIREMENTS = unbroken(
-  readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8').replace(/\r\n/g, '\n'),
+  readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8').replace(/\r\n/g, '\n'),
 )
 
 const CLAUSE_NO_WRITE_WHILE_HELD =

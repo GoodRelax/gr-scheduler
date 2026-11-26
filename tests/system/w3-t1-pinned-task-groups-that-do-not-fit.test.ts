@@ -1,14 +1,14 @@
 // W3 spec-only case on the shipped build: FR-098 -- pinned task groups that do not fit on the screen are not drawn, and none is drawn cut.
 
 import { expect, test, type Browser } from '@playwright/test'
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 import { unbroken } from '../contract/spec-table'
 import { CLEARING_UP_MS, launchReferenceBrowser } from './live-app'
 import { openDocument, openStage } from './cr-570-tree-state-stage'
 import { rowIdOf, taskGroupsDocument } from './w3-t1-stage'
 
-const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
+const REQUIREMENTS = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
 // Why: the constant ends exactly at its marker, cut from the manuscript as check 39 reads it.
 const FR_098_NOT_DRAWN =

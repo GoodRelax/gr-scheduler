@@ -1,7 +1,8 @@
 // CR-429: the two MSPDI schemas the cases below judge against, read at run time and held to Chapter 6.2 and A.1.
 
 import { createHash } from 'node:crypto'
-import { readFileSync, readdirSync, statSync } from 'node:fs'
+import { readdirSync, statSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -12,9 +13,9 @@ import { mspdiText, pj15OnlyPaths, schemaFaults, schemaModel, xsdPathOf } from '
 
 const SPEC = join(process.cwd(), 'docs', 'spec')
 
-const APPENDIX = unbroken(readFileSync(join(SPEC, 'A-appendix.md'), 'utf8'))
+const APPENDIX = unbroken(readRepoFile(join(SPEC, 'A-appendix.md'), 'utf8'))
 
-const DESIGN = unbroken(readFileSync(join(SPEC, '05-07-design.md'), 'utf8'))
+const DESIGN = unbroken(readRepoFile(join(SPEC, '05-07-design.md'), 'utf8'))
 
 const A_1_PJ15_HAS_NO_URL = 'pj15 —— 公式 URL は無い。'
 
@@ -58,7 +59,7 @@ describe('A.1 and Chapter 6.2 -- which copy of pj15 the cases read', () => {
     expect(DESIGN).toContain(SECTION_6_2_ONE_AUTHORITY_PER_VERSION)
     expect(DESIGN).toContain(SECTION_6_2_NO_FOREIGN_LINES)
     const named = A_1_PJ15_HASH.exec(APPENDIX)?.[1]
-    const held = createHash('sha256').update(readFileSync(xsdPathOf('pj15'))).digest('hex')
+    const held = createHash('sha256').update(readRepoFile(xsdPathOf('pj15'))).digest('hex')
     expect(held).toBe(named)
   })
 })
@@ -136,7 +137,7 @@ describe('CN-7 and EX-10 -- the child-order table carries names and order only',
     expect(sentences.length).toBeGreaterThan(100)
     const found: string[] = []
     for (const path of filesUnder(join(process.cwd(), 'src'))) {
-      const text = readFileSync(path, 'utf8')
+      const text = readRepoFile(path, 'utf8')
       for (const word of SCHEMA_MARKUP) if (text.includes(word)) found.push(`${path}: ${word}`)
       for (const sentence of sentences) if (text.includes(sentence)) found.push(`${path}: "${sentence.slice(0, 50)}"`)
     }

@@ -71,6 +71,8 @@ import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.abspath(os.path.join(HERE, '..', '..', '..'))
+sys.path.insert(0, os.path.join(ROOT, 'tools'))
+import spec_files  # noqa: E402
 SPEC = os.path.join(ROOT, 'docs', 'spec')
 SRC = os.path.join(ROOT, 'src')
 
@@ -91,8 +93,12 @@ NEAR = 60
 
 def manuscripts():
     out = {}
-    for p in sorted(glob.glob(os.path.join(SPEC, '**', '*.md'), recursive=True)):
+    for p in spec_files.listed_paths(sorted(glob.glob(os.path.join(SPEC, '**', '*.md'),
+                                                      recursive=True))):
         if os.sep + 'output' + os.sep in p:
+            continue
+        if spec_files.is_split_document(p):
+            out[p] = spec_files.read_spec_file(p).replace('\r\n', '\n')
             continue
         with io.open(p, encoding='utf-8', errors='replace') as fh:
             out[p] = fh.read().replace('\r\n', '\n')

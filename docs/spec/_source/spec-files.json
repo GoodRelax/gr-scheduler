@@ -1,0 +1,43 @@
+{
+ "$comment": [
+  "SINGLE SOURCE OF TRUTH -- EDIT THIS FILE (for how the specification documents are split into files).",
+  "The requirements document 01-04-requirements.md and the design document 05-07-design.md are each split into part files of about 100 KB (plan B9, ANMS v0.36 'Splitting the specification'). The two old names stay the names of the whole documents: sentences of the specification and comments of src and tests still cite them, and a reader asks for a whole document by that name.",
+  "A whole document is its parts joined in the order below. The first part is read whole. A later part opens with its own StrictDoc header (title, Grammar, UID), repeats the headings of the sections it continues, and names the first part on the marker line; its body is everything after the marker line and the blank line that follows it. The bodies joined are the old file byte for byte.",
+  "startsAt is the heading line the body of a part opens with; tools/spec_files.py --split cuts a whole document there, and --check fails when a part's header is not the one this file implies.",
+  "Readers: tools/spec_files.py (Python) and tests/spec-files.ts (TypeScript). Check: python tools/spec_files.py --check (check.sh)."
+ ],
+ "marker": "> 最初のファイル: `{first}`",
+ "documents": [
+  {
+   "name": "01-04-requirements.md",
+   "parts": [
+    {"file": "spec-ch1-3.md", "uid": "DOC-REQUIREMENTS", "startsAt": null},
+    {"file": "spec-ch4-01.md", "uid": "DOC-SPEC-CH4-01", "title": "gr-scheduler 仕様書 — 要求（Chapter 4 の 1）", "startsAt": "## Chapter 4. Requirements (要求)"},
+    {"file": "spec-ch4-02.md", "uid": "DOC-SPEC-CH4-02", "title": "gr-scheduler 仕様書 — 要求（Chapter 4 の 2）", "startsAt": "#### タスクグループを階層で編集する"},
+    {"file": "spec-ch4-03.md", "uid": "DOC-SPEC-CH4-03", "title": "gr-scheduler 仕様書 — 要求（Chapter 4 の 3）", "startsAt": "#### タスクの属性を編集する"},
+    {"file": "spec-ch4-04.md", "uid": "DOC-SPEC-CH4-04", "title": "gr-scheduler 仕様書 — 要求（Chapter 4 の 4）", "startsAt": "#### 担当を編集する"},
+    {"file": "spec-ch4-05.md", "uid": "DOC-SPEC-CH4-05", "title": "gr-scheduler 仕様書 — 要求（Chapter 4 の 5）", "startsAt": "#### 同じ日付へ揃える"},
+    {"file": "spec-ch4-06.md", "uid": "DOC-SPEC-CH4-06", "title": "gr-scheduler 仕様書 — 要求（Chapter 4 の 6）", "startsAt": "#### 再開予定日を置く"},
+    {"file": "spec-ch4-07.md", "uid": "DOC-SPEC-CH4-07", "title": "gr-scheduler 仕様書 — 要求（Chapter 4 の 7）", "startsAt": "#### 診断の一覧とレポート"},
+    {"file": "spec-ch4-08.md", "uid": "DOC-SPEC-CH4-08", "title": "gr-scheduler 仕様書 — 要求（Chapter 4 の 8）", "startsAt": "#### マウスとキーボードの割当"},
+    {"file": "spec-ch4-09.md", "uid": "DOC-SPEC-CH4-09", "title": "gr-scheduler 仕様書 — 要求（Chapter 4 の 9）", "startsAt": "#### 縮小しても、どれも指せる"},
+    {"file": "spec-ch4-10.md", "uid": "DOC-SPEC-CH4-10", "title": "gr-scheduler 仕様書 — 要求（Chapter 4 の 10）", "startsAt": "#### パネルの幅を変える"},
+    {"file": "spec-ch4-11.md", "uid": "DOC-SPEC-CH4-11", "title": "gr-scheduler 仕様書 — 要求（Chapter 4 の 11）", "startsAt": "#### ショートカットキーで操作する"},
+    {"file": "spec-ch4-12.md", "uid": "DOC-SPEC-CH4-12", "title": "gr-scheduler 仕様書 — 要求（Chapter 4 の 12）", "startsAt": "#### 倍率の入口を押し続けて刻み続ける"},
+    {"file": "spec-ch4-13.md", "uid": "DOC-SPEC-CH4-13", "title": "gr-scheduler 仕様書 — 要求（Chapter 4 の 13）", "startsAt": "#### 表示する要素を切り替える"},
+    {"file": "spec-ch4-14.md", "uid": "DOC-SPEC-CH4-14", "title": "gr-scheduler 仕様書 — 要求（Chapter 4 の 14）", "startsAt": "#### 画面の全体を、同じ比で縮めて書き出す"},
+    {"file": "spec-ch4-15.md", "uid": "DOC-SPEC-CH4-15", "title": "gr-scheduler 仕様書 — 要求（Chapter 4 の 15）", "startsAt": "#### 文書の形式の版を判別する"},
+    {"file": "spec-ch4-16.md", "uid": "DOC-SPEC-CH4-16", "title": "gr-scheduler 仕様書 — 要求（Chapter 4 の 16）", "startsAt": "#### マニュアルを読まずに使えるようにする手立てを持つ"},
+    {"file": "spec-ch4-17.md", "uid": "DOC-SPEC-CH4-17", "title": "gr-scheduler 仕様書 — 要求（Chapter 4 の 17）", "startsAt": "#### 速い操作を、遅い操作へ手を伸ばしたときに教える"}
+   ]
+  },
+  {
+   "name": "05-07-design.md",
+   "parts": [
+    {"file": "spec-ch5-01.md", "uid": "DOC-DESIGN", "startsAt": null},
+    {"file": "spec-ch5-02.md", "uid": "DOC-SPEC-CH5-02", "title": "gr-scheduler 仕様書 — 設計（Chapter 5 の 2）", "startsAt": "### 5.4 Domain Model (ドメインモデル)"},
+    {"file": "spec-ch6-7.md", "uid": "DOC-SPEC-CH6-7", "title": "gr-scheduler 仕様書 — 設計（Chapter 6 〜 7）", "startsAt": "## Chapter 6. Software Specification (ソフトウェア仕様)"}
+   ]
+  }
+ ]
+}

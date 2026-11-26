@@ -1,6 +1,6 @@
 // CR-541: the shared bench the cr-541-*.test.ts files drive the shell and the use cases through.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import type {
@@ -18,16 +18,16 @@ import { frameLoop, type FrameLoop } from '../../src/framework/single-html-shell
 import { bare, specTable, unbroken } from '../contract/spec-table'
 
 export const REQUIREMENTS = unbroken(
-  readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'),
+  readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'),
 )
-export const DESIGN = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '05-07-design.md'), 'utf8'))
+export const DESIGN = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '05-07-design.md'), 'utf8'))
 
 export const TEMPLATE = JSON.parse(
-  readFileSync(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
+  readRepoFile(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
 ) as Record<string, any>
 
 export const DISPLAY_WORDS = JSON.parse(
-  readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8'),
+  readRepoFile(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8'),
 ) as Record<string, any>
 
 export function rowOf(table: string, id: string) {

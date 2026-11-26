@@ -1,9 +1,10 @@
 // CR-768 spec-only cases: the copies of table T-024 and T-229 in src are generated, equal the tables, and a planted drift is caught by the generators.
 
 import { spawnSync } from 'node:child_process'
-import { cpSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs'
+import { cpSync, mkdtempSync, readdirSync, rmSync, writeFileSync } from 'node:fs'
+import { isSplitDocumentPath, readRepoFile, specDocumentParts } from '../spec-files'
 import { tmpdir } from 'node:os'
-import { join } from 'node:path'
+import { basename, join } from 'node:path'
 
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 
@@ -32,7 +33,7 @@ const T_229_ALL_THREE = '**本表の 3 行が、文書へ書き込む入口の�
 const ED_1_WORD_HEADING = '書く語'
 
 function readPublishedEntry(row: string): string {
-  const text = readFileSync(join(process.cwd(), 'docs', 'spec', '_assets', 'tbl-published-entries.md'), 'utf8')
+  const text = readRepoFile(join(process.cwd(), 'docs', 'spec', '_assets', 'tbl-published-entries.md'), 'utf8')
   return text.split('\n').find((line) => line.startsWith(`| ${row} |`)) ?? ''
 }
 
@@ -85,7 +86,7 @@ describe('FR-096 / T-024 -- the copies of the table in src are generated regions
   })
 
   it('ROOT_KEYS (the document model) lists the root properties of the published GRS JSON schema, in its order', () => {
-    const schema = JSON.parse(readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'grs-document.schema.json'), 'utf8')) as {
+    const schema = JSON.parse(readRepoFile(join(process.cwd(), 'docs', 'spec', '_source', 'grs-document.schema.json'), 'utf8')) as {
       readonly properties: Readonly<Record<string, unknown>>
     }
     const region = regionHolding(DOCUMENT, 'const ROOT_KEYS')
@@ -158,9 +159,17 @@ describe('npm run gen:check -- the generators catch a planted drift (run on a sc
   }
 
   // Why: one copy for the whole group; each case plants one change, reads, and puts the file back.
+  // Why: a split document is planted in the part of the copy that holds FROM; the generators read the parts.
+  const plantedPath = (relative: readonly string[], from: string): string =>
+    isSplitDocumentPath(join(process.cwd(), ...relative))
+      ? (specDocumentParts(relative.at(-1) ?? '')
+          .map((part) => pathOf('docs', 'spec', basename(part)))
+          .find((part) => readRepoFile(part, 'utf8').includes(from)) ?? pathOf(...relative))
+      : pathOf(...relative)
+
   function planted(relative: readonly string[], from: string, to: string, readers: readonly (typeof generators)[number][]): readonly Run[] {
-    const path = pathOf(...relative)
-    const original = readFileSync(path, 'utf8')
+    const path = plantedPath(relative, from)
+    const original = readRepoFile(path, 'utf8')
     expect(original, `premise: ${relative.join('/')} holds ${from}`).toContain(from)
     writeFileSync(path, original.replace(from, to))
     try {
@@ -187,7 +196,7 @@ describe('npm run gen:check -- the generators catch a planted drift (run on a sc
   }, 60_000)
 
   it('the scripts of package.json run all three checks under gen:check', () => {
-    const scripts = (JSON.parse(readFileSync(join(process.cwd(), 'package.json'), 'utf8')) as { readonly scripts: Record<string, string> }).scripts
+    const scripts = (JSON.parse(readRepoFile(join(process.cwd(), 'package.json'), 'utf8')) as { readonly scripts: Record<string, string> }).scripts
     for (const check of ['formats:check', 'types:check', 'words:check']) {
       expect(scripts['gen:check'], check).toContain(`npm run ${check}`)
     }

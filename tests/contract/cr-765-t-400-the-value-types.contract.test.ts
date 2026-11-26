@@ -1,6 +1,6 @@
 // CR-765 spec-only tests: table T-400, the value types AV-1 to AV-21 the members of T-107 hand over, and the reasons of AV-4.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, expectTypeOf, it } from 'vitest'
@@ -32,8 +32,8 @@ const valueRow = (id: string) => {
   return found
 }
 
-const PREFIXES = readFileSync(join(SPEC, '_assets', 'tbl-row-id-prefixes.md'), 'utf8')
-const DESIGN = readFileSync(join(SPEC, '_assets', 'design-mcp-relay.md'), 'utf8').replace(/\s+/g, ' ')
+const PREFIXES = readRepoFile(join(SPEC, '_assets', 'tbl-row-id-prefixes.md'), 'utf8')
+const DESIGN = readRepoFile(join(SPEC, '_assets', 'design-mcp-relay.md'), 'utf8').replace(/\s+/g, ' ')
 
 // Spec: T-400
 const EXPECTED_TYPES = [
@@ -166,7 +166,7 @@ describe('T-400 is printed beside T-107 with nineteen rows, AV-1 to AV-11 and AV
   })
 
   it('AV-14 is declared by another component and printed here with the field names of this table', () => {
-    const prose = unbroken(readFileSync(join(SPEC, '_assets', 'tbl-agent-api-members.md'), 'utf8'))
+    const prose = unbroken(readRepoFile(join(SPEC, '_assets', 'tbl-agent-api-members.md'), 'utf8'))
     expect(prose).toContain('`AV-14` は、ほかのコンポーネント（`NotifyChangeWatchers`）が宣言する型である')
   })
 })

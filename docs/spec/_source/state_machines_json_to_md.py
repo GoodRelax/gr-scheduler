@@ -105,6 +105,8 @@ from spec_md_printing import say
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 SPEC = os.path.dirname(HERE)
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(SPEC)), 'tools'))
+import spec_files  # noqa: E402
 ASSETS = os.path.join(SPEC, '_assets')
 SRC = os.path.join(HERE, 'state-machines.json')
 ERD = os.path.join(HERE, 'erd.json')
@@ -146,11 +148,11 @@ def defined_ids():
     ids = set()
     for base, dirs, names in os.walk(SPEC):
         dirs[:] = [d for d in dirs if d not in ('output', '__pycache__', '_source')]
-        for name in names:
+        for name in spec_files.listed_names(base, names):
             if not name.endswith('.md') or name == OUT_NAME:
                 continue
             path = os.path.join(base, name)
-            body = io.open(path, encoding='utf-8').read().replace('\r\n', '\n')
+            body = spec_files.read_spec_file(path).replace('\r\n', '\n')
             fenced = False
             for line in body.split('\n'):
                 if line.strip().startswith('```'):
@@ -819,7 +821,7 @@ REQUIREMENTS = os.path.join(SPEC, '01-04-requirements.md')
 def escape_chain():
     """The Esc rungs as the requirement row IN-4 writes them, first to last,
     or None when the row or its chain cannot be found."""
-    body = io.open(REQUIREMENTS, encoding='utf-8').read().replace('\r\n', '\n')
+    body = spec_files.read_spec_file(REQUIREMENTS).replace('\r\n', '\n')
     for line in body.split('\n'):
         if line.startswith(ESCAPE_ROW):
             found = ESCAPE_CHAIN.search(line)

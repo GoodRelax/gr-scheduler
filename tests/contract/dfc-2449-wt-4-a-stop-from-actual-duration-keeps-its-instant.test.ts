@@ -1,6 +1,6 @@
 // DFC-2449 (spec-only): table T-350 WT-4 leaves the stop FR-011 puts from an ActualDuration at that instant; GRS writes it so.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -9,7 +9,7 @@ import { documentFromJson, documentFromMspdi, jsonFromDocument } from '../../src
 import type { Document } from '../../src/entity/document-model/document/document'
 import { unbroken } from './spec-table'
 
-const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
+const REQUIREMENTS = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
 // Spec: WT-4, FR-011
 const WT_4_STOP_FROM_DURATION =
@@ -28,7 +28,7 @@ describe('the clauses these cases are built from still read as quoted', () => {
 
 // Why: the bundled template stands in for the open document; cr-429-mspdi-fixtures reads the local-only XSD on import (JDG-644).
 function currentDocument(): Document {
-  const text = readFileSync(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8')
+  const text = readRepoFile(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8')
   const parsed = JSON.parse(text) as { schedule: { project: Record<string, unknown> } }
   parsed.schedule.project['sourceFormat'] ??= 'grs'
   const read = documentFromJson(JSON.stringify(parsed))

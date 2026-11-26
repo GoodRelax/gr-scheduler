@@ -1,6 +1,6 @@
 // CR-712 wave 2 spec-only cases: QN-5 is asked only while there are unsaved edits (FR-095, T-234, T-290).
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -16,7 +16,7 @@ import {
 
 const SPEC = join(process.cwd(), 'docs', 'spec')
 
-const REQUIREMENTS = unbroken(readFileSync(join(SPEC, '01-04-requirements.md'), 'utf8'))
+const REQUIREMENTS = unbroken(readRepoFile(join(SPEC, '01-04-requirements.md'), 'utf8'))
 
 const FR_095_ASK_ONLY_WITH_EDITS = '保存していない編集がある間、作成者が新しく始めることを選んだとき、`GRS` は、開いている文書を捨てる前に、表 T-024a の `OP-4` と同じ確認を求めること。'
 const FR_095_WHY_NOT_ASKED =

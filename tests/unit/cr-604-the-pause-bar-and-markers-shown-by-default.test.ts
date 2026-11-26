@@ -1,6 +1,6 @@
 // CR-604: the pause mark PM-3 is one bar as thick as the "!" bar, and markers show by default.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -8,7 +8,7 @@ import { describe, expect, it } from 'vitest'
 import { unbroken } from '../contract/spec-table'
 import { cellOf, day, notStored, rowOf, sceneOf, taskOf, type Scene } from './cr-430-cross-section-scene'
 
-const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
+const REQUIREMENTS = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
 // Spec: FR-013
 const FR_013_PAUSE_BAR =

@@ -1,6 +1,6 @@
 // Table T-027: what the undo history does not hold.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -80,7 +80,7 @@ const TEMPLATE_PATH = join(
 const SCHEMA_PATH = join(process.cwd(), 'docs', 'spec', '_source', 'grs-document.schema.json')
 
 function templateDocument(): Document {
-  const read = documentFromJson(readFileSync(TEMPLATE_PATH, 'utf8'))
+  const read = documentFromJson(readRepoFile(TEMPLATE_PATH, 'utf8'))
   if (!read.ok) {
     throw new Error(`the bundled template is not GRS JSON: ${JSON.stringify(read.faults)}`)
   }
@@ -470,7 +470,7 @@ describe('表 T-027 UN-9 / UN-10 / UN-11 -- outside the document, not merely out
   it('the document root and the 見せ方の群 hold no key for any of the three', () => {
     const named = ['selection', 'selectedIds', 'language', 'displayLanguage', 'armed', 'stance']
     // Why: the root keys are read from the schema they are generated from (CR-768).
-    const schema = JSON.parse(readFileSync(SCHEMA_PATH, 'utf8')) as { readonly properties: Record<string, unknown> }
+    const schema = JSON.parse(readRepoFile(SCHEMA_PATH, 'utf8')) as { readonly properties: Record<string, unknown> }
     const keys = [...Object.keys(schema.properties), ...Object.keys(SETTINGS_DEFAULTS)]
     for (const key of named) expect(keys, key).not.toContain(key)
   })

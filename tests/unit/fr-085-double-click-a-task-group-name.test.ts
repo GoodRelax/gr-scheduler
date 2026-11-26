@@ -54,7 +54,7 @@
 // tests/unit/fr-072-a-moved-selection-does-not-open-the-panel.test.ts, which drives this
 // same unit through the same seams.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { afterEach, describe, expect, it } from 'vitest'
@@ -106,7 +106,7 @@ const TASK_GROUP_PANEL = ((): string => {
 /** Everything MK-13 writes, as one string. */
 const MK_13 = rowOf('T-023', 'MK-13').cells.join(' ')
 
-const REQUIREMENTS = unbroken(readFileSync(
+const REQUIREMENTS = unbroken(readRepoFile(
   join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'),
   'utf8',
 ))
@@ -128,7 +128,7 @@ const THE_OVERRIDDEN_SENTENCE =
  * is read from the table that owns it and asserted to be `TaskGroup.name`.
  */
 const TASK_GROUP_NAME_FIELD = ((): string => {
-  const detail = unbroken(readFileSync(
+  const detail = unbroken(readRepoFile(
     join(process.cwd(), 'docs', 'spec', '_assets', 'fig-erd-detail.md'),
     'utf8',
   ))
@@ -146,7 +146,7 @@ const TASK_GROUP_NAME_FIELD = ((): string => {
 // ---------------------------------------------------------------------------
 
 const TEMPLATE = JSON.parse(
-  readFileSync(
+  readRepoFile(
     join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'),
     'utf8',
   ),

@@ -1,6 +1,6 @@
 // Contract test: FR-151 tables T-330, T-331 and T-333 against the Search Panel view and its drawing.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -74,11 +74,11 @@ const IC_127_CYCLE = '押すたびに `tbl-settings.md` の 表 T-333 の並び�
 const T_333_ORDER = '⭐ 段の並びは本表の上からの順であり、`IC-127` はこの順に巡る。'
 const S_442_DEFAULT = '出していない'
 
-const SETTINGS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '_assets', 'tbl-settings.md'), 'utf8'))
+const SETTINGS = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '_assets', 'tbl-settings.md'), 'utf8'))
 
 type Words = Record<DisplayLanguage, string>
 const WORDS = JSON.parse(
-  readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8'),
+  readRepoFile(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8'),
 ) as {
   readonly surfaces: readonly { readonly name: string; readonly heading: Words }[]
   readonly icons: readonly { readonly specTableRowId: string; readonly label: Words }[]
@@ -123,7 +123,7 @@ const DEFAULT_RATIO = { width: ratioOf('S-421'), height: ratioOf('S-422') }
 
 type Loose = Record<string, unknown>
 const TEMPLATE = JSON.parse(
-  readFileSync(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
+  readRepoFile(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
 ) as { readonly schedule: Loose }
 const firstOf = (key: string): Loose => ((TEMPLATE.schedule[key] as readonly Loose[])[0] ?? {}) as Loose
 

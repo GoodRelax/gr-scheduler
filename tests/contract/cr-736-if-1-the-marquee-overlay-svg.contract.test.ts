@@ -1,6 +1,6 @@
 // CR-736 from docs/spec only: IF-1 has two mouths, and the marquee overlay holds ZO-6 and nothing else.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { afterEach, describe, expect, it } from 'vitest'
@@ -246,7 +246,7 @@ interface Template {
 }
 
 const TEMPLATE = JSON.parse(
-  readFileSync(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
+  readRepoFile(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
 ) as Template
 
 const GROUPS = [1, 2, 3, 4, 5, 6].map((n) => `4a000000-0000-4000-8000-00000000000${n}`)

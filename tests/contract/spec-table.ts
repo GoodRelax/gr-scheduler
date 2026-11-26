@@ -14,7 +14,7 @@
 // at read time from the .md itself, so it cannot fall behind the table the way
 // a hand-written copy does.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 const SPEC = join(process.cwd(), 'docs', 'spec')
@@ -125,7 +125,7 @@ const copyOf = (table: SpecTable): SpecTable => ({
 function manuscriptLines(file: string): readonly string[] | null {
   const held = LINES_READ.get(file)
   if (held !== undefined) return held
-  const text = readFileSync(join(SPEC, file), 'utf8')
+  const text = readRepoFile(join(SPEC, file), 'utf8')
   if (text.trim().length === 0) return null
   const lines = text.split('\n')
   LINES_READ.set(file, lines)

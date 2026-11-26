@@ -1,6 +1,6 @@
 // FR-016: while the progress marker of table T-270 PE-8 is dragged, the actual end it will put is drawn.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { afterEach, describe, expect, it } from 'vitest'
@@ -25,7 +25,7 @@ import {
   type Stage,
 } from '../unit/cr-430-stage'
 
-const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
+const REQUIREMENTS = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
 const FR_016_THE_MARKER_SHOWS_THE_END =
   '⭐ 進捗マーカーを引いているあいだ（`FR-107` の 表 T-270 の `PE-8`）は、置くことになる実績の終了を描いて示すこと（MUST）。'

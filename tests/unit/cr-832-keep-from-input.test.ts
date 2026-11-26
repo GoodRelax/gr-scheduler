@@ -1,6 +1,6 @@
 // CR-832 / FR-069: keepFromInput keeps a press and Enter on its element from the input source, and prevents no default.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -9,8 +9,8 @@ import { keepFromInput } from '../../src/framework/dom-screen-surface/notices-dr
 import { stage, type FakeElement } from '../fixtures/fake-browser'
 import { unbroken } from '../contract/spec-table'
 
-const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
-const DESIGN = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '05-07-design.md'), 'utf8'))
+const REQUIREMENTS = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
+const DESIGN = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '05-07-design.md'), 'utf8'))
 const FR_069_NEW_TAB = '人がヘルプの著作権表示を押したとき、`GRS` は、閲覧環境の新しいタブで、`_assets/tbl-settings.md` の 表 T-206 の `S-459`（本ソフトウェアのリポジトリの所）の頁を開くこと。'
 const FR_069_STRETCH =
   '作成者がヘルプで全文と帰属表示を開いたとき、`GRS` は、表 T-335 の `WB-1` のヘルプの窓の下の縁を、同表の `WB-3` の範囲の下端まで伸ばすこと'

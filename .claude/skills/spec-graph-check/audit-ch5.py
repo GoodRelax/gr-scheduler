@@ -5,8 +5,12 @@ Green means the claim matches what is actually written -- it does not mean the
 design is right.  Run with PYTHONIOENCODING=utf-8.
 """
 import json
+import os
 import re
 import sys
+
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "..", "tools"))
+import spec_files  # noqa: E402
 
 DESIGN = "docs/spec/05-07-design.md"
 # ⭐ Table T-064 is printed into its own document from
@@ -30,7 +34,7 @@ CHANGELOG = "docs/development-records/changelog.md"
 # rule that a break runs through stops being found.
 _BREAK = re.compile(u"<br[ ]*/?>", re.I)
 _HARD = re.compile(u"  " + chr(10) + u"(?:[ ]*>[ ]?)?")
-design = _HARD.sub(u"", _BREAK.sub(u"", open(DESIGN, encoding="utf-8").read()))
+design = _HARD.sub(u"", _BREAK.sub(u"", spec_files.read_spec_file(DESIGN)))
 published = _HARD.sub(u"", _BREAK.sub(u"", open(PUBLISHED, encoding="utf-8").read()))
 tables = design + chr(10) * 2 + published
 glossary = open(GLOSSARY, encoding="utf-8").read()
@@ -102,7 +106,7 @@ check("T-074 SU-1 defines a component by its entry",
 # the abandoned wording zero times and the changelog exactly once -- the same
 # two claims as before P2-1, now that the changelog is a file of its own.
 check("the abandoned definition survives only in the record",
-      dict({d: open("docs/spec/%s.md" % d, encoding="utf-8").read().count("外へインターフェースを公開")
+      dict({d: spec_files.read_spec_file("docs/spec/%s.md" % d).count("外へインターフェースを公開")
             for d in SPEC},
            changelog=open(CHANGELOG, encoding="utf-8").read().count("外へインターフェースを公開")),
       {"01-04-requirements": 0, "05-07-design": 0, "08-10-test": 0,

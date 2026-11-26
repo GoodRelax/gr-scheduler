@@ -1,6 +1,6 @@
 // CR-663 (table T-348 TL-7 / TL-8, S-513, DT-2 / DT-3): the task tooltip's assignee and progress lines.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -75,7 +75,7 @@ const THEME_HUE = Number(bare(cellOf('T-216', 'S-73', '既定')))
 
 // Spec: DT-2, DT-3
 const COLUMN_WORDS = (
-  JSON.parse(readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8')) as {
+  JSON.parse(readRepoFile(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8')) as {
     delayReportColumns: { specTableRowId: string; text: Readonly<Record<Language, string>> }[]
   }
 ).delayReportColumns
@@ -91,7 +91,7 @@ const PROGRESS = (language: Language): string => `${columnWord('DT-3', language)
 
 // Spec: PS-5, SQ-5
 const IN_PROGRESS_WORD = (
-  JSON.parse(readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8')) as {
+  JSON.parse(readRepoFile(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8')) as {
     planActualStates: { specTableRowId: string; text: Readonly<Record<Language, string>> }[]
   }
 ).planActualStates

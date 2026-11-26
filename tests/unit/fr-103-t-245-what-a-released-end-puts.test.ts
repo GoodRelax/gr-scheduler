@@ -1,6 +1,6 @@
 // FR-103 and table T-245 (CR-374): what the four date-moving grabs of T-023d put, and leave standing, on release.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { afterEach, describe, expect, it } from 'vitest'
@@ -39,9 +39,9 @@ import { specTable, unbroken } from '../contract/spec-table'
 import { validateDocument } from '../fixtures/grs-document'
 
 const REQUIREMENTS = unbroken(
-  readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'),
+  readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'),
 )
-const DESIGN = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '05-07-design.md'), 'utf8'))
+const DESIGN = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '05-07-design.md'), 'utf8'))
 
 const FR_103_STATEMENT =
   '`FR-104` の 表 T-266 の掴み代を掴んで離したとき、`GRS` は表 T-245 に従って値を置くこと。'
@@ -78,7 +78,7 @@ const PUTS = '置く値'
 const KEEPS = '据え置く値'
 
 const TEMPLATE = JSON.parse(
-  readFileSync(
+  readRepoFile(
     join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'),
     'utf8',
   ),

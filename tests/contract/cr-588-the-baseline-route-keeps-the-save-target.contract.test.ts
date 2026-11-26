@@ -1,6 +1,6 @@
 // CR-588 contract: the 'baseline' route opens the OP-2 chooser (OP-15) and never moves the save target FR-060 overwrites (OP-9).
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { beforeEach, describe, expect, it } from 'vitest'
@@ -19,9 +19,9 @@ import {
 import { unbroken } from './spec-table'
 
 const SPEC = join(process.cwd(), 'docs', 'spec')
-const REQUIREMENTS = unbroken(readFileSync(join(SPEC, '01-04-requirements.md'), 'utf8'))
-const GLOSSARY = unbroken(readFileSync(join(SPEC, '_assets', 'tbl-glossary.md'), 'utf8'))
-const MACHINES = readFileSync(join(SPEC, '_source', 'state-machines.json'), 'utf8')
+const REQUIREMENTS = unbroken(readRepoFile(join(SPEC, '01-04-requirements.md'), 'utf8'))
+const GLOSSARY = unbroken(readRepoFile(join(SPEC, '_assets', 'tbl-glossary.md'), 'utf8'))
+const MACHINES = readRepoFile(join(SPEC, '_source', 'state-machines.json'), 'utf8')
 
 const OP_15_OPENS_THE_CHOOSER = '**`OP-2` のファイル選択と同じ画面を開き、選んだファイルを重ねる用途で開くこと（MUST）**'
 const OP_15_CLOSED_WITHOUT_A_FILE = '⚠️ 選ばずに閉じたときは何も変えない'

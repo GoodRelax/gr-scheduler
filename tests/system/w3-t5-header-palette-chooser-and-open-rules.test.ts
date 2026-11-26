@@ -3,15 +3,15 @@
 // Why: positions, widths and what is printed are decided by layout in a real browser; every expected value is read from docs/spec.
 
 import { expect, test, type Page } from '@playwright/test'
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { bare, bareAll, specTable, unbroken } from '../contract/spec-table'
 import { answerConfirmation, icon, press, settle } from '../use-case/uc-harness'
 
 const SPEC = join(process.cwd(), 'docs', 'spec')
-const REQUIREMENTS = unbroken(readFileSync(join(SPEC, '01-04-requirements.md'), 'utf8'))
-const GLOSSARY = unbroken(readFileSync(join(SPEC, '_assets', 'tbl-glossary.md'), 'utf8'))
+const REQUIREMENTS = unbroken(readRepoFile(join(SPEC, '01-04-requirements.md'), 'utf8'))
+const GLOSSARY = unbroken(readRepoFile(join(SPEC, '_assets', 'tbl-glossary.md'), 'utf8'))
 
 // Spec: HF-10
 const HF_10_COUNT_PLACE =
@@ -41,12 +41,12 @@ test.use({ viewport: VIEWPORT, locale: 'ja-JP' })
 // Why: half a pixel either way is subpixel layout, not a different place.
 const SUBPIXEL = 0.5
 
-const WORDS = JSON.parse(readFileSync(join(SPEC, '_source', 'display-words.json'), 'utf8')) as {
+const WORDS = JSON.parse(readRepoFile(join(SPEC, '_source', 'display-words.json'), 'utf8')) as {
   fileStatus: { state: string; text: { ja: string; en: string } }[]
 }
 const NEVER_SAVED_JA = WORDS.fileStatus.find((one) => one.state === 'neverSaved')?.text.ja ?? ''
 
-const TEMPLATE_TEXT = readFileSync(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8')
+const TEMPLATE_TEXT = readRepoFile(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8')
 
 // Spec: S-75, S-77, S-78
 const settingKey = (id: string): string => {

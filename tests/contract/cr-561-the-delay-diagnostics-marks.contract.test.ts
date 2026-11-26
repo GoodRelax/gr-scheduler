@@ -1,6 +1,6 @@
 // CR-561 spec-only tests: the DG-1 / DG-2 / DG-3 progress marks of table T-315, chosen and drawn.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -27,7 +27,7 @@ import {
 import { bare, specTable, unbroken } from './spec-table'
 import { taskGroupDocument, SCREEN, taskOf } from '../unit/cr-541-stage'
 
-const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
+const REQUIREMENTS = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
 const verticalIn = (table: string, id: string) => {
   const found = specTable(table).rows.find((one) => one.id === id)

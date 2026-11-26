@@ -32,6 +32,10 @@ import re
 import subprocess
 import sys
 
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                '..', '..', '..', 'tools'))
+import spec_files  # noqa: E402
+
 PATTERN = re.compile(
     u'(?<![A-Za-z0-9_-])(?:[Ss]emi-pure-[ab]|semiPure[AB])(?![A-Za-z0-9_])'
     u'|準純粋(?:-[ab]|[ 　]?[AB])(?![A-Za-z0-9_])')
@@ -80,7 +84,7 @@ def say(message):
 
 def tracked(root):
     out = subprocess.check_output(['git', 'ls-files'], cwd=root)
-    return [p for p in out.decode('utf-8').split('\n') if p.strip()]
+    return spec_files.listed_paths(p for p in out.decode('utf-8').split('\n') if p.strip())
 
 
 def excluded(rel, excluded_files):
@@ -101,7 +105,10 @@ def main(argv):
             continue
         path = os.path.join(root, rel)
         try:
-            text = io.open(path, 'rb').read().decode('utf-8')
+            if spec_files.is_split_document(rel, root):
+                text = spec_files.read_document(rel, root)
+            else:
+                text = io.open(path, 'rb').read().decode('utf-8')
         except (IOError, OSError, UnicodeDecodeError):
             continue
         scanned += 1

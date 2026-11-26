@@ -10,7 +10,8 @@
 #
 # then add up the ranges in the headings (1-4 is four, 5-10 is six, and so
 # on). A heading may carry several numbers because one script answers them.
-# The ranges today are 1 + 4 + 8 + 4 + 78. (Recounted 2026-11-25 at check 98
+# The ranges today are 1 + 4 + 8 + 4 + 79. (Recounted 2026-11-27 at check 99
+# (the part files of the split documents, plan B9): 78 + 1. Recounted 2026-11-25 at check 98
 # (screen words in code, JDG-3836): 77 + 1. Recounted 2026-11-24 at checks 95-97
 # (the test record of JDG-3827, @purity coverage of R7, the R1b gap counts): 74 + 3. Recounted 2026-11-08 at check 94
 # (the retired purity values, CR-859): 73 + 1. Recounted 2026-10-24 at checks 91-93
@@ -551,8 +552,19 @@ strictdoc export docs/spec --formats=json --output-dir "$SD" \
 }
 
 echo "-- 1. node counts"
-jq -c '[.DOCUMENTS[] | recurse(.NODES[]?) | ._NODE_TYPE]
-       | group_by(.) | map({(.[0]): length}) | add' "$J"
+# Why: a later part of a split document (tools/spec_files.py) is a DOCUMENT
+# of its own that repeats the SECTION headings it continues and holds the
+# marker line as a TEXT; those nodes are counted once, as in the whole file.
+jq -c --slurpfile sf docs/spec/_source/spec-files.json '
+  def chain: ., (.NODES[0]? // empty | chain);
+  def counts: group_by(.) | map({(.[0]): length}) | add;
+  ($sf[0].marker | split("{first}")[0]) as $marker
+  | ([.DOCUMENTS[] | recurse(.NODES[]?) | ._NODE_TYPE] | counts) as $all
+  | ([.DOCUMENTS[] | [chain] as $c
+      | ($c | map(._NODE_TYPE == "TEXT"
+                  and ((.STATEMENT // "") | startswith($marker))) | index(true)) as $k
+      | select($k != null) | $c[0:$k + 1][] | ._NODE_TYPE] | counts // {}) as $repeated
+  | $all | with_entries(.value -= ($repeated[.key] // 0))' "$J"
 
 echo "-- 2. parentless nodes (expect none)"
 out=$(jq -r '.DOCUMENTS[] | recurse(.NODES[]?)
@@ -1394,6 +1406,19 @@ section "98  src/ looks a screen word up by its row ID, never by a glossary key 
 # identifier-shaped label, "+" and a generated region stay green.
 node "$HERE/check-screen-words-in-code.mjs" --self-test >/dev/null || { echo "FAIL the self-test of check-screen-words-in-code.mjs"; failed; }
 node "$HERE/check-screen-words-in-code.mjs" || failed
+
+echo ""
+section "99  the part files of a split document join back into that document"
+# Plan B9 split 01-04-requirements.md and 05-07-design.md into part files;
+# docs/spec/_source/spec-files.json names the parts and where each is cut.
+# Every reader asks for a whole document by its old name and gets the part
+# bodies joined (tools/spec_files.py), so a part whose StrictDoc header,
+# repeated headings or marker line was edited by hand, or a part that went
+# missing, would hand every check above a document that is not the one the
+# manifest implies. MEASURED 2026-11-27: 2 documents, 21 part files, 0
+# problems. MEASURED by breaking it, in a scratch copy: a part's UID line
+# changed, and a part file removed, each go red naming the file.
+PYTHONIOENCODING=utf-8 python tools/spec_files.py --check || failed
 
 echo ""
 section "NOT COVERED  what this run did not look at"

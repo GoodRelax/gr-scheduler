@@ -1,6 +1,6 @@
 // CR-765 spec-only tests: each MCP tool's input schema is derived from the argument column of table T-107 (design-mcp-relay.md 3.1).
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -16,7 +16,7 @@ const { members } = printedMembers()
 
 const settled = (text: string): string => text.replace(/\s+/g, ' ')
 
-const DESIGN = settled(readFileSync(join(SPEC, '_assets', 'design-mcp-relay.md'), 'utf8'))
+const DESIGN = settled(readRepoFile(join(SPEC, '_assets', 'design-mcp-relay.md'), 'utf8'))
 
 const RULE_OF_TYPES =
   "入力の型は TS の型から導く —— `string` は文字列、`number` は数、`boolean` は真偽、数の並びは数の並び、文字列の並びは文字列の並び（CR-802）、文字列の値の並び（`'a' | 'b'`）は文字列の `enum`、名の付いた型はオブジェクト。"
@@ -87,7 +87,7 @@ interface DescriptionsFile {
   }[]
 }
 
-const FILE = JSON.parse(readFileSync(DESCRIPTIONS, 'utf8')) as DescriptionsFile
+const FILE = JSON.parse(readRepoFile(DESCRIPTIONS, 'utf8')) as DescriptionsFile
 
 describe('design-mcp-relay.md 3.1 still says how an input is derived from table T-107', () => {
   it.each([

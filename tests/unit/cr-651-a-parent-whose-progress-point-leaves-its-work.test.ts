@@ -1,6 +1,6 @@
 // CR-651: a parent whose progress point leaves the points of its work is told as a doubt (T-311 VS-6).
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -35,7 +35,7 @@ interface SettingRow {
 }
 
 const SETTING_ROWS: readonly SettingRow[] = (
-  JSON.parse(readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'settings.json'), 'utf8')) as {
+  JSON.parse(readRepoFile(join(process.cwd(), 'docs', 'spec', '_source', 'settings.json'), 'utf8')) as {
     blocks: { rows?: SettingRow[] }[]
   }
 ).blocks.flatMap((block) => block.rows ?? [])
@@ -59,16 +59,16 @@ const CM_87_NAME = bare(cellOf('T-108', 'CM-87', '確定名')).replace(/`/g, '')
 
 // Spec: FR-073
 // Why: CR-651 E-11 raised the version; CR-699 raised it again, so the bundled documents follow the manifest.
-const SCHEMA_VERSION = (JSON.parse(readFileSync(
+const SCHEMA_VERSION = (JSON.parse(readRepoFile(
   join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template-manifest.json'),
   'utf8',
 )) as { schemaVersion: string }).schemaVersion
 
-const TEMPLATE_TEXT = readFileSync(
+const TEMPLATE_TEXT = readRepoFile(
   join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'),
   'utf8',
 )
-const EMPTY_DOCUMENT_TEXT = readFileSync(
+const EMPTY_DOCUMENT_TEXT = readRepoFile(
   join(process.cwd(), 'src', 'framework', 'single-html-shell', 'empty-document.json'),
   'utf8',
 )
@@ -438,7 +438,7 @@ function currentDocument(tolerance?: number): Document {
 }
 
 function sampleDocument(file: string, current: Document = currentDocument()): Document {
-  const read = documentFromMspdi(readFileSync(join(file === LARGE_FILE ? FIXTURE_DIR : SAMPLE_DIR, file), 'utf8'), current)
+  const read = documentFromMspdi(readRepoFile(join(file === LARGE_FILE ? FIXTURE_DIR : SAMPLE_DIR, file), 'utf8'), current)
   if (!read.ok) throw new Error(`${file} was refused: ${JSON.stringify(read.faults)}`)
   return read.document
 }

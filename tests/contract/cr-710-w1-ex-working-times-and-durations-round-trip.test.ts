@@ -1,6 +1,6 @@
 // CR-710 wave 1 (spec-only): WorkingTimes, Duration, ActualDuration and Stop through the MSPDI and GRS JSON codecs, and the import check of IV-24.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -35,8 +35,8 @@ import {
   type CalendarParts,
 } from './cr-710-w1-stage'
 
-const ERD = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '_assets', 'fig-erd-detail.md'), 'utf8'))
-const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
+const ERD = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '_assets', 'fig-erd-detail.md'), 'utf8'))
+const REQUIREMENTS = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
 // Spec: DV-8, DV-11, AT-158, AT-159
 const CLAUSES = [

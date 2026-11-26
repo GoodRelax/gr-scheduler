@@ -1,6 +1,6 @@
 // CR-601 spec-only cases: which inputs keep the landing mark while the view moves, and which clear it.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { afterEach, describe, expect, it } from 'vitest'
@@ -44,7 +44,7 @@ const numberIn = (cell: string): number => {
 }
 
 const STATE_MACHINES = unbroken(
-  readFileSync(join(process.cwd(), 'docs', 'spec', '_assets', 'tbl-state-machines.md'), 'utf8'),
+  readRepoFile(join(process.cwd(), 'docs', 'spec', '_assets', 'tbl-state-machines.md'), 'utf8'),
 )
 
 const EL_17 = rowCells('T-303', 'EL-17')
@@ -185,7 +185,7 @@ const outlinesOf = (svg: string): readonly Element[] =>
 const MODS: InputModifiers = { ctrl: false, shift: false, alt: false, meta: false }
 
 const TEMPLATE = JSON.parse(
-  readFileSync(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
+  readRepoFile(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
 ) as Record<string, any>
 
 type Loose = Record<string, unknown>

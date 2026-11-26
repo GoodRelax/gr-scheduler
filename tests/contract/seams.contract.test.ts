@@ -15,7 +15,8 @@
 // A failure names the row of table T-065, so it points at one line of the
 // specification.
 
-import { existsSync, readFileSync } from 'node:fs'
+import { existsSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
 import { bare, specTable } from './spec-table'
@@ -56,7 +57,7 @@ const folderOf = (component: string): string => {
   return join('src', folder, kebab(component))
 }
 
-const read = (path: string): string => readFileSync(path, 'utf8')
+const read = (path: string): string => readRepoFile(path, 'utf8')
 
 const seams = T065.rows.map((row) => ({
   id: row.id,

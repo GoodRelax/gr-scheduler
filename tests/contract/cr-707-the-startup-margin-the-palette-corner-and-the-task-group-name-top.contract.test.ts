@@ -1,6 +1,6 @@
 // CR-707: the startup margin (OP-10, S-534), the palette's default corner (S-535) and the task group name's top (FR-085).
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { afterEach, describe, expect, it } from 'vitest'
@@ -24,11 +24,11 @@ const OP_10_WRITTEN =
 const FR_053_CORNER = '`GRS` は、既定の角を、`_assets/tbl-settings.md` の 表 T-206 の `S-535` に従わせること。'
 const FR_085_TOP = '`GRS` は、タスクグループ名を、タスクグループパネルのタスクグループの箱の上端に寄せて置くこと（タスクグループが名前の 1 行より高いときも同じ）。'
 
-const REQUIREMENTS = readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8')
+const REQUIREMENTS = readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8')
 
 const STARTUP_MARGIN_PX = settingNumber('S-134') / 2 + settingNumber('S-268') / 2
 
-const TEMPLATE_TEXT = readFileSync(
+const TEMPLATE_TEXT = readRepoFile(
   join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'),
   'utf8',
 )

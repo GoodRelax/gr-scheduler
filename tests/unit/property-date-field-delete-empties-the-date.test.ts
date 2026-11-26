@@ -1,6 +1,6 @@
 // Property panel dates: Delete / Backspace empties the whole date, and the empty commit follows JDG-366 / FR-044.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -48,7 +48,7 @@ import {
 } from '../fixtures/fake-browser'
 import { bare, specTable, unbroken } from '../contract/spec-table'
 
-const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
+const REQUIREMENTS = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
 const RULING_2026_09_23 = 'user ruling 2026-09-23: Delete or Backspace while editing a date empties the whole date'
 const JDG_366_NO_DATELESS_TASK =

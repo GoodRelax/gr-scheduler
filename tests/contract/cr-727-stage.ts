@@ -1,6 +1,6 @@
 // CR-727 spec-only stage: the screen regions, an empty document and the readings screenViewFromRegions needs (copied from the CR-620 contract test).
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import {
@@ -23,7 +23,7 @@ import { unbroken } from './spec-table'
 
 const SPEC = join(process.cwd(), 'docs', 'spec')
 
-export const specText = (...parts: readonly string[]): string => unbroken(readFileSync(join(SPEC, ...parts), 'utf8'))
+export const specText = (...parts: readonly string[]): string => unbroken(readRepoFile(join(SPEC, ...parts), 'utf8'))
 
 export function rowLine(text: string, id: string): string {
   const found = text.split('\n').find((line) => line.startsWith(`| ${id} |`))
@@ -34,12 +34,12 @@ export function rowLine(text: string, id: string): string {
 type Words = Readonly<Record<string, string>>
 type Section = readonly { readonly part?: string; readonly specTableRowId?: string; readonly text?: Words; readonly hint?: Words }[]
 
-export const MANUSCRIPT_WORDS = JSON.parse(readFileSync(join(SPEC, '_source', 'display-words.json'), 'utf8')) as Record<
+export const MANUSCRIPT_WORDS = JSON.parse(readRepoFile(join(SPEC, '_source', 'display-words.json'), 'utf8')) as Record<
   string,
   Section
 >
 export const GENERATED_WORDS = JSON.parse(
-  readFileSync(join(process.cwd(), 'src', 'adapter', 'screen-renderer', 'display-words.json'), 'utf8'),
+  readRepoFile(join(process.cwd(), 'src', 'adapter', 'screen-renderer', 'display-words.json'), 'utf8'),
 ) as Record<string, Section>
 
 export const LANGUAGES: readonly DisplayLanguage[] = ['ja', 'en'] as DisplayLanguage[]

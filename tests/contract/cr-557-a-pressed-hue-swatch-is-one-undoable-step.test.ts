@@ -1,6 +1,6 @@
 // CR-557 seams S-3 and S-4: a pressed theme hue swatch issues CM-5 once, and one undo takes it back.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -52,7 +52,7 @@ import {
 } from '../fixtures/fake-browser'
 import { bare, specTable, unbroken } from './spec-table'
 
-const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
+const REQUIREMENTS = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
 const CLAUSE_ONE_CM_5 =
   'テーマ色の欄の行を押したとき、`GRS` は、押した行の色相で 表 T-108 の `CM-5` を 1 回発行すること。'
@@ -86,7 +86,7 @@ const UN_13_CLASS = bare(specTable('T-027').rows.find((one) => one.id === 'UN-13
 const TEMPLATE_PATH = join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json')
 
 function templateDocument(): Document {
-  const read = documentFromJson(readFileSync(TEMPLATE_PATH, 'utf8'))
+  const read = documentFromJson(readRepoFile(TEMPLATE_PATH, 'utf8'))
   if (!read.ok) throw new Error(`the bundled template is not GRS JSON: ${JSON.stringify(read.faults)}`)
   return read.document
 }

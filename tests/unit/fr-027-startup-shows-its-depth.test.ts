@@ -74,7 +74,7 @@
 // case below is derived from a quoted row.
 
 import { describe, expect, it } from 'vitest'
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { specTable } from '../contract/spec-table'
@@ -124,7 +124,7 @@ const TEMPLATE_PATH = join(
 type Loose = Record<string, unknown>
 
 const template = (): Document =>
-  JSON.parse(readFileSync(TEMPLATE_PATH, 'utf8')) as unknown as Document
+  JSON.parse(readRepoFile(TEMPLATE_PATH, 'utf8')) as unknown as Document
 
 const TEMPLATE = template()
 const SETTINGS = TEMPLATE.documentSettings as DocumentSettings

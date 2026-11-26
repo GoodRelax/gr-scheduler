@@ -1,6 +1,6 @@
 // CR-782 spec-only tests: placing a comment box (AR-5) selects it, puts the panel up and focuses PR-21.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { afterEach, describe, expect, it } from 'vitest'
@@ -31,7 +31,7 @@ import { specTable, unbroken } from './spec-table'
 
 afterEach(restoreAnimationFrames)
 
-const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
+const REQUIREMENTS = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
 // Spec: FR-019, AR-5, PR-21
 const PLACED_IS_SELECTED_AND_FOCUSED =

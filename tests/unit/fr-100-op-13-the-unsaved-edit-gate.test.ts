@@ -58,7 +58,7 @@
 // tests/contract/display-words.contract.test.ts. There is nothing left here to
 // weigh.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { afterEach, describe, expect, it } from 'vitest'
@@ -158,7 +158,7 @@ const CANCEL_ANSWER = 'cancel'
 // ---------------------------------------------------------------------------
 
 const TEMPLATE = JSON.parse(
-  readFileSync(
+  readRepoFile(
     join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'),
     'utf8',
   ),

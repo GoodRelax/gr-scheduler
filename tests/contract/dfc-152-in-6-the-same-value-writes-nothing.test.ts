@@ -77,7 +77,7 @@
 //      application the frame that `FT-1` raises redraws the panel first. Reported
 //      rather than settled here.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -176,7 +176,7 @@ function settledName(id: string): string {
 /** `U-25` -- the `Properties Panel`. */
 const U_25 = settledName('U-25')
 
-const REQUIREMENTS = unbroken(readFileSync(
+const REQUIREMENTS = unbroken(readRepoFile(
   join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'),
   'utf8',
 ))

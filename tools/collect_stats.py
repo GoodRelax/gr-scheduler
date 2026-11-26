@@ -98,6 +98,8 @@ import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
+sys.path.insert(0, HERE)
+import spec_files  # noqa: E402
 OUT_DIR = os.path.join(ROOT, 'docs', 'development-records', 'measurements')
 OUT_FILE = os.path.join(OUT_DIR, 'stats.jsonl')
 BASELINE_DIR = os.path.join(ROOT, '.claude', 'skills', 'spec-graph-check')
@@ -234,10 +236,12 @@ def count_spec():
     files = chars = lines = 0
     for base, dirs, names in os.walk(root):
         dirs[:] = sorted(d for d in dirs if d not in SPEC_SKIP_DIRS)
-        for name in sorted(names):
+        for name in sorted(spec_files.listed_names(base, names)):
             if not name.lower().endswith('.md'):
                 continue
-            text = read_text(os.path.join(base, name))
+            path = os.path.join(base, name)
+            text = (spec_files.read_document(name) if name not in names
+                    else read_text(path))
             if text is None:
                 continue
             files += 1

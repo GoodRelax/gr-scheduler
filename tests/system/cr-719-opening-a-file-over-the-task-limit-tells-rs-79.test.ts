@@ -1,6 +1,6 @@
 // CR-719 spec-only system test on the built dist/index.html: opening a GRS JSON of 20001 tasks tells RS-79 and leaves the open document alone (FR-023, FR-076).
 import { expect, test } from '@playwright/test'
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { resolve } from 'node:path'
 import { settingNumber } from '../fixtures/setting-number'
 import { VIEWPORT, answerConfirmation, enableAgentApi, icon, launch, notificationText, press, readDocument, settle } from '../use-case/uc-harness'
@@ -8,11 +8,11 @@ import { VIEWPORT, answerConfirmation, enableAgentApi, icon, launch, notificatio
 test.use({ viewport: VIEWPORT, locale: 'en-US' })
 
 const SPEC = resolve('docs', 'spec')
-const REQUIREMENTS = readFileSync(resolve(SPEC, '01-04-requirements.md'), 'utf8').replace(/\r\n/g, '\n')
-const WORDS = JSON.parse(readFileSync(resolve(SPEC, '_source', 'display-words.json'), 'utf8')) as {
+const REQUIREMENTS = readRepoFile(resolve(SPEC, '01-04-requirements.md'), 'utf8').replace(/\r\n/g, '\n')
+const WORDS = JSON.parse(readRepoFile(resolve(SPEC, '_source', 'display-words.json'), 'utf8')) as {
   reasons: { specTableRowId: string; text: { ja: string; en: string }; nextStep: { ja: string; en: string } }[]
 }
-const TEMPLATE = JSON.parse(readFileSync(resolve('src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8')) as Record<string, any>
+const TEMPLATE = JSON.parse(readRepoFile(resolve('src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8')) as Record<string, any>
 
 const FR_023_OVER_THE_LIMIT_IS_NOT_TAKEN =
   'もし入力が資源の上限（ファイルサイズ・件数・WBS のネストの深さ・解釈しない要素のネストの深さ）を超える場合、`GRS` は、その入力を取り込まないこと。\n\n**表 T-648 — 資源の上限を超えた入力を取り込まないことの実装仕様**\n\n| 行 ID | 何についてか | 実装仕様 | traces |\n| --- | --- | --- | --- |\n| IMPS-938 | 資源の上限 | `GRS` は、資源の上限を `_assets/tbl-settings.md` の表 T-211 に従って持つこと。 | FR-342 |\n| IMPS-939 | 超えたときの通知 | もし入力が資源の上限を超える場合、`GRS` は、超えた上限に当たる 表 T-233 の行を通知の仕組みへ運ぶこと'

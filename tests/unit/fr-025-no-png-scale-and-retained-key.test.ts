@@ -1,6 +1,6 @@
 // Unit test: FR-025 forbids a PNG export scale and drops a retired settings key on reading.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -34,7 +34,7 @@ import { specTable, unbroken } from '../contract/spec-table'
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-const REQUIREMENTS = unbroken(readFileSync(
+const REQUIREMENTS = unbroken(readRepoFile(
   join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'),
   'utf8',
 ))
@@ -259,7 +259,7 @@ describe('FR-025 (MUST NOT) -- exportPng carries no scale', () => {
 })
 
 const TEMPLATE = JSON.parse(
-  readFileSync(
+  readRepoFile(
     join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'),
     'utf8',
   ),
