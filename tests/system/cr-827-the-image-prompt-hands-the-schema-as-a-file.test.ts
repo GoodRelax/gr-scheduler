@@ -12,12 +12,12 @@ import { rowOf } from './sws-case'
 const ROOT = process.cwd()
 
 const FR_068_NO_SCHEMA =
-  '⛔ コピーするプロンプトに `GRS JSON` のスキーマを入れてはならない（MUST NOT） —— スキーマは下のファイルで渡す。'
+  '`GRS` は、コピーするプロンプトに、`GRS JSON` のスキーマを入れないこと。'
 const FR_068_DOWNLOAD =
-  '⭐ 同じ押下で、`GRS JSON` のスキーマ（`05-07-design.md` の 6.2 が起こす `_source/grs-document.schema.json`）を 表 T-024 の `IO-10` のファイルとして、閲覧環境のダウンロードに渡すこと（MUST） —— 保存の選択面（`FR-096`）を開かない。'
-const FR_068_NAME = '名は `grs-document.schema.json` に固定し、中身はスキーマを空白を除いた 1 行の JSON にしたものとする。'
+  '作成者が 表 T-109 の `IC-115` を押したとき、`GRS` は、同じ押下で、`GRS JSON` のスキーマ（`05-07-design.md` の 6.2 が起こす `_source/grs-document.schema.json`）を 表 T-024 の `IO-10` のファイルとして、保存の選択面（`FR-096`）を開かずに、閲覧環境のダウンロードに渡すこと。'
+const FR_068_NAME = '`GRS` は、ダウンロードに渡すスキーマのファイルの名を `grs-document.schema.json` に固定すること。`GRS` は、ファイルの中身を、スキーマを空白を除いた 1 行の JSON にしたものとすること。'
 const FR_068_TELL =
-  '⭐ コピーできたときは、コピーしたことと次に行うこと（プロンプトとダウンロードしたスキーマのファイルを AI に渡す）を告げること（MUST） —— 運ぶ理由は 表 T-233 の `RS-65` とする。'
+  '`GRS` がプロンプトをコピーできたとき、`GRS` は、コピーしたことと次に行うこと（プロンプトとダウンロードしたスキーマのファイルを AI に渡す）を告げること（運ぶ理由は 表 T-233 の `RS-65`）。'
 
 const SCHEMA_FILE_NAME = 'grs-document.schema.json'
 const SCHEMA = JSON.parse(readFileSync(join(ROOT, 'docs', 'spec', '_source', SCHEMA_FILE_NAME), 'utf8')) as unknown

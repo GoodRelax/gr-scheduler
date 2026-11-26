@@ -13,11 +13,11 @@ const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '
 
 // Why: each constant ends exactly at its marker, cut from the manuscript as check 39 reads it.
 const FR_006_FITS =
-  '⭐ 表 T-016 の `入力の型` が `選択` の操作子のうち、候補を文書の中の名から集めるもの（候補がスキーマの選択肢でないもの）にも、上の「要る幅より狭い幅を割ってはならない」を当てず、パネルの幅の中に収めること（MUST）'
-const FR_006_NO_OVERFLOW = '。⛔ その操作子をパネルの右へはみ出させてはならない（MUST NOT）'
-const FR_006_ELLIPSIS = '⭐ 欄の幅に入り切らない名は、欄の中で後ろを省き、省いたことを「…」で示すこと（MUST）'
-const FR_006_VALUE_KEPT = '名を省かずに読むのは、開いた候補の一覧である。⛔ 省くのは見せ方であり、値を変えてはならない（MUST NOT）'
-const FR_006_FLOOR = '⛔ 1 つの操作子に、その値を出すのに要る幅より狭い幅を割ってはならない（MUST NOT）'
+  '`GRS` は、表 T-016 の `入力の型` が `選択` の操作子のうち、候補を文書の中の名から集めるもの（候補がスキーマの選択肢でないもの）に `IMPS-41` を当てず、操作子をパネルの幅の中に収めること'
+const FR_006_NO_OVERFLOW = '`GRS` は、候補を文書の中の名から集める選択の操作子をパネルの右へはみ出させないこと'
+const FR_006_ELLIPSIS = '`GRS` は、候補を文書の中の名から集める選択の欄の幅に入り切らない名を、欄の中で後ろを省き、省いたことを「…」で示すこと'
+const FR_006_VALUE_KEPT = '`GRS` は、名を省くことで値を変えないこと'
+const FR_006_FLOOR = '`GRS` は、1 つの操作子に、値を出すのに要る幅（`FR-093` の概算に、操作子の字の大きさへ `_assets/tbl-settings.md` の 表 T-206 の `S-199` を掛けた幅を足した幅）より狭い幅を割らないこと'
 
 const SHIPPED_BUILD = join(process.cwd(), 'dist', 'index.html')
 const SCREEN = screenOf(rowOf(specTable('T-025'), 'MC-6'))

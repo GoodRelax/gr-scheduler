@@ -14,16 +14,16 @@ const REQUIREMENTS = unbroken(readFileSync(join(SPEC, '01-04-requirements.md'), 
 const SETTINGS_BOOK = unbroken(readFileSync(join(SPEC, '_assets', 'tbl-settings.md'), 'utf8'))
 
 // Spec: FR-006, FR-072, S-171
-const FR_006_FITS_AT_DEFAULT = '⭐ 中身ごとの既定の幅（`FR-052`）では横に送らずに収まる —— 横に送るのは、人が既定より狭めたときだけである。'
-const FR_006_SCROLL_NOT_SHRINK = 'パネルを横に送って見せ、選びを縮めない。'
-const FR_006_EMPTY_IS_AS_WIDE = '`S-590` を掛けた幅とすること（MUST）。⭐ 値が空でも同じ幅とすること（MUST）'
+const FR_006_FITS_AT_DEFAULT = 'パネルが中身ごとの既定の幅（`FR-052`）である間、`GRS` は、パネルを横に送らずに選びを収めること。'
+const FR_006_SCROLL_NOT_SHRINK = '`GRS` は、選びを縮めずに、パネルを横に送って見せること。'
+const FR_006_EMPTY_IS_AS_WIDE = '`GRS` は、値が空の日付の欄にも、`IMPS-44`・`IMPS-45` の幅を割ること。'
 const FR_006_BREAK_AT_MARKS =
-  '⭐ 項目名が項目名の欄の 1 行に収まらないときは、`FR-038` の辞書がその語に持つ折り目でだけ折り、折った行の長さがなるべくそろう折り目を選ぶこと（MUST）'
-const FR_006_LONG_PIECE = '⛔ 1 つの区切りが項目名の欄より長いときに限り、その区切りの中で折ってよい'
+  '項目名が項目名の欄の 1 行に収まらないとき、`GRS` は、`FR-038` の辞書が語に持つ折り目でだけ項目名を折ること（折り目を持たない語は `IMPS-38`、1 つの区切りが欄より長いときは `IMPS-39` を除く）。 | FR-006 |\n| IMPS-37 | 折り目の選び方 | 項目名が項目名の欄の 1 行に収まらないとき、`GRS` は、折った行の長さがなるべくそろう折り目を選ぶこと。'
+const FR_006_LONG_PIECE = '1 つの区切りが項目名の欄より長いときに限り、`GRS` は、区切りの中で項目名を折ってもよい。'
 const FR_006_OTHER_DATE_FIELDS = '⭐ 本段の日付と日時の要る幅は、`GRS` が描くほかの日付の欄にも当てること（MUST）'
 const FR_072_CLOSE_ROW =
-  '⭐ パネルの先頭に、閉じる入口（`_assets/tbl-glossary.md` の 表 T-109 の `IC-52`）だけの行を置き、閉じる入口をその行の右端に置くこと（MUST）'
-const T_369_FOLDABLE = '見出しを押すとその組を畳め、初めはどの組も開いている。'
+  '`GRS` は、プロパティパネルが文書の設定と選択物のどちらを出していても、パネルの先頭に、閉じる入口（`_assets/tbl-glossary.md` の 表 T-109 の `IC-52`）だけの行を置くこと（表 T-369 の行の上）。 | FR-072 |\n| IMPS-91 | 閉じる入口の置き場 | `GRS` は、閉じる入口を、閉じる入口だけの行の右端に置くこと。'
+const T_369_FOLDABLE = '組の見出しを押したとき、`GRS` は、見出しの組を畳むこと。 | FR-072 |\n| IMPS-110 | 組の初めの状態 | `GRS` は、初めはどの組も開いて出すこと。'
 const S_171_RULE = '横にはみ出さず、どの項目名も 2 行以内に収まる最も小さい幅とする'
 
 const SHIPPED_BUILD = join(process.cwd(), 'dist', 'index.html')

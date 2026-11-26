@@ -12,49 +12,49 @@ const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '
 
 // Spec: FR-039
 // Why: CR-690 -- table T-369 places the font size field (FO-4) right under the display scale field (FO-3).
-const FONT_SIZE_STEP_FIELD = '文字サイズを選ぶ欄を同表の `FO-4` の場所に置き、表 T-202 の `S-70` の 3 段を選ばせ、選ばれた段で同表の `CM-62` を 1 回発行すること（MUST）'
+const FONT_SIZE_STEP_FIELD = '`GRS` は、文字サイズを選ぶ欄を、`FR-072` の 表 T-369 の `FO-4` の場所に置くこと。 | FR-039 |\n| IMPS-1241 | 文字サイズを選ぶ欄の段 | `GRS` は、文字サイズを選ぶ欄に、`_assets/tbl-settings.md` の 表 T-202 の `S-70` の 3 段を選ばせること。 | FR-039 |\n| IMPS-1242 | 文字サイズを選んだとき | `GRS` は、文字サイズを選ぶ欄で選んだ段で、表 T-108 の `CM-62` を 1 回発行すること。'
 const OTHER_TEXT_WEIGHT =
-  '⭐ 名称ラベル・`NT-7` の頭 1 文字・`Document Title`・遅延診断レポートの【再診断】（表 T-109 の `IC-168`、`S-623`）のほかの字は、すべて `_assets/tbl-settings.md` の 表 T-206 の `S-529` の太さで描くこと（MUST）'
+  '`GRS` は、名称ラベル・`NT-7` の頭 1 文字・`Document Title`・遅延診断レポートの【再診断】（表 T-109 の `IC-168`、`S-623`）のほかの字を、すべて `_assets/tbl-settings.md` の 表 T-206 の `S-529` の太さで描くこと。'
 
 // Spec: FR-096
-const FORMAT_BUTTON_GAP = '⭐ 上下に隣り合う 2 つの形式のボタンのあいだは、`_assets/tbl-settings.md` の 表 T-206 の `S-517` の隔たりとすること（MUST）'
+const FORMAT_BUTTON_GAP = '`GRS` は、上下に隣り合う 2 つの形式のボタンのあいだを、`_assets/tbl-settings.md` の 表 T-206 の `S-517` の隔たりとすること。'
 
 // Spec: FR-052
 const HELD_WIDTH_IS_RELEASED_WIDTH =
-  '⭐ 掴んでいるあいだに描くタスクグループパネルの幅は、その時点のポインタ位置で離したときに `FR-039` の 表 T-252 の後の段が保存する `S-79` を、同じ段の規則で描いた幅とすること（MUST）'
+  '境界を掴んでいる間、`GRS` は、タスクグループパネルの幅を、境界を掴んでいる時点のポインタ位置で離したときに `FR-039` の 表 T-252 の後の段が保存する `S-79` を、表 T-252 の後の段の規則で描いた幅にすること。'
 
 // Spec: MK-13, T-023
-const TITLE_DOUBLE_CLICK = '／`Document Title`（`_assets/tbl-glossary.md` の `U-27`） ＝ 表 T-036 の `SK-9` が開くのと同じ、その場で編集する欄（`FR-035`）を開くこと（MUST）'
+const TITLE_DOUBLE_CLICK = '`GRS` は、`Document Title`（`_assets/tbl-glossary.md` の `U-27`）のダブルクリックで、表 T-036 の `SK-9` が開くのと同じ、その場で編集する欄（`FR-035`）を開くこと。'
 
 // Spec: CF-1, T-366
 const SOLVE_BEFORE_DRAWING =
-  'テーマ色（`themeHue`）・明暗（`themePreference`）・モノクロ（`isThemeMonochrome`）のどれかが変わったら、描く前に `CF-2` 〜 `CF-4` を、この順に 1 回解くこと（MUST）'
+  'テーマ色（`themeHue`）・明暗（`themePreference`）・モノクロ（`isThemeMonochrome`）のどれかが変わったとき、`GRS` は、描く前に `CF-2` → `CF-3` → `CF-4` の順に 1 回解くこと'
 
 // Spec: FR-036, T-335
 const CHOOSERS_FOLLOW_WB_10 =
-  '⭐ 保存の面（`_assets/tbl-glossary.md` の `U-54`、`FR-096`）と開く面（`U-56`、表 T-024a の `OP-16`）は、ウィンドウではなく `_assets/tbl-settings.md` の `S-99g` の面のままとし、タイトルバーと動かし方だけを本表の `WB-10` に従うこと（MUST）'
-const CHOOSERS_ARE_NOT_WINDOWS = 'ほかの操作を止めたままとすると定めた。⛔ 2 つに `WB-1` 〜 `WB-9` を当ててはならない（MUST NOT）'
+  '`GRS` は、保存の面（`_assets/tbl-glossary.md` の `U-54`、`FR-096`）と開く面（`U-56`、表 T-024a の `OP-16`）を、ウィンドウではなく `_assets/tbl-settings.md` の `S-99g` の面のままとし、タイトルバーと動かし方だけを 表 T-335 の `WB-10` に従わせること。'
+const CHOOSERS_ARE_NOT_WINDOWS = '`GRS` は、保存の面と開く面に `WB-1` 〜 `WB-9` を当てないこと。'
 
 // Spec: T-023, S-514, S-515, S-516
 const WHEEL_UNITS =
-  '行で報告されたときの 1 行の長さ、画素で報告されたときの 1 ノッチの長さ、行で報告されたときの 1 ノッチの行数は、`_assets/tbl-settings.md` の 表 T-206 の `S-514`・`S-515`・`S-516` に従うこと（MUST）'
+  '`GRS` は、行で報告されたときの 1 行の長さ、画素で報告されたときの 1 ノッチの長さ、行で報告されたときの 1 ノッチの行数を、`_assets/tbl-settings.md` の 表 T-206 の `S-514`・`S-515`・`S-516` に従わせること。'
 
 // Spec: IN-7, T-028
 const TOOLTIP_COLORS = '⭐ 説明の地・字・縁の色は、`_assets/tbl-settings.md` の 表 T-236 の `S-146`・`S-147`・`S-149` とすること（MUST）'
 
 // Spec: FR-100
-const NO_WARNING_WORDS = '印の遷移は `_assets/tbl-state-machines.md` の 表 T-290 の `unsavedEditsStateMachine` が持つ。**警告の文言を `GRS` が決めてはならない（MUST NOT）'
+const NO_WARNING_WORDS = '`GRS` は、未保存の編集の印の遷移を、`_assets/tbl-state-machines.md` の 表 T-290 の `unsavedEditsStateMachine` に従わせること。 | FR-100 |\n| IMPS-982 | 警告の文言 | `GRS` は、警告の文言を決めないこと。'
 
 // Spec: FR-046, DA-7
 const FIELD_SCROLLS_LIKE_THE_ENTRANCE =
-  '欄の名は `FR-038` の辞書が 表 T-109 の `IC-44` に持つ語とすること（MUST） —— 新しい語を作らない。⭐ 欄の形は `FR-158` の 表 T-375 の `TX-3` に従い、時刻を表示するときは日付と時刻の欄とし、打った分を丸めずに `statusDate` に書くこと（MUST） —— 打つのは狙った値であり、15 分の寄せはドラッグだけが持つ。時刻を表示しないときは日付の欄とし、終了の側の既定の時刻（表 T-350 の `WT-4`）を書く。欄で日付を確定したときも、上の「基準日線を出す操作」と同じく表示位置を横に送ること（MUST）'
+  '`GRS` は、基準日を打つ欄の名を、`FR-038` の辞書が 表 T-109 の `IC-44` に持つ語とすること。 | FR-046 |\n| IMPS-534 | 欄の形 | `GRS` は、基準日を打つ欄の形を `FR-158` の 表 T-375 の `TX-3` に従わせ、時刻を表示するときは日付と時刻の欄とすること。 | FR-046 |\n| IMPS-535 | 打った分 | 時刻を表示している間、欄で日付と時刻を確定したとき、`GRS` は、打った分を丸めずに `statusDate` に書くこと。 | FR-046 |\n| IMPS-536 | 時刻を表示しないときの欄 | 時刻を表示しない間、`GRS` は、基準日を打つ欄を日付の欄とすること。 | FR-046 |\n| IMPS-537 | 時刻を表示しないときに書く時刻 | 時刻を表示しない間、欄で日付を確定したとき、`GRS` は、終了の側の既定の時刻（表 T-350 の `WT-4`）を `statusDate` に書くこと。 | FR-046 |\n| IMPS-538 | 欄で確定したときの表示位置 | 欄で日付を確定したとき、`GRS` は、`IMPS-527` と同じく表示位置を横に送ること。'
 
 // Spec: HF-10, T-051
 const OPEN_ALL_NOT_OUTERMOST =
-  '⭐ 焦点が `Tab` で進む順も、この並びの左から右とすること（MUST） —— 見た目と違う順で焦点が飛ぶと、次に押されるのがどれかを読めない。⛔ **本行の「配下を展開」を並びのいちばん外へ置いてはならない（MUST NOT）'
+  '`GRS` は、焦点が `Tab` で進む順を、頭の並びの左から右とすること。`GRS` は、`HF-10` の「配下を展開」を並びのいちばん外へ置かないこと。'
 
 // Spec: FR-016, GA-7
-const FADE_FROM_POINTER = 'フェードの日数は、ポインタの位置から求めること（MUST）'
+const FADE_FROM_POINTER = '`GRS` は、フェードの日数をポインタの位置から求めること。'
 
 const CLAUSES = [
   FONT_SIZE_STEP_FIELD,

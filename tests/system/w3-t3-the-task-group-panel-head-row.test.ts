@@ -11,8 +11,8 @@ import { rowOf } from './sws-case'
 const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8').replace(/\r\n/g, '\n'))
 
 const CLAUSE_RIGHT_MARGIN =
-  '⭐ 並びのいちばん右の操作子（すべて消す）の外形と、タスクグループパネルの右端とのあいだを、タスクグループの並び（`HF-4`）と同じく `_assets/tbl-settings.md` の 表 T-206 の `S-313` とすること（MUST）'
-const CLAUSE_TAB_ORDER = '⭐ 焦点が `Tab` で進む順も、この並びの左から右とすること（MUST）'
+  '`GRS` は、頭の並びのいちばん右の操作子（すべて消す）の外形と、タスクグループパネルの右端とのあいだを、タスクグループの並び（`HF-4`）と同じく `_assets/tbl-settings.md` の 表 T-206 の `S-313` とすること'
+const CLAUSE_TAB_ORDER = '`GRS` は、焦点が `Tab` で進む順を、頭の並びの左から右とすること'
 
 // Spec: T-109
 const TASK_GROUP_PANEL = bare(specTable('T-103').rows.find((one) => one.id === 'U-22')?.by['確定名（英）'] ?? '')

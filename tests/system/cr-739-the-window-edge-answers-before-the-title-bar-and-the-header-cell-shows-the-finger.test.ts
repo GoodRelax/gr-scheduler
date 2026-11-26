@@ -8,15 +8,15 @@ import { bare, specTable, unbroken } from '../contract/spec-table'
 import { rowOf } from './sws-case'
 
 const GR_24_EDGE_FIRST =
-  '⭐ ただし、ウィンドウの縁（`GR-25`）を敷いた所では、本表の順によらず縁が本行より先に答える —— 上の辺の内側 `_assets/tbl-settings.md` の `S-426` の幅はタイトルバーの帯と重なるが、そこを引けば、ほかの辺と同じく大きさを変える'
+  '`GRS` は、ウィンドウの縁（`GR-25`）を敷いた所では、表 T-023d の順によらず、縁を `GR-24` より先に答えさせること。'
 const FR_106_TOP_OVER_TITLE =
-  '⭐ 上の辺と上の 2 つの角では、縁の内側がタイトルバーの帯（表 T-023d の `GR-24`）と重なる所でも、この形とすること（MUST） —— そこでは縁が答え、引けば大きさを変える（同表の `GR-24` の ⭐）。'
+  '`GRS` は、上の辺と上の 2 つの角では、縁の内側がタイトルバーの帯（表 T-023d の `GR-24`）と重なる所でも、`IMPS-1638` の形にすること。'
 const FR_106_EDGES =
-  'ウィンドウの縁の掴み代（表 T-023d の `GR-25`）では、左と右の辺は 表 T-269 の `PK-12`、上と下の辺は `PK-13`、左上と右下の角は `PK-14`、右上と左下の角は `PK-15` とすること（MUST）'
+  '`GRS` は、ウィンドウの縁の掴み代（表 T-023d の `GR-25`）では、左と右の辺を 表 T-269 の `PK-12`、上と下の辺を `PK-13`、左上と右下の角を `PK-14`、右上と左下の角を `PK-15` にすること'
 const FR_106_HEADER_FINGER =
-  '⭐ その帯の外で、見出しのセルが `IC-122` として答える所（見出しの語・`IC-122`・その間と左右と上下の詰め —— `FR-151` の 表 T-330 の `SV-7`）では、表 T-269 の `PK-7` とすること（MUST）'
-const SV_7_SHAPE = '⭐ そう答える所（帯の外の、見出しの語・`IC-122`・その間と左右と上下の詰め）のポインタの形は `FR-106` が持つ（表 T-269 の `PK-7`）。'
-const SV_7_CHECKBOX = '[表示] の列の見出しには `IC-122` を置かず、見出しのチェックボックスだけを置く'
+  '`GRS` は、`GR-28` の帯の外で、見出しのセルが `IC-122` として答える所（見出しの語・`IC-122`・語と `IC-122` の間と左右と上下の詰め —— `FR-151` の 表 T-330 の `SV-7`）では、表 T-269 の `PK-7` にすること'
+const SV_7_SHAPE = '答える所のポインタの形は `FR-106` が持つ（表 T-269 の `PK-7`）。'
+const SV_7_CHECKBOX = '`GRS` は、[表示] の列の見出しに、`IC-122` を置かずに、見出しのチェックボックスだけを置くこと'
 const WB_8_FOLLOWS = '握っているあいだ、ウィンドウをポインタに追従させること（MUST）'
 const WB_9_FOLLOWS = '縁と角（表 T-023d の `GR-25`）を握っているあいだ、ウィンドウの大きさをポインタに追従させること（MUST）'
 
@@ -85,7 +85,7 @@ test.describe('CR-739 the manuscript these cases are driven by', () => {
   })
   test('T-330 SV-7 points at FR-106 for the shape and leaves the SQ-10 checkbox to answer', () => {
     const say = cellOf('T-330', 'SV-7', '定め')
-    expect(say).toContain(SV_7_SHAPE)
+    expect(REQUIREMENTS).toContain(SV_7_SHAPE)
     expect(say).toContain(SV_7_CHECKBOX)
   })
   test('T-335 WB-8 and WB-9 follow the pointer, and S-426 / S-465 are px values', () => {

@@ -14,7 +14,7 @@ const { swsCase } = registry
 
 const T232: SpecTable = specTable('T-232')
 
-const T232_CELLS = 2
+const T232_CELLS = 3
 
 // Why: a row ID, not a value -- rule 03.3 has a note name the row and
 // never copy what the row says.

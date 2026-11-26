@@ -14,8 +14,8 @@ import { applyCommandsOf } from './w3-t1-stage'
 const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
 // Why: each constant ends exactly at its marker, cut from the manuscript as check 39 reads it.
-const FR_041_OWN_GROUND = '地の色を自分で塗ること（MUST）。閲覧環境のシステム色に委ねてはならない（MUST NOT）'
-const CF_1_NOT_SAVED = '| CF-1 | 解くとき | テーマ色（`themeHue`）・明暗（`themePreference`）・モノクロ（`isThemeMonochrome`）のどれかが変わったら、描く前に `CF-2` 〜 `CF-4` を、この順に 1 回解くこと（MUST）。解いた値を保存してはならない（MUST NOT）'
+const FR_041_OWN_GROUND = '`GRS` は、地の色を閲覧環境のシステム色に委ねないこと'
+const CF_1_NOT_SAVED = '| CF-1 | 解くとき | テーマ色（`themeHue`）・明暗（`themePreference`）・モノクロ（`isThemeMonochrome`）のどれかが変わったとき、`GRS` は、描く前に `CF-2` → `CF-3` → `CF-4` の順に 1 回解くこと（解いた値は表 T-384 の `IMPS-143` のとおり保存しない）'
 
 const THEME_TOGGLE = rowOf(specTable('T-109'), 'IC-16').id
 const AGENT_API = rowOf(specTable('T-109'), 'IC-20').id

@@ -12,15 +12,15 @@ const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '
 
 // Why: each constant ends exactly at its marker, cut from the manuscript as check 39 reads it.
 const FR_036_ONE_SCREEN =
-  'ない環境の両方で、ヘルプの言語が日本語でも英語でも、開いたときの大きさ（表 T-335 の `WB-1`）で全部の塊とライセンスの行（`FR-069`）を 1 画面に収め、縦にも横にもスクロールを要さないこと（MUST）'
+  'ない環境の両方で、ヘルプの言語が日本語でも英語でも、開いたときの大きさ（表 T-335 の `WB-1`）で全部の塊とライセンスの行（`FR-069`）を 1 画面に収め、縦にも横にもスクロールを要さないこと'
 const S_203_FITS_BOTH =
-  'ne-screen/` が持つ。⭐ 収めるためにヘルプの字を小さくしてよい —— `_assets/tbl-settings.md` の 表 T-206 の `S-203` は、上の 2 つの環境で日英の両方が収まる値とすること（MUST）'
+  '`GRS` は、`IMPS-1165` を満たすためにヘルプの字を小さくしてもよい。`_assets/tbl-settings.md` の 表 T-206 の `S-203` は、`IMPS-1165` の 2 つの環境で日英の両方が収まる値とすること'
 const FR_036_TWO_LINKS =
-  '⭐ ヘルプは、基本操作の塊（辞書の見出しの `basics`）の枠のすぐ上に、2 つのリンクを 1 行ずつ縦に並べて置くこと（MUST）'
+  '`GRS` は、ヘルプの基本操作の塊（辞書の見出しの `basics`）の枠のすぐ上に、2 つのリンクを 1 行ずつ縦に並べて置くこと'
 const FR_069_ONE_LINE =
-  'スの名・全文と帰属表示を開く入口の 3 つを 1 行に並べて常に見せ、全文と帰属表示はその下に折りたたんで置くこと（MUST）'
+  'スの名・全文と帰属表示を開く入口の 3 つを 1 行に並べて常に見せること。`GRS` は、全文と帰属表示を、3 つを並べた行の下に折りたたんで置くこと'
 const T_256_SPLIT =
-  '4` は後から足した段である）。⭐ `Command Palette` の入口を 2 つの塊に分け、表 T-109 の `群` が `揃える` の行を、`HC-4` の `Task Group Panel` の塊の下の塊へ移すこと（MUST）'
+  '`GRS` は、`Command Palette` の入口を 2 つの塊に分け、表 T-109 の `群` が `揃える` の行を、`HC-4` の `Task Group Panel` の塊の下の塊へ移すこと'
 const FR_036_LOW_SCREEN = '⚠️ 後者の環境の閲覧環境の窓は、CSS で約 1280 × 627 である'
 
 const SHIPPED_BUILD = join(process.cwd(), 'dist', 'index.html')

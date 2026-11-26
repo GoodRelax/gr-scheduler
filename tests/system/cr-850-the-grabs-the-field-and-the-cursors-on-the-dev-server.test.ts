@@ -12,9 +12,9 @@ import { taskGroupsDocument } from './w3-t1-stage'
 
 const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
-const FR_046_FIELD = '⭐ 欄の形は `FR-158` の 表 T-375 の `TX-3` に従い、時刻を表示するときは日付と時刻の欄とし、打った分を丸めずに `statusDate` に書くこと（MUST）'
-const T_378_READERS = '⭐ 本表の単位は、掴み代のほか、基準日線のドラッグ（`FR-046`）、デュアルカーソルの線（`FR-082` の 表 T-029a の `DC-3`）、ガイドカーソルの札（表 T-029 の `CU-3`）も読むこと（MUST）'
-const CY_5_FIFTEEN = '⭐ 15 分で寄せるとき（`SG-2`）は、寄せた分だけずらすこと（MUST）'
+const FR_046_FIELD = '時刻を表示している間、欄で日付と時刻を確定したとき、`GRS` は、打った分を丸めずに `statusDate` に書くこと'
+const T_378_READERS = '`GRS` は、表 T-378 の単位を、掴み代のほか、基準日線のドラッグ（`FR-046`）、デュアルカーソルの線（`FR-082` の 表 T-029a の `DC-3`）、ガイドカーソルの札（表 T-029 の `CU-3`）にも当てること'
+const CY_5_FIFTEEN = '15 分で寄せる（`SG-2`）間、`GRS` は、寄せた分だけコピーをずらすこと'
 
 const AGENT_API = rowOf(specTable('T-109'), 'IC-20').id
 const PROPERTIES = '[data-role="Properties Panel"]'

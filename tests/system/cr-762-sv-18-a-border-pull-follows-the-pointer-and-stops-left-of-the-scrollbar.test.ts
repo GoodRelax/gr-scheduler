@@ -7,14 +7,14 @@ import { REQUIREMENTS, pressEntrance } from './cr-570-tree-state-stage'
 import { bare, specTable, unbroken } from '../contract/spec-table'
 import { rowOf } from './sws-case'
 
-const SV_18_FOLLOW = '握っているあいだ、列の幅をポインタに追従させること（MUST）'
-const SV_18_ABORT = '幅が決まるのは離した時点、中断では元の幅へ戻す'
-const SV_18_OTHERS = 'その境目の左の列の幅を変える —— ほかの列の幅は変えず、右の列はその分だけ動く。'
-const SV_18_FLOOR = '幅の下限は `S-425` —— 見出しのセルに `IC-122` の箱と、セルの左右の詰めと罫が入る幅を、そのときの段で測った値である'
-const SV_18_RIGHT_EDGE = '境目を、表を出している領域の右の縁より右へ引いてはならない（MUST NOT）'
-const SV_18_SCROLLBAR = '⭐ 領域の右の縁は、縦のスクロールバーが出ているときはその左の縁とし、スクロールバーは領域に入れない'
-const SV_18_UNDER_SCROLLBAR = 'スクロールバーの下の境目は見えず、そこを押せばスクロールバーが答える'
-const RW_9_SAME = '`SV-18` と同じとし、列は 表 T-347 の列とする。'
+const SV_18_FOLLOW = '境目を握っている間、`GRS` は、列の幅をポインタに追従させること'
+const SV_18_ABORT = '境目を離したとき、`GRS` は、列の幅を決めること。境目を引くのを中断したとき、`GRS` は、列の幅を元の幅へ戻すこと'
+const SV_18_OTHERS = '見出し行の列の右の境目（表 T-023d の `GR-28`）を握って左右へ引いたとき、`GRS` は、境目の左の列の幅だけを変えること（ほかの列の幅は変えない）。見出し行の列の右の境目を握って左右へ引いたとき、`GRS` は、境目より右の列を、変えた幅の分だけ動かすこと。'
+const SV_18_FLOOR = '`GRS` は、列の幅の下限を `S-425` —— 見出しのセルに `IC-122` の箱と、セルの左右の詰めと罫が入る幅を、測るときの段で測った値 —— にすること'
+const SV_18_RIGHT_EDGE = '`GRS` は、境目を、表を出している領域の右の縁より右へ引かせないこと'
+const SV_18_SCROLLBAR = '縦のスクロールバーが出ている間、`GRS` は、領域の右の縁をスクロールバーの左の縁とすること（スクロールバーを領域に入れない）'
+const SV_18_UNDER_SCROLLBAR = 'スクロールバーの下の境目は見えず、スクロールバーの下を押せばスクロールバーが答える'
+const RW_9_SAME = '`GRS` は、列の幅を `SV-18` と同じとし、列を 表 T-347 の列とすること。'
 const RO_9_SAME = '表 T-371 の 5 列に `RW-9` を当てる'
 const MC_8_FLOATING = '浮くウィンドウ（`FR-036` の 表 T-335）の中の掴み（表 T-023d の `GR-24`・`GR-25`・`GR-28`）を引くあいだも含む'
 
@@ -79,9 +79,10 @@ const need = (): Browser => {
 test.describe('CR-762 the manuscript these cases are driven by', () => {
   test('T-330 SV-18 still says follow, abort, floor, the right edge and the scrollbar, word for word', () => {
     const say = cellOf('T-330', 'SV-18', '定め')
-    for (const clause of [SV_18_FOLLOW, SV_18_ABORT, SV_18_OTHERS, SV_18_FLOOR, SV_18_RIGHT_EDGE, SV_18_SCROLLBAR, SV_18_UNDER_SCROLLBAR]) {
+    for (const clause of [SV_18_FOLLOW, SV_18_ABORT, SV_18_OTHERS, SV_18_FLOOR, SV_18_RIGHT_EDGE, SV_18_SCROLLBAR]) {
       expect(say).toContain(clause)
     }
+    expect(REQUIREMENTS).toContain(SV_18_UNDER_SCROLLBAR)
   })
   test('RW-9 and RO-9 still take SV-18 over, and MC-8 still counts a GR-28 pull', () => {
     expect(REQUIREMENTS).toContain(RW_9_SAME)

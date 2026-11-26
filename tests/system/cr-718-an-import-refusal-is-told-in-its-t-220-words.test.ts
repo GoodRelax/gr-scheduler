@@ -24,9 +24,9 @@ const WORDS = JSON.parse(readFileSync(join(SPEC, '_source', 'display-words.json'
 }
 
 const AN_IMPORT_REFUSAL_CARRIES_ITS_T_220_ROW =
-  '⭐ ⇒ 取り込みの検証が拒んだとき、`NT-1` の通知が運ぶ理由は、拒んだ 表 T-220 の行の行 ID とすること（MUST） —— 語と次の一手は `FR-038` の辞書が同表の行 ID で持つ。'
+  '取り込みの検証が拒んだとき、`GRS` は `NT-1` の通知に、拒んだ Chapter 6.1 の 表 T-220 の行の行 ID を理由として運ぶこと。`FR-038` の辞書は、取り込みの検証が拒んだときの語と次の一手を、表 T-220 の行 ID で持つこと。'
 const NO_FALL_TO_A_T_233_ROW =
-  '⛔ その通知を本表の行（`RS-15` を含む）へ振り替えてはならない（MUST NOT） —— 振り替えると、どの不変条件が破れたのかを人が読めず、`NT-1` の「なぜ誤りか」を果せない。'
+  '`GRS` は、取り込みの検証が拒んだ通知を、表 T-233 の行（`RS-15` を含む）へ振り替えないこと。'
 
 const NOTIFICATION_AREA = '[data-role="Notification Area"]'
 const OPEN_CHOOSER = '[data-role="Open Chooser"]'

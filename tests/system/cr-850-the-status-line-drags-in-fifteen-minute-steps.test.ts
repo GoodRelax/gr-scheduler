@@ -13,9 +13,9 @@ import { taskGroupsDocument } from './w3-t1-stage'
 const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
 const FR_046_DRAG =
-  '⭐ 離した位置は、`FR-103` の 表 T-378 の単位で寄せて読むこと（MUST）'
+  '基準日線を離したとき、`GRS` は、離した位置を `FR-103` の 表 T-378 の単位で寄せて読むこと。'
 const FR_046_AT_INSTANT =
-  '⭐ 時刻を表示しているとき（`FR-158`）は、基準日線を `statusDate` の瞬間の位置に引くこと（MUST）'
+  '時刻を表示している間（`FR-158`）、`GRS` は、基準日線を `statusDate` の瞬間の位置に引くこと。'
 
 const AGENT_API = rowOf(specTable('T-109'), 'IC-20').id
 const STATUS_LINE = '[data-figure="status-line"]'

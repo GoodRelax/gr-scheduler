@@ -8,16 +8,16 @@ import { bare, specTable, unbroken } from '../contract/spec-table'
 import { rowOf } from './sws-case'
 
 const SV_7_CLEAR =
-  '右の境目（表 T-023d の `GR-28`）を持つ列では、`IC-122` を境目から、境目の掴み代の片側の幅（`_assets/tbl-settings.md` の `S-465`）にセルの右の詰め（0.25em）を足しただけ内側に立てる'
-const SV_7_WHY = '掴み代の上に入口を置くと、境目の線の左を狙った押下が入口に取られ、列の幅が変わらない'
-const SV_7_WIDTH_FLOOR = '列の幅の下限は、この離れの分だけ広い（`SV-18`）'
-const SV_7_WORD = '見出しのセルの語を押したときも、`IC-122` を押したものとして同じに答えること（MUST） —— ただし列の境目の掴み代（表 T-023d の `GR-28`）の上では掴み代が答える'
-const GR_28_ANSWER = '⚠️ 入口（`IC-122`）は帯の外に立てる（`FR-151` の 表 T-330 の `SV-7`）—— 帯の上では、見出しの語の上でも境目が答える。'
+  '`GRS` は、右の境目（表 T-023d の `GR-28`）を持つ列では、`IC-122` を、境目から、境目の掴み代の片側の幅（`_assets/tbl-settings.md` の `S-465`）にセルの右の詰め（0.25em）を足しただけ内側に立てること'
+const SV_7_WHY = '掴み代の上に入口を置くと、境目の線の左を狙った押下を入口が取り、列の幅が変わらない'
+const SV_7_WIDTH_FLOOR = '`GRS` は、列の幅の下限を、`IC-122` を境目から離した分だけ広く取ること（`SV-18`）'
+const SV_7_WORD = '見出しのセルのうち、列の境目の掴み代（表 T-023d の `GR-28`）の帯の外の、見出しの語と、語と `IC-122` の間と左右と上下の詰めを押したとき、`GRS` は、`IC-122` を押したものとして同じに答えること。見出しのセルのうち列の境目の掴み代（表 T-023d の `GR-28`）の上を押したとき、`GRS` は、掴み代として答えること'
+const GR_28_ANSWER = '`GRS` は、帯の上では、見出しの語の上でも境目を答えさせること。'
 const S_425_NOTE = '`IC-122` を列の境目の掴み代の外に立てる離れ（`S-465`、表 T-330 の `SV-7`）と、罫 1px が入る幅を、そのときの字の段（`S-429`）で測る'
-const FR_106_HELD = '押しているあいだは、掴んだときの形を保つこと（MUST）。'
-const FR_106_TABLES = '3 つの表のウィンドウ（検索パネル・遅延診断レポート・担当リスト）の列の境目（表 T-023d の `GR-28`）でも、表 T-269 の `PK-10` とすること（MUST）'
+const FR_106_HELD = '押している間、`GRS` は、掴んだときの形を保つこと。'
+const FR_106_TABLES = '`GRS` は、3 つの表のウィンドウ（検索パネル・遅延診断レポート・担当リスト）の列の境目（表 T-023d の `GR-28`）でも、表 T-269 の `PK-10` にすること'
 const FR_106_EDGES =
-  'ウィンドウの縁の掴み代（表 T-023d の `GR-25`）では、左と右の辺は 表 T-269 の `PK-12`、上と下の辺は `PK-13`、左上と右下の角は `PK-14`、右上と左下の角は `PK-15` とすること（MUST）'
+  '`GRS` は、ウィンドウの縁の掴み代（表 T-023d の `GR-25`）では、左と右の辺を 表 T-269 の `PK-12`、上と下の辺を `PK-13`、左上と右下の角を `PK-14`、右上と左下の角を `PK-15` にすること'
 
 const T_103 = specTable('T-103')
 const RESOURCE_LIST = `[data-role="${bare(rowOf(T_103, 'U-49').cells[0] ?? '')}"]`
@@ -75,7 +75,8 @@ const need = (): Browser => {
 test.describe('CR-737 the manuscript these cases are driven by', () => {
   test('T-330 SV-7 still says where IC-122 stands and who answers on the band', () => {
     const say = cellOf('T-330', 'SV-7', '定め')
-    for (const clause of [SV_7_CLEAR, SV_7_WHY, SV_7_WIDTH_FLOOR, SV_7_WORD]) expect(say).toContain(clause)
+    for (const clause of [SV_7_CLEAR, SV_7_WIDTH_FLOOR, SV_7_WORD]) expect(say).toContain(clause)
+    expect(REQUIREMENTS).toContain(SV_7_WHY)
   })
   test('T-023d GR-28 still says the band sits on the border and IC-122 stands outside it', () => {
     expect(cellOf('T-023d', 'GR-28', '操作')).toContain(GR_28_ANSWER)

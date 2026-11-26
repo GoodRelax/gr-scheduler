@@ -9,40 +9,40 @@ import { ERP_SAMPLE, REQUIREMENTS, keyOf, openDocument, openStage, saveDocument,
 import { rowOf } from './sws-case'
 
 const FR_036_TITLE_ORDER =
-  '⭐ ヘルプのタイトルバーは、左から、題 … 凡例（`IC-102`）・ヘルプの言語の切替（`FR-038` の `IC-128`）・最小化（`IC-129`）・最大化（`IC-130`、最大化しているあいだは同じ場所に `IC-131`）・閉じる入口（`IC-52`）の順に並べ、閉じる入口を右端に置くこと（MUST）。'
-const FR_036_NOTHING_ELSE = '⛔ タイトルバーに、ほかのものを置いてはならない（MUST NOT）'
-const FR_036_TWO_REGIONS = '⭐ ヘルプを、タイトルバーと本文の 2 つの領域に分け、上下に並べること（MUST）。'
-const FR_036_BODY_SCROLLS = '本文の領域だけをスクロールさせること（MUST）'
+  '`GRS` は、ヘルプのタイトルバーに、左から、題 … 凡例（`IC-102`）・ヘルプの言語の切替（`FR-038` の `IC-128`）・最小化（`IC-129`）・最大化（`IC-130`、最大化しているあいだは同じ場所に `IC-131`）・閉じる入口（`IC-52`）の順に並べ、閉じる入口を右端に置くこと。'
+const FR_036_NOTHING_ELSE = '`GRS` は、ヘルプのタイトルバーに、ほかのものを置かないこと。'
+const FR_036_TWO_REGIONS = '`GRS` は、ヘルプを、タイトルバーと本文の 2 つの領域に分け、上下に並べること。'
+const FR_036_BODY_SCROLLS = '`GRS` は、本文の領域だけをスクロールさせること'
 const FR_036_TITLE_OUTSIDE_THE_SCROLL =
-  '⛔ タイトルバーを本文のスクロールの中に置いてはならない（MUST NOT） —— 中に置いて上端に留めると、送った本文がタイトルバーの縁に透け、送る前はタイトルバーが最初の見出しを覆う。'
-const FR_036_GAP = '⭐ 説明と割当のあいだは、`_assets/tbl-settings.md` の 表 T-206 の `S-436` を下限としてあけること（MUST）。'
-const FR_036_RIGHT_END = '⭐ 割当は、その項目の行の右端（枠の内側の右の縁）へ寄せて置くこと（MUST）'
+  '`GRS` は、タイトルバーを本文のスクロールの中に置かないこと。'
+const FR_036_GAP = '`GRS` は、説明と割当のあいだを、`_assets/tbl-settings.md` の 表 T-206 の `S-436` を下限としてあけること。'
+const FR_036_RIGHT_END = '`GRS` は、割当を、項目の行の右端（枠の内側の右の縁）へ寄せて置くこと'
 // Why: CR-669 moved the maximized help from the browser window to the Schedule Canvas.
-const FR_036_MAXIMIZED = 'ヘルプを最大化したときに占める範囲は、`Schedule Canvas`（`_assets/tbl-glossary.md` の `U-32`）の全体とする（MUST）'
+const FR_036_MAXIMIZED = '`GRS` は、ヘルプを最大化したときに占める範囲を、`Schedule Canvas`（`_assets/tbl-glossary.md` の `U-32`）の全体とすること'
 const FR_036_NOT_A_SURFACE =
-  '⭐ ヘルプは `_assets/tbl-settings.md` の `S-99g` の面ではない —— ほかの面を立ててもヘルプを閉じず、ヘルプの状態も言語も変えないこと（MUST）。'
-const FR_036_OTHERS_IN_FRONT = 'ほかの面はヘルプより手前に描く（`FR-152` の 表 T-337）。'
-const FR_038_HELP_ONLY = '利用者がヘルプの言語を選んだとき、`GRS` は、ヘルプの中の文字だけをその言語で示すこと。'
-const FR_038_HELP_LANGUAGE_NAMED = '⭐ ヘルプの言語が画面の言語と違うあいだは、ヘルプの領域にヘルプの言語を名乗らせること（MUST）'
-const FR_038_READABLE_BEFORE_PRESSING = 'どちらの入口も、今の値の略号を添えて描く。'
-const FR_038_SEEDED_ON_OPENING = '⭐ ヘルプを開くたびに、ヘルプの言語をそのときの画面の言語から始めること（MUST）'
-const FR_038_NOT_THE_SCREEN = '⛔ ヘルプの言語を替えて画面の言語を替えてはならない（MUST NOT）。'
-const FR_038_NOT_STORED = '⛔ ヘルプの言語を保存してはならない（MUST NOT） —— 文書にも、閲覧環境の保管庫にも置かない。'
+  '`GRS` は、ヘルプを `_assets/tbl-settings.md` の `S-99g` の面として扱わないこと。ほかの面が立ったとき、`GRS` はヘルプを閉じず、ヘルプの状態も言語も変えないこと。'
+const FR_036_OTHERS_IN_FRONT = '`GRS` は、ほかの面をヘルプより手前に描くこと（`FR-152` の 表 T-337）。'
+const FR_038_HELP_ONLY = '利用者がヘルプの言語を選んだとき、`GRS` は、ヘルプの中の文字だけを、選んだ言語で示すこと。'
+const FR_038_HELP_LANGUAGE_NAMED = 'ヘルプの言語が画面の言語と違う間、`GRS` は、ヘルプの領域にヘルプの言語を名乗らせること。'
+const FR_038_READABLE_BEFORE_PRESSING = '`GRS` は、言語のどちらの入口も、今の値の略号を添えて描くこと。'
+const FR_038_SEEDED_ON_OPENING = '利用者がヘルプを開くたびに、`GRS` は、ヘルプの言語をそのときの画面の言語から始めること'
+const FR_038_NOT_THE_SCREEN = '`GRS` は、ヘルプの言語を替えたことで、画面の言語を替えないこと。'
+const FR_038_NOT_STORED = '`GRS` は、ヘルプの言語を保存しないこと —— 文書にも、閲覧環境の保管庫にも置かない。'
 const IN_4_SURFACE_THEN_HELP =
   '⭐ `Esc` では、通常か最大化のヘルプは面の段ではなく、表 T-028 の `IN-4` の「開いているウィンドウ」の段に立つ'
-const T_337_THE_FRONT_ONE_TAKES_THE_PRESS = '⭐ 押下は、その点で最も手前に描かれた UI パーツが受けること（MUST）。'
+const T_337_THE_FRONT_ONE_TAKES_THE_PRESS = '`GRS` は、押下を、押下の点で最も手前に描いた UI パーツに受けさせること。'
 const FR_036_UNDER_THE_HEADER =
-  'ヘルプは、閲覧環境の窓から `App Header` を除いた領域の中央に、その領域の幅と高さに対し `_assets/tbl-settings.md` の 表 T-206 の `S-201` が定める割合で開くこと（MUST）'
+  '`GRS` は、ヘルプを、閲覧環境の窓から `App Header` を除いた領域の中央に、領域の幅と高さに対し `_assets/tbl-settings.md` の 表 T-206 の `S-201` が定める割合で開くこと'
 const FR_036_NOT_SIDEWAYS_WHEN_OPENED =
-  '⭐ 開いたとき（表 T-335 の `WB-1` の既定の大きさ）は、段の並びを本文の領域の幅に収め、横にスクロールさせないこと（MUST）。'
+  'ヘルプを開いたとき（表 T-335 の `WB-1` の既定の大きさ）、`GRS` は段の並びを本文の領域の幅に収め、横にスクロールさせないこと。'
 const FR_069_ONE_LINE =
-  '⭐ ヘルプは、本文の領域の段の下に、著作権表示・ライセンスの名・全文と帰属表示を開く入口の 3 つを 1 行に並べて常に見せ、全文と帰属表示はその下に折りたたんで置くこと（MUST）'
+  '`GRS` は、ヘルプの本文の領域の段の下に、著作権表示・ライセンスの名・全文と帰属表示を開く入口の 3 つを 1 行に並べて常に見せること。`GRS` は、全文と帰属表示を、3 つを並べた行の下に折りたたんで置くこと。'
 const FR_036_NARROWED_SCROLLS_SIDEWAYS =
-  '⭐ 利用者がヘルプを狭めて（表 T-335 の `WB-9`）段の並びが本文の領域の幅に入り切らないときは、本文の領域を横にもスクロールさせること（MUST）'
-const FR_036_COLUMNS_STAY = '⛔ 本文の領域の幅に合わせて、段の数を変えたり塊を別の段へ送ったりしてはならない（MUST NOT）'
-const FR_069_FOLDED = '⛔ 全文と帰属表示を、ヘルプを開いたときに開いた形で出してはならない（MUST NOT）'
+  '利用者がヘルプを狭めて（表 T-335 の `WB-9`）段の並びが本文の領域の幅に入り切らないとき、`GRS` は本文の領域を横にもスクロールさせること。'
+const FR_036_COLUMNS_STAY = '`GRS` は、本文の領域の幅に合わせて、段の数を変えたり塊を別の段へ送ったりしないこと。'
+const FR_069_FOLDED = '`GRS` は、ヘルプを開いたときに、全文と帰属表示を開いた形で出さないこと。'
 const FR_069_NEW_TAB =
-  '⭐ 著作権表示を押したら、閲覧環境の新しいタブで、同書の 表 T-206 の `S-459`（本ソフトウェアのリポジトリの所）の頁を開くこと（MUST）'
+  '人がヘルプの著作権表示を押したとき、`GRS` は、閲覧環境の新しいタブで、`_assets/tbl-settings.md` の 表 T-206 の `S-459`（本ソフトウェアのリポジトリの所）の頁を開くこと。'
 
 const CLAUSES: readonly string[] = [
   FR_036_TITLE_ORDER,

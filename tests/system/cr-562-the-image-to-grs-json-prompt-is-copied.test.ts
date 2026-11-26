@@ -24,20 +24,20 @@ const NOTICE_ROSTER = readFileSync(join(ROOT, 'docs', 'spec', '_assets', 'tbl-no
 
 // Why: CR-827 (JDG-3086) took the schema out of the copy; it goes to the download as IO-10 instead.
 const FR_068_ORDER =
-  '⭐ コピーするプロンプトは、(1) 画面の言語の原稿、(2) 版の 1 行（`schemaVersion:` と 1 字の空白に、初期テンプレート（`FR-027`）の `schemaVersion` の値を続けたもの）、(3) 土台の文書、の 3 つをこの順に空行で区切って連ねた 1 つの文字列とすること（MUST）。'
-const FR_068_ONE_LINE = '(3) は空白を除いた 1 行の JSON とし、`json` の囲みに入れる。'
+  '`GRS` は、コピーするプロンプトを、(1) 画面の言語の原稿、(2) 版の 1 行（`schemaVersion:` と 1 字の空白に、初期テンプレート（`FR-027`）の `schemaVersion` の値を続けたもの）、(3) 土台の文書、の 3 つを (1)・(2)・(3) の順に空行で区切って連ねた 1 つの文字列とすること。'
+const FR_068_ONE_LINE = '`GRS` は、(3) を空白を除いた 1 行の JSON にすること。`GRS` は、(3) を `json` の囲みに入れること。'
 // Why: CR-687 named the language the prompt follows the screen language (S-99), not the help's.
 const FR_068_LANGUAGE =
-  '⭐ プロンプトは、コピーした瞬間の画面の言語（`FR-038` の `S-99`、`screenLanguage`）の原稿から作ること（MUST）'
+  '`GRS` は、コピーした瞬間の画面の言語（`FR-038` の `S-99`、`screenLanguage`）の原稿から、プロンプトを作ること'
 const FR_068_BASE =
-  '⭐ 土台の文書は、初期テンプレートと同じ版と同じ `documentSettings` を持ち、タスクを 1 つも持たない `GRS JSON` とし、初期テンプレートと同じ生成器が同じ回に起こすこと（MUST）'
-const FR_068_OPENED_BY_OP_2 = '返った文書は 表 T-024a の `OP-2` の「開く」1 つから入る。'
+  '`GRS` は、土台の文書を、初期テンプレートと同じ版と同じ `documentSettings` を持ち、タスクを 1 つも持たない `GRS JSON` とすること。`GRS` は、土台の文書を、初期テンプレートと同じ生成器で同じ回に起こすこと'
+const FR_068_OPENED_BY_OP_2 = '`GRS` は、AI から返った文書を、表 T-024a の `OP-2` の「開く」1 つから受けること。'
 // Why: CR-827 added the schema file to the same press and to what the notice tells next.
 const FR_068_NO_SURFACE =
-  '⭐ 入口は 表 T-109 の `IC-115` とし、押されたときに面を開かずにプロンプトをコピーし、スキーマのファイルをダウンロードに渡すこと（MUST）。'
+  '`GRS` は、プロンプトをコピーする入口を、表 T-109 の `IC-115` とすること。作成者が `IC-115` を押したとき、`GRS` は、面を開かずにプロンプトをコピーすること（スキーマのファイルは `FR-367`）。'
 const FR_068_TELL =
-  '⭐ コピーできたときは、コピーしたことと次に行うこと（プロンプトとダウンロードしたスキーマのファイルを AI に渡す）を告げること（MUST） —— 運ぶ理由は 表 T-233 の `RS-65` とする。'
-const FR_065_REMEMBERED = '有効化はブラウザ（オリジン）ごとに記憶すること（MUST）'
+  '`GRS` がプロンプトをコピーできたとき、`GRS` は、コピーしたことと次に行うこと（プロンプトとダウンロードしたスキーマのファイルを AI に渡す）を告げること（運ぶ理由は 表 T-233 の `RS-65`）。'
+const FR_065_REMEMBERED = '`GRS` は、`Agent API` の有効化を、ブラウザ（オリジン）ごとに記憶すること'
 const RS_15_ROW = '| RS-15 | この理由にまだ行が無い |'
 
 const CLAUSES: readonly string[] = [

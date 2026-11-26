@@ -12,7 +12,7 @@ const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '
 
 // Spec: FR-135
 const ONLY_A_PERSON_WRITES_THE_PARENT =
-  '`parentTaskUid` は、人が親タスク設定のドラッグ（表 T-351）で結んだとき、矢印の `Delete`（`PTL-11`）かパネルの ×（`PTL-17`）で外したとき、または遅延診断の修正案の 表 T-373 の `FA-25`（行から親タスクを作る）を採ったときだけ書くこと（MUST） —— `FA-25` を採るのは人、または人に指示された AI である（利用者が定めた）。⛔ `GRS` が候補から自動で書いてはならない（MUST NOT）'
+  '`GRS` は、`parentTaskUid` を、人が親タスク設定のドラッグ（表 T-351）で結んだとき、矢印の `Delete`（`PTL-11`）かパネルの ×（`PTL-17`）で外したとき、または遅延診断の修正案の 表 T-373 の `FA-25`（行から親タスクを作る）を採ったときだけ書くこと。'
 
 // Spec: IX-12, T-241
 // Why: CR-690 -- the span reaches the screen only through the fit (FX-2); setting and fixing it never moves the view.

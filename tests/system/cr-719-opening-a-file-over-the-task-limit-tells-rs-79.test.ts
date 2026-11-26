@@ -15,8 +15,8 @@ const WORDS = JSON.parse(readFileSync(resolve(SPEC, '_source', 'display-words.js
 const TEMPLATE = JSON.parse(readFileSync(resolve('src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8')) as Record<string, any>
 
 const FR_023_OVER_THE_LIMIT_IS_NOT_TAKEN =
-  '資源の上限（ファイルサイズ・件数・WBS のネストの深さ・解釈しない要素のネストの深さ）を `_assets/tbl-settings.md` の表 T-211 に従って持ち、超えた入力は取り込まず、超えた上限に当たる 表 T-233 の行を通知の仕組みへ運ぶこと（MUST）'
-const FR_023_NO_PARTIAL_APPLY = '部分的に適用してはならない（MUST NOT）'
+  'もし入力が資源の上限（ファイルサイズ・件数・WBS のネストの深さ・解釈しない要素のネストの深さ）を超える場合、`GRS` は、その入力を取り込まないこと。\n\n**表 T-648 — 資源の上限を超えた入力を取り込まないことの実装仕様**\n\n| 行 ID | 何についてか | 実装仕様 | traces |\n| --- | --- | --- | --- |\n| IMPS-938 | 資源の上限 | `GRS` は、資源の上限を `_assets/tbl-settings.md` の表 T-211 に従って持つこと。 | FR-342 |\n| IMPS-939 | 超えたときの通知 | もし入力が資源の上限を超える場合、`GRS` は、超えた上限に当たる 表 T-233 の行を通知の仕組みへ運ぶこと'
+const FR_023_NO_PARTIAL_APPLY = '`GRS` は、取り込まない入力を部分的に適用しないこと。'
 const NT_1_SAYS_WHY_IN_WORDS = 'どの項目が、なぜ誤りかを文字で示すこと（MUST）'
 
 const LIMIT = settingNumber('S-114')

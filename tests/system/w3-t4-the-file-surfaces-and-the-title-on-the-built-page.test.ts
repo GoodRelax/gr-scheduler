@@ -15,19 +15,19 @@ const WORDS = JSON.parse(readFileSync(join(process.cwd(), 'docs', 'spec', '_sour
 const TEMPLATE_TEXT = readFileSync(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8')
 
 const MK_13_ONE_PRESS =
-  '（`FR-035`）を開くこと（MUST） —— 利用者が、ヘッダーの文書名をダブルクリックして編集できるようにすると定めた。⛔ 1 回の押下で開いてはならない（MUST NOT）'
-const FR_096_ONE_COLUMN = '式を上の順で上から下へ 1 段に 1 つずつ並べること（MUST）'
+  '（`FR-035`）を開くこと。`GRS` は、`Document Title` の 1 回の押下でその場で編集する欄を開かないこと。'
+const FR_096_ONE_COLUMN = '`GRS` は、書き出しの選択面に、形式を 表 T-664 の `IMPS-1039` の順で、上から下へ 1 段に 1 つずつ並べること。'
 const FR_096_NOT_SIDEWAYS =
-  '⛔ 形式を横に並べてはならない（MUST NOT） —— 横に並べると選択面の幅が形式の数だけ広がり、それより狭い閲覧環境の窓では端の形式が窓の外へ出て押せない'
+  '`GRS` は、選択面の形式を横に並べないこと。'
 const FR_096_HEADING =
-  'ボタンの大きさが揃わなくなる。⭐ 見出しの段は、`FR-036` の 表 T-335 の `WB-10` のタイトルバーとすること（MUST）'
+  '`GRS` は、選択面の見出しの段を、`FR-036` の 表 T-335 の `WB-10` のタイトルバーとすること。'
 const WB_10_NO_RESIZE =
   'してはならない（MUST NOT） —— 掴めない位置へ置けば二度と動かせない（表 T-023d の `GR-19` と同じ理由）。⛔ 大きさを変えてはならない（MUST NOT）'
 const WB_10_TITLE_TASK_GROUP = 'タイトルバーは `WB-7` と同じ形とし、左端に題（面の見出しの語）を、右端に `IC-52` だけを置く —— `IC-129` 〜 `IC-131` を置かない'
 const WM_9_ESC =
   ' の「面」である（MUST） —— `Esc` の「開いている面」の段で閉じる（表 T-028 の `IN-4`）。⛔ **閉じたときに透かしを非表示にしてはならない（MUST NOT）'
 const SV_7_LABELS =
-  '「いつから」「いつまで」を宿主の日付の入力で選ばせる。2 つの日付の入力には、それぞれの左に、`FR-038` の辞書が持つ語「いつから」「いつまで」を札として置くこと（MUST）'
+  '「いつから」「いつまで」を宿主の日付の入力で選ばせること。`GRS` は、2 つの日付の入力の左に 1 つずつ、`FR-038` の辞書が持つ語「いつから」「いつまで」を札として置くこと。'
 
 test.use({ viewport: VIEWPORT })
 

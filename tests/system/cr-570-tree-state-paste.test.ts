@@ -16,7 +16,7 @@ import {
 } from './cr-570-tree-state-stage'
 
 const DU_2_TREE_STATE =
-  '複製した各タスクグループの `treeState`（`FR-018` の 表 T-329、`_assets/tbl-state-machines.md` の 表 T-328）は、複製元が `collapsed` か `hidden` ならその値とし、`expanded` か `temporarilyExpanded` なら `auto` とすること（MUST）'
+  '複製した各タスクグループの `treeState`（`FR-018` の 表 T-329、`_assets/tbl-state-machines.md` の 表 T-328）を、複製元が `collapsed` か `hidden` なら複製元の値にし、`expanded` か `temporarilyExpanded` なら `auto` にすること'
 
 // Why: S is the copied task group; below it every value of AT-153 is held at least once.
 const TREE: readonly { readonly id: string; readonly parentId: string | null }[] = [

@@ -29,7 +29,7 @@ const T_256_CONTINUED_HEADING =
   '表 T-256 は、群を名で名指すこと。`GRS` は、移した塊の見出しを、パレットの続きであることを言う語とすること'
 const FR_036_LEFT_OFF =
   's`・`Open Chooser`・`Difference Review` の面だけ（`Help Modal` を併せて持つものを含む）である行と、`IC-52`・`IC-53`・`IC-75` を、段に載せないこと。'
-const T_256_USER_WORDS = '（語は `FR-038` の辞書が持つ。利用者が「コマンドパレット（続き）」と定めた）'
+const T_256_USER_WORDS = '（語は `FR-038` の辞書が持つ、利用者が「コマンドパレット（続き）」と定めた）'
 
 const CLAUSES: readonly (readonly [string, string])[] = [
   ['T-256 (MUST) the align group moves under the Task Group Panel', T_256_SPLIT],
