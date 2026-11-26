@@ -34,15 +34,15 @@ const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '
 
 // Spec: FD-5
 const FD_5_PER_END =
-  '矢羽根では、開始側の切り込みの深さを `fadeIn` に、終了側の先端の深さを `fadeOut` に、端ごとに置き換えること（MUST）'
-const FD_5_MUST_NOT = '一方の端のフェード長で、もう一方の端の形を変えてはならない（MUST NOT）'
+  '`GRS` は、矢羽根では、開始側の切り込みの深さを `fadeIn` に、終了側の先端の深さを `fadeOut` に、端ごとに置き換えること。'
+const FD_5_MUST_NOT = '`GRS` は、一方の端のフェード長で、もう一方の端の形を変えないこと。'
 const FD_5_NULL =
-  'フェード長が未設定（`null`）の端は、フェードの無い矢羽根と同じ深さ（`_assets/tbl-settings.md` の 表 T-201 の `S-43` ／ `S-44`）のままとすること（MUST）'
-const FD_5_ZERO = 'フェード長が 0 の端は、平ら（深さ 0）に描くこと（MUST）'
+  '`GRS` は、フェード長が未設定（`null`）の矢羽根の端を、フェードの無い矢羽根と同じ深さ（`_assets/tbl-settings.md` の 表 T-201 の `S-43` ／ `S-44`）のまま描くこと。'
+const FD_5_ZERO = '`GRS` は、フェード長が 0 の矢羽根の端を、平ら（深さ 0）に描くこと。'
 const FD_5_BOTH_ZERO = '両端とも 0 の矢羽根は、外形が矩形になる'
 // Spec: FD-6a
-const FD_6A_NO_FADE = '実績バーにはフェードを適用しない（MUST NOT）'
-const FD_6A_UNSET = '矢羽根の実績バーは、フェードを未設定として描くこと（MUST）'
+const FD_6A_NO_FADE = '`GRS` は、実績バーにフェードを当てないこと。'
+const FD_6A_UNSET = '`GRS` は、矢羽根の実績バーを、フェードを未設定として描くこと。'
 const FD_6A_NOT_FLAT = '予定の端を 0 にしても実績の端は平らにならない'
 // Spec: FD-4
 const FD_4 = '矩形で、どちらも 0 または未設定'

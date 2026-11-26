@@ -102,10 +102,10 @@ const REQUIREMENTS = unbroken(readFileSync(
  * unbroken run of manuscript is the one written here.
  */
 const T_019_CARRY_NOTE =
-  '取り込んだ原値があり、そのタスクの実績を人が編集していないあいだは、作った値によらず原値をそのまま書き戻すこと（MUST）'
+  '取り込んだ `ActualDuration` の原値があり、人が `Task` の実績を編集していない間、`GRS` は、作った値によらず、原値をそのまま書き戻すこと（Carry —— 表 T-005 の `G-13`）。'
 
 /** The other half of the same note -- when the computed value DOES take over. */
-const T_019_ONLY_WHEN_EDITED = '人がそのタスクの実績を編集したときに限り、作った値へ置き換える'
+const T_019_ONLY_WHEN_EDITED = '人が `Task` の実績を編集したとき、`GRS` は、`ActualDuration` を作った値へ置き換えること。'
 
 // ===========================================================================
 // 2. Which commands edit the actuals, read out of 表 T-108
@@ -181,7 +181,7 @@ const SUSPENDED_TASK_XML = `    <Task>
 
 /**
  * ⛔ IT IS ALSO THE ONLY FIXTURE `CM-14` CAN REACH. `FR-043` puts the grab-holds
- * on a task 「`Task` が未着手であるあいだ」, so `beginTaskActual` is refused on a
+ * on a task 「`Task` が未着手である間」, so `beginTaskActual` is refused on a
  * task whose actual has already begun -- measured here, not assumed: the
  * suspended fixture above answers 「CM-14 FR-043 the task has already been
  * started」.
@@ -217,7 +217,7 @@ const UNSTARTED_FILE = fileOf(UNSTARTED_TASK_XML)
  * Which fixture each row of 表 T-108 is driven against.
  *
  * ⚠️ ONLY `CM-14` DIFFERS, and the reason is `FR-043`'s own 「`Task` が未着手で
- * あるあいだ」 rather than anything about the carry rule. Every other command
+ * ある間」 rather than anything about the carry rule. Every other command
  * runs on the suspended task, where both candidate answers are a real day.
  */
 const fileFor = (specTableRowId: string): string => (specTableRowId === 'CM-14' ? UNSTARTED_FILE : SUSPENDED_FILE)

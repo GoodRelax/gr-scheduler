@@ -270,7 +270,7 @@ const STARTING_STAMP = {
   fileSavedAt: null,
 } as const
 
-const SJ_2_NO_STEP = '1 つも変わらなければ段を積まない'
+const SJ_2_NO_STEP = '`SJ-2` で `treeState` の値が 1 つも変わらないとき、`GRS` は、取り消しの段を積まないこと。'
 
 const OPEN_SCHEDULE: Loose = {
   ...SMALL_SCHEDULE,

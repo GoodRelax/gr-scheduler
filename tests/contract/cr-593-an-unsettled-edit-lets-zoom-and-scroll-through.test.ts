@@ -27,8 +27,8 @@ const WS_2_EXEMPT =
   '⚠️ 編集入力の確定前でも、`01-04-requirements.md` の 表 T-027 の `UN-8`（ズーム・スクロール・パン）だけから成る書き込みは拒否しない'
 const WS_2_UNTOUCHED = '確定される欄の値にも取り消しの段にも触れず'
 const AG_9_EDITING = '人が編集入力を確定していない間（プロパティパネルで入力中など）も同じく拒否すること（MUST）'
-const CM_65_IS_UN_8 = '① 倍率を置く（表 T-108 の `CM-65`、表 T-027 の `UN-8` により段を積まない）'
-const CM_71_IS_UN_8 = '① 倍率と表示位置を置く（表 T-108 の `CM-71`。表 T-027 の `UN-8` により段を積まない）'
+const CM_65_IS_UN_8 = '① 倍率を置く書き込み（表 T-108 の `CM-65`、表 T-027 の `UN-8` により段を積まない）'
+const CM_71_IS_UN_8 = '① 倍率と表示位置を置く書き込み（表 T-108 の `CM-71`、表 T-027 の `UN-8` により段を積まない）'
 
 describe('CR-593 -- the manuscript these cases are driven by', () => {
   it.each([WS_2_REFUSES, WS_2_EXEMPT, WS_2_UNTOUCHED])('table T-067 WS-2 still says it, word for word: %s', (clause) => {
@@ -43,7 +43,7 @@ describe('CR-593 -- the manuscript these cases are driven by', () => {
 
   it('table T-027 UN-8 is outside the history and names zoom, scroll and pan; table T-233 RS-8 points at WS-2', () => {
     const un8 = specTable('T-027').rows.find((one) => one.id === 'UN-8')
-    expect(un8?.cells.map(bare)).toEqual(['対象外', 'ズーム・スクロール・パン'])
+    expect(un8?.cells.slice(0, 2).map(bare)).toEqual(['対象外', 'ズーム・スクロール・パン'])
     const rs8 = specTable('T-233').rows.find((one) => one.id === 'RS-8')
     expect(rs8?.cells[0]).toBe('その場の編集がまだ確定していない')
     expect(rs8?.cells.join('|')).toContain('`WS-2`')

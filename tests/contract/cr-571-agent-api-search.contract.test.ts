@@ -41,10 +41,10 @@ const AM_25_RETURNS = '語を 1 つ受け、検索パネルの 2 つの表と同
 const AM_25_AS_SHOWN = '`filters` が `asShown` なら、人が検索パネルのタスクの表に掛けている列のフィルタと並べ替え'
 const AM_25_NO_PANEL = 'パネルの入力欄は読みも変えもしない'
 const AM_16_DOES = '指定したタスクが載るタスクグループと祖先を展開し、見える位置へ表示を寄せる'
-const SJ_9_WHICH_STEPS = '`_assets/tbl-agent-api-members.md` の 表 T-107 の `AM-16` は `SJ-0`・`SJ-2`・`SJ-5` 〜 `SJ-8`・`SJ-10` を行う'
-const SJ_9_ANSWER = 'ただし `SJ-4` を行わず、パネルに触れず、`SJ-8` では告げずに、寄せなかったことを答えの値で返す'
-const SJ_2_ONE_STEP = '値が変われば未保存の編集（`FR-100`）であり、取り消しの 1 段である。'
-const SJ_2_NO_STEP = '1 つも変わらなければ段を積まない'
+const SJ_9_WHICH_STEPS = '`_assets/tbl-agent-api-members.md` の 表 T-107 の `AM-16` で、`SJ-0`・`SJ-2`・`SJ-5` 〜 `SJ-8`・`SJ-10` を行うこと。'
+const SJ_9_ANSWER = '`GRS` は、`AM-16` では `SJ-4` を行わないこと。'
+const SJ_2_ONE_STEP = '`SJ-2` で `treeState` の値が変わったとき、`GRS` は、値の変更を取り消しの 1 段とすること。'
+const SJ_2_NO_STEP = '`SJ-2` で `treeState` の値が 1 つも変わらないとき、`GRS` は、取り消しの段を積まないこと。'
 
 const TEMPLATE = JSON.parse(
   readFileSync(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),

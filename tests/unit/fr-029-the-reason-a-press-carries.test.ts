@@ -205,9 +205,9 @@ const FR_029_NOT_THE_FALLBACK = '当たる行があるのに落ち先を運ん�
 const FR_029_RS_27_IS_THE_FALLBACK = 'どの入口にも当たる行が無いときの落ち先が `RS-27` である'
 const FR_029_NOT_ON_HOVER = 'ポインタが乗っただけで理由を出してはならない（MUST NOT）'
 const T_051_ONLY_DRAWN_TASK_GROUPS =
-  '描かれていないタスクグループの折りたたみを数えてはならない（MUST NOT）'
+  '`GRS` は、描かれていないタスクグループの折りたたみを数えないこと（`IMPS-1981` の例外を除く）。'
 const T_051_NO_CHANGE_MEANS_SPENT =
-  'その操作で、描かれるタスクグループが 1 つも増減しないときは、対象が 1 つも無いものとして扱うこと（MUST）'
+  '`IMPS-1979` の操作で、描かれるタスクグループが 1 つも増減しないとき、`GRS` は、対象が 1 つも無いものとして扱うこと（数えるのは配下のタスクグループの数ではなく、操作の前後で描かれるタスクグループの差である）。'
 
 /**
  * FR-038's dictionary, as the manuscript keeps it.

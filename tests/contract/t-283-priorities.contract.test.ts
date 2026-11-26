@@ -31,16 +31,16 @@ const IN_4_FOCUS_OUTSIDE =
   '⛔ 焦点がウィンドウの外にあることを理由に、開いているウィンドウを段から外してはならない（MUST NOT）'
 const IN_4_PANEL_FOCUS_FIRST =
   '⭐ ただし焦点がプロパティパネル（`FR-006`）の中にあるあいだは、開いているウィンドウはこの段に立たず、プロパティパネルの段が先に受けること（MUST）'
-const SV_14_FILTER_FIRST = '列のフィルタが開いていれば、`Esc` はまずフィルタだけを閉じ、次の `Esc` でパネルを閉じる。'
+const SV_14_FILTER_FIRST = '列のフィルタが開いている間、 `Esc` を押したとき、`GRS` は、列のフィルタだけを閉じること。'
 const IN_4_SELECTION_AFTER_ARM = '⭐ **選択は構えの次に置く** —— ⛔ **構えより前に置いてはならない（MUST NOT）'
 const NT_8_FIRST = '⛔ この消去を、`Enter` と `Esc` のどの階層よりも先に行うこと（MUST）'
 const NT_8_NOTHING_TO_CLEAR = '⛔ 消すものが 1 つも無いときに、この階層で `Enter` や `Esc` を消費してはならない（MUST NOT）'
 const NT_7_ORDER = '順位は `NT-8` の消去の次、表 T-028 の `IN-4` と 表 T-036 の `SK-19` の階層より先とする（MUST）'
 const NT_7_KEYS_HELD = '⛔ 問いが立っているあいだ、この 2 つのキーをほかの何にも渡してはならない（MUST NOT）'
-const SK_19_NOTICE = '⭐ **出ている通知があるときは、それを 1 つ消すこと（MUST）'
+const SK_19_NOTICE = '出ている通知がある間、 `Enter` を押したとき、`GRS` は、出ている通知を 1 つ消すこと（作法は 表 T-037 の `NT-8`）。'
 const SK_19_PANEL =
-  '確定していないその場の編集が 1 つも無いときは、プロパティパネルを出しているならば出すのをやめること（MUST）'
-const SK_19_SELECTION = '⭐ プロパティパネルも出していないときは、選ばれているものがあればその選択を解除すること（MUST）'
+  '出ている通知も確定していないその場の編集も無く、プロパティパネルを出している間、 `Enter` を押したとき、`GRS` は、プロパティパネルを出すのをやめること（焦点が名称の欄の外にあるときも含む）。'
+const SK_19_SELECTION = '出ている通知も確定していないその場の編集も無く、プロパティパネルも出していない間、 `Enter` を押したとき、`GRS` は、選択しているものの選択を解除すること。'
 const PI_36_ESCAPE_TARGET = [
   '`escapeTarget`',
   '`EscapeContext` だけから、`Esc` が次に消費する段を答える。',
@@ -211,7 +211,7 @@ describe(`table T-283, Enter (RG-9..RG-12) -- SK-19 (MUST): ${SK_19_SELECTION}`,
   it('the Enter rungs are RG-9..RG-12 in the order SK-19 states them', () => {
     expect(rungsOf('Enter').map((r) => r.id)).toEqual(['RG-9', 'RG-10', 'RG-11', 'RG-12'])
     const sk19 = specTable('T-036').rows.find((r) => r.id === 'SK-19')?.cells.join(' ') ?? ''
-    const at = ['出ている通知', 'その場の編集を確定する', '出すのをやめること', 'その選択を解除すること'].map((w) => sk19.indexOf(w))
+    const at = ['出ている通知', 'その場の編集（名称・担当名・タスクグループ名・文書名・プロパティの入力）を確定すること', '出すのをやめること', '選択しているものの選択を解除すること'].map((w) => sk19.indexOf(w))
     for (const one of at) expect(one).toBeGreaterThanOrEqual(0)
     expect([...at].sort((a, b) => a - b)).toEqual(at)
   })

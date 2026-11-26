@@ -20,10 +20,10 @@ const REQUIREMENTS = unbroken(
 )
 
 const CLAUSE_BOTH_CLEARED =
-  '⭐ 「選ばれているもの」は、表 T-023c の対象と、タスクグループパネルのタスクグループ（`FR-085`）の両方であり、両方の選択を解除すること（MUST）'
-const CLAUSE_ONLY_JUST_CREATED = '⛔ **これは作った直後の場面に限る（MUST）'
+  '`GRS` は、選択を解除するとき、表 T-023c の対象とタスクグループパネルのタスクグループ（`FR-085`）の両方の選択を解除すること。'
+const CLAUSE_ONLY_JUST_CREATED = '`GRS` は、`IMPS-1911` の選択の解除を、作った直後の場面だけに当てること。'
 const CLAUSE_TASK_GROUPS_IN_THE_DOCUMENT =
-  '規則は 表 T-028 の `IN-4` と 表 T-036 の `SK-19` が持つ。⭐ タスクグループの選択は、文書に在るタスクグループだけを指すこと（MUST）'
+  '`GRS` は、タスクグループの選択に、文書に在るタスクグループだけを含めること。'
 
 // Spec: T-103
 const TASK_GROUP_PANEL = bare(specTable('T-103').rows.find((one) => one.id === 'U-22')?.by['確定名（英）'] ?? '')

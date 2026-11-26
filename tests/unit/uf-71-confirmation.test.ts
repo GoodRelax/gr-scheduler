@@ -380,11 +380,11 @@ const NT_7_KEYS_GO_NOWHERE_ELSE =
   '問いが立っているあいだ、この 2 つのキーをほかの何にも渡してはならない（MUST NOT）'
 
 /** FR-032's two halves that reach the screen. */
-const FR_032_NAMES_NOT_A_COUNT = '件数だけを示してはならない（MUST NOT）'
-const FR_032_SHOWN_ON_ANOTHER_TASK_GROUP = 'その旨を示すこと（MUST）'
+const FR_032_NAMES_NOT_A_COUNT = '`GRS` は、タスクグループの削除の確認で、件数だけを示さないこと。'
+const FR_032_SHOWN_ON_ANOTHER_TASK_GROUP = '`GRS` は、タスクグループの削除の確認で、消える `Task` のうち他のタスクグループに表示されているものに、他のタスクグループに表示されている旨を示すこと。'
 
 /** The note under table T-023a that the table of other surfaces belongs to. */
-const T_023A_ONLY_THE_DRAWING_AREA = '判定順序を適用するのは日程の描画領域だけとすること（MUST）。'
+const T_023A_ONLY_THE_DRAWING_AREA = '`GRS` は、判定順序を日程の描画領域だけに適用すること。'
 
 /**
  * The preamble above table T-109, which is what joins its surface column to

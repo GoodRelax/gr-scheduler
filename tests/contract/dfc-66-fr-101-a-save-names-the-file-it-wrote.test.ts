@@ -44,8 +44,8 @@
 //   表 T-103 `U-58` `Opened File Name` 「開いているファイル名 … 規則は `FR-101`」
 //            `U-59` `File Saved At` 「ファイル保存時刻。開いているファイルへ最後
 //            に書いた時刻。規則は `FR-101`」
-//   表 T-036 `SK-11` 「保存する（`FR-096` の定めにより `GRS JSON` で書く。上書き
-//            先は `FR-060`）」, assignment `Ctrl+S` -- the door these cases press,
+//   表 T-036 `SK-11` 「`SK-11` で保存したとき、`GRS` は、`FR-096` の定めにより `GRS JSON` で書くこと。…
+//            上書き先を `FR-060` に従わせること」, assignment `Ctrl+S` -- the door these cases press,
 //            read out of the 割当 column rather than typed
 //   `FR-096` 「表 T-036 の `SK-11`（保存する）は、どの形式から開いた文書であっても
 //            `GRS JSON` で書くこと（MUST）」 and 「⚠️ **MSPDI で開いた文書の最初の

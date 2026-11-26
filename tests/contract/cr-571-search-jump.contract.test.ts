@@ -22,17 +22,17 @@ function rowOf(table: string, id: string): SpecRow {
 const cellOf = (table: string, id: string, heading: string): string => unbroken(rowOf(table, id).by[heading] ?? '')
 
 const SJ_2_OPENS =
-  '飛ぶ先のタスクグループ（タスクは `AT-61`、コメントボックスは `AT-114`）と、その祖先のすべての `treeState` を `expanded` にする —— 今の値が `hidden` でも、確かめを問わない。'
-const SJ_2_LEVEL_ZERO = '段 0 が折りたたまれていれば展開する。'
-const SJ_2_NOTHING_CHANGED = '1 つも変わらなければ段を積まない'
-const SJ_6_NO_ZOOM = '倍率を変えない。'
-const SJ_6_NO_DATE = '日付が空なら横は動かさない'
-const SJ_6_WIDE = 'ただし形の幅が `Task Group Area` の幅から `S-428` の 2 つ分を引いた幅より広いときは'
+  '`GRS` は、飛ぶ先のタスクグループ（タスクは `AT-61`、コメントボックスは `AT-114`）と、飛ぶ先のタスクグループの祖先のすべての `treeState` を `expanded` にすること。`GRS` は、今の `treeState` の値が `hidden` でも、確かめを問わずに `expanded` にすること。'
+const SJ_2_LEVEL_ZERO = '段 0 が折りたたんだ状態の間、飛ぶとき、`GRS` は、段 0 を展開すること。'
+const SJ_2_NOTHING_CHANGED = '`SJ-2` で `treeState` の値が 1 つも変わらないとき、`GRS` は、取り消しの段を積まないこと。'
+const SJ_6_NO_ZOOM = '`GRS` は、飛ぶときに倍率を変えないこと。'
+const SJ_6_NO_DATE = 'もし飛ぶ先の日付が空の場合、`GRS` は、横の位置を動かさないこと。'
+const SJ_6_WIDE = '飛ぶ先の予定の形の幅が `Task Group Area` の幅から `S-428` の 2 つ分を引いた幅より広いとき、`GRS` は、飛ぶ先の日付（タスクは `AT-28`、コメントボックスは `SQ-9` と同じ線先が立つ日時）が表示の左端から `S-428` だけ内側に来るよう置くこと。'
 const SJ_7_PINNED =
-  '飛ぶ先のタスクグループがピン止めのタスクグループ（`S-126`）で、ピン止めの帯（`FR-098`）に描かれているなら、`SJ-5` を行わず、`SJ-6` だけを行う'
+  '飛ぶ先のタスクグループがピン止めのタスクグループ（`S-126`）で、ピン止めの帯（`FR-098`）に描いてある間、`GRS` は、`SJ-5` を行わずに `SJ-6` だけを行うこと。'
 const SJ_8_NO_ROOM =
-  '飛ぶ先のタスクグループを画面に出せないときは、`SJ-5` と `SJ-6` を行わず、表 T-233 の `RS-66` を告げる。'
-const SJ_8_STILL = '`SJ-2` と `SJ-4` は行う'
+  'もし飛ぶ先のタスクグループを画面に出せない場合、`GRS` は、`SJ-5` と `SJ-6` を行わないこと。もし飛ぶ先のタスクグループを画面に出せない場合、`GRS` は、表 T-233 の `RS-66` を告げること。'
+const SJ_8_STILL = 'もし飛ぶ先のタスクグループを画面に出せない場合も、`GRS` は、`SJ-2` と `SJ-4` を行うこと。'
 // Spec: SJ-6
 // Why: a day is ten pixels wide, and nothing of the task reaches left of its date unless a case says so.
 // No task group stands in the pinned band unless a case says so (SJ-7), and no picture is read (landing null).

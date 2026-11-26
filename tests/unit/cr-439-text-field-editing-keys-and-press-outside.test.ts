@@ -32,7 +32,7 @@ function rowOf(table: string, id: string) {
 
 const rowText = (table: string, id: string): string => unbroken(rowOf(table, id).cells.join(' '))
 
-const SK_19_SETTLES = 'ほかに何も出ていないときは、**その場の編集を確定する**'
+const SK_19_SETTLES = '出ている通知が無い間、 `Enter` を押したとき、`GRS` は、その場の編集（名称・担当名・タスクグループ名・文書名・プロパティの入力）を確定すること。'
 const IN_4_RESTORE = '取り消したときは、編集を始める前の値へ戻すこと（MUST）。'
 const IN_4_NO_WRITE = '書きかけの文字を文書へ書いてはならない（MUST NOT）（`FR-031`）。'
 const IN_6_PRESS_OUTSIDE =

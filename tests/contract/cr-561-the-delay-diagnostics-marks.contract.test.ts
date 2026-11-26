@@ -86,15 +86,15 @@ const S_395 = ((): string => {
   return found[1] as string
 })()
 
-const FR_133_HIGHEST = '診断を出しているあいだ、`GRS` は、各 `Task` の進捗マーカーを 表 T-315 の状態のうち優先順の最も高いもので描くこと。'
-const FR_133_OTHERS = 'どの状態にも当たらない `Task` は 表 T-021 の記号のままとする。'
-const FR_133_SHAPE = '状態の区別を色だけに頼ってはならない（MUST NOT） —— 表 T-315 の記号の形でも分けること。'
-const FR_133_SIZES = '色と記号の寸法は `_assets/tbl-settings.md` の `S-385` 〜 `S-396`（表 T-236 ・ 表 T-206）に従うこと（MUST）。'
-const T_315_DG_4 = '`DG-4` は 表 T-021 の `PM-4` の黄そのものであり、本表は優先順の中に置くだけで、条件も色も変えない。'
-const T_315_ONLY_SHOWN = '`DG-1` 〜 `DG-3` は診断を出しているあいだだけ描く。'
+const FR_133_HIGHEST = '診断を出している間、`GRS` は、各 `Task` の進捗マーカーを 表 T-315 の状態のうち優先順の最も高いもので描くこと。'
+const FR_133_OTHERS = '診断を出している間、`GRS` は、表 T-315 のどの状態にも当たらない `Task` を 表 T-021 の記号のまま描くこと。'
+const FR_133_SHAPE = '`GRS` は、表 T-315 の状態を記号の形でも分けること。'
+const FR_133_SIZES = '`GRS` は、色と記号の寸法を `_assets/tbl-settings.md` の `S-385` 〜 `S-396`（表 T-236 ・ 表 T-206）に従わせること。'
+const T_315_DG_4 = '`GRS` は、`DG-4` を 表 T-021 の `PM-4` の黄そのものとし、表 T-315 では優先順の中に置くだけで、`PM-4` の条件も色も変えないこと。'
+const T_315_ONLY_SHOWN = '`GRS` は、`DG-1` 〜 `DG-3` を、診断を出している間だけ描くこと。'
 const FR_013_PAINT =
-  '遅延診断を出しているあいだ、`FR-133` の 表 T-315 の `DG-1` 〜 `DG-3` の状態のマーカーは、同表が指す地と記号の色で塗ること（MUST）'
-const FR_013_NOT_FADED = '同表の状態のマーカーも、未着手のタスクで薄くしない'
+  '遅延診断を出している間、`GRS` は、`FR-133` の 表 T-315 の `DG-1` 〜 `DG-3` の状態のマーカーを、表 T-315 が指す地と記号の色で塗ること。'
+const FR_013_NOT_FADED = '`GRS` は、表 T-315 の状態のマーカーを、未着手のタスクで薄くしないこと。'
 
 const LATE = 1
 const GOING = 2

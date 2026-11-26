@@ -57,53 +57,53 @@ const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '
 const STATE_MACHINES = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '_assets', 'tbl-state-machines.md'), 'utf8'))
 
 
-const SJ_10_MARK = '飛ぶ先のタスクかコメントボックスに、飛んだ先の印を付けること（MUST）'
-const SJ_10_KEEP = '波紋の後は囲みだけを残し、`FR-009` の 表 T-303 の `EL-17` の決まりで消すこと（MUST）'
-const SJ_10_RING = '① 囲み —— 予定の形（タスクは描いた予定の図形で実績を含めず、コメントボックスは箱）の外接矩形から、線の内側の縁まで `_assets/tbl-settings.md` の `S-555` だけ空けて、表 T-236 の `S-587` の色で描く、太さ `S-556`、角の丸み `S-588` の実線の矩形。'
-const SJ_10_ABOVE_RING = '選択の枠と掴み点は囲みより手前の層（`FR-110` の 表 T-020 の `ZO-10`）に描くので、囲みに隠れない。'
+const SJ_10_MARK = '飛んだとき、`GRS` は、飛ぶ先のタスクかコメントボックスに、飛んだ先の印を付けること。'
+const SJ_10_KEEP = '`GRS` は、囲みを `FR-009` の 表 T-303 の `EL-17` の決まりで消すこと（押下とキーの押下で消し、見る位置と倍率だけを動かす操作では消さない）。'
+const SJ_10_RING = '`GRS` は、囲みを、予定の形（タスクは描いた予定の図形で実績を含めず、コメントボックスは箱）の外接矩形から線の内側の縁まで `_assets/tbl-settings.md` の `S-555` だけ空けて、表 T-236 の `S-587` の色、太さ `S-556`、角の丸み `S-588` の実線の矩形で描くこと。'
+const SJ_10_ABOVE_RING = '`GRS` は、選択の枠（表 T-023c の `SL-8`）とフェードの掴み点（`FR-075`）を、囲みより手前の層（`FR-110` の 表 T-020 の `ZO-10`）に描くこと'
 const SJ_10_RIPPLE =
-  '② 波紋 —— 印を付けた時から、囲みと同じ色・太さ・角の丸みの矩形を、`S-558` の長さのあいだに囲みの所から各辺 `S-559` だけ外へ広げながら、不透明から透明へ消す。'
-const SJ_10_TIMES = 'これを `S-557` 回続けて出し、出し終えたら消す。'
-const SJ_10_INSIDE = '囲みと波紋は `Task Group Area`（`_assets/tbl-glossary.md` の `U-50`）の中に描く。'
-const SJ_10_Z = '日程表の前後（`FR-110` の 表 T-020）では `ZO-8` に在る —— 進捗マーカーと札より奥である。'
+  '`GRS` は、印を付けた時から、囲みと同じ色・太さ・角の丸みの矩形を、`S-558` の長さのあいだに囲みの所から各辺 `S-559` だけ外へ広げながら、不透明から透明へ消すこと。'
+const SJ_10_TIMES = '`GRS` は、波紋を `S-557` 回続けて出すこと。'
+const SJ_10_INSIDE = '`GRS` は、囲みと波紋を `Task Group Area`（`_assets/tbl-glossary.md` の `U-50`）の中に描くこと。'
+const SJ_10_Z = '`GRS` は、囲みと波紋を、日程表の前後（`FR-110` の 表 T-020）の `ZO-8` に描くこと（進捗マーカーと札より奥）。'
 const SJ_10_REDUCED =
-  '⭐ 閲覧環境が動きを減らす設定（`prefers-reduced-motion: reduce`）のときは波紋を出さず、囲みだけとする'
+  '閲覧環境が動きを減らす設定（`prefers-reduced-motion: reduce`）の間、`GRS` は、波紋を出さずに囲みだけを描くこと。'
 const SJ_10_ENTRANCES =
-  '⭐ 押して飛ぶ入口（`SJ-1` のセル、`FR-134` の行、表 T-351 の `PTL-16` の親の名、`_assets/tbl-property-items.md` の `PR-37`・`PR-38` の名）では、押下が古い印を消し（`EL-17`）、離して飛んだときに新しい印を付ける。'
-const SJ_10_AM_16 = '`SJ-9` の `AM-16` は古い印を新しい印に置き換える。'
+  '押して飛ぶ入口（`SJ-1` のセル、`FR-134` の行、表 T-351 の `PTL-16` の親の名、`_assets/tbl-property-items.md` の `PR-37`・`PR-38` の名）を押したとき、`GRS` は、古い印を消すこと（`EL-17`）。'
+const SJ_10_AM_16 = '`GRS` は、`SJ-9` の `AM-16` では、古い印を新しい印に置き換えること。'
 const SJ_10_NOT_DRAWN =
-  '⚠️ `SJ-8` で画面に出せなかったときと、飛ぶ先の予定の形が描かれていないとき（予定を持たないタスク、予定を表示していないとき —— `S-227` が偽）は、囲みも波紋も描かない。'
+  'もし `SJ-8` で画面に出せなかった場合か、飛ぶ先の予定の形を描いていない場合（予定を持たないタスク、予定を表示していないとき —— `S-227` が偽）、`GRS` は、囲みも波紋も描かないこと。'
 const SJ_10_NOT_SAVED =
-  '⛔ 保存と取り消しは `EL-16` の送った先の印と同じとする —— 同じステートマシン（`_assets/tbl-state-machines.md` の 表 T-280 の `landingMarkDisplayStateMachine`）が持つ。'
-const SJ_10_EXPORT = '⚠️ 書き出す絵（`FR-080`）には描かない。'
-const SJ_10_NO_GAP = '⚠️ 掴み代（`FR-105`）と縦の隙間（`FR-094`）は印で変えない'
+  '`GRS` は、飛んだ先の印の保存と取り消しを、`EL-16` の送った先の印と同じにすること（`_assets/tbl-state-machines.md` の 表 T-280 の `landingMarkDisplayStateMachine`）。'
+const SJ_10_EXPORT = '`GRS` は、書き出す絵（`FR-080`）に飛んだ先の印を描かないこと。'
+const SJ_10_NO_GAP = '`GRS` は、飛んだ先の印で、掴み代（`FR-105`）と縦の隙間（`FR-094`）を変えないこと。'
 const SJ_5_MIDDLE =
-  '飛ぶ先の予定の形（タスクは描いた予定の図形、コメントボックスは箱）の縦の中点が、ピン止めの帯（`FR-098`）の下に残る `Task Group Area`（`_assets/tbl-glossary.md` の `U-50`）の上の縁から、その高さに `_assets/tbl-settings.md` の `S-554` を掛けた所に来るよう、`S-78` と `S-176` を置く。'
-const SJ_5_AFTER_REVEAL = '⭐ 縦の位置は `SJ-2` で展開した後の割付けで読む —— 展開は飛ぶ先より上のタスクグループの高さを変える。'
-const SJ_5_FIRST = '⚠️ 最初のタスクグループより上へは送れない（`S-176` は 0 から） —— 送れる所で止め、形はそれより上に来る。'
+  '`GRS` は、飛ぶ先の予定の形（タスクは描いた予定の図形、コメントボックスは箱）の縦の中点が、ピン止めの帯（`FR-098`）の下に残る `Task Group Area`（`_assets/tbl-glossary.md` の `U-50`）の上の縁から、残る `Task Group Area` の高さに `_assets/tbl-settings.md` の `S-554` を掛けた所に来るよう、`S-78` と `S-176` を置くこと。'
+const SJ_5_AFTER_REVEAL = '`GRS` は、縦の位置を、`SJ-2` で展開した後の割付けで読むこと。'
+const SJ_5_FIRST = 'もし `SJ-5` の所へ置くのに最初のタスクグループより上へ送ることになる場合、`GRS` は、送れる所（`S-176` は 0 から）で止めること。'
 const SJ_6_MIDDLE =
-  '倍率を変えない。飛ぶ先の予定の形の横の中点が `Task Group Area` の横の中点に来るよう、`S-77` と `S-177` を置く'
+  '飛ぶ先の予定の形の幅が `Task Group Area` の幅から `S-428` の 2 つ分を引いた幅以下のとき、`GRS` は、形の横の中点が `Task Group Area` の横の中点に来るよう、`S-77` と `S-177` を置くこと。'
 const SJ_6_WIDE =
-  '⭐ ただし形の幅が `Task Group Area` の幅から `S-428` の 2 つ分を引いた幅より広いときは、飛ぶ先の日付（タスクは `AT-28`、コメントボックスは `SQ-9` と同じ線先が立つ日時）が表示の左端から `S-428` だけ内側に来るよう置く。'
+  '飛ぶ先の予定の形の幅が `Task Group Area` の幅から `S-428` の 2 つ分を引いた幅より広いとき、`GRS` は、飛ぶ先の日付（タスクは `AT-28`、コメントボックスは `SQ-9` と同じ線先が立つ日時）が表示の左端から `S-428` だけ内側に来るよう置くこと。'
 const SJ_6_OCCUPANCY =
-  '飛ぶ先がタスクで、表 T-038 が左へ数える占有（担当と完了率の札 `OC-2` ほか）が日付より左へ出ているときは、日付ではなくその占有の左端を `S-428` だけ内側に置く'
-const SJ_9_STEPS = '`_assets/tbl-agent-api-members.md` の 表 T-107 の `AM-16` は `SJ-0`・`SJ-2`・`SJ-5` 〜 `SJ-8`・`SJ-10` を行う'
-const SJ_9_NO_PANEL = 'ただし `SJ-4` を行わず、パネルに触れず、`SJ-8` では告げずに、寄せなかったことを答えの値で返す'
-const FR_134_JUMP = '表の 1 行の名前を押したら、その行の `Task` へ、`FR-151` の 表 T-332 の飛び方（`SJ-0`・`SJ-2` 〜 `SJ-8`・`SJ-10`）で飛ぶこと（MUST）。'
-const PTL_16_JUMP = 'その親の `Task` へ、`FR-151` の 表 T-332 の飛び方（`SJ-0`・`SJ-2` 〜 `SJ-8`・`SJ-10`）で飛び、親を選ぶ。'
+  '飛ぶ先の予定の形の幅が `Task Group Area` の幅から `S-428` の 2 つ分を引いた幅より広く、飛ぶ先がタスクで、表 T-038 が左へ数える占有（担当と完了率の札 `OC-2` ほか）が日付より左へ出ているとき、`GRS` は、日付ではなく占有の左端を `S-428` だけ内側に置くこと。'
+const SJ_9_STEPS = '`GRS` は、`_assets/tbl-agent-api-members.md` の 表 T-107 の `AM-16` で、`SJ-0`・`SJ-2`・`SJ-5` 〜 `SJ-8`・`SJ-10` を行うこと。'
+const SJ_9_NO_PANEL = '`GRS` は、`AM-16` では検索パネルに触れないこと。'
+const FR_134_JUMP = '表の 1 行の名前を押したとき、`GRS` は、行の `Task` へ、`FR-151` の 表 T-332 の飛び方（`SJ-0`・`SJ-2` 〜 `SJ-8`・`SJ-10`）で飛ぶこと。'
+const PTL_16_JUMP = '`GRS` は、親の `Task` へ、`FR-151` の 表 T-332 の飛び方（`SJ-0`・`SJ-2` 〜 `SJ-8`・`SJ-10`）で飛び、親を選ぶこと。'
 const T_280_JUMP_ROW = '| `screen/searchJumpLanded` | → `shown` | → 自己（中身を書き換える） |'
 const T_280_CLEAR_ROW = '| `screen/landingMarkClearAsked` | — | → `hidden` |'
 const T_280_SHOWN_CARRIES =
   '運ぶ値 `landedBy`（印を付けたもの —— `continuationMark`（続きの印、`EL-16`） ／ `jump`（飛び方、`SJ-10`）） ／ `landedLink`（印を付けた依存線の先行と後続の `UID`。`landedBy` が `continuationMark` のときだけ持ち、`jump` では `null`） ／ `landedTarget`（印の先の `Task` の `UID`、またはコメントボックスの id）'
-const EL_16_NOT_SAVED = '⛔ 印を文書に保存してはならず、取り消しの対象にしてはならない（MUST NOT）'
-const EL_17_CLEAR = '印が出ているあいだに、人が次のどれかを行ったら、印を消すこと（MUST）: 押下（どのボタンでも、画面のどこでも）、キーの押下。'
-const EL_17_VIEW_KEEPS = '⭐ ただし、見る位置と倍率だけを動かす操作'
-const EL_17_WHEEL = 'ホイール（表 T-023 の `MK-1` 〜 `MK-5`、面やパネルの上でその中を送るものを含め、ホイールはどれも消さない）'
-const EL_17_MODIFIER = '修飾キー（`Ctrl` ・ `Shift` ・ `Alt` ・ `Meta`）だけの押下でも消さないこと（MUST）'
+const EL_16_NOT_SAVED = '`GRS` は、送った先の印を文書に保存しないこと（画面の値である —— `_assets/tbl-state-machines.md` の 表 T-280）。'
+const EL_17_CLEAR = '送った先の印が出ている間、人が押下（どのボタンでも、画面のどこでも）かキーの押下を行ったとき、`GRS` は、見る位置と倍率だけを動かす操作・修飾キーだけの押下・`EL-18` の押下を除き、印を消すこと。'
+const EL_17_VIEW_KEEPS = '`GRS` は、見る位置と倍率だけを動かす操作 —— 表 T-027 の `UN-8`（ズーム・スクロール・パン）と、表示の倍率（`FR-039`）の操作 —— では印を消さないこと。'
+const EL_17_WHEEL = 'ホイール（表 T-023 の `MK-1` 〜 `MK-5`、面やパネルの上で面やパネルの中を送るものを含め、ホイールはどれも消さない）'
+const EL_17_MODIFIER = '`GRS` は、修飾キー（`Ctrl` ・ `Shift` ・ `Alt` ・ `Meta`）だけの押下でも印を消さないこと。'
 const EL_18_NOTHING =
-  '印が出ているあいだの 2 回目の押下（宿主が数える押下の回数が 2 以上の押下）では、何もしないこと（MUST）'
+  '`GRS` は、印が出ているあいだの 2 回目の押下（宿主が数える押下の回数が 2 以上の押下）では、何もしないこと'
 const ZO_8_RING = '飛んだ先の印の囲み（`FR-151` の 表 T-332 の `SJ-10`、関係するタスクの囲み `RW-13` も）'
-const UZ_12_INSIDE = '中の前後は `FR-110` の 表 T-020 に従うこと（MUST）'
+const UZ_12_INSIDE = '`GRS` は、`Schedule Canvas` の中の前後を、`FR-110` の 表 T-020 に従わせること。'
 
 const flat = (text: string): string => text.replace(/<br\s*\/?>/g, '').replace(/\*\*/g, '').replace(/\s*\n\s*/g, '')
 

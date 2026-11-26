@@ -409,7 +409,7 @@ src/
 | UF-141 | `ScheduleLayout` | `pinned-band.ts` | `pure` | ピン止めしたタスクグループを上の帯へ持ち上げ、入りきらないタスクグループを落とす（`FR-098`・`LF-14`）。<br>残りのタスクグループとタスクを帯の下へずらす | — |
 | UF-142 | `ScheduleLayout` | `task-group-scroll.ts` | `pure` | 縦の表示位置（`OP-10a`・`S-176`）から、ピン止めでないタスクグループとタスクをずらす | — |
 | UF-143 | `ScheduleLayout` | `fit-zoom.ts` | `pure` | 全体が収まる縦横の倍率と表示位置を求める（`FR-055`・`OP-10`） —— 描く深さを床の倍率で試して選び、横の倍率を `S-75`／`S-76` に収める | `FR-055`（`OW-1`） |
-| UF-6 | `ScheduleGeometry` | `schedule-geometry.ts` | `pure` | 配置から、日程表に描くものの頂点を 1 度に組み立てる（`CP-6`・`LC-10`・`LC-11`） —— 描く設定と選択を 1 回の入力にまとめ（`GeometryInputs`）、兄弟に描くものごとの頂点を問い、基準日線を置く。<br>頂点の型を持ち、兄弟の名を束ねて 表 T-064 の `PI-6` のとおりに公開する | `FR-020`（`OW-2`）・`FR-045`（`OW-2`）・`FR-079`（`OW-4`）・`FR-094`（`OW-4`）・`NFR-013`（`OW-4`） |
+| UF-6 | `ScheduleGeometry` | `schedule-geometry.ts` | `pure` | 配置から、日程表に描くものの頂点を 1 度に組み立てる（`CP-6`・`LC-10`・`LC-11`） —— 描く設定と選択を 1 回の入力にまとめ（`GeometryInputs`）、兄弟に描くものごとの頂点を問い、基準日線を置く。<br>頂点の型を持ち、兄弟の名を束ねて 表 T-064 の `PI-6` のとおりに公開する | `FR-020`（`OW-2`）・`FR-045`（`OW-2`）・`FR-079`（`OW-4`）・`FR-094`（`OW-4`）・`FR-162`（`OW-4`）・`NFR-013`（`OW-4`） |
 | UF-144 | `ScheduleGeometry` | `task-figures.ts` | `pure` | 1 つのタスクの描く図形の頂点を作る —— 予定・実績・マイルストーンの形、名札と担当の札の箱、進捗マーカー、再開アイコン、ダミー、フェードの掴み点（表 T-012・表 T-021・表 T-240・`LF-6` 〜 `LF-13`）。<br>それらを 1 つのタスクの頂点に組む（`taskGeometryOf`） | `FR-043`（`OW-2`） |
 | UF-171 | `ScheduleGeometry` | `highlight-box.ts` | `pure` | ハイライトボックスの箱を、上下のタスクグループと両端の日から置く（`FR-019`）。<br>終わりの日を含め、並びが逆でも min と max で囲み、角の丸みを既定で埋めない（`CM-52`） | — |
 | UF-145 | `ScheduleGeometry` | `dependency-route.ts` | `pure` | 依存線の経路と矢じりを引く（`FR-009`・表 T-018・表 T-018a・表 T-222）。<br>選んだ線を太くし（`SL-8`・`S-447`）、予定日の無いタスクを端にしない（`RT-4a`） | `FR-009`（`OW-1`） |
@@ -426,11 +426,11 @@ src/
 | UF-9 | `ApplyDocumentChange` | `document-change-plan.ts` | `pure` | 照合と、全か無かの組み立て | `FR-095`（`OW-2`） |
 | UF-10 | `EditDocument` | `edit-document.ts` | `pure` | 集約ごとの 8 ファイルと `deletion-confirmations.ts` を束ねて公開する | `FR-007`（`OW-3`）・`FR-032`（`OW-3`） |
 | UF-11 | `EditDocument` | `edit-task.ts` | `pure` | `Task` の命令を受け、要求を負う規則は兄弟のユニットへ委ねて、新しい文書を返す | — |
-| UF-72 | `EditDocument` | `task-create.ts` | `pure` | 構えた形状で、期間を持つタスクを 1 つ立てる | `FR-001`（`OW-2`） |
+| UF-72 | `EditDocument` | `task-create.ts` | `pure` | 構えた形状で、期間を持つタスクを 1 つ立てる | `FR-001`（`OW-2`）・`FR-160`（`OW-2`） |
 | UF-73 | `EditDocument` | `task-paste.ts` | `pure` | 選んだタスクだけをコピーし、選ばれていない子孫タスクはコピーしない | `FR-033`（`OW-2`） |
 | UF-74 | `EditDocument` | `task-plan-actual.ts` | `pure` | 予定と実績の日付を、表 T-245・表 T-019・表 T-021a に従って置く | `FR-011`（`OW-2`）・`FR-044`（`OW-2`）・`FR-103`（`OW-2`） |
 | UF-75 | `EditDocument` | `percent-complete.ts` | `pure` | 完了率を、稼働日で数えた実績と予定から算出し直す。<br>文書の全 `Task` を数え直して、値が変わった `Task` を答える —— 暦の編集（`UF-16`）と `GRS JSON` の読み（`UF-35`）が同じ式を呼ぶ | `FR-012`（`OW-2`） |
-| UF-76 | `EditDocument` | `task-appearance.ts` | `pure` | タスクの見た目 —— 形・図形・色・線の太さ・名の置き場・フェードの日数 —— を書き換える | `FR-083`（`OW-2`） |
+| UF-76 | `EditDocument` | `task-appearance.ts` | `pure` | タスクの見た目 —— 形・図形・色・線の太さ・名の置き場・フェードの日数 —— を書き換える | `FR-083`（`OW-2`）・`FR-161`（`OW-2`） |
 | UF-12 | `EditDocument` | `edit-task-group.ts` | `pure` | `TaskGroup` の命令を受け、要求を負う規則は兄弟のユニットへ委ねて、新しい文書を返す | `FR-111`（`OW-2`） |
 | UF-77 | `EditDocument` | `task-group-naming.ts` | `pure` | タスクグループを、名か由来を持つものとして立て、名を付け替える | `FR-058`（`OW-2`）・`FR-085`（`OW-2`） |
 | UF-78 | `EditDocument` | `task-group-look.ts` | `pure` | タスクグループの色と最小の高さを書き換える | `FR-042`（`OW-2`） |
@@ -571,8 +571,8 @@ src/
 
 **「負う要求」の欄の結び。**
 
-`01-04-requirements.md` が持つ要求は 136 件である（`FR` が 123 件、`NFR` が 13 件）。  
-そのうち 122 件は、上の欄が起点のユニットを名指している。
+`01-04-requirements.md` が持つ要求は 139 件である（`FR` が 126 件、`NFR` が 13 件）。  
+そのうち 125 件は、上の欄が起点のユニットを名指している。
 
 ⛔ **起点のユニットを持たない要求が 5 件ある** —— どれも 表 T-277 の `OW-5` である。  
 `OW-5` は表 T-075 の欄に立たないので、確かめる手立てを本段が名指す。

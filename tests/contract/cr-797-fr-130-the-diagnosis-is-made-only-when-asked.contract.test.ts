@@ -27,19 +27,19 @@ import { FINISH_OF, FS, START_OF, documentOf, type TaskSpec } from './cr-731-sta
 import { agentApiOf, windowStage, type WindowStage } from './cr-760-stage'
 import { specTable, unbroken } from './spec-table'
 
-const FR_130_NEVER_BY_ITSELF = '⛔ 診断を出しているあいだに文書が変わっても、診断を自分からやり直してはならない（MUST NOT） —— マーカーと一覧は、診断した時の結果のまま残す。'
-const FR_130_ONLY_WHEN_ASKED = 'やり直すのは、`IC-107`（窓を閉じたあと）と `IC-168` を押したときと、AI が `Agent API` の `AM-31`（`runDelayDiagnostics`）を呼んだときだけである。'
-const FR_130_IC_168 = '窓の `IC-168`（`RW-3`）を押したら、窓を開いたまま、いまの文書で診断をやり直し、その結果をマーカーと一覧に出すこと（MUST）。'
+const FR_130_NEVER_BY_ITSELF = '診断を出している間、文書が変わったとき、`GRS` は、診断を自分からやり直さないこと（マーカーと一覧は、`IMPS-560` の `Task` を除き、診断した時の結果のまま残る）。'
+const FR_130_ONLY_WHEN_ASKED = '`GRS` は、診断を、`IC-107`（窓を閉じたあと）と `IC-168` を押したときと、AI が `Agent API` の `AM-31`（`runDelayDiagnostics`）を呼んだときだけにやり直すこと。'
+const FR_130_IC_168 = '窓の `IC-168`（`RW-3`）を押したとき、`GRS` は、窓を開いたまま、いまの文書で診断をやり直し、やり直した結果をマーカーと一覧に出すこと。'
 const FR_130_OPERATED_DROPS =
-  'ただし、進捗マーカーを押して状態を巡らせたか、引いて実績の終了を動かした `Task`（表 T-270 の `PE-8`・`PE-10`）は、次に診断するまで `FR-133` の 表 T-315 の `DG-1` 〜 `DG-3` の印を描かず、普段の状態の印で描くこと（MUST）。'
-const FR_130_JUMP_KEEPS = '窓が開いていて行へ送るだけの押下（`FR-134` の 表 T-346 の `RW-19`）は状態を変えないので、印を外さない。'
-const FR_130_ONLY_END = '診断の表示を終えるのは、`IC-40`（`FR-049`）を押したときである（`RW-1`）。'
-const PE_8_DROPS = '⚠️ 押して巡らせても引いても、そのタスクの `DG-1` 〜 `DG-3` の印は次の診断まで外れる（`FR-130`）'
+  '`GRS` は、進捗マーカーを押して状態を巡らせたか、引いて実績の終了を動かした `Task`（表 T-270 の `PE-8`・`PE-10`）を、次に診断するまで `FR-133` の 表 T-315 の `DG-1` 〜 `DG-3` の印を描かずに、普段の状態の印で描くこと。'
+const FR_130_JUMP_KEEPS = '窓が開いている間、マーカーを押して行へ送るだけのとき（`FR-134` の 表 T-346 の `RW-19`）、`GRS` は、診断の印を外さないこと。'
+const FR_130_ONLY_END = '`GRS` は、`IC-40`（`FR-049`）を押したときにだけ、診断の表示を終えること（`RW-1`）。'
+const PE_8_DROPS = '押して巡らせても引いても、`GRS` は、マーカーのタスクの `DG-1` 〜 `DG-3` の印を次の診断まで外すこと（`FR-130`）。'
 const RW_16_ISSUED_LEAVE =
-  '⭐ 束を発行しても診断はやり直さない（`FR-130`）ので、発行した行は、次に診断するまで修正案の表から外すこと（MUST） —— 修正の記録の表にだけ載り、同じ直しを二度発行できない。'
-const RW_16_UNDO_BRINGS_BACK = '束を取り消せば修正案の表に戻る（利用者が定めた）。'
-const RW_3_ORDER = '左から、`IC-168`（再診断 —— 語の入口、語は `_assets/tbl-settings.md` の 表 T-206 の `S-623` の太さ、`RW-1`）・`IC-140`（`[.md]`）・`IC-108`（クリップボードへコピーする）・入力欄。'
-const RW_3_EVERY_TABLE = '`IC-168` は 3 つの表（`RW-11`）のどれを出しているときも置く。'
+  '束を発行したとき、`GRS` は、発行した行を、次に診断するまで修正案の表から外すこと。'
+const RW_16_UNDO_BRINGS_BACK = '束を取り消したとき、`GRS` は、束の行を修正案の表に戻すこと（利用者が定めた）。'
+const RW_3_ORDER = '`GRS` は、タイトルバーの下の 1 行に、左から、`IC-168`（再診断 —— 語の入口、語は `_assets/tbl-settings.md` の 表 T-206 の `S-623` の太さ、`RW-1`）・`IC-140`（`[.md]`）・`IC-108`（クリップボードへコピーする）・入力欄を置くこと。'
+const RW_3_EVERY_TABLE = '`GRS` は、`IC-168` を 3 つの表（`RW-11`）のどれを出しているときも置くこと。'
 
 const SPEC = join(process.cwd(), 'docs', 'spec')
 const REQUIREMENTS = unbroken(readFileSync(join(SPEC, '01-04-requirements.md'), 'utf8'))

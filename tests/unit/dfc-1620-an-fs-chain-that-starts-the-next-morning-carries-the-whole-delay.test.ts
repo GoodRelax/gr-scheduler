@@ -15,7 +15,7 @@ const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '
 
 // Why: each clause is cut from the manuscript as check 39 reads it, so the cases cannot drift from the words they test.
 // CR-710 retired the "MSPDI documents only" reading and the "same day" FS bound: every document reads instants.
-const BD_2_INSTANT = 'すべての文書で瞬間で読み、FS の後続の最早開始は、先行の見込み終了の瞬間 ＋ `linkLag` である'
+const BD_2_INSTANT = '`GRS` は、依存が課す最早の瞬間を 表 T-310 の `VC-15` の式と同じく、すべての文書で瞬間で読み、FS の後続の最早開始を、先行の見込み終了の瞬間 ＋ `linkLag` とすること。'
 const BD_2_K_DAYS = '17:00 に終わり翌朝 8:00 に始める FS の鎖では、計画どおりなら押し出しは 0、先行が k 日遅れれば後続へ k 日届く'
 const BD_4_TERMINAL = '終端ごとに、終端の遅れ（見込み終了 − `finish`、0 以上）を残りとし'
 

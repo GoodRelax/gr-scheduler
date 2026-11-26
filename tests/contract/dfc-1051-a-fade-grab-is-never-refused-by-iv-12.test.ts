@@ -26,9 +26,9 @@ const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '
 
 // Why: each constant ends exactly at its marker, cut from the manuscript as check 39 reads it.
 const FD_6_SAME_COUNT =
-  '⛔ 本表の「期間」は暦日で数えること（MUST）。'
+  '`GRS` は、表 T-012a の「期間」を、稼働日ではなく暦日で数えること。'
 const FD_6_IV_12_AGREES =
-  '⚠️ **表 T-220 の `IV-12` も同じ数え方に従うこと（MUST）** —— 一方が暦日、他方が稼働日だと、`FR-016` の掴み点が許した日数を不変条件が拒む'
+  '`GRS` は、表 T-220 の `IV-12` の期間も、`FD-6` と同じ暦日で数えること。'
 
 afterEach(restoreAnimationFrames)
 

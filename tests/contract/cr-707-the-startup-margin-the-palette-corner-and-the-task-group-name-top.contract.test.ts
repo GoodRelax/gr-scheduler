@@ -21,8 +21,8 @@ const OP_10_MARGIN =
   'その最初の日の左端は、`Task Group Area` の左端から `_assets/tbl-settings.md` の 表 T-206 の `S-534` だけ右に置くこと（MUST）'
 const OP_10_WRITTEN =
   '書く文書の `scrollDate`（`S-77`）と `S-177` に `Task Group Area` の左端が指す日とその日の中の位置を、`scrollTaskGroupId`（`S-78`）に描いているタスクグループの木の先頭のタスクグループを、`S-176` に `0` を書くこと（MUST）'
-const FR_053_CORNER = '既定の角は `_assets/tbl-settings.md` の 表 T-206 の `S-535` に従うこと（MUST）'
-const FR_085_TOP = 'タスクグループ名は、タスクグループパネルのそのタスクグループの箱の上端に寄せて置くこと（MUST）'
+const FR_053_CORNER = '`GRS` は、既定の角を、`_assets/tbl-settings.md` の 表 T-206 の `S-535` に従わせること。'
+const FR_085_TOP = '`GRS` は、タスクグループ名を、タスクグループパネルのタスクグループの箱の上端に寄せて置くこと（タスクグループが名前の 1 行より高いときも同じ）。'
 
 const REQUIREMENTS = readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8')
 

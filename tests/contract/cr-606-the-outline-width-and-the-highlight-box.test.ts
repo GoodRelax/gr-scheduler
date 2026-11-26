@@ -32,12 +32,12 @@ import { bare, specTable, unbroken } from './spec-table'
 
 // Spec: CL-2, AT-104, VG-5, BL-3
 const CL_2_RANGE_AT_AT_104 = '受ける下限と上限は列の定義（`AT-104`）に書く。'
-const CL_2_NULL_IS_S_39 = '`null` のときは `_assets/tbl-settings.md` の 表 T-201 の `S-39` の太さで描く'
+const CL_2_NULL_IS_S_39 = '線の太さが `null` のとき、`GRS` は、`_assets/tbl-settings.md` の 表 T-201 の `S-39` の太さで線を描くこと。'
 const AT_104_BOTH_OUTLINES = '予定バーと実績バーの縁の両方をこの太さで描く。'
 const VG_5_OUTER_EDGE =
   '枠線（その形の枠線の太さの列 `AT-104` の値、`null` のときは `S-39` に、描く比を掛けた太さ）は形の端を中心に引くので、その半分が形の外へ出る。'
 const BL_3_KEEPS_S_39 =
-  '太さは同書の 表 T-201 の `S-39`（枠線の太さを指定していない予定の輪郭と同じ太さ —— 今の予定の `AT-104` は継がない）'
+  '`GRS` は、輪郭の線の色を `_assets/tbl-settings.md` の 表 T-236 の `S-443`、太さを `_assets/tbl-settings.md` の 表 T-201 の `S-39`（枠線の太さを指定していない予定の輪郭と同じ太さ —— 今の予定の `AT-104` は継がない）、破線の刻みを `_assets/tbl-settings.md` の 表 T-206 の `S-444` とすること。'
 // Spec: FR-019, HB-12, IV-9
 const FR_019_NO_LINE = 'ハイライトボックスの枠の線にも、タスクと同じく透明（線なし）を選ばせること（MUST）'
 const FR_019_NOT_BOTH = '⛔ ただし、塗りと枠の線を同時に透明にすることを許してはならない（MUST NOT）'
@@ -46,7 +46,7 @@ const FR_019_NULL_FILL =
 const FR_019_NULL_DEFAULTS = '⭐ 線の太さと透過率の列が `null` のときは、表 T-217 の同じ列の既定で描くこと（MUST）'
 const FR_019_PLACED_UNFILLED =
   '⭐ 置くとき（表 T-108 の `CM-52`）は、塗りの色の列に 表 T-217 の `S-370`（透明）をコピーすること（MUST）'
-const HB_12_SAME_BAND = '⭐ 枠の線が透明（線なし）でも、掴み代は同じ所に同じ幅で置くこと（MUST）'
+const HB_12_SAME_BAND = '枠の線が透明（線なし）でも、`GRS` は、掴み代を同じ所に同じ幅で置くこと。'
 const IV_9_BOTH_ENTITIES = '`TaskVisual` と `HighlightBox` のそれぞれで、`fillColor` と `strokeColor` が同時に透明でないこと'
 
 const SPEC = join(process.cwd(), 'docs', 'spec')

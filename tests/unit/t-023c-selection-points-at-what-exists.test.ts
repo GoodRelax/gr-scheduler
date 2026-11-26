@@ -576,7 +576,7 @@ describe('the manuscript still says what these cases read', () => {
       expect(SL_1, `SL-1 still names ${one.kind}`).toContain(one.word)
     }
     expect(SL_1_KINDS).toHaveLength(5)
-    expect(SL_1, 'SL-1 still keeps task groups out').toContain('タスクグループ（`TaskGroup`）は対象に含めない')
+    expect(SL_1, 'SL-1 still keeps task groups out').toContain('`GRS` は、タスクグループ（`TaskGroup`）を選択の対象に含めないこと。')
   })
 
   it('the keys these cases press are still the ones table T-036 assigns', () => {

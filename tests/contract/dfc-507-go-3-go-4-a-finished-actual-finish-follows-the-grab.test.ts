@@ -53,23 +53,23 @@ const REQUIREMENTS = unbroken(
 )
 
 const FR_011_RIGHT_END_IS_A_POSITION =
-  '⭐ **本要求の「実績バーの右端」は位置であって終了日ではない** —— 実績の最後の日の翌暦日の列の左端であり、実績の終了日は最後の日そのものである。'
+  '時刻を表示しない（`FR-158`）間、`GRS` は、実績バーの右端を、実績の最後の日の翌暦日の列の左端にすること。'
 
 const FR_011_MILESTONE_READING =
-  '⚠️ マイルストーンにはこの読みを当てない —— 長さを持たない点なので（`S-130`、表 T-012 の `SH-5`）、実績の終了日は `actualStart` と同じ日である。'
+  '`GRS` は、マイルストーンの実績の終了日を、`actualStart` と同じ日にすること（`IMPS-407`・`IMPS-408` の読みをマイルストーンに当てない）。'
 
-const FR_011_NOT_THE_FINISH_DAY = '⚠️ **「右端」を終了日と読んではならない（MUST NOT）**'
+const FR_011_NOT_THE_FINISH_DAY = '`GRS` は、実績の終了日を、実績の最後の日そのものにすること（実績バーの右端は位置であって終了日ではなく、`GRS` は右端を終了日と読まない）。'
 
 const FR_011_PANEL_IS_ANOTHER_FACE =
-  '⚠️ プロパティパネル（`FR-006` の表 T-016）と `Agent API`（`FR-028`）は値として編集する別の面であり、この禁止の対象ではない —— 禁じているのは**掴んだつもりが実績を動かす**事故であって、値を明示して入れる操作ではない。'
+  '`GRS` は、画面上で直接掴んで実績の日付を書き込む経路（全数は表 T-023d が持つ）のほかの直接操作で、実績の日付を変えないこと（プロパティパネル（`FR-006` の 表 T-016）と `Agent API`（`FR-028`）は値として編集する別の面であり、`IMPS-429` の対象ではない）。'
 
 const FR_006_STATEMENT =
-  'プロパティパネルが選択を出しているとき、`GRS` は、**表 T-016 の項目**をプロパティパネルに出し、**同表が読み取り専用と記した項目を除いて**編集できるようにすること。'
+  'プロパティパネルが選択を出している間、`GRS` は、表 T-016 の項目のうち表 T-016 が読み取り専用と記した項目を除く項目を、プロパティパネルで編集できるようにすること。'
 
 const GO_3_WHICH_COLUMN =
-  '`actualFinish` を持つとき（表 T-019 の `PA-5`）は `actualFinish`、持たないときは `stop` に置く。'
+  '`actualFinish` を持つとき（表 T-019 の `PA-5`）は `actualFinish`、持たないときは `stop` に置く'
 
-const GO_4_LAST_DAY = '持っているほうの最後の日（`actualFinish` または `stop`）も、置き直した `actualStart` と同じ日とする'
+const GO_4_LAST_DAY = '`GRS` は、持っているほうの最後の日（`actualFinish` または `stop`）も、置き直した `actualStart` と同じ日にすること。'
 
 const T_245 = specTable('T-245')
 const T_021A = specTable('T-021a')
@@ -372,7 +372,7 @@ describe('DFC-507 -- the manuscript this file is driven by', () => {
   it('GO-3 still says: `actualFinish` を持つとき（表 T-019 の `PA-5`）は `actualFinish`、持たないときは `stop` に置く', () => {
     const go3 = rowCells(T_245, 'GO-3')
     expect(go3).toContain(GO_3_WHICH_COLUMN)
-    expect(go3).toContain('長さの数え方と床（`S-129`）は `FR-011` が持ち、本行は独自の数え方を持たない')
+    expect(go3).toContain('`GRS` は、実績の長さの数え方と床（`S-129`）を `FR-011` に従わせ、`GO-3` に独自の数え方を持たせないこと。')
   })
 
   it('GO-4 still says: 持っているほうの最後の日も、置き直した `actualStart` と同じ日とする', () => {
@@ -380,8 +380,8 @@ describe('DFC-507 -- the manuscript this file is driven by', () => {
   })
 
   it('PV-2 and FR-011 still read actualFinish as the last day, not the right end, and a milestone finish as its start', () => {
-    expect(rowCells(T_021A, 'PV-2')).toContain('`actualFinish` ＝ `stop`、`stop` ＝ 空（`FR-011`。')
-    expect(rowCells(T_021A, 'PV-2')).toContain('`actualFinish` は実績の最後の日そのものであり、実績バーの右端の位置ではない）')
+    expect(rowCells(T_021A, 'PV-2')).toContain('`GRS` は、`actualFinish` ＝ `stop`、`stop` ＝ 空 を置くこと（`FR-011`）。')
+    expect(rowCells(T_021A, 'PV-2')).toContain('`actualFinish` は実績の最後の日そのものであり、実績バーの右端の位置ではない。')
     expect(REQUIREMENTS).toContain(FR_011_RIGHT_END_IS_A_POSITION)
     expect(REQUIREMENTS).toContain(FR_011_MILESTONE_READING)
     expect(REQUIREMENTS).toContain(FR_011_NOT_THE_FINISH_DAY)

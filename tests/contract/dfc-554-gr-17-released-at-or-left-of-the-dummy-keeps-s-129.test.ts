@@ -31,25 +31,25 @@ const REQUIREMENTS = unbroken(
 const ERD_DETAIL = readFileSync(join(process.cwd(), 'docs', 'spec', '_assets', 'fig-erd-detail.md'), 'utf8')
 
 const FR_011_FLOOR =
-  '⭐ 着手しているタスクの実績の最後の日を、床の日より前に置かないこと（MUST）'
+  '`GRS` は、着手しているタスクの実績の最後の日を、床の日より前に置かないこと'
 
 const FR_011_ZERO_LIFTED =
-  '⭐ 下の段が数える長さが 0 になる置き方（最後の日が `actualStart` より前で、その間に稼働日が無い）は床の日へ持ち上げ、0 を下回る置き方は `05-07-design.md` の 表 T-220 の `IV-21` が拒む。'
+  '`GRS` は、`IMPS-412` が数える長さが 0 になる置き方（最後の日が `actualStart` より前で、間に稼働日が無い）を、床の日へ持ち上げること。'
 
 const FR_011_NOT_TO_ZERO =
-  '掴んで 0 稼働日まで縮められるようにしてはならない（MUST NOT） —— ⛔ 掴み代は描かれた印そのものなので（表 T-023d の結び）、長さが 0 になるとインクも掴み代も 0 になり、二度と掴めなくなる。'
+  '`GRS` は、実績を掴んで 0 稼働日まで縮められるようにしないこと。'
 
 const FR_043_ZERO_ACCEPTED =
-  '終了点を開始点の位置まで動かして長さを 0 にすることは受け入れる —— そのあと長さを直すのはプロパティパネル（表 T-016 の `PR-5`）である。'
+  '終了点を開始点の位置まで動かして長さを 0 にしたとき、`GRS` は、長さ 0 の位置を受け入れること。'
 
 const FR_043_ZERO_IS_A_POSITION =
-  '⚠️ **ここでいう 0 は位置の話である** —— **開始日と終了日が同じ日の実績は 1 日であり、0 日ではない**（`FR-011`）。'
+  '`IMPS-450` —— ⚠️ 0 は位置の話である —— 開始日と終了日が同じ日の実績は 1 日であり、0 日ではない（`FR-011`）。'
 
 const GO_7_PINS_THE_START =
   '実績の最後の日 ＝ 離した所そのもの、`actualStart` ＝ 予定の開始日（時刻を表示しているとき（`FR-158`）は予定の開始の瞬間 —— ' +
   '表 T-240 の `DM-1` であり、日の既定の開始時刻へ丸めない）、`resumeValid` ＝ `true`'
 
-const DM_1_THE_PLAN_START_DAY = '**ダミーを描く位置は、予定の開始日とすること（MUST）'
+const DM_1_THE_PLAN_START_DAY = '`GRS` は、ダミーを予定の開始日の位置に描くこと。'
 
 const AT_39_NOT_NEGATIVE = '| `Task` | `percentComplete` | 整数（0 以上） |'
 

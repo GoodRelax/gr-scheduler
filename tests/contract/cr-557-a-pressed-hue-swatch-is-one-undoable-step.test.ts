@@ -55,11 +55,11 @@ import { bare, specTable, unbroken } from './spec-table'
 const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
 const CLAUSE_ONE_CM_5 =
-  'その欄には 表 T-305 の行を同表の順に、1 段に `_assets/tbl-settings.md` の 表 T-206 の `S-368` 個ずつ並べ、押された行の色相で 表 T-108 の `CM-5` を 1 回発行すること（MUST）。'
-const CLAUSE_UN_13 = '取り消しの段は 表 T-027 の `UN-13` に従う。'
+  'テーマ色の欄の行を押したとき、`GRS` は、押した行の色相で 表 T-108 の `CM-5` を 1 回発行すること。'
+const CLAUSE_UN_13 = '`GRS` は、`CM-5` の取り消しの段を 表 T-027 の `UN-13` に従わせること。'
 const CLAUSE_NO_STEP = '⛔ 書き込みが文書の値を 1 つも変えなかったときは、取り消しの段を残さないこと（MUST）'
 const CLAUSE_EXCEPTION =
-  '⭐ ただし、別の要求がその入口を本面の欄として置いたときは、その欄だけは、その要求に従って選ばせること（MUST） —— `FR-041` のテーマ色の欄がこれである。'
+  '別の要求が設定を変える入口を文書の設定の面の欄として置いたとき、`GRS` は、別の要求が置いた欄を、置いた要求が定めるとおりに選ばせること（例: `FR-041` のテーマ色の欄）。'
 
 const K_60 = 'K-60'
 const HUE_KEY = { holder: 'project', column: 'themeHue' } as const
@@ -302,7 +302,7 @@ function press(built: Stage, node: FakeElement): FieldCommit | null {
 }
 
 describe('CR-557 -- the manuscript still says what these cases read', () => {
-  it.each([CLAUSE_ONE_CM_5, CLAUSE_UN_13, CLAUSE_NO_STEP, CLAUSE_EXCEPTION])('%s', (clause) => {
+  it.each([CLAUSE_ONE_CM_5, '`GRS` は、テーマ色の欄に、表 T-305 の行を表 T-305 の順に、1 段に `_assets/tbl-settings.md` の 表 T-206 の `S-368` 個ずつ並べること。', CLAUSE_UN_13, CLAUSE_NO_STEP, CLAUSE_EXCEPTION])('%s', (clause) => {
     expect(REQUIREMENTS).toContain(clause)
   })
 

@@ -113,10 +113,10 @@ const REQUIREMENTS = unbroken(readFileSync(
 
 /** FR-085's sentence these cases stand on, quoted from the manuscript. */
 const FR_085_THE_RENAME_PATH =
-  'タスクグループ名を変える経路は、タスクグループパネルでその名前をダブルクリックすること'
+  'タスクグループパネルでタスクグループ名をダブルクリックしたとき（表 T-023 の `MK-13`）、`GRS` はプロパティパネルを出すこと。'
 /** FR-042's, the half that puts the name on the panel at all. */
 const FR_042_THE_NAME_IS_ON_THE_PANEL =
-  'もこのパネルで編集できるようにすること（MUST）'
+  '`GRS` は、タスクグループ名（`_assets/fig-erd-detail.md` の `AT-53`）もプロパティパネルで編集できるようにすること。'
 /** ⛔ The one it overrode. It may stand as history, never as a live rule. */
 const THE_OVERRIDDEN_SENTENCE =
   '⚠️ **タスクグループ名はここで扱わない** —— 名前を付ける・変える入口は `FR-085` のタスクグループパネル 1 つとする（`FR-029`）。'

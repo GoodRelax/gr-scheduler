@@ -220,7 +220,7 @@ describe(`table T-266 -- one value moves one target and one direction: ${FR_104_
   }
 
   const capped = (settingId: string): boolean =>
-    ownerOf(settingId).across.includes('印の幅の半分までとすること') || cappedByTheMarker(settingId)
+    ownerOf(settingId).across.includes('印の幅の半分までにすること') || cappedByTheMarker(settingId)
 
   it.each(grabSettingIds().filter((one) => !capped(one)))(
     `%s reaches the hit test: moving it moves at least one answer`,

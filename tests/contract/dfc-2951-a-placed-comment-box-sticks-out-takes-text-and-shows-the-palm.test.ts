@@ -42,9 +42,9 @@ const SM_CREATED_FROM_NOTHING = '→ `objectsSelected`（`selectedObjects` は�
 const SM_CREATED_REPLACES = '→ 自己（`selectedObjects` を置いたコメントボックス 1 つに置き換える）'
 // Spec: FR-106, PK-8
 const FR_106_PALM =
-  'コメントボックスの本体と引出し線の掴み代（表 T-023d の `GR-14`、`_assets/tbl-settings.md` の 表 T-206 の `S-291`）では、表 T-269 の `PK-8` とすること（MUST）'
+  '`GRS` は、コメントボックスの本体と引出し線の掴み代（表 T-023d の `GR-14`、`_assets/tbl-settings.md` の 表 T-206 の `S-291`）では、表 T-269 の `PK-8` にすること。'
 const FR_106_MOVE =
-  'コメントボックスの線先の掴み代（表 T-023d の `GR-14`、`_assets/tbl-settings.md` の 表 T-206 の `S-292`）では、表 T-269 の `PK-11` とすること（MUST）'
+  '`GRS` は、コメントボックスの線先の掴み代（表 T-023d の `GR-14`、`_assets/tbl-settings.md` の 表 T-206 の `S-292`）では、表 T-269 の `PK-11` にすること。'
 
 // Spec: T-217, S-600
 const S_600 = ((): number => {

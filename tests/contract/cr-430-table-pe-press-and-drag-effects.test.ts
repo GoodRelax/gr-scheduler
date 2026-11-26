@@ -40,22 +40,22 @@ import {
 const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
 const FR_107_ONLY_THESE =
-  '`GRS` は、日程表の上の直接操作では、実績の日付を、利用者が実績（ダミーを含む）を掴んで意図して動かしたとき、または進捗マーカーを押す・引くとき（表 T-270 の `PE-8` と `PE-10` と同表の「押下の巡り」の段）にだけ変えること（MUST）。'
-const FR_107_NOT_ON_THE_SIDE = 'ほかの操作のついでに変えてはならない（MUST NOT）。'
-const T_270_EVERY_ROAD = '⭐ 実績を直接動かす経路の全数は本表が持つ（MUST）。'
-const T_270_NO_OTHER_ROAD = '⛔ 本表に無い直接操作で実績の日付を変えてはならない（MUST NOT）。'
+  '`GRS` は、日程表の上の直接操作では、利用者が実績（ダミーを含む）を掴んで意図して動かしたとき、または進捗マーカーを押す・引くとき（表 T-270 の `PE-8` と `PE-10` と「押下の巡り」の段）にだけ、実績の日付を変えること。'
+const FR_107_NOT_ON_THE_SIDE = '（表 T-270 の `PE-8` と `PE-10` と「押下の巡り」の段）にだけ、実績の日付を変えること。'
+const T_270_EVERY_ROAD = '`GRS` は、どの操作が何を変えるかを表 T-270 に従わせること。'
+const T_270_NO_OTHER_ROAD = '`GRS` は、表 T-270 に無い直接操作で実績の日付を変えないこと。'
 const T_270_PAUSED_MARKER =
-  '⚠️ 中断のあいだ、進捗マーカーを引いても何もしない（`PE-10`） —— 停止日を動かすのは実績の終了の端（`PE-3`）である。'
+  '⚠️ `PE-10` —— 中断の間、進捗マーカーを引いても何もしない —— 停止日を動かすのは実績の終了の端（`PE-3`）である。'
 const T_270_SELECTS =
-  '⭐ タスクに属する行（`PE-1` ／ `PE-3` ／ `PE-6` ／ `PE-7` ／ `PE-8` ／ `PE-10` ／ `PE-11`）は、押して離せばそのタスクを選ぶこと（MUST）'
+  'タスクに属する行（`PE-1` ／ `PE-3` ／ `PE-6` ／ `PE-7` ／ `PE-8` ／ `PE-10` ／ `PE-11`）を押して離したとき、`GRS` は押したタスクを選ぶこと。'
 const FR_105_NO_TEXT_SELECTION =
-  '`Schedule Canvas`（`Time Ruler` の帯を含む）の上の押下と引く操作で、字の選択を始めてはならない（MUST NOT）。'
+  '`GRS` は、`Schedule Canvas`（`Time Ruler` の帯を含む）の上の押下と引く操作で、字の選択を始めないこと。'
 const FR_105_MODIFIED_TOO =
-  '修飾キーを付けた割当の無い引く操作も同じである —— 表 T-023 の `MK-12` の「ブラウザの既定動作に委ねる」に、この 1 つの例外を置く。'
-const T_270_PE_0_EVERYWHERE = '⚠️ `Schedule Canvas` の上で字の選択を始めない規則は、押下でも引く操作でも同じである —— 表 T-270 の `PE-0` が全数を持つ。'
+  '`GRS` は、修飾キーを付けた割当の無い引く操作でも、字の選択を始めないこと —— 表 T-023 の `MK-12` の「ブラウザの既定動作に委ねる」に、`IMPS-1623` の 1 つの例外を置く。'
+const T_270_PE_0_EVERYWHERE = '⚠️ `Schedule Canvas` の上で字の選択を始めない規則（`IMPS-1622`）は、押下でも引く操作でも同じである —— 表 T-270 の `PE-0` が全数を持つ。'
 const FR_105_RIGHT_BUTTON_LEFT_ALONE =
-  '⛔ 右ボタンの押下は止めてはならない（MUST NOT） —— 右ボタンは字の選択を始めないので本要求の対象ではなく、' +
-  '表 T-023 は右ボタンに行を与えていないから、既定の文脈メニューは閲覧環境のものである。'
+  '`GRS` は、' +
+  '右ボタンの押下を止めないこと。'
 
 const T_270 = specTable('T-270')
 const GRABBED = '掴んだもの'
@@ -139,7 +139,7 @@ describe('CR-430 -- the manuscript these cases are driven by', () => {
 
 describe('control -- a quotation this file leans on can go red', () => {
   it('one character off the FR-107 statement is not in the manuscript', () => {
-    expect(REQUIREMENTS).not.toContain(FR_107_ONLY_THESE.replace('だけ変えること', 'だけ変えぬこと'))
+    expect(REQUIREMENTS).not.toContain(FR_107_ONLY_THESE.replace('にだけ、実績の日付を変えること', 'にだけ、実績の日付を変えぬこと'))
   })
 })
 

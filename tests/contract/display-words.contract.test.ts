@@ -117,8 +117,8 @@
 //      group holds no entry and `CommandPalette` publishes no member that
 //      would carry the GROUP's name.
 //      ⭐ THAT IS NOT THE `arms` SECTION, WHICH IS HELD. Table T-023b's closing
-//      rule (MUST) now puts the word of each arm in this dictionary 「辞書が持
-//      ち、行 ID で引き」 and bars the row id from the screen (MUST NOT), and
+//      rule (MUST) now puts the word of each arm in this dictionary 「辞書が構
+//      えの語を持ち、行 ID で引き」 and bars the row id from the screen (MUST NOT), and
 //      FR-053 (MUST) has what is armed readable on the screen -- so each of
 //      AR-1 .. AR-6 is a place here, on the palette, read off
 //      `CommandPalette.armedText`. ⚠️ `armedText` is not the group heading, and
@@ -333,9 +333,9 @@ const KEY_FIELD: Readonly<Record<string, string>> = {
   branding: 'part',
   // ⭐ THE SECTION DFC-171 RAISED. `FR-032` (MUST) settles the name of a task group whose
   // derivation source is about to go, and 2026-09-01 added the case the reader
-  // hit every time: 「⛔⛔ **導出元の `Task` が名前を持たないときは、タスクグループ名を
-  // 既定の名前に確定させること（MUST）。名前が無いことを理由に削除を拒んでは
-  // ならない（MUST NOT）** —— ⭐ **語は `FR-038` の辞書が持ち、ここに綴らない。**」
+  // hit every time: 「もし導出元の `Task` が名前を持たない場合、`GRS` は、導出元の `Task` を消す前に、タスクグループ名を
+  // 既定の名前に確定させること ... `GRS` は、導出元の `Task` に名前が無いことを理由に削除を拒まない
+  // こと ... 既定の名前の語は `FR-038` の辞書が持ち、`FR-032` に綴らない。」
   // ⇒ the requirement sends the word here BY NAME, which is why this section is
   // a section and not a literal in a unit.
   // ⚠️ KEYED BY WHAT THE DEFAULT IS FOR (`use`), because no table numbers it:
@@ -359,13 +359,13 @@ const KEY_FIELD: Readonly<Record<string, string>> = {
   // manuscript -- 「名簿は、その語を画面へ出すことを課した要求の側が既に持っており」
   // and 「⛔ ここへ表を並べ直してはならない（MUST NOT）」 (DFC-481: the chapter
   // no longer lists the tables) -- and FR-072 now names no state of the panel for a word to
-  // be printed in: 「⛔ **パネルの先頭にタイトルバーを置いてはならない（MUST NOT）**」.
+  // be printed in: 「プロパティパネルの先頭にタイトルバーを置かないこと」.
   // ⭐ So the section has nowhere to be raised from, and the case below says so
   // by name rather than leaving it to be noticed here.
   assignments: 'specTableRowId',
   // ⭐ THE ROW OF TABLE T-023b THE PALETTE HAS ARMED. Its closing rule (MUST)
-  // 「⭐ **構えの語は 表 T-233 の結びが理由の語について定めるのと同じ扱いとする
-  // こと（MUST）** —— 辞書が持ち、行 ID で引き、行を足すなら原稿にも項を足す。」
+  // 「構えの語を、表 T-233 の結びが理由の語について定めるのと同じ扱いにする
+  // こと ... 辞書が構えの語を持ち、行 ID で引き、行を足すなら原稿にも項を足す。」
   // -- so the key is the row id, exactly as `reasons` is keyed. ⚠️ It stands
   // LAST here because this roster is the GENERATED file's printed order and the
   // generator prints it after `assignments`; the manuscript keeps the two in the
@@ -884,7 +884,7 @@ const PALETTE_SHOWN = frameWith({
  * ⚠️ THEY NO LONGER CARRY A WORD BETWEEN THEM. FR-072 used to make the heading
  * say which of the two was showing and used to make a cleared selection say so;
  * on 2026-08-27 the reader called the row 「無用」 and CR-272 replaced both with
- * one MUST NOT -- 「⛔ **パネルの先頭にタイトルバーを置いてはならない（MUST NOT）**」
+ * one MUST NOT -- 「プロパティパネルの先頭にタイトルバーを置かないこと」
  * -- leaving 「いま何を出しているかを、入口の押下状態で示すこと（MUST）」 as the
  * whole of what tells a reader anything. ⭐ The frames are kept because the two
  * cases below still ask what the panel IS in each of them.
@@ -2132,7 +2132,7 @@ for (const entry of GENERATED['arms'] ?? []) {
     drop('arms', specTableRowId, 'table T-023b has no such row, so nothing can be armed with it')
     continue
   }
-  // FR-053 (MUST): 「**いま構えているものが画面上で読めること（MUST）。**」
+  // FR-053 (MUST): 「いま構えているものを画面上で読めるように描くこと」
   // -- and the closing rule of table T-023b
   // (MUST NOT) bars the row id itself from the screen, so what is read here is
   // the WORD the dictionary holds for the armed row.
@@ -2199,8 +2199,8 @@ for (const section of ['fileStatus', 'exportFormats']) {
 
 // ⭐ WHY A WORD THAT BECOMES DOCUMENT CONTENT IS NOT A WORD A FRAME PRINTS.
 // FR-032 (MUST) does not put this word on the screen; it puts it in the
-// document. 「⛔⛔ **導出元の `Task` が名前を持たないときは、タスクグループ名を既定の名前
-// に確定させること（MUST）**」 -- 確定させる is a WRITE, into `TaskGroup.name`
+// document. 「もし導出元の `Task` が名前を持たない場合、`GRS` は、導出元の `Task` を消す前に、タスクグループ名を既定の名前
+// に確定させること」 -- 確定させる is a WRITE, into `TaskGroup.name`
 // (AT-53 of table T-058), on the way to emptying `derivedFromTaskUid`. Once it
 // is written it is the task group's name, indistinguishable from a name a person
 // typed: the screen shows it the way it shows every other タスクグループ名.
@@ -2227,8 +2227,8 @@ for (const section of ['fileStatus', 'exportFormats']) {
 // file can build could print it, however the road were wired".
 //
 // ⭐ THE WORD IS STILL RIGHTLY IN THE DICTIONARY, and this file must not be read
-// as saying otherwise. FR-032 sends it here BY NAME -- 「⭐ **語は `FR-038` の辞書
-// が持ち、ここに綴らない。**」 -- because the alternative is a Japanese and an
+// as saying otherwise. FR-032 sends it here BY NAME -- 「既定の名前の語は `FR-038` の辞書
+// が持ち、`FR-032` に綴らない。」 -- because the alternative is a Japanese and an
 // English string spelled into a unit or into a requirement, which FR-038 (MUST
 // NOT) forbids. ⚠️ Being kept in the dictionary and being printed by a frame are
 // two different claims, and only the second is this file's.
@@ -3487,8 +3487,8 @@ describe('PND-160 -- an entry with no word still leaves something at its place',
 
   it('⛔ MUST NOT move to the settings when the selection is cleared, whatever it stops saying', () => {
     // ⭐ WHAT IS LEFT OF THE STATE THE HEADING USED TO CARRY. FR-072 (MUST)
-    // still keeps the panel on what it had -- 「選択が解除されたときは、直前に出し
-    // ていた中身を残すこと（MUST）」 -- and (MUST NOT) still refuses to move it to
+    // still keeps the panel on what it had -- 「選択が外れたとき、`GRS` は、プロパティパネルに直前に出し
+    // ていた中身を残すこと」 -- and (MUST NOT) still refuses to move it to
     // the settings. ⚠️ What is gone is the telling: 「**選択が解除されても、パネル
     // は直前の中身を出したまま「これは直前のものである」と示さない。**⛔ **利用者
     // はそれを承知で「無用」と述べた。**」 So the state is asserted and no word is.
@@ -3585,8 +3585,8 @@ describe('CR-194 section 5 / PND-160 -- fill one word of the manuscript and it r
     // ⭐ THE ROSTER IS THE SPECIFICATION'S AND NOT THE MANUSCRIPT'S. Chapter 6.2
     // (MUST NOT) says so: the manuscript holds words only, and the roster sits
     // with the requirement that puts a word on the screen -- for the panel, that
-    // is FR-072. It now names no heading at all: 「⛔ **パネルの先頭にタイトルバーを
-    // 置いてはならない（MUST NOT）**」. So the words
+    // is FR-072. It now names no heading at all: 「プロパティパネルの先頭にタイトルバーを
+    // 置かないこと」. So the words
     // for `selection`, `documentSettings` and `noSelection` have no roster to be
     // raised from, and a dictionary that still holds them holds words for a part
     // of the screen the requirement forbids.

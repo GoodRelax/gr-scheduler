@@ -31,8 +31,8 @@ const FR_098_EVERY_FIGURE =
   'タスクグループの地だけでなく、そのタスクグループのバー・ラベル・進捗マーカー・依存線を含めて、帯が占める場所へ 1 つも描いてはならない（MUST NOT）'
 const FR_098_CUT_AT = '切る先は残りの領域の上端であり'
 const FR_098_SCROLL_IS_NO_REASON = '縦にスクロールしたことは理由にならない（MUST NOT）'
-const EL_1_UNDER_IS_NOT_SEEN = '帯の下へ潜ったタスクグループの端は見えていない —— そのタスクグループを帯の中に描いてはならないからである'
-const SL_2_CLICK = '| SL-2 | 1 つ選ぶ | 対象をクリックする。'
+const EL_1_UNDER_IS_NOT_SEEN = '`GRS` は、帯の下へ潜ったタスクグループの端を、見えていない端とすること。'
+const SL_2_CLICK = '| SL-2 | 1 つ選ぶ | 対象をクリックしたとき、`GRS` は、直前の選択をクリックした対象に置き換えること。'
 
 const CLAUSES: readonly (readonly [string, string])[] = [
   ['FR-098 lift into the band', FR_098_LIFT],

@@ -11,7 +11,7 @@ import { contextOf, documentOf, panelOf, personOf, REQUIREMENTS, seatOf, taskIte
 import { selfAndDescendants, stage, wiringOf, type FakeElement, type FakeEvent, type Stage } from '../fixtures/fake-browser'
 
 const AS_5_FILTER_TAKES_ITS_KEYS =
-  '⭐ 絞り込みの欄は文字入力の欄であり、焦点があるあいだに打ったキーは欄が取ること（MUST） —— 単独のキーの割当（表 T-036）も `Backspace` の削除（`SK-3`）も働かない。'
+  '絞り込みの欄に焦点がある間、`GRS` は、打ったキーを文字入力の欄である絞り込みの欄に取らせること（単独のキーの割当（表 T-036）も `Backspace` の削除（`SK-3`）も働かない）。'
 
 const ASSIGNEE_ROW = 'PR-16'
 const TASK = 20

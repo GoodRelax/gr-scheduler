@@ -38,9 +38,9 @@ const T_024_OFFERED_NOTE = '⭐ **「`IC-2` に出す」の欄は、`FR-096` の
 // Why: CR-827 added this note when IO-10 came to share .json with IO-2.
 const T_024_SHARED_EXTENSION_NOTE = '拡張子を分け合う行は、媒体の型も同じであること（MUST）'
 
-const RW_7_EXTENSION_FROM_IO_8 = '＋ 表 T-024 の `IO-8` の拡張子。'
+const RW_7_EXTENSION_FROM_IO_8 = '`GRS` は、提案する名を、文書名を `FR-096` の 表 T-352 で整えた名 ＋ 「_」 ＋ `delay-diagnostics` ＋ 「_」 ＋ 基準日（yyyy-mm-dd）＋ 表 T-024 の `IO-8` の拡張子とすること。'
 const RW_7_ENDS_AND_MEDIA_TYPE =
-  '書いた名前が 表 T-024 の `IO-8` の拡張子で終わることを保証し、保存の選択面には同じ行の媒体の型を渡す（`FR-096` の拡張子と媒体の型の定めと同じ）'
+  '`GRS` は、書いた名前が 表 T-024 の `IO-8` の拡張子で終わることを保証すること。`GRS` は、保存の選択面に、表 T-024 の `IO-8` の行の媒体の型を渡すこと（`FR-096` の拡張子と媒体の型の定めと同じ）。'
 const SX_2_BY_THE_COLUMN = '表 T-024 のうち「`IC-2` に出す」の欄が「出す」の、`IO-2` 以外の形式（`IC-2` で選んで書いたとき）'
 
 const MEDIA_TYPE_SHAPE = /^[a-z]+\/[a-z0-9.+-]+$/

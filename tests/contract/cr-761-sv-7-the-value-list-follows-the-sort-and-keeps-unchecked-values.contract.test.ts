@@ -42,14 +42,14 @@ import { windowStage, type WindowStage } from './cr-731-window-stage'
 import { specTable, unbroken } from './spec-table'
 
 const SV_7_ORDER =
-  '⭐ 値の一覧は、その列で並べ替えている（`SV-8`）ときはその向きに、ほかの列で並べ替えているときと並べ替えていないときは昇順に並べ、比べ方は表の行を並べ替えるときと同じ（`SV-8`）、「（空白）」は向きによらず末尾とすること（MUST）'
-const SV_7_SOURCE = '⭐ 値の一覧は、語で残した行（`SV-4`）の値から作り、列のフィルタは当てないこと（MUST）'
-const SV_7_KEPT = '値のチェックを外しても、その値は一覧に残り、いつでもチェックし直せる。ほかの列のフィルタで表から外れた行の値も一覧に残る'
-const SV_7_BLANK_ITEM = '空のセルは「（空白）」の 1 項目。'
-const SV_8_STATUS = '状態の列（`SQ-5`）の昇順は 信用できない・要修正 → ボトルネック → ボトルネック経路 → 遅れ → 未着手 → 進行中 → 完了 → 中断・再開予定あり → 中断・再開日未定、降順はその逆'
-const SV_8_VISIBILITY = '表示の列（`SQ-10`）では並べ替えない —— 見出しに `IC-122` を置かない（`SV-7`）。'
-const T_347_STATUS = 'ステータスの欄の昇順は `DT-1` の順、降順はその逆。'
-const T_374_SAME = '⭐ 並べ替え・列のフィルタ・列の幅の変え方・見出し行の縦の固定は 表 T-346 の `RW-9` ・ `RW-10` と同じ作りとする。'
+  'フィルタの列で並べ替えている（`SV-8`）間、`GRS` は、値の一覧を並べ替えの向きに並べること。'
+const SV_7_SOURCE = '`GRS` は、値の一覧を、語で残した行（`SV-4`）の値から作ること。'
+const SV_7_KEPT = '`GRS` は、ほかの列のフィルタで表から外れた行の値も、値の一覧に残すこと。'
+const SV_7_BLANK_ITEM = '`GRS` は、空のセルを、値の一覧の「（空白）」の 1 項目にまとめること。'
+const SV_8_STATUS = '状態の列（`SQ-5`）で昇順に並べ替えたとき、`GRS` は、行を 信用できない・要修正 → ボトルネック → ボトルネック経路 → 遅れ → 未着手 → 進行中 → 完了 → 中断・再開予定あり → 中断・再開日未定 の順に並べること。'
+const SV_8_VISIBILITY = '`GRS` は、表示の列（`SQ-10`）では並べ替えないこと。'
+const T_347_STATUS = '`GRS` は、ステータスの欄の昇順を `DT-1` の順、降順を `DT-1` の逆の順とすること。'
+const T_374_SAME = '`GRS` は、表 T-374 の表の並べ替え・列のフィルタ・列の幅の変え方・見出し行の縦の固定を、表 T-346 の `RW-9` ・ `RW-10` と同じ作りとすること。'
 const HIDDEN_VALUES_BLANK = '空のセルの項目（「（空白）」）は空の文字列。'
 
 const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))

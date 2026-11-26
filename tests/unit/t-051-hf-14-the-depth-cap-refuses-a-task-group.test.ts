@@ -440,16 +440,16 @@ describe('the manuscript still says what these cases read', () => {
     // manuscript which went back on any of them fails HERE rather than in a
     // case that would then be asserting a rule nobody holds.
     expect(says('T-051', 'HF-14')).toContain(
-      'そのタスクグループの深さが `FR-085` の上限に達しているときは、`FR-029` に従って薄く描くこと（MUST）',
+      '押したタスクグループの深さが `FR-085` の上限に達しているとき、`GRS` は、配下に足す操作子を `FR-029` に従って薄く描くこと。',
     )
     expect(says('T-051', 'HF-14')).toContain(
-      '薄いまま押されたときは、そのタスクグループの配下に新しいタスクグループを立てないこと（MUST）。運ぶ理由は 表 T-233 の `RS-46` とすること（MUST）',
+      'もし薄い配下に足す操作子を押した場合、`GRS` は、押したタスクグループの配下に新しいタスクグループを立てないこと。もし薄い配下に足す操作子を押した場合、`GRS` は、運ぶ理由を 表 T-233 の `RS-46` とすること。',
     )
     // ⛔⛔ CR-348's own MUST NOT, and the reason the case below reads the task group
     // count and the panel rather than the reason alone: raising the task group and
     // refusing inside the panel would tell RS-46 and still be forbidden.
     expect(says('T-051', 'HF-14')).toContain(
-      'タスクグループを立ててからパネルを開き、そこで拒んではならない（MUST NOT）',
+      '`GRS` は、タスクグループを立ててからパネルを開き、パネルで拒むことをしないこと。',
     )
   })
 
@@ -461,7 +461,7 @@ describe('the manuscript still says what these cases read', () => {
     // ⛔ If a case in this file ever reads an empty name field or an empty-name
     // confirmation again, this is what says it is reading a rule nobody holds.
     expect(says('T-051', 'HF-14')).toContain(
-      '押された瞬間に、既定の名前でタスクグループを立てること（MUST）。そのタスクグループのプロパティパネルを出し、名前の欄で名づけさせること（MUST）',
+      '配下に足す操作子を押したとき、`GRS` は、押した瞬間に既定の名前でタスクグループを立てること。配下に足す操作子を押したとき、`GRS` は、立てたタスクグループのプロパティパネルを出し、名前の欄で名づけさせること。',
     )
     expect(says('T-051', 'HF-14')).not.toContain('打ち込み口')
   })

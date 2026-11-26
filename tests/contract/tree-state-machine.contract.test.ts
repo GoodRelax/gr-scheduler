@@ -82,7 +82,7 @@ const PRESSED = 'P'
 // relation isRevealedTaskGroupOrAncestor has to tell apart.
 const REVEALED = 'G'
 const SJ_2_OPENS =
-  '飛ぶ先のタスクグループ（タスクは `AT-61`、コメントボックスは `AT-114`）と、その祖先のすべての `treeState` を `expanded` にする —— 今の値が `hidden` でも、確かめを問わない。'
+  '`GRS` は、飛ぶ先のタスクグループ（タスクは `AT-61`、コメントボックスは `AT-114`）と、飛ぶ先のタスクグループの祖先のすべての `treeState` を `expanded` にすること。'
 
 const TEMPLATE = JSON.parse(
   readFileSync(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
@@ -255,7 +255,7 @@ describe('SD-3: a cell the table leaves empty writes nothing (the same reference
 describe(`table T-332 SJ-2 -- ${SJ_2_OPENS}`, () => {
   it('the requirement still says it, word for word, and names taskGroupRevealAsked of table T-328', () => {
     expect(REQUIREMENTS).toContain(SJ_2_OPENS)
-    expect(REQUIREMENTS).toContain('規則はタスクグループの木のステートマシン（表 T-328）の出来事 `taskGroupRevealAsked` が持つ。')
+    expect(REQUIREMENTS).toContain('`GRS` は、`SJ-2` の展開を、タスクグループの木のステートマシン（表 T-328）の出来事 `taskGroupRevealAsked` に従わせること。')
   })
 
   it('opens the task group jumped to and every ancestor, a hidden one included, and nothing else', () => {

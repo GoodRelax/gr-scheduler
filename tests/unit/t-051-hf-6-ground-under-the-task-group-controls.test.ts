@@ -1027,11 +1027,11 @@ describe('the manuscripts still say what these cases read', () => {
   })
 
   it('⛔ HF-6 still asks for ONE ground, in S-150, down to the lower of the task group and the lattice, and counts it as the group', () => {
-    expect(HF_6).toContain('操作子の下に地を 1 枚敷くこと（MUST）')
+    expect(HF_6).toContain('操作子を描いている間、`GRS` は、操作子の下に地を 1 枚敷くこと。')
     expect(HF_6).toContain('`S-150`')
-    expect(HF_6).toContain('操作子ごとに別々の地を敷いてはならない（MUST NOT）')
-    expect(HF_6).toContain('タスクグループの右端までとし、縦はそのタスクグループの上端から、タスクグループの下端と格子（`HF-1`）の下端のうち下にあるほうまでとすること（MUST）')
-    expect(HF_6).toContain('本行の最初の MUST が言う「群」は、この地の範囲である —— 操作子と操作子のあいだの地の上も、群の上に数える')
+    expect(HF_6).toContain('`GRS` は、操作子ごとに別々の地を敷かないこと。')
+    expect(HF_6).toContain('`GRS` は、地を敷く範囲を、いちばん左の操作子の左端からタスクグループの右端までとし、縦はタスクグループの上端から、タスクグループの下端と格子（`HF-1`）の下端のうち下にあるほうまでとすること。')
+    expect(HF_6).toContain('`GRS` は、`HF-6` の「群」を地の範囲とし、操作子と操作子のあいだの地の上も群の上に数えること。')
   })
 
   it('⛔ FR-029 still names S-149 for the faintness, and still forbids disabling', () => {

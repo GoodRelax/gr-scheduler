@@ -44,24 +44,24 @@ const REQUIREMENTS = unbroken(
 )
 
 const GO_3_LAST_DAY_NOT_RIGHT_EDGE =
-  '離した所は実績の終わりとして置き、時刻を表示しないときは、実績バーの右端の位置として数えないこと（MUST）'
+  '`GRS` は、離した所を実績の終わりとして置き、時刻を表示しない間は、離した日を実績バーの右端の位置として数えないこと'
 
 const GO_3_SAME_GESTURE_AS_GO_2 = '`GO-2` と同じ所作である。'
 
 const GO_3_WHICH_COLUMN =
   '`actualFinish` を持つとき（表 T-019 の `PA-5`）は `actualFinish`、持たないときは `stop` に置く'
 
-const GO_3_REST_DAY = '離した所が非稼働日であっても、その日を最後の日とすること（MUST）'
+const GO_3_REST_DAY = '離した所が非稼働日であっても、`GRS` は離した日を最後の日とすること。'
 
 // Why: CR-710 rewrote this clause (FR-054 reads instants and counts working time in minutes).
 const FR_011_SAME_DAY_IS_ONE =
-  '⭐ 実績の開始と終わりが同じ日の 08:00 〜 17:00 であるとき、その実績は 480 分（1d）である（下の段の数え方、既定の時間帯の暦）。'
+  '`GRS` は、実績の開始と終わりが同じ日の 08:00 〜 17:00 であるとき、実績を 480 分（1d）とし、0 日としないこと（`IMPS-412` の数え方、既定の時間帯の暦）。'
 
 const FR_011_RIGHT_END_IS_A_POSITION =
-  '⭐ **本要求の「実績バーの右端」は位置であって終了日ではない** —— 実績の最後の日の翌暦日の列の左端であり、実績の終了日は最後の日そのものである。'
+  '`GRS` は、実績の終了日を、実績の最後の日そのものにすること（実績バーの右端は位置であって終了日ではなく、`GRS` は右端を終了日と読まない）。'
 
 const FR_011_FLOOR =
-  '⭐ 着手しているタスクの実績の最後の日を、床の日より前に置かないこと（MUST）'
+  '`GRS` は、着手しているタスクの実績の最後の日を、床の日より前に置かないこと'
 
 const T_245 = specTable('T-245')
 

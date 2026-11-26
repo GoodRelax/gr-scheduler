@@ -35,10 +35,10 @@
 //
 //     ⛔ 「1 つの入口に 2 行が同時に当たるときは、上の行が勝つこと（MUST）」
 //
-//   FR-053 (Chapter 3): 「見分けさせ方は `FR-029` の 表 T-237 の `EN-1` に従うこと
-//     （MUST）」 —— this is where `EN-1` (armed) reaches the screen.
-//   FR-072 (Chapter 3): 「その押下状態の見せ方は `FR-029` の 表 T-237 の `EN-4` に
-//     従うこと（MUST）」 —— this is where `EN-4` (the properties panel) does.
+//   FR-053 (Chapter 3): 「`GRS` は、構えている入口の見分けさせ方を、`FR-029` の
+//     表 T-237 の `EN-1` に従わせること。」 —— this is where `EN-1` (armed) reaches the screen.
+//   FR-072 (Chapter 3): 「`GRS` は、押下状態の見せ方を `FR-029` の 表 T-237 の `EN-4`
+//     に従わせること。」 —— this is where `EN-4` (the properties panel) does.
 //   表 T-236 の `S-146` 「地の色」: `#ffffff` (light) / `hsl(H 12% 9%)` (dark).
 //   表 T-236 の `S-183` 「構えている入口の塗りの色」 —— ⛔ 「縁ではなく塗りである」.
 //   表 T-236 の `S-149` 「罫の色」 —— what FR-029 gives an entrance that is spent.
@@ -551,8 +551,8 @@ describe('表 T-237 EN-2 (MUST) -- an entrance whose function is ON is filled', 
 describe('表 T-237 EN-4 (MUST) -- the entrance the properties panel is showing from is filled', () => {
   for (const preference of THEMES) {
     it(`fills the App Header entrance while the panel shows its subject (${preference})`, () => {
-      // FR-072: 「いま何を出しているかを、入口の押下状態で示すこと（MUST）。その押下
-      // 状態の見せ方は `FR-029` の 表 T-237 の `EN-4` に従うこと（MUST）。」
+      // FR-072: 「`GRS` は、いま何を出しているかを、入口の押下状態で示すこと。」
+      // 「`GRS` は、押下状態の見せ方を `FR-029` の 表 T-237 の `EN-4` に従わせること。」
       // ⭐ 表 T-109's `IC-17` stands on the `App Header` and is `FR-072`'s own
       // entrance, which is why the case asks a surface other than the palette:
       // FR-029 (MUST NOT) 「載る面によって薄くしない入口があってはならない」 has

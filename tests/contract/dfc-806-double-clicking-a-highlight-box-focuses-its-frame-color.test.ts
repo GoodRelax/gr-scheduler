@@ -34,8 +34,8 @@ const MK_13 = verticalIn('T-023', 'MK-13').cells.join(' ')
 // see JDG-410, DFC-806
 // Trap: red until the MK-13 edit lands; the wording is the one the implementer was briefed to write.
 const MK_13_HIGHLIGHT_BOX =
-  'ハイライトボックス ＝ プロパティパネルを出し、枠の色の欄（表 T-016 の `PR-22`）に焦点を置くこと（MUST）'
-const MK_13_COMMENT_BOX = '本文の欄（表 T-016 の `PR-21`）を編集できる状態にして焦点を置くこと（MUST）'
+  '`GRS` は、ハイライトボックスのダブルクリックで、プロパティパネルを出し、枠の色の欄（表 T-016 の `PR-22`）に焦点を置くこと。'
+const MK_13_COMMENT_BOX = '本文の欄（表 T-016 の `PR-21`）を編集できる状態にして焦点を置くこと（`FR-097`）。'
 
 // Spec: T-016, PR-21, PR-22
 const PR_21 = verticalIn('T-016', 'PR-21')

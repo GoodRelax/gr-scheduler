@@ -417,28 +417,28 @@ describe('the manuscript still says what these cases read', () => {
   })
 
   it('⛔⛔ HF-14 keeps the raised task group visible by the tree state, never by rewriting the vertical zoom', () => {
-    expect(says('T-051', 'HF-14')).toContain('立てたタスクグループは見える（MUST）')
-    expect(says('T-051', 'HF-14')).toContain('`AT-153` のとおり `temporarilyExpanded` で立ち')
-    expect(says('T-051', 'HF-14')).toContain('`auto` か `collapsed` なら `temporarilyExpanded` になる')
+    expect(says('T-051', 'HF-14')).toContain('`GRS` は、立てたタスクグループを見えるようにすること。')
+    expect(says('T-051', 'HF-14')).toContain('`AT-153` のとおり `temporarilyExpanded` で立て')
+    expect(says('T-051', 'HF-14')).toContain('`auto` か `collapsed` なら `temporarilyExpanded` にすること')
     expect(says('T-051', 'HF-14')).toContain('いまの倍率のまま、立てたタスクグループとその兄弟とその祖先を描く')
-    expect(says('T-051', 'HF-14')).toContain('そのために縦の倍率を書き換えてはならない（MUST NOT）')
-    expect(says('T-051', 'HF-14')).toContain('表示位置を送るだけで済ませてはならない（MUST NOT）')
+    expect(says('T-051', 'HF-14')).toContain('`GRS` は、立てたタスクグループを見せるために、縦の倍率を書き換えないこと。')
+    expect(says('T-051', 'HF-14')).toContain('`GRS` は、立てたタスクグループを見せるのに、表示位置を送るだけで済ませないこと。')
     expect(says('T-051', 'HF-14')).toContain(
       'これは `HF-17` の「タスクグループが見える位置まで送ること（MUST）」と同じ 1 つの約束である',
     )
   })
 
   it('⛔⛔ HF-14 still opens only the one parent that was pressed', () => {
-    expect(says('T-051', 'HF-14')).toContain('展開してよいのは押した親 1 つだけである')
-    expect(says('T-051', 'HF-14')).toContain('その先祖を書き換えてはならない（MUST NOT）')
+    expect(says('T-051', 'HF-14')).toContain('`GRS` は、展開するタスクグループを押した親 1 つだけとすること。')
+    expect(says('T-051', 'HF-14')).toContain('`GRS` は、押した親の先祖を書き換えないこと。')
   })
 
   it('⭐ HF-14 scopes its open against HF-7, and HF-7 lets an added task group outrank the zoom', () => {
     expect(says('T-051', 'HF-14')).toContain(
       '`HF-7` の折りたたみは人が自分でしたことなので、製品が動かすのは押した親の折りたたみを展開するこの 1 つの場合に限る',
     )
-    expect(says('T-051', 'HF-7')).toContain('人が折りたたんだ状態は、表示量の増減（`FR-018`）より優先する')
-    expect(says('T-051', 'HF-7')).toContain('人が足したタスクグループ（`HF-14`）も、表示量の増減より優先する')
+    expect(says('T-051', 'HF-7')).toContain('`GRS` は、人が折りたたんだ状態を、表示量の増減（`FR-018`）より優先すること。')
+    expect(says('T-051', 'HF-7')).toContain('人が足したタスクグループ（`HF-14`）も、表示量の増減より優先すること')
   })
 
   it('⭐ FR-018 still gives the group-LOD formula this file computes its zoomY from', () => {
@@ -459,7 +459,7 @@ describe('the manuscript still says what these cases read', () => {
     // and 表 T-015's `HR-1a` (MUST NOT) hides a collapsed group's entire
     // subtree, not just its direct children:
     expect(says('T-015', 'HR-1a')).toContain(
-      '折りたたんだ `TaskGroup` の配下のタスクグループと、そのタスクグループに載っている `Task` を描いてはならない（MUST NOT）',
+      '`GRS` は、折りたたんだ `TaskGroup` の配下のタスクグループと、配下のタスクグループに載っている `Task` を描かないこと。',
     )
     // ⛔ So a task group with a COLLAPSED ancestor is never drawn, and can never be
     // the task group this file presses `IC-91` on. The half-2 case below therefore
@@ -481,7 +481,7 @@ describe('the manuscript still says what these cases read', () => {
     // must write both a counted change and a UN-8-excluded one in the same
     // call -- the precedent this file's header comment reasons from:
     expect(REQUIREMENTS).toContain(
-      '全体表示の 1 回の押下は、2 つの書き込みに分けて行うこと（MUST）。順序を入れ替えてはならない（MUST NOT）',
+      '全体表示を 1 回押したとき、`GRS` は、押下を 2 つの書き込みに分けて行うこと。',
     )
     // ⛔ 表 T-051's HF-14 itself states no such split for the task group it raises,
     // and no other row was found stating it either -- so nothing below

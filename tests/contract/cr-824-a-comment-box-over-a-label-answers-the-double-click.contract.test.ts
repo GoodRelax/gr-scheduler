@@ -21,7 +21,7 @@ const verticalIn = (table: string, id: string) => {
 const MK_13 = verticalIn('T-023', 'MK-13').cells.join(' ')
 // see CR-824, JDG-3053, DFC-3411
 const MK_13_COMMENT_OVER_LABEL =
-  '⭐ コメントボックス（表 T-023d の `GR-14` の本体・引出し線・線先）が名称ラベルか担当ラベル（同表の `GR-10` / `GR-11`）に重なる点では、コメントボックスの宛先を読むこと（MUST） —— コメントボックスはラベルより手前に描く（表 T-020 の `ZO-9` と `ZO-5`）ので、見えているほうに応える'
+  'コメントボックス（表 T-023d の `GR-14` の本体・引出し線・線先）が名称ラベルか担当ラベル（表 T-023d の `GR-10` / `GR-11`）に重なる点では、`GRS` はコメントボックスの宛先を読むこと。'
 
 // Spec: T-020, ZO-5, ZO-9
 const drawOrderOf = (id: string): number => Number.parseInt(verticalIn('T-020', id).by['順'] ?? '', 10)

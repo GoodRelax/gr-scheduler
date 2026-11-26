@@ -11,9 +11,9 @@ import { taskGroupDocument, taskOf } from '../unit/cr-541-stage'
 import { REQUIREMENTS, shellStage } from './cr-610-file-flow-stage'
 
 const HALO_SPARES =
-  '`HT-1` が形ごとに読む描いた形のうち、予定と実績の形（マイルストーンの図形を含む）のそれぞれを囲む矩形とし、輪郭と線の太さ・矢じり・点のインクを含めること（MUST）'
-const HALO_NOT_ON_SHAPES = '⛔ **`Task` の形に重なる区間では、縁を敷いてはならない（MUST NOT）**'
-const HALO_IS_GROUND = '手当ては、手前の線に地の色（`S-146`）の縁を敷くこととする（MUST）'
+  '`GRS` は、縁を敷かない範囲を、表 T-267 の `HT-1` が形ごとに読む描いた形のうち、予定と実績の形（マイルストーンの図形を含む）のそれぞれを囲む矩形とし、輪郭と線の太さ・矢じり・点のインクを含めること。'
+const HALO_NOT_ON_SHAPES = '`GRS` は、`Task` の形に重なる区間では縁を敷かないこと。'
+const HALO_IS_GROUND = '`GRS` は、手前の線に地の色（`S-146`）の縁を敷くこと。'
 
 // Spec: AT-46
 const FS = 1

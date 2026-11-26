@@ -49,7 +49,7 @@ const SECONDS_CUT = '⭐ 秒が `00` でない時刻（`2026-01-05T08:00:30`）�
 const DATE_ONLY_READ =
   '⭐ 時刻を書いていない日付の字（`2026-01-05`）は、表 T-350 の開始の側の列（`WT-1`・`WT-3`）ではその日の最初の時間帯の始まり、終了の側の列（`WT-2`・`WT-4`、`WT-5` のマイルストーンの開始の側）ではその日の最後の時間帯の終わりの瞬間と読むこと（MUST）'
 const EARLIEST_INSTANT =
-  '⭐ 同じ稼働時間に当たる瞬間が 2 つ以上あるとき（時間帯の終わりと、次の時間帯の始まり）は、最も早い瞬間に置くこと（MUST）'
+  '`IMPS-420`・`IMPS-424` で `stop` を置くとき、もし同じ稼働時間に当たる瞬間が 2 つ以上ある場合（時間帯の終わりと、次の時間帯の始まり）、`GRS` は、最も早い瞬間に置くこと'
 const IV_14_SECONDS =
   '⭐ 秒が `00` でない時刻は分へ切り捨てて読むので、本行に反しない —— 時刻を書いていない日付の字も読める（どちらの読みも `FR-054`）。'
 const NOT_MIDNIGHT = '⚠️ `00:00:00` と読まない —— 終了の側で前の日の終わりになり、日付だけの文書の最後の日が 1 日消える。'
@@ -67,7 +67,7 @@ describe('the three MUST sentences of CR-741 read as quoted', () => {
   })
 
   it('FR-011 puts the stop on the earliest of the instants that carry the same working minutes', () => {
-    expect(REQUIREMENTS).toContain('は、最も早い瞬間に置くこと（MUST）')
+    expect(REQUIREMENTS).toContain('`GRS` は、最も早い瞬間に置くこと')
     expect(REQUIREMENTS).toContain(EARLIEST_INSTANT)
   })
 

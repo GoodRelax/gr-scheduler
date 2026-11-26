@@ -53,16 +53,16 @@ const flat = (text: string): string => text.replace(/<br\s*\/?>/g, '').replace(/
 
 describe('CR-631 -- the rows of table T-351 these cases are driven by', () => {
   it.each([
-    ['PTL-1', '構える。'],
-    ['PTL-2', '構えを解除する。'],
-    ['PTL-4', '取るのはバーと実線の矢印であり、破線の矢印は黙って除く'],
+    ['PTL-1', '`GRS` は、構えること。'],
+    ['PTL-2', '`GRS` は、構えを解除すること。'],
+    ['PTL-4', '`GRS` は、範囲選択でバーと実線の矢印を取り、破線の矢印を黙って除くこと。'],
     ['PTL-5', 'S の `Task` すべての親を、離した先のバーの `Task` にする'],
     ['PTL-6', '選択を引き始めたバー 1 つに替えてから、`PTL-5` と同じく結ぶ'],
     ['PTL-7', '何もしない'],
     ['PTL-8', '表 T-233 の `RS-69` を `NT-1` の通知として告げ'],
-    ['PTL-10', '矢印を選ぶ（`SL-1`）'],
+    ['PTL-10', '`GRS` は、矢印を選ぶこと（`SL-1`）。'],
     ['PTL-11', '選んだ矢印の子の `parentTaskUid` を `null` にする'],
-    ['PTL-12', '選ばずに、表 T-233 の `RS-70` を告げる'],
+    ['PTL-12', '`GRS` は、表 T-233 の `RS-70` を告げること（作法は `PTL-8` と同じ）。`GRS` は、破線の矢印を選ばないこと。'],
   ] as const)('T-351 %s still says it', (id, clause) => {
     expect(flat(rowText('T-351', id)), clause).toContain(flat(clause))
   })
@@ -70,8 +70,8 @@ describe('CR-631 -- the rows of table T-351 these cases are driven by', () => {
   it('T-023b AR-7, T-023a PTD-5 and T-023c SL-1 / SL-4 still say it', () => {
     expect(flat(rowText('T-023b', 'AR-7'))).toContain('**親タスクを結ぶ**'.replace(/\*\*/g, ''))
     expect(flat(rowText('T-023a', 'PTD-5'))).toContain('親タスクを構えている（AR-7）')
-    expect(flat(rowText('T-023c', 'SL-1'))).toContain('破線の矢印（表 T-318 で導いた親タスク）を選んではならない（MUST NOT）')
-    expect(flat(rowText('T-023c', 'SL-4'))).toContain('動かさない `Ctrl` ＋クリックも `Shift` と同じく 1 つずつ増減する')
+    expect(flat(rowText('T-023c', 'SL-1'))).toContain('`GRS` は、実線の矢印（明記の親タスク）だけを選択の対象とし、破線の矢印（表 T-318 で導いた親タスク）を選ばないこと。')
+    expect(flat(rowText('T-023c', 'SL-4'))).toContain('親タスクと子タスクを選ぶとき（実線の矢印のクリックと、表 T-023b の `AR-7` を構えているときのバーのクリック）に限り、`GRS` は、動かさない `Ctrl` ＋クリックでも `Shift` と同じく選択を 1 つずつ増減すること。')
     expect(cellOf('T-109', 'IC-142', '構え')).toContain('AR-7')
   })
 })

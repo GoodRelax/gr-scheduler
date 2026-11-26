@@ -14,7 +14,7 @@ const DESIGN = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '05-07-
 const FR_069_NEW_TAB = '⭐ 著作権表示を押したら、閲覧環境の新しいタブで、同書の 表 T-206 の `S-459`（本ソフトウェアのリポジトリの所）の頁を開くこと（MUST）'
 const FR_069_STRETCH =
   '⭐ 全文と帰属表示を開いたら、表 T-335 の `WB-1` のヘルプの窓の下の縁を、同表の `WB-3` の範囲の下端まで伸ばすこと（MUST）'
-const MK_10_DO_NOT_STOP = '割り当てていない組合せを止めてはならない（MUST NOT）'
+const MK_10_DO_NOT_STOP = '`GRS` は、割り当てていない組合せのブラウザの既定動作を止めないこと'
 const T_078_NO_OTHER_FRAME = '**本表に無い契機でフレームを起こしてはならない（MUST NOT）**'
 
 interface Fired {

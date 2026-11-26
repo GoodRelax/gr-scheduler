@@ -24,7 +24,7 @@ import {
 
 const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
-const T_245_NO_NEW_REFUSALS = '⛔ 本要求は新しい拒み方を立てない。'
+const T_245_NO_NEW_REFUSALS = '`GRS` は、`FR-103` のために新しい拒み方を立てないこと。'
 
 afterEach(restoreAnimationFrames)
 

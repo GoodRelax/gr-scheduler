@@ -141,10 +141,10 @@ function currentDocument(): Document {
 describe('CR-645 the clauses as the manuscript holds them', () => {
   it('FR-012: a GRS JSON read recounts, an MSPDI read keeps, and the recount is told', () => {
     const statement = statementOfFr012()
-    expect(statement).toContain('**`GRS JSON` を読んだときも、格納済みの完了率を日付から数え直すこと（MUST）**')
-    expect(statement).toContain('⛔ `MSPDI` を読んだときは数え直してはならない（MUST NOT） —— 取り込んだ値を保つ（`FR-021`）。')
+    expect(statement).toContain('`GRS` が `GRS JSON` を読んだとき、`GRS` は、格納済みの完了率を日付から数え直すこと。')
+    expect(statement).toContain('`GRS` は、`MSPDI` を読んだときに完了率を数え直さないこと。')
     expect(statement).toContain('`NT-3` と `RS-52`')
-    expect(statement).toContain('数え直しだけを理由に、未保存の編集（`FR-100`）を立ててはならない（MUST NOT）')
+    expect(statement).toContain('`GRS` は、完了率の数え直しだけを理由に、未保存の編集（`FR-100`）を立てないこと。')
   })
 
   it('OP-6: percentComplete is not restored but recounted', () => {

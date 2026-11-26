@@ -37,12 +37,12 @@ function rowOf(table: string, id: string) {
   return found
 }
 
-const FR_053_FAINT = '**ポインタが乗っていないあいだは薄く透明に描くこと。**'
-const FR_053_ARMED = '**いま構えている入口を、構えていない入口と見分けられるように描くこと（MUST）**'
-const FR_053_EN_1 = '見分けさせ方は `FR-029` の 表 T-237 の `EN-1` に従うこと（MUST）'
+const FR_053_FAINT = 'ポインタがコマンドパレットに乗っていない間、`GRS` はコマンドパレットを薄く透明に描くこと。'
+const FR_053_ARMED = '`GRS` は、いま構えている入口を、構えていない入口と見分けられるように描くこと。'
+const FR_053_EN_1 = '`GRS` は、構えている入口の見分けさせ方を、`FR-029` の 表 T-237 の `EN-1` に従わせること。'
 const FR_053_NOT_PRESSED = '**押されている形にしてはならない（MUST NOT）**'
 const IC_53_NOT_BUTTON = '**ボタンではない**'
-const SC_6 = '**流れない**（画面に対して位置を保つ）'
+const SC_6 = '`GRS` は、浮遊するコマンドパレットを流さず、画面に対して位置を保つこと。'
 
 const COMMAND_PALETTE = bare(rowOf('T-103', 'U-26').by['確定名（英）'] ?? '')
 const THEME: ScreenTheme = { preference: 'light', hue: 214 }

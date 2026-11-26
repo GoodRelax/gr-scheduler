@@ -25,25 +25,26 @@ const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '
 
 // Why: CR-787 -- the width starts at the default width of the kind shown (S-171 the settings face, S-602 a Task).
 const FR_052_STARTS_AT_THE_KIND_DEFAULT =
-  '⭐ プロパティパネルの幅は画面の値とし、出している中身の種の既定の幅から始めること（MUST）'
-const FR_052_KIND_CHANGE_RESETS = '⭐ 出す中身の種が変わったら、新しい種の既定の幅へ戻すこと（MUST）'
-const FR_052_SAME_KIND_KEEPS = '同じ種の別の物を出したときと、パネルを閉じて同じ種で開き直したときは、人が境界で決めた幅を保つ。'
-const FR_052_COUNTED_FROM_THE_DRAWN_WIDTH = '境界を押した時点に描かれていた幅から、ポインタが動いたぶんだけ変えること（MUST）。'
+  '`GRS` は、プロパティパネルの幅を、出している中身の種の既定の幅から始めること'
+const FR_052_KIND_CHANGE_RESETS = '出す中身の種が変わったとき、`GRS` は、プロパティパネルの幅を、新しい種の既定の幅へ戻すこと。'
+const FR_052_SAME_KIND_KEEPS = '同じ種の別の物を出したときと、パネルを閉じて同じ種で開き直したとき、`GRS` は、人が境界で決めた幅を保つこと。'
+const FR_052_COUNTED_FROM_THE_DRAWN_WIDTH = '境界を掴んでいる間、`GRS` は、プロパティパネルの幅を、境界を押した時点に描いていた幅から、ポインタが動いたぶんだけ変えること。'
 const FR_052_STOPS_AT_S_248 =
-  '⭐ プロパティパネルの幅は、ポインタ位置が決める幅が `S-248` を下回るとき、`S-248` で止めて描くこと（MUST）'
-const FR_052_KEEPS_THE_STOPPED_WIDTH = '離したときの幅は止めて描いた幅とし、それを画面の値とすること（MUST）'
-const FR_052_WRITES_NOTHING = '⛔ プロパティパネルの幅を、文書にもブラウザの保管庫にも書いてはならない（MUST NOT）'
+  '境界を掴んでいる間、もしポインタ位置が決めるプロパティパネルの幅が `S-248` を下回る場合、`GRS` はプロパティパネルの幅を `S-248` で止めて描くこと。'
+const FR_052_KEEPS_THE_STOPPED_WIDTH = '境界を離したとき、`GRS` は、止めて描いた幅を、プロパティパネルの幅の画面の値にすること。'
+const FR_052_WRITES_NOTHING = '`GRS` は、プロパティパネルの幅を、文書にもブラウザの保管庫にも書かないこと。'
 const FR_072_SECOND_PRESS_CLOSES =
-  '⭐ パネルが文書の設定を出しているあいだに、設定を出す入口をもう一度押したときは、プロパティパネルを閉じること（MUST）'
-const FR_072_NOT_BACK_TO_THE_SELECTION = '直前の選択物が在っても無くても同じとし、選択物へは戻さない'
+  'プロパティパネルが文書の設定を出している間、設定を出す入口を再び押したとき、`GRS` は、直前の選択物の有無によらず、中身を選択物へ戻さずにプロパティパネルを閉じること（`_assets/tbl-state-machines.md` の 表 T-280 の `propertiesPanelContentStateMachine`）。'
+const FR_072_NOT_BACK_TO_THE_SELECTION = '直前の選択物の有無によらず、中身を選択物へ戻さずにプロパティパネルを閉じること'
 const FR_072_SETTINGS_AFTER_A_CLOSE =
-  '⭐ 文書の設定を出したままパネルを閉じたあとに、設定を出す入口を押したときは、設定を出すこと（MUST）'
-const FR_072_NOT_THE_SELECTION_AFTER_A_CLOSE = '⛔ 閉じたあとの押しで、中身を直前の選択物へ切り替えてはならない（MUST NOT）'
-const FR_072_THE_PRESSED_STATE = 'いま何を出しているかを、入口の押下状態で示すこと（MUST）。'
+  '文書の設定を出したままプロパティパネルを閉じたあとに設定を出す入口を押したとき、`GRS` は、文書の設定を出すこと（閉じたあとの押しは `IMPS-83` の「再び押した」に数えない）。'
+const FR_072_NOT_THE_SELECTION_AFTER_A_CLOSE = '文書の設定を出したままプロパティパネルを閉じたあとに設定を出す入口を押したとき、`GRS` は、中身を直前の選択物へ切り替えないこと。'
+const FR_072_THE_PRESSED_STATE = '`GRS` は、いま何を出しているかを、入口の押下状態で示すこと。'
 
 describe('CR-424 -- the manuscript these cases are driven by', () => {
   it.each([
     ['FR-052 (MUST) -- the width is a screen value that starts at the default of the kind shown', FR_052_STARTS_AT_THE_KIND_DEFAULT],
+    ['FR-052 (MUST) -- the width is a screen value that starts at the default of the kind shown', '`GRS` は、プロパティパネルの幅を画面の値にすること。'],
     ['FR-052 (MUST) -- another kind goes back to its default', FR_052_KIND_CHANGE_RESETS],
     ['FR-052 -- the same kind, or a reopen on it, keeps the dragged width', FR_052_SAME_KIND_KEEPS],
     ['FR-052 (MUST) -- a press counts from the drawn width', FR_052_COUNTED_FROM_THE_DRAWN_WIDTH],
