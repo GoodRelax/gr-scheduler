@@ -38,7 +38,7 @@ function specUseCasesOf(text: string): readonly SpecUseCase[] {
 }
 
 const USE_CASES = specUseCasesOf(readFileSync(REQUIREMENTS, 'utf8'))
-// Unimplemented: OPQ-26
+// Unimplemented: OPQ-27
 const AWAITING_USE_CASES: ReadonlySet<string> = new Set(['UC-013'])
 const caseOf = (useCase: SpecUseCase) => (AWAITING_USE_CASES.has(useCase.uid) ? it.fails : it)
 const USE_CASE_COMPONENTS = specTable('T-062')

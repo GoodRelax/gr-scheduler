@@ -6,7 +6,7 @@
 
 import type { Schedule } from '../../entity/document-model/schedule/schedule'
 
-// Provisional: OPQ-25
+// Provisional: OPQ-26
 // Spec: UC-007, OP-10
 /** @purity pure */
 export function isPlaceNamed(

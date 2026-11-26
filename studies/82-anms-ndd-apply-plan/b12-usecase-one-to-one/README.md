@@ -1,7 +1,7 @@
 ---
 type: Study
 title: ユースケースと UseCase の 1 対 1（B12）の設計
-description: 仕様 3.2 のユースケース 15 個のうち 14 個に、同じ名の UseCase のコンポーネントを 1 つずつ置いた。外の層に在った純粋な判断を、振る舞いを変えずにその UseCase へ移した。名は B5 の仮の名（OPQ-25）。UC-013 は OPQ-26 を待つ。
+description: 仕様 3.2 のユースケース 15 個のうち 14 個に、同じ名の UseCase のコンポーネントを 1 つずつ置いた。外の層に在った純粋な判断を、振る舞いを変えずにその UseCase へ移した。名は B5 の仮の名（OPQ-26）。UC-013 は OPQ-27 を待つ。
 tags: [anms, use-case, b12]
 phase: plan
 status: draft
@@ -11,7 +11,7 @@ status: draft
 
 - 作った日: 2026-11-27。基は `develop` の `e053fb30a`。
 - 仕事: 仕様のユースケース 15 個のそれぞれに、同じ英語の名の UseCase のコンポーネントを 1 つ置く（ANMS v0.36 の 4.2、基準書 R1c、study 82 の A12）。振る舞いは変えない。
-- 名は [`../b5-spec-trial/usecase-name-map.md`](../b5-spec-trial/usecase-name-map.md) の仮の名である。持ち主が BGQA10 の問 5 で決める。仕様の付録 A.3 の `OPQ-25` が仮の印を持つ。
+- 名は [`../b5-spec-trial/usecase-name-map.md`](../b5-spec-trial/usecase-name-map.md) の仮の名である。持ち主が BGQA10 の問 5 で決める。仕様の付録 A.3 の `OPQ-26` が仮の印を持つ。
 
 ## 1. 今の形と、割れない理由
 
@@ -56,11 +56,11 @@ status: draft
 `UC-013`（AI と相談しながら日程を直す）は、手順のすべてを `UC-012` の UseCase と呼ばれる側の部品で済ませている。このユースケースだけが持つのは結果の条件で、会話のうち変更の理由を `changeLog` に残すこと（表 T-052 の `DR-4`）である。しかし、それを積む経路が仕様に無い。この欠けは台帳の `DFC-1020` が既に持っている。
 
 - 中身の無いコンポーネントは置かない（規則 07 の 425 行。公開面の無い宣言になる）。
-- 付録 A.3 に `OPQ-26`（分類 `D`。`changeLog` は文書に保存する値）を足した。契約の試験では、`UC-013` の 2 件を `it.fails` にして、`// Unimplemented: OPQ-26` を付けた。
+- 付録 A.3 に `OPQ-27`（分類 `D`。`changeLog` は文書に保存する値）を足した。契約の試験では、`UC-013` の 2 件を `it.fails` にして、`// Unimplemented: OPQ-27` を付けた。
 
 ## 5. 仕様と道具への波及
 
-- 表 T-062 に `CP-42`〜`CP-55`。表の後に、仮の印（`OPQ-25`）と、`UC-013` の欠け（`OPQ-26`）の文を置いた。
+- 表 T-062 に `CP-42`〜`CP-55`。表の後に、仮の印（`OPQ-26`）と、`UC-013` の欠け（`OPQ-27`）の文を置いた。
 - 表 T-064（`_source/published-entries.json`）に `PI-42`〜`PI-55`。`PI-9` から `confirmationOwedByResourceDeletion` を外した。
 - 表 T-075 に `UF-208`〜`UF-221`。`UF-162`（`QN-3` を `CP-44` へ）と `UF-166`（照合を `CP-50` へ）の責務の文を直した。
 - 表 T-074 の数（`SU-1` 37 → 51、`SU-3` 185 → 199）、5.3 のディレクトリの図、「37」の数。

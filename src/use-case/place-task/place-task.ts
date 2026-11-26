@@ -44,7 +44,7 @@ function spanOnFineSnap(layout: ScheduleLayout, pull: PlacingPull, isMilestone: 
   return { start: textOfInstant(early), finish: textOfInstant(late) }
 }
 
-// Provisional: OPQ-25
+// Provisional: OPQ-26
 // Spec: UC-001, FR-001, FR-103, T-378, PTD-4
 /** @purity pure */
 export function placedTaskSpanOf(layout: ScheduleLayout, project: Project, pull: PlacingPull, isMilestone: boolean): PlacedSpan {

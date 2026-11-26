@@ -6,7 +6,7 @@
 
 import type { Document } from '../../entity/document-model/document/document'
 
-// Provisional: OPQ-25
+// Provisional: OPQ-26
 // Spec: UC-011, AT-140, HS-11
 // Why: only the bytes carry the stamp; the held document keeps the one it was opened with (HS-11).
 /** @purity pure */

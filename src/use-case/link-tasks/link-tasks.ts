@@ -60,7 +60,7 @@ function successorEndAt(picture: TentativeDependencyPicture, from: DependencyEnd
   }
 }
 
-// Provisional: OPQ-25
+// Provisional: OPQ-26
 // Spec: UC-004, FR-009, PTD-3, T-018, T-018a
 /** @purity pure */
 export function tentativeDependencyLine(

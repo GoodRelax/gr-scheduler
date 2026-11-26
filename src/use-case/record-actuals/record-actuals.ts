@@ -34,7 +34,7 @@ function isLeftOfPlanStart(document: Document, task: Task, released: string): bo
   return planStart !== null && dropped !== null && dropped < planStart
 }
 
-// Provisional: OPQ-25
+// Provisional: OPQ-26
 // Spec: UC-005, GO-9, DM-1, DM-2
 // Why: released left of the plan start, GO-9 asks for the dummy's own actual (DM-2) on the plan start, not a refusal.
 /** @purity pure */

@@ -13,7 +13,7 @@ import {
   type Task,
 } from '../../entity/document-model/schedule/schedule'
 
-// Provisional: OPQ-25
+// Provisional: OPQ-26
 // Spec: UC-006, FR-047
 /** @purity pure */
 export function lateWorkingDaysOf(task: Task, schedule: Schedule, statusDate: CalendarDay | null): number | null {

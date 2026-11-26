@@ -23,7 +23,7 @@ function taskIndexOfRefusal(at: string): number | null {
   return Number.isInteger(index) && index >= 0 ? index : null
 }
 
-// Provisional: OPQ-25
+// Provisional: OPQ-26
 // Spec: UC-010, FR-023, CD-1
 /** @purity pure */
 export function taskUidsWithAnUnusableDate(
@@ -42,7 +42,7 @@ export function taskUidsWithAnUnusableDate(
   return seeds
 }
 
-// Provisional: OPQ-25
+// Provisional: OPQ-26
 // Spec: UC-010, EX-3
 /** @purity pure */
 export function holdsWorkValues(document: Document): boolean {

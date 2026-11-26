@@ -12,7 +12,7 @@ export type WriteRefusalReason =
   | 'notOwnStep'
   | Extract<PlanRefusal, { readonly step: 'WS-2' }>['reason']
 
-// Provisional: OPQ-25
+// Provisional: OPQ-26
 // Spec: UC-012, AV-4, WS-1, WS-2, WS-3
 /** @purity pure */
 export function reasonOfPlanRefusal(refusal: PlanRefusal): WriteRefusalReason {
@@ -26,7 +26,7 @@ export function reasonOfPlanRefusal(refusal: PlanRefusal): WriteRefusalReason {
   }
 }
 
-// Provisional: OPQ-25
+// Provisional: OPQ-26
 // Spec: UC-012, AG-2, AG-3, AG-9
 /** @purity pure */
 export function ruleOfPlanRefusal(refusal: PlanRefusal): string {
@@ -40,7 +40,7 @@ export function ruleOfPlanRefusal(refusal: PlanRefusal): string {
   }
 }
 
-// Provisional: OPQ-25
+// Provisional: OPQ-26
 // Spec: UC-012, AV-4, AG-10
 // Why: commandRefused for an empty side of the history: AV-4 has no reason of its own, and notAvailable means a missing component.
 /** @purity pure */
@@ -49,7 +49,7 @@ export function reasonOfStepRefusal(refusal: ReplacementRefusal): WriteRefusalRe
   return refusal.reason === 'notOwnStep' ? 'notOwnStep' : 'commandRefused'
 }
 
-// Provisional: OPQ-25
+// Provisional: OPQ-26
 // Spec: UC-012, AG-10, FR-031
 /** @purity pure */
 export function stepRefusalWhat(refusal: ReplacementRefusal): string {

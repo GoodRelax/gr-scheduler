@@ -13,14 +13,14 @@ function storedOrDefault(stored: StoredValue, defaultValue: string): string {
   return stored === null || stored === '' ? defaultValue : stored
 }
 
-// Provisional: OPQ-25
+// Provisional: OPQ-26
 // Spec: UC-009, FR-020, S-99a
 /** @purity pure */
 export function watermarkOpenedByOf(storedName: StoredValue, defaultName: string): string {
   return storedOrDefault(storedName, defaultName)
 }
 
-// Provisional: OPQ-25
+// Provisional: OPQ-26
 // Spec: UC-009, FR-020, FR-086, S-99c, S-101
 /** @purity pure */
 export function isWatermarkUnlockMatched(givenDigest: string, storedDigest: StoredValue, defaultDigest: string): boolean {

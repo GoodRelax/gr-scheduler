@@ -15,7 +15,7 @@ import type { AnnotationAnchor } from '../edit-document/edit-document'
 
 const BAND_FRACTION_STEPS = 10_000
 
-// Provisional: OPQ-25
+// Provisional: OPQ-26
 // Spec: UC-008, LF-15
 /** @purity pure */
 export function freeAnchorAt(layout: ScheduleLayout, taskGroup: TaskGroupPlacement, x: number, y: number): AnnotationAnchor {

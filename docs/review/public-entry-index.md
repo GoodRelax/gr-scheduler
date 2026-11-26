@@ -2203,7 +2203,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `reasonOfStepRefusal` | entry | function | `src/use-case/operate-through-agent-api/operate-through-agent-api.ts#reasonOfStepRefusal` | PI-54 | 取り消しとやり直しの拒否を、`AV-4` の理由へ写す |
 | `ruleOfPlanRefusal` | entry | function | `src/use-case/operate-through-agent-api/operate-through-agent-api.ts#ruleOfPlanRefusal` | PI-54 | その拒否が破った規則の行 |
 | `stepRefusalWhat` | entry | function | `src/use-case/operate-through-agent-api/operate-through-agent-api.ts#stepRefusalWhat` | PI-54 | その拒否を AI エージェントに伝える文 |
-| `WriteRefusalReason` | entry | type | `src/use-case/operate-through-agent-api/operate-through-agent-api.ts#WriteRefusalReason` | -- | type WriteRefusalReason = \| 'staleStamp' \| 'commandRefused' \| 'notOwnStep' \| Extract<PlanRefusal, { readonly step: 'WS-2' }>['reason'] // Provisional: OPQ-25... |
+| `WriteRefusalReason` | entry | type | `src/use-case/operate-through-agent-api/operate-through-agent-api.ts#WriteRefusalReason` | -- | type WriteRefusalReason = \| 'staleStamp' \| 'commandRefused' \| 'notOwnStep' \| Extract<PlanRefusal, { readonly step: 'WS-2' }>['reason'] // Provisional: OPQ-26... |
 
 ## RunDelayDiagnostics (PI-55, `src/use-case/run-delay-diagnostics/run-delay-diagnostics.ts`)
 

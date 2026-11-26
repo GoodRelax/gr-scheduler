@@ -11,7 +11,7 @@ import {
   type DelayDiagnosticsReport,
 } from '../../entity/document-model/schedule/schedule'
 
-// Provisional: OPQ-25
+// Provisional: OPQ-26
 // Spec: UC-015, FR-130
 /** @purity pure */
 export function delayDiagnosisOf(document: Document): DelayDiagnosticsReport {

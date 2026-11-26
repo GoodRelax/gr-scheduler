@@ -13,7 +13,7 @@ import {
   type TreeStateEvent,
 } from '../edit-document/edit-document'
 
-// Provisional: OPQ-25
+// Provisional: OPQ-26
 // Spec: UC-002, T-328
 /** @purity pure */
 export function taskGroupTreeWrites(document: Document, event: TreeStateEvent): readonly DocumentCommand[] {
@@ -40,7 +40,7 @@ export interface TaskGroupStandUp {
   readonly defaultTaskGroupName: string
 }
 
-// Provisional: OPQ-25
+// Provisional: OPQ-26
 // Spec: UC-002, HF-14, HF-17, T-328, AT-153
 // Why: the new task group is shown by its tree state (temporarilyExpanded, CM-26), never by a zoom write (HF-14).
 /** @purity pure */
