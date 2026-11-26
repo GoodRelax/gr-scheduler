@@ -12,13 +12,13 @@ what this reading does not see.
 
 | place | T-218 | T-334 | files | case sites | expected-to-fail marks | known-red lines | need the MSPDI XSDs | tied to no spec row |
 | --- | --- | --- | --: | --: | --: | --: | --: | --: |
-| `contract` | TS-5 | VT-2 | 474 | 6263 | 8 | 4 | 11 | 6 |
+| `contract` | TS-5 | VT-2 | 475 | 6265 | 9 | 4 | 11 | 6 |
 | `integration` | TS-2 | - | 3 | 76 | 0 | 0 | 0 | 0 |
 | `nfr` | TS-4 | VT-3 | 3 | 17 | 0 | 0 | 0 | 0 |
 | `system` | TS-3 | - | 106 | 668 | 0 | 0 | 0 | 1 |
 | `unit` | TS-6 | - | 197 | 4108 | 1 | 1 | 2 | 0 |
 | `use-case` | TS-1 | VT-1 | 14 | 17 | 1 | 2 | 0 | 0 |
-| **all** | | | 797 | 11149 | 10 | 7 | 13 | 7 |
+| **all** | | | 798 | 11151 | 11 | 7 | 13 | 7 |
 
 "Case sites" counts the `it(` / `test(` / `.each` calls in the source; a site driven by
 `.each` or a loop runs more cases than it counts here.
@@ -54,12 +54,12 @@ Nodes with the prefixes `FR`, `NFR`, `UC`, `SWS`. A node named only in a test of
 | `tests/contract/w3-t5-the-grs-json-schema-is-generated-from-the-manuscripts.contract.test.ts` | - |
 | `tests/system/cr-820-the-same-commit-builds-the-same-bytes.test.ts` | - |
 
-## 5. Expected-to-fail cases (10)
+## 5. Expected-to-fail cases (11)
 
 `it.fails` / `test.fail` / `specMismatch(...)`. The ledger row is a `DFC-` ID on the mark's
 line, the three lines above it, or its title; failing that, the `known-red.txt` lines of the
 file whose case text the title contains ("via known-red"). "none" means no ledger row is
-named either way: 4 of 10.
+named either way: 5 of 11.
 
 | file | case or reason | ledger row |
 | --- | --- | --- |
@@ -71,6 +71,7 @@ named either way: 4 of 10.
 | `tests/contract/e24-paste-refused-while-several-task-groups-are-chosen.test.ts` | ${EDIT_PERMISSION_LANDS_ON_CHOSEN_TASK_GROUP} -- one Task from an editPermission task g... | DFC-730 |
 | `tests/contract/state-machine-gesture.contract.test.ts` | %s (DFC-687) | DFC-687 |
 | `tests/contract/state-machine-gesture.contract.test.ts` | pointerPressed on entry %s (DFC-687) | DFC-687 |
+| `tests/contract/usecase-one-to-one.contract.test.ts` | T-062 | none |
 | `tests/unit/cr-439-notices-and-confirmation.test.ts` | NT-5 NT-1 と見分けがつく形にすること（MUST） -- an accepted-with-caution notice does not look like a r... | none |
 | `tests/use-case/uc-010-exchange-with-an-external-wbs-master.test.ts` | UC-010 extension 2a / FR-023, OP-5: a truncated MSPDI file dropped on the schedule is d... | DFC-1016 (via known-red) |
 
@@ -735,6 +736,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/contract/t-337-screen-z-order.contract.test.ts` | 12 | FR-152 | - | T-103, T-337 | S-99g, UZ-5, UZ-6, UZ-7, UZ-8, UZ-13 | - | - | - | - |
 | `tests/contract/tree-state-machine.contract.test.ts` | 9 | FR-018, FR-031 | VT-2 | T-250, T-328, T-329, T-332 | AT-153, HF-8, S-418, SD-3, SJ-2, ZE-2 | - | - | - | - |
 | `tests/contract/units.contract.test.ts` | 5 | - | - | T-062, T-074, T-075 | SU-1, SU-3 | - | - | - | - |
+| `tests/contract/usecase-one-to-one.contract.test.ts` | 2 | - | - | T-062 | EG-1, OPQ-26 | - | - | 1: none | - |
 | `tests/contract/w3-t1-theme-colors-are-solved-per-hue.contract.test.ts` | 8 | FR-041 | - | T-206, T-236, T-366 | CF-1, CF-2, CF-3, CF-4, CF-5, CF-6, CT-3, CT-4, CT-5, PI-19, S-151, S-155, S-156, S-157 | - | - | - | - |
 | `tests/contract/w3-t2-mspdi-write-back.contract.test.ts` | 5 | FR-021 | - | T-033 | DF-2, EX-6, EX-15, EX-16, PI-20 | - | - | - | yes |
 | `tests/contract/w3-t3-a-task-group-title-width-saved-unchanged-is-no-edit.test.ts` | 3 | FR-039 | - | - | S-79 | - | - | - | - |

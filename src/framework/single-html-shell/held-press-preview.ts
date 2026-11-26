@@ -5,20 +5,15 @@
 
 import type { Document } from '../../entity/document-model/document/document'
 import type { DocumentSettings } from '../../entity/document-model/document-settings/document-settings'
-import { emptySelection } from '../../entity/document-model/selection/selection'
-import { taskByUid } from '../../entity/document-model/schedule/schedule'
+import { dependencyStartOfHit } from '../../entity/layout-engine/item-hit-area/item-hit-area'
 import {
-  dependencyEndAtPointer,
-  dependencyStartOfHit,
-} from '../../entity/layout-engine/item-hit-area/item-hit-area'
-import {
-  geometryFromLayout,
   type Point,
   type ScheduleGeometry,
 } from '../../entity/layout-engine/schedule-geometry/schedule-geometry'
 import type { ScheduleLayout } from '../../entity/layout-engine/schedule-layout/schedule-layout'
 import type { ScreenRect, ScreenRegions } from '../../entity/layout-engine/screen-regions/screen-regions'
 import { editDocument } from '../../use-case/edit-document/edit-document'
+import { tentativeDependencyLine } from '../../use-case/link-tasks/link-tasks'
 import { armedOf } from '../../use-case/advance-screen-session/advance-screen-session'
 import {
   commandFromInput,
@@ -153,55 +148,10 @@ export function tentativeDependencyOf(
   if (press.pressRow !== 'PTD-3' || armedOf(hands.readSession().screen.armModeState)?.kind !== 'dependencyArmed') return null
   const from = dependencyStartOfHit(geometry, press.at.x, press.at.y, press.hit)
   if (from === null) return null
-  const schedule = document.schedule
-  const fromTask = taskByUid(schedule, from.taskUid)
-  const fromPlaced = layout.placements.find((one) => one.taskUid === from.taskUid)
-  if (fromTask === null || fromPlaced === undefined) return null
-
-  const into = dependencyEndAtPointer(geometry, at.x, at.y, null)
-  // Why: the Task drawn from is no partner (DN-1), so over itself the line still enters from the pointer's left.
-  const intoTask = into === null || into.taskUid === from.taskUid ? null : taskByUid(schedule, into.taskUid)
-  const intoPlaced =
-    intoTask === null ? undefined : layout.placements.find((one) => one.taskUid === intoTask.uid)
-  const partner = into !== null && intoTask !== null && intoPlaced !== undefined
-    ? { task: intoTask, placed: intoPlaced, edge: into.edge }
-    : null
-  const pointerUid = fromTask.uid + 1
-  const successor = partner === null ? { ...fromTask, uid: pointerUid } : partner.task
-  const successorPlaced =
-    partner === null
-      ? { ...fromPlaced, taskUid: pointerUid, x: at.x, width: 0, y: at.y, planHeight: 0,
-          actualX: null, actualWidth: 0 }
-      : partner.placed
-
-  const pair: Document = {
-    ...document,
-    schedule: {
-      ...schedule,
-      tasks: [{ ...fromTask, dependencies: [] }, { ...successor, dependencies: [] }],
-    },
-  }
-  const made = editDocument(
-    pair,
-    {
-      kind: 'createDependency',
-      predecessorUid: fromTask.uid,
-      successorUid: successor.uid,
-      predecessorEdge: from.edge,
-      successorEdge: partner === null ? 'start' : partner.edge,
-    },
-    hands.settingsLimitsOf(hands.readValues()),
-    DEFAULT_TASK_GROUP_NAME,
+  return tentativeDependencyLine(
+    { document, settings, layout, geometry, regions },
+    from,
+    at,
+    { settingsLimits: hands.settingsLimitsOf(hands.readValues()), defaultTaskGroupName: DEFAULT_TASK_GROUP_NAME },
   )
-  if (!made.ok) return null
-  // Why: FR-009 asks for the line with no exception for IC-81's toggle, so the copy draws it whatever the toggle says.
-  const drawn = geometryFromLayout(
-    { ...made.document.schedule, highlightBoxes: [], commentBoxes: [] },
-    { ...settings, isDependencyVisible: true },
-    { ...layout, placements: [fromPlaced, successorPlaced] },
-    regions,
-    emptySelection(),
-    null,
-  )
-  return drawn.dependencies[0] ?? null
 }
