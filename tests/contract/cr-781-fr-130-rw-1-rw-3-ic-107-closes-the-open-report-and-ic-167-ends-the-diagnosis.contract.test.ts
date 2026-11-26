@@ -1,6 +1,6 @@
 // CR-781 / CR-797 spec-only contract over the shell: IC-107 with the report window open (minimized included) closes the window alone; with it closed it runs the diagnosis again and opens it; IC-40 ends the diagnosis (the End Diagnostics entry is retired); IC-168 re-runs it with the window kept open.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -28,7 +28,7 @@ const RW_3_HEAD = '`GRS` は、タイトルバーの下の 1 行に、左から�
 const RW_3_EVERY_TABLE = '`GRS` は、`IC-168` を 3 つの表（`RW-11`）のどれを出しているときも置くこと。'
 
 const SPEC = join(process.cwd(), 'docs', 'spec')
-const REQUIREMENTS = unbroken(readFileSync(join(SPEC, '01-04-requirements.md'), 'utf8'))
+const REQUIREMENTS = unbroken(readRepoFile(join(SPEC, '01-04-requirements.md'), 'utf8'))
 const cellOf = (table: string, id: string, heading: string): string =>
   unbroken(specTable(table).rows.find((one) => one.id === id)?.by[heading] ?? '')
 

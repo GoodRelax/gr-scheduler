@@ -1,6 +1,6 @@
 // CR-648: the Delay Diagnostics Report window fixes -- DT-1 order, the dictionary words, no legend, RW-10, T-333 steps, T-352 names.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
 
@@ -29,7 +29,7 @@ import { bare, specTable } from '../contract/spec-table'
 type Word = { readonly ja: string; readonly en: string }
 type Entry = Readonly<Record<string, unknown>> & { readonly text?: Word; readonly label?: Word }
 
-const MANUSCRIPT = JSON.parse(readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf-8')) as Record<
+const MANUSCRIPT = JSON.parse(readRepoFile(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf-8')) as Record<
   string,
   readonly Entry[]
 >

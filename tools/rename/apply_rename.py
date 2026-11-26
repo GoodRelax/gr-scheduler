@@ -150,7 +150,10 @@ def locate(lines, row):
 class FileEdits(object):
     def __init__(self, path):
         self.path = path
-        raw = open(os.path.join(rc.ROOT, path), 'rb').read().decode('utf-8')
+        if rc.is_split_document(path):
+            raw = rc.spec_files.read_document(path, rc.ROOT)
+        else:
+            raw = open(os.path.join(rc.ROOT, path), 'rb').read().decode('utf-8')
         self.crlf_before = raw.count('\r\n')
         self.raw_lines = raw.split('\n')
         self.lines = [l[:-1] if l.endswith('\r') else l for l in self.raw_lines]
@@ -435,7 +438,10 @@ def main(argv):
         print('dry run: nothing written.')
         return 0
     for path, (data, before, after) in sorted(results.items()):
-        open(os.path.join(rc.ROOT, path), 'wb').write(data.encode('utf-8'))
+        if rc.is_split_document(path):
+            rc.spec_files.write_document(path, data, rc.ROOT)
+        else:
+            open(os.path.join(rc.ROOT, path), 'wb').write(data.encode('utf-8'))
         print('  wrote %s (CRLF %d -> %d)' % (path, before, after))
     return 0
 

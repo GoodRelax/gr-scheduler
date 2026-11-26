@@ -1,6 +1,7 @@
 // CR-754 on the shipped build: a Task panel draws the actual length entry (PR-5) as wide as the date entries beside it, time shown and hidden, ja and en (DFC-2870).
 
-import { existsSync, readFileSync } from 'node:fs'
+import { existsSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
 
@@ -10,7 +11,7 @@ import { CLEARING_UP_MS, readSettledDrawnSvg, screenOf, taskBodyPoint } from './
 import { rowOf } from './sws-case'
 
 const SPEC = join(process.cwd(), 'docs', 'spec')
-const REQUIREMENTS = unbroken(readFileSync(join(SPEC, '01-04-requirements.md'), 'utf8'))
+const REQUIREMENTS = unbroken(readRepoFile(join(SPEC, '01-04-requirements.md'), 'utf8'))
 
 // Spec: FR-006
 const FR_006_ACTUAL_LENGTH =

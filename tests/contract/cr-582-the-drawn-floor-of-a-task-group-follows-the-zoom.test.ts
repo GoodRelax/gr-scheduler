@@ -1,6 +1,6 @@
 // CR-582 / CR-689 spec-only cases: a task group's min height is drawn scaled by S-234 / 100, never by zoomY or S-236.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -13,7 +13,7 @@ import { DEFAULT_DISPLAY_SCALE, DISPLAY_SCALE_STEPS, S_236, displayRatioAt } fro
 import { specTable, unbroken } from './spec-table'
 
 const SPEC = join(process.cwd(), 'docs', 'spec')
-const REQUIREMENTS = unbroken(readFileSync(join(SPEC, '01-04-requirements.md'), 'utf8'))
+const REQUIREMENTS = unbroken(readRepoFile(join(SPEC, '01-04-requirements.md'), 'utf8'))
 
 const FR_042_FLOOR = '`GRS` は、指定した最小の高さを下限として扱うこと。'
 const FR_042_WIDEN = '段数が指定した最小の高さより高い帯を要するとき、`GRS` は、帯を指定を超えて広げること。'
@@ -53,7 +53,7 @@ interface SettingRow {
 }
 
 const SETTING_ROWS: readonly SettingRow[] = (
-  JSON.parse(readFileSync(join(SPEC, '_source', 'settings.json'), 'utf8')) as { blocks: { rows?: SettingRow[] }[] }
+  JSON.parse(readRepoFile(join(SPEC, '_source', 'settings.json'), 'utf8')) as { blocks: { rows?: SettingRow[] }[] }
 ).blocks.flatMap((block) => block.rows ?? [])
 
 function setting(id: string): number {
@@ -76,7 +76,7 @@ const drawnFloor = (minHeight: number, displayScale: number): number => minHeigh
 const ZOOMS: readonly number[] = [-2, -1, 0, 1, 2].map((notch) => S_76_DEFAULT * S_53 ** notch)
 
 const TEMPLATE = JSON.parse(
-  readFileSync(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
+  readRepoFile(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
 ) as Record<string, any>
 
 const FLOORED = 'aaaaaaaa-0000-4000-8000-000000000001'

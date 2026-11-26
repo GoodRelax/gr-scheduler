@@ -114,6 +114,8 @@ import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(HERE)))
+sys.path.insert(0, os.path.join(ROOT, 'tools'))
+import spec_files  # noqa: E402
 
 RULINGS = os.path.join(ROOT, 'docs', 'development-records', 'rulings.md')
 SPEC = os.path.join(ROOT, 'docs', 'spec')
@@ -172,9 +174,17 @@ def flatten(text):
 
 def read(path):
     try:
+        if spec_files.is_split_document(path):
+            return spec_files.read_spec_file(path)
         return io.open(path, encoding='utf-8', errors='replace').read()
     except OSError:
         return u''
+
+
+def is_file(path):
+    if spec_files.is_split_document(path):
+        return spec_files.spec_file_exists(path)
+    return os.path.isfile(path)
 
 
 def rel_of(path):
@@ -191,7 +201,7 @@ def manuscripts():
     found = []
     for base, dirs, names in os.walk(SPEC):
         dirs[:] = [d for d in dirs if d not in SKIP_DIRS]
-        for name in sorted(names):
+        for name in spec_files.listed_names(base, sorted(names)):
             if name.endswith('.md'):
                 path = os.path.join(base, name)
                 found.append((rel_of(path), flatten(read(path))))
@@ -204,7 +214,7 @@ def named_places(cell, book_path, own_line):
     seen = set()
     for candidate in PATH_IN_CELL.findall(cell):
         path = os.path.join(ROOT, candidate.replace('/', os.sep))
-        if candidate in seen or not os.path.isfile(path):
+        if candidate in seen or not is_file(path):
             continue
         seen.add(candidate)
         places.append((candidate, flatten(read(path))))
@@ -227,7 +237,7 @@ def defined_ids():
     ids = set()
     for base, dirs, names in os.walk(SPEC):
         dirs[:] = [d for d in dirs if d not in SKIP_DIRS]
-        for name in names:
+        for name in spec_files.listed_names(base, names):
             text = read(os.path.join(base, name))
             if name.endswith('.md'):
                 ids.update(DEF_UID.findall(text))
@@ -243,8 +253,8 @@ def named_files(cell):
     found = []
     for candidate in PATH_IN_CELL.findall(cell):
         local = candidate.replace('/', os.sep)
-        if (os.path.isfile(os.path.join(ROOT, local))
-                or os.path.isfile(os.path.join(SPEC, local))):
+        if (is_file(os.path.join(ROOT, local))
+                or is_file(os.path.join(SPEC, local))):
             found.append(candidate)
     return found
 

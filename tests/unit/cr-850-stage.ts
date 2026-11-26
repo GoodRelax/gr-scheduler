@@ -1,6 +1,6 @@
 // CR-850 (spec-only) stage: one task in the first of two task groups, the scenes named after the rows of table T-378.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { expect, vi } from 'vitest'
@@ -40,7 +40,7 @@ import {
 import { bare, specTable, unbroken } from '../contract/spec-table'
 
 export const REQUIREMENTS = unbroken(
-  readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8').replace(/\r\n/g, '\n'),
+  readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8').replace(/\r\n/g, '\n'),
 )
 
 const rowOf = (table: string, id: string) => {
@@ -87,7 +87,7 @@ export const TASK_GROUP_B = '85000000-0000-4000-8000-00000000000b'
 export const SOURCE = 1
 
 const TEMPLATE = JSON.parse(
-  readFileSync(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
+  readRepoFile(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
 ) as Record<string, Record<string, unknown>>
 
 export interface Scene {

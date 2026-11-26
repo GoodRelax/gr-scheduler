@@ -1,6 +1,6 @@
 // CR-577 spec-only cases: a vertical-axis zoom-in below the FR-094 floor always changes the picture (T-262 ZE-6).
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -22,7 +22,7 @@ import { DEFAULT_DISPLAY_SCALE } from '../fixtures/display-scale'
 import { selfAndDescendants, stage as fakeBrowser, wiringOf, type FakeElement } from '../fixtures/fake-browser'
 import { specTable, unbroken } from './spec-table'
 
-const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
+const REQUIREMENTS = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
 const ZE_6_RULE =
   'いまの `zoomY` で `ZE-1` の ① が成り立つ間、拡げる入力（表 T-023 の `MK-4` の拡げる向き、`_assets/tbl-glossary.md` の 表 T-109 の `IC-15`、表 T-036 の `SK-16a`）を受けたとき、`GRS` は、次の ① と ② のうち小さいほうを目標とし、`S-53` で刻んだ値と目標のうち大きいほうを書くこと。'
@@ -86,7 +86,7 @@ interface SettingRow {
 }
 
 const SETTING_ROWS: readonly SettingRow[] = (
-  JSON.parse(readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'settings.json'), 'utf8')) as {
+  JSON.parse(readRepoFile(join(process.cwd(), 'docs', 'spec', '_source', 'settings.json'), 'utf8')) as {
     blocks: { rows?: SettingRow[] }[]
   }
 ).blocks.flatMap((block) => block.rows ?? [])
@@ -172,7 +172,7 @@ function targetOf(rows: readonly RowSpec[], levelZero: string, zoomY: number): n
 const ze6Write = (rows: readonly RowSpec[], levelZero: string, zoomY: number, ceiling: number): number =>
   Math.min(Math.max(zoomY * S_53, targetOf(rows, levelZero, zoomY)), ceiling)
 
-const TEMPLATE_TEXT = readFileSync(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8')
+const TEMPLATE_TEXT = readRepoFile(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8')
 const TEMPLATE = JSON.parse(TEMPLATE_TEXT) as Record<string, any>
 
 const idOf = (n: number): string => `cccccccc-0000-4000-8000-${String(n).padStart(12, '0')}`
@@ -282,7 +282,7 @@ function documentOf(rows: readonly RowSpec[], zoomY: number, stacked = 0): Docum
   } as unknown as Document
 }
 
-const ERP_TEXT = readFileSync(join(process.cwd(), 'sample-schedule', 'sample-large-erp-program.ja.xml'), 'utf8')
+const ERP_TEXT = readRepoFile(join(process.cwd(), 'sample-schedule', 'sample-large-erp-program.ja.xml'), 'utf8')
 
 // Why: null leaves the sample as imported, so OP-10 opens it at the FR-055 fit (T1); a number also
 // places the view on the first task group, since a null place would refit and drop the zoom given.
@@ -351,7 +351,7 @@ interface ScaleEcho {
 }
 
 const SCALE_ECHO: readonly ScaleEcho[] = (
-  JSON.parse(readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8')) as {
+  JSON.parse(readRepoFile(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8')) as {
     scaleEcho: ScaleEcho[]
   }
 ).scaleEcho

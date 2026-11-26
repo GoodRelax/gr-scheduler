@@ -1,7 +1,7 @@
 // W3 spec-only cases for FR-076 table T-037 NT-7: a standing question takes no write (RS-27 on the screen, AG-9 for the Agent API) and asks in a y / n form.
 
 import { expect, test, type Browser, type Page } from '@playwright/test'
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 import { bare, specTable, unbroken } from '../contract/spec-table'
 import { validateDocument } from '../fixtures/grs-document'
@@ -9,14 +9,14 @@ import { CLEARING_UP_MS, launchReferenceBrowser } from './live-app'
 import { openDocument, openStage, pressEntrance, reasonWords, settle, type Stage } from './cr-570-tree-state-stage'
 import { rowOf } from './sws-case'
 
-const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
+const REQUIREMENTS = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
 // Why: each constant ends exactly at its marker, cut from the manuscript as check 39 reads it.
 const NT_7_NO_WRITE =
   '画面からの書き込み（取り消し・やり直しを含む）は 表 T-233 の `RS-27` として捨て（同行は出さない —— 問いが画面に立っているので、受けなかったことは見える）、`Agent API` の書き込みは 表 T-035 の `AG-9` のとおり拒むこと（MUST）'
 const NT_7_YES_NO = '（`05-07-design.md` の 表 T-067 の `WS-2` と同じ例外である）。⚠️ **問いの文は、`y` / `n` で答えられる形にすること（MUST）'
 
-const WORDS = JSON.parse(readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8')) as {
+const WORDS = JSON.parse(readRepoFile(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8')) as {
   readonly questions: readonly { readonly specTableRowId: string; readonly text: { readonly ja: string; readonly en: string } }[]
 }
 
@@ -33,7 +33,7 @@ const NOT_ON_THE_CONFIRMATION = new Set([
 ])
 
 const TEMPLATE = JSON.parse(
-  readFileSync(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
+  readRepoFile(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
 ) as { $schema: string; schemaVersion: string; schedule: Record<string, any>; documentSettings: Record<string, unknown>; documentStamp: unknown }
 
 // Why: January 2026 runs Mon 5 .. Fri 9, Sat 10; the template calendar works Mon-Fri and has no January exception.

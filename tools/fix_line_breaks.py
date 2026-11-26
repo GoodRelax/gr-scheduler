@@ -54,6 +54,8 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
 CHECKER = os.path.join(ROOT, '.claude', 'skills', 'spec-graph-check',
                        'check-quoted-source.py')
+sys.path.insert(0, HERE)
+import spec_files  # noqa: E402
 
 BOOKS = [
     'docs/spec/01-04-requirements.md',
@@ -261,7 +263,7 @@ def mend(text):
 # --------------------------------------------------------------- the run
 
 def repair(path, baseline):
-    raw = io.open(path, encoding='utf-8', newline='').read()
+    raw = spec_files.read_spec_file(os.path.abspath(path))
     crlf = '\r\n' in raw
     lines = joined(raw.replace('\r\n', '\n').split('\n'))
     carry = carries(lines)
@@ -271,8 +273,8 @@ def repair(path, baseline):
     seen = set()
     for round_no in range(1, ROUNDS):
         body = mend(rendered(lines, allowed, carry))
-        io.open(path, 'w', encoding='utf-8',
-                newline='').write(body.replace('\n', '\r\n') if crlf else body)
+        spec_files.write_spec_file(os.path.abspath(path),
+                                   body.replace('\n', '\r\n') if crlf else body)
         new = unsourced() - baseline
         if not new:
             return len(allowed), round_no
@@ -306,7 +308,7 @@ def main(argv):
     paths = []
     for arg in argv:
         if arg == '--all':
-            paths += [p for p in BOOKS if os.path.exists(os.path.join(ROOT, p))]
+            paths += [p for p in BOOKS if spec_files.spec_file_exists(os.path.join(ROOT, p))]
         elif arg.startswith('--protect='):
             PROTECT.extend(RUN.findall(io.open(arg.split('=', 1)[1],
                                                encoding='utf-8',

@@ -1,6 +1,6 @@
 // CR-582 / CR-689 spec-only cases: the task group min height rows of the property panel (FR-042, table T-338).
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { afterEach, describe, expect, it } from 'vitest'
@@ -35,7 +35,7 @@ import {
 import { bare, specTable, unbroken } from './spec-table'
 
 const SPEC = join(process.cwd(), 'docs', 'spec')
-const REQUIREMENTS = unbroken(readFileSync(join(SPEC, '01-04-requirements.md'), 'utf8'))
+const REQUIREMENTS = unbroken(readRepoFile(join(SPEC, '01-04-requirements.md'), 'utf8'))
 
 const FR_042_BY_T_338 = '`GRS` は、タスクグループの最小の高さの欄を 表 T-338 に従って出すこと。'
 const FR_042_WORDS = '`GRS` は、最小の高さの欄の名・単位・現在の高さ・空の欄・タスクグループを描いていないときの語を、`FR-038` の辞書の語とすること。'
@@ -110,7 +110,7 @@ interface PartWord {
   readonly text: Record<DisplayLanguage, string>
 }
 
-const WORDS = JSON.parse(readFileSync(join(SPEC, '_source', 'display-words.json'), 'utf8')) as {
+const WORDS = JSON.parse(readRepoFile(join(SPEC, '_source', 'display-words.json'), 'utf8')) as {
   readonly properties: readonly { readonly specTableRowId: string; readonly label: Record<DisplayLanguage, string> }[]
   readonly rowMinHeightField: readonly PartWord[]
 }
@@ -140,7 +140,7 @@ interface SettingRow {
 }
 
 const SETTING_ROWS: readonly SettingRow[] = (
-  JSON.parse(readFileSync(join(SPEC, '_source', 'settings.json'), 'utf8')) as { blocks: { rows?: SettingRow[] }[] }
+  JSON.parse(readRepoFile(join(SPEC, '_source', 'settings.json'), 'utf8')) as { blocks: { rows?: SettingRow[] }[] }
 ).blocks.flatMap((block) => block.rows ?? [])
 
 function setting(id: string): number {
@@ -153,7 +153,7 @@ const S_53 = setting('S-53')
 const S_87 = setting('S-87')
 
 const TEMPLATE = JSON.parse(
-  readFileSync(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
+  readRepoFile(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
 ) as Record<string, any>
 
 const A = 'bbbbbbbb-0000-4000-8000-000000000001'

@@ -1,6 +1,6 @@
 // CR-411: every press that changes the display scale shows its percentage for S-244, as a message that is not a notice (table T-260).
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -20,7 +20,7 @@ import { selfAndDescendants, stage as fakeBrowser, wiringOf, type FakeElement } 
 import { DEFAULT_DISPLAY_SCALE, DISPLAY_SCALE_STEPS } from '../fixtures/display-scale'
 
 const REQUIREMENTS = unbroken(
-  readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'),
+  readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'),
 )
 
 const FR_039_A_MESSAGE_EVERY_PRESS =
@@ -70,7 +70,7 @@ describe('S-244 -- the time the message stays', () => {
 })
 
 const TEMPLATE = JSON.parse(
-  readFileSync(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
+  readRepoFile(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
 ) as Record<string, any>
 
 const SCREEN: FrameEnvironment = { width: 1200, height: 700, appHeaderHeight: 56, scrollbarThickness: 8 }

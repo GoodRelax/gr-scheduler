@@ -1,7 +1,7 @@
 // W3 spec-only cases on the shipped build: FR-101 table HS-11 -- the AT-140 the written bytes carry is the time the lower line shows.
 
 import { expect, test, type Page } from '@playwright/test'
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 import { unbroken } from '../contract/spec-table'
 import { VIEWPORT, enableAgentApi, icon, launch, openByDrop, savedFiles, settle } from '../use-case/uc-harness'
@@ -9,7 +9,7 @@ import { taskGroupsDocument } from './w3-t1-stage'
 
 test.use({ viewport: VIEWPORT, locale: 'en-US' })
 
-const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
+const REQUIREMENTS = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
 // Why: the constant ends exactly at its marker, cut from the manuscript as check 39 reads it.
 const HS_11 =

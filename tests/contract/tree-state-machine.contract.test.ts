@@ -1,6 +1,6 @@
 // Contract test: table T-250 SD-3 -- the task-group-tree manuscript (T-328) against treeStateWritesFor.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -38,7 +38,7 @@ const STATES = MACHINE.states.map((s) => s.key as TreeState)
 const EVENTS = REGION.events
 
 // Why: JDG-139 stage 3 -- the generated table is read as the printed text, so the unit keeps it unexported.
-const FOLDING_UNIT = readFileSync(
+const FOLDING_UNIT = readRepoFile(
   join(process.cwd(), 'src', 'use-case', 'edit-document', 'task-group-folding.ts'),
   'utf8',
 ).replace(/\r\n/g, '\n')
@@ -56,7 +56,7 @@ const printedTransitions = (): readonly { readonly state: string; readonly event
   }))
 }
 
-const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
+const REQUIREMENTS = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
 const FR_018_BY_T_328 =
   '`GRS` は、`treeState` の値を書き換える入口と先の値を、段 0 の折りたたみ（`_assets/tbl-settings.md` の 表 T-203 の `S-418`）を含めて、`_assets/tbl-state-machines.md` の 表 T-328 に従わせること。'
@@ -85,7 +85,7 @@ const SJ_2_OPENS =
   '`GRS` は、飛ぶ先のタスクグループ（タスクは `AT-61`、コメントボックスは `AT-114`）と、飛ぶ先のタスクグループの祖先のすべての `treeState` を `expanded` にすること。'
 
 const TEMPLATE = JSON.parse(
-  readFileSync(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
+  readRepoFile(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
 ) as { readonly schedule: Schedule }
 const TEMPLATE_GROUP: TaskGroup = ((): TaskGroup => {
   const first = TEMPLATE.schedule.taskGroups[0]

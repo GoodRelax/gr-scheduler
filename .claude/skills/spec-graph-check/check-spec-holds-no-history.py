@@ -34,6 +34,10 @@ import os
 import re
 import sys
 
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                '..', '..', '..', 'tools'))
+import spec_files  # noqa: E402
+
 SPEC = os.path.join('docs', 'spec')
 SKIP_DIRS = {'output', '__pycache__'}
 SUFFIXES = ('.md', '.json', '.py')
@@ -59,12 +63,15 @@ def main(argv):
     scanned = 0
     for base, dirs, names in os.walk(base_dir):
         dirs[:] = [d for d in dirs if d not in SKIP_DIRS]
-        for name in sorted(names):
+        for name in spec_files.listed_names(base, sorted(names), root):
             if not name.endswith(SUFFIXES):
                 continue
             path = os.path.join(base, name)
             try:
-                text = io.open(path, 'rb').read().decode('utf-8')
+                if spec_files.is_split_document(name, root):
+                    text = spec_files.read_document(name, root)
+                else:
+                    text = io.open(path, 'rb').read().decode('utf-8')
             except (IOError, OSError, UnicodeDecodeError):
                 continue
             scanned += 1

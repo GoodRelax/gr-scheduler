@@ -61,7 +61,7 @@
 // at all: it is read out of the official schema at run time, so it cannot fall
 // behind it.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -103,7 +103,7 @@ const XSD_PATH = XSD_PATHS.pj12
  * the only one EX-1 (valid against the official schema, MUST) accepts.
  */
 function declaredChildOrder(xsdPath: string = XSD_PATH): ReadonlyMap<string, readonly string[]> {
-  const source = readFileSync(xsdPath, 'utf8')
+  const source = readRepoFile(xsdPath, 'utf8')
   const order = new Map<string, string[]>()
   const open: (string | null)[] = []
   const tag = /<(\/?)(xsd:[A-Za-z]+)([^>]*?)(\/?)>/g
@@ -465,7 +465,7 @@ const TEMPLATE_PATH = join(
   'single-html-shell',
   'startup-template.json',
 )
-const TEMPLATE_TEXT = readFileSync(TEMPLATE_PATH, 'utf8')
+const TEMPLATE_TEXT = readRepoFile(TEMPLATE_PATH, 'utf8')
 
 function templateDocument(): Document {
   const read = documentFromJson(TEMPLATE_TEXT)
@@ -1916,7 +1916,7 @@ interface Roster {
   readonly frames: readonly RosterFrame[]
 }
 
-const ROSTER = JSON.parse(readFileSync(ROSTER_PATH, 'utf8')) as Roster
+const ROSTER = JSON.parse(readRepoFile(ROSTER_PATH, 'utf8')) as Roster
 
 /**
  * EX-6 tells GRS's own frame from the import source's by the DEFINITION's
@@ -1936,7 +1936,7 @@ function rosterFrame(prefers: RosterFrame['prefers']): RosterFrame {
 
 /** The `maxLength` the official schema puts on a definition's `Alias`. */
 function schemaAliasMaxLength(): number {
-  const source = readFileSync(XSD_PATH, 'utf8')
+  const source = readRepoFile(XSD_PATH, 'utf8')
   const hits = [...source.matchAll(/name="Alias"[\s\S]{0,400}?<xsd:maxLength value="(\d+)"/g)]
   if (hits.length !== 1) {
     throw new Error(`the schema states ${hits.length} bounds for Alias, expected 1`)
@@ -2505,7 +2505,7 @@ interface GeneratedRoster {
   readonly frames: readonly RosterFrame[]
 }
 
-const GENERATED_ROSTER = JSON.parse(readFileSync(GENERATED_ROSTER_PATH, 'utf8')) as GeneratedRoster
+const GENERATED_ROSTER = JSON.parse(readRepoFile(GENERATED_ROSTER_PATH, 'utf8')) as GeneratedRoster
 
 /** A field id no frame of the roster names, derived from the roster itself. */
 const OUTSIDE_FIELD_ID = Math.max(...ROSTER.frames.map((each) => each.fieldId)) + 1000

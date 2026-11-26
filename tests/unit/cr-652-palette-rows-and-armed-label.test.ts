@@ -1,6 +1,6 @@
 // Pins CR-652: palette rows wrap at S-488 and the IC-54 label is drawn at S-489 (FR-053).
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -25,7 +25,7 @@ import { FakeElement, FakeText, selfAndDescendants, stage, styleMap } from '../f
 import { bare, bareAll, specTable, unbroken } from '../contract/spec-table'
 
 const REQUIREMENTS = unbroken(
-  readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'),
+  readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'),
 )
 
 const FR_053_ROW_CAP = '`GRS` は、1 つの群の入口を、1 段に `_assets/tbl-settings.md` の 表 T-206 の `S-488` の数までを並べること。'

@@ -1,6 +1,6 @@
 // CR-719: the shared bench the spec-only cr-719-*.test.ts files drive the import check, the frame loop and the file flow through.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { expect } from 'vitest'
@@ -16,10 +16,10 @@ import { validateImportedDocument, type ImportCandidate, type ImportVerdict } fr
 import { specTable, unbroken, type SpecRow } from './spec-table'
 import { taskGroupDocument, taskOf as jsonTaskOf } from '../unit/cr-541-stage'
 
-export const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
+export const REQUIREMENTS = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
 export const DISPLAY_WORDS = JSON.parse(
-  readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8'),
+  readRepoFile(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8'),
 ) as { reasons: { specTableRowId: string; text: { ja: string; en: string }; nextStep?: { ja: string; en: string } }[] }
 
 /** @purity pure */
@@ -172,7 +172,7 @@ export const TEMPLATE_PATH = join(process.cwd(), 'src', 'framework', 'single-htm
 
 // Spec: BT-4
 export function templateDocument(): Document {
-  const read = documentFromJson(readFileSync(TEMPLATE_PATH, 'utf8'))
+  const read = documentFromJson(readRepoFile(TEMPLATE_PATH, 'utf8'))
   if (!read.ok) throw new Error(`the bundled template is not GRS JSON: ${JSON.stringify(read.faults)}`)
   return read.document
 }

@@ -1,6 +1,6 @@
 // DFC-554: GA-6 released at or left of the dummy day keeps the FR-011 floor day, or is refused by IV-21.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -25,10 +25,10 @@ import { specTable, unbroken } from './spec-table'
 const DEFAULT_TASK_GROUP_NAME_FIXTURE = 'fixture default task group name'
 
 const REQUIREMENTS = unbroken(
-  readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'),
+  readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'),
 )
 
-const ERD_DETAIL = readFileSync(join(process.cwd(), 'docs', 'spec', '_assets', 'fig-erd-detail.md'), 'utf8')
+const ERD_DETAIL = readRepoFile(join(process.cwd(), 'docs', 'spec', '_assets', 'fig-erd-detail.md'), 'utf8')
 
 const FR_011_FLOOR =
   '`GRS` は、着手しているタスクの実績の最後の日を、床の日より前に置かないこと'

@@ -1,6 +1,6 @@
 // CR-765 spec-only tests: the AgentApi type, AGENT_API_VERSION and RelayedParams the generator prints from table T-107 and T-400.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, expectTypeOf, it } from 'vitest'
@@ -44,10 +44,10 @@ const SCHEMA_VERSION_HELD = 'the-format-version-of-this-build'
 const stubbedWiring = { schemaVersion: SCHEMA_VERSION_HELD } as unknown as AgentApiWiring
 
 const MANUSCRIPT = JSON.parse(
-  readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'agent-api-members.json'), 'utf8'),
+  readRepoFile(join(process.cwd(), 'docs', 'spec', '_source', 'agent-api-members.json'), 'utf8'),
 ) as { readonly version: number }
 
-const PRINTED = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '_assets', 'tbl-agent-api-members.md'), 'utf8'))
+const PRINTED = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '_assets', 'tbl-agent-api-members.md'), 'utf8'))
 
 type Stamp = Document['documentStamp']
 

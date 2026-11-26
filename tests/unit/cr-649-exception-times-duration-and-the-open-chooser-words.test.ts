@@ -1,6 +1,6 @@
 // CR-649: CM-39 stamps exception-day times, DV-8 counts the finish day, the Open Chooser takes its new words.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -239,10 +239,10 @@ describe('DV-8 / EX-12: Task/Duration counts the finish day', () => {
 
 describe('JDG-1164 / JDG-1223: the Open Chooser (U-56) heading and the three descriptions (IC-71 to IC-73)', () => {
   const MANUSCRIPT = JSON.parse(
-    readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8'),
+    readRepoFile(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8'),
   ) as Record<string, any>
   const SHIPPED = JSON.parse(
-    readFileSync(join(process.cwd(), 'src', 'adapter', 'screen-renderer', 'display-words.json'), 'utf8'),
+    readRepoFile(join(process.cwd(), 'src', 'adapter', 'screen-renderer', 'display-words.json'), 'utf8'),
   ) as Record<string, any>
 
   /** @purity pure */

@@ -1,7 +1,8 @@
 // CR-389 / FR-071: the shipped build asks the browser for full screen, and the pressed look of IC-11 follows the browser.
 
 import { expect, test, type Browser, type Page } from '@playwright/test'
-import { existsSync, readFileSync } from 'node:fs'
+import { existsSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { specTable } from '../contract/spec-table'
@@ -17,7 +18,7 @@ const SETTLE_MS = 600
 // Spec: FR-038, RS-59
 const RS_59_WORDS: readonly string[] = ((): readonly string[] => {
   const raw = JSON.parse(
-    readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8'),
+    readRepoFile(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8'),
   ) as { readonly reasons: readonly { readonly specTableRowId: string; readonly text: { readonly ja: string; readonly en: string } }[] }
   const found = raw.reasons.find((one) => one.specTableRowId === 'RS-59')
   if (found === undefined) throw new Error('the dictionary manuscript holds no reason RS-59')

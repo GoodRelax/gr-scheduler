@@ -1,6 +1,6 @@
 // CR-721 spec-only stage: one small document, the Search Panel session over it, and the report window over a fixed report.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import type { DisplayLanguage, SearchPanelView } from '../../src/adapter/screen-renderer/screen-renderer'
@@ -37,7 +37,7 @@ export type { DelayDiagnosticsReportWindow, SearchPanelSession, SearchPanelView,
 type Loose = Record<string, unknown>
 
 const TEMPLATE = JSON.parse(
-  readFileSync(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
+  readRepoFile(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
 ) as { readonly schedule: Loose }
 const firstOf = (key: string): Loose => ((TEMPLATE.schedule[key] as readonly Loose[])[0] ?? {}) as Loose
 const D = (day: string): string => `${day}T00:00:00`
@@ -162,7 +162,7 @@ export const columnOf = (view: SearchPanelView, column: string): SearchPanelView
 
 // Why: the dictionary is the spec's own file; a word is read from it, never retyped here.
 type Words = Record<DisplayLanguage, string>
-export const WORDS = JSON.parse(readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8')) as {
+export const WORDS = JSON.parse(readRepoFile(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8')) as {
   readonly icons: readonly { readonly specTableRowId: string; readonly label: Words }[]
   readonly searchColumns: readonly { readonly specTableRowId: string; readonly text: Words }[]
   readonly searchPanel: readonly { readonly part: string; readonly text: Words }[]

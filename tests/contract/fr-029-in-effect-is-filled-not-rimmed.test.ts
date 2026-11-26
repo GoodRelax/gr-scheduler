@@ -71,7 +71,7 @@
 // so the count above is unchanged: the entrance it stands on (`IC-7` by the
 // row's own words) is an `App Header` row of 表 T-109.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -120,7 +120,7 @@ const rowOf = (table: string, id: string) => {
  * requirements, so a premise below asks that a sentence is still IN it rather
  * than which UID holds it.
  */
-const CHAPTER_1_4 = unbroken(readFileSync(
+const CHAPTER_1_4 = unbroken(readRepoFile(
   join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'),
   'utf8',
 ))

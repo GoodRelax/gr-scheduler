@@ -1,6 +1,7 @@
 // Contract test: table T-284 (the one-step shape every region shares) and table T-285 (adding a region).
 
-import { existsSync, readFileSync } from 'node:fs'
+import { existsSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { basename, join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -15,7 +16,7 @@ import { assertNever, NO_EFFECTS, unchanged } from '../../src/use-case/advance-s
 import { bare, specTable, unbroken } from './spec-table'
 import { readStateMachineView } from './state-machine-manuscript'
 
-const DESIGN = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '05-07-design.md'), 'utf8'))
+const DESIGN = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '05-07-design.md'), 'utf8'))
 
 const T284_LEAD =
   '全領域が共有する 1 段の形の約束を 表 T-284 に示す。領域のユニットと公開エントリは、本表の名前と約束に従うこと（MUST）'
@@ -125,7 +126,7 @@ describe(`table T-284: ${T284_LEAD}`, () => {
 // Why: RA-6..RA-8 (a spec-only tester, the shell wiring, the frame time) leave no mark
 // in the tree that a file could read, and the ORDER of the steps is not observable.
 describe(`table T-285: ${T285_LEAD}`, () => {
-  const packageJson = JSON.parse(readFileSync(join(process.cwd(), 'package.json'), 'utf8')) as {
+  const packageJson = JSON.parse(readRepoFile(join(process.cwd(), 'package.json'), 'utf8')) as {
     readonly scripts: Readonly<Record<string, string>>
   }
   const t075 = specTable('T-075').rows

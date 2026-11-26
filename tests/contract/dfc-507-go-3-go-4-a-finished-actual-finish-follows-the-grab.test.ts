@@ -1,6 +1,6 @@
 // DFC-507: GO-3 and GO-4 of table T-245 (FR-103) move actualFinish on a finished Task or milestone.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { afterEach, describe, expect, it } from 'vitest'
@@ -49,7 +49,7 @@ import { SETTINGS_CONSTANTS } from '../../src/entity/document-model/document-set
 const DEFAULT_TASK_GROUP_NAME_FIXTURE = 'fixture default task group name'
 
 const REQUIREMENTS = unbroken(
-  readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'),
+  readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'),
 )
 
 const FR_011_RIGHT_END_IS_A_POSITION =
@@ -82,7 +82,7 @@ const rowCells = (table: ReturnType<typeof specTable>, id: string): string => {
 }
 
 const TEMPLATE = JSON.parse(
-  readFileSync(
+  readRepoFile(
     join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'),
     'utf8',
   ),

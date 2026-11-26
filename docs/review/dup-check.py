@@ -28,7 +28,11 @@ This check reduces reading; it does not replace it.
 NOTE ON NON-ASCII: the strip table below holds Japanese punctuation. The
 input is Japanese, so those code points are data the tool must know about.
 """
-import io, re, sys, collections
+import io, os, re, sys, collections
+
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                '..', '..', 'tools'))
+import spec_files  # noqa: E402
 
 FILES = [
     'docs/spec/01-04-requirements.md',
@@ -67,7 +71,7 @@ def collect():
     for path in FILES:
         name = path.split('/')[-1]
         anchor = '(preamble)'
-        for lineno, line in enumerate(io.open(path, encoding='utf-8'), 1):
+        for lineno, line in enumerate(io.StringIO(spec_files.read_spec_file(path)), 1):
             m = re.match(r'\*\*UID\*\*:\s*(\S+)', line)
             if m:
                 anchor = m.group(1)

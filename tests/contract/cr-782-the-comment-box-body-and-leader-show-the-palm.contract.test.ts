@@ -1,6 +1,6 @@
 // CR-782 spec-only tests: table T-269 PK-8 on the comment box body and leader, PK-11 on its anchor (FR-106).
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { afterEach, describe, expect, it } from 'vitest'
@@ -13,7 +13,7 @@ import { unbroken } from './spec-table'
 
 afterEach(restoreAnimationFrames)
 
-const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
+const REQUIREMENTS = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
 // Spec: FR-106, T-269, PK-8, PK-11
 const BODY_AND_LEADER_ARE_THE_PALM =

@@ -1,6 +1,6 @@
 // DFC-721 spec-only stage: the U rows table T-280 lets openSurfaceStateMachine.open carry, read from the manuscript, and a screen view drawn with S-99g open on any value.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import {
@@ -62,7 +62,7 @@ type Words = Readonly<Record<string, string>>
 // Why: the dictionary manuscript's surfaces section, heading per settled name
 export const SURFACE_HEADINGS: ReadonlyMap<string, Words> = new Map(
   (
-    JSON.parse(readFileSync(join(SOURCE, 'display-words.json'), 'utf8')) as {
+    JSON.parse(readRepoFile(join(SOURCE, 'display-words.json'), 'utf8')) as {
       readonly surfaces: readonly { readonly name: string; readonly heading: Words }[]
     }
   ).surfaces.map((one) => [one.name, one.heading]),

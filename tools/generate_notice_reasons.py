@@ -46,6 +46,8 @@ import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
+sys.path.insert(0, HERE)
+import spec_files  # noqa: E402
 
 REL_SOURCE = 'docs/spec/_source/notice-reasons.json'
 REL_DESIGN = 'docs/spec/05-07-design.md'
@@ -83,7 +85,7 @@ def invariant_rows():
 
     @purity semi-pure-mutable
     """
-    lines = io.open(path_of(REL_DESIGN), encoding='utf-8', newline='').read() \
+    lines = spec_files.read_spec_file(path_of(REL_DESIGN)) \
         .replace('\r\n', '\n').split('\n')
     found = []
     inside = False

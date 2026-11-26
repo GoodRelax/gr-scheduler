@@ -1,6 +1,7 @@
 // CR-659 on the shipped build: T-349 BR-2 / BR-7 and S-462 -- the GRS mark's two margins, the divider's sides, the title's left edge.
 
-import { existsSync, readFileSync } from 'node:fs'
+import { existsSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
 
@@ -9,7 +10,7 @@ import { specTable, unbroken, type SpecTable } from '../contract/spec-table'
 import { CLEARING_UP_MS, launchReferenceBrowser, readSettledDrawnSvg, screenOf } from './live-app'
 import { rowOf } from './sws-case'
 
-const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
+const REQUIREMENTS = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
 // Why: each constant ends exactly at its marker, cut from the manuscript as check 39 reads it.
 const BR_2_SEAT =

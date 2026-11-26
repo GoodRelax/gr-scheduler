@@ -1,6 +1,6 @@
 // CR-551 DFC-910 / E-48: with monochrome on (S-74), the color field paints its swatches as the drawing paints the color (CV-9, CV-7).
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { afterEach, describe, expect, it } from 'vitest'
@@ -20,8 +20,8 @@ import {
 import { pointerOf, taskGroupDocument, taskOf, SCREEN } from './cr-541-stage'
 
 const SPEC = join(process.cwd(), 'docs', 'spec')
-const REQUIREMENTS = unbroken(readFileSync(join(SPEC, '01-04-requirements.md'), 'utf8'))
-const WORDS = JSON.parse(readFileSync(join(SPEC, '_source', 'display-words.json'), 'utf8')) as {
+const REQUIREMENTS = unbroken(readRepoFile(join(SPEC, '01-04-requirements.md'), 'utf8'))
+const WORDS = JSON.parse(readRepoFile(join(SPEC, '_source', 'display-words.json'), 'utf8')) as {
   colorNames: { spelling: string; text: { ja: string } }[]
 }
 

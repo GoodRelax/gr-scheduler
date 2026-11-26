@@ -1,6 +1,6 @@
 // W3 spec-only cases for FR-041 table T-366: CF-1 / CF-4 / CF-6 -- the theme colors are solved per hue, measured by WCAG 2.1 on 8-bit sRGB.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -8,7 +8,7 @@ import { describe, expect, it } from 'vitest'
 import { colorOf } from '../../src/adapter/svg-renderer/svg-renderer'
 import { bare, specTable, unbroken } from './spec-table'
 
-const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
+const REQUIREMENTS = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
 // Why: each constant ends exactly at its marker, cut from the manuscript as check 39 reads it.
 const CF_1 = '`GRS` は、描く前に `CF-2` → `CF-3` → `CF-4` の順に 1 回解くこと（解いた値は表 T-384 の `IMPS-143` のとおり保存しない）。'

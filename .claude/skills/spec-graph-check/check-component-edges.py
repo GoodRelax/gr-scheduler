@@ -51,6 +51,10 @@ import json
 import os
 import sys
 
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                '..', '..', '..', 'tools'))
+import spec_files  # noqa: E402
+
 SOURCE = os.path.join('docs', 'spec', '05-07-design.md')
 MODEL = os.path.join('docs', 'spec', '_source', 'components.json')
 
@@ -71,9 +75,10 @@ def read_text(path):
     return io.open(path, 'rb').read().decode('utf-8').replace('\r\n', '\n')
 
 
-def clause_line(path):
+def clause_line(path, root):
     """The line number of `EG-5`, or None when the clause is gone."""
-    for number, line in enumerate(read_text(path).split('\n'), 1):
+    text = spec_files.read_spec_file(path, root).replace('\r\n', '\n')
+    for number, line in enumerate(text.split('\n'), 1):
         if ANCHOR in line:
             return number
     return None
@@ -121,12 +126,13 @@ def code_edges(rules):
 def main(argv):
     root = argv[1] if len(argv) > 1 else '.'
     for relative in (SOURCE, MODEL):
-        if not os.path.exists(os.path.join(root, relative)):
+        if not spec_files.spec_file_exists(os.path.join(root, relative),
+                                           os.path.abspath(root)):
             say(u'FAIL     %s is missing -- check 59 cannot read its rule.'
                 % relative.replace(os.sep, '/'))
             return 1
 
-    at = clause_line(os.path.join(root, SOURCE))
+    at = clause_line(os.path.join(root, SOURCE), os.path.abspath(root))
     if at is None:
         say(u'FAIL     the rule this check enforces is GONE from %s: no line '
             u'holds 「%s」. ⛔ Either restore `EG-5` in 表 T-247 or retire this '

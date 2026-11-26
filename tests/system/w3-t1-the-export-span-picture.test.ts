@@ -1,7 +1,7 @@
 // W3 spec-only cases on the shipped build: FR-025 IX-12 / IX-14 / IX-15 / IX-16 (the export span picture) and FR-096 (the Export Chooser row, its span line).
 
 import { expect, test, type Browser, type Page } from '@playwright/test'
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 import { bare, specTable, unbroken } from '../contract/spec-table'
 import { CLEARING_UP_MS, launchReferenceBrowser } from './live-app'
@@ -9,7 +9,7 @@ import { openDocument, openStage, pressEntrance, settle, type Stage } from './cr
 import { rowOf } from './sws-case'
 import { applyCommandsOf, exportSvgOf, taskGroupsDocument } from './w3-t1-stage'
 
-const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
+const REQUIREMENTS = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
 // Why: each constant ends exactly at its marker, cut from the manuscript as check 39 reads it.
 // Why: CR-690 -- the old span row retired (its rules are FX-1 / FX-5), the span applies only while fixed (S-532), days carry the year (FX-8).
@@ -24,7 +24,7 @@ const WB_10_MOVE = 'タイトルバーの帯（表 T-023d の `GR-24`）で動�
 const FR_077_NO_FLOOR = '`GRS` は、書き出した画像の側に可読の下限を課さないこと。'
 const FR_096_GAP = '`GRS` は、上下に隣り合う 2 つの形式のボタンのあいだを、`_assets/tbl-settings.md` の 表 T-206 の `S-517` の隔たりとすること。 | FR-362 |\n| IMPS-1043 | 選択面の幅 | `GRS` は、選択面の幅を、縦に並べた形式と見出しの段から決めること。'
 
-const WORDS = JSON.parse(readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8')) as {
+const WORDS = JSON.parse(readRepoFile(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8')) as {
   readonly exportChooser: readonly { readonly part: string; readonly text: { readonly ja: string; readonly en: string } }[]
 }
 const SPAN_WORDS = WORDS.exportChooser.find((one) => one.part === 'fitSpan')?.text ?? { ja: '', en: '' }

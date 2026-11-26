@@ -86,7 +86,7 @@
 //      normalizes such a document on load is not established by any file this
 //      one is allowed to read, so no case here assumes an answer either way.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { afterEach, describe, expect, it } from 'vitest'
@@ -129,7 +129,7 @@ const rowOf = (table: string, id: string) => {
 /** Everything one row of a table says, as one string. */
 const says = (table: string, id: string): string => rowOf(table, id).cells.join(' ')
 
-const REQUIREMENTS = unbroken(readFileSync(
+const REQUIREMENTS = unbroken(readRepoFile(
   join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'),
   'utf8',
 ))
@@ -172,7 +172,7 @@ const ADD_CHILD_TASK_GROUP = entranceFor('HF-14')
  * of typing `AT-53` and going quiet the day the ERD is renumbered.
  */
 const TASK_GROUP_NAME_FIELD = ((): string => {
-  const detail = unbroken(readFileSync(
+  const detail = unbroken(readRepoFile(
     join(process.cwd(), 'docs', 'spec', '_assets', 'fig-erd-detail.md'),
     'utf8',
   ))
@@ -197,7 +197,7 @@ interface DefaultTaskGroupName {
  */
 const DEFAULT_TASK_GROUP_NAME_WORD: DefaultTaskGroupName = ((): DefaultTaskGroupName => {
   const manuscript = JSON.parse(
-    readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8'),
+    readRepoFile(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8'),
   ) as { defaultNames?: readonly DefaultTaskGroupName[] }
   const found = (manuscript.defaultNames ?? []).find((one) => one.use === 'taskGroup')
   if (found === undefined) throw new Error('the dictionary has no defaultNames entry for `taskGroup`')
@@ -218,7 +218,7 @@ const DEFAULT_TASK_GROUP_NAME_WORD: DefaultTaskGroupName = ((): DefaultTaskGroup
 // ===========================================================================
 
 const TEMPLATE = JSON.parse(
-  readFileSync(
+  readRepoFile(
     join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'),
     'utf8',
   ),
@@ -545,7 +545,7 @@ describe('the manuscript still says what these cases read', () => {
     // own child, also order 0) can share an order value because AT-55 scopes it
     // per parent -- so 「末子」 for a press at 段 0 is read against the OTHER
     // ROOTS only, never against a deeper task group that happens to share a number.
-    const at55 = unbroken(readFileSync(
+    const at55 = unbroken(readRepoFile(
       join(process.cwd(), 'docs', 'spec', '_assets', 'fig-erd-detail.md'),
       'utf8',
     ))

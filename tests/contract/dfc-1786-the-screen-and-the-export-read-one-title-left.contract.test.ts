@@ -1,6 +1,6 @@
 // DFC-1786: BR-2 / EP-1 -- the header the application builds from a document puts the Document Title at one left, and the screen and the export both read it.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -24,7 +24,7 @@ import { settingDefaultOf } from '../fixtures/setting-default'
 import { bare, specTable, unbroken } from './spec-table'
 import { templateDocument } from './w3-t3-frame-stage'
 
-const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
+const REQUIREMENTS = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
 // Why: each constant is cut from the manuscript as check 39 reads it, so the cases cannot drift from the words they test.
 const BR_2_TITLE_LEFT = '`GRS` は、`Document Title` の左端を、席の右に `BR-7` の縦線と縦線の両脇の隔たりを置いた右にすること'

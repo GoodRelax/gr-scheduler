@@ -1,6 +1,6 @@
 // CR-586 spec-only cases: the task group color list is one generated list (CV-9), CM-30 and the GRS JSON read refuse the rest.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -33,7 +33,7 @@ import { taskGroupDocument } from '../unit/cr-541-stage'
 import { bare, specTable, unbroken, type SpecRow, type SpecTable } from './spec-table'
 
 const SPEC = join(process.cwd(), 'docs', 'spec')
-const REQUIREMENTS = unbroken(readFileSync(join(SPEC, '01-04-requirements.md'), 'utf8'))
+const REQUIREMENTS = unbroken(readRepoFile(join(SPEC, '01-04-requirements.md'), 'utf8'))
 
 const T_017B: SpecTable = specTable('T-017b')
 const T_294: SpecTable = specTable('T-294')
@@ -150,7 +150,7 @@ describe(`CM-30 setTaskGroupColor takes the one list (CV-9, CR-586 seam S-4)`, (
   })
 })
 
-const TEMPLATE_TEXT = readFileSync(
+const TEMPLATE_TEXT = readRepoFile(
   join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'),
   'utf8',
 )

@@ -1,6 +1,6 @@
 // CR-608 tests 6-7: task groups made by createTaskGroup stand temporarilyExpanded; other writers keep theirs.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { afterEach, describe, expect, it } from 'vitest'
@@ -24,8 +24,8 @@ import { readStateMachineView } from './state-machine-manuscript'
 type TreeState = TaskGroup['treeState']
 
 const SPEC = join(process.cwd(), 'docs', 'spec')
-const REQUIREMENTS = unbroken(readFileSync(join(SPEC, '01-04-requirements.md'), 'utf8'))
-const ERD_DETAIL = unbroken(readFileSync(join(SPEC, '_assets', 'fig-erd-detail.md'), 'utf8'))
+const REQUIREMENTS = unbroken(readRepoFile(join(SPEC, '01-04-requirements.md'), 'utf8'))
+const ERD_DETAIL = unbroken(readRepoFile(join(SPEC, '_assets', 'fig-erd-detail.md'), 'utf8'))
 
 const AT_153_MADE =
   '`createTaskGroup`（`_assets/tbl-document-commands.md` の 表 T-108 の `CM-26`）で作るタスクグループと、タスクグループが 0 になったときに `01-04-requirements.md` の 表 T-050 の後の段が作るタスクグループは `temporarilyExpanded`'
@@ -283,10 +283,10 @@ describe(`CR-608 test 7 -- ${AT_153_DU_2}: ${DU_2_VALUE}`, () => {
     `MSPDI import (%s): every task group takes the column default auto -- ${AT_153_DEFAULT}`,
     (file) => {
       const current = documentFromJson(
-        readFileSync(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
+        readRepoFile(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
       )
       if (!current.ok) throw new Error('the bundled template is not a GRS JSON document')
-      const read = documentFromMspdi(readFileSync(join(process.cwd(), 'sample-schedule', file), 'utf8'), current.document)
+      const read = documentFromMspdi(readRepoFile(join(process.cwd(), 'sample-schedule', file), 'utf8'), current.document)
       expect(read.ok).toBe(true)
       if (!read.ok) return
       const states = new Set(groupsOf(read.document).map((one) => one.treeState))

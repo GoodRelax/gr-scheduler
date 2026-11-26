@@ -2,7 +2,7 @@
 
 import { afterEach, describe, expect, it } from 'vitest'
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { mspdiFromDocument } from '../../src/adapter/document-codec/mspdi-codec'
@@ -36,7 +36,7 @@ const T_103 = specTable('T-103')
 const T_109 = specTable('T-109')
 
 const STATE_MACHINES = unbroken(
-  readFileSync(join(process.cwd(), 'docs', 'spec', '_assets', 'tbl-state-machines.md'), 'utf8'),
+  readRepoFile(join(process.cwd(), 'docs', 'spec', '_assets', 'tbl-state-machines.md'), 'utf8'),
 )
 
 const KEEP_THE_TARGET_MUST =

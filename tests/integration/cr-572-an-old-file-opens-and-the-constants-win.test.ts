@@ -1,6 +1,6 @@
 // CR-572 / DFC-995: a file that still carries constants and screen values opens, drops them, and the constants win.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -26,7 +26,7 @@ import {
 } from '../../src/use-case/advance-screen-session/advance-screen-session'
 import { bare, specTable, unbroken } from '../contract/spec-table'
 
-const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
+const REQUIREMENTS = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
 const OP_6_READS_WHAT_IT_KNOWS =
   '`documentSettings` は、この造りのスキーマ（`05-07-design.md` の Chapter 6.1）が解釈できるものだけを読むこと（MUST）'

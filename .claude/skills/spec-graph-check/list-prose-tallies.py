@@ -62,6 +62,7 @@ if HERE not in sys.path:
     sys.path.insert(0, HERE)
 
 import specindex  # noqa: E402
+import spec_files  # noqa: E402
 
 ROOT = os.path.abspath(os.path.join(HERE, '..', '..', '..'))
 SPEC = os.path.join(ROOT, 'docs', 'spec')
@@ -102,8 +103,11 @@ FULLWIDTH = dict((ord(u'０') + i, ord(u'0') + i) for i in range(10))
 def manuscripts():
     out = {}
     pattern = os.path.join(SPEC, '**', '*.md')
-    for p in sorted(glob.glob(pattern, recursive=True)):
+    for p in spec_files.listed_paths(sorted(glob.glob(pattern, recursive=True))):
         if os.sep + 'output' + os.sep in p:
+            continue
+        if spec_files.is_split_document(p):
+            out[p] = spec_files.read_spec_file(p).replace('\r\n', '\n')
             continue
         with io.open(p, encoding='utf-8', errors='replace') as fh:
             out[p] = fh.read().replace('\r\n', '\n')

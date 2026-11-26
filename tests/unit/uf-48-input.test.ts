@@ -136,7 +136,7 @@
 //     入力（ポインタとキー）」 without dividing the phases, and IN-1a states
 //     only what must become of the drag.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { afterEach, describe, expect, it, vi } from 'vitest'
@@ -168,7 +168,7 @@ import { validateDocument } from '../fixtures/grs-document'
 // What the manuscript says, read at read time rather than copied
 // ---------------------------------------------------------------------------
 
-const REQUIREMENTS = unbroken(readFileSync(
+const REQUIREMENTS = unbroken(readRepoFile(
   join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'),
   'utf8',
 ))
@@ -228,7 +228,7 @@ const TEMPLATE_PATH = join(
   'single-html-shell',
   'startup-template.json',
 )
-const TEMPLATE = JSON.parse(readFileSync(TEMPLATE_PATH, 'utf8')) as Record<string, unknown>
+const TEMPLATE = JSON.parse(readRepoFile(TEMPLATE_PATH, 'utf8')) as Record<string, unknown>
 
 const ALPHA = '11111111-1111-4111-8111-111111111111'
 const BETA = '22222222-2222-4222-8222-222222222222'

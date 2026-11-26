@@ -1,13 +1,14 @@
 // CR-557 seam S-1: the generated theme hue roster equals table T-305, read from docs/spec alone.
 
-import { existsSync, readFileSync } from 'node:fs'
+import { existsSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
 
 import { bare, specTable, unbroken } from './spec-table'
 
-const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
+const REQUIREMENTS = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
 const ROSTER_PATH = join(process.cwd(), 'src', 'adapter', 'screen-renderer', 'theme-hue-roster.json')
 
@@ -48,7 +49,7 @@ function readRoster(): readonly RosterRow[] {
   if (!existsSync(ROSTER_PATH)) {
     throw new Error('seam S-1: src/adapter/screen-renderer/theme-hue-roster.json does not exist yet')
   }
-  return JSON.parse(readFileSync(ROSTER_PATH, 'utf8')) as RosterRow[]
+  return JSON.parse(readRepoFile(ROSTER_PATH, 'utf8')) as RosterRow[]
 }
 
 describe('CR-557 -- the manuscript still says what these cases read', () => {

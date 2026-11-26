@@ -1,6 +1,6 @@
 // CR-659 spec-only cases: BR-6 / EP-1 -- the export draws neither the GRS mark nor the divider and puts the title where BR-2 puts it.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -14,7 +14,7 @@ import { DEFAULT_DISPLAY_SCALE } from '../fixtures/display-scale'
 import { settingDefaultOf } from '../fixtures/setting-default'
 import { bare, specTable, unbroken } from './spec-table'
 
-const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
+const REQUIREMENTS = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
 // Why: each constant ends exactly at its marker, cut from the manuscript as check 39 reads it.
 const BR_6 = '| BR-6 | 書き出し | `GRS` は、書き出す絵とクリップボードへコピーする絵での `Branding` の扱いを、表 T-076 の `EP-1` に従わせること。'
@@ -51,7 +51,7 @@ const HUE = Number(bare(rowOf('T-216', 'S-73').by['既定'] ?? ''))
 
 type DisplayWords = { readonly branding: readonly { readonly part: string; readonly text: { readonly ja: string; readonly en: string } }[] }
 const LOGO = (
-  JSON.parse(readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8')) as DisplayWords
+  JSON.parse(readRepoFile(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8')) as DisplayWords
 ).branding.find((one) => one.part === 'logo')?.text.en ?? ''
 
 const TITLE = 'Plan of record'

@@ -3,7 +3,7 @@
 // Why: every number is read from docs/spec (T-236 cells, T-206 S-520..S-525); the solve is re-derived here from the
 // words of CF-2, CF-3 and CF-6 alone and compared with what the public colorOf (PI-19) draws.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -12,7 +12,7 @@ import { colorOf } from '../../src/adapter/svg-renderer/svg-renderer'
 import { settingNumber, settingRow } from '../fixtures/setting-number'
 import { unbroken } from './spec-table'
 
-const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
+const REQUIREMENTS = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
 const CF_2 =
   '`GRS` は、`_assets/tbl-settings.md` の 表 T-236 の `S-155`・`S-156`・`S-157`・`S-151` を、表 T-236 の値の明度に「向き × k × 行の比」を足した明度で描くこと。'

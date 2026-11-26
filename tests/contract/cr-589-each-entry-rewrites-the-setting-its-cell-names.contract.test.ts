@@ -1,6 +1,6 @@
 // CR-589 contract: each display entry of table T-109 rewrites the setting its switch column names (FR-049, FR-048).
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { afterEach, describe, expect, it } from 'vitest'
@@ -29,8 +29,8 @@ const TOGGLE_RULE = 'FR-049'
 const GUIDE_RULE = 'FR-048'
 const GUIDE_ROW = 'S-66'
 
-const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
-const GLOSSARY = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '_assets', 'tbl-glossary.md'), 'utf8'))
+const REQUIREMENTS = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
+const GLOSSARY = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '_assets', 'tbl-glossary.md'), 'utf8'))
 
 const T109 = specTable('T-109')
 const T202 = specTable('T-202')
@@ -133,7 +133,7 @@ describe('CR-589 T1 -- table T-109 holds the column in the form its preamble sta
 })
 
 const TEMPLATE = JSON.parse(
-  readFileSync(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
+  readRepoFile(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
 ) as Record<string, any>
 
 const ROW_ID = '11111111-1111-4111-8111-111111111111'

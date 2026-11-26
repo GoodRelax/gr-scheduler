@@ -1,6 +1,6 @@
 // CR-690 spec-only cases: the fit span of FR-055 (table T-367), its fields, the fixed fit and the chooser line.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { afterEach, describe, expect, it } from 'vitest'
@@ -22,10 +22,10 @@ import { EXPORT_CHOOSER, exportStage, restoreAnimationFrames, type ExportStage }
 afterEach(restoreAnimationFrames)
 
 const SPEC = join(process.cwd(), 'docs', 'spec')
-const REQUIREMENTS = unbroken(readFileSync(join(SPEC, '01-04-requirements.md'), 'utf8').replace(/\r\n/g, '\n'))
+const REQUIREMENTS = unbroken(readRepoFile(join(SPEC, '01-04-requirements.md'), 'utf8').replace(/\r\n/g, '\n'))
 
 const withoutBreakMarks = (_key: string, value: unknown): unknown => (typeof value === 'string' ? value.replace(/\|/g, '') : value)
-const WORDS = JSON.parse(readFileSync(join(SPEC, '_source', 'display-words.json'), 'utf8'), withoutBreakMarks) as {
+const WORDS = JSON.parse(readRepoFile(join(SPEC, '_source', 'display-words.json'), 'utf8'), withoutBreakMarks) as {
   readonly settings: readonly { readonly specTableRowId: string; readonly label: Record<DisplayLanguage, string> }[]
   readonly fitSpanField: readonly { readonly part: string; readonly text: Record<DisplayLanguage, string> }[]
   readonly exportChooser: readonly { readonly part: string; readonly text: Record<DisplayLanguage, string> }[]
@@ -106,7 +106,7 @@ interface SettingRow {
 }
 
 const SETTING_ROWS: readonly SettingRow[] = (
-  JSON.parse(readFileSync(join(SPEC, '_source', 'settings.json'), 'utf8')) as { blocks: { rows?: SettingRow[] }[] }
+  JSON.parse(readRepoFile(join(SPEC, '_source', 'settings.json'), 'utf8')) as { blocks: { rows?: SettingRow[] }[] }
 ).blocks.flatMap((block) => block.rows ?? [])
 
 function setting(id: string): number {

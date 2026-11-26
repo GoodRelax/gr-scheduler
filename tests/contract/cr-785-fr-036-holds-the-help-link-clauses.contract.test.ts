@@ -1,6 +1,6 @@
 // CR-785 spec-only tests: FR-036 holds the help-link clauses CR-785 wrote, each MUST clause quoted whole.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -8,7 +8,7 @@ import { describe, expect, it } from 'vitest'
 import { unbroken } from './spec-table'
 
 const SPEC = join(process.cwd(), 'docs', 'spec')
-const REQUIREMENTS = unbroken(readFileSync(join(SPEC, '01-04-requirements.md'), 'utf8').replace(/\r\n/g, '\n'))
+const REQUIREMENTS = unbroken(readRepoFile(join(SPEC, '01-04-requirements.md'), 'utf8').replace(/\r\n/g, '\n'))
 const FR_036_HEAD = '**UID**: FR-036'
 const NEXT_UID = '**UID**: '
 const MUST_MARK = 'こと。'

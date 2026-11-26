@@ -1,6 +1,6 @@
 // CR-767 wave 3 spec-only cases: each guard's judgment is generated from its manuscript condition (5.5, SD-3, RA-2, RA-3).
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -43,7 +43,7 @@ const MANUSCRIPT = readStateMachineView() as {
   readonly regions: readonly RawRegion[]
 }
 const GUARD_LANGUAGE = JSON.stringify(MANUSCRIPT.guardLanguage)
-const DESIGN = unbroken(readFileSync(join(SPEC, '05-07-design.md'), 'utf8'))
+const DESIGN = unbroken(readRepoFile(join(SPEC, '05-07-design.md'), 'utf8'))
 
 const GUARDED = GUARD_REGIONS.filter((r) => r.holds !== 'documentData' && (r.guards ?? []).length > 0)
 const DOCUMENT_DATA = GUARD_REGIONS.filter((r) => r.holds === 'documentData')
@@ -64,7 +64,7 @@ const GENERATED_CLOSE = '// </generated>'
 
 // Spec: SD-3, RA-2
 function generatedRegionOf(unit: string): string {
-  const text = readFileSync(join(process.cwd(), unit), 'utf8').replace(/\r\n/g, '\n')
+  const text = readRepoFile(join(process.cwd(), unit), 'utf8').replace(/\r\n/g, '\n')
   let at = text.indexOf(GENERATED_OPEN)
   while (at >= 0) {
     const next = text.slice(at + GENERATED_OPEN.length + 1)

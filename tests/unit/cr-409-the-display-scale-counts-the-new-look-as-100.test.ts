@@ -1,6 +1,6 @@
 // CR-409: the display scale steps run 50 .. 200 around a default of 100, drawn at S-234 / 100 x S-236.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { afterEach, describe, expect, it } from 'vitest'
@@ -22,7 +22,7 @@ import { bare, specTable, unbroken } from '../contract/spec-table'
 import { DEFAULT_DISPLAY_SCALE, DISPLAY_SCALE_STEPS, S_236, displayRatioAt } from '../fixtures/display-scale'
 
 const REQUIREMENTS = unbroken(
-  readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'),
+  readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'),
 )
 
 const FR_039_THE_RATIO =
@@ -59,14 +59,14 @@ describe('S-234 -- the steps and the default of table T-202', () => {
 
   it('carries the same ten steps as the enum of the GRS JSON schema', () => {
     const schema = JSON.parse(
-      readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'grs-document.schema.json'), 'utf8'),
+      readRepoFile(join(process.cwd(), 'docs', 'spec', '_source', 'grs-document.schema.json'), 'utf8'),
     ) as { readonly properties: Record<string, { readonly properties?: Record<string, { readonly enum?: unknown }> }> }
     expect(schema.properties['documentSettings']?.properties?.['displayScale']?.enum).toEqual([...DISPLAY_SCALE_STEPS])
   })
 })
 
 const TEMPLATE = JSON.parse(
-  readFileSync(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
+  readRepoFile(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
 ) as Record<string, any>
 
 const textWith = (settings: Record<string, unknown>): string =>

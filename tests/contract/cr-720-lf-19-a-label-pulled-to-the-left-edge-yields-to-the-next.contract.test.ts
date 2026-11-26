@@ -1,6 +1,6 @@
 // CR-720: the three MUST / MUST NOT sentences that decide where a ruler label stands.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
 import { specTable, unbroken } from './spec-table'
@@ -8,7 +8,7 @@ import { specTable, unbroken } from './spec-table'
 const LF_19_CELL = specTable('T-221').rows.find((row) => row.id === 'LF-19')?.cells.join('|') ?? ''
 
 const REQUIREMENTS = unbroken(
-  readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'),
+  readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'),
 )
 
 describe('CR-720 -- the sentences of LF-19 and of FR-017 that place a ruler label', () => {

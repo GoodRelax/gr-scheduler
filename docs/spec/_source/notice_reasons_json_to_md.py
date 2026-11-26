@@ -51,6 +51,8 @@ from spec_md_printing import say, schema_problems
 HERE = os.path.dirname(os.path.abspath(__file__))
 SPEC = os.path.dirname(HERE)
 ROOT = os.path.dirname(os.path.dirname(SPEC))
+sys.path.insert(0, os.path.join(ROOT, 'tools'))
+import spec_files  # noqa: E402
 ASSETS = os.path.join(SPEC, '_assets')
 SRC = os.path.join(HERE, 'notice-reasons.json')
 SCHEMA = os.path.join(HERE, '..', '..', 'development-rules', 'manuscript-schemas', 'notice-reasons.schema.json')
@@ -68,7 +70,7 @@ QUESTION_ID = re.compile(r'^QN-\d+$')
 
 def invariant_rows():
     """The row ids of table T-220, read from the design document every run."""
-    lines = io.open(DESIGN, encoding='utf-8', newline='').read() \
+    lines = spec_files.read_spec_file(DESIGN) \
         .replace('\r\n', '\n').split('\n')
     found = []
     inside = False
