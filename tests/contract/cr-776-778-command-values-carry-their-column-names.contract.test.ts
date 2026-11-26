@@ -1,4 +1,4 @@
-// CR-776 / CR-778: command values carry their column names; PI-39 drops the grab axis type.
+// Contract tests: command values carry their column names, and PI-39 drops the grab axis type.
 
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -33,9 +33,8 @@ for (const block of SETTINGS.blocks) {
 
 const columnNameOf = (row: string): string | undefined => AT_NAMES.get(row) ?? S_NAMES.get(row)
 
-// see CR-776
 const NOT_RENAMED = new Set([
-  // Why: JDG-2685 -- the command that makes a box names it as every command on that box does.
+  // Why: the command that makes a box names it as every command on that box does.
   'CM-46.commentBoxId',
   'CM-52.highlightBoxId',
   'CM-39.workingDayTypes',
@@ -229,8 +228,8 @@ describe('CR-778 -- table T-064 PI-39 drops GrabbedVerticalAxis; the grab state 
       for (const one of region.machines ?? []) if (one.name === 'taskGroupGrabStateMachine') machine = one
     }
     expect(machine, 'taskGroupGrabStateMachine is in state-machines.json').not.toBeNull()
-    // Why: wave 2 of CR-767 (JDG-2364) puts grabPressed and carrying under the composite grabbed;
-    // the three states are the leaves.
+    // Why: grabPressed and carrying sit under the composite state grabbed, so the three states
+    // are the leaves.
     expect(machine.states.map((s: any) => s.key)).toEqual(['notGrabbed', 'grabbed', 'grabbed.grabPressed', 'grabbed.carrying'])
     const leaves = machine.states.filter((s: any) => !machine.states.some((t: any) => t.parent === s.key))
     expect(leaves.map((s: any) => s.key)).toEqual(['notGrabbed', 'grabbed.grabPressed', 'grabbed.carrying'])

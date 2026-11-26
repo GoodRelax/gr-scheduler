@@ -31,9 +31,12 @@ const FR_135_DERIVE = '`Task.parentTaskUid` が `null` の `Task` について�
 const FR_135_NOT_WRITTEN = '`GRS` は、導いた親タスクを文書へ書かないこと。'
 const FR_135_NOT_NARROWER = 'もし候補が 2 つ以上の場合、`GRS` は、狭いほうを親と決めないこと。'
 const FR_135_VO_4 = '`GRS` は、親を導けなかった `Task` を、進捗妥当性検査の指摘（表 T-312 の `VO-4`）として出すこと。'
+// Spec: IMPS-1433
 const FR_136_DW_3 = '`GRS` は、先行を 1 つも持たないマイルストーンを、行の先頭のマイルストーン（起点 —— 表 T-316 の `DW-3` の原因の欄）を除き、`DW-3` とすること。'
+// Spec: IMPS-1435
 const FR_136_NO_WRITE =
   '`GRS` は、診断でマイルストーンの `actualFinish` を書かないこと。'
+// Spec: IMPS-1437
 const FR_136_VO_5 =
   '`GRS` は、導いた達成が成り立ち、手の `actualFinish` が無いマイルストーンについて、表 T-312 の `VO-5` として、完了にする提案（達成日の候補 ＝ `MP-4` の日）をレポートに出すこと。'
 

@@ -51,6 +51,7 @@ const ROSTER = JSON.parse(
   readFileSync(join(SPEC, '_source', 'notice-reasons.json'), 'utf8'),
 ) as NoticeRoster
 
+// Spec: IMPS-1355
 const SECTION_6_2_ROSTER_IS_A_MANUSCRIPT =
   '知らせの名簿の原稿は、`_source/notice-reasons.json` とすること。`_assets/tbl-notice-reasons.md` の 表 T-233・表 T-234 は、`_source/notice-reasons.json` から起こす生成物とすること。`_assets/tbl-notice-reasons.md` を手で直さないこと。'
 

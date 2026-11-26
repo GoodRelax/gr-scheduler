@@ -1,65 +1,4 @@
-// Unit tests for UF-36 `mspdi-codec.ts` -- the MSPDI half of DocumentCodec
-// (CP-20 of table T-062, published as PI-20 of table T-064, table T-075 of
-// docs/spec/05-07-design.md).
-//
-// Chapter 9 does not admit Unit as a TEST_LEVEL, so these have no node in the
-// specification. Table T-218 of Chapter 7 gives them their place: TS-6,
-// tests/unit/.
-//
-// WRITTEN WITHOUT READING THE UNIT'S BODY (docs/development-rules/
-// 04-verification.md, section 1). What was read: docs/spec/ for every rule
-// below, docs/reference/mspdi/pj12/mspdi_pj12.xsd for the exchange partner's own
-// facts (Chapter 6.2 names it the authority), and of the unit itself only its
-// head comment, its four published types (`MspdiFault`, `MspdiNotice`,
-// `MspdiDecoding`, `MspdiEncoding`), the constant `MSPDI_NAMESPACE` and the two
-// signatures `documentFromMspdi(text, current)` and `mspdiFromDocument(doc, LAST_SAVED_AT)`.
-// Every expected value here comes from a requirement, a table or the official
-// schema -- never from the implementation.
-//
-// The rules these cases answer to:
-//   FR-021 / table T-053  one MSPDI in, not merged, not edited, out again is
-//                         the same file. DF-1 interpreted elements keep the
-//                         partner's position, DF-2/DF-3 uninterpreted ones go
-//                         to their OWNER's carryElements and never to the root,
-//                         DF-4 a dependency nests under its successor with no
-//                         back-pointer and no order column, DF-5 what GRS adds
-//                         is a new grouping and never borrows a partner slot
-//   FR-057 / table T-033  EX-1 valid against the official schema (which is an
-//                         xsd:sequence, so declared child order is the only
-//                         valid order), EX-2 an unedited task is not rewritten,
-//                         EX-4 the arrived spelling is kept, EX-5 an empty row
-//                         goes back in its original place and form, EX-7 a date
-//                         GRS decides itself is written at 00:00:00
-//   FR-054                a date column takes the LITERAL text, no time zone
-//                         conversion, the time part kept; working days convert
-//                         through Project.minutesPerDay, falling back to S-128
-//                         of table T-209; recurring exception days are not
-//                         expanded and the person is told (NT-5 of table T-037)
-//   FR-058                every imported Task lands on a task group; one TaskGroup per
-//                         Task with children or no parent, down to S-125; a Task
-//                         with no children sits on its parent's task group; cap never refuses
-//   FR-023                two of its MUSTs are about the parser and land here:
-//                         XML external entities are disabled and nothing
-//                         reaches innerHTML. The ceilings, the dates, the
-//                         counts and the ring check are CP-13's
-//   FR-028                a failure is a VALUE. Nothing here may throw
-//   table T-058 / T-059   the column-by-column mapping, and the values that are
-//                         made at write time rather than stored
-//   table T-019           which plan/actual state writes a Stop, and the note
-//                         that a carried original beats the computed value
-//   table T-005 G-13      Carry is what GRS does not use, plus Stop
-//   Chapter 5.4           Task.parentTaskUid is the exported axis; TaskGroup and
-//                         TaskGroupMember are GRS's own and never cross
-//   Chapter 6.1 T-220     IV-1 primary keys unique, IV-6 every Task on exactly
-//                         one task group, IV-7 at least one calendar, IV-8 a task group's
-//                         label and derivedFromTaskUid are not both null
-//
-// Chapter 1.9 (:275) asks a test of a requirement that points at a table to be
-// driven by a fixed copy of that table, one test walking every row. T_058_MSPDI,
-// T_019_STOP, T_053_ROWS, T_033_ROWS, T_059_ROWS, AT_17_WEEK_START and
-// AT_73_DAY_TYPE below are those copies. The declared child order is not copied
-// at all: it is read out of the official schema at run time, so it cannot fall
-// behind it.
+// Unit tests: UF-36, the MSPDI half of the document codec.
 
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -83,13 +22,8 @@ import { validateDocument } from '../fixtures/grs-document'
 
 const LAST_SAVED_AT = '2026-10-03T09:00:00'
 
-// ---------------------------------------------------------------------------
-// The exchange partner's own facts, read from the official schema.
-// Chapter 6.2 names one authority per version (A.1) and docs/reference/README.md
-// says the local copies are where a fact is confirmed, so nothing below re-types
-// an element order, and EX-1 picks pj12 or pj15 by what the output holds.
-// ---------------------------------------------------------------------------
-
+// Why: the element order is read from the official schema, not re-typed, so
+// it cannot fall behind the schema EX-1 validates against.
 const XSD_PATHS = {
   pj12: join(process.cwd(), 'docs', 'reference', 'mspdi', 'pj12', 'mspdi_pj12.xsd'),
   pj15: join(process.cwd(), 'docs', 'reference', 'mspdi', 'pj15', 'mspdi_pj15.xsd'),
@@ -97,11 +31,7 @@ const XSD_PATHS = {
 
 const XSD_PATH = XSD_PATHS.pj12
 
-/**
- * For every element path below `Project`, the order the schema declares its
- * children in. The complex types are xsd:sequence throughout, so this order is
- * the only one EX-1 (valid against the official schema, MUST) accepts.
- */
+// Summary: The helper shall return, for each element path below Project, the child order the schema declares.
 function declaredChildOrder(xsdPath: string = XSD_PATH): ReadonlyMap<string, readonly string[]> {
   const source = readFileSync(xsdPath, 'utf8')
   const order = new Map<string, string[]>()
@@ -146,22 +76,14 @@ function holdsPj15OnlyElement(node: XmlNode, path: string): boolean {
   return node.children.some((each) => holdsPj15OnlyElement(each, `${path}/${each.name}`))
 }
 
-/** The two children of `Project` the schema makes mandatory (no minOccurs). */
 const MANDATORY_PROJECT_CHILDREN = ['SaveVersion', 'CurrencyCode'] as const
 
-// ---------------------------------------------------------------------------
-// Fixed copies of the specification tables these cases are driven by.
-// ---------------------------------------------------------------------------
-
-/** Table T-053 -- the five rules that shape the document. */
 const T_053_ROWS = ['DF-1', 'DF-2', 'DF-3', 'DF-4', 'DF-5'] as const
 
-/** Table T-033 -- the twelve rules of writing. */
 const T_033_ROWS = [
   'EX-1', 'EX-2', 'EX-3', 'EX-4', 'EX-5', 'EX-6', 'EX-7', 'EX-8', 'EX-9', 'EX-10', 'EX-11', 'EX-12',
 ] as const
 
-/** Table T-059 -- the ten values that are made at write time, not stored. */
 const T_059_ROWS = [
   { row: 'DV-1', entity: 'Project', element: 'FinishDate' },
   { row: 'DV-2', entity: 'Project', element: 'SaveVersion' },
@@ -175,11 +97,6 @@ const T_059_ROWS = [
   { row: 'DV-10', entity: 'Resource', element: 'ID' },
 ] as const
 
-/**
- * Table T-019 -- which plan/actual state writes a `Stop`. The last column of
- * that table is the only thing driven here; the state itself is table T-019a's
- * and is settled by the columns the fixture puts on each task.
- */
 const T_019_STOP = [
   { row: 'PA-1', state: 'not started', uid: 101, writesStop: false },
   { row: 'PA-2', state: 'in progress', uid: 102, writesStop: true },
@@ -188,25 +105,12 @@ const T_019_STOP = [
   { row: 'PA-5', state: 'finished', uid: 105, writesStop: false },
 ] as const
 
-/**
- * AT-17 -- `Project/WeekStartDay`, 0 = Sunday .. 6 = Saturday
- * (mspdi_pj12.xsd:595). Nothing in this unit converts it.
- */
 const AT_17_WEEK_START = [0, 1, 2, 3, 4, 5, 6] as const
 
-/**
- * AT-73 -- `WeekDay/DayType`, 1 = Sunday .. 7 = Saturday (mspdi_pj12.xsd:1249).
- * ONE APART from AT-17, and the row says so in as many words. 0 means an
- * exception day and is not this column's business.
- */
 const AT_73_DAY_TYPE = [1, 2, 3, 4, 5, 6, 7] as const
 
-// ---------------------------------------------------------------------------
-// The values the fixture puts into the exchange partner's elements. One
-// constant is used by both the XML and the table below it, so the fixture and
-// the expectation cannot drift apart.
-// ---------------------------------------------------------------------------
-
+// Why: one constant feeds both the fixture XML and the expected values, so
+// the fixture and the expectation cannot drift apart.
 const SAMPLE = {
   saveVersion: '12',
   projectId: 'PRJ-1',
@@ -223,14 +127,13 @@ const SAMPLE = {
   projectDefaultStartTime: '09:00:00',
   projectDefaultFinishTime: '18:00:00',
   projectStart: '2026-04-01T08:30:00',
-  // Deliberately NOT the latest Task/Finish: DV-1 would compute a different
-  // one, and G-13 of table T-005 says the arrived value is what goes back.
+  // Why: deliberately not the latest Task/Finish, so a recomputed DV-1 value
+  // would differ from the arrived one that G-13 sends back.
   projectFinish: '2030-01-01T00:00:00',
   currencyCode: 'JPY',
   currencyDigits: '2',
-  // S-128's own number, so that every case below reads the same working days
-  // whichever of FR-054's two sources is consulted. The one case that has to
-  // tell the two apart states a different number of its own.
+  // Why: S-128's own value, so either of FR-054's two sources gives the same
+  // working days; the one case that tells them apart states its own.
   minutesPerDay: DEFAULT_CALENDAR_VALUES['S-128'],
   minutesPerWeek: 3000,
   daysPerMonth: 20,
@@ -260,7 +163,6 @@ const SAMPLE = {
   taskActualDurationDays: 5,
   taskPriority: '500',
   taskHyperlink: 'plan',
-  /** EX-3's subject: a file that carries effort. */
   taskWork: 'PT80H0M0S',
 
   childUid: 2,
@@ -281,35 +183,24 @@ const SAMPLE = {
   crossProject: '0',
 } as const
 
-/** The exchange partner spells a duration as xsd:duration (mspdi_pj12.xsd:1929). */
 function durationText(minutes: number): string {
   return `PT${Math.floor(minutes / 60)}H${minutes % 60}M0S`
 }
 
 const ACTUAL_DURATION_TEXT = durationText(SAMPLE.minutesPerDay * SAMPLE.taskActualDurationDays)
 
-// ---------------------------------------------------------------------------
-// The fixture itself.
-// ---------------------------------------------------------------------------
-
-/** Wraps a body as one MSPDI document. The namespace is the unit's own constant. */
 function mspdi(body: string): string {
   return `<?xml version="1.0" encoding="UTF-8"?>\n<Project xmlns="${MSPDI_NAMESPACE}">\n${body}\n</Project>\n`
 }
 
-/**
- * Seven weekdays, Sunday and Saturday not working. The document calendar must
- * have at least one working weekday (IV-17 of table T-220), and the working
- * five are S-106 of table T-209 -- read from the generated constant, since the
- * numbering the row is stated in is AT-73's.
- */
+// Spec: IV-17, S-106
 const WORKING_DAY_TYPES: readonly number[] = DEFAULT_CALENDAR_VALUES['S-106']
 
 function weekDaysXml(): string {
   return AT_73_DAY_TYPE.map((dayType) => {
     const working = WORKING_DAY_TYPES.includes(dayType)
-    // One WeekDay carries an element this software does not interpret, so
-    // AT-76 has something to hold (DF-2).
+    // Why: one WeekDay carries an element GRS does not interpret, so AT-76 has
+    // something to carry (DF-2).
     const times =
       dayType === SAMPLE.mondayDayType
         ? '<WorkingTimes><WorkingTime><FromTime>08:00:00</FromTime><ToTime>17:00:00</ToTime></WorkingTime></WorkingTimes>'
@@ -343,7 +234,6 @@ function calendarXml(recurrenceKind: number): string {
   </Calendars>`
 }
 
-/** The two tasks of the base fixture, in the schema's declared child order. */
 const TASKS_XML = `  <Tasks>
     <Task>
       <UID>${SAMPLE.taskUid}</UID>
@@ -452,12 +342,8 @@ const BASE_TEXT = mspdi(
   ].join('\n'),
 )
 
-// ---------------------------------------------------------------------------
-// A `current` document. FR-027's bundled template is the one document whose
-// values the specification has actually decided, so it stands in for what
-// MSPDI cannot carry (DR-3, DR-4, DR-5) rather than a second invented one.
-// ---------------------------------------------------------------------------
-
+// Why: FR-027's bundled template is the one document whose values the spec
+// decides, so it supplies what MSPDI cannot carry (DR-3, DR-4, DR-5).
 const TEMPLATE_PATH = join(
   process.cwd(),
   'src',
@@ -474,10 +360,6 @@ function templateDocument(): Document {
 }
 
 const CURRENT = templateDocument()
-
-// ---------------------------------------------------------------------------
-// Reading the two published shapes without asserting them into place.
-// ---------------------------------------------------------------------------
 
 function accepted(text: string, current: Document = CURRENT): Document {
   const read: MspdiDecoding = documentFromMspdi(text, current)
@@ -499,12 +381,8 @@ function refused(text: string, current: Document = CURRENT): readonly MspdiFault
   return read.faults
 }
 
-// ---------------------------------------------------------------------------
-// A reader for what the writer produced. The unit holds no DOM (FR-023) and
-// the test environment is node, so the cases need their own way to look at the
-// written tree.
-// ---------------------------------------------------------------------------
-
+// Why: the test environment is node and the unit holds no DOM (FR-023), so
+// the cases read the written XML with their own small parser.
 interface XmlNode {
   readonly name: string
   readonly attributes: Readonly<Record<string, string>>
@@ -572,7 +450,7 @@ function firstNamed(node: XmlNode, name: string): XmlNode | null {
   return childrenNamed(node, name)[0] ?? null
 }
 
-/** The node at a slash-separated path of element names, first match at each step. */
+// Summary: The helper shall return the node at a slash-separated path, taking the first match at each step.
 function nodeAt(node: XmlNode, path: string): XmlNode | null {
   let here: XmlNode | null = node
   for (const step of path.split('/')) {
@@ -605,7 +483,6 @@ function written(document: Document): XmlNode {
   return parseXml(encoding.text)
 }
 
-/** Consecutive repeats collapsed, so a list of siblings can be matched against a sequence. */
 function collapsed(names: readonly string[]): readonly string[] {
   return names.filter((name, index) => name !== names[index - 1])
 }
@@ -620,7 +497,7 @@ function isSubsequence(part: readonly string[], whole: readonly string[]): boole
   return true
 }
 
-/** Every element whose declared order the official schema states, with its written children. */
+// Summary: The helper shall return one line per written element whose children break the order the schema declares.
 function orderFaults(
   node: XmlNode,
   path: string,
@@ -635,22 +512,14 @@ function orderFaults(
   return [...here, ...node.children.flatMap((each) => orderFaults(each, `${path}/${each.name}`, order))]
 }
 
-// ---------------------------------------------------------------------------
-// Table T-058 -- the column-by-column mapping, as a fixed copy.
-// ---------------------------------------------------------------------------
-
 interface ColumnRow {
-  /** The row of table T-058. */
   readonly row: string
   readonly entity: string
   readonly column: string
-  /** The exchange partner's element, relative to the entity's own element. */
+  // Summary: The element path is relative to the entity's own element.
   readonly element: string
-  /** What the model column must hold once the fixture is read. */
   readonly value: string | number | boolean
-  /** The text the fixture put there, which an `Own` column must write back. */
   readonly text: string
-  /** `Own` columns go back as the text that arrived (EX-4). */
   readonly own: boolean
 }
 
@@ -732,7 +601,6 @@ const T_058_MSPDI: readonly ColumnRow[] = [
   column('AT-94', 'Assignment', 'resourceUid', 'ResourceUID', SAMPLE.resourceUid, false),
 ]
 
-/** The one instance of each entity the fixture carries. */
 function instanceOf(document: Document, entity: string): Record<string, unknown> {
   const schedule = document.schedule
   const task = schedule.tasks.find((each) => each.uid === SAMPLE.taskUid)
@@ -753,7 +621,6 @@ function instanceOf(document: Document, entity: string): Record<string, unknown>
   return picked
 }
 
-/** The same instance in the written tree. */
 function writtenInstance(root: XmlNode, entity: string): XmlNode {
   const tasks = nodeAt(root, 'Tasks')
   const found: XmlNode | null = {
@@ -778,13 +645,9 @@ function writtenInstance(root: XmlNode, entity: string): XmlNode {
   return found
 }
 
-// ---------------------------------------------------------------------------
-// The rosters, before anything walks them.
-// ---------------------------------------------------------------------------
-
 describe('the rosters these cases walk', () => {
-  // A walk over an empty roster passes without asserting anything. These pin
-  // the counts so a vacuous case cannot go green.
+  // Why: a walk over an empty roster passes without asserting anything, so the
+  // counts are pinned before any case walks them.
   it('carries the counts the tables state', () => {
     expect(T_053_ROWS).toHaveLength(5)
     expect(T_033_ROWS).toHaveLength(12)
@@ -809,10 +672,6 @@ describe('the rosters these cases walk', () => {
     expect(validateDocument(JSON.parse(jsonFromDocument(CURRENT))).errors).toEqual([])
   })
 })
-
-// ---------------------------------------------------------------------------
-// FR-023 -- the two MUSTs that are about the parser
-// ---------------------------------------------------------------------------
 
 describe('FR-023 -- external entities are disabled and nothing reaches innerHTML', () => {
   const DOCTYPES = [
@@ -848,16 +707,11 @@ describe('FR-023 -- external entities are disabled and nothing reaches innerHTML
     const document = accepted(text)
     const task = instanceOf(document, 'Task')
     expect(task['notes']).toBe('<img src=x onerror=alert(1)> & more')
-    // Round trip: the writer escapes it again rather than emitting live markup.
     const back = mspdiFromDocument(document, LAST_SAVED_AT).text
     expect(back).not.toContain('<img src=x')
     expect(accepted(back).schedule.tasks[0]?.notes).toBe('<img src=x onerror=alert(1)> & more')
   })
 })
-
-// ---------------------------------------------------------------------------
-// FR-028 -- a failure is a value, and NT-1 of table T-037 names the item
-// ---------------------------------------------------------------------------
 
 describe('FR-028 -- a failure is a VALUE, never a throw', () => {
   const NOT_MSPDI = [
@@ -889,7 +743,6 @@ describe('FR-028 -- a failure is a VALUE, never a throw', () => {
     for (const text of NOT_MSPDI) {
       for (const fault of refused(text)) {
         expect(typeof fault.at, text).toBe('string')
-        // The path is `` for the text as a whole, else rooted at the element.
         expect(fault.at === '' || fault.at.startsWith('/'), `${text} -> ${fault.at}`).toBe(true)
         expect(fault.what.trim().length, text).toBeGreaterThan(0)
         expect(fault.what.trim().split(/\s+/).length, `${text} -> ${fault.what}`).toBeGreaterThan(1)
@@ -898,16 +751,8 @@ describe('FR-028 -- a failure is a VALUE, never a throw', () => {
   })
 
   it('loses nothing when an element the schema allows cannot become a row -- DELIBERATELY LEFT FAILING', () => {
-    // AT-24, AT-63, AT-85 and AT-92 all mark the uid a non-null primary key,
-    // but the official schema declares every one of those UIDs minOccurs="0"
-    // (mspdi_pj12.xsd:1615 and its neighbors), so a file without one is still
-    // an MSPDI document and FR-023 leaves the value checks to CP-13.
-    // FR-021 (docs/spec/01-04-requirements.md) asks for every item this
-    // software does not use to be carried and written back, and DF-3 of table
-    // T-053 (:2844) puts what did not become a row on the carryElements of
-    // the parent that bundles it.
-    // Either lawful answer is accepted here -- refuse and name the element, or
-    // keep it -- so what this case forbids is dropping it in silence.
+    // Why: the schema makes these UIDs optional, so such a file is still MSPDI;
+    // refusing with the element named or keeping it are both lawful, silence is not.
     const cases = [
       { why: 'a Task with no UID', text: BASE_TEXT.replace(`<UID>${SAMPLE.taskUid}</UID>`, '') },
       {
@@ -948,10 +793,6 @@ describe('FR-028 -- a failure is a VALUE, never a throw', () => {
   })
 })
 
-// ---------------------------------------------------------------------------
-// The ordinary case
-// ---------------------------------------------------------------------------
-
 describe('the ordinary case -- one MSPDI in', () => {
   it('gives back a document the generated GRS JSON schema accepts', () => {
     const document = accepted(BASE_TEXT)
@@ -990,10 +831,8 @@ describe('the ordinary case -- one MSPDI in', () => {
   })
 
   it('keeps the calendar the file brought (IV-7 of table T-220)', () => {
-    // A file that brings no <Calendars> at all is left out on purpose: IV-7
-    // asks the document for one, FR-021 asks the writer not to add an element
-    // the file did not have, and nothing settles which wins. Reported, not
-    // asserted here.
+    // Why: a file with no Calendars is left out: IV-7 asks for a calendar, FR-021
+    // forbids adding an element, and nothing settles which wins.
     const document = accepted(BASE_TEXT)
     expect(document.schedule.calendars.length).toBeGreaterThanOrEqual(1)
     expect(document.schedule.calendars[0]?.uid).toBe(SAMPLE.calendarUid)
@@ -1016,10 +855,6 @@ describe('the ordinary case -- one MSPDI in', () => {
     expect(document.schedule.project.uidHighWaterMark).toBeGreaterThanOrEqual(highest)
   })
 })
-
-// ---------------------------------------------------------------------------
-// Table T-058 -- the column-by-column mapping. One case walks every row.
-// ---------------------------------------------------------------------------
 
 describe('table T-058 -- the column-by-column mapping', () => {
   it('puts every exchanged column where its row says (one case, every row)', () => {
@@ -1090,10 +925,6 @@ describe('table T-058 -- the column-by-column mapping', () => {
   })
 })
 
-// ---------------------------------------------------------------------------
-// AT-17 / AT-73 -- the two weekday numberings, one apart
-// ---------------------------------------------------------------------------
-
 describe('AT-17 and AT-73 -- the two weekday numberings stay one apart', () => {
   it('keeps `Project/WeekStartDay` as the partner wrote it, for all seven', () => {
     for (const number of AT_17_WEEK_START) {
@@ -1124,23 +955,16 @@ describe('AT-17 and AT-73 -- the two weekday numberings stay one apart', () => {
     const calendar = document.schedule.calendars.find((each) => each.uid === SAMPLE.calendarUid)
     const working = calendar?.weekDays.filter((each) => each.dayWorking === true) ?? []
     expect(working.map((each) => each.dayType)).toEqual([...WORKING_DAY_TYPES])
-    // S-108 of table T-209 is Monday in AT-17's numbering; S-106's first
-    // working day is the same Monday in AT-73's. They must differ by one.
     expect(DEFAULT_CALENDAR_VALUES['S-106'][0]).toBe(DEFAULT_CALENDAR_VALUES['S-108'] + 1)
     expect(document.schedule.project.weekStartDay).toBe(SAMPLE.weekStartDay)
     expect(working[0]?.dayType).toBe(SAMPLE.weekStartDay + 1)
   })
 })
 
-// ---------------------------------------------------------------------------
-// Table T-053 -- what the document keeps, and where
-// ---------------------------------------------------------------------------
-
 describe('table T-053 -- the shape of the document', () => {
   it('DF-1: an interpreted element stays in the partner`s own position', () => {
     const document = accepted(BASE_TEXT)
     const calendar = document.schedule.calendars.find((each) => each.uid === SAMPLE.calendarUid)
-    // Not a flat table: the weekdays and the exceptions hang off their calendar.
     expect(calendar?.weekDays).toHaveLength(AT_73_DAY_TYPE.length)
     expect(calendar?.exceptions).toHaveLength(1)
     expect(Object.keys(document.schedule)).not.toContain('weekDays')
@@ -1160,7 +984,6 @@ describe('table T-053 -- the shape of the document', () => {
     expect(owner(instanceOf(document, 'Exception'))).not.toContain('WorkingTimes')
     expect(owner(instanceOf(document, 'Resource'))).toContain('Rates')
     expect(owner(instanceOf(document, 'Assignment'))).toContain('Baseline')
-    // MUST NOT: gathered at the root. The Project keeps only its own.
     const atTheRoot = owner(instanceOf(document, 'Project'))
     expect(atTheRoot).toContain('ExtendedAttributes')
     for (const name of ['ExtendedAttribute', 'WorkWeeks', 'WorkingTimes', 'Rates', 'Baseline']) {
@@ -1169,8 +992,6 @@ describe('table T-053 -- the shape of the document', () => {
   })
 
   it('DF-3: a Task that did not become a row hangs off the Project', () => {
-    // The partner's tree bundles Tasks under Project, so that is where an
-    // element which produced no row goes.
     const text = BASE_TEXT.replace(
       '  <Tasks>',
       `  <Tasks>\n    <Task><UID>90</UID><IsNull>1</IsNull></Task>`,
@@ -1189,27 +1010,20 @@ describe('table T-053 -- the shape of the document', () => {
     expect(successor?.dependencies).toHaveLength(1)
     const dependency = successor?.dependencies[0]
     expect(dependency?.predecessorUid).toBe(SAMPLE.taskUid)
-    // MUST NOT: a column naming the successor, and MUST NOT: a column for the
-    // order of appearance. Table T-058 gives Dependency exactly six columns.
     expect(Object.keys(dependency ?? {}).sort()).toEqual(
       ['carry', 'carryElements', 'lagFormat', 'linkLag', 'linkType', 'predecessorUid'].sort(),
     )
   })
 
+  // Spec: DR-2
   it('DF-5: what GRS adds is its own grouping, not a borrowed partner slot', () => {
     const document = accepted(BASE_TEXT)
-    // The rows are GRS's own keys of the schedule group (DR-2), and no partner
-    // element was reused to hold them.
     expect(document.schedule.taskGroups.length).toBeGreaterThan(0)
     expect(document.schedule.taskGroupMembers.length).toBeGreaterThan(0)
     const carried = document.schedule.project.carryElements.map((each) => each.name)
     expect(carried).not.toContain('TaskGroup')
   })
 })
-
-// ---------------------------------------------------------------------------
-// FR-054 -- dates, and the working-day conversion
-// ---------------------------------------------------------------------------
 
 const unfinished = (text: string): string =>
   text.replace(`<ActualFinish>${SAMPLE.taskActualFinish}</ActualFinish>`, '')
@@ -1255,9 +1069,6 @@ describe('FR-054 -- a date column takes the literal text', () => {
   })
 
   it('writes an actual duration back through the file`s own minutesPerDay -- DELIBERATELY LEFT FAILING', () => {
-    // The same MUST on the way out: DV-11 rebuilds the element with
-    // `Project.minutesPerDay`, and FR-021 says an unedited file comes back as
-    // it arrived. A conversion that used S-128 instead drops the element.
     const perDay = DEFAULT_CALENDAR_VALUES['S-128'] + 120
     const days = 4
     const arrived = durationText(perDay * days)
@@ -1287,7 +1098,6 @@ describe('FR-054 -- a date column takes the literal text', () => {
   })
 
   it('does not expand a recurring exception day, and says so (NT-5 of table T-037)', () => {
-    // AT-82: 9 is "no recurrence"; anything else repeats.
     const once = mspdi(
       [projectHeadXml(), calendarXml(9), TASKS_XML, RESOURCES_XML, ASSIGNMENTS_XML].join('\n'),
     )
@@ -1296,17 +1106,14 @@ describe('FR-054 -- a date column takes the literal text', () => {
     expect(recurring.length).toBeGreaterThan(single.length)
     const document = accepted(BASE_TEXT)
     const exception = instanceOf(document, 'Exception')
-    // Not expanded into real days: the row keeps the recurrence and the two
-    // dates the file gave, and no extra Exception was invented.
     expect(exception['recurrenceKind']).toBe(SAMPLE.exceptionRecurring)
     expect(document.schedule.calendars[0]?.exceptions).toHaveLength(1)
     expect(recurring.some((notice) => notice.what.trim().length > 0)).toBe(true)
   })
 
   it('accepts an actual duration that is not a whole number of working days', () => {
-    // FR-054 reads the amount in minutes and does not round it (CR-710),
-    // so the only thing FR-023 settles is that the file is not refused:
-    // the ceilings and the value checks are ValidateImportedDocument's.
+    // Why: only non-refusal is asserted: the ceilings and the value checks belong
+    // to ValidateImportedDocument, not to this unit.
     const text = BASE_TEXT.replace(
       ACTUAL_DURATION_TEXT,
       durationText(SAMPLE.minutesPerDay * 2 + 1),
@@ -1320,13 +1127,8 @@ describe('FR-054 -- a date column takes the literal text', () => {
   })
 })
 
-// ---------------------------------------------------------------------------
-// FR-058 -- every imported Task lands on a task group
-// ---------------------------------------------------------------------------
-
 const UUID_SHAPE = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/
 
-/** A WBS `depth` levels deep, one Task per level, each the child of the last. */
 function nestedTasksText(depth: number): string {
   const tasks: string[] = []
   for (let level = 1; level <= depth; level += 1) {
@@ -1454,10 +1256,6 @@ describe('FR-058 -- the imported tasks land on task groups', () => {
   })
 })
 
-// ---------------------------------------------------------------------------
-// Chapter 5.4 -- the two axes. One crosses the wire, the other does not.
-// ---------------------------------------------------------------------------
-
 describe('Chapter 5.4 -- only the WBS axis crosses the wire', () => {
   it('writes no task group and no member into the XML', () => {
     const text = mspdiFromDocument(accepted(BASE_TEXT), LAST_SAVED_AT).text
@@ -1486,10 +1284,7 @@ describe('Chapter 5.4 -- only the WBS axis crosses the wire', () => {
   })
 })
 
-// ---------------------------------------------------------------------------
-// Table T-033 -- the rules of writing
-// ---------------------------------------------------------------------------
-
+// Spec: FR-057, T-033
 describe('table T-033 -- writing', () => {
   it('EX-1: writes every element in the order the official schema declares', () => {
     const root = written(accepted(BASE_TEXT))
@@ -1509,9 +1304,8 @@ describe('table T-033 -- writing', () => {
   })
 
   it('EX-3: effort is neither rewritten nor deleted', () => {
-    // The other half of EX-3 -- telling the person that the partner's tool has
-    // to update it -- turns on a progress EDIT, which no member of this unit
-    // performs, so only the MUST NOT is asserted here.
+    // Why: only the MUST NOT is asserted; telling the person turns on a progress
+    // edit, which no member of this unit performs.
     const document = accepted(BASE_TEXT)
     const task = instanceOf(document, 'Task')
     expect((task['carry'] as Record<string, string>)['Work']).toBe(SAMPLE.taskWork)
@@ -1519,13 +1313,6 @@ describe('table T-033 -- writing', () => {
   })
 
   it('EX-1: writes the schema`s mandatory Project children for a GRS-born document -- DELIBERATELY LEFT FAILING', () => {
-    // FR-057 EX-1 (docs/spec/01-04-requirements.md) makes it a MUST that a
-    // document created without importing any MSPDI still comes out in a form
-    // the partner's tool can open. Both of the children named below are
-    // declared without minOccurs in mspdi_pj12.xsd (:232, :390), so a
-    // Project without them is not valid against the official schema, and
-    // DV-2 / DV-3 of table T-059 are the rows that say where each comes from.
-    // DELIBERATELY LEFT FAILING -- reported as a defect, not a test to relax.
     const root = written(CURRENT)
     for (const name of MANDATORY_PROJECT_CHILDREN) {
       expect(firstNamed(root, name), `${name} is mandatory in the official schema`).not.toBeNull()
@@ -1544,9 +1331,6 @@ describe('table T-033 -- writing', () => {
   })
 
   it('EX-2: a carried original beats the computed value (the note of table T-019)', () => {
-    // G-13 of table T-005 puts ActualDuration in Carry for this reason, and DV-1
-    // is the same case for Project/FinishDate: the fixture's FinishDate is not
-    // the latest Task/Finish, so a recomputed one would differ.
     const stop = '2026-04-05T17:00:00'
     const text = BASE_TEXT.replace(
       `<Resume>${SAMPLE.taskResume}</Resume>`,
@@ -1592,9 +1376,8 @@ describe('table T-033 -- writing', () => {
   })
 
   it('EX-6: an extended attribute the file already uses is not overwritten', () => {
-    // No row names WHICH extended attribute carries the fade days, so nothing
-    // here may claim one. What EX-6 does settle is that the partner's own
-    // value is not touched (MUST NOT).
+    // Why: no spec row names which extended attribute carries the fade days, so
+    // only the MUST NOT (the partner's value untouched) is asserted.
     const document = accepted(BASE_TEXT)
     const task = instanceOf(document, 'Task')
     expect(task['fadeInDays']).toBeNull()
@@ -1634,15 +1417,10 @@ describe('table T-033 -- writing', () => {
     const stop = textAt(written9, 'Stop')
     expect(stop, 'AT-141 writes a Stop for a suspended task').not.toBeNull()
     expect(stop).toBe('2026-04-08T16:45:00')
-    // MUST NOT apply to a value that only arrived: the plan dates keep theirs.
     expect(textAt(written9, 'Start')).toBe('2026-04-01T09:30:00')
     expect(textAt(written9, 'ActualStart')).toBe('2026-04-06T08:45:00')
   })
 })
-
-// ---------------------------------------------------------------------------
-// Table T-019 -- which state writes a Stop. One case walks every row.
-// ---------------------------------------------------------------------------
 
 function planActualTasksText(): string {
   const duration = durationText(SAMPLE.minutesPerDay * 3)
@@ -1663,7 +1441,6 @@ function planActualTasksText(): string {
         : row.row === 'PA-4'
           ? `      <ResumeValid>0</ResumeValid>\n`
           : `      <ResumeValid>1</ResumeValid>\n`
-    // The schema declares Resume and ResumeValid before the actual columns.
     return `    <Task>\n${head}${resume}${actual}    </Task>`
   }
   return mspdi(
@@ -1701,10 +1478,6 @@ describe('table T-019 -- the last column, which state writes a Stop', () => {
   })
 })
 
-// ---------------------------------------------------------------------------
-// Table T-059 -- the values that are made at write time and never stored
-// ---------------------------------------------------------------------------
-
 describe('table T-059 -- made at write time, not stored', () => {
   it('the document holds none of them as a column of its own', () => {
     const document = accepted(BASE_TEXT)
@@ -1725,9 +1498,8 @@ describe('table T-059 -- made at write time, not stored', () => {
   })
 
   it('DV-4 and DV-10 renumber in write order, apart from the uid', () => {
-    // DV-4 says only that the numbering is redone in write order; neither it
-    // nor the official schema fixes where it starts, so only the shape of
-    // the renumbering is asserted. The origin is reported as undecided.
+    // Why: neither DV-4 nor the official schema fixes where the numbering starts,
+    // so only the shape of the renumbering is asserted.
     const root = written(accepted(nestedTasksText(4)))
     const tasks = childrenNamed(nodeAt(root, 'Tasks') ?? root, 'Task')
     const ids = tasks.map((each) => Number(textAt(each, 'ID')))
@@ -1735,7 +1507,6 @@ describe('table T-059 -- made at write time, not stored', () => {
     for (let index = 1; index < ids.length; index += 1) {
       expect(ids[index], 'consecutive, in write order').toBe((ids[index - 1] ?? 0) + 1)
     }
-    // AT-24 keeps the uid apart from the position identifier.
     expect(tasks.map((each) => textAt(each, 'UID'))).toEqual(['1', '2', '3', '4'])
   })
 
@@ -1746,10 +1517,6 @@ describe('table T-059 -- made at write time, not stored', () => {
     expect(tasks.map((each) => textAt(each, 'Summary'))).toEqual(['1', '0'])
   })
 })
-
-// ---------------------------------------------------------------------------
-// FR-021 -- the reason the unit exists
-// ---------------------------------------------------------------------------
 
 describe('FR-021 -- one MSPDI in, not merged, not edited, out again', () => {
   it('comes back to the same document through a whole round trip', () => {
@@ -1781,8 +1548,6 @@ describe('FR-021 -- one MSPDI in, not merged, not edited, out again', () => {
   })
 
   it('does not hoard the source text -- a reformatted file reads the same', () => {
-    // FR-021 forbids comparing byte strings (MUST NOT) precisely because the
-    // spelling of the incoming file is free. Same document, different bytes.
     const dense = BASE_TEXT.replace(/>\s+</g, '><')
     const commented = BASE_TEXT.replace('</Project>', '<!-- a comment --></Project>')
     const expanded = BASE_TEXT.replace(/<(\w+)><\/\1>/g, '<$1/>')
@@ -1826,10 +1591,6 @@ describe('FR-021 -- one MSPDI in, not merged, not edited, out again', () => {
   })
 })
 
-// ---------------------------------------------------------------------------
-// PI-20 of table T-064 -- the two members, and their declared purity
-// ---------------------------------------------------------------------------
-
 describe('PI-20 -- the published pair', () => {
   it('publishes both members and the namespace the writer uses', () => {
     expect(typeof documentFromMspdi).toBe('function')
@@ -1856,50 +1617,10 @@ describe('PI-20 -- the published pair', () => {
   })
 })
 
-// ---------------------------------------------------------------------------
-// The byte order mark, and the two custom-field frames the fade day counts
-// ride in.
-//
-// What was read for these cases:
-//   FR-023   a LEADING byte order mark is accepted and dropped (MUST), and is
-//            not a reason to refuse (MUST NOT)
-//            (docs/spec/01-04-requirements.md). The same paragraph names
-//            the writing side as the OPPOSITE rule and hands it to CN-5.
-//   CN-5     what GRS writes is UTF-8 with no BOM (MUST) (table T-003).
-//   EX-6     the roster of frames is `_source/mspdi-custom-fields.json` and a
-//            free one is looked for IN THAT ORDER (MUST); a frame the import
-//            source uses is not overwritten (MUST NOT); GRS moves to a free one
-//            and TELLS, and when there is no free one it writes nothing and
-//            TELLS (MUST); which side owns a frame is told apart by the
-//            DEFINITION's `Alias` against the roster's (MUST) -- the value side
-//            carries only a number -- and the same test is used on the way in,
-//            a frame that does not match being left uninterpreted in
-//            `carryElements` (MUST). (table T-033)
-//   EX-8     the definition goes into `Project/ExtendedAttributes` ONCE (MUST),
-//            its children follow the official schema's `xsd:sequence` (MUST),
-//            and when no task has a fade the collection is not written at all
-//            (MUST NOT -- the schema states each `ExtendedAttributes` needs at
-//            least one child, mspdi_pj12.xsd:988). (table T-033)
-//   EX-1     what goes out is valid against the official schema, whose `Alias`
-//            is `maxLength` 50 (mspdi_pj12.xsd:1055). (table T-033)
-//   DF-2     an element GRS does not interpret stays in its OWNER's
-//            `carryElements`, in its original form. (table T-053)
-//   AT-40 /  `Task.fadeInDays` / `Task.fadeOutDays`: whole days, nullable,
-//   AT-41    `Consume`, exchanged through `Task/ExtendedAttribute`, and `null`
-//            is told apart from `0` (_assets/fig-erd-detail.md).
-//   NT-1 /   a notice says WHICH item and WHY in words; a notice that comes
-//   NT-5     with accepted work does not stop the work. (table T-037)
-//
-// No number below is typed. Every one is read out of the MANUSCRIPT
-// `docs/spec/_source/mspdi-custom-fields.json`, and the one bound the official
-// schema owns (`Alias` maxLength) is read out of the XSD. Section 2 of
-// docs/development-rules/04-verification.md asks exactly this of a case whose
-// point is that a manuscript value reaches the code: change one value in the
-// manuscript and these fail.
-// ---------------------------------------------------------------------------
-
 const BYTE_ORDER_MARK = '\uFEFF'
 
+// Why: every frame number is read from the manuscript and the Alias bound from
+// the XSD, so changing one manuscript value fails these cases.
 const ROSTER_PATH = join(process.cwd(), 'docs', 'spec', '_source', 'mspdi-custom-fields.json')
 
 interface RosterFrame {
@@ -1918,14 +1639,8 @@ interface Roster {
 
 const ROSTER = JSON.parse(readFileSync(ROSTER_PATH, 'utf8')) as Roster
 
-/**
- * EX-6 tells GRS's own frame from the import source's by the DEFINITION's
- * `Alias`. Since CR-702 the manuscript names both aliases after the column
- * (`fadeInDays` / `fadeOutDays`), so GRS recognizes its own frame. The empty
- * case (no frame GRS may claim, the "nowhere to go" arm of EX-6) stays
- * covered below, guarded by ROSTER_ALIASES_ARE_USABLE: emptying an alias in
- * the manuscript moves these expectations, which is the point of reading it.
- */
+// Why: the empty-alias arm of EX-6 stays covered behind this guard, so
+// emptying an alias in the manuscript moves these expectations.
 const ROSTER_ALIASES_ARE_USABLE = ROSTER.frames.every((each) => each.alias.trim().length > 0)
 
 function rosterFrame(prefers: RosterFrame['prefers']): RosterFrame {
@@ -1934,7 +1649,6 @@ function rosterFrame(prefers: RosterFrame['prefers']): RosterFrame {
   return found
 }
 
-/** The `maxLength` the official schema puts on a definition's `Alias`. */
 function schemaAliasMaxLength(): number {
   const source = readFileSync(XSD_PATH, 'utf8')
   const hits = [...source.matchAll(/name="Alias"[\s\S]{0,400}?<xsd:maxLength value="(\d+)"/g)]
@@ -1949,7 +1663,6 @@ const SCHEMA_ALIAS_MAX_LENGTH = schemaAliasMaxLength()
 const FADE_IN_DAYS = 3
 const FADE_OUT_DAYS = 2
 
-/** A definition row of `Project/ExtendedAttributes`, in the schema's own order. */
 function definitionXml(fieldId: number, fieldName: string, alias: string | null): string {
   const aliasPart = alias === null ? '' : `<Alias>${alias}</Alias>`
   return (
@@ -1959,12 +1672,10 @@ function definitionXml(fieldId: number, fieldName: string, alias: string | null)
   )
 }
 
-/** A value row under a `Task`. The value side carries only a number (xsd:2254). */
 function valueXml(fieldId: number, value: string): string {
   return `<ExtendedAttribute><FieldID>${fieldId}</FieldID><Value>${value}</Value></ExtendedAttribute>`
 }
 
-/** `projectHeadXml()` with its own `ExtendedAttributes` block swapped out. */
 function headWithDefinitions(definitions: readonly string[]): string {
   const bare = projectHeadXml()
     .replace(/\n {2}<ExtendedAttributes>[\s\S]*?<\/ExtendedAttributes>/, '')
@@ -1974,7 +1685,6 @@ function headWithDefinitions(definitions: readonly string[]): string {
   return `${bare}\n  <ExtendedAttributes>\n${rows}\n  </ExtendedAttributes>`
 }
 
-/** One task, with no fade values unless the caller supplies them. */
 function fadeFileText(definitions: readonly string[], taskValues: readonly string[]): string {
   return mspdi(
     [
@@ -1996,7 +1706,6 @@ function fadeFileText(definitions: readonly string[], taskValues: readonly strin
   )
 }
 
-/** The same document with the fade day counts put on the fixture's one task. */
 function withFade(document: Document, inDays: number | null, outDays: number | null): Document {
   const copy = JSON.parse(JSON.stringify(document)) as {
     schedule: {
@@ -2015,7 +1724,6 @@ function withFade(document: Document, inDays: number | null, outDays: number | n
   return copy as unknown as Document
 }
 
-/** The same document with EVERY task's fade day counts cleared. */
 function withoutAnyFade(document: Document): Document {
   const copy = JSON.parse(JSON.stringify(document)) as {
     schedule: {
@@ -2060,7 +1768,6 @@ function writeOf(document: Document): {
   return { root: parseXml(encoding.text), notices: encoding.notices }
 }
 
-/** NT-1's shape: a notice says WHICH item, and says why in words. */
 function namesAnItem(notice: MspdiNotice): boolean {
   return notice.at.trim().length > 0 && notice.what.trim().length > 0
 }
@@ -2074,7 +1781,6 @@ describe('the fade roster these cases walk', () => {
       expect(Number.isInteger(frame.fieldId)).toBe(true)
       expect(frame.fieldId).toBeGreaterThan(0)
     }
-    // CFType 5 = Number, ElemType 20 = Task (mspdi_pj12.xsd:1005, :1027).
     expect(ROSTER.cfType.value).toBe(5)
     expect(ROSTER.elemType.value).toBe(20)
   })
@@ -2084,9 +1790,6 @@ describe('the fade roster these cases walk', () => {
   })
 
   it('GIVEN the roster aliases WHEN measured THEN none is longer than the schema allows (EX-1)', () => {
-    // EX-1 is a MUST that what goes out is valid against the official schema.
-    // An Alias over the bound could not be written without breaking it, so the
-    // roster may not hold one.
     for (const frame of ROSTER.frames) {
       expect(frame.alias.length).toBeLessThanOrEqual(SCHEMA_ALIAS_MAX_LENGTH)
     }
@@ -2102,10 +1805,6 @@ describe('the fade roster these cases walk', () => {
   })
 })
 
-// ---------------------------------------------------------------------------
-// FR-023 -- a leading byte order mark is accepted and dropped
-// ---------------------------------------------------------------------------
-
 describe('FR-023 -- a leading byte order mark is accepted and dropped', () => {
   it('GIVEN an MSPDI text behind a BOM WHEN read THEN it is not refused (MUST NOT)', () => {
     const read = documentFromMspdi(`${BYTE_ORDER_MARK}${BASE_TEXT}`, CURRENT)
@@ -2113,7 +1812,6 @@ describe('FR-023 -- a leading byte order mark is accepted and dropped', () => {
   })
 
   it('GIVEN the same file with and without a BOM WHEN both are read THEN the documents are the same', () => {
-    // Accepted AND dropped, so nothing downstream of the parser can see it.
     const plain = documentFromMspdi(BASE_TEXT, CURRENT)
     const marked = documentFromMspdi(`${BYTE_ORDER_MARK}${BASE_TEXT}`, CURRENT)
     expect(marked).toEqual(plain)
@@ -2126,7 +1824,6 @@ describe('FR-023 -- a leading byte order mark is accepted and dropped', () => {
   })
 
   it('GIVEN a BOM and nothing else WHEN read THEN it is refused with words, not accepted as empty', () => {
-    // The boundary of accepting a BOM: dropping it leaves no document at all.
     const faults = refused(BYTE_ORDER_MARK)
     expect(faults.length).toBeGreaterThan(0)
     expect(faults.every((fault) => fault.what.trim().length > 0)).toBe(true)
@@ -2137,17 +1834,16 @@ describe('FR-023 -- a leading byte order mark is accepted and dropped', () => {
   })
 
   it('GIVEN a leading character that is NOT a BOM WHEN read THEN it is still refused', () => {
-    // FR-023 exempts the byte order mark and nothing else. Without this the
-    // case above would pass on a parser that simply skips leading junk, and
-    // the exemption would not have been tested at all.
+    // Why: without this case, a parser that skips any leading junk would pass the
+    // BOM cases above and the exemption would go untested.
     expect(refused(`x${BASE_TEXT}`).length).toBeGreaterThan(0)
   })
 
   it('GIVEN a BOM before a text that is not MSPDI WHEN read THEN the refusal names the item in words (NT-1)', () => {
     const faults = refused(`${BYTE_ORDER_MARK}<Nope><Inside/></Nope>`)
     expect(faults.length).toBeGreaterThan(0)
-    // NT-1: which item, and why, in words. An empty `at` is this unit's way of
-    // naming the whole text when no single item can be pointed at.
+    // Why: an empty `at` is how this unit names the whole text when no single
+    // item can be pointed at.
     for (const fault of faults) {
       expect(typeof fault.at).toBe('string')
       expect(fault.what.trim().length).toBeGreaterThan(0)
@@ -2155,17 +1851,11 @@ describe('FR-023 -- a leading byte order mark is accepted and dropped', () => {
   })
 
   it('GIVEN a BOM inside a value WHEN read THEN it is kept as the partner`s own text', () => {
-    // FR-023 accepts and drops the LEADING one. A BOM inside a value is the
-    // partner's data, and EX-4 keeps the spelling that arrived.
     const text = BASE_TEXT.replace(SAMPLE.taskNotes, `${SAMPLE.taskNotes}${BYTE_ORDER_MARK}x`)
     const document = accepted(text)
     expect(instanceOf(document, 'Task')['notes']).toBe(`${SAMPLE.taskNotes}${BYTE_ORDER_MARK}x`)
   })
 })
-
-// ---------------------------------------------------------------------------
-// CN-5 of table T-003 -- the writing side is the opposite rule
-// ---------------------------------------------------------------------------
 
 describe('CN-5 -- what GRS writes carries no byte order mark', () => {
   it('GIVEN an imported document WHEN written THEN the text does not begin with a BOM (MUST)', () => {
@@ -2184,10 +1874,6 @@ describe('CN-5 -- what GRS writes carries no byte order mark', () => {
   })
 })
 
-// ---------------------------------------------------------------------------
-// EX-6 -- reading: the definition's Alias decides whose frame it is
-// ---------------------------------------------------------------------------
-
 describe('EX-6 and DF-2 -- reading a custom-field frame', () => {
   it('GIVEN a frame whose definition Alias is not the roster`s WHEN read THEN it is not interpreted (EX-6 MUST)', () => {
     const frame = rosterFrame('fadeInDays')
@@ -2199,7 +1885,6 @@ describe('EX-6 and DF-2 -- reading a custom-field frame', () => {
     const task = instanceOf(document, 'Task')
     expect(task['fadeInDays']).toBeNull()
     expect(task['fadeOutDays']).toBeNull()
-    // DF-2: left in its OWNER's carryElements, in its original form.
     expect(carriedNames(task)).toContain('ExtendedAttribute')
   })
 
@@ -2238,9 +1923,6 @@ describe('EX-6 and DF-2 -- reading a custom-field frame', () => {
       [valueXml(frame.fieldId, String(FADE_IN_DAYS))],
     )
     const task = instanceOf(accepted(text), 'Task')
-    // The manuscript's own note: an empty alias is no alias, so GRS cannot
-    // recognize its own frame and must not claim one. Fill the alias in
-    // `_source/mspdi-custom-fields.json` and this expectation moves.
     expect(task['fadeInDays']).toBe(ROSTER_ALIASES_ARE_USABLE ? FADE_IN_DAYS : null)
     if (!ROSTER_ALIASES_ARE_USABLE) expect(carriedNames(task)).toContain('ExtendedAttribute')
   })
@@ -2277,10 +1959,6 @@ describe('EX-6 and DF-2 -- reading a custom-field frame', () => {
   })
 })
 
-// ---------------------------------------------------------------------------
-// EX-6 -- writing: the roster order, and the two ways it can fail to find room
-// ---------------------------------------------------------------------------
-
 describe('EX-6 -- writing the fade day counts into a frame', () => {
   const bothHeld = (): string =>
     fadeFileText(
@@ -2315,7 +1993,6 @@ describe('EX-6 -- writing the fade day counts into a frame', () => {
 
   it('GIVEN nowhere to write the fade WHEN written THEN the rest of the work is not stopped (NT-5)', () => {
     const encoding = mspdiFromDocument(withFade(accepted(bothHeld()), FADE_IN_DAYS, FADE_OUT_DAYS), LAST_SAVED_AT)
-    // NT-5 does not stop the operation: the text is whole and the task is in it.
     expect(encoding.text.length).toBeGreaterThan(0)
     const task = writtenInstance(parseXml(encoding.text), 'Task')
     expect(textAt(task, 'Name')).toBe(SAMPLE.taskName)
@@ -2331,14 +2008,11 @@ describe('EX-6 -- writing the fade day counts into a frame', () => {
     )
     const { root, notices } = writeOf(withFade(accepted(text), FADE_IN_DAYS, null))
     const task = writtenInstance(root, 'Task')
-    // MUST NOT overwrite: the held frame keeps the import source's Alias and
-    // gains no value of GRS's.
     const held = definitionsOf(root).find(
       (each) => textAt(each, 'FieldID') === String(inFrame.fieldId),
     )
     expect(textAt(held ?? ({} as XmlNode), 'Alias')).toBe('Import source first')
     expect(valueForField(task, inFrame.fieldId)).toBeNull()
-    // MUST tell, whether it moved to the free frame or found nowhere to go.
     expect(notices.length).toBeGreaterThan(0)
     expect(notices.some(namesAnItem)).toBe(true)
     expect(valueForField(task, outFrame.fieldId)).toBe(
@@ -2358,8 +2032,6 @@ describe('EX-6 -- writing the fade day counts into a frame', () => {
       expect(valueForField(task, outFrame.fieldId)).toBe(String(FADE_OUT_DAYS))
       expect(notices).toEqual([])
     } else {
-      // The manuscript keeps both aliases empty, so there is no frame GRS may
-      // claim and EX-6's last arm applies: write nothing, and tell.
       expect(valueForField(task, inFrame.fieldId)).toBeNull()
       expect(valueForField(task, outFrame.fieldId)).toBeNull()
       expect(notices.length).toBeGreaterThan(0)
@@ -2382,10 +2054,6 @@ describe('EX-6 -- writing the fade day counts into a frame', () => {
   })
 })
 
-// ---------------------------------------------------------------------------
-// EX-8 -- one definition, the schema's child order, never an empty collection
-// ---------------------------------------------------------------------------
-
 describe('EX-8 -- the definition collection', () => {
   const writtenDocuments = (): readonly Document[] => [
     accepted(BASE_TEXT),
@@ -2397,17 +2065,13 @@ describe('EX-8 -- the definition collection', () => {
   ]
 
   it('GIVEN no fade and no arrived definition WHEN written THEN the collection is not written at all (MUST NOT)', () => {
-    // mspdi_pj12.xsd:988 -- there must be at least one ExtendedAttribute in
-    // each ExtendedAttributes collection, so an empty one would break EX-1.
     const { root } = writeOf(accepted(fadeFileText([], [])))
     expect(firstNamed(root, 'ExtendedAttributes')).toBeNull()
   })
 
   it('GIVEN a GRS-born document with no fade WHEN written THEN no empty collection appears', () => {
-    // ⚠️ The premise has to be MADE, not assumed: the bundled template carries
-    // a fade on some of its tasks, so `CURRENT` is not a document with no
-    // fade. With every fade cleared there is nothing to define, and EX-8
-    // forbids writing the collection at all (mspdi_pj12.xsd:988).
+    // Why: the bundled template carries a fade on some tasks, so the no-fade
+    // premise is made by clearing every fade rather than assumed.
     expect(firstNamed(written(withoutAnyFade(CURRENT)), 'ExtendedAttributes')).toBeNull()
   })
 
@@ -2470,26 +2134,6 @@ describe('EX-8 -- the definition collection', () => {
   })
 })
 
-// ---------------------------------------------------------------------------
-// What a wrong input does: the boundaries of the byte order mark (CR-198) and
-// of the two borrowed frames (CR-199).
-//
-// Read for these cases, beyond the block above:
-//   FR-023 (:3040)   the LEADING byte order mark is accepted and dropped
-//                    (MUST) and is not a reason to refuse (MUST NOT). That
-//                    sentence settles ONE mark at the front and says nothing
-//                    about a second one or one further in, so those two cases
-//                    assert only what holds under either reading: the answer
-//                    is a VALUE (FR-028) and no mark reaches the document.
-//   CR-199 section 7 while an alias is empty GRS cannot recognize its own
-//                    frame and must not claim one. Every case below is written
-//                    so that filling an alias in the manuscript moves it.
-//   rule 04 sect. 2  a manuscript value only counts as reaching the code if
-//                    changing that one value breaks a case. The generated
-//                    roster is therefore measured against the manuscript
-//                    rather than either being trusted on its own.
-// ---------------------------------------------------------------------------
-
 const GENERATED_ROSTER_PATH = join(
   process.cwd(),
   'src',
@@ -2507,13 +2151,12 @@ interface GeneratedRoster {
 
 const GENERATED_ROSTER = JSON.parse(readFileSync(GENERATED_ROSTER_PATH, 'utf8')) as GeneratedRoster
 
-/** A field id no frame of the roster names, derived from the roster itself. */
 const OUTSIDE_FIELD_ID = Math.max(...ROSTER.frames.map((each) => each.fieldId)) + 1000
 
 const ALIAS_AT_BOUND = 'A'.repeat(SCHEMA_ALIAS_MAX_LENGTH)
 const ALIAS_OVER_BOUND = 'A'.repeat(SCHEMA_ALIAS_MAX_LENGTH + 1)
 
-/** FR-028: an answer is a value. A throw is turned into words here. */
+// Summary: The helper shall turn a throw into a refused answer, so a case can assert FR-028 on a value.
 function answered(text: string, current: Document = CURRENT): MspdiDecoding {
   try {
     return documentFromMspdi(text, current)
@@ -2526,7 +2169,6 @@ function carriesAnyMark(document: Document): boolean {
   return JSON.stringify(document).includes(BYTE_ORDER_MARK)
 }
 
-/** The value rows of one written `Task`, as `FieldID` to `Value`. */
 function valueRowsOf(task: XmlNode): ReadonlyMap<string, string> {
   const rows = new Map<string, string>()
   for (const each of childrenNamed(task, 'ExtendedAttribute')) {
@@ -2537,10 +2179,8 @@ function valueRowsOf(task: XmlNode): ReadonlyMap<string, string> {
 
 describe('the roster the code reads is the roster the manuscript states (rule 04 section 2)', () => {
   it('GIVEN the manuscript WHEN the generated roster is read THEN every value is the manuscript`s', () => {
-    // ⭐ This is the case that gives the two frame numbers their meaning: the
-    // code reads `src/adapter/document-codec/mspdi-custom-fields.json`, and
-    // changing ONE value in `docs/spec/_source/mspdi-custom-fields.json`
-    // without rebuilding breaks here. Nothing in this file types a number.
+    // Why: the code reads the generated roster, so this case is what fails when a
+    // manuscript value changes without a rebuild.
     expect(GENERATED_ROSTER.elemType).toBe(ROSTER.elemType.value)
     expect(GENERATED_ROSTER.cfType).toBe(ROSTER.cfType.value)
     expect(GENERATED_ROSTER.aliasMaxLength).toBe(ROSTER.aliasMaxLength.value)
@@ -2555,8 +2195,6 @@ describe('the roster the code reads is the roster the manuscript states (rule 04
   })
 
   it('GIVEN the roster WHEN its order is read THEN fadeInDays is looked for first (EX-6 MUST)', () => {
-    // EX-6: a free frame is looked for IN THE ROSTER'S ORDER. That order is
-    // the manuscript's, so it is read here and not restated.
     expect(GENERATED_ROSTER.frames.map((each) => each.prefers)).toEqual([
       'fadeInDays',
       'fadeOutDays',
@@ -2567,10 +2205,6 @@ describe('the roster the code reads is the roster the manuscript states (rule 04
   })
 
   it('GIVEN an empty alias in the manuscript WHEN a file offers that frame THEN nothing is claimed on either side (CR-199 section 7)', () => {
-    // Since CR-702 both aliases are filled, so the first branch below runs.
-    // The second keeps the old rule: while an alias is empty GRS cannot
-    // recognize its own frame and must not claim one, so import reads the
-    // column null, and export writes no fade day.
     const frame = rosterFrame('fadeInDays')
     const offered = fadeFileText(
       [definitionXml(frame.fieldId, frame.name, frame.alias)],
@@ -2590,13 +2224,6 @@ describe('the roster the code reads is the roster the manuscript states (rule 04
   })
 
   it('GIVEN a frame GRS claims WHEN written THEN its definition carries the roster`s own alias and types', () => {
-    // EX-6 recognizes GRS's own frame by the DEFINITION's `Alias`, so the
-    // alias GRS writes has to be the roster's, character for character, or the
-    // next import would not recognize what this export just wrote. The types
-    // are the roster's too: CFType 5 (Number) and ElemType 20 (Task).
-    // ⚠️ While the manuscript keeps the aliases empty there is no claimed
-    // frame to look at, and this case has nothing to assert -- filling one
-    // makes it live.
     if (!ROSTER_ALIASES_ARE_USABLE) {
       expect(ROSTER.frames.some((each) => each.alias.trim().length === 0)).toBe(true)
       return
@@ -2627,10 +2254,8 @@ describe('the roster the code reads is the roster the manuscript states (rule 04
 
 describe('FR-023 -- the boundaries of the leading byte order mark', () => {
   it('GIVEN two byte order marks WHEN read THEN the answer is a value and no mark reaches the document', () => {
-    // FR-023 settles ONE leading mark. A second one is neither accepted nor
-    // refused by any line of the specification, so this case asserts only what
-    // both readings share: FR-028's value, and nothing of the mark left in the
-    // document if it was accepted. ⚠️ Reported as a gap, not as a defect.
+    // Why: no spec line accepts or refuses a second mark, so only what both
+    // readings share is asserted: a value, and no mark left in the document.
     const read = answered(`${BYTE_ORDER_MARK}${BYTE_ORDER_MARK}${BASE_TEXT}`)
     if (read.ok) {
       expect(carriesAnyMark(read.document)).toBe(false)
@@ -2642,8 +2267,8 @@ describe('FR-023 -- the boundaries of the leading byte order mark', () => {
   })
 
   it('GIVEN a byte order mark after the XML declaration WHEN read THEN the answer is a value, never a throw', () => {
-    // Not the LEADING mark: FR-023's MUST does not reach it. Same shape as
-    // above -- what is asserted is that an answer comes back at all.
+    // Why: FR-023's MUST covers only the leading mark, so only that an answer
+    // comes back at all is asserted.
     const read = answered(BASE_TEXT.replace('?>\n', `?>\n${BYTE_ORDER_MARK}`))
     if (read.ok) {
       expect(carriesAnyMark(read.document)).toBe(false)
@@ -2653,9 +2278,6 @@ describe('FR-023 -- the boundaries of the leading byte order mark', () => {
   })
 
   it('GIVEN a mark at the front AND one inside a value WHEN read THEN only the leading one is dropped (EX-4)', () => {
-    // ⛔ The boundary that tells "drop the leading mark" apart from "strip
-    // every mark": the one inside the partner's own text is data, and EX-4
-    // keeps the spelling that arrived.
     const inside = `${SAMPLE.taskNotes}${BYTE_ORDER_MARK}tail`
     const text = `${BYTE_ORDER_MARK}${BASE_TEXT.replace(SAMPLE.taskNotes, inside)}`
     const document = accepted(text)
@@ -2664,8 +2286,6 @@ describe('FR-023 -- the boundaries of the leading byte order mark', () => {
   })
 
   it('GIVEN a byte order mark followed by junk WHEN read THEN it is refused and the fault says why in words', () => {
-    // FR-023 forbids refusing BECAUSE of the mark. It does not turn junk into
-    // a document, and a refusal has to say which item and why (NT-1).
     const junk = [
       `${BYTE_ORDER_MARK}not a document at all`,
       `${BYTE_ORDER_MARK}<Project><Tasks><Task></Tasks></Project>`,
@@ -2705,15 +2325,13 @@ describe('EX-6 and EX-1 -- an Alias at and over the bound the official schema st
     expect(read.ok, 'a definition the schema admits is still an MSPDI document').toBe(true)
     if (!read.ok) return
     const task = instanceOf(read.document, 'Task')
-    // The alias is not the roster's, so EX-6's test fails and DF-2 applies.
     expect(task['fadeInDays']).toBeNull()
     expect(carriedNames(task)).toContain('ExtendedAttribute')
   })
 
   it('GIVEN an arrived Alias one character over the bound WHEN read THEN this unit does not refuse it', () => {
-    // ⚠️ The bound is the official schema's (mspdi_pj12.xsd:1055) and EX-1
-    // puts it on what GRS WRITES. The head of the unit says the content checks
-    // are CP-13's; this unit answers only "is this an MSPDI document at all".
+    // Why: the Alias bound is EX-1's rule for what GRS writes and content checks
+    // are CP-13's, so this unit does not refuse an over-long arrived Alias.
     const frame = rosterFrame('fadeInDays')
     const text = fadeFileText(
       [definitionXml(frame.fieldId, frame.name, ALIAS_OVER_BOUND)],
@@ -2740,9 +2358,8 @@ describe('EX-6 and EX-1 -- an Alias at and over the bound the official schema st
   })
 
   it('GIVEN a definition with NO Alias at all WHEN read THEN the frame is not claimed (an empty alias is no alias)', () => {
-    // ⛔ The trap the manuscript names: both roster aliases are the empty
-    // string. A definition that carries no `Alias` must NOT be read as
-    // matching it, or GRS would claim every untitled frame in the world.
+    // Why: an empty roster alias must not match a definition with no Alias, or
+    // GRS would claim every untitled frame.
     const frame = rosterFrame('fadeInDays')
     const text = fadeFileText(
       [definitionXml(frame.fieldId, frame.name, null)],
@@ -2764,13 +2381,11 @@ describe('EX-6 and EX-1 -- an Alias at and over the bound the official schema st
 })
 
 describe('AT-40 and AT-41 -- a Value that is not a whole number', () => {
-  /** Values a `Number` frame can hold that are not a count of whole days. */
   const NOT_WHOLE_DAYS = ['2.5', '-1', '', ' 3 ', '1e3', 'NaN', 'Infinity', '9007199254740993']
 
   it('GIVEN a Value that is not a whole number WHEN read THEN no fraction and no NaN reaches the column', () => {
-    // AT-40 / AT-41 make the column an integer count of days, nullable. FD-7
-    // of table T-012a refuses rather than rounds, and FR-023 leaves that
-    // refusal to CP-13 -- so what this unit may not do is invent a value.
+    // Why: FD-7 refuses rather than rounds, and FR-023 leaves that refusal to
+    // CP-13, so this unit is held only to inventing no value.
     const frame = rosterFrame('fadeInDays')
     for (const value of NOT_WHOLE_DAYS) {
       const read = answered(
@@ -2844,9 +2459,6 @@ describe('DF-2 -- an extension element the tool does not recognize', () => {
   })
 
   it('GIVEN an extension element carrying children the codec does not name WHEN written back THEN they ride along', () => {
-    // `Task/ExtendedAttribute` declares FieldID / Value / ValueGUID /
-    // DurationFormat and nothing else (mspdi_pj12.xsd:2254-2269). The last two
-    // are never interpreted, and DF-2 keeps them in their owner's carry.
     const extra =
       `<ExtendedAttribute><FieldID>${OUTSIDE_FIELD_ID}</FieldID><Value>42</Value>` +
       `<ValueGUID>7</ValueGUID><DurationFormat>7</DurationFormat></ExtendedAttribute>`
@@ -2886,70 +2498,24 @@ describe('DF-2 -- an extension element the tool does not recognize', () => {
   })
 })
 
-// ---------------------------------------------------------------------------
-// FR-054 -- an arrived amount of time that is not a whole number of working
-// days.
-//
-// Written from the specification alone (rule 04, section 1). The STATEMENT of
-// FR-054 (docs/spec/01-04-requirements.md) carries the whole rule, and
-// every number below is read out of it:
-//
-//   * the same minutes-per-day serves BOTH directions -- the file's
-//     `Project.minutesPerDay`, and S-128 of table T-209 only when the file
-//     states none (DV-11 of fig-erd-detail writes the element the same way);
-//   * an amount that is not a whole number of working days is rounded to whole
-//     days (MUST);
-//   * exactly half a day goes to the larger MAGNITUDE (MUST) -- the rule is
-//     written so the answer does not depend on the sign, so both signs are
-//     driven below;
-//   * a value MUST NOT be discarded for not dividing -- a discarded column
-//     writes no element at all, so the partner's own length would disappear on
-//     the round trip;
-//   * an amount carrying years or months is NOT converted, and the person is
-//     told (MUST) -- the reason table T-228's NR-5 gives on the comparing
-//     side: those two have no length until you say where you start counting;
-//   * the COUNT of rounded Tasks is told (MUST), in the shape of NT-1 of table
-//     T-037 (FR-076): the notice names the item and says why in words.
-//
-// What goes back out is table T-033's EX-9: `PTnHnMnS`, all three of hours,
-// minutes and seconds present, never a year and never a month.
-//
-// Chapter 1.9 asks a case that answers to a table to be driven by fixed data
-// copied from it. The divisor is never typed as a number here: it is read from
-// the document that states it, falling back to the generated S-128 constant.
-// ---------------------------------------------------------------------------
-
-/** S-128 of table T-209, as the settings manuscript generates it. */
+// Spec: FR-054, FR-076, NR-5, EX-9
 const S_128_MINUTES_PER_DAY: number = DEFAULT_CALENDAR_VALUES['S-128']
 
-/**
- * The minutes of one working day for a document: what the document itself
- * states, and S-128 only when it states nothing (FR-054 MUST, DV-11).
- */
 function minutesPerDayOf(document: Document): number {
   return document.schedule.project.minutesPerDay ?? S_128_MINUTES_PER_DAY
 }
 
-/** The divisor the fixture below states in its own head. */
 const PER_DAY = SAMPLE.minutesPerDay
 
-/**
- * One amount of time in the partner's own type (`xsd:duration`,
- * mspdi_pj12.xsd:1929). A negative amount takes the leading minus that type
- * allows, so the half-day rule can be driven from both sides of zero.
- */
+// Summary: The helper shall spell an amount of minutes as xsd:duration, with a leading minus when negative.
 function amountOfMinutes(minutes: number): string {
   const size = Math.abs(minutes)
   const sign = minutes < 0 ? '-' : ''
   return `${sign}PT${Math.floor(size / 60)}H${size % 60}M0S`
 }
 
-/**
- * A file of `durations.length` Tasks, the n-th carrying that amount of time as
- * its `ActualDuration` (or none at all when it is null). The calendar carries
- * no recurring exception day (AT-82's 9), so the only notices such a file can
- * draw are the ones these cases are about.
- */
+// Why: the calendar carries no recurring exception day, so the only notices
+// such a file can draw are the ones these cases are about.
 function durationFileText(
   durations: readonly (string | null)[],
   minutesPerDay: number | null = PER_DAY,
@@ -2996,11 +2562,7 @@ const LAST_DAY_FOR: Readonly<Record<number, string>> = {
   [-6]: '2026-03-24',
 }
 
-/**
- * The notices `text` draws that `baseline` does not. The baseline is the same
- * file with every amount already a whole number of working days, so what is
- * left over is what FR-054's new sentences owe the person.
- */
+// Summary: The helper shall return the notices `text` draws that `baseline` does not.
 function noticesBeyond(baseline: string, text: string): readonly MspdiNotice[] {
   const before = new Set(noticesOf(baseline).map((each) => `${each.at}|${each.what}`))
   return noticesOf(text).filter((each) => !before.has(`${each.at}|${each.what}`))
@@ -3008,7 +2570,6 @@ function noticesBeyond(baseline: string, text: string): readonly MspdiNotice[] {
 
 const WHOLE_FIVE_DAYS = amountOfMinutes(PER_DAY * 5)
 
-/** The one written `Task` of a `durationFileText` file. */
 function writtenFirstTask(document: Document): XmlNode {
   const root = written(document)
   const task = childrenNamed(nodeAt(root, 'Tasks') ?? ({} as XmlNode), 'Task')[0]
@@ -3021,8 +2582,8 @@ describe('FR-054 -- reading an amount of time that does not divide into working 
     const document = accepted(durationFileText([WHOLE_FIVE_DAYS]))
     expect(document.schedule.project.minutesPerDay).toBe(PER_DAY)
     expect(minutesPerDayOf(document)).toBe(PER_DAY)
-    // The cases below spell quarter days and half days, which asks for a
-    // working day that divides by four into whole minutes.
+    // Why: the cases spell quarter and half days, which needs a working day that
+    // divides by four into whole minutes.
     expect(PER_DAY % 4).toBe(0)
   })
 
@@ -3049,9 +2610,6 @@ describe('FR-054 -- reading an amount of time that does not divide into working 
   })
 
   it('GIVEN exactly minus five and a half working days WHEN read THEN it goes to minus six -- the same larger magnitude (FR-054 MUST)', () => {
-    // FR-054 spells the half-day rule as the larger MAGNITUDE precisely so the
-    // answer does not depend on the sign, and `xsd:duration` admits a leading
-    // minus, so this side of zero is driven too.
     const text = durationFileText([amountOfMinutes(-(PER_DAY * 5 + PER_DAY / 2))])
     expect(lastDayOf(accepted(text), 1)).toBe(LAST_DAY_FOR[-6])
   })
@@ -3067,8 +2625,6 @@ describe('FR-054 -- reading an amount of time that does not divide into working 
   })
 
   it('GIVEN an amount that does not divide WHEN written back THEN the length is still there (FR-054 MUST NOT, FR-021)', () => {
-    // The failure this MUST NOT names: a discarded column writes no element,
-    // so the partner's own length vanishes on the round trip.
     const text = durationFileText([amountOfMinutes(PER_DAY * 5 + PER_DAY / 4)])
     expect(textAt(writtenFirstTask(accepted(text)), 'ActualDuration')).not.toBeNull()
   })
@@ -3182,7 +2738,6 @@ describe('FR-054 -- an actual duration this unit cannot read as an amount of tim
   it('GIVEN a text that is not an amount of time WHEN read THEN a value comes back, never a throw (FR-028)', () => {
     const read = answered(durationFileText(['five days or so']))
     if (read.ok) {
-      // Nothing invented: the column takes no number it could not read.
       expect(lastDayOf(read.document, 1)).toBeNull()
     } else {
       expect(read.faults.length).toBeGreaterThan(0)

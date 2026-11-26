@@ -1,34 +1,4 @@
-// Unit tests for the invariant printed under table T-050 of
-// docs/spec/01-04-requirements.md (利用者の指示 2026-09-01, ledger row DFC-175):
-//
-//   「文書は、`TaskGroup` を必ず 1 つ以上持つこと（MUST）」
-//   「ある操作の結果としてタスクグループが 0 になるときは、その操作の一部として、深さ `L1`
-//     のタスクグループを 1 つ作ること（MUST）。名前は `FR-038` の辞書の `defaultNames` の
-//     `taskGroup` の語とすること（MUST）」
-//   「2 つ目の語を作ってはならない（MUST NOT）」
-//   「取り消しの単位を分けてはならない（MUST NOT）…取り消し 1 回で消したタスクグループが
-//     戻ること（MUST）」
-//   「本規則は削除だけのものではない…経路ごとに書き写してはならない（MUST NOT）」
-//   「最後の 1 つのタスクグループの削除を拒んではならない（MUST NOT）」
-//   「`FR-032` が問う件数に、作られる 1 つのタスクグループを足してはならない（MUST NOT）」
-//
-// Chapter 9 does not admit Unit as a TEST_LEVEL, so these cases have no node in
-// the specification; table T-218 of Chapter 7 gives them their place (TS-6,
-// tests/unit/).
-//
-// ⭐ DRIVEN BY THE MANUSCRIPT, not by a copy of it. The paragraph itself is read
-// out of docs/spec at load time and every premise the cases rest on is asserted
-// against it first, so a manuscript that moves reaches this file rather than
-// sliding past it. The word is taken from the ONE destination Chapter 6.2 gives
-// the display words -- never spelled here, which is what the MUST NOT about a
-// second word is for.
-//
-// ⚠️ WHAT IS DELIBERATELY NOT ASSERTED HERE: the count FR-032 puts in front of
-// a person. That question is settled before a write reaches WS-3 of table
-// T-067 (`confirmationOwedBy`, table T-234's QN-1), so no value on this side
-// can carry it. What IS asserted is the property that makes the MUST NOT
-// holdable: the task group this invariant makes carries no `Task` and no member, so
-// there is nothing about it for a count of what disappears to pick up.
+// Unit tests: a document always holds at least one task group.
 
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -63,16 +33,11 @@ import type {
 import { undoEdit } from '../../src/use-case/undo-edit/undo-edit'
 import displayWords from '../../src/adapter/screen-renderer/display-words.json'
 
-// ---------------------------------------------------------------------------
-// 1. The manuscript, read rather than copied.
-// ---------------------------------------------------------------------------
-
 const REQUIREMENTS = unbroken(readFileSync(
   join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'),
   'utf8',
 ))
 
-/** The one paragraph of docs/spec this whole file is about. */
 const INVARIANT = (() => {
   const found = paragraphsOf(REQUIREMENTS).find((one) =>
     one.includes('文書は、`TaskGroup` を必ず 1 つ以上持つこと'),
@@ -83,7 +48,7 @@ const INVARIANT = (() => {
   return found
 })()
 
-/** The word the task group takes, from the ONE destination Chapter 6.2 names. */
+// Spec: T-050, FR-038
 const DICTIONARY_ROW_WORD = (() => {
   const found = displayWords.defaultNames.find((one) => one.use === 'taskGroup')
   if (found === undefined) throw new Error('the dictionary has no defaultNames entry for `taskGroup`')
@@ -93,32 +58,21 @@ const DICTIONARY_ROW_WORD = (() => {
 describe('table T-050 -- the manuscript the cases below rest on', () => {
   it('still asks for one task group, at L1, named from the dictionary', () => {
     expect(INVARIANT).toContain('（MUST）')
-    // 「深さ `L1` のタスクグループを 1 つ作ること」
     expect(INVARIANT).toContain('`L1`')
-    // 「名前は `FR-038` の辞書の `defaultNames` の `taskGroup` の語とすること」
     expect(INVARIANT).toContain('`defaultNames`')
     expect(INVARIANT).toContain('`FR-038`')
-    // 「2 つ目の語を作ってはならない（MUST NOT）」
     expect(INVARIANT).toContain('2 つ目の語を作ってはならない')
-    // 「最後の 1 つのタスクグループの削除を拒んではならない（MUST NOT）」
     expect(INVARIANT).toContain('最後の 1 つのタスクグループの削除を拒んではならない')
-    // 「経路ごとに書き写してはならない（MUST NOT）」
     expect(INVARIANT).toContain('経路ごとに書き写してはならない')
   })
 
   it('has exactly one word for a task group in the dictionary, spelled alike in both', () => {
-    // ⛔ The MUST NOT about a second word is machine-visible here: the roster
-    // the generator builds holds ONE entry whose `use` is `taskGroup`.
     expect(displayWords.defaultNames.filter((one) => one.use === 'taskGroup')).toHaveLength(1)
-    // ⚠️ 「日本語で表示していても綴りは変えない」(利用者の裁定 2026-09-01).
+    // Why: the owner ruled that the word keeps one spelling even on a Japanese
+    // screen, so ja and en must match.
     expect(DICTIONARY_ROW_WORD.text.ja).toBe(DICTIONARY_ROW_WORD.text.en)
   })
 })
-
-// ---------------------------------------------------------------------------
-// 2. Fixtures. Every nullable column of table T-058 is spelled `null`, because
-//    a column left `undefined` reads as "held" to anything that asks.
-// ---------------------------------------------------------------------------
 
 const DEFAULT_SETTINGS: Record<string, unknown> = (() => {
   const out: Record<string, unknown> = {}
@@ -136,6 +90,8 @@ const DEFAULT_SETTINGS: Record<string, unknown> = (() => {
   return out
 })()
 
+// Why: every nullable column of T-058 is spelled null, because a column left
+// undefined reads as held to anything that asks.
 const groupOf = (part: Partial<TaskGroup> & { readonly id: string }): TaskGroup => ({
   parentId: null,
   name: null,
@@ -207,10 +163,8 @@ const documentOf = (schedule: Partial<Schedule>, settings: Record<string, unknow
     changeLog: [],
   }) as unknown as Document
 
-/** ⛔ The state the invariant forbids: a document with no task group at all. */
 const EMPTY_OF_TASK_GROUPS = documentOf({})
 
-/** One task group, one task on it -- the last task group a person can delete. */
 const ONE_TASK_GROUP = documentOf({
   taskGroups: [groupOf({ id: 'g1', name: 'the only row' })],
   tasks: [taskOf(1, 'on the only row')],
@@ -248,32 +202,24 @@ const settled = (plan: ReplacementPlan): Extract<ReplacementPlan, { ok: true }> 
   return plan
 }
 
-/** What the invariant asks of any document a road settles on. */
+// Spec: T-050, FR-004, FR-038, AT-54, FR-058
 const holdsTheRequiredTaskGroup = (document: Document): TaskGroup => {
   const taskGroups = document.schedule.taskGroups
-  // 「タスクグループを 1 つ作ること」 -- one, not two (MUST NOT: 2 つ目の語を作ってはならない).
   expect(taskGroups).toHaveLength(1)
   const taskGroup = taskGroups[0]!
-  // 「深さ `L1`」 -- and the depth is DERIVED: FR-004 takes it from the parent,
-  // so a task group with no parent cannot stand anywhere else.
+  // Why: L1 is asserted as a null parent, because FR-004 derives the depth from
+  // the parent.
   expect(taskGroup.parentId).toBeNull()
-  // 「名前は `FR-038` の辞書の `defaultNames` の `task group` の語とすること」.
   expect(taskGroup.name).toBe(DICTIONARY_ROW_WORD.text.en)
   expect(taskGroup.name).toBe(DICTIONARY_ROW_WORD.text.ja)
-  // AT-54 / FR-058: a task group holds a name OR a derivation source, never neither.
   expect(taskGroup.derivedFromTaskUid).toBeNull()
   expect(Number.isInteger(taskGroup.order)).toBe(true)
   return taskGroup
 }
 
-// ---------------------------------------------------------------------------
-// 3. The road a delete takes (FR-032).
-// ---------------------------------------------------------------------------
-
+// Spec: T-050, FR-032, CD-2, WS-4
 describe('table T-050 -- deleting the last task group', () => {
   it('is not refused', () => {
-    // 「最後の 1 つのタスクグループの削除を拒んではならない（MUST NOT）」 -- 拒むと、そのタスクグループに載る
-    // `Task` ごと消す道が無くなる.
     const plan = planOf(ONE_TASK_GROUP, [{ kind: 'deleteTaskGroup', taskGroupId: 'g1', newTaskGroupId: 'fresh-task-group' }])
     expect(plan.ok).toBe(true)
   })
@@ -281,16 +227,14 @@ describe('table T-050 -- deleting the last task group', () => {
   it('leaves the document holding one task group at L1, named from the dictionary', () => {
     const plan = accepted(planOf(ONE_TASK_GROUP, [{ kind: 'deleteTaskGroup', taskGroupId: 'g1', newTaskGroupId: 'fresh-task-group' }]))
     const taskGroup = holdsTheRequiredTaskGroup(plan.document)
-    // ⛔ NOT THE TASK GROUP THAT WAS DELETED. The one the invariant made is a new task group,
-    // and everything CD-2 takes with the old one is gone.
     expect(taskGroup.id).not.toBe('g1')
     expect(plan.document.schedule.tasks).toHaveLength(0)
     expect(plan.document.schedule.taskGroupMembers).toHaveLength(0)
   })
 
+  // Why: the FR-032 count is settled before a write reaches WS-3 (QN-1), so no value here
+  // carries it; this case asserts only that the made task group holds nothing to count.
   it('carries no Task, so the count FR-032 asks about has nothing to pick up', () => {
-    // 「`FR-032` が問う件数に、作られる 1 つのタスクグループを足してはならない（MUST NOT）」 --
-    // the question is about what disappears, and this task group is not one of them.
     const plan = accepted(planOf(ONE_TASK_GROUP, [{ kind: 'deleteTaskGroup', taskGroupId: 'g1', newTaskGroupId: 'fresh-task-group' }]))
     const taskGroup = holdsTheRequiredTaskGroup(plan.document)
     expect(
@@ -304,10 +248,7 @@ describe('table T-050 -- deleting the last task group', () => {
   })
 
   it('gives the deleted task group back on ONE press of undo', () => {
-    // 「取り消しの単位を分けてはならない（MUST NOT）。消したことと作ったことは
-    // 1 つの操作であり、取り消し 1 回で消したタスクグループが戻ること（MUST）」
     const plan = accepted(planOf(ONE_TASK_GROUP, [{ kind: 'deleteTaskGroup', taskGroupId: 'g1', newTaskGroupId: 'fresh-task-group' }]))
-    // WS-4 pushed exactly ONE step for the whole operation.
     expect(plan.history.done).toHaveLength(1)
 
     const held: HeldDocument = { document: plan.document, history: plan.history }
@@ -316,24 +257,20 @@ describe('table T-050 -- deleting the last task group', () => {
     const back = undone.next.document.schedule
     expect(back.taskGroups.map((one) => one.id)).toEqual(['g1'])
     expect(back.tasks.map((one) => one.uid)).toEqual([1])
-    // And the step it walked over is the only one there was, so a SECOND press
-    // has nothing left to give back -- the two are not two units.
+    // Why: a second undo must find nothing, so the delete and the create are one
+    // unit and not two.
     expect(undoEdit(undone.next).undone).toBe(false)
   })
 
   it('leaves a document that already holds a task group exactly as it was', () => {
-    // ⚠️ The invariant is not a rebuild. WS-6 replaces ONE reference (MUST),
-    // and a write that changed nothing about the task groups must not mint a new
-    // schedule just by passing this rule.
+    // Why: the invariant is not a rebuild; a write that touched no task group
+    // keeps the task groups as they were (WS-6).
     const plan = accepted(planOf(ONE_TASK_GROUP, [{ kind: 'setProjectTitle', title: 'B' }]))
     expect(plan.document.schedule.taskGroups).toEqual(ONE_TASK_GROUP.schedule.taskGroups)
   })
 })
 
-// ---------------------------------------------------------------------------
-// 4. The other roads (「本規則は削除だけのものではない」).
-// ---------------------------------------------------------------------------
-
+// Spec: T-050, RD-6, RD-1, RD-2
 describe('table T-050 -- the roads that are not a delete', () => {
   it('RD-6: a document brought at startup with no task group gets one', () => {
     const plan = settled(
@@ -350,9 +287,8 @@ describe('table T-050 -- the roads that are not a delete', () => {
   })
 
   it('RD-6: a document that already holds task groups comes back as the same reference', () => {
-    // ⛔ WS-6 replaces ONE reference (MUST), and RD-1 hands the very pair it was
-    // given straight back when nothing moved. A rule that rebuilt every
-    // document on the way past would take that away from both.
+    // Why: WS-6 replaces one reference and RD-1 hands the given pair back when
+    // nothing moved; a rule that rebuilt every document would break both.
     const plan = settled(
       planDocumentReplacement({
         defaultTaskGroupName: DICTIONARY_ROW_WORD.text.en,
@@ -367,9 +303,8 @@ describe('table T-050 -- the roads that are not a delete', () => {
   })
 
   it('RD-1: an undo that lands on a document with no task group still gets one', () => {
-    // ⚠️ A document with no task group cannot be pushed onto the history once the
-    // invariant holds -- this case builds one by hand precisely because the
-    // rule may not depend on that. 「本規則は削除だけのものではない」.
+    // Why: such a document cannot reach the history once the invariant holds, so
+    // it is built by hand: the rule must not depend on that.
     const history: EditHistory<ChangeStep> = {
       done: [{ step: { document: EMPTY_OF_TASK_GROUPS, commands: ['setProjectTitle'] }, sizeBytes: 1 }],
       undone: [],

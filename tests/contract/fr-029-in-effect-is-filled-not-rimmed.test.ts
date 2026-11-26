@@ -1,75 +1,4 @@
-// FR-029 (MUST / MUST NOT): an entrance that is IN EFFECT is said by FILLING
-// the box its glyph is drawn in and knocking the glyph out in the ground
-// color -- never by a rim.
-//
-// Unit under test: UF-71 of table T-075 (`dom-screen-surface.ts`, component
-// CP-38 of table T-062). It is the unit that turns a `ScreenView` into the
-// tree, so it is the one that paints.
-//
-// ⚠️ Chapter 9 does not admit Unit as a TEST_LEVEL, so these cases have no node
-// in the specification. Table T-218 of Chapter 7 gives them their place: TS-6,
-// tests/unit/.
-//
-// ---------------------------------------------------------------------------
-// The sentences these cases hold
-// ---------------------------------------------------------------------------
-//
-//   FR-029 (Chapter 3, 「用途をアイコンと形で伝える」), third paragraph:
-//
-//     DFC-71 「その入口がいま効いていることを示すときは、その入口の枠の内側を塗りつぶし、図形
-//      そのものを `_assets/tbl-settings.md` の 表 T-236 の `S-146`（地の色）で抜く
-//      こと（MUST）。縁の色や太さで示してはならない（MUST NOT）」
-//      （利用者の裁定 2026-08-30。逐語「アイコン自体を緑で塗れ。例: イナズマ線が
-//      有効ならイナズマ線アイコンを緑で塗れ」）
-//
-//     ⛔ 「白と直に書いてはならない（MUST NOT）」「`GRS` は図形そのものを `_assets/tbl-settings.md` の 表 T-236 の `S-146`（地の色）で抜くこと」 —— 「暗いテーマの塗りは明るい
-//      色なので、白のままでは図形が浮かない。」⭐ 「地の色を指せば、両テーマで自動的に隔たりが
-//      立つ。」
-//
-//     ⛔ 「`GRS` は、何が効いているときに何の色で塗るかを 表 T-237 に従わせること」
-//
-//     ⛔ 「`GRS` は、`IMPS-1118` の塗りを、薄く描く入口（`IMPS-1108`）に当てないこと」 —— 「効いていて、かつ
-//      いま何も変えられない入口が濃くなると、薄さの意味が消える」
-//
-//   FR-029, 表 T-237 「入口を塗って示す状態」, and the sentence under it:
-//
-//     ⛔ 「1 つの入口に 表 T-237 の行が 2 つ同時に当たるとき、`GRS` は 表 T-237 で上に並ぶ行を勝たせること」
-//
-//   FR-053 (Chapter 3): 「`GRS` は、構えている入口の見分けさせ方を、`FR-029` の
-//     表 T-237 の `EN-1` に従わせること。」 —— this is where `EN-1` (armed) reaches the screen.
-//   FR-072 (Chapter 3): 「`GRS` は、押下状態の見せ方を `FR-029` の 表 T-237 の `EN-4`
-//     に従わせること。」 —— this is where `EN-4` (the properties panel) does.
-//   表 T-236 の `S-146` 「地の色」: `#ffffff` (light) / `hsl(H 12% 9%)` (dark).
-//   表 T-236 の `S-183` 「構えている入口の塗りの色」 —— ⛔ 「縁ではなく塗りである」.
-//   表 T-236 の `S-149` 「罫の色」 —— what FR-029 gives an entrance that is spent.
-//   表 T-109: `IC-61` (`Command Palette`, arms `AR-4`), `IC-39` (`Command
-//     Palette`, イナズマ線を出す・しまう -- the very example the ruling names),
-//     `IC-17` (`App Header`, プロパティパネルに出す -- `FR-072`).
-//
-// ---------------------------------------------------------------------------
-// ⛔ WHAT WAS READ, AND WHAT WAS NOT (docs/development-rules/04-verification.md,
-// section 1)
-// ---------------------------------------------------------------------------
-//
-// docs/spec/ for every sentence above, and of `src/` nothing but the exported
-// declarations these cases must call or name -- `domScreenSurface`, the
-// `ScreenSurfaceWiring` / `ScreenTheme` types, and the `ScreenView` family of
-// types. ⛔ No function body of UF-71 was read, and no existing test's
-// expectations were read. Every color below is read out of the manuscript at
-// run time rather than typed here.
-//
-// ⚠️ WHAT THE SPECIFICATION DOES NOT SETTLE, AND HOW THESE CASES COPE. No row
-// says which member of `ScreenView` carries which row of 表 T-237. `CommandItem`
-// has exactly two booleans that can say 「いま効いている」 -- `isArmed` and
-// `isPressed` -- and 表 T-237 has three palette-reachable rows (`EN-1`, `EN-2`,
-// `EN-4`). So `EN-1` is driven through `isArmed` (FR-053 owns it and 「構え」 is
-// its word) and `EN-2` / `EN-4` through `isPressed` (FR-072 says 「押下状態」 in
-// as many words). ⭐ THIS COSTS THE CASES NOTHING: 表 T-237 gives all three the
-// same color, so no case here has to tell `EN-2` from `EN-4`.
-// ⚠️ `EN-5` JOINED THEM WITH DEFECT DFC-149 (利用者の裁定 2026-08-31) and is the
-// same picture again -- `isPressed`, `S-183`. It reaches no PALETTE entrance,
-// so the count above is unchanged: the entrance it stands on (`IC-7` by the
-// row's own words) is an `App Header` row of 表 T-109.
+// Contract tests: an entrance in effect is filled and knocked out, never rimmed.
 
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -98,14 +27,9 @@ import {
   type FakeElement,
   type Stage,
 } from '../fixtures/fake-browser'
-// ⭐ Borrowed from the contract kind on purpose: it is the one reader that takes
-// its copy from the .md at read time, so a row that moves in the specification
+// Why: borrowed from the contract kind because it reads the .md at run time, so a moved row
 // moves here too instead of going stale.
 import { bare, specTable, unbroken } from './spec-table'
-
-// ---------------------------------------------------------------------------
-// The manuscripts, read at run time rather than copied here (Chapter 1.9).
-// ---------------------------------------------------------------------------
 
 const rowOf = (table: string, id: string) => {
   const found = specTable(table).rows.find((one) => one.id === id)
@@ -113,19 +37,13 @@ const rowOf = (table: string, id: string) => {
   return found
 }
 
-/**
- * Chapter 1-4 as one string.
- *
- * ⚠️ THE WHOLE FILE AND NOT THE ONE REQUIREMENT: nothing here parses it into
- * requirements, so a premise below asks that a sentence is still IN it rather
- * than which UID holds it.
- */
+// Why: the whole chapter and not one requirement: a premise asks that a sentence is still in it,
+// not which UID holds it.
 const CHAPTER_1_4 = unbroken(readFileSync(
   join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'),
   'utf8',
 ))
 
-/** 表 T-237's own columns. */
 const STATE_COLUMN = '何が効いているか'
 const FILL_COLUMN = '塗りの色'
 const OWNER_COLUMN = '定める要求'
@@ -135,18 +53,8 @@ interface PaintRow {
   readonly by: Readonly<Record<string, string>>
 }
 
-/**
- * 表 T-237, through `tests/contract/spec-table.ts` -- the reader Chapter 1.9
- * (:275) asks a test about a table to be driven by.
- *
- * ⭐ THIS FILE USED TO PARSE THE TABLE BY HAND, AND SAID WHY: 表 T-237 wrote its
- * row ids inside code spans (`` `EN-1` ``) while Chapter 1.9 (:274) makes the
- * first column a bare row ID, so `specTable('T-237')` matched no row and threw
- * 「no rows with a row ID」. ⚠️ The backticks have since come off all five ids,
- * so the ordinary reader works and the private parser is gone. The column names
- * are still checked below, because `specTable` does not check them and a table
- * that renamed a column would otherwise hand every case an empty string.
- */
+// Why: the column names are checked because specTable does not check them, and a renamed column
+// would hand every case an empty string.
 const T_237_ROWS: readonly PaintRow[] = ((): readonly PaintRow[] => {
   const table = specTable('T-237')
   for (const column of [STATE_COLUMN, FILL_COLUMN, OWNER_COLUMN]) {
@@ -159,20 +67,16 @@ const T_237_ROWS: readonly PaintRow[] = ((): readonly PaintRow[] => {
     .map((row) => ({ id: row.id, by: row.by }))
 })()
 
-/** One row of 表 T-237. */
 function t237(enRow: string): PaintRow {
   const found = T_237_ROWS.find((one) => one.id === enRow)
   if (found === undefined) throw new Error(`表 T-237 has no row ${enRow}`)
   return found
 }
 
-/** The row of 表 T-236 one row of 表 T-237 names for its fill. */
 const fillRowOf = (enRow: string): string => bare(t237(enRow).by[FILL_COLUMN] ?? '')
 
-/** The two renderings 表 T-236 states a color for. Both are asked, every time. */
 const THEMES: readonly ScreenTheme['preference'][] = ['light', 'dark']
 
-/** S-73's default, read rather than typed (rule 03 section 1). */
 const THEME_HUE = Number(bare(rowOf('T-216', 'S-73').by['既定'] ?? ''))
 
 const themeOf = (preference: ScreenTheme['preference']): ScreenTheme => ({
@@ -180,12 +84,7 @@ const themeOf = (preference: ScreenTheme['preference']): ScreenTheme => ({
   hue: THEME_HUE,
 })
 
-/**
- * One row of 表 T-236 as a rendering paints it.
- *
- * ⛔ NO COLOR IS TYPED HERE (rule 03 section 1). A row that follows the hue
- * writes it as the letter `H`, which `S-73` fills in.
- */
+// Summary: the helper returns one T-236 row as a rendering paints it, with the hue letter H filled in from S-73.
 function t236(specTableRowId: string, preference: ScreenTheme['preference']): string {
   const row = rowOf('T-236', specTableRowId)
   const cell = bare(row.by[preference === 'dark' ? '暗いテーマ' : '明るいテーマ'] ?? '')
@@ -195,23 +94,13 @@ function t236(specTableRowId: string, preference: ScreenTheme['preference']): st
   return cell.replace('H', String(THEME_HUE)).replace(/\s+/g, '').toLowerCase()
 }
 
-/** The rows of 表 T-109 these cases stand an entrance on. */
 const IC_ARMS_A_DEPENDENCY = 'IC-61'
 const IC_LIGHTNING_LINE = 'IC-39'
 const IC_PROPERTIES_PANEL = 'IC-17'
 
-/**
- * Every spelling of white a browser accepts, for the MUST NOT that names it.
- *
- * ⚠️ Compared against a value that has already been lowercased and had its
- * spaces removed by `resolved`, which is why `rgb(255,255,255)` is written
- * without them.
- */
+// Why: compared against a value `resolved` has lowercased and stripped of spaces,
+// so rgb(255,255,255) is written without them.
 const WHITE = new Set(['#fff', '#ffffff', 'white', 'rgb(255,255,255)', 'hsl(0,0%,100%)'])
-
-// ---------------------------------------------------------------------------
-// Descriptions to draw. Every one is a value of `ScreenView` and nothing else.
-// ---------------------------------------------------------------------------
 
 const command = (patch: Partial<CommandItem> & { icon: string }): CommandItem => ({
   isEnabled: true,
@@ -259,37 +148,23 @@ const paletteWith = (commands: readonly CommandItem[]): CommandPalette =>
     armedText: 'ArmedWordHere',
   }) as CommandPalette
 
-/** A screen holding one palette entrance, in whatever state a case gives it. */
 const paletteShowing = (entry: CommandItem): ScreenView =>
   viewWith({ commandPalette: paletteWith([entry]) })
 
-/** A screen holding one App Header entrance -- `FR-072`'s own surface. */
 const headerShowing = (entry: CommandItem): ScreenView =>
   viewWith({ appHeaderItems: { ...EMPTY_HEADER, commands: [entry] } })
 
-/** The App Header measures to something, so BO-1's dimension is settled. */
+// Why: the App Header must measure to something, or the dimension of BO-1 stays unsettled.
 const HEADER_HEIGHT = { 'App Header': 37 }
 
-/** Draw one description in one rendering and hand back the stage. */
 function drawn(view: ScreenView, preference: ScreenTheme['preference']): Stage {
   const built = wire(themeOf(preference), HEADER_HEIGHT)
   surfaceOf(built).showScreenView(view)
   return built
 }
 
-// ---------------------------------------------------------------------------
-// Reading the paint back
-// ---------------------------------------------------------------------------
-
-/**
- * Every color laid as a GROUND anywhere in this entrance.
- *
- * ⭐ THE WHOLE ENTRANCE AND NOT ONE NODE, because FR-029 says DFC-71 「図形を描く箱を
- * 塗りつぶし」 and no row of the specification says whether that box is the
- * entrance element itself, a node inside it, or the `svg`'s own backing shape.
- * Asking the subtree is what keeps the case about the RULE rather than about a
- * spelling nobody chose.
- */
+// Why: the whole entrance and not one node: no row says whether the filled box is the entrance,
+// a node inside it or the svg's backing shape.
 const groundsIn = (built: Stage, entry: FakeElement): Set<string> =>
   new Set(
     selfAndDescendants(entry)
@@ -297,13 +172,8 @@ const groundsIn = (built: Stage, entry: FakeElement): Set<string> =>
       .filter((one) => one !== ''),
   )
 
-/**
- * Every color the GLYPH could be drawn in.
- *
- * ⚠️ 図 F-019's shapes take `currentColor` (表 T-109 §8), so the entrance's own
- * `color` is one of them; a shape that states its own `fill` / `stroke` is
- * another. Both are read, for the same reason `groundsIn` reads the subtree.
- */
+// Why: the shapes take currentColor, so the entrance's own color is one ink and a shape's own
+// fill or stroke is another; both are read.
 function glyphInks(built: Stage, entry: FakeElement): Set<string> {
   const found = new Set<string>()
   for (const one of selfAndDescendants(entry)) {
@@ -320,15 +190,8 @@ function glyphInks(built: Stage, entry: FakeElement): Set<string> {
   return found
 }
 
-/**
- * Every rim declaration in this entrance, node by node, resolved.
- *
- * ⛔ THIS IS THE MUST NOT, MADE MEASURABLE. FR-029 forbids the state from being
- * said 「縁の色や太さで」, so what the cases compare is the rim of an entrance
- * that IS in effect against the rim of the same entrance that is NOT. A rim
- * that comes back -- as `border-color`, as `border-width`, or folded into the
- * `border` shorthand -- makes the two differ, and the case fails.
- */
+// Why: the MUST NOT made measurable: the rim of an entrance in effect is compared with the rim of
+// the same entrance not in effect, in border-color, border-width or the border shorthand.
 const rimOf = (built: Stage, entry: FakeElement): string =>
   selfAndDescendants(entry)
     .map((one) => {
@@ -342,32 +205,20 @@ const rimOf = (built: Stage, entry: FakeElement): string =>
     })
     .join(' | ')
 
-/** The one node carrying a row of 表 T-109, with the whole tree in the failure. */
 function entranceIn(built: Stage, icon: string): FakeElement {
   return iconEntry(built.root(), icon)
 }
 
-// ===========================================================================
-// The premises every case below stands on
-// ===========================================================================
-
+// Spec: FR-029, EN-1, EN-2, EN-3, EN-4, EN-5, S-146, S-183, S-185
 describe('the manuscripts still say what these cases read', () => {
   it('⭐ was really driven by the manuscripts, and not by a hollow read of them', () => {
-    // ⛔ WITHOUT THIS, A PARSE THAT PICKED UP THE WRONG COLUMN WOULD MAKE EVERY
-    // CASE BELOW AGREE WITH ANYTHING -- rule 04 section 2: a mechanism is not
-    // verified until it has been broken on purpose and seen to fail.
-    // ⚠️ `EN-5` ARRIVED WITH DEFECT DFC-149 (利用者の裁定 2026-08-31): 「その入口が
-    // 表示・非表示を切り替えるものを、いま表示している（表 T-206）」, in `S-183`. It
-    // reaches the screen through `isPressed`, the same member `EN-2` and `EN-4`
-    // use, so the cases below cover its picture without knowing it by name;
-    // which entrances stand in it is the unit tests' to say.
+    // Why: without this, a parse that picked up the wrong column makes every case below agree with anything.
     expect(T_237_ROWS.map((row) => row.id)).toEqual(['EN-8', 'EN-1', 'EN-2', 'EN-3', 'EN-4', 'EN-5', 'EN-6', 'EN-7'])
     for (const preference of THEMES) {
       expect(t236('S-146', preference).length).toBeGreaterThan(0)
       expect(t236('S-183', preference).length).toBeGreaterThan(0)
       expect(t236('S-151', preference).length).toBeGreaterThan(0)
-      // ⛔ A fill and a knockout that painted alike would make every case below
-      // pass on either color.
+      // Why: a fill and a knockout that painted alike would make every case below pass on either color.
       expect(t236('S-183', preference), '表 T-236: the fill and the ground differ').not.toBe(
         t236('S-146', preference),
       )
@@ -387,53 +238,36 @@ describe('the manuscripts still say what these cases read', () => {
   })
 
   it('⭐ 表 T-237 still hands each row to the requirement these cases drive it through', () => {
-    // The 定める要求 column, which is what says WHERE each row reaches the screen.
     expect(t237('EN-1').by[OWNER_COLUMN]).toContain('FR-053')
     expect(t237('EN-3').by[OWNER_COLUMN]).toContain('HF-6')
     expect(t237('EN-4').by[OWNER_COLUMN]).toContain('FR-072')
   })
 
   it('⛔ FR-029 still states the fill, the knockout and the two MUST NOTs', () => {
-    // ⚠️ WORDED DFC-71 「図形を描く箱を塗りつぶし」 UNTIL THIS FILE WAS FIRST WRITTEN.
-    // The spec-only body reading it found that 表 T-206 defines 図形を描く箱
-    // as S-138 (16px), so read literally only the 16 x 16 shape box was filled
-    // and a 4px ring inside the 26 x 24 frame was left unpainted. The
-    // manuscript now says the frame's inside, which is the picture CR-311
-    // measured.
     expect(CHAPTER_1_4).toContain('入口がいま効いていることを示すとき、`GRS` は入口の枠の内側を塗りつぶすこと')
     expect(CHAPTER_1_4).toContain('`GRS` は、入口がいま効いていることを、縁の色や太さで示さないこと')
-    // ⚠️ 「抜き色に白を使ってはならない」 CONTRADICTED ITS OWN MUST: S-146 IS
-    // `#ffffff` in the light rendering, so an absolute prohibition on white
-    // forbade the very row the same sentence requires. The manuscript now
-    // forbids WRITING white instead of naming the row.
     expect(CHAPTER_1_4).toContain('`GRS` は、抜き色を白と直に書かないこと')
     expect(CHAPTER_1_4).toContain('入口がいま効いていることを示すとき、`GRS` は図形そのものを `_assets/tbl-settings.md` の 表 T-236 の `S-146`（地の色）で抜くこと')
     expect(CHAPTER_1_4).toContain('1 つの入口に 表 T-237 の行が 2 つ同時に当たるとき、`GRS` は 表 T-237 で上に並ぶ行を勝たせること')
   })
 
   it('⛔ 表 T-236 no longer carries `S-185`, the thickness CR-311 retired', () => {
-    // ⭐ 「番号は席番号なので `S-185` は欠番のまま残す」. A row that came back
-    // would mean the rim came back with it.
+    // Why: the retired row number stays empty, and a row that came back would mean the rim came back too.
     expect(specTable('T-236').rows.map((row) => row.id)).not.toContain('S-185')
   })
 
   it('⛔ the dark rendering of `S-146` is not white, which is why the MUST NOT bites', () => {
-    // 「暗いテーマの塗りは明るい色なので、白のままでは図形が浮かない。」 In the light
-    // rendering `S-146` IS white, so the sentence only has force in the dark
-    // one -- and it is there that the case below asks it.
+    // Why: in the light rendering S-146 is white, so the sentence only has force in the dark one.
     expect(WHITE.has(t236('S-146', 'dark'))).toBe(false)
   })
 })
 
-// ===========================================================================
-// EN-1 -- 「その入口を構えている」, reached through FR-053
-// ===========================================================================
-
+// Spec: FR-029, EN-1, FR-053, AR-4, S-183, S-146
+// Why: no row says which ScreenView member carries which T-237 row, so EN-1 goes through isArmed
+// (FR-053's word) and EN-2, EN-4 through isPressed (FR-072's); T-237 gives all three one color.
 describe('FR-029 (MUST) -- an entrance that is in effect is FILLED, in both renderings', () => {
   for (const preference of THEMES) {
     it(`fills the glyph's box with 表 T-237 EN-1's color (${preference})`, () => {
-      // DFC-71 「その入口がいま効いていることを示すときは、図形を描く箱を塗りつぶし」,
-      // and 表 T-237's EN-1 row says which color: `S-183`.
       const built = drawn(paletteShowing(command({ icon: IC_ARMS_A_DEPENDENCY, isArmed: true })), preference)
       const entry = entranceIn(built, IC_ARMS_A_DEPENDENCY)
 
@@ -444,7 +278,6 @@ describe('FR-029 (MUST) -- an entrance that is in effect is FILLED, in both rend
     })
 
     it(`knocks the glyph out in S-146, the ground color (${preference})`, () => {
-      // 「図形そのものを 表 T-236 の `S-146`（地の色）で抜くこと（MUST）」.
       const built = drawn(paletteShowing(command({ icon: IC_ARMS_A_DEPENDENCY, isArmed: true })), preference)
       const entry = entranceIn(built, IC_ARMS_A_DEPENDENCY)
 
@@ -455,9 +288,7 @@ describe('FR-029 (MUST) -- an entrance that is in effect is FILLED, in both rend
     })
 
     it(`⛔ does NOT draw the glyph itself in the fill color (${preference})`, () => {
-      // ⭐ THE OTHER HALF OF THE SAME MUST, AND THE ONE THAT CATCHES THE READING
-      // THE RULING REJECTED: DFC-71 「アイコン全体の色を変える」 leaves the glyph green
-      // on an unpainted box, which is not 「箱を塗りつぶし…図形を…抜く」.
+      // Why: the other half of the same MUST: a green glyph on an unpainted box is the reading the ruling rejected.
       const built = drawn(paletteShowing(command({ icon: IC_ARMS_A_DEPENDENCY, isArmed: true })), preference)
       const entry = entranceIn(built, IC_ARMS_A_DEPENDENCY)
 
@@ -469,8 +300,6 @@ describe('FR-029 (MUST) -- an entrance that is in effect is FILLED, in both rend
   }
 
   it('⛔ the knockout is not white in the dark rendering (MUST NOT)', () => {
-    // 「`GRS` は図形そのものを `_assets/tbl-settings.md` の 表 T-236 の `S-146`（地の色）で抜くこと」 —— 「暗いテーマの塗りは明るい色な
-    // ので、白のままでは図形が浮かない。」
     const built = drawn(paletteShowing(command({ icon: IC_ARMS_A_DEPENDENCY, isArmed: true })), 'dark')
     const entry = entranceIn(built, IC_ARMS_A_DEPENDENCY)
 
@@ -480,14 +309,12 @@ describe('FR-029 (MUST) -- an entrance that is in effect is FILLED, in both rend
   })
 })
 
+// Spec: FR-029, EN-1, EN-2, EN-4
 describe('FR-029 (MUST NOT) -- the state is not said with a rim', () => {
   for (const preference of THEMES) {
     it(`arming an entrance changes no border color and no border width (${preference})`, () => {
-      // ⛔ 「縁の色や太さで示してはならない（MUST NOT）」. ⭐ ASKED AS A DIFFERENCE
-      // rather than as "there is never a border": an entrance is entitled to
-      // the frame it always had. What the MUST NOT forbids is the STATE
-      // reaching the screen through that frame -- which is exactly a rim that
-      // is there when armed and not there when not.
+      // Why: asked as a difference, not as never a border: an entrance keeps the frame it always had;
+      // the MUST NOT forbids the state reaching the screen through that frame.
       const off = drawn(paletteShowing(command({ icon: IC_ARMS_A_DEPENDENCY })), preference)
       const on = drawn(paletteShowing(command({ icon: IC_ARMS_A_DEPENDENCY, isArmed: true })), preference)
 
@@ -498,7 +325,6 @@ describe('FR-029 (MUST NOT) -- the state is not said with a rim', () => {
     })
 
     it(`pressing an entrance changes no border color and no border width (${preference})`, () => {
-      // The same MUST NOT, over 表 T-237's other reachable rows (`EN-2` / `EN-4`).
       const off = drawn(paletteShowing(command({ icon: IC_LIGHTNING_LINE })), preference)
       const on = drawn(paletteShowing(command({ icon: IC_LIGHTNING_LINE, isPressed: true })), preference)
 
@@ -510,16 +336,11 @@ describe('FR-029 (MUST NOT) -- the state is not said with a rim', () => {
   }
 })
 
-// ===========================================================================
-// EN-2 -- 「その入口の機能が ON である」, which FR-029 owns itself
-// ===========================================================================
-
+// Spec: EN-2, S-183
 describe('表 T-237 EN-2 (MUST) -- an entrance whose function is ON is filled', () => {
   for (const preference of THEMES) {
     it(`fills the lightning-line entrance while it is ON (${preference})`, () => {
-      // ⭐ THE RULING'S OWN EXAMPLE, verbatim: DFC-158 「イナズマ線が有効ならイナズマ線
-      // アイコンを緑で塗れ」. 表 T-109's `IC-39` is that entrance (`FR-049`,
-      // `S-64`), and 表 T-237's EN-2 gives it `S-183`.
+      // Why: the ruling's own example: IC-39 is the lightning-line entrance (FR-049, S-64).
       const built = drawn(paletteShowing(command({ icon: IC_LIGHTNING_LINE, isPressed: true })), preference)
       const entry = entranceIn(built, IC_LIGHTNING_LINE)
 
@@ -530,9 +351,7 @@ describe('表 T-237 EN-2 (MUST) -- an entrance whose function is ON is filled', 
     })
 
     it(`leaves the same entrance unfilled while it is OFF (${preference})`, () => {
-      // ⭐ THE CONVERSE, WITHOUT WHICH THE CASE ABOVE WOULD PASS ON AN ENTRANCE
-      // THAT IS ALWAYS GREEN. 表 T-237 gives a color to a STATE, so an entrance
-      // that is not in that state may not carry it.
+      // Why: the converse, without which the case above would pass on an entrance that is always green.
       const built = drawn(paletteShowing(command({ icon: IC_LIGHTNING_LINE })), preference)
       const entry = entranceIn(built, IC_LIGHTNING_LINE)
 
@@ -544,19 +363,12 @@ describe('表 T-237 EN-2 (MUST) -- an entrance whose function is ON is filled', 
   }
 })
 
-// ===========================================================================
-// EN-4 -- 「プロパティパネルがそれを出している」, reached through FR-072
-// ===========================================================================
-
+// Spec: EN-4, FR-072
 describe('表 T-237 EN-4 (MUST) -- the entrance the properties panel is showing from is filled', () => {
   for (const preference of THEMES) {
     it(`fills the App Header entrance while the panel shows its subject (${preference})`, () => {
-      // FR-072: 「`GRS` は、いま何を出しているかを、入口の押下状態で示すこと。」
-      // 「`GRS` は、押下状態の見せ方を `FR-029` の 表 T-237 の `EN-4` に従わせること。」
-      // ⭐ 表 T-109's `IC-17` stands on the `App Header` and is `FR-072`'s own
-      // entrance, which is why the case asks a surface other than the palette:
-      // FR-029 (MUST NOT) 「`GRS` は、載る面によって薄くしない入口を持たないこと」 has
-      // the same shape for the fill -- one rule, every surface.
+      // Why: IC-17 stands on the App Header and is FR-072's own entrance, so a surface other than
+      // the palette is asked: one rule, every surface.
       const built = drawn(headerShowing(command({ icon: IC_PROPERTIES_PANEL, isPressed: true })), preference)
       const entry = entranceIn(built, IC_PROPERTIES_PANEL)
 
@@ -568,19 +380,12 @@ describe('表 T-237 EN-4 (MUST) -- the entrance the properties panel is showing 
   }
 })
 
-// ===========================================================================
-// The order 表 T-237 puts its rows in
-// ===========================================================================
-
+// Spec: FR-029, EN-1, EN-2
 describe('FR-029 (MUST) -- when two rows of 表 T-237 fall on one entrance, the higher row wins', () => {
   for (const preference of THEMES) {
     it(`an entrance that is both armed and pressed carries ONE fill, EN-1's (${preference})`, () => {
-      // ⛔ 「1 つの入口に 表 T-237 の行が 2 つ同時に当たるとき、`GRS` は 表 T-237 で上に並ぶ行を勝たせること」 ——
-      // ⚠️ 「同時に当たることはない」とは書かない（1.9 の員数の断定の作法）.
-      // ⚠️ HOW DISCRIMINATING THIS CASE IS DEPENDS ON THE TABLE: while EN-1 and
-      // EN-2 both state `S-183` it can only catch an entrance that paints TWO
-      // grounds at once. It is written against the row ids, not against the
-      // colors, so it sharpens by itself the day the two rows differ.
+      // Why: written against the row ids and not the colors: while EN-1 and EN-2 share S-183 it only
+      // catches two grounds at once, and it sharpens by itself the day the rows differ.
       const built = drawn(
         paletteShowing(command({ icon: IC_LIGHTNING_LINE, isArmed: true, isPressed: true })),
         preference,
@@ -597,15 +402,10 @@ describe('FR-029 (MUST) -- when two rows of 表 T-237 fall on one entrance, the 
   }
 })
 
-// ===========================================================================
-// The entrance that is drawn faint
-// ===========================================================================
-
+// Spec: FR-029, IMPS-1118, IMPS-1108, S-149
 describe('FR-029 (MUST NOT) -- the fill is not applied to an entrance drawn faint', () => {
   for (const preference of THEMES) {
     it(`an entrance that can change nothing is not filled, even while armed (${preference})`, () => {
-      // ⛔ 「`GRS` は、`IMPS-1118` の塗りを、薄く描く入口（`IMPS-1108`）に当てないこと」 —— 「効いていて、かつ
-      // いま何も変えられない入口が濃くなると、薄さの意味が消える」
       const built = drawn(
         paletteShowing(command({ icon: IC_ARMS_A_DEPENDENCY, isEnabled: false, isArmed: true })),
         preference,
@@ -619,9 +419,7 @@ describe('FR-029 (MUST NOT) -- the fill is not applied to an entrance drawn fain
     })
 
     it(`a faint entrance is still drawn in S-149, the color FR-029 gives it (${preference})`, () => {
-      // 「薄さは 表 T-236 の `S-149` の色で示すこと（MUST）」. ⭐ WITHOUT THIS the
-      // case above would pass on an entrance that had stopped being drawn faint
-      // as well as stopping being filled.
+      // Why: without this, the case above would pass on an entrance that had stopped being drawn faint too.
       const built = drawn(
         paletteShowing(command({ icon: IC_ARMS_A_DEPENDENCY, isEnabled: false, isArmed: true })),
         preference,
@@ -635,9 +433,3 @@ describe('FR-029 (MUST NOT) -- the fill is not applied to an entrance drawn fain
     })
   }
 })
-
-// ===========================================================================
-// ⚠️ NO CASE FOR EN-3 HERE. 表 T-237 hands that row to 表 T-051's `HF-6`, and the
-// entrance it fills is a task group control rather than a palette one, so it was held
-// by the t-051-hf-6 pinned-pin unit test, which CR-573 deleted.
-// ===========================================================================

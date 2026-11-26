@@ -11,6 +11,7 @@ const typeName = async (page: Page, name: string): Promise<void> => {
   await settle(page)
 }
 
+// Spec: TC-3
 test('UC-001 place a task and set its period (FR-001 TC-6 TC-9, FR-091, FR-002, FR-109 LP-3, FR-003 ST-2)', async ({ page }) => {
   await launch(page)
   await enableAgentApi(page)

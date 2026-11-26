@@ -1,49 +1,4 @@
-// 表 T-051 の `HF-17` (MUST / MUST NOT, 利用者の裁定 2026-09-06「(a) ただし、1
-// 階層だけ開くこと」, CR-368): pressing HF-17's own entrance (adding a task group at
-// 段 0, the panel's head) must open 段 0 by exactly one level when it stands
-// folded (`S-418`) -- never every fold below it.
-//
-// ⚠️ Chapter 9 admits no Unit as a TEST_LEVEL, so these cases have no node in
-// the specification. 表 T-218 of Chapter 7 gives them their place: TS-6,
-// tests/unit/.
-//
-// ---------------------------------------------------------------------------
-// ⭐⭐ THE CLAUSE, VERBATIM (docs/spec/01-04-requirements.md, 表 T-051 の `HF-17`)
-// ---------------------------------------------------------------------------
-//
-//   「⚠️ 本行でタスクグループを足すとき、段 0 が折りたたまれていれば（`_assets/tbl-settings.md` の `S-418`）1 階層だけ展開すること
-//    （MUST）。すべて展開してはならない（MUST NOT）」（利用者の裁定 2026-09-06
-//    「(a) ただし、1 階層だけ開くこと」） —— 「展開しなければ、本行の MUST NOT
-//    （打ち込み口だけを送ってはならない）が破れる。」「すべて展開すれば `HF-10` と
-//    同じになり、人が折りたたんだ意思を捨てることになる。」
-//
-// and 表 T-015 の `HR-2` (全折りたたみ), which is how a fixture folds 段 0 at all:
-//
-//   「最も浅い段のタスクグループも折りたたむこと（MUST）」…「段 0 が折りたたまれているかは
-//    `_assets/tbl-settings.md` の 表 T-203 の `S-418` が持つ」
-//
-// ---------------------------------------------------------------------------
-// Unit under test: UF-48 of 表 T-075 (`frame-loop.ts`, `CP-25` of 表 T-062) --
-// the loop whose document holds S-418 (a saved, undoable document value).
-//
-// ⛔ WRITTEN FROM docs/spec, AND WHAT WAS READ OF `src/` IS NAMED HERE (docs/
-// development-rules/04-verification.md §1: only the head, published types and
-// signatures). The host, screen fake and press helper are copied in shape from
-// tests/unit/t-015-t-051-the-four-folding-controls.test.ts and tests/unit/
-// t-051-hf-17-adding-a-task-group-walks-the-rename-road.test.ts, which drive this same
-// unit through the same seams.
-//
-// ---------------------------------------------------------------------------
-// ⚠️ WHAT IS DELIBERATELY NOT ASSERTED
-// ---------------------------------------------------------------------------
-//  1. THE NAME FIELD / RENAME-ROAD HALF OF HF-17 (DFC-243). tests/unit/
-//     t-051-hf-17-adding-a-task-group-walks-the-rename-road.test.ts already asks that;
-//     this file's one question is the fold, S-418 alone.
-//  2. HF-14's OWN "open the pressed ancestor" MUST. That is a different fold
-//     (a single named parent), not 段 0, and it is not this row's to restate.
-//  3. WHETHER HEAD_OPEN_ONE_LEVEL (HF-16) ITSELF unfolds 段 0 -- that is
-//     already the entrance HR-2's own RATIONALE names as the way back, and no
-//     case here presses it.
+// Unit tests: adding a task group at level 0 unfolds a folded level 0 by one level only.
 
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -73,24 +28,19 @@ import {
 } from '../../src/framework/single-html-shell/frame-loop'
 import { bare, bareAll, specTable, unbroken } from '../contract/spec-table'
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
-// ===========================================================================
-// 1. The manuscript, read at run time rather than copied
-// ===========================================================================
+/* eslint-disable @typescript-eslint/no-explicit-any -- the host stubs an untyped global and the panel reads fields the types close */
 
 const REQUIREMENTS = unbroken(readFileSync(
   join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'),
   'utf8',
 ))
 
-/** ⭐⭐ THE CLAUSE CR-368 ADDED TO HF-17 ON 2026-09-06, verbatim. */
 const HF_17_OPENS_ONE_LEVEL =
   '`HF-17` でタスクグループを足すとき、段 0 が折りたたまれていれば（`_assets/tbl-settings.md` の `S-418`）、`GRS` は、段 0 を 1 階層だけ展開すること。`HF-17` でタスクグループを足すとき、`GRS` は、段 0 をすべて展開しないこと。'
 
-/** 表 T-015 の `HR-2` -- the rule that lets a fixture fold 段 0 in the first place. */
 const HR_2_FOLDS_LEVEL_ZERO_TOO = '全折りたたみを押したとき、`GRS` は、最も浅い段のタスクグループも折りたたむこと。'
 
+// Spec: HF-17, HR-2
 describe('the manuscript this file is driven by', () => {
   it('still asks HF-17 to open exactly one level, never every fold', () => {
     expect(REQUIREMENTS).toContain(HF_17_OPENS_ONE_LEVEL)
@@ -101,7 +51,6 @@ describe('the manuscript this file is driven by', () => {
   })
 })
 
-/** 表 T-103's settled English name for U-22 -- the 面 these entrances sit on. */
 const TASK_GROUP_PANEL = bare(
   specTable('T-103').rows.find((one) => one.id === 'U-22')?.by['確定名（英）'] ?? '',
 )
@@ -110,7 +59,6 @@ const T_109_ON_THE_PANEL = specTable('T-109').rows.filter(
   (one) => bareAll(one.by['面'] ?? '').includes(TASK_GROUP_PANEL),
 )
 
-/** The entrance 表 T-109 gives one row of 表 T-051, by that table's own join. */
 function entranceFor(rule: string): string {
   const found = T_109_ON_THE_PANEL.filter((one) =>
     new RegExp(`(^|[^0-9A-Za-z-])${rule}([^0-9-]|$)`).test(one.by['正'] ?? ''),
@@ -122,20 +70,8 @@ function entranceFor(rule: string): string {
   return first.id
 }
 
-/** HR-2 at 段 0 -- folds every task group AND 段 0 itself. */
 const HEAD_FOLD_EVERY_TASK_GROUP = entranceFor('HF-12')
-/** HF-17's own entrance -- adds a task group at 段 0, the panel's own head. */
 const HEAD_ADD_TASK_GROUP = entranceFor('HF-17')
-
-// ===========================================================================
-// 2. The document: two roots, one of them a parent of a parent, so a fold at
-//    段 0 hides everything and a one-level reopen brings back roots ONLY.
-//
-//   Alpha            (root)
-//     Beta
-//       Gamma
-//   Zeta             (a second root)
-// ===========================================================================
 
 const TEMPLATE = JSON.parse(
   readFileSync(
@@ -149,6 +85,8 @@ const BETA = '22222222-2222-4222-8222-222222222222'
 const GAMMA = '33333333-3333-4333-8333-333333333333'
 const ZETA = '44444444-4444-4444-8444-444444444444'
 
+// Why: two roots, one of them a grandparent, so a fold at level 0 hides everything
+// and a one-level reopen brings back the roots only.
 const TASK_GROUPS: readonly { readonly id: string; readonly parentId: string | null; readonly name: string }[] = [
   { id: ALPHA, parentId: null, name: 'Alpha' },
   { id: BETA, parentId: ALPHA, name: 'Beta' },
@@ -220,10 +158,6 @@ function documentWith(): Document {
     changeLog: [],
   } as unknown as Document
 }
-
-// ===========================================================================
-// 3. The host, copied in shape from the two files named above.
-// ===========================================================================
 
 const SCREEN: FrameEnvironment = {
   width: 1400,
@@ -333,24 +267,18 @@ function stage(): Stage {
   }
 }
 
-/** The task groups the panel drew, by name, in the order it drew them. */
 function drawnTaskGroups(built: Stage): readonly string[] {
   const panel = built.screen.last().taskGroupPanel
   return [...panel.pinnedTitles, ...panel.titles].map((one) => nameOf(one.taskGroupId))
 }
 
-/** HF-16's own arming, as the panel drew it. */
 const canOpenLevelZero = (built: Stage): boolean | undefined =>
   (built.screen.last().taskGroupPanel as any).canOpenLevelZero
 
-/** `S-418`, read from the document that holds it. */
 const levelZeroOf = (built: Stage): string =>
   built.loop.document().documentSettings.levelZeroTreeState
 
-// ===========================================================================
-// 4. The premise: HR-2 at 段 0 folds every task group away, including the roots
-// ===========================================================================
-
+// Spec: HR-2, S-418
 describe('premise -- HEAD_FOLD_EVERY_TASK_GROUP (HR-2) folds 段 0 itself', () => {
   it('before folding, every task group is drawn', () => {
     const built = stage()
@@ -373,15 +301,12 @@ describe('premise -- HEAD_FOLD_EVERY_TASK_GROUP (HR-2) folds 段 0 itself', () =
   })
 })
 
-// ===========================================================================
-// 5. HF-17 (MUST / MUST NOT): adding a task group at 段 0 opens it by ONE level
-// ===========================================================================
-
+// Spec: HF-17, HF-16, S-418
 describe('HF-17 (MUST) -- adding a task group at 段 0 opens the fold by exactly one level', () => {
   it('⭐⭐ the roots reappear, the new task group among them, once 段 0 is folded and HF-17 is pressed', () => {
     const built = stage()
     built.press(HEAD_FOLD_EVERY_TASK_GROUP, null)
-    expect(drawnTaskGroups(built)).toEqual([]) // the premise, restated
+    expect(drawnTaskGroups(built)).toEqual([])
 
     built.press(HEAD_ADD_TASK_GROUP, null)
 
@@ -398,10 +323,8 @@ describe('HF-17 (MUST) -- adding a task group at 段 0 opens the fold by exactly
   })
 
   it('⛔⛔ MUST NOT: Beta and Gamma stay folded away -- only 段 0 opened, not everything (not HF-10’s shape)', () => {
-    // ⛔ THE WHOLE OF THE MUST NOT: 「すべて展開してはならない」 -- 「すべて展開すれば
-    // `HF-10` と同じになり、人が折りたたんだ意思を捨てることになる」. Alpha's own fold
-    // (its treeState, collapsed by HF-12) is untouched by HF-17 -- only 段 0's S-418
-    // is -- so Beta (Alpha's child) must stay hidden.
+    // Why: HF-12 also folded Alpha by its own treeState, which HF-17 leaves alone,
+    // so Beta (Alpha's child) staying hidden tells one level from every level.
     const built = stage()
     built.press(HEAD_FOLD_EVERY_TASK_GROUP, null)
 

@@ -1,4 +1,4 @@
-// CR-667 spec-only tests: FR-012 counts the plan by FR-011's rule (both end days, milestones 0) and EP-9 draws the Panel Divider in S-149.
+// Contract tests: FR-012 counts the plan by FR-011's rule (both end days, milestones 0) and EP-9 draws the Panel Divider in S-149.
 
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -24,7 +24,6 @@ import { bare, specTable, unbroken } from './spec-table'
 const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
 // Why: each constant ends exactly at its marker, cut from the manuscript as check 39 reads it.
-// Why: CR-710 retired the day count; the plan is now FR-011's working time in minutes (FR-054).
 const FR_012_PLAN_BY_FR_011 =
   '`GRS` は、予定の期間を、`start` から `finish` までを `FR-011` が実績の長さを数える規則で数えた稼働時間（分）とすること。'
 const FR_012_MILESTONE_ZERO = '`GRS` は、マイルストーンの予定の期間を 0 とすること（`FR-011` と同じ扱い）。'
@@ -306,7 +305,7 @@ describe(`EP-9 (MUST): ${EP_9_S_149}`, () => {
   })
 })
 
-// see FR-012, DFC-682
+// Spec: FR-012
 // Why: the Nth weekday counting from Monday 2026-01-05, so a "40 working day" plan needs no calendar arithmetic in the cases.
 const weekday = (nth: number, time = '08:00:00'): string => {
   const date = new Date(Date.UTC(2026, 0, 5))

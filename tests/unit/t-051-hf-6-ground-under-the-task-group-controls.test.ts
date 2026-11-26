@@ -1,94 +1,4 @@
-// The ground HF-6 lays under a task group's controls (表 T-051), and the faintness
-// FR-029 asks of an entrance that has nothing to do -- on EVERY surface it is
-// drawn on.
-//
-// Unit under test: UF-71 of table T-075 (`dom-screen-surface.ts`, component
-// CP-38 of table T-062). It is the side of IF-9 that turns a `ScreenView` into
-// nodes, so it is the side that lays a ground and paints an entrance at all.
-//
-// ⚠️ Chapter 9 does not admit Unit as a TEST_LEVEL, so these cases have no node
-// in the specification. Table T-218 of Chapter 7 gives them their place: TS-6,
-// tests/unit/.
-//
-// ---------------------------------------------------------------------------
-// ⛔ WHY THIS FILE EXISTS -- THE HOLES IT WAS WRITTEN TO STAND IN
-// ---------------------------------------------------------------------------
-//
-// Both rules below were measured to be watched by no case at all: broken on
-// purpose, nothing went red.
-//
-//   1. THE GROUND. `HF-6` gained it on 2026-08-30 (CR-305) and nothing has
-//      asked for it since -- neither that it is there, nor that it is ONE, nor
-//      what color it is, nor how far it reaches.
-//   2. THE FAINTNESS, BEYOND ONE SURFACE. tests/unit/uf-71.test.ts asks that a
-//      header entry which cannot be used is painted differently from one that
-//      can, and that the color is SOME row of 表 T-236. ⛔ It does not ask
-//      WHICH row, and FR-029 now names one: 「薄さは … 表 T-236 の `S-149` の色
-//      で示すこと（MUST）」. ⛔ And it asks it on the `App Header` alone, while
-//      the same requirement closes with 「本規則は … 表 T-109 の全行に当たる ——
-//      タスクグループの操作子もパレットもヘッダーも同じである。載る面によって薄くしない入口
-//      があってはならない（MUST NOT）」.
-//
-// ---------------------------------------------------------------------------
-// THE ROWS THESE CASES REST ON
-// ---------------------------------------------------------------------------
-//
-//   表 T-051 HF-6  ⭐ 「描いているあいだ、操作子の下に地を 1 枚敷くこと（MUST）。色は
-//                  `_assets/tbl-settings.md` の 表 T-236 の `S-150` とすること
-//                  （MUST）」／⛔ 「操作子ごとに別々の地を敷いてはならない（MUST
-//                  NOT）—— 操作子のあいだに名前の文字のかけらが残る」／⭐ the range
-//                  of the ground (to the task group's right edge; down to the lower of the
-//                  task group's bottom and the lattice's, CR-553)／⭐ 「操作子は、タスクグループ名の上へ重ねて描くこ
-//                  と（MUST）」
-//   `FR-029`       「その入口を押しても、いま文書にも画面にも何も変えられないときは、
-//                  その入口を薄く描くこと（MUST）。薄さは … 表 T-236 の `S-149` の
-//                  色で示すこと（MUST）。」／⛔ 「薄く描いた入口を、宿主の意味で無効
-//                  にしてはならない（MUST NOT）—— 無効にすると押下そのものが届かず、
-//                  下の理由を告げる引き金が消える」／⚠️ 「本規則は … 表 T-109 の全行
-//                  に当たる —— タスクグループの操作子もパレットもヘッダーも同じである。載る面に
-//                  よって薄くしない入口があってはならない（MUST NOT）。」
-//   表 T-236 S-150 「パネルの地の色」（タスクグループパネル・プロパティパネル・パレットの地。
-//                  色相追随 ○）
-//   表 T-236 S-149 「罫の色」（区切りの線。色相追隨 ○）
-//                  ⚠️ CR-307 が 2026-08-30 に S-148 をこの行へ差し替えた ——
-//                  「`S-148` では地との隔たりが大きすぎ、使える入口と読み違えられた」
-//   表 T-051 HF-1  every task group with something under it carries the three controls;
-//                  `TaskGroupExpander` is how the description says which of them has
-//                  work. ⭐ A task group whose `canOpen` is false is exactly FR-029's
-//                  「押しても、いま文書にも画面にも何も変えられない」.
-//   `FR-041`       「画面の色は … 表 T-236 に従うこと（MUST）」 and (MUST NOT)
-//                  「閲覧環境のシステム色に委ねてはならない」 -- why a color is
-//                  resolved through the one declaration on the root rather than
-//                  read off the part.
-//
-// ---------------------------------------------------------------------------
-// ⛔ WRITTEN FROM docs/spec AND NOTHING ELSE (docs/development-rules/
-// 04-verification.md section 1). What was read of `src/`: the exported types of
-// `screen-renderer.ts` (`AppHeaderItems`, `CommandItem`, `CommandPalette`,
-// `PaletteGroup`, `TaskGroupExpander`, `TaskGroupTitle`, `ScreenFrame`, `ScreenSurface`,
-// `ScreenView`), `ScreenRect` of `screen-regions.ts`, the exported declarations of
-// `dom-screen-surface.ts` (`domScreenSurface`, `ScreenSurfaceWiring`,
-// `ScreenTheme`) and `SETTINGS_DEFAULTS`. ⛔ NO FUNCTION BODY WAS READ.
-//
-// ⭐ THE SHAPE IS COPIED, NOT INVENTED. The fake browser and the readers below
-// are tests/unit/fr-029-palette-grab-marker.test.ts's and
-// tests/unit/uf-71.test.ts's, which drive this same unit through the same seam.
-//
-// ---------------------------------------------------------------------------
-// ⭐ WHAT IS DELIBERATELY NOT ASSERTED, AND WHY
-// ---------------------------------------------------------------------------
-//   1. WHEN the controls are drawn. HF-6 draws them only while the pointer is on
-//      the task group's name or on its group, and where the pointer is is not in `ScreenView` --
-//      no member of `TaskGroupTitle` carries it. So these cases ask what is drawn for
-//      a described task group and never when it appears.
-//   2. THE GAP BETWEEN THE CONTROLS. HF-6 (MUST NOT) forbids that amount to be
-//      written into it at all, and says why: no row holds it and it has had no
-//      ruling.
-//   3. THE LEFT EDGE OF THE GROUND. 「いちばん左の操作子の左端から」 is a
-//      measurement of a laid-out page, and this fake lays nothing out: it
-//      records what was written, and a browser is what turns that into an edge.
-//      ⛔ Reported rather than replaced by a case about a number that happens to
-//      be written somewhere.
+// Unit tests: the ground HF-6 lays under a task group's controls, and FR-029's faint entrance on every surface.
 
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -106,9 +16,6 @@ import type {
   ScreenSurface,
   ScreenView,
 } from '../../src/adapter/screen-renderer/screen-renderer'
-// ⚠️ `ScreenRect` is PI-35's own type and `screen-renderer.ts` re-exports none
-// of it -- so it is taken from where it is declared, which is the unit table
-// T-064 gives it.
 import type { ScreenRect } from '../../src/entity/layout-engine/screen-regions/screen-regions'
 import {
   SETTINGS_CONSTANTS,
@@ -118,16 +25,11 @@ import {
   type ScreenSurfaceWiring,
   type ScreenTheme,
 } from '../../src/framework/dom-screen-surface/dom-screen-surface'
-// ⭐ Borrowed from the contract kind on purpose: it is the one reader that takes
-// its copy from the .md at read time, so a value that moves in a table moves
-// here too instead of going stale.
+// Why: borrowed from the contract tests on purpose: it reads the .md at run time, so a
+// value that moves in a table moves here too.
 import { bare, specTable, unbroken } from '../contract/spec-table'
 import { taskGroupNameFont } from '../fixtures/task-group-name-font'
 import { emptyScreenSession } from '../../src/use-case/advance-screen-session/advance-screen-session'
-
-// ---------------------------------------------------------------------------
-// The manuscripts, read at run time rather than copied here (Chapter 1.9).
-// ---------------------------------------------------------------------------
 
 const rowOf = (table: string, id: string) => {
   const found = specTable(table).rows.find((one) => one.id === id)
@@ -135,7 +37,6 @@ const rowOf = (table: string, id: string) => {
   return found
 }
 
-/** Everything HF-6 writes, as one string. */
 const HF_6 = rowOf('T-051', 'HF-6').cells.join(' ')
 
 // Spec: LF-16, HF-1
@@ -144,34 +45,22 @@ const LATTICE = (() => {
   return 2 * (px('S-138') + px('S-243') * 2) * px('S-235')
 })()
 
-/**
- * FR-029's own sentences, read out of the manuscript.
- *
- * ⚠️ THE WHOLE FILE AND NOT THE ONE REQUIREMENT: Chapter 1-4 is one document and
- * nothing here parses it into requirements, so a premise below asks that the
- * sentences are still IN it rather than which UID holds them.
- */
+// Why: the whole file and not the one requirement, because nothing here parses Chapter 1-4
+// into requirements; the premises ask only that the sentences are still in it.
 const FR_029_TEXT = unbroken(readFileSync(
   join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'),
   'utf8',
 ))
 
-/** The rows of table T-109 these cases stand an entrance on, one per surface. */
 const IC_HEADER = 'IC-20'
 const IC_PALETTE = 'IC-61'
 const IC_TASK_GROUP_OPEN = 'IC-58'
-/** The panel's own two, which HF-10 and HF-12 give it (表 T-109). */
 const IC_OPEN_EVERY_TASK_GROUP = 'IC-74'
 const IC_CLOSE_EVERY_TASK_GROUP = 'IC-78'
 
-/** Table T-103's settled names, which W-4 of table T-006a puts into `data-role`. */
 const nameOf = (row: string): string => bare(rowOf('T-103', row).by['確定名（英）'] ?? '')
 const U_23 = nameOf('U-23')
 const U_26 = nameOf('U-26')
-
-// ---------------------------------------------------------------------------
-// The fake browser. Copied from tests/unit/fr-053-palette-group-boundary.test.ts.
-// ---------------------------------------------------------------------------
 
 interface FakeEvent {
   readonly type: string
@@ -186,7 +75,6 @@ interface Registration {
   readonly listener: (event: FakeEvent) => void
 }
 
-/** One write to an element's inline style, in the order the unit made it. */
 type StyleWrite =
   | { readonly kind: 'reset'; readonly css: string }
   | { readonly kind: 'set'; readonly property: string; readonly value: string }
@@ -204,7 +92,6 @@ class FakeElement {
   readonly childNodes: FakeNode[] = []
   readonly styleWrites: StyleWrite[] = []
   parentNode: FakeElement | null = null
-  /** Only an `input` really has one; harmless elsewhere and it keeps the fake small. */
   value = ''
   isMount = false
 
@@ -214,8 +101,6 @@ class FakeElement {
   ) {
     this.tagName = tagName.toUpperCase()
   }
-
-  // -- attributes ---------------------------------------------------------
 
   setAttribute(name: string, value: string): void {
     if (name === 'style') {
@@ -308,7 +193,7 @@ class FakeElement {
     }
   }
 
-  /** ⛔ FR-023: an assignment here would be markup. It is recorded, never obeyed. */
+  // Why: FR-023 forbids markup, so an assignment here is recorded and never obeyed.
   get innerHTML(): string {
     this.world.markupWrites.push({ node: this, value: '(read)' })
     return ''
@@ -353,8 +238,6 @@ class FakeElement {
     if (value) this.attributes.set('disabled', '')
     else this.attributes.delete('disabled')
   }
-
-  // -- the tree -----------------------------------------------------------
 
   private adopt(node: FakeNode | string): FakeNode {
     if (typeof node === 'string') return new FakeText(node)
@@ -463,8 +346,6 @@ class FakeElement {
     return descendants(this).filter((one) => matches(one, selector))
   }
 
-  // -- what only a browser can answer -------------------------------------
-
   getBoundingClientRect(): {
     x: number
     y: number
@@ -489,8 +370,6 @@ class FakeElement {
   blur(): void {
     if (this.world.activeElement === this) this.world.activeElement = null
   }
-
-  // -- events -------------------------------------------------------------
 
   addEventListener(type: string, listener: (event: FakeEvent) => void): void {
     this.world.registrations.push({ node: this, type, listener })
@@ -520,16 +399,13 @@ interface Stage {
   readonly world: World
   readonly host: Document
   readonly mount: FakeElement
-  /** Every number `onAppHeaderHeightMeasured` was told, in order. */
   readonly reportedHeights: number[]
   clockMs: number
   author: string
   surface: ScreenSurface | undefined
-  /** The tree the unit built inside the mount. */
   root(): FakeElement
 }
 
-/** A browser that is only what `ScreenSurfaceWiring` says it is. */
 function stage(heightsByRole: Record<string, number> = {}): Stage {
   const world: World = {
     created: [],
@@ -576,13 +452,8 @@ function stage(heightsByRole: Record<string, number> = {}): Stage {
   }
 }
 
-/**
- * The rendering and hue every case below wires the surface with.
- *
- * ⛔ NEITHER VALUE IS TYPED HERE (rule 03 section 1). ⭐ No case reads a color
- * back -- `readTheme` is a REQUIRED member of `ScreenSurfaceWiring`, so the
- * cases need a theme to build the surface at all, not a particular one.
- */
+// Why: no case reads a colour back; readTheme is a required member of ScreenSurfaceWiring,
+// so the cases need some theme to build the surface, not a particular one.
 const S_73 = specTable('T-216').rows.find((row) => row.id === 'S-73')
 if (S_73 === undefined) throw new Error('table T-216 no longer has row S-73')
 const THEME: ScreenTheme = {
@@ -602,7 +473,6 @@ function wiringOf(built: Stage): ScreenSurfaceWiring {
   }
 }
 
-/** Wire the unit up the way contract line 1 asks the caller to. */
 function wire(heightsByRole: Record<string, number> = {}): Stage {
   const built = stage(heightsByRole)
   built.surface = domScreenSurface(wiringOf(built))
@@ -613,10 +483,6 @@ function surfaceOf(built: Stage): ScreenSurface {
   if (built.surface === undefined) throw new Error('the surface was not built')
   return built.surface
 }
-
-// ---------------------------------------------------------------------------
-// Reading the tree the unit built. Copied from tests/unit/uf-71.test.ts.
-// ---------------------------------------------------------------------------
 
 const kebab = (name: string): string => name.replace(/[A-Z]/g, (one) => `-${one.toLowerCase()}`)
 
@@ -637,7 +503,6 @@ function styleMap(element: FakeElement): Map<string, string> {
   return held
 }
 
-/** The inline style as it stands now, with later writes winning over earlier ones. */
 function inlineStyle(element: FakeElement): string {
   return [...styleMap(element)].map(([property, value]) => `${property}:${value}`).join(';')
 }
@@ -668,11 +533,7 @@ function oneByRole(root: FakeElement, role: string): FakeElement {
   return first
 }
 
-/**
- * A tiny selector engine: enough for `[attr]`, `[attr="value"]`, a tag name and
- * a descendant combinator. ⭐ It exists so that a unit which DID query is not
- * failed for it.
- */
+// Why: a tiny selector engine, so that a unit which did query is not failed for it.
 function matches(element: FakeElement, selector: string): boolean {
   const parts = selector.trim().split(/\s+(?![^[]*\])/)
   const last = parts[parts.length - 1]
@@ -710,19 +571,7 @@ function matchesSimple(element: FakeElement, selector: string): boolean {
   return element.tagName === selector.toUpperCase()
 }
 
-// ---------------------------------------------------------------------------
-// ---------------------------------------------------------------------------
-// 表 T-236, solved for the rendering that was wired
-// ---------------------------------------------------------------------------
-
-/**
- * One row of 表 T-236 as this rendering paints it.
- *
- * ⛔ NO COLOR IS TYPED HERE (rule 03 section 1). The rows that follow the hue
- * write it as the letter `H`, which the table's own 色相追随 column marks and
- * which `S-73` fills in -- so the hue read for `THEME` is substituted the once,
- * exactly as the manuscript writes it. ⭐ Copied from tests/unit/uf-71.test.ts.
- */
+// Summary: One row of table T-236 for this rendering, its hue letter H filled in from S-73 as the table writes it.
 function t236(specTableRowId: string): string {
   const row = rowOf('T-236', specTableRowId)
   const cell = bare(row.by[THEME.preference === 'dark' ? '暗いテーマ' : '明るいテーマ'] ?? '')
@@ -732,22 +581,11 @@ function t236(specTableRowId: string): string {
   return cell.replace('H', String(THEME.hue)).replace(/\s+/g, '').toLowerCase()
 }
 
-/** 「パネルの地の色」 -- what HF-6 (MUST) names for the ground. */
 const S_150 = t236('S-150')
-/** 「罫の色」 -- what FR-029 (MUST) names for an entrance that is spent. */
 const S_149 = t236('S-149')
 
-/**
- * A declaration this node was written with, resolved through the one the unit
- * put on its own root.
- *
- * ⭐ WHY IT HAS TO BE RESOLVED. FR-041 (MUST) has one declaration carry 表 T-236
- * for the whole tree, so a part states which color it takes and not what that
- * color is. Reading the part alone would compare a NAME with a color and fail
- * whatever the unit painted. ⚠️ No fallback is honored (`var(--x, y)` is left
- * unresolved and will match no row), because FR-041 (MUST NOT) forbids one.
- * ⭐ Copied from tests/unit/uf-71.test.ts.
- */
+// Why: FR-041 has one root declaration carry table T-236, so a part names its colour and is
+// resolved here; no var() fallback is honoured, since FR-041 forbids one.
 function resolved(built: Stage, written: string): string {
   const flat = written.trim().toLowerCase()
   const named = /^var\((--[a-z0-9-]+)\)$/.exec(flat)
@@ -758,19 +596,11 @@ function resolved(built: Stage, written: string): string {
     .toLowerCase()
 }
 
-/** The color this node's WORDS are painted in. */
 const paintedColor = (built: Stage, element: FakeElement): string =>
   resolved(built, styleMap(element).get('color') ?? '')
 
-/**
- * The color this node's GROUND is painted in, whichever of the spellings a
- * ground can be written with.
- *
- * ⚠️ SEVERAL SPELLINGS AND NOT ONE, because no row of the specification settles
- * which: a ground can be an element's background or an SVG shape's fill, and
- * HF-6 says only 「地を 1 枚敷く」. ⭐ Reading all of them is what keeps these
- * cases about the RULE rather than about a spelling nobody chose.
- */
+// Why: several spellings, because no row settles whether a ground is a background or an
+// SVG fill; reading all keeps the cases about the rule, not about a spelling.
 function paintedGround(built: Stage, element: FakeElement): string {
   const style = styleMap(element)
   for (const property of ['background-color', 'background', 'fill']) {
@@ -781,14 +611,12 @@ function paintedGround(built: Stage, element: FakeElement): string {
   return attribute === null ? '' : resolved(built, attribute)
 }
 
-/** Attributes and text together, for a failure that has to be read on its own. */
 function serialize(element: FakeElement): string {
   const attributes = [...element.attributes].map(([name, value]) => ` ${name}="${value}"`).join('')
   const style = inlineStyle(element)
   return `<${element.tagName.toLowerCase()}${attributes}${style === '' ? '' : ` style="${style}"`}>`
 }
 
-/** Hidden the way BO-1 asks for: laid out (so it can be measured) but not shown. */
 const isHiddenHere = (element: FakeElement): boolean => {
   const style = inlineStyle(element).replace(/\s+/g, '').toLowerCase()
   return style.includes('visibility:hidden') || style.includes('display:none')
@@ -802,10 +630,6 @@ const isShown = (element: FakeElement): boolean => {
   }
   return true
 }
-
-// ---------------------------------------------------------------------------
-// Descriptions to draw. Every one is a value of `ScreenView` and nothing else.
-// ---------------------------------------------------------------------------
 
 const EMPTY_HEADER: AppHeaderItems = {
   documentTitle: null,
@@ -852,7 +676,6 @@ const command = (patch: Partial<CommandItem> & { icon: string }): CommandItem =>
 
 const TASK_GROUP_TITLE_INDENT = SETTINGS_CONSTANTS['taskGroupTitleIndent'] as number
 
-/** The task group's own box, which HF-6 measures the ground's height against. */
 const TASK_GROUP_BOX = rect(0, 40, 170, 29)
 
 const taskGroupTitle = (patch: Partial<TaskGroupTitle> & { taskGroupId: string }): TaskGroupTitle => ({
@@ -863,32 +686,18 @@ const taskGroupTitle = (patch: Partial<TaskGroupTitle> & { taskGroupId: string }
   label: patch.taskGroupId,
   wholeLabel: patch.taskGroupId,
   isLabelTruncated: false,
-  // ⭐ A TASK GROUP WITH NOTHING TO FOLD, WHICH IS NOT A TASK GROUP WITHOUT CONTROLS. This
-  // read `null` until 2026-08-30, when `TaskGroupTitle.expander` stopped being
-  // nullable: 表 T-051 の `HF-1` puts the three on 「各タスクグループ」 and the closing
-  // paragraph under that table gives 「対象が 1 つも無い」 as a STATE the three
-  // carry -- which `FR-029` (MUST) then draws 薄く -- rather than as their
-  // absence. ⚠️ The neutral fixture is therefore the three with none armed.
+  // Why: the neutral fixture carries the three controls with none armed, because HF-1 puts
+  // them on every task group and having nothing to fold is a state, not their absence.
   expander: { canOpen: false, canClose: false, canCloseBelow: false },
   isPinned: false,
   isSelected: false,
   ...patch,
 })
 
-/** HF-1: a task group with something under it, so all three controls have work. */
 const EVERY_CONTROL: TaskGroupExpander = { canOpen: true, canClose: true, canCloseBelow: true }
 
-/** FR-029's own situation: an entrance with nothing to open. */
 const NOTHING_TO_OPEN: TaskGroupExpander = { canOpen: false, canClose: true, canCloseBelow: true }
 
-/**
- * A task group with nothing to fold at all.
- *
- * ⭐ THE STATE THAT REPLACED `null` ON 2026-08-30. 表 T-051 の `HF-1` places the
- * three on 「**各タスクグループ**」, and the closing paragraph under that table gives what a
- * task group with no work carries: 「⛔ **その操作で、描かれるタスクグループが 1 つも増減しないとき
- * は、対象が 1 つも無いものとして扱うこと（MUST）**」 -- which `FR-029` draws 薄く.
- */
 const NOTHING_TO_FOLD: TaskGroupExpander = { canOpen: false, canClose: false, canCloseBelow: false }
 
 const paletteWith = (commands: readonly CommandItem[]): CommandPalette =>
@@ -901,23 +710,19 @@ const paletteWith = (commands: readonly CommandItem[]): CommandPalette =>
     armedText: 'ArmedWordHere',
   }) as CommandPalette
 
-/** The App Header measures to something, so BO-1's dimension is settled. */
 const HEADER_HEIGHT = { 'App Header': 37 }
 
-/** Draw one description and hand back the stage it was drawn on. */
 function drawn(view: ScreenView): Stage {
   const built = wire(HEADER_HEIGHT)
   surfaceOf(built).showScreenView(view)
   return built
 }
 
-/** A screen holding one task group whose controls are drawn. */
 const oneTaskGroup = (expander: TaskGroupExpander = EVERY_CONTROL, taskGroupId = 'TaskGroupAlpha'): ScreenView =>
   viewWith({
     taskGroupPanel: { pinnedTitles: [], titles: [taskGroupTitle({ taskGroupId, expander })] },
   })
 
-/** Everything a failure needs to be read without opening the unit. */
 const whatWasDrawn = (part: FakeElement): string =>
   selfAndDescendants(part)
     .map((one) => {
@@ -927,7 +732,6 @@ const whatWasDrawn = (part: FakeElement): string =>
     })
     .join(' ; ')
 
-/** The one node carrying a row of 表 T-109, anywhere under the node given. */
 function iconEntry(root: FakeElement, icon: string): FakeElement {
   const found = selfAndDescendants(root).filter((one) => one.getAttribute('data-icon') === icon)
   const first = found[0]
@@ -937,15 +741,8 @@ function iconEntry(root: FakeElement, icon: string): FakeElement {
   return first
 }
 
-/**
- * The element that holds one task group of the tree.
- *
- * ⭐ FOUND FROM THE CONTROLS UP, because no attribute of the specification names
- * a task group: W-4 of 表 T-006a fixes `data-role` for a UI part and 表 T-103 gives the
- * tree a name, not each of its task groups. So the task group is the highest node under the
- * tree that still holds this task group's controls -- which is what 「タスクグループの右端」 and
- * 「そのタスクグループの高さ」 are measured against.
- */
+// Why: found from the controls up, because no attribute names a task group; the task group
+// is the highest node under the tree that still holds its controls.
 function taskGroupElement(built: Stage): FakeElement {
   const tree = oneByRole(built.root(), U_23)
   const control = iconEntry(tree, IC_TASK_GROUP_OPEN)
@@ -954,21 +751,11 @@ function taskGroupElement(built: Stage): FakeElement {
   return at
 }
 
-/**
- * Every node laid INSIDE this task group whose ground is painted the color HF-6 names.
- *
- * ⛔ THE TASK GROUP ITSELF IS NOT ONE OF THEM, and leaving it in would make the count
- * below a count of something else. The task group is a strip of the `Task Group Panel`,
- * whose ground 表 T-236 gives `S-150` in its own right (「タスクグループパネル・プロパ
- * ティパネル・パレットの地」), and CR-305 measured that —— 「タスクグループの帯の地も実測で
- * `S-150` である」 is why the band is invisible where no control stands. What
- * HF-6 asks for is a ground laid UNDER THE CONTROLS, which is a thing within
- * the task group.
- */
+// Trap: counting the task group itself breaks the count below: its strip of the panel is
+// painted S-150 in its own right, and HF-6 asks for a ground within the task group.
 const bandsIn = (built: Stage, row: FakeElement): FakeElement[] =>
   descendants(row).filter((one) => paintedGround(built, one) === S_150)
 
-/** The task groups the tree drew, in its own order. */
 const rowsOf = (tree: FakeElement): FakeElement[] => tree.children
 
 // Spec: HF-6, HF-19
@@ -991,14 +778,8 @@ function reachesTheLowerBottom(node: FakeElement, taskGroupHeightPx: number, lat
   return pinnedToBottom && taskGroupHeightPx >= latticePx - 1e-3
 }
 
-/**
- * Whether this node reaches the right edge of the task group it is in.
- *
- * ⚠️ TWO READINGS, for the same reason: 「タスクグループの右端まで」 is stated of the task group and
- * a box says it either by being pinned to that edge or by a left edge and a
- * width that add up to it. ⛔ A band that stopped short is what the sentence
- * refuses: CR-305 measured the gap it leaves at 4px of the person's own name.
- */
+// Why: two readings, because a box reaches the right edge either by being pinned to it or
+// by a left edge and a width that add up to it.
 function reachesTheTaskGroupsRightEdge(node: FakeElement, taskGroupWidthPx: number): boolean {
   const style = styleMap(node)
   const right = (style.get('right') ?? '').replace(/\s+/g, '')
@@ -1008,21 +789,16 @@ function reachesTheTaskGroupsRightEdge(node: FakeElement, taskGroupWidthPx: numb
   return Number.isFinite(left) && Number.isFinite(width) && left + width === taskGroupWidthPx
 }
 
-// ===========================================================================
-// The premises every case below stands on
-// ===========================================================================
-
+// Spec: IMPS-1110, IMPS-1116
 describe('the manuscripts still say what these cases read', () => {
   it('⭐ was really driven by the manuscripts, and not by a hollow read of them', () => {
-    // ⛔ WITHOUT THIS, A PARSE THAT PICKED UP THE WRONG COLUMN WOULD MAKE EVERY
-    // CASE BELOW AGREE WITH ANYTHING -- rule 04 section 2: a mechanism is not
-    // verified until it has been broken on purpose and seen to fail.
+    // Why: without this, a parse that picked up the wrong column would make every case below
+    // agree with anything.
     expect(U_23).toBe('Task Group Title Tree')
     expect(U_26).toBe('Command Palette')
     expect(S_150.length).toBeGreaterThan(0)
     expect(S_149.length).toBeGreaterThan(0)
-    // ⛔ Two rows of one table that painted alike would make every case below
-    // pass on either color.
+    // Why: two rows that painted alike would make every case below pass on either colour.
     expect(S_150, '表 T-236: the ground and the rule color are two colors').not.toBe(S_149)
   })
 
@@ -1037,9 +813,8 @@ describe('the manuscripts still say what these cases read', () => {
   it('⛔ FR-029 still names S-149 for the faintness, and still forbids disabling', () => {
     const fr029 = FR_029_TEXT
     expect(fr029).toContain('`GRS` は、入口の薄さを `_assets/tbl-settings.md` の 表 T-236 の `S-149` の色で示すこと。')
-    // ⛔ THE ROW THAT WAS TAKEN AWAY, PINNED TOO. A unit still painting S-148
-    // would be painting the color the manuscript forbids for this purpose --
-    // it reads as an entrance that CAN be used.
+    // Why: a unit still painting S-148 would paint a colour that reads as an entrance that
+    // can be used.
     expect(fr029).toContain('`GRS` は、入口の薄さに `S-148` を使わないこと。')
     expect(fr029).not.toContain('`S-148` の色で示すこと（MUST）')
     expect(S_149, '表 T-236: S-148 and S-149 are two colors').not.toBe(t236('S-148'))
@@ -1048,22 +823,14 @@ describe('the manuscripts still say what these cases read', () => {
   })
 
   it('the task group these cases draw really carries its controls', () => {
-    // The premise without which every count below is a count of nothing.
     const built = drawn(oneTaskGroup())
     expect(isShown(iconEntry(taskGroupElement(built), IC_TASK_GROUP_OPEN))).toBe(true)
   })
 })
 
-// ===========================================================================
-// (a) HF-6 -- the ground under the controls
-// ===========================================================================
-
+// Spec: HF-6
 describe('表 T-051 HF-6 -- the ground laid under a task group’s controls', () => {
   it('⛔ MUST: a ground is laid, and it is painted S-150', () => {
-    // 「描いているあいだ、操作子の下に地を 1 枚敷くこと（MUST）。色は … 表 T-236 の
-    //   `S-150` とすること（MUST）」 -- and CR-305's own measurement of what its
-    //   absence costs: the control and the name are both `S-147`, so where they
-    //   overlap the contrast is 1.00 : 1.
     const built = drawn(oneTaskGroup())
     const row = taskGroupElement(built)
 
@@ -1074,11 +841,8 @@ describe('表 T-051 HF-6 -- the ground laid under a task group’s controls', ()
   })
 
   it('⛔ MUST NOT: it is ONE ground, and not one per control', () => {
-    // 「操作子ごとに別々の地を敷いてはならない（MUST NOT）—— 操作子のあいだに名前の
-    //   文字のかけらが残る」（利用者の裁定 2026-08-30。1 つずつ角丸で塗る案はこれで
-    //   落ちた）. ⭐ THE MUST NOT IS THE EASIER THING TO BUILD, which is why it is
-    // written down: painting each control is one declaration where a band is a
-    // node.
+    // Why: written down because the MUST NOT is the easier thing to build: painting each
+    // control is one declaration where a band is a node.
     const built = drawn(oneTaskGroup())
     const row = taskGroupElement(built)
 
@@ -1088,8 +852,8 @@ describe('表 T-051 HF-6 -- the ground laid under a task group’s controls', ()
     ).toBe(1)
   })
 
+  // Spec: HF-6, HF-5
   it('⛔ MUST: it reaches the lower of the TASK GROUP bottom and the lattice bottom, not a control', () => {
-    // Spec: HF-6, HF-5
     const built = drawn(oneTaskGroup())
     const row = taskGroupElement(built)
     const band = bandsIn(built, row)[0]
@@ -1127,8 +891,6 @@ describe('表 T-051 HF-6 -- the ground laid under a task group’s controls', ()
   })
 
   it('⛔ MUST: it reaches the task group’s right edge', () => {
-    // 「敷く範囲は、いちばん左の操作子の左端からタスクグループの右端までとし…」—— CR-305:
-    //   「操作子の右端で止めると、タスクグループの右端との隙間に名前の文字が残る」.
     const built = drawn(oneTaskGroup())
     const row = taskGroupElement(built)
     const band = bandsIn(built, row)[0]
@@ -1141,21 +903,8 @@ describe('表 T-051 HF-6 -- the ground laid under a task group’s controls', ()
   })
 
   it('⭐ MUST: it reaches the SAME leftmost control whether the task group has anything to fold or not (HF-6 「いちばん左の操作子の左端から」, FR-085 MUST NOT)', () => {
-    // ⭐⭐ THE GAP THIS FILLS, AND WHY IT OPENED ON 2026-08-30. Every other case
-    // here draws `EVERY_CONTROL`, so the band's LEFT edge had only ever been read
-    // on a task group whose controls are all armed. ⛔ The unit chose that edge with
-    // `title.expander !== null ? …open : …openOneLevel` -- a task group without an
-    // expander started its band three steps in. `TaskGroupTitle.expander` is no longer
-    // nullable (表 T-051 の `HF-1`, 「**各タスクグループ**に… 1 つずつ置く」), so every task group
-    // now carries the same seven and the band has one left edge for all of them.
-    //
-    // ⛔ THE TWO RULES THAT SAY IT MAY NOT MOVE:
-    //   `HF-6` (MUST): the ground runs from the leftmost control to the task group's
-    //     right edge -- and `FR-029` draws a spent
-    //     control rather than removing it, so 「いちばん左の操作子」 is the same
-    //     control on every task group.
-    //   `FR-085` (MUST NOT): 「**確保する場所を、操作子を描くかどうかで変えては
-    //     ならない（MUST NOT）**」.
+    // Why: every other case draws EVERY_CONTROL, so this one reads the band's left edge on a
+    // task group with nothing to fold, where FR-029 still draws the spent control.
     const armed = drawn(oneTaskGroup(EVERY_CONTROL))
     const spent = drawn(oneTaskGroup(NOTHING_TO_FOLD))
     const armedBand = bandsIn(armed, taskGroupElement(armed))[0]
@@ -1175,9 +924,8 @@ describe('表 T-051 HF-6 -- the ground laid under a task group’s controls', ()
   })
 
   it('⭐ two task groups are two grounds -- the band belongs to a task group and not to the panel', () => {
-    // ⭐ THE OTHER READING THE RULE EXCLUDES. 「敷く範囲は … 縦はそのタスクグループの高さ」
-    // makes the ground a task group's own; one band drawn across the panel would satisfy
-    // 「1 枚」 while covering task groups whose controls are not drawn at all.
+    // Why: one band across the panel would satisfy one ground while covering task groups whose
+    // controls are not drawn at all.
     const built = drawn(
       viewWith({
         taskGroupPanel: {
@@ -1200,17 +948,9 @@ describe('表 T-051 HF-6 -- the ground laid under a task group’s controls', ()
   })
 })
 
-// ===========================================================================
-// (b) FR-029 -- the faintness, and which color it is
-// ===========================================================================
-
+// Spec: FR-029, S-149
 describe('FR-029 (MUST) -- an entrance with nothing to do is painted S-149', () => {
   it('⛔ MUST: on the `App Header`, the faint color is 表 T-236’s S-149', () => {
-    // 「その入口を押しても、いま文書にも画面にも何も変えられないときは、その入口を
-    //   薄く描くこと（MUST）。薄さは … 表 T-236 の `S-149` の色で示すこと（MUST）」
-    // ⛔ WHICH ROW, AND NOT MERELY "SOME ROW". tests/unit/uf-71.test.ts already
-    // asks that the color is a row of 表 T-236 and that it differs from an
-    // entry that can be used; CR-306 named the row, and nothing asked for it.
     const built = drawn(
       viewWith({
         appHeaderItems: {
@@ -1227,8 +967,6 @@ describe('FR-029 (MUST) -- an entrance with nothing to do is painted S-149', () 
   })
 
   it('⛔ MUST NOT: the same on the `Command Palette` -- 載る面によって変えない', () => {
-    // 「本規則は … 表 T-109 の全行に当たる —— タスクグループの操作子もパレットもヘッダーも
-    //   同じである。載る面によって薄くしない入口があってはならない（MUST NOT）」
     const built = drawn(
       viewWith({ commandPalette: paletteWith([command({ icon: IC_PALETTE, isEnabled: false })]) }),
     )
@@ -1240,9 +978,8 @@ describe('FR-029 (MUST) -- an entrance with nothing to do is painted S-149', () 
   })
 
   it('⛔ MUST NOT: and on a task group’s controls -- the surface CR-306 was raised from', () => {
-    // ⚠️ WHAT THE USER ACTUALLY SAW: 「起動直後の画面である —— 何も折りたたまれていない
-    //   ので、画面上の「開く」は 1 つ残らず死んでいる」. `canOpen` false is that
-    //   task group, and HF-2's control is the entrance with nothing to open.
+    // Why: right after startup nothing is folded, so every open control is spent; canOpen
+    // false is that task group, and HF-2's control is the entrance with nothing to open.
     const built = drawn(oneTaskGroup(NOTHING_TO_OPEN))
     const row = taskGroupElement(built)
 
@@ -1253,10 +990,8 @@ describe('FR-029 (MUST) -- an entrance with nothing to do is painted S-149', () 
   })
 
   it('⛔ MUST: and on the panel’s own two entrances -- IC-74 and IC-78', () => {
-    // 表 T-109: IC-74 「すべてのタスクグループを展開する」（表 T-051 の `HF-10`）, IC-78 「すべてのタスクグループを
-    //   折りたたむ」（`HF-12`）. ⭐ THEY ARE DRAWN FOR THE PANEL AND NOT PER TASK GROUP, which
-    //   is why FR-029's closing sentence has to reach them by name: 「本規則は …
-    //   表 T-109 の全行に当たる」.
+    // Why: IC-74 and IC-78 are drawn for the panel, not per task group, which is why FR-029's
+    // closing sentence must reach them by name.
     const built = drawn(
       viewWith({
         taskGroupPanel: {
@@ -1278,8 +1013,7 @@ describe('FR-029 (MUST) -- an entrance with nothing to do is painted S-149', () 
   })
 
   it('⭐ and neither is faint while it still has task groups to reach', () => {
-    // ⛔ WITHOUT THIS PAIR, A UNIT THAT PAINTED THOSE TWO FAINT ALWAYS WOULD PASS
-    // THE CASE ABOVE while telling a person nothing.
+    // Why: without this pair, a unit that always painted those two faint would pass the case above.
     const built = drawn(
       viewWith({
         taskGroupPanel: {
@@ -1300,8 +1034,7 @@ describe('FR-029 (MUST) -- an entrance with nothing to do is painted S-149', () 
   })
 
   it('⭐ and an entrance that CAN be used is not painted that color', () => {
-    // ⛔ WITHOUT THIS PAIR, A UNIT THAT PAINTED EVERY ENTRANCE S-149 WOULD PASS
-    // ALL THREE CASES ABOVE and would be telling a person nothing at all.
+    // Why: without this pair, a unit that painted every entrance S-149 would pass the cases above.
     const built = drawn(
       viewWith({
         appHeaderItems: {
@@ -1315,9 +1048,6 @@ describe('FR-029 (MUST) -- an entrance with nothing to do is painted S-149', () 
   })
 
   it('⛔ MUST NOT: a faint entrance is never disabled in the host’s own sense', () => {
-    // 「薄く描いた入口を、宿主の意味で無効にしてはならない（MUST NOT）—— 無効にする
-    //   と押下そのものが届かず、下の理由を告げる引き金が消える」. ⭐ On all three
-    // surfaces, for the reason that sentence gives.
     const header = drawn(
       viewWith({
         appHeaderItems: {

@@ -1,4 +1,4 @@
-// CR-551 item 8 (IN-7 of table T-028): every icon tooltip stays on one line and inside the window, swept live.
+// System tests: every icon tooltip stays on one line and inside the window (IN-7), swept live.
 
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -198,7 +198,7 @@ for (const width of WIDTHS) {
           continue
         }
         for (const line of read.lines) {
-          // see IN-7, DFC-1476, DFC-2414
+          // Spec: IN-7
           const room = cap - read.sides
           if (line.lineBoxes > 1 && line.naturalWidth <= room) {
             problems.push(

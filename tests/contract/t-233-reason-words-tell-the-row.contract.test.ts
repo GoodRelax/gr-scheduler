@@ -1,62 +1,4 @@
-// Contract test: the words a notice carries are read against the ROW OF TABLE
-// T-233 they are carried for.
-//
-// Table T-218 row TS-5 puts this here: the seam between the manuscript's table
-// and FR-038's dictionary is owned by neither side, and the file is driven by
-// table T-233 read at run time.
-//
-// ---------------------------------------------------------------------------
-// WHY THIS FILE EXISTS -- ledger row DFC-166
-// ---------------------------------------------------------------------------
-//
-// On 2026-08-31 the 場面 of `RS-30` was rewritten and the dictionary was not.
-// A person who pressed a spent `IC-90` was told DFC-166 「この行は既に折りたたまれています」
-// while the reason the notice was raised for was that the task group was NOT folded.
-// ⛔ EVERY MACHINE CHECK STAYED GREEN, because they all ask whether the row's
-// word REACHED the screen and never whether it says what the row says:
-//
-//   * tests/contract/display-words.contract.test.ts walks the dictionary and
-//     holds each word to the place that prints it -- driven by the dictionary,
-//     so a word that turned into its own opposite is carried faithfully.
-//   * tests/unit/fr-029-the-reason-a-press-carries.test.ts reads the same
-//     dictionary for its expectation, and says so itself: 「WHAT THE WORDS SAY.
-//     FR-038's dictionary holds them; these cases ask that the words which
-//     arrived are the ones that dictionary holds for the row」.
-//
-// ---------------------------------------------------------------------------
-// ⛔⛔ WHAT docs/spec DOES AND DOES NOT SAY -- READ THIS BEFORE CHANGING A CASE
-// ---------------------------------------------------------------------------
-//
-// The closing of 表 T-037 binds the two sides ONE WAY ONLY:
-//
-//   「⭐ 通知が運ぶ理由は 表 T-233 の行とすること（MUST）。同表に無い理由を運んで
-//    はならない（MUST NOT）—— 理由の語は `FR-038` の辞書が持ち、辞書は行 ID で
-//    引く。⛔ **相乗り（表 T-233 のまとめ方の欄の「語は …」）を持たない行を足すときは、辞書の原稿にも項を足すこと（MUST）**
-//    —— 生成器が原稿から名簿を起こすので、片方だけを書けば黙らずに落ちる。」
-//
-// ⛔ THAT IS AN OBLIGATION ABOUT ADDING A ROW, NOT ABOUT REWRITING ONE, and
-// ledger row DFC-166 says as much: 「足すときは守られたが、書き換えるときのことは
-// 書かれていなかった」. ⛔ MISSING FROM docs/spec: any row saying that the word
-// the dictionary holds for a reason must tell the 場面 that reason's row states.
-// The nearest thing is 表 T-037's `NT-1` 「どの項目が、なぜ誤りかを文字で示すこと
-// （MUST）」 -- a notice must say WHY -- which no machine can weigh over prose.
-//
-// ⇒ SO THE LAST GROUP BELOW IS A REVIEW LATCH AND NOT A CLAIM ABOUT BEHAVIOR.
-// It records, per row, the fingerprint of the 場面 AND the words TAKEN TOGETHER,
-// as they were last read against each other. Either side moving fails the row
-// and asks a person to read the pair again. ⛔ It does not, and cannot, assert
-// that the words are true; ⭐ it makes it impossible for one side to move in
-// silence, which is the whole of what happened in DFC-166.
-//
-// ⚠️ WHEN THIS FAILS, THE FIX IS NOT TO PASTE THE NEW FINGERPRINT IN. Read the
-// row's 場面 and the dictionary's three fields together, decide whether the
-// words still tell that scene, CORRECT THE WORDS IF THEY DO NOT, and only then
-// record the new fingerprint.
-//
-// ⛔ WRITTEN FROM docs/spec AND NOTHING ELSE (docs/development-rules/
-// 04-verification.md, section 1). ⛔ NO FILE UNDER src/ WAS READ; the generated
-// dictionary is JSON data and is read as data, the way
-// tests/contract/display-words.contract.test.ts reads it.
+// Contract tests: the words a notice carries are read against the row of table T-233 they are carried for.
 
 import { createHash } from 'node:crypto'
 import { readFileSync } from 'node:fs'
@@ -66,16 +8,10 @@ import { describe, expect, it } from 'vitest'
 
 import { bare, specTable } from './spec-table'
 
-// ---------------------------------------------------------------------------
-// The two sides
-// ---------------------------------------------------------------------------
-
 const ROOT = process.cwd()
 
-/** Chapter 6.2 (MUST): the manuscript the words are written in. */
 const MANUSCRIPT_PATH = join(ROOT, 'docs', 'spec', '_source', 'display-words.json')
 
-/** Chapter 6.2 (MUST): the one generated file the words reach `src/` by. */
 const GENERATED_PATH = join(ROOT, 'src', 'adapter', 'screen-renderer', 'display-words.json')
 
 interface Words {
@@ -114,7 +50,6 @@ const entryOf = (specTableRowId: string): ReasonEntry => {
   return found
 }
 
-/** The 場面 the row states, exactly as the manuscript prints it. */
 const sceneOf = (specTableRowId: string): string => {
   const row = T233.rows.find((one) => one.id === specTableRowId)
   if (row === undefined) throw new Error(`table T-233 has no row ${specTableRowId}`)
@@ -133,27 +68,13 @@ const ROW_IDS: readonly string[] = T233.rows.map((row) => row.id)
 
 const ROWS_WITH_OWN_WORDS: readonly string[] = ROW_IDS.filter((specTableRowId) => wordsRowOf(specTableRowId) === specTableRowId)
 
-// ---------------------------------------------------------------------------
-// The pairing, as it was last read
-// ---------------------------------------------------------------------------
-
-/**
- * The first 16 hex characters of the SHA-256 of
- * `場面 ja en nextStep.ja nextStep.en`, joined with one space.
- *
- * ⚠️ THE HEADING USED TO SAY THE FIVE WERE JOINED WITH A NUL, and `fingerprintOf`
- * below has always joined them with a space. The comment was corrected rather
- * than the code (2026-09-03): changing the separator would re-key all 43 rows
- * without a single pair having been re-read, which is exactly the paste-in this
- * file exists to forbid. ⛔ A space is the weaker separator -- text moved across
- * a field boundary keeps the same hash -- and that is a real, if small, hole.
- *
- * ⭐ A fingerprint and not the words themselves: FR-038 (MUST NOT) admits ONE
- * store of printed words, and a second copy of them in a test file is a second
- * store that goes stale exactly the way the dictionary did in DFC-166.
- */
+// Why: a fingerprint and not the words, since FR-038 admits one store of printed words and
+// a copy here would be a second store that goes stale.
+// Trap: pasting a new fingerprint from the failure message, without reading the scene and
+// the words together and correcting the words first, defeats the latch.
+// Trap: changing the space that joins the five fields re-keys every row with no pair re-read,
+// which is that same paste-in.
 const PAIRED_ON_2026_09_03: Readonly<Record<string, string>> = {
-  // Why: read 2026-10-15 (CR-770); the en words gained a final period and UI convention words, so only re-keyed.
   'RS-1': '4e06709e0faeacdf',
   'RS-2': '99014ef99e47bb3d',
   'RS-3': 'faef8d7f1451cdb6',
@@ -167,47 +88,11 @@ const PAIRED_ON_2026_09_03: Readonly<Record<string, string>> = {
   'RS-11': 'c6653e5783ae7df2',
   'RS-12': '95ad8c948d6a7601',
   'RS-13': 'f321af6f75bd49bf',
-  // Why: re-keyed 2026-10-31 (CR-858): RS-14 became a refusal of several dropped files (OP-11, JDG-3584, words JDG-3585).
   'RS-14': 'cf268c722d841409',
   'RS-16': '1eac0dcebc65e01a',
-  // ⭐⭐ RE-READ 2026-09-05, and the pair still holds. The scene gained
-  // a MUST NOT against telling it (now the display 出さない, CR-712) when the ruling of that day left
-  // the watermark's default name standing and put the road to set one off
-  // until later. ⚠️ The words are NOT changed with it: the next step it
-  // offers -- set a name and the watermark prints it -- is undoable today,
-  // but the row is never told while that is so, and these are the words
-  // wanted the day the road is built. ⛔ If the road lands and this pair is
-  // still dormant, that is the moment to read them again.
-  //
-  // ⭐⭐ RE-READ 2026-09-11, and the pair still holds. The scene LOST its last
-  // sentence: a dated 2026-09-05 note saying `frame-loop.ts` never called this
-  // row in its roll of reasons, because the road that would tell it was never
-  // built. The cleanup of 9f359cd folded that out as an implementation RECORD
-  // whose original is the ledger -- `DFC-258` of
-  // docs/development-records/fixed-defects.md, the row for there being no way
-  // to write `FR-086`'s watermark name. (⛔ Neither sentence is re-quoted here:
-  // check 42 forbids a comment putting words in docs/spec's mouth that
-  // docs/spec no longer carries.)
-  // ⭐ THE SCENE ITSELF DID NOT MOVE: the row still opens on the watermark name
-  // not yet being set, and still carries the 2026-09-05 ruling that the row is
-  // not to be told while no road exists -- which is the half the words answer.
-  // ⚠️ The sentence that went was about `src/`, never about the scene, and no
-  // word was drawn from it, so the words are left exactly as they were and only
-  // the fingerprint is re-recorded.
-  //
-  // RE-READ 2026-09-13 (CR-375 folded the row's origin/date/verbatim history
-  // out of docs/spec, per ledger row DFC-510). The MUST/MUST NOT sentences of
-  // the scene are unchanged from HEAD; only the removed record moved. Read
-  // against the dictionary again: both languages and the next step still
-  // match the shortened scene, so only the fingerprint is re-keyed.
   'RS-19': '653421bf0fe000be',
   'RS-20': '36f43f499a83ae7f',
   'RS-21': 'ee990c6018d1a693',
-  // RE-READ 2026-09-13 (CR-375, ledger row DFC-510, same shape as RS-19
-  // above): the scene's MUST/MUST NOT text is unchanged from HEAD, only its
-  // origin record was folded out. Read against the dictionary again -- both
-  // languages and the next step still tell the same scene -- so only the
-  // fingerprint is re-keyed.
   'RS-22': '10eb5895e870b2fa',
   'RS-23': 'b9fa9d67de247443',
   'RS-24': 'ecaeb30723d6a2eb',
@@ -217,334 +102,47 @@ const PAIRED_ON_2026_09_03: Readonly<Record<string, string>> = {
   'RS-28': '17384e3e95f1923c',
   'RS-29': 'e1e9b843248cfb66',
   'RS-30': 'ea287abd76bfec91',
-  // Why: CR-570 rewrote the scene to 'no task group is left undrawn'; read against the words (every task group open
-  // and drawn; fold a task group or zoom out vertically) they still tell it, so only the fingerprint is re-keyed.
   'RS-31': 'fbf6b90b3bd24213',
   'RS-32': '8f6a3b4632a549c0',
   'RS-33': '12ab5c81b0f353b9',
   'RS-34': '208cd7e4ab6ad6b4',
   'RS-40': 'ee6ace9eedfca0f0',
   'RS-41': '34729e01f76ee4ed',
-  // Why: CR-713 (JDG-1737) changed only the word for copy (utsushi -> kopi-); read together, the scene and
-  // the words still tell the same copy to the clipboard, so only the fingerprint is re-keyed.
   'RS-42': 'fcbbc9996fa64c05',
   'RS-43': 'fbb77a59bc23fc7c',
   'RS-44': '9470f42447a1e43c',
-  // ---------------------------------------------------------------------
-  // ⭐ READ AGAINST EACH OTHER ON 2026-09-03 (CR-340, ledger rows DFC-202 and
-  // DFC-206). ⛔ The fingerprints below were NOT pasted in from a failure
-  // message: the 場面 and the three fields of the dictionary were read side by
-  // side first, and this note records what that reading found.
-  //
-  // `RS-46` -- 場面 「これ以上深い段にはタスクグループを足せない」; ja DFC-206 「これ以上深い段には行を
-  //   足せません」 is again the same sentence, en 「A task group cannot be added any
-  //   deeper than this」 says the same, and the next step DFC-206 「もっと浅い行に足して
-  //   ください」 / 「Add it to a shallower task group」 is the one `FR-085`'s cap leaves
-  //   open. ⇒ the words tell the scene. (The MOVE at the cap was told by a row
-  //   of its own until CR-772 retired it: a carried task group now stops silently.)
-  // ---------------------------------------------------------------------
-  // Why: re-read 2026-10-03 (CR-635 next step, CR-637 text; JDG-1157/1181 Add = tsuika): the ja
-  // text now says "tsuika dekimasen", the same scene; the next step still offers the shallower task group.
   'RS-46': 'd81a17a2a4e27f6b',
-  //
-  // ⭐ READ AGAINST EACH OTHER ON 2026-09-05 (CR-357, ledger row DFC-282,
-  //   利用者の裁定 「② ただし、具体的に差分を表示してユーザーの確認を受ける」).
-  // `RS-48` -- 場面 「文書の形式の版が、この造りが知る最大の版より新しく、読め
-  //   なかった項目がある」; ja 「この文書は新しい形式で書かれており、読めなかった
-  //   項目があります」, en 「This document is in a newer format, and some items
-  //   could not be read」.
-  //   ⛔ THE FIRST DRAFT TOLD ONLY HALF THE SCENE and was corrected before this
-  //   fingerprint was taken: it said the format was newer and never said that
-  //   anything had failed to read -- which is the half the ruling is about.
-  //   ⚠️ IT STAYS CLEAR OF ITS TWO NEIGHBORS, and the distinction is WHY the
-  //   item could not be read. `RS-25` docs/development-records/pending-decisions.md 「列が決められた形に合わない」 is a value
-  //   that is malformed; this row is a value that is well formed and UNKNOWN.
-  //   `RS-26` 「起動時に渡された文書が読めなかった」 is the document not opening
-  //   at all; here it opens. ⇒ the words tell the scene.
-  // Why: re-read with CR-565; the next step now tells the loss on going on and leads
-  // to the latest version, as FR-073 asks of RS-48, RS-63 and RS-64 alike.
   'RS-48': 'a0e952c306b84841',
   'RS-63': 'a18f4a5cf5656086',
   'RS-64': 'a90a29e20cd784fa',
-  // ⭐ ADDED 2026-09-06 (CR-364, the ruling that renaming an assignee must
-  // carry the count). The row is FR-008's, and the pairing was read the way
-  // this file asks: the 場面 against the three dictionary fields, before
-  // anything was recorded.
-  //
-  // RE-READ 2026-09-13 (CR-375, ledger row DFC-510, same shape as RS-19
-  // above): the scene's rule text is unchanged from HEAD, only its origin
-  // record was folded out. Read against the dictionary again -- both
-  // languages and the next step still tell the same scene -- so only the
-  // fingerprint is re-keyed.
   'RS-49': '67a6574e42a4e7d2',
-  // ⭐ ADDED 2026-09-06 (CR-368, FR-023's ruling that the import drops and
-  // tells). Read together before anything was recorded, the way this file
-  // asks. 場面 「文書が使えない日付を持つ `Task` を落として、残りを取り込んだ」;
-  // ja DFC-275 「下記の無効なタスクを削除して取り込みました」 is the user's own wording of
-  // the ruling and says the same scene -- ⭐ 「下記の」 is load-bearing, because
-  // FR-023 (MUST NOT) forbids telling the count alone, so the words themselves
-  // promise the list the surface draws. en 「The invalid tasks listed below were
-  // removed, and the rest was imported」 keeps both halves: what was dropped AND
-  // that the rest came in. The next step 「元のファイルの日付を直して読み直すか、
-  // 取り消しで取り込む前へ戻せます」 / 「Fix the dates in the original file and read
-  // it again, or undo to get back to before the import」 names the two roads the
-  // requirement actually leaves open, and no third.
-  // ⚠️ It stays clear of `RS-48` 「この文書は新しい形式で書かれており、読めなかった
-  // 項目があります」 -- that one is the VERSION being newer and keeps what it could
-  // not read, where this one is a value the document cannot use and drops it.
-  //
-  // RE-READ 2026-09-13 (CR-375, ledger row DFC-510, same shape as RS-19
-  // above): the scene's rule text is unchanged from HEAD, only its origin
-  // record was folded out. Read against the dictionary again -- both
-  // languages and the next step still tell the same scene -- so only the
-  // fingerprint is re-keyed.
   'RS-50': 'ff56c31d6f15204a',
-  // ⭐ ADDED 2026-09-06, on the user's ruling that a document carrying settings
-  // out of range is clamped and told about. Read together before the fingerprint
-  // was taken: the row of table T-233, the ja and en text, and the next step.
-  // ⛔ The words are NOT quoted here -- rule 02 section 4 has a note name its row
-  // rather than copy it, and check 42 holds every quotation against the
-  // manuscripts, so a copy here would be one more thing to keep in step.
-  // ⭐ What the reading found: the scene and both languages say the same two
-  // things -- that the values were wrong AND that they were not refused -- and
-  // the next step names the only protection the requirement leaves, which is to
-  // keep the original file, because nothing is written back until SK-11.
-  // ⚠️ It stays clear of RS-48, which is a NEWER FORMAT and keeps what it could
-  // not read. This one is a value this build understands and refuses to leave.
-  //
-  // ⭐ ADDED 2026-09-07, on the ruling that editing the working-day calendar
-  // recounts the STORED percent complete (FR-012). The row, both languages and
-  // the next step were read against each other BEFORE this fingerprint was
-  // taken, which is what this record is for.
-  // ⛔ The words are NOT quoted here -- rule 02 section 4 has a note name its
-  // row rather than copy it, and FR-038 (MUST NOT) admits one store of printed
-  // words.
-  // ⭐ WHAT THE READING FOUND. The 場面 carries two halves -- the calendar
-  //   changed AND the stored value was counted again -- and both languages
-  //   carry both; neither says only that the calendar moved, which is the half
-  //   that would leave a reader wondering why a number they never touched had
-  //   changed. The next step names the ONE road FR-012 leaves open and no
-  //   other: 「`GRS` は、完了率の数え直しを暦の変更と同じ書き込みの中で行うこと。…
-  //   暦の変更と別の書き込みに分けないこと」, so undo gives back the calendar and the
-  //   percent complete together -- which is exactly what both next steps say.
-  // ⭐ THE COUNT IS NOT IN THE WORD, AND SHOULD NOT BE. The row's 作法 is
-  //   `NT-3`, which is where 「対象の件数を添えること」 lives, and NT-3 names
-  //   「暦の変更」 among its own examples. `RS-49` is paired the same way and
-  //   its row says so outright: 「件数の示し方は `NT-3` が持つ」. ⇒ a count
-  //   spelled into the dictionary would be the second store NT-3 already is.
-  // ⚠️ IT STAYS CLEAR OF `RS-21`, and the row says why: RS-21 (`NT-1`) REFUSES
-  //   a calendar with no working weekday, where this row is the consequence of
-  //   a calendar that WAS accepted. Nothing in either word could be read for
-  //   the other scene.
-  //
   'RS-51': '6e02150e3eddb51f',
-  // RE-READ 2026-09-13 (CR-375, ledger row DFC-510, same shape as RS-19
-  // above): the scene's rule text is unchanged from HEAD, only its origin
-  // record was folded out. Read against the dictionary again -- both
-  // languages and the next step still tell the same scene -- so only the
-  // fingerprint is re-keyed.
   'RS-52': '9617566a64fa1a28',
-  // RS-53 -- 「バーの形状を構えたまま、引かずに離した」, 作法 `NT-1`, 正 `FR-001`.
-  //   Read against the words before the fingerprint was taken: the text says a
-  //   task has a span and so is not made without a drag, and the next step names
-  //   the drag and points at the milestone for a point. ⛔ The words themselves
-  //   are not spelled here -- they are the dictionary's (FR-038, MUST NOT).
-  // ⭐ THE NEXT STEP NAMES THE ROAD, WHICH IS THE WHOLE POINT OF THE ROW. FR-001
-  //   granted it with the reason once spelled into the row itself (RS-27 could not
-  //   say what to do instead); CR-712 made the row hidden, and its words stay for
-  //   the day it is shown again.
-  // ⭐ IT NAMES THE MILESTONE, AND THAT IS NOT A SECOND SCENE. FR-001 keeps
-  //   「マイルストーンの形状を構えている間、押したとき、`GRS` は押しただけでマイルストーンを置くこと」 and RS-53's own note says a
-  //   point never raises this row, so telling the reader where the press they
-  //   just made IS the right gesture is the same one answer, not another row's.
-  // ⚠️ IT STAYS CLEAR OF `RS-27`, the fallback: that row is about an ENTRANCE
-  //   with nothing to do, where this is a press on the schedule that had a
-  //   perfectly good arm and only lacked the drag.
-  //
-  // RE-READ 2026-09-13 (CR-375, ledger row DFC-510, same shape as RS-19
-  // above): the scene's rule text is unchanged from HEAD, only its origin
-  // record was folded out. Read against the dictionary again -- both
-  // languages and the next step still tell the same scene -- so only the
-  // fingerprint is re-keyed.
   'RS-53': '29e1977f4a16d456',
   'RS-15': '6297993f46149221',
-  // RS-54 -- 「構えた形状が、選んでいるものに当てられない」, 作法 `NT-1`, 正
-  //   `FR-083` (利用者の裁定 2026-09-08). Read against the words before the
-  //   fingerprint was taken: the text says the armed shape cannot be applied to
-  //   what is selected, and the next step says the arming is still live and
-  //   names the road -- clear the selection and drag on empty space. ⛔ The words
-  //   themselves are not spelled here; they are the dictionary's (FR-038, MUST
-  //   NOT).
-  // ⭐ THE ARMING STAYING UP IS THE HALF THE ROW INSISTS ON, and the words carry
-  //   it. FR-083 (MUST) says 「もし `GRS` が形状の変更を拒んだ場合（`CM-20`）、`GRS` は押した入口の形状を構えること」 and
-  //   the row repeats that the arm is still standing -- so a word that only said
-  //   "that cannot be done" would leave a person believing their press was
-  //   thrown away entirely, which is the opposite of what the row states.
-  // ⭐ THE NEXT STEP IS A ROAD THE SPECIFICATION ITSELF LEAVES OPEN: `SP-1` of
-  //   FR-083's own table arms the shape when nothing is selected, so clearing
-  //   the selection and dragging on empty space is where the armed shape does
-  //   land. ⚠️ The 作法 is `NT-1` and not `NT-3a`, so the step is not owed -- it
-  //   is carried all the same, and the case above only holds NT-3a rows to one.
-  // ⚠️ IT STAYS CLEAR OF `RS-10`, which the row makes a MUST NOT in as many
-  //   words: RS-10 is 「命令が拒否されたので、束ごと落とした」 and its answer is to
-  //   take the refused operation out and try again, where this scene has no
-  //   operation to take out -- the shape was never applied to anything.
-  // ⭐⭐ RE-READ 2026-09-08, AND THE PAIR STILL HOLDS -- the fingerprint below
-  //   was re-keyed because the 場面 moved, NOT because a word did. What moved:
-  //   the row used to quote FR-083's clause where it says the arm stays up, and
-  //   check 11 (duplicate detection) caught that quotation as the same MUST
-  //   written in two places; rule 02 has a task group name its 正 rather than copy it,
-  //   so the row now points at FR-083 instead of transcribing it and adds a
-  //   MUST NOT against transcribing it again. ⛔ THE SCENE ITSELF DID NOT
-  //   CHANGE: 「構えた形状が、選んでいるものに当てられない」 and 「構えは立った
-  //   ままである」 are both still there, word for word, and so is the MUST NOT
-  //   against RS-10.
-  // ⭐ WHAT THE RE-READING FOUND, reading the 場面, the manuscript dictionary
-  //   (docs/spec/_source/display-words.json) and the generated one
-  //   (src/adapter/screen-renderer/display-words.json) side by side: the two
-  //   dictionaries are identical for this row, and both halves of the scene are
-  //   still carried -- the text says the armed shape does not land on what is
-  //   selected, and the next step says the arm is still usable before it names
-  //   the road. ⇒ nothing needed correcting, so only the record was re-keyed.
-  // ⚠️ THE HAZARD THIS FILE EXISTS FOR IS THE OPPOSITE ONE -- DFC-166, where the
-  //   scene turned into its own opposite and the word stayed. Here the word and
-  //   the scene still say the same thing; the change was a pointer replacing a
-  //   copy, which no machine check on either side could have told apart from a
-  //   rewrite.
-  //
-  // RE-READ 2026-09-13 (CR-375, ledger row DFC-510, same shape as RS-19
-  // above): the scene's rule text is unchanged from HEAD, only its origin
-  // record was folded out. Read against the dictionary again -- both
-  // languages and the next step still tell the same scene -- so only the
-  // fingerprint is re-keyed.
   'RS-54': '558c7caaaf951875',
-  // -----------------------------------------------------------------------
-  // ⭐ READ AGAINST EACH OTHER ON 2026-09-09 (the four write refusals table
-  // T-233 gained with 表 T-015a の `HM-4` / `FR-009` / `IV-1` / `IV-10` for
-  // their 正). ⛔ NOT PASTED IN FROM THE FAILURE MESSAGE: for each row the
-  // 場面 column, the ja and en text and the next step were read side by side,
-  // and against the 正 the row names, BEFORE anything was recorded here.
-  // ⛔ The words are not copied into these notes -- rule 02 section 4 has a
-  // note name its row, and FR-038 (MUST NOT) admits one store of them.
-  //
-  // RS-55 -- 場面 「動かす先が、そのタスクグループ自身か、そのタスクグループの子孫である」（輪になる）,
-  //   作法 `NT-1`, 正 表 T-015a の `HM-4`.
-  // ⭐ BOTH HALVES OF THE SCENE ARE IN BOTH LANGUAGES: the destination being
-  //   the task group ITSELF, and the destination being one of its own descendants.
-  //   A word that named only the descendant case would leave the self case
-  //   with no word, and the row states the two together.
-  // ⭐ THE WORDS DO NOT NARROW THE ROW TO ONE OF ITS TWO USES. The row says
-  //   it covers the nesting of task groups AND the parent task, from one prohibition;
-  //   the words speak of moving a task group under another and name neither, so
-  //   neither use is shut out.
-  // ⭐ THE NEXT STEP IS A ROAD `HM-4` ACTUALLY LEAVES OPEN: only a descendant
-  //   is refused as a parent, so taking that task group out of the subtree first
-  //   makes the very same move legal. ⚠️ 作法 is `NT-1`, so a next step is not
-  //   owed here; it is carried all the same.
-  // ⚠️ IT IS NOT A LIMIT OF THE CARRY: a carried task group stops silently at
-  //   the end of its range (CR-772); this row refuses a move that can never be
-  //   well formed.
-  // ⇒ the words tell the scene.
   'RS-55': '6f50e8e196c6abc3',
-  //
-  // RS-56 -- 場面 「同じ `Task` を、依存の先行と後続の両方にしようとした」,
-  //   作法 `NT-1`, 正 `FR-009`.
-  // ⭐ THE WORDS SAY THE SAME SENTENCE THE ROW DOES, in the negative, in both
-  //   languages: one task at both ends of one dependency.
-  // ⭐ AND THEY STAY AS NARROW AS THE ROW. `FR-009` forbids three things in
-  //   one clause -- the self reference, a pair that already has a dependency,
-  //   and an endpoint that is neither task nor milestone -- and only the first
-  //   is this row's. The words name only the first, so they cannot be read
-  //   over a refusal this row is not carried for.
-  // ⭐ THE NEXT STEP IS THE ROAD THE SAME CLAUSE LEAVES STANDING: 「もし `GRS` が依存を作ることを拒んだ場合、`GRS` は、引きかけの
-  //   矢印だけを捨てること。…`GRS` は、構えを解除しないこと」, so the arming survives the refusal and
-  //   drawing to another task is the very next thing a person can do.
-  // ⇒ the words tell the scene.
   'RS-56': '87208aab9b1738c9',
-  //
-  // RS-57 -- 場面 「同じ id を持つものが、この文書に既に在る」, 作法 `NT-1`,
-  //   正 Chapter 6.1 の 表 T-220 の `IV-1`.
-  // ⭐ `IV-1` is 「主キーの値が、それが並ぶ配列の中で重複しないこと」 and this
-  //   row is its violation. The words say a thing with the same id is already
-  //   in this document -- the row's own vocabulary (id, not primary key),
-  //   which is the vocabulary a reader of the screen has.
-  // ⭐ THE NEXT STEP NAMES THE ONE ROAD: give it a different id. `IV-1` is
-  //   violated by the duplicate alone, so nothing else clears it.
-  // ⚠️ IT STAYS CLEAR OF `RS-25` 「読んだ `GRS JSON` の列が、決められた形に合わ
-  //   ない」, which is a malformed value; here the value is well formed and
-  //   already taken.
-  // ⚠️ WHAT THE READING COULD NOT SETTLE, and it is not a mismatch between the
-  //   two sides: the closing of the table keeps 取り込みの検証（`FR-023`）の
-  //   拒否 out of T-233 because 表 T-220's rows have row IDs of their own, yet
-  //   this row and `RS-58` take T-220 rows for their 正. The scene that
-  //   separates them is a WRITE refused by the invariant rather than an import
-  //   refused by it. ⛔ That is a question for the manuscript, not for the
-  //   words, and it is left where it is.
-  // ⇒ the words tell the scene.
   'RS-57': '7321f1ec92dfb996',
-  //
-  // RS-58 -- 場面 「終了が開始より前である」, 作法 `NT-1`, 正 Chapter 6.1 の
-  //   表 T-220 の `IV-10`.
-  // ⭐ The row and both languages say one thing and the same thing: the finish
-  //   lies before the start.
-  // ⭐⭐ THE NEXT STEP IS EXACTLY AS WIDE AS `IV-10` AND NOT NARROWER. The
-  //   invariant is 「`finish` が `start` より前でないこと」, which ADMITS the two
-  //   being the same day, and the step offers the same day or a later one. A
-  //   step that asked for a later day only would forbid what the invariant
-  //   allows, and a person who followed it would never learn that a same-day
-  //   task is well formed.
-  // ⚠️ IT STAYS CLEAR OF `RS-50` 「文書が使えない日付を持つ `Task` を落として、
-  //   残りを取り込んだ」: that row is `NT-5`, an import that was ACCEPTED after
-  //   dropping tasks, where this row is `NT-1`, a write that is refused and
-  //   changes nothing.
-  // ⇒ the words tell the scene.
   'RS-58': '48b6575a7f704f7e',
   'RS-59': 'ca5ce244475236d8',
   'RS-60': '275f46ff4448f779',
-  // Why: the words are option B of Q2 (JDG-300), read against the scene: the task group is read-only
-  // because a group is set on it, and a copy into a task group with no group is a write FR-111 allows.
   'RS-61': '7e85652bf3f5fe1a',
-  // Why: read 2026-09-30; the words name editPermission by its PR-33 label and point to the person who may set it.
   'RS-62': 'bf2d387ab7a11905',
-  // Why: read 2026-09-30; the words say the prompt is on the clipboard and to hand it to an AI (FR-068).
-  // Why: CR-713 (JDG-1737) changed only the word for copy (utsushi -> kopi-); read together, the scene and
-  // the words still tell the same copy to the clipboard, so only the fingerprint is re-keyed.
-  // Why: CR-827 (JDG-3086) added the schema file to the scene; read together, the words name the prompt on the
-  // clipboard and the downloaded grs-document.schema.json, both handed to an AI (FR-068), so they tell the scene.
   'RS-65': 'a159e9808bbc345e',
-  // Why: read 2026-09-30; too many pinned task groups to show the jump target, and unpinning is the road.
   'RS-66': '8902906e4fbc4e1f',
   'RS-67': '1271e9fd41af3746',
-  // Why: read 2026-10-03; the words say the schedule picture reached the clipboard, no next step (JDG-1094).
-  // Why: CR-713 (JDG-1737) changed only the word for copy (utsushi -> kopi-); read together, the scene and
-  // the words still tell the same copy to the clipboard, so only the fingerprint is re-keyed.
   'RS-68': 'f2d7f18901dcc0a0',
-  // Why: read 2026-10-04; a milestone has no span, so it cannot be a parent, and the next step is a bar with a span (PTL-8).
   'RS-69': '622c7c9858d60d6a',
-  // Why: read 2026-10-04; a dashed arrow is a parent inferred from dates, and the road is to link it under AR-7 (PTL-12).
   'RS-70': '164e7929c5bca997',
-  // Why: read 2026-10-07; the matching tasks were overwritten with the file's values (MG-14), and
-  // undo is the road back; the count NT-3 asks for is the notice's own, not a word of the row.
   'RS-71': 'e4cf8addf139dc9d',
-  // Why: read 2026-10-07; tasks the file did not carry were kept (MG-7 only says it keeps them),
-  // an NT-5 notice that is accepted, and deleting by hand is the road.
   'RS-72': 'b9542a7c91a16d34',
-  // Why: read 2026-10-07; the tasks that came last time and not now are listed by name below
-  // (MG-11), and the step warns a kept one comes back on the other side at the next export.
   'RS-73': 'd09a368a5aadff7b',
-  // Why: read 2026-10-07; a write refused (AG-9a) while an NT-7 question stands, and the road is
-  // to try again once that question has been answered (WS-2). Re-read 2026-10-09 (CR-718): the
-  // scene now says a screen write is dropped as RS-27, not told; the words still tell it.
   'RS-74': '2fda66aed54bfb73',
-  // Why: read 2026-10-08 (CR-705); opening or reopening a file broke for no row's reason (IF-3),
-  // an NT-3a notice, and the road is to open it once more.
   'RS-75': 'd7540ecac35069e4',
-  // Why: read 2026-10-08 (CR-705); saving or writing out broke for no row's reason (IF-3), the file
-  // may not hold it, and the road is another destination, as RS-3's.
   'RS-76': '12abe41d1b423c81',
   'RS-77': '4632023f72925b3e',
-  // Why: read 2026-10-10 (CR-719, JDG-1777); four tell why a file is not opened (a limit of
-  // table T-211 or a Task with no dates), seven tell which row of table T-220 an edit broke.
   'RS-78': '49e4427d5fbf4fc7',
   'RS-79': '8594e69ebd464347',
   'RS-80': '3adf2f4780a23be2',
@@ -556,14 +154,7 @@ const PAIRED_ON_2026_09_03: Readonly<Record<string, string>> = {
   'RS-86': '118c544dd5ae1637',
   'RS-87': 'b6b6bb28f94a91c1',
   'RS-88': '0e1f8f1cef6b1cc1',
-  // Why: read 2026-10-11 (CR-710 wave 2); RS-89 tells the ranges miss 1d, which still counts the day
-  // length. CR-755 (JDG-2107) retired the MSPDI time zone notice: nothing is told when the PC's zone is set.
-  // Why: read 2026-10-15 (CR-751); the scene now also counts a one-off working exception day, and the
-  // words still tell that the ranges miss 1d, so only the fingerprint is re-keyed.
   'RS-89': 'afc4b6d7567c09ae',
-  // Why: read 2026-10-18 (CR-796 slice 1); RS-90 tells the relay link dropped, and the words tell the person to reopen the address the AI gives.
-  // Why: read 2026-10-19 (CR-808); the scene now says the page's own reconnect tries all failed first, and
-  // the words still tell the link was lost and to reopen the address, so only the fingerprint is re-keyed.
   'RS-90': 'f6b4a054a668daef',
 }
 
@@ -579,30 +170,19 @@ const fingerprintOf = (specTableRowId: string): string => {
   return createHash('sha256').update(payload, 'utf8').digest('hex').slice(0, 16)
 }
 
-// ---------------------------------------------------------------------------
-// The road the words take, so that "delivered" means what it says
-// ---------------------------------------------------------------------------
-
+// Spec: T-233, T-037, NT-1, NT-3a
 describe('table T-233 -- every row has its word, and no word has no row', () => {
   it('holds a reason for every row of the table and no reason outside it (MUST)', () => {
-    // 表 T-037's closing: 「`GRS` は、通知が運ぶ理由を 表 T-233 の行とすること。
-    // `GRS` は、表 T-233 に無い理由を運ばないこと」 and 「を持たない行を足す者は、`FR-038` の辞書
-    // の原稿にも項を足すこと」. Both directions, so neither side can
-    // grow alone.
     expect([...DELIVERED.map((one) => one.specTableRowId)].sort()).toEqual([...ROWS_WITH_OWN_WORDS].sort())
   })
 
   it('the words that reach src/ are the words the manuscript holds (Chapter 6.2, MUST)', () => {
-    // ⭐ THIS IS WHAT MAKES THE LATCH BELOW A LATCH ON DELIVERED PROSE. Chapter
-    // 6.2 (MUST) has the words reach `src/` as one generated file; if the two
-    // ever parted, a fingerprint taken over either would say nothing about what
-    // a reader is told.
+    // Why: the latch below fingerprints the delivered words, which say what a reader is told
+    // only while they equal the manuscript.
     expect(DELIVERED).toEqual(MANUSCRIPT)
   })
 
   it('says something in both languages for every row (NT-1, MUST)', () => {
-    // 表 T-037 `NT-1`: 「どの項目が、なぜ誤りかを文字で示すこと（MUST）… 色や枠
-    // だけで示してはならない（MUST NOT）」. An empty word shows nothing.
     for (const specTableRowId of ROW_IDS) {
       const entry = entryOf(specTableRowId)
       expect(entry.text.ja.trim(), `${specTableRowId} has no Japanese word`).not.toBe('')
@@ -611,9 +191,6 @@ describe('table T-233 -- every row has its word, and no word has no row', () => 
   })
 
   it('adds the next step wherever the row calls for NT-3a (MUST)', () => {
-    // 表 T-037 `NT-3a`: 「次に取れる手段を添えること（MUST）—— … 失敗したこと
-    // だけを伝えて手段を示さない通知を出してはならない（MUST NOT）」. Which rows
-    // those are is read off the 作法 column, never listed here.
     const owing = ROW_IDS.filter((specTableRowId) => mannerOf(specTableRowId) === 'NT-3a')
     expect(owing.length, 'no row of T-233 calls for NT-3a any more').toBeGreaterThan(0)
     for (const specTableRowId of owing) {
@@ -624,19 +201,17 @@ describe('table T-233 -- every row has its word, and no word has no row', () => 
   })
 })
 
+// Spec: T-233, FR-038
+// Why: a review latch, not a claim the words are true: either the scene or the words moving
+// fails the row, so neither side moves in silence.
 describe('table T-233 -- the word and the row it is carried for were read together', () => {
   it('has a recorded pairing for every row, and none for a row that is gone', () => {
-    // ⛔ A row added to T-233 arrives here without a pairing rather than being
-    // waved through, and a retired row's pairing is not left behind.
     expect(Object.keys(PAIRED_ON_2026_09_03).sort()).toEqual([...ROW_IDS].sort())
   })
 
   it.each(ROW_IDS)(
     '%s: the 場面 and the words it is answered with have not moved apart',
     (specTableRowId) => {
-      // ⚠️ NOT A CLAIM THAT THE WORDS ARE TRUE -- see the head of this file. It
-      // is the latch DFC-166 asks for: the row was rewritten, the word was not,
-      // and nothing said so.
       const entry = entryOf(specTableRowId)
       expect(
         fingerprintOf(specTableRowId),

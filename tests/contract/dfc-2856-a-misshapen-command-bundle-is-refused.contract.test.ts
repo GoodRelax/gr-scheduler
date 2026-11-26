@@ -15,6 +15,7 @@ const REQUIREMENTS = unbroken(readFileSync(join(SPEC, '01-04-requirements.md'), 
 const MEMBERS = unbroken(readFileSync(join(SPEC, '_assets', 'tbl-agent-api-members.md'), 'utf8'))
 const PUBLISHED = unbroken(readFileSync(join(SPEC, '_assets', 'tbl-published-entries.md'), 'utf8'))
 
+// Spec: IMPS-1057
 const FR_028_NO_THROW = '`GRS` は、`Agent API` の呼び出しで例外を投げないこと。'
 const AV_4_MALFORMED = "`'malformedRequest'` —— 呼び方の形が違う（`FR-028`）"
 const AM_7 = '| AM-7 | 書く | `applyCommands` |'

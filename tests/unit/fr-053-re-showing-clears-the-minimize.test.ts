@@ -1,47 +1,4 @@
-// FR-053 (MUST) as the user ruled it on 2026-09-01: DFC-179 「ヘッダーでコマンドパレット
-// を再表示した時、コマンドパレットは標準サイズで表示しろ」 -- when S-99e goes from
-// hidden to shown, S-200 goes back to not minimized.
-//
-// Unit under test: UF-48 of table T-075 (`frame-loop.ts`, component CP-25 of
-// table T-062). It is the only layer that may hold a current value (LY-5 of
-// table T-060), so S-200 is its to move and it is the side that answers what a
-// press did.
-//
-// ⚠️ Chapter 9 does not admit Unit as a TEST_LEVEL, so these cases have no node
-// in the specification. Table T-218 of Chapter 7 gives them their place: TS-6,
-// tests/unit/.
-//
-// ⛔ WRITTEN FROM docs/spec AND NOTHING ELSE (docs/development-rules/
-// 04-verification.md section 1). What was read of `src/`: the exported
-// declarations of `frame-loop.ts` (`FrameEnvironment`, `FrameLoop`,
-// `ScreenWiring`) and the one signature `frameLoop(surface, first, env,
-// screen?)`; the exported types of `screen-renderer.ts` (`CommandPalette`,
-// `ScreenPart`, `ScreenSurface`, `ScreenView`, `DisplayLanguage`) and of
-// `input-command-translator.ts` (`HumanInput`, `KeyInput`, `PointerInput`,
-// `InputModifiers`, `PointerButton`, `PointerPhase`). ⛔ NO FUNCTION BODY WAS
-// READ.
-//
-// ⭐ THE HOST, THE FIXTURE DOCUMENT AND THE STAGE ARE COPIED from
-// tests/unit/fr-072-a-moved-selection-does-not-open-the-panel.test.ts, which drives this
-// same unit through the same seams.
-//
-// ---------------------------------------------------------------------------
-// The rules these cases answer to
-// ---------------------------------------------------------------------------
-//
-//   FR-053   ⭐ 「`S-99e` が非表示から表示へ変わったとき、`S-200` を最小化して
-//            いない側へ戻すこと（MUST）」 —— 利用者の裁定 2026-09-01.
-//            ⭐ 「最小化と復帰は 1 つの入口（表 T-109 の `IC-75`）が同じ場所で
-//            担い ... 既定は最小化していない」.
-//            ⚠️ 「非表示（`S-99e`）とは別の状態である」 -- which is why the
-//            clearing is one direction only, and why a case below holds the
-//            minimize itself standing when nothing hid the palette.
-//   T-109    IC-7 (`App Header`, 「コマンドパレットを表示する・非表示にする
-//            （`S-99e`）」) and IC-75 (the minimize toggle, `S-200`).
-//   T-036    SK-14, which moves the same row from the keyboard.
-//   T-206    S-99e (表示状態、既定は表示) and S-200 (最小化しているか、既定は
-//            最小化していない).
-// ---------------------------------------------------------------------------
+// Unit tests: showing the command palette again clears its minimize (UF-48).
 
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -72,11 +29,7 @@ import {
 } from '../../src/framework/single-html-shell/frame-loop'
 import { bare, specTable, unbroken } from '../contract/spec-table'
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
-// ---------------------------------------------------------------------------
-// What the manuscript says, read at run time rather than copied
-// ---------------------------------------------------------------------------
+/* eslint-disable @typescript-eslint/no-explicit-any -- the fake host patches browser globals and untyped JSON */
 
 const rowOf = (table: string, id: string) => {
   const found = specTable(table).rows.find((row) => row.id === id)
@@ -87,12 +40,9 @@ const rowOf = (table: string, id: string) => {
 const ENTRANCE_COLUMN = '何の入口か'
 const SURFACE_COLUMN = '面'
 
-/** S-99e -- whether the palette is shown. The join both sides spell. */
 const PALETTE_SHOWN_SETTING = 'S-99e'
-/** S-200 -- whether it is minimized. */
 const PALETTE_MINIMIZED_SETTING = 'S-200'
 
-/** The one entrance of table T-109 that moves S-99e, and the surface it is on. */
 const SHOW_HIDE = ((): { readonly row: string; readonly surface: string } => {
   const found = specTable('T-109').rows.filter((row) =>
     (row.by[ENTRANCE_COLUMN] ?? '').includes(PALETTE_SHOWN_SETTING),
@@ -104,7 +54,6 @@ const SHOW_HIDE = ((): { readonly row: string; readonly surface: string } => {
   return { row: row.id, surface: bare(row.by[SURFACE_COLUMN] ?? '') }
 })()
 
-/** The one entrance that moves S-200, and the surface it rides on. */
 const MINIMIZE = ((): { readonly row: string; readonly surface: string } => {
   const found = specTable('T-109').rows.filter((row) =>
     (row.by[ENTRANCE_COLUMN] ?? '').includes(PALETTE_MINIMIZED_SETTING),
@@ -116,12 +65,7 @@ const MINIMIZE = ((): { readonly row: string; readonly surface: string } => {
   return { row: row.id, surface: bare(row.by[SURFACE_COLUMN] ?? '') }
 })()
 
-/**
- * The key SK-14 of table T-036 assigns, read out of the row.
- *
- * ⭐ NOT TYPED: 「割当の綴りも入口の説明もコピーしてはならない（MUST NOT）」 is stated
- * of that table's 入口 column, so the spelling has one home.
- */
+// Spec: T-036, SK-14
 const PALETTE_KEY = ((): string => {
   const cell = bare(rowOf('T-036', 'SK-14').by['割当'] ?? '')
   const first = cell.split('/')[0]?.trim() ?? ''
@@ -129,18 +73,13 @@ const PALETTE_KEY = ((): string => {
   return first
 })()
 
-/** FR-053's sentence these cases stand on, quoted from the manuscript. */
 const REQUIREMENTS = unbroken(readFileSync(
   join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'),
   'utf8',
 ))
+// Spec: IMPS-1843
 const FR_053_RE_SHOWING_CLEARS_IT =
   '`S-99e` が非表示から表示へ変わったとき、`GRS` は `S-200` を最小化していない側へ戻すこと。'
-
-// ---------------------------------------------------------------------------
-// The document these cases drive. Copied from
-// tests/unit/fr-072-a-moved-selection-does-not-open-the-panel.test.ts.
-// ---------------------------------------------------------------------------
 
 const TEMPLATE = JSON.parse(
   readFileSync(
@@ -174,10 +113,6 @@ function emptyDocument(): Document {
   } as unknown as Document
 }
 
-// ---------------------------------------------------------------------------
-// The host UF-48 is given. Copied from the same file.
-// ---------------------------------------------------------------------------
-
 const SCREEN: FrameEnvironment = {
   width: 1400,
   height: 800,
@@ -187,11 +122,7 @@ const SCREEN: FrameEnvironment = {
 
 const realRaf = (globalThis as any).requestAnimationFrame
 
-/**
- * ⚠️ THE HOST IS A FAKE, AND THE FAKE IS NOT THE TEST (R6.3). Vitest runs under
- * node with no `requestAnimationFrame`, and LY-5 of table T-060 puts the browser
- * in this layer. ⛔ Nothing in this fake decides anything about the palette.
- */
+// Summary: the host runs the queued animation frames when asked and decides nothing about the palette.
 function host(): { readonly surface: { showSvg(svg: string): void; showMarqueeOverlaySvg(svg: string): void }; runAnimationFrames(): void } {
   const waiting: ((time: number) => void)[] = []
   let handle = 0
@@ -244,10 +175,6 @@ afterEach(() => {
   else (globalThis as any).requestAnimationFrame = realRaf
 })
 
-// ---------------------------------------------------------------------------
-// Spelling one happening
-// ---------------------------------------------------------------------------
-
 const NO_MODIFIERS: InputModifiers = { ctrl: false, shift: false, alt: false, meta: false }
 
 const key = (which: string): KeyInput => ({
@@ -269,9 +196,9 @@ const pointer = (phase: PointerPhase, x: number, y: number): PointerInput => ({
 interface Stage {
   readonly loop: FrameLoop
   send(input: HumanInput): void
-  /** The palette this frame described, or `null` while S-99e says it is hidden. */
+  // Summary: palette() returns the palette of the last frame, or null while S-99e hides it.
   palette(): CommandPalette | null
-  /** Press one entry of table T-109, aimed the way CS-2 freezes it at the press. */
+  // Spec: T-109, CS-2
   press(surface: string, entry: string): void
 }
 
@@ -305,21 +232,14 @@ function stage(): Stage {
   }
 }
 
-/** Whether the frame just drawn says the palette is minimized. */
 function isMinimized(built: Stage): boolean {
   const drawn = built.palette()
   if (drawn === null) throw new Error('the palette is hidden, so it says nothing about S-200')
   return drawn.isMinimized
 }
 
-// ===========================================================================
-// The premises every case below stands on
-// ===========================================================================
-
 describe('the manuscript still says what these cases read', () => {
   it('⭐ was really driven by the manuscript, and not by a hollow read of it', () => {
-    // GOES RED IF: a second entrance for either state is added to table T-109,
-    // or SK-14 loses its assignment.
     expect(SHOW_HIDE.surface).toBe('App Header')
     expect(MINIMIZE.surface).toBe('Command Palette')
     expect(SHOW_HIDE.row).not.toBe(MINIMIZE.row)
@@ -327,30 +247,22 @@ describe('the manuscript still says what these cases read', () => {
   })
 
   it('⛔ FR-053 still says that re-showing clears the minimize', () => {
-    // ⭐ THE GROUND OF THIS WHOLE FILE, read rather than typed: if the ruling of
-    // 2026-09-01 is ever reversed, this case says so in one line.
+    // Spec: FR-053
     expect(REQUIREMENTS).toContain(FR_053_RE_SHOWING_CLEARS_IT)
   })
 })
 
-// ===========================================================================
-// The rule
-// ===========================================================================
-
 describe('FR-053 (MUST): S-99e going from hidden to shown clears S-200', () => {
   it('⭐ the palette starts shown and not minimized, as table T-206 states', () => {
-    // GOES RED IF: either default is turned round, which would make every case
-    // below start from a state the manuscript does not describe.
+    // Spec: T-206
     const built = stage()
     expect(built.palette()).not.toBeNull()
     expect(isMinimized(built)).toBe(false)
   })
 
   it('⭐ the minimize entrance still minimizes, and nothing else undoes it', () => {
-    // ⚠️ THE CONTROL CASE. Without it, a unit that simply never minimized would
-    // pass the case below.
-    // GOES RED IF: IC-75 stops moving S-200, or something clears it on a frame
-    // where the palette was never hidden.
+    // Spec: IC-75
+    // Why: the control case; without it a unit that never minimized would pass the cases below.
     const built = stage()
     built.press(MINIMIZE.surface, MINIMIZE.row)
     expect(isMinimized(built)).toBe(true)
@@ -360,11 +272,7 @@ describe('FR-053 (MUST): S-99e going from hidden to shown clears S-200', () => {
   })
 
   it('⭐ showing it again from the header brings it back at its standard size', () => {
-    // ⭐ THE USER'S RULING, MEASURED AT THE UNIT: DFC-179 「ヘッダーでコマンドパレットを
-    // 再表示した時、コマンドパレットは標準サイズで表示しろ」.
-    // GOES RED IF: the two states go back to being independent, which is what
-    // they were until 2026-09-01 -- the palette then came back minimized and
-    // the only way out was to find the toggle on the band again.
+    // Spec: FR-053, IC-7
     const built = stage()
     built.press(MINIMIZE.surface, MINIMIZE.row)
     expect(isMinimized(built)).toBe(true)
@@ -376,11 +284,9 @@ describe('FR-053 (MUST): S-99e going from hidden to shown clears S-200', () => {
   })
 
   it('⭐ the key SK-14 assigns brings it back the same way', () => {
-    // ⭐ THE REQUIREMENT IS WRITTEN ABOUT S-99e AND NOT ABOUT ONE ENTRANCE, and
-    // table T-036's SK-14 moves the same row -- so the two entrances may not
-    // answer differently.
-    // GOES RED IF: the clearing is hung on the header press rather than on the
-    // change of state.
+    // Spec: FR-053, SK-14
+    // Why: FR-053 is written about S-99e and not about one entrance, so a clearing hung on the
+    // header press rather than on the change of state fails here.
     const built = stage()
     built.press(MINIMIZE.surface, MINIMIZE.row)
     built.send(key(PALETTE_KEY))
@@ -390,11 +296,8 @@ describe('FR-053 (MUST): S-99e going from hidden to shown clears S-200', () => {
   })
 
   it('⛔ the entries come back with it, so the palette is whole again', () => {
-    // ⚠️ 「標準サイズ」 is what the person sees, and what makes the palette its
-    // standard size is that FR-053's entrance list is offered again -- 「入口の
-    // 並びは最小化のあいだ出さない」 is the sentence the minimize stands on.
-    // GOES RED IF: S-200 is cleared on the description while the entries are
-    // still withheld, which would clear the flag and change nothing on screen.
+    // Why: the standard size is what the person sees, so the case checks that the entries return,
+    // not only that S-200 was cleared.
     const built = stage()
     const whole = built.palette()?.groups.length ?? 0
     expect(whole, 'the palette offers entrances at all').toBeGreaterThan(0)

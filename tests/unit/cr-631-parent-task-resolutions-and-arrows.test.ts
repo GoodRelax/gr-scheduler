@@ -44,6 +44,7 @@ const flat = (text: string): string => text.replace(/<br\s*\/?>/g, '').replace(/
 
 const IP_5_ROOT = '`GRS` は、上にタスクグループの無いタスクグループ（最上位のタスクグループ）に載る `Task` を、`parentTaskUid` が `null` なら親なし（根）とすること。'
 const IP_5_NO_VO_4 = '`GRS` は、`IP-5` の根を 表 T-312 の `VO-4` にしないこと。'
+// Spec: IMPS-1406
 const FR_135_FAMILY = '家族とは、持ち主の `Task` から親への矢印と、持ち主の子から持ち主の `Task` への矢印である。'
 const FR_135_NOT_ALL = '`GRS` は、すべての親タスクと子タスクを一度に描かないこと。'
 const FR_135_SHAPE = '`GRS` は、矢印を、子のバーの上辺の中ほどから縦に上がり、矢じりが親のバーの下辺に触れる形とし'

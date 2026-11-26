@@ -1,4 +1,4 @@
-// DFC-709 spec-only cases: PI-18 / T-280 / SK-15 / IC-11 -- an input that is the full-screen entrance (the F11 key, or a press on IC-11) makes the screen-value event fullScreenEntryPressed; F11 is stopped for the browser and changes no document.
+// Contract tests: the full-screen entrance (F11, or a press on IC-11) makes fullScreenEntryPressed and changes no document.
 
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -94,7 +94,7 @@ describe('DFC-709 -- PI-18 screenEventFromInput on the full-screen entrance', ()
     expect(screenEventFromInput(keyOf(SK_15_KEY), context)).toEqual({ type: 'fullScreenEntryPressed' })
   })
 
-  // see DFC-709, T-280
+  // Spec: T-280
   it('DFC-709: IC-11 (T-280 names it beside SK-15): a press released on the entrance makes the same event', () => {
     const pressed = { ...context, pressed: entryPress(FULL_SCREEN_ENTRANCE) }
     expect(screenEventFromInput(pointerUp, pressed)).toEqual({ type: 'fullScreenEntryPressed' })

@@ -1,43 +1,4 @@
-// Unit tests for UF-27 `agent-api-endpoint.ts` (the public entry), UF-28
-// `agent-api-members.ts` (the members) and UF-29 `snapshot-source.ts`
-// (the seam declaration) -- table T-075 of docs/spec/05-07-design.md, component
-// `AgentApiEndpoint` (CP-17 of table T-062), published as PI-17 of table T-064.
-//
-// Chapter 9 does not admit Unit as a TEST_LEVEL, so these have no node in the
-// specification. Table T-218 of Chapter 7 gives them their place: TS-6,
-// tests/unit/.
-//
-// WRITTEN WITHOUT READING THE UNIT'S BODIES (docs/development-rules/
-// 04-verification.md, section 1). What was read: docs/spec/ for every rule
-// below, and of the three files only their head comments, their exported types
-// and their exported signatures. Every expected value here comes from a
-// requirement or a table row, never from the implementation.
-//
-// The rows these cases answer to:
-//   table T-107   the members: the names, the order, the groups, and
-//                 the part-of-speech column that says which two are properties
-//   table T-035   AG-1 the version, AG-2 the optimistic lock, AG-3 atomicity,
-//                 AG-4 the frozen copy, AG-6 which writers wake a watcher,
-//                 AG-7 an export is a value, AG-8 a failed image is a value,
-//                 AG-9 the two mid-gesture flags, AG-9a what a refusal carries,
-//                 AG-10 a call that runs but leaves no step
-//   FR-028        accepted or refused, as a value; never a thrown exception
-//   FR-063        the schedule-data instant moves only for the schedule-data
-//                 group, and the writer and the settings instant are refreshed
-//                 either way. ⛔ The stamp is never read as an order
-//   FR-065        nothing is exposed until the install call is made
-//   FR-031        one call is one step of the undo history
-//   table T-067   WS-1 the three-field stamp match, WS-2 the moment, WS-3 the
-//                 whole bundle dropped on one refusal
-//   table T-027   UN-8 and UN-16 keep the view out of the history; UN-9 keeps
-//                 the selection out of the document
-//   table T-037   NT-1: a refusal says WHICH item is wrong and why
-//   table T-203   S-77 and S-78, the two the view position is written into
-//   FR-021        the round trip loses nothing (exercised through AM-11)
-//
-// Chapter 1.9 (:275) asks a test of a requirement that points at a table to be
-// driven by a fixed copy of that table, one test walking every row. T_107,
-// T_035_UNWIRED and T_067_WS1 below are those copies.
+// Unit tests: UF-27 agent-api-endpoint, UF-28 agent-api-members and UF-29 snapshot-source.
 
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -89,25 +50,15 @@ import {
   unwatchChanges,
   type ChangeNotice,
 } from '../../src/use-case/notify-change-watchers/notify-change-watchers'
-// ⚠️ The one reach into `Framework` this file makes, and it stands in for the
-// implementor of IF-7: FR-080's export environment is the shell's to build
-// (LY-5 of table T-060, MN-6 of table T-070), so the bench asks the shell for
-// one instead of deciding "closed" a second time. See `exportSceneOf`.
+// Why: the one reach into Framework: FR-080's export environment is the shell's to build, so
+// the bench asks the shell for one instead of deciding closed a second time.
 import { frameLoop } from '../../src/framework/single-html-shell/frame-loop'
 import { DEFAULT_TASK_GROUP_NAME } from '../../src/adapter/screen-renderer/screen-renderer'
 import { bare, specTable, unbroken } from '../contract/spec-table'
 
 const LAST_SAVED_AT = '2026-10-03T09:00:00'
 
-// ---------------------------------------------------------------------------
-// Fixed copies of the tables these cases are driven by.
-// ---------------------------------------------------------------------------
-
-/**
- * Table T-107 of `_assets/tbl-agent-api-members.md`, in the table's own order. `isProperty`
- * is the part-of-speech column: the first two rows are properties, the others
- * are verb-plus-object calls.
- */
+// Spec: T-107
 const T_107 = [
   { row: 'AM-1', name: 'agentApiVersion', isProperty: true },
   { row: 'AM-2', name: 'schemaVersion', isProperty: true },
@@ -137,63 +88,29 @@ const T_107 = [
   { row: 'AM-17', name: 'watchChanges', isProperty: false },
 ] as const
 
-/**
- * The rows of table T-107 whose work has no entry to hand to yet, per the head
- * comment of `agent-api-members.ts`. FR-028 is what makes each one answer with
- * a value rather than throwing, so a walk of these is a walk of that MUST NOT.
- *
- * ⭐ AM-12 REMOVED (2026-09-05). It was here on the claim that DocumentCodec's
- * public entry (PI-20) published no `exportMspdi` seam. That claim was
- * re-measured on the shipping build and is false: `document-codec.ts:68`
- * publishes `mspdiFromDocument`, the Agent API and the person-driven road both
- * answer with the same 650,004-byte MSPDI text for the same document, and
- * `agent-api-members.ts` now wires AM-12 to it. The other five still have
- * nowhere to hand their work (AM-14 and AM-15: the seam does not reach this
- * component; AM-8, AM-9, AM-10: this component's own face has no way to carry
- * what the call takes) and are unchanged. See AM-12's own describe block below
- * for the claim that replaces this one.
- *
- * ⚠️ AM-14 AND AM-15 ARE WIRED IN `src/` SINCE 2026-09-07 (台帳 DFC-356), and
- * they are still on this roster for a reason that is now the BENCH's rather
- * than the component's: `wiring` below hands neither IF-6 nor IF-8, which is
- * the environment a loop touching no picture runs in, and both members answer
- * `notAvailable` for it. ⭐ So this walk still walks FR-028's MUST NOT -- an
- * absent seam is answered with a value -- and the two rows are exercised
- * against a REAL seam by the shipped-build probe instead.
- */
-// ⭐ AM-30 readSchema (CR-799): the relay answers it itself, so the page's surface has no such member (AG-12 (4)).
+// Why: AM-30 readSchema is answered by the relay itself, so the page's surface has no such
+// member (AG-12).
 const SURFACE_LACKS: readonly string[] = ['AM-30']
 const PROPERTY = 'プロパティ'
 const AM_25_RETURNS = '語を 1 つ受け、検索パネルの 2 つの表と同じ行を返す。'
 
 const T_035_UNWIRED = ['AM-8', 'AM-9', 'AM-10', 'AM-14', 'AM-15'] as const
 
-/**
- * WS-1 of table T-067 and AG-2 of table T-035: the match is made on all three
- * stamp fields, so each field on its own must be able to turn a write away.
- * The values below are only "something other than what the document holds".
- */
+// Spec: WS-1, AG-2
+// Why: the values are only something other than what the document holds.
 const T_067_WS1 = [
   { field: 'scheduleUpdatedAt', differs: { scheduleUpdatedAt: '2026-08-19T11:00:00Z' } },
   { field: 'lastEditedBy', differs: { lastEditedBy: 'somebody else entirely' } },
   { field: 'settingsUpdatedAt', differs: { settingsUpdatedAt: '2026-08-19T11:00:00Z' } },
-  // ⛔ FR-063 (MUST NOT): 「刻印を順序として読んではならない」. A stamp that
-  // reads EARLIER than the document's is a mismatch just the same -- an undo
-  // restores one (FR-031), so "older" is not "harmless".
+  // Why: FR-063 never reads a stamp as an order: an undo restores an earlier one (FR-031), so
+  // older is not harmless.
   { field: 'scheduleUpdatedAt, earlier', differs: { scheduleUpdatedAt: '1999-01-01T00:00:00Z' } },
   { field: 'settingsUpdatedAt, earlier', differs: { settingsUpdatedAt: '1999-01-01T00:00:00Z' } },
 ] as const
 
-// ---------------------------------------------------------------------------
-// The document these cases are driven by.
-// ---------------------------------------------------------------------------
-
-// BT-4 of table T-034: the one template FR-027 keeps, held as bundled GRS JSON.
-// It is the only document whose values the specification has actually decided,
-// so the settings, the project and the calendar come from it rather than from a
-// second idea of a document invented here. Only the schedule's rows are cut
-// down, so that a case that freezes and copies the whole root does not walk a
-// thousand tasks each time.
+// Spec: BT-4, FR-027
+// Why: the one document whose values the spec decides; only its schedule rows are cut down,
+// so a case that freezes the whole root does not walk a thousand tasks.
 const TEMPLATE_PATH = join(
   process.cwd(),
   'src',
@@ -211,7 +128,6 @@ const templateGroups = templateSchedule['taskGroups'] as readonly Loose[]
 
 const FIRST_UID = 101
 const SECOND_UID = 102
-/** A uid no task carries, for AM-16's `unknownTask`. */
 const ABSENT_UID = 999_999
 
 const FIRST_START = '2026-04-01T00:00:00'
@@ -262,7 +178,6 @@ const SMALL_SCHEDULE: Loose = {
   baselineTasks: [],
 }
 
-/** The stamp the document starts each case with. AT-127 to AT-129 name the three. */
 const STARTING_STAMP = {
   scheduleUpdatedAt: '2026-08-19T10:00:00Z',
   lastEditedBy: 'a person at the keyboard',
@@ -280,7 +195,6 @@ const OPEN_SCHEDULE: Loose = {
   ],
 }
 
-/** The same root with nothing in the schedule: the empty boundary. */
 const EMPTY_SCHEDULE: Loose = {
   ...SMALL_SCHEDULE,
   tasks: [],
@@ -288,7 +202,7 @@ const EMPTY_SCHEDULE: Loose = {
   taskGroupMembers: [],
 }
 
-// Why: the document a read hands over holds no "$schema"; the writer adds it (DR-4, CR-699).
+// Why: the document a read hands over holds no "$schema"; the writer adds it (DR-4).
 const startingDocument = (): Document =>
   ({
     ...Object.fromEntries(Object.entries(TEMPLATE).filter(([key]) => key !== '$schema')),
@@ -297,14 +211,12 @@ const startingDocument = (): Document =>
     changeLog: [],
   }) as unknown as Document
 
-// ---------------------------------------------------------------------------
-// The values LY-5 of table T-060 keeps outside the three inner layers, which is
-// why every one of them arrives through IF-7 rather than being read here.
-// ---------------------------------------------------------------------------
+// Why: LY-5 keeps these values outside the three inner layers, so each arrives through IF-7
+// rather than being read here.
 
 const HISTORY_LIMITS = {
   maxSteps: NOT_STORED_LIMITS['S-94'],
-  // S-95 is stated in megabytes; the plan counts bytes.
+  // Why: S-95 is stated in megabytes; the plan counts bytes.
   maxTotalSizeBytes: NOT_STORED_LIMITS['S-95'] * 1024 * 1024,
 }
 
@@ -322,10 +234,10 @@ const SCREEN: ScreenEnvironment = {
   propertyPanelWidth: 0,
 }
 
-/** CS-1 of table T-066 keeps the clock on the Framework's side; it arrives as a value. */
+// Why: CS-1 keeps the clock on the Framework's side, so it arrives as a value.
 const READ_AT = '2026-08-20T08:30:00Z'
 
-/** ADR-001: the frame's three results are computed once and handed round. */
+// Spec: ADR-001
 function frameOf(document: Document): FrameSnapshot {
   const settings = document.documentSettings
   const regions = regionsFromScreen(SCREEN, settings)
@@ -334,32 +246,17 @@ function frameOf(document: Document): FrameSnapshot {
   return { layout, geometry, regions }
 }
 
-/**
- * The other half of what IF-7 hands over: the environment FR-080 builds an
- * export in, which is NOT the frame above -- the two panels that requirement
- * names are closed there, so it is a second run of table T-068.
- *
- * ⭐ ASKED OF THE REAL IMPLEMENTOR rather than assembled here. FR-080's
- * "closed" is decided in ONE place (the shell, MN-6 of table T-070 and
- * ADR-001), and a second copy of that decision living in a test would be a
- * second place for the specification to have to reach. ⚠️ The loop is built
- * per reading because this bench's document is replaced by the writes the
- * cases make, and an environment built from an older one would answer AM-13
- * with a picture of a document no read of this API can return.
- */
+// Why: asked of the real shell, so FR-080's closed panels are decided in one place; built per
+// reading because the cases replace the bench's document.
 function exportSceneOf(document: Document): ExportScene | null {
   return frameLoop({ showMarqueeOverlaySvg: () => undefined, showSvg: () => undefined }, document, SCREEN).exportScene()
 }
-
-// ---------------------------------------------------------------------------
-// One running application, small enough to hold in a test.
-// ---------------------------------------------------------------------------
 
 interface Bench {
   readonly api: AgentApi
   readonly writerName: string
   readonly schemaVersion: string
-  /** How many times a member went through IF-7. FR-065's "nothing runs yet". */
+  // Summary: snapshotReads counts the calls that went through IF-7.
   snapshotReads: number
   document: Document
   history: EditHistory<ChangeStep>
@@ -367,26 +264,21 @@ interface Bench {
   frame: FrameSnapshot | null
   isGestureInFlight: boolean
   isEditingInPlace: boolean
-  /** S-94 / S-95, which the document does not keep. A case may move them. */
+  // Why: S-94 and S-95 are not kept in the document, so a case may move them here.
   historyLimits: { maxSteps: number; maxTotalSizeBytes: number }
   readAt: string,
   localReadAt: '2026-10-03T09:00:00',
-  /** What a watcher installed through AM-17 was handed. */
+  // Summary: notices holds what a watcher installed through AM-17 was handed.
   readonly notices: ChangeNotice[]
-  /** A write made by somebody who is not this API, through the one write path. */
+  // Summary: writeAsPerson writes as somebody who is not this API, through the one write path.
   writeAsPerson(commands: readonly DocumentCommand[], editedBy: string): void
 }
 
 let benchCount = 0
 const openBenches: Bench[] = []
 
-/**
- * A wired API over a fresh document.
- *
- * Each bench takes a writer name of its own because PI-15's registry is
- * module-scoped and keyed by that name (AG-6 gives a watcher no other identity),
- * so two benches sharing one name would share one subscription.
- */
+// Why: each bench takes its own writer name, since the PI-15 registry is module-scoped and
+// keyed by it; two benches sharing one name would share one subscription.
 function bench(startWithFrame = true, schedule: Loose = SMALL_SCHEDULE): Bench {
   benchCount += 1
   const writerName = `agent under test ${benchCount}`
@@ -401,9 +293,9 @@ function bench(startWithFrame = true, schedule: Loose = SMALL_SCHEDULE): Bench {
     frame: startWithFrame ? frameOf(document) : null,
     isGestureInFlight: false,
     isEditingInPlace: false,
-    // Why: changeDeliveryStateMachine.delivering, open only while WS-7 tells
-    // the watchers (CR-440 section 5); the shell holds it, and so does this bench.
     isQuestionAsked: false,
+    // Why: changeDeliveryStateMachine.delivering, open only while WS-7 tells
+    // the watchers; the shell holds it, and so does this bench.
     isDeliveringNotices: false,
     historyLimits: { ...HISTORY_LIMITS },
     readAt: READ_AT,
@@ -419,10 +311,8 @@ function bench(startWithFrame = true, schedule: Loose = SMALL_SCHEDULE): Bench {
       documentAsWritten: state.document,
       selection: state.selection,
       frame: state.frame,
-      // ⚠️ The two absences travel together: an implementor that has settled no
-      // size (BO-1 of table T-077) has neither a frame nor an environment to
-      // export from, and a bench that had one without the other would be a
-      // state no implementor can be in.
+      // Why: the two absences travel together: an implementor with no settled size (BO-1) has
+      // neither a frame nor an export environment.
       exportScene: state.frame === null ? null : exportSceneOf(state.document),
       isGestureInFlight: state.isGestureInFlight,
       isEditingInPlace: state.isEditingInPlace,
@@ -445,12 +335,11 @@ function bench(startWithFrame = true, schedule: Loose = SMALL_SCHEDULE): Bench {
         state.history = next.history
       },
     },
-    // WS-7 of table T-067: the audience is told after the swap. Handing it on to
-    // PI-15 is what a running shell does, and it is what lets AM-17 be observed.
+    // Why: handing the audience on to PI-15 after the swap (WS-7) is what a running shell does,
+    // and it lets AM-17 be observed.
     audience: {
-      // ⚠️ WS-5's judgment is the SECOND argument of `ChangeAudience.deliver`
-      // and has to be carried through: AG-6 of table T-035 selects a live
-      // watcher by it (MUST), and nothing downstream can work it out again.
+      // Trap: WS-5's judgment is the second argument of deliver and must be carried through: AG-6
+      // selects a live watcher by it, and nothing downstream can work it out again.
       deliver: (document, hasUpdatedSchedule) => {
         // Why: as the shell does, open the window at the head and close it in a
         // `finally` so a throwing watcher cannot leave WS-2 refusing for ever.
@@ -462,10 +351,8 @@ function bench(startWithFrame = true, schedule: Loose = SMALL_SCHEDULE): Bench {
         }
       },
     },
-    // ⚠️ IF-6 AND IF-8 ARE PRESENT AND ABSENT (台帳 DFC-356). `AgentApiWiring`
-    // requires both fields and lets either be `undefined`, which is the shape a
-    // loop that touches no picture runs in; this bench is one of those, so
-    // AM-14 and AM-15 answer `notAvailable`.
+    // Why: AgentApiWiring requires IF-6 and IF-8 but allows undefined, the shape of a loop that
+    // touches no picture, so AM-14 and AM-15 answer notAvailable.
     rasterizer: undefined,
     takeInDocument: undefined,
     shownTasks: undefined,
@@ -553,23 +440,18 @@ function bench(startWithFrame = true, schedule: Loose = SMALL_SCHEDULE): Bench {
 const CHANGE_WATCHERS = emptyChangeWatchers()
 
 afterEach(() => {
-  // PI-15's registry outlives one case, so every subscription this file made is
-  // taken back. Without it, a later case's notice would reach an earlier
-  // case's receiver.
+  // Why: the PI-15 registry outlives one case; without unwatching, a later case's notice would
+  // reach an earlier case's receiver.
   for (const one of openBenches) unwatchChanges(CHANGE_WATCHERS, one.writerName)
   openBenches.length = 0
 })
 
-// ---------------------------------------------------------------------------
-// Helpers that read the answers without asserting them into place.
-// ---------------------------------------------------------------------------
-
 const RENAME = { kind: 'setProjectTitle', title: 'a new document name' } as const
-// CM-1 refuses an empty document name (FR-035), which is what makes it the
-// second half of an AG-3 bundle that must be dropped whole.
+// Why: CM-1 refuses an empty document name (FR-035), which makes it the second half of an
+// AG-3 bundle that must be dropped whole.
 const BAD_RENAME = { kind: 'setProjectTitle', title: '' } as const
-// UN-13 of table T-027 keeps the theme in the presentation group, so FR-063
-// does not move the schedule-data instant for it.
+// Why: UN-13 keeps the theme in the presentation group, so FR-063 does not move the
+// schedule-data instant for it.
 const RECOLOR = { kind: 'setThemeMonochrome', isThemeMonochrome: true } as const
 
 function accepted<TOutcome extends { readonly ok: boolean }>(
@@ -593,7 +475,6 @@ function exported<TValue>(answer: AgentExport<TValue>): TValue {
   return answer.value
 }
 
-/** Every object and array reachable from a value, the value itself included. */
 function reachable(value: unknown, seen = new Set<unknown>()): readonly object[] {
   if (value === null || typeof value !== 'object') return []
   if (seen.has(value)) return []
@@ -605,16 +486,16 @@ function reachable(value: unknown, seen = new Set<unknown>()): readonly object[]
   return found
 }
 
-/** AG-4's second word: nothing the caller was handed can be written to. */
+// Spec: AG-4
 const everythingFrozen = (value: unknown): boolean => reachable(value).every(Object.isFrozen)
 
-/** AG-4's first word: not one object is shared with the running application. */
+// Spec: AG-4
 function sharesNothingWith(answer: unknown, held: unknown): boolean {
   const theirs = new Set<object>(reachable(held))
   return reachable(answer).every((one) => !theirs.has(one))
 }
 
-/** Every member of table T-107 called once, in the table's order. */
+// Spec: T-107
 function callEveryMember(api: AgentApi): void {
   void api.agentApiVersion
   void api.schemaVersion
@@ -629,18 +510,13 @@ function callEveryMember(api: AgentApi): void {
   api.exportJson()
   api.exportMspdi()
   api.exportSvg()
-  // ⚠️ `void`, not awaited: this walk asks whether a call THROWS, and these two
-  // answer promises (台帳 DFC-356). Neither rejects -- the case just below pins
-  // that -- so nothing is left unhandled.
+  // Why: void, not awaited: the walk asks whether a call throws; these two answer promises that
+  // never reject (the next case pins it), so nothing is left unhandled.
   void api.exportPng()
   void api.exportEmbeddedHtml()
   api.focusTask(FIRST_UID)
   api.watchChanges(() => undefined).stopWatching()
 }
-
-// ---------------------------------------------------------------------------
-// UF-27 -- installation. FR-065 and PI-17.
-// ---------------------------------------------------------------------------
 
 describe('UF-27 installAgentApi -- FR-065 / PI-17', () => {
   it('answers with the surface and places it nowhere: no table states the name', () => {
@@ -656,8 +532,8 @@ describe('UF-27 installAgentApi -- FR-065 / PI-17', () => {
     const one = bench()
 
     expect(one.snapshotReads).toBe(0)
-    // If the install had subscribed, a person's write would reach a receiver
-    // this case never gave it, and AG-6's own-write rule would be untestable.
+    // Why: had the install subscribed, a person's write would reach a receiver this case never
+    // gave, and the AG-6 own-write rule would be untestable.
     one.writeAsPerson([RENAME], 'a person at the keyboard')
     expect(one.notices).toHaveLength(0)
   })
@@ -667,17 +543,11 @@ describe('UF-27 installAgentApi -- FR-065 / PI-17', () => {
   })
 
   it('publishes the two runtime names PI-17 lists (installAgentApi, answerRelayedCall), and re-publishes the seam as a type', () => {
-    // The other half of PI-17 is `SnapshotSource`, which is a declaration and
-    // leaves nothing behind at run time -- the import at the head of this file
-    // is what proves Chapter 5.3s re-publication MUST, since no test outside
-    // the folder may reach past this entry to get at it.
+    // Why: SnapshotSource, the other half of PI-17, is a type and leaves nothing at run time; the
+    // import at the head of this file proves its re-publication.
     expect([...Object.keys(agentApiEndpoint)].sort()).toEqual(['answerRelayedCall', 'installAgentApi'])
   })
 })
-
-// ---------------------------------------------------------------------------
-// UF-28 -- the roster. Table T-107.
-// ---------------------------------------------------------------------------
 
 describe('table T-107 -- the roster', () => {
   const api = () => bench().api
@@ -720,10 +590,6 @@ describe('table T-107 -- the roster', () => {
   })
 })
 
-// ---------------------------------------------------------------------------
-// AM-1 and AM-2 -- the two versions.
-// ---------------------------------------------------------------------------
-
 describe('AM-1 / AM-2 -- the two versions', () => {
   it('AM-1 answers a value a caller can compare before it goes on (AG-1)', () => {
     const version = bench().api.agentApiVersion
@@ -731,9 +597,8 @@ describe('AM-1 / AM-2 -- the two versions', () => {
   })
 
   it('AM-1 is the date-time of JDG-2741 -- the tripwire rule 06 asks PND-60 to leave behind', () => {
-    // Nothing in table T-035, table T-107, `_assets/tbl-settings.md` or Chapter
-    // 6.1 states the starting value. This case is what falls over when the
-    // pending decision is settled the other way. AG-1: CR-708 raised it to 2, CR-730 to 3, CR-710 wave 3b to 4, CR-769 to 5, CR-792 to 6 and then to a date-time (JDG-2741).
+    // Why: no table states the starting value, so this case is the tripwire that falls over when
+    // the pending decision is settled the other way.
     expect(bench().api.agentApiVersion).toBe('2026-10-19T01:15:00Z')
   })
 
@@ -749,10 +614,6 @@ describe('AM-1 / AM-2 -- the two versions', () => {
     expect(one.api.readDocument(false, [], []).schemaVersion).toBe('1970-01-01')
   })
 })
-
-// ---------------------------------------------------------------------------
-// AM-3 to AM-5 -- AG-4's frozen copy.
-// ---------------------------------------------------------------------------
 
 describe('AM-3 to AM-5 -- AG-4, a frozen copy in both of its words', () => {
   it('AM-3 answers a copy that shares nothing with the running document', () => {
@@ -773,9 +634,8 @@ describe('AM-3 to AM-5 -- AG-4, a frozen copy in both of its words', () => {
     const read = one.api.readDocument(false, [], []) as unknown as Loose
     const titleBefore = (one.document.schedule as unknown as Loose)['project']
 
-    // AG-4 states the outcome, not the mechanism: a frozen value refuses the
-    // write in strict mode, and this file is a module, so the throw is the
-    // freeze doing its work. What the row cares about is the line after it.
+    // Why: AG-4 states the outcome, not the mechanism: in a module a frozen value throws on write,
+    // so the throw is the freeze working; the row cares about the line after it.
     expect(() => {
       read['schemaVersion'] = 'tampered'
     }).toThrow()
@@ -790,8 +650,7 @@ describe('AM-3 to AM-5 -- AG-4, a frozen copy in both of its words', () => {
     expect(stamp).toEqual(one.document.documentStamp)
     expect(stamp).not.toBe(one.document.documentStamp)
     expect(Object.isFrozen(stamp)).toBe(true)
-    // ⭐ `fileSavedAt` (AT-140) joined the stamp on 2026-09-11, so DR-4 now
-    // names four fields rather than three. The copy must carry it too.
+    // Spec: AT-140, DR-4
     expect([...Object.keys(stamp)].sort()).toEqual([
       'fileSavedAt',
       'lastEditedBy',
@@ -842,10 +701,6 @@ describe('AM-3 to AM-5 -- AG-4, a frozen copy in both of its words', () => {
     expect(one.api.readStamp()).toEqual(one.document.documentStamp)
   })
 })
-
-// ---------------------------------------------------------------------------
-// AM-7 -- the write. AG-2, AG-3, AG-9, AG-9a, FR-031, FR-063.
-// ---------------------------------------------------------------------------
 
 describe('AM-7 applyCommands -- the ordinary case', () => {
   it('accepts a bundle written against the current stamp and answers the stamp after it', () => {
@@ -1009,9 +864,8 @@ describe('AM-7 applyCommands -- AG-9, a person is part way through something', (
 describe('IF-7 -- every current value arrives over the seam (LY-5 of table T-060)', () => {
   it('hands the write path the zoom and Task Group Area bounds it was given (S-97 / S-98 / FR-052)', () => {
     const one = bench()
-    // FR-052 is judged against `taskGroupAreaWidthWithoutPanels`, which only the
-    // snapshot carries. A width that overruns it can be refused only if the
-    // bound traveled, so the refusal IS the evidence that it did.
+    // Why: FR-052 is judged against a bound only the snapshot carries, so the refusal is the
+    // evidence that the bound traveled.
     const { refusal } = refused(
       one.api.applyCommands({
         expectedStamp: one.api.readStamp(),
@@ -1053,7 +907,6 @@ describe('IF-7 -- every current value arrives over the seam (LY-5 of table T-060
     expect(one.snapshotReads).toBe(before + 1)
 
     one.api.applyCommands({ expectedStamp: one.api.readStamp(), commands: [RENAME] })
-    // Two calls were made above: AM-4 and AM-7.
     expect(one.snapshotReads).toBe(before + 3)
   })
 })
@@ -1088,9 +941,9 @@ describe('AG-9a / NT-1 -- what a refusal carries', () => {
 
     expect(refusal.target).toBe('AM-7')
     expect(typeof refusal.reason).toBe('string')
-    // ⚠ AG-9a still words the third as 「現在の版数」, a value FR-063 no longer
-    // has; what stands in its place is the whole current stamp, which is also
-    // what the row exists for (「そのまま再試行に使える形にする」, UC-012 拡張 3a).
+    // Spec: AG-9a, UC-012
+    // Why: AG-9a still words the third field as a version FR-063 no longer has; the whole current
+    // stamp stands in its place.
     expect(refusal.stamp).toEqual(one.document.documentStamp)
     expect(Object.keys(refusal)).not.toContain('revision')
   })
@@ -1113,9 +966,8 @@ describe('AG-9a / NT-1 -- what a refusal carries', () => {
 
     expect(refusal.refusals.length).toBeGreaterThan(0)
     for (const each of refusal.refusals) {
-      // The first column of a table is the row ID (Chapter 1.9), so a
-      // refusal that names one can be traced back to table T-108 and to the
-      // requirement that owns the rule.
+      // Why: a refusal that names a row ID can be traced back to table T-108 and to the requirement
+      // that owns the rule.
       expect(each.command).toMatch(/^CM-\d+$/)
       expect(each.rule.length).toBeGreaterThan(0)
       expect(each.what.length).toBeGreaterThan(0)
@@ -1133,10 +985,6 @@ describe('AG-9a / NT-1 -- what a refusal carries', () => {
   })
 })
 
-// ---------------------------------------------------------------------------
-// AM-16 -- focusTask. AG-10, UN-8, table T-203.
-// ---------------------------------------------------------------------------
-
 describe('AM-16 focusTask -- the view, not the schedule', () => {
   it('writes the two rows table T-107 names for it, S-77 and S-78', () => {
     const one = bench()
@@ -1150,8 +998,8 @@ describe('AM-16 focusTask -- the view, not the schedule', () => {
   })
 
 
-  // Why: CR-728 retired the old place (group at the top, start S-428 inside); its spec-only tests hold SJ-5 and SJ-6.
-
+  // Why: the old place (group at the top, start S-428 inside) is retired and not asserted here;
+  // the SJ-5 and SJ-6 tests hold the place that replaced it.
   it('names a TaskGroup id in S-78, not an integer (table T-203 says so in as many words)', () => {
     const one = bench()
     accepted(one.api.focusTask(FIRST_UID))
@@ -1203,10 +1051,6 @@ describe('AM-16 focusTask -- the view, not the schedule', () => {
   })
 })
 
-// ---------------------------------------------------------------------------
-// AM-11 to AM-15 -- the exports. AG-7, AG-8, FR-021, FR-028.
-// ---------------------------------------------------------------------------
-
 describe('AM-11 exportJson -- AG-7 and the round trip', () => {
   it('answers the GRS JSON as a value, as a value (AG-7)', () => {
     const text = exported(bench().api.exportJson())
@@ -1234,12 +1078,6 @@ describe('AM-11 exportJson -- AG-7 and the round trip', () => {
 })
 
 describe('AM-12 exportMspdi -- wired 2026-09-05, no longer a refusal (AG-7, FR-028)', () => {
-  // ⭐ Until this date the roster above answered this row with a refusal.
-  // DocumentCodec's public entry (PI-20) was re-measured and does publish
-  // `mspdiFromDocument` (`document-codec.ts:68`), so the member now does the
-  // work instead of reporting an absent seam. These two cases pin the
-  // replacement claim without touching the refusal shape the roster still
-  // measures for the other five rows.
   it('answers the MSPDI text as a value, not the AM-12 refusal the roster once expected', () => {
     const one = bench()
     const answer = one.api.exportMspdi()
@@ -1273,16 +1111,15 @@ describe('AM-13 exportSvg -- the picture as a value', () => {
   })
 
   it('answers with a value rather than throwing while a gesture is in flight (FR-028)', () => {
-    // AG-9 states the refusal for WRITES only, and nothing states one for a
-    // picture. What every row does state is that the answer is a value, so that
-    // is what this case pins.
+    // Why: AG-9 states the refusal for writes only and nothing states one for a picture; every row
+    // states the answer is a value, so that is what this case pins.
     const one = bench()
     one.isGestureInFlight = true
 
     const answer = one.api.exportSvg()
     expect(typeof answer.ok).toBe('boolean')
     if (!answer.ok) {
-      // AG-9a fixes the three a refusal carries, whichever member raised it.
+      // Spec: AG-9a
       expect(answer.refusal.target).toBe('AM-13')
       expect(typeof answer.refusal.reason).toBe('string')
       expect(answer.refusal.stamp).toEqual(one.document.documentStamp)
@@ -1291,12 +1128,8 @@ describe('AM-13 exportSvg -- the picture as a value', () => {
 })
 
 describe('the five rows with nowhere to hand the work -- FR-028 and AG-8', () => {
-  // ⭐ AM-12 (exportMspdi) left this roster 2026-09-05 -- see the note on
-  // `T_035_UNWIRED` above. It is answered for separately below.
-  // ⭐ EVERY CALL IS AWAITED SINCE AM-14 AND AM-15 BECAME PROMISES (台帳
-  // DFC-356). The three that are not promises are awaited too, because `await` on
-  // a plain value answers that value -- so one shape walks all five rows, which
-  // is what Chapter 1.9 asks of a table-driven case.
+  // Why: every call is awaited, since AM-14 and AM-15 answer promises and await on a plain value
+  // answers that value, so one shape walks all five rows.
   const callOf: Record<
     string,
     (api: AgentApi) => Promise<{ readonly target: string } | null>
@@ -1342,10 +1175,6 @@ describe('the five rows with nowhere to hand the work -- FR-028 and AG-8', () =>
   })
 })
 
-// ---------------------------------------------------------------------------
-// AM-17 -- watching. AG-6.
-// ---------------------------------------------------------------------------
-
 describe('AM-17 watchChanges -- AG-6', () => {
   it('wakes for a write somebody else settled', () => {
     const one = bench()
@@ -1369,9 +1198,8 @@ describe('AM-17 watchChanges -- AG-6', () => {
   })
 
   it('is told only what happens from now on -- the tripwire PND-62 asks for', () => {
-    // AG-6 says only "what I have not received yet", and nothing states what a
-    // watcher that has never received anything is owed. This case is what falls
-    // over when the pending decision is settled the other way.
+    // Why: AG-6 says nothing of what a watcher that never received anything is owed; this case
+    // falls over when the pending decision is settled the other way.
     const one = bench()
     one.writeAsPerson([RENAME], 'a person at the keyboard')
 
@@ -1448,8 +1276,7 @@ describe('the boundaries -- empty, one, and the bound itself', () => {
 
   it('AM-7 runs a command table T-027 excludes and leaves no step (AG-10, MUST)', () => {
     const one = bench()
-    // UN-16 of table T-027: the task group panel width is where you look, not what the
-    // schedule says. The call is not refused, and it leaves nothing to undo.
+    // Spec: UN-16
     const outcome = accepted(
       one.api.applyCommands({
         expectedStamp: one.api.readStamp(),
@@ -1462,11 +1289,6 @@ describe('the boundaries -- empty, one, and the bound itself', () => {
     expect(one.document.documentSettings.taskGroupPanelWidthPx).toBe(200)
   })
 })
-
-// ---------------------------------------------------------------------------
-// FR-028 -- nothing on this surface throws, and only the two rows that CANNOT
-// answer without waiting are promises.
-// ---------------------------------------------------------------------------
 
 describe('FR-028 -- accepted or refused, always as a value', () => {
   it('answers every row of table T-107 without throwing, in an ordinary state', () => {
@@ -1484,29 +1306,9 @@ describe('FR-028 -- accepted or refused, always as a value', () => {
     expect(() => callEveryMember(one.api)).not.toThrow()
   })
 
-  // ⛔⛔ THIS CASE COVERED ALL FIFTEEN CALLS UNTIL 2026-09-07 (台帳 DFC-356), AND
-  // ITS BLANKET CLAIM WAS NOT THE SPECIFICATION'S. FR-028 (MUST NOT) forbids the
-  // THROW -- 「`GRS` は、受理したか否かを値で返すこと。`GRS` は、`Agent API` の呼び出しで例外を投げないこと。」 --
-  // and says nothing about waiting; AG-7 asks an export to come back as a value
-  // rather than as a download dialogue, and AG-8 asks a FAILED image to come
-  // back as a value. ⭐ A promise that always settles is both of those.
-  // ⛔ AND THE BLANKET FORM MADE AM-14 UNSATISFIABLE: IO-4 is painted by IF-6,
-  // whose one member is a promise because an image has to be decoded before it
-  // can be painted -- so a synchronous AM-14 could only ever answer that it had
-  // not been built, which is the opposite of FR-028's own point that the two
-  // entrances are equals.
-  // ⛔⛔ AND AM-8 LEFT THE ROSTER ON 2026-09-07 (台帳 DFC-357), FOR A REASON THAT
-  // IS NOT FR-028's AT ALL. FR-022 (MUST) now says 「`AM-8`（`importDocument`）が
-  // 合流にあたるときは、`U-61` を立て、人が答えるまで待つこと」, and that
-  // requirement's own note names the cost -- 「エージェントが「取り込んで」と
-  // 言ってから、人が画面で答えるまで止まる。無人運転はできない」. ⇒ A wait is the
-  // REQUIREMENT here, so a synchronous AM-8 could only be one that never asked.
-  // ⛔ NO EXPECTATION IS LOWERED: the row moves to the case below, which pins the
-  // half of FR-028 that survives -- the promise settles and never rejects.
-  //
-  // ⭐ WHAT THE CASE STILL PINS is the ten that answer from values already
-  // held: a read or a write that quietly became a promise would leave every
-  // caller holding an object instead of an answer.
+  // Spec: FR-028, FR-022, IO-4
+  // Why: FR-028 forbids the throw, not the wait; AM-8 (FR-022 waits for U-61) and AM-14 (IO-4
+  // decodes first) must be promises, so only the ten that need no wait are pinned here.
   it('answers no promise from the ten rows that need no wait (FR-028)', () => {
     const one = bench()
     const isThenable = (value: unknown): boolean =>
@@ -1530,12 +1332,8 @@ describe('FR-028 -- accepted or refused, always as a value', () => {
     for (const answer of answers) expect(isThenable(answer)).toBe(false)
   })
 
-  // ⭐ AND THE THREE THAT DO WAIT SETTLE RATHER THAN REJECT, which is the half of
-  // FR-028 that survives the widening: a rejected promise is an exception the
-  // caller has to catch, and AG-8 asks for the failure as a VALUE.
-  // ⚠️ AM-8 JOINED THEM ON 2026-09-07 (台帳 DFC-357) -- see the note above -- and it
-  // is judged on `ok`: AG-9a's shape for a write is `AgentWriteOutcome`, whose verdict key
-  // CR-769 spelled `ok` like `AgentExport`'s.
+  // Why: a rejected promise is an exception the caller must catch, and AG-8 asks for the failure
+  // as a value; AM-8 is judged on ok, the verdict key of AgentWriteOutcome.
   it('AM-8, AM-14 and AM-15 answer a promise that SETTLES, never one that rejects', async () => {
     const one = bench()
     await expect(one.api.importDocument({ text: '{}' })).resolves.toHaveProperty('ok')
@@ -1549,7 +1347,7 @@ describe('FR-028 -- accepted or refused, always as a value', () => {
       throw new Error('a subscriber that misbehaves')
     })
 
-    // The write is somebody else's, so AG-6 does wake the watcher that throws.
+    // Why: the write is somebody else's, so AG-6 does wake the watcher that throws.
     expect(() => one.writeAsPerson([RENAME], 'a person at the keyboard')).not.toThrow()
     expect(() =>
       accepted(one.api.applyCommands({ expectedStamp: one.api.readStamp(), commands: [RECOLOR] })),
@@ -1557,29 +1355,7 @@ describe('FR-028 -- accepted or refused, always as a value', () => {
   })
 })
 
-// ---------------------------------------------------------------------------
-// AM-13 `exportSvg`, second pass -- what table T-107 says the picture IS
-//
-// ⭐ Table T-107 row AM-13 (`_assets/tbl-glossary.md`) gives the member one
-// job and two sources: "the picture of the screen, shrunk, returned as a value",
-// from "table T-024's IO-3 / FR-080". Table T-024 row IO-3
-// (01-04-requirements.md) then fixes the one measurable thing about that
-// picture: "SVG | write only | the screen's output | the output size is S-81 of
-// table T-204", and S-81 is `exportCanvas`, whose size table T-204 holds.
-//
-// ⭐ FR-080's own words for the picture AM-13 owes: "the WHOLE of the screen GRS
-// occupies, shrunk by the ratio of `exportCanvas`'s width to the screen's
-// width", with table T-076 deciding which UI parts reach it and FR-025 deciding
-// what is dropped down the page. CR-196 opened PI-21's `exportSvg` for exactly
-// this reason -- WY-2 of table T-041 judges the SVG and the PNG of one state to
-// be one drawing, and before that entry existed "the SVG route alone went
-// through neither table T-076's assembly nor the TaskGroup cut" (A-appendix.md).
-//
-// ⚠️ These cases are driven from the settings of the document under test, so
-// they follow `docs/spec/_source/settings.json` rather than a number typed here.
-// ---------------------------------------------------------------------------
-
-/** Table T-024 row IO-3, copied. */
+// Spec: T-024, IO-3
 const T_024_IO_3 = {
   id: 'IO-3',
   format: 'SVG',
@@ -1588,7 +1364,6 @@ const T_024_IO_3 = {
   sizeRow: 'S-81',
 } as const
 
-/** The `width`/`height` of a picture's outermost element, as numbers. */
 function rootSizeOf(svg: string): { readonly width: number; readonly height: number } {
   const root = /<svg((?:[^<>"]|"[^"]*")*)>/.exec(svg)?.[1] ?? ''
   const attr = (name: string): number =>
@@ -1603,10 +1378,7 @@ describe('AM-13 exportSvg -- the picture is the EXPORT (IO-3 of table T-024, S-8
     const canvas = SETTINGS_CONSTANTS.exportCanvas
 
     expect(T_024_IO_3.sizeRow).toBe('S-81')
-    // ⭐⭐ THE WIDTH IS S-81's AND THE HEIGHT IS NOT, SINCE CR-333. FR-025 reads
-    // 「幅は `S-81` の幅に固定すること（MUST）。高さは、絵が収まるところまで伸ば
-    // すこと（MUST）」 and 「伸ばしてよいのはその `S-217` までとすること
-    // （MUST）」 -- so S-81's height is the FLOOR and S-217 is the ceiling.
+    // Spec: FR-025, S-217
     const size = rootSizeOf(svg)
     expect(size.width).toBe(canvas.width)
     expect(size.height).toBeGreaterThanOrEqual(canvas.height)
@@ -1620,27 +1392,24 @@ describe('AM-13 exportSvg -- the picture is the EXPORT (IO-3 of table T-024, S-8
   })
 
   it('GIVEN one unchanged state WHEN AM-13 answers twice THEN the same picture comes back both times (WY-2 premise)', () => {
-    // WY-2 of table T-041 rests on the same state giving the same picture; CS-1
-    // of table T-066 states the failure mode -- read the clock
-    // inside a frame and the picture moves between two calls of one minute.
+    // Spec: WY-2, CS-1
+    // Why: reading the clock inside a frame would move the picture between two calls, so two
+    // answers of one state are compared.
     const one = bench()
     expect(exported(one.api.exportSvg())).toBe(exported(one.api.exportSvg()))
   })
 
   it('GIVEN a document whose schedule is empty WHEN AM-13 answers THEN a picture still comes back as a value', () => {
-    // The empty boundary. FR-025 (MUST) leaves the remainder of a short picture
-    // blank rather than filling it, so an empty schedule is a picture, not a
-    // refusal.
+    // Spec: FR-025
+    // Why: the empty boundary: a short picture's remainder is left blank, so an empty schedule is
+    // a picture, not a refusal.
     const one = bench(true, EMPTY_SCHEDULE)
     const answer = one.api.exportSvg()
 
     expect(answer.ok).toBe(true)
     if (!answer.ok) return
     const canvas = SETTINGS_CONSTANTS.exportCanvas
-    // ⭐⭐ THE WIDTH IS S-81's AND THE HEIGHT IS NOT, SINCE CR-333. FR-025 reads
-    // 「幅は `S-81` の幅に固定すること（MUST）。高さは、絵が収まるところまで伸ば
-    // すこと（MUST）」 and 「伸ばしてよいのはその `S-217` までとすること
-    // （MUST）」 -- so S-81's height is the FLOOR and S-217 is the ceiling.
+    // Spec: FR-025, S-217
     const size = rootSizeOf(answer.value)
     expect(size.width).toBe(canvas.width)
     expect(size.height).toBeGreaterThanOrEqual(canvas.height)
@@ -1648,8 +1417,8 @@ describe('AM-13 exportSvg -- the picture is the EXPORT (IO-3 of table T-024, S-8
   })
 
   it('GIVEN no frame has settled WHEN AM-13 answers THEN the refusal is a value naming its own row (FR-028, AG-9a)', () => {
-    // The error path, restated against the second-pass cases above so that a
-    // picture and a refusal cannot both be answered by one shape.
+    // Why: the error path, set against the cases above so that a picture and a refusal cannot
+    // both be answered by one shape.
     const answer = bench(false).api.exportSvg()
 
     expect(answer.ok).toBe(false)

@@ -1,19 +1,4 @@
 // Contract test: the eight seams of table T-065.
-//
-// A contract test belongs to neither side of a seam. Both sides can be green on
-// their own while the seam between them is broken, and the seam is where an
-// application assembled from 68 separately written units actually falls over.
-// So this file is driven by the table, once, rather than by either component.
-//
-// Table T-065 fixes, for every interface that crosses a layer boundary:
-//   - the component that declares it, and
-//   - the component in the outer layer that implements it.
-// Chapter 5.3 then fixes where the declaration lives and requires the public
-// entry to re-export it, so that the implementing layer never has to reach past
-// that entry (which its own MUST NOT forbids).
-//
-// A failure names the row of table T-065, so it points at one line of the
-// specification.
 
 import { existsSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -66,17 +51,6 @@ const seams = T065.rows.map((row) => ({
 }))
 
 describe('table T-065 -- the interfaces that cross a layer boundary', () => {
-  // ⚠️ CR-280 retired the autosave, and `DocumentStore` -- the seam
-  // `LocalStorageDocumentStore` implemented -- went with it: table T-065 fell
-  // from nine rows to eight.
-  // ⭐ CR-288 CARRIED THE PROSE OVER, ALMOST. Recounted 2026-09-03: Chapter 5.3
-  // now says 「層をまたぐ 8 本だけは…」, 「層をまたぐ 8 本を 表 T-065 に示す」,
-  // 「⚠️ **層をまたぐインターフェースの 8 ファイルは本表に行を持たない**」 and
-  // 「⚠️ **この 8 ファイルもユニットである**」 with eight UF ids listed. ⛔ ONE
-  // SENTENCE STILL SAYS NINE -- the note under table T-075: CR-341 「⚠️ **層をまたぐ
-  // インターフェースの 9 ファイルは型の宣言だけを持ち、関数を持たないので、純粋性
-  // を持たない（`—`）。**」 That is a leftover of CR-280 inside docs/spec and not
-  // something a test may repair; it is reported rather than asserted here.
   it('has the eight rows table T-065 holds', () => {
     expect(seams).toHaveLength(8)
     expect(seams.every((s) => s.name && s.declaredBy && s.implementedBy)).toBe(true)
@@ -85,8 +59,6 @@ describe('table T-065 -- the interfaces that cross a layer boundary', () => {
   it.each(seams)(
     '$id $name is declared by $declaredBy in a file of its own',
     ({ name, declaredBy }) => {
-      // Chapter 5.3 (MUST): the declaration sits in the folder of the component
-      // that declares it, under the stem of the interface name.
       const path = join(folderOf(declaredBy), `${kebab(name)}.ts`)
       expect(existsSync(path), `${path} does not exist`).toBe(true)
       expect(read(path)).toMatch(new RegExp(`export interface ${name}\\b`))
@@ -96,8 +68,6 @@ describe('table T-065 -- the interfaces that cross a layer boundary', () => {
   it.each(seams)(
     '$id $name leaves through the public entry of $declaredBy',
     ({ name, declaredBy }) => {
-      // Chapter 5.3 (MUST): the public entry re-exports it, so the layer that
-      // implements it never reads any other file in the folder.
       const entry = join(folderOf(declaredBy), `${kebab(declaredBy)}.ts`)
       expect(existsSync(entry), `${entry} does not exist`).toBe(true)
       expect(read(entry)).toMatch(
@@ -109,8 +79,7 @@ describe('table T-065 -- the interfaces that cross a layer boundary', () => {
   it.each(seams)(
     '$id $name is implemented by $implementedBy, which sits further out',
     ({ implementedBy, declaredBy }) => {
-      // LR-5: the implementation lives in the outer layer. LR-1 then makes the
-      // edge from the implementation to the declaration an inward one.
+      // Spec: LR-5, LR-1
       const rank: Record<string, number> = {
         documentModel: 0,
         layoutEngine: 1,
@@ -128,33 +97,21 @@ describe('table T-065 -- the interfaces that cross a layer boundary', () => {
   )
 })
 
-// Every settings table of `_assets/tbl-settings.md`, so a T-206 row whose
-// 既定 cell names another row can be followed to the row that states the value.
-// ⚠️ A roster and not a scan: a table added to that file and left out here makes
-// a reference unresolvable, and an unresolvable reference fails loudly below
-// rather than passing quietly.
+// Why: a roster of every settings table, so a T-206 default that names another row can be followed;
+// a table left out makes that reference fail loudly below rather than pass quietly.
 const SETTINGS_TABLES = [
   'T-201', 'T-202', 'T-203', 'T-204', 'T-205', 'T-206',
   'T-207', 'T-208', 'T-209', 'T-210', 'T-217', 'T-236',
 ] as const
 
 describe('the values table T-206 keeps out of the document', () => {
-  // T-206 holds what the document does NOT store, so the value cannot travel
-  // inside a document -- it reaches the unit that owns its type as a generated
-  // constant, and the caller passes it in (CR-178). That makes the published
-  // table and the constant two ends of one seam, and this is the test that
-  // fails if only one of them moves. ⚠️ Before CR-178 the numbers existed only
-  // in whatever a caller happened to type; CR-174 is the session where exactly
-  // that let a changed value reach nothing at all.
+  // Why: a T-206 value never travels in a document, so the published table and the generated constant
+  // are two ends of one seam; this test fails when only one of them moves.
   const numbersOf = (cell: string): number[] =>
     (cell.match(/-?\d+(?:\.\d+)?/g) ?? []).map(Number)
 
-  // ⛔ A CELL THAT NAMES ANOTHER ROW IS FOLLOWED, NOT READ FOR DIGITS. S-96,
-  // S-97 and S-98 hold no number of their own -- their 既定 cell is `S-53`,
-  // `S-54` and `S-55`, the rows that DO state the zoom step and bounds -- and
-  // reading the digits out of the reference turned `S-53` into the number -53.
-  // ⚠️ Followed exactly one hop and only when the cell is a lone row id, so a
-  // chain or a cell that merely mentions a row is left as it stands.
+  // Trap: reading the digits of a cell that names another row (S-96 holds `S-53`) yields -53;
+  // the reference is followed one hop, and only when the cell is a lone row id.
   const defaultsBySettingRow = new Map<string, string>()
   for (const table of SETTINGS_TABLES) {
     for (const row of specTable(table).rows) {
@@ -175,17 +132,8 @@ describe('the values table T-206 keeps out of the document', () => {
     published.set(row.id, numbersOf(statedBy(row.by['既定'] ?? '')))
   }
 
-  // ⛔ EVERY `NOT_STORED_*` THIS SIDE OF IF-9, NOT A SAMPLE OF THEM. DFC-93 of the
-  // defect ledger was raised as "S-140 has no test", and S-140 was one of 44
-  // rows of table T-206 that nothing held: two constants were spread here and
-  // eighteen were not, so a manuscript value could move and reach nothing while
-  // this file stayed green -- which is the very accident CR-174 records and the
-  // reason this test exists.
-  // ⚠️ The four in `dom-screen-surface.ts` and the three in `frame-loop.ts` are
-  // NOT here: those units are Framework and reach for the DOM at module scope,
-  // so importing them into a node-environment test loads a browser they do not
-  // have. They are the remaining debt of DFC-93, and the count below is what says
-  // how much of the table is now held.
+  // Why: every NOT_STORED_* constant and not a sample, or a row nothing holds moves and reaches nothing;
+  // the Framework ones (dom-screen-surface.ts, frame-loop.ts) need a DOM at module scope and stay out.
   const generated: Record<string, number | readonly [number, number]> = {
     ...generatedConstantOf('src/entity/layout-engine/item-hit-area/item-hit-area.ts', 'NOT_STORED_SIZES'),
     ...NOT_STORED_LIMITS,

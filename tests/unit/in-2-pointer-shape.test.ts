@@ -1,104 +1,6 @@
-// IN-2 of table T-028 -- what shape the pointer takes where it stands.
-//
-// The unit these arrive on is UF-48 `single-html-shell` (CP-25 of table T-062),
-// whose `frame-loop.ts` takes FT-1 of table T-078 -- 人の入力（ポインタとキー）
-// -- on `receiveInput`, and hands IN-2's answer out through the sixth argument
-// of `frameLoop`.
-//
-// ⚠️ Chapter 9 does not admit `Unit` as a TEST_LEVEL, so these cases have no
-// node in the specification. Table T-218 of Chapter 7 gives them their place:
-// TS-6, tests/unit/.
-//
-// ⛔ WRITTEN FROM docs/spec AND NOTHING ELSE (docs/development-rules/
-// 04-verification.md section 1: 読んでよいのは冒頭の宣言・公開する型・署名まで).
-// What was read of `src/`: the exported declarations of `frame-loop.ts`
-// (`FrameEnvironment`, `FrameValues`, `FrameLoop`, `ScreenWiring`,
-// `PointerShape`, `ShowPointerShape`) and the one signature
-// `frameLoop(surface, first, env, screen?, files?, showPointerShape?)`; the
-// exported types of `schedule-geometry.ts` (`BarGeometry`, `Point`,
-// `TaskGeometry`), of `screen-regions.ts` (`ScreenRect`), of
-// `screen-renderer.ts` / `screen-surface.ts` (`ScreenPart`, `ScreenSurface`,
-// `IconId`, `DisplayLanguage`) and of `schedule-entities.ts` (`Task`,
-// `TaskVisual`). NO FUNCTION BODY WAS READ.
-//
-// ⛔ AND NOT ONE EXPECTED SHAPE IS SPELLED HERE. IN-2 closes with 「⚠️ 形の綴り
-// そのものは閉覧環境が持つ —— 本行が定めるのはどの場所がどの意味を担うかだけで
-// ある」, so a case that asserted a CSS keyword would be asserting something the
-// row expressly refuses to fix. Every expectation below is therefore a RELATION
-// between two readings the row itself puts side by side:
-//   * five places, five DISTINCT answers -- five different meanings cannot share
-//     one shape and still 「その場所で何ができるかを示す」;
-//   * one place, the SAME answer every time it is asked;
-//   * a place IN-2 names nothing for, NO answer at all.
-//
-// ---------------------------------------------------------------------------
-// THE ROWS THESE CASES REST ON
-// ---------------------------------------------------------------------------
-//   T-028 IN-2  the five places of its first sentence, read out of the
-//             manuscript at read time by `placesNamedByIn2()`. The dummy
-//             sentences after it (GA-5 / GA-6, and GA-17 since CR-388) are
-//             held by in-2-a-the-dummies-say-slide.test.ts.
-//   T-023a    「上から評価し、最初に成立した行で確定すること（MUST）」 with
-//             PTD-1 パン, PTD-2 `Dual Cursor`, PTD-3 何かに当たった, PTD-4 構えて
-//             いるものを作る, PTD-4a 構えが依存線, PTD-5 範囲選択.
-//             ⚠️ SIX ROWS AND NOT FIVE -- PTD-4a sits between PTD-4 and PTD-5.
-//   T-023a's note 「判定順序を適用するのは日程の描画領域だけとすること（MUST）」,
-//             with its own table of the faces it does not reach -- among them
-//             浮遊するコマンドパレット (`FR-053`) and タイムルーラー, whose cell
-//             reads 「ポインタ操作を持たない（MUST NOT）」.
-//   T-023a    「第 1 の分岐は「当たったか」であり、「構えているか」は当たらな
-//             かったときにだけ効く（MUST）」
-//   T-023d    「上の行ほど優先すること（MUST）」, with GA-1 予定の開始点 /
-//             GA-2 予定の終了点 / GA-3 実績の開始点 / GA-4 実績の終了点 --
-//             IN-2's 「予定バーと実績バーの端点」 -- and GA-9 予定バー本体
-//             「端点を除いた中間」 and GA-16 実績のマイルストーン 「実績の図形の
-//             上」 -- IN-2's 「タスクの本体とマイルストーンの図形」.
-//   T-023d GA-5 / GA-6  the two dummies FR-043 draws 「未着手のタスクの上」,
-//             both ranked above GA-9 -- which is why the bar Task below is
-//             STARTED.
-//   T-023d GA-17  on the plan day, the same size as the figure, above GA-9;
-//             it grabs what GA-16 grabs (CR-382) and IN-2 gives it GA-16's
-//             signal (CR-388). See the last describe below.
-//   T-023d's closing rules for GR-10 / GR-11, and FR-075's 「掴み点は選択して
-//             いるタスクにだけ出すこと（MUST）」 for GA-7 / GA-8 -- the fixture
-//             below keeps all four out of the way, and premises measure that.
-//   T-023b AR-1 .. AR-6, and 「構えは持続すること（MUST）」.
-//   T-036 SK-1  「キーボードだけで図形を置く経路は持たない」 -- which is why the
-//             armed cases arm through a palette entry and not through a key.
-//   T-109's 構え column: 「⭐ `構え` の欄は、その入口が押されたときポインタが
-//             入る 表 T-023b の行である」 -- read at read time to find an entry
-//             that arms AR-2.
-//   T-206 S-250 / S-253  the plan end's reach, outward only, 12px
-//   T-206 S-257 / S-260  the actual end's reach, inward only, 12px
-//             ⚠️ RE-CUT 2026-09-10. Both rows read 「端点の左右に」 until the
-//             grab-area rulings of 2026-09-09 split the sides -- S-250 / S-253 keep
-//             only the outside of the end, S-257 / S-260 only the inside -- and their
-//             number moved with them. Nothing here reads either number from
-//             this comment; the two constants below take them off table T-206.
-//             ⭐ Both are read at read time, and the body probe is placed so
-//             that it clears each of them; a premise measures the margin.
-//   T-028 IN-1  「ポインタ操作は押した時点で実行せず、離した時点で確定すること」
-//             -- so the pan is asked about while the button is still down, and
-//             again after the release.
-//
-// ---------------------------------------------------------------------------
-// WHAT IS DELIBERATELY NOT ASSERTED, AND WHY
-// ---------------------------------------------------------------------------
-//   * WHICH keyword any of the five answers is. IN-2 gives the spelling to the
-//     viewing environment, save the ends and T-269 (its own file holds those).
-//   * WHICH of the five ought to be the closed hand and which the resting one.
-//     IN-2 names 握った手 for the pan alone and gives the other four no hand at
-//     all, so nothing here pairs a shape with a name.
-//   * The shape while armed for a DEPENDENCY line (AR-4). CR-383 closed this
-//     hole in T-028 IN-2; see tests/unit/in-2-b-armed-dependency-shows-the-
-//     arrow.test.ts. The armed cases below still arm AR-2, which PTD-4
-//     settles without argument.
-//   * The shape while `Dual Cursor` mode is on (PTD-2). IN-2 names no place for
-//     it, and this file does not invent one.
-//   * WHERE or HOW a shape is written. The pointer is the host's to paint and no
-//     requirement says how.
+// Unit tests: what shape the pointer takes where it stands, as relations between the places IN-2 names.
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-explicit-any -- the fixture edits a cloned template and the host fakes browser globals */
 
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -136,31 +38,16 @@ import {
 import { specTable } from '../contract/spec-table'
 import { SETTINGS_CONSTANTS } from '../../src/entity/document-model/document-settings/document-settings'
 
-// ---------------------------------------------------------------------------
-// What the manuscript says, read at read time rather than copied
-// ---------------------------------------------------------------------------
-
 const rowOf = (table: string, id: string) => {
   const found = specTable(table).rows.find((row) => row.id === id)
   if (found === undefined) throw new Error(`table ${table} has no row ${id}`)
   return found
 }
 
-/** Everything IN-2's 作法 column writes, as one string. */
 const IN_2 = rowOf('T-028', 'IN-2').cells.join(' ')
 
-/**
- * The places IN-2 names, one entry per clause of its bold list.
- *
- * ⭐ READ AND NOT COUNTED HERE. The row carried three places until 2026-08-25,
- * four until 2026-08-27 and five after it; a file that hard-coded five would go
- * on passing through the sixth ruling while asserting nothing about it.
- * ⚠️ The clauses sit in ONE parenthesis separated by 、, each naming a place to
- * the left of は and a meaning to the right. ⛔ It used to be found by the bold
- * run around it; bold is not structure, so the words bound it now.
- * ⚠️ The list ends where the trailing MUST NOT clause opens with ——, not at a
- * dated ruling citation -- CR-375 removed the citation, not the boundary.
- */
+// Why: the places are read, not counted, so a ruling that adds one reaches these cases; the list is bounded
+// by its parenthesis and the dash that opens the trailing MUST NOT clause, not by bold.
 function placesNamedByIn2(): readonly string[] {
   const open = IN_2.indexOf('（')
   const stop = IN_2.indexOf('——', open)
@@ -173,7 +60,6 @@ function placesNamedByIn2(): readonly string[] {
     .filter((one) => one.length > 0)
 }
 
-/** The px a grab allowance cell writes -- S-250's 12 and S-257's 12. */
 const allowanceOf = (settingRow: string): number => {
   const cell = rowOf('T-206', settingRow).cells.join(' ')
   const found = /(\d+(?:\.\d+)?)px/.exec(cell)
@@ -181,30 +67,18 @@ const allowanceOf = (settingRow: string): number => {
   return Number(found[1])
 }
 
-/** S-250 -- 表 T-266 の `GA-1`, 端の外側に this many px. */
+// Spec: S-250, S-257
 const PLAN_END_ALLOWANCE = allowanceOf('S-250')
-/** S-257 -- 表 T-266 の `GA-3`, 端の内側に this many px. */
 const ACTUAL_END_ALLOWANCE = allowanceOf('S-257')
 
-/**
- * An entry of table T-109 whose 構え column is AR-2 -- 「その入口が押されたとき
- * ポインタが入る 表 T-023b の行」.
- *
- * ⭐ THE ONE ENTRANCE SK-1 LEAVES: 「キーボードだけで図形を置く経路は持たない」,
- * so arming is reached by pressing a palette entry and by nothing else.
- */
+// Why: SK-1 leaves no keyboard route to placing a figure, so arming is reached by a palette entry only.
 const ARMING_ENTRY: IconId = ((): string => {
   const found = specTable('T-109').rows.find((one) => (one.by['構え'] ?? '').includes('AR-2'))
   if (found === undefined) throw new Error('table T-109 has no entry whose 構え is AR-2')
   return found.id
 })()
 
-// ---------------------------------------------------------------------------
-// The document these cases drive
-// ---------------------------------------------------------------------------
-
-// BT-4 of table T-034 -- the template FR-027 keeps exactly one of. The calendar,
-// the project and the settings come from it; the task groups and the Tasks are written
+// Why: the calendar, project and settings come from BT-4 (FR-027); the task groups and Tasks are written
 // out here so that what is drawn can be named.
 const TEMPLATE_PATH = join(
   process.cwd(),
@@ -219,50 +93,25 @@ const BAR_TASK_GROUP = '11111111-1111-4111-8111-111111111111'
 const STONE_TASK_GROUP = '22222222-2222-4222-8222-222222222222'
 const NEW_STONE_TASK_GROUP = '33333333-3333-4333-8333-333333333333'
 
-/**
- * The Task drawn as a bar, which carries BOTH a plan and an actual -- so that
- * IN-2's 「予定バーと実績バーの端点」 has four ends to be asked about and its
- * 「タスクの本体」 has a middle.
- *
- * ⛔ IT IS STARTED ON PURPOSE. FR-043 puts GA-5 and GA-6 on a Task that is
- * 未着手, table T-023d ranks both above GA-9, and its closing rule gives them
- * the drawn mark itself as their hit area -- so a
- * not-started bar would answer about a dummy where this file means to ask about
- * the body. A premise counts the dummies rather than trusting this.
- * ⚠️ AND ITS NAME IS NULL ON PURPOSE. GR-10 is drawn inside the shape (the 「入る」 rows of
- * table T-273) and table T-023d settles its plain press in its own closing rule;
- * that ruling has its own file, and this one is not to be judged on it.
- */
+// Why: started on purpose, as FR-043 puts the GA-5 and GA-6 dummies above GA-9 on a not-started Task;
+// and nameless, so GR-10 and GR-11, drawn inside the shape, are not in the way.
 const BAR_UID = 1
 const BAR_START = '2026-04-06'
 const BAR_FINISH = '2026-04-24'
 const BAR_ACTUAL_START = '2026-04-08'
-/** A fixture choice, not a settings value: any short actual leaves a long body. */
+// Why: a fixture choice, not a settings value: any short actual leaves a long body.
 const BAR_ACTUAL_STOP = '2026-04-10'
 
-/** A milestone that IS started, so 実績の図形 (GA-16) stands on it. */
+// Why: started, so the actual figure (GA-16) stands on it.
 const STONE_UID = 2
 const STONE_DAY = '2026-04-15'
 
-/**
- * A milestone that is NOT started. See the last describe.
- *
- * ⭐⭐ PAST `BAR_FINISH` SINCE 2026-09-10, AND THAT IS LOAD-BEARING. The view is
- * fitted to the schedule, so whatever ends LAST lands on the `Task Group Area`'s right
- * edge -- a column the pointer cannot occupy, since R3.4 leaves that region
- * half-open. While this day stood at 2026-04-17 the bar Task's 予定の終了点 was
- * the last thing in the document and fell on that edge, and `onEndpoint` below
- * stepped the probe one unit INWARD to reach it. ⛔ That step stopped working on
- * 2026-09-09: 「予定の端点（`GA-1` / `GA-2`）の掴み代は端の外側だけに取ること
- * （MUST）」, ⛔ 「予定の端点を端の内側へ伸ばしてはならない（MUST NOT）」 -- so a
- * pixel inside the bar answers `GA-9`, the body, and IN-2's four ends stopped
- * carrying one meaning. ⇒ The milestone is put past the bar instead, which
- * leaves the bar's own finish some ground outside itself.
- */
+// Why: past BAR_FINISH on purpose: the fitted view puts the last thing on the area's half-open right edge, and
+// a plan end grabs only outside itself (GA-1, GA-2), so this milestone ends the schedule instead of the bar.
 const NEW_STONE_UID = 3
 const NEW_STONE_DAY = '2026-04-28'
 
-/** 1 day is this many px at zoom 1 -- S-1's key, set wide so a day is legible. */
+// Why: wide, so a day is legible to the probes.
 const PX_PER_DAY_AT_1X = 20
 
 const task = (over: Partial<Task> & { readonly uid: number }): Task =>
@@ -290,7 +139,7 @@ const task = (over: Partial<Task> & { readonly uid: number }): Task =>
     ...over,
   }) as unknown as Task
 
-/** SH-5 of table T-012 -- a milestone, drawn with the default glyph. */
+// Spec: SH-5
 const milestoneVisual = (taskUid: number): TaskVisual =>
   ({
     taskUid,
@@ -367,7 +216,7 @@ function fixtureDocument(): Document {
     },
     documentSettings: {
       ...structuredClone(template.documentSettings),
-      // Why: S-1 is a constant (CR-572); the stored zoomX (S-75) carries the day width this fixture draws at.
+      // Why: S-1 is a constant; the stored zoomX (S-75) carries the day width this fixture draws at.
       zoomX: PX_PER_DAY_AT_1X / SETTINGS_CONSTANTS.pxPerDayAt1x,
     },
     documentStamp: structuredClone(template.documentStamp),
@@ -376,11 +225,6 @@ function fixtureDocument(): Document {
   return draft as unknown as Document
 }
 
-// ---------------------------------------------------------------------------
-// The host UF-48 is given
-// ---------------------------------------------------------------------------
-
-/** BO-1 of table T-077 has already settled these by the time a loop exists. */
 const SCREEN: FrameEnvironment = {
   width: 1200,
   height: 700,
@@ -388,15 +232,8 @@ const SCREEN: FrameEnvironment = {
   scrollbarThickness: 0,
 }
 
-/**
- * Where the fake surface reports the `Command Palette`.
- *
- * ⭐ A RECTANGLE THIS FILE CHOOSES, AND IT DECIDES NOTHING. FR-053 floats the
- * palette over the schedule and `ScreenRegions` holds no rectangle for it, so
- * the side that DREW it is the only side that may answer where it is (Chapter
- * 5.3, MUST). ⛔ It is put in a corner none of the probes touch, and a premise
- * measures that rather than assuming it.
- */
+// Why: a rectangle this file chooses, since ScreenRegions holds none for the floating palette (FR-053);
+// it sits in a corner no probe touches, and a premise measures that.
 const PALETTE_BOX: ScreenRect = { x: 8, y: SCREEN.height - 56, width: 120, height: 48 }
 
 const inside = (box: ScreenRect, at: Point): boolean =>
@@ -406,16 +243,10 @@ const realRaf = (globalThis as any).requestAnimationFrame
 
 interface Host {
   readonly surface: { showSvg(svg: string): void }
-  /** Run whatever the loop asked an animation frame for, until it asks no more. */
   runAnimationFrames(): void
 }
 
-/**
- * ⚠️ THE HOST IS A FAKE, AND THE FAKE IS NOT THE TEST (R6.3). Vitest runs under
- * node with no `requestAnimationFrame`, and LY-5 of table T-060 puts the browser
- * in this layer. ⛔ Nothing in this fake decides anything about places or
- * shapes: it drains the queue.
- */
+// Summary: the fake host drains the animation-frame queue and decides nothing about places or shapes.
 function host(): Host {
   const waiting: ((time: number) => void)[] = []
   let handle = 0
@@ -426,8 +257,7 @@ function host(): Host {
   return {
     surface: { showSvg: () => undefined },
     runAnimationFrames: () => {
-      // Bounded, so a loop that asks for a frame from inside a frame -- which
-      // NFR-010 forbids -- ends the test instead of hanging it.
+      // Why: bounded, so a loop that asks for a frame from inside a frame (NFR-010 forbids it) ends the test instead of hanging.
       for (let turn = 0; turn < 8 && waiting.length > 0; turn += 1) {
         for (const callback of waiting.splice(0, waiting.length)) callback(turn)
       }
@@ -438,15 +268,10 @@ function host(): Host {
   }
 }
 
-/**
- * A stand-in for IF-9's surface. It answers `Command Palette` for a point in
- * `PALETTE_BOX` and nothing anywhere else, which is what the press that arms
- * AR-2 needs to arrive on.
- */
+// Summary: a stand-in for IF-9's surface that answers Command Palette inside PALETTE_BOX and nothing elsewhere.
 function screenPane(language: DisplayLanguage = 'en'): ScreenWiring {
   const surface: ScreenSurface = {
-    // ⛔ NOTHING IS KEPT. No case here reads a `ScreenView`: IN-2's answer does
-    // not travel on IF-9, because the pointer is painted by the host.
+    // Why: nothing is kept, as IN-2's answer does not travel on IF-9: the host paints the pointer.
     showScreenView: () => undefined,
     readFieldCommit: () => null,
     readScreenPartAt: (x, y): ScreenPart | null => {
@@ -470,10 +295,6 @@ afterEach(() => {
   else (globalThis as any).requestAnimationFrame = realRaf
 })
 
-// ---------------------------------------------------------------------------
-// Spelling one happening
-// ---------------------------------------------------------------------------
-
 const NO_MODIFIERS: InputModifiers = { ctrl: false, shift: false, alt: false, meta: false }
 
 interface HowPressed {
@@ -491,22 +312,14 @@ const pointer = (phase: PointerPhase, at: Point, how: HowPressed = {}): PointerI
   clickCount: 1,
 })
 
-/** PTD-1's first spelling: 「`Ctrl` だけを伴う左ドラッグ」. */
+// Spec: PTD-1
 const CTRL_DRAG: HowPressed = { modifiers: { ctrl: true } }
-/** PTD-1's second spelling: 「中ボタンドラッグ」. */
 const MIDDLE_DRAG: HowPressed = { button: 'middle' }
-
-// ---------------------------------------------------------------------------
-// A loop, drawn and ready, with IN-2's answer collected
-// ---------------------------------------------------------------------------
 
 interface Stage {
   readonly loop: FrameLoop
-  /** Hand one happening over and let the frame it owes run. */
   send(input: HumanInput): void
-  /** Everything the loop has answered about the pointer's shape, oldest first. */
   readonly shown: readonly (PointerShape | null)[]
-  /** The last of them, or a throw when the loop has answered nothing at all. */
   latest(): PointerShape | null
 }
 
@@ -527,8 +340,7 @@ function stage(): Stage {
     loop.receiveInput(input)
     pen.runAnimationFrames()
   }
-  // FT-3 of table T-078 is not what starts this: the first frame is owed by the
-  // loop being made, so drain it before any case reads `current()`.
+  // Why: the first frame is owed by making the loop, not by an input of FT-3, so drain it before any case reads current().
   pen.runAnimationFrames()
   return {
     loop,
@@ -555,14 +367,7 @@ const drawnTask = (loop: FrameLoop, uid: number): TaskGeometry => {
   return found
 }
 
-/**
- * The box one drawn bar occupies, whichever of table T-012's two forms it took
- * (SH-1 / SH-2 / SH-5 have an area to fill, SH-3 / SH-4 are a line with ends).
- *
- * ⭐ NO FORM IS REQUIRED OF ANY BAR HERE. IN-2 says nothing about how a shape is
- * built, and a case that demanded one form would be failing a renderer for
- * something the row does not ask of it.
- */
+// Why: no form is required of any bar, since IN-2 says nothing of how a shape is built.
 function boxOf(bar: BarGeometry | null, what: string): ScreenRect {
   if (bar === null) throw new Error(`${what} was not drawn`)
   const points: readonly Point[] = bar.form === 'outline' ? bar.points : [bar.from, bar.to]
@@ -577,40 +382,19 @@ function boxOf(bar: BarGeometry | null, what: string): ScreenRect {
 const midY = (box: ScreenRect): number => box.y + box.height / 2
 const center = (box: ScreenRect): Point => ({ x: box.x + box.width / 2, y: midY(box) })
 
-// ---------------------------------------------------------------------------
-// The places IN-2 names, as points on this fixture's screen
-// ---------------------------------------------------------------------------
-
-/** 何にも当たらない場所: the far corner of the `Task Group Area`, past every bar. */
 function emptyCanvas(loop: FrameLoop): Point {
   const area = frameOf(loop).regions.taskGroupArea
   return { x: area.x + area.width - 4, y: area.y + area.height - 4 }
 }
 
-/**
- * A probe on an endpoint, kept inside the `Task Group Area`.
- *
- * ⭐ THE TASK GROUP AREA IS HALF-OPEN AT THE RIGHT, which is R3.4's convention and the
- * one `screen-regions.ts` follows so that neighboring regions never both claim
- * a point. The note under table T-023a binds that table to the schedule's
- * drawing area (MUST), so a point AT `taskGroupArea.x + taskGroupArea.width` is on no region
- * at all and IN-2 names no shape there.
- * ⛔⛔ AND STEPPING IN IS NO LONGER A WAY TO REACH AN END. This clamp read
- * 「keeps the probe on the SAME grab region -- S-253 gives GA-2 six px either side
- * of the end」 until 2026-09-10, which the ruling of 2026-09-09 made false:
- * 「予定の端点（`GA-1` / `GA-2`）の掴み代は端の外側だけに取ること（MUST）」.
- * ⭐ SO THE FIXTURE MOVED INSTEAD -- `NEW_STONE_DAY` now ends the schedule, so
- * no end of the bar Task falls on the region's edge and this clamp fires on
- * nothing. ⚠️ It is kept as a guard: a probe stepped outside the `Task Group Area`
- * would be asked where IN-2 names no shape at all, which is not a defect this
- * file means to report.
- */
+// Why: the Task Group Area is half-open at the right (R3.4), so a point on its right edge is on no region;
+// the clamp is kept as a guard that holds a probe inside it, though no end of this fixture falls there.
 function onEndpoint(loop: FrameLoop, x: number, y: number): Point {
   const area = frameOf(loop).regions.taskGroupArea
   return { x: Math.min(x, area.x + area.width - 1), y }
 }
 
-/** 予定バーの端点 -- GA-1 (左端) then GA-2 (右端) of table T-023d. */
+// Spec: GA-1, GA-2
 function planEnds(loop: FrameLoop): readonly Point[] {
   const box = boxOf(drawnTask(loop, BAR_UID).plan, "the bar Task's plan bar")
   return [
@@ -619,7 +403,7 @@ function planEnds(loop: FrameLoop): readonly Point[] {
   ]
 }
 
-/** 実績バーの端点 -- GA-3 (左端) then GA-4 (右端) of table T-023d. */
+// Spec: GA-3, GA-4
 function actualEnds(loop: FrameLoop): readonly Point[] {
   const box = boxOf(drawnTask(loop, BAR_UID).actual, "the bar Task's actual bar")
   // Why: the end probe stands one px inside, where GA-4 grabs, not on the pixel a touching marker takes.
@@ -629,51 +413,33 @@ function actualEnds(loop: FrameLoop): readonly Point[] {
   ]
 }
 
-/**
- * タスクの本体 -- GA-9, 「端点を除いた中間」.
- *
- * ⭐ HALFWAY BETWEEN THE ACTUAL'S RIGHT END AND THE PLAN'S RIGHT END, rather
- * than simply the plan bar's center: that is the widest stretch of the plan bar
- * with no end of either bar inside it, so the probe clears S-250 / S-253's allowance and
- * S-257 / S-260's by the largest margin this fixture can give. A premise measures both.
- */
+// Spec: GA-9
+// Why: halfway between the actual's right end and the plan's right end, the widest stretch with no end inside,
+// so the probe clears both grab allowances by the largest margin; a premise measures both.
 function barBody(loop: FrameLoop): Point {
   const plan = boxOf(drawnTask(loop, BAR_UID).plan, "the bar Task's plan bar")
   const actual = boxOf(drawnTask(loop, BAR_UID).actual, "the bar Task's actual bar")
   return { x: (actual.x + actual.width + plan.x + plan.width) / 2, y: midY(plan) }
 }
 
-/** マイルストーンの図形 -- the started one, whose 実績の図形 is GA-16. */
+// Spec: GA-16
 const startedMilestone = (loop: FrameLoop): Point =>
   center(boxOf(drawnTask(loop, STONE_UID).plan, "the started milestone's figure"))
 
-/** マイルストーンの図形 -- the one nobody has started. See the last describe. */
 const newMilestone = (loop: FrameLoop): Point =>
   center(boxOf(drawnTask(loop, NEW_STONE_UID).plan, "the not-started milestone's figure"))
 
-/** The タイムルーラー, which table T-023a's own note keeps out of that order. */
 function timeRuler(loop: FrameLoop): Point {
   return center(frameOf(loop).regions.timeRuler)
 }
 
-// ---------------------------------------------------------------------------
-// Asking IN-2 its question
-// ---------------------------------------------------------------------------
-
-/** Stand the pointer at one point and read the shape the loop answered. */
 function shapeAt(built: Stage, at: Point): PointerShape | null {
   built.send(pointer('move', at))
   return built.latest()
 }
 
-/**
- * The shape while a pan is in flight -- IN-2's 「`Ctrl` 併用と中ボタンのパン中」.
- *
- * ⭐ ASKED WHILE THE BUTTON IS STILL DOWN, because that is what 「パン中」 means
- * and because IN-1 settles a pointer operation on RELEASE. The gesture is then
- * released at the point it began, so nothing has actually panned and the caller
- * may go on reading resting shapes from the same screen.
- */
+// Why: asked while the button is still down, since IN-1 settles on release; released where it began,
+// so nothing pans and resting shapes may still be read from the same screen.
 function shapeWhilePanning(built: Stage, at: Point, how: HowPressed): PointerShape | null {
   built.send(pointer('move', at))
   built.send(pointer('down', at, how))
@@ -682,17 +448,13 @@ function shapeWhilePanning(built: Stage, at: Point, how: HowPressed): PointerSha
   return held
 }
 
-/** Press the palette entry whose 構え column is AR-2, and let IN-1 settle it. */
 function arm(built: Stage): void {
   const at = center(PALETTE_BOX)
   built.send(pointer('down', at))
   built.send(pointer('up', at))
 }
 
-// ===========================================================================
-// The premises every case below stands on
-// ===========================================================================
-
+// Spec: IN-2, FR-043, GA-5, GA-6, GA-7, GA-8, GR-10, GR-11, FR-075, SK-1, S-250, S-253, S-257, S-260
 describe('the fixture draws what IN-2 names', () => {
   it('reads five places out of IN-2, one per meaning it gives', () => {
     expect(
@@ -778,11 +540,7 @@ describe('the fixture draws what IN-2 names', () => {
   })
 })
 
-// ===========================================================================
-// (a) Five places, five distinct answers
-// ===========================================================================
-
-/** The five, read off one loop in an order that leaves the arm until last. */
+// Why: one loop reads all five with the arm last, because an arm lasts and would change the answers after it.
 function fiveAnswers(): Readonly<Record<string, PointerShape | null>> {
   const built = stage()
   const nothingHit = shapeAt(built, emptyCanvas(built.loop))
@@ -794,6 +552,7 @@ function fiveAnswers(): Readonly<Record<string, PointerShape | null>> {
   return { nothingHit, panning, arming, endpoint, grabbable }
 }
 
+// Spec: IN-2
 describe('T-028 IN-2: the five places carry five different meanings', () => {
   it('answers a shape at every one of the five (「その場所で何ができるかを示すこと」)', () => {
     for (const [place, shape] of Object.entries(fiveAnswers())) {
@@ -802,10 +561,8 @@ describe('T-028 IN-2: the five places carry five different meanings', () => {
   })
 
   it('answers a DISTINCT shape at each of them', () => {
-    // ⭐ WHY DISTINCTNESS IS THE ASSERTION AND A KEYWORD IS NOT. IN-2 closes
-    // 「⚠️ 形の綴りそのものは閉覧環境が持つ —— 本行が定めるのはどの場所がどの
-    // 意味を担うかだけである」. Five places with five different meanings that
-    // shared one shape would not 示す what can be done there, which is the MUST.
+    // Why: IN-2 leaves the spelling of a shape to the viewing environment, so distinctness is asserted, not a keyword;
+    // five meanings sharing one shape would not show what can be done there.
     const answers = Object.values(fiveAnswers())
     expect(
       new Set(answers).size,
@@ -818,10 +575,7 @@ describe('T-028 IN-2: the five places carry five different meanings', () => {
   })
 })
 
-// ===========================================================================
-// (b) 何にも当たらない場所は範囲選択の合図 -- PTD-5 of table T-023a
-// ===========================================================================
-
+// Spec: IN-2, PTD-3, PTD-5
 describe('T-028 IN-2: 何にも当たらない場所は範囲選択の合図', () => {
   it('answers a shape where nothing is hit and nothing is armed (PTD-5)', () => {
     const built = stage()
@@ -844,11 +598,6 @@ describe('T-028 IN-2: 何にも当たらない場所は範囲選択の合図', (
   })
 })
 
-// ===========================================================================
-// (c) 予定バーと実績バーの端点の上は 表 T-269 の形
-//     -- GA-1 / GA-2 / GA-3 / GA-4 of table T-023d
-// ===========================================================================
-
 // Spec: T-266
 const T_266_ENDS = [
   '箱の矢印 ← 白（`PK-1`）',
@@ -861,6 +610,7 @@ const T_266_ENDS = [
 const FR_106_KEEPS = '押している間、`GRS` は、掴んだときの形を保つこと。'
 const IN_2_T_269 = '掴み代の上は `FR-106` の 表 T-269 の形'
 
+// Spec: IN-2, GA-1, GA-2, GA-3, GA-4, T-269
 describe('T-028 IN-2: 予定バーと実績バーの端点の上は 表 T-269 の形', () => {
   it('the manuscript still holds the four end pointers of T-266, the FR-106 clause and the IN-2 sentence quoted here', () => {
     const requirements = readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8')
@@ -902,6 +652,7 @@ describe('T-028 IN-2: 予定バーと実績バーの端点の上は 表 T-269 �
   })
 })
 
+// Spec: FR-106, IN-1
 describe('FR-106: while pressed, the pointer keeps the shape it had when pressed', () => {
   it('a press on the plan end keeps its arrow while dragged off the end, over empty canvas', () => {
     const built = stage()
@@ -930,11 +681,7 @@ describe('FR-106: while pressed, the pointer keeps the shape it had when pressed
   })
 })
 
-// ===========================================================================
-// (d) タスクの本体は掴めることの合図、マイルストーンの図形は `PK-5`
-//     (利用者の裁定 2026-08-27, 表 T-269 の結びで CR-430 が置き換えた) -- GA-9 and GA-16
-// ===========================================================================
-
+// Spec: IN-2, GA-9, GA-16, PK-5, T-269
 describe('T-028 IN-2: タスクの本体とマイルストーンの図形の上は掴めることの合図', () => {
   it('answers a shape on the bar body -- GA-9, 端点を除いた中間', () => {
     const built = stage()
@@ -981,10 +728,7 @@ describe('T-028 IN-2: タスクの本体とマイルストーンの図形の上�
   })
 })
 
-// ===========================================================================
-// (e) `Ctrl` 併用と中ボタンのパン中は握った手 -- PTD-1 of table T-023a
-// ===========================================================================
-
+// Spec: IN-2, PTD-1, IN-1
 describe('T-028 IN-2: `Ctrl` 併用と中ボタンのパン中は握った手', () => {
   it('answers a shape while a `Ctrl` drag is in flight', () => {
     const built = stage()
@@ -1024,10 +768,9 @@ describe('T-028 IN-2: `Ctrl` 併用と中ボタンのパン中は握った手', 
   })
 })
 
-// ===========================================================================
-// (f) 構えているときは作図の合図 -- PTD-4 of table T-023a
-// ===========================================================================
-
+// Spec: IN-2, PTD-4, PTD-4a, AR-1, AR-2, AR-6
+// Why: the armed cases arm AR-2, which PTD-4 settles without argument; the dependency arm (AR-4)
+// and Dual Cursor mode (PTD-2), for which IN-2 names no place, are left out.
 describe('T-028 IN-2: 構えているときは作図の合図', () => {
   it('answers a shape once a figure is armed (AR-2 of table T-023b)', () => {
     const built = stage()
@@ -1056,24 +799,16 @@ describe('T-028 IN-2: 構えているときは作図の合図', () => {
   it('does not answer it on a bar body: 当たったか is decided before 構えているか', () => {
     const built = stage()
     arm(built)
-    // T-023a: 「第 1 の分岐は「当たったか」であり、「構えているか」は当たらな
-    // かったときにだけ効く（MUST）」, and AR-2's 当たったとき column reads
-    // 「そのものへの既定操作（既存が勝つ）」.
     expect(shapeAt(built, barBody(built.loop))).not.toBe(shapeAt(built, emptyCanvas(built.loop)))
   })
 })
 
-// ===========================================================================
-// (g) A place IN-2 names nothing for answers nothing
-// ===========================================================================
-
+// Spec: IN-2, FR-053
 describe('T-028 IN-2 names five places and no more', () => {
   it('answers nothing on the タイムルーラー', () => {
     const built = stage()
-    // 表 T-023a's note: 「判定順序を適用するのは日程の描画領域だけとすること
-    // （MUST）」, and its タイムルーラー row: 「ポインタ操作を持たない（MUST
-    // NOT）」. None of IN-2's five places can arise there, and 何にも当たらない
-    // 場所は範囲選択の合図 would promise the marquee that row forbids the ruler.
+    // Why: the decision order applies only to the drawing area and the ruler has no pointer operation,
+    // so a marquee signal there would promise what that row forbids.
     expect(
       shapeAt(built, timeRuler(built.loop)),
       'T-023a: 判定順序を適用するのは日程の描画領域だけとすること（MUST）',
@@ -1082,9 +817,6 @@ describe('T-028 IN-2 names five places and no more', () => {
 
   it('answers nothing on the `Command Palette`, which floats over the drawing area', () => {
     const built = stage()
-    // The same note lists 浮遊するコマンドパレット among the faces the decision
-    // order does not reach; `FR-053` holds that one instead. IN-2 names no place
-    // on it, so nothing may be invented for it.
     expect(shapeAt(built, center(PALETTE_BOX))).toBeNull()
   })
 
@@ -1096,14 +828,11 @@ describe('T-028 IN-2 names five places and no more', () => {
   })
 })
 
-// ===========================================================================
-// (h) A milestone that has not been started
-// ===========================================================================
-// see CR-382, CR-388, GA-17, GA-16
-
+// Spec: GA-16, GA-17
 const GR_18_GRABS_LIKE_GR_15 =
   '。⭐ **押したときは、予定と実績のマイルストーンが同じ日にあるときの `GA-16` と同じものを掴むこと（MUST）'
 
+// Spec: IN-2, GA-16, GA-17
 describe('T-028 IN-2 on a milestone that has not been started (CR-382, CR-388)', () => {
   it('answers a shape on its figure at all', () => {
     const built = stage()

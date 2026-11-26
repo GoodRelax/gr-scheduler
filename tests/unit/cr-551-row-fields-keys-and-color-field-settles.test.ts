@@ -1,4 +1,4 @@
-// CR-551 follow-ups: the task group fields carry their T-016 IDs (IR-1), and the custom color input settles (CV-9).
+// Unit tests: the task group fields carry their T-016 IDs, and the custom color input settles.
 
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -126,7 +126,7 @@ function bench(document: Record<string, unknown>): Bench {
   }
 }
 
-// Why: the same event raiser tests/unit/property-date-field-delete-empties-the-date.test.ts uses on this fake.
+// Summary: raise() hands one fake event to every listener of its type on the node and each ancestor, innermost first.
 function raise(built: Stage, node: FakeElement, type: string, extra: Record<string, unknown> = {}): FakeEvent {
   const event = {
     type,
@@ -212,7 +212,7 @@ const linePalette = (built: Bench): FakeElement => {
   if (grids[0] === undefined) throw new Error('the line color field lays out no palette')
   return grids[0]
 }
-// see CV-9, CR-689
+// Spec: CV-9
 // Why: every entrance is a cell of the one grid of two rows, beside the names.
 const cellWith = (grid: FakeElement, attribute: string, value: string | null = null): FakeElement => {
   const found = grid.children.find((one) =>

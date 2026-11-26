@@ -1,80 +1,4 @@
-// `FR-035` (docs/spec/01-04-requirements.md) and 表 T-036 の `SK-9`
-// (:2515):
-//
-//   FR-035 STATEMENT 「作成者が文書名を選んだとき、`GRS` は、文書名をその場で
-//                    編集できるようにすること。」
-//   T-036 SK-9       「文書名を編集する | `F2` | — |」
-//   FR-035 RATIONALE 「`GRS` は、`title` に空文字を受け付けないこと。」
-//   T-028 IN-4       「⛔ **取り消したときは、編集を始める前の値へ戻すこと
-//                    （MUST）。書きかけの文字を文書へ書いてはならない
-//                    （MUST NOT）**（`FR-031`）」
-//   T-036 SK-19      「出ている通知が無い間、 `Enter` を押したとき、`GRS` は、その場の編集
-//                    （名称・担当名・タスクグループ名・文書名・プロパティの入力）を確定すること」
-//   T-065 IF-9       「編集できる欄で確定した値を、その欄が名乗る行 ID とともに
-//                    返し（⭐ **行 ID は 表 T-016 の行に限らない。****ヘッダーの
-//                    文書名の欄は 表 T-103 の `U-27` を名乗る**）」
-//                    (docs/spec/05-07-design.md, 利用者の裁定 2026-09-06)
-//
-// ---------------------------------------------------------------------------
-// ⛔⛔ WHAT THIS FILE DOES NOT ASSERT, AND WHY -- READ THIS FIRST
-// ---------------------------------------------------------------------------
-// The ledger's summary of DFC-322 says the field opens 「焦点が入り、既存の文字が
-// 全選択され」. ⛔ NO ROW OF THE SPECIFICATION SAYS THAT ABOUT THE DOCUMENT
-// NAME. Searched 2026-09-06 for 全選択 / 焦点を置 across 01-04-requirements.md,
-// 05-07-design.md and _assets/: the clause 「既にある文字をすべて選んだ状態に
-// すること」 appears TWICE, in
-// `MK-13` of 表 T-023 (:2331) and in `FR-085` (:1281), and both times it is
-// about a TASK's name (表 T-016 の `PR-1`) or a TASK GROUP's name (`AT-53`). `SK-9`
-// carries no such sentence and neither does `FR-035`.
-// ⇒ Asserting focus-and-select-all for the document name here would be this
-// file inventing a rule (rule 04 section 1: 仕様を読んで、それが述べることを
-// 主張する). It is reported instead; if the user wants it, it is a change
-// request against `FR-035`, and the day it lands this file gains the case.
-// ⚠️ Nothing about the browser TAB heading is in scope either -- FR-035 carries
-// two MUST clauses about it and they belong to whatever drives the host title.
-//
-// ---------------------------------------------------------------------------
-// THE UNITS THIS DRIVES
-// ---------------------------------------------------------------------------
-//   `commandFromInput`        UF-30/31 `input-command-translator` (CP-18 of
-//                             table T-062, PI-18 of T-064) -- what `F2` asks
-//                             for, and what `Esc` does not ask for.
-//   `commandFromFieldCommit`  PI-18's fourth member -- the settled value
-//                             arriving back with the row id its field names.
-//   `editProject`             PI-9 `EditDocument` -- the aggregate that owns
-//                             `CM-1` and FR-035's MUST NOT.
-// ⭐ ALL THREE, BECAUSE THE ROW IS ABOUT A PATH AND NOT A FUNCTION. DFC-322's
-// two measurements (2026-09-05 and 2026-09-06) are of a key press producing a
-// field and a typed name reaching `Project.title`; a case that stopped at the
-// translator would have gone green on the very build the sweep found broken,
-// since `editInPlace{documentTitle}` was already being planned there
-// (input-command-translator.ts:3768 as the ledger records it) and the shell was
-// dropping it.
-//
-// ---------------------------------------------------------------------------
-// WHERE TABLE T-218 PUTS THIS FILE
-// ---------------------------------------------------------------------------
-// `TS-6`, tests/unit/ -- decided by values alone (vitest.config.ts lists the
-// three Vitest places). Chapter 9 does not admit Unit as a TEST_LEVEL.
-// ⚠️ THE HALF THAT IS NOT HERE IS THE SHELL'S. Whether the header really draws
-// an editable field, and whether a caret lands in it, is DOM and belongs in
-// tests/system/. This file holds every part that is a value.
-//
-// ---------------------------------------------------------------------------
-// ⛔ WRITTEN FROM docs/spec, AND WHAT WAS READ OF `src/` IS NAMED HERE
-// ---------------------------------------------------------------------------
-// (docs/development-rules/04-verification.md section 1.)
-//
-// Exported declarations read, and nothing else:
-//   input-command-translator.ts  `commandFromInput`, `commandFromFieldCommit`,
-//                                `InputContext`, `InputAction`, `InPlaceTarget`,
-//                                `TranslatedInput`
-//   screen-renderer.ts           `FieldCommit`, `PropertyFieldKey`
-//   edit-document.ts             `editProject`, `ProjectCommand`, `EditResult`
-//   input-source.ts              `KeyInput`, `InputModifiers`
-// ⛔ NOT READ: any body. In particular the `case 'project'` arm of
-// `commandFromFieldCommit` and the `setProjectTitle` arm of `editProject` were
-// not opened; what they must do is read above, out of FR-035 and IF-9.
+// Contract tests: the document name is opened by F2 and edited in place.
 
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -111,15 +35,6 @@ import {
 import { emptyScreenSession } from '../../src/use-case/advance-screen-session/advance-screen-session'
 import { specTable, unbroken } from './spec-table'
 
-// ===========================================================================
-// 1. The sentences, read out of the manuscript rather than believed
-// ===========================================================================
-
-/**
- * ⚠️ Japanese literals in code. Rule 03 section 5 keeps code English and ASCII
- * and admits 日本語そのものを扱う処理 as the exception -- these strings ARE the
- * clauses.
- */
 const FR_035_STATEMENT = '**STATEMENT**: 作成者が文書名を選んだとき、`GRS` は、文書名をその場で編集できるようにすること。'
 
 const FR_035_NO_EMPTY_STRING =
@@ -131,7 +46,6 @@ const IN_4_NOTHING_HALF_TYPED_IS_WRITTEN =
 const SK_19_SETTLES_THE_IN_PLACE_EDIT =
   '出ている通知が無い間、 `Enter` を押したとき、`GRS` は、その場の編集（名称・担当名・タスクグループ名・文書名・プロパティの入力）を確定すること。'
 
-/** IF-9's widening, the ruling CR-361 rests on. Its file is Chapter 5-7. */
 const IF_9_THE_FIELD_NAMES_U_27 = 'ヘッダーの文書名の欄は 表 T-103 の `U-27` を名乗る'
 
 const REQUIREMENTS = unbroken(readFileSync(
@@ -141,10 +55,8 @@ const REQUIREMENTS = unbroken(readFileSync(
 
 const DESIGN = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '05-07-design.md'), 'utf8'))
 
-/** `U-27` of 表 T-103 -- the row the header's field names itself by. */
 const U_27 = 'U-27'
 
-/** The key 表 T-036 assigns to SK-9, read from the table rather than typed. */
 const SK_9_KEY = ((): string => {
   const row = specTable('T-036').rows.find((one) => one.id === 'SK-9')
   if (row === undefined) throw new Error('table T-036 has no row SK-9')
@@ -153,10 +65,6 @@ const SK_9_KEY = ((): string => {
   if (key === undefined) throw new Error(`table T-036 SK-9 assigns no function key: ${row.cells}`)
   return key
 })()
-
-// ===========================================================================
-// 2. The bench
-// ===========================================================================
 
 const NESTED = {
   exportCanvas: { width: 1600, height: 900 },
@@ -176,7 +84,7 @@ const SETTINGS = settingsOf({
   stackDirection: 'down',
 })
 
-/** The name the document starts every case with. ⭐ Never the empty string. */
+// Why: never the empty string, or the cases on an emptied name could not tell it from the start.
 const NAME_BEFORE = 'the name it started with'
 
 const scheduleWithTitle = (title: string | null): Schedule =>
@@ -267,44 +175,32 @@ const keyOf = (key: string, modifiers: InputModifiers = NO_MODS): KeyInput => ({
 const pressing = (key: string, part: Partial<InputContext> = {}): TranslatedInput =>
   commandFromInput(keyOf(key), contextFor(documentWithTitle(NAME_BEFORE), part))
 
-/** The rows of 表 T-108 one input plans, flattened. Empty when it plans none. */
 const writesOf = (answer: TranslatedInput): readonly DocumentCommand[] => {
   const action = answer.action
   if (action === null || action.kind !== 'changeDocument') return []
   return action.writes.flat()
 }
 
-/**
- * What IF-9 hands back when the header's field settles: the row id the field
- * names itself by (`U-27`), the subject it is about, and the text as typed.
- *
- * ⛔ THE KEY IS THE DOCUMENT'S OWN `Project`, not a row of 表 T-016. FR-074
- * (MUST NOT) keeps 文書名 out of 文書の基本情報 and names FR-035 as its one
- * entrance, so no row of that table could carry it.
- */
+// Why: the key is the document's own Project and not a row of T-016: FR-074 keeps the document name
+// out of the basic information and names FR-035 as its one entrance.
 const commitOf = (text: string): FieldCommit => ({
   row: U_27,
   key: { holder: 'project', column: 'title' },
   text,
 })
 
-/** IF-9's value in, `Project.title` out -- the whole of what CR-361 wired. */
 const titleAfterCommitting = (text: string, from: string | null = NAME_BEFORE): string | null => {
   let document = documentWithTitle(from)
   for (const command of commandFromFieldCommit(commitOf(text), contextFor(document))) {
-    // ⚠️ Only the Project aggregate is asked, because only its commands can
-    // reach `Project.title` -- and a command from any other row arriving here
-    // would be a defect this case should surface rather than route around.
+    // Why: only the Project aggregate is asked, as only its commands reach Project.title; a command
+    // from another row arriving here is a defect to surface, not to route around.
     const result = editProject(document, command as never)
     if (result.ok) document = result.document
   }
   return document.schedule.project.title
 }
 
-// ===========================================================================
-// 3. The premises every case below stands on
-// ===========================================================================
-
+// Spec: FR-035, SK-9, IN-4, SK-19, IF-9, U-27
 describe('DFC-322 -- the manuscript these cases are driven by', () => {
   it('still asks FR-035 for an in-place edit of the document name', () => {
     expect(REQUIREMENTS).toContain(FR_035_STATEMENT)
@@ -334,10 +230,9 @@ describe('DFC-322 -- the manuscript these cases are driven by', () => {
   })
 })
 
-// ===========================================================================
-// 4. SK-9 -- F2 opens the document name in place
-// ===========================================================================
-
+// Spec: SK-9, FR-035, IN-4, IN-5a, FR-031
+// Why: no case asks focus and select-all: MK-13 and FR-085 say it of task and group names,
+// and neither SK-9 nor FR-035 says it of the document name.
 describe('T-036 SK-9 / FR-035 -- F2 opens the document name for editing in place', () => {
   it('answers editInPlace with the documentTitle target', () => {
     expect(pressing(SK_9_KEY).action).toEqual({
@@ -347,15 +242,12 @@ describe('T-036 SK-9 / FR-035 -- F2 opens the document name for editing in place
   })
 
   it('opens the field and writes NOTHING by itself', () => {
-    // ⭐ FR-035 asks for an EDIT, and an edit that had already written would
-    // leave IN-4's 「取り消したときは、編集を始める前の値へ戻すこと」 with
-    // nothing to return to.
+    // Why: an edit that had already written would leave the cancel of IN-4 with nothing to return to.
     expect(writesOf(pressing(SK_9_KEY))).toEqual([])
   })
 
   it('opens it whatever the document name is now, including none at all', () => {
-    // FR-035 gives `null` a meaning of its own (「`title` が `null` の間」),
-    // so a document that has never been named is still one whose name F2 opens.
+    // Why: FR-035 gives a null title a meaning of its own, so a never-named document still opens.
     for (const before of [NAME_BEFORE, null]) {
       const answer = commandFromInput(
         keyOf(SK_9_KEY),
@@ -369,32 +261,27 @@ describe('T-036 SK-9 / FR-035 -- F2 opens the document name for editing in place
   })
 
   it('does not open it while a field is already unsettled (IN-5a)', () => {
-    // 「**単文字キーと `Delete` / `Backspace` は、文字入力を確定していない間は
-    // 効かないこと（MUST NOT）**」 is about single characters, and `F2` is not
-    // one -- ⭐ so this case asserts only that F2 does not plan a WRITE while a
-    // field stands, which is the half IN-4 and FR-031 both turn on.
+    // Why: IN-5a is about single characters and F2 is not one, so only the absence of a write is asked,
+    // which is the half IN-4 and FR-031 both turn on.
     expect(writesOf(pressing(SK_9_KEY, { isTextEntryUnsettled: true }))).toEqual([])
   })
 })
 
-// ===========================================================================
-// 5. ⛔ THE CONTROL. Every case above would pass on a build that answered
-//    `editInPlace{documentTitle}` to every key ever pressed.
-// ===========================================================================
-
+// Why: the control: every case above would pass on a build that answered
+// editInPlace{documentTitle} to every key pressed.
+// Spec: SK-9, IN-4
 describe('T-036 -- F2 and only F2 opens the document name', () => {
-  /** Every other function key 表 T-036 assigns, read from the table. */
   const OTHER_FUNCTION_KEYS = specTable('T-036')
     .rows.filter((one) => one.id !== 'SK-9')
     .flatMap((one) => one.cells.flatMap((cell) => [...cell.matchAll(/`(F\d+)`/g)].map((m) => m[1]!)))
 
   it('table T-036 still assigns function keys other than F2', () => {
-    // ⭐ The premise of the control: an empty list would make the case below
-    // vacuous. F1 (SK-13, help) and F11 (SK-15, full screen) are the two.
+    // Why: an empty list of other function keys would make the case below vacuous.
     expect(new Set(OTHER_FUNCTION_KEYS).size).toBeGreaterThan(1)
     expect(OTHER_FUNCTION_KEYS).not.toContain(SK_9_KEY)
   })
 
+  // Spec: SK-13, SK-15
   it('no other function key of table T-036 opens the document name', () => {
     for (const key of new Set(OTHER_FUNCTION_KEYS)) {
       const action = pressing(key).action
@@ -407,8 +294,6 @@ describe('T-036 -- F2 and only F2 opens the document name', () => {
   })
 
   it('Esc does not open it, and Esc does not write it either', () => {
-    // 表 T-028 の IN-4: Esc CONSUMES a rung. ⛔ 「書きかけの文字を文書へ書いては
-    // ならない（MUST NOT）」 -- so a cancel plans no row of 表 T-108 at all.
     const answer = pressing('Esc', { isTextEntryUnsettled: true })
     expect(answer.action).not.toEqual({
       kind: 'editInPlace',
@@ -418,10 +303,7 @@ describe('T-036 -- F2 and only F2 opens the document name', () => {
   })
 })
 
-// ===========================================================================
-// 6. IF-9 / SK-19 -- what the settled value does
-// ===========================================================================
-
+// Spec: IF-9, FR-035, SK-19, U-27
 describe('IF-9 + FR-035 -- a settled name reaches Project.title', () => {
   it('writes the typed name', () => {
     expect(titleAfterCommitting('a new name')).toBe('a new name')
@@ -436,22 +318,16 @@ describe('IF-9 + FR-035 -- a settled name reaches Project.title', () => {
   })
 
   it('writes a name that differs from the one it started with -- not a no-op', () => {
-    // ⛔ THE CONTROL FOR THIS SECTION. A `commandFromFieldCommit` that answered
-    // `[]` for everything would pass "the title is never empty" below and write
-    // nothing at all.
+    // Why: the control: a commandFromFieldCommit that answered [] for everything would pass
+    // the never-empty cases below and write nothing at all.
     expect(titleAfterCommitting('a new name')).not.toBe(NAME_BEFORE)
   })
 })
 
-// ===========================================================================
-// 7. 「`GRS` は、`title` に空文字を受け付けないこと。」
-// ===========================================================================
-
+// Spec: FR-035, CM-1
 describe('FR-035 (MUST NOT) -- an emptied name is never committed', () => {
   it('leaves the name it started with when the field is settled empty', () => {
-    // ⭐ THE WHOLE PATH, not one member of it. Whether the translator declines
-    // to plan the command or the aggregate refuses it is the build's business;
-    // what FR-035 forbids is the RESULT, and the result is what is asked for.
+    // Why: the whole path is asked, not one member: FR-035 forbids the result, whichever member refuses.
     expect(titleAfterCommitting('')).toBe(NAME_BEFORE)
   })
 
@@ -471,10 +347,8 @@ describe('FR-035 (MUST NOT) -- an emptied name is never committed', () => {
   })
 
   it('still accepts null, which FR-035 gives a meaning of its own', () => {
-    // 「`title` が `null` の間、`GRS` は、タブの見出しを `Untitled` に
-    // すること。」 -- so `null` is a state the document may hold, and only the
-    // empty string is forbidden. ⚠️ The tab heading itself is out of scope
-    // here; what this case holds is that the two absences are NOT the same.
+    // Why: null is a state the document may hold and only the empty string is forbidden;
+    // this case holds that the two absences are not the same.
     const cleared = editProject(documentWithTitle(NAME_BEFORE), {
       kind: 'setProjectTitle',
       title: null,

@@ -15,7 +15,7 @@ import { specTable, unbroken } from './spec-table'
 const SPEC = join(process.cwd(), 'docs', 'spec')
 const REQUIREMENTS = unbroken(readFileSync(join(SPEC, '01-04-requirements.md'), 'utf8'))
 
-// Spec: FR-019, CM-46
+// Spec: FR-019, CM-46, IMPS-853
 const CM_46_FIVE_NULLS =
   'コメントボックスを置くとき（`_assets/tbl-document-commands.md` の 表 T-108 の `CM-46`）、`GRS` は、6 列を `null` とすること。'
 // Spec: FR-057, CM-39

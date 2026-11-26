@@ -37,6 +37,7 @@ afterEach(restoreAnimationFrames)
 // Spec: FR-156
 const FR_156_STATEMENT =
   '作成者が文書の設定の面で基準に別のタイムゾーンを選び、答えを押したとき、`GRS` は、答えに従って、見せる基準を選んだタイムゾーンにするか、日程データのタイムゾーンを選んだタイムゾーンに付け替えて見せる基準を日程データのタイムゾーンへ戻すこと。'
+// Spec: IMPS-735
 const FR_156_FIELD = '基準の欄は、`_assets/tbl-glossary.md` の 表 T-104 の `K-144` の名で、表 T-376 の種が標準時の行を選ぶ欄を 1 つ置く。'
 const FR_156_ASK_ONLY_OTHER =
   '⭐ 基準の欄で、いまの見せる基準と違うタイムゾーンを選んだときだけ、`GRS` は、欄のすぐ下に、辞書の `timeZoneField` の `baseChangeQuestion` の 1 行と、次の 3 つの答えを 1 行に 1 つずつ出すこと（利用者の判断）'
@@ -44,12 +45,15 @@ const FR_156_APPLY = '換算して適用する —— 見せる基準（`S-574`�
 const FR_156_DONT_CONVERT =
   '換算しない —— 日程データのタイムゾーン（`AT-157`）を選んだタイムゾーンに付け替え、見せる基準を `null`（日程データのタイムゾーンと同じ）に戻す'
 const FR_156_CANCEL = 'キャンセル —— 選んだタイムゾーンを取り消し、基準を変えない。'
+// Spec: IMPS-741
 const FR_156_HINTS =
   '語は `FR-038` の辞書の `timeZoneField` の `keepGlobalTime`・`keepLocalTime`・`cancelBaseChange` が持ち、換算して適用する と 換算しない には、その働きを言う説明（同じ区の語）を添える。'
 const FR_156_BEFORE_AFTER =
   '`GRS` は、換算して適用する と 換算しない の下に、答えで当てる前と後の時刻を、辞書の `beforeLine` と `afterLine` の 2 行に分けて添えること（利用者の判断）'
 const FR_156_FIRST_TASK = '時刻は、開始を持つ最初のタスク（文書の `Task` の並びの順）の開始の日時を、前はいまの見せる基準で、後は答えで当てた後の見せる基準で見せ'
+// Spec: IMPS-742
 const FR_156_NO_START = '開始を持つタスクが無いときは、前と後の行を出さない。'
+// Spec: IMPS-743
 const FR_156_SHOWN_AFTER = '⭐ どちらの答えでも、押した後は選んだタイムゾーンが基準の欄に示され、画面の日時はすべて選んだタイムゾーンの時刻で見える（利用者の判断）。'
 const FR_156_ONLY_ON_ANSWER = '⭐ `GRS` は、タイムゾーンを選んだだけでは当てず、答えを押したときに当てること'
 const FR_156_ONE_UNDO = '⛔ `GRS` は、答えを確認を取らずに当て、取り消し 1 回で戻せるようにすること'

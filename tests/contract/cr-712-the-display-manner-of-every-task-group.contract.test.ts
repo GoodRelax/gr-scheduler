@@ -60,6 +60,7 @@ const WORDS = JSON.parse(readFileSync(join(SPEC, '_source', 'display-words.json'
 
 // Why: each constant ends exactly at its marker, cut from section 4 of CR-712 as check 39 reads it.
 const FR_076_THE_COLUMN_HOLDS_IT = '`GRS` は、理由ごとに画面へどう出すかを、表 T-233 の「表示の仕方」の欄に従わせること'
+// Spec: IMPS-1132
 const FR_076_HIDE_IS_CARRIED =
   '表示の仕方が「出さない」の理由が上がったとき、`GRS` は通知の欄に 1 枚を立てないこと。`GRS` は、`Agent API` の拒否の値（表 T-035 の `AG-9a`）に、「出さない」の理由の行を運ぶこと。'
 const FR_076_NOT_DECIDED_AGAIN = '要求の本文は、「告げる」と書いていても、理由を出すかどうかを本文で決め直さないこと'

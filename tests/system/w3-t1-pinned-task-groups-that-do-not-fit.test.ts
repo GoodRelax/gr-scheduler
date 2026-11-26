@@ -10,6 +10,7 @@ import { rowIdOf, taskGroupsDocument } from './w3-t1-stage'
 
 const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
+// Spec: IMPS-792
 // Why: the constant ends exactly at its marker, cut from the manuscript as check 39 reads it.
 const FR_098_NOT_DRAWN =
   '`GRS` は、ほかの理由でピン止めしたタスクグループを描くのをやめないこと。'

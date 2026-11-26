@@ -1,62 +1,4 @@
-// The two guards CR-280 put in when the autosave went (ledger row DFC-98):
-//
-//   FR-100 (MUST)      未保存の編集を持ったままページを離れようとしたとき、宿主の
-//                      警告が出るようにすること。⛔ 未保存の編集が無いときに出させ
-//                      てはならない（MUST NOT）。⛔ 警告の文言を `GRS` が決めては
-//                      ならない（MUST NOT）
-//   T-024a OP-13 (MUST) 開いているファイルを読み直すとき（表 T-036 の `SK-21`）：
-//                      「**選ばせる面を開かずに、同じファイルをもう一度読むこと
-//                      （MUST）** —— 開き直すたびに場所を選ばせるなら、`Ctrl` ＋
-//                      `R` は「開く」と同じものになる。**`OP-3` の 3 択は問わず、
-//                      置き換えに定めること（MUST）** …⛔ **`OP-4` の確認は掛かる
-//                      こと（MUST）** —— 捨てるのは未保存の編集であり、置き換えで
-//                      ある以上ここだけ免れる理由が無い。⚠️ **開いているファイルが
-//                      無いときは何もしないこと（MUST）**」
-//   T-024a OP-4 (MUST)  「置き換えを選んだときは、捨てる前に確認を求めること
-//                      （MUST）。黙って捨ててはならない（MUST NOT）」
-//   T-234 QN-5          「未保存の編集を捨てて置き換えるとき | 挙げる —— 捨てる
-//                      文書の名前 | 表 T-024a の `OP-4`」
-//   T-037 NT-7          the manner that question is put in.
-//
-// Unit under test: UF-48 of table T-075 (`frame-loop.ts`, component CP-25 of
-// table T-062) -- the layer that holds the current value (LY-5 of table T-060)
-// and therefore the only one that can say whether an edit is unsaved.
-//
-// ⚠️ Chapter 9 does not admit `Unit` as a TEST_LEVEL, so these cases have no
-// node in the specification. Table T-218 of Chapter 7 gives them their place:
-// TS-6, tests/unit/.
-//
-// ⛔ WRITTEN FROM docs/spec AND NOTHING ELSE (docs/development-rules/
-// 04-verification.md, section 1). ⛔ NO FILE UNDER src/ WAS READ. The host, the
-// fake surface, the fake `FileStore` and the way a key of table T-036 is spelled
-// are copied from tests/unit/uf-47-48-choosers.test.ts and
-// tests/unit/fr-029-the-reason-a-press-carries.test.ts, which are tests;
-// `startup-template.json` is a generated document read as data.
-//
-// ---------------------------------------------------------------------------
-// ⛔⛔ WHAT NO TEST IN THIS DIRECTORY CAN REACH -- FR-100's REGISTRATION
-// ---------------------------------------------------------------------------
-//
-// FR-100's MUST is about the HOST's warning, which a page arranges by taking
-// `beforeunload`. That belongs to the shell, and
-// `src/framework/single-html-shell/single-html-shell.ts` EXPORTS NOTHING -- the
-// module has no public member at all, so no Vitest case can import it, drive it
-// or watch what it registers. ⇒ 「離れる前に宿主の警告が出るようにすること」 can
-// only be shown through the page itself, which is table T-218's TS-1 / TS-3
-// (Playwright), not TS-6.
-//
-// ⭐ WHAT THIS FILE HOLDS INSTEAD is the CONDITION the whole of FR-100 is
-// written on -- 「未保存の編集を持ったまま」 and its MUST NOT 「未保存の編集が無い
-// ときに出させてはならない」. `FrameLoop.hasUnsavedEdits()` is the only judgment
-// of it anywhere below the shell; a shell that asked no one would have to invent
-// a second one, and a warning raised on a wrong answer is wrong however faithful
-// the registration is.
-//
-// ⛔ ALSO NOT ASSERTED: 「警告の文言を `GRS` が決めてはならない（MUST NOT）」. The
-// requirement itself says the words are the host's and adds 「辞書に語を持たせて
-// はならない（MUST NOT）」 -- and the dictionary is walked, entry by entry, by
-// tests/contract/display-words.contract.test.ts. There is nothing left here to
-// weigh.
+// Unit tests: the unsaved-edit condition of FR-100 and the reopen road of OP-13.
 
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -91,19 +33,12 @@ import {
   type ScreenWiring,
 } from '../../src/framework/single-html-shell/frame-loop'
 
-// ---------------------------------------------------------------------------
-// The manuscript, read at run time (Chapter 1.9)
-// ---------------------------------------------------------------------------
-
 const T_036 = specTable('T-036')
 const T_103 = specTable('T-103')
 const T_234 = specTable('T-234')
 
-/** Table T-036 prints what the shortcut does, then its assignment. */
 const T_036_ASSIGNMENT = 1
-/** Table T-103 prints the settled English name first, after the row ID. */
 const T_103_NAME = 0
-/** Table T-234 prints the 場面 first, then whether the names are listed. */
 const T_234_NAMES = 1
 
 const cellOf = (table: { rows: readonly { id: string; cells: readonly string[] }[] }, id: string, at: number): string => {
@@ -114,7 +49,6 @@ const cellOf = (table: { rows: readonly { id: string; cells: readonly string[] }
   return cell
 }
 
-/** One row of table T-036, spelled as its assignment column spells it. */
 const keyOf = (id: string): KeyInput => {
   const parts = (cellOf(T_036, id, T_036_ASSIGNMENT).split('/')[0] ?? '')
     .replace(/`/g, '')
@@ -137,25 +71,15 @@ const keyOf = (id: string): KeyInput => {
   }
 }
 
-/** SK-10 -- the one entrance OP-2 allows for opening a document. */
 const SK_10 = keyOf('SK-10')
-/** SK-11 -- writing the document out. */
 const SK_11 = keyOf('SK-11')
-/** SK-21 -- 「開いているファイルを読み直す」, the key OP-13 hangs on. */
 const SK_21 = keyOf('SK-21')
 
-/** U-56 -- the surface OP-3's three-way question stands on. */
 const OPEN_CHOOSER = bare(cellOf(T_103, 'U-56', T_103_NAME))
-/** U-55 -- the surface NT-7's question stands on. */
 const CONFIRMATION = bare(cellOf(T_103, 'U-55', T_103_NAME))
 
-/** The manuscript's two answers to a question of table T-234. */
 const PROCEED_ANSWER = 'proceed'
 const CANCEL_ANSWER = 'cancel'
-
-// ---------------------------------------------------------------------------
-// The document, the host and the two fakes
-// ---------------------------------------------------------------------------
 
 const TEMPLATE = JSON.parse(
   readFileSync(
@@ -164,10 +88,8 @@ const TEMPLATE = JSON.parse(
   ),
 ) as Record<string, unknown>
 
-/** FR-027's template, which is a whole document and carries a Task to rename. */
 const templateDocument = (): Document => structuredClone(TEMPLATE) as unknown as Document
 
-/** The uid of the Task these cases edit -- read off the template, never typed. */
 const firstTaskUid = (document: Document): number => {
   const uid = (document as unknown as { schedule: { tasks: { uid: number }[] } }).schedule.tasks[0]
     ?.uid
@@ -221,7 +143,6 @@ function host(): Host {
 interface ScreenPane {
   readonly wiring: ScreenWiring
   drawAt(part: ScreenPart | null): void
-  /** What IF-9's `readFieldCommit` answers once, and once only. */
   commitField(value: unknown): void
   last(): ScreenView
 }
@@ -259,22 +180,15 @@ function screenPane(language: DisplayLanguage = 'ja'): ScreenPane {
 
 interface StoreProbe {
   readonly store: FileStore
-  /** The route of every read the loop asked IF-3 for, oldest first. */
   readonly routes: OpenRoute[]
-  /** How many writes landed. */
   readonly written: number[]
   pendingOpens(): number
   handOver(document: Document, fileName: string): void
   failOpen(reason: FileStoreFaultReason): void
 }
 
-/**
- * IF-3's far side, stood in for.
- *
- * ⭐ `readFileToOpen` does not answer at once, so a case can stand in the
- * stretch between the asking and the answer -- which is where OP-13's question
- * either does or does not appear.
- */
+// Why: readFileToOpen does not answer at once, so a case can stand between the asking
+// and the answer, which is where OP-13's question does or does not appear.
 function fileStore(opened: OpenedFileState): StoreProbe {
   const routes: OpenRoute[] = []
   const written: number[] = []
@@ -324,7 +238,6 @@ function fileStore(opened: OpenedFileState): StoreProbe {
   }
 }
 
-/** Let every promise the loop is waiting on settle, on both queues. */
 async function settle(): Promise<void> {
   for (let turn = 0; turn < 16; turn += 1) await Promise.resolve()
   await new Promise((resolve) => setTimeout(resolve, 0))
@@ -350,13 +263,9 @@ interface Stage {
   readonly files: StoreProbe
   frames(): void
   send(input: KeyInput | PointerInput): void
-  /** Settle every promise and draw whatever came of it. */
   turn(): Promise<void>
-  /** One in-place edit, committed the way IF-9 reports one. */
   rename(text: string): Promise<void>
-  /** Take one entry of table T-109 on an open surface (CS-2: settled at the press). */
   takeEntry(surface: string, entry: string): void
-  /** Answer the question NT-7 put up. */
   answer(which: string): void
 }
 
@@ -402,8 +311,6 @@ async function stage(opened: OpenedFileState): Promise<Stage> {
     send,
     turn,
     rename: async (text) => {
-      // IF-9's third answer: an in-place edit that has been settled. PR-1 of
-      // table T-016 is the Task's name.
       screen.commitField({ row: 'PR-1', key: { holder: 'task', uid, column: 'name' }, text })
       send(ENTER)
       await turn()
@@ -421,25 +328,17 @@ afterEach(() => {
   }
 })
 
-// ===========================================================================
-// FR-100 -- the condition the host warning is hung on
-// ===========================================================================
-
+// Spec: FR-100, LM-11
+// Why: the host warning itself is reachable only through the page, as the shell exports
+// nothing; these cases hold the condition it hangs on, hasUnsavedEdits.
 describe('FR-100 -- whether there is an unsaved edit to be warned about', () => {
   it('⛔ MUST NOT: a document nobody has touched has no unsaved edit', async () => {
-    // 「未保存の編集が無いときに出させてはならない（MUST NOT）—— 毎回出る警告は
-    // 読まれなくなる」. The shell has one place to ask, and on a document just
-    // handed to it the answer has to be no.
     const built = await stage({ kind: 'none' })
     expect(built.loop.hasUnsavedEdits()).toBe(false)
   })
 
   it('⭐ MUST: one settled edit is an unsaved edit', async () => {
-    // 「未保存の編集を持ったまま作成者がページを離れようとしたとき … 離れる前に
-    // 宿主の警告が出るようにすること（MUST）」. ⛔ Without this case the one
-    // above would be green over a loop that answered `false` for ever, which is
-    // the failure FR-100 exists to stop: 表 T-004 の `LM-11`,
-    // 「タブを閉じる誤操作 1 回で最後の保存以降のすべてが消える」.
+    // Why: without this case the one above is green over a loop that answers false for ever.
     const built = await stage({ kind: 'none' })
     await built.rename('Renamed by the case')
 
@@ -450,9 +349,6 @@ describe('FR-100 -- whether there is an unsaved edit to be warned about', () => 
   })
 
   it('⭐ and writing the document out clears it again', async () => {
-    // The other side of the MUST NOT: once the edit is in the file there is
-    // nothing to lose by leaving, and a warning then is one of the warnings
-    // 「読まれなくなる」.
     const built = await stage({ kind: 'writable', fileName: 'plan-a.json' })
     await built.rename('Renamed by the case')
     expect(built.loop.hasUnsavedEdits()).toBe(true)
@@ -467,15 +363,9 @@ describe('FR-100 -- whether there is an unsaved edit to be warned about', () => 
   })
 })
 
-// ===========================================================================
-// QN-5 -- the gate itself, driven end to end
-// ===========================================================================
-
+// Spec: QN-5, OP-4, NT-7, U-55
 describe('T-234 QN-5 -- the question that stands before an unsaved edit is discarded', () => {
   it('⭐ MUST: replacing a document that holds an unsaved edit puts QN-5 up', async () => {
-    // OP-4: 「置き換えを選んだときは、捨てる前に確認を求めること（MUST）。黙って
-    // 捨ててはならない（MUST NOT）」, and 表 T-234's QN-5 is the question:
-    // 「未保存の編集を捨てて置き換えるとき | 挙げる —— 捨てる文書の名前」.
     const built = await stage({ kind: 'none' })
     await built.rename('Renamed by the case')
     const discarded = titleOf(built.loop.document())
@@ -489,20 +379,15 @@ describe('T-234 QN-5 -- the question that stands before an unsaved edit is disca
 
     const question = built.screen.last().confirmation
     expect(question, 'OP-4 (MUST NOT): the document would go in silence').not.toBeNull()
-    // ⭐ WHICH question -- the row of table T-234, not merely that one stands.
     expect(question?.question).toBe('QN-5')
-    // 「U-55 | `Confirmation` | 続けてよいかを問う面。問い方は表 T-037 の `NT-7`」
     expect(question?.manner).toBe('NT-7')
-    // 「挙げる —— 捨てる文書の名前」: the 名前を挙げるか column of table T-234,
-    // read out of the manuscript rather than assumed.
     expect(cellOf(T_234, 'QN-5', T_234_NAMES)).toContain('挙げる')
     expect(question?.items.map((one) => one.name)).toEqual([discarded])
   })
 
   it('⛔ answering "no" keeps the document AND the unsaved edit', async () => {
-    // NT-7 makes calling it off one of the two answers, and OP-4's MUST NOT is
-    // about the discarding, not about the silence alone -- an edit thrown away
-    // after a "no" is thrown away just the same.
+    // Why: OP-4's MUST NOT is about the discarding, not the silence alone, so an edit thrown
+    // away after a no is thrown away just the same.
     const built = await stage({ kind: 'none' })
     await built.rename('Renamed by the case')
 
@@ -521,8 +406,7 @@ describe('T-234 QN-5 -- the question that stands before an unsaved edit is disca
   })
 
   it('⭐ answering "yes" is what discards it -- so the gate is a gate', async () => {
-    // ⛔ WITHOUT THIS the case above would be green over a loop that never
-    // replaced anything at all.
+    // Why: without this the case above is green over a loop that never replaces anything.
     const built = await stage({ kind: 'none' })
     await built.rename('Renamed by the case')
 
@@ -540,15 +424,9 @@ describe('T-234 QN-5 -- the question that stands before an unsaved edit is disca
   })
 })
 
-// ===========================================================================
-// OP-13 -- Ctrl + R, the road CR-280 added
-// ===========================================================================
-
+// Spec: OP-13, SK-21, OP-3, OP-4, U-56
 describe('T-024a OP-13 -- reading the open file again', () => {
   it('⭐ SK-21 is the key table T-036 assigns, and it reaches IF-3 by the reopen route', async () => {
-    // 「開いているファイルを読み直すとき（表 T-036 の `SK-21`）… 同じファイルを
-    // もう一度読むこと（MUST）」. The route is the one thing that tells this
-    // read apart from OP-2's two, and IF-3 is handed it.
     expect(SK_21.modifiers.ctrl, 'table T-036 no longer spells SK-21 with Ctrl').toBe(true)
 
     const built = await stage({ kind: 'writable', fileName: 'plan-a.json' })
@@ -561,15 +439,6 @@ describe('T-024a OP-13 -- reading the open file again', () => {
   })
 
   it('⛔⛔ MUST: no surface asks which of OP-3 s three to do -- the answer is settled', async () => {
-    // 「**選ばせる面を開かずに、同じファイルをもう一度読むこと（MUST）** ——
-    // 開き直すたびに場所を選ばせるなら、`Ctrl` ＋ `R` は「開く」と同じものに
-    // なる。**`OP-3` の 3 択は問わず、置き換えに定めること（MUST）**」.
-    //
-    // ⛔⛔ MEASURED RED ON 2026-09-03, and left standing (rule 04 section 1:
-    // docs/development-rules/04-verification.md 「期待値をコードに合わせて書き換えてはならない。仕様が明確ならコードを直す」).
-    // What the loop does today: the reading arrives and the `Open Chooser`
-    // (U-56) stands, exactly as it does for SK-10 -- so `Ctrl` + `R` IS 「開く」
-    // と同じもの, which is the failure this MUST names in its own reason.
     const built = await stage({ kind: 'writable', fileName: 'plan-a.json' })
     await built.rename('Renamed by the case')
 
@@ -585,14 +454,6 @@ describe('T-024a OP-13 -- reading the open file again', () => {
   })
 
   it('⛔⛔ MUST: the re-read file replaces the document, through OP-4 s question', async () => {
-    // 「`OP-3` の 3 択は問わず、置き換えに定めること（MUST）」 and 「⛔ `OP-4` の
-    // 確認は掛かること（MUST）—— 捨てるのは未保存の編集であり、置き換えである
-    // 以上ここだけ免れる理由が無い」. ⇒ ONE question (QN-5) and then the
-    // replacement, with no three-way choice in between.
-    //
-    // ⛔⛔ MEASURED RED ON 2026-09-03: no question of table T-234 is put at all
-    // on this road, and the document is not replaced -- the reading stops at
-    // the chooser the case above measures.
     const built = await stage({ kind: 'writable', fileName: 'plan-a.json' })
     await built.rename('Renamed by the case')
 
@@ -613,12 +474,8 @@ describe('T-024a OP-13 -- reading the open file again', () => {
   })
 
   it('⚠️ nothing is replaced when there is no open file to re-read (MUST)', async () => {
-    // 「開いているファイルが無いときは何もしないこと（MUST）—— 読み直す相手が
-    // 無い」. ⚠️ WHAT IS ASSERTED IS THE OUTCOME. IF-3 is the seam that holds
-    // FR-060's file, and docs/spec does not say whether the loop may ask it
-    // before deciding there is nothing to re-read -- so this case answers the
-    // read with the store's own `noOpenedFile` and asks that the document, the
-    // edit and the surfaces all stand as they were.
+    // Why: docs/spec does not say whether the loop may ask IF-3 (FR-060's file) before deciding
+    // there is nothing to re-read, so the read answers noOpenedFile and only the outcome is asserted.
     const built = await stage({ kind: 'none' })
     await built.rename('Renamed by the case')
 

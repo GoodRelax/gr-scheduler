@@ -12,6 +12,7 @@ import type { Document } from '../../src/entity/document-model/document/document
 import { editTaskGroup, type TaskGroupCommand } from '../../src/use-case/edit-document/edit-document'
 import { editTask } from '../../src/use-case/edit-document/edit-task'
 
+// Spec: IMPS-912
 const LEAF_CLAUSE = '`GRS` は、子を持たない `Task` には器を作らないこと（例外は `IMPS-913` の親を持たない `Task`）。<br>`GRS` は、子を持たない `Task` を、親の `Task` のタスクグループに載せること。'
 const ROOT_CLAUSE = '`GRS` は、親を持たない `Task` に、子を持たなくても、その `Task` 自身のタスクグループを持たせること。'
 const OWN_TASK_GROUP_SENTENCE = '`GRS` は、子を持つ `Task` から作ったタスクグループに、その `Task` 自身も載せること。'

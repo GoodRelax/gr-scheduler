@@ -56,18 +56,23 @@ const FR_106_ANCHOR =
 // Spec: FR-019
 const LEADER_ONE_CORNER =
   '`GRS` は、留めた点と、本文の箱の 4 隅のうち `05-07-design.md` の 表 T-221 の `LF-17` が選ぶ 1 隅とを、1 本の線で結んで引出しを描くこと。'
+// Spec: IMPS-853
 const NULLS_DRAW_DEFAULTS =
   '太さと透過率の列が `null` のとき、`GRS` は、`IMPS-845` の 1 文目と同じく、表 T-217 の同じ列の既定で描くこと。色の 3 列が `null` のとき、`GRS` は、線を注記の色（`_assets/tbl-settings.md` の 表 T-236 の `S-312`）、塗りを地の色（表 T-236 の `S-146`）、字を文字の色（表 T-236 の `S-147`）で描くこと。字の大きさの列（`AT-168`）が `null` のとき、`GRS` は、表 T-217 の `S-624` の既定で描くこと。'
 const PLACED_WITH_NULLS = 'コメントボックスを置くとき（`_assets/tbl-document-commands.md` の 表 T-108 の `CM-46`）、`GRS` は、6 列を `null` とすること。'
 const ONE_COLOR_ONE_WIDTH = '`GRS` は、枠と引出し線を 1 つの色と 1 つの太さで描くこと。'
+// Spec: IMPS-854
 const WIDTH_NOT_SCALED = '`GRS` は、線の太さに倍率を掛けないこと。'
 const FILL_RULE =
   '`GRS` は、本文の箱の中を、`CommentBox.fillColor`（`AT-150`）の色の塗りの値で、不透明度を 1 − `AT-151` ÷ 100 として塗ること'
 const STROKE_RULE = '`GRS` は、本文の箱の枠と引出し線を、`CommentBox.strokeColor`（`AT-148`）の色の縁の値で描くこと'
 const TEXT_RULE = '`GRS` は、本文の字を、`CommentBox.textColor`（`AT-152`）の色の縁の値で描くこと'
+// Spec: IMPS-855
 const FILL_ONLY = '`GRS` は、透過率を塗りにだけ掛け、枠・引出し線・字には掛けないこと。'
 const NO_TRANSPARENT_LINE_OR_TEXT = '`GRS` は、コメントボックスの線の色と字の色に透明を選ばせないこと。'
+// Spec: IMPS-856
 const FILL_MAY_BE_TRANSPARENT = '`GRS` は、塗りに透明を選ばせてもよい。'
+// Spec: IMPS-836
 const CLAMPED_NOT_REWRITTEN =
   '`GRS` は、範囲へ寄せて描くこと。表 T-217 の数値の列が範囲の外の値を持つ文書を読んだとき、`GRS` は、文書を書き換えないこと。'
 const OUT_OF_RANGE_REFUSED =
@@ -80,6 +85,7 @@ const LF_17_INSIDE = '⭐ 留めた点が本文の箱の中（縁を含む）に
 const LF_17_HANDLE_INSIDE = '⚠️ 線先の印（同書の 表 T-023d の結び）はそのときも描く'
 const MISSING_COLUMNS_READ_AS_NULL =
   '`AT-148` 〜 `AT-152` と `AT-168` の列を持たない `CommentBox` の項に、欠けている列を `null` として足すこと。'
+// Spec: IMPS-1309
 const WHATEVER_THE_VERSION = '`GRS` は、欠けている列を形式の版（`FR-073`）によらずに足すこと。'
 const SILENTLY = '`GRS` は、欠けている列を足したことを通知しないこと。'
 

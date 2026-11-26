@@ -19,6 +19,7 @@ const SPEC = join(process.cwd(), 'docs', 'spec')
 
 const REQUIREMENTS = unbroken(readFileSync(join(SPEC, '01-04-requirements.md'), 'utf8'))
 
+// Spec: IMPS-1133
 const FR_076_REPORT_ROWS_GO_TO_U_62 =
   '表示の仕方が「`U-62` に並べる」の理由が 1 回の読込（開く・開き直す・合流させる・重ねる、起動時に渡された文書を読む 表 T-024a の `OP-14` を含む）の中で上がったとき、`GRS` は理由を通知の欄に立てないこと。読込が着地したとき、`GRS` は読込の中で上がった「`U-62` に並べる」の理由を `_assets/tbl-glossary.md` の `U-62` に 1 行として並べること。'
 const FR_076_OUTSIDE_A_READING_IT_IS_A_NOTICE =

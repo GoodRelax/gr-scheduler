@@ -40,6 +40,7 @@ const BL_3_KEEPS_S_39 =
   '`GRS` は、輪郭の線の色を `_assets/tbl-settings.md` の 表 T-236 の `S-443`、太さを `_assets/tbl-settings.md` の 表 T-201 の `S-39`（枠線の太さを指定していない予定の輪郭と同じ太さ —— 今の予定の `AT-104` は継がない）、破線の刻みを `_assets/tbl-settings.md` の 表 T-206 の `S-444` とすること。'
 // Spec: FR-019, HB-12, IV-9
 const FR_019_NO_LINE = '`GRS` は、ハイライトボックスの枠の線にも、タスクと同じく透明（線なし）を選ばせること。'
+// Spec: IMPS-848
 const FR_019_NOT_BOTH = '`GRS` は、塗りと枠の線を同時に透明にすることを許さないこと。'
 const FR_019_NULL_FILL =
   '塗りの色の列が `null` のとき、`GRS` は、テーマの色（`_assets/tbl-settings.md` の 表 T-236 の `S-155`）で塗ること。'

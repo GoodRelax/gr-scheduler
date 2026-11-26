@@ -1,4 +1,4 @@
-// CR-405, CR-622, CR-635, CR-665: the help lays its framed blocks out in the columns of T-256, lists T-255, and scrolls down.
+// Unit tests: the help lays its framed blocks out in the columns of T-256, lists T-255, and scrolls down.
 
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -36,6 +36,7 @@ import { bare, bareAll, specTable, unbroken, type SpecTable } from '../contract/
 
 const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
+// Spec: IMPS-1147, IMPS-1153, IMPS-1168, IMPS-1169, IMPS-1170
 const CLAUSES: readonly (readonly [string, string])[] = [
   ['FR-036 (MUST) -- the help also shows the rows of T-255', '表 T-023 の `MK-2` / `MK-5` / `MK-7` と、表 T-255 の行を示すこと'],
   ['FR-036 (MUST) -- every block carries a heading (CR-635)', '`GRS` は、どの塊にも見出しを刷ること'],
@@ -94,7 +95,7 @@ const assignmentsIn = (cell: string): readonly (readonly string[])[] =>
 const combosOf = (cell: string): readonly string[] => assignmentsIn(cell).map((keys) => keys.join('+'))
 
 // Spec: FR-036, T-255
-// Why: CR-770 -- the screen spells a chord Ctrl+A and joins two with the en word of keyNotation (the help here is en).
+// Why: the screen spells a chord Ctrl+A and joins two with the en word of keyNotation; the help here is en.
 const spelledOnScreen = (cell: string): string | null => keysWords(assignmentsIn(cell), 'en')
 
 const T_036_COMBOS = new Set(T_036.rows.flatMap((row) => combosOf(row.by[H_KEYS] ?? '')))
@@ -138,9 +139,9 @@ const BASIC_ROWS = new Set([
 const BROWSER = 'browser'
 const BASICS = 'basics'
 const PALETTE = 'Command Palette'
-// see CR-665, T-256
+// Spec: T-256
 const PALETTE_CONTINUED = 'Command Palette (continued)'
-// see CR-665, T-256, T-109
+// Spec: T-256, T-109
 const MOVED_GROUP_IN_CELL = new RegExp(`\`${H_GROUP}\` [^\`]*\`([^\`]+)\``)
 const CONTINUED_WORD = String.fromCodePoint(0x306e, 0x7d9a, 0x304d)
 
@@ -530,7 +531,7 @@ describe('FR-036 (MUST / MUST NOT) -- the help box scrolls down, and not sideway
     expect(chain.some((one) => scrollsOn(one, 'y')), chain.map(whatWasDrawn).join('\n').slice(0, 800)).toBe(true)
   })
 
-  // Why: CR-621 E-14 lets the body scroll sideways once narrowed; the floor keeps the opened help from doing so.
+  // Why: E-14 lets the body scroll sideways once narrowed; the floor keeps the opened help from doing so.
   it('the body scrolls on both axes, and each column floors at min(S-458 em, the opened column width)', () => {
     const help = drawnHelp()
     const { container } = columnsOf(help)

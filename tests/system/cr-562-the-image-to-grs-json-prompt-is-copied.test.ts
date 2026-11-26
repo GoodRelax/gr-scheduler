@@ -25,13 +25,16 @@ const NOTICE_ROSTER = readFileSync(join(ROOT, 'docs', 'spec', '_assets', 'tbl-no
 // Why: CR-827 (JDG-3086) took the schema out of the copy; it goes to the download as IO-10 instead.
 const FR_068_ORDER =
   '`GRS` は、コピーするプロンプトを、(1) 画面の言語の原稿、(2) 版の 1 行（`schemaVersion:` と 1 字の空白に、初期テンプレート（`FR-027`）の `schemaVersion` の値を続けたもの）、(3) 土台の文書、の 3 つを (1)・(2)・(3) の順に空行で区切って連ねた 1 つの文字列とすること。'
+// Spec: IMPS-1079
 const FR_068_ONE_LINE = '`GRS` は、(3) を空白を除いた 1 行の JSON にすること。`GRS` は、(3) を `json` の囲みに入れること。'
 // Why: CR-687 named the language the prompt follows the screen language (S-99), not the help's.
 const FR_068_LANGUAGE =
   '`GRS` は、コピーした瞬間の画面の言語（`FR-038` の `S-99`、`screenLanguage`）の原稿から、プロンプトを作ること'
 const FR_068_BASE =
   '`GRS` は、土台の文書を、初期テンプレートと同じ版と同じ `documentSettings` を持ち、タスクを 1 つも持たない `GRS JSON` とすること。`GRS` は、土台の文書を、初期テンプレートと同じ生成器で同じ回に起こすこと'
+// Spec: IMPS-1076
 const FR_068_OPENED_BY_OP_2 = '`GRS` は、AI から返った文書を、表 T-024a の `OP-2` の「開く」1 つから受けること。'
+// Spec: IMPS-1084
 // Why: CR-827 added the schema file to the same press and to what the notice tells next.
 const FR_068_NO_SURFACE =
   '`GRS` は、プロンプトをコピーする入口を、表 T-109 の `IC-115` とすること。作成者が `IC-115` を押したとき、`GRS` は、面を開かずにプロンプトをコピーすること（スキーマのファイルは `FR-367`）。'

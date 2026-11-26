@@ -502,7 +502,7 @@ describe('FR-067 -- the embedded content does not leak into the body (CN-8)', ()
       expect(container.payload, JSON.stringify(raw)).not.toContain(raw)
     }
     expect(container.payload).toContain('\\u0000')
-    // eslint-disable-next-line no-control-regex
+    // eslint-disable-next-line no-control-regex -- the case asserts that no raw control character survives
     expect(container.payload.replaceAll('\n', '')).not.toMatch(/[\u0000-\u001f]/)
     const payload = JSON.parse(container.payload) as Root
     const project = (payload['schedule'] as Group)['project'] as Group

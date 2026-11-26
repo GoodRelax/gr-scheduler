@@ -1,83 +1,4 @@
-// `FR-033`（コピーして貼り付ける）-- the two KEYS, driven through the shell, and
-// what they leave in the document.
-//
-// ⚠️ Chapter 9 does not admit Unit as a TEST_LEVEL, so these have no node in the
-// specification. Table T-218 of Chapter 7 gives them their place: `TS-6`,
-// tests/unit/, written by someone who read only docs/spec. The unit is `UF-48`
-// of 表 T-075 (`frame-loop.ts`, `CP-25` of 表 T-062).
-//
-// ---------------------------------------------------------------------------
-// ⭐ THE CLAUSES, VERBATIM (docs/spec/01-04-requirements.md, `FR-033`)
-// ---------------------------------------------------------------------------
-//
-//   STATEMENT: 「作成者がタスクを選んでコピーし貼り付けたとき、`GRS` は、選ばれた
-//    `Task` だけを複製すること。」 `IMPS-285`: 「選ばれた `TaskGroup` を部分木ごと複製すること。」
-//   「複製した各 `Task` を、複製元と同じタスクグループに載せること」（`IMPS-286`）
-//   「もし段が 表 T-014 の `ST-7` の安全弁に達した場合、`GRS` は、貼り付けを受け付けない
-//    こと。」 「表 T-233 の `RS-24` を理由として、`FR-076` の作法で通知の仕組みへ運ぶ
-//    こと。」（CR-719 E-08）
-//   「`GRS` は、複製した `Task` に、複製元と同じ `UID` を使わないこと。」
-//   「`GRS` は、複製に `TaskOrigin` を付けないこと。」
-//   「`GRS` は、貼り付け先を、選んでいるタスクグループの子にすること。」
-//   「`GRS` は、複製に使う置き場をアプリの中に持つこと。」 「`GRS` は、OS の
-//    クリップボードから読み込まないこと。」
-//
-// and 表 T-223 の `DU-1` / `DU-2`, which say what travels with each of the two.
-//
-// ---------------------------------------------------------------------------
-// ⛔ WHY THIS FILE EXISTS BESIDE tests/unit/fr-033-the-copy-store-is-inside-the-
-//    app.test.ts, WHICH ANOTHER BODY WROTE AND CR-573 DELETED
-// ---------------------------------------------------------------------------
-// That file asked `FR-033` at the USE-CASE seam and at the TABLE: that `CM-8` /
-// `CM-28` name what to copy by identifier, that `src/` reads no OS clipboard,
-// that `editTask` / `editTaskGroup` duplicate a subtree when handed the command,
-// that a vanished source is refused as a value, and that 表 T-036 assigns
-// `Ctrl+C` and `Ctrl+V`. ⛔ NOT ONE OF ITS CASES PRESSED A KEY.
-//
-// ⇒ The half nobody asks is the half the two ledger rows were actually raised
-// about -- the KEYS reaching the DOCUMENT:
-//
-//   DFC-321 「⛔ **コピーと貼り付けが何も起こさない**（`NFR-004` の掃引 2026-09-05）
-//         …… 実測 2026-09-05（出荷ビルド、`file://` と `http://`）—— **押しても
-//         文書も絵も動かない。**」
-//   DFC-290 「⛔ **複製したものを貼る道が無い** …… `pasteTasks` /
-//         `pasteTaskGroupSubtree` の発行元が `src/` に 0 件」
-//
-// ⛔ NOTHING THAT FILE ASKS IS ASKED AGAIN HERE. The key assignments, the
-// refusals for a vanished source, and the ban on reading the OS clipboard are
-// its cases and stay its cases; the two keys are READ from 表 T-036 here rather
-// than asserted.
-//
-// ---------------------------------------------------------------------------
-// ⛔ WRITTEN FROM docs/spec, AND WHAT WAS READ OF `src/` IS NAMED HERE
-// ---------------------------------------------------------------------------
-// (docs/development-rules/04-verification.md section 1: only the head, the
-// published types and the signatures.)
-//
-//   frame-loop.ts       `FrameEnvironment`, `FrameLoop`, `ScreenWiring`, and the
-//                       signature `frameLoop(surface, first, env, screen?, ...)`
-//   screen-renderer.ts  `DisplayLanguage`, `ScreenPart`, `ScreenSurface`,
-//                       `ScreenView`, `Notice`
-//   input-command-translator.ts  `HumanInput`, `InputModifiers`, `KeyInput`,
-//                       `PointerInput`, `PointerPhase`
-// ⛔ NO FUNCTION BODY WAS READ. ⭐ The host, the fake surface and the way one
-// Task's bar is found on the canvas are copied from
-// tests/unit/fr-072-a-moved-selection-does-not-open-the-panel.test.ts, and the
-// task-group-title press from tests/unit/t-051-hf-14-a-raised-task-group-is-visible.test.ts.
-//
-// ---------------------------------------------------------------------------
-// ⚠️ WHAT IS DELIBERATELY NOT ASSERTED
-// ---------------------------------------------------------------------------
-//  1. WHICH ROW OF 表 T-233 A REFUSED PASTE CARRIES. Until CR-719 `FR-033` named
-//     NO row; it now names `RS-24` (E-08), which a spec-only case is to hold. The
-//     case below was written before that, and asks only
-//     what 表 T-233's closing rule requires -- that whatever is told IS a row of
-//     that table, in the words `FR-038`'s dictionary holds for it.
-//  2. WHAT AN EMPTY STORE TELLS. Same reason: `FR-033` states no reason row for
-//     it, and DFC-321's record marks `RS-27` as a fill-in by the front session.
-//     The case below asks only that the document does not move.
-//  3. 表 T-223's cascade in detail. `DU-1` / `DU-2` have cases in
-//     tests/contract/cr-714-a-copy-carries-no-parent-links.test.ts.
+// Contract tests: FR-033's copy and paste keys reach the document.
 
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -108,22 +29,13 @@ import {
 import { bare, specTable, type SpecRow, type SpecTable, unbroken } from './spec-table'
 import { SETTINGS_CONSTANTS } from '../../src/entity/document-model/document-settings/document-settings'
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
-// ===========================================================================
-// 1. The manuscript, read at run time rather than copied
-// ===========================================================================
+/* eslint-disable @typescript-eslint/no-explicit-any -- the fake host patches a browser global and the fixtures reach into loose shapes */
 
 const REQUIREMENTS = unbroken(readFileSync(
   join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'),
   'utf8',
 ))
 
-/**
- * ⚠️ Japanese literals in code. Rule 03 section 5 keeps code English and ASCII
- * and admits 日本語そのものを扱う処理 as the exception -- these strings ARE the
- * clauses. ⭐ Each ends at its own marker's closing parenthesis.
- */
 const FR_033_STATEMENT =
   '作成者がタスクを選んでコピーし貼り付けたとき、`GRS` は、選ばれた `Task` だけを複製すること。'
 
@@ -136,11 +48,9 @@ const FR_033_NO_TASK_ORIGIN = '`GRS` は、複製に `TaskOrigin` を付けな�
 
 const FR_033_PASTE_UNDER_THE_CHOSEN_TASK_GROUP = '`GRS` は、貼り付け先を、選んでいるタスクグループの子にすること。'
 
-/** ⭐ The clause that ties this requirement to 表 T-014 の `ST-7`. */
 const FR_033_REFUSE_AT_THE_VALVE =
   'もし段が 表 T-014 の `ST-7` の安全弁に達した場合、`GRS` は、貼り付けを受け付けないこと。'
 
-/** 表 T-233's closing rule -- what a telling may carry at all. */
 const T_233_ONLY_ITS_OWN_ROWS =
   '`GRS` は、通知が運ぶ理由を 表 T-233 の行とすること。`GRS` は、表 T-233 に無い理由を運ばないこと'
 
@@ -156,11 +66,8 @@ function rowOf(table: SpecTable, id: string): SpecRow {
   return found
 }
 
-/**
- * The keystroke 表 T-036 assigns one row, read out of its 割当 column.
- * ⚠️ Copied from tests/contract/dfc-337-fr-029-the-three-file-gates-say-why-on-a-second-press.test.ts, including its warning against
- * `bare`, which would answer `Ctrl` for an assignment spelled 「`Ctrl` ＋ `R`」.
- */
+// Why: not bare, which would answer Ctrl for an assignment spelled with a
+// plus sign.
 function keyOf(id: string): KeyInput {
   const parts = ((rowOf(T_036, id).by['割当'] ?? '').split('/')[0] ?? '')
     .replace(/\*/g, '')
@@ -184,11 +91,9 @@ function keyOf(id: string): KeyInput {
   }
 }
 
-/** `SK-4` 「コピーする」 and `SK-5` 「貼り付ける」, READ and not typed. */
 const COPY = keyOf('SK-4')
 const PASTE = keyOf('SK-5')
 
-/** `U-22` -- the 面 the task group half of the STATEMENT names（タスクグループパネル）. */
 const TASK_GROUP_PANEL = bare(rowOf(T_103, 'U-22').by['確定名（英）'] ?? '')
 
 interface ReasonWords {
@@ -203,10 +108,6 @@ const REASON_WORDS: readonly ReasonWords[] = (
   ) as { reasons: ReasonWords[] }
 ).reasons
 
-// ===========================================================================
-// 2. The document these cases are driven on
-// ===========================================================================
-
 const TEMPLATE = JSON.parse(
   readFileSync(
     join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'),
@@ -217,10 +118,10 @@ const TEMPLATE = JSON.parse(
 const PARENT_TASK_GROUP = 'aaaaaaaa-0000-4000-8000-000000000001'
 const CHILD_TASK_GROUP = 'aaaaaaaa-0000-4000-8000-000000000002'
 
-/** The `Task` a case presses, and its WBS child, which is not copied unless it is chosen too (DU-1, CR-706). */
+// Why: the parent's WBS child is not copied unless it is chosen too (DU-1).
 const PARENT_TASK = 1
 const CHILD_TASK = 2
-/** The first uid of the Tasks that only stand on the parent task group to bring it near the valve. */
+// Summary: Filler Tasks, numbered from here, stand on the parent task group only to bring it near the valve.
 const FIRST_FILLER = 100
 
 function task(uid: number, parentUid: number | null): Record<string, unknown> {
@@ -261,14 +162,9 @@ function group(id: string, parentId: string | null, order: number): Record<strin
   }
 }
 
-/**
- * Two task groups, parent and child, carrying one WBS pair of Tasks.
- *
- * ⭐ THE SHAPE IS WHAT THE STATEMENT ASKS ABOUT: 「選ばれた `Task` だけを」
- * needs a Task WITH a descendant that stays behind, and 「選ばれた `TaskGroup` を
- * 部分木ごと」 needs a task group WITH a task group under it.
- */
-// Why: S-89 is a constant since CR-572, so a fixture reaches the valve by overlapping Tasks, never by a document cap.
+// Why: a Task with a descendant that stays behind and a task group with one
+// under it are what the STATEMENT's two halves ask about.
+// Why: S-89 is a constant, so a fixture reaches the valve by overlapping Tasks, never by a document cap.
 function documentOfTwoTaskGroups(fillers = 0): Document {
   const template = structuredClone(TEMPLATE) as any
   const settings = { ...structuredClone(template.documentSettings) }
@@ -303,10 +199,6 @@ function documentOfTwoTaskGroups(fillers = 0): Document {
     changeLog: [],
   } as unknown as Document
 }
-
-// ===========================================================================
-// 3. The host UF-48 is given
-// ===========================================================================
 
 const SCREEN: FrameEnvironment = {
   width: 1200,
@@ -387,9 +279,8 @@ const pointer = (phase: PointerPhase, x: number, y: number): PointerInput => ({
 interface Stage {
   readonly loop: FrameLoop
   send(input: HumanInput): void
-  /** Press one Task's plan bar on the canvas -- `SL-2` of 表 T-023c moving. */
+  // Spec: SL-2
   pressTask(uid: number): void
-  /** Press one task group's title -- the タスクグループパネル half of the STATEMENT. */
   pressRow(taskGroupId: string): void
   taskUids(): readonly number[]
   taskGroupIds(): readonly string[]
@@ -409,7 +300,6 @@ function stage(document: Document, env: FrameEnvironment = SCREEN): Stage {
     pen.runAnimationFrames()
   }
   const schedule = (): any => (loop.document() as any).schedule
-  /** The middle of one Task's plan bar, as this frame drew it. */
   const middleOfTheBar = (uid: number): { readonly x: number; readonly y: number } => {
     const values = loop.current()
     if (values === null) throw new Error('the loop has run no frame, so it has drawn no bar')
@@ -432,13 +322,13 @@ function stage(document: Document, env: FrameEnvironment = SCREEN): Stage {
     send,
     pressTask: (uid) => {
       const at = middleOfTheBar(uid)
-      // IN-1 settles a pointer operation on the release, so a press left down
+      // Why: IN-1 settles a pointer operation on the release, so a press left down
       // would be a drag rather than a choice.
       send(pointer('down', at.x, at.y))
       send(pointer('up', at.x, at.y))
     },
     pressRow: (taskGroupId) => {
-      // CS-2 of 表 T-066 settles the gesture on what was drawn AT THE PRESS.
+      // Why: CS-2 settles a gesture on what was drawn at the press.
       screen.drawAt({
         part: TASK_GROUP_PANEL,
         entry: null,
@@ -462,10 +352,6 @@ function stage(document: Document, env: FrameEnvironment = SCREEN): Stage {
   }
 }
 
-// ===========================================================================
-// 4. The premises every case below stands on
-// ===========================================================================
-
 describe('FR-033 -- the manuscript this file is driven by', () => {
   it('still states the two subtrees, and still keeps a copy on its original task group', () => {
     expect(REQUIREMENTS).toContain(FR_033_STATEMENT)
@@ -488,8 +374,8 @@ describe('FR-033 -- the manuscript this file is driven by', () => {
   })
 
   it('the fixture really holds the two subtrees the STATEMENT speaks of', () => {
-    // ⛔ WITHOUT THIS, a "the subtree traveled" case could pass on a fixture
-    // whose subtree was one node deep.
+    // Why: without this, a subtree case could pass on a fixture whose subtree was
+    // one node deep.
     const built = stage(documentOfTwoTaskGroups())
     expect(built.taskUids()).toEqual([PARENT_TASK, CHILD_TASK])
     expect(built.taskGroupIds()).toEqual([PARENT_TASK_GROUP, CHILD_TASK_GROUP])
@@ -497,15 +383,11 @@ describe('FR-033 -- the manuscript this file is driven by', () => {
   })
 })
 
-// ===========================================================================
-// 5. DFC-321 / DFC-290 -- the two keys reach the document
-// ===========================================================================
-
+// Spec: IMPS-286
+// Why: the keys are pressed through the shell because the NFR-004 sweep found
+// pressing them moved neither the document nor the picture (DFC-321).
 describe('FR-033 -- SK-4 then SK-5 on a chosen Task duplicates that Task only', () => {
   it('⭐⭐ the pair of keys leaves one more Task in the document', () => {
-    // ⛔ DFC-321's measurement on the shipped build: 「押しても文書も絵も動かない」.
-    // The STATEMENT: 「選ばれた `Task` だけを複製すること」,
-    // and 表 T-223 の `DU-1` copies no WBS descendant that was not chosen (CR-706).
     const built = stage(documentOfTwoTaskGroups())
     built.pressTask(PARENT_TASK)
 
@@ -531,8 +413,6 @@ describe('FR-033 -- SK-4 then SK-5 on a chosen Task duplicates that Task only', 
   })
 
   it('and the copied Task sits on the task group its original sits on (MUST)', () => {
-    // 「複製した各 `Task` を、複製元と同じタスクグループに載せること」 -- 載るタスクグループが決まら
-    // ないと、表 T-050 の `CD-2` が消す範囲も決まらない。
     const built = stage(documentOfTwoTaskGroups())
     built.pressTask(PARENT_TASK)
 
@@ -546,8 +426,6 @@ describe('FR-033 -- SK-4 then SK-5 on a chosen Task duplicates that Task only', 
   })
 
   it('and no TaskOrigin is put on a copy (MUST NOT)', () => {
-    // 「`GRS` は、複製に `TaskOrigin` を付けないこと。」 —— 交換相手から来たもの
-    // ではないので、合流の照合対象にしない。
     const built = stage(documentOfTwoTaskGroups())
     built.pressTask(PARENT_TASK)
 
@@ -558,10 +436,9 @@ describe('FR-033 -- SK-4 then SK-5 on a chosen Task duplicates that Task only', 
   })
 })
 
+// Spec: IMPS-285
 describe('FR-033 -- SK-4 then SK-5 on a chosen task group duplicates the task group subtree', () => {
   it('⭐⭐ the pair of keys leaves two more task groups in the document', () => {
-    // 「`GRS` は、選ばれた `TaskGroup` を部分木ごと複製すること」 (`IMPS-285`), and
-    // 表 T-223 の `DU-2` names 「配下のタスクグループ」 as what travels with it.
     const built = stage(documentOfTwoTaskGroups())
     built.pressRow(PARENT_TASK_GROUP)
 
@@ -576,8 +453,6 @@ describe('FR-033 -- SK-4 then SK-5 on a chosen task group duplicates the task gr
   })
 
   it('and the Tasks on the copied task groups come with them (DU-2)', () => {
-    // 「複製するタスクグループに載っているすべての `Task`」 and
-    // 「`GRS` は、複製した `Task` を、複製したタスクグループに載せること。」
     const built = stage(documentOfTwoTaskGroups())
     built.pressRow(PARENT_TASK_GROUP)
 
@@ -596,15 +471,10 @@ describe('FR-033 -- SK-4 then SK-5 on a chosen task group duplicates the task gr
   })
 })
 
-// ===========================================================================
-// 6. The controls that keep section 5 from passing on a loop that copies always
-// ===========================================================================
-
 describe('FR-033 -- what does NOT change the document', () => {
   it('⭐ SK-5 with nothing ever copied leaves the document exactly as it was', () => {
-    // ⛔ WITHOUT THIS, a loop that duplicated on `Ctrl+V` regardless of any copy
-    // would pass every case above. ⚠️ WHAT IT TELLS IS NOT ASSERTED: FR-033
-    // states no reason row for an empty store (see the head of this file).
+    // Why: without this, a loop that duplicated on Ctrl+V regardless of any copy
+    // would pass every case above; what it tells is not asserted.
     const built = stage(documentOfTwoTaskGroups())
     const before = built.documentText()
 
@@ -615,8 +485,8 @@ describe('FR-033 -- what does NOT change the document', () => {
   })
 
   it('⭐ SK-4 on its own leaves the document exactly as it was -- a copy is not an edit', () => {
-    // 「`GRS` は、複製に使う置き場をアプリの中に持つこと。」 -- a store, not a change:
-    // FR-031 counts an undo step from a WRITE, and taking a copy writes nothing.
+    // Why: FR-031 counts an undo step from a write, and taking a copy writes
+    // nothing, so the document must not move.
     const built = stage(documentOfTwoTaskGroups())
     built.pressTask(PARENT_TASK)
     const before = built.documentText()
@@ -627,37 +497,24 @@ describe('FR-033 -- what does NOT change the document', () => {
   })
 })
 
-// ===========================================================================
-// 7. ⭐⭐ FR-033 x 表 T-014 の ST-7 -- the paste that is refused at the valve
-// ===========================================================================
-//
-// 「もし段が 表 T-014 の `ST-7` の安全弁に達した場合、`GRS` は、貼り付けを受け付けないこと。」
-//  「表 T-233 の `RS-24` を理由として、`FR-076` の作法で通知の仕組みへ運ぶこと。」 `IMPS-288`:
-//  「貼り付けだけに逃げ道を作ると、安全弁が場所によって効いたり効かなかったりする。」（CR-719 E-08）
-//
-// ⭐ THE CAP IS `S-89`, A TOOL CONSTANT SINCE CR-572: no document can lower it,
-// so the fixture stacks the parent task group up to one under it and reads the number
-// from the generated constants rather than typing it.
-
+// Spec: FR-076, IMPS-288
+// Why: S-89 is a tool constant no document can lower, so the fixture stacks
+// the parent task group to one under it and reads the cap from the constants.
 describe('FR-033 (MUST) -- a paste that would pass the safety valve is refused AND told', () => {
-  /** Tasks added to the parent task group, so it holds one Task under the cap and one paste stands exactly at it. */
+  // Why: one Task under the cap, so one paste stands exactly at it.
   const AT_THE_CAP = SETTINGS_CONSTANTS.stackSafetyCap - 2
   // Why: a window tall enough that the whole stacked task group is drawn, so the parent Task can be pressed.
   const TALL: FrameEnvironment = { ...SCREEN, height: 40000 }
 
   it('the premise: the parent task group stands one under the valve and is not yet past it', () => {
-    // 「安全弁の値（`S-89`）は「許される段数の上限」であること（MUST）」 -- the task group
-    // this case pastes onto holds one Task under the cap, so a paste is what reaches it.
     const built = stage(documentOfTwoTaskGroups(AT_THE_CAP), TALL)
     expect(built.notices()).toEqual([])
     expect(built.taskUids().length).toBe(2 + AT_THE_CAP)
   })
 
   it('⭐⭐ the paste that would make a third stack on one task group is not taken', async () => {
-    // The document's parent task group holds one Task under the cap; two pastes of that
-    // Task would put one Task past it. ⛔ The FIRST paste is lawful and
-    // is asserted so, precisely so that a loop which refuses every paste cannot
-    // pass this case.
+    // Why: the first paste is lawful and asserted so, so that a loop which refuses
+    // every paste cannot pass this case.
     const built = stage(documentOfTwoTaskGroups(AT_THE_CAP), TALL)
     built.pressTask(PARENT_TASK)
     built.send(COPY)
@@ -679,10 +536,8 @@ describe('FR-033 (MUST) -- a paste that would pass the safety valve is refused A
   })
 
   it('⭐ and the refusal is TOLD, in the words FR-038 holds for a row of 表 T-233', () => {
-    // 「表 T-233 の `RS-24` を理由として、`FR-076` の作法で通知の仕組みへ運ぶこと」, and 表 T-233's closing
-    // rule: 「`GRS` は、通知が運ぶ理由を 表 T-233 の行とすること。`GRS` は、表 T-233
-    // に無い理由を運ばないこと」.
-    // ⛔ WHICH row is not asserted here (see the head of this file).
+    // Why: which row is told is not asserted, only that it is a row of table T-233
+    // in the words FR-038's dictionary holds for it.
     expect(REQUIREMENTS).toContain(T_233_ONLY_ITS_OWN_ROWS)
     const built = stage(documentOfTwoTaskGroups(AT_THE_CAP), TALL)
     built.pressTask(PARENT_TASK)

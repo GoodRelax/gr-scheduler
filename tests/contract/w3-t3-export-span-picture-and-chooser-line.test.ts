@@ -35,8 +35,10 @@ const CLAUSE_SPAN_PICTURE =
 const CLAUSE_NO_DUAL_CURSOR = '表 T-076 に従うこと（MUST）。⛔ ただし `EP-6` の `Dual Cursor` を描いてはならない（MUST NOT）'
 const CLAUSE_SPAN_LINE =
   '文書が全体表示時の期間を固定している間（`FR-055` の 表 T-367 の `FX-1`）、`GRS` は、書き出しの選択面の形式の格子の下に、固定した期間を 1 行で示すこと。'
+// Spec: IMPS-1045
 const CLAUSE_SPAN_LINE_WORDS =
   '`GRS` は、期間の行の語を、`FR-038` の辞書の `exportChooser` の `fitSpan` の語とすること。`GRS` は、語の中の 2 つの日を、`FR-055` の 表 T-367 の `FX-8` の形で書くこと。'
+// Spec: IMPS-1046
 const CLAUSE_SPAN_LINE_UNFIXED =
   '文書が全体表示時の期間を固定していない間、`GRS` は、期間の行を出さないこと。文書が全体表示時の期間を固定していない間、`GRS` は、期間の行の場所を空けないこと。'
 

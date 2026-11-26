@@ -30,6 +30,7 @@ const A_CLICK_MAKES_NO_BAR_TASK = '`GRS` は、クリックではバーの形状
 const A_BAR_SHAPE_DRAG_MAKES_THE_SPAN =
   'バーの形状（表 T-012 の `SH-1` 〜 `SH-4`）を構えている間、ドラッグしたとき、`GRS` は引いた期間のタスクを作ること。'
 const A_MILESTONE_IS_PLACED_BY_A_PRESS_ALONE = 'マイルストーンの形状を構えている間、押したとき、`GRS` は押しただけでマイルストーンを置くこと。'
+// Spec: IMPS-1132
 const A_HIDDEN_REASON_STANDS_NO_CARD =
   '表示の仕方が「出さない」の理由が上がったとき、`GRS` は通知の欄に 1 枚を立てないこと。`GRS` は、`Agent API` の拒否の値（表 T-035 の `AG-9a`）に、「出さない」の理由の行を運ぶこと。'
 const THE_TEXT_DOES_NOT_DECIDE_AGAIN =

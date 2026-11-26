@@ -51,7 +51,6 @@ const NOTHING_OF_THE_VIEW_PLACE = [
   'FR-055',
 ] as const
 
-// see CR-690, T-368, T-369
 // Why: the settings face's two tables name the fields the face lists (FR-055's span, the display
 // scale of FR-039), not the view place or the zoom; cut them, and the display scale's own name.
 const SETTINGS_FACE_TABLES = ['**表 T-368', '**表 T-369'] as const
@@ -110,7 +109,7 @@ const SCREEN: FrameEnvironment = {
   scrollbarThickness: 8,
 }
 
-// Why: CR-787 -- drawing a task shows that Task, and a Task opens the panel at S-602 (FR-052).
+// Why: drawing a task shows that Task, and a Task opens the panel at S-602 (FR-052).
 const PANEL_WIDTH_WHEN_OPENED = numberIn(rowOf('T-206', 'S-602').by[DEFAULT_COLUMN] ?? '')
 
 const NARROWER: FrameEnvironment = { ...SCREEN, width: SCREEN.width - PANEL_WIDTH_WHEN_OPENED }

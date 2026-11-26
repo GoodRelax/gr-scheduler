@@ -30,6 +30,7 @@ const FR_021 = ((): string => {
 
 const THE_CLAUSE = '`GRS` は、段の起点を、取り込んだファイルのものに保つこと。'
 
+// Spec: IMPS-873
 const WHERE_THE_BASE_LIVES = '`GRS` は、段の起点を 表 T-058 の `Project.outlineBase` に持つこと。`GRS` は、`Project.outlineBase` の既定を 1 とすること。'
 
 const T_058 = specTable('T-058')

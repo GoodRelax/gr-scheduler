@@ -32,7 +32,7 @@ const FR_019_PLACED_OFFSET =
   'コメントボックスを置くとき（`_assets/tbl-document-commands.md` の 表 T-108 の `CM-46`）、`GRS` は、本文のずれを `{ dx: S-600, dy: −S-600 }` とすること'
 // Spec: FR-019, LF-17
 const FR_019_ZERO_HAS_NO_LEADER = 'ずれ 0 の箱は線先が本文の箱の左下隅に重なり、引出し線が描かれない'
-// Spec: FR-019, AR-5, PR-21
+// Spec: FR-019, AR-5, PR-21, IMPS-829
 const FR_019_SELECT_AND_FOCUS =
   '作成者がコメントボックスを構えて置いたとき（表 T-023b の `AR-5`）、`GRS` は、置いたコメントボックスを選ぶこと。作成者がコメントボックスを構えて置いたとき、`GRS` は、プロパティパネルを出すこと。作成者がコメントボックスを構えて置いたとき、`GRS` は、本文の欄（`_assets/tbl-property-items.md` の 表 T-016 の `PR-21`）に焦点を置くこと'
 // Spec: LF-17

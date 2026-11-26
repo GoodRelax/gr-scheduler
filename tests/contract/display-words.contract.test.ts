@@ -1,179 +1,4 @@
-// Contract test: the road that carries the display words to the screen.
-//
-// FR-038 (MUST) shows the menus and the panels in the language the reader
-// chose, and its fifth paragraph (MUST) puts every word the screen prints in
-// ONE per-language dictionary -- ⛔ forbidding the words to be written into a
-// requirement or a table (MUST NOT). Chapter 6.2 fixes the manuscript as
-// `docs/spec/_source/display-words.json` and says the words reach `src/` as one
-// generated file (MUST). CR-194 built both and left every word empty on
-// purpose; the user has since written every one of them. Ruling 06 of
-// docs/review/rulings-2026-08-22 asks for the acceptance case CR-194 section 5
-// defines:
-//
-//   "the manuscript's word is changed by one -> does a test fall?
-//    ⛔ if none falls, that word is reaching nowhere"
-//
-// THREE GROUPS, ALL DRIVEN BY READING THE DICTIONARY AT LOAD TIME, so that no
-// word is re-typed here (which FR-038's MUST NOT would forbid anyway):
-//
-//   1. THE CARRIAGE   every entry that HOLDS a word: the unit that owns that
-//                     place prints exactly it, in both languages. ⭐ DRIVEN BY
-//                     A FILLED DICTIONARY THIS FILE BUILDS, stood where the
-//                     five units import theirs from, so every case really runs
-//                     whatever the manuscript holds. ⛔ No word is written into
-//                     the manuscript to achieve that -- the words are the
-//                     user's decision. ⚠️ It was built when the manuscript was
-//                     empty and every case would otherwise have been vacuous;
-//                     it earns its keep still, because a cell the user has yet
-//                     to write would go vacuous again.
-//   2. THE FALLBACK   every entry that is EMPTY: the place still prints a
-//                     string. ⚠️ It also holds the one place a requirement
-//                     forbids ANYTHING being printed -- the head of the
-//                     properties panel, which FR-072 (MUST NOT) leaves without
-//                     a heading row (CR-272, 2026-08-27).
-//   3. THE ACCEPTANCE what holds the other two together -- the roster is the
-//                     whole of table T-109, the generated file matches the
-//                     manuscript cell for cell, no entry is passed over in
-//                     silence, group 1's filled copy really covers every cell,
-//                     and the claim PND-160's row asks for: 「原稿の 1 語を埋め
-//                     ると画面に届く試験」-- a word that IS written is printed.
-//                     ⚠️ While every cell was empty that claim could only be
-//                     made as a guard that FELL the moment a word appeared
-//                     (CR-194 section 5 item 2). ⛔ Every cell has since been
-//                     written, so the guard is stated as the thing it stood in
-//                     for, and NOT as "no word is written", which would sleep
-//                     through every one of them.
-//
-// WRITTEN WITHOUT READING THE UNITS' BODIES (docs/development-rules/
-// 04-verification.md, section 1). What was read: docs/spec (FR-038, FR-072,
-// FR-037, FR-032, FR-029, FR-017, tables T-103, T-109, T-023, T-040, T-050,
-// T-064 row PI-37, T-075 rows UF-32 and UF-60 .. UF-71, T-015a row HM-10,
-// T-026 row RC-13, T-037 row NT-7, T-058 row AT-17, Chapter 6.2),
-// docs/review/rulings-2026-08-22/, change-request/
-// CR-194-*.md and CR-218-*.md, docs/development-records/pending-decisions.md
-// (PND-160, PND-175), the two `display-words.json` AS DATA, and -- in the five
-// owning units and `screen-renderer.ts` -- the head comment, the exported types
-// and the signatures (version 0.70 of the appendix says the specification
-// deliberately does not write the confirmation's member names and types, and
-// sends the reader to `src/`'s published entry for them: CR-146). ⛔ No
-// expected value here was taken from how a unit computes its answer, and ⛔ no
-// file that DRAWS the mark was opened -- which is why the mark is never named
-// by member below, only asked for by word.
-//
-// Test placement is TS-5 of table T-218: a contract test lives in
-// tests/contract/. This one is at the contract level because the road it walks
-// is `screenViewFromRegions`, the published entry of table T-064's PI-37 -- not
-// one unit's function.
-//
-// SEVEN THINGS THIS FILE DELIBERATELY DOES NOT ASSERT, each searched for first:
-//
-//   1. WHAT THE STAND-IN SAYS while an entry is empty. CR-194 section 0 item ⑧
-//      settled "empty means keep printing what it printed before" WITHOUT
-//      asking the user, and docs/spec fixes no stand-in for a label, a group
-//      name, a surface heading or a tooltip. Pinning one here would record the
-//      code rather than the specification, so group 2 asserts only that a
-//      string arrives. ⚠️ FR-072's headings used to be the exception the
-//      specification did constrain; CR-272 removed the heading rather than the
-//      constraint, and group 2 now asks the opposite of the same place.
-//   2. THE `notices`, `reasons`, `questions`, `confirmation` AND
-//      `confirmationMarks` SECTIONS. Their places are UF-67's
-//      (`notices.ts`), which is not one of the five units this file may look
-//      at. ⭐ THAT IS NOT THE SAME AS LEAVING THEM UNCHECKED: a word cannot be
-//      held against a member this file may not name, but it CAN be held against
-//      the whole of what `screenViewFromRegions` (PI-37) hands out -- which is
-//      how the acceptance group reaches `confirmationMarks` (FR-032, MUST), the
-//      two answers of `confirmation` -- which since CR-327 are the WHOLE of what
-//      stands on U-55, table T-109 standing nothing there any more -- and now
-//      every row of `reasons`: FR-076 (MUST) makes a
-//      telling carry a row of table T-233 and the dictionary answers for it, so
-//      this file raises one telling per row of that table and asks whether the
-//      words arrive. ⚠️ That claim was impossible while the dictionary held no
-//      section a reason could be looked up under -- the debt was the
-//      manuscript's, and it has been paid (the uf-67 unit test that stood
-//      red on it was deleted by CR-573).
-//      ⭐ THE SAME NOW HOLDS OF THE QUESTIONS. FR-076 (MUST) makes what a
-//      question shows a row of table T-234 and bars a question it does not hold
-//      (MUST NOT), so this file raises one question per row of that table too.
-//      ⚠️ The `questions` section arrived KEYED but UNREAD here: `KEY_FIELD`
-//      had no field for it, so every one of its entries collapsed onto the
-//      empty key and the filled copy the carriage group drives held one word
-//      for all of them (484 cells, 470 distinct).
-//      ⭐ AND OF `noticeDismiss` (CR-259). NT-8 of table T-037 (MUST) lets a
-//      person put a told notice away and puts the word of that entrance in
-//      FR-038's dictionary, so the word rides on a member of UF-67's that this
-//      file may not name -- and the whole-view reading reaches it on every
-//      telling this file already raises.
-//      ⛔ THE `notices` SECTION STAYS OUT: what a row of table T-037 is CALLED
-//      is carried by a member of UF-67's that this file may not name, and the
-//      whole-view reading could only reach the three manners table T-233 writes
-//      a row against. The uf-67 unit test that held that member was deleted by CR-573.
-//   3. IC-58 / IC-59 / IC-60. Table T-109 stands them on the `Task Group Name
-//      Panel`, which is UF-63's -- not one of the five either. ⚠️ IC-53 and
-//      IC-54 are left out for a different reason: table T-109 marks each of
-//      them 「ボタンではない」 in as many words, so no `CommandItem` carries
-//      their word.
-//   4. THE `構え` GROUP OF THE COMMAND PALETTE (keyed `IC-54`). Table T-109
-//      marks IC-54 「ボタンではない」 and no other row sits in that group, so the
-//      group holds no entry and `CommandPalette` publishes no member that
-//      would carry the GROUP's name.
-//      ⭐ THAT IS NOT THE `arms` SECTION, WHICH IS HELD. Table T-023b's closing
-//      rule (MUST) now puts the word of each arm in this dictionary 「辞書が構
-//      えの語を持ち、行 ID で引き」 and bars the row id from the screen (MUST NOT), and
-//      FR-053 (MUST) has what is armed readable on the screen -- so each of
-//      AR-1 .. AR-6 is a place here, on the palette, read off
-//      `CommandPalette.armedText`. ⚠️ `armedText` is not the group heading, and
-//      one carrying the other would be this omission and that place at once.
-//   5. TWELVE OF THE FOURTEEN `assignments`. FR-037 shows an assignment where a
-//      person reaches for the slower way, and the only slower ways this
-//      component describes are the two scrollbars -- MK-1 (縦スクロール) and
-//      MK-5 (横スクロール) of table T-023. The other twelve rows are help
-//      content (FR-036), whose surface is not assembled yet.
-//   6. WHERE THE SEVEN `weekdays` ARE PRINTED. FR-017 (MUST) fixes what each
-//      ruler tier prints (see FR-017) -- and sends the words themselves here:
-//      「⭐ 曜日の語がどこに住むかは `FR-038` が持つ。」 ⛔ THE PLACE IS THE TIME RULER'S BAND, which is
-//      UF-32's (`svg-renderer.ts`) and NOT one of UF-60 .. UF-69: `ScreenView`,
-//      the answer PI-37 of table T-064 hands out, carries no `Time Ruler` at
-//      all. ⭐ So this is a stronger omission than 2 and 3, not a weaker one --
-//      there the member was unnameable but the surface could still be raised
-//      and the acceptance group's whole-view reading reached the word; here the
-//      published entry this file walks has nothing that could print it, in any
-//      frame, so the arrival claim is not one to make against PI-37. ⛔ AND
-//      THE ROAD REALLY IS UNBUILT TODAY -- reported rather than asserted: it
-//      is the ONE section of the thirteen that no file under `src/` reads, so
-//      FR-017's day tier
-//      prints its number without its weekday. That belongs to UF-32's own
-//      test, which can name the band; asking it here would be asking this file
-//      to disprove the scope it declared. ⭐ WHAT IS ASSERTED INSTEAD is the
-//      roster: the seven, in AT-17's order, each with a word in each language.
-//   7. WHETHER `defaultNames` ARRIVES ON A FRAME (DFC-171, 2026-09-01). ⛔ It is
-//      the ONE section whose word the screen never prints AS A WORD: FR-032
-//      (MUST) 「タスクグループ名を既定の名前に確定させること」 WRITES it into
-//      `TaskGroup.name`, so from that moment it is document data, and FR-038
-//      states in as many words that タスクグループ名 is not translated. ⇒ Asking a frame
-//      to print it in the reader's language would assert the opposite of what
-//      the two requirements say, and the only way to raise such a frame would
-//      be to write the word into this file's own schedule first -- a case
-//      finding its own input. ⭐ Stronger than 2 and 3 and of a kind with 6:
-//      there the member could not be named but the surface could still be
-//      raised; here no frame could carry it however the road were wired. ⚠️ The
-//      dictionary is still the right home for it -- FR-032 says so by name --
-//      and the block above the `drop` sets out the reasoning in full, with the
-//      one question docs/spec does not answer: WHICH of the two languages is
-//      written into the document when a task group is settled.
-//   8. THE EIGHT ROWS OF TABLE T-104 NO FIELD OF THE SETTINGS FACE STANDS FOR
-//      (CR-344). `IC-17` of table T-109 opens that face on the document's
-//      drawing settings and `DR-3` of table T-052 says what those are, so a row
-//      of table T-104 with no key in that group -- `themeHue`, `language`,
-//      `zoomStep`, `zoomMin`, `zoomMax`, `importSequence`, `planActualGuideColor` and
-//      `watermarkOpacity` -- has no field to be printed on, whatever the road
-//      were wired to. ⚠️ Of a kind with 6 and 7: the surface exists and can be
-//      raised, and it is the ENTRY that has no place on it. ⭐ Which rows those
-//      are is measured against the group rather than listed: see
-//      `ROWS_ON_THE_SETTINGS_FACE`.
-//
-// ⭐ Every one of those is recorded by `DROPPED` below rather than passed over,
-// and the acceptance group holds the dictionary against the two lists together:
-// an entry that is neither a place nor a stated omission fails.
+// Contract tests: the road that carries the display words to the screen.
 
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -218,31 +43,22 @@ import {
 } from '../../src/use-case/advance-screen-session/advance-screen-session'
 import { readStateMachineView } from './state-machine-manuscript'
 
-// ---------------------------------------------------------------------------
-// The dictionary, read as data at load time.
-// ---------------------------------------------------------------------------
-
-/** One entry's word per language: the `{ "ja": "", "en": "" }` of both files. */
 type Words = Readonly<Record<string, string>>
 
-/** One entry of one section, e.g. `{ specTableRowId, label, hint }`. */
 type Entry = Readonly<Record<string, unknown>>
 
-/** The dictionary with `$comment` dropped: section name -> its entries. */
 type Dictionary = Readonly<Record<string, readonly Entry[]>>
 
 const ROOT = process.cwd()
 
-/** Chapter 6.2 (MUST): the manuscript. */
 const MANUSCRIPT_PATH = join(ROOT, 'docs', 'spec', '_source', 'display-words.json')
 
-/** Chapter 6.2 (MUST): the one generated file the words reach `src/` by. */
 const GENERATED_PATH = join(ROOT, 'src', 'adapter', 'screen-renderer', 'display-words.json')
 
-/** The module id the five units import; group 3 stands a filled copy in its place. */
+// Why: the carriage group stands a filled copy in place of this module id.
 const GENERATED_MODULE = '../../src/adapter/screen-renderer/display-words.json'
 
-// see FR-038, CR-754
+// Spec: FR-038
 // Why: the manuscript may mark where an item name wraps; the generator takes the marks out, so the cells compare without them.
 const BREAK_MARK = /\|/g
 const withoutBreakMarks = (_key: string, value: unknown): unknown =>
@@ -252,10 +68,8 @@ const readDictionary = (path: string): Dictionary => {
   const raw = JSON.parse(readFileSync(path, 'utf8'), withoutBreakMarks) as Record<string, unknown>
   const out: Record<string, readonly Entry[]> = {}
   for (const [section, value] of Object.entries(raw)) {
-    // ⚠️ `$comment` is a string in the generated file and a list of lines in
-    // the manuscript, so dropping it by name is the only way to drop both --
-    // and the section roster below is a list of sections, not of everything
-    // the file happens to hold.
+    // Why: `$comment` is a string in the generated file and a list in the manuscript, so it is
+    // dropped by name; the roster below is a list of sections only.
     if (section.startsWith('$')) continue
     if (Array.isArray(value)) out[section] = value as readonly Entry[]
   }
@@ -265,54 +79,26 @@ const readDictionary = (path: string): Dictionary => {
 const MANUSCRIPT = readDictionary(MANUSCRIPT_PATH)
 const GENERATED = readDictionary(GENERATED_PATH)
 
-/**
- * Which member of an entry is its key, in the order the sections are printed.
- * ⚠️ Not invented here: CR-194 section 0 item ⑧ 4 fixes a group's key as the
- * FIRST row of table T-109 that sits in it, and every other key is a row ID, a
- * settled name of table T-103, the answer NT-7 names, or the mark FR-032 asks
- * for (CR-218 section 0 item ⑧ 2).
- *
- * ⭐ THIS IS THE ROSTER OF SECTIONS THIS FILE CAN READ, and the acceptance
- * group holds both files against it slot for slot -- a section the
- * specification adds (as FR-032 has just added `confirmationMarks`) is a
- * section every entry of which would otherwise be keyed by the empty string
- * and pass under one name.
- */
+// Why: the roster of sections this file can read: a section the spec adds and this roster lacks
+// would key every entry by the empty string and pass under one name.
 const KEY_FIELD: Readonly<Record<string, string>> = {
   icons: 'specTableRowId',
-  // ⭐ THE NAME EACH ROW OF TABLE T-016 SHOWS (CR-278). Until 2026-08-28 that
-  // table carried an 項目名（英語・画面表示） column and the panel drew it
-  // verbatim, which is how a GRS JSON column name reached a reader (the user's
-  // reports DFC-81 and DFC-84). FR-038 (MUST NOT) admits one store of printed
-  // words, so the name moved here and the table kept the column.
-  // ⚠️ Keyed by the row and not by the column: a row may carry several columns
-  // and still show ONE name -- PR-14 is 「Fade In/Out Days」 over two.
+  // Why: keyed by the row and not the column: a row may carry several columns and show one name
+  // (PR-14 over two).
   properties: 'specTableRowId',
-  // ⭐ THE NAME THE SAME PANEL SHOWS FOR A ROW OF TABLE T-104 (CR-344,
-  // 2026-09-03). The paragraph under table T-006a
-  // (docs/spec/01-04-requirements.md) puts the settings face under the
-  // property panel's own rule -- 「⛔⛔ **同じ面が文書の設定を出すときも、これに
-  // 従うこと（MUST）。内部の綴りや識別子をそのまま出してはならない（MUST NOT）**」
-  // -- so the keys of `DocumentSettings` show a WORD now instead of the spelling
-  // of the key (the reader's report DFC-233: 「設定の面は 113 行を出し、日本語の項目名
-  // は 0、生の識別子が 1 つ混じっていた」).
-  // ⚠️ Keyed by the row of table T-104 and not by the key it edits, exactly as
-  // `properties` is keyed by the row of table T-016: one row can fix several keys
-  // (K-105 spells three) and shows ONE name over them. ⛔ Until this stood here,
-  // every one of its 110 entries collapsed onto the empty key and the filled copy
-  // the carriage group drives held one word for all of them.
+  // Why: keyed by the row of T-104 and not by the key it edits: one row may fix several keys
+  // (K-105 spells three) and shows one name over them.
   settings: 'specTableRowId',
   paletteGroups: 'firstRow',
   surfaces: 'name',
   notices: 'specTableRowId',
   shortcuts: 'specTableRowId',
   helpHeadings: 'block',
-  // Why: CR-622 keys the help's two license words (FR-069) by the part they fill.
+  // Why: this keys the help's two license words (FR-069) by the part they fill.
   helpLegal: 'part',
   helpNotes: 'specTableRowId',
-  // Why: CR-828 keys the one sentence under the browser functions block (FR-036, JDG-3087) by that block.
+  // Why: this keys the one sentence under the browser functions block (FR-036) by that block.
   helpBlockNotes: 'block',
-  // see FR-036, CR-748, CR-785
   helpLinks: 'link',
   browserFunctions: 'specTableRowId',
   reasons: 'specTableRowId',
@@ -321,125 +107,88 @@ const KEY_FIELD: Readonly<Record<string, string>> = {
   confirmation: 'answer',
   noticeDismiss: 'answer',
   confirmationMarks: 'mark',
-  // ⭐ THE TWO SECTIONS CR-280 RAISED WHEN THE AUTOSAVE WENT. `FR-101` (MUST)
-  // has the header show the open file and when it was last written, and the
-  // state before the first write owns a word of its own -- keyed by that state,
-  // since no table numbers it. ⚠️ `exportFormats` is keyed by the row of table
-  // T-024 it names (`IO-1` 〜 `IO-7`), the same way `icons` is keyed by table
-  // T-109: `FR-096`'s chooser prints one line per format and FR-038 (MUST NOT)
-  // forbids the 形式 column of that table being carried to the screen.
+  // Why: fileStatus is keyed by the state before the first write, which no table numbers (FR-101);
+  // exportFormats by its row of T-024, as FR-038 bars the format column from the screen.
   fileStatus: 'state',
-  // Why: CR-628 keys the App Header's Branding word (BR-1 of table T-349) by the part it fills.
+  // Why: this keys the App Header's Branding word (BR-1 of table T-349) by the part it fills.
   branding: 'part',
-  // ⭐ THE SECTION DFC-171 RAISED. `FR-032` (MUST) settles the name of a task group whose
-  // derivation source is about to go, and 2026-09-01 added the case the reader
-  // hit every time: 「もし導出元の `Task` が名前を持たない場合、`GRS` は、導出元の `Task` を消す前に、タスクグループ名を
-  // 既定の名前に確定させること ... `GRS` は、導出元の `Task` に名前が無いことを理由に削除を拒まない
-  // こと ... 既定の名前の語は `FR-038` の辞書が持ち、`FR-032` に綴らない。」
-  // ⇒ the requirement sends the word here BY NAME, which is why this section is
-  // a section and not a literal in a unit.
-  // ⚠️ KEYED BY WHAT THE DEFAULT IS FOR (`use`), because no table numbers it:
-  // FR-032 names one use -- the task group -- and Chapter 6.2 (MUST NOT) forbids
-  // raising a table whose rows state no rule, which a one-task-group table of default
-  // names would be. ⛔ THIS IS THE ONE SECTION WHOSE WORD IS NOT PRINTED BY A
-  // FRAME; see omission 7 of the head comment and the `drop` below it.
+  // Why: keyed by what the default is for (`use`): FR-032 sends the word here by name and no table
+  // numbers it; it is the one section whose word no frame prints.
   defaultNames: 'use',
   exportFormats: 'specTableRowId',
-  // Why: CR-690 keys the settings face's fit span field's words by the part they fill (T-367).
+  // Why: this keys the settings face's fit span field's words by the part they fill (T-367).
   fitSpanField: 'part',
-  // Why: CR-677 (E-36) keys the Export Chooser's span line by the part it fills; FR-096 holds no table row for it.
+  // Why: this keys the Export Chooser's span line by the part it fills; FR-096 holds no table row for it.
   exportChooser: 'part',
-  // Why: CR-623 keys the Open Chooser's words by the part they fill.
+  // Why: this keys the Open Chooser's words by the part they fill.
   openChooser: 'part',
-  // Why: CR-727 keys the Drop Cue's line (OP-17, U-68) by the part it fills.
+  // Why: this keys the Drop Cue's line (OP-17, U-68) by the part it fills.
   dropCue: 'part',
   differenceReview: 'part',
-  // ⛔ `panelHeadings` IS NOT HERE ANY MORE, and its absence is a claim (CR-272).
-  // Chapter 6.2 (MUST NOT) keeps the roster of WHICH words are needed out of the
-  // manuscript -- 「名簿は、その語を画面へ出すことを課した要求の側が既に持っており」
-  // and 「名簿の表を、`_source/display-words.json` にも 6.2 Data Schema にも並べ直さないこと」 (DFC-481: the chapter
-  // no longer lists the tables) -- and FR-072 now names no state of the panel for a word to
-  // be printed in: 「プロパティパネルの先頭にタイトルバーを置かないこと」.
-  // ⭐ So the section has nowhere to be raised from, and the case below says so
-  // by name rather than leaving it to be noticed here.
+  // Why: no panelHeadings key: FR-072 names no state of the panel for a word to be printed in,
+  // and the case below says so by name.
   assignments: 'specTableRowId',
-  // ⭐ THE ROW OF TABLE T-023b THE PALETTE HAS ARMED. Its closing rule (MUST)
-  // 「構えの語を、表 T-233 の結びが理由の語について定めるのと同じ扱いにする
-  // こと ... 辞書が構えの語を持ち、行 ID で引き、行を足すなら原稿にも項を足す。」
-  // -- so the key is the row id, exactly as `reasons` is keyed. ⚠️ It stands
-  // LAST here because this roster is the GENERATED file's printed order and the
-  // generator prints it after `assignments`; the manuscript keeps the two in the
-  // other order, and no row of docs/spec asks the two files to agree on where a
-  // section is printed.
+  // Why: keyed by row id as reasons is; it stands last because this roster is the generated file's
+  // printed order, and nothing asks the two files to agree on where a section is printed.
   arms: 'specTableRowId',
-  // ⭐ THE SEVEN WEEKDAYS THE FOURTH RULER TIER PRINTS. FR-017 (MUST) gives
-  // the weekday a 段 of its own -- 「曜日の段は曜日」をそれぞれ 1 段に持つ
-  // (利用者の裁定 2026-08-27; it used to share the day's 段) -- and leaves the
-  // words to FR-038: 「⭐ 曜日の語がどこに住むかは `FR-038` が持つ。」 ⛔ THERE IS NO TABLE TO KEY THEM BY, and that is deliberate:
-  // Chapter 6.2 (MUST NOT) forbids printing the words into a table of the
-  // specification 「空の欄が並ぶだけで、規則を 1 つも述べない表になる」, and a
-  // seven-row table of weekdays would be exactly that (version 1.19 of the
-  // appendix: 「⛔ 7 行の表は立てない」). ⭐ So the key is the entry's own
-  // `weekday`, and the ORDER is AT-17's -- see `AT_17_ORDER` below. ⚠️ It
-  // stands last for the same reason `arms` does: this roster is the GENERATED
-  // file's printed order, and the generator prints `weekdays` after `arms`.
+  // Why: keyed by the entry's own weekday in AT-17's order, as no table of seven rows may exist;
+  // it stands last for the same reason arms does.
   weekdays: 'weekday',
-  // Why: CR-624 keys a bar tooltip's line words by their row of table T-348.
+  // Why: this keys a bar tooltip's line words by their row of table T-348.
   hintLines: 'specTableRowId',
-  // Why: CR-548 keys a palette color by its stored spelling (table T-294) and a
+  // Why: this keys a palette color by its stored spelling (table T-294) and a
   // part of the color field by the part it names (CV-9); neither is a row.
   colorNames: 'spelling',
   colorField: 'part',
-  // Why: CR-606 keys the words a property field fills around a value (a dependency end, the
+  // Why: this keys the words a property field fills around a value (a dependency end, the
   // assignee field's add item) by the part they fill; no row of table T-016 numbers them.
   propertyField: 'part',
-  // Why: CR-582 keys the min-height field's words by the part of the field they fill.
+  // Why: this keys the min-height field's words by the part of the field they fill.
   rowMinHeightField: 'part',
-  // Why: CR-690 keys the settings face's width field's words the same way (T-368).
+  // Why: this keys the settings face's width field's words the same way (T-368).
   taskGroupPanelWidthField: 'part',
-  // Why: CR-557 keys a theme hue by its row of table T-305 (FR-041).
+  // Why: this keys a theme hue by its row of table T-305 (FR-041).
   themeHues: 'specTableRowId',
-  // Why: CR-710 keys a time zone's shown name by its row of table T-376 (FR-156).
+  // Why: this keys a time zone's shown name by its row of table T-376 (FR-156).
   timeZones: 'specTableRowId',
-  // Why: CR-710 wave 3b keys the words of the zone fields and of the Time Shift question by their part.
+  // Why: this keys the words of the zone fields and of the Time Shift question by their part.
   timeZoneField: 'part',
-  // Why: CR-757 keys the words of the Shift Whole Schedule row (FO-17) and of its question by their part.
+  // Why: this keys the words of the Shift Whole Schedule row (FO-17) and of its question by their part.
   wholeScheduleShiftField: 'part',
-  // Why: CR-754 keys the words of the read-only rows of the settings face (table T-380) by their part.
+  // Why: this keys the words of the read-only rows of the settings face (table T-380) by their part.
   readOnlySettings: 'part',
-  // Why: CR-743 section 4.4 keys the Holiday Settings words (U-65, T-344) by the part they fill.
+  // Why: this keys the Holiday Settings words (U-65, T-344) by the part they fill.
   holidaySettings: 'part',
-  // Why: CR-411 6.3 keys the end word of SE-2 by the end it names, max or min.
+  // Why: this keys the end word of SE-2 by the end it names, max or min.
   scaleEcho: 'end',
-  // Why: CR-770 keys the two words FR-036 prints around the keys (the join and the plus key) by their part.
+  // Why: this keys the two words FR-036 prints around the keys (the join and the plus key) by their part.
   keyNotation: 'part',
-  // Why: CR-550 keys the lines of DC-3's readout by the line they fill.
+  // Why: this keys the lines of DC-3's readout by the line they fill.
   dualCursorReadout: 'line',
-  // Why: CR-571 keys a search column's heading by its row of table T-331 (FR-151),
-  // the state word of column SQ-5 by its row of table T-019a, and the panel's own
-  // words (SV-7's blank item, SQ-1's no-name word) by the part they fill.
+  // Why: this keys a search column's heading by its row of T-331 (FR-151), SQ-5's state word by its row
+  // of T-019a, and the panel's own words (SV-7's blank item, SQ-1's no-name word) by part.
   searchColumns: 'specTableRowId',
   planActualStates: 'specTableRowId',
   searchPanel: 'part',
-  // Why: CR-760 keys the two values of the Task Type column (SQ-14, DT-9, FM-9) by the part they name, task or milestone.
+  // Why: this keys the two values of the Task Type column (SQ-14, DT-9, FM-9) by the part they name, task or milestone.
   taskTypes: 'part',
-  // Why: CR-722 keys the Resource List's headings by their row of table T-371, and its (Unassigned) and joining words by part.
+  // Why: this keys the Resource List's headings by their row of table T-371, and its (Unassigned) and joining words by part.
   resourceListColumns: 'specTableRowId',
   resourceList: 'part',
-  // Why: CR-631 keys QN-12's two choices by the part they fill (PTL-13): the armed and the unarmed
+  // Why: this keys QN-12's two choices by the part they fill (PTL-13): the armed and the unarmed
   // wording of the first choice, then the arrows; no table row numbers them.
   parentTaskChoice: 'part',
-  // Why: CR-648 keys the report's headings by T-347 row, its statuses by the DG / DX row each is
+  // Why: this keys the report's headings by T-347 row, its statuses by the DG / DX row each is
   // made of (DT-1), and its summary, Markdown and DT-7 words by the part they fill (FR-134).
   delayReportColumns: 'specTableRowId',
   delayReportStatuses: 'specTableRowId',
   delayReportSummary: 'part',
   delayReportMarkdown: 'part',
   delayReportReasons: 'part',
-  // Why: CR-670 keys DT-7's aspect words by their row of table T-310 / T-311 and its wall words by their row of T-316.
+  // Why: this keys DT-7's aspect words by their row of table T-310 / T-311 and its wall words by their row of T-316.
   delayReportAspects: 'specTableRowId',
   delayReportWalls: 'specTableRowId',
-  // Why: CR-731 keys the fix tables' headings by their row of table T-374 and the other fix words by part (FR-155).
+  // Why: this keys the fix tables' headings by their row of table T-374 and the other fix words by part (FR-155).
   delayFixColumns: 'specTableRowId',
   delayFixes: 'part',
 }
@@ -452,7 +201,6 @@ const isWords = (value: unknown): value is Words =>
 
 const keyOf = (section: string, entry: Entry): string => String(entry[KEY_FIELD[section] ?? ''] ?? '')
 
-/** The members of an entry that hold words, e.g. `label` and `hint` of an icon. */
 const wordFieldsOf = (entry: Entry): readonly string[] =>
   Object.entries(entry)
     .filter(([, value]) => isWords(value))
@@ -460,7 +208,6 @@ const wordFieldsOf = (entry: Entry): readonly string[] =>
 
 const wordsOf = (entry: Entry, field: string): Words => entry[field] as Words
 
-/** One `{ section, key, field, language }` cell of the dictionary. */
 interface Cell {
   readonly section: string
   readonly key: string
@@ -487,46 +234,20 @@ const cellsOf = (dictionary: Dictionary): readonly Cell[] => {
 const MANUSCRIPT_CELLS = cellsOf(MANUSCRIPT)
 const GENERATED_CELLS = cellsOf(GENERATED)
 
-/**
- * The languages the dictionary offers a word in. Read from the file rather than
- * typed out; the acceptance group holds them against FR-038's two.
- */
 const LANGUAGES: readonly string[] = [...new Set(GENERATED_CELLS.map((cell) => cell.language))]
 
-// ---------------------------------------------------------------------------
-// Fixed copies of the specification the places are found by (Chapter 1.9).
-// ---------------------------------------------------------------------------
-
-/** Table T-109 -- the whole of the icons (FR-029, MUST). Its 面 column IS the placement. */
 const T109 = specTable('T-109')
 
-/** Table T-023 -- what the pointer and the keyboard are assigned to. */
 const T023 = specTable('T-023')
 
-/**
- * Table T-233 -- every reason a telling may carry (FR-076, MUST), with the row
- * of table T-037 each one is written against in its 作法 column.
- *
- * ⭐ Read from the specification at load time (Chapter 1.9), so a row added or
- * re-mannered brings its frame with it instead of leaving a word with nowhere
- * to arrive.
- */
 const T233 = specTable('T-233').rows.map((row) => ({
   row: row.id,
   manner: bare(row.by['作法'] ?? ''),
   sharesWords: (row.by['まとめ方'] ?? '').startsWith('語は'),
 }))
 
-/**
- * Table T-234 -- every question a confirmation may show (FR-076, MUST), with
- * that table's own answer to whether the question names what would go.
- *
- * ⭐ The same move `T233` above makes, for the same reason: FR-076 says in as
- * many words that the way the words are held and the way a row is added are the
- * ones it has just stated for table T-233. ⚠️ The 名前を挙げるか column is read
- * raw rather than through `bare`, because its cells carry a code span
- * (`Task`) that `bare` would return in place of the answer.
- */
+// Why: the column of whether a question names what goes is read raw, not through `bare`,
+// because its cells carry a code span that `bare` would return in place of the answer.
 const T234 = specTable('T-234').rows.map((row) => ({
   row: row.id,
   namesWhatGoes: (row.by['名前を挙げるか'] ?? '').trim().startsWith('挙げる'),
@@ -550,52 +271,22 @@ const IMPORT_REFUSAL_MANNER = ((): string => {
 
 const t109Row = (specTableRowId: string) => T109.rows.find((row) => row.id === specTableRowId)
 
-/** The 面 cell names one or more settled names of table T-103, separated by `/`. */
 const surfacesOf = (specTableRowId: string): readonly string[] =>
   (t109Row(specTableRowId)?.by['面'] ?? '').split('/').map((name) => bare(name.trim())).filter((name) => name !== '')
 
 const groupOf = (specTableRowId: string): string => bare(t109Row(specTableRowId)?.by['群'] ?? '')
 
-/**
- * ⚠️ Table T-109 holds rows that are not entries at all -- it says so in the
- * 何の入口か column in as many words, and `CommandItem` is only for the ones a
- * person can press.
- */
 const isEntry = (specTableRowId: string): boolean =>
   !/ボタンではない/.test(t109Row(specTableRowId)?.by['何の入口か'] ?? '')
 
-/** The surfaces IC-52's 面 column lists, each a settled name of table T-103. */
 const SURFACE_NAMES = surfacesOf('IC-52')
 
-/**
- * AT-17 of table T-058 (docs/spec/_assets/fig-erd-detail.md) -- the 意味 cell
- * that numbers the weekdays, read raw rather than through `bare` because the
- * numbering is stated in the cell's prose and `bare` would return the first
- * code span (`FR-088`) in place of it.
- *
- * ⚠️ READ IN JAPANESE ON PURPOSE (docs/development-rules/03-implementation.md
- * section 5 allows it where the Japanese itself is what is being handled, and
- * asks for the reason): the specification writes this numbering nowhere else,
- * and the roster below is worth nothing unless the sentence it was taken from
- * still says what it said.
- */
+// Why: AT-17's cell is read raw, not through `bare`, because the numbering is in its prose
+// and `bare` would return the first code span instead.
 const AT_17 = specTable('T-058').rows.find((row) => row.id === 'AT-17')?.by['意味'] ?? ''
 
-/**
- * The seven weekdays in AT-17's order, which is the order the `weekdays`
- * section holds them in.
- *
- * ⛔ THE ORDER IS NOT CHOSEN HERE. AT-17 (docs/spec/_assets/fig-erd-detail.md)
- * fixes it -- 「**`0` が日曜で、土曜の `6` まで 1 ずつ増える**（正は Chapter
- * 6.2 が指す公式 XSD）」-- and `Project.weekStartDay` is the column stored
- * against that numbering, so the roster and the stored number index the same
- * list. ⚠️ Written out here rather than read, because there is no table of
- * seven rows to read it from and Chapter 6.2 (MUST NOT) is why there is not.
- * The case that uses it holds AT-17's own sentence first, so a numbering the
- * specification re-fixes fails there instead of passing against this copy.
- * ⛔ THESE ARE KEYS, NOT WORDS: the words are the user's, in the manuscript,
- * and FR-038 (MUST NOT) is what keeps them from being re-typed here.
- */
+// Why: written out because no seven-row table may exist; the case holds AT-17's sentence first,
+// so a re-fixed numbering fails there. These are keys, not words.
 const AT_17_ORDER: readonly string[] = [
   'sunday',
   'monday',
@@ -606,36 +297,20 @@ const AT_17_ORDER: readonly string[] = [
   'saturday',
 ]
 
-/** Table T-103 -- the settled names, of which U-55 is the one NT-7 asks on. */
 const T103 = specTable('T-103')
 
-/** U-55's settled name, read out of table T-103 rather than spelled here. */
 const U_55_CONFIRMATION = bare(T103.rows.find((row) => row.id === 'U-55')?.cells[0] ?? '')
 
-/**
- * The rows table T-109 stands on U-55.
- *
- * ⛔⛔ EMPTY, AND THAT IS NT-7's OWN MUST NOT (CR-327): 「答えの入口に 表 T-109
- * の行を与えてはならない（MUST NOT）」 -- that table and figure F-019 hold the
- * entrances that are SHAPES, and NT-7's two answers are word buttons. ⚠️ The
- * words of the two answers are the `confirmation` section's alone, which is
- * what the case below holds the manuscript to.
- */
+// Why: expected empty: NT-7 gives its two word-button answers no row of T-109;
+// their words are the confirmation section's alone.
 const ON_U_55: readonly string[] = T109.rows
   .filter((row) => surfacesOf(row.id).includes(U_55_CONFIRMATION))
   .map((row) => row.id)
 
-/** The row of table T-023 whose 動作 is the scrolling a scrollbar does slowly (FR-037). */
 const assignmentForAxis = (axis: 'horizontal' | 'vertical'): string | undefined =>
   T023.rows.find((row) => row.by['動作']?.includes(axis === 'vertical' ? '縦スクロール' : '横スクロール'))?.id
 
-/** `iconHintDelayMs` (S-124), read from the generated defaults, never typed. */
 const ICON_HINT_MS = SETTINGS_CONSTANTS.iconHintDelayMs
-
-// ---------------------------------------------------------------------------
-// One frame of input. ⚠️ Nothing here is asserted -- these are the conditions a
-// place needs in order to be on the screen at all.
-// ---------------------------------------------------------------------------
 
 const rect = (x: number, y: number, width: number, height: number): ScreenRect => ({
   x,
@@ -644,17 +319,13 @@ const rect = (x: number, y: number, width: number, height: number): ScreenRect =
   height,
 })
 
-/** The middle of a region, so a pointer put there is on it however it is cut. */
 const centerOf = (region: ScreenRect): { readonly x: number; readonly y: number } => ({
   x: region.x + region.width / 2,
   y: region.y + region.height / 2,
 })
 
-/**
- * ⚠️ BOTH PANEL WIDTHS ARE STATED HERE. A panel of no width is a part of table
- * T-103 that no printed word can stand on -- so this frame opens the properties
- * panel, the way a person who is editing has it open (a screen value, S-171).
- */
+// Why: both panel widths are stated, because a panel of no width holds no printed word;
+// this frame opens the properties panel as an editing person has it (S-171).
 const SETTINGS = {
   ...SETTINGS_DEFAULTS,
   taskGroupPanelWidthPx: 400,
@@ -662,14 +333,12 @@ const SETTINGS = {
 
 const PROPERTIES_PANEL_WIDTH = 300
 
-/** The screen cut into table T-103's parts by FR-052's own expression. */
 const REGIONS: ScreenRegions = (() => {
   const width = 1280
   const height = 800
   const headerHeight = 56
   const rulerHeightPx = 48
-  // ⛔ Read off the settings above rather than re-typed: the cut and the
-  // settings the same frame carries have to be the same screen.
+  // Why: read off the settings above, since the cut and the settings of one frame must be one screen.
   const titleWidth = SETTINGS.taskGroupPanelWidthPx
   const propertiesWidth = PROPERTIES_PANEL_WIDTH
   const padding = SETTINGS_CONSTANTS.canvasPadding
@@ -737,7 +406,7 @@ const SCHEDULE = {
       shapeKind: null,
       milestoneGlyph: null,
       // Why: one custom color with each side left undefined, so the color field
-      // prints both notes of CV-9 (CR-548).
+      // prints both notes of CV-9.
       fillColor: '#c0504d/',
       strokeColor: '/#3a5f8a',
       strokeWidthPx: null,
@@ -762,10 +431,7 @@ const SESSION: ScreenViewReadings = {
   hintTargetDwellMs: 0,
   iconUnderPointer: null,
   commandPaletteAt: { x: 500, y: 300 },
-  // No case here reads the theme. S-72 takes the manuscript's default; S-73 is
-  // read off the very document this frame draws, which is where the shell gets
-  // it from too (DR-5 of table T-052 keeps the hue on `Project`, not in the
-  // settings). S-142 is the palette's, and `PALETTE_SHOWN` states it.
+  // Why: no case reads the theme; S-73 is read off the drawn document as the shell does (DR-5).
   themePreference: 'light',
   themeHue: SCHEDULE.project.themeHue,
   selectedTaskGroupIds: [],
@@ -773,10 +439,7 @@ const SESSION: ScreenViewReadings = {
   notices: [],
   confirmation: null,
   taskGroupBoxes: [],
-  // GR-21 of table T-023d divides these to get the scrollbar grip's
-  // length, and this file asks nothing of it. ⭐ A whole of zero is
-  // "everything fits", which is the lane-long grip SC-4 of table T-031
-  // draws when nothing overflows.
+  // Why: a whole of zero is everything fits, the lane-long grip SC-4 draws; no case asks it of GR-21.
   scrollExtent: { contentWidth: 0, contentHeight: 0, visibleHeight: 0 },
 }
 
@@ -827,7 +490,6 @@ const rootWithSurface = (surface: string | null): ScreenSession =>
     openSurfaceState: surface === null ? { kind: 'closed' } : { kind: 'open', surfaceName: surfaceRowOf(surface) },
   })
 
-/** The whole argument list of `screenViewFromRegions` (PI-37), in its declared order. */
 interface Frame {
   readonly regions: ScreenRegions
   readonly schedule: Schedule
@@ -853,42 +515,14 @@ const sessionWith = (part: Partial<ScreenViewReadings>): ScreenViewReadings => (
   ...part,
 })
 
-/**
- * S-99e says the palette is shown (FR-053), and S-142 says its list of
- * milestone figures is open.
- *
- * ⛔ THE SECOND HALF IS WHY EIGHT ENTRIES OF TABLE T-109 CAN BE ASKED FOR AT
- * ALL. Which milestone figure entrances stand on the palette with the list shut
- * and which only once it is open is FR-053's rule (with S-216 of table T-206);
- * this frame opens the list so every one of them has a place to be printed.
- * ⭐ OPENING IT HIDES NOTHING. FR-053 states one condition on one set of
- * entrances and no requirement makes any other entry depend on S-142, so what
- * the open list shows is what the closed one shows and eight rows besides --
- * which is what lets the whole of the palette's roster stand on this one frame
- * rather than on two that would have to be told apart by a rule this file
- * invented.
- * ⚠️ Whether the palette hides IC-50 once the list is open is NOT decided here
- * and is not decided by the specification either; table T-109 gives the opening
- * and the folding two rows and says nothing about showing one at a time. If
- * that is ever settled, this frame is where it lands.
- */
+// Why: the milestone list is opened (S-142) so every figure entrance FR-053 shows only then has a
+// place; opening it hides nothing, so the palette's whole roster stands on this one frame.
 const PALETTE_SHOWN = frameWith({
   root: rootWith({ milestoneListDisplayState: { kind: 'open' } }),
 })
 
-// -- panelHeadings: ⛔ a section with nowhere left to be printed (CR-272)
-
-/**
- * The states FR-072 leaves the properties panel in.
- *
- * ⚠️ THEY NO LONGER CARRY A WORD BETWEEN THEM. FR-072 used to make the heading
- * say which of the two was showing and used to make a cleared selection say so;
- * on 2026-08-27 the reader called the row 「無用」 and CR-272 replaced both with
- * one MUST NOT -- 「プロパティパネルの先頭にタイトルバーを置かないこと」
- * -- leaving 「いま何を出しているかを、入口の押下状態で示すこと（MUST）」 as the
- * whole of what tells a reader anything. ⭐ The frames are kept because the two
- * cases below still ask what the panel IS in each of them.
- */
+// Why: the states carry no word since FR-072 dropped the heading; the frames stay because two
+// cases below still ask what the panel is in each.
 const PANEL_STATES: Readonly<Record<string, Frame>> = {
   selection: frameWith({
     root: rootWith({
@@ -912,10 +546,9 @@ const PANEL_STATES: Readonly<Record<string, Frame>> = {
   }),
 }
 
-// see CR-571, FR-151, T-330, T-331, T-019a, DFC-1470
-// Why: one task per row of table T-019a, keyed by the row, so each state word has a cell to be printed
-// in (SQ-5); the PS-1 task has no name (SQ-1's no-name word) and no task has an assignee, so the
-// assignee filter offers the blank item (SV-7).
+// Spec: FR-151, T-330, T-331, T-019a
+// Why: one task per row of T-019a, so each state word has a cell to print in (SQ-5); the PS-1 task
+// has no name (SQ-1) and no task an assignee, so the assignee filter offers the blank item (SV-7).
 const SEARCH_STARTED = '2026-01-05T08:00:00'
 const SEARCH_TASK_BY_STATE: Readonly<
   Record<string, { readonly uid: number; readonly name: string; readonly actuals: object }>
@@ -944,7 +577,7 @@ const SCHEDULE_TO_SEARCH = {
   taskVisuals: [],
 } as unknown as Schedule
 
-// Why: CR-723 -- the search table's view (Visibility column, Schedule Filter, column filters, sort) is the document's, so it
+// Why: the search table's view (Visibility column, Schedule Filter, column filters, sort) is the document's, so it
 // is handed in through the settings the frame carries, not through the panel reading.
 type SearchTableViewSetting = DocumentSettings['tableViews']['searchPanel']
 
@@ -973,12 +606,12 @@ const COMMENT_BOX_COLUMNS: ReadonlySet<string> = new Set(['SQ-7', 'SQ-8', 'SQ-9'
 const SEARCH_TASKS_SHOWN = searchFrame('normal', { filters: { open: ASSIGNEE_COLUMN } })
 // Spec: SQ-10, TV-11
 const SHOWN_SEARCH_UIDS: readonly number[] = [2, 3]
-// Why: CR-798 TV-2 -- every row starts unchecked (Hide), so the rows named are the checked (Show) ones.
+// Why: TV-2: every row starts unchecked (Hide), so the rows named are the checked (Show) ones.
 const checkedOnly = (shown: readonly number[], isScheduleFilterApplied: boolean): Partial<SearchTableViewSetting> => ({
   shownTaskUids: Object.values(SEARCH_TASK_BY_STATE).map((one) => one.uid).filter((uid) => shown.includes(uid)),
   isScheduleFilterApplied: isScheduleFilterApplied,
 })
-// Why: CR-798 TV-5 -- IC-143 is idle for two reasons: no row is checked (the frame's default) or every row is checked (nothing to narrow).
+// Why: TV-5: IC-143 is idle for two reasons: no row is checked (the frame's default) or every row is checked (nothing to narrow).
 const SEARCH_EVERY_TASK_CHECKED = searchFrame('normal', {}, checkedOnly(Object.values(SEARCH_TASK_BY_STATE).map((one) => one.uid), false))
 // Why: the shell hands the product in as a reading (TV-1); the band counts it.
 const SEARCH_SCHEDULE_FILTERED: Frame = (() => {
@@ -998,7 +631,6 @@ const countSlotsOf = (text: string | null | undefined, tables: string | undefine
 const SEARCH_COMMENT_BOXES_SHOWN = searchFrame('normal', { table: 'commentBoxes' })
 const SEARCH_MAXIMIZED = searchFrame('maximized', {})
 
-/** S-99g says which surface is open (IN-4 of table T-028). */
 const surfaceOpen = (surface: string): Frame => frameWith({ root: rootWithSurface(surface) })
 
 const HELP_SURFACE = surfacesOf('IC-129')[0] ?? ''
@@ -1035,7 +667,7 @@ const NO_DELAY_FOUND: DelayDiagnosticsReport = {
 
 // Why: a filter stands open, so IC-123 .. IC-126 stand in its menu (RW-2, SV-7).
 const REPORT_FILTER_OPEN = { ...OPENED_DELAY_DIAGNOSTICS_REPORT.panel, filters: { open: 'DT-1' } }
-// Why: CR-731 -- IC-157 and IC-158 stand in the footer under the fix proposals only (RW-12), so their frame shows that table.
+// Why: IC-157 and IC-158 stand in the footer under the fix proposals only (RW-12), so their frame shows that table.
 const delayReportShown = (shown: 'normal' | 'maximized', table: 'diagnosis' | 'proposals' | 'log' = 'diagnosis'): Frame =>
   frameWith({
     readings: sessionWith({
@@ -1052,7 +684,7 @@ const FIX_FOOTER_ENTRIES: readonly string[] = ['IC-166', 'IC-157', 'IC-158']
 
 const FIX_LOG_FOOTER_ENTRIES: readonly string[] = ['IC-169']
 
-// Why: CR-731 -- IC-156 stands only once the fix log holds a row (RW-11); the row's own fields are not read here.
+// Why: IC-156 stands only once the fix log holds a row (RW-11); the row's own fields are not read here.
 const ONE_FIX_LOGGED = {
   proposals: [],
   log: [{
@@ -1108,7 +740,7 @@ const propertiesPanelEntries = (panel: ScreenView['propertiesPanel']): readonly 
         ...panel.fields.flatMap((field) => field.controls.flatMap((control) => wordEntranceOf(field.row, control.press))),
       ]
 
-// see FO-16, IC-162, DFC-2517
+// Spec: FO-16, IC-162
 // Why: an entrance of table T-109 drawn as its own field's word button stands in that field, not beside IC-52.
 const wordEntranceOf = (row: string, press: string | undefined): readonly CommandItem[] =>
   press === undefined || !row.startsWith('IC-')
@@ -1126,7 +758,7 @@ interface SurfaceScene {
 }
 
 // Spec: T-280, S-99g, IC-52
-// Why: S-99g holds U rows only (DFC-2280), so the help, the panel and the windows are raised by their own scenes.
+// Why: S-99g holds U rows only, so the help, the panel and the windows are raised by their own scenes.
 const SCENE_OF_WINDOW: ReadonlyMap<string, SurfaceScene> = new Map([
   [
     HELP_SURFACE,
@@ -1180,7 +812,7 @@ const openSurfaceScene = (surface: string): SurfaceScene => ({
 })
 
 // Spec: U-65, T-344, WC-1, WC-2, WC-4, WC-6, WC-7, WC-8
-// Why: CR-743 -- the title bar holds IC-52 alone (WC-1); every other entry stands in its own section,
+// Why: the title bar holds IC-52 alone (WC-1); every other entry stands in its own section,
 // Why: so the scene reads them there. One day-off exception row raises IC-136 and IC-137 (WC-4).
 const HOLIDAY_SETTINGS_SURFACE = 'Holiday Settings'
 const ONE_DAY_OFF = {
@@ -1231,7 +863,7 @@ const HOLIDAY_SETTINGS_SCENE: SurfaceScene = {
 }
 
 // Spec: WC-3, WC-8, IC-134, IC-165
-// Why: CR-743 -- these two are fields (a chooser and the time fields), named by the holidaySettings words.
+// Why: these two are fields (a chooser and the time fields), named by the holidaySettings words.
 const HOLIDAY_SETTINGS_FIELD_ENTRIES: readonly string[] = ['IC-134', 'IC-165']
 
 const sceneOf = (surface: string): SurfaceScene =>
@@ -1239,14 +871,10 @@ const sceneOf = (surface: string): SurfaceScene =>
 
 const surfaceFrame = (surface: string, specTableRowId: string | null = null): Frame => sceneOf(surface).frame(specTableRowId)
 
-// ---------------------------------------------------------------------------
-// Reading the answer through the published entry (table T-064, PI-37).
-// ---------------------------------------------------------------------------
-
 type Build = typeof screenViewFromRegions
 
 // Why: the arrival sweep asks every frame once per written word; one build per frame and language
-// Why: keeps that case from rebuilding the same view hundreds of times (DFC-2312).
+// Why: keeps that case from rebuilding the same view hundreds of times.
 const VIEWS_BUILT = new Map<Build, WeakMap<Frame, Map<string, ScreenView>>>()
 
 const viewOf = (build: Build, frame: Frame, language: string): ScreenView => {
@@ -1274,15 +902,8 @@ const freshViewOf = (build: Build, frame: Frame, language: string): ScreenView =
 const labelIn = (commands: readonly CommandItem[] | undefined, icon: string): string | undefined =>
   commands?.find((command) => command.icon === icon)?.label
 
-/**
- * Every entrance the palette draws: the ones inside its groups, and the one on
- * its grab band.
- *
- * ⭐ THE BAND'S OWN IS NOT IN A GROUP AND CANNOT BE. Table T-109 gives IC-75 no
- * 群 -- FR-053 (MUST) puts the minimize toggle on the band, beside IC-53 -- so
- * `groups` alone would miss a row whose word the dictionary holds, and this file
- * would report it as a word reaching nowhere.
- */
+// Why: the band's own entrance is in no group (T-109 gives IC-75 none; FR-053 puts it on the band),
+// so `groups` alone would miss a word the dictionary holds.
 const paletteCommands = (view: ScreenView): readonly CommandItem[] => {
   const inGroups = (view.commandPalette?.groups ?? []).flatMap((group) => group.commands)
   const onBand = view.commandPalette?.minimize
@@ -1295,43 +916,30 @@ const iconTooltip = (view: ScreenView, icon: string): string | undefined =>
 const scrollbarTooltip = (view: ScreenView, axis: string): string | undefined =>
   view.tooltips.find((tip) => tip.anchor.kind === 'scrollbar' && tip.anchor.axis === axis)?.text
 
-/**
- * Where the palette floats this frame (FR-053 has the person drag it there).
- *
- * ⭐ A POINT, NOT A RECTANGLE: FR-053 (MUST) makes the palette's size follow its
- * contents, so no description carries an extent to take a center of. Nothing
- * below needs one -- the pointer only has to be somewhere on the palette for
- * EZ-2 to be asked, and which entry it rests on is `iconUnderPointer`'s answer.
- */
+// Why: a point, not a rectangle: FR-053 makes the palette's size follow its contents, so no
+// description carries an extent; EZ-2 needs only a pointer on the palette.
 const PALETTE_AT: { readonly x: number; readonly y: number } =
   viewOf(screenViewFromRegions, PALETTE_SHOWN, 'ja').commandPalette?.at ?? { x: 0, y: 0 }
 
-/** The middle of a scrollbar lane, so that FR-037's pointer is on it. */
 const scrollbarPointer = (axis: 'horizontal' | 'vertical'): { x: number; y: number } => {
   const bar = viewOf(screenViewFromRegions, BASE, 'ja').frame.scrollbars.find((one) => one.axis === axis)
   if (bar === undefined) throw new Error(`SC-4 of table T-031 keeps both bars drawn, and the ${axis} one is absent`)
   return { x: bar.track.x + bar.track.width / 2, y: bar.track.y + bar.track.height / 2 }
 }
 
-// ---------------------------------------------------------------------------
-// Where each entry of the dictionary is printed. ⭐ Built by walking the
-// dictionary and asking the tables where that key stands -- no place is typed
-// out, so an entry the tables move follows.
-// ---------------------------------------------------------------------------
+// Why: the places are built by walking the dictionary and asking the tables where each key stands,
+// so no place is typed and an entry the tables move follows.
 
 interface Place {
   readonly section: string
   readonly key: string
   readonly field: string
-  /** The row of table T-075 that owns it. */
   readonly unit: string
-  /** Reads as "the App Header entry IC-1". */
   readonly what: string
   readonly frame: Frame
   readonly read: (view: ScreenView) => string | undefined
 }
 
-/** An entry of the dictionary this file states no place for, and why. */
 interface Dropped {
   readonly section: string
   readonly key: string
@@ -1350,17 +958,8 @@ const drop = (section: string, key: string, why: string): void => {
   DROPPED.push({ section, key, why })
 }
 
-// -- icons: the entry's own word (`label`) and the explanation EZ-2 shows (`hint`)
-
-/**
- * Where an icon is drawn, and where the pointer is while it rests on that icon.
- *
- * ⚠️ THE POINT DOES NOT NAME THE ICON, and cannot: no member of `ScreenView`
- * carries an entry's rectangle, which is the whole reason
- * `ScreenSession.iconUnderPointer` exists (PND-141). What the point is for is a
- * session that holds together -- `pointer: null` means the pointer is outside
- * the window, which cannot be true while it rests on an entry.
- */
+// Why: the point does not name the icon, as no ScreenView member carries an entry's rectangle;
+// it only keeps the session whole, since a null pointer is outside the window.
 const iconFrames = new Map<string, Frame>()
 
 for (const entry of GENERATED['icons'] ?? []) {
@@ -1380,9 +979,6 @@ for (const entry of GENERATED['icons'] ?? []) {
     what: string,
     unit: string,
     frame: Frame,
-    // ⚠️ A POINT rather than a rectangle: the palette has no extent to take a
-    // center of (FR-053, MUST NOT), so each caller hands over the point it
-    // means directly.
     pointer: { readonly x: number; readonly y: number },
     read: (view: ScreenView) => string | undefined,
   ): void => {
@@ -1427,8 +1023,6 @@ for (const entry of GENERATED['icons'] ?? []) {
 }
 
 for (const [specTableRowId, frame] of iconFrames) {
-  // EZ-2 of table T-040 (MUST): the explanation of the icon the pointer rests
-  // on, once `iconHintDelayMs` (S-124) has passed.
   place({
     section: 'icons',
     key: specTableRowId,
@@ -1439,8 +1033,6 @@ for (const [specTableRowId, frame] of iconFrames) {
     read: (view) => iconTooltip(view, specTableRowId),
   })
 }
-
-// -- paletteGroups: the 群 column of table T-109, keyed by the group's first row
 
 for (const entry of GENERATED['paletteGroups'] ?? []) {
   const firstRow = keyOf('paletteGroups', entry)
@@ -1466,8 +1058,6 @@ for (const entry of GENERATED['paletteGroups'] ?? []) {
   })
 }
 
-// -- surfaces: the heading of each surface table T-103 has named
-
 for (const entry of GENERATED['surfaces'] ?? []) {
   const name = keyOf('surfaces', entry)
   if (!SURFACE_NAMES.includes(name)) {
@@ -1475,7 +1065,7 @@ for (const entry of GENERATED['surfaces'] ?? []) {
     continue
   }
   const heading = sceneOf(name).heading
-  // Why: CR-711 -- a surface that prints no heading holds no heading word; the FR-072 case below fails on one.
+  // Why: a surface that prints no heading holds no heading word; the FR-072 case below fails on one.
   if (heading === null) {
     HEADINGLESS_SURFACES_HELD.push(name)
     continue
@@ -1491,65 +1081,28 @@ for (const entry of GENERATED['surfaces'] ?? []) {
   })
 }
 
-// -- properties: the name each row of table T-016 shows on the panel (UF-67)
-
-/**
- * Where a property item's name arrives: the field the panel stands for its row,
- * while a task is selected.
- *
- * ⭐ FR-006 (MUST) puts every row of table T-016 on the panel and FR-038
- * (MUST NOT) keeps its shown name in the dictionary alone, so this is the one
- * road between the two -- and it is the road that was missing until CR-278,
- * when the panel drew the GRS JSON column name instead (the user's reports
- * DFC-81 and DFC-84).
- * ⚠️ Read by ROW and never by position: FR-006's order is a MUST of its own and
- * uf-64 is where that is held, so a reordering must not make this file fall too.
- */
+// Why: read by row and never by position: FR-006's order is a rule of its own held elsewhere,
+// so a reordering must not make this file fall too.
 const propertyFieldName = (view: ScreenView, specTableRowId: string): string | undefined => {
   const field = view.propertiesPanel?.fields.find((one) => one.row === specTableRowId)
-  // Why: a command row (PR-48, PR-49) has no name cell; its word is the one button it draws (CR-786).
+  // Why: a command row (PR-48, PR-49) has no name cell; its word is the one button it draws.
   return field?.name === '' ? field.controls[0]?.press : field?.name
 }
 
-/**
- * Table T-016's own 対象 column (CR-325, 2026-09-02) and the column it names.
- *
- * ⛔ FR-006 (MUST) prints only the rows whose 対象 matches what is selected and
- * (MUST NOT) forbids printing the others -- so a `TaskGroup` row's word cannot
- * be asked for on a frame that holds only a task, and the frame below is why
- * these three entries are not simply dropped as reaching nowhere.
- */
+// Why: FR-006 prints only the rows whose target matches what is selected, so a TaskGroup row's
+// word needs a frame that picks a task group, not one that holds only a task.
 const T016 = specTable('T-016')
 const APPLIES_TO_COLUMN = '対象'
 const GRS_COLUMN = '列（`GRS JSON`）'
 const ON_A_TASK = 'Task'
 const ON_A_TASK_GROUP = 'TaskGroup'
-/**
- * The third value that column carries, from 2026-09-06 (CR-368).
- *
- * ⭐ PR-21 (`CommentBox.text`) is where 表 T-023 の `MK-13` sends a double click
- * on a comment box -- 「本文の欄（表 T-016 の `PR-21`）を編集できる状態にして
- * 焦点を置くこと（MUST）」 -- so its word arrives on a frame that holds a picked
- * COMMENT BOX. ⛔ On the task's frame it arrives nowhere at all, and FR-006's
- * MUST NOT is what says so.
- */
+// Why: MK-13 sends a double click on a comment box to PR-21, so its word arrives on a frame
+// that picks a comment box and nowhere on the task's frame.
 const ON_A_COMMENT_BOX = 'CommentBox'
 const ON_A_HIGHLIGHT_BOX = 'HighlightBox'
 
-/**
- * The row a field of the panel DECLARES for one row of table T-016.
- *
- * ⛔ THE TWO ARE NOT THE SAME FOR A `TaskGroup` ROW, and the specification is
- * what says so. Table T-016's own note for PR-18 reads 「実体は
- * `fig-erd-detail.md` の `AT-53` である —— 表 T-023 の `MK-13` が名指すのはそちら
- * であり、本行はその値をパネルに出す項目のほうである」, and FR-085 (MUST) calls
- * the field by AT-53 of fig-erd-detail when it says where the double click puts the
- * focus. ⭐ ONLY the name field names the ATTRIBUTE row: IR-1 of table T-263
- * reads 「欄なら 表 T-016 の行 ID」 and
- * 「プロパティパネルのタスクグループ名の欄なら `_assets/fig-erd-detail.md` の `AT-53`」.
- * ⛔ A 備考 naming an AT row (PR-33's names `AT-144`) does not change that, so
- * the AT row is read out of IR-1 and matched through table T-058's join.
- */
+// Why: a TaskGroup row's field declares AT-53 for the name only (IR-1 of T-263, FR-085); other
+// fields declare their T-016 row, so the AT row is read out of IR-1 and matched through T-058.
 const ENTITY_COLUMN = 'エンティティ'
 const COLUMN_COLUMN = '列'
 const T058 = specTable('T-058')
@@ -1576,10 +1129,6 @@ const declaredRowOf = (specTableRowId: string): string => {
   return attribute.id === NAME_FIELD_ROW ? attribute.id : specTableRowId
 }
 
-/**
- * A task group picked in the `Task Group Panel`, which is what FR-042 (MUST) and FR-006's
- * 対象 rule put table T-016's `TaskGroup` rows on the panel for.
- */
 const THE_TASK_GROUP = '11111111-1111-4111-8111-111111111111'
 
 const SCHEDULE_WITH_A_TASK_GROUP = {
@@ -1597,14 +1146,14 @@ const SCHEDULE_WITH_A_TASK_GROUP = {
   ],
 } as unknown as Schedule
 
-// Why: no task picked beside the task group: FR-006 shows one subject's fields, so a picked task would hide the task group's (JDG-1650).
+// Why: no task picked beside the task group: FR-006 shows one subject's fields, so a picked task would hide the task group's.
 const TASK_GROUP_PICKED: Frame = frameWith({
   schedule: SCHEDULE_WITH_A_TASK_GROUP,
   selection: emptySelection(),
   readings: sessionWith({ selectedTaskGroupIds: [THE_TASK_GROUP] }),
 })
 
-// see CR-582, MH-3
+// Spec: MH-3
 // Why: placedTaskGroups makes the panel show `currentValue`, not `currentlyHidden`; kept
 // off TASK_GROUP_PICKED so every other `properties` place() reads that one unchanged.
 const TASK_GROUP_PLACED: Frame = frameWith({
@@ -1616,15 +1165,8 @@ const TASK_GROUP_PLACED: Frame = frameWith({
   }),
 })
 
-/**
- * A comment box picked on the schedule -- AR-5 of table T-023b, and the 対象
- * PR-21 carries (CR-368).
- *
- * ⚠️ THE PICK IS IN THE SELECTION AND NOT IN THE SESSION, which is what parts it
- * from `TASK_GROUP_PICKED`: a task group of the `Task Group Panel` is held by
- * `ScreenSession.selectedTaskGroupIds` (FR-085) while everything table T-023c admits
- * is held by `Selection` (SL-1).
- */
+// Why: the pick is in the selection, not the session: a panel task group is held by
+// selectedTaskGroupIds (FR-085), everything T-023c admits by Selection (SL-1).
 const THE_BOX = 'c1'
 
 const SCHEDULE_WITH_A_COMMENT_BOX = {
@@ -1701,14 +1243,8 @@ const MILESTONE_PICKED: Frame = frameWith({
   } as unknown as Schedule,
 })
 
-/**
- * The frame that puts one row of table T-016 on the panel, by its 対象.
- *
- * ⛔ THROWS ON A VALUE IT HAS NOT BEEN TOLD ABOUT rather than falling back to
- * the task's frame: a fourth 対象 would otherwise be asked for on a screen that
- * cannot print it, and this file would report the road as broken while the only
- * thing missing is a frame.
- */
+// Why: throws on an unknown target rather than falling back to the task's frame, or the road
+// would be reported broken while only a frame is missing.
 const frameFor = (specTableRowId: string): Frame => {
   const appliesTo = bare(T016.rows.find((row) => row.id === specTableRowId)?.by[APPLIES_TO_COLUMN] ?? '')
   if (appliesTo === ON_A_TASK) {
@@ -1804,19 +1340,9 @@ for (const entry of GENERATED['propertyField'] ?? []) {
   })
 }
 
-// -- settings: the name the same panel shows for a row of table T-104 (UF-64)
-
-/** The heading of the column table T-104 fixes the settings key spellings in. */
 const CONFIRMED_NAME_COLUMN = '確定名（英）'
 
-/**
- * Table T-104 -- 「`documentSettings` が持つ設定値の**名前**の正はここである」
- * (_assets/tbl-glossary.md, section 4), read as the join between a key of the
- * presentation group and the row whose word names it.
- *
- * ⚠️ A ROW MAY FIX SEVERAL KEYS (K-103 spells two, K-105 three), so the whole
- * list the cell writes is kept and not its first code span.
- */
+// Why: a row may fix several keys (K-103 spells two, K-105 three), so the whole list is kept.
 const T104 = specTable('T-104').rows.map((row) => ({
   row: row.id,
   keys: (row.by[CONFIRMED_NAME_COLUMN] ?? '')
@@ -1825,15 +1351,8 @@ const T104 = specTable('T-104').rows.map((row) => ({
     .filter((one) => one.length > 0),
 }))
 
-/**
- * The row of table T-104 that fixes a settings key, or `undefined` when it fixes
- * none -- six of the 113 keys, which is the ledger's DFC-238.
- *
- * ⚠️ THE LONGEST SPELLING THE TABLE HOLDS WINS: the group's keys are dotted, and
- * the table fixes some leaves by name (`fontSizeStepSizes.S` is K-105) and some
- * groups by name (`exportCanvas` is K-87, and the panel stands one field for each
- * of its leaves, both naming that row).
- */
+// Why: the longest spelling the table holds wins: keys are dotted, and T-104 names some leaves
+// (`fontSizeStepSizes.S` is K-105) and some groups (`exportCanvas` is K-87).
 const rowOfSettingsKey = (key: string): string | undefined => {
   const parts = key.split('.')
   for (let take = parts.length; take > 0; take -= 1) {
@@ -1844,37 +1363,20 @@ const rowOfSettingsKey = (key: string): string | undefined => {
   return undefined
 }
 
-/**
- * The rows of table T-104 that a field of the settings face really stands for.
- *
- * ⛔ EIGHT ROWS ARE OUTSIDE IT, and they are the omission below. `IC-17` of table
- * T-109 opens the face on the document's drawing settings and `DR-3` of table
- * T-052 says what those are, so a row of table T-104 whose key is not in that
- * group has no field to be printed on: `themeHue` (DR-5 of table T-052 keeps the
- * hue on `Project`), `language` (FR-038's own RATIONALE keeps it out of the
- * document -- 「`GRS` は、どの言語で開くかを文書に保存しないこと」
- * ), `zoomStep`, `zoomMin`, `zoomMax`, `importSequence`, `planActualGuideColor`
- * and `watermarkOpacity`. ⭐ Measured, not assumed: the group is asked.
- */
+// Why: measured from the group, not listed: a T-104 row whose key is outside the drawing settings
+// (DR-3) has no field on the face, e.g. themeHue (DR-5) or language (FR-038).
 const ROWS_ON_THE_SETTINGS_FACE = new Set(
   Object.keys(SETTINGS_DEFAULTS)
     .map(rowOfSettingsKey)
     .filter((row): row is string => row !== undefined),
 )
 
-/**
- * Where a settings name arrives: the field the panel stands for that row while
- * the face is showing the document's settings.
- *
- * ⚠️ Read by ROW and never by position, for the reason `propertyFieldName` is:
- * no row of docs/spec fixes the order the settings face lists its keys in, so a
- * reordering must not make this file fall.
- */
+// Why: read by row and never by position: no row fixes the order the settings face lists its keys in.
 const settingsFieldName = (view: ScreenView, specTableRowId: string): string | undefined =>
   view.propertiesPanel?.fields.find((field) => field.row === specTableRowId)?.name
 
 // Spec: FO-15, K-145
-// Why: CR-755 -- four display rows named by the setting's name and a number; row 1's name less ' 1' is the word.
+// Why: four display rows named by the setting's name and a number; row 1's name less ' 1' is the word.
 const NUMBERED_SETTINGS_ROWS: ReadonlySet<string> = new Set(['K-145'])
 const FIRST_ROW_NUMBER = ' 1'
 const numberedFieldName = (view: ScreenView, specTableRowId: string): string | undefined => {
@@ -1882,7 +1384,7 @@ const numberedFieldName = (view: ScreenView, specTableRowId: string): string | u
   return name?.endsWith(FIRST_ROW_NUMBER) === true ? name.slice(0, -FIRST_ROW_NUMBER.length) : name
 }
 
-// see T-380, RN-3, CR-787, JDG-2469
+// Spec: T-380, RN-3
 // Why: the left and top edges are stored as two keys each but read as one row each, named by
 // readOnlySettings viewLeftEdge / viewTopEdge -- so the settings face prints no name of these four rows.
 const ROWS_JOINED_ON_THE_SETTINGS_FACE: ReadonlySet<string> = new Set(['K-69', 'K-121', 'K-70', 'K-120'])
@@ -1918,17 +1420,8 @@ for (const entry of GENERATED['settings'] ?? []) {
   })
 }
 
-// -- the help: FR-036's four tables that no other surface prints (UF-66)
-
-/**
- * Where a help row's words arrive: the entry the help stands for that row.
- *
- * ⭐ FR-036 (MUST) names the tables rather than counting them, and every row of
- * each has to be shown -- so this is one place per row, and a row whose word
- * nobody wrote reports as reaching nowhere rather than passing quietly.
- * ⚠️ Read by ROW: FR-036's order is that requirement's own and `uf-66` is where
- * it is held, so a reordering must not make this file fall too.
- */
+// Why: one place per row, so a row whose word nobody wrote reports as reaching nowhere; read by
+// row, since FR-036's order is held elsewhere.
 const helpEntryText = (view: ScreenView, specTableRowId: string): string | undefined => {
   const entries: readonly HelpEntry[] | undefined = view.helpModal?.entries
   return entries?.find((entry) => entry.row === specTableRowId)?.text
@@ -1947,7 +1440,7 @@ for (const entry of GENERATED['shortcuts'] ?? []) {
   })
 }
 
-// see FR-036, CR-770
+// Spec: FR-036
 // Why: the two words stand between keys, so each is read back by cutting the keys of one item off its entry.
 const KEY_NOTATION_READS: Readonly<Record<string, { readonly row: string; readonly before: string; readonly after: string }>> = {
   alternative: { row: 'IC-6', before: 'Ctrl+Y', after: 'Ctrl+Shift+Z' },
@@ -1975,7 +1468,7 @@ for (const entry of GENERATED['keyNotation'] ?? []) {
   })
 }
 
-// see FR-036, CR-635
+// Spec: FR-036
 // Why: every block carries its heading as a heading entry keyed by the block, whose name also travels
 // untranslated on each entry (T-256) -- so only a place, not the whole-view reading, can hold this word.
 for (const entry of GENERATED['helpHeadings'] ?? []) {
@@ -1999,13 +1492,13 @@ for (const entry of GENERATED['helpNotes'] ?? []) {
   )
 }
 
-// Why: CR-828 -- FR-036 names no member for the browser block's sentence, so the whole-view reading asks for it.
+// Why: FR-036 names no member for the browser block's sentence, so the whole-view reading asks for it.
 for (const entry of GENERATED['helpBlockNotes'] ?? []) {
   drop('helpBlockNotes', keyOf('helpBlockNotes', entry), 'FR-036 names no member of the help that carries this sentence')
 }
 
-// see FR-036, CR-748, CR-785
-// Why: CR-785 has two links above the basics block (download, about) and one on the IC-20 item (agentApi).
+// Spec: FR-036
+// Why: two links stand above the basics block (download, about) and one on the IC-20 item (agentApi).
 const HELP_LINK_READS: Readonly<Record<string, (view: ScreenView) => string | undefined>> = {
   download: (view) => view.helpModal?.downloadLink.words,
   about: (view) => view.helpModal?.aboutLink.words,
@@ -2069,18 +1562,8 @@ for (const entry of GENERATED['invariants'] ?? []) {
   )
 }
 
-// ⛔ NO PLACE IS BUILT FOR A PANEL HEADING, and none may be: there is no heading
-// on the screen for a word to arrive at, so a place here would be a road to a
-// part FR-072 (MUST NOT) forbids. The section's absence from the dictionary is
-// asserted by name in the acceptance group rather than being passed over here.
-//
-// ⚠️ THE ORDER THE SECTION GOES IN IS THE MANUSCRIPT'S, NOT THIS FILE'S. CR-272
-// section 4 measured it and recorded it: 「⭐ **順序は「仕様 → 実装 → 辞書」であり、
-// 辞書を先に削ると `src/` が壊れる。**⚠️ **実装が入ったあと、`panelHeadings` の節を
-// 落として 260 → 254 になる。**」 ⛔ Until that last step is taken this file reads
-// a section it can key no entry of, and says so in three places at once.
-
-// -- assignments: FR-037's hint, shown while the pointer rests on a scrollbar
+// Why: no place is built for a panel heading: FR-072 leaves none on the screen, so a place would
+// be a road to a forbidden part; the acceptance group asserts the section's absence by name.
 
 for (const entry of GENERATED['assignments'] ?? []) {
   const specTableRowId = keyOf('assignments', entry)
@@ -2100,22 +1583,8 @@ for (const entry of GENERATED['assignments'] ?? []) {
   })
 }
 
-// -- arms: the row of table T-023b the palette has armed, read off the palette
-
-/**
- * The rows of table T-023b, each with the `Armed` value that IS that row.
- *
- * ⛔ THE PAIRING IS NOT INVENTED HERE. `Armed` is the published type of UF-59
- * (table T-064, PI-36) and its own declaration marks each member with the row
- * it stands for -- 「/** AR-1 *\/ | { readonly kind: 'none' }」 and so on down to
- * AR-6 -- which is the only thing read out of `src/` for it (rule 04 section 1
- * allows the head, the published types and the signatures). ⚠️ The two values
- * that carry a further choice take one the specification spells: `'rectangle'`
- * is SH-1 of table T-012, and `'diamond'` is the default `_source/erd.json`
- * gives `milestoneGlyph`. Neither reaches the word -- table T-023b gives AR-2
- * and AR-3 one row each, whatever shape is on them.
- */
-// Why: wave 2 of CR-767 (JDG-2364) holds every arm as a child of the composite `armed`.
+// Why: each arm is a child of the composite `armed`; the shapes taken (SH-1 rectangle, the
+// default diamond) do not reach the word, as T-023b gives AR-2 and AR-3 one row each.
 const ARMED_BY_ROW: Readonly<Record<string, ScreenValues['armModeState']>> = {
   'AR-1': { kind: 'notArmed' },
   'AR-2': { kind: 'armed', child: { kind: 'taskShapeArmed', shapeKind: 'rectangle' } },
@@ -2132,13 +1601,8 @@ for (const entry of GENERATED['arms'] ?? []) {
     drop('arms', specTableRowId, 'table T-023b has no such row, so nothing can be armed with it')
     continue
   }
-  // FR-053 (MUST): 「いま構えているものを画面上で読めるように描くこと」
-  // -- and the closing rule of table T-023b
-  // (MUST NOT) bars the row id itself from the screen, so what is read here is
-  // the WORD the dictionary holds for the armed row.
-  // ⭐ ON THE PALETTE, because FR-053 is the requirement that says it and the
-  // palette is the surface FR-053 governs; `CommandPalette.armedText` is the
-  // member UF-65 publishes for it.
+  // Why: read on the palette because FR-053 governs it; the row id is barred from the screen,
+  // so what is read is the dictionary's word for the armed row (CommandPalette.armedText).
   place({
     section: 'arms',
     key: specTableRowId,
@@ -2149,14 +1613,11 @@ for (const entry of GENERATED['arms'] ?? []) {
       ...PALETTE_SHOWN,
       root: withScreen(PALETTE_SHOWN.root, { armModeState: armed }),
     },
-    // ⚠️ `?? undefined` FOLDS THE ONE NULL STATE INTO "no reading at all", and
-    // it cannot arise here: `PALETTE_SHOWN` is not minimized, and FR-053 makes
-    // minimized the only state whose `armedText` is null (ruling 2026-09-01).
+    // Why: `?? undefined` folds the one null state into no reading, which cannot arise here:
+    // PALETTE_SHOWN is not minimized, the only state whose armedText is null.
     read: (view) => view.commandPalette?.armedText ?? undefined,
   })
 }
-
-// -- the sections whose place is not one of the five units this file may read
 
 for (const section of ['notices', 'reasons', 'questions', 'confirmation', 'noticeDismiss', 'confirmationMarks', 'parentTaskChoice']) {
   for (const entry of GENERATED[section] ?? []) {
@@ -2169,20 +1630,8 @@ for (const section of ['notices', 'reasons', 'questions', 'confirmation', 'notic
   }
 }
 
-// -- the two sections CR-280 raised when the autosave went
-
-// ⭐ `fileStatus`: FR-101 (MUST) shows the name of the open file and the time it
-// was last written to, 「まだ 1 度もファイルへ書いていないとき、`GRS` は、時刻の代わりに、
-// まだ書いていない旨を示すこと」 -- and that 旨 is the word this section holds. It
-// stands in the App Header, under the file name.
-// ⭐ `exportFormats`: FR-096 (MUST) opens the choice of format before a write,
-// and the chooser prints one line per file row of table T-024 (IO-1 .. IO-7).
-// FR-038 (MUST NOT) bars the 形式 column of that table from the screen, so the
-// name a reader sees is this section's word, keyed by the row it names.
-// ⚠️ NEITHER IS DROPPED FOR BEING OUT OF REACH: this file names no member of
-// `ScreenView` for either -- no row of docs/spec fixes one -- and the
-// acceptance group's whole-view reading holds both to a frame all the same, the
-// way it does for the six sections above.
+// Why: neither section is out of reach: no row fixes a ScreenView member for fileStatus (FR-101)
+// or exportFormats (FR-096), so the acceptance group's whole-view reading holds both instead.
 for (const section of ['fileStatus', 'exportFormats']) {
   for (const entry of GENERATED[section] ?? []) {
     drop(
@@ -2194,51 +1643,8 @@ for (const section of ['fileStatus', 'exportFormats']) {
   }
 }
 
-// -- defaultNames: the one word the dictionary holds that no frame prints,
-//    because FR-032 makes it DOCUMENT DATA rather than screen text (DFC-171)
-
-// ⭐ WHY A WORD THAT BECOMES DOCUMENT CONTENT IS NOT A WORD A FRAME PRINTS.
-// FR-032 (MUST) does not put this word on the screen; it puts it in the
-// document. 「もし導出元の `Task` が名前を持たない場合、`GRS` は、導出元の `Task` を消す前に、タスクグループ名を既定の名前
-// に確定させること」 -- 確定させる is a WRITE, into `TaskGroup.name`
-// (AT-53 of table T-058), on the way to emptying `derivedFromTaskUid`. Once it
-// is written it is the task group's name, indistinguishable from a name a person
-// typed: the screen shows it the way it shows every other タスクグループ名.
-//
-// ⛔⛔ DO NOT REACH FOR THE WITHDRAWN SENTENCE OF FR-038 HERE. 2026-09-04 まで
-// `FR-038` の本文は「表 T-016 の項目名は翻訳の対象ではない」と書いており、この注は
-// かつてそれを根拠にしていた。⛔ 同日の利用者の裁定がそれを撤回し、いまの本文は
-// 逆を定める ——「タスク名とタスクグループ名、および 表 T-016 の項目名も、他の語と同じく画面の
-// 言語に従うこと（MUST）」。⇒ 「タスクグループ名は訳さない」はもう引ける規則ではない。
-// ⭐ WHAT HOLDS THIS OMISSION IS `FR-032` ALONE, and it is enough: the word is
-// settled INTO the document before any frame could print it, so what a reader
-// sees is a `TaskGroup.name` this file would have had to write itself. The
-// arrival claim the acceptance case makes -- "asked for in `ja` a frame prints
-// the `ja` word, and asked for in `en` it does not" -- has no frame to make it
-// against, because no frame prints this word at all.
-//
-// ⛔ NOR COULD A FRAME BE RAISED THAT WOULD PRINT IT HONESTLY. To put the word
-// on the screen this file would first have to write it into `SCHEDULE` as a
-// `TaskGroup.name` itself -- and then the case would be finding its own input,
-// which is the trap the stand-ins in `ASKING` and `TELLING` are spelled in ASCII
-// to avoid. ⭐ So this omission is of the STRONGEST kind, the kind omission 6
-// makes for the weekdays: not "the member is one this file may not name" (those
-// six sections are still held by the whole-view reading), but "no frame this
-// file can build could print it, however the road were wired".
-//
-// ⭐ THE WORD IS STILL RIGHTLY IN THE DICTIONARY, and this file must not be read
-// as saying otherwise. FR-032 sends it here BY NAME -- 「既定の名前の語は `FR-038` の辞書
-// が持ち、`FR-032` に綴らない。」 -- because the alternative is a Japanese and an
-// English string spelled into a unit or into a requirement, which FR-038 (MUST
-// NOT) forbids. ⚠️ Being kept in the dictionary and being printed by a frame are
-// two different claims, and only the second is this file's.
-//
-// ⚠️ WHAT IS NOT SETTLED, recorded rather than asserted: FR-038 gives the
-// dictionary two languages and the document can hold only ONE settled label, and
-// no row of docs/spec says which of the two is written when a task group is settled --
-// FR-038 keeps the reader's language out of the document (MUST NOT) and FR-032
-// names no language at all. ⛔ That is a question for the specification, not a
-// gap this file may close by asserting one of the two.
+// Why: FR-032 writes this word into TaskGroup.name, so no frame prints it as screen text, and a
+// frame that did would find its own input; which language is written is not settled by the spec.
 for (const entry of GENERATED['defaultNames'] ?? []) {
   drop(
     'defaultNames',
@@ -2250,21 +1656,8 @@ for (const entry of GENERATED['defaultNames'] ?? []) {
   )
 }
 
-// -- weekdays: the fourth ruler tier, which PI-37 does not hand out at all
-
-// FR-017 (MUST) fixes what each tier of the ruler prints and gives the weekday
-// a 段 of its own on the fourth: 「曜日の段は曜日」をそれぞれ 1 段に持つ, with
-// the words left to this dictionary -- 「⭐ 曜日の語がどこに住むかは `FR-038`
-// が持つ。」
-// ⛔ THE BAND IS UF-32'S (`svg-renderer.ts`, table T-075), and `ScreenView` --
-// the whole of what PI-37 of table T-064 hands out -- carries no `Time Ruler`
-// member for any tier to print into. ⭐ So this is not the omission the six
-// sections above make: there the member could not be NAMED but the surface
-// could still be raised, and the acceptance group's whole-view reading reached
-// the word anyway. Here no frame this file can build could print a weekday
-// however the road were wired, so the arrival claim is not one to make against
-// PI-37 -- it belongs to a test that may name the band. ⚠️ The roster itself is
-// held instead, by the case AT-17 drives in the acceptance group below.
+// Why: the weekday tier is the Time Ruler band of UF-32 and ScreenView carries no Time Ruler,
+// so the arrival claim belongs to a test that may name the band; the roster is held instead.
 for (const entry of GENERATED['weekdays'] ?? []) {
   drop(
     'weekdays',
@@ -2502,11 +1895,11 @@ for (const entry of GENERATED['dualCursorReadout'] ?? []) {
   })
 }
 
-// see CR-582, MH-3, MH-4, MH-6, FR-042
+// Spec: MH-3, MH-4, MH-6, FR-042
 // Why: keyed by which control the field is, not by a row -- no row of table
 // T-016 names it, the same reason `defaultNames` is keyed by `use`.
 const TASK_GROUP_MIN_HEIGHT_PX_SLOT = '{px}'
-// see T-338, MH-2, PR-20, MH-3, CR-689
+// Spec: T-338, MH-2, PR-20, MH-3
 const minHeightTaskGroupOf = (view: ScreenView, row: string) =>
   view.propertiesPanel?.fields.find((field) => field.row === row)
 // Why: MH-3's `currentValue` fills the `{px}` slot with the real height, so this
@@ -2538,7 +1931,7 @@ for (const entry of GENERATED['rowMinHeightField'] ?? []) {
   })
 }
 
-// see CR-690, FX-6, FX-7, WF-2, WF-3
+// Spec: FX-6, FX-7, WF-2, WF-3
 // Why: the two read-outs come from the readings (the shown span, the drawn width), so this frame
 // carries both; their dates and digits are put back as the slots to hold them to the written word.
 const SETTINGS_WITH_READOUTS = frameWith({
@@ -2584,7 +1977,7 @@ for (const section of ['fitSpanField', 'taskGroupPanelWidthField'] as const) {
   }
 }
 
-// see FR-041, T-305, DFC-1640
+// Spec: FR-041, T-305
 // Why: the hue field of the settings face lists table T-305's rows in that table's order.
 const T305_ROWS: readonly string[] = specTable('T-305').rows.map((row) => row.id)
 const themeHueControlOf = (view: ScreenView) =>
@@ -2605,7 +1998,7 @@ for (const entry of GENERATED['themeHues'] ?? []) {
 }
 
 // Spec: FR-156, T-376, FO-14, FO-15
-// Why: CR-787 -- a zone's place is line 2 of its two-line name; display row 1 offers none and then every row.
+// Why: a zone's place is line 2 of its two-line name; display row 1 offers none and then every row.
 const ZONE_ROWS_IN_ORDER: readonly string[] = (GENERATED['timeZones'] ?? []).map((entry) => keyOf('timeZones', entry))
 for (const specTableRowId of ZONE_ROWS_IN_ORDER) {
   place({
@@ -2624,7 +2017,7 @@ const TIME_ZONE_FIELD_READS: Readonly<Record<string, (view: ScreenView) => strin
   none: (view) => settingsRowOf(view, 'K-145:1')?.controls[0]?.choices?.[0],
   shiftUnit: (view) => settingsRowOf(view, 'IC-162')?.unit,
 }
-// Why: CR-755 -- the answers stand only while a draft holds another zone, which no frame here holds.
+// Why: the answers stand only while a draft holds another zone, which no frame here holds.
 // Why: zoneHead and offsetName are shapes with slots; the QN-14 lines are composed when the shell asks.
 const ONLY_WHILE_DRAFTED = 'FO-14 shows it only while a draft holds a time zone other than the shown base (FR-156); no frame here holds one'
 const TIME_ZONE_FIELD_NOT_ON_A_FRAME: Readonly<Record<string, string>> = {
@@ -2689,8 +2082,8 @@ for (const entry of GENERATED['wholeScheduleShiftField'] ?? []) {
   })
 }
 
-// see T-380, FR-072, JDG-2103
-// Why: CR-754 -- the heading line, the group names and the words the default settings of the frame show.
+// Spec: T-380, FR-072
+// Why: the heading line, the group names and the words the default settings of the frame show.
 const readOnlyGroupNameOf = (view: ScreenView, key: string): string | undefined =>
   view.propertiesPanel?.fields.find((field) => field.readOnlyGroup?.key === key)?.readOnlyGroup?.name
 const SEARCH_VIEW_ROW = (key: string): string => `tableViews.searchPanel.${key}`
@@ -2717,7 +2110,7 @@ const READ_ONLY_SETTINGS_READS: Readonly<Record<string, (view: ScreenView) => st
   expandedAuto: (view) => settingsRowOf(view, 'K-138')?.text,
   none: (view) => settingsRowOf(view, SEARCH_VIEW_ROW('shownTaskUids'))?.text,
   defaultOrder: (view) => settingsRowOf(view, SEARCH_VIEW_ROW('sort'))?.text,
-  // Why: CR-787 (T-380 RN-3) -- the joined left and top edge rows stand under K-69 / K-70; the frame holds no view place.
+  // Why: T-380 RN-3: the joined left and top edge rows stand under K-69 / K-70; the frame holds no view place.
   viewLeftEdge: (view) => settingsRowOf(view, 'K-69')?.name,
   viewTopEdge: (view) => settingsRowOf(view, 'K-70')?.name,
   notSet: (view) => settingsRowOf(view, 'K-69')?.text,
@@ -2744,7 +2137,7 @@ for (const entry of GENERATED['readOnlySettings'] ?? []) {
 }
 
 // Spec: U-65, T-344, WC-2, WC-3, WC-4, WC-8, WC-10
-// Why: CR-743 section 4.4 -- the headings and column words of Holiday Settings, read off the surface its scene opens.
+// Why: the headings and column words of Holiday Settings, read off the surface its scene opens.
 const HOLIDAY_SETTINGS_READS: Readonly<Record<string, (view: ScreenView) => string | undefined>> = {
   workingWeekdays: (view) => holidaySettingsOf(view)?.weekdaysHeading,
   weekStart: (view) => holidaySettingsOf(view)?.weekStartName,
@@ -2776,7 +2169,7 @@ for (const entry of GENERATED['holidaySettings'] ?? []) {
   })
 }
 
-// see CV-9, T-294, FR-019, DFC-1640
+// Spec: CV-9, T-294, FR-019
 // Why: CV-9 bans neither black nor transparent on a highlight box; its fill's null follows the
 // theme (S-155) and its frame's is the fixed S-312, so one box prints both forms of entrance 2.
 const colorControlOf = (view: ScreenView, holder: string, column: string) =>
@@ -2785,7 +2178,7 @@ const colorControlOf = (view: ScreenView, holder: string, column: string) =>
     .find((control) => control.key.holder === holder && control.key.column === column)
 const BOX_FILL = (view: ScreenView) => colorControlOf(view, 'highlightBox', 'fillColor')
 const BOX_FRAME = (view: ScreenView) => colorControlOf(view, 'highlightBox', 'strokeColor')
-// Why: SCHEDULE's task holds a custom fill (CR-548), so the custom entrance's tooltip names its value (CV-9).
+// Why: SCHEDULE's task holds a custom fill, so the custom entrance's tooltip names its value (CV-9).
 const TASK_FILL = (view: ScreenView) => colorControlOf(view, 'taskVisual', 'fillColor')
 const CUSTOM_VALUE_SLOT = '{value}'
 for (const entry of GENERATED['colorNames'] ?? []) {
@@ -2949,7 +2342,7 @@ for (const entry of GENERATED['searchPanel'] ?? []) {
     drop('searchPanel', part, 'the joining word stands only inside the {tables} slot of the band (TV-11), and a cell-naming word holds no slot to put it in')
     continue
   }
-  // Why: CR-798 -- the Visibility column has no value list, so no frame prints these two words any more; the Agent API's table cells (AM-28) still carry them.
+  // Why: the Visibility column has no value list, so no frame prints these two words any more; the Agent API's table cells (AM-28) still carry them.
   if (part === 'showValue' || part === 'hideValue') {
     drop('searchPanel', part, 'the Visibility column holds no value list (SV-7, CR-798); only the table cells the Agent API reads (AM-28) print this word')
     continue
@@ -2989,7 +2382,6 @@ for (const section of ['delayReportColumns', 'delayReportStatuses', 'delayReport
   }
 }
 
-/** One case per place per language, so a failure names one cell of the dictionary. */
 interface Case extends Place {
   readonly language: string
   readonly word: string
@@ -3008,23 +2400,13 @@ const CASES: readonly Case[] = PLACES.flatMap((at) =>
   LANGUAGES.map((language) => ({ ...at, language, word: wordAt(GENERATED, at, language) ?? '' })),
 )
 
-/**
- * The cells with no word yet. ⚠️ This was every cell a place is named for
- * (PND-160) and is now none of them -- no cell of the dictionary stands empty at
- * all. ⭐ The group below therefore has no case today and gets one the moment a
- * cell is emptied or a new roster entry appears unwritten.
- */
+// Why: no cell stands empty today, so the fallback group has no case until a cell is emptied
+// or a new entry appears unwritten.
 const EMPTY = CASES.filter((one) => one.word === '')
 
 const printed = (at: Place, language: string, build: Build = screenViewFromRegions): string | undefined =>
   at.read(viewOf(build, at.frame, language))
 
-// ---------------------------------------------------------------------------
-// Reading a word WITHOUT naming the member that carries it, for the sections
-// whose place is UF-67's (`notices.ts`) -- see the head comment's omission 2.
-// ---------------------------------------------------------------------------
-
-/** Every string the published view carries, wherever in it the string sits. */
 const stringsIn = (value: unknown, found: string[] = [], seen = new Set<unknown>()): readonly string[] => {
   if (typeof value === 'string') found.push(value)
   else if (typeof value === 'object' && value !== null && !seen.has(value)) {
@@ -3044,32 +2426,8 @@ const stringsOfView = (view: ScreenView): readonly string[] => {
   return read
 }
 
-/**
- * One question raised per row of table T-234 -- the frame the words of the
- * `questions` section have to arrive on, and the one FR-032's mark needs in
- * order to be on the screen at all.
- *
- * ⭐ WHAT AN ASKER HANDS OVER, and nothing else: the row of table T-037 the
- * question follows, the row of table T-234 that says WHICH question it is, and
- * the things that would go. FR-038 (MUST) keeps the sentence on the far side of
- * this seam, exactly as it keeps a telling's -- so there is no prose here to be
- * mistaken for the dictionary's answer.
- *
- * ⭐ WHETHER ANYTHING GOES IS THE TABLE'S ANSWER, read from its 名前を挙げるか
- * column rather than decided here. A row that names what goes is what puts
- * FR-032's mark on the screen at all: HM-10 of table T-015a leaves a `Task`
- * drawn on another task group, FR-032 (MUST) has that one shown as such, and CR-218
- * settles the medium as a WORD (RC-13 of table T-026 keeps a new SHAPE the
- * user's own ruling).
- *
- * ⚠️ NOTHING HERE IS ASSERTED and no member of it is read back. The shape is
- * the published entry's own declaration of `RaisedConfirmation` -- version 0.70
- * of the appendix records that the specification deliberately writes no member
- * name or type for it and sends the reader to `src/`'s published entry
- * (CR-146). ⛔ The strings that are not row ids are ASCII stand-ins for what a
- * caller raises; none of them may be a word of the dictionary, or a case would
- * find its own input.
- */
+// Why: the strings that are not row ids are ASCII stand-ins for what a caller raises; none may be
+// a word of the dictionary, or a case would find its own input.
 const ASKING = (question: string, namesWhatGoes: boolean): Frame =>
   frameWith({
     readings: sessionWith({
@@ -3081,21 +2439,6 @@ const ASKING = (question: string, namesWhatGoes: boolean): Frame =>
     }),
   })
 
-/**
- * One telling raised per row of table T-233 -- the frame the words of the
- * `reasons` section have to arrive on.
- *
- * ⭐ WHAT A RAISER HANDS OVER, and nothing else: the row of table T-037 the
- * telling follows and the row of table T-233 that is its reason. FR-038 (MUST)
- * keeps the words on the far side of this seam, so a raiser that supplied one
- * would be the second store of translated strings the same requirement forbids
- * (MUST NOT) -- which is why there is no sentence here to be mistaken for the
- * dictionary's answer. ⚠️ NT-3's count is `null`: table T-233's rows are not
- * the destructive ones, and a number is not a word.
- *
- * ⚠️ NOTHING HERE IS ASSERTED and no member of it is read back. The shape is
- * the published entry's own declaration of `RaisedNotice` (table T-064, PI-37).
- */
 // Spec: QN-12, PTL-13
 const PARENT_TASK_CHOICE = (isArmed: boolean): Frame =>
   frameWith({ readings: sessionWith({ parentTaskChoice: { at: { x: 40, y: 40 }, isArmed } }) })
@@ -3103,18 +2446,8 @@ const PARENT_TASK_CHOICE = (isArmed: boolean): Frame =>
 const TELLING = (manner: string, reason: string): Frame =>
   frameWith({ readings: sessionWith({ notices: [{ manner, reason, affectedCount: null }] }) })
 
-/**
- * Every frame this file knows how to put on the screen, each named.
- *
- * ⚠️ ONE FRAME IS COUNTED ONCE, however many places stand on it. The acceptance
- * case below builds every frame for every written word, so its cost is words x
- * frames -- and the settings face CR-344 added carries 102 places on ONE frame,
- * which made that cost words x PLACES instead (measured 2026-09-03: 16.6s
- * against the 20s budget, 8.9s once the copies are dropped).
- * ⭐ DEDUPLICATED BY IDENTITY AND NOT BY CONTENT: two frames that merely look
- * alike are both kept and both built, so no screen this file can raise falls out
- * of the sweep. The name kept is the first place that asked for it.
- */
+// Why: one frame is counted once however many places stand on it, by identity: the acceptance
+// sweep costs words x frames, and two lookalike frames are both still built.
 const FRAMES: readonly { readonly what: string; readonly frame: Frame }[] = (() => {
   const seen = new Set<Frame>()
   const each: { readonly what: string; readonly frame: Frame }[] = []
@@ -3132,7 +2465,6 @@ const FRAMES: readonly { readonly what: string; readonly frame: Frame }[] = (() 
       what: `the import refusal ${row} of table T-220 raises, in the manner of ${IMPORT_REFUSAL_MANNER}`,
       frame: TELLING(IMPORT_REFUSAL_MANNER, row),
     })),
-    // see CR-582, MH-3
     { what: 'a picked task group that is placed (MH-3 of table T-338)', frame: TASK_GROUP_PLACED },
     { what: 'the QN-12 chooser while parent tasks are armed', frame: PARENT_TASK_CHOICE(true) },
     { what: 'the QN-12 chooser while nothing is armed', frame: PARENT_TASK_CHOICE(false) },
@@ -3162,7 +2494,7 @@ const FIGURED_ROWS: ReadonlySet<string> = new Set(
 const FR_076_NO_SETTING_COPIED = '`FR-038` の辞書は、設定値を理由の語に書き写さないこと。'
 
 // Spec: FR-076
-// Why: a reason word names a setting in braces and the screen prints its value (CR-719 X-2).
+// Why: a reason word names a setting in braces and the screen prints its value.
 const withSettingValues = (word: string): string => {
   const settings: Readonly<Record<string, unknown>> = SETTINGS_CONSTANTS
   return word.replace(/\{([A-Za-z]+)\}/g, (slot: string, name: string) => {
@@ -3240,7 +2572,7 @@ const helpNoteFramesShowing = (
     return text !== undefined && text.includes(word)
   })
 
-// see FR-036, CR-770
+// Spec: FR-036
 // Why: the join and the plus key stand inside an item's keys, so a frame shows them when some help item's keys hold them.
 const keyNotationFramesShowing = (
   word: string,
@@ -3252,7 +2584,7 @@ const keyNotationFramesShowing = (
     ),
   )
 
-// see CR-582, FR-038
+// Spec: FR-038
 // Why: `current` carries a `{px}` slot filled with the real height, so a
 // literal match would never see it -- the other three entries hold no slot.
 const escapeForRegExp = (text: string): string => text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
@@ -3266,7 +2598,7 @@ const rowMinHeightFieldFramesShowing = (
   )
 }
 
-// see CR-690, FX-6, FX-8
+// Spec: FX-6, FX-8
 // Why: `currentValue` fills `{start}` and `{finish}` with the shown days, so its slots are matched open.
 const shownSpanFramesShowing = (
   word: string,
@@ -3290,7 +2622,7 @@ const wholeScheduleShiftFramesShowing = (
   )
 }
 
-// see CV-9, FR-038, CR-689
+// Spec: CV-9, FR-038
 // Why: `customValue` fills `{value}` with the stored custom color, so its slot is matched open.
 const customValueFramesShowing = (
   word: string,
@@ -3302,7 +2634,7 @@ const customValueFramesShowing = (
   )
 }
 
-// see CR-606, PR-37, PR-38, PR-43, PR-44, FR-038
+// Spec: PR-37, PR-38, PR-43, PR-44, FR-038
 // Why: a property field fills `{name}` and `{uid}` with a task's own, one line per end,
 // so the word is matched line by line with its slots open (a literal word still matches).
 const propertyFieldFramesShowing = (
@@ -3336,38 +2668,14 @@ const countSlottedFramesShowing = (
   )
 }
 
-// ---------------------------------------------------------------------------
-// 1. THE CARRIAGE -- what a written word has to satisfy.
-// ---------------------------------------------------------------------------
-
-/**
- * The dictionary this group drives the units with: the generated one with a
- * word that names its own cell in place of every cell. ⛔ It is built here and
- * never written to `_source/display-words.json` -- the words are the user's
- * decision (PND-160), and a test that wrote one would be making it for them.
- */
+// Why: the filled copy is built here and never written to the manuscript: the words are the
+// user's decision, and a test that wrote one would be making it for them.
 const FILLED = fillEveryWord(GENERATED)
 
+// Spec: FR-038
 describe('FR-038 -- a word the dictionary holds is the word the screen prints', () => {
-  /**
-   * ⭐ WHY THIS GROUP BUILDS ITS OWN DICTIONARY. It was built when every cell
-   * this group has a place for was empty (PND-160), so a group that stood by
-   * until a word was written asserted nothing at all -- 272 cases that returned
-   * on their first line, and three deliberate breaks of the road each turned
-   * exactly ONE of them red. ⚠️ THE WORDS HAVE SINCE BEEN WRITTEN, and the
-   * filled copy is kept rather than retired: the third case below is the same
-   * claim against the dictionary AS IT STANDS, and it is the one that goes
-   * vacuous again for any cell the user empties or has yet to write. The
-   * dictionary is data: standing a FILLED copy where the five units import
-   * theirs from drives the carriage for every place a word is owed, whatever
-   * the manuscript holds, and leaves the manuscript untouched.
-   *
-   * ⭐ WHY THE FILLED WORDS CANNOT PASS BY ACCIDENT. Each names its own cell
-   * -- section, key, field and language -- and appears nowhere else in the
-   * tree. A unit that prints its stand-in, or another entry's word, or the
-   * other language's word, or another member of the same entry, prints
-   * something this case did not ask for and goes red.
-   */
+  // Why: each filled word names its own cell and appears nowhere else, so a unit printing a stand-in,
+  // another entry's word or the other language's prints something not asked for and goes red.
   let carriage: Build | undefined
 
   beforeAll(async () => {
@@ -3382,7 +2690,7 @@ describe('FR-038 -- a word the dictionary holds is the word the screen prints', 
     vi.resetModules()
   })
 
-  /** ⛔ Never falls back to the real build: that would make every case vacuous again. */
+  // Trap: falling back to the real build here makes every case vacuous again.
   const driven = (): Build => {
     if (carriage === undefined) {
       throw new Error('the filled dictionary was never stood in place of the generated one')
@@ -3409,10 +2717,8 @@ describe('FR-038 -- a word the dictionary holds is the word the screen prints', 
   it.each(PLACES)(
     '$section $key $field holds a different word per language -> the view is built in each -> $what answers a different one in each',
     (at: Place) => {
-      // FR-038 (MUST) shows the menus in the language the READER chose, and
-      // 「`GRS` は、画面の言語とヘルプの言語の対象を `ja` と `en` の 2 言語とすること」. ⛔ A place that answers the same
-      // string whichever language is asked for is not reading the language at
-      // all -- it would satisfy the case above in one of the two by luck.
+      // Why: a place that answers the same string whichever language is asked for is not reading the
+      // language at all; it would pass the case above in one of the two by luck.
       const answers = LANGUAGES.map((language) => printed(at, language, driven()))
       expect(
         new Set(answers).size,
@@ -3425,13 +2731,8 @@ describe('FR-038 -- a word the dictionary holds is the word the screen prints', 
   it.each(CASES.filter((one) => one.word !== ''))(
     '$section $key $field is written in $language -> the view is built from the file -> $what prints exactly it',
     (one: Case) => {
-      // ⭐ THE SAME CLAIM AGAINST THE DICTIONARY AS IT STANDS, and the word
-      // comes from the file rather than from here. ⚠️ It had no case at all
-      // while PND-160 left every cell empty; it now has one per written cell,
-      // and each is asked in EACH language -- which is what makes it, and not
-      // the acceptance group, the place a placed cell's language claim is made.
-      // ⛔ A cell the user leaves empty drops out here and is picked up by the
-      // fallback group instead.
+      // Why: the same claim against the dictionary as it stands, asked in each language; a cell left
+      // empty drops out here and is picked up by the fallback group.
       expect(
         printed(one, one.language),
         `FR-038 (MUST): ${one.what} is ${one.unit}'s, and the dictionary gives it ${JSON.stringify(one.word)}`,
@@ -3440,18 +2741,13 @@ describe('FR-038 -- a word the dictionary holds is the word the screen prints', 
   )
 })
 
-// ---------------------------------------------------------------------------
-// 2. THE FALLBACK -- what stands there while the word is not written.
-// ---------------------------------------------------------------------------
-
+// Spec: FR-038, FR-072
 describe('PND-160 -- an entry with no word still leaves something at its place', () => {
   it.each(EMPTY)(
     '$section $key $field is empty in $language -> the view is built -> $what still prints a string',
     (one: Case) => {
-      // ⛔ WHAT the stand-in says is not asserted: CR-194 settled "keep printing
-      // what it printed before" without asking, and docs/spec fixes no wording.
-      // What IS asserted is that the place is still there -- an entry that lost
-      // its member would be a road that drops the word once one is written.
+      // Why: what the stand-in says is not asserted, as no wording is fixed; only that the place is
+      // still there, or the road would drop the word once one is written.
       expect(
         typeof printed(one, one.language),
         `${one.what} is ${one.unit}'s and the dictionary has no word for it, so the stand-in has to stand`,
@@ -3462,19 +2758,8 @@ describe('PND-160 -- an entry with no word still leaves something at its place',
   it.each(LANGUAGES)(
     'the dictionary has no place left for a panel heading in %s -> the three states FR-072 names are built -> not one of them hands a heading on',
     (language) => {
-      // ⛔ THIS CASE IS THE INVERSE OF THE ONE IT REPLACED (CR-272). It used to
-      // require the three states to hand on three non-empty, pairwise distinct
-      // headings; FR-072 now says 「⛔ **パネルの先頭にタイトルバーを置いてはならない
-      // （MUST NOT）**（利用者の指示 2026-08-27）—— **押下状態が同じことを既に示し
-      // ており、見出しは同じ答えを 2 か所で言っていた。**」
-      //
-      // ⭐ IT STAYS IN THIS GROUP because it is still about what stands where a
-      // word would have been printed: with the place gone, what has to be
-      // checked is that nothing prints there at all -- in EITHER language, since
-      // a heading built in one and not the other would read as a stand-in.
-      // ⛔ The member is read without being named in a type, so that a
-      // description which still declares one makes THIS case fall rather than
-      // taking the file down before any case runs (rule 04 section 1).
+      // Why: the member is read without being named in a type, so a description that still declares
+      // a heading makes this case fall rather than the whole file before any case runs.
       for (const [showing, frame] of Object.entries(PANEL_STATES)) {
         const panel = viewOf(screenViewFromRegions, frame, language).propertiesPanel
         expect(
@@ -3486,12 +2771,7 @@ describe('PND-160 -- an entry with no word still leaves something at its place',
   )
 
   it('⛔ MUST NOT move to the settings when the selection is cleared, whatever it stops saying', () => {
-    // ⭐ WHAT IS LEFT OF THE STATE THE HEADING USED TO CARRY. FR-072 (MUST)
-    // still keeps the panel on what it had -- 「選択が外れたとき、`GRS` は、プロパティパネルに直前に出し
-    // ていた中身を残すこと」 -- and (MUST NOT) still refuses to move it to
-    // the settings. ⚠️ What is gone is the telling: 「**選択が解除されても、パネル
-    // は直前の中身を出したまま「これは直前のものである」と示さない。**⛔ **利用者
-    // はそれを承知で「無用」と述べた。**」 So the state is asserted and no word is.
+    // Why: FR-072 keeps the panel on what it had but no longer tells so; the state is asserted, no word.
     const panel = viewOf(screenViewFromRegions, PANEL_STATES['noSelection'] as Frame, 'ja').propertiesPanel
     expect(panel?.showing, 'FR-072 (MUST NOT): clearing the selection does not move it to the settings').toBe(
       'selection',
@@ -3500,32 +2780,15 @@ describe('PND-160 -- an entry with no word still leaves something at its place',
   })
 })
 
-// ---------------------------------------------------------------------------
-// 3. THE ACCEPTANCE -- CR-194 section 5, which ruling 06 asks for.
-// ---------------------------------------------------------------------------
-
+// Spec: FR-038, FR-032, FR-072, FR-029, NT-7, NT-8, HM-10, FR-017, AT-17
 describe('CR-194 section 5 / PND-160 -- fill one word of the manuscript and it reaches the screen', () => {
   it('offers a word per language -> the languages are read from the dictionary -> they are FR-038 s two', () => {
-    // FR-038: 「`GRS` は、画面の言語とヘルプの言語の対象を `ja` と `en` の 2 言語とすること」.
     expect(new Set(LANGUAGES)).toEqual(new Set(['ja', 'en']))
   })
 
   it('the manuscript is the source -> both files are read -> the generated dictionary matches it cell for cell', () => {
-    // ⛔ Without this the guard below would be blind: a manuscript that changed
-    // without `npm run gen` leaves the screen reading the old words.
-    //
-    // ⚠️ SECTION BY SECTION, AND NOT AS ONE LIST, for the reason the case below
-    // states in as many words: the generated file is printed in the order its
-    // generator fixes, and nothing in docs/spec asks a hand-kept JSON to hold
-    // its sections in that same order. Chapter 6.2 (MUST) asks only 「生成物は、
-    // 原稿から作り直した結果と一致すること」, which is about the words,
-    // not about where a section is printed. ⭐ THE CONTENT CLAIM IS UNWEAKENED:
-    // every section of either file is walked, and within a section the entries,
-    // the fields and the languages are still held in order -- so a word that
-    // differs, an entry that is missing, an entry that has moved inside its
-    // section, and a section one file holds and the other does not all fail
-    // here. ⚠️ `arms` is what made the difference visible: the manuscript keeps
-    // it before `assignments` and the generator prints it last.
+    // Why: compared section by section, not as one list: the generator fixes the generated order and
+    // nothing asks the hand-kept manuscript to match it; within a section order is still held.
     const held = (cells: readonly Cell[], section: string): readonly string[] =>
       cells
         .filter((cell) => cell.section === section)
@@ -3538,23 +2801,8 @@ describe('CR-194 section 5 / PND-160 -- fill one word of the manuscript and it r
   })
 
   it('the specification says which words the screen needs, and FR-032 has just added one -> both files are read section by section and entry by entry -> every section is one this file can key and every entry is a place here or a stated omission', () => {
-    // ⛔ Without this an entry could be passed over in silence -- a section
-    // added to the dictionary would simply have no case, and the guard below
-    // would then say "one word changed" about a word nothing here can read.
-    //
-    // ⚠️ THE SLOT-FOR-SLOT PART COMES FIRST, and it is held against BOTH files.
-    // `keyOf` answers the empty string for a section this file has no key
-    // field for, so a new section does not fail loudly by itself -- every one
-    // of its entries collapses onto one name. FR-032 added `confirmationMarks`
-    // exactly that way (the mark shown against a `Task` that HM-10 of table
-    // T-015a leaves drawn on another task group; CR-218 ruled the medium a word). ⛔ A
-    // roster typed twice would go stale in silence, so the check is a walk
-    // section by section, not a count.
-    //
-    // ⚠️ The GENERATED file is walked in its printed order, which the generator
-    // fixes; the MANUSCRIPT is walked by name, because nothing asks a hand-kept
-    // JSON to hold its sections in one order and a false red would teach the
-    // reader to stop believing this case.
+    // Why: keyOf answers the empty string for a section with no key field, so a new section fails
+    // only through this walk; the manuscript is walked by name, as its section order is free.
     expect(
       Object.keys(GENERATED),
       'the generated dictionary holds a section this file cannot key, or has lost one, or has re-ordered them',
@@ -3582,20 +2830,8 @@ describe('CR-194 section 5 / PND-160 -- fill one word of the manuscript and it r
   })
 
   it('⛔ FR-072 names no state of the panel for a word -> both files are read -> neither holds a section for a panel heading', () => {
-    // ⭐ THE ROSTER IS THE SPECIFICATION'S AND NOT THE MANUSCRIPT'S. Chapter 6.2
-    // (MUST NOT) says so: the manuscript holds words only, and the roster sits
-    // with the requirement that puts a word on the screen -- for the panel, that
-    // is FR-072. It now names no heading at all: 「プロパティパネルの先頭にタイトルバーを
-    // 置かないこと」. So the words
-    // for `selection`, `documentSettings` and `noSelection` have no roster to be
-    // raised from, and a dictionary that still holds them holds words for a part
-    // of the screen the requirement forbids.
-    //
-    // ⚠️ THIS IS THE LAST OF CR-272's THREE STEPS and it is the one the change
-    // request left open: 「⭐ **順序は「仕様 → 実装 → 辞書」であり、辞書を先に削ると
-    // `src/` が壊れる。**⚠️ **実装が入ったあと、`panelHeadings` の節を落として
-    // 260 → 254 になる。**」 ⛔ Falling here is that step not yet taken, and NOT a
-    // defect in the road -- the message says which file to look in.
+    // Why: the roster sits with the requirement that puts a word on the screen (Chapter 6.2), and
+    // FR-072 names no heading, so a held section would be words for a forbidden part.
     expect(
       Object.keys(GENERATED),
       'the generated dictionary still holds panelHeadings; FR-072 raises no roster for it',
@@ -3641,56 +2877,34 @@ describe('CR-194 section 5 / PND-160 -- fill one word of the manuscript and it r
   })
 
   it('holds a word for every row of table T-109 -> the two rosters are compared -> the icons section is that table', () => {
-    // FR-029 (MUST) makes table T-109 the whole of the icons, so a word missing
-    // from this section is a place the road cannot reach whatever is written.
     expect((GENERATED['icons'] ?? []).map((entry) => keyOf('icons', entry))).toEqual(
       T109.rows.map((row) => row.id),
     )
   })
 
   it('⛔ NT-7 (MUST NOT) gives its two answers no row of table T-109 -> that table is filtered on its surface column -> it stands nothing at all on U-55, and the confirmation section holds the two words instead', () => {
-    // ⛔ THE MUST NOT ITSELF: 「答えの入口に 表 T-109 の行を与えてはならない
-    // （MUST NOT）」. ⚠️ Driven off the manuscript and not off a list written
-    // here: the day a row of that table names U-55 again, this case goes red
-    // before anything downstream has to.
+    // Why: driven off the manuscript and not a list written here, so the day a T-109 row names U-55
+    // again this case goes red first.
     expect(ON_U_55, `table T-109 stands ${ON_U_55.join(' / ')} on ${U_55_CONFIRMATION}`).toEqual([])
-    // ⭐ AND THE WORDS HAVE SOMEWHERE ELSE TO BE: NT-7 (MUST) sends them to the
-    // `confirmation` section of this very dictionary, which is what makes the
-    // line above a move rather than a loss.
+    // Why: NT-7 sends the two words to the confirmation section, which makes the line above a move, not a loss.
     expect((GENERATED['confirmation'] ?? []).length).toBeGreaterThan(0)
   })
 
   it('FR-017 (MUST) gives the weekday a 段 of its own -> AT-17 s cell and the roster are read -> the seven stand in AT-17 s order, each with a word in each language', () => {
-    // ⭐ THE ONE CLAIM THIS FILE CAN MAKE ABOUT THE `weekdays` SECTION, and the
-    // reason omission 6 of the head comment is not the whole answer. Where the
-    // words are printed is UF-32's band, which PI-37 does not hand out -- but
-    // WHICH seven there are, and in WHAT ORDER, is fixed by the specification
-    // and is readable here.
-    //
-    // ⛔ AT-17 IS HELD FIRST, so this case is driven by the specification's own
-    // sentence rather than by the roster below it (Chapter 1.9). AT-17 of
-    // table T-058: 「週の始まりの曜日。…**`0` が日曜で、土曜の `6` まで 1 ずつ
-    // 増える**（正は Chapter 6.2 が指す公式 XSD）。」 ⚠️ Matched in Japanese
-    // because that sentence is the only place the specification states the
-    // numbering; there is no table of seven rows to read, and Chapter 6.2
-    // (MUST NOT) is why -- 「空の欄が並ぶだけで、規則を 1 つも述べない表になる」.
+    // Why: AT-17's own sentence is held first, so the case is driven by the spec and not the roster;
+    // it is matched in Japanese because that sentence is the only place the numbering is stated.
     expect(AT_17, 'AT-17 no longer numbers the weekdays from 0 = Sunday').toMatch(/`0` が日曜/)
     expect(AT_17, 'AT-17 no longer rises to 6 = Saturday').toMatch(/土曜の `6`/)
 
-    // ⛔ THE ORDER IS LOAD-BEARING, not cosmetic: `Project.weekStartDay` (AT-17)
-    // is stored as a number against this very numbering, so a roster in another
-    // order would have the ruler print Monday's word against Sunday's index.
+    // Why: the order is load-bearing: Project.weekStartDay is stored against this numbering, so
+    // another order would print Monday's word against Sunday's index.
     expect(
       (GENERATED['weekdays'] ?? []).map((entry) => keyOf('weekdays', entry)),
       'AT-17 of table T-058: 0 is Sunday and it rises by one to 6 for Saturday, and Project.weekStartDay is stored against that numbering',
     ).toEqual(AT_17_ORDER)
 
-    // FR-017 (MUST): the fourth tier holds a 段 that prints 曜日. ⛔ An empty cell here
-    // leaves that MUST unmet the way FR-032's mark does -- a weekday with no
-    // word prints no weekday -- and NOT the way PND-160 leaves a label to the
-    // user, which the fallback group is for. ⚠️ Held against the MANUSCRIPT,
-    // which Chapter 6.2 (MUST) makes the source; the case above already holds
-    // the generated file to it cell for cell.
+    // Why: an empty weekday cell leaves FR-017 unmet (no weekday printed), unlike a label left to the
+    // user; it is held against the manuscript, which Chapter 6.2 makes the source.
     const seven = MANUSCRIPT_CELLS.filter((cell) => cell.section === 'weekdays')
     expect(
       seven.filter((cell) => cell.word === '').map((cell) => `${cell.key}.${cell.field}.${cell.language}`),
@@ -3703,12 +2917,8 @@ describe('CR-194 section 5 / PND-160 -- fill one word of the manuscript and it r
   })
 
   it('the carriage group drives a dictionary of its own -> that copy is read back -> every cell of it holds a word that names only itself', () => {
-    // ⛔ THE GUARD ON THE CARRIAGE GROUP ITSELF. Its cases are worth their
-    // titles only while the copy they drive really holds a word in every
-    // cell: a `fillEveryWord` that skipped a section would leave them comparing
-    // a stand-in against a stand-in, which is the vacuity this file was
-    // repaired out of. ⚠️ And a word that named two cells would let a unit
-    // print the wrong one and pass.
+    // Why: the carriage cases are worth their titles only while the copy holds a word in every cell,
+    // and only while no word names two cells, or a unit printing the wrong one passes.
     const filledCells = cellsOf(FILLED as Dictionary)
 
     expect(
@@ -3728,10 +2938,8 @@ describe('CR-194 section 5 / PND-160 -- fill one word of the manuscript and it r
   })
 
   it('the words it fills with stand for nothing else -> the tree is searched -> no unit can be printing one of its own', async () => {
-    // ⚠️ The carriage group reads a sentinel as proof that the word came from
-    // the dictionary. That reading holds only while no unit could produce the
-    // same string on its own, so the shape is checked against the five units'
-    // own source rather than assumed.
+    // Why: a sentinel proves the word came from the dictionary only while no unit could produce
+    // the same string, so the shape is checked against the units' own source.
     const { readdirSync } = await import('node:fs')
     const dir = join(ROOT, 'src', 'adapter', 'screen-renderer')
     const inTheTree = readdirSync(dir)
@@ -3744,24 +2952,10 @@ describe('CR-194 section 5 / PND-160 -- fill one word of the manuscript and it r
   })
 
   it('FR-032 (MUST) shows its mark as a word -> the manuscript is read and every frame this file can build is put on the screen -> that word is written, and every word that IS written is printed on one of them in its own language', () => {
-    // ⭐ THE HALF RULING 06 ASKS FOR, and PND-160's row words it: 「原稿の 1 語
-    // を埋めると画面に届く試験」. ⛔ While every cell was empty the only way to
-    // say that was a guard that FELL the moment a word appeared (CR-194 section
-    // 5 item 2). A word has appeared, so the guard is now stated as the claim
-    // it stood in for -- ⛔ NOT as "no word is written", which would sleep
-    // through every word the user writes from here on.
-    //
-    // ⭐ NO MEMBER IS NAMED. FR-032's mark is printed by UF-67 (`notices.ts`),
-    // which this file may not read, so the claim is made against the WHOLE of
-    // what `screenViewFromRegions` (PI-37) hands out: the word has to be
-    // somewhere in it. That is weaker than pointing at one member and far
-    // stronger than nothing -- and ⭐ it cannot be shaped around an
-    // implementation it never reads, which is the point of rule 04 section 1.
+    // Why: no member is named: FR-032's mark is printed by a unit this file may not read, so the
+    // claim is made against the whole of what screenViewFromRegions (PI-37) hands out.
 
-    // FR-032 (MUST): a `Task` that goes with the task group but is drawn on another
-    // task group is SHOWN as such, and CR-218 settles the medium as a word. ⛔ Unlike
-    // the cells PND-160 leaves to the user, an empty cell here leaves that MUST
-    // unmet -- an empty word shows nothing.
+    // Why: an empty mark cell leaves FR-032 unmet, since an empty word shows nothing.
     const mark = MANUSCRIPT_CELLS.filter((cell) => cell.section === 'confirmationMarks')
     expect(
       mark.length,
@@ -3774,33 +2968,11 @@ describe('CR-194 section 5 / PND-160 -- fill one word of the manuscript and it r
 
     const written = MANUSCRIPT_CELLS.filter((cell) => cell.word !== '')
 
-    // ⭐ WHICH WRITTEN CELLS THIS CASE CAN HOLD TO A FRAME, now that the
-    // manuscript is nearly full rather than nearly empty. Every cell this file
-    // NAMES A PLACE FOR -- and, for the sections whose member it may not name
-    // (omission 2 of the head comment), the cells NT-7's own surface prints:
-    // the two answers, FR-032's mark, and the words of the entries table T-109
-    // stands on U-55.
-    //
-    // ⛔ A STATED OMISSION IS OUT, AND OUT BY NAME. `DROPPED` is this file's
-    // own record of the cells it can raise no frame for -- an entry table T-109
-    // says is not pressed, one whose surface belongs to a unit this file may
-    // not read, a row of table T-023 whose surface is not assembled yet. Asking
-    // arrival of those would be asking this file to disprove the scope it
-    // declared, and the answer would be "no frame prints it" for a reason that
-    // is nothing to do with the road. ⚠️ THE CASE ABOVE IS WHAT KEEPS THAT LIST
-    // HONEST: an entry that is neither a place nor a stated omission fails
-    // there, so nothing can slip out of this loop by being forgotten.
+    // Why: a stated omission (DROPPED) is out by name, since asking arrival of it would disprove the
+    // declared scope; the case above fails any entry that is neither a place nor stated.
     const stated = new Set(DROPPED.map((one) => `${one.section}.${one.key}`))
-    // ⭐ THE STATED OMISSIONS THIS FILE CAN STILL RAISE A FRAME FOR. A cell whose
-    // MEMBER is UF-67's is named nowhere here, but the surface it stands on can
-    // be put on the screen -- NT-7's question for the two answers and FR-032's
-    // mark, and now a telling per row of table T-233 for the words FR-076 (MUST)
-    // makes every reason carry. ⛔ So being dropped for want of a member is not
-    // being let off the arrival claim.
-    // ⭐ AND THE TWO SECTIONS CR-280 RAISED. `fileStatus` stands in the App
-    // Header (FR-101, MUST) and `exportFormats` on the chooser FR-096 (MUST)
-    // opens; both are dropped for want of a member this file may name, not for
-    // want of a frame, so both stay owed the arrival claim.
+    // Why: dropped for want of a member is not let off arrival: the surfaces of NT-7, FR-032, T-233,
+    // fileStatus (FR-101) and exportFormats (FR-096) can still be raised whole.
     const reachedByTheWholeView = (cell: Cell): boolean =>
       cell.section === 'confirmation' ||
       cell.section === 'confirmationMarks' ||
@@ -3834,10 +3006,8 @@ describe('CR-194 section 5 / PND-160 -- fill one word of the manuscript and it r
     for (const cell of owed) {
       const at = `${cell.section}.${cell.key}.${cell.field}`
 
-      // ⭐ The arrival itself: one of the frames prints exactly this word.
-      // Step: a helpNotes word rides on its own row's entry text (FR-036).
-      // Step: a scaleEcho word rides after the value and % of SE-2's one message (CR-411).
-      // Step: a reason word prints S-350 where it names the {downloadUrl} seat (FR-073).
+      // Why: a reason word is matched with S-350 printed in its {downloadUrl} seat (FR-073), and a
+      // helpNotes or scaleEcho word on the frames that carry its row's text or SE-2's message.
       const printed = withSettingValues(withDownloadAddress(cell.word))
       const on =
         cell.section === 'helpNotes'
@@ -3876,22 +3046,8 @@ describe('CR-194 section 5 / PND-160 -- fill one word of the manuscript and it r
           'or the word is printed by a frame this file does not know how to raise.',
       ).toBeGreaterThan(0)
 
-      // ⭐ And it arrives BECAUSE of the language, not by luck: FR-038 (MUST)
-      // shows the words in the language the reader chose, so a frame that
-      // prints this one when the other language is asked for is not reading
-      // the dictionary by language at all. ⚠️ Only checked where the entry
-      // really holds two different words -- a repeated word is legitimate.
-      //
-      // ⛔ AND ONLY FOR THE CELLS WITH NO NAMED PLACE. For a cell this file
-      // names a place for, the carriage group's third case already holds that
-      // place to the written word in EACH language, which is the same claim
-      // made against ONE member instead of against every string in the view.
-      // ⚠️ Made here too, the whole-view reading turns false the moment a word
-      // is spelled like something the view carries untranslated: the settled
-      // names of table T-103 travel on `openModal.surface` in either language,
-      // and one entry's English word is spelled exactly like the surface it
-      // opens. That is FR-038 working, not failing -- table T-103 holds names,
-      // not screen text.
+      // Why: checked only for cells with no named place and two different words: a named place is held
+      // per language above, and settled T-103 names travel untranslated in the whole view.
       if (PLACES.some((one) => one.section === cell.section && one.key === cell.key)) continue
       for (const other of LANGUAGES.filter((one) => one !== cell.language)) {
         const twin = MANUSCRIPT_CELLS.find(
@@ -3912,37 +3068,16 @@ describe('CR-194 section 5 / PND-160 -- fill one word of the manuscript and it r
       }
     }
   },
-  // ⛔ NOT THE DEFAULT 5 SECONDS, and the number is a measurement rather than
-  // a wish. This case builds every frame it can raise and reads every cell of
-  // the manuscript against them, so its cost is words x frames -- and both
-  // sides grow as the specification does: CR-279 alone took the dictionary
-  // from 273 words to 330, which is what pushed it past the default.
-  // ⚠️ Raising it is right and narrowing the sweep would not be: the claim IS
-  // that EVERY written word reaches a screen, and a sample would let the one
-  // that does not through.
-  // ⛔⛔ 20_000 WAS NOT ENOUGH ONCE THE MACHINE WAS BUSY. Measured
-  // 2026-09-05: this case costs 9.13s when the file runs alone, so twenty
-  // seconds is barely twice its own cost, and in a full run -- where every
-  // other file is competing for the same cores -- it timed out. That is the
-  // third shape DFC-255 takes: not a torn read and not an empty one, just a
-  // read that does not finish in time. ⭐ The budget is four times the
-  // measured solo cost now, which is room for a loaded machine rather than
-  // a wish that the machine will be idle (re-measured 2026-09-25: 18s solo).
-  // DFC-1024: re-measured 2026-10-08 at 34s solo, and 80s timed out under load.
+  // Why: the sweep builds every frame for every written word, so its cost is words x frames;
+  // the budget is room for a loaded machine, and narrowing the sweep would let a word through.
   300_000,
   )
 })
 
-// ---------------------------------------------------------------------------
-// The filled copy the acceptance case stands in place of the dictionary.
-// ---------------------------------------------------------------------------
-
-/** A word that stands for one cell and for nothing else. */
 function sentinel(section: string, key: string, field: string, language: string): string {
   return `<word ${section}.${key}.${field}.${language}>`
 }
 
-/** The dictionary with every cell filled by the word that names it. */
 function fillEveryWord(dictionary: Dictionary): Record<string, unknown> {
   const out: Record<string, unknown> = {}
   for (const [section, entries] of Object.entries(dictionary)) {

@@ -20,6 +20,7 @@ import { unbroken } from './spec-table'
 
 const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
+// Spec: IMPS-1941
 // Why: each constant ends exactly at its marker, cut from the manuscript as check 39 reads it.
 const FR_003_LANES = '日程抽出（`FR-151` の 表 T-353）している間、`GRS` は、描くタスクだけで段を割り当てること。'
 const TD_8_KEEPS_TREE_STATE = '⛔ この条件のために `treeState` を書き換えてはならない（MUST NOT）'

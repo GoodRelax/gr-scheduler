@@ -18,4 +18,5 @@
 no-parent 3
 no-child 0
 leaf-unbuilt 44
-below-unbuilt 2334
+# LOWERED below-unbuilt 2334 -> 2327 on 2026-11-27 (B11b): tests now name traces rows in // Spec: lines; measured on e053fb30a plus this commit.
+below-unbuilt 2327

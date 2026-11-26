@@ -23,6 +23,7 @@ const SEVERAL_TASK_GROUPS_ARE_REFUSED =
   'もし貼り付け先の選択にタスクグループが 2 つ以上ある場合、`GRS` は、貼り付けを受け付けないこと。'
 const THE_REASON_IS_RS_27 = 'もし貼り付け先の選択にタスクグループが 2 つ以上ある場合、`GRS` は、行えない理由を、`FR-029` のとおり、`FR-029` の落ち先の `RS-27` として通知の仕組みへ運ぶこと。'
 const A_REASON_IS_A_T_233_ROW = '`GRS` は、通知が運ぶ理由を 表 T-233 の行とすること。'
+// Spec: IMPS-1132
 const A_HIDDEN_REASON_STANDS_NO_CARD =
   '表示の仕方が「出さない」の理由が上がったとき、`GRS` は通知の欄に 1 枚を立てないこと。`GRS` は、`Agent API` の拒否の値（表 T-035 の `AG-9a`）に、「出さない」の理由の行を運ぶこと。'
 const SAME_TASK_GROUP = '`Task` を単独で（タスクグループごとではなく）貼り付けたとき、`GRS` は、`IMPS-287` の場合を除き、複製した各 `Task` を、複製元と同じタスクグループに載せること。'

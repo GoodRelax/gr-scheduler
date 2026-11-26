@@ -58,6 +58,7 @@ const printedTransitions = (): readonly { readonly state: string; readonly event
 
 const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
+// Spec: IMPS-778
 const FR_018_BY_T_328 =
   '`GRS` は、`treeState` の値を書き換える入口と先の値を、段 0 の折りたたみ（`_assets/tbl-settings.md` の 表 T-203 の `S-418`）を含めて、`_assets/tbl-state-machines.md` の 表 T-328 に従わせること。'
 const FR_018_NO_OTHER_WRITER = '`GRS` は、表 T-328 に無い操作で `treeState` の値を書き換えないこと。'

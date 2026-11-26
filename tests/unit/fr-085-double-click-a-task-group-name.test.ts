@@ -1,58 +1,4 @@
-// FR-085 (MUST) as the user ruled it on 2026-09-01: 「タスクグループ名をダブル
-// クリックしたら、プロパティパネルを開き、タスクグループ名編集モードとせよ。編集後
-// Enter でプロパティーパネルを閉じれ」「(タスク名編集モードと同様の動作)」.
-//
-// The requirement now reads: 「タスクグループ名を変える経路は、タスクグループパネルでその名前を
-// ダブルクリックすること（表 T-023 の `MK-13`）とし、`GRS` はプロパティパネルを出
-// し、名前の欄（`AT-53`）を編集できる状態にして焦点を置き、既にある文字をすべて選
-// んだ状態にすること（MUST）」.
-//
-// ⛔ THE `Enter` IS NOT A NEW RULE, AND NO CASE HERE MINTS ONE. SK-19 of table
-// T-036 already puts the panel away on an `Enter` raised with no unsettled edit
-// standing, and FR-085 (MUST NOT) forbids restating it -- so what these cases
-// ask is that the task group's name arrives on the very panel SK-19 already closes.
-// tests/unit/fr-072-a-moved-selection-does-not-open-the-panel.test.ts owns that key.
-//
-// Unit under test: UF-48 of table T-075 (`frame-loop.ts`, component CP-25 of
-// table T-062). It is the layer that holds the current values (LY-5 of table
-// T-060), so putting the panel up and asking for the field are both its answer.
-//
-// ⚠️ Chapter 9 does not admit Unit as a TEST_LEVEL, so these cases have no node
-// in the specification. Table T-218 of Chapter 7 gives them their place: TS-6,
-// tests/unit/.
-//
-// ---------------------------------------------------------------------------
-// ⛔ WHY THIS FILE EXISTS -- MEASURED, NOT ASSUMED
-// ---------------------------------------------------------------------------
-//
-// On 2026-09-01 a probe drove the shipped `dist/index.html`: a double click on a
-// task group's name in the `Task Group Panel` DID put the panel up, and the panel held
-// exactly two fields, `AT-58` and `AT-59`. No name. Nothing focused
-// (`document.activeElement` was BODY). ⇒ The gap was a MISSING FIELD first, and
-// the missing focus and the missing commit followed from it. That is the
-// ledger's DFC-180.
-//
-// ---------------------------------------------------------------------------
-// The rules these cases answer to
-// ---------------------------------------------------------------------------
-//
-//   FR-085   the sentence quoted above (MUST), and 「タスクグループ名を変える経路は …
-//            ダブルクリックすること」.
-//   FR-042   ⭐ 「タスクグループ名（`AT-53`）もこのパネルで編集できるようにすること
-//            （MUST）」 -- the 2026-09-01 ruling overrode 「タスクグループ名はここで扱わ
-//            ない」. ⛔ 「タスクグループを選んだだけで名前の欄へ焦点を移してはならない
-//            （MUST NOT）」.
-//   T-023    MK-13's タスクグループ見出し entry.
-//   T-036    SK-19, which closes the panel and is NOT restated here.
-//   AT-53    `TaskGroup.name`, the task group's name.
-//
-// ⛔ WRITTEN FROM docs/spec AND NOTHING ELSE (docs/development-rules/
-// 04-verification.md section 1). What was read of `src/`: the exported
-// declarations named in the imports below. ⛔ NO FUNCTION BODY WAS READ.
-//
-// ⭐ THE DOCUMENT, THE HOST, THE PANE AND THE STAGE ARE COPIED from
-// tests/unit/fr-072-a-moved-selection-does-not-open-the-panel.test.ts, which drives this
-// same unit through the same seams.
+// Unit tests: a double click on a task group name opens the panel at the name field.
 
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -82,11 +28,7 @@ import {
 } from '../../src/framework/single-html-shell/frame-loop'
 import { bare, specTable, unbroken } from '../contract/spec-table'
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
-// ---------------------------------------------------------------------------
-// What the manuscript says, read at run time rather than copied
-// ---------------------------------------------------------------------------
+/* eslint-disable @typescript-eslint/no-explicit-any -- the document is read as untyped JSON */
 
 const rowOf = (table: string, id: string) => {
   const found = specTable(table).rows.find((row) => row.id === id)
@@ -94,7 +36,7 @@ const rowOf = (table: string, id: string) => {
   return found
 }
 
-/** U-27 of table T-103 -- the settled spelling of the `Task Group Panel`. */
+// Spec: T-103, U-27
 const TASK_GROUP_PANEL = ((): string => {
   const found = specTable('T-103').rows.find(
     (row) => bare(row.by['確定名（英）'] ?? '') === 'Task Group Panel',
@@ -103,7 +45,7 @@ const TASK_GROUP_PANEL = ((): string => {
   return bare(found.by['確定名（英）'] ?? '')
 })()
 
-/** Everything MK-13 writes, as one string. */
+// Spec: T-023, MK-13
 const MK_13 = rowOf('T-023', 'MK-13').cells.join(' ')
 
 const REQUIREMENTS = unbroken(readFileSync(
@@ -111,22 +53,19 @@ const REQUIREMENTS = unbroken(readFileSync(
   'utf8',
 ))
 
-/** FR-085's sentence these cases stand on, quoted from the manuscript. */
+// Spec: FR-085
 const FR_085_THE_RENAME_PATH =
   'タスクグループパネルでタスクグループ名をダブルクリックしたとき（表 T-023 の `MK-13`）、`GRS` はプロパティパネルを出すこと。'
-/** FR-042's, the half that puts the name on the panel at all. */
+// Spec: FR-042
 const FR_042_THE_NAME_IS_ON_THE_PANEL =
   '`GRS` は、タスクグループ名（`_assets/fig-erd-detail.md` の `AT-53`）もプロパティパネルで編集できるようにすること。'
-/** ⛔ The one it overrode. It may stand as history, never as a live rule. */
+// Why: FR-042 overrode this note; it may stay quoted as history, never as a
+// live rule.
 const THE_OVERRIDDEN_SENTENCE =
   '⚠️ **タスクグループ名はここで扱わない** —— 名前を付ける・変える入口は `FR-085` のタスクグループパネル 1 つとする（`FR-029`）。'
 
-/**
- * `AT-53` -- the task group's name, read out of the ERD rather than typed.
- *
- * ⭐ THE ROW ID IS THE JOIN across IF-9 (`focusPropertyField` takes one), so it
- * is read from the table that owns it and asserted to be `TaskGroup.name`.
- */
+// Why: AT-53 is read from the ERD, not typed, because the row ID is the join
+// across IF-9 (focusPropertyField takes one).
 const TASK_GROUP_NAME_FIELD = ((): string => {
   const detail = unbroken(readFileSync(
     join(process.cwd(), 'docs', 'spec', '_assets', 'fig-erd-detail.md'),
@@ -139,11 +78,6 @@ const TASK_GROUP_NAME_FIELD = ((): string => {
   return id
 })()
 
-
-// ---------------------------------------------------------------------------
-// The document these cases drive. Copied from
-// tests/unit/fr-072-a-moved-selection-does-not-open-the-panel.test.ts.
-// ---------------------------------------------------------------------------
 
 const TEMPLATE = JSON.parse(
   readFileSync(
@@ -196,10 +130,6 @@ function twoTaskGroupDocument(): Document {
   } as unknown as Document
 }
 
-// ---------------------------------------------------------------------------
-// The host UF-48 is given. Copied from the same file.
-// ---------------------------------------------------------------------------
-
 const SCREEN: FrameEnvironment = {
   width: 1400,
   height: 800,
@@ -209,10 +139,6 @@ const SCREEN: FrameEnvironment = {
 
 const realRaf = (globalThis as any).requestAnimationFrame
 
-/**
- * ⚠️ THE HOST IS A FAKE, AND THE FAKE IS NOT THE TEST (R6.3). Nothing in it
- * decides anything about the panel or the field.
- */
 function host(): { readonly surface: { showSvg(svg: string): void; showMarqueeOverlaySvg(svg: string): void }; runAnimationFrames(): void } {
   const waiting: ((time: number) => void)[] = []
   let handle = 0
@@ -235,7 +161,6 @@ interface ScreenPane {
   readonly wiring: ScreenWiring
   drawAt(part: ScreenPart | null): void
   last(): ScreenView
-  /** Every row `focusPropertyField` was asked for, in order. */
   focusAsks(): readonly string[]
 }
 
@@ -251,9 +176,8 @@ function screenPane(language: DisplayLanguage = 'ja'): ScreenPane {
     readScreenPartAt: () => part,
   }
   return {
-    // ⭐ THE SEAM MEMBER IS OPTIONAL, so a fake that did not carry it would let
-    // the whole of MK-13's second half go missing in silence. It is filled here
-    // for exactly that reason -- the shell's own note says nothing else watches it.
+    // Trap: focusPropertyField is optional; a fake without it would let the focus
+    // ask of MK-13 go missing in silence.
     wiring: { surface, language, focusPropertyField: (row) => asked.push(row) },
     drawAt: (next) => {
       part = next
@@ -271,10 +195,6 @@ afterEach(() => {
   if (realRaf === undefined) delete (globalThis as any).requestAnimationFrame
   else (globalThis as any).requestAnimationFrame = realRaf
 })
-
-// ---------------------------------------------------------------------------
-// Spelling one happening
-// ---------------------------------------------------------------------------
 
 const NO_MODIFIERS: InputModifiers = { ctrl: false, shift: false, alt: false, meta: false }
 
@@ -298,10 +218,8 @@ interface Stage {
   readonly screen: ScreenPane
   send(input: HumanInput): void
   panel(): PropertiesPanel | null
-  /** Aim the next press at one task group of the `Task Group Panel`, on its name. */
   aimAtTaskGroup(taskGroupId: string): void
   aimAtNothing(): void
-  /** The name the document holds for one task group. */
   labelOf(taskGroupId: string): string | null
 }
 
@@ -319,9 +237,8 @@ function stage(): Stage {
     screen,
     send,
     panel: () => screen.last().propertiesPanel,
-    // ⚠️ `entry` IS NULL, which is what a press on the task group's NAME is: the three
-    // controls table T-051 draws on a task group each carry a row of table T-109, and
-    // the name carries none.
+    // Why: entry is null because that is a press on the name: each control T-051
+    // draws on a task group carries a T-109 row, and the name carries none.
     aimAtTaskGroup: (taskGroupId) => {
       screen.drawAt({
         part: TASK_GROUP_PANEL,
@@ -342,7 +259,6 @@ function stage(): Stage {
   }
 }
 
-/** One plain press on a task group -- FR-085's choosing, and nothing more. */
 function pressRow(built: Stage, taskGroupId: string): void {
   built.aimAtTaskGroup(taskGroupId)
   built.send(pointer('down', 80, 200))
@@ -350,15 +266,8 @@ function pressRow(built: Stage, taskGroupId: string): void {
   built.aimAtNothing()
 }
 
-/**
- * MK-13 on a task group's name: the double click FR-085 makes the rename path.
- *
- * ⛔ BOTH CLICKS ARE SENT, WHICH IS WHAT A BROWSER DELIVERS. The first carries
- * `clickCount: 1` and is the press that chooses the task group (FR-085); the second
- * carries 2 and is MK-13's. ⚠️ A case that sent only the second would be asking
- * the shell to choose a task group AND rename it on one press, which the branch says in
- * as many words it does not do -- and it would pass or fail for the wrong reason.
- */
+// Why: both clicks are sent, as a browser delivers them: clickCount 1 chooses
+// the task group and clickCount 2 is MK-13's.
 function doubleClickTaskGroupName(built: Stage, taskGroupId: string): void {
   built.aimAtTaskGroup(taskGroupId)
   built.send(pointer('down', 80, 200))
@@ -368,41 +277,28 @@ function doubleClickTaskGroupName(built: Stage, taskGroupId: string): void {
   built.aimAtNothing()
 }
 
-/** The field the panel drew for one row of table T-058, or undefined. */
 const fieldOf = (panel: PropertiesPanel | null, row: string) =>
   panel?.fields.find((one) => one.row === row)
 
-// ===========================================================================
-
 describe('the manuscript still says what these cases read', () => {
   it('⭐ FR-085 states the rename path, and MK-13 names the タスクグループ見出し', () => {
-    // GOES RED IF: the ruling of 2026-09-01 is reversed, or MK-13 stops naming
-    // the task group title as one of its destinations.
     expect(REQUIREMENTS).toContain(FR_085_THE_RENAME_PATH)
     expect(MK_13).toContain('タスクグループ見出し')
   })
 
   it('⛔ FR-042 now puts the task group name on the panel, and the sentence it overrode is gone', () => {
-    // ⚠️ THE OVERRIDE ITSELF. FR-042 keeps the old wording INSIDE quotation
-    // marks as history; what may not stand again is the ⚠️-marked note it used
-    // to be.
-    // GOES RED IF: someone reads the recorded history as a live rule.
     expect(REQUIREMENTS).toContain(FR_042_THE_NAME_IS_ON_THE_PANEL)
     expect(REQUIREMENTS).not.toContain(THE_OVERRIDDEN_SENTENCE)
   })
 
   it('⭐ AT-53 is `TaskGroup`.`name`, read from the ERD and not typed', () => {
-    // GOES RED IF: the row a name lives on is renumbered, which would send the
-    // focus at a row the panel does not draw.
     expect(TASK_GROUP_NAME_FIELD).toBe('AT-53')
   })
 })
 
+// Spec: FR-042, FR-072, AT-53
 describe('FR-042 (MUST): the task group s name is a field of the panel', () => {
   it('⭐ the panel a chosen task group puts up carries AT-53, editable, with the name in it', () => {
-    // ⭐ THE MEASURED GAP OF 2026-09-01, ASKED AT THE UNIT: the shipped panel
-    // held AT-58 and AT-59 and no name at all.
-    // GOES RED IF: AT-53 leaves `GROUP_ITEMS`, or arrives read-only.
     const built = stage()
     doubleClickTaskGroupName(built, ALPHA)
 
@@ -413,19 +309,12 @@ describe('FR-042 (MUST): the task group s name is a field of the panel', () => {
   })
 
   it('⭐ it stands FIRST, where the most frequently touched item goes', () => {
-    // FR-072's RATIONALE puts the most frequently touched item at the top --
-    // 「落とした高さは、最も頻繁に触る項目が上へ来るぶんである」 -- which is the
-    // place PR-1 takes among a Task's.
-    // GOES RED IF: the name is appended after the color and the height.
     const built = stage()
     doubleClickTaskGroupName(built, ALPHA)
     expect(built.panel()?.fields[0]?.row).toBe(TASK_GROUP_NAME_FIELD)
   })
 
   it('⚠️ the color and the height are still there beside it', () => {
-    // ⛔ THE RULING ADDED A FIELD AND TOOK NONE AWAY. FR-042's first sentence
-    // still (MUST) puts the task group's color and height on this panel.
-    // GOES RED IF: the name is put in place of one of them.
     const built = stage()
     doubleClickTaskGroupName(built, ALPHA)
     const rows = built.panel()?.fields.map((one) => one.row) ?? []
@@ -434,14 +323,13 @@ describe('FR-042 (MUST): the task group s name is a field of the panel', () => {
   })
 })
 
+// Spec: FR-085, MK-13, FR-042, FR-031, UN-3
+// Why: no case presses Enter: SK-19 already puts the panel away, and FR-085
+// forbids restating it here.
 describe('FR-085 (MUST): a double click on the name opens the panel at that field', () => {
   it('⭐ puts the panel up and asks for AT-53', () => {
-    // ⭐ THE RULING, MEASURED AT THE UNIT: 「プロパティパネルを開き、タスクグループ
-    // 名編集モードとせよ」. The focus itself belongs to the side that drew the
-    // control (LR-6), so what this unit owes is the ASK -- and the seam member
-    // it travels on is optional, which is why nothing else would notice it going.
-    // GOES RED IF: the double click stops reaching `editInPlace`, or the ask is
-    // sent for PR-1 (a Task's name) on a task group.
+    // Why: the focus itself belongs to the side that drew the control (LR-6), so
+    // this unit owes only the ask.
     const built = stage()
     doubleClickTaskGroupName(built, ALPHA)
 
@@ -450,20 +338,14 @@ describe('FR-085 (MUST): a double click on the name opens the panel at that fiel
   })
 
   it('⛔ a single press chooses the task group and asks for no field (FR-042, MUST NOT)', () => {
-    // ⚠️ THE CONTROL CASE, and a rule of its own: 「タスクグループを選んだだけで名前の欄へ焦点
-    // を移してはならない（MUST NOT）」. Without it, a shell that asked for the
-    // field on EVERY press on a task group would pass the case above.
-    // GOES RED IF: the ask is hung on the press rather than on the double click.
+    // Why: the control case: a shell that asked for the field on every press
+    // would otherwise pass the case above.
     const built = stage()
     pressRow(built, ALPHA)
     expect(built.screen.focusAsks(), 'a plain press asks for no field').toEqual([])
   })
 
   it('⭐ the panel turns to the task group that was double clicked', () => {
-    // ⛔ NOTHING IS CHOSEN BY THE SECOND CLICK: the first one already moved the
-    // chosen task groups, so the panel shows what was pressed. A second task group double
-    // clicked after the first must move the panel with it.
-    // GOES RED IF: the panel keeps the task group the FIRST double click chose.
     const built = stage()
     doubleClickTaskGroupName(built, ALPHA)
     expect(fieldOf(built.panel(), TASK_GROUP_NAME_FIELD)?.text).toBe(ALPHA_NAME)
@@ -472,10 +354,8 @@ describe('FR-085 (MUST): a double click on the name opens the panel at that fiel
   })
 
   it('⛔ the press itself writes nothing to the document', () => {
-    // ⚠️ THE NAME IS WRITTEN BY THE FIELD S COMMIT AND NOT BY THIS PRESS. A
-    // double click that wrote would put a step on the undo history for an edit
-    // nobody made (FR-031 with UN-3 of table T-027).
-    // GOES RED IF: the branch mints a `setTaskGroupName` on the press.
+    // Why: the name is written by the field's commit; a press that wrote would put
+    // a step on the undo history for an edit nobody made.
     const built = stage()
     doubleClickTaskGroupName(built, ALPHA)
     expect(built.labelOf(ALPHA)).toBe(ALPHA_NAME)

@@ -35,6 +35,7 @@ const A_MOMENT = '2026-10-04T09:00:00'
 // Spec: FR-057, CM-39
 const FR_057_STAMPS =
   '`CM-39`（`_assets/tbl-document-commands.md` の 表 T-108）を受けて文書へ書く側は、例外日の `fromDate` ／ `toDate` のうち、足した行と日の動いた列だけを `WT-6` ／ `WT-7` の時刻で書くこと。'
+// Spec: IMPS-910
 const FR_057_KEEPS =
   '`CM-39` を受けて文書へ書く側は、元の行（同じ `ordinal`、`_assets/fig-erd-detail.md` の `AT-77`）と日で比べて同じ列では、元の行の字面を保つこと（`WT-10`）。'
 const CM_39_POINTS = '例外日の `fromDate` ／ `toDate` の時刻は、本命令を受けて文書へ書く側が揃える'

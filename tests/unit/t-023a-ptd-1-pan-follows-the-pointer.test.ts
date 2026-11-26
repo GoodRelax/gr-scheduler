@@ -1,138 +1,6 @@
-// `PTD-1` of 表 T-023a, as the user's ruling of 2026-08-29 left it: while the
-// button is DOWN, the schedule follows the pointer in BOTH axes -- and the
-// distance it travels is still the one 表 T-023d states, 等倍.
-//
-// The unit these arrive on is UF-48 `single-html-shell` (CP-25 of table T-062),
-// whose `frame-loop.ts` takes FT-1 of table T-078 -- 人の入力（ポインタとキー）
-// -- on `receiveInput`, and answers what one frame computed on `current()`.
-//
-// ---------------------------------------------------------------------------
-// WHERE TABLE T-218 PUTS THIS FILE, AND WHY IT IS NOT A LIVE CASE
-// ---------------------------------------------------------------------------
-// Table T-218 of Chapter 7 offers a rule about what the screen shows exactly
-// two homes: `TS-3` (System, `tests/system/`, Playwright) and `TS-6` (Unit,
-// `tests/unit/`, Vitest). ⛔ `TS-3` is not available to this rule. Every case
-// under it is a `SW_SPEC_TEST` of Chapter 9 and `TW-2` of table T-219 requires
-// each one to take an `SWS-xxx` of Chapter 6.1 as its PARENT -- and Chapter 6.1
-// holds eight `SW_SPEC` nodes, none of which reaches a pan:
-//
-//   SWS-1 目盛の刻みの間隔      SWS-5 イナズマ線の頂点
-//   SWS-2 タスクグループの帯高と縦位置      SWS-6 MSPDI の正規化
-//   SWS-3 依存線の経路          SWS-7 書き出した SVG の正規化
-//   SWS-4 描くものの頂点        SWS-8 単一 HTML の内容セキュリティ方針
-//
-// ⛔ A node was NOT invented for it. `TS-6` of table T-218 carries no
-// test node (JDG-606), and whether a unit case is written is decided by
-// the omission rows of rule 04 (table UO), not by a receptacle in the
-// specification. So the case is
-// written here, where it can be measured honestly: what `PTD-1` requires is that
-// the drawing move while the button is held, and `FrameLoop.current()` answers
-// the drawing this loop just made.
-//
-// ---------------------------------------------------------------------------
-// ⛔ WRITTEN FROM docs/spec, AND WHAT WAS READ OF `src/` IS NAMED HERE
-// ---------------------------------------------------------------------------
-// (docs/development-rules/04-verification.md section 1: 読んでよいのは冒頭の
-// 宣言・公開する型・署名まで.)
-//
-// Exported declarations and head comments read, and nothing else:
-//   frame-loop.ts        `FrameEnvironment`, `FrameValues`, `FrameLoop`,
-//                        `ScreenWiring`, and the one signature
-//                        `frameLoop(surface, first, env, screen?, files?,
-//                        showPointerShape?)`
-//   input-source.ts      `HumanInput`, `InputModifiers`, `PointerButton`,
-//                        `PointerInput`, `PointerPhase`
-//   screen-renderer.ts   `DisplayLanguage`, `ScreenPart`, `ScreenSurface`,
-//                        `ScreenView`
-//   schedule-geometry.ts `Point`, `BarGeometry`, `TaskGeometry`
-//   schedule-layout.ts   `ScheduleLayout` (`pxPerDay`, `taskGroups`)
-//   schedule-entities.ts          the entity types this fixture writes out
-//
-// ⛔ NOT ONE NUMBER BELOW IS COPIED OUT OF `src/`. Every expected value is
-// either read out of the manuscript at run time (`specTable`, the two sentences
-// found by their own words), or stated as a RELATION between two things the
-// specification puts side by side: the picture against the pointer that carried
-// it, and the picture against itself one move later.
-//
-// ---------------------------------------------------------------------------
-// THE ROWS THESE CASES REST ON
-// ---------------------------------------------------------------------------
-//   T-023a       「上から評価し、最初に成立した行で確定すること（MUST）」
-//   T-023a PTD-1  「中ボタンドラッグ、または **`Ctrl` だけを伴う**左ドラッグ |
-//           **パン。** 構えと当たりによらず優先する。**握っているあいだ、縦横の
-//           両方向でポインタに追従させること（MUST）**（利用者の裁定
-//           2026-08-29）—— ⛔ **離すまで動かないと、掴めていないのと見分けが
-//           つかない**（`FR-053` の掴み帯が同じ理由を持つ）。⚠️ **距離は
-//           表 T-023d の「パンは等倍とすること（MUST）」のままである** ——
-//           **追従は絵の話であって、距離の規則を変えるものではない**」
-//   T-023a PTD-3  「**何かに当たった**（判定の順と優先は MK-9a）| **そのものへの
-//           操作。**」-- the row PTD-1 outranks, which is what 構えと当たりに
-//           よらず優先する means and what the last case below drives.
-//   T-023d  「**パンは等倍とすること（MUST）** —— ポインタが動いた距離だけ
-//           日程表が動く。倍率を掛けない。⛔ **錠の上にしか着地できない形に
-//           してはならない（MUST NOT）** —— `_assets/tbl-settings.md` の
-//           表 T-203 の `S-77` と `S-78` は日付とタスクグループの識別子しか持てないので、
-//           それだけでは 1 日・タスクグループ 1 つより短い移動が何も起こさず、等倍が成り立た
-//           ない。**端数は同表の `S-176` と `S-177` が持つ（MUST）。**」
-//   T-206 / T-203 S-176 / S-177   the two fractions that sentence leans on:
-//           「表示の上端が、`scrollTaskGroupId` が指すタスクグループのどこにあるか。**そのタスクグループが
-//           占める送り（そのタスクグループの帯の高さと、その下の隙間を合わせた長さ。次のタスクグループの
-//           上端までの距離であり、最後のタスクグループは自身の帯）に対する比であり、px では
-//           ない**（`FR-080`）。⛔⛔ **帯の高さに対する比にしてはならない
-//           （MUST NOT）** —— **帯と帯は接していない**ので、帯に対する比では隙間
-//           に立つ上端を名指せず、表 T-023d の「**錠の上にしか着地できない形に
-//           してはならない（MUST NOT）**」を破る」 and 「⭐ **横の軸の `S-176`
-//           である**」
-//   T-023 MK-7   「**`Ctrl` だけを伴う**ドラッグ / 中ボタンドラッグ | 表 T-023a
-//           の `PTD-1`」 -- the two gestures every case below is run through.
-//
-// ---------------------------------------------------------------------------
-// WHAT IS DELIBERATELY NOT ASSERTED
-// ---------------------------------------------------------------------------
-//   - WHAT THE DOCUMENT HOLDS DURING OR AFTER A PAN. `FR-031` says outright
-//     「文書を変えないドラッグ（パン・範囲選択）は段を作らない」 and `UN-8` of
-//     table T-027 puts the scroll position outside the history, so where the
-//     four scroll columns stand mid-drag is not a thing `PTD-1` settles. What is
-//     asserted is the PICTURE, which is what the row speaks of.
-//   - WHAT HAPPENS AT THE EDGES OF THE DOCUMENT. Nothing in the specification
-//     states whether a pan is stopped at the first day or the first task group, so the
-//     fixture starts the view in the MIDDLE of its own content and every case
-//     travels a few days and half a task group -- distances no reading of an edge rule
-//     could reach.
-//   - THE PIXEL AT WHICH THE POINTER SHAPE CHANGES (`IN-2`), and whether the
-//     browser's own default is stopped (`MK-10`). Both have owners of their
-//     own and neither is what the 2026-08-29 ruling added.
-//   - WHERE THE RELEASE LEAVES THE VIEW. `PTD-1` says nothing about the release
-//     and `IN-1` of table T-028 speaks of an operation SETTLING, which a pan
-//     has nothing to settle; a case asserting one would be inventing it.
-//
-// ---------------------------------------------------------------------------
-// ⭐ WHAT THESE CASES FOUND (2026-08-29), AND HOW IT WAS CLOSED
-// ---------------------------------------------------------------------------
-// `follows every downward move` was RED when it was first written, and the
-// reading below was taken AFTER it went red, to say what shape the failure had.
-// ⛔ IT SET NO EXPECTED VALUE THEN AND SETS NONE NOW: every number this file
-// judges against comes from the manuscript or from the pointer.
-//
-// Sweeping one held `Ctrl` drag downwards, 2px at a time, in a fixture whose
-// bands are 28px tall and stand 36px apart, the picture answered:
-//
-//   2 〜 8   -> 0        10 〜 36  -> exact
-//   38 〜 44 -> 36       46 〜 72  -> exact       74 〜 80 -> 72
-//
-// ⭐ The dead runs were exactly the 8px GAPS between one band and the next: the
-// view could come to rest anywhere inside a band and nowhere between two --
-// the shape 表 T-023d forbids in as many words, ⛔ 錠の上にしか着地できない形に
-// してはならない（MUST NOT）.
-//
-// ⭐ THE MANUSCRIPT WAS WHERE IT CAME FROM, AND THE MANUSCRIPT IS WHERE IT WAS
-// FIXED. `S-176` had read DFC-138 「そのタスクグループ自身の高さに対する比」, a height smaller than
-// the distance from one task group to the next, so the gap had no spelling at all. It
-// now reads 「そのタスクグループが占める送り……に対する比」 and carries a MUST NOT against
-// the band. ⚠️ THE SIDEWAYS AXIS WAS ALWAYS WHOLE: days abut, so it had no gap
-// to lose. ⛔ Not one assertion below was weakened to close this.
+// Unit tests: a held pan carries the schedule with the pointer in both axes, one to one.
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-explicit-any -- the host stubs an untyped global and the frame's layout is read past its type */
 
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -168,15 +36,10 @@ import {
 import { specTable, unbroken } from '../contract/spec-table'
 import { SETTINGS_CONSTANTS } from '../../src/entity/document-model/document-settings/document-settings'
 
-// ===========================================================================
-// What the manuscript says, read at read time rather than copied
-// ===========================================================================
-
 const SPEC = join(process.cwd(), 'docs', 'spec')
 
 const REQUIREMENTS = unbroken(readFileSync(join(SPEC, '01-04-requirements.md'), 'utf8')).split('\n')
 
-/** The `結果` cell of one row of 表 T-023a. */
 function resultOf(specTableRowId: string): string {
   const found = specTable('T-023a').rows.find((one) => one.id === specTableRowId)
   if (found === undefined) throw new Error(`table T-023a has no row ${specTableRowId}`)
@@ -187,31 +50,17 @@ function resultOf(specTableRowId: string): string {
   return cell
 }
 
-/** The `条件` cell of one row of 表 T-023a. */
 function conditionOf(specTableRowId: string): string {
   const found = specTable('T-023a').rows.find((one) => one.id === specTableRowId)
   if (found === undefined) throw new Error(`table T-023a has no row ${specTableRowId}`)
   return found.by['条件'] ?? ''
 }
 
-/**
- * The one line of the manuscript that carries 表 T-023d's 等倍 rule, found by
- * the words the rule itself uses rather than by a line number.
- *
- * ⭐ READ AND NOT COPIED, for the reason rule 03 gives: a sentence written down
- * here would go on passing after the manuscript had changed it, which is the
- * regression a specification-driven case exists to catch.
- */
 function equalTravelLine(): string {
-  // ⚠️ The sentence has to be found where it is STATED, not where `PTD-1`
-  // quotes it -- `PTD-1`'s own cell carries the same words inside 「」 to say
-  // that the travel is unchanged, and a search that took the first hit would
-  // be reading the quotation back to itself. A table row starts with `|`; the
-  // rule's own paragraph does not.
-  //
-  // ⛔ NOT `startsWith`. The manuscript breaks every sentence onto its own
-  // line (check 46) and unbroken() joins them back, so the rule sits INSIDE
-  // its paragraph rather than at the head of a line.
+  // Why: only a line that does not start with | is the rule's own paragraph, so a table
+  // row that names the same words is never read back to itself.
+  // Why: not startsWith, as unbroken() joins the broken sentences back and the rule sits
+  // inside its paragraph rather than at the head of a line.
   const found = REQUIREMENTS.find(
     (line) =>
       !line.trimStart().startsWith('|') &&
@@ -223,13 +72,8 @@ function equalTravelLine(): string {
   return found
 }
 
-// ===========================================================================
-// The document these cases drive
-// ===========================================================================
-
-// BT-4 of table T-034 -- the template FR-027 keeps exactly one of. The calendar,
-// the project and the settings come from it; the task groups and the Tasks are written
-// out here so that what is drawn can be named.
+// Why: the calendar, project and settings come from the startup template;
+// the task groups and Tasks are written here so that what is drawn can be named.
 const TEMPLATE_PATH = join(
   process.cwd(),
   'src',
@@ -239,7 +83,7 @@ const TEMPLATE_PATH = join(
 )
 const TEMPLATE = JSON.parse(readFileSync(TEMPLATE_PATH, 'utf8')) as Record<string, unknown>
 
-/** Six task groups. The ids are UUIDs because `AT-51` is one. */
+// Why: the ids are UUIDs because AT-51 is one.
 const TASK_GROUPS = [
   '3a000000-0000-4000-8000-000000000001',
   '3a000000-0000-4000-8000-000000000002',
@@ -249,29 +93,19 @@ const TASK_GROUPS = [
   '3a000000-0000-4000-8000-000000000006',
 ] as const
 
-/** The task group the empty-space presses land on -- it carries no Task at all. */
 const EMPTY_TASK_GROUP = TASK_GROUPS[4] as string
 
-/** The two Tasks whose bars are watched. They sit on task groups far apart. */
 const NEAR_UID = 1
 const FAR_UID = 2
 
-/** A stored date column, written the way the startup template writes one. */
 const day = (d: number): string => `2026-04-${String(d).padStart(2, '0')}T00:00:00`
 
-/** 1 day is this many px at zoom 1 -- `S-1`'s key, set wide so a day is legible. */
 const PX_PER_DAY_AT_1X = 20
 
-/**
- * Where the left edge of the view starts.
- *
- * ⭐ IN THE MIDDLE OF THE CONTENT ON PURPOSE. The two Tasks run from the 2nd to
- * the 28th, so there are days to reveal on both sides and no case below has to
- * know whether a pan stops at an edge -- which the specification does not say.
- */
+// Why: in the middle of the content on purpose, so no case has to know whether a pan
+// stops at an edge, which the specification does not say.
 const SCROLL_DATE = '2026-04-14'
 
-/** Likewise for the vertical axis: the fourth of six task groups. */
 const SCROLL_TASK_GROUP = TASK_GROUPS[3] as string
 
 function task(over: Partial<Task> & { readonly uid: number }): Task {
@@ -319,9 +153,8 @@ function fixtureDocument(): Document {
       project: {
         ...structuredClone(template.schedule.project),
         uidHighWaterMark: 100,
-        // ⛔ NO 基準日. `CU-1` would draw a line the height of the `Task Group Area`,
-        // and this file's subject is the whole picture moving -- one more
-        // element in it buys nothing and can only confuse a failure.
+        // Why: no status date, as CU-1 would draw one more element across the area, which buys
+        // nothing here and can only confuse a failure.
         statusDate: null,
       },
       calendars: structuredClone(template.schedule.calendars),
@@ -344,9 +177,9 @@ function fixtureDocument(): Document {
     },
     documentSettings: {
       ...structuredClone(template.documentSettings),
-      // Why: S-1 is a constant (CR-572); the stored zoomX (S-75) carries the day width this fixture draws at.
+      // Why: S-1 is a constant; the stored zoomX (S-75) carries the day width this fixture draws at.
       zoomX: PX_PER_DAY_AT_1X / SETTINGS_CONSTANTS.pxPerDayAt1x,
-      // ⚠️ Pinned so every y below reads from the top of a band.
+      // Why: pinned so every y below reads from the top of a band.
       stackDirection: 'down',
       scrollDate: SCROLL_DATE,
       scrollDateFraction: 0,
@@ -359,11 +192,6 @@ function fixtureDocument(): Document {
   return draft as unknown as Document
 }
 
-// ===========================================================================
-// The host UF-48 is given
-// ===========================================================================
-
-/** `BO-1` of table T-077 has already settled these by the time a loop exists. */
 const SCREEN: FrameEnvironment = {
   width: 1200,
   height: 700,
@@ -373,22 +201,11 @@ const SCREEN: FrameEnvironment = {
 
 interface Host {
   readonly surface: { showSvg(svg: string): void }
-  /** Run whatever the loop asked an animation frame for, until it asks no more. */
   runAnimationFrames(): void
 }
 
 const realRaf = (globalThis as any).requestAnimationFrame
 
-/**
- * ⚠️ THE HOST IS A FAKE, AND THE FAKE IS NOT THE TEST (R6.3). Vitest runs under
- * node with no `requestAnimationFrame`, and `LY-5` of table T-060 puts the
- * browser in this layer. ⛔ Nothing in this fake decides anything about presses
- * or pictures: it drains the queue.
- *
- * ⭐ Copied, deliberately unchanged, from
- * tests/unit/t-023d-follows-the-pointer.test.ts, which drives the same unit
- * through the same seam.
- */
 function host(): Host {
   const waiting: ((time: number) => void)[] = []
   let handle = 0
@@ -399,8 +216,8 @@ function host(): Host {
   return {
     surface: { showSvg: () => undefined },
     runAnimationFrames: () => {
-      // Bounded, so a loop that asks for a frame from inside a frame -- which
-      // NFR-010 forbids -- ends the test instead of hanging it.
+      // Why: bounded, so a loop that asks for a frame from inside a frame (NFR-010 forbids it)
+      // ends the test instead of hanging it.
       for (let turn = 0; turn < 8 && waiting.length > 0; turn += 1) {
         for (const callback of waiting.splice(0, waiting.length)) callback(turn)
       }
@@ -411,14 +228,8 @@ function host(): Host {
   }
 }
 
-/**
- * A stand-in for `IF-9`'s surface that has drawn no UI part over the schedule.
- *
- * ⭐ WHY IT ANSWERS `null` EVERYWHERE. `PointerPress.on` is what admits table
- * T-023a: a press the surface answered for is a press on an entry and none of
- * the six gestures. Every press below lands on the schedule's own drawing area,
- * which is the one place table T-023a rules.
- */
+// Why: it answers null everywhere, as a press the surface answers for is on an entry and
+// none of table T-023a's gestures; every press here lands on the drawing area.
 function screenPane(language: DisplayLanguage = 'en'): ScreenWiring {
   const views: ScreenView[] = []
   const surface: ScreenSurface = {
@@ -435,10 +246,6 @@ afterEach(() => {
   if (realRaf === undefined) delete (globalThis as any).requestAnimationFrame
   else (globalThis as any).requestAnimationFrame = realRaf
 })
-
-// ===========================================================================
-// Spelling one happening
-// ===========================================================================
 
 const NO_MODIFIERS: InputModifiers = { ctrl: false, shift: false, alt: false, meta: false }
 
@@ -457,15 +264,8 @@ const pointer = (
   clickCount: 1,
 })
 
-/**
- * The two gestures `MK-7` sends to `PTD-1`, each spelled as the pointer that
- * carries it.
- *
- * ⚠️ The modifier travels on EVERY happening of the gesture, not only the
- * press: `InputModifiers` is documented as the keys as they stood when the
- * happening occurred, and a person holding `Ctrl` through a drag reports it on
- * each move.
- */
+// Why: the modifier travels on every happening, not only the press: a person holding
+// Ctrl through a drag reports it on each move.
 const GESTURES: readonly {
   readonly name: string
   readonly how: { readonly button?: PointerButton; readonly ctrl?: boolean }
@@ -474,13 +274,8 @@ const GESTURES: readonly {
   { name: '中ボタンドラッグ', how: { button: 'middle' } },
 ]
 
-// ===========================================================================
-// A loop, drawn and ready
-// ===========================================================================
-
 interface Stage {
   readonly loop: FrameLoop
-  /** Hand one happening over and let the frame it owes run. */
   send(input: HumanInput): void
 }
 
@@ -491,8 +286,8 @@ function stage(): Stage {
     loop.receiveInput(input)
     pen.runAnimationFrames()
   }
-  // `FT-3` of table T-078 is not what starts this: the first frame is owed by
-  // the loop being made, so drain it before any case reads `current()`.
+  // Why: the first frame is owed by the loop being made, not by FT-3, so it is drained
+  // before any case reads current().
   pen.runAnimationFrames()
   return { loop, send }
 }
@@ -503,10 +298,8 @@ const frameOf = (loop: FrameLoop) => {
   return values
 }
 
-/** How wide one calendar day is drawn -- the frame's own measurement of itself. */
 const pxPerDay = (loop: FrameLoop): number => (frameOf(loop).layout as any).pxPerDay as number
 
-/** Where one task group's band stands, as the frame placed it. */
 function bandOf(loop: FrameLoop, taskGroupId: string): { readonly y: number; readonly height: number } {
   const found = (frameOf(loop).layout as any).taskGroups.find((one: any) => one.taskGroupId === taskGroupId)
   if (found === undefined) throw new Error(`the frame drew no band for task group ${taskGroupId}`)
@@ -526,11 +319,6 @@ interface Box {
   readonly y1: number
 }
 
-/**
- * The bounding box of one drawn bar, whichever of table T-012's two forms it
- * came out as -- an area to fill (`SH-1` / `SH-2` / `SH-5`) or a line with ends
- * (`SH-3` / `SH-4`).
- */
 function boxOfBar(bar: BarGeometry | null, what: string): Box {
   if (bar === null) throw new Error(`${what} is not drawn`)
   const points: readonly Point[] =
@@ -548,7 +336,6 @@ const planBox = (loop: FrameLoop, uid: number): Box =>
 
 const midY = (box: Box): number => (box.y0 + box.y1) / 2
 
-/** Where the whole picture stands right now, in the two axes `PTD-1` names. */
 interface Where {
   readonly x: number
   readonly y: number
@@ -559,23 +346,14 @@ const whereIs = (loop: FrameLoop, uid: number): Where => {
   return { x: box.x0, y: midY(box) }
 }
 
-/** A point inside the `Task Group Area` that no Task is drawn on. */
 const emptySpot = (loop: FrameLoop): Point => {
   const band = bandOf(loop, EMPTY_TASK_GROUP)
   const near = planBox(loop, NEAR_UID)
   return { x: (near.x0 + near.x1) / 2, y: band.y + band.height / 2 }
 }
 
-/**
- * How far every case below carries the pointer.
- *
- * ⭐ DELIBERATELY NOT A WHOLE DAY AND NOT A WHOLE TASK GROUP. 表 T-023d forbids a pan
- * that can only land on the lock (⛔ 錠の上にしか着地できない形にしてはならない
- * （MUST NOT）) and says why: `S-77` and `S-78` hold a date and a row id, so a
- * pan built out of those alone moves by nothing at all for anything shorter
- * than one day or one task group -- 「それだけでは 1 日・タスクグループ 1 つより短い移動が何も起こさ
- * ず、等倍が成り立たない」. Halves are what make that visible.
- */
+// Why: halves, not a whole day or task group: a pan that can land only on the lock moves
+// by nothing for less than one, and halves make that visible.
 const TRAVEL_DAYS = 2.5
 const TRAVEL_TASK_GROUPS = 0.5
 
@@ -584,20 +362,11 @@ const travelOf = (loop: FrameLoop): Where => ({
   y: TRAVEL_TASK_GROUPS * bandOf(loop, EMPTY_TASK_GROUP).height,
 })
 
-/**
- * How far off 等倍 a case is allowed to land.
- *
- * ⚠️ HALF A PIXEL, and the number is this file's own -- the specification
- * states none. It is chosen to be far below the smallest travel the 等倍 rule
- * explicitly refuses to lose, which is one day and one task group; anything the
- * fractions `S-176` / `S-177` can carry lands well inside it.
- */
+// Why: half a pixel is this file's own number, as the specification states none; it is
+// far below one day and one task group, which the fractions S-176 / S-177 (FR-080) carry.
 const ONE_TO_ONE_PX = 0.5
 
-// ===========================================================================
-// The premises every case below stands on
-// ===========================================================================
-
+// Spec: T-023a, PTD-1, PTD-3, PTD-7, MK-7, T-023d, S-176, S-177
 describe('the manuscript still states the rule this file is about', () => {
   it('puts PTD-7 first and PTD-1 second in table T-023a, evaluated from the top', () => {
     const rows = specTable('T-023a').rows.map((one) => one.id)
@@ -633,10 +402,8 @@ describe('the manuscript still states the rule this file is about', () => {
     expect(result, 'table T-023a PTD-1: 構えと当たりによらず優先する').toContain(
       '構えと当たりによらず優先する',
     )
-    // ⚠️ PTD-1 no longer QUOTES the sentence inside 「」; it points at the seat
-    // that states it. So the pair is read as a pair: the cell must still defer
-    // the travel to 表 T-023d, and 表 T-023d must still state it word for word
-    // -- `equalTravelLine()` throws if that seat is gone.
+    // Why: PTD-1 points at the seat that states the travel rather than quoting it, so the
+    // pair is read as a pair, and equalTravelLine() throws if that seat is gone.
     expect(result, 'table T-023a PTD-1: 距離は 表 T-023d の等倍の定めのままである').toContain(
       '`GRS` は、パンの距離を 表 T-023d の等倍の定めのままにすること',
     )
@@ -647,7 +414,6 @@ describe('the manuscript still states the rule this file is about', () => {
     expect(result, 'and it says why: 追従は絵の話であって、距離の規則を変えるものではない').toContain(
       '追従は絵の話であって、距離の規則を変えるものではない',
     )
-    // The row it outranks has to exist for that clause to mean anything.
     expect(resultOf('PTD-3'), 'table T-023a PTD-3: そのものへの操作').toContain('`GRS` は、当たったものへの操作を行うこと。')
   })
 
@@ -671,9 +437,8 @@ describe('the fixture puts the view where a pan has room in every direction', ()
     const far = planBox(built.loop, FAR_UID)
     expect(near.x1, 'Alpha is drawn').toBeGreaterThan(near.x0)
     expect(far.x1, 'Beta is drawn').toBeGreaterThan(far.x0)
-    // ⛔ A PREMISE, NOT A DECORATION: if the press point stood on a bar, a case
-    // that failed would not say whether PTD-1 was ignored or whether PTD-3 had
-    // simply been reached first.
+    // Why: if the press point stood on a bar, a failure would not say whether PTD-1 was
+    // ignored or PTD-3 (judged in MK-9a's order) was reached first.
     const at = emptySpot(built.loop)
     for (const uid of [NEAR_UID, FAR_UID]) {
       const box = planBox(built.loop, uid)
@@ -684,10 +449,6 @@ describe('the fixture puts the view where a pan has room in every direction', ()
 
   it('starts with days and task groups on both sides of the view', () => {
     const built = stage()
-    // The view's left edge is SCROLL_DATE, which stands between the two Tasks;
-    // its top edge is the fourth of six task groups. Both are read back from the
-    // picture rather than assumed: the near bar starts to the LEFT of the far
-    // bar, and the task group the view starts on has bands above and below it.
     expect(planBox(built.loop, NEAR_UID).x0).toBeLessThan(planBox(built.loop, FAR_UID).x0)
     const first = bandOf(built.loop, TASK_GROUPS[0] as string)
     const last = bandOf(built.loop, TASK_GROUPS[5] as string)
@@ -695,10 +456,9 @@ describe('the fixture puts the view where a pan has room in every direction', ()
   })
 })
 
-// ===========================================================================
-// (a) The schedule follows the pointer while the button is down
-// ===========================================================================
-
+// Spec: PTD-1, T-023d, MK-7
+// Why: only the picture is asserted: a pan writes no history, and the release, the pointer
+// shape and the browser default are not what PTD-1 states.
 describe.each(GESTURES.map((one) => [one.name, one.how] as const))(
   'table T-023a PTD-1 (%s): the schedule follows the pointer while it is held',
   (_name, how) => {
@@ -706,9 +466,7 @@ describe.each(GESTURES.map((one) => [one.name, one.how] as const))(
       const built = stage()
       const at = emptySpot(built.loop)
       built.send(pointer('down', at.x, at.y, how))
-      // ⭐ READ AFTER THE PRESS. `PTD-1` speaks of 握っているあいだ, so the press
-      // is where the holding starts and the picture it left is what the pointer
-      // is measured against.
+      // Why: read after the press: PTD-1 speaks of holding, which starts at the press.
       const held = whereIs(built.loop, NEAR_UID)
       const travel = travelOf(built.loop)
       built.send(pointer('move', at.x + travel.x, at.y, how))
@@ -762,9 +520,8 @@ describe.each(GESTURES.map((one) => [one.name, one.how] as const))(
     })
 
     it('follows the other way too -- back and up', () => {
-      // 「縦横の両方向で」 is an axis and not a direction; a picture that only
-      // ever moved right and down would answer every case above and still
-      // refuse half of what a person does with a pan.
+      // Why: both axes is not one direction each; a picture that moved only right and down
+      // would answer every case above.
       const built = stage()
       const at = emptySpot(built.loop)
       built.send(pointer('down', at.x, at.y, how))
@@ -779,11 +536,8 @@ describe.each(GESTURES.map((one) => [one.name, one.how] as const))(
     })
 
     it('follows every sideways move, not only the last one', () => {
-      // ⛔ 離すまで動かないと、掴めていないのと見分けがつかない -- a picture that
-      // caught up only at the end of the gesture is the very thing the 2026-08-29
-      // ruling was made against. ⭐ And every one of the four has to be 等倍:
-      // 表 T-023d states the distance rule of the whole gesture, not of its
-      // first move.
+      // Why: a picture that caught up only at the release fails, and
+      // T-023d states the distance of the whole gesture, so every step is one to one.
       const built = stage()
       const at = emptySpot(built.loop)
       built.send(pointer('down', at.x, at.y, how))
@@ -802,10 +556,8 @@ describe.each(GESTURES.map((one) => [one.name, one.how] as const))(
     })
 
     it('follows every downward move, not only the last one', () => {
-      // The same case on the other axis. ⚠️ The four steps are HALVES of a task group
-      // band on purpose -- 表 T-023d forbids a pan that can only land on the
-      // lock, and a picture that walks whole task groups passes a case made of whole
-      // task groups.
+      // Why: the steps are halves of a band, as a picture that walks whole task groups
+      // passes a case made of whole task groups.
       const built = stage()
       const at = emptySpot(built.loop)
       built.send(pointer('down', at.x, at.y, how))
@@ -824,9 +576,8 @@ describe.each(GESTURES.map((one) => [one.name, one.how] as const))(
     })
 
     it('comes back exactly when the pointer comes back', () => {
-      // 追従 is a picture OF THE POINTER, not a picture that has been nudged:
-      // one that only ever ran away would answer the cases above and still show
-      // a place the person is no longer pointing at.
+      // Why: following is a picture of the pointer, so one that only ever ran away would
+      // answer the cases above and still show a place no longer pointed at.
       const built = stage()
       const at = emptySpot(built.loop)
       built.send(pointer('down', at.x, at.y, how))
@@ -844,9 +595,8 @@ describe.each(GESTURES.map((one) => [one.name, one.how] as const))(
     })
 
     it('moves the WHOLE schedule, not one figure of it', () => {
-      // 「ポインタが動いた距離だけ日程表が動く」 -- 日程表, not a bar. The two
-      // Tasks stand on different task groups and different days, so a picture that
-      // moved only what was under the pointer fails here.
+      // Why: the schedule moves, not a bar; the two Tasks stand on different task groups and
+      // days, so a picture that moved only what was under the pointer fails.
       const built = stage()
       const at = emptySpot(built.loop)
       built.send(pointer('down', at.x, at.y, how))
@@ -869,9 +619,8 @@ describe.each(GESTURES.map((one) => [one.name, one.how] as const))(
     })
 
     it('pans even when the press lands on a Task (構えと当たりによらず優先する)', () => {
-      // `PTD-1` is evaluated before `PTD-3`, so a press on a bar with the pan
-      // gesture is a pan. ⭐ The proof is that the OTHER Task moves too: a grab
-      // (`GA-9`) would carry the pressed bar alone.
+      // Why: PTD-1 is evaluated before PTD-3, and the proof is that the other Task moves too:
+      // a grab (GA-9) would carry the pressed bar alone.
       const built = stage()
       const box = planBox(built.loop, NEAR_UID)
       const at: Point = { x: (box.x0 + box.x1) / 2, y: midY(box) }

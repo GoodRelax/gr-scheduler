@@ -1,4 +1,4 @@
-// DFC-806 / JDG-410: a double click on a highlight box puts the panel up and focuses its frame color field (MK-13, PR-22).
+// Contract tests: a double click on a highlight box puts the panel up and focuses its frame color field.
 
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -31,8 +31,6 @@ const verticalIn = (table: string, id: string) => {
 
 // Spec: T-023, MK-13
 const MK_13 = verticalIn('T-023', 'MK-13').cells.join(' ')
-// see JDG-410, DFC-806
-// Trap: red until the MK-13 edit lands; the wording is the one the implementer was briefed to write.
 const MK_13_HIGHLIGHT_BOX =
   '`GRS` は、ハイライトボックスのダブルクリックで、プロパティパネルを出し、枠の色の欄（表 T-016 の `PR-22`）に焦点を置くこと。'
 const MK_13_COMMENT_BOX = '本文の欄（表 T-016 の `PR-21`）を編集できる状態にして焦点を置くこと（`FR-097`）。'
@@ -102,7 +100,6 @@ interface Point {
 interface Bench {
   readonly loop: FrameLoop
   readonly built: Stage
-  // Why: every row the focus seam was asked for, in order.
   readonly asked: string[]
   click(at: Point): void
   doubleClick(at: Point): void
@@ -227,7 +224,6 @@ describe('the manuscript and the ruling these cases read', () => {
   })
 
   it(`MK-13 (JDG-410): ${MK_13_HIGHLIGHT_BOX}`, () => {
-    // see JDG-410, DFC-806
     expect(REQUIREMENTS.includes(MK_13_HIGHLIGHT_BOX), 'the clause stands in 01-04-requirements.md').toBe(true)
     expect(MK_13, 'the clause stands in the MK-13 row itself').toContain(MK_13_HIGHLIGHT_BOX)
   })
@@ -330,7 +326,7 @@ describe('MK-13 (JDG-410) through the real seam -- the focus lands in the frame 
   })
 
   it('a custom stroke color: the focus lands on the custom entrance, the swatch CV-9 now outlines for the value', () => {
-    // see MK-13, PR-22, CV-9, CR-689
+    // Spec: MK-13, PR-22, CV-9
     const built = bench({ realFocus: true, strokeColor: CUSTOM_STROKE })
     built.doubleClick(onTheHighlightFrame(built))
     const active = built.built.world.activeElement

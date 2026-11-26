@@ -1,115 +1,4 @@
-// Unit tests for the THIRD member of `ScreenSurface` -- `readScreenPartAt`,
-// which CR-192 added to IF-9 of 表 T-065 (docs/spec/05-07-design.md). The
-// unit that implements it is UF-71 `dom-screen-surface.ts` (表 T-075),
-// component `DomScreenSurface` (CP-38 of 表 T-062), published as PI-38 of
-// 表 T-064.
-//
-// ⚠️ Chapter 9 does not admit Unit as a TEST_LEVEL, so these have no node in the
-// specification. 表 T-218 of Chapter 7 gives them their place: TS-6, tests/unit/.
-//
-// ⛔ WRITTEN WITHOUT READING THE UNIT'S BODY (docs/development-rules/
-// 04-verification.md §1 -- the one who wrote a unit does not write its test).
-// What was read: docs/spec/ for every rule below, change-request/CR-192-*.md,
-// the seam declaration `src/adapter/screen-renderer/screen-surface.ts`, the
-// `ScreenView` family in `src/adapter/screen-renderer/screen-renderer.ts`,
-// `PointerPress` in `src/adapter/input-command-translator/`, and of UF-71 itself
-// only its head comment, the exported interface `ScreenSurfaceWiring` and the
-// one signature `domScreenSurface(wiring): ScreenSurface`. Every expected value
-// here comes from a requirement, a table or a recorded provisional decision --
-// never from the implementation.
-//
-// ⭐ WHY THE FAKE IS SHAPED THE WAY IT IS. This is a Framework unit: it builds
-// nodes, and `npm test` runs under Node with no DOM at all (vitest.config.ts
-// sets `environment: 'node'`). R7.3 and LY-5 of 表 T-060 ask for the browser to
-// be handed in rather than reached for, so the unit takes a `Document` as an
-// argument and these cases hand it a fake instead. ⛔ A unit that reached for a
-// global would fail every case here, and `no document anywhere` says so out loud.
-//
-// ⚠️ R6.3 -- WHAT THE FAKE MAY AND MAY NOT DECIDE. The fake answers geometry the
-// way a browser does and in no other way: a rectangle is half-open (the rule
-// `rectHoldsPoint` already follows in
-// src/entity/layout-engine/screen-regions/screen-regions.ts:99, citing R3.4),
-// later in document order paints over earlier, and a subtree that is not shown
-// takes no pointer. ⛔ It holds no rule about UI parts -- which of two parts a
-// point belongs to, and which entry, is the unit's answer and never the fake's.
-// The cases below also assert what the unit DID: which point it asked about,
-// which nodes it measured, which members of the host it touched, and that it
-// wrote nothing while answering.
-// ⚠️ THE LIMIT OF THAT, SAID PLAINLY: the unit resolves a point through the
-// host's own `elementFromPoint`, so what these cases pin is the unit's part and
-// entry resolution and its refusal to add a margin of its own -- not rectangle
-// arithmetic it does not do. A host without that member answers nothing at all;
-// no requirement asks for a fallback, so none is expected here.
-//
-// The rules these cases answer to:
-//   表 T-065 IF-9   the supply cell as CR-192 rewrote it -- 「画面上の点がどの
-//                   UI パーツ（表 T-103）のどの入口（表 T-109）の上かを答える」,
-//                   with the MUST under that table (:390): the side that DREW an
-//                   entry is the side that answers where it is
-//   表 T-023a       (MUST, 01-04-requirements.md) 判定順序を適用するのは
-//                   日程の描画領域だけとすること -- the floating palette, the
-//                   open surface and the `Notification Area`
-//                   hold no `ScreenRegions` rectangle, so a non-null
-//                   answer over them is what stops a press from becoming PTD-5's
-//                   marquee underneath
-//   表 T-023b       the arms, and the entries of 表 T-109 that set them
-//   表 T-023d GR-19 「`Command Palette` の掴み帯 | **パレットの上端に敷く帯**
-//                   （高さは `_assets/tbl-settings.md` の `S-135a`）| 掴めば
-//                   パレットを動かす（`FR-053`）。⚠️ **帯の下に何が描かれていて
-//                   も帯が勝つ**」, standing FIRST under that table's preamble
-//                   「上の行ほど優先すること（MUST）」
-//   表 T-109 IC-53  「掴んで動かせることを示す。**ボタンではない**」 -- the row
-//                   the band is answered by, and the row no `CommandItem` may
-//                   stand for
-//   FR-053 / FR-083 SP-1 .. SP-4 -- a press on a palette shape arms or changes a
-//                   shape, so the press has to reach the entry at all
-//   FR-029          what cannot be used is drawn faint and gives its reason
-//                   rather than going quiet -- so a disabled entry still answers
-//   表 T-040 EZ-2   the explanation belongs to the icon the pointer rests ON;
-//                   one entry, not its neighbor and not every icon
-//   表 T-103        U-23 (MUST): an entrance is named by the `Task Group Panel`
-//                   and never by the `Task Group Title Tree`; and 表 T-109's 面 column
-//                   is the containing surface, not the grouping inside it
-//   表 T-206 S-99g  「面」とは、画面の上に重ねて開き、`Esc` の第 1 階層で閉じ
-//                   られるもの (_assets/tbl-settings.md) -- with IN-4 of
-//                   表 T-028 putting 開いている面 FIRST in that order, an open
-//                   surface stands over the palette where the two overlap
-//   表 T-077 BO-1   nothing is drawn until the dimensions are settled, so before
-//                   the first description a point is on nothing
-//   R3.4            intervals are half-open by default; a point on the right or
-//                   the bottom edge belongs to whatever comes next
-//   R7.3 / LY-5     the browser ARRIVES; nothing here is reached for globally
-//
-// ⭐ Chapter 1.9 (:275) asks a test of a requirement that points at a table to be
-// driven by a fixed copy of that table. `T_109_ARMING`, `T_109_ELSEWHERE` and
-// `T_103_PARTS` are those copies, and each is checked against the .md at read
-// time so it cannot fall behind a row.
-//
-// ⚠️ 表 T-051 HF-6 WAS REWRITTEN ON 2026-08-25 AND THIS FILE FOLLOWED IT. The
-// row used to ask for the controls to be drawn 薄く and darkened while the
-// pointer was on them; it now asks for them to be DRAWN AT ALL only while the
-// pointer is on the task group's name, and for the room they take up not to move while
-// they are not. ⛔ The blocks that mirrored the old sentence were rewritten to
-// the new one rather than deleted, and they hold the same three controls to the
-// same two halves. Where they sit is marked at both ends of the file.
-// ⭐ HF-4 (the right edge, whatever the name and whatever the depth) is
-// untouched by that ruling. ⛔ Every block here was written by someone who did
-// not write the unit and did not read its body.
-//
-// ⚠️ THREE THINGS ARE DELIBERATELY NOT ASSERTED, because no requirement decides
-// them:
-//   - what a disabled entry's REASON is carried as ON THIS SEAM. FR-029 (MUST)
-//     asks for the reason to be given rather than the entry going quiet, and
-//     every member `ScreenPart` declares says WHERE a point is and none says
-//     WHY an entry is spent -- so what is
-//     checked here is that the entry still answers, which is the half of FR-029
-//     this member can carry. The words ride `CommandItem.label` and
-//     `Tooltip.text`, which are UF-62's and UF-69's and are uf-71's to cover.
-//   - which node of an entry is hit when its glyph is smaller than its box.
-//     Nothing fixes an entry's geometry -- that is the whole reason IF-9 needs
-//     this member -- so the layout below is this file's own, and only its EDGES
-//     are asserted, against R3.4.
-//   - which of two OPEN surfaces wins, because S-99g admits only one at a time.
+// Unit tests: readScreenPartAt of the DOM screen surface answers which UI part and entry a point is on.
 
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -135,26 +24,13 @@ import {
   type ScreenSurfaceWiring,
   type ScreenTheme,
 } from '../../src/framework/dom-screen-surface/dom-screen-surface'
-// ⭐ Borrowed from the contract kind on purpose: it is the one reader that takes
-// the copy from the .md at read time, which is what keeps the rosters below from
-// falling behind a row.
 import { bare, bareAll, specTable, unbroken } from '../contract/spec-table'
 import { taskGroupNameFont } from '../fixtures/task-group-name-font'
 import { emptyScreenSession } from '../../src/use-case/advance-screen-session/advance-screen-session'
 
-// ---------------------------------------------------------------------------
-// Fixed copies of the tables these cases are driven by.
-// ---------------------------------------------------------------------------
-
-/**
- * The entries of 表 T-109 that ARM something on the palette, each with the row
- * of 表 T-023b it arms.
- *
- * ⭐ This is the set FR-083's SP-1 .. SP-4 speak of -- 「パレットの形状を押した
- * とき」 -- together with AR-4, AR-5 and AR-6, which 表 T-023b counts as arms as
- * well. ⛔ IC-50 is NOT here although it sits in the same 群: it opens
- * and folds the list of milestone figures, and arms nothing.
- */
+// Spec: FR-083, T-109, T-023b
+// Why: IC-50 sits in the same group but is left out: it folds the milestone list
+// and arms nothing.
 const T_109_ARMING = [
   { row: 'IC-23', arm: 'AR-2' },
   { row: 'IC-24', arm: 'AR-2' },
@@ -173,19 +49,8 @@ const T_109_ARMING = [
   { row: 'IC-61', arm: 'AR-4' },
 ] as const
 
-/**
- * Entries of 表 T-109 drawn somewhere OTHER than the palette or the task group, with
- * the surface its 面 column gives them.
- *
- * ⛔⛔ THE `Task Group Panel` ENTRIES USED TO BE COPIED HERE BY HAND, and the
- * copy is what went stale on 2026-08-30: `HF-13` and `HF-14` gave 表 T-109 two
- * more rows on that surface (`IC-90` / `IC-91`), and six cases went on asking
- * for T-109's five entries by a list typed into this file. ⭐ That roster
- * is now READ OUT OF THE TABLE at load time (`T_109_ON_THE_TASK_GROUP` below), so the
- * next entrance the specification puts on a task group arrives here on its own.
- * ⚠️ WHAT IS LEFT HERE is the `App Header`, which no case reads as an ordered
- * roster -- these four are the ones the header fixture below draws.
- */
+// Why: only the App Header entries are copied here; the Task Group Panel roster is
+// read from the table at load time, because a hand copy of it went stale.
 const T_109_ELSEWHERE = [
   { row: 'IC-5', surface: 'App Header' },
   { row: 'IC-7', surface: 'App Header' },
@@ -193,15 +58,8 @@ const T_109_ELSEWHERE = [
   { row: 'IC-13', surface: 'App Header' },
 ] as const
 
-/**
- * 表 T-109's row for the palette's grab band, copied by row id.
- *
- * ⛔ NOT AN ENTRY, AND THE COPY SAYS SO. The 何の入口か column reads 「掴んで
- * 動かせることを示す。**ボタンではない**」, so `isButton` is false and no case
- * below may look for it among the things a press runs. `ScreenPart.entry` still
- * answers it, because that member is the ROW a point is on and not the entry
- * that can be pressed -- the band carries no name of its own to be answered by.
- */
+// Why: the row says the band is not a button, so isButton is false; entry still
+// answers it, since entry is the row a point is on, not a pressable entry.
 const T_109_GRAB_BAND = {
   row: 'IC-53',
   surface: 'Command Palette',
@@ -209,29 +67,14 @@ const T_109_GRAB_BAND = {
   isButton: false,
 } as const
 
-/**
- * 表 T-023d, read out of the .md at read time.
- *
- * ⭐ Chapter 1.9 (:275) asks for a fixed copy; taking it from the file is that
- * copy, and it is the only form that can NOTICE the table being re-ordered.
- * The preamble the cases lean on is checked below, out of the same file.
- */
 const T_023D = specTable('T-023d')
 
-/**
- * The row that WINS a point when two grab regions overlap.
- *
- * ⛔ Taken from the table's first row and never named here, because the whole
- * claim is about the ORDER: 「上の行ほど優先すること（MUST）」. A case that wrote
- * the row id down instead would go on passing after that row had been pushed
- * further down the table.
- */
+// Trap: never name this row by its id: the claim is the table's order, and a named
+// row would keep passing after it moved down the table.
 const T_023D_TOP_TASK_GROUP = T_023D.rows[0]
 
-/** The preamble of 表 T-023d, which is what makes the first row the winner. */
 const T_023D_PRIORITY_PREAMBLE = '`GRS` は、表 T-023d で先に並ぶ `GR` の行ほど優先すること。'
 
-/** 表 T-103 — the settled names these cases look for. */
 const T_103_PARTS = [
   { row: 'U-22', name: 'Task Group Panel' },
   { row: 'U-23', name: 'Task Group Title Tree' },
@@ -244,54 +87,21 @@ const T_103_PARTS = [
   { row: 'U-57', name: 'Notification Area' },
 ] as const
 
-/**
- * The settled name 表 T-103 gives one row, out of the copy above.
- *
- * ⭐ W-4 of 表 T-006a (MUST) has a `data-role` that carries a settled name carry
- * it in `W-6`'s form, so a case looks a part up by its ROW rather than by a
- * spelling typed into the case. The copy is checked against the .md below, so a
- * name that moves in the table moves here too.
- *
- * ⚠️ `U-30` / `U-34` / `U-35` spell two names in one cell; this returns the
- * first, so it is for the rows that name exactly one part.
- */
+// Spec: W-4, W-6
+// Trap: U-30, U-34 and U-35 name two parts in one cell and this returns the first,
+// so use it only for rows that name exactly one part.
 function partName(row: string): string {
   const found = T_103_PARTS.find((one) => one.row === row)
   if (found === undefined) throw new Error(`the copy of 表 T-103 no longer holds ${row}`)
   return found.name
 }
 
-/** 表 T-109 — the roster of entrances, read out of the .md at load time. */
 const T_109 = specTable('T-109')
 
-/** 表 T-051 — the rules that place those entrances, read out of the .md too. */
 const T_051 = specTable('T-051')
 
-/**
- * The rows of 表 T-051 that place a control at the PANEL'S HEAD rather than on
- * each task group, found by what those rows say about themselves.
- *
- * ⛔⛔ DERIVED AND NEVER LISTED, BECAUSE A LIST HERE HAS ALREADY GONE STALE
- * ONCE. This file used to strike out `HF-10` and `HF-12` by a regular
- * expression written over their ids; on 2026-08-30 the head gained `HF-16`
- * (最も浅い段を 1 階層だけ展開する) and `HF-17` (最も浅い段へタスクグループを 1 つ足す), and every
- * case driven by 「the entries on a task group」 silently began asserting that two head
- * controls stand on every task group -- which is what turned twenty-one of them red.
- *
- * ⭐ WHAT THE MANUSCRIPT ITSELF SAYS, and therefore what is matched:
- *   `HF-10` 「**タスクグループパネルの最上部の右寄せに**、すべてのタスクグループを展開する操作子を 1 つ
- *           置くこと（MUST）」 -- the only row that names the place outright.
- *   `HF-12` 「**`HF-10` の操作子の並びに**、すべてのタスクグループを折りたたむ操作子を 1 つ置くこと
- *           （MUST）」
- *   `HF-16` 「**`HF-10` の操作子の並びに**、最も浅い段を 1 階層だけ展開する操作子を
- *           1 つ置くこと（MUST）」
- *   `HF-17` 「**`HF-10` の操作子の並びに**、最も浅い段へタスクグループを 1 つ足す操作子を
- *           1 つ置くこと（MUST）」
- * ⇒ a head row is one that either names タスクグループパネルの最上部 itself, or places
- * itself against `HF-10` の操作子. A row placed on 「各タスクグループに」 / 「タスクグループごとに 1 つ」
- * says neither. ⛔ A fifth head control added tomorrow will have to say one of
- * those two things to be placed at all, and this reading picks it up unaided.
- */
+// Why: head rows are derived, not listed: a head row names the panel's top or places
+// itself against HF-10's controls, so a new head control is picked up unaided.
 const T_051_AT_THE_HEAD: readonly string[] = T_051.rows
   .filter((one) => {
     const says = one.cells.join(' ')
@@ -303,7 +113,6 @@ if (T_051_AT_THE_HEAD.length === 0) {
   throw new Error('表 T-051 no longer places a single control at the panel’s head')
 }
 
-/** Whether a cell of 表 T-109 names one of the rows above. */
 const isHeadRule = (authority: string): boolean =>
   T_051_AT_THE_HEAD.some((rule) =>
     new RegExp(`(^|[^0-9A-Za-z-])${rule}([^0-9-]|$)`).test(authority),
@@ -314,42 +123,16 @@ const isHeadRule = (authority: string): boolean =>
 const namesHeadRule = (one: { readonly by: Readonly<Record<string, string>> }): boolean =>
   isHeadRule(one.by['正'] ?? '') || isHeadRule(one.by['何の入口か'] ?? '')
 
-/**
- * Every entry 表 T-109 puts on the `Task Group Panel`, IN THE ORDER THE TABLE
- * PRINTS THEM, and never a list typed into this file.
- *
- * ⭐⭐ WHY IT IS READ AND NOT COPIED. Chapter 1.9 (:275) asks a test of a
- * requirement that points at a table to be driven by a fixed copy of that table,
- * and 「fixed copy」 is taken literally here: made at read time, from the file.
- * ⛔ The hand-written copy that stood in `T_109_ELSEWHERE` said FIVE, and six
- * cases asserted five by name; on 2026-08-30 the specification made it seven
- * (`IC-90` for `HF-13`, `IC-91` for `HF-14`) and every one of those cases was
- * asserting a roster the manuscript no longer holds.
- *
- * ⚠️ THE ORDER IS THE TABLE'S PRINTING ORDER AND NOT A PLACEMENT RULE. 表 T-051
- * の `HF-4` fixes the position of exactly ONE control -- 「ピン止めの操作子（表
- * T-109 の `IC-60`）を、並びのいちばん外（右端）に置くこと（MUST）」 -- and says
- * in as many words 「本行が定めるのはこの 1 つだけであり、ほかの操作子の前後は
- * 定めない」. So what the cases below read out of this order is WHICH entrances
- * end the task group, not where each one is; the one placement the manuscript does fix
- * has a case of its own.
- */
-/**
- * Every entry 表 T-109 puts on the `Task Group Panel`, head and task groups alike.
- *
- * ⚠️ `bareAll`, not `bare`: 表 T-109's 面 column enumerates -- `IC-52` names
- * six surfaces in one cell -- so membership is `includes`, never `===` on a
- * first span that would answer for one surface of six (`DFC-351`).
- */
+// Why: bareAll, not bare: the surface column enumerates, so membership is includes,
+// never === on a first span that answers for one surface of several.
 const T_109_ON_THE_PANEL = T_109.rows.filter(
   (one) => bareAll(one.by['面'] ?? '').includes(partName('U-22')),
 )
 
+// Why: the order is the table's printing order, not a placement rule: HF-4 fixes only
+// the pin's place, so the cases read which entrances end the run, not where each is.
 const T_109_ON_THE_TASK_GROUP = T_109.rows
   .filter((one) => bareAll(one.by['面'] ?? '').includes(partName('U-22')))
-  // ⛔ THE PANEL'S HEAD IS NOT A TASK GROUP, and which rows stand there is read out of
-  // 表 T-051 rather than written here -- see `T_051_AT_THE_HEAD` above for why
-  // the list that used to stand in this line could not be kept true.
   .filter((one) => !namesHeadRule(one))
   .map((one) => ({ row: one.id, surface: partName('U-22') }))
 
@@ -357,12 +140,6 @@ if (T_109_ON_THE_TASK_GROUP.length === 0) {
   throw new Error('表 T-109 no longer puts a single entry on the Task Group Panel')
 }
 
-/**
- * Every entry 表 T-109 puts at the panel's HEAD, in the table's printing order.
- *
- * ⭐ THE COMPLEMENT OF THE ROSTER ABOVE, taken from the same two tables, so a
- * row cannot be counted twice or dropped by both.
- */
 const T_109_AT_THE_HEAD = T_109.rows
   .filter((one) => bareAll(one.by['面'] ?? '').includes(partName('U-22')))
   .filter(namesHeadRule)
@@ -372,16 +149,7 @@ if (T_109_AT_THE_HEAD.length === 0) {
   throw new Error('表 T-109 no longer puts a single entry at the Task Group Panel’s head')
 }
 
-/**
- * The entry 表 T-109 gives one row of 表 T-051, found through the table's own 正
- * column.
- *
- * ⭐ THE JOIN IS THE SPECIFICATION'S OWN. 表 T-109's 正 column names the row that
- * owns each entrance -- 「表 T-051 の `HF-2`」 for `IC-58` and so on -- so a case
- * that means 「HF-13's control」 can say so and be told which icon that is,
- * instead of typing `IC-90` and going quiet the day the roster is renumbered.
- * ⚠️ `\b` on both ends is what keeps `HF-1` from matching `HF-11`.
- */
+// Trap: keep the non-id bounds on both ends of the match, or HF-1 matches HF-11.
 function entranceForRule(rule: string): string {
   const found = T_109_ON_THE_PANEL.filter((one) =>
     new RegExp(`(^|[^0-9A-Za-z-])${rule}([^0-9-]|$)`).test(one.by['正'] ?? ''),
@@ -395,31 +163,8 @@ function entranceForRule(rule: string): string {
   return first.id
 }
 
-/**
- * The two entries of 表 T-109 that the `Task Group Expander` (U-47) is made of, each
- * with the row of 表 T-051 that is its 正.
- *
- * ⭐ 表 T-109, docs/spec/_assets/tbl-glossary.md:
- *   | IC-59 | `Task Group Panel` | — | このタスクグループを親に格納する      | 表 T-051 の `HF-3`  |
- *   | IC-90 | `Task Group Panel` | — | タスクグループの配下を 1 階層だけ展開する | 表 T-051 の `HF-13` |
- *   | IC-77 | `Task Group Panel` | — | タスクグループの配下をすべて折りたたむ      | 表 T-051 の `HF-11` |
- *   | IC-58 | `Task Group Panel` | — | タスクグループの配下をすべて展開する      | 表 T-051 の `HF-2`  |
- * ⛔ They are FOUR rows of the roster and not one row in four states.
- *
- * ⚠️ THE COUNT IS `HF-1`'s AND MOVED TWICE. 表 T-103's `U-47` holds no count of
- * its own -- 「員数と置き方は 表 T-051 の `HF-1` が持ち、本行は持たない」 -- and
- * on 2026-08-30 `HF-1` was rewritten to 「**親に格納する操作子と、配下を 1 階層展開する操作子
- * と、配下をすべて折りたたむ操作子と、配下をすべて展開する操作子を 1 つずつ**」. ⇒ FOUR,
- * and the order below is the one that row states outright: 「並びは 2 × 2 の格子と
- * すること（MUST）」, read column first (see HF-1).
- *
- * ⚠️ WHAT THE CLOSING SIDE MEANS WAS REPLACED ON 2026-08-30 (利用者の裁定,
- * recorded in `HF-3`'s own cell). `IC-59` used to be 表 T-015 の `HR-5`
- * (そのタスクグループ自身を折りたたむ); it is now `HR-6` -- 「タスクグループを隠す。**あわせて、そのタスクグループと、その配下を折りたたんだ状態にすること
- * （MUST）**」 -- and `HR-5` stays in 表 T-015 with no entrance at all. ⛔ It is
- * the MEANING that moved and not the roster row: this unit still owes them
- * nothing but telling a press on one from a press on another.
- */
+// Why: these are four roster rows, not one row in four states, listed in HF-1's
+// 2 x 2 lattice read column first.
 const T_109_TASK_GROUP_EXPANDER = [
   { row: entranceForRule('HF-3'), rule: 'HF-3', gist: 'このタスクグループを親に格納する', side: 'hiding' },
   {
@@ -437,62 +182,31 @@ const T_109_TASK_GROUP_EXPANDER = [
   { row: entranceForRule('HF-2'), rule: 'HF-2', gist: 'タスクグループの配下をすべて展開する', side: 'opening' },
 ]
 
-/**
- * 表 T-051 `HF-1` — the three sentences that settle how many folding controls a
- * task group carries and in what order, copied verbatim.
- */
 const T_051_HF1_FOUR_CONTROLS =
   '親に格納する操作子と、配下を 1 階層展開する操作子と、配下をすべて折りたたむ操作子と、配下をすべて展開する操作子を 1 つずつ'
 const T_051_HF1_IS_A_LATTICE = '`GRS` は、`HF-1` の 4 つの操作子を 2 × 2 の格子に並べること'
-// ⭐⭐ REWORDED 2026-09-05, RULE UNCHANGED. The list is column-major and
-// the old wording read as four controls in a line -- see DFC-260.
 const T_051_HF1_LEFT_TO_RIGHT = '左の列を上から 親に格納・1 階層展開する'
 
-/**
- * 表 T-051 `HF-4` — the whole left-to-right run of a task group.
- *
- * ⭐⭐ RULED AGAIN 2026-09-05: delete and add stopped taking a column each
- * and became one column, delete above add, so the run is four columns wide
- * instead of five. That is what made HF-1's lattice read as a lattice
- * again, and it is what took the run's left edge off HF-15's grab strip.
- */
 const T_051_HF4_THE_WHOLE_RUN =
   '`GRS` は、折りたたみの 4 つ（`HF-1` の格子）、消すと足すの縦の対、ピン止めの順に、左から右へ操作子を置くこと。'
 
-/** 表 T-051 `HF-4` — which of the pair stands on top, ruled the same day. */
 const T_051_HF4_DELETE_ABOVE_ADD = '`GRS` は、消すを上、足すを下に置くこと。'
 
-/** 表 T-051 `HF-10` — the run at the panel's head, all five on one line (CR-587). */
 const T_051_HF10_THE_HEAD_RUN =
   '`GRS` は、頭の並びを、左から すべて折りたたむ・1 階層展開する・すべて展開する・足す・すべて消すの順に、1 行に並べること。'
 
-/** 表 T-051 `HF-10` — why the head is one line and not two tiers. */
 const T_051_HF10_NOT_TWO_TIERS =
   '2 段に積まないのは、パネルの頭の高さが 2 段に足りない倍率で、下の段の操作子が隠れて押せなくなるからである。'
 
-/** 表 T-051 `HF-20` — where the head's delete stands in that run. */
 const T_051_HF20_LAST_IN_THE_RUN = '並びの最後、`HF-17`（最も浅い段へ足す）の右隣である。'
 
-/** 表 T-051 `HF-15` — the MUST of that row this drawing unit still reads. */
 const T_051_HF15_THE_STRIP_IS_ALWAYS_DRAWN = '`GRS` は、掴み代を常に描くこと。'
 
-/** 表 T-051 `HF-18` — the count a task group shows for what it holds folded. */
 const T_051_HF18_THE_COUNT =
   '配下に折りたたみ込んでいるタスクグループがあるとき、`GRS` は、折りたたみ込んでいるタスクグループの数をタスクグループに示すこと。'
 
-/**
- * `HF-1`'s lattice, LEFT TO RIGHT, each place with the row of 表 T-051 that owns
- * the control standing there.
- *
- * ⭐ THE ORDER IS THE ONE SENTENCE, and the word beside each rule is the word
- * that sentence uses for it -- so the premise case below can read the sentence
- * and fail the moment the manuscript re-orders the lattice, instead of this
- * list quietly outliving the ruling that made it.
- * ⚠️ The pairing of word to rule is prose in the manuscript and cannot be
- * machine-joined: 「親に格納」 is `HF-3` because that row is the one that hides,
- * 「1 階層展開する」 is `HF-13`, 「配下をすべて折りたたむ」 is `HF-11` and 「配下をすべて
- * 開く」 is `HF-2`, each in those rows' own words.
- */
+// Trap: the word-to-rule pairing is prose and no machine joins it; when a rule's
+// own words change, change its word here by hand.
 const T_051_HF1_LATTICE = [
   { rule: 'HF-3', word: '親に格納' },
   { rule: 'HF-13', word: '1 階層展開する' },
@@ -500,71 +214,33 @@ const T_051_HF1_LATTICE = [
   { rule: 'HF-2', word: '配下をすべて展開する' },
 ] as const
 
-/**
- * 表 T-051 — the rules the pair above answers to, copied from
- * docs/spec/01-04-requirements.md.
- *
- * ⚠️ HF-2 and HF-3 are what the two ENTRIES mean; neither is carried out by this
- * unit, which draws. What this unit owes them is that a press on either can be
- * told apart from a press on the other -- otherwise the shell has one control to
- * hang two different effects on.
- */
+// Why: HF-2 and HF-3 are what the entries mean, not what this unit does; it owes
+// them only that a press on one is told apart from a press on the other.
 const T_051_EXPANDER = [
-  // ⚠️ FOUR PER TASK GROUP SINCE 2026-08-30: `HF-1` was rewritten to name the hide, the
-  // one-level open, the fold-all-below and the open-all-below, and to arrange
-  // them in a lattice. ⛔ The gist below is the four-control sentence itself, so
-  // a table that went back to three cannot leave this file green.
   { row: 'HF-1', gist: T_051_HF1_FOUR_CONTROLS },
   { row: 'HF-1', gist: T_051_HF1_IS_A_LATTICE },
-  // ⛔⛔ THE THREE JOB SENTENCES WERE REWRITTEN ON 2026-08-31 (利用者の指示
-  // 「サンプルと同じ動作にしろ」), AND EACH ONE NOW DELEGATES RATHER THAN
-  // RESTATES. `HF-2` says so in as many words: 「⛔ **その効果を本表に書き写して
-  // はならない（MUST NOT）** —— **同じ MUST が 2 か所に載ると、必ず離れていく**」.
-  // ⭐ SO THE GIST READ HERE IS THE DELEGATION ITSELF, and the effect each one
-  // delegates to is read from 表 T-015 by the rows below it.
   { row: 'HF-2', gist: '`GRS` は、展開する操作子の職務を 表 T-015 の `HR-3` にすること。' },
-  // ⛔ `HF-3` IS NO LONGER 「そのタスクグループ自身を折りたたむ」. 利用者の裁定 2026-08-30 gave it
-  // 表 T-015 の `HR-6` instead, and 2026-08-31 put that as a delegation too.
   { row: 'HF-3', gist: '`GRS` は、親に格納する操作子の職務を 表 T-015 の `HR-6` にすること。' },
-  // ⛔⛔ `HF-11` IS `HR-4`, WHICH FOLDS THE PRESSED TASK GROUP ITSELF. The row records
-  // what the old wording cost: 「**2026-08-31 まで、本行は「そのタスクグループ自身を折りたたんでは
-  // ならない」と定めていた**」.
   { row: 'HF-11', gist: '`GRS` は、配下をすべて折りたたむ操作子で、表 T-015 の `HR-4` を行うこと（見本と同じ動作に揃える）。' },
   { row: 'HF-13', gist: '`GRS` は、1 階層だけ展開する操作子を、タスクグループごとに 1 つ置くこと。' },
-  // ⭐ AND `HF-13`'s JOB SENTENCE, which is the one the case below leans on: the
-  // one-level entrance is 表 T-015 の `HR-7` and nothing else.
   { row: 'HF-13', gist: '`GRS` は、1 階層だけ展開する操作子の職務を 表 T-015 の `HR-7` にすること（見本と同じ動作に揃える）。' },
 ] as const
 
-/**
- * 表 T-103's U-47 — the part, and WHO holds how many controls it has.
- *
- * ⛔ IT USED TO CARRY THE COUNT ITSELF -- three controls to one part, in words
- * since retired -- and 表 T-051's `HF-1` enumerated the same
- * three. ⚠️ Two places, one number: when `HF-13` and `HF-14` made it five, the
- * copy in U-47 was the one that went stale. ⭐ The count now lives only at its
- * owner, and this case is what keeps it from coming back.
- */
+// Why: the count lives only at its owner HF-1; a copy in U-47 went stale once,
+// so these assert that U-47 points at HF-1 and holds no count.
 const T_103_U47_POINTS_AT_ITS_OWNER = '表 T-051 の `HF-1`'
 const T_103_U47_HOLDS_NO_COUNT = /\d+\s*つで\s*1\s*組/
 
-/** 表 T-023a's own note, which the 面 table under it belongs to. */
 const T_023A_ONLY_THE_DRAWING_AREA =
   '`GRS` は、判定順序を日程の描画領域だけに適用すること。'
 
-/** The MUST under 表 T-065 that puts the answer on the side that drew it. */
 const T_065_THE_SIDE_THAT_DREW_IT =
   '点がどの入口の上かは、その入口を描いた側が答えること（MUST）'
 
-/** S-99g's definition of 「面」 -- what stands OVER the screen. */
 const S_99G_OVER_THE_SCREEN = '画面の上に重ねて開き'
 
 const specText = (...parts: string[]): string =>
   readFileSync(join(process.cwd(), 'docs', 'spec', ...parts), 'utf8')
-
-// ---------------------------------------------------------------------------
-// The fake browser.
-// ---------------------------------------------------------------------------
 
 interface FakeEvent {
   readonly type: string
@@ -591,7 +267,6 @@ type StyleWrite =
   | { readonly kind: 'reset'; readonly css: string }
   | { readonly kind: 'set'; readonly property: string; readonly value: string }
 
-/** One question about a point, as the unit put it. */
 interface PointQuery {
   readonly member: string
   readonly x: number
@@ -611,7 +286,6 @@ class FakeElement {
   readonly childNodes: FakeNode[] = []
   readonly styleWrites: StyleWrite[] = []
   parentNode: FakeElement | null = null
-  /** Only an `input` really has one; harmless elsewhere and it keeps the fake small. */
   value = ''
   isMount = false
 
@@ -622,8 +296,6 @@ class FakeElement {
     this.tagName = tagName.toUpperCase()
   }
 
-  // -- attributes ---------------------------------------------------------
-
   setAttribute(name: string, value: string): void {
     if (name === 'style') {
       this.styleWrites.push({ kind: 'reset', css: value })
@@ -633,14 +305,8 @@ class FakeElement {
   }
 
   getAttribute(name: string): string | null {
-    // ⛔⛔ THE TRAILING `;` IS THE BROWSER'S AND WAS MISSING HERE. A real
-    // `getAttribute('style')` hands back the SERIALIZED declaration block, and
-    // every browser ends that block with a semicolon; `inlineStyle` below joins
-    // the declarations with one and stops. ⚠️ THE UNIT READS ITS OWN STYLE BACK
-    // AND APPENDS TO IT -- `open.getAttribute('style') + taskGroupControlRight(...)`
-    // -- so without the semicolon the fake glued two declarations into one
-    // (`cursor:pointerright:4em`) and the inset silently vanished. That is the
-    // fake deciding a rule of the browser's, which R6.3 forbids it.
+    // Trap: keep the trailing `;` a browser serializes: the unit appends to its own
+    // style, and without it two declarations glue into one and the inset vanishes.
     if (name === 'style') {
       const css = inlineStyle(this)
       return css === '' ? css : `${css};`
@@ -726,7 +392,7 @@ class FakeElement {
     }
   }
 
-  /** ⛔ FR-023: an assignment here would be markup. It is recorded, never obeyed. */
+  // Summary: The fake shall record a markup read or write and never obey it (FR-023).
   get innerHTML(): string {
     this.world.markupWrites.push({ node: this, value: '(read)' })
     return ''
@@ -771,8 +437,6 @@ class FakeElement {
     if (value) this.attributes.set('disabled', '')
     else this.attributes.delete('disabled')
   }
-
-  // -- the tree -----------------------------------------------------------
 
   private adopt(node: FakeNode | string): FakeNode {
     if (typeof node === 'string') return new FakeText(node)
@@ -885,8 +549,6 @@ class FakeElement {
     return descendants(this).filter((one) => matches(one, selector))
   }
 
-  // -- what only a browser can answer -------------------------------------
-
   getBoundingClientRect(): {
     x: number
     y: number
@@ -918,8 +580,6 @@ class FakeElement {
   blur(): void {
     if (this.world.activeElement === this) this.world.activeElement = null
   }
-
-  // -- events -------------------------------------------------------------
 
   addEventListener(type: string, listener: (event: FakeEvent) => void): void {
     this.world.registrations.push({ node: this, type, listener })
@@ -966,15 +626,11 @@ interface World {
   readonly markupWrites: { node: FakeElement; value: string }[]
   readonly hostMembers: string[]
   readonly pointQueries: PointQuery[]
-  /** This file's own placing, by `data-icon` first and then by `data-role`. */
+  // Summary: This file's own placing, keyed by `data-icon` first and then by `data-role`.
   readonly layout: Map<string, ScreenRect>
   mount: FakeElement | null
   activeElement: FakeElement | null
 }
-
-// ---------------------------------------------------------------------------
-// The fake's geometry. ⛔ A browser's rules, and no opinion of this file's.
-// ---------------------------------------------------------------------------
 
 const ZERO: ScreenRect = { x: 0, y: 0, width: 0, height: 0 }
 
@@ -986,14 +642,8 @@ const layoutKey = (element: FakeElement): string | null => {
   return null
 }
 
-/**
- * Where this node sits.
- *
- * ⭐ Worked out from the ATTRIBUTES the unit wrote rather than from a table keyed
- * by node, so that a measurement taken while drawing and one taken while
- * answering a point cannot disagree. A node the layout does not place takes the
- * union of what it holds, the way a plain box does.
- */
+// Why: placed from the attributes the unit wrote, not a table keyed by node, so a
+// measure taken while drawing and one taken while answering cannot disagree.
 function laidOut(element: FakeElement): ScreenRect {
   const key = layoutKey(element)
   if (key !== null) {
@@ -1020,11 +670,7 @@ function union(a: ScreenRect, b: ScreenRect): ScreenRect {
   }
 }
 
-/**
- * Half-open on both axes -- the same rule `rectHoldsPoint` follows in
- * src/entity/layout-engine/screen-regions/screen-regions.ts:99, which cites R3.4
- * of docs/development-rules/07-review-standards.md:495.
- */
+// Why: half-open on both axes, the rule rectHoldsPoint follows (R3.4).
 const holdsPoint = (box: ScreenRect, x: number, y: number): boolean =>
   box.width > 0 &&
   box.height > 0 &&
@@ -1047,14 +693,8 @@ const isShown = (element: FakeElement): boolean => {
   return true
 }
 
-/**
- * Every node the point lands on, topmost first.
- *
- * ⭐ A browser's order: later in document order paints over earlier, and a
- * subtree that is not shown takes no pointer. ⛔ Which of two UI PARTS wins is
- * not decided here -- that is the unit's answer, and this only says what a page
- * would have looked like.
- */
+// Why: a browser's order: later paints over earlier and a hidden subtree takes no
+// pointer; which UI part wins is the unit's answer, never this fake's.
 function stackAt(root: FakeElement, x: number, y: number): FakeElement[] {
   const found: FakeElement[] = []
   const walk = (at: FakeElement): void => {
@@ -1066,10 +706,6 @@ function stackAt(root: FakeElement, x: number, y: number): FakeElement[] {
   return found.reverse()
 }
 
-// ---------------------------------------------------------------------------
-// Wiring the unit up.
-// ---------------------------------------------------------------------------
-
 interface Stage {
   readonly world: World
   readonly host: Document
@@ -1079,12 +715,7 @@ interface Stage {
   root(): FakeElement
 }
 
-/**
- * A browser that is only what `ScreenSurfaceWiring` says it is, plus the one
- * member a real `Document` offers for a point.
- *
- * ⚠️ The host is a Proxy so that every member the unit reaches for is recorded.
- */
+// Why: the host is a Proxy so that every member the unit reaches for is recorded.
 function stage(layout: Map<string, ScreenRect>): Stage {
   const world: World = {
     created: [],
@@ -1144,20 +775,8 @@ function stage(layout: Map<string, ScreenRect>): Stage {
   }
 }
 
-/**
- * The rendering and hue every case below wires the surface with.
- *
- * ⛔ NEITHER VALUE IS TYPED HERE. S-72's start arrives through the screen values
- * (`emptyScreenSession`, CR-572), and S-73's is read out of table T-216 at load time --
- * DR-5 of table T-052 keeps the hue on `Project` rather than in the settings, so
- * no generated constant carries it. Rule 03 section 1 forbids re-typing either.
- *
- * ⭐ WHY THE BENCH HAS TO STATE ONE. `readTheme` is a REQUIRED member of
- * `ScreenSurfaceWiring` because FR-041 (MUST NOT) leaves the viewing environment
- * no say over the rendering. ⚠️ No case in this file reads a color back -- the
- * cases here are about which parts are drawn and where -- so the manuscript's
- * default is the honest neutral; a case that meant dark would say dark.
- */
+// Why: neither value is typed: S-72 arrives with the screen values and S-73 is read
+// from T-216; no case reads a color back, so the default is a neutral choice.
 const S_73 = specTable('T-216').rows.find((row) => row.id === 'S-73')
 if (S_73 === undefined) throw new Error('table T-216 no longer has row S-73')
 const THEME: ScreenTheme = {
@@ -1188,7 +807,6 @@ function surfaceOf(built: Stage): ScreenSurface {
   return built.surface
 }
 
-/** Wire up and draw -- the shape almost every case takes. */
 function drawn(view: ScreenView): Stage {
   const built = wire()
   surfaceOf(built).showScreenView(view)
@@ -1197,10 +815,6 @@ function drawn(view: ScreenView): Stage {
 
 const ask = (built: Stage, x: number, y: number): ScreenPart | null =>
   surfaceOf(built).readScreenPartAt(x, y)
-
-// ---------------------------------------------------------------------------
-// Reading the tree the unit built.
-// ---------------------------------------------------------------------------
 
 const kebab = (name: string): string => name.replace(/[A-Z]/g, (one) => `-${one.toLowerCase()}`)
 
@@ -1251,7 +865,6 @@ function entryFor(root: FakeElement, icon: string): FakeElement {
   return first
 }
 
-/** Attributes and text together, for the case that asks whether anything moved. */
 function serialize(element: FakeElement): string {
   const attributes = [...element.attributes].map(([name, value]) => ` ${name}="${value}"`).join('')
   const style = inlineStyle(element)
@@ -1262,7 +875,7 @@ function serialize(element: FakeElement): string {
   return `<${tag}${attributes}${style === '' ? '' : ` style="${style}"`}>${inside}</${tag}>`
 }
 
-/** A tiny selector engine: enough for `[attr]`, `[attr="value"]`, a tag and a descendant. */
+// Summary: A tiny selector engine for `[attr]`, `[attr="value"]`, a tag and a descendant.
 function matches(element: FakeElement, selector: string): boolean {
   const parts = selector.trim().split(/\s+(?![^[]*\])/)
   const last = parts[parts.length - 1]
@@ -1300,10 +913,6 @@ function matchesSimple(element: FakeElement, selector: string): boolean {
   return element.tagName === selector.toUpperCase()
 }
 
-// ---------------------------------------------------------------------------
-// The screen these cases press on.
-// ---------------------------------------------------------------------------
-
 const rect = (x: number, y: number, width: number, height: number): ScreenRect => ({
   x,
   y,
@@ -1311,12 +920,12 @@ const rect = (x: number, y: number, width: number, height: number): ScreenRect =
   height,
 })
 
-/** 1000 x 800, with an `App Header` inside S-116's band (32 .. 96). */
+// Why: the header height of 40 sits inside S-116's band (32 .. 96).
 const WINDOW = { width: 1000, height: 800 } as const
 const HEADER_HEIGHT = 40
 const ENTRY = 24
 
-/** Four header entries; IC-13 and IC-12 TOUCH, so R3.4 has an edge to resolve. */
+// Why: IC-13 and IC-12 touch, so R3.4 has an edge to resolve.
 const HEADER_ENTRY_X: Readonly<Record<string, number>> = {
   'IC-5': 100,
   'IC-7': 132,
@@ -1327,72 +936,29 @@ const HEADER_ENTRY_X: Readonly<Record<string, number>> = {
 const paletteEntryBox = (index: number): ScreenRect =>
   rect(410 + (index % 6) * 30, 310 + Math.floor(index / 6) * 30, ENTRY, ENTRY)
 
-/**
- * Where the `Command Palette` floats. ⭐ Named rather than written twice: the
- * band GR-19 lays on it is placed FROM this box, so the two cannot drift apart.
- */
+// Why: named, not written twice: GR-19's band is placed from this box, so the two
+// cannot drift apart.
 const PALETTE_BOX = rect(400, 300, 220, 180)
 
-/**
- * How far down the grab band reaches.
- *
- * ⚠️ THE NUMBER IS THIS FILE'S OWN, and 表 T-206 states the real one at
- * `S-135a`. Rule 03 section 1 keeps that value in one place and
- * the uf-65 unit test (deleted by CR-573) was the bench that held a described band to the
- * manuscript; what THIS unit owes GR-19 is that a point on the band answers the
- * band, whatever height the description carries. ⭐ Chosen to stop exactly where
- * the first row of entries begins, so R3.4 has one edge to resolve between them.
- */
+// Why: this file's own number, not S-135a: the unit owes GR-19 only that the band
+// answers; it stops where the first entry row begins, so R3.4 has an edge.
 const GRAB_BAND_HEIGHT = 10
 
-/**
- * The band GR-19 of 表 T-023d lays 「パレットの上端に敷く」 -- the palette's own
- * width, the palette's own top corner, and S-135a's height.
- *
- * ⛔ UNLIKE EVERY OTHER BOX IN `LAYOUT`, THIS ONE IS NOT THIS FILE'S INVENTION:
- * GR-19 fixes where the band goes and 表 T-206 how far down it reaches, so a
- * browser laying the palette out has no freedom here. That is why it is derived
- * from `PALETTE_BOX` rather than typed.
- */
+// Why: unlike the other LAYOUT boxes this one is fixed by GR-19 and S-135a, so it
+// is derived from PALETTE_BOX rather than typed.
 const GRAB_BAND_BOX = rect(PALETTE_BOX.x, PALETTE_BOX.y, PALETTE_BOX.width, GRAB_BAND_HEIGHT)
 
-/**
- * ⭐ Chosen so that every relation a case needs is present exactly once: the
- * `Help Modal` overlaps the palette WITHOUT covering it, the `Notification
- * Area` begins on the `App Header`'s bottom edge, and the `Task Group Title Tree` sits
- * on the `Task Group Panel`.
- */
+// Why: each relation a case needs is present once: the Help Modal overlaps the palette
+// without covering it, and the Notification Area starts on the header's bottom edge.
 const LAYOUT = new Map<string, ScreenRect>([
   ['role:App Header', rect(0, 0, WINDOW.width, HEADER_HEIGHT)],
   ['role:Task Group Panel', rect(0, 40, 170, 660)],
   ['role:Task Group Title Tree', rect(0, 40, 170, 660)],
-  // ⭐ The `Task Group Expander` is placed by ROLE and the `Task Group Pin` by ICON, and the
-  // difference is the unit's, not this file's: the unit marks the pin with its
-  // row of 表 T-109 (`data-icon="IC-60"`) and deliberately leaves the expander
-  // unmarked (IC-58 / IC-59 are not yet drawn as a pair). `layoutKey` reads
-  // `data-icon` FIRST -- as it must, since a browser lays a node out whatever
-  // attributes it carries -- so each box has to be registered under the key its
-  // own node actually yields. ⛔ Registering the pin under `role:Task Group Pin` would
-  // give it the ZERO rectangle in silence and no press would ever reach it.
-  // ⭐ Kept as the fallback for a `Task Group Expander` node that carries no row of 表
-  // T-109; the two that DO carry one are placed by icon just below, because
-  // `layoutKey` reads `data-icon` first (see the note on `laidOut`).
+  // Trap: layoutKey reads data-icon first, so a node marked with an icon must be
+  // registered under icon:, or it gets the ZERO rectangle and takes no press.
   ['role:Task Group Expander', rect(10, 60, 16, 16)],
-  // ⭐ The three of U-47, laid side by side ON PURPOSE: IC-58 holds x 84..100,
-  // IC-59 x 100..116 and IC-77 x 116..132, so each shares an edge with the next
-  // and R3.4 has one to resolve. The gap to the `Task Group Pin` at x 140 leaves a
-  // strip of bare panel between them, so 「面の上・入口の外」 can be told from
-  // 「入口の上」 without leaving the task group.
-  // ⚠️ THE TASK GROUP GREW A THIRD CONTROL ON 2026-08-30 (CR-294, HF-11 / IC-77), and
-  // the three were shifted one box left rather than squeezed into the strip --
-  // the strip is what one case reads, and taking it away would delete a case.
-  // ⛔ These boxes are this file's own; nothing in docs/spec fixes an entry's
-  // geometry -- that is the very reason IF-9 needs `readScreenPartAt` -- so only
-  // their EDGES are asserted, and only against R3.4.
-  // ⭐ AND TWO MORE ON 2026-08-30 (CR-318): `HF-13` gave `HR-7` an entrance of
-  // its own and `HF-14` gave `HR-8` one, so the task group carries five of these before
-  // the pin. They are laid to the LEFT of the three above rather than between
-  // them, so that every edge an existing case resolves stays where it was.
+  // Why: the boxes share edges so R3.4 has one to resolve, and a strip of bare panel
+  // before the pin tells a point on the surface from a point on an entry.
   [`icon:${entranceForRule('HF-13')}`, rect(52, 60, 16, 16)],
   [`icon:${entranceForRule('HF-14')}`, rect(68, 60, 16, 16)],
   ['icon:IC-58', rect(84, 60, 16, 16)],
@@ -1400,8 +966,6 @@ const LAYOUT = new Map<string, ScreenRect>([
   ['icon:IC-77', rect(116, 60, 16, 16)],
   ['icon:IC-60', rect(140, 60, 16, 16)],
   ['role:Command Palette', PALETTE_BOX],
-  // GR-19 of 表 T-023d, marked with the row 表 T-109 gives it (IC-53) the way an
-  // entry is marked -- which is what `ScreenPart.entry` declares it answers by.
   [`icon:${T_109_GRAB_BAND.row}`, GRAB_BAND_BOX],
   ['role:Help Modal', rect(500, 380, 400, 300)],
   [`role:${partName('U-57')}`, rect(700, 40, 280, 80)],
@@ -1414,7 +978,6 @@ const LAYOUT = new Map<string, ScreenRect>([
   ),
 ])
 
-/** Points the cases press, each named for what it is on. */
 const AT = {
   entryIc5: { x: 112, y: 20 },
   entryIc7: { x: 144, y: 20 },
@@ -1424,36 +987,22 @@ const AT = {
   noticesFirstRow: { x: 750, y: 40 },
   paletteNoEntry: { x: 600, y: 320 },
   paletteUnderModal: { x: 550, y: 400 },
-  /**
-   * On GR-19's band, over the bare schedule -- 「帯の下に何が描かれていても帯が
-   * 勝つ」. ⭐ Above the first row of entries on purpose, so the claim is the
-   * band's own claim and not a question about which of two siblings paints last.
-   */
+  // Why: above the first entry row, so the claim is the band's own and not which
+  // of two siblings paints last.
   paletteGrabBand: { x: 500, y: 304 },
-  /** The band's bottom edge, which R3.4 gives to the entry that starts there. */
+  // Why: the band's bottom edge, which R3.4 gives to the entry that starts there.
   paletteBelowTheBand: { x: 412, y: PALETTE_BOX.y + GRAB_BAND_HEIGHT },
   modalOnly: { x: 520, y: 650 },
   modalEntry: { x: 870, y: 400 },
   notices: { x: 900, y: 100 },
   taskGroupPin: { x: 144, y: 64 },
-  // ⚠️ EACH ONE STEP FURTHER LEFT THAN BEFORE 2026-08-30: HF-1 counts a third
-  // control per task group now (IC-77, HF-11), and the four are placed from the right
-  // edge outward -- the pin, then IC-77, then IC-59, then IC-58.
   taskGroupExpanderOpen: { x: 92, y: 64 },
   taskGroupExpanderClose: { x: 108, y: 64 },
   taskGroupExpanderCloseBelow: { x: 124, y: 64 },
-  /**
-   * `HF-13`'s entrance, laid one box further left again.
-   *
-   * ⭐ ITS OWN POINT, WHICH IS THE WHOLE CLAIM. `HF-13` (MUST) 「`HF-2`（配下を
-   * すべて展開する）とは別の入口とすること（MUST）。同じ入口に兼ねさせてはならない
-   * （MUST NOT）」 -- so a press here and a press on `taskGroupExpanderOpen` have to
-   * come back with two different rows of 表 T-109.
-   */
+  // Why: a point of its own, so a press here and one on taskGroupExpanderOpen can
+  // come back as two different rows (HF-13).
   taskGroupOpenOneLevel: { x: 60, y: 64 },
-  /** `HF-14`'s entrance, beside it. */
   taskGroupAddChild: { x: 76, y: 64 },
-  /** The strip of bare `Task Group Panel` between IC-77's right edge and the pin. */
   taskGroupExpanderGap: { x: 136, y: 64 },
   rowTreeNoEntry: { x: 80, y: 400 },
   bareSchedule: { x: 500, y: 600 },
@@ -1462,9 +1011,8 @@ const AT = {
 const command = (patch: Partial<CommandItem> & { icon: string }): CommandItem => ({
   isEnabled: true,
   isPressed: false,
-  // FR-053: the entrance is not armed. ⛔ A separate member from `isPressed`,
-  // because IC-54 says the palette entry is not a button and FR-053 (MUST NOT)
-  // bars the pressed form -- so an arm may not travel on the toggle.
+  // Why: a member apart from isPressed: the palette entry is not a button (IC-54) and
+  // FR-053 bars the pressed form, so an arm may not travel on the toggle.
   isArmed: false,
   isChosen: false,
   label: patch.icon,
@@ -1473,8 +1021,8 @@ const command = (patch: Partial<CommandItem> & { icon: string }): CommandItem =>
 
 const FRAME: ScreenFrame = {
   isFullScreen: false,
-  // ⚠️ The `Task Group Panel` is drawn against the boundary FR-052 gives it, so
-  // the frame has to carry one for the panel to be on the screen at all.
+  // Why: the panel is drawn against the boundary FR-052 gives it, so the frame must
+  // carry one for the panel to be on the screen at all.
   dividers: [{ panel: 'taskGroupPanel', band: rect(170, 40, 6, 660), line: rect(172, 40, 1, 660) }],
   scrollbars: [],
 }
@@ -1486,35 +1034,29 @@ const HEADER: AppHeaderItems = {
   fileSavedByteLength: null,
   fileNeverSavedText: '',
   commands: [
-    // ⛔ FR-029: what cannot be used is drawn faint and does NOT go quiet.
+    // Why: a disabled entry is drawn faint and still answers (FR-029).
     command({ icon: 'IC-5', label: 'UndoNothingToUndo', isEnabled: false }),
     command({ icon: 'IC-7', label: 'ShowPalette' }),
     command({ icon: 'IC-13', label: 'ZoomTimeIn' }),
     command({ icon: 'IC-12', label: 'ZoomTimeOut' }),
   ],
-  // FR-038 (MUST): the header says which language is on. The same value
-  // `BASE_VIEW` carries -- S-99 is a single state for the whole screen.
+  // Why: the same language BASE_VIEW carries, since S-99 is one state for the whole
+  // screen (FR-038).
   language: 'ja',
 }
 
 const taskGroupTitle = (patch: Partial<TaskGroupTitle> & { taskGroupId: string }): TaskGroupTitle => ({
   depth: 1,
-  // `depth` x S-37, the product FR-085 subtracts before it cuts the name.
-  // ⚠️ It FOLLOWS the patched depth: a fixed number here would draw the
-  // deepest task group exactly like a root one, which is the very thing FR-085's
-  // indent case asks about.
+  // Trap: keep indentPx following the patched depth; a fixed number draws the deepest
+  // task group like a root one, which FR-085's indent case asks about.
   indentPx: (patch.depth ?? 1) * 12,
   ...taskGroupNameFont(patch.depth ?? 1),
   box: rect(0, 40, 170, 24),
   label: patch.taskGroupId,
   wholeLabel: patch.taskGroupId,
   isLabelTruncated: false,
-  // ⭐ A TASK GROUP WITH NOTHING TO FOLD, WHICH IS NOT A TASK GROUP WITHOUT CONTROLS. This
-  // read `null` until 2026-08-30, when `TaskGroupTitle.expander` stopped being
-  // nullable: 表 T-051 の `HF-1` puts the three on 「各タスクグループ」 and the closing
-  // paragraph under that table gives 「対象が 1 つも無い」 as a STATE the three
-  // carry -- which `FR-029` (MUST) then draws 薄く -- rather than as their
-  // absence. ⚠️ The neutral fixture is therefore the three with none armed.
+  // Why: a task group with nothing to fold still has its controls, drawn faint with none
+  // armed (HF-1, FR-029), so the neutral fixture is all false, not null.
   expander: { canOpen: false, canClose: false, canCloseBelow: false },
   isPinned: false,
   isSelected: false,
@@ -1522,17 +1064,9 @@ const taskGroupTitle = (patch: Partial<TaskGroupTitle> & { taskGroupId: string }
 })
 
 const PALETTE: CommandPalette = {
-  // ⭐ A CORNER, NOT A RECTANGLE. FR-053 (MUST) makes the palette's size follow
-  // its contents and (MUST NOT) bars the settings table from holding one, so
-  // the description says only where it floats. Its EXTENT is the fake browser's
-  // answer -- `LAYOUT` above registers it, corner for corner with this member --
-  // which is the whole reason IF-9 asks the drawing side which part a point is
-  // on.
+  // Why: a corner, not a rectangle: FR-053 sizes the palette by its contents, so its
+  // extent is the fake browser's answer, registered in LAYOUT.
   at: { x: PALETTE_BOX.x, y: PALETTE_BOX.y },
-  // GR-19 of 表 T-023d: 「パレットの上端に敷く帯」, whose height 表 T-206 states
-  // at `S-135a`. ⭐ A HEIGHT AND NOT A RECTANGLE -- the corner above is already
-  // the edge the band is laid along, and the band's width is the palette's own.
-  // ⚠️ The number is this file's own; see `GRAB_BAND_HEIGHT`.
   grabBandHeight: GRAB_BAND_HEIGHT,
   minimize: {
     icon: 'IC-75',
@@ -1579,16 +1113,14 @@ const NOTICE: Notice = {
   text: 'NoticeTextOne',
   nextSteps: ['NextStepOne'],
   affectedCount: 3,
-  // NT-8 (MUST): a told notice carries the entrance a person puts it away by,
-  // and the key that names WHICH telling that press puts away.
   dismissText: 'DismissWordOne',
   dismissKey: 'NT-3|RE-1',
   raisedNotices: [],
 }
 
 const BASE_VIEW: ScreenView = {
-  // S-99. `readScreenPartAt` answers with rectangles and entry ids, never with
-  // a word, so this member is inert for every case below.
+  // Why: readScreenPartAt answers with rectangles and entry ids, never a word, so
+  // the language is inert for every case below.
   language: 'ja',
   frame: FRAME,
   appHeaderItems: HEADER,
@@ -1607,29 +1139,19 @@ const BASE_VIEW: ScreenView = {
   commandPalette: null,
   openModal: null,
   notices: [],
-  // ⚠️ MENDED BY THE RECONCILER, NOT BY THIS FILE'S AUTHOR, and no assertion
-  // moved: `ScreenView` gained this member when 表 T-075's UF-67 cell became
-  // 「通知と確認」, so a base view built without it is no longer a
-  // `ScreenView` at all and `showScreenView` read `undefined.manner`. `null` is
-  // what every other absent surface here already carries.
-  // ⛔ THIS FILE STILL HAS NO CASE FOR THE CONFIRMATION -- see the report.
   confirmation: null,
   tooltips: [],
 }
 
 const viewWith = (patch: Partial<ScreenView>): ScreenView => ({ ...BASE_VIEW, ...patch })
 
-/** Everything 表 T-023a's 面 table names, drawn at once. */
 const OVER_THE_SCHEDULE: ScreenView = viewWith({
   commandPalette: PALETTE,
   helpModal: HELP_MODAL,
   notices: [NOTICE],
 })
 
-/** The palette with nothing over it. */
 const PALETTE_VIEW: ScreenView = viewWith({ commandPalette: PALETTE })
-
-// ===========================================================================
 
 describe('the specification still says what these cases copy', () => {
   it('表 T-065 IF-9 supplies a THIRD thing: which UI part and which entry a point is on', () => {
@@ -1637,15 +1159,12 @@ describe('the specification still says what these cases copy', () => {
     expect(row, '表 T-065 no longer holds IF-9').toBeDefined()
 
     const supply = row?.cells[row.cells.length - 1] ?? ''
-    // The two halves that were always there.
     expect(supply).toContain('作った記述を画面に載せ')
-    // ⭐ CR-192's third, which is what this whole file tests.
     expect(supply).toContain('画面上の点')
     expect(supply).toContain('UI パーツ')
     expect(supply).toContain('入口')
     expect(supply).toContain('T-103')
     expect(supply).toContain('T-109')
-    // The sides are unchanged: declared by ScreenRenderer, drawn by this unit.
     expect(row?.cells.join(' ')).toContain('ScreenSurface')
     expect(row?.cells.join(' ')).toContain('DomScreenSurface')
   })
@@ -1676,7 +1195,7 @@ describe('the specification still says what these cases copy', () => {
       expect(row, `表 T-109 no longer holds ${one.row}`).toBeDefined()
       expect(row?.cells[0], `${one.row} left the Command Palette`).toContain('Command Palette')
     }
-    // ⛔ 表 T-023b's arms but AR-1 (which is "none"), and nothing invented.
+    // Why: every T-023b arm but AR-1, which is none, and nothing invented.
     expect([...new Set(T_109_ARMING.map((one) => one.arm))].sort()).toEqual([
       'AR-2',
       'AR-3',
@@ -1709,18 +1228,14 @@ describe('the specification still says what these cases copy', () => {
     for (const one of T_109_TASK_GROUP_EXPANDER) {
       const row = rows.find((held) => held.id === one.row)
       expect(row, `表 T-109 no longer holds ${one.row}`).toBeDefined()
-      // 面: the entrance is named by the panel (U-23), and 正: 表 T-051.
       expect(row?.by['面'], `${one.row} left the Task Group Panel`).toContain('Task Group Panel')
       expect(row?.by['何の入口か'], `${one.row} no longer means "${one.gist}"`).toContain(one.gist)
       expect(row?.by['正'], `${one.row} no longer traces 表 T-051 の ${one.rule}`).toContain(
         one.rule,
       )
     }
-    // ⛔ The four are DIFFERENT rows of the roster. If any two were ever merged
-    // the cases below would be asking for an entry the specification does not
-    // name. ⭐ The count is `HF-1`'s, so it is READ from that row and not typed:
-    // the lattice sentence names four controls, and 表 T-109 gives each one an
-    // entrance of its own.
+    // Why: the four must be different roster rows, or the cases below ask for an entry
+    // the spec does not name; the count is read from HF-1, not typed.
     expect(new Set(T_109_TASK_GROUP_EXPANDER.map((one) => one.row)).size).toBe(
       T_051_HF1_LATTICE.length,
     )
@@ -1757,8 +1272,8 @@ describe('the specification still says what these cases copy', () => {
 
 describe('R7.3 / LY-5 -- the browser arrives, it is not reached for', () => {
   it('no document anywhere: a global reach would fail every case in this file', () => {
-    // ⛔ If this stops being true the file stops proving R7.3 -- a unit that
-    // reached for `globalThis.document` would quietly succeed instead.
+    // Why: with globals present, a unit reaching for globalThis.document would quietly
+    // succeed and this file would stop proving R7.3.
     expect('document' in globalThis).toBe(false)
     expect('window' in globalThis).toBe(false)
   })
@@ -1770,8 +1285,6 @@ describe('R7.3 / LY-5 -- the browser arrives, it is not reached for', () => {
       part: 'App Header',
       entry: 'IC-7',
       format: null,
-      // ⚠️ An entrance of the `App Header` stands on no task group and against no
-      // person, which `ScreenPart` states for both keys in as many words.
       taskGroupId: null,
       resourceUid: null,
       dividerPanel: null,
@@ -1785,10 +1298,8 @@ describe('R7.3 / LY-5 -- the browser arrives, it is not reached for', () => {
 
     ask(built, AT.entryIc7.x, AT.entryIc7.y)
 
-    // ⚠️ `elementsFromPoint` is admitted beside `elementFromPoint`: both put the
-    // SAME question, and 表 T-065 fixes the answer rather than the way of getting
-    // it. Anything else would be this unit reading a value LY-5 leaves with the
-    // caller.
+    // Why: elementsFromPoint is admitted beside elementFromPoint: both put the same
+    // question, and T-065 fixes the answer, not the way of getting it.
     for (const member of new Set(built.world.hostMembers.slice(before))) {
       expect(['createElement', 'elementFromPoint', 'elementsFromPoint']).toContain(member)
     }
@@ -1797,16 +1308,8 @@ describe('R7.3 / LY-5 -- the browser arrives, it is not reached for', () => {
 
 describe('IF-9 of 表 T-065 -- one member per supply the cell names', () => {
   it('publishes readScreenPartAt beside the other members IF-9 names', () => {
-    // ⭐ THE MEMBERS ARE WORKED OUT FROM THE CELL, NOT COUNTED. IF-9 reads
-    // 「作った記述を画面に載せ、**編集できる欄で確定した値を、その欄が名乗る
-    // 行 ID とともに返し**、文字入力を受ける欄で編集が始まったことと終わった
-    // ことを…知らせ、**画面上の点がどの
-    // UI パーツ（表 T-103）のどの入口（表 T-109）の上か…を答える**」 -- and
-    // `screen-surface.ts` gives each duty a member and says which
-    // clause it serves. ⚠️ The third and the fourth each arrived after this case
-    // was written; the list below is what the cell names TODAY, and the case
-    // falls again the day a supply is added or dropped rather than merely when a
-    // number moves.
+    // Why: the members are worked out from the IF-9 cell, not counted, so the case
+    // falls when a supply is added or dropped, not merely when a number moves.
     const surface = surfaceOf(wire())
 
     expect(Object.keys(surface).sort()).toEqual([
@@ -1834,12 +1337,8 @@ describe('IF-9 of 表 T-065 -- one member per supply the cell names', () => {
 
     const answer = ask(built, AT.entryIc7.x, AT.entryIc7.y)
     expect(answer).not.toBeNull()
-    // ⛔ THE ROSTER IS WRITTEN DOWN AND NOT DERIVED. `ScreenPart` is a type and
-    // leaves nothing behind at run time, so a list kept here is the only thing
-    // that can notice a member being DROPPED -- reading the keys off the very
-    // answer being checked would agree with any answer at all. ⚠️ Each name is
-    // one the seam declares in src/adapter/screen-renderer/screen-surface.ts;
-    // adding one there is meant to land here.
+    // Why: written down, not derived: ScreenPart is a type with nothing at run time,
+    // and keys read off the answer would agree with any answer at all.
     expect(Object.keys(answer ?? {}).sort()).toEqual([
       'dividerPanel',
       'entry',
@@ -1853,16 +1352,11 @@ describe('IF-9 of 表 T-065 -- one member per supply the cell names', () => {
 })
 
 describe("表 T-023a (MUST) -- the decision order is the drawing area's alone", () => {
-  // ⛔ 01-04-requirements.md 「判定順序を適用するのは日程の描画領域だけとする
-  // こと（MUST）」. The three parts below hold no `ScreenRegions` rectangle -- PI-35
-  // has six and none of them is one of these -- so `regionAtPointer` answers
-  // `taskGroupArea` for a point on any of them. A non-null answer here is what stops
-  // PTD-5's marquee from starting underneath an open surface.
+  // Why: these parts hold no ScreenRegions rectangle, so regionAtPointer answers
+  // taskGroupArea there; a non-null answer stops PTD-5's marquee underneath.
   const overTheSchedule = [
     { part: 'Command Palette', at: AT.paletteNoEntry, why: 'FR-053 floats it' },
     { part: 'Help Modal', at: AT.modalOnly, why: 'S-99g opens it over the screen' },
-    // ⭐ U-57 of 表 T-103 settled the name of the part the notices stand in, so
-    // the case's own title now quotes the table instead of an invented spelling.
     { part: partName('U-57'), at: AT.notices, why: 'FR-076 raises it over the screen' },
   ] as const
 
@@ -1880,13 +1374,10 @@ describe("表 T-023a (MUST) -- the decision order is the drawing area's alone", 
   it('a press on a part but on none of its entries answers the part with entry null', () => {
     const built = drawn(OVER_THE_SCHEDULE)
 
-    // ⭐ The third answer CR-192 argued for: neither an entry nor the schedule.
     expect(ask(built, AT.paletteNoEntry.x, AT.paletteNoEntry.y)).toEqual({
       part: 'Command Palette',
       entry: null,
       format: null,
-      // ⚠️ The palette floats over the schedule and stands on no task group of the
-      // person's document, so neither key has anything to name.
       taskGroupId: null,
       resourceUid: null,
       dividerPanel: null,
@@ -1905,10 +1396,8 @@ describe('FR-029 -- a disabled entry answers; it does not go quiet', () => {
   it('answers IC-5 although that entry cannot be used', () => {
     const built = drawn(viewWith({}))
 
-    // ⛔ FR-029's RATIONALE: 「無反応だと故障に見える」. An entry that answered
-    // `null` would BE the unresponsive one, and the reason a person is shown
-    // (EZ-2's explanation, hung on this very entry) can only be raised once the
-    // shell knows WHICH entry the pointer is on.
+    // Why: an entry answering null would be the unresponsive one FR-029 forbids, and
+    // EZ-2's explanation can be raised only once the shell knows which entry it is.
     expect(ask(built, AT.entryIc5.x, AT.entryIc5.y)).toEqual({
       part: 'App Header',
       entry: 'IC-5',
@@ -1933,8 +1422,8 @@ describe('FR-029 -- a disabled entry answers; it does not go quiet', () => {
   it('⛔ keeps the entry pointable -- it is drawn faint, not taken out of the tree', () => {
     const built = drawn(viewWith({}))
 
-    // ⚠️ The `disabled` attribute stops an element taking the pointer, and then
-    // no answer above could ever be given. FR-029 asks for 「薄く描く」.
+    // Why: a `disabled` attribute stops an element taking the pointer, so no answer
+    // above could be given; FR-029 asks only for a faint drawing.
     const entry = entryFor(built.root(), 'IC-5')
     expect(entry.hasAttribute('disabled')).toBe(false)
     expect(isShown(entry)).toBe(true)
@@ -1942,10 +1431,8 @@ describe('FR-029 -- a disabled entry answers; it does not go quiet', () => {
 })
 
 describe('FR-053 / 表 T-023b -- the palette can be armed from (SP-1 .. SP-4)', () => {
-  // ⭐ FR-083's SP-1 .. SP-4 turn on WHICH ENTRY was pressed and on what is
-  // selected. The selection is the translator's; the entry is this member's, and
-  // until it answered, 表 T-023b could only ever be AR-1 -- CR-192's own account
-  // of the hole.
+  // Why: FR-083's SP-1 .. SP-4 turn on which entry was pressed; until this member
+  // answered, T-023b could only ever be AR-1.
   it.each(T_109_ARMING)('answers $row on the Command Palette (arms $arm)', ({ row }) => {
     const built = drawn(PALETTE_VIEW)
 
@@ -1966,9 +1453,8 @@ describe('FR-053 / 表 T-023b -- the palette can be armed from (SP-1 .. SP-4)', 
   it('names the containing surface, not the grouping inside it (U-34)', () => {
     const built = drawn(PALETTE_VIEW)
 
-    // ⚠️ `Palette Groups` and `Palette Commands` (U-34) really are drawn; the
-    // answer names the surface anyway, because that is the granularity 表 T-109's
-    // 面 column uses and the only one an entry can be joined back to it by.
+    // Why: the answer names the surface, not U-34's parts, because that is the grain
+    // T-109's surface column uses and the only one an entry joins back by.
     expect(byRole(built.root(), 'Palette Commands').length).toBeGreaterThan(0)
     expect(ask(built, 412, 312)?.part).toBe('Command Palette')
   })
@@ -1983,27 +1469,18 @@ describe('FR-053 / 表 T-023b -- the palette can be armed from (SP-1 .. SP-4)', 
   it('⛔ names the Task Group Panel and never the Task Group Title Tree (U-23, MUST)', () => {
     const built = drawn(viewWith({}))
 
-    // ⚠️ The tree is drawn ON the panel and is the nearer name, which is exactly
-    // the spelling U-23 forbids for an entrance -- and which 表 T-109 does not
-    // use for IC-58 .. IC-60 either.
+    // Why: the tree is the nearer name but U-23 forbids it for an entrance, and T-109
+    // does not use it for IC-58 .. IC-60 either.
     expect(byRole(built.root(), 'Task Group Title Tree').length).toBeGreaterThan(0)
     expect(ask(built, AT.rowTreeNoEntry.x, AT.rowTreeNoEntry.y)?.part).toBe('Task Group Panel')
   })
 })
 
 describe('GR-19 of 表 T-023d -- the band on the palette, and the claim it has', () => {
-  // ⭐ WHY THIS UNIT AT ALL. `ScreenPart.entry` declares it: the band carries no
-  // name of its own to be answered by, 表 T-109 gives it IC-53, and GR-19 gives
-  // it 「帯の下に何が描かれていても帯が勝つ」 -- which, for a palette floating
-  // over the schedule, is what the topmost drawn node at that point answers.
-  // ⛔ So a press on it has somewhere to arrive; without this answer, FR-053's
-  // drag has no entrance at all and GR-19 -- a MUST standing first in its table
-  // -- cannot be obeyed.
+  // Why: the band has no name of its own and wins whatever is drawn under it, so a
+  // press on it needs this answer, or FR-053's drag has no entrance at all.
 
   it('表 T-023d still puts the palette band FIRST, which is what makes it win', () => {
-    // ⛔ The premise of every case below, read out of the .md rather than
-    // assumed: the preamble makes the upper row win, and the upper row is this
-    // one. A re-ordering of that table lands HERE and not silently.
     expect(T_023D.rows.length, '表 T-023d has no rows').toBeGreaterThan(1)
     expect(T_023D_TOP_TASK_GROUP?.id, '表 T-023d no longer opens with the palette band').toBe('GR-19')
 
@@ -2014,7 +1491,6 @@ describe('GR-19 of 表 T-023d -- the band on the palette, and the claim it has',
     expect(requirements, '表 T-023d no longer says the upper row wins').toContain(
       T_023D_PRIORITY_PREAMBLE,
     )
-    // The row names the part it is laid on and the requirement that drags it.
     expect(T_023D_TOP_TASK_GROUP?.cells.join(' ')).toContain(T_109_GRAB_BAND.surface)
     expect(T_023D_TOP_TASK_GROUP?.cells.join(' ')).toContain(T_109_GRAB_BAND.authority)
   })
@@ -2026,8 +1502,8 @@ describe('GR-19 of 表 T-023d -- the band on the palette, and the claim it has',
       part: 'Command Palette',
       entry: T_109_GRAB_BAND.row,
       format: null,
-      // ⛔ The band moves `ScreenSession.commandPaletteAt` (FR-053) and nothing
-      // in the person's document, so it names neither a task group nor a resource.
+      // Why: the band moves commandPaletteAt (FR-053), nothing in the document, so it
+      // names neither a task group nor a resource.
       taskGroupId: null,
       resourceUid: null,
       dividerPanel: null,
@@ -2036,11 +1512,8 @@ describe('GR-19 of 表 T-023d -- the band on the palette, and the claim it has',
   })
 
   it('⛔ the band beats what is drawn under it -- the schedule below it never answers', () => {
-    // GR-19: 「帯の下に何が描かれていても帯が勝つ —— パレットは日程の上へ浮くの
-    // で、掴めない位置へ置けてしまうと二度と動かせなくなる」. The same point with
-    // NO palette drawn is bare schedule, and 表 T-023a would let PTD-5 start a
-    // marquee there; with the palette drawn it is the band's, first row of its
-    // table.
+    // Why: the same point with no palette drawn is bare schedule, where T-023a would
+    // let PTD-5 start a marquee; with the palette drawn it is the band's.
     const bare = drawn(viewWith({}))
     expect(
       ask(bare, AT.paletteGrabBand.x, AT.paletteGrabBand.y),
@@ -2054,11 +1527,8 @@ describe('GR-19 of 表 T-023d -- the band on the palette, and the claim it has',
   })
 
   it('R3.4 -- the band ends where the first entry begins, and neither claims both', () => {
-    // GR-19 lays the band 「パレットの上端に敷く」 and 表 T-206 gives it a height,
-    // so the band and what it stands above share an edge. ⛔ The point asked
-    // about is the point handed in: a margin of the unit's own would slide this
-    // edge and hand one press to the wrong row -- either FR-083's SP-1 .. SP-4
-    // to the drag, or FR-053's drag to a shape.
+    // Why: the point asked about is the point handed in; a margin of the unit's own would
+    // slide this edge and hand a press to the wrong row (SP-1 .. SP-4 or the drag).
     const built = drawn(PALETTE_VIEW)
     const firstEntry = T_109_ARMING[0].row
 
@@ -2069,21 +1539,16 @@ describe('GR-19 of 表 T-023d -- the band on the palette, and the claim it has',
   })
 
   it('⛔ lays the band on a palette that holds no entry at all', () => {
-    // GR-19 states a PLACE and not a state -- 「パレットの上端」 -- so there is no
-    // condition of the palette's contents under which the band is absent. ⚠️ A
-    // palette can hold nothing: FR-053 (MUST) has the size follow the contents,
-    // and 表 T-023c admits no selection that empties the roster, but the empty
-    // description is a value this seam is handed all the same. ⛔ A palette drawn
-    // without a band is a palette that can never be moved again, which is the
-    // accident GR-19's own warning names.
+    // Why: GR-19 states a place, not a state, and an empty description still reaches
+    // this seam; a palette drawn without a band could never be moved again.
     const built = drawn(viewWith({ commandPalette: { ...PALETTE, groups: [] } }))
 
     expect(ask(built, AT.paletteGrabBand.x, AT.paletteGrabBand.y)).toEqual({
       part: 'Command Palette',
       entry: T_109_GRAB_BAND.row,
       format: null,
-      // ⛔ The band moves `ScreenSession.commandPaletteAt` (FR-053) and nothing
-      // in the person's document, so it names neither a task group nor a resource.
+      // Why: the band moves commandPaletteAt (FR-053), nothing in the document, so it
+      // names neither a task group nor a resource.
       taskGroupId: null,
       resourceUid: null,
       dividerPanel: null,
@@ -2092,11 +1557,8 @@ describe('GR-19 of 表 T-023d -- the band on the palette, and the claim it has',
   })
 
   it('⛔ answers the band even though 表 T-109 calls that row no button', () => {
-    // 表 T-109: 「掴んで動かせることを示す。**ボタンではない**」. `ScreenPart`
-    // declares the distinction this case holds: this member is the ROW a point
-    // is ON, which is not the same question as which entry can be pressed. ⛔ So
-    // the answer is owed even though `CommandPalette.groups` rightly holds no
-    // `CommandItem` for it -- and the palette drawn here carries none.
+    // Why: entry is the row a point is on, not which entry can be pressed, so the band is
+    // answered though CommandPalette.groups rightly holds no CommandItem for it.
     const built = drawn(PALETTE_VIEW)
 
     expect(T_109_GRAB_BAND.isButton).toBe(false)
@@ -2114,15 +1576,14 @@ describe('EZ-2 of 表 T-040 -- the icon the pointer rests ON', () => {
   it('answers one entry, and it is the one under the point', () => {
     const built = drawn(viewWith({}))
 
-    // Four entries are drawn; the answer names exactly the one pressed.
     expect(ask(built, AT.entryIc13.x, AT.entryIc13.y)?.entry).toBe('IC-13')
   })
 
   it('⛔ does not answer the neighbor that shares an edge with it', () => {
     const built = drawn(viewWith({}))
 
-    // IC-13 occupies x 180..204 and IC-12 x 204..228. R3.4 makes the interval
-    // half-open, so the shared edge belongs to IC-12 -- and never to both.
+    // Why: IC-13 holds x 180..204 and IC-12 x 204..228; R3.4 gives the shared edge
+    // to IC-12 and never to both.
     expect(ask(built, 203, 20)?.entry).toBe('IC-13')
     expect(ask(built, 204, 20)?.entry).toBe('IC-12')
   })
@@ -2130,9 +1591,8 @@ describe('EZ-2 of 表 T-040 -- the icon the pointer rests ON', () => {
   it('answers entry null where the pointer rests on the part but on no icon', () => {
     const built = drawn(viewWith({}))
 
-    // ⭐ EZ-2 shows the explanation OF THAT ICON, so "no icon" has to be tellable
-    // from "some icon" -- `ScreenSession.iconUnderPointer` (PND-141) is filled
-    // from this and is `IconId | null` for the same reason.
+    // Why: EZ-2 explains the icon under the pointer, so "no icon" must be told from
+    // "some icon"; iconUnderPointer is IconId | null for the same reason.
     expect(ask(built, AT.headerNoEntry.x, AT.headerNoEntry.y)).toEqual({
       part: 'App Header',
       entry: null,
@@ -2146,11 +1606,8 @@ describe('EZ-2 of 表 T-040 -- the icon the pointer rests ON', () => {
 })
 
 describe('R3.4 -- half-open, the way the rest of src/ resolves an edge', () => {
-  // ⭐ src/entity/layout-engine/screen-regions/screen-regions.ts:89-101 states it
-  // for `regionAtPointer`: 「a point on the right or bottom edge belongs to
-  // whatever comes next, so adjoining regions never both claim it」, citing R3.4
-  // (docs/development-rules/07-review-standards.md:495). A second rule on the
-  // same screen would put one pixel under two answers.
+  // Why: regionAtPointer resolves edges the same half-open way (R3.4); a second rule
+  // on the same screen would put one pixel under two answers.
   it('holds its left and top edge', () => {
     const built = drawn(viewWith({}))
 
@@ -2169,7 +1626,6 @@ describe('R3.4 -- half-open, the way the rest of src/ resolves an edge', () => {
   it('lets go of its right and bottom edge', () => {
     const built = drawn(viewWith({}))
 
-    // The last point inside the entry on each axis, then the first point outside.
     expect(ask(built, 203, 31)?.entry).toBe('IC-13')
     expect(ask(built, 180, 32)).toEqual({
       part: 'App Header',
@@ -2185,8 +1641,6 @@ describe('R3.4 -- half-open, the way the rest of src/ resolves an edge', () => {
   it("hands the App Header's bottom edge to the part that begins there", () => {
     const built = drawn(OVER_THE_SCHEDULE)
 
-    // The `App Header` is y 0..40 and U-57's box begins at y 40 -- both boxes
-    // are this file's own (LAYOUT), because nothing in docs/spec fixes them.
     expect(ask(built, AT.headerLastRow.x, AT.headerLastRow.y)?.part).toBe('App Header')
     expect(ask(built, AT.noticesFirstRow.x, AT.noticesFirstRow.y)?.part).toBe(partName('U-57'))
   })
@@ -2201,9 +1655,8 @@ describe('a point that is on nothing at all', () => {
     expect(ask(built, WINDOW.width + 500, WINDOW.height + 500)).toBeNull()
   })
 
+  // Spec: S-99e
   it('answers null for a part that is not drawn this frame', () => {
-    // S-99e says the palette is hidden, so `ScreenView.commandPalette` is null --
-    // and nothing may be answered for the place it would have taken.
     const built = drawn(viewWith({ commandPalette: null }))
 
     expect(ask(built, AT.paletteUnderModal.x, AT.paletteUnderModal.y)).toBeNull()
@@ -2212,9 +1665,8 @@ describe('a point that is on nothing at all', () => {
   it('answers null before the first description arrives (BO-1 of 表 T-077)', () => {
     const built = wire()
 
-    // ⛔ 「寸法が確定するまで 1 枚も描かない」: the skeleton is mounted so that the
-    // header can be measured, but nothing is on the screen yet, so no point is on
-    // anything.
+    // Why: the skeleton is mounted so the header can be measured, but nothing is drawn
+    // until the dimensions settle (BO-1), so no point is on anything.
     expect(built.reportedHeights).toEqual([HEADER_HEIGHT])
     expect(ask(built, AT.entryIc7.x, AT.entryIc7.y)).toBeNull()
   })
@@ -2224,16 +1676,16 @@ describe('overlapping parts', () => {
   it('gives the overlap to the open surface, which S-99g opens OVER the screen', () => {
     const built = drawn(OVER_THE_SCHEDULE)
 
-    // The `Help Modal` is x 500..900 / y 380..680 and the palette
-    // x 400..620 / y 300..480, so this point is on both.
+    // Why: the Help Modal is x 500..900 / y 380..680 and the palette x 400..620 /
+    // y 300..480, so this point is on both.
     expect(byRole(built.root(), 'Command Palette').length).toBeGreaterThan(0)
     expect(byRole(built.root(), 'Help Modal').length).toBeGreaterThan(0)
     expect(ask(built, AT.paletteUnderModal.x, AT.paletteUnderModal.y)?.part).toBe('Help Modal')
   })
 
   it('answers the same point for the palette once the surface is closed', () => {
-    // ⭐ The same press one frame apart: the answer changes because what is DRAWN
-    // changed, which is the whole reason the drawing side is the side asked.
+    // Why: the same press one frame apart changes answer because what is drawn changed,
+    // which is why the drawing side is the side asked.
     const built = drawn(OVER_THE_SCHEDULE)
     expect(ask(built, AT.paletteUnderModal.x, AT.paletteUnderModal.y)?.part).toBe('Help Modal')
 
@@ -2244,14 +1696,11 @@ describe('overlapping parts', () => {
   it('carries one of each where a part and its own entry hold the same point', () => {
     const built = drawn(OVER_THE_SCHEDULE)
 
-    // IC-52 is drawn inside the `Help Modal`: both hold the point, and the answer
-    // carries one of each rather than choosing between them.
+    // Why: IC-52 is drawn inside the Help Modal, so the answer carries one of each.
     expect(ask(built, AT.modalEntry.x, AT.modalEntry.y)).toEqual({
       part: 'Help Modal',
       entry: 'IC-52',
       format: null,
-      // ⚠️ S-99g's surface is opened OVER the screen and names no task group of the
-      // document underneath it, however far the point is down the panel.
       taskGroupId: null,
       resourceUid: null,
       dividerPanel: null,
@@ -2297,9 +1746,8 @@ describe('⛔ R6.3 -- what the unit actually did to the fake', () => {
     ask(built, AT.entryIc7.x, AT.entryIc7.y)
     ask(built, 5000, 5000)
 
-    // ⚠️ The member is `semi-pure-mutable`: it reads the page as it stands and may not
-    // change it. NFR-010 also forbids waking a frame on a trigger 表 T-078 does
-    // not list, and a listener registered here would be one.
+    // Why: the member reads the page and may not change it; NFR-010 forbids waking a
+    // frame on a trigger T-078 does not list, and a listener here would be one.
     expect(serialize(built.root())).toBe(drawnBefore)
     expect(built.world.registrations).toHaveLength(listenersBefore)
     expect(built.world.created).toHaveLength(madeBefore)
@@ -2310,7 +1758,6 @@ describe('⛔ R6.3 -- what the unit actually did to the fake', () => {
     const built = drawn(viewWith({}))
     expect(ask(built, AT.entryIc7.x, AT.entryIc7.y)?.entry).toBe('IC-7')
 
-    // The header keeps its place; the entry that stood there is gone.
     surfaceOf(built).showScreenView(
       viewWith({ appHeaderItems: { ...HEADER, commands: [command({ icon: 'IC-13' })] } }),
     )
@@ -2328,43 +1775,8 @@ describe('⛔ R6.3 -- what the unit actually did to the fake', () => {
   })
 })
 
-// ===========================================================================
-
 describe('the entries of 表 T-109 on the `Task Group Panel`', () => {
-  // ⭐ THE FINDING THIS BLOCK ONCE HELD IS CLOSED. It read: the unit DRAWS the
-  // `Task Group Pin` (U-48) but marks it with no row of 表 T-109, so IF-9 cannot name
-  // the entry and a press comes back 「面の上・入口の外」. The unit has since
-  // marked it -- `data-icon="IC-60"` at dom-screen-surface.ts:614, with the
-  // reasoning above it -- so the case below is live and passing.
-  //
-  // ⚠️ The case kept failing for a while after the unit was fixed, and that was
-  // THIS FILE's fault, not the unit's: the pin's box was registered under
-  // `role:Task Group Pin` while `layoutKey` had begun yielding `icon:IC-60` for it, so
-  // the fake handed the pin a ZERO rectangle and no press could land. Repaired
-  // at the registration site (see the note in `LAYOUT`); the expectation was
-  // never touched (docs/development-rules/04-verification.md §1).
-  //
-  // 表 T-065 IF-9, docs/spec/05-07-design.md, and its MUST:
-  //   「画面上の点がどの UI パーツ（表 T-103）のどの入口（表 T-109）の上かを答える」
-  //   「点がどの入口の上かは、その入口を描いた側が答えること（MUST）」
-  //
-  // 表 T-109, docs/spec/_assets/tbl-glossary.md, holds three entries on
-  // the `Task Group Panel`:
-  //   IC-58  タスクグループの配下をすべて展開する            表 T-051 の HF-2
-  //   IC-59  そのタスクグループ自身を折りたたむ               表 T-051 の HF-3
-  //   IC-60  タスクグループをピン止めし、同じ入口で外す   FR-098
-  //
-  // ⭐ IC-58 / IC-59 ARE ANSWERED TOO, and the block below asks for both. The
-  // note that used to stand here said they were not: it read that the unit drew
-  // the `Task Group Expander` (U-47) as ONE unmarked control, and the pair is now drawn
-  // and marked, which is what 表 T-109's two rows and FR-029 (MUST) ask for.
-  //
-  // ⭐ AND THE TASK GROUP KEY NOW TRAVELS. `ScreenPart.taskGroupId` carries
-  // `TaskGroup.id` (AT-51), so a press on one of the three entries the panel
-  // holds says which KIND of control it was AND which task group's -- which is what
-  // CR-192 §0 ⑧-5 left the TRANSLATOR short of. ⛔ The note that used to stand
-  // here said the key was left off by design; that stopped being true when the
-  // member was declared.
+  // Spec: FR-098, AT-51, U-48
   it('answers IC-60 for a press on the Task Group Pin (FR-098, 表 T-109 IC-60)', () => {
     const built = drawn(viewWith({}))
 
@@ -2373,9 +1785,8 @@ describe('the entries of 表 T-109 on the `Task Group Panel`', () => {
       part: 'Task Group Panel',
       entry: 'IC-60',
       format: null,
-      // ⛔ FR-098 pins ONE task group, and `BASE_VIEW` draws exactly one -- so the
-      // press has to come back naming it. A `null` here is the state that left
-      // the pinning unreachable by pointer.
+      // Why: FR-098 pins one task group and BASE_VIEW draws exactly one, so the press
+      // must come back naming it; a null left pinning unreachable by pointer.
       taskGroupId: 'g-1',
       resourceUid: null,
       dividerPanel: null,
@@ -2384,33 +1795,10 @@ describe('the entries of 表 T-109 on the `Task Group Panel`', () => {
   })
 })
 
-// ===========================================================================
-// U-47 `Task Group Expander` -- the pair of entries 表 T-109 gives the panel.
-//
-// ⭐ WHAT IS BEING PINNED HERE, AND WHAT IS NOT. 表 T-051 says what the two
-// controls DO (`HF-2` opens the row's whole subtree, `HF-3` collapses the row
-// itself -- 表 T-015's `HR-3` and `HR-5`); carrying that out is the use case's. What IF-9 owes, and all these cases ask for, is that a
-// press on one can be told from a press on the other -- 「点がどの入口の上かは、
-// その入口を描いた側が答えること（MUST）」 (docs/spec/05-07-design.md). ⛔ A
-// unit that drew one control, or that drew two and named neither, would leave
-// the shell with one place to hang two different effects on, and 表 T-051 would
-// have no way to be obeyed downstream.
-// ===========================================================================
-
-/**
- * What a task group with nothing under it carries.
- *
- * ⭐⭐ IT IS NOT `null`, AND ON 2026-08-30 IT STOPPED BEING ABLE TO BE. 表 T-051
- * の `HF-1` places the three on 「**各タスクグループ**」 with no exception, and the closing
- * paragraph under that table says what a task group with nothing to fold carries
- * instead: 「⛔ **その操作で、描かれるタスクグループが 1 つも増減しないときは、対象が 1 つも
- * 無いものとして扱うこと（MUST）**」 -- a STATE of the three, which `FR-029`
- * (MUST) then draws 薄く. ⇒ `TaskGroupTitle.expander` is no longer nullable, so the
- * cases that used to spell this `null` spell it here.
- */
+// Why: not null: HF-1 puts the controls on every task group, and one with nothing
+// to fold carries them with none armed, drawn faint (FR-029).
 const NOTHING_TO_FOLD: TaskGroupExpander = { canOpen: false, canClose: false, canCloseBelow: false }
 
-/** A panel holding exactly one task group, with the expander this case wants. */
 const withExpander = (expander: TaskGroupExpander): ScreenView =>
   viewWith({
     taskGroupPanel: {
@@ -2419,7 +1807,6 @@ const withExpander = (expander: TaskGroupExpander): ScreenView =>
     },
   })
 
-/** Every state `TaskGroupExpander` can be in -- both spent is the boundary FR-029 speaks to. */
 const EXPANDER_STATES = [
   { canOpen: true, canClose: true, canCloseBelow: false },
   { canOpen: true, canClose: false, canCloseBelow: false },
@@ -2427,34 +1814,18 @@ const EXPANDER_STATES = [
   { canOpen: false, canClose: false, canCloseBelow: false },
 ] as const
 
-/** Where each side of the pair was laid out. ⚠️ This file's placing, not the specification's. */
+// Why: this file's own placing, not the specification's.
 const EXPANDER_AT: Readonly<Record<string, { readonly x: number; readonly y: number }>> = {
   'IC-58': AT.taskGroupExpanderOpen,
   'IC-59': AT.taskGroupExpanderClose,
   'IC-77': AT.taskGroupExpanderCloseBelow,
-  // ⭐ `HF-13`'s entrance joined `HF-1`'s count on 2026-08-30, so it joins the
-  // points too; its box was already laid out for the cases below it.
   'IC-90': AT.taskGroupOpenOneLevel,
 }
 
-/** The rows of 表 T-109 that 表 T-051 の `HF-1` puts on every task group, sorted. */
 const EXPANDER_TASK_GROUPS = T_109_TASK_GROUP_EXPANDER.map((one) => one.row).sort()
 
-/**
- * Every control the panel drew that carries one of `HF-1`'s three rows.
- *
- * ⛔⛔ FOUND BY `data-icon` AND NO LONGER BY `data-role="Task Group Expander"`, and the
- * change is a reading of the specification rather than a convenience. 表 T-103's
- * `U-47` says 「タスクグループの折りたたみの操作子。⛔ **員数と置き方は 表 T-051 の `HF-1` が
- * 持ち、本行は持たない**」, and `HF-1` enumerates exactly three -- DFC-161 「開く操作子と、
- * そのタスクグループ自身を閉じる操作子と、配下をすべて折りたたむ操作子を 1 つずつ」. `IC-90`
- * comes from `HF-13` and `IC-91` from `HF-14`, neither of which `HF-1` counts.
- * ⚠️ WHETHER THOSE TWO ARE PART OF `U-47` IS NOT DECIDED ANYWHERE: `U-47` points
- * its count at `HF-1` (three), while A-appendix.md's entry for version 1.72 says
- * the count it dropped was 「入口が 5 つになる直前であった」 (five). ⛔ So no
- * case here may turn on `data-role`, in either direction. `data-icon` carries the
- * row of 表 T-109, which IS decided, and that is what these read.
- */
+// Why: found by data-icon, not data-role: whether IC-90 and IC-91 belong to U-47 is
+// decided nowhere, while data-icon carries the T-109 row, which is decided.
 const expanderControls = (built: Stage): FakeElement[] =>
   selfAndDescendants(built.root()).filter((one) => {
     const icon = one.getAttribute('data-icon')
@@ -2495,13 +1866,9 @@ describe('表 T-051 HF-1 -- one opening control and one closing control per task
     )
 
     const icons = expanderIcons(built)
-    // ⭐ FOUR PER TASK GROUP SINCE 2026-08-30 (`HF-1`'s lattice counts the hide, the
-    // one-level open, the fold-all-below and the open-all-below), on each of
-    // the two task groups. ⛔ The count is read from the roster, never typed: a fifth
-    // control added to `HF-1` moves this number on its own.
     expect(icons).toHaveLength(T_109_TASK_GROUP_EXPANDER.length * 2)
-    // ⛔ U-46 lifts a pinned task group out of the scrolling list, but it is still a task group
-    // OF the panel, and HF-1 says 各タスクグループ without an exception for it.
+    // Why: U-46 lifts a pinned task group out of the scrolling list, but it is still a
+    // task group of the panel, and HF-1 makes no exception for it.
     for (const one of T_109_TASK_GROUP_EXPANDER) {
       const drawnTwice = icons.filter((held) => held === one.row)
       expect(drawnTwice, `${one.row} was not drawn once per task group`).toHaveLength(2)
@@ -2513,11 +1880,8 @@ describe('表 T-051 HF-1 -- one opening control and one closing control per task
     (state) => {
       const built = drawn(withExpander(state))
 
-      // ⛔ FR-029's RATIONALE 「無反応だと故障に見える」 and its MUST 「掴めない
-      // 端点を薄く描いて理由をツールチップで示すこと」: the spent side is drawn
-      // faint. A control that vanished when it could not be used would move the
-      // OTHER one under the pointer, and HF-4's 「名前ごとに位置が変わると狙え
-      // ない」 is the same complaint about the same panel.
+      // Why: a spent control is drawn faint, not removed: a vanished control would move
+      // the other one under the pointer (FR-029, HF-4).
       expect(expanderIcons(built).sort()).toEqual(EXPANDER_TASK_GROUPS)
     },
   )
@@ -2527,28 +1891,8 @@ describe('表 T-051 HF-1 -- one opening control and one closing control per task
     const row = theTaskGroupOf(built)
     const drew = controlsOf(row).map((one) => one.getAttribute('data-icon'))
 
-    // ⭐ THE CASE THAT USED TO STAND HERE SAID 「neither control is drawn」 AND
-    // WAS READING THE SEAM, NOT THE MANUSCRIPT. `TaskGroupTitle.expander` was nullable
-    // then, and this file took that to mean a task group with nothing under it carries
-    // no per-row entrance at all. ✅ THE SEAM HAS SINCE BEEN CORRECTED (2026-08-30,
-    // 台帳 DFC-161): the member is not nullable, and a task group with nothing to fold
-    // carries the three with none armed (`NOTHING_TO_FOLD`). 表 T-051 decided it,
-    // twice over:
-    //
-    //   `HF-13` (docs/spec/01-04-requirements.md):
-    //     「**1 階層だけ展開する操作子を、タスクグループごとに 1 つ置くこと（MUST）**」
-    //     「⛔ **展開できる直下の子が 1 つも無いときは、`FR-029` に従って薄く描く
-    //       こと（MUST）**」
-    //   `HF-14`:
-    //     「**配下にタスクグループを足す操作子を、タスクグループごとに 1 つ置くこと（MUST）**」
-    //
-    // ⭐ 「展開できる直下の子が 1 つも無いとき」 IS THIS TASK GROUP, and the rule for it is
-    // 薄く描く -- faint, not absent. A task group with nothing under it is the case the
-    // MUST was written for, so it is the case that must draw them.
-    // ⚠️ HF-14 is not spent by a childless task group at all: the closing paragraph
-    // under 表 T-051 names 「`HF-2` / `HF-3` / `HF-10` / `HF-11` / `HF-12` /
-    // `HF-13`」 as the entrances that count 「いま描かれているタスクグループ」 and does NOT
-    // name `HF-14` -- adding a task group is not an operation that reveals one.
+    // Why: a task group with no children is the case HF-13's faint rule was written for;
+    // HF-14 is not spent by it, since adding a task group always changes the count.
     expect(drew, `${entranceForRule('HF-13')} left a task group with nothing under it`).toContain(
       entranceForRule('HF-13'),
     )
@@ -2557,17 +1901,6 @@ describe('表 T-051 HF-1 -- one opening control and one closing control per task
     )
   })
 
-  // ⛔⛔ A CASE STOOD HERE AND WAS DELETED ON 2026-08-30, NOT WEAKENED. It read
-  // 「GIVEN a task group with NOTHING under it … THEN HF-1's three stand on it as well,
-  // faint」 and was RED: it built `withExpander(null)`, and the surface drew
-  // nothing for a null. ✅ THE FINDING WAS ACCEPTED AND FIXED AT BOTH ENDS --
-  // `expanderOf` now answers the three with none armed for a childless task group, and
-  // `TaskGroupTitle.expander` is no longer nullable -- so the state it was about can
-  // only be spelled as `NOTHING_TO_FOLD` now. ⭐ SPELLED THAT WAY IT IS LETTER FOR
-  // LETTER the last row of `EXPANDER_STATES` above, whose `it.each` already
-  // asserts that all three stand for `canOpen:false / canClose:false /
-  // canCloseBelow:false`. ⛔ NOTHING IS LOST: that case is where this claim lives.
-
   it('GIVEN a panel with no task groups at all WHEN it is drawn THEN no expander control exists anywhere (empty)', () => {
     const built = drawn(viewWith({ taskGroupPanel: { pinnedTitles: [], titles: [] } }))
 
@@ -2575,37 +1908,13 @@ describe('表 T-051 HF-1 -- one opening control and one closing control per task
   })
 })
 
-// ===========================================================================
-// 表 T-051 HF-13 / HF-14 -- the two entrances the task group grew on 2026-08-30.
-//
-// ⭐ WHAT THE SPECIFICATION SAYS, VERBATIM (docs/spec/01-04-requirements.md,
-// 表 T-051):
-//
-//   `HF-13`: 「**1 階層だけ展開する操作子を、タスクグループごとに 1 つ置くこと（MUST）**」 ——
-//     表 T-015 の `HR-7` である。⭐ 「**`HF-2`（配下をすべて展開する）とは別の入口と
-//     すること（MUST）。同じ入口に兼ねさせてはならない（MUST NOT）**」 ——
-//     「押すたびに違う量を展開する入口は、何が起きるかを押す前に読めない」。
-//     ⛔ 「**展開できる直下の子が 1 つも無いときは、`FR-029` に従って薄く描くこと
-//     （MUST）。**」⭐ 「**入口は 表 T-109 の `IC-90` である**」
-//   `HF-14`: 「**配下にタスクグループを足す操作子を、タスクグループごとに 1 つ置くこと（MUST）**」 ——
-//     表 T-015 の `HR-8` である。⭐ 「**入口は 表 T-109 の `IC-91` である**」
-//
-// ⛔ WHAT THIS UNIT DOES NOT OWE THEM, said plainly so nobody looks for it here.
-// 表 T-015's `HR-7` 「孫より下の折りたたみに触れてはならない（MUST NOT）」 and `HF-14`'s 「**足したタスクグループは末子とすること（MUST）**」 and
-// 「**押された瞬間に、既定の名前でタスクグループを立てること（MUST）。そのタスクグループのプロパティパネル
-// を出し、名前の欄で名づけさせること（MUST）**」 are all
-// rules about what is WRITTEN when the entrance is pressed. This unit draws and
-// answers points; the press is planned in the translator and carried out three
-// layers away. What it owes is that the entrance EXISTS, once per task group, that it
-// can be told from `HF-2`'s, and that a press on it lands.
-// ===========================================================================
+// Why: this unit owes HF-13 and HF-14 only that each entrance exists once per task
+// group, is told from HF-2's and takes a press; what a press writes is elsewhere.
 
-/** `HF-13`'s entrance and `HF-2`'s, each looked up through 表 T-109's 正 column. */
 const IC_OPEN_ONE_LEVEL = entranceForRule('HF-13')
 const IC_OPEN_ALL_BELOW = entranceForRule('HF-2')
 const IC_ADD_CHILD = entranceForRule('HF-14')
 
-/** Two plain task groups, so 「タスクグループごとに 1 つ」 can be counted rather than assumed. */
 const twoTaskGroups = (patch: Partial<TaskGroupTitle> = {}): ScreenView =>
   viewWith({
     taskGroupPanel: {
@@ -2625,7 +1934,6 @@ const twoTaskGroups = (patch: Partial<TaskGroupTitle> = {}): ScreenView =>
     },
   })
 
-/** Every node carrying one row of 表 T-109, wherever it is. */
 const everyEntry = (built: Stage, icon: string): FakeElement[] =>
   selfAndDescendants(built.root()).filter((one) => one.getAttribute('data-icon') === icon)
 
@@ -2647,9 +1955,8 @@ describe('表 T-051 HF-13 -- 1 階層だけ展開する操作子を、タスク�
     const oneLevel = everyEntry(built, IC_OPEN_ONE_LEVEL)
     const allBelow = everyEntry(built, IC_OPEN_ALL_BELOW)
 
-    // ⛔ THE MUST NOT IS THE POINT: one control that opened one level on some
-    // presses and the whole subtree on others is exactly 「押すたびに違う量が
-    // 開く入口」. Two nodes is the only shape that cannot do that.
+    // Why: two nodes is the only shape that cannot open different amounts on different
+    // presses, which HF-13's MUST NOT forbids.
     expect(oneLevel).toHaveLength(1)
     expect(allBelow).toHaveLength(1)
     expect(oneLevel[0], 'HF-13 and HF-2 are the same node').not.toBe(allBelow[0])
@@ -2658,10 +1965,8 @@ describe('表 T-051 HF-13 -- 1 階層だけ展開する操作子を、タスク�
   it(`⭐ GIVEN both entrances are drawn WHEN each is pressed THEN IF-9 answers a DIFFERENT row of 表 T-109 (${IC_OPEN_ONE_LEVEL} / ${IC_OPEN_ALL_BELOW})`, () => {
     const built = drawn(oneLiveTaskGroup())
 
-    // 表 T-065 IF-9 (MUST): 「点がどの入口の上かは、その入口を描いた側が答える
-    // こと」. ⛔ If both points came back with the same row, the shell would have
-    // ONE place to hang two different amounts of opening on -- which is the
-    // reading HF-13's MUST NOT forbids, arriving one seam later.
+    // Why: if both points came back with one row, the shell would have one place for two
+    // amounts of opening: HF-13's MUST NOT, arriving one seam later.
     expect(ask(built, AT.taskGroupOpenOneLevel.x, AT.taskGroupOpenOneLevel.y)).toEqual({
       part: partName('U-22'),
       entry: IC_OPEN_ONE_LEVEL,
@@ -2680,13 +1985,8 @@ describe('表 T-051 HF-13 -- 1 階層だけ展開する操作子を、タスク�
     const armedOne = everyEntry(armed, IC_OPEN_ONE_LEVEL)[0] as FakeElement
     const spentOne = everyEntry(spent, IC_OPEN_ONE_LEVEL)[0] as FakeElement
 
-    // ⭐ 薄く描く IS A DRAWING AND NOT AN ABSENCE. FR-029: 「その入口を押しても、
-    // いま文書にも画面にも何も変えられないときは、その入口を薄く描くこと
-    // （MUST）」, and its RATIONALE says why the alternative is worse:
-    // 「押しても絵が動かない入口は、故障した入口と見分けられない」.
     expect(spentOne, `${IC_OPEN_ONE_LEVEL} went away when it had nothing to open`).toBeDefined()
-    // ⭐ AND IT IS DRAWN DIFFERENTLY, which is what 薄く means: some declaration
-    // has to part the two, or 薄く描く drew nothing.
+    // Why: some declaration must part the two, or the faint drawing drew nothing.
     expect(
       differingProperties(armedOne, spentOne),
       `${IC_OPEN_ONE_LEVEL} is drawn identically whether or not it has a child to open`,
@@ -2697,11 +1997,8 @@ describe('表 T-051 HF-13 -- 1 階層だけ展開する操作子を、タスク�
     const built = drawn(twoTaskGroups({ canOpenOneLevel: false }))
     const spentOne = everyEntry(built, IC_OPEN_ONE_LEVEL)[0] as FakeElement
 
-    // ⛔ FR-029: 「**薄く描いた入口を、宿主の意味で無効にしてはならない
-    // （MUST NOT）** —— 無効にすると押下そのものが届かず、下の理由を告げる引き金
-    // が消える。**押されたときに限り、行えない理由を通知の仕組みへ運ぶこと（MUST）**」.
-    // ⭐ 表 T-233's `RS-30`「直下に、画面へ戻せる子が 1 つも無い」 is the reason waiting
-    // on that press, and a `disabled` attribute is what would swallow it.
+    // Why: a `disabled` attribute would swallow the press that carries RS-30's reason
+    // to the notices (FR-029).
     expect(
       spentOne.hasAttribute('disabled'),
       `${IC_OPEN_ONE_LEVEL} is disabled in the host's sense, so the press RS-30 waits on never lands`,
@@ -2712,16 +2009,11 @@ describe('表 T-051 HF-13 -- 1 階層だけ展開する操作子を、タスク�
   it(`⭐ GIVEN a spent ${IC_OPEN_ONE_LEVEL} and a spent entrance on ANOTHER surface WHEN the two are read THEN both are faint in the same color (FR-029: 載る面によって薄くしない入口があってはならない (MUST NOT))`, () => {
     const built = drawn(twoTaskGroups({ canOpenOneLevel: false }))
     const onTheTaskGroup = everyEntry(built, IC_OPEN_ONE_LEVEL)[0] as FakeElement
-    // IC-5 stands in the header fixture with `isEnabled: false` -- the same
-    // 「押しても何も変えられない」 state, one surface over.
+    // Why: IC-5 stands in the header fixture disabled, the same state one surface over.
     const onTheHeader = entryFor(built.root(), 'IC-5')
 
-    // ⭐ FR-029 (MUST): 「薄さは `_assets/tbl-settings.md` の 表 T-236 の `S-149`
-    // の色で示すこと」, and then DFC-265 「⚠️ 本規則は 表 T-109 の全行に当たる …
-    // ⛔ 載る面によって薄くしない入口があってはならない（MUST NOT）」. ⚠️ WHAT THE
-    // COLOR RESOLVES TO IS NOT ASKED HERE -- tests/unit/fr-029-in-effect-is-
-    // filled-not-rimmed.test.ts holds it against 表 T-236. What is asked is that
-    // the task group is not given a faintness of its own.
+    // Why: the resolved color is held against T-236 and S-149 elsewhere; asked here is
+    // only that the task group gets no faintness of its own.
     expect(
       styleMap(onTheTaskGroup).get('color'),
       'the task group control and the header entrance are faint in different colors',
@@ -2735,24 +2027,12 @@ describe('表 T-051 HF-13 -- 1 階層だけ展開する操作子を、タスク�
     expect(cells).toContain('`GRS` は、1 階層だけ展開する操作子を、タスクグループごとに 1 つ置くこと。')
     expect(cells).toContain('`GRS` は、1 つの入口に `HF-13` と `HF-2` を兼ねさせないこと。')
     expect(cells).toContain('展開できる直下の子が 1 つも無いとき、`GRS` は、1 階層だけ展開する操作子を `FR-029` に従って薄く描くこと。')
-    // ⭐ The join this file leans on: HF-13 names its own entrance, and
-    // `entranceForRule` finds the same row from the other side of 表 T-109.
     expect(cells).toContain(`\`${IC_OPEN_ONE_LEVEL}\``)
   })
 
   it('GIVEN the specification is re-read WHEN 表 T-015 HR-7 is looked up THEN it still opens the DIRECT children only', () => {
-    // ⚠️ NOT THIS UNIT'S TO CARRY OUT -- see the note above this describe. It is
-    // read here so that the entrance drawn above cannot quietly become HF-2's
-    // twin: the day HR-7 stops meaning 「直下の子だけ」, HF-13's separateness has
-    // no reason left and these cases have to be re-read.
-    //
-    // ⛔⛔ THE SENTENCE THIS CASE READ WAS REPLACED ON 2026-08-31 (利用者の指示
-    // 「サンプルと同じ動作にしろ」). It used to read 「孫より下は折りたたんだままにする
-    // こと（MUST）」, which said what the row leaves alone. `HR-7` now says what
-    // the press WRITES -- 「**選択した `TaskGroup` の折りたたみだけを解くこと（MUST）**」
-    // -- and states the same 「直下の子だけ」 twice over: once as the picture that
-    // follows, and once as a MUST NOT. ⭐ Both are read, so a manuscript that
-    // dropped either one cannot leave this file green.
+    // Why: read so the entrance cannot quietly become HF-2's twin: once HR-7 stops
+    // meaning direct children only, HF-13's separateness has no reason left.
     const hr7 = specTable('T-015').rows.find((one) => one.id === 'HR-7')
     expect(hr7, '表 T-015 no longer holds HR-7').toBeDefined()
     const cells = hr7?.cells.join(' ') ?? ''
@@ -2778,11 +2058,8 @@ describe('表 T-051 HF-14 -- 配下にタスクグループを足す操作子を
   it(`⭐ GIVEN ${IC_ADD_CHILD} is drawn WHEN it is pressed THEN IF-9 answers it WITH the task group it stands on (表 T-065 IF-9 MUST)`, () => {
     const built = drawn(oneLiveTaskGroup())
 
-    // ⭐ `taskGroupId` IS THE WHOLE OF WHAT MAKES THE PRESS ACTIONABLE. HR-8 of
-    // 表 T-015 (MUST): 「**選択した `TaskGroup` の配下にタスクグループを 1 つ足す。**⭐ **足す
-    // 先は配下とすること（MUST）**」 -- so an answer that named the entrance and
-    // not the task group would leave the shell knowing what was pressed and not under
-    // what.
+    // Why: taskGroupId makes the press actionable: HR-8 adds under the selected task
+    // group, so naming only the entrance leaves the shell not knowing under what.
     expect(ask(built, AT.taskGroupAddChild.x, AT.taskGroupAddChild.y)).toEqual({
       part: partName('U-22'),
       entry: IC_ADD_CHILD,
@@ -2800,12 +2077,8 @@ describe('表 T-051 HF-14 -- 配下にタスクグループを足す操作子を
     const onLeaf = everyEntry(armed, IC_ADD_CHILD)[0] as FakeElement
     const onParent = everyEntry(alsoArmed, IC_ADD_CHILD)[0] as FakeElement
 
-    // ⚠️ THE CLOSING PARAGRAPH UNDER 表 T-051 DOES NOT REACH HF-14. It names
-    // 「`HF-2` / `HF-3` / `HF-10` / `HF-11` / `HF-12` / `HF-13`」 as the
-    // entrances that count 「いま描かれているタスクグループ」 and finishes 「その操作で、
-    // 描かれるタスクグループが 1 つも増減しないときは、対象が 1 つも無いものとして扱うこと
-    // （MUST）」. ⛔ HF-14 is absent from that list, and adding a task group always
-    // increases the task groups -- so nothing about having no children spends it.
+    // Why: the closing paragraph under T-051 does not list HF-14, and adding a task
+    // group always changes the count, so having no children does not spend it.
     expect(onLeaf).toBeDefined()
     expect(
       differingProperties(onLeaf, onParent),
@@ -2818,36 +2091,27 @@ describe('表 T-051 HF-14 -- 配下にタスクグループを足す操作子を
     expect(hf14, '表 T-051 no longer holds HF-14').toBeDefined()
     const cells = hf14?.cells.join(' ') ?? ''
 
-    // ⭐ WHAT THIS UNIT DRAWS AND ANSWERS FOR -- unchanged since 2026-08-30.
     expect(cells).toContain('`GRS` は、配下にタスクグループを足す操作子を、タスクグループごとに 1 つ置くこと（表 T-015 の `HR-8`）。')
     expect(cells).toContain('`GRS` は、足したタスクグループを末子とすること。')
     expect(cells).toContain(`\`${IC_ADD_CHILD}\``)
-    // ⛔ AND THE ONE DRAWING RULE THE NAMING CHANGE DID NOT TOUCH: a task group already
-    // at `FR-085`'s depth limit still carries the entrance, drawn faint.
     expect(cells).toContain(
       '押したタスクグループの深さが `FR-085` の上限に達しているとき、`GRS` は、配下に足す操作子を `FR-029` に従って薄く描くこと。',
     )
 
-    // ⭐⭐ WHAT CHANGED ON 2026-09-04 (利用者の裁定 2026-09-03): the task group is stood
-    // up WITH a default name and named in its Properties Panel, by the very road
-    // `FR-085` gives renaming. ⚠️ Not this unit's to carry out -- read here for
-    // the reason HR-8 is read below: the press it draws must not be planned into
-    // a second, in-place naming road.
+    // Why: read so the press this unit draws is not planned into a second, in-place
+    // naming road beside FR-085's.
     expect(cells).toContain('配下に足す操作子を押したとき、`GRS` は、押した瞬間に既定の名前でタスクグループを立てること。')
     expect(cells).toContain('配下に足す操作子を押したとき、`GRS` は、立てたタスクグループのプロパティパネルを出し、名前の欄で名づけさせること。')
     expect(cells).toContain('`GRS` は、改名と別の名づけの道を作らないこと。')
 
-    // ⛔⛔ THE THREE MUSTS THIS CASE USED TO HOLD DOWN ARE WITHDRAWN: 「**その禁止
-    // の理由は「改名の入口が 1 つも無い」であり、`FR-085` が 2026-09-01 に改名の道
-    // を得た時点で失われていた。**」 ⚠️ The row keeps a history note repeating
-    // those words WITHOUT their （MUST）, so only a real revival reddens these.
+    // Why: the row keeps a history note repeating these words without their (MUST),
+    // so only a real revival reddens these.
     expect(cells).not.toContain('名前は空で立て、その場で打たせること（MUST）')
     expect(cells).not.toContain('既定の名を与えてはならない（MUST NOT）')
     expect(cells).not.toContain('名前が空のまま確定されたときは、その行を立てないこと（MUST）')
   })
 
   it('GIVEN the specification is re-read WHEN 表 T-015 HR-8 is looked up THEN it still adds UNDER the task group and not beside it', () => {
-    // ⚠️ NOT THIS UNIT'S TO CARRY OUT -- read for the reason HR-7 is read above.
     const hr8 = specTable('T-015').rows.find((one) => one.id === 'HR-8')
     expect(hr8, '表 T-015 no longer holds HR-8').toBeDefined()
     expect(hr8?.cells.join(' ')).toContain('配下に足すを押したとき、`GRS` は、選択した `TaskGroup` の同じ段ではなく配下にタスクグループを 1 つ足すこと。')
@@ -2866,9 +2130,8 @@ describe('表 T-109 IC-58 / IC-59 -- the entry a press on either side answers', 
         part: 'Task Group Panel',
         entry: row,
         format: null,
-        // ⛔ HF-2 opens THE TASK GROUP'S subtree and HF-3 collapses THE TASK GROUP itself, so
-        // the entry alone -- which of the two controls -- cannot become either
-        // command. `withExpander` draws one task group and this is its `TaskGroup.id`.
+        // Why: the entry alone cannot become either command; withExpander draws one task
+        // group and this is its TaskGroup.id.
         taskGroupId: 'g-1',
         resourceUid: null,
         dividerPanel: null,
@@ -2883,9 +2146,6 @@ describe('表 T-109 IC-58 / IC-59 -- the entry a press on either side answers', 
     const opening = ask(built, AT.taskGroupExpanderOpen.x, AT.taskGroupExpanderOpen.y)
     const closing = ask(built, AT.taskGroupExpanderClose.x, AT.taskGroupExpanderClose.y)
 
-    // ⛔ If one control answered for both, HF-2 (そのタスクグループの配下をすべて展開する) and
-    // HF-3 (そのタスクグループ自身を折りたたむ) would have to be told apart by something other than
-    // the press -- and 表 T-109 gives them two rows precisely so they need not be.
     expect(opening?.entry).not.toBe(closing?.entry)
     expect([opening?.entry, closing?.entry]).toEqual(['IC-58', 'IC-59'])
   })
@@ -2910,8 +2170,8 @@ describe('表 T-109 IC-58 / IC-59 -- the entry a press on either side answers', 
         part: 'Task Group Panel',
         entry: one.row,
         format: null,
-        // ⭐ A spent control is drawn faint and still stands ON its task group, so the
-        // task group it names does not go away with the two halves being spent.
+        // Why: a spent control still stands on its task group, so the task group it names
+        // does not go away.
         taskGroupId: 'g-1',
         resourceUid: null,
         dividerPanel: null,
@@ -2925,18 +2185,16 @@ describe('表 T-109 IC-58 / IC-59 -- the entry a press on either side answers', 
 
     for (const one of T_109_TASK_GROUP_EXPANDER) {
       const node = entryFor(built.root(), one.row)
-      // ⚠️ `disabled` stops an element taking the pointer, and then no answer
-      // above could ever be given.
+      // Why: `disabled` stops an element taking the pointer, so no answer above could
+      // be given.
       expect(node.hasAttribute('disabled'), `${one.row} was disabled`).toBe(false)
       expect(isShown(node), `${one.row} was hidden`).toBe(true)
     }
   })
 
   it('GIVEN the pair is drawn WHEN canOpen and canClose differ THEN each side records its own half (FR-029 needs the spent one tellable)', () => {
-    // ⚠️ The attribute NAMES below are the seam's published DOM contract, not
-    // the specification's -- docs/spec fixes no attribute. What IS spec-driven
-    // is that `TaskGroupExpander.canOpen` (HF-2) and `.canClose` (HF-3) must ARRIVE
-    // separately, or the faint drawing FR-029 asks for has nothing to key on.
+    // Why: the attribute names are the seam's DOM contract, not the spec's; the spec needs
+    // only that canOpen and canClose arrive apart, for FR-029 to key on.
     const open = drawn(withExpander({ canOpen: true, canClose: false, canCloseBelow: false }))
     const close = drawn(withExpander({ canOpen: false, canClose: true, canCloseBelow: false }))
 
@@ -2953,8 +2211,6 @@ describe('the Task Group Expander at the edges -- R3.4, the bare panel, and a re
 
     expect(ask(built, 99, 64)?.entry).toBe('IC-58')
     expect(ask(built, 100, 64)?.entry).toBe('IC-59')
-    // ⭐ The second shared edge, which the third control of CR-294 added: the
-    // same rule has to resolve it, and there is now more than one to resolve.
     expect(ask(built, 115, 64)?.entry).toBe('IC-59')
     expect(ask(built, 116, 64)?.entry).toBe('IC-77')
   })
@@ -2968,12 +2224,8 @@ describe('the Task Group Expander at the edges -- R3.4, the bare panel, and a re
   it('GIVEN IC-77 ends at x 132 WHEN the strip beyond it is pressed THEN the panel answers with entry null (EZ-2: the icon the pointer rests ON)', () => {
     const built = drawn(withExpander({ canOpen: true, canClose: true, canCloseBelow: false }))
 
-    // ⭐ 表 T-023a: the panel holds no `ScreenRegions` rectangle, so the answer
-    // is the part and never nothing -- but 「入口の上」 has to stay tellable
-    // from 「面の上・入口の外」 for EZ-2 to know which explanation to raise.
-    // ⭐ THE TWO ANSWERS COME APART HERE, which is the point of the pair being
-    // separate members: the point is on NO entry and still on THAT task group, so the
-    // entry is none while the task group is named.
+    // Why: the point is on no entry and still on that task group, so entry is null while
+    // the task group is named; EZ-2 needs the two told apart.
     expect(ask(built, 132, 64)).toEqual({
       part: 'Task Group Panel',
       entry: null,
@@ -2994,33 +2246,14 @@ describe('the Task Group Expander at the edges -- R3.4, the bare panel, and a re
     })
   })
 
-  // ⛔⛔ A CASE STOOD HERE AND WAS DELETED ON 2026-08-30, NOT WEAKENED. It read
-  // 「GIVEN a task group with no expander … THEN the panel answers with entry null (null
-  // path)」, and 「a task group with no expander」 is a description `TaskGroupTitle.expander` can
-  // no longer spell (表 T-051 の `HF-1`, 「各タスクグループに… 1 つずつ置く」). ⭐ BOTH HALVES
-  // OF WHAT IT ASSERTED LIVE ON, and neither is this file's only copy:
-  //   ・ 「面の上・入口の外」 answering `entry: null` while still naming the task group is
-  //     「GIVEN IC-77 ends at x 132 WHEN the strip beyond it is pressed」 above,
-  //     which presses two such points on the same task group.
-  //   ・ A control that can do nothing still answering its own row of 表 T-109 --
-  //     `FR-029`'s 「薄く描いた入口を、宿主の意味で無効にしてはならない（MUST NOT）」
-  //     -- is 「GIVEN both sides are spent WHEN either is pressed」 below.
-
   it('GIVEN the expander was drawn and the next frame drops the TASK GROUP WHEN the same point is pressed THEN the entry stops answering (the answer comes from what is drawn NOW)', () => {
     const built = drawn(withExpander({ canOpen: true, canClose: true, canCloseBelow: false }))
     expect(ask(built, AT.taskGroupExpanderOpen.x, AT.taskGroupExpanderOpen.y)?.entry).toBe(
       entranceForRule('HF-2'),
     )
 
-    // ⚠️ THE SECOND FRAME USED TO BE `withExpander(null)`, ON THE READING THAT A
-    // TASK GROUP WITH NOTHING UNDER IT CARRIES NO CONTROL. 表 T-051 の `HF-13` (MUST)
-    // and `FR-029` (MUST) say otherwise -- see the two cases above -- so a null
-    // expander is no longer a frame in which the entrance goes away, and a case
-    // built on it would be asking for the very absence the manuscript forbids.
-    // ⭐ THE CLAIM IS UNCHANGED AND IS NOW MADE WITH THE FRAME THAT REALLY DOES
-    // TAKE THE CONTROL AWAY: a panel with no task groups at all. 表 T-065's IF-9 has
-    // 「点がどの入口の上かは、その入口を描いた側が答えること（MUST）」, and a
-    // side that answered from the frame BEFORE would name an entry nobody can see.
+    // Why: a panel with no task groups is the frame that really takes the control away;
+    // a side answering from the frame before would name an entry nobody can see.
     surfaceOf(built).showScreenView(viewWith({ taskGroupPanel: { pinnedTitles: [], titles: [] } }))
 
     expect(ask(built, AT.taskGroupExpanderOpen.x, AT.taskGroupExpanderOpen.y)?.entry ?? null).toBeNull()
@@ -3034,63 +2267,17 @@ describe('the Task Group Expander at the edges -- R3.4, the bare panel, and a re
   })
 })
 
-// ===========================================================================
-// IC-58 / IC-59 / IC-60 -- A CONTROL THE SPECIFICATION PUTS ON SCREEN MUST HAVE
-// A BOX, AND MUST TAKE THE POINTER.
-//
-// ⭐ WHY THIS BLOCK EXISTS. 表 T-109 puts three entries on the `Task Group Name
-// Panel` (_assets/tbl-glossary.md) and 表 T-065's IF-9 joins each to a
-// point on the screen. Twenty-one of these controls were found in the live DOM
-// at 4 x 0 pixels: they could not be seen and could not be pressed. ⛔ EVERY
-// CASE IN THIS FILE WAS GREEN WHILE THAT WAS TRUE, and the reason is worth
-// naming out loud, because it decides what the cases below are allowed to
-// assert.
-//
-// ⚠️ THE HARNESS CANNOT MEASURE A PIXEL. `laidOut` answers from `LAYOUT`, keyed
-// by `data-icon` and then `data-role`, so `getBoundingClientRect()` hands back
-// the box THIS FILE stipulated and never one the unit's own declarations
-// produced. ⛔ A case reading `getBoundingClientRect().width` here would pass
-// against a control that is 4 x 0 in a browser -- it would look like it checked
-// this and would check nothing. It is deliberately not written.
-//   ⚠️ The fallback in `laidOut` is no better: it unions the ELEMENT children,
-//   and these controls carry a text node and no element, so it would report zero
-//   for a control that a browser lays out perfectly well.
-//
-// ⭐ WHAT IS CHECKED INSTEAD IS THE THING A BROWSER READS TO GET THE PIXEL --
-// the declarations the unit itself wrote on the node. A box has extent on an
-// axis only if something gives it one: content, an explicit size, a padding or a
-// border. That is the CSS box model, not an opinion of this file's, and it is
-// decidable from what the fake records. ⭐ `intrinsicExtent` below is that
-// reading, and the case right after it BREAKS the predicate on purpose and
-// watches it fail (docs/development-rules/04-verification.md §2), so the ⭐ case
-// cannot be a green that proves nothing.
-//
-// The rules these cases answer to:
-//   表 T-109        IC-58 / IC-59 / IC-60 are entries ON the `Task Group Panel`
-//   表 T-065 IF-9   「画面上の点がどの UI パーツのどの入口の上か」 -- an entry
-//                   that covers no point is an entry no point can be on
-//   表 T-051 HF-1   places the folding controls on every task group (see HF-1)
-//                   -- a 操作子 that cannot be operated is not placed
-//   表 T-051 HF-5   「タスクグループ名の文字サイズにかかわらず、操作子を同じ大きさで描く
-//                   こと（MUST）」 -- it has A SIZE, and the task group's name is not
-//                   what decides it
-//   FR-098          「ピン止めの操作子（`Task Group Pin`）を、タスクグループパネルの各タスクグループに
-//                   1 つ置くこと（MUST）」「その操作子で同じようにピン止めを
-//                   外せること（MUST）」
-//   FR-029          RATIONALE 「無反応だと故障に見える」
-// ===========================================================================
+// Why: the fake answers boxes from LAYOUT, so a width read here would pass a 4 x 0
+// control; the cases read the declarations a browser turns into the pixel instead.
 
-/** 表 T-051 HF-5, copied from docs/spec/01-04-requirements.md. */
 const T_051_HF5_SAME_SIZE = '`GRS` は、タスクグループ名の文字サイズにかかわらず、操作子を同じ大きさで描くこと。'
 
-/** FR-098's MUST, copied from docs/spec/01-04-requirements.md. */
 const FR_098_ONE_PER_TASK_GROUP = '`GRS` は、ピン止めの操作子（`Task Group Pin`）を、タスクグループパネルの各タスクグループに 1 つ置くこと。'
 
-/** A length that contributes nothing. ⚠️ `none` and `auto` are a length's absence, not zero. */
+// Summary: A length that contributes nothing, counting `none` and `auto` as its absence.
 const isZeroLength = (value: string): boolean =>
   value === '' || /^(0(?:[a-z%]+)?|none|auto|initial|unset)$/i.test(value.trim())
 
-/** The four sides a `padding` / `border-width` shorthand expands to, in CSS order. */
 function fourSides(shorthand: string): {
   readonly top: string
   readonly right: string
@@ -3105,20 +2292,12 @@ function fourSides(shorthand: string): {
   return { top: first, right: second, bottom: third, left: fourth }
 }
 
-/** Whether a `border` / `border-top` shorthand carries a width at all. */
 const borderHasWidth = (shorthand: string): boolean =>
   !/(^|\s)(none|hidden)(\s|$)/i.test(shorthand) &&
   /(^|\s)(thin|medium|thick|[0-9.]+[a-z%]+)(\s|$)/i.test(shorthand)
 
-/**
- * What, among the declarations this node carries, can give it a pixel on each
- * axis.
- *
- * ⭐ CONTENT COUNTS ON BOTH AXES: a `button` is `inline-block` by default, so a
- * glyph or a word is what makes it as wide and as tall as a line. ⛔ Nothing
- * here consults `LAYOUT` -- the whole point is to read what a browser would
- * read, which is the node itself.
- */
+// Why: content counts on both axes, since a button is inline-block by default; LAYOUT
+// is never consulted, because the point is to read what a browser would read.
 function intrinsicExtent(element: FakeElement): {
   readonly hasContent: boolean
   readonly widthSources: string[]
@@ -3154,15 +2333,8 @@ function intrinsicExtent(element: FakeElement): {
   return { hasContent, widthSources, heightSources }
 }
 
-/**
- * `pointer-events` as it reaches this node.
- *
- * ⭐ It is an INHERITED property, so a control inside a subtree declared
- * `pointer-events:none` takes no pointer unless it -- or something between --
- * declares otherwise. ⚠️ The fake's `stackAt` models only `visibility` and
- * `display`, so a control lost this way is invisible to every other case in this
- * file; this reads the declarations instead.
- */
+// Why: pointer-events inherits, and the fake's stackAt models only visibility and
+// display, so a control lost this way shows in no other case.
 function inheritedPointerEvents(element: FakeElement): {
   readonly value: string
   readonly declaredBy: string
@@ -3181,7 +2353,6 @@ function inheritedPointerEvents(element: FakeElement): {
   return { value: 'auto', declaredBy: '(nothing declared one)' }
 }
 
-/** Every control of 表 T-109 the panel drew, by row. */
 function taskGroupControlsOf(built: Stage): Map<string, FakeElement[]> {
   const held = new Map<string, FakeElement[]>()
   for (const one of T_109_ON_THE_TASK_GROUP) {
@@ -3193,7 +2364,6 @@ function taskGroupControlsOf(built: Stage): Map<string, FakeElement[]> {
   return held
 }
 
-/** One task group, drawn plainly, with both sides of the expander live. */
 const oneLiveTaskGroup = (): ScreenView => withExpander({ canOpen: true, canClose: true, canCloseBelow: false })
 
 describe('表 T-109 IC-58 / IC-59 / IC-60 -- the control has a box (the 4 x 0 finding)', () => {
@@ -3204,15 +2374,8 @@ describe('表 T-109 IC-58 / IC-59 / IC-60 -- the control has a box (the 4 x 0 fi
       const node = entryFor(built.root(), row)
       const extent = intrinsicExtent(node)
 
-      // ⛔ 表 T-051 HF-5 (MUST): 「操作子を同じ大きさで描くこと」. A control with
-      // no source of height is drawn at height 0 -- it is not "the same size" as
-      // anything, and 表 T-065's IF-9 can never answer a point that is on it,
-      // because no point ever is. FR-029's RATIONALE 「無反応だと故障に見える」
-      // is the same complaint from the reader's side.
-      // ⚠️ The declarations found at the time of writing were
-      // `padding: 0 0.125em` with `border: none` and no width, height, min-width
-      // or min-height -- horizontal padding ONLY. With an empty control that is
-      // 2 x 0.125em wide and NOTHING high: the 4 x 0 that was reported.
+      // Why: a control with no source of height is drawn 0 high, the same size as nothing,
+      // and no point is ever on it for IF-9 to answer (HF-5, FR-029).
       expect(
         extent.heightSources,
         `${row} has nothing that gives it a height: ${inlineStyle(node)}`,
@@ -3228,18 +2391,15 @@ describe('表 T-109 IC-58 / IC-59 / IC-60 -- the control has a box (the 4 x 0 fi
     const built = drawn(oneLiveTaskGroup())
     const real = entryFor(built.root(), 'IC-58')
 
-    // The control as it would be with the fallback taken away again: same node,
-    // same declarations, nothing inside.
+    // Why: the same node and declarations with nothing inside, to break the predicate.
     const emptied = new FakeElement('button', built.world)
     emptied.setAttribute('style', inlineStyle(real))
     const extent = intrinsicExtent(emptied)
 
     expect(extent.hasContent).toBe(false)
     expect(extent.heightSources, 'the predicate would pass an empty control').toHaveLength(0)
-    // ⭐ And it is wide, which is why the report said 4 x 0 and not 0 x 0: the
-    // horizontal padding survives an empty control and the vertical one does not
-    // exist. ⛔ If this ever becomes empty too, the ⭐ case above stopped being
-    // the case that catches this defect and has to be re-read.
+    // Why: horizontal padding survives an empty control, which is why it was 4 x 0;
+    // if this ever empties too, the case above no longer catches the defect.
     expect(extent.widthSources).not.toHaveLength(0)
   })
 
@@ -3253,9 +2413,8 @@ describe('表 T-109 IC-58 / IC-59 / IC-60 -- the control has a box (the 4 x 0 fi
   it('GIVEN both sides of the expander are spent WHEN the controls are read THEN each still has a width and a height (FR-029: 薄く描く, not shrunk to nothing) -- IC-58 / IC-59', () => {
     const built = drawn(withExpander({ canOpen: false, canClose: false, canCloseBelow: false }))
 
-    // ⛔ The boundary FR-029 speaks to. DFC-315 「掴めない端点を薄く描いて理由をツール
-    // チップで示すこと（MUST）」 -- a tooltip has to be pointed AT, so the faint
-    // control needs its box more than the live one does.
+    // Why: a tooltip has to be pointed at, so a faint control needs its box more than
+    // a live one (FR-029).
     for (const one of T_109_TASK_GROUP_EXPANDER) {
       const extent = intrinsicExtent(entryFor(built.root(), one.row))
       expect(extent.heightSources, `spent ${one.row} lost its height`).not.toHaveLength(0)
@@ -3280,9 +2439,8 @@ describe('表 T-109 IC-58 / IC-59 / IC-60 -- the control has a box (the 4 x 0 fi
       }),
     )
 
-    // ⚠️ The empty case that matters for a control whose extent comes from what
-    // is inside it: if the TASK GROUP's own name were what filled the control, an
-    // unnamed task group would take the control away with it.
+    // Why: if the task group's own name filled the control, an unnamed task group would
+    // take the control away with it.
     for (const one of T_109_ON_THE_TASK_GROUP) {
       const extent = intrinsicExtent(entryFor(built.root(), one.row))
       expect(extent.heightSources, `${one.row} lost its height on an unnamed task group`).not.toHaveLength(
@@ -3328,17 +2486,8 @@ describe('表 T-109 IC-58 / IC-59 / IC-60 -- the control has a box (the 4 x 0 fi
   it('⭐ GIVEN a task group with NOTHING TO FOLD WHEN the panel is read THEN every entry of 表 T-109 is on it exactly once and each has a box (FR-098 「各タスクグループに 1 つ」, HF-1 「各タスクグループに」, FR-029 薄く描く)', () => {
     const built = drawn(withExpander(NOTHING_TO_FOLD))
 
-    // ⛔⛔ THIS CASE USED TO READ 「the pin is still there with a box and NO
-    // EXPANDER IS」 and asserted `IC-58` / `IC-59` were absent. That half was a
-    // reading of the seam, not of the manuscript, and the seam has since been
-    // corrected: 表 T-051 の `HF-1` places the three on 「**各タスクグループ**」 and `FR-029`
-    // (MUST) draws a control that can do nothing 薄く rather than taking it away
-    // -- 「**載る面によって薄くしない入口があってはならない（MUST NOT）**」.
-    // ⭐ WHAT THE CASE WAS FOR SURVIVES AND IS WIDENED: `FR-098`'s pin does not
-    // depend on the folding controls, and now none of the seven depends on any
-    // other. ⚠️ The armed task group is covered by the `it.each` at the head of this
-    // describe; a task group where every folding control is SPENT is covered nowhere
-    // else, and a spent control with no box is a control no press can reach.
+    // Why: a task group with every folding control spent is covered nowhere else, and a
+    // spent control with no box is one no press can reach.
     const held = taskGroupControlsOf(built)
     for (const one of T_109_ON_THE_TASK_GROUP) {
       const drew = held.get(one.row) ?? []
@@ -3363,9 +2512,7 @@ describe('表 T-109 IC-58 / IC-59 / IC-60 -- the control has a box (the 4 x 0 fi
       part: 'Task Group Panel',
       entry: null,
       format: null,
-      // ⛔ An empty panel holds no task group, so there is nothing for the key to name.
-      // ⚠️ It does not stand for "this document has no task groups" -- that is what
-      // the description carries; this says the POINT is on none.
+      // Why: the key says the point is on no task group, not that the document has none.
       taskGroupId: null,
       resourceUid: null,
       dividerPanel: null,
@@ -3375,20 +2522,14 @@ describe('表 T-109 IC-58 / IC-59 / IC-60 -- the control has a box (the 4 x 0 fi
 })
 
 describe('表 T-109 IC-58 / IC-59 / IC-60 -- the control takes the pointer', () => {
-  // ⭐ THE SECOND HALF OF 「押せない」. A control can have a perfectly good box
-  // and still take no press, and the fake cannot tell: `stackAt` weighs
-  // `visibility` and `display` and nothing else, so `pointer-events` is a way
-  // for every case above to stay green while the live DOM answers the node
-  // BEHIND the control. These two cases read the declarations instead.
+  // Why: stackAt weighs only visibility and display, so pointer-events could keep every
+  // case above green while the live DOM answers the node behind the control.
   it('GIVEN the panel is drawn WHEN the tree over it is read THEN it really does declare pointer-events:none -- without which the case below would be checking nothing', () => {
     const built = drawn(oneLiveTaskGroup())
     const overlay = byRole(built.root(), 'Task Group Title Tree')[0]
 
-    // ⚠️ The overlay is `position:absolute` across the whole panel, so it is
-    // laid `none` on purpose: were it `auto` it would swallow every press meant
-    // for the panel underneath. ⛔ That is exactly why each control's own branch
-    // has to hand the pointer BACK, and why the case below is live rather than
-    // decorative. If this ever stops being `none`, re-read the pair.
+    // Why: the overlay spans the whole panel and is none on purpose, or it would swallow
+    // every press; so each control's branch must hand the pointer back.
     expect(overlay, 'no Task Group Title Tree was drawn').toBeDefined()
     expect(styleMap(overlay as FakeElement).get('pointer-events')).toBe('none')
   })
@@ -3400,17 +2541,8 @@ describe('表 T-109 IC-58 / IC-59 / IC-60 -- the control takes the pointer', () 
       const node = entryFor(built.root(), row)
       const reaching = inheritedPointerEvents(node)
 
-      // ⛔ FR-098 (docs/spec/01-04-requirements.md, MUST):
-      //   「ピン止めの操作子（`Task Group Pin`）を、タスクグループパネルの各タスクグループに 1 つ置くこと
-      //    （MUST）」…「その操作子で同じようにピン止めを外せること（MUST）」
-      // 「外せること」 is a press. 表 T-051 HF-1 asks the same of the expander,
-      //   whose controls it places on every task group (see HF-1)
-      // ⚠️ `pointer-events` INHERITS. A control inside a subtree that declared
-      // `pointer-events:none` is not a hit target, so a real
-      // `document.elementFromPoint` answers whatever is BEHIND it and IF-9 can
-      // never name the entry -- which is 表 T-065's MUST at 05-07-design.md
-      // failing in the browser while every case above stays green, because the
-      // fake's `stackAt` models `visibility` and `display` and not this.
+      // Why: a control under an inherited pointer-events:none is no hit target, so the
+      // browser answers what is behind it and IF-9 can never name it (FR-098, HF-1).
       expect(
         reaching.value,
         `${row} inherits pointer-events:${reaching.value} from ${reaching.declaredBy}`,
@@ -3419,89 +2551,17 @@ describe('表 T-109 IC-58 / IC-59 / IC-60 -- the control takes the pointer', () 
   )
 })
 
-// ===========================================================================
-// ⚠️ THE BLOCK THAT STOOD HERE PINNED A RULE THAT HAS BEEN WITHDRAWN.
-//
-// Until 2026-08-25, 表 T-051 HF-6 read CR-143 「操作子は薄く描き、ポインタが乗っている
-// あいだだけ濃くすること」, and two blocks of this file held the unit to the two
-// halves of that sentence: one read the controls' paint, the other read the
-// sheet for a rule that darkened them. The row now draws them only while the
-// pointer is on the task group's name or on the group drawn for it (CR-553), and
-// records the change in its own cell (利用者の裁定, 2026-08-25).
-//
-// ⛔ SO 薄く AND 濃く ARE NOT RULES ANY MORE, and cases asserting them were
-// mirroring a sentence the specification no longer holds. They are not weakened
-// into something that would pass either wording: the block at the END of this
-// file asks the same two questions of HF-6 as it NOW stands -- whether the
-// controls are kept from being drawn while nothing points at them, and whether
-// a pointer draws them -- and asks them of the same three controls.
-//
-// FR-098 (docs/spec/01-04-requirements.md) binds the `Task Group Pin` to that row
-// rather than restating it, which is why all three answer to it:
-//   「置き方・大きさ・濃さと、並べた結果が収まらないときの扱いは、折りたたみの
-//     操作子と同じとする（表 T-051 の `HF-4` 〜 `HF-6` と `HF-9`）」
-// ===========================================================================
-
-/** FR-098's referral of 置き方 to HF-4 .. HF-6, copied from docs/spec/01-04-requirements.md. */
+// Spec: FR-098, HF-4, HF-5, HF-6
 const FR_098_SAME_AS_THE_EXPANDER = '置き方・大きさ・濃さと'
 
-// ===========================================================================
-// 表 T-051 HF-4 -- THE CONTROLS HOLD THE RIGHT EDGE, WHATEVER THE NAME IS AND
-// HOWEVER DEEP THE TASK GROUP SITS.
-//
-// 表 T-051 HF-4 (docs/spec/01-04-requirements.md, MUST):
-//   「タスクグループ名の長さにかかわらず、操作子をタスクグループパネルの右端に揃えること
-//     （MUST）」—— 名前ごとに位置が変わると狙えない
-// FR-098 (:2594) binds the `Task Group Pin` to that rule rather than restating it:
-//   「置き方・大きさ・濃さと、並べた結果が収まらないときの扱いは、折りたたみの
-//     操作子と同じとする（表 T-051 の `HF-4` 〜 `HF-6` と `HF-9`）」
-// FR-085 (:1272) is what makes DEPTH the second variable. The room a name gets
-// is the panel width less 「そのタスクグループの深さぶんのインデント」 (`taskGroupTitleIndent`)
-// less the room kept for the controls -- so the indent is spent on the NAME's
-// side. An indent that moved the controls would make the right edge depend on
-// the depth, which is the same defect HF-4 names for the name's length.
-//
-// ⚠️ THE HARNESS CANNOT SEE A RIGHT EDGE, SAID PLAINLY. `laidOut` answers from
-// `LAYOUT`, this file's own map keyed by `data-icon` and then `data-role`, so
-// `getBoundingClientRect()` on a control hands back the rectangle THIS FILE
-// stipulated -- IC-58 at x 100, IC-59 at 116, IC-60 at 140 -- for every name and
-// every depth alike. ⛔ A case comparing those numbers across two names would
-// pass against a unit that put the controls on the LEFT and would look like it
-// had checked HF-4. It is deliberately not written.
-//
-// ⭐ WHAT IS CHECKED INSTEAD is the arrangement the unit itself declared, which
-// is what a browser turns into that edge:
-//   1. the task group is a flex row and the three entries of 表 T-109 are its LAST
-//      children, in the order the roster numbers them, so nothing of the task group's
-//      own comes after them;
-//   2. the cell holding the name grows into the free space (`flex-grow` of 1 or
-//      more) from a `flex-basis` that contributes nothing, so a SHORT name
-//      lengthens the gap before the controls instead of moving them;
-//   3. that cell's `overflow` is not `visible`, which is what stops a LONG name:
-//      CSS sizing turns a flex item's automatic minimum size off exactly when
-//      its overflow is not visible, so a name wider than the task group cannot push
-//      anything out of it;
-//   4. what the depth writes never reaches the controls or the task group's right side.
-// ⛔ Points 2 and 3 are the flexbox and sizing rules, not an opinion of this
-// file's, and both are decidable from the declarations the fake records.
-//
-// ⚠️ ONE THING IS DELIBERATELY NOT ASSERTED: that the task group's own box ends where
-// the `Task Group Panel` ends. `TaskGroupTitle.box` ARRIVES -- screen-renderer.ts says
-// it comes from `ScreenSession.taskGroupBoxes` and forbids this side to measure it --
-// so a task group narrower than the panel would be UF-63's finding, not this unit's.
-// ===========================================================================
+// Why: the fake's boxes come from LAYOUT for every name and depth, so comparing x
+// would pass controls on the left; the cases read the flex arrangement instead.
 
-/** 表 T-051 HF-4, copied from docs/spec/01-04-requirements.md. */
 const T_051_HF4_RIGHT_EDGE =
   '`GRS` は、タスクグループ名の長さにかかわらず、操作子をタスクグループパネルの右端に揃えること。'
 
-/** FR-085's rule that the depth is spent as an indent, copied from :1272. */
 const FR_085_INDENT_BY_DEPTH = 'タスクグループの深さぶんのインデント（`taskGroupTitleIndent`、表 T-201 の `S-37`）'
 
-/**
- * A number out of a settings table, read at the moment this file is read so a
- * boundary below cannot fall behind the manuscript (Chapter 1.9).
- */
 function settingNumber(table: string, row: string): number {
   const cell = specTable(table).rows.find((one) => one.id === row)?.by['値'] ?? ''
   const found = /`(\d+)`/.exec(cell)
@@ -3509,18 +2569,11 @@ function settingNumber(table: string, row: string): number {
   return Number.parseInt(found[1] ?? '', 10)
 }
 
-/**
- * `maxGroupDepth` (S-125) as 表 T-211 holds it.
- *
- * ⭐ 表 T-211 (docs/spec/_assets/tbl-settings.md): 「`TaskGroup` の深さの上限。
- * …**根のタスクグループを深さ 1 と数える**」 -- so 1 and this number are the two ends.
- */
+// Why: T-211 counts the root task group as depth 1, so 1 and S-125 are the two ends.
 const MAX_GROUP_DEPTH = settingNumber('T-211', 'S-125')
 
-/** Depth 1 (the root task group) up to S-125 -- both ends of the range, and the inside. */
 const DEPTHS = Array.from({ length: MAX_GROUP_DEPTH }, (_unused, index) => index + 1)
 
-/** The names HF-4 says must not move anything, from nothing at all to far past the panel. */
 const TASK_GROUP_NAMES = [
   { what: 'empty', label: '' },
   { what: 'null -- no name could be resolved (FR-058)', label: null },
@@ -3528,7 +2581,6 @@ const TASK_GROUP_NAMES = [
   { what: 'far longer than the panel', label: 'N'.repeat(400) },
 ] as const
 
-/** One plainly drawn task group, named as given and sitting at the given depth. */
 const taskGroupNamed = (label: string | null, depth = 1): ScreenView =>
   viewWith({
     taskGroupPanel: {
@@ -3545,7 +2597,6 @@ const taskGroupNamed = (label: string | null, depth = 1): ScreenView =>
     },
   })
 
-/** Every task group the panel drew -- pinned ones and ordinary ones alike -- in document order. */
 const rowsOf = (built: Stage): FakeElement[] =>
   selfAndDescendants(built.root()).filter((one) => one.hasAttribute('data-group-id'))
 
@@ -3555,45 +2606,27 @@ function theTaskGroupOf(built: Stage): FakeElement {
   return first
 }
 
-/**
- * Every entry of 表 T-109 the row carries, WHEREVER IT SITS, in document order.
- *
- * ⭐⭐ NOT `row.children` ANY MORE (CR-336). 表 T-051 の `HF-1` (MUST) now reads
- * 「⭐⭐ **並びは 2 × 2 の格子とすること（MUST）**」, and a lattice is something
- * the four folding controls stand INSIDE: they need not be children of the task group
- * at all. ⛔ NOTHING IN docs/spec FIXES HOW DEEP A CONTROL IS NESTED -- 表 T-103
- * の `U-47` writes 「員数と置き方は 表 T-051 の `HF-1` が持ち、本行は持たない」
- * and `HF-1` gives an arrangement, not a tree -- so this reads the whole subtree
- * and asserts nothing whatever about nesting.
- */
+// Why: the whole subtree, not row.children: HF-1's lattice holds the folding controls,
+// and nothing in the spec fixes how deep a control is nested.
 const controlsOf = (row: FakeElement): FakeElement[] =>
   selfAndDescendants(row).filter((one) => one !== row && one.hasAttribute('data-icon'))
 
-/** Whether this node is, or holds anywhere below it, an entry of 表 T-109. */
 const holdsAControl = (node: FakeElement): boolean =>
   selfAndDescendants(node).some((one) => one.hasAttribute('data-icon'))
 
-/**
- * The children of a task group through which its controls reach it: each is a control
- * itself or the container one stands in (`HF-1`'s lattice being such a
- * container). ⭐ It is these, not the controls, that `HF-4` lines up against the
- * panel's right edge, because it is these that stand in the task group's own line.
- */
+// Why: HF-4 lines up these hosts, not the controls, against the right edge, because
+// it is these that stand in the task group's own line.
 const controlHostsOf = (row: FakeElement): FakeElement[] => row.children.filter(holdsAControl)
 
-/**
- * The cell the task group's name is in: the last child standing BEFORE the first child
- * that brings a control with it. ⭐ It is found by position rather than by a
- * role, because HF-4 is about what stands between the name and the right edge,
- * and nothing in the specification names that cell.
- */
+// Why: found by position, not role: nothing in the spec names the name cell, and
+// HF-4 is about what stands between the name and the right edge.
 function nameCellOf(row: FakeElement): FakeElement | null {
   const firstHost = row.children.findIndex(holdsAControl)
   const before = firstHost < 0 ? row.children : row.children.slice(0, firstHost)
   return before[before.length - 1] ?? null
 }
 
-/** Split a shorthand at the top level, so `calc(0.25em + 2em)` stays ONE value. */
+// Summary: Splits a shorthand at the top level, so `calc(0.25em + 2em)` stays one value.
 function shorthandParts(value: string): string[] {
   const parts: string[] = []
   let depth = 0
@@ -3612,7 +2645,6 @@ function shorthandParts(value: string): string[] {
   return parts
 }
 
-/** The four sides a `padding` / `margin` shorthand expands to, in CSS order. */
 function sidesOf(shorthand: string): {
   readonly top: string
   readonly right: string
@@ -3626,7 +2658,6 @@ function sidesOf(shorthand: string): {
 
 type BoxSide = 'top' | 'right' | 'bottom' | 'left'
 
-/** One side of a box property, longhand first and the shorthand behind it. */
 function insetOf(element: FakeElement, property: 'padding' | 'margin', side: BoxSide): string {
   const declared = styleMap(element)
   const longhand = declared.get(`${property}-${side}`)
@@ -3634,7 +2665,6 @@ function insetOf(element: FakeElement, property: 'padding' | 'margin', side: Box
   return sidesOf(declared.get(property) ?? '')[side]
 }
 
-/** `flex-grow` as it reaches this item, through the `flex` shorthand where that is what was written. */
 function flexGrowOf(element: FakeElement): number {
   const declared = styleMap(element)
   const longhand = declared.get('flex-grow')
@@ -3647,7 +2677,7 @@ function flexGrowOf(element: FakeElement): number {
   return Number.isFinite(value) ? value : 0
 }
 
-/** `flex-basis` as it reaches this item. ⚠️ `flex: 1` means a basis of `0%`, not `auto`. */
+// Why: `flex: 1` means a basis of `0%`, not `auto`.
 function flexBasisOf(element: FakeElement): string {
   const declared = styleMap(element)
   const longhand = declared.get('flex-basis')
@@ -3661,10 +2691,8 @@ function flexBasisOf(element: FakeElement): string {
   return parts[parts.length - 1] ?? 'auto'
 }
 
-/** A basis that contributes nothing, so the item's CONTENT cannot decide the layout. */
 const isZeroBasis = (value: string): boolean => /^0(?:[a-z%]+)?$/i.test(value.trim())
 
-/** The properties two drawings of the same node disagree about. */
 function differingProperties(a: FakeElement, b: FakeElement): string[] {
   const left = styleMap(a)
   const right = styleMap(b)
@@ -3673,28 +2701,17 @@ function differingProperties(a: FakeElement, b: FakeElement): string[] {
     .sort()
 }
 
-/**
- * The properties an indent is allowed to land on without touching the right
- * edge: the task group's own left inset, and the shorthands that carry it (whose RIGHT
- * component the cases read out and compare separately).
- */
+// Why: an indent may land only on the left inset; the shorthands' right component
+// is read out and compared separately.
 const LEFT_INSETS = new Set(['padding', 'padding-left', 'margin', 'margin-left', 'text-indent'])
 
-/** Each control's whole inline declaration, by its row of 表 T-109. */
 const controlStyles = (built: Stage): Record<string, string> =>
   Object.fromEntries(
     T_109_ON_THE_TASK_GROUP.map((one) => [one.row, inlineStyle(entryFor(built.root(), one.row))]),
   )
 
-/**
- * 表 T-051 `HF-4` (MUST): 「タスクグループ名の長さにかかわらず、操作子をタスクグループパネルの
- * 右端に揃えること」 -- so everything that brings a control stands together at the
- * END of the task group's line, with nothing of the task group's own after it.
- *
- * ⛔ THE NESTING IS NOT ASSERTED, only the place in the line. Since CR-336 the
- * four folding controls arrive inside `HF-1`'s lattice, and how many boxes deep
- * that is has no row anywhere in docs/spec.
- */
+// Why: only the place in the line is asserted, not the nesting: the folding controls
+// arrive inside HF-1's lattice, and no spec row says how deep.
 function expectTheControlsEndTheTaskGroup(row: FakeElement): void {
   const hosts = controlHostsOf(row)
   expect(hosts.length, `nothing on the task group brings a control: ${serialize(row)}`).toBeGreaterThan(0)
@@ -3717,22 +2734,12 @@ describe('表 T-051 HF-4 / FR-098 -- the controls hold the right edge whatever t
       const built = drawn(taskGroupNamed(label))
       const row = theTaskGroupOf(built)
 
-      // ⛔ 表 T-051 HF-4 (MUST): 「タスクグループ名の長さにかかわらず、操作子をタスクグループ見出し
-      // パネルの右端に揃えること」. In a flex line the last items sit at its end
-      // only if something ahead of them absorbs the free space -- so these four
-      // readings together are the rule, and no one of them is it alone.
+      // Why: in a flex line the last items sit at its end only if something ahead absorbs
+      // the free space, so these four readings together are HF-4, none of them alone.
       expect(styleMap(row).get('display'), 'the task group is not a flex line').toBe('flex')
 
-      // ⚠️ THE SET, NOT THE ORDER. The whole run's order is `HF-4`'s own and has
-      // its own cases far below; what `HF-4` decides HERE is that the controls
-      // END the task group whatever the name is.
-      //
-      // ⭐⭐ READ THROUGH THE HOSTS SINCE CR-336. `HF-1` (MUST) now says 「**並びは
-      // 2 × 2 の格子とすること（MUST）**」, so the four folding controls reach the
-      // task group through the lattice they stand in and are no longer among its
-      // children. ⛔ The claim is unchanged -- every entry 表 T-109 puts on a task group
-      // is at the task group's tail, with the name ahead of them taking the free space
-      // -- and it is now asserted of whatever children BRING those entries.
+      // Why: the set, not the order, since the run's order has its own cases below; read
+      // through the hosts, as the folding controls sit inside the lattice.
       expect(
         [...controlsOf(row).map((one) => one.getAttribute('data-icon'))].sort(),
         `the task group does not carry 表 T-109's entries for the Task Group Panel: ${serialize(row)}`,
@@ -3746,14 +2753,14 @@ describe('表 T-051 HF-4 / FR-098 -- the controls hold the right edge whatever t
         flexGrowOf(cell),
         `the name cell does not grow, so the controls follow the name: ${inlineStyle(cell)}`,
       ).toBeGreaterThanOrEqual(1)
-      // ⭐ A basis of zero is what makes the name's LENGTH irrelevant: the cell
-      // starts at nothing and is handed the space that is left over.
+      // Why: a zero basis makes the name's length irrelevant: the cell starts at nothing
+      // and is handed the space left over.
       expect(
         isZeroBasis(flexBasisOf(cell)),
         `the name cell is sized from its content (flex-basis:${flexBasisOf(cell)})`,
       ).toBe(true)
-      // ⭐ And this is what stops the LONG name: a flex item's automatic minimum
-      // size does not apply when its overflow is not `visible`.
+      // Why: this stops a long name: a flex item's automatic minimum size does not apply
+      // when its overflow is not visible.
       expect(
         (styleMap(cell).get('overflow') ?? 'visible').trim().toLowerCase(),
         'a name longer than the task group can push the controls out of it',
@@ -3776,23 +2783,8 @@ describe('表 T-051 HF-4 / FR-098 -- the controls hold the right edge whatever t
     const built = drawn(withExpander(NOTHING_TO_FOLD))
     const row = theTaskGroupOf(built)
 
-    // ✅ THIS CASE WAS RED FOR ONE ROUND AND IS NOW GREEN, and what moved was the
-    // product, not the expectation (04-verification.md §1). It was written
-    // against `withExpander(null)` and failed because the surface drew nothing
-    // for a null; `expanderOf` now answers the three with none armed for a
-    // childless task group, and `TaskGroupTitle.expander` is no longer nullable, so the task group
-    // this case is about spells itself `NOTHING_TO_FOLD`. ⛔ NOT ONE EXPECTED
-    // VALUE BELOW WAS TOUCHED. The case that stood here
-    // asserted 「the `Task Group Pin` alone ends the task group」 with a typed list of two.
-    //
-    // ⭐ EVERY TASK GROUP HAS THE SAME CONTROLS, AND HF-4 IS WHY IT MATTERS HERE:
-    // 「**タスクグループ名の長さにかかわらず、操作子をタスクグループパネルの右端に揃えること
-    // （MUST）**」, whose reason is 「名前ごとに位置が変わると狙えない」. ⛔ A
-    // roster that shrinks on a childless task group moves every remaining control under
-    // a different part of the pointer's travel -- the very complaint HF-4 was
-    // written about, one task group down instead of one name across. `FR-085` says the
-    // same thing about the space: 「**確保する場所を、操作子を描くかどうかで
-    // 変えてはならない（MUST NOT）**」.
+    // Why: every task group has the same controls: a roster that shrank on a childless
+    // task group would move the rest under the pointer, which HF-4 and FR-085 forbid.
     expect(
       [...controlsOf(row).map((one) => one.getAttribute('data-icon'))].sort(),
       'a childless task group ends with a different set of controls than a task group with children',
@@ -3820,10 +2812,8 @@ describe('表 T-051 HF-4 / FR-098 -- the controls hold the right edge whatever t
     )
     const row = theTaskGroupOf(built)
 
-    // ⭐⭐ READ THROUGH THE HOSTS SINCE CR-336, for `HF-1`'s lattice: see
-    // `expectTheControlsEndTheTaskGroup`. ⛔ U-46 lifts a pinned task group out of the
-    // scrolling list, but it is a task group OF the panel and `HF-4` says タスクグループ名の
-    // 長さにかかわらず without an exception for it.
+    // Why: U-46 lifts a pinned task group out of the scrolling list, but HF-4 makes no
+    // exception for it.
     expect(styleMap(row).get('display')).toBe('flex')
     expect(
       [...controlsOf(row).map((one) => one.getAttribute('data-icon'))].sort(),
@@ -3853,7 +2843,6 @@ describe('表 T-051 HF-4 / FR-098 -- the controls hold the right edge whatever t
     expect(hf4?.cells.join(' ')).toContain('タスクグループ名の長さにかかわらず')
     expect(hf4?.cells.join(' ')).toContain('操作子をタスクグループパネルの右端に揃えること。')
     expect(specText('01-04-requirements.md')).toContain(T_051_HF4_RIGHT_EDGE)
-    // ⭐ FR-098 does not restate the rule; it refers the 置き方 to HF-4 .. HF-6.
     expect(specText('01-04-requirements.md')).toContain(FR_098_SAME_AS_THE_EXPANDER)
   })
 })
@@ -3865,22 +2854,19 @@ describe('表 T-051 HF-4 / FR-085 -- the task group depth moves the name, never 
       const root = drawn(taskGroupNamed('TaskGroupOne', 1))
       const deeper = drawn(taskGroupNamed('TaskGroupOne', depth))
 
-      // ⛔ The controls first: nothing the depth wrote may reach them, or the
-      // right edge walks in with the depth and HF-4's 「狙えない」 is exactly
-      // what the reader is left with.
+      // Why: nothing the depth wrote may reach the controls, or the right edge walks in
+      // with the depth (HF-4).
       expect(controlStyles(deeper), `the depth ${depth} indent reached the controls`).toEqual(
         controlStyles(root),
       )
 
-      // ⭐ And on the task group itself the indent may only land on the left.
       const differing = differingProperties(theTaskGroupOf(root), theTaskGroupOf(deeper))
       expect(
         differing.filter((one) => !LEFT_INSETS.has(one)),
         `depth ${depth} changed something that is not a left inset: ${inlineStyle(theTaskGroupOf(deeper))}`,
       ).toEqual([])
 
-      // ⚠️ `padding` is a shorthand and IS allowed to differ, so the side it
-      // carries for the right edge is read out and compared on its own.
+      // Why: `padding` is a shorthand and may differ, so its right side is compared alone.
       expect(
         insetOf(theTaskGroupOf(deeper), 'padding', 'right'),
         `depth ${depth} changed the task group's right padding`,
@@ -3895,10 +2881,8 @@ describe('表 T-051 HF-4 / FR-085 -- the task group depth moves the name, never 
     const root = drawn(taskGroupNamed('TaskGroupOne', 1))
     const deepest = drawn(taskGroupNamed('TaskGroupOne', MAX_GROUP_DEPTH))
 
-    // ⚠️ Without this, the case above would be satisfied by a unit that ignored
-    // the depth altogether: nothing differs, so nothing differs on the right.
-    // FR-085 counts on the indent being there -- the room is what is left after
-    // 「そのタスクグループの深さぶんのインデント」 (`taskGroupTitleIndent`).
+    // Why: without this, a unit ignoring the depth would pass the case above; FR-085
+    // counts on the indent being there.
     expect(
       differingProperties(theTaskGroupOf(root), theTaskGroupOf(deepest)),
       `depth ${MAX_GROUP_DEPTH} is drawn exactly like depth 1 -- the indent is missing`,
@@ -3917,62 +2901,22 @@ describe('表 T-051 HF-4 / FR-085 -- the task group depth moves the name, never 
   })
 })
 
-// ===========================================================================
-// 表 T-051 HF-6 -- drawn only while the pointer is on the task group's name or its group, AND
-// THE ROOM THAT MAY NOT MOVE WHILE THEY ARE NOT DRAWN.
-//
-// 表 T-051 HF-6 (docs/spec/01-04-requirements.md, MUST):
-//   see T_051_HF6_ONLY_WHILE_POINTED below for the sentence, read from the row
-//     —— 常に描くと、日程より操作子が目立ち、タスクグループ名ともぶつかる
-//   「描かないあいだも、確保する場所を変えてはならない（MUST NOT）」
-//     —— 規則と理由は `FR-085` が持つ
-// FR-098 (:2610) refers the 置き方 of the `Task Group Pin` to the same row.
-//
-// ⚠️ WHAT THE HARNESS CAN AND CANNOT SEE. There is no pointer here and no style
-// resolution: the fake records the declarations a node was given and nothing
-// else, so 「乗っているあいだ」 cannot be entered and then measured. ⛔ A case
-// that dispatched a made-up `pointerover` and then read the tree would be
-// checking a listener this file invented, not the rule.
-// ⭐ WHAT IS CHECKED INSTEAD is the sheet the unit put on the page: whether a
-// rule with NO pointer condition keeps the control from being drawn, whether a
-// rule keyed on a pointer draws it, and -- the part that decides whether either
-// does anything -- whether the property they use is one that KEEPS the control's
-// room. `display:none` takes the box out of the layout, which is precisely the
-// MUST NOT of this row; `visibility` and `opacity` do not.
-//
-// ⛔ TWO THINGS ARE NOT ASSERTED, AND NEITHER IS AN OVERSIGHT:
-//   1. WHICH mechanism carries 「乗っているあいだ」. FR-048's MUST NOT (:2721)
-//      names HF-6 as one of the things it does NOT cover, so a listener would be
-//      admissible too; the cases below read whichever the unit declared, and
-//      only a unit that declared NEITHER fails them.
-//   2. THAT THE POINTER CONDITION NAMES THE TASK GROUP'S **NAME** rather than the whole
-//      task group. HF-6 says 「そのタスクグループ名に」 -- but the name has no settled name to
-//      key a selector on: 表 T-103 has no row for the cell a task group's name sits in,
-//      which is why `nameCellOf` above finds it BY POSITION. ⚠️ So a case
-//      demanding a selector for it would be demanding a `data-role` the
-//      specification never minted, and this file cannot tell a rule keyed on the
-//      name from one keyed on the task group. **The gap belongs to 表 T-103.**
-// ===========================================================================
+// Why: there is no pointer here, so the cases read the unit's sheet, not a made-up
+// pointerover; FR-048 does not cover HF-6, so a listener would be admissible too.
 
-/** One declaration of a rule in the unit's own sheet. */
 interface SheetDeclaration {
   readonly value: string
   readonly isImportant: boolean
 }
 
-/** One selector of the unit's own sheet, with the declarations it carries. */
 interface SheetRule {
   readonly selector: string
   readonly declarations: ReadonlyMap<string, SheetDeclaration>
 }
 
-/**
- * A tiny stylesheet reader: enough for the flat `selector, selector { … }` a
- * single-file page can carry.
- *
- * ⚠️ It knows nothing of at-rules. A rule nested inside `@media` would be read
- * as though it applied always, so if one ever appears here, re-read this.
- */
+// Summary: A tiny stylesheet reader for the flat selector lists and declaration blocks a single-file page carries.
+// Trap: it knows nothing of at-rules: a rule inside `@media` reads as always
+// applying, so re-read this if one ever appears.
 function parseCss(css: string): SheetRule[] {
   const rules: SheetRule[] = []
   for (const block of css.split('}')) {
@@ -3996,23 +2940,14 @@ function parseCss(css: string): SheetRule[] {
   return rules
 }
 
-/** Every rule the unit put on the page, from every `style` element under its own root. */
 const sheetRulesOf = (root: FakeElement): SheetRule[] =>
   selfAndDescendants(root)
     .filter((one) => one.tagName === 'STYLE')
     .flatMap((one) => parseCss(one.textContent))
 
-/**
- * What a rule set would declare on this node WHILE the pointer rests somewhere
- * the selector names, or `null` where nothing would. The last matching rule
- * wins, as in a browser.
- *
- * ⭐ THE `:hover` MAY SIT ON ANY PART OF THE SELECTOR, NOT ONLY THE LAST. HF-6
- * keys the drawing on the pointer being on the task group's NAME, and the control is
- * not the name -- so a rule for these controls has its condition on an ANCESTOR
- * and its subject at the end. The condition is stripped wherever it stands and
- * the rest is matched as a plain descendant selector.
- */
+// Summary: The declaration a rule set gives this node while the pointer rests where the selector names, the last match winning, or null.
+// Why: `:hover` may sit on any part of the selector: HF-6 keys on the name, an
+// ancestor of the control, so the condition is stripped wherever it stands.
 function hoverDeclaration(
   rules: readonly SheetRule[],
   node: FakeElement,
@@ -4027,13 +2962,8 @@ function hoverDeclaration(
   return found
 }
 
-/**
- * What a rule set would paint on this node with NO pointer condition at all.
- *
- * ⭐ Any selector carrying a `:` is treated as conditional and left out, which
- * is the safe direction: it can only make this reading MISS a rule, never
- * invent one.
- */
+// Why: any selector with a `:` is left out as conditional, the safe direction: it
+// can only miss a rule, never invent one.
 function restingDeclaration(
   rules: readonly SheetRule[],
   node: FakeElement,
@@ -4048,33 +2978,18 @@ function restingDeclaration(
   return found
 }
 
-/** 表 T-051 HF-6's two rules, copied from docs/spec/01-04-requirements.md. */
 const T_051_HF6_ONLY_WHILE_POINTED =
   '`GRS` は、操作子を、タスクグループ名か、タスクグループのために描いた操作子の群（地を敷く範囲）にポインタが乗っているあいだだけ描くこと。'
 const T_051_HF6_THE_GROUP_STAYS =
   '`GRS` は、一度あるタスクグループのために描いた群を、ポインタが群から外れて群が消えるまで、描き始めたタスクグループの操作子のままにすること。'
 const T_051_HF6_ROOM_UNCHANGED = '`GRS` は、操作子を描かないあいだも、確保する場所を変えないこと（規則と理由は `FR-085` が持つ）。'
 
-/**
- * One way of stopping a node being drawn, and whether it leaves the room the
- * node took up alone.
- *
- * ⭐ WHY THE ROOM IS PART OF THE SAME READING. HF-6 states two rules, and the
- * second is about the first one's mechanism: 「描かないあいだも、確保する場所を
- * 変えてはならない（MUST NOT）」. FR-085 (:1274) holds the reason -- the room kept
- * for the controls (S-140) is what the task group's name was cut against, so a control
- * that stopped taking up room would move the cut every time the pointer crossed
- * a task group, and 表 T-076's EP-4 draws no control at all in an export.
- * ⛔ `display:none` and `content-visibility:hidden` take the box out of the
- * layout. `visibility:hidden` and `opacity:0` do not.
- * ⚠️ WHICH of the four is used is not the specification's to say, so the cases
- * below read whichever the unit declared -- and fail on one that moves the room.
- */
+// Spec: HF-6, FR-085, S-140
+// Why: the room must stay: display:none and content-visibility:hidden take the box
+// out of the layout, visibility and opacity do not.
 interface Hiding {
   readonly property: string
-  /** The value that stops the node being drawn. */
   readonly hidden: string
-  /** Whether the node still takes up the room it was given. */
   readonly keepsRoom: boolean
 }
 
@@ -4085,7 +3000,6 @@ const HIDING_DECLARATIONS: readonly Hiding[] = [
   { property: 'content-visibility', hidden: 'hidden', keepsRoom: false },
 ]
 
-/** Whichever of `HIDING_DECLARATIONS` a rule set applies to this node with NO pointer condition. */
 function hiddenWhileResting(rules: readonly SheetRule[], node: FakeElement): Hiding | null {
   for (const one of HIDING_DECLARATIONS) {
     const declared = restingDeclaration(rules, node, one.property)
@@ -4104,15 +3018,10 @@ describe('表 T-051 HF-6 / FR-098 -- the task group controls are drawn only whil
       const rules = sheetRulesOf(built.root())
       const hiding = hiddenWhileResting(rules, node)
 
-      // ⛔ 表 T-051 HF-6 (MUST): drawn only while the pointer is on the name or
-      // the group. A control that is drawn with nothing pointing at it
-      // is 常に描く, which the row's own reason forbids in as many words.
       expect(
         hiding,
         `${row} is drawn with no pointer condition on any rule: ${rules.map((one) => one.selector).join(' | ')}`,
       ).not.toBeNull()
-      // ⛔ And the MUST NOT of the same row, which is what decides whether the
-      // rule above is admissible at all.
       expect(
         (hiding as Hiding).keepsRoom,
         `${row} is kept from being drawn with ${(hiding as Hiding).property}, which takes its room away`,
@@ -4131,9 +3040,8 @@ describe('表 T-051 HF-6 / FR-098 -- the task group controls are drawn only whil
 
       const pointed = hoverDeclaration(rules, node, (hiding as Hiding).property)
 
-      // ⛔ Hidden with nothing to bring it back is half a rule, and the half
-      // that is missing is the one the reader needs: the controls would never
-      // be reachable at all.
+      // Why: hidden with nothing to bring it back is half a rule, and the missing half
+      // would leave the controls never reachable.
       expect(
         pointed,
         `${row} has no rule keyed on a pointer: ${rules.map((one) => one.selector).join(' | ')}`,
@@ -4150,18 +3058,17 @@ describe('表 T-051 HF-6 / FR-098 -- the task group controls are drawn only whil
     const node = entryFor(built.root(), 'IC-58')
     const base = '[data-unit="UF-71"] [data-role="Task Group Expander"]'
 
-    // ⛔ The MUST NOT itself: a sheet that hides the control by taking its box
-    // out of the layout is READ, and read as the wrong mechanism.
+    // Why: a sheet hiding the control by taking its box out is read as the wrong mechanism.
     const takesTheRoom = parseCss(`${base}{display:none;}${base}:hover{display:inline-block;}`)
     expect(hiddenWhileResting(takesTheRoom, node)?.keepsRoom).toBe(false)
 
-    // ⭐ A sheet that never hides it answers `null`, which is what makes the
-    // first case above fail rather than pass on a unit that draws it always.
+    // Why: a sheet that never hides answers null, so the first case fails on a unit that
+    // draws the controls always.
     const never = parseCss(`${base}:hover{visibility:visible;}`)
     expect(hiddenWhileResting(never, node)).toBeNull()
 
-    // ⭐ And a rule for somebody else reaches neither reading, which is what
-    // stops them from passing on any rule of the sheet at all.
+    // Why: a rule for another part reaches neither reading, so the readings cannot pass
+    // on any rule of the sheet.
     const elsewhere = parseCss(
       '[data-role="Header Commands"] button{visibility:hidden;}' +
         '[data-role="Header Commands"] button:hover{visibility:visible;}',
@@ -4187,14 +3094,8 @@ describe('表 T-051 HF-6 / FR-098 -- the task group controls are drawn only whil
     )
     const rules = sheetRulesOf(built.root())
 
-    // ⛔⛔ `IC-60` IS LEFT OUT, AND THE RULING OF 2026-08-30 IS WHY. `HF-6` now
-    // carries an exception in as many words: 「⛔⛔ **ピン止めしているタスクグループの
-    // `IC-60` だけは、ポインタが乗っていなくても描くこと（MUST）** —— ⛔ **本行の
-    // 最初の MUST の唯一の例外である。****描かなければ、どのタスクグループが留まっているかは
-    // 全タスクグループを撫でるしか読む手が無い。**」 ⇒ asserting the pin hidden here would be
-    // asserting the reading that ruling replaced. ⭐ The exception has a case of
-    // its own below, and the MUST NOT beside it -- 「⛔ **ほかの操作子を常時描いて
-    // はならない（MUST NOT）**」 -- is what the loop here still holds.
+    // Why: IC-60 is left out: HF-6 draws a pinned task group's pin at rest, a case of
+    // its own below; the loop still holds the MUST NOT for the rest.
     for (const one of T_109_ON_THE_TASK_GROUP.filter((held) => held.row !== 'IC-60')) {
       const node = entryFor(built.root(), one.row)
       const hiding = hiddenWhileResting(rules, node)
@@ -4208,16 +3109,8 @@ describe('表 T-051 HF-6 / FR-098 -- the task group controls are drawn only whil
   })
 
   it('⛔⛔ MUST GIVEN a PINNED task group WHEN its IC-60 is read THEN it is drawn with NO pointer on the task group (表 T-051 HF-6: ピン止めしているタスクグループの IC-60 だけは、ポインタが乗っていなくても描くこと)', () => {
-    // ⭐ THE RULING'S OWN REASON: 「**描かなければ、どのタスクグループが留まっているかは全タスクグループを
-    // 撫でるしか読む手が無い。**」 ⚠️ 「**この例外が当たるのは留まっているあいだ
-    // だけであり、外せばほかの操作子と同じに戻る。**」
-    //
-    // ⭐ HOW 「drawn at rest」 IS READ. The sheet may still hide every control of
-    // the task group -- what this case asks is whether the PIN of a PINNED task group comes
-    // back with nothing pointing at it, which a declaration ON THE CONTROL does
-    // (an inline declaration outranks the sheet). So: either no resting rule
-    // reaches it, or the control itself states the property back to a drawn
-    // value.
+    // Why: drawn at rest means no resting rule reaches the pin, or the control states the
+    // property back inline, since an inline declaration outranks the sheet.
     const built = drawn(
       viewWith({
         taskGroupPanel: {
@@ -4250,9 +3143,8 @@ describe('表 T-051 HF-6 / FR-098 -- the task group controls are drawn only whil
   })
 
   it('⛔ MUST NOT GIVEN an UNPINNED task group WHEN its IC-60 is read THEN it is hidden at rest like the others (HF-6: ほかの操作子を常時描いてはならない)', () => {
-    // ⭐ THE PAIR THAT MAKES THE CASE ABOVE A TEST, and a MUST NOT of its own:
-    // 「**この例外が当たるのは留まっているあいだだけであり、外せばほかの操作子と
-    // 同じに戻る。**」
+    // Why: the pair that makes the case above a test: unpinned, the pin is hidden like
+    // the others.
     const built = drawn(oneLiveTaskGroup())
     const rules = sheetRulesOf(built.root())
     const pin = entryFor(built.root(), 'IC-60')
@@ -4278,10 +3170,8 @@ describe('表 T-051 HF-6 / FR-098 -- the task group controls are drawn only whil
   it('GIVEN nothing has been drawn yet WHEN the sheet is read THEN no rule of it draws these controls on its own (BO-1 of 表 T-077, the empty case)', () => {
     const built = wire()
 
-    // ⚠️ The boundary the sheet has to survive: it is put on the page once, not
-    // per task group, so it exists before any task group does. It may say nothing about a node
-    // that is not there -- but a rule with no pointer condition that BROUGHT one
-    // of these back would undo HF-6 for every task group at once.
+    // Why: the sheet is put on the page once, before any task group; a resting rule that
+    // brought a control back would undo HF-6 for every task group at once.
     for (const rule of sheetRulesOf(built.root())) {
       if (rule.selector.includes(':')) continue
       for (const one of HIDING_DECLARATIONS) {
@@ -4305,39 +3195,13 @@ describe('表 T-051 HF-6 / FR-098 -- the task group controls are drawn only whil
   })
 })
 
-// ===========================================================================
-// 表 T-051 HF-5 -- the OTHER axis. HF-4 fixes where the controls sit across the
-// task group and is tested above; this is where they sit DOWN it.
-//
-// docs/spec/01-04-requirements.md (表 T-051, HF-5), AS THAT ROW NOW READS:
-//   「タスクグループ名の文字サイズにかかわらず、操作子を同じ大きさで描くこと（MUST）。
-//    名前が操作子より大きいときは、名前の上端に揃えること（MUST）。中央で揃えて
-//    はならない（MUST NOT）」
-//   —— 中央にすると名前の文字サイズが変わるたびに操作子の位置が動き、`HF-4` が
-//      横で禁じたことを縦で許すことになる。
-//   「⛔ 上端から下げてはならない（MUST NOT）」
-//   —— 名前の大きさは深さで変わるので、下げるとタスクグループごとに操作子の高さが食い違って
-//      見える。
-//
-// ⚠️ THE ROW WAS REVERTED, AND THIS BLOCK WITH IT (利用者の裁定, 2026-08-25).
-// It briefly asked for a set-down proportional to the task group's name size, held by
-// S-139 of 表 T-206; that row is RETIRED and `TaskGroupTitle` carries no amount any
-// more. So the cases that drove an amount across IF-9 are gone -- there is no
-// number left to drive -- and what stands is what HF-5 now states outright:
-// nothing centers the control (MUST NOT), nothing sets it down (MUST NOT), and
-// the line the controls sit in starts them at its top (MUST).
-//
-// ⭐ WHICH PROPERTY CARRIES A PLACEMENT IS STILL NOT ASSERTED -- PND-151 records
-// the choice of CSS property as display only. What IS asserted is the forbidden
-// shape and the asked-for one, because HF-5 names both: 中央 and 名前の上端.
-// ===========================================================================
+// Why: which CSS property carries the placement is not asserted; only the shapes
+// HF-5 names, centered and level with the name's top.
 
-/** 表 T-051 HF-5's three placement rules, copied from docs/spec/01-04-requirements.md. */
 const T_051_HF5_LEVEL_WITH_TOP = '名前が操作子より大きいとき、`GRS` は、操作子を名前の上端に揃えること。'
 const T_051_HF5_NOT_CENTERED = '名前が操作子より大きいとき、`GRS` は、操作子を中央で揃えないこと。'
 const T_051_HF5_NOT_SET_DOWN = '名前が操作子より大きいとき、`GRS` は、操作子を上端から下げないこと。'
 
-/** The declarations that would center a control on the line it sits in. */
 const CENTERING_PROPERTIES = [
   'align-items',
   'align-self',
@@ -4348,14 +3212,8 @@ const CENTERING_PROPERTIES = [
   'vertical-align',
 ] as const
 
-/**
- * The centering declarations this node carries, if any.
- *
- * ⭐ `vertical-align: middle` is counted, because on a control that sits in the
- * name's line it is exactly 中央 by another spelling; `middle` and `center` are
- * the two words for it. ⚠️ `text-align` is NOT counted -- it centers what is
- * INSIDE the box, which is the other axis and none of HF-5's business.
- */
+// Why: vertical-align middle counts as centering on the name's line; text-align does
+// not, as it centers what is inside the box, the other axis.
 function centeringOn(element: FakeElement): string[] {
   const declared = styleMap(element)
   const found: string[] = []
@@ -4366,24 +3224,16 @@ function centeringOn(element: FakeElement): string[] {
       found.push(`${property}:${value}`)
     }
   }
-  // ⭐ The fourth way to center a flex item on its line, which carries no word
-  // for it at all: an auto margin on both ends of the block axis.
+  // Why: the fourth way to center a flex item names no word for it: auto margins on
+  // both ends of the block axis.
   const top = insetOf(element, 'margin', 'top').trim().toLowerCase()
   const bottom = insetOf(element, 'margin', 'bottom').trim().toLowerCase()
   if (top === 'auto' && bottom === 'auto') found.push('margin-top:auto;margin-bottom:auto')
   return found
 }
 
-/**
- * The declarations that would set this control DOWN from the top of the line it
- * sits in, if any -- which HF-5 now forbids (MUST NOT).
- *
- * ⚠️ A zero is not a set-down and is not reported: the task group control states
- * `padding: 0 0.125em`, whose top side is a real declaration saying 「なし」.
- * ⛔ `auto` IS reported, unlike in `isZeroLength` above -- a single auto margin
- * on the block axis pushes a flex item down the line it sits in, which is the
- * very thing HF-5 forbids, while `isZeroLength` reads it as no length at all.
- */
+// Why: a zero is not a set-down but `auto` is, unlike in isZeroLength: one auto
+// margin on the block axis pushes a flex item down its line.
 function setDownOn(element: FakeElement): string[] {
   const pushesDown = (value: string): boolean => value !== '' && !/^0(?:[a-z%]+)?$/.test(value)
   const found: string[] = []
@@ -4396,7 +3246,6 @@ function setDownOn(element: FakeElement): string[] {
   return found
 }
 
-/** The task group drawn with its two controls, for the placement cases below. */
 const taskGroupWithControls = (): ScreenView =>
   viewWith({
     taskGroupPanel: {
@@ -4418,14 +3267,11 @@ describe('表 T-051 HF-5 / FR-098 -- the controls are level with the top of the 
     expect(hf5?.cells.join(' ')).toContain(T_051_HF5_LEVEL_WITH_TOP)
     expect(hf5?.cells.join(' ')).toContain(T_051_HF5_NOT_CENTERED)
     expect(hf5?.cells.join(' ')).toContain(T_051_HF5_NOT_SET_DOWN)
-    // ⛔ AND NO AMOUNT IS HELD ANYWHERE. S-139 of 表 T-206 carried the set-down
-    // for one day and is retired -- were it ever to come back, the cases below
-    // would be asserting the absence of something the specification asks for.
+    // Why: no amount may be held anywhere: were S-139 to come back, the cases below
+    // would assert the absence of something the spec asks for.
     expect(hf5?.cells.join(' ')).not.toContain('S-139')
     expect(specTable('T-206').rows.find((one) => one.id === 'S-139')).toBeUndefined()
     expect(specText('01-04-requirements.md')).toContain(T_051_HF5_NOT_CENTERED)
-    // ⛔ FR-098 does not restate the rule; it refers the 置き方 to HF-4 .. HF-6,
-    // so the pin answers to this case for the same reason the expander does.
     expect(specText('01-04-requirements.md')).toContain(FR_098_SAME_AS_THE_EXPANDER)
   })
 
@@ -4464,11 +3310,8 @@ describe('表 T-051 HF-5 / FR-098 -- the controls are level with the top of the 
   it.each(T_109_ON_THE_TASK_GROUP)(
     '⭐ GIVEN $row is drawn WHEN the line it sits in is read THEN that line starts its items at its top (表 T-051 HF-5 MUST: 名前の上端に揃えること) -- $row',
     ({ row }) => {
-      // ⭐ THE POSITIVE HALF OF THE RULE. Forbidding the center and the set-down
-      // still leaves 「どこにも揃えない」 open, so one case reads the placement
-      // itself: the task group lays its name and its controls out in one line box, and
-      // where that box starts its items IS where the controls sit against the
-      // top edge of the name.
+      // Why: forbidding center and set-down still leaves no alignment at all open, so this
+      // reads where the line box starts its items, against the name's top edge.
       const built = drawn(taskGroupWithControls())
       const line = entryFor(built.root(), row).parentNode as FakeElement
 
@@ -4483,9 +3326,8 @@ describe('表 T-051 HF-5 / FR-098 -- the controls are level with the top of the 
   it('⛔ GIVEN a control declared `align-self:center`, one declared `vertical-align:middle`, one with auto margins on both ends and one set down by 7px WHEN each is read through the predicates above THEN all four are caught -- so the cases above are not greens that prove nothing (04-verification.md §2)', () => {
     const built = drawn(taskGroupWithControls())
 
-    // ⚠️ Built by hand rather than drawn: the point is the PREDICATES, and a
-    // predicate that could not name a centered or a set-down control would pass
-    // every case above no matter what the unit did.
+    // Why: built by hand, not drawn: a predicate that could not name a centered or set-down
+    // control would pass every case above whatever the unit did.
     const make = (css: string): FakeElement => {
       const node = new FakeElement('button', built.world)
       node.setAttribute('style', css)
@@ -4499,8 +3341,7 @@ describe('表 T-051 HF-5 / FR-098 -- the controls are level with the top of the 
     expect(setDownOn(make('margin-top:7px'))).toEqual(['margin-top:7px'])
     expect(setDownOn(make('padding:7px 0 0 0'))).toEqual(['padding-top:7px'])
     expect(setDownOn(make('position:relative;top:0.5em'))).toEqual(['top:0.5em'])
-    // ⭐ And what HF-5 ALLOWS is not caught, or the cases above would be
-    // unpassable rather than true.
+    // Why: what HF-5 allows must not be caught, or the cases above would be unpassable.
     expect(centeringOn(make('align-self:flex-start'))).toEqual([])
     expect(centeringOn(make('text-align:center'))).toEqual([])
     expect(setDownOn(make('padding:0 0.125em'))).toEqual([])
@@ -4539,40 +3380,9 @@ describe('表 T-051 HF-5 / FR-098 -- the controls are level with the top of the 
   })
 })
 
-// ===========================================================================
-// GR-20 OF 表 T-023d -- THE GRAB STRIP THE TASK GROUP DRAG IS TAKEN ON.
-//
-// ⭐ WHY THIS BLOCK IS HERE. 表 T-023d GR-20: 「タスクグループパネルのタスクグループ | **タスクグループの左端
-// に敷く掴み代**（幅は `_assets/tbl-settings.md` の 表 T-206 の `S-138`）|
-// 掴めばタスクグループを動かす（表 T-051 の `HF-15`）。⛔ **ピン止めしているタスクグループは掴めない
-// こと（MUST NOT）** —— `FR-098` が留めたタスクグループをパネルの先頭へ上げるので、**上げ
-// られた位置で掴むと、木の順ではなく描く順を触ることになる。**⚠️ **実測で、
-// 留めたタスクグループを引くと画面は 1px も動かないまま親を 2 つまたいだ**」.
-//
-// The side that DREW the panel is the side that knows a task group was lifted (表 T-065
-// IF-9, MUST), so both halves of that row are answered here: the strip is laid,
-// and it is not laid on a pinned task group.
-//
-// ⚠️ THE HARNESS CANNOT MEASURE A PIXEL -- the note above `intrinsicExtent`
-// says why, and it applies unchanged here: `laidOut` answers from `LAYOUT`,
-// which is keyed by `data-icon` and `data-role`, and 表 T-109 holds no row for a
-// grab strip so it can carry neither. ⭐ WHAT IS CHECKED INSTEAD is the
-// declaration a browser would read to get the pixel, exactly as the IC-58 block
-// does.
-//
-// ⛔ THE STRIP IS FOUND BY WHAT THE MANUSCRIPT SAYS IT IS, NOT BY AN ATTRIBUTE
-// NAME. GR-20 gives it two properties and no others: it is `S-138` wide and it
-// lies along the task group's LEFT edge. `stripsOf` below looks for exactly that, so a
-// build that marked it differently still passes and a build that laid no strip
-// still fails. ⚠️ Entries are excluded first, because `S-138` is also 「入口の
-// 図形を描く箱の一辺」 -- the same number -- and a control that took it would
-// otherwise be read as a strip.
-//
-// ⛔ WHAT IS NOT ASSERTED: how the strip is PAINTED. GR-20 gives it no ink, and
-// 表 T-026's RC-13 makes a new figure the user's ruling.
-// ===========================================================================
+// Why: the strip is found by what GR-20 says it is, S-138 wide on the left edge, not
+// by an attribute; entries are excluded first, since an entry box is S-138 too.
 
-/** 表 T-206 `S-138` -- the width GR-20 lays the strip at. Read, never copied. */
 const S_138_STRIP_WIDTH = (() => {
   const row = specTable('T-206').rows.find((one) => one.id === 'S-138')
   if (row === undefined) throw new Error('表 T-206 no longer holds S-138')
@@ -4581,12 +3391,7 @@ const S_138_STRIP_WIDTH = (() => {
   return Number(found[0])
 })()
 
-/**
- * The width this node fixes for itself, in px, or `null` where nothing does.
- *
- * ⭐ THE CSS BOX MODEL AND NOT AN OPINION OF THIS FILE'S: a box has a fixed
- * extent on an axis when `width`, `min-width` or its `flex-basis` gives it one.
- */
+// Summary: The width this node fixes for itself in px, from `width`, `min-width` or `flex-basis`, or null.
 function fixedWidthPx(element: FakeElement): number | null {
   const declared = styleMap(element)
   const candidates = [
@@ -4602,16 +3407,11 @@ function fixedWidthPx(element: FakeElement): number | null {
   return null
 }
 
-/**
- * The children of a task group that answer GR-20's description: `S-138` wide, and
- * carrying no entry of 表 T-109.
- */
 const stripsOf = (row: FakeElement): FakeElement[] =>
   row.children.filter(
     (one) => !one.hasAttribute('data-icon') && fixedWidthPx(one) === S_138_STRIP_WIDTH,
   )
 
-/** One ordinary task group and one pinned task group, drawn in the same panel. */
 const PANEL_WITH_A_PIN = (): ScreenView =>
   viewWith({
     taskGroupPanel: {
@@ -4649,11 +3449,8 @@ describe('GR-20 of 表 T-023d -- タスクグループの左端に敷く掴み�
         strips.length,
         `GR-20's strip is not on the task group, or there is more than one of it: ${serialize(row)}`,
       ).toBe(1)
-      // 「タスクグループの左端に敷く」 -- the LEFT edge of the task group, so nothing of the task group
-      // stands before it. ⚠️ The depth cases are here because FR-085 indents a
-      // deep task group: an indent that pushed the strip in would put the grab
-      // somewhere different on every task group, which is the complaint HF-4 was
-      // written about one axis over.
+      // Why: the depth cases are here because FR-085 indents a deep task group, and an
+      // indent pushing the strip in would move the grab on every task group.
       expect(
         row.children.indexOf(strips[0] as FakeElement),
         `the strip does not lie along the task group's left edge: ${serialize(row)}`,
@@ -4676,7 +3473,6 @@ describe('GR-20 of 表 T-023d -- タスクグループの左端に敷く掴み�
   })
 
   it('⛔ MUST NOT GIVEN a PINNED task group WHEN it is read THEN it carries NO strip at all (GR-20: ピン止めしているタスクグループは掴めないこと)', () => {
-    // ⚠️ 「実測で、留めたタスクグループを引くと画面は 1px も動かないまま親を 2 つまたいだ」.
     const built = drawn(PANEL_WITH_A_PIN())
 
     expect(
@@ -4701,34 +3497,9 @@ describe('GR-20 of 表 T-023d -- タスクグループの左端に敷く掴み�
   })
 })
 
-// ===========================================================================
-// THE ORDER THE CONTROLS STAND IN -- 表 T-051 の `HF-1`, `HF-4` AND `HF-10`.
-//
-// ⭐⭐ WHY THIS BLOCK EXISTS AT ALL. Until 2026-08-30 the manuscript declined to
-// fix the order: `HF-4` said 「⚠️ **本行が定めるのはこの 1 つだけであり、ほかの
-// 操作子の前後は定めない**」 and the blocks above say so in as many words. Three
-// rulings on that day settled every place:
-//   `HF-1`  ⭐⭐ 「並びは 2 × 2 の格子とすること（MUST）」, read column first
-//           (see HF-1), with ⛔ 「**1 本と
-//           2 本を混ぜて並べてはならない（MUST NOT）** —— **上下に読めば動作、
-//           左右に読めば範囲、という格子が崩れる**」
-//   `HF-4`  ⭐⭐ the lattice, the add/delete pair, then the pin, left to right
-//           (see HF-4), with ⛔ 「**足すと消すのあいだに他の
-//           操作子を挟んではならない（MUST NOT）**」 and 「**ピン止めの操作子
-//           （表 T-109 の `IC-60`）を、並びのいちばん外（右端）に置くこと（MUST）**」
-//   `HF-10` ⭐⭐ 「頭の並びは、左から すべて折りたたむ・1 階層展開する・すべて展開する・足す・
-//           すべて消すの順に、1 行に並べること（MUST）」 (CR-587, 2026-09-26)
-//
-// ⛔ WHAT IS READ, AND WHY IT IS NOT THE CHILD ORDER. Nothing in docs/spec fixes
-// how a task group is built, and a control placed out of flow sits where its own inset
-// puts it whatever its place among the siblings. So `leftToRight` below ranks by
-// the inset the unit declared -- `left` ascending, or `right` descending -- and
-// falls back to document order only when NO control declares either, which is
-// the in-flow line where document order IS left to right. ⚠️ A run placed two
-// ways at once is ranked by neither and fails loudly rather than quietly.
-// ===========================================================================
+// Why: ranked by the declared inset, not child order: an out-of-flow control sits
+// where its inset puts it; document order is used only when no control has one.
 
-/** The number and unit a length declaration states, or `null` for anything else. */
 function lengthOf(value: string | undefined): { readonly n: number; readonly unit: string } | null {
   const found = /^(-?\d+(?:\.\d+)?)(px|em|rem)$/.exec((value ?? '').trim())
   return found === null ? null : { n: Number(found[1]), unit: found[2] as string }
@@ -4736,19 +3507,12 @@ function lengthOf(value: string | undefined): { readonly n: number; readonly uni
 
 const iconOf = (node: FakeElement): string => node.getAttribute('data-icon') ?? '(unmarked)'
 
-/**
- * The rows of 表 T-109 these nodes carry, in the order a reader meets them from
- * the LEFT.
- */
 function leftToRight(nodes: readonly FakeElement[]): string[] {
   return leftToRightBy(nodes, iconOf)
 }
 
-/**
- * The same reading, but naming each node however the caller wants -- so a run
- * that carries `HF-1`'s lattice can call that one box by the lattice's name
- * instead of by an entry it does not itself hold.
- */
+// Why: names each node as the caller wants, so a run carrying HF-1's lattice can
+// name that box by the lattice, not by an entry it does not hold.
 function leftToRightBy(
   nodes: readonly FakeElement[],
   nameOf: (node: FakeElement) => string,
@@ -4781,17 +3545,10 @@ function leftToRightBy(
     .map((one) => one.icon)
 }
 
-/** `HF-1`'s four, left to right, as rows of 表 T-109. */
 const HF1_LEFT_TO_RIGHT = T_051_HF1_LATTICE.map((one) => entranceForRule(one.rule))
 
-/**
- * `HF-4`'s whole run, left to right, as rows of 表 T-109.
- *
- * ⚠️ 足す IS FOUND THROUGH ITS RULE and 消す / ピン止め through the rows `HF-4`
- * NAMES ITSELF -- that row writes 「削除（`IC-82`）」 and 「ピン止めの操作子（表
- * T-109 の `IC-60`）」 in as many words, so the two ids are the manuscript's own
- * and the premise case below holds them to it.
- */
+// Why: IC-82 and IC-60 are typed because HF-4 names them itself; the premise case
+// below holds them to it.
 const HF4_LEFT_TO_RIGHT = [...HF1_LEFT_TO_RIGHT, 'IC-82', entranceForRule('HF-14'), 'IC-60']
 
 // Spec: HF-20
@@ -4799,7 +3556,6 @@ const HF20_HEAD_DELETE = T_109.rows.find(
   (one) => namesHeadRule(one) && /(^|[^0-9A-Za-z-])HF-20([^0-9-]|$)/.test(one.by['何の入口か'] ?? ''),
 )?.id
 
-/** `HF-10`'s head run, left to right: すべて折りたたむ・1 階層展開する・すべて展開する・足す・すべて消す. */
 const HF10_LEFT_TO_RIGHT = [
   entranceForRule('HF-12'),
   entranceForRule('HF-16'),
@@ -4808,41 +3564,18 @@ const HF10_LEFT_TO_RIGHT = [
   HF20_HEAD_DELETE ?? '(table T-109 names no head entrance for HF-20)',
 ]
 
-/** Every node on the page carrying one of these rows of 表 T-109. */
 const nodesFor = (built: Stage, rows: readonly string[]): FakeElement[] =>
   selfAndDescendants(built.root()).filter((one) => rows.includes(iconOf(one)))
 
-// ---------------------------------------------------------------------------
-// READING A LATTICE (CR-336).
-//
-// ⭐⭐ 表 T-051 の `HF-1` (MUST): 「**並びは 2 × 2 の格子とすること（MUST）**」.
-// A lattice is a place on TWO axes, so a control's stand cannot be read off one
-// ordering the way a single line's can.
-//
-// ⛔ WHAT DECIDES A CONTROL'S PLACE IS NOT WRITTEN ANYWHERE IN docs/spec, exactly
-// as it was not for the single line: 表 T-103 の `U-47` says 「員数と置き方は
-// 表 T-051 の `HF-1` が持ち、本行は持たない」 and `HF-1` gives an arrangement and
-// no mechanism. So this reads whichever ONE the unit declared -- the grid lines
-// of a CSS grid, or an inset on each axis -- and refuses a run placed two ways
-// at once rather than ranking it by neither.
-//
-// ⛔⛔ WHAT IS NOT READ, AND IS A FINDING RATHER THAN A GUESS: HOW FAR APART THE
-// TWO RANKS OR THE TWO COLUMNS STAND. No row of docs/spec states a gap for the
-// lattice -- `HF-6` says in as many words 「⛔ **操作子どうしの間隔をここに書いて
-// はならない（MUST NOT）** —— **その量を持つ行はどこにも無く、まだ裁定を受けて
-// いない**」 -- so only the ORDER of the places is asserted, never a distance.
-// ---------------------------------------------------------------------------
+// Why: reads whichever placement the unit declared, grid lines or an inset per axis,
+// and refuses a mixed run; no gap is asserted, since no spec row states one.
 
-/** The first integer a `grid-column` / `grid-row` declaration states, or `null`. */
 function gridLineOf(value: string | undefined): number | null {
   const found = /^(-?\d+)\s*(?:\/|$)/.exec((value ?? '').trim())
   return found === null ? null : Number(found[1])
 }
 
-/**
- * Where one control stands, as a key that grows RIGHTWARD and one that grows
- * DOWNWARD, with the reading that produced them so a mixed run can be refused.
- */
+// Summary: Where one control stands, as a rightward key and a downward key with the reading that produced them.
 function placeOf(node: FakeElement): {
   readonly x: number
   readonly y: number
@@ -4872,13 +3605,9 @@ function placeOf(node: FakeElement): {
   )
 }
 
-/** The distinct keys of an axis, in the order a reader meets them. */
 const axisOf = (keys: readonly number[]): number[] => [...new Set(keys)].sort((a, b) => a - b)
 
-/**
- * The lattice these controls stand in: `[column][rank]` holding the row of
- * 表 T-109 that stands there, columns read left to right and ranks top to bottom.
- */
+// Summary: The lattice as `[column][rank]` of T-109 rows, columns left to right and ranks top to bottom.
 function latticeOf(nodes: readonly FakeElement[]): string[][] {
   const placed = nodes.map((node) => ({ icon: iconOf(node), ...placeOf(node) }))
   const how = new Set(placed.map((one) => one.how))
@@ -4904,33 +3633,14 @@ function latticeOf(nodes: readonly FakeElement[]): string[][] {
   )
 }
 
-/**
- * What `HF-4` calls 「折りたたみの 4 つ（`HF-1` の格子）」 -- the four read as ONE
- * member of the task group's run, because that is how `HF-4` counts them.
- */
 const HF1_LATTICE = 'HF-1 の格子'
 
-/**
- * What `HF-4` calls 「消すと足すの縦の対」 -- the two read as ONE member of the
- * task group's run, because that is how `HF-4` counts them since 2026-09-05.
- */
 const HF4_PAIR = 'HF-4 の縦の対'
 
-/**
- * The pair's two entries, TOP TO BOTTOM: `HF-4` (MUST) 「**消すを上、足すを下に
- * 置くこと（MUST）**」（利用者の裁定 2026-09-05「**[x]の下に[+]**」）.
- */
 const HF4_PAIR_TOP_TO_BOTTOM = ['IC-82', entranceForRule('HF-14')]
 
-/**
- * The task group's run, left to right, as `HF-4` reads it: the lattice as one member,
- * then whatever else the task group carries.
- *
- * ⭐ EACH CHILD IS NAMED BY WHAT IT BRINGS. A child that brings the folding
- * controls -- however many of them, and however deep -- is 「`HF-1` の格子」; a
- * child that brings one other entry is that entry. ⛔ A child that mixed the two
- * would leave the run unreadable and is refused rather than guessed at.
- */
+// Why: each child is named by what it brings; a child mixing the folding controls
+// with another entry leaves the run unreadable and is refused, not guessed at.
 function runOf(row: FakeElement): string[] {
   const nameOf = (host: FakeElement): string => {
     const icons = selfAndDescendants(host)
@@ -4938,9 +3648,6 @@ function runOf(row: FakeElement): string[] {
       .map(iconOf)
     const folding = icons.filter((one) => HF1_LEFT_TO_RIGHT.includes(one))
     const pair = icons.filter((one) => HF4_PAIR_TOP_TO_BOTTOM.includes(one))
-    // ⭐ A BOX THAT BRINGS ONLY 消す AND 足す IS `HF-4`'s 縦の対, one member of
-    // the run -- 「**消すと足すの縦の対**」 counts them as one thing exactly as
-    // 「（`HF-1` の格子）」 counts the folding four as one.
     if (pair.length === icons.length && icons.length > 0) return HF4_PAIR
     if (folding.length === 0) {
       if (icons.length !== 1) {
@@ -4957,26 +3664,15 @@ function runOf(row: FakeElement): string[] {
   }
 
   const read = leftToRightBy(controlHostsOf(row), nameOf)
-  // ⭐ The lattice and the pair are each ONE member of the run even where the
-  // unit hangs their controls on the task group itself: consecutive boxes of the same
-  // name read as one, and members that were NOT consecutive stay separate and
-  // fail.
+  // Why: consecutive boxes of one name read as one member, so a unit hanging the controls
+  // on the task group still reads; non-consecutive ones stay apart and fail.
   return read.filter(
     (one, index) => (one !== HF1_LATTICE && one !== HF4_PAIR) || read[index - 1] !== one,
   )
 }
 
-/**
- * `HF-4`'s run as a reader meets it, left to right, since the ruling of
- * 2026-09-05: 「**折りたたみの 4 つ（`HF-1` の格子）、消すと足すの縦の対、ピン止めの
- * 順に、左から右へ置くこと（MUST）**」.
- *
- * ⭐ THREE MEMBERS, NOT SEVEN -- that sentence counts the lattice as one thing,
- * 消す と 足す as one more, and names ピン止め after them. The seven ENTRIES are
- * `HF4_LEFT_TO_RIGHT` above, and the premise case holds the two to each other.
- * ⚠️ IT WAS FOUR MEMBERS UNTIL THAT DAY, with 足す and 消す taking a column each
- * -- which is what left `HF-1`'s lattice unreadable as a lattice.
- */
+// Why: three members, not seven: HF-4's sentence counts the lattice as one and the
+// pair as one more; HF4_LEFT_TO_RIGHT holds the seven entries.
 const HF4_RUN = [HF1_LATTICE, HF4_PAIR, 'IC-60']
 
 
@@ -4989,12 +3685,10 @@ describe('表 T-051 HF-1 (MUST) -- the four folding controls, left to right in a
     expect(says).toContain(T_051_HF1_FOUR_CONTROLS)
     expect(says).toContain(T_051_HF1_IS_A_LATTICE)
     expect(says).toContain(T_051_HF1_LEFT_TO_RIGHT)
-    // ⛔ THE MUST NOT THAT MAKES THE LATTICE A LATTICE.
     expect(says).toContain('`GRS` は、1 本と 2 本を混ぜて並べないこと。')
 
-    // ⭐ AND THE ORDER THIS FILE DRIVES BY IS THAT SENTENCE'S OWN. Each word of
-    // it is looked for after the one before, so a manuscript that re-ordered the
-    // lattice fails here instead of leaving the case below asserting the old one.
+    // Why: each word is looked for after the one before, so a re-ordered lattice fails
+    // here instead of leaving the case below asserting the old order.
     let at = says.indexOf(T_051_HF1_LEFT_TO_RIGHT)
     expect(at, 'HF-1 no longer states the left-to-right order').toBeGreaterThanOrEqual(0)
     for (const one of T_051_HF1_LATTICE) {
@@ -5004,48 +3698,25 @@ describe('表 T-051 HF-1 (MUST) -- the four folding controls, left to right in a
       )
       at = next + one.word.length
     }
-    // ⭐ FOUR ENTRANCES FOR FOUR CONTROLS, none of them the same row twice.
     expect(new Set(HF1_LEFT_TO_RIGHT).size).toBe(4)
   })
 
   it('⭐ GIVEN a task group is drawn WHEN its four folding controls are read as a lattice THEN the left column then the right gives HF-1’s order (MUST: 左から 隠す・1 階層展開する・配下をすべて折りたたむ・配下をすべて展開する)', () => {
-    // ⭐⭐ 表 T-051 `HF-1` (MUST), the whole of what is asserted here:
-    //   「並びは 2 × 2 の格子とすること（MUST）」 -- the left column top to bottom,
-    //    then the right column (see HF-1).
-    //    ⛔ **1 本と 2 本を混ぜて並べてはならない（MUST NOT）** —— **上下に読めば
-    //    動作、左右に読めば範囲、という格子が崩れる。**」
-    //
-    // ⭐ WHY 「左から」 IS READ DOWN EACH COLUMN AND NOT ALONG EACH RANK. The
-    // sentence after it settles which: 「**上下に読めば動作、左右に読めば範囲**」.
-    // 隠す and 1 階層展開する act on ONE step, 配下をすべて折りたたむ and 配下をすべて展開する on
-    // ALL of it, so those two pairs are the 範囲 and must be told apart LEFT to
-    // RIGHT -- one pair per column. 隠す / 配下をすべて折りたたむ fold and 1 階層展開する /
-    // 配下をすべて展開する open, so those pairs are the 動作 and are told apart TOP to
-    // BOTTOM -- one per rank. Read that way 「左から」 names the left column's two
-    // first, and the MUST NOT holds: the 1 本 pair (表 T-026 の `RC-13`: 向きが
-    // 動作、本数が範囲) is one column and the 2 本 pair the other, never mixed.
-    // ⛔ Read along the ranks instead, the 範囲 would separate top from bottom and
-    // that sentence would be false.
+    // Why: read down each column, not along each rank: the sentence reads action top to
+    // bottom and range left to right, so the left column's pair comes first (RC-13).
     const built = drawn(oneLiveTaskGroup())
     const lattice = latticeOf(nodesFor(built, HF1_LEFT_TO_RIGHT))
 
-    // 2 × 2: two columns, two ranks, one control in each of the four places.
     expect(lattice.length, `HF-1's four do not stand in two columns: ${lattice.join(' | ')}`).toBe(2)
     for (const column of lattice) {
       expect(column.length, `a column of the lattice is not two deep: ${column.join(' ')}`).toBe(2)
     }
-    // ⛔ AND THE ORDER IS HF-1's SENTENCE, left column downward then right column
-    // downward.
     expect(lattice.flat()).toEqual(HF1_LEFT_TO_RIGHT)
   })
 
   it('⛔ MUST NOT GIVEN a task group is drawn WHEN the lattice is read THEN the single bars share one column and the double bars the other (HF-1: 1 本と 2 本を混ぜて並べてはならない)', () => {
-    // 「上下に読めば動作、左右に読めば範囲」 -- 隠す and 1 階層展開する are the single
-    // bars (表 T-026 の `RC-13`: 向きが動作、本数が範囲) and 配下をすべて折りたたむ /
-    // 配下をすべて展開する the double ones. ⛔ The lattice is broken exactly when a
-    // column holds one of each, which is what 「1 本と 2 本を混ぜて並べては
-    // ならない」 forbids -- and it is broken outright by a single line, where
-    // there is no second rank for 動作 to be read down at all.
+    // Why: the single bars (RC-13) share one column and the double bars the other; a
+    // column holding one of each, or a single line, breaks the lattice.
     const built = drawn(oneLiveTaskGroup())
     const lattice = latticeOf(nodesFor(built, HF1_LEFT_TO_RIGHT))
 
@@ -5062,7 +3733,6 @@ describe('表 T-051 HF-1 (MUST) -- the four folding controls, left to right in a
         `${what} do not have a column to themselves: ${lattice.join(' | ')}`,
       ).toEqual([...pair].sort())
     }
-    // ⛔ 「並びは 2 × 2 の格子」 -- and never one line of four.
     expect(lattice.length, `HF-1's four stand in one line: ${lattice.join(' | ')}`).toBe(2)
   })
 
@@ -5075,19 +3745,18 @@ describe('表 T-051 HF-1 (MUST) -- the four folding controls, left to right in a
       return node
     }
 
-    // Right-anchored: the LARGER inset is further left.
+    // Why: right-anchored, so the larger inset is further left.
     expect(leftToRight([make('IC-58', 'right:0em'), make('IC-59', 'right:4em')])).toEqual([
       'IC-59',
       'IC-58',
     ])
-    // Left-anchored: the smaller inset is further left.
+    // Why: left-anchored, so the smaller inset is further left.
     expect(leftToRight([make('IC-58', 'left:4em'), make('IC-59', 'left:0em')])).toEqual([
       'IC-59',
       'IC-58',
     ])
-    // In flow: document order, and the order handed in is the document's.
+    // Why: in flow, document order is the order handed in.
     expect(leftToRight([make('IC-58', ''), make('IC-59', '')])).toEqual(['IC-58', 'IC-59'])
-    // ⛔ And a run placed two ways at once is refused rather than ranked.
     expect(() => leftToRight([make('IC-58', 'left:0em'), make('IC-59', 'right:0em')])).toThrow()
   })
 
@@ -5100,7 +3769,7 @@ describe('表 T-051 HF-1 (MUST) -- the four folding controls, left to right in a
       return node
     }
 
-    // Grid lines: the smaller column is further left, the smaller rank higher.
+    // Why: on grid lines the smaller column is further left and the smaller rank higher.
     expect(
       latticeOf([
         make('IC-58', 'grid-column:2;grid-row:2'),
@@ -5112,7 +3781,7 @@ describe('表 T-051 HF-1 (MUST) -- the four folding controls, left to right in a
       ['IC-59', 'IC-90'],
       ['IC-77', 'IC-58'],
     ])
-    // Insets: right counts backwards, top forwards.
+    // Why: as insets, right counts backwards and top forwards.
     expect(
       latticeOf([
         make('IC-58', 'right:0em;top:1em'),
@@ -5124,13 +3793,10 @@ describe('表 T-051 HF-1 (MUST) -- the four folding controls, left to right in a
       ['IC-59', 'IC-90'],
       ['IC-77', 'IC-58'],
     ])
-    // ⛔ A lattice placed two ways at once is refused rather than ranked.
     expect(() =>
       latticeOf([make('IC-58', 'grid-column:1;grid-row:1'), make('IC-59', 'left:0em;top:0em')]),
     ).toThrow()
-    // ⛔ So is one that states no place on two axes at all.
     expect(() => latticeOf([make('IC-58', 'right:0em')])).toThrow()
-    // ⛔ And so are two controls standing in the same place.
     expect(() =>
       latticeOf([make('IC-58', 'grid-column:1;grid-row:1'), make('IC-59', 'grid-column:1;grid-row:1')]),
     ).toThrow()
@@ -5147,21 +3813,15 @@ describe('表 T-051 HF-4 (MUST) -- the whole run of a task group, left to right'
     expect(says).toContain(
       '`GRS` は、ピン止めの操作子（表 T-109 の `IC-60`）を、並びのいちばん外（右端）に置くこと。',
     )
-    // ⭐⭐ WHICH OF THE PAIR IS ON TOP IS THE ROW'S OWN, ruled 2026-09-05.
     expect(says).toContain(T_051_HF4_DELETE_ABOVE_ADD)
-    // ⭐ AND THE BAN ON ANYTHING BETWEEN THEM IS READ VERTICALLY NOW.
     expect(says).toContain('縦に隣り合うので、この禁止は縦に読む')
 
-    // ⛔ AND THE RUN IS THE WHOLE ROSTER, so nothing on the task group is left unplaced.
     expect([...HF4_LEFT_TO_RIGHT].sort()).toEqual([...T_109_ON_THE_TASK_GROUP.map((one) => one.row)].sort())
   })
 
   it('⭐ GIVEN a task group is drawn WHEN its run is read from the left THEN the lattice, the 縦の対 and ピン止め stand in HF-4’s order (MUST: 折りたたみの 4 つ（HF-1 の格子）、消すと足すの縦の対、ピン止めの順に、左から右へ)', () => {
-    // ⭐⭐ 表 T-051 `HF-4` (MUST): 「**折りたたみの 4 つ（`HF-1` の格子）、消すと足す
-    // の縦の対、ピン止めの順に、左から右へ置くこと（MUST）**」. ⭐ THE SENTENCE
-    // COUNTS THE FOUR AS ONE MEMBER -- 「（`HF-1` の格子）」 -- and 消す と 足す as
-    // one more, so the run this reads has THREE members and not seven; where each
-    // stands WITHIN its own box has its own cases.
+    // Why: the run has three members, not seven, as the sentence counts the lattice and
+    // the pair as one each; where each stands within its box has its own cases.
     const built = drawn(oneLiveTaskGroup())
 
     expect(runOf(theTaskGroupOf(built))).toEqual(HF4_RUN)
@@ -5170,11 +3830,7 @@ describe('表 T-051 HF-4 (MUST) -- the whole run of a task group, left to right'
   it.each(DEPTHS)(
     '⛔ MUST NOT GIVEN the same task group at depth %i WHEN its run is read THEN the arrangement and the number are the ones every other depth got (HF-15: 段の深さによって、操作子の並び・員数・振る舞いを変えてはならない)',
     (depth) => {
-      // ⛔⛔ 表 T-051 `HF-15` (MUST NOT, 利用者の裁定 2026-09-02): 「**段の深さに
-      // よって、操作子の並び・員数・振る舞いを変えてはならない（MUST NOT）**
-      // （同裁定「階層が深くても動作は同じにせよ」）—— **同じ印が段によって違う
-      // 結果を出すと、読む人はどの段で何が起きるかを覚えるほかなくなる。**」
-      // ⭐ 並び is the run, 員数 the count; 振る舞い is what a press does and is
+      // Why: HF-15 bars the run and the count changing with depth; what a press does is
       // not this unit's to answer.
       const row = theTaskGroupOf(drawn(taskGroupNamed('TaskGroupOne', depth)))
 
@@ -5210,12 +3866,8 @@ describe('表 T-051 HF-4 (MUST) -- the whole run of a task group, left to right'
   })
 
   it('⭐ MUST GIVEN a task group is drawn WHEN the outermost control is read THEN it is the pin, and the deletion’s column is the one step inside it (HF-4: ピン止めを並びのいちばん外へ)', () => {
-    // ⛔ THE TWO REASONS ARE HF-4's OWN: 「**削除（`IC-82`）がいちばん外に在ると、
-    // 右から流し込んだポインタが最初に触るのが削除になる**」 and 「**押す頻度は
-    // ピンのほうが高く、削除は一度きりである**」.
-    // ⭐ WHAT STANDS ONE STEP IN IS THE PAIR SINCE 2026-09-05, and the deletion
-    // is its upper rank -- the pointer poured in from the right still meets the
-    // pin before it.
+    // Why: one step in from the pin is the pair, deletion on its upper rank, so a pointer
+    // poured in from the right still meets the pin first.
     const row = theTaskGroupOf(drawn(oneLiveTaskGroup()))
     const run = runOf(row)
 
@@ -5230,11 +3882,8 @@ describe('表 T-051 HF-4 (MUST) -- the whole run of a task group, left to right'
   })
 
   it('⛔ MUST NOT GIVEN a task group is drawn WHEN 消す and 足す are found THEN they stand in ONE column with 消す above 足す and nothing between them (HF-4: 消すを上、足すを下 / いまは縦に隣り合う)', () => {
-    // ⭐⭐ 表 T-051 `HF-4` (MUST, 利用者の裁定 2026-09-05): 「**消すを上、足すを下に
-    // 置くこと（MUST）**」, and (MUST NOT) 「**足すと消すのあいだに他の操作子を挟んで
-    // はならない**」 -- 「**いまは縦に隣り合うので、この禁止は縦に読む**」.
-    // ⛔ SO THE READING IS THE LATTICE READING AND NOT THE LEFT-TO-RIGHT ONE: one
-    // column, two ranks, 消す first.
+    // Why: read as a lattice, not left to right: the pair is one column of two ranks,
+    // delete first.
     const row = theTaskGroupOf(drawn(oneLiveTaskGroup()))
     const pair = controlsOf(row).filter((one) => HF4_PAIR_TOP_TO_BOTTOM.includes(iconOf(one)))
 
@@ -5245,14 +3894,10 @@ describe('表 T-051 HF-4 (MUST) -- the whole run of a task group, left to right'
   })
 
   it('⛔ MUST NOT GIVEN a task group is drawn WHEN the boxes that carry its run are read THEN not one of them draws a line or a frame around what it holds (HF-1: 格子を線や枠で囲んではならない)', () => {
-    // ⛔⛔ 表 T-051 `HF-1` (MUST NOT, 利用者の裁定 2026-09-05「**格子の線は不要**」):
-    // 「**格子を線や枠で囲んではならない（MUST NOT）**」 —— 「**線を引くと操作子 1 つ
-    // ぶんの幅が要り、`HF-15` の掴み代を覆いに行く**」.
     const row = theTaskGroupOf(drawn(oneLiveTaskGroup()))
 
-    // ⚠️ WHAT IS REFUSED IS A LINE THAT PAINTS, not the property. A control that
-    // says `border:none` is TAKING the host's own button frame away, which is
-    // the same rule read the other way round.
+    // Why: what is refused is a line that paints: `border:none` takes the host's own
+    // button frame away, the same rule read the other way.
     const paintsNothing = /^(none|0|0px|initial|unset|revert)$/i
     for (const host of controlHostsOf(row)) {
       const declared = styleMap(host)
@@ -5272,9 +3917,6 @@ describe('表 T-051 HF-10 (MUST) -- the run at the panel’s head, left to right
     const hf10 = (specTable('T-051').rows.find((one) => one.id === 'HF-10')?.cells ?? []).join(' ')
 
     expect(hf10).toContain(T_051_HF10_THE_HEAD_RUN)
-    // ⛔ THE OUTERMOST OF THE HEAD IS NOT 「配下を展開」, which that row says
-    // itself: 「**本行の「配下を展開」を並びのいちばん外へ置いてはならない
-    // （MUST NOT）** —— **頭もタスクグループも、折りたたみの外に立つのはタスクグループを足す入口と消す入口である。**」.
     expect(hf10).toContain('`GRS` は、`HF-10` の「配下を展開」を並びのいちばん外へ置かないこと。')
 
     expect(hf10, 'HF-10 names the reason the head is not two tiers').toContain(T_051_HF10_NOT_TWO_TIERS)
@@ -5285,7 +3927,6 @@ describe('表 T-051 HF-10 (MUST) -- the run at the panel’s head, left to right
     expect([...HF10_LEFT_TO_RIGHT].sort()).toEqual(
       [...T_109_AT_THE_HEAD.map((one) => one.row)].sort(),
     )
-    // ⭐ AND NOT ONE OF THEM IS ALSO A TASK GROUP CONTROL.
     for (const row of HF10_LEFT_TO_RIGHT) {
       expect(
         T_109_ON_THE_TASK_GROUP.map((one) => one.row),
@@ -5340,16 +3981,13 @@ describe('表 T-051 HF-10 (MUST) -- the run at the panel’s head, left to right
         `${one.row} was drawn more than once for the panel`,
       ).toBe(1)
     }
-    // ⭐ The pair that makes the count a test: a TASK GROUP control IS drawn twice here.
+    // Why: the pair that makes the count a test: a task group control is drawn twice here.
     expect(nodesFor(built, [entranceForRule('HF-3')]).length).toBe(2)
   })
 
   it('⭐⭐ GIVEN a panel with NO task groups at all WHEN the head is read THEN all five are still drawn (HF-17: タスクグループが 1 つも無い文書では押す相手が存在しない)', () => {
-    // ⛔ WITHOUT THIS, `HF-17`'s own reason is unreachable: 「**本行が無いと、最も
-    // 浅い段のタスクグループを作る道が画面から消える** —— `FR-085` は最上位のタスクグループを作れることを
-    // 求めており、`HR-8` は足す先を配下と定めるので、**タスクグループが 1 つも無い文書では押す
-    // 相手が存在しない**」. A head drawn only beside a task group would leave an empty
-    // document with no way to gain one.
+    // Why: a head drawn only beside a task group would leave an empty document no way
+    // to gain one, which HF-17's reason forbids.
     const built = drawn(viewWith({ taskGroupPanel: { pinnedTitles: [], titles: [] } }))
 
     expect(rowsOf(built)).toEqual([])
@@ -5360,25 +3998,12 @@ describe('表 T-051 HF-10 (MUST) -- the run at the panel’s head, left to right
   })
 })
 
-// ===========================================================================
-// 表 T-051 HF-15 AND HF-18 -- WHAT IS DRAWN THAT IS NOT AN ENTRANCE.
-//
-// ⭐ `HF-15` reaches this unit by drawing: the held task group takes a ground
-// (CR-772 retired the two axis bands), and 「掴み代は常に描くこと（MUST）」.
-// ⭐ AND ONE OF `HF-18`: the count of what a task group holds folded, drawn
-// whether or not a pointer is on it.
-// ⚠️ WHAT IS NOT ASSERTED HERE: the drop line, the parent frame and the copy of
-// CR-772 -- the spec-only tester owns those cases.
-// ===========================================================================
-
-/** The two colors 表 T-236 gives HF-15's bands, read out of the table. */
 const themeColorsOf = (row: string): readonly string[] => {
   const found = specTable('T-236').rows.find((one) => one.id === row)
   if (found === undefined) throw new Error(`表 T-236 no longer holds ${row}`)
   return ['明るいテーマ', '暗いテーマ'].map((column) => bare(found.by[column] ?? ''))
 }
 
-/** One task group, drawn held by HF-15's grab or not. */
 const taskGroupHeldOn = (isHeld: boolean): ScreenView =>
   viewWith({
     taskGroupPanel: {
@@ -5419,8 +4044,8 @@ describe('表 T-051 HF-15 (MUST) -- the held task group takes a ground, and the 
     const strip = stripsOf(theTaskGroupOf(built))[0]
 
     expect(strip, 'GR-20 laid no strip, so there is nothing to ask about').toBeDefined()
-    // ⭐ THE PAIR THAT MAKES THIS A TEST: a control IS hidden while resting, so a
-    // sheet that hid nothing at all would pass the line below without meaning it.
+    // Why: a control is hidden while resting, so a sheet hiding nothing could not pass
+    // the line below by accident.
     expect(
       hiddenWhileResting(rules, entryFor(built.root(), entranceForRule('HF-3'))),
       'no control is hidden while resting, so this case proves nothing',
@@ -5432,23 +4057,8 @@ describe('表 T-051 HF-15 (MUST) -- the held task group takes a ground, and the 
   })
 })
 
-/**
- * The marks a task group carries that show nothing but a number.
- *
- * ⛔ FOUND BY WHAT THE MANUSCRIPT SAYS IT IS, not by an attribute name: `HF-18`
- * (MUST) asks for 「そのタスクグループの数をタスクグループに示すこと」 and 「そのタスクグループ自身にも印を付けること」,
- * and neither 表 T-103 nor 表 T-109 gives the mark a part or an entrance to be
- * named by. ⭐ A LEAF whose whole text is a number is the one reading of that
- * which a build cannot pass by accident -- a task group's name is not a bare number.
- */
-/**
- * The counts a task group shows, each without the mark HF-18 (MUST) puts in front of
- * it: 「数の前に、折りたたみ込みを表す印を 1 つ置くこと（MUST）」, a down triangle (U+25BE).
- *
- * ⛔ THE MARK IS REQUIRED AND NOT MERELY TOLERATED. A node whose text is the
- * bare number does not match, so an implementation that drops the mark is red
- * here rather than passing on the digits alone.
- */
+// Why: found as a leaf whose text is the mark and a number, not by an attribute: no
+// part or entrance names the mark, and the mark is required, not tolerated.
 const numberMarksOf = (row: FakeElement): string[] =>
   descendants(row)
     .filter((one) => one.children.length === 0
@@ -5461,10 +4071,6 @@ describe('表 T-051 HF-18 (MUST) -- the count of what a task group holds folded 
 
     expect(hf18).toContain(T_051_HF18_THE_COUNT)
     expect(hf18).toContain('配下に折りたたみ込んでいるタスクグループがあるとき、`GRS` は、折りたたみ込んでいるタスクグループ自身にも印を付けること。')
-    // ⭐ THE SHAPE THE SAMPLE SETTLED (2026-08-31): where the number stands and
-    // what stands in front of it. ⛔ Before that day HF-18 stated neither, and
-    // the implementation invented both -- the count was drawn over the second
-    // character of the task group's name.
     expect(hf18).toContain('`GRS` は、数を置く先をタスクグループの右端とすること。')
     expect(hf18).toContain('`GRS` は、数の前に、折りたたみ込みを表す印を 1 つ置くこと。')
     expect(hf18).toContain('`GRS` は、左の辺の帯の色を 表 T-236 の `S-153` とすること。')
@@ -5524,8 +4130,7 @@ describe('表 T-051 HF-18 (MUST) -- the count of what a task group holds folded 
     expect(numberMarksOf(row), 'the count was not drawn, so there is nothing to ask about').toEqual([
       '7',
     ])
-    // ⭐ THE MARK AND THE NUMBER ARE ONE NODE (HF-18, MUST): the count is drawn
-    // 「数の前に、折りたたみ込みを表す印を 1 つ置く」, so the text to look for carries both.
+    // Why: the mark and the number are one node (HF-18), so the text sought carries both.
     const mark = descendants(row).find(
       (one) => one.children.length === 0 && one.textContent.trim() === '▾ 7',
     )

@@ -1,115 +1,6 @@
-// `SL-3` of 表 T-023c and `ZO-6` of 表 T-020, as the user's ruling of
-// 2026-08-29 left them: while a range selection is HELD, the rectangle being
-// taken is drawn -- and the moment the button is let go, the rectangle goes and
-// the selection stays.
-//
-// The unit these arrive on is UF-48 `single-html-shell` (CP-25 of table T-062),
-// whose `frame-loop.ts` takes FT-1 of table T-078 -- 人の入力（ポインタとキー）
-// -- on `receiveInput`, and hands the finished picture to `IF-1`'s surface
-// (`SvgSurface.showSvg`). ⭐ THE PICTURE IS WHERE THIS RULE LIVES: `SL-3` says
-// 描くこと, and 表 T-020 orders what is drawn, so the string that crosses that
-// seam is the only place either row can be judged.
-//
-// ---------------------------------------------------------------------------
-// WHERE TABLE T-218 PUTS THIS FILE, AND WHY IT IS NOT A LIVE CASE
-// ---------------------------------------------------------------------------
-// Table T-218 of Chapter 7 offers a rule about what the screen shows exactly
-// two homes: `TS-3` (System, `tests/system/`, Playwright) and `TS-6` (Unit,
-// `tests/unit/`, Vitest). ⛔ `TS-3` is not available to this rule. Every case
-// under it is a `SW_SPEC_TEST` of Chapter 9, and `TW-2` of table T-219 requires
-// each one to take an `SWS-xxx` of Chapter 6.1 as its PARENT -- and Chapter 6.1
-// holds eight `SW_SPEC` nodes, none of which reaches a range selection:
-//
-//   SWS-1 目盛の刻みの間隔      SWS-5 イナズマ線の頂点
-//   SWS-2 タスクグループの帯高と縦位置      SWS-6 MSPDI の正規化
-//   SWS-3 依存線の経路          SWS-7 書き出した SVG の正規化
-//   SWS-4 描くものの頂点        SWS-8 単一 HTML の内容セキュリティ方針
-//
-// ⛔ A node was NOT invented for it. `TS-6` of table T-218 carries no
-// test node (JDG-606), and whether a unit case is written is decided by
-// the omission rows of rule 04 (table UO), not by a receptacle in the
-// specification.
-//
-// ---------------------------------------------------------------------------
-// ⛔ WRITTEN FROM docs/spec, AND WHAT WAS READ OF `src/` IS NAMED HERE
-// ---------------------------------------------------------------------------
-// (docs/development-rules/04-verification.md section 1: 読んでよいのは冒頭の
-// 宣言・公開する型・署名まで.)
-//
-// Exported declarations and head comments read, and nothing else:
-//   frame-loop.ts        `FrameEnvironment`, `FrameValues`, `FrameLoop`,
-//                        `ScreenWiring`, and the one signature
-//                        `frameLoop(surface, first, env, screen?, files?,
-//                        showPointerShape?)`
-//   svg-surface.ts       `SvgSurface`: `showSvg(svg)`, `showMarqueeOverlaySvg(svg)`
-//   input-source.ts      `HumanInput`, `InputModifiers`, `PointerButton`,
-//                        `PointerInput`, `PointerPhase`
-//   screen-renderer.ts   `DisplayLanguage`, `ScreenPart`, `ScreenSurface`,
-//                        `ScreenView`
-//   schedule-geometry.ts `Point`, `BarGeometry`, `TaskGeometry`
-//   schedule-layout.ts   `ScheduleLayout` (`pxPerDay`, `taskGroups`)
-//   schedule-entities.ts          the entity types this fixture writes out
-//
-// ⛔ NOT ONE NUMBER BELOW IS COPIED OUT OF `src/`. `S-174` and `S-175` are read
-// out of 表 T-206 at run time; the color is not written down at all but taken
-// as a RELATION -- 「どれも `SL-8` の選択の枠が既に読んでいる行である」 -- so
-// the case compares the rectangle against the frame the same run draws.
-//
-// ---------------------------------------------------------------------------
-// THE ROWS THESE CASES REST ON
-// ---------------------------------------------------------------------------
-//   T-023c SL-3  「範囲で選ぶ | 何にも当たらない場所からドラッグし、**矩形に
-//           完全に囲まれた対象だけを取ること（MUST）。** 触れただけのものを
-//           取ってはならない（MUST NOT）…**握っているあいだ、取ろうとしている
-//           矩形を描くこと（MUST）**（利用者の裁定 2026-08-29）—— ⛔ **描かない
-//           と、「完全に囲まれた」かどうかを人が離す前に確かめられない。**枠の
-//           太さは `_assets/tbl-settings.md` の 表 T-206 の `S-174`、破線の刻み
-//           は同表の `S-175`、色は同書の 表 T-236 の `S-151`、重ね順は
-//           表 T-020 の `ZO-6` が持つ。⛔ **新しい値を起こさない** ——
-//           **どれも `SL-8` の選択の枠が既に読んでいる行である**」
-//   T-020 ZO-6   「6（最前面） | **範囲選択の矩形**（表 T-023c の `SL-3`）。
-//           ⛔ **握っているあいだだけ描き、離したら消すこと（MUST）** ——
-//           **離した時点で残るのは選択そのものであり、矩形ではない**」
-//   T-023c SL-1  「対象 | **タスク・依存線・ハイライトボックス・コメント
-//           ボックス・基準日線。**タスクグループ（`TaskGroup`）は対象に含めない」-- which is
-//           why a press inside an empty task group band hits nothing.
-//   T-023c SL-8  「タスク・ハイライトボックス・コメントボックスは、外接矩形に
-//           沿った破線の枠で囲むこと（MUST）…枠の太さと破線の刻みは
-//           `_assets/tbl-settings.md` の 表 T-206 の `S-174` ／ `S-175`、色は
-//           同書の 表 T-236 の `S-151` が持つ」-- the row `SL-3` says it is
-//           reading, and therefore the row a color can be compared against.
-//   T-023a PTD-5  「何にも当たらない かつ 構えていない（AR-1）| **範囲選択**」
-//   T-023a PTD-1  「中ボタンドラッグ、または **`Ctrl` だけを伴う**左ドラッグ |
-//           **パン。** 構えと当たりによらず優先する」-- the row evaluated first,
-//           which is why the last case below expects NO rectangle for it.
-//   T-206 S-174 「選択の枠の太さ（表 T-023c の `SL-8`）| 1px 🔎」
-//   T-206 S-175 「選択の枠の破線の刻み（表 T-023c の `SL-8`）| 2 × 1px 🔎 …
-//           ⭐ 描く長さと空ける長さの組である」
-//   T-236 S-151 「強調の色 …選択と現在位置」
-//
-// ---------------------------------------------------------------------------
-// WHAT IS DELIBERATELY NOT ASSERTED
-// ---------------------------------------------------------------------------
-//   - HOW THE RECTANGLE IS SPELLED IN THE SVG -- which element, in which group,
-//     with which attributes beyond the three `SL-3` names. Nothing in the
-//     specification settles the markup, so a case demanding one would be
-//     inventing it. What is asked is that ONE element appear that was not there
-//     before, that it be a rectangle, and that it wear the three values.
-//   - THE COLOR AS A LITERAL. 表 T-236 writes `S-151` with an `H` that stands
-//     for `themeHue`, and resolving it here would put a second copy of that
-//     substitution in the tree. `SL-3` says the row is one 「`SL-8` の選択の枠が
-//     既に読んでいる」, so the case compares the two strokes instead.
-//   - WHICH ITEMS A RELEASE TAKES. 「矩形に完全に囲まれた対象だけを取ること」 is
-//     the OTHER half of `SL-3` and is older than this ruling; the one case below
-//     that lets go does so to watch the RECTANGLE go, and reads the selection
-//     only far enough to say that something was left behind.
-//   - `SL-4`'s `Shift`. The row says a range selection with `Shift` adds to the
-//     existing selection; it does not restate the drawing rule, and reading one
-//     into it would be inventing it.
-//   - WHERE THE RECTANGLE IS CLIPPED. No row says whether it stops at the edge
-//     of the `Task Group Area`, so every drag below stays well inside it.
+// Unit tests: SL-3 and ZO-6 draw the range-selection rectangle while it is held and drop it on release.
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-explicit-any -- the fixture builds documents from the untyped template and patches requestAnimationFrame */
 
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -145,18 +36,12 @@ import {
 import { specTable } from '../contract/spec-table'
 import { SETTINGS_CONSTANTS } from '../../src/entity/document-model/document-settings/document-settings'
 
-// ===========================================================================
-// What the manuscript says, read at read time rather than copied
-// ===========================================================================
-
-/** One row of a numbered table, by its headings. */
 function rowOf(tableId: string, specTableRowId: string): Readonly<Record<string, string>> {
   const found = specTable(tableId).rows.find((one) => one.id === specTableRowId)
   if (found === undefined) throw new Error(`table ${tableId} has no row ${specTableRowId}`)
   return found.by
 }
 
-/** The last cell of a row, which is where 表 T-023c and 表 T-020 state a rule. */
 function ruleOf(tableId: string, specTableRowId: string): string {
   const found = specTable(tableId).rows.find((one) => one.id === specTableRowId)
   if (found === undefined) throw new Error(`table ${tableId} has no row ${specTableRowId}`)
@@ -167,7 +52,6 @@ function ruleOf(tableId: string, specTableRowId: string): string {
   return cell
 }
 
-/** Every number a cell writes, in the order it writes them. */
 const numbersIn = (cell: string): readonly number[] =>
   (cell.match(/\d+(?:\.\d+)?/g) ?? []).map(Number)
 
@@ -180,10 +64,8 @@ const oneNumberOf = (where: string, cell: string): number => {
   return only
 }
 
-/** `S-174` 「選択の枠の太さ」, in px. */
 const FRAME_STROKE = oneNumberOf('table T-206 row S-174', rowOf('T-206', 'S-174')['既定'] ?? '')
 
-/** `S-175` 「選択の枠の破線の刻み」 -- 描く長さと空ける長さの組. */
 const FRAME_DASH: readonly number[] = (() => {
   const cell = rowOf('T-206', 'S-175')['既定'] ?? ''
   const found = numbersIn(cell)
@@ -193,13 +75,8 @@ const FRAME_DASH: readonly number[] = (() => {
   return found
 })()
 
-// ===========================================================================
-// The document these cases drive
-// ===========================================================================
-
-// BT-4 of table T-034 -- the template FR-027 keeps exactly one of. The calendar,
-// the project and the settings come from it; the task groups and the Task are written
-// out here so that what is drawn can be named.
+// Why: BT-4 (FR-027) gives the calendar, the project and the settings; the task
+// groups and the Task are written out here so that what is drawn can be named.
 const TEMPLATE_PATH = join(
   process.cwd(),
   'src',
@@ -209,7 +86,7 @@ const TEMPLATE_PATH = join(
 )
 const TEMPLATE = JSON.parse(readFileSync(TEMPLATE_PATH, 'utf8')) as Record<string, unknown>
 
-/** Six task groups. The ids are UUIDs because `AT-51` is one. */
+// Why: AT-51 types TaskGroup.id as a UUID, so the fixture ids are UUIDs.
 const TASK_GROUPS = [
   '4a000000-0000-4000-8000-000000000001',
   '4a000000-0000-4000-8000-000000000002',
@@ -219,20 +96,15 @@ const TASK_GROUPS = [
   '4a000000-0000-4000-8000-000000000006',
 ] as const
 
-/** The one Task in the picture. It sits in the middle, with empty task groups around it. */
 const ALPHA_UID = 1
-/** Its name, which is also how `ZO-5`'s label is found in the picture. */
 const ALPHA_NAME = 'Alpha'
 const ALPHA_TASK_GROUP = TASK_GROUPS[2] as string
 
-/** Empty bands, one above the Task and one below it. Both are pressed in. */
 const BAND_ABOVE = TASK_GROUPS[0] as string
 const BAND_BELOW = TASK_GROUPS[4] as string
 
-/** A stored date column, written the way the startup template writes one. */
 const day = (d: number): string => `2026-04-${String(d).padStart(2, '0')}T00:00:00`
 
-/** 1 day is this many px at zoom 1 -- `S-1`'s key, set wide so a day is legible. */
 const PX_PER_DAY_AT_1X = 20
 
 function task(over: Partial<Task> & { readonly uid: number }): Task {
@@ -280,15 +152,13 @@ function fixtureDocument(): Document {
       project: {
         ...structuredClone(template.schedule.project),
         uidHighWaterMark: 100,
-        // ⛔ NO 基準日. `CU-1`'s line runs the height of the `Task Group Area` and
-        // would cross every drag below; this file's subject is the ONE element
-        // a held drag adds, so the picture is kept as plain as the task groups allow.
+        // Why: no status date: the CU-1 line runs the height of the Task Group Area and
+        // would cross every drag below.
         statusDate: null,
       },
       calendars: structuredClone(template.schedule.calendars),
-      // ⭐ A NAME, so that ZO-5 (名称ラベル) really is in the picture: `ZO-6`
-      // says the rectangle stands in front of everything, and the label is the
-      // frontmost thing there is without it.
+      // Why: the Task has a name so the ZO-5 label is in the picture; it is the
+      // frontmost thing ZO-6 must stand in front of.
       tasks: [task({ uid: ALPHA_UID, name: ALPHA_NAME, start: day(8), finish: day(16) })],
       resources: [],
       assignments: [],
@@ -302,9 +172,9 @@ function fixtureDocument(): Document {
     },
     documentSettings: {
       ...structuredClone(template.documentSettings),
-      // Why: S-1 is a constant (CR-572); the stored zoomX (S-75) carries the day width this fixture draws at.
+      // Why: S-1 is a constant; the stored zoomX (S-75) carries the day width this fixture draws at.
       zoomX: PX_PER_DAY_AT_1X / SETTINGS_CONSTANTS.pxPerDayAt1x,
-      // ⚠️ Pinned so every y below reads from the top of a band.
+      // Why: pinned so every y below reads from the top of a band.
       stackDirection: 'down',
       scrollDate: '2026-04-01',
       scrollDateFraction: 0,
@@ -317,11 +187,6 @@ function fixtureDocument(): Document {
   return draft as unknown as Document
 }
 
-// ===========================================================================
-// The host UF-48 is given
-// ===========================================================================
-
-/** `BO-1` of table T-077 has already settled these by the time a loop exists. */
 const SCREEN: FrameEnvironment = {
   width: 1200,
   height: 700,
@@ -331,26 +196,14 @@ const SCREEN: FrameEnvironment = {
 
 interface Host {
   readonly surface: { showSvg(svg: string): void; showMarqueeOverlaySvg(svg: string): void }
-  /** Every picture handed over `IF-1` so far, in the order it was handed over. */
   readonly pictures: readonly string[]
   overlay(): string
-  /** Run whatever the loop asked an animation frame for, until it asks no more. */
   runAnimationFrames(): void
 }
 
 const realRaf = (globalThis as any).requestAnimationFrame
 
-/**
- * ⚠️ THE HOST IS A FAKE, AND THE FAKE IS NOT THE TEST (R6.3). Vitest runs under
- * node with no `requestAnimationFrame`, and `LY-5` of table T-060 puts the
- * browser in this layer. ⛔ Nothing in this fake decides anything: it drains the
- * queue and keeps what it was handed.
- *
- * ⭐ The draining half is copied, deliberately unchanged, from
- * tests/unit/t-023d-follows-the-pointer.test.ts, which drives the same unit
- * through the same seam. What is added is that the pictures are KEPT -- this
- * file's subject is what one of them contains.
- */
+// Summary: host() drains the requestAnimationFrame queue on demand and keeps every picture it is handed.
 function host(): Host {
   const waiting: ((time: number) => void)[] = []
   const pictures: string[] = []
@@ -372,8 +225,8 @@ function host(): Host {
     pictures,
     overlay: () => overlay,
     runAnimationFrames: () => {
-      // Bounded, so a loop that asks for a frame from inside a frame -- which
-      // NFR-010 forbids -- ends the test instead of hanging it.
+      // Why: bounded, so a loop that asks for a frame inside a frame, which NFR-010
+      // forbids, ends the test instead of hanging it.
       for (let turn = 0; turn < 8 && waiting.length > 0; turn += 1) {
         for (const callback of waiting.splice(0, waiting.length)) callback(turn)
       }
@@ -384,14 +237,8 @@ function host(): Host {
   }
 }
 
-/**
- * A stand-in for `IF-9`'s surface that has drawn no UI part over the schedule.
- *
- * ⭐ WHY IT ANSWERS `null` EVERYWHERE. `PointerPress.on` is what admits table
- * T-023a: a press the surface answered for is a press on an entry and none of
- * the six gestures. Every press below lands on the schedule's own drawing area,
- * which is the one place table T-023a rules.
- */
+// Why: the surface answers null everywhere, so every press lands on the schedule's
+// drawing area, the one place table T-023a rules.
 function screenPane(language: DisplayLanguage = 'en'): ScreenWiring {
   const views: ScreenView[] = []
   const surface: ScreenSurface = {
@@ -408,10 +255,6 @@ afterEach(() => {
   if (realRaf === undefined) delete (globalThis as any).requestAnimationFrame
   else (globalThis as any).requestAnimationFrame = realRaf
 })
-
-// ===========================================================================
-// Spelling one happening
-// ===========================================================================
 
 const NO_MODIFIERS: InputModifiers = { ctrl: false, shift: false, alt: false, meta: false }
 
@@ -430,17 +273,10 @@ const pointer = (
   clickCount: 1,
 })
 
-// ===========================================================================
-// A loop, drawn and ready
-// ===========================================================================
-
 interface Stage {
   readonly loop: FrameLoop
-  /** Hand one happening over and let the frame it owes run. */
   send(input: HumanInput): void
-  /** The picture on the screen right now -- the last one handed over `IF-1`. */
   picture(): string
-  /** How many pictures have been handed over so far. */
   drawn(): number
 }
 
@@ -451,8 +287,8 @@ function stage(): Stage {
     loop.receiveInput(input)
     pen.runAnimationFrames()
   }
-  // `FT-3` of table T-078 is not what starts this: the first frame is owed by
-  // the loop being made, so drain it before any case reads the picture.
+  // Why: the first frame is owed by the loop being made, not by FT-3, so it is
+  // drained before any case reads the picture.
   pen.runAnimationFrames()
   const picture = (): string => {
     const last = pen.pictures[pen.pictures.length - 1]
@@ -468,7 +304,6 @@ const frameOf = (loop: FrameLoop) => {
   return values
 }
 
-/** Where one task group's band stands, as the frame placed it. */
 function bandOf(loop: FrameLoop, taskGroupId: string): { readonly y: number; readonly height: number } {
   const found = (frameOf(loop).layout as any).taskGroups.find((one: any) => one.taskGroupId === taskGroupId)
   if (found === undefined) throw new Error(`the frame drew no band for task group ${taskGroupId}`)
@@ -488,11 +323,7 @@ interface Box {
   readonly y1: number
 }
 
-/**
- * The bounding box of one drawn bar, whichever of table T-012's two forms it
- * came out as -- an area to fill (`SH-1` / `SH-2` / `SH-5`) or a line with ends
- * (`SH-3` / `SH-4`).
- */
+// Summary: boxOfBar() bounds a bar in either T-012 form, an area to fill or a line with ends.
 function boxOfBar(bar: BarGeometry | null, what: string): Box {
   if (bar === null) throw new Error(`${what} is not drawn`)
   const points: readonly Point[] =
@@ -507,36 +338,26 @@ function boxOfBar(bar: BarGeometry | null, what: string): Box {
 
 const planBox = (loop: FrameLoop): Box => boxOfBar(drawnTask(loop, ALPHA_UID).plan, "Alpha's bar")
 
-/** The point every drag starts from: an empty band, to the left of the Task. */
+// Why: SL-1 excludes task groups from the targets, so a press in an empty band
+// hits nothing.
 const pressPoint = (loop: FrameLoop): Point => {
   const band = bandOf(loop, BAND_ABOVE)
   return { x: planBox(loop).x0 - 40, y: band.y + band.height / 2 }
 }
 
-/** The point a drag that ENCLOSES the Task ends at: past its far corner. */
 const enclosingPoint = (loop: FrameLoop): Point => {
   const band = bandOf(loop, BAND_BELOW)
   return { x: planBox(loop).x1 + 40, y: band.y + band.height / 2 }
 }
 
-/** A point straight below the press that encloses nothing at all. */
 const emptyDragPoint = (loop: FrameLoop): Point => {
   const band = bandOf(loop, TASK_GROUPS[1] as string)
   return { x: planBox(loop).x0 - 15, y: band.y + band.height / 2 }
 }
 
-// ===========================================================================
-// Reading the answer. The seam hands over a string, so these pull it apart
-// with no assumption beyond "it is SVG".
-//
-// ⭐ The four helpers below are copied in shape from
-// the t-023c selected-line-width unit test (deleted by CR-573), which read the OTHER half of
-// the same pair of settings out of the same kind of string.
-// ===========================================================================
-
 interface Element {
   readonly tag: string
-  /** Where the element opens in the string -- its place in the paint order. */
+  // Why: where the element opens in the string is its place in the paint order.
   readonly at: number
   readonly text: string
 }
@@ -557,25 +378,19 @@ const attribute = (element: string, name: string): string | null => {
   return hit === null ? null : (hit[1] as string)
 }
 
-/** The elements that carry paint, in the order they are painted. */
 const paintedOf = (svg: string): readonly Element[] =>
   elementsOf(svg).filter((drawn) => drawn.tag !== 'svg')
 
-/**
- * One element, with anything a SECOND drawing of the same picture may spell
- * differently taken out -- the `id` an arrow marker has to carry, and the
- * reference to it.
- */
+// Why: a second drawing of the same picture may spell a marker id and its url()
+// reference differently, so both are blanked before comparing.
 const settledText = (element: Element): string =>
   element.text.replace(/(id="|url\(#)[^"')]*/g, '$1')
 
-/** The elements this picture has that the other does not. */
 const onlyIn = (picture: string, other: string): readonly Element[] => {
   const there = paintedOf(other).map(settledText)
   return paintedOf(picture).filter((drawn) => !there.includes(settledText(drawn)))
 }
 
-/** A dashed rectangle -- the shape both `SL-3` and `SL-8` draw. */
 const dashedRectsIn = (elements: readonly Element[]): readonly Element[] =>
   elements.filter((drawn) => drawn.tag === 'rect' && attribute(drawn.text, 'stroke-dasharray') !== null)
 
@@ -585,13 +400,8 @@ const numberAttribute = (element: Element, name: string): number => {
   return Number(stated)
 }
 
-/**
- * The one rectangle a held drag added to the picture.
- *
- * ⭐ FOUND BY WHAT IT IS NOT: everything else in the held picture was already
- * in the picture before the press, so the rectangle is the difference. This is
- * what lets the case name no markup of its own.
- */
+// Why: found as the one dashed rect the held drag added, so the case names no
+// markup of its own.
 function marqueeOf(held: string, before: string): Element {
   const added = onlyIn(held, before)
   const rects = dashedRectsIn(added)
@@ -604,14 +414,8 @@ function marqueeOf(held: string, before: string): Element {
   return rects[0] as Element
 }
 
-/**
- * Where the name label opens in the picture -- `ZO-5`, the row directly below
- * `ZO-6`.
- *
- * ⭐ FOUND BY THE NAME ITSELF. The 「入る」 rows of table T-273 draw the label inside the
- * shape, and this fixture holds one Task with one name, so the text is the only
- * handle the specification actually gives.
- */
+// Why: found by the name itself: T-273 draws the label inside the shape and the
+// fixture holds one named Task, so the text is the only handle.
 function labelStartsAt(svg: string): number {
   const written = svg.indexOf(ALPHA_NAME)
   if (written < 0) {
@@ -622,7 +426,6 @@ function labelStartsAt(svg: string): number {
   return opens
 }
 
-/** The bounding box of one drawn element, from whichever coordinates it states. */
 function boxOfElement(element: Element): Box | null {
   const number = (name: string): number => Number(attribute(element.text, name))
   if (element.tag === 'rect') {
@@ -645,13 +448,8 @@ function boxOfElement(element: Element): Box | null {
   return null
 }
 
-/**
- * Where the plan bar opens in the picture -- `ZO-1`, the back of table T-020.
- *
- * ⭐ FOUND BY ITS OWN GEOMETRY: the frame says where it placed the bar, so the
- * element that stands on exactly that box is the bar, whichever of table
- * T-012's forms it came out as.
- */
+// Why: found by its geometry: the element standing on the box the frame gave the
+// plan bar is the bar, whichever T-012 form it took.
 function planBarStartsAt(loop: FrameLoop, svg: string): number {
   const wanted = planBox(loop)
   const near = (a: number, b: number): boolean => Math.abs(a - b) <= CORNER_PX
@@ -672,7 +470,6 @@ function planBarStartsAt(loop: FrameLoop, svg: string): number {
   return first.at
 }
 
-/** The rectangle a drag is asking for: the press corner and the pointer corner. */
 const askedFor = (from: Point, to: Point): Box => ({
   x0: Math.min(from.x, to.x),
   x1: Math.max(from.x, to.x),
@@ -680,19 +477,13 @@ const askedFor = (from: Point, to: Point): Box => ({
   y1: Math.max(from.y, to.y),
 })
 
-/**
- * How far off the two corners a drawn rectangle may land.
- *
- * ⚠️ ONE PIXEL, and the number is this file's own -- the specification states
- * none. `SL-3` says ⛔ 新しい値を起こさない, so there is no inset or half-pixel
- * nicety it could be given; a pixel is the allowance for one being taken anyway.
- */
+// Why: one pixel is this file's own figure: no row states one and SL-3 raises no
+// new value, so it only absorbs rounding.
 const CORNER_PX = 1
 
-// ===========================================================================
-// The premises every case below stands on
-// ===========================================================================
-
+// Why: a unit case, not TS-3: TW-2 needs an SWS parent, and none of SWS-1, SWS-2,
+// SWS-3, SWS-4, SWS-5, SWS-6, SWS-7 or SWS-8 reaches a range selection.
+// Spec: SL-3, ZO-6, S-174, S-175, S-151
 describe('the manuscript still states the two rules this file is about', () => {
   it('has SL-3 draw the rectangle being taken while the drag is held (MUST)', () => {
     const rule = ruleOf('T-023c', 'SL-3')
@@ -714,8 +505,6 @@ describe('the manuscript still states the two rules this file is about', () => {
     expect(rule, 'table T-023c SL-3: どれも `SL-8` の選択の枠が既に読んでいる行である').toContain(
       '`SL-8` の選択の枠が既に読んでいる行である',
     )
-    // The three settings rows have to be readable, or the cases below have no
-    // expected value to stand on.
     expect(FRAME_STROKE, 'table T-206 S-174 -- 選択の枠の太さ').toBeGreaterThan(0)
     expect(FRAME_DASH.length, 'table T-206 S-175 -- 描く長さと空ける長さの組').toBe(2)
     expect(rowOf('T-236', 'S-151')['色'], 'table T-236 S-151 -- 強調の色').toContain('強調')
@@ -735,10 +524,10 @@ describe('the manuscript still states the two rules this file is about', () => {
     expect(rule, 'and the reason it gives').toContain(
       '離した時点で残るのは選択そのものであり、矩形ではない',
     )
-    // 「6（最前面）」 -- read from the 順 column rather than assumed.
     expect(rowOf('T-020', 'ZO-6')['順'], 'table T-020 ZO-6: 6（最前面）').toContain('最前面')
   })
 
+  // Spec: PTD-5, PTD-7, AR-1
   it('leaves the range selection to a plain drag on empty ground (PTD-5)', () => {
     const rows = specTable('T-023a').rows.map((one) => one.id)
     expect(rows[0], 'table T-023a: 上から評価し、最初に成立した行で確定すること（MUST）').toBe(
@@ -757,8 +546,8 @@ describe('the fixture gives a drag empty ground to start on and a Task to enclos
     expect(box.x1, 'Alpha is drawn').toBeGreaterThan(box.x0)
     const at = pressPoint(built.loop)
     const inside = at.x >= box.x0 && at.x <= box.x1 && at.y >= box.y0 && at.y <= box.y1
-    // ⛔ A PREMISE, NOT A DECORATION: a press that landed on the Task would be
-    // PTD-3's, and every case below would be measuring a grab.
+    // Why: a press that landed on the Task would be PTD-3's, and every case below
+    // would be measuring a grab.
     expect(inside, 'the press point stands on the Task').toBe(false)
   })
 
@@ -766,8 +555,6 @@ describe('the fixture gives a drag empty ground to start on and a Task to enclos
     const built = stage()
     const box = planBox(built.loop)
     const around = askedFor(pressPoint(built.loop), enclosingPoint(built.loop))
-    // 「矩形に完全に囲まれた対象だけを取ること（MUST）」 -- so the enclosing drag
-    // has to contain the whole bar, not touch it.
     expect(around.x0).toBeLessThan(box.x0)
     expect(around.x1).toBeGreaterThan(box.x1)
     expect(around.y0).toBeLessThan(box.y0)
@@ -777,10 +564,9 @@ describe('the fixture gives a drag empty ground to start on and a Task to enclos
   })
 })
 
-// ===========================================================================
-// (a) SL-3 -- the rectangle is drawn while the button is down
-// ===========================================================================
-
+// Why: the markup, a literal colour, what a release takes, SL-4's Shift and the
+// clipping edge are unstated or other rows', so no case asserts them.
+// Spec: SL-3, SL-8, S-174, S-175, S-151
 describe('table T-023c SL-3: the rectangle being taken is drawn while it is held', () => {
   it('adds one rectangle to the picture that was not there before (MUST)', () => {
     const built = stage()
@@ -789,7 +575,7 @@ describe('table T-023c SL-3: the rectangle being taken is drawn while it is held
     const to = enclosingPoint(built.loop)
     built.send(pointer('down', from.x, from.y))
     built.send(pointer('move', to.x, to.y))
-    // `marqueeOf` fails with the row quoted when there is no such rectangle.
+    // Why: marqueeOf() itself fails with the row quoted when no such rectangle is drawn.
     const rect = marqueeOf(built.picture(), before)
     expect(rect.tag).toBe('rect')
   })
@@ -821,8 +607,8 @@ describe('table T-023c SL-3: the rectangle being taken is drawn while it is held
   })
 
   it('redraws it as the pointer moves, so a person can see what is enclosed', () => {
-    // ⛔ 描かないと、「完全に囲まれた」かどうかを人が離す前に確かめられない --
-    // a rectangle frozen at the first move answers none of that.
+    // Why: a rectangle frozen at the first move would not let a person check what
+    // is enclosed before letting go.
     const built = stage()
     const before = built.picture()
     const from = pressPoint(built.loop)
@@ -843,8 +629,6 @@ describe('table T-023c SL-3: the rectangle being taken is drawn while it is held
   })
 
   it('draws it at the thickness S-174 states and the dash S-175 states', () => {
-    // 「枠の太さは……`S-174`、破線の刻みは同表の `S-175`」, both read out of
-    // 表 T-206 at run time.
     const built = stage()
     const before = built.picture()
     const from = pressPoint(built.loop)
@@ -860,10 +644,8 @@ describe('table T-023c SL-3: the rectangle being taken is drawn while it is held
   })
 
   it('draws it in the color the selection frame already wears (S-151)', () => {
-    // 「色は同書の 表 T-236 の `S-151`」 and ⛔「新しい値を起こさない —— どれも
-    // `SL-8` の選択の枠が既に読んでいる行である」. ⭐ So the expected value is
-    // not written here at all: it is whatever THIS run paints the `SL-8` frame
-    // with, and the two have to agree.
+    // Why: the colour is not written here: SL-3 reuses the row the SL-8 frame reads,
+    // so the case compares the marquee with the frame this run paints.
     const built = stage()
     const before = built.picture()
     const from = pressPoint(built.loop)
@@ -885,19 +667,11 @@ describe('table T-023c SL-3: the rectangle being taken is drawn while it is held
   })
 })
 
-// ===========================================================================
-// (b) ZO-6 -- in front of everything, and only while it is held
-// ===========================================================================
-
+// Spec: ZO-6, ZO-5, ZO-1
 describe('table T-020 ZO-6: the rectangle stands in front, and goes when the button does', () => {
   it('paints it in front of the name label, the row directly below it (ZO-5)', () => {
-    // ⭐ MEASURED AGAINST `ZO-5` AND NOT AGAINST "the last element of the
-    // string". 表 T-020 orders SIX things and the time ruler is none of them --
-    // it stands in its own region (`Time Ruler`, `U-19` of table T-103) above
-    // the `Task Group Area` (`U-50`), and nothing in the specification says where a
-    // region is painted with respect to another. What `ZO-6` claims is that the
-    // rectangle is in front of `ZO-1` 〜 `ZO-5`, and `ZO-5` (名称ラベル) is the frontmost
-    // of those -- so the label is the element the claim reduces to.
+    // Why: measured against ZO-5, not the string's end: the time ruler is in its own
+    // region (U-19 above U-50), and no row orders regions.
     const built = stage()
     const before = built.picture()
     const from = pressPoint(built.loop)
@@ -917,9 +691,8 @@ describe('table T-020 ZO-6: the rectangle stands in front, and goes when the but
   })
 
   it('takes it away again when the button is let go (MUST)', () => {
-    // 「握っているあいだだけ描き、離したら消すこと（MUST）」, on a drag that
-    // encloses nothing: what is left afterwards can only be the rectangle or
-    // nothing at all, so the case cannot be confused by a selection frame.
+    // Why: the drag encloses nothing, so what is left can only be the rectangle or
+    // nothing, and no selection frame can confuse the case.
     const built = stage()
     const before = built.picture()
     const from = pressPoint(built.loop)
@@ -940,9 +713,8 @@ describe('table T-020 ZO-6: the rectangle stands in front, and goes when the but
   })
 
   it('leaves the selection behind and not the rectangle', () => {
-    // 「離した時点で残るのは選択そのものであり、矩形ではない」. The drag encloses
-    // the Task, so something IS left -- and what is left stands on the Task's
-    // own box (`SL-8`: 外接矩形に沿った破線の枠), not on the drag's.
+    // Why: the drag encloses the Task, so something is left, and it stands on the
+    // Task's own box (SL-8), not on the drag's.
     const built = stage()
     const before = built.picture()
     const from = pressPoint(built.loop)
@@ -964,15 +736,9 @@ describe('table T-020 ZO-6: the rectangle stands in front, and goes when the but
   })
 })
 
-// ===========================================================================
-// (c) The gesture table T-023a takes FIRST draws no rectangle
-// ===========================================================================
-
+// Spec: PTD-1, PTD-5
 describe('table T-023a: a pan is not a range selection, so it draws no rectangle', () => {
   it('draws nothing of SL-3 for the `Ctrl` drag PTD-1 takes first', () => {
-    // `PTD-1` is the first row and 構えと当たりによらず優先する, so this gesture
-    // never reaches `PTD-5`; a rectangle drawn for it would be one the
-    // specification never asked for.
     const built = stage()
     const before = built.picture()
     const from = pressPoint(built.loop)

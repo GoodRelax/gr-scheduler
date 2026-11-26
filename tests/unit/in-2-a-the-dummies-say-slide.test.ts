@@ -1,6 +1,6 @@
 // T-028 IN-2 -- the pointer shape on the actual dummies GA-5 / GA-6 / GA-17.
 
-// see IN-2, GA-5, GA-6, GA-17, GA-16, FR-043, CR-388
+// Spec: IN-2, GA-5, GA-6, GA-17, GA-16, FR-043
 
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -194,7 +194,7 @@ function fixtureDocument(): Document {
     },
     documentSettings: {
       ...structuredClone(template.documentSettings),
-      // Why: S-1 is a constant (CR-572); the stored zoomX (S-75) carries the day width this fixture draws at.
+      // Why: S-1 is a constant; the stored zoomX (S-75) carries the day width this fixture draws at.
       zoomX: PX_PER_DAY_AT_1X / SETTINGS_CONSTANTS.pxPerDayAt1x,
     },
     documentStamp: structuredClone(template.documentStamp),

@@ -21,6 +21,7 @@ const FR_033_THE_REASON_IS_RS_27 = 'もし貼り付け先の選択にタスク�
 const FR_008_A_RENAME_CARRIES_RS_49 =
   '担当の名前を変えたとき、`GRS` は、担当が付いている全タスクの表示が変わったことを、表 T-233 の `RS-49` として、対象の件数とともに、`FR-076` の作法で通知の仕組みへ運ぶこと。'
 const FR_076_THE_COLUMN_DECIDES = '`GRS` は、理由ごとに画面へどう出すかを、表 T-233 の「表示の仕方」の欄に従わせること。'
+// Spec: IMPS-1132
 const FR_076_A_HIDDEN_REASON_STANDS_NO_CARD =
   '表示の仕方が「出さない」の理由が上がったとき、`GRS` は通知の欄に 1 枚を立てないこと。`GRS` は、`Agent API` の拒否の値（表 T-035 の `AG-9a`）に、「出さない」の理由の行を運ぶこと。'
 const FR_076_THE_TEXT_DOES_NOT_DECIDE_AGAIN =

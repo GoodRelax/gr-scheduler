@@ -1,86 +1,4 @@
-// FR-036 (MUST): how one item of the help list is laid out -- the entrance's
-// glyph, then that row's explanation, then that row's assignment, in that order
-// -- and the size the list's text is drawn at (`S-203`).
-//
-// Unit under test: UF-71 of table T-075 (`dom-screen-surface.ts`, component
-// CP-38 of table T-062). It is the side of IF-9 that turns a `ScreenView` into
-// nodes, so it is the side that ORDERS and SIZES anything -- UF-66
-// (`help-modal.ts`) says WHICH rows the help carries and carries neither an
-// order on the page nor a dimension.
-//
-// ⚠️ Chapter 9 does not admit Unit as a TEST_LEVEL, so these cases have no node
-// in the specification. Table T-218 of Chapter 7 gives them their place: TS-6,
-// tests/unit/.
-//
-// ---------------------------------------------------------------------------
-// ⛔ WHY THIS FILE EXISTS -- THE LEDGER ROW IT STANDS IN FOR
-// ---------------------------------------------------------------------------
-//
-// `docs/development-records/defects.md` DFC-105: 「ヘルプのフォントが大きすぎ、並び順
-// も違う」（利用者の指摘 2026-08-29）. CR-282 closed the specification side on
-// 2026-08-29 -- FR-036 now states the user's own order and sends the size to
-// `S-203` -- and the ledger's own note says what is left: 「残るのは実物での 1 画面
-// 確認だけである」. Nothing in tests/ asks for either. The uf-66 unit test (deleted by CR-573)
-// refused the neighboring question in as many words (「THE ORDER two entries
-// stand in on one surface」), and that is a different order: the order of the
-// ITEMS, not the order of the three parts INSIDE one item.
-//
-// ---------------------------------------------------------------------------
-// The rules these cases answer to
-// ---------------------------------------------------------------------------
-//
-//   FR-036   ⭐ 「一覧の各項目は、入口の図形・その行の説明・その行の割当の 3 つを、
-//            この順に並べること（MUST）」（利用者の指示 2026-08-29「アイコン 説明
-//            マウス操作/ショートカットキー の順に書け」）。
-//            ⚠️ 「CR-279 は「説明・キー・図形」の順と定めていた。利用者の指示がそ
-//            れを覆した。」
-//            ⭐ 「ここでいう割当は、キー（表 T-036 の `割当`）とマウス操作（表
-//            T-023 の `操作`）の両方を指すこと（MUST）」 —— ⛔ 「キーだけでは
-//            `Shift ＋ ホイール` を言えない」。「どちらも持たない行は、その場所を
-//            空ける。」
-//            ⭐ 「一覧の字の大きさは ... 表 T-206 の `S-203` が定める係数で決める
-//            こと（MUST）」（利用者の指示 2026-08-29「アイコンと合わせろ」）。
-//            ⛔ 「px で持ってはならない（MUST NOT）」 —— 「理由は `S-197` と同じ
-//            で、`NFR-007` が負う WCAG 2.1 の 1.4.4 は、字を大きくした読者を置き
-//            去りにしない。」
-//   S-203    表 T-206 「ヘルプの文字の大きさの係数（`FR-036`）」 -- ⚠️ 「掛ける相
-//            手は宿主の地の文字であり、`fontSizeStepSizes`（表 T-215）ではない ——
-//            ヘルプは日程の絵ではなく、その周りの枠である（`S-197` と同じ立場）」。
-//   T-103    U-30 `Help Modal` -- the settled name that reaches the DOM as a
-//            `data-role`.
-//
-// ---------------------------------------------------------------------------
-// ⛔ HOW THE EXPECTED VALUES WERE OBTAINED (docs/development-rules/
-// 04-verification.md, section 1)
-// ---------------------------------------------------------------------------
-//
-// What was read: docs/spec/ for every rule above, and of `src/` NOT ONE FILE.
-// The unit is reached through the declarations tests/unit/uf-71.test.ts already
-// imports, and the fixtures (`EMPTY_VIEW`, `EMPTY_HEADER`, `command`,
-// `HELP_MODAL`) are copied from that file, which drives this same unit against
-// this same fake. ⭐ THE SIZE READER (`declaredFontSize` / `expandVariables` /
-// `lengthPx` / `fontSizeAt`) is copied from
-// tests/unit/fr-006-panel-typography.test.ts, which asks the same question of
-// `S-197` on another surface.
-//
-// ---------------------------------------------------------------------------
-// ⚠️ WHAT IS DELIBERATELY NOT ASSERTED, each searched for before being given up
-// ---------------------------------------------------------------------------
-//
-//   1. WHAT SEPARATES the glyph and the explanation from the assignment, or how
-//      much room each takes. ⛔ No row states either (two assignments: ／, below).
-//   2. WHETHER A ROW WITH NEITHER KEY NOR MOUSE OPERATION KEEPS A BOX. 「どちら
-//      も持たない行は、その場所を空ける」 says the place is left empty; whether
-//      「場所を空ける」 means an empty box is drawn or nothing is drawn at all is
-//      not settled by any row, so no case asks. ⚠️ The same wording appears for
-//      the glyph 「持たない行はその場所を空ける」, with the same silence.
-//   3. THE NUMBER OF COLUMNS AND THE SHARE OF THE SCREEN THE HELP TAKES.
-//      `S-201` and `S-202` hold those, and they are a different question from
-//      the one DFC-105 names.
-//   5. THAT THE GLYPH ITSELF IS `S-138` ACROSS. FR-029 (MUST) states the box's
-//      side and (MUST NOT) forbids it varying by surface, and
-//      tests/unit/uf-71.test.ts is the bench that holds every entrance to it --
-//      including the one on the `Help Modal` (IC-52).
+// Unit tests: a help item draws glyph, explanation, then assignment, at the S-203 ratio.
 
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -107,25 +25,18 @@ import {
   type FakeElement,
   type Stage,
 } from '../fixtures/fake-browser'
-// ⭐ Borrowed from the contract kind on purpose: it is the one reader that takes
-// its copy from the .md at read time, so a ratio that moves in table T-206
-// moves here too instead of going stale.
+// Why: the contract reader takes its copy from the .md at read time, so a
+// ratio that moves in table T-206 moves here too.
 import { bare, bareAll, specTable, unbroken } from '../contract/spec-table'
-
-// ---------------------------------------------------------------------------
-// The manuscripts, read at run time rather than copied here (Chapter 1.9).
-// ---------------------------------------------------------------------------
 
 const REQUIREMENTS = unbroken(readFileSync(
   join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'),
   'utf8',
 ))
 
-/** ⛔ THE ORDER, read rather than typed. The user's ruling of 2026-08-29. */
 const THE_ORDER_MUST =
   '`GRS` は、一覧の各項目に、入口の図形・項目の行の説明・項目の行の割当の 3 つを、この順に並べること。'
 
-/** ⛔ The size, sent to a ratio and never to a px. */
 const THE_SIZE_MUST = '`GRS` は、一覧の字の大きさを `_assets/tbl-settings.md` の 表 T-206 の `S-203` が定める係数で決めること。'
 
 const T_206 = specTable('T-206')
@@ -135,20 +46,13 @@ if (!T_206.headings.includes(VALUE_COLUMN)) {
   throw new Error(`table T-206 no longer has a ${VALUE_COLUMN} column: ${T_206.headings.join(' | ')}`)
 }
 
-/** One row's value cell, as the table writes it. */
 function cellOf(id: string): string {
   const row = T_206.rows.find((one) => one.id === id)
   if (row === undefined) throw new Error(`table T-206 no longer has row ${id}`)
   return bare(row.by[VALUE_COLUMN] ?? '')
 }
 
-/**
- * The number one row of table T-206 states.
- *
- * ⚠️ The cells carry a 🔎 beside the number (the mark that says it was measured
- * off the reference implementation), so the number is read out of the cell
- * rather than the cell parsed whole.
- */
+// Why: the cells carry a mark beside the number, so the number is read out of the cell.
 function numberOf(id: string): number {
   const written = cellOf(id)
   const found = /-?\d+(?:\.\d+)?/.exec(written)
@@ -156,13 +60,8 @@ function numberOf(id: string): number {
   return Number.parseFloat(found[0] as string)
 }
 
-/** S-203 -- the help's text against the base the host gives. */
 const S_203 = numberOf('S-203')
 
-/**
- * `fontSizeStepSizes` (S-121 / S-122 / S-123 of table T-215) -- the multiplicand
- * S-203's own note rules out in as many words.
- */
 const FONT_SIZE_STEP_SIZES = ((): readonly number[] => {
   const table = specTable('T-215')
   return ['S-121', 'S-122', 'S-123'].map((id) => {
@@ -172,14 +71,12 @@ const FONT_SIZE_STEP_SIZES = ((): readonly number[] => {
   })
 })()
 
-/** U-30 of table T-103 -- the settled name that reaches the DOM as `data-role`. */
 const U_30_HELP = ((): string => {
   const table = specTable('T-103')
   const row = table.rows.find((one) => one.id === 'U-30')
   if (row === undefined) throw new Error('table T-103 no longer has row U-30')
-  // ⚠️ U-30's cell enumerates -- 「`Help Modal` / `AI Export Modal`」 -- so it
-  // is read as the list it is. Splitting the FIRST span on '/' read one name
-  // and called it two (`DFC-351`).
+  // Why: U-30's cell names two surfaces, so it is read as a list; splitting its
+  // first span on '/' read one name as two.
   const written = bareAll(row.by['確定名（英）'] ?? '')
   const found = written.find((one) => one.includes('Help'))
   if (found === undefined) {
@@ -187,10 +84,6 @@ const U_30_HELP = ((): string => {
   }
   return found
 })()
-
-// ---------------------------------------------------------------------------
-// Descriptions to draw. Copied from tests/unit/uf-71.test.ts.
-// ---------------------------------------------------------------------------
 
 const command = (patch: Partial<CommandItem> & { icon: string }): CommandItem => ({
   isEnabled: true,
@@ -226,33 +119,22 @@ const EMPTY_VIEW: ScreenView = {
   tooltips: [],
 }
 
-/** The words this file drives with, all distinct so no case can confuse two. */
+// Why: the words are all distinct, so no case can confuse two parts.
 const EXPLANATION = 'HelpExplanationHere'
 const KEYS = 'Ctrl+Shift+K'
-// Why: the adapter joins the keys and the press with the ja word of keyNotation (CR-770); the help here is ja.
+// Why: the adapter joins keys and press with the ja word of keyNotation; the help here is ja.
 const JA_JOIN = ' \uff0f '
 const PRESS = 'HelpMousePressHere'
 
-/** The row of table T-109 the item's glyph stands for. ⚠️ Not IC-52, which closes the help. */
+// Why: not IC-52, which is the help's own close entrance.
 const ITEM_ICON = 'IC-20'
 
-/** The one entrance the help surface itself carries (表 T-109's IC-52). */
 const CLOSE_ICON = 'IC-52'
 
-/** The row of table T-109 that marks the mouse wheel inside an assignment word. */
 const WHEEL_ICON = 'IC-102'
 
-/**
- * One item of the help list.
- *
- * ⚠️ SPELLED OUT HERE RATHER THAN TAKEN OFF `OpenModal`: that type is a union
- * over the surfaces 表 T-103's `U-30` names (the help and the AI export), so a
- * member read off the union would not compile. ⛔ Every member these cases drive
- * is named here, and the cast below is the narrow one rule 04 section 1 asks
- * for -- a fixture that turned a member's shape into a COMPILE error would take
- * every case in this file down with it, when what is wanted is a case that
- * falls.
- */
+// Why: spelled out, not read off the OpenModal union, where a member would not
+// compile; the narrow cast lets a shape change fail a case, not the file.
 interface HelpItem {
   readonly table: string
   readonly row: string
@@ -299,14 +181,14 @@ const helpWith = (entries: readonly HelpItem[]): OpenModal =>
     copyrightNotice: 'CopyrightNoticeHere',
     attributions: ['AttributionOne'],
     helpLegal: { licensedUnder: 'LicensedUnderHere', fullText: 'FullTextHere' },
-    // Why: CR-828 made blockNotes a required member of the Help Modal view; these cases do not read the notes.
+    // Why: blockNotes is a required member of the Help Modal view; these cases do not read it.
     blockNotes: [],
     area: { belowAppHeader: { x: 0, y: 37, width: 1280, height: 763 } },
     downloadLink: { words: '', address: '' },
     aboutLink: { words: '', address: '' },
   }) as unknown as OpenModal
 
-/** The App Header measures to something, so BO-1's dimension is settled. */
+// Why: the App Header must measure to something for BO-1's dimension to settle.
 const HEADER_HEIGHT = { 'App Header': 37 }
 
 const THEME: ScreenTheme = { preference: 'light', hue: 214 }
@@ -325,19 +207,8 @@ function drawn(entries: readonly HelpItem[]): { built: Stage; help: FakeElement 
   return { built, help: oneByRole(built.root(), U_30_HELP) }
 }
 
-// ---------------------------------------------------------------------------
-// Reading the page back
-// ---------------------------------------------------------------------------
-
-/**
- * The nearest node that shows this text and has no child that shows it too.
- *
- * ⭐ FOUND BY WHAT IT SHOWS, NOT BY A ROLE. No table names a node for an item's
- * explanation or for its assignment, so a case that looked one up by name would
- * be asserting a spelling the manuscript never settled.
- *
- * Copied from tests/unit/fr-006-panel-typography.test.ts.
- */
+// Why: found by what it shows, not by a role: no table names a node for an
+// item's explanation or for its assignment.
 function theCellShowing(root: FakeElement, text: string): FakeElement {
   const showing = selfAndDescendants(root).filter((one) => one.textContent.includes(text))
   const innermost = showing.filter(
@@ -353,7 +224,7 @@ function theCellShowing(root: FakeElement, text: string): FakeElement {
   return first
 }
 
-/** The item box -- the nearest node that holds two of the item's own parts. */
+// Summary: The item box shall be the nearest node that holds both given parts.
 function commonAncestor(one: FakeElement, other: FakeElement): FakeElement {
   const upwards = (from: FakeElement): FakeElement[] => {
     const chain: FakeElement[] = []
@@ -369,22 +240,8 @@ function commonAncestor(one: FakeElement, other: FakeElement): FakeElement {
   throw new Error('two parts of one help item share no ancestor at all')
 }
 
-/**
- * The item's glyph -- the shape 図 F-019 gives the row of 表 T-109 the item
- * names.
- *
- * ⭐ FOUND BY THE SHAPE IT DRAWS, NOT BY AN ATTRIBUTE. FR-036 says the item
- * carries 「入口の図形」 and FR-029 (MUST) sends every icon's shape to 図 F-019;
- * no row says a help item's glyph carries a `data-icon`, so a case that looked
- * one up by attribute would be asserting a spelling nobody settled. What IS
- * settled is which shape belongs to which row, so the shape is what is matched.
- *
- * ⚠️ 図 F-019 IS READ, NOT COPIED: `docs/spec/_assets/fig-icons.svg` is the
- * figure, `tools/generate_icon_glyphs.py` carries it into `icon-glyphs.json`
- * cross-checked against 表 T-109, and `npm run gen:check` is what fails when the
- * figure moves on without it -- the same route
- * tests/unit/fr-029-palette-grab-marker.test.ts takes.
- */
+// Why: the glyph is found by the shape F-019 gives its row, not by an attribute,
+// since no row says a help item's glyph carries a data-icon.
 interface GlyphElement {
   readonly tag: string
 }
@@ -416,9 +273,7 @@ function theGlyphIn(item: FakeElement, specTableRowId: string): FakeElement {
   return first
 }
 
-// -- the size a node's text computes to. Copied from fr-006-panel-typography. --
-
-/** Split a shorthand at the top level, so `calc(0.8 * 1em)` stays ONE value. */
+// Summary: The splitter shall split a shorthand at the top level only, so calc() stays one value.
 function shorthandParts(value: string): string[] {
   const parts: string[] = []
   let depth = 0
@@ -451,7 +306,6 @@ function declaredFontSize(element: FakeElement): string {
   return ''
 }
 
-/** The nearest declaration of a custom property, walking upwards from this node. */
 function customProperty(element: FakeElement, name: string): string | null {
   let at: FakeElement | null = element
   while (at !== null) {
@@ -462,7 +316,7 @@ function customProperty(element: FakeElement, name: string): string | null {
   return null
 }
 
-/** ⚠️ NO FALLBACK IS HONORED -- `var(--x, 1em)` is left alone and refused below. */
+// Summary: The expander shall honour no var() fallback, so var(--x, 1em) is refused.
 function expandVariables(element: FakeElement, value: string, depth = 0): string | null {
   if (depth > 8) return null
   const named = /var\(\s*(--[a-z0-9-]+)\s*\)/i.exec(value)
@@ -472,13 +326,8 @@ function expandVariables(element: FakeElement, value: string, depth = 0): string
   return expandVariables(element, value.replace(named[0] as string, `(${held})`), depth + 1)
 }
 
-/**
- * A length in px, given the size it inherits and the base the host gives.
- *
- * ⭐ `px` IS ADMITTED ON PURPOSE -- the point of these cases is to see whether a
- * px constant is in there, and a resolver that refused px could not tell a
- * fixed size from an unreadable one.
- */
+// Why: px is admitted because these cases look for a px constant, and a resolver
+// that refused px could not tell a fixed size from an unreadable one.
 function lengthPx(expression: string, inheritedPx: number, basePx: number): number | null {
   const arithmetic = expression
     .trim()
@@ -491,7 +340,7 @@ function lengthPx(expression: string, inheritedPx: number, basePx: number): numb
   if (arithmetic.trim() === '') return null
   if (!/^[\d\s+*/.()-]+$/.test(arithmetic)) return null
   try {
-    // eslint-disable-next-line no-new-func
+    // eslint-disable-next-line no-new-func -- evaluates arithmetic already checked to hold only digits and operators
     const answer: unknown = new Function(`return (${arithmetic});`)()
     return typeof answer === 'number' && Number.isFinite(answer) ? answer : null
   } catch {
@@ -499,7 +348,6 @@ function lengthPx(expression: string, inheritedPx: number, basePx: number): numb
   }
 }
 
-/** What this node's text COMPUTES TO, if the host's base text size were `basePx`. */
 function fontSizeAt(element: FakeElement, basePx: number): number | null {
   if (element.isMount) return basePx
   const parent = element.parentNode
@@ -512,7 +360,6 @@ function fontSizeAt(element: FakeElement, basePx: number): number | null {
   return lengthPx(expanded, inherited, basePx)
 }
 
-/** Everything a failure needs to be read without opening the unit. */
 function whatWasWritten(built: Stage): string {
   return selfAndDescendants(built.root())
     .filter((one) => declaredFontSize(one) !== '')
@@ -531,34 +378,21 @@ function sizeOf(built: Stage, element: FakeElement, basePx: number): number {
   return size
 }
 
-/** ⭐ Bases of this file's own choosing, none of them a `fontSizeStepSizes` number. */
 const BASES = [12, 16, 20, 24, 32]
 
-// ===========================================================================
-// The premises every case below stands on
-// ===========================================================================
-
+// Spec: FR-036, S-203, S-205, U-30
 describe('the manuscript still says what these cases read', () => {
   it('⭐ FR-036 still states the order the user asked for on 2026-08-29', () => {
-    // ⛔ THE GROUND OF HALF THIS FILE. CR-279 had written the opposite order a
-    // round earlier; CR-282 turned it round on the user's instruction.
-    // GOES RED IF: the sentence leaves the requirement.
     expect(REQUIREMENTS).toContain(THE_ORDER_MUST)
   })
 
   it('⭐ FR-036 still sends the list’s size to S-203', () => {
-    // GOES RED IF: the sentence leaves the requirement, or names another row.
     expect(REQUIREMENTS).toContain(THE_SIZE_MUST)
   })
 
   it('⛔ S-203 is a ratio and states no px of its own', () => {
-    // ⛔ 「px で持ってはならない（MUST NOT）」 -- 「`NFR-007` が負う WCAG 2.1 の
-    // 1.4.4 は、字を大きくした読者を置き去りにしない」.
-    // ⭐ WITHOUT THIS, A PARSE THAT PICKED UP THE WRONG COLUMN WOULD MAKE EVERY
-    // SIZE CASE BELOW AGREE WITH ANYTHING -- rule 04 section 2. `S-201` in the
-    // same column states a ratio too but a different one, and `S-205` states a
-    // px, so a read that returned the value column can be told from one that
-    // returned a heading or a reason.
+    // Why: S-205 in the same column states a px, so a read that returned the value
+    // column is told from one that returned a heading or a reason.
     expect(cellOf('S-203')).not.toContain('px')
     expect(cellOf('S-205')).toContain('px')
     expect(S_203).toBeGreaterThan(0)
@@ -568,23 +402,11 @@ describe('the manuscript still says what these cases read', () => {
   })
 })
 
-// ===========================================================================
-// DFC-105, first half -- the order of the three parts inside one item
-// ===========================================================================
-
+// Spec: FR-036, FR-038, FR-029, F-019, IC-102
 describe('FR-036 (MUST) -- glyph, then explanation, then assignment', () => {
   it('⛔ MUST: an item carrying all three draws them in that order', () => {
-    // 「一覧の各項目は、入口の図形・その行の説明・その行の割当の 3 つを、この順に
-    //   並べること（MUST）」（利用者の指示 2026-08-29「アイコン 説明 マウス操作/
-    //   ショートカットキー の順に書け  例:  ⇔  時間軸を拡大  Shift ＋ ホイール」）.
-    // ⚠️ WHAT THIS SEAM CAN SEE IS THE ORDER THE NODES WERE PUT IN, which is
-    // what a reader reads for the writing direction this list is drawn in.
-    // There is no layout engine here to ask where a box landed, and no row
-    // settles which property may place an item's parts -- so a page that put
-    // them in the manuscript's order and then moved one with `order` would pass
-    // this case and fail a reader. Reported, not asserted.
-    // GOES RED IF: the parts are drawn in any other order -- and CR-279's
-    // 「説明・キー・図形」 is one of them.
+    // Why: the seam sees only the order the nodes were put in; a part moved later by
+    // CSS order would pass here, and no row settles that property.
     const { help } = drawn([entry({ keys: KEYS })])
 
     const explanationCell = theCellShowing(help, EXPLANATION)
@@ -602,11 +424,6 @@ describe('FR-036 (MUST) -- glyph, then explanation, then assignment', () => {
   })
 
   it('⭐ a mouse operation stands in the same place a key would', () => {
-    // 「ここでいう割当は、キー（表 T-036 の `割当`）とマウス操作（表 T-023 の
-    //   `操作`）の両方を指すこと（MUST）」 -- ⛔ 「キーだけでは `Shift ＋ ホイール`
-    // を言えない」（利用者の例）.
-    // GOES RED IF: the mouse operation is drawn before the explanation, or is
-    // not drawn at all.
     const { help } = drawn([entry({ press: PRESS })])
 
     const explanationCell = theCellShowing(help, EXPLANATION)
@@ -668,19 +485,9 @@ describe('FR-036 (MUST) -- glyph, then explanation, then assignment', () => {
   })
 })
 
-// ===========================================================================
-// DFC-105, second half -- the size the list is drawn at
-// ===========================================================================
-
+// Spec: FR-036, S-203, S-197, NFR-007, T-215
 describe('FR-036 (MUST) -- the list’s text is S-203 of the base the host gives', () => {
   it('computes to S-203 of the base, at every base a reader might set', () => {
-    // 「一覧の字の大きさは ... `S-203` が定める係数で決めること（MUST）」（利用者
-    //   の指示 2026-08-29「アイコンと合わせろ」）. ⭐ The base never reaches this
-    // unit -- `ScreenSurfaceWiring` has no member for it -- so the only way the
-    // help can satisfy this at every base is to state a ratio and let the
-    // browser do the multiplying.
-    // GOES RED IF: the list is drawn at the host's own size, or at any other
-    // ratio of it.
     const { built, help } = drawn([entry({ keys: KEYS })])
     const explanation = theCellShowing(help, EXPLANATION)
 
@@ -693,9 +500,6 @@ describe('FR-036 (MUST) -- the list’s text is S-203 of the base the host gives
   })
 
   it('⭐ the assignment beside it is drawn at that same size', () => {
-    // 「一覧の字」 is the list, and the assignment is part of every item of it --
-    // ⚠️ the MUST names no part of an item that is exempt.
-    // GOES RED IF: the keys are given a size of their own.
     const { built, help } = drawn([entry({ keys: KEYS })])
     const assignment = theCellShowing(help, KEYS)
 
@@ -708,12 +512,8 @@ describe('FR-036 (MUST) -- the list’s text is S-203 of the base the host gives
   })
 
   it('⛔ MUST NOT: doubling the base doubles what the list computes to', () => {
-    // ⛔ 「px で持ってはならない（MUST NOT）」 —— 「理由は `S-197` と同じで、
-    // `NFR-007` が負う WCAG 2.1 の 1.4.4 は、字を大きくした読者を置き去りにしない」.
-    // ⭐ THIS IS THE CASE THE MUST NOT IS FOR. A px constant -- written on the
-    // help, or hidden behind a custom property, or stated on an ancestor the
-    // help inherits from -- gives the same number under both bases, and a ratio
-    // cannot.
+    // Why: a px constant, even behind a custom property or on an ancestor, gives
+    // the same number under both bases, and a ratio cannot.
     const { built, help } = drawn([entry({ keys: KEYS })])
     const explanation = theCellShowing(help, EXPLANATION)
 
@@ -724,11 +524,8 @@ describe('FR-036 (MUST) -- the list’s text is S-203 of the base the host gives
   })
 
   it('⛔ MUST NOT: it is not `fontSizeStepSizes[fontSizeStep]` that is multiplied', () => {
-    // ⚠️ S-203's own note: 「掛ける相手は宿主の地の文字であり、`fontSizeStepSizes`
-    //   （表 T-215）ではない —— ヘルプは日程の絵ではなく、その周りの枠である
-    //   （`S-197` と同じ立場）」.
-    // ⭐ The base below is deliberately none of table T-215's own numbers, so a
-    // help that multiplied the wrong thing cannot come out right by accident.
+    // Why: the base is none of table T-215's numbers, so a help that multiplied the
+    // wrong thing cannot come out right by accident.
     const base = 20
     expect(FONT_SIZE_STEP_SIZES, 'the base this case drives with is not one of them').not.toContain(base)
 

@@ -50,10 +50,13 @@ const REQUIREMENTS = unbroken(readFileSync(join(SPEC, '01-04-requirements.md'), 
 
 const FR_153_PLACE =
   '`GRS` は、GRS リセットの入口を、文書の設定の面（`FR-072`、面を出す入口は 表 T-109 の `IC-17`）の頭、テーマ色の欄（`FR-041`）の上に置くこと。'
+// Spec: IMPS-984
 const FR_153_NOT_A_FIELD = '`GRS` は、GRS リセットの入口を面の欄に数えないこと —— `FR-072` の「その欄は読むだけ」にも、`FR-041` の「先頭の欄」にも数えない。'
+// Spec: IMPS-985
 const FR_153_LABEL =
   '`GRS` は、GRS リセットの入口の行に、面のほかの行と同じく左に名を、右に入口を置くこと。`GRS` は、入口の行の名を、`FR-038` の辞書が `IC-139` の行に持つ語（`label`）とすること。'
 const FR_153_NEVER_FAINT = '`GRS` は、GRS リセットの入口を薄く描かないこと（`FR-029`）。'
+// Spec: IMPS-986
 const FR_153_QUESTION = '`GRS` は、問い方を 表 T-037 の `NT-7` に従わせること。`GRS` は、示す文を 表 T-234 の `QN-11` とすること。'
 const FR_153_ASK_ALWAYS = '`GRS` は、未保存の編集が無くても問うこと。'
 const FR_153_LINE_BREAKS =

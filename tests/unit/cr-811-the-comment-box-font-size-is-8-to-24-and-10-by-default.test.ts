@@ -29,11 +29,13 @@ const NULL_DRAWS_DEFAULT =
   '字の大きさの列（`AT-168`）が `null` のとき、`GRS` は、表 T-217 の `S-624` の既定で描くこと'
 const DEFAULT_NOT_STEP = '`GRS` は、字の大きさの既定を文書の文字サイズ（表 T-215）に従わせないこと'
 const PLACED_WITH_NULLS = 'コメントボックスを置くとき（`_assets/tbl-document-commands.md` の 表 T-108 の `CM-46`）、`GRS` は、6 列を `null` とすること'
-// Spec: FR-097
+// Spec: FR-097, IMPS-1030
 const SIZE_IS_OWN_OR_DEFAULT =
   '`GRS` は、箱の文字の大きさを、箱の `CommentBox.fontSizePx`（`_assets/fig-erd-detail.md` の `AT-168`）が `null` でなければ `fontSizePx` の値（px）とし、`null` なら `_assets/tbl-settings.md` の 表 T-217 の `S-624` の既定とすること。`GRS` は、1 行の高さを、文字の大きさに等しいものとして数えること。'
+// Spec: IMPS-1031
 const RANGE_IS_S_624 =
   '`GRS` は、`AT-168` の範囲を、`_assets/tbl-settings.md` の 表 T-217 の `S-624` とすること。`GRS` は、範囲の外の値を置く命令（`_assets/tbl-document-commands.md` の 表 T-108 の `CM-103`）を拒むこと。`GRS` は、読んだ値を範囲へ寄せて描くこと（`FR-019` の太さと同じ規則）。'
+// Spec: IMPS-1027
 const WIDTH_FROM_ESTIMATE = '`GRS` は、箱の幅を `FR-093` の概算で求めること。`GRS` は、文字の実寸を測らないこと。'
 const BELOW_FONT_MIN = '既定と下限は `fontMin`（表 T-201 の `S-8`）を割る'
 // Spec: FR-077

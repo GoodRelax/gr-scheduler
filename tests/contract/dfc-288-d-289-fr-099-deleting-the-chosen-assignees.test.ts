@@ -1,106 +1,4 @@
-// FR-099 (MUST) -- the roster's second way of deleting: the CHOSEN assignees
-// go, and before they go the question names the TASKS an unassignment reaches.
-//
-// ---------------------------------------------------------------------------
-// THE TWO CLAUSES, QUOTED VERBATIM (docs/spec/01-04-requirements.md)
-// ---------------------------------------------------------------------------
-//
-//   消し方は、**どの割当からも参照されていない担当をまとめて消すこと**と、
-//   **選んだ担当を消すこと**の 2 つとすること（MUST）。
-//
-//   **消すことで解かれる割当があるときは、そのタスクの名前を示して確認を求めること
-//   （MUST）。件数だけを示してはならない（MUST NOT）** —— 一緒に消えるものは
-//   表 T-050 の `CD-5` が持つ。
-//
-// ⭐⭐ THE SECOND CLAUSE NAMES THE TASKS AND NOT THE RESOURCES, and 表 T-234's
-// `QN-3` says the same thing again: 「担当を消すことで解かれる割当があるとき |
-// 挙げる —— **解かれる割当のタスクの名前**。連鎖は 表 T-050 の `CD-5` が持つ」.
-// ⛔ A question that listed the chosen assignees would be naming what the person
-// just picked, not what they are about to lose.
-//
-// ---------------------------------------------------------------------------
-// ⛔ WHY THIS FILE EXISTS -- THE LEDGER ROWS IT STANDS IN FOR
-// ---------------------------------------------------------------------------
-// DFC-288: 「⛔ **担当を消す道が 1 つも繋がっていない** …… `IC-66`（選んだ担当を
-// 消す）に応える所が無い」, and its repair note: 「⭐ **何も選ばれていなければ書かず、
-// `RS-27` を告げる**（体の判断。空で書き通すと、何も言わずに「編集あり」になる）」.
-// DFC-289: 「⛔ **担当を消す前の確認（`QN-3`）を上げる道が無い**」, repaired in the
-// same hand -- 「⭐ **`DFC-288` と 1 つの手で入れること**」 -- which is why one file
-// holds both.
-// ⚠️ DFC-340 records a wording mismatch that is NOT this file's to fix: 「`QN-3` の
-// 文は「この担当を削除しますか？」と**単数**だが、`IC-66` が消すのは**集合**で
-// ある」. ⛔ No case below asserts the sentence; they assert the ROW and the ITEMS,
-// which is what FR-099 and 表 T-234 rule on.
-//
-// ---------------------------------------------------------------------------
-// WHERE 表 T-218 PUTS THIS FILE
-// ---------------------------------------------------------------------------
-// `TS-6` of table T-218 (tests/unit/, Vitest; generated into
-// docs/spec/_assets/tbl-verification.md). The unit is `UF-48` of 表 T-075 (`frame-loop.ts`, `CP-25` of 表
-// T-062): 表 T-060's `LY-5` makes it the only layer that may hold a current
-// value, and which assignees are chosen is one -- `ScreenSession.
-// selectedResourceUids`. ⛔ NOT tests/integration/: `TS-2` takes 「`SWS-xxx`」 for
-// a parent and Chapter 9 holds none for FR-099; this body owns tests/ only and
-// may not write one into docs/spec to give itself a parent.
-//
-// ---------------------------------------------------------------------------
-// ⛔ WRITTEN FROM docs/spec, AND WHAT WAS READ OF `src/` IS NAMED HERE
-// ---------------------------------------------------------------------------
-// (docs/development-rules/04-verification.md section 1: only the head, the
-// published types and the signatures.)
-//
-//   frame-loop.ts       `FrameEnvironment`, `FrameLoop`, `ScreenWiring` and the
-//                       signature `frameLoop(surface, first, env, screen?)`
-//   screen-renderer.ts  `Confirmation`, `ConfirmationItem`, `DisplayLanguage`,
-//                       `ResourceList`, `ResourceListLine`, `ScreenPart`,
-//                       `ScreenSurface`, `ScreenView`
-//   input-command-translator.ts  `HumanInput`, `InputModifiers`, `KeyInput`,
-//                       `PointerButton`, `PointerInput`, `PointerPhase`
-//   schedule-entities.ts         `Resource`, `Assignment`, `Task`, `TaskGroup`
-// ⛔ NO FUNCTION BODY WAS READ.
-// ⭐ THE HOST, THE FAKE SURFACE AND THE WAY A PRESS IS AIMED ARE COPIED, NOT
-// INVENTED: tests/unit/fr-029-the-reason-a-press-carries.test.ts drives this same
-// unit through `ScreenPart`, and tests/unit/uf-47-48-choosers.test.ts is where a
-// confirmation is answered by the key NT-7 (MUST) assigns.
-//
-// ---------------------------------------------------------------------------
-// THE ROWS THESE CASES REST ON
-// ---------------------------------------------------------------------------
-//   `FR-099`      the two clauses above, and 「⭐ **「どの割当からも参照されていない
-//                 担当をまとめて消す」ことは、その全員をまとめて選ぶ操作と、選んだ
-//                 担当を消す操作の 2 手で果たすこと（MUST）**」 -- why there is
-//                 exactly one deleting entrance and it is `IC-66`.
-//   表 T-109      `IC-62` 「`Command Palette` | 表示 | 担当リストを表示する」,
-//                 `IC-66` 「`Resource List` | — | 選んだ担当を消す |
-//                 `FR-099`（表 T-108 の `CM-42`）」, `IC-68` 「選ばれていないことを
-//                 示し、同じ入口で選択する」, `IC-67` 「選ばれていることを示し、同じ入口
-//                 で選択を解除する」. ⭐ The 面 column is READ, never typed -- it is the join
-//                 between an entrance and the surface a press on it is answered
-//                 as.
-//   表 T-234 QN-3 「担当を消すことで解かれる割当があるとき | 挙げる —— 解かれる
-//                 割当のタスクの名前」, 正 `FR-099`.
-//   表 T-050 CD-5 「`GRS` は、担当を消すとき、消す担当を指す割当（`Assignment`）…
-//                 消す担当の割当を持つ `Task` を消さないこと」, and 「担当が外れるだけである」 -- the chain,
-//                 and the reason a case counts the Tasks afterwards.
-//   表 T-037 NT-7 「**続けてよいかを問うとき** | **何が起きるかを示したうえで、続ける
-//                 か取りやめるかを選ばせること（MUST）。** 消えるもの・解かれるものが
-//                 あるときは、**その名前を挙げること（MUST）**」, and 「⭐⭐ **`y` と
-//                 `n` の打鍵でも答えられること（MUST）。**」 -- how a case answers.
-//   表 T-233 RS-27 「押した入口が、いま行えることを持たない」 -- what a press with
-//                 nobody chosen falls to (`FR-029`'s fall-through).
-//
-// ---------------------------------------------------------------------------
-// ⚠️ WHAT IS DELIBERATELY NOT ASSERTED
-// ---------------------------------------------------------------------------
-//   1. THE SENTENCE `QN-3` SHOWS. FR-038 (MUST NOT) keeps the words in one
-//      dictionary and DFC-340 is open against that very sentence; these cases
-//      assert the ROW id and the ITEMS, which are the document's own values.
-//   2. `IC-65` (choosing the unreferenced ones). FR-099 makes the sweep 「2 手」
-//      -- a choosing step and this deleting step -- and only the deleting step
-//      is what DFC-288 and DFC-289 are about.
-//   3. WHETHER THE ENTRANCE IS DRAWN FAINT while nobody is chosen. That is
-//      FR-029's other half and the renderer's;
-//      tests/unit/fr-029-the-reason-a-press-carries.test.ts owns the family.
+// Contract tests: FR-099 deletes the chosen assignees and first names the tasks an unassignment reaches.
 
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -130,44 +28,21 @@ import {
 } from '../../src/framework/single-html-shell/frame-loop'
 import { bare, specTable, type SpecRow, type SpecTable, unbroken } from './spec-table'
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
-// ===========================================================================
-// 1. The manuscript, read at run time rather than copied
-// ===========================================================================
+/* eslint-disable @typescript-eslint/no-explicit-any -- the fake host patches a browser global and the fixtures reach into loose shapes */
 
 const REQUIREMENTS = unbroken(readFileSync(
   join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'),
   'utf8',
 ))
 
-/**
- * ⚠️ Japanese literals in code. Rule 03 section 5 keeps code English and ASCII
- * and admits 日本語そのものを扱う処理 as the exception -- these strings ARE the
- * clauses, and matching them against the manuscript is what makes the cases
- * below cases about the specification.
- *
- * ⭐ EACH ENDS AT ITS MARKER'S OWN CLOSING PARENTHESIS. Check 39 takes the
- * trailing window that ENDS at `（MUST）` / `（MUST NOT）` and looks for it under
- * tests/; a quote that began at the sentence and stopped before the marker would
- * hold nothing at all.
- */
 const FR_099_TWO_WAYS_OF_DELETING =
   '`GRS` は、担当の消し方を、どの割当からも参照されていない担当をまとめて消すことと、選んだ担当を消すことの 2 つにすること。'
 
-/**
- * ⚠️ THESE TWO STOP SHORT OF THE PARAGRAPH BREAK. Their 120- and 90-character
- * windows reach back across a blank line into the sentence about 表 T-109, and a
- * source file cannot carry a raw line break inside a quoted string without
- * changing its bytes -- so what is written here is the longest window of each
- * that is one unbroken run of manuscript.
- */
 const FR_099_NAME_THE_TASKS = 'もし担当を消すことで割当が解ける場合、`GRS` は、確認で、割当が解けるタスクの名前を示すこと。'
 
 const FR_099_NOT_A_COUNT =
   '`GRS` は、担当の削除で解かれる割当を確認するとき、タスクを件数だけで示さないこと。'
 
-/** FR-099's own reason there is exactly one deleting entrance. */
 const FR_099_ONE_ENTRANCE = '未参照の担当の全員をまとめて選ぶ操作と、選んだ担当を消す操作の 2 手で果たすこと。'
 
 const T_109: SpecTable = specTable('T-109')
@@ -181,14 +56,8 @@ function rowOf(table: SpecTable, id: string): SpecRow {
   return found
 }
 
-/**
- * The 面 表 T-109 puts one entrance on, as that table spells it.
- *
- * ⛔ READ AND NOT TYPED: the 面 column is the join between an entrance and the
- * surface a press on it is answered as, and a file that typed the pairs would be
- * a second copy of that column. ⚠️ Copied from
- * tests/unit/fr-029-the-reason-a-press-carries.test.ts.
- */
+// Why: the surface column is read, not typed: it joins an entrance to the
+// surface a press on it is answered as, and a typed copy would drift.
 function surfaceOf(icon: string): string {
   const cell = bare(rowOf(T_109, icon).by['面'] ?? '')
   const first = cell.split('/')[0]?.trim() ?? ''
@@ -196,7 +65,6 @@ function surfaceOf(icon: string): string {
   return first
 }
 
-/** FR-038's dictionary, as the manuscript keeps it. */
 interface DictionaryWords {
   readonly reasons: readonly {
     readonly specTableRowId: string
@@ -218,7 +86,6 @@ const reasonWords = (specTableRowId: string): string => {
   return found.text.ja
 }
 
-/** NT-7 (MUST): 「⭐⭐ **`y` と `n` の打鍵でも答えられること（MUST）。**」 */
 const NO_MODIFIERS: InputModifiers = { ctrl: false, shift: false, alt: false, meta: false }
 
 function answerKeyFor(answer: string): KeyInput {
@@ -232,10 +99,6 @@ const CANCEL = 'cancel'
 const QN_3 = 'QN-3'
 const RS_27 = 'RS-27'
 
-// ===========================================================================
-// 2. The document these cases drive
-// ===========================================================================
-
 const TEMPLATE = JSON.parse(
   readFileSync(
     join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'),
@@ -245,23 +108,12 @@ const TEMPLATE = JSON.parse(
 
 const ROW_ID = '11111111-1111-4111-8111-111111111111'
 
-/** ⭐ Two assignees, so a case that deleted "all of them" is caught by the other. */
+// Why: two assignees, so a case that deleted all of them is caught by the other.
 const ANNA = 41
 const BORIS = 42
 
-/**
- * ⭐⭐ THREE TASKS AND FOUR ASSIGNMENTS, arranged so that the two counts FR-099
- * separates cannot agree by accident:
- *
- *   ANNA  -> ALPHA, BETA        (two tasks, two assignments)
- *   BORIS -> GAMMA              (one task, one assignment)
- *   ANNA  -> GAMMA              (⭐ a task ALSO held by somebody else)
- *
- * ⇒ deleting ANNA alone frees three assignments across three tasks while one
- * assignee and one Task-with-an-assignee remain, and 「解かれる割当のタスクの
- * 名前」 is a list of THREE task names -- never of one assignee name, and never
- * of a count.
- */
+// Why: ANNA holds ALPHA, BETA and GAMMA and BORIS holds GAMMA, so deleting ANNA
+// lists three task names, never one assignee name and never a count.
 const ALPHA = 1
 const BETA = 2
 const GAMMA = 3
@@ -366,10 +218,6 @@ function documentWithRoster(): Document {
   } as unknown as Document
 }
 
-// ===========================================================================
-// 3. The host UF-48 is given. Copied from the fr-029 file.
-// ===========================================================================
-
 const SCREEN: FrameEnvironment = {
   width: 1400,
   height: 800,
@@ -449,7 +297,6 @@ const ON_THE_SURFACE = { x: 80, y: 120 }
 
 interface Stage {
   readonly loop: FrameLoop
-  /** Take one entrance of 表 T-109, on the 面 that table puts it on. */
   take(icon: string, options?: { readonly resourceUid?: number }): void
   send(input: HumanInput): void
   view(): ScreenView
@@ -468,8 +315,8 @@ function stage(language: DisplayLanguage = 'ja'): Stage {
   return {
     loop,
     take: (icon, options = {}) => {
-      // ⚠️ CS-2 of 表 T-066 settles the gesture on what was drawn AT THE PRESS,
-      // so the surface is told what it has drawn before the button goes down.
+      // Why: CS-2 settles a gesture on what was drawn at the press, so the surface is
+      // told what it drew before the button goes down.
       screen.drawAt({
         part: surfaceOf(icon),
         entry: icon as any,
@@ -489,7 +336,6 @@ function stage(language: DisplayLanguage = 'ja'): Stage {
   }
 }
 
-/** Open the roster and choose the assignees named. */
 function rosterWith(chosen: readonly number[], language: DisplayLanguage = 'ja'): Stage {
   const built = stage(language)
   built.take('IC-62')
@@ -504,10 +350,6 @@ const namesOf = (document: Document, of: 'tasks' | 'resources'): readonly (strin
 
 const assignmentCount = (document: Document): number =>
   ((document as any).schedule.assignments as unknown[]).length
-
-// ===========================================================================
-// 4. The premises every case below stands on
-// ===========================================================================
 
 describe('FR-099 -- the manuscript this file is driven by', () => {
   it('still states the two ways of deleting, each ending at its own （MUST）', () => {
@@ -524,8 +366,8 @@ describe('FR-099 -- the manuscript this file is driven by', () => {
     const row = rowOf(T_234, QN_3).cells.join(' ')
     expect(row).toContain('解かれる割当のタスクの名前')
     expect(bare(rowOf(T_234, QN_3).by['正'] ?? '')).toBe('FR-099')
-    // ⚠️ THE RAW CELL, NOT `bare`: that helper answers with the FIRST backticked
-    // token, which in this cell is the chain's own row id.
+    // Why: the raw cell, not bare: bare answers with the first backticked token,
+    // which in this cell is the chain's own row id.
     expect(rowOf(T_234, QN_3).by['名前を挙げるか'] ?? '').toContain('挙げる')
   })
 
@@ -535,7 +377,6 @@ describe('FR-099 -- the manuscript this file is driven by', () => {
   })
 
   it('表 T-109 still puts IC-62 on the palette and IC-66 / IC-68 on the roster', () => {
-    // ⭐ THE JOIN EVERY PRESS BELOW IS AIMED BY, read rather than typed.
     expect(surfaceOf('IC-62')).toBe('Command Palette')
     expect(surfaceOf('IC-66')).toBe('Resource List')
     expect(surfaceOf('IC-68')).toBe('Resource List')
@@ -544,18 +385,17 @@ describe('FR-099 -- the manuscript this file is driven by', () => {
   })
 
   it('the fixture separates the counts FR-099 separates', () => {
-    // ⛔ WITHOUT THIS, "three task names" could be right for the wrong reason.
+    // Why: without this, three task names could be right for the wrong reason.
     const start = documentWithRoster()
     expect(namesOf(start, 'resources')).toHaveLength(2)
     expect(namesOf(start, 'tasks')).toHaveLength(3)
     expect(assignmentCount(start)).toBe(4)
-    // ⭐ One assignee holds three of the four assignments, and one Task is held
-    // by both -- so no count below can stand in for another.
+    // Why: one assignee holds three of the four assignments and one Task is held
+    // by both, so no count below can stand in for another.
     expect(new Set(namesOf(start, 'tasks')).size).toBe(3)
   })
 
   it('the roster opens at all', async () => {
-    // ⛔ THE ROAD EVERY CASE BELOW WALKS. `IC-62` 「担当リストを表示する」.
     const built = stage()
     built.take('IC-62')
 
@@ -566,10 +406,6 @@ describe('FR-099 -- the manuscript this file is driven by', () => {
     expect(keys).toHaveLength(3)
   })
 })
-
-// ===========================================================================
-// 5. DFC-288 -- 「**選んだ担当を消すこと**の 2 つとすること（MUST）」
-// ===========================================================================
 
 describe('FR-099 (MUST) -- IC-66 deletes the CHOSEN assignees', () => {
   it('choosing one and taking IC-66 raises a question rather than writing at once', () => {
@@ -588,6 +424,7 @@ describe('FR-099 (MUST) -- IC-66 deletes the CHOSEN assignees', () => {
     ).toBe(before)
   })
 
+  // Spec: RO-10
   it('answering yes takes the chosen assignee and its assignments, and nothing else', () => {
     const built = rosterWith([ANNA])
     built.take('IC-66')
@@ -598,19 +435,17 @@ describe('FR-099 (MUST) -- IC-66 deletes the CHOSEN assignees', () => {
     expect(namesOf(after, 'resources'), 'the chosen assignee is gone').toEqual([
       RESOURCE_NAMES[BORIS],
     ])
-    // ⭐ 表 T-050 の `CD-5`: 「`GRS` は、担当を消すとき、消す担当の割当を持つ `Task` を消さないこと」.
     expect(namesOf(after, 'tasks'), 'CD-5 (⚠️): a Task must not go with an assignee').toEqual([
       TASK_NAMES[ALPHA],
       TASK_NAMES[BETA],
       TASK_NAMES[GAMMA],
     ])
-    // ⭐ Three of the four assignments pointed at ANNA; BORIS's one survives.
     expect(assignmentCount(after)).toBe(1)
   })
 
   it('⭐ the control: the assignee NOT chosen stays, with its assignment', () => {
-    // ⛔ WITHOUT THIS, A BUILD THAT EMPTIED THE WHOLE ROSTER WOULD PASS the case
-    // above. FR-099's second way is 「**選んだ**担当を消すこと」.
+    // Why: without this, a build that emptied the whole roster would pass the case
+    // above.
     const built = rosterWith([BORIS])
     built.take('IC-66')
     built.send(answerKeyFor(PROCEED))
@@ -632,11 +467,6 @@ describe('FR-099 (MUST) -- IC-66 deletes the CHOSEN assignees', () => {
   })
 })
 
-// ===========================================================================
-// 6. DFC-289 -- 「そのタスクの名前を示して確認を求めること（MUST）。
-//     件数だけを示してはならない（MUST NOT）」
-// ===========================================================================
-
 describe('表 T-234 QN-3 (MUST) -- the question names the TASKS, not the assignees', () => {
   it('the question raised is QN-3', () => {
     const built = rosterWith([ANNA])
@@ -657,10 +487,8 @@ describe('表 T-234 QN-3 (MUST) -- the question names the TASKS, not the assigne
   })
 
   it('⛔ and NOT one item per assignee', () => {
-    // ⛔⛔ THE MISTAKE THE ROW WARNS AGAINST IN AS MANY WORDS: DFC-289 「`QN-3` が挙げる
-    // のはタスクであって担当ではない」. ANNA is one assignee across three tasks,
-    // so a question that listed the chosen assignees would carry ONE item with
-    // her name in it.
+    // Why: ANNA is one assignee across three tasks, so a question listing the
+    // chosen assignees would carry one item with her name.
     const built = rosterWith([ANNA])
     built.take('IC-66')
 
@@ -672,9 +500,8 @@ describe('表 T-234 QN-3 (MUST) -- the question names the TASKS, not the assigne
   })
 
   it('⭐ the control: choosing a different assignee lists a different set of tasks', () => {
-    // ⛔ WITHOUT THIS, A BUILD THAT LISTED EVERY TASK IN THE DOCUMENT WOULD PASS
-    // the case above -- the fixture has three tasks and ANNA reaches all three.
-    // BORIS reaches exactly one.
+    // Why: without this, a build listing every task would pass the case above:
+    // ANNA reaches all three tasks, BORIS exactly one.
     const built = rosterWith([BORIS])
     built.take('IC-66')
 
@@ -694,10 +521,6 @@ describe('表 T-234 QN-3 (MUST) -- the question names the TASKS, not the assigne
     }
   })
 })
-
-// ===========================================================================
-// 7. ⭐ Nothing chosen -- no write, and the reason is told
-// ===========================================================================
 
 describe('FR-029 / 表 T-233 RS-27 -- IC-66 with nobody chosen', () => {
   it('writes nothing', () => {
@@ -725,8 +548,8 @@ describe('FR-029 / 表 T-233 RS-27 -- IC-66 with nobody chosen', () => {
   })
 
   it('⭐ the control: with somebody chosen the same press is not answered with a telling', () => {
-    // ⛔ THE CASE THAT KEEPS THE TWO ABOVE FROM PASSING ON AN ENTRANCE THAT
-    // ALWAYS COMPLAINS. Same entrance, same document; only the choosing differs.
+    // Why: keeps the two cases above from passing on an entrance that always
+    // complains; only the choosing differs.
     const built = rosterWith([ANNA])
 
     built.take('IC-66')

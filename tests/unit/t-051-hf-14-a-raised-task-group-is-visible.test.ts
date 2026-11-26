@@ -1,74 +1,4 @@
-// 表 T-051 の `HF-14` (MUST, 利用者の裁定 2026-09-03 / 2026-09-04) -- the promise
-// this file is written for is HF-14's OWN summary of it: 「立てたタスクグループは見える」.
-//
-// Why: HF-14 shows a raised task group by tree state alone (AT-153, T-328, TD-6 / TD-7), never by
-// rewriting zoomY; groupDepthLimit only proves the raised task group lies past the drawn tier.
-//
-// ---------------------------------------------------------------------------
-// Unit under test: UF-48 of 表 T-075 (`frame-loop.ts`, component CP-25 of
-// 表 T-062), the same seam as
-// tests/unit/t-051-hf-14-the-depth-cap-refuses-a-task-group.test.ts -- the layer that
-// turns a press into a raised telling and hands the frame that carries it to
-// the surface. That file's own written-down list explicitly leaves both halves
-// carried here for someone else to write ("no press in this file raises a
-// task group, and choosing the seam it is read through is the implementer's, not
-// this file's" -- point 1b), and tests/unit/uf-71.test.ts (the ScreenRenderer
-// seam, HF-14's naming half) says the same about the LOD half from its own
-// side ("This unit is HANDED a ScreenView: which task groups survived the detail
-// tier... are both settled before the description arrives... That MUST
-// belongs to the side that chooses the tier."). This file is written at that
-// remaining seam.
-//
-// ⛔ WRITTEN FROM docs/spec AND NOTHING ELSE (docs/development-rules/
-// 04-verification.md section 1). ⛔ NO FILE UNDER src/ WAS OPENED. The host,
-// the fake surface, the fixture shape and the press helper are copied from
-// tests/unit/t-051-hf-14-the-depth-cap-refuses-a-task-group.test.ts, which drives
-// this same unit through the same seam; `startup-template.json` is a
-// generated document and is read as data. `groupDepthLimit`'s call shape
-// (one `DocumentSettings` argument) is copied from
-// the layout-engine unit test (deleted by CR-573); tests/unit/fr-027-startup-shows-its-depth.test.ts also calls it.
-//
-// ---------------------------------------------------------------------------
-// ⛔ WHAT IS DELIBERATELY NOT ASSERTED, AND WHY
-// ---------------------------------------------------------------------------
-//   1. HF-14's OTHER TWO PROMISES. The default name and the properties panel
-//      ("押された瞬間に、既定の名前でタスクグループを立てること…") belong to
-//      tests/unit/uf-71.test.ts's own HF-14 describe block, and the faint /
-//      refused entrance at `FR-085`'s cap belongs to
-//      tests/unit/t-051-hf-14-the-depth-cap-refuses-a-task-group.test.ts. Repeating
-//      either here would duplicate an assertion this codebase already owns
-//      elsewhere, and 表 T-051's own MUST NOT for the panel row says why
-//      that is unwelcome: 「その作法をここに書き写してはならない（MUST NOT）
-//      —— 同じ MUST が 2 か所に載ると必ず離れていく」.
-//   2. HF-17's OWN HALF (見える位置まで表示位置を送ること). HF-14 borrows it
-//      ("`HF-14`（配下に足す）も同じとすること（MUST）"), but the task that
-//      asked for this file draws the line itself: "HF-17（タスクグループが見える位置ま
-//      で送る）とは別の約束である。送っても、落とされたタスクグループは現れない。" ここで
-//      問うのは詳しさの段と折りたたみだけであり、表示位置（scrollDate 等）そのもの
-//      は問わない。
-//   3. WHETHER THE ADD AND THE OPEN SHARE ONE UNDO STEP OR TWO. 表 T-027's
-//      `UN-1` / `UN-14` put 「タスクグループ（`TaskGroup`）の追加」and「タスクグループの木の状態（`treeState`）」
-//      in the SAME target family (both count), while `UN-8` puts
-//      「ズーム・スクロール・パン」in the EXCLUDED family (never counts).
-//      `FR-018`'s own rationale keeps `zoomY` inside `documentSettings`
-//      (`S-76`), and `FR-055` shows the pattern the codebase already uses
-//      when one user gesture must write BOTH a counted change and a
-//      `UN-8`-excluded one: two separate writes, ordered, only one counted
-//      ("全体表示の 1 回の押下は、2 つの書き込みに分けて行うこと（MUST）…①
-//      倍率と表示位置を置く（`UN-8` により段を積まない）② 折りたたんだタスクグループをすべて開
-//      く（`UN-17` により段を 1 つ積む）"). Whether HF-14's task-group-add and the
-//      parent's open share one step is never
-//      stated by 表 T-051's `HF-14` itself, and no other row was found that
-//      says it either. ⛔ PER THE BRIEF THIS FILE WAS WRITTEN TO, THAT SILENCE
-//      MEANS NO CASE HERE ASSERTS AN UNDO STEP COUNT FOR EITHER HALF. The
-//      finding is written down here, and reported, instead.
-//   4. THE LITERAL "ANCESTOR" OF HALF 2's MUST NOT. See the long comment
-//      above the half-2 describe block below -- 表 T-015's `HR-1a` makes the
-//      literal scenario (a visible pressed parent whose OWN ancestor is ALSO
-//      collapsed) structurally unreachable, so this file tests the closest
-//      available proxy and says so plainly rather than silently asserting
-//      the letter of the row.
-// ===========================================================================
+// Unit tests: HF-14 keeps a raised task group visible by tree state, never by rewriting zoomY.
 
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -105,11 +35,7 @@ import {
 } from '../../src/framework/single-html-shell/frame-loop'
 import { bare, bareAll, specTable, unbroken } from '../contract/spec-table'
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
-// ===========================================================================
-// The manuscripts, read at run time rather than copied (Chapter 1.9)
-// ===========================================================================
+/* eslint-disable @typescript-eslint/no-explicit-any -- the fixture builds documents from the untyped template and patches requestAnimationFrame */
 
 const REQUIREMENTS = unbroken(readFileSync(
   join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'),
@@ -122,19 +48,11 @@ const rowOf = (table: string, id: string) => {
   return found
 }
 
-/** Everything one row of a table says, as one string. */
 const says = (table: string, id: string): string => rowOf(table, id).cells.join(' ')
 
-/** 表 T-103's settled English name for U-22 -- the 面 a task group's controls answer as. */
 const TASK_GROUP_PANEL = bare(rowOf('T-103', 'U-22').by['確定名（英）'] ?? '')
 
-/**
- * The entrance 表 T-109 gives one rule of 表 T-051.
- *
- * ⭐ THE JOIN IS THE SPECIFICATION'S OWN, copied from
- * tests/unit/t-051-hf-14-the-depth-cap-refuses-a-task-group.test.ts: 表 T-109's 正
- * column names the rule that owns each entrance.
- */
+// Summary: entranceFor() returns the one Task Group Panel entrance whose T-109 column names the rule.
 function entranceFor(rule: string): string {
   const onThePanel = specTable('T-109').rows.filter(
     (one) => bareAll(one.by['面'] ?? '').includes(TASK_GROUP_PANEL),
@@ -149,37 +67,24 @@ function entranceFor(rule: string): string {
   return first.id
 }
 
-/** `HF-14`'s entrance -- the one that adds a task group under this one. */
 const ADD_CHILD_TASK_GROUP = entranceFor('HF-14')
 
-/** The px figure one row of a settings table prints in its 既定 column. */
 const px = (table: string, id: string): number => {
   const found = /-?\d+(?:\.\d+)?/.exec(rowOf(table, id).by['既定'] ?? '')
   if (found === null) throw new Error(`${id} states no number in its 既定 column`)
   return Number(found[0])
 }
 
-/** S-125 -- `maxGroupDepth`, the cap `FR-085` states and 表 T-211 carries. */
+// Spec: S-125, FR-085
 const MAX_GROUP_DEPTH = ((): number => {
   const value = SETTINGS_CONSTANTS['maxGroupDepth']
   if (typeof value !== 'number') throw new Error('SETTINGS_CONSTANTS.maxGroupDepth is not a number')
   return value
 })()
 
-/**
- * S-87 -- `groupLevelOfDetailBase`, the group-LOD threshold's initial term.
- *
- * ⭐ `threshold(d) = base × ratio^(d − 2)` (表 T-205's own row for `S-87`), so a
- * `zoomY` set to exactly this value clears depth 2 but not depth 3 -- the same
- * fact a layout-engine unit case exercised before CR-573 deleted it
- * (`groupDepthLimit(settingsOf({ ...LAYOUT_SETTINGS, zoomY: 0.32 })) === 2`).
- * ⛔ Read from the manuscript, never typed as `0.32`.
- */
+// Why: a zoomY of exactly S-87's base clears depth 2 but not depth 3, since
+// threshold(d) = base x ratio^(d - 2); it is read, never typed.
 const GROUP_LOD_BASE = px('T-205', 'S-87')
-
-// ===========================================================================
-// A tiny document fixture: a chain of `TaskGroup`s, some folded, some not.
-// ===========================================================================
 
 const TEMPLATE = JSON.parse(
   readFileSync(
@@ -188,7 +93,7 @@ const TEMPLATE = JSON.parse(
   ),
 ) as Record<string, unknown>
 
-/** A `TaskGroup.id` -- AT-51 types the column as a UUID. */
+// Why: AT-51 types TaskGroup.id as a UUID, so the fixture ids are UUIDs.
 const uuidOf = (n: number): string => `00000000-0000-4000-8000-${String(n).padStart(12, '0')}`
 
 interface GroupSpec {
@@ -198,7 +103,6 @@ interface GroupSpec {
   readonly treeState: 'auto' | 'collapsed'
 }
 
-/** A document holding exactly the `TaskGroup`s given, at the stated `zoomY`. */
 function documentWith(groups: readonly GroupSpec[], zoomY: number): Document {
   const template = structuredClone(TEMPLATE) as any
   return {
@@ -237,27 +141,19 @@ function documentWith(groups: readonly GroupSpec[], zoomY: number): Document {
   } as unknown as Document
 }
 
-/** All `TaskGroup`s a document holds, as the loose shape this file reads. */
 const taskGroupsOf = (
   document: Document,
 ): readonly { id: string; parentId: string | null; treeState: string }[] =>
   (document.schedule as any).taskGroups
 
-/** One `TaskGroup`, found by id. */
 function groupIn(document: Document, id: string): { id: string; parentId: string | null; treeState: string } {
   const found = taskGroupsOf(document).find((one) => one.id === id)
   if (found === undefined) throw new Error(`the document holds no TaskGroup ${id}`)
   return found
 }
 
-/**
- * The one `TaskGroup` present after a press that was absent before it.
- *
- * ⭐ MEASURED AS A DIFFERENCE, matching 表 T-051's own methodology right below
- * `HF-18`: 「数えるのは配下のタスクグループの数ではなく、その操作の前後で描かれるタスクグループの差であ
- * る。」 The id a freshly raised task group gets is the system's to choose, not this
- * file's, so it is never guessed -- only found.
- */
+// Why: the raised id is the system's to choose, so it is found as the one id the
+// press added, the difference table T-051 counts below HF-18.
 function raisedRowId(before: Document, after: Document): string {
   const beforeIds = new Set(taskGroupsOf(before).map((one) => one.id))
   const added = taskGroupsOf(after).filter((one) => !beforeIds.has(one.id))
@@ -268,12 +164,6 @@ function raisedRowId(before: Document, after: Document): string {
   if (only === undefined) throw new Error('unreachable')
   return only.id
 }
-
-// ===========================================================================
-// The host UF-48 is given -- copied from
-// tests/unit/t-051-hf-14-the-depth-cap-refuses-a-task-group.test.ts, which drives the
-// same unit through the same seam.
-// ===========================================================================
 
 const TASK_GROUP_CONTROLS_TALL = (px('T-206', 'S-138') + px('T-206', 'S-243') * 2) * 2
 
@@ -287,11 +177,7 @@ const SCREEN: FrameEnvironment = {
 
 const realRaf = (globalThis as any).requestAnimationFrame
 
-/**
- * ⚠️ THE HOST IS A FAKE, AND THE FAKE IS NOT THE TEST (R6.3). Vitest runs under
- * node with no `requestAnimationFrame`, and LY-5 of 表 T-060 puts the browser
- * in this layer. ⛔ Nothing in this fake decides anything about a telling.
- */
+// Summary: host() queues requestAnimationFrame callbacks and runs them on demand, deciding nothing itself.
 function host(): { readonly surface: { showSvg(svg: string): void; showMarqueeOverlaySvg(svg: string): void }; runAnimationFrames: () => void } {
   const waiting: ((time: number) => void)[] = []
   let handle = 0
@@ -356,16 +242,13 @@ const pointer = (phase: PointerPhase, x: number, y: number): PointerInput => ({
   clickCount: 1,
 })
 
-/** Somewhere inside the surface the fake answers for. */
 const ON_THE_SURFACE = { x: 80, y: 120 }
 
 interface Stage {
   readonly loop: FrameLoop
   readonly screen: ScreenPane
   send(input: HumanInput): void
-  /** Aim one entrance of one task group and press it -- CS-2 freezes the aim at the press. */
   press(entry: string, taskGroupId: string): void
-  /** The title drawn for a task group, or `undefined` if the panel draws no such task group. */
   titleFor(taskGroupId: string): TaskGroupTitle | undefined
 }
 
@@ -392,7 +275,7 @@ function stage(document: Document, language: DisplayLanguage = 'ja'): Stage {
         dividerPanel: null,
         noticeDismissKey: null,
       })
-      // IN-1 settles a pointer operation on release, so a press is down then up.
+      // Why: IN-1 settles a pointer operation on release, so a press is down then up.
       send(pointer('down', ON_THE_SURFACE.x, ON_THE_SURFACE.y))
       send(pointer('up', ON_THE_SURFACE.x, ON_THE_SURFACE.y))
       screen.drawAt(null)
@@ -404,10 +287,7 @@ function stage(document: Document, language: DisplayLanguage = 'ja'): Stage {
   }
 }
 
-// ===========================================================================
-// The premises every case below stands on
-// ===========================================================================
-
+// Spec: HF-14, HF-7, S-87
 describe('the manuscript still says what these cases read', () => {
   it('⭐ was really driven by the manuscript, and not by a hollow read of it', () => {
     expect(TASK_GROUP_PANEL).toBe('Task Group Panel')
@@ -443,56 +323,39 @@ describe('the manuscript still says what these cases read', () => {
 
   it('⭐ FR-018 still gives the group-LOD formula this file computes its zoomY from', () => {
     expect(says('T-205', 'S-87')).toContain('threshold(d) = base × ratio^(d − 2)')
-    // The worked value this file reuses, once exercised by
-    // the layout-engine unit test (deleted by CR-573): zoomY at exactly S-87's default clears
-    // depth 2 and misses depth 3.
-    // TEMPLATE is Record<string, unknown>, so the settings object has to be
-    // narrowed before it can be spread.
     const stored = TEMPLATE['documentSettings'] as Record<string, unknown>
     const settings = { ...stored, zoomY: GROUP_LOD_BASE } as unknown as DocumentSettings
     expect(groupDepthLimit(drawnSettingsOf(settings))).toBe(2)
   })
 
   it('⛔ written down, not asserted: HR-1a makes a literal collapsed ANCESTOR unreachable here', () => {
-    // HF-14 half 2's MUST NOT names 「その先祖」(the pressed parent's own
-    // ancestors). For a task group to be pressable in this fixture it must be DRAWN,
-    // and 表 T-015's `HR-1a` (MUST NOT) hides a collapsed group's entire
-    // subtree, not just its direct children:
+    // Why: HR-1a hides a collapsed group's whole subtree, so a pressed task group never
+    // has a collapsed ancestor; half 2 checks an unrelated collapsed group instead.
     expect(says('T-015', 'HR-1a')).toContain(
       '`GRS` は、折りたたんだ `TaskGroup` の配下のタスクグループと、配下のタスクグループに載っている `Task` を描かないこと。',
     )
-    // ⛔ So a task group with a COLLAPSED ancestor is never drawn, and can never be
-    // the task group this file presses `IC-91` on. The half-2 case below therefore
-    // tests the closest reachable proxy for "opened only the one parent that
-    // was pressed": an UNRELATED already-collapsed task group elsewhere in the same
-    // document is left untouched. That proxy is this file's own choice, not
-    // a sentence 表 T-051 states -- flagged here rather than asserted as if
-    // it were the letter of the row.
   })
 
+  // Spec: UN-14, UN-8, FR-055
   it('⛔ written down, not asserted: whether the add and the open share one undo step is unstated', () => {
-    // 表 T-027: the ADD (`UN-1` / `UN-14`) and the FOLD-OPEN (`UN-14`) are both
-    // counted targets; `zoomY` (`UN-8`) never is.
     expect(says('T-027', 'UN-14')).toContain(
       'タスクグループ（`TaskGroup`）の追加・削除・名前の変更、タスクグループの色と高さの変更、タスクグループの木の状態（`treeState`）と段 0 の折りたたみ',
     )
     expect(says('T-027', 'UN-8')).toContain('ズーム・スクロール・パン')
-    // FR-055 shows the split the codebase already uses for a gesture that
-    // must write both a counted change and a UN-8-excluded one in the same
-    // call -- the precedent this file's header comment reasons from:
     expect(REQUIREMENTS).toContain(
       '全体表示を 1 回押したとき、`GRS` は、押下を 2 つの書き込みに分けて行うこと。',
     )
-    // ⛔ 表 T-051's HF-14 itself states no such split for the task group it raises,
-    // and no other row was found stating it either -- so nothing below
-    // asserts an undo step count for either half of HF-14.
+    // Why: UN-1 and UN-14 count the add and the open, UN-8 never zoomY, but no row splits HF-14's
+    // undo steps, so no case asserts an undo step count.
   })
 })
 
+// Why: groupDepthLimit only proves the raised task group lies past the drawn tier;
+// HF-14 shows it by tree state alone (AT-153, T-328, TD-6, TD-7).
+// Spec: HF-14, FR-018
 describe('表 T-051 HF-14 (MUST): a task group raised past the drawn tier is drawn at the same zoom', () => {
   it('⛔⛔ a child raised past the currently-drawn tier is drawn, both task groups become temporarilyExpanded, and zoomY is unchanged', () => {
-    // ⭐ Two levels, neither collapsed, so the ONLY obstacle in this case is
-    // FR-018's group LOD: depth 1 root, depth 2 pressed task group.
+    // Why: two levels, neither collapsed, so FR-018's group LOD is the only obstacle.
     const root = uuidOf(1)
     const pressed = uuidOf(2)
     const before = documentWith(
@@ -500,17 +363,14 @@ describe('表 T-051 HF-14 (MUST): a task group raised past the drawn tier is dra
         { id: root, parentId: null, name: 'depth 1', treeState: 'auto' },
         { id: pressed, parentId: root, name: 'depth 2', treeState: 'auto' },
       ],
-      GROUP_LOD_BASE, // exactly S-87 -- clears depth 2, misses depth 3.
+      GROUP_LOD_BASE,
     )
 
-    // ⛔ THE CONTROL THAT MAKES THIS A TEST: without HF-14, a depth-3 child of
-    // `pressed` would not clear this tier, and the case below would be
-    // asserting nothing.
+    // Why: the control that makes this a test: without HF-14, a depth-3 child of
+    // pressed would not clear this tier.
     expect(groupDepthLimit(drawnSettingsOf(before.documentSettings)), 'the fixture must start below depth 3').toBe(2)
 
     const built = stage(before)
-    // Sanity: the task group being pressed is itself inside the tier -- a real
-    // person could see and press it.
     expect(built.titleFor(pressed), 'the pressed task group itself must be drawn to be pressed').not.toBeUndefined()
 
     built.press(ADD_CHILD_TASK_GROUP, pressed)
@@ -555,29 +415,9 @@ describe('表 T-051 HF-14 (MUST): a task group raised past the drawn tier is dra
   })
 })
 
-// ===========================================================================
-// HALF 2 (MUST): a raised task group that lands under a HUMAN-collapsed parent opens
-// that one parent. (MUST NOT): opening reaches no further than the one
-// parent that was pressed.
-//
-// ⛔ THE LITERAL "ANCESTOR" CANNOT BE BUILT HERE, AND THIS IS WRITTEN DOWN
-// RATHER THAN GLOSSED OVER: for `pressed` to be drawn at all (so `IC-91` can
-// be aimed at it, matching every other case in this file and in
-// tests/unit/t-051-hf-14-the-depth-cap-refuses-a-task-group.test.ts), none of
-// `pressed`'s own ancestors may be collapsed -- 表 T-015's `HR-1a` (MUST NOT)
-// hides a collapsed group's ENTIRE subtree, not just its direct children, so
-// a collapsed ancestor would make `pressed` itself undrawable and unpressable
-// by the same rule this case is trying to test. ⭐ What CAN be built, and is
-// built below, is the closest reachable proxy the manuscript allows: an
-// UNRELATED task group elsewhere in the same document that a human already
-// collapsed, sitting outside the path from the root to `pressed`, which this
-// case requires to be left exactly as it was. A unit that "opened everything"
-// or "opened every collapsed task group on the way down from the root" would raise
-// the pressed task group's child fine, and would still fail THIS assertion --
-// which is the whole reason it is the proxy used, rather than a weaker one
-// that only reads `pressed` itself.
-// ===========================================================================
-
+// Why: a unit that opened every collapsed task group on the way down would still
+// raise the child, but fails on the unrelated collapsed group.
+// Spec: HF-14, HR-1a, HR-4, HR-6
 describe('表 T-051 HF-14 half 2 (折りたたみ, MUST / MUST NOT): only the one pressed parent opens', () => {
   it('⛔⛔ the pressed, human-collapsed parent opens, and an unrelated collapsed task group elsewhere does not', () => {
     const root = uuidOf(4)
@@ -586,13 +426,11 @@ describe('表 T-051 HF-14 half 2 (折りたたみ, MUST / MUST NOT): only the on
     const before = documentWith(
       [
         { id: root, parentId: null, name: 'root', treeState: 'auto' },
-        // 表 T-015 HR-4/HR-6 language: a human folded this task group already.
         { id: pressed, parentId: root, name: 'pressed, folded by a person', treeState: 'collapsed' },
-        // An unrelated sibling branch, also folded by a person, untouched by
-        // anything this case does to `pressed`.
         { id: elsewhere, parentId: root, name: 'elsewhere, also folded', treeState: 'collapsed' },
       ],
-      SETTINGS_DEFAULTS['zoomY'] as number, // default zoomY: no LOD obstacle in this half.
+      // Why: the default zoomY puts no LOD obstacle in this half.
+      SETTINGS_DEFAULTS['zoomY'] as number,
     )
     expect(groupDepthLimit(drawnSettingsOf(before.documentSettings)), 'depth 3 must clear the tier in this half').toBeGreaterThanOrEqual(
       3,
@@ -603,8 +441,6 @@ describe('表 T-051 HF-14 half 2 (折りたたみ, MUST / MUST NOT): only the on
     )
 
     const built = stage(before)
-    // The folded task group is still drawn -- HR-4 (MUST NOT) forbids hiding the task group
-    // itself, only what is under it -- so it can be pressed at all.
     expect(built.titleFor(pressed), 'a folded task group is still drawn; only its children are hidden').not.toBeUndefined()
 
     built.press(ADD_CHILD_TASK_GROUP, pressed)
@@ -616,17 +452,13 @@ describe('表 T-051 HF-14 half 2 (折りたたみ, MUST / MUST NOT): only the on
     expect(groupIn(after, pressed).treeState, 'HF-14 / T-328 (MUST): the pressed parent opens for now').toBe(
       'temporarilyExpanded',
     )
-    // ⭐⭐ THE MUST NOT: nothing else did.
     expect(
       groupIn(after, elsewhere).treeState,
       'HF-14 (MUST NOT): opening reaches no further than the pressed parent',
     ).toBe('collapsed')
     expect(groupIn(after, root).treeState, 'the untouched root stays exactly as it was').toBe('auto')
 
-    // ⭐⭐ THE PROMISE ITSELF: the raised task group is drawn now that its one parent opened.
     expect(built.titleFor(raised), 'HF-14 (MUST): the raised task group must be drawn once its parent opens').not.toBeUndefined()
-    // And the unrelated folded task group's own (nonexistent) children remain exactly
-    // as unaffected as `elsewhere` itself -- nothing there was raised or moved.
     expect(taskGroupsOf(after).map((one) => one.id).sort()).toEqual(
       [...taskGroupsOf(before).map((one) => one.id), raised].sort(),
     )
@@ -642,7 +474,7 @@ describe('表 T-051 HF-14: both obstacles together still end with the task group
         { id: root, parentId: null, name: 'root', treeState: 'auto' },
         { id: pressed, parentId: root, name: 'pressed, folded AND past the tier', treeState: 'collapsed' },
       ],
-      GROUP_LOD_BASE, // depth 2 clears, depth 3 (the new child) would not.
+      GROUP_LOD_BASE,
     )
     expect(groupDepthLimit(drawnSettingsOf(before.documentSettings))).toBe(2)
     expect(groupIn(before, pressed).treeState).toBe('collapsed')
