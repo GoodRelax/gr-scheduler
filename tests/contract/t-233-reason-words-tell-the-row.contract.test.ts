@@ -216,7 +216,7 @@ const PAIRED_ON_2026_09_03: Readonly<Record<string, string>> = {
   'RS-27': 'c5082717955315b1',
   'RS-28': '17384e3e95f1923c',
   'RS-29': 'e1e9b843248cfb66',
-  'RS-30': '80b524e909a79457',
+  'RS-30': 'ea287abd76bfec91',
   // Why: CR-570 rewrote the scene to 'no task group is left undrawn'; read against the words (every task group open
   // and drawn; fold a task group or zoom out vertically) they still tell it, so only the fingerprint is re-keyed.
   'RS-31': 'fbf6b90b3bd24213',

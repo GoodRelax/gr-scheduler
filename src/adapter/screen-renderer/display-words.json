@@ -3965,7 +3965,7 @@
    },
    "nextStep": {
     "ja": "配下を折りたたむか、直下のタスクグループを親に格納してから、もう一度押してください",
-    "en": "Collapse what is under this task group, or hide one of its children, then try again."
+    "en": "Collapse what is under this task group, or retract one of its children into it, then try again."
    }
   },
   {
