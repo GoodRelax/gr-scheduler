@@ -19,21 +19,21 @@ const call = <T>(page: Page, body: string, arg?: unknown): Promise<T> =>
 
 type Outcome = { threw: boolean; value: any }
 
-test('UC-012 let an AI agent edit (FR-028, FR-064 T-035 AG-1 AG-2 AG-3 AG-4 AG-9a, FR-065, AM-1..AM-7)', async ({ page }) => {
+test('SCN-46 SCN-47 SCN-48 SCN-51 UC-012 let an AI agent edit (FR-028, FR-064 T-035 AG-1 AG-2 AG-3 AG-4 AG-9a, FR-065, AM-1..AM-7) @UC-012.OK @UC-012.RJ1 @UC-013.RJ1', async ({ page }) => {
   await launch(page)
 
-  await test.step('UC-012 extension 1a: until a person turns it on, the Agent API is not exposed (FR-065)', async () => {
+  await test.step('SCN-48 UC-012.OK: until a person turns it on, the Agent API is not exposed (FR-065)', async () => {
     expect(await page.evaluate(() => typeof (window as any).grSchedulerAgentApi)).toBe('undefined')
   })
 
-  await test.step('UC-012 step 1: a person turns the Agent API on, and it shows as on (IC-20, FR-065)', async () => {
+  await test.step('SCN-46 UC-012.OK: a person turns the Agent API on, and it shows as on (IC-20, FR-065)', async () => {
     await press(page, 'IC-20')
     expect(await page.evaluate(() => typeof (window as any).grSchedulerAgentApi)).toBe('object')
     await expect(page.locator(icon('IC-20'))).toHaveAttribute('data-pressed', 'true')
   })
 
   let stamp: Record<string, unknown> = {}
-  await test.step('UC-012 step 2: the agent reads the version and checks it knows it (AM-1, AM-4, AG-1)', async () => {
+  await test.step('SCN-46 UC-012.OK: the agent reads the version and checks it knows it (AM-1, AM-4, AG-1)', async () => {
     const version = await call<Outcome>(page, 'return api.agentApiVersion')
     expect(version.threw).toBe(false)
     expect(version.value).toMatch(/^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$/)
@@ -42,13 +42,13 @@ test('UC-012 let an AI agent edit (FR-028, FR-064 T-035 AG-1 AG-2 AG-3 AG-4 AG-9
   })
 
   let outcome: Outcome = { threw: false, value: null }
-  await test.step('UC-012 step 3: the agent reads the document and asks for an edit (AM-3, AG-4, AM-7)', async () => {
+  await test.step('SCN-46 UC-012.OK: the agent reads the document and asks for an edit (AM-3, AG-4, AM-7)', async () => {
     const frozen = await call<Outcome>(page, 'const d = api.readDocument(); try { d.schedule.tasks[0].name = "tampered" } catch (e) {} return api.readDocument().schedule.tasks[0].name !== "tampered"')
     expect(frozen.value).toBe(true)
     outcome = await call<Outcome>(page, 'return api.applyCommands({ expectedStamp: arg, commands: [{ kind: "setTaskName", taskUid: ' + TASK + ', name: "Renamed by agent" }] })', stamp)
   })
 
-  await test.step('UC-012 step 4: GRS answers with a value, not an exception, and the edit is in the document (AM-7, FR-028)', async () => {
+  await test.step('SCN-46 UC-012.OK: GRS answers with a value, not an exception, and the edit is in the document (AM-7, FR-028)', async () => {
     expect(outcome.threw).toBe(false)
     expect(outcome.value.ok).toBe(true)
     expect(outcome.value.stamp).not.toEqual(stamp)
@@ -57,7 +57,7 @@ test('UC-012 let an AI agent edit (FR-028, FR-064 T-035 AG-1 AG-2 AG-3 AG-4 AG-9
     await expect(page.locator('[data-figure="task-' + TASK + '-label"]')).toHaveText(/^Renamed by agent/)
   })
 
-  await test.step('UC-012 extension 3a: a refused request comes back as a structured refusal that can be retried as it is (AG-2, AG-3, AG-9a)', async () => {
+  await test.step('SCN-47 UC-012.RJ1: a refused request comes back as a structured refusal that can be retried as it is (AG-2, AG-3, AG-9a)', async () => {
     const before = JSON.stringify((await readDocument(page)).schedule)
     const stale = await call<Outcome>(page, 'return api.applyCommands({ expectedStamp: arg, commands: [{ kind: "setTaskName", taskUid: ' + TASK + ', name: "Stale write" }] })', stamp)
     expect(stale.threw).toBe(false)

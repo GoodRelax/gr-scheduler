@@ -29,7 +29,7 @@ const bareSpotNear = (page: Page, near: { x: number; y: number }): Promise<{ x: 
 
 const cornerRadius = async (page: Page, id: string): Promise<number> => Number(await page.locator('[data-figure="box-' + id + '"]').getAttribute('rx'))
 
-test('UC-008 tell by annotations (FR-019, T-023b AR-5 AR-6, FR-097 PR-21, T-217, FR-016)', async ({ page }) => {
+test('SCN-29 SCN-30 SCN-31 SCN-33 UC-008 tell by annotations (FR-019, T-023b AR-5 AR-6, FR-097 PR-21, T-217, FR-016) @UC-008.OK', async ({ page }) => {
   await launch(page)
   await enableAgentApi(page)
   let commentId = ''
@@ -37,7 +37,7 @@ test('UC-008 tell by annotations (FR-019, T-023b AR-5 AR-6, FR-097 PR-21, T-217,
   const RANGE_FROM = await bareSpotNear(page, RANGE_FROM_NEAR)
   let anchorTaskGroup: string | null = null
 
-  await test.step('UC-008 step 1: place a comment box and decide what it points at (IC-35, AR-5)', async () => {
+  await test.step('SCN-29 UC-008.OK: place a comment box and decide what it points at (IC-35, AR-5)', async () => {
     anchorTaskGroup = await bandAt(page, ANCHOR.y)
     expect(anchorTaskGroup).not.toBeNull()
     const axis = await dayAxis(page)
@@ -52,7 +52,7 @@ test('UC-008 tell by annotations (FR-019, T-023b AR-5 AR-6, FR-097 PR-21, T-217,
     expect(Math.abs(dayNumber(boxes[0]!.anchorDate) - axis.dayOf(ANCHOR.x))).toBeLessThanOrEqual(1)
   })
 
-  await test.step('UC-008 step 2: the anchor is a date and a row id, only the body offset is in screen pixels, and a drag of the body moves the body alone (FR-019, T-023d, JDG-2400)', async () => {
+  await test.step('SCN-29 UC-008.OK: the anchor is a date and a row id, only the body offset is in screen pixels, and a drag of the body moves the body alone (FR-019, T-023d, JDG-2400)', async () => {
     const before = (await readDocument(page)).schedule.commentBoxes[0]!
     const body = (await figureBox(page, 'comment-' + commentId))!
     await drag(page, { x: body.x + body.w / 2, y: body.y + body.h / 2 }, { x: body.x + body.w / 2 + OFFSET.dx, y: body.y + body.h / 2 + OFFSET.dy }, [], DROP_STEPS)
@@ -69,7 +69,7 @@ test('UC-008 tell by annotations (FR-019, T-023b AR-5 AR-6, FR-097 PR-21, T-217,
     anchorTaskGroup = box.anchorTaskGroupId
   })
 
-  await test.step('UC-008 extension 1a: the body text is typed and drawn inside the box (FR-097, MK-13, PR-21)', async () => {
+  await test.step('SCN-30 UC-008.OK: the body text is typed and drawn inside the box (FR-097, MK-13, PR-21)', async () => {
     const body = (await figureBox(page, 'comment-' + commentId))!
     await page.mouse.dblclick(body.x + body.w / 2, body.y + body.h / 2)
     await settle(page)
@@ -88,7 +88,7 @@ test('UC-008 tell by annotations (FR-019, T-023b AR-5 AR-6, FR-097 PR-21, T-217,
 
   let highlightId = ''
   let rows: Array<string | null> = []
-  await test.step('UC-008 step 3: surround the range to stress with a rounded rectangle (IC-36, AR-6)', async () => {
+  await test.step('SCN-29 UC-008.OK: surround the range to stress with a rounded rectangle (IC-36, AR-6)', async () => {
     rows = [await bandAt(page, RANGE_FROM.y), await bandAt(page, RANGE_TO.y)]
     await press(page, 'IC-36')
     await drag(page, RANGE_FROM, RANGE_TO, [], DROP_STEPS)
@@ -98,7 +98,7 @@ test('UC-008 tell by annotations (FR-019, T-023b AR-5 AR-6, FR-097 PR-21, T-217,
     highlightId = boxes[0]!.id
   })
 
-  await test.step('UC-008 step 4: the range is kept as dates and task groups, and the corner radius does not follow the zoom (FR-019, T-217)', async () => {
+  await test.step('SCN-29 UC-008.OK: the range is kept as dates and task groups, and the corner radius does not follow the zoom (FR-019, T-217)', async () => {
     const axis = await dayAxis(page)
     const box = (await readDocument(page)).schedule.highlightBoxes[0]!
     expect(Math.abs(dayNumber(box.start) - axis.dayOf(RANGE_FROM.x))).toBeLessThanOrEqual(1)
@@ -109,7 +109,7 @@ test('UC-008 tell by annotations (FR-019, T-023b AR-5 AR-6, FR-097 PR-21, T-217,
 
   // Why: measured while the box is drawn; extension 2a later hides the pointed task group, which in the
   // template is an ancestor of the range task groups, so the box is no longer drawn after it (DFC-2132).
-  await test.step('UC-008 step 4 over zoom: the corner radius stays the same when the zoom changes (T-217)', async () => {
+  await test.step('SCN-29 UC-008.OK over zoom: the corner radius stays the same when the zoom changes (T-217)', async () => {
     const radius = (await readDocument(page)).schedule.highlightBoxes[0]!.cornerRadiusPx
     await press(page, 'IC-13')
     await press(page, 'IC-15')
@@ -119,7 +119,7 @@ test('UC-008 tell by annotations (FR-019, T-023b AR-5 AR-6, FR-097 PR-21, T-217,
     await press(page, 'IC-12')
   })
 
-  await test.step('UC-008 extension 4a: when a task group inside the range is hidden, only the task groups still shown are surrounded (FR-019)', async () => {
+  await test.step('SCN-33 UC-008.OK: when a task group inside the range is hidden, only the task groups still shown are surrounded (FR-019)', async () => {
     const box = (await readDocument(page)).schedule.highlightBoxes[0]!
     const before = (await figureBox(page, 'box-' + highlightId))!
     await pressRowControl(page, box.bottomTaskGroupId, 'IC-59')
@@ -127,7 +127,7 @@ test('UC-008 tell by annotations (FR-019, T-023b AR-5 AR-6, FR-097 PR-21, T-217,
     expect.soft(after.h).toBeLessThan(before.h)
   })
 
-  await test.step('UC-008 extension 2a: when the pointed task group is hidden, the comment box is hidden with it (FR-019)', async () => {
+  await test.step('SCN-31 UC-008.OK: when the pointed task group is hidden, the comment box is hidden with it (FR-019)', async () => {
     await expect(page.locator('[data-figure="comment-' + commentId + '"]')).toHaveCount(1)
     await pressRowControl(page, anchorTaskGroup!, 'IC-59')
     await expect(page.locator('[data-figure="comment-' + commentId + '"]')).toHaveCount(0)

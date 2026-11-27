@@ -31,7 +31,7 @@ const answerReview = async (page: Page, id: 'IC-95' | 'IC-96' | 'IC-97'): Promis
   await settle(page)
 }
 
-test('UC-014 merge several schedules into one (FR-022 T-032a MM-1 MM-2 MM-4, FR-056, OP-3 IC-72, U-61)', async ({ page }) => {
+test('SCN-39 SCN-53 SCN-55 SCN-56 UC-014 merge several schedules into one (FR-022 T-032a MM-1 MM-2 MM-4, FR-056, OP-3 IC-72, U-61) @UC-010.OK @UC-014.OK', async ({ page }) => {
   test.setTimeout(120000)
   await launch(page)
   await enableAgentApi(page)
@@ -48,23 +48,23 @@ test('UC-014 merge several schedules into one (FR-022 T-032a MM-1 MM-2 MM-4, FR-
   await settle(page)
   const taskCount = (await readDocument(page)).schedule.tasks.length
 
-  await test.step('UC-014 step 1: the author opens a file and picks merge, not replace (OP-3, IC-72)', async () => {
+  await test.step('SCN-53 UC-014.OK: the author opens a file and picks merge, not replace (OP-3, IC-72)', async () => {
     await mergeByDrop(page)
   })
 
-  await test.step('UC-014 step 3: tasks that may correspond are gathered and the author is asked (FR-022, U-61)', async () => {
+  await test.step('SCN-53 UC-014.OK: tasks that may correspond are gathered and the author is asked (FR-022, U-61)', async () => {
     await expect(page.locator(REVIEW)).toHaveCount(1)
     const row = page.locator(REVIEW + ' [data-uid="' + EDITED_UID + '"]')
     await expect(row.locator('[data-side="current"]')).toHaveText('Changed here')
     await expect(row.locator('[data-side="incoming"]')).toHaveText(originalName)
   })
 
-  await test.step('UC-014 step 4: the author picks one of the offered answers (IC-95, MM-1)', async () => {
+  await test.step('SCN-53 UC-014.OK: the author picks one of the offered answers (IC-95, MM-1)', async () => {
     await answerReview(page, 'IC-95')
     await expect(page.locator(REVIEW)).toHaveCount(0)
   })
 
-  await test.step('UC-014 steps 2 and 5: the origin is recorded, the file is added in, and what happened is told (FR-056, T-032)', async () => {
+  await test.step('SCN-53 UC-014.OK: the origin is recorded, the file is added in, and what happened is told (FR-056, T-032)', async () => {
     const doc = await readDocument(page)
     expect(doc.schedule.tasks.length).toBe(taskCount)
     expect(doc.schedule.tasks.find((t) => t.uid === EDITED_UID)!.name).toBe(originalName)
@@ -73,7 +73,7 @@ test('UC-014 merge several schedules into one (FR-022 T-032a MM-1 MM-2 MM-4, FR-
     await expect.soft(page.locator('[data-role="Import Report"]')).not.toHaveText('')
   })
 
-  await test.step('UC-014 extension 4a: stopping the import leaves the document exactly as before (IC-97, MM-4)', async () => {
+  await test.step('SCN-56 UC-014.OK: stopping the import leaves the document exactly as before (IC-97, MM-4)', async () => {
     await page.keyboard.press('Escape')
     const before = JSON.stringify((await readDocument(page)).schedule)
     await mergeByDrop(page)
@@ -81,7 +81,7 @@ test('UC-014 merge several schedules into one (FR-022 T-032a MM-1 MM-2 MM-4, FR-
     expect(JSON.stringify((await readDocument(page)).schedule)).toBe(before)
   })
 
-  await test.step('UC-014 extension 3a: tasks kept apart last time are not copied again when they arrive again (IC-96, MM-2)', async () => {
+  await test.step('SCN-55 UC-014.OK: tasks kept apart last time are not copied again when they arrive again (IC-96, MM-2)', async () => {
     await mergeByDrop(page)
     await answerReview(page, 'IC-96')
     const apart = (await readDocument(page)).schedule.tasks.length

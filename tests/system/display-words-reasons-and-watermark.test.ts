@@ -305,7 +305,7 @@ test('DFC-308: no word the screen can print shortens the term U-14 settles', asy
 })
 
 
-test('DFC-340: the question IC-66 raises is QN-3, asked of the whole selection', async ({
+test('SCN-12 DFC-340: the question IC-66 raises is QN-3, asked of the whole selection @UC-003.OK', async ({
   baseURL,
 }) => {
   test.setTimeout(180_000)

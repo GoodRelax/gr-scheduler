@@ -292,7 +292,7 @@ function measured(which: Visit | null, what: string): Visit {
 }
 
 
-test(`ST-7: ${String(STACK_SAFETY_CAP + 1)} stacks on one task group throw nothing out of the build`, () => {
+test(`SCN-2 ST-7: ${String(STACK_SAFETY_CAP + 1)} stacks on one task group throw nothing out of the build @UC-001.RJ1`, () => {
   const seen = measured(overTheCap, 'over-the-cap')
   expect(seen.writeAccepted, `the fixture document was written: ${seen.refusal}`).toBe(true)
   expect(
@@ -306,7 +306,7 @@ test(`ST-7: ${String(STACK_SAFETY_CAP + 1)} stacks on one task group throw nothi
 })
 
 
-test('ST-7 / RS-24: the person is told, in the words the dictionary holds', () => {
+test('SCN-2 ST-7 / RS-24: the person is told, in the words the dictionary holds @UC-001.RJ1', () => {
   const seen = measured(overTheCap, 'over-the-cap')
   const told = rs24Among(seen.toldAfterWrite)
   expect(

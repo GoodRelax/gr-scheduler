@@ -276,7 +276,7 @@ test.describe('CR-562 -- the clauses and the generated seam these cases are driv
 })
 
 test.describe(`IC-115 -- ${FR_068_NO_SURFACE}`, () => {
-  test(`${FR_068_ORDER} -- the copied string is the seam, byte for byte, in the screen language`, async () => {
+  test(`SCN-44 ${FR_068_ORDER} -- the copied string is the seam, byte for byte, in the screen language @UC-011.OK`, async () => {
     const one = await visit()
     try {
       const language = await screenLanguage(one.page)
@@ -305,7 +305,7 @@ test.describe(`IC-115 -- ${FR_068_NO_SURFACE}`, () => {
     }
   })
 
-  test(`${FR_068_TELL} -- and no surface is opened`, async () => {
+  test(`SCN-44 ${FR_068_TELL} -- and no surface is opened @UC-011.OK`, async () => {
     const one = await visit()
     try {
       expect(await toldReason(one.page, 'RS-65'), 'premise: nothing is told before the press').toBe(false)

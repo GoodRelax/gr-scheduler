@@ -2741,7 +2741,7 @@ test('DFC-97: the save key writes GRS JSON, and a second press overwrites with n
 //
 // ⚠️ `IO-6` IS NOT PRESSED. It writes to the clipboard, which a driven browser
 // has no answer for, and the two pictures that go to a file settle the rule.
-test('DFC-220: a picture too tall to draw is refused as RS-43, and the other formats still write', async () => {
+test('SCN-41 DFC-220: a picture too tall to draw is refused as RS-43, and the other formats still write @UC-011.RJ1', async () => {
   test.setTimeout(300_000)
   const width = 600
   const height = Math.ceil(width * (EXPORT_HEIGHT_CAP / EXPORT_WIDTH)) + 64

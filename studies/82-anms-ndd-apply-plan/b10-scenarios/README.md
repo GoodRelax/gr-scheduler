@@ -68,7 +68,21 @@ status: draft
 
 ⭐ 題のタグは Playwright が読む（2026-11-27 に使い捨ての試験で確かめた。`@playwright/test` 1.62.1）: 題 `SCN-2 UC-001 refuses the stack @UC-001.RJ1 @FR-003` は `--grep "@UC-001\.RJ1"` で引け、JSON の報告の `tags` に `UC-001.RJ1`・`FR-003` が出る。⇒ 道具を足さずに、印ごとの試験を引ける（`JDG-3830`）。
 
-## 2. B9 の後に当てる順
+## 2. B9 の後に当てた事（2026-11-27、`develop` の `20fe577af` を取り込んで）
+
+B9 は章の番号を変えなかったので、6.2 のシナリオは今の `docs/spec/08-10-test.md` の「8.1 Test Cases」に置いた（ANMS の章立てへ移すときに 6.2 になる）。
+
+| # | 当てた事 | ファイル | 確かめ |
+|:---|:---|:---|:---|
+| 1 | 8.1 に前書きとシナリオ 81 本を置き、「本章はケースのノードを持たない」の注を外した（確かめる物・置き場・合格基準の 1 文は残した）。引く試験と道具は 0（`grep`） | `docs/spec/08-10-test.md` | `check.sh` |
+| 2 | 接頭辞 `SCN` を登録した（`xOwner` は `records`、`section` は `manual-scenarios.md` —— 表の行として `SCN` を持つのはそこだけで、生成器の歩みは表の行しか数えない） | `docs/spec/_source/row-id-prefixes.json`、生成物 `tbl-row-id-prefixes.md` | `npm run gen`・`gen:check` |
+| 3 | 試験の題 37・手順の題 82 を台本で当て、残っていた古い番号の手順の題 3 つと `specMismatch` の文 1 つを手で直した。`tests/known-red.txt` の注の欄 2 つも印へ替えた（照らし合わせる `case` の欄は変えない） | `tests/use-case/`・`tests/system/` の 30 ファイル | `npx playwright test --list` 860 件 |
+| 4 | `@manual` の記録を置き、検査 95 が `manual-scenarios.md` を別の形で読むようにした（仕様の `@manual` のシナリオ 18 本と行が 1 対 1 か、Result が Cucumber の値か、passed のほかに Remark があるか） | `docs/development-records/test-records/manual-scenarios.md`、`tools/gate/test-record.mjs`、規則 09 の検査 95 の行 | `--check` 緑・`--self-test` 9 通り |
+| 5 | 試験の一覧を作り直した | `docs/development-records/test-inventory.md` | `gen:check` |
+
+⚠️ UC-012 の 2 文（問 4）は直していない —— 仕様の文の直しは BOSS の答えを待つ。
+
+## 2a. B9 の後に当てる順（当てる前に書いた計画）
 
 | # | 当てる事 | ファイル | 確かめ |
 |:---|:---|:---|:---|
