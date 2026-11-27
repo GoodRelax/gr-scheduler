@@ -1,4 +1,4 @@
-// CR-722 spec-only contract: the Resource List (U-49) is a table window with the columns of table T-371 in their order, two fixed columns, the resources in document order and the (Unassigned) row last (T-370, T-371, FR-099).
+// CR-722 spec-only contract: the Resource List (U-49) is a table window with the columns of table T-371 in their order, three fixed columns, the resources in document order and the (Unassigned) row last (T-370, T-371, FR-099).
 
 import { describe, expect, it } from 'vitest'
 
@@ -11,10 +11,10 @@ import { specTable, unbroken } from './spec-table'
 const FR_099_WINDOW =
   '`GRS` は、担当リスト（`_assets/tbl-glossary.md` の `U-49`）をウィンドウ（`FR-036` の 表 T-335）にすること。'
 const FR_099_COLUMNS = '`GRS` は、担当リストの表の列を 表 T-371 に従わせること。'
-const T_371_ORDER = '`GRS` は、担当リストの表の列を、表 T-371 の行の順に左から並べること —— 表示・担当名・選択・担当タスク数・担当タスク。'
+const T_371_ORDER = '`GRS` は、担当リストの表の列を、表 T-371 の行の順に左から並べること —— 表示・選択・担当名・担当タスク数・担当タスク。'
 const RO_4_ORDER = '`GRS` は、担当リストの表の既定の並びを、文書の `Resource` の並びにすること。`GRS` は、既定の並びで、（担当なし）の行を末尾に置くこと。'
 const RO_5_ALWAYS = '`GRS` は、担当のいないタスクを持つ 1 行を、担当のいないタスクが文書に無くても置くこと。'
-const RO_7_FIXED = '`GRS` は、見出し行と、`RQ-1`・`RQ-2`（表示・担当名）の 2 列を固定すること（`SV-6` の形）。'
+const RO_7_FIXED = '`GRS` は、見出し行と、`RQ-1`・`RQ-3`・`RQ-2`（表示・選択・担当名 —— 表 T-371 の並びで左の 3 列）を固定すること（`SV-6` の形）。'
 
 const cellOf = (table: string, id: string, heading: string): string =>
   unbroken(specTable(table).rows.find((one) => one.id === id)?.by[heading] ?? '')
@@ -55,8 +55,8 @@ const said = (value: unknown): string => JSON.stringify(value)
 const inJson = (text: string): string => JSON.stringify(text).slice(1, -1)
 
 describe(`FR-099 (MUST): ${FR_099_COLUMNS}`, () => {
-  it(`${T_371_ORDER.slice(0, 30)} -- RQ-1 to RQ-5 in the table's order`, () => {
-    expect(T_371_IDS).toEqual(['RQ-1', 'RQ-2', 'RQ-3', 'RQ-4', 'RQ-5'])
+  it(`${T_371_ORDER.slice(0, 30)} -- RQ-1, RQ-3, RQ-2, RQ-4, RQ-5 in the table's order`, () => {
+    expect(T_371_IDS).toEqual(['RQ-1', 'RQ-3', 'RQ-2', 'RQ-4', 'RQ-5'])
     expect(viewIn('ja').columns.map((one) => one.column)).toEqual(T_371_IDS)
   })
 
@@ -64,8 +64,8 @@ describe(`FR-099 (MUST): ${FR_099_COLUMNS}`, () => {
     expect(viewIn(language).columns.map((one) => one.heading)).toEqual(T_371_IDS.map((id) => wordOf('resourceListColumns', id, language)))
   })
 
-  it(`RO-7: ${RO_7_FIXED.slice(0, 30)} -- RQ-1 and RQ-2 are fixed, the rest are not`, () => {
-    expect(viewIn('ja').columns.map((one) => one.isFixed)).toEqual([true, true, false, false, false])
+  it(`RO-7: ${RO_7_FIXED.slice(0, 30)} -- RQ-1, RQ-3 and RQ-2 are fixed, the rest are not`, () => {
+    expect(viewIn('ja').columns.map((one) => one.isFixed)).toEqual([true, true, true, false, false])
   })
 })
 
