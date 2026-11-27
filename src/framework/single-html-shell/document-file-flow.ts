@@ -911,7 +911,7 @@ export async function openDocumentIntoHold(
     if (replaced) tellOpenedCalendar(hands, incoming)
     return replaced
   }
-  // STOP: spec does not decide the surface MG-4 and MG-12 ask through. Looked in FR-022, T-103, T-109 (PND-423)
+  // Unimplemented: OPQ-25
   let mergeAnswers: MergeChoices | null = null
   const asked =
     choice === 'merge' ? importDocument({ ...importing, choice, current: hands.readHeld().document }) : null
