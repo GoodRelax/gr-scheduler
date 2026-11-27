@@ -18,7 +18,7 @@ import {
   type SearchFilterChange,
   type TooltipAnchor,
 } from '../../adapter/screen-renderer/screen-renderer'
-import type { WindowName } from '../../adapter/screen-renderer/screen-renderer'
+import { UI_PART_NAMES, type WindowName } from '../../adapter/screen-renderer/screen-renderer'
 import type { ScreenRect } from '../../entity/layout-engine/screen-regions/screen-regions'
 import iconGlyphs from './icon-glyphs.json'
 import { fillScreenFrame, horizontalScrollbar, panelEdge } from './screen-frame-drawing'
@@ -60,16 +60,13 @@ import { WINDOW_GRAB_ATTRIBUTE, type PointAsked } from './window-frame-drawing'
 
 const UNIT_ROW = 'UF-71'
 
-// Spec: T-337
 const HELP_MODAL_SURFACE = 'Help Modal'
 
 const SEARCH_PANEL_SURFACE = 'Search Panel'
 
-// Spec: U-66, RW-5, DT-8
 const REPORT_IDENTITY: TableWindowIdentity = { window: 'delayDiagnosticsReport', role: 'Delay Diagnostics Report', visibilityColumn: 'DT-8' }
 
-// Spec: U-49, RO-6, RQ-1
-const RESOURCE_LIST_IDENTITY: TableWindowIdentity = { window: 'resourceList', role: 'Resource List', visibilityColumn: 'RQ-1' }
+const RESOURCE_LIST_IDENTITY: TableWindowIdentity = { window: 'resourceList', role: UI_PART_NAMES['U-49'], visibilityColumn: 'RQ-1' }
 
 export const ROLE = {
   appHeader: 'App Header',
@@ -90,7 +87,7 @@ export const ROLE = {
   taskGroupExpander: 'Task Group Expander',
   taskGroupPin: 'Task Group Pin',
   propertiesPanel: 'Properties Panel',
-  commandPalette: 'Command Palette',
+  commandPalette: UI_PART_NAMES['U-26'],
   paletteGroups: 'Palette Groups',
   paletteCommands: 'Palette Commands',
   notices: 'Notification Area',
@@ -216,29 +213,28 @@ export function stateGround(paint: string, depthTaskGroup: 'S-214' | 'S-215'): s
   return `color-mix(in srgb, ${paint} ${NOT_STORED_STATE_GROUND_PERCENTS[depthTaskGroup]}%, transparent)`
 }
 
-// Spec: FR-029, FR-051, FR-053
+// Spec: FR-029, FR-051, FR-053, IMPS-1105, DS-6, IMPS-1775, IMPS-1776, IMPS-1851, IMPS-1852
 /** @purity pure */
 export function chromeScaledPx(px: number): number {
   return px * NOT_STORED_CHROME_SCALE['S-235']
 }
 
-// Spec: FR-029, S-243
 // Trap: S-243 on the Task Group Panel and S-141 on every other surface; the box and frame line never differ.
 type EntranceGapTaskGroup = 'S-141' | 'S-243'
 
-// Spec: FR-029
+// Spec: FR-029, IMPS-1103, IMPS-1106
 /** @purity pure */
 export function entranceGapPx(gapTaskGroup: EntranceGapTaskGroup = 'S-141'): number {
   return chromeScaledPx(NOT_STORED_ICON_SIZES[gapTaskGroup])
 }
 
-// Spec: FR-029
+// Spec: FR-029, IMPS-1104
 /** @purity pure */
 export function entranceBorderPx(): number {
   return chromeScaledPx(NOT_STORED_ICON_SIZES['S-237'])
 }
 
-// Spec: FR-029
+// Spec: FR-029, IMPS-1104
 /** @purity pure */
 export function entranceOuterWidthPx(gapTaskGroup: EntranceGapTaskGroup = 'S-141'): number {
   return chromeScaledPx(
@@ -255,7 +251,7 @@ export function entranceOuterHeightPx(gapTaskGroup: EntranceGapTaskGroup = 'S-14
   )
 }
 
-// Spec: FR-029
+// Spec: IMPS-1103
 /** @purity pure */
 function entryGlyphRoom(gapTaskGroup: EntranceGapTaskGroup = 'S-141'): string {
   return (
@@ -269,7 +265,7 @@ function entryGlyphRoom(gapTaskGroup: EntranceGapTaskGroup = 'S-141'): string {
 
 const GLYPH_TOKEN = /\{(IC-\d+[a-z]?)\}/
 
-// Spec: FR-036, EZ-2
+// Spec: FR-036, EZ-2, IMPS-1180
 // Trap: the dictionary embeds a glyph as {IC-nn}; printing the token as text shows the row id.
 /** @purity non-pure */
 export function appendAssignment(
@@ -307,6 +303,7 @@ export function entryStyle(gapTaskGroup: EntranceGapTaskGroup = 'S-141'): string
   )
 }
 
+// Spec: IMPS-1110
 /** @purity pure */
 export function entryFaintStyle(gapTaskGroup: EntranceGapTaskGroup = 'S-141'): string {
   return (
@@ -317,7 +314,6 @@ export function entryFaintStyle(gapTaskGroup: EntranceGapTaskGroup = 'S-141'): s
   )
 }
 
-// Spec: FR-029, T-237, EN-8
 const ENTRANCE_STATE_FILL = [
   ['EN-8', PAINT.scheduleFilter, PAINT.scheduleFilterGlyph],
   ['EN-1', PAINT.armed, PAINT.ground],
@@ -329,7 +325,7 @@ const ENTRANCE_STATE_FILL = [
 
 type EntranceStateRow = (typeof ENTRANCE_STATE_FILL)[number][0]
 
-// Spec: FR-029, T-237
+// Spec: FR-029, T-237, EN-1, EN-2, EN-3, EN-4, EN-5, EN-7, IMPS-1118, IMPS-1119, IMPS-88
 /** @purity pure */
 export function entranceStateFill(standing: readonly EntranceStateRow[]): string {
   for (const [specTableRowId, color, glyph] of ENTRANCE_STATE_FILL) {
@@ -362,7 +358,6 @@ export const STYLE = {
     `align-items:center;padding:${APP_HEADER_BLOCK_PADDING} 0.75em;line-height:1.5;` +
     `overflow:hidden;white-space:nowrap;background:${PAINT.ground};color:${PAINT.ink};` +
     `border-bottom:1px solid ${PAINT.rule};pointer-events:auto;`,
-  // Spec: FR-039, S-529
   // Trap: every text here stays at S-529's normal weight, the h2 heading included; the bold are S-245 (OC-1 labels),
   // S-463 (the Document Title, documentTitleStyle in app-header-drawing.ts) and NT-7's answer initial.
   documentTitle: 'min-width:0;overflow:hidden;text-overflow:ellipsis;line-height:1.2;',
@@ -399,7 +394,6 @@ export const STYLE = {
   scrollbarThumb: `position:absolute;background:${PAINT.quiet};border-radius:0.25em;`,
   taskGroupPanel: `position:absolute;background:${PAINT.panel};`,
   panelCornerEntry: 'position:absolute;top:0;right:0;pointer-events:auto;',
-  // Spec: HF-19
   // Why: clip across only; the controls' lattice may hang below a task group shorter than it.
   taskGroupTitle:
     'box-sizing:border-box;display:flex;align-items:flex-start;' +
@@ -420,7 +414,6 @@ export const STYLE = {
   heading: 'font-weight:normal;margin:0 0 0.5em 0;',
   field: 'display:flex;gap:0.5em;line-height:1.6;',
   fieldName: `color:${PAINT.quiet};min-width:9em;`,
-  // see FR-053, GR-19, JDG-660
   // Why: the band stays clamped in frame-loop.ts (paletteCornerInWindow); a palette wider or
   // taller than the window is otherwise left alone, since content decides its size (S-135a note).
   commandPalette:
@@ -489,7 +482,7 @@ export const STYLE = {
   hidden: 'display:none;position:absolute;',
 } as const
 
-// Spec: FR-029
+// Spec: IMPS-1102
 /** @purity pure */
 function glyphStyle(): string {
   const side = chromeScaledPx(NOT_STORED_ICON_SIZES['S-138'])
@@ -499,16 +492,14 @@ function glyphStyle(): string {
   )
 }
 
-// Spec: FR-041
 export interface ScreenTheme {
   readonly preference: 'light' | 'dark'
   readonly hue: number
-  // Spec: S-74
   // Why: optional, so a theme read before monochrome reached the screen still paints in color.
   readonly monochrome?: boolean
 }
 
-// Spec: FR-041, S-74, CF-1
+// Spec: FR-041, S-74, CF-1, IMPS-138, IMPS-168, IMPS-169
 // Trap: every H, not the first (DFC-754); and the one graying of SvgRenderer, so screen and export agree.
 // Why: a row the schedule picture also paints takes the picture's solved value (T-366), never its own cell.
 /** @purity pure */
@@ -520,7 +511,7 @@ function hued(specTableRowId: string, written: string, followsHue: boolean, them
   return theme.monochrome === true ? achromatic(colored) : colored
 }
 
-// Spec: FR-041
+// Spec: FR-041, IMPS-137, IMPS-150
 /** @purity pure */
 export function themeStyle(theme: ScreenTheme): string {
   let written = `color-scheme:${theme.preference};`
@@ -530,7 +521,6 @@ export function themeStyle(theme: ScreenTheme): string {
     const chosen = theme.preference === 'dark' ? row.dark : row.light
     written += `--gr-${name}:${hued(specTableRowId, chosen, row.followsHue, theme)};`
   }
-  // Spec: FR-133, SQ-5, DT-1
   for (const specTableRowId of MARK_COLOR_ROWS) {
     const row = SCREEN_COLORS[specTableRowId]
     if (row === undefined) continue
@@ -540,13 +530,13 @@ export function themeStyle(theme: ScreenTheme): string {
   return written
 }
 
-// Spec: FR-039, S-246
+// Spec: IMPS-1215, IMPS-1216
 /** @purity pure */
 function typefaceStyle(): string {
   return `font-family:${NOT_STORED_TYPEFACES['S-246']};`
 }
 
-// Spec: FR-041
+// Spec: FR-041, IMPS-148, IMPS-149, IMPS-150
 /** @purity pure */
 export function pageGroundStyle(theme: ScreenTheme): string {
   const ground = SCREEN_COLORS[PAINT_ROW.ground]
@@ -569,7 +559,6 @@ export const SCROLLBAR_AXIS_ATTRIBUTE = 'data-axis'
 
 export const SCREEN_Z_ORDER_ATTRIBUTE = 'data-uz'
 
-// Spec: T-337
 // Why: front to back, exactly the table's row ids; z-index comes only from a row's place here (R2.7).
 export const SCREEN_Z_ORDER: readonly string[] = [
   'UZ-1',
@@ -586,7 +575,7 @@ export const SCREEN_Z_ORDER: readonly string[] = [
   'UZ-12',
 ]
 
-// Spec: T-337
+// Spec: IMPS-1749, IMPS-1752, UZ-10, UZ-11, UZ-13, UZ-2, UZ-3, UZ-4, UZ-5, UZ-7, UZ-8, IMPS-1162, IMPS-1803
 /** @purity pure */
 function zIndexOf(specTableRowId: string): number {
   const at = SCREEN_Z_ORDER.indexOf(specTableRowId)
@@ -594,7 +583,6 @@ function zIndexOf(specTableRowId: string): number {
   return SCREEN_Z_ORDER.length - at
 }
 
-// Spec: T-337
 /** @purity pure */
 function zIndexStyle(specTableRowId: string): string {
   return `z-index:${zIndexOf(specTableRowId)};`
@@ -621,7 +609,6 @@ const TASK_GROUP_CONTROL_SHOWN_CSS =
   `${TASK_GROUP_TREE_NOT_CARRIED} [data-group-id]:hover [data-icon="${ADD_CHILD_ROW_ENTRY}"],` +
   `${TASK_GROUP_TREE_NOT_CARRIED} [data-group-id]:hover [data-icon="${DELETE_ROW_ENTRY}"]` +
   '{visibility:visible;}' +
-  // Spec: HF-6, HF-19
   // Why: task groups paint in tree order, so a later task group covers a hanging group and takes its pointer.
   `${TASK_GROUP_TREE_NOT_CARRIED} > [data-group-id]:hover` +
   '{z-index:1;}'
@@ -632,7 +619,7 @@ const PALETTE_FAINT_CSS =
   `[data-unit="${UNIT_ROW}"] [data-role="${ROLE.commandPalette}"]:not(:hover)` +
   `{opacity:${PALETTE_FAINTNESS};}`
 
-// Spec: FR-029
+// Spec: IMPS-1117
 /** @purity pure */
 function entranceHoverGroundCss(): string {
   return (
@@ -644,6 +631,7 @@ function entranceHoverGroundCss(): string {
   )
 }
 
+// Spec: IMPS-1804, IMPS-1847
 /** @purity pure */
 function hoverCss(): string {
   return TASK_GROUP_CONTROL_SHOWN_CSS + PALETTE_FAINT_CSS + entranceHoverGroundCss() + POINTER_SHAPE_CSS
@@ -684,7 +672,7 @@ export function boxStyle(box: ScreenRect): string {
   )
 }
 
-// see IN-3, EZ-6, DFC-1287, DFC-1720
+// Spec: IN-3, EZ-6
 /** @purity pure */
 export function anchorKey(anchor: TooltipAnchor): string {
   if (anchor.kind === 'icon') {
@@ -695,7 +683,7 @@ export function anchorKey(anchor: TooltipAnchor): string {
   return `${anchor.kind} ${anchor.taskUid}`
 }
 
-// Spec: GR-24, WB-10, IF-9
+// Spec: GR-24, WB-10, IF-9, IMPS-1164
 // Why: the range keeps the band inside the browser window; the body may hang below it (WB-10).
 /** @purity semi-pure-mutable */
 function closeOnlyTitledGrabOf(modalLayer: Element, first: Element | null, walked: ScreenPart | null): ScreenPart | null {
@@ -729,7 +717,6 @@ function described(part: unknown): string {
   return JSON.stringify(part) ?? ''
 }
 
-// see FR-053, CR-575, DFC-2314
 // Why: a pan or a zoom moves only the scroll thumbs, which never move the palette, so its band is not measured again.
 /** @purity pure */
 function frameKeysOf(frame: ScreenView['frame']): { readonly frame: string; readonly framePlace: string } {
@@ -766,7 +753,7 @@ function shapeNode(host: Document, tag: string): Element {
   return host.createElementNS(SVG_NAMESPACE, tag)
 }
 
-// Spec: FR-029, F-019
+// Spec: FR-029, F-019, IMPS-1101
 /** @purity non-pure */
 export function fillEntry(
   host: Document,
@@ -795,7 +782,7 @@ export function fillEntry(
   entry.replaceChildren(shape)
 }
 
-// Spec: FR-029, T-109, T-237
+// Spec: FR-029, T-109, T-237, EN-1, IMPS-1108, IMPS-1111, IMPS-1116, IMPS-1119, IMPS-1805, IMPS-1806, IMPS-1807
 /** @purity non-pure */
 export function commandEntry(host: Document, item: CommandItem): HTMLElement {
   const base = item.isEnabled ? entryStyle() : entryFaintStyle()
@@ -832,7 +819,7 @@ export function anchoredEntry(
   return entry
 }
 
-// see IN-3, DFC-1287
+// Spec: IN-3
 // Why: the renderer names the help's and the search panel's surface; a plain key would catch other parts.
 /** @purity non-pure */
 function keyedBySurfaceOnly(anchors: Map<string, HTMLElement>, surface: string): void {
@@ -861,13 +848,10 @@ export interface ScreenSurfaceWiring {
   readonly readClockMs: () => number
   readonly onAppHeaderHeightMeasured: (heightPx: number) => void
   readonly onTaskGroupControlsHeightMeasured?: (heightPx: number) => void
-  // see FR-053, JDG-660
   readonly onCommandPaletteBandMeasured?: (bandPx: { readonly width: number; readonly height: number }) => void
   readonly holdFocusPropertyField?: (focus: (row: string) => boolean) => void
   readonly holdReadWatermarkUnlockAnswer?: (read: () => string) => void
-  // Spec: SV-5, SV-14, RG-15
   readonly onSearchWordTyped?: () => void
-  // Spec: SV-7, RG-16, IF-9
   // Why: on the wiring, not the seam: the focus and the settled filter changes are no member IF-9 lists.
   readonly holdWindowReaders?: (readers: WindowReaders) => void
   readonly readTheme: () => ScreenTheme
@@ -888,7 +872,6 @@ interface TableWindowInput {
   readonly readFilterChanges: () => readonly SearchFilterChange[]
 }
 
-// Spec: RG-16, IF-9
 /** @purity pure */
 function windowReadersOf(
   host: Document,
@@ -916,7 +899,6 @@ function windowReadersOf(
   return { readFocusedWindow, isFocusInPropertiesPanel, readFilterChanges: painters.search.readFilterChanges, readReportInput, readResourceListInput }
 }
 
-// Spec: T-337
 // Why: stacking comes from each element's z-index (markZOrder), not the order of the tree.
 /** @purity non-pure */
 function screenLayersOf(host: Document) {
@@ -1040,7 +1022,6 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
   const { openEveryTaskGroup, collapseEveryTaskGroup, openLevelZero, addTopTaskGroup, deleteEveryTaskGroup } =
     headEntryElements(host)
   const headFoldedTaskGroups = foldedTaskGroupCountElement(host, 0, headFoldedTaskGroupCountRight())
-  // Spec: HF-10
   // Why: the order they are added is the Tab order, so it follows the drawn run from left to right.
   const head = [collapseEveryTaskGroup, openLevelZero, openEveryTaskGroup, addTopTaskGroup, deleteEveryTaskGroup]
   taskGroupPanel.append(...head, headFoldedTaskGroups)
@@ -1048,7 +1029,6 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
   root.append(...Object.values(layers))
   wiring.mount.append(root)
 
-  // Spec: T-337, SE-5
   const scaleMessageLayer = made(host, 'div', SCALE_MESSAGE_STYLE.layer)
   const readoutLayer = made(host, 'div', STYLE.layer)
   const dropCueLayer = made(host, 'div', STYLE.layer)
@@ -1059,7 +1039,6 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
   markZOrder(jumpRippleLayer, 'UZ-12')
   root.append(jumpRippleLayer, dropCueLayer, scaleMessageLayer, readoutLayer)
 
-  // STOP: spec does not decide whether a wheel over a confirmation is left to the host. Looked in MK-1, MK-10, NT-7 (PND-380)
   let lastKeys: Readonly<Record<string, string>> = {}
   let langShown = ''
   let headerHeightPx: number | null = null
@@ -1068,7 +1047,7 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
   let paletteBandDrawn: HTMLElement | null = null
   const { anchorsOf, anchorFor } = tooltipAnchorTable(root)
 
-  // Spec: FR-051
+  // Spec: IMPS-1759, IMPS-1777
   /** @purity non-pure */
   function reportHeaderHeight(): boolean {
     const measured = appHeader.getBoundingClientRect().height
@@ -1082,7 +1061,6 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
   function headerTopPx(): number {
     return headerHeightPx ?? 0
   }
-  // see FR-053, JDG-660
   // Why: measured on a palette or frame change only, not per frame; the drawn rectangles are the
   // truth, since content decides the palette's width (S-135a note).
   /** @purity non-pure */
@@ -1175,7 +1153,6 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
     if (isChanged) fillTaskGroupGrabCues(host, layers.taskGroupGrabCueLayer, taskGroupTitleTree, panel)
   }
 
-  // Spec: IF-9
   /** @purity non-pure */
   function showScreenView(view: ScreenView): void {
     fieldEditing.holdNoticeShowing(view.notices.length > 0)
@@ -1305,7 +1282,7 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
 
   const fieldEditing = fieldEditingOf(host, propertiesPanel)
 
-  // Spec: IF-9, GR-20, GR-21
+  // Spec: IF-9, GR-20, GR-21, IMPS-1750
   /** @purity semi-pure-mutable */
   function readScreenPartAt(x: number, y: number): ScreenPart | null {
     const ask = (host as Partial<Document>).elementFromPoint
@@ -1376,7 +1353,6 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
   // Trap: onAppHeaderHeightMeasured fires here, before this factory returns: the callback may not reach for the surface, and BO-1's regions must wait for it.
   reportHeaderHeight()
 
-  // Spec: SV-2
   wiring.holdFocusPropertyField?.((row) =>
     row === SEARCH_WORD_ROW ? searchPanel.focusWord() : fieldEditing.focusPropertyField(row),
   )
@@ -1395,7 +1371,6 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
   }
 }
 
-// Spec: SE-2
 const SCALE_MESSAGE_MARK = 'data-scale-message'
 
 // Spec: FR-039, SE-4, SE-5
@@ -1443,7 +1418,6 @@ function dropCueStyle(area: ScreenRect): string {
   )
 }
 
-// Spec: OP-17, U-57
 const DROP_CUE_WORDS_STYLE =
   `padding:0.5em 0.75em;background:${PAINT.ground};color:${PAINT.ink};` +
   `border:1px solid ${PAINT.rule};pointer-events:none;`
@@ -1534,7 +1508,6 @@ function showJumpRipple(host: Document, layer: HTMLElement, ripple: ScreenView['
   if (ring !== null && ring.getAttribute('style') !== ringStyle) ring.setAttribute('style', ringStyle)
 }
 
-// Spec: FR-039, SE-5
 // Why: T-260 leaves the place and the look open; this follows CR-411 question 3's recommendation,
 // an upper-middle box that takes no press.
 const SCALE_MESSAGE_STYLE = {

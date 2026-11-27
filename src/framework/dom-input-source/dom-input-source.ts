@@ -107,7 +107,7 @@ function isHeldEscapeRepeat(event: { readonly key: string; readonly repeat: bool
   return event.key === HOST_ESCAPE && event.repeat
 }
 
-// Spec: T-023, S-514, S-515, S-516
+// Spec: IMPS-1517, IMPS-1518, IMPS-1519
 /** @purity pure */
 function pixelsPerUnit(deltaMode: number, pageSize: number): number {
   if (deltaMode === DELTA_IN_LINES) return NOT_STORED_WHEEL_UNITS['S-514']
@@ -115,6 +115,7 @@ function pixelsPerUnit(deltaMode: number, pageSize: number): number {
   return 1
 }
 
+// Spec: IMPS-1517, IMPS-1518
 /** @purity pure */
 function unitsPerNotch(deltaMode: number): number {
   if (deltaMode === DELTA_IN_LINES) return NOT_STORED_WHEEL_UNITS['S-516']
@@ -122,6 +123,7 @@ function unitsPerNotch(deltaMode: number): number {
   return NOT_STORED_WHEEL_UNITS['S-515']
 }
 
+// Spec: IMPS-1515
 /** @purity pure */
 function wheelTurn(
   event: { readonly deltaX: number; readonly deltaY: number; readonly deltaMode: number },
@@ -363,7 +365,6 @@ export function domInputSource(
   }
 }
 
-// Spec: FR-071, IN-4a
 interface KeyboardLock {
   lock(keyCodes: readonly string[]): Promise<void>
   unlock(): void
@@ -374,7 +375,7 @@ export interface EscapeKeyLock {
   unlock(): void
 }
 
-// Spec: FR-071, IN-4, IN-4a
+// Spec: FR-071, IN-4, IN-4a, IMPS-816
 // Why: without the lock the browser takes Esc before the page and leaves full screen ahead of every rung.
 // A refusal or an absent Keyboard Lock is not told (FR-071): the browser then leaves full screen as before.
 /** @purity pure */

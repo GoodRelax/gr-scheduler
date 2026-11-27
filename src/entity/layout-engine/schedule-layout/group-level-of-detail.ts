@@ -6,7 +6,6 @@
 import type { DrawnSettings } from '../../document-model/document-settings/document-settings'
 import type { TaskGroup } from '../../document-model/schedule/schedule'
 
-// Spec: T-329
 const OPENING_TREE_STATES: Readonly<
   Record<'expandedAndTemporary' | 'expandedOnly', ReadonlySet<TaskGroup['treeState']>>
 > = {
@@ -15,7 +14,7 @@ const OPENING_TREE_STATES: Readonly<
   expandedOnly: new Set(['expanded']),
 }
 
-// Spec: FR-018, T-329, AT-153
+// Spec: FR-018, T-329, AT-153, IMPS-778, TD-6, TD-7, IMPS-1985
 // Why: read over rows TD-1 to TD-3 let through, so an opened task group never beats HF-7 or HR-6.
 /** @purity pure */
 export function keptInViewByTreeState(
@@ -39,7 +38,7 @@ export function keptInViewByTreeState(
   return kept
 }
 
-// Spec: LC-2, FR-018
+// Spec: LC-2, FR-018, IMPS-773, IMPS-775, IMPS-776, TD-4, IMPS-1977
 /** @purity pure */
 export function groupDepthLimit(settings: DrawnSettings): number {
   let limit = 1
@@ -49,7 +48,7 @@ export function groupDepthLimit(settings: DrawnSettings): number {
   return limit
 }
 
-// Spec: FR-018
+// Spec: FR-018, IMPS-771, IMPS-776
 // Trap: never retype this: the fit lands zoomY on it and groupDepthLimit reads it back,
 // so an ulp apart draws one depth shallower.
 /** @purity pure */

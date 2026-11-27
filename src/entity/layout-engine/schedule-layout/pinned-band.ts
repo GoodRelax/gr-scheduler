@@ -7,7 +7,7 @@ import type { DrawnSettings } from '../../document-model/document-settings/docum
 import type { ScreenRect, ScreenRegions } from '../screen-regions/screen-regions'
 import type { TaskGroupPlacement, ScheduleLayout, TaskPlacement } from './schedule-layout'
 
-// Spec: FR-098, LF-14
+// Spec: FR-098, LF-14, IMPS-780, IMPS-781, IMPS-782, IMPS-783, IMPS-788
 /** @purity pure */
 export function pinnedBandOf(
   taskGroupPlacements: readonly TaskGroupPlacement[],
@@ -69,7 +69,7 @@ export function pinnedBandOf(
   }
 }
 
-// Spec: FR-098
+// Spec: FR-098, IMPS-780, IMPS-784
 /** @purity pure */
 export function liftedTaskGroups(
   taskGroupPlacements: readonly TaskGroupPlacement[],

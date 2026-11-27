@@ -25,7 +25,6 @@ export interface FrameSnapshot {
 
 export interface AgentSnapshot {
   readonly document: Document
-  // Spec: HS-11, AM-15
   // Why: the document as bytes written now carry it -- AT-140 is the time the lower line shows, never the held one's.
   readonly documentAsWritten: Document
   readonly selection: Selection
@@ -33,9 +32,7 @@ export interface AgentSnapshot {
   readonly exportScene: ExportArguments[0] | null
   readonly isGestureInFlight: boolean
   readonly isEditingInPlace: boolean
-  // Spec: WS-2, NT-7, RS-74
   readonly isQuestionAsked: boolean
-  // Spec: WS-2, T-286
   readonly isDeliveringNotices: boolean
   readonly historyLimits: PlanInput['historyLimits']
   readonly settingsLimits: SettingsLimits
@@ -45,7 +42,6 @@ export interface AgentSnapshot {
   readonly localReadAt: string
 }
 
-// Spec: IF-7
 export interface SnapshotSource {
   /** @purity semi-pure-mutable */
   readSnapshot(): AgentSnapshot

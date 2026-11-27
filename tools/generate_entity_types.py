@@ -2121,8 +2121,7 @@ COLOR_TARGETS = {
     # row of its own for it, and the muted neutral is what the table keeps for
     # what is secondary. ⛔ NOT A NEW VALUE -- the row already stands, and the
     # color it lends is deliberately neither S-163's nor S-195's, which is what
-    # FR-048's closing MUST asks of a line that carries no date. @provisional
-    # PND-341
+    # FR-048's closing MUST asks of a line that carries no date.
     'SCHEDULE_COLORS': ['S-146', 'S-147', 'S-148', 'S-149', 'S-150', 'S-151', 'S-155', 'S-156',
                          'S-157', 'S-158', 'S-159', 'S-160', 'S-312', 'S-161', 'S-162',
                          'S-163', 'S-164', 'S-165', 'S-166', 'S-167', 'S-168',

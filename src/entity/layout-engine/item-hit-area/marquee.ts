@@ -39,7 +39,7 @@ function parentTaskLinksIn(geometry: ScheduleGeometry, marquee: ScreenRect): rea
     .map((arrow) => ({ kind: 'parentTaskLink', childUid: arrow.childUid, isStated: true }))
 }
 
-// Spec: SL-3, SL-7b, EL-14, FR-098, EL-1
+// Spec: SL-3, SL-7b, EL-14, FR-098, EL-1, IMPS-227
 // Why: a scrolling task group's shape is judged by what shows below the pinned band, as the press is (DFC-1222).
 /** @purity pure */
 export function itemsInMarquee(geometry: ScheduleGeometry, marquee: ScreenRect): readonly Item[] {

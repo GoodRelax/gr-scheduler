@@ -76,7 +76,7 @@ export function setTaskFadeDays(
   return edited(withTask(document, faded))
 }
 
-// Spec: CM-20, FR-083
+// Spec: CM-20, FR-083, IMPS-1893
 /** @purity pure */
 export function setTaskVisualShapeKind(
   document: Document,
@@ -114,7 +114,7 @@ export function setTaskVisualMilestoneGlyph(
   return edited(withVisual(document, { ...visual, milestoneGlyph: command.milestoneGlyph }))
 }
 
-// Spec: CM-22, IV-9
+// Spec: CM-22, IV-9, IMPS-123
 /** @purity pure */
 export function setTaskVisualColors(
   document: Document,
@@ -139,6 +139,7 @@ export function setTaskVisualColors(
   )
 }
 
+// Spec: IMPS-135
 /** @purity pure */
 export function resetTaskVisualColors(
   document: Document,

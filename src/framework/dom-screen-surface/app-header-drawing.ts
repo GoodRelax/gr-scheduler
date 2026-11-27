@@ -35,7 +35,7 @@ export function appHeaderStyle(): string {
 /** @purity pure */
 const appHeaderGapPx = (): number => chromeScaledPx(NOT_STORED_DOCUMENT_TITLE_SIZES['S-491'])
 
-// Spec: EP-1, FR-051, FR-039
+// Spec: EP-1, FR-051, FR-039, IMPS-1219, IMPS-1776
 /** @purity pure */
 function documentTitleStyle(): string {
   const size = chromeScaledPx(NOT_STORED_DOCUMENT_TITLE_SIZES['S-225'])
@@ -55,7 +55,7 @@ function brandingElement(host: Document, text: string, seatPx: number): HTMLElem
   return seat
 }
 
-// Spec: HS-2, FR-101
+// Spec: HS-2, FR-101, IMPS-992
 /** @purity semi-pure-mutable */
 function readableStamp(utc: string): string {
   const foundAt = new Date(utc)
@@ -82,7 +82,7 @@ export function spelledFileSize(byteLength: number): string {
   return `${Math.floor(tenths / TENTHS_PER_KB)}.${tenths % TENTHS_PER_KB}[kB]`
 }
 
-// Spec: HS-1, HS-5
+// Spec: HS-1, HS-5, IMPS-991, IMPS-997
 /** @purity semi-pure-mutable */
 function fileSavedLine(items: AppHeaderItems): string {
   if (items.fileSavedAt === null) return items.fileNeverSavedText
@@ -90,13 +90,13 @@ function fileSavedLine(items: AppHeaderItems): string {
   return items.fileSavedByteLength === null ? stamp : `${stamp}  ${spelledFileSize(items.fileSavedByteLength)}`
 }
 
-// Spec: HS-7, FR-051
+// Spec: HS-7, FR-051, IMPS-996, IMPS-1776
 /** @purity pure */
 function fileStatusLineStyle(base: string, lineRow: 'S-210' | 'S-449'): string {
   return `${base}font-size:${chromeScaledPx(NOT_STORED_FILE_STATUS_SIZES[lineRow])}em;`
 }
 
-// Spec: FR-038, IC-21, IC-128
+// Spec: FR-038, IC-21, IC-128, IMPS-1187
 /** @purity non-pure */
 export function drawLanguageReading(host: Document, entry: HTMLElement, language: DisplayLanguage): void {
   entry.setAttribute('data-language', language)
@@ -105,7 +105,7 @@ export function drawLanguageReading(host: Document, entry: HTMLElement, language
   entry.append(code)
 }
 
-// Spec: U-31, FR-101, BR-7, HS-9, HS-10
+// Spec: U-31, FR-101, BR-7, HS-9, HS-10, HS-8, IMPS-990, IMPS-997, IMPS-998, IMPS-1779
 /** @purity non-pure */
 export function fillAppHeader(
   host: Document,

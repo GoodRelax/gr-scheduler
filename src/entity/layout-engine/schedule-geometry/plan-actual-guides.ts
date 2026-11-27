@@ -7,7 +7,7 @@ import { compareDays, dayOf, type Task } from '../../document-model/schedule/sch
 import type { TaskPlacement } from '../schedule-layout/schedule-layout'
 import { point, type GeometryInputs, type Path } from './schedule-geometry'
 
-// Spec: T-020a
+// Spec: T-020a, GD-1, GD-2, GD-3, GD-4, GD-5
 /** @purity pure */
 export function guidesOf(inputs: GeometryInputs, task: Task, placed: TaskPlacement,
                   actualHeight: number): readonly Path[] {

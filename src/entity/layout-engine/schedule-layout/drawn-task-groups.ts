@@ -62,7 +62,7 @@ function depthOf(group: TaskGroup, byId: ReadonlyMap<string, TaskGroup>): number
   return 1 + ancestorsOf(group, byId).length
 }
 
-// Spec: TD-1, TD-2, TD-3, LC-1, EL-20, FR-098
+// Spec: TD-1, TD-2, TD-3, LC-1, EL-20, IMPS-779, HR-1a, IMPS-1983, IMPS-1986, FR-098
 // Why: the one reading of a person's fold and hide: the drawn task groups and the dependency ends both ask it (DFC-1221).
 // Why: a pin beats its own hide and every hide or fold above it (CR-862), so one deep task group stays in view;
 // the pin draws only that task group, never its ancestors or children. Level zero's fold (TD-1) still wins.

@@ -45,7 +45,6 @@ interface PanelIndex extends OpenArming {
 
 type IndexCore = Omit<PanelIndex, keyof OpenArming>
 
-// Spec: T-329, RS-28, RS-30, RS-31
 interface OpenArming {
   readonly taskGroupIdsWithAnUnplacedTaskGroupBelow: ReadonlySet<string>
   readonly taskGroupIdsWithAChildToOpen: ReadonlySet<string>
@@ -67,15 +66,16 @@ function labelUnits(text: string): number {
   return units
 }
 
+// Spec: IMPS-1967
 /** @purity pure */
 function labelWidthPx(text: string, fontSizePx: number, settings: DrawnSettings): number {
   return labelUnits(text) * fontSizePx * settings.labelCoef
 }
 
+// Spec: IMPS-1964, IMPS-1966
 /** @purity pure */
 function availableLabelWidthPx(depth: number, settings: DrawnSettings): number {
   const roomForControlsPx = NOT_STORED_TASK_GROUP_CONTROL_SIZES['S-140']
-  // Spec: FR-029
   const roomForGrabStripPx =
     NOT_STORED_TASK_GROUP_GRAB_ROOM_SIZES['S-138'] * NOT_STORED_CHROME_SCALE['S-235'] +
     NOT_STORED_TASK_GROUP_GRAB_ROOM_SIZES['S-218']
@@ -87,13 +87,14 @@ function availableLabelWidthPx(depth: number, settings: DrawnSettings): number {
   return Math.max(0, available)
 }
 
-// Spec: HF-5, FR-016, PI-37, T-252, DS-1, S-36
+// Spec: HF-5, FR-016, PI-37, T-252, DS-1, S-36, IMPS-1478
 /** @purity pure */
 export function taskGroupTitleFontPxOf(depth: number, settings: DocumentSettings): number {
   const drawn = drawnSettingsOf(settings)
   return depth === 1 ? drawn.taskGroupTitleFont * drawn.taskGroupTitleTopScale : drawn.taskGroupTitleFont
 }
 
+// Spec: IMPS-1962, IMPS-1970
 /** @purity pure */
 function labelCutToFit(
   text: string,
@@ -185,6 +186,7 @@ function grabCuesOf(
   }
 }
 
+// Spec: IMPS-1954
 /** @purity pure */
 function taskGroupTitleOf(
   group: TaskGroup,
@@ -217,14 +219,12 @@ function taskGroupTitleOf(
     canOpenOneLevel: index.taskGroupIdsWithAChildToOpen.has(group.id),
     canAddChildTaskGroup: depth < settings.maxGroupDepth,
     isPinned,
-    // Spec: FR-085, T-293
     isSelected: chosenTaskGroupIds.has(group.id),
     foldedTaskGroupCount: index.foldedTaskGroupCountByTaskGroupId.get(group.id) ?? 0,
     isHeld,
   }
 }
 
-// Spec: T-329
 // Why: the task groups the picture places, off-screen ones included: a task group only scrolled away is drawn
 // (decision 15 of CR-570). Without the reading, the on-screen boxes stand in for it.
 /** @purity pure */
@@ -280,7 +280,6 @@ function openArmingOf(
   }
 }
 
-// Spec: S-418, T-329
 /** @purity pure */
 function panelIndexWithArmingOf(
   schedule: Schedule,
@@ -403,7 +402,7 @@ function panelIndexOf(
   }
 }
 
-// Spec: FR-042, FR-098
+// Spec: IMPS-181, IMPS-182, IMPS-183, IMPS-184, IMPS-185, IMPS-789, IMPS-1978
 // Why: from the placed boxes, not a held task group's moved one: the schedule side's line stays put too.
 /** @purity pure */
 function groupGridLinesOf(
@@ -430,7 +429,6 @@ export function taskGroupPanelFromSchedule(
   _session: ScreenSession,
   readings: ScreenViewReadings,
 ): TaskGroupPanel {
-  // Spec: FR-039, T-252
   const settings = drawnSettingsOf(storedSettings)
   const isLevelZeroCollapsed = settings.levelZeroTreeState === 'collapsed'
   const index = panelIndexWithArmingOf(schedule, settings, readings, isLevelZeroCollapsed)
@@ -476,7 +474,7 @@ export function taskGroupPanelFromSchedule(
   }
 }
 
-// see FR-017, FR-156, JDG-2043, S-313, EP-3
+// Spec: FR-017, FR-156, S-313, EP-3, IMPS-715
 // Why: each clock row of the ruler gets its zone's abbreviation in the blank over the panel, right-aligned S-313 in
 // from the panel's right edge (as the head controls, HF-10); none while time of day is not shown.
 /** @purity pure */
@@ -531,7 +529,7 @@ const NOT_STORED_CHROME_SCALE: {
 }
 // </generated>
 
-// Spec: SC-1, FR-098
+// Spec: SC-1, FR-098, IMPS-784
 /** @purity pure */
 export function drawnTaskGroupBoxesOf(
   layout: ScheduleLayout,

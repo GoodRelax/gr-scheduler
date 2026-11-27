@@ -44,7 +44,7 @@ import {
   type TranslatedInput,
 } from './input-command-translator'
 
-// Spec: FR-031, FR-055, HF-8, CM-72, CM-86, T-328
+// Spec: FR-031, FR-055, HF-8, CM-72, CM-86, T-328, IMPS-219, IMPS-220, IMPS-221, UN-17
 /** @purity pure */
 export function fitWrites(context: InputContext): readonly (readonly DocumentCommand[])[] {
   const levelZeroTreeState = context.document.documentSettings.levelZeroTreeState
@@ -57,7 +57,7 @@ export function fitWrites(context: InputContext): readonly (readonly DocumentCom
   ]
 }
 
-// Spec: FR-031, FR-018, T-328, ZE-2, ZE-4
+// Spec: FR-031, FR-018, T-328, ZE-2, ZE-4, IMPS-222, IMPS-223
 /** @purity pure */
 function verticalZoomShrinkWrites(
   context: InputContext,
@@ -78,7 +78,7 @@ export function zoomStepAnswer(
   return factor < 1 ? verticalZoomShrinkWrites(context, zoom) : changed(zoom)
 }
 
-// Spec: S-53, FR-016
+// Spec: S-53, FR-016, IMPS-1459
 /** @purity pure */
 export function keyZoomFactor(context: InputContext, isIn: boolean): number {
   const step = context.zoomStep
@@ -87,7 +87,7 @@ export function keyZoomFactor(context: InputContext, isIn: boolean): number {
 
 const HOURS_PER_DAY = 24
 
-// Spec: FR-016, S-229, S-579, S-1, FR-158
+// Spec: FR-016, S-229, S-579, S-1, FR-158, IMPS-1462, IMPS-1463, IMPS-1464
 // Trap: S-1 is divided as stored: the display ratio (FR-039) is on both sides, so the time-of-day ceiling ignores it.
 /** @purity pure */
 export function zoomXCeiling(context: InputContext, isTimeOfDayVisible: boolean): number | null {
@@ -106,7 +106,6 @@ function tallestBandOf(taskGroups: readonly TaskGroupPlacement[]): number {
   return tallest
 }
 
-// Spec: FR-016, FR-018, FR-094, PI-5
 /** @purity pure */
 function bandZoomKeyOf(measuredWith: DocumentSettings, zoomY: number): string {
   const reading = verticalAxisReadingOf(measuredWith, zoomY)
@@ -176,7 +175,7 @@ function nextTaskGroupPictureZoomYOf(
   return Math.max(stepped, target)
 }
 
-// Spec: FR-016, FR-031, T-262, ZE-2, ZE-3, ZE-4, ZE-5, MK-4, IC-14, IC-15, SK-16a, SK-16c
+// Spec: FR-016, FR-031, T-262, ZE-2, ZE-3, ZE-4, ZE-5, MK-4, IC-14, IC-15, SK-16a, SK-16c, IMPS-1483
 // Trap: never for MK-2; the date axis still moves there, so that input changes the picture.
 /** @purity pure */
 export function verticalZoomAnswer(
@@ -198,7 +197,7 @@ export function verticalZoomAnswer(
   return zoomStepAnswer(context, factor, zoomWrites(context, null, stepped, pointerX, pointerY))
 }
 
-// Spec: FR-016, ZE-3, ZE-6, S-76
+// Spec: FR-016, ZE-3, ZE-6, S-76, IMPS-1459
 /** @purity pure */
 function verticalZoomStepOf(
   context: InputContext,
@@ -224,7 +223,7 @@ export interface ZoomEntranceEnds {
   readonly isVerticalInAtEnd: boolean
 }
 
-// Spec: FR-029, IC-12, IC-13, IC-14, IC-15, ZE-1, ZE-3, S-75, S-76, S-229
+// Spec: FR-029, IC-12, IC-13, IC-14, IC-15, ZE-1, ZE-3, S-75, S-76, S-229, IMPS-1482
 // Why: the steps the presses take (setZoom clamps zoomX alike), so faint and press never disagree.
 /** @purity pure */
 export function zoomEntranceEndsOf(context: InputContext): ZoomEntranceEnds {
@@ -249,7 +248,6 @@ function mayStopAtStackCap(schedule: Schedule, drawn: DrawnSettings): boolean {
   return false
 }
 
-// Spec: FR-016, FR-018
 // Trap: void when ST-7 may cut the task groups, or once one task group's height reads another task group.
 /** @purity pure */
 function deepestFloorZoomYOf(context: InputContext, measuredWith: DocumentSettings): number | null {
@@ -268,7 +266,7 @@ function floorZoomYOf(measuredWith: DocumentSettings): number | null {
   return top
 }
 
-// Spec: FR-016, PI-5, BC-2
+// Spec: FR-016, PI-5, BC-2, IMPS-1466, IMPS-1476, IMPS-1477
 /** @purity pure */
 function tallestBandAtZoomY(
   context: InputContext,
@@ -295,7 +293,7 @@ function tallestBandAtZoomY(
   }
 }
 
-// Spec: FR-016, PI-18
+// Spec: IMPS-1480
 // Trap: never solve the band here; a second solver with its own interval or stop moves
 // where the zoom stops with the zoom it started from (DFC-628).
 /** @purity pure */
@@ -319,7 +317,7 @@ export function taskGroupBandCeilingOf(
   return bandCeilingUpTo(context, zoomOnScreen(context).x, upTo, enough)
 }
 
-// Spec: FR-016, T-253, OC-10, PI-5, PI-18
+// Spec: FR-016, T-253, OC-10, PI-5, PI-18, BC-1, BC-3, BC-4, BC-5, IMPS-1466, IMPS-1467, IMPS-1479, IMPS-1480
 // Why: no answer is below the last probe short of the band, so min(enough, ceiling) is settled there.
 /** @purity pure */
 function bandCeilingUpTo(
@@ -361,7 +359,7 @@ export function zoomTimes(context: InputContext, factor: number, axis: 'x' | 'y'
 }
 
 // Trap: rounding the stepped zoom breaks FR-018 silently (it can cross a detail threshold).
-// Spec: FR-016, FR-018
+// Spec: IMPS-1460, IMPS-1461, IMPS-771
 /** @purity pure */
 function zoomTimesFrom(
   context: InputContext,
@@ -375,7 +373,7 @@ function zoomTimesFrom(
   return ceiling === null ? stepped : Math.min(stepped, ceiling)
 }
 
-// Spec: FR-016, ZE-3
+// Spec: FR-016, ZE-3, IMPS-1469
 /** @purity pure */
 function zoomYWithinCeiling(context: InputContext, drawnZoomX: number, stepped: number): number {
   const ceiling = zoomYCeiling(context)
@@ -455,13 +453,13 @@ export function topEdgeIn(
   return first === undefined ? null : first.y
 }
 
-// Spec: S-75, S-76
+// Spec: IMPS-1458
 /** @purity pure */
 function zoomWithinBounds(context: InputContext, value: number): number {
   return Math.max(context.zoomMin, Math.min(context.zoomMax, value))
 }
 
-// Spec: FR-016
+// Spec: IMPS-1589
 /** @purity pure */
 function dayHeldStill(
   context: InputContext,
@@ -475,7 +473,7 @@ function dayHeldStill(
   return dayAnchorAt(context, centerX - (centerX - area.x) / factor)
 }
 
-// Spec: FR-016, PI-5
+// Spec: IMPS-1484, IMPS-1485, IMPS-1589
 /** @purity pure */
 function taskGroupHeldStill(
   context: InputContext,
@@ -510,7 +508,7 @@ function taskGroupHeldStill(
   return taskGroupAnchorIn(after, topEdge + (landed - centerY), seat)
 }
 
-// Spec: FR-016, OP-10
+// Spec: FR-016, OP-10, IMPS-1589
 /** @purity pure */
 function placeHeldStill(
   context: InputContext,
@@ -560,7 +558,7 @@ export function zoomWrites(
 }
 
 // Trap: CM-72 (resetTaskGroupTreeStates) writes the same predicate; change both together.
-// Spec: HF-8, CM-72
+// Spec: HF-8, CM-72, IMPS-806
 /** @purity pure */
 function treeStatesReset(schedule: Schedule): Schedule {
   return {
@@ -571,7 +569,7 @@ function treeStatesReset(schedule: Schedule): Schedule {
   }
 }
 
-// Spec: FR-055, OP-10
+// Spec: FR-055, OP-10, IMPS-805
 // Why: with no stored date the fit has no origin day and places no left edge; any date measures alike.
 /** @purity pure */
 function datedSettings(context: InputContext): DocumentSettings {
@@ -582,7 +580,7 @@ function datedSettings(context: InputContext): DocumentSettings {
 
 // Trap: keep the discard out of fitZoom: viewSettings in view-place.ts shares it; HF-8 forbids it at startup.
 // Trap: only the fit command passes the drawn filter (TV-1); fittedAsDrawn answers the zoom OP-10 drew, which knows no filter.
-// Spec: FR-055, HF-8, TV-1, S-418
+// Spec: FR-055, HF-8, TV-1, S-418, IMPS-806
 /** @purity pure */
 function fittedNow(context: InputContext, shownTaskUids: ReadonlySet<number> | null = null) {
   const settings: DocumentSettings = { ...datedSettings(context), levelZeroTreeState: 'auto' }
@@ -621,7 +619,7 @@ function fittedAsDrawn(context: InputContext) {
   return fitOf(context, context.document.schedule, datedSettings(context), null)
 }
 
-// Spec: FR-046, IC-44
+// Spec: FR-046, IC-44, IMPS-515, IMPS-516, IMPS-525, SK-20
 /** @purity pure */
 export function statusLineWrites(context: InputContext): readonly DocumentCommand[] {
   if (context.document.schedule.project.statusDate !== null) return [{ kind: 'clearStatusDate' }]
@@ -640,7 +638,7 @@ export function isPlaceSeatedIn(context: InputContext): boolean {
   return isPlaceNamed(context.document.schedule, held.scrollDate, held.scrollTaskGroupId)
 }
 
-// Spec: FR-046, OP-10
+// Spec: FR-046, OP-10, IMPS-527, IMPS-528
 /** @purity pure */
 export function statusLineCentered(context: InputContext, date: string): readonly DocumentCommand[] {
   const day = dayOf(date)

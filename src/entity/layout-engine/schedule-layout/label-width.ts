@@ -5,7 +5,7 @@
 
 import type { DrawnSettings } from '../../document-model/document-settings/document-settings'
 
-// Spec: FR-093
+// Spec: FR-093, IMPS-1939
 /** @purity pure */
 export function labelUnits(text: string): number {
   let units = 0
@@ -13,7 +13,7 @@ export function labelUnits(text: string): number {
   return units
 }
 
-// Spec: LC-5, FR-093
+// Spec: LC-5, FR-093, IMPS-1939, IMPS-1940
 /** @purity pure */
 export function labelWidth(text: string, fontSize: number, settings: DrawnSettings): number {
   return labelUnits(text) * fontSize * settings.labelCoef

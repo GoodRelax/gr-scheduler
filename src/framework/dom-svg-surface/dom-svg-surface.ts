@@ -6,7 +6,6 @@
 
 import type { SvgSurface } from '../../adapter/svg-renderer/svg-renderer'
 
-// Spec: IF-1
 // Why: on the host's top-left over the picture beneath; it takes no point, so IF-9's answer is the same with or without it.
 const MARQUEE_OVERLAY_PLACEMENT = 'position:absolute;left:0;top:0;pointer-events:none'
 

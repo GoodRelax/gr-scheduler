@@ -43,7 +43,7 @@ import {
   type TranslatedInput,
 } from './input-command-translator'
 
-// Spec: FR-083
+// Spec: FR-083, IMPS-1889, IMPS-1894, SP-2, SP-3
 /** @purity pure */
 export function commandFromArmingEntry(entry: string, context: InputContext): TranslatedInput {
   const armed = armedByEntry(entry)
@@ -71,7 +71,7 @@ export function commandFromArmingEntry(entry: string, context: InputContext): Tr
   return changed(commands)
 }
 
-// Spec: UC-004, FR-009
+// Spec: UC-004, FR-009, IMPS-342
 /** @purity pure */
 export function commandFromDependencyDrag(
   release: PointerInput,
@@ -94,7 +94,7 @@ export function commandFromDependencyDrag(
   ])
 }
 
-// see FR-135, PTL-5, PTL-6, PTL-7, PTL-8, PTL-9, JDG-1138
+// Spec: FR-135, PTL-5, PTL-6, PTL-7, PTL-8, PTL-9, IMPS-1400, IMPS-1417, IMPS-1419, IMPS-1420, IMPS-1424, IMPS-695
 // Why: one call holds every child's CM-18, so one refused child refuses them all and one undo step undoes them all.
 /** @purity pure */
 export function commandFromParentTaskDrag(
@@ -114,7 +114,7 @@ export function commandFromParentTaskDrag(
   return changed(children.map((uid) => ({ kind: 'setTaskParentTask', taskUid: uid, parentTaskUid: parent.uid })))
 }
 
-// Spec: PTL-10, PTL-12, RS-70
+// Spec: PTL-10, PTL-12, RS-70, IMPS-1424
 /** @purity pure */
 export function commandFromParentTaskLinkRelease(release: PointerInput, press: PointerPress): TranslatedInput {
   const item = press.hit?.item
@@ -122,7 +122,7 @@ export function commandFromParentTaskLinkRelease(release: PointerInput, press: P
   return item.isStated ? CONSUMED_ELSEWHERE : nothingToDo('derivedParentCannotBePicked')
 }
 
-// Spec: AR-5, FR-019
+// Spec: AR-5, FR-019, IMPS-825
 /** @purity pure */
 function commentBoxPlacement(context: InputContext, press: PointerPress): TranslatedInput {
   const placed = commentAnchorAt(context.layout, context.geometry, press.at.x, press.at.y)
@@ -147,7 +147,7 @@ interface DraggedDays {
   readonly dragged: boolean
 }
 
-// Spec: PTD-4, FR-001, TC-1, TC-3
+// Spec: PTD-4, FR-001, TC-1, TC-3, AR-2, AR-3, TC-10, TC-6, TC-7, TC-8
 /** @purity pure */
 function createdTaskWrite(context: InputContext, drag: ArmedDrag, days: DraggedDays): TranslatedInput {
   const { armed } = drag
@@ -181,7 +181,7 @@ function createdTaskWrite(context: InputContext, drag: ArmedDrag, days: DraggedD
   return changedAndCreated([commands], { kind: 'task', uid: nextIssuedUid(context.document.schedule) })
 }
 
-// Spec: PTD-4, FR-001, FR-019
+// Spec: PTD-4, FR-001, FR-019, IMPS-839, IMPS-840, TC-6
 /** @purity pure */
 export function commandFromArmed(
   release: PointerInput,
@@ -209,7 +209,7 @@ export function commandFromArmed(
   return CONSUMED_ELSEWHERE
 }
 
-// Spec: PTD-4, FR-019
+// Spec: PTD-4, FR-019, AR-6, IMPS-1563, IMPS-843, IMPS-825, IMPS-840
 /** @purity pure */
 function highlightBoxPlacement(
   context: InputContext,

@@ -76,7 +76,6 @@ const SORT_DIRECTIONS: { readonly [entry: IconId]: ColumnSort['direction'] } = {
 
 const DATE_SEPARATOR = '/'
 
-// Spec: SQ-3
 const DATE_PART_DIGITS: readonly number[] = [4, 2, 2]
 
 const ICON_WORDS = new Map(displayWords.icons.map((entry) => [entry.specTableRowId, entry]))
@@ -88,13 +87,11 @@ const TABLE_SURFACES: readonly string[] = iconRoster.icons.find((row) => row.spe
 const SURFACE_HEADINGS = new Map(displayWords.surfaces.map((entry) => [entry.name, entry.heading]))
 const PANEL_WORDS = new Map(displayWords.searchPanel.map((entry) => [entry.part, entry.text]))
 
-// Spec: SV-7
 const DATE_FROM_WORD = displayWords.searchPanel.find((entry) => entry.part === 'dateFrom')?.text
 const DATE_TO_WORD = displayWords.searchPanel.find((entry) => entry.part === 'dateTo')?.text
 
 export type MarkGlyph = Parameters<typeof markerGlyphSvg>[0]
 
-// Spec: FR-133, T-236, T-021, T-315
 export const MARK_COLOR_ROWS: readonly string[] = [
   'S-161', 'S-162', 'S-326', 'S-327', 'S-385', 'S-386', 'S-387', 'S-388', 'S-389', 'S-390',
 ]
@@ -115,7 +112,6 @@ export function isFilterValueListed(label: string, typed: string): boolean {
   return isSearchWordFound(label, typed)
 }
 
-// Spec: SV-7, SV-18
 // Why: width null is the default: T-206's row, or measured by the surface when widthSamples is not null.
 export interface SearchColumnView {
   readonly column: SearchColumn
@@ -133,7 +129,6 @@ export interface SearchFilterValueView {
   readonly isShown: boolean
 }
 
-// Spec: SV-7
 export type SearchFilterMenuView =
   | {
       readonly kind: 'values'
@@ -181,7 +176,6 @@ export interface EntryRefusal {
   readonly reason: string
 }
 
-// Spec: SV-6, SV-7, T-331, T-347
 export interface WindowTable {
   readonly columns: readonly SearchColumn[]
   readonly fixedCount: number
@@ -236,7 +230,6 @@ export function dateText(stored: string | null): string {
   return day === null ? '' : dayText(day)
 }
 
-// Spec: TX-4, TX-7, FR-054, FR-156, S-574, S-576
 // Why: a table cell reads a Task's date-time on its side (WT-5 for a milestone's start) and shows it in the view base.
 export interface ShownDateTimes {
   readonly isTimeOfDayVisible: boolean
@@ -272,7 +265,6 @@ export function isScheduleFilterAppliedIn(settings: DocumentSettings, table: Vis
 
 type HeldTableViews = DocumentSettings['tableViews']
 
-// Spec: OP-18, T-372, JF-1
 const COLUMNS_OF_TABLE: { readonly [T in VisibilityTable]: ReadonlySet<string> } = {
   searchPanel: new Set(displayWords.searchColumns.map((entry) => entry.specTableRowId)),
   delayDiagnosticsReport: new Set(displayWords.delayReportColumns.map((entry) => entry.specTableRowId)),
@@ -289,7 +281,7 @@ function heldViewOnColumns<V extends HeldTableViews[VisibilityTable]>(held: V, c
 
 const CHECK_COLUMNS: ReadonlySet<string> = new Set(['SQ-10', 'DT-8', 'RQ-1'])
 
-// see OP-18, T-372, S-562, S-566, S-571, JDG-2811
+// Spec: OP-18, T-372, S-562, S-566, S-571
 // Why: a column filter or sort on a column its table does not hold, or on the Visibility column, is dropped silently, never refused; the same views back when none goes.
 /** @purity pure */
 export function tableViewsOnTheirColumns(views: HeldTableViews): HeldTableViews {
@@ -423,7 +415,6 @@ export function tableAfterFilterEntry(
   if (direction !== undefined) return { ...view, sort: { column, direction } }
   if (table.isDateColumn(column)) return null
   const filter = columnFilterOf(view, column)
-  // Spec: SV-7
   const reached = listed === undefined || listed === null ? null : new Set(listed)
   const untouched = reached === null ? [] : filter.hiddenValues.filter((value) => !reached.has(value))
   if (entry === SHOW_ALL_ENTRY) return withColumnFilter(view, { ...filter, hiddenValues: untouched })
@@ -479,7 +470,7 @@ export function tableWithFilterClosed<P extends TableWindowSession>(panel: P, sh
   return { ...panel, filters: { ...panel.filters, open: null } }
 }
 
-// see TV-2, JDG-2724, JDG-2810
+// Spec: TV-2
 // Why: the resource list holds Resource.uid rows and the other tables Task.uid rows; each list holds the checked rows.
 /** @purity pure */
 function shownRowKeysOf(table: VisibilityTable, visibility: TableVisibility): readonly number[] {
@@ -525,7 +516,7 @@ export function tableAfterVisibilityChange(
   return { ...view, visibility: { ...withShownRowKeys(table, held, isShown ? [...shown, ...added] : kept), isUnassignedShown } }
 }
 
-// see SQ-10, TV-6, UN-20, JDG-2824
+// Spec: SQ-10, TV-6, UN-20
 // Why: the heading's clear takes every row of the table, the rows out of view included; any other change names its rows.
 /** @purity pure */
 export function tableAfterShownChange(table: VisibilityTable, view: TableView, change: Extract<SearchFilterChange, { readonly kind: 'shown' }>): TableView {
@@ -546,7 +537,6 @@ export function tableWithScheduleFilterOff(view: TableView): TableView {
   return view.visibility.isScheduleFilterApplied ? tableWithScheduleFilterToggled(view) : view
 }
 
-// see TV-5, FR-092, JDG-2820, JDG-2825
 export type ScheduleFilterReadiness = 'ready' | 'nothingChecked'
 
 /** @purity pure */
@@ -560,7 +550,7 @@ export function scheduleFilterReadinessOf(
   return shownRowKeysOf(table, visibility).some((key) => rowKeys.has(key)) ? 'ready' : 'nothingChecked'
 }
 
-// Spec: TV-5, TV-12, IC-143, EN-8, FR-092
+// Spec: TV-5, TV-12, IC-143, EN-8, FR-092, IMPS-1862
 /** @purity pure */
 export function scheduleFilterEntryOf(visibility: TableVisibility, readiness: ScheduleFilterReadiness, language: DisplayLanguage): CommandItem {
   const isScheduleFilterApplied = visibility.isScheduleFilterApplied
@@ -632,7 +622,7 @@ export function windowColumnsViewOf(
   }
 }
 
-// Spec: T-346, T-370, SV-7, SV-8, WB-2, WB-3, IC-153, IC-143, TV-8
+// Spec: T-346, T-370, SV-7, SV-8, WB-2, WB-3, IC-153, IC-143, TV-8, IMPS-626, IMPS-627
 // Why: null is an entry the window does not answer; a menu lists the values of the table with no column filter.
 /** @purity pure */
 export function windowAfterEntry(

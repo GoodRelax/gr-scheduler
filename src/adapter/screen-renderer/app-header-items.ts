@@ -28,7 +28,6 @@ const FILE_STATUS_BY_STATE = new Map(
   displayWords.fileStatus.map((entry) => [entry.state, entry]),
 )
 
-// Spec: BR-1
 const BRANDING_LOGO = displayWords.branding.find((entry) => entry.part === 'logo')
 
 const APP_HEADER = 'App Header'
@@ -72,7 +71,7 @@ function zoomEntryStateOf(icon: IconId, readings: ScreenViewReadings): CommandSt
   return { isEnabled: readings.zoomEntranceEnds?.[end] !== true, isPressed: false }
 }
 
-// Spec: FR-072, T-280
+// Spec: IMPS-87, IMPS-88, IMPS-103
 /** @purity pure */
 function isShowingSettings(session: ScreenSession): boolean {
   return session.screen.propertiesPanelContentState.kind === 'documentSettingsDisplayed'
@@ -96,7 +95,7 @@ function fileEntryStateOf(icon: IconId, session: ScreenSession): CommandState | 
   return { isEnabled: !FLOW_SURFACE_AWAITING_STATES.has(session.fileFlow.fileOperationState.kind), isPressed: false }
 }
 
-// Spec: FR-029, FR-039
+// Spec: IMPS-1108, IMPS-1235
 /** @purity pure */
 function displayScaleStateOf(icon: IconId, settings: DocumentSettings): CommandState | null {
   const lowest = DISPLAY_SCALE_STEPS[0]
@@ -105,7 +104,7 @@ function displayScaleStateOf(icon: IconId, settings: DocumentSettings): CommandS
   return end === null ? null : { isEnabled: settings.displayScale !== end, isPressed: false }
 }
 
-// Spec: FR-029, T-109, OP-8, CS-4
+// Spec: FR-029, T-109, OP-8, CS-4, EN-4, IMPS-1068
 /** @purity pure */
 function commandStateOf(
   icon: IconId,
@@ -206,7 +205,7 @@ export interface BrandingPlace {
   readonly documentTitleLeftPx: number
 }
 
-// Spec: BR-2, BR-7, EP-1, FR-051
+// Spec: BR-2, BR-7, EP-1, FR-051, IMPS-1779
 /** @purity pure */
 export function brandingPlaceOf(): BrandingPlace {
   const chrome = NOT_STORED_CHROME_SCALE['S-235']
@@ -244,7 +243,7 @@ const SCALE_ECHO_BY_END = new Map(displayWords.scaleEcho.map((entry) => [entry.e
 
 const PERCENT_SIGN = '%'
 
-// Spec: FR-039, SE-2, FR-038
+// Spec: FR-039, SE-2, FR-038, IMPS-1244
 // Why: the number and the percent sign are no words (CR-411 decision 4); only the end word
 // comes from the dictionary.
 /** @purity pure */
@@ -261,7 +260,7 @@ const JSON_FENCE_OPEN = '```json\n'
 
 const JSON_FENCE_CLOSE = '\n```'
 
-// Spec: FR-068, FR-027, FR-038
+// Spec: FR-068, FR-027, FR-038, IMPS-1078, IMPS-1079
 /** @purity pure */
 export function imageToJsonPromptText(language: DisplayLanguage, schemaVersion: string): string {
   const versionLine = `schemaVersion: ${schemaVersion}`
@@ -269,7 +268,7 @@ export function imageToJsonPromptText(language: DisplayLanguage, schemaVersion: 
   return [imageToJsonPrompt[language], versionLine, emptyDocument].join('\n\n') + '\n'
 }
 
-// Spec: FR-068, IO-10
+// Spec: FR-068, IO-10, IMPS-1080
 /** @purity pure */
 export function imageToJsonSchemaFile(): { readonly fileName: string; readonly text: string } {
   return { fileName: imageToJsonPrompt.schemaFileName, text: imageToJsonPrompt.schema + '\n' }

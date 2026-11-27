@@ -159,15 +159,12 @@ export interface PointerPress {
   readonly followedTo?: { readonly x: number; readonly y: number }
   // Trap: never default an absent carry to true; a still click would stop choosing the task group.
   readonly isTaskGroupGrabCarried?: boolean
-  // Spec: FR-052
   // Trap: the width DRAWN when the press began, taken then: the context's regions follow the held
   // picture, so reading them at release counts the travel twice.
   readonly propertyPanelWidthAtPress?: number
-  // Spec: CY-6
   // Trap: the task groups DRAWN when the press began: a held copy drag draws its copies stacked into the source task groups,
   // so task groups read at release are taller and a release one task group down lands in the source task group.
   readonly layoutRowsAtPress?: ScheduleLayout['taskGroups']
-  // Spec: GR-21, FR-051
   // Trap: the whole the horizontal bar measures against, taken at the press: measured again during the
   // drag, a view past the content's edge shrinks it and the grip falls behind the pointer.
   readonly horizontalWholeAtPress?: HorizontalWhole
@@ -184,7 +181,6 @@ export interface InputContext {
   readonly regions: ScreenRegions
   readonly screen: ScreenValues
   readonly selection: Selection
-  // Spec: FR-085, FR-099, IN-4
   readonly chosenTaskGroups?: readonly string[]
   readonly chosenResources?: readonly number[]
   readonly zoomStep: number
@@ -192,23 +188,18 @@ export interface InputContext {
   readonly zoomMax: number
   readonly isPictureAtStoredZoom?: boolean
   readonly taskGroupControlsHeightPx?: number
-  // Spec: FR-016
   // Trap: the caller's remembered taskGroupBandCeilingOf(context, upTo, enough) at drawnZoomX, asked again
   // once upTo grows past what it holds; absent, every notch walks T-253 again (DFC-610).
   readonly taskGroupBandCeiling?: (drawnZoomX: number, upTo: number, enough?: number) => number
   // Trap: on a down this must already be that press; left null, every drawn entry reads unassigned.
   readonly pressed: PointerPress | null
   readonly isTextEntryUnsettled: boolean
-  // Spec: IN-5a, MK-13, HF-14
   // Trap: kept apart from isTextEntryUnsettled, which AG-9 and WS-2 read; this state is not AG-9's.
   readonly isTextFieldFocusWanted?: boolean
-  // Spec: IN-5a, SV-2, SV-5
   // Why: judged by where the keys go, never counted as AG-9's state (IN-5a).
   readonly isSearchWordFocused?: boolean
-  // Spec: RG-16, IF-9
   readonly focusedWindow?: WindowName | null
   readonly isFocusInPropertiesPanel?: boolean
-  // Spec: RW-1, RW-5, RW-14, RW-19, RO-1, RO-6, S-451, S-545
   readonly delayDiagnosticsReport?: {
     readonly shown: 'normal' | 'minimized' | 'maximized'
     readonly isInFront: boolean
@@ -263,7 +254,6 @@ export type InputAction =
       readonly kind: 'changeDocument'
       readonly writes: readonly (readonly DocumentCommand[])[]
       readonly created?: CreatedSubject
-      // Spec: HF-20, QN-10, HF-15, QN-16
       readonly question?: 'QN-10' | 'QN-16'
       // Why: the copies a PTD-7 drag makes, picked once the bundle lands (CY-8).
       readonly picked?: Selection
@@ -293,21 +283,16 @@ export type InputAction =
       readonly kind: 'followTaskGroupGrab'
       readonly taskGroupId: string
       readonly landing: TaskGroupGrabLanding | null
-      // Spec: S-597, S-598
       readonly scrollSpeed: number
     }
   | { readonly kind: 'scrollTaskGroupGrab'; readonly to: TaskGroupGrabScroll }
-  // Spec: FR-085, T-293
   | {
       readonly kind: 'chooseTaskGroup'
       readonly taskGroupId: string
       readonly isExtending: boolean
     }
-  // Spec: FR-099, T-293
   | { readonly kind: 'chooseResources'; readonly uids: readonly number[] }
-  // Spec: FR-099, T-293
   | { readonly kind: 'toggleChosenResource'; readonly uid: number }
-  // Spec: FR-072, T-280
   | { readonly kind: 'toggleDocumentSettingsProperties' }
   | { readonly kind: 'toggleAgentApi' }
   | { readonly kind: 'copyImageToJsonPrompt' }
@@ -318,15 +303,12 @@ export type InputAction =
 export interface TranslatedInput {
   readonly action: InputAction | null
   readonly isBrowserDefaultStopped: boolean
-  // Spec: FR-039, SE-1, SE-2
   // Trap: present on every press of IC-104 / IC-105 / SK-22 / SK-23; end is set whenever the
   // step after the press is an end one, on the press that arrives there as well.
   readonly displayScaleShown?: { readonly end: 'max' | 'min' | null }
-  // Spec: ZE-2, ZE-3, ZE-5
   // Trap: present only on a vertical-axis input that wrote no zoom at an end; zoomY is the one drawn.
   // At the shrinking end (ZE-2) the action may still end temporarilyExpanded (FR-031).
   readonly verticalZoomEndShown?: { readonly end: 'max' | 'min'; readonly zoomY: number }
-  // Spec: PE-12, EL-13, EL-16
   // Trap: present on every still single release on GA-24, even when the send writes nothing.
   readonly landingMarked?: {
     readonly predecessorUid: number
@@ -341,7 +323,6 @@ export const CONSUMED_ELSEWHERE: TranslatedInput = { action: null, isBrowserDefa
 
 const DOCUMENT_TITLE_PART = 'Document Title'
 
-// Spec: T-266
 export type GrabTaskGroup = GrabArea
 
 // Trap: the one place the hit's row is read as a T-266 row; widening it anywhere else would
@@ -374,6 +355,7 @@ export function changedAndCreated(
     : acted({ kind: 'changeDocument', writes: owed, created })
 }
 
+// Spec: IMPS-1112
 /** @purity pure */
 export function nothingToDo(situation: SpentEntranceSituation | null): TranslatedInput {
   return acted({ kind: 'tellEntryHasNothingToDo', situation })
@@ -435,7 +417,7 @@ export function snapMinutesOfView(context: InputContext): number {
   return snapMinutesOf(context.layout.pxPerDay, context.document.documentSettings)
 }
 
-// Spec: MK-16, CY-5, CY-11, T-270
+// Spec: MK-16, CY-5, CY-11, T-270, IMPS-1653, IMPS-1655
 /** @purity pure */
 export function isDateKeepingDrag(press: Pick<PointerPress, 'at'>): boolean {
   return press.at.modifiers.shift && !press.at.modifiers.alt
@@ -501,6 +483,7 @@ export function dayShifted(day: CalendarDay, days: number): CalendarDay {
   return dayFromSerial(serialOfDay(day) + days)
 }
 
+// Spec: IMPS-839, IMPS-1657, TC-5
 /** @purity pure */
 export function hasDraggedPastThreshold(press: PointerPress, at: { readonly x: number; readonly y: number }): boolean {
   const threshold = NOT_STORED_TASK_GROUP_GRAB_SIZES['S-208']
@@ -547,7 +530,7 @@ export interface PlacedCommentAnchor {
   readonly at: Point
 }
 
-// Spec: GR-14, AR-5, FR-019, LF-15, RS-44
+// Spec: GR-14, AR-5, FR-019, LF-15, RS-44, IMPS-1543, IMPS-1552, IMPS-1553, IMPS-1558, IMPS-843
 // Why: the release point, not the drag amount; a snap within S-292 wins, else the pointer itself is the free point.
 /** @purity pure */
 export function commentAnchorAt(
@@ -566,7 +549,7 @@ export function commentAnchorAt(
   return { anchor: freeAnchorAt(layout, taskGroup, x, y), at: { x, y } }
 }
 
-// Spec: LF-15, FR-019
+// Spec: LF-15, FR-019, IMPS-1554, IMPS-831
 // Why: free columns at the snapped point too, read just inside the band for a highlight box's top or bottom row.
 /** @purity pure */
 function snappedAnchorOf(layout: ScheduleLayout, snap: AnchorSnap): PlacedCommentAnchor | null {
@@ -609,6 +592,7 @@ export function pointerDaySerial(layout: ScheduleLayout, x: number): number | nu
   return serialOfDay(day) + unitFraction((x - xFromDay(layout, day)) / layout.pxPerDay)
 }
 
+// Spec: WT-8
 /** @purity pure */
 export function dayAnchorAt(
   context: InputContext,
@@ -638,6 +622,7 @@ function taskGroupAnchorAt(
   })
 }
 
+// Spec: IMPS-1755
 /** @purity pure */
 export function panTo(context: InputContext, dx: number, dy: number): TranslatedInput {
   const moved = scrolledAnchor(context, dx, dy)
@@ -673,9 +658,9 @@ export function isOnTaskGroupArea(context: InputContext, x: number, y: number): 
   return regionAtPointer(context.regions, x, y) === 'taskGroupArea'
 }
 
-// Spec: PTD-7, CY-1, CY-2
 const COPY_DRAG_GRABS: readonly string[] = ['GA-9', 'GA-14', 'GA-15']
 
+// Spec: CY-1, CY-2, MK-15
 /** @purity pure */
 function isCopyDragPress(
   press: Pick<PointerPress, 'at' | 'hit'>,
@@ -687,7 +672,7 @@ function isCopyDragPress(
   return COPY_DRAG_GRABS.includes(hit.grab) && isSelected(context.selection, { kind: 'task', uid: hit.item.taskUid })
 }
 
-// Spec: T-023a
+// Spec: T-023a, AR-1, AR-2, AR-3, AR-6, IMPS-1489, IMPS-1490, MK-6, MK-7, MK-8, PTD-4a, DC-5, IMPS-860
 /** @purity pure */
 export function pressedRowOf(
   press: Pick<PointerPress, 'at' | 'hit'>,
@@ -715,6 +700,7 @@ const TASK_SHAPE_KINDS: Readonly<Record<TaskShapeKind, true>> = {
   milestone: true,
 }
 
+// Spec: TC-4
 /** @purity pure */
 export function taskShapeKindOf(name: string): TaskShapeKind | null {
   return Object.prototype.hasOwnProperty.call(TASK_SHAPE_KINDS, name)
@@ -876,6 +862,7 @@ const ARMED_BY_ENTRY: Readonly<Record<string, Armed>> = {
   'IC-142': { kind: 'parentTaskArmed' },
 }
 
+// Spec: IMPS-1881, IMPS-1882
 /** @purity pure */
 export function armedByEntry(entry: string): Armed | null {
   return Object.prototype.hasOwnProperty.call(ARMED_BY_ENTRY, entry)
@@ -885,10 +872,9 @@ export function armedByEntry(entry: string): Armed | null {
 
 
 
-// Spec: IN-5a, SK-2, SK-4, SK-5
 const FIELD_CTRL_KEYS: ReadonlySet<string> = new Set([KEY.c, KEY.v, KEY.a])
 
-// Spec: IN-5a, SV-5
+// Spec: IN-5a, SV-5, SK-2
 // Why: Enter too, while the word field holds the focus: SV-5 hands it to the browser, not SK-19.
 /** @purity pure */
 export function isTypedIntoSearchWord(input: HumanInput, context: InputContext): boolean {
@@ -991,6 +977,7 @@ function browserStopped(answer: TranslatedInput): TranslatedInput {
   return { action: answer.action, isBrowserDefaultStopped: true }
 }
 
+// Spec: MK-7
 /** @purity pure */
 function panOnRelease(release: PointerInput, press: PointerPress, context: InputContext): TranslatedInput {
   if (isParentPickingCtrlClick(press, release, context)) return CONSUMED_ELSEWHERE
@@ -998,6 +985,7 @@ function panOnRelease(release: PointerInput, press: PointerPress, context: Input
   return panTo(context, -by.dx, -by.dy)
 }
 
+// Spec: MK-8, IMPS-329
 /** @purity pure */
 function commandFromItemPress(release: PointerInput, press: PointerPress, context: InputContext): TranslatedInput {
   if (press.hit?.item.kind === 'parentTaskLink') return commandFromParentTaskLinkRelease(release, press)
@@ -1007,7 +995,7 @@ function commandFromItemPress(release: PointerInput, press: PointerPress, contex
   return commandFromGrab(release, press, context)
 }
 
-// Spec: T-023a, IN-1, IN-1a, MK-10
+// Spec: T-023a, IN-1, IN-1a, MK-10, IMPS-1491, PTD-4a, DC-5
 /** @purity pure */
 function pointerAssignment(input: PointerInput, context: InputContext): TranslatedInput {
   if (input.phase === 'down') {
@@ -1049,10 +1037,8 @@ function pointerAssignment(input: PointerInput, context: InputContext): Translat
   }
 }
 
-// Spec: EL-17, UN-8, FR-039
 const MODIFIER_ONLY_KEYS: readonly string[] = [KEY.control, KEY.shift, KEY.alt, KEY.meta]
 
-// Spec: IC-12, IC-13, IC-14, IC-15, IC-104, IC-105
 const VIEW_SCALE_ENTRIES: readonly string[] = [
   ENTRY.zoomTimeOut,
   ENTRY.zoomTimeIn,
@@ -1099,7 +1085,7 @@ export function followingTravel(
   return { dx: at.x - from.x, dy: at.y - from.y }
 }
 
-// Spec: PTD-1, UN-8
+// Spec: PTD-1, UN-8, MK-7
 /** @purity pure */
 function panFollow(input: PointerInput, context: InputContext): TranslatedInput {
   const press = context.pressed
@@ -1114,7 +1100,7 @@ function panFollow(input: PointerInput, context: InputContext): TranslatedInput 
   return panTo(context, -by.dx, -by.dy)
 }
 
-// Spec: T-109, IN-1, FR-085, OP-15
+// Spec: T-109, IN-1, FR-085, OP-15, MK-9, IMPS-1452, IMPS-1943, IMPS-1114, IMPS-1214, IMPS-152
 /** @purity pure */
 function commandFromEntry(
   release: PointerInput,
@@ -1173,12 +1159,10 @@ function commandFromEntry(
       const factor = keyZoomFactor(context, entry === ENTRY.zoomTimeIn)
       return changed(zoomWrites(context, zoomTimes(context, factor, 'x'), null, null, null))
     }
-    // Spec: ZE-2, ZE-3, ZE-5, SE-5
     // Trap: at an end the message alone tells it; an FR-029 notice beside it is forbidden.
     case ENTRY.zoomVerticalIn:
     case ENTRY.zoomVerticalOut:
       return verticalZoomAnswer(context, keyZoomFactor(context, entry === ENTRY.zoomVerticalIn), null, null)
-    // Spec: FR-039, CM-74, SE-5
     case ENTRY.displayScaleDown:
     case ENTRY.displayScaleUp:
       return displayScaleStep(context, entry === ENTRY.displayScaleUp ? 1 : -1)
@@ -1256,7 +1240,7 @@ function commandFromEntry(
   }
 }
 
-// Spec: FR-049, CM-58
+// Spec: IMPS-861, IMPS-865
 /** @purity pure */
 function commandFromVisibleElement(element: VisibleElement, context: InputContext): TranslatedInput {
   // Trap: read the document, not the drawn entry: a skipped paint leaves it stale and stuck.
@@ -1264,7 +1248,7 @@ function commandFromVisibleElement(element: VisibleElement, context: InputContex
   return changed([{ kind: 'setVisibilitySetting', setting: element, isVisible: !isVisibleNow }])
 }
 
-// Spec: FR-029, FR-099, IC-63, IC-64, IC-65, RS-27
+// Spec: IMPS-1109, IMPS-1112
 // Why: a press that leaves the choice as it is, or finds no assignee to choose, changes nothing (FR-029).
 /** @purity pure */
 function resourceListChoiceCommand(entry: string, context: InputContext): TranslatedInput {
@@ -1332,7 +1316,7 @@ export function drawnTaskGroupsCrossed(taskGroups: readonly TaskGroupPlacement[]
   return topsAtOrAbove(toY) - topsAtOrAbove(fromY)
 }
 
-// Spec: FR-029, FR-034
+// Spec: IMPS-1109
 /** @purity pure */
 function chosenDrawnTaskCount(context: InputContext): number {
   const chosen = context.selection.items.filter((one) => one.kind === 'task')
@@ -1347,7 +1331,7 @@ function chosenDrawnTaskCount(context: InputContext): number {
   return chosen.filter((one) => one.kind === 'task' && drawnTaskUids.has(one.uid)).length
 }
 
-// Spec: FR-034, SL-7b
+// Spec: FR-034, SL-7b, IMPS-310
 /** @purity pure */
 function alignWrites(context: InputContext, byStart: boolean): readonly DocumentCommand[] {
   const chosen = context.selection.items.filter((one) => one.kind === 'task')
@@ -1425,7 +1409,7 @@ export function compareDay(a: CalendarDay, b: CalendarDay): number {
 
 const TOP_TASK_GROUP_DEPTH = 1
 
-// Spec: FR-016, S-36, S-38, S-13
+// Spec: FR-016, S-36, S-38, S-13, IMPS-1469, IMPS-1474, IMPS-1475, IMPS-1478, IMPS-1481
 /** @purity pure */
 export function zoomYCeiling(context: InputContext): number | null {
   const settings = context.document.documentSettings
@@ -1434,7 +1418,7 @@ export function zoomYCeiling(context: InputContext): number | null {
   return ceiling
 }
 
-// Spec: FR-016, ZE-1, PI-5
+// Spec: FR-016, ZE-1, PI-5, IMPS-1487
 /** @purity pure */
 export function taskGroupsAtZoomY(
   context: InputContext,

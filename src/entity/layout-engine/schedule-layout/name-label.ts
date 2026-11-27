@@ -19,7 +19,7 @@ import { NOT_STORED_LABEL_SIZES, type DayReader } from './schedule-layout'
 const TRUNCATION_MARK = '…'
 const TRUNCATION_MARK_UNITS = 2
 
-// Spec: LC-4
+// Spec: IMPS-1917, IMPS-1918, IMPS-1919
 /** @purity pure */
 function truncate(text: string, limit: number): string {
   const unitsOf = (ch: string): number => (ch.charCodeAt(0) < 0x100 ? 1 : 2)
@@ -56,7 +56,6 @@ export function isPlanSpanningYears(schedule: Schedule, reader: Pick<DayReader, 
   return false
 }
 
-// Spec: ND-5
 const YEAR_DIGITS = 4
 
 // Spec: ND-4, ND-5
@@ -85,11 +84,9 @@ export function clockTextOf(instant: number): string {
 type LengthLetter = 'd' | 'h' | 'm'
 // </generated>
 
-// Spec: T-375, TX-10, FR-054
 // Why: the minutes in one of each letter, in the order a length is spelled.
 const MINUTES_IN_LETTER: Readonly<Record<LengthLetter, number | 'workingDay'>> = { d: 'workingDay', h: MINUTES_PER_HOUR, m: 1 }
 
-// Spec: T-375, TX-10
 const ZERO_LENGTH_LETTER: LengthLetter = 'h'
 
 // Spec: T-375, TX-10, TX-2, TX-3, TX-6, TX-8
@@ -133,7 +130,7 @@ interface NameLabel {
   readonly labelDates: string
 }
 
-// Spec: FR-002, S-232
+// Spec: FR-002, S-232, IMPS-1916, IMPS-1921
 // Trap: truncate the name alone; the dates are never cut and never count toward S-35.
 // Trap: the half-width space before the dates goes with them: FR-002 draws it at the dates' size (S-325).
 /** @purity pure */
@@ -145,7 +142,7 @@ export function nameLabelOf(task: Task, reader: DayReader, datesWithYear: boolea
   return { name, labelDates: name === '' ? dates : ` ${dates}` }
 }
 
-// Spec: FR-002, LC-5, OC-1, T-273, S-325
+// Spec: FR-002, LC-5, OC-1, T-273, S-325, IMPS-1916
 // Trap: never measure the joined label at one size: a fitted label would cross the reference end (FR-002).
 /** @purity pure */
 export function nameLabelWidthOf(named: NameLabel, fontSize: number, settings: DrawnSettings): number {

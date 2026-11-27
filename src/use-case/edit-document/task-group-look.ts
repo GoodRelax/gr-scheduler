@@ -10,7 +10,6 @@ import { refused, edited, reject } from './edit-document'
 import type { TaskGroupCommandOf } from './edit-task-group'
 import { withTaskGroup } from './edit-task-group'
 
-// Spec: CV-9, AT-58
 const TASK_GROUP_COLOR_NAMES: readonly string[] = COLUMN_SHAPES.TaskGroup['color']?.choices ?? []
 
 // Spec: CM-30, FR-042
@@ -31,7 +30,7 @@ export function setTaskGroupColor(
   return edited(withTaskGroup(document, { ...taskGroup, color: command.color }))
 }
 
-// Spec: CM-31, FR-007
+// Spec: CM-31, FR-007, IMPS-135
 /** @purity pure */
 export function resetTaskGroupColor(
   document: Document,

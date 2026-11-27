@@ -112,7 +112,6 @@ export type BarGeometry =
       readonly dots: readonly SpanDot[]
     }
 
-// Spec: RV-5, T-021, T-315
 export type ProgressSymbol = ReturnType<typeof progressMarkerOf>
 
 export interface MarkerGeometry {
@@ -122,7 +121,6 @@ export interface MarkerGeometry {
   readonly standsOffX?: number
 }
 
-// Spec: LF-13, XS-10, XS-12, S-25, GA-20
 export interface ResumeGeometry {
   readonly arm: Path
   readonly head: Path
@@ -132,17 +130,14 @@ export interface ResumeGeometry {
   readonly isUndecided: boolean
 }
 
-// Spec: FR-043, GA-5, GA-6, GA-17, GA-21, GA-22
 export interface DummyGeometry {
   readonly grab: 'GA-5' | 'GA-6' | 'GA-17' | 'GA-21' | 'GA-22'
   readonly at: Point
   readonly ink: ScreenRect
-  // Spec: DM-4, DM-8, DM-9, PI-5
   // Why: optional, not required: a hand-built geometry that only asks what a press hits need not draw one.
   readonly figure?: BarGeometry
 }
 
-// Spec: DA-2, DA-3
 export interface DeadlineGeometry {
   readonly outline: Path
   readonly haloWidth: number
@@ -170,7 +165,6 @@ export interface TaskGeometry {
   readonly taskGroupId?: string
 }
 
-// Spec: EL-1, EL-2, EL-10, EL-11, EL-12, EL-20, EL-21
 // Why: decided here once, where EL-1, EL-2 and EL-20 are judged, so the click (EL-10 .. EL-12) never judges them again.
 export interface FarEndGeometry {
   readonly isAcrossInTaskGroupArea: boolean
@@ -181,7 +175,6 @@ export interface FarEndGeometry {
   readonly foldedRowId: string | null
 }
 
-// Spec: EL-9, GA-24
 export interface ContinuationGeometry {
   readonly dots: readonly Point[]
   readonly radius: number
@@ -189,10 +182,8 @@ export interface ContinuationGeometry {
   readonly far: FarEndGeometry
 }
 
-// Spec: T-303
 export type Elision = 'EL-3' | 'EL-4' | 'EL-5' | 'EL-6'
 
-// Spec: LC-10, T-222, T-303
 export interface DependencyGeometry {
   readonly predecessorUid: number
   readonly successorUid: number
@@ -202,15 +193,12 @@ export interface DependencyGeometry {
   readonly elision: Elision
   readonly drawnPoints: Path
   readonly continuation: ContinuationGeometry | null
-  // Spec: S-18, S-447, S-19, GA-19
   // Why: optional, not required: a hand-built geometry that only asks what a press hits may give no ink.
   readonly strokeWidth?: number
   readonly head?: Path
-  // Spec: EL-19, GA-19
   readonly wholeRouteHead?: Path
 }
 
-// Spec: FR-019, S-369, S-370, S-371, HB-10, HB-11
 // Why: the look is already defaulted and clamped, so the renderer draws it as it stands.
 export interface HighlightGeometry {
   readonly id: string
@@ -223,7 +211,6 @@ export interface HighlightGeometry {
   readonly hasSideHandles: { readonly leftRight: boolean; readonly topBottom: boolean }
 }
 
-// Spec: FR-019, FR-097, S-374, S-375
 export interface CommentGeometry {
   readonly id: string
   readonly anchor: Point
@@ -237,7 +224,6 @@ export interface CommentGeometry {
   readonly textColor: string | null
 }
 
-// Spec: CU-2
 export interface DualCursorGeometry {
   readonly cursorAX: number
   readonly cursorBX: number
@@ -245,7 +231,6 @@ export interface DualCursorGeometry {
   readonly bottom: number
 }
 
-// Spec: FR-015, T-339, BL-2
 interface BaselineOutline {
   readonly taskUid: number
   readonly bar: BarGeometry
@@ -331,6 +316,7 @@ function readingOf(schedule: Schedule, inputs: GeometryInputs, regions: ScreenRe
   }
 }
 
+// Spec: IMPS-1880
 /** @purity pure */
 function planSpanWidthOf(layout: ScheduleLayout, x: number, finish: CalendarDay, settings: DrawnSettings): number {
   return Math.max(xFromDay(layout, finish) + layout.pxPerDay - x, settings.minShapeWidth)
@@ -478,14 +464,14 @@ function sightedEndOf(uid: number, reading: EndReading): SightedEnd | null {
   return task === undefined ? null : lodEndOf(task, reading)
 }
 
-// Spec: T-303
+// Spec: IMPS-316
 /** @purity pure */
 function elisionOf(predecessorSeen: boolean, successorSeen: boolean): Elision {
   if (predecessorSeen) return successorSeen ? 'EL-3' : 'EL-4'
   return successorSeen ? 'EL-5' : 'EL-6'
 }
 
-// Spec: RT-4a, FR-009, T-303
+// Spec: RT-4a, FR-009, T-303, EL-15, IMPS-385, RT-6, NG-3, IMPS-1662
 /** @purity pure */
 function dependenciesOf(schedule: Schedule, inputs: GeometryInputs, regions: ScreenRegions): DependencyGeometry[] {
   if (!inputs.settings.isDependencyVisible || !inputs.settings.isPlanVisible) return []
@@ -539,7 +525,7 @@ function baselineOutlineOf(baseline: BaselineTask, placed: TaskPlacement, isPinn
   return { taskUid, bar, box, isPinned }
 }
 
-// Spec: FR-015, BL-1, BL-4
+// Spec: FR-015, BL-1, BL-4, IMPS-1447, IMPS-1448, IMPS-1449
 // Trap: never gate on isPlanVisible as dependenciesOf does: the overlay is drawn with the plan hidden.
 /** @purity pure */
 function baselineOutlinesOf(schedule: Schedule, inputs: GeometryInputs): BaselineOutline[] {
@@ -563,13 +549,14 @@ function baselineOutlinesOf(schedule: Schedule, inputs: GeometryInputs): Baselin
   return out
 }
 
-// Spec: FR-046, FR-014, CU-1, FR-158
+// Spec: FR-046, FR-014, CU-1, FR-158, IMPS-514, IMPS-521, IMPS-522, IMPS-1444
 /** @purity pure */
 export function statusLineXOf(inputs: GeometryInputs, statusDate: CalendarDay): number {
   const instant = inputs.settings.isTimeOfDayVisible ? inputs.statusInstant ?? null : null
   return instant === null ? xFromDay(inputs.layout, statusDate) : xOfInstant(inputs.layout, instant)
 }
 
+// Spec: IMPS-526
 /** @purity pure */
 function statusLineOf(inputs: GeometryInputs, regions: ScreenRegions): ScheduleGeometry['statusLine'] {
   if (inputs.statusDate === null) return null
@@ -577,7 +564,7 @@ function statusLineOf(inputs: GeometryInputs, regions: ScreenRegions): ScheduleG
   return { x: statusLineXOf(inputs, inputs.statusDate), top: area.y, bottom: area.y + area.height }
 }
 
-// Spec: CP-6, LC-10, LC-11, RV-5
+// Spec: CP-6, LC-10, LC-11, RV-5, SWS-4
 /** @purity pure */
 export function geometryFromLayout(
   schedule: Schedule,
@@ -589,7 +576,6 @@ export function geometryFromLayout(
   delayDiagnostics?: GeometryInputs['delayDiagnostics'],
   parentTaskFamilies: ParentTaskFamilies | null = null,
 ): ScheduleGeometry {
-  // Spec: FR-039, T-252
   const settings = drawnSettingsOf(storedSettings)
   const inputs: GeometryInputs = {
     settings,
@@ -640,7 +626,7 @@ function snapsForTips(
   return isAnySnapped ? anchorSnapsOf(tasks, highlights) : []
 }
 
-// Spec: FR-098, S-78
+// Spec: IMPS-785
 /** @purity pure */
 function pinnedBandOf(layout: ScheduleLayout, regions: ScreenRegions): Pick<ScheduleGeometry, 'pinnedBand'> {
   const pinnedIds = new Set(layout.taskGroups.filter((taskGroup) => taskGroup.isPinned === true).map((taskGroup) => taskGroup.taskGroupId))
@@ -651,7 +637,7 @@ function pinnedBandOf(layout: ScheduleLayout, regions: ScreenRegions): Pick<Sche
   return { pinnedBand: { scrollTop: layout.scrollAreaY ?? regions.taskGroupArea.y, pinnedTaskUids } }
 }
 
-// Spec: FR-098, T-303, EL-4, EL-5, EL-19, PI-6
+// Spec: FR-098, T-303, EL-4, EL-5, EL-19, PI-6, RT-6, IMPS-786, IMPS-787
 /** @purity pure */
 export function isLinkInBand(
   band: Pick<NonNullable<ScheduleGeometry['pinnedBand']>, 'pinnedTaskUids'> | null | undefined,

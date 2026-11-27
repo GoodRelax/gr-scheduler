@@ -89,9 +89,9 @@ export type DocumentFileSaving =
   | { readonly ok: true; readonly openedFile: OpenedFileState }
   | { readonly ok: false; readonly fault: DocumentFileFault }
 
-// Spec: SX-1, SX-2, FR-060, IO-2
 const ROUND_TRIP_FORMS: readonly SaveFileForm[] = ['IO-2']
 
+// Spec: SX-2, IO-2
 /** @purity pure */
 function isRoundTripForm(form: SaveFileForm): boolean {
   return ROUND_TRIP_FORMS.includes(form)
@@ -202,7 +202,7 @@ export async function openDocumentFile(
   }
 }
 
-// Spec: T-227
+// Spec: IMPS-1052
 /** @purity non-pure */
 async function askToWriteOver(
   request: ChosenFileSaveRequest,
@@ -216,7 +216,7 @@ async function askToWriteOver(
   return await request.confirmOverwrite()
 }
 
-// Spec: FR-060, FR-096
+// Spec: FR-060, FR-096, IMPS-969
 /** @purity non-pure */
 export async function saveDocumentFile(
   store: FileStore,

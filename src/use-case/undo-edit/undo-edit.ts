@@ -10,7 +10,6 @@ import { previousStep, type EditHistory } from '../../entity/document-model/edit
 export interface ChangeStep {
   readonly document: Document
   readonly commands: readonly string[]
-  // Spec: AG-10, ED-2
   // Why: optional so a step built before AM-9 still reads; a step naming no writer is nobody's own (AM-9, AM-10).
   readonly editedBy?: string
 }

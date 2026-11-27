@@ -6,16 +6,14 @@
 import type { DocumentSettings } from '../../document-model/document-settings/document-settings'
 import type { TaskGroupPlacement, TaskPlacement } from './schedule-layout'
 
-// Spec: S-78, S-176
 type SlabOf = Pick<TaskGroupPlacement, 'taskGroupId' | 'y' | 'height'>
 
-// Spec: S-78, S-176
 interface TaskGroupAnchor {
   readonly scrollTaskGroupId: string | null
   readonly scrollTaskGroupFraction: number
 }
 
-// Spec: OP-10a, S-176
+// Spec: OP-10a, S-176, IMPS-955
 /** @purity pure */
 export function scrollOffsetOf(
   taskGroups: readonly TaskGroupPlacement[],
@@ -74,7 +72,7 @@ export function taskGroupIndexAtTopEdge(taskGroups: readonly SlabOf[], y: number
   return null
 }
 
-// Spec: OP-10a, S-78, S-176
+// Spec: OP-10a, S-78, S-176, IMPS-790, IMPS-955
 // Why: the inverse of scrollOffsetOf, beside it: the wheel, the zoom and the jump (SJ-5) all turn a top edge into an anchor.
 /** @purity pure */
 export function taskGroupAnchorIn(

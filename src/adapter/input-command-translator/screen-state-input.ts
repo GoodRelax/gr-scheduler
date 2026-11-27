@@ -29,7 +29,7 @@ import {
   type SessionEvent,
 } from '../../use-case/advance-screen-session/advance-screen-session'
 import { cycleTaskPlanActualState } from '../../use-case/edit-document/edit-document'
-import type { FieldCommit, ScreenPart } from '../screen-renderer/screen-renderer'
+import { UI_PART_NAMES, type FieldCommit, type ScreenPart } from '../screen-renderer/screen-renderer'
 import type {
   HumanInput,
   KeyInput,
@@ -58,7 +58,6 @@ import {
 
 const HELP_MODAL = 'Help Modal'
 
-// Spec: T-280, S-99g, U-54
 const EXPORT_CHOOSER_ROW = 'U-54'
 
 // Trap: never an open surface's name; the drawing side would draw the panel as a modal.
@@ -67,7 +66,7 @@ const PROPERTIES_PANEL = 'Properties Panel'
 // Why: windows, not open surfaces (T-335, U-64, S-99g): IC-52 on one closes that window, never the surface.
 const SEARCH_PANEL = 'Search Panel'
 const DELAY_DIAGNOSTICS_REPORT = 'Delay Diagnostics Report'
-const RESOURCE_LIST = 'Resource List'
+const RESOURCE_LIST = UI_PART_NAMES['U-49']
 
 type WindowEvents = readonly [ScreenValuesEvent, ScreenValuesEvent, ScreenValuesEvent | null]
 
@@ -93,7 +92,6 @@ const FULL_SCREEN_ENTRY_PRESSED: ScreenValuesEvent = { type: 'fullScreenEntryPre
 
 const ARM_DROPPED: ScreenValuesEvent = { type: 'escapePressed', rung: 'armed' }
 
-// Spec: U-65, IC-138, IC-162, FO-14, RS-87, T-214
 const HOLIDAY_SETTINGS_ROW = 'U-65'
 
 type CalendarDraft = Extract<ScreenValuesEvent, { readonly type: 'calendarDraftEdited' }>['calendarDraft']
@@ -116,7 +114,6 @@ const TIME_SHIFT_AMOUNT = /^([+-]?)(\d{1,5})(?::([0-5]\d))?$/
 
 const MINUTES_PER_HOUR = 60
 
-// Spec: WH-2
 const DAY_KEY_LENGTH = 10
 
 /** @purity pure */
@@ -176,7 +173,7 @@ function holidayRowEntryEventOf(entry: string, at: number, context: InputContext
   }
 }
 
-// Spec: IC-132, IC-135, IC-138, IC-163, T-344, T-280
+// Spec: IMPS-726, IMPS-727
 /** @purity pure */
 function holidaySettingsEventOf(on: ScreenPart, context: InputContext): ScreenValuesEvent | null {
   switch (on.entry) {
@@ -196,7 +193,7 @@ function holidaySettingsEventOf(on: ScreenPart, context: InputContext): ScreenVa
   return on.entry === null || !Number.isInteger(at) ? null : holidayRowEntryEventOf(on.entry, at, context)
 }
 
-// Spec: FR-083, T-023b, T-280
+// Spec: IMPS-1891, IMPS-1809
 /** @purity pure */
 function screenEventFromEntry(entry: string, context: InputContext): ScreenValuesEvent | null {
   switch (entry) {
@@ -209,7 +206,7 @@ function screenEventFromEntry(entry: string, context: InputContext): ScreenValue
     case ENTRY.dualCursor: {
       const entered = screenEventFromDualCursorEntry(context)
       const isPlacingNothing = entered.type === 'dualCursorEntryPressed' && !entered.hasDaysToPlace
-      // Temporary: spec says only a raised mode drops the arm (T-280); here any press with the mode off does, PND-313 too (DFC-704). Until: DFC-704 is fixed.
+      // Temporary: spec says only a raised mode drops the arm (T-280); here any press with the mode off does, one with no day to place too (DFC-704). Until: DFC-704 is fixed.
       return isPlacingNothing && context.dualCursorFollowing === null ? ARM_DROPPED : entered
     }
     case ENTRY.themePreference:
@@ -236,7 +233,6 @@ function screenEventFromEntry(entry: string, context: InputContext): ScreenValue
   }
 }
 
-// Spec: IC-52, FR-036
 /** @purity pure */
 function surfaceCloseOf(part: string | null): ScreenValuesEvent | null {
   if (part === PROPERTIES_PANEL || part === DELAY_DIAGNOSTICS_REPORT || part === RESOURCE_LIST) return null
@@ -255,7 +251,6 @@ function windowEventOf(entry: string, part: string): ScreenValuesEvent | null {
   return entry === ENTRY.closeSurface ? closed : null
 }
 
-// Spec: FR-039, IC-16, T-280
 /** @purity pure */
 function themeTurned(context: InputContext): ScreenValuesEvent {
   const isDarkNow = context.screen.themePreference === 'dark'
@@ -289,7 +284,7 @@ function markerReleasedOf(input: PointerInput, context: InputContext): number | 
   return uid === null || press === null || hasDraggedPastThreshold(press, input) ? null : uid
 }
 
-// see RW-1, RW-14, RW-19, PE-8, PE-10, JDG-2800, JDG-2801
+// Spec: RW-1, RW-14, RW-19, PE-8, PE-10, IMPS-622
 /** @purity pure */
 function isDiagnosisRowAskedFor(taskUid: number, context: InputContext): boolean {
   const report = context.delayDiagnosticsReport
@@ -311,7 +306,7 @@ export function diagnosisRowAskedOf(input: HumanInput, context: InputContext): n
   return uid !== null && isDiagnosisRowAskedFor(uid, context) ? uid : null
 }
 
-// see FR-130, PE-8, PE-10, RW-19, JDG-2803, JDG-2806
+// Spec: FR-130, PE-8, PE-10, RW-19, IMPS-561
 /** @purity pure */
 export function markerOperatedTaskUidOf(input: HumanInput, context: InputContext): number | null {
   const press = context.pressed
@@ -320,7 +315,7 @@ export function markerOperatedTaskUidOf(input: HumanInput, context: InputContext
   return hasDraggedPastThreshold(press, input) || !isDiagnosisRowAskedFor(uid, context) ? uid : null
 }
 
-// Spec: PV-4, PV-5, T-280
+// Spec: PV-4, PV-5, T-280, IMPS-432
 /** @purity pure */
 function screenEventAfterMarkerPress(
   input: PointerInput,
@@ -345,7 +340,7 @@ function screenEventAfterMarkerPress(
   }
 }
 
-// Spec: SK-12, SK-15, SK-24, IN-5a, T-280, PI-18
+// Spec: SK-12, SK-15, SK-24, IN-5a, T-280, PI-18, IMPS-1874, SK-13, SK-14, IN-5, IMPS-812, IMPS-818
 /** @purity pure */
 function screenEventFromKey(input: KeyInput, context: InputContext): ScreenValuesEvent | null {
   if (isCombo(input.modifiers, true, true, false) && input.key === KEY.e) {
@@ -384,7 +379,7 @@ export function screenEventFromInput(
 
 type DraftKey<Holder extends string> = Extract<FieldCommit['key'], { readonly holder: Holder }>
 
-// Spec: FO-14, FR-156, S-574, AT-157, T-280
+// Spec: FO-14, FR-156, S-574, AT-157, T-280, IMPS-743
 // Why: the guard isOtherThanShownBase reads the shown base (S-574, else AT-157) here, where the document is at hand.
 /** @purity pure */
 function baseTimeZoneDraftEventOf(

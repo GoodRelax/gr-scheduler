@@ -19,7 +19,6 @@ import { isSameRecord, isSameScreenRegions } from './frame-loop'
 
 type BeneathPictureInputs = Parameters<typeof svgFromSchedule>
 
-// Spec: CA-1
 interface BeneathPictureKey {
   readonly schedule: Schedule
   readonly layout: ScheduleLayout
@@ -47,7 +46,6 @@ function isSameData(x: unknown, y: unknown): boolean {
   return Array.isArray(x) === Array.isArray(y) && isSameRecord(x, y, isSameData)
 }
 
-// Spec: CA-1
 // Trap: no pointer field: the pointer moves every frame of a Range Selection, so a key holding it never hits (CA-1).
 /** @purity pure */
 function beneathPictureKeyOf(inputs: BeneathPictureInputs): BeneathPictureKey {
@@ -62,7 +60,6 @@ function beneathPictureKeyOf(inputs: BeneathPictureInputs): BeneathPictureKey {
   }
 }
 
-// Spec: CA-1
 // Why: the settings, the regions and the small values are new objects every frame; compared by identity, nothing is ever held.
 /** @purity pure */
 function isSameBeneathPictureKey(held: BeneathPictureKey, now: BeneathPictureKey): boolean {

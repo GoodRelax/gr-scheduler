@@ -3,10 +3,8 @@
 // @component AdvanceScreenSession, layer UseCase (table T-062)
 // @purity    pure
 
-// Spec: SF-2
 export type Step<S, E> = { readonly state: S; readonly effects: readonly E[] }
 
-// Spec: SF-3
 export const NO_EFFECTS: readonly never[] = Object.freeze([])
 
 // Spec: SF-3, SD-3

@@ -10,7 +10,6 @@ import type { PointerPress } from '../../adapter/input-command-translator/input-
 import type { ScreenPart } from '../../adapter/screen-renderer/screen-renderer'
 import { dualCursorFollowingIn, type FrameLoopHands, type FrameValues } from './frame-loop'
 
-// Spec: T-269
 type PointerFallback = 'ew-resize' | 'move' | 'pointer' | 'grab'
 
 type DrawnPointer = `url(data:image/svg+xml,${string}) ${number} ${number}, ${PointerFallback}`
@@ -37,7 +36,6 @@ export type Grabbed = NonNullable<ReturnType<typeof itemAtPointer>>
 
 export type GrabbedArea = Grabbed['grab']
 
-// Spec: T-269
 export type PointerRow =
   | 'PK-1'
   | 'PK-3'
@@ -56,19 +54,16 @@ export type PointerRow =
   | 'PK-17'
   | 'PK-18'
 
-// Spec: T-266, T-269
 export type PointerFacing = 'start' | 'end'
 
 type PointerGrabArea = GrabbedArea
 
-// Spec: T-269
 interface PointerOfGrab {
   readonly row: PointerRow
   readonly facing: PointerFacing
   readonly ink?: PointerInk
 }
 
-// Spec: T-266, T-269
 const POINTER_BY_GRAB: Readonly<Record<PointerGrabArea, PointerOfGrab | null>> = {
   'GA-1': { row: 'PK-1', facing: 'start' },
   'GA-2': { row: 'PK-1', facing: 'end' },
@@ -106,7 +101,6 @@ const POINTER_BY_ROW_ID: Readonly<Record<string, PointerOfGrab | null | undefine
 
 type PointerInk = 'hollow' | 'filled'
 
-// Spec: T-269
 const POINTER_INKS: Readonly<
   Record<PointerInk, { readonly fill: string; readonly outline: string }>
 > = {
@@ -145,7 +139,7 @@ function pointerCursor(
   return `url(data:image/svg+xml,${encoded}) ${hotspotX} ${hotspotY}, ${fallback}`
 }
 
-// Spec: T-269
+// Spec: IMPS-1640, IMPS-1642
 /** @purity pure */
 function squarePointer(
   side: number,
@@ -170,7 +164,7 @@ function squarePointer(
   return pointerCursor(picture, across, down, fallback)
 }
 
-// Spec: PK-1
+// Spec: IMPS-1629
 /** @purity pure */
 function boxArrowPointer(ink: PointerInk, facing: PointerFacing): DrawnPointer {
   const side = NOT_STORED_END_POINTER_SIZES['S-249']
@@ -186,7 +180,7 @@ function boxArrowPointer(ink: PointerInk, facing: PointerFacing): DrawnPointer {
   )
 }
 
-// Spec: PK-4
+// Spec: IMPS-1629
 /** @purity pure */
 function lineArrowPointer(): DrawnPointer {
   const side = NOT_STORED_END_POINTER_SIZES['S-249']
@@ -202,7 +196,7 @@ function lineArrowPointer(): DrawnPointer {
   )
 }
 
-// Spec: PK-9
+// Spec: IMPS-1629
 /** @purity pure */
 function resumeArrowPointer(): DrawnPointer {
   return squarePointer(
@@ -216,7 +210,6 @@ function resumeArrowPointer(): DrawnPointer {
   )
 }
 
-// Spec: PK-17, FR-135
 /** @purity pure */
 function parentLinkPointer(): DrawnPointer {
   const side = NOT_STORED_END_POINTER_SIZES['S-249']
@@ -224,7 +217,7 @@ function parentLinkPointer(): DrawnPointer {
   return squarePointer(side, PARENT_LINK_PATH, 'hollow', 'round', false, { x: middle, y: middle }, 'pointer')
 }
 
-// Spec: PK-3
+// Spec: IMPS-1629
 // Why: the triangle is set in by half the outline, so the edge stands inside S-294, not past it.
 /** @purity pure */
 function fadeTrianglePointer(facing: PointerFacing): DrawnPointer {
@@ -246,7 +239,7 @@ function fadeTrianglePointer(facing: PointerFacing): DrawnPointer {
   return pointerCursor(picture, corner.x, corner.y, 'ew-resize')
 }
 
-// Spec: PK-5
+// Spec: IMPS-1629, IMPS-1643
 // Why: S-295 is the circle across, outline and all, so the radius gives the outline back its half.
 /** @purity pure */
 function discPointer(ink: PointerInk, fallback: PointerFallback): DrawnPointer {
@@ -263,7 +256,6 @@ function discPointer(ink: PointerInk, fallback: PointerFallback): DrawnPointer {
   return pointerCursor(picture, middle, middle, fallback)
 }
 
-// Spec: T-269
 const NATIVE_POINTER_BY_ROW: Readonly<Record<Exclude<PointerRow, 'PK-1' | 'PK-3' | 'PK-4' | 'PK-5' | 'PK-9' | 'PK-17'>, PointerShape>> = {
   'PK-7': 'pointer',
   'PK-8': 'grab',
@@ -277,7 +269,7 @@ const NATIVE_POINTER_BY_ROW: Readonly<Record<Exclude<PointerRow, 'PK-1' | 'PK-3'
   'PK-18': 'not-allowed',
 }
 
-// Spec: T-269
+// Spec: T-269, IMPS-1629, IMPS-1643
 /** @purity pure */
 export function pointerImageOf(
   row: PointerRow,
@@ -304,7 +296,7 @@ export function pointerImageOf(
 
 type HighlightBoxPart = NonNullable<Grabbed['boxPart']>
 
-// Spec: HB-8, HB-9, HB-10, HB-11, HB-12, FR-106
+// Spec: HB-8, HB-9, HB-10, HB-11, HB-12, FR-106, IMPS-1637
 // Why: GR-14 names one grab row for the whole box, so the row of table T-269 is read off the part the press found.
 /** @purity pure */
 function highlightBoxPointerRowOf(part: HighlightBoxPart | undefined): PointerRow | null {
@@ -321,7 +313,7 @@ function highlightBoxPointerRowOf(part: HighlightBoxPart | undefined): PointerRo
   }
 }
 
-// Spec: IN-2, FR-106
+// Spec: IN-2, FR-106, IMPS-1629, IMPS-1630, IMPS-1631, IMPS-1632, IMPS-1633, IMPS-1644, IMPS-1645, IMPS-1427, IMPS-1428
 /** @purity pure */
 export function pointerRowOf(hit: Grabbed | null, armed: boolean): PointerRow | null {
   if (armed || hit === null) return null
@@ -331,13 +323,13 @@ export function pointerRowOf(hit: Grabbed | null, armed: boolean): PointerRow | 
   return POINTER_BY_ROW_ID[hit.grab]?.row ?? null
 }
 
-// Spec: T-266
+// Spec: IMPS-1629
 /** @purity pure */
 function pointerFacingOf(hit: Grabbed): PointerFacing {
   return POINTER_BY_ROW_ID[hit.grab]?.facing ?? 'start'
 }
 
-// Spec: T-266, T-269
+// Spec: IMPS-1629, IMPS-1641
 /** @purity pure */
 function pointerInkOf(hit: Grabbed): PointerInk {
   return POINTER_BY_ROW_ID[hit.grab]?.ink ?? 'hollow'
@@ -352,7 +344,7 @@ export function pressedPointerShapeOf(hands: PointerShapeHands) {
     readonly shape: PointerShape | null
   } | null = null
 
-  // Spec: FR-106
+  // Spec: IMPS-1628, IMPS-1258, IMPS-1270
   // Why: keyed on the press's own point and read off what it grabbed, so every rebuild keeps the shape.
   /** @purity non-pure */
   function pointerShapeAt(
@@ -379,7 +371,7 @@ export function pressedPointerShapeOf(hands: PointerShapeHands) {
 
 export type PressedPointerShape = ReturnType<typeof pressedPointerShapeOf>
 
-// Spec: IN-2
+// Spec: IN-2, AR-4, IMPS-1426
 /** @purity semi-pure-mutable */
 function pointerShapeUnder(
   hands: PointerShapeHands,
@@ -401,7 +393,6 @@ function pointerShapeUnder(
   const row = pointerRowOf(hit, isArmedDependency)
   if (row !== null && hit !== null) return pointerImageOf(row, pointerFacingOf(hit), pointerInkOf(hit))
   if (isArmedDependency) {
-    // Spec: IN-2, AR-4, PTD-3
     // Why: over a grab area the plain arrow stays, as nothing an armed dependency hits may promise a move.
     if (hit !== null) return 'default'
     return 'crosshair'

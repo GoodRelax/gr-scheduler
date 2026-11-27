@@ -159,7 +159,7 @@ function unhiddenIdsFor(schedule: Schedule, event: TreeStateEvent, pinnedTaskGro
   return new Set(stateOf.get(pressedRowId) === 'hidden' ? [...unhidden, pressedRowId] : unhidden)
 }
 
-// Spec: T-328, FR-018, UN-14
+// Spec: T-328, FR-018, UN-14, IMPS-778, HR-1a
 /** @purity pure */
 export function treeStateWritesFor(
   schedule: Schedule,
@@ -181,7 +181,7 @@ export function treeStateWritesFor(
   return writes
 }
 
-// Spec: T-328, S-418, HR-2
+// Spec: T-328, S-418, HR-2, IMPS-1986, IMPS-1991
 /** @purity pure */
 export function levelZeroWritesFor(
   levelZeroTreeState: LevelZeroTreeState,
@@ -223,7 +223,7 @@ export function setTaskGroupTreeState(
   return edited(withTaskGroup(document, { ...taskGroup, treeState: command.treeState }))
 }
 
-// Spec: CM-72, HF-8, T-328
+// Spec: CM-72, HF-8, T-328, IMPS-806
 /** @purity pure */
 export function resetTaskGroupTreeStates(document: Document): EditResult {
   const schedule = document.schedule

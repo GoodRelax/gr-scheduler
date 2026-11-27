@@ -97,7 +97,6 @@ const VISIBILITY_COLUMN: SearchColumn = 'SQ-10'
 
 const TASK_TYPE_COLUMN: SearchColumn = 'SQ-14'
 
-// Spec: SV-18
 const MEASURED_COLUMNS: ReadonlySet<SearchColumn> = new Set(['SQ-5', 'SQ-11', 'SQ-14', 'SQ-3', 'SQ-4', 'SQ-12', 'SQ-13', 'SQ-9'])
 
 const NOTHING_FOUND: SearchRows = { taskRows: [], commentBoxRows: [] }
@@ -107,14 +106,12 @@ const TABLE_COLUMNS: { readonly [T in SearchTable]: readonly SearchColumn[] } = 
   commentBoxes: COMMENT_BOX_SEARCH_COLUMNS,
 }
 
-// Spec: SJ-1, SV-6
 // Why: the jump column is also the last fixed one: SV-6 fixes each table up to the cell SJ-1 jumps from.
 const JUMP_COLUMN: { readonly [T in SearchTable]: SearchColumn } = {
   tasks: 'SQ-1',
   commentBoxes: 'SQ-7',
 }
 
-// Spec: SQ-5, T-021, T-315
 const STATE_GLYPHS: { readonly [S in SearchTaskState]: MarkGlyph } = {
   notStarted: 'PM-1a',
   inProgress: 'PM-1',
@@ -127,10 +124,8 @@ const STATE_GLYPHS: { readonly [S in SearchTaskState]: MarkGlyph } = {
   'DG-3': 'DG-3',
 }
 
-// Spec: SQ-5, T-315
 const MARKER_WORD_ROWS: { readonly [S in SearchTaskState]?: string } = { 'DG-1': 'DG-1', 'DG-2': 'DG-2', 'DG-3': 'DG-3', 'PM-4': 'DG-4' }
 
-// Spec: T-019a
 // Trap: the PS rows top down, which is the order of their words; a state out of that order shows another's words.
 const STATES_IN_TABLE_ORDER: readonly PlanActualState[] = [
   'notStarted',
@@ -152,7 +147,6 @@ const PANEL_HEADING = displayWords.surfaces.find((entry) => entry.name === SEARC
 
 export type SearchPanelShown = WindowShown
 
-// Spec: SJ-1, SQ-5, DT-1
 export interface SearchRowView {
   readonly cells: readonly string[]
   readonly glyph: MarkGlyph | null
@@ -181,7 +175,6 @@ export interface SearchPanelView {
   readonly columns: readonly SearchColumnView[]
   readonly filterMenu: SearchFilterMenuView | null
   readonly rows: readonly SearchRowView[]
-  // Spec: SJ-1, SQ-5
   readonly jumpAt?: number
   readonly glyphAt?: number | null
   readonly showAt?: number | null
@@ -197,7 +190,7 @@ function stateWordOf(state: SearchTaskState, language: DisplayLanguage): string 
   return wordOf(STATE_WORDS.get(state)?.text, language)
 }
 
-// Spec: TL-8, SQ-5
+// Spec: TL-8, SQ-5, IMPS-622
 // Why: the task tooltip's progress line names the state in the Status column's words, so the two never differ on one task.
 /** @purity pure */
 export function taskStateWordOf(
@@ -222,7 +215,7 @@ export function taskTypeWordsIn(language: DisplayLanguage): readonly string[] {
   return TASK_TYPES_ASCENDING.map((taskType) => taskTypeWordOf(taskType, language))
 }
 
-// Spec: T-331, TX-4
+// Spec: T-331, TX-4, IMPS-1870, IMPS-1872
 /** @purity pure */
 function taskCells(row: TaskSearchRow, language: DisplayLanguage, times: ShownDateTimes): readonly string[] {
   const name = row.name === '' ? wordOf(PANEL_WORDS.get('noName')?.text, language) : row.name
@@ -248,7 +241,7 @@ function commentBoxCells(row: CommentBoxSearchRow): readonly string[] {
   return [searchBodyTextOf(row.text), row.taskGroupName, dateText(row.anchorDate)]
 }
 
-// Spec: SV-4, SV-7, SV-8, SJ-1
+// Spec: SV-4, SV-7, SV-8, SJ-1, IMPS-1871
 /** @purity pure */
 function rowsOf(found: SearchRows, panel: SearchPanelSession, view: TableView, language: DisplayLanguage,
                 times: ShownDateTimes): readonly SearchRowView[] {
@@ -301,7 +294,7 @@ function widthSamplesIn(all: SearchRows, panel: SearchPanelSession, language: Di
   }
 }
 
-// Spec: SV-6, SV-7, SV-18, T-331
+// Spec: SV-6, SV-7, SV-18, T-331, IMPS-1858
 /** @purity pure */
 function searchTableOf(
   session: ScreenSession,
@@ -331,7 +324,7 @@ function shownIn(session: ScreenSession): SearchPanelShown | null {
   return display.kind === 'hidden' ? null : display.child.kind
 }
 
-// see TV-5, SQ-10, JDG-2820
+// Spec: TV-5, SQ-10
 // Why: one checked task is enough to apply, every row checked included (JDG-2825).
 /** @purity pure */
 function searchFilterReadinessOf(view: TableView, schedule: Schedule): ScheduleFilterReadiness {
@@ -343,7 +336,7 @@ function taskUidSetOf(schedule: Schedule): ReadonlySet<number> {
   return new Set(schedule.tasks.map((task) => task.uid))
 }
 
-// Spec: FR-151, T-330, S-442, SQ-5, S-560, TX-4
+// Spec: FR-151, T-330, S-442, SQ-5, S-560, TX-4, IMPS-1857, IMPS-1868, IMPS-1869
 // Why: view is the search table's view the document holds (tableViewOf), the panel the screen-only values.
 /** @purity pure */
 export function searchPanelFromSession(

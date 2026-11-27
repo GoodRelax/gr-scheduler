@@ -145,6 +145,11 @@ ARMS_SHAPE_FIELD = 'armsShape'
 # tools/generate_unit_tree.py turns the same dash into a purity of 'n/a'.
 EM_DASH = u'—'
 
+# The map from a row id of table T-103 to the one UI part name it settles.
+# src/ reads a UI part name through it (rule 03 section 1, JDG-3836): a rename
+# of a UI part is then a change of the manuscript only.
+UI_PART_NAMES_FIELD = 'uiPartNames'
+
 BANNER = (
     'GENERATED -- do not edit by hand. Generated from %s, table %s (the whole '
     'of the icons, FR-029). Rebuild: npm run gen -- npm run gen:check fails on '
@@ -155,9 +160,13 @@ BANNER = (
     'tools/generate_entity_types.py prints it into src/. '
     '`%s` is a seventh field and no column of it -- it is derived from table '
     '%s of %s and from %s, and it exists because the arm column names a KIND '
-    'of arm that stands against several entries at once.'
+    'of arm that stands against several entries at once. '
+    '`%s` maps each row id of table %s that names exactly one UI part to that '
+    'name, so src/ looks a UI part name up by its row id and never spells it '
+    '(rule 03 section 1).'
     % (REL_GLOSSARY, ICON_TABLE, REL_SELF, ICON_TABLE, ARMS_SHAPE_FIELD,
-       SHAPE_TABLE, REL_REQUIREMENTS, REL_ERD))
+       SHAPE_TABLE, REL_REQUIREMENTS, REL_ERD, UI_PART_NAMES_FIELD,
+       SURFACE_TABLE))
 
 
 def code_spans(cell):
@@ -388,7 +397,29 @@ def build():
         '$comment': BANNER,
         'columns': dict(zip(FIELDS, headings)),
         'icons': icons,
+        UI_PART_NAMES_FIELD: ui_part_names(),
     }
+
+
+def ui_part_names():
+    """{row id of table T-103: its name}, for every row that prints one name.
+
+    A row printing two names (`Palette Groups` / `Palette Commands`) names two
+    parts under one id, so no single name stands for the id and the row is
+    left out."""
+    # @purity semi-pure-mutable
+    doc = json.load(io.open(glossary_json_to_md.SRC, encoding='utf-8'))
+    layout = json.load(io.open(glossary_json_to_md.LAYOUT, encoding='utf-8'))
+    by_key = dict((t['key'], t) for t in doc['terms'])
+    names = {}
+    for row_id, cell in glossary_json_to_md.surface_names(layout, by_key).items():
+        spans = code_spans(cell)
+        if len(spans) == 1 and cell == '`%s`' % spans[0]:
+            names[row_id] = spans[0]
+    if not names:
+        sys.exit('generate_icon_roster: table %s settles no UI part name'
+                 % SURFACE_TABLE)
+    return names
 
 
 def switch_column(table_headings):

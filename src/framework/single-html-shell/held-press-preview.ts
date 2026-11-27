@@ -26,7 +26,6 @@ import { DEFAULT_TASK_GROUP_NAME } from '../../adapter/screen-renderer/screen-re
 import type { FrameLoopHands, FrameValues } from './frame-loop'
 import type { GrabbedArea } from './pointer-shape'
 
-// Spec: T-023d, FR-052
 const PREVIEWED_GRABS: Readonly<Record<GrabbedArea, boolean>> = {
   'GA-1': true,
   'GA-2': true,
@@ -73,7 +72,7 @@ export function marqueeRect(
   return { x: Math.min(press.at.x, at.x), y: Math.min(press.at.y, at.y), width, height }
 }
 
-// Spec: T-023d, PTD-3, FR-009
+// Spec: T-023d, PTD-3, FR-009, IMPS-335
 /** @purity pure */
 function isPreviewedPress(press: PointerPress | null, isDependencyArmed: boolean): boolean {
   if (press === null) return false
@@ -87,6 +86,7 @@ function isPreviewedPress(press: PointerPress | null, isDependencyArmed: boolean
 
 export type HeldPressPreviewHands = Pick<FrameLoopHands, 'readSession' | 'readHeld' | 'readValues' | 'settingsLimitsOf'>
 
+// Spec: IMPS-1559, IMPS-1784, IMPS-1785, IMPS-1801
 /** @purity semi-pure-mutable */
 export function previewOfHeldPress(
   hands: HeldPressPreviewHands,
@@ -113,13 +113,13 @@ export function previewOfHeldPress(
   return drawn
 }
 
-// Spec: FR-052, U-50
+// Spec: FR-052, U-50, IMPS-1780, IMPS-1781, IMPS-1782
 /** @purity pure */
 export function isLeavingTaskGroupArea(propertyPanelWidth: number, regions: ScreenRegions): boolean {
   return regions.taskGroupArea.width + regions.propertiesPanel.width - propertyPanelWidth > 0
 }
 
-// Spec: FR-052, S-248, T-280
+// Spec: FR-052, S-248, T-280, IMPS-1784
 /** @purity pure */
 export function heldPropertyPanelWidthOf(
   press: PointerPress | null,
@@ -133,7 +133,7 @@ export function heldPropertyPanelWidthOf(
   return isLeavingTaskGroupArea(settled.propertyPanelWidth, context.regions) ? settled.propertyPanelWidth : null
 }
 
-// Spec: FR-009, PTD-3, T-018, T-018a
+// Spec: FR-009, PTD-3, T-018, T-018a, IMPS-329, IMPS-330, IMPS-331, IMPS-332, IMPS-333, IMPS-334, IMPS-336, IMPS-335
 /** @purity semi-pure-mutable */
 export function tentativeDependencyOf(
   hands: HeldPressPreviewHands, press: PointerPress | null,

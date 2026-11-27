@@ -48,7 +48,6 @@ export type JsonDecoding =
       readonly ok: true
       readonly document: Document
       readonly clampedCount: number
-      // Spec: FR-012, RS-52
       readonly recountedCount: number
       readonly formatVersion: FormatVersionReading
       readonly unreadColumns: readonly string[]
@@ -117,7 +116,7 @@ interface SettingsReading {
   readonly rest: readonly JsonFault[]
 }
 
-// Spec: OP-6, T-220
+// Spec: OP-6, T-220, IMPS-1314, IMPS-1315, IMPS-1004, IX-3, IMPS-1230, IMPS-738
 // Why: a nested key has one default only, so any fault inside it sets the whole top key back;
 // a missing top key is left for restoredSettings, which fills it on replace and not on merge.
 /** @purity pure */
@@ -157,7 +156,7 @@ interface SortedFaults {
   readonly unreadColumns: readonly string[]
 }
 
-// Spec: OP-6, FR-073
+// Spec: OP-6, FR-073, IMPS-1316, IMPS-1002, IMPS-1319, IMPS-1004, IMPS-1005, IMPS-1006, IMPS-944
 /** @purity pure */
 function sortedFaults(parsed: unknown, faults: readonly JsonFault[], isNewer: boolean): SortedFaults {
   const settings = readSettingsFaults(parsed, faults)
@@ -173,6 +172,7 @@ function sortedFaults(parsed: unknown, faults: readonly JsonFault[], isNewer: bo
   return { refusing: settings.rest.filter((one) => !unreadFaults.includes(one)), shaped, unreadColumns }
 }
 
+// Spec: IMPS-1001, IMPS-1012
 /** @purity pure */
 function formatVersionReading(
   schemaVersion: string,
@@ -182,7 +182,7 @@ function formatVersionReading(
   return schemaVersion > greatestKnownSchemaVersion ? 'newerThanKnown' : 'known'
 }
 
-// Spec: FR-024
+// Spec: IMPS-943
 /** @purity pure */
 function withOwnSchemaVersion(parsed: unknown, greatestKnownSchemaVersion: string | undefined): unknown {
   if (greatestKnownSchemaVersion === undefined || !isObject(parsed)) return parsed
@@ -194,7 +194,7 @@ interface OlderActualShape {
   readonly lengthByTaskIndex: ReadonlyMap<number, unknown>
 }
 
-// Spec: FR-011, FR-073
+// Spec: IMPS-424
 /** @purity pure */
 function withStopInPlaceOfActualDuration(parsed: unknown): OlderActualShape {
   const lengthByTaskIndex = new Map<number, unknown>()
@@ -228,7 +228,6 @@ function withTaskGroupColumnsOfAnOlderVersion(parsed: unknown): unknown {
   return { ...parsed, schedule: { ...schedule, taskGroups: shapedTaskGroups } }
 }
 
-// Spec: AT-145, AT-146, AT-147, AT-148, AT-149, AT-150, AT-151, AT-152, AT-168
 const ANNOTATION_LOOK_COLUMNS: readonly { readonly collection: string; readonly keys: readonly string[] }[] = [
   { collection: 'highlightBoxes', keys: ['strokeWidthPx', 'fillColor', 'fillTransparencyPercent'] },
   {
@@ -237,7 +236,7 @@ const ANNOTATION_LOOK_COLUMNS: readonly { readonly collection: string; readonly 
   },
 ]
 
-// Spec: FR-019, CP-20
+// Spec: IMPS-1309, CP-20
 // Why: not gated by schemaVersion and not told: null draws what a box drew before the columns existed, so no
 // document of any version looks different and the reader has nothing to correct.
 /** @purity pure */
@@ -256,7 +255,6 @@ function withAnnotationLookColumns(parsed: unknown): unknown {
   return changedSchedule === schedule ? parsed : { ...parsed, schedule: changedSchedule }
 }
 
-// Spec: AT-143
 // Why: not gated by schemaVersion (AT-143 reads any document without the column), and not in the
 // generated schema, which can state a default but not one read from the document's own carry.
 /** @purity pure */
@@ -271,13 +269,12 @@ function withSourceFormatOfAnOlderDocument(parsed: unknown): unknown {
   return { ...parsed, schedule: { ...schedule, project: { ...project, sourceFormat } } }
 }
 
-// Spec: S-9, T-297
 const RETIRED_COLUMNS: readonly { readonly entity: string; readonly key: string }[] = [
   { entity: 'TaskVisual', key: 'nameAnchor' },
   { entity: 'TaskVisual', key: 'nameAlign' },
 ]
 
-// Spec: S-9, T-297
+// Spec: IMPS-1308, RK-1, RK-2
 // Why: an older document still carries these keys, often null; the schema no longer lists them,
 // so validating without this step would refuse every such document.
 /** @purity pure */
@@ -316,7 +313,7 @@ function olderLengthFaults(lengthByTaskIndex: ReadonlyMap<number, unknown>): Jso
   return out
 }
 
-// Spec: FR-011, AT-141
+// Spec: IMPS-424
 /** @purity pure */
 function withStopsFromOlderLengths(
   document: Document,
@@ -353,7 +350,7 @@ function documentWithoutAddress(shaped: unknown): Document {
   return withoutKeyAt(shaped, [SCHEMA_ADDRESS_KEY]) as unknown as Document
 }
 
-// Spec: FR-023, FR-073, OP-7, FR-012
+// Spec: FR-023, FR-073, OP-7, FR-012, IMPS-1306, IMPS-1307, IMPS-1002, IMPS-1007
 /** @purity pure */
 export function documentFromJson(
   text: string,
@@ -405,7 +402,7 @@ function spanTextOf(settings: DocumentSettings, key: 'fitSpanStart' | 'fitSpanFi
   return typeof value === 'string' ? value : null
 }
 
-// Spec: FX-1, S-518, S-519, S-532
+// Spec: FX-1, S-518, S-519, S-532, IMPS-945
 // Why: a read never refuses a presentation value (T-220 preamble): one dated end is copied, a reversed
 // finish is pulled to the start, a fix over no span reads unfixed; none counts toward RS-51.
 /** @purity pure */
@@ -426,7 +423,7 @@ function pairedFitSpan(settings: DocumentSettings): DocumentSettings {
   }
 }
 
-// Spec: FR-012, OP-6, RS-51, RS-52, OP-18
+// Spec: FR-012, OP-6, RS-51, RS-52, OP-18, IMPS-468
 // Why: a hidden uid the schedule does not hold is dropped silently, never refused (OP-18), and counts toward no notice.
 /** @purity pure */
 function settledReading(
@@ -457,7 +454,7 @@ function settledReading(
   }
 }
 
-// Spec: FR-024, DR-4, S-540
+// Spec: FR-024, DR-4, S-540, IMPS-1388, IMPS-1060, IMPS-1384, IMPS-940, IMPS-941, IMPS-942
 /** @purity pure */
 export function jsonFromDocument(document: Document): string {
   const addressed = Object.fromEntries([

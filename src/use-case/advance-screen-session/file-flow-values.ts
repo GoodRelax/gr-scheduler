@@ -31,7 +31,6 @@ export interface FileFlowMergeCandidate {
   readonly incomingName: string | null
 }
 
-// Spec: FR-155, SX-3
 export type FileFlowWriteForm =
   | { readonly kind: 'save' }
   | { readonly kind: 'export'; readonly format: string }
@@ -41,7 +40,6 @@ export type FileFlowWriteForm =
 // Why: the rows of the fix proposals (FR-155), carried opaquely; the shell issues them, so no edge to Schedule.
 export type FileFlowFixBundle = readonly { readonly fixRow: string }[]
 
-// Spec: NT-7, U-55
 export interface FileFlowQuestion {
   readonly manner: string
   readonly question: 'QN-1' | 'QN-2' | 'QN-3' | 'QN-4' | 'QN-5' | 'QN-10' | 'QN-11' | 'QN-14' | 'QN-15' | 'QN-16' | 'QN-17'
@@ -71,7 +69,6 @@ export type FileFlowImportAnswer =
   | { readonly kind: 'openChoice'; readonly openChoice: FileFlowOpenChoice }
   | { readonly kind: 'mergeMapping'; readonly mergeMapping: FileFlowMergeMapping }
 
-// Spec: OP-16
 export interface FileFlowIncomingFile {
   readonly fileName: string | null
   readonly byteLength: number
@@ -83,7 +80,6 @@ export interface FileFlowValuesStateCarried {
   readonly openedFileName: string | null
   readonly droppedTaskNames: readonly (string | null)[]
   readonly missingTaskNames: readonly (string | null)[]
-  // Spec: FR-076, U-62
   readonly reportedCounts: readonly { readonly reason: string; readonly count: number }[]
   readonly openRoute: FileFlowOpenRoute
   readonly mergeCandidates: readonly FileFlowMergeCandidate[]
@@ -297,7 +293,6 @@ const NOTHING_UNSAVED = FILE_FLOW_VALUES_INITIAL_AXES.unsavedEditsState
 
 const EDITS_UNSAVED: UnsavedEditsState = { kind: 'editsUnsaved' }
 
-// Spec: T-290
 export const emptyFileFlowValues: FileFlowValues = {
   ...FILE_FLOW_VALUES_INITIAL_AXES,
   openedFileName: null,
@@ -316,13 +311,13 @@ function emptied(names: readonly (string | null)[]): readonly (string | null)[] 
   return names.length === 0 ? names : NO_TASK_NAMES
 }
 
-// Spec: FR-095, QN-5, T-234
+// Spec: IMPS-1053, IMPS-1054
 /** @purity pure */
 function isAskedNow(values: FileFlowValues, question: FileFlowQuestion): boolean {
   return QUESTION_DISPLAY_OF_ROW[question.question] === 'ask' || values.unsavedEditsState.kind === 'editsUnsaved'
 }
 
-// Spec: OP-4, QN-5, RD-4
+// Spec: OP-4, QN-5, RD-4, IMPS-1054
 /** @purity pure */
 function discardAskedWhenUnsaved(values: FileFlowValues, question: FileFlowQuestion): FileFlowStep {
   if (isAskedNow(values, question)) return discardAsked(values, question)
@@ -363,7 +358,7 @@ function discardAsked(values: FileFlowValues, question: FileFlowQuestion): FileF
   return combined(values, { fileOperationState: discarding, confirmationState: asked(question, null) }, NO_EFFECTS)
 }
 
-// Spec: T-290, OP-2, OP-8, OP-13
+// Spec: T-290, OP-2, OP-8, OP-13, MG-9a
 /** @purity pure */
 function onDocumentOpenAsked(values: FileFlowValues, event: EventOf<'documentOpenAsked'>): FileFlowStep {
   if (values.fileOperationState.kind !== 'idle' || isQuestionAsked(values)) return refused(values)
@@ -393,6 +388,7 @@ function onDocumentFileWriteAsked(values: FileFlowValues, event: EventOf<'docume
   return combined(values, { fileOperationState: writing }, [{ type: 'writeDocumentFile', writeForm: event.writeForm }])
 }
 
+// Spec: IMPS-647, IMPS-648
 /** @purity pure */
 function fixBundleIssued(operation: FileOperationState): Effects {
   if (operation.kind !== 'writingDocumentFile') return NO_EFFECTS
@@ -470,6 +466,7 @@ function onConfirmationAnswered(values: FileFlowValues, event: EventOf<'confirma
   return combined(values, moves, [...operation.effects, ...confirmation.effects])
 }
 
+// Spec: IMPS-900
 /** @purity pure */
 function onMergeMappingAsked(values: FileFlowValues, event: EventOf<'mergeMappingAsked'>): FileFlowStep {
   if (values.fileOperationState.kind !== 'importingDocument') return unchanged(values)
@@ -508,6 +505,7 @@ function onFlowSurfaceClosed(values: FileFlowValues, event: EventOf<'flowSurface
   return combined(values, { ...names, fileOperationState: IDLE }, [{ type: 'discardIncomingDocument' }])
 }
 
+// Spec: IMPS-980, IMPS-981, IMPS-471, IMPS-472, IMPS-1133
 // Why: a landing that carries no name keeps the one shown, as today's open road does (DFC-574).
 /** @purity pure */
 function onDocumentOpenLanded(values: FileFlowValues, event: EventOf<'documentOpenLanded'>): FileFlowStep {
@@ -542,7 +540,7 @@ function onDiagnosticFixBackupSaved(values: FileFlowValues): FileFlowStep {
   return combined(values, { fileOperationState: IDLE }, fixBundleIssued(values.fileOperationState))
 }
 
-// Spec: T-290, FR-100, ZE-4
+// Spec: T-290, FR-100, ZE-4, IMPS-978, IMPS-979, IMPS-981, IMPS-1404
 /** @purity pure */
 function onDocumentEditLanded(values: FileFlowValues, event: EventOf<'documentEditLanded'>): FileFlowStep {
   if (values.unsavedEditsState.kind === 'editsUnsaved') {
@@ -552,19 +550,19 @@ function onDocumentEditLanded(values: FileFlowValues, event: EventOf<'documentEd
   return combined(values, { unsavedEditsState: EDITS_UNSAVED }, NO_EFFECTS)
 }
 
-// Spec: T-290, FR-095, RD-6, RD-7
 /** @purity pure */
 function onDocumentHeldAfresh(values: FileFlowValues): FileFlowStep {
   return combined(values, { unsavedEditsState: unsavedEditsMoved(values.unsavedEditsState, NOTHING_UNSAVED) }, NO_EFFECTS)
 }
 
-// Spec: T-290, FR-095, FR-101
+// Spec: IMPS-1056, IMPS-981
 /** @purity pure */
 function onNewDocumentLanded(values: FileFlowValues): FileFlowStep {
   const unsavedEditsState = unsavedEditsMoved(values.unsavedEditsState, NOTHING_UNSAVED)
   return combined(values, { openedFileName: null, unsavedEditsState }, NO_EFFECTS)
 }
 
+// Spec: IMPS-648
 /** @purity pure */
 function onDocumentFileWriteEnded(values: FileFlowValues): FileFlowStep {
   if (values.fileOperationState.kind !== 'writingDocumentFile') return unchanged(values)
@@ -577,7 +575,7 @@ function onChangeQuestionRaised(values: FileFlowValues, event: EventOf<'changeQu
   return combined(values, { confirmationState: asked(event.question, event.owedAction) }, NO_EFFECTS)
 }
 
-// Spec: T-290, FR-095, QN-5
+// Spec: IMPS-1053, IMPS-1054
 /** @purity pure */
 function onNewDocumentEntryPressed(values: FileFlowValues, event: EventOf<'newDocumentEntryPressed'>): FileFlowStep {
   if (isQuestionAsked(values)) return refused(values)
@@ -586,7 +584,7 @@ function onNewDocumentEntryPressed(values: FileFlowValues, event: EventOf<'newDo
   return combined(values, { confirmationState: asked(event.question, owedAction) }, NO_EFFECTS)
 }
 
-// Spec: FR-153, QN-11, T-290
+// Spec: IMPS-986
 /** @purity pure */
 function onGrsResetEntryPressed(values: FileFlowValues, event: EventOf<'grsResetEntryPressed'>): FileFlowStep {
   if (isQuestionAsked(values)) return refused(values)

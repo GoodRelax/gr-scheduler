@@ -75,7 +75,7 @@ function withProject(document: Document, project: Document['schedule']['project'
   return { ...document, schedule: { ...document.schedule, project } }
 }
 
-// Spec: CM-1, CM-2, CM-3, CM-4, CM-5, CM-87, CM-94, CM-98
+// Spec: CM-1, CM-2, CM-3, CM-4, CM-5, CM-87, CM-94, CM-98, IMPS-312
 /** @purity pure */
 export function editProject(document: Document, command: ProjectCommand): EditResult {
   const project = document.schedule.project
@@ -123,7 +123,6 @@ export function editProject(document: Document, command: ProjectCommand): EditRe
 
 type ProjectValueCommand = Extract<ProjectCommand, { readonly kind: 'setParentTaskProgressToleranceDays' | 'setScheduleDataTimeZone' | 'shiftScheduleTimes' }>
 
-// Spec: CM-87, CM-94, CM-98
 /** @purity pure */
 function projectValueEdited(document: Document, command: ProjectValueCommand): EditResult {
   if (command.kind === 'setParentTaskProgressToleranceDays') {
@@ -135,7 +134,7 @@ function projectValueEdited(document: Document, command: ProjectValueCommand): E
   return withScheduleTimesShifted(document, command.minutes)
 }
 
-// Spec: CM-94, FR-156, T-376
+// Spec: IMPS-737
 // Why: the stored numbers stay; only the time zone they are read in moves (FR-156, Don't Convert).
 /** @purity pure */
 function withScheduleDataTimeZone(document: Document, timeZone: string): EditResult {
@@ -147,13 +146,11 @@ function withScheduleDataTimeZone(document: Document, timeZone: string): EditRes
   return edited(withProject(document, { ...project, scheduleDataTimeZone: timeZone }))
 }
 
-// Spec: BS-1, WT-1, WT-2, WT-3, WT-4, WT-5
 // Why: every date column of Task is one of the columns WT-1 to WT-5 name, and the reverse (BS-1).
 const SHIFTED_TASK_COLUMNS = DATE_COLUMNS.Task as readonly (keyof Task & string)[]
 
 const SHIFTED_BASELINE_COLUMNS = DATE_COLUMNS.BaselineTask as readonly (keyof BaselineTask & string)[]
 
-// Spec: BS-4, T-214
 const ACCEPTED_DAYS = {
   first: dayOf(SETTINGS_CONSTANTS.importMinDate),
   last: dayOf(SETTINGS_CONSTANTS.importMaxDate),
@@ -195,7 +192,7 @@ function shiftedRow<TRow extends Task | BaselineTask>(
   return { row: held, outside }
 }
 
-// Spec: CM-98, FR-157, T-377, BS-1, BS-2, BS-4, FR-054, WT-1, WT-4
+// Spec: CM-98, FR-157, T-377, BS-1, BS-2, BS-4, FR-054, WT-1, WT-4, IMPS-748, IMPS-749
 // Why: one write for every column BS-1 names; the calendar and the whole-day ranges (BS-2) stay, as FR-157 says.
 /** @purity pure */
 function withScheduleTimesShifted(document: Document, minutes: number): EditResult {
@@ -230,7 +227,7 @@ function withScheduleTimesShifted(document: Document, minutes: number): EditResu
   })
 }
 
-// Spec: CM-2, PF-8
+// Spec: CM-2, PF-8, IMPS-1017, IMPS-1018, IMPS-1097, PF-1, PF-2, PF-3, PF-4, PF-5, PF-6, PF-7, PF-9
 /** @purity pure */
 function withProjectProfile(document: Document, fields: ProjectProfileFields): EditResult {
   const project = document.schedule.project
@@ -249,7 +246,7 @@ function withProjectProfile(document: Document, fields: ProjectProfileFields): E
   return edited(withProject(document, held))
 }
 
-// Spec: CM-87, FR-131, S-487
+// Spec: IMPS-577
 // Why: refused, not clamped: a value moved into range would differ from the value the author set.
 /** @purity pure */
 function withParentTaskProgressTolerance(document: Document, workingDays: number): EditResult {

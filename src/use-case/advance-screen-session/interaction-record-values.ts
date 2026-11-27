@@ -41,9 +41,9 @@ const INTERACTION_RECORD_VALUES_INITIAL_AXES: InteractionRecordValuesAxes = {
 
 type InteractionRecordStep = Step<InteractionRecordValues, InteractionRecordValuesEffect>
 
-// Spec: T-295
 export const emptyInteractionRecordValues: InteractionRecordValues = { ...INTERACTION_RECORD_VALUES_INITIAL_AXES }
 
+// Spec: IMPS-819
 // Why: one entrance both begins and stops (FR-102, IC-76); the record's lines stay with the shell.
 /** @purity pure */
 function onInteractionRecordToggled(values: InteractionRecordValues): InteractionRecordStep {

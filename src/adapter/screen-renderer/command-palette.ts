@@ -29,7 +29,7 @@ import displayWords from './display-words.json'
 
 type IconRosterRow = (typeof iconRoster.icons)[number]
 
-const COMMAND_PALETTE = 'Command Palette'
+const COMMAND_PALETTE = iconRoster.uiPartNames['U-26']
 
 const ALIGN_REQUIREMENT = 'FR-034'
 
@@ -51,7 +51,6 @@ const GROUP_NAMES_BY_FIRST_ROW = new Map(
 
 const ARM_WORDS_BY_ROW = new Map(displayWords.arms.map((entry) => [entry.specTableRowId, entry]))
 
-// Spec: FR-036, FR-038
 /** @purity pure */
 function groupName(groupCell: string, firstRow: string, language: DisplayLanguage): string {
   const word = GROUP_NAMES_BY_FIRST_ROW.get(firstRow)?.name[language]
@@ -59,7 +58,7 @@ function groupName(groupCell: string, firstRow: string, language: DisplayLanguag
   return word === '' ? groupCell : word
 }
 
-// Spec: FR-029, FR-034
+// Spec: IMPS-1108, IMPS-1109
 /** @purity pure */
 function isEntryUsable(
   row: IconRosterRow,
@@ -90,7 +89,7 @@ function drawnTaskUids(
   return uids
 }
 
-// Spec: FR-049, T-109
+// Spec: IMPS-865
 /** @purity pure */
 function isSettingsToggleOn(row: IconRosterRow, settings: DocumentSettings): boolean {
   if (!Object.prototype.hasOwnProperty.call(VISIBLE_ELEMENT_BY_ENTRY, row.specTableRowId)) return false
@@ -108,10 +107,8 @@ const WATERMARK_ROW: IconId = 'IC-41'
 
 const RESOURCE_LIST_ROW: IconId = 'IC-62'
 
-// Spec: T-280, U-56, U-61
 const FLOW_SURFACES_AWAITING_ANSWER: ReadonlySet<string> = new Set(['U-56', 'U-61'])
 
-// Spec: FR-029, T-237
 interface EntranceFacts {
   readonly settings: DocumentSettings
   readonly guideCursorMode: ScreenValues['guideCursorMode']
@@ -132,7 +129,7 @@ function isExclusiveChoiceChosen(row: IconRosterRow, facts: EntranceFacts): bool
   return mode !== undefined && facts.guideCursorMode === mode
 }
 
-// Spec: FR-046, FR-049, T-237
+// Spec: IMPS-539, EN-2, EN-5, EN-7
 // Why: EN-7, EN-5 and EN-2 paint alike (S-183), so the drawn line and the shown watermark ride on isPressed.
 /** @purity pure */
 function isEntryOn(row: IconRosterRow, facts: EntranceFacts): boolean {
@@ -142,7 +139,6 @@ function isEntryOn(row: IconRosterRow, facts: EntranceFacts): boolean {
   return isSettingsToggleOn(row, facts.settings)
 }
 
-// Spec: FR-046, FR-048
 /** @purity pure */
 function entranceFactsOf(
   settings: DocumentSettings,
@@ -167,7 +163,7 @@ function isFlowSurfaceOpen(open: ScreenValues['openSurfaceState']): boolean {
   return open.kind === 'open' && FLOW_SURFACES_AWAITING_ANSWER.has(open.surfaceName)
 }
 
-// Spec: FR-029, T-280, RS-27, IC-41
+// Spec: IMPS-1108
 // Why: T-280 refuses a surface entry over U-56 / U-61 with RS-27; IC-41 opens one only while shown.
 /** @purity pure */
 function isSurfaceEntryRefused(row: IconRosterRow, facts: EntranceFacts): boolean {
@@ -181,7 +177,7 @@ function scheduleFilterMarkOf(row: IconRosterRow, facts: EntranceFacts): Pick<Co
   return row.specTableRowId === RESOURCE_LIST_ROW && facts.isResourceListFiltered ? { isScheduleFilterApplied: true } : {}
 }
 
-// Spec: FR-049, FR-053, FR-102
+// Spec: IMPS-1805, IMPS-820
 /** @purity pure */
 function commandItemFor(
   row: IconRosterRow,
@@ -209,12 +205,13 @@ function isMilestoneGlyphEntry(row: IconRosterRow): boolean {
   return !MILESTONE_LIST_CONTROL_TASK_GROUPS.includes(row.specTableRowId)
 }
 
+// Spec: IMPS-1829
 /** @purity pure */
 function isFoldedMilestoneGlyph(met: number): boolean {
   return met > NOT_STORED_COMMAND_PALETTE_SIZES['S-216']
 }
 
-// Spec: T-109, FR-053
+// Spec: IMPS-1829, IMPS-1830
 /** @purity pure */
 function paletteGroups(
   selection: Selection,
@@ -268,7 +265,6 @@ interface ArmedEntry {
   readonly shape: string | null
 }
 
-// Spec: T-023b
 /** @purity pure */
 function armedEntry(armMode: ScreenSession['screen']['armModeState']): ArmedEntry {
   const armed = armedOf(armMode)
@@ -289,7 +285,7 @@ function armedEntry(armMode: ScreenSession['screen']['armModeState']): ArmedEntr
   }
 }
 
-// Spec: FR-038, FR-053
+// Spec: IMPS-1495, IMPS-1496, IMPS-1808
 // Provisional: OPQ-4
 /** @purity pure */
 function armedWord(
@@ -315,7 +311,7 @@ function isRecordingInteractions(readings: ScreenViewReadings): boolean {
   return readings.isRecordingInteractions === true
 }
 
-// Spec: FR-053, S-99e
+// Spec: FR-053, S-99e, IMPS-1808, IMPS-1823, IMPS-1838, IMPS-1841
 /** @purity pure */
 export function commandPaletteFromSession(
   session: ScreenSession,
@@ -340,7 +336,6 @@ export function commandPaletteFromSession(
     at: readings.commandPaletteAt,
     grabBandHeight: NOT_STORED_COMMAND_PALETTE_SIZES['S-135a'],
     minimize: bandItem(MINIMIZE_ROW),
-    // Spec: FR-053, FR-102, S-206
     bandRecord: isMinimized && isRecording ? bandItem(INTERACTION_RECORD_ROW) : null,
     isMinimized,
     groups: isMinimized

@@ -103,15 +103,12 @@ export { taskGroupAnchorIn, taskGroupIndexAtTopEdge } from './task-group-scroll'
 export { clockTextOf, lengthTextOf, isPlanSpanningYears, planDateText } from './name-label'
 export type { FitToScreen, NotStoredZoom } from './fit-zoom'
 
-// Spec: L-1
 export type RulerTier = 'year' | 'yearMonth' | 'yearMonthWeek' | 'yearMonthDayWeekday' | 'dayHour'
 
-// Spec: LP-1, LP-2
 export type LabelPlacement = 'inside' | 'right'
 
 export type MilestoneGlyph = NonNullable<TaskVisual['milestoneGlyph']>
 
-// Spec: T-012, AT-100
 export type ShapeKind = NonNullable<TaskVisual['shapeKind']>
 
 export interface TaskPlacement {
@@ -152,9 +149,7 @@ export interface TaskPlacement {
   readonly outsideLabelWidth: number
   readonly occupiedX0: number
   readonly occupiedX1: number
-  // Spec: DA-4
   readonly deadlineX: number | null
-  // Spec: AT-104, VG-5
   // Why: optional, so a placement built without it still lays out; absent reads S-39 (outlineWidthOf).
   readonly outlineWidth?: number
 }
@@ -185,11 +180,9 @@ export interface ScheduleLayout {
   readonly pinnedBandHeight?: number
   readonly scrollAreaY?: number
   readonly stackSafetyCapReached: StackSafetyCapStop | null
-  // Spec: TV-1, TV-3, EL-20
   readonly shownTaskUids?: ReadonlySet<number> | null
 }
 
-// Spec: ST-7
 export interface StackSafetyCapStop {
   readonly taskGroupId: string
   readonly cap: number
@@ -199,11 +192,9 @@ export interface StackSafetyCapStop {
 export interface DayReader {
   day(text: string | null): CalendarDay | null
   walk(from: CalendarDay, workingDays: number): CalendarDay
-  // Spec: TX-1, FR-054, FR-156
   shown(text: string | null, side: DateTimeSide): number | null
 }
 
-// Spec: RV-1, RV-6, FR-158
 // Why: the left and right edges as a fractional day serial: a whole column without time of day, the instant with it.
 // Why: reading is the side a date without a time is read on (FR-054, T-350): a milestone's start and the deadline finish.
 interface EdgeReader {
@@ -211,7 +202,7 @@ interface EdgeReader {
   readonly isTimeOfDayVisible: boolean
 }
 
-// Spec: DC-2, DC-3, CU-3, T-378, TX-6, FR-158
+// Spec: DC-2, DC-3, CU-3, T-378, TX-6, FR-158, IMPS-1604
 // Why: on the day unit (SG-1) the line stands on the day the point is in, as without time of day; finer, on the snapped instant.
 /** @purity pure */
 export function cursorInstantAtX(
@@ -274,7 +265,7 @@ function dayReaderFor(within: WorkingCalendar, isTimeOfDayVisible: boolean, show
 
 const NO_ASSIGNEE_MARK = '-'
 
-// Spec: VG-2, VG-5, LF-2, DS-10
+// Spec: VG-2, VG-5, LF-2, DS-10, IMPS-1902, VG-1, VG-4
 /** @purity pure */
 function verticalGapOf(settings: DrawnSettings): number {
   return settings.stackGap + settings.dependencyWidth + settings.stackGap
@@ -318,7 +309,6 @@ function placedFadeOf(task: Task, fade: { readonly fadeIn: number; readonly fade
   }
 }
 
-// Spec: AT-100
 /** @purity pure */
 function shapeKindOf(visualByUid: ReadonlyMap<number, TaskVisual>, task: Task): ShapeKind {
   const kind = visualByUid.get(task.uid)?.shapeKind ?? null
@@ -326,6 +316,7 @@ function shapeKindOf(visualByUid: ReadonlyMap<number, TaskVisual>, task: Task): 
   return task.milestone === true ? 'milestone' : 'rectangle'
 }
 
+// Spec: IMPS-1895
 /** @purity pure */
 function milestoneGlyphOf(
   visualByUid: ReadonlyMap<number, TaskVisual>,
@@ -334,7 +325,7 @@ function milestoneGlyphOf(
   return visualByUid.get(task.uid)?.milestoneGlyph ?? COLUMN_DEFAULTS.TaskVisual.milestoneGlyph
 }
 
-// Spec: RV-6
+// Spec: IMPS-772
 // Why: the finish day's column is covered too, as the actual bar covers its last day (RV-1).
 /** @purity pure */
 function spanWidthOf(task: Task, pxPerDay: number, reader: EdgeReader): number {
@@ -344,13 +335,11 @@ function spanWidthOf(task: Task, pxPerDay: number, reader: EdgeReader): number {
   return Math.max(0, to - from) * pxPerDay
 }
 
-// Spec: RV-1, RV-6
 /** @purity pure */
 function xAtEdge(edge: number, originSerial: number, pxPerDay: number, originX: number): number {
   return originX + (edge - originSerial) * pxPerDay
 }
 
-// Spec: T-023d
 /** @purity pure */
 function planEndsStandOnOneDay(task: Task, reader: DayReader): boolean {
   const from = reader.day(task.start)
@@ -359,6 +348,7 @@ function planEndsStandOnOneDay(task: Task, reader: DayReader): boolean {
   return serialOf(from) === serialOf(toDay)
 }
 
+// Spec: IMPS-772, IMPS-1880
 /** @purity pure */
 function shapeWidthOf(
   spanWidth: number,
@@ -369,7 +359,7 @@ function shapeWidthOf(
   return Math.max(spanWidth, settings.minShapeWidth)
 }
 
-// Spec: RV-1
+// Spec: IMPS-397, IMPS-395, IMPS-405
 /** @purity pure */
 function actualSpanOf(
   task: Task,
@@ -411,7 +401,7 @@ export function deadlineHeadHalfWidthOf(markerDiameter: number): number {
   return (markerDiameter * NOT_STORED_DEADLINE_MARK_SIZES['S-365']) / 2
 }
 
-// Spec: OC-9, DA-2
+// Spec: OC-9, DA-2, IMPS-1946, OC-3, OC-4, OC-5, OC-6
 /** @purity pure */
 function occupiedSpanOf(
   labeled: { readonly x0: number; readonly x1: number },
@@ -458,14 +448,14 @@ function bandFloorOf(depth: number, drawn: DrawnSettings): number {
   return depth === 1 ? drawn.taskGroupTitleFont * drawn.taskGroupTitleTopScale : drawn.taskGroupTitleFont
 }
 
-// Spec: DS-13, FR-042
+// Spec: DS-13, FR-042, IMPS-1322, IMPS-186, IMPS-187, IMPS-188
 // Why: no vertical zoom: the floor the author typed is never drawn lower than typed.
 /** @purity pure */
 function drawnMinHeightPxOf(minHeight: number | null, drawn: DrawnSettings): number {
   return (minHeight ?? 0) * displayScaleFractionOf(drawn)
 }
 
-// Spec: LF-2, VG-2
+// Spec: LF-2, VG-2, VG-1, VG-7, ST-9, IMPS-1685
 // Why: a task group with no Task still stacks one rectangle lane, or placing its first Task shifts every task group below.
 /** @purity pure */
 function packedLanesOf(laneHeights: readonly number[], emptyLane: number, laneGap: number): number {
@@ -473,7 +463,7 @@ function packedLanesOf(laneHeights: readonly number[], emptyLane: number, laneGa
   return laneHeights.reduce((sum, h) => sum + h + laneGap, 0)
 }
 
-// Spec: LF-16, HF-19
+// Spec: LF-16, HF-19, IMPS-1334
 // Trap: the pinned band gets none: LF-16 reserves only below the last scrolling task group.
 /** @purity pure */
 function lastTaskGroupReserveOf(
@@ -486,7 +476,6 @@ function lastTaskGroupReserveOf(
   return Math.max(0, lattice - last.height)
 }
 
-// Spec: T-068
 /** @purity pure */
 function membersByGroupOf(schedule: Schedule): ReadonlyMap<string, readonly TaskGroupMember[]> {
   const membersByGroup = new Map<string, TaskGroupMember[]>()
@@ -498,7 +487,7 @@ function membersByGroupOf(schedule: Schedule): ReadonlyMap<string, readonly Task
   return membersByGroup
 }
 
-// Spec: T-068
+// Spec: T-068, VG-6, IMPS-1322, IMPS-1941, IMPS-1945, IMPS-1949, IMPS-1950, OC-6, OC-8, ST-1, ST-10, ST-3, ST-4, ST-5, ST-6, ST-8, ST-9, IMPS-770, IMPS-777, IMPS-779, TD-4, TD-5, IMPS-543, IMPS-171, IMPS-172, IMPS-173, IMPS-174, IMPS-179, IMPS-792, AS-2, IMPS-919, IMPS-1685, IMPS-1915, IMPS-928, IMPS-866
 /** @purity pure */
 export function layoutFromSchedule(
   schedule: Schedule,
@@ -641,7 +630,6 @@ export function layoutFromSchedule(
         }
       }
       if (lane < 0) {
-        // Spec: ST-7, S-89
         // Trap: break before the task group is placed: a partial task group leaves laneOf shorter than measured.
         if (lanes.length >= settings.stackSafetyCap) {
           capStop = { taskGroupId: row.id, cap: settings.stackSafetyCap }
@@ -744,7 +732,6 @@ export function layoutFromSchedule(
 
   return {
     pxPerDay,
-    // Spec: FR-017
     tier: rulerTierOf(pxPerDay, storedSettings),
     originDay,
     originX,
@@ -781,7 +768,7 @@ export function landedShapeBoxOf(
   return placed === null ? null : { x: placed.x, y: placed.y, width: placed.width, height: placed.planHeight }
 }
 
-// Spec: FR-016, T-068
+// Spec: FR-016, T-068, IMPS-1486
 /** @purity pure */
 export function taskGroupPlacesAtZoomY(
   schedule: Schedule,

@@ -63,7 +63,7 @@ interface Nesting<TKey> {
   readonly rings: readonly (readonly TKey[])[]
 }
 
-// Spec: IV-6, IV-23
+// Spec: IV-6, IV-23, IMPS-916
 /** @purity pure */
 function tasksNotNamedOnce(
   schedule: Schedule,
@@ -318,7 +318,6 @@ function boundValueOf(
   return answer === undefined || !Number.isFinite(answer) ? null : answer
 }
 
-// Spec: T-220
 const INVARIANTS: readonly Invariant[] = [
   {
     row: 'IV-1',
@@ -772,7 +771,7 @@ const INVARIANTS: readonly Invariant[] = [
   },
 ]
 
-// Spec: T-220
+// Spec: T-220, IMPS-1300, IV-11, IV-15, IV-20, IV-3, IV-7, IV-8, IMPS-841, IMPS-723
 // Why: `rows` lets a caller that refuses one row judge only it, without walking rows that count working days.
 /** @purity pure */
 export function scheduleViolations(

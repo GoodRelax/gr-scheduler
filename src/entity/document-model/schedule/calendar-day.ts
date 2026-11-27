@@ -35,6 +35,7 @@ const TIME_TAIL = /^(\d{2}):(\d{2})(?::(\d{2})(?:\.\d+)?)?(?:Z|[+-]\d{2}:?\d{2})
 
 const DATE_TIME_SPLIT = /^\d{4}-\d{2}-\d{2}(?:[T ](.*))?$/
 
+// Spec: IMPS-765
 /** @purity pure */
 function minuteOfTimeText(text: string): number | null {
   const hit = TIME_TAIL.exec(text)
@@ -44,7 +45,7 @@ function minuteOfTimeText(text: string): number | null {
   return hour * MINUTES_PER_HOUR + minute
 }
 
-// Spec: FR-054, IV-14
+// Spec: FR-054, IV-14, IMPS-764, IMPS-766
 /** @purity pure */
 export function instantOf(text: string | null): number | null {
   const read = dayWithTimeOf(dayOf(text), text)
@@ -81,6 +82,7 @@ export function finishSideDayOf(text: string | null): CalendarDay | null {
   return finishSideDayFrom(dayOf(text), text)
 }
 
+// Spec: IMPS-766, IMPS-767
 // Why: a reader that already holds dayOf(text) passes it, so the date part is not parsed twice (DFC-2471).
 /** @purity pure */
 export function finishSideDayFrom(day: CalendarDay | null, text: string | null): CalendarDay | null {
@@ -89,7 +91,7 @@ export function finishSideDayFrom(day: CalendarDay | null, text: string | null):
   return dayFromSerial(serial(read.day) - (read.minute > 0 ? 0 : 1))
 }
 
-// Spec: RV-1, RV-6, BL-2, FR-054, FR-158
+// Spec: RV-1, RV-6, BL-2, FR-054, FR-158, IMPS-396, IMPS-397
 /** @purity pure */
 export function edgeInstantOf(text: string | null, side: 'start' | 'finish', instantAt: () => number | null,
                               isTimeOfDayVisible: boolean, dayAt: (text: string | null) => CalendarDay | null): number | null {
@@ -110,9 +112,7 @@ export function textOfInstant(instant: number): string {
   return textOfDayAt(day, `${pad(Math.floor(minute / MINUTES_PER_HOUR))}:${pad(minute % MINUTES_PER_HOUR)}:00`)
 }
 
-// Spec: WT-6
 export const DAY_START_TIME = '00:00:00'
-// Spec: WT-7
 export const DAY_END_TIME = '23:59:00'
 
 /** @purity pure */
@@ -121,7 +121,7 @@ function dateTextOf(day: CalendarDay): string {
   return `${pad(day.year, 4)}-${pad(day.month, 2)}-${pad(day.day, 2)}`
 }
 
-// Spec: EX-7, UF-170
+// Spec: EX-7, UF-170, IMPS-946
 /** @purity pure */
 export function textOfDayAt(day: CalendarDay, time: string): string {
   return `${dateTextOf(day)}T${time}`

@@ -3018,7 +3018,7 @@ function jsonTypeOf(value: unknown): string {
   return typeof value
 }
 
-// Spec: T-220, T-017b
+// Spec: IMPS-1318
 /** @purity pure */
 function stringFaults(value: string, node: SchemaNode, at: string, out: JsonFault[]): void {
   // Trap: count code points, as JSON Schema maxLength does; value.length counts UTF-16 units.
@@ -3030,6 +3030,7 @@ function stringFaults(value: string, node: SchemaNode, at: string, out: JsonFaul
   }
 }
 
+// Spec: IMPS-1304
 /** @purity pure */
 function collectFaults(
   value: unknown,
@@ -3091,7 +3092,6 @@ function objectFaults(value: Readonly<Record<string, unknown>>, node: SchemaNode
   }
 }
 
-// Spec: T-108
 // Why: no alternative is nearer than another, so the faults of each are not told; only that none fits.
 /** @purity pure */
 function alternativeFaults(value: unknown, alternatives: readonly SchemaNode[], at: string, out: JsonFault[]): void {

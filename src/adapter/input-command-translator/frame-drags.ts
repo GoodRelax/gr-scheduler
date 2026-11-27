@@ -26,7 +26,7 @@ import {
   type TranslatedInput,
 } from './input-command-translator'
 
-// Spec: FR-053, GR-19
+// Spec: FR-053, GR-19, IMPS-1802, IMPS-1810
 /** @purity pure */
 export function paletteFollow(input: PointerInput, context: InputContext): TranslatedInput {
   const press = context.pressed
@@ -100,7 +100,7 @@ export function scrollbarFollow(input: PointerInput, context: InputContext): Tra
   return panTo(context, by.dx, by.dy)
 }
 
-// Spec: FR-052, CM-67, FR-100, T-290
+// Spec: FR-052, CM-67, FR-100, T-290, IMPS-1800, IMPS-1245, IMPS-1246, IMPS-1247, IMPS-1248, IMPS-1249, IMPS-1250, IMPS-1785, IMPS-1784
 /** @purity pure */
 export function commandFromPanelDivider(
   panel: NonNullable<ScreenPart['dividerPanel']>,
@@ -115,7 +115,7 @@ export function commandFromPanelDivider(
   return changed([{ kind: 'setTaskGroupPanelWidthPx', taskGroupPanelWidthPx }])
 }
 
-// Spec: FR-052, GR-22, S-171, S-248, T-280
+// Spec: FR-052, GR-22, S-171, S-248, T-280, IMPS-1793, IMPS-1794, IMPS-1795, IMPS-1800
 /** @purity pure */
 export function screenEventFromPanelDivider(
   release: PointerInput,
@@ -129,7 +129,6 @@ export function screenEventFromPanelDivider(
   return { type: 'propertyPanelWidthSettled', propertyPanelWidth }
 }
 
-// Spec: FR-052, FR-039, T-252
 /** @purity pure */
 function taskGroupPanelWidthAfterDrag(settings: DocumentSettings, traveled: number): number {
   const stored = settings.taskGroupPanelWidthPx
@@ -142,6 +141,7 @@ function taskGroupPanelWidthAfterDrag(settings: DocumentSettings, traveled: numb
   return stored + drawnTravel / ratio
 }
 
+// Spec: IMPS-1754
 /** @purity pure */
 export function commandFromScrollbar(
   axis: ScrollbarAxis,

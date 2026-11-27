@@ -140,7 +140,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `parentCandidatesOf` | entry | function | `src/entity/document-model/schedule/delay-diagnostics.ts#parentCandidatesOf` | PI-1 | 親の決まらない子の候補の並び（表 T-318 の `IP-4`、`FR-135` の番号の枠） |
 | `ParentTaskResolution` | entry | type | `src/entity/document-model/schedule/delay-diagnostics.ts#ParentTaskResolution` | PI-1 | 型。 |
 | `parentTaskResolutionsOf` | entry | function | `src/entity/document-model/schedule/delay-diagnostics.ts#parentTaskResolutionsOf` | PI-1 | どの `Task` の親タスクも、明記・導いた親タスク（表 T-318 の `IP-2`）・決まらない（`VO-4`、候補は `IP-4` の並び）・根（`IP-5`）のどれかで答える。 |
-| `PlanActualState` | entry | type | `src/entity/document-model/schedule/plan-actual-state.ts#PlanActualState` | -- | type PlanActualState = \| 'notStarted' \| 'finished' \| 'suspendedResumeUnknown' \| 'suspendedResumePlanned' \| 'inProgress' // Spec: T-019a /** @purity pure */ e... |
+| `PlanActualState` | entry | type | `src/entity/document-model/schedule/plan-actual-state.ts#PlanActualState` | -- | type PlanActualState = \| 'notStarted' \| 'finished' \| 'suspendedResumeUnknown' \| 'suspendedResumePlanned' \| 'inProgress' // Spec: T-019a, IMPS-390, IMPS-391, ... |
 | `planActualState` | entry | function | `src/entity/document-model/schedule/plan-actual-state.ts#planActualState` | PI-1 | 表 T-019a の判別 |
 | `plannedDurationMinutesOf` | entry | function | `src/entity/document-model/schedule/working-calendar.ts#plannedDurationMinutesOf` | PI-1 | 予定の長さの分数。 |
 | `plannedInstantsOf` | entry | function | `src/entity/document-model/schedule/working-calendar.ts#plannedInstantsOf` | PI-1 | 予定の始まりと終わりの瞬間の対。 |
@@ -1082,7 +1082,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `DocumentFileFaultReason` | entry | type | `src/adapter/file-gateway/file-gateway.ts#DocumentFileFaultReason` | -- | type DocumentFileFaultReason = \| FileStoreFaultReason \| 'notUtf8' \| 'notAnOverwriteTarget' export interface DocumentFileFault |
 | `DocumentFileOpening` | entry | type | `src/adapter/file-gateway/file-gateway.ts#DocumentFileOpening` | -- | type DocumentFileOpening = \| |
 | `DocumentFileSaveRequest` | entry | type | `src/adapter/file-gateway/file-gateway.ts#DocumentFileSaveRequest` | -- | type DocumentFileSaveRequest = \| |
-| `DocumentFileSaving` | entry | type | `src/adapter/file-gateway/file-gateway.ts#DocumentFileSaving` | -- | type DocumentFileSaving = \| { readonly ok: true; readonly openedFile: OpenedFileState } \| { readonly ok: false; readonly fault: DocumentFileFault } // Spec: ... |
+| `DocumentFileSaving` | entry | type | `src/adapter/file-gateway/file-gateway.ts#DocumentFileSaving` | -- | type DocumentFileSaving = \| { readonly ok: true; readonly openedFile: OpenedFileState } \| { readonly ok: false; readonly fault: DocumentFileFault } const ROU... |
 | `DocumentIdentity` | entry | interface | `src/adapter/file-gateway/file-gateway.ts#DocumentIdentity` | -- | interface DocumentIdentity extends ProjectIdentity |
 | `FileReading` | entry | type | `src/adapter/file-gateway/file-store.ts#FileReading` | -- | type FileReading = \| |
 | `FileStore` | entry | interface | `src/adapter/file-gateway/file-store.ts#FileStore` | PI-22 | 表 T-065 |
@@ -1267,7 +1267,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `PressedPointerShape` | file only | type | `src/framework/single-html-shell/pointer-shape.ts#PressedPointerShape` | -- | type PressedPointerShape = ReturnType<typeof pressedPointerShapeOf> |
 | `pressedPointerShapeOf` | file only | function | `src/framework/single-html-shell/pointer-shape.ts#pressedPointerShapeOf` | -- | function pressedPointerShapeOf(hands: PointerShapeHands) |
 | `answerTableWindowEntry` | file only | function | `src/framework/single-html-shell/resource-list-window.ts#answerTableWindowEntry` | -- | function answerTableWindowEntry( pressed: TableWindowEntryPressed, windows: HeldResourceList, shownTasks: Pick<ShownTasksHold, 'turnOffEveryFilter' \| 'views'... |
-| `RESOURCE_LIST_SURFACE` | file only | const | `src/framework/single-html-shell/resource-list-window.ts#RESOURCE_LIST_SURFACE` | -- | const RESOURCE_LIST_SURFACE = 'Resource List' |
+| `RESOURCE_LIST_SURFACE` | file only | const | `src/framework/single-html-shell/resource-list-window.ts#RESOURCE_LIST_SURFACE` | -- | const RESOURCE_LIST_SURFACE = UI_PART_NAMES['U-49'] |
 | `ResourceListWindow` | file only | type | `src/framework/single-html-shell/resource-list-window.ts#ResourceListWindow` | -- | type ResourceListWindow = TableWindowState |
 | `scheduleFilterLetGoOf` | file only | function | `src/framework/single-html-shell/resource-list-window.ts#scheduleFilterLetGoOf` | -- | function scheduleFilterLetGoOf(table: VisibilityTable, view: TableView): Extract<DocumentCommand, { readonly kind: 'setTableView' }> \| null |
 | `tableWindowReopened` | file only | function | `src/framework/single-html-shell/resource-list-window.ts#tableWindowReopened` | -- | function tableWindowReopened<W extends TableWindowState>(held: W \| null, closed: W \| null, opened: W): W |
@@ -1495,7 +1495,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `PropertiesPanel` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#PropertiesPanel` | -- | interface PropertiesPanel |
 | `PropertyBadge` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#PropertyBadge` | -- | interface PropertyBadge |
 | `PropertyControl` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#PropertyControl` | -- | interface PropertyControl |
-| `PropertyControlKind` | entry | type | `src/adapter/screen-renderer/screen-renderer.ts#PropertyControlKind` | -- | type PropertyControlKind = \| 'text' \| 'multiline' \| 'date' \| 'number' \| 'boolean' \| 'choice' \| 'color' \| 'taskReference' // Spec: CV-9 // Why: swatches run b... |
+| `PropertyControlKind` | entry | type | `src/adapter/screen-renderer/screen-renderer.ts#PropertyControlKind` | -- | type PropertyControlKind = \| 'text' \| 'multiline' \| 'date' \| 'number' \| 'boolean' \| 'choice' \| 'color' \| 'taskReference' // Why: swatches run beside choiceVa... |
 | `PropertyField` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#PropertyField` | -- | interface PropertyField |
 | `PropertyFieldGroup` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#PropertyFieldGroup` | -- | interface PropertyFieldGroup |
 | `PropertyFieldKey` | entry | type | `src/adapter/screen-renderer/screen-renderer.ts#PropertyFieldKey` | -- | type PropertyFieldKey = \| |
@@ -1556,6 +1556,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `Tooltip` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#Tooltip` | -- | interface Tooltip |
 | `TooltipAnchor` | entry | type | `src/adapter/screen-renderer/screen-renderer.ts#TooltipAnchor` | -- | type TooltipAnchor = \| { readonly kind: 'icon'; readonly icon: IconId; readonly surface?: string; readonly taskGroupId?: string } \| { readonly kind: 'task'; ... |
 | `TooltipRow` | entry | type | `src/adapter/screen-renderer/screen-renderer.ts#TooltipRow` | -- | type TooltipRow = \| { readonly kind: 'whole'; readonly text: string } \| { readonly kind: 'labeled'; readonly label: string; readonly value: string; readonly ... |
+| `UI_PART_NAMES` | entry | const | `src/adapter/screen-renderer/screen-renderer.ts#UI_PART_NAMES` | PI-37 | 表 T-103 の行 ID から、その行が定める UI パーツの名を引く表。 |
 | `UNASSIGNED_ROW_KEY` | entry | const | `src/adapter/screen-renderer/table-window.ts#UNASSIGNED_ROW_KEY` | PI-37 | 担当リストの表の（担当なし）の行の鍵（表 T-370 の `RO-5`）。 |
 | `UNTITLED_DOCUMENT_TITLE` | entry | const | `src/adapter/screen-renderer/open-modals.ts#UNTITLED_DOCUMENT_TITLE` | PI-37 | `AT-3` の文書名が `null` のときに見出しへ出す語 `Untitled`。 |
 | `VerticalWhole` | entry | interface | `src/adapter/screen-renderer/screen-frame.ts#VerticalWhole` | PI-37 | 型。 |
@@ -2212,4 +2213,4 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | --- | --- | --- | --- | --- | --- |
 | `delayDiagnosisOf` | entry | function | `src/use-case/run-delay-diagnostics/run-delay-diagnostics.ts#delayDiagnosisOf` | PI-55 | 文書の暦で求めた遅延診断（`FR-130`） |
 
-Totals: 1104 name(s) leave through a public entry (554 of them published by table T-064), 838 more are exported by a file and not by its entry.
+Totals: 1105 name(s) leave through a public entry (555 of them published by table T-064), 838 more are exported by a file and not by its entry.

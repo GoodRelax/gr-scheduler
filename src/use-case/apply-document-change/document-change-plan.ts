@@ -28,7 +28,6 @@ import { importDocument, type ImportRefusal, type ImportRequest } from '../impor
 import { redoEdit } from '../redo-edit/redo-edit'
 import { undoEdit, type ChangeStep, type HeldDocument } from '../undo-edit/undo-edit'
 
-// Spec: AG-9, WS-2, NT-7
 export interface WriteMoment {
   readonly gestureInFlight: boolean
   readonly editingInPlace: boolean
@@ -71,7 +70,7 @@ export type ChangePlan =
       readonly report: EditReport
     }
 
-// Spec: T-027, AG-10
+// Spec: T-027, AG-10, IMPS-205, IMPS-218, UN-1, UN-2, UN-4, UN-6a, UN-15, UN-17, IMPS-1403, IMPS-157, IMPS-724
 // Trap: change together with columnsOutsideHistory: a command answering false here must write only
 // columns listed there, or an undo rewinds its effect.
 /** @purity pure */
@@ -94,7 +93,7 @@ function isUndoable(command: DocumentCommand): boolean {
   }
 }
 
-// Spec: T-027, UN-7, UN-8, UN-16
+// Spec: T-027, UN-7, UN-8, UN-16, IMPS-205
 // Trap: never list a column the history owns; keeping it would silently undo the undo.
 /** @purity pure */
 function columnsOutsideHistory(current: DocumentSettings): Partial<DocumentSettings> {
@@ -124,7 +123,7 @@ function columnsOutsideHistory(current: DocumentSettings): Partial<DocumentSetti
   }
 }
 
-// Spec: T-290, FR-100
+// Spec: IMPS-216, IMPS-979
 // Why: the very restored document when no column outside the history moved, so the shell can tell
 // by reference that an undo or a redo is back at the saved document (isBackToSavedDocument).
 /** @purity pure */
@@ -142,6 +141,7 @@ function keepingColumnsOutsideHistory(restored: HeldDocument, leaving: Document)
   }
 }
 
+// Spec: IMPS-208, IMPS-210
 /** @purity pure */
 function utf8Length(text: string): number {
   let bytes = 0
@@ -152,13 +152,12 @@ function utf8Length(text: string): number {
   return bytes
 }
 
-// Spec: FR-031, S-95
+// Spec: IMPS-208, IMPS-209
 /** @purity pure */
 function stepSizeBytes(document: Document): number {
   return utf8Length(JSON.stringify(document))
 }
 
-// Spec: T-050, CM-27
 // Trap: on the command road only CM-27 can leave no task group, so a batch that does carries this id.
 /** @purity pure */
 function freshRowIdOf(commands: readonly DocumentCommand[]): string | null {
@@ -168,7 +167,7 @@ function freshRowIdOf(commands: readonly DocumentCommand[]): string | null {
   return null
 }
 
-// Spec: T-050, FR-004
+// Spec: T-050, FR-004, BK-2
 // Trap: a non-empty document must come back as the same reference; WS-6 replaces one reference.
 /** @purity pure */
 function documentHoldingOneTaskGroup(
@@ -192,7 +191,7 @@ function documentHoldingOneTaskGroup(
   return { ...document, schedule: { ...document.schedule, taskGroups: [taskGroup] } }
 }
 
-// Spec: FR-063
+// Spec: IMPS-1062, IMPS-947
 /** @purity pure */
 function hasUpdatedScheduleGroup(before: Document, after: Document): boolean {
   return before.schedule !== after.schedule
@@ -206,7 +205,6 @@ function refusalOfStamp(declared: DocumentStamp | null, current: DocumentStamp):
   return isStampMatched(declared, current) ? null : { step: 'WS-1', reason: 'staleStamp' }
 }
 
-// Spec: WS-2, UN-8
 const VIEW_ONLY_KINDS: readonly DocumentCommand['kind'][] = ['setZoom', 'setScrollPosition', 'fitScheduleToScreen']
 
 // Spec: WS-2, UN-8, MH-4
@@ -226,7 +224,7 @@ function refusalOfMoment(moment: WriteMoment, commands: readonly DocumentCommand
   return null
 }
 
-// Spec: WS-3, HM-3a, AG-3, AG-5
+// Spec: WS-3, HM-3a, AG-3, AG-5, IMPS-1421
 // Why: every command is checked where it lands (JDG-2414); one refusal refuses the whole write.
 /** @purity pure */
 function editedInTurn(input: PlanInput): { readonly held: Document; readonly refusals: readonly Refusal[]; readonly recountedTaskUids: ReadonlySet<number> } {
@@ -245,7 +243,7 @@ function editedInTurn(input: PlanInput): { readonly held: Document; readonly ref
   return { held, refusals, recountedTaskUids }
 }
 
-// Spec: T-067, AG-3, AG-10, FR-063
+// Spec: T-067, AG-3, AG-10, FR-063, IMPS-212, IMPS-213, IMPS-217, IMPS-1064
 /** @purity pure */
 export function planDocumentChange(input: PlanInput): ChangePlan {
   const stale = refusalOfStamp(input.expectedStamp, input.document.documentStamp)
@@ -298,8 +296,6 @@ export type ImportCall<TChoice extends ImportRequest['choice']> = Omit<
   'current' | 'choice'
 > & { readonly choice: TChoice }
 
-// Spec: T-230
-// Spec: AM-9, AM-10, AG-10
 // Why: writer is named only by the Agent API; the person's press moves any step.
 export type ReplacementCall =
   | { readonly row: 'RD-1'; readonly writer?: string }
@@ -349,7 +345,7 @@ export type ReplacementPlan =
       readonly hasUpdatedSchedule: boolean
     }
 
-// Spec: FR-063
+// Spec: IMPS-1067
 // Trap: compare for equality, never order; an undo restores an older stamp.
 /** @purity pure */
 function hasUpdatedScheduleBetween(outgoing: Document, incoming: Document): boolean {
@@ -368,7 +364,7 @@ function replacementSettled(
   return { ok: true, next: pair, hasUpdatedSchedule: hasUpdatedScheduleBetween(held.document, pair.document) }
 }
 
-// Spec: RD-7, FR-095
+// Spec: BK-6
 /** @purity pure */
 function startedAfresh(outgoing: Document, call: Extract<ReplacementCall, { readonly row: 'RD-7' }>): Document {
   const hasUpdatedSchedule = hasUpdatedScheduleGroup(outgoing, call.document)
@@ -385,7 +381,6 @@ function refusalOfStepOwner(held: HeldDocument, call: ReplacementCall): StepOwne
   return moved.step.editedBy === call.writer ? null : { step: 'WS-3', reason: 'notOwnStep' }
 }
 
-// Spec: WS-1, WS-2, AM-9, AM-10
 /** @purity pure */
 function refusalBeforeReplacing(input: ReplacementInput): ReplacementRefusal | null {
   return refusalOfStamp(input.expectedStamp, input.held.document.documentStamp)
@@ -398,7 +393,7 @@ function importRefused(refusal: ImportRefusal): ReplacementPlan {
   return { ok: false, refusal: { step: 'WS-3', reason: 'importRefused', refusal } }
 }
 
-// Spec: T-230, T-067
+// Spec: T-230, T-067, UN-6, UN-18
 /** @purity pure */
 export function planDocumentReplacement(input: ReplacementInput): ReplacementPlan {
   const { held, call } = input

@@ -6,7 +6,6 @@
 
 import { taskByUid, type Schedule } from '../schedule/schedule'
 
-// Spec: SL-1
 export type SelectableKind =
   | 'task'
   | 'dependency'
@@ -91,7 +90,6 @@ export function lastPicked(selection: Selection): ItemRef | null {
   return selection.items[selection.items.length - 1] ?? null
 }
 
-// Spec: T-023c
 /** @purity pure */
 function scheduleHolds(schedule: Schedule, item: ItemRef): boolean {
   switch (item.kind) {

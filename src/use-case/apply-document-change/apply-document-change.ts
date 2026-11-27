@@ -64,7 +64,6 @@ export type ReplaceOutcome =
       readonly hasUpdatedSchedule: boolean
     }
 
-// Spec: WS-6, WS-7, T-286
 // Why: the delivery window is the caller's session state (changeDeliveryStateMachine.delivering),
 // handed in on WriteMoment (CR-440).
 /** @purity non-pure */

@@ -25,7 +25,7 @@ import {
 import type { TextEntryControl } from './field-editing'
 import { CONTROL_KEYS, CONTROL_PICKS, SETTLED_AS_ONE_ATTRIBUTE, TYPED_CONTROLS, TYPED_ROWS } from './field-editing'
 
-// Spec: FR-006
+// Spec: IMPS-30
 /** @purity pure */
 function fieldSizes(): {
   readonly controlMinHeight: number
@@ -54,6 +54,7 @@ function fieldSizes(): {
   }
 }
 
+// Spec: IMPS-67, IMPS-70, IMPS-71, IMPS-73, IMPS-74
 /** @purity pure */
 export function propertiesPanelStyle(): string {
   const size = fieldSizes()
@@ -63,7 +64,7 @@ export function propertiesPanelStyle(): string {
   )
 }
 
-// Spec: FR-072, IC-52
+// Spec: IMPS-90, IMPS-91, IMPS-60
 // Why: a line of its own at the head of the panel, its entrance at the right end (JDG-2097, JDG-2103).
 /** @purity pure */
 function propertyWayOutStyle(): string {
@@ -76,6 +77,7 @@ function propertyWayOutStyle(): string {
 
 const FIELD_LINE_HEIGHT = 1.6
 
+// Spec: IMPS-33, IMPS-105
 /** @purity pure */
 function propertyFieldStyle(): string {
   const size = fieldSizes()
@@ -85,7 +87,7 @@ function propertyFieldStyle(): string {
   )
 }
 
-// Spec: FR-006, FR-038
+// Spec: IMPS-32, IMPS-36, IMPS-37, IMPS-38, IMPS-39, IMPS-40, IMPS-72
 // Why: balance picks the break that keeps the longer line shortest; keep-all leaves only the marks (wbr) to break at.
 /** @purity pure */
 function propertyFieldNameStyle(isSegmented = false): string {
@@ -101,6 +103,7 @@ const SPACE = / /g
 
 const UNBROKEN_SPACE = '\u00a0'
 
+// Spec: IMPS-36
 /** @purity non-pure */
 function fieldNameElement(host: Document, name: string, segments: readonly string[] | undefined): HTMLElement {
   const shown = made(host, 'span', propertyFieldNameStyle(segments !== undefined))
@@ -115,12 +118,13 @@ function fieldNameElement(host: Document, name: string, segments: readonly strin
   return shown
 }
 
+// Spec: IMPS-49
 /** @purity pure */
 function propertyControlsStyle(): string {
   return `flex:1;display:flex;flex-wrap:wrap;align-items:flex-start;gap:${fieldSizes().nameGap}px;min-width:0;`
 }
 
-// Spec: FR-006, PR-5, S-589, S-590
+// Spec: IMPS-43, IMPS-50, IMPS-66, PR-5, S-589, S-590
 // Why: a date or a choice from a fixed list never shrinks below the host's own drawing of it (JDG-2046, JDG-2098):
 // the em floor alone falls short where the host raises small text to its least size.
 /** @purity pure */
@@ -147,7 +151,7 @@ function propertyColorStyle(): string {
   )
 }
 
-// Spec: FR-006
+// Spec: IMPS-35
 /** @purity pure */
 function propertyCheckStyle(): string {
   return 'font:inherit;flex:none;margin:0;'
@@ -162,7 +166,7 @@ function controlStyleOf(control: PropertyControl, isWrapping: boolean): string {
   return propertyControlStyle(control.widthInFontSizes, sizingOf(control))
 }
 
-// Spec: FR-006
+// Spec: IMPS-61, IMPS-62, IMPS-66, IMPS-67
 // Why: a choice with no floor gathers names from the document and must fit the panel (CR-671), so it alone may shrink.
 /** @purity pure */
 function sizingOf(control: PropertyControl): 'fill' | 'asDate' | 'date' | 'keptChoice' {
@@ -201,7 +205,6 @@ const CONTROL_INPUT_TYPE: Readonly<Record<PropertyControlKind, string | null>> =
   taskReference: null,
 }
 
-// Spec: TX-3, FR-158
 const DATE_TIME_INPUT_TYPE = 'datetime-local'
 
 // Trap: must match how textOfValue (properties-panel.ts) writes a boolean; change both.
@@ -218,7 +221,6 @@ const IS_KIND_TYPED_INTO: Readonly<Record<PropertyControlKind, boolean>> = {
   taskReference: false,
 }
 
-// Spec: FR-006
 const IS_KIND_WRAPPING: Readonly<Record<PropertyControlKind, boolean>> = {
   text: true,
   multiline: true,
@@ -236,7 +238,7 @@ const SINGLE_LINE_ROWS = 1
 
 const LINE_BREAKS = /[\r\n]+/g
 
-// Spec: FR-006
+// Spec: IMPS-55, IMPS-56, IMPS-57
 // Trap: no min-width from widthInFontSizes: FR-006 exempts these kinds from the room rule, and a
 // floor wider than the panel pushes the field out past its right edge.
 /** @purity pure */
@@ -249,7 +251,7 @@ function propertyWrappingStyle(): string {
   )
 }
 
-// Spec: FR-006
+// Spec: IMPS-57
 /** @purity non-pure */
 function growWrappingField(field: Element): void {
   const box = field as Partial<HTMLTextAreaElement>
@@ -269,7 +271,7 @@ export function fitPanelFields(panel: HTMLElement): void {
   matchDateSizedFields(panel)
 }
 
-// see FR-006, PR-5, DFC-2870
+// Spec: IMPS-53
 // Why: a host date entry outgrows its em floor at small type (its picker is fixed px), so the field copies the drawn width of the date entry before it.
 /** @purity non-pure */
 function matchDateSizedFields(panel: HTMLElement): void {
@@ -286,7 +288,6 @@ const DATE_SIZED_FIELD_ATTRIBUTE = 'data-field-sized-as-date'
 const DATE_ENTRY_SELECTOR = 'input[type="date"], input[type="datetime-local"]'
 const DOCUMENT_POSITION_FOLLOWING = 4
 
-// Spec: FR-006
 /** @purity non-pure */
 function growWrappingFields(panel: HTMLElement): void {
   if (typeof panel.querySelectorAll !== 'function') return
@@ -295,7 +296,7 @@ function growWrappingFields(panel: HTMLElement): void {
   }
 }
 
-// Spec: FR-006
+// Spec: IMPS-59
 /** @purity non-pure */
 function watchWrappingField(field: Element, isSingleLine: boolean): void {
   if (typeof field.addEventListener !== 'function') return
@@ -373,7 +374,7 @@ export function surfaceFieldElement(host: Document, row: string, control: Proper
   return controlElement(host, row, control, null)
 }
 
-// Spec: T-016, FR-006
+// Spec: IMPS-58, T-016
 /** @purity non-pure */
 function fillTypedValue(drawn: HTMLElement, control: PropertyControl): void {
   if (control.kind === 'multiline') drawn.setAttribute('rows', String(fieldSizes().multilineRows))
@@ -419,6 +420,7 @@ function scrollingAncestorOf(field: Element): HTMLElement | null {
   return null
 }
 
+// Spec: IMPS-1519
 /** @purity semi-pure-mutable */
 function wheelLinePx(wheel: WheelEvent, scroller: HTMLElement): number {
   if (wheel.deltaMode === wheel.DOM_DELTA_PAGE) return scroller.clientHeight
@@ -440,7 +442,6 @@ function holdTypedEntry(
   }
 }
 
-// Spec: T-016
 /** @purity non-pure */
 function optionElement(host: Document, value: string, choice: string): HTMLElement {
   const option = host.createElement('option')
@@ -462,7 +463,6 @@ function checkerColor(row: 'S-336' | 'S-337'): string {
   return SCREEN_COLORS[row]?.light ?? ''
 }
 
-// Spec: T-294, CV-9
 const UNSET_COLOR_VALUE = ''
 // Trap: change with NOT_DRAWN in svg-renderer.ts; a mismatch paints transparent as the ink color.
 const TRANSPARENT_PAINT = 'none'
@@ -509,7 +509,7 @@ function choiceSide(): string {
   return `${fieldSizes().controlMinHeight}px`
 }
 
-// Spec: CV-9, S-530, S-531, S-147
+// Spec: CV-9, S-530, S-531, S-147, IMPS-163
 /** @purity pure */
 function chosenOutline(isChosen: boolean): string {
   if (!isChosen) return ''
@@ -592,7 +592,7 @@ function swatchButton(host: Document, row: string, style: string, hint: string):
   return entry
 }
 
-// Spec: CV-9, T-294
+// Spec: CV-9, T-294, IMPS-165
 /** @purity non-pure */
 function colorChoiceElement(host: Document, row: string, control: PropertyControl, name: string): HTMLElement {
   const at = (control.choiceValues ?? []).indexOf(name)
@@ -723,7 +723,7 @@ function holdColorFocusTarget(
   focusByRow.set(row, target as unknown as TextEntryControl)
 }
 
-// Spec: CV-9, CV-4, S-338
+// Spec: CV-9, CV-4, S-338, IMPS-33, IMPS-34
 /** @purity non-pure */
 function colorFieldElements(
   host: Document,
@@ -753,7 +753,7 @@ function colorFieldElements(
   return [palette]
 }
 
-// Spec: FR-041, S-368
+// Spec: IMPS-155, IMPS-162, IMPS-166, IMPS-167
 /** @purity non-pure */
 function swatchFieldElements(
   host: Document,
@@ -862,7 +862,7 @@ function seatedKeyOf(control: PropertyControl, resourceUid: number | null): Prop
   return { ...(control.key as Extract<PropertyControl['key'], { holder: 'assignment' }>), resourceUid }
 }
 
-// Spec: AS-5, AS-7, AS-10
+// Spec: AS-5, AS-7, AS-10, IMPS-64
 /** @purity non-pure */
 function assigneeItemElement(
   host: Document,
@@ -905,7 +905,6 @@ function drawAssigneeItems(
   }))
 }
 
-// Spec: AS-3
 const UNASSIGN_TOKEN = '-'
 
 // Spec: AS-5, IC-123, IC-124, IC-125, IC-126
@@ -1001,7 +1000,7 @@ function assigneeListElement(
   return list
 }
 
-// Spec: AS-1, AS-5, FR-059, AS-13
+// Spec: AS-1, AS-5, FR-059, AS-13, IMPS-63, IMPS-65
 /** @purity non-pure */
 function assigneeDropdownElements(
   host: Document,
@@ -1123,7 +1122,7 @@ function linkTailElements(host: Document, control: PropertyControl): readonly HT
   return tail
 }
 
-// Spec: PTL-15, PTL-16, PTL-17, PR-37, PR-38, CM-18, SQ-1, S-503, FR-006
+// Spec: PTL-15, PTL-16, PTL-17, PR-37, PR-38, CM-18, SQ-1, S-503, FR-006, IMPS-1418
 /** @purity non-pure */
 function linkFieldElements(host: Document, row: string, control: PropertyControl, link: NonNullable<PropertyControl['link']>): readonly HTMLElement[] {
   const name = made(host, 'span', propertyLinkStyle())
@@ -1159,7 +1158,7 @@ const READOUT_ATTRIBUTE = 'data-field-readout'
 
 const READOUT_MEMBER: keyof PropertyField = 'readout'
 
-// Spec: FR-006, MH-1, PR-5, PR-40
+// Spec: FR-006, MH-1, PR-5, PR-40, IMPS-54
 /** @purity non-pure */
 function unitElement(host: Document, unit: string): HTMLElement {
   const shown = made(host, 'span', 'flex:none;align-self:center;white-space:nowrap;')
@@ -1267,7 +1266,7 @@ function choiceLinesElement(host: Document, [head, place]: readonly [string, str
   return lines
 }
 
-// see FO-14, FO-15, FR-156, JDG-2463
+// Spec: FO-14, FO-15, FR-156, IMPS-740
 // Why: the host's list draws one line per choice and the zone names take two, so the field draws its own:
 // a press on the field opens the list under it, a press on a choice commits it as a list choice does.
 /** @purity non-pure */
@@ -1371,7 +1370,7 @@ function valueElement(host: Document, field: PropertyField): HTMLElement {
   return value
 }
 
-// Spec: T-016, T-058, T-104
+// Spec: T-016, T-058, T-104, IMPS-31, IMPS-69
 /** @purity non-pure */
 export function fieldElement(
   host: Document,
@@ -1410,7 +1409,7 @@ export function fieldElement(
   return line
 }
 
-// Spec: FR-153, IC-139
+// Spec: IMPS-984, IMPS-985
 // Why: laid out as a field row, name left and entry right, but carries no field row: it holds no
 // value; anchored so a press reaches the shell as any entry's does (T-109).
 /** @purity non-pure */
@@ -1431,7 +1430,7 @@ export function markPropertiesPanel(panel: HTMLElement, description: PropertiesP
   panel.setAttribute('data-subject-gone', String(description.isSubjectGone))
 }
 
-// Spec: U-25, FR-072
+// Spec: U-25, FR-072, IMPS-90, IMPS-92
 /** @purity non-pure */
 export function fillPropertiesPanel(
   host: Document,
@@ -1461,7 +1460,7 @@ const READ_ONLY_HEADING_ATTRIBUTE = 'data-read-only-heading'
 
 const READ_ONLY_SECTION_ATTRIBUTE = 'data-read-only-section'
 
-// Spec: T-380
+// Spec: IMPS-109
 // Trap: the panel is rebuilt whenever its description changes, so a group the author folded is read back first.
 /** @purity non-pure */
 function foldedGroupsOf(panel: HTMLElement): ReadonlySet<string> {
@@ -1478,6 +1477,7 @@ function readOnlyLine(host: Document, attribute: string, words: string, style: s
   return line
 }
 
+// Spec: IMPS-108, IMPS-109, IMPS-110
 /** @purity non-pure */
 function readOnlyGroupElement(host: Document, group: NonNullable<PropertyField['readOnlyGroup']>, isFolded: boolean): HTMLElement {
   const box = made(host, 'details', `margin-bottom:${fieldSizes().taskGroupGap}px;`)
@@ -1489,7 +1489,7 @@ function readOnlyGroupElement(host: Document, group: NonNullable<PropertyField['
   return box
 }
 
-// Spec: FR-072, T-369, T-380, RN-6
+// Spec: IMPS-107, IMPS-108, IMPS-110, IMPS-116
 // Why: the read-only rows come last; each group is one foldable box, open at first, a window's name heading its rows.
 /** @purity non-pure */
 function withReadOnlyGroups(

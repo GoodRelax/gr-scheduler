@@ -12,7 +12,6 @@ import {
 } from '../../entity/document-model/selection/selection'
 import { NO_EFFECTS, unchanged, type Step } from './session-step'
 
-// Spec: FR-033, SL-7b
 export interface SelectionCopiedTask {
   readonly kind: 'task'
   readonly uids: readonly number[]
@@ -188,19 +187,20 @@ function objectsPruned(values: SelectionValues, event: EventOf<'selectionPruned'
   return SELECTION_VALUES_GUARDS.hasRemainingObjects(event) ? selected(values, event.remainingObjects) : deselected(values)
 }
 
+// Spec: IMPS-1958
 /** @purity pure */
 function onSelectionPruned(values: SelectionValues, event: EventOf<'selectionPruned'>): SelectionStep {
   return withTaskGroupsAlso(objectsPruned(values, event), event.chosenTaskGroups)
 }
 
-// Spec: IN-4, FR-085
+// Spec: IN-4, FR-085, IMPS-1957
 /** @purity pure */
 function onSelectionEscapePressed(values: SelectionValues, event: EventOf<'selectionEscapePressed'>): SelectionStep {
   if (!SELECTION_VALUES_GUARDS.isRungSelection(event)) return unchanged(values)
   return withTaskGroupsAlso(deselected(values), NO_CHOSEN_TASK_GROUPS)
 }
 
-// Spec: SK-19, FR-085
+// Spec: SK-19, FR-085, IMPS-1957
 /** @purity pure */
 function onSelectionSettleKeyPressed(values: SelectionValues): SelectionStep {
   return withTaskGroupsAlso(deselected(values), NO_CHOSEN_TASK_GROUPS)
@@ -212,7 +212,7 @@ function onCreatedTaskSelected(values: SelectionValues, event: EventOf<'createdT
   return selected(values, selectionWith(emptySelection(), { kind: 'task', uid: event.createdTaskUid }))
 }
 
-// Spec: FR-019, AR-5
+// Spec: FR-019, AR-5, IMPS-829
 /** @purity pure */
 function onCreatedCommentBoxSelected(values: SelectionValues, event: EventOf<'createdCommentBoxSelected'>): SelectionStep {
   return selected(values, selectionWith(emptySelection(), { kind: 'commentBox', id: event.createdCommentBoxId }))
@@ -241,7 +241,7 @@ function onResourcesPicked(values: SelectionValues, event: EventOf<'resourcesPic
   return { state: { ...values, chosenResources }, effects: NO_EFFECTS }
 }
 
-// Spec: FR-033, SK-4
+// Spec: FR-033, SK-4, IMPS-307
 /** @purity pure */
 function onCopyTaken(values: SelectionValues, event: EventOf<'copyTaken'>): SelectionStep {
   const { copiedForPaste } = event

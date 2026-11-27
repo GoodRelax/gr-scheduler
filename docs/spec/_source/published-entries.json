@@ -3660,6 +3660,20 @@
      }
     },
     {
+     "name": "UI_PART_NAMES",
+     "note": {
+      "ja": [
+       "表 T-103 の行 ID から、その行が定める UI パーツの名を引く表。",
+       "`_assets/tbl-glossary.md` の 表 T-103 から生成する"
+      ]
+     },
+     "after": {
+      "ja": [
+       "—— ⭐ 公開したのは、UI パーツの名を `src/` に綴らないためである（`DEFAULT_TASK_GROUP_NAME` と同じ）。"
+      ]
+     }
+    },
+    {
      "name": "taskGroupTitleFontPxOf",
      "note": {
       "ja": [

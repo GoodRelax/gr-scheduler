@@ -21,7 +21,6 @@ export type ColumnSort = NonNullable<TableView['sort']>
 
 export const COMMENT_BOX_SEARCH_COLUMNS: readonly SearchColumn[] = ['SQ-7', 'SQ-8', 'SQ-9']
 
-// Spec: T-331
 export const TASK_SEARCH_COLUMNS: readonly SearchColumn[] = displayWords.searchColumns
   .map((entry) => entry.specTableRowId)
   .filter((column) => !COMMENT_BOX_SEARCH_COLUMNS.includes(column))
@@ -53,7 +52,6 @@ export function searchTaskStateOf(row: Pick<TaskSearchRow, 'progressMarker' | 'p
   }
 }
 
-// Spec: SV-8
 const STATES_ASCENDING: readonly SearchTaskState[] = [
   'DG-1',
   'DG-2',
@@ -66,7 +64,6 @@ const STATES_ASCENDING: readonly SearchTaskState[] = [
   'suspendedResumeUnknown',
 ]
 
-// Spec: SQ-14, SV-8
 export type TaskType = 'task' | 'milestone'
 
 export const TASK_TYPES_ASCENDING: readonly TaskType[] = ['task', 'milestone']
@@ -81,7 +78,6 @@ export function compareTaskTypes(a: string, b: string): number {
   return TASK_TYPES_ASCENDING.indexOf(a as TaskType) - TASK_TYPES_ASCENDING.indexOf(b as TaskType)
 }
 
-// Spec: SV-7, SV-8, T-331, T-347
 export interface TableColumns<Row> {
   readonly values: { readonly [column: SearchColumn]: (row: Row) => readonly string[] }
   readonly dates: { readonly [column: SearchColumn]: (row: Row) => string | null }
@@ -129,7 +125,6 @@ const TASK_TABLE: TableColumns<TaskSearchRow> = {
   },
 }
 
-// see SQ-10, DT-8, RQ-1, SV-7, JDG-2811
 export const SHOW_VALUE = 'show'
 export const HIDE_VALUE = 'hide'
 
@@ -225,6 +220,7 @@ function isKept<Row>(row: Row, filter: ColumnFilter, table: TableColumns<Row>): 
   return values(row).some((value) => !hidden.has(value))
 }
 
+// Spec: IMPS-641
 /** @purity pure */
 export function filteredTableRows<Row>(
   rows: readonly Row[],
@@ -238,7 +234,6 @@ export function filteredTableRows<Row>(
   return order === null || sort === null ? kept : sortedRows(kept, order, sort.direction)
 }
 
-// Spec: AM-25, AV-17, T-331
 export interface SearchColumnHeading {
   readonly column: SearchColumn
   readonly ja: string
@@ -259,14 +254,13 @@ export function columnHeadingsOf(
   })
 }
 
-// Spec: AM-25, AV-17, T-331
+// Spec: AM-25, AV-17, T-331, IMPS-1870
 /** @purity pure */
 export function taskSearchColumnHeadings(): readonly SearchColumnHeading[] {
   const words = new Map(displayWords.searchColumns.map((entry) => [entry.specTableRowId, entry.text]))
   return columnHeadingsOf(TASK_SEARCH_COLUMNS, words, isDateSearchColumn)
 }
 
-// Spec: AM-28, AV-19, AV-20, T-347, T-371
 export interface TableRowCells {
   readonly key: number | string
   readonly cells: readonly { readonly column: string; readonly text: string }[]

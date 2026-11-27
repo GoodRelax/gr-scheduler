@@ -39,7 +39,7 @@ const MINUTE_DIGITS = 2
 
 const HOUR_DIGITS = 2
 
-// Spec: FR-156, T-376
+// Spec: IMPS-739
 // Why: a zero offset as plus-minus; ASCII signs otherwise.
 /** @purity pure */
 function offsetSignOf(offsetMinutes: number): string {
@@ -47,7 +47,7 @@ function offsetSignOf(offsetMinutes: number): string {
   return offsetMinutes < 0 ? '-' : '+'
 }
 
-// Spec: FR-156, T-376
+// Spec: FR-156, T-376, IMPS-739
 // Why: the hour padded to two digits as well (JDG-2463), so the head lines of the list stand aligned.
 /** @purity pure */
 export function zoneOffsetTextOf(offsetMinutes: number): string {
@@ -57,7 +57,7 @@ export function zoneOffsetTextOf(offsetMinutes: number): string {
   return `${offsetSignOf(offsetMinutes)}${hours}:${minutes}`
 }
 
-// Spec: FR-017, FR-156, T-376
+// Spec: FR-017, FR-156, T-376, IMPS-715
 /** @purity pure */
 export function timeZoneAbbreviationOf(key: string, language: DisplayLanguage): string {
   const row = timeZoneRowOf(key)
@@ -70,7 +70,7 @@ export function timeZoneAbbreviationOf(key: string, language: DisplayLanguage): 
   return timeZoneFieldWord('offsetName', language).replace('{offset}', offset)
 }
 
-// Spec: FR-156, T-376, FR-038
+// Spec: FR-156, T-376, FR-038, IMPS-739
 // Why: zoneHead holds the offset and abbreviation, the place stands under it; a key outside shows itself.
 /** @purity pure */
 export function timeZoneLinesOf(key: string, language: DisplayLanguage): readonly [string, string] {
@@ -108,7 +108,6 @@ export function shiftAmountText(minutes: number): string {
   return `${sign}${Math.floor(size / MINUTES_PER_HOUR)}:${String(size % MINUTES_PER_HOUR).padStart(2, '0')}`
 }
 
-// Spec: BS-3, QN-14
 // Why: EditDocument's preview, restated by shape: ScreenRenderer declares no edge to that component (check 59).
 export interface TimeShiftPreview {
   readonly minutes: number
@@ -117,7 +116,7 @@ export interface TimeShiftPreview {
   readonly example: { readonly name: string | null; readonly before: string; readonly after: string } | null
 }
 
-// Spec: QN-14, BS-3, FR-157
+// Spec: QN-14, BS-3, FR-157, IMPS-747
 // Why: the lines under the question are composed when it is raised; names are document values and are not translated.
 /** @purity pure */
 export function timeShiftQuestionItems(
@@ -147,7 +146,6 @@ export function wholeScheduleShiftFieldWord(part: string, language: DisplayLangu
   return WHOLE_SCHEDULE_SHIFT_WORDS.get(part)?.[language] ?? ''
 }
 
-// Spec: WH-11, QN-15
 // Why: EditDocument's preview, restated by shape: ScreenRenderer declares no edge to that component (check 59).
 export interface WholeScheduleShiftPreview {
   readonly currentStart: string
@@ -233,7 +231,6 @@ const NO_WORDS = ''
 
 const DOWNLOAD_ADDRESS_SLOT = '{downloadUrl}'
 
-// Spec: FR-076
 // Why: a word names a setting in braces, e.g. {importMaxBytes}; its value is never copied into the word.
 const SETTING_SLOT = /\{([A-Za-z]+)\}/g
 
@@ -263,7 +260,7 @@ export function downloadPageAddress(): string {
   return NOT_STORED_DOWNLOAD_ADDRESS['S-350']
 }
 
-// Spec: FR-073
+// Spec: FR-073, IMPS-1009, IMPS-1010
 /** @purity pure */
 export function linkedWordsOf(word: string): LinkedWords | null {
   const at = word.indexOf(DOWNLOAD_ADDRESS_SLOT)
@@ -275,7 +272,7 @@ export function linkedWordsOf(word: string): LinkedWords | null {
   }
 }
 
-// Spec: FR-076, T-211
+// Spec: IMPS-1128
 /** @purity pure */
 function settingsFilledWord(word: string): string {
   const settings: Readonly<Record<string, unknown>> = SETTINGS_CONSTANTS
@@ -304,7 +301,7 @@ export function reasonNextStepLink(reason: string, language: DisplayLanguage): L
   return linkedWordsOf(settingsFilledWord(unfilledReasonWord(reason, 'nextStep', language)))
 }
 
-// Spec: FR-076, T-233
+// Spec: IMPS-1127
 // Why: a row that shares another row's words prints that row's (CR-712 X-3); an unknown row is itself.
 /** @purity pure */
 function wordsRowOf(reason: string): string {
@@ -312,6 +309,7 @@ function wordsRowOf(reason: string): string {
   return shared[reason] ?? reason
 }
 
+// Spec: IMPS-1125, IMPS-1126, IMPS-1134
 /** @purity pure */
 function unfilledReasonWord(reason: string, cell: ReasonCell, language: DisplayLanguage): string {
   const row = wordsRowOf(reason)
@@ -332,6 +330,7 @@ function questionCell(row: string, language: DisplayLanguage): string | undefine
   return word === '' ? undefined : word
 }
 
+// Spec: IMPS-1136
 /** @purity pure */
 function questionText(question: string, language: DisplayLanguage): string {
   const word = questionCell(question, language)
@@ -460,7 +459,7 @@ export function noticesFromSession(session: ScreenSession, readings: ScreenViewR
   return shown
 }
 
-// see QN-12, PTL-13, JDG-1142
+// Spec: QN-12, PTL-13
 /** @purity pure */
 function parentTaskChoiceOf(choice: ParentTaskChoice, language: DisplayLanguage): Confirmation {
   const parts = [choice.isArmed ? 'childTasks' : 'tasks', PARENT_TASK_CHOICE_LINKS]
