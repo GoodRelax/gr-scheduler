@@ -155,7 +155,7 @@ test('AG-12 (1) / design 6: dist-relay/grs-relay.mjs is the same JavaScript as t
   expect(Buffer.compare(bundled().get(SERVER_ENTRY) ?? Buffer.alloc(0), built(RELAY_JS))).toBe(0)
 })
 
-test('AG-12 (1) / design 3.2: the built relay, run on node, serves dist/index.html at GET / and speaks MCP on stdout', async () => {
+test('SCN-49 AG-12 (1) / design 3.2: the built relay, run on node, serves dist/index.html at GET / and speaks MCP on stdout @UC-012.OK', async () => {
   test.setTimeout(STARTUP_WAIT_MS * 2)
   built(RELAY_JS)
   const relay: ChildProcess = spawn(process.execPath, [RELAY_JS], { stdio: ['pipe', 'pipe', 'pipe'] })

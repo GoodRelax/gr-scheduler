@@ -717,25 +717,35 @@ export function taskFigureParts(input: TaskFiguresInput): TaskFigureParts {
   }
 }
 
+// Spec: LF-18, BL-2, SL-8
+// Why: an unfilled outline of a milestone draws its body rings only, never the inner lines and dots.
+/** @purity pure */
+function bodyRingSvg(layer: MilestoneLayer, tail: string): string {
+  const corners = cornersOfRing(layer.segments)
+  return corners === null ? `<path d="${pathDataOf(layer.segments)}"${tail}` : `<polygon points="${pointsOf(corners)}"${tail}`
+}
+
+// Spec: BL-2, BL-3
+// Why: the matched Task's shape, unfilled: a line keeps its line, head and dots.
 /** @purity pure */
 function baselineOutlineSvg(outline: BaselineOutline, ink: string): string {
-  const { box } = outline
+  const { bar } = outline
   const key = figureKey(`task-${outline.taskUid}-baseline`)
-  if (outline.kind === 'rectangle') {
-    return (
-      `<rect x="${rounded(box.x)}" y="${rounded(box.y)}"` +
-      ` width="${rounded(box.width)}" height="${rounded(box.height)}"${ink}${key}/>`
-    )
+  if (bar.form === 'outline') {
+    if (bar.layers === undefined) return `<polygon points="${pointsOf(bar.points)}"${ink}${key}/>`
+    return bar.layers
+      .filter((layer) => layer.role === 'body')
+      .map((layer) => bodyRingSvg(layer, `${ink}${key}/>`))
+      .join('')
   }
-  const middleX = box.x + box.width / 2
-  const middleY = box.y + box.height / 2
-  const corners = [
-    { x: middleX, y: box.y },
-    { x: box.x + box.width, y: middleY },
-    { x: middleX, y: box.y + box.height },
-    { x: box.x, y: middleY },
-  ]
-  return `<polygon points="${pointsOf(corners)}"${ink}${key}/>`
+  const line =
+    `<line x1="${rounded(bar.from.x)}" y1="${rounded(bar.from.y)}"` +
+    ` x2="${rounded(bar.to.x)}" y2="${rounded(bar.to.y)}"${ink}${key}/>`
+  const head = bar.head === null ? '' : `<polygon points="${pointsOf(bar.head)}"${ink}${key}/>`
+  const dots = bar.dots
+    .map((dot) => `<circle cx="${rounded(dot.at.x)}" cy="${rounded(dot.at.y)}" r="${rounded(dot.radius)}"${ink}${key}/>`)
+    .join('')
+  return line + head + dots
 }
 
 // Spec: FR-015, T-339, ZO-15, BL-3, IMPS-1445
@@ -987,10 +997,7 @@ function endOutlineSvg(plan: BarGeometry, color: string, planStroke: number, key
     if (plan.layers === undefined) return `<polygon points="${pointsOf(plan.points)}"${outline}`
     return plan.layers
       .filter((layer) => layer.role === 'body')
-      .map((layer) => {
-        const corners = cornersOfRing(layer.segments)
-        return corners === null ? `<path d="${pathDataOf(layer.segments)}"${outline}` : `<polygon points="${pointsOf(corners)}"${outline}`
-      })
+      .map((layer) => bodyRingSvg(layer, outline))
       .join('')
   }
   // Why: a head or a dot has no stroke of its own (width 0), so its edge is the addend alone.

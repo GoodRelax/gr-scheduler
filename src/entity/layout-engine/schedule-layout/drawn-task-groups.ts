@@ -1,4 +1,4 @@
-// File: ScheduleLayout: the task groups to draw: level zero, hidden and folded task groups dropped, the rest in tree order (LC-1).
+// File: ScheduleLayout: the task groups to draw: level zero, hidden and folded task groups dropped, pins kept, the rest in tree order (LC-1).
 // @unit      UF-138  (docs/spec/05-07-design.md, table T-075)
 // @component ScheduleLayout, layer layoutEngine (table T-062)
 // @purity    pure
@@ -62,15 +62,19 @@ function depthOf(group: TaskGroup, byId: ReadonlyMap<string, TaskGroup>): number
   return 1 + ancestorsOf(group, byId).length
 }
 
-// Spec: TD-1, TD-2, TD-3, LC-1, EL-20, IMPS-779, HR-1a, IMPS-1983, IMPS-1986
+// Spec: TD-1, TD-2, TD-3, LC-1, EL-20, IMPS-779, HR-1a, IMPS-1983, IMPS-1986, FR-098
 // Why: the one reading of a person's fold and hide: the drawn task groups and the dependency ends both ask it (DFC-1221).
+// Why: a pin beats its own hide and every hide or fold above it (CR-862), so one deep task group stays in view;
+// the pin draws only that task group, never its ancestors or children. Level zero's fold (TD-1) still wins.
 /** @purity pure */
 export function isDroppedByTreeState(
   group: TaskGroup,
   byId: ReadonlyMap<string, TaskGroup>,
-  settings: Pick<DocumentSettings, 'levelZeroTreeState'>,
+  settings: Pick<DocumentSettings, 'levelZeroTreeState' | 'pinnedTaskGroupIds'>,
 ): boolean {
-  if (settings.levelZeroTreeState === 'collapsed' || group.treeState === 'hidden') return true
+  if (settings.levelZeroTreeState === 'collapsed') return true
+  if (settings.pinnedTaskGroupIds.includes(group.id)) return false
+  if (group.treeState === 'hidden') return true
   return ancestorsOf(group, byId).some((parent) => parent.treeState === 'hidden' || parent.treeState === 'collapsed')
 }
 

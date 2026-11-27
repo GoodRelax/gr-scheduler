@@ -23,14 +23,14 @@ const grabTaskGroupRight = async (page: Page, taskGroupId: string, dx: number): 
   await settle(page)
 }
 
-test('UC-002 build task groups as a hierarchy (FR-085, FR-042, FR-005 HM-1 HM-2, T-015 HR-4 HR-6, HF-15)', async ({ page }) => {
+test('SCN-6 UC-002 build task groups as a hierarchy (FR-085, FR-042, FR-005 HM-1 HM-2, T-015 HR-4 HR-6, HF-15) @UC-002.OK', async ({ page }) => {
   test.setTimeout(120000)
   await launch(page)
   await enableAgentApi(page)
   await openByDrop(page, ERP, readSample(ERP))
 
   let madeId = ''
-  await test.step('UC-002 step 1: make a TaskGroup, name it, set its color and height (FR-085, HF-17, FR-042)', async () => {
+  await test.step('SCN-6 UC-002.OK: make a TaskGroup, name it, set its color and height (FR-085, HF-17, FR-042)', async () => {
     const before = (await readDocument(page)).schedule.taskGroups.map((g) => g.id)
     await press(page, 'IC-93')
     const made = (await readDocument(page)).schedule.taskGroups.find((g) => !before.includes(g.id))!
@@ -57,12 +57,12 @@ test('UC-002 build task groups as a hierarchy (FR-085, FR-042, FR-005 HM-1 HM-2,
     await expect(page.locator(taskGroupSelector(madeId) + ' > span')).toHaveText('Review board')
   })
 
-  await test.step('UC-002 step 2: move a TaskGroup under another TaskGroup by its grab band (HF-15, GR-20)', async () => {
+  await test.step('SCN-6 UC-002.OK: move a TaskGroup under another TaskGroup by its grab band (HF-15, GR-20)', async () => {
     await press(page, 'IC-10')
     await grabTaskGroupRight(page, TECHNICAL_BASE, 25)
   })
 
-  await test.step('UC-002 step 3: the hierarchy is rebuilt and reaches the WBS, keeping the UID (FR-005 HM-1, HM-2)', async () => {
+  await test.step('SCN-6 UC-002.OK: the hierarchy is rebuilt and reaches the WBS, keeping the UID (FR-005 HM-1, HM-2)', async () => {
     const doc = await readDocument(page)
     const moved = doc.schedule.taskGroups.find((g) => g.id === TECHNICAL_BASE)!
     const parent = doc.schedule.taskGroups.find((g) => g.id === PROGRAM_PLANNING)!
@@ -72,7 +72,7 @@ test('UC-002 build task groups as a hierarchy (FR-085, FR-042, FR-005 HM-1 HM-2,
     expect.soft(task!.parentTaskUid).toBe(parent.derivedFromTaskUid)
   })
 
-  await test.step('UC-002 step 4: fold one level of the tree and hide a task group (IC-58, IC-77, IC-59)', async () => {
+  await test.step('SCN-6 UC-002.OK: fold one level of the tree and hide a task group (IC-58, IC-77, IC-59)', async () => {
     await pressRowControl(page, madeId, 'IC-59')
     await pressRowControl(page, PROGRAM_MANAGEMENT, 'IC-58')
     const children = (await readDocument(page)).schedule.taskGroups.filter((g) => g.parentId === PROGRAM_MANAGEMENT).map((g) => g.id)
@@ -81,7 +81,7 @@ test('UC-002 build task groups as a hierarchy (FR-085, FR-042, FR-005 HM-1 HM-2,
     await pressRowControl(page, PROGRAM_MANAGEMENT, 'IC-77')
   })
 
-  await test.step('UC-002 step 5: task groups under the fold are not drawn and a hidden task group can be brought back (HR-4, HR-1a, HR-6, HF-16)', async () => {
+  await test.step('SCN-6 UC-002.OK: task groups under the fold are not drawn and a hidden task group can be brought back (HR-4, HR-1a, HR-6, HF-16)', async () => {
     const doc = await readDocument(page)
     expect(doc.schedule.taskGroups.find((g) => g.id === PROGRAM_MANAGEMENT)!.treeState).toBe('collapsed')
     const children = doc.schedule.taskGroups.filter((g) => g.parentId === PROGRAM_MANAGEMENT).map((g) => g.id)
@@ -96,7 +96,7 @@ test('UC-002 build task groups as a hierarchy (FR-085, FR-042, FR-005 HM-1 HM-2,
     await expect(page.locator(taskGroupSelector(madeId))).toHaveCount(1)
   })
 
-  await test.step('UC-002 step 5 kept over a save: the fold survives saving and reopening (FR-024, IO-2)', async () => {
+  await test.step('SCN-6 UC-002.OK kept over a save: the fold survives saving and reopening (FR-024, IO-2)', async () => {
     await press(page, 'IC-2')
     await page.click('[data-role="Export Chooser"] [data-format="IO-2"]')
     await expect.poll(async () => (await savedFiles(page)).length).toBe(1)

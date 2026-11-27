@@ -49,7 +49,7 @@ import {
 import { dualCursorGeometry, type DualCursorDates } from './dual-cursor'
 import { highlightGeometry } from './highlight-box'
 import { progressLineOf } from './progress-line'
-import { isThinShape, taskGeometryOf, thinTierMiddle } from './task-figures'
+import { baselineBarOf, isThinShape, taskGeometryOf, thinTierMiddle } from './task-figures'
 import { parentTaskGeometryOf, type ParentTaskFamilies, type ParentTaskGeometry } from './parent-task-arrows'
 
 export { anchorSnapsOf, commentAnchorPointOf, freeAnchorPointOf, leaderOf } from './comment-box'
@@ -233,7 +233,7 @@ export interface DualCursorGeometry {
 
 interface BaselineOutline {
   readonly taskUid: number
-  readonly kind: 'rectangle' | 'diamond'
+  readonly bar: BarGeometry
   readonly box: ScreenRect
   readonly isPinned: boolean
 }
@@ -518,11 +518,11 @@ function baselineOutlineOf(baseline: BaselineTask, placed: TaskPlacement, isPinn
   if (x === null || right === null) return null
   const { top, height } = planExtentOf(placed, inputs.settings)
   const taskUid = baseline.uid
-  if (baseline.milestone === true) {
-    return { taskUid, kind: 'diamond', box: { x: x - height / 2, y: top, width: height, height }, isPinned }
-  }
+  const isPointInTime = baseline.milestone === true
   const width = Math.max(right - x, inputs.settings.minShapeWidth)
-  return { taskUid, kind: 'rectangle', box: { x, y: top, width, height }, isPinned }
+  const bar = baselineBarOf(placed, x, x + width, top, height, isPointInTime, inputs.settings)
+  const box = isPointInTime ? { x: x - height / 2, y: top, width: height, height } : { x, y: top, width, height }
+  return { taskUid, bar, box, isPinned }
 }
 
 // Spec: FR-015, BL-1, BL-4, IMPS-1447, IMPS-1448, IMPS-1449

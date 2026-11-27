@@ -299,7 +299,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `hasRoomBelowPinsIn` | entry | function | `src/entity/layout-engine/schedule-layout/pinned-band.ts#hasRoomBelowPinsIn` | PI-5 | タスクグループの領域の中で、固定したタスクグループの帯の下に、そのタスクグループを描く余地が残るか。 |
 | `hasUndecidedResume` | entry | function | `src/entity/layout-engine/schedule-layout/label-placement.ts#hasUndecidedResume` | -- | function hasUndecidedResume(task: Task, shapeKind: ShapeKind): boolean |
 | `inTreeOrder` | entry | function | `src/entity/layout-engine/schedule-layout/drawn-task-groups.ts#inTreeOrder` | PI-5 | タスクグループを木の順（`05-07-design.md` の 表 T-068 の `LC-9`）に並べる。 |
-| `isDroppedByTreeState` | entry | function | `src/entity/layout-engine/schedule-layout/drawn-task-groups.ts#isDroppedByTreeState` | PI-5 | そのタスクグループが、人が折りたたんだタスクグループか格納したタスクグループのために描かれないか —— タスクグループそのものが格納されている、祖先が折りたたまれているか格納されている、段 0 が折りたたまれている（`FR-018` の 表 T-329 の `TD-1` ／ `TD-2` ／ `TD-3`）。 |
+| `isDroppedByTreeState` | entry | function | `src/entity/layout-engine/schedule-layout/drawn-task-groups.ts#isDroppedByTreeState` | PI-5 | そのタスクグループが、人が折りたたんだタスクグループか格納したタスクグループのために描かれないか —— タスクグループそのものが格納されている、祖先が折りたたまれているか格納されている、段 0 が折りたたまれている（`FR-018` の 表 T-329 の `TD-1` ／ `TD-2` ／ `TD-3`） ——... |
 | `isPlanSpanningYears` | entry | function | `src/entity/layout-engine/schedule-layout/name-label.ts#isPlanSpanningYears` | PI-5 | 文書のすべてのタスクとマイルストーンの予定の日が 2 つ以上の暦年にまたがるか。 |
 | `keptInViewByTreeState` | entry | function | `src/entity/layout-engine/schedule-layout/group-level-of-detail.ts#keptInViewByTreeState` | PI-5 | `expanded` と `temporarilyExpanded` が倍率によらず描かせるタスクグループ。 |
 | `labeledAssigneeUidOf` | entry | function | `src/entity/layout-engine/schedule-layout/assignee-label.ts#labeledAssigneeUidOf` | PI-5 | 担当ラベルが名を出す担当、すなわち `FR-059` の絞りで残る担当のうち、割当の並びで先頭の 1 名（主担当、`FR-008` の 表 T-225 の `AS-13`）の資源の `uid`。 |
@@ -434,6 +434,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `ParentTaskQueryGeometry` | file only | interface | `src/entity/layout-engine/schedule-geometry/parent-task-arrows.ts#ParentTaskQueryGeometry` | -- | interface ParentTaskQueryGeometry |
 | `guidesOf` | file only | function | `src/entity/layout-engine/schedule-geometry/plan-actual-guides.ts#guidesOf` | -- | function guidesOf(inputs: GeometryInputs, task: Task, placed: TaskPlacement, actualHeight: number): readonly Path[] |
 | `progressLineOf` | file only | function | `src/entity/layout-engine/schedule-geometry/progress-line.ts#progressLineOf` | -- | function progressLineOf(inputs: GeometryInputs): Path |
+| `baselineBarOf` | file only | function | `src/entity/layout-engine/schedule-geometry/task-figures.ts#baselineBarOf` | -- | function baselineBarOf(placed: TaskPlacement, x0: number, x1: number, top: number, height: number, isPointInTime: boolean, settings: DrawnSettings): BarGeometry |
 | `isThinShape` | file only | function | `src/entity/layout-engine/schedule-geometry/task-figures.ts#isThinShape` | -- | function isThinShape(shapeKind: ShapeKind): boolean |
 | `taskGeometryOf` | file only | function | `src/entity/layout-engine/schedule-geometry/task-figures.ts#taskGeometryOf` | -- | function taskGeometryOf(inputs: GeometryInputs, task: Task, placed: TaskPlacement): TaskGeometry |
 | `thinTierMiddle` | file only | function | `src/entity/layout-engine/schedule-geometry/task-figures.ts#thinTierMiddle` | -- | function thinTierMiddle(placed: TaskPlacement, settings: DrawnSettings, isActual: boolean): number |
@@ -2212,4 +2213,4 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | --- | --- | --- | --- | --- | --- |
 | `delayDiagnosisOf` | entry | function | `src/use-case/run-delay-diagnostics/run-delay-diagnostics.ts#delayDiagnosisOf` | PI-55 | 文書の暦で求めた遅延診断（`FR-130`） |
 
-Totals: 1105 name(s) leave through a public entry (555 of them published by table T-064), 837 more are exported by a file and not by its entry.
+Totals: 1105 name(s) leave through a public entry (555 of them published by table T-064), 838 more are exported by a file and not by its entry.

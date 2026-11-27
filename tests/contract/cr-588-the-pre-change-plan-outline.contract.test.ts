@@ -45,8 +45,9 @@ const BL_2_X = '`GRS` は、輪郭の横を、`start` から `finish` までを�
 const BL_2_Y = '`GRS` は、輪郭の縦を、一致する `Task` の予定の形が占める縦の範囲とすること。'
 const BL_2_NOT_S227 =
   '予定を表示しない（`_assets/tbl-settings.md` の 表 T-202 の `S-227` が偽）間も、`GRS` は、輪郭の縦を、描いたなら予定の形が占める縦の範囲とすること。'
-const BL_2_SHAPE =
-  '`GRS` は、輪郭の形を、`milestone`（`AT-138`）が偽なら矩形、真なら `start` の位置を中心とし、縦と横の対角線をどちらも縦の範囲の高さとする菱形とすること。'
+const BL_2_SHAPE = '`GRS` は、輪郭の形を、一致する `Task` の予定の形（表 T-012 の形、マイルストーンなら `AT-101` の図形）とすること。'
+const BL_2_POINT_OR_SPAN =
+  '`GRS` は、`milestone`（`AT-138`）が真なら、輪郭を `start` の位置を中心とし縦の範囲の高さを一辺とする図形とし、偽なら `start` から `finish` までの形とすること。'
 const BL_2_PLACE = '`GRS` は、輪郭を置く区画（ピン止めの帯か、その下の残り、`FR-098`）を、一致する `Task` の予定の形と同じとすること。'
 const BL_3_NO_FILL = '`GRS` は、輪郭を塗らず、輪郭の線だけを描くこと。'
 const BL_3_VALUES =
@@ -118,7 +119,7 @@ const near = (a: number, b: number): boolean => Math.abs(a - b) <= SVG_EPS
 
 interface Outline {
   readonly taskUid: number
-  readonly kind: string
+  readonly bar: Bar
   readonly box: { readonly x: number; readonly y: number; readonly width: number; readonly height: number }
   readonly isPinned: boolean
 }
@@ -144,6 +145,8 @@ interface StageWish {
   readonly settings?: Readonly<Record<string, unknown>>
   // Why: AT-104 on every drawn Task's visual; absent leaves it null.
   readonly strokeWidthPx?: number
+  readonly shapeKind?: string
+  readonly milestoneGlyph?: string
 }
 
 interface Stage {
@@ -182,13 +185,19 @@ const rowsOf = (base: Record<string, unknown>, rows: Rows): Record<string, unkno
 
 const stageOf = (wish: StageWish): Stage => {
   const rows = wish.rows ?? 'one'
-  const base = scheduleOf({ tasks: wish.tasks, shapeKind: 'rectangle' }) as unknown as Record<string, unknown>
+  const base = scheduleOf({ tasks: wish.tasks, shapeKind: wish.shapeKind ?? 'rectangle' }) as unknown as Record<string, unknown>
   const visuals = (base['taskVisuals'] ?? []) as readonly Record<string, unknown>[]
   const schedule = {
     ...rowsOf(base, rows),
-    ...(wish.strokeWidthPx === undefined
+    ...(wish.strokeWidthPx === undefined && wish.milestoneGlyph === undefined
       ? {}
-      : { taskVisuals: visuals.map((one) => ({ ...one, strokeWidthPx: wish.strokeWidthPx })) }),
+      : {
+          taskVisuals: visuals.map((one) => ({
+            ...one,
+            ...(wish.strokeWidthPx === undefined ? {} : { strokeWidthPx: wish.strokeWidthPx }),
+            ...(wish.milestoneGlyph === undefined ? {} : { milestoneGlyph: wish.milestoneGlyph }),
+          })),
+        }),
     baselineTasks: wish.baselines.map(baselineOf),
   } as unknown as Schedule
   const settings = {
@@ -321,6 +330,9 @@ const verticesOf = (element: SvgElement): readonly Pt[] => {
 }
 
 const hasVertex = (vertices: readonly Pt[], at: Pt): boolean => vertices.some((one) => near(one.x, at.x) && near(one.y, at.y))
+const sameCorners = (points: readonly Pt[], corners: readonly Pt[]): boolean =>
+  points.length === corners.length &&
+  corners.every((at) => points.some((one) => Math.abs(one.x - at.x) < 1e-6 && Math.abs(one.y - at.y) < 1e-6))
 
 const planElementOf = (svg: string, uid: number): SvgElement => {
   const found = elementsOf(svg).find((one) => one.zo.includes('ZO-1') && one.attrs.includes(`data-figure="task-${uid}-plan"`))
@@ -344,6 +356,7 @@ describe('CR-588 -- the clauses these cases quote still stand', () => {
     expect(blText('BL-2')).toContain(BL_2_Y)
     expect(blText('BL-2')).toContain(BL_2_NOT_S227)
     expect(blText('BL-2')).toContain(BL_2_SHAPE)
+    expect(blText('BL-2')).toContain(BL_2_POINT_OR_SPAN)
     expect(blText('BL-2')).toContain(BL_2_PLACE)
     expect(blText('BL-3')).toContain(BL_3_NO_FILL)
     expect(blText('BL-3')).toContain(BL_3_VALUES)
@@ -432,7 +445,17 @@ describe('BL-2 -- where the outline stands and its shape', () => {
     // Why: taskOf closes a T00:00:00 finish to T17:00:00; the baseline keeps its raw text, so the Task takes the same raw text (FR-054).
     const same = { ...taskOf({ uid: 1, start: SHIFTED.start }), finish: SHIFTED.finish } as Task
     const reference = planBandOf(stageOf({ tasks: [same], baselines: [] }), 1)
-    expect(outline.kind, BL_2_SHAPE).toBe('rectangle')
+    const { x, y, width, height } = outline.box
+    expect(outline.bar.form, BL_2_SHAPE).toBe('outline')
+    expect(
+      sameCorners(outline.bar.points ?? [], [
+        { x, y },
+        { x: x + width, y },
+        { x: x + width, y: y + height },
+        { x, y: y + height },
+      ]),
+      `${BL_2_SHAPE}: a rectangle Task's outline is a rectangle`,
+    ).toBe(true)
     expect(outline.box.x, BL_2_X).toBeCloseTo(reference.left, 6)
     expect(outline.box.x + outline.box.width, BL_2_X).toBeCloseTo(reference.right, 6)
   })
@@ -466,16 +489,32 @@ describe('BL-2 -- where the outline stands and its shape', () => {
     }
   })
 
-  it(`BL-2 「${BL_2_SHAPE}」: a milestone -- a diamond centered on x(start), both diagonals the band's height`, () => {
-    const stage = stageOf({ tasks: [PLAIN], baselines: [{ uid: 1, start: day(8), finish: day(8), milestone: true }] })
+  it(`BL-2 「${BL_2_SHAPE}」「${BL_2_POINT_OR_SPAN}」: a milestone over a diamond milestone Task -- a diamond centered on x(start), its side the band's height`, () => {
+    const stage = stageOf({
+      tasks: [taskOf({ uid: 1, start: day(20), finish: day(20), milestone: true })],
+      baselines: [{ uid: 1, start: day(8), finish: day(8), milestone: true }],
+      shapeKind: 'milestone',
+      milestoneGlyph: 'diamond',
+    })
     const band = planBandOf(stage, 1)
     const xStart = planBandOf(stageOf({ tasks: [taskOf({ uid: 1, start: day(8), finish: day(12) })], baselines: [] }), 1).left
     const outline = onlyOutline(stage)
-    expect(outline.kind, BL_2_SHAPE).toBe('diamond')
-    expect(outline.box.height, BL_2_SHAPE).toBeCloseTo(band.height, 6)
+    expect(outline.box.height, BL_2_POINT_OR_SPAN).toBeCloseTo(band.height, 6)
     expect(outline.box.y, BL_2_Y).toBeCloseTo(band.top, 6)
-    expect(outline.box.width, BL_2_SHAPE).toBeCloseTo(outline.box.height, 6)
-    expect(outline.box.x + outline.box.width / 2, BL_2_SHAPE).toBeCloseTo(xStart, 6)
+    expect(outline.box.width, BL_2_POINT_OR_SPAN).toBeCloseTo(outline.box.height, 6)
+    expect(outline.box.x + outline.box.width / 2, BL_2_POINT_OR_SPAN).toBeCloseTo(xStart, 6)
+    const half = outline.box.height / 2
+    const cy = outline.box.y + half
+    expect(outline.bar.form, BL_2_SHAPE).toBe('outline')
+    expect(
+      sameCorners(outline.bar.points ?? [], [
+        { x: xStart, y: cy - half },
+        { x: xStart + half, y: cy },
+        { x: xStart, y: cy + half },
+        { x: xStart - half, y: cy },
+      ]),
+      `${BL_2_SHAPE}: the diamond of AT-101`,
+    ).toBe(true)
   })
 
   it(`BL-2 「${BL_2_SHAPE}」: the drawn rectangle has the box's four corners`, () => {

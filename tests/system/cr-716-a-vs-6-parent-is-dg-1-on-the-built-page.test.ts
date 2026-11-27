@@ -44,7 +44,7 @@ test('the clauses are the specification words', () => {
   }
 })
 
-test('DX-8 / T-315 DG-1: on the shipped build every VS-6 parent of the large sample is DG-1 and DX-7 counts them', async ({ page }) => {
+test('SCN-58 SCN-60 SCN-63 DX-8 / T-315 DG-1: on the shipped build every VS-6 parent of the large sample is DG-1 and DX-7 counts them @UC-015.OK', async ({ page }) => {
   test.setTimeout(120_000)
   await launch(page)
   await enableAgentApi(page)

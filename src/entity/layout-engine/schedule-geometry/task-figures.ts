@@ -5,6 +5,7 @@
 
 import type { DrawnSettings } from '../../document-model/document-settings/document-settings'
 import {
+  COLUMN_DEFAULTS,
   dayOf,
   lastDayForLength,
   planActualState,
@@ -520,6 +521,26 @@ function barOf(inputs: GeometryInputs, placed: TaskPlacement, x0: number, x1: nu
       }
   if (kind === 'chevron') return chevronBarOf(placed, x0, x1, top, height, fade, isActual, settings)
   return { form: 'outline', points: fadedOutline(x0, x1, top, height, fade.fadeIn ?? 0, fade.fadeOut ?? 0) }
+}
+
+// Spec: BL-2, T-012, LF-6, LF-7, LF-10
+// Why: the current Task's shape without its fades: a fade is the current Task's own data (FR-075), never the pre-change plan's.
+// Trap: a point in time or a span follows the pre-change milestone flag; when the current shape is of the other kind, take that kind's default (SH-1, AT-101).
+/** @purity pure */
+export function baselineBarOf(placed: TaskPlacement, x0: number, x1: number, top: number, height: number,
+                              isPointInTime: boolean, settings: DrawnSettings): BarGeometry {
+  const isMilestoneShape = placed.shapeKind === 'milestone'
+  if (isPointInTime) {
+    const glyph = isMilestoneShape ? placed.milestoneGlyph : COLUMN_DEFAULTS.TaskVisual.milestoneGlyph
+    return milestoneBarOf(point(x0, top + height / 2), height, glyph, settings.starInnerOfOuter)
+  }
+  const kind = isMilestoneShape ? 'rectangle' : placed.shapeKind
+  if (kind === 'arrow' || kind === 'endpointSpan') return lineBar(kind, x0, x1, top + height / 2, settings)
+  if (kind === 'chevron') {
+    const notch = chevronNotch(x1 - x0, height, settings)
+    return { form: 'outline', points: chevronOutline(x0, x1, top, height, notch, notch) }
+  }
+  return { form: 'outline', points: fadedOutline(x0, x1, top, height, 0, 0) }
 }
 
 // Spec: IMPS-604, IMPS-624

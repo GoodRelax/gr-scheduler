@@ -744,7 +744,7 @@ function tasksAdded(run: TaskGroupPaste): readonly number[] {
 test.describe(`FR-033, driven by ${COPY_KEY} and ${PASTE_KEY} of table T-036`, () => {
   // Why: goes red if a copy of a Task lands as no Task, or as more than the
   // one subtree picked out of the drawing.
-  test('copying one Task and pasting makes exactly one more Task', () => {
+  test('SCN-4 copying one Task and pasting makes exactly one more Task @UC-001.OK', () => {
     const seen = readingsOfTheSweep()
     const added = seen.afterTaskPaste.taskUids.filter(
       (one) => !seen.beforeTaskPaste.taskUids.includes(one),
@@ -758,7 +758,7 @@ test.describe(`FR-033, driven by ${COPY_KEY} and ${PASTE_KEY} of table T-036`, (
 
   // Why: goes red if the duplicate reuses the UID FR-033 (MUST NOT)
   // reserves -- the failure that makes a redo hand out one UID twice.
-  test('the pasted Task does not take the UID it was copied from', () => {
+  test('SCN-4 the pasted Task does not take the UID it was copied from @UC-001.OK', () => {
     const seen = readingsOfTheSweep()
     const added = seen.afterTaskPaste.taskUids.filter(
       (one) => !seen.beforeTaskPaste.taskUids.includes(one),
@@ -772,7 +772,7 @@ test.describe(`FR-033, driven by ${COPY_KEY} and ${PASTE_KEY} of table T-036`, (
 
   // Why: goes red if the duplicate lands off the task group it was copied from --
   // table T-050 row CD-2 leans on this to know what a deletion reaches.
-  test('the pasted Task stands on the task group it was copied from', () => {
+  test('SCN-4 the pasted Task stands on the task group it was copied from @UC-001.OK', () => {
     const seen = readingsOfTheSweep()
     const added = seen.afterTaskPaste.taskUids.filter(
       (one) => !seen.beforeTaskPaste.taskUids.includes(one),

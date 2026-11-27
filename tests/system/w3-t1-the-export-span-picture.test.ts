@@ -129,7 +129,7 @@ test.describe('W3-T1 the manuscript these cases are driven by', () => {
 test.describe('FR-025 the export span picture on the shipped build', () => {
   test.setTimeout(240_000)
 
-  test(`IX-14 (MUST): ${IX_14_ALL_TASK_GROUPS.slice(-40)} -- 80 task groups, every task group in the span picture`, async () => {
+  test(`SCN-45 IX-14 (MUST): ${IX_14_ALL_TASK_GROUPS.slice(-40)} -- 80 task groups, every task group in the span picture @UC-011.OK`, async () => {
     const opened = await stageWith(80, {})
     try {
       const without = await pictureOf(opened.page)
@@ -260,7 +260,7 @@ test.describe('FR-096 the Export Chooser on the shipped build', () => {
     }, EXPORT_CHOOSER)
   }
 
-  test(`FR-096 (MUST): ${FR_096_SPAN.slice(-40)} -- the span line reads 2026/03/02 - 2026/03/29 and is gone with the span`, async () => {
+  test(`SCN-45 FR-096 (MUST): ${FR_096_SPAN.slice(-40)} -- the span line reads 2026/03/02 - 2026/03/29 and is gone with the span @UC-011.OK`, async () => {
     const opened = await stageWith(4, { ...SPAN_28, isFitSpanFixed: true })
     try {
       expect(await pressEntrance(opened.page, OPEN_EXPORT_CHOOSER), 'IC-2 opens the Export Chooser').toBe(true)

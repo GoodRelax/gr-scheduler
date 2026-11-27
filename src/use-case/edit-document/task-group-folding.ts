@@ -140,18 +140,42 @@ function isTreeState(value: string): value is TreeState {
   return Object.prototype.hasOwnProperty.call(TREE_STATES, value)
 }
 
+const UNHIDING_PRESSES: ReadonlySet<TreeStateEvent['type']> = new Set([
+  'oneLevelOpenPressed',
+  'allBelowOpenPressed',
+  'childTaskGroupAddPressed',
+])
+const HIDING_ABOVE: ReadonlySet<TreeState> = new Set(['hidden', 'collapsed'])
+
+// Spec: TD-2, TD-3, FR-098, HF-13, HF-14
+// Why: a pin is drawn under hides and folds (CR-862); an open or an add on it first unhides them, in one bundle.
+/** @purity pure */
+function unhiddenIdsFor(schedule: Schedule, event: TreeStateEvent, pinnedTaskGroupIds: readonly string[]): ReadonlySet<string> {
+  const pressedRowId = eventValuesOf(event).pressedRowId
+  if (pressedRowId === null || !UNHIDING_PRESSES.has(event.type) || !pinnedTaskGroupIds.includes(pressedRowId)) return new Set()
+  const stateOf = new Map(schedule.taskGroups.map((one) => [one.id, one.treeState] as const))
+  const ancestors = taskGroupGuardInputOf(schedule, event).ancestors(pressedRowId)
+  const unhidden = ancestors.filter((id) => HIDING_ABOVE.has(stateOf.get(id) ?? 'auto'))
+  return new Set(stateOf.get(pressedRowId) === 'hidden' ? [...unhidden, pressedRowId] : unhidden)
+}
+
 // Spec: T-328, FR-018, UN-14, IMPS-778, HR-1a
 /** @purity pure */
 export function treeStateWritesFor(
   schedule: Schedule,
   event: TreeStateEvent,
+  pinnedTaskGroupIds: readonly string[] = [],
 ): readonly DocumentCommand[] {
-  const pressInput = taskGroupGuardInputOf(schedule, event)
+  const unhiddenIds = unhiddenIdsFor(schedule, event, pinnedTaskGroupIds)
+  const read: readonly TaskGroup[] = schedule.taskGroups.map((taskGroup) =>
+    unhiddenIds.has(taskGroup.id) ? { ...taskGroup, treeState: 'auto' } : taskGroup,
+  )
+  const pressInput = taskGroupGuardInputOf({ ...schedule, taskGroups: read }, event)
   const writes: DocumentCommand[] = []
-  for (const taskGroup of schedule.taskGroups) {
-    const treeState = nextTreeStateOf(taskGroup, event, pressInput)
-    if (treeState !== taskGroup.treeState) {
-      writes.push({ kind: 'setTaskGroupTreeState', taskGroupId: taskGroup.id, treeState })
+  for (const [at, held] of schedule.taskGroups.entries()) {
+    const treeState = nextTreeStateOf(read[at] ?? held, event, pressInput)
+    if (treeState !== held.treeState) {
+      writes.push({ kind: 'setTaskGroupTreeState', taskGroupId: held.id, treeState })
     }
   }
   return writes

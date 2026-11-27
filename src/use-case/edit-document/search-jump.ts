@@ -163,10 +163,18 @@ function isShownAfterJump(
   hasRoomBelowPins: boolean,
   reach: SearchJumpReach,
 ): boolean {
-  const row = place.taskGroupId
-  if (row === null || !document.documentSettings.pinnedTaskGroupIds.includes(row)) return hasRoomBelowPins
-  if (reach.drawnTaskGroups.some((one) => one.taskGroupId === row && one.isPinned === true)) return true
-  return reveals.length > 0 && hasRoomBelowPins
+  if (isOnADrawnPin(document, place, reach)) return true
+  return isPinnedPlace(document, place) ? reveals.length > 0 && hasRoomBelowPins : hasRoomBelowPins
+}
+
+/** @purity pure */
+function isPinnedPlace(document: Document, place: JumpPlace): boolean {
+  return place.taskGroupId !== null && document.documentSettings.pinnedTaskGroupIds.includes(place.taskGroupId)
+}
+
+/** @purity pure */
+function isOnADrawnPin(document: Document, place: JumpPlace, reach: SearchJumpReach): boolean {
+  return isPinnedPlace(document, place) && reach.drawnTaskGroups.some((one) => one.taskGroupId === place.taskGroupId && one.isPinned === true)
 }
 
 // Spec: SJ-6, EL-11, FR-046, S-428
@@ -228,7 +236,7 @@ export function searchJumpWrites(
 ): SearchJumpPlan {
   const place = placeOf(document.schedule, target)
   if (place === null) return NO_JUMP
-  const treeStateWrites = revealWrites(document, place.taskGroupId)
+  const treeStateWrites = isOnADrawnPin(document, place, reach) ? [] : revealWrites(document, place.taskGroupId)
   if (!isShownAfterJump(document, place, treeStateWrites, hasRoomBelowPins, reach)) {
     return { treeStateWrites, scrollWrite: null, isBlockedByPinnedTaskGroups: true }
   }

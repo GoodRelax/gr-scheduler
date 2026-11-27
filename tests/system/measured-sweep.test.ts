@@ -2041,7 +2041,7 @@ test('DFC-97: the save key writes GRS JSON, and a second press overwrites with n
 // screen's shape, not the document, reaches S-217.
 // Why: IO-6 is not pressed: it writes to the clipboard, which a driven browser cannot answer.
 // Spec: FR-025, S-217, RS-43, IO-1, IO-2, IO-3, IO-4, IO-7
-test('DFC-220: a picture too tall to draw is refused as RS-43, and the other formats still write', async () => {
+test('SCN-41 DFC-220: a picture too tall to draw is refused as RS-43, and the other formats still write @UC-011.RJ1', async () => {
   test.setTimeout(300_000)
   const width = 600
   const height = Math.ceil(width * (EXPORT_HEIGHT_CAP / EXPORT_WIDTH)) + 64

@@ -47,7 +47,7 @@ test.describe('W3-T1 the manuscript this case is driven by', () => {
 test.describe(`MG-14 (MUST): ${MG_14.slice(-40)}`, () => {
   test.setTimeout(180_000)
 
-  test('a GRS JSON merge that overwrites task 2 and lacks task 3 tells RS-71 and RS-72', async ({ page }) => {
+  test('SCN-53 a GRS JSON merge that overwrites task 2 and lacks task 3 tells RS-71 and RS-72 @UC-014.OK', async ({ page }) => {
     await launch(page)
     await enableAgentApi(page)
     await openByDrop(page, 'w3-t1-current.json', taskGroupsDocument({ rows: 3 }))
@@ -65,7 +65,7 @@ test.describe(`MG-14 (MUST): ${MG_14.slice(-40)}`, () => {
     expect(tells(said, 'RS-72'), `RS-72 (kept, not in the file) is told; said: ${said}`).toBe(true)
   })
 
-  test('a second merge that no longer carries task 3 tells RS-73 with its name', async ({ page }) => {
+  test('SCN-57 a second merge that no longer carries task 3 tells RS-73 with its name @UC-014.OK', async ({ page }) => {
     await launch(page)
     await enableAgentApi(page)
     await openByDrop(page, 'w3-t1-current.json', taskGroupsDocument({ rows: 3 }))

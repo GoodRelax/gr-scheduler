@@ -317,7 +317,7 @@ test.describe('CR-723 on the shipped build', () => {
     }
   })
 
-  test('OP-18: with no status date the diagnosis cannot start; the report eye is released on opening and nothing is marked unsaved', async () => {
+  test('SCN-59 OP-18: with no status date the diagnosis cannot start; the report eye is released on opening and nothing is marked unsaved @UC-015.RJ1', async () => {
     const schedule = scheduleFixture()
     const project = { ...(schedule['project'] as Loose), statusDate: null }
     const text = documentText(
