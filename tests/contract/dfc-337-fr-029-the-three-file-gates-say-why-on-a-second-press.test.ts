@@ -1,99 +1,4 @@
-// FR-029 (MUST) -- open, reload and save each SAY WHY when a press can do
-// nothing, instead of returning in silence.
-//
-// ---------------------------------------------------------------------------
-// THE CLAUSE, QUOTED VERBATIM (docs/spec/01-04-requirements.md)
-// ---------------------------------------------------------------------------
-//
-//   **押されたときに限り、行えない理由を通知の仕組みへ運ぶこと（MUST）。作法は `FR-076` の
-//   表 T-037 の `NT-1` に従い、運ぶ理由は、押された入口の場面に当たる同要求の
-//   表 T-233 の行とすること（MUST）。**
-//
-// and the closing rule of 表 T-233 (docs/spec/01-04-requirements.md):
-//
-//   ⭐ **通知が運ぶ理由は 表 T-233 の行とすること（MUST）。同表に無い理由を運んでは
-//   ならない（MUST NOT）** —— 理由の語は `FR-038` の辞書が持ち、辞書は行 ID で引く。
-//
-// ⭐ THE REASON THE THREE GATES LAND ON `RS-27` and not on a row of their own is
-// FR-029's own fall-through: 「もし押された入口の場面に当たる行が 表 T-233 に無い場合、
-// `GRS` は落ち先の `RS-27`（出さない）を運ぶこと。」, and 表 T-233 spells that row 「押した入口が、いま行えること
-// を持たない | `NT-1` | 出さない | — | `FR-029`」.
-//
-// ---------------------------------------------------------------------------
-// ⛔ WHY THIS FILE EXISTS -- THE LEDGER ROW IT STANDS IN FOR
-// ---------------------------------------------------------------------------
-// DFC-337: 「⛔ **開く・読み直す・保存の 3 つの門が、待ちの最中に黙って戻る**」, with
-// 「実測: 待ちの最中に `Ctrl`＋`O` / `Ctrl`＋`S` を 2 度押しても、通知は 0 件」.
-// ⭐ DFC-334 had already closed the FOURTH gate of the same family -- the export
-// one -- and its ⚠️ column said 「同じ「黙って戻る」門が、開く・読み直す・保存にも
-// 在る。⇒ 次の巡でまとめて閉じること」. ⛔ THE ROW ALSO CORRECTED ITSELF ABOUT THE
-// KEYS: DFC-337 「読み直しは `Ctrl`＋`R`（`SK-21`）であり、先の実測が打った 3 つの鍵では
-// 読み直しの門に届いていなかった」 -- so the three keys are read out of 表 T-036
-// below rather than typed, and `SK-11a` (which that row also found does not
-// exist) is not driven.
-//
-// ---------------------------------------------------------------------------
-// WHERE 表 T-218 PUTS THIS FILE
-// ---------------------------------------------------------------------------
-// `TS-6` of table T-218 (tests/unit/, Vitest; generated into
-// docs/spec/_assets/tbl-verification.md). The unit is `UF-48` of 表 T-075 (`frame-loop.ts`, `CP-25` of 表
-// T-062): 表 T-060's `LY-5` makes it the only layer that may hold a current
-// value, so it is the side that knows a file operation is already in flight.
-// ⛔ NOT tests/system/: `TS-3` takes 「`SWS-xxx`」 for a parent and what is
-// measured here is one unit's answer to a press, not a drawn screen.
-//
-// ---------------------------------------------------------------------------
-// ⛔ WRITTEN FROM docs/spec, AND WHAT WAS READ OF `src/` IS NAMED HERE
-// ---------------------------------------------------------------------------
-// (docs/development-rules/04-verification.md section 1: only the head, the
-// published types and the signatures.)
-//
-//   frame-loop.ts       `FrameEnvironment`, `FrameLoop`, `ScreenWiring` and the
-//                       signature `frameLoop(surface, first, env, screen?,
-//                       files?)`
-//   screen-renderer.ts  `DisplayLanguage`, `ScreenPart`, `ScreenSurface`,
-//                       `ScreenView`
-//   input-command-translator.ts  `HumanInput`, `InputModifiers`, `KeyInput`
-//   file-store.ts       `FileStore`, `FileReading`, `FileWriting`,
-//                       `OpenedFileState`, `OpenRoute`, `ChosenFileWrite`
-// ⛔ NO FUNCTION BODY WAS READ. Nothing was read of how a gate decides to
-// return; every expectation below is FR-029's and 表 T-233's.
-// ⭐ THE HOST, THE FAKE SURFACE AND THE FAKE STORE ARE COPIED, NOT INVENTED:
-// tests/unit/uf-47-48-choosers.test.ts drives this same unit with a store whose
-// reads are left unanswered, and tests/unit/fr-029-the-reason-a-press-carries.
-// test.ts is where a notice is pinned to a row of 表 T-233 through FR-038's
-// dictionary.
-//
-// ---------------------------------------------------------------------------
-// THE ROWS THESE CASES REST ON
-// ---------------------------------------------------------------------------
-//   `FR-029`      the clause above, and its fall-through to `RS-27`.
-//   表 T-233 RS-27 「押した入口が、いま行えることを持たない | `NT-1` | 出さない | — | `FR-029`」.
-//   表 T-233 の結び the closing rule above.
-//   表 T-036      `SK-10` 「開く | `Ctrl` ＋ `O`」, `SK-11` 「保存する……」 and `SK-21`
-//                 「**開いているファイルを読み直す**（規則は表 T-024a の `OP-13`）|
-//                 `Ctrl` ＋ `R`」 -- the three keys, READ from the 割当 column.
-//   表 T-024a OP-13 「**選ばせる面を開かずに、同じファイルをもう一度読むこと
-//                 （MUST）**」 and 「⚠️ **開いているファイルが無いときは何もしない
-//                 こと（MUST）**」 -- why the reload gate is driven with a file
-//                 already open, and not otherwise.
-//   `FR-038`      the dictionary the words come from, keyed by the row id.
-//
-// ---------------------------------------------------------------------------
-// ⚠️ WHAT IS DELIBERATELY NOT ASSERTED
-// ---------------------------------------------------------------------------
-//   1. THE FAINT HALF OF FR-029. The same requirement asks the entrance to be
-//      DRAWN faint while it can do nothing; DFC-334's ledger row records that half
-//      as not built (「薄く描く半分（案②）は入っていない」), and it is the
-//      renderer's, not this unit's.
-//   2. WHICH ROW OF 表 T-233 A GATE "OUGHT" TO HAVE. FR-029 (MUST NOT) forbids
-//      carrying the fall-through where a matching row exists -- and 表 T-233
-//      holds no row for 「別のファイル操作が待ちの最中である」, so `RS-27` is what
-//      its own fall-through sentence names. ⭐ A table that later grows such a
-//      row would make these cases wrong, which is why the premise below asserts
-//      that `RS-27` is still the fall-through FR-029 names.
-//   3. WHAT HAPPENS WHEN THE WAIT ENDS. `CS-4` of 表 T-066 owns the landing and
-//      tests/unit/uf-47-48-choosers.test.ts drives it.
+// Contract tests: open, reload and save carry a hidden reason on a second press during a wait.
 
 import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
@@ -127,39 +32,23 @@ import {
 } from '../../src/framework/single-html-shell/frame-loop'
 import { bare, specTable, type SpecRow, type SpecTable, unbroken } from './spec-table'
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
-// ===========================================================================
-// 1. The manuscript, read at run time rather than copied
-// ===========================================================================
+/* eslint-disable @typescript-eslint/no-explicit-any -- the fake host patches a browser global */
 
 const REQUIREMENTS = unbroken(readRepoFile(
   join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'),
   'utf8',
 ))
 
-/**
- * ⚠️ Japanese literals in code. Rule 03 section 5 keeps code English and ASCII
- * and admits 日本語そのものを扱う処理 as the exception -- these strings ARE the
- * clauses, and matching them against the manuscript is what makes the cases
- * below cases about the specification.
- *
- * ⭐ EACH ENDS AT ITS MARKER'S OWN CLOSING PARENTHESIS. Check 39 takes the
- * trailing window that ENDS at `（MUST）` / `（MUST NOT）` and looks for it under
- * tests/; a quote that began at the sentence and stopped before the marker
- * would hold nothing at all.
- */
 const FR_029_TELL_ON_A_PRESS =
   '利用者が薄く描いた入口を押したときに限り、`GRS` は行えない理由を通知の仕組みへ運ぶこと（例外は `IMPS-1114`）。`GRS` は、行えない理由を運ぶ作法を `FR-076` の 表 T-037 の `NT-1` に従わせること。`GRS` は、運ぶ理由を、押された入口の場面に当たる `FR-076` の 表 T-233 の行とすること。'
 
-/** ⭐ The closing rule of 表 T-233, which is what makes `RS-27` a row and not a sentence. */
+// Spec: IMPS-1125
 const T_233_ONLY_ITS_OWN_ROWS =
   '`GRS` は、通知が運ぶ理由を 表 T-233 の行とすること。`GRS` は、表 T-233 に無い理由を運ばないこと（例外は `IMPS-1134` の取り込みの検証の拒否の 1 つだけである）。'
 
-/** FR-029's own fall-through -- why these three gates land on `RS-27`. */
+// Spec: IMPS-1113
 const FR_029_RS_27_IS_THE_FALLBACK = 'もし押された入口の場面に当たる行が 表 T-233 に無い場合、`GRS` は落ち先の `RS-27`（出さない）を運ぶこと。'
 
-/** `OP-13`'s guard, which is why the reload gate is driven with a file already open. */
 const OP_13_NOTHING_TO_REREAD = '開いているファイルが無いときは何もしないこと（MUST）'
 
 const T_036: SpecTable = specTable('T-036')
@@ -171,20 +60,8 @@ function rowOf(table: SpecTable, id: string): SpecRow {
   return found
 }
 
-/**
- * The keystroke 表 T-036 assigns one row, read out of its 割当 column.
- *
- * ⭐ READ AND NOT TYPED, which is exactly what DFC-337's own correction was about:
- * the first measurement pressed three keys and 「読み直しの門に届いていなかった」
- * because one of them was not the key the table assigns.
- * ⚠️ Copied from tests/unit/uf-47-48-choosers.test.ts.
- *
- * ⛔⛔ THE RAW CELL, NEVER `bare`. That helper answers with the FIRST backticked
- * token, and `SK-21`'s 割当 is 「`Ctrl` ＋ `R`」 -- so `bare` turns the reload key
- * into `Ctrl` alone. ⚠️ Measured here on 2026-09-06: a first draft of this file
- * used `bare` and pressed a bare `Ctrl` at the reload gate, which is the SAME
- * shape of mistake DFC-337's ledger row records against the measurement before it.
- */
+// Why: the keys are read from table T-036, not typed, so a press cannot miss the gate
+// it means to reach.
 function keyOf(id: string): KeyInput {
   const parts = ((rowOf(T_036, id).by['割当'] ?? '').split('/')[0] ?? '')
     .replace(/\*/g, '')
@@ -208,10 +85,8 @@ function keyOf(id: string): KeyInput {
   }
 }
 
-/** The manner 表 T-233 gives one row -- `NT-1` for `RS-27`. */
 const mannerOf = (reason: string): string => bare(rowOf(T_233, reason).by['作法'] ?? '')
 
-/** FR-038's dictionary, as the manuscript keeps it. Copied from the fr-029 file. */
 interface ReasonWords {
   readonly specTableRowId: string
   readonly text: Readonly<Record<DisplayLanguage, string>>
@@ -230,22 +105,13 @@ function wordsFor(specTableRowId: string): ReasonWords {
   return found
 }
 
-/** FR-029's fall-through. */
 const RS_27 = 'RS-27'
 
-// ===========================================================================
-// 2. The three gates
-// ===========================================================================
-
 interface Gate {
-  /** The row of 表 T-036 whose key is pressed. */
   readonly key: string
-  /** For the case name. */
   readonly what: string
-  /**
-   * Whether the reload gate's premise applies -- `OP-13` (MUST) has a reread do
-   * nothing at all while no file is open, so that gate is driven only with one.
-   */
+  // Why: OP-13 has a reread do nothing while no file is open, so the reload gate is driven
+  // with one; else its silence would be OP-13's, not the gate's.
   readonly needsAnOpenedFile: boolean
 }
 
@@ -255,26 +121,12 @@ const GATES: readonly Gate[] = [
   { key: 'SK-11', what: 'save', needsAnOpenedFile: true },
 ]
 
-// ===========================================================================
-// 3. A store that answers nothing, so every road stays in flight
-// ===========================================================================
-
 interface StoreProbe {
   readonly store: FileStore
-  /** How many roads are still waiting -- the state the gates are pressed in. */
   pending(): number
 }
 
-/**
- * ⭐⭐ EVERY ROAD THAT CAN BE WAITED ON RETURNS A PROMISE NOBODY RESOLVES, which
- * is the whole of the fixture: DFC-337's 場面 is 「別のファイル操作が待ちの最中」 and
- * the only way to hold a loop there is a seam that never answers.
- *
- * ⚠️ `readOpenedFileState` DOES answer, and has to. `OP-13` (MUST) makes a
- * reread do nothing while no file is open, and `FR-060`'s overwrite needs
- * somewhere to go -- so the question 「what may be overwritten right now」 is
- * answered at once and it is the WORK that is left hanging.
- */
+// Summary: fileStore leaves every awaited road unresolved, so the loop stays in its wait.
 function fileStore(opened: OpenedFileState): StoreProbe {
   const waiting: (() => void)[] = []
   const never = <T,>(): Promise<T> =>
@@ -284,6 +136,8 @@ function fileStore(opened: OpenedFileState): StoreProbe {
   const store: FileStore = {
     askToWriteOver: async () => true,
     readFileToOpen: () => never<FileReading>(),
+    // Why: answered at once: OP-13 must see whether a file is open and the FR-060 overwrite
+    // needs a target; only the work is left hanging.
     readOpenedFileState: async () => opened,
     restoreOpenedFilePermission: async () => opened,
     overwriteOpenedFile: (_bytes: Uint8Array) => never<FileWriting>(),
@@ -292,13 +146,8 @@ function fileStore(opened: OpenedFileState): StoreProbe {
   return { store, pending: () => waiting.length }
 }
 
-/** A file is already open, so `OP-13`'s guard does not swallow the reread. */
 const A_FILE_IS_OPEN: OpenedFileState = { kind: 'writable', fileName: 'here.grs.json' }
 const NO_FILE_IS_OPEN: OpenedFileState = { kind: 'none' }
-
-// ===========================================================================
-// 4. The host UF-48 is given. Copied from tests/unit/uf-47-48-choosers.test.ts.
-// ===========================================================================
 
 const SCREEN: FrameEnvironment = {
   width: 1400,
@@ -356,7 +205,6 @@ afterEach(() => {
   else (globalThis as any).requestAnimationFrame = realRaf
 })
 
-/** Let every promise the loop is waiting on settle. Copied from the choosers file. */
 async function settle(): Promise<void> {
   for (let turn = 0; turn < 16; turn += 1) await Promise.resolve()
   await new Promise((resolve) => setTimeout(resolve, 0))
@@ -404,10 +252,7 @@ function stage(opened: OpenedFileState, language: DisplayLanguage = 'ja'): Stage
 const openedFor = (gate: Gate): OpenedFileState =>
   gate.needsAnOpenedFile ? A_FILE_IS_OPEN : NO_FILE_IS_OPEN
 
-// ===========================================================================
-// 5. The premises every case below stands on
-// ===========================================================================
-
+// Spec: FR-029, FR-076, T-233, RS-27, NT-1, T-036, SK-10, SK-11, SK-21, OP-13
 describe('FR-029 / 表 T-233 -- the manuscript this file is driven by', () => {
   it('still ties the telling to a press and to the MATCHING row, and still names RS-27 as the fall-through', () => {
     expect(REQUIREMENTS).toContain(FR_029_TELL_ON_A_PRESS)
@@ -422,8 +267,7 @@ describe('FR-029 / 表 T-233 -- the manuscript this file is driven by', () => {
   })
 
   it('⭐ RS-27 says something no other row of 表 T-233 says', () => {
-    // ⛔ WITHOUT THIS, "the telling carried RS-27" would pass on a loop that
-    // carried any row at all, because the words would collide.
+    // Why: with shared words, 'the telling carried RS-27' would pass on a loop carrying any row.
     const mine = wordsFor(RS_27).text.ja
     const others = T_233.rows
       .filter((one) => one.id !== RS_27)
@@ -431,7 +275,6 @@ describe('FR-029 / 表 T-233 -- the manuscript this file is driven by', () => {
       .filter((one): one is string => one !== undefined)
     expect(mine.length).toBeGreaterThan(0)
     expect(others).not.toContain(mine)
-    // ⭐ And two languages, so the case below that presses in English is a case.
     expect(wordsFor(RS_27).text.en.length).toBeGreaterThan(0)
     expect(wordsFor(RS_27).text.en).not.toBe(mine)
   })
@@ -443,8 +286,6 @@ describe('FR-029 / 表 T-233 -- the manuscript this file is driven by', () => {
       modifiers: { ctrl: true, shift: false, alt: false, meta: false },
     })
     expect(keyOf('SK-11').modifiers.ctrl).toBe(true)
-    // ⛔ THE ONE THE LEDGER GOT WRONG. DFC-337 「読み直しは `Ctrl`＋`R`（`SK-21`）であり、
-    // 先の実測が打った 3 つの鍵では読み直しの門に届いていなかった」.
     expect(keyOf('SK-21')).toEqual({
       kind: 'key',
       key: 'R',
@@ -454,9 +295,6 @@ describe('FR-029 / 表 T-233 -- the manuscript this file is driven by', () => {
   })
 
   it('表 T-024a OP-13 still refuses to reread while no file is open', () => {
-    // ⭐ THE REASON THE RELOAD GATE IS DRIVEN WITH A FILE ALREADY OPEN. Without
-    // it, the second press would be silent for OP-13's reason rather than for
-    // the gate's, and this file would report a defect that is not one.
     expect(REQUIREMENTS).toContain(OP_13_NOTHING_TO_REREAD)
   })
 
@@ -467,10 +305,7 @@ describe('FR-029 / 表 T-233 -- the manuscript this file is driven by', () => {
   })
 })
 
-// ===========================================================================
-// 6. 「押されたときに限り」 -- the FIRST press is silent, and starts the work
-// ===========================================================================
-
+// Spec: FR-029
 describe('FR-029 -- the first press is answered by doing the work, not by a telling', () => {
   for (const gate of GATES) {
     it(`${gate.key} (${gate.what}): one press raises no telling and leaves a road in flight`, async () => {
@@ -492,10 +327,7 @@ describe('FR-029 -- the first press is answered by doing the work, not by a tell
   }
 })
 
-// ===========================================================================
-// 7. ⭐⭐ THE SECOND PRESS -- 「押した入口が、いま行えることを持たない」
-// ===========================================================================
-
+// Spec: FR-029, T-233, RS-27
 describe('FR-029 (MUST) -- a second press while a write is pending carries RS-27, which is not shown', () => {
   for (const gate of GATES) {
     it(`${gate.key} (${gate.what}): the second press starts nothing and puts no notice up`, async () => {
@@ -516,10 +348,8 @@ describe('FR-029 (MUST) -- a second press while a write is pending carries RS-27
   })
 
   it('⭐⭐ the control: the same key on a loop with no store raises no RS-27 for THIS reason', async () => {
-    // ⛔ THE CASE THAT KEEPS THE SIX ABOVE FROM PASSING ON A GATE THAT SHOUTS AT
-    // EVERY PRESS. A press that starts work must be silent, and it is measured
-    // twice: once here as the FIRST press of a fresh loop, and once as the
-    // "first press was not silent" guard inside each case above.
+    // Why: a press with work to do must be silent; this keeps the cases above from passing
+    // on a gate that tells at every press.
     const first = stage(NO_FILE_IS_OPEN)
     await first.press(keyOf('SK-10'))
 
@@ -530,10 +360,8 @@ describe('FR-029 (MUST) -- a second press while a write is pending carries RS-27
   })
 
   it('⭐ the control: the three gates are three roads, not one', async () => {
-    // ⛔ A LOOP THAT RAISED RS-27 FOR ANY SECOND KEYPRESS WHATEVER would pass
-    // every case above. Here the FIRST press is one gate and the SECOND is a
-    // different one -- still a wait, so `RS-27` is still owed -- and the count
-    // shows the three share the state rather than each owning a private flag.
+    // Why: the second press is a different gate, so a loop that guards only a repeat of the
+    // same key, or keeps a private flag per gate, starts a write here and fails.
     const built = stage(A_FILE_IS_OPEN)
 
     await built.press(keyOf('SK-10'))

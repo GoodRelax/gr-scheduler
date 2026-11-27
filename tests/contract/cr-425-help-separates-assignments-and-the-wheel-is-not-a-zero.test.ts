@@ -13,6 +13,7 @@ const REQUIREMENTS = unbroken(readRepoFile(join(ROOT, 'docs', 'spec', '01-04-req
 
 const FR_036_THE_SEPARATOR =
   '1 つの項目に割当が 2 つ以上あるとき、`GRS` は、割当と割当のあいだに、辞書（`FR-038`）の `keyNotation` の `alternative` の語を置いて並べること'
+// Spec: IMPS-1174
 const FR_036_THE_CELL_SEPARATOR =
   '表 T-036 と 表 T-255 の `割当` の欄は、1 つの欄に 2 つ以上の割当を持つとき、欄の中では `／`（全角の斜線）の前後に半角の空白を 1 つずつ置いて並べること。`GRS` は、画面では、1 つの欄の 2 つ以上の割当を `alternative` の語で並べること'
 const FR_036_THE_KEY_SPELLING =

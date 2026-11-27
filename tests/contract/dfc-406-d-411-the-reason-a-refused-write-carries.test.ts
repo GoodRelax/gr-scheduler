@@ -1,77 +1,6 @@
-// Anchors for two ledger rows about ONE line of the shell: which row of table
-// T-233 a refused write is told on (`reasonOfWriteRefusal` of `frame-loop.ts`).
-//
-//   DFC-411 -- table T-233 gained four rows for write refusals (`RS-55` .. `RS-58`)
-//            and nothing routed to them, so every one of those situations still
-//            reached the reader as `RS-10` 「命令が拒否されたので、束ごと落とした」.
-//   DFC-406 -- the WIDE half of that same line was unguarded. Measured 2026-09-08:
-//            widening the shape's test to EVERY WS-3 refusal, so that `RS-10`
-//            became unreachable from this road altogether, took ZERO cases red
-//            in the whole suite.
-//
-// Unit under test:
-//   UF-48  `frame-loop.ts` (CP-25 of table T-062) -- the shell, which is the one
-//          side that turns a refusal into a telling (FR-076).
-//
-// ⚠️ Chapter 9 does not admit Unit as a TEST_LEVEL, so these cases have no node
-// in the specification. Table T-218 of Chapter 7 gives them their place: TS-6,
-// tests/unit/.
-//
-// ---------------------------------------------------------------------------
-// THE CLAUSE THESE CASES EXIST FOR (rule 03 section 3: name the row; this one is
-// quoted because holding it verbatim IS the point)
-// ---------------------------------------------------------------------------
-//
-//   T-037's closing paragraph, under FR-076:
-//     ⛔ 「`GRS` は、拒否の理由を 1 つの行へ潰さないこと」 -- 「書き込みが
-//        拒まれたとき、拒んだ命令の別を捨てて `RS-10` だけを運ぶ造りでは、表 T-233 に
-//        場面ごとの行を何行足しても、画面に出る語は 1 文字も変わらない」
-//     ⭐ 「表 T-233 に行を足す者は、足した行へ振り分ける道が在ることまで確かめること」
-//        -- 「行と辞書の項が揃っていても、運ぶ側が別を捨てていれば、
-//        届くのは古い語である」
-//     ⚠️ 「振り分ける道の欠けは、生成器も、辞書と表を突き合わせる検査も捕まえない」
-//
-//   T-233 RS-55  「動かす先が、そのタスクグループ自身か、そのタスクグループの子孫である」, 正 表 T-015a の
-//                `HM-4`, and the row itself says it covers BOTH axes
-//   T-233 RS-58  「終了が開始より前である」, 正 Chapter 6.1 の 表 T-220 の `IV-10`
-//   T-233 RS-10  「命令が拒否されたので、束ごと落とした」, 正 表 T-067 の `WS-3` --
-//                the row every other write refusal keeps
-//   T-067 WS-3   「操作を検証し、新しい文書を組み立てる。1 つでも拒まれたら全部を
-//                捨てる」 -- why one bundle carries one telling
-//   T-016 PR-47  `finish` (split from PR-3 by CR-689), and PR-15 `parentTaskUid` --
-//                the two panel items these cases settle a value in
-//   T-065 IF-9   the seam a value settled in a field of the `Properties Panel`
-//                arrives on, carrying the row it names
-//
-// ---------------------------------------------------------------------------
-// ⛔ WHAT IS DELIBERATELY NOT ASSERTED
-// ---------------------------------------------------------------------------
-//   - `RS-56` 「同じ `Task` を、依存の先行と後続の両方にしようとした」. Its 正 is
-//     FR-009, which forbids THREE dependencies in one sentence and gives none of
-//     the three a row ID -- so `edit-dependency.ts` spells all of its refusals
-//     `CM-36` against `FR-009`, and command and rule together cannot tell 「両端
-//     が同じ」 from 「同じ対の重複」 or 「端点がタスクでない」. ⛔ A case that
-//     asserted `RS-56` for that pair would be asserting a lie about the other
-//     two. What is owed is row IDs for FR-009's three prohibitions, or a finer
-//     「理由の区分」 on `Refusal` (AG-9a of table T-035).
-//   - `RS-57` 「同じ id を持つものが、この文書に既に在る」. The routing exists (the
-//     shell reads every `IV-1` refusal as that row) but nothing a person can
-//     press reaches it: every id a write carries is minted by the shell, so a
-//     duplicate cannot be asked for. ⚠️ The manuscript case below is what keeps
-//     the routing honest until an entrance for it exists.
-//   - Which words the reader sees. FR-038 (MUST NOT) keeps them in one
-//     dictionary; these cases compare against THAT, never against a spelling.
-//   - What `Enter` does to a telling raised by its own settling. ⚠️ MEASURED
-//     2026-09-09 while these cases were being written: settling a refused value
-//     with the key SK-19 assigns leaves ZERO tellings on the description, while
-//     every other happening leaves the one raised. NT-8 of table T-037 puts the
-//     dismissal of a standing telling ahead of SK-19's stages, and the shell
-//     spends the settled value before either -- so the press raises a telling
-//     and then puts it away again. ⛔ These cases spend the settled value on a
-//     pointer move instead and say nothing about that ordering: it is a
-//     different row's question, and reported rather than decided here.
+// Contract tests: on UF-48, a refused write is told its own row of table T-233, not RS-10.
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-explicit-any -- the fake surface and the dictionary are read as loose shapes */
 
 import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
@@ -98,10 +27,6 @@ import {
 } from '../../src/framework/single-html-shell/frame-loop'
 import { bare, bareAll, specTable, unbroken, type SpecRow, type SpecTable } from './spec-table'
 
-// ---------------------------------------------------------------------------
-// The manuscript, read at read time rather than copied (Chapter 1.9)
-// ---------------------------------------------------------------------------
-
 const T_016: SpecTable = specTable('T-016')
 const T_233: SpecTable = specTable('T-233')
 
@@ -111,22 +36,14 @@ function rowOf(table: SpecTable, id: string): SpecRow {
   return found
 }
 
-/**
- * Every `GRS JSON` column one row of table T-016 names.
- *
- * ⚠️ `bareAll` AND NOT `bare`, because one panel item can edit two columns at
- * once: `PR-35` prints 「`start` / `finish`」 and taking the first would drop the
- * second in silence (DFC-351).
- */
+// Why: bareAll and not bare, because one panel item can edit two columns, and
+// taking the first would drop the second in silence.
 const columnsOf = (id: string): readonly string[] => bareAll(rowOf(T_016, id).by['列（`GRS JSON`）'] ?? '')
 
-/** The manner column table T-233 writes one reason against. */
 const mannerOf = (specTableRowId: string): string => bare(rowOf(T_233, specTableRowId).cells[1] ?? '')
 
-/** The 正 column table T-233 gives one reason, as printed. */
 const authorityOf = (specTableRowId: string): string => rowOf(T_233, specTableRowId).by['正'] ?? ''
 
-/** The words FR-038's one dictionary holds for one row of table T-233. */
 const wordsOf = (specTableRowId: string): { readonly ja: string; readonly en: string } => {
   const found = (displayWords as any).reasons.find((one: any) => one.specTableRowId === specTableRowId)
   if (found === undefined) throw new Error(`the dictionary holds no row ${specTableRowId}`)
@@ -140,12 +57,9 @@ const RS_57 = 'RS-57'
 const RS_58 = 'RS-58'
 const RS_82 = 'RS-82'
 
+// Spec: IMPS-1130
 const FR_076_A_T_220_REFUSAL_CARRIES_ITS_ROW =
   '画面からの書き込みが Chapter 6.1 の 表 T-220 の行で拒まれたとき、`GRS` は 表 T-233 のうち出典の欄が拒んだ行を名指す行を運ぶこと。'
-
-// ---------------------------------------------------------------------------
-// The loop, driven the way a person settles a value in the Properties Panel
-// ---------------------------------------------------------------------------
 
 const TEMPLATE_PATH = join(
   process.cwd(),
@@ -155,7 +69,6 @@ const TEMPLATE_PATH = join(
   'startup-template.json',
 )
 
-/** BT-4 of table T-034 -- the template FR-027 starts a reader with. */
 function templateDocument(): Document {
   const read = documentFromJson(readRepoFile(TEMPLATE_PATH, 'utf8'))
   if (!read.ok) {
@@ -173,15 +86,8 @@ const SCREEN: FrameEnvironment = {
 
 const NO_MODIFIERS: InputModifiers = { ctrl: false, shift: false, alt: false, meta: false }
 
-/**
- * The happening that SPENDS a settled value.
- *
- * ⭐ ANY HAPPENING DOES: the shell reads IF-9's answer at the head of every one
- * of them, which is what makes a value settled by the host reach the document
- * whichever way the person carries on. ⚠️ A pointer move is chosen because it
- * decides nothing else -- see the note at the head of this file for why the key
- * SK-19 assigns cannot be used to look at what the write raised.
- */
+// Why: a pointer move spends the value and decides nothing else; the SK-19 key
+// would raise the telling and dismiss it again (NT-8), leaving none.
 const SPENDING_HAPPENING: HumanInput = {
   kind: 'pointer',
   phase: 'move',
@@ -200,21 +106,11 @@ afterEach(() => {
 })
 
 interface Loop {
-  /** Hand the surface one settled value, then spend it on one happening. */
   settle(commit: { row: string; key: unknown; text: string }): void
-  /** The tellings the last drawn description carries. */
   notices(): readonly { readonly text: string; readonly manner: string }[]
 }
 
-/**
- * UF-48, driven with a surface that answers one settled value and then nothing.
- *
- * ⭐ THE SAME SHAPE `tests/contract/dfc-130-pr-1-pr-2-reach-the-document.test.ts`
- * DRIVES THIS UNIT WITH -- the road a person walks: a value is typed into a
- * field of the `Properties Panel`, the host reports it settled on IF-9, and the
- * shell writes the document.
- * ⚠️ THE FAKE IS NOT THE TEST (R6.3). Nothing in it decides which row is told.
- */
+// Summary: The helper shall drive UF-48 with a surface that answers one settled value and then nothing.
 function loopWith(document: Document): Loop {
   const views: ScreenView[] = []
   const waiting: ((time: number) => void)[] = []
@@ -254,7 +150,6 @@ function loopWith(document: Document): Loop {
   }
 }
 
-/** The first `Task` of the bundled template, which every case below edits. */
 function firstTask(document: Document): {
   uid: number
   start: string | null
@@ -265,21 +160,15 @@ function firstTask(document: Document): {
   return { uid: task.uid, start: task.start, finish: task.finish }
 }
 
-/** A day one year before the one handed in, spelled the way the document keeps it. */
 function aYearBefore(day: string): string {
   const year = Number(day.slice(0, 4))
   return `${String(year - 1)}${day.slice(4)}`
 }
 
-// ===========================================================================
-// The manuscript still says what these cases read
-// ===========================================================================
-
 describe('the rows these cases are driven by are still in the manuscript', () => {
   it('⭐ table T-233 still holds the four rows of 2026-09-09, each against NT-1', () => {
-    // ⛔ GOES RED IF A ROW IS RETIRED OR ITS MANNER MOVES. NT-3a would say
-    // something untrue of all four: that manner is an operation of OURS that
-    // failed, and nothing here failed -- an input was not accepted.
+    // Why: NT-3a would say something untrue of all four: that manner is an
+    // operation of ours that failed, and here an input was simply not accepted.
     for (const row of [RS_55, RS_56, RS_57, RS_58]) {
       expect(mannerOf(row), `table T-233 writes ${row} against`).toBe('NT-1')
       expect(wordsOf(row).ja.length, `the dictionary spells ${row} in ja`).toBeGreaterThan(0)
@@ -288,10 +177,8 @@ describe('the rows these cases are driven by are still in the manuscript', () =>
   })
 
   it('⭐ the 正 of each row is the rule the routing is keyed on', () => {
-    // ⛔⛔ THIS IS THE JOIN THE CLOSING PARAGRAPH OF TABLE T-037 ASKS FOR. The
-    // shell picks a row out of a WS-3 bundle by the rule that refused, and the
-    // rule it looks for is the one this column names -- so a 正 that moves has
-    // to move the routing with it rather than quietly leaving `RS-10` behind.
+    // Why: the shell picks a row by the rule that refused, so a moved authority
+    // cell has to move the routing rather than leave RS-10 behind.
     expect(authorityOf(RS_55)).toContain('HM-4')
     expect(authorityOf(RS_56)).toContain('FR-009')
     expect(authorityOf(RS_57)).toContain('IV-1')
@@ -299,8 +186,8 @@ describe('the rows these cases are driven by are still in the manuscript', () =>
   })
 
   it('⛔ the dictionary gives no two of these rows the same words', () => {
-    // ⚠️ WITHOUT THIS EVERY CASE BELOW IS VACUOUS: telling `RS-55` and telling
-    // `RS-10` would be indistinguishable, which is the whole of DFC-411.
+    // Why: without this every case below is vacuous: telling RS-55 and telling
+    // RS-10 would be indistinguishable.
     const spelled = [RS_10, RS_55, RS_56, RS_57, RS_58].map((row) => wordsOf(row).ja)
     expect(new Set(spelled).size).toBe(spelled.length)
   })
@@ -311,16 +198,12 @@ describe('the rows these cases are driven by are still in the manuscript', () =>
   })
 })
 
-// ===========================================================================
-// DFC-411 -- the rows a press can actually reach
-// ===========================================================================
-
+// Why: RS-56 is not asserted: FR-009's three prohibitions share one rule, so
+// the pair cannot be told apart without row IDs or AG-9a's finer class.
 describe('DFC-411 / table T-037: a write refusal is told its own row and not RS-10', () => {
   it('⭐⭐ RS-55: a parent task that is the task itself carries HM-4s own row, which table T-233 does not show (CR-712), and never RS-10', () => {
-    // ⛔⛔ THE DEFECT. Table T-233 gained `RS-55` and the dictionary gained its
-    // words, and the reader was still told `RS-10` -- 「命令が拒否されたので、束
-    // ごと落とした」, whose next step is 「拒まれた変更を取り除いて、もう一度」.
-    // ⭐ A person who typed one uid into one field has nothing to take out.
+    // Why: a person who typed one uid into one field has nothing to take out, so
+    // RS-10's next step is wrong for them.
     const document = templateDocument()
     const task = firstTask(document)
     const one = loopWith(document)
@@ -357,8 +240,7 @@ describe('DFC-411 / table T-037: a write refusal is told its own row and not RS-
   })
 
   it('⛔ THE CONTROL: a value the write accepts is told nothing at all', () => {
-    // ⚠️ WITHOUT THIS, A BUILD THAT TOLD RS-58 ON EVERY SETTLED DATE WOULD PASS.
-    // The same field, the same happening, a finish the aggregate takes.
+    // Why: without this, a build that told RS-58 on every settled date would pass.
     const document = templateDocument()
     const task = firstTask(document)
     const one = loopWith(document)
@@ -373,15 +255,10 @@ describe('DFC-411 / table T-037: a write refusal is told its own row and not RS-
   })
 })
 
-// ===========================================================================
-// DFC-406 -- the wide half: IV-2 is told its own row, not RS-10 and not RS-55
-// ===========================================================================
-
 describe('DFC-406 / table T-233: a write IV-2 refuses is told the row whose 正 names IV-2', () => {
   it('⭐⭐ a parent task naming a uid the document does not hold is told RS-82, not RS-10', () => {
-    // ⭐ THE SAME COMMAND AS THE `RS-55` CASE ABOVE, refused on a different rule
-    // (`IV-2`, a foreign key pointing at nothing) -- so what separates the two
-    // cases is the rule alone, which is what the routing reads.
+    // Why: the same command as the RS-55 case, refused on IV-2 instead, so the two
+    // cases differ by the rule alone, which is what the routing reads.
     expect(unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8')))
       .toContain(FR_076_A_T_220_REFUSAL_CARRIES_ITS_ROW)
     expect(authorityOf(RS_82)).toContain('IV-2')

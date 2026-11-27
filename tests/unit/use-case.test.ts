@@ -30,7 +30,7 @@ import {
 import { unwatchChanges } from '../../src/use-case/notify-change-watchers/notify-change-watchers'
 import { taskGroupDocument, shell, TEMPLATE } from './cr-541-stage'
 
-// see S-3, T-202, CR-418
+// Spec: S-3, T-202
 const RULER_FONT_FACTOR = ((): number => {
   const cell = specTable('T-202').rows.find((one) => one.id === 'S-3')?.by['既定'] ?? ''
   const found = /`fontSizeStepSizes\[fontSizeStep\]`\s*×\s*(\d+(?:\.\d+)?)/.exec(cell)

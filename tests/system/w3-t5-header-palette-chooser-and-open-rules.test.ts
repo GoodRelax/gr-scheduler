@@ -21,7 +21,7 @@ const FR_096_ONE_COLUMN = '`GRS` は、書き出しの選択面に、形式を �
 const FR_096_SAME_SIZE = '`GRS` は、形式のボタンの幅と高さをすべて揃えること。'
 const FR_096_WIDTH_FROM_THE_ROW =
   '`GRS` は、選択面の幅を、縦に並べた形式と見出しの段から決めること。`GRS` は、選択面の幅を、閲覧環境の窓の幅の割合で抑えないこと。'
-// Spec: FR-053
+// Spec: FR-053, IMPS-1838
 const FR_053_RECORDING_ON_THE_BAND =
   'パレットを最小化し、操作と描画を記録している間（表 T-206 の `S-206`）、`GRS` は、記録の入口（表 T-109 の `IC-76`）も、押下状態のままグリップの `IC-53` の左に載せること。'
 // Spec: FR-095

@@ -8,6 +8,7 @@ import { specTable } from './spec-table'
 
 const FR_036_SHOWS_T_109 = '`GRS` は、ヘルプに、`_assets/tbl-glossary.md` の 表 T-109 の行と'
 const FR_036_HELP_ONLY = '`GRS` は、表 T-109 のうち `面` が `Help Window` だけの行を、段に載せないこと。'
+// Spec: IMPS-1143
 const FR_036_LEFT_OUT =
   '`GRS` は、表 T-109 のうち、`面` が `Search Window`・`Delay Diagnosis Report`・`Properties Panel`・`Resource List`・`Holiday Settings`・`Open File Dialog`・`Difference Review` の面だけ（`Help Window` を併せて持つものを含む）である行と、`IC-52`・`IC-53`・`IC-75` を、段に載せないこと。'
 const FR_036_MERGED = '`GRS` は、表 T-109 で `構え` の欄が `AR-3` の行と `IC-50` を、1 つの項目にまとめること。'

@@ -1,4 +1,4 @@
-// CR-551 DFC-910 / E-48: with monochrome on (S-74), the color field paints its swatches as the drawing paints the color (CV-9, CV-7).
+// Unit tests: with monochrome on (S-74), the color field paints its swatches as the drawing paints them (E-48).
 
 import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
@@ -91,7 +91,7 @@ function bench(document: Record<string, unknown>, side: Side): Bench {
     readFieldEditNotices: () => (drawn as unknown as { readFieldEditNotices?: () => unknown[] }).readFieldEditNotices?.() ?? [],
     readScreenPartAt: () => aimed,
   } as unknown as ScreenSurface
-  // Why: S-72 is a screen value since CR-572; the side is the one the browser hands the start.
+  // Why: S-72 is a screen value, so the side is the one the browser hands the start.
   const loop = frameLoop({ showSvg: (svg: string) => svgs.push(svg) } as never, document as never, SCREEN, {
     surface,
     language: 'ja',
@@ -201,7 +201,7 @@ const panelNodes = (built: Bench, row: string): FakeElement[] => {
 const palettes = (built: Bench, row: string): FakeElement[] =>
   panelNodes(built, row).filter((one) => /grid/.test(styleMap(one).get('display') ?? ''))
 const groundOf = (node: FakeElement): string => styleMap(node).get('background-color') ?? styleMap(node).get('background') ?? ''
-// see CV-9, CR-689
+// Spec: CV-9
 const cellOf = (built: Bench, row: string, attribute: string, value: string | null = null): FakeElement => {
   const found = (palettes(built, row)[0]?.children ?? []).find((one) =>
     value === null ? one.getAttribute(attribute) !== null : one.getAttribute(attribute) === value,

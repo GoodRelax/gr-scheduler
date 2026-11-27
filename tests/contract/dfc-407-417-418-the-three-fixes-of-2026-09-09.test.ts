@@ -1,37 +1,4 @@
-// Three anchors, one per defect closed on 2026-09-09. ⛔ NOT A NEW SUITE and not
-// a search for defects: rule 04 section 3.5 admits a unit case only as a
-// 戻り止め for something already measured, and each case below fixes one
-// measurement taken this round.
-//
-// ⚠️ Chapter 9 does not admit `Unit` as a TEST_LEVEL, so these cases have no
-// node in the specification. Table T-218 of Chapter 7 gives them their place:
-// TS-6, tests/unit/.
-//
-// THE CLAUSES, VERBATIM
-//
-//   DFC-417  FR-094 (`docs/spec/01-04-requirements.md`)
-//          「`GRS` は、日程表を描くときの寸法 …… 進捗ステータスマークと再開マーク ……
-//          を、`_assets/tbl-settings.md` の表 T-201 に従って決めること（MUST）。
-//          同表に無い寸法を実装が独自に持ってはならない（MUST NOT）」
-//          -- and 表 T-201 の `S-24`（`markerStroke`）is the only stroke width
-//          the 進捗ステータスマーク group keeps. ⛔ Measured 2026-09-08: the disc was
-//          typed at 1 and its three symbols at 1.5, so turning S-24 moved none
-//          of them.
-//
-//   DFC-407  FR-043 「⭐⭐ 3 つ目は図形と色である —— ダミーの図形は、そのマイル
-//          ストーンの実績の図形と同じとすること（MUST）。矩形で描いてはならない
-//          （MUST NOT）」（利用者の裁定 2026-09-08）
-//          ⛔ Measured 2026-09-08: with the plan hidden the dummy fell back to
-//          a four-cornered rectangle, which is the figure that MUST NOT names.
-//
-//   DFC-418  表 T-108 の `AG-5` 「UI と同じ検証・同じ制限を通ること（MUST）」,
-//          and FR-078's roster, 表 T-012 の `SH-5`.
-//          ⛔ Measured 2026-09-08: `'NOT-A-GLYPH'` came back `accepted: true`.
-//
-// ⛔ WHAT IS NOT ASSERTED. Nothing below states a figure for a milestone's
-// glyph: 表 T-012 の `SH-5` names the fifteen in Japanese and no row of the
-// specification draws one, so the milestone cases compare one picture with
-// another rather than with a shape typed here.
+// Contract tests: the marker stroke follows S-24, a milestone dummy keeps its own figure, and the write path judges the glyph.
 
 import { describe, expect, it } from 'vitest'
 
@@ -61,11 +28,7 @@ import { editTask } from '../../src/use-case/edit-document/edit-task'
 
 const DEFAULT_TASK_GROUP_NAME_FIXTURE = 'fixture default task group name'
 
-// ---------------------------------------------------------------------------
-// The document under test. Plain data; every builder returns a fresh object.
-// ---------------------------------------------------------------------------
-
-/** Expand SETTINGS_DEFAULTS' dotted keys into the nested shape the type has. */
+// Summary: settingsOf() expands the dotted keys of SETTINGS_DEFAULTS and the overrides into the nested DocumentSettings shape.
 const settingsOf = (over: Readonly<Record<string, unknown>> = {}): DocumentSettings => {
   const out: Record<string, unknown> = {}
   for (const [key, value] of Object.entries({ ...SETTINGS_DEFAULTS, ...over })) {
@@ -82,7 +45,7 @@ const settingsOf = (over: Readonly<Record<string, unknown>> = {}): DocumentSetti
   return out as unknown as DocumentSettings
 }
 
-/** Every weekday worked, so 「翌稼働日」 is the next calendar day (FR-054). */
+// Why: every weekday is worked, so the next working day is always the next calendar day.
 const EVERY_DAY_WORKED = {
   uid: 1,
   name: 'every day worked',
@@ -172,10 +135,8 @@ const scheduleOf = (tasks: readonly Task[], visuals: readonly TaskVisual[]): Sch
     baselineTasks: [],
   }) as unknown as Schedule
 
-/** BO-1 of table T-077: what the environment settles, not the document. */
 const SCREEN = { width: 1280, height: 800, appHeaderHeight: 48, scrollbarThickness: 8, propertyPanelWidth: 0 }
 
-/** A day of March 2026, as a stored date column writes it. */
 const day = (d: number): string => `2026-03-${String(d).padStart(2, '0')}T00:00:00`
 
 interface Drawn {
@@ -183,7 +144,7 @@ interface Drawn {
   readonly svg: string
 }
 
-/** One pass of table T-068's chain, then PI-19. */
+// Summary: draw() lays the schedule out once and renders it to one SVG picture.
 const draw = (schedule: Schedule, over: Readonly<Record<string, unknown>> = {}): Drawn => {
   const settings = settingsOf({
     zoomX: 1,
@@ -215,22 +176,19 @@ const onGrid = (value: number): number => Math.round(value / PICTURE_GRID) * PIC
 // Spec: FR-039, T-252
 const drawnOnTheGrid = (stored: number): number => onGrid(stored * DEFAULT_DISPLAY_RATIO)
 
-/** Every `stroke-width` the marker's own figure was spelled with, and whether it is the disc's edge. */
 const markerStrokeWidths = (svg: string): { readonly isDisc: boolean; readonly width: number }[] =>
   [...svg.matchAll(/<[^>]*data-figure="[^"]*-marker"[^>]*>/g)]
     .map((one) => ({ isDisc: one[0].startsWith('<circle'), width: /stroke-width="([0-9.]+)"/.exec(one[0])?.[1] }))
     .filter((one): one is { isDisc: boolean; width: string } => one.width !== undefined)
     .map((one) => ({ isDisc: one.isDisc, width: Number(one.width) }))
 
-/** The one faint mark FR-043 draws, as the renderer spelled its points. */
 const dummyPointCount = (svg: string): number => {
   const found = /<polygon points="([^"]*)"[^>]*data-figure="[^"]*-dummies"/.exec(svg)
   if (found === null) throw new Error('no dummy figure was drawn')
   return (found[1] ?? '').trim().split(/\s+/).length
 }
 
-// ---------------------------------------------------------------------------
-
+// Spec: FR-094, T-201, S-24, FR-013
 describe('DFC-417: the progress marker reads S-24 for its stroke, and S-24 x S-328 for its symbol bars (FR-094, FR-013)', () => {
   const started = (): Schedule =>
     scheduleOf(
@@ -246,7 +204,7 @@ describe('DFC-417: the progress marker reads S-24 for its stroke, and S-24 x S-3
     )
 
   it('every stroke of the marker follows the value, and none is left behind', () => {
-    // S-24 is a constant (SETTINGS_CONSTANTS); a document cannot turn it, so the case reads it.
+    // Why: S-24 is a constant a document cannot turn, so the case reads its value instead of setting one.
     const turned = SETTINGS_CONSTANTS.markerStroke
     // Spec: S-63
     const drawn = markerStrokeWidths(draw(started(), { isProgressMarkerVisible: true }).svg)
@@ -259,6 +217,7 @@ describe('DFC-417: the progress marker reads S-24 for its stroke, and S-24 x S-3
   })
 })
 
+// Spec: FR-043, SH-5
 describe("DFC-407: a not-started milestone's dummy is its own figure (FR-043)", () => {
   const milestone = (glyph: string): Schedule =>
     scheduleOf(
@@ -267,24 +226,21 @@ describe("DFC-407: a not-started milestone's dummy is its own figure (FR-043)", 
     )
 
   it('draws the same figure whether or not the plan is shown', () => {
-    // ⭐ 「マイルストーンのダミーの図形を、マイルストーンの実績の図形と同じにすること」.
-    // The plan being hidden (S-64) says nothing about the dummy, so the two
-    // pictures must place the same figure -- which is why the two point counts
-    // are compared with each other rather than with a number typed here.
+    // Why: hiding the plan (S-64) says nothing about the dummy, and no spec row draws a glyph, so the two
+    // pictures are compared with each other rather than with a point count typed here.
     const shown = dummyPointCount(draw(milestone('star'), { isPlanVisible: true }).svg)
     const hidden = dummyPointCount(draw(milestone('star'), { isPlanVisible: false }).svg)
     expect(hidden).toBe(shown)
   })
 
   it('is not the rectangle, with the plan hidden', () => {
-    // ⛔ 「マイルストーンのダミーを矩形で描かないこと」. A rectangle is four corners; the
-    // star of SH-5 is not four of anything. ⚠️ Only a glyph whose outline has
-    // more corners than a rectangle can state this, which is why the case names
-    // one rather than sweeping all fifteen.
+    // Why: a rectangle has four corners and the star has more, so only such a glyph can state the MUST NOT;
+    // the case names one glyph rather than sweeping all fifteen.
     expect(dummyPointCount(draw(milestone('star'), { isPlanVisible: false }).svg)).not.toBe(4)
   })
 })
 
+// Spec: AG-5, FR-078, T-108, T-012, SH-5
 describe('DFC-418: the write path judges the figure (AG-5, FR-078)', () => {
   const document = (): Document =>
     ({
@@ -294,7 +250,6 @@ describe('DFC-418: the write path judges the figure (AG-5, FR-078)', () => {
       ),
     }) as unknown as Document
 
-  /** The figures table T-012's SH-5 names, counted in the manuscript itself. */
   const SH_5_FIGURE_COUNT = ((): number => {
     const row = specTable('T-012').rows.find((one) => one.id === 'SH-5')
     if (row === undefined) throw new Error('table T-012 has no row SH-5')
@@ -306,9 +261,8 @@ describe('DFC-418: the write path judges the figure (AG-5, FR-078)', () => {
   const GLYPHS = COLUMN_SHAPES.TaskVisual.milestoneGlyph?.choices ?? []
 
   it('admits every figure SH-5 names, and exactly that many', () => {
-    // ⛔ The roster is not written out here either: `COLUMN_SHAPES` is the
-    // schema's own enumeration, and the count is read from the manuscript so
-    // that a figure added to SH-5 and forgotten in `erd.json` falls here.
+    // Why: the roster is the schema's own COLUMN_SHAPES and the count is read from SH-5, so a figure added
+    // to SH-5 and forgotten in erd.json fails here.
     expect(GLYPHS.length).toBe(SH_5_FIGURE_COUNT)
     for (const glyph of GLYPHS) {
       const out = editTask(document(), {

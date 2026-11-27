@@ -1,64 +1,4 @@
-// FR-006's MUST NOT on the `Properties Panel`: the current value is not drawn
-// a second time in front of the control that already shows it.
-//
-// Unit under test: UF-71 of table T-075 (`dom-screen-surface.ts`, component
-// CP-38 of table T-062, published as PI-38 of table T-064). It is the side of
-// IF-9 that turns a `ScreenView` into nodes, so it is the only side that could
-// put a second box in front of a control at all -- UF-64 (`properties-panel.ts`,
-// CP-37) says WHICH items the panel holds, and holds no opinion about how many
-// times one of them is painted.
-//
-// ⚠️ Chapter 9 does not admit Unit as a TEST_LEVEL, so this case has no node in
-// the specification. Table T-218 of Chapter 7 gives it its place: TS-6,
-// tests/unit/.
-//
-// ---------------------------------------------------------------------------
-// The rule this file answers to, quoted
-// ---------------------------------------------------------------------------
-//
-//   FR-006  ⛔「**現在の値を、その値を示す操作子の手前に重ねて描いてはならない
-//          （MUST NOT）**（利用者の指摘 2026-08-27）—— **色を選ぶ操作子は現在の色
-//          を自ら示すので、その手前に色見本を置くと同じ色が 2 つ並ぶ。**⭐ **`_assets/
-//          tbl-settings.md` の `S-188` が持つのは見本の寸法であって、何回描いてよい
-//          かではない。**」
-//   S-188  表 T-206:「色見本の一辺と隙間（`FR-006`）… ⭐ **本行が持つのは見本の
-//          寸法だけである** —— **何回描いてよいかは `FR-006` が持つ。**」 ⭐ READ
-//          HERE ONLY FOR THAT SENTENCE: the row is what sends the question to
-//          FR-006, and its 14 x 3px is not asserted anywhere below.
-//   T-016  the 入力の型 column, which is where a 色 item is named. ⭐ The row this
-//          file drives is TAKEN FROM THE TABLE at read time, so a table that
-//          renamed or moved its color item moves this case with it.
-//   T-103  `U-25`, the settled name `Properties Panel`, which W-4 of table
-//          T-006a (MUST) carries into the DOM as a `data-role`.
-//
-// ---------------------------------------------------------------------------
-// ⛔ HOW THE EXPECTED VALUES WERE OBTAINED (docs/development-rules/
-// 04-verification.md, section 1)
-// ---------------------------------------------------------------------------
-//
-// What was read: docs/spec/ for every rule above, and tests/ for the shared
-// fake browser. ⛔ NO `src/` FILE WAS READ -- not which element a control
-// becomes, not which property a swatch would have been painted with. The one
-// color below is this file's own and names nothing in the manuscript.
-//
-// ---------------------------------------------------------------------------
-// ⛔ WHAT THIS FILE DOES AND DOES NOT CLAIM
-// ---------------------------------------------------------------------------
-//
-//   1. 「手前に」 IS READ AS DOCUMENT ORDER, which is what a browser paints in
-//      normal flow. A box drawn AFTER the control is not asserted about: the
-//      rule forbids the value being put in FRONT of the control, and a case
-//      about anything else would be this file widening it.
-//   2. THE CONTROL'S OWN ANCESTORS ARE EXEMPT. A box that WRAPS the control
-//      opens before it in document order but is not a second painting of the
-//      value -- and a wrapper that declared the color (to tint a frame, say)
-//      is not the 「同じ色が 2 つ並ぶ」 the rationale describes.
-//   3. NOTHING IS ASSERTED ABOUT THE SWATCH'S SIZE. `S-188`'s own remark hands
-//      the count to FR-006 and keeps only the dimension, so a case measuring
-//      14 x 3px would be answering a question that row does not ask.
-//   4. NO WORD SHOWN TO A PERSON IS ASSERTED. FR-038 puts the panel in the
-//      chosen language and no table holds a translated string; every word below
-//      is this file's own.
+// Contract tests: the Properties Panel draws no second swatch in front of the color control.
 
 import { describe, expect, it } from 'vitest'
 
@@ -83,39 +23,25 @@ import {
 } from '../fixtures/fake-browser'
 import { bare, specTable } from './spec-table'
 
-// ---------------------------------------------------------------------------
-// The manuscript, read at run time rather than copied here (Chapter 1.9).
-// ---------------------------------------------------------------------------
-
 const T_016 = specTable('T-016')
 
-/** Table T-016's own heading for the column FR-006's paragraph makes a MUST. */
 const INPUT_KIND_COLUMN = '入力の型'
 
-/** Table T-016's own heading for the `GRS JSON` column that names an item. */
 const ITEM_NAME_COLUMN = '列（`GRS JSON`）'
 
-/** The word table T-016 writes in 入力の型 for an item whose value is a color. */
 const COLOR_WORD = '色'
 
-/** Every code span in a cell, so a row carrying several columns gives them all. */
 const namesIn = (cell: string): readonly string[] =>
   [...cell.matchAll(/`([^`]+)`/g)].map((one) => one[1] as string)
 
-/** The parts of an 入力の型 cell, one per column the row carries. */
 const kindsIn = (cell: string): readonly string[] =>
   bare(cell)
     .split('/')
     .map((one) => one.trim())
     .filter((one) => one.length > 0)
 
-/**
- * The first item of table T-016 whose value is a color, taken FROM THE TABLE.
- *
- * ⛔ It throws rather than falling back on a name of its own: FR-006's MUST NOT
- * is aimed at 「色を選ぶ操作子」, so a table with no color item leaves this file
- * with nothing to ask, and that must stop the run rather than pass it.
- */
+// Why: it throws rather than fall back on a name of its own, so a table with no color
+// item stops the run instead of passing it.
 const COLOR_ITEM = ((): { readonly row: string; readonly column: string } => {
   for (const row of T_016.rows) {
     const kinds = kindsIn(row.by[INPUT_KIND_COLUMN] ?? '')
@@ -129,22 +55,12 @@ const COLOR_ITEM = ((): { readonly row: string; readonly column: string } => {
   throw new Error(`table T-016 no longer names an item whose ${INPUT_KIND_COLUMN} is ${COLOR_WORD}`)
 })()
 
-/** U-25 of table T-103 -- the settled name that reaches the DOM as `data-role`. */
 const U_25 = bare(
   specTable('T-103').rows.find((one) => one.id === 'U-25')?.by['確定名（英）'] ?? '',
 )
 
-// ---------------------------------------------------------------------------
-// The description to draw. Every value is a member of `ScreenView`.
-// ---------------------------------------------------------------------------
-
-/**
- * The color the panel is asked to show.
- *
- * ⭐ THIS FILE'S OWN, and deliberately unlike anything the surface paints by
- * itself: the theme reaches the tree as `var(--gr-...)` custom properties, so a
- * literal like this can only be in the tree because the DESCRIPTION carried it.
- */
+// Why: the theme reaches the tree as var(--gr-...) properties, so this literal can be
+// in the tree only because the description carried it.
 const THE_COLOR = '#123456'
 
 const EMPTY_HEADER: AppHeaderItems = {
@@ -172,11 +88,8 @@ const EMPTY_VIEW: ScreenView = {
   tooltips: [],
 }
 
-/**
- * ⚠️ THE KEY IS MINTED AND NOTHING BELOW TURNS ON IT. Which holder a color item
- * belongs to is table T-016's 対象 column and is UF-64's business; this file
- * drives the DRAWING side, which is handed a key and reads no meaning from it.
- */
+// Why: the holder is made up on purpose: which holder owns a color item is UF-64's
+// business, and the drawing side reads no meaning from the key.
 const COLOR_CONTROL: PropertyControl = {
   key: { holder: 'taskVisual', uid: 1, column: COLOR_ITEM.column } as unknown as
     PropertyControl['key'],
@@ -188,12 +101,8 @@ const COLOR_CONTROL: PropertyControl = {
   widthInFontSizes: 8,
 }
 
-/**
- * ⭐ THE FIELD CARRIES THE COLOR TWICE OVER, in `text` as well as on its
- * control. That is on purpose: a panel that painted the field's own `text` ahead
- * of the control would be exactly 「同じ色が 2 つ並ぶ」, and a fixture that left
- * `text` empty could not tell.
- */
+// Why: the field carries the color in text as well, so a panel that painted the
+// field's own text ahead of the control is caught.
 const COLOR_FIELD: PropertyField = {
   row: COLOR_ITEM.row,
   name: COLOR_ITEM.column,
@@ -204,7 +113,7 @@ const COLOR_FIELD: PropertyField = {
 
 const THEME: ScreenTheme = { preference: 'light', hue: 214 }
 
-/** The App Header measures to something, so BO-1's dimension is settled. */
+// Why: the App Header must measure to something, or BO-1's dimension is unsettled.
 const HEADER_HEIGHT = { 'App Header': 37 }
 
 const panelWith = (fields: readonly PropertyField[]): PropertiesPanel =>
@@ -224,26 +133,15 @@ function drawnPanel(): FakeElement {
   return oneByRole(built.root(), U_25)
 }
 
-// ---------------------------------------------------------------------------
-// Reading the answer back
-// ---------------------------------------------------------------------------
-
-/** The controls a person edits a field through -- a form element, and nothing else. */
 const CONTROL_TAGS = new Set(['INPUT', 'TEXTAREA', 'SELECT'])
 
 const controlsIn = (panel: FakeElement): FakeElement[] =>
   selfAndDescendants(panel).filter((one) => CONTROL_TAGS.has(one.tagName))
 
-/**
- * Whether this node itself puts the color on the screen.
- *
- * ⭐ EVERY WAY A NODE COULD CARRY IT IS LOOKED AT, and none is named as THE way:
- * its own words, its attributes, the value a form control holds, and every
- * declaration of its inline style. ⛔ A case that named one property could be
- * satisfied by a swatch painted through another.
- * ⚠️ Text is read from this node's OWN text children rather than from
- * `textContent`, which would credit a parent with every word beneath it.
- */
+// Why: every carrier (own text, attributes, value, inline style) is read, so a swatch
+// painted through a property other than the expected one still fails.
+// Trap: reading textContent instead of the own text children credits a parent with
+// every word beneath it.
 function showsTheColor(element: FakeElement): boolean {
   const carries = (written: string): boolean =>
     written.toLowerCase().includes(THE_COLOR.toLowerCase())
@@ -271,18 +169,15 @@ const ancestorsOf = (element: FakeElement): FakeElement[] => {
   return chain
 }
 
-/** Everything a failure can be read from without opening the unit. */
 const describeNode = (element: FakeElement): string =>
   `${element.tagName}[${element.getAttribute('data-role') ?? '-'}]` +
   `{${[...styleMap(element)].map(([name, written]) => `${name}: ${written}`).join('; ')}}` +
   `(value=${String(element.value)})`
 
-// ===========================================================================
-
+// Spec: T-016, S-188, U-25
 describe('the manuscript still says what these cases read', () => {
   it('⭐ table T-016 still names an item whose 入力の型 is 色', () => {
-    // ⛔ WITHOUT THIS, A PARSE THAT PICKED UP THE WRONG COLUMN WOULD LET THE
-    // CASES BELOW AGREE WITH ANYTHING (rule 04 section 2).
+    // Why: without this, a parse that picked up the wrong column lets the cases below agree with anything.
     expect(COLOR_ITEM.row).toMatch(/^PR-\d+$/)
     expect(COLOR_ITEM.column.length).toBeGreaterThan(0)
     expect(kindsIn(T_016.rows.find((one) => one.id === COLOR_ITEM.row)?.by[INPUT_KIND_COLUMN] ?? ''))
@@ -290,7 +185,6 @@ describe('the manuscript still says what these cases read', () => {
   })
 
   it('⭐ FR-006 still forbids the value in front of the control, and S-188 still sends it there', () => {
-    // ⛔ The two sentences this whole file rests on, read rather than trusted.
     const requirements = specTable('T-206').rows.find((one) => one.id === 'S-188')
     expect(requirements, 'table T-206 no longer holds S-188').toBeDefined()
     expect(
@@ -301,23 +195,21 @@ describe('the manuscript still says what these cases read', () => {
   })
 })
 
+// Spec: FR-006, IMPS-69
+// Why: FR-038 puts the panel in the chosen language and no table holds its words, so
+// no case asserts a word shown to a person.
 describe('FR-006 (MUST NOT) -- no second swatch stands in front of the color control', () => {
   it('⭐ draws one control for the color item, or the rule below is asked of nothing', () => {
-    // ⛔ WITHOUT A CONTROL there is nothing for a swatch to stand in front of,
-    // and the MUST NOT would be satisfied by a panel that drew nothing at all.
+    // Why: without a control nothing can stand in front of it, and a panel that drew
+    // nothing at all would pass the MUST NOT.
     const panel = drawnPanel()
 
     expect(controlsIn(panel), whatWasDrawn(panel)).toHaveLength(1)
   })
 
   it('⛔ MUST NOT: nothing but the control itself puts the color on the screen', () => {
-    // FR-006:「`GRS` は、現在の値を、現在の値を示す入力欄の手前に重ねて描かないこと。」
-    // and 「`IMPS-69` —— 色を選ぶ操作子は現在の色を自ら示すので、操作子の手前に色見本
-    // を置くと同じ色が 2 つ並ぶ。」
-    // ⭐ THE CONTROL'S ANCESTORS ARE LEFT OUT, and only they: a box that WRAPS
-    // the control is not a second painting of the value (see point 2 of the head
-    // comment). Everything else in the panel that carries the color is a
-    // second one.
+    // Why: the control's ancestors are left out, and only they: a box that wraps the
+    // control is not a second painting of the value.
     const panel = drawnPanel()
     const control = controlsIn(panel)[0] as FakeElement
     const exempt = new Set<FakeElement>([control, ...ancestorsOf(control)])
@@ -330,10 +222,8 @@ describe('FR-006 (MUST NOT) -- no second swatch stands in front of the color con
   })
 
   it('⛔ MUST NOT: nothing showing the color opens BEFORE the control', () => {
-    // The same MUST NOT read at its own word -- 「手前に」. ⭐ Asked as document
-    // order, which is what normal flow paints in, so a swatch put where the
-    // removed one stood (between the item's name and its control) fails here
-    // whatever it was painted with.
+    // Why: in front is read as document order, which normal flow paints in, so a swatch
+    // between the item's name and its control fails whatever it is painted with.
     const panel = drawnPanel()
     const order = selfAndDescendants(panel)
     const control = controlsIn(panel)[0] as FakeElement

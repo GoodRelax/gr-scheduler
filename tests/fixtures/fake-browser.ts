@@ -1,16 +1,4 @@
-// A browser that is only what `ScreenSurfaceWiring` says it is, plus the few
-// readers a case needs to look at the tree the surface built.
-//
-// ⭐ WHY THIS FILE EXISTS. The same fake was copied by hand into
-// tests/unit/fr-053-palette-group-boundary.test.ts, tests/unit/uf-71.test.ts
-// and tests/unit/t-051-hf-6-ground-under-the-task-group-controls.test.ts, each saying
-// in its own head comment that it was copied from the last one. tests/README.md
-// gives tests/fixtures/ to 「what every test shares」, which is what this is.
-// ⛔ NOTHING HERE ASSERTS ANYTHING. It builds a stage and reads it back; every
-// expectation belongs to the case that holds it.
-//
-// ⚠️ This module is not a `.test.ts`, so vitest.config.ts does not collect it
-// (its `include` is `tests/**/*.test.ts`).
+// Test fixture: a fake browser that is only what ScreenSurfaceWiring says it is, and readers of its tree.
 
 import type {
   ScreenSurface,
@@ -20,10 +8,6 @@ import {
   type ScreenSurfaceWiring,
   type ScreenTheme,
 } from '../../src/framework/dom-screen-surface/dom-screen-surface'
-
-// ---------------------------------------------------------------------------
-// The fake browser
-// ---------------------------------------------------------------------------
 
 export interface FakeEvent {
   readonly type: string
@@ -38,7 +22,6 @@ export interface Registration {
   readonly listener: (event: FakeEvent) => void
 }
 
-/** One write to an element's inline style, in the order the unit made it. */
 export type StyleWrite =
   | { readonly kind: 'reset'; readonly css: string }
   | { readonly kind: 'set'; readonly property: string; readonly value: string }
@@ -56,7 +39,6 @@ export class FakeElement {
   readonly childNodes: FakeNode[] = []
   readonly styleWrites: StyleWrite[] = []
   parentNode: FakeElement | null = null
-  /** Only an `input` really has one; harmless elsewhere and it keeps the fake small. */
   value = ''
   isMount = false
 
@@ -67,8 +49,6 @@ export class FakeElement {
     this.tagName = tagName.toUpperCase()
   }
 
-  // -- attributes ---------------------------------------------------------
-
   setAttribute(name: string, value: string): void {
     if (name === 'style') {
       this.styleWrites.push({ kind: 'reset', css: value })
@@ -78,15 +58,8 @@ export class FakeElement {
   }
 
   getAttribute(name: string): string | null {
-    // ⭐ THE DECLARATION BLOCK COMES BACK TERMINATED, THE WAY A BROWSER HANDS IT
-    // BACK (R6.3: the fake answers the way a browser does and in no other way).
-    // ⛔ WITHOUT THE CLOSING `;` THIS FAKE CORRUPTED EVERY READ-MODIFY-WRITE the
-    // unit makes -- `element.setAttribute('style', element.getAttribute('style')
-    // + more)` glued the last property of the block to the first of the addition
-    // (`cursor:pointer` + `right:4em` came back as `cursor:pointerright:4em`), so
-    // a case that read one of those properties back read a value no browser
-    // would ever produce. ⚠️ `inlineStyle` itself is left as it was: it is a
-    // reader for a failure message, not the host's answer.
+    // Trap: dropping the closing ; corrupts every read-modify-write of style the unit makes:
+    // the last property glues to the first of the addition, a value no browser produces.
     if (name === 'style') {
       const written = inlineStyle(this)
       return written === '' ? '' : `${written};`
@@ -172,7 +145,7 @@ export class FakeElement {
     }
   }
 
-  /** ⛔ FR-023: an assignment here would be markup. It is recorded, never obeyed. */
+  // Why: FR-023 forbids markup, so an assignment here is recorded and never obeyed.
   get innerHTML(): string {
     this.world.markupWrites.push({ node: this, value: '(read)' })
     return ''
@@ -217,8 +190,6 @@ export class FakeElement {
     if (value) this.attributes.set('disabled', '')
     else this.attributes.delete('disabled')
   }
-
-  // -- the tree -----------------------------------------------------------
 
   private adopt(node: FakeNode | string): FakeNode {
     if (typeof node === 'string') return new FakeText(node)
@@ -281,7 +252,7 @@ export class FakeElement {
     return this.childNodes[0] ?? null
   }
 
-  // Why: the DOM getter the scale message layer reads (CR-411); absent, it answered undefined, not null.
+  // Why: the DOM getter the scale message layer reads; absent, it answered undefined, not null.
   get firstElementChild(): FakeElement | null {
     return this.children[0] ?? null
   }
@@ -338,8 +309,6 @@ export class FakeElement {
     return descendants(this).filter((one) => matches(one, selector))
   }
 
-  // -- what only a browser can answer -------------------------------------
-
   getBoundingClientRect(): {
     x: number
     y: number
@@ -364,8 +333,6 @@ export class FakeElement {
   blur(): void {
     if (this.world.activeElement === this) this.world.activeElement = null
   }
-
-  // -- events -------------------------------------------------------------
 
   addEventListener(type: string, listener: (event: FakeEvent) => void): void {
     this.world.registrations.push({ node: this, type, listener })
@@ -395,12 +362,10 @@ export interface Stage {
   readonly world: World
   readonly host: Document
   readonly mount: FakeElement
-  /** Every number `onAppHeaderHeightMeasured` was told, in order. */
   readonly reportedHeights: number[]
   clockMs: number
   author: string
   surface: ScreenSurface | undefined
-  /** The tree the unit built inside the mount. */
   root(): FakeElement
   // Why: the listeners the unit put on the document itself; nothing fires them unless a case does.
   readonly hostListeners?: HostListener[]
@@ -413,7 +378,6 @@ export interface HostListener {
   readonly capture: boolean
 }
 
-/** A browser that is only what `ScreenSurfaceWiring` says it is. */
 export function stage(heightsByRole: Record<string, number> = {}): Stage {
   const world: World = {
     created: [],
@@ -482,7 +446,6 @@ export function wiringOf(built: Stage, theme: ScreenTheme): ScreenSurfaceWiring 
   }
 }
 
-/** Wire the unit up the way contract line 1 asks the caller to. */
 export function wire(theme: ScreenTheme, heightsByRole: Record<string, number> = {}): Stage {
   const built = stage(heightsByRole)
   built.surface = domScreenSurface(wiringOf(built, theme))
@@ -493,10 +456,6 @@ export function surfaceOf(built: Stage): ScreenSurface {
   if (built.surface === undefined) throw new Error('the surface was not built')
   return built.surface
 }
-
-// ---------------------------------------------------------------------------
-// Reading the tree the unit built
-// ---------------------------------------------------------------------------
 
 export const kebab = (name: string): string =>
   name.replace(/[A-Z]/g, (one) => `-${one.toLowerCase()}`)
@@ -518,7 +477,6 @@ export function styleMap(element: FakeElement): Map<string, string> {
   return held
 }
 
-/** The inline style as it stands now, with later writes winning over earlier ones. */
 export function inlineStyle(element: FakeElement): string {
   return [...styleMap(element)].map(([property, value]) => `${property}:${value}`).join(';')
 }
@@ -549,11 +507,7 @@ export function oneByRole(root: FakeElement, role: string): FakeElement {
   return first
 }
 
-/**
- * A tiny selector engine: enough for `[attr]`, `[attr="value"]`, a tag name and
- * a descendant combinator. ⭐ It exists so that a unit which DID query is not
- * failed for it.
- */
+// Why: a tiny selector engine, so that a unit which did query is not failed for it.
 export function matches(element: FakeElement, selector: string): boolean {
   const parts = selector.trim().split(/\s+(?![^[]*\])/)
   const last = parts[parts.length - 1]
@@ -591,14 +545,12 @@ function matchesSimple(element: FakeElement, selector: string): boolean {
   return element.tagName === selector.toUpperCase()
 }
 
-/** Attributes and text together, for a failure that has to be read on its own. */
 export function serialize(element: FakeElement): string {
   const attributes = [...element.attributes].map(([name, value]) => ` ${name}="${value}"`).join('')
   const style = inlineStyle(element)
   return `<${element.tagName.toLowerCase()}${attributes}${style === '' ? '' : ` style="${style}"`}>`
 }
 
-/** Everything a failure needs to be read without opening the unit. */
 export const whatWasDrawn = (part: FakeElement): string =>
   selfAndDescendants(part)
     .map((one) => {
@@ -608,15 +560,8 @@ export const whatWasDrawn = (part: FakeElement): string =>
     })
     .join(' ; ')
 
-/**
- * A declaration this node was written with, resolved through the one the unit
- * put on its own root.
- *
- * ⭐ WHY IT HAS TO BE RESOLVED. FR-041 (MUST) has one declaration carry 表 T-236
- * for the whole tree, so a part states which color it takes and not what that
- * color is. ⚠️ No fallback is honored (`var(--x, y)` is left unresolved and
- * will match no row), because FR-041 (MUST NOT) forbids one.
- */
+// Why: FR-041 has one root declaration carry table T-236, so a part names its colour and is
+// resolved here; no var() fallback is honoured, since FR-041 forbids one.
 export function resolved(built: Stage, written: string): string {
   const flat = written.trim().toLowerCase()
   const named = /^var\((--[a-z0-9-]+)\)$/.exec(flat)
@@ -627,17 +572,11 @@ export function resolved(built: Stage, written: string): string {
     .toLowerCase()
 }
 
-/** The color this node's WORDS (and, through `currentColor`, its glyph) take. */
 export const paintedColor = (built: Stage, element: FakeElement): string =>
   resolved(built, styleMap(element).get('color') ?? '')
 
-/**
- * The color this node's GROUND is painted in, whichever of the spellings a
- * ground can be written with.
- *
- * ⚠️ SEVERAL SPELLINGS AND NOT ONE, because no row of the specification settles
- * which: a ground can be an element's background or an SVG shape's fill.
- */
+// Why: several spellings, because no row settles whether a ground is an element's
+// background or an SVG shape's fill.
 export function paintedGround(built: Stage, element: FakeElement): string {
   const style = styleMap(element)
   for (const property of ['background-color', 'background', 'fill']) {
@@ -648,7 +587,6 @@ export function paintedGround(built: Stage, element: FakeElement): string {
   return attribute === null ? '' : resolved(built, attribute)
 }
 
-/** One node carrying a row of 表 T-109, anywhere under the node given. */
 export function iconEntry(root: FakeElement, icon: string): FakeElement {
   const found = selfAndDescendants(root).filter((one) => one.getAttribute('data-icon') === icon)
   const first = found[0]

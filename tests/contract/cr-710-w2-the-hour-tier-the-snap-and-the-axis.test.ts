@@ -25,6 +25,7 @@ import { bare, unbroken } from './spec-table'
 const REQUIREMENTS = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 const DESIGN = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '05-07-design.md'), 'utf8'))
 
+// Spec: IMPS-720
 describe('the clauses these cases are built from still read as quoted', () => {
   it('FR-017: the thresholds are fixed, the hour digits thin out by the narrowest stride that fits, the lines are not solid at 30 minutes', () => {
     expect(REQUIREMENTS).toContain('`GRS` は、しきい値の 3 本（時刻を表示するときは 4 本）を固定値とし、実行時に導出しないこと。')

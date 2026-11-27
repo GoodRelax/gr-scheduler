@@ -425,7 +425,7 @@ describe(`FR-130 -- ${FR_130_THE_SAME_ENTRY}`, () => {
     const shipped = SHIPPED_WORDS.icons.find((one) => one.specTableRowId === 'IC-107')?.hint
     // Why: CR-781 reworded the hint of IC-107 (display-words.json): an open report is closed alone.
     expect(spec?.ja).toBe('遅延診断を行う。レポートを閉じていれば診断をやり直して開き、開いていればレポートだけを閉じる')
-    expect(spec?.en).toBe('Run the Delay Diagnosis; runs them again and opens the report if it is closed, or closes only the report while it is open')
+    expect(spec?.en).toBe('Run the Delay Diagnosis; runs it again and opens the report if it is closed, or closes only the report while it is open')
     expect(shipped).toEqual(spec)
   })
 })

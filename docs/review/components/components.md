@@ -42,6 +42,20 @@
 | framework | DomScreenSurface | Puts that description on the page. | implements ScreenSurface |
 | adapter | McpToolTranslator | Maps MCP tool calls and answers to and from the Agent API members; runs in the relay process, not in the page. | FR-150 / AG-12 |
 | framework | McpRelayServer | Carries an MCP client's calls to the page it served on 127.0.0.1 and holds the key, the connected page, the pending calls and the queued notices. | FR-150 / AG-12 |
+| usecase | PlaceTask | Decides the span of the task use case UC-001 places. | UC-001 |
+| usecase | ArrangeTaskGroups | Writes the task group tree states and stands a new task group up (UC-002). | UC-002 |
+| usecase | EditTaskProperties | Asks before resources are deleted about the tasks their assignments free (UC-003). | UC-003 |
+| usecase | LinkTasks | Draws the tentative dependency line from the predecessor edge to the pointer (UC-004). | UC-004 |
+| usecase | RecordActuals | Decides where the actual begins when a progress marker is pulled (UC-005). | UC-005 |
+| usecase | FindDelays | Answers how many working days a task is late (UC-006). | UC-006 |
+| usecase | ShowRange | Decides whether a stored view place still names a place (UC-007). | UC-007 |
+| usecase | AnnotateSchedule | Places the free end of a comment box on a task group (UC-008). | UC-008 |
+| usecase | ShowConfidentialSchedule | Decides who the watermark names and whether an answer lifts it (UC-009). | UC-009 |
+| usecase | ExchangeWithWbsMaster | Picks the tasks dropped for an unusable date and tells work values apart (UC-010). | UC-010 |
+| usecase | SaveAndShareDocument | Stamps the saved document with the time it is written (UC-011). | UC-011 |
+| usecase | MergeSchedules | Names the tasks missing since the last import of the same master (UC-014). | UC-014 |
+| usecase | OperateThroughAgentApi | Reads a refusal of the write path as the reason and rule the agent gets (UC-012). | UC-012 |
+| usecase | RunDelayDiagnostics | Computes the delay diagnosis by the document calendar (UC-015). | UC-015 |
 
 ## Edges
 
@@ -195,6 +209,53 @@
 | dependency | McpRelayServer | McpToolTranslator | translate tool calls | maps each MCP tool call to a relayed call and each answer back |  |
 | dependency | McpToolTranslator | AgentApiEndpoint | call and answer types | reads only the types of the relayed call and answer (RelayedCall, RelayedAnswer, AgentApi) |  |
 | dependency | ScreenState | DocumentSettings | table windows | names its table windows by the keys of the three table views (T-353), so the two lists cannot drift |  |
+| dependency | AgentApiEndpoint | OperateThroughAgentApi | calls | AgentApiEndpoint calls what OperateThroughAgentApi publishes |  |
+| dependency | AgentApiEndpoint | RunDelayDiagnostics | calls | AgentApiEndpoint calls what RunDelayDiagnostics publishes |  |
+| dependency | AnnotateSchedule | EditDocument | calls | AnnotateSchedule calls what EditDocument publishes |  |
+| dependency | AnnotateSchedule | Schedule | calls | AnnotateSchedule calls what Schedule publishes |  |
+| dependency | AnnotateSchedule | ScheduleLayout | calls | AnnotateSchedule calls what ScheduleLayout publishes |  |
+| dependency | ArrangeTaskGroups | Document | calls | ArrangeTaskGroups calls what Document publishes |  |
+| dependency | ArrangeTaskGroups | EditDocument | calls | ArrangeTaskGroups calls what EditDocument publishes |  |
+| dependency | ArrangeTaskGroups | Schedule | calls | ArrangeTaskGroups calls what Schedule publishes |  |
+| dependency | EditTaskProperties | Document | calls | EditTaskProperties calls what Document publishes |  |
+| dependency | EditTaskProperties | EditDocument | calls | EditTaskProperties calls what EditDocument publishes |  |
+| dependency | ExchangeWithWbsMaster | Document | calls | ExchangeWithWbsMaster calls what Document publishes |  |
+| dependency | ExchangeWithWbsMaster | Schedule | calls | ExchangeWithWbsMaster calls what Schedule publishes |  |
+| dependency | FindDelays | Schedule | calls | FindDelays calls what Schedule publishes |  |
+| dependency | InputCommandTranslator | AnnotateSchedule | calls | InputCommandTranslator calls what AnnotateSchedule publishes |  |
+| dependency | InputCommandTranslator | ArrangeTaskGroups | calls | InputCommandTranslator calls what ArrangeTaskGroups publishes |  |
+| dependency | InputCommandTranslator | PlaceTask | calls | InputCommandTranslator calls what PlaceTask publishes |  |
+| dependency | InputCommandTranslator | RecordActuals | calls | InputCommandTranslator calls what RecordActuals publishes |  |
+| dependency | InputCommandTranslator | ShowRange | calls | InputCommandTranslator calls what ShowRange publishes |  |
+| dependency | LinkTasks | Document | calls | LinkTasks calls what Document publishes |  |
+| dependency | LinkTasks | DocumentSettings | calls | LinkTasks calls what DocumentSettings publishes |  |
+| dependency | LinkTasks | EditDocument | calls | LinkTasks calls what EditDocument publishes |  |
+| dependency | LinkTasks | ItemHitArea | calls | LinkTasks calls what ItemHitArea publishes |  |
+| dependency | LinkTasks | Schedule | calls | LinkTasks calls what Schedule publishes |  |
+| dependency | LinkTasks | ScheduleGeometry | calls | LinkTasks calls what ScheduleGeometry publishes |  |
+| dependency | LinkTasks | ScheduleLayout | calls | LinkTasks calls what ScheduleLayout publishes |  |
+| dependency | LinkTasks | ScreenRegions | calls | LinkTasks calls what ScreenRegions publishes |  |
+| dependency | LinkTasks | Selection | calls | LinkTasks calls what Selection publishes |  |
+| dependency | MergeSchedules | Document | calls | MergeSchedules calls what Document publishes |  |
+| dependency | MergeSchedules | ImportDocument | calls | MergeSchedules calls what ImportDocument publishes |  |
+| dependency | OperateThroughAgentApi | ApplyDocumentChange | calls | OperateThroughAgentApi calls what ApplyDocumentChange publishes |  |
+| dependency | PlaceTask | Schedule | calls | PlaceTask calls what Schedule publishes |  |
+| dependency | PlaceTask | ScheduleLayout | calls | PlaceTask calls what ScheduleLayout publishes |  |
+| dependency | RecordActuals | Document | calls | RecordActuals calls what Document publishes |  |
+| dependency | RecordActuals | Schedule | calls | RecordActuals calls what Schedule publishes |  |
+| dependency | RunDelayDiagnostics | Document | calls | RunDelayDiagnostics calls what Document publishes |  |
+| dependency | RunDelayDiagnostics | Schedule | calls | RunDelayDiagnostics calls what Schedule publishes |  |
+| dependency | SaveAndShareDocument | Document | calls | SaveAndShareDocument calls what Document publishes |  |
+| dependency | ScreenRenderer | FindDelays | calls | ScreenRenderer calls what FindDelays publishes |  |
+| dependency | ShowRange | Schedule | calls | ShowRange calls what Schedule publishes |  |
+| dependency | SingleHtmlShell | EditTaskProperties | calls | SingleHtmlShell calls what EditTaskProperties publishes |  |
+| dependency | SingleHtmlShell | ExchangeWithWbsMaster | calls | SingleHtmlShell calls what ExchangeWithWbsMaster publishes |  |
+| dependency | SingleHtmlShell | LinkTasks | calls | SingleHtmlShell calls what LinkTasks publishes |  |
+| dependency | SingleHtmlShell | MergeSchedules | calls | SingleHtmlShell calls what MergeSchedules publishes |  |
+| dependency | SingleHtmlShell | RunDelayDiagnostics | calls | SingleHtmlShell calls what RunDelayDiagnostics publishes |  |
+| dependency | SingleHtmlShell | SaveAndShareDocument | calls | SingleHtmlShell calls what SaveAndShareDocument publishes |  |
+| dependency | SingleHtmlShell | ShowConfidentialSchedule | calls | SingleHtmlShell calls what ShowConfidentialSchedule publishes |  |
+| dependency | SingleHtmlShell | ShowRange | calls | SingleHtmlShell calls what ShowRange publishes |  |
 
 ## Clusters
 

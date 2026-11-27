@@ -1,142 +1,4 @@
-// What ONE FIELD of the `Properties Panel` (U-25 of table T-103) actually draws
-// -- how much room the field gives the value it shows, and what a 選択 field
-// puts in front of a person against what it hands back.
-//
-// Unit under test: UF-71 of table T-075 (`dom-screen-surface.ts`, component
-// CP-38 of table T-062, published as PI-38 of table T-064). It is the side of
-// IF-9 that turns a `ScreenView` into nodes, so it is the only side that states
-// a width or builds a chooser at all -- UF-64 (`properties-panel.ts`, CP-37)
-// says WHICH items the panel holds and what each one's words are, and
-// that half was driven by the uf-64 unit test, which CR-573 deleted.
-//
-// ⚠️ Chapter 9 does not admit Unit as a TEST_LEVEL, so these cases have no node
-// in the specification. Table T-218 of Chapter 7 gives them their place: TS-6,
-// tests/unit/.
-//
-// ---------------------------------------------------------------------------
-// The rules these cases answer to
-// ---------------------------------------------------------------------------
-//
-//   FR-006      「パネルの寸法・余白・配置は `_assets/tbl-settings.md` の 表
-//               T-206 の `S-186` 〜 `S-193` と `S-197` / `S-198` に従うこと
-//               （MUST）。」 ⛔ 「パネルの文字を宿主の既定の大きさで描いてはなら
-//               ない（MUST NOT）」 -- 「大きさは `S-197` を宿主が与える地の文字の
-//               大きさに掛けて求め」. ⛔ 「px の定数として持ってはならない（MUST
-//               NOT）」.
-//   FR-093      ⛔ 「`GRS` は、ラベルが占める幅を、全角 2・半角 1 で数えた単位数 ×
-//               フォントサイズ × `labelCoef` で概算すること。文字の実寸を測っては
-//               ならない（MUST NOT）。」 ⭐ THIS IS THE MANUSCRIPT'S OWN ANSWER TO
-//               "how much room does this text need", and it is the only one --
-//               so it is what a field's room is measured against here.
-//   S-30        table T-201, `labelCoef` -- 「全角 1 文字 = フォント × 2 × 係数。
-//               実測しない方針なので、この 1 値がレイアウト精度を単独で決める」.
-//   S-197       table T-206, 「プロパティパネルの文字の大きさの係数」 -- ⭐ 「px で
-//               はなく係数である」.
-//   S-189       table T-206, 「項目名の欄が取る割合」 -- ⭐ 「px ではなく割合であ
-//               る —— パネルの幅は人が境界をドラッグして動かす（`FR-052`）ので、
-//               絶対値で持つと広げたときに入力欄だけが伸びる」. ⭐ READ HERE FOR
-//               ITS REASON rather than for its number: it says in as many words
-//               that the panel's width is the READER'S, dragged by the boundary.
-//   S-171       table T-206, `propertyPanelWidth` -- the screen value a person
-//               drags (FR-052, CR-572). ⭐ Together with S-189 this is why a
-//               share cannot answer the question below; see THE ARGUABLE CASE.
-//   S-186       table T-206, the LOWER BOUND on a field's height -- ⛔ 「「高さ」
-//               ではなく「下限」である —— 読む人がブラウザーで文字を大きくしたと
-//               き、固定の高さは文字を切り落とす（`NFR-007`）」. ⭐ The manuscript
-//               states the failure in as many words: a fixed measure CUTS THE
-//               TEXT OFF. This file asks the same question of the other axis.
-//   EX-7        table T-033: 「`GRS` が書く日付の時刻は `00:00:00` とすること
-//               （MUST）。綴りは交換相手の型（`xsd:dateTime`）に合わせる。」 ⭐ The
-//               ONE spelling of a date the manuscript settles anywhere; its date
-//               part is ten characters, which is what the fixture below carries.
-//   T-016 PR-3  `start`, and PR-47 `finish`, 入力の型 日付 -- one row per date
-//               since CR-689, so each date field draws one control.
-//   T-016 PR-16 `assignee`, 入力の型 選択, no read-only mark -- 「編集できる。入口
-//               と選び方は `FR-008` の表 T-225 が持つ」.
-//   T-225 AS-5  ⛔ 「編集できること（MUST）。名簿から選ばせる形とし、ドロップダウン
-//               と部分一致の検索を添えること（MUST）」.
-//   T-225 AS-6  ⛔ 「人に見せるのは担当名、文書に書くのは `uid` とすること
-//               （MUST）。利用者に `uid` を覚えさせてはならない（MUST NOT）」.
-//   T-225 AS-9  ⛔ 「プロパティパネルで `uid` を選んだ …… その `uid` の `Resource`
-//               へ割り当て、担当名は担当リストから引き当てて示すこと（MUST）—— 同姓
-//               同名を見分ける経路はここだけである」.
-//   T-032 MG-5  ⛔ 「画面で同名を入力したときは統合してはならない（MUST NOT）」 --
-//               so two same-named people stay two candidates in the chooser.
-//   T-103 U-25  the settled name `Properties Panel`, which W-4 of table T-006a
-//               (MUST) carries into the DOM as a `data-role`.
-//   FR-072      ⛔ 「**パネルの先頭にタイトルバーを置いてはならない（MUST NOT）**
-//               （利用者の指示 2026-08-27）—— **押下状態が同じことを既に示してお
-//               り、見出しは同じ答えを 2 か所で言っていた。**⭐ **落とした高さは、
-//               最も頻繁に触る項目が上へ来るぶんである**（表 T-016 の刷る順）。」
-//               ⭐ WHAT IS SHOWING IS THE ENTRANCE'S TO SAY -- 「いま何を出してい
-//               るかを、入口の押下状態で示すこと（MUST）」 -- and that entrance is
-//               IC-17 in the `App Header`, which is UF-62's and not this seam's.
-//
-// ---------------------------------------------------------------------------
-// ⛔ HOW THE EXPECTED VALUES WERE OBTAINED (docs/development-rules/
-// 04-verification.md, section 1)
-// ---------------------------------------------------------------------------
-//
-// What was read: docs/spec/ for every rule above, docs/development-rules/, and
-// of `src/` nothing but the exported declarations these cases must call or name
-// -- `domScreenSurface`, `ScreenSurfaceWiring`, `ScreenTheme`, the `ScreenView`
-// family (`PropertiesPanel`, `PropertyField`, `PropertyControl`) and
-// `SETTINGS_DEFAULTS`. ⛔ NO BODY WAS READ: not which element a control becomes,
-// not which CSS property carries a width, not whether a share is stated at all.
-// Every number below comes from a table.
-//
-// ⭐ THE SHAPE IS COPIED, NOT INVENTED. The fake browser, `stage` / `wiringOf` /
-// `wire` / `surfaceOf`, the tree readers (`styleMap`, `inlineStyle`,
-// `descendants`, `byRole`, `oneByRole`, `matches`), `shorthandParts`,
-// `declaredFontSize`, `expandVariables`, `lengthPx` and the `ScreenView`
-// fixtures are copied from tests/unit/fr-006-panel-typography.test.ts, which
-// drives this same unit against this same fake for the same requirement.
-//
-// ---------------------------------------------------------------------------
-// ⛔ WHAT THESE CASES CAN AND CANNOT SEE, SO NO FAILURE IS MISREAD
-// ---------------------------------------------------------------------------
-//
-// `npm test` runs under Node with no DOM (vitest.config.ts sets `environment:
-// 'node'`), so there is no layout engine here. What the fake records is what the
-// unit WROTE: inline declarations, attributes and text, in order. A width that
-// arrives through a style sheet is invisible here, and that failure would be
-// this file's blindness rather than a defect -- ⚠️ REPORT IT, do not tune the
-// case. The neighbors' evidence is that this unit styles inline.
-//
-// ⛔ THE ARGUABLE CASE, AND IT IS THE ONE THAT MATTERS. "Every digit fits" is
-// asked as 「the control states room for at least the units its text carries」,
-// with the room resolved at two host bases, and a room stated as a PERCENTAGE is
-// deliberately NOT accepted. The ground is that S-189's own note and FR-052 say
-// the panel's width belongs to the reader -- 「パネルの幅は人が境界をドラッグして動かす」
-// -- so a share of it settles nothing about whether ten digits fit; and this
-// seam never learns that width, so a share cannot even be resolved here. ⚠️ IF
-// THE RULING IS THAT A SHARE SUFFICES, this case is wrong and the manuscript
-// needs the sentence that says how narrow the panel may be dragged. Reported
-// rather than dropped, because FR-093 is the only room-for-text rule the
-// specification has and a panel that answers to none of it is the defect S-186's
-// note describes on the other axis.
-//
-// ⭐ WHAT IS DELIBERATELY NOT ASSERTED:
-//   1. WHICH PROPERTY carries the room, and which element a control becomes. No
-//      table names either; the cases ask what the control RESOLVES TO.
-//   2. WHETHER THE TWO DATE CONTROLS SHARE A LINE OR TAKE ONE EACH. No row
-//      settles it. The room is asked of each control separately, which is true
-//      under either arrangement.
-//   3. THAT THE ASSIGNEE'S NAME IS SHOWN EXACTLY ONCE. ⛔ NO ROW SAYS SO. AS-6
-//      (MUST) requires the name to be SHOWN and forbids a `uid` being shown;
-//      neither half forbids showing the name twice. Both halves are asserted;
-//      the count is reported as a hole.
-//   4. THE PARTIAL-MATCH SEARCH AS-5 makes a MUST. `PropertyControl` publishes
-//      nothing that could carry one and no table gives it a shape --
-//      the t-225 unit test that reported it was deleted by CR-573.
-//   5. ANY WORD SHOWN TO A PERSON. FR-038 puts the panel in the chosen language
-//      and no table holds a translated string; every word below is this file's.
-//   6. AN EMPTY ROW STANDING ABOVE THE FIRST FIELD. FR-072's MUST NOT is asked
-//      here as "what is drawn above the first item", so a heading row that draws
-//      NO TEXT AT ALL passes. ⚠️ That is this file's blindness and not a reading
-//      of the rule: the height such a row would take is a layout fact, and there
-//      is no layout engine here (see above). ⛔ Nor could it be asked as "which
-//      element is a heading" -- no row of docs/spec names an element for one.
+// Unit tests: what one Properties Panel field draws -- room for its value, and its chooser.
 
 import { describe, expect, it } from 'vitest'
 
@@ -157,15 +19,10 @@ import {
 import { bare, specTable } from '../contract/spec-table'
 import { emptyScreenSession } from '../../src/use-case/advance-screen-session/advance-screen-session'
 
-// ---------------------------------------------------------------------------
-// The manuscript, read at run time rather than copied here (Chapter 1.9).
-// ---------------------------------------------------------------------------
-
 const T_206 = specTable('T-206')
 const T_201 = specTable('T-201')
 const T_016 = specTable('T-016')
 
-/** The first number a cell states, however the cell decorates it. */
 function numberIn(written: string, where: string): number {
   const found = /-?\d+(?:\.\d+)?/.exec(written)
   if (found === null) throw new Error(`${where} states no number: ${written}`)
@@ -182,41 +39,23 @@ function cellOf(table: ReturnType<typeof specTable>, id: string, heading: string
   return bare(held)
 }
 
-/** S-197 -- the panel's text against the base the host gives (table T-206). */
 const S_197 = numberIn(cellOf(T_206, 'S-197', '既定'), "table T-206's S-197")
 
-/** S-30 -- `labelCoef`, the one coefficient FR-093's estimate turns on (table T-201). */
 const S_30 = numberIn(cellOf(T_201, 'S-30', '既定値'), "table T-201's S-30")
 
-/**
- * S-199 -- what a control needs BEYOND its value, as a multiple of its own font
- * size (table T-206).
- *
- * ⭐ FR-006 states the room as FR-093's estimate PLUS this: the frame, the
- * inner padding, and the aid the host draws inside a control of that type. ⛔ A
- * multiple and not a px, which the same requirement (MUST NOT) requires -- so
- * it can be added to the estimate here without leaving the room a constant.
- */
+// Why: S-199 is a multiple of the font size, not a px, so adding it to FR-093's
+// estimate here leaves the room a ratio.
 const S_199 = numberIn(cellOf(T_206, 'S-199', '既定'), "table T-206's S-199")
 
-/** S-189 as the table writes it, so a case can say the cell states a share. */
 const S_189_CELL = cellOf(T_206, 'S-189', '既定')
 
-/** U-25 of table T-103 -- the settled name that reaches the DOM as `data-role`. */
 const U_25 = cellOf(specTable('T-103'), 'U-25', '確定名（英）')
 
-/** Table T-016's own heading for the item-name column. */
-// ⭐ THE COLUMN IN THE FILE, WHICH IS WHAT THESE CASES WANTED ALL ALONG.
-// Table T-016 carried an 項目名（英語・画面表示） column until CR-278; the
-// name the SCREEN shows is now the dictionary's (FR-038, MUST NOT), and
-// what stayed in the table is the GRS JSON column. Every use below reads
-// the code spans out of it to name a field, which is the column.
+// Why: the GRS JSON column names a field; the name the screen shows is the dictionary's (FR-038).
 const ITEM_NAME_COLUMN = '列（`GRS JSON`）'
 
-/** Table T-016's own heading for the column FR-006's paragraph makes a MUST. */
 const INPUT_KIND_COLUMN = '入力の型'
 
-/** Every code span in a cell, so every column name of a row comes back. */
 function namesIn(cell: string): readonly string[] {
   return [...cell.matchAll(/`([^`]+)`/g)].map((one) => one[1] as string)
 }
@@ -227,22 +66,14 @@ function rowOf(id: string): Readonly<Record<string, string>> {
   return row.by
 }
 
-/** PR-3's and PR-47's column names (CR-689: one date per row). */
 const PR_3_NAMES = namesIn(rowOf('PR-3')[ITEM_NAME_COLUMN] ?? '')
 const PR_47_NAMES = namesIn(rowOf('PR-47')[ITEM_NAME_COLUMN] ?? '')
 
-/** PR-16's one column name. */
 const PR_16_NAME = namesIn(rowOf('PR-16')[ITEM_NAME_COLUMN] ?? '')[0] ?? ''
 
-/** 表 T-016's word for the form PR-16 takes. */
 const PR_16_INPUT_KIND = (rowOf('PR-16')[INPUT_KIND_COLUMN] ?? '').trim()
 
-/** The word the table writes for a 選択, kept here only to be compared against. */
 const CHOICE_WORD = '選択'
-
-// ---------------------------------------------------------------------------
-// The fake browser. Copied from tests/unit/fr-006-panel-typography.test.ts.
-// ---------------------------------------------------------------------------
 
 interface FakeEvent {
   readonly type: string
@@ -257,7 +88,6 @@ interface Registration {
   readonly listener: (event: FakeEvent) => void
 }
 
-/** One write to an element's inline style, in the order the unit made it. */
 type StyleWrite =
   | { readonly kind: 'reset'; readonly css: string }
   | { readonly kind: 'set'; readonly property: string; readonly value: string }
@@ -275,7 +105,7 @@ class FakeElement {
   readonly childNodes: FakeNode[] = []
   readonly styleWrites: StyleWrite[] = []
   parentNode: FakeElement | null = null
-  /** Only an `input` really has one; harmless elsewhere and it keeps the fake small. */
+  // Why: only an input really has a value; it is harmless elsewhere and keeps the fake small.
   value = ''
   isMount = false
 
@@ -285,8 +115,6 @@ class FakeElement {
   ) {
     this.tagName = tagName.toUpperCase()
   }
-
-  // -- attributes ---------------------------------------------------------
 
   setAttribute(name: string, value: string): void {
     if (name === 'style') {
@@ -379,7 +207,7 @@ class FakeElement {
     }
   }
 
-  /** ⛔ FR-023: an assignment here would be markup. It is recorded, never obeyed. */
+  // Summary: The fake shall record every innerHTML read or write in markupWrites and never parse it.
   get innerHTML(): string {
     this.world.markupWrites.push({ node: this, value: '(read)' })
     return ''
@@ -424,8 +252,6 @@ class FakeElement {
     if (value) this.attributes.set('disabled', '')
     else this.attributes.delete('disabled')
   }
-
-  // -- the tree -----------------------------------------------------------
 
   private adopt(node: FakeNode | string): FakeNode {
     if (typeof node === 'string') return new FakeText(node)
@@ -534,8 +360,6 @@ class FakeElement {
     return descendants(this).filter((one) => matches(one, selector))
   }
 
-  // -- what only a browser can answer -------------------------------------
-
   getBoundingClientRect(): {
     x: number
     y: number
@@ -560,8 +384,6 @@ class FakeElement {
   blur(): void {
     if (this.world.activeElement === this) this.world.activeElement = null
   }
-
-  // -- events -------------------------------------------------------------
 
   addEventListener(type: string, listener: (event: FakeEvent) => void): void {
     this.world.registrations.push({ node: this, type, listener })
@@ -598,7 +420,6 @@ interface Stage {
   root(): FakeElement
 }
 
-/** A browser that is only what `ScreenSurfaceWiring` says it is. */
 function stage(heightsByRole: Record<string, number> = {}): Stage {
   const world: World = {
     created: [],
@@ -645,13 +466,6 @@ function stage(heightsByRole: Record<string, number> = {}): Stage {
   }
 }
 
-/**
- * The rendering and hue every case below wires the surface with.
- *
- * ⛔ NEITHER VALUE IS TYPED HERE (rule 03 section 1): S-72's default arrives
- * through the generated `SETTINGS_DEFAULTS` and S-73's is read out of table
- * T-216 at load time.
- */
 const S_73 = specTable('T-216').rows.find((row) => row.id === 'S-73')
 if (S_73 === undefined) throw new Error('table T-216 no longer has row S-73')
 const THEME: ScreenTheme = {
@@ -681,10 +495,6 @@ function surfaceOf(built: Stage): ScreenSurface {
   if (built.surface === undefined) throw new Error('the surface was not built')
   return built.surface
 }
-
-// ---------------------------------------------------------------------------
-// Reading the tree the unit built.
-// ---------------------------------------------------------------------------
 
 const kebab = (name: string): string => name.replace(/[A-Z]/g, (one) => `-${one.toLowerCase()}`)
 
@@ -735,7 +545,7 @@ function oneByRole(root: FakeElement, role: string): FakeElement {
   return first
 }
 
-/** A tiny selector engine, so a unit which DID query is not failed for it. */
+// Why: a tiny selector engine, so a unit that does query is not failed for it.
 function matches(element: FakeElement, selector: string): boolean {
   const parts = selector.trim().split(/\s+(?![^[]*\])/)
   const last = parts[parts.length - 1]
@@ -773,18 +583,8 @@ function matchesSimple(element: FakeElement, selector: string): boolean {
   return element.tagName === selector.toUpperCase()
 }
 
-// ---------------------------------------------------------------------------
-// FR-093's estimate, and the room a node states for itself.
-// ---------------------------------------------------------------------------
-
-/**
- * FR-093's count: 「全角 2・半角 1 で数えた単位数」.
- *
- * ⚠️ The requirement names the two widths and not a code range, so the split is
- * taken at the boundary the term means: a character drawn on the half-width
- * advance counts 1 and anything else counts 2. Every string this file drives
- * with is ASCII, so no case turns on where the boundary falls.
- */
+// Why: the split is taken at the half-width advance, not a code range; every string
+// here is ASCII, so no case turns on where the boundary falls.
 function unitsOf(text: string): number {
   let units = 0
   for (const character of text) {
@@ -794,7 +594,6 @@ function unitsOf(text: string): number {
   return units
 }
 
-/** The nearest declaration of a custom property, walking upwards from this node. */
 function customProperty(element: FakeElement, name: string): string | null {
   let at: FakeElement | null = element
   while (at !== null) {
@@ -805,12 +604,7 @@ function customProperty(element: FakeElement, name: string): string | null {
   return null
 }
 
-/**
- * The same expression with every `var(--x)` replaced by what the tree declares.
- *
- * ⚠️ NO FALLBACK IS HONORED -- a resolver that accepted `var(--x, 1em)`'s
- * fallback would report a length the page never draws.
- */
+// Summary: The expander shall honour no var() fallback, which would report a length never drawn.
 function expandVariables(element: FakeElement, value: string, depth = 0): string | null {
   if (depth > 8) return null
   const named = /var\(\s*(--[a-z0-9-]+)\s*\)/i.exec(value)
@@ -820,14 +614,8 @@ function expandVariables(element: FakeElement, value: string, depth = 0): string
   return expandVariables(element, value.replace(named[0] as string, `(${held})`), depth + 1)
 }
 
-/**
- * A length in px, given the size an `em` is against and the host's base.
- *
- * ⛔ A PERCENTAGE COMES BACK `null` HERE, unlike the typography file's resolver
- * which reads one against the inherited size. A share of a width is a share of
- * the width a person dragged (FR-052), which this seam never learns -- see THE
- * ARGUABLE CASE in the head comment.
- */
+// Why: a percentage resolves to null, since a share is of the width a person drags
+// (FR-052, S-189), which this seam never learns.
 function lengthPx(expression: string, emPx: number, basePx: number): number | null {
   const arithmetic = expression
     .trim()
@@ -839,7 +627,7 @@ function lengthPx(expression: string, emPx: number, basePx: number): number | nu
   if (arithmetic.trim() === '') return null
   if (!/^[\d\s+*/.()-]+$/.test(arithmetic)) return null
   try {
-    // eslint-disable-next-line no-new-func
+    // eslint-disable-next-line no-new-func -- evaluates arithmetic already checked to hold only digits and operators
     const answer: unknown = new Function(`return (${arithmetic});`)()
     return typeof answer === 'number' && Number.isFinite(answer) ? answer : null
   } catch {
@@ -847,10 +635,8 @@ function lengthPx(expression: string, emPx: number, basePx: number): number | nu
   }
 }
 
-/** The properties that could carry the room a control has for its value. */
 const ROOM_PROPERTIES = ['width', 'min-width', 'inline-size', 'min-inline-size', 'flex-basis']
 
-/** Everything the node states for its room, whether or not it can be resolved. */
 function statedRoom(element: FakeElement): string[] {
   const declared = styleMap(element)
   const found: string[] = []
@@ -862,29 +648,14 @@ function statedRoom(element: FakeElement): string[] {
 }
 
 interface Room {
-  /** The largest room this node could be shown to have, in px. */
   readonly px: number
-  /** The node that stated it -- the control itself, or the nearest box above it. */
   readonly statedBy: FakeElement
 }
 
-/**
- * The room the control has for its value at a host base of `basePx`.
- *
- * ⭐ THE NEAREST BOX THAT STATES ONE WINS, walking from the control up to but
- * NOT INCLUDING the panel. A room stated on a box that holds BOTH date
- * controls is credited to each of them, which OVER-states rather than
- * under-states it -- deliberate, so that a panel which did give the room is
- * never failed for where it said so. ⛔ THE PANEL ITSELF IS EXCLUDED: its own
- * width is what FR-052 lets a person drag, and reading it here would credit a
- * control with the whole surface it sits on.
- *
- * ⚠️ `em` is resolved against the size FR-006 REQUIRES of the panel (S-197 x the
- * base) rather than against the size the tree happens to state. The two are the
- * same thing on a panel that obeys FR-006, and tests/unit/
- * fr-006-panel-typography.test.ts is where they are compared; keeping this file
- * to one rule means a wrong font size fails there and only there.
- */
+// Why: the nearest box below the panel wins, and a box holding both dates is
+// credited to each; the panel is excluded, its width being the reader's (FR-052).
+// Why: em resolves against the size FR-006 requires (S-197 x base), so a wrong
+// font size fails only in the typography tests.
 function roomOf(control: FakeElement, panel: FakeElement, basePx: number): Room | null {
   const emPx = S_197 * basePx
   let walker: FakeElement | null = control
@@ -907,7 +678,6 @@ function roomOf(control: FakeElement, panel: FakeElement, basePx: number): Room 
   return null
 }
 
-/** Everything a failure needs to be read without opening the unit. */
 function whatWasStated(panel: FakeElement, control: FakeElement): string {
   const chain: string[] = []
   let walker: FakeElement | null = control
@@ -924,32 +694,18 @@ function whatWasStated(panel: FakeElement, control: FakeElement): string {
   return chain.join(' <- ')
 }
 
-/** The controls a person edits a field through -- a form element, and nothing else. */
 const CONTROL_TAGS = new Set(['INPUT', 'TEXTAREA', 'SELECT'])
 
 const controlsIn = (panel: FakeElement): FakeElement[] =>
   selfAndDescendants(panel).filter((one) => CONTROL_TAGS.has(one.tagName))
 
-/**
- * The candidates a chooser offers.
- *
- * ⭐ SEARCHED OVER THE WHOLE PANEL, not inside the control. AS-5 asks for 「ドロッ
- * プダウンと部分一致の検索」 in one breath, and a browser gives those two together
- * as a text field pointed at a separate list -- so the candidates need not be
- * inside the element a person types in. ⛔ NO CASE BELOW NAMES THE ELEMENT the
- * control becomes: no table settles it, and pinning one would fail an
- * implementation that read AS-5's two halves as one control.
- */
+// Why: candidates are searched over the whole panel, since AS-5's dropdown and
+// search may be a text field pointed at a separate list.
 const optionsIn = (panel: FakeElement): FakeElement[] =>
   selfAndDescendants(panel).filter((one) => one.tagName === 'OPTION')
 
-/** What one candidate hands back -- the attribute, or the property. */
 const optionValueOf = (option: FakeElement): string =>
   option.getAttribute('value') ?? option.value
-
-// ---------------------------------------------------------------------------
-// Descriptions to draw. Every one is a value of `ScreenView` and nothing else.
-// ---------------------------------------------------------------------------
 
 const EMPTY_HEADER: AppHeaderItems = {
   documentTitle: null,
@@ -978,16 +734,8 @@ const EMPTY_VIEW: ScreenView = {
 
 const viewWith = (patch: Partial<ScreenView>): ScreenView => ({ ...EMPTY_VIEW, ...patch })
 
-/**
- * ⭐ THE ROOM IS PART OF THE DESCRIPTION AND IS BUILT FROM THE MANUSCRIPT HERE.
- * FR-006 (MUST / MUST NOT) has the ESTIMATING side work out how much room a
- * control needs and forbids the drawing side a coefficient of its own, so what
- * these cases put under the drawing side is the number that side would be
- * handed -- FR-093's unit count times S-30, plus S-199, with the font size
- * divided out of both terms.
- * ⛔ Not a number typed here: every factor is read out of the tables above, so
- * moving S-30 or S-199 moves this.
- */
+// Why: the room is the estimating side's (FR-093 units x S-30, plus S-199), since
+// FR-006 forbids the drawing side a coefficient of its own.
 const controlOf = (
   patch: Partial<PropertyControl> & Pick<PropertyControl, 'key' | 'kind'>,
 ): PropertyControl => ({
@@ -999,20 +747,11 @@ const controlOf = (
   ...patch,
 })
 
-/**
- * A date written the one way the manuscript settles a date anywhere: EX-7 of
- * table T-033 pins the spelling to the exchange partner's `xsd:dateTime`, whose
- * date part is ten characters.
- *
- * ⚠️ NO ROW SETTLES WHAT THE PANEL SPELLS ON SCREEN, and this file does not
- * pretend one does -- the assertion below is about ROOM FOR WHAT IS SHOWN, and
- * counts the units of whatever the control carries. The spelling is pinned only
- * so that the fixture is the manuscript's rather than this file's.
- */
+// Why: spelled as EX-7 pins a date only so the fixture is the manuscript's; no row
+// settles what the panel spells on screen.
 const START_TEXT = '2026-08-27'
 const FINISH_TEXT = '2026-12-31'
 
-/** PR-3 and PR-47 -- one row of table T-016 per date, so one field with one control each. */
 const DATE_FIELD: PropertyField = {
   row: 'PR-3',
   name: PR_3_NAMES.join(' / '),
@@ -1032,21 +771,13 @@ const DATE_FIELDS: readonly PropertyField[] = [
 ]
 const DATE_CONTROLS = DATE_FIELDS.flatMap((one) => one.controls)
 
-/**
- * The roster PR-16's chooser offers.
- *
- * ⭐ THE UIDS ARE FOUR DIGITS AND SHARE NO DIGIT RUN WITH THE NAMES, so that a
- * case asking whether a `uid` was DRAWN AS A WORD (AS-6 MUST NOT) cannot be
- * satisfied or defeated by a number that happened to be somewhere else.
- * ⭐ THE LAST TWO SHARE A NAME: that pair is AS-8 (MUST NOT merge) and it is the
- * whole reason AS-9 exists.
- */
+// Why: uids share no digit run with the names, so AS-6's check cannot be fooled;
+// the last two share a name (AS-8), which is the case AS-9 exists for.
 const SEATED_NAME = 'Ariadne'
 const TWIN_NAME = 'Bertrand'
 const ROSTER_WORDS: readonly string[] = [SEATED_NAME, TWIN_NAME, TWIN_NAME]
 const ROSTER_VALUES: readonly string[] = ['4242', '4243', '4244']
 
-/** PR-16 -- 入力の型 選択, and AS-5 (MUST) makes it the roster in a dropdown. */
 const ASSIGNEE_FIELD: PropertyField = {
   row: 'PR-16',
   name: PR_16_NAME,
@@ -1054,11 +785,8 @@ const ASSIGNEE_FIELD: PropertyField = {
   isEditable: true,
   controls: [
     controlOf({
-      // ⛔ THE KEY IS MINTED, AND IT HAS TO BE. 表 T-016's own remark on PR-16
-      // says 「`Task` の列ではない** —— 実体は `Assignment` であり」, and no member of
-      // `PropertyFieldKey` can name one. That absence was reported by
-      // the t-225 unit test (deleted by CR-573); nothing below turns
-      // on which key rides along.
+      // Why: the key is minted: PR-16 is not a Task column and no PropertyFieldKey can
+      // name it; no case below turns on which key rides along.
       key: { holder: 'task', uid: 1, column: 'assignee' } as unknown as PropertyControl['key'],
       kind: 'choice',
       text: SEATED_NAME,
@@ -1068,20 +796,8 @@ const ASSIGNEE_FIELD: PropertyField = {
   ],
 }
 
-/**
- * ⛔ NO HEADING IS OFFERED, because FR-072 (MUST NOT) refuses the panel one:
- * 「⛔ **パネルの先頭にタイトルバーを置いてはならない（MUST NOT）**（利用者の指示
- * 2026-08-27）—— **押下状態が同じことを既に示しており、見出しは同じ答えを 2 か所
- * で言っていた。**」 (CR-272; the fixture carried one until that row moved.)
- *
- * ⚠️ THE ASSERTION IS WHY THE CAST IS HERE. Whether the published description
- * still declares a member for a heading is the implementation's answer, not this
- * file's, and a fixture that turned either answer into a COMPILE error would take
- * every case in this file down with it -- including the one below that is the
- * finding. Rule 04 section 1 asks a disagreement to arrive as a test that falls.
- * ⛔ Nothing else is cast away: every member FR-006's panel is asked for is
- * spelled here.
- */
+// Why: no heading is offered (FR-072); the cast keeps whether the type still
+// declares one a failing case rather than a compile error.
 const panelWith = (fields: readonly PropertyField[]): PropertiesPanel =>
   ({
     showing: 'selection',
@@ -1090,10 +806,10 @@ const panelWith = (fields: readonly PropertyField[]): PropertiesPanel =>
     commands: [],
   }) as PropertiesPanel
 
-/** The App Header measures to something, so BO-1's dimension is settled. */
+// Why: the App Header must measure to something for BO-1's dimension to settle.
 const HEADER_HEIGHT = { 'App Header': 37 }
 
-/** ⭐ Bases of this file's own choosing; the base never reaches this unit. */
+// Why: bases of this file's own choosing, since the base never reaches this unit.
 const BASES = [16, 32]
 
 function drawPanel(fields: readonly PropertyField[]): { built: Stage; panel: FakeElement } {
@@ -1102,12 +818,10 @@ function drawPanel(fields: readonly PropertyField[]): { built: Stage; panel: Fak
   return { built, panel: oneByRole(built.root(), U_25) }
 }
 
-// ===========================================================================
-
+// Spec: FR-006, FR-093, S-189, S-30, S-197, S-199, U-25, PR-3, PR-47, PR-16
 describe('the manuscript still says what these cases read', () => {
   it('⭐ was really driven by the manuscript, and not by a hollow read of it', () => {
-    // ⛔ WITHOUT THIS, A PARSE THAT PICKED UP THE WRONG COLUMN WOULD MAKE EVERY
-    // CASE BELOW AGREE WITH ANYTHING (rule 04 section 2).
+    // Why: a parse that picked up the wrong column would make every case below agree with anything.
     expect(S_197).toBeGreaterThan(0)
     expect(S_197).toBeLessThan(1)
     expect(S_30, "table T-201's S-30 is a coefficient between its own bounds").toBeGreaterThan(0)
@@ -1116,8 +830,6 @@ describe('the manuscript still says what these cases read', () => {
   })
 
   it('⛔ S-189 is a share of the width, which is why a share cannot answer this file', () => {
-    // ⭐ 「px ではなく割合である —— パネルの幅は人が境界をドラッグして動かす（`FR-052`）
-    // ので、絶対値で持つと広げたときに入力欄だけが伸びる」.
     expect(S_189_CELL).toContain('%')
     expect(S_189_CELL).not.toContain('px')
   })
@@ -1130,34 +842,22 @@ describe('the manuscript still says what these cases read', () => {
   })
 
   it('counts units the way FR-093 does', () => {
-    // 「全角 2・半角 1 で数えた単位数」. ⭐ The ten of `2026-08-27` is the date part
-    // of the spelling EX-7 pins, counted by the rule FR-093 states.
+    // Why: ten is the date part of the spelling EX-7 pins, counted by FR-093's rule.
     expect(unitsOf(START_TEXT)).toBe(10)
     expect(unitsOf('あ')).toBe(2)
   })
 })
 
+// Spec: FR-006, FR-093, NFR-007, S-30, S-186, S-197, EX-7, PR-3, PR-47
 describe('FR-006 / FR-093 -- PR-3 and PR-47 give each date the room its digits need', () => {
   it('draws one control per column of the row', () => {
-    // 表 T-016's PR-3 and PR-47 are one item with one column each, and the paragraph under the
-    // table makes 「入力の形は同表の「入力の型」の欄に従うこと（MUST）」 -- 日付, so one control each.
     const { panel } = drawPanel(DATE_FIELDS)
     expect(controlsIn(panel)).toHaveLength(DATE_CONTROLS.length)
   })
 
   it('⛔ MUST give each control at least the room FR-093 estimates for its text', () => {
-    // ⛔ EXPECTED RED (the user's report of 2026-08-27: the dates are cut off).
-    //
-    // FR-093 (MUST) is the manuscript's only answer to how much room a piece of
-    // text needs: 「ラベルが占める幅を、全角 2・半角 1 で数えた単位数 × フォント
-    // サイズ × `labelCoef` で概算すること」. The font size is FR-006's own:
-    // 「大きさは `S-197` を宿主が与える地の文字の大きさに掛けて求め」. So the room a
-    // date control needs is units x (S-197 x base) x S-30, and a control given
-    // less than that cannot show every digit.
-    //
-    // ⚠️ S-186's note states the same failure on the other axis in as many words:
-    // 「固定の高さは文字を切り落とす」. Nothing in the manuscript says a width may
-    // do what a height may not.
+    // Why: only what the unit wrote inline is seen; a width set by a style sheet is
+    // invisible here, which is this file's blindness: report it, do not tune it.
     const { panel } = drawPanel(DATE_FIELDS)
     const controls = controlsIn(panel)
     expect(controls.length, 'the panel drew controls at all').toBeGreaterThan(0)
@@ -1184,11 +884,8 @@ describe('FR-006 / FR-093 -- PR-3 and PR-47 give each date the room its digits n
   })
 
   it('⛔ MUST NOT hold that room as a px constant', () => {
-    // ⛔ 「px の定数として持ってはならない（MUST NOT）」 -- 「読む人がブラウザーで文字
-    // を大きくしたとき、パネルだけが取り残される」（WCAG 2.1 の 1.4.4。要求としては
-    // `FR-039`）. ⭐ A room that does not double when the base doubles is a
-    // constant however it was written, and the digits it held at 16px are cut
-    // off at 32px.
+    // Why: a room that does not double with the base is a constant however it is
+    // written (FR-039), and digits held at 16px are cut off at 32px.
     const { panel } = drawPanel(DATE_FIELDS)
 
     for (const control of controlsIn(panel)) {
@@ -1204,23 +901,18 @@ describe('FR-006 / FR-093 -- PR-3 and PR-47 give each date the room its digits n
   })
 })
 
+// Spec: FR-008, T-225, AS-5, AS-6, AS-8, AS-9, MG-5, PR-16
 describe('表 T-225 AS-5 / AS-6 / AS-9 -- what the drawn assignee field says and hands back', () => {
   it('⛔ AS-5 (MUST) -- the field offers ONE control for the one column it has', () => {
-    // FR-006 (MUST) makes every item not marked 読み取り専用 editable, the
-    // paragraph under 表 T-016 makes 「入力の形は同表の「入力の型」の欄に従うこと
-    // （MUST）」 and PR-16's word there is 選択, and AS-5 (MUST) says 「編集できる
-    // こと。名簿から選ばせる形とし」. ⚠️ ONE, because PR-16 writes ONE column name
-    // where PR-3 writes two -- the count comes from the table, not from a guess
-    // about which element a chooser is.
+    // Why: one, because PR-16 writes one column name where PR-3 writes two; the count
+    // comes from the table, not from a guess about which element a chooser is.
     const { panel } = drawPanel([ASSIGNEE_FIELD])
     expect(controlsIn(panel)).toHaveLength(ASSIGNEE_FIELD.controls.length)
   })
 
   it('⛔ AS-5 / AS-9 -- every person on the roster is a candidate, same-named ones twice', () => {
-    // AS-5: 「名簿から選ばせる形とし」. ⛔ AS-9: 「同姓同名を見分ける経路はここだけ
-    // である」, and MG-5 of 表 T-032 (MUST NOT): 「画面で同名を入力したときは統合し
-    // てはならない —— 統合するのは合流の経路だけである」. A chooser that folded the
-    // twins to one entry would delete the only route the manuscript has.
+    // Why: a chooser that folded the same-named pair to one entry would delete the only
+    // route the manuscript has for telling them apart (AS-9, MG-5).
     const { panel } = drawPanel([ASSIGNEE_FIELD])
     const options = optionsIn(panel)
 
@@ -1229,18 +921,14 @@ describe('表 T-225 AS-5 / AS-6 / AS-9 -- what the drawn assignee field says and
   })
 
   it('⛔ AS-6 (MUST) -- the drawn field names the person who is seated', () => {
-    // 「人に見せるのは担当名」. ⭐ Asked of the DRAWN TREE and not of the
-    // description: the uf-64 unit test asked it of the description until CR-573,
-    // and a surface that dropped the name on the way to the nodes would leave
-    // that case green.
+    // Why: asked of the drawn tree, not of the description, so a surface that dropped
+    // the name on the way to the nodes fails here.
     const { panel } = drawPanel([ASSIGNEE_FIELD])
     expect(panel.textContent).toContain(SEATED_NAME)
   })
 
   it('⛔ AS-6 (MUST NOT) -- no uid is drawn as a word', () => {
-    // 「利用者に `uid` を覚えさせてはならない（MUST NOT）」. ⚠️ TEXT ONLY. What an
-    // option HANDS BACK is the next case, and AS-9 requires that to be the uid --
-    // so a uid in an attribute is the rule being kept, not broken.
+    // Why: text only: a uid in an attribute is AS-9 being kept, not AS-6 broken.
     const { panel } = drawPanel([ASSIGNEE_FIELD])
     for (const uid of ROSTER_VALUES) {
       expect(panel.textContent, `AS-6 (MUST NOT): the uid ${uid} was drawn as a word`).not.toContain(
@@ -1250,9 +938,7 @@ describe('表 T-225 AS-5 / AS-6 / AS-9 -- what the drawn assignee field says and
   })
 
   it('⛔ AS-9 (MUST) -- what a candidate hands back is its uid, not its name', () => {
-    // 「プロパティパネルで `uid` を選んだ …… その `uid` の `Resource` へ割り当て」,
-    // with AS-6's 「文書に書くのは `uid`」. ⭐ THE TWINS ARE WHY: two candidates
-    // showing one word have to carry two different values, or the panel cannot
+    // Why: two candidates showing one word must carry two values, or the panel cannot
     // be the route AS-9 says it is.
     const { panel } = drawPanel([ASSIGNEE_FIELD])
     const options = optionsIn(panel)
@@ -1265,12 +951,8 @@ describe('表 T-225 AS-5 / AS-6 / AS-9 -- what the drawn assignee field says and
   })
 })
 
-// ===========================================================================
-
-/** Whether a string carries a word at all, rather than punctuation and space. */
 const hasWord = (text: string): boolean => /[\p{L}\p{N}]/u.test(text)
 
-/** The text an element draws ITSELF -- its own text nodes, not its subtree's. */
 function ownWords(element: FakeElement): string {
   return element.childNodes
     .filter((node): node is FakeText => node instanceof FakeText)
@@ -1279,44 +961,24 @@ function ownWords(element: FakeElement): string {
     .trim()
 }
 
-/**
- * The words of the FIRST element inside the panel that draws any of its own.
- *
- * ⭐ Its own text and not `textContent`, which would hand back everything below
- * it and so answer the same for the panel as for its first field. The walk is in
- * document order, so "first" is the head of the panel.
- */
+// Why: its own text, not textContent, which would answer the same for the panel
+// as for its first field; the walk is in document order.
 function firstWordsDrawn(panel: FakeElement): string {
   for (const element of descendants(panel)) {
     const own = ownWords(element)
-    // ⚠️ Punctuation alone is passed over, for the reason the second case states.
+    // Why: punctuation alone is passed over, for the reason the second case states.
     if (hasWord(own)) return own
   }
   return ''
 }
 
+// Spec: FR-072, FR-006, T-016
 describe('FR-072 (MUST NOT) -- no heading row stands at the head of the panel', () => {
   it('⛔ draws the panel\'s first item first, and nothing above it', () => {
-    // FR-072: 「⛔ **パネルの先頭にタイトルバーを置いてはならない（MUST NOT）**
-    // （利用者の指示 2026-08-27）—— **押下状態が同じことを既に示しており、見出しは
-    // 同じ答えを 2 か所で言っていた。**⭐ **落とした高さは、最も頻繁に触る項目が上
-    // へ来るぶんである**（表 T-016 の刷る順）。」 ⭐ THE HEIGHT IS THE POINT: what
-    // the dropped row buys is the most-touched item standing at the top, which is
-    // the same MUST NOT the paragraph under table T-016 writes against scrolling
-    // -- 「最も頻繁に触る値のためにスクロールさせてはならない（MUST NOT）」.
-    //
-    // ⚠️ THE DESCRIPTION OFFERS NO ENTRY HERE (`commands: []`), on purpose. Table
-    // T-109 does place one row on this surface -- IC-52, closing an open surface
-    // on IN-4's authority -- and no row anywhere says where on the panel it sits,
-    // so an entry drawn above the first field would be a gap in the specification
-    // rather than a breach of this MUST NOT. With none offered, whatever stands
-    // above the first field is a heading and nothing else.
-    //
-    // ⭐ CONTAINMENT EITHER WAY, NEVER EQUALITY: the claim is about ORDER, which
-    // FR-006 fixes (「項目名は値の欄の左に置き」), and never about spelling. No
-    // row settles whether a colon follows an item name, which the unit may draw as
-    // one string or as parts. ⛔ A heading is neither part of the name nor made
-    // of it, so it fails here whichever of those the unit does.
+    // Why: no entry is offered, since T-109's IC-52 (IN-4) has no settled place on the panel;
+    // with none, whatever stands above the first field is a heading.
+    // Why: containment either way, never equality: no row settles whether a colon follows
+    // an item name, and a heading is neither part of the name nor made of it.
     const { panel } = drawPanel([DATE_FIELD])
     const first = firstWordsDrawn(panel)
     expect(
@@ -1326,10 +988,8 @@ describe('FR-072 (MUST NOT) -- no heading row stands at the head of the panel', 
   })
 
   it('⛔ writes no word into the panel that no field of it carries', () => {
-    // ⭐ THE SAME RULE ASKED OF THE WHOLE PANEL rather than of its head, so a
-    // heading moved down instead of dropped is caught too. Every word offered is
-    // this fixture's, so a word that is neither an item name nor a value came
-    // from somewhere the description did not.
+    // Why: the same rule asked of the whole panel, so a heading moved down instead of
+    // dropped is caught too.
     const { panel } = drawPanel([DATE_FIELD])
     const carried = [
       DATE_FIELD.name,
@@ -1337,9 +997,8 @@ describe('FR-072 (MUST NOT) -- no heading row stands at the head of the panel', 
       ...DATE_FIELD.controls.map((one) => one.text),
     ].filter((one) => one !== '')
 
-    // ⚠️ ONLY TEXT WITH A LETTER OR A DIGIT IN IT IS ASKED ABOUT. A separator or
-    // a bracket is punctuation the unit is free to add -- no row settles one --
-    // and failing it for that would be pinning a rendering rather than the rule.
+    // Why: only text with a letter or a digit is asked about; a separator or bracket
+    // is the unit's to add, and failing it would pin a rendering, not the rule.
     for (const drawn of descendants(panel)) {
       const own = ownWords(drawn)
       if (!hasWord(own)) continue

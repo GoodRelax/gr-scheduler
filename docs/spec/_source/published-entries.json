@@ -2098,6 +2098,16 @@
      }
     },
     {
+     "name": "DependencyEnd",
+     "note": {
+      "ja": [
+       "型。",
+       "依存の線の端 —— タスクの uid と辺（開始か終了か）。",
+       "`LinkTasks` が仮の依存の線を描くために読む（`FR-009`）"
+      ]
+     }
+    },
+    {
      "name": "grabSizesOf",
      "note": {
       "ja": [
@@ -2362,14 +2372,6 @@
      }
     },
     {
-     "name": "confirmationOwedByResourceDeletion",
-     "note": {
-      "ja": [
-       "担当の削除が解く割当があるときの `QN-3` の問い —— `CD-5`"
-      ]
-     }
-    },
-    {
      "name": "DeletionQuestion",
      "note": {
       "ja": [
@@ -2528,6 +2530,16 @@
      "note": {
       "ja": [
        "合流の選択肢は 表 T-032a"
+      ]
+     }
+    },
+    {
+     "name": "ImportReport",
+     "note": {
+      "ja": [
+       "型。",
+       "取り込みが告げること。",
+       "`MergeSchedules` が前回の取り込みから消えたタスクを名で挙げるために読む（表 T-032 の `MG-11`）"
       ]
      }
     }
@@ -5110,6 +5122,267 @@
        "`non-pure`。",
        "取次のプロセスの入口である。",
        "他のコンポーネントからは呼ばれない"
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "id": "PI-42",
+   "layer": "UseCase",
+   "component": "PlaceTask",
+   "members": [
+    {
+     "name": "placedTaskSpanOf",
+     "note": {
+      "ja": [
+       "置くタスクの期間（`FR-001`・`FR-103`）。",
+       "細かい刻みでは押した点と離した点の刻みの時刻、日の刻みでは日の端"
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "id": "PI-43",
+   "layer": "UseCase",
+   "component": "ArrangeTaskGroups",
+   "members": [
+    {
+     "name": "taskGroupTreeWrites",
+     "note": {
+      "ja": [
+       "表 T-328 の出来事 1 つが書き換える木の状態と段 0 の値"
+      ]
+     }
+    },
+    {
+     "name": "taskGroupStandUpWrites",
+     "note": {
+      "ja": [
+       "親の下に新しいタスクグループを立てる書き込み（`HF-14`）。",
+       "木の状態の書き込みと同じ束に入れる"
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "id": "PI-44",
+   "layer": "UseCase",
+   "component": "EditTaskProperties",
+   "members": [
+    {
+     "name": "confirmationOwedByResourceDeletion",
+     "note": {
+      "ja": [
+       "担当の削除が解く割当があるときの `QN-3` の問い —— `CD-5`"
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "id": "PI-45",
+   "layer": "UseCase",
+   "component": "LinkTasks",
+   "members": [
+    {
+     "name": "tentativeDependencyLine",
+     "note": {
+      "ja": [
+       "先行タスクの辺からポインターまでの仮の依存の線（`FR-009`・`PTD-3`）"
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "id": "PI-46",
+   "layer": "UseCase",
+   "component": "RecordActuals",
+   "members": [
+    {
+     "name": "markerPullActualOf",
+     "note": {
+      "ja": [
+       "進捗ステータスマークを引いて離したときに始める実績（表 T-245 の `GO-9`・表 T-240 の `DM-2`）"
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "id": "PI-47",
+   "layer": "UseCase",
+   "component": "FindDelays",
+   "members": [
+    {
+     "name": "lateWorkingDaysOf",
+     "note": {
+      "ja": [
+       "基準日の時点の遅れの稼働日数。",
+       "遅れていなければ値を持たない（`FR-047`）"
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "id": "PI-48",
+   "layer": "UseCase",
+   "component": "ShowRange",
+   "members": [
+    {
+     "name": "isPlaceNamed",
+     "note": {
+      "ja": [
+       "保存した表示の場所が、文書の中の場所をまだ指しているか（表 T-024a の `OP-10`）"
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "id": "PI-49",
+   "layer": "UseCase",
+   "component": "AnnotateSchedule",
+   "members": [
+    {
+     "name": "freeAnchorAt",
+     "note": {
+      "ja": [
+       "タスクグループの上の点に置く、コメントボックスの線先（表 T-221 の `LF-15`）"
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "id": "PI-50",
+   "layer": "UseCase",
+   "component": "ShowConfidentialSchedule",
+   "members": [
+    {
+     "name": "watermarkOpenedByOf",
+     "note": {
+      "ja": [
+       "透かしが名を出す者（`S-99a`）"
+      ]
+     }
+    },
+    {
+     "name": "isWatermarkUnlockMatched",
+     "note": {
+      "ja": [
+       "透かし解除の答えのハッシュが、記憶の値（`S-99c`、無ければ `S-101`）と合うか"
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "id": "PI-51",
+   "layer": "UseCase",
+   "component": "ExchangeWithWbsMaster",
+   "members": [
+    {
+     "name": "taskUidsWithAnUnusableDate",
+     "note": {
+      "ja": [
+       "使えない日付のために落とすタスク（`FR-023`）"
+      ]
+     }
+    },
+    {
+     "name": "holdsWorkValues",
+     "note": {
+      "ja": [
+       "作業量の値を持つ文書か（表 T-033 の `EX-3`）"
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "id": "PI-52",
+   "layer": "UseCase",
+   "component": "SaveAndShareDocument",
+   "members": [
+    {
+     "name": "documentStampedAt",
+     "note": {
+      "ja": [
+       "保存する文書に、書いた時刻の刻印（表 T-058 の `AT-140`）を押す"
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "id": "PI-53",
+   "layer": "UseCase",
+   "component": "MergeSchedules",
+   "members": [
+    {
+     "name": "missingTaskNamesOf",
+     "note": {
+      "ja": [
+       "同じマスタの前回の取り込みから消えたタスクの名（表 T-032 の `MG-11`）"
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "id": "PI-54",
+   "layer": "UseCase",
+   "component": "OperateThroughAgentApi",
+   "members": [
+    {
+     "name": "reasonOfPlanRefusal",
+     "note": {
+      "ja": [
+       "書き込みの経路の拒否を、表 T-400 の `AV-4` の理由へ写す"
+      ]
+     }
+    },
+    {
+     "name": "ruleOfPlanRefusal",
+     "note": {
+      "ja": [
+       "その拒否が破った規則の行"
+      ]
+     }
+    },
+    {
+     "name": "reasonOfStepRefusal",
+     "note": {
+      "ja": [
+       "取り消しとやり直しの拒否を、`AV-4` の理由へ写す"
+      ]
+     }
+    },
+    {
+     "name": "stepRefusalWhat",
+     "note": {
+      "ja": [
+       "その拒否を AI エージェントに伝える文"
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "id": "PI-55",
+   "layer": "UseCase",
+   "component": "RunDelayDiagnostics",
+   "members": [
+    {
+     "name": "delayDiagnosisOf",
+     "note": {
+      "ja": [
+       "文書の暦で求めた遅延診断（`FR-130`）"
       ]
      }
     }

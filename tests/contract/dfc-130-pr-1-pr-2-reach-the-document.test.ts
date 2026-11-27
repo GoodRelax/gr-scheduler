@@ -1,82 +1,4 @@
-// Unit tests for the two rows of 表 T-016 a person SETTLES BY TYPING -- `PR-1`
-// `name` and `PR-2` `notes` -- from the keystroke that settles them to the
-// document that changes.
-//
-// Two units, one road, in the order a person walks it:
-//   UF-71 `dom-screen-surface.ts` (CP-38 of 表 T-062) -- the side that HAS a
-//         field to type in. What a settled value leaves on is `IF-9`'s
-//         `readFieldCommit` (表 T-065).
-//   UF-48 `frame-loop.ts` (CP-25) -- the side that reads that answer and writes
-//         the document (`WS-1` .. `WS-7` of 表 T-067).
-//
-// ⚠️ Chapter 9 does not admit Unit as a TEST_LEVEL, so these have no node in
-// the specification. 表 T-218 of Chapter 7 gives them their place: TS-6,
-// tests/unit/.
-//
-// ---------------------------------------------------------------------------
-// ⛔ WHY THIS FILE EXISTS -- THE LEDGER ROW IT STANDS IN FOR
-// ---------------------------------------------------------------------------
-//
-// `docs/development-records/defects.md` DFC-130: 「⛔⛔ **プロパティパネルで確定した
-// 値が、文書に届かない**」, whose 期待値 column is 「`FR-006` が定めるとおり、表
-// T-016 の読み取り専用でない項目を編集すると文書が変わる」. The row records what
-// was measured on the shipped build -- DFC-130 「`PR-1` … の値を `Survey phase` から
-// `RenamedByProbe` に打ち替えて `Enter`。⇒ **画面の文字は `Survey phase` のまま
-// 1 個、`RenamedByProbe` は 0 個。**」 -- and what was at fault: the keydown
-// listener's `preventDefault()` took the host's `change` away, so DFC-130 「`fieldCommit`
-// を書く者が `onFieldChange` しか居らず、`readFieldCommit` は永久に `null`」.
-// ⭐ The row also measured HOW MANY rows were hurt: 「編集できる 16 行のうち、
-// **届いていなかったのは `PR-1` と `PR-2` の 2 行だけ**であり、どちらもDFC-130 「打ち込んで
-// `Enter` で確定する」欄である」 -- which is why this file drives exactly those two.
-// ⛔ The commit that claimed the fix touched no test file at all.
-//
-// ---------------------------------------------------------------------------
-// THE ROWS THESE CASES ANSWER TO (rule 03 §3: name the row, do not copy it)
-// ---------------------------------------------------------------------------
-//
-//   `FR-006`  「プロパティパネルが選択を出している間、`GRS` は、表 T-016 の項目
-//             のうち表 T-016 が読み取り専用と記した項目を除く項目を、プロパティ
-//             パネルで編集できるようにすること」, and 「**入力の形は同表の「入力の
-//             型」の欄に従うこと（MUST）**」
-//   表 T-016  `PR-1` `name` 入力の型 文字, 対象 `Task`; `PR-2` `notes` 入力の型
-//             複数行, 対象 `Task`. ⭐ Neither is marked 読み取り専用 -- `PR-9` is
-//             the row that is, and it is read here to prove the mark exists and
-//             that these two do not carry it
-//   表 T-036  `SK-19` 「出ている通知が無い間、 `Enter` を押したとき、`GRS` は、その場の編集
-//             （名称・担当名・タスクグループ名・文書名・プロパティの入力）を確定すること」, assignment
-//             `Enter` -- the key these cases press, read out of the 割当 column
-//   表 T-065  `IF-9` CR-361 「…**プロパティパネルの欄で確定した値を、その欄が名乗る行 ID
-//             とともに返し**…」 -- the seam a settled value leaves on, and the
-//             reason the row id is asserted beside the text
-//   表 T-067  `WS-3` / `WS-6` -- the steps that build the new document and swap
-//             the current value, which is what 「文書が変わる」 means here
-//   表 T-078  `FT-1` 「人の入力（ポインターとキー）」 -- the trigger the frame that
-//             spends the settled value runs on
-//   表 T-034  `BT-4`, the bundled template
-//
-// ---------------------------------------------------------------------------
-// ⛔ WHAT WAS READ OF `src/`: NOT ONE FILE. UF-71 is reached through
-// tests/fixtures/fake-browser.ts, which tests/unit/fr-101-the-name-stands-above
-// -the-time.test.ts already drives this same unit with, and UF-48 through the
-// declarations tests/unit/uf-47-48-choosers.test.ts already imports. Every
-// expectation comes from a row of docs/spec.
-// ---------------------------------------------------------------------------
-//
-// ⚠️ WHAT IS DELIBERATELY NOT ASSERTED, each searched for before being given up
-//
-//   1. THAT THE HOST'S OWN `change` IS WHAT MUST NOT BE RELIED ON. The ledger
-//      names `preventDefault` as the mechanism, but no row of docs/spec rules on
-//      which DOM event a settling travels on -- 表 T-065's `IF-9` names the
-//      ANSWER and not the road to it. So these cases press the key `SK-19`
-//      assigns and ask for the answer; how the unit hears the press is its own.
-//   2. THE OTHER FOURTEEN EDITABLE ROWS OF 表 T-016. The ledger measured them
-//      as already arriving, and they settle on the key that changes the value
-//      rather than on `Enter`. ⛔ `PR-12`'s two color controls cannot be driven
-//      at all without the host's color chooser, which the ledger records as
-//      DFC-130 「壊れているとも動くとも示せていない」.
-//   3. THAT PRESSING `Enter` A SECOND TIME PUTS THE PANEL AWAY. That is
-//      `SK-19`'s second stage and
-//      tests/unit/fr-072-a-moved-selection-does-not-open-the-panel.test.ts owns it.
+// Contract tests: a value typed into PR-1 or PR-2 and settled by SK-19 reaches the document.
 
 import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
@@ -117,11 +39,7 @@ import {
   type Stage,
 } from '../fixtures/fake-browser'
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
-// ---------------------------------------------------------------------------
-// The manuscript, read at read time rather than copied (Chapter 1.9)
-// ---------------------------------------------------------------------------
+/* eslint-disable @typescript-eslint/no-explicit-any -- the fakes stand in for browser globals the types do not describe */
 
 const T_016: SpecTable = specTable('T-016')
 const T_036: SpecTable = specTable('T-036')
@@ -138,20 +56,16 @@ const REQUIREMENTS = unbroken(readRepoFile(
   'utf8',
 ))
 
-/** ⛔ THE GROUND OF THIS FILE, read rather than typed. */
 const FR_006_STATEMENT =
   'プロパティパネルが選択を出している間、`GRS` は、表 T-016 の項目のうち表 T-016 が読み取り専用と記した項目を除く項目を、プロパティパネルで編集できるようにすること。'
 
-/** The `GRS JSON` column 表 T-016 gives one row. ⚠️ Not the name shown on screen. */
+// Why: the GRS JSON column, not the name shown on screen.
 const columnOf = (id: string): string => bare(rowOf(T_016, id).by['列（`GRS JSON`）'] ?? '')
 
-/** The 入力の型 表 T-016 gives one row -- what `FR-006` (MUST) makes the control's form. */
 const inputFormOf = (id: string): string => bare(rowOf(T_016, id).by['入力の型'] ?? '')
 
-/** Everything one row of 表 T-016 writes, as one string. */
 const wholeRowOf = (id: string): string => rowOf(T_016, id).cells.join(' ')
 
-/** The keystroke 表 T-036 assigns one row, read out of its 割当 column. */
 function keyOf(id: string): KeyInput {
   const parts = (bare(rowOf(T_036, id).by['割当'] ?? '').split('/')[0] ?? '')
     .replace(/＋/g, '+')
@@ -173,10 +87,8 @@ function keyOf(id: string): KeyInput {
   }
 }
 
-/** `SK-19` -- 「その場の編集（名称・担当名・タスクグループ名・文書名・プロパティの入力）を確定すること」. */
 const SK_19 = keyOf('SK-19')
 
-/** The settled name one row of 表 T-103 gives, which reaches the DOM as `data-role`. */
 function settledName(id: string): string {
   const COLUMN = '確定名（英）'
   if (!T_103.headings.includes(COLUMN)) {
@@ -185,19 +97,13 @@ function settledName(id: string): string {
   return bare(rowOf(T_103, id).by[COLUMN] ?? '')
 }
 
-/** `U-25` -- the `Properties Panel`. */
 const U_25 = settledName('U-25')
 
-/** The two rows DFC-130 measured as not arriving, and the only two this file drives. */
+// Why: only PR-1 and PR-2 settle by typing and Enter, and they are the two rows found not to reach the document;
+// the other editable rows settle on the key that changes the value, and PR-12 needs the host's color chooser.
 const TYPED_ROWS = ['PR-1', 'PR-2'] as const
-/** `PR-9` -- the row 表 T-016 DOES mark 読み取り専用, so the mark can be seen to exist. */
 const READ_ONLY_ROW = 'PR-9'
 const READ_ONLY_MARK = '読み取り専用'
-
-// ---------------------------------------------------------------------------
-// The description these cases draw. Copied from
-// tests/unit/mk-13-the-name-field-is-armed.test.ts, which drives the same unit.
-// ---------------------------------------------------------------------------
 
 const EMPTY_HEADER: AppHeaderItems = {
   documentTitle: null,
@@ -224,11 +130,7 @@ const EMPTY_VIEW: ScreenView = {
   tooltips: [],
 } as unknown as ScreenView
 
-/**
- * ⚠️ `widthInFontSizes` IS THIS FILE'S OWN AND DECIDES NOTHING. `FR-006` has the
- * estimating side work the room out and tests/unit/fr-006-panel-typography.test.ts
- * holds that arithmetic; no case here reads a width.
- */
+// Why: widthInFontSizes is this file's own and decides nothing; no case here reads a width.
 const controlOf = (
   patch: Partial<PropertyControl> & Pick<PropertyControl, 'key' | 'kind'>,
 ): PropertyControl => ({
@@ -240,13 +142,12 @@ const controlOf = (
   ...patch,
 })
 
-/** What each of the two rows already holds, so a settled value can differ from it. */
 const ALREADY_THERE: Record<string, string> = {
   'PR-1': 'NameAlreadyHere',
   'PR-2': 'NotesAlreadyHere',
 }
 
-/** What the case types in. ⚠️ Different per row, so no case can pass on the other's. */
+// Why: a different text per row, so no case can pass on the other row's value.
 const TYPED_IN: Record<string, string> = {
   'PR-1': 'NameSettledByTheCase',
   'PR-2': 'NotesSettledByTheCase',
@@ -254,14 +155,8 @@ const TYPED_IN: Record<string, string> = {
 
 const TASK_UID = 1
 
-/**
- * The form `FR-006` (MUST) takes from 表 T-016's 入力の型 column, as the
- * description spells it.
- *
- * ⚠️ THE JOIN IS THE TABLE'S OWN COLUMN, so a row whose 入力の型 moves reaches
- * this file instead of going stale. Only the two rows this file drives are
- * mapped; a third would have to say which form it takes.
- */
+// Why: the join is T-016's own input-type column, so a row whose form moves fails here instead of going stale;
+// only the two rows driven here are mapped.
 const FORM_OF_KIND: Record<string, string> = { 文字: 'text', 複数行: 'multiline' }
 
 function fieldOf(row: string): PropertyField {
@@ -296,18 +191,7 @@ const panelWith = (rows: readonly string[]): PropertiesPanel =>
 const THEME: ScreenTheme = { preference: 'light', hue: 214 }
 const HEADER_HEIGHT = { 'App Header': 37 }
 
-// ---------------------------------------------------------------------------
-// Typing into a field, and pressing the key SK-19 assigns
-// ---------------------------------------------------------------------------
-
-/**
- * Raise one event on a node and let it bubble, the way a browser would.
- *
- * ⚠️ tests/fixtures/fake-browser.ts records every listener the unit registers but
- * raises none, because no case before this one needed to. ⛔ Nothing about the
- * unit is decided here: which listeners exist is the unit's own answer, read out
- * of `world.registrations`, and this only walks the chain a real event walks.
- */
+// Summary: raise one event on a node and walk it up the parent chain through the listeners the unit registered.
 function raise(
   built: Stage,
   node: FakeElement,
@@ -344,7 +228,6 @@ function raise(
   return event
 }
 
-/** The control the unit drew for one row of 表 T-016, found by the row it names. */
 function controlFor(built: Stage, row: string): FakeElement {
   const panel = oneByRole(built.root(), U_25)
   const found = descendants(panel).filter(
@@ -360,14 +243,8 @@ function controlFor(built: Stage, row: string): FakeElement {
   return found[0] as FakeElement
 }
 
-/**
- * A person putting the caret in one field, typing, and pressing the key
- * `SK-19` assigns.
- *
- * ⚠️ `focusin` then `input` then the keystroke IS what a browser raises for that;
- * the case raises them rather than asserting that the unit listens to any
- * particular one of the three.
- */
+// Why: no row rules on which DOM event a settling travels on, IF-9 names only the answer,
+// so focusin, input and the keystroke are all raised and no single listener is asserted.
 function typeAndSettle(built: Stage, row: string, text: string): void {
   const control = controlFor(built, row)
   control.focus()
@@ -382,10 +259,6 @@ function drawnPanel(rows: readonly string[] = TYPED_ROWS): Stage {
   surfaceOf(built).showScreenView({ ...EMPTY_VIEW, propertiesPanel: panelWith(rows) })
   return built
 }
-
-// ---------------------------------------------------------------------------
-// The loop, for the far end of the same road
-// ---------------------------------------------------------------------------
 
 const TEMPLATE_PATH = join(
   process.cwd(),
@@ -418,23 +291,13 @@ afterEach(() => {
 })
 
 interface Loop {
-  /** Press one key at the loop, and run whatever frames it asks for. */
   press(key: KeyInput): void
-  /** Hand the surface one settled value, to be taken once. */
   hold(commit: unknown): void
-  /** The `Schedule Canvas` as the loop last drew it, through `IF-1`. */
   drawn(): string
 }
 
-/**
- * UF-48, driven with a surface that answers one settled value and then nothing.
- *
- * ⭐ WHY `showSvg` IS WHAT IS READ. 表 T-065's `IF-1` puts the schedule up as its
- * own surface, so the drawn `Task` is where a changed `name` becomes visible;
- * `ScreenView` carries the panel and the task group titles, neither of which is the
- * bar's label. ⛔ It is the document that is being asked about, and the drawing
- * is the only witness this seam offers.
- */
+// Why: IF-1 puts the schedule up as its own surface, so the drawn Task is the only witness
+// this seam offers of a changed name; ScreenView carries the panel, not the bar's label.
 function loopWith(document: Document): Loop {
   const svgs: string[] = []
   const waiting: ((time: number) => void)[] = []
@@ -479,23 +342,17 @@ function loopWith(document: Document): Loop {
   }
 }
 
-// ===========================================================================
-// The manuscript still says what these cases read
-// ===========================================================================
-
+// Spec: FR-006, PR-1, PR-2, PR-9, SK-19, T-016, T-036
 describe('the manuscript still says what these cases read', () => {
   it('⭐ FR-006 still makes every row of 表 T-016 editable but the read-only ones', () => {
     expect(REQUIREMENTS).toContain(FR_006_STATEMENT)
   })
 
   it('⭐ 表 T-016 still gives PR-1 and PR-2 a typed form, and marks neither read-only', () => {
-    // 「PR-1 | `name` | 文字 | `Task`」 and 「PR-2 | `notes` | 複数行 | `Task`」.
     expect(columnOf('PR-1')).toBe('name')
     expect(columnOf('PR-2')).toBe('notes')
     expect(Object.keys(FORM_OF_KIND)).toContain(inputFormOf('PR-1'))
     expect(Object.keys(FORM_OF_KIND)).toContain(inputFormOf('PR-2'))
-    // ⛔ THE MARK EXISTS, so 「表 T-016 が読み取り専用と記した項目を除く」 has something to
-    // exclude -- and neither of these two carries it.
     expect(wholeRowOf(READ_ONLY_ROW)).toContain(READ_ONLY_MARK)
     for (const row of TYPED_ROWS) expect(wholeRowOf(row)).not.toContain(READ_ONLY_MARK)
   })
@@ -509,10 +366,7 @@ describe('the manuscript still says what these cases read', () => {
   })
 })
 
-// ===========================================================================
-// 1. UF-71 -- typing into the field and settling it
-// ===========================================================================
-
+// Spec: FR-006, SK-19, IF-9, PR-1, PR-2, U-25
 describe('FR-006 / SK-19 -- what is typed into PR-1 and PR-2 leaves by IF-9', () => {
   it('⭐ draws one editable control for each of the two rows (FR-006, MUST)', () => {
     const built = drawnPanel()
@@ -525,10 +379,6 @@ describe('FR-006 / SK-19 -- what is typed into PR-1 and PR-2 leaves by IF-9', ()
 
   for (const row of TYPED_ROWS) {
     it(`⛔ ${row}: typing and pressing SK-19 hands the value back with its row`, () => {
-      // ⭐⭐ THE CASE DFC-130 ASKS FOR, at the end of the road it broke on. 表 T-065's
-      // `IF-9`: 「**プロパティパネルの欄で確定した値を、その欄が名乗る行 ID とともに
-      // 返し**」. ⛔ 「`readFieldCommit` は永久に `null`」 is exactly this answer
-      // never arriving.
       const built = drawnPanel()
       const typed = TYPED_IN[row] ?? ''
       typeAndSettle(built, row, typed)
@@ -542,16 +392,14 @@ describe('FR-006 / SK-19 -- what is typed into PR-1 and PR-2 leaves by IF-9', ()
       expect(commit, `${row}: nothing was handed back for a settled field`).not.toBeNull()
       expect(commit?.row).toBe(row)
       expect(commit?.text).toBe(typed)
-      // ⭐ The key names the column 表 T-016 gives the row, which is what makes
-      // the answer point at a place in the document rather than at a widget.
+      // Why: the key names the column T-016 gives the row, so the answer points at a place in the document, not at a widget.
       expect(commit?.key.column).toBe(columnOf(row))
       expect(commit?.key.uid).toBe(TASK_UID)
     })
   }
 
   it('⛔ the two rows do not answer for each other', () => {
-    // ⚠️ Both fields stand at once, so a unit that handed back the LAST field it
-    // drew, or the first, would pass a single-row case and fail here.
+    // Why: both fields stand at once, so a unit that handed back the last or first field drawn would pass a single-row case.
     const first = drawnPanel()
     typeAndSettle(first, 'PR-2', TYPED_IN['PR-2'] ?? '')
     const forNotes = surfaceOf(first).readFieldCommit() as unknown as { row: string } | null
@@ -564,15 +412,10 @@ describe('FR-006 / SK-19 -- what is typed into PR-1 and PR-2 leaves by IF-9', ()
   })
 })
 
-// ===========================================================================
-// 2. UF-48 -- and the document changes
-// ===========================================================================
-
+// Spec: FR-006, PR-1, WS-3, WS-6, FT-1, IF-1, BT-4, T-067
 describe('FR-006 / 表 T-067 -- a settled PR-1 changes the document', () => {
   it('⛔ the drawn schedule stops carrying the old name and carries the new one', () => {
-    // DFC-130 「表 T-016 の読み取り専用でない項目を編集すると文書が変わる」 -- the ledger's
-    // own 期待値 column. ⭐ `PR-1` is 「バーに描くラベル」 by 表 T-016's own 備考
-    // column, so the drawn schedule is where the change shows.
+    // Why: PR-1 is the label drawn on the bar, so the drawn schedule is where the change shows.
     const document = templateDocument()
     const uid = document.schedule.tasks[0]?.uid ?? 0
     const wasNamed = document.schedule.tasks[0]?.name ?? ''
@@ -590,8 +433,7 @@ describe('FR-006 / 表 T-067 -- a settled PR-1 changes the document', () => {
   })
 
   it('⛔ a frame with nothing settled leaves the document alone', () => {
-    // ⚠️ THE CONTROL FOR THE CASE ABOVE. Without it, a loop that renamed the
-    // Task on any press at all would pass.
+    // Why: without this, a loop that renamed the Task on any press at all would pass the case above.
     const document = templateDocument()
     const wasNamed = document.schedule.tasks[0]?.name ?? ''
 

@@ -21,19 +21,24 @@ const FR_068_STATEMENT =
   '**STATEMENT**: 作成者が求めたとき、`GRS` は、日程の画像から `GRS JSON` を AI に作らせるプロンプトを、クリップボードへコピーすること。'
 const FR_068_THREE_PARTS =
   '`GRS` は、コピーするプロンプトを、(1) 画面の言語の原稿、(2) 版の 1 行（`schemaVersion:` と 1 字の空白に、初期テンプレート（`FR-027`）の `schemaVersion` の値を続けたもの）、(3) 土台の文書、の 3 つを (1)・(2)・(3) の順に空行で区切って連ねた 1 つの文字列とすること。'
+// Spec: IMPS-1079
 const FR_068_ONE_FENCE = '`GRS` は、(3) を空白を除いた 1 行の JSON にすること。`GRS` は、(3) を `json` の囲みに入れること。'
 const FR_068_NO_SCHEMA =
   '`GRS` は、コピーするプロンプトに、`GRS JSON` のスキーマを入れないこと。'
 const FR_068_DOWNLOAD =
   '作成者が 表 T-109 の `IC-115` を押したとき、`GRS` は、同じ押下で、`GRS JSON` のスキーマ（`05-07-design.md` の 6.2 が起こす `_source/grs-document.schema.json`）を 表 T-024 の `IO-10` のファイルとして、保存の選択面（`FR-096`）を開かずに、閲覧環境のダウンロードに渡すこと。'
+// Spec: IMPS-1080
 const FR_068_NAME = '`GRS` は、ダウンロードに渡すスキーマのファイルの名を `grs-document.schema.json` に固定すること。`GRS` は、ファイルの中身を、スキーマを空白を除いた 1 行の JSON にしたものとすること。'
+// Spec: IMPS-1081
 const FR_068_MANUSCRIPT_NAMES = 'プロンプトの原稿は、スキーマのファイルを日程の原本と一緒に AI へ渡すよう言うこと。プロンプトの原稿は、スキーマのファイルの名を名指すこと。'
+// Spec: IMPS-1084
 const FR_068_ENTRANCE =
   '`GRS` は、プロンプトをコピーする入口を、表 T-109 の `IC-115` とすること。作成者が `IC-115` を押したとき、`GRS` は、面を開かずにプロンプトをコピーすること（スキーマのファイルは `FR-367`）。'
 const T_024_SHARED_EXTENSION =
   '`GRS` は、表 T-024 で拡張子を分け合う行に、同じ媒体の型を持たせること。'
 const T_024_NOT_ON_IC_2 =
   '`IO-10` はスキーマを運び、入口は `IC-115` なので出さない —— 保存の選択面を開かないので、媒体の型はファイルに付ける型としてだけ使う。'
+// Spec: IMPS-1358
 const DESIGN_6_2_NO_COPY =
   'プロンプトの原稿に、`GRS JSON` のスキーマと土台の文書をコピーしないこと。生成器は、土台の文書をプロンプトの原稿の後ろへ連ねること。生成器は、`GRS JSON` のスキーマを、プロンプトと同じ生成物に入れること。'
 const IF_3_DOWNLOAD =

@@ -1,43 +1,4 @@
-// A document whose format version is newer than this build knows, and a merge
-// that cannot tell one master from another, end at ONE surface -- `U-61`
-// `Difference Review` of table T-103 -- and both must show what differs before
-// anyone is asked to choose. This file presses that surface on the shipped
-// build and measures whether it stands, whether it lists what could not be
-// read, and -- since CR-565 -- whether what could not be read is gone from the
-// document written out again, and the way to the latest version is a link.
-//
-// ⛔⛔ THIS FILE IS EXPECTED TO GO RED, and that is its purpose. Measured
-// 2026-09-05 on the shipped build: `[data-role]` names 21 parts and
-// `Difference Review` is not among them, and `AM-8` `importDocument` of table
-// T-107 -- the one road the specification gives a caller for import and merge
-// -- answers `notAvailable`. A red case here is an anchor that keeps ringing
-// until the clauses quoted below are built. ⛔ DO NOT LOWER AN EXPECTATION TO
-// MAKE IT GREEN.
-//
-// ⛔ WHAT WAS READ OF `src/`: nothing. Every handle used here is one the
-// neighboring System files already lean on (`[data-role]`, `[data-icon]`), and
-// the specification settles none of them -- `tests/system/live-app.ts` says so
-// of `DRAWN_SVG`. The published identifier `grSchedulerAgentApi` IS settled:
-// `_assets/tbl-glossary.md` names it above table T-107, and `AM-2` / `AM-3` /
-// `AM-8` / `AM-11` name the four members this file reads and writes through.
-//
-// ⭐ THE CLAUSES PINNED HERE ARE QUOTED VERBATIM, in Japanese, beside the
-// judgment that presses each one, with the row that carries it. Rule 03
-// section 5 bans TRANSLATING the manuscript into the tree; a quotation is not a
-// translation, and 164 of this project's 175 test files already carry the
-// manuscript's own words. A clause is quoted only where a judgment below
-// actually presses it.
-//
-// ⛔ NO `swsCase` IS DECLARED. Table T-219 row `TW-2` has Chapter 9's cases
-// generated from those declarations and hung from an `SWS-xxx` node of Chapter
-// 6.1, and none of today's nodes is about the difference review. The rows each
-// judgment leans on are named in prose instead, as
-// `tests/system/three-rows-read-from-the-spec-alone.test.ts` does.
-//
-// ⭐ ONE LAUNCH, ONE SWEEP. Every measurement below is taken in a single run of
-// the shipped build, and the cases only judge what was measured.
-// ⛔ The one case that can go red is the LAST in the file: a failure followed by
-// another case has been measured in this project to leave the run unfinished.
+// System tests: a newer-version document and an unclear merge both stand the Difference Review.
 
 import { expect, test, type Browser, type Page } from '@playwright/test'
 import { existsSync } from 'node:fs'
@@ -49,10 +10,6 @@ import { DOWNLOAD_ADDRESS, DOWNLOAD_URL_SEAT } from '../fixtures/download-addres
 import { CLEARING_UP_MS, launchReferenceBrowser, readSettledDrawnSvg, screenOf } from './live-app'
 import { rowOf } from './sws-case'
 
-// ---------------------------------------------------------------------------
-// What the specification says, read at read time
-// ---------------------------------------------------------------------------
-
 const T025: SpecTable = specTable('T-025')
 const T032A: SpecTable = specTable('T-032a')
 const T103: SpecTable = specTable('T-103')
@@ -60,63 +17,28 @@ const T107: SpecTable = specTable('T-107')
 const T109: SpecTable = specTable('T-109')
 const T233: SpecTable = specTable('T-233')
 
-/** The screen of the base environment: table T-025, row `MC-6`. */
+// Spec: T-025, MC-6
 const BASE_SCREEN = screenOf(rowOf(T025, 'MC-6'))
 
-/**
- * The settled name of the surface both `FR-022` and `FR-073` send the person
- * to -- row `U-61` of table T-103, read out of the glossary rather than spelled
- * here, so renaming the part moves this file with it.
- */
+// Spec: T-103, U-61, FR-022, FR-073
 const DIFFERENCE_REVIEW = bare(rowOf(T103, 'U-61').cells[0] ?? '')
 
-/** The `Notification Area` (row `U-57`), where a reason of table T-233 stands. */
+// Spec: T-103, U-57, T-233
 const NOTIFICATION_AREA = bare(rowOf(T103, 'U-57').cells[0] ?? '')
 
-/** The choices of table T-032a, by row ID, in the order the table writes them. */
+// Spec: T-032a
 const MERGE_CHOICES: readonly string[] = T032A.rows.map((row) => row.id)
 
-/**
- * The entrances table T-109 puts ON the `Difference Review`, in the order this
- * file would press them.
- *
- * ⭐ SETTLED, NOT INVENTED: row `U-61` of the glossary says 「面の上の入口は
- * 表 T-109 の `IC-95` 〜 `IC-97` であり、表 T-032a の `MM-1`・`MM-2`・`MM-4` に
- * 当たる」, and `FR-022`'s own paragraph says the same. Reading them through
- * `rowOf` means a renumbering breaks this file rather than quietly leaving it
- * pressing nothing.
- *
- * ⛔ `IC-97` (`MM-4`, 取り込みをやめる) IS DELIBERATELY ABSENT. `MG-6` has that
- * choice put the document back exactly as it was before the intake, so
- * answering with it would carry nothing through -- and the judgment below that
- * asks whether the unreadable column survived the write would then go red for a
- * reason that is not a breach of anything.
- */
+// Spec: T-109, IC-95, IC-96, T-032a, MM-1, MM-2
+// Why: IC-97 (MM-4) is left out: MG-6 puts the document back as it was, so the
+// check that the unreadable column was dropped would go red for no breach.
 const REVIEW_ANSWERS: readonly string[] = [rowOf(T109, 'IC-95').id, rowOf(T109, 'IC-96').id]
 
-/** `RS-48` -- the reason a newer-version document's telling carries. */
+// Spec: T-233, RS-48
 const REASON_NEWER_VERSION = rowOf(T233, 'RS-48').id
 
-/**
- * The words `RS-48` is told in, in both display languages, read out of the
- * manuscript's own dictionary.
- *
- * ⛔⛔ AND THE ROW ID IS NOT ONE OF THEM, WHICH THE FIRST WRITING OF THIS FILE
- * GOT WRONG (measured 2026-09-09). It looked for the literal text `RS-48` in
- * the page, or for a `[data-reason]` attribute -- and NEITHER handle is settled
- * by anything: `data-reason` is on no element of the shipped build, and FR-076
- * has a telling carry the row as its REASON while Chapter 6.2 has the words a
- * person reads come from the dictionary, so a screen printing 「RS-48」 at a
- * person would be the breach rather than the proof. So the judgment below
- * could not have gone green however right the product was.
- * ⭐ WHAT IS SETTLED IS THE WORDS. Chapter 6.2 (MUST) has them written in
- * `docs/spec/_source/display-words.json` and reach `src/` by generation, and
- * `tests/contract/t-233-reason-words-tell-the-row.contract.test.ts` already
- * reads them from there. ⛔ THE MANUSCRIPT'S COPY, not the generated one: this
- * file reads the specification and not `src/`.
- * ⚠️ BOTH LANGUAGES, because `S-99` decides which one stands and this file does
- * not set it -- a telling in either is the reason having been named.
- */
+// Why: matched by its dictionary words in both languages (S-99 is not set here),
+// never by the row ID, which FR-076 keeps out of what a person reads.
 const REASON_WORDS: readonly string[] = (() => {
   const raw = JSON.parse(
     readRepoFile(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8'),
@@ -129,7 +51,7 @@ const REASON_WORDS: readonly string[] = (() => {
   return said
 })()
 
-/** The `Agent API` members of table T-107 this file goes through. */
+// Spec: T-107, AM-2, AM-3, AM-8, AM-11
 const AM_2 = bare(rowOf(T107, 'AM-2').cells[1] ?? '')
 const AM_3 = bare(rowOf(T107, 'AM-3').cells[1] ?? '')
 const AM_8 = bare(rowOf(T107, 'AM-8').cells[1] ?? '')
@@ -142,32 +64,13 @@ const FR_073_A_LINK = 'FR-073 (MUST) shows that place as a link that opens a new
 const FR_073_NO_REFERENCE_PASSED = 'FR-073 (MUST NOT) passes the opened page no reference and no referrer'
 const FR_073_NOT_COPIED_INTO_WORDS = 'FR-073 (MUST NOT) leaves no seat unfilled'
 
-// ---------------------------------------------------------------------------
-// The fixture's two inventions
-// ---------------------------------------------------------------------------
-
-/**
- * A column no build of this tool can read, planted on a `Task` and on the
- * `Project` of the handed document.
- *
- * ⭐ THIS IS THE WHOLE EXPERIMENT. `FR-073` (MUST, CR-565) has an unreadable
- * column listed before going on, and dropped when the person goes on -- never
- * written back. A name no schema of this build mentions is the only way to ask
- * whether it was: if it is absent from a write of the document, it was dropped.
- */
+// Why: a name no schema of this build mentions is the only way to ask whether an
+// unreadable column was dropped: absent from a write means dropped.
 const COLUMN_FROM_THE_FUTURE = 'aColumnNoBuildOfThisToolCanRead'
 
-/**
- * A format version strictly greater than whatever the build states, by the
- * comparison `FR-073` settles.
- *
- * ⚠️ Not a constant date. The build states its own version through `AM-2`, and
- * this file raises THAT, so the fixture stays newer however far the manuscript's
- * version moves. The lexicographic order the requirement relies on is what
- * makes a plain string comparison enough.
- *
- * @purity pure
- */
+// Why: raises the version the build states through AM-2, not a constant date, so
+// the fixture stays newer however far the manuscript's version moves.
+/** @purity pure */
 function oneVersionNewerThan(known: string): string {
   const raised = `9${known.slice(1)}`
   if (!(raised > known)) {
@@ -178,17 +81,10 @@ function oneVersionNewerThan(known: string): string {
   return raised
 }
 
-// ---------------------------------------------------------------------------
-// Driving the shipped build
-// ---------------------------------------------------------------------------
-
-/**
- * ⛔ THE DELIVERABLE, not the sources and not the dev server. `NFR-004` row
- * `CN-1` has `dist/` hold exactly one file and that file be the `.html`.
- */
+// Spec: NFR-004, CN-1
 const SHIPPED_BUILD = join(process.cwd(), 'dist', 'index.html')
 
-/** `FR-065` keeps the `Agent API` shut until a person opens it -- row `IC-20`. */
+// Spec: FR-065, IC-20
 const AGENT_API_ENTRANCE = 'IC-20'
 
 interface ImportOutcome {
@@ -198,43 +94,24 @@ interface ImportOutcome {
 }
 
 interface Measured {
-  /** `AM-2`: the format version this build reads and writes. */
   readonly buildVersion: string
-  /** The raised version the handed document declares. */
   readonly handedVersion: string
-  /** How many tasks the document held before the merge was handed over. */
   readonly tasksBefore: number
-  /** How many it holds after. */
   readonly tasksAfter: number
-  /** A UID left out of the handed document, which a merge may not delete. */
   readonly uidHeldBack: number
-  /** Whether that UID is still in the document after the hand-over. */
   readonly heldBackSurvived: boolean
-  /** The UIDs the handed document and the open one share. */
   readonly uidsInBoth: readonly number[]
-  /** What `AM-8` answered, for each argument shape tried. */
   readonly imports: readonly ImportOutcome[]
-  /** Whether a part named `Difference Review` stood after the hand-over. */
   readonly reviewStood: boolean
-  /** Everything that surface said, or `''` while it does not stand. */
   readonly reviewText: string
-  /** Which shared UIDs that surface named. */
   readonly uidsNamedOnTheSurface: readonly number[]
-  /** How many numbers the surface printed that are no shared UID at all. */
   readonly strangersOnTheSurface: number
-  /** Everything the `Notification Area` said after the hand-over. */
   readonly noticeText: string
-  /** Whether `RS-48` was told anywhere on the screen, in either of its words. */
   readonly reasonNamed: boolean
-  /** Whether `AM-11`'s written document still carries the unreadable column. */
   readonly columnSurvivedTheWrite: boolean
-  /** Whether `AM-11`'s written document states the build's version, and not the handed one. */
   readonly writtenAtBuildVersion: boolean
-  /** Every link on the page whose href is `S-350`, as text, target and rel. */
   readonly downloadLinks: readonly { readonly text: string; readonly target: string; readonly rel: string }[]
-  /** Whether the seat `{downloadUrl}` was left standing anywhere on the page. */
   readonly seatLeftOnThePage: boolean
-  /** The beginning of `AM-11`'s answer, for the message when it wrote nothing. */
   readonly writeAnswer: string
 }
 
@@ -266,13 +143,11 @@ test.beforeAll(async () => {
 })
 
 test.afterAll(async () => {
-  // ⛔ THE HOOK'S OWN ALLOWANCE, NOT AN ASSERTION'S. `CLEARING_UP_MS` of
-  // `./live-app` carries the measurements and the reason.
   test.setTimeout(CLEARING_UP_MS)
   await browser?.close()
 })
 
-/** Press an entrance of table T-109 with a real pointer. @purity non-pure */
+/** @purity non-pure */
 async function openTheAgentApi(page: Page): Promise<void> {
   const at = await page.evaluate((icon: string) => {
     const entry = document.querySelector(`[data-icon="${icon}"]`)
@@ -297,16 +172,9 @@ async function openTheAgentApi(page: Page): Promise<void> {
   }
 }
 
-/**
- * Press an entrance of table T-109 with a real pointer, and say whether it was
- * there to press at all.
- *
- * ⛔ NOT `page.click`, which waits on a selector and then throws: a part that is
- * absent is one of the things this file MEASURES, so its absence has to come
- * back as an answer rather than as an exception.
- *
- * @purity non-pure
- */
+// Why: not page.click, which waits on a selector and throws: an absent part is
+// one of the things this file measures, so it must come back as an answer.
+/** @purity non-pure */
 async function pressIfThere(page: Page, icon: string): Promise<boolean> {
   const at = await page.evaluate((one: string) => {
     const entry = document.querySelector(`[data-icon="${one}"]`)
@@ -322,28 +190,22 @@ async function pressIfThere(page: Page, icon: string): Promise<boolean> {
   return true
 }
 
-/** What the page hands back; every field is plain JSON. */
 interface SweepArgs {
   readonly members: { readonly read: string; readonly merge: string; readonly write: string }
   readonly parts: { readonly review: string; readonly notices: string }
   readonly marks: { readonly column: string; readonly reason: string }
   readonly handedVersion: string
-  /** How long a visit may wait on `AM-8`'s answer before it hands back. */
   readonly patienceMs: number
 }
 
-/** What the first visit measured, before anyone has been asked anything. */
 interface Begun {
   readonly tasksBefore: number
   readonly uidHeldBack: number
   readonly uidsInBoth: readonly number[]
-  /** The shapes that were answered outright, in the order they were tried. */
   readonly imports: readonly ImportOutcome[]
-  /** The shape whose answer is still waiting on a person, or `''`. */
   readonly awaiting: string
 }
 
-/** What the screen said while the merge was still waiting on a person. */
 interface OnScreen {
   readonly reviewStood: boolean
   readonly reviewText: string
@@ -355,39 +217,18 @@ interface OnScreen {
   readonly seatLeftOnThePage: boolean
 }
 
-/** What the last visit measured, after the answer was given. */
 interface Finished {
   readonly tasksAfter: number
   readonly heldBackSurvived: boolean
   readonly columnSurvivedTheWrite: boolean
   readonly writtenAtBuildVersion: boolean
   readonly writeAnswer: string
-  /** `AM-8`'s answer, once it came -- or `null` while nothing was waiting. */
   readonly awaited: { readonly settled: boolean; readonly accepted: boolean; readonly answer: string } | null
 }
 
-/**
- * The whole experiment: read the open document, hand back a newer-version copy
- * of it that is missing one task and carries a column no build can read, then
- * look at what stands, answer it, and see what a write still holds.
- *
- * ⛔⛔ THREE VISITS, AND `FR-022` IS WHY (DFC-357). The requirement reads
- * 「`AM-8`（`importDocument`）が合流にあたるときは、`U-61` を立て、人が答える
- * まで待つこと（MUST）」 -- so `AM-8`'s answer CANNOT arrive until a person has
- * pressed something, and a person cannot press anything while a `page.evaluate`
- * is still running. Awaiting `AM-8` inside the evaluate that would have to be
- * left in order to answer it is a deadlock the requirement guarantees: measured
- * 2026-09-08, it ran the `beforeAll` hook out of its 240s and took every case in
- * this file down with it, none of them having measured anything at all.
- * ⛔ THE PRODUCT IS NOT WHAT IS WRONG THERE. Making `AM-8` answer at the call
- * would break the same requirement's three MUSTs -- 「呼ぶ側が機械であっても、
- * `GRS` は人に選ばせること。」 above all -- and let an unattended run through.
- * ⭐ SO THE WAITING IS SPLIT: one visit starts the merge and leaves the promise
- * behind, Playwright reads the surface and presses the answer, and a third visit
- * collects what the promise settled to.
- *
- * @purity non-pure
- */
+// Why: three visits, because FR-022 has AM-8 wait on a person, and no person can
+// press while a page.evaluate runs; awaiting AM-8 inside one is a deadlock.
+/** @purity non-pure */
 async function sweep(page: Page): Promise<Measured> {
   const buildVersion = await page.evaluate((member: string) => {
     const api = (window as unknown as Record<string, Record<string, unknown> | undefined>)
@@ -401,13 +242,11 @@ async function sweep(page: Page): Promise<Measured> {
     parts: { review: DIFFERENCE_REVIEW, notices: NOTIFICATION_AREA },
     marks: { column: COLUMN_FROM_THE_FUTURE, reason: REASON_NEWER_VERSION },
     handedVersion,
-    // ⚠️ A CEILING ON THE WAITING, NOT A DELAY. Every wait below is a race
-    // against this, so a promise that settles at once is read at once and one
-    // that never settles is reported rather than allowed to hang a hook.
+    // Why: a ceiling, not a delay: every wait races it, so a promise that never
+    // settles is reported rather than left to hang the hook.
     patienceMs: 4_000,
   }
 
-  // ---- visit one: hand the document over and LEAVE ------------------------
   const begun: Begun = await page.evaluate(async (given: SweepArgs) => {
     type Bag = Record<string, unknown>
     const api = (window as unknown as Record<string, Bag | undefined>).grSchedulerAgentApi ?? {}
@@ -425,7 +264,7 @@ async function sweep(page: Page): Promise<Measured> {
       const tasks = schedule?.tasks
       return Array.isArray(tasks) ? (tasks as Bag[]) : []
     }
-    /** Drop every array member that points at a UID this fixture removed. */
+    // Summary: drops every array member that points at a UID this fixture removed.
     const forget = (node: unknown, gone: number): unknown => {
       if (Array.isArray(node)) {
         return node
@@ -456,9 +295,6 @@ async function sweep(page: Page): Promise<Measured> {
     if (before.length < 2) throw new Error('the open document holds fewer than two tasks')
     const uidHeldBack = Number(before[before.length - 1]?.uid)
 
-    // The handed document: the same schedule with the last task held back, a
-    // raised format version, and a column no build can read on the first task
-    // and on the project.
     const handed = forget(JSON.parse(JSON.stringify(open)), uidHeldBack) as Bag & {
       schedule?: { project?: Bag }
     }
@@ -470,37 +306,29 @@ async function sweep(page: Page): Promise<Measured> {
     if (project !== undefined) project[given.marks.column] = 'carried, not dropped'
     const uidsInBoth = handedTasks.map((task) => Number(task.uid))
 
-    /** What one answer, once it is in hand, says about the merge. */
     const reading = (answer: unknown): { accepted: boolean; answer: string } => {
       const bag = answer as { accepted?: unknown; ok?: unknown } | null
       return {
         accepted:
           typeof bag === 'object' && bag !== null && bag.accepted !== false && bag.ok !== false,
-        // ⚠️ `JSON.stringify` hands back `undefined` for an undefined answer,
-        // and `.slice` on that throws inside the page where nothing catches it.
+        // Trap: JSON.stringify returns undefined for an undefined answer, and .slice on
+        // that throws inside the page where nothing catches it.
         answer: String(JSON.stringify(answer) ?? 'undefined').slice(0, 400),
       }
     }
 
-    // ⚠️ THE ARGUMENT SHAPE IS NOT SETTLED BY THE SPECIFICATION. `AM-8` is
-    // named as "import and merge" and paired with `AM-3`, so the document
-    // itself is tried first and the wrapped form second; whichever is accepted
-    // is the one reported.
-    // ⛔⛔ AND THE ANSWER IS RACED RATHER THAN AWAITED. `FR-022` (MUST) has
-    // `AM-8` wait on a person when the intake is a merge, so a promise that has
-    // not settled by `patienceMs` is the requirement being kept, not a fault:
-    // it is handed to the window for the third visit, this loop stops trying
-    // shapes (the tool is already asking about the first one), and the surface
-    // that has to be answered is left standing for Playwright to press.
+    // Why: the argument shape is not settled by the spec, so the bare document is
+    // tried first and the wrapped form second.
+    // Why: the answer is raced, not awaited: FR-022 has AM-8 wait on a person, so
+    // an unsettled promise is handed on to the third visit.
     const imports: { shape: string; accepted: boolean; answer: string }[] = []
     let awaiting = ''
     for (const [shape, arg] of [
       ['the document itself', handed],
       ['{ document }', { document: handed }],
     ] as [string, unknown][]) {
-      // ⛔ THE REJECTION IS TAKEN HERE, ON THE CALL. A promise handed to the
-      // window unhandled would be reported as an unhandled rejection by the
-      // page long before the third visit reaches it.
+      // Why: the rejection is taken on the call; a promise left unhandled would be
+      // reported by the page before the third visit reaches it.
       const asked = Promise.resolve(call(given.members.merge, arg)).then(
         (value: unknown) => ({ settled: true, value }),
         (thrown: unknown) => ({ settled: true, value: { threw: String(thrown) } }),
@@ -528,11 +356,10 @@ async function sweep(page: Page): Promise<Measured> {
   await page.waitForTimeout(1_500)
   await pressIfThere(page, rowOf(T109, 'IC-72').id)
 
-  // ⚠️ THE SURFACE IS GIVEN TIME TO BE DRAWN, outside the evaluate. A frame is
+  // Why: the surface is given time to draw outside the evaluate: a frame is
   // painted between two visits and never during one.
   await page.waitForTimeout(1_500)
 
-  // ---- what stands, read while the answer is still owed -------------------
   const onScreen: OnScreen = await page.evaluate(
     (given: {
       review: string
@@ -546,19 +373,8 @@ async function sweep(page: Page): Promise<Measured> {
         Array.from(document.querySelectorAll(`[data-role="${role}"]`))
           .map((node) => (node.textContent ?? '').trim())
           .join(' | ')
-      // ⛔⛔ THE NUMBERS ARE READ ONE ELEMENT AT A TIME, AND THE FIRST WRITING
-      // OF THIS FILE GOT IT WRONG (measured 2026-09-09). `textContent` over a
-      // whole surface returns the words of every descendant RUN TOGETHER with
-      // nothing between them, so a task named 「… increment 1」 printed above a
-      // line whose task carries UID 133 reads back as the single number 1133 --
-      // a number that is nobody's UID, invented by the reading rather than
-      // printed by the page. That is what produced 42 「strangers」 out of a
-      // surface that had printed none, and it is the same family as the trap
-      // section 6 of docs/development-rules/04-verification.md already records
-      // about a task group name and what textContent gives back for it.
-      // ⭐ SO EACH LEAF IS ASKED FOR ITS OWN WORDS. Two things the page drew
-      // apart are never read as one, and nothing is forgiven: every number the
-      // surface actually prints is still weighed against the shared UIDs.
+      // Trap: textContent over the whole surface runs leaf words together, so a name
+      // ending in 1 above UID 133 reads as 1133; each leaf is read on its own.
       const leafWordsOf = (role: string): string[] => {
         const words: string[] = []
         for (const surface of Array.from(document.querySelectorAll(`[data-role="${role}"]`))) {
@@ -603,15 +419,8 @@ async function sweep(page: Page): Promise<Measured> {
     },
   )
 
-  // ---- the person answers -------------------------------------------------
-  //
-  // ⭐⭐ THIS IS THE PART A `page.evaluate` CANNOT DO, and the whole reason the
-  // sweep is split: 「呼ぶ側が機械であっても、`GRS` は人に選ばせること。」.
-  // The press goes through a real pointer on an entrance of table T-109, the
-  // same road a person has.
-  // ⚠️ NOTHING IS ASSERTED HERE. Whether the surface stood at all is judged
-  // below, off `reviewStood`; this only records which entrance answered so the
-  // message can say why `AM-8` never came back.
+  // Why: a real pointer press on a T-109 entrance, the road a person has; this
+  // only records which entrance answered and asserts nothing.
   let answeredThrough = ''
   if (begun.awaiting !== '') {
     for (const entrance of REVIEW_ANSWERS) {
@@ -623,7 +432,6 @@ async function sweep(page: Page): Promise<Measured> {
     await page.waitForTimeout(1_000)
   }
 
-  // ---- visit three: collect what the answer settled to --------------------
   const finished: Finished = await page.evaluate(
     async (given: {
       members: { read: string; write: string }
@@ -695,8 +503,6 @@ async function sweep(page: Page): Promise<Measured> {
     },
   )
 
-  // The shape that was left waiting takes its place among the others, with what
-  // it finally answered -- or with why nothing came back.
   const imports: ImportOutcome[] = [...begun.imports]
   if (begun.awaiting !== '') {
     const late = finished.awaited
@@ -736,27 +542,15 @@ async function sweep(page: Page): Promise<Measured> {
   }
 }
 
-/** What was measured, or a loud failure if the sweep never ran. @purity pure */
+/** @purity pure */
 function taken(): Measured {
   if (sweepFailed !== null) throw sweepFailed
   if (measured === null) throw new Error('the sweep did not run')
   return measured
 }
 
-// ---------------------------------------------------------------------------
-// The format version this build states -- and the fixture rests on it
-// ---------------------------------------------------------------------------
-
+// Spec: FR-073, FR-024, T-107, AM-2
 test('FR-073 -- the format version is a UTC instant to the second, in one fixed shape', () => {
-  // 書式は RFC 3339 の UTC の `YYYY-MM-DDTHH:MM:SSZ` とすること（MUST）
-  // 小数秒と、`Z` 以外の帯を書いてはならない（MUST NOT）
-  //   -- `FR-073` (docs/spec/01-04-requirements.md), the paragraph under its
-  //   RATIONALE (CR-699), read here off `AM-2` of table T-107.
-  //
-  // ⭐ WHAT WOULD MAKE THIS RED: the build stating a version of any other
-  // shape -- a fractional second or an offset other than `Z` -- at which point
-  // the string comparison the same requirement relies on stops ordering
-  // versions by time.
   const seen = taken().buildVersion
   expect(
     /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/.test(seen),
@@ -764,27 +558,21 @@ test('FR-073 -- the format version is a UTC instant to the second, in one fixed 
   ).toBe(true)
 })
 
-// ---------------------------------------------------------------------------
-// The one case that can go red -- every unmet clause is gathered into it
-// ---------------------------------------------------------------------------
-
+// Spec: FR-073, FR-022, T-032, MG-1, T-103, U-61, T-233, RS-48, S-350
+// Why: no swsCase is declared: no SWS node is about the difference review (TW-2),
+// so the rows are named here instead.
+// Trap: keep this case, the one that can go red, last in the file: a failure
+// followed by another case was measured to leave the run unfinished.
 test('FR-073 / FR-022 / MG-1 -- a newer document is shown, asked about, and dropped on going on', () => {
   const m = taken()
   const unmet: string[] = []
 
-  // The fixture is what makes the rest of this case about an UNREADABLE
-  // version rather than an ordinary one:
-  // ない版であればその旨を通知すること。⛔⛔ **「読めない版」とは、この造りが知る最大の版より新しいことである（MUST）
-  // and, in the same requirement's third paragraph:
-  //  `GRS` が知っている最大の版より新しい版を読めない版とすること（MUST）
   if (!(m.handedVersion > m.buildVersion)) {
     unmet.push(
       `the handed version ${m.handedVersion} did not order after the build's ${m.buildVersion}`,
     )
   }
 
-  // い版」とは、この造りが知る最大の版より新しいことである（MUST）。**⭐⭐ **そのときは、受けて開くこと（MUST）
-  // -09-05CR-357 「② ただし、具体的に差分を表示してユーザーの確認を受ける」）。⛔ **拒んではならない（MUST NOT）
   const accepted = m.imports.find((outcome) => outcome.accepted)
   if (accepted === undefined) {
     unmet.push(
@@ -793,9 +581,6 @@ test('FR-073 / FR-022 / MG-1 -- a newer document is shown, asked about, and drop
     )
   }
 
-  // してユーザーの確認を受ける」）。⛔ **拒んではならない（MUST NOT）。黙って開いてもならない（MUST NOT）
-  // and the surface `FR-022` sends the same scene to:
-  // ⛔⛔ **選ばせる面は 表 T-103 の `U-61`（`Difference Review`）とすること（MUST）
   if (!m.reviewStood) {
     unmet.push(
       `no part named ${JSON.stringify(DIFFERENCE_REVIEW)} (U-61) stood after a newer-version ` +
@@ -803,7 +588,6 @@ test('FR-073 / FR-022 / MG-1 -- a newer document is shown, asked about, and drop
     )
   }
 
-  // 開いてもならない（MUST NOT）。**⛔ **読めなかった列を具体的に並べて見せ、続けてよいかを問うこと（MUST）
   if (!m.reviewText.includes(COLUMN_FROM_THE_FUTURE)) {
     unmet.push(
       `the surface did not name the column it could not read (${COLUMN_FROM_THE_FUTURE}); it ` +
@@ -811,8 +595,6 @@ test('FR-073 / FR-022 / MG-1 -- a newer document is shown, asked about, and drop
     )
   }
 
-  // The reason such a telling carries -- row `RS-48` of table T-233, which
-  // `FR-073` names for exactly this scene.
   if (!m.reasonNamed) {
     unmet.push(
       `nothing on the screen told ${REASON_NEWER_VERSION} of table T-233 in either of its ` +
@@ -852,13 +634,8 @@ test('FR-073 / FR-022 / MG-1 -- a newer document is shown, asked about, and drop
     unmet.push(`${FR_073_NOT_COPIED_INTO_WORDS} -- the seat ${DOWNLOAD_URL_SEAT} is printed on the page`)
   }
 
-  // 05）—— **選ばせる面は 表 T-103 の `U-61`（`Difference Review`）とすること（MUST）。
-  // 独立したアイコンの入口は持たない。**⛔ **選択肢だけを出してはならない（MUST NOT）。
-  // 選ばせる前に、対応するかもしれないタスクを並べて見せること（MUST）
-  //
-  // ⭐ HOW "CHOICES ONLY" IS MEASURED: a surface that carries the four row IDs
-  // of table T-032a, or their words, but names not one of the tasks that could
-  // correspond, has shown the choices alone.
+  // Why: choices only is measured as a surface that names none of the tasks that
+  // could correspond, whatever it shows of the T-032a choices.
   if (m.uidsNamedOnTheSurface.length === 0) {
     unmet.push(
       `the surface listed none of the ${m.uidsInBoth.length} tasks that could correspond before ` +
@@ -868,10 +645,8 @@ test('FR-073 / FR-022 / MG-1 -- a newer document is shown, asked about, and drop
     )
   }
 
-  // 無かったタスクを消してはならない（MUST NOT）。** **対応の候補は `UID` の一致で集めること（MUST）
-  //
-  // ⭐ The candidates are gathered by UID match, so nothing whose UID is absent
-  // from the handed document may appear among them.
+  // Why: candidates are gathered by UID match, so a number that is no shared UID
+  // is a stranger on the surface.
   if (m.strangersOnTheSurface > 0) {
     unmet.push(
       `${m.strangersOnTheSurface} number(s) on the surface are no UID the two documents share, ` +
@@ -879,11 +654,8 @@ test('FR-073 / FR-022 / MG-1 -- a newer document is shown, asked about, and drop
     )
   }
 
-  // 違うかを並べ、続けてよいかを問う」である。****同じか別かを`GRS` が自動で確定してはならない（MUST NOT）
-  //
-  // ⭐ HOW IT IS MEASURED: if the merge went through while no surface stood,
-  // the tool settled sameness on its own. A refusal is not that -- it is the
-  // separate breach recorded above -- so this speaks only when it was accepted.
+  // Why: a merge accepted with no surface standing means the tool settled
+  // sameness itself; a refusal is the separate breach recorded above.
   if (accepted !== undefined && !m.reviewStood) {
     unmet.push(
       `${AM_8} accepted the merge (${accepted.shape}) with no ${DIFFERENCE_REVIEW} standing, ` +
@@ -891,7 +663,6 @@ test('FR-073 / FR-022 / MG-1 -- a newer document is shown, asked about, and drop
     )
   }
 
-  // `GRS` が自動で確定してはならない（MUST NOT）。取り込み側に無かったタスクを消してはならない（MUST NOT）
   if (!m.heldBackSurvived) {
     unmet.push(
       `the task with UID ${m.uidHeldBack}, which the handed document left out, is gone: ` +
@@ -899,10 +670,6 @@ test('FR-073 / FR-022 / MG-1 -- a newer document is shown, asked about, and drop
     )
   }
 
-  // 表 T-032 の `MG-1` -- the handed file carries no record tying it to this
-  // document, so its provenance cannot be told apart:
-  // ルの出自 | 同じ外部 WBS マスタの再取り込みか、別のマスタかを判別する。**判別できないときは人に問うこと（MUST）
-  //  —— 選択肢と選ばせ方は `FR-022`。**問う先は 表 T-103 の `U-61` の面とすること（MUST）
   if (!m.reviewStood) {
     unmet.push(
       "MG-1 could not tell the handed file's provenance apart and asked no one: the " +

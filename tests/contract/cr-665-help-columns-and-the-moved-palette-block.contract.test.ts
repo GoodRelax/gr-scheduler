@@ -25,6 +25,7 @@ const REQUIREMENTS = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '
 // Why: each constant ends exactly at its marker, cut from the manuscript as check 39 reads it.
 const T_256_SPLIT =
   '`GRS` は、`Command Palette` の入口を 2 つの塊に分け、表 T-109 の `群` が `揃える` の行を、`HC-4` の `Task Group Panel` の塊の下の塊へ移すこと。'
+// Spec: IMPS-1151
 const T_256_CONTINUED_HEADING =
   '表 T-256 は、群を名で名指すこと。`GRS` は、移した塊の見出しを、パレットの続きであることを言う語とすること'
 const FR_036_LEFT_OFF =

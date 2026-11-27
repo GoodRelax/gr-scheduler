@@ -107,7 +107,7 @@ describe('FR-092 EZ-2 -- one line, inside the window', () => {
   })
 })
 
-// see DFC-1476, IN-7, S-339
+// Spec: IN-7, S-339
 const IN_7_LEFT_EDGE = 'それでも左端が窓の左端から `S-339` の内側に収まらないときは、左端を窓の左端から `S-339` の位置に置くこと（MUST）'
 const NARROW_WIDTH = 800
 // Why: the padding and border on the two sides together, as the box model adds them outside a content-box cap.

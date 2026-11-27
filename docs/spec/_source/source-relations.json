@@ -356,10 +356,10 @@
    "to": "docs/spec/_source/components.json",
    "family": "component names",
    "fields": {
-    "component": 37
+    "component": 51
    },
    "prefixes": [],
-   "count": 37
+   "count": 51
   },
   {
    "from": "docs/spec/_source/settings.json",
@@ -853,7 +853,7 @@
   {
    "from": "docs/spec/_source/components.json",
    "to": "docs/spec UIDs",
-   "count": 56
+   "count": 84
   },
   {
    "from": "docs/spec/_source/components.json",
@@ -1213,22 +1213,22 @@
   {
    "from": "docs/spec/_source/published-entries.json",
    "to": "docs/spec UIDs",
-   "count": 206
+   "count": 213
   },
   {
    "from": "docs/spec/_source/published-entries.json",
    "to": "docs/spec/01-04-requirements.md",
-   "count": 711
+   "count": 725
   },
   {
    "from": "docs/spec/_source/published-entries.json",
    "to": "docs/spec/05-07-design.md",
-   "count": 86
+   "count": 88
   },
   {
    "from": "docs/spec/_source/published-entries.json",
    "to": "docs/spec/_source/agent-api-members.json",
-   "count": 25
+   "count": 28
   },
   {
    "from": "docs/spec/_source/published-entries.json",
@@ -1238,7 +1238,7 @@
   {
    "from": "docs/spec/_source/published-entries.json",
    "to": "docs/spec/_source/erd.json",
-   "count": 22
+   "count": 24
   },
   {
    "from": "docs/spec/_source/published-entries.json",
@@ -1258,12 +1258,12 @@
   {
    "from": "docs/spec/_source/published-entries.json",
    "to": "docs/spec/_source/settings.json",
-   "count": 107
+   "count": 110
   },
   {
    "from": "docs/spec/_source/published-entries.json",
    "to": "docs/spec/_source/state-machines.json",
-   "count": 54
+   "count": 55
   },
   {
    "from": "docs/spec/_source/row-id-prefixes.json",
@@ -1444,356 +1444,6 @@
    "field": "description",
    "token": "S-90",
    "status": "retired",
-   "count": 1
-  },
-  {
-   "from": "docs/spec/_source/glossary.json",
-   "field": "en",
-   "token": "RN-304",
-   "status": "unresolved",
-   "count": 1
-  },
-  {
-   "from": "docs/spec/_source/glossary.json",
-   "field": "en",
-   "token": "RN-306",
-   "status": "unresolved",
-   "count": 1
-  },
-  {
-   "from": "docs/spec/_source/glossary.json",
-   "field": "en",
-   "token": "RN-309",
-   "status": "unresolved",
-   "count": 1
-  },
-  {
-   "from": "docs/spec/_source/glossary.json",
-   "field": "en",
-   "token": "RN-312",
-   "status": "unresolved",
-   "count": 1
-  },
-  {
-   "from": "docs/spec/_source/glossary.json",
-   "field": "en",
-   "token": "RN-313",
-   "status": "unresolved",
-   "count": 1
-  },
-  {
-   "from": "docs/spec/_source/glossary.json",
-   "field": "en",
-   "token": "RN-314",
-   "status": "unresolved",
-   "count": 1
-  },
-  {
-   "from": "docs/spec/_source/glossary.json",
-   "field": "en",
-   "token": "RN-315",
-   "status": "unresolved",
-   "count": 1
-  },
-  {
-   "from": "docs/spec/_source/glossary.json",
-   "field": "en",
-   "token": "RN-316",
-   "status": "unresolved",
-   "count": 1
-  },
-  {
-   "from": "docs/spec/_source/glossary.json",
-   "field": "en",
-   "token": "RN-317",
-   "status": "unresolved",
-   "count": 1
-  },
-  {
-   "from": "docs/spec/_source/glossary.json",
-   "field": "en",
-   "token": "RN-318",
-   "status": "unresolved",
-   "count": 1
-  },
-  {
-   "from": "docs/spec/_source/glossary.json",
-   "field": "en",
-   "token": "RN-319",
-   "status": "unresolved",
-   "count": 1
-  },
-  {
-   "from": "docs/spec/_source/glossary.json",
-   "field": "en",
-   "token": "RN-320",
-   "status": "unresolved",
-   "count": 1
-  },
-  {
-   "from": "docs/spec/_source/glossary.json",
-   "field": "en",
-   "token": "RN-321",
-   "status": "unresolved",
-   "count": 1
-  },
-  {
-   "from": "docs/spec/_source/glossary.json",
-   "field": "en",
-   "token": "RN-322",
-   "status": "unresolved",
-   "count": 1
-  },
-  {
-   "from": "docs/spec/_source/glossary.json",
-   "field": "en",
-   "token": "RN-323",
-   "status": "unresolved",
-   "count": 1
-  },
-  {
-   "from": "docs/spec/_source/glossary.json",
-   "field": "en",
-   "token": "RN-325",
-   "status": "unresolved",
-   "count": 1
-  },
-  {
-   "from": "docs/spec/_source/glossary.json",
-   "field": "en",
-   "token": "RN-327",
-   "status": "unresolved",
-   "count": 1
-  },
-  {
-   "from": "docs/spec/_source/glossary.json",
-   "field": "en",
-   "token": "RN-329",
-   "status": "unresolved",
-   "count": 1
-  },
-  {
-   "from": "docs/spec/_source/glossary.json",
-   "field": "en",
-   "token": "RN-332",
-   "status": "unresolved",
-   "count": 2
-  },
-  {
-   "from": "docs/spec/_source/glossary.json",
-   "field": "en",
-   "token": "RN-335",
-   "status": "unresolved",
-   "count": 1
-  },
-  {
-   "from": "docs/spec/_source/glossary.json",
-   "field": "en",
-   "token": "RN-338",
-   "status": "unresolved",
-   "count": 2
-  },
-  {
-   "from": "docs/spec/_source/glossary.json",
-   "field": "en",
-   "token": "RN-339",
-   "status": "unresolved",
-   "count": 1
-  },
-  {
-   "from": "docs/spec/_source/glossary.json",
-   "field": "en",
-   "token": "RN-344",
-   "status": "unresolved",
-   "count": 1
-  },
-  {
-   "from": "docs/spec/_source/glossary.json",
-   "field": "en",
-   "token": "RN-348",
-   "status": "unresolved",
-   "count": 1
-  },
-  {
-   "from": "docs/spec/_source/glossary.json",
-   "field": "en",
-   "token": "RN-349",
-   "status": "unresolved",
-   "count": 1
-  },
-  {
-   "from": "docs/spec/_source/glossary.json",
-   "field": "ja",
-   "token": "RN-304",
-   "status": "unresolved",
-   "count": 1
-  },
-  {
-   "from": "docs/spec/_source/glossary.json",
-   "field": "ja",
-   "token": "RN-306",
-   "status": "unresolved",
-   "count": 1
-  },
-  {
-   "from": "docs/spec/_source/glossary.json",
-   "field": "ja",
-   "token": "RN-309",
-   "status": "unresolved",
-   "count": 1
-  },
-  {
-   "from": "docs/spec/_source/glossary.json",
-   "field": "ja",
-   "token": "RN-312",
-   "status": "unresolved",
-   "count": 1
-  },
-  {
-   "from": "docs/spec/_source/glossary.json",
-   "field": "ja",
-   "token": "RN-313",
-   "status": "unresolved",
-   "count": 1
-  },
-  {
-   "from": "docs/spec/_source/glossary.json",
-   "field": "ja",
-   "token": "RN-314",
-   "status": "unresolved",
-   "count": 1
-  },
-  {
-   "from": "docs/spec/_source/glossary.json",
-   "field": "ja",
-   "token": "RN-315",
-   "status": "unresolved",
-   "count": 1
-  },
-  {
-   "from": "docs/spec/_source/glossary.json",
-   "field": "ja",
-   "token": "RN-316",
-   "status": "unresolved",
-   "count": 1
-  },
-  {
-   "from": "docs/spec/_source/glossary.json",
-   "field": "ja",
-   "token": "RN-317",
-   "status": "unresolved",
-   "count": 1
-  },
-  {
-   "from": "docs/spec/_source/glossary.json",
-   "field": "ja",
-   "token": "RN-318",
-   "status": "unresolved",
-   "count": 1
-  },
-  {
-   "from": "docs/spec/_source/glossary.json",
-   "field": "ja",
-   "token": "RN-319",
-   "status": "unresolved",
-   "count": 1
-  },
-  {
-   "from": "docs/spec/_source/glossary.json",
-   "field": "ja",
-   "token": "RN-320",
-   "status": "unresolved",
-   "count": 1
-  },
-  {
-   "from": "docs/spec/_source/glossary.json",
-   "field": "ja",
-   "token": "RN-321",
-   "status": "unresolved",
-   "count": 1
-  },
-  {
-   "from": "docs/spec/_source/glossary.json",
-   "field": "ja",
-   "token": "RN-322",
-   "status": "unresolved",
-   "count": 1
-  },
-  {
-   "from": "docs/spec/_source/glossary.json",
-   "field": "ja",
-   "token": "RN-323",
-   "status": "unresolved",
-   "count": 1
-  },
-  {
-   "from": "docs/spec/_source/glossary.json",
-   "field": "ja",
-   "token": "RN-325",
-   "status": "unresolved",
-   "count": 1
-  },
-  {
-   "from": "docs/spec/_source/glossary.json",
-   "field": "ja",
-   "token": "RN-327",
-   "status": "unresolved",
-   "count": 1
-  },
-  {
-   "from": "docs/spec/_source/glossary.json",
-   "field": "ja",
-   "token": "RN-329",
-   "status": "unresolved",
-   "count": 1
-  },
-  {
-   "from": "docs/spec/_source/glossary.json",
-   "field": "ja",
-   "token": "RN-332",
-   "status": "unresolved",
-   "count": 2
-  },
-  {
-   "from": "docs/spec/_source/glossary.json",
-   "field": "ja",
-   "token": "RN-335",
-   "status": "unresolved",
-   "count": 1
-  },
-  {
-   "from": "docs/spec/_source/glossary.json",
-   "field": "ja",
-   "token": "RN-338",
-   "status": "unresolved",
-   "count": 2
-  },
-  {
-   "from": "docs/spec/_source/glossary.json",
-   "field": "ja",
-   "token": "RN-339",
-   "status": "unresolved",
-   "count": 1
-  },
-  {
-   "from": "docs/spec/_source/glossary.json",
-   "field": "ja",
-   "token": "RN-344",
-   "status": "unresolved",
-   "count": 1
-  },
-  {
-   "from": "docs/spec/_source/glossary.json",
-   "field": "ja",
-   "token": "RN-348",
-   "status": "unresolved",
-   "count": 1
-  },
-  {
-   "from": "docs/spec/_source/glossary.json",
-   "field": "ja",
-   "token": "RN-349",
-   "status": "unresolved",
    "count": 1
   },
   {
@@ -1998,7 +1648,7 @@
   "docs/spec/05-07-design.md": {
    "BO": 5,
    "CA": 4,
-   "CP": 37,
+   "CP": 51,
    "CS": 4,
    "EG": 8,
    "FT": 5,
@@ -2029,12 +1679,12 @@
    "TR": 3,
    "TW": 3,
    "UD": 5,
-   "UF": 185,
+   "UF": 199,
    "UT": 17,
    "WS": 7
   },
   "docs/spec/A-appendix.md": {
-   "OPQ": 24
+   "OPQ": 26
   },
   "docs/spec/_source/agent-api-members.json": {
    "AM": 27,
@@ -2066,7 +1716,7 @@
    "PR": 44
   },
   "docs/spec/_source/published-entries.json": {
-   "PI": 37
+   "PI": 51
   },
   "docs/spec/_source/settings.json": {
    "S": 523

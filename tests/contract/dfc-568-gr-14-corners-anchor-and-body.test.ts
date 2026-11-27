@@ -90,6 +90,7 @@ const ANCHOR_NOT_NEAREST =
   '`GRS` は、自由点を、日の列の中央にも、帯の縦の中央にも寄せないこと。'
 const ANCHOR_HORIZONTAL =
   '吸着する点が無いとき、`GRS` は、離した点そのものを自由点として持つこと —— 横は離した点の日時（分まで）、縦は離した点の下に描かれたタスクグループと、帯の中の高さとする（`FR-019` の ①）。'
+// Spec: IMPS-827
 const FR_019_BODY_OFFSET =
   '`GRS` は、コメントボックスの本文の箱を、留めた点からのずれで置くこと。`GRS` は、ずれ（`bodyOffsetPx`）を、留めた点から本文の箱の左下隅へのずれとすること。'
 const FR_019_POINT_IS_LF_15 =
@@ -154,7 +155,9 @@ const specRowLine = (head: string): string => {
   return found[0]!
 }
 
+// Spec: IMPS-840
 const FR_019_TREE_ORDER = '`GRS` は、3 文目の「下」を、タスクグループの木における順位で判ずること。'
+// Spec: IMPS-842
 const FR_019_WIDTH =
   '`GRS` は、ハイライトボックスの横を日の列で囲み、箱の左端を `start` の日の列の左端、右端を `finish` の日の列の右端として描くこと。`GRS` は、`start` ＝ `finish` の箱を 1 日の幅で描くこと。'
 const FR_019_ZERO_WIDTH = '⚠️ **幅 0 で描くと、本体（表 T-023d の `GR-14`）を掴む所が消える**'

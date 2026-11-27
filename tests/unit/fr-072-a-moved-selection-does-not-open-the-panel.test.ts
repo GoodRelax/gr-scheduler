@@ -1,123 +1,4 @@
-// FR-072 (MUST NOT): a moved selection is not by itself an entrance to the
-// `Properties Panel`. Two roads that ARE entrances -- `MK-13` and `IC-17` --
-// are driven here so that the refusal can be told from a panel that never opens
-// at all, and `SK-19` is the key that takes the panel away again.
-//
-// ⛔ THIS FILE COUNTS NO ENTRANCES, AND MUST NOT. `FR-072` forbids itself from
-// enumerating them (「その入口を本要求が数え上げてはならない（MUST NOT）—— 員数を
-// 2 か所に置けば必ず離れていく」), and a test that held the roster would be the
-// second place the count lives -- the very drift that MUST NOT was written for.
-// `MK-13` and `IC-17` appear below as two roads EACH NAMED BY A ROW OF ITS OWN,
-// never as the whole of the set. FR-072 itself records that タスクグループを選ぶ道 (`FR-042`)
-// was already a third when the count was written, and that `FR-091` and `HF-14`
-// of table T-051 「さらに求めている」 -- and a road named tomorrow must not make
-// a line of this file go red.
-//
-// Unit under test: UF-48 of table T-075 (`frame-loop.ts`, component CP-25 of
-// table T-062). It is the only layer that may hold a current value (LY-5 of
-// table T-060), so it is the side that answers what a press did and what
-// `ScreenView` the frame that followed carries.
-//
-// ⚠️ Chapter 9 does not admit Unit as a TEST_LEVEL, so these cases have no node
-// in the specification. Table T-218 of Chapter 7 gives them their place: TS-6,
-// tests/unit/.
-//
-// ⛔ WRITTEN FROM docs/spec AND NOTHING ELSE (docs/development-rules/
-// 04-verification.md section 1: 読んでよいのは冒頭の宣言・公開する型・署名まで).
-// What was read of `src/`: the exported declarations of `frame-loop.ts`
-// (`FrameEnvironment`, `FrameLoop`, `ScreenWiring`, `NOT_STORED_PROPERTIES_PANEL_SIZES`)
-// and the one signature `frameLoop(surface, first, env, screen?, files?,
-// showPointerShape?)`; the exported types of `screen-renderer.ts`
-// (`PropertiesPanel`, `PropertyFieldKey`, `ScreenPart`, `ScreenSurface`,
-// `ScreenView`, `DisplayLanguage`), of `input-command-translator.ts`
-// (`HumanInput`, `KeyInput`, `PointerInput`, `InputModifiers`, `PointerButton`,
-// `PointerPhase`) and of `document-settings.ts` (`SETTINGS_DEFAULTS`).
-// ⛔ NO FUNCTION BODY WAS READ.
-//
-// ⭐ THE SHAPE IS COPIED, NOT INVENTED. `host` / `screenPane` / `key` /
-// `pointer` and the fixture document are
-// tests/unit/in-4-escape-closes-the-panel.test.ts's, which drives this same unit
-// through the same seams.
-//
-// ---------------------------------------------------------------------------
-// ⛔ WHY THIS FILE EXISTS -- THE HOLES IT WAS WRITTEN TO STAND IN
-// ---------------------------------------------------------------------------
-//
-// Every rule below was measured to be watched by NO case at all: broken on
-// purpose, nothing went red.
-//
-//   1. that ONE press does not put the panel up (FR-072, MUST NOT)
-//   2. that `SK-19` takes the panel away when nothing is left to settle (MUST)
-//   3. that the closing rule of 表 T-036 keeps that second stage OFF while a
-//      面 stands (MUST NOT)
-//   4. that a closed panel does not take the selection with it (FR-072,
-//      MUST NOT)
-//
-// ---------------------------------------------------------------------------
-// THE ROWS THESE CASES REST ON
-// ---------------------------------------------------------------------------
-//
-//   `FR-072`       ⛔ 「表 T-023c の選択が動いたことだけを理由に、パネルを出し始め
-//                  てはならない（MUST NOT）」／「出すのは、出すことを求める要求が名
-//                  指した押下のときだけである（MUST）。」／⛔ 「その入口を本要求が
-//                  数え上げてはならない（MUST NOT）」／⚠️ 「出しているあいだは、選
-//                  択が動けば中身がそれに移る」／⛔ 「パネルを出すのをやめても、選
-//                  択を解除してはならない（MUST NOT）」／「いま何を出しているかを、入
-//                  口の押下状態で示すこと（MUST）。」
-//                  ⚠️ 「出す入口は…`MK-13` と `IC-17` の 2 つである」は 2026-09-04
-//                  に落ちた —— 書かれた時点で既に偽であり（タスクグループを選ぶ道が 3 つ目で
-//                  あった）、この版まで本ファイルはその 1 文を逐語で見張っていた。
-//   `FR-006`       「プロパティパネルが選択を出しているとき、`GRS` は、表 T-016 の
-//                  項目をプロパティパネルに出し…」 ⭐ ITS SUBJECT IS THE PANEL
-//                  ALREADY SHOWING -- it is not a second entrance.
-//   表 T-023 MK-13 「ダブルクリック | 対象ごとに定めること（MUST）—— …タスク（名称
-//                  ラベルと本体のどちらでも）＝ プロパティパネルを出し、名称の欄
-//                  （表 T-016 の `PR-1`）を編集できる状態にして焦点を置き、既にある
-//                  文字をすべて選んだ状態にすること（MUST）…」
-//   表 T-109 IC-17 「`App Header` | 表示 | 文書の描画設定をプロパティパネルに出す |
-//                  `FR-072`」 -- read at run time below, never typed.
-//   表 T-036 SK-19 「その場の編集を確定する（名称・担当名・タスクグループ名・文書名・プロパ
-//                  ティの入力）」…「確定していないその場の編集が 1 つも無いときは、プロ
-//                  パティパネルを出しているならば出すのをやめること（MUST）」／
-//                  ⚠️ 「焦点が名称の欄の外にあるときも同じである」 | `Enter`
-//   表 T-036 の結び ⛔ 「`Confirmation`（`U-55`）または `ScreenState` が持つ面
-//                  （`S-99g`）が立っているあいだ、`SK-19` の 2 段目を当ててはならな
-//                  い（MUST NOT）」／⚠️ 「1 段目（その場の編集の確定）は当てたまま
-//                  である —— 面の中にも入力欄が在る。」
-//   表 T-036 SK-3  「選択しているものを削除する（対象の全数は表 T-023c の SL-1）」
-//                  | `Delete` / `Backspace` -- ⭐ THE ONLY ROAD BY WHICH THIS
-//                  SEAM CAN BE ASKED WHETHER A SELECTION IS STILL STANDING.
-//                  `FrameLoop` publishes no selection; SK-3 acts on one, so a
-//                  `Delete` that still removes the Task is the selection saying
-//                  it is there. ⚠️ A control case below deletes with nothing
-//                  chosen, so "Delete always deletes" cannot pass for it.
-//   表 T-036 SK-13 「ヘルプを開く | `F1`」 -- the one 面 these cases can raise
-//                  without drawing anything.
-//   `S-99g`        表 T-206: 「「面」とは、画面の上に重ねて開き、`Esc` の第 1 階層で
-//                  閉じられるものをいう（表 T-028 の `IN-4`）。」
-//   A-appendix 1.58 ⭐ 「押しただけで開いていたプロパティパネルを、ダブルクリックで
-//                  開いて `Enter` 2 度で閉じるものにした」 -- the count of presses
-//                  is what says the first `Enter` settles and the second closes.
-//   `S-171`        表 T-206: 「プロパティパネルが開いたときに取る幅」.
-//
-// ---------------------------------------------------------------------------
-// ⭐ WHAT IS DELIBERATELY NOT ASSERTED, AND WHY
-// ---------------------------------------------------------------------------
-//   1. `MK-13`'s 「既にある文字をすべて選んだ状態にすること（MUST）」 AND THE
-//      FOCUS THAT GOES WITH IT. ⛔ Nothing on this seam can be asked. `ScreenView`
-//      carries no member for which field holds the focus or how much of its text
-//      is chosen, `ScreenSurface`'s five members carry none either, and
-//      `PropertyField` / `PropertyControl` state a value and a form and nothing
-//      about a caret. So the rule is REPORTED as unwatched rather than replaced
-//      by something adjacent that would look like it.
-//   2. THAT THE FIRST `Enter` SETTLES. `readFieldCommit` is the seam a settled
-//      value would arrive on, and no row of the specification says WHEN this
-//      unit reads it -- so a case that saw a value arrive could not tell a
-//      settling caused by `SK-19` from a poll that happens every frame. What is
-//      asserted instead is the half `SK-19` states in its own words: with an
-//      unsettled edit standing, the press does NOT reach the second stage.
-//   3. WHICH of two 面 `Esc` takes first, and everything else about `Esc` --
-//      tests/unit/in-4-escape-closes-the-panel.test.ts owns that rule.
+// Unit tests: a moved selection does not by itself put the Properties Panel up (FR-072).
 
 import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
@@ -151,11 +32,7 @@ import {
 import { bare, bareAll, specTable, unbroken } from '../contract/spec-table'
 import { validateDocument } from '../fixtures/grs-document'
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
-// ---------------------------------------------------------------------------
-// What the manuscript says, read at run time rather than copied
-// ---------------------------------------------------------------------------
+/* eslint-disable @typescript-eslint/no-explicit-any -- the fixture document and the loop are reached as loose shapes */
 
 const rowOf = (table: string, id: string) => {
   const found = specTable(table).rows.find((row) => row.id === id)
@@ -163,31 +40,21 @@ const rowOf = (table: string, id: string) => {
   return found
 }
 
-/** U-25 of table T-103 -- the settled spelling of the panel, letter for letter. */
 const U_25 = bare(rowOf('T-103', 'U-25').by['確定名（英）'] ?? '')
 
-/** U-21 of table T-103 -- the surface IC-17 stands on, as table T-109 spells it. */
 const APP_HEADER = bare(rowOf('T-109', 'IC-17').by['面'] ?? '')
 
-/** Everything MK-13, SK-19 and the two FR-072 sentences write, as one string each. */
 const MK_13 = rowOf('T-023', 'MK-13').cells.join(' ')
 const SK_19 = rowOf('T-036', 'SK-19').cells.join(' ')
 const SK_3 = rowOf('T-036', 'SK-3').cells.join(' ')
 
-/** `FR-072`'s STATEMENT and the closing rule of table T-036, as the file holds them. */
 const REQUIREMENTS = unbroken(readRepoFile(
   join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'),
   'utf8',
 ))
 
-/**
- * `FR-072`'s own STATEMENT, cut out of the manuscript.
- *
- * ⭐ WHY A SLICE AND NOT THE WHOLE FILE: the sentences below are FR-072's own
- * rules, and a `toContain` over the whole manuscript would keep passing if they
- * drifted into some other requirement -- which is the very failure the MUST NOT
- * against enumerating exists to prevent.
- */
+// Why: cut to FR-072's own statement, since a toContain over the whole manuscript would
+// keep passing if the sentences drifted into another requirement.
 function fr072Statement(): string {
   const start = REQUIREMENTS.indexOf('**UID**: FR-072')
   if (start < 0) throw new Error('the manuscript holds no requirement FR-072')
@@ -198,24 +65,16 @@ function fr072Statement(): string {
 
 const FR_072 = fr072Statement()
 
-/** The sentences of FR-072 these cases stand on, quoted from the manuscript. */
 const FR_072_NOT_FROM_A_SELECTION =
   '`GRS` は、表 T-023c の選択が動いたことだけを理由に、プロパティパネルを出し始めないこと。'
-/** ⭐ WHAT REPLACED THE COUNT: a rule about WHEN, which names no entrance. */
 const FR_072_ONLY_A_NAMED_PRESS =
   '`GRS` は、パネルを出すことを求める要求が名指した押下のときだけ、プロパティパネルを出し始めること。'
-/** ⛔ And the MUST NOT that keeps the roster out of this requirement for good. */
 const FR_072_MUST_NOT_ENUMERATE = 'その入口を本要求が数え上げてはならない（MUST NOT）'
 const FR_072_MOVES_WITH_THE_SELECTION = 'プロパティパネルを出している間、選択が動いたとき、`GRS` は、中身を動いた先の選択へ移すこと（STATEMENT の「最後の操作」）。'
 const FR_072_KEEPS_THE_SELECTION =
   'プロパティパネルを出すのをやめたとき、`GRS` は、選択を解除しないこと。'
 const T_036_NOT_WHILE_A_SURFACE_STANDS = '`Confirmation`（`U-55`）または `ScreenState` が持つ面（`S-99g`）が立っている間、`GRS` は、`SK-19` の 2 段目（プロパティパネルを出すのをやめる）を当てないこと。'
 
-
-// ---------------------------------------------------------------------------
-// The document these cases drive. Copied from
-// tests/unit/in-4-escape-closes-the-panel.test.ts.
-// ---------------------------------------------------------------------------
 
 const TEMPLATE_PATH = join(
   process.cwd(),
@@ -229,9 +88,8 @@ const TEMPLATE = JSON.parse(readRepoFile(TEMPLATE_PATH, 'utf8')) as Record<strin
 const ALPHA = '11111111-1111-4111-8111-111111111111'
 const BETA = '22222222-2222-4222-8222-222222222222'
 
-/** The Task `MK-13` is aimed at. */
 const THE_TASK = 1
-/** A second Task, so that a MOVED selection can be told from a standing one. */
+// Why: a second Task, so a moved selection can be told from a standing one.
 const THE_OTHER_TASK = 2
 
 function twoTaskDocument(): Document {
@@ -297,20 +155,15 @@ function twoTaskDocument(): Document {
       taskOrigins: [],
       baselineTasks: [],
     },
-    // ⭐ THE PANEL'S WIDTH IS A SCREEN VALUE THAT STARTS AT S-171 (CR-572), so a
-    // panel put up by an entrance has a width to be drawn at without the
-    // document carrying one. What width a drag settles is FR-052's road.
+    // Why: the panel's width is a screen value starting at S-171, so the document carries none;
+    // the width a drag settles is FR-052's.
     documentSettings: structuredClone(template.documentSettings),
     documentStamp: structuredClone(template.documentStamp),
     changeLog: [],
   } as unknown as Document
 }
 
-// ---------------------------------------------------------------------------
-// The host UF-48 is given. Copied from tests/unit/uf-48-input.test.ts.
-// ---------------------------------------------------------------------------
-
-// Why: wide enough that the bars stay in the Task Group Lanes beside a panel of S-171 (560 px since CR-754).
+// Why: wide enough that the bars stay in the Task Group Lanes beside a panel of S-171.
 const SCREEN: FrameEnvironment = {
   width: 2400,
   height: 800,
@@ -325,11 +178,7 @@ interface Host {
 
 const realRaf = (globalThis as any).requestAnimationFrame
 
-/**
- * ⚠️ THE HOST IS A FAKE, AND THE FAKE IS NOT THE TEST (R6.3). Vitest runs under
- * node with no `requestAnimationFrame`, and LY-5 of table T-060 puts the browser
- * in this layer. ⛔ Nothing in this fake decides anything about the panel.
- */
+// Summary: When a case runs the frames, the host shall run the queued animation frames and decide nothing about the panel.
 function host(): Host {
   const waiting: ((time: number) => void)[] = []
   let handle = 0
@@ -352,10 +201,9 @@ function host(): Host {
 
 interface ScreenPane {
   readonly wiring: ScreenWiring
-  /** What `readScreenPartAt` answers from now on. The case decides; the fake does not. */
   drawAt(part: ScreenPart | null): void
-  // Why: starts or ends an edit in the name field (SK-19's own condition);
-  // IF-9 tells the shell by a begin/end notice, kept as `editingField` (CR-500 wave B).
+  // Why: starts or ends an edit in the name field, SK-19's own condition; IF-9 tells the
+  // shell by a begin or end notice.
   leaveAnEditUnsettled(unsettled: boolean): void
   last(): ScreenView
 }
@@ -398,10 +246,6 @@ afterEach(() => {
   else (globalThis as any).requestAnimationFrame = realRaf
 })
 
-// ---------------------------------------------------------------------------
-// Spelling one happening
-// ---------------------------------------------------------------------------
-
 const NO_MODIFIERS: InputModifiers = { ctrl: false, shift: false, alt: false, meta: false }
 
 const key = (which: string, modifiers: Partial<InputModifiers> = {}): KeyInput => ({
@@ -425,47 +269,33 @@ const pointer = (
   clickCount: options.clickCount ?? 1,
 })
 
-/** SK-19 of table T-036. */
+// Spec: SK-19
 const ENTER = (): HumanInput => key('Enter')
-/** SK-8 of table T-036, whose rule is IN-4 of table T-028. */
+// Spec: SK-8, IN-4
 const ESCAPE = (): HumanInput => key('Esc')
-/** SK-13 of table T-036 -- the one 面 these cases raise from outside. */
+// Spec: SK-13
 const OPEN_HELP = (): HumanInput => key('F1')
-/** SK-3 of table T-036, read out of the row rather than spelled here. */
+// Spec: SK-3, SL-1
 const DELETE_SELECTION = (): HumanInput => key(deleteSpelling())
 
-/**
- * The first spelling SK-3's 割当 column offers, taken from the manuscript.
- *
- * ⭐ NOT TYPED: 「割当の綴りも入口の説明もコピーしてはならない（MUST NOT）—— 綴りの家
- * は 1 つである（`R3.4`）」 is stated of table T-036's 入口 column, and a case that
- * typed `Delete` here would be a second home for the same spelling.
- */
+// Why: read from SK-3, never typed, since table T-036 keeps one home for each spelling.
 function deleteSpelling(): string {
-  // ⚠️ SK-3's cell enumerates 「`Delete` / `Backspace`」, so it is read as the
-  // list it is. Splitting the FIRST span on '/' looked like it took the first
-  // of two and in fact took the whole of one (`DFC-351`).
+  // Why: the cell is read as a list; splitting its first span on '/' took the whole of it
+  // (DFC-351).
   const spellings = bareAll(rowOf('T-036', 'SK-3').by['割当'] ?? '')
   const first = spellings[0]?.trim() ?? ''
   if (first === '') throw new Error('table T-036 SK-3 states no assignment')
   return first
 }
 
-// ---------------------------------------------------------------------------
-// A loop, and the questions a case may ask it
-// ---------------------------------------------------------------------------
-
 interface Stage {
   readonly loop: FrameLoop
   readonly screen: ScreenPane
   send(input: HumanInput): void
-  /** The panel this frame described, or `null` while it is not up. */
   panel(): PropertiesPanel | null
   panelIsUp(): boolean
   modalIsUp(): boolean
-  /** Which `Task` uids the document still holds. */
   taskUids(): readonly number[]
-  /** Aim the next press at one entry of table T-109. CS-2 freezes it at the press. */
   aimAt(part: string, entry: string): void
   aimAtNothing(): void
 }
@@ -504,17 +334,8 @@ function stage(): Stage {
   }
 }
 
-/**
- * A point on one Task's plan bar BODY -- the 本体 half of MK-13's Task entry.
- *
- * ⚠️ NOT SIMPLY THE MIDDLE. These Tasks are not started, so GA-18 hangs the
- * progress marker outside GA-6's hold (「未着手のときは終了点の掴みシロの
- * 外側」), and the square landed on the middle of these bars. ⛔ GA-18 IS ABOVE
- * GA-9 IN TABLE T-023d and is none of MK-13's
- * destinations, so a press there cycles the state instead of moving the
- * selection -- which is not what these cases are about. The point is taken from
- * the part of the body the marker does not stand on.
- */
+// Why: not the bar's middle: an unstarted Task's GA-18 marker sits outside GA-6's hold,
+// and GA-18, above GA-9 in table T-023d, cycles the state instead of selecting.
 function middleOfTheBar(built: Stage, uid: number): { readonly x: number; readonly y: number } {
   const values = built.loop.current()
   if (values === null) throw new Error('the loop has run no frame, so it has drawn no bar')
@@ -527,7 +348,7 @@ function middleOfTheBar(built: Stage, uid: number): { readonly x: number; readon
   }
   const xs = drawn.plan.points.map((one) => one.x)
   const ys = drawn.plan.points.map((one) => one.y)
-  // Why: only the part the Task Group Lanes shows can be pressed; a shown panel (S-171 wide, CR-572) covers the rest.
+  // Why: only the part the Task Group Lanes shows can be pressed; a shown panel covers the rest.
   const area = values.regions.taskGroupArea
   const right = Math.min(Math.max(...xs), area.x + area.width - 1)
   const marker = drawn.marker
@@ -539,26 +360,22 @@ function middleOfTheBar(built: Stage, uid: number): { readonly x: number; readon
   return { x: (left + right) / 2, y: (Math.min(...ys) + Math.max(...ys)) / 2 }
 }
 
-/**
- * One plain press on a Task -- table T-023c's selection moving, and nothing more.
- *
- * ⚠️ Pressed and RELEASED at the same point, because IN-1 settles a pointer
- * operation on the release and a press left down would be a drag.
- */
+// Why: pressed and released at one point, since IN-1 settles a pointer operation on the
+// release and a press left down would be a drag.
 function pressTask(built: Stage, uid: number): void {
   const at = middleOfTheBar(built, uid)
   built.send(pointer('down', at.x, at.y))
   built.send(pointer('up', at.x, at.y))
 }
 
-/** MK-13 on a Task: the double click that IS an entrance to the panel. */
+// Spec: MK-13
 function doubleClickTask(built: Stage, uid: number): void {
   const at = middleOfTheBar(built, uid)
   built.send(pointer('down', at.x, at.y, { clickCount: 2 }))
   built.send(pointer('up', at.x, at.y, { clickCount: 2 }))
 }
 
-/** IC-17 pressed on the `App Header` -- the road table T-109 names to the panel. */
+// Spec: IC-17
 function pressIc17(built: Stage): void {
   built.aimAt(APP_HEADER, 'IC-17')
   built.send(pointer('down', 700, 20))
@@ -566,7 +383,6 @@ function pressIc17(built: Stage): void {
   built.aimAtNothing()
 }
 
-/** Which Task the panel is showing, read off the keys its controls carry. */
 function subjectUidsOf(panel: PropertiesPanel): readonly number[] {
   const uids = new Set<number>()
   for (const field of panel.fields) {
@@ -580,15 +396,9 @@ function subjectUidsOf(panel: PropertiesPanel): readonly number[] {
   return [...uids]
 }
 
-// ===========================================================================
-// The premises every case below stands on
-// ===========================================================================
-
 describe('the manuscript still says what these cases read', () => {
   it('⭐ was really driven by the manuscript, and not by a hollow read of it', () => {
-    // ⛔ WITHOUT THIS, A PARSE THAT LOST A COLUMN WOULD MAKE EVERY CASE BELOW
-    // AGREE WITH ANYTHING -- rule 04 section 2: a mechanism is not verified
-    // until it has been broken on purpose and seen to fail.
+    // Why: a parse that lost a column would make every case below agree with anything.
     expect(U_25).toBe('Properties Panel')
     expect(APP_HEADER).toBe('App Header')
     expect(MK_13, 'MK-13 still opens the panel for a Task').toContain('プロパティパネルを出し')
@@ -599,20 +409,8 @@ describe('the manuscript still says what these cases read', () => {
   })
 
   it('⛔ FR-072 opens the panel only on a press a requirement named, and may not count them', () => {
-    // ⭐ THE GROUND OF THIS WHOLE FILE, read rather than typed: if the rulings of
-    // 2026-08-30 are ever reversed, this case says so in one line instead of
-    // leaving the cases below asserting a rule the manuscript no longer holds.
-    //
-    // ⛔ THIS GUARD HOLDS NO COUNT, ON PURPOSE. Until 2026-09-04 FR-072 closed
-    // with CR-304 「出す入口は 表 T-023 の `MK-13` と `IC-17` の 2 つである。」 and this
-    // very case asserted it word for word. ⛔ The sentence was already false the
-    // day it was written -- タスクグループを選ぶ道 (`FR-042`) was a third -- and `FR-091`
-    // and `HF-14` of table T-051 have since named more. ⇒ What stands here in
-    // its place is NOT 「その 1 文が無いこと」, which would rot the other way
-    // (going red the moment anyone quotes it in a history note, as FR-072 now
-    // does). It is the pair of rules FR-072 carries instead: a MUST that says
-    // WHEN the panel may open without naming any entrance, and a MUST NOT that
-    // forbids this requirement from ever holding the roster again.
+    // Why: no count of entrances is asserted: the old two-entrance sentence was false when
+    // written, so this guards the rule of when and the MUST NOT on counting instead.
     expect(FR_072.match(/\*\*UID\*\*:/g)?.length, 'the cut holds one requirement, not the file').toBe(
       1,
     )
@@ -636,8 +434,6 @@ describe('the manuscript still says what these cases read', () => {
 
   it('⛔ table T-036 still keeps SK-19’s second stage off while a 面 stands', () => {
     expect(REQUIREMENTS).toContain(T_036_NOT_WHILE_A_SURFACE_STANDS)
-    // ⚠️ And the sentence that keeps the FIRST stage on, which is what makes
-    // the rule a limit on ONE stage rather than on the key.
     expect(REQUIREMENTS).toContain('`Confirmation`（`U-55`）または `ScreenState` が持つ面（`S-99g`）が立っている間も、`GRS` は、`SK-19` の 1 段目（その場の編集の確定）を当てること。')
   })
 
@@ -654,7 +450,7 @@ describe('the manuscript still says what these cases read', () => {
   })
 
   it('the panel is not up before anything has been pressed', () => {
-    // ⭐ The premise without which "the entrance put it up" says nothing.
+    // Why: without this premise, an entrance putting the panel up says nothing.
     expect(stage().panelIsUp()).toBe(false)
   })
 
@@ -665,15 +461,8 @@ describe('the manuscript still says what these cases read', () => {
   })
 })
 
-// ===========================================================================
-// (a) FR-072 (MUST NOT) -- a moved selection is not an entrance
-// ===========================================================================
-
 describe('FR-072 (MUST NOT) -- one press chooses, and does not put the panel up', () => {
   it('⛔ MUST NOT: a plain press on a Task leaves the panel off the screen', () => {
-    // 「表 T-023c の選択が動いたことだけを理由に、パネルを出し始めてはならない
-    //   （MUST NOT）」 -- the user's own words behind it (CR-304): 「ちょっと位置を
-    //   ずらしたいだけなのに、プロパティーパネルが開くのは鬱陶しい」.
     const built = stage()
 
     pressTask(built, THE_TASK)
@@ -685,10 +474,8 @@ describe('FR-072 (MUST NOT) -- one press chooses, and does not put the panel up'
   })
 
   it('⭐ and the press really did choose it -- SK-3 still has something to delete', () => {
-    // ⛔ WITHOUT THIS THE CASE ABOVE IS VACUOUS. A loop that ignored the press
-    // entirely would pass it, and would be breaking SL-2 of table T-023c
-    // instead. SK-3 acts on 「選択しているもの」, so a Task that goes is a
-    // selection that stood.
+    // Why: a loop that ignored the press would pass the case above, so this shows the press
+    // chose the Task.
     const built = stage()
 
     pressTask(built, THE_TASK)
@@ -700,8 +487,7 @@ describe('FR-072 (MUST NOT) -- one press chooses, and does not put the panel up'
   })
 
   it('⭐ and a `Delete` with nothing chosen removes nothing', () => {
-    // The control the case above needs: 「選択しているものを削除する」 is not
-    // 「何か削除する」, so a loop that deleted on every `Delete` would make the
+    // Why: the control for the case above: a loop that deleted on every Delete would make the
     // selection cases agree with anything.
     const built = stage()
 
@@ -711,9 +497,8 @@ describe('FR-072 (MUST NOT) -- one press chooses, and does not put the panel up'
   })
 
   it('⛔ MUST NOT: a press that moves the selection to ANOTHER Task does not open it either', () => {
-    // ⚠️ THE SECOND PRESS IS THE ONE THE RULE IS ABOUT. 「選択が動いた」 is a
-    // MOVE, and a loop that only refused the FIRST press would satisfy the case
-    // above while still opening on every move after it.
+    // Why: the second press is the move the rule is about; refusing only the first press
+    // would pass the case above.
     const built = stage()
 
     pressTask(built, THE_TASK)
@@ -734,35 +519,26 @@ describe('FR-072 (MUST NOT) -- one press chooses, and does not put the panel up'
   })
 })
 
-// ===========================================================================
-// (b) MK-13 and IC-17 -- two roads that DO put it up
-// ===========================================================================
-//
-// ⛔ TWO OF THE ROADS, NEVER "THE ROADS". Each case below rests on the row that
-// names its own road -- `MK-13` of table T-023, `IC-17` of table T-109 -- and
-// none of them says the set is closed. ⭐ WHY THEY ARE HERE AT ALL: without a
-// road that does open the panel, (a)'s refusals would all pass on a loop that
-// never opened it, which is a different defect wearing the same green.
-// ===========================================================================
-
+// Spec: MK-13, IC-17, FR-006
+// Why: two named roads, never the set: FR-072 forbids counting its entrances, and FR-042,
+// FR-091 and HF-14 name more.
+// Why: without a road that opens the panel, the refusals above pass on a loop that never
+// opens it.
 describe('table T-023 MK-13 and table T-109 IC-17 -- two roads that do put it up', () => {
   it('⛔ MUST: a double click on a Task puts the panel up, showing that Task', () => {
-    // MK-13: 「タスク（名称ラベルと本体のどちらでも）＝ プロパティパネルを出し…」
+    // Why: MK-13's focus and selected text are not asserted: no member of ScreenView or
+    // ScreenSurface carries a focus or a caret.
     const built = stage()
 
     doubleClickTask(built, THE_TASK)
 
     const panel = built.panel()
     expect(panel, `MK-13 (MUST): ${U_25} is described once a Task is double clicked`).not.toBeNull()
-    // FR-072: 「いま何を出しているかを、入口の押下状態で示すこと（MUST）」 -- the
-    // two contents are told apart by the description, so the description says
-    // which of the two this is.
     expect(panel?.showing).toBe('selection')
     expect(subjectUidsOf(panel as PropertiesPanel)).toEqual([THE_TASK])
   })
 
   it('⛔ MUST: IC-17 puts it up showing the document’s own drawing settings', () => {
-    // 表 T-109 IC-17: 「文書の描画設定をプロパティパネルに出す | `FR-072`」.
     const built = stage()
 
     pressIc17(built)
@@ -772,9 +548,6 @@ describe('table T-023 MK-13 and table T-109 IC-17 -- two roads that do put it up
   })
 
   it('⚠️ while it is up, a moved selection moves what it shows', () => {
-    // 「出しているあいだは、選択が動けば中身がそれに移る —— 上の「最後に行われた
-    //   操作」がそのまま当たる」. ⭐ THE OTHER SIDE OF THE SAME RULE as (a): a
-    // selection may not START the panel, and it does move a panel already up.
     const built = stage()
 
     doubleClickTask(built, THE_TASK)
@@ -798,14 +571,8 @@ describe('FR-072 (DFC-706) -- the document settings give way to a moved selectio
   })
 })
 
-// ===========================================================================
-// (c) SK-19 -- `Enter` is what takes it away
-// ===========================================================================
-
 describe('table T-036 SK-19 -- `Enter` closes a panel with nothing left to settle', () => {
   it('⛔ MUST: one `Enter` with no unsettled edit takes the panel off the screen', () => {
-    // 「確定していないその場の編集が 1 つも無いときは、プロパティパネルを出している
-    //   ならば出すのをやめること（MUST）」.
     const built = stage()
     doubleClickTask(built, THE_TASK)
     built.screen.leaveAnEditUnsettled(false)
@@ -819,10 +586,8 @@ describe('table T-036 SK-19 -- `Enter` closes a panel with nothing left to settl
   })
 
   it('⚠️ the same when the focus is nowhere near the name field -- IC-17’s panel closes too', () => {
-    // 「⚠️ 焦点が名称の欄の外にあるときも同じである」. ⭐ A panel opened by IC-17
-    // is showing the document's settings, which has no 名称の欄 (`PR-1`) in it at
-    // all -- so the focus cannot be in one, and the rule still asks for the
-    // panel to go.
+    // Why: an IC-17 panel shows the document's settings, which hold no name field, so the
+    // focus is surely outside it.
     const built = stage()
     pressIc17(built)
     expect(built.panel()?.showing, 'the premise: this panel is not showing a Task').toBe(
@@ -835,12 +600,8 @@ describe('table T-036 SK-19 -- `Enter` closes a panel with nothing left to settl
   })
 
   it('⛔ an `Enter` with an edit still unsettled does NOT reach the second stage', () => {
-    // ⭐ THE COUNT OF PRESSES IS THE RULE. Version 1.58 of the specification
-    // records the ruling as 「ダブルクリックで開いて `Enter` 2 度で閉じる」, and
-    // SK-19's own condition is 「確定していないその場の編集が 1 つも無いとき」 --
-    // so while one stands, the press spends itself on the first stage.
-    // ⛔ A loop that closed on the first press would leave a person's half-typed
-    // name settled by nothing and the panel gone from under it.
+    // Why: SK-19's second stage needs no edit unsettled, so this press only settles; when it
+    // settles is not asserted, as no row says when readFieldCommit is read.
     const built = stage()
     doubleClickTask(built, THE_TASK)
     built.screen.leaveAnEditUnsettled(true)
@@ -854,8 +615,6 @@ describe('table T-036 SK-19 -- `Enter` closes a panel with nothing left to settl
   })
 
   it('⭐ and the press after the edit is settled does take it away -- two presses in all', () => {
-    // The pair that makes the case above a limit rather than a refusal: the
-    // same panel, the same key, one press later.
     const built = stage()
     doubleClickTask(built, THE_TASK)
     built.screen.leaveAnEditUnsettled(true)
@@ -867,10 +626,6 @@ describe('table T-036 SK-19 -- `Enter` closes a panel with nothing left to settl
     expect(built.panelIsUp(), 'A-appendix 1.58: `Enter` 2 度で閉じる').toBe(false)
   })
 })
-
-// ===========================================================================
-// (d) The closing rule of table T-036 -- not while a 面 stands
-// ===========================================================================
 
 describe('table T-036’s closing rule -- the second stage is off while a 面 stands', () => {
   it('⛔ MUST NOT: with the help up, `Enter` does not take the panel away', () => {
@@ -890,17 +645,15 @@ describe('table T-036’s closing rule -- the second stage is off while a 面 st
   })
 
   it('⭐ and once the 面 is gone, the same press does take it away', () => {
-    // ⛔ WITHOUT THIS PAIR THE CASE ABOVE WOULD PASS ON A LOOP WHERE `Enter`
-    // never closes anything at all, which is a different defect wearing the
-    // same green.
+    // Why: without this pair the case above would pass on a loop whose Enter never closes
+    // anything.
     const built = stage()
     doubleClickTask(built, THE_TASK)
     built.send(OPEN_HELP())
     built.screen.leaveAnEditUnsettled(false)
 
     built.send(ENTER())
-    // IN-4's first level takes the 面 (in-4-escape-closes-the-panel.test.ts owns
-    // that rule); this case only needs the 面 gone.
+    // Step: Esc takes the help away first, by IN-4's first level.
     built.send(ESCAPE())
     expect(built.modalIsUp(), 'the 面 has been taken off the screen').toBe(false)
     built.send(ENTER())
@@ -909,9 +662,6 @@ describe('table T-036’s closing rule -- the second stage is off while a 面 st
   })
 
   it('⚠️ and the 面 itself is not what `Enter` took', () => {
-    // 「1 段目（その場の編集の確定）は当てたままである」 -- the rule turns ONE
-    // stage off, and turns no stage on: `Enter` is not a way to close a 面.
-    // `IN-4` of table T-028 is the one road to that, and it is `Esc`'s.
     const built = stage()
     doubleClickTask(built, THE_TASK)
     built.send(OPEN_HELP())
@@ -923,16 +673,10 @@ describe('table T-036’s closing rule -- the second stage is off while a 面 st
   })
 })
 
-// ===========================================================================
-// (e) FR-072 (MUST NOT) -- closing the panel does not close the selection
-// ===========================================================================
-
 describe('FR-072 (MUST NOT) -- a closed panel leaves the selection where it was', () => {
   it('⛔ MUST NOT: after `Esc` has taken the panel, SK-3 still has the Task to delete', () => {
-    // 「パネルを出すのをやめても、選択を解除してはならない（MUST NOT）」（利用者の裁定
-    //   2026-08-30）. ⭐ WHY DELETING IS THE QUESTION: `FrameLoop` publishes no
-    // selection, and SK-3 acts on one -- so the Task going is the selection
-    // saying it stood, and the Task staying is it saying it did not.
+    // Why: FrameLoop publishes no selection and SK-3 acts on one, so the Task going is the
+    // selection saying it stood.
     const built = stage()
     doubleClickTask(built, THE_TASK)
     built.send(ESCAPE())
@@ -947,9 +691,8 @@ describe('FR-072 (MUST NOT) -- a closed panel leaves the selection where it was'
   })
 
   it('⛔ MUST NOT: the same after `SK-19` has taken it', () => {
-    // ⭐ BOTH ROADS OUT, because the rule is about the panel going and not about
-    // which key sent it: a loop that cleared the selection on one of the two
-    // would break the same MUST NOT while passing the other case.
+    // Why: both roads out, since a loop that cleared the selection on one of them would break
+    // the same MUST NOT while passing the other case.
     const built = stage()
     doubleClickTask(built, THE_TASK)
     built.screen.leaveAnEditUnsettled(false)

@@ -22,6 +22,7 @@ const FR_020_LAYS_IT_ON =
 const FR_020_ISO_8601 =
   '`GRS` は、透かしの日時を UTC とし、`ISO 8601`（`RFC 3339` の書式、`YYYY-MM-DDThh:mm:ssZ`）で秒まで示すこと。'
 const FR_020_NOT_SAVED = '`GRS` は、透かしの設定を文書に保存しないこと。'
+// Spec: IMPS-872
 const FR_020_NOT_OUTSIDE_TASK_GROUP_AREA = '`GRS` は、`Task Group Lanes` の外へ透かしを重ねないこと。'
 const FR_020_HIDE_PROPAGATES_TO_EXPORT =
   '画面で透かしを非表示にしたときは、書き出す絵からも消すこと（MUST）'

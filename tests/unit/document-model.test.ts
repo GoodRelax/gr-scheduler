@@ -1,12 +1,4 @@
-// Unit tests for the documentModel units of wave W1.
-//
-// ⚠️ Chapter 9 does not admit Unit as a TEST_LEVEL, so these have no node in
-// the specification and Chapter 7 has not said where they live. They sit apart
-// from tests/contract/ because they test the inside of a unit, which its own
-// implementer owns -- see tests/README.md.
-//
-// Where a table decides the answer, the table drives the test and the case
-// names the row, the same way the contract tests do.
+// Unit tests: the documentModel units, with a table driving the cases where a table decides the answer.
 
 import { describe, expect, it } from 'vitest'
 
@@ -128,11 +120,7 @@ describe('DocumentStamp (PI-3)', () => {
   }
 
   it('FR-063 moves the schedule-data instant for a schedule-data write', () => {
-    // 「スケジュールデータの群の刻を動かすのは、スケジュールデータの群を変える更新とすること
-    // （MUST）」, and 「どちらの群であれ動いた刻と、最後に書いた者は … 更新
-    // すること（MUST）」 -- so those three fields move together here.
-    // ⚠️ `fileSavedAt` (AT-140) is the FOURTH field and does NOT move: an
-    // edit is not a write to a file, and FR-101 owns when that one moves.
+    // Why: fileSavedAt (AT-140) is left out on purpose: an edit is not a write to a file, and FR-101 owns that field.
     const next = advancedStamp(stamp, 'agent', '2026-08-17T00:01:00Z', { hasUpdatedSchedule: true })
     expect(next).toEqual({
       scheduleUpdatedAt: '2026-08-17T00:01:00Z',
@@ -143,8 +131,6 @@ describe('DocumentStamp (PI-3)', () => {
   })
 
   it('FR-063 leaves the schedule instant alone for a presentation-only write, but not who and when', () => {
-    // 「見せ方の群だけを変える更新で、スケジュールデータの群の刻を動かしてはならない
-    // （MUST NOT）」.
     const next = advancedStamp(stamp, 'agent', '2026-08-17T00:01:00Z', { hasUpdatedSchedule: false })
     expect(next.scheduleUpdatedAt).toBe('2026-08-17T00:00:00Z')
     expect(next.lastEditedBy).toBe('agent')
@@ -158,24 +144,18 @@ describe('DocumentStamp (PI-3)', () => {
   })
 
   it('FR-063 answers only "the same one?", so an EARLIER stamp differs exactly as a later one does', () => {
-    // 「刻印を順序として読んではならない（MUST NOT）。どの判定も等値で行うこと
-    // （MUST）」 -- 「刻印が答えるのは『同じ文書か』だけであり、『どちらが新しい
-    // か』ではない。」 An undo restores an earlier stamp (FR-031), so a stamp
-    // that ran backwards has to read as different, not as "not newer".
+    // Why: an undo restores an earlier stamp (FR-031), so a stamp that ran backwards must read as different.
     const earlier: DocumentStamp = { ...stamp, scheduleUpdatedAt: '2026-08-16T00:00:00Z' }
     const later: DocumentStamp = { ...stamp, scheduleUpdatedAt: '2026-08-18T00:00:00Z' }
     expect(isStampMatched(earlier, stamp)).toBe(false)
     expect(isStampMatched(later, stamp)).toBe(false)
     expect(isStampMatched(stamp, earlier)).toBe(false)
     expect(isStampMatched(stamp, later)).toBe(false)
-    // Symmetric, which an order never is: the answer does not depend on which
-    // side the earlier instant is passed on.
+    // Why: an order is never symmetric, so a symmetric answer shows no order is read.
     expect(isStampMatched(earlier, later)).toBe(isStampMatched(later, earlier))
   })
 
   it('AG-2 rejects on any ONE of the three (MUST), including the settings instant alone', () => {
-    // 「照合は刻印の 3 つすべての等値で行うこと（MUST）。1 つでも違えば拒否する
-    // こと（MUST）」.
     for (const differing of [
       { scheduleUpdatedAt: '2026-08-17T00:00:01Z' },
       { lastEditedBy: 'agent' },
@@ -186,15 +166,11 @@ describe('DocumentStamp (PI-3)', () => {
   })
 
   it('PI-3 publishes no member that answers which of two stamps is newer', () => {
-    // The ordering read is gone from FR-063 (MUST NOT), so the component may
-    // not carry a member that offers it -- a caller cannot reach for what is
-    // not published.
+    // Why: FR-063 forbids reading stamps as an order, and a caller cannot reach for a member that is not published.
     expect(Object.keys(documentStampModule).sort()).toEqual(['advancedStamp', 'isStampMatched'])
   })
 })
 
-// Table T-019a, driven by the table: one case per row, and the row IDs are the
-// case names, so a failure points at one line of the specification.
 const emptyTask: Task = {
   uid: 1,
   parentTaskUid: null,
@@ -249,8 +225,7 @@ describe('Schedule (PI-1) -- table T-019a', () => {
   })
 
   it('is total: the task that suspended and then finished still lands on a row', () => {
-    // The case that made table T-019a replace the earlier set of conditions:
-    // an actualFinish together with resume and resumeValid matched none of them.
+    // Why: an actualFinish together with resume and resumeValid is the combination an earlier rule set matched to no row.
     expect(
       planActualState({
         ...emptyTask,
@@ -262,8 +237,6 @@ describe('Schedule (PI-1) -- table T-019a', () => {
     ).toBe('finished')
   })
 })
-
-// ---------------------------------------------------------------- dates ----
 
 import {
   compareDays,
@@ -287,11 +260,11 @@ import {
 
 const day = (year: number, month: number, d: number): CalendarDay => ({ year, month, day: d })
 
-// AT-73: dayType is 1..7 with 1 = Sunday, the coding of the exchange partner.
+// Spec: AT-73, S-106
 const weekDays: readonly WeekDay[] = [1, 2, 3, 4, 5, 6, 7].map((dayType) => ({
   ordinal: dayType,
   dayType,
-  dayWorking: dayType !== 1 && dayType !== 7, // S-106: Monday to Friday
+  dayWorking: dayType !== 1 && dayType !== 7,
   workingTimes: [],
   carry: {},
   carryElements: [],
@@ -337,7 +310,7 @@ describe('Schedule (PI-1) -- one calendar for the document (FR-054)', () => {
   })
 
   it('falls to the lowest-ordinal base calendar when the project names none', () => {
-    // `second` has the lower uid of the two bases but the higher ordinal.
+    // Why: second has the lower uid of the two bases but the higher ordinal, so a uid order would pick it.
     const held = workingCalendarOf(scheduleWith({ calendarUid: null }, [second, calendar, third]))
     expect(held.calendar.uid).toBe(1)
   })
@@ -349,27 +322,20 @@ describe('Schedule (PI-1) -- one calendar for the document (FR-054)', () => {
   it('falls to table T-209 default -- Monday to Friday, no exception -- when the document holds none', () => {
     const held = workingCalendarOf(scheduleWith({ calendarUid: null }, []))
     expect(held.exceptions).toEqual([])
-    // 2026-08-17 is a Monday and the 16th a Sunday.
     expect(isWorkingDay(held, day(2026, 8, 17))).toBe(true)
     expect(isWorkingDay(held, day(2026, 8, 16))).toBe(false)
   })
 
   it('works exactly the days S-106 names, in the dayType numbering AT-73 states', () => {
-    // ⭐ The working days used to be a hand-written `dayType >= 2 && <= 6` with
-    // a comment that was the ONLY place the numbering was written down. CR-180
-    // put the numbering in AT-73 and the days in table T-209, and this holds
-    // the built calendar against the manuscript's value.
     const held = workingCalendarOf(scheduleWith({ calendarUid: null }, []))
     const working = held.weekDays.filter((one) => one.dayWorking === true).map((one) => one.dayType)
     expect(working).toEqual([...DEFAULT_CALENDAR_VALUES['S-106']])
-    // ⚠️ And every day of the week is present, working or not: FR-054 counts by
-    // this calendar, so a missing row would be neither working nor non-working.
+    // Why: FR-054 counts by this calendar, so a day missing from it would be neither working nor non-working.
     expect(held.weekDays.map((one) => one.dayType)).toEqual([1, 2, 3, 4, 5, 6, 7])
   })
 
   it('stops rather than spinning when a calendar works none of its days', () => {
-    // Nothing in the specification forbids one arriving, and the walk would
-    // otherwise never end. Table T-214 bounds every date an input may hold.
+    // Why: nothing in the specification forbids such a calendar arriving, and the walk would otherwise never end.
     const closed: Calendar = {
       ...calendar,
       weekDays: weekDays.map((one) => ({ ...one, dayWorking: false })),
@@ -395,10 +361,9 @@ describe('Schedule (PI-1) -- dates are days (FR-054, EX-7)', () => {
   })
 
   it('S-106 leaves the weekend out of the count', () => {
-    // Monday 2026-08-17 .. Monday 2026-08-24 is five worked days.
     expect(workingDaysBetween(plain, day(2026, 8, 17), day(2026, 8, 24))).toBe(5)
     expect(workingDaysBetween(plain, day(2026, 8, 17), day(2026, 8, 17))).toBe(0)
-    expect(isWorkingDay(plain, day(2026, 8, 22))).toBe(false) // Saturday
+    expect(isWorkingDay(plain, day(2026, 8, 22))).toBe(false)
   })
 
   it('an exception that covers the day beats the weekly pattern', () => {
@@ -407,12 +372,10 @@ describe('Schedule (PI-1) -- dates are days (FR-054, EX-7)', () => {
   })
 
   it('stops rather than counting a span table T-214 does not accept', () => {
-    // FR-023 keeps a date outside table T-214 out of the document, but
-    // ValidateImportedDocument (PI-13) is not written yet, so this valve is
-    // what stands between a stray date and millions of steps on one command.
+    // Why: FR-023 keeps a date outside table T-214 out of the document, but this valve still stops a stray one
+    // from costing millions of steps on one command.
     expect(() => workingDaysBetween(plain, day(1500, 1, 1), day(2026, 8, 17)))
       .toThrow(DaySpanTooWide)
-    // Backwards is the same span, and the accepted range itself is inside it.
     expect(() => workingDaysBetween(plain, day(2026, 8, 17), day(1500, 1, 1)))
       .toThrow(DaySpanTooWide)
     expect(() => workingDaysBetween(plain, day(1984, 1, 1), day(2149, 12, 31)))
@@ -429,16 +392,14 @@ describe('Schedule (PI-1) -- dates are days (FR-054, EX-7)', () => {
       const reached = dateFromWorkingDays(plain, from, count)
       expect(workingDaysBetween(plain, from, reached)).toBe(count)
     }
-    // The end is a bound, not the last day worked, and it is the earliest one
-    // that satisfies the count: Monday plus five worked days ends on the
-    // Saturday, because the weekend adds nothing to the count.
+    // Why: the end is a bound, not the last day worked, and the earliest one that satisfies the count;
+    // the weekend adds nothing, so Monday plus five worked days ends on the Saturday.
     expect(dateFromWorkingDays(plain, from, 5)).toEqual(day(2026, 8, 22))
     expect(dateFromWorkingDays(withHoliday, from, 5)).toEqual(day(2026, 8, 25))
   })
 
   it('S-129: one worked day from a Monday ends on the Tuesday', () => {
-    // Version 0.38 ruled that grabbing an untouched task books one worked day.
-    // The task covers the Monday alone, so the end it reaches is the Tuesday.
+    // Why: the task covers the Monday alone, so the end bound it reaches is the Tuesday.
     expect(dateFromWorkingDays(plain, day(2026, 8, 17), 1)).toEqual(day(2026, 8, 18))
     expect(workingDaysBetween(plain, day(2026, 8, 17), day(2026, 8, 18))).toBe(1)
   })
@@ -450,7 +411,6 @@ describe('Schedule (PI-1) -- dates are days (FR-054, EX-7)', () => {
   })
 })
 
-// Table T-021b, driven by the table: the row names the day the count starts.
 const T021B: readonly {
   row: string
   task: Partial<Task>
@@ -501,8 +461,6 @@ describe('Schedule (PI-1) -- table T-021b', () => {
   })
 })
 
-// -------------------------------------------------- the last three units ----
-
 import {
   clampedSettings,
   SETTINGS_BOUNDS,
@@ -529,19 +487,17 @@ import {
 
 import { documentViolations } from '../../src/entity/document-model/document/document'
 
-// A whole DocumentSettings is 97 keys; a clamp reads one key at a time, so the
-// cases below carry only the keys they are about.
+// Why: a clamp reads one key at a time, so the cases carry only the keys they are about.
 const settingsOf = (part: Record<string, unknown>): DocumentSettings =>
   part as unknown as DocumentSettings
 
+// Spec: S-2, T-202, S-75, S-54, S-55
 describe('DocumentSettings (PI-2)', () => {
   it('reads its bounds from the sources, not from a second copy', () => {
-    // S-2 rulerHeightPx: at most 150 in table T-202.
     expect(SETTINGS_BOUNDS['rulerHeightPx']?.max).toBe(150)
   })
 
   it('pulls a value up to the lower bound and says it moved', () => {
-    // S-75 zoomX: from zoomMin (S-54) to zoomMax (S-55).
     const result = clampedSettings(settingsOf({ zoomX: 0.001 }))
     expect(result.settings.zoomX).toBe(SETTINGS_CONSTANTS.zoomMin)
     expect(result.clamped).toEqual([{ key: 'zoomX', was: 0.001, now: SETTINGS_CONSTANTS.zoomMin }])
@@ -624,8 +580,6 @@ describe('ScreenState (PI-36)', () => {
   })
 
   it('IN-4a: being armed still consumes, even in full screen', () => {
-    // The note on IN-4a: someone who armed something and then went full screen
-    // presses Esc twice.
     const state = stepped(armedWith('commentBoxArmed'), { type: 'fullScreenChanged', isFullScreen: true })
     expect(state.fullScreenModeState.kind).toBe('full')
     expect(rungOf(state, quiet)).toBe('armed')
@@ -639,11 +593,9 @@ describe('ScreenState (PI-36)', () => {
   })
 })
 
-// The Esc ladder of IN-4 when a question stands over it. IN-4 fixes four
-// levels; S-99g of tbl-settings.md defines a surface as WHAT THE FIRST LEVEL OF
-// ESC CLOSES, and U-55 of tbl-glossary.md calls a `Confirmation` a surface, so a
-// standing question belongs to that first level -- ahead of whatever surface it
-// was raised over. Fixed data: the ladder exactly as IN-4 writes it.
+// Spec: IN-4, IN-4a, S-99g, U-55
+// Why: S-99g makes a surface what Esc's first level closes and U-55 calls a Confirmation a surface,
+// so a standing question sits on that first level, ahead of the surface it was raised over.
 describe('ScreenState (PI-36) -- Esc over a standing question (IN-4, IN-4a)', () => {
   const quiet = { isTextEntryUnsettled: false, gestureInFlight: false, dualCursorMode: false }
   const everything = {
@@ -652,17 +604,11 @@ describe('ScreenState (PI-36) -- Esc over a standing question (IN-4, IN-4a)', ()
     gestureInFlight: true,
     dualCursorMode: true,
   }
-  // A surface open and something armed, with no question raised. S-99g holds
-  // exactly ONE open surface, so this value never carries a second one; the
-  // question is raised outside it.
+  // Why: S-99g holds exactly one open surface, so this value never carries a second; the question is raised outside it.
   const loaded = withSurface(armedWith('dependencyArmed'), 'help')
-  // The same, with no surface -- so the question is the only first-level thing.
   const armedOnly = armedWith('dependencyArmed')
 
   it('IN-4: a standing question is spent first, above every level below it', () => {
-    // S-99g: a surface is what the FIRST level closes; U-55: a `Confirmation` is
-    // a surface. So the question outranks the gesture, the armed palette and the
-    // Dual Cursor mode, which IN-4 puts at levels 2, 3 and 4.
     expect(rungOf(armedOnly, everything)).toBe('confirmation')
   })
 
@@ -673,9 +619,7 @@ describe('ScreenState (PI-36) -- Esc over a standing question (IN-4, IN-4a)', ()
   })
 
   it('IN-4: one press spends exactly ONE level, in the order the row states', () => {
-    // IN-4 spends one level per press, never two. Walking the ladder press by
-    // press is what catches a press that skips a level: each step below removes
-    // only what the previous answer named.
+    // Why: walking the ladder press by press catches a press that skips a level.
     const walked: Array<string | null> = []
     let state = armedOnly
     let context = { ...everything }
@@ -724,21 +668,16 @@ describe('ScreenState (PI-36) -- Esc over a standing question (IN-4, IN-4a)', ()
   })
 
   it('IN-4a: a caller that cannot see the question omits it, and absence is no level', () => {
-    // The field is optional because PI-18's screenStateFromInput holds nothing
-    // and reports only the levels it can see. Absent must read as "not
-    // standing", never as a level of its own.
+    // Why: the field is optional because PI-18's screenStateFromInput holds nothing and reports only the levels it sees.
     expect(rungOf(EMPTY, quiet)).toBeNull()
     expect(rungOf(loaded, quiet)).toBe('surface')
   })
 
   it('IN-4: reckoning the level does not spend it -- the same input answers the same', () => {
-    // IN-4 allows one level per press, so the level is reckoned once by the
-    // holder of the question; the reckoning itself may consume nothing.
     const context = { ...everything }
     expect(rungOf(armedOnly, context)).toBe('confirmation')
     expect(rungOf(armedOnly, context)).toBe('confirmation')
     expect(context.isConfirmationStanding).toBe(true)
-    // Why: wave 2 of CR-767 (JDG-2364) holds the arm as a child of the composite `armed`.
     expect(armedOnly.armModeState).toEqual({ kind: 'armed', child: { kind: 'dependencyArmed' } })
   })
 })
@@ -753,9 +692,8 @@ describe('Document (PI-34) -- table T-052', () => {
     changeLog: [],
   }
 
-  // Why: CR-699 (JDG-1693) put the schema's address at the head of the root (DR-4).
+  // Spec: DR-1, DR-4
   it('holds the six keys DR-1 to DR-4 name, the address first', () => {
-    // Why: the root keys are a generated region since CR-768; DR-4 names each one missing, in order.
     expect(documentViolations({}).filter((one) => one.row === 'DR-4').map((one) => one.at)).toEqual([
       '/$schema',
       '/schemaVersion',

@@ -23,10 +23,10 @@ const FR_036_LINK_WORDS = '`FR-038` の辞書（`helpLinks` の `download` と `
 // Spec: FR-036, S-503
 const FR_036_LINK_LOOK =
   '`FR-069` の著作権表示）の字を、`_assets/tbl-settings.md` の 表 T-236 の `S-503` の色で下線を引いて描くこと。'
-// Spec: FR-036, IC-20
+// Spec: FR-036, IC-20, IMPS-1157
 const FR_036_AGENT_API_LINK =
   '最新版を入手する頁（`_assets/tbl-settings.md` の 表 T-206 の `S-350`）へのリンクを添えること。利用者が `IC-20` のリンクを押したとき、`GRS` は頁を閲覧環境の新しいタブで開くこと。'
-// Spec: FR-036, IC-54
+// Spec: FR-036, IC-54, IMPS-1156
 const FR_036_PARENTHESES = '`GRS` は、`IC-54` の項目に添える語を丸括弧で囲むこと。'
 
 const fr036Section = (): string => {

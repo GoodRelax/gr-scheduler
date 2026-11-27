@@ -42,6 +42,7 @@ const T_233_REFUSAL_CARRIES_THE_ROW =
 const FR_029_CARRY_THE_REASON = '利用者が薄く描いた入口を押したときに限り、`GRS` は行えない理由を通知の仕組みへ運ぶこと'
 const FR_029_THE_COLUMN_DECIDES =
   '行えない理由を画面に出すかどうかは 表 T-233 の表示の仕方の欄が決める —— 薄さが行えないことを既に示しているので、多くの行は出さない'
+// Spec: IMPS-1113
 const FR_029_FALLBACK_HIDDEN = 'もし押された入口の場面に当たる行が 表 T-233 に無い場合、`GRS` は落ち先の `RS-27`（出さない）を運ぶこと。'
 const FR_029_OLD_TELL = '行えない理由を通知すること（MUST）'
 const NT_7_DROPPED_AS_RS_27 =
@@ -51,6 +52,7 @@ const HF_14_CARRIES_RS_46 = 'もし薄い配下に足すボタンを押した場
 const FR_019_NOT_MADE = 'もし作成者が、指す `TaskGroup` が無い縦位置で注記を置こうとした場合、`GRS` は、注記を作らないこと。'
 const FR_019_CARRIES_RS_44 =
   'もし作成者が、指す `TaskGroup` が無い縦位置で注記を置こうとした場合、`GRS` は、表 T-233 の `RS-44` を理由として運ぶこと。'
+// Spec: IMPS-843
 const FR_019_SEEN_ON_SCREEN = '`GRS` は、`RS-44` の理由を出さないこと。'
 const WL_9_CARRIES_RS_55 = '`GRS` は、表 T-233 の `RS-55`（Chapter 6.1 の 表 T-220 の `IV-4`）を理由として運ぶこと。'
 

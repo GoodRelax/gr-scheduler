@@ -18,7 +18,7 @@ import {
 // Spec: FR-016
 const FR_016_FIRST_BAND_THAT_FILLS =
   '`GRS` は、縦軸（`zoomY`）の帯の側の上限を、いちばん高いタスクグループの帯の高さが初めて `Task Group Lanes` の高さ以上になった倍率にすること（表 T-253 の手順が調べるどの倍率も含まないほど狭い区間は見落としてよい）。'
-// see T-253, BC-3, FR-042, CR-689
+// Spec: T-253, BC-3, FR-042
 const BC_3_FIRST_ALREADY = '最初の倍率で既に達していれば、`GRS` は帯の側の上限を最初の倍率とし、`BC-4` と `BC-5` を行わないこと。'
 const FR_042_NOT_ZOOM_Y = '`GRS` は、最小の高さを縦のズーム（`_assets/tbl-settings.md` の 表 T-203 の `S-76`）で縮めないこと。'
 // Spec: FR-016

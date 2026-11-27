@@ -325,8 +325,7 @@ describe('SS-5: every event of the other regions leaves the selection region at 
   })
 })
 
-// see SP-1, SP-2, SP-3, SP-4, JDG-289
-// Why: wave 2 of CR-767 (JDG-2364) holds every arm as a child of the composite `armed`.
+// Spec: SP-1, SP-2, SP-3, SP-4
 const ARM_VALUES: readonly Loose[] = [
   { kind: 'notArmed' },
   { kind: 'armed', child: { kind: 'taskShapeArmed', shapeKind: 'SH-1' } },
@@ -336,7 +335,6 @@ const ARM_VALUES: readonly Loose[] = [
   { kind: 'armed', child: { kind: 'highlightBoxArmed' } },
 ]
 
-// Why: the arm a value holds is notArmed or the child of armed.
 function armKindOf(arm: Loose): string {
   return arm['child'] === undefined ? kindOf(arm) : kindOf(arm['child'])
 }

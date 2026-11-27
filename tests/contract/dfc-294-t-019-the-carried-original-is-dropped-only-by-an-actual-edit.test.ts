@@ -1,60 +1,4 @@
-// 表 T-019's closing note (MUST) -- what a Task exports in its LAST column while
-// nobody has edited its actuals, and what it exports once somebody has.
-//
-// ---------------------------------------------------------------------------
-// WHERE 表 T-218 PUTS THIS FILE
-// ---------------------------------------------------------------------------
-// `TS-6` of table T-218 (tests/unit/, Vitest; generated into
-// docs/spec/_assets/tbl-verification.md). ⛔ NOT tests/integration/: `TS-2` takes 「`SWS-xxx`」 for a parent and
-// Chapter 9 holds no `SW_SPEC_TEST` for the carry note, and this body owns
-// tests/ only -- it may not write a node into docs/spec to give itself one.
-// ⭐ The precedent is beside it: tests/unit/fr-021-the-outline-base-of-the-file-
-// comes-back.test.ts drives the same two codec signatures from tests/unit/ and
-// says at length why the one MSPDI node in Chapter 6.1 is not its node either.
-//
-// ---------------------------------------------------------------------------
-// ⛔ WRITTEN FROM docs/spec, AND WHAT WAS READ OF `src/` IS NAMED HERE
-// ---------------------------------------------------------------------------
-// (docs/development-rules/04-verification.md section 1: only the head, the
-// published types and the signatures.)
-//
-//   mspdi-codec.ts    `MSPDI_NAMESPACE`, `MspdiDecoding`, `MspdiEncoding`, and
-//                     the two signatures `documentFromMspdi(text, current)` and
-//                     `mspdiFromDocument(document, LAST_SAVED_AT)`
-//   edit-task.ts      the signature `editTask(document, command)`, the
-//                     `TaskCommand` union and `PlanActualPlacement`
-//   edit-document.ts  `EditResult`
-//   document.ts       `Document`
-// ⛔ NO FUNCTION BODY WAS READ. In particular nothing was read of how a carried
-// original is kept or dropped; every expectation below is the clause's.
-//
-// ---------------------------------------------------------------------------
-// THE ROWS THESE CASES REST ON
-// ---------------------------------------------------------------------------
-//   表 T-108      the three commands that EDIT THE ACTUALS, read at run time
-//                 rather than typed: `CM-13` `setTaskPlanActualState`（予実の 5
-//                 列を置く）, `CM-14` `beginTaskActual`（実績を置き始める）,
-//                 `CM-15` `cycleTaskPlanActualState`（予実の状態を巡らせる）.
-//                 ⭐ The controls are `CM-9` `setTaskName`（名称を変える）and
-//                 `CM-11` `setTaskPlanDates`（予定の開始・終了を置く）, which the
-//                 clause's 「そのタスクの実績を人が編集した」 does not reach.
-//   表 T-033 EX-2 the reason the clause gives: 「編集していないタスクの値を書き
-//                 換える」ことになる.
-//
-// ---------------------------------------------------------------------------
-// ⭐ EVERY CASE HAS A CONTROL THAT MUST MOVE
-// ---------------------------------------------------------------------------
-// A build that never dropped the original would pass every "keeps it" case and
-// fail every "drops it" one; a build that always dropped it would do the
-// reverse. ⛔ Neither half is asserted alone anywhere below -- the plan-side
-// edits run against the same fixture, in the same case, so a file that went
-// green by writing the computed value everywhere is caught by the control.
-//
-// ---------------------------------------------------------------------------
-// ⚠️ WHAT IS DELIBERATELY NOT ASSERTED
-// ---------------------------------------------------------------------------
-//   3. WHAT `FR-012`'s 完了率 does. The clause says it follows the same rule;
-//      that requirement has its own cases.
+// Contract tests: an imported ActualDuration is written back as carried until a person edits the task's actuals.
 
 import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
@@ -75,46 +19,21 @@ const LAST_SAVED_AT = '2026-10-03T09:00:00'
 
 const DEFAULT_TASK_GROUP_NAME_FIXTURE = 'fixture default task group name'
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
-// ===========================================================================
-// 1. The clause, read out of the manuscript rather than believed
-// ===========================================================================
-
 const REQUIREMENTS = unbroken(readRepoFile(
   join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'),
   'utf8',
 ))
 
-/**
- * ⚠️ A Japanese literal in code. Rule 03 section 5 keeps code English and ASCII
- * and admits 日本語そのものを扱う処理 as the exception -- this string IS the
- * clause, and matching it against the manuscript is what makes the cases below
- * cases about the specification rather than about this file's opinion.
- *
- * ⭐ IT ENDS AT THE MARKER'S OWN CLOSING PARENTHESIS. Check 39 takes the trailing
- * window that ENDS at `（MUST）` and looks for it under tests/; a quote that began
- * at the sentence and stopped before the marker would hold nothing at all.
- * ⚠️ AND IT STOPS SHORT OF THE PARAGRAPH BREAK. The 120- and 90-character
- * windows of this marker both reach back across a blank line into the sentence
- * about `PS-2`, and a source file cannot carry a raw line break inside a quoted
- * string without changing its bytes -- so the longest window that is one
- * unbroken run of manuscript is the one written here.
- */
+// Why: the quote ends at its (MUST) marker, the window check 39 looks for, and stops at the paragraph
+// break, since a string cannot hold the manuscript's line break without changing its bytes.
 const T_019_CARRY_NOTE =
   '取り込んだ `ActualDuration` の原値があり、人が `Task` の実績を編集していない間、`GRS` は、作った値によらず、原値をそのまま書き戻すこと（Carry —— 表 T-005 の `G-13`）。'
 
-/** The other half of the same note -- when the computed value DOES take over. */
 const T_019_ONLY_WHEN_EDITED = '人が `Task` の実績を編集したとき、`GRS` は、`ActualDuration` を作った値へ置き換えること。'
-
-// ===========================================================================
-// 2. Which commands edit the actuals, read out of 表 T-108
-// ===========================================================================
 
 const T_108: SpecTable = specTable('T-108')
 const T_059: SpecTable = specTable('T-059')
 
-/** The `命令` column of one row of 表 T-108, without its backticks. */
 function commandNameOf(specTableRowId: string): string {
   const found = T_108.rows.find((one) => one.id === specTableRowId)
   if (found === undefined) throw new Error(`table T-108 has no row ${specTableRowId}`)
@@ -123,21 +42,14 @@ function commandNameOf(specTableRowId: string): string {
   return name
 }
 
-/** The whole of one row of 表 T-108, for reading its 説明 back. */
 function meaningOf(specTableRowId: string): string {
   const found = T_108.rows.find((one) => one.id === specTableRowId)
   if (found === undefined) throw new Error(`table T-108 has no row ${specTableRowId}`)
   return found.cells.join(' ')
 }
 
-/** `CM-13` / `CM-14` / `CM-15` -- the three the clause's 「実績を人が編集した」 means. */
 const ACTUAL_EDITS = ['CM-13', 'CM-14', 'CM-15'] as const
-/** `CM-9` / `CM-11` -- edits that are NOT of the actuals, and must not release it. */
 const PLAN_EDITS = ['CM-9', 'CM-11'] as const
-
-// ===========================================================================
-// 3. One MSPDI whose `Stop` cannot have been computed
-// ===========================================================================
 
 const WEEK_DAYS = [1, 2, 3, 4, 5, 6, 7]
   .map(
@@ -179,13 +91,6 @@ const SUSPENDED_TASK_XML = `    <Task>
       <ResumeValid>1</ResumeValid>
     </Task>`
 
-/**
- * ⛔ IT IS ALSO THE ONLY FIXTURE `CM-14` CAN REACH. `FR-043` puts the grab-holds
- * on a task 「`Task` が未着手である間」, so `beginTaskActual` is refused on a
- * task whose actual has already begun -- measured here, not assumed: the
- * suspended fixture above answers 「CM-14 FR-043 the task has already been
- * started」.
- */
 const UNSTARTED_TASK_XML = `    <Task>
       <UID>${TASK_UID}</UID>
       <ID>1</ID>
@@ -213,13 +118,8 @@ ${taskXml}
 const SUSPENDED_FILE = fileOf(SUSPENDED_TASK_XML)
 const UNSTARTED_FILE = fileOf(UNSTARTED_TASK_XML)
 
-/**
- * Which fixture each row of 表 T-108 is driven against.
- *
- * ⚠️ ONLY `CM-14` DIFFERS, and the reason is `FR-043`'s own 「`Task` が未着手で
- * ある間」 rather than anything about the carry rule. Every other command
- * runs on the suspended task, where both candidate answers are a real day.
- */
+// Why: only CM-14 runs on the unstarted task, because FR-043 refuses it once the actual has begun;
+// every other command runs on the suspended task, where both candidate answers are a real day.
 const fileFor = (specTableRowId: string): string => (specTableRowId === 'CM-14' ? UNSTARTED_FILE : SUSPENDED_FILE)
 
 const TEMPLATE = JSON.parse(
@@ -229,7 +129,7 @@ const TEMPLATE = JSON.parse(
   ),
 ) as Document
 
-/** What `documentFromMspdi` is given for everything MSPDI does not carry. */
+// Summary: current() is the document documentFromMspdi starts from for everything MSPDI does not carry.
 const current = (): Document => structuredClone(TEMPLATE)
 
 function imported(file: string = SUSPENDED_FILE): Document {
@@ -244,14 +144,12 @@ function imported(file: string = SUSPENDED_FILE): Document {
   return reading.document
 }
 
-/** The `<ActualDuration>` the writer put on the one task, or `null` where it wrote none. */
 function exportedActualDuration(document: Document): string | null {
   const { text } = mspdiFromDocument(document, LAST_SAVED_AT)
   const found = /<ActualDuration>([^<]*)<\/ActualDuration>/.exec(text)
   return found === null ? null : (found[1] ?? null)
 }
 
-/** Run one command through `editTask`, refusing to go on if the aggregate refused. */
 function edited(document: Document, command: TaskCommand): Document {
   const result = editTask(document, command, DEFAULT_TASK_GROUP_NAME_FIXTURE)
   if (!result.ok) {
@@ -264,13 +162,8 @@ function edited(document: Document, command: TaskCommand): Document {
   return result.document
 }
 
-/**
- * The command one row of 表 T-108 names, built for this fixture's one task.
- *
- * ⚠️ THE `kind` IS THE TABLE'S OWN `確定名` CELL and not a literal, so a row whose
- * command is renamed reaches this file instead of going stale. The arguments are
- * this file's, because 表 T-108 carries no argument column.
- */
+// Why: the kind is the T-108 cell, so a renamed command reaches this file; the arguments are this
+// file's own, because T-108 has no argument column.
 function commandFor(specTableRowId: string): TaskCommand {
   const kind = commandNameOf(specTableRowId)
   switch (specTableRowId) {
@@ -280,7 +173,6 @@ function commandFor(specTableRowId: string): TaskCommand {
         taskUid: TASK_UID,
         place: { state: 'suspendedWithoutResumeDate', actualStart: '2026-04-06', stop: '2026-04-08' },
       } as unknown as TaskCommand
-    // CM-14 -- 「実績を置き始める」, FR-043's 掴みシロを離した日.
     case 'CM-14':
       return {
         kind,
@@ -288,13 +180,10 @@ function commandFor(specTableRowId: string): TaskCommand {
         released: { start: '2026-04-07', finish: '2026-04-07' },
         snapMinutes: MINUTES_PER_CALENDAR_DAY,
       } as unknown as TaskCommand
-    // CM-15 -- CR-149 「予実の状態を巡らせる」.
     case 'CM-15':
       return { kind, taskUid: TASK_UID } as unknown as TaskCommand
-    // CM-9 -- 「名称を変える」.
     case 'CM-9':
       return { kind, taskUid: TASK_UID, name: 'RenamedAndNothingElse' } as unknown as TaskCommand
-    // CM-11 -- 「予定の開始・終了を置く」.
     case 'CM-11':
       return {
         kind,
@@ -307,10 +196,7 @@ function commandFor(specTableRowId: string): TaskCommand {
   }
 }
 
-// ===========================================================================
-// 4. The premises every case below stands on
-// ===========================================================================
-
+// Spec: T-019, T-059, DV-11, T-108, FR-043
 describe('表 T-019 の注 -- the manuscript this file is driven by', () => {
   it('still carries the carry clause, ending at its own （MUST）', () => {
     expect(REQUIREMENTS).toContain(T_019_CARRY_NOTE)
@@ -328,8 +214,8 @@ describe('表 T-019 の注 -- the manuscript this file is driven by', () => {
     expect(meaningOf('CM-13')).toContain('予実の 5 列を置く')
     expect(meaningOf('CM-14')).toContain('実績を置き始める')
     expect(meaningOf('CM-15')).toContain('予実の状態を、表 T-021a の輪に沿って 1 つ進める')
-    // ⛔ AND THE TWO CONTROLS ARE NOT ABOUT THE ACTUALS. If either of these
-    // cells ever came to mention 実績 the control below would stop being one.
+    // Why: the two controls must not be about the actuals; if either cell came to mention them, the
+    // control cases below would stop being controls.
     expect(meaningOf('CM-9')).toContain('名称を変える')
     expect(meaningOf('CM-11')).toContain('予定の開始・終了を置く')
   })
@@ -341,9 +227,7 @@ describe('表 T-019 の注 -- the manuscript this file is driven by', () => {
   })
 
   it('⛔ FR-043 really does refuse CM-14 on a task whose actual has begun', () => {
-    // ⚠️ MEASURED RATHER THAN ASSUMED, because it is the whole reason CM-14 is
-    // driven against a second fixture: 「`Task` が未着手であるあいだ、`GRS` は、
-    // 実績の入力を始める掴みシロを**2 つ**……示すこと（MUST）」.
+    // Why: measured rather than assumed, because it is the whole reason CM-14 runs on a second fixture.
     const refused = editTask(imported(SUSPENDED_FILE), commandFor('CM-14'), DEFAULT_TASK_GROUP_NAME_FIXTURE)
 
     expect(refused.ok, 'CM-14 was accepted on a started task, so this file has a fixture too many').toBe(
@@ -352,11 +236,7 @@ describe('表 T-019 の注 -- the manuscript this file is driven by', () => {
   })
 })
 
-// ===========================================================================
-// 5. DFC-294 「取り込んだ原値があり、そのタスクの実績を人が編集していないあいだは、
-//     最終列によらず原値をそのまま書き戻すこと（MUST）」
-// ===========================================================================
-
+// Spec: T-019, T-005, G-13, T-033, EX-2, PA-1
 describe('表 T-019 の注 (MUST) -- while nobody edited the actuals, the original is written back', () => {
   it('an untouched import writes the length the file carried, not the length DV-11 computes', () => {
     expect(exportedActualDuration(imported())).toContain(CARRIED_ACTUAL_DURATION)
@@ -383,9 +263,8 @@ describe('表 T-019 の注 (MUST) -- while nobody edited the actuals, the origin
   }
 
   it('⭐ the control: the same fixture DOES release it when the actuals are edited', () => {
-    // ⛔ THIS CASE EXISTS SO THE FIVE ABOVE CANNOT PASS ON A BUILD THAT NEVER
-    // RELEASES ANYTHING. It is the same fixture and the same reading; only the
-    // command differs.
+    // Why: this case keeps the five above from passing on a build that never releases the original;
+    // it is the same fixture and the same reading, and only the command differs.
     const kept = exportedActualDuration(edited(imported(), commandFor('CM-9')))
     const released = exportedActualDuration(edited(imported(), commandFor('CM-13')))
 
@@ -397,10 +276,7 @@ describe('表 T-019 の注 (MUST) -- while nobody edited the actuals, the origin
   })
 })
 
-// ===========================================================================
-// 6. DFC-294 「人がそのタスクの実績を編集したときに限り、最終列の値へ置き換える」
-// ===========================================================================
-
+// Spec: T-019, CM-13, CM-14, CM-15
 describe('表 T-019 の注 -- an edit of the actuals replaces it with the computed value', () => {
   for (const specTableRowId of ACTUAL_EDITS) {
     it(`${specTableRowId} (${commandNameOf(specTableRowId)}) stops exporting the value the import carried`, () => {

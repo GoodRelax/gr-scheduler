@@ -1,139 +1,4 @@
-// The typography of the `Properties Panel` (U-25 of table T-103) -- the size
-// the panel's text is drawn at, the smaller size its item names take, and where
-// those item names sit.
-//
-// Unit under test: UF-71 of table T-075 (`dom-screen-surface.ts`, component
-// CP-38 of table T-062, published as PI-38 of table T-064). It is the side of
-// IF-9 that turns a `ScreenView` into nodes, so it is the side that states a
-// size at all -- UF-64 (`properties-panel.ts`) says WHICH items the panel
-// holds and carries no dimension.
-//
-// ⚠️ Chapter 9 does not admit Unit as a TEST_LEVEL, so these cases have no node
-// in the specification. Table T-218 of Chapter 7 gives them their place: TS-6,
-// tests/unit/.
-//
-// ---------------------------------------------------------------------------
-// The rules these cases answer to
-// ---------------------------------------------------------------------------
-//
-//   FR-006      「パネルの寸法・余白・配置は `_assets/tbl-settings.md` の 表
-//               T-206 の `S-186` 〜 `S-193` と `S-197` / `S-198` に従うこと
-//               （MUST）。」
-//               ⛔ 「項目名は値の欄の左に置き、右詰めにすること（MUST）」
-//               （利用者の裁定 2026-08-27）。「幅は `S-189` が持つ。」
-//               ⛔ 「パネルの文字を宿主の既定の大きさで描いてはならない（MUST
-//               NOT）」（同じ裁定）—— 「大きさは `S-197` を宿主が与える地の文字
-//               の大きさに掛けて求め、項目名にはさらに `S-198` を掛けること
-//               （MUST）。」
-//               ⛔ 「px の定数として持ってはならない（MUST NOT）」 -- 「読む人が
-//               ブラウザーで文字を大きくしたとき、パネルだけが取り残される」
-//               （WCAG 2.1 の 1.4.4。要求としては `FR-039` が持つ）。
-//               ⚠️ 「掛ける相手は 表 T-215 の `fontSizeStepSizes[fontSizeStep]` では
-//               ない。」 The requirement gives the ground in as many words:
-//               `fontSizeStep` decides the SCHEDULE's own text and 「パネルは日程
-//               表ではなく外枠である」, and multiplying by that table would
-//               reach 11.2px at its largest and 8.4px at its smallest.
-//   S-197       table T-206, 「プロパティパネルの文字の大きさの係数」 -- ⭐ 「px
-//               ではなく係数である」, and ⛔ 「参考実装の 11.9px をそのまま書き
-//               取ってはならない —— あれは本仕様が持たない 17px から出た数で
-//               ある」.
-//   S-198       table T-206, 「項目名だけをさらに小さくする係数」 -- ⭐ 「掛ける
-//               相手は `S-197` を適用したあとの大きさであって、`fontSizeStepSizes`
-//               ではない」. ⚠️ Its own note separates it from S-189: 「あちらは
-//               幅、本行は文字の大きさ」.
-//   S-189       table T-206, 「項目名の欄が取る割合」 -- ⭐ 「px ではなく割合で
-//               ある —— パネルの幅は人が境界をドラッグして動かす（`FR-052`）
-//               ので、絶対値で持つと広げたときに入力欄だけが伸びる」.
-//   S-186       table T-206, the LOWER BOUND on a field's height -- ⛔ 「「高さ」
-//               ではなく「下限」である —— 読む人がブラウザーで文字を大きくした
-//               とき、固定の高さは文字を切り落とす（`NFR-007`）」. ⭐ Read here
-//               only as corroboration that the text inside a field is expected
-//               to GROW with the reader's own setting; no case asserts it,
-//               because a height is not what this file is about.
-//   T-215       `fontSizeStepSizes` (S-121 / S-122 / S-123) -- read so that the
-//               multiplicand FR-006 rules out can be named in a case rather
-//               than described in a comment.
-//   T-103 U-25  the settled name `Properties Panel`, which W-4 of table T-006a
-//               (MUST) carries into the DOM as a `data-role`, so the panel is
-//               found by the name the specification gave it.
-//
-// ---------------------------------------------------------------------------
-// ⛔ HOW THE EXPECTED VALUES WERE OBTAINED (docs/development-rules/
-// 04-verification.md, section 1)
-// ---------------------------------------------------------------------------
-//
-// What was read: docs/spec/ for every rule above, docs/development-rules/, and
-// of `src/` nothing but the exported declarations these cases must call or
-// name -- `domScreenSurface`, `ScreenSurfaceWiring`, `ScreenTheme`, the
-// `ScreenView` family and `SETTINGS_DEFAULTS`. ⛔ NO BODY WAS READ, and in
-// particular nothing was read about which CSS property the panel states its
-// size in, nor in which unit. Every number below comes from a table.
-//
-// ⭐ THE SHAPE IS COPIED, NOT INVENTED. The fake browser, `stage` / `wiringOf`
-// / `wire` / `surfaceOf`, the tree readers (`styleMap`, `inlineStyle`,
-// `descendants`, `byRole`, `oneByRole`, `matches`) and the `ScreenView`
-// fixtures are copied from tests/unit/uf-71.test.ts, which drives this same
-// unit against this same fake. `shorthandParts` is copied from
-// tests/unit/uf-72-screen-part.test.ts.
-//
-// ---------------------------------------------------------------------------
-// ⛔ WHAT THESE CASES CAN AND CANNOT SEE, SO NO FAILURE IS MISREAD
-// ---------------------------------------------------------------------------
-//
-// `npm test` runs under Node with no DOM (vitest.config.ts sets `environment:
-// 'node'`), so there is no layout engine here and no computed style. What the
-// fake records is what the unit WROTE: inline declarations, in order. So:
-//
-//   1. ⛔ A SIZE THAT ARRIVES THROUGH A STYLE SHEET IS INVISIBLE HERE. If the
-//      panel's size were stated in a rule rather than on the node, these cases
-//      would read the inherited size and fail. That failure would be this
-//      file's blindness and not a defect -- ⚠️ REPORT IT, do not tune the
-//      case. The neighbors' evidence is that this unit styles inline
-//      (uf-71.test.ts reads `visibility`, `color` and a custom property off
-//      the nodes themselves; uf-72-screen-part.test.ts reads `padding` and
-//      `flex`), which is why the risk is taken rather than the question
-//      dropped.
-//   2. `var(--x)` is chased through the custom properties the unit wrote on the
-//      node and its ancestors. ⚠️ A FALLBACK IS NOT HONORED (`var(--x, 1em)`
-//      is left unresolved and the case fails saying so) -- the same choice
-//      uf-71.test.ts makes for colors, for the same reason: a resolver that
-//      quietly accepted a fallback would sleep through the defect.
-//   3. `rem` is resolved against the same base as the inherited size. The two
-//      are the same thing for this rule: FR-006 says 「宿主が与える地の文字の
-//      大きさ」, and both `em` at the top of the mounted tree and `rem` move
-//      with the reader's browser setting, which is the whole of what the MUST
-//      NOT protects (FR-039, WCAG 1.4.4).
-//
-// ⭐ WHAT IS DELIBERATELY NOT ASSERTED:
-//   1. WHICH PROPERTY carries the size. No table names one, and PND-151 already
-//      records that the choice of property is the drawing side's; the cases ask
-//      what the panel COMPUTES TO under a base, which is the question FR-006
-//      asks.
-//   2. THE OTHER PANEL DIMENSIONS -- S-186 / S-187 / S-188 / S-190 / S-191 /
-//      S-192 / S-193. They are the same MUST paragraph, and they are lengths
-//      rather than typography; a file that meant them would drive them from
-//      `NOT_STORED_PROPERTY_FIELD_SIZES` and is not this one.
-//   3. THAT THE VALUE COLUMN IS LEFT-ALIGNED. The ruling right-aligns the item
-//      NAME so that the boundary lines up; it says nothing about the value, and
-//      an assertion about it would be invented.
-//   4. WHAT THE PANEL LOOKS LIKE AT A GIVEN READER SETTING. The base text size
-//      never reaches this unit -- `ScreenSurfaceWiring` has no member for it,
-//      and that absence IS the design the MUST NOT asks for. So the cases
-//      resolve the declaration under bases of their own choosing; the numbers
-//      12 / 16 / 20 / 24 / 32 are this file's, and no case reads one of them as
-//      the manuscript's.
-//
-// ⛔ THE HOLE. WHETHER THE CONTROLS ARE COVERED IS AN INFERENCE, NOT A QUOTE.
-// FR-006 forbids drawing 「パネルの文字」 at the host's own size. It never says
-// the word "control", and a form control does not inherit a font from its
-// ancestors in a browser unless it is told to -- so the panel's own declaration
-// leaves every `input` / `select` / `textarea` at the browser's default unless
-// something states a size for them too. The case below reads 「パネルの文字」 as
-// covering the text a person reads inside a field, on the strength of S-186's
-// note (a fixed height 「読む人がブラウザーで文字を大きくしたとき … 文字を切り落と
-// す」, which presumes the field's text grows). ⚠️ If the ruling is that the
-// prohibition stops at the plain text, this case is wrong and the manuscript
-// needs the sentence that says so. Reported rather than dropped.
+// Unit tests: the Properties Panel's text size, the smaller size of its item names, and where those names sit.
 
 import { describe, expect, it } from 'vitest'
 
@@ -151,39 +16,25 @@ import {
   type ScreenSurfaceWiring,
   type ScreenTheme,
 } from '../../src/framework/dom-screen-surface/dom-screen-surface'
-// ⭐ Borrowed from the contract kind on purpose: it is the one reader that takes
-// its copy from the .md at read time, so a ratio that moves in table T-206
-// moves here too instead of going stale.
+// Why: borrowed from the contract kind, as it reads table T-206 from the .md at run time, so a moved ratio moves here too.
 import { bare, specTable } from '../contract/spec-table'
 import { emptyScreenSession } from '../../src/use-case/advance-screen-session/advance-screen-session'
 
-// ---------------------------------------------------------------------------
-// The manuscript, read at run time rather than copied here (Chapter 1.9).
-// ---------------------------------------------------------------------------
-
 const T_206 = specTable('T-206')
 
-/** The column of table T-206 that holds the value itself. */
 const VALUE_COLUMN = '既定'
 
 if (!T_206.headings.includes(VALUE_COLUMN)) {
   throw new Error(`table T-206 no longer has a ${VALUE_COLUMN} column: ${T_206.headings.join(' | ')}`)
 }
 
-/** One row's value cell, as the table writes it. */
 function cellOf(id: string): string {
   const row = T_206.rows.find((one) => one.id === id)
   if (row === undefined) throw new Error(`table T-206 no longer has row ${id}`)
   return bare(row.by[VALUE_COLUMN] ?? '')
 }
 
-/**
- * The number one row of table T-206 states.
- *
- * ⚠️ The cells carry a 🔎 beside the number (the mark that says it was measured
- * off the reference implementation), so the number is read out of the cell
- * rather than the cell parsed whole.
- */
+// Why: a cell carries a mark beside its number, so the number is read out of the cell rather than the cell parsed whole.
 function numberOf(id: string): number {
   const written = cellOf(id)
   const found = /-?\d+(?:\.\d+)?/.exec(written)
@@ -191,22 +42,15 @@ function numberOf(id: string): number {
   return Number.parseFloat(found[0] as string)
 }
 
-/** S-197 -- the panel's text against the base the host gives. */
 const S_197 = numberOf('S-197')
 
-/** S-198 -- the item name against the size S-197 already produced. */
 const S_198 = numberOf('S-198')
 
-/** S-189 -- the share of the width the item name's column takes. */
 const S_189 = numberOf('S-189')
 
-/** The same as the table writes it, so a case can say the cell states a share. */
 const S_189_CELL = cellOf('S-189')
 
-/**
- * `fontSizeStepSizes` (S-121 / S-122 / S-123 of table T-215) -- the multiplicand
- * FR-006 rules out in as many words.
- */
+// Spec: S-121, S-122, S-123
 const T_215 = specTable('T-215')
 const FONT_SIZE_STEP_SIZES = ['S-121', 'S-122', 'S-123'].map((id) => {
   const row = T_215.rows.find((one) => one.id === id)
@@ -214,16 +58,12 @@ const FONT_SIZE_STEP_SIZES = ['S-121', 'S-122', 'S-123'].map((id) => {
   return Number.parseFloat(bare(row.by['値'] ?? ''))
 })
 
-/** U-25 of table T-103 -- the settled name that reaches the DOM as `data-role`. */
+// Spec: U-25
 const U_25 = ((): string => {
   const row = specTable('T-103').rows.find((one) => one.id === 'U-25')
   if (row === undefined) throw new Error('table T-103 no longer has row U-25')
   return bare(row.by['確定名（英）'] ?? '')
 })()
-
-// ---------------------------------------------------------------------------
-// The fake browser. Copied from tests/unit/uf-71.test.ts.
-// ---------------------------------------------------------------------------
 
 interface FakeEvent {
   readonly type: string
@@ -238,7 +78,6 @@ interface Registration {
   readonly listener: (event: FakeEvent) => void
 }
 
-/** One write to an element's inline style, in the order the unit made it. */
 type StyleWrite =
   | { readonly kind: 'reset'; readonly css: string }
   | { readonly kind: 'set'; readonly property: string; readonly value: string }
@@ -256,7 +95,6 @@ class FakeElement {
   readonly childNodes: FakeNode[] = []
   readonly styleWrites: StyleWrite[] = []
   parentNode: FakeElement | null = null
-  /** Only an `input` really has one; harmless elsewhere and it keeps the fake small. */
   value = ''
   isMount = false
 
@@ -266,8 +104,6 @@ class FakeElement {
   ) {
     this.tagName = tagName.toUpperCase()
   }
-
-  // -- attributes ---------------------------------------------------------
 
   setAttribute(name: string, value: string): void {
     if (name === 'style') {
@@ -360,7 +196,7 @@ class FakeElement {
     }
   }
 
-  /** ⛔ FR-023: an assignment here would be markup. It is recorded, never obeyed. */
+  // Why: an innerHTML assignment would be markup (FR-023), so it is recorded and never obeyed.
   get innerHTML(): string {
     this.world.markupWrites.push({ node: this, value: '(read)' })
     return ''
@@ -405,8 +241,6 @@ class FakeElement {
     if (value) this.attributes.set('disabled', '')
     else this.attributes.delete('disabled')
   }
-
-  // -- the tree -----------------------------------------------------------
 
   private adopt(node: FakeNode | string): FakeNode {
     if (typeof node === 'string') return new FakeText(node)
@@ -515,8 +349,6 @@ class FakeElement {
     return descendants(this).filter((one) => matches(one, selector))
   }
 
-  // -- what only a browser can answer -------------------------------------
-
   getBoundingClientRect(): {
     x: number
     y: number
@@ -541,8 +373,6 @@ class FakeElement {
   blur(): void {
     if (this.world.activeElement === this) this.world.activeElement = null
   }
-
-  // -- events -------------------------------------------------------------
 
   addEventListener(type: string, listener: (event: FakeEvent) => void): void {
     this.world.registrations.push({ node: this, type, listener })
@@ -572,16 +402,13 @@ interface Stage {
   readonly world: World
   readonly host: Document
   readonly mount: FakeElement
-  /** Every number `onAppHeaderHeightMeasured` was told, in order. */
   readonly reportedHeights: number[]
   clockMs: number
   author: string
   surface: ScreenSurface | undefined
-  /** The tree the unit built inside the mount. */
   root(): FakeElement
 }
 
-/** A browser that is only what `ScreenSurfaceWiring` says it is. */
 function stage(heightsByRole: Record<string, number> = {}): Stage {
   const world: World = {
     created: [],
@@ -628,15 +455,8 @@ function stage(heightsByRole: Record<string, number> = {}): Stage {
   }
 }
 
-/**
- * The rendering and hue every case below wires the surface with.
- *
- * ⛔ NEITHER VALUE IS TYPED HERE (rule 03 section 1): S-72's default arrives
- * through the generated `SETTINGS_DEFAULTS` and S-73's is read out of table
- * T-216 at load time. ⭐ No case reads a color back -- `readTheme` is a
- * REQUIRED member of `ScreenSurfaceWiring`, so the cases need a theme to build
- * the surface at all, not a particular one.
- */
+// Why: no case reads a color back; readTheme is a required member of ScreenSurfaceWiring,
+// so the cases need a theme to build the surface at all, not a particular one.
 const S_73 = specTable('T-216').rows.find((row) => row.id === 'S-73')
 if (S_73 === undefined) throw new Error('table T-216 no longer has row S-73')
 const THEME: ScreenTheme = {
@@ -656,7 +476,6 @@ function wiringOf(built: Stage): ScreenSurfaceWiring {
   }
 }
 
-/** Wire the unit up the way contract line 1 asks the caller to. */
 function wire(heightsByRole: Record<string, number> = {}): Stage {
   const built = stage(heightsByRole)
   built.surface = domScreenSurface(wiringOf(built))
@@ -667,10 +486,6 @@ function surfaceOf(built: Stage): ScreenSurface {
   if (built.surface === undefined) throw new Error('the surface was not built')
   return built.surface
 }
-
-// ---------------------------------------------------------------------------
-// Reading the tree the unit built. Copied from tests/unit/uf-71.test.ts.
-// ---------------------------------------------------------------------------
 
 const kebab = (name: string): string => name.replace(/[A-Z]/g, (one) => `-${one.toLowerCase()}`)
 
@@ -691,12 +506,10 @@ function styleMap(element: FakeElement): Map<string, string> {
   return held
 }
 
-/** The inline style as it stands now, with later writes winning over earlier ones. */
 function inlineStyle(element: FakeElement): string {
   return [...styleMap(element)].map(([property, value]) => `${property}:${value}`).join(';')
 }
 
-/** ⚠️ Whitespace-free and lower case, so a message never depends on how a value was spaced. */
 const styleOf = (element: FakeElement): string =>
   inlineStyle(element).replace(/\s+/g, '').toLowerCase()
 
@@ -726,11 +539,7 @@ function oneByRole(root: FakeElement, role: string): FakeElement {
   return first
 }
 
-/**
- * A tiny selector engine: enough for `[attr]`, `[attr="value"]`, a tag name and
- * a descendant combinator. ⭐ It exists so that a unit which DID query is not
- * failed for it.
- */
+// Why: a tiny selector engine exists so that a unit which did query is not failed for it.
 function matches(element: FakeElement, selector: string): boolean {
   const parts = selector.trim().split(/\s+(?![^[]*\])/)
   const last = parts[parts.length - 1]
@@ -768,11 +577,7 @@ function matchesSimple(element: FakeElement, selector: string): boolean {
   return element.tagName === selector.toUpperCase()
 }
 
-// ---------------------------------------------------------------------------
-// Reading a size out of what was written, which is the whole of this file.
-// ---------------------------------------------------------------------------
-
-/** Split a shorthand at the top level, so `calc(0.7 * 1em)` stays ONE value. Copied from uf-72. */
+// Why: split at the top level only, so calc(0.7 * 1em) stays one value.
 function shorthandParts(value: string): string[] {
   const parts: string[] = []
   let depth = 0
@@ -791,14 +596,8 @@ function shorthandParts(value: string): string[] {
   return parts
 }
 
-/**
- * What this node states for its own text size: the longhand, or the size part
- * of a `font` shorthand, or `''` where it states nothing.
- *
- * ⚠️ The `font` shorthand writes the size just before the family, optionally
- * with `/line-height` stuck to it -- so the first part that begins like a
- * number, a `calc(` or a `var(` is the size.
- */
+// Why: the font shorthand writes the size just before the family, maybe with /line-height stuck to it,
+// so the first part that begins like a number, a calc( or a var( is the size.
 function declaredFontSize(element: FakeElement): string {
   const declared = styleMap(element)
   const longhand = (declared.get('font-size') ?? '').trim()
@@ -813,7 +612,6 @@ function declaredFontSize(element: FakeElement): string {
   return ''
 }
 
-/** The nearest declaration of a custom property, walking upwards from this node. */
 function customProperty(element: FakeElement, name: string): string | null {
   let at: FakeElement | null = element
   while (at !== null) {
@@ -824,14 +622,7 @@ function customProperty(element: FakeElement, name: string): string | null {
   return null
 }
 
-/**
- * The same expression with every `var(--x)` replaced by what the tree declares
- * for it, or `null` when one of them cannot be resolved.
- *
- * ⚠️ NO FALLBACK IS HONORED -- `var(--x, 1em)` is left alone, does not match,
- * and the arithmetic below then refuses it. A resolver that accepted the
- * fallback would report a size the page never draws.
- */
+// Why: no var() fallback is honored, since a resolver that accepted one would report a size the page never draws.
 function expandVariables(element: FakeElement, value: string, depth = 0): string | null {
   if (depth > 8) return null
   const named = /var\(\s*(--[a-z0-9-]+)\s*\)/i.exec(value)
@@ -841,15 +632,8 @@ function expandVariables(element: FakeElement, value: string, depth = 0): string
   return expandVariables(element, value.replace(named[0] as string, `(${held})`), depth + 1)
 }
 
-/**
- * A length in px, given the size it inherits and the base the host gives.
- *
- * ⭐ EVERY UNIT THAT MOVES WITH THE READER IS ADMITTED (`em`, `rem`, `%`) AND SO
- * IS `px` -- because the point of these cases is to see whether a px constant
- * is in there, and a resolver that refused px could not tell a fixed size from
- * an unreadable one. Anything else (`ex`, `ch`, a viewport unit, an unresolved
- * `var`) leaves a non-numeric token behind and comes back as `null`.
- */
+// Why: em, rem, % and px are all admitted, since a case must see whether a px constant is there; rem resolves
+// against the same base as the inherited size, as both move with the reader's own setting (FR-039).
 function lengthPx(expression: string, inheritedPx: number, basePx: number): number | null {
   const arithmetic = expression
     .trim()
@@ -862,7 +646,7 @@ function lengthPx(expression: string, inheritedPx: number, basePx: number): numb
   if (arithmetic.trim() === '') return null
   if (!/^[\d\s+*/.()-]+$/.test(arithmetic)) return null
   try {
-    // eslint-disable-next-line no-new-func
+    // eslint-disable-next-line no-new-func -- evaluates only the arithmetic the replacements above left
     const answer: unknown = new Function(`return (${arithmetic});`)()
     return typeof answer === 'number' && Number.isFinite(answer) ? answer : null
   } catch {
@@ -870,14 +654,9 @@ function lengthPx(expression: string, inheritedPx: number, basePx: number): numb
   }
 }
 
-/**
- * What this node's text COMPUTES TO, if the host's base text size were
- * `basePx`.
- *
- * ⭐ THIS IS THE QUESTION FR-006 ASKS, and it is asked of the whole chain: a
- * ratio stated on the panel and a px constant stated on an ancestor make a
- * fixed size together, and only resolving the chain can see it.
- */
+// Why: asked of the whole chain, as a ratio on the panel and a px constant on an ancestor make a fixed size together.
+// Trap: only inline declarations are recorded, so a size stated in a style sheet reads as inherited and fails here;
+// that is this file's blindness, not a defect: report it, do not tune the case.
 function fontSizeAt(element: FakeElement, basePx: number): number | null {
   if (element.isMount) return basePx
   const parent = element.parentNode
@@ -890,7 +669,6 @@ function fontSizeAt(element: FakeElement, basePx: number): number | null {
   return lengthPx(expanded, inherited, basePx)
 }
 
-/** Everything a failure needs to be read without opening the unit. */
 function whatWasWritten(built: Stage, element: FakeElement): string {
   const styles = selfAndDescendants(built.root())
     .filter((one) => declaredFontSize(one) !== '')
@@ -913,15 +691,8 @@ function sizeOf(built: Stage, element: FakeElement, basePx: number): number {
   return size
 }
 
-/**
- * The nearest node that shows this text and has no child that shows it too.
- *
- * ⭐ FOUND BY WHAT IT SHOWS, NOT BY A ROLE OR A POSITION. No table names the
- * cell an item name sits in, so a case that looked one up by name would be
- * asserting a spelling the manuscript never settled. ⚠️ `includes` and not
- * equality, so a cell that draws the name with a separator beside it is still
- * the cell that draws the name.
- */
+// Why: found by what it shows, as no table names the cell an item name sits in;
+// includes, not equality, so a cell that draws a separator beside the name still matches.
 function theCellShowing(root: FakeElement, text: string): FakeElement {
   const showing = selfAndDescendants(root).filter((one) => one.textContent.includes(text))
   const innermost = showing.filter(
@@ -935,7 +706,6 @@ function theCellShowing(root: FakeElement, text: string): FakeElement {
   return first
 }
 
-/** The alignment that reaches this node, from itself or the nearest ancestor that states one. */
 function alignmentReaching(from: FakeElement, stopAt: FakeElement): string {
   let at: FakeElement | null = from
   while (at !== null) {
@@ -950,10 +720,8 @@ function alignmentReaching(from: FakeElement, stopAt: FakeElement): string {
   return ''
 }
 
-/** 「右詰め」, however a box states it. */
 const IS_RIGHT = new Set(['right', 'end', 'flex-end'])
 
-/** The properties that could carry the room the item name's column takes. */
 const WIDTH_PROPERTIES = [
   'width',
   'min-width',
@@ -963,7 +731,6 @@ const WIDTH_PROPERTIES = [
   'grid-template-columns',
 ]
 
-/** Every width this node or an ancestor up to `stopAt` states, nearest first. */
 function widthsReaching(from: FakeElement, stopAt: FakeElement): string[] {
   const found: string[] = []
   let at: FakeElement | null = from
@@ -979,16 +746,10 @@ function widthsReaching(from: FakeElement, stopAt: FakeElement): string[] {
   return found
 }
 
-/** The controls a person edits a field through -- a form element, and nothing else. */
 const CONTROL_TAGS = new Set(['INPUT', 'TEXTAREA', 'SELECT'])
 
 const controlsIn = (panel: FakeElement): FakeElement[] =>
   selfAndDescendants(panel).filter((one) => CONTROL_TAGS.has(one.tagName))
-
-// ---------------------------------------------------------------------------
-// Descriptions to draw. Every one is a value of `ScreenView` and nothing else.
-// The shape is tests/unit/uf-71.test.ts's.
-// ---------------------------------------------------------------------------
 
 const EMPTY_HEADER: AppHeaderItems = {
   documentTitle: null,
@@ -1017,17 +778,8 @@ const EMPTY_VIEW: ScreenView = {
 
 const viewWith = (patch: Partial<ScreenView>): ScreenView => ({ ...EMPTY_VIEW, ...patch })
 
-/**
- * ⭐ THE ONE FIELD THE TYPOGRAPHY CASES COMPARE, and it is PR-9 on purpose:
- * table T-016 marks `percentComplete` 読み取り専用, so a panel that offers it no
- * control is the manuscript's own case rather than a contrived one -- and
- * `PropertyField.controls` says in as many words that the surface then 「writes
- * the value out as text」, which is what a case about text against text needs.
- *
- * ⚠️ THE VALUE IS A STRING OF THIS FILE'S OWN. This unit draws what it is
- * handed, and a distinct one keeps the name and the value from being found by
- * the same search.
- */
+// Why: PR-9 on purpose: T-016 marks it read-only, so the panel writes its value out as text, which a text-against-text
+// case needs; the value is this file's own string, so name and value are not found by the same search.
 const READ_ONLY_FIELD: PropertyField = {
   row: 'PR-9',
   name: 'percentComplete',
@@ -1041,22 +793,12 @@ const controlOf = (patch: Partial<PropertyControl> & Pick<PropertyControl, 'key'
   choices: null,
   min: null,
   max: null,
-  // ⚠️ A room this file has no case about, stated so the description is a
-  // whole one. FR-006's own room is `fr-006-panel-fields-drawn.test.ts`;
-  // what matters here is only that the member is not missing.
+  // Why: a room no case here is about, stated only so the description is a whole one.
   widthInFontSizes: 0,
   ...patch,
 })
 
-/**
- * One field per kind of control, so that a size which reached only some of them
- * is visible.
- *
- * ⚠️ The choices are this file's own strings and no case reads one as the
- * manuscript's -- the paragraph under table T-016 (MUST NOT) puts the real ones
- * in `_source/grs-document.schema.json`, and what a control OFFERS is not what
- * this file is about.
- */
+// Why: one field per kind of control, so a size that reached only some of them is visible; the choices are this file's own.
 const EDITABLE_FIELDS: readonly PropertyField[] = [
   {
     row: 'PR-1',
@@ -1110,11 +852,8 @@ const EDITABLE_FIELDS: readonly PropertyField[] = [
     ],
   },
   {
-    // ⚠️ THE 選択 ROW IS `PR-17`, and it is the one the table still carries:
-    // the shape item left table T-016 on 2026-08-27 because FR-029 forbids an
-    // entrance that answers nothing, and FR-083 leaves the shape to the
-    // palette. A field naming a row the table no longer holds would make this
-    // fixture read as the manuscript's when it is not.
+    // Why: PR-17 is the choice row T-016 still holds; the shape row left, as FR-029 forbids an entrance that answers
+    // nothing and FR-083 leaves the shape to the palette.
     row: 'PR-17',
     name: 'milestoneGlyph',
     text: 'GlyphChoiceOne',
@@ -1143,17 +882,8 @@ const EDITABLE_FIELDS: readonly PropertyField[] = [
   },
 ]
 
-/**
- * ⛔ NO HEADING IS OFFERED. FR-072 (MUST NOT) refuses the panel one -- 「⛔ **パネ
- * ルの先頭にタイトルバーを置いてはならない（MUST NOT）**（利用者の指示 2026-08-27）」
- * (CR-272) -- and this fixture carried one until that row moved.
- *
- * ⚠️ THE CAST IS DELIBERATE AND NARROW. Whether the published description still
- * declares a member for a heading is the implementation's answer; a fixture that
- * turned either answer into a COMPILE error would take every case in this file
- * down with it, and rule 04 section 1 asks a disagreement to arrive as a test
- * that falls. ⛔ Every member FR-006's cases read is spelled out here.
- */
+// Why: no heading is offered, as FR-072 refuses the panel a title bar; the cast is narrow so that a changed member
+// arrives as one failing test, not as a compile error that takes every case in this file down.
 const panelWith = (fields: readonly PropertyField[]): PropertiesPanel =>
   ({
     showing: 'selection',
@@ -1162,10 +892,10 @@ const panelWith = (fields: readonly PropertyField[]): PropertiesPanel =>
     commands: [],
   }) as PropertiesPanel
 
-/** The App Header measures to something, so BO-1's dimension is settled and the screen is drawn. */
+// Why: the App Header must measure to something, or BO-1 is not settled and no screen is drawn.
 const HEADER_HEIGHT = { 'App Header': 37 }
 
-/** ⭐ Bases of this file's own choosing -- see the head comment, point 4. */
+// Why: bases of this file's own choosing: the host's base never reaches the unit, so the cases resolve under several.
 const BASES = [12, 16, 20, 24, 32]
 
 function drawPanel(fields: readonly PropertyField[]): { built: Stage; panel: FakeElement } {
@@ -1174,15 +904,11 @@ function drawPanel(fields: readonly PropertyField[]): { built: Stage; panel: Fak
   return { built, panel: oneByRole(built.root(), U_25) }
 }
 
-// ===========================================================================
-
+// Spec: S-186, S-189, S-197, S-198
 describe('the manuscript still says what these cases read', () => {
   it('⭐ was really driven by the manuscript, and not by a hollow read of it', () => {
-    // ⛔ WITHOUT THIS, A PARSE THAT PICKED UP THE WRONG COLUMN WOULD MAKE EVERY
-    // CASE BELOW AGREE WITH ANYTHING -- rule 04 section 2: a mechanism is not
-    // verified until it has been broken on purpose and seen to fail. S-186 in
-    // the same column states a length in px, so a read that returned the value
-    // column can be told from one that returned a heading or a reason.
+    // Why: without this, a parse that picked the wrong column would make every case agree with anything;
+    // S-186 in the same column states px, so a value read can be told from a heading or a reason.
     expect(cellOf('S-186')).toContain('px')
     expect(S_197).toBeGreaterThan(0)
     expect(S_197).toBeLessThan(1)
@@ -1194,27 +920,20 @@ describe('the manuscript still says what these cases read', () => {
   })
 
   it('⛔ S-197 and S-198 are ratios and state no px of their own', () => {
-    // S-197: ⭐ 「px ではなく係数である」. ⛔ 「参考実装の 11.9px をそのまま書き
-    // 取ってはならない —— あれは本仕様が持たない 17px から出た数である」, so a
-    // cell that had grown a px is the defect that note names.
     expect(cellOf('S-197')).not.toContain('px')
     expect(cellOf('S-198')).not.toContain('px')
   })
 
   it('⛔ S-189 is a share of the width and not a length', () => {
-    // ⭐ 「px ではなく割合である —— パネルの幅は人が境界をドラッグして動かす（`FR-052`）
-    // ので、絶対値で持つと広げたときに入力欄だけが伸びる」.
     expect(S_189_CELL).toContain('%')
     expect(S_189_CELL).not.toContain('px')
   })
 })
 
+// Spec: FR-006, S-197, FR-039, T-215
 describe("FR-006 (MUST) -- the panel's text is S-197 of the base the host gives", () => {
   it('computes to S-197 of the base, at every base a reader might set', () => {
-    // 「大きさは `S-197` を宿主が与える地の文字の大きさに掛けて求め」. ⭐ The
-    // base never reaches this unit -- `ScreenSurfaceWiring` has no member for
-    // it -- so the only way a panel can satisfy this at every base is to state
-    // a ratio and let the browser do the multiplying.
+    // Why: the base never reaches this unit, so the panel can meet this at every base only by stating a ratio.
     const { built, panel } = drawPanel([READ_ONLY_FIELD])
 
     for (const base of BASES) {
@@ -1223,12 +942,8 @@ describe("FR-006 (MUST) -- the panel's text is S-197 of the base the host gives"
   })
 
   it('⛔ MUST NOT: doubling the base doubles what the panel computes to', () => {
-    // ⛔ 「px の定数として持ってはならない（MUST NOT）」 -- 「読む人がブラウザーで
-    // 文字を大きくしたとき、パネルだけが取り残される」（WCAG 2.1 の 1.4.4）.
-    // ⭐ THIS IS THE CASE THE MUST NOT IS FOR. A px constant -- written on the
-    // panel, or hidden behind a custom property, or stated on an ancestor the
-    // panel inherits from -- gives the same number under both bases, and a
-    // ratio cannot.
+    // Why: a px constant, on the panel, behind a custom property or on an ancestor, gives the same number
+    // under both bases, and a ratio cannot.
     const { built, panel } = drawPanel([READ_ONLY_FIELD])
 
     const small = sizeOf(built, panel, 16)
@@ -1238,13 +953,7 @@ describe("FR-006 (MUST) -- the panel's text is S-197 of the base the host gives"
   })
 
   it('⛔ MUST NOT: it is not `fontSizeStepSizes[fontSizeStep]` that is multiplied', () => {
-    // ⚠️ 「掛ける相手は 表 T-215 の `fontSizeStepSizes[fontSizeStep]` ではない」 --
-    // 「`fontSizeStep` が決めるのは日程表そのものの文字であり、パネルは日程表では
-    // なく外枠である」. ⛔ The requirement even states what that mistake looks
-    // like: 「いちばん大きい `L` でも 11.2px にしかならず、`S` では 8.4px にな
-    // る」.
-    // ⭐ The base below is deliberately none of table T-215's own numbers, so a
-    // panel that multiplied the wrong thing cannot come out right by accident.
+    // Why: the base is none of T-215's own numbers, so a panel that multiplied the wrong thing cannot pass by accident.
     const base = 20
     expect(FONT_SIZE_STEP_SIZES, 'the base this case drives with is not one of them').not.toContain(base)
 
@@ -1258,11 +967,9 @@ describe("FR-006 (MUST) -- the panel's text is S-197 of the base the host gives"
   })
 })
 
+// Spec: FR-006, S-197, S-198
 describe('FR-006 (MUST) -- the item name takes S-198 on top of that', () => {
   it('the item name is smaller than the value beside it by exactly S-198', () => {
-    // 「項目名にはさらに `S-198` を掛けること（MUST）」, and S-198's own note:
-    // ⭐ 「掛ける相手は `S-197` を適用したあとの大きさであって、`fontSizeStepSizes`
-    // ではない —— パネル全体が縮んだうえで、その中でさらに項目名だけが小さい」.
     const { built, panel } = drawPanel([READ_ONLY_FIELD])
 
     const name = theCellShowing(panel, READ_ONLY_FIELD.name)
@@ -1276,9 +983,7 @@ describe('FR-006 (MUST) -- the item name takes S-198 on top of that', () => {
   })
 
   it('and so it is S-197 then S-198 of the base, never S-198 of the base alone', () => {
-    // ⚠️ The two ratios COMPOUND. S-198 against the base by itself would leave
-    // the item name larger than the value it names, which is the reading that
-    // note exists to forbid.
+    // Why: the two ratios compound; S-198 against the base alone would leave the item name larger than its value.
     const { built, panel } = drawPanel([READ_ONLY_FIELD])
     const name = theCellShowing(panel, READ_ONLY_FIELD.name)
 
@@ -1291,13 +996,10 @@ describe('FR-006 (MUST) -- the item name takes S-198 on top of that', () => {
   })
 })
 
+// Spec: FR-006, S-189
 describe('FR-006 (MUST) -- the item name sits to the left of the value, right-aligned', () => {
   it('⛔ MUST: the item name is right-aligned', () => {
-    // ⛔ 「項目名は値の欄の左に置き、右詰めにすること（MUST）」（利用者の裁定
-    // 2026-08-27）—— 「名前と値の境目が縦に揃っていないと、目が行ごとに境目を
-    // 探し直すことになる」. ⚠️ Either spelling is accepted: the ruling asks for
-    // the name pushed to the right of its own column, and a flex box states
-    // that as `justify-content` where a block states it as `text-align`.
+    // Why: either spelling is accepted: a flex box states right alignment as justify-content, a block as text-align.
     const { panel } = drawPanel([READ_ONLY_FIELD])
     const name = theCellShowing(panel, READ_ONLY_FIELD.name)
 
@@ -1308,12 +1010,8 @@ describe('FR-006 (MUST) -- the item name sits to the left of the value, right-al
   })
 
   it('⛔ MUST: the item name comes before the value it names', () => {
-    // 「項目名は値の欄の左に置き」. ⚠️ WHAT THIS SEAM CAN SEE IS THE ORDER THE
-    // NODES WERE PUT IN, which is left-to-right for the writing direction this
-    // panel is drawn in; there is no layout engine here to ask where a box
-    // landed. A panel that put the name after the value and pulled it back with
-    // `order` would pass this case and fail a reader -- reported, not asserted,
-    // because no table settles which property may place a field's parts.
+    // Why: this seam sees only node order, so a panel that reorders with CSS order would pass here and fail a reader;
+    // no table settles which property may place a field's parts, so that is not asserted.
     const { panel } = drawPanel([READ_ONLY_FIELD])
     const order = selfAndDescendants(panel)
 
@@ -1325,15 +1023,8 @@ describe('FR-006 (MUST) -- the item name sits to the left of the value, right-al
   })
 
   it("⛔ takes S-189's share of the width, and states no px for it", () => {
-    // 「幅は `S-189` が持つ」, and S-189: ⭐ 「px ではなく割合である」.
-    // ⚠️ THIS IS THE ARGUABLE CASE IN THIS FILE. The share may be stated on the
-    // name's own cell or on the box that lays the row out, so the chain up to
-    // the panel is read rather than one node; and a row that stated its columns
-    // some other way again would fail here for the wording rather than for the
-    // rule. ⛔ Left failing rather than loosened: 「幅は `S-189` が持つ」 is a
-    // sentence of a MUST paragraph, and a panel that holds no share at all is
-    // the defect S-189's note describes -- widening the panel then stretches
-    // only the input.
+    // Why: the share may be stated on the name's cell or on the row's box, so the chain up to the panel is read;
+    // a row that states its columns another way would fail here for the wording, not the rule.
     const { panel } = drawPanel([READ_ONLY_FIELD])
     const name = theCellShowing(panel, READ_ONLY_FIELD.name)
     const stated = widthsReaching(name, panel)
@@ -1346,16 +1037,11 @@ describe('FR-006 (MUST) -- the item name sits to the left of the value, right-al
   })
 })
 
+// Spec: FR-006
 describe('FR-006 (MUST NOT) -- the size reaches the controls, not only the outer box', () => {
   it('every control the panel draws computes to the panel size', () => {
-    // ⛔ 「パネルの文字を宿主の既定の大きさで描いてはならない（MUST NOT）」 --
-    // 「画面のほかのどこよりも大きい字でパネルだけが描かれ、同じ幅に入る項目が
-    // 減る」. ⭐ A form control does not inherit a font from its ancestors on
-    // its own, so a panel that stated its size once on the outer box leaves
-    // every field's text at the host's default -- which is the very thing the
-    // MUST NOT names, drawn in the place a person actually reads and types.
-    // ⚠️ THE INFERENCE IS RECORDED IN THE HEAD COMMENT. FR-006 says 「パネルの
-    // 文字」 and never the word "control".
+    // Why: FR-006 says the panel's text, not controls; it is read as covering a field's text, since a form control inherits
+    // no font and S-186's note presumes that text grows (NFR-007); if a ruling stops at plain text, this case is wrong.
     const { built, panel } = drawPanel(EDITABLE_FIELDS)
     const controls = controlsIn(panel)
 
@@ -1373,9 +1059,6 @@ describe('FR-006 (MUST NOT) -- the size reaches the controls, not only the outer
   })
 
   it('⛔ MUST NOT: no control is left at a size a reader cannot move', () => {
-    // The same MUST NOT, asked of the controls the way the panel was asked of
-    // itself: a size that does not move with the base is a px constant however
-    // it was written.
     const { built, panel } = drawPanel(EDITABLE_FIELDS)
 
     for (const control of controlsIn(panel)) {

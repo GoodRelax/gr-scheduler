@@ -16,6 +16,7 @@ import {
   targetOf,
 } from './dfc-3000-help-stage'
 
+// Spec: IMPS-1085
 const FR_069_LINK = '`GRS` は、ライセンスと帰属表示のうち、著作権表示とライセンスの名だけを、ヘルプに常に見せること（全文と帰属表示を開く入口は `IMPS-1086`）。`GRS` は、著作権表示を、`GRS` のリポジトリへのリンクとすること。'
 const FR_069_NEW_TAB =
   '人がヘルプの著作権表示を押したとき、`GRS` は、閲覧環境の新しいタブで、`_assets/tbl-settings.md` の 表 T-206 の `S-459`（`GRS` のリポジトリの所）の頁を開くこと。'

@@ -360,8 +360,8 @@ test.describe('CR-787: the properties panel opens at a width per content (FR-052
     expect(shown.sideScrolls, 'step 1: no side scroll bar').toBe(0)
     const text = await page.locator('[data-role="Properties Panel"]').innerText()
     expect(text, 'step 1: the read-only heading').toContain('表示専用/変更不可')
-    expect(text, 'step 3: the left edge row').toContain('日程表の左端の日時')
-    expect(text, 'step 3: the top edge row').toMatch(/日程表の上端のタスクグループ\n.+（上から \d+%）/)
+    expect(text, 'step 3: the left edge row').toContain('タスクグループレーンズの左端の日時')
+    expect(text, 'step 3: the top edge row').toMatch(/タスクグループレーンズの上端のタスクグループ\n.+（上から \d+%）/)
     expect(text, 'step 4: the first task start row').toMatch(/最初のタスクの開始日: \d{4}\/\d{2}\/\d{2}/)
     const label = await page.evaluate(() => {
       const panel = document.querySelector('[data-role="Properties Panel"]')!

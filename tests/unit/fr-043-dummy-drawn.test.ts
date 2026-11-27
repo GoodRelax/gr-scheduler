@@ -1,92 +1,4 @@
-// The drawn `Actual Dummy` (U-52): FR-043's MUST that it be SHOWN,
-// the width table T-240 DM-3 now gives it -- the marker diameter times S-247, capped by S-180, aligned to
-// the day column's left edge -- and EP-14's rule that an export draws none of it.
-//
-// ⚠️ Chapter 9 does not admit `Unit` as a TEST_LEVEL, so these cases have no
-// node in the specification. Table T-218 of Chapter 7 gives them their place:
-// TS-6, tests/unit/.
-//
-// ⛔ WRITTEN FROM docs/spec AND NOTHING ELSE (04-verification.md section 1).
-// Nothing below takes an expected value out of `src/`: S-180's 12px is read out
-// of `_assets/tbl-settings.md` at run time through `tests/contract/spec-table.ts`,
-// S-1 and S-129 are read from the defaults `npm run gen` prints from the same
-// manuscript, and every other expectation is stated as a RELATION between two
-// drawings the specification puts side by side.
-//
-// THE ROWS THIS FILE RESTS ON
-//
-//   FR-043    「`Task` が未着手であるあいだ、`GRS` は、実績の入力を始める掴み
-//             シロを 2 つ（マイルストーンは例外とする）、実績の開始点と終了点
-//             として薄くタスクの上に示し …（MUST）」
-//   FR-043    ⭐⭐ 「**ダミーの印は 1 つだけ描くこと（MUST）。開始の側と終了の側に
-//             別々の印を描いてはならない（MUST NOT）**」（利用者の裁定 2026-09-08、
-//             逐語「タスクのダミーは1日とする。 だから = は1日」）—— 「**ダミーの
-//             実績は `S-129` ＝ 1 稼働日であり、その 1 日を覆う 1 つの印として
-//             描く。**」 ⭐ 「**掴む先が 2 つであることは変わらない** —— 表 T-023d
-//             の `GA-5` と `GA-6` はどちらも残り …… ⇒ **人から見れば掴みシロは
-//             1 つであり、掴めば実績が立つ。**」
-//
-// ⛔⛔ TWO COUNTS, AND THIS FILE KEEPS THEM APART. The line above it names
-//   掴みシロ を 2 つ -- the GRAB side, which table T-023d still holds -- and the
-//   2026-09-08 ruling names 印 は 1 つ -- the DRAWING side, which this file
-//   measures. ⭐ Every count of a FIGURE below is one; every count of a `dummies`
-//   ROW below is two. ⛔ 2026-09-08 まで this file read the first line as a count
-//   of figures, and that is precisely the reading the ruling struck down:
-//   「⛔ **2026-09-08 まで `GA-5` と `GA-6` の位置に縦棒が 1 本ずつ立ち、画面には
-//   2 本見えていた** —— **利用者の申し立ては「1つだけにしろ」であった。**」
-//   T-240 DM-3  the width (marker diameter x S-247, capped by S-180), the
-//             left edge on the day column, and the MUST NOT against cutting
-//             the mark to one day's width
-//             (held verbatim in DM_3_THE_WIDTH and DM_3_NOT_CUT_BY_A_DAY)
-//             ⛔ DFC-191 「当たり判定は本段の対象ではない（MUST NOT）」
-//   FR-017    「**1 日あたりの表示幅は、表 T-201（`_assets/tbl-settings.md`）の
-//             `S-1` に `zoomX` を掛けた値とすること（MUST）。**」 -- the OTHER half
-//             of 「1 日ぶん」, and the reason the two zooms below give two
-//             different answers.
-//   FR-013    「未着手のマーカーと、実績入力のダミー（`FR-043`）は薄く描き、
-//             ポインターが乗っているあいだだけ濃くすること（MUST）…… 濃さの値
-//             は `S-131`。色は実績バーの色を継ぎ、独立した色を保存しない
-//             （`FR-041`）」
-//   T-206 S-180  「実績ダミーを描く幅の上限（表 T-240 の `DM-3`）」 = 30px,
-//             whose note says 「⭐ 本行が定めるのは横だけで
-//             ある —— 縦の広がりは実績の帯に従う」
-//   T-023d の結び  the hold of `GA-5` / `GA-6` / `GA-17`, which since
-//             2026-09-10 IS the mark `FR-043` draws -- so no reader's hit box
-//             stands beside the drawn width any more, and the two are one.
-//             ⛔ NOTHING BELOW ASSERTS A HIT BOX.
-//   T-023d GA-5 / GA-6 / GA-17   where the three dummies sit
-//   T-076 EP-14  「`Actual Dummy`（`U-52`）| 描かない | 文書に無い
-//             値を描く操作子である。⚠️ 場所は空けない」
-//   T-076 EP-5   the `Task Group Lanes`'s contents, `Progress Status Mark`（`U-5`）among
-//             them, ARE drawn in the export
-//   T-041 WY-3   「画面上の外接矩形に `exportCanvas` の幅 ÷ 画面の幅 の比を
-//             掛けた値と、…… 書き出した SVG / PNG の中の同じ UI パーツの外接
-//             矩形とが、位置も寸法も …… 一致すること」
-//   T-023d GA-18  「進捗ステータスマーク | 実績バーの右端の外側。**未着手のときは終了点
-//             の掴みシロの外側** …」 -- the reason a dummy may not simply be
-//             deleted for the export.
-//
-// ⛔ WHAT IS NOT ASSERTED, AND WHY -- reported rather than guessed:
-//
-//   * ⛔⛔ GA-17'S VERTICAL WAS UNCLAIMED UNTIL 2026-09-10. A milestone has no
-//     actual bar (table T-023d, GA-16), so S-180's 「縦の広がりは実績バーの帯に
-//     従う」 reaches GA-5 and GA-6 and stops, and until 2026-09-10 nothing
-//     here claimed a height for GA-17 either.
-//     ⭐⭐ THE GAP IS NOW CLOSED, by a different row: 「⭐⭐ 大きさも例外とすること
-//     （MUST）。マイルストーンのダミーを描く箱は、そのマイルストーンの実績の
-//     図形と同じ正方形とすること（MUST）。`DM-3` の幅を横幅としてはならない
-//     （MUST NOT）」（利用者の裁定 2026-09-10）. GA-17's box is a
-//     SQUARE now, so its height is pinned along with its width, and the GA-17
-//     cases below measure both.
-//   * ⛔ THE PAINT ORDER. Table T-020 has ZO-1, ZO-1a, ZO-2, ZO-3, ZO-4 and
-//     ZO-5, and NOT ONE of them names `Actual Dummy` (U-52). The
-//     dummy overlaps the plan bar (EP-14: 「タスクバーに重なる」), so which of
-//     the two wins where they meet is undecided. No case below states one.
-//   * FR-013's hover half. It is measured in tests/unit/fr-013-pointer-on-the-
-//     figure.test.ts, which is handed a pointer; the pictures here are not.
-//   * Table T-023d's 「ダミー（`FR-104` の 表 T-266 の `GA-5` / `GA-6` / `GA-17` / `GA-21` / `GA-22`）を掴んでいるあいだは、置くこと
-//     になる実績を描いて示すこと（MUST）」. The picture is handed no gesture
-//     either, so the drag preview has no surface to be asked about.
+// Unit tests: the Actual Dummy (U-52) is drawn, DM-3 wide, and left out of the export.
 
 import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
@@ -118,10 +30,6 @@ import { frameLoop } from '../../src/framework/single-html-shell/frame-loop'
 import startupTemplate from '../../src/framework/single-html-shell/startup-template.json'
 import { DEFAULT_DISPLAY_RATIO, DEFAULT_DISPLAY_SCALE } from '../fixtures/display-scale'
 
-// ---------------------------------------------------------------------------
-// The rows, read out of the manuscript at run time (Chapter 1.9)
-// ---------------------------------------------------------------------------
-
 const rowOf = (tableId: string, specTableRowId: string): Readonly<Record<string, string>> => {
   const found = specTable(tableId).rows.find((row) => row.id === specTableRowId)
   if (found === undefined) throw new Error(`table ${tableId} has no row ${specTableRowId}`)
@@ -144,19 +52,11 @@ const REQUIREMENTS = unbroken(
 const FR_043_A_MILESTONE_DUMMY_IS_THE_SAME_DAY_ACTUAL =
   '`GRS` は、マイルストーンのダミーを、予定と実績のマイルストーンが同じ日にあるときの絵で実績をダミーに置き換えた姿とし、大きさ・縦位置・重ね順を同じ日の実績のマイルストーンと同じにして描くこと（`DM-8` / `DM-9`、`05-07-design.md` の 表 T-221 の `LF-10`）。'
 
-/** Every number a cell writes, in the order it writes them. */
 const numbersOf = (cell: string): number[] => (cell.match(/\d+(?:\.\d+)?/g) ?? []).map(Number)
 
-/**
- * The grid a picture's numbers are spelled on. NS-3 of table T-231: 「`NS-1`
- * の前に、座標と寸法を **0.01 px の格子**へ丸めた綴りにする。⛔ 書き出す側と
- * 写し取った側の両方に当てること（MUST）」.
- *
- * ⭐ So a coordinate read back out of a picture is never the geometry's own
- * number, and every comparison below is made ON THIS GRID rather than exactly
- * -- which is the rounding NS-3 requires be applied to both sides, not a
- * tolerance this file invented.
- */
+// Spec: NS-3
+// Why: a coordinate read back from a picture is on the NS-3 grid, so comparisons are made on that
+// grid; it is the rounding NS-3 applies to both sides, not an invented tolerance.
 const GRID = ((): number => {
   // Trap: the cell names NS-1 before the grid, so the first bare number is that 1; take the number before px.
   const [first] = numbersOf(/\d+(?:\.\d+)?\s*px/.exec(NS_3['規則'] ?? '')?.[0] ?? '')
@@ -170,18 +70,9 @@ const onGrid = (value: number): number => Math.round(value / GRID) * GRID
 const sameOnGrid = (value: number, other: number): boolean =>
   Math.abs(onGrid(value) - onGrid(other)) < GRID / 2
 
-/**
- * S-180, as the manuscript states it -- ⛔ THE UPPER BOUND, NOT THE WIDTH.
- *
- * T-240 DM-3 bounds the width by S-180 and derives it from the marker. The name says
- * which of the two it is, so that no case below can quietly go back to reading
- * it as the width.
- *
- * ⛔ NOT TYPED IN. Rule 04 section 2 asks the acceptance of a value that
- * travels from a manuscript to be "change the one value and watch the case
- * fall", and a number written here would not fall. ⚠️ There is no generated
- * constant to read it from: S-180 is 保存しない.
- */
+// Spec: S-180, DM-3
+// Why: named as the upper bound, not the width, so no case quietly reads it as the width; read
+// from the manuscript because S-180 is not stored and has no generated constant.
 const DUMMY_WIDTH_UPPER_BOUND = ((): number => {
   const [only, ...rest] = numbersOf(S_180['既定'] ?? '')
   if (only === undefined || rest.length !== 0) {
@@ -190,14 +81,14 @@ const DUMMY_WIDTH_UPPER_BOUND = ((): number => {
   return only
 })()
 
-/** `S-1`, 表 T-201 -- 1 日あたりの表示幅 at `zoomX` = 1 (FR-017). */
+// Spec: S-1, FR-017
 const PX_PER_DAY_AT_1X = ((): number => {
   const value = SETTINGS_CONSTANTS['pxPerDayAt1x']
   if (typeof value !== 'number' || value <= 0) throw new Error('S-1 is not a positive number')
   return value
 })()
 
-/** FR-017 (MUST): 「1 日あたりの表示幅は … `S-1` に `zoomX` を掛けた値」. */
+// Spec: FR-017
 const dayWidthAt = (zoomX: number): number =>
   PX_PER_DAY_AT_1X * zoomX * DEFAULT_DISPLAY_RATIO
 
@@ -229,11 +120,7 @@ const DM_3_THE_WIDTH =
 const DM_3_NOT_CUT_BY_A_DAY =
   '`GRS` は、ダミーを描く幅の左端を `DM-1` の位置に揃えること。`GRS` は、印の幅を 1 日ぶんの幅で切らないこと。'
 
-// ---------------------------------------------------------------------------
-// The document under test. Plain data; every builder returns a fresh object.
-// ---------------------------------------------------------------------------
-
-/** Expand SETTINGS_DEFAULTS' dotted keys into the nested shape the type has. */
+// Summary: settingsOf expands the dotted keys of SETTINGS_DEFAULTS into the nested shape the type has.
 const settingsOf = (over: Readonly<Record<string, unknown>> = {}): DocumentSettings => {
   const out: Record<string, unknown> = {}
   for (const [key, value] of Object.entries({ ...SETTINGS_DEFAULTS, ...over })) {
@@ -250,10 +137,8 @@ const settingsOf = (over: Readonly<Record<string, unknown>> = {}): DocumentSetti
   return out as unknown as DocumentSettings
 }
 
-/**
- * A calendar on which every weekday is worked (FR-054 resolves the document's
- * one calendar through `Project.calendarUid`).
- */
+// Why: every weekday is worked, so days count plainly; FR-054 resolves the one calendar through
+// Project.calendarUid.
 const EVERY_DAY_WORKED = {
   uid: 1,
   name: 'every day worked',
@@ -319,7 +204,7 @@ const taskVisual = (taskUid: number, shapeKind: string): TaskVisual =>
     ...(shapeKind === 'milestone' ? { milestoneGlyph: 'diamond' } : {}),
   }) as unknown as TaskVisual
 
-/** `taskGroupIds[i]` says which task group `tasks[i]` is drawn on. Task groups come out sorted. */
+// Summary: scheduleOf draws tasks[i] on task group taskGroupIds[i], and the task groups come out sorted.
 const scheduleOf = (
   tasks: readonly Task[],
   taskGroupIds: readonly string[],
@@ -370,13 +255,12 @@ const scheduleOf = (
   } as unknown as Schedule
 }
 
-/** BO-1 of table T-077: what the environment settles, not the document. */
+// Spec: BO-1
 const SCREEN = { width: 1280, height: 800, appHeaderHeight: 48, scrollbarThickness: 8, propertyPanelWidth: 0 }
 
-/** A day of March 2026, as a stored date column writes it. */
 const day = (d: number): string => `2026-03-${String(d).padStart(2, '0')}T00:00:00`
 
-/** The Task these cases watch, and one task group above it so it is not at the edge. */
+// Why: one task group stands above the Task under test, so it is not at the edge.
 const UNDER_TEST = 1
 
 // Spec: FR-043, S-129
@@ -386,25 +270,16 @@ const ACTUAL_INITIAL_DURATION = ((): number => {
   return value
 })()
 
-/** `S-131`, the degree FR-013 names for the faint dummy and the faint marker. */
+// Spec: S-131, FR-013
 const DUMMY_OPACITY = ((): number => {
   const value = SETTINGS_CONSTANTS['dummyOpacity']
   if (typeof value !== 'number') throw new Error('S-131 is not a number')
   return value
 })()
 
-/**
- * `S-5`, 表 T-201 -- the ratio a plan height is scaled by to become an
- * actual's height (LF-9 / LF-10 of table T-221).
- *
- * ⭐⭐ THE SAME RATIO GA-17'S SQUARE NOW USES. FR-043's third milestone
- * exception (利用者の裁定 2026-09-10): 「マイルストーンのダミーを描く箱は、
- * そのマイルストーンの実績の図形と同じ正方形とすること（MUST）」, and
- * `task-figures.ts`'s `taskGeometryOf` names that square's side
- * `actualHeight` = `placed.planHeight * settings.actualOfPlan` -- the very
- * product this constant and `gr18SquareSideOf` below compose, read from the
- * settings rather than a pixel this file typed in.
- */
+// Spec: S-5, LF-9
+// Why: the same ratio sizes GA-17's square, so its side is read from the settings, not typed as
+// a pixel.
 const ACTUAL_OF_PLAN = ((): number => {
   const value = SETTINGS_CONSTANTS['actualOfPlan']
   if (typeof value !== 'number') throw new Error('S-5 is not a number')
@@ -418,10 +293,10 @@ interface Drawn {
   readonly svg: string
 }
 
-/** One pass of table T-068's chain, then PI-19. */
+// Spec: T-068, PI-19
 const draw = (schedule: Schedule, zoomX: number): Drawn => {
-  // scrollDate (S-77) pins the left edge of the Task Group Lanes, so the axis is fixed
-  // and the two documents a case compares are drawn on the same one.
+  // Why: scrollDate (S-77) pins the left edge of the Task Group Lanes, so the two documents a case
+  // compares are drawn on the same axis.
   const settings = settingsOf({
     zoomX,
     zoomY: 1 / DEFAULT_DISPLAY_RATIO,
@@ -437,8 +312,8 @@ const draw = (schedule: Schedule, zoomX: number): Drawn => {
     regions,
     layout,
     geometry,
-    // EP-14's other arm. Every picture this helper builds is the SCREEN's;
-    // the export cases go through `exportScene` / `exportSvg` instead.
+    // Why: every picture this helper builds is the screen's (EP-14's other arm); the export cases go
+    // through exportScene and exportSvg.
     svg: svgFromSchedule(schedule, settings, layout, geometry, regions, emptySelection(), 'screen', { themePreference: 'light', guideCursorMode: 'none' }),
   }
 }
@@ -449,7 +324,6 @@ const geometryOf = (drawn: Drawn, uid: number) => {
   return found
 }
 
-/** A rectangle Task that has not been started, with one earlier task group above it. */
 const notStartedSchedule = (): Schedule =>
   scheduleOf(
     [
@@ -460,10 +334,7 @@ const notStartedSchedule = (): Schedule =>
     [taskVisual(UNDER_TEST, 'rectangle'), taskVisual(2, 'rectangle')],
   )
 
-/**
- * The same document after FR-043's MUST has been carried out on GA-5 -- the
- * actual the dummy stands for, and nothing else about the Task changed.
- */
+// Summary: startedSchedule is notStartedSchedule with the actual GA-5 would place, and nothing else changed.
 const startedSchedule = (): Schedule =>
   scheduleOf(
     [
@@ -481,14 +352,9 @@ const startedSchedule = (): Schedule =>
     [taskVisual(UNDER_TEST, 'rectangle'), taskVisual(2, 'rectangle')],
   )
 
-/**
- * A milestone that has not been started, and BESIDE IT a rectangle Task that
- * starts on the milestone's own day.
- *
- * ⭐ The rectangle is the ruler: T-023d's GA-1 puts 予定の開始点 at 予定バーの
- * 左端, so that bar's left edge is where the milestone's day column begins.
- * Nothing else in docs/spec hands a milestone's day a pixel.
- */
+// Spec: GA-1
+// Why: the rectangle beside the milestone is the ruler: its left edge is where the milestone's
+// day column begins, and nothing else hands a milestone's day a pixel.
 const milestoneSchedule = (): Schedule =>
   scheduleOf(
     [
@@ -517,15 +383,8 @@ const startedMilestoneSchedule = (): Schedule =>
     [taskVisual(UNDER_TEST, 'milestone'), taskVisual(2, 'rectangle')],
   )
 
-// ---------------------------------------------------------------------------
-// Reading a picture back as the figures it draws
-//
-// ⭐ A BOUNDING RECTANGLE AND NOT AN ATTRIBUTE NAME. WY-3 of table T-041 judges
-// what is drawn by 外接矩形, and FR-043 states a WIDTH and a LEFT EDGE -- none of
-// them says which SVG element carries it. So the cases below ask the picture
-// what it draws and how wide, and no case names a tag or an attribute the
-// specification does not.
-// ---------------------------------------------------------------------------
+// Why: figures are judged by bounding rectangle (WY-3), never by tag or attribute name, since
+// the spec does not say which SVG element carries a width or a left edge.
 
 interface Box {
   readonly x0: number
@@ -536,13 +395,13 @@ interface Box {
 
 interface Figure {
   readonly tag: string
-  /** The element exactly as the picture writes it -- the key two pictures are differenced on. */
+  // Summary: text is the element exactly as written, the key two pictures are differenced on.
   readonly text: string
-  /** Null for `text`: FR-093 forbids measuring glyphs, so this file never claims a text box. */
+  // Why: null for text: FR-093 forbids measuring glyphs, so this file never claims a text box.
   readonly box: Box | null
-  /** Every enclosing `<g opacity>` multiplied into the element's own. */
+  // Summary: opacity multiplies every enclosing group opacity into the element's own.
   readonly opacity: number
-  /** `fill` and `stroke` as written, so FR-041's 「独立した色を保存しない」 can be checked. */
+  // Spec: FR-041
   readonly colors: readonly string[]
 }
 
@@ -573,14 +432,8 @@ const pointsOf = (raw: string): (readonly [number, number])[] =>
       return [x ?? Number.NaN, y ?? Number.NaN] as const
     })
 
-/**
- * A `path`, read only where reading it is safe.
- *
- * ⛔ Throws on any command that bends -- an arc or a curve has a hull wider
- * than its control points, so measuring one from its numbers would answer a
- * width the picture does not draw. A case that hits this fails saying so
- * rather than passing on a wrong measurement.
- */
+// Why: throws on any bending command: an arc or a curve has a hull wider than its control points,
+// so measuring one would answer a width the picture does not draw.
 const boxOfPath = (d: string): Box | null => {
   const commands = d.match(/[A-Za-z]/g) ?? []
   const bending = commands.filter((one) => !'MmLlHhVvZz'.includes(one))
@@ -630,7 +483,6 @@ const boxOfElement = (tag: string, attrs: string): Box | null => {
   }
 }
 
-/** The element's own translucency, however it is spelled. */
 const ownOpacityOf = (attrs: string): number => {
   for (const name of ['opacity', 'fill-opacity', 'stroke-opacity']) {
     const raw = attrOf(attrs, name)
@@ -639,7 +491,7 @@ const ownOpacityOf = (attrs: string): number => {
   return 1
 }
 
-/** Every leaf figure a picture draws, with the groups above it folded in. */
+// Summary: figuresOf lists every leaf figure a picture draws, with the groups above it folded in.
 const figuresOf = (svg: string): readonly Figure[] => {
   const out: Figure[] = []
   const opacities: number[] = []
@@ -669,7 +521,7 @@ const figuresOf = (svg: string): readonly Figure[] => {
   return out
 }
 
-/** What the first picture draws and the second does not, element for element. */
+// Summary: onlyIn answers what the first picture draws and the second does not, element for element.
 const onlyIn = (one: string, other: string): readonly Figure[] => {
   const theirs = new Set(figuresOf(other).map((figure) => figure.text))
   return figuresOf(one).filter((figure) => !theirs.has(figure.text))
@@ -678,7 +530,6 @@ const onlyIn = (one: string, other: string): readonly Figure[] => {
 const spansX = (box: Box | null, x: number): boolean =>
   box !== null && onGrid(box.x0) - GRID / 2 <= onGrid(x) && onGrid(x) <= onGrid(box.x1) + GRID / 2
 
-/** The union of a set of boxes -- what "the drawn figure" measures as. */
 const unionOf = (figures: readonly Figure[]): Box => {
   const boxes = figures.map((one) => one.box).filter((one): one is Box => one !== null)
   if (boxes.length === 0) throw new Error('nothing is drawn here')
@@ -690,23 +541,12 @@ const unionOf = (figures: readonly Figure[]): Box => {
   }
 }
 
-/**
- * The figures one picture draws at a grab point that the other draws nowhere.
- *
- * ⭐ THE SUBTRACTION IS WHAT ISOLATES THE DUMMY. The plan bar spans the grab
- * point too, and so does the task group's band; both are written identically in the
- * two pictures, so differencing them away leaves what only the Task-not-started
- * picture has. ⚠️ The not-started marker survives the subtraction as well --
- * PM-1a and PM-1 are different figures -- which is why the point matters: GA-18
- * puts the marker OUTSIDE GA-6, so no box of the marker's spans a dummy's x.
- */
+// Why: the subtraction isolates the dummy, as plan bar and band are written alike in both; the
+// marker survives it too (PM-1a, PM-1), but GA-18 puts it outside GA-6, off any dummy's x.
 const drawnAt = (withDummy: string, withoutDummy: string, x: number): readonly Figure[] =>
   onlyIn(withDummy, withoutDummy).filter((figure) => spansX(figure.box, x))
 
-/**
- * The FIGURE the started twin draws for the milestone's own actual (LF-10 of
- * table T-221: 「a smaller figure at the actual day」), normalized.
- */
+// Spec: LF-10
 const actualMilestoneShapeOf = (started: Drawn): string => {
   const actual = geometryOf(started, UNDER_TEST).actual
   if (actual === null || actual.form !== 'outline') {
@@ -715,7 +555,7 @@ const actualMilestoneShapeOf = (started: Drawn): string => {
   return shapeOf(actual.points.map((one) => [one.x, one.y] as const))
 }
 
-/** The band the actual bar of the started twin occupies -- S-180's vertical. */
+// Spec: S-180
 const actualBandOf = (started: Drawn): Box => {
   const actual = geometryOf(started, UNDER_TEST).actual
   if (actual === null || actual.form !== 'outline') throw new Error('the twin drew no actual bar')
@@ -724,14 +564,8 @@ const actualBandOf = (started: Drawn): Box => {
   return box
 }
 
-/**
- * The vertices one drawn outline is written with.
- *
- * ⛔ THROWS ON ANYTHING BUT A `polygon`, for the reason `boxOfPath` throws on a
- * curve: a figure this file cannot read is a figure it may not report a shape
- * for. The milestone under test is a ◇, which `barSvg` writes as a polygon
- * because that glyph cuts nothing out of itself.
- */
+// Why: throws on anything but a polygon, as boxOfPath does on a curve: a figure this file cannot
+// read is one it may not report a shape for.
 const verticesOf = (figure: Figure): readonly (readonly [number, number])[] => {
   if (figure.tag !== 'polygon') {
     throw new Error(`this file cannot read the outline of a <${figure.tag}>`)
@@ -741,20 +575,9 @@ const verticesOf = (figure: Figure): readonly (readonly [number, number])[] => {
   return pointsOf(raw)
 }
 
-/**
- * A closed outline written as shares of its own bounding box -- the FIGURE,
- * with its place and its size taken out.
- *
- * ⭐⭐ THIS IS WHAT LETS 「同じ図形」 BE MEASURED. FR-043's third milestone
- * exception (利用者の裁定 2026-09-08) says 「**ダミーの図形は、そのマイルストーン
- * の実績の図形と同じとすること（MUST）**」 while the段 above it keeps the dummy's
- * own width and the actual figure keeps its own (LF-10 of table T-221), so the
- * two are never the same SIZE and may never be compared as pixels. Normalizing
- * each to its own box leaves exactly what the MUST names.
- * ⛔ A ◇ normalizes to its four edge midpoints and a rectangle to its four
- * corners, so the two can never be mistaken for one another -- which is the
- * MUST NOT beside it: 「**矩形で描いてはならない（MUST NOT）**」.
- */
+// Spec: FR-043, LF-10
+// Why: the dummy and the actual figure never share a size, so each is normalized to its own box;
+// a diamond and a rectangle normalize differently, so they cannot be mistaken.
 const shapeOf = (points: readonly (readonly [number, number])[]): string => {
   const box = boxOfPoints(points)
   if (box === null || box.x1 - box.x0 <= 0 || box.y1 - box.y0 <= 0) {
@@ -769,7 +592,6 @@ const shapeOf = (points: readonly (readonly [number, number])[]): string => {
     .join(' ')
 }
 
-/** The figure a rectangle of any size normalizes to, written out once. */
 const RECTANGLE_SHAPE = shapeOf([
   [0, 0],
   [1, 0],
@@ -777,7 +599,6 @@ const RECTANGLE_SHAPE = shapeOf([
   [0, 1],
 ])
 
-/** Whether two boxes are the same rectangle, to the picture's own precision. */
 const sameBoxAs = (box: Box | null, other: Box | null): boolean =>
   box !== null &&
   other !== null &&
@@ -786,14 +607,9 @@ const sameBoxAs = (box: Box | null, other: Box | null): boolean =>
   sameOnGrid(box.y0, other.y0) &&
   sameOnGrid(box.y1, other.y1)
 
-/**
- * The plan bar's own rectangle, taken from the geometry rather than from the
- * ink -- a stroke straddles an edge and would answer half a line too wide.
- *
- * ⭐ T-023d GA-1: 「予定の開始点 | 予定バーの左端」. `x0` is therefore the pixel
- * at which the plan start day's column begins, and it is the origin every
- * alignment case below counts days from.
- */
+// Spec: GA-1
+// Why: taken from the geometry, not the ink, since a stroke straddles an edge and would answer
+// half a line too wide.
 const planBoxOf = (drawn: Drawn, uid: number): Box => {
   const plan = geometryOf(drawn, uid).plan
   if (plan === null || plan.form !== 'outline') throw new Error(`Task ${uid} drew no plan bar`)
@@ -802,18 +618,9 @@ const planBoxOf = (drawn: Drawn, uid: number): Box => {
   return box
 }
 
-/**
- * The two day columns table T-023d gives a not-started `Task`'s GRAB TARGETS.
- *
- * GA-5 stands on the plan start day itself (T-240 DM-1)
- * and GA-6 `S-129` working days right of GA-5 (FR-043 / T-023d GA-6); the day
- * is `S-1` × `zoomX` wide (FR-017).
- *
- * ⛔ THIS IS THE GRAB SIDE AND IT IS STILL TWO -- FR-043: 「⭐ **掴む先が 2 つで
- * あることは変わらない** —— 表 T-023d の `GA-5` と `GA-6` はどちらも残り」. What is
- * DRAWN at these two columns is a separate question, and `inkExpectedOf` answers
- * it.
- */
+// Spec: GA-5, GA-6, DM-1, S-129, FR-017
+// Why: the grab side is still two although one mark is drawn; inkExpectedOf answers what is
+// drawn.
 const grabColumnsOf = (fresh: Drawn, zoomX: number): readonly { readonly grab: string; readonly x0: number; readonly x1: number }[] => {
   const left = planBoxOf(fresh, UNDER_TEST).x0
   const dayWidth = dayWidthAt(zoomX)
@@ -826,10 +633,8 @@ const grabColumnsOf = (fresh: Drawn, zoomX: number): readonly { readonly grab: s
   ]
 }
 
-/**
- * Where FR-043 puts the ONE mark of `notStartedSchedule` -- ⭐ one entry, and
- * that is the claim.
- */
+// Spec: FR-043
+// Why: one entry, and that is the claim: FR-043 draws one mark.
 const inkExpectedOf = (fresh: Drawn, zoomX: number): readonly { readonly grab: string; readonly x0: number; readonly x1: number }[] =>
   grabColumnsOf(fresh, zoomX).slice(0, 1)
 
@@ -850,36 +655,17 @@ const gr18InkBoxOf = (fresh: Drawn): Box => {
   return { x0: x, y0: y, x1: x + width, y1: y + height }
 }
 
-/**
- * The side of GA-17's square dummy box (利用者の裁定 2026-09-10): the
- * milestone's own plan height times `S-5` (`ACTUAL_OF_PLAN`) -- the same
- * product `task-figures.ts`'s `taskGeometryOf` names `actualHeight` and,
- * since that ruling, hands to both the milestone's own actual figure (LF-10)
- * and GA-17's dummy box.
- *
- * ⭐ READ OFF THE PLAN FIGURE'S OWN BOX, not a pixel typed in here: `planBoxOf`
- * is the same reader every other alignment case in this file already trusts,
- * and a milestone's plan figure (`barOf`'s `milestone` arm) is drawn the full
- * `planHeight` tall, so its box's own height IS `planHeight` without this file
- * reworking `taskGeometryOf`'s formula a second time.
- */
+// Spec: GA-17, S-5
+// Why: read off the plan figure's own box, which is drawn the full plan height, so the formula
+// of taskGeometryOf is not reworked here.
 const gr18SquareSideOf = (fresh: Drawn): number => {
   const plan = planBoxOf(fresh, UNDER_TEST)
   return (plan.y1 - plan.y0) * ACTUAL_OF_PLAN
 }
 
-/**
- * The ink of a not-started milestone's ONE dummy (table T-023d's GA-17).
- *
- * ⭐ SELECTED WITHOUT USING AN x, so a case may measure one. What the fresh
- * picture draws and the started twin does not is the dummy and the not-started
- * marker (PM-1a and PM-1 are different figures), and the marker is named by its
- * own center rather than by a place this file computed -- GA-18 puts it
- * 「マイルストーンのときは図形の外側」, which is not a pixel any row fixes.
- *
- * ⛔ Throws when there is no ink at all, so a case cannot pass over a picture
- * that draws no dummy anywhere.
- */
+// Spec: GA-17, GA-18
+// Why: selected without an x so a case may measure one; the marker is named by its own center,
+// and no ink throws, so no case passes over a picture with no dummy.
 const gr18InkOf = (fresh: Drawn, started: Drawn): readonly Figure[] => {
   const marker = geometryOf(fresh, UNDER_TEST).marker
   if (marker === null) {
@@ -897,26 +683,9 @@ const gr18InkOf = (fresh: Drawn, started: Drawn): readonly Figure[] => {
   return found
 }
 
-/**
- * The dummy FIGURES of a not-started rectangle Task: what the fresh picture
- * draws and the started twin does not, standing in the actual bar's own band --
- * and not being the not-started marker.
- *
- * ⭐ The band is S-180's own rule for the vertical (「縦の広がりは実績バーの帯に
- * 従う」), so selecting on it names the dummies without naming a tag -- and
- * without using the x this file is about to measure.
- *
- * ⛔⛔ THE MARKER HAD TO BE TAKEN OUT ON 2026-09-10, and no defect made it so.
- * `drawnAt`'s own note says the not-started marker survives the subtraction --
- * PM-1a and PM-1 are different figures -- and it used to be told from a dummy
- * by its BOX: the band was `S-4` x `S-5` and the marker `S-22` square, which
- * were far apart. ⚠️ `S-5` was re-chosen as `actualMin` (`S-6`, 16px) over
- * `S-4` (28px), so the band is now 16.002px tall and the marker's 16px square
- * lands on the same rounded top and bottom. ⇒ Selecting on the band alone
- * answers TWO figures for one mark, and every case that counted them read the
- * marker as a second dummy. ⭐ Named by the marker's own center, exactly the
- * way `gr18InkOf` above names it.
- */
+// Spec: S-180, S-5, S-6
+// Why: the marker is named by its center, since the band and the marker's square share a rounded
+// top and bottom; selecting on the band alone answers two figures for one mark.
 const dummyFiguresOf = (fresh: Drawn, started: Drawn): readonly Figure[] => {
   const band = actualBandOf(started)
   const marker = geometryOf(fresh, UNDER_TEST).marker
@@ -933,36 +702,15 @@ const dummyFiguresOf = (fresh: Drawn, started: Drawn): readonly Figure[] => {
   )
 }
 
-/** The same figures as their boxes, left to right. */
 const dummyInkOf = (fresh: Drawn, started: Drawn): readonly Box[] =>
   dummyFiguresOf(fresh, started)
     .map((figure) => figure.box as Box)
     .sort((one, other) => one.x0 - other.x0)
 
-// ---------------------------------------------------------------------------
-// The instrument, checked against a picture whose dummies this file put there
-//
-// ⭐ Rule 04 section 2: docs/development-rules/04-verification.md 「検査・契約・免除は、わざと壊して落ちることを確かめる
-// まで、確かめたことにならない」. The cases below the next divider read a picture
-// and say what they found; a case that only ever reads the product's own
-// picture cannot tell "the reader works and the picture is right" from "the
-// reader is broken in the same direction". So the same readers are run once
-// over a picture whose dummy content is KNOWN EXACTLY, because this file wrote
-// it: figures assembled to the letter of FR-043, FR-013 and S-180 are spliced
-// into a control that has none.
-//
-// ⚠️ THE CONTROL IS THE STARTED PICTURE, NOT THE NOT-STARTED ONE. FR-043 shows
-// the handles 「`Task` が未着手であるあいだ」, so a Task with an actual carries
-// no dummy at all -- which is the only picture left that is dummy-free by a row
-// rather than by a defect. ⛔ The EXPORT picture would be dummy-free too, but
-// only if EP-14 holds -- and EP-14 is one of the things these readers are used
-// to judge, so it may not also be their control.
-//
-// ⛔ THIS IS NOT A CLAIM ABOUT `src/`. Nothing in it renders a dummy: the
-// figures are spliced into a real picture as a plain string.
-// ---------------------------------------------------------------------------
+// Why: the readers are run once over a control whose dummies this file spliced in, so a broken
+// reader cannot pass; the control is the started picture, dummy-free by a row, not by EP-14.
 
-/** Ink that begins at `x0` and runs `width`, standing in the actual bar's band. */
+// Summary: spliced adds ink that begins at each x0 and runs width, in the actual bar's band.
 const spliced = (svg: string, inks: readonly { readonly x0: number }[], width: number, band: Box, fill: string): string => {
   const figures = inks
     .map(
@@ -983,48 +731,39 @@ describe('the reader this file measures pictures with', () => {
     const bar = figuresOf(started.svg).filter((one) => sameBoxAs(one.box, band))
     const fill = bar.flatMap((one) => one.colors)[0]
     expect(fill).toBeDefined()
-    // ⭐⭐ THE CONTROL SPLICES **TWO** FIGURES ON PURPOSE, at both of table
-    // T-023d's grab columns -- and this is NOT the product's picture. A control
-    // that put one there could not tell a working reader from one that stops
-    // after the first figure it finds, and every case below that asks for
-    // 「1 つだけ」 would then be green over a reader incapable of answering 2.
+    // Why: the control splices two figures on purpose: a reader that stops after the first figure
+    // would pass every one-mark case below.
     const expected = grabColumnsOf(fresh, NARROW_DAY_ZOOM)
     const width = drawnWidthAt(NARROW_DAY_ZOOM)
     const obedient = spliced(started.svg, expected, width, band, fill!)
 
-    // ⭐ EXACTLY TWO, because exactly two were put there. A reader that
-    // over-collected (the plan bar, the task group band, the actual bar -- all of
-    // which stand in this task group) would answer more, and a reader that measured
-    // the wrong element would answer the wrong rectangle.
+    // Why: exactly two, as two were put there: a reader that over-collected would answer more, and
+    // one that measured the wrong element the wrong rectangle.
     const found = dummyInkOf({ ...fresh, svg: obedient }, started)
     expect(found).toHaveLength(2)
     for (const [i, ink] of expected.entries()) {
       expect(onGrid(found[i]!.x0), `${ink.grab} left`).toBeCloseTo(onGrid(ink.x0), 2)
       expect(onGrid(found[i]!.x1), `${ink.grab} right`).toBeCloseTo(onGrid(ink.x1), 2)
     }
-    // ⛔ AND THE OTHER WAY -- rule 04 section 2's second step. Take the spliced
-    // figures away again and the reader must say there is nothing here, or
-    // every "the picture draws a dummy" case below would pass over a picture
-    // that draws none.
+    // Why: the other way: with the splices gone the reader must find nothing, or every case that a
+    // dummy is drawn would pass over a picture that draws none.
     expect(dummyInkOf(started, started)).toHaveLength(0)
   })
 })
 
-// ---------------------------------------------------------------------------
-// FR-043 (MUST) and S-180: the dummy is drawn, how wide, and where it begins
-// ---------------------------------------------------------------------------
-
+// Spec: FR-043, S-180
+// Why: no paint order is asserted, as no row of T-020 (ZO-1, ZO-1a, ZO-2, ZO-3, ZO-4, ZO-5) names
+// U-52; nor the drag preview of GA-21 and GA-22, as no picture here is handed a gesture.
 describe('FR-043 / table T-206 S-180 -- the Actual Dummy is drawn', () => {
   it('S-180 is still the row that bounds the drawn width DM-3 gives, and S-247 the ratio to the marker', () => {
-    // ⚠️ A GUARD, NOT THE CLAIM. It says this file is still pointed at the rows
-    // it was written for; if a row moved, the cases after it would be the wrong
-    // ones to be writing rather than a failure of the code.
+    // Why: a guard, not the claim: if a row moved, the cases after it would be the wrong ones rather
+    // than a failure of the code.
     expect(S_180['値']).toContain('DM-3')
     expect(S_180['値']).toContain('描く幅の上限')
     expect(rowOf('T-206', 'S-247')['値']).toContain('DM-3')
     expect(REQUIREMENTS).toContain(DM_3_THE_WIDTH)
     expect(REQUIREMENTS).toContain(DM_3_NOT_CUT_BY_A_DAY)
-    // T-266, the rows the alignment cases count days between.
+    // Spec: T-266
     expect(GA_1['基準点']).toContain('予定の左端')
     expect(GA_5['基準点']).toContain('予定の開始')
     expect(GA_5['基準点']).not.toContain('翌稼働日')
@@ -1043,9 +782,9 @@ describe('FR-043 / table T-206 S-180 -- the Actual Dummy is drawn', () => {
   })
 
   it('the two documents differ only in the actual, so the difference of the pictures is the dummy', () => {
-    // A precondition of every case below: FR-011 keeps the plan where it is
-    // when an actual is placed, so the plan bar is written identically in both
-    // pictures and is differenced away rather than mistaken for a dummy.
+    // Spec: FR-011
+    // Why: the plan bar is written identically in both pictures, so it is differenced away rather
+    // than mistaken for a dummy.
     const fresh = draw(notStartedSchedule(), NARROW_DAY_ZOOM)
     const started = draw(startedSchedule(), NARROW_DAY_ZOOM)
     expect(geometryOf(started, UNDER_TEST).plan).toEqual(geometryOf(fresh, UNDER_TEST).plan)
@@ -1057,25 +796,15 @@ describe('FR-043 / table T-206 S-180 -- the Actual Dummy is drawn', () => {
     const days = `${onGrid(dayWidthAt(zoomX))}px/day`
 
     it(`FR-043 (MUST) shows the handle at ${days}: the picture draws ONE figure`, () => {
-      // FR-043: 「実績の入力を始める掴みシロを …… 実績の開始点と終了点として
-      // 薄くタスクの上に示し」. ⛔ A live hit target with nothing under the
-      // pointer is not 「示し」 -- that is the defect this case exists for.
-      //
-      // ⭐⭐ AND EXACTLY ONE FIGURE SHOWS IT (利用者の裁定 2026-09-08): 「**ダミー
-      // の印は 1 つだけ描くこと（MUST）。開始の側と終了の側に別々の印を描いては
-      // ならない（MUST NOT）**」 —— 「**ダミーの実績は `S-129` ＝ 1 稼働日であり、
-      // その 1 日を覆う 1 つの印として描く**」. ⛔ 2026-09-08 まで this case asked
-      // for two, quoting 「掴みシロを 2 つ」 -- but that phrase counts GRAB
-      // TARGETS, and FR-043 says in the same breath DFC-396 「⭐ **掴む先が 2 つである
-      // ことは変わらない**」. The row count is asserted right below, still at two.
+      // Spec: FR-043
+      // Why: a live hit target with nothing drawn is not shown; one figure is drawn, while the two
+      // grab rows stay, as asserted below.
       const fresh = draw(notStartedSchedule(), zoomX)
       const started = draw(startedSchedule(), zoomX)
-      // ⭐ THE GRAB SIDE, UNTOUCHED: both rows of table T-023d are still there.
       expect(geometryOf(fresh, UNDER_TEST).dummies.map((one) => one.grab)).toEqual([
         'GA-5',
         'GA-6',
       ])
-      // ⭐ THE DRAWING SIDE: one figure.
       expect(dummyInkOf(fresh, started)).toHaveLength(1)
     })
 
@@ -1099,7 +828,7 @@ describe('FR-043 / table T-206 S-180 -- the Actual Dummy is drawn', () => {
     })
 
     it(`⭐ T-240 DM-3 (MUST) draws the dummy min(marker diameter x S-247, S-180) wide, whatever the day, at ${days}: ${DM_3_THE_WIDTH}`, () => {
-      // Step: the same width at both zooms is the rule; a mark cut to one day at the narrow zoom is the retired one.
+      // Why: the same width at both zooms is the rule; a mark cut to one day at the narrow zoom is the retired reading.
       const fresh = draw(notStartedSchedule(), zoomX)
       const started = draw(startedSchedule(), zoomX)
       const expected = inkExpectedOf(fresh, zoomX)
@@ -1114,7 +843,7 @@ describe('FR-043 / table T-206 S-180 -- the Actual Dummy is drawn', () => {
     })
 
     it(`⭐ FR-043 (MUST) begins the dummy at its day column's left edge at ${days}`, () => {
-      // Step: the left edge is counted in days from the plan bar's own left edge (T-023d GA-1).
+      // Why: the left edge is counted in days from the plan bar's own left edge, which GA-1 makes the plan start day's column.
       const fresh = draw(notStartedSchedule(), zoomX)
       const started = draw(startedSchedule(), zoomX)
       const expected = inkExpectedOf(fresh, zoomX)
@@ -1148,20 +877,15 @@ describe('FR-043 / table T-206 S-180 -- the Actual Dummy is drawn', () => {
   }
 
   it('S-180 governs the horizontal only: the dummy stands in the actual bar band', () => {
-    // S-180's note: 「⭐ 本行が定めるのは横だけである —— 縦の広がりは実績バーの
-    // 帯に従う（`S-257` / `S-260` が予実の端点について置いた分け方と同じである）」.
-    // ⭐ The band is not computed here: it is READ OFF the actual bar of the
-    // twin document, which is the very actual FR-043 places when GA-5 is
-    // grabbed. So nothing in this case knows S-5 or any other figure.
+    // Spec: S-180, S-257, S-260
+    // Why: the band is read off the twin's actual bar, the actual FR-043 places when GA-5 is
+    // grabbed, so this case knows no figure size.
     expect(S_180['保存しない理由']).toContain('縦の広がりは実績の帯に従う')
     const fresh = draw(notStartedSchedule(), NARROW_DAY_ZOOM)
     const started = draw(startedSchedule(), NARROW_DAY_ZOOM)
     const band = actualBandOf(started)
-    // ⛔ WALKED OVER THE INK, NOT OVER THE `dummies` ROWS. Until 2026-09-08 this
-    // case walked both rows of table T-023d and asked for ink at each; FR-043's
-    // MUST NOT now leaves ink at one of them, and the row it does not draw is
-    // still a grab target. ⭐ The vertical is what this case is about, and one
-    // mark is all there is to measure it on.
+    // Why: walked over the ink, not the dummies rows: one row draws no mark yet stays a grab target,
+    // and one mark is all there is to measure the vertical on.
     for (const ink of inkExpectedOf(fresh, NARROW_DAY_ZOOM)) {
       const drawnFigures = drawnAt(fresh.svg, started.svg, ink.x0 + 1)
       expect(drawnFigures.length, `nothing is drawn at ${ink.grab}`).toBeGreaterThan(0)
@@ -1172,14 +896,12 @@ describe('FR-043 / table T-206 S-180 -- the Actual Dummy is drawn', () => {
   })
 
   it('FR-013 (MUST) draws it faint, at S-131', () => {
-    // FR-013: 「未着手のマーカーと、実績入力のダミー（`FR-043`）は薄く描き …
-    // 濃さの値は `S-131`」.
+    // Spec: FR-013, S-131
     const fresh = draw(notStartedSchedule(), NARROW_DAY_ZOOM)
     const started = draw(startedSchedule(), NARROW_DAY_ZOOM)
     const inks = dummyFiguresOf(fresh, started)
-    // ⭐ ONE, since 利用者の裁定 2026-09-08 -- 「ダミーの印は 1 つだけ描くこと」.
-    // ⚠️ THE COUNT IS HERE ONLY SO THE LOOP CANNOT BE EMPTY: a faintness case
-    // over no ink at all would be green whatever the picture did.
+    // Why: the count is here only so the loop cannot be empty: a faintness case over no ink would be
+    // green whatever the picture did.
     expect(inks.length, 'no dummy ink to judge the faintness of').toBe(1)
     for (const figure of inks) {
       expect(figure.opacity, 'a dummy is not faint').toBeCloseTo(DUMMY_OPACITY, 6)
@@ -1187,18 +909,16 @@ describe('FR-043 / table T-206 S-180 -- the Actual Dummy is drawn', () => {
   })
 
   it('FR-041 keeps the dummy on the actual bar colors and gives it none of its own', () => {
-    // FR-013: 「色は実績バーの色を継ぎ、独立した色を保存しない（`FR-041`）」.
+    // Spec: FR-013, FR-041
     const fresh = draw(notStartedSchedule(), NARROW_DAY_ZOOM)
     const started = draw(startedSchedule(), NARROW_DAY_ZOOM)
-    // The actual bar is the figure of the started picture whose box is the
-    // band -- found by its rectangle rather than by any tag or attribute name.
+    // Why: the actual bar is found by its rectangle, the band, not by any tag or attribute name.
     const band = actualBandOf(started)
     const bar = figuresOf(started.svg).filter((one) => sameBoxAs(one.box, band))
     expect(bar.length, 'the twin drew no actual bar').toBeGreaterThan(0)
     const inherited = new Set(bar.flatMap((one) => one.colors))
     const inks = dummyFiguresOf(fresh, started)
-    // ⭐ ONE (FR-043, 利用者の裁定 2026-09-08), for the same reason the faintness
-    // case above states its count: an empty loop would prove nothing.
+    // Why: one, for the reason the faintness case states its count: an empty loop proves nothing.
     expect(inks.length, 'no dummy ink to judge the colors of').toBe(1)
     for (const figure of inks) {
       for (const color of figure.colors) {
@@ -1212,23 +932,9 @@ describe('FR-043 / table T-206 S-180 -- the Actual Dummy is drawn', () => {
     const days = `${onGrid(dayWidthAt(zoomX))}px/day`
 
     it(`GA-17 (MUST): a milestone not started draws one dummy, the same square as its own actual figure at ${days}`, () => {
-      // FR-043: 「⚠️ **マイルストーンには例外がある** —— 実績バーを持たない
-      // ので（`FR-104` の 表 T-266 の `GA-16`）、**ダミーは点として 1 つだけ出すこと（MUST）。
-      // 実績期間は `S-130` とすること（MUST）**」.
-      // ⛔⛔ THE WIDTH MUST WAS READ, UNTIL 2026-09-10, AS REACHING GA-17 TOO:
-      // 「⚠️ **大きさは例外ではない** —— **描く幅は 1 日ぶんと `S-180` の小さい方の
-      // ままである**（本要求の上の段）。**変わったのは形と色だけである。**」 The
-      // same day's ruling withdrew it: 「⭐⭐ **大きさも例外とすること（MUST）。
-      // マイルストーンのダミーを描く箱は、そのマイルストーンの実績の図形と同じ
-      // 正方形とすること（MUST）。`DM-3` の幅を横幅としては
-      // ならない（MUST NOT）**」（利用者の裁定 2026-09-10）.
-      // ⭐⭐ SO THE VERTICAL IS NOW ASSERTED TOO. A milestone still has no
-      // actual BAR (table T-023d, GA-16), but its dummy box is no longer
-      // bounded by S-180's bar-shaped rule either -- it is a SQUARE the size
-      // of the milestone's own actual figure (`actualHeight` in
-      // `task-figures.ts`, read here off the plan figure's own box via
-      // `gr18SquareSideOf` rather than retyped as a pixel).
-      // ⛔ THE COUNT WAS 2 UNTIL 2026-09-08 and this citation still said so.
+      // Spec: FR-043, FR-104, GA-16, S-130
+      // Why: a milestone has no actual bar, so its dummy box is a square the size of its own actual
+      // figure, read off the plan figure's box by gr18SquareSideOf.
       const fresh = draw(milestoneSchedule(), zoomX)
       const started = draw(startedMilestoneSchedule(), zoomX)
       const dummies = geometryOf(fresh, UNDER_TEST).dummies
@@ -1251,14 +957,9 @@ describe('FR-043 / table T-206 S-180 -- the Actual Dummy is drawn', () => {
     })
 
     it(`⛔ FR-043 (MUST NOT) draws GA-17 as anything but a rectangle at ${days}`, () => {
-      // FR-043's THIRD milestone exception (利用者の裁定 2026-09-08, 逐語
-      // 「マイルストーンダミー形状は、マイルストーン実績の形状と合わせろ。
-      // マイルストーン実績の色の薄い奴としろ。 つかみ判定も実測とあせろ。」):
-      // 「⭐⭐ **3 つ目は図形と色である** —— **ダミーの図形は、そのマイルストーンの
-      // 実績の図形と同じとすること（MUST）。矩形で描いてはならない（MUST NOT）**」.
-      // ⭐ THIS CASE IS THE MUST NOT HALF, stated on its own so that a figure
-      // which is neither the rectangle nor the milestone's own still fails the
-      // next case rather than passing both.
+      // Spec: FR-043
+      // Why: the MUST NOT half on its own, so a figure that is neither the rectangle nor the
+      // milestone's own still fails the next case rather than passing both.
       const fresh = draw(milestoneSchedule(), zoomX)
       const started = draw(startedMilestoneSchedule(), zoomX)
       const ink = gr18InkOf(fresh, started)
@@ -1267,13 +968,9 @@ describe('FR-043 / table T-206 S-180 -- the Actual Dummy is drawn', () => {
     })
 
     it(`⭐ FR-043 (MUST) draws GA-17 as the milestone's own actual figure at ${days}`, () => {
-      // 「**ダミーの図形は、そのマイルストーンの実績の図形と同じとすること
-      // （MUST）**」. ⭐ THE OTHER SIDE OF THE COMPARISON IS A DRAWING THE
-      // SPECIFICATION PUTS BESIDE IT, not a value out of `src/`: the started
-      // twin is the same milestone with an actual, and LF-10 of table T-221 is
-      // what draws its figure. Normalizing both to their own boxes is what the
-      // MUST asks about -- FR-043 keeps the dummy's own width in the段 above
-      // (DFC-488 「大きさは例外ではない」), so the two are the same FIGURE at two sizes.
+      // Spec: FR-043, LF-10
+      // Why: compared with a drawing the spec puts beside it, the started twin, not a value from src;
+      // both are normalized to their own boxes, the same figure at two sizes.
       const fresh = draw(milestoneSchedule(), zoomX)
       const started = draw(startedMilestoneSchedule(), zoomX)
       const ink = gr18InkOf(fresh, started)
@@ -1296,14 +993,10 @@ describe('FR-043 / table T-206 S-180 -- the Actual Dummy is drawn', () => {
 
 })
 
-// ---------------------------------------------------------------------------
-// EP-14 of table T-076: the export draws no dummy -- and drops nothing else
-// ---------------------------------------------------------------------------
-
-/** The screen picture and the exported one, taken from one running shell. */
+// Summary: TwoPictures holds the screen picture and the exported one, from one running shell.
 interface TwoPictures {
   readonly screen: string
-  /** The picture the export is assembled from, and the assembled export itself. */
+  // Summary: exportInner is the picture the export is assembled from; exportWhole is the export.
   readonly exportInner: string
   readonly exportWhole: string
   readonly geometry: ReturnType<typeof geometryFromLayout>
@@ -1326,15 +1019,12 @@ const shellPictures = (schedule: Schedule): TwoPictures => {
   if (screen === undefined || scene === null || frame === null) {
     throw new Error('BO-1 has settled no size, so there is no picture to compare')
   }
-  // ⭐ The panel starts hidden (S-99h) and a hidden panel is 0 wide -- so FR-080's export
-  // environment (「プロパティパネルとコマンドパレットを閉じた状態」) is the very
-  // environment the screen is already in, and the two pictures are comparable
-  // figure for figure. A screen with the panel open would be a different
-  // run of table T-068 and this file could say nothing about the difference.
+  // Spec: S-99h, FR-080
+  // Why: a hidden panel is 0 wide, so the export environment is the one the screen is already in
+  // and the two pictures compare figure for figure.
   expect(frame.regions.propertiesPanel.width).toBe(0)
-  // CR-337: `exportSvg` now answers `{ ok: false }` past S-217's ceiling; this
-  // fixture's screen is nowhere near it, so a refusal here is a fixture bug,
-  // not FR-025's own MUST NOT.
+  // Why: exportSvg refuses past the S-217 ceiling; this fixture is nowhere near it, so a refusal
+  // is a fixture bug, not FR-025's MUST NOT.
   const whole = exportSvg(scene)
   if (!whole.ok) {
     throw new Error('exportSvg refused a picture this fixture expected to fit (FR-025, S-217)')
@@ -1371,12 +1061,12 @@ const dayWidthOf = (pictures: TwoPictures, schedule: Schedule, one: number, othe
 
 describe('EP-14 of table T-076 -- an export draws no dummy, and moves nothing', () => {
   it('EP-14 is still the row that keeps U-52 out and leaves its room alone', () => {
-    // ⚠️ A GUARD. 「`Actual Dummy`（`U-52`）| 描かない | …
-    // ⚠️ 場所は空けない」.
+    // Spec: EP-14, U-52
     expect(EP_14['UI パーツ']).toContain('U-52')
     expect(EP_14['描くか']).toContain('描かない')
     expect(EP_14['理由と扱い']).toContain('場所は空けない')
-    // GA-18's own row is why a dummy may not simply be deleted for an export.
+    // Spec: GA-18
+    // Why: GA-18's row is why a dummy may not simply be deleted for an export.
     expect(GA_18['掴む所']).toContain('進捗ステータスマーク')
   })
 
@@ -1385,14 +1075,11 @@ describe('EP-14 of table T-076 -- an export draws no dummy, and moves nothing', 
     const pictures = shellPictures(schedule)
     const dummies = taskGeometryOf(pictures, UNDER_TEST).dummies
     expect(dummies.map((one) => one.grab)).toEqual(['GA-5', 'GA-6'])
-    // Step: the DM-3 width, which no day width enters.
+    // Why: the DM-3 width, which no day width enters, so the zoom passed here changes nothing.
     const width = drawnWidthAt(1)
     expect(dayWidthOf(pictures, schedule, UNDER_TEST, 2)).toBeGreaterThan(0)
-    // ⛔ THE PRECONDITION IS PART OF THE CLAIM. Without it this case passes
-    // while nothing is drawn anywhere, which is exactly the state EP-14 must
-    // not be confused with: a picture that draws no dummy because the dummy is
-    // drawn nowhere obeys no requirement.
-    //
+    // Why: the precondition is part of the claim: a picture that draws no dummy because none is
+    // drawn anywhere obeys no requirement.
     const anchor = dummies.find((one) => one.grab === 'GA-5')
     if (anchor === undefined) throw new Error('the shell drew no GA-5 to look for')
     const dropped = drawnAt(pictures.screen, pictures.exportInner, anchor.at.x + width / 2)
@@ -1400,13 +1087,8 @@ describe('EP-14 of table T-076 -- an export draws no dummy, and moves nothing', 
       dropped.length,
       'the screen draws nothing at GA-5 that the export leaves out',
     ).toBeGreaterThan(0)
-    // Nothing else went missing on the way. ⛔ MEASURED AGAINST EVERY TASK'S
-    // DUMMIES, NOT ONLY THIS ONE'S: EP-14 keeps `Actual Dummy`
-    // (`U-52`) out of the picture altogether, and this document holds a second
-    // Task that is also not started, so FR-043 gives that one a mark of its own.
-    // ⚠️ BOTH ROWS ARE STILL SWEPT HERE, and deliberately: this half says what
-    // may go missing, so it has to admit ink at either place rather than assume
-    // where the mark stands.
+    // Why: measured against every Task's dummies, as EP-14 keeps U-52 out altogether; both rows are
+    // swept, since this half says what may go missing and must not assume where the mark stands.
     const everyDummyX = pictures.geometry.tasks.flatMap((one) =>
       one.dummies.map((dummy) => dummy.at.x),
     )
@@ -1418,10 +1100,9 @@ describe('EP-14 of table T-076 -- an export draws no dummy, and moves nothing', 
       expect(isADummy(figure), `the export also dropped ${figure.text}`).toBe(true)
     }
 
-    // ⛔ RULE 04 SECTION 2, SECOND STEP: docs/development-rules/04-verification.md 「壊す。落ちることを見る」. The clause
-    // above is worth writing only if it falls when something table T-076 keeps
-    // really is missing. Take the plan bar out of the export as well -- EP-5
-    // draws `Task Bars`（`U-2`）-- and the same reading must refuse it.
+    // Spec: EP-5, U-2
+    // Why: the clause is worth writing only if it falls when something T-076 keeps is missing, so
+    // the plan bar is taken out of the export too and the reading must refuse it.
     const plan = taskGeometryOf(pictures, UNDER_TEST).plan
     if (plan === null || plan.form !== 'outline') throw new Error('the Task drew no plan bar')
     const planBox = boxOfPoints(plan.points.map((one) => [one.x, one.y] as const))
@@ -1432,10 +1113,9 @@ describe('EP-14 of table T-076 -- an export draws no dummy, and moves nothing', 
   })
 
   it('EP-5 keeps the not-started Progress Status Mark in the export, at the screen x', () => {
-    // ⛔ THE CASE THIS FILE EXISTS FOR MOST. Emptying `dummies` for the export
-    // would satisfy EP-14 and take the marker with it: GA-18 puts the
-    // not-started marker 「終了点の掴みシロの外側」, so its x hangs off GA-6.
-    // EP-5 draws `Progress Status Mark`（`U-5`）in the export, so it must survive.
+    // Spec: EP-5, GA-18, U-5
+    // Why: emptying dummies for the export would satisfy EP-14 and take the marker with it, as its
+    // x hangs off GA-6; EP-5 draws the marker in the export, so it must survive.
     const pictures = shellPictures(notStartedSchedule())
     const marker = taskGeometryOf(pictures, UNDER_TEST).marker
     expect(marker?.symbol).toBe('PM-1a')
@@ -1451,13 +1131,12 @@ describe('EP-14 of table T-076 -- an export draws no dummy, and moves nothing', 
         .sort()
     expect(atTheMarker(pictures.exportInner).length, 'the export drew no not-started marker')
       .toBeGreaterThan(0)
-    // And the very same figures as on the screen -- 「場所は空けない」.
+    // Spec: EP-14
     expect(atTheMarker(pictures.exportInner)).toEqual(atTheMarker(pictures.screen))
   })
 
   it('EP-14 leaves the room: the plan bar is written identically in both pictures', () => {
-    // 「⚠️ 場所は空けない —— タスクバーに重なるので、描かなくても他の UI パーツ
-    // の位置が動かない」.
+    // Spec: EP-14
     const pictures = shellPictures(notStartedSchedule())
     const plan = taskGeometryOf(pictures, UNDER_TEST).plan
     if (plan === null || plan.form !== 'outline') throw new Error('the Task drew no plan bar')
@@ -1472,18 +1151,14 @@ describe('EP-14 of table T-076 -- an export draws no dummy, and moves nothing', 
   })
 
   it('WY-3 of table T-041: one ratio carries the screen picture into the export', () => {
-    // WY-3: 「画面上の外接矩形に `exportCanvas` の幅 ÷ 画面の幅 の比を掛けた値
-    // と …… 書き出した SVG …… の中の同じ UI パーツの外接矩形とが、位置も寸法も
-    // …… 一致すること」. FR-080 (MUST): 「縦にも横にも同じ比を掛けること」,
-    // (MUST NOT) 「縦と横に別の比を掛けてはならない」 -- so ONE number.
+    // Spec: WY-3, FR-080
     const pictures = shellPictures(notStartedSchedule())
     const scales = [...pictures.exportWhole.matchAll(/scale\(([^)]*)\)/g)].map((hit) => hit[1] ?? '')
     expect(scales.length).toBe(1)
     expect(numbersOf(scales[0] ?? '')).toHaveLength(1)
     expect(Number.parseFloat(scales[0] ?? 'NaN')).toBeCloseTo(pictures.ratio, 2)
-    // The received picture goes inside that group untouched (FR-080's 「切り出す
-    // 範囲は `GRS` が占める画面の全体」), so a part kept by table T-076 is at
-    // its screen coordinate times the ratio and nothing else.
+    // Why: the received picture goes into the scaled group untouched, so a part T-076 keeps is at its
+    // screen coordinate times the ratio and nothing else.
     expect(pictures.exportWhole).toContain(pictures.exportInner)
   })
 })

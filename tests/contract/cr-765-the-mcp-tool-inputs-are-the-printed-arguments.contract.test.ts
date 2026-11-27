@@ -1,4 +1,4 @@
-// CR-765 spec-only tests: each MCP tool's input schema is derived from the argument column of table T-107 (design-mcp-relay.md 3.1).
+// Contract tests: each MCP tool's input schema is derived from the argument column of table T-107.
 
 import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
@@ -38,8 +38,8 @@ interface Schema {
   readonly required?: unknown
 }
 
-// Why: CR-766 gives the request of AM-7 the keys of the write request and one choice per command of table T-108,
-// so this one key carries more than a type and a description; the shape of its choices is pinned by the CR-766 tests.
+// Why: the request of AM-7 holds the keys of the write request and one choice per command of table T-108,
+// so this one key carries more than a type and a description; the shape of its choices is pinned elsewhere.
 const WRITE_REQUEST_TOOL = 'applyCommands'
 const WRITE_REQUEST_KEYS = ['expectedStamp', 'commands']
 
@@ -47,7 +47,7 @@ const NUMBER_LIST = 'readonly number[]'
 const STRING_LIST = 'readonly string[]'
 const STRING_CHOICES = /^'[^']+'( \| '[^']+')+$/
 
-// see AG-12, CR-796
+// Spec: AG-12
 // Why: the description of a key is the English (en) of the meaning in the manuscript; the printed table stays Japanese.
 const schemaOf = (member: PrintedMember, argument: PrintedArgument): Schema => {
   const description = keyMeaningEnglish(member.name, argument.name)
@@ -111,7 +111,6 @@ describe('mcpToolList: one tool per row of T-107, with the input the argument co
   })
 
   it('each description is the English of the "what it carries" cell, each line a newline', () => {
-    // see CR-796
     expect(mcpToolList().map((tool) => tool.description)).toEqual(
       members.map((one) => englishOf(manuscriptMember(one.name).carries)),
     )

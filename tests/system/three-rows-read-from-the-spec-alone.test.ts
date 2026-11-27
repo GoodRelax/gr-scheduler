@@ -1,41 +1,4 @@
-// Three rows of the specification, measured on the shipped build by a reader
-// who was allowed `docs/spec/` and nothing else.
-//
-//   S-132  (table T-217, `_assets/tbl-settings.md`) -- the corner radius a
-//          highlight box is drawn with. `FR-019` (MUST) sends the value to
-//          table T-217 and holds it steady across zoom.
-//
-//   SK-3   (table T-036, `01-04-requirements.md`) -- `Delete` / `Backspace`
-//          delete what is selected, and send the whole of what that means to
-//          row `SL-1` of table T-023c. `SL-1` names five kinds and rules a task group
-//          (`TaskGroup`) out of them.
-//
-//   IN-4   (table T-028, `01-04-requirements.md`) -- `Esc` consumes ONE tier at
-//          a time, in an order the row itself sets out, from a raised notice
-//          down to a shown explanation.
-//
-// ⛔ NO SENTENCE OF THE MANUSCRIPT IS QUOTED OR TRANSLATED IN THIS FILE. Rule
-// 03 section 5 asks for the row ID instead, so every claim below cites the row
-// that carries it and the reader goes to `docs/spec` for the wording.
-//
-// ⭐ EVERY NUMBER AND EVERY ROW ID ASSERTED IS READ OUT OF `docs/spec` AT READ
-// TIME. Chapter 1.9 asks that of a case verifying a requirement that points at
-// a table: the corner radius, the distance that parts a press from a drag, the
-// two keys of `SK-3`, and which entrance arms which holding are all taken from
-// the manuscript, so moving a value there moves this file with it. Nothing here
-// is a number read off the running application.
-//
-// ⛔ NO `swsCase` IS DECLARED. Table T-219 row `TW-2` has Chapter 9's cases
-// generated from those declarations and hung from an `SWS-xxx` node of Chapter
-// 6.1, and none of today's `SWS-` nodes is about a corner radius, a delete key
-// or the `Esc` tiers. The rows each case leans on are named in prose at the
-// case instead, the way `tests/system/user-reported-fixes.test.ts` does.
-//
-// ⛔ WHAT IS PRESSED IS THE SHIPPED BUILD -- `dist/index.html` over `file://`,
-// as `tests/system/measured-sweep.test.ts` presses it. `NFR-004` row `CN-1`
-// has `dist/` hold exactly one file; this file only opens it.
-//
-// ⭐ EACH CASE SAYS WHAT WOULD MAKE IT GO RED, in the sentence above its body.
+// System tests: rows S-132, SK-3 and IN-4, read from the spec alone and pressed on the shipped build.
 
 import { expect, test, type Browser, type Page } from '@playwright/test'
 import { existsSync } from 'node:fs'
@@ -44,10 +7,6 @@ import { pathToFileURL } from 'node:url'
 import { specTable, type SpecTable } from '../contract/spec-table'
 import { CLEARING_UP_MS, launchReferenceBrowser, readSettledDrawnSvg, screenOf } from './live-app'
 import { rowOf } from './sws-case'
-
-// ---------------------------------------------------------------------------
-// What the specification says, read at read time
-// ---------------------------------------------------------------------------
 
 const T023B: SpecTable = specTable('T-023b')
 const T023C: SpecTable = specTable('T-023c')
@@ -58,7 +17,7 @@ const T109: SpecTable = specTable('T-109')
 const T206: SpecTable = specTable('T-206')
 const T217: SpecTable = specTable('T-217')
 
-/** The first number written in a cell. @purity pure */
+/** @purity pure */
 function numberIn(cell: string, what: string): number {
   const found = /-?\d+(?:\.\d+)?/.exec(cell.replace(/`/g, ''))
   const value = Number(found?.[0] ?? '')
@@ -68,15 +27,9 @@ function numberIn(cell: string, what: string): number {
   return value
 }
 
-/**
- * One cell of a row, taken by position, with the table's shape guarded.
- *
- * ⭐ By position and not by heading: the headings of these tables are Japanese
- * and rule 03 section 5 keeps this tree ASCII. A table that gains or loses a
- * column fails loudly here rather than silently reading the wrong cell.
- *
- * @purity pure
- */
+// Why: by position, not heading: the headings are Japanese and this tree is ASCII; a table
+// that gains or loses a column fails here rather than reading the wrong cell.
+/** @purity pure */
 function cellOf(table: SpecTable, id: string, column: number, columns: number): string {
   const row = rowOf(table, id)
   if (row.cells.length !== columns) {
@@ -88,38 +41,29 @@ function cellOf(table: SpecTable, id: string, column: number, columns: number): 
   return row.cells[column] ?? ''
 }
 
-/** The screen of the base environment: table T-025, row `MC-6`. */
 const BASE_SCREEN = screenOf(rowOf(T025, 'MC-6'))
 
-// Table T-217 holds six cells after the row ID -- key, type, default, floor,
-// ceiling, meaning -- with the default in the third.
+// Spec: T-217
 const T217_COLUMNS = 6
 const T217_DEFAULT = 2
 
-/**
- * `S-132` (`cornerRadiusPx`) of table T-217: the corner radius of a highlight
- * box, which `FR-019` (MUST) has drawn the same at every zoom.
- */
+// Spec: S-132, FR-019
 const CORNER_RADIUS_PX = numberIn(
   cellOf(T217, 'S-132', T217_DEFAULT, T217_COLUMNS),
   'table T-217 row S-132',
 )
 
-// Table T-206 holds three cells after the row ID -- key, default, meaning.
+// Spec: T-206
 const T206_COLUMNS = 3
 const T206_DEFAULT = 1
 
-/**
- * `S-208` of table T-206: the travel that parts a press from a drag, which
- * `FR-019` (MUST) names as the boundary for placing a highlight box.
- */
+// Spec: S-208, FR-019
 const PRESS_OR_DRAG_PX = numberIn(
   cellOf(T206, 'S-208', T206_DEFAULT, T206_COLUMNS),
   'table T-206 row S-208',
 )
 
-// Table T-036 holds three cells after the row ID -- what the key does, the
-// assignment, and the entrance the assignment moves.
+// Spec: T-036
 const T036_COLUMNS = 4
 const T036_ASSIGNMENT = 1
 
@@ -128,13 +72,9 @@ const T036_ASSIGNMENT = 1
 const T036_ALTERNATIVE = /[\uFF0F/]/
 const T036_KEY_MARK = /`([^`]+)`/g
 
-/**
- * The chords table T-036 assigns to a row, in the spelling the driver answers
- * to. NOT WRITTEN OUT HERE: the assignment column is the one home of the
- * spelling (R3.4), so what the cases press is whatever that cell names.
- *
- * @purity pure
- */
+// Why: not written out here: the assignment column is the one home of the spelling, so the
+// cases press whatever that cell names.
+/** @purity pure */
 function chordsOf(id: string): readonly string[] {
   const said = cellOf(T036, id, T036_ASSIGNMENT, T036_COLUMNS)
   const found = said
@@ -150,16 +90,8 @@ function chordsOf(id: string): readonly string[] {
 
 const SK3_KEYS = chordsOf('SK-3')
 
-/**
- * The manuscript's spelling of a key, in the spelling the driver answers to.
- *
- * ⛔ A SPELLING MAP AND NOTHING MORE. Table T-036 writes the modifier as
- * `Ctrl`, which is what a keyboard prints on itself; the driver's own name for
- * the same key is `Control`. No assignment is decided here -- which keys are
- * pressed still comes out of the table.
- *
- * @purity pure
- */
+// Summary: asDriven maps the manuscript's key spelling (Ctrl) to the driver's (Control) and decides no assignment.
+/** @purity pure */
 function asDriven(spelling: string): string {
   return spelling
     .replace(/\s*\+\s*/g, '+')
@@ -168,19 +100,15 @@ function asDriven(spelling: string): string {
     .join('+')
 }
 
-/** `SK-2` -- selects everything table T-023c row `SL-1` says can be selected. */
+// Spec: SK-2, SL-1
 const SK2_KEY = ((): string => {
   const found = chordsOf('SK-2')[0]
   if (found === undefined) throw new Error('table T-036 row SK-2 names no key this file can read')
   return found
 })()
 
-/**
- * `IC-74` -- the one entrance of table T-109 whose rule is table T-051 row
- * `HF-10`, the one at the head of the Task Group Panel that unfolds every task group.
- *
- * ⚠️ Anchored so that `HF-1` cannot be found by asking for `HF-10`.
- */
+// Spec: IC-74, HF-10
+// Why: anchored so that HF-1 cannot be found by asking for HF-10.
 const UNFOLD_ALL_ENTRANCE = (() => {
   const wanted = /HF-10(?![0-9])/
   const found = T109.rows.filter((row) => row.cells.some((cell) => wanted.test(cell)))
@@ -192,13 +120,8 @@ const UNFOLD_ALL_ENTRANCE = (() => {
   return found[0]?.id ?? ''
 })()
 
-/**
- * `IC-20` -- the one entrance of table T-109 governed by `FR-065`, which turns
- * the `Agent API` on. ⭐ Looked up rather than spelled, for the reason the rest
- * of this file looks its entrances up: moving the row moves the case.
- *
- * ⚠️ Anchored so that a longer requirement number cannot answer for this one.
- */
+// Spec: IC-20, FR-065
+// Why: anchored so that a longer requirement number cannot answer for this one.
 const AGENT_API_ENTRANCE = (() => {
   const wanted = /FR-065(?![0-9])/
   const found = T109.rows.filter((row) => row.cells.some((cell) => wanted.test(cell)))
@@ -210,36 +133,24 @@ const AGENT_API_ENTRANCE = (() => {
   return found[0]?.id ?? ''
 })()
 
-/** `SK-13` -- opens the help, which is one of the faces `S-99g` counts. */
+// Spec: SK-13, S-99g
 const SK13_KEY = (() => {
   const found = /`([^`]+)`/.exec(cellOf(T036, 'SK-13', 1, T036_COLUMNS))
   if (found === null) throw new Error('table T-036 row SK-13 names no key this file can read')
   return asDriven(found[1] ?? '')
 })()
 
-// The two Japanese words that name the holdings of table T-023b this file arms.
-// ⚠️ Built from their code points rather than written out: rule 03 section 5
-// keeps this tree ASCII, and `tests/system/rows-fixed-with-nothing-holding-them
-// .test.ts` gives the same reason for the same two words.
-/** U+30CF U+30A4 U+30E9 U+30A4 U+30C8 U+30DC U+30C3 U+30AF U+30B9 -- the highlight box. */
+// Why: the two words of the T-023b holdings are built from code points, since this tree is ASCII.
 const HIGHLIGHT_BOX_WORD = String.fromCharCode(
   0x30cf, 0x30a4, 0x30e9, 0x30a4, 0x30c8, 0x30dc, 0x30c3, 0x30af, 0x30b9,
 )
-/** U+30B3 U+30E1 U+30F3 U+30C8 U+30DC U+30C3 U+30AF U+30B9 -- the comment box. */
 const COMMENT_BOX_WORD = String.fromCharCode(
   0x30b3, 0x30e1, 0x30f3, 0x30c8, 0x30dc, 0x30c3, 0x30af, 0x30b9,
 )
 
-/**
- * The entrance of table T-109 that arms one holding of table T-023b.
- *
- * ⛔ NOT FOUND BY THE WORD ALONE: table T-109 prints the comment box's name in
- * the purpose of two entrances -- one arms it, one edits its text. ⭐ The
- * last column of table T-109 names the `AR-nn` an entrance arms, so the holding
- * is looked up in table T-023b first and the entrance by that row ID.
- *
- * @purity pure
- */
+// Why: not found by the word alone: T-109 prints the comment box's name in two entrances, so
+// the holding is looked up in T-023b first and the entrance by its AR row ID.
+/** @purity pure */
 function entranceArming(holding: string): string {
   const armed = T023B.rows.filter((row) => (row.cells[0] ?? '').includes(holding))
   if (armed.length !== 1) {
@@ -256,47 +167,29 @@ function entranceArming(holding: string): string {
   return found[0]?.id ?? ''
 }
 
-/** `IC-36` -- the entrance arming row `AR-6` of table T-023b, the highlight box. */
+// Spec: IC-36, AR-6
 const HIGHLIGHT_BOX_ENTRANCE = entranceArming(HIGHLIGHT_BOX_WORD)
-/** `IC-35` -- the entrance arming row `AR-5` of table T-023b, the comment box. */
+// Spec: IC-35, AR-5
 const COMMENT_BOX_ENTRANCE = entranceArming(COMMENT_BOX_WORD)
 
-/**
- * A guard, not an assertion: `SL-1` of table T-023c must still say that a task group
- * is NOT among what can be selected, because that sentence is the whole of what
- * the third case of the `SK-3` block below judges.
- *
- * ⚠️ U+30BF U+30B9 U+30AF U+30B0 U+30EB U+30FC U+30D7 U+FF08 -- the word for a task group
- * and the bracket that open the clause ruling a task group out. Matched by code point,
- * and paired with `TaskGroup` so that the clause is found rather than the word on its own.
- */
+// Spec: SL-1
+// Why: a guard, not an assertion: the third SK-3 case judges this sentence; matched by code
+// point and paired with TaskGroup so the clause, not the word alone, is found.
 const TASK_GROUP_IS_NOT_A_TARGET = (() => {
   const said = rowOf(T023C, 'SL-1').cells.join(' ')
   const opening = String.fromCharCode(0x30bf, 0x30b9, 0x30af, 0x30b0, 0x30eb, 0x30fc, 0x30d7, 0xff08)
   return said.includes(opening) && said.includes('TaskGroup')
 })()
 
-/**
- * The tiers `IN-4` consumes, in the order the row writes them.
- *
- * ⭐ Read out of the cell so that the ORDER asserted below is the manuscript's
- * and not one copied into this file. The words are matched by their code
- * points, for the same ASCII reason as above.
- */
+// Spec: IN-4
+// Why: read out of the cell, so the order asserted below is the manuscript's, not a copy.
 const ESC_TIERS: readonly { readonly key: string; readonly word: string }[] = [
-  // U+51FA U+3066 U+3044 U+308B U+901A U+77E5 -- a raised notice
   { key: 'notice', word: String.fromCharCode(0x51fa, 0x3066, 0x3044, 0x308b, 0x901a, 0x77e5) },
-  // U+958B U+3044 U+3066 U+3044 U+308B U+9762 -- an open face
   { key: 'face', word: String.fromCharCode(0x958b, 0x3044, 0x3066, 0x3044, 0x308b, 0x9762) },
-  // U+69CB U+3048 -- a holding
   { key: 'holding', word: String.fromCharCode(0x69cb, 0x3048) },
 ]
 
-/**
- * Where each tier this file drives stands in `IN-4`'s own order.
- *
- * @purity pure
- */
+/** @purity pure */
 function escOrderOf(key: string): number {
   const said = rowOf(T028, 'IN-4').cells.join(' ')
   const tier = ESC_TIERS.find((one) => one.key === key)
@@ -308,23 +201,13 @@ function escOrderOf(key: string): number {
   return at
 }
 
-// ---------------------------------------------------------------------------
-// Driving the shipped build
-// ---------------------------------------------------------------------------
-
-/**
- * ⛔ THE DELIVERABLE, not the sources and not the dev server. `NFR-004` row
- * `CN-1` has `dist/` hold exactly one file and that file be the `.html`;
- * `tests/nfr/` is what assembles and judges it. This file only presses it.
- */
+// Spec: NFR-004, CN-1
+// Why: the deliverable, not the sources nor the dev server; tests/nfr/ assembles and judges
+// it, and this file only presses it.
 const SHIPPED_BUILD = join(process.cwd(), 'dist', 'index.html')
 
-/**
- * ⛔ THE SAME HANDLES the neighboring System files lean on, and no others.
- * Nothing in the specification says how a part is marked in the page; the shell
- * writes the part's settled name of `_assets/tbl-glossary.md`, and a change to
- * that marking breaks these cases, as it should.
- */
+// Why: the same handles the neighbouring System files use: the spec does not say how a part
+// is marked, and the shell writes the part's glossary name.
 const CANVAS = '[data-role="Schedule Canvas"] svg'
 const CANVAS_PART = '[data-role="Schedule Canvas"]'
 const TASK_GROUP_PANEL_BOX = '[data-role="Task Group Panel"]'
@@ -343,9 +226,8 @@ test.beforeAll(async () => {
 })
 
 test.afterAll(async () => {
-  // ⛔ THE HOOK'S OWN ALLOWANCE, NOT AN ASSERTION'S. Closing the reference
-  // browser passes a hook's 30s default on this machine; `CLEARING_UP_MS` of
-  // `./live-app` carries the measurements and the reason.
+  // Why: the hook's own allowance, not an assertion's: closing the browser can pass the hook's
+  // 30 s default; CLEARING_UP_MS of ./live-app carries the reason.
   test.setTimeout(CLEARING_UP_MS)
   await browser?.close()
 })
@@ -355,16 +237,10 @@ interface Opened {
   close(): Promise<void>
 }
 
-/**
- * The shipped build, up and settled, on the screen of the base environment.
- *
- * ⚠️ Not a fixed pause after the load. `BO-1` of table T-077 holds the page
- * invisible until the size is settled and the shell may legitimately draw twice
- * on the way up, so what is waited for is two identical readings of the
- * drawing.
- *
- * @purity non-pure
- */
+// Spec: BO-1
+// Why: not a fixed pause: the page stays invisible until the size settles and may draw twice
+// on the way up, so two identical readings of the drawing are awaited.
+/** @purity non-pure */
 async function openTheApp(): Promise<Opened> {
   if (browser === null) throw new Error('the reference browser was not opened')
   const context = await browser.newContext({ viewport: BASE_SCREEN })
@@ -380,22 +256,15 @@ async function openTheApp(): Promise<Opened> {
   }
 }
 
-/**
- * Press with a real pointer.
- *
- * ⛔ A REAL POINTER, not `element.click()`. The shell builds its input from
- * pointer events, and a synthetic click has reached nothing in this project
- * before.
- *
- * @purity non-pure
- */
+// Why: a real pointer, not element.click(): the shell builds its input from pointer events.
+/** @purity non-pure */
 async function pressAt(page: Page, at: { x: number; y: number }): Promise<void> {
   await page.mouse.move(at.x, at.y)
   await page.mouse.down()
   await page.mouse.up()
 }
 
-/** Press one entrance of table T-109 wherever it stands. @purity non-pure */
+/** @purity non-pure */
 async function pressEntrance(page: Page, icon: string): Promise<boolean> {
   const at = await page.evaluate((wanted: string) => {
     const entry = document.querySelector(`[data-icon="${wanted}"]`)
@@ -410,7 +279,8 @@ async function pressEntrance(page: Page, icon: string): Promise<boolean> {
   return true
 }
 
-/** Whether an entrance stands armed -- `FR-029` writes it beside the entry. @purity semi-pure-mutable */
+// Spec: FR-029
+/** @purity semi-pure-mutable */
 async function armingOf(page: Page, icon: string): Promise<string | null> {
   return page.evaluate(
     (wanted: string) =>
@@ -419,7 +289,8 @@ async function armingOf(page: Page, icon: string): Promise<string | null> {
   )
 }
 
-/** The shape the canvas shows at a point -- `IN-2` of table T-028. @purity non-pure */
+// Spec: IN-2
+/** @purity non-pure */
 async function cursorAt(page: Page, x: number, y: number): Promise<string> {
   await page.mouse.move(x, y)
   return page.evaluate((part: string) => {
@@ -428,21 +299,12 @@ async function cursorAt(page: Page, x: number, y: number): Promise<string> {
   }, CANVAS_PART)
 }
 
-/** How far the drags below run along a task group. */
 const REACH_PX = 160
 
-/**
- * Empty ground that one of the DRAWN TASK GROUPS covers, with room along the task group.
- *
- * ⛔ Ground BELOW the last task group is no good for placing: `FR-019` (MUST) holds an
- * annotation's position by a date and a task group identifier, and ground no task group
- * covers points at no task group -- which is the OTHER rule of the same requirement,
- * and not what `S-132` is about. ⭐ Emptiness is the PRODUCT's own answer:
- * `PTD-5` of table T-023a gives ground that hit nothing the plain arrow, read
- * with nothing armed.
- *
- * @purity non-pure
- */
+// Spec: FR-019, PTD-5
+// Why: ground below the last task group points at no task group, the other rule of FR-019;
+// emptiness is the product's own answer, the plain arrow with nothing armed.
+/** @purity non-pure */
 async function groundOnADrawnTaskGroup(page: Page): Promise<{ x: number; y: number } | null> {
   const ground = await page.evaluate(
     (asked: { panel: string; reach: number }) => {
@@ -473,22 +335,15 @@ async function groundOnADrawnTaskGroup(page: Page): Promise<{ x: number; y: numb
   return null
 }
 
-/** One element of the drawing, as the page reports it. */
 interface Drawn {
   readonly tag: string
   readonly attrs: string
   readonly rx: number | null
 }
 
-/**
- * Every element of the drawing right now.
- *
- * ⭐ The corner radius is read from the resolved geometry the browser holds --
- * `rx` of an SVG rectangle -- and not from the attribute text, so a value that
- * arrives through a style or a presentation attribute is still seen.
- *
- * @purity semi-pure-mutable
- */
+// Why: rx is read from the resolved geometry, not the attribute text, so a value that comes
+// through a style is still seen.
+/** @purity semi-pure-mutable */
 async function drawnElements(page: Page): Promise<Drawn[]> {
   return page.evaluate((canvas: string) => {
     const svg = document.querySelector(canvas)
@@ -511,15 +366,9 @@ async function drawnElements(page: Page): Promise<Drawn[]> {
   }, CANVAS)
 }
 
-/**
- * The elements the second reading holds and the first did not.
- *
- * ⚠️ By multiset and not by set: the drawing is full of repeated shapes, and a
- * placement that happened to draw one more of an existing shape would be
- * invisible to a plain difference.
- *
- * @purity pure
- */
+// Why: by multiset, not set: one more of an existing shape would be invisible to a plain
+// difference.
+/** @purity pure */
 function addedBy(before: readonly Drawn[], after: readonly Drawn[]): Drawn[] {
   const seen = new Map<string, number>()
   for (const one of before) {
@@ -536,29 +385,15 @@ function addedBy(before: readonly Drawn[], after: readonly Drawn[]): Drawn[] {
   return out
 }
 
-/** A short description of some elements, for a failure that has to say what it saw. @purity pure */
+/** @purity pure */
 function describe(some: readonly Drawn[]): string {
   return some.map((one) => `${one.tag}[rx=${one.rx ?? '-'}] ${one.attrs}`).join('\n  ')
 }
 
-/**
- * The identifier of every task group (`TaskGroup`) THE DOCUMENT holds, in its order.
- *
- * ⛔⛔ THE DOCUMENT, NOT THE DRAWING, and that is the whole point of this
- * helper. `[data-depth]` marks the task groups the Task Group Panel has DRAWN, and
- * `FR-018` (MUST) takes task groups out of the drawing as the level of detail falls --
- * so a count taken from the page answers "how many fit on the screen", which is
- * not the question `SL-1` raises. Measured on the shipped build, 2026-09-07:
- * `SK-2`'s key, then `SK-3`'s, then the confirmation's yes, left the document
- * holding 100 task groups throughout while the DRAWN task groups went from 8 to 7 -- the case
- * below read that 8 -> 7 as task groups having been deleted, and nothing had been.
- *
- * ⭐ `AM-3` of table T-107 (`readDocument`) is the one road to the document
- * itself, and `_assets/tbl-glossary.md` calls what it gives back a frozen copy
- * of the whole of it.
- *
- * @purity semi-pure-mutable
- */
+// Spec: SL-1, FR-018, AM-3
+// Why: the document, not the drawing: FR-018 drops task groups from the drawing as detail
+// falls, so a count from the page answers how many fit, not what SL-1 asks.
+/** @purity semi-pure-mutable */
 async function readDocumentTaskGroupIds(page: Page): Promise<string[]> {
   return page.evaluate(() => {
     const api = (
@@ -570,18 +405,10 @@ async function readDocumentTaskGroupIds(page: Page): Promise<string[]> {
   })
 }
 
-/**
- * The name of every task group the Task Group Panel is DRAWING, in its own order.
- *
- * ⚠️ THE WINDOW, NOT THE DOCUMENT -- see `readDocumentTaskGroupIds` above. What this
- * is for is saying in a failure message what the panel had on it at the time.
- *
- * ⚠️ Names come back CUT: `FR-085` ends a name that does not fit with an
- * ellipsis, and that is the requirement working. Nothing here compares a name
- * against one it typed.
- *
- * @purity semi-pure-mutable
- */
+// Spec: FR-085
+// Why: the window, not the document, read only for failure messages; names come back cut,
+// so none is compared against a typed one.
+/** @purity semi-pure-mutable */
 async function readDrawnTaskGroupNames(page: Page): Promise<string[]> {
   return page.evaluate(() =>
     Array.from(document.querySelectorAll('[data-depth]')).map(
@@ -590,15 +417,9 @@ async function readDrawnTaskGroupNames(page: Page): Promise<string[]> {
   )
 }
 
-/**
- * Whatever a standing confirmation is saying, or an empty list while none is.
- *
- * ⭐ Read BEFORE it is answered, so that a failure can say what the tool
- * offered to delete. `U-55` (`_assets/tbl-glossary.md`) is the part's settled
- * name, and the shell marks the part with it.
- *
- * @purity semi-pure-mutable
- */
+// Spec: U-55
+// Why: read before it is answered, so a failure can say what the tool offered to delete.
+/** @purity semi-pure-mutable */
 async function readConfirmation(page: Page): Promise<string[]> {
   return page.evaluate(() =>
     Array.from(document.querySelectorAll('[data-role]'))
@@ -608,12 +429,12 @@ async function readConfirmation(page: Page): Promise<string[]> {
   )
 }
 
-/** Whatever the notices are saying right now (table T-037). @purity semi-pure-mutable */
+// Spec: T-037
+/** @purity semi-pure-mutable */
 async function readNotices(page: Page): Promise<string[]> {
   return page.evaluate(() =>
-    // ⛔ THE ROLE IS `Notification Area`, and asking for a role called `Notice`
-    // is how an earlier probe of this project found none and called a defect
-    // fixed.
+    // Trap: the role is Notification Area; asking for a role called Notice finds none and a
+    // defect looks fixed.
     Array.from(document.querySelectorAll('[data-role]'))
       .filter((marked) => (marked.getAttribute('data-role') ?? '').includes('Notification'))
       .map((marked) => (marked.textContent ?? '').trim())
@@ -621,7 +442,8 @@ async function readNotices(page: Page): Promise<string[]> {
   )
 }
 
-/** Whether one of `S-99g`'s faces is standing. @purity semi-pure-mutable */
+// Spec: S-99g
+/** @purity semi-pure-mutable */
 async function faceIsUp(page: Page): Promise<boolean> {
   return page.evaluate((wanted: string) => {
     const face = document.querySelector(wanted)
@@ -631,13 +453,13 @@ async function faceIsUp(page: Page): Promise<boolean> {
   }, HELP)
 }
 
-/** Arm a holding and say so loudly when the entrance is not reachable. @purity non-pure */
+/** @purity non-pure */
 async function arm(page: Page, entrance: string): Promise<void> {
   expect(await pressEntrance(page, entrance), `the entrance ${entrance} is on the screen`).toBe(true)
   expect(await armingOf(page, entrance), `${entrance} stands armed`).toBe('true')
 }
 
-/** Place a highlight box by dragging along a task group, and give back what it drew. @purity non-pure */
+/** @purity non-pure */
 async function placeAHighlightBox(page: Page): Promise<Drawn[]> {
   const spot = await groundOnADrawnTaskGroup(page)
   expect(spot, 'a drawn task group covers empty ground with room along it').not.toBeNull()
@@ -660,19 +482,9 @@ async function placeAHighlightBox(page: Page): Promise<Drawn[]> {
   return added
 }
 
-// ---------------------------------------------------------------------------
-// S-132 -- how round the corners of a highlight box are
-// ---------------------------------------------------------------------------
-
-// GOES RED IF: a highlight box is drawn with any corner radius other than the
-// one table T-217 row `S-132` states. `FR-019` (MUST) sends that radius to
-// table T-217 and has it drawn the same at every zoom, and the row's own note
-// gives the reason for its ceiling -- corners too round stop the frame saying
-// what it encloses.
-//
-// ⚠️ WHAT IS COMPARED IS THE RESOLVED GEOMETRY, not the attribute text: a
-// radius that arrives through a style rather than an attribute is still the
-// radius the reader sees.
+// Spec: S-132, FR-019
+// Why: the resolved geometry is compared, not the attribute text: a radius from a style is
+// still the radius the reader sees.
 test(`S-132: a placed highlight box is drawn with a corner radius of ${CORNER_RADIUS_PX}`, async () => {
   test.setTimeout(180_000)
   const opened = await openTheApp()
@@ -697,20 +509,9 @@ test(`S-132: a placed highlight box is drawn with a corner radius of ${CORNER_RA
   }
 })
 
-// ---------------------------------------------------------------------------
-// SK-3 -- `Delete` / `Backspace`, over exactly what `SL-1` names
-// ---------------------------------------------------------------------------
-
-// GOES RED IF: either key of table T-036 row `SK-3` stops deleting what is
-// selected. ⭐ The selection is made by `SK-2`, whose own cell sends what it
-// selects to table T-023c row `SL-1` -- so the two rows together say that after
-// this gesture nothing `SL-1` names is left. The task shapes of the drawing are
-// what is counted.
-//
-// ⚠️ A CONFIRMATION IS ANSWERED WHEN ONE STANDS. `FR-032` (MUST) asks for one
-// when a task group is deleted and when a `Task` with WBS descendants is, and table
-// T-037 row `NT-7` (MUST) has it answerable by the `y` keystroke. Answering it
-// is part of asking for the deletion, not a weakening of the judgment.
+// Spec: SK-3, SK-2, SL-1, FR-032, NT-7
+// Why: a confirmation is answered when one stands: answering it is part of asking for the
+// deletion, not a weakening of the judgment.
 for (const key of SK3_KEYS) {
   test(`SK-3: ${key} deletes every task ${SK2_KEY} selected`, async () => {
     test.setTimeout(180_000)
@@ -729,7 +530,7 @@ for (const key of SK3_KEYS) {
       await page.waitForTimeout(400)
       await page.keyboard.press(key)
       await page.waitForTimeout(700)
-      // `NT-7` (MUST) has the two answers reachable by the `y` / `n` keys.
+      // Spec: NT-7
       await page.keyboard.press('y')
       await page.waitForTimeout(1200)
 
@@ -746,21 +547,9 @@ for (const key of SK3_KEYS) {
   })
 }
 
-// GOES RED IF: the same gesture takes a task group away. Table T-023c row `SL-1` rules
-// a task group (`TaskGroup`) out of what can be selected, and `SK-3` says its targets
-// are exactly what that row names -- so a task group survives a `Delete` however many
-// tasks it held.
-//
-// ⛔⛔ THE TASK GROUPS ARE COUNTED IN THE DOCUMENT AND NOT IN THE PANEL, and until
-// 2026-09-07 they were not: this case counted `[data-depth]`, which is the
-// window `FR-018` (MUST) narrows as the level of detail falls, and it went red
-// because emptying the tasks let the panel draw one task group fewer. `readDocumentTaskGroupIds`
-// carries that measurement. ⭐ `SL-1` is a statement about the document, so the
-// document is what is read -- through `AM-3` of table T-107, which the build
-// publishes once the entrance `FR-065` gives has been pressed.
-//
-// ⚠️ THE NAMES OF THE DRAWN TASK GROUPS ARE STILL READ, but only to say in a failure
-// what the panel had on it at the time.
+// Spec: SL-1, SK-3, AM-3, FR-065
+// Why: task groups are counted in the document, not the panel: FR-018 narrows the panel as
+// detail falls, and emptying the tasks let it draw one task group fewer.
 test(`SK-3 / SL-1: the same ${SK3_KEYS[0]} leaves every task group standing`, async () => {
   test.setTimeout(180_000)
   expect(
@@ -800,11 +589,9 @@ test(`SK-3 / SL-1: the same ${SK3_KEYS[0]} leaves every task group standing`, as
     await page.keyboard.press('y')
     await page.waitForTimeout(1200)
 
-    // ⛔ AN EQUALITY OF IDENTIFIERS, not a floor on a count. `SL-1` rules a row
-    // out of what can be selected, so `SK-3` cannot reach one: every task group the
-    // document held is still there, and it is the same task group. ⚠️ The NAMES are not
-    // compared -- `FR-032` (MUST) has a task group whose name came from a task settle
-    // that name before the task goes, so a name may legitimately change here.
+    // Spec: FR-032
+    // Why: an equality of identifiers, not a floor on a count; names are not compared, since
+    // FR-032 lets a task group take its name from a task before the task goes.
     const taskGroupsAfter = await readDocumentTaskGroupIds(page)
     const drawnAfter = await readDrawnTaskGroupNames(page)
     expect(
@@ -819,9 +606,7 @@ test(`SK-3 / SL-1: the same ${SK3_KEYS[0]} leaves every task group standing`, as
   }
 })
 
-// GOES RED IF: a highlight box outlives the same gesture. `SL-1` names five
-// kinds, and a highlight box is the third of them, so one placed a moment
-// earlier is inside what `SK-3` deletes.
+// Spec: SL-1, SK-3
 test(`SK-3 / SL-1: ${SK3_KEYS[0]} takes a placed highlight box with it`, async () => {
   test.setTimeout(180_000)
   const opened = await openTheApp()
@@ -848,15 +633,7 @@ test(`SK-3 / SL-1: ${SK3_KEYS[0]} takes a placed highlight box with it`, async (
   }
 })
 
-// ---------------------------------------------------------------------------
-// IN-4 -- `Esc` consumes one tier at a time, in the order the row writes
-// ---------------------------------------------------------------------------
-
-// GOES RED IF: one `Esc` consumes both tiers, or consumes the lower one first.
-// Table T-028 row `IN-4` (MUST) has `Esc` consume ONE tier when there is one to
-// consume, and puts an open face ahead of a holding in its order; `FR-020` says
-// the same of the watermark face, which it puts in `Esc`'s first tier. The
-// order asserted is read out of the row itself by `escOrderOf`.
+// Spec: IN-4, FR-020
 test('IN-4: with a face up and a holding armed, one Esc closes the face and leaves the holding', async () => {
   test.setTimeout(180_000)
   expect(
@@ -895,12 +672,7 @@ test('IN-4: with a face up and a holding armed, one Esc closes the face and leav
   }
 })
 
-// GOES RED IF: one `Esc` clears the holding while a notice is still on the
-// screen, or clears both at once. `IN-4` puts a raised notice at the head of
-// its order, on the user's own instruction, and table T-037 row `NT-8` (MUST)
-// has that clearing happen ahead of every tier of `Enter` and `Esc`.
-//
-// Spec: HF-10, IC-74, RS-31, FR-029, T-328, T-329
+// Spec: IN-4, NT-8, HF-10, IC-74, RS-31, FR-029, T-328, T-329
 // Why: HF-10 is dim only while no task group is undrawn (the zoom counts too), so one press
 // first draws every task group (T-328 everyTaskGroupOpenPressed); T-233 hides RS-31, so an unreadable drop raises the notice.
 test('IN-4: with a notice up and a holding armed, one Esc clears the notice only', async () => {

@@ -26,6 +26,7 @@ const GR_14_BODY_ONLY =
   '本体（本文の箱の全体）か引出し線（線から左右へ `_assets/tbl-settings.md` の 表 T-206 の `S-291`）を掴んで引いたとき、`GRS` は、本文の箱だけを引いた量だけ動かし、線先の日とタスクグループを今のままにすること。'
 const GR_14_TIP_COLUMNS_KEPT = '`GRS` は、本文の箱だけを引いた量だけ動かし、線先の日とタスクグループを今のままにすること。'
 const GR_14_CM_51_ONLY = '`GRS` は、`IMPS-1538` の動きを、`_assets/tbl-document-commands.md` の 表 T-108 の `CM-51`（ずれ）だけで書くこと（`CM-50`（線先）は書かない）。'
+// Spec: IMPS-1539
 const GR_14_NEW_OFFSET = '`GRS` は、新しいずれを、押したときのずれに引いた量を足したものにすること。'
 const GR_14_TIP_ONLY = '線先（線先から 表 T-206 の `S-292`）を掴んで引いたとき、`GRS` は、線先だけを動かし、本文の箱を画面の上で動かさないこと。'
 const S_291_NOTE = '引けば本文の箱だけが動き、線先は動かない'

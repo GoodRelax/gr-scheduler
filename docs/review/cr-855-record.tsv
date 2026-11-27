@@ -1,28 +1,28 @@
 key	language	new	basis	old	reasonEn	reasonJa
-actualDummy	en	Actual Dummy	JDG-3375	Actual Operation Dummy	One name for the dummy of the actual (study 83 RN-306).	実績のダミーの名を 1 つにした（study 83 の RN-306）。
-commentBoxGraphic	en	Comment Box	JDG-3375	Comment Boxes	A name is singular (study 83 RN-309).	名は単数にする（study 83 の RN-309）。
-projectTitle	en	Project Title	JDG-3355	Document Title	The App Header shows the Project Title (study 83 RN-312).	App Header に出す名は Project Title である（study 83 の RN-312）。
-saveAsDialog	en	Save As Dialog	JDG-3356 JDG-3364	Export Chooser	Windows terms: Save As Dialog (study 83 RN-313).	Windows の語に合わせて Save As Dialog にした（study 83 の RN-313）。
-grabArea	en	Grab Area	JDG-3366	Grab Region	Grab Point, Grab Area, Handle, Grip (study 83 RN-314).	掴み点・掴み領域・ハンドル・グリップに分けた（study 83 の RN-314）。
-helpWindow	en	Help Window	JDG-3356	Help Modal	Windows terms: Help Window (study 83 RN-315).	Windows の語に合わせて Help Window にした（study 83 の RN-315）。
-jumpRelatedRing	en	Jump Related Ring	JDG-3369	Jump Landing Related Ring	Interaction cue names (study 83 RN-316).	操作合図の名を決めた（study 83 の RN-316）。
-jumpRipple	en	Jump Ripple	JDG-3369	Jump Landing Ripple	Interaction cue names (study 83 RN-317).	操作合図の名を決めた（study 83 の RN-317）。
-openFileDialog	en	Open File Dialog	JDG-3356	Open Chooser	Windows terms: Open File Dialog (study 83 RN-318).	Windows の語に合わせて Open File Dialog にした（study 83 の RN-318）。
-progressMark	en	Progress Status Mark	JDG-3372 JDG-3742	Progress Marker	Every small mark is a Mark (study 83 RN-319), then Progress Status Mark.	小さな印は Mark にし（study 83 の RN-319）、その後 Progress Status Mark にした。
-resumeMark	en	Resume Mark	JDG-3372	Resume Icon	Every small mark is a Mark (study 83 RN-320).	小さな印は Mark にした（study 83 の RN-320）。
-searchWindow	en	Search Window	JDG-3356	Search Panel	Windows terms: Search Window (study 83 RN-321).	Windows の語に合わせて Search Window にした（study 83 の RN-321）。
-taskGroupLanes	en	Task Group Lanes	JDG-3361 JDG-3374	Task Group Area	The place of the task groups is the Task Group Lanes (study 83 RN-322).	タスクグループの置き場は Task Group Lanes である（study 83 の RN-322）。
-dropLine	en	Drop Line	JDG-3369	Task Group Drop Line	Interaction cue names (study 83 RN-323).	操作合図の名を決めた（study 83 の RN-323）。
-dragCopy	en	Drag Copy	JDG-3369	Task Group Grab Copy	Interaction cue names (study 83 RN-325).	操作合図の名を決めた（study 83 の RN-325）。
-pinButton	en	Pin Button	JDG-3368	Task Group Pin	Task Group Buttons (study 83 RN-327).	タスクグループボタンの名を決めた（study 83 の RN-327）。
-dualCursor	ja	デュアルカーソル	JDG-3375	2 連カーソル	One name (study 83 RN-304).	名を 1 つにした（study 83 の RN-304）。
-taskGroupTitleTree	ja	タスクグループタイトルツリー	JDG-3363	タスクグループ見出しツリー	The owner wrote the name (study 83 RN-329).	持ち主が名を書いた（study 83 の RN-329）。
-actualDummy	ja	実績ダミー	JDG-3375	実績操作のダミー	One name for the dummy of the actual (study 83 RN-338).	実績のダミーの名を 1 つにした（study 83 の RN-338）。
-actualDummy	ja	実績ダミー	JDG-3375	実績のダミー	One name for the dummy of the actual (study 83 RN-338).	実績のダミーの名を 1 つにした（study 83 の RN-338）。
-grip	ja	グリップ	JDG-3366	掴み帯	Grip (study 83 RN-339).	グリップにした（study 83 の RN-339）。
-deadlineMark	ja	期限マーク	JDG-3372	期限の印	Every small mark is a Mark (study 83 RN-344).	小さな印は Mark にした（study 83 の RN-344）。
-continuationMark	ja	続きマーク	JDG-3372 JDG-3378	続きの印	Every small mark is a Mark (study 83 RN-348).	小さな印は Mark にした（study 83 の RN-348）。
-resumeMark	ja	再開マーク	JDG-3372	再開アイコン	Every small mark is a Mark (study 83 RN-335).	小さな印は Mark にした（study 83 の RN-335）。
-progressMark	ja	進捗ステータスマーク	JDG-3372 JDG-3742	進捗マーカー	Every small mark is a Mark (study 83 RN-349), then Progress Status Mark.	小さな印は Mark にし（study 83 の RN-349）、その後 進捗ステータスマーク にした。
-headerCommands	ja	ヘッダーコマンド	JDG-3365	ヘッダーのコマンド	No particle inside a name (study 83 RN-332).	名の途中に助詞を挟まない（study 83 の RN-332）。
-holidaySettingsWindow	ja	休日設定ウィンドウ	JDG-3365	休日の設定ウィンドウ	No particle inside a name (study 83 RN-332).	名の途中に助詞を挟まない（study 83 の RN-332）。
+actualDummy	en	Actual Dummy	JDG-3375	Actual Operation Dummy	One name for the dummy of the actual (study 83).	実績のダミーの名を 1 つにした（study 83）。
+commentBoxGraphic	en	Comment Box	JDG-3375	Comment Boxes	A name is singular (study 83).	名は単数にする（study 83）。
+projectTitle	en	Project Title	JDG-3355	Document Title	The App Header shows the Project Title (study 83).	App Header に出す名は Project Title である（study 83）。
+saveAsDialog	en	Save As Dialog	JDG-3356 JDG-3364	Export Chooser	Windows terms: Save As Dialog (study 83).	Windows の語に合わせて Save As Dialog にした（study 83）。
+grabArea	en	Grab Area	JDG-3366	Grab Region	Grab Point, Grab Area, Handle, Grip (study 83).	掴み点・掴み領域・ハンドル・グリップに分けた（study 83）。
+helpWindow	en	Help Window	JDG-3356	Help Modal	Windows terms: Help Window (study 83).	Windows の語に合わせて Help Window にした（study 83）。
+jumpRelatedRing	en	Jump Related Ring	JDG-3369	Jump Landing Related Ring	Interaction cue names (study 83).	操作合図の名を決めた（study 83）。
+jumpRipple	en	Jump Ripple	JDG-3369	Jump Landing Ripple	Interaction cue names (study 83).	操作合図の名を決めた（study 83）。
+openFileDialog	en	Open File Dialog	JDG-3356	Open Chooser	Windows terms: Open File Dialog (study 83).	Windows の語に合わせて Open File Dialog にした（study 83）。
+progressMark	en	Progress Status Mark	JDG-3372 JDG-3742	Progress Marker	Every small mark is a Mark (study 83), then Progress Status Mark.	小さな印は Mark にし（study 83）、その後 Progress Status Mark にした。
+resumeMark	en	Resume Mark	JDG-3372	Resume Icon	Every small mark is a Mark (study 83).	小さな印は Mark にした（study 83）。
+searchWindow	en	Search Window	JDG-3356	Search Panel	Windows terms: Search Window (study 83).	Windows の語に合わせて Search Window にした（study 83）。
+taskGroupLanes	en	Task Group Lanes	JDG-3361 JDG-3374	Task Group Area	The place of the task groups is the Task Group Lanes (study 83).	タスクグループの置き場は Task Group Lanes である（study 83）。
+dropLine	en	Drop Line	JDG-3369	Task Group Drop Line	Interaction cue names (study 83).	操作合図の名を決めた（study 83）。
+dragCopy	en	Drag Copy	JDG-3369	Task Group Grab Copy	Interaction cue names (study 83).	操作合図の名を決めた（study 83）。
+pinButton	en	Pin Button	JDG-3368	Task Group Pin	Task Group Buttons (study 83).	タスクグループボタンの名を決めた（study 83）。
+dualCursor	ja	デュアルカーソル	JDG-3375	2 連カーソル	One name (study 83).	名を 1 つにした（study 83）。
+taskGroupTitleTree	ja	タスクグループタイトルツリー	JDG-3363	タスクグループ見出しツリー	The owner wrote the name (study 83).	持ち主が名を書いた（study 83）。
+actualDummy	ja	実績ダミー	JDG-3375	実績操作のダミー	One name for the dummy of the actual (study 83).	実績のダミーの名を 1 つにした（study 83）。
+actualDummy	ja	実績ダミー	JDG-3375	実績のダミー	One name for the dummy of the actual (study 83).	実績のダミーの名を 1 つにした（study 83）。
+grip	ja	グリップ	JDG-3366	掴み帯	Grip (study 83).	グリップにした（study 83）。
+deadlineMark	ja	期限マーク	JDG-3372	期限の印	Every small mark is a Mark (study 83).	小さな印は Mark にした（study 83）。
+continuationMark	ja	続きマーク	JDG-3372 JDG-3378	続きの印	Every small mark is a Mark (study 83).	小さな印は Mark にした（study 83）。
+resumeMark	ja	再開マーク	JDG-3372	再開アイコン	Every small mark is a Mark (study 83).	小さな印は Mark にした（study 83）。
+progressMark	ja	進捗ステータスマーク	JDG-3372 JDG-3742	進捗マーカー	Every small mark is a Mark (study 83), then Progress Status Mark.	小さな印は Mark にし（study 83）、その後 進捗ステータスマーク にした。
+headerCommands	ja	ヘッダーコマンド	JDG-3365	ヘッダーのコマンド	No particle inside a name (study 83).	名の途中に助詞を挟まない（study 83）。
+holidaySettingsWindow	ja	休日設定ウィンドウ	JDG-3365	休日の設定ウィンドウ	No particle inside a name (study 83).	名の途中に助詞を挟まない（study 83）。

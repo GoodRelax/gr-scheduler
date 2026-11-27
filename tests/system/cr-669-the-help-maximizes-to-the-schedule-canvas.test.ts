@@ -18,10 +18,12 @@ const WB_8_FOLLOWS = 'タイトルバーの帯（表 T-023d の `GR-24`）を握
 const WB_8_RANGE = 'ウィンドウを、ウィンドウごとの範囲（`WB-3` と同じ）の外へ出してはならない（MUST NOT）'
 const WB_9_FOLLOWS = '縁と角（表 T-023d の `GR-25`）を握っているあいだ、ウィンドウの大きさをポインターに追従させること（MUST）'
 const WB_9_RANGE = 'ウィンドウごとの範囲の外へ広げてはならない（MUST NOT）'
+// Spec: IMPS-1156
 const FR_036_BRACKETS = '`GRS` は、`IC-54` の項目に添える語を丸括弧で囲むこと。'
 const T_337_THE_FRONT_ONE_TAKES_THE_PRESS = '`GRS` は、押下を、押下の点で最も手前に描いた UI パーツに受けさせること'
 const FR_036_ONE_SCREEN =
   'ない環境の両方で、ヘルプの言語が日本語でも英語でも、開いたときの大きさ（表 T-335 の `WB-1`）で全部の塊とライセンスの行（`FR-069`）を 1 画面に収め、縦にも横にもスクロールを要さないこと'
+// Spec: IMPS-1166
 const S_203_FITS_BOTH =
   '`GRS` は、`IMPS-1165` を満たすためにヘルプの字を小さくしてもよい。`_assets/tbl-settings.md` の 表 T-206 の `S-203` は、`IMPS-1165` の 2 つの環境で日英の両方が収まる値とすること。'
 // Why: plain sentences the cases below lean on; no marker of their own.

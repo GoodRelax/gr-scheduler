@@ -250,7 +250,7 @@
    },
    "hint": {
     "ja": "遅延診断を行う。レポートを閉じていれば診断をやり直して開き、開いていればレポートだけを閉じる",
-    "en": "Run the Delay Diagnosis; runs them again and opens the report if it is closed, or closes only the report while it is open"
+    "en": "Run the Delay Diagnosis; runs it again and opens the report if it is closed, or closes only the report while it is open"
    }
   },
   {
@@ -6312,17 +6312,17 @@
    }
   },
   {
-   "specTableRowId": "RQ-2",
-   "text": {
-    "ja": "担当名",
-    "en": "Resource"
-   }
-  },
-  {
    "specTableRowId": "RQ-3",
    "text": {
     "ja": "選択",
     "en": "Selected"
+   }
+  },
+  {
+   "specTableRowId": "RQ-2",
+   "text": {
+    "ja": "担当名",
+    "en": "Resource"
    }
   },
   {

@@ -1,68 +1,4 @@
-// Unit tests for UF-39 `image-exporter.ts` (the public entry, PI-21 of table
-// T-064) and UF-40 `rasterizer.ts` (the seam `Rasterizer`, IF-6 of table
-// T-065) -- component `ImageExporter` (CP-21 of table T-062), rows UF-39 /
-// UF-40 of table T-075 in docs/spec/05-07-design.md.
-//
-// ⚠️ Chapter 9 does not admit Unit as a TEST_LEVEL, so these have no node in
-// the specification. Table T-218 of Chapter 7 gives them their place: TS-6,
-// tests/unit/.
-//
-// ⛔ WRITTEN WITHOUT READING THE UNITS' FUNCTION BODIES
-// (docs/development-rules/04-verification.md, section 1). What was read: docs/spec/
-// for every rule below; the whole of `rasterizer.ts`, which declares types and
-// no function; and of `image-exporter.ts` only its head comment, its three
-// published interfaces (`ExportScene`, `SvgExport`, `ImageExport`) and the two
-// signatures `exportSvg(scene)` and `exportPng(rasterizer, scene)`. Every
-// expected value here comes from a requirement, a table or a generated
-// constant -- never from the code.
-//
-// ⭐ SECOND PASS (CR-196). `exportSvg` is a public entry of PI-21 now, so
-// IO-3's route is reachable on its own and the half of WY-2 that lives inside
-// one unit -- the SVG and the PNG of ONE state being one drawing -- can be
-// judged here. The cases added for it are gathered under
-// "PI-21 exportSvg" and "boundaries of the SVG route" below; nothing above them
-// was rewritten.
-//
-// The rules these cases answer to:
-//   FR-080      the whole screen GRS occupies, shrunk by `exportCanvas`'s width
-//               over the screen's width; the SAME ratio on both axes (MUST),
-//               never one per axis (MUST NOT); no margin at the edge (MUST
-//               NOT); a part that is not drawn leaves its room empty (MUST) and
-//               its neighbors do not close up (MUST NOT)
-//   table T-041  WY-3: for every part table T-076 draws, the screen's bounding
-//               rectangle times the ratio IS the rectangle in the export
-//   table T-076  EP-1 .. EP-14, which part of the screen reaches the picture
-//   FR-025      the output size is never asked for (MUST NOT); the width is
-//               fixed at S-81's (MUST) and the height grows until the picture
-//               fits (MUST), as far as S-217 and no further (MUST); the PNG's
-//               pixels ARE that size -- a scale is forbidden (MUST NOT); the
-//               ratio is never changed to make the picture fit (MUST NOT); a
-//               picture shorter than S-81 leaves the rest blank (MUST) and no
-//               task group is added to fill it
-//               (MUST NOT); and -- CR-337 -- a picture that will not fit UNDER
-//               S-217 even once grown is NOT WRITTEN AT ALL (MUST), no part of
-//               it may be drawn (MUST NOT), and a reason is told (MUST)
-//   CR-337      the reader's ruling of 2026-09-02: 「その場合は、1600x4096 の
-//               サイズに収まらなかったエラーにして、png, svg の出力を止めろ」.
-//               ⛔ EVERY ASSERTION ABOUT WHICH `TaskGroup`s WERE KEPT AND WHICH
-//               WERE DROPPED WAS DELETED FROM THIS FILE, not translated: the
-//               rule they measured is withdrawn, and FR-025 now says in as many
-//               words DFC-460 「書き出さないと決めた以上、落とす規則は無くなった」. The
-//               `AT_CEILING` fixture went with them -- it existed only to make
-//               the drop happen at S-81's height, and at the shipped ceiling
-//               (S-217) every scene in this file fits
-//   table T-024  IO-3 (SVG) and IO-4 (PNG) are two outputs of ONE operation
-//   table T-035  AG-8: a failed image comes back as a value
-//   FR-028      nothing is thrown across this boundary (MUST NOT)
-//   table T-037  NT-1 the notice has to be able to name WHICH item is wrong, so
-//               the detail survives; NT-3a the three reasons are kept apart
-//               because their next steps differ
-//   FR-085      the task group name arrives already cut, and is not cut again
-//   5.3         the seam declared in UF-40 is re-published by the entry (MUST)
-//
-// ⭐ Chapter 1.9 (:275) asks a test of a requirement that points at a table to
-// be driven by a fixed copy of that table, one case walking every row.
-// T_076_ROWS, T_204_S82, T_037_REASONS and T_041_ROWS below are those copies.
+// Unit tests: the image exporter (UF-39) and its rasterizer seam (UF-40).
 
 import { describe, expect, it } from 'vitest'
 
@@ -102,13 +38,6 @@ import { specTable } from '../contract/spec-table'
 import { DEFAULT_DISPLAY_SCALE, displayRatioAt } from '../fixtures/display-scale'
 import { taskGroupNameFont } from '../fixtures/task-group-name-font'
 
-// ---------------------------------------------------------------------------
-// Settings. ⛔ Rule 03 forbids re-typing a value the specification holds, so
-// every number comes from SETTINGS_DEFAULTS, which `npm run gen` writes out of
-// `docs/spec/_source/settings.json`. Four keys are held there under dotted
-// names; the shape `DocumentSettings` publishes nests them.
-// ---------------------------------------------------------------------------
-
 const nestedFrom = (flat: Readonly<Record<string, unknown>>): Record<string, unknown> => {
   const built: Record<string, unknown> = {}
   for (const [key, value] of Object.entries(flat)) {
@@ -139,19 +68,9 @@ const settingsOf = (part: Record<string, unknown> = {}): DocumentSettings =>
 
 const SETTINGS = settingsOf({ displayScale: DEFAULT_DISPLAY_SCALE })
 
-// ---------------------------------------------------------------------------
-// PI-21's roster, read out of table T-064 rather than typed here
-// ---------------------------------------------------------------------------
-
-/**
- * The members table T-064 gives `PI-21`, read from the table at run time.
- *
- * ⭐ READ AND NOT COPIED. 「本表は名前と、それが何を担うかだけを持つ」 — the
- * table is the roster, so a case that types the roster out again can go on
- * passing after the row has gained or lost a member. The names are picked the
- * way check 26b picks them: split the member cell on the full-width solidus,
- * and take a piece's leading back-quoted ASCII identifier.
- */
+// Spec: T-064
+// Why: the roster is read from the table at run time, so a case cannot go
+// on passing after the row gains or loses a member.
 const PI_21_MEMBERS = ((): readonly { name: string; isType: boolean }[] => {
   const row = specTable('T-064').rows.find((one) => one.id === 'PI-21')
   if (row === undefined) throw new Error('table T-064 no longer holds PI-21')
@@ -160,34 +79,24 @@ const PI_21_MEMBERS = ((): readonly { name: string; isType: boolean }[] => {
     .split(String.fromCharCode(0xff0f))
     .map((piece) => {
       const found = /^\s*`([A-Za-z][A-Za-z0-9_]*)`/.exec(piece)
-      // ⭐ A piece that points at 表 T-065 names a cross-layer interface, and
-      // 5.3 says those files hold declarations only -- so it is erased before
-      // it can be a runtime name. That is read from the cell, not assumed.
+      // Why: a piece that points at table T-065 is a cross-layer interface, which
+      // is erased at run time, so it is marked a type.
       return found === null ? null : { name: found[1] as string, isType: piece.includes('T-065') }
     })
     .filter((one): one is { name: string; isType: boolean } => one !== null)
 })()
 
-/** The names of `PI-21` that survive to run time: the two entries. */
 const PI_21_ENTRIES = PI_21_MEMBERS.filter((one) => !one.isType).map((one) => one.name)
 
-// Why: JDG-139 stage 3 (DFC-619) took `export` off NOT_STORED_DOCUMENT_TITLE_SIZES, the one name T-064 did not give.
 const PI_21_UNNAMED_RUNTIME_NAMES: readonly string[] = []
 
-/**
- * The heading the settings tables give their default column.
- *
- * ⚠️ Built from its code points: rule 03 section 5 keeps this tree ASCII, so a
- * literal would be invisible in a diff.
- */
+// Why: built from code points because the tree is kept ASCII; a literal
+// would be invisible in a diff.
 const DEFAULT_COLUMN = String.fromCharCode(0x65e2, 0x5b9a)
 
-/**
- * `S-73` of table T-216 -- the document's theme hue (`Project.themeHue`,
- * AT-19). DR-5 of table T-052 keeps the hue at `Project`, so it is in neither
- * `DocumentSettings` nor `ScreenView` and a scene has to state it.
- * ⛔ Read from the manuscript, not typed (rule 03 section 1).
- */
+// Spec: S-73, DR-5
+// Why: DR-5 keeps the hue on Project, outside DocumentSettings and
+// ScreenView, so a scene has to state it.
 const THEME_HUE = ((): number => {
   const row = specTable('T-216').rows.find((one) => one.id === 'S-73')
   if (row === undefined) throw new Error('table T-216 has no row S-73')
@@ -197,25 +106,11 @@ const THEME_HUE = ((): number => {
   return value
 })()
 
-/**
- * The half of each answer that carries a picture.
- *
- * ⭐⭐ CR-337 MADE THESE NECESSARY. FR-025 reads 「伸ばしても `S-217` に収まらな
- * いときは、画像を書き出さないこと（MUST）。一部だけを描いてはならない（MUST
- * NOT）」, so neither entry answers with a picture unconditionally any more: the
- * answer is either a picture or a refusal. Every case that is ABOUT the picture
- * unwraps through `fitOrThrow`, and the refusal itself is measured on its own,
- * in the last two describes of this file.
- */
 type Picture = Extract<SvgExport, { readonly ok: true }>
 type PictureAndPng = Extract<ImageExport, { readonly ok: true }>
 
-/**
- * ⛔ NOT A SOFTENING OF THE RULE. Every scene this helper is used on is one the
- * ceiling is nowhere near -- a screen 800 tall shrinks to 1280 against S-217's
- * 4096 -- so a refusal here is a fixture that drifted, and it has to stop the
- * case rather than be quietly asserted around.
- */
+// Why: every scene here is far under the S-217 ceiling, so a refusal means
+// the fixture drifted and must stop the case, not be asserted around.
 const fitOrThrow = <T extends { readonly ok: boolean }>(
   answer: T,
 ): Extract<T, { readonly ok: true }> => {
@@ -227,16 +122,9 @@ const fitOrThrow = <T extends { readonly ok: boolean }>(
   return answer as Extract<T, { readonly ok: true }>
 }
 
-// ---------------------------------------------------------------------------
-// The screen this component is handed. ⭐ Built here from FR-051's and
-// FR-052's own arithmetic rather than through `regionsFromScreen` (UF-58):
-// that unit's answer is this unit's INPUT, and driving the input from the
-// other unit's code would hide a misreading shared by both.
-//
-// ⚠️ `appHeaderHeight` and `scrollbarThickness` are NOT specification values --
-// FR-051 (MUST NOT) keeps both out of the settings and BO-1 of table T-077
-// settles them from the environment. No case below asserts either of them.
-// ---------------------------------------------------------------------------
+// Spec: FR-051, FR-052
+// Why: built from the spec's arithmetic, not through regionsFromScreen
+// (UF-58), so a misreading shared by both units cannot hide.
 
 interface MeasuredScreen {
   readonly width: number
@@ -245,12 +133,8 @@ interface MeasuredScreen {
   readonly scrollbarThickness: number
 }
 
-/**
- * ⭐ 1000 x 800 on purpose. `exportCanvas` is 16:9 and this screen is 5:4, so a
- * component that used the height for the vertical ratio would answer 1.125
- * where FR-080 (MUST NOT) requires 1.6 on both axes -- the two cannot be told
- * apart on a screen of the export's own shape.
- */
+// Why: 5:4 against the export's 16:9, so a per-axis ratio (1.125) cannot
+// pass for the single ratio of 1.6.
 const SCREEN: MeasuredScreen = {
   width: 1000,
   height: 800,
@@ -271,9 +155,6 @@ const regionsOf = (
     width: screen.width,
     height: screen.height - screen.appHeaderHeight,
   }
-  // FR-052's expression, verbatim: the canvas less `canvasPadding` (S-56), the
-  // two panel widths and the vertical bar is the `Task Group Lanes`'s width. U-50 takes
-  // the ruler band and the padding off its height, and FR-051's bar after it.
   const taskGroupAreaWidth =
     canvas.width -
     SETTINGS_CONSTANTS.canvasPadding -
@@ -314,30 +195,20 @@ const regionsOf = (
 
 const REGIONS = regionsOf()
 
-// ---------------------------------------------------------------------------
-// The picture that ARRIVES (PI-19). ⭐ Opaque: nothing here is meant to be
-// read, and its one element is a `circle` so that every `rect` and every `text`
-// found in the finished export is one this component itself wrote.
-// ---------------------------------------------------------------------------
+// Why: the arriving picture holds only a circle, so every rect and text in
+// the export is one this component wrote.
 
 const PICTURE =
   '<svg xmlns="http://www.w3.org/2000/svg" data-from="svg-renderer">' +
   '<circle cx="7" cy="11" r="3"/></svg>'
 
-// ---------------------------------------------------------------------------
-// Everything of `ScreenView` that table T-076 keeps OUT. ⭐ Handed in anyway,
-// and in its OPEN state: a case can only show that the properties panel (EP-8)
-// and the command palette (EP-11) do not reach the picture if they were there
-// to be left out.
-// ---------------------------------------------------------------------------
+// Why: the parts table T-076 keeps out are handed in, and open, so a case
+// can show they were left out rather than never there.
 
 const commandOf = (label: string): CommandItem => ({
   icon: 'IC-3',
   isEnabled: true,
   isPressed: false,
-  // FR-053: the entrance is not armed. ⛔ A separate member from `isPressed`,
-  // because IC-54 says the palette entry is not a button and FR-053 (MUST NOT)
-  // bars the pressed form -- so an arm may not travel on the toggle.
   isArmed: false,
   isChosen: false,
   label,
@@ -354,17 +225,11 @@ const APP_HEADER_ITEMS: AppHeaderItems = {
   fileSavedByteLength: null,
   fileNeverSavedText: '',
   commands: [commandOf(HEADER_COMMAND_LABEL)],
-  // FR-038 (MUST): the header says which language is on. The same value the
-  // view carries -- `ScreenSession.language` (S-99) is where both come from.
   language: 'ja',
 }
 
-/**
- * EP-9. The `line` is drawn and the grab `band` is not, so the two are given
- * different rectangles. ⚠️ Taken from the regions rather than written out:
- * FR-051 (MUST NOT) has the band take no width from the `Task Group Lanes`, so it
- * straddles the boundary the line sits on.
- */
+// Why: EP-9 draws the line and not the grab band, so the two get different
+// rectangles; the band straddles the line, so both come from the regions.
 const dividersOf = (regions: ScreenRegions): readonly PanelDivider[] => {
   const lineAt = (x: number): ScreenRect => ({
     x,
@@ -381,7 +246,7 @@ const dividersOf = (regions: ScreenRegions): readonly PanelDivider[] => {
   ]
 }
 
-/** EP-10. SC-4 keeps both on the screen at all times; neither reaches the export. */
+// Spec: EP-10, SC-4
 const scrollbarsOf = (regions: ScreenRegions): readonly Scrollbar[] => {
   const area = regions.taskGroupArea
   const bar = SCREEN.scrollbarThickness
@@ -407,11 +272,6 @@ const frameOf = (regions: ScreenRegions = REGIONS): ScreenFrame => ({
 
 const DIVIDERS = dividersOf(REGIONS)
 
-// ⛔ THERE IS NO PROPERTIES HEADING TO KEEP OUT ANY MORE. FR-072 (MUST NOT):
-// 「⛔ **パネルの先頭にタイトルバーを置いてはならない（MUST NOT）**（利用者の指示
-// 2026-08-27）」 (CR-272). EP-8's claim is unweakened -- the panel still reaches
-// this component carrying a field, and that field's value is what must not
-// arrive in the picture.
 const PROPERTY_FIELD_TEXT = 'EP-8 property value, not drawn'
 const PALETTE_GROUP_NAME = 'EP-11 palette group, U-34, not drawn'
 const PALETTE_ARMED_TEXT = 'EP-11 armed, not drawn'
@@ -419,7 +279,6 @@ const MODAL_HEADING = 'EP-11 modal heading, U-30, not drawn'
 const NOTICE_TEXT = 'a notice, which table T-076 gives no row, not drawn'
 const TOOLTIP_TEXT = 'a tooltip, which table T-076 gives no row, not drawn'
 
-/** Every string that reaches this component inside a part table T-076 keeps out. */
 const NOT_DRAWN_WORDS: readonly string[] = [
   HEADER_COMMAND_LABEL,
   AUTOSAVE_AT,
@@ -441,12 +300,8 @@ const rowOf = (
   depth,
   box,
   label,
-  // S-37 of table T-201 (K-37) is the indent of ONE level of depth, and FR-085
-  // takes 「そのタスクグループの深さぶんのインデント」 off the usable width, DRAWN (T-252 DS-1).
   indentPx: depth * SETTINGS_CONSTANTS.taskGroupTitleIndent * DISPLAY_RATIO,
   ...taskGroupNameFont(depth),
-  // Nothing is cut here, and the `TaskGroupTitle` contract fixes that case as
-  // `wholeLabel === label` with `isLabelTruncated` false.
   wholeLabel: label,
   isLabelTruncated: false,
   expander: { canOpen: true, canClose: true, canCloseBelow: false },
@@ -459,37 +314,27 @@ const viewOf = (
   part: Partial<ScreenView> = {},
   pinnedTitles: readonly TaskGroupTitle[] = [],
 ): ScreenView => ({
-  // S-99. UF-39 draws no words of its own, so which of the two it is cannot
-  // reach the picture; the member is filled because `ScreenView` requires it.
+  // Why: this unit draws no words of its own, so the language cannot reach
+  // the picture; it is filled only because ScreenView requires it.
   language: 'ja',
   frame: frameOf(),
   appHeaderItems: APP_HEADER_ITEMS,
   taskGroupPanel: { pinnedTitles, titles },
-  // ⛔ NO HEADING: FR-072 (MUST NOT) leaves the panel no heading row (CR-272).
-  // ⚠️ THE CAST IS DELIBERATE AND NARROW -- whether the published description
-  // still declares a member for one is the implementation's answer, and turning
-  // either answer into a COMPILE error here would take this whole file down.
-  // Rule 04 section 1 asks a disagreement to arrive as a test that falls, and
-  // the uf-64 unit test, where that one fell, was deleted by CR-573.
+  // Why: the cast is narrow on purpose: whether the description still declares
+  // a heading member is the implementation's answer, not a compile error here.
   propertiesPanel: {
     showing: 'selection',
     isSubjectGone: false,
     fields: [{ row: 'PR-1', name: 'name', text: PROPERTY_FIELD_TEXT, isEditable: true, controls: [] }],
-    // ⚠️ EMPTY ON PURPOSE: this bench is about another subject, and the
-    // entrance table T-109 places on the panel (IC-52) is asserted in
-    // tests/contract/cr-754-fr-072-the-close-only-row-heads-every-panel.test.ts.
+    // Why: empty on purpose; the panel's own entrance (IC-52) is another
+    // bench's subject.
     commands: [],
   } as ScreenView['propertiesPanel'],
   commandPalette: {
-    // ⭐ A CORNER, NOT A RECTANGLE: FR-053 (MUST) makes the palette's size
-    // follow its contents and (MUST NOT) lets the settings table hold one.
+    // Why: a corner, not a rectangle: the palette's size follows its contents.
     at: { x: 300, y: 300 },
-    // ⚠️ INERT HERE. GR-19 of table T-023d lays a band along the palette's top
-    // edge and table T-206 states how far down it reaches; EP-11 of table T-076
-    // drops the whole palette from the picture, so no case in this file means
-    // the number. ⛔ The value that row holds is deliberately NOT copied here --
-    // rule 03 section 1 keeps it in one place, and the uf-65 unit test was
-    // the bench that held the described band to the manuscript until CR-573 deleted it.
+    // Why: inert here; EP-11 drops the palette from the picture, so the value
+    // is deliberately not copied from table T-206.
     grabBandHeight: 7,
     minimize: {
       icon: 'IC-75',
@@ -511,27 +356,18 @@ const viewOf = (
       text: NOTICE_TEXT,
       nextSteps: ['retry'],
       affectedCount: null,
-      // NT-8 (MUST): the entrance a person puts this telling away by.
       dismissText: 'OK',
       dismissKey: 'NT-3a',
       raisedNotices: [],
     },
   ],
-  // NT-7 of table T-037: `null` while nothing is waiting to be answered.
   confirmation: null,
-  // ⭐ `EZ-2` of 表 T-040 (MUST) puts the row's assignment behind the words, so
-  // every tooltip carries the member. `FR-036`: 「どちらも持たない行は、その
-  // 場所を空ける」 -- a task group title has neither key nor mouse operation.
   tooltips: [{ anchor: { kind: 'taskGroupTitle', taskGroupId: 'g1' }, text: TOOLTIP_TEXT, assignment: null }],
   ...part,
 })
 
-// ---------------------------------------------------------------------------
-// The seam. ⛔ `Rasterizer` is used through the ENTRY here and nowhere else:
-// Chapter 5.3 (MUST) has the entry re-publish the interface declared in UF-40,
-// precisely so that the outside never reaches past `image-exporter.ts`. These
-// declarations are what `npm run typecheck` reads that MUST off.
-// ---------------------------------------------------------------------------
+// Why: Rasterizer is imported through the entry only, so `npm run typecheck`
+// proves the entry re-publishes the seam (Chapter 5.3).
 
 const PNG_BYTES = Uint8Array.from([0x89, 0x50, 0x4e, 0x47])
 
@@ -553,23 +389,18 @@ const watchedRasterizer = (answer: Rastering = { ok: true, pngBytes: PNG_BYTES }
   }
 }
 
-/**
- * A seam whose promise rejects. ⛔ Its own contract forbids that, but LR-5 puts
- * the implementation (CP-31) in another layer, so FR-028's guarantee may not
- * rest on the far side keeping its word.
- */
+// Why: the seam's contract forbids rejecting, but its implementation (CP-31)
+// lives in another layer, so FR-028 may not rest on it keeping its word.
 const rejectingRasterizer = (reason: unknown): Rasterizer => ({
   rasterizePng: (): Promise<Rastering> => Promise.reject(reason),
 })
 
-/** A seam that throws before it ever returns a promise. */
 const throwingRasterizer = (reason: unknown): Rasterizer => ({
   rasterizePng: (): Promise<Rastering> => {
     throw reason
   },
 })
 
-/** Every reason a seam in another layer might reject or throw with. */
 const EVERY_REASON: readonly { readonly why: string; readonly reason: unknown }[] = [
   { why: 'an Error', reason: new Error('SecurityError: tainted canvas') },
   { why: 'a string', reason: 'no canvas here' },
@@ -578,15 +409,7 @@ const EVERY_REASON: readonly { readonly why: string; readonly reason: unknown }[
   { why: 'an object that is not an Error', reason: { name: 'SecurityError' } },
 ]
 
-// ---------------------------------------------------------------------------
-// Fixed copies of the tables these cases are driven by.
-// ---------------------------------------------------------------------------
-
-/**
- * `RasterFaultReason`'s three values with the next step each one leaves, which
- * is WHY there are three: NT-3a of table T-037 (MUST) makes a failure notice
- * carry what can be done next, and these three do not share one.
- */
+// Spec: NT-3a
 const T_037_REASONS: readonly { readonly reason: RasterFaultReason; readonly nextStep: string }[] =
   [
     { reason: 'unsupported', nextStep: 'the SVG of IO-3 is still there' },
@@ -594,24 +417,16 @@ const T_037_REASONS: readonly { readonly reason: RasterFaultReason; readonly nex
     { reason: 'rasterFailed', nextStep: 'try again' },
   ]
 
-/**
- * Table T-041 -- the three judgments of WYSIWYG. ⚠️ Only `WY-3` is inside one
- * unit's reach: `WY-1` runs a write, an initialization and a read, and `WY-2`
- * compares two whole exports made in one environment. Both are named here so
- * that the two left out are left out on purpose.
- */
+// Why: only WY-3 is inside one unit's reach; WY-1 and WY-2 are listed so
+// that leaving them out is on purpose.
 const T_041_ROWS = [
   { id: 'WY-1', reach: 'whole product -- write, initialize, read back' },
   { id: 'WY-2', reach: 'whole product -- two exports of one document' },
   { id: 'WY-3', reach: 'this unit -- the screen rectangle times the ratio' },
 ] as const
 
-// ---------------------------------------------------------------------------
-// Reading the assembled picture back. ⚠️ Attribute order, decimal places and
-// whitespace are exactly what FR-080 says a comparison may not depend on, so
-// nothing below matches on the text of an element; the numbers are parsed and
-// compared as numbers.
-// ---------------------------------------------------------------------------
+// Why: FR-080 bars a comparison from depending on attribute order, decimals
+// or whitespace, so the numbers are parsed and compared as numbers.
 
 interface Drawn {
   readonly tag: string
@@ -666,13 +481,8 @@ const rectOf = (element: Drawn): ScreenRect => ({
   height: num(element.attrs, 'height'),
 })
 
-/**
- * ⚠️ Two places, one tolerance. FR-080 (MUST) has WY-3 compare only after ONE
- * rounding rule is applied to both sides, and Chapter 6.1 -- which the
- * requirement hands the rule to -- does not yet state it. So a case may not
- * assert a number of decimal places; it asserts that the two sides agree to
- * inside a twentieth of a pixel, which no rounding of coordinates can cross.
- */
+// Why: FR-080's one rounding rule is not yet stated (Chapter 6.1), so cases
+// assert agreement within 0.05 px, which no coordinate rounding can cross.
 const TOLERANCE = 0.05
 
 const near = (actual: number, expected: number): boolean =>
@@ -691,27 +501,19 @@ const scaledRect = (rect: ScreenRect, ratio: number): ScreenRect => ({
   height: rect.height * ratio,
 })
 
-/** One finished export, with the scene it was made from, ready to be read. */
 interface Assembled {
   readonly result: Picture
   readonly scene: ExportScene
   readonly ratio: number
-  /** How many times the picture that ARRIVED appears, verbatim. */
   readonly pictureCount: number
-  /** Everything the component itself wrote: the received picture is taken out first. */
   readonly own: readonly Drawn[]
   readonly rects: readonly Drawn[]
   readonly ground: Drawn | null
   readonly texts: readonly DrawnText[]
-  /**
-   * A `clipPath` the picture is drawn under, or `null` if there is none.
-   * ⛔ NOTHING ASSERTS ITS SHAPE ANY MORE: it was FR-025's fit clip, and CR-337
-   * withdrew the fit. It is still parsed out so that a rectangle inside a
-   * `clipPath` is not counted among the rectangles the component drew.
-   */
+  // Why: nothing asserts the clip's shape any more; it is parsed out only so
+  // a rect inside a clipPath is not counted as one the component drew.
   readonly clip: ScreenRect | null
   readonly root: Drawn
-  /** The single scale factor the received picture is placed under. */
   readonly pictureScales: readonly string[]
 }
 
@@ -749,9 +551,8 @@ const assembledOf = (result: Picture, scene: ExportScene): Assembled => {
     texts: textsOf(body),
     clip: clipRects[0] !== undefined && clipRects.length === 1 ? rectOf(clipRects[0]) : null,
     root: own[0] ?? { tag: 'nothing was assembled', attrs: {} },
-    // ⭐ `scale(a)` and not `scale(a,b)`: FR-080 (MUST NOT) forbids one ratio
-    // per axis, and the received picture is the one thing that cannot carry the
-    // ratio in its own numbers, so the transform is where it has to show.
+    // Why: the received picture cannot carry the ratio in its own numbers, so
+    // its transform is where one ratio, scale(a) not scale(a,b), must show.
     pictureScales: [...result.svg.matchAll(/scale\(([^)]*)\)/g)].map((oneMatch) => (oneMatch[1] ?? '').trim()),
   }
 }
@@ -764,10 +565,6 @@ const sceneOf = (
   svg: PICTURE,
   regions,
   screenView: view,
-  // ⚠️ THE SHIPPED CEILING, since CR-337. There is no lowered-ceiling fixture
-  // any more: at S-217's own 4096 this bench's screen makes a picture 1280
-  // tall, which fits, and the scenes that do NOT fit are built on purpose in
-  // the last two describes.
   settings: SETTINGS,
   themePreference: 'light',
   themeHue: THEME_HUE,
@@ -779,31 +576,17 @@ const exportedOf = async (scene: ExportScene): Promise<Assembled> => {
   return assembledOf(fitOrThrow(await exportPng(rasterizer, scene)), scene)
 }
 
-/** `exportPng`'s answer, unwrapped to the half that carries a picture. */
 const pngOf = async (
   rasterizer: Rasterizer,
   scene: ExportScene,
 ): Promise<PictureAndPng> => fitOrThrow(await exportPng(rasterizer, scene))
 
-/**
- * The same reading, taken off IO-3's own entry.
- *
- * ⭐ PI-21 publishes `exportSvg` as well since CR-196, and WY-2 of table T-041
- * judges the SVG and the PNG of one state to be the same drawing -- so every
- * reading `exportedOf` supports has to hold of this one too.
- */
+// Spec: IO-3, WY-2
 const svgOnlyOf = (scene: ExportScene): Assembled =>
   assembledOf(fitOrThrow(exportSvg(scene)), scene)
 
-/**
- * A copy of a scene with every object in it frozen.
- *
- * ⭐ `@purity pure` (R7.1) says the output is decided by the arguments alone and
- * that nothing is written. ⚠️ Rule 04, section 1 records a function that named
- * itself `pure` while rewriting an argument, and a frozen copy is what turns
- * that into a failing case rather than a silent one: a write into a frozen
- * object throws under a module's strict mode.
- */
+// Why: a write into a frozen object throws in strict mode, so a unit that
+// calls itself pure while rewriting an argument fails instead of passing.
 const deeplyFrozenCopy = (scene: ExportScene): ExportScene => {
   const seen = new Set<unknown>()
   const freeze = (one: unknown): void => {
@@ -823,30 +606,10 @@ const hasRect = (assembled: Assembled, screenRect: ScreenRect): boolean =>
 const saysAnyOf = (assembled: Assembled, words: readonly string[]): boolean =>
   words.some((word) => assembled.result.svg.includes(word))
 
-// ---------------------------------------------------------------------------
-// The task groups.
-//
-// ⭐ FR-025 measures the fit against the SCREEN: the shrunk picture is the
-// whole screen times the ratio, so the picture's height is the screen's height
-// times that ratio, floored at S-81's height and refused above S-217.
-// ⛔ THE `DRAWN_ROW_IDS` / `TALL_DROPPED` / `TALL_CUT_AT` SPLIT WAS DELETED HERE.
-// It named which of these six task groups FR-025 used to drop off the bottom of a
-// 900-tall frame. CR-337 withdrew that rule outright -- 「書き出さないと決めた
-// 以上、落とす規則は無くなった」 -- so there is nothing left for the split to
-// mean, and every one of the six now reaches the picture.
-// ---------------------------------------------------------------------------
-
 const RATIO = SETTINGS_CONSTANTS.exportCanvas.width / SCREEN.width
 
-/**
- * The height the picture of `SCREEN` grows to: the screen times the ratio,
- * never below S-81's own height (「`S-81` の高さに満たないときは、余りを空白のま
- * まとすること（MUST）」). ⛔ Derived, never typed: S-81 and the screen are the
- * only two numbers it may be made of.
- */
 const GROWN_HEIGHT = Math.max(SETTINGS_CONSTANTS.exportCanvas.height, SCREEN.height * RATIO)
 
-/** Six task groups, spread down a screen 800 tall. Every one of them is drawn. */
 const TALL_TASK_GROUPS: readonly TaskGroupTitle[] = [
   rowOf('g1', 1, { x: 0, y: 100, width: SETTINGS.taskGroupPanelWidthPx, height: 100 }),
   rowOf('g2', 2, { x: 0, y: 200, width: SETTINGS.taskGroupPanelWidthPx, height: 100 }),
@@ -859,22 +622,13 @@ const DRAWN_ROW_IDS = ['g1', 'g2', 'g3', 'g4', 'g5', 'g6']
 
 const TALL_SCENE = sceneOf(viewOf(TALL_TASK_GROUPS))
 
-// ---------------------------------------------------------------------------
-// FR-080 and WY-3 -- the ratio, and what it is multiplied into
-// ---------------------------------------------------------------------------
-
+// Spec: FR-080, WY-3
 describe('FR-080 -- one ratio, both axes, over the whole screen', () => {
   it('sizes the output at S-81\'s width and starts it at the screen\'s own origin', async () => {
     const assembled = await exportedOf(TALL_SCENE)
-    // FR-025 (MUST): 「幅は `S-81` の幅に固定すること（MUST）。高さは、絵が収ま
-    // るところまで伸ばすこと（MUST）」 -- so the width is S-81's and the height
-    // is the grown one.
     expect(assembled.root.tag).toBe('svg')
     expect(num(assembled.root.attrs, 'width')).toBe(SETTINGS_CONSTANTS.exportCanvas.width)
     expect(num(assembled.root.attrs, 'height')).toBeCloseTo(GROWN_HEIGHT, 6)
-    // FR-080 (MUST NOT): no margin is added at the edge, because a margin
-    // would take the ratio off S-81's width over the screen's width. The box
-    // starts at the origin, so nothing was inset.
     expect(assembled.root.attrs['viewBox']).toBe(
       `0 0 ${SETTINGS_CONSTANTS.exportCanvas.width} ${GROWN_HEIGHT}`,
     )
@@ -887,8 +641,6 @@ describe('FR-080 -- one ratio, both axes, over the whole screen', () => {
     )
     expect(band, 'EP-1: the App Header band is drawn').toBeDefined()
     const drawn = rectOf(band as Drawn)
-    // ⭐ The screen is 5:4 and `exportCanvas` is 16:9, so a per-axis ratio would
-    // put the band's height at 1.125x its screen height rather than 1.6x.
     expect(drawn.width / REGIONS.appHeader.width).toBeCloseTo(RATIO, 6)
     expect(drawn.height / REGIONS.appHeader.height).toBeCloseTo(RATIO, 6)
   })
@@ -898,16 +650,12 @@ describe('FR-080 -- one ratio, both axes, over the whole screen', () => {
     expect(assembled.pictureCount, 'the received picture is embedded once').toBe(1)
     expect(assembled.pictureScales.length).toBeGreaterThan(0)
     for (const factor of assembled.pictureScales) {
-      // ⛔ `scale(a,b)` would be two ratios, which FR-080 forbids (MUST NOT).
       expect(factor, 'a single factor, not a pair').not.toContain(',')
       expect(Number.parseFloat(factor)).toBeCloseTo(RATIO, 6)
     }
   })
 
   it('reads the ratio off the WHOLE screen, never a narrower cut-out', async () => {
-    // FR-080 (MUST / MUST NOT): what is cut out is the whole screen GRS
-    // occupies, never a narrower rectangle. A denominator narrowed to the Task Group
-    // Area, or to the canvas less the panels, would give a bigger ratio.
     const assembled = await exportedOf(TALL_SCENE)
     const screenWidth = REGIONS.scheduleCanvas.x + REGIONS.scheduleCanvas.width
     expect(screenWidth).toBe(SCREEN.width)
@@ -927,7 +675,6 @@ describe('table T-041 -- which rows of the WYSIWYG judgment one unit can answer'
 
   it('WY-3: every part table T-076 draws is its screen rectangle times the ratio', async () => {
     const assembled = await exportedOf(TALL_SCENE)
-    // EP-1's band and EP-3's panel are the two rectangles this component owns.
     expect(hasRect(assembled, REGIONS.appHeader), 'EP-1 band').toBe(true)
     expect(hasRect(assembled, REGIONS.taskGroupPanel), 'EP-3 panel').toBe(true)
     for (const divider of DIVIDERS) {
@@ -936,20 +683,8 @@ describe('table T-041 -- which rows of the WYSIWYG judgment one unit can answer'
   })
 })
 
-// ---------------------------------------------------------------------------
-// Table T-076 -- one case walks every row (Chapter 1.9)
-// ---------------------------------------------------------------------------
-
-/**
- * A fixed copy of table T-076, all fourteen rows in the table's own printed
- * order.
- *
- * `expectation` repeats the table's own "drawn?" column; `holds` is what the
- * finished export has to satisfy for that row to be true. ⭐ The rows whose
- * expectation is `arrives` are drawn by SvgRenderer into the picture this
- * component receives, so what they ask of THIS unit is that it neither add them
- * nor take them away.
- */
+// Why: rows marked `arrives` are drawn by SvgRenderer into the received
+// picture, so this unit owes them only that it neither adds nor removes them.
 const T_076_ROWS: readonly {
   readonly id: string
   readonly part: string
@@ -1056,22 +791,13 @@ const T_076_ROWS: readonly {
   },
 ]
 
-/**
- * What table T-076 leaves in the picture, counted.
- *
- * ⭐ The rows that say NOT drawn cannot each be checked by naming a rectangle --
- * a part that is absent leaves nothing to look for. So they are checked
- * together: EP-1 contributes one band, EP-3 one panel ground, EP-9 one line per
- * divider, and no other rectangle may be there. Text is the same: the
- * `Project Title` and one name per kept task group.
- */
+// Why: a part that is absent leaves nothing to look for, so the not-drawn
+// rows are checked together by counting every rect and text that may be there.
 const nothingBeyondTheAccounted = (assembled: Assembled): boolean => {
   const view = assembled.scene.screenView
   const bandAndPanel = 2
   const expectedRects = bandAndPanel + view.frame.dividers.length
   const rows = [...view.taskGroupPanel.pinnedTitles, ...view.taskGroupPanel.titles]
-  // ⛔ NO `droppedTaskGroupIds` TERM ANY MORE (CR-337): a picture that is written
-  // holds every task group, and one that is not written is not read at all.
   const withLabel = rows.filter((row) => row.label !== null)
   const expectedTexts =
     withLabel.length +
@@ -1091,9 +817,8 @@ describe('table T-076 -- which UI parts reach the picture', () => {
   })
 
   it('draws nothing for a notice or a tooltip either', async () => {
-    // ⚠️ A READING, not a quotation. Neither has a row in table T-076 and
-    // neither has a row in table T-103, so the table cannot name them; EP-11's
-    // reason -- a tool's own surfaces are not the schedule -- reaches them.
+    // Why: a reading, not a quotation: neither has a row in table T-076, but
+    // EP-11's reason (a tool's own surfaces are not the schedule) reaches them.
     const assembled = await exportedOf(TALL_SCENE)
     expect(assembled.result.svg).not.toContain(NOTICE_TEXT)
     expect(assembled.result.svg).not.toContain(TOOLTIP_TEXT)
@@ -1107,11 +832,6 @@ describe('table T-076 -- which UI parts reach the picture', () => {
   })
 })
 
-// ---------------------------------------------------------------------------
-// FR-080 -- the room of a part that is not drawn stays empty (MUST) and its
-// neighbors do not close up (MUST NOT)
-// ---------------------------------------------------------------------------
-
 describe('FR-080 -- a part left out leaves a gap, it does not move its neighbors', () => {
   it('keeps the App Header band at its screen height (MUST NOT: squeeze it)', async () => {
     const assembled = await exportedOf(TALL_SCENE)
@@ -1121,21 +841,8 @@ describe('FR-080 -- a part left out leaves a gap, it does not move its neighbors
   })
 
   it('draws the same geometry whether or not the parts it leaves out are there', async () => {
-    // ⭐ This IS the MUST NOT: the room of the scrollbars, the task group's controls, the
-    // properties panel and the palette is the screen's own, so taking them out
-    // of `ScreenView` may not move one drawn rectangle.
-    //
-    // ⚠️ THE TASK GROUP'S CONTROLS ARE TAKEN OUT BY SPENDING THEM, NOT BY REMOVING THEM.
-    // Until 2026-08-30 this line read `expander: null`, and that is a state the
-    // manuscript does not admit: 表 T-051 の `HF-1` places the three on 「各タスクグループ」,
-    // so `TaskGroupTitle.expander` is no longer nullable. ⭐ THE VARIABLE THE MANUSCRIPT
-    // DOES NAME is whether each control is armed or spent -- `FR-029` (MUST)
-    // draws a spent one 薄く, a different drawing of the same control -- together
-    // with whether the task group is pinned, which `HF-6` (MUST) draws when the others
-    // are not drawn at all. ⛔ AND THE RULE UNDER TEST IS UNTOUCHED, because
-    // `FR-085` (MUST NOT) already says the room may not follow any of it:
-    // 「**確保する場所を、操作子を描くかどうかで変えてはならない（MUST NOT）**」,
-    // and 表 T-076 の `EP-4` draws none of them in the export in any case.
+    // Why: the controls are spent, not removed: HF-1 places them on every task
+    // group, so the expander is not nullable; only armed or spent may vary.
     const withEverything = await exportedOf(TALL_SCENE)
     const bare = await exportedOf(
       sceneOf(
@@ -1168,10 +875,8 @@ describe('FR-080 -- a part left out leaves a gap, it does not move its neighbors
   })
 
   it('does not move the Project Title when the items beside it go away', async () => {
-    // EP-1 of table T-076 (MUST NOT): the `Project Title` may not be moved,
-    // and FR-080 forbids closing up the room of what is not drawn.
-    // ⚠️ WHERE it stands is not in any table (recorded as PND-52), so this case
-    // asserts only that it does not MOVE -- which is what the row states.
+    // Why: where the title stands is in no table, so this case asserts only
+    // that it does not move.
     const withItems = await exportedOf(TALL_SCENE)
     const withoutItems = await exportedOf(
       sceneOf(
@@ -1218,14 +923,10 @@ describe('FR-080 -- a part left out leaves a gap, it does not move its neighbors
   })
 })
 
-// ---------------------------------------------------------------------------
-// EP-3 and FR-085 -- the Task Group Panel and the names on it
-// ---------------------------------------------------------------------------
-
 describe('table T-076 EP-3 -- the Task Group Panel and its names', () => {
   it('gives the panel the screen\'s width (MUST NOT: a width of its own)', async () => {
-    // EP-3 (MUST NOT): no width of the export's own. One would put FR-085's
-    // truncation in a different place than the screen puts it.
+    // Why: a width of the export's own would put FR-085's truncation in another
+    // place than the screen puts it.
     const assembled = await exportedOf(TALL_SCENE)
     const panel = assembled.rects.find((drawn) =>
       near(num(drawn.attrs, 'height'), REGIONS.taskGroupPanel.height * RATIO),
@@ -1235,9 +936,8 @@ describe('table T-076 EP-3 -- the Task Group Panel and its names', () => {
   })
 
   it('writes each name exactly as it arrived (FR-085 already cut it)', async () => {
-    // FR-085 (MUST NOT): the room kept for the task group controls does not change
-    // with whether they are drawn -- exactly because the export does not draw
-    // them (EP-4). So the name arrives cut, and may not be cut again here.
+    // Why: the room for the controls does not follow whether they are drawn
+    // (FR-085), so the name arrives already cut and is not cut again.
     const cut = 'a name FR-085 already cut here'
     const assembled = await exportedOf(
       sceneOf(
@@ -1250,13 +950,8 @@ describe('table T-076 EP-3 -- the Task Group Panel and its names', () => {
   })
 
   it('puts each name inside its own task group\'s band, in the task groups\' own order (SC-1)', async () => {
-    // SC-1 slaves the panel to the body vertically, so a name belongs to the
-    // band `TaskGroupTitle.box` gives it, shrunk by the ratio.
-    //
-    // ⚠️ WHERE INSIDE THE BAND the baseline sits is NOT asserted. `labelBaseline`
-    // (S-33) is a baseline correction and no requirement says how
-    // it is applied, so the specification does not fix the offset -- see the
-    // case below, which asserts only what holds under any such rule.
+    // Why: where inside the band the baseline sits is not asserted; no
+    // requirement says how S-33 is applied.
     const assembled = await exportedOf(TALL_SCENE)
     const yOf = (id: string): number => {
       const found = assembled.texts.find((drawnText) => drawnText.content === `name of ${id}`)
@@ -1277,10 +972,8 @@ describe('table T-076 EP-3 -- the Task Group Panel and its names', () => {
   })
 
   it('keeps the box offset between two task groups the panel treats alike', async () => {
-    // ⭐ `g1` and `g4` are both depth 1 and both 100 high, so whatever rule
-    // places the baseline inside a band places it the same way in each. What is
-    // left is FR-080's ratio over SC-1's offset, and that IS fixed: 300 screen
-    // pixels apart on the screen, 300 x 1.6 apart in the export.
+    // Why: g1 and g4 are both depth 1 and 100 high, so any baseline rule places
+    // them alike, leaving only FR-080's ratio over SC-1's offset.
     const assembled = await exportedOf(TALL_SCENE)
     const yOf = (id: string): number =>
       num(
@@ -1294,8 +987,6 @@ describe('table T-076 EP-3 -- the Task Group Panel and its names', () => {
   })
 
   it('indents one `taskGroupTitleIndent` per level of depth (S-37)', async () => {
-    // K-37 of table T-104 names S-37 the indent of ONE level of depth, and
-    // FR-085 takes the task group's depth worth of it off the usable width.
     const assembled = await exportedOf(TALL_SCENE)
     const xOf = (id: string): number => {
       const found = assembled.texts.find((drawnText) => drawnText.content === `name of ${id}`)
@@ -1310,9 +1001,6 @@ describe('table T-076 EP-3 -- the Task Group Panel and its names', () => {
   })
 
   it('writes a root task group larger by `taskGroupTitleTopScale` (S-36 and S-38)', async () => {
-    // K-38 of table T-104 names S-38 the scale a depth-1 task group's name is written
-    // at, over `taskGroupTitleFont` (S-36). ⭐ Both reach this case from
-    // SETTINGS_DEFAULTS, so a change in the manuscript lands here.
     const assembled = await exportedOf(TALL_SCENE)
     const sizeOf = (id: string): number => {
       const found = assembled.texts.find((drawnText) => drawnText.content === `name of ${id}`)
@@ -1327,9 +1015,8 @@ describe('table T-076 EP-3 -- the Task Group Panel and its names', () => {
     )
   })
 
+  // Spec: FR-098, EP-3, EP-5
   it('writes the name of a pinned task group too (U-46 is drawn)', async () => {
-    // FR-098 lifts a pinned task group out of the scrolling list and holds it at the
-    // top; EP-3 draws the tree and EP-5 draws `Pinned Task Group` (U-46).
     const pinned = rowOf(
       'p1',
       1,
@@ -1343,26 +1030,8 @@ describe('table T-076 EP-3 -- the Task Group Panel and its names', () => {
   })
 })
 
-// ---------------------------------------------------------------------------
-// FR-025 -- the frame the picture is written into
-//
-// ⛔⛔ FOUR CASES WERE DELETED FROM THIS DESCRIBE, NOT REWRITTEN (CR-337,
-// 2026-09-02). They were 「drops the task group that straddles S-81's bottom edge and
-// every task group below it」, 「reports the dropped task groups top-most first」, 「cuts at
-// the TOP of the first dropped task group」 and 「leaves the fit clip open at the
-// top」. All four measured CR-333 「超えた分を下端側から `TaskGroup` 単位で落とす」,
-// which FR-025 no longer says -- DFC-460 「書き出さないと決めた以上、落とす規則は無く
-// なった」. A test whose premise is withdrawn has nothing to become.
-// ⚠️ Two more went with them further down: 「keeps a task group whose bottom lands
-// exactly on the edge, and drops the next」 and 「drops every task group when the very
-// first one already straddles the edge」.
-// ---------------------------------------------------------------------------
-
 describe('FR-025 -- the frame the picture is written into', () => {
   it('writes every task group of the scene, dropping none of them (CR-337)', async () => {
-    // ⭐ FR-025 (MUST NOT): 「一部だけを描いてはならない」. A written picture is
-    // a whole one, so every task group of the scene is in it.
-    // GOES RED IF: any task group is left out of a picture that was written at all.
     const assembled = await exportedOf(TALL_SCENE)
     for (const id of DRAWN_ROW_IDS) {
       expect(assembled.texts.map((drawnText) => drawnText.content), id).toContain(`name of ${id}`)
@@ -1370,9 +1039,6 @@ describe('FR-025 -- the frame the picture is written into', () => {
   })
 
   it('never changes the ratio to make the picture fit (MUST NOT)', async () => {
-    // FR-025 (MUST NOT): the ratio is never changed to make the picture fit.
-    // The tall screen overflows and the short one does not, and FR-080 gives
-    // both the same ratio because both screens are the same width.
     const tall = await exportedOf(TALL_SCENE)
     const shortScreen: MeasuredScreen = { ...SCREEN, height: 500 }
     const shortRegions = regionsOf(shortScreen)
@@ -1388,16 +1054,11 @@ describe('FR-025 -- the frame the picture is written into', () => {
     )
     const bandWidth = (a: Assembled): number =>
       Math.max(...a.rects.map((drawn) => num(drawn.attrs, 'width')))
-    // ⭐ The two screens are the same width and different heights, and FR-080
-    // takes the ratio off the WIDTH alone -- so the taller one may not be
-    // squeezed to make it fit.
     expect(tall.result.heightPx).toBeGreaterThan(short.result.heightPx)
     expect(bandWidth(short)).toBeCloseTo(bandWidth(tall), 6)
   })
 
   it('leaves the remainder blank when the picture is shorter than S-81 (MUST NOT: add task groups)', async () => {
-    // FR-025 (MUST / MUST NOT): the remainder is left blank and no task group is
-    // added to fill it. Nothing drawn may reach past where the screen ends.
     const shortScreen: MeasuredScreen = { ...SCREEN, height: 500 }
     const shortRegions = regionsOf(shortScreen)
     const rows = [
@@ -1428,20 +1089,13 @@ describe('FR-025 -- the frame the picture is written into', () => {
   })
 
   it('fixes the output size at S-81 and takes no size argument (MUST NOT: ask)', () => {
-    // FR-025 (MUST NOT): the output size is fixed at S-81 and a person is
-    // never asked for it at each export. The entry takes the seam and the
-    // scene, and the scene carries no size of its own.
     expect(exportPng).toHaveLength(2)
   })
 })
 
-// ---------------------------------------------------------------------------
-// Table T-024, IO-3 and IO-4 -- one operation, two outputs
-// ---------------------------------------------------------------------------
-
 describe('table T-024 -- the SVG and the PNG come out of one assembly', () => {
   it('hands the rasterizer the very string it gives back as IO-3', async () => {
-    // ⭐ A second assembly would be the way the two outputs come to differ.
+    // Why: a second assembly is how the two outputs would come to differ.
     const { rasterizer, calls } = watchedRasterizer()
     const result = await pngOf(rasterizer, TALL_SCENE)
     expect(calls).toHaveLength(1)
@@ -1449,9 +1103,8 @@ describe('table T-024 -- the SVG and the PNG come out of one assembly', () => {
   })
 
   it('asks for exactly S-81 pixels -- FR-025 admits no scale (MUST NOT)', async () => {
-    // ⛔ THERE IS NO MULTIPLIER TO PIN TO ONE. FR-025 (MUST NOT) forbids the
-    // export holding a scale at all, so this case walks no values: the pixels
-    // ARE the picture's own size.
+    // Why: FR-025 forbids the export any scale, so this case walks no
+    // multipliers: the pixels are the picture's own size.
     const { rasterizer, calls } = watchedRasterizer()
     const scene = sceneOf(viewOf(TALL_TASK_GROUPS), { settings: SETTINGS })
     const result = await pngOf(rasterizer, scene)
@@ -1459,7 +1112,6 @@ describe('table T-024 -- the SVG and the PNG come out of one assembly', () => {
       widthPx: SETTINGS_CONSTANTS.exportCanvas.width,
       heightPx: GROWN_HEIGHT,
     })
-    // ⚠️ The SVG carries the same size the raster is asked for.
     const root = assembledOf(result, scene).root
     expect(num(root.attrs, 'width')).toBe(SETTINGS_CONSTANTS.exportCanvas.width)
     expect(num(root.attrs, 'height')).toBeCloseTo(GROWN_HEIGHT, 6)
@@ -1477,10 +1129,6 @@ describe('table T-024 -- the SVG and the PNG come out of one assembly', () => {
     expect(calls).toHaveLength(1)
   })
 })
-
-// ---------------------------------------------------------------------------
-// FR-028 and AG-8 of table T-035 -- a failure is a VALUE
-// ---------------------------------------------------------------------------
 
 describe('FR-028 / AG-8 -- the failure comes back as a value, and nothing is thrown', () => {
   it('carries each of the three reasons through unchanged (one case walks them)', async () => {
@@ -1516,10 +1164,8 @@ describe('FR-028 / AG-8 -- the failure comes back as a value, and nothing is thr
   })
 
   it('still gives back IO-3\'s SVG when the PNG fails', async () => {
-    // ⭐ Assembling the picture is arithmetic over values and cannot fail once
-    // it fits; only painting it needs a machine. That is also the next step
-    // NT-3a owes a person when the reason is `unsupported`.
-    // ⛔ THE `droppedTaskGroupIds` HALF OF THIS CASE WAS DELETED (CR-337).
+    // Why: assembling is arithmetic and cannot fail once it fits; only painting
+    // needs a machine, so the SVG survives a failed PNG.
     const { rasterizer } = watchedRasterizer({
       ok: false,
       fault: { reason: 'unsupported', what: 'no canvas in this host' },
@@ -1533,10 +1179,8 @@ describe('FR-028 / AG-8 -- the failure comes back as a value, and nothing is thr
 
 describe('table T-037 -- what the notice is composed from', () => {
   it('NT-1: the detail naming WHICH item failed survives the entry', async () => {
-    // NT-1 (MUST): a notice says WHICH item is wrong and why, in words. This
-    // component composes
-    // no wording -- FR-038 makes the sentence depend on the display language --
-    // so what it owes the notice is the reason and the detail, both intact.
+    // Why: the sentence depends on the display language, so this unit owes the
+    // notice only the reason and the detail, intact.
     const what = 'the 1600x900 canvas at scale 2 exceeds this machine'
     const { rasterizer } = watchedRasterizer({ ok: false, fault: { reason: 'tooLarge', what } })
     const result = await pngOf(rasterizer, TALL_SCENE)
@@ -1558,7 +1202,6 @@ describe('table T-037 -- what the notice is composed from', () => {
   })
 
   it('composes no wording of its own', async () => {
-    // ⛔ NT-1's sentence belongs where the display language is known (FR-038).
     const { rasterizer } = watchedRasterizer({
       ok: false,
       fault: { reason: 'rasterFailed', what: 'detail' },
@@ -1569,10 +1212,6 @@ describe('table T-037 -- what the notice is composed from', () => {
     expect(Object.keys(result.png).sort()).toEqual(['fault', 'ok'])
   })
 })
-
-// ---------------------------------------------------------------------------
-// Boundaries: empty, null, one, and the picture that ARRIVES
-// ---------------------------------------------------------------------------
 
 describe('boundaries', () => {
   it('answers for a screen with no task groups at all', async () => {
@@ -1603,8 +1242,8 @@ describe('boundaries', () => {
   })
 
   it('writes no title when the document has none (`documentTitle` is null)', async () => {
-    // ⚠️ FR-035 fixes `Untitled` for the BROWSER TAB and says nothing about the
-    // header of a document without a title, so nothing may be substituted here.
+    // Why: FR-035 fixes `Untitled` for the browser tab only, so nothing may be
+    // substituted in the header here.
     const assembled = await exportedOf(
       sceneOf(
         viewOf(TALL_TASK_GROUPS, {
@@ -1619,8 +1258,6 @@ describe('boundaries', () => {
   })
 
   it('keeps the picture that arrived intact and whole', async () => {
-    // 5.3 draws this component two OUTGOING edges, both of supply. The picture
-    // is not re-rendered here -- FR-080 wants the same picture, not a second one.
     const assembled = await exportedOf(TALL_SCENE)
     expect(assembled.pictureCount).toBe(1)
   })
@@ -1633,9 +1270,8 @@ describe('boundaries', () => {
   })
 
   it('stays one SVG document when a name carries markup characters', async () => {
-    // FR-035 lets a person write any title, and a task group name is the document's own
-    // value. A raw `<` would end the element and make IO-3's output another
-    // picture than the one assembled.
+    // Why: a name is the document's own value, and a raw `<` would end the
+    // element and make IO-3's output another picture.
     const wild = 'a & b < c > d "e"'
     const assembled = await exportedOf(
       sceneOf(
@@ -1654,15 +1290,10 @@ describe('boundaries', () => {
   })
 })
 
-// ---------------------------------------------------------------------------
-// Chapter 5.3 -- the seam declared in UF-40 leaves through the entry
-// ---------------------------------------------------------------------------
-
 describe('Chapter 5.3 -- the seam is re-published by the public entry', () => {
   it('publishes every name of IF-6 through `image-exporter.ts` (MUST)', () => {
-    // ⭐ Types are erased at run time, so what proves this is `npm run
-    // typecheck`: every name below is imported from the ENTRY and from nothing
-    // else, and 5.3 forbids the outside to read past it.
+    // Why: types are erased at run time, so `npm run typecheck` is what proves
+    // this: every name is imported from the entry and from nothing else.
     const sizePx: RasterSizePx = { widthPx: 1, heightPx: 1 }
     const fault: RasterFault = { reason: 'unsupported', what: 'detail' }
     const reason: RasterFaultReason = fault.reason
@@ -1682,21 +1313,12 @@ describe('Chapter 5.3 -- the seam is re-published by the public entry', () => {
   })
 })
 
-// ---------------------------------------------------------------------------
-// IF-6 -- one direction, and no read side
-// ---------------------------------------------------------------------------
-
 describe('IF-6 -- the seam goes one way, so there is no round trip to test', () => {
   it('names IO-3 and IO-4 as write-only rows of table T-024', () => {
-    // ⚠️ FR-021's round trip is `DocumentCodec`'s and `MspdiCodec`'s, not this
-    // unit's: table T-024 gives IO-3 and IO-4 the direction "write only", and a
-    // member that read an image back would open an intake FR-023 would then
-    // have to validate -- with nothing on this side to validate it with.
+    // Why: the round trip is the codecs', not this unit's: IO-3 and IO-4 are
+    // write only, and a read-back member would open an unvalidated intake.
     const writeOnly = ['IO-3', 'IO-4'] as const
     expect(writeOnly).toHaveLength(2)
-    // ⭐ What stands in for a round trip here is IO-3 against IO-4: the string
-    // the seam was painted from IS the string the caller receives, checked
-    // above, so the two outputs cannot describe different pictures.
     expect(exportPng).toHaveLength(2)
   })
 
@@ -1716,28 +1338,16 @@ describe('IF-6 -- the seam goes one way, so there is no round trip to test', () 
   })
 })
 
-// ---------------------------------------------------------------------------
-// PI-21 `exportSvg` -- IO-3's own entry, and the half of WY-2 that fits in one
-// unit
-//
-// ⭐ WHY THESE CASES EXIST. WY-2 of table T-041 judges "the drawing, once the
-// watermark layer is set aside, to be the same SVG / PNG after normalization".
-// A whole-product run of that row is out of one unit's reach -- it loads a JSON
-// and performs the fit of FR-055 first -- but the half that says the SVG and
-// the PNG of ONE state are ONE drawing is not: it is exactly the two entries
-// PI-21 publishes answering from one assembly. IO-3 and IO-4 of table T-024 are
-// the two outputs, and IO-3's size is S-81 of table T-204.
-// ---------------------------------------------------------------------------
-
+// Spec: WY-2, IO-3, IO-4
+// Why: a whole-product WY-2 run loads a JSON and fits it (FR-055) first; the
+// half that fits one unit is both entries answering from one assembly.
 describe('PI-21 exportSvg -- IO-3 and IO-4 are one assembly (WY-2 of table T-041)', () => {
   it('GIVEN one scene WHEN both entries run THEN the SVG route and the PNG route answer the same string (WY-2)', async () => {
     const { rasterizer } = watchedRasterizer()
     const svgOnly = fitOrThrow(exportSvg(TALL_SCENE))
     const both = await pngOf(rasterizer, TALL_SCENE)
-    // ⛔ Not "equal after normalization" but the SAME string: FR-080 admits
-    // normalization because two DRAWERS spell a picture differently, and there
-    // is only one drawer here. A difference of any kind would be a second
-    // assembly, which is the thing CR-196 closed.
+    // Why: the same string, not equal after normalization: FR-080 normalizes
+    // for two drawers, and there is only one drawer here.
     expect(svgOnly.svg).toBe(both.svg)
     expect(svgOnly.heightPx).toBe(both.heightPx)
   })
@@ -1750,8 +1360,6 @@ describe('PI-21 exportSvg -- IO-3 and IO-4 are one assembly (WY-2 of table T-041
   })
 
   it('GIVEN a scene WHEN exportSvg runs THEN the output is S-81 wide and as tall as the picture grew (IO-3 of table T-024, S-81)', () => {
-    // Table T-024 IO-3: "SVG / write only / the screen's output / the output
-    // size is S-81 of table T-204." FR-025 (MUST) fixes only the WIDTH there.
     const assembled = svgOnlyOf(TALL_SCENE)
     expect(assembled.root.tag).toBe('svg')
     expect(num(assembled.root.attrs, 'width')).toBe(SETTINGS_CONSTANTS.exportCanvas.width)
@@ -1762,13 +1370,6 @@ describe('PI-21 exportSvg -- IO-3 and IO-4 are one assembly (WY-2 of table T-041
   })
 
   it('GIVEN a screen taller than S-81 WHEN exportSvg runs THEN it writes every task group, as the PNG route does (FR-025, CR-337)', () => {
-    // ⭐ THE DEFECT CR-196 CLOSED, as a case: before the entry existed the SVG
-    // route went through table T-076's assembly at all.
-    // ⛔ WHAT THIS CASE USED TO SAY WAS 「it drops the same TaskGroups the PNG
-    // route drops」, with the fit clip measured beside it. CR-337 withdrew the
-    // drop, so there is no longer a cut for the two routes to agree on -- what
-    // they agree on now is that both write the whole scene.
-    // GOES RED IF: the SVG route leaves a task group out that the PNG route draws.
     const assembled = svgOnlyOf(TALL_SCENE)
     for (const id of DRAWN_ROW_IDS) {
       expect(assembled.texts.map((drawnText) => drawnText.content), id).toContain(`name of ${id}`)
@@ -1776,9 +1377,6 @@ describe('PI-21 exportSvg -- IO-3 and IO-4 are one assembly (WY-2 of table T-041
   })
 
   it('GIVEN the fixed copy of table T-076 WHEN exportSvg assembles the picture THEN all fourteen rows hold', () => {
-    // Chapter 1.9 (:275): a requirement that points at a table is tested from a
-    // copy of that table. The same copy the PNG route is walked with, walked
-    // again through IO-3's entry -- WY-2 leaves no room for the two to differ.
     const assembled = svgOnlyOf(TALL_SCENE)
     expect(T_076_ROWS).toHaveLength(14)
     for (const row of T_076_ROWS) {
@@ -1787,10 +1385,6 @@ describe('PI-21 exportSvg -- IO-3 and IO-4 are one assembly (WY-2 of table T-041
   })
 
   it('GIVEN the same scene twice WHEN exportSvg runs THEN it answers the same string both times (@purity pure)', () => {
-    // WY-2's premise: the same JSON in the same environment gives the same
-    // picture. A pure entry may not read a clock, a random or a counter --
-    // CS-1 of table T-066 says in as many words that reading the
-    // clock in the frame would break WY-2.
     expect(fitOrThrow(exportSvg(TALL_SCENE)).svg).toBe(fitOrThrow(exportSvg(TALL_SCENE)).svg)
     expect(exportSvg(sceneOf(viewOf([])))).toEqual(exportSvg(sceneOf(viewOf([]))))
   })
@@ -1804,16 +1398,13 @@ describe('PI-21 exportSvg -- IO-3 and IO-4 are one assembly (WY-2 of table T-041
   })
 
   it('GIVEN exportSvg WHEN its parameter list is read THEN it takes the scene alone and no output size (FR-025 MUST NOT)', () => {
-    // FR-025 (MUST NOT): the output size is fixed at S-81 and a person is never
-    // asked for it at each export. There is no size to pass, on either entry.
     expect(exportSvg).toHaveLength(1)
     expect(exportPng).toHaveLength(2)
   })
 
   it('GIVEN a rasterizer that fails WHEN exportPng runs THEN IO-3 picture is still exportSvg own (NT-3a next step)', async () => {
-    // NT-3a of table T-037 (MUST): a failure notice carries what can be done
-    // next, and for `unsupported` that next step is the SVG -- which is only
-    // true if the string handed back is the assembled one.
+    // Why: for `unsupported` the next step is the SVG, which holds only if the
+    // string handed back is the assembled one.
     const { rasterizer } = watchedRasterizer({
       ok: false,
       fault: { reason: 'unsupported', what: 'no canvas in this host' },
@@ -1826,10 +1417,6 @@ describe('PI-21 exportSvg -- IO-3 and IO-4 are one assembly (WY-2 of table T-041
 
 describe('PI-21 -- what leaves `image-exporter.ts` at run time (Chapter 5.3)', () => {
   it('GIVEN table T-064 WHEN PI-21 is read THEN it gives one seam type and two entries', () => {
-    // ⭐ The roster this describe is held against, taken from the manuscript.
-    // `Rasterizer` is IF-6 of table T-065, declared in its own file and
-    // re-published by the entry (「公開エントリは、そのインターフェースを再び
-    // 公開すること（MUST）」), so it is a type and erased.
     expect(PI_21_MEMBERS.map((one) => one.name)).toEqual([
       'Rasterizer',
       'exportSvg',
@@ -1847,9 +1434,6 @@ describe('PI-21 -- what leaves `image-exporter.ts` at run time (Chapter 5.3)', (
         `PI-21 \`${name}\``,
       ).toBe('function')
     }
-    // ⛔ AND NO THIRD ENTRY. What the table gives PI-21 is what may be CALLED
-    // through it; a further callable name would be a member the row does not
-    // hold, and 5.3 leaves a component exactly one way out of its folder.
     const callable = published.filter(
       (name) => typeof (imageExporter as unknown as Record<string, unknown>)[name] === 'function',
     )
@@ -1865,10 +1449,6 @@ describe('PI-21 -- what leaves `image-exporter.ts` at run time (Chapter 5.3)', (
     )
   })
 })
-
-// ---------------------------------------------------------------------------
-// Boundaries of the SVG route: empty, one, null, and the edge of S-81
-// ---------------------------------------------------------------------------
 
 describe('boundaries of the SVG route', () => {
   it('GIVEN a screen with no task groups at all WHEN exportSvg runs THEN it still draws EP-1 and EP-3', () => {
@@ -1913,34 +1493,12 @@ describe('boundaries of the SVG route', () => {
     expect(answer.heightPx).toBeCloseTo(GROWN_HEIGHT, 6)
   })
 
-  // ⛔⛔ TWO CASES WERE DELETED HERE (CR-337), NOT REWRITTEN. They were 「GIVEN a
-  // task group whose bottom lands exactly on S-81 edge ... it is kept and the next is
-  // dropped」 and 「GIVEN the very first task group already straddles the edge ... every
-  // task group is reported dropped」. Both asked which `TaskGroup`s survived a cut at
-  // S-81's lower edge. FR-025 no longer cuts: 「一部だけを描いてはならない
-  // （MUST NOT）」, and the edge that decides anything now is S-217's, which the
-  // last describe of this file measures.
 })
 
-// ===========================================================================
-// FR-025 -- the picture grows downward to a ceiling, and stops being written
-// past it (CR-333, then CR-337)
-// ===========================================================================
-//
-// ⭐⭐ THE READER'S RULINGS OF 2026-09-02, VERBATIM: DFC-189 「倍率の問題は出ない。見えて
-// る範囲を 1600x900 に出力が原則だろ？収まらない場合は縦の 900 を延ばせ」,
-// CR-333 「上限付きで延ばすが、16,384 は大きすぎるので、4000 程度でよく使う値にしろ」 and
-// CR-337 「その場合は、1600x4096 のサイズに収まらなかったエラーにして、png, svg の出力を止めろ」.
-//
-// ⭐ FR-025 now reads 「幅は `S-81` の幅に固定すること（MUST）。高さは、絵が収ま
-// るところまで伸ばすこと（MUST）」 and 「伸ばしてよいのはその `S-217` までとするこ
-// と（MUST）」. S-81's height is the FLOOR -- 「絵の高さ（全体表示時の期間を固定していなければ縮めた絵の高さ、固定していれば `IX-15` の高さ）が `S-81` の高さに満た
-// ないときは、余りを空白のままとすること（MUST）」 -- and S-217
-// (`exportCanvasHeightCap`) is the ceiling.
+// Spec: FR-025, S-81, S-217, IX-15
 describe('FR-025 -- the height grows to fit and stops at S-217', () => {
   const screenOf = (height: number): MeasuredScreen => ({ ...SCREEN, height })
 
-  /** The answer, off IO-3's own entry, for a screen of this height. */
   const grownFor = (
     height: number,
     rows: readonly TaskGroupTitle[] = TALL_TASK_GROUPS,
@@ -1952,9 +1510,6 @@ describe('FR-025 -- the height grows to fit and stops at S-217', () => {
   }
 
   it('grows the height to the shrunken screen when that is taller than S-81 (MUST)', () => {
-    // The screen is 1000 wide, so the ratio is S-81's width over 1000. A screen
-    // 800 tall is 800 x that ratio once shrunk, and the picture is that tall.
-    // GOES RED IF: the height goes back to being read off `exportCanvas`.
     const picture = fitOrThrow(grownFor(800))
     expect(picture.heightPx).toBeCloseTo(800 * RATIO, 6)
     expect(picture.heightPx).toBeGreaterThan(SETTINGS_CONSTANTS.exportCanvas.height)
@@ -1967,8 +1522,6 @@ describe('FR-025 -- the height grows to fit and stops at S-217', () => {
   })
 
   it('keeps the width at S-81\'s, whatever the height does (MUST)', () => {
-    // FR-080 takes the ratio off S-81's WIDTH over the screen's width, and
-    // FR-025 (MUST) fixes the width at S-81's -- so no height may move it.
     for (const height of [200, 800, 2000]) {
       const picture = fitOrThrow(grownFor(height))
       const root = elementsOf(picture.svg.split(PICTURE).join(''))[0]
@@ -1979,22 +1532,14 @@ describe('FR-025 -- the height grows to fit and stops at S-217', () => {
   })
 
   it('never falls below S-81\'s height, and leaves the remainder blank (MUST NOT: fill it)', () => {
-    // A screen 400 tall shrinks to well under S-81's height. FR-025 (MUST)
-    // leaves the rest of the picture blank rather than shrinking the frame to
-    // the drawing, so S-81's height is a floor.
-    // ⚠️ Only the task groups that fit ON a screen 400 tall: a task group drawn below the
-    // screen's own bottom edge is not a case about the picture's height.
+    // Why: only the task groups that fit on a screen 400 tall; one drawn below
+    // its bottom edge would make this a case about something else.
     const picture = fitOrThrow(grownFor(400, TALL_TASK_GROUPS.slice(0, 3)))
     expect(400 * RATIO).toBeLessThan(SETTINGS_CONSTANTS.exportCanvas.height)
     expect(picture.heightPx).toBe(SETTINGS_CONSTANTS.exportCanvas.height)
   })
 
   it('writes the whole scene while the picture still fits under the ceiling (MUST)', () => {
-    // ⛔ THIS IS WHAT CR-333 CHANGED AND CR-337 SETTLED. The same task groups on the
-    // same screen used to lose `g5` and `g6` off the bottom, because the frame
-    // stopped at S-81's height. Now the frame grows past them, and no task group is
-    // ever lost from a picture that is written at all.
-    // GOES RED IF: the frame stops growing at S-81's height again.
     const answer = grownFor(800)
     expect(answer.ok).toBe(true)
     const picture = fitOrThrow(answer)
@@ -2005,9 +1550,6 @@ describe('FR-025 -- the height grows to fit and stops at S-217', () => {
   })
 
   it('asks the rasterizer for the GROWN height (MUST)', async () => {
-    // FR-025 (MUST): the pixels ARE the picture's size. ⛔ A route that read
-    // `exportCanvas.height` again here would paint a 900-unit window onto a
-    // picture 1280 tall.
     const { rasterizer, calls } = watchedRasterizer()
     const scene = sceneOf(viewOf(TALL_TASK_GROUPS), { settings: SETTINGS }, regionsOf(screenOf(800)))
     const result = await pngOf(rasterizer, scene)
@@ -2020,58 +1562,30 @@ describe('FR-025 -- the height grows to fit and stops at S-217', () => {
   })
 })
 
-// ===========================================================================
-// FR-025 (CR-337) -- a picture that does not fit is not written at all
-// ===========================================================================
-//
-// ⭐⭐ THE RULE, VERBATIM (`docs/spec/01-04-requirements.md`, FR-025):
-// 「伸ばしても `S-217` に収まらないときは、画像を書き出さないこと（MUST）。
-// 一部だけを描いてはならない（MUST NOT）」 and 「理由を告げること（MUST）。
-// 理由は 表 T-233 の `RS-43` とすること（MUST）」, scoped by 「止めるのは 表 T-024
-// の `IO-3`（SVG）・`IO-4`（PNG）・`IO-6`（クリップボード）である —— `IO-1` /
-// `IO-2` / `IO-7` は絵ではないので、高さの天井に当たらない」.
-//
-// ⚠️ WHAT THIS UNIT CAN AND CANNOT SAY ABOUT `RS-43`. Table T-233 is a table of
-// REASONS A TELLING CARRIES, and the telling is composed where the display
-// language is known (FR-038) -- not here. So what these cases hold this unit to
-// is the half it owns: it refuses, it hands back no picture at all, and it
-// carries ONE reason for every scene that is too tall, so that the row can be
-// chosen from it downstream. ⛔ The row id `RS-43` itself is asserted where the
-// notice is worded, in `tests/unit/uf-47-48-choosers.test.ts`.
+// Spec: FR-025, T-233
+// Why: the telling is worded where the language is known (FR-038), so this
+// unit owes only the refusal and one reason for every too-tall scene.
 describe('FR-025 -- a scene that will not fit is refused outright (CR-337)', () => {
   const screenOf = (height: number): MeasuredScreen => ({ ...SCREEN, height })
 
   const answerFor = (height: number, settings: DocumentSettings = SETTINGS): ExportScene =>
     sceneOf(viewOf(TALL_TASK_GROUPS), { settings }, regionsOf(screenOf(height), settings))
 
-  /**
-   * The screen whose shrunk picture is EXACTLY S-217 tall, and the first one
-   * past it. ⛔ Both are derived from S-81's width and S-217, never typed: the
-   * ratio is S-81's width over the screen's width (FR-080), so the picture
-   * reaches the ceiling where the screen reaches `S-217 / ratio`.
-   */
   const SCREEN_AT_CEILING = SETTINGS_CONSTANTS.exportCanvasHeightCap / RATIO
   const SCREEN_OVER_CEILING = SCREEN_AT_CEILING + 1
 
   it('refuses IO-3 and writes nothing when the grown picture passes S-217 (MUST NOT: draw part of it)', () => {
-    // GOES RED IF: `exportSvg` answers with a picture -- whole or cut -- for a
-    // scene whose growth passes the ceiling.
     expect(SCREEN_OVER_CEILING * RATIO, 'the fixture is past the ceiling').toBeGreaterThan(
       SETTINGS_CONSTANTS.exportCanvasHeightCap,
     )
     const answer = exportSvg(answerFor(SCREEN_OVER_CEILING))
     expect(answer.ok).toBe(false)
     if (answer.ok) return
-    // 「画像を書き出さないこと（MUST）」: there is no picture on the answer at
-    // all, not an empty one and not a cut one.
     expect(Object.keys(answer).includes('svg'), 'no picture came back').toBe(false)
     expect(Object.keys(answer).includes('heightPx'), 'no size came back').toBe(false)
   })
 
   it('refuses IO-4 too, and never paints the seam (MUST NOT: draw part of it)', async () => {
-    // ⛔ IO-4 is made FROM IO-3 (WY-2 of table T-041), so a refused SVG can
-    // leave no PNG behind. Painting the seam at all would mean bytes existed.
-    // GOES RED IF: the rasterizer is called for a scene that is refused.
     const { rasterizer, calls } = watchedRasterizer()
     const answer = await exportPng(rasterizer, answerFor(SCREEN_OVER_CEILING))
     expect(answer.ok).toBe(false)
@@ -2082,13 +1596,8 @@ describe('FR-025 -- a scene that will not fit is refused outright (CR-337)', () 
   })
 
   it('tells a reason, and the same one for every scene that is too tall (MUST: table T-233 RS-43)', () => {
-    // FR-025 (MUST): 「理由を告げること（MUST）。理由は 表 T-233 の `RS-43`
-    // とすること（MUST）」. Table T-233 holds ONE row for this, so this unit
-    // may hand its caller only one classification for it, whatever the shape of
-    // the scene that overflowed.
-    // GOES RED IF: a refusal comes back with no reason on it, or two too-tall
-    // scenes are classified apart -- either would leave the caller unable to
-    // choose RS-43 and only RS-43.
+    // Why: table T-233 holds one row for this, so every too-tall scene must
+    // carry the same one reason for the caller to choose RS-43 from.
     const refusals = [SCREEN_OVER_CEILING, SCREEN_OVER_CEILING * 2, SCREEN_OVER_CEILING * 10].map(
       (height) => exportSvg(answerFor(height)),
     )
@@ -2104,9 +1613,6 @@ describe('FR-025 -- a scene that will not fit is refused outright (CR-337)', () 
   })
 
   it('answers a picture, not a refusal, while the growth stays inside S-217 (MUST)', () => {
-    // The other side of the same edge. FR-025 (MUST): 「高さは、絵が収まるとこ
-    // ろまで伸ばすこと」 -- so a scene that fits is written in full.
-    // GOES RED IF: the refusal reaches scenes that fit.
     const answer = exportSvg(answerFor(SCREEN_AT_CEILING - 1))
     expect(answer.ok).toBe(true)
     if (!answer.ok) return
@@ -2117,14 +1623,8 @@ describe('FR-025 -- a scene that will not fit is refused outright (CR-337)', () 
   })
 
   it('writes the picture whose grown height is EXACTLY S-217 (MUST: 伸ばしてよいのはその S-217 まで)', () => {
-    // ⭐ THE EDGE ITSELF. FR-025 states the ceiling twice and inclusively both
-    // times: 「伸ばしてよいのはその `S-217` までとすること（MUST）」 --
-    // 「まで」 includes its bound -- and the refusal is worded 「伸ばしても `S-217`
-    // に収まらないとき」, and a picture of exactly S-217 does fit in S-217.
-    // ⚠️ The specification states no comparison operator anywhere, so this case
-    // rests on those two words. If a reader means the edge to be refused, this
-    // is the case to overturn.
-    // GOES RED IF: the ceiling is compared with `>=` instead of `>`.
+    // Why: the spec states no comparison operator; FR-025's 'up to S-217'
+    // includes its bound, so the exact edge is written. Overturn this if not.
     expect(SCREEN_AT_CEILING * RATIO).toBe(SETTINGS_CONSTANTS.exportCanvasHeightCap)
     const answer = exportSvg(answerFor(SCREEN_AT_CEILING))
     expect(answer.ok).toBe(true)
@@ -2133,9 +1633,6 @@ describe('FR-025 -- a scene that will not fit is refused outright (CR-337)', () 
   })
 
   it('refuses on the SAME scene through both entries (WY-2 of table T-041)', async () => {
-    // ⛔ IO-3 and IO-4 are two outputs of ONE assembly, so one of them may not
-    // refuse while the other writes.
-    // GOES RED IF: either entry keeps its own ceiling.
     const { rasterizer } = watchedRasterizer()
     for (const height of [SCREEN_AT_CEILING, SCREEN_OVER_CEILING]) {
       const scene = answerFor(height)
@@ -2146,16 +1643,7 @@ describe('FR-025 -- a scene that will not fit is refused outright (CR-337)', () 
   })
 })
 
-// ===========================================================================
-// FR-025 (CR-337) -- how far the refusal reaches, by table T-024
-// ===========================================================================
-
-/**
- * A fixed copy of the rows of table T-024 that FR-025 names, with the column
- * the requirement adds to them: 「止めるのは 表 T-024 の `IO-3`（SVG）・`IO-4`
- * （PNG）・`IO-6`（クリップボード）である —— `IO-1` / `IO-2` / `IO-7` は絵で
- * はないので、高さの天井に当たらない」.
- */
+// Spec: FR-025, T-024
 const T_024_CEILING_SCOPE = [
   { id: 'IO-1', form: 'MSPDI XML', isPicture: false },
   { id: 'IO-2', form: 'GRS JSON', isPicture: false },
@@ -2167,7 +1655,6 @@ const T_024_CEILING_SCOPE = [
 
 describe('table T-024 -- which routes the height ceiling reaches', () => {
   it('names three picture rows and three that are not pictures (one case walks the copy)', () => {
-    // GOES RED IF: the copy stops matching FR-025's own list of three.
     expect(T_024_CEILING_SCOPE.filter((row) => row.isPicture).map((row) => row.id)).toEqual([
       'IO-3',
       'IO-4',
@@ -2181,20 +1668,8 @@ describe('table T-024 -- which routes the height ceiling reaches', () => {
   })
 
   it('makes the picture for all three picture rows here, and no non-picture route at all', () => {
-    // ⭐ THIS IS THE WHOLE OF THE SCOPE THIS UNIT CAN BE HELD TO. `exportSvg`
-    // is IO-3's own output and the string IO-6 sends (FR-025: 「`IO-6` の入口は
-    // 表 T-109 の `IC-3`」, and the picture is the same one, FR-080);
-    // `exportPng` is IO-4. ⛔ IO-1, IO-2 and IO-7 have no entry on this
-    // component -- table T-064 gives PI-21 two names and these are they -- so
-    // there is nothing here for the ceiling to reach them through, and nothing
-    // here that could stop them.
-    // ⚠️ THAT IO-1 / IO-2 / IO-7 STILL WRITE FOR A TOO-TALL SCENE IS NOT
-    // MEASURABLE IN THIS FILE. It is measurable where those three are pressed,
-    // which is `tests/unit/uf-47-48-choosers.test.ts`.
-    // GOES RED IF: a third CALLABLE name appears on this component -- which is
-    // what would give the ceiling a route it does not have. ⚠️ The roster comes
-    // from table T-064's own PI-21 row; the describe above holds the one
-    // generated constant the row does not yet name.
+    // Why: IO-1, IO-2 and IO-7 have no entry on this component, so their
+    // writing for a too-tall scene is measured where they are pressed.
     const callable = Object.keys(imageExporter).filter(
       (name) => typeof (imageExporter as unknown as Record<string, unknown>)[name] === 'function',
     )

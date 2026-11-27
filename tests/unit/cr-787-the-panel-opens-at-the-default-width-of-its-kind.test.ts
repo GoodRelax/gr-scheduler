@@ -1,4 +1,4 @@
-// CR-787 (spec-only): FR-052 -- the property panel starts at the default width of the kind it shows, the widest of several, and resets only when the kind changes.
+// Unit tests: the property panel opens at the default width of the kind it shows.
 
 import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
@@ -67,7 +67,7 @@ describe('CR-787 -- the manuscript these cases are driven by', () => {
   })
 })
 
-// see FR-052, JDG-2466
+// Spec: FR-052
 describe('FR-052 -- panelFacesOf names the kinds the panel shows, each once, in table T-016 order', () => {
   const selectionOf = (items: Selection['items']): Selection => ({ items, isOrdered: true })
   const shown = (selection: Selection, taskGroupIds: readonly string[] = []) =>

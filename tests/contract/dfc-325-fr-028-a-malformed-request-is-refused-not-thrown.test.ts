@@ -27,6 +27,7 @@ import { specTable, unbroken } from './spec-table'
 import { DEFAULT_TASK_GROUP_NAME } from '../../src/adapter/screen-renderer/screen-renderer'
 
 
+// Spec: IMPS-1057
 const FR_028_NEVER_THROWS =
   '呼び手が `Agent API` の関数を呼んだとき、`GRS` は、受理したか否かを値で返すこと。`GRS` は、`Agent API` の呼び出しで例外を投げないこと。'
 

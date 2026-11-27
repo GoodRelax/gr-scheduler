@@ -259,8 +259,8 @@ describe('AM-28 readTableRows(resourceList) -- the Resource List table by the co
   const page = (): TablePage => readerOf(stateOf(resourceDocument())).readTableRows('resourceList', '')
   const rowOf = (uid: number): TableRow => page().rows.find((row) => row.key === uid)!
 
-  it('premise: table T-371 has RQ-1 .. RQ-5', () => {
-    expect(LIST_IDS).toEqual(['RQ-1', 'RQ-2', 'RQ-3', 'RQ-4', 'RQ-5'])
+  it('premise: table T-371 has RQ-1, RQ-3, RQ-2, RQ-4, RQ-5 (CR-861)', () => {
+    expect(LIST_IDS).toEqual(['RQ-1', 'RQ-3', 'RQ-2', 'RQ-4', 'RQ-5'])
   })
 
   it('AV-18: the answer holds table, columns, rows, total, offset and nextOffset', () => {

@@ -1,47 +1,4 @@
-// Unit tests for the seam this round of work added: a press on U-62 `Import
-// Report`'s one entrance now closes S-99g's surface.
-//
-// Two units meet here:
-//   UF-71  src/framework/dom-screen-surface/dom-screen-surface.ts
-//          -- `readScreenPartAt` (IF-9 of table T-065), which answers a press
-//          on the entrance as `ScreenPart.isImportReportDismiss`.
-//   UF-30  src/adapter/input-command-translator/input-command-translator.ts
-//          -- `screenStateFromInput`, which reads that member and closes S-99g.
-//
-// ⚠️ Chapter 9 does not admit Unit as a TEST_LEVEL, so these cases have no node
-// in the specification. Table T-218 of Chapter 7 gives them their place: TS-6,
-// tests/unit/.
-//
-// ⛔ WRITTEN FROM docs/spec, NOT FROM THE TWO UNITS' BODIES (docs/development-
-// rules/04-verification.md section 1). What was read: table T-103's row U-62,
-// table T-233's row RS-50, table T-037's row NT-8, table T-206's row S-99g, and
-// FR-023 in 01-04-requirements.md. The harness (`stage`, `descendants`,
-// `pointerOf`, the `InputContext` fixture) is copied from
-// tests/unit/fr-020-the-surface-that-asks-for-the-watermark-password.test.ts
-// and the fr-034 align-to-the-last-picked unit test (deleted by CR-573), the way rule 03
-// section 1 already lets a harness travel between sibling files; every expected
-// value below is this file's own, read out of a table at run time.
-//
-// The rows these cases answer to (rule 03: name the row, never copy its prose):
-//   FR-023      (MUST) an import that drops rows raises U-62 with their names;
-//               (MUST NOT) a count alone
-//   table T-103 U-62 `Import Report` -- 「入口は `OK` の 1 つだけである」, not a
-//               `Confirmation` (asks nothing) and not the `Notification Area`
-//   table T-233 RS-50 -- the reason FR-023 sends U-62's sentence to
-//   table T-037 NT-8 -- the word this entrance is spelled with, in every
-//               display language
-//   table T-206 S-99g -- what "面" means: opened over the screen, put away by
-//               a press on this route or by `Esc`'s first level (IN-4)
-//
-// ⭐⭐ WHAT IS DELIBERATELY NOT ASSERTED, because no requirement decides it or
-// another file already covers it:
-//   - the exact word NT-8 spells the entrance with, and whether the two
-//     display languages agree -- that is FR-038's dictionary, covered where
-//     `notices.ts` is (this file only checks the entrance is drawn and words
-//     something).
-//   - what becomes of `ScreenSession.droppedTaskNames` once S-99g closes --
-//     that bookkeeping is the shell's own (`frame-loop.ts`), read but not
-//     rewritten by this round, and is outside the files this round may touch.
+// Unit tests: a press on the one Import Report entrance closes its surface.
 
 import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
@@ -97,13 +54,8 @@ import {
 } from '../fixtures/fake-browser'
 import { bare, specTable, unbroken } from '../contract/spec-table'
 
-// `readScreenPartAt` (UF-71) walks a press up through `Element.parentElement`,
-// which the shared fixture's `FakeElement` does not carry -- it was built for
-// the tests that only read what UF-71 DREW (`descendants`/`parentNode`), never
-// for one that asks it where a point landed. tests/unit/uf-71-confirmation.
-// test.ts and tests/unit/uf-72-screen-part.test.ts each answer the same gap by
-// declaring their own richer element; this file instead adds the one missing
-// accessor to the shared class, since `parentNode` already carries the answer.
+// Why: readScreenPartAt walks up through parentElement, which FakeElement lacks;
+// one accessor over parentNode is added instead of declaring a richer element.
 if (!Object.getOwnPropertyDescriptor(FakeElement.prototype, 'parentElement')) {
   Object.defineProperty(FakeElement.prototype, 'parentElement', {
     get(this: FakeElement): FakeElement | null {
@@ -112,11 +64,7 @@ if (!Object.getOwnPropertyDescriptor(FakeElement.prototype, 'parentElement')) {
   })
 }
 
-// ---------------------------------------------------------------------------
-// What the manuscript says, read at run time rather than copied
-// ---------------------------------------------------------------------------
-
-/** U-62 of table T-103, read out of the glossary so a rename fails this file. */
+// Why: read out of table T-103 so a rename of U-62 fails this file.
 const U_62 = (() => {
   const row = specTable('T-103').rows.find((one) => one.id === 'U-62')
   if (row === undefined) throw new Error('table T-103 no longer has row U-62')
@@ -125,18 +73,12 @@ const U_62 = (() => {
 
 const U_62_ROW = 'U-62'
 
-/** RS-50 of table T-233 -- FR-023 (MUST) sends U-62's sentence to this row. */
 const RS_50 = specTable('T-233').rows.find((one) => one.id === 'RS-50')
 
-/** The manuscript text, read so FR-023 naming RS-50 can be checked at run time. */
 const REQUIREMENTS = unbroken(readRepoFile(
   join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'),
   'utf8',
 ))
-
-// ---------------------------------------------------------------------------
-// Building the modal and the schedule/session it is drawn from
-// ---------------------------------------------------------------------------
 
 const scheduleOf = (): Schedule =>
   ({
@@ -181,7 +123,7 @@ const scheduleOf = (): Schedule =>
 
 const SCHEDULE = scheduleOf()
 
-/** The four keys `SETTINGS_DEFAULTS` carries under dotted names, as objects. */
+// Why: SETTINGS_DEFAULTS carries these four keys under dotted names; the layout reads objects.
 const NESTED = {
   exportCanvas: { width: 1600, height: 900 },
   fontSizeStepSizes: { L: 16, M: 14, S: 12 },
@@ -215,7 +157,7 @@ const DOCUMENT: Document = {
   changeLog: [],
 } as unknown as Document
 
-/** FR-023's dropped names -- one plain, one nameless (AT-27). */
+// Spec: FR-023, AT-27
 const DROPPED_TASK_NAMES: readonly (string | null)[] = ['Foundation pour', null]
 
 const rootOn = (surface: string | null, language: DisplayLanguage = 'ja'): ScreenSession => ({
@@ -251,16 +193,11 @@ const readingsOf = (): ScreenViewReadings =>
 
 const stateOn = (surface: string | null): ScreenSession => rootOn(surface)
 
-/** U-62 as UF-66 describes it, with the case failed where S-99g holds nothing. */
 function describedOn(language: DisplayLanguage): OpenModal {
   const modal = openModalFromSession(rootOn(U_62_ROW, language), SCHEDULE, readingsOf(), SETTINGS)
   expect(modal, `S-99g holds ${U_62_ROW}, so UF-66 describes a surface`).not.toBeNull()
   return modal as OpenModal
 }
-
-// ---------------------------------------------------------------------------
-// UF-71 -- drawing U-62 and reading a press back
-// ---------------------------------------------------------------------------
 
 const FRAME: ScreenFrame = { isFullScreen: false, dividers: [], scrollbars: [] }
 
@@ -276,7 +213,6 @@ const HEADER: AppHeaderItems = {
 
 const THEME: ScreenTheme = { preference: 'light', hue: 214 }
 
-/** Draws U-62, and answers with the built stage plus the button UF-71 made. */
 function drawnImportReport(): {
   built: Stage
   surface: ReturnType<typeof domScreenSurface>
@@ -313,21 +249,12 @@ function drawnImportReport(): {
   return { built, surface, okButton }
 }
 
-/** The one `Document` member `readScreenPartAt` reaches for. */
 type ElementFromPoint = (x: number, y: number) => FakeElement | null
 
-/**
- * What the surface answers for a press landing on `landingOn`.
- *
- * ⭐ The fake's own geometry is not under test here (R6.3's limit, the same one
- * tests/unit/uf-72-screen-part.test.ts states): what this round changed is the
- * WALK from whatever `elementFromPoint` answers, up to the root, and not which
- * pixel a browser would have landed the press on -- so the fake is told
- * directly what stood under the point, the way a browser's own answer arrives.
- * ⚠️ THE SAME `surface` `drawnImportReport` BUILT, not a fresh one: a new
- * `domScreenSurface` would walk up to a mount nothing was drawn into, and
- * `landingOn`'s ancestry would never reach it.
- */
+// Why: the fake is told what stood under the point; the walk up from it is under test,
+// not the pixel a browser would land the press on.
+// Trap: pass the surface drawnImportReport built; a fresh domScreenSurface walks up to
+// a mount nothing was drawn into, and the walk never reaches it.
 function readPartAt(
   built: Stage,
   surface: ReturnType<typeof domScreenSurface>,
@@ -338,11 +265,10 @@ function readPartAt(
   return surface.readScreenPartAt(0, 0)
 }
 
+// Spec: FR-023, U-62, RS-50, S-99g, IN-4
 describe('FR-023 -- a press on U-62 `Import Report`\'s one entrance', () => {
   it("FR-023 (MUST) still sends U-62's sentence to table T-233's RS-50", () => {
-    // Grounding: FR-023 (MUST) names RS-50 as the reason, so the row must
-    // still exist and still be table T-233's -- a case built on a row that has
-    // moved would be asserting nothing.
+    // Why: the cases below rest on RS-50; if the row moved they would assert nothing.
     expect(RS_50, 'table T-233 no longer has row RS-50').not.toBeUndefined()
     expect(REQUIREMENTS.includes('RS-50'), 'FR-023 no longer names RS-50').toBe(true)
   })
@@ -354,9 +280,6 @@ describe('FR-023 -- a press on U-62 `Import Report`\'s one entrance', () => {
     expect(onEntrance?.part, 'the part is still U-62').toBe(U_62)
     expect(onEntrance?.isImportReportDismiss, 'the entrance answers true').toBe(true)
 
-    // ⛔ `on.part` ALONE MAY NOT DO IT (FR-023, MUST NOT: no shortening of the
-    // list) -- a press on the surface itself, off the one entrance, must not
-    // answer the same way.
     const container = okButton.parentNode?.parentNode ?? null
     const elsewhere = readPartAt(built, surface, container)
     expect(elsewhere?.part, 'still landed on U-62').toBe(U_62)
@@ -425,8 +348,6 @@ describe('FR-023 -- a press on U-62 `Import Report`\'s one entrance', () => {
     ).state.screen
     expect(afterDismiss.openSurfaceState.kind, 'S-99g is put away').toBe('closed')
 
-    // ⛔ (MUST NOT) THE SAME PRESS ANYWHERE ELSE ON U-62 MAY NOT CLOSE IT: the
-    // member is what carries the entrance, not `on.part`.
     const { isImportReportDismiss: _unused, ...onElsewhereRest } = onDismiss
     const onElsewhere: ScreenPart = onElsewhereRest
     const pressedElsewhere = {

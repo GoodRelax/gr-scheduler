@@ -1,96 +1,4 @@
-// Frame time is the INTERVAL between delivered frames -- not the time spent
-// inside the redraw callback -- and `NFR-002` / `NFR-003` are judged on that
-// interval. This file measures BOTH numbers for the same operation, shows they
-// are different numbers, and then puts the interval against the two gates. It
-// also presses the three writing-out roads (`FR-025` PNG, `FR-067` single
-// `.html`, `FR-021` MSPDI round trip) and the telling `FR-029` owes when a
-// format cannot be written yet.
-//
-// Place and tool come from table T-218 of Chapter 7 (`docs/spec/05-07-
-// design.md`), row `TS-4`: the systematic kind whose parent is `NFR-xxx` lives
-// in `tests/nfr/` and is driven by Playwright, and the performance gates of
-// table T-043 are run from here.
-//
-// ⛔⛔ THIS FILE IS EXPECTED TO GO RED, AND THAT IS ITS PURPOSE. Measured
-// 2026-09-05 on the shipped build in Edge 152.0.4191.66, renderer
-// `ANGLE (Intel, Intel(R) UHD Graphics ... D3D11)`, 1000 `Task`:
-//
-//   stretch             fps     frame time p95   inside the call p95
-//   MK-1 scroll         64.62   21.27ms          13.1ms   ⛔ input-bound
-//   MK-2 zoom           ~62     24.10ms          12.5ms   ⛔ input-bound
-//   MK-7 pan            ~66     24.30ms          12.3ms
-//   MK-6 range select   ~68     24.20ms           7.1ms
-//
-// `NFR-002` (60fps average) held everywhere; `NFR-003` (95th percentile within
-// 16.7ms) was broken in all four, and in the ones the harness was not limiting
-// those are the application's own numbers.
-//
-// ⭐⭐ AND `MK-6 range select` IS THE WHOLE OF THE T-043 PREAMBLE IN ONE ROW.
-// Measured in the same second: the time spent inside the redraw call had a 95th
-// percentile of 7.2ms, and the interval between delivered frames had one of
-// 24.2ms. ⛔ Judged on the time inside the call, `NFR-003` PASSES with room to
-// spare. Judged on the interval -- which is what frame time IS -- it FAILS by
-// half again. One operation, one run, two opposite verdicts: that is why the
-// preamble had to say which of the two the word means. And
-//
-// `AM-14` `exportPng`, `AM-15` `exportEmbeddedHtml`, `AM-12` `exportMspdi` and
-// `AM-8` `importDocument` all answered `notAvailable`. A red case here is an
-// anchor that keeps ringing until those are built.
-// ⛔ DO NOT LOWER AN EXPECTATION TO MAKE IT GREEN.
-//
-// ⭐⭐ AND THEY WERE BUILT. `DFC-356` (2026-09-07) wired `AM-14` / `AM-15` and
-// `DFC-357` (2026-09-07) wired `AM-8`; measured again 2026-09-10 on the shipped
-// build, none of the four answers `notAvailable` any more. ⛔ THREE OF THIS
-// FILE'S OWN JUDGMENTS WERE STALE AGAINST THAT, and each was measured before
-// being changed -- the change is in the harness, not in a bar:
-//   * `AM-15` answers `AgentExport<string>`, not a bare string, so a written
-//     2,036,280-character `.html` was reported as 「wrote no .html」.
-//   * the member sweep read `notAvailable` as a SUBSTRING of the whole answer,
-//     and `AM-15`'s answer is this application's own build, which contains that
-//     literal. So IO-7 was counted unwritable and `FR-029` then demanded `RS-40`
-//     for a format that writes -- the false reason `DFC-334` refuses to raise.
-//   * `AM-8` takes `AgentImportSource`; MSPDI text is none of its three shapes,
-//     and by `FR-022` (MUST, 2026-09-07) every call waits for a person on
-//     `U-61`. So an unattended round trip through it has no road at all.
-// ⚠️ THE TWO SCENES THAT NO LONGER OCCUR ARE PRINTED, NOT COUNTED -- see
-// `recorded` in the last case, which carries the clause each is judged by.
-//
-// ⛔ WHAT OF TABLE T-025 THIS RUN DOES NOT MEET, so that no number above is
-// mistaken for a gate value:
-//   * `MC-6` asks for the browser at full screen. A driven browser is given a
-//     viewport of `MC-6`'s size instead; full screen is not reproducible from a
-//     test, and `tests/system/live-app.ts` records the same limit.
-//   * A driven browser's frame clock is not the host display's. This run
-//     delivered frames faster than 60 a second in stretches, so the 16.7ms of
-//     `NFR-003` is being read against a clock the base environment does not
-//     necessarily have.
-//   * `MK-8` (dragging an item) is not driven at all -- finding a task bar in
-//     the drawing needs a handle the specification does not settle -- so `PG-8`
-//     of table T-043 gets no number from this file.
-//   * `MC-4` IS met when the host's browser uses the integrated part, and the
-//     renderer string is read and reported every run so that a run on anything
-//     else is visible rather than silent.
-//
-// ⛔ WHAT WAS READ OF `src/`: nothing. Every handle used here is one the
-// System files already lean on (`[data-role]`, `[data-icon]`, and
-// `tests/system/live-app.ts`'s `DRAWN_SVG`), and the specification settles
-// none of them. The published identifier `grSchedulerAgentApi` IS settled:
-// `_assets/tbl-glossary.md` names it above table T-107.
-//
-// ⭐ THE CLAUSES PINNED HERE ARE QUOTED VERBATIM, in Japanese, beside the
-// judgment that presses each one, with the row that carries it. Rule 03
-// section 5 bans TRANSLATING the manuscript into the tree; a quotation is not a
-// translation. A clause is quoted only where a judgment below actually
-// presses it.
-//
-// ⭐ ONE LAUNCH, ONE SWEEP. Every measurement below is taken in a single run of
-// the shipped build, and the cases only judge what was measured.
-// ⛔ The one case that can go red is the LAST in the file: a failure followed by
-// another case has been measured in this project to leave the run unfinished.
-//
-// ⚠️ WHY THE SHIPPED BUILD AND NOT THE DEV SERVER. `PG-2` / `PG-3` of table
-// T-043 are gates on the thing that is handed over, and `NFR-004` makes that
-// one `.html`. Run `npx vite build` first.
+// NFR tests: frame time is the interval between delivered frames, judged by NFR-002 and NFR-003.
 
 import { expect, test, type Browser, type Page } from '@playwright/test'
 import { existsSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
@@ -108,15 +16,6 @@ import {
 } from '../system/live-app'
 import { rowOf } from '../system/sws-case'
 
-// ---------------------------------------------------------------------------
-// What the specification says, read at read time
-// ---------------------------------------------------------------------------
-//
-// ⭐ Chapter 1.9 of `docs/spec/01-04-requirements.md`: a test that verifies a
-// requirement pointing at a table is driven by fixed data copied from that
-// table. `tests/contract/spec-table.ts` takes that copy at read time, so not
-// one number and not one format name is typed here.
-
 const T024: SpecTable = specTable('T-024')
 const T025: SpecTable = specTable('T-025')
 const T034: SpecTable = specTable('T-034')
@@ -126,10 +25,8 @@ const T204: SpecTable = specTable('T-204')
 const T226: SpecTable = specTable('T-226')
 const T233: SpecTable = specTable('T-233')
 
-/** `MC-6` -- the screen of the base environment. */
 const BASE_SCREEN = screenOf(rowOf(T025, 'MC-6'))
 
-/** The `Agent API` members of table T-107 this file goes through. */
 const AM_1 = bare(rowOf(T107, 'AM-1').cells[1] ?? '')
 const AM_3 = bare(rowOf(T107, 'AM-3').cells[1] ?? '')
 const AM_8 = bare(rowOf(T107, 'AM-8').cells[1] ?? '')
@@ -139,76 +36,33 @@ const AM_13 = bare(rowOf(T107, 'AM-13').cells[1] ?? '')
 const AM_14 = bare(rowOf(T107, 'AM-14').cells[1] ?? '')
 const AM_15 = bare(rowOf(T107, 'AM-15').cells[1] ?? '')
 
-/** Parts of table T-103 this file looks for by their settled name. */
 const EXPORT_CHOOSER = bare(rowOf(T103, 'U-54').cells[0] ?? '')
 const NOTIFICATION_AREA = bare(rowOf(T103, 'U-57').cells[0] ?? '')
 
-/** `FR-065` keeps the `Agent API` shut until a person opens it -- row `IC-20`. */
 const AGENT_API_ENTRANCE = 'IC-20'
 
-/**
- * The one entry that writes a document out.
- *
- * ⭐ Row `U-54` of table T-103 names its own entrance: 「入口は表 T-109 の
- * `IC-2`」. Read off that cell rather than typed, so a renumbering moves this
- * file with it.
- */
 const EXPORT_ENTRANCE = /IC-\d+[a-z]?/.exec(rowOf(T103, 'U-54').cells[0] ?? '')?.[0] ?? 'IC-2'
 
-// ---------------------------------------------------------------------------
-// The two gates, and the numbers table T-204 fixes
-// ---------------------------------------------------------------------------
-
-/**
- * `NFR-002`, verbatim:
- *
- *   表 T-025 の条件と `MC-8` の区間で、`GRS` は、平均フレームレートを毎秒 60
- *   フレーム以上に保つこと。
- *
- * The number is taken out of that sentence rather than typed, so the gate
- * cannot drift away from the requirement that states it.
- */
+// Spec: NFR-002
 const FRAME_RATE_FLOOR = 60
 
-/**
- * `NFR-003`, verbatim:
- *
- *   表 T-025 の条件と `MC-8` の区間で、`GRS` は、フレーム時間の 95 パーセンタ
- *   イルを 16.7 ミリ秒以内に保つこと。
- */
+// Spec: NFR-003
 const FRAME_TIME_P95_CEILING_MS = 16.7
 
-/** `S-81` `exportCanvas` -- the output size a picture is written at. */
 const EXPORT_CANVAS = sizeOf(rowOf(T204, 'S-81'))
 
-/** `S-217` `exportCanvasHeightCap` -- how far the height may be stretched. */
 const EXPORT_HEIGHT_CAP = numberIn(rowOf(T204, 'S-217').by['既定値'] ?? '')
 
-// ⛔ THERE IS NO SCALE TO READ. FR-025 (MUST NOT) forbids the export holding a
-// scale at all (the reader's ruling 「PNGはいつも原則 1600x900 のままとする」), so
-// one picture is asked for and its width must be `S-81`'s own.
-
-/** `TP-6` -- how many `Task` the startup template holds. */
 const TEMPLATE_TASKS = numberIn(rowOf(T226, 'TP-6').cells[1] ?? '')
 
-/** `MC-7` -- the target scale, read for the message rather than the judgment. */
 const TARGET_SCALE = rowOf(T025, 'MC-7').cells[1] ?? ''
 
-/**
- * `RS-40` / `RS-27` -- the reason a refused format carries, and the fallback.
- *
- * ⭐ Taken through `rowOf` so that the row has to exist in table T-233 for this
- * file to load at all. `RS-40`, verbatim: この形式は、このビルドではまだ書けない
- */
+// Why: taken through rowOf rather than typed, so the file fails to load when table
+// T-233 loses either row.
 const REASON_NOT_YET = rowOf(T233, 'RS-40').id
 const REASON_FALLBACK = rowOf(T233, 'RS-27').id
 
-/**
- * The words a reason is told in, read out of the manuscript's own source of
- * truth (`docs/spec/_source/display-words.json`).
- *
- * @purity semi-pure-mutable
- */
+/** @purity semi-pure-mutable */
 function reasonWords(specTableRowId: string): readonly string[] {
   const shape = JSON.parse(
     readRepoFile(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8'),
@@ -217,11 +71,7 @@ function reasonWords(specTableRowId: string): readonly string[] {
   return Object.values(found?.text ?? {}).filter((one) => one.length > 0)
 }
 
-/**
- * `{ width, height }` out of a settings row that states one.
- *
- * @purity pure
- */
+/** @purity pure */
 function sizeOf(row: SpecRow): { width: number; height: number } {
   const stated = row.by['既定値'] ?? row.cells[row.cells.length - 2] ?? ''
   const found = /(\d+)\s*[x×]\s*(\d+)/.exec(stated)
@@ -233,45 +83,13 @@ function sizeOf(row: SpecRow): { width: number; height: number } {
   return { width, height }
 }
 
-/** The first number in a cell. @purity pure */
+/** @purity pure */
 function numberIn(cell: string): number {
   return Number(/-?\d+(?:\.\d+)?/.exec(cell.replace(/,/g, ''))?.[0] ?? Number.NaN)
 }
 
-// ---------------------------------------------------------------------------
-// How a frame is measured
-// ---------------------------------------------------------------------------
-
-/**
- * ⛔⛔ THE CLAUSE THIS WHOLE FILE IS BUILT AROUND -- the preamble of table
- * T-043 (`docs/spec/05-07-design.md`), quoted verbatim:
- *
- *   「フレーム時間」とは、届いたフレームとフレームの間隔である（MUST）。描き直しの呼び出しの中で過ごす時間を、フレーム時間として測ってはならない（MUST NOT）
- *
- * ⭐ HOW IT IS PRESSED. The probe below records, for every delivered frame,
- * BOTH numbers the clause separates:
- *
- *   * `stamp`  -- the frame's own clock, from which the INTERVAL between one
- *                 delivered frame and the next is taken. That interval is the
- *                 frame time, and it is the only number `NFR-002` / `NFR-003`
- *                 are judged on below.
- *   * `enter` / `leave` -- the wall clock either side of the redraw callback,
- *                 from which the time spent INSIDE the call is taken. It is
- *                 measured, reported, and never used as a frame time.
- *
- * ⚠️ The two are separable and were measured to be so on 2026-09-05: the time
- * spent inside the call improved by 36% while the interval did not move at
- * all. A case below asserts that separation on the numbers of this very run,
- * so that the day the two collapse into one number, someone is told.
- *
- * ⚠️ SEVERAL CALLBACKS CAN SHARE ONE FRAME. The browser hands the same `stamp`
- * to every callback of one frame, so samples are grouped by `stamp`: one frame
- * has one interval and one inside-time (the sum of its callbacks).
- *
- * ⭐ It is installed with `addInitScript`, which runs before the page's own
- * scripts, so a bare `requestAnimationFrame(...)` in the application resolves
- * to the wrapper at call time.
- */
+// Why: installed by addInitScript, before the page's own scripts, so a bare
+// requestAnimationFrame in the application resolves to this wrapper.
 const FRAME_PROBE = `(() => {
   const state = { samples: [], marks: [], inputs: [] };
   const raw = window.requestAnimationFrame.bind(window);
@@ -293,62 +111,31 @@ const FRAME_PROBE = `(() => {
   Object.defineProperty(window, '__grsFrameProbe', { value: state });
 })();`
 
-/**
- * ⛔⛔ WHY THE INPUT CADENCE IS MEASURED TOO, and why a number is worthless
- * without it.
- *
- * `MC-8` measures while a gesture is happening, and a driven browser's input
- * does not arrive at the rate a hand's does: every `mouse.wheel` or
- * `mouse.move` is a round trip to the browser. ⚠️ If a build asks for one
- * frame per input event -- which is what `NFR-010` pushes every build towards
- * -- then the interval between delivered frames is the interval between the
- * HARNESS's events, and a red would say nothing about the application.
- *
- * ⭐ So the page counts the events it actually received, and a stretch whose
- * frames are no denser than its input is called INPUT-BOUND and reported as
- * such: the breach is still listed (⛔ a red is never hidden here), and it is
- * said plainly that the stretch is not a gate value. A stretch whose frames
- * are far sparser than its input is measuring the application.
- */
+// Why: NFR-010 pushes a build to one frame per input event, and a driven browser's input
+// comes at the harness's rate, so a stretch no denser than its input is named input-bound.
 const INPUT_BOUND = 'input-bound'
 
-/** One delivered frame, after the samples of that frame have been grouped. */
 interface Frame {
-  /** The browser's own frame clock, in ms. */
   readonly stamp: number
-  /** Wall clock when the first callback of this frame was entered. */
   readonly enter: number
-  /** Total time spent inside this frame's redraw callbacks, in ms. */
   readonly inside: number
 }
 
-/** Everything one measured stretch of table T-025 row `MC-8` yielded. */
 interface Segment {
-  /** The row of table T-023/T-028 whose input drove it, and a plain name. */
   readonly name: string
-  /** How many delivered frames fell inside it. */
   readonly frames: number
-  /** Frames per second across the stretch: frames / (last stamp - first). */
   readonly frameRate: number
-  /** The 95th percentile of the INTERVAL between delivered frames, in ms. */
   readonly intervalP95: number
-  /** The mean interval, in ms. */
   readonly intervalMean: number
-  /** The worst interval, in ms. */
   readonly intervalWorst: number
-  /** The 95th percentile of the time spent INSIDE the redraw call, in ms. */
   readonly insideP95: number
-  /** The mean inside-call time, in ms. */
   readonly insideMean: number
-  /** How many input events the page received over the stretch. */
   readonly inputs: number
-  /** The mean interval between those input events, in ms. */
   readonly inputMean: number
-  /** Whether frames were no denser than the input that drove them. */
   readonly inputBound: boolean
 }
 
-/** Nearest-rank percentile. @purity pure */
+/** @purity pure */
 function percentile(values: readonly number[], fraction: number): number {
   if (values.length === 0) return Number.NaN
   const sorted = [...values].sort((a, b) => a - b)
@@ -368,21 +155,13 @@ function round(value: number, places = 2): number {
   return Math.round(value * factor) / factor
 }
 
-// ---------------------------------------------------------------------------
-// What the sweep brings back
-// ---------------------------------------------------------------------------
-
-/** What one member of table T-107 answered when it was called. */
 interface MemberAnswer {
   readonly member: string
   readonly kind: string
-  /** The beginning of the answer, stringified. */
   readonly answer: string
-  /** Whether the answer says the road is not there in this build. */
   readonly notAvailable: boolean
 }
 
-/** What the one call of `AM-14` produced. FR-025 leaves no scale to vary. */
 interface PngAttempt {
   readonly shape: string
   readonly width: number
@@ -393,67 +172,35 @@ interface PngAttempt {
 interface Measured {
   readonly browserVersion: string
   readonly userAgent: string
-  /** The renderer string the page reports, for `MC-4`. */
   readonly renderer: string
   readonly hardwareConcurrency: number
   readonly agentApiVersion: string
-  /** How many `Task` the document that was measured holds -- `MC-7` / `TP-6`. */
   readonly tasks: number
-  /** Every stretch of `MC-8` that was driven. */
   readonly segments: readonly Segment[]
-  /** Stretches that yielded too few frames to say anything about. */
   readonly barren: readonly string[]
   readonly members: readonly MemberAnswer[]
   readonly png: readonly PngAttempt[]
-  /** How long the `.html` of `AM-15` was, or 0 when nothing was written. */
   readonly embeddedHtmlLength: number
-  /** Whether the written `.html`, opened on its own, brought the document back. */
   readonly embeddedReopened: boolean
-  /** How many `Task` came back out of the reopened file. */
   readonly embeddedTasks: number
-  /** Why the reopening could not be judged, or `''`. */
   readonly embeddedNote: string
-  /** Whether the comparator below judges two byte-different XML equal. */
   readonly comparatorIgnoresBytes: boolean
-  /** Whether `AM-8` took the sample document of row `IO-1` in. */
   readonly mspdiImported: boolean
-  /** What `AM-8` answered, for each argument shape tried. */
   readonly mspdiImportAnswers: readonly string[]
-  /** Whether the round trip came back canonically equal to what went in. */
   readonly mspdiRoundTripEqual: boolean
-  /** The first place the two canonical forms part, for the message. */
   readonly mspdiFirstDifference: string
-  /** Whether a part named `Save As Dialog` stood after the entrance was pressed. */
   readonly chooserStood: boolean
-  /** Everything that surface said. */
   readonly chooserText: string
-  /** The formats of table T-024 this build cannot write yet. */
   readonly unwritable: readonly string[]
-  /** The format whose entry was pressed on the chooser, or `''`. */
   readonly pressedFormat: string
-  /** Whether the chooser was still standing after that press. */
   readonly chooserStoodAfterPress: boolean
-  /** Everything the `Notification Area` said after that press. */
   readonly noticeText: string
 }
 
-// ---------------------------------------------------------------------------
-// Driving the shipped build
-// ---------------------------------------------------------------------------
-
-/**
- * ⛔ THE DELIVERABLE, not the sources and not the dev server. `NFR-004` row
- * `CN-1` has `dist/` hold exactly one file and that file be the `.html`.
- */
+// Why: PG-2 and PG-3 gate the thing handed over, and NFR-004 row CN-1 makes that one
+// .html, so the shipped build is pressed rather than the sources or the dev server.
 const SHIPPED_BUILD = join(process.cwd(), 'dist', 'index.html')
 
-/**
- * A document of the format of table T-024 row `IO-1`, for `FR-021`'s round
- * trip.
- *
- * `sample-schedule/` is tracked (since 2e2b0957). If a checkout still lacks
- * the file, the round trip is reported as un-pressed rather than quietly skipped.
- */
 const MSPDI_SAMPLE = join(process.cwd(), 'sample-schedule', 'sample-small-website-renewal.en.xml')
 
 let browser: Browser | null = null
@@ -486,8 +233,6 @@ test.beforeAll(async () => {
 })
 
 test.afterAll(async () => {
-  // ⛔ THE HOOK'S OWN ALLOWANCE, NOT AN ASSERTION'S. `CLEARING_UP_MS` of
-  // `../system/live-app` carries the measurements and the reason.
   test.setTimeout(CLEARING_UP_MS)
   if (scratch !== null) rmSync(scratch, { recursive: true, force: true })
   await browser?.close()
@@ -500,7 +245,7 @@ function taken(): Measured {
   return measured
 }
 
-/** Press an entrance of table T-109 with a real pointer. @purity non-pure */
+/** @purity non-pure */
 async function pressEntrance(page: Page, icon: string): Promise<boolean> {
   const at = await page.evaluate((mark: string) => {
     const entry = document.querySelector(`[data-icon="${mark}"]`)
@@ -517,29 +262,6 @@ async function pressEntrance(page: Page, icon: string): Promise<boolean> {
   return true
 }
 
-// ---------------------------------------------------------------------------
-// The stretches of table T-025 row `MC-8`
-// ---------------------------------------------------------------------------
-//
-// `MC-8`, verbatim, is the denominator every number below is taken over:
-//
-//   測る区間 | ズーム・スクロール・パン・ドラッグ・範囲選択を行っている間、および
-//   ポインターの移動が描き直しを起こしている間
-//
-// ⭐ The input each stretch uses is the one table T-028's `MK-n` rows settle,
-// so no gesture is invented here:
-//
-//   MK-1  ホイール（修飾なし）        -> 縦スクロール
-//   MK-2  Ctrl + ホイール             -> 両軸ズーム
-//   MK-7  Ctrl を伴うドラッグ         -> 表 T-023a の PTD-1（パン）
-//   MK-6  何にも当たらない場所での素の左ドラッグ -> 表 T-023a の PTD-5（範囲選択）
-//
-// ⛔ `MK-8` (dragging an item) IS NOT DRIVEN, and the reason is reported rather
-// than hidden: finding a task bar in the drawing needs a handle the
-// specification does not settle, and a stretch driven against a guessed
-// coordinate would measure whatever it happened to hit. `PG-8` of table T-043
-// therefore has no number from this file.
-
 /** @purity non-pure */
 async function markSegment(page: Page, name: string, edge: 'start' | 'end'): Promise<void> {
   await page.evaluate(
@@ -552,25 +274,12 @@ async function markSegment(page: Page, name: string, edge: 'start' | 'end'): Pro
   )
 }
 
-/**
- * One pointer event, in the shape the browser's own input road takes.
- *
- * ⛔⛔ WHY THE INPUT IS SENT THIS WAY AND NOT THROUGH `page.mouse`. Measured
- * 2026-09-05 on this build: driving with `page.mouse.move` / `page.mouse.wheel`
- * -- one awaited round trip per event -- delivered an event every 19.1ms, and
- * the frame interval came out at 19.01ms. The two agreed to within 0.1ms across
- * every stretch, which is the signature of a measurement of the HARNESS. ⭐ A
- * whole burst is put on the wire before any of it is awaited, which takes the
- * harness's own rate far below the frame rate and leaves the application as the
- * only thing that can be limiting it.
- */
 interface PointerEventArgs {
   readonly type: 'mouseMoved' | 'mouseWheel' | 'mousePressed' | 'mouseReleased'
   readonly x: number
   readonly y: number
   readonly button?: 'left' | 'none'
   readonly buttons?: number
-  /** Bit 2 is Ctrl, which is what `MK-2` and `MK-7` are held down with. */
   readonly modifiers?: number
   readonly deltaX?: number
   readonly deltaY?: number
@@ -579,17 +288,13 @@ interface PointerEventArgs {
 
 type Cdp = import('@playwright/test').CDPSession
 
-/** Put a whole burst on the wire, in order, before awaiting any of it. */
+// Why: page.mouse awaits a round trip per event, which paced the frames to the harness;
+// a whole burst on the wire first leaves the application as the only limit.
 async function burst(cdp: Cdp, events: readonly PointerEventArgs[]): Promise<void> {
   await Promise.all(events.map((one) => cdp.send('Input.dispatchMouseEvent', { ...one })))
 }
 
-/**
- * Drive one stretch of `MC-8` with continuous input, so that frames keep being
- * asked for throughout it.
- *
- * @purity non-pure
- */
+/** @purity non-pure */
 async function driveSegment(
   page: Page,
   name: string,
@@ -599,12 +304,12 @@ async function driveSegment(
   await markSegment(page, name, 'start')
   for (let i = 0; i < rounds; i += 1) await step(i)
   await markSegment(page, name, 'end')
-  // Let whatever the stretch set going come to rest before the next begins.
+  // Why: what the stretch set going settles first, so its frames do not count in the next.
   await page.waitForTimeout(500)
 }
 
-// see MK-6, PTD-5, DFC-2301
-// Why: the old fixed point sat on the Command Palette before CR-707, so MK-6 timed a palette press.
+// Spec: MK-6, PTD-5
+// Why: a fixed point can land on the Command Palette, and MK-6 then times a palette press.
 const BARE_SPOT_STEP_PX = 12
 const BARE_SPOT_CLEARANCE_PX = 8
 
@@ -726,10 +431,9 @@ async function driveColumnBorder(page: Page, cdp: Cdp, perBurst: number): Promis
   }
 }
 
-// ---------------------------------------------------------------------------
-// The sweep
-// ---------------------------------------------------------------------------
-
+// Spec: MC-8, MK-1, MK-2, MK-6, MK-7, PTD-1, PTD-5
+// Why: MK-8 (dragging an item) is not driven: finding a task bar needs a handle the spec
+// does not settle, and a stretch at a guessed point would time whatever it hit.
 /** @purity non-pure */
 async function sweep(
   live: Browser,
@@ -745,17 +449,11 @@ async function sweep(
   const cdp = await context.newCDPSession(page)
   const CTRL = 2
   const PER_BURST = 24
-  /**
-   * ⭐ A wheel stretch and a drag stretch need different round counts for the
-   * same length of time. Measured 2026-09-05: the browser coalesces pointer
-   * moves down to about one per frame, so a burst of 24 moves arrives as a
-   * handful of events, while a burst of 24 wheel notches arrives as 24. Both
-   * counts below were chosen to give roughly three seconds of gesture.
-   */
+  // Why: the browser folds pointer moves to about one a frame but delivers every wheel
+  // notch, so a drag needs more rounds than a wheel for the same three seconds.
   const WHEEL_ROUNDS = 26
   const DRAG_ROUNDS = 150
 
-  /** A run of pointer moves that stays inside the canvas. */
   const sweepPath = (round: number, held: number, count: number): PointerEventArgs[] =>
     Array.from({ length: count }, (_unused, step) => {
       const phase = (round * count + step) / 7
@@ -769,8 +467,8 @@ async function sweep(
       }
     })
 
-  // ⭐ A warm-up first, and it is thrown away. The first frames after a page
-  // settles carry the cost of things that happen once.
+  // Why: the first frames after the page settles carry one-time costs, so a warm-up runs
+  // first and summarize drops it.
   await driveSegment(
     page,
     'warm-up',
@@ -885,19 +583,6 @@ async function sweep(
 
   const { segments, barren } = summarize(raw.samples, raw.marks, raw.inputs)
 
-  // -------------------------------------------------------------------------
-  // The machine and the browser the numbers were taken on
-  // -------------------------------------------------------------------------
-  //
-  // 表 T-025, verbatim:
-  //   基準ブラウザーの版を、測った値と対にして記録すること（MUST）。版を伏せた数字を基準値としてはならない（MUST NOT）
-  //   測る前にブラウザーを内蔵 GPU に固定すること（MUST）
-  //   ディスクリート GPU を基準にしてはならない（MUST NOT）
-  //
-  // ⭐ The version is recorded here so that every number this file prints is
-  // printed beside it, and the last case refuses to report one without it.
-  // ⚠️ The renderer is READ, not fixed -- a test cannot pin a machine's GPU. It
-  // is reported so that a run on the wrong one is visible rather than silent.
   const environment = await page.evaluate(() => {
     let renderer = ''
     try {
@@ -915,10 +600,6 @@ async function sweep(
       hardwareConcurrency: navigator.hardwareConcurrency,
     }
   })
-
-  // -------------------------------------------------------------------------
-  // The writing-out roads
-  // -------------------------------------------------------------------------
 
   if (!(await pressEntrance(page, AGENT_API_ENTRANCE))) {
     throw new Error(
@@ -949,24 +630,8 @@ async function sweep(
       } catch (thrown) {
         answer = { threw: String(thrown) }
       }
-      // ⭐⭐ THE ANSWER IS AN ENVELOPE, AND THE REFUSAL IS READ OUT OF IT rather
-      // than looked for somewhere in the payload. `AgentExport<T>` --
-      // `{ ok: true, value }` or `{ ok: false, refusal }` -- is declared at
-      // `src/adapter/agent-api-endpoint/agent-api-members.ts:251`, and table
-      // T-107's own preamble is what puts the shape there rather than in the
-      // table, verbatim: 「引数・戻り値は `src/` の公開エントリが持ち、境界値は
-      // Chapter 6.1 が持つ。本表は名前と、何を担うかだけを持つ」.
-      //
-      // ⛔⛔ MEASURED 2026-09-10, AND IT IS WHY THIS IS NOT A SUBSTRING TEST ANY
-      // MORE. This line used to be `/notavailable/i` over the whole answer.
-      // `AM-15` hands back the application's own build with the document inside
-      // it, and that build carries the literal `notAvailable` -- one of
-      // `AgentRefusalReason`'s rows; `dist/index.html` holds it. So a SUCCESSFUL
-      // 2,036,280-character answer read as `notAvailable`, IO-7 was counted a
-      // format this build cannot write, and the FR-029 judgment below then
-      // demanded RS-40 for a format that writes -- ⛔ the very false reason
-      // `DFC-334` refuses to raise (「5 形式とも書けるので、立てれば偽の理由に
-      // なる」).
+      // Why: the refusal is read out of the envelope, never as a substring: AM-15 returns the
+      // application's own build, which holds the literal notAvailable.
       const envelope = answer !== null && typeof answer === 'object' ? (answer as Bag) : null
       const refusal =
         envelope?.['ok'] === false ? ((envelope['refusal'] ?? {}) as Bag) : undefined
@@ -1026,18 +691,14 @@ async function sweep(
   }
 }
 
-/**
- * Group the raw samples into delivered frames and cut them by the marks.
- *
- * @purity pure
- */
+/** @purity pure */
 function summarize(
   samples: readonly [number, number, number][],
   marks: readonly [string, string, number][],
   inputs: readonly number[],
 ): { segments: Segment[]; barren: string[] } {
-  // One frame per distinct `stamp`; a frame's inside-time is the sum of its
-  // callbacks, and its `enter` is the first of them.
+  // Why: the browser hands one stamp to every callback of a frame, so samples group by
+  // stamp and a frame's inside time is the sum of its callbacks.
   const byStamp = new Map<number, { enter: number; inside: number }>()
   for (const [stamp, enter, leave] of samples) {
     const held = byStamp.get(stamp)
@@ -1085,17 +746,11 @@ function summarize(
       insideMean: round(mean(insides)),
       inputs: myInputs.length,
       inputMean: round(inputMean),
-      // ⛔ Frames no denser than the input that drove them: the number then
-      // says as much about the harness as about the application.
       inputBound: !(Number.isFinite(inputMean) && inputMean * 1.5 < intervalMean),
     })
   }
   return { segments, barren }
 }
-
-// ---------------------------------------------------------------------------
-// `FR-025` -- the picture and its fixed width
-// ---------------------------------------------------------------------------
 
 /** @purity non-pure */
 async function measurePng(page: Page): Promise<PngAttempt[]> {
@@ -1111,7 +766,6 @@ async function measurePng(page: Page): Promise<PngAttempt[]> {
         answer: string
       }[] = []
 
-      /** Whatever the member hands back, as a `data:` URL an `Image` can load. */
       const asDataUrl = async (value: unknown): Promise<string> => {
         if (typeof value === 'string') return value.startsWith('data:') ? value : ''
         if (value instanceof Blob) {
@@ -1144,9 +798,8 @@ async function measurePng(page: Page): Promise<PngAttempt[]> {
           out.push({ shape: typeof fn, width: -1, height: -1, answer: '(not a function)' })
           return out
         }
-        // ⚠️ THE ARGUMENT SHAPE IS NOT SETTLED BY THE SPECIFICATION, and there
-        // is no scale to pass any more: the member is called with nothing and
-        // with an empty bag, and the first that yields a picture is reported.
+        // Why: the spec settles no argument shape for this member, so it is called with nothing
+        // and with an empty bag, and the first answer holding a picture is kept.
         let picture = ''
         let answer = ''
         for (const argument of [undefined, {}]) {
@@ -1179,10 +832,6 @@ async function measurePng(page: Page): Promise<PngAttempt[]> {
   )
 }
 
-// ---------------------------------------------------------------------------
-// `FR-067` / `BT-1` -- the one `.html`, opened on its own
-// ---------------------------------------------------------------------------
-
 /** @purity non-pure */
 async function measureEmbeddedHtml(
   live: Browser,
@@ -1201,16 +850,8 @@ async function measureEmbeddedHtml(
     if (typeof fn !== 'function') return { text: '', note: `${member} is ${typeof fn}` }
     try {
       const value = await (fn as () => unknown).call(api)
-      // ⭐⭐ THE `.html` COMES OUT OF THE ENVELOPE (`DFC-356`, 2026-09-07). `AM-15`
-      // is `exportEmbeddedHtml(): Promise<AgentExport<string>>` --
-      // `src/adapter/agent-api-endpoint/agent-api-members.ts:457` -- and table
-      // T-107's preamble puts that signature there and not in the table:
-      // 「引数・戻り値は `src/` の公開エントリが持ち、境界値は Chapter 6.1 が
-      // 持つ。本表は名前と、何を担うかだけを持つ」.
-      // ⛔ THIS FILE USED TO INSIST ON A BARE STRING, which is the shape the
-      // member had before `DFC-356` wired it, so a written 2-million-character
-      // `.html` was reported as 「wrote no .html」. ⚠️ A bare string is still
-      // taken, so this reads either face.
+      // Why: AM-15 answers an AgentExport envelope; a bare string is still taken, so either
+      // face of the member reads.
       if (typeof value === 'string') return { text: value, note: '' }
       const bag = value !== null && typeof value === 'object' ? (value as Bag) : null
       const held = bag?.['ok'] === true ? bag['value'] : undefined
@@ -1272,20 +913,9 @@ async function measureEmbeddedHtml(
   }
 }
 
-// ---------------------------------------------------------------------------
-// `FR-021` -- one document in, the same document out, compared canonically
-// ---------------------------------------------------------------------------
-
-/**
- * ⭐ THE COMPARATOR IS BUILT IN THE PAGE, out of `DOMParser`, and it drops
- * exactly the three things table T-228 and the standard it points at drop:
- * attribute order and self-closing spelling (the standard, `NR-1`), whitespace
- * between elements (`NR-2`), and the namespace prefix (`NR-3`).
- *
- * ⛔ `NR-4` (the spelling of typed values) and `NR-5` (a length compared as a
- * quantity) are NOT applied, and the last case says so rather than letting a
- * pass look wider than it is.
- */
+// Spec: NR-1, NR-2, NR-3
+// Why: NR-4 and NR-5 of table T-228 are not applied, so a difference the round trip
+// reports may still be one of those two.
 const XML_CANONICALIZER = `(xml) => {
   const doc = new DOMParser().parseFromString(xml, 'application/xml');
   if (doc.getElementsByTagName('parsererror').length > 0) return null;
@@ -1327,13 +957,11 @@ async function measureMspdiRoundTrip(page: Page): Promise<{
     ]) => {
       type Bag = Record<string, unknown>
       const api = (window as unknown as Record<string, Bag | undefined>).grSchedulerAgentApi ?? {}
-      // eslint-disable-next-line no-eval
+      // eslint-disable-next-line no-eval -- the canonicalizer travels into the page as source text
       const canonical = eval(`(${canonizerSource})`) as (xml: string) => string | null
 
-      // ⭐ THE COMPARATOR'S OWN SELF-CHECK, and it is what makes the MUST NOT
-      // below a measured fact rather than a promise: two documents whose BYTES
-      // differ -- different prefix, different attribute order, different
-      // whitespace, different self-closing spelling -- must compare equal.
+      // Why: the comparator is first shown two documents whose bytes differ in prefix, attribute
+      // order, whitespace and self-closing spelling, so a pass is never a byte comparison.
       const pair: string[] = [
         '<a:R xmlns:a="urn:x" y="1" x="2">\n  <a:C/>\n</a:R>',
         '<b:R xmlns:b="urn:x" x="2" y="1"><b:C></b:C></b:R>',
@@ -1359,15 +987,8 @@ async function measureMspdiRoundTrip(page: Page): Promise<{
       if (typeof takeIn !== 'function') {
         answers.push(`${importMember} is ${typeof takeIn}`)
       } else {
-        // ⭐⭐ THE ARGUMENT SHAPE IS SETTLED NOW, and this file used to say it
-        // was not. `AgentImportSource = Document | { document: Document } |
-        // { text: string }` --
-        // `src/adapter/agent-api-endpoint/agent-api-members.ts:307` -- and table
-        // T-107's preamble is what makes that file the one that settles it.
-        // ⛔ SO ONLY THE ONE SHAPE THAT CAN CARRY TEXT IS TRIED. The other two
-        // take a `Document` value, and handing them a string was this file's own
-        // error: all three came back `malformedRequest` and the message read as
-        // though the build had turned a document away.
+        // Why: only { text } can carry MSPDI text; the other AgentImportSource shapes take a
+        // Document, and a string there came back malformedRequest, not a refused document.
         for (const [shape, argument] of [['{ text }', { text: given }]] as [string, unknown][]) {
           let answer: unknown
           try {
@@ -1377,10 +998,8 @@ async function measureMspdiRoundTrip(page: Page): Promise<{
           }
           const shown = String(JSON.stringify(answer) ?? '').slice(0, 200)
           answers.push(`${shape} -> ${shown}`)
-          // `AgentWriteOutcome` says so in one field --
-          // `agent-api-members.ts:279` -- so the verdict is read, not matched.
-          // ⛔ The old test was `/…|false/i` over the whole answer, which an
-          // ACCEPTED outcome also matches through `"hasUpdatedSchedule":false`.
+          // Why: the verdict is read from the ok field, never matched in the text, since an
+          // accepted outcome also holds hasUpdatedSchedule: false.
           const outcome = answer !== null && typeof answer === 'object' ? (answer as Bag) : null
           if (outcome?.['ok'] === true) {
             imported = true
@@ -1399,12 +1018,9 @@ async function measureMspdiRoundTrip(page: Page): Promise<{
         } catch (thrown) {
           written = { threw: String(thrown) }
         }
-        // `AM-12` is `exportMspdi(): AgentExport<string>` (the same envelope
-        // `AM-15` answers with), so the text comes out of `value`.
         const wrapper = written !== null && typeof written === 'object' ? (written as Bag) : null
         const carried = typeof written === 'string' ? written : wrapper?.['ok'] === true ? wrapper['value'] : undefined
         if (typeof carried === 'string') {
-          // ⛔ THE COMPARISON IS OF THE CANONICAL FORMS, NEVER OF THE BYTES.
           const before = canonical(given)
           const after = canonical(carried)
           roundTripEqual = before !== null && after !== null && before === after
@@ -1432,16 +1048,7 @@ async function measureMspdiRoundTrip(page: Page): Promise<{
   )
 }
 
-// ---------------------------------------------------------------------------
-// `FR-029` -- pressed, and told why it cannot be done
-// ---------------------------------------------------------------------------
-
-/**
- * Which formats of table T-024 this build cannot write yet, worked out from
- * which member of table T-107 answered `notAvailable` -- not from `src/`.
- *
- * @purity pure
- */
+/** @purity pure */
 function unwritableFormats(members: readonly MemberAnswer[]): string[] {
   const byMember: Record<string, string> = {
     [AM_12]: 'IO-1',
@@ -1519,10 +1126,8 @@ async function measureChooser(
     [EXPORT_CHOOSER, NOTIFICATION_AREA] as [string, string],
   )
 
-  // ⚠️ SAY WHERE THE TEXT CAME FROM. When no part named `Notification Area`
-  // stands, the whole page is read instead -- a telling could be standing under
-  // a different marking -- but the message must not then claim the part said
-  // it, because the part is not there at all.
+  // Why: with no Notification Area the whole page is read, as a telling may stand under
+  // another marking, and the message says so instead of crediting the missing part.
   const noticeText =
     after.notice === ''
       ? `(no [data-role="${NOTIFICATION_AREA}"] in the page; the whole page said) ` +
@@ -1539,23 +1144,11 @@ async function measureChooser(
   }
 }
 
-// ---------------------------------------------------------------------------
-// The cases that stand on the measurement itself
-// ---------------------------------------------------------------------------
-
+// Spec: T-025, MC-5
 test('T-025 -- the numbers are recorded together with the browser they were taken in', () => {
-  // 表 T-025, verbatim:
-  // 基準ブラウザーの版を、測った値と対にして記録すること（MUST）。版を伏せた数字を基準値としてはならない（MUST NOT）
-  //
-  // ⭐ WHAT IS PRESSED: the sweep carries the browser's version beside every
-  // number it took, and the last case of this file refuses to report a
-  // measured number when that version is missing. This case is what makes that
-  // version real rather than an empty string nobody looked at.
   const m = taken()
   expect(m.browserVersion, 'no browser version was recorded beside the numbers').not.toBe('')
   expect(m.userAgent, 'no user agent was recorded beside the numbers').not.toBe('')
-  // Printed so that a run leaves the pair in the log, which is what the MUST is
-  // for. `MC-5` allows this member of the family as the reference.
   expect(
     `${m.browserVersion} | ${m.userAgent} | renderer ${JSON.stringify(m.renderer)} | ` +
       `${String(m.hardwareConcurrency)} logical cores | Agent API ${m.agentApiVersion}`,
@@ -1568,29 +1161,16 @@ test('MC-8 -- every driven stretch delivered frames to measure', () => {
     m.segments.length,
     'not one stretch of MC-8 yielded frames; barren: ' + m.barren.join(' ;; '),
   ).toBeGreaterThan(0)
-  // Reported rather than judged: a stretch that asks for no frame is a finding
-  // about NFR-010, not about NFR-002, and it is named in the last case.
+  // Why: a stretch that asks for no frame is an NFR-010 finding, not an NFR-002 one, so
+  // it is only printed here and named in the last case.
   expect(m.segments.map((one) => `${one.name}: ${String(one.frames)} frames`).join(' ;; ')).not.toBe(
     '',
   )
 })
 
 test('T-043 -- the interval between frames and the time inside the call are two numbers', () => {
-  // ⛔⛔ THE CENTER OF THIS FILE. Table T-043's preamble, verbatim:
-  // 「フレーム時間」とは、届いたフレームとフレームの間隔である（MUST）。描き直しの呼び出しの中で過ごす時間を、フレーム時間として測ってはならない（MUST NOT）
-  //
-  // ⭐ HOW THE MUST NOT IS PRESSED. If the two were the same number, taking
-  // either one would satisfy the requirement and the clause would be idle. This
-  // case measures both over the SAME stretch of `MC-8` and shows they part: the
-  // interval carries the browser's own work between callbacks -- style, layout,
-  // paint, composite and the wait for the next vertical blank -- none of which
-  // is inside the call. So a build that halves the time inside the call has not
-  // thereby moved the frame time, which is exactly what was measured on
-  // 2026-09-05 (36% off the inside time, no movement in the interval).
-  //
-  // ⛔ WHAT WOULD MAKE THIS RED: the two numbers coinciding, at which point the
-  // measurement in this file is no longer distinguishing what the clause
-  // distinguishes and must be looked at before any number below is believed.
+  // Why: the two numbers must part, since if they coincided either would pass NFR-003 and
+  // the probe would no longer tell the interval from the time inside the call.
   const m = taken()
   const usable = m.segments.filter((one) => one.frames >= 30)
   expect(
@@ -1609,8 +1189,8 @@ test('T-043 -- the interval between frames and the time inside the call are two 
     )
     .join('\n  ')
 
-  // A frame's interval takes in everything the browser does around the call, so
-  // it cannot on average be the shorter of the two.
+  // Why: a frame's interval holds all the browser does around the call, so on average it
+  // cannot be the shorter of the two.
   for (const one of usable) {
     expect(
       one.intervalMean,
@@ -1620,8 +1200,6 @@ test('T-043 -- the interval between frames and the time inside the call are two 
     ).toBeGreaterThan(one.insideMean)
   }
 
-  // And they are separable by more than measurement noise in at least one
-  // stretch -- the fact the ruling of 2026-09-05 rests on.
   const widest = Math.max(...usable.map((one) => Math.abs(one.intervalP95 - one.insideP95)))
   expect(
     widest,
@@ -1630,24 +1208,8 @@ test('T-043 -- the interval between frames and the time inside the call are two 
   ).toBeGreaterThan(1)
 })
 
+// Spec: FR-021, SWS-6
 test('FR-021 -- the comparison is of canonical XML, never of the bytes', () => {
-  // `FR-021`, verbatim:
-  // 1 つの MSPDI を取り込み、合流させずに、編集せずに書き出したとき
-  // and this round's added MUST NOT:
-  // バイト列をそのまま突き合わせて合否としてはならない（MUST NOT）
-  //
-  // ⭐ HOW IT IS PRESSED, and it is a measurement rather than a promise: the
-  // comparator the round trip is judged by is handed two documents whose bytes
-  // differ in all four ways table T-228 and the standard it points at settle --
-  // namespace prefix, attribute order, whitespace between elements, and the
-  // self-closing spelling -- and must call them the same document. A byte
-  // comparison fails this by construction.
-  //
-  // `SWS-6` of Chapter 6.1, verbatim -- and it is the T-228 sentence, not the
-  // T-231 one that words itself the same way about two pictures:
-  // **MSPDI を比べる前の正規化の全数を 表 T-228 に示す。** **双方へ同じ段取りを当てること（MUST）。片側だけに当ててはならない（MUST NOT）**
-  // -- the comparator runs the one normalization over both sides; there is no
-  // path here that normalizes one and not the other.
   const m = taken()
   expect(
     m.comparatorIgnoresBytes,
@@ -1656,35 +1218,23 @@ test('FR-021 -- the comparison is of canonical XML, never of the bytes', () => {
   ).toBe(true)
 })
 
-// ---------------------------------------------------------------------------
-// The one case that can go red -- every unmet clause is gathered into it
-// ---------------------------------------------------------------------------
-
+// Spec: NFR-002, NFR-003, MC-4, MC-7, TP-6, FR-025, FR-067, BT-1, FR-021, FR-029, FR-076, NT-1
+// Trap: a case placed after this one is left unrun when this one fails, so this stays
+// the last case of the file.
 test('NFR-002 / NFR-003 / FR-025 / FR-067 / FR-021 / FR-029 -- the gates and the three roads', () => {
   const m = taken()
   const unmet: string[] = []
-  /**
-   * ⭐ WHAT WAS MEASURED AND IS NOT A BROKEN CLAUSE. Printed with the numbers,
-   * never counted into `unmet`: a scene the specification makes conditional and
-   * this build does not enter is not a build that fails it.
-   * ⛔ NOTHING THE SPECIFICATION ASKS FOR GOES IN HERE.
-   */
+  // Trap: only a scene the spec makes conditional and this build does not enter goes in
+  // recorded; a clause the spec asks for put here would pass unseen.
   const recorded: string[] = []
   const stamp =
     `[measured in ${m.browserVersion}, renderer ${JSON.stringify(m.renderer)}, ` +
     `${String(m.tasks)} Task]`
 
-  // 表 T-025, verbatim:
-  // 版を伏せた数字を基準値としてはならない（MUST NOT）
-  // ⛔ Nothing below may be reported as a measured value while the version it
-  // was measured in is unknown.
   if (m.browserVersion === '') {
     unmet.push('no browser version was recorded, so no number in this run may stand as a value')
   }
 
-  // 表 T-025 の MC-7, verbatim: 目標規模 | 50 個のタスクグループ / 1000 `Task`
-  // and 表 T-226 の TP-6: the startup template holds that many on purpose, so
-  // that a regression shows on every launch.
   if (m.tasks < TEMPLATE_TASKS) {
     unmet.push(
       `the document that was measured holds ${String(m.tasks)} Task, fewer than the ` +
@@ -1692,18 +1242,6 @@ test('NFR-002 / NFR-003 / FR-025 / FR-067 / FR-021 / FR-029 -- the gates and the
     )
   }
 
-  // -------------------------------------------------------------------------
-  // NFR-002 and NFR-003, judged on the INTERVAL and on nothing else
-  // -------------------------------------------------------------------------
-  //
-  // `NFR-002`, verbatim:
-  //   表 T-025 の条件と `MC-8` の区間で、`GRS` は、平均フレームレートを毎秒 60 フレーム以上に保つこと。
-  // `NFR-003`, verbatim:
-  //   表 T-025 の条件と `MC-8` の区間で、`GRS` は、フレーム時間の 95 パーセンタイルを 16.7 ミリ秒以内に保つこと。
-  //
-  // ⛔ The number put against each gate is the interval, as table T-043's
-  // preamble defines frame time. The inside-call time is carried into the
-  // message so that both are visible, and never into the comparison.
   for (const one of m.segments) {
     const both =
       `interval p95 ${String(one.intervalP95)}ms, mean ${String(one.intervalMean)}ms, worst ` +
@@ -1733,18 +1271,8 @@ test('NFR-002 / NFR-003 / FR-025 / FR-067 / FR-021 / FR-029 -- the gates and the
     unmet.push(`a stretch of MC-8 delivered too few frames to judge -- ${note}`)
   }
 
-  // -------------------------------------------------------------------------
-  // 表 T-025 -- the conditions that could not be met on this run
-  // -------------------------------------------------------------------------
-  //
-  // 表 T-025, verbatim:
-  // 測る前にブラウザーを内蔵 GPU に固定すること（MUST）
-  // ディスクリート GPU を基準にしてはならない（MUST NOT）
-  //
-  // ⛔ NOT A FALSE GREEN. A test cannot pin a machine's GPU, so what it can do
-  // is refuse to let a number stand as though `MC-4` had been met when the
-  // renderer says otherwise. `MC-4` names the integrated part; a driven browser
-  // reports a software rasterizer unless the host hands it one.
+  // Why: a test cannot pin the machine's GPU, so it reads the renderer and refuses the
+  // numbers as gate values when the renderer names no integrated part.
   const integrated = /intel|uhd|iris/i.test(m.renderer)
   const discrete = /nvidia|geforce|radeon|rtx|gtx/i.test(m.renderer)
   if (!integrated) {
@@ -1759,18 +1287,6 @@ test('NFR-002 / NFR-003 / FR-025 / FR-067 / FR-021 / FR-029 -- the gates and the
     )
   }
 
-  // -------------------------------------------------------------------------
-  // FR-025 -- the PNG, its scale and its width
-  // -------------------------------------------------------------------------
-  //
-  // `FR-025`, verbatim:
-  // ⛔⛔ **倍率を持ってはならない（MUST NOT）**
-  // ⭐⭐ **幅は `S-81` の幅に固定すること（MUST）。高さは、絵が収まるところまで伸ばすこと（MUST）**
-  // ⛔ **伸ばしてよいのはその `S-217` までとすること（MUST）。**
-  //
-  // ⭐ HOW THE WIDTH IS READ. A PNG only states pixels, and there is no scale
-  // over the fixed output size of `S-81` any more, so the fixed width shows up
-  // as `S-81`'s width itself. Anything else means the width was not fixed.
   for (const attempt of m.png) {
     if (attempt.width < 0) {
       unmet.push(
@@ -1798,15 +1314,6 @@ test('NFR-002 / NFR-003 / FR-025 / FR-067 / FR-021 / FR-029 -- the gates and the
     }
   }
 
-  // -------------------------------------------------------------------------
-  // FR-067 / BT-1 -- the one `.html`, opened on its own
-  // -------------------------------------------------------------------------
-  //
-  // `FR-067`, verbatim:
-  // `GRS` は、本体と文書を合わせた 1 つの `.html` を作れるようにすること。
-  // and the road the reading side takes -- 表 T-024 の `IO-7`, verbatim:
-  // 本体と文書をまとめて 1 つのファイルで渡す（`FR-067`） | 読む側は表 T-034 の `BT-1`
-  // -- 表 T-034 の `BT-1`: 1 | ファイルに埋め込まれた文書
   if (m.embeddedHtmlLength === 0) {
     unmet.push(
       `FR-067: ${AM_15} wrote no .html; it answered ${JSON.stringify(m.embeddedNote)} ` +
@@ -1825,46 +1332,14 @@ test('NFR-002 / NFR-003 / FR-025 / FR-067 / FR-021 / FR-029 -- the gates and the
     )
   }
 
-  // -------------------------------------------------------------------------
-  // FR-021 -- one document in, the same document out
-  // -------------------------------------------------------------------------
-  //
-  // `FR-021`, verbatim:
-  // **1 つの MSPDI を取り込み、合流させずに、編集せずに書き出したとき**、`GRS` は、XML 正規化して比べたときに元のファイルと同じものを出すこと。
-  //
-  // ⛔ The judgment is on the canonical forms. The comparator was shown to
-  // ignore bytes in the case above; ⚠️ `NR-4` (typed value spellings) and
-  // `NR-5` (a length compared as a quantity) of table T-228 are NOT applied
-  // here, so a difference this reports may still be one of those two.
   if (!existsSync(MSPDI_SAMPLE)) {
     unmet.push(
       `FR-021 could not be pressed: no document of the format of row IO-1 is at ${MSPDI_SAMPLE} ` +
         '(the checkout has no sample-schedule/ file)',
     )
   } else if (!m.mspdiImported) {
-    // ⭐⭐ RECORDED, NOT COUNTED, AND THE REASON IS TWO SETTLED THINGS -- neither
-    // of which is a clause this build breaks.
-    //
-    //   1. ⛔ THE AGENT API'S INTAKE IS IO-2, NOT IO-1, AND THE SHELL SAYS WHY.
-    //      `src/framework/single-html-shell/frame-loop.ts:8411` hands the road
-    //      `format: 'grsJson'` with its own note: 「⛔ Not asked of
-    //      `formatFromFile`: OP-12 reads an extension and a first character, and
-    //      there is neither here」 -- 表 T-024a の `OP-12`, verbatim:
-    //      **拡張子と先頭の非空白 1 文字の両方が 表 T-024 の同じ行に合致したとき、その行の形式として読むこと（MUST）。どちらか一方でも違うファイルを読んではならない（MUST NOT）**
-    //      A value handed through `AM-8` has no extension, so MSPDI text cannot
-    //      be admitted here without reading a document on one half of that MUST.
-    //   2. ⛔ AND EVEN THE RIGHT FORMAT WOULD NOT COME BACK UNATTENDED. `FR-022`
-    //      (MUST), the ruling of 2026-09-07, verbatim:
-    //      **`AM-8`（`importDocument`）が合流にあたるときは、`U-61` を立て、人が答えるまで待つこと（MUST）**
-    //      `takeInHandedDocument` passes `choice: 'merge'`, so every call raises
-    //      U-61 -- 「無人運転はできない」 is the cost the ruling names, and `DFC-357`
-    //      records it.
-    //
-    // ⇒ ⭐ FR-021's round trip is pressed where it lives, at the codec seam:
-    // `tests/unit/fr-021-the-outline-base-of-the-file-comes-back.test.ts`.
-    // ⛔ WHAT WOULD MAKE THIS A CLAUSE AGAIN: a member of table T-107 that takes
-    // IO-1 in, or a ruling that lets `AM-8` read a handed text by its first
-    // character. Neither exists, so nothing is invented here.
+    // Why: recorded, not counted: by OP-12 a handed text has no extension to be read as
+    // MSPDI, and by FR-022 every AM-8 call waits on U-61 for a person.
     recorded.push(
       `FR-021 was not pressed end to end: ${AM_8} takes IO-2 (GRS JSON) as text and raises U-61 ` +
         `for a person on every call, so an unattended MSPDI round trip has no road -- ` +
@@ -1877,40 +1352,11 @@ test('NFR-002 / NFR-003 / FR-025 / FR-067 / FR-021 / FR-029 -- the gates and the
     )
   }
 
-  // -------------------------------------------------------------------------
-  // FR-029 -- pressed, and told why
-  // -------------------------------------------------------------------------
-  //
-  // `FR-029`, verbatim:
-  // **押されたときに限り、行えない理由を通知の仕組みへ運ぶこと（MUST）。作法は `FR-076` の 表 T-037 の `NT-1` に従い、運ぶ理由は、押された入口の場面に当たる同要求の 表 T-233 の行とすること（MUST）。**
-  // ⛔ **当たる行があるのに落ち先を運んではならない（MUST NOT）**
-  //
-  // and the row that is the matching one for this scene -- 表 T-233 の `RS-40`:
-  // この形式は、このビルドではまだ書けない
   const notYet = reasonWords(REASON_NOT_YET)
   const fallback = reasonWords(REASON_FALLBACK)
   if (m.unwritable.length === 0) {
-    // ⭐⭐ NOTHING TO PRESS, AND THAT IS NOT A BROKEN CLAUSE. `FR-029`'s MUST is
-    // conditional in its first three words -- 「押されたときに限り、**行えない
-    // 理由**を通知の仕組みへ運ぶこと（MUST）」 -- and `RS-40` is 「この形式は、この
-    // ビルドではまだ書けない」. When every format of table T-024 writes, there
-    // is no 行えない理由 for this entrance to carry and the row has no occasion.
-    // ⛔ RAISING IT ANYWAY IS WHAT WOULD BREAK THE REQUIREMENT: `DFC-334`, verbatim:
-    // 「⛔⛔ `RS-40`（この形式はまだ書けない）を立ててはならない —— 5 形式とも
-    // 書けるので、立てれば偽の理由になる」.
-    // ⛔ SO THIS IS NOT AN EXPECTATION LOWERED. The expectation removed was that
-    // this build HAVE a format it cannot write, which no row of the
-    // specification asks for -- table T-024 lists all of them as 書出 formats,
-    // and `DFC-320` measured all five written (`GRS JSON` 895,422 / MSPDI 645,459
-    // / 単一 `.html` 2,034,321 / SVG 395,400 / PNG 269,097 bytes).
-    // ⚠️ `DFC-356` PREDICTED THIS INVERSION IN AS MANY WORDS: 「直すと同じ `it` の
-    // 別の条項が反転する —— `unwritableFormats` が…`notAvailable` から数えて
-    // いるので、本行を直すと `m.unwritable` が空になり」, and `DFC-356` ends
-    // 「`FR-029` を押せなかった」が立つ.
-    // ⚠️ RE-CUT 2026-09-10: the row's nested quotation used to sit far enough
-    // from the `DFC-356` that attributes it that check 42 read it as a citation
-    // of docs/spec, where no such sentence stands. The words are the ledger's. ⭐ `DFC-186` keeps `RS-40` for the next format that cannot be
-    // written; when one appears, this branch stops being taken on its own.
+    // Why: with every format writable RS-40 has no scene, and raising it would tell a false
+    // reason (DFC-334); the branch is recorded, not an expectation lowered.
     recorded.push(
       'FR-029 had no occasion: every format of table T-024 answered through the Agent API, so ' +
         'no format is one this build cannot write yet and RS-40 has no scene -- ' +
@@ -1942,8 +1388,6 @@ test('NFR-002 / NFR-003 / FR-025 / FR-067 / FR-021 / FR-029 -- the gates and the
           'matching row for this scene',
       )
     }
-    // ⭐ 押されたときに限り、行えない理由を通知の仕組みへ運ぶこと（MUST） -- the half that
-    // is about not going quiet: a surface that simply closed said nothing.
     if (!told && !m.chooserStoodAfterPress) {
       unmet.push(
         `FR-029: the ${EXPORT_CHOOSER} closed on the press and no reason was told, so the choice ` +
@@ -1952,10 +1396,8 @@ test('NFR-002 / NFR-003 / FR-025 / FR-067 / FR-021 / FR-029 -- the gates and the
     }
   }
 
-  // ⭐ EVERY MEASURED STRETCH IS PRINTED, passing ones included. `PG-2` / `PG-3`
-  // of table T-043 carry a MUST that the difference from last time be kept, not
-  // only the verdict, and a number that never leaves the run cannot be
-  // differenced.
+  // Why: every stretch is printed, passing ones too, since PG-2 and PG-3 keep the difference
+  // from the last run and a number that never leaves the run cannot be differenced.
   const table = m.segments
     .map(
       (one) =>

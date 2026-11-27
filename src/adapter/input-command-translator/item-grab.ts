@@ -8,11 +8,9 @@ import {
   dayOf,
   dayOfInstant,
   instantOf,
-  instantOnSide,
   plannedInstantsOf,
   MINUTES_PER_CALENDAR_DAY,
   planActualState,
-  startSideOf,
   taskByUid,
   textOfDayEnd,
   textOfDayStart,
@@ -51,7 +49,9 @@ import {
 } from '../../use-case/edit-document/edit-document'
 import type { PointerInput } from './input-source'
 import { treeWritesOf } from './task-group-tree-entrances'
-import { isPlaceNamed, zoomOnScreen } from './zoom-and-fit'
+import { zoomOnScreen } from './zoom-and-fit'
+import { isPlaceNamed } from '../../use-case/show-range/show-range'
+import { markerPullActualOf } from '../../use-case/record-actuals/record-actuals'
 import {
   CONSUMED_ELSEWHERE,
   acted,
@@ -424,20 +424,6 @@ function dummyReleaseWrite(
   ])
 }
 
-// Spec: GO-9, DM-1, FR-158
-/** @purity pure */
-function isLeftOfPlanStart(context: InputContext, task: Task, released: string): boolean {
-  if (!context.document.documentSettings.isTimeOfDayVisible) {
-    const planStart = dayOf(task.start)
-    const dropped = dayOf(released)
-    return planStart !== null && dropped !== null && compareDay(dropped, planStart) < 0
-  }
-  const within = workingCalendarOf(context.document.schedule)
-  const planStart = instantOnSide(within, task.start, startSideOf(task))
-  const dropped = instantOf(released)
-  return planStart !== null && dropped !== null && dropped < planStart
-}
-
 // Spec: GO-9
 /** @purity pure */
 function markerPullWrite(
@@ -455,15 +441,8 @@ function markerPullWrite(
   const finish = releasedPairOf(context, release, task)?.finish ?? null
   if (finish === null) return CONSUMED_ELSEWHERE
   const snapMinutes = snapMinutesOfView(context)
-  // Why: released left of the plan start, GO-9 asks for the dummy's own actual (DM-2) on the plan start, not a refusal.
-  if (isLeftOfPlanStart(context, task, finish)) {
-    return changed([
-      { kind: 'beginTaskActual', taskUid: uid, grabbed: 'barDummyStart', released: { start: task.start, finish: task.start }, snapMinutes },
-    ])
-  }
-  return changed([
-    { kind: 'beginTaskActual', taskUid: uid, grabbed: 'barDummyFinish', released: { start: finish, finish }, snapMinutes },
-  ])
+  const { grabbed, released } = markerPullActualOf(context.document, task, task.start, finish)
+  return changed([{ kind: 'beginTaskActual', taskUid: uid, grabbed, released, snapMinutes }])
 }
 
 // Spec: PE-1, PE-6, SL-1, SL-7, MK-16

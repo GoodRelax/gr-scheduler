@@ -52,7 +52,9 @@ const FR_052_EVERY_START = '`GRS` が起動したとき、`GRS` は、プロパ�
 const FR_052_WRITES_NOWHERE = '`GRS` は、プロパティパネルの幅を、文書にもブラウザーの保管庫にも書かないこと。'
 const FR_063_SETTINGS_STAMP_MOVES =
   '`GRS` は、見せ方の群だけを変えた更新でも、どちらの群であれ動いた刻と最後に書いた者を更新すること（例外は `FR-364`）。'
+// Spec: IMPS-1062
 const FR_063_SCHEDULE_STAMP_STAYS = '`GRS` は、見せ方の群だけを変える更新で、スケジュールデータの群の刻を動かさないこと。'
+// Spec: IMPS-1065
 const FR_063_NOT_IN_THE_LOOK =
   '`GRS` は、画面のどの操作も書き換えない値（道具の定数）と、見る人の画面の値（`_assets/tbl-settings.md` の 表 T-206）を、見せ方の群に入れないこと。'
 const FR_080_THE_SCREEN_SHRUNK = '`GRS` が占める画面の全体を'

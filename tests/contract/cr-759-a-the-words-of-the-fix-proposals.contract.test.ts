@@ -78,6 +78,7 @@ describe.each(LANGUAGES)('RW-11 / RW-12 / RW-14 / RW-17 / T-374 -- the words the
     expect(wordsOf(entry!)).toContain(entryLabel(icon, language))
   })
 
+  // Spec: FA-19
   it('the fix type of a machine row and of a row by hand read automatic and byHand, and the hand row says to click the name', async () => {
     const machine = await proposalsOpened(ONE_PARENT(), language)
     expect(machine.need(PROPOSALS_ROLE).textContent).toContain(fixWord('automatic', language))

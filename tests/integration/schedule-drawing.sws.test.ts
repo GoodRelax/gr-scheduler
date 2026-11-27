@@ -1,74 +1,4 @@
-// Integration cases for the SW_SPEC nodes of Chapter 6.1 -- table T-218, TS-2.
-//
-//   TS-2 | Software specification test | Chapter 9's SW_SPEC_TEST | parent
-//        | SWS-xxx | Integration | tests/integration/ | Vitest
-//
-// WHAT IS HERE. Chapter 6.1 carries six SW_SPEC nodes. Five of them are the
-// drawing chain, and every one of them is covered below:
-//
-//   SWS-1  the interval between two ticks        FR-017   table T-221 LF-1
-//   SWS-2  the band height and top of a task group      FR-003   LF-2 / LF-3
-//          ⚠️ and LF-14, which no SW_SPEC node names -- see the block
-//          that declares it for why it is filed here
-//   SWS-3  the route of a dependency line        FR-009   LF-5, T-222
-//   SWS-4  the vertices of what is drawn         FR-094   LF-6..LF-11, LF-13
-//   SWS-5  the vertices of the progress line     FR-014   LF-12
-//
-// SWS-6 (normalizing two MSPDI files before comparing them, FR-021, W3C
-// Canonical XML) HAS NO CASE HERE ON PURPOSE: the unit that would answer it is
-// not written yet, so a case would only assert that nothing exists. When
-// DocumentCodec (PI-20) grows the comparison, its cases belong in this file
-// next to the five below, and the completeness check at the bottom of this
-// file will not notice the gap -- SWS-6 points at no row of table T-221.
-//
-// HOW THEY ARE DRIVEN. Chapter 1.9 of docs/spec/01-04-requirements.md:
-// a test that verifies a requirement pointing at a table is driven by fixed
-// data copied from that table, and ONE test walks every row. The copy is taken
-// at read time by tests/contract/spec-table.ts, so it cannot fall behind the
-// table the way a re-typed copy does. Three things come from the tables rather
-// than from this file:
-//
-//   * the roster of rows. `coverage` below fails when a row of T-221 or T-222
-//     has no case, so adding a row to the specification breaks this file.
-//   * the bend count of every route. Table T-222's own column supplies it.
-//   * the terms each formula names. `mentions()` fails when a formula stops
-//     naming the settings key a case computes with, so moving LF-6 off
-//     `chevronNotchOfWidth` breaks the case that reads it.
-//
-// The arithmetic itself is transcribed from the formula cell, because prose is
-// not executable. Every expected value is built out of the settings keys the
-// formula names -- never out of a number read off the implementation.
-//
-// THE SHAPE A MACHINE CAN READ. Table T-219, TW-2 raises no Chapter 9 node:
-// the case is judged by the gate run, so the facts a reader needs are declared
-// here, not narrated. Every case is introduced by exactly one `swsCase({...})`
-// literal with these six keys and no others:
-//
-//   sws     the SW_SPEC node the case hangs from
-//   level   the TEST_LEVEL of table T-218         -> always 'Integration' here
-//   covers  the table rows verified               -> LF-n of T-221, RP-n of T-222
-//   given   the state the document is in
-//   when    the entry of table T-064 that is called
-//   then    what must hold of the answer
-//
-// `swsCase` returns the `it` title, so the declaration and the name a failure
-// prints cannot drift apart, and it files the case in CASES for the coverage
-// check. To find every case: grep for `swsCase({`. To find one node's cases:
-// grep for `sws: 'SWS-3'`.
-//
-// WHAT IS EXERCISED. These are Integration cases, so they run through the
-// public entries of table T-064 and never reach past one (LR-2 / LR-5 of table
-// T-061; `npm run layers` does not police tests):
-//
-//   PI-35 regionsFromScreen  -> PI-5 layoutFromSchedule -> PI-6 geometryFromLayout
-//   PI-19 svgFromSchedule    where the case is about what is drawn
-//
-// FOUR CASES ARE LEFT FAILING. They are findings, not chores (04-verification
-// section 1): the expected value states what the specification says, and the
-// specification is quoted in the case. Search for `FINDING` below. Two of them
-// are SWS-1's and are new with the rewrite of LF-1 (the user's ruling,
-// 2026-08-26): the label a ruler tick carries still moves that tick, and
-// FR-089's grid lines are not drawn at all.
+// Integration tests: the drawing chain of the SW_SPEC nodes SWS-1 to SWS-5.
 
 import { describe, expect, it } from 'vitest'
 import { settingNumber } from '../fixtures/setting-number'
@@ -117,38 +47,25 @@ const S_247 = Number.parseFloat(specTable('T-206').rows.find((one) => one.id ===
 // Why: the picture prints a coordinate rounded to two places.
 const twoPlaces = (value: number): number => Math.round(value * 100) / 100
 
-// ---------------------------------------------------------------------------
-// The declaration every case carries (the SWS node it answers to)
-// ---------------------------------------------------------------------------
-
 type SwsId = 'SWS-1' | 'SWS-2' | 'SWS-3' | 'SWS-4' | 'SWS-5'
 
 interface SwsCase {
-  /** The SW_SPEC node of Chapter 6.1 the generated case takes as its parent. */
   readonly sws: SwsId
-  /** TEST_LEVEL. Table T-218 gives TS-2 exactly one. */
   readonly level: 'Integration'
-  /** Row IDs of table T-221 (`LF-n`) or table T-222 (`RP-n`). */
   readonly covers: readonly string[]
   readonly given: string
   readonly when: string
   readonly then: string
 }
 
-// Filled while the module is evaluated -- one push per `swsCase` literal, all
-// of them before the first case body runs. Nothing written below ever mutates
-// it, so no case can see a different registry than any other (R6.1).
+// Why: filled while the module is evaluated, one push per swsCase literal, before any
+// case body runs, so every case sees the same registry.
 const CASES: SwsCase[] = []
 
-/** Declare a case and return the name Vitest prints for it. */
 function swsCase(one: SwsCase): string {
   CASES.push(one)
   return `${one.sws} [${one.covers.join(' ')}] GIVEN ${one.given} WHEN ${one.when} THEN ${one.then}`
 }
-
-// ---------------------------------------------------------------------------
-// The tables, read out of the specification at read time (Chapter 1.9)
-// ---------------------------------------------------------------------------
 
 const T221: SpecTable = specTable('T-221')
 const T222: SpecTable = specTable('T-222')
@@ -159,20 +76,15 @@ const rowOf = (table: SpecTable, id: string) => {
   return row
 }
 
-/** The last column of a row: T-221 writes the formula there, T-222 the route. */
+// Why: T-221 writes the formula in its last column and T-222 the route, before any
+// traces column.
 const formulaOf = (table: SpecTable, id: string): string => {
   const cells = rowOf(table, id).cells
   return cells[cells.length - (table.headings[table.headings.length - 1] === 'traces' ? 2 : 1)] ?? ''
 }
 
-/**
- * Fail unless the row still names every term the case computes with.
- *
- * This is what keeps the transcription honest: the arithmetic below is a copy
- * of prose, and a copy goes stale silently. If LF-6 stops naming
- * `chevronNotchOfWidth`, the case that multiplies by it fails here rather than
- * quietly testing a formula the specification no longer states.
- */
+// Why: the arithmetic below is a copy of prose; failing when a row stops naming a term
+// keeps the copy from going stale silently.
 const mentions = (table: SpecTable, id: string, ...terms: readonly string[]): void => {
   const text = formulaOf(table, id)
   for (const term of terms) {
@@ -180,42 +92,32 @@ const mentions = (table: SpecTable, id: string, ...terms: readonly string[]): vo
   }
 }
 
-// Spec: LF-3, LF-16, HF-19
-// Why: CR-553 took the lattice out of LF-3's floors; it is composed here only for the LF-16
-// reserve and for the HF-19 MUST NOT cases, which need to know it stands above a one-lane band.
-
 const T206: SpecTable = specTable('T-206')
 const T051: SpecTable = specTable('T-051')
 
-/** The px figure a settings row prints in its 既定 column. */
 const settingPx = (id: string): number => {
   const found = /-?\d+(?:\.\d+)?/.exec(rowOf(T206, id).by['既定'] ?? '')
   if (found === null) throw new Error(`table T-206 row ${id} states no number in 既定`)
   return Number(found[0])
 }
 
-/** One control's outer height: the glyph box, plus FR-029's gap on each side. */
+// Why: a control is the glyph box (S-138) plus the FR-029 gap (S-243) on each side.
 const ONE_CONTROL_TALL = settingPx('S-138') + settingPx('S-243') * 2
 
-// Spec: LF-16, HF-1
+// Spec: LF-3, LF-16, HF-1, HF-19
+// Why: the lattice is no floor of LF-3; it is composed only for the LF-16 reserve and the
+// HF-19 MUST NOT cases, which need to know it stands above a one-lane band.
 const CONTROL_LATTICE = ONE_CONTROL_TALL * S_235 * 2
 
-/** Table T-222's own bend count for a row -- the only all-digit cell it has. */
+// Why: the bend count is the only all-digit cell of a T-222 row.
 const bendsOf = (id: string): number => {
   const cell = rowOf(T222, id).cells.find((c) => /^\d+$/.test(c.trim()))
   if (cell === undefined) throw new Error(`table T-222 row ${id} states no bend count`)
   return Number(cell.trim())
 }
 
-// ---------------------------------------------------------------------------
-// The document under test
-//
-// tests/fixtures/grs-document.ts deliberately carries no sample document, so
-// the shapes below are built here. They are plain data and nothing mutates
-// them: every builder returns a fresh object (R6.1).
-// ---------------------------------------------------------------------------
-
-/** Expand SETTINGS_DEFAULTS' dotted keys into the nested shape the type has. */
+// Why: the fixtures carry no sample document, so the shapes are built here; every
+// builder returns a fresh object.
 const settingsOf = (over: Readonly<Record<string, unknown>> = {}): DocumentSettings => {
   const out: Record<string, unknown> = {}
   for (const [key, value] of Object.entries({ ...SETTINGS_DEFAULTS, ...over })) {
@@ -232,14 +134,8 @@ const settingsOf = (over: Readonly<Record<string, unknown>> = {}): DocumentSetti
   return out as unknown as DocumentSettings
 }
 
-/**
- * A calendar on which every weekday is worked.
- *
- * FR-054 resolves the document's calendar to what `Project.calendarUid` names.
- * Working every day is what makes a day of the month and a worked day the same
- * number here, so the expected x of a date is arithmetic rather than a second
- * calendar walk inside the test. IV-17 wants at least one worked weekday.
- */
+// Why: every weekday is worked, so a day of the month and a worked day are one number
+// and an expected x is arithmetic (FR-054, IV-17).
 const EVERY_DAY_WORKED: Calendar = {
   uid: 1,
   name: 'every day worked',
@@ -364,18 +260,17 @@ const scheduleOf = (
   baselineTasks: [],
 })
 
-/** BO-1 of table T-077: what the environment settles, not the document. */
+// Spec: T-077, BO-1
 const SCREEN = { width: 1280, height: 800, appHeaderHeight: 48, scrollbarThickness: 8, propertyPanelWidth: 0 }
 
 // Spec: FR-039, FR-048
 const LIGHT_VIEWER = { themePreference: 'light', guideCursorMode: 'none' } as const
 
-/** A day of March 2026, as a stored date column writes it. */
 const day = (d: number): string => `2026-03-${String(d).padStart(2, '0')}T00:00:00`
 // Why: an end is written at the day's close (WT-2, WT-4); a date alone or 00:00 is read by FR-054 as the day before (RV-1, RV-6).
 const endOfDay = (d: number): string => `2026-03-${String(d).padStart(2, '0')}T17:00:00`
 
-/** The x the left edge of a bar starting on `d` gets, from the axis FR-017 fixes. */
+// Spec: FR-017
 const xOfDay = (d: number, regions: { taskGroupArea: { x: number } }, pxPerDay: number): number =>
   regions.taskGroupArea.x + (d - 1) * pxPerDay
 
@@ -387,14 +282,8 @@ interface Drawn {
   readonly geometry: ReturnType<typeof geometryFromLayout>
 }
 
-/**
- * One pass of the chain: PI-35 -> PI-5 -> PI-6.
- *
- * `taskGroupIds[i]` says which task group `tasks[i]` is drawn on. The task groups are created in
- * the sorted order of those IDs, so `g1` is the topmost task group. `allTaskGroups` names
- * every task group the document holds when that is more than the Tasks reach -- which
- * is how a task group carrying nothing is set up.
- */
+// Summary: draws one pass of PI-35, PI-5 and PI-6, creating the task groups in
+// the sorted order of taskGroupIds, so that g1 is the topmost.
 const draw = (
   tasks: readonly Task[],
   taskGroupIds: readonly string[],
@@ -410,8 +299,8 @@ const draw = (
     taskGroupId: taskGroupIds[i] ?? ids[0] ?? 'g1',
   }))
   const schedule = scheduleOf(tasks, groups, members, visuals, statusDate)
-  // scrollDate (S-77) pins the left edge of the Task Group Lanes, so the axis is fixed
-  // and a case can state the x it expects. stackDirection is pinned per case.
+  // Why: scrollDate (S-77) pins the left edge of the Task Group Lanes, so the axis is
+  // fixed and a case can state the x it expects.
   const settings = settingsOf({
     zoomX: 10,
     scrollDate: day(1),
@@ -453,54 +342,9 @@ const lineOf = (bar: ReturnType<typeof geometryOf>['plan']) => {
   return bar
 }
 
-// ===========================================================================
-// SWS-1 -- the interval one tick stands for. FR-017, table T-221 LF-1.
-// ===========================================================================
-
-/**
- * ⛔ THE RULE THIS BLOCK ASSERTED WAS REPLACED, AND SO WERE ITS CASES.
- *
- * LF-1 used to divide an estimated label width by the width of one day and
- * keep one tick every `ceil` of that. It now fixes the interval PER ROW: one
- * year on the year row, one month on the year-and-month row, seven days on the
- * week row, one day on the day row -- and "⛔ no other interval may be taken
- * (MUST NOT)" (the user's ruling, 2026-08-26), because "on a thinned row the
- * reader has to count the unit again, and two days apart and three days apart
- * swap places as the zoom moves". FR-017 says the same from the requirement
- * side: "⛔ no row may be thinned (MUST NOT) -- the interval is fixed per row,
- * and the whole roster of them is table T-221's `LF-1`". LF-1 adds the anchor:
- * "⭐ the week row's origin is held by `Project.weekStartDay` (`FR-054`)".
- *
- * ⛔ Two cases were DELETED here rather than repaired, because the rule each
- * asserted is gone. This is the record of what they said, so that nobody puts
- * them back:
- *
- *   * "one width divided by the day, rounded up, explains every answer" --
- *     it bisected for the width LF-1 divided by, and demanded a stride above
- *     one at narrow day widths. LF-1 divides by nothing and rounds nothing up.
- *   * "the estimate doubles with the ruler font and with labelCoef, and
- *     rulerLabelGap rides along unchanged" -- LF-1 no longer names `FR-093`
- *     or `S-135`. S-135's own row now says the gap is added in ONE place,
- *     "table T-205's `S-85`", which is how a DEFAULT was derived and not an
- *     arithmetic any frame runs.
- *
- * ⭐ The remaining case asserted a stride of one on the three coarse steps. That
- * much survives the rewrite, but as a consequence of the fixed interval rather
- * than as an exemption from thinning, so it is asserted below over what is
- * DRAWN, together with the three intervals it never looked at.
- *
- * ⭐ WHAT IS READ, AND WHY IT IS THE PICTURE. LF-1 fixes an interval, and the
- * only place an interval is observable is the band the ruler draws -- so these
- * cases read the ticks out of the SVG (PI-19) instead of asking one function
- * for a number. A tick is a vertical `<line>` inside `regions.timeRuler`; the
- * ticks of the band's FINEST row are the ones that reach the band's foot. The
- * expected set is built here out of the calendar -- year starts, month starts,
- * week starts, days -- and never out of what was drawn.
- */
-
 const MS_PER_DAY = 86400000
 
-/** The day whose midnight sits at a UTC instant. No zone is converted (FR-054). */
+// Why: no zone is converted (FR-054), so the UTC fields are the calendar day.
 const calendarDayOf = (utc: number): CalendarDay => {
   const at = new Date(utc)
   return { year: at.getUTCFullYear(), month: at.getUTCMonth() + 1, day: at.getUTCDate() }
@@ -511,13 +355,11 @@ const utcOf = (at: CalendarDay): number => Date.UTC(at.year, at.month - 1, at.da
 const plusDays = (at: CalendarDay, days: number): CalendarDay =>
   calendarDayOf(utcOf(at) + days * MS_PER_DAY)
 
-/** 0 is Sunday, which is the numbering AT-17 gives `Project.weekStartDay`. */
+// Why: 0 is Sunday, the numbering AT-17 gives Project.weekStartDay.
 const weekdayOf = (at: CalendarDay): number => new Date(utcOf(at)).getUTCDay()
 
-/** The rows a band can carry. LF-1 states one fixed interval for each. */
 type RulerRow = 'year' | 'month' | 'week' | 'day'
 
-/** Whether LF-1 puts a tick of `row` on `at`. The week row's anchor is FR-054's. */
 const isTickOf = (row: RulerRow, at: CalendarDay, weekStart: number): boolean => {
   if (row === 'year') return at.month === 1 && at.day === 1
   if (row === 'month') return at.day === 1
@@ -541,14 +383,14 @@ const linesOf = (svg: string): readonly DrawnLine[] => {
     const y1 = Number(found[2])
     const x2 = Number(found[3])
     const y2 = Number(found[4])
-    // A group that did not take part reads as NaN rather than as a coordinate.
+    // Why: a group that did not take part reads as NaN rather than as a coordinate.
     if ([x1, y1, x2, y2].some((n) => Number.isNaN(n))) continue
     out.push({ x1, y1, x2, y2 })
   }
   return out
 }
 
-/** Two places is what a drawn coordinate is rounded to, so this is its slack. */
+// Why: a drawn coordinate is rounded to two places, so this is its slack.
 const HALF_A_ROUNDING = 0.02
 
 const isVertical = (line: DrawnLine): boolean => Math.abs(line.x1 - line.x2) <= HALF_A_ROUNDING
@@ -556,14 +398,8 @@ const isVertical = (line: DrawnLine): boolean => Math.abs(line.x1 - line.x2) <= 
 const xsOf = (lines: readonly DrawnLine[]): readonly number[] =>
   lines.map((line) => line.x1).sort((a, b) => a - b)
 
-/**
- * The x of every tick the band's FINEST row draws, left to right.
- *
- * ⭐ A row's ticks stop at that row's own foot, so the finest row is the one
- * whose ticks reach the foot of the whole band. That is read off the band
- * rectangle alone: how many rows a step is built from is not a number any
- * table states, so a case must not assume one.
- */
+// Why: a row's ticks stop at its own foot, so the finest row is the one reaching the
+// band's foot; no table states how many rows a step has.
 const finestRowTicksOf = (svg: string, band: ScreenRect): readonly number[] =>
   xsOf(
     linesOf(svg).filter(
@@ -573,7 +409,6 @@ const finestRowTicksOf = (svg: string, band: ScreenRect): readonly number[] =>
     ),
   )
 
-/** Every x at which LF-1 asks `row` for a tick, over the width of the band. */
 const expectedTicksOf = (
   layout: ScheduleLayout,
   band: ScreenRect,
@@ -588,7 +423,7 @@ const expectedTicksOf = (
     const at = plusDays(from, step)
     if (!isTickOf(row, at, weekStart)) continue
     const x = xFromDay(layout, at)
-    // The band draws a tick that stands on it and stops at its right edge.
+    // Why: the band draws a tick that stands on it and stops at its right edge.
     if (x < band.x || x >= band.x + band.width) continue
     out.push(x)
   }
@@ -613,17 +448,11 @@ const PX_PER_DAY_AT_1X = SETTINGS_CONSTANTS.pxPerDayAt1x
 const FONT_MIN = SETTINGS_CONSTANTS.fontMin
 const RULER_FONT = SETTINGS_DEFAULTS['rulerFontSizePx'] as number
 
-/** S-108: the day the week starts on when the document names none (FR-054). */
+// Spec: T-209, S-108, FR-054
 const WEEK_START_DEFAULT = DEFAULT_CALENDAR_VALUES['S-108']
 
-/**
- * FR-017's own test, run backwards: the narrowest day that reaches `threshold`.
- *
- * The requirement fixes the test as `pxPerDay / (the effective font size / S-8)
- * >= the threshold` (MUST), and fixes 12 -- `S-8` -- as the size the three
- * thresholds are quoted at. ⚠️ Leaving the font out of this is what let an
- * earlier sample drift a whole step away from the boundary its name claimed.
- */
+// Why: the font is part of the FR-017 test (pxPerDay / (font / S-8)); leaving it out
+// once let a sample drift a whole step from its boundary.
 const pxPerDayReaching = (threshold: number, rulerFontSizePx: number): number =>
   threshold * ((rulerFontSizePx * DISPLAY_RATIO) / FONT_MIN)
 
@@ -648,10 +477,10 @@ const ONE_TASK_SCHEDULE = scheduleOf(
   null,
 )
 
-/** A task group carrying nothing: then a vertical line in the Task Group Lanes can only be a grid line. */
+// Why: a task group carrying nothing, so a vertical line in the Task Group Lanes can
+// only be a grid line.
 const NO_TASK_SCHEDULE = scheduleOf([], [taskGroup('g1', 0)], [], [], null)
 
-/** The same document, told which day its weeks start on (AT-17, 0 is Sunday). */
 const withWeekStart = (weekStartDay: number | null): Schedule => ({
   ...ONE_TASK_SCHEDULE,
   project: { ...ONE_TASK_SCHEDULE.project, weekStartDay },
@@ -665,14 +494,13 @@ interface RulerFrame {
   readonly settings: DocumentSettings
 }
 
-/** One frame drawn at a chosen width of one day: PI-35 -> PI-5 -> PI-6 -> PI-19. */
 const rulerAt = (
   pxPerDay: number,
   over: Readonly<Record<string, unknown>> = {},
   schedule: Schedule = ONE_TASK_SCHEDULE,
 ): RulerFrame => {
-  // S-1 keeps its manuscript default and the zoom carries the whole change, so
-  // every sample below is a zoom a reader can actually reach (S-54 to S-55).
+  // Why: S-1 keeps its default and the zoom carries the change, so every sample is a
+  // zoom a reader can reach (S-54 to S-55).
   const settings = settingsOf({
     zoomX: pxPerDay / (PX_PER_DAY_AT_1X * DISPLAY_RATIO),
     scrollDate: day(1),
@@ -689,7 +517,7 @@ const rulerAt = (
     geometry,
     regions,
     emptySelection(),
-    // EP-14's other arm. These cases are about the picture a reader sees.
+    // Why: EP-14's other arm; these cases are about the picture a reader sees.
     'screen',
     LIGHT_VIEWER,
   )
@@ -697,14 +525,8 @@ const rulerAt = (
   return { svg, band: regions.timeRuler, taskGroupArea: regions.taskGroupArea, layout, settings }
 }
 
-/**
- * One sample per side of each threshold, and the row LF-1 hands the interval.
- *
- * ⭐ A thousandth to either side of the boundary, so a sample that drifts off
- * its own step is caught by the tier assertion rather than passing on a step it
- * was never meant to test -- which is exactly what happened to the sample this
- * table replaces.
- */
+// Why: a thousandth to either side of each boundary, so a sample that drifts off its
+// step is caught by the tier assertion.
 const TIER_SAMPLES: ReadonlyArray<readonly [RulerTier, RulerRow, number, string]> = [
   ['year', 'year', TIER_MONTH_PX * 0.5, 'half the day width that opens the month row'],
   ['year', 'year', TIER_MONTH_PX * 0.999, 'a thousandth under S-83'],
@@ -716,6 +538,9 @@ const TIER_SAMPLES: ReadonlyArray<readonly [RulerTier, RulerRow, number, string]
   ['yearMonthDayWeekday', 'day', TIER_DAY_PX * 1.5, 'half again over S-85'],
 ]
 
+// Spec: SWS-1, FR-017, T-221, LF-1
+// Why: LF-1 fixes an interval per row, seen only in the band the ruler draws, so ticks
+// are read out of the SVG and the expected set is built from the calendar.
 describe('SWS-1 -- decide the interval between two ticks (FR-017)', () => {
   it(
     swsCase({
@@ -727,19 +552,15 @@ describe('SWS-1 -- decide the interval between two ticks (FR-017)', () => {
       then: 'the finest row ticks at its own fixed interval and at no other',
     }),
     () => {
-      // LF-1: the interval is fixed per row -- one year, one month, seven days,
-      // one day -- and "⛔ no other interval may be taken (MUST NOT)". Set
-      // equality is what carries the MUST NOT: a thinned row drops ticks the
-      // calendar puts back, and a row ticking finer than its unit adds ticks
-      // the calendar does not name. Neither can survive a comparison of sets.
+      // Why: set equality carries the LF-1 MUST NOT: a thinned row drops ticks the calendar
+      // puts back, and a finer row adds ticks it does not name.
       mentions(T221, 'LF-1', 'MUST NOT', 'FR-054', 'Project.weekStartDay')
       for (const [tier, row, pxPerDay, where] of TIER_SAMPLES) {
         const frame = rulerAt(pxPerDay)
         expect(frame.layout.tier, where).toBe(tier)
         const drawn = finestRowTicksOf(frame.svg, frame.band)
-        // ⚠️ Without this, an empty band would agree with an empty expectation.
-        // ⛔ One is the floor and not two: at the widest day the year row still
-        // covers, one screen holds a single new year and no more.
+        // Why: one tick is the floor: at the widest day the year row covers, a screen holds a
+        // single new year; zero would agree with an empty expectation.
         expect(drawn.length, `${where}: the band drew no ticks to judge`).toBeGreaterThanOrEqual(1)
         sameTicks(drawn, expectedTicksOf(frame.layout, frame.band, row, WEEK_START_DEFAULT), where)
       }
@@ -756,11 +577,8 @@ describe('SWS-1 -- decide the interval between two ticks (FR-017)', () => {
       then: 'every tick falls on that day, seven days apart',
     }),
     () => {
-      // LF-1: "⭐ the week row's origin is held by `Project.weekStartDay`
-      // (`FR-054`)", and FR-054: "the week ruler writes the date the week
-      // starts on, and the start of the week follows `Project.weekStartDay`
-      // (MUST) -- the weekday is not decided in advance". AT-17 numbers that
-      // column 0 for Sunday up to 6 for Saturday, so all seven are walked.
+      // Why: AT-17 numbers weekStartDay 0 (Sunday) to 6 (Saturday), so all seven are
+      // walked.
       mentions(T221, 'LF-1', 'FR-054', 'Project.weekStartDay')
       const pxPerDay = TIER_WEEK_PX * 1.001
       for (const weekStart of [0, 1, 2, 3, 4, 5, 6]) {
@@ -778,8 +596,6 @@ describe('SWS-1 -- decide the interval between two ticks (FR-017)', () => {
           )
         }
       }
-      // FR-054 sends a document that names none to table T-209, whose S-108 is
-      // the value DEFAULT_CALENDAR_VALUES prints from the manuscript.
       const unnamed = rulerAt(pxPerDay, {}, withWeekStart(null))
       sameTicks(
         finestRowTicksOf(unnamed.svg, unnamed.band),
@@ -799,20 +615,8 @@ describe('SWS-1 -- decide the interval between two ticks (FR-017)', () => {
       then: 'the lines in the Task Group Lanes stand exactly where the finest row ticks',
     }),
     () => {
-      // FINDING (left failing). SWS-1's own RATIONALE: "⭐ that the grid lines
-      // stand at the same interval is settled by `FR-089`, and it uses the same
-      // number". FR-089 (MUST): draw the vertical lines "at the same interval
-      // as the finest step the Time Ruler is showing", and "⛔ they must not be
-      // drawn at a constant interval regardless of the width of one day (MUST
-      // NOT)"; the interval "must be the one value table T-221's `LF-1` holds
-      // for that step (MUST) -- a line standing on a date the ruler does not
-      // show cannot be read as any date at all".
-      //
-      // ⛔ NOTHING DRAWS THEM. `S-67` (`isDateGridLinesVisible`) is turned on
-      // here and the Task Group Lanes comes back with no vertical line in it at all,
-      // so the case fails on the count. ⚠️ The document carries no Task on
-      // purpose: with an empty task group, a vertical line inside the Task Group Lanes can
-      // only be one of FR-089's.
+      // Why: the document carries no Task, so with S-67 on any vertical line in the Task
+      // Group Area is one of the FR-089 grid lines.
       const steps: ReadonlyArray<readonly [RulerTier, number]> = [
         ['yearMonthWeek', TIER_WEEK_PX * 1.001],
         ['yearMonthDayWeekday', TIER_DAY_PX * 1.001],
@@ -830,8 +634,8 @@ describe('SWS-1 -- decide the interval between two ticks (FR-017)', () => {
           ),
         )
         const ticks = finestRowTicksOf(frame.svg, frame.band)
-        // ⚠️ Two empty sets agree with each other, so the ruler is made to
-        // speak first: FR-089 is measured against ticks that are really there.
+        // Why: two empty sets agree, so the ruler must speak first: FR-089 is measured against
+        // ticks that are really there.
         expect(ticks.length, `${tier}: the band drew no ticks to measure against`).toBeGreaterThan(1)
         sameTicks(grid, ticks, `${tier}: FR-089's lines`)
       }
@@ -839,11 +643,7 @@ describe('SWS-1 -- decide the interval between two ticks (FR-017)', () => {
   )
 })
 
-// ===========================================================================
-// SWS-2 -- the band height and the top of a task group. FR-003, LF-2 and LF-3.
-// ===========================================================================
-
-/** Three documents that stress LF-2 and LF-3 in different ways. */
+// Spec: SWS-2, FR-003, T-221, LF-2, LF-3
 const bandDocuments = (): ReadonlyArray<readonly [string, Drawn]> => {
   const long = (uid: number, from: number, to: number) =>
     task({ uid, name: `t${uid}`, start: day(from), finish: endOfDay(to) })
@@ -931,7 +731,7 @@ describe('SWS-2 -- decide a task group band and where it sits (FR-003)', () => {
       then: 'it takes one rectangle lane and one VG-2 gap, and is not raised to its controls',
     }),
     () => {
-      // see SWS-2, DFC-840, HF-19
+      // Spec: SWS-2, HF-19
       const drawn = draw(
         [task({ uid: 1, name: 'a', start: day(2), finish: endOfDay(20) })],
         ['g1'],
@@ -947,7 +747,7 @@ describe('SWS-2 -- decide a task group band and where it sits (FR-003)', () => {
       expect(empty.height, 'LF-2: an empty lane is the rectangle, plus one VG-2 gap').toBeCloseTo(oneLane, 6)
       expect(empty.height, 'the same band as the one-lane task group above it').toBeCloseTo(taskGroupByIdOf(drawn, 'g1').height, 6)
       expect(empty.height, 'HF-19 (MUST NOT): the lattice is not its floor').toBeLessThan(CONTROL_LATTICE)
-      // and the rectangle's own height is FR-094's chain, not a number of its own
+      // Why: the rectangle's own height is FR-094's chain, not a number of its own.
       expect(drawn.layout.rectangleHeight).toBeCloseTo(
         SETTINGS_CONSTANTS.basePlanHeight *
           drawn.settings.zoomY *
@@ -968,8 +768,6 @@ describe('SWS-2 -- decide a task group band and where it sits (FR-003)', () => {
       then: 'each top is the one above plus that band and taskGroupGap',
     }),
     () => {
-      // LF-3: "the top of a task group is the top of the task group before it, plus that
-      // task group's band and taskGroupGap."
       mentions(T221, 'LF-3', 'taskGroupGap')
       for (const [name, drawn] of bandDocuments()) {
         const taskGroups = drawn.layout.taskGroups
@@ -1055,22 +853,9 @@ describe('SWS-2 -- decide a task group band and where it sits (FR-003)', () => {
     },
   )
 
-  // -------------------------------------------------------------------------
-  // LF-14 -- the band a pinned task group is lifted into (FR-098, CR-308).
-  //
-  // ⚠️ FILED UNDER SWS-2, AND CHAPTER 6.1 DOES NOT SAY SO. SWS-2's STATEMENT
-  // names `LF-2` and `LF-3` alone, and NO SW_SPEC node of Chapter 6.1 names
-  // `LF-14` -- so the completeness check at the foot of this file has been
-  // demanding a case that has no node of its own to hang from. It is filed here
-  // because `LF-14` is written as an amendment to `LF-3` (「帯へ上げたタスクグループは
-  // `LF-3` の連なりから除き、抜けた場所は詰める」), which is exactly what SWS-2
-  // owns. ⛔ REPORTED AS A HOLE: either SWS-2's STATEMENT gains the row, or
-  // Chapter 6.1 gains a node for FR-098's band.
-  //
-  // ⭐ THE REST OF `LF-14` AND OF FR-098 HAD A UNIT TEST, removed by CR-573
-  // under the omission table of rule 04 (the entry it drove is pure).
-  // -------------------------------------------------------------------------
-
+  // Spec: LF-14, FR-098
+  // Why: filed under SWS-2 though no SW_SPEC node names LF-14: LF-14 is written as an
+  // amendment to LF-3, which SWS-2 owns.
   it(
     swsCase({
       sws: 'SWS-2',
@@ -1081,12 +866,6 @@ describe('SWS-2 -- decide a task group band and where it sits (FR-003)', () => {
       then: 'the pinned task group stands at the top of the Task Group Lanes and the rest close up one band and one taskGroupGap below it',
     }),
     () => {
-      // LF-14: 「帯の高さは、帯に置くタスクグループの帯高（`LF-2`）を合計し、タスクグループとタスクグループのあいだに
-      //   `taskGroupGap` をその数から 1 を引いた数だけ加えたものとする。帯へ上げたタスクグループは
-      //   `LF-3` の連なりから除き、抜けた場所は詰める。スクロールするタスクグループが並ぶのは、
-      //   `Task Group Lanes` の高さから帯の高さと `taskGroupGap` 1 つぶんを引いた残りとする」,
-      // with FR-098: 「本要求でいう「画面の上端」とは … `U-50`（`Task Group Lanes`）の
-      //   上端をいう（MUST）」.
       mentions(T221, 'LF-14', 'taskGroupGap', 'LF-2', 'LF-3', 'Task Group Lanes')
       const rows = ['g1', 'g2', 'g3', 'g4']
       const drawn = draw(
@@ -1104,7 +883,7 @@ describe('SWS-2 -- decide a task group band and where it sits (FR-003)', () => {
         6,
       )
 
-      // One task group in the band, so LF-14's sum has no `taskGroupGap` in it yet.
+      // Why: one task group in the band, so LF-14's sum has no taskGroupGap in it yet.
       const band = pinned.height
       const scrolling = ['g1', 'g2', 'g4'].map((taskGroupId) => taskGroupByIdOf(drawn, taskGroupId))
       expect(
@@ -1125,18 +904,9 @@ describe('SWS-2 -- decide a task group band and where it sits (FR-003)', () => {
   )
 })
 
-// ===========================================================================
-// SWS-3 -- the route of a dependency line. FR-009, LF-5 and table T-222.
-// ===========================================================================
-
-/**
- * One scenario per row of table T-222.
- *
- * Every one is two Tasks and one dependency; `linkType` picks the family out of
- * table T-018 (1 = FS and 2 = SF are the opposing family, 0 = FF and 3 = SS the
- * same-side one), and the task groups they are drawn on pick the vertical relation.
- * The route the layout chooses must be the row this scenario was written for.
- */
+// Spec: SWS-3, FR-009, LF-5, T-222
+// Why: one scenario per T-222 row: linkType picks the family (T-018: FS and SF are
+// opposing, FF and SS same-side) and the task groups pick the vertical relation.
 const routeScenarios = (): Readonly<Record<string, Drawn>> => {
   const t = (uid: number, from: number, to: number, deps: ReadonlyArray<readonly [number, number]> = []) =>
     task({
@@ -1150,21 +920,13 @@ const routeScenarios = (): Readonly<Record<string, Drawn>> => {
     draw([a, b], rows, [taskVisual(a.uid), taskVisual(b.uid)], over)
 
   return {
-    // opposing, one lane, the edges further apart than the entry run
     'RP-1': pair(t(1, 2, 6), t(2, 12, 16, [[1, 1]]), ['g1', 'g1']),
-    // opposing, the successor lower, x2 at or beyond x1
     'RP-2': pair(t(1, 2, 6), t(2, 12, 16, [[1, 1]]), ['g1', 'g2']),
-    // the same, upside down: the successor is the upper task group
     'RP-3': pair(t(1, 2, 6), t(2, 12, 16, [[1, 1]]), ['g2', 'g1']),
-    // opposing, the successor lower and to the LEFT, so x2 falls short of x1
     'RP-4': pair(t(1, 2, 6), t(2, 3, 5, [[1, 1]]), ['g1', 'g2']),
-    // the same, upside down
     'RP-5': pair(t(1, 12, 16), t(2, 2, 6, [[1, 1]]), ['g2', 'g1']),
-    // same-side (FF), the successor lower
     'RP-6': pair(t(1, 2, 6), t(2, 12, 16, [[1, 0]]), ['g1', 'g2']),
-    // same-side (FF), the successor upper
     'RP-7': pair(t(1, 2, 6), t(2, 12, 16, [[1, 0]]), ['g2', 'g1']),
-    // same-side (FF), one lane
     'RP-8': pair(t(1, 2, 6), t(2, 12, 16, [[1, 0]]), ['g1', 'g1']),
   }
 }
@@ -1187,9 +949,7 @@ describe('SWS-3 -- draw the route of a dependency line (FR-009)', () => {
       then: 'the row of table T-222 that is chosen, and its bend count, are the row written for it',
     }),
     () => {
-      // One test walks every row (Chapter 1.9). The bend count is not
-      // transcribed: table T-222 states it in a column of its own and this
-      // reads it from there.
+      // Why: the bend count is read from T-222's own column, not transcribed.
       const scenarios = routeScenarios()
       for (const row of T222.rows) {
         const drawn = scenarios[row.id]
@@ -1254,7 +1014,7 @@ describe('SWS-3 -- draw the route of a dependency line (FR-009)', () => {
         6,
       )
 
-      // One lane: the two Tasks touch, so RP-1's clearance is not met and the
+      // Why: one lane with the two Tasks touching, so RP-1's clearance is not met and the
       // route drops into the corridor of LF-5's third clause.
       const same = draw(
         [
@@ -1287,16 +1047,14 @@ describe('SWS-3 -- draw the route of a dependency line (FR-009)', () => {
       then: 'the clearance is met at the boundary and RP-4 takes over below it',
     }),
     () => {
-      // RP-1: "one lane, the entry and exit edges at least the entry run
-      // apart". "At least" is the boundary, and RP-4 catches "one lane, RP-1
-      // not met". At a day of exactly the entry run wide, one day of clear air
-      // between the two bars is exactly the threshold.
+      // Why: at a day exactly the entry run wide, one day of clear air between the bars is
+      // exactly RP-1's at-least boundary.
       const entryRun = SETTINGS_CONSTANTS.dependencyLeadIn
       const at = (pxPerDay: number): string => {
         const drawn = draw(
           [
-            // Why: p runs 8 days, not 4: T-273 counts S-31 in its 「入る」 rows, so a 4-day p pushes its name out
-            // and onto s's lane; the one day of clear air between the bars is unchanged.
+            // Why: p runs 8 days, not 4: T-273 counts S-31 in its fit rows, so a 4-day p pushes
+            // its name onto s's lane; the clear day between the bars is unchanged.
             task({ uid: 1, name: 'p', start: day(2), finish: endOfDay(9) }),
             task({ uid: 2, name: 's', start: day(11), finish: endOfDay(13), dependencies: [dependency(1, 1)] }),
           ],
@@ -1377,10 +1135,6 @@ describe('SWS-3 -- draw the route of a dependency line (FR-009)', () => {
       then: 'x1 is pushed out to x2 plus the exit run',
     }),
     () => {
-      // RP-8: "when x1 and x2 are closer than the exit run, push x1 out to x2
-      // plus the exit run -- two vertical lines on top of each other cannot be
-      // told apart, there and back." The successor ends just to the left of the
-      // predecessor, which is what brings the two together.
       // Why: the runs are constants now; the day width is what brings the two verticals together.
       // Why: S-63 is on by default since CR-604, and the marker room it gives each label
       // lifts the successor to a second lane; the case pins it off to keep its one lane.
@@ -1402,7 +1156,7 @@ describe('SWS-3 -- draw the route of a dependency line (FR-009)', () => {
       expect(successor.stack, 'both are on one lane').toBe(predecessor.stack)
       const entryRun = leadIn * DISPLAY_RATIO
       const exitRun = leadOut * DISPLAY_RATIO
-      // FF: both anchors are a right edge, so both runs go to the right.
+      // Why: FF: both anchors are a right edge, so both runs go to the right.
       const x2 = successor.x + successor.width + entryRun
       const plainX1 = predecessor.x + predecessor.width + exitRun
       expect(Math.abs(plainX1 - x2), 'the scenario only bites when they are closer than the exit run')
@@ -1413,10 +1167,6 @@ describe('SWS-3 -- draw the route of a dependency line (FR-009)', () => {
     },
   )
 })
-
-// ===========================================================================
-// SWS-4 -- the vertices of what is drawn. FR-094, LF-6..LF-11 and LF-13.
-// ===========================================================================
 
 describe('SWS-4 -- make the vertices of what is drawn (FR-094)', () => {
   it(
@@ -1429,13 +1179,9 @@ describe('SWS-4 -- make the vertices of what is drawn (FR-094)', () => {
       then: 'the actual notch is the plan notch times actualOfPlan and is not capped a second time',
     }),
     () => {
-      // LF-6: "on the plan side, the smaller of the width times
-      // chevronNotchOfWidth and the height times chevronNotchOfHeight. The
-      // actual side is the plan side times actualOfPlan, and MUST NOT be capped
-      // a second time."
       mentions(T221, 'LF-6', 'chevronNotchOfWidth', 'chevronNotchOfHeight', 'actualOfPlan')
-      // The notch of a chevron is how far its point runs past the body: the
-      // second vertex of the outline is the top edge stopping short of the tip.
+      // Why: the notch is how far the point runs past the body: the second vertex of the
+      // outline is the top edge stopping short of the tip.
       const notchOf = (points: Path): number => {
         const shoulder = points[1]
         const tip = points[2]
@@ -1444,10 +1190,8 @@ describe('SWS-4 -- make the vertices of what is drawn (FR-094)', () => {
       }
       for (const [name, from, to] of [
         ['a wide chevron, so the height caps it', 2, 10],
-        // Zero days wide: FR-001 keeps it at minShapeWidth, and at that width
-        // it is the WIDTH that caps the plan notch -- which is the case that
-        // tells a second cap apart from none, because capping the actual on its
-        // own would use the actual's much greater width instead.
+        // Why: zero days wide, FR-001 keeps minShapeWidth and the width caps the plan notch,
+        // which tells a second cap from none: the actual alone would use its greater width.
         ['a chevron of no duration, so the width caps it', 2, 2],
       ] as ReadonlyArray<readonly [string, number, number]>) {
         const drawn = draw(
@@ -1492,9 +1236,6 @@ describe('SWS-4 -- make the vertices of what is drawn (FR-094)', () => {
       then: 'each is the value LF-7 and LF-8 state, taken from its own setting',
     }),
     () => {
-      // LF-8: the stroke is thinStrokeWidth, one setting of its own.
-      // LF-7: the head is the smaller of thinArrowHeadLength and the width
-      // times arrowHeadOfSpan; an endpoint dot's diameter is spanDotSize.
       mentions(T221, 'LF-8', 'thinStrokeWidth')
       mentions(T221, 'LF-7', 'thinArrowHeadLength', 'arrowHeadOfSpan', 'thinArrowHeadHeight', 'spanDotSize')
 
@@ -1549,10 +1290,6 @@ describe('SWS-4 -- make the vertices of what is drawn (FR-094)', () => {
       then: 'the overlay is centered in the plan and the drop clears it by actualGap',
     }),
     () => {
-      // LF-9: "a shape that overlays the actual inside itself drops it by half
-      // the difference between the plan height and the actual height. A shape
-      // that pushes the actual below drops it by the plan height plus
-      // actualGap."
       mentions(T221, 'LF-9', 'actualGap')
       const started = { actualStart: day(2), stop: endOfDay(4) } as const
 
@@ -1582,10 +1319,8 @@ describe('SWS-4 -- make the vertices of what is drawn (FR-094)', () => {
       expect(belowPlaced.actualPlacement, 'SH-3 drops below').toBe('below')
       const planLine = lineOf(geometryOf(below, 1).plan)
       const actualLine = lineOf(geometryOf(below, 1).actual)
-      // A line carries no top of its own: it is drawn down the middle of its
-      // band, so the two bands' tops are the two centers less half of each.
-      // XS-6: 線の上の縁を、予定の線の下の縁から `S-10` 下に置く -- the drop is
-      // one stroke plus the gap, measured edge to edge and not from a strip.
+      // Why: a line has no top of its own, so the tops are the centers less half of each;
+      // XS-6 measures the drop edge to edge, one stroke plus the gap.
       const stroke = (SETTINGS_CONSTANTS.thinStrokeWidth as number) * DISPLAY_RATIO
       expect(actualLine.from.y - planLine.from.y).toBeCloseTo(
         stroke + (SETTINGS_CONSTANTS.actualGap as number) * DISPLAY_RATIO,
@@ -1604,9 +1339,6 @@ describe('SWS-4 -- make the vertices of what is drawn (FR-094)', () => {
       then: 'the plan is a side of its plan height centered on start, the actual that times actualOfPlan centered on its own day, at the same middle',
     }),
     () => {
-      // LF-10: "the plan is a figure whose side is that Task's plan height,
-      // centered on start. The actual is that times actualOfPlan, centered on the
-      // actual date. The vertical middle is the same as the plan's."
       mentions(T221, 'LF-10', 'actualOfPlan')
       const drawn = draw(
         [
@@ -1731,9 +1463,8 @@ describe('SWS-4 -- make the vertices of what is drawn (FR-094)', () => {
       then: 'LP-2 stands it S-584 right of that mark and on the plan middle',
     }),
     () => {
-      // The other half of LF-11's first sentence. A Task with nothing entered
-      // still shows a marker (FR-013 gives PM-1a a target to press), and the
-      // bar it clears is the dummy FR-043 draws.
+      // Why: a Task with nothing entered still shows a marker (FR-013, PM-1a), so the bar it
+      // clears is the dummy FR-043 draws.
       // Why: the dummy is the basis (T-272 RF-1) and the name does not fit it, so LP-2 applies.
       const drawn = draw(
         [task({ uid: 1, name: 'x', start: day(2), finish: endOfDay(10) })],
@@ -1769,13 +1500,6 @@ describe('SWS-4 -- make the vertices of what is drawn (FR-094)', () => {
       then: 'the L sits markerGap past the marker, its arm and head scale off the marker, and a false resumeValid shrinks the side',
     }),
     () => {
-      // LF-13: "an L-shaped bent arrow with its foot on the bottom of the
-      // marker and its point at the middle of the marker. The arm is the side
-      // of the figure times resumeArmOfMarker and the head that side times
-      // resumeHeadOfMarker. When resumeValid is false the side is multiplied by
-      // resumeScaleInvalid."
-      // LF-11: "the resume icon stands a further markerGap clear of the right
-      // of the marker."
       mentions(T221, 'LF-13', 'resumeArmOfMarker', 'resumeHeadOfMarker', 'resumeScaleInvalid')
       for (const resumeValid of [true, false]) {
         const drawn = draw(
@@ -1813,19 +1537,14 @@ describe('SWS-4 -- make the vertices of what is drawn (FR-094)', () => {
         if (foot === undefined || corner === undefined || armEnd === undefined) {
           throw new Error('an L has three points')
         }
-        // ⛔ ON THE `resume` DAY, NOT PAST THE MARKER (LF-11, since CR-276).
-        // The icon was pinned to the marker until 2026-08-28, and the marker's
-        // x is a function of the actual's last day -- it never reads
-        // `resume` -- so GA-20 of table T-023d could not move it whatever the
-        // drag did. ⚠️ The marker remains the fallback LF-11 names, but only
-        // where no `resume` is held; this fixture holds one in both passes.
+        // Why: the icon stands on the resume day, not past the marker, so GA-20 can move it;
+        // the marker is LF-11's fallback only where no resume is held.
         expect(foot.x, 'standing on the resume day').toBeCloseTo(
           xOfDay(8, drawn.regions, drawn.layout.pxPerDay),
           6,
         )
-        // XS-10 centers the icon's BOX on the actual band's center line, which
-        // is the marker's own center; LF-13's `resumeScaleInvalid` shrinks what
-        // is DRAWN inside that box, so the foot follows the side, not the box.
+        // Why: XS-10 centers the icon's box on the actual band's center line, and
+        // resumeScaleInvalid shrinks only what is drawn, so the foot follows the side.
         expect(foot.y, 'its foot on the bottom of the drawn figure').toBeCloseTo(
           marker.center.y + side / 2,
           6,
@@ -1860,11 +1579,8 @@ describe('SWS-4 -- make the vertices of what is drawn (FR-094)', () => {
       then: 'the notch vertices reach the drawn polygon unchanged',
     }),
     () => {
-      // The chain does not end at the geometry: FR-080 has SvgRenderer (PI-19)
-      // put those vertices on screen, and ADR-001 says it measures nothing of
-      // its own. So the same numbers must come out the far end -- a renderer
-      // that rounds or recomputes the notch would be caught here and by no
-      // case above.
+      // Why: FR-080 has PI-19 put these vertices on screen measuring nothing of its own, so a
+      // renderer that rounds or recomputes the notch is caught here only.
       const drawn = draw(
         [task({ uid: 1, name: 'c', start: day(2), finish: endOfDay(10) })],
         ['g1'],
@@ -1879,7 +1595,7 @@ describe('SWS-4 -- make the vertices of what is drawn (FR-094)', () => {
         drawn.geometry,
         drawn.regions,
         emptySelection(),
-        // EP-14's other arm. This case is about the shape a reader sees.
+        // Why: EP-14's other arm; this case is about the shape a reader sees.
         'screen',
         LIGHT_VIEWER,
       )
@@ -1898,16 +1614,8 @@ describe('SWS-4 -- make the vertices of what is drawn (FR-094)', () => {
       then: "the plan bar's layers carry LF-18's roles: one `body`, two dot sub-paths merged into one `dot` layer, one `inner`",
     }),
     () => {
-      // LF-18 (CR-583 / CR-600): 「外形は塗り、縁の線で囲む」 (the outline is the
-      // body, filled and edged) 「絵の中の線（...顔の口）は、塗りに穴を開けずに、
-      // 塗りの上に線で描く」 (an inner line, such as the mouth, rides on the fill
-      // rather than cutting a hole in it) and 「顔の目は点で塗る」 (the eyes are
-      // filled dots). `milestone-shapes.json`'s `smile` entry is exactly those
-      // four layers, so this is the minimal case that ties the geometry to the
-      // rule rather than to one glyph's numbers -- the deep color / order /
-      // curve claims of LF-18 are tests/contract/cr-583-milestone-figures-
-      // sit-on-the-task-group-center.contract.test.ts's, read at svgFromSchedule's end
-      // of the same chain.
+      // Why: the smile entry is exactly the four LF-18 layers, so this minimal case ties the
+      // geometry to the rule rather than to one glyph's numbers.
       mentions(T221, 'LF-18', '外形は塗り', '塗りに穴を開けずに', '顔の目は点で塗る')
       const drawn = draw(
         [task({ uid: 1, name: 'm', start: day(5), finish: endOfDay(5), milestone: true })],
@@ -1919,10 +1627,8 @@ describe('SWS-4 -- make the vertices of what is drawn (FR-094)', () => {
         throw new Error('a milestone is not drawn as an outline')
       }
       const layers = plan.layers ?? []
-      // Trap: task-figures.ts's `mergedLayers` joins a run of same-role,
-      // non-`body` layers into one element (「bodies stay apart... a run of
-      // lines or dots is one element»), so the two eyes are ONE `dot` layer
-      // with two `M`-started sub-paths rather than two layers.
+      // Trap: mergedLayers in task-figures.ts joins a run of same-role non-body layers
+      // into one element, so the two eyes are ONE dot layer with two M sub-paths.
       const movesIn = (role: 'body' | 'inner' | 'dot' | 'shade') =>
         layers.filter((layer) => layer.role === role).flatMap((layer) => layer.segments.filter((segment) => segment.command === 'M')).length
       expect(
@@ -1941,11 +1647,7 @@ describe('SWS-4 -- make the vertices of what is drawn (FR-094)', () => {
   )
 })
 
-// ===========================================================================
-// SWS-5 -- the vertices of the progress line. FR-014, LF-12.
-// ===========================================================================
-
-/** A document of two task groups: two lanes above, one finished Task below. */
+// Spec: SWS-5, FR-014, LF-12
 const progressDocument = (over: Readonly<Record<string, unknown>> = {}): Drawn =>
   draw(
     [
@@ -1977,10 +1679,6 @@ describe('SWS-5 -- put the vertices of the progress line (FR-014)', () => {
       then: 'each lane gets one at its own top plus half the RECTANGLE height, whatever shape sits on it',
     }),
     () => {
-      // LF-12: "for each lane, that lane's top plus half the plan height of the
-      // RECTANGLE." The note under table T-221 says why it is the rectangle and
-      // not the shape actually on the lane: otherwise two lanes of one task group put
-      // their vertices at different heights.
       const drawn = progressDocument()
       const half = drawn.layout.rectangleHeight / 2
       const lanes = drawn.layout.taskGroups.flatMap((taskGroup) => taskGroup.stackTops.map((top) => top + half))
@@ -1990,8 +1688,8 @@ describe('SWS-5 -- put the vertices of the progress line (FR-014)', () => {
         [...lanes].sort((a, b) => a - b),
       )
 
-      // A milestone stands 1.5 rectangles tall (S-17), so a lane carrying one
-      // is where measuring the shape instead of the rectangle would show.
+      // Why: a milestone stands 1.5 rectangles tall (S-17), so a lane carrying one is where
+      // measuring the shape instead of the rectangle would show.
       const withMilestone = draw(
         [task({ uid: 1, name: 'm', start: day(2), finish: endOfDay(2), milestone: true })],
         ['g1'],
@@ -2019,9 +1717,6 @@ describe('SWS-5 -- put the vertices of the progress line (FR-014)', () => {
       then: 'both ends sit on the status date and run past the first and last task group by that much',
     }),
     () => {
-      // LF-12: "the top and the bottom of the line are at the status date, and
-      // they run progressLineOverhang past the top of the first task group and the
-      // bottom of the last."
       mentions(T221, 'LF-12', 'progressLineOverhang')
       // Why: S-39 is a constant now; a document cannot move it, so the one value is driven.
       for (const overhang of [SETTINGS_CONSTANTS.progressLineOverhang]) {
@@ -2047,7 +1742,6 @@ describe('SWS-5 -- put the vertices of the progress line (FR-014)', () => {
           6,
         )
       }
-      // No status date: FR-014 has nothing to draw from, so there is no line.
       const none = progressDocument()
       expect(none.geometry.progressLine.length).toBeGreaterThan(0)
       const unset = draw(
@@ -2072,18 +1766,8 @@ describe('SWS-5 -- put the vertices of the progress line (FR-014)', () => {
       then: 'the line runs from its top end to its bottom end without turning back',
     }),
     () => {
-      // FINDING (left failing) for stackDirection 'up', which is the default
-      // S-58 states. LF-12 calls the two ends of the line its top and its
-      // bottom, and FR-014 asks for one unbroken polyline from the top down to
-      // the bottom. ST-5 lets stackDirection put lane 0 at the BOTTOM of the
-      // band, and TaskGroupPlacement.stackTops then descends in y -- its own comment
-      // says so, and warns that a caller drawing through the lanes must visit
-      // them by increasing y and not by index.
-      //
-      // Measured, the vertices come out in lane order, so with the lanes
-      // stacked upwards the line goes down, back up, and down again inside a
-      // single task group. Drawn, that is not a progress line: the two lanes of one
-      // task group are joined by a segment that runs the wrong way.
+      // Why: both directions are walked: with up (ST-5) lane 0 sits at the bottom, so a line
+      // strung in lane order would run back up inside one task group.
       for (const stackDirection of ['down', 'up']) {
         const drawn = progressDocument({ stackDirection })
         const line = drawn.geometry.progressLine
@@ -2463,12 +2147,8 @@ describe('SWS-1 -- where a ruler label stands across its tick (FR-017, LF-19)', 
   )
 })
 
-// ===========================================================================
-// The file checking itself: every row of the two tables has a case, and every
-// declaration is well formed. Table T-219 TW-2 raises no Chapter 9 node, so
-// what each case answers to is known only from what is declared here.
-// ===========================================================================
-
+// Why: SWS-6 (FR-021) has no case: its unit is not written yet, and it points at no
+// T-221 row, so this coverage check cannot notice the gap.
 describe('coverage of the tables the five SW_SPEC nodes point at', () => {
   it('every row of table T-221 is verified by at least one case', () => {
     const covered = new Set(CASES.flatMap((c) => c.covers))

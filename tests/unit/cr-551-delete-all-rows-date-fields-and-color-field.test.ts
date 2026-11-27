@@ -195,6 +195,7 @@ const inField = (built: Bench, row: string): FakeElement[] =>
 
 const HF_20 = '`GRS` は、`HF-10` のボタンの並びに、すべてのタスクグループを消すボタンを 1 つ置くこと（タスクグループごとの削除（表 T-109 の `IC-82`）を段 0 で押すもの、入口は 表 T-109 の `IC-106`）。'
 const CD_6_ONE_TASK_GROUP = '`CD-6` —— タスクグループが 0 になるので、表 T-050 の後の段により、同じ操作の一部として深さ `L1` のタスクグループが 1 つできる（取り消し 1 回で戻る）。'
+// Spec: IMPS-1987
 const E_36_HEAD = '`GRS` は、頭が持つ入口を 5 つ、タスクグループが持つ入口を 7 つとすること。'
 
 const QN_10 = WORDS.questions.find((one) => one.specTableRowId === 'QN-10')?.text.ja ?? ''

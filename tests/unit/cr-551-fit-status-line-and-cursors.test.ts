@@ -173,7 +173,9 @@ const taskGroupAreaOf = (loop: FrameLoop) => {
 
 const FR_055_MARGIN =
   '`GRS` は、横を、表 T-038 に従って測った実寸の左右に、`Task Group Lanes` の幅に `_assets/tbl-settings.md` の 表 T-206 の `S-332` を掛けた余白を片側ずつ残して収めること'
+// Spec: IMPS-809
 const FR_055_PICTURE = '`GRS` は、横の実寸を、採った段と、採った段が着地する縦の倍率で描いた絵で測ること。'
+// Spec: IMPS-810
 const FR_055_NOT_SNAPPED = '`GRS` は、左端の表示位置を日の境目へ切り捨てないこと。'
 
 function fitted(settings: Record<string, unknown> = {}): Bench {
@@ -342,6 +344,7 @@ describe('FR-046 / FR-106 -- the status-date line', () => {
   })
 })
 
+// Spec: IMPS-859
 const FR_048_EXCLUSIVE = '`GRS` は、`Dual Cursor` のモード（`CU-2`）とガイドカーソル（`CU-3`）の 2 つの値を、1 つの排他の選択とすること（規則は 表 T-029a の `DC-9` が持つ）。閲覧者が `CU-2` と `CU-3` の一方を選んだとき、`GRS` は、他方を消すこと。'
 const FR_048_INK = '`GRS` は、`CU-2` と `CU-3` の線を、色を `_assets/tbl-settings.md` の 表 T-236 の `S-195`、太さを `_assets/tbl-settings.md` の 表 T-206 の `S-194` で描くこと。'
 const DC_9_ENTER = '本モードに入るときは、`S-66` を `\'none\'` にすること（MUST）。'

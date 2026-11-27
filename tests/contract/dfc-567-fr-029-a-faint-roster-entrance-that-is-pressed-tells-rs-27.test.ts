@@ -11,6 +11,7 @@ import { paletteStage, surfaceOfEntrance, type PaletteStage } from './wp-p1-pale
 const FR_029_FAINT =
   '`GRS` は、押してもいま文書にも画面にも何も変えられない入口を薄く描くこと。'
 const FR_029_ONLY_WHEN_PRESSED = '利用者が薄く描いた入口を押したときに限り、`GRS` は行えない理由を通知の仕組みへ運ぶこと（例外は `IMPS-1114`）。'
+// Spec: IMPS-1113
 const FR_029_FALLBACK = 'もし押された入口の場面に当たる行が 表 T-233 に無い場合、`GRS` は落ち先の `RS-27`（出さない）を運ぶこと。'
 
 const ROSTER_ENTRANCE = 'IC-62'

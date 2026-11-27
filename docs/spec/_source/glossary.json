@@ -13065,8 +13065,8 @@
      "from": "Document Title",
      "version": "CR-855",
      "reason": {
-      "en": "The App Header shows the Project Title (study 83 RN-312).",
-      "ja": "App Header に出す名は Project Title である（study 83 の RN-312）。"
+      "en": "The App Header shows the Project Title (study 83).",
+      "ja": "App Header に出す名は Project Title である（study 83）。"
      },
      "basis": [
       "JDG-3355"
@@ -13165,8 +13165,8 @@
      "from": "ヘッダーのコマンド",
      "version": "CR-855",
      "reason": {
-      "en": "No particle inside a name (study 83 RN-332).",
-      "ja": "名の途中に助詞を挟まない（study 83 の RN-332）。"
+      "en": "No particle inside a name (study 83).",
+      "ja": "名の途中に助詞を挟まない（study 83）。"
      },
      "basis": [
       "JDG-3365"
@@ -13282,8 +13282,8 @@
      "from": "タスクグループ見出しツリー",
      "version": "CR-855",
      "reason": {
-      "en": "The owner wrote the name (study 83 RN-329).",
-      "ja": "持ち主が名を書いた（study 83 の RN-329）。"
+      "en": "The owner wrote the name (study 83).",
+      "ja": "持ち主が名を書いた（study 83）。"
      },
      "basis": [
       "JDG-3363"
@@ -13548,8 +13548,8 @@
      "from": "Help Modal",
      "version": "CR-855",
      "reason": {
-      "en": "Windows terms: Help Window (study 83 RN-315).",
-      "ja": "Windows の語に合わせて Help Window にした（study 83 の RN-315）。"
+      "en": "Windows terms: Help Window (study 83).",
+      "ja": "Windows の語に合わせて Help Window にした（study 83）。"
      },
      "basis": [
       "JDG-3356"
@@ -13583,8 +13583,8 @@
      "from": "Search Panel",
      "version": "CR-855",
      "reason": {
-      "en": "Windows terms: Search Window (study 83 RN-321).",
-      "ja": "Windows の語に合わせて Search Window にした（study 83 の RN-321）。"
+      "en": "Windows terms: Search Window (study 83).",
+      "ja": "Windows の語に合わせて Search Window にした（study 83）。"
      },
      "basis": [
       "JDG-3356"
@@ -13677,8 +13677,8 @@
      "from": "休日の設定ウィンドウ",
      "version": "CR-855",
      "reason": {
-      "en": "No particle inside a name (study 83 RN-332).",
-      "ja": "名の途中に助詞を挟まない（study 83 の RN-332）。"
+      "en": "No particle inside a name (study 83).",
+      "ja": "名の途中に助詞を挟まない（study 83）。"
      },
      "basis": [
       "JDG-3365"
@@ -13733,8 +13733,8 @@
      "from": "Export Chooser",
      "version": "CR-855",
      "reason": {
-      "en": "Windows terms: Save As Dialog (study 83 RN-313).",
-      "ja": "Windows の語に合わせて Save As Dialog にした（study 83 の RN-313）。"
+      "en": "Windows terms: Save As Dialog (study 83).",
+      "ja": "Windows の語に合わせて Save As Dialog にした（study 83）。"
      },
      "basis": [
       "JDG-3356",
@@ -13771,8 +13771,8 @@
      "from": "Open Chooser",
      "version": "CR-855",
      "reason": {
-      "en": "Windows terms: Open File Dialog (study 83 RN-318).",
-      "ja": "Windows の語に合わせて Open File Dialog にした（study 83 の RN-318）。"
+      "en": "Windows terms: Open File Dialog (study 83).",
+      "ja": "Windows の語に合わせて Open File Dialog にした（study 83）。"
      },
      "basis": [
       "JDG-3356"
@@ -13975,8 +13975,8 @@
      "from": "Task Group Area",
      "version": "CR-855",
      "reason": {
-      "en": "The place of the task groups is the Task Group Lanes (study 83 RN-322).",
-      "ja": "タスクグループの置き場は Task Group Lanes である（study 83 の RN-322）。"
+      "en": "The place of the task groups is the Task Group Lanes (study 83).",
+      "ja": "タスクグループの置き場は Task Group Lanes である（study 83）。"
      },
      "basis": [
       "JDG-3361",
@@ -14181,8 +14181,8 @@
      "from": "Actual Operation Dummy",
      "version": "CR-855",
      "reason": {
-      "en": "One name for the dummy of the actual (study 83 RN-306).",
-      "ja": "実績のダミーの名を 1 つにした（study 83 の RN-306）。"
+      "en": "One name for the dummy of the actual (study 83).",
+      "ja": "実績のダミーの名を 1 つにした（study 83）。"
      },
      "basis": [
       "JDG-3375"
@@ -14193,8 +14193,8 @@
      "from": "実績操作のダミー",
      "version": "CR-855",
      "reason": {
-      "en": "One name for the dummy of the actual (study 83 RN-338).",
-      "ja": "実績のダミーの名を 1 つにした（study 83 の RN-338）。"
+      "en": "One name for the dummy of the actual (study 83).",
+      "ja": "実績のダミーの名を 1 つにした（study 83）。"
      },
      "basis": [
       "JDG-3375"
@@ -14205,8 +14205,8 @@
      "from": "実績のダミー",
      "version": "CR-855",
      "reason": {
-      "en": "One name for the dummy of the actual (study 83 RN-338).",
-      "ja": "実績のダミーの名を 1 つにした（study 83 の RN-338）。"
+      "en": "One name for the dummy of the actual (study 83).",
+      "ja": "実績のダミーの名を 1 つにした（study 83）。"
      },
      "basis": [
       "JDG-3375"
@@ -14347,8 +14347,8 @@
      "from": "Progress Marker",
      "version": "CR-855",
      "reason": {
-      "en": "Every small mark is a Mark (study 83 RN-319), then Progress Status Mark.",
-      "ja": "小さな印は Mark にし（study 83 の RN-319）、その後 Progress Status Mark にした。"
+      "en": "Every small mark is a Mark (study 83), then Progress Status Mark.",
+      "ja": "小さな印は Mark にし（study 83）、その後 Progress Status Mark にした。"
      },
      "basis": [
       "JDG-3372",
@@ -14360,8 +14360,8 @@
      "from": "進捗マーカー",
      "version": "CR-855",
      "reason": {
-      "en": "Every small mark is a Mark (study 83 RN-349), then Progress Status Mark.",
-      "ja": "小さな印は Mark にし（study 83 の RN-349）、その後 進捗ステータスマーク にした。"
+      "en": "Every small mark is a Mark (study 83), then Progress Status Mark.",
+      "ja": "小さな印は Mark にし（study 83）、その後 進捗ステータスマーク にした。"
      },
      "basis": [
       "JDG-3372",
@@ -14401,8 +14401,8 @@
      "from": "Resume Icon",
      "version": "CR-855",
      "reason": {
-      "en": "Every small mark is a Mark (study 83 RN-320).",
-      "ja": "小さな印は Mark にした（study 83 の RN-320）。"
+      "en": "Every small mark is a Mark (study 83).",
+      "ja": "小さな印は Mark にした（study 83）。"
      },
      "basis": [
       "JDG-3372"
@@ -14413,8 +14413,8 @@
      "from": "再開アイコン",
      "version": "CR-855",
      "reason": {
-      "en": "Every small mark is a Mark (study 83 RN-335).",
-      "ja": "小さな印は Mark にした（study 83 の RN-335）。"
+      "en": "Every small mark is a Mark (study 83).",
+      "ja": "小さな印は Mark にした（study 83）。"
      },
      "basis": [
       "JDG-3372"
@@ -14471,8 +14471,8 @@
      "from": "期限の印",
      "version": "CR-855",
      "reason": {
-      "en": "Every small mark is a Mark (study 83 RN-344).",
-      "ja": "小さな印は Mark にした（study 83 の RN-344）。"
+      "en": "Every small mark is a Mark (study 83).",
+      "ja": "小さな印は Mark にした（study 83）。"
      },
      "basis": [
       "JDG-3372"
@@ -14634,8 +14634,8 @@
      "from": "続きの印",
      "version": "CR-855",
      "reason": {
-      "en": "Every small mark is a Mark (study 83 RN-348).",
-      "ja": "小さな印は Mark にした（study 83 の RN-348）。"
+      "en": "Every small mark is a Mark (study 83).",
+      "ja": "小さな印は Mark にした（study 83）。"
      },
      "basis": [
       "JDG-3372",
@@ -14701,8 +14701,8 @@
      "from": "Comment Boxes",
      "version": "CR-855",
      "reason": {
-      "en": "A name is singular (study 83 RN-309).",
-      "ja": "名は単数にする（study 83 の RN-309）。"
+      "en": "A name is singular (study 83).",
+      "ja": "名は単数にする（study 83）。"
      },
      "basis": [
       "JDG-3375"
@@ -15058,8 +15058,8 @@
      "from": "Grab Region",
      "version": "CR-855",
      "reason": {
-      "en": "Grab Point, Grab Area, Handle, Grip (study 83 RN-314).",
-      "ja": "掴み点・掴み領域・ハンドル・グリップに分けた（study 83 の RN-314）。"
+      "en": "Grab Point, Grab Area, Handle, Grip (study 83).",
+      "ja": "掴み点・掴み領域・ハンドル・グリップに分けた（study 83）。"
      },
      "basis": [
       "JDG-3366"
@@ -15092,8 +15092,8 @@
      "from": "掴み帯",
      "version": "CR-855",
      "reason": {
-      "en": "Grip (study 83 RN-339).",
-      "ja": "グリップにした（study 83 の RN-339）。"
+      "en": "Grip (study 83).",
+      "ja": "グリップにした（study 83）。"
      },
      "basis": [
       "JDG-3366"
@@ -15327,8 +15327,8 @@
      "from": "Task Group Pin",
      "version": "CR-855",
      "reason": {
-      "en": "Task Group Buttons (study 83 RN-327).",
-      "ja": "タスクグループボタンの名を決めた（study 83 の RN-327）。"
+      "en": "Task Group Buttons (study 83).",
+      "ja": "タスクグループボタンの名を決めた（study 83）。"
      },
      "basis": [
       "JDG-3368"
@@ -15460,8 +15460,8 @@
      "from": "Task Group Drop Line",
      "version": "CR-855",
      "reason": {
-      "en": "Interaction cue names (study 83 RN-323).",
-      "ja": "操作合図の名を決めた（study 83 の RN-323）。"
+      "en": "Interaction cue names (study 83).",
+      "ja": "操作合図の名を決めた（study 83）。"
      },
      "basis": [
       "JDG-3369"
@@ -15494,8 +15494,8 @@
      "from": "Task Group Grab Copy",
      "version": "CR-855",
      "reason": {
-      "en": "Interaction cue names (study 83 RN-325).",
-      "ja": "操作合図の名を決めた（study 83 の RN-325）。"
+      "en": "Interaction cue names (study 83).",
+      "ja": "操作合図の名を決めた（study 83）。"
      },
      "basis": [
       "JDG-3369"
@@ -15588,8 +15588,8 @@
      "from": "Jump Landing Related Ring",
      "version": "CR-855",
      "reason": {
-      "en": "Interaction cue names (study 83 RN-316).",
-      "ja": "操作合図の名を決めた（study 83 の RN-316）。"
+      "en": "Interaction cue names (study 83).",
+      "ja": "操作合図の名を決めた（study 83）。"
      },
      "basis": [
       "JDG-3369"
@@ -15622,8 +15622,8 @@
      "from": "Jump Landing Ripple",
      "version": "CR-855",
      "reason": {
-      "en": "Interaction cue names (study 83 RN-317).",
-      "ja": "操作合図の名を決めた（study 83 の RN-317）。"
+      "en": "Interaction cue names (study 83).",
+      "ja": "操作合図の名を決めた（study 83）。"
      },
      "basis": [
       "JDG-3369"
@@ -15774,8 +15774,8 @@
      "from": "2 連カーソル",
      "version": "CR-855",
      "reason": {
-      "en": "One name (study 83 RN-304).",
-      "ja": "名を 1 つにした（study 83 の RN-304）。"
+      "en": "One name (study 83).",
+      "ja": "名を 1 つにした（study 83）。"
      },
      "basis": [
       "JDG-3375"
@@ -21189,30 +21189,6 @@
    ]
   },
   {
-   "key": "resourceListWindowResourceColumn",
-   "label": {
-    "en": "Resource",
-    "ja": "担当名"
-   },
-   "definition": {
-    "en": "The column Resource of the table of the Resource List Window.",
-    "ja": "担当リストウィンドウの表の「担当名」の列。"
-   },
-   "xGroup": "tableColumns",
-   "xIdentifier": "resourceColumn",
-   "xOwner": "resourceListWindow",
-   "checkedBasis": [
-    "JDG-1856",
-    "JDG-1871",
-    "JDG-3726"
-   ],
-   "xSpecTableRowId": "RQ-2",
-   "xUses": [
-    "screen",
-    "spec"
-   ]
-  },
-  {
    "key": "resourceListWindowSelectedColumn",
    "label": {
     "en": "Selected",
@@ -21231,6 +21207,30 @@
     "JDG-3726"
    ],
    "xSpecTableRowId": "RQ-3",
+   "xUses": [
+    "screen",
+    "spec"
+   ]
+  },
+  {
+   "key": "resourceListWindowResourceColumn",
+   "label": {
+    "en": "Resource",
+    "ja": "担当名"
+   },
+   "definition": {
+    "en": "The column Resource of the table of the Resource List Window.",
+    "ja": "担当リストウィンドウの表の「担当名」の列。"
+   },
+   "xGroup": "tableColumns",
+   "xIdentifier": "resourceColumn",
+   "xOwner": "resourceListWindow",
+   "checkedBasis": [
+    "JDG-1856",
+    "JDG-1871",
+    "JDG-3726"
+   ],
+   "xSpecTableRowId": "RQ-2",
    "xUses": [
     "screen",
     "spec"
