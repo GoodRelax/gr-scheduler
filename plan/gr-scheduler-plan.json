@@ -14,7 +14,7 @@
       "creationDate": "2026-10-31T08:50:00",
       "revision": 11,
       "startDate": "2026-10-17T05:30:00",
-      "statusDate": "2026-11-28T08:01:00",
+      "statusDate": "2026-11-28T08:15:00",
       "minutesPerDay": 1440,
       "minutesPerWeek": 10080,
       "daysPerMonth": 30,
@@ -24,7 +24,7 @@
       "defaultFinishTime": "23:59:00",
       "themeHue": 214,
       "parentTaskProgressToleranceDays": 1,
-      "uidHighWaterMark": 542,
+      "uidHighWaterMark": 543,
       "importSequence": 0,
       "carry": {},
       "carryElements": [],
@@ -1559,8 +1559,8 @@
         "parentTaskUid": null,
         "wbsOrder": 56,
         "name": "🌑 新機能の合流と GT-2・push",
-        "start": "2026-11-28T14:02:51",
-        "finish": "2026-11-28T17:02:51",
+        "start": "2026-11-29T07:27:00",
+        "finish": "2026-11-29T10:27:00",
         "milestone": false,
         "deadline": null,
         "notes": "11-02 06:50: 新しい N1（316、11-22 14:59）に合わせ、24 時間 29 分 45 秒後ろへ置いた（順と中身は変えない。BOSS の求め）。",
@@ -1591,8 +1591,8 @@
         "parentTaskUid": null,
         "wbsOrder": 57,
         "name": "🌑 最後の合流と PERF・GT-2(重い試験は 1 回だけ)",
-        "start": "2026-11-29T02:42:00",
-        "finish": "2026-11-29T08:42:00",
+        "start": "2026-11-29T10:27:00",
+        "finish": "2026-11-29T16:27:00",
         "milestone": false,
         "deadline": null,
         "notes": "11-02 06:50: 新しい N1（316、11-22 14:59）に合わせ、24 時間 29 分 45 秒後ろへ置いた（順と中身は変えない。BOSS の求め）。 pmo-6 2026-11-25T08:45: the wait for 520 is removed (DFC-3626 withdrawn). pmo-6 2026-11-27T00:54: now also waits for the new-feature merge 221 (BOSS line 11-27).",
@@ -1679,8 +1679,8 @@
         "parentTaskUid": null,
         "wbsOrder": 58,
         "name": "🌑 node tools/release_version.mjs Beta・リリースノート(英日)・README の版の行",
-        "start": "2026-11-29T08:42:00",
-        "finish": "2026-11-29T12:42:00",
+        "start": "2026-11-29T16:27:00",
+        "finish": "2026-11-29T20:27:00",
         "milestone": false,
         "deadline": null,
         "notes": "11-02 06:50: 新しい N1（316、11-22 14:59）に合わせ、24 時間 29 分 45 秒後ろへ置いた（順と中身は変えない。BOSS の求め）。",
@@ -1711,8 +1711,8 @@
         "parentTaskUid": null,
         "wbsOrder": 59,
         "name": "🌑 リリースの sha の GT-2 と develop → main の PR",
-        "start": "2026-11-29T12:42:00",
-        "finish": "2026-11-29T15:42:00",
+        "start": "2026-11-29T20:27:00",
+        "finish": "2026-11-29T23:27:00",
         "milestone": false,
         "deadline": null,
         "notes": "11-02 06:50: 新しい N1（316、11-22 14:59）に合わせ、24 時間 29 分 45 秒後ろへ置いた（順と中身は変えない。BOSS の求め）。",
@@ -1743,8 +1743,8 @@
         "parentTaskUid": null,
         "wbsOrder": 60,
         "name": "🌑 Pages の配備(gh workflow run pages.yml --ref main)",
-        "start": "2026-11-29T16:42:00",
-        "finish": "2026-11-29T17:42:00",
+        "start": "2026-11-30T21:15:00",
+        "finish": "2026-11-30T22:15:00",
         "milestone": false,
         "deadline": null,
         "notes": "11-02 06:50: 新しい N1（316、11-22 14:59）に合わせ、24 時間 29 分 45 秒後ろへ置いた（順と中身は変えない。BOSS の求め）。",
@@ -2146,8 +2146,8 @@
         "parentTaskUid": null,
         "wbsOrder": 74,
         "name": "🌖 オーナー: PR を見て main へ合流する",
-        "start": "2026-11-29T15:42:00",
-        "finish": "2026-11-29T16:42:00",
+        "start": "2026-11-30T06:45:00",
+        "finish": "2026-11-30T21:15:00",
         "milestone": false,
         "deadline": null,
         "notes": "11-02 06:50: 新しい N1（316、11-22 14:59）に合わせ、24 時間 29 分 45 秒後ろへ置いた（順と中身は変えない。BOSS の求め）。",
@@ -2178,8 +2178,8 @@
         "parentTaskUid": null,
         "wbsOrder": 75,
         "name": "🌖 オーナー: Beta のタグを打ち、GitHub Release を作る",
-        "start": "2026-11-29T17:42:00",
-        "finish": "2026-11-29T18:42:00",
+        "start": "2026-11-30T22:15:00",
+        "finish": "2026-11-30T23:15:00",
         "milestone": false,
         "deadline": null,
         "notes": "11-02 06:50: 新しい N1（316、11-22 14:59）に合わせ、24 時間 29 分 45 秒後ろへ置いた（順と中身は変えない。BOSS の求め）。",
@@ -4318,8 +4318,8 @@
         "parentTaskUid": null,
         "wbsOrder": 165,
         "name": "🌑 CR-853(拡大縮小の戦略)の当て",
-        "start": "2026-11-28T11:47:51",
-        "finish": "2026-11-28T12:17:51",
+        "start": "2026-11-29T05:12:00",
+        "finish": "2026-11-29T05:42:00",
         "milestone": false,
         "deadline": null,
         "notes": "CR-851 の当て（296）の後。見積は 1 つの CR の当ての実績の中央値 36.5 分（CR-825・826・830・831・767 の 3 波・768 C）を 15 分に丸めて 30 分。 11-02 06:50: 新しい N1（316、11-22 14:59）に合わせ、24 時間 29 分 45 秒後ろへ置いた（順と中身は変えない。BOSS の求め）。",
@@ -4334,7 +4334,7 @@
         "fadeOutDays": null,
         "dependencies": [
           {
-            "predecessorUid": 296,
+            "predecessorUid": 537,
             "linkType": 1,
             "linkLag": 0,
             "lagFormat": 7,
@@ -4342,7 +4342,7 @@
             "carryElements": []
           },
           {
-            "predecessorUid": 537,
+            "predecessorUid": 543,
             "linkType": 1,
             "linkLag": 0,
             "lagFormat": 7,
@@ -4358,8 +4358,8 @@
         "parentTaskUid": null,
         "wbsOrder": 166,
         "name": "🌑 CR-854(変更履歴の窓・パレットのボタン・履歴を足す/直す/消す命令)の起草と当て",
-        "start": "2026-11-28T11:47:51",
-        "finish": "2026-11-28T14:17:51",
+        "start": "2026-11-29T05:12:00",
+        "finish": "2026-11-29T07:42:00",
         "milestone": false,
         "deadline": null,
         "notes": "利用者「調整役にいって「あとで」CRを起こしてもらえ。 一旦は計画をJSONに書いてもらうだけでいい。」（JDG-3332）。パレットの下の段の右端（二重カーソルから離す。履歴があれば緑）・窓は新しい順、列は changedAt・affectedArea・changeDescription・reason・note・changedBy、1 つ消す/全部消す（全部のときだけ問う）、取り消せる、ほかの検索の窓と同じ絞り、タスクへは飛ばない・applyCommands の命令。文書の形は CR-851 にある。CR-851 の当て（296）の後。見積は名前付きのフィルタの起草 243 と実装 245 の見積の和。 11-02 06:50: 新しい N1（316、11-22 14:59）に合わせ、24 時間 29 分 45 秒後ろへ置いた（順と中身は変えない。BOSS の求め）。",
@@ -4374,7 +4374,7 @@
         "fadeOutDays": null,
         "dependencies": [
           {
-            "predecessorUid": 296,
+            "predecessorUid": 537,
             "linkType": 1,
             "linkLag": 0,
             "lagFormat": 7,
@@ -4382,7 +4382,7 @@
             "carryElements": []
           },
           {
-            "predecessorUid": 537,
+            "predecessorUid": 543,
             "linkType": 1,
             "linkLag": 0,
             "lagFormat": 7,
@@ -4485,10 +4485,10 @@
         "wbsOrder": 170,
         "name": "🌒 CR-851 の当て(GRS JSON の組み替えと変換の案内)",
         "start": "2026-11-27T07:41:00",
-        "finish": "2026-11-28T10:52:00",
+        "finish": "2026-11-28T12:45:00",
         "milestone": false,
         "deadline": null,
-        "notes": "レビューの全部の行が OK になってから（295 の後）。見積は CR-767 の 3 つの波の実績の合計 186 分から 3 時間。 10-29: 用語集の確定（301）と行ごとのレビュー（295）の後。 12:09: CR-851 の当ての実装の SUB のモデルと努力: Opus 5.5・high（仕様・設計・実装・レビューの SUB の既定）。表を外れる時は調整役が理由の 1 行を送る。 12:19: JDG-3512 で機能の名が delayDiagnosis になり、Agent API の名が変わる。CR-851 の当てがこの名を持つ。見積と予定は動かしていない（予定の引き直しは調整役が求めた時、問 8）。 11-02 06:50: 新しい N1（316、11-22 14:59）に合わせ、24 時間 29 分 45 秒後ろへ置いた（順と中身は変えない。BOSS の求め）。 pmo-6 2026-11-24T00:11: now waits for B15 (391), the merge of the new standards work before the beta (study 82). pmo-7 2026-11-27T06:57: seat (local_bf5c6d0f) up 06:56; prepares only until B15 (391) ends. pmo-7 2026-11-28T07:52: BOSS 6th: past preparing: CR-851 apply 2 (local_2c46bfaf, from 11-28 07:04) does the beta JSON reshape now. Start = the first CR-851 commit 66761b54a (11-27 07:41, the converter page). It no longer waits B15 (391); 391 now feeds the last merge (228) directly. Finish = now + 3 h (provisional; no estimate yet).",
+        "notes": "レビューの全部の行が OK になってから（295 の後）。見積は CR-767 の 3 つの波の実績の合計 186 分から 3 時間。 10-29: 用語集の確定（301）と行ごとのレビュー（295）の後。 12:09: CR-851 の当ての実装の SUB のモデルと努力: Opus 5.5・high（仕様・設計・実装・レビューの SUB の既定）。表を外れる時は調整役が理由の 1 行を送る。 12:19: JDG-3512 で機能の名が delayDiagnosis になり、Agent API の名が変わる。CR-851 の当てがこの名を持つ。見積と予定は動かしていない（予定の引き直しは調整役が求めた時、問 8）。 11-02 06:50: 新しい N1（316、11-22 14:59）に合わせ、24 時間 29 分 45 秒後ろへ置いた（順と中身は変えない。BOSS の求め）。 pmo-6 2026-11-24T00:11: now waits for B15 (391), the merge of the new standards work before the beta (study 82). pmo-7 2026-11-27T06:57: seat (local_bf5c6d0f) up 06:56; prepares only until B15 (391) ends. pmo-7 2026-11-28T07:52: BOSS 6th: past preparing: CR-851 apply 2 (local_2c46bfaf, from 11-28 07:04) does the beta JSON reshape now. Start = the first CR-851 commit 66761b54a (11-27 07:41, the converter page). It no longer waits B15 (391); 391 now feeds the last merge (228) directly. Finish = now + 3 h (provisional; no estimate yet). pmo-7 2026-11-28T08:15: BOSS 6th: the apply 2 seat estimates 7 h (5..9 h): test-premise rewrite 2-3 h, 11 collation items + zoom (a) 1 h, comments + spec-only tester 1 h, check reds 1 h, re-merge after B15 + spec text 1-2 h, gates 1 h. The part before B15 (4.5 h from now) stays here; the re-merge after B15 and the gates are 543.",
         "calendarUid": null,
         "actualStart": "2026-11-27T07:41:00",
         "stop": null,
@@ -4988,8 +4988,8 @@
         "parentTaskUid": null,
         "wbsOrder": 190,
         "name": "🌑 W4(アダプタ層の分割)の前半 CR-578→579→580 の実装(偶然の写し DFC-1071〜1073)",
-        "start": "2026-11-28T11:47:51",
-        "finish": "2026-11-28T13:17:51",
+        "start": "2026-11-29T05:12:00",
+        "finish": "2026-11-29T06:42:00",
         "milestone": false,
         "deadline": null,
         "notes": "10-25: 枝 w4-first-half が 10-24 06:09〜07:53 に分け方の計画を書いて止めた（286、利用者の優先の順で CR-851 が先）。CR-851 の当て（296）の後に再開する。 11-02 06:50: 新しい N1（316、11-22 14:59）に合わせ、24 時間 29 分 45 秒後ろへ置いた（順と中身は変えない。BOSS の求め）。",
@@ -5004,7 +5004,7 @@
         "fadeOutDays": null,
         "dependencies": [
           {
-            "predecessorUid": 296,
+            "predecessorUid": 537,
             "linkType": 1,
             "linkLag": 0,
             "lagFormat": 7,
@@ -5012,7 +5012,7 @@
             "carryElements": []
           },
           {
-            "predecessorUid": 537,
+            "predecessorUid": 543,
             "linkType": 1,
             "linkLag": 0,
             "lagFormat": 7,
@@ -5161,8 +5161,8 @@
         "parentTaskUid": null,
         "wbsOrder": 196,
         "name": "🌑 CR-848・849(ダークの任意色・ハイパーリンク)の当て —— CR-851 の後、848 → 849 の順",
-        "start": "2026-11-28T11:47:51",
-        "finish": "2026-11-28T13:17:51",
+        "start": "2026-11-29T05:12:00",
+        "finish": "2026-11-29T06:42:00",
         "milestone": false,
         "deadline": null,
         "notes": "10-25: 利用者が 1 週間かけて行ごとにレビューする（2026-10-25「ちなみにJSONとAPIはあと1週間かけて丁寧にレビューする。 それぐらいの価値があるだろ？」）。CR-851 の当て（296）の後。 11-02 06:50: 新しい N1（316、11-22 14:59）に合わせ、24 時間 29 分 45 秒後ろへ置いた（順と中身は変えない。BOSS の求め）。",
@@ -5185,7 +5185,7 @@
             "carryElements": []
           },
           {
-            "predecessorUid": 296,
+            "predecessorUid": 537,
             "linkType": 1,
             "linkLag": 0,
             "lagFormat": 7,
@@ -5193,7 +5193,7 @@
             "carryElements": []
           },
           {
-            "predecessorUid": 537,
+            "predecessorUid": 543,
             "linkType": 1,
             "linkLag": 0,
             "lagFormat": 7,
@@ -5617,8 +5617,8 @@
         "parentTaskUid": null,
         "wbsOrder": 211,
         "name": "🌑 ハイパーリンクとダークの任意色の仕様だけを読む試験(別のサブエージェント)",
-        "start": "2026-11-28T13:17:51",
-        "finish": "2026-11-28T14:02:51",
+        "start": "2026-11-29T06:42:00",
+        "finish": "2026-11-29T07:27:00",
         "milestone": false,
         "deadline": null,
         "notes": "作り手は自分の単位を試験しない。 11-02 06:50: 新しい N1（316、11-22 14:59）に合わせ、24 時間 29 分 45 秒後ろへ置いた（順と中身は変えない。BOSS の求め）。",
@@ -10896,6 +10896,46 @@
         ],
         "carry": {},
         "carryElements": []
+      },
+      {
+        "uid": 543,
+        "parentTaskUid": null,
+        "wbsOrder": 401,
+        "name": "🌑 CR-851 の当ての残り: B15 の後に develop を取り込み直し、仕様の文を合わせて関門を通す(SUB)",
+        "start": "2026-11-29T02:42:00",
+        "finish": "2026-11-29T05:12:00",
+        "milestone": false,
+        "deadline": null,
+        "notes": "pmo-6 2026-11-28T08:15: BOSS 6th line 11-28: the CR-851 apply 2 seat re-merges develop after B15; re-merge + spec text 1-2 h and gates 1 h = 2.5 h (middle of the seat estimate).",
+        "calendarUid": null,
+        "actualStart": null,
+        "stop": null,
+        "actualFinish": null,
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 0,
+        "fadeInDays": null,
+        "fadeOutDays": null,
+        "dependencies": [
+          {
+            "predecessorUid": 296,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          },
+          {
+            "predecessorUid": 391,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          }
+        ],
+        "carry": {},
+        "carryElements": []
       }
     ],
     "resources": [],
@@ -12581,6 +12621,10 @@
       },
       {
         "taskUid": 542,
+        "taskGroupId": "5321b390-7f24-598b-8fb6-6de6c53cf32f"
+      },
+      {
+        "taskUid": 543,
         "taskGroupId": "5321b390-7f24-598b-8fb6-6de6c53cf32f"
       }
     ],
@@ -15416,6 +15460,14 @@
         "fillColor": "blue",
         "strokeColor": null,
         "strokeWidthPx": null
+      },
+      {
+        "taskUid": 543,
+        "shapeKind": "rectangle",
+        "milestoneGlyph": "diamond",
+        "fillColor": "blue",
+        "strokeColor": null,
+        "strokeWidthPx": null
       }
     ],
     "commentBoxes": [
@@ -17424,10 +17476,10 @@
     "zoomY": 1.099862517185352
   },
   "documentStamp": {
-    "scheduleUpdatedAt": "2026-11-27T23:01:00Z",
+    "scheduleUpdatedAt": "2026-11-27T23:15:00Z",
     "lastEditedBy": "PMO child session",
     "settingsUpdatedAt": "2026-10-20T20:24:42Z",
-    "fileSavedAt": "2026-11-27T23:01:00Z"
+    "fileSavedAt": "2026-11-27T23:15:00Z"
   },
   "changeLog": [
     {
@@ -18419,6 +18471,12 @@
       "editedBy": "PMO child session",
       "explanation": "Fact at 11-28 08:01 JST: BOSS 6th line, the GT-2 run 10 (535) waits the owner stopping OneDrive (538); B1 392 closed, its rest is 540 after team T (539); new glossary label seat 542 after the owner order 541; open tasks with past dates re-placed from now.",
       "changedAt": "2026-11-27T23:01:00Z"
+    },
+    {
+      "ordinal": 166,
+      "editedBy": "PMO child session",
+      "explanation": "Fact at 11-28 08:15 JST: BOSS 6th line, CR-851 apply 2 estimates 7 h (5..9 h) and re-merges develop after B15: 296 keeps 4.5 h from now, new task 543 (2.5 h) follows 296 and B15, and the CR-848/849, CR-853, CR-854 and W4 steps wait 543.",
+      "changedAt": "2026-11-27T23:15:00Z"
     }
   ]
 }
