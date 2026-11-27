@@ -6903,17 +6903,17 @@
    }
   },
   {
-   "specTableRowId": "RQ-2",
-   "text": {
-    "ja": "担当名",
-    "en": "Resource"
-   }
-  },
-  {
    "specTableRowId": "RQ-3",
    "text": {
     "ja": "選択",
     "en": "Selected"
+   }
+  },
+  {
+   "specTableRowId": "RQ-2",
+   "text": {
+    "ja": "担当名",
+    "en": "Resource"
    }
   },
   {

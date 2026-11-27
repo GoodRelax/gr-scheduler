@@ -12,13 +12,13 @@ what this reading does not see.
 
 | place | T-218 | T-334 | files | case sites | expected-to-fail marks | known-red lines | need the MSPDI XSDs | tied to no spec row |
 | --- | --- | --- | --: | --: | --: | --: | --: | --: |
-| `contract` | TS-5 | VT-2 | 475 | 6265 | 9 | 4 | 11 | 6 |
+| `contract` | TS-5 | VT-2 | 476 | 6277 | 9 | 4 | 11 | 6 |
 | `integration` | TS-2 | - | 3 | 76 | 0 | 0 | 0 | 0 |
 | `nfr` | TS-4 | VT-3 | 3 | 17 | 0 | 0 | 0 | 0 |
 | `system` | TS-3 | - | 106 | 668 | 0 | 0 | 0 | 1 |
 | `unit` | TS-6 | - | 197 | 4108 | 1 | 1 | 2 | 0 |
 | `use-case` | TS-1 | VT-1 | 14 | 17 | 1 | 2 | 0 | 0 |
-| **all** | | | 798 | 11151 | 11 | 7 | 13 | 7 |
+| **all** | | | 799 | 11163 | 11 | 7 | 13 | 7 |
 
 "Case sites" counts the `it(` / `test(` / `.each` calls in the source; a site driven by
 `.each` or a loop runs more cases than it counts here.
@@ -416,7 +416,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/contract/cr-721-ic-153-the-clear-entry-takes-the-views-and-keeps-the-rest.contract.test.ts` | 15 | FR-092, FR-134, FR-151 | - | T-109, T-330, T-346 | IC-122, IC-143, IC-153, RW-2, SQ-10, SV-1, TV-2 | - | - | - | - |
 | `tests/contract/cr-721-sv-18-rw-9-the-measured-widths-and-their-floor.contract.test.ts` | 14 | FR-151 | - | T-019a, T-206, T-330, T-346 | DG-1, DG-4, DT-1, DT-3, DT-5, DT-6, DT-9, IC-122, RW-9, S-425, S-465, S-496, SQ-5, SQ-10, SV-7, SV-18 | - | - | - | - |
 | `tests/contract/cr-721-sv-7-sq-10-the-filtered-mark-and-the-visibility-column.contract.test.ts` | 27 | FR-134, FR-151 | - | T-330, T-331, T-346 | IC-122, IC-123, IC-124, RW-2, SQ-10, SV-6, SV-7, SV-8, TV-2 | - | - | - | - |
-| `tests/contract/cr-722-ro-rq-the-resource-list-is-a-table-window.contract.test.ts` | 9 | FR-099 | - | T-370, T-371 | IC-52, IC-129, RO-4, RO-5, RO-7, RQ-1, RQ-2, RQ-5, SV-12, SV-14, U-49 | - | - | - | - |
+| `tests/contract/cr-722-ro-rq-the-resource-list-is-a-table-window.contract.test.ts` | 9 | FR-099 | - | T-370, T-371 | IC-52, IC-129, RO-4, RO-5, RO-7, RQ-1, RQ-2, RQ-3, RQ-4, RQ-5, SV-12, SV-14, U-49 | - | - | - | - |
 | `tests/contract/cr-722-tv-1-tv-2-tv-13-the-drawn-set-is-the-product-of-the-tables.contract.test.ts` | 23 | FR-151 | - | T-353 | IC-143, TV-1, TV-2, TV-5, TV-7, TV-13 | - | - | - | - |
 | `tests/contract/cr-722-tv-11-the-schedule-filter-bar-names-the-tables.contract.test.ts` | 6 | FR-151 | - | T-353 | TV-11, U-67 | - | - | - | - |
 | `tests/contract/cr-722-tv-5-tv-8-dt-8-each-table-holds-its-own-visibility.contract.test.ts` | 15 | FR-134, FR-151 | - | T-346, T-347, T-353 | DT-8, IC-143, RW-10, S-560, S-561, S-564, S-565, S-568, S-569, TV-2, TV-5, TV-6, TV-8 | - | - | - | - |
@@ -560,6 +560,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/contract/cr-830-a-plan-end-takes-the-margin-of-a-dependency-line.test.ts` | 6 | FR-104 | - | T-266 | GA-2, GA-19, RP-1, S-253, S-285 | - | - | - | - |
 | `tests/contract/cr-850-the-status-line-the-cursors-and-the-grabs-snap-to-fifteen-minutes.contract.test.ts` | 18 | FR-046 | - | T-378 | CU-3, SG-1, SG-2, TX-3, WT-4 | - | - | - | - |
 | `tests/contract/cr-858-op-19-a-dropped-grs-json-opens-without-the-chooser.contract.test.ts` | 7 | - | - | T-024a | OP-2, OP-3, OP-4, OP-19, QN-5, U-56 | - | - | - | - |
+| `tests/contract/cr-861-the-resource-list-puts-the-selected-column-before-the-resource-name.contract.test.ts` | 12 | - | - | T-370, T-371 | IC-67, IC-68, RO-5, RO-7, RQ-1, RQ-2, RQ-3, RQ-4, RQ-5, U-49 | - | - | - | - |
 | `tests/contract/dfc-1000-hf-10-the-open-all-stance-counts-every-placed-task-group.test.ts` | 9 | - | - | T-051, T-109 | HF-2, HF-10, IC-58, IC-74, RS-31 | - | - | - | - |
 | `tests/contract/dfc-1013-tl-12-the-delay-days-are-told-only-in-the-ez-6-tip.test.ts` | 8 | FR-047 | - | T-038, T-348 | DG-4, DX-10, EZ-6, OC-8, TL-12 | - | - | - | - |
 | `tests/contract/dfc-1015-fr-019-a-hidden-end-task-group-shrinks-the-frame.test.ts` | 5 | FR-019, UC-008 | - | - | - | - | - | - | - |
