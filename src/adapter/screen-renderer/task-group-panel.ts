@@ -289,14 +289,80 @@ function panelIndexWithArmingOf(
   isLevelZeroCollapsed: boolean,
 ): PanelIndex {
   return {
-    ...panelIndexOf(schedule, readings, isLevelZeroCollapsed),
+    ...panelIndexOf(schedule, readings, isLevelZeroCollapsed, drawnPinIdsOf(settings, readings)),
     ...openArmingOf(schedule, settings, readings),
   }
 }
 
+// Spec: FR-098, TD-2, TD-3
+/** @purity pure */
+function drawnPinIdsOf(settings: DrawnSettings, readings: ScreenViewReadings): ReadonlySet<string> {
+  const placed = placedRowIdsOf(readings)
+  return new Set(settings.pinnedTaskGroupIds.filter((taskGroupId) => placed.has(taskGroupId)))
+}
+
+// Trap: visited guards a parentId ring; without it the walk never returns.
+/** @purity pure */
+function deepestFirstOf(childrenByParentId: ReadonlyMap<string | null, readonly TaskGroup[]>): readonly TaskGroup[] {
+  const orderedDeepestFirst: TaskGroup[] = []
+  const visited = new Set<string>()
+  /** @purity pure */
+  const walkDeepestFirst = (parentId: string | null): void => {
+    for (const child of childrenByParentId.get(parentId) ?? []) {
+      if (visited.has(child.id)) continue
+      visited.add(child.id)
+      walkDeepestFirst(child.id)
+      orderedDeepestFirst.push(child)
+    }
+  }
+  walkDeepestFirst(null)
+  return orderedDeepestFirst
+}
+
+// Spec: HF-12, HF-13, FR-098
+// Why: a drawn pin adds no count, so a fold above it counts only the task groups out of view (CR-862).
+/** @purity pure */
+function foldedCountsOf(
+  childrenByParentId: ReadonlyMap<string | null, readonly TaskGroup[]>,
+  drawnPinIds: ReadonlySet<string>,
+  isLevelZeroCollapsed: boolean,
+): Pick<IndexCore, 'foldedTaskGroupCountByTaskGroupId' | 'foldedTaskGroupCountAtLevelZero'> {
+  const foldedTaskGroupCountByTaskGroupId = new Map<string, number>()
+  const subtreeSizeByTaskGroupId = new Map<string, number>()
+  for (const group of deepestFirstOf(childrenByParentId)) {
+    let subtreeSize = drawnPinIds.has(group.id) ? 0 : 1
+    let folded = 0
+    for (const child of childrenByParentId.get(group.id) ?? []) {
+      const childSubtree = subtreeSizeByTaskGroupId.get(child.id) ?? 1
+      subtreeSize += childSubtree
+      folded +=
+        group.treeState === 'collapsed' || child.treeState === 'hidden'
+          ? childSubtree
+          : (foldedTaskGroupCountByTaskGroupId.get(child.id) ?? 0)
+    }
+    subtreeSizeByTaskGroupId.set(group.id, subtreeSize)
+    foldedTaskGroupCountByTaskGroupId.set(group.id, folded)
+  }
+
+  let foldedTaskGroupCountAtLevelZero = 0
+  for (const root of childrenByParentId.get(null) ?? []) {
+    const subtreeSize = subtreeSizeByTaskGroupId.get(root.id) ?? 1
+    foldedTaskGroupCountAtLevelZero +=
+      isLevelZeroCollapsed || root.treeState === 'hidden'
+        ? subtreeSize
+        : (foldedTaskGroupCountByTaskGroupId.get(root.id) ?? 0)
+  }
+  return { foldedTaskGroupCountByTaskGroupId, foldedTaskGroupCountAtLevelZero }
+}
+
 // Spec: HF-12, HF-13, HF-18
 /** @purity pure */
-function panelIndexOf(schedule: Schedule, readings: ScreenViewReadings, isLevelZeroCollapsed: boolean): IndexCore {
+function panelIndexOf(
+  schedule: Schedule,
+  readings: ScreenViewReadings,
+  isLevelZeroCollapsed: boolean,
+  drawnPinIds: ReadonlySet<string>,
+): IndexCore {
   const groupsById = new Map<string, TaskGroup>()
   const childrenByParentId = new Map<string | null, TaskGroup[]>()
   for (const group of schedule.taskGroups) {
@@ -319,45 +385,12 @@ function panelIndexOf(schedule: Schedule, readings: ScreenViewReadings, isLevelZ
     taskGroupIdsWithDrawnChildren.add(group.parentId)
   }
 
-  const foldedTaskGroupCountByTaskGroupId = new Map<string, number>()
-  const subtreeSizeByTaskGroupId = new Map<string, number>()
-  const orderedDeepestFirst: TaskGroup[] = []
-  // Trap: visited guards a parentId ring; without it the walk never returns.
-  const visited = new Set<string>()
-  /** @purity pure */
-  const walkDeepestFirst = (parentId: string | null): void => {
-    for (const child of childrenByParentId.get(parentId) ?? []) {
-      if (visited.has(child.id)) continue
-      visited.add(child.id)
-      walkDeepestFirst(child.id)
-      orderedDeepestFirst.push(child)
-    }
-  }
-  walkDeepestFirst(null)
-  for (const group of orderedDeepestFirst) {
-    let subtreeSize = 1
-    let folded = 0
-    for (const child of childrenByParentId.get(group.id) ?? []) {
-      const childSubtree = subtreeSizeByTaskGroupId.get(child.id) ?? 1
-      subtreeSize += childSubtree
-      folded +=
-        group.treeState === 'collapsed' || child.treeState === 'hidden'
-          ? childSubtree
-          : (foldedTaskGroupCountByTaskGroupId.get(child.id) ?? 0)
-    }
-    subtreeSizeByTaskGroupId.set(group.id, subtreeSize)
-    foldedTaskGroupCountByTaskGroupId.set(group.id, folded)
-  }
-
   const rootGroups = childrenByParentId.get(null) ?? []
-  let foldedTaskGroupCountAtLevelZero = 0
-  for (const root of rootGroups) {
-    const subtreeSize = subtreeSizeByTaskGroupId.get(root.id) ?? 1
-    foldedTaskGroupCountAtLevelZero +=
-      isLevelZeroCollapsed || root.treeState === 'hidden'
-        ? subtreeSize
-        : (foldedTaskGroupCountByTaskGroupId.get(root.id) ?? 0)
-  }
+  const { foldedTaskGroupCountByTaskGroupId, foldedTaskGroupCountAtLevelZero } = foldedCountsOf(
+    childrenByParentId,
+    drawnPinIds,
+    isLevelZeroCollapsed,
+  )
 
   return {
     groupsById,
