@@ -31,6 +31,7 @@ const answerReview = async (page: Page, id: 'IC-95' | 'IC-96' | 'IC-97'): Promis
   await settle(page)
 }
 
+// Spec: MG-3, MG-9
 test('SCN-39 SCN-53 SCN-55 SCN-56 UC-014 merge several schedules into one (FR-022 T-032a MM-1 MM-2 MM-4, FR-056, OP-3 IC-72, U-61) @UC-010.OK @UC-014.OK', async ({ page }) => {
   test.setTimeout(120000)
   await launch(page)

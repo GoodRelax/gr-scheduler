@@ -1,55 +1,4 @@
-// `FR-023` (利用者の裁定 2026-09-06「その様な無効なデータは削除して残りを取り込
-// め」, CR-368, ledger row DFC-275): a `Task` whose date column names no day, or
-// falls outside table T-214, is DROPPED and the rest of the file is taken in --
-// never a whole-file refusal, and never a question put to a person. What was
-// dropped is told afterwards, by NAME, never by count, and never translated.
-//
-// ⚠️ Chapter 9 admits no Unit as a TEST_LEVEL, so these cases have no node in
-// the specification. 表 T-218 of Chapter 7 gives them their place: TS-6,
-// tests/unit/.
-//
-// ---------------------------------------------------------------------------
-// ⭐⭐ THE CLAUSES, VERBATIM (docs/spec/01-04-requirements.md, `FR-023`) -- each
-// window ends at its own marker's closing parenthesis, which is the unit check
-// 39 (`check-must-clause-coverage.py`) measures a clause by.
-// ---------------------------------------------------------------------------
-//
-//   「その行を落として残りを取り込むこと（MUST）。人に選ばせてはならない
-//    （MUST NOT）」（利用者の裁定 2026-09-06）
-//   「落としたものは 表 T-050 の `CD-1` に従うこと（MUST）」
-//   「取り込んだあとで、落とした `Task` の名前を並べて告げること（MUST）」
-//   「件数だけを告げて済ませてはならない（MUST NOT）」
-//   「名前は文書の値であるので訳さない（MUST NOT）」
-//
-// ---------------------------------------------------------------------------
-// Unit under test: UF-48 of 表 T-075 (`frame-loop.ts`, `CP-25` of 表 T-062) --
-// LY-5 of 表 T-060 leaves the Framework the only layer that may hold a current
-// value, so the open road, the drop and the surface it raises are all there.
-//
-// ⛔ WRITTEN FROM docs/spec, PLUS ONLY THE PUBLISHED SIGNATURES AND TYPES (docs/
-// development-rules/04-verification.md §1): `frameLoop`, `FrameEnvironment`,
-// `ScreenWiring`, `FileStore` / `FileReading`, `ScreenSurface` / `ScreenView` /
-// `OpenModal`. NO FUNCTION BODY was read to decide what a case expects -- every
-// expected value is FR-023's or table T-050's own wording. The open/replace
-// harness (`fileStore`, `takeEntry`, `answerQuestion`, `openAFile`) is copied in
-// shape from tests/unit/uf-47-48-choosers.test.ts, which drives the same OP-3 /
-// OP-4 road this file drives the drop through.
-//
-// ---------------------------------------------------------------------------
-// ⚠️ WHAT IS DELIBERATELY NOT ASSERTED
-// ---------------------------------------------------------------------------
-//  1. THE OTHER INVARIANTS OF TABLE T-220 (rings, depth cap, resource ceilings).
-//     FR-023's own text keeps those a WHOLE-FILE refusal; this file's dates
-//     alone are the ones dropped row-by-row, and no case here builds a second
-//     kind of violation to see what happens to it.
-//  2. THE IMPORT REPORT'S DOM FACE (dom-screen-surface.ts drawing the modal, or
-//     the OK press). frame-loop.ts's own STOP note records that both are absent
-//     this round and owned by other hands -- this file reads the `ScreenView`
-//     description directly, the same way tests/unit/uf-47-48-choosers.test.ts
-//     reads `openModal` for the other two OP-3 answers.
-//  3. THE MERGE OR OVERLAY ROADS (OP-3's other two answers). RD-4 (replace) is
-//     the one road FR-023's ruling was written against; the other two are a
-//     separate case entirely.
+// Unit tests: a Task with an unusable date is dropped, the rest is taken in, and the dropped names are told.
 
 import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
@@ -83,26 +32,19 @@ import {
 } from '../../src/framework/single-html-shell/frame-loop'
 import { bare, specTable, type SpecRow, type SpecTable, unbroken } from '../contract/spec-table'
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
-// ===========================================================================
-// 1. The manuscript, read at run time rather than copied
-// ===========================================================================
+/* eslint-disable @typescript-eslint/no-explicit-any -- the harness reads document and modal fields and patches globals the types close */
 
 const REQUIREMENTS = unbroken(readRepoFile(
   join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'),
   'utf8',
 ))
 
-/** ⭐⭐ 利用者の裁定 2026-09-06: drop the row and take the rest in, never ask. */
 const FR_023_DROP_AND_TAKE_IN =
   'その行を落として残りを取り込むこと。\n\n**表 T-647 — 使えない日付を持つ行を落として取り込むことの実装仕様**\n\n| 行 ID | 何についてか | 実装仕様 | traces |\n| --- | --- | --- | --- |\n| IMPS-934 | 文書が使えない日付 | `GRS` は、日付の列が「文書が使えない日付」を持つ入力を、黙って取り込まないこと。「文書が使えない日付」とは、日として読めない値（空文字を含む）と、表 T-214 の範囲の外にある値をいう。`GRS` は、空文字を特例にしないこと。 | FR-341 |\n| IMPS-935 | 人に選ばせること | `GRS` は、使えない日付を持つ入力の扱いを人に選ばせないこと。'
 
-/** ⭐ CD-1's cascade, and the MUST to tell the dropped names afterwards. */
 const FR_023_CD1_AND_TELL_NAMES =
   '`GRS` は、落としたものを 表 T-050 の `CD-1` に従わせること。 | FR-341 |\n| IMPS-937 | 落とした `Task` を告げること | 取り込んだあとで、`GRS` は、落とした `Task` の名前を並べて告げること'
 
-/** ⛔ MUST NOT a count, MUST NOT translated. */
 const FR_023_NOT_COUNT_NOT_TRANSLATED =
   'NT-8` が持つ。`GRS` は、落とした `Task` の件数だけを告げて済ませないこと。`GRS` は、告げる名前を訳さないこと。'
 
@@ -120,10 +62,6 @@ describe('FR-023 -- the manuscript this file is driven by', () => {
   })
 })
 
-// ===========================================================================
-// 2. The tables, read out of the manuscript rather than copied
-// ===========================================================================
-
 const T_103: SpecTable = specTable('T-103')
 
 function rowOf(table: SpecTable, id: string): SpecRow {
@@ -132,18 +70,14 @@ function rowOf(table: SpecTable, id: string): SpecRow {
   return found
 }
 
-/** The settled name table T-103 gives one UI part. */
 function partNameOf(id: string): string {
   const name = bare(rowOf(T_103, id).by['確定名（英）'] ?? '')
   if (name === '') throw new Error(`table T-103 row ${id} names no UI part`)
   return name
 }
 
-/** U-56 -- the surface OP-3's question stands on. */
 const OPEN_CHOOSER = partNameOf('U-56')
-/** U-55 -- the surface NT-7's question stands on, which OP-4 sends the replacement to. */
 const CONFIRMATION = partNameOf('U-55')
-/** U-62 -- FR-023's own surface, the one this file is about. */
 const IMPORT_REPORT = partNameOf('U-62')
 
 const T_036: SpecTable = specTable('T-036')
@@ -155,7 +89,6 @@ const assignmentsIn = (cell: string): readonly (readonly string[])[] =>
     .map((one) => [...one.matchAll(/`([^`]+)`/g)].map((span) => span[1] ?? ''))
     .filter((keys) => keys.length > 0)
 
-/** One row of table T-036, spelled as its assignment column spells it. */
 function keyOf(id: string): KeyInput {
   const parts = assignmentsIn(rowOf(T_036, id).by['割当'] ?? '')[0] ?? []
   const last = parts[parts.length - 1]
@@ -173,17 +106,9 @@ function keyOf(id: string): KeyInput {
   }
 }
 
-/** SK-10 -- the one entrance OP-2 allows for opening a document. */
 const SK_10 = keyOf('SK-10')
 
-/** The key the manuscript spells for going on with a confirmation (rule 03 section 1). */
 const PROCEED_ANSWER = 'proceed'
-
-// ===========================================================================
-// 3. The documents. Current: one valid task group. Incoming: a good Task, a Task with
-//    an unusable date, and that Task's own WBS child (valid dates) -- so the
-//    cascade (CD-1) is what has to remove the child, not a second bad date.
-// ===========================================================================
 
 const TEMPLATE = JSON.parse(
   readRepoFile(
@@ -260,12 +185,8 @@ function documentWith(rowId: string, taskGroupLabel: string, tasks: readonly Tas
 
 const here = (): Document => documentWith(HERE_TASK_GROUP, 'Here', [task({ uid: 1, name: 'HereTask' })])
 
-/**
- * The file being read: one good `Task`, one whose `start` names no day (`IV-14`
- * of table T-220, which FR-023's own text puts in this class), and one valid
- * `Task` that is the BAD one's own WBS child -- so removing it can only be
- * CD-1's cascade, since its own two dates are inside table T-214.
- */
+// Why: the bad Task's WBS child has valid dates, so only CD-1's cascade can remove
+// it; a second bad date would let the case pass without the cascade.
 const there = (): Document =>
   documentWith(THERE_TASK_GROUP, 'There', [
     task({ uid: 11, name: 'GoodTask' }),
@@ -275,11 +196,6 @@ const there = (): Document =>
 
 const uidsOf = (document: Document): number[] =>
   (document as any).schedule.tasks.map((one: Task) => one.uid).sort((a: number, b: number) => a - b)
-
-// ===========================================================================
-// 4. The host, and the OP-3/OP-4 harness -- copied in shape from
-//    tests/unit/uf-47-48-choosers.test.ts, which drives the same road.
-// ===========================================================================
 
 const SCREEN: FrameEnvironment = {
   width: 1000,
@@ -444,7 +360,7 @@ afterEach(() => {
   else (globalThis as any).requestAnimationFrame = realRaf
 })
 
-/** Open, choose IC-71 (replace), and answer OP-4's discard question. */
+// Summary: When called, the harness shall open the file, choose IC-71 (replace) and answer OP-4's discard question.
 async function replacedWith(incoming: Document): Promise<{ loop: FrameLoop; screen: ScreenPane }> {
   const pane = host()
   const screen = screenPane()
@@ -462,10 +378,7 @@ async function replacedWith(incoming: Document): Promise<{ loop: FrameLoop; scre
   return { loop, screen }
 }
 
-// ===========================================================================
-// 5. FR-023 (MUST / MUST NOT): the drop, the cascade, and the telling
-// ===========================================================================
-
+// Spec: FR-023, UF-48, IV-14, CD-1, OP-3, OP-4
 describe('FR-023 -- a Task with an unusable date is dropped, and the rest lands', () => {
   it('⭐⭐ the bad Task and its own WBS child are both gone; the good one lands (CD-1)', async () => {
     const { loop } = await replacedWith(there())
@@ -488,17 +401,16 @@ describe('FR-023 -- a Task with an unusable date is dropped, and the rest lands'
   })
 
   it('⭐⭐ the import was not refused outright: the document really did replace', async () => {
-    // ⛔ WITHOUT THIS, a build that refused the whole file (leaving `Here`
-    // standing) would make the case above pass on the WRONG document.
+    // Why: without this, a build that refused the whole file, leaving `Here`, would
+    // pass the case above on the wrong document.
     const { loop } = await replacedWith(there())
 
     expect((loop.document() as any).schedule.project.title).toBe('There')
   })
 
   it('⭐⭐ nobody was asked which rows to keep: no confirmation stood between OP-3 and the write', async () => {
-    // 「人に選ばせてはならない（MUST NOT）」 -- OP-4's own discard question is the
-    // only question this road owes, and it was already answered before the
-    // write; nothing further should have come up asking about the bad row.
+    // Why: OP-4's discard question is the only one this road owes and it is answered
+    // before the write, so a confirmation still standing asks about the bad row.
     const pane = host()
     const screen = screenPane()
     const files = fileStore()
@@ -534,9 +446,8 @@ describe('FR-023 (MUST) -- the dropped names are told, by name and never by coun
   })
 
   it('⛔⛔ MUST NOT: what travels is the two NAMES, never merely their count', () => {
-    // ⛔ THE SHAPE ITSELF IS THE CLAUSE. `droppedTaskNames` is an array of the
-    // document's own strings -- a build that carried a number here instead
-    // could not equal the array this file asserts above.
+    // Why: the array shape is the clause: a build that carried a count could not
+    // equal the name array asserted above.
     expect(Array.isArray(['BadDateTask', 'BadTaskChild'])).toBe(true)
   })
 

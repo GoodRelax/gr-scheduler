@@ -1,4 +1,4 @@
-// One System sweep for the four clauses CR-354 put into the manuscript: FR-019, IV-19, HM-9 and HM-3 (table T-015a / T-220).
+// System tests: the task group tree, not the screen, decides what is below (T-015a, T-220).
 
 import { expect, test, type Browser, type Page } from '@playwright/test'
 import { specTable, type SpecTable } from '../contract/spec-table'
@@ -386,28 +386,11 @@ async function barBodyOn(page: Page, row: DrawnTaskGroup): Promise<{ x: number; 
   return null
 }
 
-/**
- * The center of the grab strip `GR-20` of table T-023d lays on one task group.
- *
- * ⭐ Held verbatim -- row `GR-20` (table T-023d):
- * 「タスクグループの左端に敷く掴み代」, and 「`GRS` は、タスクグループの左端を、タスクグループの
- * 字下げの後ろとすること。`GRS` は、掴み代をタスクグループ名の直前に立て、段の字下げとともに
- * 動かすこと。」, ⛔「`GRS` は、掴み代をパネルの左端に揃えないこと。」.
- *
- * ⛔⛔ SO NO x IS WRITTEN HERE, AND NONE MAY BE. The strip's x is a function of
- * the task group's depth, and its width is `S-138` of table T-206 -- a settings value
- * that is nobody's to copy. The strip's own box is read off the drawn page
- * instead, so a change to either the indent or `S-138` moves this point with it.
- * ⚠️ Measured 2026-09-05 on the shipped build: at depth 2 the strip ran
- * x 32..48 and the task group's name began at x 52, so a press at x=60 -- what this
- * file did until today -- landed on the NAME and never on the strip.
- *
- * ⛔ `null` ALSO MEANS 「掴めない」 AND NOT ONLY 「見つからない」. GR-20 (MUST
- * NOT): 「`GRS` は、ピン止めしているタスクグループの掴みを成立させないこと」, and the drawing side keeps that by
- * laying no strip at all on a pinned task group -- so a pinned task group answers `null` here.
- *
- * @purity semi-pure-mutable
- */
+// Spec: GR-20, S-138
+// Why: the strip's x follows the depth and S-138, so it is read off the page;
+// a fixed x=60 landed on the task group's name, not on the strip.
+// Summary: The helper shall answer null when no strip is drawn, as on a pinned task group.
+/** @purity semi-pure-mutable */
 async function grabStripCenterOn(
   page: Page,
   id: string,
@@ -446,6 +429,7 @@ function beforeUnderSt2(left: DocTask, right: DocTask): number {
   return 0
 }
 
+// Spec: FR-019, IV-19, IV-10, HM-3, HM-8, HM-9
 test('SCN-8 the task group tree, and not the screen, decides what is below (FR-019 / IV-19 / HM-9 / HM-3) @UC-002.OK', async ({
   baseURL,
 }) => {
@@ -475,9 +459,6 @@ test('SCN-8 the task group tree, and not the screen, decides what is below (FR-0
           expect
             .soft(await pressEntrance(page, HIGHLIGHT_BOX_ENTRANCE), `${HIGHLIGHT_BOX_ENTRANCE} is on the screen`)
             .toBe(true)
-          // ⭐ Held verbatim -- check 39 (must-clause-coverage), row `FR-019`,
-          // manuscript text ending at its own marker:
-          // 「`GRS` は、ハイライトボックスをドラッグでのみ置くこと。」「`GRS` は、クリックではハイライトボックスを置かないこと。」
           expect
             .soft(REACH_PX, 'the drag travels further than S-208, so it is a drag')
             .toBeGreaterThan(PRESS_OR_DRAG_PX)
@@ -491,18 +472,12 @@ test('SCN-8 the task group tree, and not the screen, decides what is below (FR-0
           expect.soft(after?.boxes.length ?? -1, 'FR-019: the drag placed one highlight box').toBe(1)
           if (box !== undefined) {
             placed = true
-            // ⭐ Held verbatim -- check 39, row `FR-019`, manuscript text ending
-            // at its own marker:
-            // 「`start` が `finish` より後のとき、`GRS` は、`start` と `finish` を入れ替えて持つこと。`topTaskGroupId` が `bottomTaskGroupId` より下のとき、`GRS` は、`topTaskGroupId` と `bottomTaskGroupId` を入れ替えて持つこと。作成者がハイライトボックスのドラッグを離したとき、`GRS` は、引いた向きを理由にハイライトボックスを拒まないこと。」
             expect
               .soft(
                 String(box.start) <= String(box.finish),
                 `${IV_19} / FR-019: start ${box.start} is not after finish ${box.finish}`,
               )
               .toBe(true)
-            // ⭐ Held verbatim -- check 39, row `FR-019`, manuscript text ending
-            // at its own marker:
-            // 「— **そちらは `05-07-design.md` の 表 T-220 の `IV-10` と同じ扱いで拒む。**⛔⛔ **その「下」は、タスクグループの木における順位で判ずること（MUST）。画面に描かれた位置で判じてはならない（MUST NOT）」
             expect
               .soft(
                 (rank.get(String(box.topTaskGroupId)) ?? -1) < (rank.get(String(box.bottomTaskGroupId)) ?? -1),
@@ -571,9 +546,6 @@ test('SCN-8 the task group tree, and not the screen, decides what is below (FR-0
         if (box === undefined) continue
         judged = true
 
-        // ⭐ Held verbatim -- check 39, row `FR-019`, the same marker window as
-        // the control case above:
-        // 「— **そちらは `05-07-design.md` の 表 T-220 の `IV-10` と同じ扱いで拒む。**⛔⛔ **その「下」は、タスクグループの木における順位で判ずること（MUST）。画面に描かれた位置で判じてはならない（MUST NOT）」
         expect
           .soft(
             (rank.get(String(box.topTaskGroupId)) ?? -1) < (rank.get(String(box.bottomTaskGroupId)) ?? -1),
@@ -587,9 +559,6 @@ test('SCN-8 the task group tree, and not the screen, decides what is below (FR-0
           )
           .toBe(true)
 
-        // ⭐ Held verbatim -- check 39, row `FR-019`, manuscript text ending at
-        // its own marker:
-        // 「`GRS` は、ハイライトボックスを、画面に出ている 2 つのタスクグループを囲んで描くこと。`GRS` は、ハイライトボックスを木の順で描かないこと。」
         const outlines = await drawnOutlines(page)
         expect
           .soft(outlines.length, 'FR-019: the placed highlight box is drawn as an outline')
@@ -662,9 +631,6 @@ test('SCN-8 the task group tree, and not the screen, decides what is below (FR-0
         const after = await readDocumentShot(page)
         const afterHome = new Map((after?.members ?? []).map((one) => [one.taskUid, one.taskGroupId]))
 
-        // ⭐ Held verbatim -- check 39, row `HM-3` (table T-015a), manuscript
-        // text ending at its own marker:
-        // 「| HM-3 | `GRS` は、タスクバーを別のタスクグループへ移す操作で、親タスクを変えないこと。」
         for (const uid of moved) {
           const was = (before?.tasks ?? []).find((one) => one.uid === uid)
           const is = (after?.tasks ?? []).find((one) => one.uid === uid)
@@ -676,9 +642,6 @@ test('SCN-8 the task group tree, and not the screen, decides what is below (FR-0
             .toBe(was?.parentTaskUid ?? null)
         }
 
-        // ⭐ Held verbatim -- check 39, row `HM-9` (table T-015a), manuscript
-        // text ending at its own marker:
-        // 「トするでよい」）—— **各 `Task` の、同じ親タスクを持つ兄弟の中での順位は、その `Task` を描いているタスクグループの、タスクグループの木における位置で決めること（MUST）。**⛔ **画面に描かれた位置で決めてはならない（MUST NOT）」
         for (const uid of moved) {
           const one = (after?.tasks ?? []).find((task) => task.uid === uid)
           if (one === undefined) continue
@@ -705,9 +668,6 @@ test('SCN-8 the task group tree, and not the screen, decides what is below (FR-0
             .toBe(0)
         }
 
-        // ⭐ Held verbatim -- check 39, row `HM-9` (table T-015a), manuscript
-        // text ending at its own marker:
-        // 「`GRS` は、順位を画面に描いた位置で決めないこと。同じタスクグループに兄弟が複数いるとき、`GRS` は、兄弟の順位を 表 T-014 の `ST-2` の順とすること」 and its reason 「ピン留め（`FR-098`）と折りたたみは画面からタスクグループを動かすが、書き出しは動かない。」
         if (moved.length >= 2) {
           const pair = moved
             .map((uid) => (after?.tasks ?? []).find((task) => task.uid === uid))
@@ -739,10 +699,8 @@ test('SCN-8 the task group tree, and not the screen, decides what is below (FR-0
       const rows = await drawnTaskGroups(page)
       const before = await readDocumentShot(page)
       const groups = before?.groups ?? []
-      // ⛔ GR-20 (MUST NOT): 「`GRS` は、ピン止めしているタスクグループの掴みを成立させないこと」. FR-098 lifts a
-      // pinned task group to the head of the panel and the drawing side keeps the MUST
-      // NOT by laying no strip on it at all -- so a pinned task group is dropped before
-      // a pair is picked, rather than being grabbed at a point that is not there.
+      // Why: a pinned task group carries no grab strip at all (GR-20), so it is
+      // dropped before the pair is picked rather than grabbed at a missing point.
       const pair = rows
         .filter((row) => !row.pinned)
         .map((row) => groups.find((group) => group.id === row.id))
@@ -753,12 +711,6 @@ test('SCN-8 the task group tree, and not the screen, decides what is below (FR-0
       const above = pair[pair.indexOf(sibling as DocGroup) - 1]
       expect.soft(sibling, 'two drawn task groups are siblings under one parent').not.toBeUndefined()
 
-      // ⭐ Held verbatim -- check 39, row `HM-8` (table T-015a), manuscript
-      // text ending at its own marker:
-      // 「| HM-8 | `GRS` は、兄弟どうしを並べ替えられるようにすること。」
-      // ⭐ Held verbatim -- check 39, row `HM-9` (table T-015a), the row's own
-      // opening marker (what this drag ultimately feeds into `HM-9` for):
-      // 「| HM-9 | `GRS` は、並べ替えた順序も WBS へ伝えること。」
       const grab = sibling === undefined ? null : await grabStripCenterOn(page, sibling.id)
       expect
         .soft(grab, `${GR_20} (MUST) lays a grab strip on the task group this drag takes hold of`)
@@ -766,13 +718,8 @@ test('SCN-8 the task group tree, and not the screen, decides what is below (FR-0
 
       if (sibling !== undefined && above !== undefined && grab !== null) {
         const to = rows.find((one) => one.id === above.id) as DrawnTaskGroup
-        // ⭐ THE GRAB IS TAKEN WHERE GR-20 PUT IT, read off the drawn task group --
-        // see `grabStripCenterOn`. ⛔ No x is written here, because GR-20 (MUST)
-        // 「`GRS` は、掴み代をタスクグループ名の直前に立て、段の字下げとともに動かすこと」 moves the
-        // strip with the task group's depth, and until today this case pressed a fixed
-        // x=60 that stood on the task group's NAME.
-        // ⛔ THE SAME x AT BOTH ENDS: `HF-15` (MUST) settles the axis on the
-        // first travel past `S-208`, and this case is about the POSITION axis.
+        // Why: the same x at both ends, since HF-15 settles the axis on the first
+        // travel past S-208 and this case is about the position axis.
         await dragBetween(page, grab, { x: grab.x, y: to.y + 8 })
         const after = await readDocumentShot(page)
         const now = (after?.groups ?? []).find((one) => one.id === sibling.id)

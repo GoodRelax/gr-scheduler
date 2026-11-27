@@ -10,29 +10,37 @@ import { rowOf } from './sws-case'
 
 const FR_036_TITLE_ORDER =
   '`GRS` は、ヘルプのタイトルバーに、左から、題 … 凡例（`IC-102`）・ヘルプの言語の切替（`FR-038` の `IC-128`）・最小化（`IC-129`）・最大化（`IC-130`、最大化しているあいだは同じ場所に `IC-131`）・閉じる入口（`IC-52`）の順に並べ、閉じる入口を右端に置くこと。'
+// Spec: IMPS-1159
 const FR_036_NOTHING_ELSE = '`GRS` は、ヘルプのタイトルバーに、ほかのものを置かないこと。'
 const FR_036_TWO_REGIONS = '`GRS` は、ヘルプを、タイトルバーと本文の 2 つの領域に分け、上下に並べること。'
 const FR_036_BODY_SCROLLS = '`GRS` は、本文の領域だけをスクロールさせること'
+// Spec: IMPS-1160
 const FR_036_TITLE_OUTSIDE_THE_SCROLL =
   '`GRS` は、タイトルバーを本文のスクロールの中に置かないこと。'
+// Spec: IMPS-1176
 const FR_036_GAP = '`GRS` は、説明と割当のあいだを、`_assets/tbl-settings.md` の 表 T-206 の `S-436` を下限としてあけること。'
 const FR_036_RIGHT_END = '`GRS` は、割当を、項目の行の右端（枠の内側の右の縁）へ寄せて置くこと'
 // Why: CR-669 moved the maximized help from the browser window to the Schedule Canvas.
 const FR_036_MAXIMIZED = '`GRS` は、ヘルプを最大化したときに占める範囲を、`Schedule Canvas`（`_assets/tbl-glossary.md` の `U-32`）の全体とすること'
+// Spec: IMPS-1162
 const FR_036_NOT_A_SURFACE =
   '`GRS` は、ヘルプを `_assets/tbl-settings.md` の `S-99g` の面として扱わないこと。ほかの面が立ったとき、`GRS` はヘルプを閉じず、ヘルプの状態も言語も変えないこと。'
 const FR_036_OTHERS_IN_FRONT = '`GRS` は、ほかの面をヘルプより手前に描くこと（`FR-152` の 表 T-337）。'
 const FR_038_HELP_ONLY = '利用者がヘルプの言語を選んだとき、`GRS` は、ヘルプの中の文字だけを、選んだ言語で示すこと。'
+// Spec: IMPS-1185
 const FR_038_HELP_LANGUAGE_NAMED = 'ヘルプの言語が画面の言語と違う間、`GRS` は、ヘルプの領域にヘルプの言語を名乗らせること。'
+// Spec: IMPS-1187
 const FR_038_READABLE_BEFORE_PRESSING = '`GRS` は、言語のどちらの入口も、今の値の略号を添えて描くこと。'
 const FR_038_SEEDED_ON_OPENING = '利用者がヘルプを開くたびに、`GRS` は、ヘルプの言語をそのときの画面の言語から始めること'
 const FR_038_NOT_THE_SCREEN = '`GRS` は、ヘルプの言語を替えたことで、画面の言語を替えないこと。'
+// Spec: IMPS-1189
 const FR_038_NOT_STORED = '`GRS` は、ヘルプの言語を保存しないこと —— 文書にも、閲覧環境の保管庫にも置かない。'
 const IN_4_SURFACE_THEN_HELP =
   '⭐ `Esc` では、通常か最大化のヘルプは面の段ではなく、表 T-028 の `IN-4` の「開いているウィンドウ」の段に立つ'
 const T_337_THE_FRONT_ONE_TAKES_THE_PRESS = '`GRS` は、押下を、押下の点で最も手前に描いた UI パーツに受けさせること。'
 const FR_036_UNDER_THE_HEADER =
   '`GRS` は、ヘルプを、閲覧環境の窓から `App Header` を除いた領域の中央に、領域の幅と高さに対し `_assets/tbl-settings.md` の 表 T-206 の `S-201` が定める割合で開くこと'
+// Spec: IMPS-1169
 const FR_036_NOT_SIDEWAYS_WHEN_OPENED =
   'ヘルプを開いたとき（表 T-335 の `WB-1` の既定の大きさ）、`GRS` は段の並びを本文の領域の幅に収め、横にスクロールさせないこと。'
 const FR_069_ONE_LINE =

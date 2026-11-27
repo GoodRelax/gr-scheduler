@@ -43,7 +43,7 @@ const readSpec = (...parts: string[]): string => readRepoFile(join(SPEC, ...part
 
 export const REQUIREMENTS = unbroken(readSpec('01-04-requirements.md'))
 
-// Spec: FR-019
+// Spec: FR-019, IMPS-834
 export const FR_019_ORDER =
   '`GRS` は、同じ種類の注記どうし（コメントボックスどうし、ハイライトボックスどうし）を、文書の並び（`commentBoxes`・`highlightBoxes` の配列の順）で後のものほど前に描くこと（表 T-020 の `ZO-8`・`ZO-9`・`ZO-14` の段の中の順）。`GRS` は、同じ種類の注記どうしが重なった所では、前に描いたものを当たりの先にすること。'
 export const FR_019_FRONT =

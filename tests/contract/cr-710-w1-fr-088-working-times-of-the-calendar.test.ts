@@ -45,7 +45,7 @@ import {
 const REQUIREMENTS = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 const DESIGN = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '05-07-design.md'), 'utf8'))
 
-// Spec: FR-088, FR-054
+// Spec: FR-088, FR-054, IMPS-729, IMPS-731
 const CLAUSES = [
   '⭐ 面が示す 1 組は、時間帯を持つ稼働の曜日のうち最も多くが持つ組とする —— 同数なら `Project.weekStartDay` から数えて最初の稼働の曜日の組、どの曜日も持たなければ 表 T-209 の `S-580` である。',
   '⛔ `GRS` は、面が示す 1 組と違う組を持つ曜日（交換相手から取り込んだもの）を、面で直させないこと。',

@@ -33,6 +33,7 @@ const SOLVE_BEFORE_DRAWING =
 // Spec: FR-036, T-335
 const CHOOSERS_FOLLOW_WB_10 =
   '`GRS` は、保存の面（`_assets/tbl-glossary.md` の `U-54`、`FR-096`）と開く面（`U-56`、表 T-024a の `OP-16`）を、ウィンドウではなく `_assets/tbl-settings.md` の `S-99g` の面のままとし、タイトルバーと動かし方だけを 表 T-335 の `WB-10` に従わせること。'
+// Spec: IMPS-1164
 const CHOOSERS_ARE_NOT_WINDOWS = '`GRS` は、保存の面と開く面に `WB-1` 〜 `WB-9` を当てないこと。'
 
 // Spec: T-023, S-514, S-515, S-516

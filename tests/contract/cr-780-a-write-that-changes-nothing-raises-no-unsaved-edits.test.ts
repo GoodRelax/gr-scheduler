@@ -18,6 +18,7 @@ const REQUIREMENTS = unbroken(
   readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8').replace(/\r\n/g, '\n'),
 )
 
+// Spec: IMPS-979
 const CLAUSE_UNCHANGED_WRITE_RAISES_NOTHING =
   '書き込みが文書を変えなかったとき（取り消しの手が増えないとき —— 手で同じ値に打ち直した、掴んだものを元の所で離した）、`GRS` は、未保存の編集を立てないこと。'
 

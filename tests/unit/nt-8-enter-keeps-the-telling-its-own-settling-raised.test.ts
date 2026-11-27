@@ -1,56 +1,6 @@
-// The anchor for ONE ordering in the shell: which tellings NT-8's stage is
-// reckoned against (`noticeReasonsOnArrival` of `frame-loop.ts`).
-//
-// ⛔⛔ WHAT WAS MEASURED BEFORE THIS (2026-09-09). Settling a REFUSED value in a
-// field of the `Properties Panel` and spending it with the key SK-19 assigns
-// left ZERO tellings on the description, while the same value spent on a pointer
-// move left the one that was raised. `spendFieldCommit` runs at the head of
-// every happening, so by the time SK-19's first stage and IN-4's first level
-// were read, `raisedNotices` already held the telling THIS press had just made
-// -- and the press put its own answer away again before anyone could read it.
-//
-// Unit under test:
-//   UF-48  `frame-loop.ts` (CP-25 of table T-062) -- the shell, which holds
-//          `ScreenSession.notices` (LY-5 of table T-060) and is the one side
-//          that puts a telling away.
-//
-// ⚠️ Chapter 9 does not admit Unit as a TEST_LEVEL, so these cases have no node
-// in the specification. Table T-218 of Chapter 7 gives them their place: TS-6,
-// tests/unit/.
-//
-// ---------------------------------------------------------------------------
-// THE CLAUSES THESE CASES EXIST FOR (rule 03 section 3: quoted because holding
-// them verbatim IS the point)
-// ---------------------------------------------------------------------------
-//
-//   T-036 SK-19: 「⭐⭐ 出ている通知があるときは、それを 1 つ消すこと（MUST）...
-//     ほかに何も出ていないときは、その場の編集を確定する」
-//     ⇒ 出ている is a question about the instant the key ARRIVED.
-//
-//   T-037 NT-8:
-//     「通知が 2 つ以上立っているときは、いちばん新しいものから消すこと（MUST）」
-//       -- 「いちばん新しいものが、いま行った操作への答えだからである」
-//     ⛔⛔ 「この消去を、`Enter` と `Esc` のどの階層よりも先に行うこと（MUST）」
-//     ⛔ 「消すものが 1 つも無いときに、この階層で `Enter` や `Esc` を消費しては
-//        ならない（MUST NOT）」 -- 「消費すると、通知が出ていないあいだ `IN-4` と
-//        `SK-19` の第 1 階層が届かなくなる」
-//
-//   T-233 RS-55 / RS-58 -- the two refusals these cases raise, and FR-076 with
-//     NT-1 is why a refused write has to be told at all.
-//
-// ---------------------------------------------------------------------------
-// ⛔ WHAT IS DELIBERATELY NOT ASSERTED
-// ---------------------------------------------------------------------------
-//   - Whether the WRITE should have happened at all. SK-19 reads 「ほかに何も出て
-//     いないときは、その場の編集を確定する」, and the settling itself happens in
-//     `DomScreenSurface` before the shell hears the key (its own `keydown`
-//     listener on the panel runs first) -- so whether a telling standing at the
-//     moment of the press should HOLD BACK the write is a question about a seam
-//     these cases cannot reach, and nothing here decides it.
-//   - Which words the reader sees. FR-038 (MUST NOT) keeps them in one
-//     dictionary; these cases compare against THAT, never against a spelling.
+// Unit tests: SK-19's Enter keeps standing the telling its own settling just raised (NT-8).
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-explicit-any -- the dictionary and the told notices are read as loose shapes */
 
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -77,10 +27,6 @@ import {
 } from '../../src/framework/single-html-shell/frame-loop'
 import { bare, specTable, type SpecRow, type SpecTable } from '../contract/spec-table'
 
-// ---------------------------------------------------------------------------
-// The manuscript, read at read time rather than copied (Chapter 1.9)
-// ---------------------------------------------------------------------------
-
 const T_036: SpecTable = specTable('T-036')
 
 function rowOf(table: SpecTable, id: string): SpecRow {
@@ -89,7 +35,6 @@ function rowOf(table: SpecTable, id: string): SpecRow {
   return found
 }
 
-/** The key table T-036 assigns one row, as that table spells it. */
 const keyNameOf = (specTableRowId: string): string => {
   const spelled = bare(rowOf(T_036, specTableRowId).by['割当'] ?? '')
     .replace(/＋/g, '+')
@@ -101,7 +46,7 @@ const keyNameOf = (specTableRowId: string): string => {
   return last
 }
 
-/** The words FR-038's one dictionary holds for one row of table T-233. */
+// Why: compared against FR-038's one dictionary, never against a spelling.
 const wordsOf = (specTableRowId: string): string => {
   const found = (displayWords as any).reasons.find((one: any) => one.specTableRowId === specTableRowId)
   if (found === undefined) throw new Error(`the dictionary holds no row ${specTableRowId}`)
@@ -111,10 +56,6 @@ const wordsOf = (specTableRowId: string): string => {
 const RS_55 = 'RS-55'
 const RS_58 = 'RS-58'
 
-// ---------------------------------------------------------------------------
-// The loop, driven the way a person settles a value in the Properties Panel
-// ---------------------------------------------------------------------------
-
 const TEMPLATE_PATH = join(
   process.cwd(),
   'src',
@@ -123,7 +64,6 @@ const TEMPLATE_PATH = join(
   'startup-template.json',
 )
 
-/** BT-4 of table T-034 -- the template FR-027 starts a reader with. */
 function templateDocument(): Document {
   const read = documentFromJson(readFileSync(TEMPLATE_PATH, 'utf8'))
   if (!read.ok) {
@@ -141,7 +81,6 @@ const SCREEN: FrameEnvironment = {
 
 const NO_MODIFIERS: InputModifiers = { ctrl: false, shift: false, alt: false, meta: false }
 
-/** SK-19, spelled the way table T-036's assignment column spells it. */
 const SETTLE_KEY_NAME = keyNameOf('SK-19')
 
 const SETTLE_KEY: HumanInput = {
@@ -150,13 +89,8 @@ const SETTLE_KEY: HumanInput = {
   modifiers: { ...NO_MODIFIERS },
 } as unknown as HumanInput
 
-/**
- * A happening that spends a settled value and decides nothing else.
- *
- * ⭐ THE CONTRAST THE FIRST CASE IS BUILT ON: the shell reads IF-9's answer at
- * the head of EVERY happening, so this one carries the same write as the key --
- * and it is not on either of the two ladders NT-8 stands at the head of.
- */
+// Why: the shell reads IF-9's answer at the head of every happening, so a pointer move
+// carries the same write as the key while standing on neither NT-8 ladder.
 const POINTER_MOVE: HumanInput = {
   kind: 'pointer',
   phase: 'move',
@@ -175,19 +109,12 @@ afterEach(() => {
 })
 
 interface Loop {
-  /** Hand the surface one settled value, then spend it on one happening. */
   settle(commit: { row: string; key: unknown; text: string }, spend: HumanInput): void
-  /** One happening with no settled value waiting. */
   send(input: HumanInput): void
-  /** The tellings the last drawn description carries, newest last. */
   told(): readonly string[]
 }
 
-/**
- * UF-48, driven with a surface that answers one settled value and then nothing.
- *
- * ⚠️ THE FAKE IS NOT THE TEST (R6.3). Nothing in it decides which telling stands.
- */
+// Summary: When the loop reads a settled value, the surface shall answer the one value handed in and then nothing.
 function loopWith(document: Document): Loop {
   const views: ScreenView[] = []
   const waiting: ((time: number) => void)[] = []
@@ -231,7 +158,6 @@ function loopWith(document: Document): Loop {
   }
 }
 
-/** The first `Task` of the bundled template, which every case below edits. */
 function firstTask(document: Document): {
   uid: number
   start: string | null
@@ -242,22 +168,16 @@ function firstTask(document: Document): {
   return { uid: task.uid, start: task.start, finish: task.finish }
 }
 
-/** A day one year before the one handed in, spelled the way the document keeps it. */
 function aYearBefore(day: string): string {
   const year = Number(day.slice(0, 4))
   return `${String(year - 1)}${day.slice(4)}`
 }
 
-/** `PR-3` of table T-016 -- a finish before the start (`RS-58`). */
 const finishBeforeStart = (uid: number, start: string) => ({
   row: 'PR-3',
   key: { holder: 'task', uid, column: 'finish' },
   text: aYearBefore(start),
 })
-
-// ===========================================================================
-// The rows these cases are driven by are still in the manuscript
-// ===========================================================================
 
 describe('the rows these cases read are still in the manuscript', () => {
   it('⭐ SK-19 is still one bare key, and the dictionary still parts RS-55 from RS-58', () => {
@@ -266,26 +186,20 @@ describe('the rows these cases read are still in the manuscript', () => {
   })
 
   it('⭐ SK-19 still puts the dismissal ahead of settling the in-place edit', () => {
-    // ⛔ GOES RED IF THE ROW IS REWORDED. The whole ordering these cases hold is
-    // the row's own 「出ている通知があるときは ... ほかに何も出ていないときは」.
+    // Why: the ordering these cases hold is the row's own, so a reworded row must turn this red.
     const said = rowOf(T_036, 'SK-19').cells.join(' ')
     expect(said).toContain('出ている通知がある間')
     expect(said).toContain('出ている通知が無い間')
   })
 })
 
-// ===========================================================================
-// The defect: a press must not put away the answer it has just raised
-// ===========================================================================
-
+// Spec: NT-8, SK-19, FR-076, NT-1, RS-55, RS-58
+// Why: whether a standing telling should hold the write back is not asserted: the panel
+// settles the value before the shell hears the key, a seam these cases cannot reach.
 describe('NT-8 / SK-19: the dismissal is reckoned at the moment the key arrived', () => {
   it('⭐⭐ THE DEFECT: settling a refused value with SK-19 leaves the telling standing', () => {
-    // ⛔⛔ MEASURED BEFORE THE FIX: zero tellings. `spendFieldCommit` raised
-    // `RS-55` at the head of the happening, SK-19's first stage then read
-    // `raisedNotices` and found something to put away, and put away the very
-    // telling this press had raised. ⚠️ NT-8's own MUST NOT is the same reading
-    // from the other side: at the instant the key arrived there was nothing to
-    // put away, so this stage may not consume the key at all.
+    // Why: the settling raises its refusal at the head of the happening, so SK-19's first stage
+    // must be reckoned on what stood when the key arrived, or it puts this answer away.
     const document = templateDocument()
     const task = firstTask(document)
     const one = loopWith(document)
@@ -296,8 +210,8 @@ describe('NT-8 / SK-19: the dismissal is reckoned at the moment the key arrived'
   })
 
   it('⛔ THE CONTRAST: the same value spent on a pointer move told the same thing', () => {
-    // ⚠️ WITHOUT THIS THE CASE ABOVE COULD BE READ AS "the write now refuses".
-    // The write refused before the fix too -- what differed was only the key.
+    // Why: without this the case above could be read as the write refusing; the same value on
+    // a pointer move shows the refusal does not hang on the key.
     const document = templateDocument()
     const task = firstTask(document)
     const one = loopWith(document)
@@ -308,12 +222,8 @@ describe('NT-8 / SK-19: the dismissal is reckoned at the moment the key arrived'
   })
 
   it('⭐⭐ A telling that WAS standing is the one put away, not the one just raised', () => {
-    // ⛔ THE OTHER HALF OF THE SAME ORDERING. 「いちばん新しいもの」 is explained by
-    // NT-8 as 「いま行った操作への答え」 -- an answer the person has already been
-    // shown and is now putting away. The telling this very press raised has not
-    // been shown at all.
-    // ⚠️ BEFORE THE FIX this ended with `RS-55` still standing and `RS-58` gone:
-    // the list's own end was the telling the press had just made.
+    // Why: NT-8's newest is the answer already shown; the telling this press raised has not
+    // been shown, so the one standing before is the one put away.
     const document = templateDocument()
     const task = firstTask(document)
     expect(task.start, 'the bundled template gives its first Task a start').not.toBeNull()
@@ -328,8 +238,8 @@ describe('NT-8 / SK-19: the dismissal is reckoned at the moment the key arrived'
   })
 
   it('⛔ THE CONTROL: with nothing being settled, SK-19 still puts a telling away', () => {
-    // ⚠️ WITHOUT THIS, A BUILD THAT NEVER PUT A TELLING AWAY ON THE KEY WOULD
-    // PASS EVERY CASE ABOVE -- and NT-8 (MUST) gives that key the power.
+    // Why: without this, a build that never put a telling away on the key would pass every
+    // case above.
     const document = templateDocument()
     const task = firstTask(document)
     const one = loopWith(document)

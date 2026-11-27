@@ -18,6 +18,7 @@ const TEMPLATE = JSON.parse(TEMPLATE_TEXT) as { schedule: { project: { name: str
 const FIXTURES = join(process.cwd(), 'tests', 'fixtures')
 const EMBEDDED_ID = 'embedded-document'
 
+// Spec: IMPS-1022
 const CONTAINER_MUST =
   '`GRS` は、テンプレートを、出荷する単一の `.html` の中に、スクリプトとは別の、走らない JSON の容れ物として置くこと。'
 const NOT_BUNDLED = '`GRS` は、テンプレートをスクリプトに束ねないこと。'

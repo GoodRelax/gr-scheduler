@@ -1,83 +1,4 @@
-// Ledger row DFC-377 -- the eighteen MUST / MUST NOT clauses commit 381c2ef
-// ("Publish the built deliverable, and cap both zoom axes", 2026-09-07) wrote
-// into FR-016 (the two zoom ceilings) and T-076 EP-9 (the Panel Divider's
-// thickness), which raised check 39's baseline (check-must-clause-coverage.py)
-// from 934 to 951.
-//
-// ⚠️ CORRECTING THE BRIEF THIS FILE WAS WRITTEN FROM. The brief said none of
-// the eighteen had a verbatim tie under tests/. Measured against this tree
-// (commit 381c2ef's own diff, read to find where the eighteen actually stand,
-// plus a run of check-must-clause-coverage.py's own held/not-held test): NINE
-// of the eighteen are already held, verbatim, by
-// tests/system/user-reported-fixes.test.ts (grep confirms: 「拡大の側には」、
-// 「縦軸でも掴んだタスクグループを留めること」、「Adapter に自前の割付けをさせないこと」
-// and six neighbors). ⭐ THE REMAINING NINE -- four of FR-016's, five of
-// EP-9's -- are what this file holds. The count and the location the brief
-// handed over were both checked against the manuscript and the commit that
-// wrote them before being used, per the standing instruction to refute rather
-// than trust a passed-down number.
-//
-// ⚠️ Chapter 9 does not admit Unit as a TEST_LEVEL, so these cases have no node
-// in the specification. Table T-218 of Chapter 7 gives them their place: TS-6,
-// tests/unit/.
-//
-// The rows these cases answer to (rule 03: name the row, never copy its prose
-// -- except where a clause is quoted, which is section 1's whole purpose):
-//   FR-016   the vertical axis's ceiling (the font-comparison ban was retired by
-//            CR-381); reaching the ceiling may not be shown by a dead entrance;
-//            a task group's place at a candidate zoom may not be arithmetic from the
-//            zoom in force; that place is answered by table T-064's PI-5
-//            (`taskGroupPlacesAtZoomY`)
-//   T-076 EP-9   the Panel Divider's line is the same THICKNESS as `Group
-//            Grid Lines` (U-18), never zero, read from one place, and that one
-//            place is read by both the screen and the export
-//
-// ---------------------------------------------------------------------------
-// ⭐⭐ HOW THIS FILE IS BUILT, AND WHY IT QUOTES
-// ---------------------------------------------------------------------------
-// Check 39 counts a clause as HELD when the trailing window of manuscript text
-// ending at its own `（MUST）` / `（MUST NOT）` marker is found VERBATIM inside
-// the RAW BYTES of some file under tests/ -- confirmed by reading
-// check-must-clause-coverage.py itself and then by running it before and after
-// one clause was added below: the unheld count fell by exactly one. A test
-// that only READS docs/spec at run time holds nothing; the characters have to
-// stand in this file, which is why section 1 carries them as string constants,
-// each re-checked against the manuscript so a reworded clause takes this file
-// red rather than leaving a silent, stale copy (the second-store rule).
-//
-// ⚠️ THE LENGTHS ARE NOT ALL THE SAME. The window check 39 measures is up to
-// 120 characters and falls back through 90 / 60 / 40 / 28; a window that
-// reaches back across a paragraph break cannot be one single-quoted TS
-// literal, so `FR_016_CEILING_HIT_NOT_A_DEAD_ENTRANCE` is held at 40 rather
-// than the 90 that would cross one. Every constant was cut mechanically from
-// the manuscript (a small Python script reading the same regex and window
-// logic as check-must-clause-coverage.py), never retyped.
-//
-// ⛔ WRITTEN FROM docs/spec, PLUS ONLY PUBLISHED SIGNATURES AND TYPES
-// (docs/development-rules/04-verification.md §1). No function body was read to
-// choose an expected VALUE: section 2's numbers come from GROUP_GRID_LINE_WIDTH_PX
-// and screenFrameFromRegions's own published contract (screen-frame.ts's own
-// head comment, which quotes EP-9's clauses to explain the one place); section
-// 3 asserts a CONTRAST (the member's real answer against what a caller's own
-// arithmetic would have predicted) that needs no closed-form derivation of the
-// layout engine's internals.
-//
-// ONE OF THE EIGHT LEFT IS HELD VERBATIM ONLY, AND THIS FILE SAYS SO RATHER
-// THAN INVENTING A CASE THAT PASSES FOR NOTHING (see section 4):
-//   FR-016, the ban on choosing the vertical zoom ceiling by comparing two font sizes,
-//     is GONE: CR-381 (JDG-88, JDG-99, JDG-115) overturned it and wrote the
-//     opposite -- the ceiling is the smaller of the band ceiling and the zoom
-//     at which a rectangle name reaches the depth-1 task group name. That clause is
-//     was held and pressed through `commandFromInput` by
-//     the cr-380-381-384 unit test (deleted by CR-573), so
-//     this file no longer carries a copy of the retired one.
-//
-//   FR-016 「上限に達したことを、押しても何も起きない入口で示してはならない
-//     （MUST NOT）」 -- the requirement's own text names where the affordance
-//     is drawn ("作法は FR-029 に従う"): the screen-renderer / DOM surface,
-//     which needs a full ScreenSession/ScreenFrame/DOM fixture and FR-029's
-//     own disabled-entrance convention to press honestly. Held verbatim here;
-//     pressing it belongs beside FR-029's own tests, not invented here.
+// Contract tests: the zoom clauses of FR-016 and the Panel Divider thickness of EP-9.
 
 import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
@@ -120,17 +41,10 @@ const REQUIREMENTS = unbroken(readRepoFile(
   'utf8',
 ))
 
-// ===========================================================================
-// 1. The nine clauses, verbatim, and the manuscript they came from
-// ===========================================================================
-
-// -- FR-016, the vertical axis's ceiling (four of the eighteen) ------------------
-
-/**
- * ⚠️ HELD AT 40 CHARACTERS TO AVOID A PARAGRAPH BREAK. The 60/90/120-character
- * windows of this marker all reach back across the blank line before 「⛔
- * **上限に達した」, which no single-quoted TS literal can carry.
- */
+// Why: check 39 holds a clause only when its words stand in a file under tests/, so the
+// clauses are literals; this one is cut at 40 characters, as longer windows cross a paragraph.
+// Why: pressing it needs the DOM surface and FR-029's disabled-entrance convention, so
+// only its words are held here.
 const FR_016_CEILING_HIT_NOT_A_DEAD_ENTRANCE =
   '`GRS` は、上限に達したことを、押しても何も起きない入口で示さないこと。'
 
@@ -140,38 +54,21 @@ const FR_016_TASK_GROUP_POSITION_NOT_BY_ARITHMETIC =
 const FR_016_TASK_GROUP_POSITION_MEMBER_IS_PI_5 =
   '`GRS` は、指定の倍率でのタスクグループの位置を答えるメンバを、表 T-064 の `PI-5` に置くこと。'
 
-// -- T-076 EP-9, the Panel Divider's thickness (five of the eighteen) -------
-
 const EP_9_SAME_LINE_MEANS_SAME_THICKNESS =
   '境なので、区切りの線の色で描く。⭐ **太さが同じであること（MUST）'
 
 const EP_9_THICKNESS_NOT_ZERO =
   '区切りの線の色で描く。⭐ **太さが同じであること（MUST）**—— ⛔ **太さを 0 で描いてはならない（MUST NOT）'
 
-/**
- * ⚠️ RE-CUT 2026-09-11. The window used to open on EP-9's own dated
- * measurement -- the 2026-09-07 reading that found the divider drawn at
- * thickness 0 on screen and in the export alike -- which the cleanup of
- * 9f359cd folded out of the manuscript as a RECORD rather than a rule. ⛔ IT
- * WAS NOT LOST: its original is the row this file's section 2 comment already
- * names, `DFC-363` of `docs/development-records/fixed-defects.md`, and the
- * quotation is deliberately NOT repeated here -- check 42 forbids a comment
- * putting words in docs/spec's mouth that docs/spec no longer carries.
- * ⛔ The MUST itself never moved, only the sentence in front of it, so the
- * window is re-cut against the manuscript as it now stands, at the same 120
- * characters check 39 reads back from the marker.
- */
 const EP_9_ONE_PLACE_READS_THE_THICKNESS =
   '。⭐ **太さが同じであること（MUST）**—— ⛔ **太さを 0 で描いてはならない（MUST NOT）。**⭐ 描く側は、罫の太さを 1 か所から読むこと（MUST）'
 
-/** ⚠️ RE-CUT 2026-09-11 for the same reason as the marker above it. */
 const EP_9_NO_SECOND_NUMBER =
   'MUST）**—— ⛔ **太さを 0 で描いてはならない（MUST NOT）。**⭐ 描く側は、罫の太さを 1 か所から読むこと（MUST）。番号を 2 か所に置いてはならない（MUST NOT）'
 
 const EP_9_SCREEN_AND_EXPORT_SAME_PLACE =
   '。番号を 2 か所に置いてはならない（MUST NOT） —— **同じ数が 2 か所に載ると、必ず離れていく。**⭐ **画面と書き出しも同じ 1 か所を読むこと（MUST）'
 
-/** Every clause this file holds, with the name it is known by in the ledger. */
 const CLAUSES: readonly (readonly [string, string])[] = [
   ['FR-016 (MUST NOT) -- reaching the ceiling is not shown by a dead entrance', FR_016_CEILING_HIT_NOT_A_DEAD_ENTRANCE],
   ['FR-016 (MUST NOT) -- a task group position at a zoom is not arithmetic', FR_016_TASK_GROUP_POSITION_NOT_BY_ARITHMETIC],
@@ -183,36 +80,20 @@ const CLAUSES: readonly (readonly [string, string])[] = [
   ['T-076 EP-9 (MUST) -- screen and export read that same one place', EP_9_SCREEN_AND_EXPORT_SAME_PLACE],
 ]
 
+// Spec: FR-016, EP-9
 describe('DFC-377 -- the manuscript these cases are driven by', () => {
   it.each(CLAUSES)('still says it, word for word: %s', (_name, clause) => {
-    // ⛔ THE ONLY THING THAT KEEPS THE COPIES ABOVE HONEST. A clause reworded
-    // in the manuscript takes this case red, which is what tells the next
-    // round that the copy -- and whatever case below presses it -- has to
-    // move too.
+    // Why: the only thing that keeps the copies above honest: a reworded clause turns this red.
     expect(REQUIREMENTS).toContain(clause)
   })
 
   it('holds one clause per marker, and no clause twice', () => {
-    // ⚠️ Check 39 counts MARKERS, not rules, so two constants that turned out
-    // to be the same window would silently pay back one clause instead of two.
+    // Why: check 39 counts markers, not rules, so two constants on the same window would
+    // pay back one clause instead of two.
     expect(new Set(CLAUSES.map(([, clause]) => clause)).size).toBe(CLAUSES.length)
   })
 })
 
-// ===========================================================================
-// 2. T-076 EP-9 -- the Panel Divider's line is drawn, and pressed
-// ===========================================================================
-//
-// ⭐ `screen-frame.ts`'s own head comment on `dividerAt` (read as a published
-// contract, not a body) names DFC-363 and quotes all five EP-9 clauses above,
-// saying `GROUP_GRID_LINE_WIDTH_PX` -- svg-renderer.ts's own export, spent a
-// second time nowhere -- is the "one place" EP-9's last three sentences ask
-// for. The cases below press that from the outside: call the two published
-// entries a screen and an export actually go through, and check the number
-// that comes back is the same published constant, never a second one.
-
-// The nested keys (exportCanvas, fontSizeStepSizes, planActualGuidePattern, shapeHeightOf)
-// are constants now (SETTINGS_CONSTANTS); a document carries none of them.
 const settingsOf = (part: Record<string, unknown> = {}): DocumentSettings =>
   ({
     ...SETTINGS_DEFAULTS,
@@ -220,7 +101,7 @@ const settingsOf = (part: Record<string, unknown> = {}): DocumentSettings =>
   }) as unknown as DocumentSettings
 
 const ENV: ScreenEnvironment = {
-  width: SETTINGS_CONSTANTS.exportCanvas.width, // S-81's width, so the export ratio is 1
+  width: SETTINGS_CONSTANTS.exportCanvas.width, // Why: S-81's width, so the export ratio is 1
   height: 800,
   appHeaderHeight: 56,
   scrollbarThickness: 8,
@@ -258,50 +139,27 @@ const READINGS: ScreenViewReadings = {
 const frameOf = (): ScreenFrame =>
   screenFrameFromRegions(REGIONS, SETTINGS, ROOT, READINGS)
 
+// Spec: EP-9
 describe('T-076 EP-9 (MUST NOT) -- 「太さを 0 で描いてはならない」', () => {
   it('the one published thickness is not zero', () => {
-    // GOES RED IF: GROUP_GRID_LINE_WIDTH_PX is ever set to 0 -- which is
-    // exactly the fault screen-frame.ts's head comment records as measured,
-    // before DFC-363, on both the screen and the export.
     expect(GROUP_GRID_LINE_WIDTH_PX).toBeGreaterThan(0)
   })
 
-  // ⭐ CONTROL -- what would still pass if the MUST NOT were broken the other
-  // way. A case that only checked `line.width !== 0` without reading the
-  // constant itself would stay green if the frame silently substituted some
-  // OTHER nonzero number of its own -- which is exactly EP-9's "no second
-  // number" clause (`EP_9_NO_SECOND_NUMBER`) breaking. Section 2's next
-  // `describe` closes that gap by comparing the frame's own answer to this
-  // published constant, not merely to nonzero.
 })
 
+// Spec: EP-9, U-18, FR-052
+// Trap: a second hand-typed thickness that equals the published one passes this case;
+// nothing here catches the number living in two places, only the clause literal records it.
 describe('T-076 EP-9 (MUST) -- 「太さが同じであること」／「描く側は、罫の太さを 1 か所から読むこと」／「番号を 2 か所に置いてはならない」', () => {
   it('every Panel Divider the screen frame builds has that one published width', () => {
-    // FR-052's own order gives two dividers (taskGroupPanel, propertiesPanel);
-    // EP-9 (MUST) asks that both read the SAME one place `Task Group Grid Lines`
-    // (U-18) itself is drawn from.
     const frame = frameOf()
     expect(frame.dividers.length).toBeGreaterThan(0)
     for (const divider of frame.dividers as readonly PanelDivider[]) {
-      // GOES RED IF: screen-frame.ts stops importing GROUP_GRID_LINE_WIDTH_PX
-      // and spells its own figure instead -- the "second number" EP-9 (MUST
-      // NOT) forbids, and the fault DFC-363's own measurement found (thickness
-      // 0, because nothing sized the line at all).
       expect(divider.line.width, `${divider.panel}'s line width`).toBe(GROUP_GRID_LINE_WIDTH_PX)
     }
   })
 
-  // ⭐ CONTROL -- if EP-9's "one place" were broken (two hand-typed numbers
-  // that happen to agree today), this case alone would not catch it, because
-  // both would still equal the constant read here BY COINCIDENCE. That is
-  // exactly why the check being paid back is a manuscript-text check (section
-  // 1) and not only a numeric one: check 39 does not ask whether the code
-  // agrees with itself, it asks whether a test holds the SENTENCE, so a
-  // future re-typing of the number is a defect this file's behavioral case
-  // cannot promise to catch, only the clause reading it says so.
 })
-
-// -- The export's own reading -----------------------------------------------
 
 const VIEW: ScreenView = {
   language: 'ja',
@@ -329,7 +187,6 @@ function pictureOrThrow(answer: SvgExport): string {
   return answer.svg
 }
 
-/** Every `<rect>` width the exported SVG drew, in document order. */
 function rectWidthsOf(svg: string): number[] {
   const widths: number[] = []
   const re = /<rect x="[^"]*" y="[^"]*" width="([^"]*)"/g
@@ -338,11 +195,9 @@ function rectWidthsOf(svg: string): number[] {
   return widths
 }
 
+// Spec: EP-9
 describe('T-076 EP-9 (MUST) -- 「画面と書き出しも同じ 1 か所を読むこと」', () => {
   it('the export draws the divider line at the width the screen frame carries, not a re-derived one', () => {
-    // The scene's ratio is exportCanvas.width / screenWidth; `ENV.width` above
-    // was chosen to match `SETTINGS_CONSTANTS.exportCanvas.width` exactly so the ratio
-    // is 1 and the drawn width is the frame's own number, unscaled.
     const frame = frameOf()
     const scene: ExportScene = {
       svg: '<svg xmlns="http://www.w3.org/2000/svg"></svg>',
@@ -352,54 +207,17 @@ describe('T-076 EP-9 (MUST) -- 「画面と書き出しも同じ 1 か所を読�
       themeHue: 214,
     } as unknown as ExportScene
 
-    // ⭐ THE DIVIDER RECTS ARE THE LAST ONES DRAWN. `dividerLinesSvg`'s own
-    // head comment on `exportSvg`'s composition (read as published contract,
-    // not body): "Painted over the received picture, in this order: the band
-    // and the panel cover what the Task Group Area did not clip, and the divider
-    // line closes the boundary between them" -- so the trailing
-    // `frame.dividers.length` rects of the picture are exactly the divider
-    // lines, after the clip rect, the header band and the task group panel's
-    // own background rect.
+    // Why: exportSvg paints the divider lines last, over the picture, so the trailing
+    // frame.dividers.length rects are exactly the divider lines.
     const allWidths = rectWidthsOf(pictureOrThrow(exportSvg(scene)))
     const dividerWidths = allWidths.slice(-frame.dividers.length)
-    // GOES RED IF: `image-exporter.ts` stops reading `divider.line` off the
-    // frame it was handed and instead spells (or reads a second copy of) the
-    // divider's thickness itself -- the frame and the export would then be
-    // free to disagree, which is exactly what EP-9's last sentence forbids.
     expect(dividerWidths, 'one rect per Panel Divider, at the frame’s own width').toEqual(
       frame.dividers.map((divider) => divider.line.width),
     )
-    // ⭐ AND IT IS THE PUBLISHED CONSTANT, so the whole chain -- U-18's own
-    // width, the frame the screen draws, and the picture the export writes --
-    // is provably the one EP-9 (MUST) names, not three numbers that happen to
-    // agree.
     for (const width of dividerWidths) expect(width).toBe(GROUP_GRID_LINE_WIDTH_PX)
   })
 
-  // ⭐ CONTROL -- what would pass if this were reversed. A case that compared
-  // the export's width only to the FRAME's width (not also to
-  // GROUP_GRID_LINE_WIDTH_PX) would stay green if screen-frame.ts and
-  // image-exporter.ts agreed with EACH OTHER on a number that was not U-18's
-  // -- two places, not one, merely kept in step by hand. The last assertion
-  // above closes that gap by anchoring both to the one published constant.
 })
-
-// ===========================================================================
-// 3. FR-016 -- the vertical axis's PI-5 member, pressed against naive arithmetic
-// ===========================================================================
-//
-// ⭐ `taskGroupPlacesAtZoomY`'s own head comment (schedule-layout.ts, read as a
-// published contract) quotes both clauses this section presses: 「指定の倍率
-// でのタスクグループの位置を答えるメンバを、表 T-064 の `PI-5` に置くこと」 and
-// 「倍率から縦軸の位置を算で求めないこと」, and says why a caller's
-// own arithmetic is wrong -- FR-094's floor, LF-3's second floor, table
-// T-014's lane count and FR-018's level of detail all move under `zoomY` and
-// none of them is a scale factor. The case below does not re-derive that
-// arithmetic (which would mean reading the layout engine's body): it takes
-// the member's own two answers at two zooms and checks that a caller who
-// tried to shortcut with a scale factor -- the exact thing the MUST NOT
-// forbids -- would have gotten the wrong number, which is the sense in which
-// "the vertical axis is not linear in zoomY" is a testable fact and not only prose.
 
 const MS_PER_DAY = 86400000
 const dayAfter = (from: string, days: number): string =>
@@ -407,9 +225,7 @@ const dayAfter = (from: string, days: number): string =>
 
 const TASK_FROM = '2026-01-05'
 
-// Every nullable column has to be spelled `null`; leaving one `undefined`
-// reads as "set" (the same idiom the fr-055 deep-tiers unit test
-// used before CR-573 deleted it).
+// Why: every nullable column is spelled null, as a column left undefined reads as set.
 const taskOf = (uid: number): Task =>
   ({
     uid,
@@ -445,8 +261,8 @@ const groupOf = (id: string, order: number): TaskGroup =>
     minHeightPx: null,
   }) as unknown as TaskGroup
 
-/** Three flat root task groups -- FR-018's ladder domain starts at depth 2, so all
- * three are drawn at every zoom this section presses (never LOD-collapsed). */
+// Why: three flat roots, as FR-018's ladder starts at depth 2, so all three are drawn
+// at every zoom this file presses.
 const THREE_FLAT_TASK_GROUPS = 3
 
 const SCHEDULE: Schedule = (() => {
@@ -480,9 +296,9 @@ const SCHEDULE: Schedule = (() => {
 })()
 
 const LAYOUT_SETTINGS: DocumentSettings = settingsOf({
-  scrollDate: TASK_FROM, // S-77, pinned so the time axis has an origin
-  scrollTaskGroupId: null, // S-78
-  stackDirection: 'down', // S-58, top row first
+  scrollDate: TASK_FROM, // Why: pinned so the time axis has an origin
+  scrollTaskGroupId: null,
+  stackDirection: 'down',
 })
 
 const LAYOUT_REGIONS: ScreenRegions = regionsFromScreen(
@@ -496,16 +312,13 @@ const settingNumber = (key: string): number => {
   return value
 }
 
-/**
- * FR-094 (MUST): the plan height floor, below which the drawing does not move
- * with `zoomY` -- so a zoom below this is the wrong ground to press the "not
- * linear" clause from, and both zooms below are chosen well above it.
- */
+// Why: below FR-094's floor the drawing does not move with zoomY, so both zooms are
+// chosen well above it.
 const FLOOR_BINDS_BELOW =
   settingNumber('actualMin') / settingNumber('actualOfPlan') / settingNumber('basePlanHeight')
 
 const ZOOM_LOW = FLOOR_BINDS_BELOW * 1.2
-const ZOOM_HIGH = FLOOR_BINDS_BELOW * 3.6 // 3x ZOOM_LOW
+const ZOOM_HIGH = FLOOR_BINDS_BELOW * 3.6
 
 // Spec: VG-2, VG-3, VG-4, FR-039
 const VG_2_GAP =
@@ -514,11 +327,10 @@ const VG_2_GAP =
 const placesAt = (zoomY: number) =>
   taskGroupPlacesAtZoomY(SCHEDULE, LAYOUT_SETTINGS, LAYOUT_REGIONS, zoomY)
 
+// Spec: FR-016, PI-5, FR-094, DS-10
 describe('FR-016 (MUST) -- 「その倍率でのタスクグループの位置を答えるメンバを、表 T-064 の PI-5 に置くこと」', () => {
   it('the premise: both zooms sit above FR-094’s floor, and each band carries the VG-2 gap zoomY does not scale', () => {
-    // Without this the case below could be measuring the floor-pinned band,
-    // where every zoom answers the same drawing for a reason FR-016 does not
-    // govern.
+    // Why: without this the case could measure the floor-pinned band, where every zoom draws the same.
     expect(ZOOM_LOW).toBeGreaterThan(FLOOR_BINDS_BELOW)
     expect(ZOOM_HIGH).toBeGreaterThan(FLOOR_BINDS_BELOW)
     const ratio = displayRatioAt(LAYOUT_SETTINGS.displayScale)
@@ -531,14 +343,13 @@ describe('FR-016 (MUST) -- 「その倍率でのタスクグループの位置�
   })
 
   it('PI-5’s member answers a position for every task group, at a zoom nothing has drawn yet', () => {
-    // FR-016 (MUST): the member exists and answers. GOES RED IF
-    // `taskGroupPlacesAtZoomY` is removed or stops returning one placement per task group.
     const places = placesAt(ZOOM_HIGH)
     expect(places).toHaveLength(THREE_FLAT_TASK_GROUPS)
     for (const place of places) expect(Number.isFinite(place.y)).toBe(true)
   })
 })
 
+// Spec: FR-016, LF-3
 describe('FR-016 (MUST NOT) -- 「倍率から位置を算で求めてはならない」', () => {
   it('scaling the low-zoom position by the zoom ratio is NOT what PI-5 answers at the higher zoom', () => {
     // Why: the band is S-4 x zoomY plus the VG-2 gap and the border, which zoomY does not scale
@@ -550,10 +361,6 @@ describe('FR-016 (MUST NOT) -- 「倍率から位置を算で求めてはなら�
 
     const naiveArithmeticPrediction = low * zoomRatio
 
-    // GOES RED IF: `taskGroupPlacesAtZoomY` (or the layout it delegates to) is ever
-    // simplified into a linear scale of a previous position -- the exact
-    // shortcut the requirement forbids -- because that shortcut would make
-    // this equal, not merely close.
     expect(high, 'a scaled copy of the low-zoom position is the WRONG answer').not.toBeCloseTo(
       naiveArithmeticPrediction,
       2,

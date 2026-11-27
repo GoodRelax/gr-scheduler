@@ -11,10 +11,12 @@ import { rowOf } from './sws-case'
 
 const ROOT = process.cwd()
 
+// Spec: IMPS-1079
 const FR_068_NO_SCHEMA =
   '`GRS` は、コピーするプロンプトに、`GRS JSON` のスキーマを入れないこと。'
 const FR_068_DOWNLOAD =
   '作成者が 表 T-109 の `IC-115` を押したとき、`GRS` は、同じ押下で、`GRS JSON` のスキーマ（`05-07-design.md` の 6.2 が起こす `_source/grs-document.schema.json`）を 表 T-024 の `IO-10` のファイルとして、保存の選択面（`FR-096`）を開かずに、閲覧環境のダウンロードに渡すこと。'
+// Spec: IMPS-1080
 const FR_068_NAME = '`GRS` は、ダウンロードに渡すスキーマのファイルの名を `grs-document.schema.json` に固定すること。`GRS` は、ファイルの中身を、スキーマを空白を除いた 1 行の JSON にしたものとすること。'
 const FR_068_TELL =
   '`GRS` がプロンプトをコピーできたとき、`GRS` は、コピーしたことと次に行うこと（プロンプトとダウンロードしたスキーマのファイルを AI に渡す）を告げること（運ぶ理由は 表 T-233 の `RS-65`）。'

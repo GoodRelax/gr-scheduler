@@ -25,6 +25,7 @@ import {
   treeStateWritesFor,
   type DocumentCommand,
 } from '../../use-case/edit-document/edit-document'
+import { isPlaceNamed } from '../../use-case/show-range/show-range'
 import {
   CONSUMED_ELSEWHERE,
   NOT_STORED_HOUR_WIDTH_CEILING,
@@ -394,19 +395,6 @@ function zoomCommand(
     zoomX: zoomX === null ? on.x : zoomX,
     zoomY: zoomY === null ? on.y : zoomY,
   }
-}
-
-// Trap: viewSettings in view-place.ts writes the same base half of OP-10's condition;
-// change both together.
-// Spec: OP-10
-/** @purity pure */
-export function isPlaceNamed(
-  schedule: Schedule,
-  scrollDate: string | null,
-  scrollTaskGroupId: string | null,
-): boolean {
-  if (scrollDate === null) return false
-  return schedule.taskGroups.some((one) => one.id === scrollTaskGroupId)
 }
 
 // Spec: OP-10

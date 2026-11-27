@@ -141,7 +141,24 @@ graph RL
 | CP-39 | `UseCase` | `AdvanceScreenSession` | 保存しない画面とセッションの流れを、出来事を受けて 1 段進め、次の状態と副作用の列を返す。<br>副作用を実行しない | 5.6 の ADR-002 / 表 T-249 / 表 T-250 / 表 T-280 / 表 T-286 / 表 T-289 / 表 T-290 / 表 T-292 / 表 T-293 / 表 T-295 / 表 T-296 |
 | CP-40 | `Adapter` | `McpToolTranslator` | MCP の道具と `Agent API` のメンバのあいだで、呼び出しと答えを相互に写す。<br>取次のプロセスに載り、ページには載らない | `FR-150` / 表 T-035 の `AG-12` / 表 T-107 |
 | CP-41 | `Framework` | `McpRelayServer` | MCP の客の呼び出しを、自分が配ったページへ運ぶ。<br>運ぶために持つ値（鍵・繋いだページ・待っている呼び出し・溜めた変更の通知）を保持する。<br>取次のプロセスに載り、ページには載らない | `FR-150` / 表 T-035 の `AG-12` |
+| CP-42 | `UseCase` | `PlaceTask` | `UC-001` の UseCase。<br>押した点と離した点から、置くタスクの期間を決める | `UC-001` / `FR-001` / `FR-103` |
+| CP-43 | `UseCase` | `ArrangeTaskGroups` | `UC-002` の UseCase。<br>タスクグループの木の状態の書き込みと、親の下に新しいタスクグループを立てる書き込みを作る | `UC-002` / 表 T-328 |
+| CP-44 | `UseCase` | `EditTaskProperties` | `UC-003` の UseCase。<br>担当を消す前に、割当が解かれるタスクを問うかを決める | `UC-003` / `FR-099` |
+| CP-45 | `UseCase` | `LinkTasks` | `UC-004` の UseCase。<br>先行タスクの辺からポインタまで、仮の依存の線を描く | `UC-004` / `FR-009` |
+| CP-46 | `UseCase` | `RecordActuals` | `UC-005` の UseCase。<br>進捗マーカーを引いて離したとき、実績をどこから始めるかを決める | `UC-005` / 表 T-245 の `GO-9` / 表 T-240 の `DM-2` |
+| CP-47 | `UseCase` | `FindDelays` | `UC-006` の UseCase。<br>基準日の時点でタスクが遅れている稼働日数を答える | `UC-006` / `FR-047` |
+| CP-48 | `UseCase` | `ShowRange` | `UC-007` の UseCase。<br>保存した表示の場所が、文書の中の場所をまだ指しているかを決める | `UC-007` / 表 T-024a の `OP-10` |
+| CP-49 | `UseCase` | `AnnotateSchedule` | `UC-008` の UseCase。<br>コメントボックスの線先を、タスクグループの上の点に置く | `UC-008` / 表 T-221 の `LF-15` |
+| CP-50 | `UseCase` | `ShowConfidentialSchedule` | `UC-009` の UseCase。<br>透かしが名を出す者と、透かし解除の答えが透かしを外すかを決める | `UC-009` / `FR-020` |
+| CP-51 | `UseCase` | `ExchangeWithWbsMaster` | `UC-010` の UseCase。<br>使えない日付のために落とすタスクを選び、作業量の値を持つ文書を見分ける | `UC-010` / `FR-023` / 表 T-033 の `EX-3` |
+| CP-52 | `UseCase` | `SaveAndShareDocument` | `UC-011` の UseCase。<br>保存する文書に、書いた時刻の刻印を押す | `UC-011` / 表 T-058 の `AT-140` |
+| CP-53 | `UseCase` | `MergeSchedules` | `UC-014` の UseCase。<br>同じマスタの前回の取り込みから消えたタスクの名を挙げる | `UC-014` / 表 T-032 の `MG-11` |
+| CP-54 | `UseCase` | `OperateThroughAgentApi` | `UC-012` の UseCase。<br>書き込みの経路の拒否を、AI エージェントに返す理由と規則の行へ写す | `UC-012` / 表 T-400 の `AV-4` |
+| CP-55 | `UseCase` | `RunDelayDiagnostics` | `UC-015` の UseCase。<br>文書の暦で遅延診断を求める | `UC-015` / `FR-130` |
 
+`CP-42`〜`CP-55` は、Chapter 3.2 のユースケースと同じ名の UseCase である（規則 07 の R1c）。  
+その名は見出しの括弧の名を写したものである（仮: OPQ-26）。  
+`UC-013` は同じ名の UseCase をまだ持たない —— 呼ばれる側のコンポーネントと `UC-012` の UseCase で手順が済み、このユースケースだけが持つ結果（会話のうち変更の理由を `changeLog` に残すこと、表 T-052 の `DR-4`）を作る経路が定まっていない（未決: OPQ-27）。  
 各コンポーネントの内側のユニットと、公開するインターフェースは Chapter 5.3 が宣言する。  
 本表が定めるのはコンポーネントの境界だけである。  
 ⭐ 本表の `正` の欄は、そのコンポーネントの寸法と規則の根拠がどの表と要求に在るかを示す。  
@@ -241,9 +258,9 @@ SVG を作るコンポーネントは `Adapter` にあるが、`UseCase` を通�
 
 | 行 ID | 語 | 定義 | 本設計での全数 |
 | --- | --- | --- | --- |
-| SU-1 | **コンポーネント** | **フォルダの外へ見せる公開エントリを 1 つ持つもの**（規則は本節が MUST で定める）。<br>⚠️ **公開メンバを持たないものもある** —— `CP-25` は Vite の入口であり、他から呼ばれるメンバを持たない（`PI-25`） | **37。<br>** 全数は 表 T-062、公開する名前は 表 T-064 |
+| SU-1 | **コンポーネント** | **フォルダの外へ見せる公開エントリを 1 つ持つもの**（規則は本節が MUST で定める）。<br>⚠️ **公開メンバを持たないものもある** —— `CP-25` は Vite の入口であり、他から呼ばれるメンバを持たない（`PI-25`） | **51。<br>** 全数は 表 T-062、公開する名前は 表 T-064 |
 | SU-2 | **モジュール** | **複数のユニットを束ねた、コンポーネントの一部。<br>** 外へは公開しない | ⭐ **0** |
-| SU-3 | **ユニット** | **1 ファイル。<br>** 公開エントリもユニットである | **185。<br>** 全数は 表 T-075、割った理由は 表 T-063 |
+| SU-3 | **ユニット** | **1 ファイル。<br>** 公開エントリもユニットである | **199。<br>** 全数は 表 T-075、割った理由は 表 T-063 |
 
 **入れ子は コンポーネント ＞ モジュール ＞ ユニット である。**  
 **モジュールは任意の中間段であり、無いときはコンポーネントが直にユニットを持つ。**
@@ -296,7 +313,7 @@ Vite の入口は `single-html-shell.ts` である —— 表 T-062 の `CP-25` 
 本節は `src/` だけを持つ。
 
 ディレクトリ構成を次に示す。  
-37 のフォルダは 表 T-062 の 37 コンポーネントと 1 対 1 である。
+51 のフォルダは 表 T-062 の 51 コンポーネントと 1 対 1 である。
 
 ```text
 src/
@@ -308,7 +325,12 @@ src/
   use-case/           apply-document-change/ · edit-document/ · import-document/
                       undo-edit/ · redo-edit/ · validate-imported-document/
                       choose-startup-document/ · notify-change-watchers/
-                      advance-screen-session/
+                      advance-screen-session/ · place-task/ · arrange-task-groups/
+                      edit-task-properties/ · link-tasks/ · record-actuals/
+                      find-delays/ · show-range/ · annotate-schedule/
+                      show-confidential-schedule/ · exchange-with-wbs-master/
+                      save-and-share-document/ · merge-schedules/
+                      operate-through-agent-api/ · run-delay-diagnostics/
   adapter/            agent-api-endpoint/ · input-command-translator/ · svg-renderer/
                       document-codec/ · image-exporter/ · file-gateway/
                       clipboard-gateway/ · screen-renderer/ · mcp-tool-translator/
@@ -317,7 +339,7 @@ src/
                       canvas-rasterizer/ · dom-screen-surface/ · mcp-relay-server/
 ```
 
-ユニットを割った理由を 表 T-063 に、ユニットの全数を 表 T-075 に、37 コンポーネントの公開インターフェースを 表 T-064 に、層をまたぐ 8 本を 表 T-065 に示す。
+ユニットを割った理由を 表 T-063 に、ユニットの全数を 表 T-075 に、51 コンポーネントの公開インターフェースを 表 T-064 に、層をまたぐ 8 本を 表 T-065 に示す。
 
 **表 T-063 が持つのは、割った理由だけである。**  
 ⚠️ **層をまたぐインターフェースの 8 ファイルは本表に行を持たない** —— 割った理由が「宣言の置き場」の 1 つしか無く、その規則を 表 T-065 の後で本節が定めるからである。
@@ -442,7 +464,7 @@ src/
 | UF-16 | `EditDocument` | `edit-calendar.ts` | `pure` | `Calendar` の編集。<br>例外日の日付の時刻を揃えるのは本ユニットだけである（`_assets/tbl-document-commands.md` の `CM-39`）。 | `FR-088`（`OW-2`）・`FR-300`（`OW-2`） |
 | UF-17 | `EditDocument` | `edit-project.ts` | `pure` | `Project` の編集 | `FR-035`（`OW-2`）・`FR-046`（`OW-2`） |
 | UF-18 | `EditDocument` | `edit-document-settings.ts` | `pure` | `DocumentSettings` の編集 | — |
-| UF-162 | `EditDocument` | `deletion-confirmations.ts` | `pure` | 削除が消すもの・解くものを数え、表 T-234 の問い（`QN-1`・`QN-2`・`QN-3`・`QN-10`）を立てるかを決める（`FR-032`・`FR-099`） —— タスクグループと共に消えるタスクグループとタスクを数え（表 T-050 の `CD-1`・`CD-2`・`CD-6`）、担当の外しで解かれるタスクを並べる（`CD-5`）<br>告げ方（表 T-037 の `NT-7`）は持たない | — |
+| UF-162 | `EditDocument` | `deletion-confirmations.ts` | `pure` | 削除が消すもの・解くものを数え、表 T-234 の問い（`QN-1`・`QN-2`・`QN-10`）を立てるかを決める（`FR-032`） —— タスクグループと共に消えるタスクグループとタスクを数える（表 T-050 の `CD-1`・`CD-2`・`CD-6`）。<br>担当の外しで解かれるタスクの問い（`QN-3`・`CD-5`）は `CP-44` が持つ。<br>告げ方（表 T-037 の `NT-7`）は持たない | — |
 | UF-179 | `EditDocument` | `search-jump.ts` | `pure` | 飛ぶ先のタスクグループと祖先を展開し、表示を寄せる書き込みを、表 T-332 に従って作る | — |
 | UF-207 | `EditDocument` | `whole-schedule-shift.ts` | `pure` | 全体日程シフト（`FR-159`）の書き込みと、問い（`QN-15`）に出すものの数えを、表 T-379 の同じ写像で作る | `FR-159`（`OW-2`） |
 | UF-19 | `ImportDocument` | `import-document.ts` | `pure` | `CP-10` | `FR-015`（`OW-2`）・`FR-022`（`OW-2`）・`FR-056`（`OW-1`）・`FR-087`（`OW-1`） |
@@ -452,6 +474,20 @@ src/
 | UF-23 | `ChooseStartupDocument` | `choose-startup-document.ts` | `pure` | `CP-14` | `FR-027`（`OW-2`）・`FR-062`（`OW-1`） |
 | UF-24 | `NotifyChangeWatchers` | `notify-change-watchers.ts` | `non-pure` | 購読の登録・解除と、配ること | — |
 | UF-25 | `NotifyChangeWatchers` | `change-notice.ts` | `pure` | まだ受け取っていない変更を選ぶ | — |
+| UF-208 | `PlaceTask` | `place-task.ts` | `pure` | `CP-42` | — |
+| UF-209 | `ArrangeTaskGroups` | `arrange-task-groups.ts` | `pure` | `CP-43` | — |
+| UF-210 | `EditTaskProperties` | `edit-task-properties.ts` | `pure` | `CP-44` | — |
+| UF-211 | `LinkTasks` | `link-tasks.ts` | `pure` | `CP-45` | — |
+| UF-212 | `RecordActuals` | `record-actuals.ts` | `pure` | `CP-46` | — |
+| UF-213 | `FindDelays` | `find-delays.ts` | `pure` | `CP-47` | — |
+| UF-214 | `ShowRange` | `show-range.ts` | `pure` | `CP-48` | — |
+| UF-215 | `AnnotateSchedule` | `annotate-schedule.ts` | `pure` | `CP-49` | — |
+| UF-216 | `ShowConfidentialSchedule` | `show-confidential-schedule.ts` | `pure` | `CP-50` | — |
+| UF-217 | `ExchangeWithWbsMaster` | `exchange-with-wbs-master.ts` | `pure` | `CP-51` | — |
+| UF-218 | `SaveAndShareDocument` | `save-and-share-document.ts` | `pure` | `CP-52` | — |
+| UF-219 | `MergeSchedules` | `merge-schedules.ts` | `pure` | `CP-53` | — |
+| UF-220 | `OperateThroughAgentApi` | `operate-through-agent-api.ts` | `pure` | `CP-54` | — |
+| UF-221 | `RunDelayDiagnostics` | `run-delay-diagnostics.ts` | `pure` | `CP-55` | — |
 | UF-27 | `AgentApiEndpoint` | `agent-api-endpoint.ts` | `non-pure` | 設置と公開点の管理 | `FR-064`（`OW-3`）・`FR-065`（`OW-2`）・`FR-365`（`OW-2`） |
 | UF-28 | `AgentApiEndpoint` | `agent-api-members.ts` | `non-pure` | 表 T-107 の 27 メンバの結線 | `FR-028`（`OW-2`） |
 | UF-185 | `AgentApiEndpoint` | `relayed-call.ts` | `non-pure` | 取次が運んだ呼び出しを 1 つずつ、表 T-107 の同じ確定名のメンバへ渡し、答えを運べる値にして返す（`answerRelayedCall`） —— 画像のバイト列は base64 の文字列にし、購読した変更は渡された送り口へ流す（`_assets/design-mcp-relay.md` の 3.2 ・ 3.3）。<br>呼び出しと答えの型（`RelayedCall` ・ `RelayedAnswer`）を宣言する | — |
@@ -502,7 +538,7 @@ src/
 | UF-163 | `SingleHtmlShell` | `frame-clock-wakes.ts` | `non-pure` | 時間が来たことでフレームを起こす待ちを計る（表 T-078 の `FT-4`） —— 説明の待ち（アイコンは `EZ-2`、タスクは `EZ-6`）・倍率の告げの期限（`SE-3`）・押し続けの繰り返し（`FR-018`）。<br>1 回ごとに次を仕掛ける | — |
 | UF-164 | `SingleHtmlShell` | `field-entry.ts` | `non-pure` | 名前付けと入力欄の領域（表 T-292）の出来事を、面と機械の間で運ぶ —— 焦点の求めと再試行（`MK-13`・`IN-5a`・`IN-5b`）、知らせの汲み出し（`IF-9`）、確定の書き込み（`SK-19`）。<br>状態を読む前に知らせを汲み、動いた選択も求めを取り下げる | — |
 | UF-165 | `SingleHtmlShell` | `document-file-flow.ts` | `non-pure` | 文書のファイルの流れ（表 T-290）—— 開く・保存する・書き出す・渡された文書とドロップされたファイルを取り込む —— をファイルの門を通して運ぶ。<br>開く前に検証して使えない日付のタスクを落とし（`FR-023`）、開き方・合流の対応・上書きの問いの答えを待ち（`QN-4`・`QN-5`・`OP-3`・表 T-032a）、失敗を 表 T-233 の理由で告げる | — |
-| UF-166 | `SingleHtmlShell` | `watermark-unlock.ts` | `non-pure` | 透かしの解除の門（`FR-020`・`U-60`） —— 答えの SHA-256 を、記憶の値（`S-99c`、無ければ `S-101`）と照らす。<br>SHA-256 を求められない環境では、合わない答えとして `RS-41` を告げる | — |
+| UF-166 | `SingleHtmlShell` | `watermark-unlock.ts` | `non-pure` | 透かしの解除の門（`FR-020`・`U-60`） —— 答えの SHA-256 を求め、記憶の値（`S-99c`、無ければ `S-101`）と照らすことを `CP-50` に問う。<br>SHA-256 を求められない環境では、合わない答えとして `RS-41` を告げる | — |
 | UF-167 | `SingleHtmlShell` | `task-group-band-ceiling-cache.ts` | `non-pure` | 縦軸のズームの天井（`FR-016`、`taskGroupBandCeilingOf`）を、帯を変えない入力のあいだ使い回す（表 T-071 の `CA-1` の ②） —— 帯を変えない設定の列（縦の倍率と表示の位置）は鍵から外す | — |
 | UF-168 | `SingleHtmlShell` | `copy-and-paste.ts` | `non-pure` | 選んだタスクグループかタスクをコピーし、コピーしたものを貼る命令を作る（`FR-033`・`SK-4`・`SK-5`・`DU-2`） —— 重ねの上限を超える貼り付けは告げて止め、貼る先が 2 つ以上なら貼らない | — |
 | UF-123 | `SingleHtmlShell` | `session-effects.ts` | `non-pure` | ステートマシンが返した副作用を、返った順に 1 つずつ種類ごとの実行へ渡すこと（`runSessionEffects`）と、その実行の表の型（`EffectRunners` —— 副作用の種類の全数を 1 つ残らず求める。<br>全数は 表 T-280 ・ 表 T-286 ・ 表 T-289 ・ 表 T-290 ・ 表 T-292 ・ 表 T-293 の状態遷移表の升）、まだ結線していない領域の種類の置き場（`unwiredEffect` —— 呼ばれたら投げる。<br>シェルはその領域の出来事を送らないので届かない） | — |

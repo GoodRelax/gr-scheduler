@@ -1,3 +1,5 @@
+// Contract tests: the fix heading box checks the listed rows, then clears every row.
+
 import { describe, expect, it } from 'vitest'
 
 import {
@@ -113,7 +115,7 @@ describe('the scene holds every kind of row the heading has to tell apart', () =
   })
 })
 
-// see FM-1, JDG-2920
+// Spec: FM-1
 describe('T-374 FM-1 -- the heading state follows whether any proposal row is checked', () => {
   it('showAt is the place of the FM-1 column on the proposals table', () => {
     const view = viewOf(OPENED)
@@ -164,7 +166,7 @@ describe('T-374 FM-1 -- the column opens no filter', () => {
   })
 })
 
-// see FM-1, JDG-2920, JDG-2921
+// Spec: FM-1
 describe('T-374 FM-1 -- pressed while empty, the heading checks every listed row that can take a check', () => {
   it('checks the automatic rows that take a check', () => {
     const rows = ofKind(CHECKED_ALL, 'automatic').filter((row) => row.causedBy === null && row.refusal === null)
@@ -239,7 +241,7 @@ describe('T-374 FM-1 -- pressed while empty, the heading checks every listed row
   })
 })
 
-// see FM-1, JDG-2920
+// Spec: FM-1
 describe('T-374 FM-1 -- pressed while checked, the heading clears every row, listed or not', () => {
   it('clears every row of the scene', () => {
     expect(rowsIn(CLEARED).filter((row) => row.checked && row.isCheckable)).toEqual([])

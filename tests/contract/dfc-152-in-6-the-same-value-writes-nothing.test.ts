@@ -1,81 +1,4 @@
-// Unit tests for the last clause of `IN-6` of 表 T-028:
-// 「⛔ **始めた値と同じ値を書いてはならない（MUST NOT）**」.
-// ⚠️ ITS REASON WAS REWRITTEN ON 2026-09-08. It used to rest on a second undo
-// step; FR-031 gained a MUST the same day that leaves no step for a write that
-// changed no value, so the old reason had been made false by the very
-// requirement it cited. ⭐ The prohibition and these cases are unchanged.
-//
-// Unit under test: UF-71 `dom-screen-surface.ts` (CP-38 of 表 T-062), the side
-// of `IF-9` that HAS a field to settle -- 「まだ確定していない文字入力があるかを
-// 答え」 and CR-361 「プロパティパネルの欄で確定した値を…返し」 are both its answers, and
-// this file asks for both because the ledger row says a naive fix to the first
-// breaks the second.
-//
-// ⚠️ Chapter 9 does not admit Unit as a TEST_LEVEL, so these have no node in
-// the specification. 表 T-218 of Chapter 7 gives them their place: TS-6,
-// tests/unit/.
-//
-// ---------------------------------------------------------------------------
-// ⛔ WHY THIS FILE EXISTS -- THE LEDGER ROW IT STANDS IN FOR
-// ---------------------------------------------------------------------------
-//
-// `docs/development-records/defects.md` DFC-152: 「⛔ **同じ `Enter` を繰り返すと、
-// 誰も編集していない取り消しの段が積まれる**」, 期待値 「値が変わっていなければ
-// 何も書かない」. Its 詳細状況 column names the rule verbatim -- 「**表 T-028 の
-// `IN-6` が逐語で「始めた値と同じ値を書いてはならない」と定めている。**」 -- and
-// its 補足 column names the trap this file exists to keep shut:
-//
-//   「⛔⛔ **前の体の見立てDFC-152 「`hasUnsettledTextEntry()` を偽にすればよい」は誤りで
-//     あった** —— **同じ答えを 表 T-028 の `IN-5a` が単文字キーの門にも使っており、
-//     偽にすると名称の欄で `p` と打っただけでパレットが開く。**」
-//
-// ⭐ So both sides are pinned here: the unchanged value raises nothing, AND the
-// answer `IN-5a`'s gate is built on still stands while the caret is in a field.
-// ⛔ A case that only pinned the first would go green on exactly the fix the
-// ledger says is wrong.
-//
-// ---------------------------------------------------------------------------
-// THE ROWS THESE CASES ANSWER TO (rule 03 §3: name the row, do not copy it)
-// ---------------------------------------------------------------------------
-//
-//   表 T-028 `IN-6` -- the MUST NOT quoted above, and the sentence that makes it
-//            reach `Enter` and not only a pointer press: 「⚠️ **`SK-19` の `Enter`
-//            と同じ確定である** —— 引き金が 3 つ目になるだけで、確定の意味は 1 つ
-//            である」
-//   表 T-028 `IN-5a` 「**単文字キーと `Delete` / `Backspace` は、文字入力を確定
-//            していない間は効かないこと（MUST NOT）**」, whose gate is the answer
-//            asserted in section 3
-//   表 T-036 `SK-19` 「その場の編集（名称・担当名・タスクグループ名・文書名・プロパティの入力）を確定すること」, `Enter`
-//   表 T-065 `IF-9` -- the two answers these cases read: the settled value with
-//            the row it names, and whether text stands unsettled
-//   `FR-031` / 表 T-027 `UN-3` -- why a second write of the same value is a
-//            defect and not a waste: it costs a 段, and `Ctrl+Z` then takes two
-//            presses to undo one edit
-//   表 T-016 `PR-1` `name` and `PR-2` `notes` -- the two rows that are settled by
-//            typing, which is where DFC-152 was measured
-//
-// ---------------------------------------------------------------------------
-// ⛔ WHAT WAS READ OF `src/`: NOT ONE FILE. The unit is reached through
-// tests/fixtures/fake-browser.ts, which other cases already drive it with.
-// ---------------------------------------------------------------------------
-//
-// ⚠️ WHAT IS DELIBERATELY NOT ASSERTED, each searched for before being given up
-//
-//   1. THAT A POINTER PRESS OUTSIDE THE FIELD SETTLES IT. That is `IN-6`'s FIRST
-//      half, and the press it speaks of lands on the schedule, which `IF-1` puts
-//      up as its own surface beside this unit's tree -- so the listener is on the
-//      host and tests/unit/uf-71.test.ts already records where it sits. This file
-//      drives the trigger `SK-19` names, which `IN-6` says is the same settling.
-//   2. HOW MANY 段 THE HISTORY ENDS UP WITH. That is UF-8 / UF-9's answer and
-//      tests/unit/uf-8-9-history-depth.test.ts owns it. What this unit owes is
-//      to raise nothing; what the loop then does with nothing is not its rule.
-//   3. ⚠️ A SECOND SETTLING RAISED BY THE HOST'S OWN `change` ON THE WAY OUT.
-//      Measured while writing this file: with the panel still describing the OLD
-//      text, a `change` after the settling `Enter` hands the same value back a
-//      second time. ⛔ It is NOT asserted either way, because no row says when the
-//      description a field compares itself against is refreshed -- in the running
-//      application the frame that `FT-1` raises redraws the panel first. Reported
-//      rather than settled here.
+// Contract tests: settling a field with the value it started with writes nothing, and its text still stands unsettled.
 
 import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
@@ -107,10 +30,6 @@ import {
 } from '../fixtures/fake-browser'
 import { textEntryStandsOpen } from '../fixtures/field-edit-notices'
 
-// ---------------------------------------------------------------------------
-// The manuscript, read at read time rather than copied (Chapter 1.9)
-// ---------------------------------------------------------------------------
-
 const T_016: SpecTable = specTable('T-016')
 const T_028: SpecTable = specTable('T-028')
 const T_036: SpecTable = specTable('T-036')
@@ -122,26 +41,19 @@ function rowOf(table: SpecTable, id: string): SpecRow {
   return found
 }
 
-/** Everything one row writes, as one string. */
 const wholeRow = (table: SpecTable, id: string): string => rowOf(table, id).cells.join(' ')
 
-/** ⛔ THE GROUND OF THIS FILE, read rather than typed. */
 const THE_SAME_VALUE_MUST_NOT = '始めた値と同じ値を書いてはならない（MUST NOT）'
 
-/** `IN-6`'s sentence that makes the MUST NOT reach `SK-19`'s `Enter`. */
 const THE_SAME_SETTLING = '`SK-19` の `Enter` と同じ確定である'
 
-/** `IN-5a`'s own MUST NOT -- the gate the ledger says a naive fix opens. */
 const THE_SINGLE_KEY_MUST_NOT =
   '単文字キーと `Delete` / `Backspace` は、文字入力を確定していない間は効かないこと（MUST NOT）'
 
-/** The `GRS JSON` column 表 T-016 gives one row. */
 const columnOf = (id: string): string => bare(rowOf(T_016, id).by['列（`GRS JSON`）'] ?? '')
 
-/** The 入力の型 表 T-016 gives one row. */
 const inputFormOf = (id: string): string => bare(rowOf(T_016, id).by['入力の型'] ?? '')
 
-/** The keystroke 表 T-036 assigns one row, read out of its 割当 column. */
 function keyOf(id: string): KeyInput {
   const parts = (bare(rowOf(T_036, id).by['割当'] ?? '').split('/')[0] ?? '')
     .replace(/＋/g, '+')
@@ -173,17 +85,12 @@ function settledName(id: string): string {
   return bare(rowOf(T_103, id).by[COLUMN] ?? '')
 }
 
-/** `U-25` -- the `Properties Panel`. */
 const U_25 = settledName('U-25')
 
 const REQUIREMENTS = unbroken(readRepoFile(
   join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'),
   'utf8',
 ))
-
-// ---------------------------------------------------------------------------
-// The description these cases draw
-// ---------------------------------------------------------------------------
 
 const EMPTY_HEADER: AppHeaderItems = {
   documentTitle: null,
@@ -221,16 +128,14 @@ const controlOf = (
   ...patch,
 })
 
-/** The two rows of 表 T-016 that are settled by typing, which is where DFC-152 was measured. */
+// Spec: T-016, PR-1, PR-2
 const TYPED_ROWS = ['PR-1', 'PR-2'] as const
 
-/** ⭐ THE VALUE THE PERSON STARTED WITH -- what `IN-6`'s MUST NOT is about. */
 const STARTED_WITH: Record<string, string> = {
   'PR-1': 'TheValueItStartedWith',
   'PR-2': 'TheNotesItStartedWith',
 }
 
-/** A value that is not that one, for the control cases. */
 const SOMETHING_ELSE: Record<string, string> = {
   'PR-1': 'SomethingElseEntirely',
   'PR-2': 'OtherNotesEntirely',
@@ -238,7 +143,7 @@ const SOMETHING_ELSE: Record<string, string> = {
 
 const TASK_UID = 1
 
-/** The join is 表 T-016's own 入力の型 column, so a row whose form moves reaches here. */
+// Why: the join is T-016's own input form column, so a row whose form moves reaches here.
 const FORM_OF_KIND: Record<string, string> = { 文字: 'text', 複数行: 'multiline' }
 
 function fieldOf(row: string): PropertyField {
@@ -278,17 +183,7 @@ function drawnPanel(): Stage {
   return built
 }
 
-// ---------------------------------------------------------------------------
-// Driving one field
-// ---------------------------------------------------------------------------
-
-/**
- * Raise one event on a node and let it bubble, the way a browser would.
- *
- * ⛔ Nothing about the unit is decided here: which listeners exist is the unit's
- * own answer, read out of `world.registrations`; this only walks the chain a
- * real event walks.
- */
+// Summary: raise() walks one event from the node up its ancestors to the listeners the unit itself registered.
 function raise(
   built: Stage,
   node: FakeElement,
@@ -337,7 +232,6 @@ function controlFor(built: Stage, row: string): FakeElement {
   return found[0] as FakeElement
 }
 
-/** A person putting the caret in one field. */
 function enterField(built: Stage, row: string): FakeElement {
   const control = controlFor(built, row)
   control.focus()
@@ -345,13 +239,11 @@ function enterField(built: Stage, row: string): FakeElement {
   return control
 }
 
-/** A person typing one value into a field they are already in. */
 function type(built: Stage, control: FakeElement, text: string): void {
   control.value = text
   raise(built, control, 'input')
 }
 
-/** The key `SK-19` assigns, pressed in the field. */
 const pressSettle = (built: Stage, control: FakeElement): void => {
   raise(built, control, 'keydown', { key: SK_19.key })
 }
@@ -367,42 +259,27 @@ const takeCommit = (built: Stage): Commit | null =>
 
 const textStandsUnsettled = (built: Stage): boolean => textEntryStandsOpen(surfaceOf(built))
 
-// ===========================================================================
-// The manuscript still says what these cases read
-// ===========================================================================
-
+// Spec: IN-6, IN-5a, SK-19, T-028, T-036, T-016
 describe('the manuscript still says what these cases read', () => {
   it('⭐ IN-6 still forbids writing the value it started with', () => {
     expect(wholeRow(T_028, 'IN-6')).toContain(THE_SAME_VALUE_MUST_NOT)
   })
 
   it('⭐ IN-6 still says SK-19’s `Enter` is that same settling', () => {
-    // 「⚠️ **`SK-19` の `Enter` と同じ確定である** —— 引き金が 3 つ目になるだけで、
-    //   確定の意味は 1 つである」 -- which is what lets a rule written about a
-    // pointer press be asked of a key.
+    // Why: this sentence is what lets a rule written about a pointer press be asked of the SK-19 key.
     expect(wholeRow(T_028, 'IN-6')).toContain(THE_SAME_SETTLING)
   })
 
   it('⭐ IN-6 keeps the MUST NOT, and no longer rests it on a consequence that cannot happen', () => {
-    // ⚠️⚠️ REWRITTEN 2026-09-08, AND THE ROW MOVED FIRST. IN-6 used to give
-    // its reason as 「同じ値を 2 度書くと取り消しが 2 段になる」, citing FR-031.
-    // ⛔ FR-031 GAINED A MUST THE SAME DAY that makes that consequence
-    // impossible -- a write that changed no value leaves no 段 at all -- so the
-    // reason was false, and false about the very requirement it cited.
-    // ⭐ THE PROHIBITION ITSELF STANDS, on a reason that is still true: stopped at
-    // the entrance, no command, no bundle and no telling are built at all.
-    // ⭐ THIS CASE IS THE GUARD AGAINST THE ROW DRIFTING BACK -- it fails if the
-    // retired consequence is written into IN-6 again.
+    // Trap: IN-6 once rested on a second undo step, which FR-031 made impossible; this case fails if that
+    // retired consequence is written back into IN-6 as its reason.
     const inSix = wholeRow(T_028, 'IN-6')
     expect(inSix).toContain(THE_SAME_VALUE_MUST_NOT)
     expect(inSix, 'IN-6 lost the reason that survives FR-031').toContain(
       '何も変えない書き込みを、そもそも道に乗せない',
     )
-    // ⛔ THE RETIRED CONSEQUENCE MAY STILL BE PRINTED, BUT ONLY AS A NAMED
-    // NON-REASON -- this project keeps those, and check 42 is why they must
-    // be quoted rather than paraphrased. ⭐ What this asserts is that it is
-    // not standing loose as the reason again: every occurrence in the row is
-    // immediately followed by the words that forbid resting on it.
+    // Why: the retired consequence may still be printed as a named non-reason, quoted for check 42, so each
+    // occurrence must be followed by the words that forbid resting on it.
     const retired = '取り消しが 2 段になる'
     for (let at = inSix.indexOf(retired); at >= 0; at = inSix.indexOf(retired, at + 1)) {
       expect(
@@ -423,15 +300,12 @@ describe('the manuscript still says what these cases read', () => {
   })
 })
 
-// ===========================================================================
-// 1. IN-6 (MUST NOT) -- the value it started with is not written
-// ===========================================================================
-
+// Spec: IN-6, SK-19, IF-9
+// Why: a second settling raised by the host's own change on the way out is not asserted, since no
+// row says when the description a field compares itself against is refreshed.
 describe('IN-6 (MUST NOT) -- settling an unchanged field raises nothing', () => {
   for (const row of TYPED_ROWS) {
     it(`⛔ ${row}: entering the field and pressing SK-19 without typing raises nothing`, () => {
-      // 「⛔ **始めた値と同じ値を書いてはならない（MUST NOT）**」. Nothing was
-      // typed, so the value is the one it started with, exactly.
       const built = drawnPanel()
       const control = enterField(built, row)
       pressSettle(built, control)
@@ -440,9 +314,7 @@ describe('IN-6 (MUST NOT) -- settling an unchanged field raises nothing', () => 
     })
 
     it(`⛔ ${row}: typing the SAME value back in and pressing SK-19 raises nothing`, () => {
-      // ⭐ THE HARDER HALF. A unit that only watched whether a keystroke had
-      // arrived would pass the case above and fail this one: the person really
-      // did type, and the value really is the one they started with.
+      // Why: a unit that only watched whether a keystroke arrived passes the case above and fails this one.
       const built = drawnPanel()
       const control = enterField(built, row)
       type(built, control, STARTED_WITH[row] ?? '')
@@ -452,8 +324,7 @@ describe('IN-6 (MUST NOT) -- settling an unchanged field raises nothing', () => 
     })
 
     it(`⭐ ${row}: a DIFFERENT value is still handed back (the control for both above)`, () => {
-      // ⛔ Without this, a unit that never handed anything back at all would pass
-      // the two cases above -- which is the state DFC-130 measured.
+      // Why: without this control, a unit that never hands anything back passes the two cases above.
       const built = drawnPanel()
       const control = enterField(built, row)
       const wanted = SOMETHING_ELSE[row] ?? ''
@@ -466,12 +337,8 @@ describe('IN-6 (MUST NOT) -- settling an unchanged field raises nothing', () => 
     })
 
     it(`⛔ ${row}: pressing SK-19 twice on one change writes once, not twice`, () => {
-      // IN-6 (MUST NOT) -- the second press finds the value it now started
-      // with, so it raises nothing. ⛔ If it raised the same value again, a
-      // second write would reach the document for one edit.
-      // ⚠️ NOT 「one `Ctrl+Z` would no longer undo one edit」 ANY MORE: FR-031
-      // (MUST, 2026-09-08) leaves no step for a write that changed no value, so
-      // the history would survive it. What this case guards is the write.
+      // Why: the second press finds the value it now started with; raising it again writes twice for one edit,
+      // and FR-031 (UN-3) leaves no undo step for that, so the write itself is what is guarded.
       const built = drawnPanel()
       const control = enterField(built, row)
       type(built, control, SOMETHING_ELSE[row] ?? '')
@@ -484,18 +351,12 @@ describe('IN-6 (MUST NOT) -- settling an unchanged field raises nothing', () => 
   }
 })
 
-// ===========================================================================
-// 2. IN-5a -- and the gate it is built on is still shut
-// ===========================================================================
-
+// Spec: IN-5a, IF-9
+// Why: a fix that answered that no text stands unsettled would pass the IN-6 cases and open the
+// single-key gate, so this side is pinned too.
 describe('IN-5a (MUST NOT) -- the unchanged value does not open the single-key gate', () => {
   for (const row of TYPED_ROWS) {
     it(`⛔ ${row}: with the caret in the field and nothing typed, text stands unsettled`, () => {
-      // ⭐⭐ THE OTHER SIDE OF DFC-152, AND THE ONE ITS 補足 COLUMN WARNS ABOUT:
-      // 「**同じ答えを 表 T-028 の `IN-5a` が単文字キーの門にも使っており、偽にする
-      //   と名称の欄で `p` と打っただけでパレットが開く。**」 So an implementation
-      // that made the first section pass by answering 「確定していない文字入力は
-      // 無い」 breaks `IN-5a` -- and fails here.
       const built = drawnPanel()
       enterField(built, row)
 
@@ -511,10 +372,8 @@ describe('IN-5a (MUST NOT) -- the unchanged value does not open the single-key g
     })
 
     it(`⭐ ${row}: and the settling SK-19 is what lets go of it`, () => {
-      // ⚠️ THE OTHER DIRECTION, so that the two cases above are not passed by a
-      // unit that simply always answers 真. `SK-19`'s second stage 「出ている通知も確定していないその場の編集も無く、
-      // プロパティパネルを出している間、 `Enter` を押したとき、`GRS` は、
-      // プロパティパネルを出すのをやめること」 has nothing to stand on unless the answer can become 偽.
+      // Why: the other direction, so the cases above are not passed by a unit that always answers true;
+      // SK-19's second stage needs the answer to become false.
       const built = drawnPanel()
       const control = enterField(built, row)
       expect(textStandsUnsettled(built)).toBe(true)

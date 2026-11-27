@@ -1,143 +1,4 @@
-// One sweep over the ledger rows that sat at `実測待ち` -- green in the
-// automated tests, never pressed out of the shipped build. Twenty-three rows
-// were handed to this file; nineteen of them are held down here, and the four
-// that are not say why in prose below.
-//
-//   DFC-24   a fit throws the folds away, and what it lands on fits
-//   DFC-43   double-clicking a task opens the panel with the name field ready
-//   DFC-52   the written picture carries no trace of what was selected
-//   DFC-65   the header's time is written small, and in the reader's own clock
-//   DFC-66   a second save writes again, and asks no second time where to
-//   DFC-82   nothing stands in front of a color control showing its value
-//   DFC-91   the weekday tier is ticked exactly where the day tier is
-//   DFC-92   the ruler band keeps its height and divides it evenly
-//   DFC-97   the save key writes GRS JSON, and the second press asks nothing
-//   DFC-98   with no file open, the reload key does nothing
-//   DFC-103  the minimize entrance rides the palette's grab band, not a group
-//   DFC-105  a help item reads shape, description, assignment -- at S-203
-//   DFC-106  the words a tooltip puts up are drawn at S-204
-//   DFC-126  the file's name stands above the time it was written
-//   DFC-130  a value settled in the panel reaches the document
-//   DFC-152  settling the same value twice writes nothing
-//   DFC-166  the reason a row gives for refusing is the reason that row holds
-//   DFC-210  a click on the month tier lands on the end of the month
-//   DFC-220  a picture too tall to draw is refused, and the other formats write
-//
-// ⭐ FIVE MORE ROWS WERE ADDED WITH CR-344, and they are of a different kind:
-// four of them are lines that landed in the specification on 2026-09-03, and
-// the fifth is a MUST that has stood for weeks with nobody asserting it. Every
-// one of them was found by a person pressing the shipped build while 6,009 unit
-// cases, 23 System cases and 32 machine checks were green.
-//
-//   DFC-232  a task drawn on empty ground leaves a name field under the keyboard
-//          (found here; the case since MOVED -- see "DFC-232" in the prose below)
-//   DFC-233  the settings surface prints dictionary words, and no raw identifier
-//   DFC-234  an added task group is brought into view, not just the field that names it
-//   DFC-235  the bound document names the language the screen is in
-//   DFC-236  one sheet per reason, counted up, with no ceiling on the sheets
-//
-// ⛔ FIVE ROWS ARE NOT HELD HERE. Four of them are the finding rather than a
-// gap; the fifth, DFC-232, is a different shape -- it WAS held here, and moved.
-//
-//   DFC-15 asks that `FD-6` (table T-012a) and `IV-12` (table T-220) count the
-//   same days. `FD-6` is a truncation rule and `IV-12` is an invariant; ⛔ the
-//   shipped build puts NEITHER on the screen. Measured 2026-09-03: typing 999
-//   into the fade field of `PR-14` on a task running 2026-05-01..2027-03-31
-//   and settling it reads back 999 -- the panel reports what was typed, not
-//   what `FD-6` truncated it to, and no requirement says it should. No notice
-//   is raised either: `IV-12` is checked where nothing draws. ⇒ The agreement
-//   this row is about can only be watched at the seam, which is where
-//   `tests/contract/fd-6-iv-12-the-fade-span.contract.test.ts` already
-//   watches it. A System case here would have to read the truncated span back
-//   out of the drawing's geometry, and no row of the specification says the
-//   drawn fade edge is the truncated value.
-//
-//   DFC-124 asks that a document handed at start-up which cannot be read raises
-//   `RS-26` of table T-233. ⛔ The shipped build has no way to be handed one:
-//   opened as a file, nothing hands it a document, so `OP-14` of table T-024a
-//   is never reached and `RS-26`'s words are never printed. The ledger row
-//   says the same in its own 実物確認 column. What would make it measurable is
-//   a start-up route that hands a document in -- `BT-2` of table T-034 -- and
-//   that route is not wired in this build.
-//
-//   DFC-202 asks that the application, when the body that runs the screen cannot
-//   be found inside the file it is running from, says `RS-45` of table T-233
-//   rather than `RS-42` (both are sourced to `FR-102`). ⛔ The shipped build has
-//   no route to that fault. Measured 2026-09-03: the deliverable carries
-//   exactly one `<script>` -- inline, no id, 1,105,353 characters -- and taking
-//   it out of the document after it has run, then writing a single `.html`
-//   (`IO-7` of table T-024), writes 2,001,354 characters, the same count as a
-//   run that left it in place, and raises no notice at all. ⇒ What the build
-//   writes its own body out of is not the element standing in the document, so
-//   no press from outside can make it missing. A System case here could only
-//   assert that the normal route succeeds, which is not what the row is about.
-//
-//   DFC-211 asks that a highlight box whose `start` is after its `finish`,
-//   or whose `topTaskGroupId` is below its `bottomTaskGroupId`, is refused -- `IV-19`
-//   of table T-220. ⛔ Nothing that can be pressed reaches it. The row is one of
-//   the document invariants, and Chapter 6.1 gives that table exactly one
-//   driver: 「`scheduleViolations`（表 T-064 の `PI-1`）は、表 T-220 を駆動して
-//   回ること」 -- a seam function, and no requirement puts its answer on a
-//   screen. The one refusal a reader is shown for a badly shaped document is
-//   `RS-25` of table T-233, which the same chapter hands to the GENERATED
-//   SCHEMA, and that schema is forbidden a condition over more than one column
-//   (「表 T-220 は、1 つの列だけで決まる条件を持たないこと」, read the
-//   other way round); `IV-19` is over four columns. `FR-019` closes the other
-//   door: values that came from a drag are normalized on release and can never
-//   break the row, and table T-016 gives the Properties Panel no row for a
-//   box's dates, so there is nothing to type either. ⇒ The seam is where this
-//   agreement can be watched, and
-//   `tests/contract/document-invariants.contract.test.ts` already watches it.
-//
-//   DFC-232 asks that a name can be typed the moment a task is drawn. This file
-//   DID measure it (144x28px polygon count +1, typable-field count staying 0,
-//   Properties Panel `display:none`, focus on `BODY`) and DID write a case for
-//   it, and the case could not be made to pass: `FR-091` (MUST) has the field,
-//   but nothing anywhere makes a just-drawn task the selection
-//   `showPropertiesOfChoice()` needs to advance past, and that missing line is
-//   ledger row DFC-228, still `裁定待ち`. Rule 05's "止まるときは緑で止まる" means a
-//   case that cannot pass belongs to `tests/system/open-defect-pins.test.ts`'s
-//   `PINNED` / `test.fail()` machinery and not to a plain assertion left red in
-//   this file, so the case moved there. It stays in `HELD` just below: this
-//   file still measured the row and still stands behind why it is
-//   `裁定待ち`; `HELD`'s own gate only checks that the row is still in the
-//   ledger, not that the case still lives in this file.
-//
-// ⛔ ONE HALF OF DFC-66 IS ALSO NOT SETTLED HERE, and it is named at that case:
-// the run below writes through a REPLACED host save dialogue, so it proves
-// what the application does once it holds a handle. It does not prove that the
-// real dialogue's handle is accepted -- telling those apart means reading
-// `src/`, which rule 04 section 1 forbids the writer of a test.
-//
-// ⛔ NO `swsCase` IS DECLARED HERE, for the reason
-// `tests/system/user-reported-fixes.test.ts` gives: table T-219 (row TW-2) has
-// Chapter 9's cases GENERATED from those declarations and hung from a
-// `SWS-xxx` node of Chapter 6.1, and not one of `SWS-1`..`SWS-8` is about a
-// header stamp, a tooltip's size, or where a minimize entrance stands. The
-// rows each case leans on are quoted in prose at the case instead.
-//
-// ⭐ WHAT IS PRESSED IS THE SHIPPED BUILD -- `dist/index.html`, opened over
-// `file:`, not the dev server the other two System files use. Rule 04 section
-// 3 is about the running application, and the ledger's `実測待ち` means
-// precisely "not yet pressed out of the deliverable".
-//
-// ⭐ ONE BROWSER, AND ALMOST ONE PAGE. Every case below shares one browser.
-// Fourteen of them share one page as well, in an order that puts the ones which
-// disturb the document last: reading cases, then the panel, then the rename,
-// then the zoom, then the notice, then the ruler, then the fit. ⛔ SIX CASES
-// CANNOT SHARE THAT PAGE. The clock a page reads, the host dialogue it calls
-// and the size of the screen are all fixed when the context is made, so DFC-52,
-// DFC-65's second half, DFC-66, DFC-97 and DFC-220 each run on a further context of the
-// SAME browser, one fresh page each; DFC-210 takes one as well because it makes
-// four tasks of its own and a fresh document is cheaper than putting them back.
-// A browser launch costs a second or two and this file pays it once.
-//
-// ⭐ EVERY NUMBER ASSERTED IS READ OUT OF `docs/spec` AT READ TIME -- the three
-// text-size coefficients, the tooltip's wait, the keys the help prints, the
-// words a refusal carries. Nothing here is a number copied off a running
-// screen. Chapter 1.9 (`:275`) asks that of a test driven by a table.
-//
-// ⭐ EACH CASE SAYS WHAT WOULD MAKE IT GO RED, in the sentence above its body.
+// System tests: one sweep over measured defects, pressed out of the shipped build.
 
 import { expect, test, type Browser, type BrowserContext, type Page } from '@playwright/test'
 import { existsSync } from 'node:fs'
@@ -148,10 +9,6 @@ import { specTable, type SpecTable } from '../contract/spec-table'
 import { DEFAULT_DISPLAY_SCALE, displayRatioAt } from '../fixtures/display-scale'
 import { CLEARING_UP_MS, launchReferenceBrowser, readSettledDrawnSvg, screenOf } from './live-app'
 import { rowOf } from './sws-case'
-
-// ---------------------------------------------------------------------------
-// What the specification says, read at read time
-// ---------------------------------------------------------------------------
 
 const T016: SpecTable = specTable('T-016')
 const T023: SpecTable = specTable('T-023')
@@ -165,17 +22,9 @@ const T206: SpecTable = specTable('T-206')
 const T212: SpecTable = specTable('T-212')
 const T233: SpecTable = specTable('T-233')
 
-/**
- * One cell of a row, taken by position, with the table's shape guarded.
- *
- * ⭐ By position and not by heading, for the reason `tests/system/sws-case.ts`
- * gives for `lastCellOf`: the headings are Japanese and rule 03 section 5 keeps
- * this tree ASCII. A caller reading a column other than the last guards the
- * column count itself, which is what `columns` is for -- so a table that grows
- * or loses a column fails loudly here rather than asserting the wrong cell.
- *
- * @purity pure
- */
+// Why: by position, not by heading, as the headings are Japanese; the column count is guarded
+// so a table that gains or loses a column fails here.
+/** @purity pure */
 function cellOf(table: SpecTable, specTableRowId: string, column: number, columns: number): string {
   const row = rowOf(table, specTableRowId)
   if (row.cells.length !== columns) {
@@ -187,7 +36,7 @@ function cellOf(table: SpecTable, specTableRowId: string, column: number, column
   return row.cells[column] ?? ''
 }
 
-/** The first number written in a cell. @purity pure */
+/** @purity pure */
 function numberIn(cell: string, what: string): number {
   const found = /-?\d+(?:\.\d+)?/.exec(cell.replace(/`/g, ''))
   const value = Number(found?.[0] ?? '')
@@ -197,66 +46,43 @@ function numberIn(cell: string, what: string): number {
   return value
 }
 
-/** Columns of table T-206 after the row ID: value, default, why it is not saved. */
 const T206_COLUMNS = 3
 const T206_DEFAULT = 1
 
-/** Columns of table T-212 after the row ID: name, value, floor, ceiling, note. */
 const T212_COLUMNS = 5
 const T212_VALUE = 1
 
-/** Columns of table T-036 after the row ID: what it does, the assignment, the shape. */
 const T036_COLUMNS = 4
 const T036_ASSIGNMENT = 1
 const T036_ENTRANCE = 2
 
-/** Columns of table T-023 after the row ID: the operation, what it does, the entrance. */
 const T023_COLUMNS = 4
 const T023_ENTRANCE = 2
 
-/** Columns of table T-016 after the row ID: column, input kind, subject, kinds shown for, note, MSPDI. */
 const T016_COLUMNS = 6
 const T016_INPUT_KIND = 1
 
-/** Columns of table T-109 after the row ID: surface, group, what it opens, source, setting, arming. */
 const T109_COLUMNS = 6
 const T109_PLACE = 0
 const T109_PURPOSE = 2
 const T109_SOURCE = 3
 const T109_STANCE = 5
 
-/** Columns of table T-233 after the row ID: the situation, the manner, the source. */
 const T233_COLUMNS = 5
 const T233_SITUATION = 0
 
-/**
- * Columns of table T-024 after the row ID: format, direction, ending, media type,
- * offered on IC-2, the first character a reader sees, what it is for, the note.
- */
 const T024_COLUMNS = 9
 const T024_ENDING = 2
 const T024_FIRST_CHARACTER = 5
 
-/** Columns of table T-204 after the row ID: key, type, default, meaning. */
 const T204_COLUMNS = 4
 const T204_DEFAULT = 2
 
-/**
- * Columns of table T-201 after the row ID: the group, the key, the unit, the
- * default, the floor, the ceiling, the note.
- */
 const T201_COLUMNS = 7
 const T201_DEFAULT = 3
 
-/**
- * `S-37` (`taskGroupTitleIndent`) of table T-201, 「タスクグループ見出しの字下げ。1 段深くなるごと
- * にこの幅だけ字下げする」（利用者の裁定 2026-09-01）, which `FR-085` (MUST) also
- * subtracts from the width a name is cut against.
- *
- * ⛔ READ, NEVER WRITTEN DOWN. The row moved from 12 to 16 on 2026-09-01, and a
- * case holding either number would have gone red for the manuscript changing
- * rather than for the product moving.
- */
+// Why: read, never written down: the row has moved before, and a pinned number would go red
+// for the manuscript changing, not the product.
 const TASK_GROUP_INDENT = numberIn(cellOf(T201, 'S-37', T201_DEFAULT, T201_COLUMNS), 'T-201 S-37')
 
 // Spec: FR-039, T-252, T-202, S-234, S-236
@@ -275,53 +101,30 @@ const DRAWN_PLAN_BAR_PX =
 // Why: down by half a pixel -- still well above the S-5 actual bar under it.
 const BAR_FLOOR_PX = DRAWN_PLAN_BAR_PX - 0.5
 
-/**
- * `S-81` of table T-204: the size a picture is written at. `FR-025` (MUST) has
- * the WIDTH fixed here and the height stretch until the drawing is in, so the
- * number this file reads off the cell is the width -- the first of the two.
- */
+// Why: FR-025 fixes the width and lets the height stretch, so the first number of S-81 is read.
 const EXPORT_WIDTH = numberIn(cellOf(T204, 'S-81', T204_DEFAULT, T204_COLUMNS), 'T-204 S-81')
 
-/**
- * `S-217` of table T-204: how far that height may stretch. `FR-025` (MUST) has
- * a picture that does not fit inside it not written at all, and (MUST NOT)
- * forbids writing a part of one.
- */
+// Spec: FR-025, S-217
 const EXPORT_HEIGHT_CAP = numberIn(cellOf(T204, 'S-217', T204_DEFAULT, T204_COLUMNS), 'T-204 S-217')
 
-/** The screen of the base environment: table T-025, row `MC-6` (1920 x 1080). */
 const BASE_SCREEN = screenOf(rowOf(T025, 'MC-6'))
 
-/**
- * `S-203` of table T-206: the coefficient the help's text size is decided by.
- * `FR-036` (MUST) fixes it here and (MUST NOT) forbids holding it in px.
- */
+// Spec: FR-036, S-203
 const HELP_TEXT_SCALE = numberIn(cellOf(T206, 'S-203', T206_DEFAULT, T206_COLUMNS), 'T-206 S-203')
 
-/**
- * `S-204` of table T-206: the same for a tooltip's words. `FR-092` row `EZ-2`
- * (MUST) points at it.
- */
+// Spec: FR-092, EZ-2, S-204
 const TOOLTIP_TEXT_SCALE = numberIn(cellOf(T206, 'S-204', T206_DEFAULT, T206_COLUMNS), 'T-206 S-204')
 
-/**
- * `S-210` of table T-206: the same for the header's written-at stamp.
- * `FR-101` (MUST) points at it and (MUST NOT) forbids px. ⚠️ The row says in as
- * many words that it is NOT applied to the file's name -- only the time.
- */
+// Spec: FR-101, S-210
 const SAVED_AT_TEXT_SCALE = numberIn(cellOf(T206, 'S-210', T206_DEFAULT, T206_COLUMNS), 'T-206 S-210')
 
 // Spec: S-235, HS-7
 const HEADER_SCALE = numberIn(cellOf(T206, 'S-235', T206_DEFAULT, T206_COLUMNS), 'T-206 S-235')
 
-/**
- * `S-124` (`iconHintDelayMs`) of table T-212: how long a pointer rests before
- * an explanation is put up. `FR-092` row `EZ-2` (MUST) has one value for every
- * surface and (MUST NOT) forbids a second.
- */
+// Spec: FR-092, EZ-2, S-124
 const HINT_DELAY_MS = numberIn(cellOf(T212, 'S-124', T212_VALUE, T212_COLUMNS), 'T-212 S-124')
 
-/** The manuscript `FR-038` (MUST) makes the one home of every word the screen prints. */
+// Spec: FR-038
 const DICTIONARY = join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json')
 
 /** @purity non-pure */
@@ -341,22 +144,15 @@ async function dropText(page: Page, name: string, text: string | readonly number
   )
 }
 
-/** One reason of table T-233 as the dictionary holds it. */
 interface ReasonWords {
   readonly specTableRowId: string
   readonly ja: string
   readonly en: string
 }
 
-/**
- * Every reason of table T-233, with the two sentences the dictionary gives it.
- *
- * ⭐ Read rather than spelled: `FR-038` (MUST) has every printed word live in
- * the dictionary and (MUST NOT) lets a requirement or a table spell one, so a
- * literal here would be a second copy of a word that has exactly one home.
- *
- * @purity semi-pure-mutable
- */
+// Why: read, not spelled: FR-038 gives every printed word one home, so a literal here would
+// be a second copy.
+/** @purity semi-pure-mutable */
 function reasonWordsOfDictionary(): ReasonWords[] {
   const held = JSON.parse(readRepoFile(DICTIONARY, 'utf8')) as {
     reasons?: Array<{ specTableRowId?: string; text?: { ja?: string; en?: string } }>
@@ -370,13 +166,8 @@ function reasonWordsOfDictionary(): ReasonWords[] {
   }))
 }
 
-/**
- * The word `FR-101` (MUST) asks for while nothing has been written yet, in both
- * languages: 「まだ 1 度もファイルへ書いていないとき、`GRS` は、時刻の代わりに、
- * まだ書いていない旨を示すこと」.
- *
- * @purity semi-pure-mutable
- */
+// Spec: FR-101
+/** @purity semi-pure-mutable */
 function neverSavedWords(): readonly string[] {
   const held = JSON.parse(readRepoFile(DICTIONARY, 'utf8')) as {
     fileStatus?: Array<{ state?: string; text?: { ja?: string; en?: string } }>
@@ -389,16 +180,9 @@ function neverSavedWords(): readonly string[] {
   return words
 }
 
-/**
- * The seven weekday words, in every language the dictionary spells them in.
- *
- * ⭐ Read rather than written, for the reason `FR-038` (MUST) gives and for one
- * more: the display language is chosen from the browser (`FR-038`), so a case
- * that spelled one language's seven would report a build running in the other
- * as broken. Both spellings are accepted and neither is in this file.
- *
- * @purity semi-pure-mutable
- */
+// Why: both languages are accepted: the display language follows the browser (FR-038), so
+// one language's seven would fail a build running in the other.
+/** @purity semi-pure-mutable */
 function weekdayWords(): readonly string[] {
   const held = JSON.parse(readRepoFile(DICTIONARY, 'utf8')) as {
     weekdays?: Array<{ text?: { ja?: string; en?: string } }>
@@ -409,13 +193,13 @@ function weekdayWords(): readonly string[] {
   return said
 }
 
-// see FR-036, JDG-76
+// Spec: FR-036
 // Why: GLYPH_TOKEN of dom-screen-surface.ts turns exactly this token into
 // Why: the wheel glyph, wherever in a dictionary word it stands.
 /** @purity pure */
 const WHEEL_GLYPH_TOKEN = '{IC-102}'
 
-// see FR-036, JDG-76
+// Spec: FR-036
 /** @purity semi-pure-mutable */
 function assignmentPressWordsByRow(): Map<string, string> {
   const held = JSON.parse(readRepoFile(DICTIONARY, 'utf8')) as {
@@ -442,7 +226,7 @@ function wheelOperationByIcon(): Map<string, string> {
   return out
 }
 
-// see FR-036, JDG-76
+// Spec: FR-036
 /** @purity pure */
 function drawsTheWheelMark(
   row: string,
@@ -454,14 +238,8 @@ function drawsTheWheelMark(
   return (pressWords.get(operation) ?? '').includes(WHEEL_GLYPH_TOKEN)
 }
 
-/**
- * Whether a piece of text is written in Japanese script.
- *
- * ⭐ Kana (U+3040..U+30FF) or han (U+4E00..U+9FFF), counted by code point so
- * that this file spells no character of either. Rule 03 section 5.
- *
- * @purity pure
- */
+// Why: counted by code point, so this file spells no Japanese character.
+/** @purity pure */
 function isJapanese(text: string): boolean {
   for (const character of text) {
     const code = character.codePointAt(0) ?? 0
@@ -471,42 +249,22 @@ function isJapanese(text: string): boolean {
   return false
 }
 
-/** Whitespace flattened, so a manuscript cell and a drawn span compare. @purity pure */
+/** @purity pure */
 function flat(text: string): string {
   return text.replace(/\s+/g, ' ').trim()
 }
 
-/**
- * The whole of an assignment cell, with the manuscript's own marking taken off.
- *
- * ⛔ NOT `bare` OF `tests/contract/spec-table.ts`. That one answers the FIRST
- * code span of a cell, which is right for a cell holding one name and wrong for
- * every cell here that holds two: `SK-3` writes 「`Delete` / `Backspace`」 and
- * `SK-16` writes 「`Shift` ＋ `+` / `Shift` ＋ `-`」, and the screen prints both
- * halves. Taking the first span would have this file assert that the screen
- * prints half of what the manuscript writes.
- *
- * @purity pure
- */
+// Why: not bare of spec-table: that answers the first code span, and cells such as SK-3 and
+// SK-16 hold two chords the screen prints in full.
+/** @purity pure */
 function assignmentText(cell: string): string {
   return flat(cell.replace(/[`*]/g, ''))
 }
 
-/**
- * One chord of the manuscript, spelled the way a driven keyboard wants it.
- *
- * ⚠️ THREE SPELLINGS DIFFER AND NOTHING IN THE SPECIFICATION IS WRONG ABOUT IT.
- * The manuscript writes a full-width plus (U+FF0B) between the parts of a chord
- * with spaces around it, and writes the modifier as `Ctrl`; the tool wants `+`
- * with no spaces and the name `Control`. Both are given as code points or short
- * literals here rather than left to a reader to guess.
- *
- * ⛔ ONE CHORD ONLY. A cell listing two of them (`SK-3`, `SK-7`, `SK-16`) has no
- * single answer, and quietly pressing the first is how a case ends up testing
- * something it never named.
- *
- * @purity pure
- */
+// Why: the manuscript writes a full-width plus with spaces and Ctrl; a driven keyboard wants
+// + and Control.
+// Why: one chord only; a cell listing two (SK-3, SK-7, SK-16) has no single answer.
+/** @purity pure */
 function pressable(cell: string): string {
   const plus = String.fromCharCode(0xff0b)
   const said = assignmentText(cell)
@@ -562,19 +320,7 @@ function helpListedEntrances(): ReadonlySet<string> {
   )
 }
 
-/**
- * The rows of table T-036 whose assignment is a bare key, with that key.
- *
- * ⛔ ROWS WHOSE CELL CARRIES PROSE ARE LEFT OUT. `SK-8` writes
- * 「`Esc`（規則は表 T-028 の `IN-4`）」 -- the key plus a pointer to the rule --
- * and the screen prints the key alone, quite correctly. Asserting the whole
- * cell there would be asserting the manuscript's punctuation. The filter is
- * "no Japanese script in the cell". The second member is the help item the key
- * sits on: the entrance the row names (FR-036), or the row itself.
- *
- * @purity pure
- */
-// see FR-036, CR-770
+// Spec: FR-036
 // Why: the screen spells each chord of a cell Ctrl+A and writes the plus key with the help language's word.
 function screenChordsOf(cell: string): readonly string[] {
   const words = JSON.parse(
@@ -588,6 +334,9 @@ function screenChordsOf(cell: string): readonly string[] {
     .map((keys) => keys.map((one) => (one === '+' ? (plus['en'] ?? '+') : one)).join('+'))
 }
 
+// Why: cells carrying prose are left out: SK-8 writes Esc plus a pointer to IN-4, and the
+// screen prints the key alone.
+/** @purity pure */
 function keyedShortcutRows(): ReadonlyArray<readonly [string, string, string]> {
   const listed = helpListedEntrances()
   const out: Array<readonly [string, string, string]> = []
@@ -596,7 +345,7 @@ function keyedShortcutRows(): ReadonlyArray<readonly [string, string, string]> {
     if (row.cells.length !== T036_COLUMNS) continue
     const key = assignmentText(row.cells[T036_ASSIGNMENT] ?? '')
     if (key === '' || isJapanese(key)) continue
-    // U+2014, the dash the manuscript writes where a row has no assignment.
+    // Why: U+2014 is the dash the manuscript writes where a row has no assignment.
     if (key === String.fromCharCode(0x2014)) continue
     const entrance = /IC-\d+/.exec(row.cells[T036_ENTRANCE] ?? '')
     out.push([row.id, entrance === null || !listed.has(entrance[0]) ? row.id : entrance[0], key])
@@ -607,16 +356,8 @@ function keyedShortcutRows(): ReadonlyArray<readonly [string, string, string]> {
   return out
 }
 
-/**
- * The rows of table T-016 whose input kind names a color.
- *
- * ⭐ Taken from the table's own input-kind column rather than named here, so
- * that a property which becomes a color is swept without editing this file.
- * ⚠️ The kind is written in Japanese (U+8272), given by code point for the
- * reason rule 03 section 5 gives.
- *
- * @purity pure
- */
+// Why: taken from the input-kind column, so a property that becomes a color is swept unedited.
+/** @purity pure */
 function colorPropertyRows(): readonly string[] {
   const color = String.fromCharCode(0x8272)
   const found = T016.rows
@@ -626,17 +367,9 @@ function colorPropertyRows(): readonly string[] {
   return found
 }
 
-/**
- * The one row of table T-109 with this text in the column given.
- *
- * ⭐ Used so that no case here spells an `IC-nn` of its own: an entrance is
- * found by what the table says it does (`T109_PURPOSE`) or by the requirement
- * the table gives as its source (`T109_SOURCE`). Renaming or renumbering an
- * entrance in the manuscript moves every case with it; two entrances answering
- * one description is a failure here rather than a silent choice of the first.
- *
- * @purity pure
- */
+// Why: no case spells an IC-nn of its own; an entrance is found by its purpose or source, so
+// a renumbered entrance moves every case with it.
+/** @purity pure */
 function entranceBy(column: number, ...texts: readonly string[]): string {
   const found = T109.rows
     .filter((row) => row.cells.length === T109_COLUMNS)
@@ -650,15 +383,7 @@ function entranceBy(column: number, ...texts: readonly string[]): string {
   return found[0]?.id ?? ''
 }
 
-/**
- * The entrance another entrance's own row names.
- *
- * ⭐ Table T-109 says of the minimize entrance 「⭐ **`IC-53` の右に並ぶ**
- * （`FR-053`）」 -- it names the band it rides. Reading the neighbor out of that
- * cell keeps both row IDs in the manuscript and neither in this file.
- *
- * @purity pure
- */
+/** @purity pure */
 function entranceNamedIn(entrance: string): string {
   const said = cellOf(T109, entrance, T109_PURPOSE, T109_COLUMNS)
   const found = /IC-\d+/.exec(said)
@@ -668,38 +393,19 @@ function entranceNamedIn(entrance: string): string {
   return found[0]
 }
 
-// The two words that tell the time axis apart from the vertical axis, and one
-// direction of zoom from the other. ⚠️ Given as code points rather than
-// written out: rule 03 section 5 keeps this tree ASCII, and
-// `tests/system/user-reported-fixes.test.ts` gives the same reason for the one
-// word it needs -- a literal would be invisible in a diff.
-/** U+6642 U+9593 U+8EF8 -- the time axis. */
+// Why: the time-axis word and the zoom-in and zoom-out words are code points, since a
+// Japanese literal would be invisible in a diff.
 const TIME_AXIS = String.fromCharCode(0x6642, 0x9593, 0x8ef8)
-/** U+62E1 U+5927 -- to enlarge. */
 const ZOOM_IN = String.fromCharCode(0x62e1, 0x5927)
-/** U+7E2E U+5C0F -- to shrink. */
 const ZOOM_OUT = String.fromCharCode(0x7e2e, 0x5c0f)
 
-// ---------------------------------------------------------------------------
-// Driving the shipped build
-// ---------------------------------------------------------------------------
-
-/**
- * ⛔ THE DELIVERABLE, not the sources and not the dev server. `NFR-004` row
- * `CN-1` has `dist/` hold exactly one file and that file be the `.html`;
- * `tests/nfr/nfr-004-single-file.test.ts` is what assembles and judges it.
- * This file only presses it, and says so loudly when it is not there.
- */
+// Spec: NFR-004
+// Why: the deliverable, not the sources or the dev server: a measured row means one pressed
+// out of the build.
 const SHIPPED_BUILD = join(process.cwd(), 'dist', 'index.html')
 
-/**
- * ⛔ THE SAME HANDLES `tests/system/live-app.ts` AND THE OTHER TWO SYSTEM FILES
- * LEAN ON, and no others. Nothing in the specification says how a part is
- * marked in the page; the shell writes the part's settled name of
- * `_assets/tbl-glossary.md`, and a change to that marking breaks these cases,
- * as it should -- at that point the tool and the tests disagree about how a
- * part is found and the specification cannot settle the argument.
- */
+// Why: the same data-role handles live-app.ts uses; no spec row says how a part is marked,
+// so a change to the marking should break these cases.
 const CANVAS = '[data-role="Schedule Canvas"] svg'
 const TOOLTIP = '[data-role="Tooltip"]'
 const PANEL = '[data-role="Properties Panel"]'
@@ -725,61 +431,35 @@ test.beforeAll(async () => {
   plainContext = await browser.newContext({ viewport: BASE_SCREEN })
   plainPage = await plainContext.newPage()
   await plainPage.goto(pathToFileURL(SHIPPED_BUILD).href)
-  // ⚠️ Not a fixed pause. `BO-1` of table T-077 holds the page invisible until
-  // the size is settled and the shell may legitimately draw twice on the way
-  // up, so what is waited for is two identical readings of the drawing.
+  // Why: not a fixed pause: BO-1 keeps the page hidden until the size settles and the shell
+  // may draw twice, so two identical readings are awaited.
   await readSettledDrawnSvg(plainPage)
 })
 
-// ⛔ THE HOOK'S OWN ALLOWANCE, NOT AN ASSERTION'S. Closing the reference browser
-// passes a hook's 30s default on this machine -- measured at 21s..163s over five
-// launches -- so this file reported red at the very end however green all
-// twenty-two cases were. `CLEARING_UP_MS` of `./live-app` carries the
-// measurements, and why the contexts are not what is slow.
+// Why: the hook's own allowance: closing the browser can outlast a hook's 30s default;
+// CLEARING_UP_MS carries the measurements.
 test.afterAll(async () => {
   test.setTimeout(CLEARING_UP_MS)
   await browser?.close()
 })
 
-/** The page every case of the first block shares. @purity semi-pure-mutable */
+// Trap: the shared-page cases run in file order, the ones that disturb the document last;
+// moving one of those earlier changes what the later cases read.
+/** @purity semi-pure-mutable */
 function shared(): Page {
   if (plainPage === null) throw new Error('the shipped build was not opened')
   return plainPage
 }
 
-/** A page of its own, in the same browser, with the host's dialogue replaced. */
 interface Stubbed {
   readonly page: Page
   close(): Promise<void>
 }
 
-/**
- * A page whose clock is somewhere other than UTC and whose save dialogue is
- * answered without a person.
- *
- * ⛔ WHY THE DIALOGUE IS REPLACED AT ALL. The only route the shipped build has
- * for writing a file is the host's own save picker, and a driven browser cannot
- * answer one -- which is why the three rows below sat at `実測待ち` for a week.
- * What is put in its place keeps the shape the host's own gives back: a handle
- * with a `name` and a `createWritable()`, a writable with `write`/`close`. ⚠️
- * IT PROVES ONE HALF. What the application does once it holds a handle is
- * measured; whether the REAL picker's handle is accepted is not, and cannot be
- * from outside.
- *
- * ⚠️ `timezoneId` is chosen only for being a whole number of hours away from
- * UTC, which is what lets a printed hour tell the two apart. The case guards
- * that the offset it actually got is not zero, so a machine that ignores the
- * setting fails loudly rather than passing on a coincidence.
- *
- * ⚠️ THE SCREEN IS A PARAMETER, and every caller but one leaves it at `MC-6`.
- * The one that does not is the case for DFC-220: what makes a picture too tall to
- * write is the SHAPE OF THE SCREEN and not the document (the ledger's own
- * measurement, and `FR-025` says as much -- the width is fixed and the height
- * follows `FR-080`'s ratio), so that case has to be judged on a screen shaped to
- * reach the ceiling, and says so at the case.
- *
- * @purity non-pure
- */
+// Why: a driven browser cannot answer the host save picker, so a stand-in of its shape is put
+// in; this proves what the app does with a handle, not that the real one is accepted.
+// Why: the time zone is whole hours off UTC, so a printed hour tells the two apart.
+/** @purity non-pure */
 async function openStubbedPage(screen: { width: number; height: number } = BASE_SCREEN): Promise<Stubbed> {
   if (browser === null) throw new Error('the reference browser was not opened')
   const context = await browser.newContext({
@@ -811,14 +491,8 @@ async function openStubbedPage(screen: { width: number; height: number } = BASE_
           async close() {
             let text = ''
             for (const part of parts) text += await decoded(part)
-            // ⭐ THE NAME AND THE BODY ARE PARTED BY `\0`, and it is written as
-            // an escape rather than as the byte itself: a raw one makes this
-            // file BINARY to `grep`, so the pre-publish sweep for secrets and
-            // personal data cannot read it at all (measured 2026-09-03), and
-            // rule 03 section 5 asks for ASCII besides. The character is chosen
-            // because a file's name cannot hold it and the bodies below are
-            // JSON, XML, SVG and HTML, none of which carries one either -- a
-            // space or a newline would part the wrong pair.
+            // Trap: write the separator as the escape, never the raw NUL byte: a raw one makes this file
+            // binary to grep, and the pre-publish sweep cannot read it.
             written.push(`${name}\0${text}`)
           },
           async abort() {},
@@ -855,7 +529,6 @@ async function openStubbedPage(screen: { width: number; height: number } = BASE_
   }
 }
 
-/** What the replaced dialogue was asked, and what went through it. */
 interface Wrote {
   readonly asked: number
   readonly files: readonly string[]
@@ -877,17 +550,9 @@ async function readWrites(page: Page): Promise<Wrote> {
   })
 }
 
-/**
- * Wait until a reading answers what is wanted, polling rather than sleeping.
- *
- * ⚠️ WHY IT EXISTS. The header catches up with a write some seconds after the
- * write itself -- measured 2026-09-03: nothing at 1.5s, the name and the stamp
- * both there by 5.5s. A fixed pause either wastes the difference on every run
- * or reports a working header as broken, and this project has already made the
- * second mistake once (the ledger's DFC-66).
- *
- * @purity non-pure
- */
+// Why: polling, not a fixed pause: the header catches up with a write seconds later, and a
+// fixed pause either wastes time or reports a working header as broken.
+/** @purity non-pure */
 async function until<T>(
   page: Page,
   read: () => Promise<T>,
@@ -905,7 +570,7 @@ async function until<T>(
   throw new Error(`${what} was still not true after ${timeoutMs}ms; last reading ${JSON.stringify(seen)}`)
 }
 
-/** Where an entrance stands right now, or null while it is not on the screen. @purity semi-pure-mutable */
+/** @purity semi-pure-mutable */
 async function entranceBox(
   page: Page,
   entrance: string,
@@ -919,16 +584,9 @@ async function entranceBox(
   }, entrance)
 }
 
-/**
- * Press an entrance with a real pointer.
- *
- * ⛔ A REAL POINTER, not `element.click()`. The shell builds its input from
- * pointer events, and a synthetic click has reached nothing in this project
- * before -- `tests/system/user-reported-fixes.test.ts` and `tools/probe/`
- * both record the same.
- *
- * @purity non-pure
- */
+// Why: a real pointer, not element.click(): the shell builds its input from pointer events,
+// and a synthetic click reaches nothing.
+/** @purity non-pure */
 async function pressEntrance(page: Page, entrance: string): Promise<boolean> {
   const box = await entranceBox(page, entrance)
   if (box === null) return false
@@ -939,18 +597,9 @@ async function pressEntrance(page: Page, entrance: string): Promise<boolean> {
   return true
 }
 
-/**
- * Leave a palette entrance ARMED, whatever it was before.
- *
- * ⛔⛔ NOT `pressEntrance` TWICE OVER, AND NOT ONCE EITHER. `SP-4` of `FR-083`
- * (MUST, 利用者の裁定 2026-09-07, 逐語「トグルにせよ。 ユーザーに選択肢がある」)
- * makes a press of the entrance that is ALREADY armed a disarm, so a case that
- * presses to arm and presses again later ends up with nothing armed and measures
- * a gesture the requirement is not about. ⭐ The arming is read off the entrance
- * itself (`data-armed`), which is what the drawing side writes.
- *
- * @purity non-pure
- */
+// Why: SP-4 of FR-083 makes a press on an armed entrance a disarm, so the arming is read off
+// data-armed before any press.
+/** @purity non-pure */
 async function armEntrance(page: Page, entrance: string): Promise<boolean> {
   const armed = async (): Promise<boolean> =>
     page.evaluate(
@@ -963,11 +612,10 @@ async function armEntrance(page: Page, entrance: string): Promise<boolean> {
   return armed()
 }
 
-/** Whatever the notices are saying right now (table T-037). @purity semi-pure-mutable */
+/** @purity semi-pure-mutable */
 async function readNotices(page: Page): Promise<string[]> {
   return page.evaluate(() =>
-    // ⛔ THE ROLE IS `Notification Area`, and asking for a role called `Notice`
-    // is how a probe of an earlier round found none and called a defect fixed.
+    // Trap: the role is Notification Area; asking for Notice finds none and reads a defect as fixed.
     Array.from(document.querySelectorAll('[data-role]'))
       .filter((marked) => (marked.getAttribute('data-role') ?? '').includes('Notification'))
       .map((marked) => (marked.textContent ?? '').trim())
@@ -975,26 +623,16 @@ async function readNotices(page: Page): Promise<string[]> {
   )
 }
 
-/**
- * The host's own ground text size, which is what the three coefficients are
- * multiplied by.
- *
- * ⛔ NOT `fontSizeStepSizes` OF TABLE T-215. `S-197`, `S-203`, `S-204` and `S-210`
- * all say in as many words that the multiplicand is the host's ground text and
- * not the drawing's own scale -- the frame around the schedule is not the
- * schedule. Read off the root element rather than `body`, so that a rule the
- * application puts on `body` cannot quietly become the baseline this file
- * compares against.
- *
- * @purity semi-pure-mutable
- */
+// Why: the host's ground text, not fontSizeStepSizes, is what S-197, S-203, S-204 and S-210
+// multiply; it is read off the root so a rule on body cannot become the baseline.
+/** @purity semi-pure-mutable */
 async function groundTextPx(page: Page): Promise<number> {
   return page.evaluate(() =>
     Number.parseFloat(getComputedStyle(document.documentElement).fontSize),
   )
 }
 
-/** The text sizes every leaf under a selector is drawn at. @purity semi-pure-mutable */
+/** @purity semi-pure-mutable */
 async function leafTextSizes(page: Page, selector: string): Promise<Array<{ text: string; px: number }>> {
   return page.evaluate((wanted: string) => {
     const host = document.querySelector(wanted)
@@ -1008,7 +646,7 @@ async function leafTextSizes(page: Page, selector: string): Promise<Array<{ text
   }, selector)
 }
 
-/** How many `<text>` of the drawing read exactly this. @purity semi-pure-mutable */
+/** @purity semi-pure-mutable */
 async function drawnTextsReading(page: Page, reading: string): Promise<number> {
   return page.evaluate(
     (asked: { canvas: string; wanted: string }) =>
@@ -1019,15 +657,14 @@ async function drawnTextsReading(page: Page, reading: string): Promise<number> {
   )
 }
 
-/** A task bar whose middle is on the screen, or null when none is. @purity semi-pure-mutable */
+/** @purity semi-pure-mutable */
 async function firstBarOnScreen(page: Page): Promise<{ x: number; y: number } | null> {
   return page.evaluate(
     (asked: { canvas: string; width: number; floor: number }) => {
       const svg = document.querySelector(asked.canvas)
       if (svg === null) return null
-      // ⚠️ THE DRAWING IS WIDER THAN THE WINDOW. A bar's own middle is often
-      // off the right edge, and a pointer sent there presses nothing; what is
-      // taken is the middle of the part that is actually on the screen.
+      // Why: the drawing is wider than the window, so the middle of the visible part is pressed,
+      // not the bar's own middle.
       for (const shape of Array.from(svg.querySelectorAll('polygon'))) {
         const box = shape.getBoundingClientRect()
         const left = Math.max(box.x, 230)
@@ -1043,17 +680,9 @@ async function firstBarOnScreen(page: Page): Promise<{ x: number; y: number } | 
   )
 }
 
-/**
- * Double-click a task's body, which is one of the two things table T-023 row
- * `MK-13` gives that gesture on a task.
- *
- * ⚠️ THE POINTER ARRIVES FROM SOMEWHERE ELSE FIRST, and the two presses are
- * Playwright's own double click rather than two presses of this file's making:
- * `MK-13` is judged on the click count, and two presses spaced by whatever a
- * loaded machine gives are not reliably one double click.
- *
- * @purity non-pure
- */
+// Why: Playwright's own double click, after a move from elsewhere: MK-13 is judged on the
+// click count, and two presses spaced by a loaded machine are not reliably one.
+/** @purity non-pure */
 async function doubleClickBar(page: Page, at: { x: number; y: number }): Promise<void> {
   await page.mouse.move(at.x - 40, at.y - 40)
   await page.waitForTimeout(150)
@@ -1061,30 +690,16 @@ async function doubleClickBar(page: Page, at: { x: number; y: number }): Promise
   await page.waitForTimeout(1200)
 }
 
-/** One tier of the ruler band: the ticks that divide it and the words in it. */
 interface RulerTier {
   readonly top: number
   readonly ticks: readonly number[]
   readonly words: readonly string[]
 }
 
-/**
- * The ruler band's tiers, each with the ticks it is divided by.
- *
- * ⛔ THE TICKS AND NOT THE WORDS ARE WHAT `LF-1` IS ABOUT. Table T-221 row
- * `LF-1` gives an INTERVAL to each tier -- DFC-91 「年の段は 1 年、年と月の段は 1 か月、
- * 週の段は 7 日、日の段と曜日の段は 1 日」 -- and what is drawn at an interval is
- * the tick, not the label; a tier could print a word every second tick and still
- * be ticked every day. So the lines are read, grouped by the height they start
- * at, and the words are carried along only so that a case can say WHICH tier it
- * is holding.
- *
- * ⚠️ A tier's own ticks all start at that tier's top and are one tier high, so
- * the top is the grouping key. The zero-height lines the drawing also carries at
- * those heights are left out -- they divide nothing.
- *
- * @purity semi-pure-mutable
- */
+// Why: the ticks, not the words, are what LF-1 is about: a tier may print a word every second
+// tick and still be ticked every day.
+// Why: ticks are grouped by their top; zero-height lines at those heights divide nothing.
+/** @purity semi-pure-mutable */
 async function rulerTiers(page: Page): Promise<RulerTier[]> {
   return page.evaluate((canvas: string) => {
     const svg = document.querySelector(canvas)
@@ -1105,19 +720,11 @@ async function rulerTiers(page: Page): Promise<RulerTier[]> {
       const box = drawn.getBoundingClientRect()
       const said = (drawn.textContent ?? '').trim()
       if (said === '') continue
-      // ⛔ NOT THE WATERMARK. FR-020's marks are clipped to the Task Group Area,
-      // so none of them PAINTS on the band -- but a clipped element still
-      // reports its unclipped box, and this walk picks labels by geometry
-      // alone. Measured 2026-09-05: without this, the band read
-      // ['user 2026-09-05T...','2026','2027','2028'] and the month tier was
-      // never found. `data-role="Watermark"` is what the attribute is for.
+      // Why: skip the watermark: FR-020's marks are clipped to the Task Group Area but report
+      // their unclipped box, and this walk picks labels by geometry.
       if (drawn.closest('[data-role="Watermark"]') !== null) continue
-      // ⚠️ THE MIDDLE, NOT THE EDGES. A word's box is taller than the tier it
-      // stands in -- measured 2026-09-03, a 16px tier carries a 21px box that
-      // starts 2px above the tier's own line and ends 3px below it -- so a
-      // reading taken off the top puts every word one tier up and a reading
-      // taken off the bottom puts every word one tier down and throws the
-      // lowest tier away entirely.
+      // Why: the middle, not the edges: a word's box is taller than its tier, so a top or bottom
+      // reading puts every word one tier off.
       const middle = (box.top + box.bottom) / 2
       if (middle > firstTaskGroupTop) continue
       let nearest: number | null = null
@@ -1140,14 +747,7 @@ async function rulerTiers(page: Page): Promise<RulerTier[]> {
   }, CANVAS)
 }
 
-/**
- * The two dates the Properties Panel is showing, and the name beside them.
- *
- * ⭐ Table T-016 holds the planned start in `PR-3` and the planned finish in
- * `PR-47` since CR-689, one date control each.
- *
- * @purity semi-pure-mutable
- */
+/** @purity semi-pure-mutable */
 async function panelDates(page: Page): Promise<{ start: string; finish: string; name: string } | null> {
   return page.evaluate(() => {
     const dateIn = (row: string): HTMLInputElement | null =>
@@ -1162,7 +762,7 @@ async function panelDates(page: Page): Promise<{ start: string; finish: string; 
   })
 }
 
-/** Every task shape on the drawing right now, as a string apiece. @purity semi-pure-mutable */
+/** @purity semi-pure-mutable */
 async function drawnShapes(page: Page): Promise<string[]> {
   return page.evaluate(
     (canvas: string) =>
@@ -1179,16 +779,9 @@ async function drawnShapes(page: Page): Promise<string[]> {
   )
 }
 
-/**
- * Open the chooser of `FR-096` and press the format whose file ending is given.
- *
- * ⚠️ THE ENDING COMES FROM TABLE T-024, so the button is found by what the
- * manuscript says the format is called on disk rather than by anything read off
- * the screen. The words beside it are the dictionary's (`FR-038`) and are not
- * touched here.
- *
- * @purity non-pure
- */
+// Why: the ending comes from table T-024, so the button is found by the manuscript's name
+// for the format, not by words on the screen.
+/** @purity non-pure */
 async function pressExportFormat(page: Page, chooser: string, ending: string): Promise<boolean> {
   if (!(await pressEntrance(page, chooser))) return false
   await page.waitForTimeout(600)
@@ -1210,22 +803,9 @@ async function pressExportFormat(page: Page, chooser: string, ending: string): P
   return true
 }
 
-// ---------------------------------------------------------------------------
-// DFC-103 -- where the minimize entrance stands
-// ---------------------------------------------------------------------------
-
-// GOES RED IF: the entrance that minimizes the command palette is drawn inside
-// a `Palette Groups` or a `Palette Commands` box, or stops sitting at the right
-// end of the grab band, or stops standing to the right of the band's own mark.
-// Table T-109 says of that row 「掴み帯の右端で、パレットを最小化し、同じ入口で
-// 戻す（`S-200`）。⭐ `IC-53` の右に並ぶ（`FR-053`）」 and gives the band's own
-// mark 「掴んで動かせることを示す。**ボタンではない**」 -- so one of the two is a
-// button inside the other, which is exactly what the boxes must not hold.
-//
-// ⚠️ THE BAND ITSELF CARRIES A `data-icon`. Asking the page for the band's mark
-// answers the band, not a glyph inside it, and the minimize entrance is one of
-// its children. A reading that took the innermost marked node would report the
-// two as unrelated.
+// Why: the band itself carries a data-icon; a reading that took the innermost marked node
+// would report the band and the entrance as unrelated.
+// Spec: T-109, S-200, FR-053
 test('DFC-103: the minimize entrance rides the palette grab band, right of its mark, in no group', async () => {
   test.setTimeout(120_000)
   const page = shared()
@@ -1275,19 +855,9 @@ test('DFC-103: the minimize entrance rides the palette grab band, right of its m
   ).toBe(Math.round(bandBox.x + bandBox.width))
 })
 
-// ---------------------------------------------------------------------------
-// DFC-126 -- the file's name above the time
-// ---------------------------------------------------------------------------
-
-// GOES RED IF: the two header parts stop being stacked, or the time is put
-// first, or either part leaves the header. `FR-101` (MUST) says 「名前を時刻の
-// 上に置くこと（MUST）」, and CR-299 settled that the requirement is met by the
-// unit that DRAWS the header rather than by an order field in what it is handed
-// (table T-075, `UF-71`) -- so the screen is the only place it can be judged.
-//
-// ⭐ THE STACKING IS ASKED FOR AS WELL AS THE ORDER. Two parts side by side
-// would satisfy 「first in the box」 and satisfy nothing a reader would call
-// 「above」, so both the box's own direction and the two boxes' tops are read.
+// Why: both the box's direction and the two tops are read: side by side would be first in the
+// box without being above.
+// Spec: FR-101
 test('DFC-126: the header stands the file name above the time it was written', async () => {
   test.setTimeout(120_000)
   const page = shared()
@@ -1329,21 +899,7 @@ test('DFC-126: the header stands the file name above the time it was written', a
   ).toBeLessThanOrEqual(laid.stampTop)
 })
 
-// ---------------------------------------------------------------------------
-// DFC-65, first half -- how the header's stamp is written
-// ---------------------------------------------------------------------------
-
-// GOES RED IF: the stamp stops being drawn at `S-210` times the host's ground
-// text, or the same coefficient starts being applied to the file's NAME, or the
-// header shows an empty stamp before anything has been written. `FR-101` (MUST)
-// says 「`GRS` は、更新日時の字の大きさを ... 表 T-206 の `S-210` が定める係数
-// で決めること。`GRS` は、更新日時の字の大きさを px で持たないこと」 and 「まだ
-// 1 度もファイルへ書いていないとき、`GRS` は、時刻の代わりに、まだ書いていない
-// 旨を示すこと」; `S-210` says DFC-217 「ファイルの名前には掛けない」 in as many words.
-//
-// ⭐ THE SECOND HALF OF DFC-65 -- that the time shown is the reader's own and not
-// UTC -- needs a file to have been written, and is judged further down, on the
-// page whose save dialogue is answered.
+// Spec: FR-101, S-210
 test('DFC-65: the header stamp is drawn at S-210 of the ground text, and says so before any write', async () => {
   test.setTimeout(120_000)
   const page = shared()
@@ -1386,20 +942,9 @@ test('DFC-65: the header stamp is drawn at S-210 of the ground text, and says so
   ).toBe(true)
 })
 
-// ---------------------------------------------------------------------------
-// DFC-98 -- the reload key with no file open
-// ---------------------------------------------------------------------------
-
-// GOES RED IF: pressing the reload key with nothing open changes the drawing,
-// raises a notice, opens a surface, or takes the page somewhere else -- or if
-// the control before it shows that keys are not reaching the application at
-// all. Table T-024a row `OP-13` (the rule table T-036 row `SK-21` points at)
-// ends 「⚠️ 開いているファイルが無いときは何もしないこと（MUST）」, and this
-// build opens with no file: the header says so, which the case reads first.
-//
-// ⛔ THE CONTROL IS NOT DECORATION. "Nothing happened" is also what a page
-// answers when the key never reached it, so the case first presses the key of
-// table T-036 row `SK-14`, watches the palette go, and presses it back.
+// Why: a control first: nothing happening is also what a key that never reached the page
+// looks like, so SK-14 is pressed and the palette watched.
+// Spec: T-024a, OP-13, SK-21, SK-14
 test('DFC-98: with no file open, the reload key of SK-21 does nothing', async () => {
   test.setTimeout(120_000)
   const page = shared()
@@ -1412,7 +957,7 @@ test('DFC-98: with no file open, the reload key of SK-21 does nothing', async ()
 
   await page.mouse.move(Math.round(BASE_SCREEN.width * 0.5), Math.round(BASE_SCREEN.height * 0.6))
 
-  // The control: a key that IS assigned reaches the application.
+  // Step: the control: an assigned key reaches the application.
   const before = await paletteStanding()
   await page.keyboard.press(paletteKey)
   await page.waitForTimeout(600)
@@ -1465,21 +1010,9 @@ test('DFC-98: with no file open, the reload key of SK-21 does nothing', async ()
   ).toBe(true)
 })
 
-// ---------------------------------------------------------------------------
-// DFC-106 -- the size of a tooltip's words
-// ---------------------------------------------------------------------------
-
-// GOES RED IF: the words a tooltip puts up are drawn at the ground size, or at
-// anything other than `S-204` of it, or nothing is put up at all after the wait
-// table T-212 row `S-124` gives. `FR-092` row `EZ-2` (MUST) says 「字の大きさは
-// 表 T-206 の `S-204` が定める係数で決めること（MUST）」 and puts the wait in
-// `S-124`, so raising either in the manuscript moves this case.
-//
-// ⚠️ THE OUTER BOX IS NOT ASKED. `textContent` on a container answers its
-// children's words, so the container reads as if it were drawing them; what is
-// measured is every LEAF that carries text -- the nodes that actually draw.
-// ⚠️ Measured 2026-09-03: a run that waited 2.5s when `S-124` was 3000ms saw no
-// tooltip at all, which is why the wait is read from the table and not written.
+// Why: every leaf that carries text is measured, not the outer box, since textContent on a
+// container answers its children's words.
+// Spec: FR-092, EZ-2, S-204, S-124
 test('DFC-106: the words a tooltip puts up are drawn at S-204 of the ground text', async () => {
   test.setTimeout(180_000)
   const page = shared()
@@ -1490,9 +1023,7 @@ test('DFC-106: the words a tooltip puts up are drawn at S-204 of the ground text
   expect(box, `the entrance ${zoomIn} is not on the screen to rest a pointer on`).not.toBeNull()
   if (box === null) return
 
-  // ⛔ THE POINTER ARRIVES FROM SOMEWHERE ELSE. `EZ-2` starts the wait when the
-  // pointer stops, so a pointer already standing there has been resting for an
-  // unknown time.
+  // Why: the pointer arrives from elsewhere, as EZ-2 starts the wait when the pointer stops.
   await page.mouse.move(box.x - 200, box.y + 260)
   await page.waitForTimeout(250)
   await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2)
@@ -1521,25 +1052,7 @@ test('DFC-106: the words a tooltip puts up are drawn at S-204 of the ground text
   await page.waitForTimeout(500)
 })
 
-// ---------------------------------------------------------------------------
-// DFC-105 -- how a help item is built
-// ---------------------------------------------------------------------------
-
-// GOES RED IF: a help item stops holding exactly three places, or its shape
-// leaves the first of them, or its description leaves the second, or a key of
-// table T-036 stops standing in the third, or the third place draws a shape
-// that is not the wheel mark IC-102, or the list is drawn at anything other
-// than `S-203` of the host's ground text. `FR-036` (MUST) says 「`GRS` は、一覧
-// の各項目に、入口の図形・項目の行の説明・項目の行の割当の 3 つを、この順に
-// 並べること」 and 「`GRS` は、一覧の字の大きさを ... 表 T-206 の `S-203` が定め
-// る係数で決めること。`GRS` は、一覧の字の大きさを px で持たないこと」.
-//
-// THE THIRD PLACE IS CHECKED AGAINST THE MANUSCRIPT'S OWN KEYS: every row of
-// table T-036 whose assignment cell is a bare key must have that key in the third
-// place of the item FR-036 puts it on -- the entrance its row names, or the row
-// itself (`keyedShortcutRows` above). It may also draw IC-102 (JDG-76 /
-// CR-377): FR-036 prints a wheel row's press words, marked in the dictionary;
-// see `drawsTheWheelMark`.
+// Spec: FR-036, S-203, T-036
 test('DFC-105: a help item reads shape, description, assignment, drawn at S-203', async () => {
   test.setTimeout(180_000)
   const page = shared()
@@ -1586,8 +1099,7 @@ test('DFC-105: a help item reads shape, description, assignment, drawn at S-203'
   expect(read, 'pressing the help entrance put no Help Modal on the screen').not.toBeNull()
   if (read === null) return
 
-  // A GUARD, NOT THE ASSERTION. FR-036 names tables T-109 / T-036 / T-023 for
-  // the list and bars T-023a .. T-023d, so an empty modal cannot pass vacuously.
+  // Why: a guard, not the assertion: an empty help must not pass vacuously.
   for (const table of ['T-109', 'T-036', 'T-023']) {
     expect(read.tables, `the help lists nothing from ${table}, which FR-036 (MUST) has it cover`).toContain(
       table,
@@ -1681,7 +1193,7 @@ test('DFC-105: a help item reads shape, description, assignment, drawn at S-203'
       `(${ground}px), which is ${ground * HELP_TEXT_SCALE}px`,
   ).toEqual([])
 
-  // `IN-4` of table T-028 (through table T-036 row `SK-8`) closes a surface.
+  // Step: Escape closes the surface (IN-4, SK-8).
   await page.keyboard.press('Escape')
   await page.waitForTimeout(600)
   expect(
@@ -1690,20 +1202,7 @@ test('DFC-105: a help item reads shape, description, assignment, drawn at S-203'
   ).toBe(false)
 })
 
-// ---------------------------------------------------------------------------
-// DFC-43 -- what a double click on a task does
-// ---------------------------------------------------------------------------
-
-// GOES RED IF: double-clicking a task's body leaves the panel closed, or puts
-// the focus somewhere other than the name field, or leaves the text it holds
-// unselected. Table T-023 row `MK-13` (MUST) says of a task 「タスク（名称ラベルと本体
-// のどちらでも）のダブルクリックで、プロパティパネルを出し、名称の欄（表 T-016 の `PR-1`）を編集
-// できる状態にして焦点を置くこと ... 名称の欄の既にある文字をすべて選んだ状態にすること」.
-//
-// ⭐ THE SELECTION IS THE HALF THE LEDGER SAYS WAS NEVER MEASURED. The 実物確認
-// column of DFC-43 records a run of 2026-09-01 that watched the panel open and
-// the focus move and stopped there. What that run could not say is read below:
-// `selectionStart` at 0 and `selectionEnd` at the whole length.
+// Spec: MK-13, PR-1
 test('DFC-43: double-clicking a task opens the panel with all of the name selected', async () => {
   test.setTimeout(180_000)
   const page = shared()
@@ -1747,20 +1246,9 @@ test('DFC-43: double-clicking a task opens the panel with all of the name select
   ).toEqual({ start: 0, end: state.value.length, length: state.value.length })
 })
 
-// ---------------------------------------------------------------------------
-// DFC-82 -- nothing in front of a color control
-// ---------------------------------------------------------------------------
-
-// GOES RED IF: once the custom-color entrance of a color field is pressed,
-// anything drawn over the host color input it brings up shows that input's
-// value -- painted with it, filled with it, or printing it. FR-006 (MUST NOT)
-// forbids drawing the current value in front of the control that shows it.
-// Table T-017b row CV-9 (MUST) brings the host input up only on that press
-// (JDG-397), so the case presses it first.
-//
-// Why: anything merely beside the input is left out, the custom entrance CV-9 paints with the
-// value among them (CR-689): whether a swatch next to the input breaks FR-006 is a question the
-// specification does not settle yet (DFC-979), and this case takes neither side of it.
+// Why: anything merely beside the input is left out, the CV-9 custom entrance among them:
+// whether a swatch beside it breaks FR-006 is not settled yet (DFC-979).
+// Spec: FR-006, CV-9
 test('DFC-82: nothing drawn over a color control shows the color it holds', async () => {
   test.setTimeout(120_000)
   const page = shared()
@@ -1836,19 +1324,9 @@ test('DFC-82: nothing drawn over a color control shows the color it holds', asyn
   expect(showing, 'FR-006 (MUST NOT) forbids drawing the value over the control that shows it').toEqual([])
 })
 
-// ---------------------------------------------------------------------------
-// DFC-130 -- a value settled in the panel reaches the document
-// ---------------------------------------------------------------------------
-
-// GOES RED IF: typing a name into the panel's `PR-1` and settling it with the
-// key of table T-036 row `SK-19` leaves the drawing reading what it read
-// before. `FR-006` has the items of table T-016 that are not read-only be
-// editable, and `PR-1`'s own note in `_assets/tbl-property-items.md` calls it
-// 「バーに描くラベル」 -- so the drawing is where a settled name has to appear.
-//
-// ⛔ THIS CASE CHANGES THE DOCUMENT, which is why it and the two after it stand
-// at the end of the page's order. The name it writes is put back by the case
-// below, through the undo the specification already has.
+// Trap: this case changes the document, so it and the next two stand at the end of the page's
+// order; moving it earlier hands a renamed drawing to the reading cases.
+// Spec: FR-006, PR-1, SK-19
 test('DFC-130: a name settled in the panel reaches the drawing', async () => {
   test.setTimeout(180_000)
   const page = shared()
@@ -1871,7 +1349,7 @@ test('DFC-130: a name settled in the panel reaches the drawing', async () => {
       'that was double-clicked',
   ).toBe(1)
 
-  // A reading distinctive enough that no document could hold it already.
+  // Why: a reading distinctive enough that no document could hold it already.
   const now = 'SweptName-D130'
   expect(await drawnTextsReading(page, now), `${now} is already on the screen`).toBe(0)
 
@@ -1889,22 +1367,9 @@ test('DFC-130: a name settled in the panel reaches the drawing', async () => {
   ).toBe(0)
 })
 
-// ---------------------------------------------------------------------------
-// DFC-152 -- settling the same value twice
-// ---------------------------------------------------------------------------
-
-// GOES RED IF: settling a value that has not changed writes a second time --
-// which is read here as one undo failing to put the old name back. Table T-028
-// row `IN-6` (MUST NOT) says 「始めた値と同じ値を書いてはならない（MUST NOT）」,
-// so the second write, if it happened, would show up as a second undo step and
-// one `SK-6` would leave the new name standing.
-// ⚠️ THE READING SURVIVES A ROW THAT MOVED. IN-6's reason was rewritten on
-// 2026-09-08 (it used to name that second step), because FR-031 now leaves no
-// step for a write that changed no value. ⭐ That makes this case STRICTER, not
-// weaker: a second write is now the only way a second step could appear.
-//
-// ⛔ IT LEANS ON THE CASE ABOVE having left the drawing renamed, and it puts the
-// document back: after it the drawing reads what it read at start-up.
+// Trap: leans on the case above having renamed the drawing, and puts the document back; a
+// case moved between the two reads the wrong name.
+// Spec: IN-6, FR-031, SK-6
 test('DFC-152: settling the same value again writes nothing, so one undo puts the name back', async () => {
   test.setTimeout(180_000)
   const page = shared()
@@ -1915,7 +1380,7 @@ test('DFC-152: settling the same value again writes nothing, so one undo puts th
     'the case for DFC-130 did not leave its name on the drawing, so there is nothing to settle twice',
   ).toBe(1)
 
-  // The same value again, through the same key -- table T-036 row `SK-19`.
+  // Step: the same value again, through the SK-19 key.
   await page.keyboard.press('Enter')
   await page.waitForTimeout(800)
   expect(
@@ -1934,69 +1399,19 @@ test('DFC-152: settling the same value again writes nothing, so one undo puts th
   ).toBe(0)
 })
 
-// ---------------------------------------------------------------------------
-// DFC-92 -- the ruler band's height, and how it is shared
-// ---------------------------------------------------------------------------
-
-// GOES RED IF: the ruler band changes height when the granularity changes, or a
-// 段 that stands on two 行 gives them anything other than half the band each, or
-// the sweep stops crossing a 段 boundary. `FR-017` (MUST) says 「`GRS` は、目盛の段階が変わっても目盛の帯の高さを動か
-// さないこと」 and 「段が 3 つに満たない段階の間、`GRS` は帯の高さを段の数で
-// 等分すること ... `GRS` は、等分の余りをどこかへ寄せないこと」.
-//
-// ⭐ THE LINES ARE READ FROM TWO BASELINES, as the unit case for this row does:
-// `S-136` and `S-179` place a label inside its line and neither names the line's
-// own height, so the distance between two labels' tops is the only thing on the
-// screen that a line's height can be read off. Even division is exactly what
-// makes that distance the band over the count; pushing the remainder to one end
-// would leave each line its natural height and the distance would not divide.
-//
-// ⛔⛔ THE SWEEP DOES NOT PROVE IT CROSSED A BOUNDARY BY COUNTING THE LINES, and
-// it cannot: table T-238 (`FR-017`, MUST, 利用者の裁定 2026-09-03) gives `TM-2`
-// 月 two 行 (`yyyy` over `m`) AND `TM-3` 週 two (`yyyy-mm` over `d`), so the one
-// boundary this sweep crosses does not move the count at all. Until that ruling
-// the 月 段 stood on a single folded `yyyy-mm` and a count told them apart; the
-// ruling withdrew that -- 「⚠️ `TM-2`（月の段）はそれを覆し、`yyyy` と `m` を 2 段
-// に分ける」 -- and a count-only guard then fires on a sweep that crossed the
-// boundary perfectly well, which is the opposite of what a guard is for.
-//
-// ⭐ WHAT NAMES A 段 IS THE PAIR (how many 行 it stands on, what its first 行
-// prints): 1/`yyyy`, 2/`yyyy`, 2/`yyyy-mm`, 3/`yyyy-mm` for `TM-1`..`TM-4`.
-// Neither half alone separates all four; the pair does, and the case checks the
-// four keys are still distinct in the table before it leans on them. Both halves
-// are read out of table T-238 at read time. The uf-32 ruler-band unit test (deleted by CR-573)
-// reached the same answer for the drawing helper and DFC-210 below takes it too;
-// 「月を語で書いてはならない（MUST NOT）」 keeps both shapes digits and a hyphen in
-// either language, so no display word moves them.
-//
-// ⭐ THE GUARD IS STILL LOUD: a sweep that stopped crossing a boundary would see
-// one 段 for all nine readings and fail below, and a reading that is none of the
-// four 段 fails as well -- 「`GRS` は、表 T-238 に無い行を目盛に刷らないこと」.
-//
-// ⛔ THREE 行 ARE NOT REACHED HERE and are outside the even-division rule anyway:
-// `TM-4` is the only 段 that stands on three, and 「段が 3 つに満たない段階」 is
-// `TM-1`..`TM-3`. Measured 2026-09-18 on this build, from `zoomX` = 1: the walk
-// below opens on `TM-2` and reaches `TM-1` on the tenth press, so it crosses one
-// boundary and claims nothing about `TM-4`.
-//
-// ⛔⛔ THE NUMBER OF PRESSES IS NOT WRITTEN DOWN, and it used to be. `S-3` takes
-// the ruler font from the font scale and `FR-017` divides the px/day by that font
-// before it meets the thresholds of `S-83`..`S-85`, so the 段 the page opens on
-// moves whenever the font does: when `S-3` grew, a fixed eight presses opened on
-// `TM-2` and stayed there, and this case failed for having proved nothing rather
-// than for anything the drawing did. The walk now presses until the 段 changes and
-// stops on the reading that changed it, under a ceiling so that a build which never
-// crosses fails loudly instead of spinning.
+// Why: a line's height is read as the distance between two labels' tops, as S-136 and S-179
+// place a label inside its line and name no height.
+// Why: a stage is named by the pair (line count, first line's shape): TM-2 and TM-3 both stand
+// on two lines, so a count alone cannot tell them apart.
+// Why: the presses are not counted out: the opening stage moves with the font (S-3), so the
+// walk presses until the stage changes, under a ceiling.
+// Spec: FR-017, T-238, TM-1, TM-2, TM-3, TM-4
 test('DFC-92: the ruler band keeps its height across stages and splits it evenly', async () => {
   test.setTimeout(180_000)
   const page = shared()
 
-  // ⭐ THE FOUR 段 OF TABLE T-238, TAKEN FROM THE TABLE AT READ TIME. A 段 is
-  // named by how many of its three 行 it prints and by the shape of the first of
-  // them. ⚠️ `docs/spec` states no grammar for the tokens the table writes, so
-  // the reading of `yyyy` and `yyyy-mm` is written here as
-  // the uf-32 ruler-band unit test (deleted by CR-573) wrote it, and a token the table grows
-  // that this case cannot read throws rather than being guessed at.
+  // Why: docs/spec states no grammar for the table's tokens, so a token this case cannot read
+  // throws rather than being guessed.
   const notPrinted = String.fromCharCode(0x5237, 0x3089, 0x306a, 0x3044)
   const thirdLine = 3
   const shapeOf = (token: string): RegExp => {
@@ -2031,23 +1446,20 @@ test('DFC-92: the ruler band keeps its height across stages and splits it evenly
       const rows = Array.from(document.querySelectorAll('[data-depth]'))
       if (svg === null || rows.length === 0) return null
       const firstTaskGroupTop = Math.min(...rows.map((row) => row.getBoundingClientRect().top))
-      // The band is the full-width shape the first task group band sits directly
-      // under. ⚠️ Nothing in the specification marks it, so it is found by
-      // where it is; a change to the drawing's shape breaks this case, as it
-      // should.
+      // Why: nothing in the spec marks the band, so it is found by where it is; a change of shape
+      // breaks this case, as it should.
       const band = Array.from(svg.querySelectorAll('rect'))
         .map((drawn) => drawn.getBoundingClientRect())
         .filter((box) => box.width > 500 && Math.abs(box.bottom - firstTaskGroupTop) < 1.5)
         .sort((one, two) => two.height - one.height)[0]
       if (band === undefined) return null
-      // ⛔ A LABEL WITH NOTHING IN IT IS NOT A 行. FR-017 (MUST) says 「『刷らな
-      // い』は『空で刷る』ではない」, so an empty box may not raise the count.
+      // Why: an empty label does not raise the count; FR-017 says not printed is not printed empty.
       const held = new Map<number, string[]>()
       for (const label of Array.from(svg.querySelectorAll('text'))) {
         const box = label.getBoundingClientRect()
         const said = (label.textContent ?? '').trim()
         if (said === '') continue
-        // ⛔ NOT THE WATERMARK -- see the same guard on the walk above.
+        // Why: skip the watermark, as rulerTiers does.
         if (label.closest('[data-role="Watermark"]') !== null) continue
         if (box.bottom <= firstTaskGroupTop && box.bottom > band.top - 8) {
           const top = Math.round(box.top * 100) / 100
@@ -2062,7 +1474,6 @@ test('DFC-92: the ruler band keeps its height across stages and splits it evenly
       }
     }, CANVAS)
 
-  /** Which 段 of table T-238 a reading is, or null if it is none of them. */
   const nameOf = (band: { lines: Array<{ words: string[] }> }): string | null => {
     const first = band.lines[0]
     if (first === undefined || first.words.length === 0) return null
@@ -2073,18 +1484,15 @@ test('DFC-92: the ruler band keeps its height across stages and splits it evenly
   }
 
   const seen: Array<{ height: number; lines: Array<{ top: number; words: string[] }>; tier: string | null }> = []
-  // ⚠️ THE TICKS ARRIVE BEFORE THE WORDS -- DFC-91 below measured a frame with all
-  // its 行 ticked and not one word in any of them -- and every reading here turns
-  // on the words, so the drawing is settled before the first one as well as
-  // before each of the eight that follow.
+  // Why: the ticks arrive before the words, so the drawing is settled before every reading.
   await readSettledDrawnSvg(page)
   const first = await readBand()
   expect(first, 'no ruler band could be found above the first task group band').not.toBeNull()
   if (first === null) return
   seen.push({ ...first, tier: nameOf(first) })
 
-  // ⚠️ Zooming OUT, because the coarser 段 are the ones standing on fewer than
-  // three 行 -- which is the only case FR-017's even-division MUST is about.
+  // Why: zooming out, as the coarser stages stand on fewer than three lines, which FR-017's
+  // even division is about.
   const mostPresses = 20
   const coarser = entranceBy(T109_PURPOSE, TIME_AXIS, ZOOM_OUT)
   for (let step = 0; step < mostPresses; step += 1) {
@@ -2133,20 +1541,7 @@ test('DFC-92: the ruler band keeps its height across stages and splits it evenly
   ).toBe(true)
 })
 
-// ---------------------------------------------------------------------------
-// DFC-166 -- the reason a refusal carries
-// ---------------------------------------------------------------------------
-
-// GOES RED IF: pressing an entrance that has nothing to do says something other
-// than what table T-233 row `RS-30` holds -- in particular the retired sentence
-// that told the reader the task group was already folded, which is the opposite of the
-// situation the row now names: 「直下に、画面へ戻せる子が 1 つも無い」.
-//
-// ⭐ THE WORDS ARE READ FROM THE DICTIONARY, not written here: `FR-038` (MUST)
-// has every printed word live there. What the case asserts is that exactly one
-// reason of the forty-two the dictionary holds is what the screen said, and that
-// it is `RS-30`. ⚠️ A machine check will not catch this: it asks whether a row's
-// word reached the screen, never whether that word is true of the task group.
+// Spec: T-233, RS-30
 test('DFC-166: pressing the open-one-level entrance with nothing to bring back says nothing (T-233 hides RS-30)', async () => {
   test.setTimeout(180_000)
   const page = shared()
@@ -2156,12 +1551,8 @@ test('DFC-166: pressing the open-one-level entrance with nothing to bring back s
 
   const oneLevel = entranceBy(T109_SOURCE, 'HF-13')
 
-  // ⛔ A TASK GROUP'S OWN ENTRANCES ARE HIDDEN UNTIL THE POINTER IS ON ITS NAME
-  // (table T-051 row `HF-6`), and the shell reads a real pointer -- a
-  // dispatched event reaches nothing here, which `tools/probe/harness.mjs`
-  // records as the way one session called a working feature broken. So the
-  // pointer is moved onto the first task group's name and the entrance looked for
-  // afterwards.
+  // Why: a task group's own entrances are hidden until the pointer is on its name (HF-6), and a
+  // dispatched event reaches nothing, so a real pointer is moved there first.
   const firstTaskGroup = await page.evaluate(() => {
     const boxes = Array.from(document.querySelectorAll('[data-depth]'))
       .map((row) => row.getBoundingClientRect())
@@ -2204,25 +1595,9 @@ test('DFC-166: pressing the open-one-level entrance with nothing to bring back s
   await page.waitForTimeout(500)
 })
 
-// ---------------------------------------------------------------------------
-// DFC-91 -- where the weekday tier is ticked
-// ---------------------------------------------------------------------------
-
-// GOES RED IF: the tier that prints weekdays is ticked anywhere other than
-// exactly where the tier that prints day numbers is ticked -- a different count,
-// or the same count at different places. Table T-221 row `LF-1` (MUST NOT, since
-// it closes with 「これ以外の間隔を採ってはならない」) says DFC-91 「年の段は 1 年、年と
-// 月の段は 1 か月、週の段は 7 日、**日の段と曜日の段は 1 日**」 and gives the
-// reason on the same line: 「同じ軸を 2 段に割ったものだからである ... 別の間隔に
-// すると、その日のものでない曜日が日の下に並ぶ」.
-//
-// ⭐ THE TICKS, NOT THE WORDS. `LF-1` gives each tier an interval, and what is
-// drawn at that interval is the tick; the words are read only to say which tier
-// is which, and they are read out of the dictionary rather than spelled here.
-// ⚠️ ONLY THE FINEST STAGE HAS A WEEKDAY TIER, so the case presses the enlarging
-// entrance until the band stands on three tiers rather than a fixed number of
-// times: measured 2026-09-03, this build needs eighteen presses from start-up
-// and the case reaches it from wherever the case above left the zoom.
+// Why: the case presses until the band stands on three tiers, not a fixed count, as only the
+// finest stage has a weekday tier.
+// Spec: LF-1
 test('DFC-91: the weekday tier of the ruler is ticked exactly where the day tier is', async () => {
   test.setTimeout(240_000)
   const page = shared()
@@ -2239,10 +1614,7 @@ test('DFC-91: the weekday tier of the ruler is ticked exactly where the day tier
       `was never reached; the band stands on ${tiers.length}`,
   ).toBe(3)
 
-  // ⚠️ THE TICKS ARRIVE BEFORE THE WORDS. Measured 2026-09-03: a reading taken
-  // the instant the third tier appeared saw all three tiers ticked and not one
-  // word in any of them. The loop above stops on the ticks, so the drawing is
-  // waited out before the words are read.
+  // Why: the ticks arrive before the words, so the drawing is waited out before the words are read.
   await readSettledDrawnSvg(page)
   tiers = await rulerTiers(page)
   expect(tiers, 'the ruler fell back to fewer tiers while it was settling').toHaveLength(3)
@@ -2278,8 +1650,7 @@ test('DFC-91: the weekday tier of the ruler is ticked exactly where the day tier
       'interval and a weekday would stand under a day that is not its own',
   ).toEqual(day.ticks)
 
-  // ⭐ THE COARSE TIER IS READ TOO, so that a build which ticked every tier the
-  // same would fail here rather than pass the comparison above.
+  // Why: the coarse tier is read too, so a build that ticked every tier alike fails here.
   const coarse = tiers.filter((tier) => tier !== weekday && tier !== day)
   expect(coarse, 'the three tiers are not one coarse and the two fine ones').toHaveLength(1)
   expect(
@@ -2288,7 +1659,6 @@ test('DFC-91: the weekday tier of the ruler is ticked exactly where the day tier
       'gives it one month',
   ).toBeLessThan(day.ticks.length)
 
-  // `LF-1` opens with 「段階ごとに固定とし」, so one interval and not several.
   const gaps = day.ticks.slice(1).map((one, at) => Math.round((one - (day.ticks[at] as number)) * 10) / 10)
   const distinct = [...new Set(gaps)]
   expect(
@@ -2298,11 +1668,7 @@ test('DFC-91: the weekday tier of the ruler is ticked exactly where the day tier
   ).toBeLessThanOrEqual(2)
 })
 
-// ---------------------------------------------------------------------------
-// DFC-24 -- what a fit throws away, and what it lands on
-// ---------------------------------------------------------------------------
-
-// see DFC-24, FR-055, HF-8, T-068, T-328
+// Spec: FR-055, HF-8, T-068, T-328
 // Why: fitPressed returns every collapsed task group to auto (table T-328), so the first task group reads
 // as before the fold; the task groups landed on must fit, or the drawing is already at depth 1.
 // Trap: how many runs table T-068 took is not published by the build, so only its two
@@ -2336,8 +1702,7 @@ test('DFC-24: a fit throws away what a person folded, and the task groups it lan
   expect(before, 'the task group panel drew no task groups to fold').not.toBeNull()
   if (before === null) return
 
-  // ⛔ A TASK GROUP'S OWN ENTRANCES ARE HIDDEN UNTIL THE POINTER IS ON ITS NAME
-  // (table T-051 row `HF-6`), which the case for DFC-166 records as well.
+  // Why: the entrances are hidden until the pointer is on the name (HF-6).
   await page.mouse.move(before.nameX, before.nameY)
   await page.waitForTimeout(500)
   const at = await page.evaluate(
@@ -2402,28 +1767,11 @@ test('DFC-24: a fit throws away what a person folded, and the task groups it lan
   ).toBe(true)
 })
 
-// ---------------------------------------------------------------------------
-// DFC-52, DFC-66 and the second half of DFC-65 -- the page whose dialogue is answered
-// ---------------------------------------------------------------------------
-
-// ⛔ WHY THESE THREE STAND APART. A page's clock and the dialogue it calls are
-// both fixed when its context is made, so they cannot be given to the page the
-// eleven cases above share. They run on one further context of the SAME
-// browser, one fresh page each: a fresh page is a fresh document, which is what
-// keeps a write made by one of them out of the other's reading.
-
-// GOES RED IF: the picture written out with something selected differs by one
-// byte from the picture written out with nothing selected -- or if selecting
-// something did not change the screen, which is the control that makes the
-// first half mean anything. Table T-076 row `EP-12` puts `Selection` (`U-39`)
-// among the things the written picture does not draw, and gives its reason:
-// what is selected 「指している場所と構えを表すものであり、日程ではない」.
-//
-// ⭐ THE TWO PICTURES ARE COMPARED WHOLE, character for character. The ledger
-// records why: a `Grab Point` has no row fixing what it is drawn as, so it
-// cannot be looked for by tag, and only a difference between two productions
-// catches it. The same comparison covers the dashed frame, the thickened line
-// and anything a later round hangs off the selection.
+// Why: these cases run on fresh pages of another context: a page's clock and dialogue are fixed
+// when its context is made, and a fresh page keeps one case's write out of another's reading.
+// Why: the two pictures are compared whole: a Grab Point has no row fixing how it is drawn, so
+// only a difference between two productions catches it.
+// Spec: EP-12, U-39
 test('DFC-52: the written picture is the same whether or not something is selected', async () => {
   test.setTimeout(240_000)
   const opened = await openStubbedPage()
@@ -2470,8 +1818,7 @@ test('DFC-52: the written picture is the same whether or not something is select
     await page.waitForTimeout(900)
     const withOne = await screenNow()
 
-    // ⛔ THE CONTROL. If pressing the bar selected nothing, the two pictures
-    // below would be equal for a reason that has nothing to do with `EP-12`.
+    // Why: the control: had the press selected nothing, the pictures would be equal for another reason.
     expect(
       withOne === withNothing,
       'pressing a task bar changed nothing on the screen, so nothing was selected and the ' +
@@ -2504,18 +1851,9 @@ test('DFC-52: the written picture is the same whether or not something is select
   }
 })
 
-// GOES RED IF: a second save asks again where to write, or writes to a
-// different file, or the header never comes to name the file that was written.
-// `FR-101` (MUST) has the name of the file now open shown on the screen;
-// `FR-060` holds the handle a save was given; and table T-227 row `DI-5` (MUST
-// NOT) forbids asking every time. The ledger's own reading of this row is that
-// the second save WAS succeeding and nothing on the screen said so.
-//
-// ⛔ WHAT THIS DOES NOT SETTLE. The dialogue answered here is a replacement, so
-// the case measures what the build does once it holds a handle. Whether the
-// host's own handle is accepted is a question about `src/`, which the writer of
-// a test may not read (rule 04 section 1); the ledger's own note asks the user
-// to press it, and that request stands.
+// Why: the dialogue is a replacement, so this proves what the build does with a handle; the
+// real one is still for a person to press.
+// Spec: FR-101, FR-060, DI-5
 test('DFC-66: a second save writes again to the same file, and asks no second time', async () => {
   test.setTimeout(240_000)
   const opened = await openStubbedPage()
@@ -2572,16 +1910,9 @@ test('DFC-66: a second save writes again to the same file, and asks no second ti
   }
 })
 
-// GOES RED IF: the time the header prints is the UTC one rather than the
-// reader's own. `FR-101` (MUST) says 「`GRS` は、画面に出す時刻を、読む人のローカル時刻と
-// すること」「`GRS` は、時刻の保管を UTC のままとすること」 and (MUST NOT)
-// 「`GRS` は、画面に UTC をそのまま出さないこと」.
-//
-// ⭐ NO FORMAT IS ASSERTED, because the requirement asserts none: 「時刻の綴り
-// そのものは本書が定めない」. What is asked is that the hour and minute printed
-// are an hour and minute of the reader's clock in the last few minutes, and are
-// none of the same minutes read in UTC. The case first makes the page say what
-// its offset is and refuses to judge on a machine where it is zero.
+// Why: no format is asserted, as FR-101 sets none: the hour and minute must be the reader's
+// clock and not UTC, judged only where the offset is not zero.
+// Spec: FR-101
 test('DFC-65: the time the header prints is the reader own clock, not UTC', async () => {
   test.setTimeout(240_000)
   const opened = await openStubbedPage()
@@ -2642,28 +1973,13 @@ test('DFC-65: the time the header prints is the reader own clock, not UTC', asyn
   }
 })
 
-// GOES RED IF: the key of table T-036 row `SK-11` writes something that is not
-// `GRS JSON`, or opens the dialogue a second time, or writes to a second file,
-// or puts a question on the screen on either press. `SK-11` says 「`FR-096` の
-// 定めにより `GRS JSON` で書くこと ... 上書き先を `FR-060` に従わせること」, and table T-227 row `DI-5`
-// (MUST) has the route of `FR-060` ask nothing.
-//
-// ⭐ WHAT THIS ADDS OVER DFC-66, which presses the same key. That case is about
-// the header catching up with the write; this one is about WHAT IS IN THE FILE
-// and about the question that must not be asked -- the ledger's own reading of
-// DFC-97 is that the path existed and 「誰も試していなかった」, because every
-// earlier test drove the arm that sends `FR-096` to the chooser instead.
-// ⛔ IT PROVES ONE HALF, for the reason `openStubbedPage` gives: the dialogue is
-// a replacement, so what is measured is what the build does once it holds a
-// handle.
+// Spec: SK-11, FR-096, FR-060, DI-5
 test('DFC-97: the save key writes GRS JSON, and a second press overwrites with no question', async () => {
   test.setTimeout(240_000)
   const opened = await openStubbedPage()
   try {
     const page = opened.page
     const saveKey = pressable(cellOf(T036, 'SK-11', T036_ASSIGNMENT, T036_COLUMNS))
-    // Table T-024 row `IO-2` gives `GRS JSON` its ending and the first
-    // character a reader sees at the head of the file.
     const opensWith = assignmentText(cellOf(T024, 'IO-2', T024_FIRST_CHARACTER, T024_COLUMNS))
     expect(opensWith, 'table T-024 row IO-2 names no first character').not.toBe('')
 
@@ -2721,26 +2037,10 @@ test('DFC-97: the save key writes GRS JSON, and a second press overwrites with n
   }
 })
 
-// GOES RED IF: a picture whose height would pass `S-217` is written anyway, or
-// is refused with a reason other than `RS-43`, or if one of the three formats
-// that are not pictures is refused in the same breath. `FR-025` (MUST) says
-// 「⛔⛔ **伸ばしても `S-217` に収まらないときは、画像を書き出さないこと（MUST）。
-// 一部だけを描いてはならない（MUST NOT）** ... **理由を告げること（MUST）。理由は
-// 表 T-233 の `RS-43` とすること（MUST）**」 and names who is stopped:
-// 「⚠️ **止めるのは 表 T-024 の `IO-3`（SVG）・`IO-4`（PNG）・`IO-6`（クリップ
-// ボード）である** —— **`IO-1` / `IO-2` / `IO-7` は絵ではないので、高さの天井に
-// 当たらない**」.
-//
-// ⛔ THE SCREEN IS NOT `MC-6` HERE, AND THAT IS THE POINT. `FR-025` fixes the
-// written width at `S-81`'s and `FR-080` fixes the ratio from the screen, so the
-// height a picture wants is the screen's shape and not the document's size --
-// the ledger's own measurement records 1600x1120 for a 1000x700 screen at 50
-// task groups and at 1600. A screen shaped past `S-217 / S-81` therefore reaches the
-// ceiling and no document can. The case works the shape out of the two rows
-// rather than writing a viewport down, and guards that it really did pass.
-//
-// ⚠️ `IO-6` IS NOT PRESSED. It writes to the clipboard, which a driven browser
-// has no answer for, and the two pictures that go to a file settle the rule.
+// Why: not MC-6: the written width is S-81's and the ratio follows the screen (FR-080), so the
+// screen's shape, not the document, reaches S-217.
+// Why: IO-6 is not pressed: it writes to the clipboard, which a driven browser cannot answer.
+// Spec: FR-025, S-217, RS-43, IO-1, IO-2, IO-3, IO-4, IO-7
 test('SCN-41 DFC-220: a picture too tall to draw is refused as RS-43, and the other formats still write @UC-011.RJ1', async () => {
   test.setTimeout(300_000)
   const width = 600
@@ -2766,15 +2066,13 @@ test('SCN-41 DFC-220: a picture too tall to draw is refused as RS-43, and the ot
         .map((one) => one.specTableRowId)
     }
     const clear = async (): Promise<void> => {
-      // `NT-8` (MUST) has `Esc` take the newest notice down, and the same key
-      // closes the chooser through `IN-4` of table T-028.
+      // Why: Escape takes the newest notice down (NT-8) and closes the chooser (IN-4).
       for (let step = 0; step < 4; step += 1) {
         await page.keyboard.press('Escape')
         await page.waitForTimeout(300)
       }
     }
 
-    // The two that are pictures.
     for (const row of ['IO-3', 'IO-4']) {
       const ending = endingOf(row)
       expect(
@@ -2799,7 +2097,6 @@ test('SCN-41 DFC-220: a picture too tall to draw is refused as RS-43, and the ot
       await clear()
     }
 
-    // The three that are not pictures, in the same situation.
     let written = 0
     for (const row of ['IO-2', 'IO-1', 'IO-7']) {
       const ending = endingOf(row)
@@ -2830,49 +2127,27 @@ test('SCN-41 DFC-220: a picture too tall to draw is refused as RS-43, and the ot
   }
 })
 
-/** Table T-238 (`FR-017`) -- what each tier of the ruler prints, read at read time. */
+// Spec: FR-017, T-238
 const T238: SpecTable = specTable('T-238')
-/** Columns of table T-238 after the row ID: the tier, then its three lines. */
 const T238_COLUMNS = 5
 const T238_FIRST_LINE = 1
 const T238_SECOND_LINE = 2
 
-/** One line of a tier as table T-238 writes it, back-quotes taken off. @purity pure */
+/** @purity pure */
 function tierLine(specTableRowId: string, column: number): string {
   return cellOf(T238, specTableRowId, column, T238_COLUMNS).replace(/`/g, '').trim()
 }
 
-// GOES RED IF: a bar shape armed and pressed WITHOUT a drag puts a task on the
-// schedule; or if a bar shape DRAGGED
-// stops making the span that was drawn; or if a milestone stops being placed by
-// the press alone.
-//
-// `FR-001` (MUST NOT) 「クリックではバーの形状のタスクを作らないこと」
-// -- 「タスクは期間を持つものであり、引いていない押下は期間を言っていない。」
-// TC-8 (MUST) carries RS-53 for the press that made nothing; whether it is shown
-// is the T-233 display column's (FR-076, CR-718), so this case does not read it.
-// (MUST) 「引いた期間のタスクを作ること」 for the drag.
-// (MUST) 「マイルストーンは押すだけで置くこと（MUST）。引いても、押した点に置くこと
-// （MUST）」, and (MUST NOT) 「引いたことを理由にマイルストーンを置く操作を拒まないこと」.
-//
-// ⛔⛔ THE CASE THAT STOOD HERE MEASURED THE MONTH-END CLAMP, and the clamp is
-// gone with the road that needed it: FR-001 itself records that 「クリックで作る
-// 道が無くなったので、その段の読み方も、末日で止める規則も要らない。」 The zoom to
-// the month tier, the ruler reading and the two clicks it compared went with it.
-//
-// ⚠️ THE HEIGHT IS SWEPT, NOT CHOSEN. `FR-001` makes a task only where the press
-// falls on no item at all, and which heights are free depends on what the
-// document draws; the first one where a drag makes a shape is taken, and every
-// later press in this case is made at that same height.
+// Why: the height is swept, not chosen: FR-001 makes a task only where the press hits no item,
+// and which heights are free depends on the document.
+// Spec: FR-001, TC-8, RS-53, T-233, FR-076
 test('DFC-210: a bar shape needs a drag, a milestone needs only a press', async () => {
   test.setTimeout(300_000)
   const opened = await openStubbedPage()
   try {
     const page = opened.page
     const rectangle = entranceBy(T109_PURPOSE, 'SH-1')
-    // ⭐ A DIAMOND AND NOT THE CIRCLE, because this case reads the polygons the
-    // canvas draws and 〇 is not one. Table T-109's IC-30 is 「同・◇」, and the
-    // figure is read out of that cell rather than typed as a row id.
+    // Why: a diamond, not the circle, as this case reads polygons and the circle is not one.
     const diamond = entranceBy(T109_PURPOSE, '◇')
     // Why: FR-053 (MUST) shows only the first S-216 milestone shapes of SH-5 and
     // Why: keeps the rest off the palette until the one list entrance opens them
@@ -2891,32 +2166,10 @@ test('DFC-210: a bar shape needs a drag, a milestone needs only a press', async 
 
     const startX = 700
     const dragPx = 160
-    /**
-     * The shapes a gesture left behind that stand at `near`, of a size a task
-     * bar or a glyph has.
-     *
-     * ⛔ NOT SIMPLY THE WIDEST NEW ONE. A creation opens the Properties Panel on
-     * what it made (`FR-001` MUST, `FR-091`), the Task Group Area narrows, and every
-     * bar on the drawing is redrawn at a new x -- so the whole picture reads as
-     * new. What is looked for is a shape that stands where the hand was.
-     *
-     * ⛔⛔ AND A BAR THAT ONLY MOVED IS NOT A BAR THAT WAS MADE. `FR-043` (MUST)
-     * puts the created task on 「ドラッグを始めた縦位置が指す `TaskGroup`」 and,
-     * 「もしドラッグを始めた縦位置が `TaskGroup` を指さない場合、`GRS` はタスクグループを 1 つ作って、作ったタスクグループへ作ったタスクを載せること」 --
-     * so a drag on clear ground can insert a task group, and every bar BELOW it slides
-     * down by one task group's height. Its x, its width and its height are all the ones
-     * it already had; only its y is new, which is exactly the one field the
-     * string carries that a creation does not have to change.
-     * ⚠️ MEASURED, 2026-09-08: the widest thing this returned for the drag below
-     * was `662,737,1530,20`, and `662,697,1530,20` -- the same bar, forty pixels
-     * higher -- stood in the picture before the drag. The bar the drag made was
-     * `698,653,162,28`, the second-widest. ⛔ The reading was not the draft of
-     * `FR-001`'s preview: the same two readings come out of a build from before
-     * the preview was written, so no loosening of the bound below would have been
-     * an honest repair.
-     * ⇒ A shape whose x, width and height all stood in the picture before is
-     * dropped, and only what the gesture actually added is judged.
-     */
+    // Why: not simply the widest new shape: a creation opens the panel (FR-091), narrows the Task
+    // Group Area and redraws every bar.
+    // Why: a bar that only moved was not made: a drag on clear ground can insert a task group
+    // (FR-043), so a shape whose x, width and height stood before is dropped.
     const madeNear = (
       before: readonly string[],
       after: readonly string[],
@@ -2935,8 +2188,7 @@ test('DFC-210: a bar shape needs a drag, a milestone needs only a press', async 
         .filter((box) => Math.abs((box[0] ?? 0) - near) <= 40 && (box[3] ?? 0) > 8)
     }
 
-    // ① THE CLICK, then ② THE DRAG at the same height. T-233 hides RS-53, so a click
-    // that made nothing is silent; the first height where the drag makes a bar is clear ground.
+    // Step: the click, then the drag at the same height; the first height where the drag makes a bar is clear ground.
     let ground: number | null = null
     let drew: number[] | undefined
     for (const y of [700, 660, 620, 560, 500, 440, 380, 320, 260, 740, 800, 860, 900, 940]) {
@@ -2972,29 +2224,18 @@ test('DFC-210: a bar shape needs a drag, a milestone needs only a press', async 
         'has a drag on clear ground make the span that was drawn',
     ).not.toBeNull()
     if (ground === null || drew === undefined) return
-    // ⭐ THE SPAN IS THE ONE THAT WAS DRAWN. The bar snaps to whole day columns,
-    // so the width is held to a band around the drag rather than to the pixel --
-    // which is still far from the single day column the retired road made, and
-    // far from `S-49`'s minimum width.
+    // Why: the bar snaps to whole day columns, so the width is held to a band around the drag.
     expect(
       drew[2] ?? 0,
       `a ${dragPx}px drag drew a bar ${drew[2]}px wide, which is not the span that was drawn`,
     ).toBeGreaterThan(dragPx * 0.6)
-    // ⛔ THE UPPER BOUND IS THE HALF THAT KEEPS THE TITLE. Without it a bar of
-    // any span at all would answer 「引いた期間のタスクを作ること」, and
-    // the band would stop saying that the span is the DRAG's. ⚠️ It is judged on
-    // the shape the gesture ADDED -- see `madeNear` -- and not on the widest
-    // thing that changed, because a task group inserted below the drag slides bars that
-    // were already there.
+    // Why: the upper bound keeps the span the drag's; it is judged on the shape the gesture added.
     expect(
       drew[2] ?? 0,
       `a ${dragPx}px drag drew a bar ${drew[2]}px wide, which is wider than the span that was drawn`,
     ).toBeLessThan(dragPx * 1.4)
-    // ⭐ AND THE TWO DATES ARE NOT ONE DAY, read off the Properties Panel rather
-    // than off the picture. FR-001 (MUST) leaves what was created selected, so
-    // the panel is already showing it; 「引いた期間のタスク」 has a period, and
-    // the answer this half keeps from coming back -- a task made by a press that
-    // drew nothing -- would show the retired road's own span instead.
+    // Why: the dates are read off the panel, as FR-001 leaves what was made selected; one day is
+    // what a press that drew nothing would show.
     const drawnDates = await panelDates(page)
     expect(drawnDates, 'the task the drag made is not showing on the Properties Panel').not.toBeNull()
     expect(
@@ -3002,11 +2243,9 @@ test('DFC-210: a bar shape needs a drag, a milestone needs only a press', async 
       `the drag made a task from ${drawnDates?.start} to ${drawnDates?.finish}, which is one point`,
     ).toBe(false)
 
-    // ③ THE MILESTONE, pressed and released on one point.
-    // ⚠️ A REFUSAL MAY STAND HERE AND IT IS NOT THIS CASE'S. The task ② made is
-    // selected, so arming a milestone also asks SP-2 to change its shape, which
-    // CM-20 refuses across 表 T-012's SH-1..SH-4 / SH-5 line -- and FR-083 (MUST)
-    // still stands the arm up. The notices are cleared rather than read.
+    // Step: the milestone, pressed and released on one point.
+    // Why: a refusal may stand here and is not this case's: with the task selected, arming asks SP-2
+    // to change its shape; FR-083 still arms, so the notices are cleared, not read.
     // Why: the point is found, not computed -- FR-001 places what is armed only where
     // Why: the press hits no item; swept outward from the bar the drag just made.
     const milestoneTries: number[] = []
@@ -3037,26 +2276,15 @@ test('DFC-210: a bar shape needs a drag, a milestone needs only a press', async 
   }
 })
 
-// ---------------------------------------------------------------------------
-// DFC-49 -- one indent, for the screen and for the written picture
-// ---------------------------------------------------------------------------
-
-/** One drawn task group: the tier it stands at, the word it shows, and that word's left edge. */
 interface DrawnTaskGroupTitle {
   readonly depth: number
   readonly name: string
   readonly left: number
 }
 
-/**
- * Every task group the panel is drawing, with the left edge of its NAME.
- *
- * ⭐ THE NAME AND NOT THE TASK GROUP. The task group's own box starts at the panel's edge and
- * never moves; what `S-37` pushes is the word inside it, which is what a reader
- * sees as the indent and what `FR-085` measures the room against.
- *
- * @purity semi-pure-mutable
- */
+// Why: the name, not the task group's box: the box starts at the panel's edge, and S-37 pushes
+// the word, which FR-085 measures the room against.
+/** @purity semi-pure-mutable */
 async function drawnTaskGroupTitles(page: Page): Promise<DrawnTaskGroupTitle[]> {
   return page.evaluate(() =>
     Array.from(document.querySelectorAll('[data-depth]')).map((row) => {
@@ -3071,16 +2299,8 @@ async function drawnTaskGroupTitles(page: Page): Promise<DrawnTaskGroupTitle[]> 
   )
 }
 
-/**
- * Where the written picture put this word, or `null` when it did not put it
- * exactly once.
- *
- * ⛔ EXACTLY ONCE, AND A SECOND MATCH IS A `null` RATHER THAN THE FIRST ONE. The
- * picture carries the task labels as `<text>` too, so a task group whose name also
- * reads as a task's would otherwise be measured off the wrong element, silently.
- *
- * @purity pure
- */
+// Why: exactly once: task labels are text too, so a second match is null, not the wrong element.
+/** @purity pure */
 function writtenTitleLeft(picture: string, name: string): number | null {
   const found: number[] = []
   const marks = /<text\b([^>]*)>([^<]*)<\/text>/g
@@ -3095,15 +2315,9 @@ function writtenTitleLeft(picture: string, name: string): number | null {
   return found.length === 1 ? (found[0] ?? null) : null
 }
 
-/**
- * The one step per tier a set of readings is made of, or a failure naming them.
- *
- * ⭐ FITTED FROM THE OUTERMOST PAIR AND THEN CHECKED AGAINST EVERY TIER, so that
- * three tiers standing at 0 / 16 / 40 are a failure rather than an average of
- * 20. `left = base + step x depth` is the shape `FR-085` gives the indent.
- *
- * @purity pure
- */
+// Why: fitted from the outermost pair, then checked on every tier, so 0 / 16 / 40 fails rather
+// than averaging 20 (FR-085).
+/** @purity pure */
 function stepPerTier(byDepth: ReadonlyMap<number, number>, what: string, room: number): number {
   const tiers = [...byDepth.keys()].sort((one, two) => one - two)
   const low = tiers[0] ?? 0
@@ -3125,34 +2339,11 @@ function stepPerTier(byDepth: ReadonlyMap<number, number>, what: string, room: n
   return step
 }
 
-// GOES RED IF: the screen and the written picture stop setting a task group in by the
-// same amount per tier, or either of them stops using `S-37` for it. The ledger
-// row DFC-49 was opened by the user's instruction of 2026-08-26 -- 「1 階層下がる
-// ごとに ... インデントしろ」 -- and measured, before CR-287, at screen minus
-// picture of -8 / -4 / 0 / +4 / +8 px over tiers 1..5, because each side worked
-// the number out for itself. `FR-085` (MUST) names one indent for both:
-// 「タスクグループの深さぶんのインデント」 (`taskGroupTitleIndent`, `S-37`), and
-// `S-37` says 「1 段深くなるごとにこの幅だけ字下げする」.
-//
-// ⛔ THE PICTURE IS WRITTEN SMALLER THAN THE SCREEN, AND THAT IS NOT THE DEFECT.
-// `FR-025` (MUST) fixes the written width at `S-81` (table T-204) while this
-// page is `MC-6` wide (table T-025), so every length in the file is the screen's
-// times `S-81 / MC-6`. The case divides by that ratio -- both numbers read out
-// of the manuscript, neither measured off the file -- and guards that the file
-// really was written at `S-81` before it does.
-//
-// ⚠️ THE PANEL IS SCROLLED FIRST, AND THE READING BELOW SAYS WHY. Measured
-// 2026-09-03 on the shipped build: with the panel untouched the picture carries
-// only the seven `L1` task groups, so it holds no second tier and no step can be read
-// off it at all; one notch of the wheel and it carries the same task groups the screen
-// does, at three tiers. ⛔ That difference is NOT what this case is about and it
-// is not asserted here -- it is written down so the scroll is not mistaken for
-// a convenience.
-//
-// ⛔ WHAT IS DELIBERATELY NOT ASSERTED: the ledger's remaining 1px. The user's
-// wording 「全角 1 文字ぶん」 measures 13.0px against `S-37`'s 16, and moving a
-// settings value is a change request, not a disagreement between the two sides.
-// Nothing here reads a font size, and every number comes from the manuscript.
+// Why: the picture is written smaller than the screen (S-81 over MC-6), so the case divides by
+// that ratio, read from the manuscript.
+// Why: the panel is scrolled first: untouched, the picture carries only the first tier, and no
+// step can be read off it.
+// Spec: FR-085, S-37, FR-025, S-81
 test('DFC-49: the screen and the picture set a task group in by the same one tier of S-37', async () => {
   test.setTimeout(240_000)
   const opened = await openStubbedPage()
@@ -3178,9 +2369,7 @@ test('DFC-49: the screen and the picture set a task group in by the same one tie
 
     const drawn = await drawnTaskGroupTitles(page)
     expect(drawn.length, 'the panel is drawing no task groups at all').toBeGreaterThan(1)
-    // ⛔ ONLY NAMES THAT STAND ONCE. Two task groups reading alike could not be paired
-    // with one `<text>` of the picture, and a wrong pairing would be measured
-    // rather than reported.
+    // Why: only names that stand once, as two alike cannot be paired with one text of the picture.
     const once = drawn.filter(
       (row) => drawn.filter((other) => other.name === row.name).length === 1 && row.name !== '',
     )
@@ -3199,8 +2388,6 @@ test('DFC-49: the screen and the picture set a task group in by the same one tie
     const picture = wrote.bodies[0] ?? ''
     expect(picture.startsWith('<svg'), 'what was written is not an SVG').toBe(true)
 
-    // The ratio every length in the file is the screen's times, from the two
-    // rows that decide it and from nothing read off the file.
     const width = Number(/^<svg\b[^>]*\bwidth="(-?\d+(?:\.\d+)?)"/.exec(picture)?.[1] ?? '')
     expect(
       width,
@@ -3227,9 +2414,7 @@ test('DFC-49: the screen and the picture set a task group in by the same one tie
         `screen is drawing, and this case needs two; it wrote none of ${JSON.stringify(missing)}`,
     ).toBeGreaterThan(1)
 
-    // ⚠️ THE ROOM IS FOR THE ROUNDING THE FILE ITSELF DOES -- it writes its
-    // coordinates to two decimals -- and for a browser's sub-pixel layout. It is
-    // far under the 4px the ledger measured the two sides apart by.
+    // Why: the room is for the file's two-decimal rounding and a browser's sub-pixel layout.
     const room = 0.1
     const screenStep = stepPerTier(onScreen, 'the screen', room)
     const pictureStep = stepPerTier(inPicture, 'the written picture', room) / ratio
@@ -3258,32 +2443,15 @@ test('DFC-49: the screen and the picture set a task group in by the same one tie
   }
 })
 
-// ---------------------------------------------------------------------------
-// DFC-229 -- the written picture carries the task groups a person left standing
-// ---------------------------------------------------------------------------
-
-/** One line of the task group panel: the word, where it starts, how far down it stands. */
 interface PanelLine {
   readonly name: string
   readonly at: number
   readonly down: number
 }
 
-/**
- * The lines the panel is drawing on the screen right now, topmost first.
- *
- * ⭐ THE NAME'S OWN BOX AND NOT THE TASK GROUP'S, for the reason `drawnTaskGroupTitles`
- * gives: the task group's box starts at the panel's edge whatever tier it stands at,
- * and what a reader sees as the tier is where the word begins.
- *
- * ⛔ `data-depth` IS READ AS A SELECTOR AND NOT AS THE ANSWER. The written
- * picture carries no such attribute, so a tier taken from it on one side and
- * worked out from the drawing on the other would be two different measurements
- * being compared. Both sides are ranked by where the word starts instead --
- * `tiered` below.
- *
- * @purity semi-pure-mutable
- */
+// Why: data-depth is a selector, not the answer: the picture carries none, so both sides are
+// ranked by where the word starts (tiered).
+/** @purity semi-pure-mutable */
 async function panelLinesOnScreen(page: Page): Promise<PanelLine[]> {
   const lines = await page.evaluate(() =>
     Array.from(document.querySelectorAll('[data-depth]')).map((row) => {
@@ -3299,35 +2467,9 @@ async function panelLinesOnScreen(page: Page): Promise<PanelLine[]> {
   return [...lines].sort((one, two) => one.down - two.down)
 }
 
-/**
- * The lines the written picture puts in the panel, topmost first.
- *
- * ⚠️ THE WINDOW IS READ OFF THE SCREEN AND SHRUNK, not guessed. `FR-080` (MUST)
- * has the picture be the screen 「`exportCanvas` ... の幅 ÷ 画面の幅 の比で縮めた
- * 絵」, so the panel's own width and the bottom of its head both land at that
- * ratio; `right` and `below` are those two, already multiplied.
- *
- * ⛔ THE HEAD'S BAND IS CUT OFF DELIBERATELY, and `HF-12` of table T-051 is the
- * reason: folding every task group 「タスクグループが 1 つも描かれない状態になりうる」 and the head
- * then 「頭にいまいくつのタスクグループを折りたたみ込んでいるかを示すこと」. That count stands in
- * the head, above the tree, and it is not a task group -- counting it as one would have
- * a build that obeys `HF-12` reported as drawing a task group the screen does not.
- * `EP-1`'s `Document Title` sits higher still and is cut off by the same edge.
- *
- * @purity pure
- */
-/**
- * The picture with FR-020's watermark layer cut out.
- *
- * ⚠️⚠️ WHY. The walk below reads the written picture as text and picks task group
- * names by coordinate alone. The watermark is a grid of <text> marks laid
- * over the Task Group Area, so each of them looks like a task group name standing at some
- * x and y. Measured 2026-09-05: four of them landed among the eleven task group
- * names and the picture stopped agreeing with the screen.
- *
- * ⛔ The layer nests one <g> of its own (the rotation), so the closing tag
- * is counted rather than searched for.
- */
+// Why: the FR-020 watermark is a grid of text marks over the Task Group Area, each looking like
+// a task group name by coordinate, so its layer is cut out first.
+// Trap: the layer nests a g of its own, so searching for the first closing tag cuts it short.
 function withoutTheWatermark(picture: string): string {
   const at = picture.indexOf('<g data-role="Watermark"')
   if (at === -1) return picture
@@ -3349,6 +2491,11 @@ function withoutTheWatermark(picture: string): string {
   return picture.slice(0, at)
 }
 
+// Why: the window is read off the screen and shrunk by the FR-080 ratio, so right and below
+// arrive already multiplied.
+// Why: the head's band is cut off: the HF-12 fold count stands there and is not a task group,
+// and EP-1's Document Title sits higher still.
+/** @purity pure */
 function panelLinesInPicture(picture: string, right: number, below: number): PanelLine[] {
   const found: PanelLine[] = []
   const scanned = withoutTheWatermark(picture)
@@ -3367,62 +2514,18 @@ function panelLinesInPicture(picture: string, right: number, below: number): Pan
   return found.sort((first, second) => first.down - second.down)
 }
 
-/**
- * The lines as `tier:name`, in the order they stand.
- *
- * ⭐ THE TIER IS A RANK AND NOT A LENGTH: how many distinct indents stand
- * shallower than this one. Neither side's own numbers are compared, so this
- * reading is free of both `S-37` and of the ratio -- which is what keeps this
- * case out of DFC-49's business. Measured 2026-09-03 on the shipped build: the
- * screen puts tier 1 at 36px and the picture at the equivalent of 16px, a
- * standing difference in the left inset that has nothing to do with which task groups
- * are drawn, and an absolute comparison would report it here instead.
- *
- * @purity pure
- */
+// Why: the tier is a rank, not a length, so neither S-37 nor the ratio enters this reading.
+/** @purity pure */
 function tiered(lines: readonly PanelLine[]): string[] {
   const indents = [...new Set(lines.map((line) => line.at))].sort((one, two) => one - two)
   return lines.map((line) => `${indents.indexOf(line.at)}:${line.name}`)
 }
 
-// GOES RED IF: the task groups the written picture draws in the task group panel stop
-// being the task groups the screen is drawing -- a different count, a different order,
-// or a different tier -- after a fold has been pressed and nothing has been
-// scrolled since.
-//
-// ⭐ THE REQUIREMENT IS `FR-080` (MUST), `docs/spec/01-04-requirements.md`, and
-// it says two things this case leans on, word for word:
-//   「画像として書き出したとき、`GRS` は、`GRS` が占める画面の全体を、
-//     `exportCanvas`（`_assets/tbl-settings.md` の表 T-204 の `S-81`）の
-//     幅 ÷ 画面の幅 の比で縮めた絵を出すこと」
-//   「表示の切り替え・ズームの段階・LOD による増減の結果を、書き出しでも同じに
-//     すること」
-// and its reason: 「見えているものが成果物になることが、この道具の前提である。」
-// Folding is a 表示の切り替え, and `EP-3` of table T-076 has the `Task Group Name
-// Panel` and the `Task Group Title Tree` drawn, with 「書き出し専用の幅を設けてはならない
-// （MUST NOT）」 -- which is why the two sides may be compared by the words
-// themselves, cut short or not.
-//
-// ⛔ WHAT IS *NOT* CLAIMED: that scrolling puts it right. The ledger's DFC-229
-// records that it does, and that reading is a symptom rather than a rule -- no
-// row of the specification says a picture becomes true once a wheel is turned.
-// What is asserted is only `FR-080`'s own agreement.
-//
-// ⭐ THE CONTROL IS ASSERTED FIRST so that a failure below is about the press
-// and not about the way the two sides are read. Measured 2026-09-03 on the
-// shipped build at 1920x1080: with the panel untouched the screen draws eight
-// task groups over three tiers while the picture carries seven, all at one tier; one
-// notch of the wheel and the two agree exactly, name for name and tier for
-// tier. The notch is therefore turned FIRST and that agreement is what the
-// control holds -- the untouched reading is taken before it (it cannot be got
-// back afterwards) and judged straight after.
-//
-// ⚠️ THE FOLD PRESSED IS THE PANEL HEAD'S, `HF-12` of table T-051 by way of
-// table T-109, and it is the one press whose result cannot be reached by
-// accident: `HF-12` (MUST) folds 「最も浅い段のタスクグループも」 as well, so the screen is
-// left drawing no task group at all, and a picture that carries any task group after it
-// carries a task group the screen does not. `HF-10` presses it open again, and the
-// second half of this case is that the picture comes back with it.
+// Why: the control comes first: one wheel notch, and the two sides must agree before the fold,
+// so a failure is about the press.
+// Why: the fold is the panel head's HF-12, which leaves no task group drawn, so any task group
+// in the picture is one the screen does not draw; HF-10 opens them again.
+// Spec: FR-080, EP-3, HF-12, HF-10
 test('DFC-229: the written picture draws the task groups the screen draws after a fold, with no scroll', async () => {
   test.setTimeout(300_000)
   const opened = await openStubbedPage()
@@ -3449,7 +2552,6 @@ test('DFC-229: the written picture draws the task groups the screen draws after 
     const right = panel.width * ratio
     const below = (head.y + head.height) * ratio
 
-    /** Write one picture and hand back its body, with the ratio's own guard. */
     const write = async (nth: number, when: string): Promise<string> => {
       expect(
         await pressExportFormat(page, chooser, ending),
@@ -3472,12 +2574,11 @@ test('DFC-229: the written picture draws the task groups the screen draws after 
       return picture
     }
 
-    // Reading 1 -- nothing pressed. Taken now because a wheel cannot be turned
-    // back, and judged after the control below.
+    // Step: read 1, nothing pressed, taken now as a wheel cannot be turned back.
     const untouchedScreen = tiered(await panelLinesOnScreen(page))
     const untouchedPicture = tiered(panelLinesInPicture(await write(1, 'with nothing pressed'), right, below))
 
-    // The control -- one notch of the wheel over the panel and nothing else.
+    // Step: the control, one wheel notch over the panel and nothing else.
     const overPanel = { x: panel.x + panel.width / 2, y: panel.y + panel.height / 2 }
     await page.mouse.move(overPanel.x, overPanel.y)
     await page.mouse.wheel(0, 200)
@@ -3505,7 +2606,7 @@ test('DFC-229: the written picture draws the task groups the screen draws after 
         'the picture be the screen shrunk by one ratio',
     ).toEqual(untouchedScreen)
 
-    // The claim -- a fold, and no scroll after it.
+    // Step: the claim, a fold and no scroll after it.
     expect(await pressEntrance(page, foldAll), `${foldAll} is not on the screen`).toBe(true)
     await readSettledDrawnSvg(page)
     const foldedScreen = tiered(await panelLinesOnScreen(page))
@@ -3522,7 +2623,7 @@ test('DFC-229: the written picture draws the task groups the screen draws after 
         'in the written picture, and nothing was scrolled in between',
     ).toEqual(foldedScreen)
 
-    // And back the other way, so the case is not one about an empty drawing.
+    // Why: and back the other way, so the case is not one about an empty drawing.
     expect(await pressEntrance(page, openAll), `${openAll} is not on the screen`).toBe(true)
     await readSettledDrawnSvg(page)
     const openedScreen = tiered(await panelLinesOnScreen(page))
@@ -3543,21 +2644,9 @@ test('DFC-229: the written picture draws the task groups the screen draws after 
   }
 })
 
-// ---------------------------------------------------------------------------
-// What the five cases of CR-344 lean on
-// ---------------------------------------------------------------------------
-
-/**
- * Every word the dictionary holds, in every language it spells one in.
- *
- * ⭐ WALKED RATHER THAN NAMED SECTION BY SECTION. `FR-038` (MUST) has 「画面に
- * 刷る語は、言語ごとの辞書として 1 か所に持つこと」 and (MUST NOT) forbids a
- * requirement or a table from spelling one, so what a case may ask of a word on
- * the screen is whether the dictionary holds it -- not which heading of the
- * manuscript it was filed under. A section added or renamed moves with this.
- *
- * @purity semi-pure-mutable
- */
+// Why: walked whole, not section by section: FR-038 asks only whether the dictionary holds
+// the word, not where it is filed.
+/** @purity semi-pure-mutable */
 function dictionaryWords(): ReadonlySet<string> {
   const held = new Set<string>()
   const walk = (value: unknown): void => {
@@ -3582,22 +2671,9 @@ function dictionaryWords(): ReadonlySet<string> {
   return held
 }
 
-/**
- * The word `FR-101` asks for while nothing has been written yet, kept by the
- * language it is spelled in.
- *
- * ⭐ THIS IS HOW A CASE ASKS THE SCREEN WHICH LANGUAGE IT IS IN. `FR-038` (MUST)
- * makes the display language 「`ja` と `en` の 2 言語」 and the dictionary spells
- * every word in both, so the two spellings of one entry are a pair of witnesses:
- * whichever of them the header is carrying names the language on the screen. ⛔
- * NEITHER SPELLING IS IN THIS FILE, for the reason `FR-038` (MUST NOT) gives.
- *
- * ⚠️ The two are required to differ. An entry spelled the same way in both
- * languages would witness nothing, and a case leaning on it would pass whatever
- * the application did.
- *
- * @purity semi-pure-mutable
- */
+// Why: the two spellings of one entry witness the screen's language, so they must differ, or
+// a case passes whatever the app did.
+/** @purity semi-pure-mutable */
 function neverSavedByLanguage(): ReadonlyMap<string, string> {
   const held = JSON.parse(readRepoFile(DICTIONARY, 'utf8')) as {
     fileStatus?: Array<{ state?: string; text?: Record<string, string> }>
@@ -3619,7 +2695,6 @@ function neverSavedByLanguage(): ReadonlyMap<string, string> {
   return said
 }
 
-/** The field the keyboard is going into right now, while it is one that takes text. */
 interface TypedInto {
   readonly tag: string
   readonly width: number
@@ -3627,16 +2702,9 @@ interface TypedInto {
   readonly value: string
 }
 
-/**
- * The focused element, when it is a field a person can type a name into.
- *
- * ⚠️ A BOX OF ITS OWN IS PART OF THE ANSWER. The shipped build keeps a 0x0
- * `input` in the page at all times (measured 2026-09-03), so "an input exists"
- * and even "an input holds the focus" can both be true of a page that offers
- * nobody anything. What is asked for is a field that is focused AND drawn.
- *
- * @purity semi-pure-mutable
- */
+// Why: focused and drawn: the build keeps a 0x0 input in the page at all times, so focus
+// alone offers nobody anything.
+/** @purity semi-pure-mutable */
 async function focusedTypableField(page: Page): Promise<TypedInto | null> {
   return page.evaluate(() => {
     const active = document.activeElement
@@ -3660,25 +2728,14 @@ async function focusedTypableField(page: Page): Promise<TypedInto | null> {
   })
 }
 
-/** What one surface of the Properties Panel is printing: its item names, and every word on it. */
 interface PanelPrinting {
   readonly names: readonly string[]
   readonly words: readonly string[]
 }
 
-/**
- * The item names the Properties Panel is printing right now, and everything else
- * it is printing beside them.
- *
- * ⛔ NOT DECIDED BY THE SPECIFICATION: the panel marks a field row with
- * `data-field-row` and prints its name in the row's first `span`. The
- * specification settles what the name must BE and says nothing about the
- * marking, so this is the same lean the cases above already take on
- * `[data-field-row="PR-1"]` -- and a change to it breaks these cases, as it
- * should.
- *
- * @purity semi-pure-mutable
- */
+// Why: data-field-row and the first span are the build's marking, not the spec's; a change
+// to it breaks these cases, as it should.
+/** @purity semi-pure-mutable */
 async function panelPrinting(page: Page): Promise<PanelPrinting> {
   return page.evaluate((panel: string) => {
     const host = document.querySelector(panel)
@@ -3694,23 +2751,14 @@ async function panelPrinting(page: Page): Promise<PanelPrinting> {
   }, PANEL)
 }
 
-/** How many notices are standing, and what the whole area reads. */
 interface Standing {
   readonly sheets: number
   readonly text: string
 }
 
-/**
- * The notices standing right now, counted one sheet at a time.
- *
- * ⛔ `readNotices` COUNTS AREAS, NOT SHEETS, and every notice of the shipped
- * build stands in the one `Notification Area` (measured 2026-09-03: three
- * presses of a dead entrance gave one area holding three sheets, so a case that
- * counted what `readNotices` answers would have read 1 and called `NT-3`
- * honored). The sheets are that area's own element children.
- *
- * @purity semi-pure-mutable
- */
+// Why: readNotices counts areas, not sheets: every notice stands in one Notification Area,
+// so the sheets are its children (NT-3).
+/** @purity semi-pure-mutable */
 async function standingNotices(page: Page): Promise<Standing> {
   return page.evaluate(() => {
     const areas = Array.from(document.querySelectorAll('[data-role]')).filter((marked) =>
@@ -3728,36 +2776,28 @@ async function standingNotices(page: Page): Promise<Standing> {
   })
 }
 
-/** How many of the dictionary's reasons a piece of screen text is carrying. @purity semi-pure-mutable */
+/** @purity semi-pure-mutable */
 function reasonsCarriedBy(said: string): readonly string[] {
   return reasonWordsOfDictionary()
     .filter((one) => (one.ja !== '' && said.includes(one.ja)) || (one.en !== '' && said.includes(one.en)))
     .map((one) => one.specTableRowId)
 }
 
-/** How many times a piece of text carries one word. @purity pure */
+/** @purity pure */
 function timesCarried(said: string, word: string): number {
   if (word === '') return 0
   return said.split(word).length - 1
 }
 
-/** One task group as the Task Group Panel is drawing it. */
 interface DrawnTaskGroup {
   readonly top: number
   readonly bottom: number
   readonly text: string
 }
 
-/**
- * The task groups the Task Group Panel has drawn, and the panel's own box.
- *
- * ⚠️ `[data-depth]` IS THE DRAWN WINDOW AND NOT THE DOCUMENT. Eight task groups is all
- * the shipped build draws at the base screen (measured 2026-09-03), so a task group
- * that is missing from this answer is a task group a person cannot see -- which is
- * exactly what `HF-17` (MUST) is about.
- *
- * @purity semi-pure-mutable
- */
+// Why: [data-depth] is the drawn window, not the document, so a task group missing here is
+// one a person cannot see (HF-17).
+/** @purity semi-pure-mutable */
 async function drawnTaskGroupsAndPanel(
   page: Page,
 ): Promise<{ rows: readonly DrawnTaskGroup[]; panelTop: number; panelBottom: number }> {
@@ -3782,16 +2822,9 @@ async function drawnTaskGroupsAndPanel(
   })
 }
 
-/**
- * Put the pointer on a task group's name and press one of that task group's own entrances.
- *
- * ⛔ A TASK GROUP'S ENTRANCES ARE HIDDEN UNTIL THE POINTER IS ON ITS NAME (table T-051
- * row `HF-6`), and the shell reads a real pointer -- a dispatched event reaches
- * nothing here, which `tools/probe/harness.mjs` records as the way one session
- * called a working feature broken.
- *
- * @purity non-pure
- */
+// Why: a task group's entrances are hidden until the pointer is on its name (HF-6), and a
+// dispatched event reaches nothing.
+/** @purity non-pure */
 async function pressRowEntrance(page: Page, taskGroupTop: number, entrance: string): Promise<boolean> {
   const name = await page.evaluate((wantedTop: number) => {
     const row = Array.from(document.querySelectorAll('[data-depth]')).find(
@@ -3824,36 +2857,9 @@ async function pressRowEntrance(page: Page, taskGroupTop: number, entrance: stri
   return true
 }
 
-// ---------------------------------------------------------------------------
-// DFC-232 -- MOVED to `tests/system/open-defect-pins.test.ts` (see prose above,
-// under "FIVE ROWS ARE NOT HELD HERE"). `focusedTypableField` stays: DFC-43 and
-// the two cases beside it still call it.
-// ---------------------------------------------------------------------------
-
-// ---------------------------------------------------------------------------
-// DFC-233 -- the settings surface prints words, not spellings
-// ---------------------------------------------------------------------------
-
-// GOES RED IF: the surface that shows the document's drawing settings prints an
-// item name the dictionary does not hold, or prints an identifier as it is held
-// inside. Chapter 1's paragraph under table T-006a (MUST) reads 「⛔ **プロパティ
-// パネルの項目名の英語の綴りは `W-2` に従うこと（MUST）** …… ⛔ 同じ面が文書の設定を
-// 出すときも、これに従うこと（MUST）。内部の綴りや識別子をそのまま出してはならない
-// （MUST NOT）」, and the preamble of table T-016 says where the names live:
-// 「⛔ **画面に出す名は本表に無い（MUST NOT）** —— `FR-038` が「画面に刷る語は、言語
-// ごとの辞書として 1 か所に持つこと（MUST）」と定めるので、表示名は `_source/display-words.json` の
-// `properties` 節が同じ行 ID で持つ」.
-//
-// ⭐ THE DICTIONARY IS WALKED WHOLE rather than asked for one section: the
-// settings surface has no rows of table T-016, and which heading its words are
-// filed under is the manuscript's business. What this case asks is `FR-038`'s
-// own question -- whether the word on the screen is a word the dictionary holds.
-//
-// ⚠️ THE SECOND HALF IS NOT THE SAME CLAIM AS THE FIRST. A name may be absent
-// from the dictionary without being an identifier, and an identifier may be
-// printed beside a name that is perfectly good; the ledger's DFC-233 measured
-// both at once (113 rows of internal spellings, and one raw UUID among the
-// values).
+// Why: the second half is a separate claim: a name may be absent without being an identifier,
+// and an identifier may stand beside a good name.
+// Spec: T-006a, W-2, T-016, FR-038
 test('DFC-233: the settings surface prints dictionary words and no raw identifier', async () => {
   test.setTimeout(180_000)
   const opened = await openStubbedPage()
@@ -3881,9 +2887,7 @@ test('DFC-233: the settings surface prints dictionary words and no raw identifie
         `${DICTIONARY}`,
     ).toEqual([])
 
-    // ⚠️ A UUID IS THE SHAPE THE LEDGER MEASURED (`scrollTaskGroupId`). It is asked
-    // for by shape rather than by field name so that an identifier printed in
-    // some other row is caught by the same reading.
+    // Why: asked for by UUID shape, not field name, so an identifier in any row is caught.
     const identifiers = printing.words.filter((said) =>
       /[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}/.test(said),
     )
@@ -3897,27 +2901,10 @@ test('DFC-233: the settings surface prints dictionary words and no raw identifie
   }
 })
 
-// ---------------------------------------------------------------------------
-// DFC-234 -- the added task group is brought into view, not just its field
-// ---------------------------------------------------------------------------
-
-// GOES RED IF: a task group added at the shallowest tier, or added under a task group standing
-// at the foot of the panel, is not drawn once its name is settled -- or is drawn
-// outside the panel's own box. Table T-051 row `HF-17` (MUST) reads 「足した
-// タスクグループが描かれていないとき、`GRS` は、足したタスクグループが見える位置まで表示位置を送ること。
-// `GRS` は、打ち込み口だけを送らないこと。`GRS` は、表示位置の送り方を `HF-9` に従わせること。
-// `HF-14`（配下に足す）で足したタスクグループが描かれていないときも、`GRS` は、足したタスクグループが
-// 見える位置まで表示位置を送ること ... 口だけ送ると、確定したあとにタスクグループがどこへ行ったか読めない
-// ... 押したタスクグループが画面の下端に在るときに同じことが起きる」
-//
-// ⭐ THE NAME IS WHAT MAKES THE TASK GROUP FINDABLE. `HF-14` (MUST) has the task group stand
-// with an empty name and (MUST) throws it away if the name is settled empty, so
-// a task group that is never named is a task group this case may not look for -- and the name
-// typed below is what tells the new task group from the eight the build already draws.
-//
-// ⚠️ BOTH HALVES ARE PRESSED, and `HF-17`'s own last sentence is why: the two
-// entrances differ only in where the task group lands, and the task group says in as many
-// words that `HF-14` is held to the same thing.
+// Why: the new task group is found by the name typed, as HF-14 has it stand nameless and
+// dropped if settled empty.
+// Why: both halves are pressed, as HF-17 holds HF-14 to the same scroll (HF-9).
+// Spec: HF-17, HF-14, HF-9
 test('DFC-234: a task group added at the head, and one added under the last task group, are both brought into view', async () => {
   test.setTimeout(240_000)
   const opened = await openStubbedPage()
@@ -3926,7 +2913,7 @@ test('DFC-234: a task group added at the head, and one added under the last task
     const addAtHead = entranceBy(T109_SOURCE, 'HF-17')
     const addUnderTaskGroup = entranceBy(T109_SOURCE, 'HF-14')
 
-    // --- HF-17, the shallowest tier -------------------------------------
+    // Step: HF-17, the shallowest tier.
     expect(await pressEntrance(page, addAtHead), `${addAtHead} is not on the screen`).toBe(true)
     await page.waitForTimeout(600)
     const headField = await focusedTypableField(page)
@@ -3958,7 +2945,7 @@ test('DFC-234: a task group added at the head, and one added under the last task
         'a position it can be read from',
     ).toBe(true)
 
-    // --- HF-14, under the task group standing lowest ---------------------------
+    // Step: HF-14, under the task group standing lowest.
     const lowest = [...afterHead.rows].sort((one, two) => two.top - one.top)[0]
     expect(lowest, 'the panel drew no task group to add a child under').not.toBeUndefined()
     if (lowest === undefined) return
@@ -3999,28 +2986,11 @@ test('DFC-234: a task group added at the head, and one added under the last task
   }
 })
 
-// ---------------------------------------------------------------------------
-// DFC-235 -- the bound document names the language the screen is in
-// ---------------------------------------------------------------------------
-
-// GOES RED IF: the display language is changed and the document goes on naming
-// the language it named before. `FR-038` (MUST) reads 「利用者が画面の言語を替えた
-// とき、`GRS` は、綴じた文書自身が名乗る言語も同じものに替えること」 ——
-// 「読み上げと自動翻訳が、文書の名乗る言語を見る。」「⚠️ 画面には現れないので、押しても気づけない。」,
-// and the same requirement fixes the two languages it can be: 「`GRS` は、画面の
-// 言語とヘルプの言語の対象を `ja` と `en` の 2 言語とすること」.
-//
-// ⛔ WHAT THE DOCUMENT NAMES ITS LANGUAGE WITH IS NOT SETTLED BY A REQUIREMENT,
-// and the ledger's DFC-235 names the one place a bound HTML document has for it --
-// the root element's `lang`. Nothing else in the deliverable declares a
-// language, and it is what a screen reader and an automatic translation read,
-// which is the reason the requirement gives.
-//
-// ⚠️ THE SCREEN IS ASKED WHICH LANGUAGE IT IS IN rather than told. The display
-// language is chosen from the browser when nothing was stored (`FR-038`), so a
-// case that assumed one language would report a build opened in the other as
-// broken. The witness is the dictionary's own pair of spellings for the word
-// `FR-101` puts in the header while nothing has been written to a file.
+// Why: the root element's lang is checked: no requirement says how the document names its
+// language, and lang is what a reader and a translation read.
+// Why: the screen is asked its language by the FR-101 never-saved word, as the language follows
+// the browser.
+// Spec: FR-038
 test('DFC-235: changing the display language changes the language the document names', async () => {
   test.setTimeout(180_000)
   const opened = await openStubbedPage()
@@ -4039,7 +3009,6 @@ test('DFC-235: changing the display language changes the language the document n
     const toggle = screenToggles[0]?.id ?? ''
     const words = neverSavedByLanguage()
 
-    /** Which language the header is printing in, by the word it carries. */
     const shownLanguage = async (): Promise<string> => {
       const said = await page.evaluate(() => {
         const header = document.querySelector('[data-role="App Header"]')
@@ -4085,34 +3054,12 @@ test('DFC-235: changing the display language changes the language the document n
   }
 })
 
-// ---------------------------------------------------------------------------
-// DFC-236 -- one sheet per reason, and no ceiling on the sheets
-// ---------------------------------------------------------------------------
-
-// GOES RED IF: pressing one dead entrance again puts a second sheet up instead
-// of adding to the one already standing, or the standing sheet reads exactly the
-// same after the second press (nothing was counted), or a second reason is
-// merged into the first. Table T-037 row `NT-3` (MUST) reads 「⛔⛔ **同じ理由の
-// 通知が既に立っているときは、新しく積まずに、その 1 枚の件数を増やすこと
-// （MUST）** …… ⭐ **件数の示し方は本行が既に持つ。**⭐ **`NT-8`（いちばん新しい
-// ものから消す）とはそのまま両立する** …… ⛔ **枚数に上限を置いてはならない
-// （MUST NOT）**」.
-//
-// ⭐ THE READING THAT CARRIES THE CLAIM IS THE REASON'S OWN WORDS, not the sheet
-// count: 「同じ理由の通知」 is what may not be stacked, so what is counted is how
-// many times the dictionary's sentence for that reason stands on the screen.
-// The sheets are counted as well, and the two together are what tell a merge
-// from a build that simply stopped raising the second notice.
-//
-// ⛔ THE CEILING IS WATCHED FROM THE OTHER SIDE. A cap cannot be reached by
-// pressing one dead entrance -- merging keeps that at one sheet however often it
-// is pressed -- so what is asserted instead is that a SECOND, DIFFERENT reason
-// stands beside the first: a build that kept one sheet at all times would be
-// capped at one, and `NT-8` (MUST) is written for two or more standing at once.
-//
-// ⚠️ THE PRESSES ARE SPACED. Table T-023 row `MK-13` gives a double click its
-// own meaning, and two presses of one entrance inside the interval a browser
-// calls a double click are not two presses of it.
+// Why: the reason's own words are counted with the sheets, so a merge is told apart from a
+// build that stopped raising the second notice.
+// Why: the ceiling is watched from the other side: a second, different reason must stand
+// beside the first.
+// Why: the presses are spaced, as two inside a double-click interval are one double click (MK-13).
+// Spec: NT-3, NT-8
 test('DFC-236: the same reason raised again counts on the standing notice instead of stacking', async () => {
   test.setTimeout(240_000)
   const opened = await openStubbedPage()
@@ -4162,7 +3109,7 @@ test('DFC-236: the same reason raised again counts on the standing notice instea
         'counted nowhere',
     ).not.toBe(twice.text)
 
-    // ⭐ A SECOND REASON, WHICH IS WHERE THE CEILING WOULD SHOW: a file that is not UTF-8.
+    // Why: a second reason, where a ceiling would show: a file that is not UTF-8.
     await dropText(page, 'bytes.json', [0xff, 0xfe, 0xfd, 0x7b])
     await page.waitForTimeout(spacing)
     const second = await standingNotices(page)
@@ -4182,11 +3129,6 @@ test('DFC-236: the same reason raised again counts on the standing notice instea
   }
 })
 
-// ---------------------------------------------------------------------------
-// The rows themselves
-// ---------------------------------------------------------------------------
-
-/** The ledger rows the cases above hold down. */
 const HELD: readonly string[] = [
   'DFC-24',
   'DFC-43',
@@ -4216,18 +3158,9 @@ const HELD: readonly string[] = [
   'DFC-236',
 ]
 
-/**
- * The two files the ledger is kept in.
- *
- * ⛔ BOTH, AND `fixed-defects.md` IS NOT A SECOND LEDGER. Its own opening line
- * says it is the continuation of `defects.md` with the same nine columns and
- * that a row moves across once it has been measured -- which is exactly what
- * the cases above are for, so every row here is on its way across.
- */
+// Why: both files, as fixed-defects.md continues defects.md and a row moves across once measured.
 const LEDGERS: readonly string[] = ['defects.md', 'fixed-defects.md']
 
-// GOES RED IF: one of the rows above leaves the ledger altogether, or two
-// entries name the same row.
 test('every ledger row this file holds down is still a row of the ledger', () => {
   const written = LEDGERS.map((file) =>
     readRepoFile(join(process.cwd(), 'docs', 'development-records', file), 'utf8'),

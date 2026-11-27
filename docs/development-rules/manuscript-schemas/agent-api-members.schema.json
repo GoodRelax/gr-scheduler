@@ -147,6 +147,9 @@
     },
     "meaning": {
      "$ref": "#/$defs/prose"
+    },
+    "xProvisional": {
+     "$ref": "#/$defs/provisionalMarks"
     }
    }
   },
@@ -212,6 +215,9 @@
      "enum": [
       "relay"
      ]
+    },
+    "xProvisional": {
+     "$ref": "#/$defs/provisionalMarks"
     }
    }
   },
@@ -239,6 +245,9 @@
     },
     "purity": {
      "$ref": "#/$defs/purity"
+    },
+    "xProvisional": {
+     "$ref": "#/$defs/provisionalMarks"
     }
    }
   },
@@ -343,6 +352,9 @@
     },
     "source": {
      "$ref": "#/$defs/prose"
+    },
+    "xProvisional": {
+     "$ref": "#/$defs/provisionalMarks"
     }
    }
   },
@@ -356,6 +368,53 @@
    "properties": {
     "en": {
      "$ref": "#/$defs/lineList"
+    }
+   }
+  },
+  "provisionalMarks": {
+   "description": "Names the owner has not settled yet: the entry, a word its type writes or a word its prose names takes provisionalName in place of alphaName (JDG-3788, JDG-3789; the list is studies/76-grs-json-beta-shape/terms/agent-api-provisional-names.md and its .tsv). NOT a call shape: no generator prints it and the Agent API fingerprint leaves it out. tools/apply_contract_renames.py drops a mark when its row is finalized.",
+   "type": "array",
+   "minItems": 1,
+   "items": {
+    "type": "object",
+    "required": [
+     "provisionalRow",
+     "basis",
+     "alphaName",
+     "provisionalName"
+    ],
+    "additionalProperties": false,
+    "properties": {
+     "provisionalRow": {
+      "description": "The row of the provisional list (PN-n).",
+      "type": "string",
+      "pattern": "^PN-[0-9]+$"
+     },
+     "basis": {
+      "description": "The ruling that made the name provisional.",
+      "type": "string",
+      "pattern": "^JDG-[0-9]+$"
+     },
+     "alphaName": {
+      "description": "The name the manuscript writes now.",
+      "$ref": "#/$defs/identifier"
+     },
+     "provisionalName": {
+      "description": "The provisional new name; null when the name goes away.",
+      "oneOf": [
+       {
+        "$ref": "#/$defs/identifier"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
+     "note": {
+      "description": "What else changes: a shape, or where the name is written.",
+      "type": "string",
+      "minLength": 1
+     }
     }
    }
   }

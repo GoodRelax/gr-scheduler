@@ -1,91 +1,4 @@
-// 表 T-014 の `ST-7` -- the half of the safety valve that is a TELLING, on both
-// of the roads the row names.
-//
-// ⚠️ Chapter 9 does not admit Unit as a TEST_LEVEL, so these have no node in the
-// specification. Table T-218 of Chapter 7 gives them their place: `TS-6`,
-// tests/unit/, written by someone who read only docs/spec. The unit is `UF-48`
-// of 表 T-075 (`frame-loop.ts`, `CP-25` of 表 T-062) -- 表 T-060's `LY-5` makes
-// it the only layer that may hold a current value, so it is the side that can
-// see a layout reach the valve and put a telling up.
-//
-// ---------------------------------------------------------------------------
-// ⭐ THE CLAUSE, VERBATIM (docs/spec/01-04-requirements.md, 表 T-014 の `ST-7`)
-// ---------------------------------------------------------------------------
-//
-//   「ただし、`GRS` は、1 つの `TaskGroup` あたりの段数に安全弁を置くこと。」 and the
-//    four sentences after it in the same cell (stop, return a value, tell, never throw).
-//   「`GRS` は、安全弁の通知先を画面を描く経路に限らないこと。絵を書き出す経路
-//    （`FR-080`）で安全弁に達したとき、`GRS` は、書き出しを終えたあとで同じ通知を
-//    画面に上げること。」（利用者の裁定 2026-09-06）
-//   「安全弁の値（`S-89`）は「許される段数の上限」であること（MUST）」
-//
-// and the reason it hands the person (表 T-233):
-//
-//   | RS-24 | 1 つの `TaskGroup` の段数が安全弁に達したので、これ以上積めない
-//           | `NT-3a` | 表 T-014 の `ST-7` |
-//
-// and the entrance the picture takes to the clipboard (`FR-025`):
-//
-//   「`GRS` は、`IO-6`（クリップボード）の入口を 表 T-109 の `IC-3` とすること。
-//    `IC-3` が押されたとき、`GRS` は、選択面を開かずに直ちに送ること。」
-//
-// ---------------------------------------------------------------------------
-// ⛔ WHY THIS FILE EXISTS BESIDE tests/unit/st-7-rs-24-the-stack-safety-valve-
-//    returns-a-value.test.ts, WHICH ANOTHER BODY WROTE
-// ---------------------------------------------------------------------------
-// That file asks the LAYOUT's half of `ST-7`: the member is always there, it is
-// null up to `S-89` and named past it, nothing is thrown, nothing is squeezed or
-// dropped, and 表 T-233 holds `RS-24` with `NT-3a`. ⛔ Its last case is 「ST-7
-// raises no reason while no task group reached the valve」 -- the NEGATIVE half only.
-// ⇒ Nothing anywhere asks the two things the ledger rows below are about:
-//
-//   DFC-271 「段数の安全弁に達しても、人に何も告げない」 -- that a telling carrying
-//         `RS-24` actually STANDS when a task group reaches the valve.
-//   DFC-345 「止まった書き出しが人に告げるかを、どの条項も定めていない」 -- settled
-//         by CR-368 with the MUST NOT / MUST quoted above, and its own record
-//         closes with 「⛔ 試験はまだ無い」.
-//
-// ⛔ THIS FILE DOES NOT RE-ASK ANYTHING THAT FILE ASKS. The boundary either side
-// of `S-89` is asked HERE ONLY as the premise of a telling, because a telling
-// that stood one stack too early would be a different defect from one that never
-// stands at all.
-//
-// ---------------------------------------------------------------------------
-// ⛔ WRITTEN FROM docs/spec, AND WHAT WAS READ OF `src/` IS NAMED HERE
-// ---------------------------------------------------------------------------
-// (docs/development-rules/04-verification.md section 1: only the head, the
-// published types and the signatures.)
-//
-//   frame-loop.ts        `FrameEnvironment`, `FrameLoop`, `ScreenWiring` and the
-//                        signature `frameLoop(surface, first, env, screen?,
-//                        files?, showPointerShape?, clipboard?, ...)`
-//   screen-renderer.ts   `DisplayLanguage`, `ScreenPart`, `ScreenSurface`,
-//                        `ScreenView`, `Notice`
-//   clipboard-gateway.ts `Clipboard`, `ClipboardContent`, `ClipboardWriting`
-//   file-store.ts        `FileStore`, `FileReading`, `ChosenFileWrite`
-//   input-command-translator.ts  `HumanInput`, `InputModifiers`, `KeyInput`,
-//                        `PointerInput`, `PointerPhase`
-// ⛔ NO FUNCTION BODY WAS READ. Nothing was read of where or how a telling is
-// raised; every expectation below is `ST-7`'s, 表 T-233's and `FR-025`'s.
-// ⭐ THE HOST, THE FAKE SURFACE, THE FAKE STORE AND THE FAKE CLIPBOARD ARE
-// COPIED, NOT INVENTED: tests/unit/uf-47-48-choosers.test.ts drives this same
-// unit through the export chooser, tests/unit/dfc-337-fr-029-the-three-file-gates-
-// say-why-on-a-second-press.test.ts drives it for a telling, and
-// tests/unit/uf-45-46.test.ts is where a `Clipboard` seam is stood in for.
-//
-// ---------------------------------------------------------------------------
-// ⚠️ WHAT IS DELIBERATELY NOT ASSERTED
-// ---------------------------------------------------------------------------
-//  1. HOW OFTEN the screen road tells. DFC-271's record says 「告げるのは `null`
-//     から止まりに変わった回だけ」, and NOTHING IN docs/spec SAYS SO: `RS-24`'s
-//     作法 names `NT-3a` alone, and the one rule about piling the same reason up
-//     stands on `NT-3`, whose 場面 is 「破壊的な結果を伴うとき」. Asserting a
-//     once-per-turn gate here would be this file writing specification.
-//  2. WHETHER A NON-PICTURE EXPORT TELLS. The clause scopes the second road to
-//     「絵を書き出す経路（`FR-080`）」, and says nothing of `IO-1` / `IO-2` /
-//     `IO-7`. A case demanding silence there would be an invention.
-//  3. THE PICTURE'S OWN CONTENT. `FR-025` and 表 T-041's `WY-2` own that, and
-//     tests/unit/uf-45-46.test.ts asks it.
+// Contract tests: ST-7's safety valve is told on the screen road and again after a picture export.
 
 import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
@@ -126,47 +39,33 @@ import {
 import { bare, specTable, type SpecRow, type SpecTable, unbroken } from './spec-table'
 import { SETTINGS_CONSTANTS } from '../../src/entity/document-model/document-settings/document-settings'
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
-// ===========================================================================
-// 1. The manuscript, read at run time rather than copied
-// ===========================================================================
+/* eslint-disable @typescript-eslint/no-explicit-any -- the fixture document and the fakes are built as loose shapes */
 
 const REQUIREMENTS = unbroken(readRepoFile(
   join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'),
   'utf8',
 ))
 
-/**
- * ⚠️ Japanese literals in code. Rule 03 section 5 keeps code English and ASCII
- * and admits 日本語そのものを扱う処理 as the exception -- these strings ARE the
- * clauses, and matching them against the manuscript is what makes the cases
- * below cases about the specification.
- *
- * ⭐ EACH ENDS AT ITS OWN MARKER's CLOSING PARENTHESIS, so the trailing window
- * check 39 takes is a window this file actually holds.
- */
+// Why: Japanese in code: these strings are the clauses, the exception rule 03 section 5
+// admits, and matching them against the manuscript ties the cases to the spec.
 const ST_7_STOP_AND_TELL_ON_A_VALUE =
   '段数が安全弁に達したとき、`GRS` は、達したところで処理を止めること。段数が安全弁に達したとき、`GRS` は、達したことを判別できる値で返すこと。段数が安全弁に達したとき、`GRS` は、達したことを人に通知すること。'
 
 const ST_7_NO_EXCEPTION = '段数が安全弁に達したとき、`GRS` は例外を投げないこと。'
 
-/** ⭐⭐ THE CLAUSE CR-368 ADDED, which is the whole of DFC-345. */
 const ST_7_NOT_ONLY_THE_SCREEN_ROAD =
   '`GRS` は、安全弁の通知先を画面を描く経路に限らないこと。'
 
 const ST_7_TELL_AFTER_THE_EXPORT =
   '絵を書き出す経路（`FR-080`）で安全弁に達したとき、`GRS` は、書き出しを終えたあとで同じ通知を画面に上げること。'
 
-/** The boundary the row states, so 「reached」 is not read two ways here either. */
 const ST_7_CAP_IS_THE_HIGHEST_ALLOWED =
   '`GRS` は、安全弁の値（`_assets/tbl-settings.md` の `S-89`）を「許される段数の上限」として扱うこと。'
 
-/** `FR-025`'s entrance for `IO-6` -- why `IC-3` is what these cases press. */
+// Spec: IMPS-962
 const FR_025_IC_3_SENDS_AT_ONCE =
   '`GRS` は、`IO-6`（クリップボード）の入口を 表 T-109 の `IC-3` とすること。`IC-3` が押されたとき、`GRS` は、選択面を開かずに直ちに送ること。'
 
-/** `SK-19`'s first duty -- how a standing telling is taken down between roads. */
 const SK_19_DISMISSES_ONE =
   '出ている通知がある間、 `Enter` を押したとき、`GRS` は、出ている通知を 1 つ消すこと（作法は 表 T-037 の `NT-8`）。'
 
@@ -181,17 +80,12 @@ function rowOf(table: SpecTable, id: string): SpecRow {
   return found
 }
 
-/** The reason 表 T-233 gives the valve. */
 const RS_24 = 'RS-24'
 
-/** The manner 表 T-233 puts on that row. ⛔ Read, never typed. */
 const MANNER_OF_RS_24 = bare(rowOf(T_233, RS_24).by['作法'] ?? '')
 
-/**
- * The keystroke 表 T-036 assigns one row, read out of its 割当 column.
- * ⚠️ Copied from tests/contract/dfc-337-fr-029-the-three-file-gates-say-why-on-a-second-press.test.ts, including its warning against
- * `bare`: `SK-21`'s 割当 is 「`Ctrl` ＋ `R`」 and `bare` would answer `Ctrl`.
- */
+// Why: the cell is parsed here rather than by bare, since for SK-21's Ctrl + R bare would
+// answer Ctrl.
 function keyOf(id: string): KeyInput {
   const parts = ((rowOf(T_036, id).by['割当'] ?? '').split('/')[0] ?? '')
     .replace(/\*/g, '')
@@ -215,30 +109,17 @@ function keyOf(id: string): KeyInput {
   }
 }
 
-/** `SK-12` -- `FR-096`'s one entrance, which begins with the choice of a format. */
+// Spec: SK-12, FR-096
 const SK_12 = keyOf('SK-12')
-/** `SK-19` -- 「出ている通知がある間、 `Enter` を押したとき、`GRS` は、出ている通知を 1 つ消すこと」. */
+// Spec: SK-19
 const SK_19 = keyOf('SK-19')
 
-/**
- * The 表 T-103 面 one entrance of 表 T-109 stands on, read out of its 面 column.
- *
- * ⭐ 「**`面` の欄は 表 T-103 の確定名である。**」 (表 T-109's own preamble), so
- * the surface a press reports is the table's answer and not this file's.
- */
 const surfaceOf = (entry: string): string => bare(rowOf(T_109, entry).by['面'] ?? '')
 
-/** U-54 -- the surface `FR-096` writes a document out through, named by 表 T-103. */
 const EXPORT_CHOOSER = bare(rowOf(specTable('T-103'), 'U-54').by['確定名（英）'] ?? '')
 
-/**
- * FR-038's dictionary, as the MANUSCRIPT keeps it.
- *
- * ⭐ `docs/spec/_source/` is where the words are written; the copy under
- * `src/adapter/screen-renderer/` is printed from it. Rule 04 section 1 has these
- * cases driven from docs/spec, and the two are held together by
- * `npm run words:check`, not by this file.
- */
+// Why: the manuscript's copy is read, since the cases are driven from docs/spec; the
+// src/ copy is held to it by npm run words:check, not here.
 interface ReasonWords {
   readonly specTableRowId: string
   readonly text: Readonly<Record<DisplayLanguage, string>>
@@ -262,10 +143,6 @@ function wordsFor(specTableRowId: string): ReasonWords {
   return found
 }
 
-// ===========================================================================
-// 2. The documents. One task group, `howMany` tasks that all cover the same days.
-// ===========================================================================
-
 const TEMPLATE = JSON.parse(
   readRepoFile(
     join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'),
@@ -273,13 +150,7 @@ const TEMPLATE = JSON.parse(
   ),
 ) as Document
 
-/**
- * The valve these cases are driven at: `S-89`, read from the generated constants.
- *
- * ⭐ A TOOL CONSTANT SINCE CR-572, so no document can lower it and the fixture
- * has to stack that many Tasks. `ST-7` states the BEHAVIOR at the cap; the
- * sibling file (`st-7-rs-24-...`) holds the number to the manuscript.
- */
+// Why: S-89 is a tool constant no document can lower, so the fixture stacks that many Tasks.
 const CAP = SETTINGS_CONSTANTS.stackSafetyCap
 
 const ROW_ID = '11111111-2222-3333-4444-555555555555'
@@ -310,13 +181,8 @@ function task(uid: number): Record<string, unknown> {
   }
 }
 
-/**
- * `howMany` tasks that all cover the same days, on ONE task group, under a cap of `CAP`.
- *
- * ⭐ `ST-10` keeps a merely touching pair off the same stack; these overlap
- * outright, so `ST-3`'s greedy assignment has to open one stack per task and the
- * task group's stack count IS `howMany`.
- */
+// Why: the tasks overlap outright, not merely touch (ST-10), so ST-3's greedy assignment
+// opens one stack per task and the stack count is howMany.
 function documentOfOverlaps(howMany: number): Document {
   const template = structuredClone(TEMPLATE) as any
   const uids = Array.from({ length: howMany }, (_, index) => index + 1)
@@ -356,10 +222,6 @@ function documentOfOverlaps(howMany: number): Document {
     changeLog: [],
   } as unknown as Document
 }
-
-// ===========================================================================
-// 3. The host UF-48 is given
-// ===========================================================================
 
 const SCREEN: FrameEnvironment = {
   width: 1000,
@@ -430,7 +292,6 @@ interface StoreProbe {
   readonly written: ChosenFileWrite[]
 }
 
-/** IF-3's far side, stood in for. Copied from tests/unit/uf-47-48-choosers.test.ts. */
 function fileStore(): StoreProbe {
   const written: ChosenFileWrite[] = []
   const store: FileStore = {
@@ -454,7 +315,6 @@ interface ClipboardProbe {
   readonly received: ClipboardContent[]
 }
 
-/** IF-5's far side, stood in for. Copied from tests/unit/uf-45-46.test.ts. */
 function clipboardProbe(): ClipboardProbe {
   const received: ClipboardContent[] = []
   return {
@@ -520,21 +380,14 @@ const partAt = (part: string, entry: string | null, format: string | null): Scre
     noticeDismissKey: null,
   }) as unknown as ScreenPart
 
-// ===========================================================================
-// 4. One stage, with every road these cases take
-// ===========================================================================
-
 interface Stage {
   readonly loop: FrameLoop
   readonly written: ChosenFileWrite[]
   readonly clipped: ClipboardContent[]
   press(input: HumanInput): Promise<void>
-  /** Press one entrance of 表 T-109 on the 面 that table gives it. */
   take(entry: string): Promise<void>
-  /** Press one row of 表 T-024 on `FR-096`'s chooser. */
   takeFormat(format: string): Promise<void>
   notices(): readonly Notice[]
-  /** `SK-19` (MUST): take every standing telling down, so the next road starts clean. */
   clearNotices(): Promise<void>
 }
 
@@ -563,7 +416,8 @@ function stage(document: Document, language: DisplayLanguage = 'ja'): Stage {
     pen.runAnimationFrames()
   }
   const pressAt = async (part: ScreenPart): Promise<void> => {
-    // CS-2 of 表 T-066 settles the gesture on what was drawn AT THE PRESS.
+    // Why: the part is drawn before the press and cleared after, since CS-2 settles a gesture
+    // on what was drawn at the press.
     screen.drawAt(part)
     loop.receiveInput(pointer('down', 500, 300))
     loop.receiveInput(pointer('up', 500, 300))
@@ -587,13 +441,8 @@ function stage(document: Document, language: DisplayLanguage = 'ja'): Stage {
   }
 }
 
-/** Whether one telling is the valve's, judged from the dictionary end. */
 const isTheValve = (notice: Notice, language: DisplayLanguage): boolean =>
   notice.text === wordsFor(RS_24).text[language]
-
-// ===========================================================================
-// 5. The premises every case below stands on
-// ===========================================================================
 
 describe('表 T-014 の ST-7 -- the manuscript this file is driven by', () => {
   it('still asks for a VALUE and a TELLING, and still forbids the exception', () => {
@@ -602,8 +451,6 @@ describe('表 T-014 の ST-7 -- the manuscript this file is driven by', () => {
   })
 
   it('⭐⭐ still forbids the telling being the screen road’s alone, and asks for it after an export', () => {
-    // ⛔ THE WHOLE OF DFC-345. CR-368 put both halves on `ST-7` on 2026-09-06; a
-    // manuscript that lost them would make every case in section 7 an invention.
     expect(REQUIREMENTS).toContain(ST_7_NOT_ONLY_THE_SCREEN_ROAD)
     expect(REQUIREMENTS).toContain(ST_7_TELL_AFTER_THE_EXPORT)
   })
@@ -622,8 +469,8 @@ describe('表 T-014 の ST-7 -- the manuscript this file is driven by', () => {
   })
 
   it('⭐ RS-24 says something no other row of 表 T-233 says', () => {
-    // ⛔ WITHOUT THIS, 「the telling carried RS-24」 would pass on a loop that
-    // carried any row at all, because the words would collide.
+    // Why: without this, the RS-24 check would pass on a loop carrying any row, as the words
+    // would collide.
     const mine = wordsFor(RS_24).text.ja
     const others = T_233.rows
       .filter((one) => one.id !== RS_24)
@@ -635,8 +482,6 @@ describe('表 T-014 の ST-7 -- the manuscript this file is driven by', () => {
 
   it('FR-025 still sends the picture to the clipboard through IC-3, with no chooser', () => {
     expect(REQUIREMENTS).toContain(FR_025_IC_3_SENDS_AT_ONCE)
-    // 「**`面` の欄は 表 T-103 の確定名である。**」 -- so the press below lands on
-    // the surface the table names and not on one this file chose.
     expect(surfaceOf('IC-3').length).toBeGreaterThan(0)
     expect(rowOf(T_109, 'IC-3').by['正'] ?? '').toContain('IO-6')
   })
@@ -646,20 +491,17 @@ describe('表 T-014 の ST-7 -- the manuscript this file is driven by', () => {
   })
 
   it('nothing is told about a document that does not reach the valve', () => {
-    // The control every case below leans on: a telling that stood on ANY
-    // document would make all of them pass for nothing.
+    // Why: the control every case leans on: a telling standing on any document would make
+    // them all pass for nothing.
     expect(stage(documentOfOverlaps(1)).notices()).toEqual([])
   })
 })
 
-// ===========================================================================
-// 6. DFC-271 -- the screen road: 「達したことを…人に通知すること（MUST）」
-// ===========================================================================
-
+// Spec: ST-7, RS-24, NT-3a, S-89
+// Why: how often the screen road tells is not asserted: RS-24 names NT-3a alone, and the
+// rule on piling a reason up is NT-3's, for destructive results.
 describe('ST-7 (MUST) -- a task group that reaches the valve is TOLD, not merely stopped', () => {
   it('⭐⭐ a document past the cap puts a telling carrying RS-24 on the screen', async () => {
-    // 「段数が安全弁に達したとき、`GRS` は、達したことを人に通知すること。」 (表 T-014 の
-    //  `ST-7`) -- the telling. ⛔ DFC-271: 「段数の安全弁に達しても、人に何も告げない」, measured as 「`grep -rn "RS-24" src/` は 0 件」.
     const built = stage(documentOfOverlaps(CAP + 1))
 
     const told = built.notices()
@@ -672,9 +514,6 @@ describe('ST-7 (MUST) -- a task group that reaches the valve is TOLD, not merely
   })
 
   it('and it follows NT-3a: the manner is the row’s, and a next step travels with it', () => {
-    // 表 T-233 gives `RS-24` the manner `NT-3a`, and `NT-3a` reads 「**次に取れる
-    // 手段を添えること（MUST）**」「失敗したことだけを伝えて手段を示さない通知を出
-    // してはならない（MUST NOT）」.
     const told = stage(documentOfOverlaps(CAP + 1))
       .notices()
       .find((one) => isTheValve(one, 'ja'))
@@ -688,8 +527,6 @@ describe('ST-7 (MUST) -- a task group that reaches the valve is TOLD, not merely
   })
 
   it('⭐ the boundary: exactly at S-89 nothing is told, and one stack past it something is', () => {
-    // 「安全弁の値（`S-89`）は「許される段数の上限」であること（MUST）」 -- so a
-    // telling that stood AT the cap would be as wrong as one that never stands.
     expect(
       stage(documentOfOverlaps(CAP)).notices(),
       'the screen told the person about a task group that stacked exactly to the cap, which ST-7 allows',
@@ -698,28 +535,21 @@ describe('ST-7 (MUST) -- a task group that reaches the valve is TOLD, not merely
   })
 
   it('⭐ the words follow the display language, so a ROW traveled and not a sentence', () => {
-    // ⛔ WITHOUT THIS, a loop that wrote the Japanese sentence at the point it
-    // raises would pass every case above. FR-038 (MUST NOT) keeps the words in
-    // one dictionary and the row id is the join.
+    // Why: a loop writing the Japanese sentence where it raises would pass the cases above;
+    // the English words show the row travelled, not a sentence.
     const told = stage(documentOfOverlaps(CAP + 1), 'en').notices()
     expect(told.some((one) => isTheValve(one, 'en'))).toBe(true)
   })
 })
 
-// ===========================================================================
-// 7. DFC-345 -- 「通知先を画面を描く経路に限ってはならない（MUST NOT）」
-// ===========================================================================
-//
-// ⭐ HOW THE TWO ROADS ARE TOLD APART. A telling left standing from the screen
-// road would make an export road that says nothing look like one that speaks, so
-// every case here takes the standing tellings down with `SK-19` FIRST and then
-// exports. ⛔ That is the MUST NOT read literally: a build whose only raiser is
-// the drawing road has nothing left to say once its telling has been dismissed.
-
+// Spec: ST-7, FR-080, FR-025, IO-6, IO-3, SK-19, SK-16
+// Why: every case takes the screen road's tellings down with SK-19 first, so a silent
+// export road cannot pass on a telling left standing.
+// Why: only the picture roads are pressed: ST-7 names the FR-080 road and says nothing of
+// IO-1, IO-2 or IO-7; the picture's own content is FR-025's and WY-2's.
 describe('ST-7 (MUST NOT) -- the telling is not the screen road’s alone', () => {
   it('the premise: SK-19 does take the screen road’s telling down', async () => {
-    // ⛔ WITHOUT THIS, every case below would pass on a screen that simply
-    // cannot be quietened, and none of them would be about the export road.
+    // Why: without this, every case below would pass on a screen that cannot be quietened.
     const built = stage(documentOfOverlaps(CAP + 1))
     expect(built.notices().length).toBeGreaterThan(0)
 
@@ -732,11 +562,8 @@ describe('ST-7 (MUST NOT) -- the telling is not the screen road’s alone', () =
   })
 
   it('⭐⭐ the premise that makes the two roads two: a dismissed telling does not come back on its own', async () => {
-    // ⛔ WITHOUT THIS, EVERY CASE BELOW WOULD BE VACUOUS. A drawing road that
-    // raised the valve on every frame would put `RS-24` back up during the
-    // frames an export runs, and the export road could stay silent unnoticed.
-    // ⭐ `SK-16` (the time axis one step larger) is driven because it makes
-    // frames and exports nothing, so what it measures is the drawing road alone.
+    // Why: a drawing road raising the valve every frame would put RS-24 back during an export;
+    // SK-16 makes frames and exports nothing, so it measures the drawing road alone.
     const built = stage(documentOfOverlaps(CAP + 1))
     await built.clearNotices()
 
@@ -750,9 +577,6 @@ describe('ST-7 (MUST NOT) -- the telling is not the screen road’s alone', () =
   })
 
   it('⭐⭐ IO-6: after the picture goes to the clipboard, the valve is told again', async () => {
-    // 「絵を書き出す経路（`FR-080`）で安全弁に達したとき、`GRS` は、書き出しを終えたあとで
-    //  同じ通知を画面に上げること。」, and `FR-025`: 「`GRS` は、`IO-6`（クリップボード）の入口を 表 T-109 の
-    //  `IC-3` とすること。`IC-3` が押されたとき、`GRS` は、選択面を開かずに直ちに送ること。」.
     const built = stage(documentOfOverlaps(CAP + 1))
     await built.clearNotices()
 
@@ -770,8 +594,7 @@ describe('ST-7 (MUST NOT) -- the telling is not the screen road’s alone', () =
   })
 
   it('⭐ IO-6 control: a document under the cap sends the picture and tells nobody', async () => {
-    // ⛔ THE CASE THAT KEEPS THE ONE ABOVE FROM PASSING ON AN EXPORT THAT SHOUTS
-    // EVERY TIME. `RS-24`'s 場面 is 「安全弁に達した」 and nothing else.
+    // Why: keeps the case above from passing on an export that tells every time.
     const built = stage(documentOfOverlaps(CAP))
     await built.clearNotices()
 
@@ -794,8 +617,6 @@ describe('ST-7 (MUST NOT) -- the telling is not the screen road’s alone', () =
   })
 
   it('⭐⭐ IO-3: after the picture is written to a file, the valve is told again', async () => {
-    // The other half of 「絵を書き出す経路」: 表 T-024's `IO-3` is the SVG a person
-    // saves, reached through `FR-096`'s one entrance (`SK-12`) and its chooser.
     const built = stage(documentOfOverlaps(CAP + 1))
     await built.press(SK_12)
     await built.clearNotices()

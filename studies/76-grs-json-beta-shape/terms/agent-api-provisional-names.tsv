@@ -1,0 +1,88 @@
+row	manuscript	jsonPath	alphaName	listName	provisionalName	basis	marked	note
+PN-1	glossary.json	-	importSequenceAhead	mspdiImportCountAhead	importOriginCountAhead	JDG-3789	no	no entry in the two manuscripts; a reason of documentFaults[].reason; glossary.json term reasonMspdiImportCountAhead
+PN-2	glossary.json	-		endBeforeStart	finishBeforeStart	JDG-3789	no	no entry in the two manuscripts; the task plan and actual dates; glossary.json term reasonEndBeforeStart
+PN-2	-	-		negativeActualLength	finishBeforeStart	JDG-3789	no	no entry in the two manuscripts; folded into finishBeforeStart
+PN-3	glossary.json	-		endBeforeStart	lastDayBeforeFirstDay	JDG-3789	no	no entry in the two manuscripts; the highlight box days and the fit span; glossary.json term reasonEndBeforeStart
+PN-4	agent-api-members.json	/members/rows[id=AM-25]/arguments[name=filters]	filters	filters	followScreenFiltersAndSort	JDG-3789	yes	shape: a boolean, true when left out; the values asShown and none go away. The list name is filters.
+PN-4	agent-api-members.json	/members/rows[id=AM-28]/arguments[name=filters]	filters	filters	followScreenFiltersAndSort	JDG-3789	yes	shape: a boolean, true when left out; the values asShown and none go away. The list name is filters.
+PN-5	agent-api-members.json	/values/rows[id=AV-8]/fields[name=drawnTaskUids]	drawnTaskUids	drawnTaskUids	drawnTaskUids	JDG-3789	yes	shape: written only while a table filters the schedule, and then even when empty
+PN-5	agent-api-members.json	/values/rows[id=AV-8]/fields[name=filteringTables]	filteringTables	filteringTableWindows	filteringTableWindows	JDG-3789	yes	shape: always written, even when empty
+PN-6	document-commands.json	/shapes[name=PlanActualPlacement]	PlanActualPlacement	ProgressStatus		JDG-3789	yes	shape: flattened into the values of setTaskProgressStatus; the discriminant state becomes progressStatus
+PN-6	document-commands.json	/rows[id=CM-13]/values[name=place]	place	progressStatus	progressStatus	JDG-3789	yes	shape: flat; progressStatus is the state name and actualStart, stop, resume, actualFinish become its siblings
+PN-7	document-commands.json	/rows[id=CM-94]	setScheduleDataTimeZone	editProject	setScheduleDataTimeZone	JDG-3789	yes	the list folds this into editProject.set.scheduleDataTimeZone; the seat keeps a command of its own, argument scheduleDataTimeZone
+PN-8	agent-api-members.json	/members/rows[id=AM-19]/arguments[name=parts]	outcome	outcome	isDiagnosed	JDG-3789	yes	a part name in meaning; the field of DelayDiagnosticsReport becomes a boolean
+PN-8	agent-api-members.json	/values/rows[id=AV-9]	outcome	outcome	isDiagnosed	JDG-3789	yes	a field of the type it extends (declared in src); becomes a boolean
+PN-9	agent-api-members.json	/values/rows[id=AV-9]	terminalsReached	terminalsReached	reachedEndTaskCount	JDG-3789	yes	a field of the bottleneck rows of the type it extends (declared in src)
+PN-10	agent-api-members.json	/members/rows[id=AM-19]/arguments[name=parts]	markerStates	markerStates	diagnosisMarks	JDG-3789	yes	a part name in meaning; inside, row becomes taskUid and diagnosisMark
+PN-10	agent-api-members.json	/values/rows[id=AV-9]	markerStates	markerStates	diagnosisMarks	JDG-3789	yes	a field of the type it extends (declared in src); inside, row becomes taskUid and diagnosisMark
+PN-11	-	-		row	reason	JDG-3789	no	no entry in the two manuscripts; the finding key of readDelayDiagnosis (src); option check
+PN-11	-	-		findingRow	findingReason	JDG-3789	no	no entry in the two manuscripts; the finding key of a fix proposal row (src)
+PN-11	-	-		VC-1	dependencyCycle	JDG-3789	no	no entry in the two manuscripts; a finding viewpoint or a stop reason, written as a row id in the alpha (src)
+PN-11	-	-		VC-2	selfDependency	JDG-3789	no	no entry in the two manuscripts; a finding viewpoint or a stop reason, written as a row id in the alpha (src)
+PN-11	-	-		VC-3	duplicateDependency	JDG-3789	no	no entry in the two manuscripts; a finding viewpoint or a stop reason, written as a row id in the alpha (src)
+PN-11	-	-		VC-4	milestoneDatesDiffer	JDG-3789	no	no entry in the two manuscripts; a finding viewpoint or a stop reason, written as a row id in the alpha (src)
+PN-11	-	-		VC-5	percentCompleteNoActualStart	JDG-3789	no	no entry in the two manuscripts; a finding viewpoint or a stop reason, written as a row id in the alpha (src)
+PN-11	-	-		VC-6	actualFinishNoActualStart	JDG-3789	no	no entry in the two manuscripts; a finding viewpoint or a stop reason, written as a row id in the alpha (src)
+PN-11	-	-		VC-7	notStartedSuspended	JDG-3789	no	no entry in the two manuscripts; a finding viewpoint or a stop reason, written as a row id in the alpha (src)
+PN-11	-	-		VC-8	finishedResumeConfirmed	JDG-3789	no	no entry in the two manuscripts; a finding viewpoint or a stop reason, written as a row id in the alpha (src)
+PN-11	-	-		VC-9	parentFinishedChildUnfinished	JDG-3789	no	no entry in the two manuscripts; a finding viewpoint or a stop reason, written as a row id in the alpha (src)
+PN-11	-	-		VC-10	childrenFinishedParentUnfinished	JDG-3789	no	no entry in the two manuscripts; a finding viewpoint or a stop reason, written as a row id in the alpha (src)
+PN-11	-	-		VC-11	parentPlanSpanMismatch	JDG-3789	no	no entry in the two manuscripts; a finding viewpoint or a stop reason, written as a row id in the alpha (src)
+PN-11	-	-		VC-12	parentActualSpanMismatch	JDG-3789	no	no entry in the two manuscripts; a finding viewpoint or a stop reason, written as a row id in the alpha (src)
+PN-11	-	-		VC-13	bindingPredecessorEndMissing	JDG-3789	no	no entry in the two manuscripts; a finding viewpoint or a stop reason, written as a row id in the alpha (src)
+PN-11	-	-		VC-14	milestoneFinishedPredecessorUnfinished	JDG-3789	no	no entry in the two manuscripts; a finding viewpoint or a stop reason, written as a row id in the alpha (src)
+PN-11	-	-		VC-15	planDatesViolateDependency	JDG-3789	no	no entry in the two manuscripts; a finding viewpoint or a stop reason, written as a row id in the alpha (src)
+PN-11	-	-		VS-1	parentChildDependency	JDG-3789	no	no entry in the two manuscripts; a finding viewpoint or a stop reason, written as a row id in the alpha (src)
+PN-11	-	-		VS-2	milestoneHasChildren	JDG-3789	no	no entry in the two manuscripts; a finding viewpoint or a stop reason, written as a row id in the alpha (src)
+PN-11	-	-		VS-3	successorStartedPredecessorNotStarted	JDG-3789	no	no entry in the two manuscripts; a finding viewpoint or a stop reason, written as a row id in the alpha (src)
+PN-11	-	-		VS-4	actualDatesViolateDependency	JDG-3789	no	no entry in the two manuscripts; a finding viewpoint or a stop reason, written as a row id in the alpha (src)
+PN-11	-	-		VS-5	futureActualDate	JDG-3789	no	no entry in the two manuscripts; a finding viewpoint or a stop reason, written as a row id in the alpha (src)
+PN-11	-	-		VS-6	parentProgressPointMismatch	JDG-3789	no	no entry in the two manuscripts; a finding viewpoint or a stop reason, written as a row id in the alpha (src)
+PN-11	-	-		VO-1	actualStartMissing	JDG-3789	no	no entry in the two manuscripts; a finding viewpoint or a stop reason, written as a row id in the alpha (src)
+PN-11	-	-		VO-2	actualFinishMissing	JDG-3789	no	no entry in the two manuscripts; a finding viewpoint or a stop reason, written as a row id in the alpha (src)
+PN-11	-	-		VO-3	predecessorActualFinishMissing	JDG-3789	no	no entry in the two manuscripts; a finding viewpoint or a stop reason, written as a row id in the alpha (src)
+PN-11	-	-		VO-4	parentTaskUndecided	JDG-3789	no	no entry in the two manuscripts; a finding viewpoint or a stop reason, written as a row id in the alpha (src)
+PN-11	-	-		VO-5	milestoneAchievedNotFinished	JDG-3789	no	no entry in the two manuscripts; a finding viewpoint or a stop reason, written as a row id in the alpha (src)
+PN-11	-	-		DW-2	parentTaskUndecided	JDG-3789	no	no entry in the two manuscripts; a finding viewpoint or a stop reason, written as a row id in the alpha (src)
+PN-11	-	-		DW-3	milestonePredecessorMissing	JDG-3789	no	no entry in the two manuscripts; a finding viewpoint or a stop reason, written as a row id in the alpha (src)
+PN-11	-	-	taskGroupAboveWithoutSpanBar	taskGroupAboveWithoutSpanBar	spanlessParentTaskGroupName	JDG-3789	no	no entry in the two manuscripts (src); option parentTaskGroupName
+PN-11	-	-	openField	openField	focusTarget	JDG-3789	no	no entry in the two manuscripts (src); option focusedField
+PN-11	-	-	depth	depth	parentTaskDepth	JDG-3789	no	no entry in the two manuscripts (src); option taskTreeDepth
+PN-11	-	-	deleteLinkBetween	deleteLinkBetween	deleteNamedDependency	JDG-3789	no	no entry in the two manuscripts (src); a fix choice; option deleteDependencyLine
+PN-11	-	-	keepThisLink	keepThisLink	keepDependency	JDG-3789	no	no entry in the two manuscripts (src); a fix choice; option keepOneDependency
+PN-11	-	-	finishChildrenOnParentFinish	finishChildrenOnParentFinish	finishChildrenParentFinishDay	JDG-3789	no	no entry in the two manuscripts (src); a fix choice; option finishOpenChildren
+PN-11	-	-	finishPredecessorsOnMilestoneDate	finishPredecessorsOnMilestoneDate	finishPredecessorsMilestoneDay	JDG-3789	no	no entry in the two manuscripts (src); a fix choice; option finishOpenPredecessors
+PN-11	-	-	makeParentTaskFromTaskGroup	makeParentTaskFromTaskGroup	makeTaskGroupParentTask	JDG-3789	no	no entry in the two manuscripts (src); a fix choice; option createParentTaskForTaskGroup
+PN-11	-	-	markAsStarted	markAsStarted	markStarted	JDG-3789	no	no entry in the two manuscripts (src); a fix choice; option as now
+PN-11	-	-	markAsFinished	markAsFinished	markFinished	JDG-3789	no	no entry in the two manuscripts (src); a fix choice; option as now
+PN-11	-	-	markAsStillInProgress	markAsStillInProgress	markStillInProgress	JDG-3789	no	no entry in the two manuscripts (src); a fix choice; option as now
+PN-12	agent-api-members.json	/members/rows[id=AM-3]	Document	Document	ScheduleDocument	JDG-3789	yes	the return type
+PN-12	agent-api-members.json	/members/rows[id=AM-26]	readShownTasks	readShownTasks	readDrawnTasks	JDG-3789	yes	
+PN-12	agent-api-members.json	/members/rows[id=AM-33]/arguments[name=which]	which	window	tableWindow	JDG-3789	yes	list name window; type TableWindowName; propertiesPanel moves to the new member closePropertiesPanel
+PN-12	agent-api-members.json	/values/rows[id=AV-3]/fields[name=target]	target	target	member	JDG-3789	yes	
+PN-12	agent-api-members.json	/values/rows[id=AV-4]	AgentRefusalReason	AgentRefusalReason	RefusalReason	JDG-3789	yes	
+PN-12	agent-api-members.json	/values/rows[id=AV-4]	questionAsked	confirmationInProgress	questionInProgress	JDG-3789	yes	a variant; list name confirmationInProgress
+PN-12	agent-api-members.json	/values/rows[id=AV-4]	InvariantRow	InvariantRow		JDG-3789	yes	a variant; goes away: no row id is handed out (JDG-3285)
+PN-12	agent-api-members.json	/values/rows[id=AV-4]	CodecRefusalReason	CodecRefusalReason		JDG-3789	yes	a variant; goes away: no row id is handed out (JDG-3285)
+PN-12	agent-api-members.json	/values/rows[id=AV-7]	Document	Document	ScheduleDocument	JDG-3789	yes	a variant and a field type
+PN-12	agent-api-members.json	/values/rows[id=AV-8]	AgentShownTasks	ShownTasks	DrawnTasks	JDG-3789	yes	list name ShownTasks
+PN-12	agent-api-members.json	/values/rows[id=AV-9]	AgentDelayDiagnostics	AgentDelayDiagnostics	DelayDiagnosisReport	JDG-3789	yes	folded with the type it extends (DelayDiagnosticsReport) into one type
+PN-12	agent-api-members.json	/values/rows[id=AV-17]/fields[name=kind]	kind	kind	valueType	JDG-3789	yes	
+PN-12	agent-api-members.json	/values/rows[id=AV-21]/fields[name=savedTo]	savedTo	savedTo	savedFilePath	JDG-3789	yes	
+PN-12	agent-api-members.json	/values/rows[id=AV-21]/fields[name=backedUpTo]	backedUpTo	backedUpTo	backupFilePath	JDG-3789	yes	
+PN-12	document-commands.json	/shapes[name=RememberedActual]/fields[name=carriedActualDuration]	carriedActualDuration	carriedActualDuration	passthroughActualDuration	JDG-3789	yes	
+PN-12	document-commands.json	/shapes[name=TableView]/fields[name=sort]	sort	sort	columnSort	JDG-3789	yes	
+PN-12	document-commands.json	/shapes[name=TableVisibility]/fields[name=shownTaskUids]	shownTaskUids	shownTaskUids	checkedTaskUids	JDG-3789	yes	
+PN-12	document-commands.json	/shapes[name=TableVisibility]/fields[name=shownResourceUids]	shownResourceUids	shownResourceUids	checkedResourceUids	JDG-3789	yes	
+PN-12	document-commands.json	/shapes[name=TableVisibility]/fields[name=isUnassignedShown]	isUnassignedShown	isUnassignedShown	isUnassignedChecked	JDG-3789	yes	
+PN-12	-	-	importCanceled	canceled	canceledByUser	JDG-3789	no	no entry in the two manuscripts; a refusal cause (src)
+PN-12	-	-	nothingToIssue	noFixProposalToApply	fixProposalsEmpty	JDG-3789	no	no entry in the two manuscripts; a refusal reason (src)
+PN-12	-	-	DelayDiagnosticsReport	DelayDiagnosticsReport	DelayDiagnosisReport	JDG-3789	no	no entry in the two manuscripts; an external type of agent-api-members.json, declared in src; folded with AgentDelayDiagnostics
+PN-12	-	-	recurrenceKind	recurrenceKind	type	JDG-3789	no	no entry in the two manuscripts; a calendar exception key; written in grs-commands.schema.json (generated) and src
+PN-12	-	-	carryElements	carryElements		JDG-3789	no	no entry in the two manuscripts; a calendar exception key; goes away (JDG-3606, JDG-3748)
+PN-12	-	-	carry	carry		JDG-3789	no	no entry in the two manuscripts; a calendar exception key; goes away (JDG-3606, JDG-3748)
+PN-12	-	-	ordinal	ordinal		JDG-3789	no	no entry in the two manuscripts; a calendar exception key; goes away (JDG-3285)
+PN-12	-	-	calloutBox	calloutBox		JDG-3789	no	no entry in the two manuscripts; a leader shape value; goes away (CR-851 table)
+PN-12	-	-	polyline	polyline		JDG-3789	no	no entry in the two manuscripts; a leader shape value; goes away (CR-851 table)
+PN-13	agent-api-members.json	/values/rows[id=AV-3]	AgentRefusal	Refusal	Refusal	JDG-3789	yes	the list name, unchanged (JDG-3781); option b is RequestRefusal
+PN-13	agent-api-members.json	/values/rows[id=AV-3]/fields[name=refusals]	Refusal	CommandRefusal	CommandRefusal	JDG-3789	yes	the type this field lists, unchanged from the list (JDG-3781); the field becomes commandRefusals (settled)

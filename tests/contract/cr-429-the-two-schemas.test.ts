@@ -23,6 +23,7 @@ const A_1_PJ15_HASH = /`mspdi_pj15\.xsd`（SHA-256 `([0-9a-f]{64})`）を正と�
 
 const SECTION_6_2_ONE_AUTHORITY_PER_VERSION = '`IMPS-1337` —— 交換相手のスキーマの正は、A.1 が版ごとに定める。'
 
+// Spec: IMPS-1338
 const SECTION_6_2_NO_FOREIGN_LINES = '交換相手のスキーマからの引用は、ハッシュが A.1 と合わない複製の行番号で引かないこと。'
 
 const EX_10_ORDER_WRAPS = 'pj15 の順は pj12 の順を包むので、pj15 だけの要素を含まなければ pj12 の順になる。'
