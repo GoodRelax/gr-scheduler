@@ -1,7 +1,8 @@
 // Four rows of the defect ledger whose build had landed and whose test had not,
 
 import { expect, test, type Browser, type Page } from '@playwright/test'
-import { readFileSync, readdirSync } from 'node:fs'
+import { readdirSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 import { specTable, type SpecTable, unbroken } from '../contract/spec-table'
 import { CLEARING_UP_MS, launchReferenceBrowser, readSettledDrawnSvg, screenOf } from './live-app'
@@ -32,7 +33,7 @@ const ROSTER = join(process.cwd(), 'docs', 'spec', '_source', 'notice-reasons.js
 
 /** @purity non-pure */
 function wordsRowOf(id: string): string {
-  const rows = (JSON.parse(readFileSync(ROSTER, 'utf8')) as { reasons?: { id?: string; wordsOf?: string }[] }).reasons ?? []
+  const rows = (JSON.parse(readRepoFile(ROSTER, 'utf8')) as { reasons?: { id?: string; wordsOf?: string }[] }).reasons ?? []
   return rows.find((one) => one.id === id)?.wordsOf ?? id
 }
 
@@ -54,12 +55,12 @@ function wordingsIn(value: unknown, at: string): Wording[] {
 }
 
 function dictionaryWordings(): readonly Wording[] {
-  return wordingsIn(JSON.parse(readFileSync(DICTIONARY, 'utf8')), 'display-words')
+  return wordingsIn(JSON.parse(readRepoFile(DICTIONARY, 'utf8')), 'display-words')
 }
 
 /** @purity semi-pure-mutable */
 function dictionaryTextOf(section: string, specTableRowId: string, language: string): string {
-  const shape = JSON.parse(readFileSync(DICTIONARY, 'utf8')) as Record<string, unknown>
+  const shape = JSON.parse(readRepoFile(DICTIONARY, 'utf8')) as Record<string, unknown>
   const rows = shape[section]
   if (!Array.isArray(rows)) {
     throw new Error(`${DICTIONARY} holds no section named ${section}`)
@@ -149,7 +150,7 @@ interface QuotedReason {
 function quotedReasons(): QuotedReason[] {
   const out: QuotedReason[] = []
   for (const file of typescriptFilesUnder(join(process.cwd(), 'src'))) {
-    const text = readFileSync(file, 'utf8')
+    const text = readRepoFile(file, 'utf8')
     for (const found of text.matchAll(QUOTED_REASON)) {
       out.push({ id: found[1] ?? '', file })
     }
@@ -162,7 +163,7 @@ const INSTANT_SHAPE = 'YYYY-MM-DDThh:mm:ssZ'
 const INSTANT = /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z/
 
 function instantRuleOfFr020(): string {
-  const text = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
+  const text = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
   const lines = text.split('\n')
   const said = lines.find((line) => line.startsWith('| IMPS-870 |'))
   if (said === undefined) throw new Error('01-04-requirements.md holds no row IMPS-870 of FR-020')
@@ -396,7 +397,7 @@ test('DFC-341: no reason the product can carry is missing from table T-233', () 
   ).toContain('RS-15')
 
   const words = new Set(
-    (JSON.parse(readFileSync(DICTIONARY, 'utf8')) as { reasons?: { specTableRowId?: string }[] }).reasons?.map(
+    (JSON.parse(readRepoFile(DICTIONARY, 'utf8')) as { reasons?: { specTableRowId?: string }[] }).reasons?.map(
       (one) => one.specTableRowId ?? '',
     ) ?? [],
   )

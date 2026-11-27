@@ -1,6 +1,6 @@
 // CR-785: the two help links, the IC-20 link in S-503 underlined, and the rows (MK-15, MK-16, MK-17, note *1) the help drops.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -41,7 +41,7 @@ type Words = Readonly<Record<string, string>>
 
 const LANGUAGES: readonly DisplayLanguage[] = ['ja', 'en']
 
-const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
+const REQUIREMENTS = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
 interface Manuscript {
   readonly icons: readonly { readonly specTableRowId: string; readonly label: Words; readonly hint: Words }[]
@@ -51,7 +51,7 @@ interface Manuscript {
 }
 
 const DICTIONARY = JSON.parse(
-  readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8'),
+  readRepoFile(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8'),
 ) as Manuscript
 
 const linkWords = (link: string, language: DisplayLanguage): string => {

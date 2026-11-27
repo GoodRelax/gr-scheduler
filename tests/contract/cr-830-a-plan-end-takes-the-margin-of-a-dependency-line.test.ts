@@ -1,6 +1,6 @@
 // CR-830: FR-104 table T-266 GA-19 -- inside a plan end's grab, a dependency line answers on its drawn line only.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -47,7 +47,7 @@ const HT_1_DRAWN = '依存線の描いた線は本線と矢じりであり'
 const TY_2_OFF_SHAPE = '依存線の続きの印・依存線（この順）'
 
 const REQUIREMENTS = unbroken(
-  readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8').replace(/\r\n/g, '\n'),
+  readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8').replace(/\r\n/g, '\n'),
 )
 const cellText = (table: string, id: string, heading: string): string => unbroken(rowOf(table, id).by[heading] ?? '')
 

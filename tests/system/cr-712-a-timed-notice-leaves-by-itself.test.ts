@@ -1,7 +1,7 @@
 // CR-712 wave 2 spec-only cases on the shipped build: NT-2 -- a timed notice leaves after S-542, held while the pointer is over it.
 
 import { expect, test, type Page } from '@playwright/test'
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 import { specTable, unbroken } from '../contract/spec-table'
 import { VIEWPORT, launch } from '../use-case/uc-harness'
@@ -10,9 +10,9 @@ test.use({ viewport: VIEWPORT, locale: 'en-US' })
 
 const SPEC = join(process.cwd(), 'docs', 'spec')
 
-const REQUIREMENTS = unbroken(readFileSync(join(SPEC, '01-04-requirements.md'), 'utf8'))
+const REQUIREMENTS = unbroken(readRepoFile(join(SPEC, '01-04-requirements.md'), 'utf8'))
 
-const WORDS = JSON.parse(readFileSync(join(SPEC, '_source', 'display-words.json'), 'utf8')) as {
+const WORDS = JSON.parse(readRepoFile(join(SPEC, '_source', 'display-words.json'), 'utf8')) as {
   readonly reasons: readonly { readonly specTableRowId: string; readonly text: { readonly ja: string; readonly en: string } }[]
 }
 

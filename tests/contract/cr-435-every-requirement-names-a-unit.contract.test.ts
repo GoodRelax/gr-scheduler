@@ -1,6 +1,7 @@
 // Contract test: the owner column of table T-075, read as a function.
 
-import { existsSync, readFileSync } from 'node:fs'
+import { existsSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -36,7 +37,7 @@ const BASELINE_RULE =
   'ファイルを書かない。未記入の件数を測って報告するところで止め、前に立つ者が利用者に見せてから' +
   '書く」 (memory: "Baseline moves need the user\'s OK").'
 
-const requirementsText = readFileSync(REQUIREMENTS_PATH, 'utf8').replace(/\r\n/g, '\n')
+const requirementsText = readRepoFile(REQUIREMENTS_PATH, 'utf8').replace(/\r\n/g, '\n')
 
 const Q: readonly string[] = [...requirementsText.matchAll(/^\*\*UID\*\*: ((?:FR|NFR)-\d+)/gm)].map(
   (hit) => hit[1] ?? '',
@@ -90,7 +91,7 @@ for (const segment of segments) {
 const namedIds = P.map((pair) => pair.requirement)
 const namedSet = new Set(namedIds)
 
-const designText = unbroken(readFileSync(DESIGN_PATH, 'utf8').replace(/\r\n/g, '\n'))
+const designText = unbroken(readRepoFile(DESIGN_PATH, 'utf8').replace(/\r\n/g, '\n'))
 
 const closingOf = (text: string): string => {
   const lines = text.split('\n')
@@ -212,7 +213,7 @@ const readBaseline = (): { held: number } | { problem: string } => {
         `FORMAT: ${BASELINE_FORMAT} ${BASELINE_RULE}`,
     }
   }
-  const lines = readFileSync(BASELINE_PATH, 'utf8')
+  const lines = readRepoFile(BASELINE_PATH, 'utf8')
     .replace(/\r\n/g, '\n')
     .split('\n')
     .map((line) => line.trim())

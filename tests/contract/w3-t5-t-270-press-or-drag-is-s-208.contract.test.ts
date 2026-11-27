@@ -1,6 +1,6 @@
 // W3 spec-only tester 5: table T-270 -- a press and a drag are told apart by S-208 on either axis.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -11,7 +11,7 @@ import {
 } from '../../src/adapter/input-command-translator/input-command-translator'
 import { specTable, unbroken } from './spec-table'
 
-const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
+const REQUIREMENTS = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
 // Spec: T-270
 const T_270_ONE_DISTANCE =

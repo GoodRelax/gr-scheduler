@@ -1,6 +1,6 @@
 // CR-763 spec-only cases: the jump landing ring of T-332 SJ-10 (1), its ZO-8 layer, its monochrome double line and RW-13.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -35,9 +35,9 @@ const numberIn = (cell: string): number => {
 
 const flat = (text: string): string => text.replace(/<br\s*\/?>/g, '').replace(/\*\*/g, '').replace(/\s*\n\s*/g, '')
 
-const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
-const SETTINGS_MD = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '_assets', 'tbl-settings.md'), 'utf8'))
-const PUBLISHED = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '_assets', 'tbl-published-entries.md'), 'utf8'))
+const REQUIREMENTS = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
+const SETTINGS_MD = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '_assets', 'tbl-settings.md'), 'utf8'))
+const PUBLISHED = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '_assets', 'tbl-published-entries.md'), 'utf8'))
 
 const SJ_10_RING =
   '`GRS` は、囲みを、予定の形（タスクは描いた予定の図形で実績を含めず、コメントボックスは箱）の外接矩形から線の内側の縁まで `_assets/tbl-settings.md` の `S-555` だけ空けて、表 T-236 の `S-587` の色、太さ `S-556`、角の丸み `S-588` の実線の矩形で描くこと。'
@@ -163,7 +163,7 @@ const S_151 = (theme: Theme, hue: number): Rgb => rgbOf(t236('S-151', theme).rep
 type Loose = Record<string, any>
 
 const TEMPLATE = JSON.parse(
-  readFileSync(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
+  readRepoFile(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
 ) as Record<string, any>
 
 const ENVIRONMENT = { width: 1600, height: 700, appHeaderHeight: 56, scrollbarThickness: 8, propertyPanelWidth: 0 }

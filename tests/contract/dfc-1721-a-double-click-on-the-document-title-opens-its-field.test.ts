@@ -1,6 +1,6 @@
 // DFC-1721: MK-13 -- a double click on the Document Title (U-27) opens the same in-place field as SK-9 (F2); one press does not.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { afterEach, describe, expect, it } from 'vitest'
@@ -28,7 +28,7 @@ if (!Object.getOwnPropertyDescriptor(FakeElement.prototype, 'parentElement')) {
   })
 }
 
-const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
+const REQUIREMENTS = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
 const verticalIn = (table: string, id: string) => {
   const found = specTable(table).rows.find((one) => one.id === id)

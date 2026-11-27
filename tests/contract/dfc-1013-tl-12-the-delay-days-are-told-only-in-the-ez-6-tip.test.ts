@@ -1,6 +1,6 @@
 // DFC-1013 spec-only cases: FR-047 / T-348 TL-12 / T-038 OC-8 -- the days a Task is late are told only in the EZ-6 tip, as one line "<DG-4 word>: <days> <workingDaysUnit word>" (CR-793), counted as DX-10 counts them; the picture holds no such days.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { afterEach, describe, expect, it } from 'vitest'
@@ -17,7 +17,7 @@ import { unbroken } from './spec-table'
 
 type Language = 'ja' | 'en'
 
-const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
+const REQUIREMENTS = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 const FR_047_ONLY_IN_THE_TIP = '`GRS` は、遅れの日数を日程表に描かないこと。'
 const TL_12_NO_NEW_WORD = '⛔ 遅れの行のために新しい語を辞書に持ってはならない（MUST NOT）'
 // Why: CR-793 -- the late line is the DG-4 word, a colon, the days and the working-days word.
@@ -26,7 +26,7 @@ const TL_12_SAME_COUNT = '日数は、遅延診断の `DX-10` と同じ数え方
 const TL_12_NO_STATUS_DATE = '基準日が置かれていないとき（`FR-046`）と、遅れていないときは行を出さない'
 const OC_8_NOT_COUNTED = '`GRS` は、遅れの日数を算入しないこと。'
 
-const WORDS = JSON.parse(readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8')) as {
+const WORDS = JSON.parse(readRepoFile(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8')) as {
   readonly delayReportReasons: readonly { readonly part: string; readonly text: Record<Language, string> }[]
   readonly delayReportStatuses: readonly { readonly specTableRowId: string; readonly text: Record<Language, string> }[]
   readonly propertyField: readonly { readonly part: string; readonly text: Record<Language, string> }[]
@@ -198,7 +198,7 @@ describe('DFC-1013 -- FR-047 (MUST NOT) the picture holds no days of delay', () 
       readScreenPartAt: () => null,
     }
     const document = {
-      ...JSON.parse(readFileSync(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8')),
+      ...JSON.parse(readRepoFile(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8')),
     } as Record<string, unknown>
     const withTasks = { ...document, schedule: { ...(document['schedule'] as object), ...schedule } }
     frameLoop({ showSvg: (svg: string) => pictures.push(svg) } as never, withTasks as never, SCREEN, {

@@ -1,6 +1,6 @@
 // W3 spec-only tester 2: file and picture clauses of 01-04-requirements.md pressed on the built dist/index.html.
 import { expect, test, type Page } from '@playwright/test'
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { specTable, unbroken } from '../contract/spec-table'
@@ -8,7 +8,7 @@ import { VIEWPORT, elementBox, enableAgentApi, launch, openByDrop, openThroughIc
 
 test.use({ viewport: VIEWPORT, locale: 'en-US', colorScheme: 'light' })
 
-const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
+const REQUIREMENTS = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
 // Spec: FR-135
 const ONLY_A_PERSON_WRITES_THE_PARENT =

@@ -61,7 +61,7 @@ function successorEndAt(picture: TentativeDependencyPicture, from: DependencyEnd
 }
 
 // Provisional: OPQ-26
-// Spec: UC-004, FR-009, PTD-3, T-018, T-018a
+// Spec: UC-004, FR-009, PTD-3, T-018, T-018a, IMPS-329, IMPS-330, IMPS-331, IMPS-332, IMPS-333, IMPS-334, IMPS-336, IMPS-335
 /** @purity pure */
 export function tentativeDependencyLine(
   picture: TentativeDependencyPicture,

@@ -1,6 +1,6 @@
 // DFC-1793: the published GRS JSON schema says the shape of every date-time column with one xsd:dateTime pattern (Chapter 6.2, FR-024).
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -9,7 +9,7 @@ import { documentFromJson } from '../../src/adapter/document-codec/document-code
 import { taskGroupDocument } from '../unit/cr-541-stage'
 import { specTable, unbroken } from './spec-table'
 
-const READ = (...parts: string[]): string => readFileSync(join(process.cwd(), ...parts), 'utf8').replace(/\r\n/g, '\n')
+const READ = (...parts: string[]): string => readRepoFile(join(process.cwd(), ...parts), 'utf8').replace(/\r\n/g, '\n')
 
 const DESIGN = unbroken(READ('docs', 'spec', '05-07-design.md'))
 const REQUIREMENTS = unbroken(READ('docs', 'spec', '01-04-requirements.md'))

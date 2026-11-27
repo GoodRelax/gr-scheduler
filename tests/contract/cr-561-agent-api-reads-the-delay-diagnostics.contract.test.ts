@@ -1,6 +1,6 @@
 // CR-561 spec-only tests: table T-107 AM-19 readDelayDiagnostics (seam S-6) through installAgentApi (PI-17).
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { afterEach, describe, expect, it } from 'vitest'
@@ -30,7 +30,7 @@ import {
 import { specTable, unbroken } from './spec-table'
 import { taskGroupDocument, taskOf } from '../unit/cr-541-stage'
 
-const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
+const REQUIREMENTS = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
 const AM_19_RETURNS = '遅延診断のレポート（`FR-134` の 表 T-317）を凍結した値で返す。'
 const AM_19_NO_WRITE = '画面の値も文書も書かない'

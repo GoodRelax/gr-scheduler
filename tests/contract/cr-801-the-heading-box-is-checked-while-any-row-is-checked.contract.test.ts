@@ -1,6 +1,6 @@
 // see CR-801 SQ-10 DT-8 RQ-1 TV-2 TV-5 TV-6 UN-20 JDG-2826
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -41,7 +41,7 @@ type Visibility = TableView['visibility']
 type Key = number | 'unassigned'
 
 const SPEC = join(process.cwd(), 'docs', 'spec')
-const REQUIREMENTS = unbroken(readFileSync(join(SPEC, '01-04-requirements.md'), 'utf8'))
+const REQUIREMENTS = unbroken(readRepoFile(join(SPEC, '01-04-requirements.md'), 'utf8'))
 
 const cellOf = (table: string, id: string, heading: string): string => {
   const row = specTable(table).rows.find((one) => one.id === id)

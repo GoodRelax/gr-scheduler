@@ -75,6 +75,9 @@ GENERATED_JSON = {
 # The edge list this module's references are written into: generated from
 # every manuscript at once, so it refers to nothing itself.
 EDGE_LIST = 'source-relations.json'
+# Why: the list of the part files of the split documents says how the
+# specification is cut into files; it holds no row, table or name to refer to.
+SPLIT_LIST = 'spec-files.json'
 
 # STRUCTURED references: (file, field) -> (what the value points at, the
 # row-id families it may land in, or None for any).
@@ -171,7 +174,8 @@ def manuscripts(root='.'):
     out = []
     for name in sorted(os.listdir(os.path.join(root, SOURCE_DIR))):
         if (name.endswith('.json') and name not in GENERATED_JSON
-                and name != EDGE_LIST and not name.endswith('.schema.json')):
+                and name not in (EDGE_LIST, SPLIT_LIST)
+                and not name.endswith('.schema.json')):
             out.append(name)
     return out
 

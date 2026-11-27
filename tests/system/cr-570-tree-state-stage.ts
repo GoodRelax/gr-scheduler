@@ -1,7 +1,8 @@
 // CR-570 on the shipped build: the stage the tree-state cases press (open, read, press, save).
 
 import { expect, type Browser, type Page } from '@playwright/test'
-import { existsSync, readFileSync } from 'node:fs'
+import { existsSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { SETTINGS_CONSTANTS } from '../../src/entity/document-model/document-settings/document-settings'
@@ -13,8 +14,8 @@ import { rowOf } from './sws-case'
 export const SHIPPED_BUILD = join(process.cwd(), 'dist', 'index.html')
 // Spec: T-025, MC-6
 export const BASE_SCREEN = screenOf(rowOf(specTable('T-025'), 'MC-6'))
-export const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
-export const ERP_SAMPLE = readFileSync(join(process.cwd(), 'sample-schedule', 'sample-large-erp-program.ja.xml'), 'utf8')
+export const REQUIREMENTS = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
+export const ERP_SAMPLE = readRepoFile(join(process.cwd(), 'sample-schedule', 'sample-large-erp-program.ja.xml'), 'utf8')
 export const ERP_PROGRAM_TASK_GROUP = '1. \u30d7\u30ed\u30b0\u30e9\u30e0\u7ba1\u7406'
 
 export type TreeState = 'auto' | 'collapsed' | 'expanded' | 'temporarilyExpanded' | 'hidden'
@@ -48,7 +49,7 @@ const CONFIRMATION = `[data-role="${bare(rowOf(specTable('T-103'), 'U-55').cells
 const NOTIFICATION_AREA = `[data-role="${bare(rowOf(specTable('T-103'), 'U-57').cells[0] ?? '')}"]`
 const ROW = '[data-depth]'
 
-const WORDS = JSON.parse(readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8')) as {
+const WORDS = JSON.parse(readRepoFile(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8')) as {
   readonly confirmation: readonly { readonly answer: string; readonly text: { readonly en: string } }[]
   readonly reasons: readonly { readonly specTableRowId: string; readonly text: { readonly ja: string; readonly en: string } }[]
 }
@@ -378,7 +379,7 @@ export async function shrinkToTheEnd(page: Page): Promise<number> {
 }
 
 const TEMPLATE = JSON.parse(
-  readFileSync(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
+  readRepoFile(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
 ) as { schedule: Record<string, unknown> & { taskGroups: Record<string, unknown>[] }; documentSettings: Record<string, unknown> }
 
 // Spec: S-87, S-88

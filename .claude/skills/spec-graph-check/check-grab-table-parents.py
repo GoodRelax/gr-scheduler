@@ -70,10 +70,13 @@ other manuscripts; the clauses speak of the tables these requirements hold.
 Usage:
     python check-grab-table-parents.py [repo-root]
 """
-import io
 import os
 import re
 import sys
+
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                '..', '..', '..', 'tools'))
+import spec_files  # noqa: E402
 
 SOURCE = os.path.join('docs', 'spec', '01-04-requirements.md')
 
@@ -101,9 +104,9 @@ def say(message):
     sys.stdout.write(message.encode(enc, 'replace').decode(enc) + '\n')
 
 
-def read_lines(path):
+def read_lines(path, root):
     """Normalize on read -- this tree mixes CRLF and LF."""
-    text = io.open(path, 'rb').read().decode('utf-8')
+    text = spec_files.read_spec_file(path, root)
     return text.replace('\r\n', '\n').split('\n')
 
 
@@ -161,11 +164,11 @@ def requirement_blocks(lines):
 def main(argv):
     root = argv[1] if len(argv) > 1 else '.'
     path = os.path.join(root, SOURCE)
-    if not os.path.exists(path):
+    if not spec_files.spec_file_exists(path, os.path.abspath(root)):
         say(u'FAIL     %s is missing -- check 56 cannot read its rule.'
             % SOURCE.replace(os.sep, '/'))
         return 1
-    lines = read_lines(path)
+    lines = read_lines(path, os.path.abspath(root))
 
     parents, clause_line = permitted_parents(lines)
     if not parents:

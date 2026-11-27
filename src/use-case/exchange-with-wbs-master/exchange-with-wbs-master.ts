@@ -24,7 +24,7 @@ function taskIndexOfRefusal(at: string): number | null {
 }
 
 // Provisional: OPQ-26
-// Spec: UC-010, FR-023, CD-1
+// Spec: UC-010, FR-023, CD-1, IMPS-935, IMPS-936
 /** @purity pure */
 export function taskUidsWithAnUnusableDate(
   refusals: readonly { readonly rule: string; readonly at: string }[],

@@ -1,6 +1,6 @@
 // CR-723 spec-only stage: a small document that carries the three tables' views, the seam names of CR-723 section 5 and the one write path.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { documentFromJson, jsonFromDocument } from '../../src/adapter/document-codec/document-codec'
@@ -23,13 +23,13 @@ export type { Loose }
 export type { ColumnFilter, ColumnSort, TableView, TableVisibility, VisibilityTable }
 
 const SPEC = join(process.cwd(), 'docs', 'spec')
-const read = (...parts: string[]): string => unbroken(readFileSync(join(SPEC, ...parts), 'utf8'))
+const read = (...parts: string[]): string => unbroken(readRepoFile(join(SPEC, ...parts), 'utf8'))
 
 export const REQUIREMENTS = read('01-04-requirements.md')
 export const GLOSSARY = read('_assets', 'tbl-glossary.md')
 export const AGENT_API_MEMBERS = read('_assets', 'tbl-agent-api-members.md')
 export const SETTINGS_BOOK = read('_assets', 'tbl-settings.md')
-export const SETTINGS_SOURCE = JSON.parse(readFileSync(join(SPEC, '_source', 'settings.json'), 'utf8')) as unknown
+export const SETTINGS_SOURCE = JSON.parse(readRepoFile(join(SPEC, '_source', 'settings.json'), 'utf8')) as unknown
 
 export const TABLES: readonly VisibilityTable[] = ['searchPanel', 'delayDiagnosticsReport', 'resourceList']
 

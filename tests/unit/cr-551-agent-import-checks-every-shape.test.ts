@@ -1,6 +1,6 @@
 // CR-551: the Agent API import (AM-8) refuses a document the codec refuses, whatever shape it is handed in (AG-9a, RS-25).
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { afterEach, describe, expect, it } from 'vitest'
@@ -11,9 +11,9 @@ import { unbroken } from '../contract/spec-table'
 import { taskGroupDocument, shell, taskOf, TEMPLATE, type ShellBench } from './cr-541-stage'
 
 const SPEC = join(process.cwd(), 'docs', 'spec')
-const REQUIREMENTS = unbroken(readFileSync(join(SPEC, '01-04-requirements.md'), 'utf8'))
-const AGENT_API_MEMBERS = unbroken(readFileSync(join(SPEC, '_assets', 'tbl-agent-api-members.md'), 'utf8'))
-const NOTICE_ROSTER = unbroken(readFileSync(join(SPEC, '_assets', 'tbl-notice-reasons.md'), 'utf8'))
+const REQUIREMENTS = unbroken(readRepoFile(join(SPEC, '01-04-requirements.md'), 'utf8'))
+const AGENT_API_MEMBERS = unbroken(readRepoFile(join(SPEC, '_assets', 'tbl-agent-api-members.md'), 'utf8'))
+const NOTICE_ROSTER = unbroken(readRepoFile(join(SPEC, '_assets', 'tbl-notice-reasons.md'), 'utf8'))
 
 const AG_9A_REASON =
   '取り込みの検証（`FR-023`）が拒んだときの理由の区分は、拒んだ `05-07-design.md` の 表 T-220 の行の行 ID とすること（MUST）'

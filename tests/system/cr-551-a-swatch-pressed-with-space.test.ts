@@ -1,6 +1,6 @@
 // CR-551 FT-1: a color swatch pressed with Space settles with no further pointer input, swept live.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { expect, test, type Browser } from '@playwright/test'
@@ -8,11 +8,11 @@ import { bare, specTable, unbroken } from '../contract/spec-table'
 import { CLEARING_UP_MS, DRAWN_SVG, launchReferenceBrowser, readSettledDrawnSvg, screenOf, taskBodyPoint } from './live-app'
 import { rowOf } from './sws-case'
 
-const DESIGN = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '05-07-design.md'), 'utf8'))
+const DESIGN = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '05-07-design.md'), 'utf8'))
 
 const FT_1_INPUT = '人の入力（ポインタとキー）'
 
-const WORDS = JSON.parse(readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8')) as {
+const WORDS = JSON.parse(readRepoFile(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8')) as {
   colorNames: { spelling: string; text: { ja: string; en: string } }[]
 }
 

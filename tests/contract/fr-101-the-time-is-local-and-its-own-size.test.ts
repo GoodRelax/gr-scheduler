@@ -67,7 +67,7 @@
 //      置くこと（MUST）」 is already driven by
 //      tests/contract/fr-101-the-name-stands-above-the-time.test.ts.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { afterAll, describe, expect, it } from 'vitest'
@@ -92,7 +92,7 @@ import { bare, specTable, unbroken } from './spec-table'
 // The manuscripts, read at run time rather than copied here (Chapter 1.9).
 // ---------------------------------------------------------------------------
 
-const REQUIREMENTS = unbroken(readFileSync(
+const REQUIREMENTS = unbroken(readRepoFile(
   join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'),
   'utf8',
 ))

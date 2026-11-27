@@ -101,7 +101,7 @@
 //      `CommandPalette.grabBandHeight`; the uf-65 unit test, the
 //      bench that held the described band to the manuscript, was deleted by CR-573.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -174,7 +174,7 @@ interface GlyphElement {
 }
 
 const ICON_GLYPHS = JSON.parse(
-  readFileSync(join(process.cwd(), 'src', 'framework', 'dom-screen-surface', 'icon-glyphs.json'), 'utf8'),
+  readRepoFile(join(process.cwd(), 'src', 'framework', 'dom-screen-surface', 'icon-glyphs.json'), 'utf8'),
 ) as {
   readonly viewBox: string
   readonly glyphs: readonly { readonly specTableRowId: string; readonly elements: readonly GlyphElement[] }[]

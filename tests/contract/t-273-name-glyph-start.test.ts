@@ -1,6 +1,6 @@
 // FR-002 / T-273 (CR-430, JDG-195): where the drawn glyphs of a name start, with no second S-31.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -27,7 +27,7 @@ import {
 // Spec: S-584
 const EDGE_GAP = stored('S-584') * RATIO
 
-const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
+const REQUIREMENTS = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
 const FR_002_WRITE_START_IS_T_273 =
   '⭐ 字を書き出す位置は `FR-109` の 表 T-273 が持つ（`S-31` ／ `S-32` ／ `S-301` のいずれか 1 つを、基準の端か進捗マーカーの右端に足した位置）。'

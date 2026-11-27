@@ -1,6 +1,6 @@
 // CR-710 wave 2 (spec-only): FO-13 / K-146 switches the time of day on the document settings face (FR-158), outside undo (UN-7), and FR-016 pulls the zoom back.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { afterEach, describe, expect, it } from 'vitest'
@@ -21,11 +21,11 @@ import { exportStage, restoreAnimationFrames, type ExportStage } from './w3-t3-f
 afterEach(restoreAnimationFrames)
 
 const SPEC = join(process.cwd(), 'docs', 'spec')
-const REQUIREMENTS = unbroken(readFileSync(join(SPEC, '01-04-requirements.md'), 'utf8').replace(/\r\n/g, '\n'))
-const GLOSSARY = unbroken(readFileSync(join(SPEC, '_assets', 'tbl-glossary.md'), 'utf8').replace(/\r\n/g, '\n'))
+const REQUIREMENTS = unbroken(readRepoFile(join(SPEC, '01-04-requirements.md'), 'utf8').replace(/\r\n/g, '\n'))
+const GLOSSARY = unbroken(readRepoFile(join(SPEC, '_assets', 'tbl-glossary.md'), 'utf8').replace(/\r\n/g, '\n'))
 
 const withoutBreakMarks = (_key: string, value: unknown): unknown => (typeof value === 'string' ? value.replace(/\|/g, '') : value)
-const WORDS = JSON.parse(readFileSync(join(SPEC, '_source', 'display-words.json'), 'utf8'), withoutBreakMarks) as {
+const WORDS = JSON.parse(readRepoFile(join(SPEC, '_source', 'display-words.json'), 'utf8'), withoutBreakMarks) as {
   readonly settings: readonly { readonly specTableRowId: string; readonly label: Record<DisplayLanguage, string> }[]
 }
 

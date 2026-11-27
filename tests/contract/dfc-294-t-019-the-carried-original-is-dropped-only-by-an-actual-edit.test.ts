@@ -56,7 +56,7 @@
 //   3. WHAT `FR-012`'s 完了率 does. The clause says it follows the same rule;
 //      that requirement has its own cases.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -81,7 +81,7 @@ const DEFAULT_TASK_GROUP_NAME_FIXTURE = 'fixture default task group name'
 // 1. The clause, read out of the manuscript rather than believed
 // ===========================================================================
 
-const REQUIREMENTS = unbroken(readFileSync(
+const REQUIREMENTS = unbroken(readRepoFile(
   join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'),
   'utf8',
 ))
@@ -223,7 +223,7 @@ const UNSTARTED_FILE = fileOf(UNSTARTED_TASK_XML)
 const fileFor = (specTableRowId: string): string => (specTableRowId === 'CM-14' ? UNSTARTED_FILE : SUSPENDED_FILE)
 
 const TEMPLATE = JSON.parse(
-  readFileSync(
+  readRepoFile(
     join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'),
     'utf8',
   ),

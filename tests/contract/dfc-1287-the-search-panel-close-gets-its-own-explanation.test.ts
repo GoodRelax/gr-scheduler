@@ -1,6 +1,6 @@
 // DFC-1287 spec-only cases: with the Search Panel and another surface standing together, each IC-52 close shows its own explanation under itself (IN-3, EZ-2, IN-7, UZ-6, UZ-7, UZ-13).
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -25,9 +25,9 @@ import { REGIONS, SCHEDULE, SETTINGS } from './cr-727-stage'
 import { bare, specTable, unbroken } from './spec-table'
 
 const SPEC = join(process.cwd(), 'docs', 'spec')
-const REQUIREMENTS = unbroken(readFileSync(join(SPEC, '01-04-requirements.md'), 'utf8'))
-const GLOSSARY = unbroken(readFileSync(join(SPEC, '_assets', 'tbl-glossary.md'), 'utf8'))
-const MACHINES = unbroken(readFileSync(join(SPEC, '_assets', 'tbl-state-machines.md'), 'utf8'))
+const REQUIREMENTS = unbroken(readRepoFile(join(SPEC, '01-04-requirements.md'), 'utf8'))
+const GLOSSARY = unbroken(readRepoFile(join(SPEC, '_assets', 'tbl-glossary.md'), 'utf8'))
+const MACHINES = unbroken(readRepoFile(join(SPEC, '_assets', 'tbl-state-machines.md'), 'utf8'))
 
 const rowOf = (table: string, id: string) => {
   const found = specTable(table).rows.find((one) => one.id === id)

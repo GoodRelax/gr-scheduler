@@ -1,6 +1,6 @@
 // CR-551 JDG-406 / JDG-408: a withdrawn focus request lets its keys go (IN-5a), and the highlight box frame color field (PR-22, CV-9).
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { afterEach, describe, expect, it } from 'vitest'
@@ -22,8 +22,8 @@ import {
 import { pointerOf, taskGroupDocument, taskOf, SCREEN } from './cr-541-stage'
 
 const SPEC = join(process.cwd(), 'docs', 'spec')
-const REQUIREMENTS = unbroken(readFileSync(join(SPEC, '01-04-requirements.md'), 'utf8'))
-const WORDS = JSON.parse(readFileSync(join(SPEC, '_source', 'display-words.json'), 'utf8')) as {
+const REQUIREMENTS = unbroken(readRepoFile(join(SPEC, '01-04-requirements.md'), 'utf8'))
+const WORDS = JSON.parse(readRepoFile(join(SPEC, '_source', 'display-words.json'), 'utf8')) as {
   properties: { specTableRowId: string; label: { ja: string } }[]
   colorField: { part: string; text: { ja: string } }[]
 }

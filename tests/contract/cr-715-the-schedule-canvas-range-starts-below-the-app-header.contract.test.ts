@@ -1,14 +1,14 @@
 // CR-715: the Schedule Canvas's range starts at the App Header's lower edge; the element carrying its role is a drawing layer over the window.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
 import { documentFromJson } from '../../src/adapter/document-codec/json-codec'
 import { regionsFromScreen, type ScreenEnvironment } from '../../src/entity/layout-engine/screen-regions/screen-regions'
 import { unbroken } from './spec-table'
 
-const GLOSSARY = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '_assets', 'tbl-glossary.md'), 'utf8'))
-const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
+const GLOSSARY = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '_assets', 'tbl-glossary.md'), 'utf8'))
+const REQUIREMENTS = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
 const U_32_NOT_THE_BOX =
   '⛔ `Schedule Canvas` の範囲を、`data-role` に `Schedule Canvas` を持つ要素の箱から読んではならない（MUST NOT）'
@@ -23,7 +23,7 @@ const LOW_SCREEN = { width: 1280, height: 627 }
 const HEADER_PX = 40
 const BAND_PX = 24
 
-const EMPTY_DOCUMENT = readFileSync(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'empty-document.json'), 'utf8')
+const EMPTY_DOCUMENT = readRepoFile(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'empty-document.json'), 'utf8')
 
 /** @purity non-pure */
 function emptySettings(): Parameters<typeof regionsFromScreen>[1] {

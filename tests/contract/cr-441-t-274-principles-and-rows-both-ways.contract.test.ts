@@ -1,6 +1,6 @@
 // Contract test: table T-274's principles and the nine grab tables read both ways, and FR-104's reverse rule.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -8,7 +8,7 @@ import { describe, expect, it } from 'vitest'
 import { specTable, unbroken, type SpecRow } from './spec-table'
 
 const REQUIREMENTS = unbroken(
-  readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8').replace(/\r\n/g, '\n'),
+  readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8').replace(/\r\n/g, '\n'),
 )
 
 // Spec: T-274

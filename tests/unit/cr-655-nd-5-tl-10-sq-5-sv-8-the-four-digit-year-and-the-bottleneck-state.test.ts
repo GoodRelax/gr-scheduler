@@ -1,6 +1,6 @@
 // CR-655: the four-digit year across calendar years (ND-5, TL-10) and the search table's bottleneck state (SQ-5, SV-8).
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -182,7 +182,7 @@ const REPORT = scheduleEntry.diagnoseDelay(DOCUMENT, scheduleEntry.workingCalend
 const BOTTLENECKS: ReadonlyMap<number, 'DG-1' | 'DG-2' | 'DG-3'> = new Map(REPORT.bottlenecks.map((one) => [one.uid, 'DG-2' as const]))
 
 const WORDS = JSON.parse(
-  readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8'),
+  readRepoFile(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8'),
 ) as { readonly delayReportStatuses: readonly { readonly specTableRowId: string; readonly text: Record<DisplayLanguage, string> }[] }
 const DG_2_WORD = WORDS.delayReportStatuses.find((one) => one.specTableRowId === 'DG-2')?.text
 // Why: SQ-5 writes a late task with the word of the T-315 row DG-4.

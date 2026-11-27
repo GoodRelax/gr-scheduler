@@ -1,6 +1,6 @@
 // CR-808: the page reconnects to the relay by itself after the link drops (AG-12 (2), design 5, RS-90).
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -452,8 +452,8 @@ function failEveryTryExceptTheLast(harness: Harness): void {
 }
 
 describe('CR-808 spec text: AG-12 (2), design 5 and RS-90 say the page reconnects', () => {
-  const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
-  const DESIGN = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '_assets', 'design-mcp-relay.md'), 'utf8'))
+  const REQUIREMENTS = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
+  const DESIGN = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '_assets', 'design-mcp-relay.md'), 'utf8'))
 
   it('AG-12 (2): the requirement says the page reconnects to the same address and tells RS-90 only when no try connects', () => {
     const at = REQUIREMENTS.indexOf('| AG-12 |')

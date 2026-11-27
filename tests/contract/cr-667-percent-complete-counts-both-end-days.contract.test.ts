@@ -1,6 +1,6 @@
 // CR-667 spec-only tests: FR-012 counts the plan by FR-011's rule (both end days, milestones 0) and EP-9 draws the Panel Divider in S-149.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -21,7 +21,7 @@ import { emptyScreenSession, type ScreenSession } from '../../src/use-case/advan
 
 import { bare, specTable, unbroken } from './spec-table'
 
-const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
+const REQUIREMENTS = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
 // Why: each constant ends exactly at its marker, cut from the manuscript as check 39 reads it.
 // Why: CR-710 retired the day count; the plan is now FR-011's working time in minutes (FR-054).
@@ -54,7 +54,7 @@ describe('CR-667 the manuscript these cases are driven by', () => {
 // Spec: FR-012, OP-6
 // Why: a GRS JSON read recounts from the dates, so it is the public path that prices each case.
 const TEMPLATE = JSON.parse(
-  readFileSync(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
+  readRepoFile(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
 ) as Record<string, any>
 
 // Why: a Monday-to-Friday calendar and nothing else, so every count below is the weekdays alone.

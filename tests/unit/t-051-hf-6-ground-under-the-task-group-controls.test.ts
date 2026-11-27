@@ -90,7 +90,7 @@
 //      ⛔ Reported rather than replaced by a case about a number that happens to
 //      be written somewhere.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -151,7 +151,7 @@ const LATTICE = (() => {
  * nothing here parses it into requirements, so a premise below asks that the
  * sentences are still IN it rather than which UID holds them.
  */
-const FR_029_TEXT = unbroken(readFileSync(
+const FR_029_TEXT = unbroken(readRepoFile(
   join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'),
   'utf8',
 ))

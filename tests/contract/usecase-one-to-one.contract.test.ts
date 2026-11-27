@@ -4,6 +4,7 @@ import { existsSync, readdirSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
 import { bare, specTable } from './spec-table'
+import { readSpecDocument } from '../spec-files'
 
 const REQUIREMENTS = join(process.cwd(), 'docs', 'spec', '01-04-requirements.md')
 const USE_CASE_FOLDER = join(process.cwd(), 'src', 'use-case')
@@ -37,7 +38,7 @@ function specUseCasesOf(text: string): readonly SpecUseCase[] {
   return found
 }
 
-const USE_CASES = specUseCasesOf(readFileSync(REQUIREMENTS, 'utf8'))
+const USE_CASES = specUseCasesOf(readSpecDocument(REQUIREMENTS))
 // Unimplemented: OPQ-27
 const AWAITING_USE_CASES: ReadonlySet<string> = new Set(['UC-013'])
 const caseOf = (useCase: SpecUseCase) => (AWAITING_USE_CASES.has(useCase.uid) ? it.fails : it)

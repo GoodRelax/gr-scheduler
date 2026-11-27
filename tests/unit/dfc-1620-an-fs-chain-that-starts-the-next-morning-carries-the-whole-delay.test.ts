@@ -1,6 +1,6 @@
 // DFC-1620: BD-2 reads every document by instants (CR-710), so a 17:00 -> next-morning 08:00 FS chain carries a k-day delay as k days, not k - 1.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -11,7 +11,7 @@ import * as scheduleEntry from '../../src/entity/document-model/schedule/schedul
 import { unbroken } from '../contract/spec-table'
 import { taskGroupDocument, taskOf } from './cr-541-stage'
 
-const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
+const REQUIREMENTS = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
 // Why: each clause is cut from the manuscript as check 39 reads it, so the cases cannot drift from the words they test.
 // CR-710 retired the "MSPDI documents only" reading and the "same day" FS bound: every document reads instants.

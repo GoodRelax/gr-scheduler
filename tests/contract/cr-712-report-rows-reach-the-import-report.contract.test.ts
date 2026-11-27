@@ -1,6 +1,6 @@
 // CR-712 wave 2 spec-only cases: a report row raised inside one reading reaches U-62 as a count, not as a notice.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -17,7 +17,7 @@ import { readStateMachineView } from './state-machine-manuscript'
 
 const SPEC = join(process.cwd(), 'docs', 'spec')
 
-const REQUIREMENTS = unbroken(readFileSync(join(SPEC, '01-04-requirements.md'), 'utf8'))
+const REQUIREMENTS = unbroken(readRepoFile(join(SPEC, '01-04-requirements.md'), 'utf8'))
 
 const FR_076_REPORT_ROWS_GO_TO_U_62 =
   '表示の仕方が「`U-62` に並べる」の理由が 1 回の読込（開く・開き直す・合流させる・重ねる、起動時に渡された文書を読む 表 T-024a の `OP-14` を含む）の中で上がったとき、`GRS` は理由を通知の欄に立てないこと。読込が着地したとき、`GRS` は読込の中で上がった「`U-62` に並べる」の理由を `_assets/tbl-glossary.md` の `U-62` に 1 行として並べること。'
@@ -39,7 +39,7 @@ interface ReasonEntry {
   readonly scene: { readonly ja: string }
 }
 
-const ROSTER = JSON.parse(readFileSync(join(SPEC, '_source', 'notice-reasons.json'), 'utf8')) as {
+const ROSTER = JSON.parse(readRepoFile(join(SPEC, '_source', 'notice-reasons.json'), 'utf8')) as {
   readonly reasons: readonly ReasonEntry[]
 }
 

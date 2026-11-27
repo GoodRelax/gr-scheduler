@@ -1,6 +1,6 @@
 // CR-767 wave 2 spec-only cases: composites armed / grabbed (JDG-2364), the panel's Esc rung (RG-14, DFC-2720), guard-name unions (RA-2).
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -39,8 +39,8 @@ const MANUSCRIPT = readStateMachineView() as {
   readonly priorities: { readonly rungs: readonly Rung[] }
   readonly regions: readonly RawRegion[]
 }
-const SCHEMA = readFileSync(join(process.cwd(), 'docs', 'development-rules', 'manuscript-schemas', 'state-machines.schema.json'), 'utf8')
-const DESIGN = unbroken(readFileSync(join(SPEC, '05-07-design.md'), 'utf8'))
+const SCHEMA = readRepoFile(join(process.cwd(), 'docs', 'development-rules', 'manuscript-schemas', 'state-machines.schema.json'), 'utf8')
+const DESIGN = unbroken(readRepoFile(join(SPEC, '05-07-design.md'), 'utf8'))
 
 function regionNamed(name: string): RawRegion {
   const region = MANUSCRIPT.regions.find((r) => r.region === name)
@@ -362,7 +362,7 @@ const GENERATED_OPEN = '// <generated -- do not edit by hand>'
 const GENERATED_CLOSE = '// </generated>'
 
 function generatedRegionOf(unit: string): string {
-  const text = readFileSync(join(process.cwd(), unit), 'utf8').replace(/\r\n/g, '\n')
+  const text = readRepoFile(join(process.cwd(), unit), 'utf8').replace(/\r\n/g, '\n')
   const start = text.indexOf(GENERATED_OPEN)
   const end = text.indexOf(GENERATED_CLOSE, start)
   if (start < 0 || end < 0) throw new Error(`${unit} has no generated region`)

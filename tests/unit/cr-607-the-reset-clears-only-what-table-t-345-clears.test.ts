@@ -1,6 +1,6 @@
 // CR-607 wave 4: table T-345 against clearBrowserStoredForReset of UF-159.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
@@ -8,8 +8,8 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import * as storedValues from '../../src/framework/single-html-shell/browser-stored-values'
 import { specTable, unbroken } from '../contract/spec-table'
 
-const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
-const DESIGN = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '05-07-design.md'), 'utf8'))
+const REQUIREMENTS = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
+const DESIGN = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '05-07-design.md'), 'utf8'))
 
 const FR_153_ONLY_WHAT_T_345_CLEARS =
   '続けると答えられたとき、`GRS` は、`localStorage` の `GRS` の鍵のうち、表 T-345 が「消す」とするものだけを消すこと。'

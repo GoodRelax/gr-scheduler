@@ -1,6 +1,6 @@
 // DFC-1363: the frame wake for the task description waits S-439, and the frame wake for the icon description waits S-124 -- two clocks (FR-092 EZ-2, EZ-6).
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -9,8 +9,8 @@ import { SETTINGS_CONSTANTS } from '../../src/entity/document-model/document-set
 import { frameClockWakesOf, type FrameClockWakesHands } from '../../src/framework/single-html-shell/frame-clock-wakes'
 import { bare, specTable, unbroken } from './spec-table'
 
-const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
-const SETTINGS_TABLES = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '_assets', 'tbl-settings.md'), 'utf8'))
+const REQUIREMENTS = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
+const SETTINGS_TABLES = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '_assets', 'tbl-settings.md'), 'utf8'))
 
 const EZ_2_WAIT = 'ポインタがアイコンに入ってから `_assets/tbl-settings.md` の `S-124` が経ったら、そのアイコンの説明を出すこと（MUST）。'
 const EZ_2_FROM_ENTERING = '⭐ 待ちは、ポインタがそのアイコンに入った時から数えること（MUST）。'

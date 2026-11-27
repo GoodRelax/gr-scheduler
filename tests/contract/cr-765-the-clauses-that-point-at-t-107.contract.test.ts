@@ -1,6 +1,7 @@
 // CR-765 spec-only tests: the clauses and pointers that name table T-107 follow it to tbl-agent-api-members.md.
 
-import { readFileSync, readdirSync, statSync } from 'node:fs'
+import { readdirSync, statSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -13,8 +14,8 @@ const SPEC = join(process.cwd(), 'docs', 'spec')
 const { members } = printedMembers()
 const { values } = printedValueTypes()
 
-const REQUIREMENTS = unbroken(readFileSync(join(SPEC, '01-04-requirements.md'), 'utf8'))
-const PUBLISHED = unbroken(readFileSync(join(SPEC, '_assets', 'tbl-published-entries.md'), 'utf8'))
+const REQUIREMENTS = unbroken(readRepoFile(join(SPEC, '01-04-requirements.md'), 'utf8'))
+const PUBLISHED = unbroken(readRepoFile(join(SPEC, '_assets', 'tbl-published-entries.md'), 'utf8'))
 
 const OP_16_NO_FILE_NO_NAME = '—— 空の段では、名が無いのか読めなかったのかが読めない。⚠️ ファイルを持たずに渡された文書（`_assets/tbl-agent-api-members.md` の 表 T-107 の `AM-8`）では ② を出さないこと（MUST）'
 const PI_17_NOT_COPIED = ' `SnapshotSource`（表 T-065）。　　⚠️ 外へ公開する 27 メンバの名前は `_assets/tbl-agent-api-members.md` の 表 T-107 が持つ。　　本表に書き写さない（MUST NOT）'
@@ -58,7 +59,7 @@ describe('PI-17 (MUST NOT): table T-064 does not copy the 27 member names that t
 })
 
 describe('no pointer in the specification still sends a reader to the glossary for table T-107 or T-400', () => {
-  const files = markdownUnder(SPEC).map((path) => [path.slice(SPEC.length + 1), unbroken(readFileSync(path, 'utf8'))] as const)
+  const files = markdownUnder(SPEC).map((path) => [path.slice(SPEC.length + 1), unbroken(readRepoFile(path, 'utf8'))] as const)
 
   it('the specification holds many files and each is read', () => {
     expect(files.length).toBeGreaterThan(10)

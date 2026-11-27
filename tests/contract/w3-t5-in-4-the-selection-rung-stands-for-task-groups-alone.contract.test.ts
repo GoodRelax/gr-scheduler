@@ -1,6 +1,6 @@
 // W3 spec-only tester 5: the IN-4 selection rung stands for chosen task groups alone (FR-085) and clears both selections (T-283 RG-6, T-293).
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -20,7 +20,7 @@ import startupTemplate from '../../src/framework/single-html-shell/startup-templ
 import { contextOf } from './cr-606-stage'
 import { specTable, unbroken } from './spec-table'
 
-const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
+const REQUIREMENTS = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
 // Spec: IN-4
 const IN_4_BOTH_SELECTIONS =

@@ -16,7 +16,7 @@ import type { AnnotationAnchor } from '../edit-document/edit-document'
 const BAND_FRACTION_STEPS = 10_000
 
 // Provisional: OPQ-26
-// Spec: UC-008, LF-15
+// Spec: UC-008, LF-15, IMPS-1556, IMPS-1557
 /** @purity pure */
 export function freeAnchorAt(layout: ScheduleLayout, taskGroup: TaskGroupPlacement, x: number, y: number): AnnotationAnchor {
   const originStart = layout.originDay === null ? null : instantOf(textOfDayStart(layout.originDay))

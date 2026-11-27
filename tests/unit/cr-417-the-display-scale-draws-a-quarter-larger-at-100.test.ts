@@ -1,6 +1,6 @@
 // CR-417: the display scale draws at S-236 = 0.625 per 100, while the App Header and the Command Palette keep their S-235 size.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { afterEach, describe, expect, it } from 'vitest'
@@ -35,7 +35,7 @@ import {
 } from '../fixtures/fake-browser'
 import { DEFAULT_DISPLAY_SCALE, DISPLAY_SCALE_STEPS, S_235, S_236 } from '../fixtures/display-scale'
 
-const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
+const REQUIREMENTS = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
 const FR_039_THE_DRAWN_RATIO =
   '`GRS` は、描く比を、`_assets/tbl-settings.md` の 表 T-202 の `S-234` を 100 で割り、同書の 表 T-206 の `S-236` を掛けた値とすること。'
@@ -173,7 +173,7 @@ describe(`FR-077 (MUST) -- ${FR_077_THE_FLOOR}`, () => {
 
 describe('FR-039 -- a document saved at display scale 100 opens at the new ratio and keeps 100', () => {
   const template = JSON.parse(
-    readFileSync(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
+    readRepoFile(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
   ) as Record<string, any>
 
   it('reads displayScale 100 back as 100 and draws it at 0.625', () => {
@@ -190,7 +190,7 @@ describe('FR-039 -- a document saved at display scale 100 opens at the new ratio
 })
 
 const TEMPLATE = JSON.parse(
-  readFileSync(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
+  readRepoFile(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
 ) as Record<string, any>
 
 const SCREEN: FrameEnvironment = { width: 1400, height: 800, appHeaderHeight: 56, scrollbarThickness: 8 }

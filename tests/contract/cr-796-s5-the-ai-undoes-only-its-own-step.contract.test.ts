@@ -1,6 +1,6 @@
 // CR-796 slice 5: the AI undoes only its own step (AM-9, AM-10, AV-4, AG-2, AG-10, RD-1, RD-2).
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -22,11 +22,11 @@ import { unbroken } from './spec-table'
 type Loose = Record<string, unknown>
 
 const TEMPLATE = JSON.parse(
-  readFileSync(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
+  readRepoFile(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
 ) as Loose & { readonly schedule: Loose }
 
-const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
-const MEMBERS_TABLE = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '_assets', 'tbl-agent-api-members.md'), 'utf8'))
+const REQUIREMENTS = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
+const MEMBERS_TABLE = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '_assets', 'tbl-agent-api-members.md'), 'utf8'))
 
 const OPENED_STAMP = {
   scheduleUpdatedAt: '2026-03-04T05:06:07Z',

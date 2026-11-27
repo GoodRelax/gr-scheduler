@@ -51,6 +51,8 @@ import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.abspath(os.path.join(HERE, '..', '..', '..'))
+sys.path.insert(0, os.path.join(ROOT, 'tools'))
+import spec_files  # noqa: E402
 
 BOOKS = [
     'docs/spec/01-04-requirements.md',
@@ -115,9 +117,9 @@ def scan():
     doubles, swallowed = [], []
     for rel in BOOKS:
         path = os.path.join(ROOT, rel)
-        if not os.path.exists(path):
+        if not spec_files.spec_file_exists(path):
             continue
-        text = io.open(path, encoding='utf-8').read()
+        text = spec_files.read_spec_file(path)
         for n, line in enumerate(text.split('\n'), 1):
             for pattern in DOUBLED:
                 for m in pattern.finditer(line):

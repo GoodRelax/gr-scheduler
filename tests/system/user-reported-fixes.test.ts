@@ -1,7 +1,7 @@
 // One System case for each of eleven rows of the defect ledger
 
 import { expect, test, type Browser, type Page } from '@playwright/test'
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 import { bareAll, specTable, type SpecTable } from '../contract/spec-table'
 import { DEFAULT_DISPLAY_RATIO, S_235 } from '../fixtures/display-scale'
@@ -251,7 +251,7 @@ test('DFC-34: no word the screen can print, and none it does print, carries the 
 }) => {
   test.setTimeout(180_000)
 
-  const wordings = wordingsIn(JSON.parse(readFileSync(DICTIONARY, 'utf8')), 'display-words')
+  const wordings = wordingsIn(JSON.parse(readRepoFile(DICTIONARY, 'utf8')), 'display-words')
   const retired = wordings.filter((one) => one.text.includes(RETIRED_NOTICE_WORD))
   expect(
     retired.map((one) => `${one.at}: ${one.text}`),
@@ -893,7 +893,7 @@ test('DFC-282: a document later than the build reads as newerThanKnown, and one 
 }) => {
   test.setTimeout(240_000)
 
-  const bundled = JSON.parse(readFileSync(STARTUP_TEMPLATE, 'utf8')) as { schemaVersion?: unknown }
+  const bundled = JSON.parse(readRepoFile(STARTUP_TEMPLATE, 'utf8')) as { schemaVersion?: unknown }
   expect(
     typeof bundled.schemaVersion,
     `${STARTUP_TEMPLATE} carries no schemaVersion, and it is the one FR-073 calls the greatest ` +
@@ -1519,7 +1519,7 @@ test('DFC-366: one notch of the vertical-axis zoom leaves the task group under t
         `y=${nowAt.toFixed(1)}`,
     ).toBeLessThanOrEqual(4)
 
-    const translator = readFileSync(TRANSLATOR_SOURCE, 'utf8')
+    const translator = readRepoFile(TRANSLATOR_SOURCE, 'utf8')
       .replace(/\/\*[\s\S]*?\*\//g, ' ')
       .replace(/(^|\n)[ \t]*\/\/[^\n]*/g, '$1')
     expect(
@@ -1553,7 +1553,7 @@ const LEDGERS: readonly string[] = ['defects.md', 'fixed-defects.md']
 
 test('every ledger row this file holds down is still a row of the ledger', () => {
   const written = LEDGERS.map((file) =>
-    readFileSync(join(process.cwd(), 'docs', 'development-records', file), 'utf8'),
+    readRepoFile(join(process.cwd(), 'docs', 'development-records', file), 'utf8'),
   )
   for (const row of HELD) {
     expect(

@@ -1,6 +1,6 @@
 // CR-740 spec-only stage: one shell with its surfaces swapped, a press on any T-109 entrance, and the empty ground of T-071 CA-1 (3).
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import type { Clipboard, ClipboardContent } from '../../src/adapter/clipboard-gateway/clipboard'
@@ -24,8 +24,8 @@ import {
 import { bare, specTable, unbroken } from './spec-table'
 
 const SPEC = join(process.cwd(), 'docs', 'spec')
-export const DESIGN = unbroken(readFileSync(join(SPEC, '05-07-design.md'), 'utf8'))
-export const REQUIREMENTS = unbroken(readFileSync(join(SPEC, '01-04-requirements.md'), 'utf8'))
+export const DESIGN = unbroken(readRepoFile(join(SPEC, '05-07-design.md'), 'utf8'))
+export const REQUIREMENTS = unbroken(readRepoFile(join(SPEC, '01-04-requirements.md'), 'utf8'))
 export function wholeRow(table: string, id: string): string {
   const found = specTable(table).rows.find((one) => one.id === id)
   if (found === undefined) throw new Error(`table ${table} has no row ${id}`)
@@ -46,7 +46,7 @@ interface Template {
 }
 
 const TEMPLATE = JSON.parse(
-  readFileSync(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
+  readRepoFile(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
 ) as Template
 
 export const GROUPS = [1, 2, 3, 4, 5, 6].map((n) => `4a000000-0000-4000-8000-00000000000${n}`)

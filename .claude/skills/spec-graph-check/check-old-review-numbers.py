@@ -41,6 +41,8 @@ import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(HERE)))
+sys.path.insert(0, os.path.join(ROOT, 'tools'))
+import spec_files  # noqa: E402
 RULE = 'docs/development-rules/07-review-standards.md'
 BASELINE = os.path.join(HERE, 'old-review-numbers-baseline.txt')
 TABLE_HEADING = '## \u65e7\u756a\u53f7\u306e\u5bfe\u5fdc\u8868'  # "## old number table"
@@ -102,15 +104,19 @@ def in_scope(path):
 
 def tracked_files():
     out = subprocess.run(['git', 'ls-files'], cwd=ROOT, capture_output=True, text=True, encoding='utf-8')
-    return [p for p in out.stdout.splitlines() if in_scope(p)]
+    return [p for p in spec_files.listed_paths(out.stdout.splitlines()) if in_scope(p)]
 
 
 def counts(pat):
     found = {}
     for path in tracked_files():
         try:
-            with open(os.path.join(ROOT, path), encoding='utf-8') as f:
-                n = count(path, f.read(), pat)
+            if spec_files.is_split_document(path):
+                text = spec_files.read_document(path)
+            else:
+                with open(os.path.join(ROOT, path), encoding='utf-8') as f:
+                    text = f.read()
+            n = count(path, text, pat)
         except (OSError, UnicodeDecodeError):
             continue
         if n:

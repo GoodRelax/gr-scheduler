@@ -21,7 +21,7 @@ export function watermarkOpenedByOf(storedName: StoredValue, defaultName: string
 }
 
 // Provisional: OPQ-26
-// Spec: UC-009, FR-020, FR-086, S-99c, S-101
+// Spec: UC-009, FR-020, FR-086, S-99c, S-101, WM-12, IMPS-869
 /** @purity pure */
 export function isWatermarkUnlockMatched(givenDigest: string, storedDigest: StoredValue, defaultDigest: string): boolean {
   return givenDigest === storedOrDefault(storedDigest, defaultDigest)

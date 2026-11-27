@@ -103,6 +103,9 @@ def lines_at(revision, relative):
 def count(files, precheck, revision=None):
     tally = {'names': 0, 'absolute paths': 0, 'e-mail': 0, 'secrets': 0}
     read = 0
+    if not revision:
+        # Why: precheck.read_lines reads a split document whole, so its parts are not read again.
+        files = precheck.as_documents(files)
     for name in files:
         relative = name.replace(os.sep, '/')
         # WHY the revision: what a push publishes is the commit's content, which the work tree

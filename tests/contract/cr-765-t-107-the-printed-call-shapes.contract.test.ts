@@ -1,6 +1,6 @@
 // CR-765 spec-only tests: table T-107 as _assets/tbl-agent-api-members.md prints it, with its argument and return columns.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -23,7 +23,7 @@ const memberNamed = (name: string): PrintedMember => {
   return found
 }
 
-const GLOSSARY = unbroken(readFileSync(join(SPEC, '_assets', 'tbl-glossary.md'), 'utf8'))
+const GLOSSARY = unbroken(readRepoFile(join(SPEC, '_assets', 'tbl-glossary.md'), 'utf8'))
 
 const GLOSSARY_POINTER = '表 T-107（`Agent API` のメンバ）と、その呼び方（引数・型・戻り値）は `_assets/tbl-agent-api-members.md` が持つ'
 const VERSION_SENTENCE = 'いまの版は `2026-10-19T01:15:00Z` である（`AM-1` が返す値）。'
@@ -223,7 +223,7 @@ describe('AM-17 and AM-11 to AM-15: the keys only the MCP tool takes', () => {
   })
 
   it('AG-12 (5) says the wait is the caller\'s argument and an expired wait answers a value', () => {
-    const requirements = unbroken(readFileSync(join(SPEC, '01-04-requirements.md'), 'utf8'))
+    const requirements = unbroken(readRepoFile(join(SPEC, '01-04-requirements.md'), 'utf8'))
     expect(requirements).toContain('待つ長さは呼ぶ側が道具の引数で渡し、切れたときは「まだ無い」を値で返すこと（MUST）')
   })
 })

@@ -1,6 +1,6 @@
 // CR-796 slice 4: the AI reads in small pieces (AG-2, AG-6, AM-3, AM-25, AV-3, AV-14, AV-16, AV-17).
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -23,10 +23,10 @@ import { specTable, unbroken } from './spec-table'
 type Loose = Record<string, unknown>
 
 const TEMPLATE = JSON.parse(
-  readFileSync(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
+  readRepoFile(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
 ) as Loose & { readonly schedule: Loose; readonly documentSettings: Loose }
 
-const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
+const REQUIREMENTS = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
 const templateTasks = TEMPLATE.schedule['tasks'] as readonly Loose[]
 const templateGroups = TEMPLATE.schedule['taskGroups'] as readonly Loose[]

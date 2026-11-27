@@ -80,6 +80,8 @@ import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.abspath(os.path.join(HERE, '..', '..', '..'))
+sys.path.insert(0, os.path.join(ROOT, 'tools'))
+import spec_files  # noqa: E402
 
 DEFAULT_EXPORT = 'scratch/spec-html-probe'
 
@@ -103,6 +105,18 @@ def read(path):
     return io.open(path, encoding='utf-8').read()
 
 
+def pages_of(html_dir, name):
+    """The HTML files of document NAME; StrictDoc writes one per part file."""
+    if spec_files.is_split_document(name + '.md', ROOT):
+        return [os.path.join(html_dir, os.path.splitext(f)[0] + '.html')
+                for f in spec_files.part_files(name + '.md', ROOT)]
+    return [os.path.join(html_dir, name + '.html')]
+
+
+def read_page(html_dir, name):
+    return u''.join(read(p) for p in pages_of(html_dir, name))
+
+
 def main(argv):
     export = argv[1] if len(argv) > 1 else DEFAULT_EXPORT
     html_dir = os.path.join(ROOT, export, 'html', 'spec')
@@ -110,11 +124,11 @@ def main(argv):
     # ⛔ Never green on a missing export. The old file let open() raise, which
     # read as a crash rather than as a verdict; a caller that swallowed the
     # traceback learned nothing.
-    absent = [n for n in DOCS
-              if not os.path.exists(os.path.join(html_dir, n + '.html'))]
+    absent = [os.path.basename(p) for n in DOCS for p in pages_of(html_dir, n)
+              if not os.path.exists(p)]
     if absent:
         say(u'PROBLEM  no published HTML to read at %s/html/spec' % export)
-        say(u'         missing: %s' % ', '.join(n + '.html' for n in absent))
+        say(u'         missing: %s' % ', '.join(absent))
         say(u'         Export it first, then run this again:')
         say(u'           strictdoc export docs/spec --formats=html '
             u'--output-dir %s' % export)
@@ -124,8 +138,8 @@ def main(argv):
     total_missing = 0
 
     for name in DOCS:
-        page = read(os.path.join(html_dir, name + '.html'))
-        literal = LITERAL.findall(CODE_SPAN.sub('', page))
+        page = read_page(html_dir, name)
+        literal =LITERAL.findall(CODE_SPAN.sub('', page))
         total_literal += len(literal)
         say(u'%-22s literal ** = %-3d  <table> = %d'
             % (name, len(literal), page.count('<table>')))
@@ -133,8 +147,8 @@ def main(argv):
             say(u'      ' + span[:74])
 
     for name in CAPTIONED:
-        src = read(os.path.join(ROOT, 'docs', 'spec', name + '.md'))
-        page = read(os.path.join(html_dir, name + '.html'))
+        src = spec_files.read_spec_file(os.path.join(ROOT, 'docs', 'spec', name + '.md'), ROOT)
+        page = read_page(html_dir, name)
         caps = TABLE_CAP.findall(src)
         missing = [c for c in caps if (u'表 %s —' % c) not in page]
         figs = FIGURE_CAP.findall(src)

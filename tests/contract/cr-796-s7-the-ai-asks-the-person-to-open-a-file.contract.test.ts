@@ -1,6 +1,6 @@
 // CR-796 slice 7 spec-only tests: the AI asks the person to open a file -- requestOpenFile (AM-29, QN-17, AV-15, AG-12 (6)).
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -25,11 +25,11 @@ type Json = Record<string, unknown>
 const ROOT = process.cwd()
 
 const TEMPLATE = JSON.parse(
-  readFileSync(join(ROOT, 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
+  readRepoFile(join(ROOT, 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
 ) as Document
 
-const REQUIREMENTS = unbroken(readFileSync(join(ROOT, 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
-const MEMBERS = readFileSync(join(ROOT, 'docs', 'spec', '_assets', 'tbl-agent-api-members.md'), 'utf8')
+const REQUIREMENTS = unbroken(readRepoFile(join(ROOT, 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
+const MEMBERS = readRepoFile(join(ROOT, 'docs', 'spec', '_assets', 'tbl-agent-api-members.md'), 'utf8')
 
 const startingDocument = (): Document =>
   ({

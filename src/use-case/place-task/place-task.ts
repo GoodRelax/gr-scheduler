@@ -28,7 +28,7 @@ export interface PlacedSpan {
   readonly finish: string
 }
 
-// Spec: FR-001, FR-103, T-378
+// Spec: TC-10, TC-6
 // Why: finer than a day the press and the release are snapped instants, as a grabbed end is; a pull inside one unit spans one unit.
 /** @purity pure */
 function spanOnFineSnap(layout: ScheduleLayout, pull: PlacingPull, isMilestone: boolean): PlacedSpan | null {

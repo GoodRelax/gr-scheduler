@@ -1,6 +1,6 @@
 // DFC-2973 spec-only cases: boxes of one kind are drawn later-in-document-order in front and the front-most answers a press first (FR-019, T-020 ZO-9 / ZO-14); the PR-48 / PR-49 entrances run CM-100 / CM-101, which move the box to the end of its order, and one undo restores it.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { afterEach, describe, expect, it } from 'vitest'
@@ -31,7 +31,7 @@ import { exportStage, type ExportStage } from './w3-t3-frame-stage'
 afterEach(restoreAnimationFrames)
 
 const SPEC = join(process.cwd(), 'docs', 'spec')
-const REQUIREMENTS = unbroken(readFileSync(join(SPEC, '01-04-requirements.md'), 'utf8'))
+const REQUIREMENTS = unbroken(readRepoFile(join(SPEC, '01-04-requirements.md'), 'utf8'))
 
 // Spec: T-020, ZO-9, ZO-14
 const ZO_9_ORDER = 'コメントボックスどうしの前後は `FR-019` が持つ（文書の並びで後のものほど前）'

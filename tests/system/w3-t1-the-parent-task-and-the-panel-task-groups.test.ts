@@ -1,7 +1,7 @@
 // W3 spec-only cases on the shipped build: T-351 parent task hands and field, FR-075 grab colors, trailing look rows, the FX-5 field.
 
 import { expect, test, type Browser, type Page } from '@playwright/test'
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 import { colorOf } from '../../src/adapter/svg-renderer/svg-renderer'
 import { bare, specTable, unbroken } from '../contract/spec-table'
@@ -10,7 +10,7 @@ import { openDocument, openStage, pressEntrance, reasonWords, settle, type Stage
 import { rowOf } from './sws-case'
 import { applyCommandsOf, readDocumentOf, taskGroupsDocument } from './w3-t1-stage'
 
-const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
+const REQUIREMENTS = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
 // Why: each constant ends exactly at its marker, cut from the manuscript as check 39 reads it.
 const FR_135_FIELD = '`GRS` は、プロパティパネルの親タスクの欄の出し方と、押したときの動きを、表 T-351 の `PTL-15` 〜 `PTL-17` に従わせること'
@@ -29,7 +29,7 @@ const THEME_TOGGLE = rowOf(specTable('T-109'), 'IC-16').id
 const DOCUMENT_SETTINGS = rowOf(specTable('T-109'), 'IC-17').id
 const LINK_INK = bare(rowOf(specTable('T-236'), 'S-503').by['明るいテーマ'] ?? '')
 
-const WORDS = JSON.parse(readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8')) as {
+const WORDS = JSON.parse(readRepoFile(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8')) as {
   readonly settings: readonly { readonly specTableRowId: string; readonly label: { readonly ja: string; readonly en: string } }[]
 }
 const SPAN_LABELS = (() => {

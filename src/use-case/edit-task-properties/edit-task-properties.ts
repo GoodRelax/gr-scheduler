@@ -10,7 +10,7 @@ import type { DeletionQuestion } from '../edit-document/edit-document'
 const UNASSIGNMENT_QUESTION: DeletionQuestion['question'] = 'QN-3'
 
 // Provisional: OPQ-26
-// Spec: UC-003, FR-099, QN-3, CD-5
+// Spec: UC-003, FR-099, QN-3, CD-5, IMPS-274, IMPS-275, IMPS-276
 /** @purity pure */
 export function confirmationOwedByResourceDeletion(
   uids: readonly number[],

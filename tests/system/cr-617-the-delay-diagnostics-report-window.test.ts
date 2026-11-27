@@ -1,6 +1,6 @@
 // CR-617 / CR-781 / CR-797 on the shipped build: IC-107 opens the Delay Diagnostics Report window (RW-1), IC-52, Esc and a second IC-107 close it alone, IC-40 ends the diagnosis, IC-168 runs it again with the window open.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { expect, test, type Browser, type Page } from '@playwright/test'
@@ -20,7 +20,7 @@ const END = rowOf(specTable('T-109'), 'IC-40').id
 const REDIAGNOSE = rowOf(specTable('T-109'), 'IC-168').id
 // Why: the word follows the SCREEN language (FR-038), which this stage starts in English whatever the opened document's language is.
 const REDIAGNOSE_WORD = (
-  JSON.parse(readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8')) as {
+  JSON.parse(readRepoFile(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8')) as {
     readonly icons: readonly { readonly specTableRowId: string; readonly label: { readonly en: string } }[]
   }
 ).icons.find((one) => one.specTableRowId === REDIAGNOSE)?.label.en

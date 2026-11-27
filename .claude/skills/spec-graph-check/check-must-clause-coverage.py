@@ -149,6 +149,9 @@ import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(HERE)))
+sys.path.insert(0, os.path.join(ROOT, 'tools'))
+import spec_files  # noqa: E402
+
 SPEC = os.path.join(ROOT, 'docs', 'spec')
 TESTS = os.path.join(ROOT, 'tests')
 # ⛔ The trees a clause may be held by (CR-573 section 5, JDG-637). The module
@@ -321,11 +324,10 @@ def find_markers():
     found_any_file = False
     for rel in FILES:
         path = os.path.join(SPEC, rel)
-        if not os.path.exists(path):
+        if not spec_files.spec_file_exists(path):
             continue
         found_any_file = True
-        with io.open(path, encoding='utf-8') as handle:
-            text = unbroken(handle.read())
+        text = unbroken(spec_files.read_spec_file(path))
         spans = skipped_spans(rel, text)
         for m in MARKER_RE.finditer(text):
             if any(a <= m.start() < b for a, b in spans):
@@ -349,7 +351,8 @@ def held_length(window, corpus):
 
 
 def main():
-    missing = [rel for rel in FILES if not os.path.exists(os.path.join(SPEC, rel))]
+    missing = [rel for rel in FILES
+               if not spec_files.spec_file_exists(os.path.join(SPEC, rel))]
     if len(missing) == len(FILES):
         print('PROBLEM  none of the %d manuscript files exist under %s' %
               (len(FILES), SPEC))

@@ -1,7 +1,7 @@
 // CR-731 on the shipped build: the boxes, the choice and the date of the proposal, pressed as a person presses them (RW-16, FA-1, FA-24, UN-21).
 
 import { expect, test, type Browser, type Page } from '@playwright/test'
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 import { specTable, unbroken } from '../contract/spec-table'
 import { CLEARING_UP_MS, launchReferenceBrowser } from './live-app'
@@ -16,7 +16,7 @@ const FOOTER = '[data-role="Delay Fix Footer"]'
 const RW_12_COUNT = '「修正件数 : n 件」（チェックの入った行の数 —— 見出しのチェックボックス（表 T-374 の `FM-1`）で入れ外しした行を含む、辞書の `delayFixes` の `fixCount`）'
 
 const FIX_COUNT = (
-  JSON.parse(readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8')) as {
+  JSON.parse(readRepoFile(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8')) as {
     readonly delayFixes: readonly { readonly part: string; readonly text: { readonly ja: string; readonly en: string } }[]
   }
 ).delayFixes.find((one) => one.part === 'fixCount')?.text

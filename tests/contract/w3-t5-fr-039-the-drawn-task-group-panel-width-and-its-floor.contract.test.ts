@@ -1,6 +1,6 @@
 // W3 spec-only tester 5: FR-039 -- the drawn Task Group Panel width is the larger of S-79 times the drawn ratio and the floor.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -14,7 +14,7 @@ import {
 } from '../../src/entity/layout-engine/screen-regions/screen-regions'
 import { bare, specTable, unbroken } from './spec-table'
 
-const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
+const REQUIREMENTS = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
 // Spec: FR-039
 const FR_039_LARGER_OF_THE_TWO = '`GRS` は、描くタスクグループパネルの幅を、`S-79` に描く比を掛けた値と、床（`IMPS-1253`）の大きい方とすること。'
@@ -55,7 +55,7 @@ function floorAt(ratio: number): number {
   return S_37 * ratio * S_125 + S_138 * S_235 + ROW_CONTROL_COLUMNS * OUTER_WIDTH * S_235
 }
 
-const TEMPLATE_TEXT = readFileSync(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8')
+const TEMPLATE_TEXT = readRepoFile(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8')
 
 /** @purity pure */
 function settingsWith(panelWidth: number, displayScale: number): DocumentSettings {

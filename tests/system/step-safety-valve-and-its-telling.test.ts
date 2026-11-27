@@ -1,7 +1,8 @@
 // ST-7 stack safety valve: pressed on the shipped build, not just in unit tests.
 
 import { expect, test, type Browser, type Page } from '@playwright/test'
-import { existsSync, readFileSync } from 'node:fs'
+import { existsSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { bare, specTable, type SpecTable, unbroken } from '../contract/spec-table'
@@ -62,7 +63,7 @@ const TASK_SHAPE_KIND = (() => {
 
 /** @purity pure */
 const PICTURE_TO_CLIPBOARD_ENTRANCE = (() => {
-  const said = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
+  const said = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
   const found = /`IO-6`[^\n]{0,80}?T-109 [^\n]{0,10}?`(IC-\d+)`/.exec(said)
   if (found === null) {
     throw new Error(
@@ -84,7 +85,7 @@ interface ReasonWords {
 /** @purity pure */
 const RS_24_WORDS: readonly ReasonWords[] = (() => {
   const manuscript = join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json')
-  const held = JSON.parse(readFileSync(manuscript, 'utf8')) as {
+  const held = JSON.parse(readRepoFile(manuscript, 'utf8')) as {
     reasons?: { specTableRowId?: string; text?: Record<string, string>; nextStep?: Record<string, string> }[]
   }
   const entry = (held.reasons ?? []).find((one) => one.specTableRowId === 'RS-24')

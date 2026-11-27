@@ -1,6 +1,6 @@
 // CR-656 spec-only cases: a Shift-only body drag keeps the dates (MK-16, T-270); Ctrl + Shift copies with 0 days (PTD-7, CY-5).
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { afterEach, describe, expect, it } from 'vitest'
@@ -32,7 +32,7 @@ import { NOT_STORED_ZOOM_BOUNDS, type DocumentCommand } from '../../src/use-case
 import { specTable, unbroken } from '../contract/spec-table'
 
 const SPEC = join(process.cwd(), 'docs', 'spec')
-const REQUIREMENTS = unbroken(readFileSync(join(SPEC, '01-04-requirements.md'), 'utf8'))
+const REQUIREMENTS = unbroken(readRepoFile(join(SPEC, '01-04-requirements.md'), 'utf8'))
 
 const flat = (text: string): string => text.replace(/<br\s*\/?>/g, '').replace(/\*\*/g, '').replace(/\s*\n\s*/g, '')
 
@@ -166,7 +166,7 @@ const task = (over: Partial<Task> & { readonly uid: number }): Task =>
   }) as unknown as Task
 
 const TEMPLATE = JSON.parse(
-  readFileSync(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
+  readRepoFile(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
 ) as Record<string, Record<string, unknown>>
 
 const PX_PER_DAY_AT_1X = 20
