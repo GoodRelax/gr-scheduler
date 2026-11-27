@@ -235,7 +235,7 @@ const MILESTONE_IS_NOT_REFUSED_FOR_A_DRAG =
 //
 // ⭐⭐ THE SAME 2026-09-07 INSTRUCTION AS RULINGS A AND B, given in one breath.
 // 利用者の逐語 (docs/development-records/defects.md, DFC-372): 「アイコンを押すと必ず
-// その構えに入り、ドラッグ中は形がポインタに付いて伸び、離すとプロパティパネルが
+// その構えに入り、ドラッグ中は形がポインターに付いて伸び、離すとプロパティパネルが
 // `Name` を出し、`Enter` で閉じて選択が外れ、構えは続き、`Esc` で構えも解けること」.
 // Ruling A is its first clause; the constants below are its second and fourth.
 
@@ -624,7 +624,7 @@ function pressEntrance(
   }).screen
 }
 
-/** A point of the `Task Group Area` with nothing drawn over it and nothing under it. */
+/** A point of the `Task Group Lanes` with nothing drawn over it and nothing under it. */
 const GROUND = { x: 700, y: 400 }
 
 /** The one `Task` a selection can be made of without any of it being drawn. */

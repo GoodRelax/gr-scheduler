@@ -272,7 +272,7 @@ const regionsOf = (
     height: screen.height - screen.appHeaderHeight,
   }
   // FR-052's expression, verbatim: the canvas less `canvasPadding` (S-56), the
-  // two panel widths and the vertical bar is the `Task Group Area`'s width. U-50 takes
+  // two panel widths and the vertical bar is the `Task Group Lanes`'s width. U-50 takes
   // the ruler band and the padding off its height, and FR-051's bar after it.
   const taskGroupAreaWidth =
     canvas.width -
@@ -362,7 +362,7 @@ const APP_HEADER_ITEMS: AppHeaderItems = {
 /**
  * EP-9. The `line` is drawn and the grab `band` is not, so the two are given
  * different rectangles. ⚠️ Taken from the regions rather than written out:
- * FR-051 (MUST NOT) has the band take no width from the `Task Group Area`, so it
+ * FR-051 (MUST NOT) has the band take no width from the `Task Group Lanes`, so it
  * straddles the boundary the line sits on.
  */
 const dividersOf = (regions: ScreenRegions): readonly PanelDivider[] => {
@@ -503,7 +503,7 @@ const viewOf = (
     groups: [{ name: PALETTE_GROUP_NAME, commands: [commandOf('EP-11 palette command')] }],
     armedText: PALETTE_ARMED_TEXT,
   },
-  openModal: { surface: 'Help Modal', heading: MODAL_HEADING, commands: [] },
+  openModal: { surface: 'Help Window', heading: MODAL_HEADING, commands: [] },
   notices: [
     {
       manner: 'NT-3a',
@@ -958,7 +958,7 @@ const T_076_ROWS: readonly {
 }[] = [
   {
     id: 'EP-1',
-    part: 'App Header (U-31): the band and the Document Title (U-27) only',
+    part: 'App Header (U-31): the band and the Project Title (U-27) only',
     expectation: 'partly',
     holds: (assembledSvg) =>
       hasRect(assembledSvg, assembledSvg.scene.regions.appHeader) &&
@@ -982,13 +982,13 @@ const T_076_ROWS: readonly {
   },
   {
     id: 'EP-4',
-    part: 'Task Group Expander (U-47) / Task Group Pin (U-48) / Hidden Group Tab (U-29)',
+    part: 'Task Group Buttons (U-47) / Pin Button (U-48) / Hidden Group Tab (U-29)',
     expectation: 'no',
     holds: (assembledSvg) => nothingBeyondTheAccounted(assembledSvg),
   },
   {
     id: 'EP-5',
-    part: "Task Group Area's contents (U-1 .. U-46)",
+    part: "Task Group Lanes's contents (U-1 .. U-46)",
     expectation: 'arrives',
     holds: (assembledSvg) => assembledSvg.pictureCount === 1 && !hasRect(assembledSvg, assembledSvg.scene.regions.taskGroupArea),
   },
@@ -1000,7 +1000,7 @@ const T_076_ROWS: readonly {
   },
   {
     id: 'EP-7',
-    part: 'Watermark (U-20), inside the Task Group Area only',
+    part: 'Watermark (U-20), inside the Task Group Lanes only',
     expectation: 'arrives',
     holds: (assembledSvg) => assembledSvg.pictureCount === 1 && nothingBeyondTheAccounted(assembledSvg),
   },
@@ -1044,13 +1044,13 @@ const T_076_ROWS: readonly {
   },
   {
     id: 'EP-13',
-    part: 'Schedule Canvas (U-32) / Canvas Overlays (U-33) -- the containers themselves',
+    part: 'Schedule Canvas (U-32) -- the container itself',
     expectation: 'no',
     holds: (assembledSvg) => !hasRect(assembledSvg, assembledSvg.scene.regions.scheduleCanvas),
   },
   {
     id: 'EP-14',
-    part: 'Actual Operation Dummy (U-52)',
+    part: 'Actual Dummy (U-52)',
     expectation: 'no',
     holds: (assembledSvg) => nothingBeyondTheAccounted(assembledSvg),
   },
@@ -1063,7 +1063,7 @@ const T_076_ROWS: readonly {
  * a part that is absent leaves nothing to look for. So they are checked
  * together: EP-1 contributes one band, EP-3 one panel ground, EP-9 one line per
  * divider, and no other rectangle may be there. Text is the same: the
- * `Document Title` and one name per kept task group.
+ * `Project Title` and one name per kept task group.
  */
 const nothingBeyondTheAccounted = (assembled: Assembled): boolean => {
   const view = assembled.scene.screenView
@@ -1167,8 +1167,8 @@ describe('FR-080 -- a part left out leaves a gap, it does not move its neighbors
     expect(geometry(bare)).toBe(geometry(withEverything))
   })
 
-  it('does not move the Document Title when the items beside it go away', async () => {
-    // EP-1 of table T-076 (MUST NOT): the `Document Title` may not be moved,
+  it('does not move the Project Title when the items beside it go away', async () => {
+    // EP-1 of table T-076 (MUST NOT): the `Project Title` may not be moved,
     // and FR-080 forbids closing up the room of what is not drawn.
     // ⚠️ WHERE it stands is not in any table (recorded as PND-52), so this case
     // asserts only that it does not MOVE -- which is what the row states.
@@ -1192,7 +1192,7 @@ describe('FR-080 -- a part left out leaves a gap, it does not move its neighbors
       a.texts.find((drawnText) => drawnText.content === DOCUMENT_TITLE)
     const before = titleOf(withItems)
     const after = titleOf(withoutItems)
-    expect(before, 'EP-1 draws the Document Title').toBeDefined()
+    expect(before, 'EP-1 draws the Project Title').toBeDefined()
     expect(after).toBeDefined()
     expect(num((after as DrawnText).attrs, 'x')).toBeCloseTo(
       num((before as DrawnText).attrs, 'x'),
@@ -1204,7 +1204,7 @@ describe('FR-080 -- a part left out leaves a gap, it does not move its neighbors
     )
   })
 
-  it('stands the Document Title inside the band it belongs to', async () => {
+  it('stands the Project Title inside the band it belongs to', async () => {
     const assembled = await exportedOf(TALL_SCENE)
     const title = assembled.texts.find((drawnText) => drawnText.content === DOCUMENT_TITLE)
     expect(title).toBeDefined()

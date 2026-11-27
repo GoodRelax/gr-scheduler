@@ -80,7 +80,7 @@
 //      So these cases run whatever the translator answers with through
 //      `editTask` and read the columns back.
 //   2. THE RESUME ICON. The same STATEMENT carries two more MUSTs about drawing
-//      it (「`Task` が中断している間、`GRS` は、再開アイコンを描くこと」); those are the
+//      it (「`Task` が中断している間、`GRS` は、再開マークを描くこと」); those are the
 //      renderer's and are not this seam's.
 //   3. HOW THE PANEL SPELLS AN EMPTY DATE. `FieldCommit.text` is a string and
 //      an erased date field settles as the empty one; nothing here rules on

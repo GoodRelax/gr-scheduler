@@ -108,8 +108,8 @@ const rect = (x: number, y: number, width: number, height: number): ScreenRect =
 })
 
 /**
- * Regions whose `Task Group Area` leaves a lane of `thickness` on its right, which is
- * FR-052's arithmetic read backwards -- the gap between the `Task Group Area` and the
+ * Regions whose `Task Group Lanes` leaves a lane of `thickness` on its right, which is
+ * FR-052's arithmetic read backwards -- the gap between the `Task Group Lanes` and the
  * `Properties Panel` is the lane plus `canvasPadding`.
  */
 const LANE_THICKNESS = 10
@@ -268,7 +268,7 @@ const SCREEN: FrameEnvironment = {
   width: 1400,
   height: 800,
   appHeaderHeight: 40,
-  // ⚠️ NOT ZERO. FR-051 (MUST) has the bar take its place from the `Task Group Area`,
+  // ⚠️ NOT ZERO. FR-051 (MUST) has the bar take its place from the `Task Group Lanes`,
   // and a lane of no thickness is one no press could land on.
   scrollbarThickness: 12,
 }

@@ -23,7 +23,7 @@ import { validateDocument } from '../fixtures/grs-document'
 import { DESIGN, REQUIREMENTS, taskGroupDocument, SCREEN } from './cr-541-stage'
 
 // Spec: T-078
-const FT_1_DROP = '人の入力（ポインタとキー）と、ファイルのドロップ（01-04 の 表 T-024a の `OP-2`）'
+const FT_1_DROP = '人の入力（ポインターとキー）と、ファイルのドロップ（01-04 の 表 T-024a の `OP-2`）'
 const FT_1_CONTINUATION = '⭐ **その入力の、待ち（表 T-066 の `CS-4`）をまたいだ続きを含む**'
 const FT_1_SHELL_RAISES = '⚠️ **待ちをまたいだ続きを起こすのはシェル自身である**'
 const T_078_MUST_NOT = '**本表に無い契機でフレームを起こしてはならない（MUST NOT）** —— これが `NFR-010` の具体である。'
@@ -230,7 +230,7 @@ describe('T-078 FT-1 -- a file drop wakes a frame', () => {
   })
 
   // Why: a dropped GRS JSON opens as a replace without U-56 (OP-19); nothing is unsaved, so QN-5 stays down.
-  it('OP-19: once the held GRS JSON is handed over, it replaces the document and no Open Chooser stands', async () => {
+  it('OP-19: once the held GRS JSON is handed over, it replaces the document and no Open File Dialog stands', async () => {
     const run = await stage()
     const before = JSON.stringify(run.loop.document())
     run.loop.fileDropped()
@@ -239,7 +239,7 @@ describe('T-078 FT-1 -- a file drop wakes a frame', () => {
     run.handOver(there(), 'there.json')
     await settle()
     run.runFrames()
-    expect(run.last().openModal?.surface, 'OP-19 (MUST): the dropped GRS JSON raised the Open Chooser').not.toBe(OPEN_CHOOSER)
+    expect(run.last().openModal?.surface, 'OP-19 (MUST): the dropped GRS JSON raised the Open File Dialog').not.toBe(OPEN_CHOOSER)
     expect(JSON.stringify(run.loop.document()), 'OP-19 (MUST): the dropped GRS JSON did not replace the document').not.toBe(before)
   })
 })
@@ -273,6 +273,6 @@ describe('T-066 CS-4 -- the wait between the drop and the answer', () => {
     await settle()
     expect(run.framesAsked() - before, 'FT-1: the continuation across the wait woke no frame').toBeGreaterThanOrEqual(1)
     run.runFrames()
-    expect(run.last().openModal?.surface, 'OP-19: a dropped GRS JSON skips the Open Chooser').not.toBe(OPEN_CHOOSER)
+    expect(run.last().openModal?.surface, 'OP-19: a dropped GRS JSON skips the Open File Dialog').not.toBe(OPEN_CHOOSER)
   })
 })

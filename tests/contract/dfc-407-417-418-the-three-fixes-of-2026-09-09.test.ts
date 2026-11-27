@@ -10,11 +10,11 @@
 // THE CLAUSES, VERBATIM
 //
 //   DFC-417  FR-094 (`docs/spec/01-04-requirements.md`)
-//          「`GRS` は、日程表を描くときの寸法 …… 進捗マーカーと再開アイコン ……
+//          「`GRS` は、日程表を描くときの寸法 …… 進捗ステータスマークと再開マーク ……
 //          を、`_assets/tbl-settings.md` の表 T-201 に従って決めること（MUST）。
 //          同表に無い寸法を実装が独自に持ってはならない（MUST NOT）」
 //          -- and 表 T-201 の `S-24`（`markerStroke`）is the only stroke width
-//          the 進捗マーカー group keeps. ⛔ Measured 2026-09-08: the disc was
+//          the 進捗ステータスマーク group keeps. ⛔ Measured 2026-09-08: the disc was
 //          typed at 1 and its three symbols at 1.5, so turning S-24 moved none
 //          of them.
 //

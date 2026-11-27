@@ -40,18 +40,18 @@ import {
 const REQUIREMENTS = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
 const FR_107_ONLY_THESE =
-  '`GRS` は、日程表の上の直接操作では、利用者が実績（ダミーを含む）を掴んで意図して動かしたとき、または進捗マーカーを押す・引くとき（表 T-270 の `PE-8` と `PE-10` と「押下の巡り」の段）にだけ、実績の日付を変えること。'
+  '`GRS` は、`Task Group Lanes` の上の直接操作では、利用者が実績（ダミーを含む）を掴んで意図して動かしたとき、または進捗ステータスマークを押す・引くとき（表 T-270 の `PE-8` と `PE-10` と「押下の巡り」の段）にだけ、実績の日付を変えること。'
 const FR_107_NOT_ON_THE_SIDE = '（表 T-270 の `PE-8` と `PE-10` と「押下の巡り」の段）にだけ、実績の日付を変えること。'
 const T_270_EVERY_ROAD = '`GRS` は、どの操作が何を変えるかを表 T-270 に従わせること。'
 const T_270_NO_OTHER_ROAD = '`GRS` は、表 T-270 に無い直接操作で実績の日付を変えないこと。'
 const T_270_PAUSED_MARKER =
-  '⚠️ `PE-10` —— 中断の間、進捗マーカーを引いても何もしない —— 停止日を動かすのは実績の終了の端（`PE-3`）である。'
+  '⚠️ `PE-10` —— 中断の間、進捗ステータスマークを引いても何もしない —— 停止日を動かすのは実績の終了の端（`PE-3`）である。'
 const T_270_SELECTS =
   'タスクに属する行（`PE-1` ／ `PE-3` ／ `PE-6` ／ `PE-7` ／ `PE-8` ／ `PE-10` ／ `PE-11`）を押して離したとき、`GRS` は押したタスクを選ぶこと。'
 const FR_105_NO_TEXT_SELECTION =
   '`GRS` は、`Schedule Canvas`（`Time Ruler` の帯を含む）の上の押下と引く操作で、字の選択を始めないこと。'
 const FR_105_MODIFIED_TOO =
-  '`GRS` は、修飾キーを付けた割当の無い引く操作でも、字の選択を始めないこと —— 表 T-023 の `MK-12` の「ブラウザの既定動作に委ねる」に、`IMPS-1623` の 1 つの例外を置く。'
+  '`GRS` は、修飾キーを付けた割当の無い引く操作でも、字の選択を始めないこと —— 表 T-023 の `MK-12` の「ブラウザーの既定動作に委ねる」に、`IMPS-1623` の 1 つの例外を置く。'
 const T_270_PE_0_EVERYWHERE = '⚠️ `Schedule Canvas` の上で字の選択を始めない規則（`IMPS-1622`）は、押下でも引く操作でも同じである —— 表 T-270 の `PE-0` が全数を持つ。'
 const FR_105_RIGHT_BUTTON_LEFT_ALONE =
   '`GRS` は、' +
@@ -162,7 +162,7 @@ describe('PE-0 -- 日程表のどこでも, a press and a drag start no text sel
       y: (box.y0 + box.y1) / 2,
     })
     return [
-      { what: 'Task Group Area', at: mid(frame.taskGroupArea) },
+      { what: 'Task Group Lanes', at: mid(frame.taskGroupArea) },
       { what: 'Time Ruler', at: mid(frame.ruler) },
     ]
   }
@@ -346,7 +346,7 @@ describe(`PE-8 -- ${cellOf('PE-8', GRABBED)}`, () => {
   })
 })
 
-describe('PE-10 -- 進捗マーカー（それ以外）', () => {
+describe('PE-10 -- 進捗ステータスマーク（それ以外）', () => {
   const ELSEWHERE: readonly { readonly what: string; readonly uid: number }[] = [
     { what: '実績の中', uid: WIDE_UID },
     { what: '--->', uid: ARROW_UID },
@@ -405,7 +405,7 @@ describe('PE-12 -- 依存線', () => {
   })
 })
 
-describe('PE-13 -- 再開アイコン', () => {
+describe('PE-13 -- 再開マーク', () => {
   it(`PE-13 on release: ${cellOf('PE-13', ON_RELEASE)}`, () => {
     const one = built()
     const before = JSON.stringify(one.loop.document().schedule)

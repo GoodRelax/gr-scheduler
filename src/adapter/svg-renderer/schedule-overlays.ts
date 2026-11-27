@@ -98,7 +98,7 @@ const WATERMARK_ROLE = 'Watermark'
 const JUMP_LANDING_RING_ROLE = 'Jump Landing Ring'
 
 // Spec: RW-13, S-573
-const RELATED_TASK_RING_ROLE = 'Jump Landing Related Ring'
+const RELATED_TASK_RING_ROLE = 'Jump Related Ring'
 
 const UNDECIDED_PARENT_MARK = '?'
 

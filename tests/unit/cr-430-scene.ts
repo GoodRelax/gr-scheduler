@@ -52,7 +52,7 @@ export const COLUMN_TARGET = '掴む所'
 export const COLUMN_ANCHOR = '基準点'
 export const COLUMN_ACROSS = '横'
 export const COLUMN_DOWN = '縦（帯 ＋ 上下）'
-export const COLUMN_POINTER = 'ポインタ（表 T-269）'
+export const COLUMN_POINTER = 'ポインター（表 T-269）'
 
 // Spec: T-266
 export const grabTaskGroups = (): readonly GrabTaskGroup[] =>

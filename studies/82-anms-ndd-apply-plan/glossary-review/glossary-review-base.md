@@ -8,14 +8,14 @@
 
 | 区分 | 語の数 |
 | --- | ---: |
-| 画面に出る語 | 92 |
+| 画面に出る語 | 90 |
 | MCP の説明だけに出る語 | 2 |
 | 外との約束の群にあり、凍結した契約で突き合わなかった語 | 4 |
 | 仕様とコードの中だけの語 | 425 |
-| 確かめ済み（拠り所あり） | 1048 |
-| 計 | 1571 |
+| 確かめ済み（拠り所あり） | 1049 |
+| 計 | 1570 |
 
-## 画面に出る語（92 語）
+## 画面に出る語（90 語）
 
 | # | キー | 英語の名 | 日本語の名 | 持ち主 | 群 | 意味（英語） |
 | ---: | --- | --- | --- | --- | --- | --- |
@@ -31,86 +31,84 @@
 | 10 | `armedShape` | ArmedShape | 構え |  | そのほかの UI パーツ | The Armed Shape: what the next drag will create or link, chosen on the palette. It is not a selection. |
 | 11 | `marquee` | Marquee | 範囲選択 |  | そのほかの UI パーツ | Marquee: selecting by dragging a rectangle from a place that hits nothing. |
 | 12 | `guideCursor` | Guide Cursor | ガイドカーソル |  | そのほかの UI パーツ | The Guide Cursor: the line that follows the pointer, as a crosshair or a single vertical line. |
-| 13 | `canvasOverlays` | Canvas Overlays | Canvas Overlays |  | そのほかの UI パーツ | The Canvas Overlays: a structure name for what is drawn over the Schedule Canvas; not shown on screen. |
-| 14 | `watermarkUnlockPassword` | Watermark Unlock Password | 透かし解除パスワード |  | そのほかの UI パーツ | The Watermark Unlock Password: the password asked before the watermark is hidden. |
-| 15 | `timeAxisLevelOfDetail` | timeAxisLevelOfDetail | timeAxisLevelOfDetail |  | そのほかの UI パーツ | Time axis level of detail: how fine the Time Ruler is, from years down to days and weekdays, following the horizontal zoom. |
-| 16 | `groupLevelOfDetail` | groupLevelOfDetail | groupLevelOfDetail |  | そのほかの UI パーツ | Group level of detail: deep task groups are not drawn when the vertical size is small. |
-| 17 | `exportFormats` | exportFormats | exportFormats |  | そのほかの UI パーツ | The export formats offered in the Save As Dialog. |
-| 18 | `mspdiXmlFormat` | MSPDI XML | MSPDI XML |  | そのほかの UI パーツ | MSPDI XML: the exchange format for other scheduling tools. |
-| 19 | `singleHtmlFormat` | Single HTML | 単一 HTML |  | そのほかの UI パーツ | Single HTML: one .html file that holds GRS and the document together. |
-| 20 | `placeGroup` | Place | 置く |  | パレットグループ | The palette group of entries that arm a task shape or a milestone shape. |
-| 21 | `alignGroup` | Align | 揃える |  | パレットグループ | The palette group of entries that arm a dependency line or an annotation, and that align the selection to its start or finish. |
-| 22 | `displayGroup` | Display | 表示 |  | パレットグループ | The palette group of entries that show or hide parts of the drawing. |
-| 23 | `cursorsGroup` | Cursors | カーソル |  | パレットグループ | The palette group of the planned dates, status date and cursor entries. |
-| 24 | `highlightBoxIcon` | Highlight Box | ハイライトボックス |  | アイコン | Highlight Box: drag over the range to enclose |
-| 25 | `alignToStartIcon` | Align to Start | 開始日で揃える |  | アイコン | Align the selected items to their start |
-| 26 | `alignToFinishIcon` | Align to Finish | 終了日で揃える |  | アイコン | Align the selected items to their finish |
-| 27 | `progressLineIcon` | Progress Line | イナズマ線 |  | アイコン | Show or hide the Progress Line |
-| 28 | `dateGridLinesIcon` | Date Grid Lines | 日付罫線 |  | アイコン | Show or hide the Date Grid Lines |
-| 29 | `assigneeLabelIcon` | Assignee Label | 担当ラベル |  | アイコン | Show or hide the Assignee Label |
-| 30 | `percentCompleteLabelIcon` | Percent Complete Label | 完了率ラベル |  | アイコン | Show or hide the Percent Complete Label |
-| 31 | `stackDirectionIcon` | Stack Direction | 日程が重複するタスクを積む向き |  | アイコン | Swap the direction the bars are stacked in, up or down |
-| 32 | `plannedDatesIcon` | Planned Dates | 予定日 |  | アイコン | Show or hide the planned dates to the right of task and milestone names |
-| 33 | `statusDateIcon` | Status Date | 基準日 |  | アイコン | Place, move, or clear the status date; the Status Line is drawn there |
-| 34 | `crosshairIcon` | Crosshair | 十字 |  | アイコン | Turn the crosshair Guide Cursor on or off |
-| 35 | `singleVerticalIcon` | Single Vertical | 縦 1 本 |  | アイコン | Turn the single vertical Guide Cursor on or off |
-| 36 | `closeIcon` | Close | 閉じる |  | アイコン | Close the open window; Esc closes it too |
-| 37 | `dragToMoveIcon` | Drag to Move | 掴んで動かす |  | アイコン | Grab here to move the Command Palette |
-| 38 | `minimizePaletteIcon` | Minimize | 最小化 |  | アイコン | Minimize or restore the Command Palette |
-| 39 | `wheelIcon` | Wheel | ホイール |  | アイコン | Marks turning the mouse wheel |
-| 40 | `helpLanguageIcon` | Help Language | ヘルプの言語 |  | アイコン | Choose the language of the help only; the current one shows on the entry |
-| 41 | `pinIcon` | Pin | ピン止め |  | アイコン | Pin or unpin the task group so it stays on screen |
-| 42 | `deleteTaskGroupIcon` | Delete Task Group | タスクグループを削除 |  | アイコン | Delete this task group, the task groups below it and the tasks they carry |
-| 43 | `deleteAllTaskGroupsIcon` | Delete All Task Groups | すべてのタスクグループを削除 |  | アイコン | Delete all task groups and the tasks they carry |
-| 44 | `tasksIcon` | Tasks | タスク |  | アイコン | Show the table of tasks and milestones |
-| 45 | `minimizeWindowIcon` | Minimize | 最小化 |  | アイコン | Minimize or restore the window |
-| 46 | `maximizeIcon` | Maximize | 最大化 |  | アイコン | Maximize the window |
-| 47 | `restoreIcon` | Restore | 元のサイズに戻す |  | アイコン | Restore the window to its size |
-| 48 | `adoptAllRecommendedIcon` | Adopt All Recommended | 推奨案をすべて採用する |  | アイコン | Check every automatic row and every row with one choice |
-| 49 | `selectedIcon` | Selected | 選択中 |  | アイコン | This resource is selected; click to deselect it |
-| 50 | `notSelectedIcon` | Not Selected | 未選択 |  | アイコン | This resource is not selected; click to select it |
-| 51 | `addTimeRangeIcon` | + | ＋ |  | アイコン | Add a working-time range |
-| 52 | `deleteTimeRangeIcon` | Delete | 削除 |  | アイコン | Delete this range (the document changes only when applied) |
-| 53 | `timeIcon` | Time | 時刻 |  | アイコン | Type a time to the minute (e.g. 8:00; an end of 0:00 is 24:00) |
-| 54 | `replaceIcon` | Replace | 置き換える |  | アイコン | Replace the current document with the file being opened |
-| 55 | `mergeIcon` | Merge | 合流させる |  | アイコン | Add the contents of the file being opened to the current document |
-| 56 | `interactionLogIcon` | Interaction Log | デバッグ用ログ取得の開始/停止 |  | アイコン | Start or stop recording pointer input and drawing; stopping puts the record on the clipboard |
-| 57 | `useOpenedFileIcon` | Use Opened File | 開いたファイルから取る |  | アイコン | Take the duplicated tasks from the file that was opened |
-| 58 | `keepBothIcon` | Keep Both | 両方とも残す |  | アイコン | Keep the duplicated tasks as separate things, both of them; the added ones can no longer be written back to their master |
-| 59 | `timeShiftIcon` | Time Shift | タイムシフト |  | アイコン | Shift every schedule date-time by the amount entered; asks first |
-| 60 | `taskPlannedDateField` | Planned Date | 予定日 | Task | プロパティパネルの欄 | The Properties Panel field that shows and edits the planned date of the selected task. |
-| 61 | `taskActualDateField` | Actual Date | 実績日 | Task | プロパティパネルの欄 | The Properties Panel field that shows and edits the actual date of the selected task. |
-| 62 | `taskMilestoneShapeField` | Milestone Shape | マイルストーン形状 | Task | プロパティパネルの欄 | The Properties Panel field that shows and edits the milestone shape of the selected task. |
-| 63 | `dependencyTypeField` | Type | 種別 | Dependency | プロパティパネルの欄 | The Properties Panel field that shows and edits the type of the selected dependency. |
-| 64 | `dependencyLagField` | Lag | ラグ | Dependency | プロパティパネルの欄 | The Properties Panel field that shows and edits the lag of the selected dependency. |
-| 65 | `dependencyPredecessorField` | Predecessor | 先行 | Dependency | プロパティパネルの欄 | The Properties Panel field that shows and edits the predecessor of the selected dependency. |
-| 66 | `dependencySuccessorField` | Successor | 後続 | Dependency | プロパティパネルの欄 | The Properties Panel field that shows and edits the successor of the selected dependency. |
-| 67 | `fixTablesTaskTypeColumn` | Task Type | タスク種別 | fixTables | 表の列 | The column Task Type of the fix proposal and fix log tables of the Delay Diagnosis Report Window. |
-| 68 | `inputNotAccepted` | inputNotAccepted | inputNotAccepted |  | 通知の作法 | A manner of notice: When input is not accepted. |
-| 69 | `timedNotification` | timedNotification | timedNotification |  | 通知の作法 | A manner of notice: A notification that goes away with time. |
-| 70 | `destructiveResult` | destructiveResult | destructiveResult |  | 通知の作法 | A manner of notice: When the result is destructive. |
-| 71 | `failureNotification` | failureNotification | failureNotification |  | 通知の作法 | A manner of notice: A notification of failure. |
-| 72 | `pendingAtStartup` | pendingAtStartup | pendingAtStartup |  | 通知の作法 | A manner of notice: Matters pending at startup. |
-| 73 | `limitReached` | limitReached | limitReached |  | 通知の作法 | A manner of notice: When the limit is reached. |
-| 74 | `acceptedWithCaution` | acceptedWithCaution | acceptedWithCaution |  | 通知の作法 | A manner of notice: When a caution accompanies acceptance. |
-| 75 | `askWhetherToGoOn` | askWhetherToGoOn | askWhetherToGoOn |  | 通知の作法 | A manner of notice: When asking whether to go on. |
-| 76 | `dismissNotification` | dismissNotification | dismissNotification |  | 通知の作法 | A manner of notice: When a told notification is dismissed. |
-| 77 | `notificationWidth` | notificationWidth | notificationWidth |  | 通知の作法 | A manner of notice: How wide the box of a notification is. |
-| 78 | `deleteTaskGroupQuestion` | deleteTaskGroupQuestion | deleteTaskGroupQuestion |  | 問い | The question that asks: "Delete this task group and the tasks on it?" |
-| 79 | `deleteTaskQuestion` | deleteTaskQuestion | deleteTaskQuestion |  | 問い | The question that asks: "Delete this task and the tasks under it?" |
-| 80 | `deleteResourcesQuestion` | deleteResourcesQuestion | deleteResourcesQuestion |  | 問い | The question that asks: "Delete the selected resources? They will be unassigned from the tasks below." |
-| 81 | `overwriteOtherDocumentQuestion` | overwriteOtherDocumentQuestion | overwriteOtherDocumentQuestion |  | 問い | The question that asks: "This is not the document that was opened. Overwrite it? The changes made since will be lost." |
-| 82 | `closeDocumentQuestion` | closeDocumentQuestion | closeDocumentQuestion |  | 問い | The question that asks: "Close the current document? Unsaved edits and the undo history will be lost." |
-| 83 | `hideWatermarkQuestion` | hideWatermarkQuestion | hideWatermarkQuestion |  | 問い | The question that asks: "Hide the watermark? This needs the watermark unlock password. The watermark is a record that this was on screen, not access control." |
-| 84 | `deleteAllTaskGroupsQuestion` | deleteAllTaskGroupsQuestion | deleteAllTaskGroupsQuestion |  | 問い | The question that asks: "Delete all task groups and the tasks on them?" |
-| 85 | `resetGrsQuestion` | resetGrsQuestion | resetGrsQuestion |  | 問い | The question that asks: "Reset GRS? What GRS keeps in this browser (such as the display language) is cleared and the page is reloaded. Unsaved edits, if any, are lost too." |
-| 86 | `tasksOrParentArrowsQuestion` | tasksOrParentArrowsQuestion | tasksOrParentArrowsQuestion |  | 問い | The question that asks: "Tasks and parent arrows are selected together. Which do you want to select?" |
-| 87 | `timeShiftQuestion` | timeShiftQuestion | timeShiftQuestion |  | 問い | The question that asks: "Run the Time Shift and move every schedule date-time at once? What will be rewritten is shown below. One Undo brings it back." |
-| 88 | `wholeScheduleShiftQuestion` | wholeScheduleShiftQuestion | wholeScheduleShiftQuestion |  | 問い | The question that asks: "Shift the whole schedule to the new start date? What will be rewritten is shown below. One Undo brings it back." |
-| 89 | `liftTooDeepTaskGroupsQuestion` | liftTooDeepTaskGroupsQuestion | liftTooDeepTaskGroupsQuestion |  | 問い | The question that asks: "Task groups nest at most {maxGroupDepth} levels. Lift the too-deep task groups to level {maxGroupDepth} and finish the move?" |
-| 90 | `aiOpenFileQuestion` | aiOpenFileQuestion | aiOpenFileQuestion |  | 問い | The question that asks: "The AI asks you to open a file. Open the file window?" |
-| 91 | `irreversibleOperationQuestion` | irreversibleOperationQuestion | irreversibleOperationQuestion |  | 問い | The question that asks: "Continue? This can't be undone." |
-| 92 | `rulerFontSizePx` | Ruler Font Size | 目盛の文字 |  | タイムルーラー | The size of the text of the Time Ruler in pixels. |
+| 13 | `watermarkUnlockPassword` | Watermark Unlock Password | 透かし解除パスワード |  | そのほかの UI パーツ | The Watermark Unlock Password: the password asked before the watermark is hidden. |
+| 14 | `timeAxisLevelOfDetail` | timeAxisLevelOfDetail | timeAxisLevelOfDetail |  | そのほかの UI パーツ | Time axis level of detail: how fine the Time Ruler is, from years down to days and weekdays, following the horizontal zoom. |
+| 15 | `groupLevelOfDetail` | groupLevelOfDetail | groupLevelOfDetail |  | そのほかの UI パーツ | Group level of detail: deep task groups are not drawn when the vertical size is small. |
+| 16 | `exportFormats` | exportFormats | exportFormats |  | そのほかの UI パーツ | The export formats offered in the Save As Dialog. |
+| 17 | `mspdiXmlFormat` | MSPDI XML | MSPDI XML |  | そのほかの UI パーツ | MSPDI XML: the exchange format for other scheduling tools. |
+| 18 | `placeGroup` | Place | 置く |  | パレットグループ | The palette group of entries that arm a task shape or a milestone shape. |
+| 19 | `alignGroup` | Align | 揃える |  | パレットグループ | The palette group of entries that arm a dependency line or an annotation, and that align the selection to its start or finish. |
+| 20 | `displayGroup` | Display | 表示 |  | パレットグループ | The palette group of entries that show or hide parts of the drawing. |
+| 21 | `cursorsGroup` | Cursors | カーソル |  | パレットグループ | The palette group of the planned dates, status date and cursor entries. |
+| 22 | `highlightBoxIcon` | Highlight Box | ハイライトボックス |  | アイコン | Highlight Box: drag over the range to enclose |
+| 23 | `alignToStartIcon` | Align to Start | 開始日で揃える |  | アイコン | Align the selected items to their start |
+| 24 | `alignToFinishIcon` | Align to Finish | 終了日で揃える |  | アイコン | Align the selected items to their finish |
+| 25 | `progressLineIcon` | Progress Line | イナズマ線 |  | アイコン | Show or hide the Progress Line |
+| 26 | `dateGridLinesIcon` | Date Grid Lines | 日付罫線 |  | アイコン | Show or hide the Date Grid Lines |
+| 27 | `assigneeLabelIcon` | Assignee Label | 担当ラベル |  | アイコン | Show or hide the Assignee Label |
+| 28 | `percentCompleteLabelIcon` | Percent Complete Label | 完了率ラベル |  | アイコン | Show or hide the Percent Complete Label |
+| 29 | `stackDirectionIcon` | Stack Direction | 日程が重複するタスクを積む向き |  | アイコン | Swap the direction the bars are stacked in, up or down |
+| 30 | `plannedDatesIcon` | Planned Dates | 予定日 |  | アイコン | Show or hide the planned dates to the right of task and milestone names |
+| 31 | `statusDateIcon` | Status Date | 基準日 |  | アイコン | Place, move, or clear the status date; the Status Line is drawn there |
+| 32 | `crosshairIcon` | Crosshair | 十字 |  | アイコン | Turn the crosshair Guide Cursor on or off |
+| 33 | `singleVerticalIcon` | Single Vertical | 縦 1 本 |  | アイコン | Turn the single vertical Guide Cursor on or off |
+| 34 | `closeIcon` | Close | 閉じる |  | アイコン | Close the open window; Esc closes it too |
+| 35 | `dragToMoveIcon` | Drag to Move | 掴んで動かす |  | アイコン | Grab here to move the Command Palette |
+| 36 | `minimizePaletteIcon` | Minimize | 最小化 |  | アイコン | Minimize or restore the Command Palette |
+| 37 | `wheelIcon` | Wheel | ホイール |  | アイコン | Marks turning the mouse wheel |
+| 38 | `helpLanguageIcon` | Help Language | ヘルプの言語 |  | アイコン | Choose the language of the help only; the current one shows on the entry |
+| 39 | `pinIcon` | Pin | ピン止め |  | アイコン | Pin or unpin the task group so it stays on screen |
+| 40 | `deleteTaskGroupIcon` | Delete Task Group | タスクグループを削除 |  | アイコン | Delete this task group, the task groups below it and the tasks they carry |
+| 41 | `deleteAllTaskGroupsIcon` | Delete All Task Groups | すべてのタスクグループを削除 |  | アイコン | Delete all task groups and the tasks they carry |
+| 42 | `tasksIcon` | Tasks | タスク |  | アイコン | Show the table of tasks and milestones |
+| 43 | `minimizeWindowIcon` | Minimize | 最小化 |  | アイコン | Minimize or restore the window |
+| 44 | `maximizeIcon` | Maximize | 最大化 |  | アイコン | Maximize the window |
+| 45 | `restoreIcon` | Restore | 元のサイズに戻す |  | アイコン | Restore the window to its size |
+| 46 | `adoptAllRecommendedIcon` | Adopt All Recommended | 推奨案をすべて採用する |  | アイコン | Check every automatic row and every row with one choice |
+| 47 | `selectedIcon` | Selected | 選択中 |  | アイコン | This resource is selected; click to deselect it |
+| 48 | `notSelectedIcon` | Not Selected | 未選択 |  | アイコン | This resource is not selected; click to select it |
+| 49 | `addTimeRangeIcon` | + | ＋ |  | アイコン | Add a working-time range |
+| 50 | `deleteTimeRangeIcon` | Delete | 削除 |  | アイコン | Delete this range (the document changes only when applied) |
+| 51 | `timeIcon` | Time | 時刻 |  | アイコン | Type a time to the minute (e.g. 8:00; an end of 0:00 is 24:00) |
+| 52 | `replaceIcon` | Replace | 置き換える |  | アイコン | Replace the current document with the file being opened |
+| 53 | `mergeIcon` | Merge | 合流させる |  | アイコン | Add the contents of the file being opened to the current document |
+| 54 | `interactionLogIcon` | Interaction Log | デバッグ用ログ取得の開始/停止 |  | アイコン | Start or stop recording pointer input and drawing; stopping puts the record on the clipboard |
+| 55 | `useOpenedFileIcon` | Use Opened File | 開いたファイルから取る |  | アイコン | Take the duplicated tasks from the file that was opened |
+| 56 | `keepBothIcon` | Keep Both | 両方とも残す |  | アイコン | Keep the duplicated tasks as separate things, both of them; the added ones can no longer be written back to their master |
+| 57 | `timeShiftIcon` | Time Shift | タイムシフト |  | アイコン | Shift every schedule date-time by the amount entered; asks first |
+| 58 | `taskPlannedDateField` | Planned Date | 予定日 | Task | プロパティパネルの欄 | The Properties Panel field that shows and edits the planned date of the selected task. |
+| 59 | `taskActualDateField` | Actual Date | 実績日 | Task | プロパティパネルの欄 | The Properties Panel field that shows and edits the actual date of the selected task. |
+| 60 | `taskMilestoneShapeField` | Milestone Shape | マイルストーン形状 | Task | プロパティパネルの欄 | The Properties Panel field that shows and edits the milestone shape of the selected task. |
+| 61 | `dependencyTypeField` | Type | 種別 | Dependency | プロパティパネルの欄 | The Properties Panel field that shows and edits the type of the selected dependency. |
+| 62 | `dependencyLagField` | Lag | ラグ | Dependency | プロパティパネルの欄 | The Properties Panel field that shows and edits the lag of the selected dependency. |
+| 63 | `dependencyPredecessorField` | Predecessor | 先行 | Dependency | プロパティパネルの欄 | The Properties Panel field that shows and edits the predecessor of the selected dependency. |
+| 64 | `dependencySuccessorField` | Successor | 後続 | Dependency | プロパティパネルの欄 | The Properties Panel field that shows and edits the successor of the selected dependency. |
+| 65 | `fixTablesTaskTypeColumn` | Task Type | タスク種別 | fixTables | 表の列 | The column Task Type of the fix proposal and fix log tables of the Delay Diagnosis Report Window. |
+| 66 | `inputNotAccepted` | inputNotAccepted | inputNotAccepted |  | 通知の作法 | A manner of notice: When input is not accepted. |
+| 67 | `timedNotification` | timedNotification | timedNotification |  | 通知の作法 | A manner of notice: A notification that goes away with time. |
+| 68 | `destructiveResult` | destructiveResult | destructiveResult |  | 通知の作法 | A manner of notice: When the result is destructive. |
+| 69 | `failureNotification` | failureNotification | failureNotification |  | 通知の作法 | A manner of notice: A notification of failure. |
+| 70 | `pendingAtStartup` | pendingAtStartup | pendingAtStartup |  | 通知の作法 | A manner of notice: Matters pending at startup. |
+| 71 | `limitReached` | limitReached | limitReached |  | 通知の作法 | A manner of notice: When the limit is reached. |
+| 72 | `acceptedWithCaution` | acceptedWithCaution | acceptedWithCaution |  | 通知の作法 | A manner of notice: When a caution accompanies acceptance. |
+| 73 | `askWhetherToGoOn` | askWhetherToGoOn | askWhetherToGoOn |  | 通知の作法 | A manner of notice: When asking whether to go on. |
+| 74 | `dismissNotification` | dismissNotification | dismissNotification |  | 通知の作法 | A manner of notice: When a told notification is dismissed. |
+| 75 | `notificationWidth` | notificationWidth | notificationWidth |  | 通知の作法 | A manner of notice: How wide the box of a notification is. |
+| 76 | `deleteTaskGroupQuestion` | deleteTaskGroupQuestion | deleteTaskGroupQuestion |  | 問い | The question that asks: "Delete this task group and the tasks on it?" |
+| 77 | `deleteTaskQuestion` | deleteTaskQuestion | deleteTaskQuestion |  | 問い | The question that asks: "Delete this task and the tasks under it?" |
+| 78 | `deleteResourcesQuestion` | deleteResourcesQuestion | deleteResourcesQuestion |  | 問い | The question that asks: "Delete the selected resources? They will be unassigned from the tasks below." |
+| 79 | `overwriteOtherDocumentQuestion` | overwriteOtherDocumentQuestion | overwriteOtherDocumentQuestion |  | 問い | The question that asks: "This is not the document that was opened. Overwrite it? The changes made since will be lost." |
+| 80 | `closeDocumentQuestion` | closeDocumentQuestion | closeDocumentQuestion |  | 問い | The question that asks: "Close the current document? Unsaved edits and the undo history will be lost." |
+| 81 | `hideWatermarkQuestion` | hideWatermarkQuestion | hideWatermarkQuestion |  | 問い | The question that asks: "Hide the watermark? This needs the watermark unlock password. The watermark is a record that this was on screen, not access control." |
+| 82 | `deleteAllTaskGroupsQuestion` | deleteAllTaskGroupsQuestion | deleteAllTaskGroupsQuestion |  | 問い | The question that asks: "Delete all task groups and the tasks on them?" |
+| 83 | `resetGrsQuestion` | resetGrsQuestion | resetGrsQuestion |  | 問い | The question that asks: "Reset GRS? What GRS keeps in this browser (such as the display language) is cleared and the page is reloaded. Unsaved edits, if any, are lost too." |
+| 84 | `tasksOrParentArrowsQuestion` | tasksOrParentArrowsQuestion | tasksOrParentArrowsQuestion |  | 問い | The question that asks: "Tasks and parent arrows are selected together. Which do you want to select?" |
+| 85 | `timeShiftQuestion` | timeShiftQuestion | timeShiftQuestion |  | 問い | The question that asks: "Run the Time Shift and move every schedule date-time at once? What will be rewritten is shown below. One Undo brings it back." |
+| 86 | `wholeScheduleShiftQuestion` | wholeScheduleShiftQuestion | wholeScheduleShiftQuestion |  | 問い | The question that asks: "Shift the whole schedule to the new start date? What will be rewritten is shown below. One Undo brings it back." |
+| 87 | `liftTooDeepTaskGroupsQuestion` | liftTooDeepTaskGroupsQuestion | liftTooDeepTaskGroupsQuestion |  | 問い | The question that asks: "Task groups nest at most {maxGroupDepth} levels. Lift the too-deep task groups to level {maxGroupDepth} and finish the move?" |
+| 88 | `aiOpenFileQuestion` | aiOpenFileQuestion | aiOpenFileQuestion |  | 問い | The question that asks: "The AI asks you to open a file. Open the file window?" |
+| 89 | `irreversibleOperationQuestion` | irreversibleOperationQuestion | irreversibleOperationQuestion |  | 問い | The question that asks: "Continue? This can't be undone." |
+| 90 | `rulerFontSizePx` | Ruler Font Size | 目盛の文字 |  | タイムルーラー | The size of the text of the Time Ruler in pixels. |
 
 ## MCP の説明だけに出る語（2 語）
 
@@ -558,7 +556,7 @@
 | 424 | `mcpRelayServer` | McpRelayServer | McpRelayServer |  | framework の層 | Carries an MCP client's calls to the page it served on 127.0.0.1 and holds the key, the connected page, the pending calls and the queued notices. (src/framework/mcp-relay-server) |
 | 425 | `singleHtmlShell` | SingleHtmlShell | SingleHtmlShell |  | framework の層 | Boots the page, wires every part together, holds the slot of the embedded document and installs the point where the Agent API is exposed. (src/framework/single-html-shell) |
 
-## 仕様の表（`tbl-glossary.md`）と辞書で名が違う語（54 語）
+## 仕様の表（`tbl-glossary.md`）と辞書で名が違う語（43 語）
 
 辞書の名は持ち主が裁定した名か、レビューで量る名である。裁定した名は CR-855 が改名の手順で仕様へ当てる。
 
@@ -598,34 +596,24 @@
 | K-140 | `parentTaskProgressToleranceWorkingDays` | `parentTaskProgressToleranceDays` | Parent Task Progress Tolerance | 遅延診断時に親タスクの進捗の疑義を許す日数 | JDG-3496 JDG-3512 JDG-3519 JDG-3605 JDG-3781 JDG-3807 |
 | K-86 | `mspdiImportCount` | `importSequence` | mspdiImportCount | mspdiImportCount | JDG-3556 JDG-3605 JDG-3618 JDG-3627 JDG-3807 |
 | U-45 | `grsType` | `GoodRelax Scheduler` | GRS | GRS | JDG-3524 |
-| U-27 | `projectTitle` | `Document Title` | Project Title | プロジェクトタイトル | JDG-3355 JDG-3365 |
-| U-30 | `helpWindow` | `Help Modal` | Help Window | ヘルプウィンドウ | JDG-3356 |
-| U-64 | `searchWindow` | `Search Panel` | Search Window | 検索ウィンドウ | JDG-3356 |
 | U-49 | `resourceListWindow` | `Resource List` | Resource List Window | 担当リストウィンドウ | JDG-3356 |
-| U-66 | `delayDiagnosisReportWindow` | `Delay Diagnostics Report` | Delay Diagnosis Report Window | 遅延診断レポートウィンドウ | JDG-3512 JDG-3698 |
+| U-66 | `delayDiagnosisReportWindow` | `Delay Diagnosis Report` | Delay Diagnosis Report Window | 遅延診断レポートウィンドウ | JDG-3512 JDG-3698 |
 | U-65 | `holidaySettingsWindow` | `Holiday Settings` | Holiday Settings Window | 休日設定ウィンドウ | JDG-3356 JDG-3365 JDG-3464 |
-| U-54 | `saveAsDialog` | `Export Chooser` | Save As Dialog | 別名保存ダイアログ | JDG-3356 JDG-3364 |
-| U-56 | `openFileDialog` | `Open Chooser` | Open File Dialog | ファイルオープンダイアログ | JDG-3356 JDG-3363 JDG-3434 |
 | U-60 | `watermarkUnlockDialog` | `Watermark Unlock` | Watermark Unlock Dialog | 透かし解除ダイアログ | JDG-3356 |
 | U-61 | `differenceReviewDialog` | `Difference Review` | Difference Review Dialog | 差分確認ダイアログ | JDG-3356 JDG-3363 |
 | U-62 | `importReportDialog` | `Import Report` | Import Report Dialog | 読込報告ダイアログ | JDG-3356 JDG-3363 |
 | U-55 | `confirmationMessage` | `Confirmation` | Confirmation Message | 確認メッセージ | JDG-3363 JDG-3364 |
-| U-50 | `taskGroupLanes` | `Task Group Area` | Task Group Lanes | タスクグループレーンズ | JDG-3361 JDG-3374 |
 | U-1 | `taskGroupLane` | `Task Groups` | Task Group Lane | タスクグループレーン | JDG-3361 JDG-3374 JDG-3733 |
-| U-52 | `actualDummy` | `Actual Operation Dummy` | Actual Dummy | 実績ダミー | JDG-3375 |
-| U-6 | `resumeMark` | `Resume Icon` | Resume Mark | 再開マーク | JDG-3372 |
-| U-43 | `grabArea` | `Grab Region` / `Grab Point` | Grab Area | 掴み領域 | JDG-3366 |
-| U-47 | `taskGroupButtons` | `Task Group Expander` | Task Group Buttons | タスクグループボタン | JDG-3368 |
-| U-48 | `pinButton` | `Task Group Pin` | Pin Button | ピン止めボタン | JDG-3368 |
 | U-37 | `watermarkUnlockPassword` | `WatermarkUnlockPassword` | Watermark Unlock Password | 透かし解除パスワード | — |
 
-## 前の名を別の語が名に使う例（2 件）
+## 前の名を別の語が名に使う例（3 件）
 
 基準書の付録 A.2 は、前の名を別の語に使い回さないとする。下の名は持ち主が凍結した契約で決めたので、持ち主が扱いを決める。
 
 | キー | 前の名 | 今その名を持つ語 | 改名の拠り所 |
 | --- | --- | --- | --- |
 | `cursors` | `Cursors` | `cursorsGroup` | JDG-3375 JDG-3901 |
+| `singleHtmlFormat` | `Single HTML` | `singleHtml` | JDG-3353 |
 | `commandRefusal` | `Refusal` | `refusalType` | JDG-3781 |
 
 ## 仕様の表がまだ前の名を印字する語（11 語）
@@ -646,7 +634,7 @@
 | K-83 | `isTaskGroupGridLinesVisible` | `isGroupGridLinesVisible` | `isTaskGroupGridLinesVisible` | JDG-3745 |
 | K-73 | `taskPlacementDirection` | `stackDirection` | `taskPlacementDirection` | JDG-3731 |
 
-## 仕様の表が辞書に無い名で書く名（58 件）
+## 仕様の表が辞書に無い名で書く名（56 件）
 
 `glossary-tables.json` の名の欄が、置き換えの印（`{written:キー}` ほか）でなく、名をじかに書いている。辞書はこの名を、語の名としても `renames[].from` としても持たない。辞書が改名か語を持てば、CR-855 が欄を置き換えの印に直す。
 
@@ -665,31 +653,29 @@
 | P-21 | `fadeOutDays` | `startSlopeCalendarDays`: `startSlopeCalendarDays`, `finishSlopeCalendarDays`: `finishSlopeCalendarDays` |
 | U-1 | `Task Groups` | `taskGroupLane`: `taskGroupLane` |
 | U-5 | `Progress Status Mark` | `progressMark`: `progressMark` |
-| U-6 | `Resume Icon` | `resumeMark`: `resumeMark` |
-| U-14 | `Comment Boxes` | `commentBoxGraphic`: `commentBoxGraphic` |
+| U-6 | `Resume Mark` | `resumeMark`: `resumeMark` |
+| U-14 | `Comment Box` | `commentBoxGraphic`: `commentBoxGraphic` |
 | U-15 | `Highlight Boxes` | `highlightBoxGraphic`: `highlightBoxGraphic` |
 | U-15a | `Annotations` | `annotation`: `Annotation` |
-| U-16 | `Dependency Lines` | `dependencyLine`: `dependencyLine` |
-| U-27 | `Document Title` | `projectTitle`: `projectTitle` |
-| U-30 | `Help Modal` | `helpWindow`: `helpWindow` |
+| U-27 | `Project Title` | `projectTitle`: `projectTitle` |
+| U-30 | `Help Window` | `helpWindow`: `helpWindow` |
 | U-34 | `Palette Commands` | `paletteGroups`: `paletteGroups` |
 | U-37 | `WatermarkUnlockPassword` | `watermarkUnlockPassword`: `watermarkUnlockPassword` |
-| U-43 | `Grab Region` | `grabPoint`: `grabPoint`, `grabArea`: `grabArea` |
+| U-43 | `Grab Area` | `grabPoint`: `grabPoint`, `grabArea`: `grabArea` |
 | U-45 | `GoodRelax Scheduler` | `grsType`: `GRS` |
-| U-47 | `Task Group Expander` | `taskGroupButtons`: `taskGroupButtons` |
-| U-48 | `Task Group Pin` | `pinButton`: `pinButton` |
+| U-48 | `Pin Button` | `pinButton`: `pinButton` |
 | U-49 | `Resource List` | `resourceListWindow`: `resourceListWindow` |
-| U-50 | `Task Group Area` | `taskGroupLanes`: `taskGroupLanes` |
-| U-52 | `Actual Operation Dummy` | `actualDummy`: `actualDummy` |
-| U-54 | `Export Chooser` | `saveAsDialog`: `saveAsDialog` |
+| U-50 | `Task Group Lanes` | `taskGroupLanes`: `taskGroupLanes` |
+| U-52 | `Actual Dummy` | `actualDummy`: `actualDummy` |
+| U-54 | `Save As Dialog` | `saveAsDialog`: `saveAsDialog` |
 | U-55 | `Confirmation` | `confirmationMessage`: `confirmationMessage` |
-| U-56 | `Open Chooser` | `openFileDialog`: `openFileDialog` |
+| U-56 | `Open File Dialog` | `openFileDialog`: `openFileDialog` |
 | U-60 | `Watermark Unlock` | `watermarkUnlockDialog`: `watermarkUnlockDialog` |
 | U-61 | `Difference Review` | `differenceReviewDialog`: `differenceReviewDialog` |
 | U-62 | `Import Report` | `importReportDialog`: `importReportDialog` |
-| U-64 | `Search Panel` | `searchWindow`: `searchWindow` |
+| U-64 | `Search Window` | `searchWindow`: `searchWindow` |
 | U-65 | `Holiday Settings` | `holidaySettingsWindow`: `holidaySettingsWindow` |
-| U-66 | `Delay Diagnostics Report` | `delayDiagnosisReportWindow`: `delayDiagnosisReportWindow` |
+| U-66 | `Delay Diagnosis Report` | `delayDiagnosisReportWindow`: `delayDiagnosisReportWindow` |
 | K-67 | `zoomX` | `dayWidthPx`: `dayWidthPx` |
 | K-68 | `zoomY` | `ratio`: `ratio` |
 | K-69 | `scrollDate` | `leftEdgeDay`: `leftEdgeDay` |

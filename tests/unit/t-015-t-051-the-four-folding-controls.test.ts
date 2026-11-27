@@ -151,7 +151,7 @@ const T_051 = specTable('T-051')
 const T_051_AT_THE_HEAD: readonly string[] = T_051.rows
   .filter((one) => {
     const said = one.cells.join(' ')
-    return said.includes('タスクグループパネルの最上部') || said.includes('`HF-10` の操作子')
+    return said.includes('タスクグループパネルの最上部') || said.includes('`HF-10` のボタン')
   })
   .map((one) => one.id)
 
@@ -648,16 +648,16 @@ describe('the manuscript still says what these cases read', () => {
     // `HR-5` is the row that keeps `HR-4` honest: the two are ONE operation.
     expect(says('T-015', 'HR-5')).toContain('`GRS` は、`HR-5` を `HR-4` と同じ操作として行うこと（見本と同じ動作に揃える）。')
     expect(says('T-051', 'HF-11')).toContain(
-      '`GRS` は、配下をすべて折りたたむ操作子で、表 T-015 の `HR-4` を行うこと（見本と同じ動作に揃える）。',
+      '`GRS` は、`Collapse Below Button` で、表 T-015 の `HR-4` を行うこと（見本と同じ動作に揃える）。',
     )
-    expect(says('T-051', 'HF-13')).toContain('`GRS` は、1 階層だけ展開する操作子の職務を 表 T-015 の `HR-7` にすること（見本と同じ動作に揃える）。')
-    expect(says('T-051', 'HF-2')).toContain('`GRS` は、展開する操作子の職務を 表 T-015 の `HR-3` にすること。')
-    expect(says('T-051', 'HF-3')).toContain('`GRS` は、親に格納する操作子の職務を 表 T-015 の `HR-6` にすること。')
+    expect(says('T-051', 'HF-13')).toContain('`GRS` は、`Expand One Level Button` の職務を 表 T-015 の `HR-7` にすること（見本と同じ動作に揃える）。')
+    expect(says('T-051', 'HF-2')).toContain('`GRS` は、`Expand Below Button` の職務を 表 T-015 の `HR-3` にすること。')
+    expect(says('T-051', 'HF-3')).toContain('`GRS` は、`Retract Into Parent Button` の職務を 表 T-015 の `HR-6` にすること。')
   })
 
   it('⛔ the closing paragraphs still tie the family together', () => {
     expect(REQUIREMENTS).toContain(
-      '`GRS` は、折りたたみの 4 つの操作子のどれでも、押したタスクグループそのものの状態を書き換えること（見本と同じ動作に揃える）。',
+      '`GRS` は、折りたたみの 4 つのボタンのどれでも、押したタスクグループそのものの状態を書き換えること（見本と同じ動作に揃える）。',
     )
     expect(REQUIREMENTS).toContain('`GRS` は、描かない向きへ働く値を、タスクグループ自身も描かない `hidden` と、タスクグループの配下を描かない `collapsed` の 2 つだけとすること（どちらも `_assets/fig-erd-detail.md` の `AT-153`）。')
     expect(REQUIREMENTS).toContain(
@@ -665,9 +665,9 @@ describe('the manuscript still says what these cases read', () => {
     )
     expect(REQUIREMENTS).toContain('`GRS` は、段 0 のために `TaskGroup` の列を足さないこと。')
     expect(REQUIREMENTS).toContain(
-      '`GRS` は、タスクグループパネルの最上部の右寄せに、すべてのタスクグループを展開する操作子を 1 つ置くこと（表 T-015 の `HR-1`）。',
+      '`GRS` は、タスクグループパネルの最上部の右寄せに、すべてのタスクグループを展開するボタンを 1 つ置くこと（表 T-015 の `HR-1`）。',
     )
-    expect(REQUIREMENTS).toContain('`GRS` は、配下をすべて折りたたむ操作子を `HF-3`（親に格納）と同じ働きにしないこと。')
+    expect(REQUIREMENTS).toContain('`GRS` は、`Collapse Below Button` を `HF-3`（親に格納）と同じ働きにしないこと。')
     expect(REQUIREMENTS).toContain('`GRS` は、押したタスクグループの状態を書き換えずに、配下の状態だけを書き換えないこと。')
     expect(REQUIREMENTS).toContain('⭐ パネルの頭は段 0 であり、タスクグループではない（`HR-2`）。')
     // Spec: HF-20
@@ -972,12 +972,12 @@ describe('表 T-015 -- HR-3 and HR-4 are one pair on one task group', () => {
 describe('表 T-015 の HR-6 -- the two ways back from a hide, and their one difference', () => {
   it('⛔ the manuscript still names both doors and says the difference is only the range', () => {
     expect(says('T-015', 'HR-6')).toContain(
-      '`GRS` は、格納したタスクグループを、親のタスクグループの「配下を 1 階層展開する」操作子（表 T-051 の `HF-13`）で戻せるようにすること。',
+      '`GRS` は、格納したタスクグループを、親のタスクグループの `Expand One Level Button`（表 T-051 の `HF-13`）で戻せるようにすること。',
     )
-    expect(says('T-015', 'HR-6')).toContain('`GRS` は、格納したタスクグループを、「配下を展開」操作子（表 T-051 の `HF-2`）でも戻せるようにすること')
+    expect(says('T-015', 'HR-6')).toContain('`GRS` は、格納したタスクグループを、`Expand Below Button`（表 T-051 の `HF-2`）でも戻せるようにすること')
     expect(says('T-015', 'HR-6')).toContain('1 本は直下の子だけ、2 本は配下のすべて')
     expect(says('T-015', 'HR-6')).toContain(
-      '`GRS` は、格納したタスクグループを戻すための専用の面や札を設けないこと。',
+      '`GRS` は、格納したタスクグループを戻すための専用の面やラベルを設けないこと。',
     )
   })
 
@@ -1193,22 +1193,22 @@ describe('表 T-051 の結び -- the head has five entrances and a task group ha
 describe('FR-029 -- the arming of every entrance the panel carries', () => {
   it('⛔ the manuscript still gives each of them its own condition', () => {
     expect(says('T-051', 'HF-2')).toContain(
-      '`GRS` は、展開する操作子を、押しても何も変わらないときだけ `FR-029` に従って薄く描くこと。',
+      '`GRS` は、`Expand Below Button` を、押しても何も変わらないときだけ `FR-029` に従って薄く描くこと。',
     )
     expect(says('T-051', 'HF-2')).toContain(
-      '`GRS` は、押したタスクグループの配下に `FR-018` の 表 T-329 で描かれていないタスクグループが 1 つでもあるとき、展開する操作子の押しが何かを変えると判ずること',
+      '`GRS` は、押したタスクグループの配下に `FR-018` の 表 T-329 で描かれていないタスクグループが 1 つでもあるとき、`Expand Below Button` の押しが何かを変えると判ずること',
     )
     expect(says('T-051', 'HF-10')).toContain(
-      '`GRS` は、描かれていないタスクグループ（`FR-018` の 表 T-329）が 1 つも無いときだけ、`HF-10` の操作子を `FR-029` に従って薄く描くこと。',
+      '`GRS` は、描かれていないタスクグループ（`FR-018` の 表 T-329）が 1 つも無いときだけ、`HF-10` のボタンを `FR-029` に従って薄く描くこと。',
     )
     expect(says('T-051', 'HF-3')).toContain(
-      '描かれているタスクグループはいつでも親に格納できるので、本操作子を薄く描く場面は無い',
+      '描かれているタスクグループはいつでも親に格納できるので、本ボタンを薄く描く場面は無い',
     )
     expect(says('T-051', 'HF-13')).toContain(
-      '展開できる直下の子が 1 つも無いとき、`GRS` は、1 階層だけ展開する操作子を `FR-029` に従って薄く描くこと。',
+      '展開できる直下の子が 1 つも無いとき、`GRS` は、`Expand One Level Button` を `FR-029` に従って薄く描くこと。',
     )
     expect(says('T-051', 'HF-16')).toContain(
-      '展開できる段が無いとき、`GRS` は、`HF-16` の操作子を `FR-029` に従って薄く描くこと。',
+      '展開できる段が無いとき、`GRS` は、`HF-16` のボタンを `FR-029` に従って薄く描くこと。',
     )
     expect(REQUIREMENTS).toContain(
       '`GRS` は、押してもいま文書にも画面にも何も変えられない入口を薄く描くこと',

@@ -64,8 +64,8 @@ const SJ_10_ABOVE_RING = '`GRS` は、選択の枠（表 T-023c の `SL-8`）と
 const SJ_10_RIPPLE =
   '`GRS` は、印を付けた時から、囲みと同じ色・太さ・角の丸みの矩形を、`S-558` の長さのあいだに囲みの所から各辺 `S-559` だけ外へ広げながら、不透明から透明へ消すこと。'
 const SJ_10_TIMES = '`GRS` は、波紋を `S-557` 回続けて出すこと。'
-const SJ_10_INSIDE = '`GRS` は、囲みと波紋を `Task Group Area`（`_assets/tbl-glossary.md` の `U-50`）の中に描くこと。'
-const SJ_10_Z = '`GRS` は、囲みと波紋を、日程表の前後（`FR-110` の 表 T-020）の `ZO-8` に描くこと（進捗マーカーと札より奥）。'
+const SJ_10_INSIDE = '`GRS` は、囲みと波紋を `Task Group Lanes`（`_assets/tbl-glossary.md` の `U-50`）の中に描くこと。'
+const SJ_10_Z = '`GRS` は、囲みと波紋を、`Task Group Lanes` の前後（`FR-110` の 表 T-020）の `ZO-8` に描くこと（進捗ステータスマークとラベルより奥）。'
 const SJ_10_REDUCED =
   '閲覧環境が動きを減らす設定（`prefers-reduced-motion: reduce`）の間、`GRS` は、波紋を出さずに囲みだけを描くこと。'
 const SJ_10_ENTRANCES =
@@ -78,23 +78,23 @@ const SJ_10_NOT_SAVED =
 const SJ_10_EXPORT = '`GRS` は、書き出す絵（`FR-080`）に飛んだ先の印を描かないこと。'
 const SJ_10_NO_GAP = '`GRS` は、飛んだ先の印で、掴み代（`FR-105`）と縦の隙間（`FR-094`）を変えないこと。'
 const SJ_5_MIDDLE =
-  '`GRS` は、飛ぶ先の予定の形（タスクは描いた予定の図形、コメントボックスは箱）の縦の中点が、ピン止めの帯（`FR-098`）の下に残る `Task Group Area`（`_assets/tbl-glossary.md` の `U-50`）の上の縁から、残る `Task Group Area` の高さに `_assets/tbl-settings.md` の `S-554` を掛けた所に来るよう、`S-78` と `S-176` を置くこと。'
+  '`GRS` は、飛ぶ先の予定の形（タスクは描いた予定の図形、コメントボックスは箱）の縦の中点が、ピン止めの帯（`FR-098`）の下に残る `Task Group Lanes`（`_assets/tbl-glossary.md` の `U-50`）の上の縁から、残る `Task Group Lanes` の高さに `_assets/tbl-settings.md` の `S-554` を掛けた所に来るよう、`S-78` と `S-176` を置くこと。'
 const SJ_5_AFTER_REVEAL = '`GRS` は、縦の位置を、`SJ-2` で展開した後の割付けで読むこと。'
 const SJ_5_FIRST = 'もし `SJ-5` の所へ置くのに最初のタスクグループより上へ送ることになる場合、`GRS` は、送れる所（`S-176` は 0 から）で止めること。'
 const SJ_6_MIDDLE =
-  '飛ぶ先の予定の形の幅が `Task Group Area` の幅から `S-428` の 2 つ分を引いた幅以下のとき、`GRS` は、形の横の中点が `Task Group Area` の横の中点に来るよう、`S-77` と `S-177` を置くこと。'
+  '飛ぶ先の予定の形の幅が `Task Group Lanes` の幅から `S-428` の 2 つ分を引いた幅以下のとき、`GRS` は、形の横の中点が `Task Group Lanes` の横の中点に来るよう、`S-77` と `S-177` を置くこと。'
 const SJ_6_WIDE =
-  '飛ぶ先の予定の形の幅が `Task Group Area` の幅から `S-428` の 2 つ分を引いた幅より広いとき、`GRS` は、飛ぶ先の日付（タスクは `AT-28`、コメントボックスは `SQ-9` と同じ線先が立つ日時）が表示の左端から `S-428` だけ内側に来るよう置くこと。'
+  '飛ぶ先の予定の形の幅が `Task Group Lanes` の幅から `S-428` の 2 つ分を引いた幅より広いとき、`GRS` は、飛ぶ先の日付（タスクは `AT-28`、コメントボックスは `SQ-9` と同じ線先が立つ日時）が表示の左端から `S-428` だけ内側に来るよう置くこと。'
 const SJ_6_OCCUPANCY =
-  '飛ぶ先の予定の形の幅が `Task Group Area` の幅から `S-428` の 2 つ分を引いた幅より広く、飛ぶ先がタスクで、表 T-038 が左へ数える占有（担当と完了率の札 `OC-2` ほか）が日付より左へ出ているとき、`GRS` は、日付ではなく占有の左端を `S-428` だけ内側に置くこと。'
+  '飛ぶ先の予定の形の幅が `Task Group Lanes` の幅から `S-428` の 2 つ分を引いた幅より広く、飛ぶ先がタスクで、表 T-038 が左へ数える占有（担当と完了率のラベル `OC-2` ほか）が日付より左へ出ているとき、`GRS` は、日付ではなく占有の左端を `S-428` だけ内側に置くこと。'
 const SJ_9_STEPS = '`GRS` は、`_assets/tbl-agent-api-members.md` の 表 T-107 の `AM-16` で、`SJ-0`・`SJ-2`・`SJ-5` 〜 `SJ-8`・`SJ-10` を行うこと。'
-const SJ_9_NO_PANEL = '`GRS` は、`AM-16` では検索パネルに触れないこと。'
+const SJ_9_NO_PANEL = '`GRS` は、`AM-16` では検索ウィンドウに触れないこと。'
 const FR_134_JUMP = '表の 1 行の名前を押したとき、`GRS` は、行の `Task` へ、`FR-151` の 表 T-332 の飛び方（`SJ-0`・`SJ-2` 〜 `SJ-8`・`SJ-10`）で飛ぶこと。'
 const PTL_16_JUMP = '`GRS` は、親の `Task` へ、`FR-151` の 表 T-332 の飛び方（`SJ-0`・`SJ-2` 〜 `SJ-8`・`SJ-10`）で飛び、親を選ぶこと。'
 const T_280_JUMP_ROW = '| `screen/searchJumpLanded` | → `shown` | → 自己（中身を書き換える） |'
 const T_280_CLEAR_ROW = '| `screen/landingMarkClearAsked` | — | → `hidden` |'
 const T_280_SHOWN_CARRIES =
-  '運ぶ値 `landedBy`（印を付けたもの —— `continuationMark`（続きの印、`EL-16`） ／ `jump`（飛び方、`SJ-10`）） ／ `landedLink`（印を付けた依存線の先行と後続の `UID`。`landedBy` が `continuationMark` のときだけ持ち、`jump` では `null`） ／ `landedTarget`（印の先の `Task` の `UID`、またはコメントボックスの id）'
+  '運ぶ値 `landedBy`（印を付けたもの —— `continuationMark`（続きマーク、`EL-16`） ／ `jump`（飛び方、`SJ-10`）） ／ `landedLink`（印を付けた依存線の先行と後続の `UID`。`landedBy` が `continuationMark` のときだけ持ち、`jump` では `null`） ／ `landedTarget`（印の先の `Task` の `UID`、またはコメントボックスの id）'
 const EL_16_NOT_SAVED = '`GRS` は、送った先の印を文書に保存しないこと（画面の値である —— `_assets/tbl-state-machines.md` の 表 T-280）。'
 const EL_17_CLEAR = '送った先の印が出ている間、人が押下（どのボタンでも、画面のどこでも）かキーの押下を行ったとき、`GRS` は、見る位置と倍率だけを動かす操作・修飾キーだけの押下・`EL-18` の押下を除き、印を消すこと。'
 const EL_17_VIEW_KEEPS = '`GRS` は、見る位置と倍率だけを動かす操作 —— 表 T-027 の `UN-8`（ズーム・スクロール・パン）と、表示の倍率（`FR-039`）の操作 —— では印を消さないこと。'
@@ -114,7 +114,7 @@ describe('CR-728 -- the manuscript these cases are driven by', () => {
     ['T-332 SJ-10 (ring)', rowCells('T-332', 'SJ-10'), SJ_10_RING],
     ['T-332 SJ-10 (ripple)', rowCells('T-332', 'SJ-10'), SJ_10_RIPPLE],
     ['T-332 SJ-10 (times)', rowCells('T-332', 'SJ-10'), SJ_10_TIMES],
-    ['T-332 SJ-10 (inside the Task Group Area)', rowCells('T-332', 'SJ-10'), SJ_10_INSIDE],
+    ['T-332 SJ-10 (inside the Task Group Lanes)', rowCells('T-332', 'SJ-10'), SJ_10_INSIDE],
     ['T-332 SJ-10 (ZO-8)', rowCells('T-332', 'SJ-10'), SJ_10_Z],
     ['T-332 SJ-10 (the selection frame above the ring)', rowCells('T-332', 'SJ-10'), SJ_10_ABOVE_RING],
     ['T-332 SJ-10 (reduced motion)', rowCells('T-332', 'SJ-10'), SJ_10_REDUCED],
@@ -357,7 +357,7 @@ describe(`T-332 SJ-5 / SJ-6 -- ${SJ_5_MIDDLE}`, () => {
     ['from a view far below and to the right', FAR_START, 13],
     ['from a view above the target', { scrollTaskGroupId: 'g2', scrollTaskGroupFraction: 0.7 }, 21],
     ['from a view that already shows the target', { scrollTaskGroupId: 'g10', scrollDate: iso(30) }, 15],
-  ] as const)('a task is put at the Task Group Area middle across and S-554 down, %s', (_name, start, uid) => {
+  ] as const)('a task is put at the Task Group Lanes middle across and S-554 down, %s', (_name, start, uid) => {
     const { after } = jump(LONG_LIST, TASK(uid), start)
     expect(placementOf(after, uid), 'premise: the task is drawn after the jump').toBeDefined()
     const middle = middleOfTask(after, uid)
@@ -533,7 +533,7 @@ const elementsOf = (svg: string): readonly Element[] => {
 }
 
 const RING = 'Jump Landing Ring'
-const RIPPLE = 'Jump Landing Ripple'
+const RIPPLE = 'Jump Ripple'
 const ringsOf = (svg: string): readonly Element[] => elementsOf(svg).filter((one) => attrOf(one.attrs, 'data-role') === RING)
 
 type LandingState =
@@ -642,7 +642,7 @@ describe(`T-332 SJ-10 -- ${SJ_10_RING}`, () => {
     }
   })
 
-  it(`${SJ_10_INSIDE}: the ring is clipped to the ground the task figures are clipped to, which starts at the Task Group Area's top left and spans its height`, () => {
+  it(`${SJ_10_INSIDE}: the ring is clipped to the ground the task figures are clipped to, which starts at the Task Group Lanes's top left and spans its height`, () => {
     const area = scene.regions.taskGroupArea
     const clipOf = (marker: string): string | null => {
       const before = svg.slice(0, svg.indexOf(marker))

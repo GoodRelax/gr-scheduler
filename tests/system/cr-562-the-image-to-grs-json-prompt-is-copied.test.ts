@@ -37,7 +37,7 @@ const FR_068_NO_SURFACE =
   '`GRS` は、プロンプトをコピーする入口を、表 T-109 の `IC-115` とすること。作成者が `IC-115` を押したとき、`GRS` は、面を開かずにプロンプトをコピーすること（スキーマのファイルは `FR-367`）。'
 const FR_068_TELL =
   '`GRS` がプロンプトをコピーできたとき、`GRS` は、コピーしたことと次に行うこと（プロンプトとダウンロードしたスキーマのファイルを AI に渡す）を告げること（運ぶ理由は 表 T-233 の `RS-65`）。'
-const FR_065_REMEMBERED = '`GRS` は、`Agent API` の有効化を、ブラウザ（オリジン）ごとに記憶すること'
+const FR_065_REMEMBERED = '`GRS` は、`Agent API` の有効化を、ブラウザー（オリジン）ごとに記憶すること'
 const RS_15_ROW = '| RS-15 | この理由にまだ行が無い |'
 
 const CLAUSES: readonly string[] = [
@@ -249,7 +249,7 @@ test.describe('CR-562 -- the clauses and the generated seam these cases are driv
     expect(AI_GROUP).toContain(COPY_PROMPT)
     expect(AI_GROUP).toContain(AGENT_API)
     expect(T_109.rows.map((row) => row.id)).not.toContain('IC-19')
-    expect(roleName('U-30'), '表 T-103 U-30 names the Help Modal only').toBe('Help Modal')
+    expect(roleName('U-30'), '表 T-103 U-30 names the Help Window only').toBe('Help Window')
   })
 
   test(`${FR_068_ONE_LINE} -- the seam file holds the manuscripts, the minified schema and the version`, () => {

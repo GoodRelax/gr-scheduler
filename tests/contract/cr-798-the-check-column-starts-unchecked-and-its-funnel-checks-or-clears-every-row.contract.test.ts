@@ -77,13 +77,13 @@ const TV_5_STAYS_ON = '表で日程抽出している間、行をすべて「表
 const TV_9_DEFAULT = '見え方を持たない文書（新規・MSPDI）に置き換えたとき、`GRS` は、3 つの表の見え方を既定 —— どの行もチェックが外れ（「非表示」）'
 const TV_13_UNASSIGNED = '`GRS` は、（担当なし）の行のチェックも、初めは外しておくこと（`TV-2`）。'
 const SV_7_NO_ENTRANCE = '`GRS` は、[表示] の列の見出しに、`IC-122` を置かずに、見出しのチェックボックスだけを置くこと（`SQ-10`）。'
-const SV_7_NO_GREEN = '`GRS` は、[表示] の列の見出しのセルを、列のフィルタを掛けている列の緑（`S-183`）で塗らないこと。'
+const SV_7_NO_GREEN = '`GRS` は、[表示] の列の見出しのセルを、列のフィルターを掛けている列の緑（`S-183`）で塗らないこと。'
 const SQ_10_HEADING_STATES =
   '`GRS` は、`SQ-10` の見出しのセルに、入っている・空 の 2 つの状態のチェックボックスだけを置くこと。'
 const SQ_10_HEADING_ADD = '`SQ-10` の見出しのチェックボックスが空の間、見出しのチェックボックスを押したとき、`GRS` は、一覧に出ているすべての行にだけチェックを入れること（一覧に出ていない行は変えない）。'
-const SQ_10_HEADING_CLEAR = '`SQ-10` の見出しのチェックボックスが入っている間、見出しのチェックボックスを押したとき、`GRS` は、表のすべての行（語や列のフィルタで一覧に出ていない行を含む）のチェックを外すこと。'
+const SQ_10_HEADING_CLEAR = '`SQ-10` の見出しのチェックボックスが入っている間、見出しのチェックボックスを押したとき、`GRS` は、表のすべての行（語や列のフィルターで一覧に出ていない行を含む）のチェックを外すこと。'
 const SJ_0_CHECK = '検索の表とレポートの表で、飛ぶ先のタスクの行だけを「表示」にすること（チェックを入れる）。'
-const S_562_NONE = '表示の列（表 T-331 の `SQ-10`・表 T-347 の `DT-8`・表 T-371 の `RQ-1`）は列のフィルタを持たない（`SV-7`）'
+const S_562_NONE = '表示の列（表 T-331 の `SQ-10`・表 T-347 の `DT-8`・表 T-371 の `RQ-1`）は列のフィルターを持たない（`SV-7`）'
 
 describe('CR-798 the manuscript these cases are driven by', () => {
   it('T-353, T-330 and T-203 still say it, word for word', () => {
@@ -155,7 +155,7 @@ interface Pane {
 const searchPane = (view: TableView = startOf('searchPanel'), word = ''): Pane => ({ panel: { ...emptySearchPanelSession, table: 'tasks', word }, view })
 
 const searchViewOf = (pane: Pane): SearchPanelView =>
-  found(searchPanelFromSession(sessionIn(), pane.panel, pane.view, SCHEDULE, CANVAS), 'a view of the shown Search Panel')
+  found(searchPanelFromSession(sessionIn(), pane.panel, pane.view, SCHEDULE, CANVAS), 'a view of the shown Search Window')
 
 const searchRowUids = (view: SearchPanelView): readonly number[] => view.rows.map((one) => (one.target.kind === 'task' ? one.target.taskUid : -1))
 
@@ -338,7 +338,7 @@ describe(`FR-151 T-353 TV-2 / T-203 S-561 / S-565 / S-569 / S-570 -- ${TV_2_KEPT
 })
 
 describe(`FR-151 T-353 TV-2 / TV-13 -- ${TV_2_STARTS} (${TV_13_UNASSIGNED})`, () => {
-  it('SQ-10: every row of the Search Panel reads unchecked before anything is pressed', () => {
+  it('SQ-10: every row of the Search Window reads unchecked before anything is pressed', () => {
     const rows = searchViewOf(searchPane()).rows
     expect(rows.length, 'premise: the stage lists tasks').toBe(ALL_TASKS.length)
     expect(rows.every((one) => one.isShown === false)).toBe(true)
@@ -395,11 +395,11 @@ describe('FR-151 T-353 TV-1 / TV-2 -- 日程表には、日程抽出した表の
     expect(drawn({})).toBeNull()
   })
 
-  it('SQ-10: the Search Panel applied draws only the checked tasks', () => {
+  it('SQ-10: the Search Window applied draws only the checked tasks', () => {
     expect(drawn({ search: applied({ shownTaskUids: [ALPHA, CHARLIE] }) })).toEqual([ALPHA, CHARLIE])
   })
 
-  it('SQ-10 / TV-5: the Search Panel applied with nothing checked draws nothing at all', () => {
+  it('SQ-10 / TV-5: the Search Window applied with nothing checked draws nothing at all', () => {
     expect(drawn({ search: applied() })).toEqual([])
   })
 
@@ -532,7 +532,7 @@ describe.each(['searchPanel', 'delayDiagnosticsReport', 'resourceList'] as const
 })
 
 describe('FR-151 T-353 TV-5 / JDG-2825 -- pressing the eye with every row checked applies the filter', () => {
-  it('SQ-10: the Search Panel', () => {
+  it('SQ-10: the Search Window', () => {
     const pane = searchPane(viewWith(startOf('searchPanel'), EVERY_CHECKED.searchPanel()))
     expect(searchPressed(pane, 'IC-143').view.visibility.isScheduleFilterApplied).toBe(true)
   })
@@ -589,7 +589,7 @@ describe(`FR-151 T-330 SV-7 -- ${SV_7_NO_ENTRANCE.slice(0, 40)}`, () => {
 const headingChange = (keys: readonly (number | 'unassigned')[], isShown: boolean): SearchFilterChange =>
   ({ kind: 'shown', column: 'SQ-10', keys, isShown, isHeading: true }) as unknown as SearchFilterChange
 
-describe(`FR-151 T-331 SQ-10 -- ${SQ_10_HEADING_ADD.slice(0, 30)} (the Search Panel)`, () => {
+describe(`FR-151 T-331 SQ-10 -- ${SQ_10_HEADING_ADD.slice(0, 30)} (the Search Window)`, () => {
   const listedOf = (pane: Pane): readonly number[] => searchRowUids(searchViewOf(pane))
   const press = (pane: Pane, isShown: boolean): Pane => searchChanged(pane, headingChange(listedOf(pane), isShown))
 
@@ -886,19 +886,19 @@ const idleReport: Loose = { shownTaskUids: [], columnFilters: [], isScheduleFilt
 const idleList: Loose = { shownResourceUids: [], isUnassignedShown: false, columnFilters: [], isScheduleFilterApplied: false, sort: null }
 
 describe(`FR-151 T-332 SJ-0 / JDG-2822 -- ${SJ_0_CHECK.slice(0, 40)}`, () => {
-  it('a jump to an undrawn task checks that task, and only that task, in the Search Panel that applies the filter', () => {
+  it('a jump to an undrawn task checks that task, and only that task, in the Search Window that applies the filter', () => {
     const writes = jumpWrites({ searchPanel: searchHeld([ALPHA, BRAVO], true), delayDiagnosticsReport: idleReport, resourceList: idleList }, CHARLIE)
-    const search = found(writes.find((one) => one.table === 'searchPanel'), 'a setTableView write for the Search Panel')
+    const search = found(writes.find((one) => one.table === 'searchPanel'), 'a setTableView write for the Search Window')
     expect(sorted(search.view.visibility.shownTaskUids)).toEqual([ALPHA, BRAVO, CHARLIE])
     expect(search.view.visibility.isScheduleFilterApplied, 'the filter stays applied').toBe(true)
   })
 
-  it('a jump to an already drawn task writes no view for the Search Panel', () => {
+  it('a jump to an already drawn task writes no view for the Search Window', () => {
     const writes = jumpWrites({ searchPanel: searchHeld([ALPHA, BRAVO], true), delayDiagnosticsReport: idleReport, resourceList: idleList }, ALPHA)
     expect(writes.filter((one) => one.table === 'searchPanel')).toEqual([])
   })
 
-  it('a Search Panel that does not apply the filter is left as it is', () => {
+  it('a Search Window that does not apply the filter is left as it is', () => {
     const writes = jumpWrites({ searchPanel: searchHeld([ALPHA], false), delayDiagnosticsReport: idleReport, resourceList: idleList }, CHARLIE)
     expect(writes.filter((one) => one.table === 'searchPanel')).toEqual([])
   })

@@ -48,3 +48,4 @@ W-46	Task Group Expander		read	JDG-3368	the Collapse / Expand button it means
 W-47	Task Group Grab Cues		read	JDG-3369	a child of Interaction Cues
 W-48	Dependency Lines		read	JDG-3375	Dependency Line, except the frozen settings label isDependencyLineVisible
 W-49	Canvas Overlays		read	JDG-3362	deleted: CR-855 section 5
+W-50	検索パネル	検索ウィンドウ	all	JDG-3356	the Japanese name of the Search Window

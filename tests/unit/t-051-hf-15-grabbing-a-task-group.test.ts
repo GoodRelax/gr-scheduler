@@ -2,7 +2,7 @@
 // for GR-20 of 表 T-023d, the strip that drag is taken on.
 //
 // The unit these arrive on is UF-48 `single-html-shell` (CP-25 of 表 T-062),
-// whose `frame-loop.ts` takes FT-1 of 表 T-078 -- 人の入力（ポインタとキー）--
+// whose `frame-loop.ts` takes FT-1 of 表 T-078 -- 人の入力（ポインターとキー）--
 // on `receiveInput`, answers what one frame computed on `current()` and what the
 // document says on `document()`. The description the surface is handed on
 // `showScreenView` is the PICTURE, which is where the following is read.
@@ -67,7 +67,7 @@
 //           ならない（MUST NOT）。** 部分木は**移動後の最深部**で測る」
 //   T-015a HM-5 「**タスクグループを作り直してはならない（MUST NOT）。** 更新するのは
 //           親だけとする」
-//   T-028 IN-1  ポインタ操作は離した時点で確定する
+//   T-028 IN-1  ポインター操作は離した時点で確定する
 //
 // ---------------------------------------------------------------------------
 // WHAT IS DELIBERATELY NOT ASSERTED, AND WHY

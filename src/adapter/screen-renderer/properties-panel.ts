@@ -1854,7 +1854,7 @@ const READ_ONLY_GROUPS: readonly ReadOnlyGroupRows[] = [
     rows: [...['isDateGridLinesVisible', 'isGroupGridLinesVisible'].map(visibleRow), { key: 'isThemeMonochrome', shape: 'monochrome' }],
   },
   { group: 'groupRulerAndStack', rows: [...['rulerFontSizePx', 'rulerHeightPx'].map(shaped('pixels')), { key: 'stackDirection', shape: 'stack' }] },
-  { group: 'groupTableViews', section: 'Search Panel', rows: tableViewRows('searchPanel', SHOWN_TASKS, []) },
+  { group: 'groupTableViews', section: 'Search Window', rows: tableViewRows('searchPanel', SHOWN_TASKS, []) },
   {
     group: 'groupTableViews',
     section: 'Resource List',
@@ -1862,7 +1862,7 @@ const READ_ONLY_GROUPS: readonly ReadOnlyGroupRows[] = [
       { key: 'isUnassignedShown', shape: 'visible', namePart: 'unassignedRow' },
     ]),
   },
-  { group: 'groupTableViews', section: 'Delay Diagnostics Report', rows: tableViewRows('delayDiagnosticsReport', SHOWN_TASKS, []) },
+  { group: 'groupTableViews', section: 'Delay Diagnosis Report', rows: tableViewRows('delayDiagnosticsReport', SHOWN_TASKS, []) },
 ]
 
 const PERCENT_SCALE = 100

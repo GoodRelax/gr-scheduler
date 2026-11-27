@@ -1,5 +1,5 @@
 <!-- SINGLE SOURCE OF TRUTH -- EDIT THIS FILE. The Japanese prompt of FR-068 (turn a schedule image into GRS JSON); this first line is not part of the prompt. Generated from it: src/adapter/screen-renderer/image-to-grs-json-prompt.json. Copied BY HAND, not generated (DFC-1796): the prompt block of docs/guides/schedule-to-grs-json/prompt-ja.md, which names the attached files grs-skeleton.json and grs-document.schema.json where this text names the downloaded schema file grs-document.schema.json and the appended json block -- carry every other change there too. Rebuild: npm run gen -->
-あなたは日程表の読み取りと変換の専門家です。添付した日程（画像・スライド・表）を読み、GRS というガントチャートのツールで開ける「GRS JSON」を 1 つ作ってください。日付だけでなく、色・グラデーション・形状・フェード・横並びも、できるだけ元の日程に合わせてください。
+あなたは日程の読み取りと変換の専門家です。添付した日程（画像・スライド・表）を読み、GRS というガントチャートのツールで開ける「GRS JSON」を 1 つ作ってください。日付だけでなく、色・グラデーション・形状・フェード・横並びも、できるだけ元の日程に合わせてください。
 
 # 添付
 - 日程の原本: ［ファイル名。複数なら全部］
@@ -79,7 +79,7 @@
 9. 担当（読み取れたときだけ）
    - resources に {"uid": 整数, "name": 担当名, "resourceKind": 1, "isCostResource": false, "calendarUid": null, "carry": {}, "carryElements": []}、assignments に {"uid": 整数, "taskUid": uid, "resourceUid": 担当の uid, "carry": {}, "carryElements": []}。uid はタスクと別に 1 から振ってよい。
 10. project
-   - name と title に日程表の題名、startDate に最も早い予定の開始日、statusDate に原本の「今日」の線の日（無ければ null）を入れる。themeHue は 8. のとおり。uidHighWaterMark は tasks・resources・assignments で使った uid の最大値。
+   - name と title に元の日程の題名、startDate に最も早い予定の開始日、statusDate に原本の「今日」の線の日（無ければ null）を入れる。themeHue は 8. のとおり。uidHighWaterMark は tasks・resources・assignments で使った uid の最大値。
 
 # 画像を読むときの決まり
 - 日付は時間の目盛りから読み、日の単位に丸める。目盛りが月や週だけのときは、バーの端の位置から日を比例で推定する。

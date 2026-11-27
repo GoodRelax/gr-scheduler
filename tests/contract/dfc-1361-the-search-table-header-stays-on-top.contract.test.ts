@@ -1,4 +1,4 @@
-// DFC-1361: the Search Panel table's heading row stays fixed and readable while rows scroll under it (FR-151, table T-330 SV-6).
+// DFC-1361: the Search Window table's heading row stays fixed and readable while rows scroll under it (FR-151, table T-330 SV-6).
 
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'

@@ -19,10 +19,10 @@ import {
   withSearch,
 } from './cr-721-stage'
 
-const SV_7_OUTSIDE = 'フィルタの箱の外を押してフィルタを閉じたとき、`GRS` は、押下を押した先（日程表のタスク・ほかの窓・`App Header`・フィルタを開いた窓のほかの所）にも渡すこと。'
-const SV_7_CLOSE = 'フィルタが開いている間、開いているフィルタの列の `IC-122` をもう一度押したとき・`Esc`（`SV-14`）を押したとき・フィルタの箱の外を押したとき、`GRS` は、フィルタを閉じること。'
-const SV_7_ONE_AT_A_TIME = '`GRS` は、開いているフィルタを一度に 1 つにすること。フィルタが開いている間、ほかの列の `IC-122` を押したとき、`GRS` は、開いているフィルタを押した列のフィルタに替えること。'
-const SV_7_DROPDOWN = '`GRS` は、フィルタを、押した列の見出しのセルの下に、表の上に重ねるドロップダウンとして開くこと。'
+const SV_7_OUTSIDE = 'フィルターの箱の外を押してフィルターを閉じたとき、`GRS` は、押下を押した先（`Task Group Lanes` のタスク・ほかの窓・`App Header`・フィルターを開いた窓のほかの所）にも渡すこと。'
+const SV_7_CLOSE = 'フィルターが開いている間、開いているフィルターの列の `IC-122` をもう一度押したとき・`Esc`（`SV-14`）を押したとき・フィルターの箱の外を押したとき、`GRS` は、フィルターを閉じること。'
+const SV_7_ONE_AT_A_TIME = '`GRS` は、開いているフィルターを一度に 1 つにすること。フィルターが開いている間、ほかの列の `IC-122` を押したとき、`GRS` は、開いているフィルターを押した列のフィルターに替えること。'
+const SV_7_DROPDOWN = '`GRS` は、フィルターを、押した列の見出しのセルの下に、表の上に重ねるドロップダウンとして開くこと。'
 
 let browser: Browser | null = null
 
@@ -114,7 +114,7 @@ test.describe('T-330 SV-7 -- 外を押して閉じたときは、その押下を
   })
 })
 
-test.describe('T-330 SV-7 -- 開いているフィルタは一度に 1 つ: another column\'s IC-122 switches to that column', () => {
+test.describe('T-330 SV-7 -- 開いているフィルターは一度に 1 つ: another column\'s IC-122 switches to that column', () => {
   test.setTimeout(180_000)
 
   test(`SV-7 「${SV_7_ONE_AT_A_TIME}」 -- the second IC-122 leaves one filter, under its own heading`, async () => {

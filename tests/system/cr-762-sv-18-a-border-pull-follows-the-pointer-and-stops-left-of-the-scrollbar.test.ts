@@ -7,7 +7,7 @@ import { REQUIREMENTS, pressEntrance } from './cr-570-tree-state-stage'
 import { bare, specTable, unbroken } from '../contract/spec-table'
 import { rowOf } from './sws-case'
 
-const SV_18_FOLLOW = '境目を握っている間、`GRS` は、列の幅をポインタに追従させること'
+const SV_18_FOLLOW = '境目を握っている間、`GRS` は、列の幅をポインターに追従させること'
 const SV_18_ABORT = '境目を離したとき、`GRS` は、列の幅を決めること。境目を引くのを中断したとき、`GRS` は、列の幅を元の幅へ戻すこと'
 const SV_18_OTHERS = '見出し行の列の右の境目（表 T-023d の `GR-28`）を握って左右へ引いたとき、`GRS` は、境目の左の列の幅だけを変えること（ほかの列の幅は変えない）。見出し行の列の右の境目を握って左右へ引いたとき、`GRS` は、境目より右の列を、変えた幅の分だけ動かすこと。'
 const SV_18_FLOOR = '`GRS` は、列の幅の下限を `S-425` —— 見出しのセルに `IC-122` の箱と、セルの左右の詰めと罫が入る幅を、測るときの段で測った値 —— にすること'
@@ -53,8 +53,8 @@ async function withResourceList(browser: Browser): Promise<Stage> {
 }
 
 const WINDOWS: readonly Window[] = [
-  { name: 'Search Panel', selector: PANEL, open: (browser) => withSearch(browser) },
-  { name: 'Delay Diagnostics Report', selector: REPORT, open: (browser) => withReport(browser) },
+  { name: 'Search Window', selector: PANEL, open: (browser) => withSearch(browser) },
+  { name: 'Delay Diagnosis Report', selector: REPORT, open: (browser) => withReport(browser) },
   { name: 'Resource List', selector: RESOURCE_LIST, open: withResourceList },
 ]
 
@@ -298,7 +298,7 @@ test.describe(`T-330 SV-18 「${SV_18_FOLLOW}」 -- the width follows on the nex
 test.describe(`T-330 SV-18 「${SV_18_SCROLLBAR}」`, () => {
   test.setTimeout(240_000)
 
-  test(`Search Panel: the last fixed column pulled far right never draws its border right of the scrollbar's left edge (${SV_18_RIGHT_EDGE})`, async () => {
+  test(`Search Window: the last fixed column pulled far right never draws its border right of the scrollbar's left edge (${SV_18_RIGHT_EDGE})`, async () => {
     const stage = await withSearch(need())
     try {
       const page = stage.page
@@ -333,7 +333,7 @@ test.describe(`T-330 SV-18 「${SV_18_SCROLLBAR}」`, () => {
     }
   })
 
-  test(`Search Panel: a press and drag on the scrollbar over a column border changes no width (${SV_18_UNDER_SCROLLBAR})`, async () => {
+  test(`Search Window: a press and drag on the scrollbar over a column border changes no width (${SV_18_UNDER_SCROLLBAR})`, async () => {
     const stage = await withSearch(need())
     try {
       const page = stage.page

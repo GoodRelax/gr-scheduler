@@ -207,7 +207,7 @@ const EMPTY_VIEW: ScreenView = {
 }
 
 /**
- * ⚠️ The name is not the `Document Title`: U-58 says the two are different
+ * ⚠️ The name is not the `Project Title`: U-58 says the two are different
  * values and that differing is normal, so all three words here are unlike.
  */
 const HEADER_WITH_A_SAVED_FILE: AppHeaderItems = {

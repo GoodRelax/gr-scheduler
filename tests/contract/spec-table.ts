@@ -233,7 +233,7 @@ const WELDS: readonly string[] = ['', '＋', '+', '＝', '=', '→', 'が']
  *
  * ⭐ 「`semi-pure-mutable` ／ `non-pure`」 (表 T-075, UF-41) is two purities;
  * 「`Delete` / `Backspace`」 (表 T-036, SK-3) is two spellings of one key;
- * 「`Help Modal` / `AI Export Modal` / …」 (表 T-109, IC-52) is six surfaces.
+ * 「`Help Window` / `AI Export Modal` / …」 (表 T-109, IC-52) is six surfaces.
  * A caller that wants the whole answer calls `bareAll`; `bare` REFUSES such a
  * cell rather than handing back the first of six with nothing saying so.
  *
@@ -355,7 +355,7 @@ export function bareAll(cell: string): readonly string[] {
  * ⛔⛔ IT REFUSES A CELL THAT STATES MORE THAN ONE (the ledger's `DFC-343` and
  * `DFC-351`). Returning the first span out of 「`Ctrl` ＋ `R`」 is 'Ctrl', out of
  * 「`resumeValid` が `false`」 is 'resumeValid', and out of 表 T-109's
- * 「`Help Modal` / `AI Export Modal` / …」 is one surface of six -- HALF the
+ * 「`Help Window` / `AI Export Modal` / …」 is one surface of six -- HALF the
  * cell, handed back with no sign that anything was dropped. A premise read
  * that way is silently half true, and the test built on it passes while
  * checking half of what it names.

@@ -32,9 +32,9 @@ const cellOf = (table: string, id: string, heading: string): string => unbroken(
 const SV_7 = cellOf('T-330', 'SV-7', '定め')
 const SV_7_ITEMS =
   '`GRS` は、値の一覧の項目を、担当名の列では 1 人ずつ、ほかの列ではセルの値ごとに 1 つ作ること。'
-const SV_7_DATES = '`GRS` は、日付の列のフィルタでは、値の一覧とフィルタの中の検索欄の代わりに、操作の段（`IC-123`・`IC-124`）の下で「いつから」「いつまで」を宿主の日付の入力で選ばせること。'
-const SV_7_ALL = '`GRS` は、列のフィルタどうしと、語と列のフィルタについて、すべてを満たす行だけを残すこと。'
-const SV_7_ASSIGNEES = '`GRS` は、担当名の列のフィルタでは、担当のうち 1 人でもチェックした値の行を残すこと。'
+const SV_7_DATES = '`GRS` は、日付の列のフィルターでは、値の一覧とフィルターの中の検索欄の代わりに、操作の段（`IC-123`・`IC-124`）の下で「いつから」「いつまで」を宿主の日付の入力で選ばせること。'
+const SV_7_ALL = '`GRS` は、列のフィルターどうしと、語と列のフィルターについて、すべてを満たす行だけを残すこと。'
+const SV_7_ASSIGNEES = '`GRS` は、担当名の列のフィルターでは、担当のうち 1 人でもチェックした値の行を残すこと。'
 const SV_7_BLANK_DATES = '日付の列に「いつから」か「いつまで」を置いたとき、`GRS` は、置いた列の日付が空の行を外すこと。'
 
 const SV_8 = cellOf('T-330', 'SV-8', '定め')
@@ -161,13 +161,13 @@ const sorted = (column: string, direction: ColumnSort['direction']): SearchRows 
 
 describe('FR-151 table T-330 SV-7 / SV-8 -- the search tables filter and sort their rows', () => {
   it('the clauses this file drives are the specification\'s, word for word', () => {
-    expect(REQUIREMENTS).toContain('**表 T-330 — 検索パネルの見せ方と振舞い**')
+    expect(REQUIREMENTS).toContain('**表 T-330 — 検索ウィンドウの見せ方と振舞い**')
     for (const clause of [SV_7_ITEMS, SV_7_DATES, SV_7_ALL, SV_7_ASSIGNEES, SV_7_BLANK_DATES]) expect(SV_7).toContain(clause)
     for (const clause of [SV_8_ONE, SV_8_STATES, SV_8_TIES, SV_8_DEFAULT]) expect(SV_8).toContain(clause)
-    expect(cellOf('T-331', 'SQ-2', 'フィルタ')).toBe('値の一覧（1 人ずつ）')
-    for (const id of ['SQ-3', 'SQ-9']) expect(cellOf('T-331', id, 'フィルタ')).toBe('いつから・いつまで')
-    expect(cellOf('T-331', 'SQ-4', 'フィルタ')).toBe('同上')
-    for (const id of ['SQ-5', 'SQ-6', 'SQ-7', 'SQ-8']) expect(cellOf('T-331', id, 'フィルタ')).toBe('値の一覧')
+    expect(cellOf('T-331', 'SQ-2', 'フィルター')).toBe('値の一覧（1 人ずつ）')
+    for (const id of ['SQ-3', 'SQ-9']) expect(cellOf('T-331', id, 'フィルター')).toBe('いつから・いつまで')
+    expect(cellOf('T-331', 'SQ-4', 'フィルター')).toBe('同上')
+    for (const id of ['SQ-5', 'SQ-6', 'SQ-7', 'SQ-8']) expect(cellOf('T-331', id, 'フィルター')).toBe('値の一覧')
     expect(cellOf('T-331', 'SQ-6', '書き方')).toContain(SQ_6_JOIN)
     for (const [id, [state, word]] of Object.entries(STATE_WORDS)) expect(cellOf('T-019a', id, '状態'), state).toBe(word)
   })

@@ -129,7 +129,7 @@ export function wordOf(group: string, key: string, language: DisplayLanguage): s
 
 // Spec: TV-11
 export const SURFACE_OF: Readonly<Record<VisibilityTable, string>> = {
-  searchPanel: 'Search Panel',
-  delayDiagnosticsReport: 'Delay Diagnostics Report',
+  searchPanel: 'Search Window',
+  delayDiagnosticsReport: 'Delay Diagnosis Report',
   resourceList: 'Resource List',
 }

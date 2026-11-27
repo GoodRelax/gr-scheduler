@@ -30,9 +30,9 @@ THE LAYOUT IS FR-036'S OWN:
     Every entry carries the row id of its column, and the count of those rows
     must equal S-202 (MUST);
   - CR-635 (MUST NOT): the rows of table T-109 whose surfaces are only
-    `Search Panel`, `Delay Diagnostics Report`, `Properties Panel`,
-    `Resource List`, `Holiday Settings`, `Open Chooser` or
-    `Difference Review` (with or without `Help Modal`; CR-665 added the
+    `Search Window`, `Delay Diagnosis Report`, `Properties Panel`,
+    `Resource List`, `Holiday Settings`, `Open File Dialog` or
+    `Difference Review` (with or without `Help Window`; CR-665 added the
     last two), and IC-52, IC-53 and IC-75, are left off the help -- the
     icons any other tool already teaches. CR-637 (MUST): an assignment
     whose entrance item is left off sits in `basics` instead (SK-8, whose
@@ -133,12 +133,12 @@ BLOCKS = (BASICS, BROWSER, TASK_GROUP_PANEL, APP_HEADER, COMMAND_PALETTE,
 # with theirs where they are built. The heading's word is keyed by the block.
 SURFACE_BLOCKS = (TASK_GROUP_PANEL, APP_HEADER, COMMAND_PALETTE, PALETTE_CONTINUED)
 # CR-635 (FR-036, MUST NOT): a row of table T-109 whose surfaces are only these
-# (Help Modal beside them or not) is left off the help, and so are the three
-# rows named on their own. CR-665 added Open Chooser and Difference Review:
+# (Help Window beside them or not) is left off the help, and so are the three
+# rows named on their own. CR-665 added Open File Dialog and Difference Review:
 # the user dropped the open detail to fit the help on one screen (JDG-1391).
-LEFT_OUT_SURFACES = ('Search Panel', 'Delay Diagnostics Report', 'Properties Panel',
+LEFT_OUT_SURFACES = ('Search Window', 'Delay Diagnosis Report', 'Properties Panel',
                      'Resource List', 'Holiday Settings',
-                     'Open Chooser', 'Difference Review')
+                     'Open File Dialog', 'Difference Review')
 LEFT_OUT_ROWS = ('IC-52', 'IC-53', 'IC-75')
 
 # FR-036 names these by id: shown, and the rest of table T-023 split into the
@@ -177,9 +177,9 @@ HELP_COLUMN_COUNT = 'S-202'
 NOTED_ROWS = ('IC-54',)
 LEGEND_ROW = 'IC-102'
 # CR-574: FR-036 (MUST) keeps the rows of table T-109 whose surface is the
-# Help Modal alone off the columns -- the legend and the title row's own
+# Help Window alone off the columns -- the legend and the title row's own
 # entrances stand in front of the reader already.
-HELP_MODAL = 'Help Modal'
+HELP_MODAL = 'Help Window'
 
 BANNER = (
     'GENERATED from %s and the icon roster by %s -- do not edit by hand. '

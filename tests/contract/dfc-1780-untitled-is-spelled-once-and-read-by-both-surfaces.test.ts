@@ -63,11 +63,11 @@ describe('R2.21 / PI-37 (MUST): ScreenRenderer publishes the word, and src/ spel
       }
     }
     walk(join(process.cwd(), 'src'))
-    expect(found, 'one spelling, so the tab heading and the Open Chooser cannot drift apart').toHaveLength(1)
+    expect(found, 'one spelling, so the tab heading and the Open File Dialog cannot drift apart').toHaveLength(1)
   })
 })
 
-describe('OP-16 step 3 (MUST): the Open Chooser shows Untitled for a document with no title, in either screen language (DFC-1780)', () => {
+describe('OP-16 step 3 (MUST): the Open File Dialog shows Untitled for a document with no title, in either screen language (DFC-1780)', () => {
   async function chooserText(switchLanguage: boolean): Promise<string> {
     const built = await shellStage({ dom: true })
     if (switchLanguage) await built.press(surfaceOfEntrance('IC-21'), 'IC-21')

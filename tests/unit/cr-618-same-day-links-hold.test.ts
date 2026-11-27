@@ -13,10 +13,10 @@ const VC_15_FORMULA =
 const VC_15_SAME_DAY = '⭐ 4 つの式を、すべての文書で瞬間（日と時刻の対、`FR-054`）で比べる —— 同じ瞬間は反せず、1 分でも前なら反する'
 const VC_15_NOT_ND_3 = '`GRS` は、`ND-3` の「終了日はその日を含む」を、FS の 1 日の差に数えないこと。'
 const VS_4_ACTUALS = '実績の日付が依存の向きに反する（式は `VC-15` を実績の列に当てたもの）'
-const BD_2_SAME_DAY = '`GRS` は、依存が課す最早の瞬間を 表 T-310 の `VC-15` の式と同じく、すべての文書で瞬間で読み、FS の後続の最早開始を、先行の見込み終了の瞬間 ＋ `linkLag` とすること。'
+const BD_2_SAME_DAY = '`GRS` は、依存が課す最早の瞬間を 表 T-310 の `VC-15` の式と同じく、すべての文書で瞬間で読み、FS の後続の最早開始を、先行の終了見込みの瞬間 ＋ `linkLag` とすること。'
 const BD_2_NOT_BELOW_START = '`GRS` は、最早開始を `start` より前にしないこと。'
 const BD_2_NOT_PUSHED_TO_STATUS = '`GRS` は、未着手の `Task` の最早開始を、基準日で押し上げないこと。'
-const BD_1_STARTED = '`GRS` は、着手済みで未完了の `Task` の見込み終了を 基準日 ＋ 残り（基準日の瞬間（`Project.statusDate`）から残りの分だけ文書の暦の稼働時間を進めた瞬間）とすること。'
+const BD_1_STARTED = '`GRS` は、着手済みで未完了の `Task` の終了見込みを 基準日 ＋ 残り（基準日の瞬間（`Project.statusDate`）から残りの分だけ文書の暦の稼働時間を進めた瞬間）とすること。'
 const DQ_2 = 'max(0, 最早開始 − `start`) —— 巻き添え'
 const DQ_3 = 'max(0, `DQ-1` − (最早開始 ＋ 計画期間)) —— 発生源'
 const DW_1_PURPLE = '原因の `Task` と、その依存の下流すべて'
@@ -265,7 +265,7 @@ describe('CR-618 -- the sentences T1 .. T7 are driven by', () => {
   it('S-397 is still 1 working day, and T-314 still names the three quantities read here', () => {
     expect(S_397).toBe(1)
     expect(specTable('T-314').rows.map((row) => bare(row.by['英（コード）'] ?? ''))).toEqual([
-      'projectedFinish',
+      'estimatedFinish',
       ...QUANTITIES,
     ])
   })

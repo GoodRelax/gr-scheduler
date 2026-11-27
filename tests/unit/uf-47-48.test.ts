@@ -840,7 +840,7 @@ describe('ADR-001 and table T-071 -- computed once at the head of a frame', () =
     // ...the layout was laid out on THOSE regions...
     // Spec: S-177, FR-055
     // Why: the fit keeps the left edge inside a day (scrollDate plus scrollDateFraction, never snapped to
-    // the day boundary), so the origin stands up to one day left of the Task Group Area and never right of it.
+    // the day boundary), so the origin stands up to one day left of the Task Group Lanes and never right of it.
     const dayOffset = (after.regions.taskGroupArea.x - after.layout.originX) / after.layout.pxPerDay
     expect(dayOffset).toBeGreaterThanOrEqual(0)
     expect(dayOffset).toBeLessThan(1)
@@ -953,7 +953,7 @@ const titlesOf = (view: ScreenView) => [
 /**
  * The same two task groups over one working week instead of twenty days.
  *
- * ⭐ FR-055 fits the drawn extent to the `Task Group Area`, so a short extent buys a
+ * ⭐ FR-055 fits the drawn extent to the `Task Group Lanes`, so a short extent buys a
  * large px/day -- and FR-017 judges the 段階 on px/day against 表 T-205 の
  * `S-85`. ⚠️ WHY A CASE WOULD WANT THAT: the 曜日 has a 段 of its own only on
  * the finest 段階, and it is the one thing in the picture FR-038 lets the
@@ -1024,7 +1024,7 @@ describe('IF-9 of table T-065 -- the frame draws on a second surface', () => {
   })
 
   it('MN-8: GIVEN one frame THEN each of the two surfaces is fed exactly once', () => {
-    // MN-8 of table T-070 rejected "描画が 1 つで日程表も外側も描く": the parts
+    // MN-8 of table T-070 rejected "描画が 1 つで `Schedule Canvas` も外側も描く": the parts
     // outside the schedule are assembled by CP-37 and land on IF-9, while the
     // schedule lands on IF-1. ⛔ Both are filled from the SAME frame, which is
     // what CA-4 forbids splitting.
@@ -1103,10 +1103,10 @@ describe('SC-4 of table T-031 -- both scrollbars, always', () => {
     expect(titlesOf(view)).toEqual([])
   })
 
-  it('FR-051: GIVEN a frame THEN the scrollbar lanes take their place FROM the Task Group Area, not over it', () => {
-    // FR-051 (MUST): "`Scrollbars` は `Task Group Area` から場所を取ること". SC-4 is
+  it('FR-051: GIVEN a frame THEN the scrollbar lanes take their place FROM the Task Group Lanes, not over it', () => {
+    // FR-051 (MUST): "`Scrollbars` は `Task Group Lanes` から場所を取ること". SC-4 is
     // the reason it has to take place at all -- "場所を取らない形では `SC-4` が
-    // 意味を持たない". So the vertical lane begins where the Task Group Area ends, and
+    // 意味を持たない". So the vertical lane begins where the Task Group Lanes ends, and
     // the horizontal lane below it; neither is drawn over the schedule.
     const pane = host()
     const screen = screenPane()
@@ -1133,7 +1133,7 @@ describe('SC-4 of table T-031 -- both scrollbars, always', () => {
 
 describe('SC-1 of table T-031 -- the panel follows the body, sideways it does not', () => {
   it('GIVEN two drawn task groups THEN each title stands at the y and height the body task group has', () => {
-    // SC-1: "縦は本体と連動する". ⛔ The panel and the `Task Group Area` have to be the
+    // SC-1: "縦は本体と連動する". ⛔ The panel and the `Task Group Lanes` have to be the
     // SAME numbers, which is why a task group title takes its box from the shell's
     // measurement of this frame rather than from a second computation.
     const pane = host()
@@ -1207,7 +1207,7 @@ describe('SC-1 of table T-031 -- the panel follows the body, sideways it does no
 
 describe('SC-1 of table T-031 -- the panel and the body hold the SAME task groups', () => {
   /**
-   * A document with enough task groups that the stack is taller than the `Task Group Area`,
+   * A document with enough task groups that the stack is taller than the `Task Group Lanes`,
    * anchored at a task group well down the stack so the ones above it are off the top.
    * ⚠ S-78 is 「人が決めた表示位置」 and OP-10 reads it, so this is the
    * ordinary way a person leaves the schedule -- not a contrived frame.
@@ -1217,7 +1217,7 @@ describe('SC-1 of table T-031 -- the panel and the body hold the SAME task group
       const taskGroups: unknown[] = []
       const members: unknown[] = []
       const tasks = [...draft.schedule.tasks]
-      // Why: 48, not 24: CR-414's 24px lattice lets 24 task groups fit the Task Group Area whole, and nothing would be clipped.
+      // Why: 48, not 24: CR-414's 24px lattice lets 24 task groups fit the Task Group Lanes whole, and nothing would be clipped.
       for (let index = 0; index < 48; index += 1) {
         const id = `row-${index}`
         taskGroups.push({
@@ -1238,7 +1238,7 @@ describe('SC-1 of table T-031 -- the panel and the body hold the SAME task group
       draft.documentSettings.scrollTaskGroupId = `row-${anchorAt}`
     })
 
-  it('GIVEN the stack is anchored below its top THEN some task groups really do fall outside the Task Group Area', () => {
+  it('GIVEN the stack is anchored below its top THEN some task groups really do fall outside the Task Group Lanes', () => {
     // ⛔ THE PREMISE OF THE CASE BELOW, ASSERTED RATHER THAN ASSUMED. With
     // nothing clipped, an equality of counts says nothing at all.
     const pane = host()
@@ -1251,12 +1251,12 @@ describe('SC-1 of table T-031 -- the panel and the body hold the SAME task group
       (taskGroup) =>
         Math.min(taskGroup.y + taskGroup.height, area.y + area.height) <= Math.max(taskGroup.y, area.y),
     )
-    expect(outside.length, 'no task group is off the Task Group Area, so nothing is being clipped').toBeGreaterThan(
+    expect(outside.length, 'no task group is off the Task Group Lanes, so nothing is being clipped').toBeGreaterThan(
       0,
     )
   })
 
-  it('GIVEN task groups fall outside the Task Group Area THEN the panel holds exactly the task groups the body draws', () => {
+  it('GIVEN task groups fall outside the Task Group Lanes THEN the panel holds exactly the task groups the body draws', () => {
     // SC-1: 「縦は本体と連動する」. A task group the body has no band for is a task group the
     // panel has no line for -- a title painted where no band is stands up in
     // the Time Ruler, over the corner HF-10's control needs.
@@ -1275,7 +1275,7 @@ describe('SC-1 of table T-031 -- the panel and the body hold the SAME task group
     expect(titles.length).toBe(showing.length)
   })
 
-  it('GIVEN a title is drawn THEN its band lies inside the Task Group Area, cut the same way the body is', () => {
+  it('GIVEN a title is drawn THEN its band lies inside the Task Group Lanes, cut the same way the body is', () => {
     // The other half of 「連動する」: a title that kept its whole height while
     // the band beside it was cut stands taller than the task group it names.
     const pane = host()
@@ -1286,10 +1286,10 @@ describe('SC-1 of table T-031 -- the panel and the body hold the SAME task group
 
     for (const title of titlesOf(screen.last())) {
       const taskGroup = values.layout.taskGroups.find((one) => one.taskGroupId === title.taskGroupId)!
-      expect(title.box.y, `${title.taskGroupId} starts above the Task Group Area`).toBeGreaterThanOrEqual(area.y)
+      expect(title.box.y, `${title.taskGroupId} starts above the Task Group Lanes`).toBeGreaterThanOrEqual(area.y)
       expect(
         title.box.y + title.box.height,
-        `${title.taskGroupId} runs past the foot of the Task Group Area`,
+        `${title.taskGroupId} runs past the foot of the Task Group Lanes`,
       ).toBeLessThanOrEqual(area.y + area.height)
       expect(title.box.y, `${title.taskGroupId} is not the body's own top`).toBe(
         Math.max(taskGroup.y, area.y),
@@ -1345,7 +1345,7 @@ describe('CA-4 and FR-051 -- one frame of screen, at the size that frame settled
 
   it('FT-3: GIVEN only the scrollbar thickness changed THEN a frame runs', () => {
     // Same MUST of FR-051: the thickness is settled from the environment, not
-    // held as a setting, and it takes its place from the `Task Group Area` -- so a
+    // held as a setting, and it takes its place from the `Task Group Lanes` -- so a
     // thicker bar shrinks the drawing area and the picture is no longer right.
     const pane = host()
     const screen = screenPane()
@@ -1423,7 +1423,7 @@ describe('FR-038 -- the display language is the environment, not the document', 
     // ⚠️ NO SUCH SENTENCE IS IN docs/spec. What FR-038's RATIONALE says is the
     // opposite of a picture with no words in it:
     //
-    //   「⚠️ **日程表の出力のうち言語に依るのは、目盛の第 4 段の曜日だけである**
+    //   「⚠️ **`Schedule Canvas` の出力のうち言語に依るのは、目盛の第 4 段の曜日だけである**
     //     （`FR-017`）—— **どの語で刷ったかは文書に残らない。**」
     //
     // ⭐ So the promise has two halves and this case drives both: the 曜日 DOES
@@ -1443,7 +1443,7 @@ describe('FR-038 -- the display language is the environment, not the document', 
     // ⛔⛔ THE PICTURE CARRIES A WALL CLOCK, AND THIS CASE DRAWS TWO PICTURES.
     // `frameLoop` reads the watermark's instant ONCE per instance (FR-020 /
     // FR-063 stamp it, truncated to the second), and the renderer tiles
-    // `openedBy` + that stamp across the Task Group Area as ordinary <text>. So when
+    // `openedBy` + that stamp across the Task Group Lanes as ordinary <text>. So when
     // the two constructions below land in different seconds, every watermark
     // label differs -- `withoutWords` drops the content and the skeleton still
     // matches, but `labelsInOrder` keeps it, the stamp lands in `moved`, and a
@@ -1497,7 +1497,7 @@ describe('FR-038 -- the display language is the environment, not the document', 
     // ⚠️ Which 段階 the picture is drawn on is not the language's either, and
     // the case needs the finest one: FR-017 gives the 曜日 a 段 there and
     // nowhere else. `shortDocument` is what buys it -- FR-055 fits an extent of
-    // one working week to the whole `Task Group Area`, and that px/day is far above
+    // one working week to the whole `Task Group Lanes`, and that px/day is far above
     // 表 T-205 の `S-85`. (The equality just above covers the 段階 itself:
     // `tier` is a member of the layout.)
     const printedInJapanese = labelsInOrder(drawnInJapanese)
@@ -1576,7 +1576,7 @@ describe('NFR-011 and FT-2 -- the description is whole, and it describes THIS do
 
   it('GIVEN a document with a title and two task groups THEN the description carries both', () => {
     // ⛔ The wiring is what this measures. `Project.title` (AT-3) is the
-    // `Document Title` (U-27) the `App Header` shows, and the two task groups are what
+    // `Project Title` (U-27) the `App Header` shows, and the two task groups are what
     // the `Task Group Panel` (U-22) lists -- so a loop that handed the surface an
     // empty schedule, or last frame's, would answer with neither.
     const pane = host()

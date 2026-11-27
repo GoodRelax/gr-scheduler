@@ -46,7 +46,7 @@
 //   S-203    表 T-206 「ヘルプの文字の大きさの係数（`FR-036`）」 -- ⚠️ 「掛ける相
 //            手は宿主の地の文字であり、`fontSizeStepSizes`（表 T-215）ではない ——
 //            ヘルプは日程の絵ではなく、その周りの枠である（`S-197` と同じ立場）」。
-//   T-103    U-30 `Help Modal` -- the settled name that reaches the DOM as a
+//   T-103    U-30 `Help Window` -- the settled name that reaches the DOM as a
 //            `data-role`.
 //
 // ---------------------------------------------------------------------------
@@ -80,7 +80,7 @@
 //   5. THAT THE GLYPH ITSELF IS `S-138` ACROSS. FR-029 (MUST) states the box's
 //      side and (MUST NOT) forbids it varying by surface, and
 //      tests/unit/uf-71.test.ts is the bench that holds every entrance to it --
-//      including the one on the `Help Modal` (IC-52).
+//      including the one on the `Help Window` (IC-52).
 
 import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
@@ -177,7 +177,7 @@ const U_30_HELP = ((): string => {
   const table = specTable('T-103')
   const row = table.rows.find((one) => one.id === 'U-30')
   if (row === undefined) throw new Error('table T-103 no longer has row U-30')
-  // ⚠️ U-30's cell enumerates -- 「`Help Modal` / `AI Export Modal`」 -- so it
+  // ⚠️ U-30's cell enumerates -- 「`Help Window` / `AI Export Modal`」 -- so it
   // is read as the list it is. Splitting the FIRST span on '/' read one name
   // and called it two (`DFC-351`).
   const written = bareAll(row.by['確定名（英）'] ?? '')
@@ -289,7 +289,7 @@ const entry = (patch: Partial<HelpItem> = {}): HelpItem => {
 
 const helpWith = (entries: readonly HelpItem[]): OpenModal =>
   ({
-    surface: 'Help Modal',
+    surface: 'Help Window',
     heading: 'HelpHeadingHere',
     commands: [command({ icon: CLOSE_ICON, label: 'CloseHelp' })],
     entries,
@@ -299,7 +299,7 @@ const helpWith = (entries: readonly HelpItem[]): OpenModal =>
     copyrightNotice: 'CopyrightNoticeHere',
     attributions: ['AttributionOne'],
     helpLegal: { licensedUnder: 'LicensedUnderHere', fullText: 'FullTextHere' },
-    // Why: CR-828 made blockNotes a required member of the Help Modal view; these cases do not read the notes.
+    // Why: CR-828 made blockNotes a required member of the Help Window view; these cases do not read the notes.
     blockNotes: [],
     area: { belowAppHeader: { x: 0, y: 37, width: 1280, height: 763 } },
     downloadLink: { words: '', address: '' },
@@ -564,7 +564,7 @@ describe('the manuscript still says what these cases read', () => {
     expect(S_203).toBeGreaterThan(0)
     expect(S_203).toBeLessThan(1)
     expect(FONT_SIZE_STEP_SIZES.every((one) => one > 0)).toBe(true)
-    expect(U_30_HELP).toBe('Help Modal')
+    expect(U_30_HELP).toBe('Help Window')
   })
 })
 

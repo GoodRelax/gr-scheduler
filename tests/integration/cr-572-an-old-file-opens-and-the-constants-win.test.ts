@@ -34,7 +34,7 @@ const OP_6_DROPS_THE_UNKNOWN = '知らない鍵（退役した鍵を含む）は
 const OP_6_NEVER_WRITES_BACK = '捨てた鍵を書き戻してはならない（MUST NOT）'
 const OP_6_TELLS_NOTHING_WHEN_KNOWN =
   '形式の版がこの造りの知る最大の版を超えない文書では、捨てたことも既定値に戻したことも告げない'
-const EZ_2_WAIT = 'ポインタがアイコンに入ってから `_assets/tbl-settings.md` の `S-124` が経ったら、そのアイコンの説明を出すこと（MUST）'
+const EZ_2_WAIT = 'ポインターがアイコンに入ってから `_assets/tbl-settings.md` の `S-124` が経ったら、そのアイコンの説明を出すこと（MUST）'
 
 const BUILT_VERSION: string = (startupTemplate as { schemaVersion: string }).schemaVersion
 

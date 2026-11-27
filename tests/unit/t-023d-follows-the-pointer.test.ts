@@ -5,7 +5,7 @@
 // `Scrollbars` grip, through its own surface in block (e) at the foot of the file.
 //
 // The unit these arrive on is UF-48 `single-html-shell` (CP-25 of table T-062),
-// whose `frame-loop.ts` takes FT-1 of table T-078 -- 人の入力（ポインタとキー）
+// whose `frame-loop.ts` takes FT-1 of table T-078 -- 人の入力（ポインターとキー）
 // -- on `receiveInput`, answers what one frame computed on `current()` and what
 // the document says on `document()`.
 //
@@ -59,7 +59,7 @@
 // ---------------------------------------------------------------------------
 //   T-023d  its third closing rule, the subject of this file:
 //           「`GA-1` / `GA-2` / `GA-3` / `GA-4` / `GA-20` / `GA-9` / `GR-14` /
-//           `GA-16` / `GR-16` / `GR-21` を掴んでいるあいだ、置くことになる姿を、ポインタに
+//           `GA-16` / `GR-16` / `GR-21` を掴んでいるあいだ、置くことになる姿を、ポインターに
 //           追従させて描いて示すこと（MUST）……⚠️ `GA-9` は縦にも追従すること
 //           （MUST）—— タスクグループの載せ替え（表 T-015a の `HM-3`）は縦の移動そのもの
 //           なので、縦を止めるとどのタスクグループへ載るのかが見えない。⚠️ 確定は 表 T-028 の
@@ -85,8 +85,8 @@
 //           `start` を変える / `finish` を変える
 //   T-023d GA-3 / GA-4   実績の開始点 / 終了点、実績バーの左端 / 右端、
 //           `actualStart` を変える / `actualDuration` を変える
-//   T-023d GA-18          進捗マーカー、状態を巡らせる（`FR-013`）-- EXEMPT
-//   T-023d GA-20          再開アイコン、マーカーのさらに外側、`resume` を変える
+//   T-023d GA-18          進捗ステータスマーク、状態を巡らせる（`FR-013`）-- EXEMPT
+//   T-023d GA-20          再開マーク、マーカーのさらに外側、`resume` を変える
 //           （`FR-044`）
 //   T-023d GA-9         予定バー本体、端点を除いた中間、予定の平行移動
 //           （`FR-011`）と、縦に動かしたときのタスクグループの載せ替え（表 T-015a の `HM-3`）
@@ -102,7 +102,7 @@
 //           表す区間」, 操作:「掴めば表示位置を変える（規則は `FR-051`）」.
 //           Driven through its own surface in block (e) at the foot of this file.
 //   T-023d  ⛔「掴んだ端点を置いた所を、稼働日・稼働時間へ寄せてはならない（MUST NOT）」
-//   T-028 IN-1   「ポインタ操作は押した時点で実行せず、離した時点で確定すること」
+//   T-028 IN-1   「ポインター操作は押した時点で実行せず、離した時点で確定すること」
 //   FR-031  「文書を変えるドラッグ 1 回を 1 段にまとめること（MUST）」
 //   FR-011  「タスクの本体をドラッグしたとき、予定の日付だけをずらし、実績の
 //           日付を変えてはならない（MUST NOT）。タスクグループをまたぐ移動では予定も実績も
@@ -217,7 +217,7 @@ function paragraphHolding(words: string): string | undefined {
  * about, found by the words the rule itself uses rather than by a line number.
  */
 function closingRuleLine(): string {
-  const found = paragraphHolding('を掴んでいるあいだ、置くことになる姿を、ポインタに追従させて描いて示すこと')
+  const found = paragraphHolding('を掴んでいるあいだ、置くことになる姿を、ポインターに追従させて描いて示すこと')
   if (found === undefined) {
     throw new Error('table T-023d no longer states the closing rule this file is about')
   }
@@ -294,7 +294,7 @@ const FOLLOWING_ROWS = closingRuleRows()
 // Why: GR-22 joined T-023d with an operation cell that sends the held picture to FR-052, and none
 // of the three closing sentences of T-023d names it; FR-052 states that MUST itself.
 const FR_052_HELD_PICTURE =
-  '境界を掴んでいる間、`GRS` は、`IMPS-1785`・`IMPS-1794` の場合と、タスクグループパネルの幅が床を下回る場合を除き、境界を掴んでいる時点のポインタ位置が決める 2 つの幅で画面を描くこと。'
+  '境界を掴んでいる間、`GRS` は、`IMPS-1785`・`IMPS-1794` の場合と、タスクグループパネルの幅が床を下回る場合を除き、境界を掴んでいる時点のポインター位置が決める 2 つの幅で画面を描くこと。'
 
 function followedByFr052Rows(): readonly string[] {
   return specTable('T-023d')
@@ -795,7 +795,7 @@ const FOLLOWERS: readonly Follower[] = [
   },
   {
     row: 'GA-20',
-    area: '再開アイコン -- マーカーのさらに外側',
+    area: '再開マーク -- マーカーのさらに外側',
     press: (loop) => resumePoint(loop, SUSPENDED_UID),
     reads: (loop) => centroid(resumeOf(loop, SUSPENDED_UID).head, 'the resume icon head').x,
   },
@@ -833,7 +833,7 @@ const FOLLOWERS: readonly Follower[] = [
   {
     row: 'GR-16',
     area: '基準日線 -- 線の上',
-    // ⭐ PRESSED ON THE EMPTY TASK GROUP. The line runs the height of the `Task Group Area`
+    // ⭐ PRESSED ON THE EMPTY TASK GROUP. The line runs the height of the `Task Group Lanes`
     // and this row is the last of the table, so a point where it crosses a bar
     // belongs to GA-9; task group E holds no Task, and the comment box stands far to
     // the left of the status date.
@@ -966,10 +966,10 @@ describe('the fixture draws every figure the nine rows are grabbed on', () => {
 
   it('draws a progress marker and a resume icon on the suspended Task (FR-044, MUST)', () => {
     const built = stage()
-    // FR-044: 「中断のあいだは再開アイコンを描くこと（MUST）」.
+    // FR-044: 「中断のあいだは再開マークを描くこと（MUST）」.
     const marker = markerOf(built.loop, SUSPENDED_UID)
     const icon = resumeOf(built.loop, SUSPENDED_UID)
-    expect(icon.arm.length, 'FR-044: 中断のあいだは再開アイコンを描くこと（MUST）').toBeGreaterThan(
+    expect(icon.arm.length, 'FR-044: 中断のあいだは再開マークを描くこと（MUST）').toBeGreaterThan(
       0,
     )
     expect(icon.head.length).toBeGreaterThan(0)
@@ -977,7 +977,7 @@ describe('the fixture draws every figure the nine rows are grabbed on', () => {
     // GA-18 above GA-20: a press inside the marker's circle is GA-18's.
     const at = resumePoint(built.loop, SUSPENDED_UID)
     const away = Math.hypot(at.x - marker.center.x, at.y - marker.center.y)
-    expect(away, 'table T-023d GA-20: 再開アイコンはマーカーのさらに外側').toBeGreaterThan(
+    expect(away, 'table T-023d GA-20: 再開マークはマーカーのさらに外側').toBeGreaterThan(
       marker.radius,
     )
   })
@@ -1030,7 +1030,7 @@ describe.each(FOLLOWERS.map((one) => [one.row, one] as [string, Follower]))(
       const now = follower.reads(built.loop)
       expect(
         now,
-        `table T-023d (${follower.area}): 掴んでいるあいだ、置くことになる姿を、ポインタに追従させて描いて示すこと（MUST）`,
+        `table T-023d (${follower.area}): 掴んでいるあいだ、置くことになる姿を、ポインターに追従させて描いて示すこと（MUST）`,
       ).toBeGreaterThan(held)
       // ⚠️ WITHIN ONE DAY, and not to the pixel. 「置くことになる姿」 is the
       // figure that WOULD be placed, and what would be placed is a day -- the
@@ -1064,7 +1064,7 @@ describe.each(FOLLOWERS.map((one) => [one.row, one] as [string, Follower]))(
     })
 
     it(`carries the drawn ${row} BACK when the pointer comes back`, () => {
-      // ⭐ THE HALF A ONE-WAY FOLLOWING PASSES. 「ポインタに追従させて描いて示す」
+      // ⭐ THE HALF A ONE-WAY FOLLOWING PASSES. 「ポインターに追従させて描いて示す」
       // is a picture OF THE POINTER, not a picture that has been nudged: a
       // preview that only ever grows answers the case above and still shows a
       // day the person is no longer pointing at.
@@ -1422,7 +1422,7 @@ describe('table T-028 IN-1: GR-14 settles the comment box on the release', () =>
 // ===========================================================================
 
 describe('table T-023d GA-18: the progress marker is pressed, not carried', () => {
-  // 「⚠️ 進捗マーカーは押す的と引く的を兼ねるので、引く場面（`PE-8`）では追従する」
+  // 「⚠️ 進捗ステータスマークは押す的と引く的を兼ねるので、引く場面（`PE-8`）では追従する」
   // -- SUSPENDED_UID is 中断のあいだ, table T-270's
   // `PE-10`, which is neither. ⚠️ THE PRESS IS IN THE MARKER'S RIGHT HALF: LP-1
   // stands it on the RF-1 reference's start, where 「中心のその 1 点は実績の開始
@@ -1440,7 +1440,7 @@ describe('table T-023d GA-18: the progress marker is pressed, not carried', () =
       built.send(pointer('move', pressX + days * oneDay, marker.center.y))
       expect(
         structuredClone(drawnTask(built.loop, SUSPENDED_UID)),
-        'table T-270 `PE-10`（進捗マーカー、中断のあいだ）: 横に引く ＝ 何もしない',
+        'table T-270 `PE-10`（進捗ステータスマーク、中断のあいだ）: 横に引く ＝ 何もしない',
       ).toEqual(unpressed)
     }
   })
@@ -1456,7 +1456,7 @@ describe('table T-023d GA-18: the progress marker is pressed, not carried', () =
     built.send(pointer('move', marker.center.x + 4 * pxPerDay(built.loop), marker.center.y))
     expect(
       built.loop.document(),
-      'table T-028 IN-1: ポインタ操作は押した時点で実行せず、離した時点で確定すること',
+      'table T-028 IN-1: ポインター操作は押した時点で実行せず、離した時点で確定すること',
     ).toEqual(before)
   })
 })
@@ -1481,7 +1481,7 @@ describe('table T-023d GA-18 / table T-280 progressMarkerPressed (DFC-708): the 
 /**
  * A lane thick enough to press. ⚠️ `SCREEN` gives the scrollbars no thickness
  * at all, which is why the nine `FOLLOWERS` above never meet one: their figures
- * are all drawn inside the `Task Group Area`, and GR-21's is drawn inside the lane.
+ * are all drawn inside the `Task Group Lanes`, and GR-21's is drawn inside the lane.
  * ⭐ The number is this fixture's own environment and nothing the manuscript
  * fixes -- `FR-051` settles the thickness from the host, and `S-205` gives only
  * its floor -- so it is stated where it is used and nothing is asserted of it.
@@ -1504,9 +1504,9 @@ const overflowTaskGroupId = (n: number): string => `2a000000-0000-4000-8000-${St
  * ⚠️ A WIDE SPAN ALONE DOES NOT OVERFLOW EITHER, and that is measured too:
  * `viewSettings` (`frame-loop.ts`) opens any document whose `scrollDate` is
  * unplaced by running FR-055's fit (`fitZoom`, PI-5), which picks a `zoomX`
- * that makes the content's width MATCH the `Task Group Area` almost exactly -- a
+ * that makes the content's width MATCH the `Task Group Lanes` almost exactly -- a
  * two-year span came back `pxPerDay=1.34, contentWidth=976.4` against a
- * `Task Group Area` 976px wide. ⭐ THE FLOOR IS WHAT MAKES A GRIP POSSIBLE: `S-97`
+ * `Task Group Lanes` 976px wide. ⭐ THE FLOOR IS WHAT MAKES A GRIP POSSIBLE: `S-97`
  * (`NOT_STORED_ZOOM_BOUNDS`, `edit-document.ts`) stops that fit at
  * `zoomX = 0.02`, so a span wide enough to ask for less than that -- more than
  * `taskGroupArea.width / (pxPerDayAt1x * 0.02)` days, comfortably past by using
@@ -1534,7 +1534,7 @@ function wideFixtureDocument(): Document {
       uid: OVERFLOW_UID,
       name: 'Overflow',
       start: '2026-04-01T00:00:00',
-      // Why: sixty years, since S-1 is the constant 6 (CR-572): thirty no longer outgrow the Task Group Area at the S-97 floor.
+      // Why: sixty years, since S-1 is the constant 6 (CR-572): thirty no longer outgrow the Task Group Lanes at the S-97 floor.
       finish: '2086-04-01T00:00:00',
     }),
   )
@@ -1680,14 +1680,14 @@ describe('table T-023d GR-21: the schedule follows the pointer while its grip is
     ).not.toContain(GRIP_ROW)
   })
 
-  it('is drawn on both axes, over a document that genuinely overflows the Task Group Area', () => {
+  it('is drawn on both axes, over a document that genuinely overflows the Task Group Lanes', () => {
     // 「`U-21` `Scrollbars`」 of table T-031, SC-4 (MUST): both of them, always.
     // ⛔ A PREMISE, NOT A DECORATION. `scrollGearing` answers zero wherever the
-    // `Task Group Area` is not shorter than the content it shows (`input-command-
+    // `Task Group Lanes` is not shorter than the content it shows (`input-command-
     // translator.ts`), so without a document that overflows BOTH axes the two
     // cases below would press a grip with nowhere to carry the picture to and
     // could not tell a working grab from a dead one -- which is exactly the
-    // shape `fixtureDocument` has (measured 2026-09-07: content and `Task Group Area`
+    // shape `fixtureDocument` has (measured 2026-09-07: content and `Task Group Lanes`
     // the same size on both axes).
     const built = laneStage()
     expect(built.view().frame.scrollbars.map((one) => one.axis)).toEqual([
@@ -1703,11 +1703,11 @@ describe('table T-023d GR-21: the schedule follows the pointer while its grip is
     const area = (built.loop.current() as any).regions.taskGroupArea as { width: number; height: number }
     expect(
       (frame.layout as any).contentWidth,
-      'wideFixtureDocument: the horizontal content must overflow the Task Group Area',
+      'wideFixtureDocument: the horizontal content must overflow the Task Group Lanes',
     ).toBeGreaterThan(area.width)
     expect(
       (frame.layout as any).contentHeight,
-      'wideFixtureDocument: the vertical content must overflow the Task Group Area',
+      'wideFixtureDocument: the vertical content must overflow the Task Group Lanes',
     ).toBeGreaterThan(area.height)
   })
 

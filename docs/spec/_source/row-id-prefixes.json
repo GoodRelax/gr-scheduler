@@ -31,7 +31,7 @@
    "standsFor": "Actor",
    "meaning": {
     "en": "A person who uses the software, or an outside system that uses it from outside",
-    "ja": "本ソフトウェアを使う人と、外から使う外部システム"
+    "ja": "`GRS` を使う人と、外から使う外部システム"
    },
    "section": "T-010",
    "xOwner": "spec"
@@ -124,7 +124,7 @@
    "standsFor": "Browser Function",
    "meaning": {
     "en": "A browser function, not a GRS assignment, listed in the Help",
-    "ja": "ヘルプに載せる、GRS の割当ではないブラウザの機能"
+    "ja": "ヘルプに載せる、GRS の割当ではないブラウザーの機能"
    },
    "section": "T-255",
    "xOwner": "spec"
@@ -224,7 +224,7 @@
    "standsFor": "Challenge",
    "meaning": {
     "en": "A challenge the product solves",
-    "ja": "本製品が解く課題"
+    "ja": "`GRS` が解く課題"
    },
    "section": "T-054",
    "xOwner": "spec"
@@ -354,7 +354,7 @@
    "standsFor": "Deadline Arrow",
    "meaning": {
     "en": "How the Deadline Mark is drawn (when to draw it, shape, color, place, hit area)",
-    "ja": "期限の印の描き方（描く条件・形・色・置き場・当たり）"
+    "ja": "期限マークの描き方（描く条件・形・色・置き場・当たり）"
    },
    "section": "T-304",
    "xOwner": "spec"
@@ -403,8 +403,8 @@
    "prefix": "DG",
    "standsFor": "",
    "meaning": {
-    "en": "A state that Delay Diagnostics gives to a Progress Marker",
-    "ja": "遅延診断が進捗マーカーに与える状態"
+    "en": "A state that Delay Diagnosis gives to a Progress Status Mark",
+    "ja": "遅延診断が進捗ステータスマークに与える状態"
    },
    "section": "T-315",
    "xOwner": "spec"
@@ -434,7 +434,7 @@
    "standsFor": "Dummy",
    "meaning": {
     "en": "One clause of the rules of the Actual Dummy",
-    "ja": "実績のダミーの規則の条"
+    "ja": "実績ダミーの規則の条"
    },
    "section": "T-240",
    "xOwner": "spec"
@@ -463,7 +463,7 @@
    "prefix": "DQ",
    "standsFor": "",
    "meaning": {
-    "en": "An amount of delay that Delay Diagnostics counts",
+    "en": "An amount of delay that Delay Diagnosis counts",
     "ja": "遅延診断が数える遅れの量"
    },
    "section": "T-314",
@@ -493,7 +493,7 @@
    "prefix": "DT",
    "standsFor": "",
    "meaning": {
-    "en": "A column of the table of the Delay Diagnostics Report",
+    "en": "A column of the table of the Delay Diagnosis Report",
     "ja": "遅延診断レポートの表の欄"
    },
    "section": "T-347",
@@ -523,7 +523,7 @@
    "prefix": "DW",
    "standsFor": "",
    "meaning": {
-    "en": "A kind of wall that stops the Delay Diagnostics analysis",
+    "en": "A kind of wall that stops the Delay Diagnosis analysis",
     "ja": "遅延診断の解析を止める壁の種類"
    },
    "section": "T-316",
@@ -533,7 +533,7 @@
    "prefix": "DX",
    "standsFor": "",
    "meaning": {
-    "en": "A field of the Delay Diagnostics Report",
+    "en": "A field of the Delay Diagnosis Report",
     "ja": "遅延診断のレポートの欄"
    },
    "section": "T-317",
@@ -623,7 +623,7 @@
    "prefix": "FA",
    "standsFor": "",
    "meaning": {
-    "en": "How to fix, per Delay Diagnostics viewpoint (table T-373)",
+    "en": "How to fix, per Delay Diagnosis viewpoint (table T-373)",
     "ja": "遅延診断の観点ごとの修正のしかた（表 T-373）"
    },
    "section": "T-373",
@@ -643,7 +643,7 @@
    "prefix": "FM",
    "standsFor": "",
    "meaning": {
-    "en": "A column of the tables of the Delay Diagnostics Fix Proposals and Fix Log (table T-374)",
+    "en": "A column of the tables of the Delay Diagnosis Fix Proposals and Fix Log (table T-374)",
     "ja": "遅延診断の修正案と修正の記録の表の欄（表 T-374）"
    },
    "section": "T-374",
@@ -664,7 +664,7 @@
    "standsFor": "Field Order",
    "meaning": {
     "en": "The order of the fields on the Document Settings surface (table T-369)",
-    "ja": "文書の設定の面の欄の並び（表 T-369）"
+    "ja": "文書設定の面の欄の並び（表 T-369）"
    },
    "section": "T-369",
    "xOwner": "spec"
@@ -774,7 +774,7 @@
    "standsFor": "Highlight box",
    "meaning": {
     "en": "A row of the place, Grab Margin and pointer of a Highlight Box's Grab Points and frame, and the value set on release",
-    "ja": "ハイライトボックスの掴み点と枠の場所・掴み代・ポインタと、離したときに置く値の行"
+    "ja": "ハイライトボックスの掴み点と枠の場所・掴み代・ポインターと、離したときに置く値の行"
    },
    "section": "T-246",
    "xOwner": "spec"
@@ -1020,7 +1020,7 @@
    "standsFor": "Label Placement",
    "meaning": {
     "en": "The placement of labels (marker, name, assignee and progress)",
-    "ja": "札（マーカー・名前・担当と進捗）の配置"
+    "ja": "ラベル（マーカー・名前・担当と進捗）の配置"
    },
    "section": "T-273",
    "xOwner": "spec"
@@ -1083,7 +1083,7 @@
    "standsFor": "",
    "meaning": {
     "en": "One pointer and keyboard assignment",
-    "ja": "ポインタとキーボードの割当 1 つ"
+    "ja": "ポインターとキーボードの割当 1 つ"
    },
    "section": "T-023",
    "xOwner": "spec",
@@ -1342,7 +1342,7 @@
    "standsFor": "Pointer Kind",
    "meaning": {
     "en": "A shape of the pointer",
-    "ja": "ポインタの形"
+    "ja": "ポインターの形"
    },
    "section": "T-269",
    "xOwner": "spec"
@@ -1362,7 +1362,7 @@
    "standsFor": "",
    "meaning": {
     "en": "A problem that today's way of making schedules has",
-    "ja": "いまの日程表の作り方が抱えている問題"
+    "ja": "いまの日程の作り方が抱えている問題"
    },
    "section": "T-001",
    "xOwner": "spec"
@@ -1371,8 +1371,8 @@
    "prefix": "PM",
    "standsFor": "Progress Status Mark",
    "meaning": {
-    "en": "A symbol of the Progress Marker",
-    "ja": "進捗マーカーの記号"
+    "en": "A symbol of the Progress Status Mark",
+    "ja": "進捗ステータスマークの記号"
    },
    "section": "T-021",
    "xOwner": "spec"
@@ -1391,8 +1391,8 @@
    "prefix": "PO",
    "standsFor": "Policy",
    "meaning": {
-    "en": "A directive of the content security policy of the Single HTML",
-    "ja": "単一 HTML の内容セキュリティ方針の指令"
+    "en": "A directive of the content security policy of the GRS HTML",
+    "ja": "GRS HTML の内容セキュリティ方針の指令"
    },
    "section": "T-232",
    "xOwner": "spec"
@@ -1432,7 +1432,7 @@
    "standsFor": "Pointer Down",
    "meaning": {
     "en": "A step of the decision order when the pointer is pressed (⛔ not `PD-`, which would be confused with a matter not yet ruled)",
-    "ja": "ポインタを押したときの判定順序の段（⛔ `PD-` はまだ裁定されていない決めごとと紛れるので使わない）"
+    "ja": "ポインターを押したときの判定順序の段（⛔ `PD-` はまだ裁定されていない決めごとと紛れるので使わない）"
    },
    "section": "T-023a",
    "xOwner": "spec"
@@ -1502,7 +1502,7 @@
    "standsFor": "Reference",
    "meaning": {
     "en": "The reference a label attaches to (actual / dummy / plan)",
-    "ja": "札が付く基準（実績 ／ ダミー ／ 予定）"
+    "ja": "ラベルが付く基準（実績 ／ ダミー ／ 予定）"
    },
    "section": "T-272",
    "xOwner": "spec"
@@ -1542,7 +1542,7 @@
    "standsFor": "Read-oNly settings",
    "meaning": {
     "en": "The set of read-only rows on the Document Settings surface (table T-380)",
-    "ja": "文書の設定の面の読むだけの行の組（表 T-380）"
+    "ja": "文書設定の面の読むだけの行の組（表 T-380）"
    },
    "section": "T-380",
    "xOwner": "spec"
@@ -1551,8 +1551,8 @@
    "prefix": "RO",
    "standsFor": "",
    "meaning": {
-    "en": "The Resource List Window (how it differs from the Search Panel)",
-    "ja": "担当リストのウィンドウ（検索パネルとの違い）"
+    "en": "The Resource List Window (how it differs from the Search Window)",
+    "ja": "担当リストのウィンドウ（検索ウィンドウとの違い）"
    },
    "section": "T-370",
    "xOwner": "spec"
@@ -1632,8 +1632,8 @@
    "prefix": "RW",
    "standsFor": "",
    "meaning": {
-    "en": "Where the Delay Diagnostics Report window differs from the Search Panel",
-    "ja": "遅延診断レポートの窓が検索パネルと違う所"
+    "en": "Where the Delay Diagnosis Report window differs from the Search Window",
+    "ja": "遅延診断レポートの窓が検索ウィンドウと違う所"
    },
    "section": "T-346",
    "xOwner": "spec"
@@ -1802,8 +1802,8 @@
    "prefix": "SV",
    "standsFor": "Search View",
    "meaning": {
-    "en": "An item of how the Search Panel looks and behaves",
-    "ja": "検索パネルの見せ方と振舞いの項目"
+    "en": "An item of how the Search Window looks and behaves",
+    "ja": "検索ウィンドウの見せ方と振舞いの項目"
    },
    "section": "T-330",
    "xOwner": "spec"
@@ -1853,7 +1853,7 @@
    "standsFor": "Tooltip Line",
    "meaning": {
     "en": "A line of the explanation shown when the pointer rests",
-    "ja": "ポインタを止めたときの説明の行"
+    "ja": "ポインターを止めたときの説明の行"
    },
    "section": "T-348",
    "xOwner": "spec"
@@ -1902,8 +1902,8 @@
    "prefix": "TV",
    "standsFor": "Task Visibility",
    "meaning": {
-    "en": "The rules of the Schedule Filter, which narrows the tasks drawn on the schedule by the shown columns of the three tables (Search, Delay Diagnostics Report, Resource List) and the Schedule Filter",
-    "ja": "3 つの表（検索・遅延診断レポート・担当リスト）の表示の列のチェックで日程表に描くタスクを抽出する、日程抽出の規則"
+    "en": "The rules of the Schedule Filter, which narrows the tasks drawn on the schedule by the shown columns of the three tables (Search, Delay Diagnosis Report, Resource List) and the Schedule Filter",
+    "ja": "3 つの表（検索・遅延診断レポート・担当リスト）の表示の列のチェックでタスクグループレーンズに描くタスクを抽出する、日程抽出の規則"
    },
    "section": "T-353",
    "xOwner": "spec"
@@ -2226,7 +2226,7 @@
    "standsFor": "",
    "meaning": {
     "en": "Something the product does not have",
-    "ja": "本製品が持たないもの"
+    "ja": "`GRS` が持たないもの"
    },
    "section": "T-009",
    "xOwner": "spec"

@@ -1,4 +1,4 @@
-// DFC-556 spec-only cases: T-028 IN-2 -- with a dependency line armed (AR-4), a place that hits nothing on the Task Group Area gives the drawing signal (crosshair), the same signal a figure arm gives there; it is never the host default.
+// DFC-556 spec-only cases: T-028 IN-2 -- with a dependency line armed (AR-4), a place that hits nothing on the Task Group Lanes gives the drawing signal (crosshair), the same signal a figure arm gives there; it is never the host default.
 
 import { afterEach, describe, expect, it } from 'vitest'
 
@@ -113,7 +113,7 @@ describe('DFC-556 -- the manuscript these cases are driven by', () => {
   })
 })
 
-describe('DFC-556 -- IN-2 on a place that hits nothing on the Task Group Area', () => {
+describe('DFC-556 -- IN-2 on a place that hits nothing on the Task Group Lanes', () => {
   it('control: with nothing armed the place gives a shape other than the drawing signal (PTD-5 is a range selection)', () => {
     const built = bench()
     expect(built.shapeAtEmptyTaskGroupArea()).not.toBe(DRAWING_SIGNAL)

@@ -24,7 +24,7 @@
 //                        screen?, files?, showPointerShape?, clipboard?,
 //                        startedFromTemplate?)`
 //   schedule-layout.ts   `ScheduleLayout.originDay` -- 「The day the left edge
-//                        of the Task Group Area points at (S-77)」, `CalendarDay | null`
+//                        of the Task Group Lanes points at (S-77)」, `CalendarDay | null`
 //   schedule.ts          `CalendarDay`, `textOfDay`, and the entity types this
 //                        fixture writes out
 // ⛔ NOT ONE EXPECTED VALUE BELOW CAME OUT OF A BODY. Every day asserted is a

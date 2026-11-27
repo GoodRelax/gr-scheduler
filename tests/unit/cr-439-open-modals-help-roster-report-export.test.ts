@@ -99,7 +99,7 @@ function partOn(built: Stage, surface: ScreenSurface, node: FakeElement): Screen
 }
 
 const HELP = {
-  surface: 'Help Modal',
+  surface: 'Help Window',
   heading: 'Help heading',
   commands: [],
   legend: 'IC-22',
@@ -110,7 +110,7 @@ const HELP = {
   copyrightNotice: 'Copyright notice',
   attributions: ['An attribution'],
   helpLegal: { licensedUnder: 'LicensedUnderHere', fullText: 'FullTextHere' },
-  // Why: CR-828 made blockNotes a required member of the Help Modal view; these cases do not read the notes.
+  // Why: CR-828 made blockNotes a required member of the Help Window view; these cases do not read the notes.
   blockNotes: [],
   area: { belowAppHeader: { x: 0, y: 37, width: 1280, height: 763 } },
   downloadLink: { words: '', address: '' },
@@ -158,7 +158,7 @@ const REPORT: OpenModal = {
 }
 
 const CHOOSER: OpenModal = {
-  surface: 'Export Chooser',
+  surface: 'Save As Dialog',
   heading: 'Chooser heading',
   commands: [],
   formats: [
@@ -174,15 +174,15 @@ describe('CR-439 open surfaces -- the clauses still stand', () => {
     expect(rowText('T-065', 'IF-9')).toContain(IF_9_FORMAT)
     expect(rowText('T-065', 'IF-9')).toContain(IF_9_ENTRY_OR_FORMAT)
     expect([HELP_MODAL, RESOURCE_LIST, IMPORT_REPORT, EXPORT_CHOOSER]).toEqual([
-      'Help Modal',
+      'Help Window',
       'Resource List',
       'Import Report',
-      'Export Chooser',
+      'Save As Dialog',
     ])
   })
 })
 
-describe('Help Modal (U-30) -- FR-036', () => {
+describe('Help Window (U-30) -- FR-036', () => {
   it('FR-036 ショートカットキーとアイコンの一覧を画面上で示すこと -- each entry shows its words, its keys and its icon', () => {
     const { built } = drawn(HELP)
     const modal = oneByRole(built.root(), HELP_MODAL)
@@ -231,7 +231,7 @@ describe('Import Report (U-62) -- U-62 and FR-023', () => {
   })
 })
 
-describe('Export Chooser (U-54) -- IF-9', () => {
+describe('Save As Dialog (U-54) -- IF-9', () => {
   it('IF-9 書き出しの選択面では 表 T-024 のどの形式の上かを答える -- and the entry is null there', () => {
     const { built, surface } = drawn(CHOOSER)
     const chooser = oneByRole(built.root(), EXPORT_CHOOSER)

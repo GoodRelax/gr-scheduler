@@ -22,10 +22,10 @@ config:
 erDiagram
     Document {
         文字列 schemaVersion "文書の形式の版"
-        オブジェクト schedule "日程データの群"
+        オブジェクト schedule "スケジュールデータの群"
         オブジェクト documentSettings "見せ方の群"
-        オブジェクト documentStamp "文書の刻印"
-        配列 changeLog "文書の刻印"
+        オブジェクト documentStamp "文書刻印"
+        配列 changeLog "文書刻印"
     }
     schedule {
         オブジェクト project "Project"
@@ -57,10 +57,10 @@ erDiagram
         文字列 explanation "変更の理由"
         文字列 changedAt "時刻"
     }
-    Document ||--|| schedule : "日程データの群"
+    Document ||--|| schedule : "スケジュールデータの群"
     Document ||--|| documentSettings : "見せ方の群"
-    Document ||--|| documentStamp : "文書の刻印"
-    Document ||--o{ changeLog : "文書の刻印"
+    Document ||--|| documentStamp : "文書刻印"
+    Document ||--o{ changeLog : "文書刻印"
     schedule ||--o{ Dependency : "tasks の各要素の下に入れ子"
     schedule ||--o{ WeekDay : "calendars の各要素の下に入れ子"
     schedule ||--o{ Exception : "calendars の各要素の下に入れ子"

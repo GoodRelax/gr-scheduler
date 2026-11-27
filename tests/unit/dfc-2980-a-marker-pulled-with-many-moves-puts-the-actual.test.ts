@@ -32,10 +32,10 @@ const REQUIREMENTS = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '
 const SETTINGS = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '_assets', 'tbl-settings.md'), 'utf8'))
 
 const PE_8_ROW_PULLS_THE_END =
-  '| PE-8 | 進捗マーカー（`===` で実績の右に立つ。実績はダミーを含む。中断のあいだを除く）'
-const PE_10_PULLS_NOTHING = '| PE-10 | 進捗マーカー（それ以外 —— 実績の中・`--->`・◆・中断のあいだ）'
-const FOLLOW_PE_8 = '⭐ 進捗マーカーを引いているあいだ（`FR-107` の 表 T-270 の `PE-8`）は、置くことになる実績の終了を描いて示すこと（MUST）。'
-const MARKER_PULLS_AND_PRESSES = '⚠️ 進捗マーカーは押す的と引く的を兼ねるので、引く場面（`PE-8`）では追従する。'
+  '| PE-8 | 進捗ステータスマーク（`===` で実績の右に立つ。実績はダミーを含む。中断のあいだを除く）'
+const PE_10_PULLS_NOTHING = '| PE-10 | 進捗ステータスマーク（それ以外 —— 実績の中・`--->`・◆・中断のあいだ）'
+const FOLLOW_PE_8 = '⭐ 進捗ステータスマークを引いているあいだ（`FR-107` の 表 T-270 の `PE-8`）は、置くことになる実績の終了を描いて示すこと（MUST）。'
+const MARKER_PULLS_AND_PRESSES = '⚠️ 進捗ステータスマークは押す的と引く的を兼ねるので、引く場面（`PE-8`）では追従する。'
 const IN_1_RELEASE_COMMITS = '⚠️ **確定は 表 T-028 の `IN-1` に従う**（離した時点）。'
 const THRESHOLD_SPLITS_PRESS_FROM_PULL =
   '押した点から横か縦のどちらかへ `S-208` を超えて離せば引く、どちらも超えなければ押して離すである。'
@@ -44,9 +44,9 @@ const LP_2_MARKER_AT_END_WHEN_IT_DOES_NOT = '| LP-2 | `===` | 出す | 入らな
 const RF_1_REFERENCE_IS_THE_ACTUAL =
   '| RF-1 | する | 実績（ダミーを含む —— まだ始まっていない実績はダミーであり、幅は 表 T-240 の `DM-3`、マイルストーンはダミーの菱形） |'
 
-const GO_9_ROW_START = '| GO-9 | 進捗マーカーを引く（`FR-107` の 表 T-270 の `PE-8`） |'
+const GO_9_ROW_START = '| GO-9 | 進捗ステータスマークを引く（`FR-107` の 表 T-270 の `PE-8`） |'
 const GO_9_ACTUAL_RIGHT = '実績の右に立つときは、実績の最後の日 ＝ 離した所そのもの（`GO-3` と同じ所作）'
-const GO_9_DUMMY_RIGHT = '進捗マーカーが未着手のダミーの右に立つとき、`GRS` は、`actualStart` ＝ 予定の開始日（時刻を表示しているときは予定の開始の瞬間 —— 表 T-240 の `DM-1`）、実績の最後の日 ＝ 離した所そのもの、と置くこと。'
+const GO_9_DUMMY_RIGHT = '進捗ステータスマークが未着手のダミーの右に立つとき、`GRS` は、`actualStart` ＝ 予定の開始日（時刻を表示しているときは予定の開始の瞬間 —— 表 T-240 の `DM-1`）、実績の最後の日 ＝ 離した所そのもの、と置くこと。'
 const GO_9_LEFT_OF_PLAN_START = '予定の開始より左で離したとき、`GRS` は、予定の開始に 表 T-240 の `DM-2` の長さの実績を置くこと（時刻を表示しているときは `GO-6` の時刻の段と同じ長さ）。'
 
 // Spec: S-208

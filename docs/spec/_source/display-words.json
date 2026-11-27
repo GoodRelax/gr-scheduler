@@ -40,7 +40,7 @@
     "en": "Open…"
    },
    "hint": {
-    "ja": "ファイルを開く。日程表にファイルを落としても開ける。読んだ内容の扱いは開いたあとで選ぶ",
+    "ja": "ファイルを開く。スケジュールキャンバスにファイルを落としても開ける。読んだ内容の扱いは開いたあとで選ぶ",
     "en": "Open a file (or drop one onto the schedule); how its contents are used is chosen after reading"
    }
   },
@@ -117,8 +117,8 @@
     "en": "Smaller"
    },
    "hint": {
-    "ja": "日程表の図形と文字を縮小",
-    "en": "Make the chart's shapes and text smaller"
+    "ja": "スケジュールキャンバスの図形と文字を縮小",
+    "en": "Make the shapes and text of the Schedule Canvas smaller"
    }
   },
   {
@@ -128,8 +128,8 @@
     "en": "Larger"
    },
    "hint": {
-    "ja": "日程表の図形と文字を拡大",
-    "en": "Make the chart's shapes and text larger"
+    "ja": "スケジュールキャンバスの図形と文字を拡大",
+    "en": "Make the shapes and text of the Schedule Canvas larger"
    }
   },
   {
@@ -238,7 +238,7 @@
     "en": "Search"
    },
    "hint": {
-    "ja": "検索パネルを出す。出ていれば前に出して入力欄へ戻る",
+    "ja": "検索ウィンドウを出す。出ていれば前に出して入力欄へ戻る",
     "en": "Open the search panel; if it is open, bring it to the front and return to its search box"
    }
   },
@@ -246,11 +246,11 @@
    "specTableRowId": "IC-107",
    "label": {
     "ja": "遅延診断",
-    "en": "Delay Diagnostics"
+    "en": "Delay Diagnosis"
    },
    "hint": {
     "ja": "遅延診断を行う。レポートを閉じていれば診断をやり直して開き、開いていればレポートだけを閉じる",
-    "en": "Run the Delay Diagnostics; runs them again and opens the report if it is closed, or closes only the report while it is open"
+    "en": "Run the Delay Diagnosis; runs them again and opens the report if it is closed, or closes only the report while it is open"
    }
   },
   {
@@ -536,7 +536,7 @@
    },
    "hint": {
     "ja": "コメントボックスを構える。置きたい位置をドラッグすると置く",
-    "en": "Callout: drag where it should stand to place one"
+    "en": "Comment Box: drag where it should stand to place one"
    }
   },
   {
@@ -590,8 +590,8 @@
     "en": "Progress Status Mark"
    },
    "hint": {
-    "ja": "進捗マーカーと再開アイコンを表示する。もう一度押すと非表示にする",
-    "en": "Show or hide the Progress Marker and the Resume Icon"
+    "ja": "進捗ステータスマークと再開マークを表示する。もう一度押すと非表示にする",
+    "en": "Show or hide the Progress Status Mark and the Resume Mark"
    }
   },
   {
@@ -657,7 +657,7 @@
    },
    "hint": {
     "ja": "依存線を表示する。もう一度押すと非表示にする",
-    "en": "Show or hide the Dependency Lines"
+    "en": "Show or hide every Dependency Line"
    }
   },
   {
@@ -949,11 +949,11 @@
   {
    "specTableRowId": "IC-153",
    "label": {
-    "ja": "フィルタをクリア",
+    "ja": "フィルターをクリア",
     "en": "Clear Filters"
    },
    "hint": {
-    "ja": "この表のすべての列のフィルタをクリアし、並びを元の順に戻す",
+    "ja": "この表のすべての列のフィルターをクリアし、並びを元の順に戻す",
     "en": "Clear every column filter in this table and put the rows back in their original order"
    }
   },
@@ -964,7 +964,7 @@
     "en": "Filter Schedule by Checks"
    },
    "hint": {
-    "ja": "日程抽出の切替。この表で「表示」の行のタスクだけを日程表に描く",
+    "ja": "日程抽出の切替。この表で「表示」の行のタスクだけをタスクグループレーンズに描く",
     "en": "Turn the Schedule Filter on or off: draw only the tasks this table shows"
    }
   },
@@ -1004,11 +1004,11 @@
   {
    "specTableRowId": "IC-122",
    "label": {
-    "ja": "フィルタ",
+    "ja": "フィルター",
     "en": "Filter"
    },
    "hint": {
-    "ja": "この列のフィルタと並べ替えを開く",
+    "ja": "この列のフィルターと並べ替えを開く",
     "en": "Open this column's filter and sort"
    }
   },
@@ -1074,8 +1074,8 @@
     "en": "Diagnose Again"
    },
    "hint": {
-    "ja": "いまの文書で遅延診断をやり直す。レポートは開いたまま、日程表の印も作り直す",
-    "en": "Run the Delay Diagnostics again on the current document; the report stays open and the schedule marks are rebuilt"
+    "ja": "いまの文書で遅延診断をやり直す。レポートは開いたまま、タスクグループレーンズの印も作り直す",
+    "en": "Run the Delay Diagnosis again on the current document; the report stays open and the schedule marks are rebuilt"
    }
   },
   {
@@ -1514,7 +1514,7 @@
     "en": "GRS Reset"
    },
    "hint": {
-    "ja": "GRS がこのブラウザに覚えた値を消して、ページを読み直す。先に確かめる",
+    "ja": "GRS がこのブラウザーに覚えた値を消して、ページを読み直す。先に確かめる",
     "en": "Clear what GRS keeps in this browser and reload the page; asks first"
    }
   },
@@ -1939,7 +1939,7 @@
   {
    "specTableRowId": "K-11",
    "label": {
-    "ja": "積み順の段の間隔",
+    "ja": "積み段の間隔",
     "en": "stackGap"
    }
   },
@@ -2044,28 +2044,28 @@
   {
    "specTableRowId": "K-26",
    "label": {
-    "ja": "再開アイコンの腕の長さ ÷ マーカー",
+    "ja": "再開マークの腕の長さ ÷ マーカー",
     "en": "resumeArmOfMarker"
    }
   },
   {
    "specTableRowId": "K-27",
    "label": {
-    "ja": "再開アイコンの矢じり ÷ マーカー",
+    "ja": "再開マークの矢じり ÷ マーカー",
     "en": "resumeHeadOfMarker"
    }
   },
   {
    "specTableRowId": "K-28",
    "label": {
-    "ja": "再開アイコンへ繋ぐ破線の実部",
+    "ja": "再開マークへ繋ぐ破線の実部",
     "en": "resumeDashOn"
    }
   },
   {
    "specTableRowId": "K-29",
    "label": {
-    "ja": "再開アイコンへ繋ぐ破線の空部",
+    "ja": "再開マークへ繋ぐ破線の空部",
     "en": "resumeDashOff"
    }
   },
@@ -2079,7 +2079,7 @@
   {
    "specTableRowId": "K-130",
    "label": {
-    "ja": "再開アイコンへ繋ぐ破線の太さ",
+    "ja": "再開マークへ繋ぐ破線の太さ",
     "en": "resumeDashWidth"
    }
   },
@@ -2114,14 +2114,14 @@
   {
    "specTableRowId": "K-132",
    "label": {
-    "ja": "担当と進捗の札を開始から離す隙間",
+    "ja": "担当と進捗のラベルを開始から離す隙間",
     "en": "assigneeLabelGap"
    }
   },
   {
    "specTableRowId": "K-147",
    "label": {
-    "ja": "進捗マーカーを棒の端から離す隙間",
+    "ja": "進捗ステータスマークを棒の端から離す隙間",
     "en": "progressMarkerEdgeGap"
    }
   },
@@ -2809,7 +2809,7 @@
  ],
  "surfaces": [
   {
-   "name": "Help Modal",
+   "name": "Help Window",
    "heading": {
     "ja": "ヘルプ",
     "en": "Help"
@@ -2823,31 +2823,31 @@
    }
   },
   {
-   "name": "Export Chooser",
+   "name": "Save As Dialog",
    "heading": {
     "ja": "ファイルに保存",
     "en": "Save As"
    }
   },
   {
-   "name": "Open Chooser",
+   "name": "Open File Dialog",
    "heading": {
     "ja": "ファイルを開く",
     "en": "Open File"
    }
   },
   {
-   "name": "Search Panel",
+   "name": "Search Window",
    "heading": {
-    "ja": "検索パネル",
-    "en": "Search Panel"
+    "ja": "検索ウィンドウ",
+    "en": "Search Window"
    }
   },
   {
-   "name": "Delay Diagnostics Report",
+   "name": "Delay Diagnosis Report",
    "heading": {
     "ja": "遅延診断レポート",
-    "en": "Delay Diagnostics Report"
+    "en": "Delay Diagnosis Report"
    }
   },
   {
@@ -3572,11 +3572,11 @@
   {
    "specTableRowId": "RS-59",
    "text": {
-    "ja": "ブラウザが全画面表示を認めませんでした",
+    "ja": "ブラウザーが全画面表示を認めませんでした",
     "en": "The browser did not allow full screen."
    },
    "nextStep": {
-    "ja": "ブラウザのメニューから全画面表示にしてください",
+    "ja": "ブラウザーのメニューから全画面表示にしてください",
     "en": "Use the browser's own menu to go full screen."
    }
   },
@@ -3708,7 +3708,7 @@
     "en": "The tasks listed below came with the last import but not with this one."
    },
    "nextStep": {
-    "ja": "要らないものは、日程表で選んで削除してください。残せば、書き出したときに相手側にまた現れます",
+    "ja": "要らないものは、タスクグループレーンズで選んで削除してください。残せば、書き出したときに相手側にまた現れます",
     "en": "Select and delete on the schedule any you no longer need; kept ones reappear on the other side when you export."
    }
   },
@@ -3821,7 +3821,7 @@
   {
    "specTableRowId": "QN-11",
    "text": {
-    "ja": "GRS をリセットしますか？ GRS がこのブラウザに覚えた値（画面の言語など）を消して、ページを読み直します。保存していない編集があれば、それも失われます\n※ リセットしても不具合が直らない場合、以下をお試しください。\nCtrl+F5: 再読み込み\nF12（開発者ツール）→ Application（Firefox では「ストレージ」）→ GRS のローカルストレージをクリア",
+    "ja": "GRS をリセットしますか？ GRS がこのブラウザーに覚えた値（画面の言語など）を消して、ページを読み直します。保存していない編集があれば、それも失われます\n※ リセットしても不具合が直らない場合、以下をお試しください。\nCtrl+F5: 再読み込み\nF12（開発者ツール）→ Application（Firefox では「ストレージ」）→ GRS のローカルストレージをクリア",
     "en": "Reset GRS? What GRS keeps in this browser (such as the display language) is cleared and the page is reloaded. Unsaved edits, if any, are lost too.\n* If resetting does not fix the problem, try the following.\nCtrl+F5: Reload\nF12 (developer tools) → Application (Storage in Firefox) → clear GRS's local storage"
    }
   },
@@ -4191,8 +4191,8 @@
   {
    "specTableRowId": "IO-7",
    "name": {
-    "ja": "単一 HTML",
-    "en": "Single HTML"
+    "ja": "GRS HTML",
+    "en": "GRS HTML"
    }
   },
   {
@@ -4410,7 +4410,7 @@
   {
    "block": "browser",
    "text": {
-    "ja": "ブラウザの機能（GRS の機能ではない）",
+    "ja": "ブラウザーの機能（GRS の機能ではない）",
     "en": "Browser Functions (Not GRS)"
    }
   },
@@ -4472,7 +4472,7 @@
   {
    "block": "browser",
    "text": {
-    "ja": "保存の前にブラウザが出す確認にサイトの名が出ても、GRS は手元のファイルを書き換えるだけで、どこへも送りません。",
+    "ja": "保存の前にブラウザーが出す確認にサイトの名が出ても、GRS は手元のファイルを書き換えるだけで、どこへも送りません。",
     "en": "Even if the browser's confirmation before saving names a site, GRS only rewrites the file on your computer and sends it nowhere."
    }
   }
@@ -4505,14 +4505,14 @@
   {
    "specTableRowId": "BF-1",
    "text": {
-    "ja": "ブラウザの表示を拡大・縮小する",
+    "ja": "ブラウザーの表示を拡大・縮小する",
     "en": "Zoom the browser in or out"
    }
   },
   {
    "specTableRowId": "BF-2",
    "text": {
-    "ja": "ブラウザの表示の倍率を戻す",
+    "ja": "ブラウザーの表示の倍率を戻す",
     "en": "Reset the browser zoom"
    }
   }
@@ -4532,7 +4532,7 @@
   {
    "specTableRowId": "MK-2",
    "text": {
-    "ja": "ポインタを中心に両軸をズームする",
+    "ja": "ポインターを中心に両軸をズームする",
     "en": "Zoom both axes, centered on the pointer"
    },
    "press": {
@@ -4631,7 +4631,7 @@
   {
    "specTableRowId": "MK-10",
    "text": {
-    "ja": "ブラウザの既定動作を止める",
+    "ja": "ブラウザーの既定動作を止める",
     "en": "The browser's default is held back"
    },
    "press": {
@@ -4653,7 +4653,7 @@
   {
    "specTableRowId": "MK-12",
    "text": {
-    "ja": "ブラウザに委ねる",
+    "ja": "ブラウザーに委ねる",
     "en": "Left to the browser"
    },
    "press": {
@@ -4665,7 +4665,7 @@
    "specTableRowId": "MK-13",
    "text": {
     "ja": "対象で意味が決まる。コメントボックス＝プロパティパネルを開いて本文を編集、ハイライトボックス＝プロパティパネルを開いて枠の色を編集、名称ラベル＝名称、担当ラベル＝プロパティパネルを開いて担当を編集、タスクと実績＝プロパティパネルを開いて名前を編集、タスクグループ見出し＝タスクグループ名",
-    "en": "What it does depends on what it lands on—Callout: opens the Properties Panel and edits its body; Highlight Box: opens the Properties Panel and edits its frame color; Name Label: its name; Assignee Label: opens the Properties Panel and edits the assignee; task and actual: opens the Properties Panel and edits its name; task group title: the task group name"
+    "en": "What it does depends on what it lands on—Comment Box: opens the Properties Panel and edits its body; Highlight Box: opens the Properties Panel and edits its frame color; Name Label: its name; Assignee Label: opens the Properties Panel and edits the assignee; task and actual: opens the Properties Panel and edits its name; task group title: the task group name"
    },
    "press": {
     "ja": "ダブルクリック",
@@ -4959,28 +4959,28 @@
   {
    "part": "linkHintFS",
    "text": {
-    "ja": "{abbreviation}（完了 → 開始）",
+    "ja": "{abbreviation}（終了 → 開始、直列作業）",
     "en": "{abbreviation} (finish to start)"
    }
   },
   {
    "part": "linkHintSF",
    "text": {
-    "ja": "{abbreviation}（開始 → 完了）",
+    "ja": "{abbreviation}（開始 → 終了、引継必須）",
     "en": "{abbreviation} (start to finish)"
    }
   },
   {
    "part": "linkHintFF",
    "text": {
-    "ja": "{abbreviation}（完了 → 完了）",
+    "ja": "{abbreviation}（終了 → 終了、後追終了）",
     "en": "{abbreviation} (finish to finish)"
    }
   },
   {
    "part": "linkHintSS",
    "text": {
-    "ja": "{abbreviation}（開始 → 開始）",
+    "ja": "{abbreviation}（開始 → 開始、並列開始）",
     "en": "{abbreviation} (start to start)"
    }
   },
@@ -5666,7 +5666,7 @@
   {
    "part": "columnFilters",
    "text": {
-    "ja": "列ごとのフィルタ",
+    "ja": "列ごとのフィルター",
     "en": "Column Filters"
    }
   },
@@ -5778,14 +5778,14 @@
   {
    "part": "viewLeftEdge",
    "text": {
-    "ja": "日程表の|左端の|日時",
+    "ja": "タスクグループレーンズの|左端の|日時",
     "en": "Left Edge Date-Time"
    }
   },
   {
    "part": "viewTopEdge",
    "text": {
-    "ja": "日程表の|上端の|タスクグループ",
+    "ja": "タスクグループレーンズの|上端の|タスクグループ",
     "en": "Top Edge Task Group"
    }
   },
@@ -6261,7 +6261,7 @@
   {
    "part": "nothingChecked",
    "text": {
-    "ja": "この表にチェックの入った行が無いので、日程抽出すると日程表が空になります",
+    "ja": "この表にチェックの入った行が無いので、日程抽出するとタスクグループレーンズが空になります",
     "en": "No row in this table is checked, so the Schedule Filter would leave the schedule empty"
    }
   },
@@ -6543,7 +6543,7 @@
   {
    "part": "filter",
    "text": {
-    "ja": "フィルタ",
+    "ja": "フィルター",
     "en": "Filter"
    }
   },
@@ -6629,14 +6629,14 @@
   {
    "part": "parentProgressOutside",
    "text": {
-    "ja": "親の進み具合（{parent}）が、配下の作業の進み具合（{leftmost} - {rightmost}）から {days} 稼働日外れている。進捗の更新漏れ、子タスクに分けきれていない作業、親の期間の空白のどれかかもしれない。許す日数（いまは {tolerance} 稼働日）はプロパティパネルの文書の設定で変えられる",
+    "ja": "親の進み具合（{parent}）が、配下の作業の進み具合（{leftmost} - {rightmost}）から {days} 稼働日外れている。進捗の更新漏れ、子タスクに分けきれていない作業、親の期間の空白のどれかかもしれない。許す日数（いまは {tolerance} 稼働日）はプロパティパネルの文書設定で変えられる",
     "en": "This parent's progress ({parent}) lies {days} working days outside its work's progress ({leftmost} - {rightmost}). An update may be missing, work may not be split into child tasks, or the parent's span may have empty gaps. The allowed days (now {tolerance}) can be changed in the document settings of the Properties Panel."
    }
   },
   {
    "part": "parentProgressOutsideWhenTimeShown",
    "text": {
-    "ja": "親の進み具合（{parent}）が、配下の作業の進み具合（{leftmost} - {rightmost}）から {amount} 外れている。進捗の更新漏れ、子タスクに分けきれていない作業、親の期間の空白のどれかかもしれない。許す日数（いまは {tolerance} 稼働日）はプロパティパネルの文書の設定で変えられる",
+    "ja": "親の進み具合（{parent}）が、配下の作業の進み具合（{leftmost} - {rightmost}）から {amount} 外れている。進捗の更新漏れ、子タスクに分けきれていない作業、親の期間の空白のどれかかもしれない。許す日数（いまは {tolerance} 稼働日）はプロパティパネルの文書設定で変えられる",
     "en": "This parent's progress ({parent}) lies {amount} outside its work's progress ({leftmost} - {rightmost}). An update may be missing, work may not be split into child tasks, or the parent's span may have empty gaps. The allowed days (now {tolerance}) can be changed in the document settings of the Properties Panel."
    }
   },

@@ -21,7 +21,7 @@ async function openSmallSample(page: Page): Promise<void> {
   }, text)
   await press(page, 'IC-1')
   for (let i = 0; i < 3; i += 1) {
-    if ((await page.locator('[data-role="Open Chooser"] [data-icon="IC-71"]').count()) > 0) await press(page, 'IC-71', '[data-role="Open Chooser"]')
+    if ((await page.locator('[data-role="Open File Dialog"] [data-icon="IC-71"]').count()) > 0) await press(page, 'IC-71', '[data-role="Open File Dialog"]')
     if ((await page.locator('[data-role="Confirmation"] [data-confirmation-answer="proceed"]').count()) > 0) await answerConfirmation(page, 'proceed')
   }
   await expect(page.locator('[data-role="Opened File Name"]'), 'premise: the small sample is open').toHaveText('small.xml')
@@ -79,7 +79,7 @@ test.describe('IN-5a: what already holds on the shipped build', () => {
     await expect(name, 'PR-1 holds every typed key').toHaveValue(typed)
     await page.keyboard.press('Escape')
     await press(page, 'IC-117')
-    const word = page.locator('[data-role="Search Panel"] input[data-field-row="SV-2"]')
+    const word = page.locator('[data-role="Search Window"] input[data-field-row="SV-2"]')
     await word.click()
     await page.keyboard.type(typed, { delay: 30 })
     await expect(word, 'SV-2 holds every typed key').toHaveValue(typed)
@@ -113,7 +113,7 @@ test.describe('IN-5a, IN-6: the reds this sweep found, now fixed', () => {
     await page.mouse.click(960, 600)
     await page.keyboard.press('F2')
     await settle(page)
-    const title = await typeShiftedSigns(page, page.locator('[data-role="Document Title"] input'))
+    const title = await typeShiftedSigns(page, page.locator('[data-role="Project Title"] input'))
     seen['U-27'] = `${title.value} zoom ${String(title.zoomBefore === title.zoomAfter)}`
     expect(seen).toEqual({ 'PR-1': 'A+_ zoom true', 'PR-2': 'A+_ zoom true', 'U-27': 'A+_ zoom true' })
   })

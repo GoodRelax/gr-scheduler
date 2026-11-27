@@ -32,7 +32,7 @@ test('UC-009 show a confidential schedule on screen (FR-020 T-242 WM-6 WM-8 WM-1
     expect((await readDocument(page)).schedule.tasks.length).toBeGreaterThan(100)
   })
 
-  await test.step('UC-009 step 2: the opener and the run time are laid faint, slanted and repeated over the Task Group Area only (FR-020, WM-13, WM-14)', async () => {
+  await test.step('UC-009 step 2: the opener and the run time are laid faint, slanted and repeated over the Task Group Lanes only (FR-020, WM-13, WM-14)', async () => {
     const mark = (await watermark(page))!
     expect(mark).not.toBeNull()
     expect(mark.texts.length).toBeGreaterThan(1)

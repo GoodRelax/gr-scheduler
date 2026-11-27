@@ -25,7 +25,7 @@ const REQUIREMENTS = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '
 
 // Spec: SV-7
 const SV_7_LABELS =
-  '`GRS` は、2 つの日付の入力の左に 1 つずつ、`FR-038` の辞書が持つ語「いつから」「いつまで」を札として置くこと。'
+  '`GRS` は、2 つの日付の入力の左に 1 つずつ、`FR-038` の辞書が持つ語「いつから」「いつまで」をラベルとして置くこと。'
 
 type Words = Record<DisplayLanguage, string>
 const WORDS = JSON.parse(
@@ -40,7 +40,7 @@ const wordOf = (part: string, language: DisplayLanguage): string => {
 
 // Why: the task table's date columns and the comment box table's, as table T-331 lists them.
 const DATE_COLUMNS = specTable('T-331')
-  .rows.filter((row) => (row.by['フィルタ'] ?? '').includes('いつから'))
+  .rows.filter((row) => (row.by['フィルター'] ?? '').includes('いつから'))
   .map((row) => [row.id, row.by['表'] === 'コメントボックス' ? 'commentBoxes' : 'tasks'] as const)
 
 const TEMPLATE = JSON.parse(

@@ -13,11 +13,11 @@ const REQUIREMENTS = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '
 
 // Why: each constant ends exactly at its marker, cut from the manuscript as check 39 reads it.
 const FR_071_LOCK =
-  '閲覧環境が Keyboard Lock（`navigator.keyboard`）を持つ場合、全画面表示に入ることをブラウザに求める押下の中で、`GRS` は、`Escape` の鍵をかけることを求めること。全画面表示を出たことを受けたとき、`GRS` は、`Escape` の鍵を放すこと。'
+  '閲覧環境が Keyboard Lock（`navigator.keyboard`）を持つ場合、全画面表示に入ることをブラウザーに求める押下の中で、`GRS` は、`Escape` の鍵をかけることを求めること。全画面表示を出たことを受けたとき、`GRS` は、`Escape` の鍵を放すこと。'
 const FR_071_SILENT =
   'もし鍵を断られた場合、または閲覧環境が Keyboard Lock を持たない場合、`GRS` は、断られたこと・持たないことを通知しないこと。'
 const IN_4_HELD_ESC =
-  '示の段は、全画面表示を出ることをブラウザに求める（`FR-071` の入口の押下と同じ求め）。⛔ 押しっぱなしの `Esc` の繰り返し（`KeyboardEvent.repeat` が真の押下）で段を消費してはならない（MUST NOT）'
+  '示の段は、全画面表示を出ることをブラウザーに求める（`FR-071` の入口の押下と同じ求め）。⛔ 押しっぱなしの `Esc` の繰り返し（`KeyboardEvent.repeat` が真の押下）で段を消費してはならない（MUST NOT）'
 
 const BASE_SCREEN = screenOf(rowOf(specTable('T-025'), 'MC-6'))
 const SHIPPED_BUILD = join(process.cwd(), 'dist', 'index.html')

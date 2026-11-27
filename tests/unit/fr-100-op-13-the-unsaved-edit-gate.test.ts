@@ -567,7 +567,7 @@ describe('T-024a OP-13 -- reading the open file again', () => {
     //
     // ⛔⛔ MEASURED RED ON 2026-09-03, and left standing (rule 04 section 1:
     // docs/development-rules/04-verification.md 「期待値をコードに合わせて書き換えてはならない。仕様が明確ならコードを直す」).
-    // What the loop does today: the reading arrives and the `Open Chooser`
+    // What the loop does today: the reading arrives and the `Open File Dialog`
     // (U-56) stands, exactly as it does for SK-10 -- so `Ctrl` + `R` IS 「開く」
     // と同じもの, which is the failure this MUST names in its own reason.
     const built = await stage({ kind: 'writable', fileName: 'plan-a.json' })

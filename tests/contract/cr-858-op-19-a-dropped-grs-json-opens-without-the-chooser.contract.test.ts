@@ -1,4 +1,4 @@
-// CR-858 spec-only contract: a dropped GRS JSON or single .html opens as a replace without the Open Chooser (U-56); OP-4 still asks QN-5 (T-024a OP-19, OP-2, OP-3, OP-4).
+// CR-858 spec-only contract: a dropped GRS JSON or single .html opens as a replace without the Open File Dialog (U-56); OP-4 still asks QN-5 (T-024a OP-19, OP-2, OP-3, OP-4).
 
 import { describe, expect, it } from 'vitest'
 
@@ -25,7 +25,7 @@ import { unbroken } from './spec-table'
 const LAST_SAVED_AT = '2026-10-03T09:00:00'
 
 const OP_19_MUST =
-  '人がファイルを 1 つウィンドウへドロップしたとき、`GRS` は、`Open Chooser`（`_assets/tbl-glossary.md` の `U-56`）を出さずに、`OP-3` の 3 択を置き換えに定めて開くこと（MUST）'
+  '人がファイルを 1 つウィンドウへドロップしたとき、`GRS` は、`Open File Dialog`（`_assets/tbl-glossary.md` の `U-56`）を出さずに、`OP-3` の 3 択を置き換えに定めて開くこと（MUST）'
 const OP_19_OP_4 = '`OP-4` の確認は掛かること（MUST）'
 const OP_11_MUST =
   '人が 2 つ以上のファイルを同時にウィンドウへドロップしたとき、`GRS` は、どのファイルも開かずに断り、現在の文書を変えないこと（MUST）'

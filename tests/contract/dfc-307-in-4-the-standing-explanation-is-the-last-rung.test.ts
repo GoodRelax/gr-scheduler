@@ -1,14 +1,14 @@
 // 表 T-028 の `IN-3` と `IN-4` (docs/spec/01-04-requirements.md):
 //
 //   IN-3 「ツールチップは、次の 2 つをすべて満たすこと（MUST）。**消せること**
-//        —— ポインタもフォーカスも動かさずに消す手立てがあること。」
+//        —— ポインターもフォーカスも動かさずに消す手立てがあること。」
 //   IN-4 「消費する階層は 出ている通知 → 確定していないその場の編集 → 開いている面 →
 //        進行中のドラッグ・引きかけの矢印 → 開いているウィンドウ → プロパティパネル →
 //        構え → 選択 → `Dual Cursor` モード → 出ている説明 → 全画面表示 の順とする
 //        こと（MUST） —— 説明を全画面表示の前に置くのは、`IN-3` が求める「消せること」
 //        を果たす手立てがほかに 1 つも無いからである。」
 //
-//   IN-4a 「**消費する対象が 1 つも無いときは、必ずブラウザへ渡すこと（MUST）**」
+//   IN-4a 「**消費する対象が 1 つも無いときは、必ずブラウザーへ渡すこと（MUST）**」
 //
 // ⚠️⚠️ 選択 JOINED THE LADDER ON 2026-09-08 (利用者の裁定, ledger DFC-398), between
 // 構え and `Dual Cursor` モード. The rung above the foot therefore moved, and the
@@ -148,13 +148,13 @@ import { specTable, unbroken } from './spec-table'
  * this file red rather than leaving it holding a rule nobody writes any more.
  */
 const IN_3_THE_TWO =
-  '表 T-269 が画像で定める形は、本ツールが描いて宿主へ渡す | FR-040 |\n| IN-3 | ツールチップは、次の 2 つをすべて満たすこと（MUST）'
+  '表 T-269 が画像で定める形は、`GRS` が描いて宿主へ渡す | FR-040 |\n| IN-3 | ツールチップは、次の 2 つをすべて満たすこと（MUST）'
 
 const IN_3_UNTIL_THE_TRIGGER_GOES =
-  '手立てがあること。**引き金が外れるまで出ていること** —— ポインタまたはフォーカスがその対象から外れるか、人が消すか、その内容が有効でなくなるまで、消してはならない（MUST NOT）'
+  '手立てがあること。**引き金が外れるまで出ていること** —— ポインターまたはフォーカスがその対象から外れるか、人が消すか、その内容が有効でなくなるまで、消してはならない（MUST NOT）'
 
 const IN_4_THE_LADDER =
-  'ればブラウザへ渡すこと。消費する階層は 出ている通知 → 確定していないその場の編集 → 開いている面 → 進行中のドラッグ・引きかけの矢印 → 開いているウィンドウ → プロパティパネル → 構え → 選択 → `Dual Cursor` モード → 出ている説明 → 全画面表示 の順とすること（MUST）'
+  'ればブラウザーへ渡すこと。消費する階層は 出ている通知 → 確定していないその場の編集 → 開いている面 → 進行中のドラッグ・引きかけの矢印 → 開いているウィンドウ → プロパティパネル → 構え → 選択 → `Dual Cursor` モード → 出ている説明 → 全画面表示 の順とすること（MUST）'
 
 /**
  * IN-4's MUST NOT about where 選択 may stand, quoted whole. ⭐ DFC-398 is the
@@ -173,10 +173,10 @@ const IN_4_NO_PANEL_CONDITION =
  * 選択 rewrote IN-4's tail -- so the anchor broke without IN-4a moving at all.
  */
 const IN_4A_TO_THE_BROWSER =
-  '\n| IN-4a | **消費する対象が 1 つも無いときは、必ずブラウザへ渡すこと（MUST）**'
+  '\n| IN-4a | **消費する対象が 1 つも無いときは、必ずブラウザーへ渡すこと（MUST）**'
 
 /** The half of IN-3 DFC-307 is about, quoted as the row writes it. */
-const IN_3_CAN_BE_PUT_AWAY = '**消せること** —— ポインタもフォーカスも動かさずに消す手立てがあること'
+const IN_3_CAN_BE_PUT_AWAY = '**消せること** —— ポインターもフォーカスも動かさずに消す手立てがあること'
 
 /** The reason IN-4 gives for putting it before full screen, which is why the two rows travel together. */
 const IN_4_WHY_LAST =
@@ -736,7 +736,7 @@ describe('T-028 IN-3 (MUST) -- a shown explanation goes away without moving anyt
   })
 
   it('puts it away WITHOUT the pointer or the focus moving', () => {
-    // 「ポインタもフォーカスも動かさずに消す手立てがあること」 -- so the two
+    // 「ポインターもフォーカスも動かさずに消す手立てがあること」 -- so the two
     // readings differ in exactly one member, and that member is not the place
     // or the rest. ⭐ THIS IS THE HALF THE ROW ACTUALLY STATES: a build that
     // only stopped explaining once the pointer left would satisfy 引き金が外れ

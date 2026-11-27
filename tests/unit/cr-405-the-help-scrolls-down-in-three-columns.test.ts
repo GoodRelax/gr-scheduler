@@ -51,7 +51,7 @@ const CLAUSES: readonly (readonly [string, string])[] = [
   ['FR-036 (MUST) -- every block in a frame of its own (CR-622)', '`GRS` は、塊を 1 つずつ枠で囲むこと。'],
   ['FR-036 (MUST) -- the frame line and every space around it (CR-622)', 'どれも `_assets/tbl-settings.md` の 表 T-206 の `S-457` とすること。`GRS` は、枠の線を 表 T-236 の `S-149` の色、表 T-206 の `S-437` の太さとすること。'],
   ['FR-036 (MUST) -- group lines stay inside the Command Palette block (CR-622)', '`GRS` は、`Command Palette` の塊の中の群の境目を線で示すこと。'],
-  ['FR-036 (MUST NOT) -- the rows the help leaves off (CR-635, CR-665)', '・`Holiday Settings`・`Open Chooser`・`Difference Review` の面だけ（`Help Modal` を併せて持つものを含む）である行と、`IC-52`・`IC-53`・`IC-75` を、段に載せないこと。'],
+  ['FR-036 (MUST NOT) -- the rows the help leaves off (CR-635, CR-665)', '・`Holiday Settings`・`Open File Dialog`・`Difference Review` の面だけ（`Help Window` を併せて持つものを含む）である行と、`IC-52`・`IC-53`・`IC-75` を、段に載せないこと。'],
   ['FR-036 (MUST) -- the palette group T-256 names moves under the Task Group Panel (CR-665)', '`GRS` は、`Command Palette` の入口を 2 つの塊に分け、表 T-109 の `群` が `揃える` の行を、`HC-4` の `Task Group Panel` の塊の下の塊へ移すこと。'],
   ['FR-036 (MUST) -- an assignment whose entrance is left off sits with the ones that have none (CR-637)', '`GRS` は、入口の項目が段に載らない割当を、`IMPS-1141` の「入口の項目の割当の場所に置く」に代えて、入口を持たない割当と同じ塊に置くこと。'],
 ]
@@ -195,8 +195,8 @@ describe('CR-405 -- the premises read from the manuscript', () => {
 
   it('FR-036 leaves off IC-52, IC-53, IC-75 and the rows of the surfaces it names, and puts SK-8 with the basics', () => {
     expect(LEFT_OFF_ICONS).toEqual(['IC-52', 'IC-53', 'IC-75'])
-    expect(LEFT_OFF_SURFACES).toContain('Search Panel')
-    expect(LEFT_OFF_SURFACES).toContain('Open Chooser')
+    expect(LEFT_OFF_SURFACES).toContain('Search Window')
+    expect(LEFT_OFF_SURFACES).toContain('Open File Dialog')
     expect(LEFT_OFF_SURFACES).toContain('Difference Review')
     expect(LEFT_OFF_SURFACES).not.toContain('Task Group Panel')
     expect(BASIC_ROWS.has('SK-8')).toBe(true)
@@ -248,7 +248,7 @@ const rootOf = (language: DisplayLanguage): ScreenSession => ({
   screen: { ...emptyScreenSession.screen, screenLanguage: language, helpLanguage: language },
 })
 
-const HELP_SURFACE = 'Help Modal'
+const HELP_SURFACE = 'Help Window'
 
 function helpModal(language: DisplayLanguage): HelpModal {
   const root = rootOf(language)

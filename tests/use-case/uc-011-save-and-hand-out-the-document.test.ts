@@ -10,7 +10,7 @@ const STAMP = /\d{4}-\d\d-\d\dT\d{2}:\d{2}:\d{2}Z/g
 const saveAs = async (page: Page, format: 'IO-2' | 'IO-3' | 'IO-4'): Promise<{ name: string; text: string }> => {
   const before = (await savedFiles(page)).length
   await press(page, 'IC-2')
-  await page.click('[data-role="Export Chooser"] [data-format="' + format + '"]')
+  await page.click('[data-role="Save As Dialog"] [data-format="' + format + '"]')
   await expect.poll(async () => (await savedFiles(page)).length).toBe(before + 1)
   return (await savedFiles(page))[before]!
 }

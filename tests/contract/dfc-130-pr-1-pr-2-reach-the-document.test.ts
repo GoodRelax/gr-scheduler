@@ -50,7 +50,7 @@
 //             reason the row id is asserted beside the text
 //   表 T-067  `WS-3` / `WS-6` -- the steps that build the new document and swap
 //             the current value, which is what 「文書が変わる」 means here
-//   表 T-078  `FT-1` 「人の入力（ポインタとキー）」 -- the trigger the frame that
+//   表 T-078  `FT-1` 「人の入力（ポインターとキー）」 -- the trigger the frame that
 //             spends the settled value runs on
 //   表 T-034  `BT-4`, the bundled template
 //

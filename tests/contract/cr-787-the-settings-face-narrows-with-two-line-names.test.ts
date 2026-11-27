@@ -22,13 +22,13 @@ const FR_156_OUTSIDE = '欄の外を押すと、選ばずに一覧を閉じる�
 const FR_156_WRAP =
   '⭐ `GRS` は、欄の幅を、1 行目が収まる幅を下限とし（`FR-006` の要る幅）、2 行目の地名が欄に入り切らないときは欄の中で折り返すこと（利用者の判断）'
 // Spec: FR-052
-const FR_052_STARTS = '`GRS` は、プロパティパネルの幅を、出している中身の種の既定の幅から始めること —— 既定の幅は `_assets/tbl-settings.md` の 表 T-206 が中身の種ごとに持つ: 文書の設定の面は `S-171`、表 T-016 の `適用先` が `Task`・`TaskGroup`・`CommentBox`・`HighlightBox`・`Dependency` の物は `S-602`〜`S-606`（`Task` から `Dependency` まで、挙げた順）。'
+const FR_052_STARTS = '`GRS` は、プロパティパネルの幅を、出している中身の種の既定の幅から始めること —— 既定の幅は `_assets/tbl-settings.md` の 表 T-206 が中身の種ごとに持つ: 文書設定の面は `S-171`、表 T-016 の `適用先` が `Task`・`TaskGroup`・`CommentBox`・`HighlightBox`・`Dependency` の物は `S-602`〜`S-606`（`Task` から `Dependency` まで、挙げた順）。'
 const FR_052_KIND_CHANGE = '出す中身の種が変わったとき、`GRS` は、プロパティパネルの幅を、新しい種の既定の幅へ戻すこと。'
 const FR_156_SCROLL = '一覧は、選択肢 `_assets/tbl-settings.md` の 表 T-206 の `S-607` 個ぶんの高さを超えると、中で縦に送る。'
 // Spec: T-380, T-369
 const RN_3_JOINED =
-  '⭐ 日程表の左端と上端は、保存では 2 つずつの値（`K-69` と `K-121`、`K-70` と `K-120`）で持ち、読むだけの行では 1 行ずつにまとめる（`IMPS-118`）。'
-const RN_3_KEEPS_STORAGE = '`GRS` は、日程表の左端と上端を、保存の持ち方（`K-69` と `K-121`、`K-70` と `K-120` の 2 つずつの値）を変えずに、読むだけの行では 1 行ずつにまとめて見せること。'
+  '⭐ `Task Group Lanes` の左端と上端は、保存では 2 つずつの値（`K-69` と `K-121`、`K-70` と `K-120`）で持ち、読むだけの行では 1 行ずつにまとめる（`IMPS-118`）。'
+const RN_3_KEEPS_STORAGE = '`GRS` は、`Task Group Lanes` の左端と上端を、保存の持ち方（`K-69` と `K-121`、`K-70` と `K-120` の 2 つずつの値）を変えずに、読むだけの行では 1 行ずつにまとめて見せること。'
 // Spec: FR-159, T-379
 const FR_159_FIRST_START = '`GRS` は、全体日程シフトの欄の上に最初のタスクの開始日（表 T-379 の `WH-1`）を見せること'
 
@@ -67,7 +67,7 @@ describe('CR-787 -- the manuscript these cases are driven by', () => {
 // Spec: T-206, S-171, S-602, S-603, S-604, S-605, S-606, S-607, S-248
 describe('T-206 -- S-171 and S-602..S-607 as table T-206 holds them', () => {
   it.each([
-    ['S-171', '文書の設定の面を出したプロパティパネルの既定の幅'],
+    ['S-171', '文書設定の面を出したプロパティパネルの既定の幅'],
     ['S-602', 'タスク（マイルストーンを含む）を出したプロパティパネルの既定の幅'],
     ['S-603', 'タスクグループを出したプロパティパネルの既定の幅'],
     ['S-604', 'コメントボックスを出したプロパティパネルの既定の幅'],
@@ -397,7 +397,7 @@ describe(`T-380 RN-3 -- ${RN_3_JOINED}`, () => {
   it('CR-787: the heading words are 表示専用/変更不可 and Read-only, and the edge names are the ones the CR named', () => {
     expect([partWord(SECTION, 'heading', 'ja'), partWord(SECTION, 'heading', 'en')]).toEqual(['表示専用/変更不可', 'Read-only'])
     expect([partWord(SECTION, 'viewLeftEdge', 'en'), partWord(SECTION, 'viewTopEdge', 'en')]).toEqual(['Left Edge Date-Time', 'Top Edge Task Group'])
-    expect([partWord(SECTION, 'viewLeftEdge', 'ja'), partWord(SECTION, 'viewTopEdge', 'ja')]).toEqual(['日程表の左端の日時', '日程表の上端のタスクグループ'])
+    expect([partWord(SECTION, 'viewLeftEdge', 'ja'), partWord(SECTION, 'viewTopEdge', 'ja')]).toEqual(['タスクグループレーンズの左端の日時', 'タスクグループレーンズの上端のタスクグループ'])
   })
 })
 

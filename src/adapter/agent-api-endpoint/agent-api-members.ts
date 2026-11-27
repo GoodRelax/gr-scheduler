@@ -1014,7 +1014,7 @@ function unchangedOutcomeOf(snapshot: AgentSnapshot): AgentWriteOutcome {
 function runDelayDiagnosticsThrough(wiring: AgentApiWiring): AgentWriteOutcome {
   const snapshot = wiring.source.readSnapshot()
   const run = wiring.runDelayDiagnostics
-  if (run === undefined) return { ok: false, refusal: notAvailable('AM-31', snapshot, 'the wiring carries no Delay Diagnostics window') }
+  if (run === undefined) return { ok: false, refusal: notAvailable('AM-31', snapshot, 'the wiring carries no Delay Diagnosis window') }
   const busy = busyRefusalOf('AM-31', snapshot)
   if (busy !== null) return { ok: false, refusal: busy }
   run()

@@ -470,7 +470,7 @@ describe('the manuscript still says what these cases read', () => {
 
   it('⭐⭐ HF-14 (MUST): a press raises the task group at once, named from the dictionary, on FR-085s own road', () => {
     expect(says('T-051', 'HF-14')).toContain(
-      '配下に足す操作子を押したとき、`GRS` は、押した瞬間に既定の名前でタスクグループを立てること。配下に足す操作子を押したとき、`GRS` は、立てたタスクグループのプロパティパネルを出し、名前の欄で名づけさせること。',
+      '配下に足すボタンを押したとき、`GRS` は、押した瞬間に既定の名前でタスクグループを立てること。配下に足すボタンを押したとき、`GRS` は、立てたタスクグループのプロパティパネルを出し、名前の欄で名づけさせること。',
     )
     expect(says('T-051', 'HF-14')).toContain(
       '`GRS` は、名づけの道を、`FR-085` が改名について定める道と同じものにすること。`GRS` は、改名と別の名づけの道を作らないこと。',

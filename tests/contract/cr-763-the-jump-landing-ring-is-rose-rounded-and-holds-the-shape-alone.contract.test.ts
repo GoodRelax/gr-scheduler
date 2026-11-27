@@ -44,15 +44,15 @@ const SJ_10_RING =
 const SJ_10_TOUCHES = '既定の `S-555`（0）では囲みの線は形に接し'
 const SJ_10_ABOVE_RING = '`GRS` は、選択の枠（表 T-023c の `SL-8`）とフェードの掴み点（`FR-075`）を、囲みより手前の層（`FR-110` の 表 T-020 の `ZO-10`）に描くこと'
 const SJ_10_NO_MARKER =
-  '`GRS` は、進捗マーカー（表 T-273 の「マーカーの位置」）・担当と進捗の札・名称ラベルを囲みで囲まないこと。'
+  '`GRS` は、進捗ステータスマーク（表 T-273 の「マーカーの位置」）・担当と進捗のラベル・名称ラベルを囲みで囲まないこと。'
 const SJ_10_NO_HUE = '`GRS` は、囲みの色をテーマの色相に追随させないこと。'
 const SJ_10_MONO =
   'モノクロ（`FR-041`）の間、`GRS` は、囲みの線を太さ `S-556` の中で 2 本に分けること（3 等分の外と内を描き、中を空ける —— 既定の 3px なら 1px の線 ＋ 1px の隙間 ＋ 1px の線）。'
 const SJ_10_RIPPLE =
   '`GRS` は、印を付けた時から、囲みと同じ色・太さ・角の丸みの矩形を、`S-558` の長さのあいだに囲みの所から各辺 `S-559` だけ外へ広げながら、不透明から透明へ消すこと。'
-const SJ_10_Z = '`GRS` は、囲みと波紋を、日程表の前後（`FR-110` の 表 T-020）の `ZO-8` に描くこと（進捗マーカーと札より奥）。'
+const SJ_10_Z = '`GRS` は、囲みと波紋を、`Task Group Lanes` の前後（`FR-110` の 表 T-020）の `ZO-8` に描くこと（進捗ステータスマークとラベルより奥）。'
 const ZO_8_RING = '飛んだ先の印の囲み（`FR-151` の 表 T-332 の `SJ-10`、関係するタスクの囲み `RW-13` も）'
-const ZO_8_WHY = '飛んだ先の囲みを進捗マーカー（`ZO-3`）と札（`ZO-5`）より奥に置くのは、形のすぐ外に立つマーカーと札を囲みの線が横切らないためである'
+const ZO_8_WHY = '飛んだ先の囲みを進捗ステータスマーク（`ZO-3`）とラベル（`ZO-5`）より奥に置くのは、形のすぐ外に立つマーカーとラベルを囲みの線が横切らないためである'
 const ZO_10_FRAME = '選択の枠・フェードの掴み点（選んでいるタスクにだけ出す。'
 const S_555_INNER = '⭐ 線の中心ではなく内側の縁までを測る —— 線は形の外 `S-555` 〜 `S-555` ＋ `S-556` に在る'
 const S_586_MIDDLE = '飛んだ先の囲みの角の丸み —— 線の中心で測る半径。'
@@ -334,7 +334,7 @@ const elementsOf = (svg: string): readonly Element[] => {
 }
 
 const RING = 'Jump Landing Ring'
-const RELATED_RING = 'Jump Landing Related Ring'
+const RELATED_RING = 'Jump Related Ring'
 const byRole = (svg: string, role: string): readonly Element[] => elementsOf(svg).filter((one) => attrOf(one.attrs, 'data-role') === role)
 
 interface Drawn {

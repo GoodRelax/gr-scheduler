@@ -41,7 +41,7 @@
 //               drags (FR-052, CR-572). ⭐ Together with S-189 this is why a
 //               share cannot answer the question below; see THE ARGUABLE CASE.
 //   S-186       table T-206, the LOWER BOUND on a field's height -- ⛔ 「「高さ」
-//               ではなく「下限」である —— 読む人がブラウザで文字を大きくしたと
+//               ではなく「下限」である —— 読む人がブラウザーで文字を大きくしたと
 //               き、固定の高さは文字を切り落とす（`NFR-007`）」. ⭐ The manuscript
 //               states the failure in as many words: a fixed measure CUTS THE
 //               TEXT OFF. This file asks the same question of the other axis.
@@ -1184,7 +1184,7 @@ describe('FR-006 / FR-093 -- PR-3 and PR-47 give each date the room its digits n
   })
 
   it('⛔ MUST NOT hold that room as a px constant', () => {
-    // ⛔ 「px の定数として持ってはならない（MUST NOT）」 -- 「読む人がブラウザで文字
+    // ⛔ 「px の定数として持ってはならない（MUST NOT）」 -- 「読む人がブラウザーで文字
     // を大きくしたとき、パネルだけが取り残される」（WCAG 2.1 の 1.4.4。要求としては
     // `FR-039`）. ⭐ A room that does not double when the base doubles is a
     // constant however it was written, and the digits it held at 16px are cut

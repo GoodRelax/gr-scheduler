@@ -355,7 +355,7 @@ describe('T-076 EP-9 (MUST) -- 「画面と書き出しも同じ 1 か所を読�
     // ⭐ THE DIVIDER RECTS ARE THE LAST ONES DRAWN. `dividerLinesSvg`'s own
     // head comment on `exportSvg`'s composition (read as published contract,
     // not body): "Painted over the received picture, in this order: the band
-    // and the panel cover what the Task Group Area did not clip, and the divider
+    // and the panel cover what the Task Group Lanes did not clip, and the divider
     // line closes the boundary between them" -- so the trailing
     // `frame.dividers.length` rects of the picture are exactly the divider
     // lines, after the clip rect, the header band and the task group panel's

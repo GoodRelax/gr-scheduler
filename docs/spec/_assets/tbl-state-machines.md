@@ -80,13 +80,13 @@
 | RG-2 | `Esc` | 確定していないその場の編集 | `fieldEditStateMachine.editingField` | `IN-4` | 面が消費する（`IF-9`） |
 | RG-3 | `Esc` | 開いている面 | `confirmationStateMachine.questionAsked` ／ `openSurfaceStateMachine.open` | `IN-4` ・ `FR-070` | 同じ段の中は、問い → 面の順。問いか面が立っているあいだは `SK-19` の 2 段目を当てない（`FR-070`）。ヘルプはこの段に立たない —— 開いているウィンドウの段に立つ（`IN-4`） |
 | RG-4 | `Esc` | 進行中のドラッグ・引きかけの矢印 | `pointerPressStateMachine.changingDocument` ／ `pointerPressStateMachine.viewingDocument` | `IN-4` | — |
-| RG-16 | `Esc` | 開いているウィンドウ | `searchPanelDisplayStateMachine.shown.normal` ／ `searchPanelDisplayStateMachine.shown.maximized` ／ `helpDisplayStateMachine.shown.normal` ／ `helpDisplayStateMachine.shown.maximized` と、フレームの値（焦点がどのウィンドウの中にあるか、焦点がプロパティパネルの中にあるか）。遅延診断レポートの窓はステートマシンを持たず、出ていて（`S-451`）最小化していないときに立つ。担当リストのウィンドウも同じ（`S-545`） | `IN-4` ・ `SV-14` ・ `HN-2` ・ `FR-152` ・ `RW-1` ・ `RO-1` | 1 度の `Esc` で 1 つだけ閉じる。焦点がその中にあるウィンドウが先、ほかは 表 T-337 の手前から（`IN-4`）。焦点がプロパティパネルの中にあるあいだは立たない —— `RG-14` が先に受ける（`IN-4`）。最小化したウィンドウは立たない。検索パネルは、列のフィルタが開いていればフィルタだけを閉じる（`SV-14`）。遅延診断レポートの窓は窓だけを閉じ、診断の表示は終えない（`RW-1`）。担当リストのウィンドウを閉じると担当リストの表の日程抽出を解除する（`RO-1`）。`escapePressed` の `rung` の語は `searchPanel` ・ `helpModal` ・ `delayDiagnosticsReport` ・ `resourceList` |
+| RG-16 | `Esc` | 開いているウィンドウ | `searchPanelDisplayStateMachine.shown.normal` ／ `searchPanelDisplayStateMachine.shown.maximized` ／ `helpDisplayStateMachine.shown.normal` ／ `helpDisplayStateMachine.shown.maximized` と、フレームの値（焦点がどのウィンドウの中にあるか、焦点がプロパティパネルの中にあるか）。遅延診断レポートの窓はステートマシンを持たず、出ていて（`S-451`）最小化していないときに立つ。担当リストのウィンドウも同じ（`S-545`） | `IN-4` ・ `SV-14` ・ `HN-2` ・ `FR-152` ・ `RW-1` ・ `RO-1` | 1 度の `Esc` で 1 つだけ閉じる。焦点がその中にあるウィンドウが先、ほかは 表 T-337 の手前から（`IN-4`）。焦点がプロパティパネルの中にあるあいだは立たない —— `RG-14` が先に受ける（`IN-4`）。最小化したウィンドウは立たない。検索ウィンドウは、列のフィルターが開いていればフィルターだけを閉じる（`SV-14`）。遅延診断レポートの窓は窓だけを閉じ、診断の表示は終えない（`RW-1`）。担当リストのウィンドウを閉じると担当リストの表の日程抽出を解除する（`RO-1`）。`escapePressed` の `rung` の語は `searchPanel` ・ `helpModal` ・ `delayDiagnosticsReport` ・ `resourceList` |
 | RG-14 | `Esc` | プロパティパネル | `propertiesPanelContentStateMachine`（`hidden` 以外） | `IN-4` | 面ではない（`S-99g`、`S-99h`）。進行中のドラッグと開いているウィンドウの後に置く（`IN-4`）。番号は最後の次を採り、並びは表の上下が持つ。`escapePressed` の `rung` の語は `propertiesPanel` —— 開いている面（`RG-3`）の `surface` とは別の語 |
 | RG-5 | `Esc` | 構え | `armModeStateMachine.armed` | `IN-4` | — |
 | RG-6 | `Esc` | 選択 | `selectionStateMachine.objectsSelected` と、根の値 `chosenTaskGroups`（空でないとき）のどちらか —— タスクグループパネルのタスクグループだけを選んでいるときも立つ（`FR-085`） | `IN-4` ・ `FR-085` | 構えより前に置かない（`IN-4`） |
 | RG-7 | `Esc` | `Dual Cursor` モード | `dualCursorModeStateMachine.on` | `IN-4` | — |
 | RG-8 | `Esc` | 出ている説明 | `tooltipDisplayStateMachine.allowed` と、フレームの値（描いた説明がある） | `IN-4` ・ `IN-3` | 状態だけでは決まらない段（`SF-5`） |
-| RG-17 | `Esc` | 全画面表示 | `fullScreenModeStateMachine.full` | `IN-4` ・ `FR-071` | 最後の段。全画面表示を出ることをブラウザに求める（`FR-071` の入口の押下と同じ求め）。閲覧環境が Keyboard Lock を持たないときはブラウザが先に取る（`IN-4a`）。番号は最後の次を採り、並びは表の上下が持つ |
+| RG-17 | `Esc` | 全画面表示 | `fullScreenModeStateMachine.full` | `IN-4` ・ `FR-071` | 最後の段。全画面表示を出ることをブラウザーに求める（`FR-071` の入口の押下と同じ求め）。閲覧環境が Keyboard Lock を持たないときはブラウザーが先に取る（`IN-4a`）。番号は最後の次を採り、並びは表の上下が持つ |
 | RG-9 | `Enter` | 出ている通知 | `noticeDisplayStateMachine.shown` | `SK-19` ・ `NT-8` | — |
 | RG-10 | `Enter` | その場の編集の確定 | `fieldEditStateMachine.editingField` ／ `createdTaskNamingStateMachine.createdNameEnded` | `SK-19` ・ `FR-091` | 面も問いも立っていないとき |
 | RG-11 | `Enter` | プロパティパネルを出すのをやめる | `propertiesPanelContentStateMachine`（`hidden` 以外） | `SK-19` | 面も問いも立っておらず、確定していないその場の編集も無いとき |
@@ -113,7 +113,7 @@
 | `screen/paletteMinimizeToggled` | 入力: `IC-75` | — | `paletteDisplayStateMachine` |
 | `screen/milestoneListToggled` | 入力: `IC-50` | — | `milestoneListDisplayStateMachine` |
 | `screen/fullScreenEntryPressed` | 入力: `IC-11` ・ `SK-15` | — | `fullScreenModeStateMachine` |
-| `screen/fullScreenChanged` | 副作用の結果（ブラウザの `fullscreenchange`）: `FR-071` | `isFullScreen` | `fullScreenModeStateMachine` |
+| `screen/fullScreenChanged` | 副作用の結果（ブラウザーの `fullscreenchange`）: `FR-071` | `isFullScreen` | `fullScreenModeStateMachine` |
 | `screen/surfaceEntryPressed` | 入力（`IC-132` は `surfaceName` に `U-65` を運ぶ）: `IC-2` ・ `SK-12` ・ `IC-132` | `surfaceName` | `openSurfaceStateMachine` ・ `calendarDraftStateMachine` |
 | `screen/surfaceRaisedByFlow` | 副作用の結果（ファイルの領域が面を立てる）: `OP-3` ・ `U-56` ・ `U-61` ・ `U-62` | `surfaceName` | `openSurfaceStateMachine` ・ `calendarDraftStateMachine` |
 | `screen/flowSurfaceAnswered` | 入力（`U-56` ・ `U-61` の答えの入口。呼び手は同じ入力から領域 `fileFlow` の答えの出来事も作る）: `IC-71` ・ `IC-72` ・ `IC-73` ・ `IC-95` ・ `IC-96` ・ `IC-97` ・ `OP-3` ・ `FR-022` | `surfaceName` | `openSurfaceStateMachine` |
@@ -131,7 +131,7 @@
 | `screen/settleKeyPressed` | 入力（`SK-19` の 2 段目）: `SK-19` ・ `FR-070` | `hasSurfaceOrConfirmation` ／ `hasUnsettledEntry` | `propertiesPanelContentStateMachine` ・ `baseTimeZoneDraftStateMachine` ・ `timeShiftDraftStateMachine` ・ `wholeScheduleShiftDraftStateMachine` |
 | `screen/dualCursorEntryPressed` | 入力: `IC-45` ・ `DC-1` ・ `DC-4` | `date`（置く日付） ／ `hasDaysToPlace` | `armModeStateMachine` ・ `dualCursorModeStateMachine` |
 | `screen/guideCursorEntryPressed` | 入力: `IC-47` ・ `IC-48` ・ `DC-9` | `guideCursor`（押したガイドカーソルの値（`S-66`）） | 根 ・ `dualCursorModeStateMachine` |
-| `screen/dualCursorPlaced` | 入力（`Task Group Area` のクリック）: `DC-2` ・ `PTD-2` | `date`（置く日付） | `dualCursorModeStateMachine` |
+| `screen/dualCursorPlaced` | 入力（`Task Group Lanes` のクリック）: `DC-2` ・ `PTD-2` | `date`（置く日付） | `dualCursorModeStateMachine` |
 | `screen/displayScaleStepped` | 副作用の結果（倍率を書いた後にシェルが送る。運ぶ `percent` は書いた後に立っている値であり、入力の翻訳係は知らない（書き込みが拒まれたときは立っている値のまま））: `IC-104` ・ `IC-105` ・ `SK-22` ・ `SK-23` ・ `SE-1` | `percent` ／ `end` | `scaleMessageDisplayStateMachine` |
 | `screen/verticalZoomEndReached` | 副作用の結果（縦軸のズームが端に当たった）: `ZE-5` | `percent` ／ `end` | `scaleMessageDisplayStateMachine` |
 | `screen/scaleMessageTimeElapsed` | 時間: `S-244` ・ `SE-3` | — | `scaleMessageDisplayStateMachine` |
@@ -139,17 +139,17 @@
 | `screen/helpLanguageChosen` | 入力: `IC-128` ・ `FR-038` | `helpLanguage` | 根 |
 | `screen/themePreferenceChosen` | 入力: `IC-16` ・ `FR-039` | `themePreference` | 根 |
 | `screen/propertyPanelWidthSettled` | 入力（プロパティパネルの境界を離した）: `GR-22` ・ `IN-1` ・ `FR-052` | `propertyPanelWidth` | 根 |
-| `screen/progressMarkerPressed` | 入力（進捗マーカーの押下が離れた（`GA-18`）。押下の最中には送らない —— 副作用の書き込みが `WS-2` に拒まれる）: `GA-18` ・ `FR-107` ・ `PV-4` | `taskUid` ／ `rememberedActual`（覚える実績） ／ `writes`（文書に書く命令。入力の翻訳係が作る。書くものが無ければ空） | 根 |
+| `screen/progressMarkerPressed` | 入力（進捗ステータスマークの押下が離れた（`GA-18`）。押下の最中には送らない —— 副作用の書き込みが `WS-2` に拒まれる）: `GA-18` ・ `FR-107` ・ `PV-4` | `taskUid` ／ `rememberedActual`（覚える実績） ／ `writes`（文書に書く命令。入力の翻訳係が作る。書くものが無ければ空） | 根 |
 | `screen/hintTargetChanged` | 入力: `EZ-2` ・ `EZ-6` ・ `FR-037` ・ `IN-3` | — | `tooltipDisplayStateMachine` |
 | `screen/searchEntryPressed` | 入力: `IC-117` ・ `SK-24` | — | `searchPanelDisplayStateMachine` |
-| `screen/searchPanelMinimizeToggled` | 入力（検索パネルのタイトルバーの最小化の入口）: `IC-129` | — | `searchPanelDisplayStateMachine` |
-| `screen/searchPanelMaximizeToggled` | 入力（検索パネルのタイトルバーの最大化と元に戻す入口）: `IC-130` ・ `IC-131` | — | `searchPanelDisplayStateMachine` |
-| `screen/searchPanelClosePressed` | 入力（検索パネルの閉じる入口）: `IC-52` | — | `searchPanelDisplayStateMachine` |
+| `screen/searchPanelMinimizeToggled` | 入力（検索ウィンドウのタイトルバーの最小化の入口）: `IC-129` | — | `searchPanelDisplayStateMachine` |
+| `screen/searchPanelMaximizeToggled` | 入力（検索ウィンドウのタイトルバーの最大化と元に戻す入口）: `IC-130` ・ `IC-131` | — | `searchPanelDisplayStateMachine` |
+| `screen/searchPanelClosePressed` | 入力（検索ウィンドウの閉じる入口）: `IC-52` | — | `searchPanelDisplayStateMachine` |
 | `screen/searchHitJumped` | 入力（検索の表の行を押して飛んだ）: `SJ-1` | — | `searchPanelDisplayStateMachine` |
 | `screen/helpEntryPressed` | 入力: `IC-22` ・ `SK-13` | — | `helpDisplayStateMachine` |
 | `screen/helpMinimizeToggled` | 入力（ヘルプのタイトルバーの最小化の入口）: `IC-129` | — | `helpDisplayStateMachine` |
 | `screen/helpMaximizeToggled` | 入力（ヘルプのタイトルバーの最大化と元に戻す入口）: `IC-130` ・ `IC-131` | — | `helpDisplayStateMachine` |
-| `screen/continuationMarkClicked` | 入力（続きの印を押して離した（動かさない））: `PE-12` ・ `EL-16` | `landedLink` ／ `landedTarget` | `landingMarkDisplayStateMachine` |
+| `screen/continuationMarkClicked` | 入力（続きマークを押して離した（動かさない））: `PE-12` ・ `EL-16` | `landedLink` ／ `landedTarget` | `landingMarkDisplayStateMachine` |
 | `screen/landingMarkClearAsked` | 入力（印が出ているあいだの押下・キーの押下。見る位置と倍率だけを動かす操作と修飾キーだけの押下（EL-17 の ⭐）、印を付けた押下の 2 回目（EL-18）を除く）: `EL-17` | — | `landingMarkDisplayStateMachine` |
 | `screen/searchJumpLanded` | 入力（押して飛ぶ入口（SJ-1 のセル・FR-134 の行・RW-13 の修正案の行・PTL-16 の親の名・PR-37 / PR-38 の名）を押して離し、飛んで画面に出した。AM-16 が寄せたときも送る。SJ-8 で出せなかったときは送らない）: `SJ-10` ・ `AM-16` ・ `RW-13` | `landedTarget` ／ `landedRelatedTasks` | `landingMarkDisplayStateMachine` |
 | `screen/fileDragEntered` | 入力（ファイルを持つドラッグ（`dataTransfer.types` に `Files`）がウィンドウに入った。ウィンドウの中の UI パーツから UI パーツへ移るだけのものは送らない）: `OP-17` | `isOpenAccepted` | `dropCueDisplayStateMachine` |
@@ -175,7 +175,7 @@
 | --- | --- | --- |
 | `hasCalendarDraftRefusal` | `calendarDraftRefusals(calendarDraftStateMachine.calendarDraft).length > 0` | `WC-10` ・ `WC-7` |
 | `hasChoice` | <code>event.subject.selection.items.length &gt; 0 &#124;&#124; event.subject.taskGroupIds.length &gt; 0</code> | `FR-072` |
-| `hasDaysToPlace` | `event.hasDaysToPlace`（画面の中央（`Task Group Area` の横の中点）に置く日付があるかは、呼び手が判じて運ぶ） | `DC-1` |
+| `hasDaysToPlace` | `event.hasDaysToPlace`（画面の中央（`Task Group Lanes` の横の中点）に置く日付があるかは、呼び手が判じて運ぶ） | `DC-1` |
 | `hasSurfaceOrConfirmation` | `event.hasSurfaceOrConfirmation`（`Enter` の時点で面か問いが立っているかは、呼び手が判じて運ぶ） | `SK-19` ・ `FR-070` |
 | `hasUnsettledEntry` | `event.hasUnsettledEntry`（`Enter` の時点で確定していないその場の編集があるかは、呼び手が判じて運ぶ） | `SK-19` |
 | `isAnotherSurface` | `in(openSurfaceStateMachine.open) && openSurfaceStateMachine.surfaceName != event.surfaceName` | `S-99g` |
@@ -442,7 +442,7 @@
 | `screen/searchJumpLanded` | → `shown` | → 自己（中身を書き換える） |
 
 - `landingMarkDisplayStateMachine.hidden` —— 初期。根拠 `EL-17`
-- `landingMarkDisplayStateMachine.shown` —— 運ぶ値 `landedBy`（印を付けたもの —— `continuationMark`（続きの印、`EL-16`） ／ `jump`（飛び方、`SJ-10`）） ／ `landedLink`（印を付けた依存線の先行と後続の `UID`。`landedBy` が `continuationMark` のときだけ持ち、`jump` では `null`） ／ `landedTarget`（印の先の `Task` の `UID`、またはコメントボックスの id） ／ `landedRelatedTasks`（遅延診断の修正案の行から飛んだとき（表 T-346 の `RW-13`）の、行の関係するタスクの `UID` の列 —— `S-573` の色の囲みを描く。ほかの飛び方と続きの印では空）。根拠 `EL-16` ・ `EL-19` ・ `SJ-10` ・ `RW-13`
+- `landingMarkDisplayStateMachine.shown` —— 運ぶ値 `landedBy`（印を付けたもの —— `continuationMark`（続きマーク、`EL-16`） ／ `jump`（飛び方、`SJ-10`）） ／ `landedLink`（印を付けた依存線の先行と後続の `UID`。`landedBy` が `continuationMark` のときだけ持ち、`jump` では `null`） ／ `landedTarget`（印の先の `Task` の `UID`、またはコメントボックスの id） ／ `landedRelatedTasks`（遅延診断の修正案の行から飛んだとき（表 T-346 の `RW-13`）の、行の関係するタスクの `UID` の列 —— `S-573` の色の囲みを描く。ほかの飛び方と続きマークでは空）。根拠 `EL-16` ・ `EL-19` ・ `SJ-10` ・ `RW-13`
 
 表に無い出来事は `landingMarkDisplayStateMachine` を変えない（同じ参照）。
 
@@ -469,13 +469,13 @@
 | `screen/baseTimeZoneChosen` | → `drafted` [`isOtherThanShownBase`（`event.isOtherThanShownBase`）]（いまの見せる基準と同じタイムゾーンを選んだときは移らない）<br>それ以外 → — | → 自己 [`isOtherThanShownBase`（`event.isOtherThanShownBase`）]（`chosenRegion` を書き換える）<br>→ `untouched` [not `isOtherThanShownBase`（`event.isOtherThanShownBase`）]（いまの見せる基準を選び直したので、下書きを捨てる） |
 | `screen/baseChangeEntryPressed` | — | → `untouched` / `issueBaseChangeCommand`（`keepGlobalTime` は `CM-95` を、`keepLocalTime` は `CM-94` と `CM-95`（`null`）を、1 回の書き込みで出す。確認を取らない） |
 | `screen/baseChangeCancelPressed` | — | → `untouched`（何も書かない） |
-| `screen/surfaceCloseAsked` | — | → `untouched` [`isLeavingDocumentSettings`（`in(propertiesPanelContentStateMachine.documentSettingsDisplayed) && !inAfter(propertiesPanelContentStateMachine.documentSettingsDisplayed)`）]（プロパティパネルが文書の設定を出さなくなるときだけ、下書きを捨てる）<br>それ以外 → — |
-| `screen/escapePressed` | — | → `untouched` [`isLeavingDocumentSettings`（`in(propertiesPanelContentStateMachine.documentSettingsDisplayed) && !inAfter(propertiesPanelContentStateMachine.documentSettingsDisplayed)`）]（プロパティパネルが文書の設定を出さなくなるときだけ、下書きを捨てる）<br>それ以外 → — |
-| `screen/settingsEntryPressed` | — | → `untouched` [`isLeavingDocumentSettings`（`in(propertiesPanelContentStateMachine.documentSettingsDisplayed) && !inAfter(propertiesPanelContentStateMachine.documentSettingsDisplayed)`）]（プロパティパネルが文書の設定を出さなくなるときだけ、下書きを捨てる）<br>それ以外 → — |
-| `screen/propertiesOfChoiceAsked` | — | → `untouched` [`isLeavingDocumentSettings`（`in(propertiesPanelContentStateMachine.documentSettingsDisplayed) && !inAfter(propertiesPanelContentStateMachine.documentSettingsDisplayed)`）]（プロパティパネルが文書の設定を出さなくなるときだけ、下書きを捨てる）<br>それ以外 → — |
-| `screen/selectionMoved` | — | → `untouched` [`isLeavingDocumentSettings`（`in(propertiesPanelContentStateMachine.documentSettingsDisplayed) && !inAfter(propertiesPanelContentStateMachine.documentSettingsDisplayed)`）]（プロパティパネルが文書の設定を出さなくなるときだけ、下書きを捨てる）<br>それ以外 → — |
-| `screen/createdNameSettled` | — | → `untouched` [`isLeavingDocumentSettings`（`in(propertiesPanelContentStateMachine.documentSettingsDisplayed) && !inAfter(propertiesPanelContentStateMachine.documentSettingsDisplayed)`）]（プロパティパネルが文書の設定を出さなくなるときだけ、下書きを捨てる）<br>それ以外 → — |
-| `screen/settleKeyPressed` | — | → `untouched` [`isLeavingDocumentSettings`（`in(propertiesPanelContentStateMachine.documentSettingsDisplayed) && !inAfter(propertiesPanelContentStateMachine.documentSettingsDisplayed)`）]（プロパティパネルが文書の設定を出さなくなるときだけ、下書きを捨てる）<br>それ以外 → — |
+| `screen/surfaceCloseAsked` | — | → `untouched` [`isLeavingDocumentSettings`（`in(propertiesPanelContentStateMachine.documentSettingsDisplayed) && !inAfter(propertiesPanelContentStateMachine.documentSettingsDisplayed)`）]（プロパティパネルが文書設定を出さなくなるときだけ、下書きを捨てる）<br>それ以外 → — |
+| `screen/escapePressed` | — | → `untouched` [`isLeavingDocumentSettings`（`in(propertiesPanelContentStateMachine.documentSettingsDisplayed) && !inAfter(propertiesPanelContentStateMachine.documentSettingsDisplayed)`）]（プロパティパネルが文書設定を出さなくなるときだけ、下書きを捨てる）<br>それ以外 → — |
+| `screen/settingsEntryPressed` | — | → `untouched` [`isLeavingDocumentSettings`（`in(propertiesPanelContentStateMachine.documentSettingsDisplayed) && !inAfter(propertiesPanelContentStateMachine.documentSettingsDisplayed)`）]（プロパティパネルが文書設定を出さなくなるときだけ、下書きを捨てる）<br>それ以外 → — |
+| `screen/propertiesOfChoiceAsked` | — | → `untouched` [`isLeavingDocumentSettings`（`in(propertiesPanelContentStateMachine.documentSettingsDisplayed) && !inAfter(propertiesPanelContentStateMachine.documentSettingsDisplayed)`）]（プロパティパネルが文書設定を出さなくなるときだけ、下書きを捨てる）<br>それ以外 → — |
+| `screen/selectionMoved` | — | → `untouched` [`isLeavingDocumentSettings`（`in(propertiesPanelContentStateMachine.documentSettingsDisplayed) && !inAfter(propertiesPanelContentStateMachine.documentSettingsDisplayed)`）]（プロパティパネルが文書設定を出さなくなるときだけ、下書きを捨てる）<br>それ以外 → — |
+| `screen/createdNameSettled` | — | → `untouched` [`isLeavingDocumentSettings`（`in(propertiesPanelContentStateMachine.documentSettingsDisplayed) && !inAfter(propertiesPanelContentStateMachine.documentSettingsDisplayed)`）]（プロパティパネルが文書設定を出さなくなるときだけ、下書きを捨てる）<br>それ以外 → — |
+| `screen/settleKeyPressed` | — | → `untouched` [`isLeavingDocumentSettings`（`in(propertiesPanelContentStateMachine.documentSettingsDisplayed) && !inAfter(propertiesPanelContentStateMachine.documentSettingsDisplayed)`）]（プロパティパネルが文書設定を出さなくなるときだけ、下書きを捨てる）<br>それ以外 → — |
 | `screen/documentReplacedByOpenOrNew` | — | → `untouched` |
 
 - `baseTimeZoneDraftStateMachine.untouched` —— 初期。根拠 `FO-14` ・ `FR-156`
@@ -492,13 +492,13 @@
 | `screen/timeShiftAmountSettled` | → `amountHeld` [not `isShiftZero`（`event.shiftMinutes == 0`）]<br>それ以外 → — | → 自己 [not `isShiftZero`（`event.shiftMinutes == 0`）]（`shiftMinutes` を書き換える）<br>→ `empty` [`isShiftZero`（`event.shiftMinutes == 0`）] |
 | `screen/timeShiftEntryPressed` | — | → 自己 / `raiseTimeShiftQuestion`（下書きの量で `QN-14` を問う。続けると答えたら `CM-98` を 1 回出す。量が 0 か空のあいだは `IC-162` が薄い（`FR-029`）） |
 | `screen/timeShiftLanded` | — | → `empty` |
-| `screen/surfaceCloseAsked` | — | → `empty` [`isLeavingDocumentSettings`（`in(propertiesPanelContentStateMachine.documentSettingsDisplayed) && !inAfter(propertiesPanelContentStateMachine.documentSettingsDisplayed)`）]（プロパティパネルが文書の設定を出さなくなるときだけ、量を捨てる）<br>それ以外 → — |
-| `screen/escapePressed` | — | → `empty` [`isLeavingDocumentSettings`（`in(propertiesPanelContentStateMachine.documentSettingsDisplayed) && !inAfter(propertiesPanelContentStateMachine.documentSettingsDisplayed)`）]（プロパティパネルが文書の設定を出さなくなるときだけ、量を捨てる）<br>それ以外 → — |
-| `screen/settingsEntryPressed` | — | → `empty` [`isLeavingDocumentSettings`（`in(propertiesPanelContentStateMachine.documentSettingsDisplayed) && !inAfter(propertiesPanelContentStateMachine.documentSettingsDisplayed)`）]（プロパティパネルが文書の設定を出さなくなるときだけ、量を捨てる）<br>それ以外 → — |
-| `screen/propertiesOfChoiceAsked` | — | → `empty` [`isLeavingDocumentSettings`（`in(propertiesPanelContentStateMachine.documentSettingsDisplayed) && !inAfter(propertiesPanelContentStateMachine.documentSettingsDisplayed)`）]（プロパティパネルが文書の設定を出さなくなるときだけ、量を捨てる）<br>それ以外 → — |
-| `screen/selectionMoved` | — | → `empty` [`isLeavingDocumentSettings`（`in(propertiesPanelContentStateMachine.documentSettingsDisplayed) && !inAfter(propertiesPanelContentStateMachine.documentSettingsDisplayed)`）]（プロパティパネルが文書の設定を出さなくなるときだけ、量を捨てる）<br>それ以外 → — |
-| `screen/createdNameSettled` | — | → `empty` [`isLeavingDocumentSettings`（`in(propertiesPanelContentStateMachine.documentSettingsDisplayed) && !inAfter(propertiesPanelContentStateMachine.documentSettingsDisplayed)`）]（プロパティパネルが文書の設定を出さなくなるときだけ、量を捨てる）<br>それ以外 → — |
-| `screen/settleKeyPressed` | — | → `empty` [`isLeavingDocumentSettings`（`in(propertiesPanelContentStateMachine.documentSettingsDisplayed) && !inAfter(propertiesPanelContentStateMachine.documentSettingsDisplayed)`）]（プロパティパネルが文書の設定を出さなくなるときだけ、量を捨てる）<br>それ以外 → — |
+| `screen/surfaceCloseAsked` | — | → `empty` [`isLeavingDocumentSettings`（`in(propertiesPanelContentStateMachine.documentSettingsDisplayed) && !inAfter(propertiesPanelContentStateMachine.documentSettingsDisplayed)`）]（プロパティパネルが文書設定を出さなくなるときだけ、量を捨てる）<br>それ以外 → — |
+| `screen/escapePressed` | — | → `empty` [`isLeavingDocumentSettings`（`in(propertiesPanelContentStateMachine.documentSettingsDisplayed) && !inAfter(propertiesPanelContentStateMachine.documentSettingsDisplayed)`）]（プロパティパネルが文書設定を出さなくなるときだけ、量を捨てる）<br>それ以外 → — |
+| `screen/settingsEntryPressed` | — | → `empty` [`isLeavingDocumentSettings`（`in(propertiesPanelContentStateMachine.documentSettingsDisplayed) && !inAfter(propertiesPanelContentStateMachine.documentSettingsDisplayed)`）]（プロパティパネルが文書設定を出さなくなるときだけ、量を捨てる）<br>それ以外 → — |
+| `screen/propertiesOfChoiceAsked` | — | → `empty` [`isLeavingDocumentSettings`（`in(propertiesPanelContentStateMachine.documentSettingsDisplayed) && !inAfter(propertiesPanelContentStateMachine.documentSettingsDisplayed)`）]（プロパティパネルが文書設定を出さなくなるときだけ、量を捨てる）<br>それ以外 → — |
+| `screen/selectionMoved` | — | → `empty` [`isLeavingDocumentSettings`（`in(propertiesPanelContentStateMachine.documentSettingsDisplayed) && !inAfter(propertiesPanelContentStateMachine.documentSettingsDisplayed)`）]（プロパティパネルが文書設定を出さなくなるときだけ、量を捨てる）<br>それ以外 → — |
+| `screen/createdNameSettled` | — | → `empty` [`isLeavingDocumentSettings`（`in(propertiesPanelContentStateMachine.documentSettingsDisplayed) && !inAfter(propertiesPanelContentStateMachine.documentSettingsDisplayed)`）]（プロパティパネルが文書設定を出さなくなるときだけ、量を捨てる）<br>それ以外 → — |
+| `screen/settleKeyPressed` | — | → `empty` [`isLeavingDocumentSettings`（`in(propertiesPanelContentStateMachine.documentSettingsDisplayed) && !inAfter(propertiesPanelContentStateMachine.documentSettingsDisplayed)`）]（プロパティパネルが文書設定を出さなくなるときだけ、量を捨てる）<br>それ以外 → — |
 | `screen/documentReplacedByOpenOrNew` | — | → `empty` |
 
 - `timeShiftDraftStateMachine.empty` —— 初期。根拠 `FO-16`
@@ -515,13 +515,13 @@
 | `screen/wholeScheduleShiftDateSettled` | → `dateHeld` [not `isNewStartDateEmpty`（`event.newStartDate == ''`）]<br>それ以外 → — | → 自己 [not `isNewStartDateEmpty`（`event.newStartDate == ''`）]（`newStartDate` を書き換える）<br>→ `empty` [`isNewStartDateEmpty`（`event.newStartDate == ''`）] |
 | `screen/wholeScheduleShiftEntryPressed` | — | → 自己 / `raiseWholeScheduleShiftQuestion`（下書きの日で `QN-15` を問う。続けると答えたら `CM-99` を 1 回出す。適用のボタンが押せないあいだ（`WH-12`）は何もしない） |
 | `screen/wholeScheduleShiftLanded` | — | → `empty` |
-| `screen/surfaceCloseAsked` | — | → `empty` [`isLeavingDocumentSettings`（`in(propertiesPanelContentStateMachine.documentSettingsDisplayed) && !inAfter(propertiesPanelContentStateMachine.documentSettingsDisplayed)`）]（プロパティパネルが文書の設定を出さなくなるときだけ、新しい開始日を捨てる）<br>それ以外 → — |
-| `screen/escapePressed` | — | → `empty` [`isLeavingDocumentSettings`（`in(propertiesPanelContentStateMachine.documentSettingsDisplayed) && !inAfter(propertiesPanelContentStateMachine.documentSettingsDisplayed)`）]（プロパティパネルが文書の設定を出さなくなるときだけ、新しい開始日を捨てる）<br>それ以外 → — |
-| `screen/settingsEntryPressed` | — | → `empty` [`isLeavingDocumentSettings`（`in(propertiesPanelContentStateMachine.documentSettingsDisplayed) && !inAfter(propertiesPanelContentStateMachine.documentSettingsDisplayed)`）]（プロパティパネルが文書の設定を出さなくなるときだけ、新しい開始日を捨てる）<br>それ以外 → — |
-| `screen/propertiesOfChoiceAsked` | — | → `empty` [`isLeavingDocumentSettings`（`in(propertiesPanelContentStateMachine.documentSettingsDisplayed) && !inAfter(propertiesPanelContentStateMachine.documentSettingsDisplayed)`）]（プロパティパネルが文書の設定を出さなくなるときだけ、新しい開始日を捨てる）<br>それ以外 → — |
-| `screen/selectionMoved` | — | → `empty` [`isLeavingDocumentSettings`（`in(propertiesPanelContentStateMachine.documentSettingsDisplayed) && !inAfter(propertiesPanelContentStateMachine.documentSettingsDisplayed)`）]（プロパティパネルが文書の設定を出さなくなるときだけ、新しい開始日を捨てる）<br>それ以外 → — |
-| `screen/createdNameSettled` | — | → `empty` [`isLeavingDocumentSettings`（`in(propertiesPanelContentStateMachine.documentSettingsDisplayed) && !inAfter(propertiesPanelContentStateMachine.documentSettingsDisplayed)`）]（プロパティパネルが文書の設定を出さなくなるときだけ、新しい開始日を捨てる）<br>それ以外 → — |
-| `screen/settleKeyPressed` | — | → `empty` [`isLeavingDocumentSettings`（`in(propertiesPanelContentStateMachine.documentSettingsDisplayed) && !inAfter(propertiesPanelContentStateMachine.documentSettingsDisplayed)`）]（プロパティパネルが文書の設定を出さなくなるときだけ、新しい開始日を捨てる）<br>それ以外 → — |
+| `screen/surfaceCloseAsked` | — | → `empty` [`isLeavingDocumentSettings`（`in(propertiesPanelContentStateMachine.documentSettingsDisplayed) && !inAfter(propertiesPanelContentStateMachine.documentSettingsDisplayed)`）]（プロパティパネルが文書設定を出さなくなるときだけ、新しい開始日を捨てる）<br>それ以外 → — |
+| `screen/escapePressed` | — | → `empty` [`isLeavingDocumentSettings`（`in(propertiesPanelContentStateMachine.documentSettingsDisplayed) && !inAfter(propertiesPanelContentStateMachine.documentSettingsDisplayed)`）]（プロパティパネルが文書設定を出さなくなるときだけ、新しい開始日を捨てる）<br>それ以外 → — |
+| `screen/settingsEntryPressed` | — | → `empty` [`isLeavingDocumentSettings`（`in(propertiesPanelContentStateMachine.documentSettingsDisplayed) && !inAfter(propertiesPanelContentStateMachine.documentSettingsDisplayed)`）]（プロパティパネルが文書設定を出さなくなるときだけ、新しい開始日を捨てる）<br>それ以外 → — |
+| `screen/propertiesOfChoiceAsked` | — | → `empty` [`isLeavingDocumentSettings`（`in(propertiesPanelContentStateMachine.documentSettingsDisplayed) && !inAfter(propertiesPanelContentStateMachine.documentSettingsDisplayed)`）]（プロパティパネルが文書設定を出さなくなるときだけ、新しい開始日を捨てる）<br>それ以外 → — |
+| `screen/selectionMoved` | — | → `empty` [`isLeavingDocumentSettings`（`in(propertiesPanelContentStateMachine.documentSettingsDisplayed) && !inAfter(propertiesPanelContentStateMachine.documentSettingsDisplayed)`）]（プロパティパネルが文書設定を出さなくなるときだけ、新しい開始日を捨てる）<br>それ以外 → — |
+| `screen/createdNameSettled` | — | → `empty` [`isLeavingDocumentSettings`（`in(propertiesPanelContentStateMachine.documentSettingsDisplayed) && !inAfter(propertiesPanelContentStateMachine.documentSettingsDisplayed)`）]（プロパティパネルが文書設定を出さなくなるときだけ、新しい開始日を捨てる）<br>それ以外 → — |
+| `screen/settleKeyPressed` | — | → `empty` [`isLeavingDocumentSettings`（`in(propertiesPanelContentStateMachine.documentSettingsDisplayed) && !inAfter(propertiesPanelContentStateMachine.documentSettingsDisplayed)`）]（プロパティパネルが文書設定を出さなくなるときだけ、新しい開始日を捨てる）<br>それ以外 → — |
 | `screen/documentReplacedByOpenOrNew` | — | → `empty` |
 
 - `wholeScheduleShiftDraftStateMachine.empty` —— 初期。根拠 `FO-17`
@@ -566,7 +566,7 @@
 | 出来事 | どこから来るか | 運ぶ値 | 動かすもの |
 | --- | --- | --- | --- |
 | `notices/noticeRaised` | 副作用の結果（副作用 `raiseNotice` の実行。ほかの領域の遷移とシェルの流れが返す）: `FR-076` ・ `NT-3` | `reason`（表 T-233 の `RS-` の行、または 表 T-220 の行） ／ `affectedCount`（無いこともある） | `noticeDisplayStateMachine` |
-| `notices/noticeTimeElapsed` | 副作用の結果（シェルが数えた `_assets/tbl-settings.md` の 表 T-206 の `S-542` が経った。ポインタが箱の上にある間の止めと、離れたときの数え直しはシェルの時計の仕事であり、本機械は期限が来たことだけを受ける）: `NT-2` ・ `FT-4` | `reason`（期限が来た 1 枚の理由） | `noticeDisplayStateMachine` |
+| `notices/noticeTimeElapsed` | 副作用の結果（シェルが数えた `_assets/tbl-settings.md` の 表 T-206 の `S-542` が経った。ポインターが箱の上にある間の止めと、離れたときの数え直しはシェルの時計の仕事であり、本機械は期限が来たことだけを受ける）: `NT-2` ・ `FT-4` | `reason`（期限が来た 1 枚の理由） | `noticeDisplayStateMachine` |
 | `notices/newestNoticeDismissAsked` | 入力（`Esc`（`IN-4` の第 1 段）／ `Enter`（`SK-19` の第 1 段）。段は呼び手が決め、同じ入力のほかの何よりも先に進める）: `NT-8` ・ `IN-4` ・ `SK-19` | — | `noticeDisplayStateMachine` |
 | `notices/noticeDismissPressed` | 入力（1 つの通知の `OK` の入口を押して離した）: `NT-8` | `reason`（押された通知の理由。`NT-3` の束ねで 1 つの理由に 1 枚なので、理由が通知を 1 つに決める） | `noticeDisplayStateMachine` |
 | `notices/documentReplaced` | 副作用の結果（`WS-6` の差し替えが済み、`WS-7` の配りが始まる）: `WS-6` ・ `WS-7` | — | `changeDeliveryStateMachine` |
@@ -646,9 +646,9 @@
 
 | 出来事 | どこから来るか | 運ぶ値 | 動かすもの |
 | --- | --- | --- | --- |
-| `gesture/pointerPressed` | 入力（ポインタを押した。入力の源は、身振りを持つあいだ次の押下を報告しない）: `CS-2` ・ `IN-1` | `pressRow`（`PTD-7` ・ `PTD-1` ・ `PTD-2` ・ `PTD-3` ・ `PTD-4` ・ `PTD-4a` ・ `PTD-5`。押下の行。呼び手が構え・`Dual Cursor`・選択から詰める。`PTD-7`（選択をコピーする）は文書を変える押下である） ／ `pressedOn`（押したもの —— 当たった掴みか、画面の場所（入口・掴み帯・パネルの境界・タスクグループの掴み代・つまみ）。座標は運ばない） | `pointerPressStateMachine` ・ `taskGroupGrabStateMachine` |
+| `gesture/pointerPressed` | 入力（ポインターを押した。入力の源は、身振りを持つあいだ次の押下を報告しない）: `CS-2` ・ `IN-1` | `pressRow`（`PTD-7` ・ `PTD-1` ・ `PTD-2` ・ `PTD-3` ・ `PTD-4` ・ `PTD-4a` ・ `PTD-5`。押下の行。呼び手が構え・`Dual Cursor`・選択から詰める。`PTD-7`（選択をコピーする）は文書を変える押下である） ／ `pressedOn`（押したもの —— 当たった掴みか、画面の場所（入口・グリップ・パネルの境界・タスクグループの掴み代・スクロールつまみ）。座標は運ばない） | `pointerPressStateMachine` ・ `taskGroupGrabStateMachine` |
 | `gesture/pointerReleased` | 入力（押していたボタンを離した）: `IN-1` ・ `CS-2` | — | `pointerPressStateMachine` ・ `taskGroupGrabStateMachine` |
-| `gesture/pressInterrupted` | 入力（`Esc`（`IN-4` の進行中のドラッグの段。段は呼び手が決める）／ 離す前にポインタが失われた（`IN-1a`））: `IN-1` ・ `IN-1a` ・ `IN-4` | — | `pointerPressStateMachine` ・ `taskGroupGrabStateMachine` |
+| `gesture/pressInterrupted` | 入力（`Esc`（`IN-4` の進行中のドラッグの段。段は呼び手が決める）／ 離す前にポインターが失われた（`IN-1a`））: `IN-1` ・ `IN-1a` ・ `IN-4` | — | `pointerPressStateMachine` ・ `taskGroupGrabStateMachine` |
 | `gesture/taskGroupGrabTravelPassed` | 入力（タスクグループを掴んだまま、押した点から初めて `S-208` を超えて動いた）: `HF-15` ・ `S-208` | — | `taskGroupGrabStateMachine` |
 | `gesture/entryRepeatTimeElapsed` | 時間（`startEntryRepeat` の待ち（`S-172`）か、`repeatHeldEntry` の待ち（`S-173`）が明けた）: `FR-018` ・ `S-172` ・ `S-173` | — | `pointerPressStateMachine` |
 
@@ -658,7 +658,7 @@
 
 | ガード | 条件 | 根拠 |
 | --- | --- | --- |
-| `isDocumentChangingPress` | <code>(event.pressedOn == null &#124;&#124; event.pressedOn.kind == 'grab') &amp;&amp; !(event.pressRow in ['PTD-1', 'PTD-5']) &#124;&#124; event.pressedOn != null &amp;&amp; !(event.pressedOn.kind in ['grab', 'scrollbarThumb']) &amp;&amp; !(event.pressedOn.kind == 'entry' &amp;&amp; event.pressedOn.entry in ['IC-12', 'IC-13', 'IC-14', 'IC-15'])</code>（押下の先を先に問い、押下の行は後に問う —— 描いた入口の押下は `PTD-5` に落ちるので、行を先に問うとパレットのどの押下も `AG-9` から外れる。文書を変えない押下は、見るだけの押下行（`PTD-1`・`PTD-5`）、スクロールバーのつまみ（`UN-8`）、押し続けると繰り返す入口（`UN-8`）である。⚠️ 式は今の判定を書いた —— パネルの境界（`UN-16`）・パレットの掴み帯（`FR-053`）・`PTD-2`・`PTD-4a`・繰り返さない入口を取り消しの対象（表 T-027）と突き合わせると外れうる。どちらが正かは決めていない） | `AG-9` ・ `UN-8` ・ `UN-9` ・ `UN-16` ・ `PTD-1` ・ `PTD-5` ・ `FR-018` ・ `FR-053` |
+| `isDocumentChangingPress` | <code>(event.pressedOn == null &#124;&#124; event.pressedOn.kind == 'grab') &amp;&amp; !(event.pressRow in ['PTD-1', 'PTD-5']) &#124;&#124; event.pressedOn != null &amp;&amp; !(event.pressedOn.kind in ['grab', 'scrollbarThumb']) &amp;&amp; !(event.pressedOn.kind == 'entry' &amp;&amp; event.pressedOn.entry in ['IC-12', 'IC-13', 'IC-14', 'IC-15'])</code>（押下の先を先に問い、押下の行は後に問う —— 描いた入口の押下は `PTD-5` に落ちるので、行を先に問うとパレットのどの押下も `AG-9` から外れる。文書を変えない押下は、見るだけの押下行（`PTD-1`・`PTD-5`）、スクロールつまみ（`UN-8`）、押し続けると繰り返す入口（`UN-8`）である。⚠️ 式は今の判定を書いた —— パネルの境界（`UN-16`）・パレットのグリップ（`FR-053`）・`PTD-2`・`PTD-4a`・繰り返さない入口を取り消しの対象（表 T-027）と突き合わせると外れうる。どちらが正かは決めていない） | `AG-9` ・ `UN-8` ・ `UN-9` ・ `UN-16` ・ `PTD-1` ・ `PTD-5` ・ `FR-018` ・ `FR-053` |
 | `isHeldOnRepeatingEntry` | `pointerPressStateMachine.pressedOn.kind == 'entry' && pointerPressStateMachine.pressedOn.entry in ['IC-12', 'IC-13', 'IC-14', 'IC-15']`（押し続けている押下が、押し続けると繰り返す入口の上にある（刻みの出来事は押下の先を運ばない）） | `FR-018` ・ `S-173` |
 | `isOnPaletteBand` | `pointerPressStateMachine.pressedOn.kind == 'paletteBand'` | `FR-053` ・ `GR-19` |
 | `isOnRepeatingEntry` | `event.pressedOn.kind == 'entry' && event.pressedOn.entry in ['IC-12', 'IC-13', 'IC-14', 'IC-15']` | `FR-018` ・ `S-172` |
@@ -739,7 +739,7 @@
 | `fileFlow/newDocumentEntryPressed` | 入力（新しく始める入口・`N`）: `IC-98` ・ `SK-25` ・ `FR-095` | `question`（`QN-5`。いまの文書を捨てる問い。呼び手が詰める） | `confirmationStateMachine` |
 | `fileFlow/grsResetEntryPressed` | 入力（GRS リセットの入口）: `IC-139` ・ `FR-153` | `question`（`QN-11`。GRS をリセットする問い。挙げる名前は、未保存の編集があるときだけ、いまの文書。呼び手が詰める） | `confirmationStateMachine` |
 | `fileFlow/flowSurfaceClosed` | ほかの領域の結果（画面の値の副作用 `tellFlowSurfaceClosed`。人が `×` か `Esc` で面を閉じた）: `IC-52` ・ `IN-4` | `surfaceName`（`U-56` ・ `U-61` ・ `U-62`） | 根 ・ `fileOperationStateMachine` |
-| `fileFlow/documentFileRead` | 副作用の結果（`readDocumentFile` が読み、形式を判じ、検証を通した）: `OP-5` ・ `OP-12` ・ `FR-023` | `question`（`QN-5`。読み直すときに立てる問い。挙げる名前は操作を始めた時点の文書（`CS-4`）。副作用の実行が詰める） ／ `incomingFile`（`OP-16`。読んだファイルの名前（ファイルを持たずに渡された文書では無い）と、読んだ中身のバイト数と、読んだ文書の文書名（`AT-3`。無いこともある）。`Open Chooser` が出す。副作用の実行が詰める） | `fileOperationStateMachine` ・ `confirmationStateMachine` |
+| `fileFlow/documentFileRead` | 副作用の結果（`readDocumentFile` が読み、形式を判じ、検証を通した）: `OP-5` ・ `OP-12` ・ `FR-023` | `question`（`QN-5`。読み直すときに立てる問い。挙げる名前は操作を始めた時点の文書（`CS-4`）。副作用の実行が詰める） ／ `incomingFile`（`OP-16`。読んだファイルの名前（ファイルを持たずに渡された文書では無い）と、読んだ中身のバイト数と、読んだ文書の文書名（`AT-3`。無いこともある）。`Open File Dialog` が出す。副作用の実行が詰める） | `fileOperationStateMachine` ・ `confirmationStateMachine` |
 | `fileFlow/documentOpenFailed` | 副作用の結果（読めない・選ばなかった・検証が拒んだ・読み直す相手が無い・着地を拒まれた（告げるのは副作用の中身））: `OP-5` ・ `OP-13` ・ `FR-023` | — | `fileOperationStateMachine` |
 | `fileFlow/mergeMappingAsked` | 副作用の結果（`importIncomingDocument` が対応付けを問うことになった）: `FR-022` ・ `U-61` ・ `FR-073` | `mergeCandidates`（`U-61`） ／ `unreadColumns`（`FR-073`） | `fileOperationStateMachine` |
 | `fileFlow/documentOpenLanded` | 副作用の結果（取り込みが着地した。起動時に渡された文書を読み終えたとき（`OP-14`）も、`reportedCounts` を運ぶために送る）: `RD-3` ・ `RD-4` ・ `FR-023` ・ `FR-101` ・ `OP-14` | `droppedTaskNames`（`RS-50`） ／ `missingTaskNames`（`RS-73` ・ `MG-11`。合流で、前回の取り込みでは届いていて今回届かなかった `Task` の名前。合流でなければ空） ／ `reportedCounts`（`FR-076` ・ `U-62`。読込の中で上がった、表 T-233 の表示の仕方が「`U-62` に並べる」の理由と件数 —— `reason`（表 T-233 の行）と `count`（件数）の組の列。相乗りする理由は同じ理由に数える。着地しなかった読込の件数は運ばない） ／ `openedFileName`（`FR-101`。無いこともある） ／ `openChoice`（`OP-3` ・ `RD-3` ・ `RD-4`。置き換え（`RD-4`）か、合流・重ね（`RD-3`）か） | 根 ・ `fileOperationStateMachine` ・ `unsavedEditsStateMachine` |
@@ -768,7 +768,7 @@
 | `isOverwriteQuestion` | `confirmationStateMachine.question.question == 'QN-4'` | `DI-4` ・ `QN-4` |
 | `isProceeding` | `event.isProceeding` | `NT-7` |
 | `isReplaceChoice` | `event.openChoice == 'replace'` | `OP-3` ・ `OP-4` |
-| `isReplaceWithoutChooser` | <code>fileOperationStateMachine.openRoute == 'reopen' &#124;&#124; fileOperationStateMachine.openRoute == 'drop'</code>（読み直す（`OP-13`）か、ファイルをドロップした（`OP-19`）。どちらも `Open Chooser` を出さずに置き換えに定める） | `OP-13` ・ `OP-19` |
+| `isReplaceWithoutChooser` | <code>fileOperationStateMachine.openRoute == 'reopen' &#124;&#124; fileOperationStateMachine.openRoute == 'drop'</code>（読み直す（`OP-13`）か、ファイルをドロップした（`OP-19`）。どちらも `Open File Dialog` を出さずに置き換えに定める） | `OP-13` ・ `OP-19` |
 
 ### 根 `fileFlow` の値
 
@@ -1084,7 +1084,7 @@
 | 出来事 | どこから来るか | 運ぶ値 | 動かすもの |
 | --- | --- | --- | --- |
 | `agentApi/agentApiEntryPressed` | 入力（`IC-20` を押した。無効のときは有効にし、有効のときは無効にする —— 有効にするのと無効にするのは同じ 1 つの入口である）: `IC-20` ・ `FR-065` | — | 根 ・ `agentApiEnablingStateMachine` |
-| `agentApi/rememberedEnablingLoaded` | 副作用の結果（起動のとき、シェルがブラウザ（オリジン）の記憶を読んだ結果）: `FR-065` ・ `S-99b` | `isRememberedEnabled`（`S-99b`。記憶が有効を指すか） | `agentApiEnablingStateMachine` |
+| `agentApi/rememberedEnablingLoaded` | 副作用の結果（起動のとき、シェルがブラウザー（オリジン）の記憶を読んだ結果）: `FR-065` ・ `S-99b` | `isRememberedEnabled`（`S-99b`。記憶が有効を指すか） | `agentApiEnablingStateMachine` |
 
 ### `Agent API` のガード
 
@@ -1101,7 +1101,7 @@
 
 | 出来事 | `agentApi` |
 | --- | --- |
-| `agentApi/agentApiEntryPressed` | → 自己 / `storeAgentApiEnabling`（押した後の有効・無効をブラウザ（オリジン）の記憶に書く） |
+| `agentApi/agentApiEntryPressed` | → 自己 / `storeAgentApiEnabling`（押した後の有効・無効をブラウザー（オリジン）の記憶に書く） |
 
 **図 F-042 — `Agent API` の状態遷移**
 
@@ -1143,18 +1143,18 @@
 
 | 出来事 | どこから来るか | 運ぶ値 | 動かすもの |
 | --- | --- | --- | --- |
-| `taskGroupTree/oneLevelOpenPressed` | 入力（タスクグループの 1 階層展開する操作子を押した。押しが何かを行うときだけ（`FR-029`））: `IC-90` ・ `HF-13` ・ `HR-7` | `pressedRowId`（押したタスクグループの id） | `treeStateMachine` |
-| `taskGroupTree/allBelowOpenPressed` | 入力（タスクグループの配下をすべて展開する操作子を押した。押しが何かを行うときだけ）: `IC-58` ・ `HF-2` ・ `HR-3` | `pressedRowId`（押したタスクグループの id） | `treeStateMachine` |
-| `taskGroupTree/hidePressed` | 入力（タスクグループの親に格納する操作子を押した）: `IC-59` ・ `HF-3` ・ `HR-6` | `pressedRowId`（押したタスクグループの id） | `treeStateMachine` |
-| `taskGroupTree/allBelowFoldPressed` | 入力（タスクグループの配下をすべて折りたたむ操作子を押した。押しが何かを行うときだけ）: `IC-77` ・ `HF-11` ・ `HR-4` | `pressedRowId`（押したタスクグループの id） | `treeStateMachine` |
-| `taskGroupTree/everyTaskGroupOpenPressed` | 入力（頭のすべて展開する操作子を押した。押しが何かを行うときだけ）: `IC-74` ・ `HF-10` ・ `HR-1` | — | 根 ・ `treeStateMachine` |
-| `taskGroupTree/everyTaskGroupFoldPressed` | 入力（頭のすべて折りたたむ操作子を押した。押しが何かを行うときだけ）: `IC-78` ・ `HF-12` ・ `HR-2` | — | 根 ・ `treeStateMachine` |
-| `taskGroupTree/topLevelOpenPressed` | 入力（頭の最も浅い段を 1 階層展開する操作子を押した。押しが何かを行うときだけ）: `IC-92` ・ `HF-16` | — | 根 ・ `treeStateMachine` |
-| `taskGroupTree/childTaskGroupAddPressed` | 入力（タスクグループの配下に足す操作子か、頭の最も浅い段へ足す操作子を押した）: `IC-91` ・ `HF-14` ・ `HR-8` ・ `IC-93` ・ `HF-17` | `pressedRowId`（押したタスクグループの id。頭の操作子（`IC-93`）では段 0 を押したので、どのタスクグループでもない。値は `null` とする） | 根 ・ `treeStateMachine` |
+| `taskGroupTree/oneLevelOpenPressed` | 入力（タスクグループの 1 階層展開ボタンを押した。押しが何かを行うときだけ（`FR-029`））: `IC-90` ・ `HF-13` ・ `HR-7` | `pressedRowId`（押したタスクグループの id） | `treeStateMachine` |
+| `taskGroupTree/allBelowOpenPressed` | 入力（タスクグループの配下展開ボタンを押した。押しが何かを行うときだけ）: `IC-58` ・ `HF-2` ・ `HR-3` | `pressedRowId`（押したタスクグループの id） | `treeStateMachine` |
+| `taskGroupTree/hidePressed` | 入力（タスクグループの親に格納ボタンを押した）: `IC-59` ・ `HF-3` ・ `HR-6` | `pressedRowId`（押したタスクグループの id） | `treeStateMachine` |
+| `taskGroupTree/allBelowFoldPressed` | 入力（タスクグループの配下折りたたみボタンを押した。押しが何かを行うときだけ）: `IC-77` ・ `HF-11` ・ `HR-4` | `pressedRowId`（押したタスクグループの id） | `treeStateMachine` |
+| `taskGroupTree/everyTaskGroupOpenPressed` | 入力（頭のすべて展開するボタンを押した。押しが何かを行うときだけ）: `IC-74` ・ `HF-10` ・ `HR-1` | — | 根 ・ `treeStateMachine` |
+| `taskGroupTree/everyTaskGroupFoldPressed` | 入力（頭のすべて折りたたむボタンを押した。押しが何かを行うときだけ）: `IC-78` ・ `HF-12` ・ `HR-2` | — | 根 ・ `treeStateMachine` |
+| `taskGroupTree/topLevelOpenPressed` | 入力（頭の最も浅い段を 1 階層展開するボタンを押した。押しが何かを行うときだけ）: `IC-92` ・ `HF-16` | — | 根 ・ `treeStateMachine` |
+| `taskGroupTree/childTaskGroupAddPressed` | 入力（タスクグループの配下に足すボタンか、頭の最も浅い段へ足すボタンを押した）: `IC-91` ・ `HF-14` ・ `HR-8` ・ `IC-93` ・ `HF-17` | `pressedRowId`（押したタスクグループの id。頭のボタン（`IC-93`）では段 0 を押したので、どのタスクグループでもない。値は `null` とする） | 根 ・ `treeStateMachine` |
 | `taskGroupTree/fitPressed` | 入力（全体表示を求めた）: `IC-10` ・ `SK-18` ・ `FR-055` ・ `HF-8` | — | 根 ・ `treeStateMachine` |
-| `taskGroupTree/everyTaskGroupDeletePressed` | 入力（頭のすべてのタスクグループを消す操作子を押し、問い（`QN-10`）に消すと答えた）: `IC-106` ・ `HF-20` | — | 根 |
+| `taskGroupTree/everyTaskGroupDeletePressed` | 入力（頭のすべてのタスクグループを消すボタンを押し、問い（`QN-10`）に消すと答えた）: `IC-106` ・ `HF-20` | — | 根 |
 | `taskGroupTree/verticalZoomShrinkPressed` | 入力（縦軸を縮める入力。縮める側の端で倍率を書き換えないとき（`ZE-2`）も送る。拡げる入力・日付の軸のズーム・`Agent API` の `setZoom` では送らない）: `MK-2` ・ `MK-4` ・ `IC-14` ・ `SK-16c` ・ `ZE-2` | — | `treeStateMachine` |
-| `taskGroupTree/taskGroupRevealAsked` | 入力（検索パネルの表の行を押して飛ぶ（`SJ-1`）か、`Agent API` の `focusTask`（`AM-16`）が飛ぶか、依存線の続きの印を押して折りたたんだタスクグループか格納したタスクグループの配下の端へ送る（`EL-21`）か、日程抽出しているあいだに表の行を「非表示」から「表示」にする（`FR-151` の 表 T-353 の `TV-6`）。⭐ 日程抽出することでは展開しない（同行））: `SJ-1` ・ `AM-16` ・ `EL-21` ・ `TV-6` | `revealedRowId`（飛ぶ先のタスクグループの id） | 根 ・ `treeStateMachine` |
+| `taskGroupTree/taskGroupRevealAsked` | 入力（検索ウィンドウの表の行を押して飛ぶ（`SJ-1`）か、`Agent API` の `focusTask`（`AM-16`）が飛ぶか、依存線の続きマークを押して折りたたんだタスクグループか格納したタスクグループの配下の端へ送る（`EL-21`）か、日程抽出しているあいだに表の行を「非表示」から「表示」にする（`FR-151` の 表 T-353 の `TV-6`）。⭐ 日程抽出することでは展開しない（同行））: `SJ-1` ・ `AM-16` ・ `EL-21` ・ `TV-6` | `revealedRowId`（飛ぶ先のタスクグループの id） | 根 ・ `treeStateMachine` |
 
 ### タスクグループの木のガード
 

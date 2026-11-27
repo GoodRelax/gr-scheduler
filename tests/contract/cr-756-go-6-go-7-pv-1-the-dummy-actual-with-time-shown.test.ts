@@ -32,7 +32,7 @@ const GO_6_THE_FLOOR = '`S-585` の稼働時間を進めた瞬間が `FR-011` �
 const GO_7_THE_PLAN_START_INSTANT = '`actualStart` ＝ 予定の開始日（時刻を表示しているとき（`FR-158`）は予定の開始の瞬間 —— 表 T-240 の `DM-1` であり、日の既定の開始時刻へ丸めない）'
 const GO_8_THE_SAME_DAY = '`actualStart` ＝ 離した所、実績の最後の日 ＝ 同じ日（`S-130`）'
 const GO_9_RIGHT_OF_THE_DUMMY =
-  '進捗マーカーが未着手のダミーの右に立つとき、`GRS` は、`actualStart` ＝ 予定の開始日（時刻を表示しているときは予定の開始の瞬間 —— 表 T-240 の `DM-1`）、実績の最後の日 ＝ 離した所そのもの、と置くこと。'
+  '進捗ステータスマークが未着手のダミーの右に立つとき、`GRS` は、`actualStart` ＝ 予定の開始日（時刻を表示しているときは予定の開始の瞬間 —— 表 T-240 の `DM-1`）、実績の最後の日 ＝ 離した所そのもの、と置くこと。'
 const GO_9_LEFT_OF_THE_PLAN_START =
   '予定の開始より左で離したとき、`GRS` は、予定の開始に 表 T-240 の `DM-2` の長さの実績を置くこと（時刻を表示しているときは `GO-6` の時刻の段と同じ長さ）。'
 const PV_1_NOT_ROUNDED =

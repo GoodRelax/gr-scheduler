@@ -24,14 +24,14 @@ const REQUIREMENTS = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '
 
 const FR_106_HOLDS_WHILE_PRESSED = '押している間、`GRS` は、掴んだときの形を保つこと。'
 const FR_106_MARKER_IS_A_FINGER =
-  '`GRS` は、押す役と引く役を兼ねる進捗マーカー（表 T-270 の `PE-8`）の形を、押す役の形（指）にすること。'
+  '`GRS` は、押す役と引く役を兼ねる進捗ステータスマーク（表 T-270 の `PE-8`）の形を、押す役の形（指）にすること。'
 const T_269_ONE_EDGE_WIDTH =
-  '`GRS` は、ポインタの縁の太さを、形によらず 表 T-206 の `S-297` の 1 つにすること。'
+  '`GRS` は、ポインターの縁の太さを、形によらず 表 T-206 の `S-297` の 1 つにすること。'
 const T_269_WHITE_IS_PLAN = '`GRS` は、白 ＝ 予定、黒 ＝ 実績とダミー、の約束を、箱の矢印と円で揃えること。'
 const T_269_NO_DISPLAY_SCALE =
-  '`GRS` は、ポインタの画像に表示の倍率を掛けないこと。'
+  '`GRS` は、ポインターの画像に表示の倍率を掛けないこと。'
 const T_269_FALLBACKS =
-  'もし画像のポインタを描けない環境である場合、`GRS` は、動く向きを示す環境の形に替えること —— 端の箱の矢印・フェードの三角・マイルストーンの実績とダミーの ●・再開の折れ矢印は `ew-resize`、マイルストーンの予定の ○ は `move`（横にも縦にも動く）、依存線の線の矢印は `pointer`（押して選ぶだけ）、親タスクと子タスクをつなぐ形は `pointer`（押して選び、引いて結ぶ）とする。'
+  'もし画像のポインターを描けない環境である場合、`GRS` は、動く向きを示す環境の形に替えること —— 端の箱の矢印・フェードの三角・マイルストーンの実績とダミーの ●・再開の折れ矢印は `ew-resize`、マイルストーンの予定の ○ は `move`（横にも縦にも動く）、依存線の線の矢印は `pointer`（押して選ぶだけ）、親タスクと子タスクをつなぐ形は `pointer`（押して選び、引いて結ぶ）とする。'
 const T_269_ARMED_WINS = '依存線の道具を構えている間、`GRS` は表 T-269 の形を当てないこと。'
 const T_269_TWO_HEADINGS =
   '幅の広い箱型の矢印（← ／ →）'
@@ -411,9 +411,9 @@ describe('table T-266 -- the pointer row each grab area shows', () => {
       'PK-5',
     ])
     // Why: the plan circle is hollow and the actual and dummy circles filled -- T-266 says which by its sign.
-    expect(specRow('T-266', 'GA-15').by['ポインタ（表 T-269）'], T_269_WHITE_IS_PLAN).toContain('○')
+    expect(specRow('T-266', 'GA-15').by['ポインター（表 T-269）'], T_269_WHITE_IS_PLAN).toContain('○')
     for (const id of ['GA-16', 'GA-17']) {
-      expect(specRow('T-266', id).by['ポインタ（表 T-269）'], `${id}: ${T_269_WHITE_IS_PLAN}`).toContain('●')
+      expect(specRow('T-266', id).by['ポインター（表 T-269）'], `${id}: ${T_269_WHITE_IS_PLAN}`).toContain('●')
     }
   })
 

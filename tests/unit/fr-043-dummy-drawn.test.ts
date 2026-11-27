@@ -1,4 +1,4 @@
-// The drawn `Actual Operation Dummy` (U-52): FR-043's MUST that it be SHOWN,
+// The drawn `Actual Dummy` (U-52): FR-043's MUST that it be SHOWN,
 // the width table T-240 DM-3 now gives it -- the marker diameter times S-247, capped by S-180, aligned to
 // the day column's left edge -- and EP-14's rule that an export draws none of it.
 //
@@ -44,10 +44,10 @@
 //             of 「1 日ぶん」, and the reason the two zooms below give two
 //             different answers.
 //   FR-013    「未着手のマーカーと、実績入力のダミー（`FR-043`）は薄く描き、
-//             ポインタが乗っているあいだだけ濃くすること（MUST）…… 濃さの値
+//             ポインターが乗っているあいだだけ濃くすること（MUST）…… 濃さの値
 //             は `S-131`。色は実績バーの色を継ぎ、独立した色を保存しない
 //             （`FR-041`）」
-//   T-206 S-180  「実績のダミーを描く幅の上限（表 T-240 の `DM-3`）」 = 30px,
+//   T-206 S-180  「実績ダミーを描く幅の上限（表 T-240 の `DM-3`）」 = 30px,
 //             whose note says 「⭐ 本行が定めるのは横だけで
 //             ある —— 縦の広がりは実績の帯に従う」
 //   T-023d の結び  the hold of `GA-5` / `GA-6` / `GA-17`, which since
@@ -55,14 +55,14 @@
 //             stands beside the drawn width any more, and the two are one.
 //             ⛔ NOTHING BELOW ASSERTS A HIT BOX.
 //   T-023d GA-5 / GA-6 / GA-17   where the three dummies sit
-//   T-076 EP-14  「`Actual Operation Dummy`（`U-52`）| 描かない | 文書に無い
+//   T-076 EP-14  「`Actual Dummy`（`U-52`）| 描かない | 文書に無い
 //             値を描く操作子である。⚠️ 場所は空けない」
-//   T-076 EP-5   the `Task Group Area`'s contents, `Progress Status Mark`（`U-5`）among
+//   T-076 EP-5   the `Task Group Lanes`'s contents, `Progress Status Mark`（`U-5`）among
 //             them, ARE drawn in the export
 //   T-041 WY-3   「画面上の外接矩形に `exportCanvas` の幅 ÷ 画面の幅 の比を
 //             掛けた値と、…… 書き出した SVG / PNG の中の同じ UI パーツの外接
 //             矩形とが、位置も寸法も …… 一致すること」
-//   T-023d GA-18  「進捗マーカー | 実績バーの右端の外側。**未着手のときは終了点
+//   T-023d GA-18  「進捗ステータスマーク | 実績バーの右端の外側。**未着手のときは終了点
 //             の掴みシロの外側** …」 -- the reason a dummy may not simply be
 //             deleted for the export.
 //
@@ -79,7 +79,7 @@
 //     SQUARE now, so its height is pinned along with its width, and the GA-17
 //     cases below measure both.
 //   * ⛔ THE PAINT ORDER. Table T-020 has ZO-1, ZO-1a, ZO-2, ZO-3, ZO-4 and
-//     ZO-5, and NOT ONE of them names `Actual Operation Dummy` (U-52). The
+//     ZO-5, and NOT ONE of them names `Actual Dummy` (U-52). The
 //     dummy overlaps the plan bar (EP-14: 「タスクバーに重なる」), so which of
 //     the two wins where they meet is undecided. No case below states one.
 //   * FR-013's hover half. It is measured in tests/unit/fr-013-pointer-on-the-
@@ -225,7 +225,7 @@ const NARROW_DAY_ZOOM = 0.5 / DEFAULT_DISPLAY_RATIO
 const WIDE_DAY_ZOOM = 8 / DEFAULT_DISPLAY_RATIO
 
 const DM_3_THE_WIDTH =
-  '`GRS` は、ダミーを描く幅を、ダミーを描くタスクの進捗マーカーの径に `_assets/tbl-settings.md` の 表 T-206 の `S-247` を掛けた幅と、表 T-206 の `S-180` の小さい方とすること。'
+  '`GRS` は、ダミーを描く幅を、ダミーを描くタスクの進捗ステータスマークの径に `_assets/tbl-settings.md` の 表 T-206 の `S-247` を掛けた幅と、表 T-206 の `S-180` の小さい方とすること。'
 const DM_3_NOT_CUT_BY_A_DAY =
   '`GRS` は、ダミーを描く幅の左端を `DM-1` の位置に揃えること。`GRS` は、印の幅を 1 日ぶんの幅で切らないこと。'
 
@@ -420,7 +420,7 @@ interface Drawn {
 
 /** One pass of table T-068's chain, then PI-19. */
 const draw = (schedule: Schedule, zoomX: number): Drawn => {
-  // scrollDate (S-77) pins the left edge of the Task Group Area, so the axis is fixed
+  // scrollDate (S-77) pins the left edge of the Task Group Lanes, so the axis is fixed
   // and the two documents a case compares are drawn on the same one.
   const settings = settingsOf({
     zoomX,
@@ -1014,7 +1014,7 @@ describe('the reader this file measures pictures with', () => {
 // FR-043 (MUST) and S-180: the dummy is drawn, how wide, and where it begins
 // ---------------------------------------------------------------------------
 
-describe('FR-043 / table T-206 S-180 -- the Actual Operation Dummy is drawn', () => {
+describe('FR-043 / table T-206 S-180 -- the Actual Dummy is drawn', () => {
   it('S-180 is still the row that bounds the drawn width DM-3 gives, and S-247 the ratio to the marker', () => {
     // ⚠️ A GUARD, NOT THE CLAIM. It says this file is still pointed at the rows
     // it was written for; if a row moved, the cases after it would be the wrong
@@ -1371,7 +1371,7 @@ const dayWidthOf = (pictures: TwoPictures, schedule: Schedule, one: number, othe
 
 describe('EP-14 of table T-076 -- an export draws no dummy, and moves nothing', () => {
   it('EP-14 is still the row that keeps U-52 out and leaves its room alone', () => {
-    // ⚠️ A GUARD. 「`Actual Operation Dummy`（`U-52`）| 描かない | …
+    // ⚠️ A GUARD. 「`Actual Dummy`（`U-52`）| 描かない | …
     // ⚠️ 場所は空けない」.
     expect(EP_14['UI パーツ']).toContain('U-52')
     expect(EP_14['描くか']).toContain('描かない')
@@ -1401,7 +1401,7 @@ describe('EP-14 of table T-076 -- an export draws no dummy, and moves nothing', 
       'the screen draws nothing at GA-5 that the export leaves out',
     ).toBeGreaterThan(0)
     // Nothing else went missing on the way. ⛔ MEASURED AGAINST EVERY TASK'S
-    // DUMMIES, NOT ONLY THIS ONE'S: EP-14 keeps `Actual Operation Dummy`
+    // DUMMIES, NOT ONLY THIS ONE'S: EP-14 keeps `Actual Dummy`
     // (`U-52`) out of the picture altogether, and this document holds a second
     // Task that is also not started, so FR-043 gives that one a mark of its own.
     // ⚠️ BOTH ROWS ARE STILL SWEPT HERE, and deliberately: this half says what
@@ -1431,7 +1431,7 @@ describe('EP-14 of table T-076 -- an export draws no dummy, and moves nothing', 
     expect(onlyIn(pictures.screen, alsoMissingTheBar).some((one) => !isADummy(one))).toBe(true)
   })
 
-  it('EP-5 keeps the not-started Progress Marker in the export, at the screen x', () => {
+  it('EP-5 keeps the not-started Progress Status Mark in the export, at the screen x', () => {
     // ⛔ THE CASE THIS FILE EXISTS FOR MOST. Emptying `dummies` for the export
     // would satisfy EP-14 and take the marker with it: GA-18 puts the
     // not-started marker 「終了点の掴みシロの外側」, so its x hangs off GA-6.

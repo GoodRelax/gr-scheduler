@@ -168,10 +168,10 @@ describe('IC-169 -- the word and the hint of the entrance', () => {
     }
   })
 
-  it('table T-109 holds IC-169 under the Delay Diagnostics Report', () => {
+  it('table T-109 holds IC-169 under the Delay Diagnosis Report', () => {
     const row = specTable('T-109').rows.find((one) => one.id === 'IC-169')
     expect(row, 'T-109 has an IC-169 row').toBeDefined()
-    expect(JSON.stringify(row)).toContain('Delay Diagnostics Report')
+    expect(JSON.stringify(row)).toContain('Delay Diagnosis Report')
   })
 })
 

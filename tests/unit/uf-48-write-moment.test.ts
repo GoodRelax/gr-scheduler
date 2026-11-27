@@ -4,7 +4,7 @@
 // (docs/spec/01-04-requirements.md).
 //
 // UF-48 is `SingleHtmlShell` (CP-25 of table T-062). FT-1 of table T-078 is the
-// trigger these cases arrive on -- 人の入力（ポインタとキー） -- and
+// trigger these cases arrive on -- 人の入力（ポインターとキー） -- and
 // `receiveInput` is the member that takes it.
 //
 // ⚠️ Chapter 9 does not admit Unit as a TEST_LEVEL, so these cases have no node
@@ -65,10 +65,10 @@
 //                   landed on.
 //   表 T-023a PTD-5  何にも当たらない かつ 構えていない = 範囲選択 -- a range
 //                   selection press.
-//   表 T-028 IN-1   ポインタ操作は押した時点で実行せず、離した時点で確定する
+//   表 T-028 IN-1   ポインター操作は押した時点で実行せず、離した時点で確定する
 //                   こと。中断は `Esc` で行い -- a press ends EITHER by the
 //                   release or by the Esc that interrupts it.
-//   表 T-028 IN-1a  ボタンを離す前に窓の外でポインタが失われたときは、ドラッグを
+//   表 T-028 IN-1a  ボタンを離す前に窓の外でポインターが失われたときは、ドラッグを
 //                   中断として終わらせること（MUST）, whose stated reason is
 //                   this file's subject: 終わらせないと「ドラッグ中」が解けず、
 //                   `Agent API` の書き込みが以後ずっと拒否される（表 T-035 の
@@ -82,7 +82,7 @@
 //                   below carries a warning about what it may be asked: a press
 //                   that RELEASED on a Task leaves a selection standing, and a
 //                   rung is a rung whether or not a gesture is in flight.
-//   表 T-028 IN-4a  消費する対象が 1 つも無いときは、必ずブラウザへ渡すこと
+//   表 T-028 IN-4a  消費する対象が 1 つも無いときは、必ずブラウザーへ渡すこと
 //                   （MUST） -- used below only to READ whether a press is still
 //                   in flight, through `isBrowserDefaultStopped`.
 //   表 T-036 SK-20  `Ctrl` + `Shift` + `D` -- 基準日線を出す / 消す. THE WRITE
@@ -400,7 +400,7 @@ const pointsOfBar = (bar: BarGeometry | null): Point[] => {
 }
 
 /**
- * A point inside the Task Group Area (U-50) that no drawn Task occupies, so that a
+ * A point inside the Task Group Lanes (U-50) that no drawn Task occupies, so that a
  * press there is PTD-5 of table T-023a: 何にも当たらない かつ 構えていない,
  * which is a range selection. The premise -- that it really does miss
  * everything drawn -- is asserted by a case of its own below.
@@ -448,7 +448,7 @@ function clearanceFrom(loop: FrameLoop, spot: { x: number; y: number }): number 
  * ⭐ With no surface open, level 1 of IN-4 is empty, so `Esc` is assigned when
  * -- and only when -- level 2 (進行中のドラッグ・引きかけの矢印) or a level
  * below it stands. IN-4a makes the other answer a MUST: 消費する対象が 1 つも
- * 無いときは、必ずブラウザへ渡すこと. ⛔ Asked with
+ * 無いときは、必ずブラウザーへ渡すこと. ⛔ Asked with
  * `isBrowserDefaultStopped`, which the interface declares must change nothing,
  * so reading it cannot end the gesture it is reading.
  *
@@ -628,7 +628,7 @@ describe('AG-9 of table T-035 / WS-2 of table T-067 -- a write while a gesture i
   })
 
   it('the pointer was lost outside the window -> the same key arrives -> the write lands', () => {
-    // IN-1a (MUST): ボタンを離す前に窓の外でポインタが失われたときは、ドラッグ
+    // IN-1a (MUST): ボタンを離す前に窓の外でポインターが失われたときは、ドラッグ
     // を中断として終わらせること -- and the row states this file's subject as
     // its reason: 終わらせないと「ドラッグ中」が解けず、`Agent API` の書き込み
     // が以後ずっと拒否される（表 T-035 の AG-9）.

@@ -423,7 +423,7 @@ interface Measured {
   readonly mspdiRoundTripEqual: boolean
   /** The first place the two canonical forms part, for the message. */
   readonly mspdiFirstDifference: string
-  /** Whether a part named `Export Chooser` stood after the entrance was pressed. */
+  /** Whether a part named `Save As Dialog` stood after the entrance was pressed. */
   readonly chooserStood: boolean
   /** Everything that surface said. */
   readonly chooserText: string
@@ -524,7 +524,7 @@ async function pressEntrance(page: Page, icon: string): Promise<boolean> {
 // `MC-8`, verbatim, is the denominator every number below is taken over:
 //
 //   測る区間 | ズーム・スクロール・パン・ドラッグ・範囲選択を行っている間、および
-//   ポインタの移動が描き直しを起こしている間
+//   ポインターの移動が描き直しを起こしている間
 //
 // ⭐ The input each stretch uses is the one table T-028's `MK-n` rows settle,
 // so no gesture is invented here:
@@ -890,8 +890,8 @@ async function sweep(
   // -------------------------------------------------------------------------
   //
   // 表 T-025, verbatim:
-  //   基準ブラウザの版を、測った値と対にして記録すること（MUST）。版を伏せた数字を基準値としてはならない（MUST NOT）
-  //   測る前にブラウザを内蔵 GPU に固定すること（MUST）
+  //   基準ブラウザーの版を、測った値と対にして記録すること（MUST）。版を伏せた数字を基準値としてはならない（MUST NOT）
+  //   測る前にブラウザーを内蔵 GPU に固定すること（MUST）
   //   ディスクリート GPU を基準にしてはならない（MUST NOT）
   //
   // ⭐ The version is recorded here so that every number this file prints is
@@ -1545,7 +1545,7 @@ async function measureChooser(
 
 test('T-025 -- the numbers are recorded together with the browser they were taken in', () => {
   // 表 T-025, verbatim:
-  // 基準ブラウザの版を、測った値と対にして記録すること（MUST）。版を伏せた数字を基準値としてはならない（MUST NOT）
+  // 基準ブラウザーの版を、測った値と対にして記録すること（MUST）。版を伏せた数字を基準値としてはならない（MUST NOT）
   //
   // ⭐ WHAT IS PRESSED: the sweep carries the browser's version beside every
   // number it took, and the last case of this file refuses to report a
@@ -1738,7 +1738,7 @@ test('NFR-002 / NFR-003 / FR-025 / FR-067 / FR-021 / FR-029 -- the gates and the
   // -------------------------------------------------------------------------
   //
   // 表 T-025, verbatim:
-  // 測る前にブラウザを内蔵 GPU に固定すること（MUST）
+  // 測る前にブラウザーを内蔵 GPU に固定すること（MUST）
   // ディスクリート GPU を基準にしてはならない（MUST NOT）
   //
   // ⛔ NOT A FALSE GREEN. A test cannot pin a machine's GPU, so what it can do

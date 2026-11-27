@@ -139,7 +139,7 @@ describe('IN-3 -- each anchor kind has a key of its own', () => {
       anchorKey({ kind: 'icon', icon: 'IC-58' }),
       anchorKey({ kind: 'icon', icon: 'IC-58', taskGroupId: 'g1' }),
       anchorKey({ kind: 'icon', icon: 'IC-58', taskGroupId: 'g2' }),
-      anchorKey({ kind: 'icon', icon: 'IC-58', surface: 'Help Modal' }),
+      anchorKey({ kind: 'icon', icon: 'IC-58', surface: 'Help Window' }),
     ]
     expect(new Set(keys).size).toBe(keys.length)
   })

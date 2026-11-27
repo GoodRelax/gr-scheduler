@@ -77,7 +77,7 @@ const COMMENT_NO_CORNERS =
   '`GRS` は、コメントボックスに四隅を持たせないこと。'
 const INSIDE_PASSES_THROUGH =
   '`GRS` は、囲んだ内側を掴み代にせず、内側の押下を下のタスクへ素通しにすること。'
-const T_246_HOLDS_THE_VALUES = 'ハイライトボックスの掴み点と枠の場所・掴み代・ポインタの形と、離したときに置く値は 表 T-246 が持つ。'
+const T_246_HOLDS_THE_VALUES = 'ハイライトボックスの掴み点と枠の場所・掴み代・ポインターの形と、離したときに置く値は 表 T-246 が持つ。'
 const T_246_NO_NEW_REFUSAL =
   'もし 表 T-246 の置き方を拒む場合、`GRS` は、新しい拒み方を立てず、表 T-233 の `RS-44` を理由として `FR-029` の作法で運ぶこと。'
 const ANCHOR_READ =

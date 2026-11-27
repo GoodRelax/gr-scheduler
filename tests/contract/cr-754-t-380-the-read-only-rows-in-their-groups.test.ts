@@ -27,7 +27,7 @@ const T_369_FOLDABLE = '組の見出しを押したとき、`GRS` は、見出�
 const T_369_WORDS = '`GRS` は、読むだけの行の名を 表 T-380 の「名の語」とすること。'
 const T_369_NO_RAW =
   '`GRS` は、読むだけの行の値を保存の字のまま（例: `true`・`auto`・`0.8666666666666667`・`2026-03-29T00:00:00`）見せないこと。'
-const T_369_NO_CONTROL = '`GRS` は、読むだけの行に操作子を置かないこと。'
+const T_369_NO_CONTROL = '`GRS` は、読むだけの行に入力欄を置かないこと。'
 const T_369_FO_12 = '`GRS` は、日数の数の欄の右に単位の語を置くこと。'
 
 const SECTION = 'readOnlySettings'
@@ -231,17 +231,17 @@ describe('CR-754 premise -- the clauses and table T-380 these cases read', () =>
       'groupTableViews',
     ])
     expect([...new Set(T_380.map((one) => one.section).filter((one) => one !== null))]).toEqual([
-      'Search Panel',
+      'Search Window',
       'Resource List',
-      'Delay Diagnostics Report',
+      'Delay Diagnosis Report',
     ])
     expect(T_380.filter((one) => one.specTableRowId === 'RN-8').map((one) => one.key.split('.').pop())).toEqual(
       T_380.filter((one) => one.specTableRowId === 'RN-6').map((one) => one.key.split('.').pop()),
     )
   })
 
-  it('JDG-2103: the column filters read "列ごとのフィルタ"', () => {
-    expect(partWord(SECTION, 'columnFilters', 'ja')).toBe('列ごとのフィルタ')
+  it('JDG-2103: the column filters read "列ごとのフィルター"', () => {
+    expect(partWord(SECTION, 'columnFilters', 'ja')).toBe('列ごとのフィルター')
   })
 
   it('JDG-2234 / JDG-2240: the en words are Shown / Hidden, View, Shown Resources, and the eleven true-false rows read as the things', () => {
@@ -386,7 +386,7 @@ describe(`T-369 -- ${T_369_HEADINGS}`, () => {
     expect(box, 'premise: the table views group is drawn').toBeDefined()
     const headings = selfAndDescendants(box as FakeElement).filter((one) => one.getAttribute('data-read-only-section') !== null)
     expect(headings.map((one) => one.textContent)).toEqual(
-      ['Search Panel', 'Resource List', 'Delay Diagnostics Report'].map((one) => surfaceHeading(one, language)),
+      ['Search Window', 'Resource List', 'Delay Diagnosis Report'].map((one) => surfaceHeading(one, language)),
     )
     const windowNames = headings.map((one) => one.textContent)
     for (const field of readOnlyFieldsOf(panelOf(language)).filter((one) => one.readOnlyGroup?.section !== undefined)) {

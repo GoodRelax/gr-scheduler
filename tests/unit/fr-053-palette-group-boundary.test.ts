@@ -29,7 +29,7 @@
 //   S-143    表 T-206、「パレットの群を隔てる線の太さと左右の空き」 —— ⛔ 「線で
 //            あって文字ではない」。⚠️ 「図形でもない」ので 表 T-109 の行も
 //            図 F-019 の図形も要らない。
-//   S-135a   表 T-206、`Command Palette` の掴み帯の高さ。⭐ Read here only so
+//   S-135a   表 T-206、`Command Palette` のグリップの高さ。⭐ Read here only so
 //            that the band this unit always draws cannot be mistaken for a
 //            group boundary by the reader below; no case asserts it.
 //   T-103    U-26 `Command Palette`, the settled name W-4 of table T-006a

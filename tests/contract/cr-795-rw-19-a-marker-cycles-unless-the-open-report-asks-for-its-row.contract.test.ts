@@ -23,15 +23,15 @@ import { windowStage, type WindowStage } from './cr-760-stage'
 import { specTable, unbroken } from './spec-table'
 
 const RW_19_OPEN_ONLY =
-  '遅延診断レポートの窓が開いている間（最小化（`IC-129`）を含む —— `RW-1`）、日程表で `FR-133` の 表 T-315 の `DG-1` 〜 `DG-3` で描いた進捗マーカー（表 T-266 の `GA-18`）を押して離したとき、押したタスクの行に ④ のいまの行の印が付いていなければ、`GRS` は、次をこの順に行うこと'
+  '遅延診断レポートの窓が開いている間（最小化（`IC-129`）を含む —— `RW-1`）、`Task Group Lanes` で `FR-133` の 表 T-315 の `DG-1` 〜 `DG-3` で描いた進捗ステータスマーク（表 T-266 の `GA-18`）を押して離したとき、押したタスクの行に ④ のいまの行の印が付いていなければ、`GRS` は、次をこの順に行うこと'
 const RW_19_MARKED_CYCLES = '窓が開いている間、押したタスクの行にいまの行の印が付いているとき、`GRS` は、普段どおり状態を巡らせること（`PE-8`・`PE-10`）。'
 const RW_19_CLOSED_CYCLES = '窓が閉じている間、マーカーを押したとき、`GRS` は、診断の印が残っていても（`RW-1`）、普段どおり状態を巡らせること。'
-const RW_1_NOT_REOPENED = '窓だけを閉じている間、日程表のマーカーを押したとき、`GRS` は、窓を開かないこと（`RW-19`）。'
+const RW_1_NOT_REOPENED = '窓だけを閉じている間、`Task Group Lanes` のマーカーを押したとき、`GRS` は、窓を開かないこと（`RW-19`）。'
 const PE_8_OPEN_ONLY =
   '遅延診断レポートの窓が開いている間、`FR-133` の 表 T-315 の `DG-1` 〜 `DG-3` で描いたマーカーを押したとき、`GRS` は、マーカーのタスクの行にいまの行の印が付いていなければ巡らせないこと（`FR-134` の 表 T-346 の `RW-19` に従う）。'
 const PE_10_OPEN_ONLY = '遅延診断レポートの窓が開いている間、`GRS` は、`PE-10` にも `PE-8` と同じ例外を当てること（`RW-19`）。'
 const NOTE_OPEN_ONLY =
-  '遅延診断レポートの窓が開いているあいだ（最小化を含む）、`DG-1` 〜 `DG-3` で描いた進捗マーカー（表 T-266 の `GA-18`）を押して離した入力で、そのタスクの行にいまの行の印が付いていなければ'
+  '遅延診断レポートの窓が開いているあいだ（最小化を含む）、`DG-1` 〜 `DG-3` で描いた進捗ステータスマーク（表 T-266 の `GA-18`）を押して離した入力で、そのタスクの行にいまの行の印が付いていなければ'
 
 const SPEC = join(process.cwd(), 'docs', 'spec')
 const REQUIREMENTS = unbroken(readRepoFile(join(SPEC, '01-04-requirements.md'), 'utf8'))

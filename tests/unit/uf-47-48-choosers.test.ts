@@ -812,7 +812,7 @@ function takeEntry(loop: FrameLoop, screen: ScreenPane, surface: string, entry: 
 }
 
 /**
- * Press one format of table T-024 on the `Export Chooser`.
+ * Press one format of table T-024 on the `Save As Dialog`.
  *
  * ⭐ A SECOND MEMBER AND NOT AN ENTRY. FR-029 (MUST) makes table T-109 the whole
  * of the icons and it places nothing but IC-52 on U-54 -- FR-096 (MUST NOT)
@@ -918,8 +918,8 @@ describe('the documents these cases drive', () => {
 // of table T-109 are its three entries.
 
 describe('OP-3 -- reading a file puts the three-way question up', () => {
-  it('U-56: taking SK-10 and handing over a file leaves the Open Chooser standing', async () => {
-    // 「U-56 | `Open Chooser` | 読んだ内容の扱い方を選ぶ面。選ばせる規則は 表
+  it('U-56: taking SK-10 and handing over a file leaves the Open File Dialog standing', async () => {
+    // 「U-56 | `Open File Dialog` | 読んだ内容の扱い方を選ぶ面。選ばせる規則は 表
     //   T-024a の `OP-3`、3 つの入口は表 T-109 の `IC-71` 〜 `IC-73` が持つ」
     const pane = host()
     const screen = screenPane()
@@ -981,7 +981,7 @@ describe('OP-3 -- reading a file puts the three-way question up', () => {
 
 describe('OP-3 answered -- table T-230 says where each of the three lands', () => {
   it('IC-71 (RD-4): the read content replaces the current document, once OP-4 has been answered', async () => {
-    // 「IC-71 | `Open Chooser` | — | 読んだ内容で現在の文書を置き換える | 表
+    // 「IC-71 | `Open File Dialog` | — | 読んだ内容で現在の文書を置き換える | 表
     //   T-024a の `OP-3`」, and OP-3's first of three is 「置き換える（現在の文書
     //   を捨てて新しい日程を出す）」.
     //
@@ -1047,7 +1047,7 @@ describe('OP-3 answered -- table T-230 says where each of the three lands', () =
   })
 
   it('IC-72: joining does not throw the current document away', async () => {
-    // 「IC-72 | `Open Chooser` | — | 読んだ内容を現在の文書へ合流させる」, and
+    // 「IC-72 | `Open File Dialog` | — | 読んだ内容を現在の文書へ合流させる」, and
     // OP-4 says why nothing is confirmed first: 「合流を選んだときは現在の文書を
     // 捨てないので、この確認は要らない」.
     const pane = host()
@@ -1558,7 +1558,7 @@ describe('CS-4 -- what the screen does while the person is being waited on', () 
   })
 
   it('FT-1: the frame that paints the question is the press coming back, with no second input', async () => {
-    // 「FT-1 | 人の入力（ポインタとキー）と、ファイルのドロップ（01-04 の 表 T-024a の
+    // 「FT-1 | 人の入力（ポインターとキー）と、ファイルのドロップ（01-04 の 表 T-024a の
     //   `OP-2`）。⭐ **その入力の、待ち（表 T-066 の `CS-4`）をまたいだ続きを含む** |
     //   …… ⚠️ **待ちをまたいだ続きを起こすのはシェル自身である**」
     const pane = host()
@@ -1652,7 +1652,7 @@ describe('CS-4 -- what the screen does while the person is being waited on', () 
 // 「**選択面が提案する名は、文書名（`FR-035`）を 表 T-352 で整えた名に 表 T-024 が定める拡張子を付けた
 //   ものとすること（MUST）。文書名が空のときは拡張子だけを提案すること。**」
 
-describe('FR-096 -- the Export Chooser', () => {
+describe('FR-096 -- the Save As Dialog', () => {
   it('U-54: SK-12 puts the surface up', () => {
     const pane = host()
     const screen = screenPane()
@@ -2041,7 +2041,7 @@ describe('FR-096 -- the name the chooser proposes', () => {
 // sentence, 「**無反応だと故障に見える。**」
 //
 // ⚠️ WHAT FR-029 LITERALLY GOVERNS IS AN ENTRANCE of 表 T-109, and a format on
-// the `Export Chooser` is not one -- FR-096 (MUST NOT) forbids an entrance per
+// the `Save As Dialog` is not one -- FR-096 (MUST NOT) forbids an entrance per
 // format, which is why `takeFormat` presses a row of 表 T-024 through
 // `ScreenPart.format` rather than an entry. ⛔ SO THE ROW-BY-ROW PAIRING FR-029
 // STATES IS NOT ASSERTED HERE. What is asserted is the part of it that does not
@@ -2593,8 +2593,8 @@ describe('the tables are read by position, so the positions are pinned', () => {
 
   it('table T-103 prints the settled English name first', () => {
     expect(T_103.headings.length).toBe(3)
-    expect(OPEN_CHOOSER).toBe('Open Chooser')
-    expect(EXPORT_CHOOSER).toBe('Export Chooser')
+    expect(OPEN_CHOOSER).toBe('Open File Dialog')
+    expect(EXPORT_CHOOSER).toBe('Save As Dialog')
   })
 
   it('table T-109 prints the surface an entry stands on first', () => {

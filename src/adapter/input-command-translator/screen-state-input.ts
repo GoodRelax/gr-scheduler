@@ -56,7 +56,7 @@ import {
   type InputContext,
 } from './input-command-translator'
 
-const HELP_MODAL = 'Help Modal'
+const HELP_MODAL = 'Help Window'
 
 // Spec: T-280, S-99g, U-54
 const EXPORT_CHOOSER_ROW = 'U-54'
@@ -65,8 +65,8 @@ const EXPORT_CHOOSER_ROW = 'U-54'
 const PROPERTIES_PANEL = 'Properties Panel'
 
 // Why: windows, not open surfaces (T-335, U-64, S-99g): IC-52 on one closes that window, never the surface.
-const SEARCH_PANEL = 'Search Panel'
-const DELAY_DIAGNOSTICS_REPORT = 'Delay Diagnostics Report'
+const SEARCH_PANEL = 'Search Window'
+const DELAY_DIAGNOSTICS_REPORT = 'Delay Diagnosis Report'
 const RESOURCE_LIST = 'Resource List'
 
 type WindowEvents = readonly [ScreenValuesEvent, ScreenValuesEvent, ScreenValuesEvent | null]

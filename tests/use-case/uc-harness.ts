@@ -154,9 +154,9 @@ export const openThroughIc1 = async (
     { name, text },
   )
   await press(page, 'IC-1')
-  await page.waitForSelector('[data-role="Open Chooser"]')
+  await page.waitForSelector('[data-role="Open File Dialog"]')
   if (choice === null) return
-  await page.click(icon(choice, '[data-role="Open Chooser"]'))
+  await page.click(icon(choice, '[data-role="Open File Dialog"]'))
   await page.waitForTimeout(200)
   if (await page.locator('[data-role="Confirmation"] [data-confirmation-answer="proceed"]').count()) await answerConfirmation(page, 'proceed')
   await settle(page)

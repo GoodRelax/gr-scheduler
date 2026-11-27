@@ -174,17 +174,17 @@ const T_103_PARTS = [
   { row: 'U-24', name: 'Panel Divider' },
   { row: 'U-25', name: 'Properties Panel' },
   { row: 'U-26', name: 'Command Palette' },
-  { row: 'U-27', name: 'Document Title' },
+  { row: 'U-27', name: 'Project Title' },
   { row: 'U-58', name: 'Opened File Name' },
   { row: 'U-59', name: 'File Saved At' },
-  { row: 'U-30', name: 'Help Modal' },
+  { row: 'U-30', name: 'Help Window' },
   { row: 'U-31', name: 'App Header' },
   { row: 'U-34', name: 'Palette Groups' },
   { row: 'U-34', name: 'Palette Commands' },
   { row: 'U-35', name: 'Header Commands' },
   { row: 'U-46', name: 'Pinned Task Group' },
-  { row: 'U-47', name: 'Task Group Expander' },
-  { row: 'U-48', name: 'Task Group Pin' },
+  { row: 'U-47', name: 'Task Group Buttons' },
+  { row: 'U-48', name: 'Pin Button' },
   { row: 'U-49', name: 'Resource List' },
   { row: 'U-53', name: 'Tooltip' },
   { row: 'U-57', name: 'Notification Area' },
@@ -1184,7 +1184,7 @@ const PROPERTIES: PropertiesPanel = {
 } as PropertiesPanel
 
 const HELP_MODAL: HelpModal = {
-  surface: 'Help Modal',
+  surface: 'Help Window',
   heading: 'HelpHeading',
   commands: [command({ icon: 'IC-52', label: 'CloseHelp' })],
   entries: [{
@@ -1232,7 +1232,7 @@ const RICH_VIEW: ScreenView = viewWith({
   appHeaderItems: {
     documentTitle: 'DocumentTitleHere',
     // FR-101 (MUST): the name of the file that is open, and the moment it was
-    // last written to. ⚠️ The name is NOT the `Document Title` -- U-58 of
+    // last written to. ⚠️ The name is NOT the `Project Title` -- U-58 of
     // 表 T-103 says in as many words that the two are different values and that
     // differing is normal, so the two fixtures here differ.
     openedFileName: 'OpenedFileNameHere.grs.json',
@@ -1532,7 +1532,7 @@ describe('表 T-078 / NFR-010 (MUST NOT) -- nothing in this unit wakes a frame',
       const isLinkGuard = one.node.getAttribute('target') === '_blank' && LINK_GUARDS.includes(one.type)
       // Why: CR-832 / FR-069 -- the help's full-text summary keeps its press and Enter from the shell like the links, and its
       // details hears toggle so the drawn help box stretches; neither reports to the shell nor raises a frame (T-078).
-      const inHelp = byRole(root, 'Help Modal').some((help) => help.contains(one.node))
+      const inHelp = byRole(root, 'Help Window').some((help) => help.contains(one.node))
       const isFullTextGuard =
         inHelp &&
         ((one.node.tagName === 'SUMMARY' && one.node.parentNode?.tagName === 'DETAILS' && LINK_GUARDS.includes(one.type)) ||
@@ -1843,8 +1843,8 @@ describe('HF-14 of 表 T-051 (MUST) -- 既定の名前でタスクグループ�
     // ⭐⭐ THE RULING OF 2026-09-03, IN THE ROW'S OWN WORDS: DFC-243 「**No name という
     // タスクグループを追加してそれを編集するプロパティーウインドウを開け。
     // つまり、現在タスクグループ名を変更する際の操作と操作感を合わせろ。**」
-    expect(cells).toContain('配下に足す操作子を押したとき、`GRS` は、押した瞬間に既定の名前でタスクグループを立てること。')
-    expect(cells).toContain('配下に足す操作子を押したとき、`GRS` は、立てたタスクグループのプロパティパネルを出し、名前の欄で名づけさせること。')
+    expect(cells).toContain('配下に足すボタンを押したとき、`GRS` は、押した瞬間に既定の名前でタスクグループを立てること。')
+    expect(cells).toContain('配下に足すボタンを押したとき、`GRS` は、立てたタスクグループのプロパティパネルを出し、名前の欄で名づけさせること。')
     // ⛔ ONE ROAD, AND IT IS THE ONE `FR-085` ALREADY DEFINES FOR RENAMING -- so
     // this unit may not grow a second way of asking for the name.
     expect(cells).toContain('`GRS` は、改名と別の名づけの道を作らないこと。')
@@ -2195,7 +2195,7 @@ describe('IN-3 of 表 T-028 -- a tooltip takes no pointer and does not go by its
   })
 
   it('⛔ carries no on-screen control that puts it away, and no `x` to press', () => {
-    // `IN-3` (MUST) asks 「消せること —— ポインタもフォーカスも動かさずに消す手立てが
+    // `IN-3` (MUST) asks 「消せること —— ポインターもフォーカスも動かさずに消す手立てが
     // あること」, and a mark drawn inside the tooltip cannot answer it: reaching
     // the mark IS moving the pointer. ⛔ `IN-4` (MUST) is where the dismissal
     // lives now -- its ladder ends 「出ている説明」 -- so a second entrance drawn
@@ -2370,7 +2370,7 @@ describe('SC-1 / SC-4 / SC-5 of 表 T-031 -- what is placed by what', () => {
   // ⛔ THE DEFECT THESE CASES STAND IN FOR. Measured on the shipped build of
   // 2026-08-30: the task group's three controls sat in the task group's own flow with
   // `visibility:hidden`, holding 48 of a 170px panel, while `S-140` of 表 T-206
-  // -- 「タスクグループの操作子に確保する場所（`FR-085`）」-- states 0px. So `FR-085` cut the
+  // -- 「タスクグループボタンに確保する場所（`FR-085`）」-- states 0px. So `FR-085` cut the
   // name against 158px and the browser was handed 90, and the difference went
   // into the browser's own ellipsis, which `isLabelTruncated` cannot record.
   //
@@ -2404,7 +2404,7 @@ describe('SC-1 / SC-4 / SC-5 of 表 T-031 -- what is placed by what', () => {
     return Number(found[1])
   }
 
-  /** `S-140` -- 「タスクグループの操作子に確保する場所（`FR-085`）」. */
+  /** `S-140` -- 「タスクグループボタンに確保する場所（`FR-085`）」. */
   const s140 = (): number => {
     const row = specTable('T-206').rows.find((one) => one.id === 'S-140')
     if (row === undefined) throw new Error('表 T-206 no longer holds S-140')
@@ -2435,7 +2435,7 @@ describe('SC-1 / SC-4 / SC-5 of 表 T-031 -- what is placed by what', () => {
     // manuscript rather than to this comment.
     // GOES RED IF: a control goes back into the task group's flow, which is what took
     // 48px of a 170px panel away from the name on 2026-08-30.
-    expect(s140(), '表 T-206 の `S-140`: タスクグループの操作子に確保する場所').toBe(0)
+    expect(s140(), '表 T-206 の `S-140`: タスクグループボタンに確保する場所').toBe(0)
 
     const { children } = drawnTaskGroup(
       taskGroupTitle({
@@ -2652,7 +2652,7 @@ describe('FR-038 -- the words are carried, and the language is readable before t
     const built = wire({ 'App Header': 37 })
     surfaceOf(built).showScreenView(RICH_VIEW)
 
-    const help = oneByRole(built.root(), 'Help Modal')
+    const help = oneByRole(built.root(), 'Help Window')
     const named = selfAndDescendants(help).flatMap((one) =>
       [...one.attributes].filter(([name, value]) => name.includes('lang') && value === 'en'),
     )
@@ -2663,7 +2663,7 @@ describe('FR-038 -- the words are carried, and the language is readable before t
     const built = wire({ 'App Header': 37 })
     surfaceOf(built).showScreenView(RICH_VIEW)
 
-    const help = oneByRole(built.root(), 'Help Modal')
+    const help = oneByRole(built.root(), 'Help Window')
     expect(help.textContent).toContain('LicenseTextHere')
     expect(help.textContent).toContain('CopyrightNoticeHere')
     expect(help.textContent).toContain('AttributionOne')
@@ -2674,7 +2674,7 @@ describe('FR-053 (MUST) -- a minimized palette shows the grab band and nothing e
   // ⭐ THE USER'S RULING OF 2026-09-01: 「コマンドパレットを最小化した時は、コマン
   // ドパレットの掴みどころ `::` と `-` の部分 だけを表示しろ」 -- it overrode the
   // 2026-08-28 ruling that had also kept the armed reading on a minimized
-  // palette. FR-053 now says 「最小化しているあいだに出すのは掴み帯だけとし、ほか
+  // palette. FR-053 now says 「最小化しているあいだに出すのはグリップだけとし、ほか
   // は何も出さないこと（MUST）」 and (MUST NOT) that the armed reading is not
   // drawn there.
   //
@@ -2704,7 +2704,7 @@ describe('FR-053 (MUST) -- a minimized palette shows the grab band and nothing e
   })
 
   it('⛔ draws the band and no second box beside it', () => {
-    // 「最小化しているあいだに出すのは掴み帯だけとし、ほかは何も出さないこと
+    // 「最小化しているあいだに出すのはグリップだけとし、ほかは何も出さないこと
     //   （MUST）」 -- 「ほか」 is anything at all, and an EMPTY box is something:
     // it carries its own room, which is measured height under the band.
     //
@@ -2778,7 +2778,7 @@ describe('FR-023 -- nothing that arrived from a document becomes markup', () => 
       viewWith({ appHeaderItems: { ...EMPTY_HEADER, documentTitle: HOSTILE } }),
     )
 
-    expect(oneByRole(built.root(), 'Document Title').textContent).toBe(HOSTILE)
+    expect(oneByRole(built.root(), 'Project Title').textContent).toBe(HOSTILE)
   })
 
   it('builds no selector out of what a document said', () => {
@@ -2858,7 +2858,7 @@ describe('showScreenView twice -- the whole description each time', () => {
 
     surface.showScreenView(second)
 
-    for (const role of ['Help Modal', 'Command Palette', 'Properties Panel']) {
+    for (const role of ['Help Window', 'Command Palette', 'Properties Panel']) {
       for (const one of byRole(built.root(), role)) {
         expect(isShown(one), role).toBe(false)
       }
@@ -2872,7 +2872,7 @@ describe('showScreenView twice -- the whole description each time', () => {
 
     surface.showScreenView(second)
 
-    expect(oneByRole(built.root(), 'Document Title').textContent).toBe('TitleTwo')
+    expect(oneByRole(built.root(), 'Project Title').textContent).toBe('TitleTwo')
   })
 
   it('keeps one root, however many descriptions arrive', () => {
@@ -2907,7 +2907,7 @@ describe('boundaries', () => {
 
     // ⛔ FR-035 fixes `Untitled` for the BROWSER TAB and says nothing about the
     // header, so nothing is invented here.
-    expect(oneByRole(built.root(), 'Document Title').textContent).toBe('')
+    expect(oneByRole(built.root(), 'Project Title').textContent).toBe('')
     expect(built.root().textContent).not.toContain('Untitled')
   })
 
@@ -2954,7 +2954,7 @@ describe('boundaries', () => {
     expect(withText(built.root(), 'DocumentTitleHere')).toHaveLength(readingTheTitleOnce)
     // ⭐ W-4 of 表 T-006a: exactly ONE box carries the settled name `U-27`, and
     // it reads the title. `oneByRole` throws if there is a second.
-    expect(oneByRole(built.root(), 'Document Title').textContent).toBe('DocumentTitleHere')
+    expect(oneByRole(built.root(), 'Project Title').textContent).toBe('DocumentTitleHere')
   })
 })
 
@@ -3070,7 +3070,7 @@ describe('LY-5 of 表 T-060 / R7.3 -- the outside arrives as an argument', () =>
 //      is a failure here and not a difference of spelling.
 //   ⭐ Why the row is in 表 T-206 at all: 「書き出す絵に入口は出ない（表 T-076
 //      の `EP-1` と `EP-4`）ので、渡した相手の絵はこの値で変わらない」. EP-1
-//      draws the header's band and its `Document Title` and nothing else of it;
+//      draws the header's band and its `Project Title` and nothing else of it;
 //      EP-4 draws no task group control at all. So this number is a dimension of the
 //      screen's tools and never of the document. ⛔ Nothing below asks this unit
 //      about the export: 表 T-076 belongs to ImageExporter (CP-21) and UF-71
@@ -3086,7 +3086,7 @@ describe('LY-5 of 表 T-060 / R7.3 -- the outside arrives as an argument', () =>
 // ===========================================================================
 
 /** 表 T-051 HF-5's first MUST, copied from docs/spec/01-04-requirements.md. */
-const T_051_HF5_SAME_SIZE_HERE = '`GRS` は、タスクグループ名の文字サイズにかかわらず、操作子を同じ大きさで描くこと。'
+const T_051_HF5_SAME_SIZE_HERE = '`GRS` は、タスクグループ名の文字サイズにかかわらず、ボタンを同じ大きさで描くこと。'
 
 /** FR-029's two sentences about the box, copied from docs/spec/01-04-requirements.md. */
 const FR_029_THE_BOX = '`GRS` は、図形を描く箱の一辺を `_assets/tbl-settings.md` の 表 T-206 の `S-138` に従わせること'
@@ -3098,7 +3098,7 @@ const FR_029_NOT_BY_SURFACE = '`GRS` は、図形を描く箱の一辺を、載�
  *
  * ⭐ 表 T-109 (docs/spec/_assets/tbl-glossary.md):
  *   | IC-20 | `App Header`       | ... | `Agent API` を有効にする・無効にする |
- *   | IC-52 | `Help Modal` / ... | ... | 開いている面を閉じる |
+ *   | IC-52 | `Help Window` / ... | ... | 開いている面を閉じる |
  *   | IC-58 | `Task Group Panel`  | ... | タスクグループの配下をすべて展開する |
  *   | IC-59 | `Task Group Panel`  | ... | そのタスクグループ自身を折りたたむ |
  *   | IC-60 | `Task Group Panel`  | ... | タスクグループをピン止めし、同じ入口で外す |
@@ -3110,7 +3110,7 @@ const FR_029_NOT_BY_SURFACE = '`GRS` は、図形を描く箱の一辺を、載�
 const T_109_ONE_PER_SURFACE = [
   { row: 'IC-20', surface: 'App Header' },
   { row: 'IC-61', surface: 'Command Palette' },
-  { row: 'IC-52', surface: 'Help Modal' },
+  { row: 'IC-52', surface: 'Help Window' },
   { row: 'IC-58', surface: 'Task Group Panel' },
   { row: 'IC-59', surface: 'Task Group Panel' },
   { row: 'IC-60', surface: 'Task Group Panel' },
@@ -3555,8 +3555,8 @@ describe('FR-029 (MUST) -- the box a shape is drawn in is S-138, on whatever sur
   })
 
   it('GIVEN the same entry drawn on two different 面 WHEN both are read THEN neither scales it (FR-029 MUST NOT) -- IC-52', () => {
-    // ⚠️ 表 T-109 puts IC-52 on several surfaces at once（`Help Modal` /
-    // `Holiday Settings` / `Export Chooser` / `Open Chooser` and more）, so it is
+    // ⚠️ 表 T-109 puts IC-52 on several surfaces at once（`Help Window` /
+    // `Holiday Settings` / `Save As Dialog` / `Open File Dialog` and more）, so it is
     // the one row that can be drawn on two different 面 and compared without a
     // second row entering the comparison.
     const built = wire({ 'App Header': 37 })

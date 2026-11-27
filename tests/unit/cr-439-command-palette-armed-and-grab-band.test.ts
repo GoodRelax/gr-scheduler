@@ -37,7 +37,7 @@ function rowOf(table: string, id: string) {
   return found
 }
 
-const FR_053_FAINT = 'ポインタがコマンドパレットに乗っていない間、`GRS` はコマンドパレットを薄く透明に描くこと。'
+const FR_053_FAINT = 'ポインターがコマンドパレットに乗っていない間、`GRS` はコマンドパレットを薄く透明に描くこと。'
 const FR_053_ARMED = '`GRS` は、いま構えている入口を、構えていない入口と見分けられるように描くこと。'
 const FR_053_EN_1 = '`GRS` は、構えている入口の見分けさせ方を、`FR-029` の 表 T-237 の `EN-1` に従わせること。'
 const FR_053_NOT_PRESSED = '**押されている形にしてはならない（MUST NOT）**'
@@ -136,7 +136,7 @@ describe('FR-053 -- the armed entrance', () => {
 })
 
 describe('FR-053 -- the floating palette', () => {
-  it('FR-053 ポインタが乗っていないあいだは薄く透明に描くこと -- a rule fades the palette while the pointer is off it', () => {
+  it('FR-053 ポインターが乗っていないあいだは薄く透明に描くこと -- a rule fades the palette while the pointer is off it', () => {
     const built = drawn()
     const palette = oneByRole(built.root(), COMMAND_PALETTE)
     const inline = styleMap(palette).get('opacity')

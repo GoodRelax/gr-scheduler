@@ -704,7 +704,7 @@ const CANVAS = '[data-role="Schedule Canvas"] svg'
 const TOOLTIP = '[data-role="Tooltip"]'
 const PANEL = '[data-role="Properties Panel"]'
 const PALETTE = '[data-role="Command Palette"]'
-const HELP_SURFACE_NAME = 'Help Modal'
+const HELP_SURFACE_NAME = 'Help Window'
 const HELP = `[data-role="${HELP_SURFACE_NAME}"]`
 const HEADER_FILE_STATUS = '[data-role="File Status"]'
 const HEADER_FILE_NAME = '[data-role="Opened File Name"]'
@@ -1105,7 +1105,7 @@ async function rulerTiers(page: Page): Promise<RulerTier[]> {
       const box = drawn.getBoundingClientRect()
       const said = (drawn.textContent ?? '').trim()
       if (said === '') continue
-      // ⛔ NOT THE WATERMARK. FR-020's marks are clipped to the Task Group Area,
+      // ⛔ NOT THE WATERMARK. FR-020's marks are clipped to the Task Group Lanes,
       // so none of them PAINTS on the band -- but a clipped element still
       // reports its unclipped box, and this walk picks labels by geometry
       // alone. Measured 2026-09-05: without this, the band read
@@ -1193,7 +1193,7 @@ async function pressExportFormat(page: Page, chooser: string, ending: string): P
   if (!(await pressEntrance(page, chooser))) return false
   await page.waitForTimeout(600)
   const at = await page.evaluate((wanted: string) => {
-    const surface = document.querySelector('[data-role="Export Chooser"]')
+    const surface = document.querySelector('[data-role="Save As Dialog"]')
     if (surface === null) return null
     const found = Array.from(surface.querySelectorAll('button')).filter((one) =>
       (one.textContent ?? '').includes(wanted),
@@ -1217,7 +1217,7 @@ async function pressExportFormat(page: Page, chooser: string, ending: string): P
 // GOES RED IF: the entrance that minimizes the command palette is drawn inside
 // a `Palette Groups` or a `Palette Commands` box, or stops sitting at the right
 // end of the grab band, or stops standing to the right of the band's own mark.
-// Table T-109 says of that row 「掴み帯の右端で、パレットを最小化し、同じ入口で
+// Table T-109 says of that row 「グリップの右端で、パレットを最小化し、同じ入口で
 // 戻す（`S-200`）。⭐ `IC-53` の右に並ぶ（`FR-053`）」 and gives the band's own
 // mark 「掴んで動かせることを示す。**ボタンではない**」 -- so one of the two is a
 // button inside the other, which is exactly what the boxes must not hold.
@@ -1546,7 +1546,7 @@ test('DFC-105: a help item reads shape, description, assignment, drawn at S-203'
 
   const ground = await groundTextPx(page)
   // Why: FR-036 also owns the legend mark, which stands inside the help itself;
-  // Why: only a row placed outside the Help Modal can be what opens it.
+  // Why: only a row placed outside the Help Window can be what opens it.
   const helpSurface = /"([^"]+)"/.exec(HELP)?.[1] ?? HELP
   const helpEntrances = T109.rows
     .filter((row) => row.cells.length === T109_COLUMNS)
@@ -1583,7 +1583,7 @@ test('DFC-105: a help item reads shape, description, assignment, drawn at S-203'
       })),
     }
   }, HELP)
-  expect(read, 'pressing the help entrance put no Help Modal on the screen').not.toBeNull()
+  expect(read, 'pressing the help entrance put no Help Window on the screen').not.toBeNull()
   if (read === null) return
 
   // A GUARD, NOT THE ASSERTION. FR-036 names tables T-109 / T-036 / T-023 for
@@ -2436,7 +2436,7 @@ test('DFC-52: the written picture is the same whether or not something is select
       expect(await pressEntrance(page, chooser), `${chooser} is not on the screen`).toBe(true)
       await page.waitForTimeout(900)
       const at = await page.evaluate(() => {
-        const surface = document.querySelector('[data-role="Export Chooser"]')
+        const surface = document.querySelector('[data-role="Save As Dialog"]')
         if (surface === null) return null
         const wanted = Array.from(surface.querySelectorAll('button')).find((one) =>
           (one.textContent ?? '').includes('.svg'),
@@ -2896,7 +2896,7 @@ test('DFC-210: a bar shape needs a drag, a milestone needs only a press', async 
      * bar or a glyph has.
      *
      * ⛔ NOT SIMPLY THE WIDEST NEW ONE. A creation opens the Properties Panel on
-     * what it made (`FR-001` MUST, `FR-091`), the Task Group Area narrows, and every
+     * what it made (`FR-001` MUST, `FR-091`), the Task Group Lanes narrows, and every
      * bar on the drawing is redrawn at a new x -- so the whole picture reads as
      * new. What is looked for is a shape that stands where the hand was.
      *
@@ -3312,7 +3312,7 @@ async function panelLinesOnScreen(page: Page): Promise<PanelLine[]> {
  * then 「頭にいまいくつのタスクグループを折りたたみ込んでいるかを示すこと」. That count stands in
  * the head, above the tree, and it is not a task group -- counting it as one would have
  * a build that obeys `HF-12` reported as drawing a task group the screen does not.
- * `EP-1`'s `Document Title` sits higher still and is cut off by the same edge.
+ * `EP-1`'s `Project Title` sits higher still and is cut off by the same edge.
  *
  * @purity pure
  */
@@ -3321,7 +3321,7 @@ async function panelLinesOnScreen(page: Page): Promise<PanelLine[]> {
  *
  * ⚠️⚠️ WHY. The walk below reads the written picture as text and picks task group
  * names by coordinate alone. The watermark is a grid of <text> marks laid
- * over the Task Group Area, so each of them looks like a task group name standing at some
+ * over the Task Group Lanes, so each of them looks like a task group name standing at some
  * x and y. Measured 2026-09-05: four of them landed among the eleven task group
  * names and the picture stopped agreeing with the screen.
  *
@@ -3837,7 +3837,7 @@ async function pressRowEntrance(page: Page, taskGroupTop: number, entrance: stri
 // GOES RED IF: the surface that shows the document's drawing settings prints an
 // item name the dictionary does not hold, or prints an identifier as it is held
 // inside. Chapter 1's paragraph under table T-006a (MUST) reads 「⛔ **プロパティ
-// パネルの項目名の英語の綴りは `W-2` に従うこと（MUST）** …… ⛔ 同じ面が文書の設定を
+// パネルの項目名の英語の綴りは `W-2` に従うこと（MUST）** …… ⛔ 同じ面が文書設定を
 // 出すときも、これに従うこと（MUST）。内部の綴りや識別子をそのまま出してはならない
 // （MUST NOT）」, and the preamble of table T-016 says where the names live:
 // 「⛔ **画面に出す名は本表に無い（MUST NOT）** —— `FR-038` が「画面に刷る語は、言語
@@ -4027,7 +4027,7 @@ test('DFC-235: changing the display language changes the language the document n
   try {
     const page = opened.page
     // Why: FR-038 has two entrances since CR-574 -- the screen's language in the
-    // Why: App Header and the help's own inside the Help Modal; this case is the former.
+    // Why: App Header and the help's own inside the Help Window; this case is the former.
     const screenToggles = T109.rows
       .filter((row) => row.cells.length === T109_COLUMNS)
       .filter((row) => (row.cells[T109_SOURCE] ?? '').includes('FR-038'))

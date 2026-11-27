@@ -13,7 +13,7 @@ import { specTable, type SpecRow } from '../contract/spec-table'
 const DEFAULT_COLUMN = '既定'
 const DEFAULT_VALUE_COLUMN = '既定値'
 const T_266_SIZES = '横'
-const T_266_POINTER = 'ポインタ（表 T-269）'
+const T_266_POINTER = 'ポインター（表 T-269）'
 
 /** @purity pure */
 export function specRow(table: string, id: string): SpecRow {

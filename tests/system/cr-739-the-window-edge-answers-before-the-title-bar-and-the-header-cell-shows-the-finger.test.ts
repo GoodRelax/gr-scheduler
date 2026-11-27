@@ -15,10 +15,10 @@ const FR_106_EDGES =
   '`GRS` は、ウィンドウの縁の掴み代（表 T-023d の `GR-25`）では、左と右の辺を 表 T-269 の `PK-12`、上と下の辺を `PK-13`、左上と右下の角を `PK-14`、右上と左下の角を `PK-15` にすること'
 const FR_106_HEADER_FINGER =
   '`GRS` は、`GR-28` の帯の外で、見出しのセルが `IC-122` として答える所（見出しの語・`IC-122`・語と `IC-122` の間と左右と上下の詰め —— `FR-151` の 表 T-330 の `SV-7`）では、表 T-269 の `PK-7` にすること'
-const SV_7_SHAPE = '答える所のポインタの形は `FR-106` が持つ（表 T-269 の `PK-7`）。'
+const SV_7_SHAPE = '答える所のポインターの形は `FR-106` が持つ（表 T-269 の `PK-7`）。'
 const SV_7_CHECKBOX = '`GRS` は、[表示] の列の見出しに、`IC-122` を置かずに、見出しのチェックボックスだけを置くこと'
-const WB_8_FOLLOWS = '握っているあいだ、ウィンドウをポインタに追従させること（MUST）'
-const WB_9_FOLLOWS = '縁と角（表 T-023d の `GR-25`）を握っているあいだ、ウィンドウの大きさをポインタに追従させること（MUST）'
+const WB_8_FOLLOWS = '握っているあいだ、ウィンドウをポインターに追従させること（MUST）'
+const WB_9_FOLLOWS = '縁と角（表 T-023d の `GR-25`）を握っているあいだ、ウィンドウの大きさをポインターに追従させること（MUST）'
 
 const T_103 = specTable('T-103')
 const RESOURCE_LIST = `[data-role="${bare(rowOf(T_103, 'U-49').cells[0] ?? '')}"]`
@@ -55,8 +55,8 @@ async function withResourceList(browser: Browser): Promise<Stage> {
 }
 
 const WINDOWS: readonly Win[] = [
-  { name: 'Search Panel', selector: PANEL, open: (browser) => withSearch(browser) },
-  { name: 'Delay Diagnostics Report', selector: REPORT, open: (browser) => withReport(browser) },
+  { name: 'Search Window', selector: PANEL, open: (browser) => withSearch(browser) },
+  { name: 'Delay Diagnosis Report', selector: REPORT, open: (browser) => withReport(browser) },
   { name: 'Resource List', selector: RESOURCE_LIST, open: withResourceList },
 ]
 

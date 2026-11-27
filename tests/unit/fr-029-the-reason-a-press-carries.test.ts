@@ -38,7 +38,7 @@
 //              通知の仕組みへ運ぶこと（MUST）。作法は `FR-076` の 表 T-037 の `NT-1` に従い、
 //              運ぶ理由は、押された入口の場面に当たる同要求の 表 T-233 の行とすること
 //              （MUST）」／⛔ 「当たる行があるのに落ち先を運んではならない（MUST
-//              NOT）」／⛔ 「ポインタが乗っただけで理由を出してはならない（MUST
+//              NOT）」／⛔ 「ポインターが乗っただけで理由を出してはならない（MUST
 //              NOT）」（利用者の裁定 2026-08-30「薄く描け。押下した場合のみ理由を
 //              説明するポップアップを出せ」）
 //   表 T-233   RS-28 「配下に、展開できるタスクグループが 1 つも無い」（正: 表 T-051 の `HF-2`）
@@ -203,7 +203,7 @@ const FR_029_THE_MATCHING_ROW =
   '`GRS` は、運ぶ理由を、押された入口の場面に当たる `FR-076` の 表 T-233 の行とすること。'
 const FR_029_NOT_THE_FALLBACK = '押された入口の場面に当たる行が 表 T-233 にあるとき、`GRS` は落ち先を運ばないこと。'
 const FR_029_RS_27_IS_THE_FALLBACK = 'もし押された入口の場面に当たる行が 表 T-233 に無い場合、`GRS` は落ち先の `RS-27`（出さない）を運ぶこと。'
-const FR_029_NOT_ON_HOVER = '`GRS` は、ポインタが入口に乗っただけで、行えない理由を出さないこと。'
+const FR_029_NOT_ON_HOVER = '`GRS` は、ポインターが入口に乗っただけで、行えない理由を出さないこと。'
 const T_051_ONLY_DRAWN_TASK_GROUPS =
   '`GRS` は、描かれていないタスクグループの折りたたみを数えないこと（`IMPS-1981` の例外を除く）。'
 const T_051_NO_CHANGE_MEANS_SPENT =
@@ -769,7 +769,7 @@ describe('FR-029 (MUST) -- a press on a spent entrance carries the row that matc
 
 describe('FR-029 (MUST NOT) -- resting a pointer on it is not a press', () => {
   it('⛔ MUST NOT: moving onto the entrance tells no reason', () => {
-    // 「ポインタが乗っただけで理由を出してはならない（MUST NOT）—— 乗せて出るのは
+    // 「ポインターが乗っただけで理由を出してはならない（MUST NOT）—— 乗せて出るのは
     //   `FR-092` の `EZ-2` の説明であり、あちらはその入口が何をするものかを述べる
     //   ものであって、いま行えない理由ではない」（利用者の裁定 2026-08-30）.
     const built = stage()
@@ -779,7 +779,7 @@ describe('FR-029 (MUST NOT) -- resting a pointer on it is not a press', () => {
 
     expect(
       built.notices(),
-      'FR-029 (MUST NOT): ポインタが乗っただけで理由を出してはならない',
+      'FR-029 (MUST NOT): ポインターが乗っただけで理由を出してはならない',
     ).toEqual([])
   })
 

@@ -1,4 +1,4 @@
-// File: DomScreenSurface: the three table windows (Search Panel, Delay Diagnostics Report, Resource List): title row, word field, table and the report's fix rows.
+// File: DomScreenSurface: the three table windows (Search Window, Delay Diagnosis Report, Resource List): title row, word field, table and the report's fix rows.
 // @unit      UF-182  (docs/spec/05-07-design.md, table T-075)
 // @component DomScreenSurface, layer Framework (table T-062)
 // @purity    non-pure
@@ -97,7 +97,7 @@ export interface TableWindowIdentity {
 // Spec: SV-6, SV-17, SV-18, RW-9, SQ-5, DT-1
 export type DrawnTable = Pick<TableWindowView, 'columns' | 'rows' | 'jumpAt' | 'glyphAt' | 'showAt' | 'showHeading' | 'chosenAt' | 'fixTable'>
 
-const SEARCH_PANEL_ROLE = 'Search Panel'
+const SEARCH_PANEL_ROLE = 'Search Window'
 
 const SEARCH_PANEL_IDENTITY: TableWindowIdentity = { window: 'searchPanel', role: SEARCH_PANEL_ROLE, visibilityColumn: 'SQ-10' }
 

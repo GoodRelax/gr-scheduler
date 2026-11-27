@@ -1,4 +1,4 @@
-// W3 tester 4: the built page pressed in a real browser -- MK-13 Document Title, FR-096 Export Chooser, T-335 WB-10, WM-9 Esc, T-330 SV-7.
+// W3 tester 4: the built page pressed in a real browser -- MK-13 Project Title, FR-096 Save As Dialog, T-335 WB-10, WM-9 Esc, T-330 SV-7.
 
 // Why: one line, overlap, focus and a drag on a frame edge are decided by layout in a real browser; the fake DOM cannot see them.
 // Why: every word and row is read from docs/spec at read time; the page is the built dist/index.html (uc-harness).
@@ -15,7 +15,7 @@ const WORDS = JSON.parse(readRepoFile(join(process.cwd(), 'docs', 'spec', '_sour
 const TEMPLATE_TEXT = readRepoFile(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8')
 
 const MK_13_ONE_PRESS =
-  '（`FR-035`）を開くこと。`GRS` は、`Document Title` の 1 回の押下でその場で編集する欄を開かないこと。'
+  '（`FR-035`）を開くこと。`GRS` は、`Project Title` の 1 回の押下でその場で編集する欄を開かないこと。'
 const FR_096_ONE_COLUMN = '`GRS` は、書き出しの選択面に、形式を 表 T-664 の `IMPS-1039` の順で、上から下へ 1 段に 1 つずつ並べること。'
 const FR_096_NOT_SIDEWAYS =
   '`GRS` は、選択面の形式を横に並べないこと。'
@@ -27,7 +27,7 @@ const WB_10_TITLE_TASK_GROUP = 'タイトルバーは `WB-7` と同じ形とし�
 const WM_9_ESC =
   ' の「面」である（MUST） —— `Esc` の「開いている面」の段で閉じる（表 T-028 の `IN-4`）。⛔ **閉じたときに透かしを非表示にしてはならない（MUST NOT）'
 const SV_7_LABELS =
-  '「いつから」「いつまで」を宿主の日付の入力で選ばせること。`GRS` は、2 つの日付の入力の左に 1 つずつ、`FR-038` の辞書が持つ語「いつから」「いつまで」を札として置くこと。'
+  '「いつから」「いつまで」を宿主の日付の入力で選ばせること。`GRS` は、2 つの日付の入力の左に 1 つずつ、`FR-038` の辞書が持つ語「いつから」「いつまで」をラベルとして置くこと。'
 
 test.use({ viewport: VIEWPORT })
 
@@ -97,7 +97,7 @@ async function isTitleBeingEdited(page: Page): Promise<boolean> {
 /** @purity non-pure */
 async function openExportChooser(page: Page): Promise<void> {
   await press(page, 'IC-2')
-  await expect.poll(() => isShown(page, EXPORT_CHOOSER), { message: 'IC-2 opens the Export Chooser' }).toBe(true)
+  await expect.poll(() => isShown(page, EXPORT_CHOOSER), { message: 'IC-2 opens the Save As Dialog' }).toBe(true)
 }
 
 /** @purity semi-pure-mutable */
@@ -133,10 +133,10 @@ test.describe('the manuscript these cases are driven by', () => {
 })
 
 test.describe(`T-023 MK-13 -- ${MK_13_ONE_PRESS}`, () => {
-  test('one press on the Document Title opens no field; a double-click opens it with the focus in it', async ({ page }) => {
+  test('one press on the Project Title opens no field; a double-click opens it with the focus in it', async ({ page }) => {
     await launch(page)
     const title = await rectOf(page, DOCUMENT_TITLE)
-    if (title === null) throw new Error('the page draws no Document Title')
+    if (title === null) throw new Error('the page draws no Project Title')
     const at = { x: (title.left + title.right) / 2, y: (title.top + title.bottom) / 2 }
     await page.mouse.click(at.x, at.y)
     await page.waitForTimeout(800)
@@ -199,8 +199,8 @@ test.describe(`FR-096 -- ${FR_096_HEADING}`, () => {
       }
       return { icons, firstFormat, texts }
     }, EXPORT_CHOOSER)
-    if (read === null) throw new Error('the Export Chooser is not on the page')
-    // Why: CR-770 (JDG-2251) renamed the English heading of the Export Chooser to Save As.
+    if (read === null) throw new Error('the Save As Dialog is not on the page')
+    // Why: CR-770 (JDG-2251) renamed the English heading of the Save As Dialog to Save As.
     const headings = ['ファイルに保存', 'Save As']
     const heading = read.texts.find((one) => headings.includes(one.text))
     expect(heading, `${FR_096_HEADING}: the title is the heading word`).toBeDefined()
@@ -216,9 +216,9 @@ test.describe(`FR-096 -- ${FR_096_HEADING}`, () => {
 
 test.describe(`T-335 WB-10 -- ${WB_10_NO_RESIZE}`, () => {
   for (const [name, open] of [
-    ['Export Chooser', async (page: Page) => openExportChooser(page)],
+    ['Save As Dialog', async (page: Page) => openExportChooser(page)],
     [
-      'Open Chooser',
+      'Open File Dialog',
       async (page: Page) => {
         await page.evaluate((given: string) => {
           ;(window as unknown as { __grsNextOpen: unknown }).__grsNextOpen = { name: 'same.json', text: given }
@@ -230,7 +230,7 @@ test.describe(`T-335 WB-10 -- ${WB_10_NO_RESIZE}`, () => {
     test(`a drag on the ${name}'s lower-right edge does not change its size`, async ({ page }) => {
       await launch(page)
       await open(page)
-      const selector = name === 'Export Chooser' ? EXPORT_CHOOSER : OPEN_CHOOSER
+      const selector = name === 'Save As Dialog' ? EXPORT_CHOOSER : OPEN_CHOOSER
       await expect.poll(() => isShown(page, selector), { message: `premise: the ${name} is open` }).toBe(true)
       const before = await rectOf(page, selector)
       if (before === null) throw new Error(`the ${name} is not on the page`)
@@ -264,8 +264,8 @@ test.describe(`T-330 SV-7 -- ${SV_7_LABELS}`, () => {
     await launch(page)
     await page.keyboard.press('Control+f')
     await settle(page)
-    const panel = '[data-role="Search Panel"]'
-    await expect.poll(() => isShown(page, panel), { message: 'SK-24 opens the Search Panel' }).toBe(true)
+    const panel = '[data-role="Search Window"]'
+    await expect.poll(() => isShown(page, panel), { message: 'SK-24 opens the Search Window' }).toBe(true)
     const filters = page.locator(`${panel} ${icon('IC-122')}`)
     const count = await filters.count()
     let found = false
@@ -278,7 +278,7 @@ test.describe(`T-330 SV-7 -- ${SV_7_LABELS}`, () => {
         await settle(page)
       }
     }
-    expect(found, 'premise: one column filter of the Search Panel is a date filter with two date inputs').toBe(true)
+    expect(found, 'premise: one column filter of the Search Window is a date filter with two date inputs').toBe(true)
     const from = wordsOfPart('dateFrom')
     const to = wordsOfPart('dateTo')
     const placed = await page.evaluate((within: string) => {

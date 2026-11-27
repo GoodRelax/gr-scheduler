@@ -4,9 +4,9 @@ import { describe, expect, it } from 'vitest'
 
 import { cellOf, grabTaskGroup, grabTaskGroups, pointerIdsIn, rowsOf } from '../unit/cr-430-scene'
 
-const FR_106_TELLS_WHAT = 'どの掴み代でどの形かは表 T-266 のポインタの欄、形そのものは表 T-269 に従うこと。'
+const FR_106_TELLS_WHAT = 'どの掴み代でどの形かは表 T-266 のポインターの欄、形そのものは表 T-269 に従うこと。'
 const FR_106_MARKER_IS_A_FINGER =
-  '⭐ 押す役と引く役を兼ねる進捗マーカー（表 T-270 の `PE-8`）は、押す役の形（指）とすること（MUST）。'
+  '⭐ 押す役と引く役を兼ねる進捗ステータスマーク（表 T-270 の `PE-8`）は、押す役の形（指）とすること（MUST）。'
 const FR_106_HELD_KEEPS_SHAPE = '押しているあいだは、掴んだときの形を保つこと（MUST）。'
 const T_269_WHITE_IS_PLAN = '⭐ 白 ＝ 予定、黒 ＝ 実績とダミー、の約束を、箱の矢印と円で揃えること（MUST）。'
 const T_269_ARMED_TOOL_WINS =

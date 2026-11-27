@@ -1,4 +1,4 @@
-// CR-723 on the shipped build: the views are saved and come back (S-560 to S-572, OP-18, TV-12), a view change is an unsaved edit and one undo step (UN-20, TV-8), the Delay Diagnostics start (OP-18, S-445), and the Agent API reads and writes the views (AM-27).
+// CR-723 on the shipped build: the views are saved and come back (S-560 to S-572, OP-18, TV-12), a view change is an unsaved edit and one undo step (UN-20, TV-8), the Delay Diagnosis start (OP-18, S-445), and the Agent API reads and writes the views (AM-27).
 
 import { expect, test, type Browser, type Page } from '@playwright/test'
 import { bare, specTable } from '../contract/spec-table'
@@ -194,7 +194,7 @@ test.describe('CR-723 on the shipped build', () => {
       expect(current['shownTaskUids'], 'premise: the two Sato tasks are checked').toEqual([ALPHA, CHARLIE])
       expect(await applyView(page, 'searchPanel', { visibility: { shownTaskUids: [ALPHA, CHARLIE, ECHO], shownResourceUids: [], isUnassignedShown: false, isScheduleFilterApplied: false }, columnFilters: [STATUS_FILTER], sort: BY_RESOURCE })).toBe(true)
       await settle(page)
-      // Step: RO-6 -- the Resource List opened later stands in front of the Search Panel; drag it aside to reach the search IC-143
+      // Step: RO-6 -- the Resource List opened later stands in front of the Search Window; drag it aside to reach the search IC-143
       await dragAside(page, RESOURCE_LIST)
       await press(page, `${SEARCH} [data-icon="${EYE}"]`)
       await press(page, `${RESOURCE_LIST} [data-icon="${EYE}"]`)
@@ -216,7 +216,7 @@ test.describe('CR-723 on the shipped build', () => {
     try {
       const { page } = second
       expect(await viewsOf(page), 'the reopened document holds the same three views').toEqual(views)
-      expect(await isMinimized(page, SEARCH), 'OP-18: the Search Panel comes up minimized').toBe(true)
+      expect(await isMinimized(page, SEARCH), 'OP-18: the Search Window comes up minimized').toBe(true)
       expect(await isMinimized(page, RESOURCE_LIST), 'OP-18: the Resource List comes up minimized').toBe(true)
       expect(await page.locator(REPORT).count(), 'the report window is not shown for the other two').toBe(0)
       expect(await paintsRed(page, `${SEARCH} [data-icon="${EYE}"]`), 'TV-12: the search eye').toBe(true)

@@ -225,7 +225,7 @@ test(
             new DOMParser().parseFromString(markup, 'image/svg+xml').querySelectorAll('[id]'),
           )
             // Why: same exclusion as above (WY-2) -- the watermark's clip id is
-            // Why: derived from the Task Group Area, which is already set aside from comparison.
+            // Why: derived from the Task Group Lanes, which is already set aside from comparison.
             .filter((one) => one.closest('[data-role="Watermark"]') === null)
             .map((one) => one.id)
 

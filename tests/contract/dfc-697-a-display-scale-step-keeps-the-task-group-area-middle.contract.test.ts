@@ -1,4 +1,4 @@
-// Guard cases for DFC-697: a display scale step holds the date and the task group at the Task Group Area middle.
+// Guard cases for DFC-697: a display scale step holds the date and the task group at the Task Group Lanes middle.
 
 import { afterEach, describe, expect, it } from 'vitest'
 
@@ -9,7 +9,7 @@ import { keyOf, REQUIREMENTS, taskGroupDocument, shell, type TaskGroupSeed, type
 
 // Spec: FR-039
 const FR_039_HOLD_THE_MIDDLE =
-  '表示の倍率が変わったとき、`GRS` は、`Task Group Area` の横の中点が指す日付と、縦の中点が指すタスクグループを動かさないこと。'
+  '表示の倍率が変わったとき、`GRS` は、`Task Group Lanes` の横の中点が指す日付と、縦の中点が指すタスクグループを動かさないこと。'
 
 const TASK_GROUP_COUNT = 60
 const SEATED_TASK_GROUP = 'task-group-20'
@@ -84,7 +84,7 @@ describe('DFC-697 / FR-039 -- the manuscript still holds the rule these cases pr
   })
 })
 
-describe('DFC-697 / FR-039, DS-1, DS-9, S-234 -- the middle of the Task Group Area holds its date and its task group', () => {
+describe('DFC-697 / FR-039, DS-1, DS-9, S-234 -- the middle of the Task Group Lanes holds its date and its task group', () => {
   it.each([
     ['SK-22 from the default step', DEFAULT_DISPLAY_SCALE, SK_22],
     ['SK-23 from the default step', DEFAULT_DISPLAY_SCALE, SK_23],
@@ -97,8 +97,8 @@ describe('DFC-697 / FR-039, DS-1, DS-9, S-234 -- the middle of the Task Group Ar
     built.send(press)
     const after = frameOf(built)
     expect(built.loop.document().documentSettings.displayScale, 'premise: the press moved the step').not.toBe(start)
-    expect(after.regions.taskGroupArea.width, 'premise: DS-9 moved the Task Group Area width').not.toBe(before.regions.taskGroupArea.width)
-    expect(after.regions.taskGroupArea.y, 'premise: DS-1 moved the Task Group Area top').not.toBe(before.regions.taskGroupArea.y)
+    expect(after.regions.taskGroupArea.width, 'premise: DS-9 moved the Task Group Lanes width').not.toBe(before.regions.taskGroupArea.width)
+    expect(after.regions.taskGroupArea.y, 'premise: DS-1 moved the Task Group Lanes top').not.toBe(before.regions.taskGroupArea.y)
     const landed = middleOf(after)
     expect(landed.day, `${FR_039_HOLD_THE_MIDDLE} -- the date`).toBeCloseTo(held.day, DIGITS)
     expect(landed.row.taskGroupId, `${FR_039_HOLD_THE_MIDDLE} -- the task group`).toBe(held.row.taskGroupId)

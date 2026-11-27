@@ -91,7 +91,7 @@ describe('IC-154 to IC-160 -- the label comes from the table, the hint is the on
   it.each(ICONS)('%s: a label in both languages, and a row in T-109', (icon) => {
     expect(entryOf(icon)['label']['ja'].length).toBeGreaterThan(0)
     expect(entryOf(icon)['label']['en'].length).toBeGreaterThan(0)
-    expect(rowText('T-109', icon)).toContain('Delay Diagnostics Report')
+    expect(rowText('T-109', icon)).toContain('Delay Diagnosis Report')
   })
 
   it.each(ICONS)('%s: the hint reads as the user chose it, in Japanese and in English', (icon) => {

@@ -30,7 +30,7 @@ const EL_20_FILTERED_END =
 const EL_20_TASK_GROUP_DRAWN = '載るタスクグループを描いていても、端を見えていない端とすること'
 const EL_20_NOT_DROPPED = '`GRS` は、立つ所が無いとして線を落とさないこと。'
 const FR_135_FILTERED_END =
-  'もし家族の矢印の片方の端のタスクが日程抽出（`FR-151` の 表 T-353 の `TV-3`）で描かれない場合、`GRS` は、依存線の見えていない端（表 T-303 の `EL-20`）と同じく、見えている側に短い線と続きの印を描くこと。'
+  'もし家族の矢印の片方の端のタスクが日程抽出（`FR-151` の 表 T-353 の `TV-3`）で描かれない場合、`GRS` は、依存線の見えていない端（表 T-303 の `EL-20`）と同じく、見えている側に短い線と続きマークを描くこと。'
 const FR_135_ONE_MANNER = '同じ「見えない端」の作法を 2 種の線で分けない。'
 
 const CLAUSES: readonly (readonly [string, string])[] = [

@@ -42,7 +42,7 @@
 // about presses, levels or writes lives in it.
 //
 // The rules these cases answer to:
-//   表 T-078 FT-1   「人の入力（ポインタとキー）」 is a trigger of a frame, and
+//   表 T-078 FT-1   「人の入力（ポインターとキー）」 is a trigger of a frame, and
 //                   `DomInputSource` (CP-27) hands it over on IF-2. The MUST NOT
 //                   under the table -- 「本表に無い契機でフレームを起こしては
 //                   ならない」 -- is what NFR-010 comes to concretely
@@ -55,13 +55,13 @@
 //   表 T-077 BO-1   「画面の寸法を確定させ ... 寸法が確定するまで 1 枚も描か
 //                   ない」, with the MUST under the table: 「上から順に通すこと
 //                   （MUST）。前の段が済む前に次の段へ進んではならない」
-//   表 T-023 MK-10  「本ツールが割り当てた修飾キーの付いた入力 ... ブラウザの
+//   表 T-023 MK-10  「`GRS` が割り当てた修飾キーの付いた入力 ... ブラウザーの
 //                   既定動作を画面全体で止めること（MUST）。割り当てていない
 //                   組合せを止めてはならない（MUST NOT）」, which names
 //                   `Ctrl+P` as one it must not take and `Ctrl+F` (SK-24) as taken
 //   表 T-036        the whole roster of shortcut assignments; the row says so
 //                   itself: 「本表がショートカットキーの割当の全数である」
-//   表 T-023d GR-19 「`Command Palette` の掴み帯 ... 掴めばパレットを動かす
+//   表 T-023d GR-19 「`Command Palette` のグリップ ... 掴めばパレットを動かす
 //                   （`FR-053`）」 -- the FIRST row of that table, under the
 //                   preamble 「上の行ほど優先すること（MUST）」
 //   FR-053          「作成者がドラッグで動かせるようにすること」 (MUST), whose
@@ -71,21 +71,21 @@
 //                   a press on the band arrives as, and never an entry
 //   表 T-023 MK-7   「パンは等倍とすること（MUST）」 -- the shape the palette's
 //                   travel takes too: what the pointer went, not scaled
-//   表 T-028 IN-1   「ポインタ操作は押した時点で実行せず、離した時点で確定
+//   表 T-028 IN-1   「ポインター操作は押した時点で実行せず、離した時点で確定
 //                   すること」
-//   表 T-028 IN-1a  「ボタンを離す前に窓の外でポインタが失われたときは、
+//   表 T-028 IN-1a  「ボタンを離す前に窓の外でポインターが失われたときは、
 //                   ドラッグを中断として終わらせること（MUST）」, with the
 //                   reason: otherwise 「ドラッグ中」 never lifts and AG-9
 //                   refuses every later write
 //   表 T-028 IN-4   「`Esc` は閉じる対象または取り消す対象があるときだけ
-//                   1 階層ぶん消費し、無ければブラウザへ渡すこと。消費する階層
+//                   1 階層ぶん消費し、無ければブラウザーへ渡すこと。消費する階層
 //                   は 出ている通知 → 確定していないその場の編集 → 開いている面 → 進行中のドラッグ・引きかけの矢印 → 開いているウィンドウ → プロパティパネル → 構え → 選択
 //                   → `Dual Cursor` モード → 出ている説明 → 全画面表示 の順とすること（MUST）」
-//   表 T-028 IN-4a  「消費する対象が 1 つも無いときは、必ずブラウザへ渡すこと
+//   表 T-028 IN-4a  「消費する対象が 1 つも無いときは、必ずブラウザーへ渡すこと
 //                   （MUST）」
 //   表 T-066 CS-1   the frozen copy and the screen's size are collected once, at
 //                   the head of the frame
-//   表 T-066 CS-2   「身振り 1 回（掴む）| 身振りを始めた時点の文書 | ポインタ
+//   表 T-066 CS-2   「身振り 1 回（掴む）| 身振りを始めた時点の文書 | ポインター
 //                   を押した時点」 -- what a gesture is about is fixed at the
 //                   press, not at the release
 //   表 T-071 CA-2   the frame's three values are rebuilt at the head of a frame
@@ -94,11 +94,11 @@
 //                   書くこととすること（MUST）... ここでいう本日は、読む人の機
 //                   のローカルの暦の日とすること（MUST）。UTC の暦の日を用いて
 //                   はならない（MUST NOT）」
-//   FR-048          「ポインタに追従する線が 1 本も無く、ほかに描く内容も
-//                   変わらないとき、ポインタの移動で描き直してはならない
+//   FR-048          「ポインターに追従する線が 1 本も無く、ほかに描く内容も
+//                   変わらないとき、ポインターの移動で描き直してはならない
 //                   （MUST NOT）」
 //   FR-063          「刻はいずれも `ISO 8601`・UTC・秒までとすること（MUST）
-//                   ... 見せ方の群だけを変える更新で、日程データの群の刻を
+//                   ... 見せ方の群だけを変える更新で、スケジュールデータの群の刻を
 //                   動かしてはならない（MUST NOT）... どちらの群であれ動いた刻
 //                   と、最後に書いた者は、見せ方の群だけを変えたときも更新する
 //                   こと（MUST）」
@@ -112,7 +112,7 @@
 // it is holding:
 //   1. FR-048's MUST NOT -- a bare pointer move over the time ruler, with no
 //      line following the pointer and nothing else changing, still wakes a
-//      frame. NFR-010's RATIONALE is the cost: 「ポインタを動かしているだけで
+//      frame. NFR-010's RATIONALE is the cost: 「ポインターを動かしているだけで
 //      毎秒 60 回描き続ける」.
 //   2. IN-4's second level -- 「進行中のドラッグ・引きかけの矢印」 -- is never
 //      consumed. `Esc` takes the open surface (level 1 passes) but leaves the
@@ -133,7 +133,7 @@
 //     when both stand. IN-4 fixes the order, and the two cases below drive the
 //     two levels this loop can be put into from outside it.
 //   - whether a `lost` happening is itself a frame trigger. FT-1 names 「人の
-//     入力（ポインタとキー）」 without dividing the phases, and IN-1a states
+//     入力（ポインターとキー）」 without dividing the phases, and IN-1a states
 //     only what must become of the drag.
 
 import { readRepoFile } from '../spec-files'
@@ -506,8 +506,8 @@ const T_036_DRIVEN = [
  * Combinations MK-10's own sentence names as ones this tool must NOT take, plus
  * the button table T-023 gives no row at all.
  */
-const MK_10_CTRL_P = '`Ctrl+P`（印刷）まで奪うと、ブラウザの機能が使えなくなる'
-const MK_10_CTRL_F = '`GRS` は、表 T-036 の `SK-24` に割り当てた `Ctrl+F` のブラウザの既定動作も止めること。'
+const MK_10_CTRL_P = '`Ctrl+P`（印刷）まで奪うと、ブラウザーの機能が使えなくなる'
+const MK_10_CTRL_F = '`GRS` は、表 T-036 の `SK-24` に割り当てた `Ctrl+F` のブラウザーの既定動作も止めること。'
 
 const NOT_ASSIGNED = [
   { why: 'MK-10 names it: `Ctrl+P`（印刷）', input: () => key('P', { ctrl: true }) },
@@ -619,7 +619,7 @@ describe('BO-1 of table T-077 -- nothing goes up until the size is settled', () 
 
 describe("FT-1 of table T-078 -- a person's input is what owes a frame", () => {
   it('FT-1: an input table T-036 assigns runs exactly one more frame', () => {
-    // FT-1: 「人の入力（ポインタとキー）| `DomInputSource`（`CP-27`）が 表 T-065
+    // FT-1: 「人の入力（ポインターとキー）| `DomInputSource`（`CP-27`）が 表 T-065
     // の `IF-2` で渡す」. CA-2 of table T-071 makes it ONE frame: the three
     // values are rebuilt at the head of a frame and not again inside it.
     const pane = host()
@@ -651,18 +651,18 @@ describe("FT-1 of table T-078 -- a person's input is what owes a frame", () => {
   })
 
   it('FR-048 (MUST NOT): a bare pointer move with no line following it draws nothing', () => {
-    // FR-048: 「ポインタに追従する線が 1 本も無く、ほかに描く内容も変わらない
-    // とき、ポインタの移動で描き直してはならない（MUST NOT）」. The document
+    // FR-048: 「ポインターに追従する線が 1 本も無く、ほかに描く内容も変わらない
+    // とき、ポインターの移動で描き直してはならない（MUST NOT）」. The document
     // this file drives has `guideCursorMode: "none"` and `dualCursor: null`, so
     // nothing follows the pointer, and no button is down.
     //
     // ⭐ THE MOVE IS OVER THE TIME RULER, deliberately, so that not one of the
-    // four things FR-048 exempts can be in play. Its note admits 「ポインタが
+    // four things FR-048 exempts can be in play. Its note admits 「ポインターが
     // 乗ったことで濃さが変わる UI パーツと、待ち時間で出る説明」 -- HF-6's row
     // controls, FR-053's palette, FR-043's grab slop and FR-013's marker, and
     // EZ-2's icon hint. None of them is drawn on the ruler, which the note under
     // table T-023a leaves without pointer operations at all: 「タイムルーラー |
-    // ポインタ操作を持たない（MUST NOT）」. ⚠️ No `ScreenWiring` is given here,
+    // ポインター操作を持たない（MUST NOT）」. ⚠️ No `ScreenWiring` is given here,
     // so no UI part outside the schedule is drawn either.
     const pane = host()
     const loop = frameLoop(pane.surface, twoTaskGroupDocument(), SCREEN)
@@ -679,7 +679,7 @@ describe("FT-1 of table T-078 -- a person's input is what owes a frame", () => {
 
 describe('MK-10 of table T-023 -- the browser is stopped for what this tool assigned', () => {
   it('MK-10 (MUST): every assignment of table T-036 this file drives answers true', () => {
-    // 「本ツールが割り当てた修飾キーの付いた入力 | ブラウザの既定動作を画面
+    // 「`GRS` が割り当てた修飾キーの付いた入力 | ブラウザーの既定動作を画面
     // 全体で止めること（MUST）」. ⚠️ True says ASSIGNED, not "something
     // happened": SK-2's whole effect is a selection and it is still assigned.
     const pane = host()
@@ -695,7 +695,7 @@ describe('MK-10 of table T-023 -- the browser is stopped for what this tool assi
 
   it("MK-10 (MUST NOT): a combination this tool assigns nothing keeps the browser's own", () => {
     // 「割り当てていない組合せを止めてはならない（MUST NOT）」 —— 「`Ctrl+P`
-    // （印刷）まで奪うと、ブラウザの機能が使えなくなる」.
+    // （印刷）まで奪うと、ブラウザーの機能が使えなくなる」.
     const pane = host()
     const loop = frameLoop(pane.surface, twoTaskGroupDocument(), SCREEN)
 
@@ -705,7 +705,7 @@ describe('MK-10 of table T-023 -- the browser is stopped for what this tool assi
   })
 
   it('IN-4a (MUST): `Esc` with nothing to consume reaches the browser', () => {
-    // IN-4a: 「消費する対象が 1 つも無いときは、必ずブラウザへ渡すこと（MUST）」
+    // IN-4a: 「消費する対象が 1 つも無いときは、必ずブラウザーへ渡すこと（MUST）」
     // -- the browser keeps whatever it gives Esc.
     // Nothing is open, nothing is armed, no drag.
     const pane = host()
@@ -841,7 +841,7 @@ describe('IN-4 of table T-028 -- Esc consumes one level per press', () => {
 
 describe('CS-2 of table T-066 -- the gesture is about the press, not about the release', () => {
   it('CS-2: the release is decided from what the surface had drawn AT THE PRESS', () => {
-    // CS-2: 「身振り 1 回（掴む）| 身振りを始めた時点の文書 | ポインタを押した
+    // CS-2: 「身振り 1 回（掴む）| 身振りを始めた時点の文書 | ポインターを押した
     // 時点」, and IN-1 settles the operation on the release. So the press is
     // read once, kept, and read again at the release -- 「途中の状態へ他者が
     // 書き込み、離した瞬間に人の操作がそれを上書きする」 is what the row says
@@ -912,7 +912,7 @@ describe('CS-2 of table T-066 -- the gesture is about the press, not about the r
 
 describe('IN-1a of table T-028 -- a lost pointer ends the gesture as an abort', () => {
   it('IN-1a (MUST): the abort writes nothing', () => {
-    // 「ボタンを離す前に窓の外でポインタが失われたときは、ドラッグを中断として
+    // 「ボタンを離す前に窓の外でポインターが失われたときは、ドラッグを中断として
     // 終わらせること（MUST）」. IN-1 already settles a pointer operation on the
     // release, and 中断 is not a release -- so the same drag that writes above
     // writes nothing here. WS-6 replaces one reference, so an untouched
@@ -953,7 +953,7 @@ describe('IN-1a of table T-028 -- a lost pointer ends the gesture as an abort', 
   })
 
   it('IN-1 (MUST NOT): leaving the drawing area is NOT a lost pointer', () => {
-    // 「ポインタが描画領域の外へ出たことを中断としてはならない（MUST NOT）」 ——
+    // 「ポインターが描画領域の外へ出たことを中断としてはならない（MUST NOT）」 ——
     // 画面の端まで囲む範囲選択も、表示範囲の外まで伸ばす作成ドラッグも正常な
     // 操作である. A `move` far outside the window keeps the gesture, which is
     // IN-4's second level answering.
@@ -1035,7 +1035,7 @@ describe('GR-19 of table T-023d -- a drag on the band moves the `Command Palette
   })
 
   it('IN-1a (MUST): a pointer lost outside the window leaves the palette where it was', () => {
-    // 「ボタンを離す前に窓の外でポインタが失われたときは、ドラッグを中断として
+    // 「ボタンを離す前に窓の外でポインターが失われたときは、ドラッグを中断として
     // 終わらせること（MUST）」. 中断 is not a release, and IN-1 settles a pointer
     // operation only on the release -- so the palette stays put.
     const pane = host()
@@ -1191,7 +1191,7 @@ describe('FR-063 and ED-1 of table T-229 -- who wrote it, and when', () => {
   })
 
   it('WS-5 / FR-063: a schedule-data write moves the schedule instant', () => {
-    // WS-5: 「日程データの群の刻を動かすのは、その群を変えたときだけ」.
+    // WS-5: 「スケジュールデータの群の刻を動かすのは、その群を変えたときだけ」.
     // `Project.statusDate` is in the schedule-data group (DR-2 of table T-052).
     const pane = frozen()
     const loop = frameLoop(pane.surface, twoTaskGroupDocument(), SCREEN)
@@ -1204,7 +1204,7 @@ describe('FR-063 and ED-1 of table T-229 -- who wrote it, and when', () => {
   })
 
   it('FR-063 (MUST NOT): a presentation-only write leaves the schedule instant where it was', () => {
-    // 「見せ方の群だけを変える更新で、日程データの群の刻を動かしてはならない
+    // 「見せ方の群だけを変える更新で、スケジュールデータの群の刻を動かしてはならない
     // （MUST NOT）」. SK-16 zooms the time axis, which UN-8 of table T-027 puts
     // outside the undo record and table T-052 puts in the presentation group.
     const pane = frozen()
@@ -1251,7 +1251,7 @@ describe('the specification still says what these cases copy', () => {
 
   it('MK-10 still names Ctrl+P as one this tool must not take, and Ctrl+F as SK-24, so taken', () => {
     const mk10 = rowOf('T-023', 'MK-10').cells.join(' ')
-    expect(mk10).toContain('`GRS` は、割り当てていない組合せのブラウザの既定動作を止めないこと')
+    expect(mk10).toContain('`GRS` は、割り当てていない組合せのブラウザーの既定動作を止めないこと')
     expect(mk10).toContain(MK_10_CTRL_P)
     expect(mk10).toContain(MK_10_CTRL_F)
   })
@@ -1274,7 +1274,7 @@ describe('the specification still says what these cases copy', () => {
   it('FR-063 still spells both instants ISO 8601, UTC, to the second', () => {
     expect(REQUIREMENTS).toContain('`GRS` は、2 つの刻を、いずれも `ISO 8601`・UTC・秒までで書くこと')
     expect(REQUIREMENTS).toContain(
-      '`GRS` は、見せ方の群だけを変える更新で、日程データの群の刻を動かさないこと',
+      '`GRS` は、見せ方の群だけを変える更新で、スケジュールデータの群の刻を動かさないこと',
     )
   })
 
@@ -1283,7 +1283,7 @@ describe('the specification still says what these cases copy', () => {
     expect(in4).toContain('1 階層ぶん消費し')
     expect(in4).toContain('開いている面 → 進行中のドラッグ・引きかけの矢印 → 開いているウィンドウ → プロパティパネル → 構え')
     expect(rowOf('T-028', 'IN-4a').cells.join(' ')).toContain(
-      '消費する対象が 1 つも無いときは、必ずブラウザへ渡すこと（MUST）',
+      '消費する対象が 1 つも無いときは、必ずブラウザーへ渡すこと（MUST）',
     )
   })
 
@@ -1292,7 +1292,7 @@ describe('the specification still says what these cases copy', () => {
       'ドラッグを中断として終わらせること（MUST）',
     )
     expect(rowOf('T-028', 'IN-1').cells.join(' ')).toContain(
-      'ポインタが描画領域の外へ出たことを中断としてはならない（MUST NOT）',
+      'ポインターが描画領域の外へ出たことを中断としてはならない（MUST NOT）',
     )
   })
 
@@ -1306,7 +1306,7 @@ describe('the specification still says what these cases copy', () => {
 
     const gr19 = t023d.rows[0]?.cells.join(' ') ?? ''
     expect(gr19).toContain(U_26_PART)
-    expect(gr19).toContain('掴み帯を掴んだとき、`GRS` はパレットを動かすこと（`FR-053`）。')
+    expect(gr19).toContain('グリップを掴んだとき、`GRS` はパレットを動かすこと（`FR-053`）。')
     expect(gr19).toContain('FR-053')
   })
 
@@ -1326,11 +1326,11 @@ describe('the specification still says what these cases copy', () => {
   it('CS-2 of table T-066 still freezes the gesture at the press', () => {
     const cs2 = rowOf('T-066', 'CS-2').cells.join(' ')
     expect(cs2).toContain('身振りを始めた時点の文書')
-    expect(cs2).toContain('ポインタを押した時点')
+    expect(cs2).toContain('ポインターを押した時点')
   })
 
   it('table T-078 still makes a person’s input FT-1, and BO-1 still holds the first frame back', () => {
-    expect(rowOf('T-078', 'FT-1').cells.join(' ')).toContain('人の入力（ポインタとキー）')
+    expect(rowOf('T-078', 'FT-1').cells.join(' ')).toContain('人の入力（ポインターとキー）')
     expect(rowOf('T-077', 'BO-1').cells.join(' ')).toContain('寸法が確定するまで 1 枚も描かない')
   })
 })

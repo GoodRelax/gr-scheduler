@@ -87,7 +87,7 @@
 //   表 T-034 BT-4 the bundled template FR-027 keeps exactly one of -- the
 //                 document the application actually boots, and the only
 //                 document whose values the specification has decided
-//   表 T-078 FT-1 「人の入力（ポインタとキー）」 reaches the loop over IF-2
+//   表 T-078 FT-1 「人の入力（ポインターとキー）」 reaches the loop over IF-2
 //
 // ⭐ WHERE THE VALUES COME FROM. 04-verification.md §2 asks that a test of a
 // value the manuscript owns fail when the manuscript moves, so not one number

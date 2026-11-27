@@ -28,7 +28,7 @@ const T_256_SPLIT =
 const T_256_CONTINUED_HEADING =
   '表 T-256 は、群を名で名指すこと。`GRS` は、移した塊の見出しを、パレットの続きであることを言う語とすること'
 const FR_036_LEFT_OFF =
-  's`・`Open Chooser`・`Difference Review` の面だけ（`Help Modal` を併せて持つものを含む）である行と、`IC-52`・`IC-53`・`IC-75` を、段に載せないこと。'
+  's`・`Open File Dialog`・`Difference Review` の面だけ（`Help Window` を併せて持つものを含む）である行と、`IC-52`・`IC-53`・`IC-75` を、段に載せないこと。'
 const T_256_USER_WORDS = '（語は `FR-038` の辞書が持つ、利用者が「コマンドパレット（続き）」と定めた）'
 
 const CLAUSES: readonly (readonly [string, string])[] = [
@@ -55,7 +55,7 @@ const PALETTE_ALIGN_ROWS: readonly string[] = T_109.rows
   .map((row) => row.id)
 
 // Spec: FR-036
-const LEFT_OFF_SURFACES = new Set(['Open Chooser', 'Difference Review'])
+const LEFT_OFF_SURFACES = new Set(['Open File Dialog', 'Difference Review'])
 const LEFT_OFF_ROWS: readonly string[] = T_109.rows
   .filter((row) => LEFT_OFF_SURFACES.has(surfaceOf(row.by['面'] ?? '')))
   .map((row) => row.id)
@@ -207,7 +207,7 @@ describe(`FR-036 (MUST NOT): ${FR_036_LEFT_OFF}`, () => {
     for (const id of ['IC-71', 'IC-72', 'IC-73', 'IC-95', 'IC-96', 'IC-97']) expect(LEFT_OFF_ROWS).toContain(id)
   })
 
-  it.each(LANGUAGES)('%s: no item of the help is an Open Chooser or Difference Review row, nor IC-52 / IC-53 / IC-75', (language) => {
+  it.each(LANGUAGES)('%s: no item of the help is an Open File Dialog or Difference Review row, nor IC-52 / IC-53 / IC-75', (language) => {
     const rows = helpOf(language).entries.map((entry) => entry.row)
     const banned = [...LEFT_OFF_ROWS, 'IC-52', 'IC-53', 'IC-75']
     expect(rows.filter((row) => banned.includes(row))).toEqual([])

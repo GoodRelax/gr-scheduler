@@ -485,7 +485,7 @@ interface OpenSurface {
 }
 
 export interface HelpModal extends OpenSurface {
-  readonly surface: 'Help Modal'
+  readonly surface: 'Help Window'
   readonly entries: readonly HelpEntry[]
   readonly legend: IconId
   readonly helpLanguage: DisplayLanguage
@@ -516,7 +516,7 @@ export interface OpenChoiceLine {
 
 // Spec: OP-16, U-56
 export interface OpenChooser extends OpenSurface {
-  readonly surface: 'Open Chooser'
+  readonly surface: 'Open File Dialog'
   readonly incomingFile: { readonly fileName: string | null; readonly byteLength: number; readonly documentTitle: string } | null
   readonly choices: readonly OpenChoiceLine[]
   readonly fileWord: string
@@ -556,7 +556,7 @@ export interface ExportFormatChoice {
 }
 
 export interface ExportChooser extends OpenSurface {
-  readonly surface: 'Export Chooser'
+  readonly surface: 'Save As Dialog'
   readonly formats: readonly ExportFormatChoice[]
   readonly fitSpanLine: string | null
 }

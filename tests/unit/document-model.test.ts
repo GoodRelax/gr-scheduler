@@ -128,7 +128,7 @@ describe('DocumentStamp (PI-3)', () => {
   }
 
   it('FR-063 moves the schedule-data instant for a schedule-data write', () => {
-    // 「日程データの群の刻を動かすのは、日程データの群を変える更新とすること
+    // 「スケジュールデータの群の刻を動かすのは、スケジュールデータの群を変える更新とすること
     // （MUST）」, and 「どちらの群であれ動いた刻と、最後に書いた者は … 更新
     // すること（MUST）」 -- so those three fields move together here.
     // ⚠️ `fileSavedAt` (AT-140) is the FOURTH field and does NOT move: an
@@ -143,7 +143,7 @@ describe('DocumentStamp (PI-3)', () => {
   })
 
   it('FR-063 leaves the schedule instant alone for a presentation-only write, but not who and when', () => {
-    // 「見せ方の群だけを変える更新で、日程データの群の刻を動かしてはならない
+    // 「見せ方の群だけを変える更新で、スケジュールデータの群の刻を動かしてはならない
     // （MUST NOT）」.
     const next = advancedStamp(stamp, 'agent', '2026-08-17T00:01:00Z', { hasUpdatedSchedule: false })
     expect(next.scheduleUpdatedAt).toBe('2026-08-17T00:00:00Z')

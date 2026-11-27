@@ -39,8 +39,8 @@
 //            イルへ書いていないときは、時刻の代わりにその旨を示すこと（MUST）**
 //            —— 空欄では「書けたのに読めない」と区別がつかない」, and 「`GRS` は、
 //            時刻の保管を UTC のままとすること」. ⚠️ Its MUST NOT: 「`GRS` は、本要求が
-//            出すファイルの名前を、`Document Title`（`_assets/tbl-glossary.md` の `U-27`）と
-//            混同しないこと」 —— 「`Document Title` は文書が持つ値（`Project/Title`）であり、本要求が出すのは**ファイルの名前**である」
+//            出すファイルの名前を、`Project Title`（`_assets/tbl-glossary.md` の `U-27`）と
+//            混同しないこと」 —— 「`Project Title` は文書が持つ値（`Project/Title`）であり、本要求が出すのは**ファイルの名前**である」
 //   表 T-103 `U-58` `Opened File Name` 「開いているファイル名 … 規則は `FR-101`」
 //            `U-59` `File Saved At` 「ファイル保存時刻。開いているファイルへ最後
 //            に書いた時刻。規則は `FR-101`」
@@ -451,9 +451,9 @@ describe('FR-101 (MUST) -- once one save has succeeded', () => {
     expect(at).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/)
   })
 
-  it('⛔ MUST NOT: the name it shows is the file’s, not the `Document Title`', async () => {
-    // 「`GRS` は、本要求が出すファイルの名前を、`Document Title`（`_assets/tbl-glossary.md` の `U-27`）と混同しないこと」
-    //   —— 「`Document Title` は文書が持つ値（`Project/Title`）であり、本要求が出すのは**ファイルの名前**で
+  it('⛔ MUST NOT: the name it shows is the file’s, not the `Project Title`', async () => {
+    // 「`GRS` は、本要求が出すファイルの名前を、`Project Title`（`_assets/tbl-glossary.md` の `U-27`）と混同しないこと」
+    //   —— 「`Project Title` は文書が持つ値（`Project/Title`）であり、本要求が出すのは**ファイルの名前**で
     //   ある。**2 つが違う値になることは正常である。**」
     const one = bench(templateDocument())
     one.runFrames()

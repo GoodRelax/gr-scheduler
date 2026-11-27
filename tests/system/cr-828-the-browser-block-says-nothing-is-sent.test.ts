@@ -13,8 +13,8 @@ const ROOT = process.cwd()
 const REQUIREMENTS = unbroken(readRepoFile(join(ROOT, 'docs', 'spec', '01-04-requirements.md'), 'utf8').replace(/\r\n/g, '\n'))
 
 const FR_036_BROWSER_NOTE =
-  '`GRS` は、表 T-255 の行の塊の行の下に、ブラウザが保存の前に出す確認にサイトの名が出ても、`GRS` は手元のファイルを書き換えるだけでどこへも送らないことを告げる 1 文を添えること。'
-const FR_036_NOTE_WORDS = '`FR-038` の辞書（`_source/display-words.json`）は、1 文の語を、ブラウザの機能の塊の名を鍵にして持つこと。'
+  '`GRS` は、表 T-255 の行の塊の行の下に、ブラウザーが保存の前に出す確認にサイトの名が出ても、`GRS` は手元のファイルを書き換えるだけでどこへも送らないことを告げる 1 文を添えること。'
+const FR_036_NOTE_WORDS = '`FR-038` の辞書（`_source/display-words.json`）は、1 文の語を、ブラウザーの機能の塊の名を鍵にして持つこと。'
 const FR_036_ONE_SCREEN =
   'ない環境の両方で、ヘルプの言語が日本語でも英語でも、開いたときの大きさ（表 T-335 の `WB-1`）で全部の塊とライセンスの行（`FR-069`）を 1 画面に収め、縦にも横にもスクロールを要さないこと'
 

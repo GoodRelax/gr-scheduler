@@ -4,7 +4,7 @@
 // the selection stays.
 //
 // The unit these arrive on is UF-48 `single-html-shell` (CP-25 of table T-062),
-// whose `frame-loop.ts` takes FT-1 of table T-078 -- 人の入力（ポインタとキー）
+// whose `frame-loop.ts` takes FT-1 of table T-078 -- 人の入力（ポインターとキー）
 // -- on `receiveInput`, and hands the finished picture to `IF-1`'s surface
 // (`SvgSurface.showSvg`). ⭐ THE PICTURE IS WHERE THIS RULE LIVES: `SL-3` says
 // 描くこと, and 表 T-020 orders what is drawn, so the string that crosses that
@@ -23,7 +23,7 @@
 //   SWS-1 目盛の刻みの間隔      SWS-5 イナズマ線の頂点
 //   SWS-2 タスクグループの帯高と縦位置      SWS-6 MSPDI の正規化
 //   SWS-3 依存線の経路          SWS-7 書き出した SVG の正規化
-//   SWS-4 描くものの頂点        SWS-8 単一 HTML の内容セキュリティ方針
+//   SWS-4 描くものの頂点        SWS-8 GRS HTML の内容セキュリティ方針
 //
 // ⛔ A node was NOT invented for it. `TS-6` of table T-218 carries no
 // test node (JDG-606), and whether a unit case is written is decided by
@@ -107,7 +107,7 @@
 //     existing selection; it does not restate the drawing rule, and reading one
 //     into it would be inventing it.
 //   - WHERE THE RECTANGLE IS CLIPPED. No row says whether it stops at the edge
-//     of the `Task Group Area`, so every drag below stays well inside it.
+//     of the `Task Group Lanes`, so every drag below stays well inside it.
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -280,7 +280,7 @@ function fixtureDocument(): Document {
       project: {
         ...structuredClone(template.schedule.project),
         uidHighWaterMark: 100,
-        // ⛔ NO 基準日. `CU-1`'s line runs the height of the `Task Group Area` and
+        // ⛔ NO 基準日. `CU-1`'s line runs the height of the `Task Group Lanes` and
         // would cross every drag below; this file's subject is the ONE element
         // a held drag adds, so the picture is kept as plain as the task groups allow.
         statusDate: null,
@@ -894,7 +894,7 @@ describe('table T-020 ZO-6: the rectangle stands in front, and goes when the but
     // ⭐ MEASURED AGAINST `ZO-5` AND NOT AGAINST "the last element of the
     // string". 表 T-020 orders SIX things and the time ruler is none of them --
     // it stands in its own region (`Time Ruler`, `U-19` of table T-103) above
-    // the `Task Group Area` (`U-50`), and nothing in the specification says where a
+    // the `Task Group Lanes` (`U-50`), and nothing in the specification says where a
     // region is painted with respect to another. What `ZO-6` claims is that the
     // rectangle is in front of `ZO-1` 〜 `ZO-5`, and `ZO-5` (名称ラベル) is the frontmost
     // of those -- so the label is the element the claim reduces to.

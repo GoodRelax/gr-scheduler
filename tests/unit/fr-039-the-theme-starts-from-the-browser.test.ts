@@ -5,9 +5,9 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { startupThemePreference } from '../../src/framework/single-html-shell/browser-stored-values'
 
 const FR_039_STARTS_FROM_THE_BROWSER =
-  '明暗テーマは文書に保存しない —— 起動したときにブラウザが伝える明暗（`prefers-color-scheme`）で描き、読めないときはライトで描くこと（MUST）'
+  '明暗テーマは文書に保存しない —— 起動したときにブラウザーが伝える明暗（`prefers-color-scheme`）で描き、読めないときはライトで描くこと（MUST）'
 
-const S_72_CANNOT_READ = "起動時にブラウザが伝える明暗（`prefers-color-scheme`）。読めないときは `'light'`"
+const S_72_CANNOT_READ = "起動時にブラウザーが伝える明暗（`prefers-color-scheme`）。読めないときは `'light'`"
 
 type BrowserAnswer = 'dark' | 'light' | 'absent' | 'throws'
 

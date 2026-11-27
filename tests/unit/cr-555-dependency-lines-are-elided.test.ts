@@ -54,7 +54,7 @@ const DOT = T206('S-362') * R
 const DOT_MARGIN = T206('S-363')
 
 const SL_3_WHOLLY = '矩形に完全に囲まれた対象だけを取ること'
-const T_303_MARK_IS_PART_OF_THE_LINE = '⭐ 続きの印はその依存線の一部である'
+const T_303_MARK_IS_PART_OF_THE_LINE = '⭐ 続きマークはその依存線の一部である'
 const EL_20_NOT_SEEN = 'のために描いていないとき（`FR-018` の 表 T-329 の `TD-1` ／ `TD-2` ／ `TD-3`）、端を見えていない端とすること。'
 const EL_20_STAND = '`GRS` は、経路を引くために、`EL-20` の端を、`EL-2` と同じ所 —— 描いている最も近い祖先のタスクグループの帯の下端 —— に立たせること'
 
@@ -452,15 +452,15 @@ const neitherEnd = (): Scene =>
     settings: { scrollDate: iso(300) },
   })
 
-describe('EL-1 -- an end is visible when its plan shape overlaps where its task group is drawn and the Task Group Area across', () => {
-  it('EL-1: an end whose plan shape lies wholly right of the Task Group Area is not visible (EL-4)', () => {
+describe('EL-1 -- an end is visible when its plan shape overlaps where its task group is drawn and the Task Group Lanes across', () => {
+  it('EL-1: an end whose plan shape lies wholly right of the Task Group Lanes is not visible (EL-4)', () => {
     const scene = predecessorOnly()
     const taskGroupArea = scene.regions.taskGroupArea
-    expect(placementOf(scene, 2).x, 'premise: Task 2 starts right of the Task Group Area').toBeGreaterThan(taskGroupArea.x + taskGroupArea.width)
+    expect(placementOf(scene, 2).x, 'premise: Task 2 starts right of the Task Group Lanes').toBeGreaterThan(taskGroupArea.x + taskGroupArea.width)
     expect(lineOf(scene, 1, 2).elision).toBe('EL-4')
   })
 
-  it('EL-1: a shape that only touches the Task Group Area edge (overlap width 0) is not visible (EL-5)', () => {
+  it('EL-1: a shape that only touches the Task Group Lanes edge (overlap width 0) is not visible (EL-5)', () => {
     const scene = sceneOf({
       groups: [['a', null], ['b', null]],
       tasks: [
@@ -470,11 +470,11 @@ describe('EL-1 -- an end is visible when its plan shape overlaps where its task 
       settings: { scrollDate: iso(6) },
     })
     const shape = placementOf(scene, 1)
-    expect(shape.x + shape.width, 'premise: the plan ends exactly on the Task Group Area left edge').toBeCloseTo(scene.regions.taskGroupArea.x, 9)
+    expect(shape.x + shape.width, 'premise: the plan ends exactly on the Task Group Lanes left edge').toBeCloseTo(scene.regions.taskGroupArea.x, 9)
     expect(lineOf(scene, 1, 2).elision).toBe('EL-5')
   })
 
-  it('EL-1 control: one day further, the same shape overlaps the Task Group Area and the line is drawn whole (EL-3)', () => {
+  it('EL-1 control: one day further, the same shape overlaps the Task Group Lanes and the line is drawn whole (EL-3)', () => {
     const scene = sceneOf({
       groups: [['a', null], ['b', null]],
       tasks: [
@@ -484,11 +484,11 @@ describe('EL-1 -- an end is visible when its plan shape overlaps where its task 
       settings: { scrollDate: iso(5) },
     })
     const shape = placementOf(scene, 1)
-    expect(shape.x + shape.width, 'premise: the plan reaches into the Task Group Area').toBeGreaterThan(scene.regions.taskGroupArea.x)
+    expect(shape.x + shape.width, 'premise: the plan reaches into the Task Group Lanes').toBeGreaterThan(scene.regions.taskGroupArea.x)
     expect(lineOf(scene, 1, 2).elision).toBe('EL-3')
   })
 
-  it('EL-1 (the name label does not count): a label inside the Task Group Area does not make its end visible (EL-5)', () => {
+  it('EL-1 (the name label does not count): a label inside the Task Group Lanes does not make its end visible (EL-5)', () => {
     const scene = sceneOf({
       groups: [['a', null], ['b', null]],
       tasks: [
@@ -500,13 +500,13 @@ describe('EL-1 -- an end is visible when its plan shape overlaps where its task 
     const taskGroupArea = scene.regions.taskGroupArea
     const shape = placementOf(scene, 1)
     const label = scene.geometry.tasks.find((one) => one.taskUid === 1)?.label as Rect | null | undefined
-    expect(shape.x + shape.width, 'premise: the plan ends left of the Task Group Area').toBeLessThan(taskGroupArea.x)
+    expect(shape.x + shape.width, 'premise: the plan ends left of the Task Group Lanes').toBeLessThan(taskGroupArea.x)
     expect(label, 'premise: the name label is drawn').toBeTruthy()
-    expect(label!.x + label!.width, 'premise: the name label reaches into the Task Group Area').toBeGreaterThan(taskGroupArea.x + 1)
+    expect(label!.x + label!.width, 'premise: the name label reaches into the Task Group Lanes').toBeGreaterThan(taskGroupArea.x + 1)
     expect(lineOf(scene, 1, 2).elision).toBe('EL-5')
   })
 
-  it('EL-1: a scrolling task group wholly above the Task Group Area is not visible (EL-5)', () => {
+  it('EL-1: a scrolling task group wholly above the Task Group Lanes is not visible (EL-5)', () => {
     const scene = sceneOf({
       groups: [['a', null], ['b', null], ['c', null]],
       tasks: [
@@ -516,13 +516,13 @@ describe('EL-1 -- an end is visible when its plan shape overlaps where its task 
       settings: { scrollTaskGroupId: 'b' },
     })
     const shape = placementOf(scene, 1)
-    expect(shape.y + shape.planHeight, 'premise: the plan band lies above the Task Group Area').toBeLessThanOrEqual(
+    expect(shape.y + shape.planHeight, 'premise: the plan band lies above the Task Group Lanes').toBeLessThanOrEqual(
       scene.regions.taskGroupArea.y,
     )
     expect(lineOf(scene, 1, 2).elision).toBe('EL-5')
   })
 
-  it('EL-1 control: a scrolling task group cut by the Task Group Area top still overlaps it and is visible (EL-3)', () => {
+  it('EL-1 control: a scrolling task group cut by the Task Group Lanes top still overlaps it and is visible (EL-3)', () => {
     const scene = sceneOf({
       groups: [['a', null], ['b', null], ['c', null]],
       tasks: [
@@ -533,7 +533,7 @@ describe('EL-1 -- an end is visible when its plan shape overlaps where its task 
     })
     const shape = placementOf(scene, 1)
     const top = scene.regions.taskGroupArea.y
-    expect(shape.y < top && shape.y + shape.planHeight > top, 'premise: the Task Group Area top cuts the plan band').toBe(true)
+    expect(shape.y < top && shape.y + shape.planHeight > top, 'premise: the Task Group Lanes top cuts the plan band').toBe(true)
     expect(lineOf(scene, 1, 2).elision).toBe('EL-3')
   })
 
@@ -554,7 +554,7 @@ describe('EL-1 -- an end is visible when its plan shape overlaps where its task 
     expect(
       overlaps(under.y, under.y + under.planHeight, taskGroupArea.y, taskGroupArea.y + taskGroupArea.height) &&
         overlaps(under.x, under.x + under.width, taskGroupArea.x, taskGroupArea.x + taskGroupArea.width),
-      'premise: Task 2 lies inside the Task Group Area rectangle',
+      'premise: Task 2 lies inside the Task Group Lanes rectangle',
     ).toBe(true)
     expect(under.y + under.planHeight, 'premise: Task 2 lies under the band').toBeLessThanOrEqual(scrollTop!)
     expect(lineOf(scene, 1, 2).elision).toBe('EL-4')
@@ -699,7 +699,7 @@ describe('EL-3 .. EL-8 -- which part of the route is drawn', () => {
       ],
       environment: WIDE,
     })
-    expect(wide.regions.taskGroupArea.x, 'premise: the Task Group Area starts at the same x').toBe(narrow.regions.taskGroupArea.x)
+    expect(wide.regions.taskGroupArea.x, 'premise: the Task Group Lanes starts at the same x').toBe(narrow.regions.taskGroupArea.x)
     expect(lineOf(wide, 1, 2).elision, 'premise: on the wide screen both ends are visible').toBe('EL-3')
     expect(lineOf(narrow, 1, 2).elision).toBe('EL-4')
     expect(show(lineOf(narrow, 1, 2).points)).toBe(show(lineOf(wide, 1, 2).points))
@@ -769,7 +769,7 @@ describe('EL-3 .. EL-8 -- which part of the route is drawn', () => {
     expect(line.head?.length ?? 0).toBeGreaterThan(0)
   })
 
-  it('EL-6: neither end visible draws nothing, even though the route crosses the Task Group Area', () => {
+  it('EL-6: neither end visible draws nothing, even though the route crosses the Task Group Lanes', () => {
     const scene = neitherEnd()
     const line = lineOf(scene, 1, 2)
     const taskGroupArea = scene.regions.taskGroupArea
@@ -1021,7 +1021,7 @@ describe('GA-24 / T-268 -- the mark is grabbed as part of its line', () => {
     expect(answer.item?.['taskUid']).toBe(4)
   })
 
-  it('EL-6 / FR-108: a line with nothing drawn cannot be grabbed where its route crosses the Task Group Area', () => {
+  it('EL-6 / FR-108: a line with nothing drawn cannot be grabbed where its route crosses the Task Group Lanes', () => {
     const scene = neitherEnd()
     const line = lineOf(scene, 1, 2)
     const taskGroupArea = scene.regions.taskGroupArea

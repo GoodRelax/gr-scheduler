@@ -1,4 +1,4 @@
-// CR-648: the Delay Diagnostics Report window fixes -- DT-1 order, the dictionary words, no legend, RW-10, T-333 steps, T-352 names.
+// CR-648: the Delay Diagnosis Report window fixes -- DT-1 order, the dictionary words, no legend, RW-10, T-333 steps, T-352 names.
 
 import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'

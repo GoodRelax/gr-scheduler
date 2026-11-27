@@ -3,7 +3,7 @@
 // distance it travels is still the one 表 T-023d states, 等倍.
 //
 // The unit these arrive on is UF-48 `single-html-shell` (CP-25 of table T-062),
-// whose `frame-loop.ts` takes FT-1 of table T-078 -- 人の入力（ポインタとキー）
+// whose `frame-loop.ts` takes FT-1 of table T-078 -- 人の入力（ポインターとキー）
 // -- on `receiveInput`, and answers what one frame computed on `current()`.
 //
 // ---------------------------------------------------------------------------
@@ -19,7 +19,7 @@
 //   SWS-1 目盛の刻みの間隔      SWS-5 イナズマ線の頂点
 //   SWS-2 タスクグループの帯高と縦位置      SWS-6 MSPDI の正規化
 //   SWS-3 依存線の経路          SWS-7 書き出した SVG の正規化
-//   SWS-4 描くものの頂点        SWS-8 単一 HTML の内容セキュリティ方針
+//   SWS-4 描くものの頂点        SWS-8 GRS HTML の内容セキュリティ方針
 //
 // ⛔ A node was NOT invented for it. `TS-6` of table T-218 carries no
 // test node (JDG-606), and whether a unit case is written is decided by
@@ -60,15 +60,15 @@
 //   T-023a       「上から評価し、最初に成立した行で確定すること（MUST）」
 //   T-023a PTD-1  「中ボタンドラッグ、または **`Ctrl` だけを伴う**左ドラッグ |
 //           **パン。** 構えと当たりによらず優先する。**握っているあいだ、縦横の
-//           両方向でポインタに追従させること（MUST）**（利用者の裁定
+//           両方向でポインターに追従させること（MUST）**（利用者の裁定
 //           2026-08-29）—— ⛔ **離すまで動かないと、掴めていないのと見分けが
-//           つかない**（`FR-053` の掴み帯が同じ理由を持つ）。⚠️ **距離は
+//           つかない**（`FR-053` のグリップが同じ理由を持つ）。⚠️ **距離は
 //           表 T-023d の「パンは等倍とすること（MUST）」のままである** ——
 //           **追従は絵の話であって、距離の規則を変えるものではない**」
 //   T-023a PTD-3  「**何かに当たった**（判定の順と優先は MK-9a）| **そのものへの
 //           操作。**」-- the row PTD-1 outranks, which is what 構えと当たりに
 //           よらず優先する means and what the last case below drives.
-//   T-023d  「**パンは等倍とすること（MUST）** —— ポインタが動いた距離だけ
+//   T-023d  「**パンは等倍とすること（MUST）** —— ポインターが動いた距離だけ
 //           日程表が動く。倍率を掛けない。⛔ **錠の上にしか着地できない形に
 //           してはならない（MUST NOT）** —— `_assets/tbl-settings.md` の
 //           表 T-203 の `S-77` と `S-78` は日付とタスクグループの識別子しか持てないので、
@@ -319,7 +319,7 @@ function fixtureDocument(): Document {
       project: {
         ...structuredClone(template.schedule.project),
         uidHighWaterMark: 100,
-        // ⛔ NO 基準日. `CU-1` would draw a line the height of the `Task Group Area`,
+        // ⛔ NO 基準日. `CU-1` would draw a line the height of the `Task Group Lanes`,
         // and this file's subject is the whole picture moving -- one more
         // element in it buys nothing and can only confuse a failure.
         statusDate: null,
@@ -559,7 +559,7 @@ const whereIs = (loop: FrameLoop, uid: number): Where => {
   return { x: box.x0, y: midY(box) }
 }
 
-/** A point inside the `Task Group Area` that no Task is drawn on. */
+/** A point inside the `Task Group Lanes` that no Task is drawn on. */
 const emptySpot = (loop: FrameLoop): Point => {
   const band = bandOf(loop, EMPTY_TASK_GROUP)
   const near = planBox(loop, NEAR_UID)
@@ -621,8 +621,8 @@ describe('the manuscript still states the rule this file is about', () => {
     const result = resultOf('PTD-1')
     expect(
       result,
-      'table T-023a PTD-1: 握っているあいだ、縦横の両方向でポインタに追従させること（MUST）',
-    ).toContain('握っている間、`GRS` は、日程表を縦横の両方向でポインタに追従させること')
+      'table T-023a PTD-1: 握っているあいだ、縦横の両方向でポインターに追従させること（MUST）',
+    ).toContain('握っている間、`GRS` は、`Schedule Canvas` を縦横の両方向でポインターに追従させること')
     expect(result, 'and the reason it gives').toContain(
       '離すまで動かないと、掴めていないのと見分けがつかない',
     )
@@ -653,8 +653,8 @@ describe('the manuscript still states the rule this file is about', () => {
 
   it('still states 等倍 where PTD-1 points, and forbids landing only on the lock', () => {
     const line = equalTravelLine()
-    expect(line, 'table T-023d: ポインタが動いた距離だけ日程表が動く。倍率を掛けない').toContain(
-      'ポインタが動いた距離だけ日程表が動く',
+    expect(line, 'table T-023d: ポインターが動いた距離だけ `Schedule Canvas` が動く。倍率を掛けない').toContain(
+      'ポインターが動いた距離だけ `Schedule Canvas` が動く',
     )
     expect(line, 'table T-023d: 錠の上にしか着地できない形にしてはならない（MUST NOT）').toContain(
       '錠の上にしか着地できない形にしてはならない（MUST NOT）',
@@ -715,7 +715,7 @@ describe.each(GESTURES.map((one) => [one.name, one.how] as const))(
       const now = whereIs(built.loop, NEAR_UID)
       expect(
         now.x,
-        'table T-023a PTD-1: 握っているあいだ、縦横の両方向でポインタに追従させること（MUST）',
+        'table T-023a PTD-1: 握っているあいだ、縦横の両方向でポインターに追従させること（MUST）',
       ).toBeGreaterThan(held.x)
       expect(
         Math.abs(now.x - held.x - travel.x),
@@ -844,7 +844,7 @@ describe.each(GESTURES.map((one) => [one.name, one.how] as const))(
     })
 
     it('moves the WHOLE schedule, not one figure of it', () => {
-      // 「ポインタが動いた距離だけ日程表が動く」 -- 日程表, not a bar. The two
+      // 「ポインターが動いた距離だけ `Schedule Canvas` が動く」 -- 日程表, not a bar. The two
       // Tasks stand on different task groups and different days, so a picture that
       // moved only what was under the pointer fails here.
       const built = stage()

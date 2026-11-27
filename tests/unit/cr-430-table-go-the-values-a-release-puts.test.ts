@@ -223,7 +223,7 @@ describe(`GO-8 -- マイルストーンのダミー: ${cellOf('GO-8', PUTS)}`, (
   })
 })
 
-describe(`GO-9 -- 進捗マーカーを引く: ${cellOf('GO-9', PUTS)}`, () => {
+describe(`GO-9 -- 進捗ステータスマークを引く: ${cellOf('GO-9', PUTS)}`, () => {
   it('GO-9 through PE-8 right of an actual: the last day is the released day', () => {
     const one = built()
     const before = dayPart(taskIn(one.loop, BAR_UID).actualStart)
@@ -249,7 +249,7 @@ describe(`GO-9 -- 進捗マーカーを引く: ${cellOf('GO-9', PUTS)}`, () => {
   })
 })
 
-describe(`GO-10 -- 再開アイコンを引く: ${cellOf('GO-10', PUTS)}`, () => {
+describe(`GO-10 -- 再開マークを引く: ${cellOf('GO-10', PUTS)}`, () => {
   it('GO-10: resume is the released day and resumeValid is true', () => {
     const one = built()
     dragTo(one, at(one, PAUSED_UID, 'GA-20'), xOfDay(one.loop, april(22)))

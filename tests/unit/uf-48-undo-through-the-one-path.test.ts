@@ -47,7 +47,7 @@
 //                   積んではならない（MUST NOT）—— 表 T-027 が分類している
 //                   のは人が文書に対して行う操作であり、履歴を歩くこと自体は
 //                   その対象ではない」
-//   表 T-230 (MUST) 「`WS-7` へ渡す『日程データの群が動いたか』は、出て行く
+//   表 T-230 (MUST) 「`WS-7` へ渡す『スケジュールデータの群が動いたか』は、出て行く
 //                   文書と入ってくる文書の `scheduleUpdatedAt` の等値で導く
 //                   こと（MUST）」
 //   表 T-067 WS-2   「書ける時機かを見る。身振りの最中・編集入力の確定前・
@@ -77,7 +77,7 @@
 //                   書かれたときのものが残る」
 //   表 T-036 SK-6   元に戻す | `Ctrl+Z`
 //   表 T-036 SK-7   やり直す | `Ctrl+Y` / `Ctrl+Shift+Z`
-//   表 T-028 IN-1a  「ボタンを離す前に窓の外でポインタが失われたときは、
+//   表 T-028 IN-1a  「ボタンを離す前に窓の外でポインターが失われたときは、
 //                   ドラッグを中断として終わらせること（MUST）」 -- the case
 //                   below uses it to LIFT the state AG-9 refuses on
 //
@@ -424,7 +424,7 @@ const REGISTERED: (() => void)[] = []
 /**
  * Subscribes from where the document stands right now, which is what AG-6 calls
  * 「まだ受け取っていない」 for a subscription that starts here: 「購読し直した
- * ときは、最後に手渡した日程データの群の刻との等値で選ぶこと（MUST）」.
+ * ときは、最後に手渡したスケジュールデータの群の刻との等値で選ぶこと（MUST）」.
  */
 function watching(loop: ReturnType<typeof frameLoop>): ChangeNotice[] {
   const taken: ChangeNotice[] = []
@@ -557,7 +557,7 @@ describe('表 T-067 WS-2 -- the moment refuses the walk as it refuses any other 
     // 書き込むと、離した瞬間に人の操作が上書きする」.
     //
     // ⭐ CS-2 of table T-066 fixes when the gesture begins: 「身振り 1 回
-    // （掴む）| 身振りを始めた時点の文書 | ポインタを押した時点」 —— at the
+    // （掴む）| 身振りを始めた時点の文書 | ポインターを押した時点」 —— at the
     // press, not at the first move.
     // ⭐ 表 T-230 changes THREE columns for the whole-document road and WS-2 is
     // not one of them: 「呼び手ごとに違うのは履歴・刻印・取り消しの 1 段の
@@ -572,8 +572,8 @@ describe('表 T-067 WS-2 -- the moment refuses the walk as it refuses any other 
 
     const center = planCenter(loop, 1)
     const taskGroupArea = loop.current()!.regions.taskGroupArea
-    expect(center.x, 'premise: the bar is still in the Task Group Area').toBeGreaterThan(taskGroupArea.x)
-    expect(center.x, 'premise: the bar is still in the Task Group Area').toBeLessThan(taskGroupArea.x + taskGroupArea.width)
+    expect(center.x, 'premise: the bar is still in the Task Group Lanes').toBeGreaterThan(taskGroupArea.x)
+    expect(center.x, 'premise: the bar is still in the Task Group Lanes').toBeLessThan(taskGroupArea.x + taskGroupArea.width)
     loop.receiveInput(pointer('down', center.x, center.y))
     loop.receiveInput(UNDO)
 
@@ -583,7 +583,7 @@ describe('表 T-067 WS-2 -- the moment refuses the walk as it refuses any other 
 
   it('... and once IN-1a has ended that gesture -> the same Ctrl+Z moves it', () => {
     // The pair is what makes the case above about the MOMENT and not about an
-    // empty history. IN-1a of table T-028: 「ボタンを離す前に窓の外でポインタが
+    // empty history. IN-1a of table T-028: 「ボタンを離す前に窓の外でポインターが
     // 失われたときは、ドラッグを中断として終わらせること（MUST）—— 終わらせ
     // ないと『ドラッグ中』が解けず、`Agent API` の書き込みが以後ずっと拒否
     // される（表 T-035 の AG-9）」. An abort writes nothing, so the step the

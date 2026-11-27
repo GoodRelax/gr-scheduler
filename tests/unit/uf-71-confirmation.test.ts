@@ -1545,7 +1545,7 @@ describe('the specification still says what these cases copy', () => {
     expect(manner).toContain('次の 2 つをすべて満たすこと（MUST）')
     // Dismissible, Persistent -- the two, in the row's own words.
     expect(manner).toContain('消せること')
-    expect(manner).not.toContain('ポインタを乗せられること')
+    expect(manner).not.toContain('ポインターを乗せられること')
     expect(manner).toContain('引き金が外れるまで出ていること')
     // ⭐ And the clause that keeps the row off THIS surface: the tooltip is let
     // go once its trigger comes off. Nothing takes a confirmation away but an

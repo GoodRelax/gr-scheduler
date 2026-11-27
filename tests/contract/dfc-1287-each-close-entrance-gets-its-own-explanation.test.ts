@@ -22,7 +22,7 @@ const verticalIn = (table: string, id: string) => {
 // Why: IN-3 and the two UZ rows are the clauses; their words are read from the tables so the cases follow the manuscript.
 const IN_3_PER_PLACE = '押す場所ごとに'
 const HELP_SURFACE = bare(verticalIn('T-103', 'U-30').by['確定名（英）'] ?? '')
-// Why: CR-722 made the Resource List (U-49) a window, so the Export Chooser (U-54) is the other surface UZ-13 lists.
+// Why: CR-722 made the Resource List (U-49) a window, so the Save As Dialog (U-54) is the other surface UZ-13 lists.
 const OTHER_SURFACE = bare(verticalIn('T-103', 'U-54').by['確定名（英）'] ?? '')
 const CLOSE = 'IC-52'
 
@@ -117,7 +117,7 @@ function bothStanding() {
 }
 
 describe('IN-3 / UZ-7 / UZ-13 (MUST): the explanation of IC-52 is anchored to the surface the pointer is on (DFC-1287)', () => {
-  it('premise: the Help and the Export Chooser stand together, each with its own IC-52', () => {
+  it('premise: the Help and the Save As Dialog stand together, each with its own IC-52', () => {
     const { built, view } = bothStanding()
     expect(view.helpModal, 'UZ-7: the Help stays when another surface opens').not.toBeNull()
     expect(view.openModal, 'UZ-13: the other surface stands').not.toBeNull()

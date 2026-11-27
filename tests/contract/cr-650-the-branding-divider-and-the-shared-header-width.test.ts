@@ -90,7 +90,7 @@ describe('CR-650 -- T-206 / T-236 rows read from the manuscript', () => {
     expect(NOT_STORED_DOCUMENT_TITLE_SIZES['S-492']).toBe(S_492)
   })
 
-  it('BR-1 S-490 S-225 S-235: the Branding glyph (S-490 x S-235) is smaller than the Document Title (S-225 x S-235)', () => {
+  it('BR-1 S-490 S-225 S-235: the Branding glyph (S-490 x S-235) is smaller than the Project Title (S-225 x S-235)', () => {
     expect(S_490 * S_235).toBeLessThan(S_225 * S_235)
   })
 
@@ -169,7 +169,7 @@ const drawnHeader = () => {
   return { header, byRole }
 }
 
-describe('CR-650 BR-7 -- the divider between the Branding and the Document Title', () => {
+describe('CR-650 BR-7 -- the divider between the Branding and the Project Title', () => {
   it('BR-7: the divider is a drawn element with no glyph in it', () => {
     const divider = drawnHeader().byRole('Branding Divider')
     expect(divider.textContent.trim(), 'BR-7 MUST NOT: the divider is not written as a character').toBe('')
@@ -227,8 +227,8 @@ describe('CR-650 HS-9 / HS-10 -- the title and the file status share one width',
     const { header, byRole } = drawnHeader()
     const strip = byRole('Title And File Strip')
     expect(strip.parentNode).toBe(header)
-    expect(strip.children.map((one) => one.getAttribute('data-role'))).toEqual(['Document Title Ground', 'File Status'])
-    expect(byRole('Document Title').parentNode).toBe(byRole('Document Title Ground'))
+    expect(strip.children.map((one) => one.getAttribute('data-role'))).toEqual(['Project Title Ground', 'File Status'])
+    expect(byRole('Project Title').parentNode).toBe(byRole('Project Title Ground'))
     expect(byRole('File Status').children.map((one) => one.getAttribute('data-role'))).toEqual([
       'Opened File Name',
       'File Saved At',
@@ -236,7 +236,7 @@ describe('CR-650 HS-9 / HS-10 -- the title and the file status share one width',
   })
 
   it('HS-10 S-491 S-146: the title ground keeps an S-491 x S-235 gap on its right, painted in S-146', () => {
-    const style = styleMap(drawnHeader().byRole('Document Title Ground'))
+    const style = styleMap(drawnHeader().byRole('Project Title Ground'))
     expect(px(style.get('padding-right'))).toBeCloseTo(S_491 * S_235, 2)
     expect(style.get('background') ?? style.get('background-color')).toBe(PAINT.ground)
   })
@@ -332,7 +332,7 @@ describe('CR-650 EP-1 / BR-6 -- the export picture leaves the seat and the divid
       const scene = sceneOn(screen)
       const svg = pictureOf(scene)
       const tag = new RegExp(`<text\\b([^>]*)>${TITLE}</text>`).exec(svg)?.[1]
-      expect(tag, 'EP-1: the Document Title is drawn').toBeDefined()
+      expect(tag, 'EP-1: the Project Title is drawn').toBeDefined()
       const x = Number(attrOf(tag ?? '', 'x'))
       const ratio = ratioOf(scene)
       expect(x).toBeCloseTo((scene.regions.appHeader.x + TITLE_LEFT) * ratio, 1)

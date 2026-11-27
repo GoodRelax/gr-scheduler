@@ -1,4 +1,4 @@
-// DFC-699 guard (part 1): FR-016 / T-253 / FR-018 -- the vertical zoom stops at the first zoomY whose tallest drawn band fills the Task Group Area, also when that band belongs to a task group only a deeper detail level draws.
+// DFC-699 guard (part 1): FR-016 / T-253 / FR-018 -- the vertical zoom stops at the first zoomY whose tallest drawn band fills the Task Group Lanes, also when that band belongs to a task group only a deeper detail level draws.
 
 import { afterEach, describe, expect, it } from 'vitest'
 
@@ -7,7 +7,7 @@ import { keyOf, REQUIREMENTS, taskGroupDocument, shell, taskOf, type ShellBench 
 
 // Spec: FR-016
 const FR_016_FIRST_BAND_THAT_FILLS =
-  '`GRS` は、縦軸（`zoomY`）の帯の側の上限を、いちばん高いタスクグループの帯の高さが初めて `Task Group Area` の高さ以上になった倍率にすること（表 T-253 の手順が調べるどの倍率も含まないほど狭い区間は見落としてよい）。'
+  '`GRS` は、縦軸（`zoomY`）の帯の側の上限を、いちばん高いタスクグループの帯の高さが初めて `Task Group Lanes` の高さ以上になった倍率にすること（表 T-253 の手順が調べるどの倍率も含まないほど狭い区間は見落としてよい）。'
 // Spec: FR-018
 const FR_018_DEEPER_TASK_GROUPS_BY_ZOOM = 'グループ'
 
@@ -65,26 +65,26 @@ const stopsUpToTheEnd = (built: ShellBench): { readonly zoomY: number; readonly 
 }
 
 describe('DFC-699 -- the manuscript still holds the rule this case presses', () => {
-  it('FR-016 still gives the ceiling as the first band that fills the Task Group Area, and FR-018 still lets the detail level drop deeper task groups', () => {
+  it('FR-016 still gives the ceiling as the first band that fills the Task Group Lanes, and FR-018 still lets the detail level drop deeper task groups', () => {
     expect(REQUIREMENTS).toContain(FR_016_FIRST_BAND_THAT_FILLS)
     expect(REQUIREMENTS).toContain(FR_018_DEEPER_TASK_GROUPS_BY_ZOOM)
   })
 })
 
 describe('DFC-699 / FR-016, T-253, FR-018 -- the ceiling is found among the task groups each zoomY draws', () => {
-  it('premise: the deep task group is not drawn at the first zoomY and the tallest band is short of the Task Group Area', () => {
+  it('premise: the deep task group is not drawn at the first zoomY and the tallest band is short of the Task Group Lanes', () => {
     const built = deepTaskGroupBench()
     expect(isDrawn(built, ROOT)).toBe(true)
     expect(isDrawn(built, DEEP), 'FR-018: the deeper task group waits for a closer zoom').toBe(false)
     expect(tallestBandOf(built)).toBeLessThan(frameOf(built).regions.taskGroupArea.height)
   })
 
-  it('the vertical zoom stops where the tallest band first fills the Task Group Area, not at a later zoomY', () => {
+  it('the vertical zoom stops where the tallest band first fills the Task Group Lanes, not at a later zoomY', () => {
     const built = deepTaskGroupBench()
     const height = frameOf(built).regions.taskGroupArea.height
     const stops = stopsUpToTheEnd(built)
     const last = stops[stops.length - 1]
-    expect(last?.band, 'FR-016: the zoom reaches the first band that fills the Task Group Area').toBeGreaterThanOrEqual(height - 1)
+    expect(last?.band, 'FR-016: the zoom reaches the first band that fills the Task Group Lanes').toBeGreaterThanOrEqual(height - 1)
     const firstFill = stops.find((one) => one.band >= height - 1)
     expect(isDrawn(built, DEEP), 'premise: the deep task group came into the picture on the way').toBe(true)
     expect(last?.zoomY, 'FR-016: the ceiling is the first zoomY that fills').toBeLessThanOrEqual((firstFill?.zoomY ?? 0) * FIRST_FILL_SLACK)

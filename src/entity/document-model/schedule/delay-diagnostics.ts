@@ -1,4 +1,4 @@
-// File: Schedule: the Delay Diagnostics report, built from the progress checks, bottlenecks, unstated parents and milestones.
+// File: Schedule: the Delay Diagnosis report, built from the progress checks, bottlenecks, unstated parents and milestones.
 // @unit      UF-184  (docs/spec/05-07-design.md, table T-075)
 // @component Schedule, layer documentModel (table T-062)
 // @purity    pure
@@ -189,7 +189,7 @@ interface Facts extends Structure {
 // Why: instants and working minutes (FR-054); the quantities are counted in minutes, never in days.
 interface Flow {
   readonly earliestStart: number
-  readonly projectedFinish: number
+  readonly estimatedFinish: number
   readonly inheritedDelayMinutes: number
   readonly selfDelayMinutes: number
   readonly drivers: readonly number[]
@@ -1079,9 +1079,9 @@ function boundOf(facts: Facts, link: Link, flows: ReadonlyMap<number, Flow>, len
   const lagged = (at: number): number => laggedInstant(facts.walk, at, link.lagMinutes ?? 0)
   const startFor = (last: number): number => afterMinutes(facts, last, -length)
   switch (link.linkType) {
-    case FINISH_TO_START: return lagged(flow.projectedFinish)
+    case FINISH_TO_START: return lagged(flow.estimatedFinish)
     case START_TO_START: return lagged(began)
-    case FINISH_TO_FINISH: return startFor(lagged(flow.projectedFinish))
+    case FINISH_TO_FINISH: return startFor(lagged(flow.estimatedFinish))
     case START_TO_FINISH: return startFor(lagged(began))
     default: return null
   }
@@ -1112,9 +1112,9 @@ function startedFinishOf(facts: Facts, task: Task, actualStart: number, finish: 
 
 // Spec: BD-1, BD-2
 /** @purity pure */
-function projectedFinishOf(facts: Facts, task: Task, children: readonly Flow[],
+function estimatedFinishOf(facts: Facts, task: Task, children: readonly Flow[],
                            earliestStart: number, finish: number, length: number): number {
-  const childFinishes = children.map((flow) => flow.projectedFinish)
+  const childFinishes = children.map((flow) => flow.estimatedFinish)
   if (childFinishes.length > 0) return childFinishes.reduce(laterInstant)
   const actualFinish = isFinished(task) ? facts.onSide(task.actualFinish, 'finish') : null
   if (actualFinish !== null) return actualFinish
@@ -1158,13 +1158,13 @@ function flowOf(facts: Facts, task: Task, flows: ReadonlyMap<number, Flow>): Flo
   const drivers = earliestStart > start ? bounds.filter((bound) => bound.at === earliestStart).map((bound) => bound.uid) : []
   const children = facts.childrenOf.get(task.uid) ?? []
   const childFlows = children.map((child) => flows.get(child.uid)).filter((flow): flow is Flow => flow !== undefined)
-  const projectedFinish = projectedFinishOf(facts, task, childFlows, earliestStart, finish, length)
+  const estimatedFinish = estimatedFinishOf(facts, task, childFlows, earliestStart, finish, length)
   const expected = afterMinutes(facts, earliestStart, length)
   return {
     earliestStart,
-    projectedFinish,
+    estimatedFinish,
     inheritedDelayMinutes: workingMinutesBetween(facts.calendar, start, earliestStart),
-    selfDelayMinutes: children.length > 0 ? 0 : Math.max(0, workingMinutesBetween(facts.calendar, expected, projectedFinish)),
+    selfDelayMinutes: children.length > 0 ? 0 : Math.max(0, workingMinutesBetween(facts.calendar, expected, estimatedFinish)),
     drivers,
   }
 }
@@ -1206,7 +1206,7 @@ function pushOutsOf(facts: Facts, flows: ReadonlyMap<number, Flow>, undiagnosabl
     const finish = facts.onSide(task.finish, 'finish')
     const isTerminal = task.milestone === true || (facts.successorsOf.get(task.uid) ?? []).length === 0
     if (flow === undefined || finish === null || undiagnosable.has(task.uid) || !isTerminal) continue
-    const delay = Math.max(0, workingMinutesBetween(facts.calendar, finish, flow.projectedFinish))
+    const delay = Math.max(0, workingMinutesBetween(facts.calendar, finish, flow.estimatedFinish))
     const givenTo = [...spreadFrom(task.uid, delay, flows)]
       .filter(([, minutes]) => minutes > 0).map(([uid, minutes]) => ({ uid, minutes }))
     for (const share of givenTo) {

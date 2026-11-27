@@ -26,7 +26,7 @@
 //               の大きさに掛けて求め、項目名にはさらに `S-198` を掛けること
 //               （MUST）。」
 //               ⛔ 「px の定数として持ってはならない（MUST NOT）」 -- 「読む人が
-//               ブラウザで文字を大きくしたとき、パネルだけが取り残される」
+//               ブラウザーで文字を大きくしたとき、パネルだけが取り残される」
 //               （WCAG 2.1 の 1.4.4。要求としては `FR-039` が持つ）。
 //               ⚠️ 「掛ける相手は 表 T-215 の `fontSizeStepSizes[fontSizeStep]` では
 //               ない。」 The requirement gives the ground in as many words:
@@ -45,7 +45,7 @@
 //               ある —— パネルの幅は人が境界をドラッグして動かす（`FR-052`）
 //               ので、絶対値で持つと広げたときに入力欄だけが伸びる」.
 //   S-186       table T-206, the LOWER BOUND on a field's height -- ⛔ 「「高さ」
-//               ではなく「下限」である —— 読む人がブラウザで文字を大きくした
+//               ではなく「下限」である —— 読む人がブラウザーで文字を大きくした
 //               とき、固定の高さは文字を切り落とす（`NFR-007`）」. ⭐ Read here
 //               only as corroboration that the text inside a field is expected
 //               to GROW with the reader's own setting; no case asserts it,
@@ -130,7 +130,7 @@
 // leaves every `input` / `select` / `textarea` at the browser's default unless
 // something states a size for them too. The case below reads 「パネルの文字」 as
 // covering the text a person reads inside a field, on the strength of S-186's
-// note (a fixed height 「読む人がブラウザで文字を大きくしたとき … 文字を切り落と
+// note (a fixed height 「読む人がブラウザーで文字を大きくしたとき … 文字を切り落と
 // す」, which presumes the field's text grows). ⚠️ If the ruling is that the
 // prohibition stops at the plain text, this case is wrong and the manuscript
 // needs the sentence that says so. Reported rather than dropped.
@@ -1223,7 +1223,7 @@ describe("FR-006 (MUST) -- the panel's text is S-197 of the base the host gives"
   })
 
   it('⛔ MUST NOT: doubling the base doubles what the panel computes to', () => {
-    // ⛔ 「px の定数として持ってはならない（MUST NOT）」 -- 「読む人がブラウザで
+    // ⛔ 「px の定数として持ってはならない（MUST NOT）」 -- 「読む人がブラウザーで
     // 文字を大きくしたとき、パネルだけが取り残される」（WCAG 2.1 の 1.4.4）.
     // ⭐ THIS IS THE CASE THE MUST NOT IS FOR. A px constant -- written on the
     // panel, or hidden behind a custom property, or stated on an ancestor the

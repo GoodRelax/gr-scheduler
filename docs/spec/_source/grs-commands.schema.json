@@ -440,7 +440,7 @@
     "parentTaskProgressToleranceDays": {
      "type": "integer",
      "minimum": 0,
-     "description": "How many working days a parent task's progress point may lie outside the progress points of the work below it before Delay Diagnostics asks whether an update is missing. It belongs to the project (how often progress is collected), not to the reader, so it is here and not in documentSettings."
+     "description": "How many working days a parent task's progress point may lie outside the progress points of the work below it before Delay Diagnosis asks whether an update is missing. It belongs to the project (how often progress is collected), not to the reader, so it is here and not in documentSettings."
     }
    },
    "required": [

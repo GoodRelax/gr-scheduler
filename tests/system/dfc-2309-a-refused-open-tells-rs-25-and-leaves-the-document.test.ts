@@ -38,8 +38,8 @@ const openThroughIc1 = async (page: Page, name: string, text: string): Promise<v
     { name, text },
   )
   await press(page, 'IC-1')
-  if (await page.locator('[data-role="Open Chooser"]').count()) {
-    await page.click(icon('IC-71', '[data-role="Open Chooser"]'))
+  if (await page.locator('[data-role="Open File Dialog"]').count()) {
+    await page.click(icon('IC-71', '[data-role="Open File Dialog"]'))
     await settle(page)
   }
   if (await page.locator('[data-role="Confirmation"] [data-confirmation-answer="proceed"]').count()) await answerConfirmation(page, 'proceed')

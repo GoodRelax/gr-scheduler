@@ -17,7 +17,7 @@ import { byRole, selfAndDescendants, surfaceOf, wire, styleMap, type FakeElement
 import { REQUIREMENTS, boxesOf, documentOf, landingAt, under } from './cr-772-stage'
 
 const TREE_ROLE = 'Task Group Title Tree'
-const LAYER_ROLE = 'Task Group Grab Cues'
+const LAYER_ROLE = 'Interaction Cues'
 const CARRIED = 'data-task-group-carried'
 
 const readingsAt = (x: number, y: number): ScreenViewReadings =>
@@ -54,7 +54,7 @@ function panelAt(heldId: string | null, landing: Landing, x: number, y: number):
 
 describe('CR-789 -- the manuscript these cases are driven by', () => {
   it('HF-15 still says a pointer move redraws the line and the copy only', () => {
-    expect(REQUIREMENTS).toContain('タスクグループを運んでいる間、`GRS` は、差し込み線と写しだけを描き直すこと。')
+    expect(REQUIREMENTS).toContain('タスクグループを運んでいる間、`GRS` は、差し込み線とコピーだけを描き直すこと。')
   })
 
   it('UZ-11 still leaves the order inside the panel to each requirement', () => {
@@ -173,10 +173,10 @@ describe('HF-15 / UZ-11 -- the cue layer sits in front of the rows', () => {
     rig.show(panelAt('B', landing, 250, 180))
     const tree = one(rig.root(), TREE_ROLE)
     const layer = one(rig.root(), LAYER_ROLE)
-    expect(byRole(layer, 'Task Group Drop Line')).toHaveLength(1)
-    expect(byRole(layer, 'Task Group Grab Copy')).toHaveLength(1)
-    expect(byRole(tree, 'Task Group Drop Line')).toEqual([])
-    expect(byRole(tree, 'Task Group Grab Copy')).toEqual([])
+    expect(byRole(layer, 'Drop Line')).toHaveLength(1)
+    expect(byRole(layer, 'Drag Copy')).toHaveLength(1)
+    expect(byRole(tree, 'Drop Line')).toEqual([])
+    expect(byRole(tree, 'Drag Copy')).toEqual([])
     expect(tree.getAttribute(CARRIED)).toBe('true')
   })
 
@@ -185,11 +185,11 @@ describe('HF-15 / UZ-11 -- the cue layer sits in front of the rows', () => {
     rig.show(panelAt('B', landing, 250, 180))
     const tree = one(rig.root(), TREE_ROLE)
     const before = [...tree.children]
-    const copyBefore = styleMap(one(one(rig.root(), LAYER_ROLE), 'Task Group Grab Copy')).get('left')
+    const copyBefore = styleMap(one(one(rig.root(), LAYER_ROLE), 'Drag Copy')).get('left')
     rig.show(panelAt('B', landing, 270, 200))
     expect(tree.children.length).toBe(before.length)
     tree.children.forEach((child, at) => expect(child).toBe(before[at]))
-    const copyAfter = styleMap(one(one(rig.root(), LAYER_ROLE), 'Task Group Grab Copy')).get('left')
+    const copyAfter = styleMap(one(one(rig.root(), LAYER_ROLE), 'Drag Copy')).get('left')
     expect(copyAfter).not.toBe(copyBefore)
   })
 
@@ -200,7 +200,7 @@ describe('HF-15 / UZ-11 -- the cue layer sits in front of the rows', () => {
     const before = [...tree.children]
     rig.show(panelAt(null, null, 250, 180))
     expect(tree.children.some((child, at) => child !== before[at])).toBe(true)
-    expect(byRole(one(rig.root(), LAYER_ROLE), 'Task Group Grab Copy')).toEqual([])
+    expect(byRole(one(rig.root(), LAYER_ROLE), 'Drag Copy')).toEqual([])
     expect(tree.getAttribute(CARRIED)).toBe('false')
   })
 })

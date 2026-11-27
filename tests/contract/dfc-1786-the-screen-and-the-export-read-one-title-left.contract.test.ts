@@ -1,4 +1,4 @@
-// DFC-1786: BR-2 / EP-1 -- the header the application builds from a document puts the Document Title at one left, and the screen and the export both read it.
+// DFC-1786: BR-2 / EP-1 -- the header the application builds from a document puts the Project Title at one left, and the screen and the export both read it.
 
 import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
@@ -27,8 +27,8 @@ import { templateDocument } from './w3-t3-frame-stage'
 const REQUIREMENTS = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
 // Why: each constant is cut from the manuscript as check 39 reads it, so the cases cannot drift from the words they test.
-const BR_2_TITLE_LEFT = '`GRS` は、`Document Title` の左端を、席の右に `BR-7` の縦線と縦線の両脇の隔たりを置いた右にすること'
-const BR_2_NO_MEASURING = '`GRS` は、字の実寸を測って `Document Title` を置かないこと。'
+const BR_2_TITLE_LEFT = '`GRS` は、`Project Title` の左端を、席の右に `BR-7` の縦線と縦線の両脇の隔たりを置いた右にすること'
+const BR_2_NO_MEASURING = '`GRS` は、字の実寸を測って `Project Title` を置かないこと。'
 const EP_1_ONE_ROW = '字の大きさと左の余白は、画面と書き出しが同じ 1 つの行を読むこと（MUST）'
 const EP_1_NO_EXPORT_CONSTANT = '⛔ **書き出し専用の定数を持ってはならない（MUST NOT）**'
 
@@ -146,7 +146,7 @@ function titleLeftInTheExport(items: AppHeaderItems): number {
   const answer = exportSvg(scene)
   if (!answer.ok) throw new Error('exportSvg refused the fixture')
   const tag = new RegExp(`<text\\b([^>]*)>${TITLE}</text>`).exec(answer.svg)?.[1]
-  if (tag === undefined) throw new Error('EP-1: the export draws no Document Title')
+  if (tag === undefined) throw new Error('EP-1: the export draws no Project Title')
   const x = Number(/\sx="([^"]*)"/.exec(tag)?.[1])
   // Why: the picture is scaled to the export canvas width; the screen's pixels are recovered by the same ratio.
   const widthOfPicture = Number(/viewBox="0 0 ([\d.]+)/.exec(answer.svg)?.[1])

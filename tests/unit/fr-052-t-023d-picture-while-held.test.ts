@@ -2,7 +2,7 @@
 // `Panel Divider` and table T-023d's `GA-7` / `GA-8` fade grab points.
 //
 // The unit these arrive on is UF-48 `single-html-shell` (CP-25 of table T-062),
-// whose `frame-loop.ts` takes FT-1 of table T-078 -- 人の入力（ポインタとキー）
+// whose `frame-loop.ts` takes FT-1 of table T-078 -- 人の入力（ポインターとキー）
 // -- on `receiveInput`, and answers what one frame computed on `current()` and
 // what the document says on `document()`.
 //
@@ -28,24 +28,24 @@
 // ---------------------------------------------------------------------------
 // THE ROWS THESE CASES REST ON
 // ---------------------------------------------------------------------------
-//   FR-052    「境界を掴んでいるあいだ、その時点のポインタ位置が決める 2 つの
+//   FR-052    「境界を掴んでいるあいだ、その時点のポインター位置が決める 2 つの
 //             幅で画面を描いて示すこと（MUST）」 -- and, in the same statement,
 //             「⛔ 掴んでいるあいだ、その幅を文書へ書いてはならない（MUST NOT）」
 //             （CR-400: the reason changed from citing `FR-031` to pointing at
 //             表 T-028 の `IN-1`; see the describe below）, 「⚠️ 確定は 表 T-028 の
-//             `IN-1` に従う（離した時点）」, 「判定は `Task Group Area` の幅が 0 より
+//             `IN-1` に従う（離した時点）」, 「判定は `Task Group Lanes` の幅が 0 より
 //             大きいことをもって行うこと（MUST）……これが 0 以下になる組を
 //             受け付けてはならない（MUST NOT）」 and 「タスクグループパネルの幅を 0 に
 //             できてはならない（MUST NOT）」.
 //   T-023d    its closing rule for the fade: 「フェードの掴み点（同表の `GA-7` / `GA-8`）を掴んでいる
 //             あいだは、置くことになるフェードの形と掴み点を描いて示すこと
-//             （MUST）。掴み点はポインタが決める日に置くこと（MUST）……⚠️ 確定は
+//             （MUST）。掴み点はポインターが決める日に置くこと（MUST）……⚠️ 確定は
 //             表 T-028 の `IN-1` に従う（離した時点）」,
 //   T-023d    and the write ban the closing states once for every following
 //             row (DFC-466, 利用者の裁定 2026-09-11): 「`GA-7` / `GA-8` / `GA-1`
 //             ……を掴んでいるあいだ値を文書へ書いてはならない（MUST NOT）
 //             （`FR-031`）……⚠️ `GA-7` / `GA-8` の日数も値である」,
-//             and the rule after it: 「`GA-7` / `GA-8` の日数は、ポインタの下の
+//             and the rule after it: 「`GA-7` / `GA-8` の日数は、ポインターの下の
 //             日から求めること（MUST）。`GA-7` は `start` からの日数、`GA-8` は
 //             `end` までの日数とし、いずれも 1 日単位に四捨五入する。得た日数は
 //             表 T-012a の `FD-6` で切り詰めること（MUST）」.
@@ -76,9 +76,9 @@
 //             できるようにすること。掴み点は選択しているタスクにだけ出すこと
 //             （MUST）」 -- so every fade case selects the Task first (SL-2).
 //   T-023c SL-2  「1 つ選ぶ | 対象をクリックする。それまでの選択は置き換える」
-//   T-028 IN-1   「ポインタ操作は押した時点で実行せず、離した時点で確定すること。
+//   T-028 IN-1   「ポインター操作は押した時点で実行せず、離した時点で確定すること。
 //             中断は `Esc` で行い……」
-//   T-028 IN-1a  「ボタンを離す前に窓の外でポインタが失われたときは、ドラッグを
+//   T-028 IN-1a  「ボタンを離す前に窓の外でポインターが失われたときは、ドラッグを
 //             中断として終わらせること（MUST）」
 //   T-028 IN-4   Esc consumes one level, 開いている面 → 進行中のドラッグ… -- with
 //             no surface open, the first Esc takes the press in flight.
@@ -92,14 +92,14 @@
 //             that names it, which also says which half of it is disputed and
 //             why the case is not judged on that half.
 //   S-79      `taskGroupPanelWidthPx`, 下限 `taskGroupTitleIndent` × `maxGroupDepth`,
-//             上限 「`Task Group Area` の幅 > 0 に従う」.
+//             上限 「`Task Group Lanes` の幅 > 0 に従う」.
 //   S-171     `propertyPanelWidth`, the screen value the panel starts at (CR-572).
-//   S-134     「`Panel Divider` の掴み帯（`FR-051`）| 境界に重なる 8px」 -- the
+//   S-134     「`Panel Divider` のグリップ（`FR-051`）| 境界に重なる 8px」 -- the
 //             band is ON the boundary, which is why every divider case below
 //             presses its CENTER (see `boundaryOf`).
 //   T-031 SC-3   タスクグループパネルは拡大しても常に表示されている -- the reason
 //             FR-052 forbids a width of 0.
-//   U-50 / FR-052's own formula: `Task Group Area` の幅 = `Schedule Canvas` の幅 −
+//   U-50 / FR-052's own formula: `Task Group Lanes` の幅 = `Schedule Canvas` の幅 −
 //             `canvasPadding` − 2 つの幅 − 縦のスクロールバーの太さ.
 //
 // ---------------------------------------------------------------------------
@@ -636,7 +636,7 @@ function bandOf(built: Stage, panel: 'taskGroupPanel' | 'propertiesPanel') {
  *
  * ⭐ WHY THE CENTER AND NOWHERE ELSE. S-134 is 「境界に重なる 8px」 -- the band
  * lies ON the boundary -- so at its center the pointer stands exactly where the
- * boundary is. That makes FR-052's 「その時点のポインタ位置が決める 2 つの幅」
+ * boundary is. That makes FR-052's 「その時点のポインター位置が決める 2 つの幅」
  * one number under either reading of it (the width the pointer stands at, or the
  * width the press began with plus the travel since), and a case pressing
  * anywhere else would be judged on a difference the specification does not fix.
@@ -743,18 +743,18 @@ describe('table T-266: GA-7 sits on 点 4 and GA-8 on 点 2 of table T-012a', ()
  * How far into the target day every fade case below aims.
  *
  * ⭐ THE MANUSCRIPT NAMES A DAY AND NEVER A PIXEL: 「`GA-7` / `GA-8` の日数は、
- * ポインタの下の日から求めること（MUST）……いずれも 1 日単位に四捨五入する」. So a
+ * ポインターの下の日から求めること（MUST）……いずれも 1 日単位に四捨五入する」. So a
  * case states which day the pointer stands in, and the answer it may require is
  * that day.
  *
  * ⛔ A DAY'S OWN EDGE IS THE ONE PLACE A CASE MAY NOT AIM AT. It is the tie of
- * 「四捨五入」 and the border of 「ポインタの下の日」 at once, and `edge + n ×
+ * 「四捨五入」 and the border of 「ポインターの下の日」 at once, and `edge + n ×
  * pxPerDay` computed in floating point lands on either side of it by an ulp.
  * ⚠️ MEASURED, NOT ASSUMED: aimed at the edge, a one-day carry moved the picture
  * no day at all and a four-day carry moved three, while two and three days
  * landed right.
  *
- * ⭐ A QUARTER IN IS INSIDE THE TARGET DAY UNDER BOTH READINGS -- 「ポインタの下
+ * ⭐ A QUARTER IN IS INSIDE THE TARGET DAY UNDER BOTH READINGS -- 「ポインターの下
  * の日」 puts it in that day outright, and 「1 日単位に四捨五入」 rounds 0.25 back
  * down to it. ⛔ NOT THE MIDDLE: 0.5 is exactly the tie of the second reading.
  */
@@ -773,7 +773,7 @@ describe('table T-023d: while GA-7 is held the fade is DRAWN and not WRITTEN', (
    * Grab a fade point and carry the pointer INTO the day `days` days along.
    *
    * `dayEdge` is where the day the pointer ends up standing in BEGINS, which is
-   * where the grab point itself is owed -- 「掴み点はポインタが決める日に置くこと
+   * where the grab point itself is owed -- 「掴み点はポインターが決める日に置くこと
    * （MUST）」 places it on a day and not under the pointer. Where inside the day
    * the pointer is put, and why not on its edge, is `A_QUARTER_INTO_THE_DAY`.
    */
@@ -797,7 +797,7 @@ describe('table T-023d: while GA-7 is held the fade is DRAWN and not WRITTEN', (
     const now = fadeHandlesOf(built.loop)[0] as Point
     expect(
       now.x,
-      'T-023d: 掴んでいるあいだ……掴み点はポインタが決める日に置くこと（MUST）',
+      'T-023d: 掴んでいるあいだ……掴み点はポインターが決める日に置くこと（MUST）',
     ).toBeCloseTo(dayEdge, 6)
     expect(now.x).toBeGreaterThan(before.x)
   })
@@ -805,7 +805,7 @@ describe('table T-023d: while GA-7 is held the fade is DRAWN and not WRITTEN', (
   it('puts it on the DAY and not under the pointer (MUST)', () => {
     // ⭐ THE OTHER HALF OF THE SAME MUST, and the half no case held before: a
     // grab point that simply tracked the pointer would satisfy every case above
-    // and still break 「掴み点はポインタが決める日に置くこと（MUST）」. The
+    // and still break 「掴み点はポインターが決める日に置くこと（MUST）」. The
     // pointer here stands a quarter of a day past a day's edge, so the two
     // answers are a quarter of a day apart and only one of them is the day.
     const built = withFadeHandles()
@@ -872,7 +872,7 @@ describe('table T-023d: while GA-7 is held the fade is DRAWN and not WRITTEN', (
     // this grab point towards the start, not away from it.
     const { dayEdge } = dragGrabPoint(built, 1, -2)
     const now = fadeHandlesOf(built.loop)[1] as Point
-    expect(now.x, 'T-266 GA-8: 掴み点はポインタが決める日に置くこと（MUST）').toBeCloseTo(
+    expect(now.x, 'T-266 GA-8: 掴み点はポインターが決める日に置くこと（MUST）').toBeCloseTo(
       dayEdge,
       6,
     )
@@ -932,7 +932,7 @@ describe('table T-028 IN-1: the fade is settled on the release', () => {
   })
 
   // ⭐ THIS CASE WAS RED ON PURPOSE UNTIL THE RULING OF 2026-08-30 (CR-314).
-  // Table T-023d's closing rule used to say both 「ポインタの下の日から求める
+  // Table T-023d's closing rule used to say both 「ポインターの下の日から求める
   // こと（MUST）」(a truncation) and 「いずれも 1 日単位に四捨五入する」(a
   // rounding), and the two disagreed on the sliver either side of a boundary.
   // ⛔ The case took the second sentence and did NOT loosen: a clause that
@@ -959,7 +959,7 @@ describe('table T-028 IN-1: the fade is settled on the release', () => {
     // is exactly the difference this case exists to see.
     //
     // ⛔⛔ THE TWO SENTENCES OF THAT RULE DO NOT AGREE, AND THIS CASE TAKES THE
-    // SECOND. 「ポインタの下の日から求めること（MUST）」 reads as the day the
+    // SECOND. 「ポインターの下の日から求めること（MUST）」 reads as the day the
     // pointer stands IN -- a truncation, under which the sliver short of the
     // boundary belongs to the day before it and 「1 日単位に四捨五入する」 has
     // nothing left to do. ⭐ A clause that decides nothing is not how the rest
@@ -1049,7 +1049,7 @@ describe('table T-028 IN-1a: a lost pointer abandons the fade drag', () => {
     built.send(pointer('lost', insideTheDay(from.x, 3, scale), from.y))
     expect(
       taskOf(built.loop, FADED_UID),
-      'IN-1a: ボタンを離す前に窓の外でポインタが失われたときは、ドラッグを中断として終わらせること（MUST）',
+      'IN-1a: ボタンを離す前に窓の外でポインターが失われたときは、ドラッグを中断として終わらせること（MUST）',
     ).toEqual(before)
   })
 
@@ -1119,7 +1119,7 @@ describe('FR-052: while the boundary is held the widths are DRAWN and not WRITTE
     built.send(pointer('move', at.x + 40, at.y))
     expect(
       drawnPanelWidth(built.loop),
-      'FR-052: 境界を掴んでいるあいだ、その時点のポインタ位置が決める 2 つの幅で画面を描いて示すこと（MUST）',
+      'FR-052: 境界を掴んでいるあいだ、その時点のポインター位置が決める 2 つの幅で画面を描いて示すこと（MUST）',
     ).toBeCloseTo(was + 40, 6)
   })
 
@@ -1159,7 +1159,7 @@ describe('FR-052: while the boundary is held the widths are DRAWN and not WRITTE
     built.send(pointer('move', at.x - 30, at.y))
     expect(
       drawnPanelWidth(built.loop),
-      'FR-052: ⭐ ただしタスクグループパネルの幅は、ポインタ位置が決める幅が `FR-039` の 表 T-252 の後の段が定める床を下回るとき、床で止めて描くこと（MUST）',
+      'FR-052: ⭐ ただしタスクグループパネルの幅は、ポインター位置が決める幅が `FR-039` の 表 T-252 の後の段が定める床を下回るとき、床で止めて描くこと（MUST）',
     ).toBeCloseTo(was, 6)
   })
 
@@ -1269,7 +1269,7 @@ describe('FR-052: while the boundary is held the widths are DRAWN and not WRITTE
     built.send(pointer('move', at.x - 120, at.y))
     expect(
       frameOf(built.loop).regions.propertiesPanel.width,
-      'FR-052: その時点のポインタ位置が決める 2 つの幅で画面を描いて示すこと（MUST）',
+      'FR-052: その時点のポインター位置が決める 2 つの幅で画面を描いて示すこと（MUST）',
     ).toBeCloseTo(drawn + 120, 6)
     built.send(pointer('up', at.x - 120, at.y))
     expect(frameOf(built.loop).regions.propertiesPanel.width, 'FR-052: 確定は IN-1 に従う').toBeCloseTo(
@@ -1278,7 +1278,7 @@ describe('FR-052: while the boundary is held the widths are DRAWN and not WRITTE
     )
     expect(
       settingsOf(built.loop),
-      'FR-052: ⛔ プロパティパネルの幅を、文書にもブラウザの保管庫にも書いてはならない（MUST NOT）',
+      'FR-052: ⛔ プロパティパネルの幅を、文書にもブラウザーの保管庫にも書いてはならない（MUST NOT）',
     ).not.toHaveProperty('propertyPanelWidth')
   })
 
@@ -1403,7 +1403,7 @@ describe('FD-6 and IV-12: the fade a release writes is cut to the Task', () => {
     // ⭐ THE JUDGMENT THIS CASE RESTS ON. T-023d asks for 「置くことになる
     // フェード」 to be drawn -- the fade that WOULD be placed -- and the very next
     // rule cuts what would be placed with FD-6. Where the two sentences pull
-    // apart (掴み点はポインタが決める日に置くこと, against a day FD-6 refuses),
+    // apart (掴み点はポインターが決める日に置くこと, against a day FD-6 refuses),
     // 置くことになる wins, because the reason given for drawing at all is
     // 「どの日に置くことになるのかを見ないまま手を離すことになる」 -- a picture of
     // a day that will not be placed answers that reason with a falsehood.
@@ -1422,8 +1422,8 @@ describe('FD-6 and IV-12: the fade a release writes is cut to the Task', () => {
   })
 })
 
-describe('FR-052: the pair a release writes keeps the `Task Group Area` above zero', () => {
-  it('refuses a pair that would leave no `Task Group Area` (MUST NOT)', () => {
+describe('FR-052: the pair a release writes keeps the `Task Group Lanes` above zero', () => {
+  it('refuses a pair that would leave no `Task Group Lanes` (MUST NOT)', () => {
     const built = stage()
     const at = boundaryOf(built, 'taskGroupPanel')
     const canvas = frameOf(built.loop).regions.scheduleCanvas
@@ -1433,7 +1433,7 @@ describe('FR-052: the pair a release writes keeps the `Task Group Area` above ze
     built.send(pointer('up', far, at.y))
     expect(
       frameOf(built.loop).regions.taskGroupArea.width,
-      'FR-052: 判定は `Task Group Area` の幅が 0 より大きいことをもって行うこと（MUST）……これが 0 以下になる組を受け付けてはならない（MUST NOT）',
+      'FR-052: 判定は `Task Group Lanes` の幅が 0 より大きいことをもって行うこと（MUST）……これが 0 以下になる組を受け付けてはならない（MUST NOT）',
     ).toBeGreaterThan(0)
   })
 
@@ -1449,11 +1449,11 @@ describe('FR-052: the pair a release writes keeps the `Task Group Area` above ze
     ).toBeGreaterThan(0)
   })
 
-  it('keeps the `Task Group Area` above zero in the PICTURE too, while the pointer is out there', () => {
+  it('keeps the `Task Group Lanes` above zero in the PICTURE too, while the pointer is out there', () => {
     // ⚠️ THE HALF THE SPECIFICATION DOES NOT SETTLE IS NOT THIS. What is not
     // settled is which width to DRAW when the pointer names a refused pair; what
-    // IS settled is that a `Task Group Area` of 0 or less is a thing this tool does not
-    // accept, and a frame whose own `Task Group Area` has collapsed has drawn one.
+    // IS settled is that a `Task Group Lanes` of 0 or less is a thing this tool does not
+    // accept, and a frame whose own `Task Group Lanes` has collapsed has drawn one.
     const built = stage()
     const at = boundaryOf(built, 'taskGroupPanel')
     const canvas = frameOf(built.loop).regions.scheduleCanvas

@@ -285,8 +285,8 @@ interface Segment {
    *
    * ⛔⛔ WHY THIS DECIDES WHETHER A STRETCH IS JUDGED. `MC-8` names what it
    * measures over, verbatim: ズーム・スクロール・パン・ドラッグ・範囲選択を行っ
-   * ている間、および**ポインタの移動が描き直しを起こしている間**。⚠️ **何も変
-   * わらないポインタの移動は含めない** —— 描き直しが起きないので測る母数が無い
+   * ている間、および**ポインターの移動が描き直しを起こしている間**。⚠️ **何も変
+   * わらないポインターの移動は含めない** —— 描き直しが起きないので測る母数が無い
    * （`NFR-010`）.
    *
    * ⭐ So a stretch in which the input caused NO redraw is not a stretch
@@ -833,7 +833,7 @@ async function sweep(live: Browser, context: BrowserContext, page: Page): Promis
   // --- PG-9: the hit test while the pointer is over the drawing ------------
   //
   // ⚠️ `MC-8` EXCLUDES TWO KINDS OF POINTER MOVE, verbatim: 何も変わらないポイ
-  // ンタの移動は含めない ... ポインタが乗ったことによる濃さの変化と、待ち時間で
+  // ンタの移動は含めない ... ポインターが乗ったことによる濃さの変化と、待ち時間で
   // 出る説明だけの描き直しも含めない. So what is driven here is a plain sweep
   // across the drawing, and if it delivers no frames that IS the answer -- the
   // hit test ran with no redraw behind it, and `NFR-010` says there is then no
@@ -1106,7 +1106,7 @@ async function sweep(live: Browser, context: BrowserContext, page: Page): Promis
 
 test('T-025 -- the numbers are recorded together with the browser and the machine', () => {
   const m = taken()
-  // `MC-5` (MUST): 基準ブラウザの版を、測った値と対にして記録すること。
+  // `MC-5` (MUST): 基準ブラウザーの版を、測った値と対にして記録すること。
   // `MC-4`: 内蔵 GPU（Intel UHD Graphics）.
   console.log(
     [
@@ -1297,7 +1297,7 @@ test('PG-1 / PG-4 / PG-5 / PG-8 / PG-9 / PG-10 / PG-12 / PG-14 -- the gates of t
     if (one.name.startsWith('PG-14')) continue
     // ⛔⛔ A STRETCH THAT REDREW NOTHING IS NOT ONE `MC-8` MEASURES OVER, and
     // judging it would fail a build for obeying `NFR-010`. `MC-8`, verbatim:
-    // 何も変わらないポインタの移動は含めない —— 描き直しが起きないので測る母数
+    // 何も変わらないポインターの移動は含めない —— 描き直しが起きないので測る母数
     // が無い（`NFR-010`）. ⭐ Whether it redrew was measured by comparing the
     // picture either side of the stretch, never inferred from the timings this
     // very judgment is about. The numbers are printed above regardless.

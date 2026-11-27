@@ -461,9 +461,9 @@ function rectHoldsPoint(area: ScreenRect, x: number, y: number): boolean {
   return x >= area.x && x < area.x + area.width && y >= area.y && y < area.y + area.height
 }
 
-const HELP_ANCHOR = { surface: 'Help Modal' } as const
+const HELP_ANCHOR = { surface: 'Help Window' } as const
 
-const SEARCH_PANEL_ANCHOR = { surface: 'Search Panel' } as const
+const SEARCH_PANEL_ANCHOR = { surface: 'Search Window' } as const
 
 /** @purity pure */
 function surfaceAnchorOf(readings: ScreenViewReadings): { readonly surface?: string } {

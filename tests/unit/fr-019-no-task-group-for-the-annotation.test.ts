@@ -116,7 +116,7 @@ const RS_44_DISPLAY = bare(specTable('T-233').rows.find((one) => one.id === 'RS-
 
 // ---------------------------------------------------------------------------
 // The document these cases drive -- one with no task group at all, so that every
-// point in the `Task Group Area` is a point with no `TaskGroup` under it.
+// point in the `Task Group Lanes` is a point with no `TaskGroup` under it.
 // ---------------------------------------------------------------------------
 
 const TEMPLATE = JSON.parse(
@@ -284,7 +284,7 @@ function stage(language: DisplayLanguage = 'ja'): Stage {
   }
 }
 
-/** A point inside the `Task Group Area` of a document that has no task groups at all. */
+/** A point inside the `Task Group Lanes` of a document that has no task groups at all. */
 const GROUND = { x: 700, y: 400 }
 
 // ===========================================================================

@@ -116,7 +116,7 @@ test.beforeAll(async () => {
           noticeText: Array.from(document.querySelectorAll(`[data-role="${given.notices}"]`))
             .map((node) => (node.textContent ?? '').trim())
             .join(' | '),
-          title: document.querySelector('[data-role="Document Title"]')?.textContent ?? '',
+          title: document.querySelector('[data-role="Project Title"]')?.textContent ?? '',
         }
       },
       { address: DOWNLOAD_ADDRESS, seat: DOWNLOAD_URL_SEAT, words: [...RS_63_WORDS], notices: NOTIFICATION_AREA },

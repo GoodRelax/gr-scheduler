@@ -30,22 +30,22 @@ describe('S-99g / table T-280 (DFC-705) -- one surface is open at a time, and a 
     return built
   }
 
-  it('the Export Chooser is replaced by the watermark surface, which is replaced by the Export Chooser again', () => {
+  it('the Save As Dialog is replaced by the watermark surface, which is replaced by the Save As Dialog again', () => {
     const built = benchOf()
     take(built, EXPORT_ENTRANCE)
-    expect(openSurface(built), 'premise').toBe('Export Chooser')
+    expect(openSurface(built), 'premise').toBe('Save As Dialog')
     take(built, WATERMARK_ENTRANCE)
-    expect(openSurface(built), 'the second entrance wins').not.toBe('Export Chooser')
+    expect(openSurface(built), 'the second entrance wins').not.toBe('Save As Dialog')
     expect(openSurface(built), 'a surface stands').not.toBeNull()
     take(built, EXPORT_ENTRANCE)
-    expect(openSurface(built), 'and the first wins back').toBe('Export Chooser')
+    expect(openSurface(built), 'and the first wins back').toBe('Save As Dialog')
   })
 
   it('the watermark entrance replaces an open surface the same way, and no notice is told for it', () => {
     const built = benchOf()
     take(built, EXPORT_ENTRANCE)
     take(built, WATERMARK_ENTRANCE)
-    expect(openSurface(built)).not.toBe('Export Chooser')
+    expect(openSurface(built)).not.toBe('Save As Dialog')
     expect(openSurface(built), 'a surface stands').not.toBeNull()
     expect(built.last().notices).toEqual([])
   })
@@ -54,6 +54,6 @@ describe('S-99g / table T-280 (DFC-705) -- one surface is open at a time, and a 
     const built = benchOf()
     take(built, EXPORT_ENTRANCE)
     take(built, EXPORT_ENTRANCE)
-    expect(openSurface(built)).toBe('Export Chooser')
+    expect(openSurface(built)).toBe('Save As Dialog')
   })
 })

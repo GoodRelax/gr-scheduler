@@ -57,7 +57,7 @@ const found = <T>(value: T | undefined | null, what: string): T => {
 const SQ_10_TWO_STATES = '`GRS` は、`SQ-10` の見出しのセルに、入っている・空 の 2 つの状態のチェックボックスだけを置くこと。'
 const SQ_10_ANY_ROW = 'タスクの表の行のどれか 1 つにでもチェックが入っている間、`GRS` は、チェックの入った行が一覧に出ていても出ていなくても、`SQ-10` の見出しのチェックボックスを入っている状態にすること。'
 const SQ_10_ADD = '`SQ-10` の見出しのチェックボックスが空の間、見出しのチェックボックスを押したとき、`GRS` は、一覧に出ているすべての行にだけチェックを入れること（一覧に出ていない行は変えない）。'
-const SQ_10_CLEAR = '`SQ-10` の見出しのチェックボックスが入っている間、見出しのチェックボックスを押したとき、`GRS` は、表のすべての行（語や列のフィルタで一覧に出ていない行を含む）のチェックを外すこと。'
+const SQ_10_CLEAR = '`SQ-10` の見出しのチェックボックスが入っている間、見出しのチェックボックスを押したとき、`GRS` は、表のすべての行（語や列のフィルターで一覧に出ていない行を含む）のチェックを外すこと。'
 const SQ_10_RETIRED_STATES = '一覧に出ている行がすべて入っている・一部・1 つも入っていない の 3 つの状態'
 
 // Why: the manuscript clauses the cases below are driven by; a case that is green while the clause is gone would pin nothing.
@@ -168,7 +168,7 @@ interface Probe {
 
 const searchPanelOf = (word: string): SearchPanelSession => ({ ...emptySearchPanelSession, table: 'tasks', word })
 const searchViewOf = (visibility: Visibility, word: string): SearchPanelView =>
-  found(searchPanelFromSession(sessionIn(), searchPanelOf(word), { ...startOf('searchPanel'), visibility }, SCHEDULE, CANVAS), 'a view of the shown Search Panel')
+  found(searchPanelFromSession(sessionIn(), searchPanelOf(word), { ...startOf('searchPanel'), visibility }, SCHEDULE, CANVAS), 'a view of the shown Search Window')
 
 const reportWindowOf = (word: string): DelayDiagnosticsReportWindow => ({ ...OPENED_DELAY_DIAGNOSTICS_REPORT, panel: { ...OPENED_DELAY_DIAGNOSTICS_REPORT.panel, word } })
 const reportViewOf = (visibility: Visibility, word: string): DelayDiagnosticsReportView =>
@@ -489,7 +489,7 @@ describe('FR-151 T-353 TV-2 / T-347 DT-8 -- the report: a checked task the repor
     expect(REPORT_PROBE.heading({ ...NO_ROW_CHECKED, shownTaskUids: [...NOT_CARRIED, carried] }, '')).toBe('checked')
   })
 
-  it('DT-8: the same checked tasks in the Search Panel, which lists every task, make its box checked', () => {
+  it('DT-8: the same checked tasks in the Search Window, which lists every task, make its box checked', () => {
     expect(SEARCH.heading({ ...NO_ROW_CHECKED, shownTaskUids: NOT_CARRIED }, '')).toBe('checked')
   })
 })

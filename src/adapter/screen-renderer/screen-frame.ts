@@ -171,7 +171,7 @@ export function verticalWholeOf(layout: ScheduleLayout, regions: ScreenRegions):
   return { fromContentY0: contentY0 - top, height: bottom - top }
 }
 
-// Trap: (FR-098) the scrolling remainder's height; the Task Group Area's would grow the grip as task groups are pinned.
+// Trap: (FR-098) the scrolling remainder's height; the Task Group Lanes's would grow the grip as task groups are pinned.
 /** @purity pure */
 function visibleHeightOf(layout: ScheduleLayout, regions: ScreenRegions): number {
   return Math.max(0, regions.taskGroupArea.y + regions.taskGroupArea.height - (layout.scrollAreaY ?? regions.taskGroupArea.y))

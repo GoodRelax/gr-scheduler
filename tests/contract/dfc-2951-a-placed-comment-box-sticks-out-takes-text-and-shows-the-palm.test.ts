@@ -68,7 +68,7 @@ const BODY_FIELD = 'PR-21'
 const FREE_GROUP = groupOf(3)
 const FREE_DAY = april(27)
 const PIXEL = 0.5
-// Why: a stored box on the band of Task 4, right of every task, so its body lies inside the Task Group Area and over no figure.
+// Why: a stored box on the band of Task 4, right of every task, so its body lies inside the Task Group Lanes and over no figure.
 const OLD_TEXT = 'Note of the box pressed before'
 const lowBox = (): Record<string, unknown> =>
   commentRow({ anchorTaskGroupId: groupOf(4), anchorDate: april(24, '00:00:00'), text: OLD_TEXT })
@@ -92,7 +92,7 @@ async function placedOn(document: Document): Promise<{ built: WindowStage; at: P
   const at = freePointOf(built)
   const area = frameOf(built.loop).regions.taskGroupArea
   if (at.x < area.x || at.x > area.x + area.width || at.y < area.y || at.y > area.y + area.height) {
-    throw new Error(`premise: the free point ${JSON.stringify(at)} is inside the Task Group Area`)
+    throw new Error(`premise: the free point ${JSON.stringify(at)} is inside the Task Group Lanes`)
   }
   await built.press('IC-35')
   await pointAt(built, 'down', at.x, at.y)
@@ -188,7 +188,7 @@ describe(`FR-019 / AR-5: ${FR_019_SELECT_AND_FOCUS}`, () => {
   it('the panel shows the placed box alone, even when another comment box was pressed (selected) before', async () => {
     const built = await windowStage(documentWith([lowBox()]))
     const other = commentDrawn(built.loop)!.body
-    expect(insideArea(built.loop, other), 'premise: the old body lies inside the Task Group Area').toBe(true)
+    expect(insideArea(built.loop, other), 'premise: the old body lies inside the Task Group Lanes').toBe(true)
     await pointAt(built, 'down', other.x + other.width / 2, other.y + other.height / 2)
     await pointAt(built, 'up', other.x + other.width / 2, other.y + other.height / 2)
     const at = freePointOf(built)
@@ -245,7 +245,7 @@ const hovered = (): { built: HoverStage; box: CommentGeometry } => {
   const built = hoverStage(documentWith([lowBox()]))
   const box = commentDrawn(built.loop, COMMENT_ID)
   if (box === null) throw new Error('premise: the comment box is drawn')
-  if (!insideArea(built.loop, box.body)) throw new Error('premise: the body lies inside the Task Group Area')
+  if (!insideArea(built.loop, box.body)) throw new Error('premise: the body lies inside the Task Group Lanes')
   return { built, box }
 }
 

@@ -282,7 +282,7 @@ MUST_GATE = ('ウィンドウ', 'ウインドウ')
 # CR-721 gated three more rows the coordinator decided (JDG-1850, JDG-1855),
 # and CR-726 the user's 取り込み (JDG-1863); the self-test is red when one of
 # them stops being gated.
-ALSO_GATED = (('フィルタ', 'フィルター'), ('マーカー', 'マーカ'), ('ヘッダー', 'ヘッダ'),
+ALSO_GATED = (('フィルター', 'フィルター'), ('マーカー', 'マーカ'), ('ヘッダー', 'ヘッダ'),
               ('取り込み', '取込'), ('color', 'colour'))
 # JDG-1921 (CR-730): American spelling everywhere. A row whose banned spelling
 # is all ASCII is matched in every case, so the one row for the lower-case
@@ -330,7 +330,7 @@ def misspelt_at(line, written, banned):
 
     ヘッダー begins with ヘッダ: a gated ヘッダ must not redden the written word.
     ⚠️ Only when the written word is the LONGER one: フィルター begins with the
-    written フィルタ, and skipping on a written prefix there would let every
+    written フィルター, and skipping on a written prefix there would let every
     banned フィルター through (CR-721).
     An all-ASCII banned spelling is matched in every case (JDG-1921, CR-730).
     """
@@ -463,21 +463,21 @@ def self_test():
         '|---|---|---|---|---|',
         '| ウィンドウ | ウインドウ | JDG | 止める | |',
         '| ヘッダー | ヘッダ | JDG | 止める | |',
-        '| フィルタ | フィルター | JDG | 止めない | |',
+        '| フィルター | フィルター | JDG | 止めない | |',
         '| マーカー | マーカ | JDG | 止めない | |',
         '## 6. next',
-        '| ポインタ | ポインター | JDG | 止める | |',
+        '| ポインター | ポインター | JDG | 止める | |',
     ]
     pairs = gated_spellings(table)
     lines = [('t.md', ['開いているウインドウ', '開いているウィンドウ',
                        'ヘッダーの帯', 'ヘッダの帯', 'フィルターの欄',
                        'ポインターの先', 'マーカの色'])]
     hits = [(rel, i) for rel, i, _, _ in scan_spellings(pairs, lines)]
-    # CR-721: the written word may be the SHORTER one (フィルタ / フィルター).
-    shorter = gated_spellings(['## 5. 表記の表', '| フィルタ | フィルター | JDG | 止める | |',
+    # CR-721: the written word may be the SHORTER one (フィルター / フィルター).
+    shorter = gated_spellings(['## 5. 表記の表', '| フィルター | フィルター | JDG | 止める | |',
                                '| マーカー | マーカ | JDG | 止める | |'])
     shorter_hits = [(rel, i) for rel, i, _, _ in scan_spellings(
-        shorter, [('s.md', ['フィルターの欄', 'フィルタの欄', 'マーカーの色', 'マーカの色'])])]
+        shorter, [('s.md', ['フィルターの欄', 'フィルターの欄', 'マーカーの色', 'マーカの色'])])]
     # JDG-1921 (CR-730): one all-ASCII row stops every case; the written word stays green.
     english = gated_spellings(['## 5. 表記の表', '| color | colour | JDG | 止める | |'])
     english_hits = [(rel, i) for rel, i, _, _ in scan_spellings(
@@ -515,9 +515,9 @@ def self_test():
          ('t.md', 3) not in hits),
         ('ヘッダ red on line 4', ('t.md', 4) in hits),
         ('exactly 2 hits in all', len(hits) == 2),
-        ('フィルター red although it begins with the written フィルタ',
+        ('フィルター red although it begins with the written フィルター',
          ('s.md', 1) in shorter_hits),
-        ('フィルタ green, マーカー green, マーカ red: exactly 2 hits',
+        ('フィルター green, マーカー green, マーカ red: exactly 2 hits',
          sorted(shorter_hits) == [('s.md', 1), ('s.md', 4)]),
         ('colour, Colour, COLOUR and defaultColour red; color, Color, COLOR and '
          'defaultColor green: exactly 4 hits (JDG-1921, CR-730)',

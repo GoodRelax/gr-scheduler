@@ -38,7 +38,7 @@ const REQUIREMENTS = unbroken(
 
 
 const FR_042_PANEL_CARRIES_THE_LINE =
-  '`GRS` は、境界の線を、日程の側（`Task Group Area`、`U-50`）に加えて、タスクグループパネル（`U-22`）のタスクグループの境にも引くこと。'
+  '`GRS` は、境界の線を、日程の側（`Task Group Lanes`、`U-50`）に加えて、タスクグループパネル（`U-22`）のタスクグループの境にも引くこと。'
 
 const FR_042_LEFT_TO_RIGHT_AND_UNBROKEN =
   '`GRS` は、タスクグループパネルの境界の線を、タスクグループパネルの左端から右端まで引くこと。'

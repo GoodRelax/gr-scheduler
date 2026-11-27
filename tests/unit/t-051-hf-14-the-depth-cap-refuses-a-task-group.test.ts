@@ -440,10 +440,10 @@ describe('the manuscript still says what these cases read', () => {
     // manuscript which went back on any of them fails HERE rather than in a
     // case that would then be asserting a rule nobody holds.
     expect(says('T-051', 'HF-14')).toContain(
-      '押したタスクグループの深さが `FR-085` の上限に達しているとき、`GRS` は、配下に足す操作子を `FR-029` に従って薄く描くこと。',
+      '押したタスクグループの深さが `FR-085` の上限に達しているとき、`GRS` は、配下に足すボタンを `FR-029` に従って薄く描くこと。',
     )
     expect(says('T-051', 'HF-14')).toContain(
-      'もし薄い配下に足す操作子を押した場合、`GRS` は、押したタスクグループの配下に新しいタスクグループを立てないこと。もし薄い配下に足す操作子を押した場合、`GRS` は、運ぶ理由を 表 T-233 の `RS-46` とすること。',
+      'もし薄い配下に足すボタンを押した場合、`GRS` は、押したタスクグループの配下に新しいタスクグループを立てないこと。もし薄い配下に足すボタンを押した場合、`GRS` は、運ぶ理由を 表 T-233 の `RS-46` とすること。',
     )
     // ⛔⛔ CR-348's own MUST NOT, and the reason the case below reads the task group
     // count and the panel rather than the reason alone: raising the task group and
@@ -461,7 +461,7 @@ describe('the manuscript still says what these cases read', () => {
     // ⛔ If a case in this file ever reads an empty name field or an empty-name
     // confirmation again, this is what says it is reading a rule nobody holds.
     expect(says('T-051', 'HF-14')).toContain(
-      '配下に足す操作子を押したとき、`GRS` は、押した瞬間に既定の名前でタスクグループを立てること。配下に足す操作子を押したとき、`GRS` は、立てたタスクグループのプロパティパネルを出し、名前の欄で名づけさせること。',
+      '配下に足すボタンを押したとき、`GRS` は、押した瞬間に既定の名前でタスクグループを立てること。配下に足すボタンを押したとき、`GRS` は、立てたタスクグループのプロパティパネルを出し、名前の欄で名づけさせること。',
     )
     expect(says('T-051', 'HF-14')).not.toContain('打ち込み口')
   })

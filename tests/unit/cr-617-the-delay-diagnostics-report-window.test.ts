@@ -247,7 +247,7 @@ describe('RW-6 / RW-7 -- the Markdown string and the file name', () => {
 
   it('names the filter that stands, and the rows it keeps', () => {
     const filtered = delayDiagnosticsReportMarkdownOf(withWord('Bravo'), NO_VIEW, REPORT, SCHEDULE, 'ja', stamp)
-    expect(filtered).toContain('- フィルタ: Bravo')
+    expect(filtered).toContain('- フィルター: Bravo')
     expect(diagnosisTableOf(filtered.split('\n'))).toHaveLength(3)
   })
 

@@ -131,7 +131,7 @@ describe('Chapter 5.4 -- the manuscript this file is driven by', () => {
   })
 
   it('names `_source/erd.json` as the one manuscript these four tables come from', () => {
-    expect(DESIGN).toContain('`GRS JSON` のスキーマを起こす原稿は、日程データの群の `_source/erd.json` と、見せ方の群の `_source/settings.json` の 2 つとすること')
+    expect(DESIGN).toContain('`GRS JSON` のスキーマを起こす原稿は、スケジュールデータの群の `_source/erd.json` と、見せ方の群の `_source/settings.json` の 2 つとすること')
     expect(MANUSCRIPT.entities.length).toBeGreaterThan(0)
     expect(MANUSCRIPT.relations.length).toBeGreaterThan(0)
     expect(MANUSCRIPT.derived.length).toBeGreaterThan(0)

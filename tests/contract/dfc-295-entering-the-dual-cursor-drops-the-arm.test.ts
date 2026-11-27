@@ -296,7 +296,7 @@ const BASE: InputContext = {
 /**
  * One press on one entrance, settled on the RELEASE.
  *
- * ⭐ IN-1 of 表 T-028: 「ポインタ操作は押した時点で実行せず、**離した時点で
+ * ⭐ IN-1 of 表 T-028: 「ポインター操作は押した時点で実行せず、**離した時点で
  * 確定すること。**」 -- so the happening handed in is the `up`, and the press it
  * belongs to travels in `InputContext.pressed`.
  */

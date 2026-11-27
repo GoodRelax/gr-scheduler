@@ -30,8 +30,8 @@
 // ---------------------------------------------------------------------------
 //
 //   表 T-109 IC-52  its 面 column reads
-//                 「`Help Modal` / `AI Export Modal` / `Resource List` /
-//                   `Export Chooser` / `Open Chooser` / `Properties Panel`」,
+//                 「`Help Window` / `AI Export Modal` / `Resource List` /
+//                   `Save As Dialog` / `Open File Dialog` / `Properties Panel`」,
 //                   its 何の入口か column 「開いている面を閉じる」 and its 正
 //                   column 「表 T-028 の `IN-4`」. ⭐ SO THE MANUSCRIPT ALREADY
 //                   CALLS THE PANEL A 面, AND ALREADY SAYS WHICH RULE CLOSES IT.
@@ -41,24 +41,24 @@
 //                   ⚠️ Since Q20 (2026-09-22) the same row says the panel is NOT
 //                   a 面: IN-4 gives it a rung of its own, right after the open windows.
 //   表 T-028 IN-4  「`Esc` は閉じる対象または取り消す対象があるときだけ 1 階層ぶん消費し、
-//                   無ければブラウザへ渡すこと。消費する階層は 出ている通知 → 確定していない
+//                   無ければブラウザーへ渡すこと。消費する階層は 出ている通知 → 確定していない
 //                   その場の編集 → 開いている面 → 進行中のドラッグ・引きかけの矢印 → 開いて
 //                   いるウィンドウ → プロパティパネル → 構え → 選択 → `Dual Cursor` モード
 //                   → 出ている説明 → 全画面表示 の順とすること（MUST）」
 //                   ⚠️⚠️ 「選択」 WAS PUT INTO THIS LADDER ON 2026-09-08, and the
 //                   row records what it was before: 「タスクを選ぶと `FR-006` に
 //                   よりパネルが立つので、1 度目の `Esc` はパネルの段が食い、2 度目
-//                   は消費する対象が無いものとして `IN-4a` によりブラウザへ落ちて
+//                   は消費する対象が無いものとして `IN-4a` によりブラウザーへ落ちて
 //                   いた」. ⛔ THAT SENTENCE IS THE OLD SHAPE OF TWO CASES BELOW,
 //                   which asserted the second press reaching the browser. They
 //                   now walk the three rungs the panel route really stands on --
 //                   面, then 選択, then the browser -- because the gesture that
 //                   puts the panel up (MK-13, a double click) selects with its
 //                   first click, so a selection has been standing all along.
-//   表 T-028 IN-4a 「**消費する対象が 1 つも無いときは、必ずブラウザへ渡すこと
+//   表 T-028 IN-4a 「**消費する対象が 1 つも無いときは、必ずブラウザーへ渡すこと
 //                   （MUST）**」 -- its reason is the message of the last rung
 //                   in the case that walks the panel route out to the browser.
-//   表 T-023 MK-10 「本ツールが割り当てた…入力 | ブラウザの既定動作を…止めること
+//   表 T-023 MK-10 「`GRS` が割り当てた…入力 | ブラウザーの既定動作を…止めること
 //                   （MUST）。割り当てていない組合せを止めてはならない（MUST
 //                   NOT）」 -- which is what `isBrowserDefaultStopped` answers,
 //                   and the member's own declaration names IN-4a as its reason.
@@ -83,7 +83,7 @@
 //   `S-99h`        表 T-206: whether the panel is shown is held apart from its
 //                   width -- a panel that is not shown takes no room.
 //   `FR-052`       「`Schedule Canvas` の幅から `canvasPadding`（`S-56`）と 2 つの
-//                   幅と縦のスクロールバーの太さを引いた残りが `Task Group Area` の幅であ
+//                   幅と縦のスクロールバーの太さを引いた残りが `Task Group Lanes` の幅であ
 //                   り（`U-50`）」 -- the arithmetic the last describe reads.
 //
 // ---------------------------------------------------------------------------
@@ -318,9 +318,9 @@ function openPanelDocument(edit: (draft: any) => void = () => {}): Document {
  *
  * ⚠️ WIDER THAN THE NEIGHBOR'S, on purpose: the fixture's document opens with
  * the panel taking `S-171` from the `Schedule Canvas`, and these cases press on
- * a bar that has to be inside the `Task Group Area` for FR-006 to be reached at all.
+ * a bar that has to be inside the `Task Group Lanes` for FR-006 to be reached at all.
  * ⭐ It decides nothing -- FR-051 keeps the window out of the settings, and a
- * premise below measures that the `Task Group Area` really is wider than zero.
+ * premise below measures that the `Task Group Lanes` really is wider than zero.
  */
 const SCREEN: FrameEnvironment = {
   width: 1400,
@@ -446,7 +446,7 @@ interface Stage {
   aimAt(part: string, entry: string): void
   /** The width FR-052's arithmetic gave the panel in the last frame. */
   panelWidth(): number
-  /** The width FR-052's arithmetic left the `Task Group Area` in the last frame. */
+  /** The width FR-052's arithmetic left the `Task Group Lanes` in the last frame. */
   taskGroupAreaWidth(): number
 }
 
@@ -591,7 +591,7 @@ describe('the manuscript still says what these cases read', () => {
     // verified until it has been broken on purpose and seen to fail.
     expect(U_25).toBe('Properties Panel')
     expect(IN_4, 'IN-4 still fixes the order of the levels').toContain('1 階層')
-    expect(IN_4A, 'IN-4a still hands the rest to the browser').toContain('ブラウザへ渡すこと')
+    expect(IN_4A, 'IN-4a still hands the rest to the browser').toContain('ブラウザーへ渡すこと')
     expect(S_99G, 'S-99g still defines a 面 by what Esc closes').toContain('「開いている面」で閉じられるもの')
     // Q20 (2026-09-22): the panel is no 面 any more; IN-4 gives it a rung of its own.
     expect(IN_4, 'IN-4 gives the panel its own rung after the drag and the open windows').toContain(
@@ -632,8 +632,8 @@ describe('the manuscript still says what these cases read', () => {
     expect((made as any).documentSettings).not.toHaveProperty('propertyPanelWidth')
   })
 
-  it('FR-052: the width chosen leaves the `Task Group Area` wider than zero', () => {
-    // 「判定は `Task Group Area` の幅が 0 より大きいことをもって行うこと（MUST）」 -- so
+  it('FR-052: the width chosen leaves the `Task Group Lanes` wider than zero', () => {
+    // 「判定は `Task Group Lanes` の幅が 0 より大きいことをもって行うこと（MUST）」 -- so
     // a fixture that failed this would be an unlawful document rather than a
     // case about `Esc`.
     expect(stage().taskGroupAreaWidth()).toBeGreaterThan(0)
@@ -687,7 +687,7 @@ describe('IN-4 of table T-028 -- `Esc` closes the `Properties Panel`', () => {
   })
 
   it('⛔ MUST: with the panel up, `Esc` is consumed and does NOT reach the browser', () => {
-    // IN-4a: 「消費する対象が 1 つも無いときは、必ずブラウザへ渡すこと（MUST）」 --
+    // IN-4a: 「消費する対象が 1 つも無いときは、必ずブラウザーへ渡すこと（MUST）」 --
     // the contrapositive is what this case reads. A panel that is a 面 is
     // something to consume, so the key is assigned and MK-10 (MUST) stops the
     // browser's own handling of it.
@@ -741,7 +741,7 @@ describe('IN-4 of table T-028 -- `Esc` closes the `Properties Panel`', () => {
     // Rung 3 -- there is none. IN-4a hands the press to the browser.
     expect(
       built.loop.isBrowserDefaultStopped(ESCAPE()),
-      'IN-4a: 本ツールが何もしない `Esc` を止めると、ブラウザが `Esc` に持たせた働きを奪う',
+      'IN-4a: `GRS` が何もしない `Esc` を止めると、ブラウザーが `Esc` に持たせた働きを奪う',
     ).toBe(false)
   })
 
@@ -823,7 +823,7 @@ describe('IN-4 of table T-028 -- one press spends exactly ONE level', () => {
 })
 
 // ===========================================================================
-// (c) FR-052 -- the closed panel gives its width back to the `Task Group Area`
+// (c) FR-052 -- the closed panel gives its width back to the `Task Group Lanes`
 // ===========================================================================
 
 describe('FR-052 and S-99h -- a closed panel leaves no gap at the right edge', () => {
@@ -840,9 +840,9 @@ describe('FR-052 and S-99h -- a closed panel leaves no gap at the right edge', (
     expect(built.panelWidth()).toBe(CLOSED_WIDTH)
   })
 
-  it('the `Task Group Area` grows by exactly what the panel had', () => {
+  it('the `Task Group Lanes` grows by exactly what the panel had', () => {
     // FR-052: 「`Schedule Canvas` の幅から `canvasPadding`（`S-56`）と 2 つの幅と
-    // 縦のスクロールバーの太さを引いた残りが `Task Group Area` の幅であり（`U-50`）」.
+    // 縦のスクロールバーの太さを引いた残りが `Task Group Lanes` の幅であり（`U-50`）」.
     // ⭐ So the two widths move together by arithmetic, and this case is what
     // says the closing really reached the width rather than only the drawing.
     const built = withThePanelUp()
@@ -850,6 +850,6 @@ describe('FR-052 and S-99h -- a closed panel leaves no gap at the right edge', (
 
     built.send(ESCAPE())
 
-    expect(built.taskGroupAreaWidth() - before, 'FR-052: the残り is what the Task Group Area gets').toBe(S_602)
+    expect(built.taskGroupAreaWidth() - before, 'FR-052: the残り is what the Task Group Lanes gets').toBe(S_602)
   })
 })

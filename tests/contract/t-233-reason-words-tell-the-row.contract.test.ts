@@ -265,7 +265,10 @@ const PAIRED_ON_2026_09_03: Readonly<Record<string, string>> = {
   // to the latest version, as FR-073 asks of RS-48, RS-63 and RS-64 alike.
   'RS-48': 'a0e952c306b84841',
   'RS-63': 'a18f4a5cf5656086',
-  'RS-64': 'a90a29e20cd784fa',
+  // RE-READ 2026-11-27 (CR-855): only words of the names rulings changed in the row
+  // (long vowels, no particle inside a name, Schedule Data, Search Window); the scene
+  // and both languages still tell the same thing, so only the fingerprint is re-keyed.
+  'RS-64': 'f02602a28208ec67',
   // ⭐ ADDED 2026-09-06 (CR-364, the ruling that renaming an assignee must
   // carry the count). The row is FR-008's, and the pairing was read the way
   // this file asks: the 場面 against the three dictionary fields, before
@@ -337,7 +340,10 @@ const PAIRED_ON_2026_09_03: Readonly<Record<string, string>> = {
   //   a calendar that WAS accepted. Nothing in either word could be read for
   //   the other scene.
   //
-  'RS-51': '6e02150e3eddb51f',
+  // RE-READ 2026-11-27 (CR-855): only words of the names rulings changed in the row
+  // (long vowels, no particle inside a name, Schedule Data, Search Window); the scene
+  // and both languages still tell the same thing, so only the fingerprint is re-keyed.
+  'RS-51': '03877b987ff0deec',
   // RE-READ 2026-09-13 (CR-375, ledger row DFC-510, same shape as RS-19
   // above): the scene's rule text is unchanged from HEAD, only its origin
   // record was folded out. Read against the dictionary again -- both
@@ -499,7 +505,10 @@ const PAIRED_ON_2026_09_03: Readonly<Record<string, string>> = {
   //   changes nothing.
   // ⇒ the words tell the scene.
   'RS-58': '48b6575a7f704f7e',
-  'RS-59': 'ca5ce244475236d8',
+  // RE-READ 2026-11-27 (CR-855): only words of the names rulings changed in the row
+  // (long vowels, no particle inside a name, Schedule Data, Search Window); the scene
+  // and both languages still tell the same thing, so only the fingerprint is re-keyed.
+  'RS-59': '0edcb42a6e93cf12',
   'RS-60': '275f46ff4448f779',
   // Why: the words are option B of Q2 (JDG-300), read against the scene: the task group is read-only
   // because a group is set on it, and a copy into a task group with no group is a write FR-111 allows.
@@ -513,7 +522,10 @@ const PAIRED_ON_2026_09_03: Readonly<Record<string, string>> = {
   // clipboard and the downloaded grs-document.schema.json, both handed to an AI (FR-068), so they tell the scene.
   'RS-65': 'a159e9808bbc345e',
   // Why: read 2026-09-30; too many pinned task groups to show the jump target, and unpinning is the road.
-  'RS-66': '8902906e4fbc4e1f',
+  // RE-READ 2026-11-27 (CR-855): only words of the names rulings changed in the row
+  // (long vowels, no particle inside a name, Schedule Data, Search Window); the scene
+  // and both languages still tell the same thing, so only the fingerprint is re-keyed.
+  'RS-66': 'd9e8487ac0fcf751',
   'RS-67': '1271e9fd41af3746',
   // Why: read 2026-10-03; the words say the schedule picture reached the clipboard, no next step (JDG-1094).
   // Why: CR-713 (JDG-1737) changed only the word for copy (utsushi -> kopi-); read together, the scene and
@@ -531,7 +543,10 @@ const PAIRED_ON_2026_09_03: Readonly<Record<string, string>> = {
   'RS-72': 'b9542a7c91a16d34',
   // Why: read 2026-10-07; the tasks that came last time and not now are listed by name below
   // (MG-11), and the step warns a kept one comes back on the other side at the next export.
-  'RS-73': 'd09a368a5aadff7b',
+  // RE-READ 2026-11-27 (CR-855): only words of the names rulings changed in the row
+  // (long vowels, no particle inside a name, Schedule Data, Search Window); the scene
+  // and both languages still tell the same thing, so only the fingerprint is re-keyed.
+  'RS-73': 'd83e7f3d39d1b92f',
   // Why: read 2026-10-07; a write refused (AG-9a) while an NT-7 question stands, and the road is
   // to try again once that question has been answered (WS-2). Re-read 2026-10-09 (CR-718): the
   // scene now says a screen write is dropped as RS-27, not told; the words still tell it.

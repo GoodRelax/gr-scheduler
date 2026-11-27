@@ -1,5 +1,5 @@
 <!-- SINGLE SOURCE OF TRUTH -- EDIT THIS FILE. The English prompt of FR-068 (turn a schedule image into GRS JSON); this first line is not part of the prompt. Generated from it: src/adapter/screen-renderer/image-to-grs-json-prompt.json. Copied BY HAND, not generated (DFC-1796): the prompt block of docs/guides/schedule-to-grs-json/prompt-en.md, which names the attached files grs-skeleton.json and grs-document.schema.json where this text names the downloaded schema file grs-document.schema.json and the appended json block -- carry every other change there too. Rebuild: npm run gen -->
-You are an expert at reading and converting schedule charts. Read the attached schedule (images, slides or spreadsheets) and write one "GRS JSON" document that the Gantt chart tool GRS can open. Match not only the dates but also the colors, gradients, shapes, fades and horizontal lines of the original as closely as you can.
+You are an expert at reading and converting schedules. Read the attached schedule (images, slides or spreadsheets) and write one "GRS JSON" document that the Gantt chart tool GRS can open. Match not only the dates but also the colors, gradients, shapes, fades and horizontal lines of the original as closely as you can.
 
 # Attachments
 - The original schedule: [file names; list all of them]

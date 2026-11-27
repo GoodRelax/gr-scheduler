@@ -1007,7 +1007,7 @@ describe('AM-7 applyCommands -- AG-9, a person is part way through something', (
 })
 
 describe('IF-7 -- every current value arrives over the seam (LY-5 of table T-060)', () => {
-  it('hands the write path the zoom and Task Group Area bounds it was given (S-97 / S-98 / FR-052)', () => {
+  it('hands the write path the zoom and Task Group Lanes bounds it was given (S-97 / S-98 / FR-052)', () => {
     const one = bench()
     // FR-052 is judged against `taskGroupAreaWidthWithoutPanels`, which only the
     // snapshot carries. A width that overruns it can be refused only if the

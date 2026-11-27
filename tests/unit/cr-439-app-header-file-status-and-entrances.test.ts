@@ -255,8 +255,8 @@ describe('FR-029 -- an entrance that can change nothing is drawn faint, not disa
   })
 })
 
-describe('FR-035 / IF-9 -- the Document Title (U-27) is edited in place', () => {
-  it('the Document Title shows the title the description carries', () => {
+describe('FR-035 / IF-9 -- the Project Title (U-27) is edited in place', () => {
+  it('the Project Title shows the title the description carries', () => {
     const { built } = drawn()
     expect(oneByRole(built.root(), DOCUMENT_TITLE).textContent).toContain('Plan of the year')
   })

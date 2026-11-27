@@ -16,7 +16,7 @@ export const FR_155_LOG_ROWS_ADDED =
   '`GRS` が直したとき、`GRS` は、直した行を 表 T-374 の修正の記録の表に足すこと。'
 
 export const FR_155_NOTHING_IN_THE_DOCUMENT =
-  '`GRS` は、修正案・チェック・選んだ択・書き換えた日付・修正の記録と、修正案の表と修正の記録の表の列のフィルタと並べ替えを、文書に書かないこと。'
+  '`GRS` は、修正案・チェック・選んだ択・書き換えた日付・修正の記録と、修正案の表と修正の記録の表の列のフィルターと並べ替えを、文書に書かないこと。'
 
 export const FR_155_AGENT_API_ISSUES_WITHOUT_SAVING =
   'AI が `AM-32` を呼んだとき、`GRS` は、先に保存しないこと（利用者の裁定、CR-803）。'

@@ -25,7 +25,7 @@ const sizeSpelling = (bytes: number): string => `${(Math.floor((bytes + 50) / 10
 const writeOut = async (page: Page, format: string): Promise<{ name: string; text: string }> => {
   const before = (await savedFiles(page)).length
   await press(page, 'IC-2')
-  await page.click('[data-role="Export Chooser"] [data-format="' + format + '"]')
+  await page.click('[data-role="Save As Dialog"] [data-format="' + format + '"]')
   await expect.poll(async () => (await savedFiles(page)).length).toBe(before + 1)
   await settle(page)
   return (await savedFiles(page))[before]!
@@ -115,7 +115,7 @@ test('FR-067 (MUST): a single .html written out opens through the open route of 
   const before = await readDocument(page)
   const written = await writeOut(page, 'IO-7')
   await drop(page, written.name, written.text)
-  await expect(page.locator('[data-role="Open Chooser"]'), 'OP-19: the dropped .html raised the Open Chooser').toHaveCount(0)
+  await expect(page.locator('[data-role="Open File Dialog"]'), 'OP-19: the dropped .html raised the Open File Dialog').toHaveCount(0)
   if (await page.locator('[data-role="Confirmation"] [data-confirmation-answer="proceed"]').count()) await answerConfirmation(page, 'proceed')
   expect((await readDocument(page)).schedule.tasks, 'FR-067: the exported .html did not open').toHaveLength(before.schedule.tasks.length)
 })
@@ -124,7 +124,7 @@ test('FR-067 (MUST): the shipped index.html opened through the open route opens 
   await launch(page)
   await enableAgentApi(page)
   await drop(page, 'index.html', DIST)
-  await expect(page.locator('[data-role="Open Chooser"]'), 'OP-19: the dropped index.html raised the Open Chooser').toHaveCount(0)
+  await expect(page.locator('[data-role="Open File Dialog"]'), 'OP-19: the dropped index.html raised the Open File Dialog').toHaveCount(0)
   if (await page.locator('[data-role="Confirmation"] [data-confirmation-answer="proceed"]').count()) await answerConfirmation(page, 'proceed')
   const document = await readDocument(page)
   expect(document.schedule.tasks).toHaveLength(1000)
@@ -134,7 +134,7 @@ test('FR-067 (MUST): the shipped index.html opened through the open route opens 
 test('RS-67 / NT-1: an .html GRS cannot open is refused with RS-67', async ({ page }) => {
   await launch(page)
   await drop(page, 'other.html', '<!doctype html><html><body><p>not GRS</p></body></html>')
-  await expect(page.locator('[data-role="Open Chooser"]')).toHaveCount(0)
+  await expect(page.locator('[data-role="Open File Dialog"]')).toHaveCount(0)
   const told = await page.locator('[data-role="Notification Area"]').innerText()
   expect([RS_67?.text.en, RS_67?.text.ja].some((words) => words !== undefined && told.includes(words)), 'RS-67 was not told').toBe(true)
 })

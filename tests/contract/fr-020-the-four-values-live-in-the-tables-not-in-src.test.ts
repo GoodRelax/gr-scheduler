@@ -18,11 +18,11 @@ const NOTICE_ROSTER = unbroken(readRepoFile(
 ))
 
 const FR_020_LAYS_IT_ON =
-  '開いた者の名前と実行時の日時を、`Task Group Area`（`_assets/tbl-glossary.md` の `U-50`）へ斜めに繰り返し薄く重ねること'
+  '開いた者の名前と実行時の日時を、`Task Group Lanes`（`_assets/tbl-glossary.md` の `U-50`）へ斜めに繰り返し薄く重ねること'
 const FR_020_ISO_8601 =
   '`GRS` は、透かしの日時を UTC とし、`ISO 8601`（`RFC 3339` の書式、`YYYY-MM-DDThh:mm:ssZ`）で秒まで示すこと。'
 const FR_020_NOT_SAVED = '`GRS` は、透かしの設定を文書に保存しないこと。'
-const FR_020_NOT_OUTSIDE_TASK_GROUP_AREA = '`GRS` は、`Task Group Area` の外へ透かしを重ねないこと。'
+const FR_020_NOT_OUTSIDE_TASK_GROUP_AREA = '`GRS` は、`Task Group Lanes` の外へ透かしを重ねないこと。'
 const FR_020_HIDE_PROPAGATES_TO_EXPORT =
   '画面で透かしを非表示にしたときは、書き出す絵からも消すこと（MUST）'
 const FR_020_FOUR_VALUES =
@@ -34,7 +34,7 @@ const FR_020_BARELY_LEGIBLE =
   '透かしは、ぎりぎり判別できる濃さで足りる（MUST）。読めるように濃くしてはならない（MUST NOT）'
 
 describe('the manuscript still says what these cases read', () => {
-  it('FR-020 still lays the mark on diagonally, repeated, faint, inside Task Group Area only', () => {
+  it('FR-020 still lays the mark on diagonally, repeated, faint, inside Task Group Lanes only', () => {
     expect(REQUIREMENTS).toContain(FR_020_LAYS_IT_ON)
     expect(REQUIREMENTS).toContain(FR_020_NOT_OUTSIDE_TASK_GROUP_AREA)
   })
@@ -156,7 +156,7 @@ describe('table T-236 still holds S-223, the fourth of the four values (the ink 
 describe('the Task-group-area confinement is not stated only once', () => {
   it('table T-076 (EP-7) still confines the WRITTEN picture to the same rule FR-020 states', () => {
     const ep7 = rowOf(specTable('T-076'), 'EP-7')
-    expect(ep7.by['描くか'] ?? '').toContain('Task Group Area')
+    expect(ep7.by['描くか'] ?? '').toContain('Task Group Lanes')
     expect(ep7.by['描くか'] ?? '').toContain('の中だけ描く')
     expect(ep7.by['理由と扱い'] ?? '').toContain('FR-020')
   })

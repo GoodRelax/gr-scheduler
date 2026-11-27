@@ -47,9 +47,9 @@ const LP_THE_ASSIGNEE_LABEL =
   '担当と進捗は 1 枚の札にまとめ、右寄せで、描いている予定と実績のうち早いほうの開始から `S-302` だけ左に置くこと（MUST）。'
 const LP_THE_SEPARATOR = '担当と進捗の区切りは「 : 」（半角コロンの前後に空白 1 つ）とすること（MUST）。'
 const LP_THE_RESUME_ICON_IS_OUT_OF_THE_ROW =
-  '再開アイコンは本表の並びには入らない（MUST） —— 未定のアイコンも入らない。'
+  '再開マークは本表の並びには入らない（MUST） —— 未定のアイコンも入らない。'
 const LP_WHEN_IT_DOES_NOT_FIT_AND_THE_ICON_IS_REACHED =
-  '矩形で「入らない」とき、札（マーカーと名前）は `LP-2` の位置に置き、その並びが再開アイコンに届くときだけ、アイコンの掴む箱（表 T-266 の `GA-20`）の右端から `S-584` だけ右に並べること（MUST）。'
+  '矩形で「入らない」とき、札（マーカーと名前）は `LP-2` の位置に置き、その並びが再開マークに届くときだけ、アイコンの掴む箱（表 T-266 の `GA-20`）の右端から `S-584` だけ右に並べること（MUST）。'
 const LP_THE_MARKER_POSITION_IS_ITS_LEFT = '「マーカーの位置」はマーカーの左端である。'
 
 const SHORT = 'ab'

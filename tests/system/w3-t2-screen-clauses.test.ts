@@ -14,17 +14,17 @@ const REQUIREMENTS = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '
 // Why: CR-690 -- table T-369 places the font size field (FO-4) right under the display scale field (FO-3).
 const FONT_SIZE_STEP_FIELD = '`GRS` は、文字サイズを選ぶ欄を、`FR-072` の 表 T-369 の `FO-4` の場所に置くこと。 | FR-039 |\n| IMPS-1241 | 文字サイズを選ぶ欄の段 | `GRS` は、文字サイズを選ぶ欄に、`_assets/tbl-settings.md` の 表 T-202 の `S-70` の 3 段を選ばせること。 | FR-039 |\n| IMPS-1242 | 文字サイズを選んだとき | `GRS` は、文字サイズを選ぶ欄で選んだ段で、表 T-108 の `CM-62` を 1 回発行すること。'
 const OTHER_TEXT_WEIGHT =
-  '`GRS` は、名称ラベル・`NT-7` の頭 1 文字・`Document Title`・遅延診断レポートの【再診断】（表 T-109 の `IC-168`、`S-623`）のほかの字を、すべて `_assets/tbl-settings.md` の 表 T-206 の `S-529` の太さで描くこと。'
+  '`GRS` は、名称ラベル・`NT-7` の頭 1 文字・`Project Title`・遅延診断レポートの【再診断】（表 T-109 の `IC-168`、`S-623`）のほかの字を、すべて `_assets/tbl-settings.md` の 表 T-206 の `S-529` の太さで描くこと。'
 
 // Spec: FR-096
 const FORMAT_BUTTON_GAP = '`GRS` は、上下に隣り合う 2 つの形式のボタンのあいだを、`_assets/tbl-settings.md` の 表 T-206 の `S-517` の隔たりとすること。'
 
 // Spec: FR-052
 const HELD_WIDTH_IS_RELEASED_WIDTH =
-  '境界を掴んでいる間、`GRS` は、タスクグループパネルの幅を、境界を掴んでいる時点のポインタ位置で離したときに `FR-039` の 表 T-252 の後の段が保存する `S-79` を、表 T-252 の後の段の規則で描いた幅にすること。'
+  '境界を掴んでいる間、`GRS` は、タスクグループパネルの幅を、境界を掴んでいる時点のポインター位置で離したときに `FR-039` の 表 T-252 の後の段が保存する `S-79` を、表 T-252 の後の段の規則で描いた幅にすること。'
 
 // Spec: MK-13, T-023
-const TITLE_DOUBLE_CLICK = '`GRS` は、`Document Title`（`_assets/tbl-glossary.md` の `U-27`）のダブルクリックで、表 T-036 の `SK-9` が開くのと同じ、その場で編集する欄（`FR-035`）を開くこと。'
+const TITLE_DOUBLE_CLICK = '`GRS` は、`Project Title`（`_assets/tbl-glossary.md` の `U-27`）のダブルクリックで、表 T-036 の `SK-9` が開くのと同じ、その場で編集する欄（`FR-035`）を開くこと。'
 
 // Spec: CF-1, T-366
 const SOLVE_BEFORE_DRAWING =
@@ -54,7 +54,7 @@ const OPEN_ALL_NOT_OUTERMOST =
   '`GRS` は、焦点が `Tab` で進む順を、頭の並びの左から右とすること。`GRS` は、`HF-10` の「配下を展開」を並びのいちばん外へ置かないこと。'
 
 // Spec: FR-016, GA-7
-const FADE_FROM_POINTER = '`GRS` は、フェードの日数をポインタの位置から求めること。'
+const FADE_FROM_POINTER = '`GRS` は、フェードの日数をポインターの位置から求めること。'
 
 const CLAUSES = [
   FONT_SIZE_STEP_FIELD,
@@ -161,7 +161,7 @@ test(`FR-039: ${OTHER_TEXT_WEIGHT}`, async ({ page }) => {
       ({ where, weight }) => {
         const found: string[] = []
         const excluded = (element: Element): boolean =>
-          element.closest('[data-role="Document Title"]') !== null || /^task-\d+-label/.test(element.closest('[data-figure]')?.getAttribute('data-figure') ?? '')
+          element.closest('[data-role="Project Title"]') !== null || /^task-\d+-label/.test(element.closest('[data-figure]')?.getAttribute('data-figure') ?? '')
         for (const element of document.querySelectorAll('body *')) {
           if (excluded(element)) continue
           const own = [...element.childNodes].some((one) => one.nodeType === Node.TEXT_NODE && (one.textContent ?? '').trim() !== '')
@@ -191,7 +191,7 @@ test(`FR-096: ${FORMAT_BUTTON_GAP}`, async ({ page }) => {
   await launch(page)
   await press(page, 'IC-2')
   const measured = await page.evaluate(() => {
-    const buttons = [...document.querySelectorAll('[data-role="Export Chooser"] [data-format]')] as HTMLElement[]
+    const buttons = [...document.querySelectorAll('[data-role="Save As Dialog"] [data-format]')] as HTMLElement[]
     return buttons.map((one) => {
       const r = one.getBoundingClientRect()
       return { left: r.left, top: r.top, bottom: r.bottom, em: Number.parseFloat(getComputedStyle(one.parentElement as Element).fontSize) }
@@ -240,7 +240,7 @@ test(`MK-13: ${TITLE_DOUBLE_CLICK}`, async ({ page }) => {
       return {
         tag: active.tagName,
         row: active.getAttribute('data-field-row'),
-        inTitle: active.closest('[data-role="Document Title"]') !== null,
+        inTitle: active.closest('[data-role="Project Title"]') !== null,
         value: active.value,
         all: active.selectionStart === 0 && active.selectionEnd === active.value.length,
       }
@@ -252,7 +252,7 @@ test(`MK-13: ${TITLE_DOUBLE_CLICK}`, async ({ page }) => {
   expect(byKey, 'precondition: SK-9 (F2) opened an in-place field').not.toBeNull()
   await page.keyboard.press('Escape')
   await settle(page)
-  await page.dblclick('[data-role="Document Title"]')
+  await page.dblclick('[data-role="Project Title"]')
   await settle(page)
   expect(await field()).toEqual(byKey)
 })
@@ -315,10 +315,10 @@ test(`CF-1: ${SOLVE_BEFORE_DRAWING}`, async ({ page }) => {
 })
 
 const chooserCases: readonly { readonly name: string; readonly role: string; readonly open: (page: Page) => Promise<void> }[] = [
-  { name: 'the save face (U-54)', role: 'Export Chooser', open: (page) => press(page, 'IC-2') },
+  { name: 'the save face (U-54)', role: 'Save As Dialog', open: (page) => press(page, 'IC-2') },
   {
     name: 'the open face (U-56)',
-    role: 'Open Chooser',
+    role: 'Open File Dialog',
     // Why: a dropped file skips U-56 (OP-19); the file dialog raises it.
     open: (page) => openThroughIc1(page, ERP, readSample(ERP), null),
   },
@@ -489,7 +489,7 @@ test(`DA-7: ${FIELD_SCROLLS_LIKE_THE_ENTRANCE}`, async ({ page }) => {
   expect(String((await readDocument(page)).schedule.project['statusDate']).slice(0, 10), 'precondition: the field set statusDate').toBe(date)
   const area = await boxOf(page, '[data-role="Scrollbars"][data-axis="horizontal"]')
   const line = await boxOf(page, '[data-figure="status-line"]')
-  expect(line.x + line.w / 2, 'the status line is not at the middle of the Task Group Area').toBeCloseTo(area.x + area.w / 2, 0)
+  expect(line.x + line.w / 2, 'the status line is not at the middle of the Task Group Lanes').toBeCloseTo(area.x + area.w / 2, 0)
 })
 
 test(`HF-10: ${OPEN_ALL_NOT_OUTERMOST}`, async ({ page }) => {

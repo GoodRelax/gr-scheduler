@@ -320,7 +320,7 @@ const ONE_STEP_BACK = rowed(
 /**
  * The document one undo step back when the write that produced `CURRENT`
  * touched ONLY the 見せ方の群 (表 T-108 の `CM-62`, `setFontSizeStep`). WS-5:
- * 「日程データの群の刻を動かすのは、その群を変えたときだけ」 —— so that 刻
+ * 「スケジュールデータの群の刻を動かすのは、その群を変えたときだけ」 —— so that 刻
  * never moved, and this document carries the SAME one as `CURRENT` while the
  * other two stamp fields differ. An undo that restores it is a replacement the
  * MUST under table T-230 has to call 「動いていない」.
@@ -342,7 +342,7 @@ const OUT_OF_A_FILE = rowed(
 )
 
 /**
- * A document whose 日程データの群の刻 is the SAME as the current one, and whose
+ * A document whose スケジュールデータの群の刻 is the SAME as the current one, and whose
  * other two stamp fields are not. The equality under table T-230's last MUST
  * has to answer "did not move" for this one.
  */
@@ -374,7 +374,7 @@ const THE_BUNDLED_TEMPLATE = rowed(
   }),
 )
 
-/** The same template with the 日程データの群の刻 already current -- the `match` flavor. */
+/** The same template with the スケジュールデータの群の刻 already current -- the `match` flavor. */
 const TEMPLATE_SAME_SCHEDULE_STAMP = rowed(
   [taskOf({ uid: 7, name: 'the bundled template' })],
   stampOf({ settingsUpdatedAt: FROM_A_FILE, lastEditedBy: 'whoever wrote the template' }),
@@ -550,7 +550,7 @@ interface RowDrive {
    * ⭐ THE TWO 刻 THE LAST MUST UNDER TABLE T-230 COMPARES, both built HERE out
    * of the fixtures this case set up.
    *
-   *   「`WS-7` へ渡す「日程データの群が動いたか」は、出て行く文書と入ってくる
+   *   「`WS-7` へ渡す「スケジュールデータの群が動いたか」は、出て行く文書と入ってくる
    *    文書の `scheduleUpdatedAt` の等値で導くこと（MUST）」
    *
    * 「出て行く文書」 is what the holder held when the run began; 「入ってくる
@@ -571,7 +571,7 @@ interface RowDrive {
 
 /**
  * Which pair of 刻 a row is driven with. Both are ordinary: `'differ'` sends in
- * a document written at another 刻, `'match'` one whose 日程データの群の刻 is
+ * a document written at another 刻, `'match'` one whose スケジュールデータの群の刻 is
  * the one already current -- an undo of a 見せ方 edit (`CM-62`), a file whose
  * schedule group was never touched, a merge written inside the same second
  * (表 T-035 の `AG-2`: 「同じ刻に 2 度書かれたときは後から来たほうが残る」).
@@ -618,7 +618,7 @@ function driveOf(row: string, instants: Instants = 'differ'): RowDrive {
       }
     }
     case 'RD-3': {
-      // 「進める」: the instant the caller hands is the one the 日程データの群
+      // 「進める」: the instant the caller hands is the one the スケジュールデータの群
       // carries afterwards, because this merge overwrites a `Task`.
       const writeInstant = instants === 'differ' ? WRITE_INSTANT : NOW
       const answer = acceptedImport(importDocument({ ...MERGE_CALL, current: start.document }))
@@ -760,8 +760,8 @@ describe('表 T-230 -- the whole set of callers, before any of them is driven', 
 
 // ---------------------------------------------------------------------------
 // 5. WS-1 -- 「刻印 3 つを照合する。食い違えば拒否し、現在の文書を返す」
-//    「`WS-1` が照合するのは、呼び手が申告した「読んだ刻印」と現在の文書の刻印
-//     である（MUST）。入ってくる文書の刻印と照合してはならない（MUST NOT）」
+//    「`WS-1` が照合するのは、呼び手が申告した「読んだ刻印」と現在の文書刻印
+//     である（MUST）。入ってくる文書刻印と照合してはならない（MUST NOT）」
 //    「申告が無いことだけを理由に拒否してはならない（MUST NOT）」
 // ---------------------------------------------------------------------------
 
@@ -773,7 +773,7 @@ describe('WS-1 -- 照合するのは申告された刻印と現在の文書で�
   })
 
   // AG-2: 「照合は刻印の 3 つすべての等値で行うこと（MUST）。1 つでも違えば拒否
-  // すること（MUST）」 —— 日程データの群の刻だけでは見せ方の群の衝突を見落とす。
+  // すること（MUST）」 —— スケジュールデータの群の刻だけでは見せ方の群の衝突を見落とす。
   const THREE_FIELDS: readonly (keyof DocumentStamp)[] = [
     'scheduleUpdatedAt',
     'lastEditedBy',
@@ -807,8 +807,8 @@ describe('WS-1 -- 照合するのは申告された刻印と現在の文書で�
   })
 
   it('GIVEN an INCOMING 刻印 that differs from the current one WHEN the current one is declared THEN it is still accepted', () => {
-    // 「入ってくる文書の刻印と照合してはならない（MUST NOT）」 —— 入ってくる
-    // 文書の刻印は定義により現在のものと違うので、照合するとあらゆる差し替えが
+    // 「入ってくる文書刻印と照合してはならない（MUST NOT）」 —— 入ってくる
+    // 文書刻印は定義により現在のものと違うので、照合するとあらゆる差し替えが
     // 拒否される。
     expect(OUT_OF_A_FILE.documentStamp).not.toEqual(CURRENT.documentStamp)
     const one = bench(heldWithOneStep())
@@ -970,7 +970,7 @@ describe('表 T-230 の刻印の欄 -- 行ごとに', () => {
         expect(landed.documentStamp.scheduleUpdatedAt).not.toBe(WRITE_INSTANT)
       } else {
         // WS-5: 「どちらの群であれ動いた刻と、最後に書いた者は必ず更新する」, and
-        // 「日程データの群の刻を動かすのは、その群を変えたときだけ」 -- the merge
+        // 「スケジュールデータの群の刻を動かすのは、その群を変えたときだけ」 -- the merge
         // this row drives overwrites a `Task`, so that group moved.
         expect(landed.documentStamp.lastEditedBy).toBe(WRITER)
         expect(landed.documentStamp.settingsUpdatedAt).toBe(WRITE_INSTANT)
@@ -979,7 +979,7 @@ describe('表 T-230 の刻印の欄 -- 行ごとに', () => {
         // judged: 「その群を変えたとき」 has to be true of the merge itself.
         expect(
           drive.ws3Document.schedule,
-          'the merge this row drives is meant to change the 日程データの群',
+          'the merge this row drives is meant to change the スケジュールデータの群',
         ).not.toEqual(drive.start.document.schedule)
         expect(landed.documentStamp.scheduleUpdatedAt).toBe(WRITE_INSTANT)
       }
@@ -1223,9 +1223,9 @@ describe('WS-6 then WS-7 -- 差し替えの後に通知を配る', () => {
   })
 })
 
-describe('日程データの群が動いたか -- 出て行く文書と入ってくる文書の等値で導く', () => {
+describe('スケジュールデータの群が動いたか -- 出て行く文書と入ってくる文書の等値で導く', () => {
   it('GIVEN two different `scheduleUpdatedAt` WHEN the replacement lands THEN WS-7 is told the schedule moved', () => {
-    // 「`WS-7` へ渡す「日程データの群が動いたか」は、出て行く文書と入ってくる
+    // 「`WS-7` へ渡す「スケジュールデータの群が動いたか」は、出て行く文書と入ってくる
     // 文書の `scheduleUpdatedAt` の等値で導くこと（MUST）。」
     expect(OUT_OF_A_FILE.documentStamp.scheduleUpdatedAt).not.toBe(
       CURRENT.documentStamp.scheduleUpdatedAt,
@@ -1283,7 +1283,7 @@ describe('日程データの群が動いたか -- 出て行く文書と入って
   })
 
   it('GIVEN every drivable row of table T-230, driven both ways WHEN each lands THEN WS-7 is told the equality of the two 刻 THE CASE SET UP', () => {
-    // 「`WS-7` へ渡す「日程データの群が動いたか」は、出て行く文書と入ってくる
+    // 「`WS-7` へ渡す「スケジュールデータの群が動いたか」は、出て行く文書と入ってくる
     // 文書の `scheduleUpdatedAt` の等値で導くこと（MUST）」 —— 「`WS-5` が判定
     // を下さない行があるためである。」
     // ⛔ Both instants come from `RowDrive`, which built them out of THIS case's

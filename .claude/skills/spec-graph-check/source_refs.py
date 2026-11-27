@@ -111,7 +111,7 @@ FIELDS = {
     ('state-machines.json', 'evidence'): ('row', None),
     ('state-machines.json', 'xEvidence'): ('row', None),
     ('state-machines.json', 'rows'): ('row', None),
-    # a notice reason, or the surface an effect opens (U-56 Open Chooser)
+    # a notice reason, or the surface an effect opens (U-56 Open File Dialog)
     ('state-machines.json', 'effectArgument'): ('row', {'RS', 'U'}),
     ('state-machines.json', 'xEffectArgument'): ('row', {'RS', 'U'}),
     ('state-machines.json', 'column'): ('row', {'AT'}),

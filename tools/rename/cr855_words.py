@@ -4,6 +4,7 @@
     PYTHONIOENCODING=utf-8 python tools/rename/cr855_words.py --dry-run
     PYTHONIOENCODING=utf-8 python tools/rename/cr855_words.py --apply
     PYTHONIOENCODING=utf-8 python tools/rename/cr855_words.py --list <out.tsv>
+    PYTHONIOENCODING=utf-8 python tools/rename/cr855_words.py --src [--dry-run]
 
 change-request/CR-855-spec-text-and-code-names-follow-the-names-dictionary.md
 section 4 describes it. tools/apply_glossary_renames.py replaces a former
@@ -27,8 +28,12 @@ hand-written .md, the manuscripts in docs/spec/_source except the frozen
 contracts, the tests), plus the `definition` strings of glossary.json for the
 terms outside the frozen contract groups (never `label`, `renames[]` or
 `avoid`: those are names, renamed by apply_glossary_renames.py).
-src/ is never edited: code cites screen words by row id (JDG-3836), and
-generated copies follow `npm run gen`.
+src/ is edited only by --src: the hand-written .ts files still write some
+screen names as strings (surface names and data-role values, e.g.
+'Help Modal'), against rule 03 section 1. --src replaces the `all` rows whose
+pattern is plain English words there, on word boundaries, so the strings stay
+the same as the tests that look for them. Generated copies (the .json under
+src/) follow `npm run gen`.
 
 One pass per file, all rows in one regex, longest first, so a replacement is
 never read again.
@@ -177,7 +182,28 @@ def self_test():
     return 1 if bad else 0
 
 
+def run_src(edit):
+    rows = [r for r in load_table() if r['mode'] == 'all'
+            and re.match(r'^[A-Za-z ]+$', r['pattern'])]
+    names = {r['pattern']: r['replacement'] for r in rows}
+    pattern = re.compile(r'(?<![A-Za-z])(%s)(?![A-Za-z])' % '|'.join(
+        re.escape(n) for n in sorted(names, key=len, reverse=True)))
+    total = 0
+    for path in agr.walk(os.path.join(ROOT, 'src'), '.ts'):
+        text = agr.read(path)
+        changed, n = pattern.subn(lambda m: names[m.group(1)], text)
+        if n:
+            total += n
+            agr.say('%4d  %s' % (n, agr.rel(path)))
+            if edit:
+                agr.write(path, changed)
+    agr.say('OK       %d replacement(s) in src/%s' % (total, '' if edit else ' (dry run)'))
+    return 0
+
+
 def main(argv):
+    if argv in (['--src'], ['--src', '--dry-run']):
+        return run_src('--dry-run' not in argv)
     if argv == ['--self-test']:
         return self_test()
     if argv == ['--dry-run']:

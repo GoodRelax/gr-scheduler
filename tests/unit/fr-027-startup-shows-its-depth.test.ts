@@ -60,7 +60,7 @@
 //   T-206    S-96 / S-97 / S-98 -- the three zoom values the document does not
 //            keep, which the fit is handed.
 //   FR-018   the group level of detail: which depths a `zoomY` admits.
-//   FR-055   the fit -- DFC-621 「描くものが Task Group Area に収まる最も深い段を採る」, depth
+//   FR-055   the fit -- DFC-621 「描くものが Task Group Lanes に収まる最も深い段を採る」, depth
 //            1 when even that does not fit, and the vertical scroll left over.
 //   FR-094   the floor under the plan height, which is why a smaller `zoomY`
 //            below it removes task groups instead of shrinking them.
@@ -290,7 +290,7 @@ const headOfTaskGroupTree = (): unknown => {
   return first['id']
 }
 
-/** The task groups whose band meets the Task Group Area -- what a person sees on frame one. */
+/** The task groups whose band meets the Task Group Lanes -- what a person sees on frame one. */
 const taskGroupsInFirstScreenful = (layout: ScheduleLayout) =>
   layout.taskGroups.filter(
     (taskGroup) =>
@@ -447,7 +447,7 @@ describe('FR-018 -- the depths the first frame of the shipped template draws', (
     expect(deepestDrawn(bootFrame.values.layout)).toBeGreaterThan(1)
   })
 
-  it('starts at the head of the task group tree, drawn from the top of the Task Group Area', () => {
+  it('starts at the head of the task group tree, drawn from the top of the Task Group Lanes', () => {
     // OP-10: 「その文書が覆う最初の日と、タスクグループの木の先頭から描くこと（MUST）」. The
     // head of the tree is the root LC-9's order reaches first, and 「から描く」
     // puts it at the top edge -- not scrolled past.
@@ -465,12 +465,12 @@ describe('FR-018 -- the depths the first frame of the shipped template draws', (
     // TP-5 makes this document 100 task groups, so it does NOT fit -- which is exactly
     // the condition that prose names.
     const drawn = bootFrame.values.layout
-    expect(drawn.contentHeight, 'TP-5 keeps this document taller than the Task Group Area').toBeGreaterThan(
+    expect(drawn.contentHeight, 'TP-5 keeps this document taller than the Task Group Lanes').toBeGreaterThan(
       REGIONS.taskGroupArea.height,
     )
 
     const seen = taskGroupsInFirstScreenful(drawn)
-    expect(seen.length, 'the Task Group Area is not empty').toBeGreaterThan(0)
+    expect(seen.length, 'the Task Group Lanes is not empty').toBeGreaterThan(0)
     expect(
       seen.reduce((deepest, taskGroup) => Math.max(deepest, taskGroup.depth), 0),
       'the first screenful is not seven roots',
@@ -544,8 +544,8 @@ describe('FR-018 -- the depths the first frame of the shipped template draws', (
 // ---------------------------------------------------------------------------
 
 describe('FR-055 -- one press still answers the first level on this document', () => {
-  it('has no second level to take: its drawing overruns the Task Group Area at its own rung', () => {
-    // FR-055 (MUST): 「その文書が持つ最も深い段から順に見て、描くものが Task Group Area
+  it('has no second level to take: its drawing overruns the Task Group Lanes at its own rung', () => {
+    // FR-055 (MUST): 「その文書が持つ最も深い段から順に見て、描くものが Task Group Lanes
     // に収まる最も深い段を採る」, and its MUST NOT keeps the zoom at or above
     // 「採った段を描ける最小の倍率」. So depth 2 is judged at depth 2's own rung.
     const rung = rungOf(2, SETTINGS)
@@ -556,7 +556,7 @@ describe('FR-055 -- one press still answers the first level on this document', (
   })
 
   it('answers the first level, because it is the deepest one that fits', () => {
-    // 「その文書が持つ最も深い段から順に見て、描くものが Task Group Area に収まる最も深
+    // 「その文書が持つ最も深い段から順に見て、描くものが Task Group Lanes に収まる最も深
     // い段を採る」. The case above rules out 2, and every depth deeper than 2
     // draws MORE task groups at a HIGHER rung (FR-018's monotonicity with S-88 above
     // one), so none of those fits either -- 1 is what is left.
@@ -573,7 +573,7 @@ describe('FR-055 -- one press still answers the first level on this document', (
     expect(deepestDrawn(drawn)).toBe(1)
     // ⚠️ And the gap under it is allowed: 「画面の下に隙間が残ることは許す ——
     // 本要求は収めることを求めており、埋めることを求めていない」. So this case
-    // says nothing about how much of the Task Group Area the answer uses.
+    // says nothing about how much of the Task Group Lanes the answer uses.
   })
 
   it('so the fit and the BT-4 boot are two different pictures, which is why the exclusion is what shows the depth', () => {

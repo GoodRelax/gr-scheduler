@@ -93,11 +93,11 @@ describe('RW-1 / T-109 IC-107 -- the pressed look is the window being open (S-45
 describe('T-109 -- IC-168 is a row of the report window, standing just before IC-140', () => {
   const rows = specTable('T-109').rows
 
-  it('the row exists, names the Delay Diagnostics Report and stands immediately before IC-140', () => {
+  it('the row exists, names the Delay Diagnosis Report and stands immediately before IC-140', () => {
     const at = rows.findIndex((one) => one.id === 'IC-168')
     expect(at, 'IC-168 is in T-109').toBeGreaterThanOrEqual(0)
     expect(rows[at + 1]?.id).toBe('IC-140')
-    expect(rows[at]?.cells.join(' ')).toContain('Delay Diagnostics Report')
+    expect(rows[at]?.cells.join(' ')).toContain('Delay Diagnosis Report')
   })
 
   it('the dictionary words are 再診断 and Diagnose Again', () => {

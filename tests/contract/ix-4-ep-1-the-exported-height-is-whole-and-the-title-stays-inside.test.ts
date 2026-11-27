@@ -348,9 +348,9 @@ interface DrawnTitle {
 
 const titleOf = (svg: string): DrawnTitle => {
   const text = /<text\b[^>]*>/.exec(svg)?.[0]
-  if (text === undefined) throw new Error('the export drew no <text> for the Document Title')
+  if (text === undefined) throw new Error('the export drew no <text> for the Project Title')
   const attr = (name: string): number => Number(new RegExp(`\\s${name}="([^"]*)"`).exec(text)?.[1] ?? NaN)
-  expect(svg.includes(`>${TITLE}</text>`), 'EP-1: the first <text> is the Document Title').toBe(true)
+  expect(svg.includes(`>${TITLE}</text>`), 'EP-1: the first <text> is the Project Title').toBe(true)
   return { y: attr('y'), fontSize: attr('font-size') }
 }
 
@@ -364,7 +364,7 @@ const TITLED: readonly Screen[] = [
   { width: 1600, height: 900, appHeaderHeight: 48 },
 ]
 
-describe('T-076 EP-1 -- the exported Document Title stands inside its band (DFC-1144)', () => {
+describe('T-076 EP-1 -- the exported Project Title stands inside its band (DFC-1144)', () => {
   it.each(TITLED)('on $width x $height with a $appHeaderHeight px band', (screen) => {
     const scene = sceneOn(screen)
     const ratio = ratioOf(scene)
@@ -377,7 +377,7 @@ describe('T-076 EP-1 -- the exported Document Title stands inside its band (DFC-
     ).toBeCloseTo(S_225 * S_235 * ratio, 1)
     expect(
       title.y - title.fontSize,
-      'EP-1 (MUST NOT) "the Document Title position must not move": the screen shows the title inside the band, so its em box above the baseline starts inside the picture (top >= 0)',
+      'EP-1 (MUST NOT) "the Project Title position must not move": the screen shows the title inside the band, so its em box above the baseline starts inside the picture (top >= 0)',
     ).toBeGreaterThanOrEqual(band.y * ratio - 0.01)
     expect(
       title.y,

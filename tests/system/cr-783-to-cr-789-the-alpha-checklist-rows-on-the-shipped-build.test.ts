@@ -216,7 +216,7 @@ test.describe('CR-784: the in-progress progress marker is drawn as (->) (FR-013,
 
     await press(page, 'IC-117')
     const glyph = await page.evaluate(() => {
-      const rows = [...document.querySelectorAll('[data-role="Search Panel"] tr')]
+      const rows = [...document.querySelectorAll('[data-role="Search Window"] tr')]
       const row = rows.find((one) => (one as HTMLElement).innerText.includes('進行中'))
       return row?.querySelector('svg path')?.getAttribute('d') ?? null
     })
@@ -333,9 +333,9 @@ test.describe('CR-786: overlapping boxes come to the front, and a snapped tip is
     expect((await readDocument(page)).schedule.commentBoxes[0]!.anchorDate, 'premise: anchorDate stays where it was written').toBe(snapped.anchorDate)
 
     await press(page, 'IC-117')
-    await page.click('[data-role="Search Panel"] [data-icon="IC-119"]')
+    await page.click('[data-role="Search Window"] [data-icon="IC-119"]')
     await settle(page)
-    const row = page.locator('[data-role="Search Panel"] tr', { hasText: 'SNAPME' }).first()
+    const row = page.locator('[data-role="Search Window"] tr', { hasText: 'SNAPME' }).first()
     await expect(row, 'SQ-9: the date column is the date where the tip stands').toContainText(start.slice(0, 10).replaceAll('-', '/'))
     await row.click()
     await settle(page)
@@ -345,7 +345,7 @@ test.describe('CR-786: overlapping boxes come to the front, and a snapped tip is
     const area = (await boxOf(page, '[data-role="Schedule Canvas"]'))!
     const panel = (await boxOf(page, '[data-role="Task Group Panel"]'))!
     const areaMiddle = (panel.x + panel.w + area.x + area.w) / 2
-    expect(Math.abs(leader.x - areaMiddle), 'SJ-6: the jump brings the tip date to the middle of the Task Group Area').toBeLessThan(40)
+    expect(Math.abs(leader.x - areaMiddle), 'SJ-6: the jump brings the tip date to the middle of the Task Group Lanes').toBeLessThan(40)
   })
 })
 
@@ -507,7 +507,7 @@ test.describe('CR-788: the assignee field is a checkbox list and the first check
     }, written.value as string)
     await press(page, 'IC-1')
     for (let i = 0; i < 3; i += 1) {
-      if ((await page.locator('[data-role="Open Chooser"] [data-icon="IC-71"]').count()) > 0) await press(page, 'IC-71', '[data-role="Open Chooser"]')
+      if ((await page.locator('[data-role="Open File Dialog"] [data-icon="IC-71"]').count()) > 0) await press(page, 'IC-71', '[data-role="Open File Dialog"]')
       if ((await page.locator('[data-role="Confirmation"] [data-confirmation-answer="proceed"]').count()) > 0) await answerConfirmation(page, 'proceed')
     }
     await expect(page.locator('[data-role="Opened File Name"]'), 'premise: the written file is open').toHaveText('roundtrip.xml')
@@ -542,7 +542,7 @@ test.describe('CR-789: a carried task group draws its cues in front and shows th
     const look = (): Promise<{ copy: boolean; controls: number; frames: number; ring: number | null; lineX: number | null }> =>
       page.evaluate(() => {
         const tree = document.querySelector('[data-role="Task Group Title Tree"]')!
-        const controls = [...tree.querySelectorAll('[data-role="Task Group Expander"], [data-role="Task Group Pin"], [data-icon]')].filter(
+        const controls = [...tree.querySelectorAll('[data-role="Task Group Buttons"], [data-role="Pin Button"], [data-icon]')].filter(
           (one) => getComputedStyle(one).visibility === 'visible' && one.getBoundingClientRect().width > 0,
         ).length
         const frames = [...tree.querySelectorAll('[data-group-id]')].filter((one) => {
@@ -550,9 +550,9 @@ test.describe('CR-789: a carried task group draws its cues in front and shows th
           return style.outlineStyle !== 'none' && parseFloat(style.outlineWidth) > 0
         }).length
         const ring = document.querySelector('[data-drop-ring]')
-        const line = document.querySelector('[data-role="Task Group Drop Line"]')
+        const line = document.querySelector('[data-role="Drop Line"]')
         return {
-          copy: document.querySelector('[data-role="Task Group Grab Copy"]') !== null,
+          copy: document.querySelector('[data-role="Drag Copy"]') !== null,
           controls,
           frames,
           ring: ring ? Math.round(ring.getBoundingClientRect().x) : null,

@@ -17,7 +17,7 @@ const REQUIREMENTS = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '
 const HIDDEN_STATE = '- `paletteDisplayStateMachine.hidden` —— '
 const A_CHILD_OF_HIDDEN = '親 `paletteDisplayStateMachine.hidden`'
 const SHOWN_MINIMIZED_STATE = '- `paletteDisplayStateMachine.shown.minimized` —— 親 `paletteDisplayStateMachine.shown`。'
-const FR_102_SHOWN_BY_BAND = 'パレットを最小化している間、`GRS` は、掴み帯に載せた `IC-76` の押下状態で、いま記録しているかどうかを読ませること'
+const FR_102_SHOWN_BY_BAND = 'パレットを最小化している間、`GRS` は、グリップに載せた `IC-76` の押下状態で、いま記録しているかどうかを読ませること'
 
 const RECORD_ENTRANCE = 'IC-76'
 const MINIMIZE_ENTRANCE = 'IC-75'

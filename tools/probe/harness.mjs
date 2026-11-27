@@ -180,7 +180,7 @@ export async function pointerAway() { await page().mouse.move(4, 1070) }
 /**
  * Every `data-role` on the page, unfiltered.
  *
- * ⛔ DO NOT FILTER THESE WITH A REGEXP. `Export Chooser` matches neither
+ * ⛔ DO NOT FILTER THESE WITH A REGEXP. `Save As Dialog` matches neither
  * "Modal" nor "Dialog", and filtering for those is exactly how two sessions
  * reported a working surface as absent. Take them all, then look.
  */
@@ -367,7 +367,7 @@ export async function partAt(x, y) {
 }
 
 /**
- * A point inside the `Task Group Area` that the app itself calls empty.
+ * A point inside the `Task Group Lanes` that the app itself calls empty.
  *
  * ⭐⭐ ASK THE APP, DO NOT COMPUTE IT. Two probes of that round picked a point
  * by walking bounding boxes and both landed ON something -- once on the palette
@@ -684,7 +684,7 @@ export async function treeOrder(role) {
  * told from "one of them contains the other".
  *
  * ⛔ TWO FALSE DEFECT REPORTS IN ONE DAY CAME FROM NOT ASKING THIS. A task group and
- * its own Task Group Pin button share a `y`, and `data-pinned` sits on BOTH the task group
+ * its own Pin Button button share a `y`, and `data-pinned` sits on BOTH the task group
  * and the button -- so one pin reads as two unless the parentage is checked.
  */
 export async function ancestry(selector, nth = 0) {

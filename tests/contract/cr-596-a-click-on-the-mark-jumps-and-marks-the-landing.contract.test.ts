@@ -102,12 +102,12 @@ const UN_14 = rowCells('T-027', 'UN-14')
 const SJ_2 = rowCells('T-332', 'SJ-2')
 const S_447 = rowCells('T-206', 'S-447')
 
-const EL_6_NONE = '先行も後続も見えていない間、`GRS` は、経路が `Task Group Area` を横切っていても、依存線を描かないこと。'
-const EL_9_COLOR = '`GRS` は、続きの印の色を依存線の色（表 T-236 の `S-159`）にすること。<br>`GRS` は、選んだ線（表 T-023c の `SL-8`）でも、続きの印の色を変えないこと。'
-const EL_10_FOLDED = '続きの印を押して離したとき、印の先の端が `EL-20` の端なら、`GRS` は、倍率を変えずに `EL-21` で開くこと。'
+const EL_6_NONE = '先行も後続も見えていない間、`GRS` は、経路が `Task Group Lanes` を横切っていても、依存線を描かないこと。'
+const EL_9_COLOR = '`GRS` は、続きマークの色を依存線の色（表 T-236 の `S-159`）にすること。<br>`GRS` は、選んだ線（表 T-023c の `SL-8`）でも、続きマークの色を変えないこと。'
+const EL_10_FOLDED = '続きマークを押して離したとき、印の先の端が `EL-20` の端なら、`GRS` は、倍率を変えずに `EL-21` で開くこと。'
 const EL_12_OPENED = '`EL-21` でタスクグループを展開したなら、`GRS` は、端のタスクグループが帯の下の残りの上端に来るよう、表示位置を縦に送ること'
 const EL_12_HOW = '`S-78` を端のタスクグループに、`S-176` を 0 にする'
-const EL_16_MARK = '続きの印を押して離したとき、`GRS` は、印の先の端の `Task` と、押した印の依存線（`EL-13` が応えた線）に、送った先の印を付けること。'
+const EL_16_MARK = '続きマークを押して離したとき、`GRS` は、印の先の端の `Task` と、押した印の依存線（`EL-13` が応えた線）に、送った先の印を付けること。'
 const EL_16_LOOK =
   '`GRS` は、送った先の印を付けた依存線を、`EL-19` の形で、表 T-023c の `SL-8` が選んだ依存線に定める色と太さ（色は `_assets/tbl-settings.md` の 表 T-236 の `S-159` のまま、太さは線自身の太さに 表 T-206 の `S-447` を足した太さ、矢じりを含む）で描くこと。'
 const EL_16_ENDS = '`GRS` は、送った先の印を付けた線の両端の `Task` を、表 T-023c の `SL-8` が選んだ依存線の端に定める囲みで囲むこと。'
@@ -118,13 +118,13 @@ const EL_17_CLEAR = '送った先の印が出ている間、人が押下（ど�
 const EL_17_WHEEL_KEEPS =
   'ホイール（表 T-023 の `MK-1` 〜 `MK-5`、面やパネルの上でその中を送るものを含め、ホイールはどれも消さない）'
 const EL_17_MODIFIER_KEEPS = '修飾キー（`Ctrl` ・ `Shift` ・ `Alt` ・ `Meta`）だけの押下でも消さないこと（MUST）'
-const EL_17_MOVE = '`GRS` は、ポインタを動かすだけでは印を消さないこと。'
+const EL_17_MOVE = '`GRS` は、ポインターを動かすだけでは印を消さないこと。'
 const EL_18_NOTHING =
   '`GRS` は、印が出ているあいだの 2 回目の押下（宿主が数える押下の回数が 2 以上の押下）では、何もしないこと —— 選ばず、表 T-023 の `MK-13` の宛先を読まず、印も消さない。'
 const EL_19_WHOLE =
   '送った先の印が出ている間、`GRS` は、印を付けた線を `EL-3` 〜 `EL-8` で省かず、経路（表 T-018 ／ 表 T-018a）の全体を描くこと。<br>送った先の印が出ている間、`GRS` は、印を付けた線の後続の入口に矢じりを描くこと。'
 const EL_19_EL_6 = '`GRS` は、`EL-6` の「描かないこと」を、印を付けた線に当てないこと。'
-const EL_19_NO_DOTS = '送った先の印が出ている間、`GRS` は、印を付けた線に続きの印を描かないこと。'
+const EL_19_NO_DOTS = '送った先の印が出ている間、`GRS` は、印を付けた線に続きマークを描かないこと。'
 const EL_19_BACK = '送った先の印が消えたとき、`GRS` は、印を付けた線を表 T-303 の省き方（`EL-3` 〜 `EL-8`）に戻すこと。'
 const EL_20_HIDDEN = '人が格納したタスクグループ（表 T-015 の `HR-6`、表 T-328 の `hidden` —— 端のタスクグループそのものが `hidden` のときを含む）'
 const EL_20_NOT_SEEN = '（`FR-018` の 表 T-329 の `TD-1` ／ `TD-2` ／ `TD-3`）、端を見えていない端とすること。'
@@ -133,28 +133,28 @@ const EL_20_NO_ANCESTOR =
   'もし描いている祖先が無い場合（端のタスクグループの最も浅い段の祖先（端のタスクグループそのものを含む）が `hidden` である）、`GRS` は、`EL-20` の端を、木の順（`05-07-design.md` の 表 T-068 の `LC-9`）で端のタスクグループより前に在る、描いているスクロールするタスクグループのうち最後のタスクグループの下端に立たせ、該当するタスクグループが無ければ帯の下の残りの上端に立たせること。'
 const EL_20_ACROSS = '`GRS` は、`EL-2` の横の位置の規則を `EL-20` の端にも当てること。'
 const EL_20_TOWARD =
-  '`GRS` は、見えている他方の端の短い線（`EL-7` ／ `EL-8`）と続きの印（`EL-9`）を、`EL-20` の立つ所の側へ向けること —— 立つ所が画面の外なら、画面の端の側を指す。'
+  '`GRS` は、見えている他方の端の短い線（`EL-7` ／ `EL-8`）と続きマーク（`EL-9`）を、`EL-20` の立つ所の側へ向けること —— 立つ所が画面の外なら、画面の端の側を指す。'
 const EL_20_NOT_DROPPED =
   '`GRS` は、立つ所が無いとして線を落とさないこと。'
 const EL_20_LEVEL_ZERO =
   '段 0 を折りたたんでいる間、`GRS` は、線を `EL-6` として扱うこと。'
 const EL_20_LOD = '`GRS` は、折りたたみとグループ LOD の両方で描かない端を、`EL-20` の端とすること。'
 const EL_21_OPEN =
-  '続きの印を押して離したとき、印の先の端が `EL-20` の端なら、`GRS` は、送る前に、端の `Task` のタスクグループと祖先をすべて見える状態に展開すること —— `hidden` のタスクグループは格納を解き、`collapsed` のタスクグループは展開する（どちらも 表 T-328 の `expanded` になる）。'
+  '続きマークを押して離したとき、印の先の端が `EL-20` の端なら、`GRS` は、送る前に、端の `Task` のタスクグループと祖先をすべて見える状態に展開すること —— `hidden` のタスクグループは格納を解き、`collapsed` のタスクグループは展開する（どちらも 表 T-328 の `expanded` になる）。'
 const EL_21_SEND = '`GRS` は、`EL-21` で展開した後、`EL-11` ・ `EL-12` に従って送ること。'
 const EL_21_NO_ZOOM = '`GRS` は、`EL-21` で展開したとき、`EL-10` の倍率を変えないこと。'
 const EL_21_ONE_STEP = '`GRS` は、`EL-21` の展開で `treeState` の値が変わったとき、取り消しの 1 段（表 T-027 の `UN-14`）を積むこと。'
 const EL_21_SEND_OUTSIDE = '`GRS` は、送り（`EL-11` ・ `EL-12`）を `EL-21` の段に入れないこと（`UN-8`）。'
 const PE_12_SEND =
-  '続きの印を押して離したとき、`GRS` は、線を選ばず、選択を空にしたうえで `FR-009` の 表 T-303 の `EL-10` 〜 `EL-12` に従って印の先へ送り（先の端が折りたたんだタスクグループか格納したタスクグループの配下なら、先に 表 T-303 の `EL-21` で展開する）、`EL-16` の印を付けること'
-const PE_12_SELECTS = '選ぶ<br>続きの印を押して離したとき'
+  '続きマークを押して離したとき、`GRS` は、線を選ばず、選択を空にしたうえで `FR-009` の 表 T-303 の `EL-10` 〜 `EL-12` に従って印の先へ送り（先の端が折りたたんだタスクグループか格納したタスクグループの配下なら、先に 表 T-303 の `EL-21` で展開する）、`EL-16` の印を付けること'
+const PE_12_SELECTS = '選ぶ<br>続きマークを押して離したとき'
 const PE_12_WIDTH = '選べば、印が消えても選んだ線の太さと両端の囲み（表 T-023c の `SL-8`）が残り'
 const PE_12_DRAG = '何もしない'
 const MK_13_MARK =
-  '`GRS` は、依存線の続きの印のダブルクリックに宛先を持たせないこと。'
-const MK_13_SECOND = '`GRS` は、続きの印の 2 回目の押下を `FR-009` の 表 T-303 の `EL-18` に従わせること。'
+  '`GRS` は、依存線の続きマークのダブルクリックに宛先を持たせないこと。'
+const MK_13_SECOND = '`GRS` は、続きマークの 2 回目の押下を `FR-009` の 表 T-303 の `EL-18` に従わせること。'
 const SL_8_WIDTH =
-  '`GRS` は、選んだ依存線を、線自身の太さに 表 T-206 の `S-447` を足した太さで描くこと。<br>`GRS` は、選んだ依存線の色を依存線の色（`_assets/tbl-settings.md` の 表 T-236 の `S-159`）のままとし、矢じりと、`FR-009` の 表 T-303 の `EL-9` の続きの印の点の色も変えないこと'
+  '`GRS` は、選んだ依存線を、線自身の太さに 表 T-206 の `S-447` を足した太さで描くこと。<br>`GRS` は、選んだ依存線の色を依存線の色（`_assets/tbl-settings.md` の 表 T-236 の `S-159`）のままとし、矢じりと、`FR-009` の 表 T-303 の `EL-9` の続きマークの点の色も変えないこと'
 const SL_8_ENDS =
   '`GRS` は、選んだ依存線の両端の `Task`（マイルストーンを含む）の描いた予定の図形を、図形の輪郭と同じ所・同じ形の線で囲むこと。'
 const SL_8_OUTLINE_INK =
@@ -165,7 +165,7 @@ const SL_8_FRAME_OVER = '端の `Task` 自体も選んでいるとき、`GRS` �
 const ZO_10_OUTLINE =
   '依存線の端の `Task` の囲み（表 T-023c の `SL-8` の選んだ依存線の端と、`FR-009` の 表 T-303 の `EL-16` の送った先の線の端）。<br>`GRS` は、選択の枠を、依存線の端の `Task` の囲みの上に描くこと。<br>`GRS` は、選んだ依存線と送った先の線そのものを、`ZO-4` の中で描くこと。'
 const FR_009_ZERO = '⓪ 表 T-303 の `EL-16` の印を付けた線は、ほかのどの線よりも手前である'
-const EP_12_LANDING = '続きの印で送った先の印（`FR-009` の 表 T-303 の `EL-16`）'
+const EP_12_LANDING = '続きマークで送った先の印（`FR-009` の 表 T-303 の `EL-16`）'
 const EP_12_SELECTION = '`Selection`（`U-39`）'
 const UN_8_VIEW = 'ズーム・スクロール・パン'
 const UN_14_ONE_STEP = '1 回の押下がタスクグループの木の状態を書き換えたとき、`GRS` は、書き換えたタスクグループがいくつでも、1 つの段に入れること。'
@@ -657,7 +657,7 @@ const HIDDEN_AT_THE_TOP: SceneSpec = {
   ],
 }
 
-// Why: the seen end sits in the second drawn task group, so the upward mark stays inside the Task Group Area.
+// Why: the seen end sits in the second drawn task group, so the upward mark stays inside the Task Group Lanes.
 const HIDDEN_FIRST_AT_THE_TOP: SceneSpec = {
   groups: [['b', null, 'hidden'], ['y', null], ['a', null], ['z', null]],
   tasks: [
@@ -717,7 +717,7 @@ describe(`(a) PE-12 -- one still click on the mark: ${PE_12_SEND}`, () => {
     expect(release(scene, markOf(scene, 1, 2)).press.hit?.grab).toBe('GA-24')
   })
 
-  it(`EL-11: the first release already sends the far end to the Task Group Area middle (${MK_13_MARK})`, () => {
+  it(`EL-11: the first release already sends the far end to the Task Group Lanes middle (${MK_13_MARK})`, () => {
     const scene = offRight()
     const writes = writesOf(release(scene, markOf(scene, 1, 2)).out)
     expect(onlyOf(writes, SET_SCROLL), MK_13_MARK).toBeDefined()

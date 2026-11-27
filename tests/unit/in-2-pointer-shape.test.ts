@@ -1,7 +1,7 @@
 // IN-2 of table T-028 -- what shape the pointer takes where it stands.
 //
 // The unit these arrive on is UF-48 `single-html-shell` (CP-25 of table T-062),
-// whose `frame-loop.ts` takes FT-1 of table T-078 -- 人の入力（ポインタとキー）
+// whose `frame-loop.ts` takes FT-1 of table T-078 -- 人の入力（ポインターとキー）
 // -- on `receiveInput`, and hands IN-2's answer out through the sixth argument
 // of `frameLoop`.
 //
@@ -45,7 +45,7 @@
 //   T-023a's note 「判定順序を適用するのは日程の描画領域だけとすること（MUST）」,
 //             with its own table of the faces it does not reach -- among them
 //             浮遊するコマンドパレット (`FR-053`) and タイムルーラー, whose cell
-//             reads 「ポインタ操作を持たない（MUST NOT）」.
+//             reads 「ポインター操作を持たない（MUST NOT）」.
 //   T-023a    「第 1 の分岐は「当たったか」であり、「構えているか」は当たらな
 //             かったときにだけ効く（MUST）」
 //   T-023d    「上の行ほど優先すること（MUST）」, with GA-1 予定の開始点 /
@@ -65,7 +65,7 @@
 //   T-023b AR-1 .. AR-6, and 「構えは持続すること（MUST）」.
 //   T-036 SK-1  「キーボードだけで図形を置く経路は持たない」 -- which is why the
 //             armed cases arm through a palette entry and not through a key.
-//   T-109's 構え column: 「⭐ `構え` の欄は、その入口が押されたときポインタが
+//   T-109's 構え column: 「⭐ `構え` の欄は、その入口が押されたときポインターが
 //             入る 表 T-023b の行である」 -- read at read time to find an entry
 //             that arms AR-2.
 //   T-206 S-250 / S-253  the plan end's reach, outward only, 12px
@@ -77,7 +77,7 @@
 //             this comment; the two constants below take them off table T-206.
 //             ⭐ Both are read at read time, and the body probe is placed so
 //             that it clears each of them; a premise measures the margin.
-//   T-028 IN-1  「ポインタ操作は押した時点で実行せず、離した時点で確定すること」
+//   T-028 IN-1  「ポインター操作は押した時点で実行せず、離した時点で確定すること」
 //             -- so the pan is asked about while the button is still down, and
 //             again after the release.
 //
@@ -188,7 +188,7 @@ const ACTUAL_END_ALLOWANCE = allowanceOf('S-257')
 
 /**
  * An entry of table T-109 whose 構え column is AR-2 -- 「その入口が押されたとき
- * ポインタが入る 表 T-023b の行」.
+ * ポインターが入る 表 T-023b の行」.
  *
  * ⭐ THE ONE ENTRANCE SK-1 LEAVES: 「キーボードだけで図形を置く経路は持たない」,
  * so arming is reached by pressing a palette entry and by nothing else.
@@ -248,7 +248,7 @@ const STONE_DAY = '2026-04-15'
  * A milestone that is NOT started. See the last describe.
  *
  * ⭐⭐ PAST `BAR_FINISH` SINCE 2026-09-10, AND THAT IS LOAD-BEARING. The view is
- * fitted to the schedule, so whatever ends LAST lands on the `Task Group Area`'s right
+ * fitted to the schedule, so whatever ends LAST lands on the `Task Group Lanes`'s right
  * edge -- a column the pointer cannot occupy, since R3.4 leaves that region
  * half-open. While this day stood at 2026-04-17 the bar Task's 予定の終了点 was
  * the last thing in the document and fell on that edge, and `onEndpoint` below
@@ -581,14 +581,14 @@ const center = (box: ScreenRect): Point => ({ x: box.x + box.width / 2, y: midY(
 // The places IN-2 names, as points on this fixture's screen
 // ---------------------------------------------------------------------------
 
-/** 何にも当たらない場所: the far corner of the `Task Group Area`, past every bar. */
+/** 何にも当たらない場所: the far corner of the `Task Group Lanes`, past every bar. */
 function emptyCanvas(loop: FrameLoop): Point {
   const area = frameOf(loop).regions.taskGroupArea
   return { x: area.x + area.width - 4, y: area.y + area.height - 4 }
 }
 
 /**
- * A probe on an endpoint, kept inside the `Task Group Area`.
+ * A probe on an endpoint, kept inside the `Task Group Lanes`.
  *
  * ⭐ THE TASK GROUP AREA IS HALF-OPEN AT THE RIGHT, which is R3.4's convention and the
  * one `screen-regions.ts` follows so that neighboring regions never both claim
@@ -601,7 +601,7 @@ function emptyCanvas(loop: FrameLoop): Point {
  * 「予定の端点（`GA-1` / `GA-2`）の掴み代は端の外側だけに取ること（MUST）」.
  * ⭐ SO THE FIXTURE MOVED INSTEAD -- `NEW_STONE_DAY` now ends the schedule, so
  * no end of the bar Task falls on the region's edge and this clamp fires on
- * nothing. ⚠️ It is kept as a guard: a probe stepped outside the `Task Group Area`
+ * nothing. ⚠️ It is kept as a guard: a probe stepped outside the `Task Group Lanes`
  * would be asked where IN-2 names no shape at all, which is not a defect this
  * file means to report.
  */
@@ -1071,7 +1071,7 @@ describe('T-028 IN-2 names five places and no more', () => {
   it('answers nothing on the タイムルーラー', () => {
     const built = stage()
     // 表 T-023a's note: 「判定順序を適用するのは日程の描画領域だけとすること
-    // （MUST）」, and its タイムルーラー row: 「ポインタ操作を持たない（MUST
+    // （MUST）」, and its タイムルーラー row: 「ポインター操作を持たない（MUST
     // NOT）」. None of IN-2's five places can arise there, and 何にも当たらない
     // 場所は範囲選択の合図 would promise the marquee that row forbids the ruler.
     expect(

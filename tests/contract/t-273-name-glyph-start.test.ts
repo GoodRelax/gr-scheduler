@@ -30,7 +30,7 @@ const EDGE_GAP = stored('S-584') * RATIO
 const REQUIREMENTS = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
 const FR_002_WRITE_START_IS_T_273 =
-  '⭐ 字を書き出す位置は `FR-109` の 表 T-273 が持つ（`S-31` ／ `S-32` ／ `S-301` のいずれか 1 つを、基準の端か進捗マーカーの右端に足した位置）。'
+  '⭐ 字を書き出す位置は `FR-109` の 表 T-273 が持つ（`S-31` ／ `S-32` ／ `S-301` のいずれか 1 つを、基準の端か進捗ステータスマークの右端に足した位置）。'
 const FR_002_NOT_TWICE =
   '`GRS` は、`FR-109` の 表 T-273 が与える長さ（`_assets/tbl-settings.md` の 表 T-201 の `S-31` ／ `S-32` ／ `S-301` のいずれか 1 つ）を 2 回数えないこと。'
 

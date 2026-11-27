@@ -1,4 +1,4 @@
-// File: Schedule: the rows of the Delay Diagnostics Report tables (T-347, T-374), and the report as one Markdown string (RW-6).
+// File: Schedule: the rows of the Delay Diagnosis Report tables (T-347, T-374), and the report as one Markdown string (RW-6).
 // @unit      UF-192  (docs/spec/05-07-design.md, table T-075)
 // @component Schedule, layer documentModel (table T-062)
 // @purity    pure

@@ -234,7 +234,7 @@ function drawnPanel(showing: 'selection' | 'documentSettings'): FakeElement {
 
 describe('DFC-587 premises read from the manuscript', () => {
   it('T-109 places the legend on the help and at least the close entrance on the panel', () => {
-    expect(HELP_SURFACE).toBe('Help Modal')
+    expect(HELP_SURFACE).toBe('Help Window')
     for (const row of [CLOSE_ROW, HELP_LANGUAGE_ROW, MINIMIZE_ROW, MAXIMIZE_ROW, RESTORE_ROW]) {
       expect(taskGroupsPlacedOn(HELP_SURFACE), row).toContain(row)
     }

@@ -46,7 +46,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `customColorOf` | entry | function | `src/entity/document-model/schedule/stored-color.ts#customColorOf` | PI-1 | カスタムカラーを明暗の 2 つの側に分ける。 |
 | `customSideOf` | entry | function | `src/entity/document-model/schedule/stored-color.ts#customSideOf` | PI-1 | 未定義の側を他方で埋めて、描く側の値を返す。 |
 | `DAILY_RECURRENCE_KIND` | entry | const | `src/entity/document-model/schedule/working-calendar.ts#DAILY_RECURRENCE_KIND` | PI-1 | 日次の繰り返しの種別 `1`（`AT-82`）。 |
-| `dataWallOfViewWall` | entry | function | `src/entity/document-model/schedule/time-zone.ts#dataWallOfViewWall` | PI-1 | 見せる基準の壁時計の分を、日程データの壁時計の分へ |
+| `dataWallOfViewWall` | entry | function | `src/entity/document-model/schedule/time-zone.ts#dataWallOfViewWall` | PI-1 | 見せる基準の壁時計の分を、スケジュールデータの壁時計の分へ |
 | `DATE_COLUMNS` | entry | const | `src/entity/document-model/schedule/schedule-entities.ts#DATE_COLUMNS` | PI-1 | 表 T-058 の型の欄が日付とする列の全数。 |
 | `dateFromWorkingDays` | entry | function | `src/entity/document-model/schedule/working-calendar.ts#dateFromWorkingDays` | PI-1 | 起点の日付に稼働日を加えた日 |
 | `DateTimeSide` | entry | type | `src/entity/document-model/schedule/working-calendar.ts#DateTimeSide` | PI-1 | 型。 |
@@ -100,9 +100,9 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `delayWorkingDays` | entry | function | `src/entity/document-model/schedule/task-delay.ts#delayWorkingDays` | PI-1 | 表 T-021b の起点と終点 |
 | `Dependency` | entry | interface | `src/entity/document-model/schedule/schedule-entities.ts#Dependency` | -- | interface Dependency |
 | `diagnoseDelay` | entry | function | `src/entity/document-model/schedule/delay-diagnostics.ts#diagnoseDelay` | PI-1 | 遅延診断のレポート（表 T-317）を作る。 |
-| `diagnosedMarkerRowsOf` | entry | function | `src/entity/document-model/schedule/delay-diagnostics.ts#diagnosedMarkerRowsOf` | PI-1 | 遅延診断を出しているあいだ日程表に描く 表 T-315 の行（`DG-1` 〜 `DG-3`）を、`Task.uid` ごとに求める（`FR-133`）。 |
+| `diagnosedMarkerRowsOf` | entry | function | `src/entity/document-model/schedule/delay-diagnostics.ts#diagnosedMarkerRowsOf` | PI-1 | 遅延診断を出しているあいだタスクグループレーンズに描く 表 T-315 の行（`DG-1` 〜 `DG-3`）を、`Task.uid` ごとに求める（`FR-133`）。 |
 | `earliestPlanStartDayOf` | entry | function | `src/entity/document-model/schedule/working-calendar.ts#earliestPlanStartDayOf` | PI-1 | 全体日程シフトの最初のタスクの開始日（表 T-379 の `WH-1`）—— `Task` の予定の開始を開始の側で読んだ、いちばん早い日。 |
-| `edgeInstantOf` | entry | function | `src/entity/document-model/schedule/calendar-day.ts#edgeInstantOf` | PI-1 | 日程表に描く端（予定バー・実績バーの左右の端、期限、変更前の予定の輪郭の左右の端）が時間軸に立つ瞬間（分）。 |
+| `edgeInstantOf` | entry | function | `src/entity/document-model/schedule/calendar-day.ts#edgeInstantOf` | PI-1 | タスクグループレーンズに描く端（予定バー・実績バーの左右の端、期限、変更前の予定の輪郭の左右の端）が時間軸に立つ瞬間（分）。 |
 | `EntityRows` | entry | interface | `src/entity/document-model/schedule/schedule-entities.ts#EntityRows` | -- | interface EntityRows |
 | `Exception` | entry | interface | `src/entity/document-model/schedule/schedule-entities.ts#Exception` | -- | interface Exception |
 | `finishSideDayFrom` | entry | function | `src/entity/document-model/schedule/calendar-day.ts#finishSideDayFrom` | PI-1 | `finishSideDayOf` と同じ日を、読み手が既に読んだその字の日（`dayOf` の答え）から数える。 |
@@ -145,9 +145,9 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `plannedDurationMinutesOf` | entry | function | `src/entity/document-model/schedule/working-calendar.ts#plannedDurationMinutesOf` | PI-1 | 予定の長さの分数。 |
 | `plannedInstantsOf` | entry | function | `src/entity/document-model/schedule/working-calendar.ts#plannedInstantsOf` | PI-1 | 予定の始まりと終わりの瞬間の対。 |
 | `plannedLengthMinutesOf` | entry | function | `src/entity/document-model/schedule/working-calendar.ts#plannedLengthMinutesOf` | PI-1 | 予定の期間（分）。 |
-| `PRINTED_TIME_ZONE` | entry | const | `src/entity/document-model/schedule/time-zone.ts#PRINTED_TIME_ZONE` | PI-1 | 刷った空の文書が持つ日程データのタイムゾーン（表 T-342 の `BK-4`、表 T-376 の `ZN-47`） |
+| `PRINTED_TIME_ZONE` | entry | const | `src/entity/document-model/schedule/time-zone.ts#PRINTED_TIME_ZONE` | PI-1 | 刷った空の文書が持つスケジュールデータのタイムゾーン（表 T-342 の `BK-4`、表 T-376 の `ZN-47`） |
 | `ProgressMarker` | entry | type | `src/entity/document-model/schedule/task-delay.ts#ProgressMarker` | -- | type ProgressMarker = 'PM-1a' \| 'PM-1' \| 'PM-2' \| 'PM-3' \| 'PM-4' \| 'DG-1' \| 'DG-2' \| 'DG-3' |
-| `progressMarkerOf` | entry | function | `src/entity/document-model/schedule/task-delay.ts#progressMarkerOf` | PI-1 | 進捗マーカーの値を 1 つ求める（`FR-013` の 表 T-021、遅延診断の行を受ければ `FR-133` の 表 T-315 の優先順）。 |
+| `progressMarkerOf` | entry | function | `src/entity/document-model/schedule/task-delay.ts#progressMarkerOf` | PI-1 | 進捗ステータスマークの値を 1 つ求める（`FR-013` の 表 T-021、遅延診断の行を受ければ `FR-133` の 表 T-315 の優先順）。 |
 | `progressPointDayOf` | entry | function | `src/entity/document-model/schedule/plan-actual-state.ts#progressPointDayOf` | PI-1 | 表 T-022 の頂点を打つ日。 |
 | `Project` | entry | interface | `src/entity/document-model/schedule/schedule-entities.ts#Project` | -- | interface Project |
 | `proposeDelayFixes` | entry | function | `src/entity/document-model/schedule/delay-fixes.ts#proposeDelayFixes` | PI-1 | 遅延診断の指摘（表 T-317 の `DX-3`）ごとに、表 T-373 の修正のしかたで修正案の行を作る（`FR-155`）。 |
@@ -184,9 +184,9 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `TimeZoneRow` | entry | interface | `src/entity/document-model/schedule/time-zone.ts#TimeZoneRow` | -- | interface TimeZoneRow |
 | `timeZoneRowOf` | entry | function | `src/entity/document-model/schedule/time-zone.ts#timeZoneRowOf` | PI-1 | 鍵の 表 T-376 の行。 |
 | `TRANSPARENT` | entry | const | `src/entity/document-model/schedule/stored-color.ts#TRANSPARENT` | PI-1 | 透明の色の綴り（`_assets/tbl-settings.md` の `S-324`）。 |
-| `viewRegionOf` | entry | function | `src/entity/document-model/schedule/time-zone.ts#viewRegionOf` | PI-1 | 見せる基準の鍵（`S-574`、空か標準時の行の鍵でなければ日程データのタイムゾーン `AT-157`） |
-| `viewWallOfDataWall` | entry | function | `src/entity/document-model/schedule/time-zone.ts#viewWallOfDataWall` | PI-1 | 日程データの壁時計の分を、見せる基準の壁時計の分へ（同じ鍵なら換算しない） |
-| `viewWallReader` | entry | function | `src/entity/document-model/schedule/working-calendar.ts#viewWallReader` | PI-1 | 日程データの壁時計の分を、見せる基準（`S-574`）の壁時計の分へ換える読み手。 |
+| `viewRegionOf` | entry | function | `src/entity/document-model/schedule/time-zone.ts#viewRegionOf` | PI-1 | 見せる基準の鍵（`S-574`、空か標準時の行の鍵でなければスケジュールデータのタイムゾーン `AT-157`） |
+| `viewWallOfDataWall` | entry | function | `src/entity/document-model/schedule/time-zone.ts#viewWallOfDataWall` | PI-1 | スケジュールデータの壁時計の分を、見せる基準の壁時計の分へ（同じ鍵なら換算しない） |
+| `viewWallReader` | entry | function | `src/entity/document-model/schedule/working-calendar.ts#viewWallReader` | PI-1 | スケジュールデータの壁時計の分を、見せる基準（`S-574`）の壁時計の分へ換える読み手。 |
 | `WeekDay` | entry | interface | `src/entity/document-model/schedule/schedule-entities.ts#WeekDay` | -- | interface WeekDay |
 | `weekDayOf` | entry | function | `src/entity/document-model/schedule/working-calendar.ts#weekDayOf` | PI-1 | 時間帯も持ち回りも持たない曜日の行。 |
 | `withoutDependencyAt` | entry | function | `src/entity/document-model/schedule/schedule.ts#withoutDependencyAt` | PI-1 | `Task` の依存の並びから、1 つの先行から来る線のうち順で名指した 1 本を除く（表 T-108 の `CM-93`）。 |
@@ -283,12 +283,12 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 
 | name | reach | kind | declared in | T-064 | what it is for / its declaration |
 | --- | --- | --- | --- | --- | --- |
-| `assigneeAnchorOf` | entry | function | `src/entity/layout-engine/schedule-layout/label-placement.ts#assigneeAnchorOf` | PI-5 | 担当と進捗の札の右端を合わせる位置。 |
+| `assigneeAnchorOf` | entry | function | `src/entity/layout-engine/schedule-layout/label-placement.ts#assigneeAnchorOf` | PI-5 | 担当と進捗のラベルの右端を合わせる位置。 |
 | `clockTextOf` | entry | function | `src/entity/layout-engine/schedule-layout/name-label.ts#clockTextOf` | PI-5 | 瞬間の時刻を 24 時間制、時を 0 で埋めず分を 2 桁で書く（`FR-158` の 表 T-375） |
 | `cursorInstantAtX` | entry | function | `src/entity/layout-engine/schedule-layout/schedule-layout.ts#cursorInstantAtX` | PI-5 | `Dual Cursor` の線が立つ瞬間 —— `FR-103` の 表 T-378 の単位で寄せる。 |
 | `dateAtX` | entry | function | `src/entity/layout-engine/schedule-layout/time-axis.ts#dateAtX` | PI-5 | 時間軸の対応。 |
 | `DayReader` | entry | interface | `src/entity/layout-engine/schedule-layout/schedule-layout.ts#DayReader` | -- | interface DayReader |
-| `deadlineHeadHalfWidthOf` | entry | function | `src/entity/layout-engine/schedule-layout/schedule-layout.ts#deadlineHeadHalfWidthOf` | PI-5 | 期限の印の矢じりの半幅（表 T-206 の `S-365` に進捗マーカーの径を掛けた幅の半分）。 |
+| `deadlineHeadHalfWidthOf` | entry | function | `src/entity/layout-engine/schedule-layout/schedule-layout.ts#deadlineHeadHalfWidthOf` | PI-5 | 期限マークの矢じりの半幅（表 T-206 の `S-365` に進捗ステータスマークの径を掛けた幅の半分）。 |
 | `dummyBandOf` | entry | function | `src/entity/layout-engine/schedule-layout/label-placement.ts#dummyBandOf` | PI-5 | ダミーを描く帯。 |
 | `dummyInkWidthOf` | entry | function | `src/entity/layout-engine/schedule-layout/schedule-layout.ts#dummyInkWidthOf` | -- | function dummyInkWidthOf( markerDiameter: number, axis: { readonly pxPerDay: number; readonly isTimeOfDayVisible: boolean }, ): number |
 | `FitToScreen` | entry | interface | `src/entity/layout-engine/schedule-layout/fit-zoom.ts#FitToScreen` | -- | interface FitToScreen |
@@ -314,19 +314,19 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `LandedTarget` | entry | type | `src/entity/layout-engine/schedule-layout/schedule-layout.ts#LandedTarget` | PI-5 | 型。 |
 | `layoutFromSchedule` | entry | function | `src/entity/layout-engine/schedule-layout/schedule-layout.ts#layoutFromSchedule` | PI-5 | function layoutFromSchedule( schedule: Schedule, storedSettings: DocumentSettings, regions: ScreenRegions, groupDepthCap?: number, taskGroupControlsHeightPx?... |
 | `lengthTextOf` | entry | function | `src/entity/layout-engine/schedule-layout/name-label.ts#lengthTextOf` | PI-5 | 長さ（分）を `1d 2h`・`2h 30m`・`30m` の形で書く（`FR-158` の 表 T-375 の `TX-10`）。 |
-| `markerDiameterOf` | entry | function | `src/entity/layout-engine/schedule-layout/shape-cross-sections.ts#markerDiameterOf` | PI-5 | 進捗マーカーの径。 |
+| `markerDiameterOf` | entry | function | `src/entity/layout-engine/schedule-layout/shape-cross-sections.ts#markerDiameterOf` | PI-5 | 進捗ステータスマークの径。 |
 | `MilestoneGlyph` | entry | type | `src/entity/layout-engine/schedule-layout/schedule-layout.ts#MilestoneGlyph` | -- | type MilestoneGlyph = NonNullable<TaskVisual['milestoneGlyph']> |
 | `MORE_ASSIGNEES_MARK` | entry | const | `src/entity/layout-engine/schedule-layout/assignee-label.ts#MORE_ASSIGNEES_MARK` | PI-5 | 担当ラベルが、主担当のほかにも出す担当がいるときに名の後に続ける印「, …」（`FR-059`）。 |
 | `NOT_STORED_LABEL_SIZES` | entry | const | `src/entity/layout-engine/schedule-layout/schedule-layout.ts#NOT_STORED_LABEL_SIZES` | PI-5 | 表 T-206 の `S-196` と `S-233` を刷った定数。 |
 | `NOT_STORED_SIZES` | entry | const | `src/entity/layout-engine/schedule-layout/label-placement.ts#NOT_STORED_SIZES` | -- | const NOT_STORED_SIZES: |
 | `NotStoredZoom` | entry | interface | `src/entity/layout-engine/schedule-layout/fit-zoom.ts#NotStoredZoom` | -- | interface NotStoredZoom |
-| `outwardStartOf` | entry | function | `src/entity/layout-engine/schedule-layout/label-placement.ts#outwardStartOf` | PI-5 | 基準の外へ札を並べ始める位置。 |
+| `outwardStartOf` | entry | function | `src/entity/layout-engine/schedule-layout/label-placement.ts#outwardStartOf` | PI-5 | 基準の外へラベルを並べ始める位置。 |
 | `planDateText` | entry | function | `src/entity/layout-engine/schedule-layout/name-label.ts#planDateText` | PI-5 | 予定の 1 つの日を `ND-4`・`ND-5` の形で書く |
 | `RulerTier` | entry | type | `src/entity/layout-engine/schedule-layout/schedule-layout.ts#RulerTier` | -- | type RulerTier = 'year' \| 'yearMonth' \| 'yearMonthWeek' \| 'yearMonthDayWeekday' \| 'dayHour' |
 | `rulerTierOf` | entry | function | `src/entity/layout-engine/schedule-layout/time-axis.ts#rulerTierOf` | PI-5 | 目盛の段階（`FR-017` の 表 T-238 の段）を、1 日あたりの表示幅と設定から求める。 |
 | `ScheduleLayout` | entry | interface | `src/entity/layout-engine/schedule-layout/schedule-layout.ts#ScheduleLayout` | PI-5 | 型 |
 | `ShapeKind` | entry | type | `src/entity/layout-engine/schedule-layout/schedule-layout.ts#ShapeKind` | -- | type ShapeKind = NonNullable<TaskVisual['shapeKind']> |
-| `shownSpanOf` | entry | function | `src/entity/layout-engine/schedule-layout/time-axis.ts#shownSpanOf` | PI-5 | `Task Group Area` の左端の位置と、右端の 1 px 手前の位置が指す 2 つの日を求める。 |
+| `shownSpanOf` | entry | function | `src/entity/layout-engine/schedule-layout/time-axis.ts#shownSpanOf` | PI-5 | `Task Group Lanes` の左端の位置と、右端の 1 px 手前の位置が指す 2 つの日を求める。 |
 | `snapMinutesOf` | entry | function | `src/entity/layout-engine/schedule-layout/time-axis.ts#snapMinutesOf` | PI-5 | 寄せの単位（分） —— `FR-103` の 表 T-378 の `SG-1`・`SG-2` |
 | `snappedInstantAtX` | entry | function | `src/entity/layout-engine/schedule-layout/time-axis.ts#snappedInstantAtX` | PI-5 | 横の位置を、寄せの単位で寄せた瞬間（分）として読む（`FR-103`） |
 | `StackSafetyCapStop` | entry | interface | `src/entity/layout-engine/schedule-layout/schedule-layout.ts#StackSafetyCapStop` | -- | interface StackSafetyCapStop |
@@ -464,7 +464,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `isLineScrolling` | entry | function | `src/entity/layout-engine/item-hit-area/item-hit-area.ts#isLineScrolling` | -- | function isLineScrolling(cut: BandCut, line: DependencyGeometry, isWholeRoute: boolean): boolean |
 | `isOnTheDrawnShape` | entry | function | `src/entity/layout-engine/item-hit-area/item-hit-area.ts#isOnTheDrawnShape` | -- | function isOnTheDrawnShape(shape: TaskShape, x: number, y: number): boolean |
 | `isScrolling` | entry | function | `src/entity/layout-engine/item-hit-area/item-hit-area.ts#isScrolling` | -- | function isScrolling(cut: BandCut, taskUid: number): boolean |
-| `isTaskDrawn` | entry | function | `src/entity/layout-engine/item-hit-area/drawn-selection.ts#isTaskDrawn` | PI-7 | 1 つのタスクの幾何が、表 T-023c の結びの「描かれている」に当たるかを答える —— 予定・実績・実績のダミー（表 T-240）のどれかが在れば真とする。 |
+| `isTaskDrawn` | entry | function | `src/entity/layout-engine/item-hit-area/drawn-selection.ts#isTaskDrawn` | PI-7 | 1 つのタスクの幾何が、表 T-023c の結びの「描かれている」に当たるかを答える —— 予定・実績・実績ダミー（表 T-240）のどれかが在れば真とする。 |
 | `Item` | entry | type | `src/entity/layout-engine/item-hit-area/item-hit-area.ts#Item` | -- | type Item = \| { readonly kind: 'task'; readonly taskUid: number } \| { readonly kind: 'dependency'; readonly predecessorUid: number; readonly successorUid: nu... |
 | `itemAtPointer` | entry | function | `src/entity/layout-engine/item-hit-area/item-hit-area.ts#itemAtPointer` | PI-7 | 対象は 表 T-023c の `SL-1`。 |
 | `itemsInMarquee` | entry | function | `src/entity/layout-engine/item-hit-area/marquee.ts#itemsInMarquee` | PI-7 | `SL-3`。 |
@@ -563,13 +563,13 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `ResourceCommand` | entry | type | `src/use-case/edit-document/edit-resource.ts#ResourceCommand` | -- | type ResourceCommand = \| { readonly kind: 'createResource'; readonly name: Resource['name'] } \| |
 | `searchJumpCommands` | entry | function | `src/use-case/edit-document/search-jump.ts#searchJumpCommands` | PI-9 | 飛ぶ書き込み（`searchJumpWrites` の答え）を、1 つの変更として当てる命令の並びにする。 |
 | `SearchJumpPlan` | entry | type | `src/use-case/edit-document/search-jump.ts#SearchJumpPlan` | PI-9 | 型。 |
-| `searchJumpReachOf` | entry | function | `src/use-case/edit-document/search-jump.ts#searchJumpReachOf` | PI-9 | 飛ぶ先の形が描かれた絵から、表 T-332 の `SJ-5`・`SJ-6` が置き場所を決めるのに読む値を読む —— 形の外接矩形と日付の位置、`Task Group Area` の幅、ピン止めの帯の下に残る高さ、占有（表 T-038）が日付より左へ出ている幅、1 日の幅。 |
+| `searchJumpReachOf` | entry | function | `src/use-case/edit-document/search-jump.ts#searchJumpReachOf` | PI-9 | 飛ぶ先の形が描かれた絵から、表 T-332 の `SJ-5`・`SJ-6` が置き場所を決めるのに読む値を読む —— 形の外接矩形と日付の位置、`Task Group Lanes` の幅、ピン止めの帯の下に残る高さ、占有（表 T-038）が日付より左へ出ている幅、1 日の幅。 |
 | `SearchJumpTarget` | entry | type | `src/use-case/edit-document/search-jump.ts#SearchJumpTarget` | PI-9 | 型。 |
 | `searchJumpWrites` | entry | function | `src/use-case/edit-document/search-jump.ts#searchJumpWrites` | PI-9 | 検索の表の行を押して飛ぶときの書き込み —— タスクグループと祖先を展開し、表示を寄せる（`FR-151` の 表 T-332）。 |
 | `SettingsLimits` | entry | interface | `src/use-case/edit-document/edit-document-settings.ts#SettingsLimits` | PI-9 | 型。 |
 | `shownTasksRevealWrites` | entry | function | `src/use-case/edit-document/search-jump.ts#shownTasksRevealWrites` | PI-9 | 日程抽出しているあいだに表示の列で「表示」にしたタスクのタスクグループと祖先を展開する書き込み（`FR-151` の 表 T-353 の `TV-6`、表 T-332 の `SJ-2`）。 |
 | `TableView` | entry | interface | `src/use-case/edit-document/edit-document-settings.ts#TableView` | PI-9 | 型。 |
-| `tableViewOf` | entry | function | `src/use-case/edit-document/edit-document-settings.ts#tableViewOf` | PI-9 | 文書の設定から 1 つの表の見え方を読む（`FR-151`）。 |
+| `tableViewOf` | entry | function | `src/use-case/edit-document/edit-document-settings.ts#tableViewOf` | PI-9 | 文書設定から 1 つの表の見え方を読む（`FR-151`）。 |
 | `tableViewsKeptIn` | entry | function | `src/use-case/edit-document/edit-document-settings.ts#tableViewsKeptIn` | PI-9 | 表の見え方から、日程に無い `Task.uid`・`Resource.uid` を外す（表 T-024a の `OP-18`、表 T-050 の `CD-1`・`CD-2`・`CD-5`）。 |
 | `TaskCommand` | entry | type | `src/use-case/edit-document/edit-task.ts#TaskCommand` | -- | type TaskCommand = \| |
 | `TaskGroupCommand` | entry | type | `src/use-case/edit-document/edit-task-group.ts#TaskGroupCommand` | -- | type TaskGroupCommand = \| |
@@ -788,7 +788,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `dayFromSerial` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#dayFromSerial` | -- | function dayFromSerial(serial: number): CalendarDay |
 | `dayShift` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#dayShift` | -- | function dayShift(context: InputContext, fromX: number, toX: number): number |
 | `dayShifted` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#dayShifted` | -- | function dayShifted(day: CalendarDay, days: number): CalendarDay |
-| `diagnosisRowAskedOf` | entry | function | `src/adapter/input-command-translator/screen-state-input.ts#diagnosisRowAskedOf` | PI-18 | 遅延診断レポートの窓が開いているあいだ（最小化を含む）、`DG-1` 〜 `DG-3` で描いた進捗マーカー（表 T-266 の `GA-18`）を押して離した入力で、そのタスクの行にいまの行の印が付いていなければ、その `Task` の `uid` を答える（`FR-134` の 表 T-346 の `RW-1...` |
+| `diagnosisRowAskedOf` | entry | function | `src/adapter/input-command-translator/screen-state-input.ts#diagnosisRowAskedOf` | PI-18 | 遅延診断レポートの窓が開いているあいだ（最小化を含む）、`DG-1` 〜 `DG-3` で描いた進捗ステータスマーク（表 T-266 の `GA-18`）を押して離した入力で、そのタスクの行にいまの行の印が付いていなければ、その `Task` の `uid` を答える（`FR-134` の 表 T-346 の `...` |
 | `drawnTaskGroupsCrossed` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#drawnTaskGroupsCrossed` | -- | function drawnTaskGroupsCrossed(taskGroups: readonly TaskGroupPlacement[], fromY: number, toY: number): number |
 | `drawnTaskGroupsOf` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#drawnTaskGroupsOf` | -- | function drawnTaskGroupsOf(layout: ScheduleLayout): readonly TaskGroupPlacement[] |
 | `ENTRY` | entry | const | `src/adapter/input-command-translator/input-command-translator.ts#ENTRY` | -- | const ENTRY = |
@@ -815,10 +815,10 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `isScrollPositionInForce` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#isScrollPositionInForce` | -- | function isScrollPositionInForce( context: InputContext, to: Extract<DocumentCommand, { kind: 'setScrollPosition' }>, ): boolean |
 | `isSingleCharacterKey` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#isSingleCharacterKey` | -- | function isSingleCharacterKey(key: string): boolean |
 | `isSwallowedSecondPress` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#isSwallowedSecondPress` | -- | function isSwallowedSecondPress(press: PointerPress, context: InputContext): boolean |
-| `isTypedIntoSearchWord` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#isTypedIntoSearchWord` | PI-18 | 焦点が `Search Panel` の入力欄にあるとき、そのキーが欄への打鍵としてブラウザへ渡るものか（`IN-5a`、`FR-151` の 表 T-330 の `SV-5` の `Enter`）。 |
+| `isTypedIntoSearchWord` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#isTypedIntoSearchWord` | PI-18 | 焦点が `Search Window` の入力欄にあるとき、そのキーが欄への打鍵としてブラウザーへ渡るものか（`IN-5a`、`FR-151` の 表 T-330 の `SV-5` の `Enter`）。 |
 | `KEY` | entry | const | `src/adapter/input-command-translator/input-command-translator.ts#KEY` | -- | const KEY = |
 | `KeyInput` | entry | interface | `src/adapter/input-command-translator/input-source.ts#KeyInput` | -- | interface KeyInput |
-| `markerOperatedTaskUidOf` | entry | function | `src/adapter/input-command-translator/screen-state-input.ts#markerOperatedTaskUidOf` | PI-18 | 進捗マーカー（表 T-266 の `GA-18`）を押して離した入力が状態を巡らせたか、引いて実績の終了を動かした入力なら、その `Task` の `uid` を答える（`FR-130`、表 T-270 の `PE-8`・`PE-10`）。 |
+| `markerOperatedTaskUidOf` | entry | function | `src/adapter/input-command-translator/screen-state-input.ts#markerOperatedTaskUidOf` | PI-18 | 進捗ステータスマーク（表 T-266 の `GA-18`）を押して離した入力が状態を巡らせたか、引いて実績の終了を動かした入力なら、その `Task` の `uid` を答える（`FR-130`、表 T-270 の `PE-8`・`PE-10`）。 |
 | `milestoneGlyphOf` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#milestoneGlyphOf` | -- | function milestoneGlyphOf(name: string): TaskMilestoneGlyph \| null |
 | `nextIssuedUid` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#nextIssuedUid` | -- | function nextIssuedUid(schedule: Schedule): number |
 | `NOT_STORED_HOUR_WIDTH_CEILING` | entry | const | `src/adapter/input-command-translator/input-command-translator.ts#NOT_STORED_HOUR_WIDTH_CEILING` | -- | const NOT_STORED_HOUR_WIDTH_CEILING: |
@@ -852,7 +852,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `snapMinutesOfView` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#snapMinutesOfView` | -- | function snapMinutesOfView(context: InputContext): number |
 | `SpentEntranceSituation` | entry | type | `src/adapter/input-command-translator/input-command-translator.ts#SpentEntranceSituation` | PI-18 | 型。 |
 | `taskGroupAtY` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#taskGroupAtY` | -- | function taskGroupAtY(layout: ScheduleLayout, y: number): TaskGroupPlacement \| null |
-| `taskGroupBandCeilingOf` | entry | function | `src/adapter/input-command-translator/zoom-and-fit.ts#taskGroupBandCeilingOf` | PI-18 | `FR-016` の縦軸の上限のうち、いちばん高いタスクグループの帯の高さが初めて `Task Group Area` の高さ以上になった倍率を、表 T-253 の手順で探した答え。 |
+| `taskGroupBandCeilingOf` | entry | function | `src/adapter/input-command-translator/zoom-and-fit.ts#taskGroupBandCeilingOf` | PI-18 | `FR-016` の縦軸の上限のうち、いちばん高いタスクグループの帯の高さが初めて `Task Group Lanes` の高さ以上になった倍率を、表 T-253 の手順で探した答え。 |
 | `taskGroupDepthOfGroup` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#taskGroupDepthOfGroup` | -- | function taskGroupDepthOfGroup(context: InputContext, taskGroupId: string): number |
 | `taskGroupGrabDepthOf` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#taskGroupGrabDepthOf` | -- | function taskGroupGrabDepthOf(byId: ReadonlyMap<string, TaskGroup>, taskGroup: TaskGroup): number |
 | `TaskGroupGrabLanding` | entry | interface | `src/adapter/input-command-translator/input-command-translator.ts#TaskGroupGrabLanding` | -- | interface TaskGroupGrabLanding |
@@ -923,7 +923,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `actualOfCustom` | entry | function | `src/adapter/svg-renderer/svg-renderer.ts#actualOfCustom` | -- | function actualOfCustom(hex: string, dark: boolean, monochrome: boolean): string |
 | `bandBaselineYOf` | entry | function | `src/adapter/svg-renderer/svg-renderer.ts#bandBaselineYOf` | PI-19 | 帯の箱と字の大きさから、字のベースラインの縦の位置を返す —— 帯の縦の中点から、字の大きさに 表 T-201 の `S-33` を掛けた長さだけ下である。 |
 | `BeneathPointerReading` | entry | interface | `src/adapter/svg-renderer/svg-renderer.ts#BeneathPointerReading` | PI-19 | 型。 |
-| `beneathPointerReadingOf` | entry | function | `src/adapter/svg-renderer/svg-renderer.ts#beneathPointerReadingOf` | PI-19 | 下の絵（表 T-065 の `IF-1`）が指から読むもの —— ガイドカーソルを描く点・指が中にある実績のダミーのタスク・指が掴み代に載った進捗マーカーのタスクを返す。 |
+| `beneathPointerReadingOf` | entry | function | `src/adapter/svg-renderer/svg-renderer.ts#beneathPointerReadingOf` | PI-19 | 下の絵（表 T-065 の `IF-1`）が指から読むもの —— ガイドカーソルを描く点・指が中にある実績ダミーのタスク・指が掴み代に載った進捗ステータスマークのタスクを返す。 |
 | `boxOfPoints` | entry | function | `src/adapter/svg-renderer/svg-renderer.ts#boxOfPoints` | -- | function boxOfPoints(path: Path): ScreenRect \| null |
 | `ChosenColor` | entry | type | `src/adapter/svg-renderer/svg-renderer.ts#ChosenColor` | -- | type ChosenColor = (stored: string \| null, form: ColorForm) => string \| null |
 | `ColorForm` | entry | type | `src/adapter/svg-renderer/svg-renderer.ts#ColorForm` | -- | type ColorForm = keyof PaletteForms |
@@ -936,7 +936,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `inkOn` | entry | function | `src/adapter/svg-renderer/svg-renderer.ts#inkOn` | PI-19 | 色の上に置く字の色（白か黒）を、その色の明度から返す。 |
 | `isScheduleColorRow` | entry | function | `src/adapter/svg-renderer/svg-renderer.ts#isScheduleColorRow` | PI-19 | 表 T-236 の行 ID が、`colorOf` の答えられる行（日程の図も塗る行）かを返す。 |
 | `jumpLandingRingOf` | entry | function | `src/adapter/svg-renderer/schedule-overlays.ts#jumpLandingRingOf` | PI-19 | 飛んだ先の印の囲みの箱と線の太さと角の丸み（表 T-332 の `SJ-10`、`S-555` ・ `S-556` ・ `S-588`）。 |
-| `markerGlyphSvg` | entry | function | `src/adapter/svg-renderer/schedule-task-figures.ts#markerGlyphSvg` | PI-19 | 進捗マーカーの図形を、字 1 つぶんの正方形の SVG にして返す（`FR-133`、表 T-021・表 T-315）。 |
+| `markerGlyphSvg` | entry | function | `src/adapter/svg-renderer/schedule-task-figures.ts#markerGlyphSvg` | PI-19 | 進捗ステータスマークの図形を、字 1 つぶんの正方形の SVG にして返す（`FR-133`、表 T-021・表 T-315）。 |
 | `marqueeOverlaySvg` | entry | function | `src/adapter/svg-renderer/svg-renderer.ts#marqueeOverlaySvg` | PI-19 | 重ねの絵 —— 範囲選択の矩形（表 T-020 の `ZO-6`）だけを持つ SVG を返し、握っていなければ空の文字列を返す。 |
 | `NOT_STORED_DELAY_MARK_SIZES` | entry | const | `src/adapter/svg-renderer/svg-renderer.ts#NOT_STORED_DELAY_MARK_SIZES` | -- | const NOT_STORED_DELAY_MARK_SIZES: |
 | `NOT_STORED_DEPENDENCY_SIZES` | entry | const | `src/adapter/svg-renderer/svg-renderer.ts#NOT_STORED_DEPENDENCY_SIZES` | -- | const NOT_STORED_DEPENDENCY_SIZES: |
@@ -1131,7 +1131,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `landCopyDrag` | file only | function | `src/framework/single-html-shell/copy-and-paste.ts#landCopyDrag` | -- | function landCopyDrag( hands: CopyAndPasteHands, bundle: readonly DocumentCommand[], picked: Selection, frame: FrameValues, ): void |
 | `pasteWhatWasCopied` | file only | function | `src/framework/single-html-shell/copy-and-paste.ts#pasteWhatWasCopied` | -- | function pasteWhatWasCopied(hands: CopyAndPasteHands, frame: FrameValues): void |
 | `answerDelayDiagnosticsReportEntry` | file only | function | `src/framework/single-html-shell/delay-diagnostics-report-window.ts#answerDelayDiagnosticsReportEntry` | -- | function answerDelayDiagnosticsReportEntry( entry: IconId, filterColumn: string \| null, held: ReportHeld \| null, outlets: ReportOutlets, listed?: readonly st... |
-| `DELAY_DIAGNOSTICS_REPORT_SURFACE` | file only | const | `src/framework/single-html-shell/delay-diagnostics-report-window.ts#DELAY_DIAGNOSTICS_REPORT_SURFACE` | -- | const DELAY_DIAGNOSTICS_REPORT_SURFACE = 'Delay Diagnostics Report' |
+| `DELAY_DIAGNOSTICS_REPORT_SURFACE` | file only | const | `src/framework/single-html-shell/delay-diagnostics-report-window.ts#DELAY_DIAGNOSTICS_REPORT_SURFACE` | -- | const DELAY_DIAGNOSTICS_REPORT_SURFACE = 'Delay Diagnosis Report' |
 | `DelayFixTables` | file only | type | `src/framework/single-html-shell/delay-diagnostics-report-window.ts#DelayFixTables` | -- | type DelayFixTables = NonNullable<Parameters<typeof delayDiagnosticsReportAfterEntry>[4]['fixTables']> |
 | `delayFixTablesKeeper` | file only | function | `src/framework/single-html-shell/delay-diagnostics-report-window.ts#delayFixTablesKeeper` | -- | function delayFixTablesKeeper() |
 | `DelayFixTelling` | file only | type | `src/framework/single-html-shell/delay-diagnostics-report-window.ts#DelayFixTelling` | -- | type DelayFixTelling = NonNullable<DelayFixTables['telling']> |
@@ -1373,7 +1373,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `displayRatioOf` | entry | function | `src/entity/layout-engine/screen-regions/screen-regions.ts#displayRatioOf` | PI-35 | 表示の倍率から描く比を出す。 |
 | `displayScaleFractionOf` | entry | function | `src/entity/layout-engine/screen-regions/screen-regions.ts#displayScaleFractionOf` | PI-35 | 表示の倍率だけの比（`S-234` を 100 で割った値）であり、`S-236` を掛けない。 |
 | `drawnSettingsOf` | entry | function | `src/entity/layout-engine/screen-regions/screen-regions.ts#drawnSettingsOf` | PI-35 | 保存値と `SETTINGS_CONSTANTS` を合わせた 1 つの見方（`PI-2` の `DrawnSettings`）を作り、描く比を 1 度だけ掛けて返す。 |
-| `regionAtPointer` | entry | function | `src/entity/layout-engine/screen-regions/screen-regions.ts#regionAtPointer` | PI-35 | ポインタがどの領域にあるか |
+| `regionAtPointer` | entry | function | `src/entity/layout-engine/screen-regions/screen-regions.ts#regionAtPointer` | PI-35 | ポインターがどの領域にあるか |
 | `RegionName` | entry | type | `src/entity/layout-engine/screen-regions/screen-regions.ts#RegionName` | -- | type RegionName = keyof ScreenRegions \| null |
 | `regionsAtDisplayScale` | entry | function | `src/entity/layout-engine/screen-regions/screen-regions.ts#regionsAtDisplayScale` | PI-35 | 与えた表示の倍率で描いたときの各部の矩形。 |
 | `regionsFromScreen` | entry | function | `src/entity/layout-engine/screen-regions/screen-regions.ts#regionsFromScreen` | PI-35 | 画面の寸法と `DocumentSettings` から各部の矩形を出す |
@@ -1383,7 +1383,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `ScreenEnvironment` | entry | interface | `src/entity/layout-engine/screen-regions/screen-regions.ts#ScreenEnvironment` | -- | interface ScreenEnvironment |
 | `ScreenRect` | entry | interface | `src/entity/layout-engine/screen-regions/screen-regions.ts#ScreenRect` | PI-35 | 型。 |
 | `ScreenRegions` | entry | interface | `src/entity/layout-engine/screen-regions/screen-regions.ts#ScreenRegions` | PI-35 | 型。 |
-| `taskGroupControlLatticeHeightPx` | entry | function | `src/entity/layout-engine/screen-regions/screen-regions.ts#taskGroupControlLatticeHeightPx` | PI-35 | タスクグループの操作子の格子（表 T-051 の `HF-1`）を描いたときに縦に取る高さ。 |
+| `taskGroupControlLatticeHeightPx` | entry | function | `src/entity/layout-engine/screen-regions/screen-regions.ts#taskGroupControlLatticeHeightPx` | PI-35 | タスクグループボタンの格子（表 T-051 の `HF-1`）を描いたときに縦に取る高さ。 |
 
 ## ScreenState (PI-36, `src/entity/document-model/screen-state/screen-state.ts`)
 
@@ -1393,7 +1393,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `EscapeContext` | entry | interface | `src/entity/document-model/screen-state/screen-state.ts#EscapeContext` | PI-36 | 型。 |
 | `EscapeTarget` | entry | type | `src/entity/document-model/screen-state/screen-state.ts#EscapeTarget` | PI-36 | 型。 |
 | `escapeTarget` | entry | function | `src/entity/document-model/screen-state/screen-state.ts#escapeTarget` | PI-36 | `EscapeContext` だけから、`Esc` が次に消費する段を答える。 |
-| `NOT_STORED_SEARCH_PANEL_FONT_SIZES` | entry | const | `src/entity/document-model/screen-state/screen-state.ts#NOT_STORED_SEARCH_PANEL_FONT_SIZES` | PI-36 | `Search Panel` の字の大きさの段（`_assets/tbl-settings.md` の 表 T-333）を行 ID ごとに持つ。 |
+| `NOT_STORED_SEARCH_PANEL_FONT_SIZES` | entry | const | `src/entity/document-model/screen-state/screen-state.ts#NOT_STORED_SEARCH_PANEL_FONT_SIZES` | PI-36 | `Search Window` の字の大きさの段（`_assets/tbl-settings.md` の 表 T-333）を行 ID ごとに持つ。 |
 | `RememberedActual` | entry | interface | `src/entity/document-model/screen-state/screen-state.ts#RememberedActual` | PI-36 | 型。 |
 | `windowClosedByEscape` | entry | function | `src/entity/document-model/screen-state/screen-state.ts#windowClosedByEscape` | -- | function windowClosedByEscape(standing: WindowStanding): WindowName \| null |
 | `WindowName` | entry | type | `src/entity/document-model/screen-state/screen-state.ts#WindowName` | PI-36 | 型。 |
@@ -1423,24 +1423,24 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `DELAY_DIAGNOSTICS_REPORT_EXTENSION` | entry | const | `src/adapter/screen-renderer/delay-diagnostics-report.ts#DELAY_DIAGNOSTICS_REPORT_EXTENSION` | PI-37 | 書き出すファイルの拡張子（表 T-024 の `IO-8`、表 T-346 の `RW-7`）。 |
 | `DELAY_FIX_LOG_EXTENSION` | entry | const | `src/adapter/screen-renderer/delay-diagnostics-report.ts#DELAY_FIX_LOG_EXTENSION` | PI-37 | 修正の記録を書き出すファイルの拡張子（表 T-024 の `IO-9`、表 T-346 の `RW-20`）。 |
 | `delayDiagnosticsReportAfterEntry` | entry | function | `src/adapter/screen-renderer/delay-diagnostics-report.ts#delayDiagnosticsReportAfterEntry` | PI-37 | 遅延診断レポートの窓の入口（表 T-346 の `RW-2`・表 T-330 の `SV-7`・`SV-8`、表 T-335 の `WB-2`・`WB-3`）を押した後の窓の値を答える。 |
-| `delayDiagnosticsReportAfterFilterChange` | entry | function | `src/adapter/screen-renderer/delay-diagnostics-report.ts#delayDiagnosticsReportAfterFilterChange` | PI-37 | 列のフィルタの変化（表 T-330 の `SV-7`）を遅延診断レポートの窓の値へ当てる。 |
+| `delayDiagnosticsReportAfterFilterChange` | entry | function | `src/adapter/screen-renderer/delay-diagnostics-report.ts#delayDiagnosticsReportAfterFilterChange` | PI-37 | 列のフィルターの変化（表 T-330 の `SV-7`）を遅延診断レポートの窓の値へ当てる。 |
 | `delayDiagnosticsReportFileNameOf` | entry | function | `src/adapter/screen-renderer/delay-diagnostics-report.ts#delayDiagnosticsReportFileNameOf` | PI-37 | 書き出すファイルの提案の名を作る（表 T-346 の `RW-7`）。 |
-| `delayDiagnosticsReportMarkdownOf` | entry | function | `src/adapter/screen-renderer/delay-diagnostics-report.ts#delayDiagnosticsReportMarkdownOf` | PI-37 | 窓のいまの並べ替えとフィルタで、コピーと書き出しの Markdown の文字列を作る（表 T-346 の `RW-6`）。 |
-| `delayDiagnosticsReportShowingRow` | entry | function | `src/adapter/screen-renderer/delay-diagnostics-report.ts#delayDiagnosticsReportShowingRow` | PI-37 | 診断結果の表を出し、押したマーカーの `Task` の行を隠している語と列のフィルタの条件だけを外し、その行にいまの行の印を付けた窓の値と見え方を答える（表 T-346 の `RW-19`）。 |
+| `delayDiagnosticsReportMarkdownOf` | entry | function | `src/adapter/screen-renderer/delay-diagnostics-report.ts#delayDiagnosticsReportMarkdownOf` | PI-37 | 窓のいまの並べ替えとフィルターで、コピーと書き出しの Markdown の文字列を作る（表 T-346 の `RW-6`）。 |
+| `delayDiagnosticsReportShowingRow` | entry | function | `src/adapter/screen-renderer/delay-diagnostics-report.ts#delayDiagnosticsReportShowingRow` | PI-37 | 診断結果の表を出し、押したマーカーの `Task` の行を隠している語と列のフィルターの条件だけを外し、その行にいまの行の印を付けた窓の値と見え方を答える（表 T-346 の `RW-19`）。 |
 | `DelayDiagnosticsReportView` | entry | interface | `src/adapter/screen-renderer/delay-diagnostics-report.ts#DelayDiagnosticsReportView` | -- | interface DelayDiagnosticsReportView extends Omit<SearchPanelView, 'table' \| 'rows'>, Partial<DelayFixView> |
-| `DelayDiagnosticsReportWindow` | entry | interface | `src/adapter/screen-renderer/delay-diagnostics-report.ts#DelayDiagnosticsReportWindow` | PI-37 | 遅延診断レポートの窓の値の型 —— 表示の状態・語・フィルタ・並べ替え・位置・大きさ・列の幅・前後（`RW-5`） —— 保存しない（`FR-134`） |
+| `DelayDiagnosticsReportWindow` | entry | interface | `src/adapter/screen-renderer/delay-diagnostics-report.ts#DelayDiagnosticsReportWindow` | PI-37 | 遅延診断レポートの窓の値の型 —— 表示の状態・語・フィルター・並べ替え・位置・大きさ・列の幅・前後（`RW-5`） —— 保存しない（`FR-134`） |
 | `delayDiagnosticsReportWithColumnWidth` | entry | function | `src/adapter/screen-renderer/delay-diagnostics-report.ts#delayDiagnosticsReportWithColumnWidth` | PI-37 | 列の境目（表 T-023d の `GR-28`）を引いた後の列の幅を、窓の値へ当てる（表 T-346 の `RW-9`）。 |
-| `delayDiagnosticsReportWithFilterClosed` | entry | function | `src/adapter/screen-renderer/delay-diagnostics-report.ts#delayDiagnosticsReportWithFilterClosed` | PI-37 | 開いている列のフィルタを閉じた窓の値を答える（表 T-330 の `SV-14`）。 |
-| `delayDiagnosticsReportWithInput` | entry | function | `src/adapter/screen-renderer/delay-diagnostics-report.ts#delayDiagnosticsReportWithInput` | PI-37 | 窓の入力欄の語・出している表の列のフィルタの変化・修正案のチェックと択と日付（表 T-346 の `RW-3`・`RW-11`・`RW-16`）を、窓の値と診断結果の表の見え方へ当てる。 |
+| `delayDiagnosticsReportWithFilterClosed` | entry | function | `src/adapter/screen-renderer/delay-diagnostics-report.ts#delayDiagnosticsReportWithFilterClosed` | PI-37 | 開いている列のフィルターを閉じた窓の値を答える（表 T-330 の `SV-14`）。 |
+| `delayDiagnosticsReportWithInput` | entry | function | `src/adapter/screen-renderer/delay-diagnostics-report.ts#delayDiagnosticsReportWithInput` | PI-37 | 窓の入力欄の語・出している表の列のフィルターの変化・修正案のチェックと択と日付（表 T-346 の `RW-3`・`RW-11`・`RW-16`）を、窓の値と診断結果の表の見え方へ当てる。 |
 | `delayFixBackupFileNameOf` | entry | function | `src/adapter/screen-renderer/open-modals.ts#delayFixBackupFileNameOf` | PI-37 | 直す前のバックアップの提案の名を作る（表 T-346 の `RW-15`）。 |
 | `delayFixColumnHeadings` | entry | function | `src/adapter/screen-renderer/delay-diagnostics-report.ts#delayFixColumnHeadings` | PI-37 | 修正案の表と修正の記録の表（表 T-374）の列の見出しを日本語と英語で答える —— `readTableRows`（`AM-28`）が列の一覧に読む（CR-814） |
 | `delayFixLogFileNameOf` | entry | function | `src/adapter/screen-renderer/open-modals.ts#delayFixLogFileNameOf` | PI-37 | 修正の記録の `.tsv` の提案の名を作る（表 T-346 の `RW-20`）。 |
-| `delayFixLogTsvOf` | entry | function | `src/adapter/screen-renderer/delay-diagnostics-report.ts#delayFixLogTsvOf` | PI-37 | 修正の記録の表が出している行（並べ替えとフィルタを済ませた行）から `.tsv` の文字列を作る（表 T-346 の `RW-20`）。 |
-| `delayFixLogTsvWhole` | entry | function | `src/adapter/screen-renderer/delay-diagnostics-report.ts#delayFixLogTsvWhole` | PI-37 | 修正の記録の全部の行を、窓の語と列のフィルタを読まずに表の順で `.tsv` の文字列にする —— `Agent API` の `exportFixLogTsv`（`AM-34`）が読む（CR-814） |
+| `delayFixLogTsvOf` | entry | function | `src/adapter/screen-renderer/delay-diagnostics-report.ts#delayFixLogTsvOf` | PI-37 | 修正の記録の表が出している行（並べ替えとフィルターを済ませた行）から `.tsv` の文字列を作る（表 T-346 の `RW-20`）。 |
+| `delayFixLogTsvWhole` | entry | function | `src/adapter/screen-renderer/delay-diagnostics-report.ts#delayFixLogTsvWhole` | PI-37 | 修正の記録の全部の行を、窓の語と列のフィルターを読まずに表の順で `.tsv` の文字列にする —— `Agent API` の `exportFixLogTsv`（`AM-34`）が読む（CR-814） |
 | `delayFixTableRows` | entry | function | `src/adapter/screen-renderer/delay-diagnostics-report.ts#delayFixTableRows` | PI-37 | 修正案の表か修正の記録の表の行に語を当て、窓が出すとおりの文字で答える —— `readTableRows`（`AM-28`）が読む（CR-814） |
 | `DelayFixTelling` | entry | type | `src/adapter/screen-renderer/delay-diagnostics-report.ts#DelayFixTelling` | PI-37 | 型。 |
 | `delayReportColumnHeadings` | entry | function | `src/adapter/screen-renderer/delay-diagnostics-report.ts#delayReportColumnHeadings` | PI-37 | 遅延診断レポートの表（表 T-347）の列の一覧（列の行 ID・画面の名・値の種類）。 |
-| `delayReportTableRows` | entry | function | `src/adapter/screen-renderer/delay-diagnostics-report.ts#delayReportTableRows` | PI-37 | 遅延診断レポートの表に語と列のフィルタと並べ替えを当てた行を、画面に出す文字で答える。 |
+| `delayReportTableRows` | entry | function | `src/adapter/screen-renderer/delay-diagnostics-report.ts#delayReportTableRows` | PI-37 | 遅延診断レポートの表に語と列のフィルターと並べ替えを当てた行を、画面に出す文字で答える。 |
 | `dismissKeyOf` | entry | function | `src/adapter/screen-renderer/notices.ts#dismissKeyOf` | PI-37 | 表 T-037 の `NT-8` で人が消した告げを名指す鍵 |
 | `DISPLAY_TIME_ZONE_SLOT_SEPARATOR` | entry | const | `src/adapter/screen-renderer/screen-renderer.ts#DISPLAY_TIME_ZONE_SLOT_SEPARATOR` | PI-37 | 表示するタイムゾーンの 4 つの選ぶ欄（表 T-369 の `FO-15`）の値が、どの欄かを運ぶ区切り |
 | `DisplayLanguage` | entry | type | `src/adapter/screen-renderer/screen-renderer.ts#DisplayLanguage` | -- | type DisplayLanguage = 'ja' \| 'en' |
@@ -1454,8 +1454,8 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `ExportFormatId` | entry | type | `src/adapter/screen-renderer/screen-renderer.ts#ExportFormatId` | -- | type ExportFormatId = string |
 | `FieldCommit` | entry | interface | `src/adapter/screen-renderer/screen-surface.ts#FieldCommit` | -- | interface FieldCommit |
 | `FieldEditNotice` | entry | interface | `src/adapter/screen-renderer/screen-surface.ts#FieldEditNotice` | PI-37 | 型。 |
-| `filteredSearchRows` | entry | function | `src/adapter/screen-renderer/search-table-filters.ts#filteredSearchRows` | PI-37 | 検索パネルのタスクの表に列のフィルタと並べ替えを当てた行。 |
-| `FIT_SPAN_COPY_TEXT` | entry | const | `src/adapter/screen-renderer/screen-renderer.ts#FIT_SPAN_COPY_TEXT` | PI-37 | 文書の設定の面の、現在表示中の期間をコピーする入口が確定する語。 |
+| `filteredSearchRows` | entry | function | `src/adapter/screen-renderer/search-table-filters.ts#filteredSearchRows` | PI-37 | 検索ウィンドウのタスクの表に列のフィルターと並べ替えを当てた行。 |
+| `FIT_SPAN_COPY_TEXT` | entry | const | `src/adapter/screen-renderer/screen-renderer.ts#FIT_SPAN_COPY_TEXT` | PI-37 | 文書設定の面の、現在表示中の期間をコピーする入口が確定する語。 |
 | `GuideCursorLabel` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#GuideCursorLabel` | -- | interface GuideCursorLabel |
 | `HelpEntry` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#HelpEntry` | -- | interface HelpEntry |
 | `HelpLink` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#HelpLink` | -- | interface HelpLink |
@@ -1474,7 +1474,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `imageToJsonPromptText` | entry | function | `src/adapter/screen-renderer/app-header-items.ts#imageToJsonPromptText` | PI-37 | `IC-115` がコピーする、画像から `GRS JSON` を作るプロンプトの全文を、画面の言語と版で組む。 |
 | `imageToJsonSchemaFile` | entry | function | `src/adapter/screen-renderer/app-header-items.ts#imageToJsonSchemaFile` | PI-37 | `IC-115` の同じ押下でダウンロードに渡す、`GRS JSON` のスキーマのファイル（表 T-024 の `IO-10`）の名と中身を返す。 |
 | `ImportReportLine` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#ImportReportLine` | -- | interface ImportReportLine |
-| `isFilterValueListed` | entry | function | `src/adapter/screen-renderer/table-window.ts#isFilterValueListed` | PI-37 | 列のフィルタの中の検索欄の語が、その項目の語に当たるか（`FR-151` の 表 T-330 の `SV-7`、比べ方は `SV-4`）。 |
+| `isFilterValueListed` | entry | function | `src/adapter/screen-renderer/table-window.ts#isFilterValueListed` | PI-37 | 列のフィルターの中の検索欄の語が、その項目の語に当たるか（`FR-151` の 表 T-330 の `SV-7`、比べ方は `SV-4`）。 |
 | `isScheduleColorRow` | entry | function | `src/adapter/svg-renderer/svg-renderer.ts#isScheduleColorRow` | PI-37 | `SvgRenderer` の `isScheduleColorRow` を、`DomScreenSurface` へ渡すためにコピーせずに公開し直したもの。 |
 | `JumpRipple` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#JumpRipple` | -- | interface JumpRipple |
 | `LinkedWords` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#LinkedWords` | -- | interface LinkedWords |
@@ -1492,7 +1492,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `PaletteGroup` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#PaletteGroup` | -- | interface PaletteGroup |
 | `PanelDivider` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#PanelDivider` | -- | interface PanelDivider |
 | `PanelFace` | entry | type | `src/adapter/screen-renderer/properties-panel.ts#PanelFace` | PI-37 | `panelFacesOf` が答える中身の種の型 |
-| `panelFacesOf` | entry | function | `src/adapter/screen-renderer/properties-panel.ts#panelFacesOf` | PI-37 | プロパティパネルがいま出している中身の種を、表 T-016 の `適用先` の順に 1 つずつ答える（文書の設定の面は `documentSettings`、出していないときは空）。 |
+| `panelFacesOf` | entry | function | `src/adapter/screen-renderer/properties-panel.ts#panelFacesOf` | PI-37 | プロパティパネルがいま出している中身の種を、表 T-016 の `適用先` の順に 1 つずつ答える（文書設定の面は `documentSettings`、出していないときは空）。 |
 | `ParentTaskChoice` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#ParentTaskChoice` | -- | interface ParentTaskChoice |
 | `PropertiesPanel` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#PropertiesPanel` | -- | interface PropertiesPanel |
 | `PropertyBadge` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#PropertyBadge` | -- | interface PropertyBadge |
@@ -1505,15 +1505,15 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `RaisedConfirmation` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#RaisedConfirmation` | -- | interface RaisedConfirmation |
 | `RaisedNotice` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#RaisedNotice` | -- | interface RaisedNotice |
 | `resourceListAfterEntry` | entry | function | `src/adapter/screen-renderer/resource-list.ts#resourceListAfterEntry` | PI-37 | 担当リストのウィンドウの入口（表 T-370 の `RO-1`・`RO-2`・表 T-330 の `SV-7`・`SV-8`、表 T-335 の `WB-2`・`WB-3`）を押した後のウィンドウの値を答える。 |
-| `resourceListAfterFilterChange` | entry | function | `src/adapter/screen-renderer/resource-list.ts#resourceListAfterFilterChange` | PI-37 | 列のフィルタの変化と表示の列の印の変化を、担当リストのウィンドウの値へ当てる（表 T-330 の `SV-7`、表 T-353 の `TV-2`）。 |
+| `resourceListAfterFilterChange` | entry | function | `src/adapter/screen-renderer/resource-list.ts#resourceListAfterFilterChange` | PI-37 | 列のフィルターの変化と表示の列の印の変化を、担当リストのウィンドウの値へ当てる（表 T-330 の `SV-7`、表 T-353 の `TV-2`）。 |
 | `resourceListColumnHeadings` | entry | function | `src/adapter/screen-renderer/resource-list.ts#resourceListColumnHeadings` | PI-37 | 担当リストの表（表 T-371）の列の一覧（列の行 ID・画面の名・値の種類）。 |
 | `resourceListFromWindow` | entry | function | `src/adapter/screen-renderer/resource-list.ts#resourceListFromWindow` | PI-37 | 担当リストのウィンドウの中身 —— タイトルバー・タイトルバーの下の 1 行・表 T-371 の表 —— を作る（`FR-099` の 表 T-370） |
-| `resourceListListedUidsOf` | entry | function | `src/adapter/screen-renderer/resource-list.ts#resourceListListedUidsOf` | PI-37 | 担当リストの表がいま並べている担当の `uid` —— 語と列のフィルタの後 —— を答える（表 T-370 の `RO-3`）。 |
+| `resourceListListedUidsOf` | entry | function | `src/adapter/screen-renderer/resource-list.ts#resourceListListedUidsOf` | PI-37 | 担当リストの表がいま並べている担当の `uid` —— 語と列のフィルターの後 —— を答える（表 T-370 の `RO-3`）。 |
 | `ResourceListRowView` | entry | interface | `src/adapter/screen-renderer/resource-list.ts#ResourceListRowView` | PI-37 | 型。 |
-| `resourceListTableRows` | entry | function | `src/adapter/screen-renderer/resource-list.ts#resourceListTableRows` | PI-37 | 担当リストの表に語と列のフィルタと並べ替えを当てた行を、画面に出す文字で答える。 |
+| `resourceListTableRows` | entry | function | `src/adapter/screen-renderer/resource-list.ts#resourceListTableRows` | PI-37 | 担当リストの表に語と列のフィルターと並べ替えを当てた行を、画面に出す文字で答える。 |
 | `ResourceListView` | entry | interface | `src/adapter/screen-renderer/resource-list.ts#ResourceListView` | PI-37 | 型。 |
 | `resourceListWithColumnWidth` | entry | function | `src/adapter/screen-renderer/resource-list.ts#resourceListWithColumnWidth` | PI-37 | 列の境目（表 T-023d の `GR-28`）を引いた後の列の幅を、ウィンドウの値へ当てる（表 T-370 の `RO-9`）。 |
-| `resourceListWithFilterClosed` | entry | function | `src/adapter/screen-renderer/resource-list.ts#resourceListWithFilterClosed` | PI-37 | 開いている列のフィルタを閉じたウィンドウの値を答える（表 T-330 の `SV-14`）。 |
+| `resourceListWithFilterClosed` | entry | function | `src/adapter/screen-renderer/resource-list.ts#resourceListWithFilterClosed` | PI-37 | 開いている列のフィルターを閉じたウィンドウの値を答える（表 T-330 の `SV-14`）。 |
 | `RulerAbbreviation` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#RulerAbbreviation` | PI-37 | 型。 |
 | `rulerWeekdayWords` | entry | function | `src/adapter/screen-renderer/screen-renderer.ts#rulerWeekdayWords` | PI-37 | 目盛の第 4 段が刷る曜日 7 語。 |
 | `scheduleFilterBarOf` | entry | function | `src/adapter/screen-renderer/table-window.ts#scheduleFilterBarOf` | PI-37 | チェックで日程抽出バー（`U-67`）の語を、日程抽出している表の名・文書のタスクの数・描いているタスクの数から作る（表 T-353 の `TV-11`）。 |
@@ -1529,20 +1529,20 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `scrollExtentOf` | entry | function | `src/adapter/screen-renderer/screen-frame.ts#scrollExtentOf` | PI-37 | 配置と各部の矩形と全体から `ScreenViewReadings` のスクロールの範囲を答える。 |
 | `SearchColumnHeading` | entry | interface | `src/adapter/screen-renderer/search-table-filters.ts#SearchColumnHeading` | -- | interface SearchColumnHeading |
 | `SearchFilterChange` | entry | type | `src/adapter/screen-renderer/table-window.ts#SearchFilterChange` | PI-37 | 型。 |
-| `searchPanelAfterFilterChange` | entry | function | `src/adapter/screen-renderer/search-panel.ts#searchPanelAfterFilterChange` | PI-37 | 開いているフィルタの値ごとの印の入れ外しと、日付の「いつから」「いつまで」の選びを、検索パネルの覚えているフィルタへ当てる（`FR-151` の 表 T-330 の `SV-7`）。 |
-| `searchPanelAfterFilterEntry` | entry | function | `src/adapter/screen-renderer/search-panel.ts#searchPanelAfterFilterEntry` | PI-37 | 開いている列のフィルタの入口（`IC-123` 〜 `IC-126`）の押下を、検索パネルの覚えているフィルタと並べ替えへ当てる（`FR-151` の 表 T-330 の `SV-7`・`SV-8`）。 |
+| `searchPanelAfterFilterChange` | entry | function | `src/adapter/screen-renderer/search-panel.ts#searchPanelAfterFilterChange` | PI-37 | 開いているフィルターの値ごとの印の入れ外しと、日付の「いつから」「いつまで」の選びを、検索ウィンドウの覚えているフィルターへ当てる（`FR-151` の 表 T-330 の `SV-7`）。 |
+| `searchPanelAfterFilterEntry` | entry | function | `src/adapter/screen-renderer/search-panel.ts#searchPanelAfterFilterEntry` | PI-37 | 開いている列のフィルターの入口（`IC-123` 〜 `IC-126`）の押下を、検索ウィンドウの覚えているフィルターと並べ替えへ当てる（`FR-151` の 表 T-330 の `SV-7`・`SV-8`）。 |
 | `searchPanelFromSession` | entry | function | `src/adapter/screen-renderer/search-panel.ts#searchPanelFromSession` | -- | function searchPanelFromSession( session: ScreenSession, panel: SearchPanelSession, view: TableView, schedule: Schedule, canvas: ScreenRect, diagnosed?: Read... |
 | `SearchPanelShown` | entry | type | `src/adapter/screen-renderer/search-panel.ts#SearchPanelShown` | -- | type SearchPanelShown = WindowShown |
 | `SearchPanelView` | entry | interface | `src/adapter/screen-renderer/search-panel.ts#SearchPanelView` | PI-37 | 型。 |
-| `searchPanelWithColumnWidth` | entry | function | `src/adapter/screen-renderer/search-panel.ts#searchPanelWithColumnWidth` | PI-37 | 列の境目（表 T-023d の `GR-28`）を引いた後の列の幅を、検索パネルの覚えている列の幅へ当てる（`FR-151` の 表 T-330 の `SV-18`）。 |
-| `searchPanelWithFilterClosed` | entry | function | `src/adapter/screen-renderer/search-panel.ts#searchPanelWithFilterClosed` | PI-37 | 開いている列のフィルタを閉じた検索パネルの値を答える。 |
-| `searchPanelWithFilterOpened` | entry | function | `src/adapter/screen-renderer/search-panel.ts#searchPanelWithFilterOpened` | PI-37 | 列の見出しの `IC-122` の押下を、その列のフィルタを開いた検索パネルの値へ当てる（`FR-151` の 表 T-330 の `SV-7`）。 |
-| `searchPanelWithTableViewsCleared` | entry | function | `src/adapter/screen-renderer/search-panel.ts#searchPanelWithTableViewsCleared` | PI-37 | `IC-153` の押下で、タスクの表とコメントボックスの表の列のフィルタと並べ替えを戻し、開いているフィルタを閉じた検索パネルの値を答える（`FR-151` の 表 T-330 の `SV-1`）。 |
+| `searchPanelWithColumnWidth` | entry | function | `src/adapter/screen-renderer/search-panel.ts#searchPanelWithColumnWidth` | PI-37 | 列の境目（表 T-023d の `GR-28`）を引いた後の列の幅を、検索ウィンドウの覚えている列の幅へ当てる（`FR-151` の 表 T-330 の `SV-18`）。 |
+| `searchPanelWithFilterClosed` | entry | function | `src/adapter/screen-renderer/search-panel.ts#searchPanelWithFilterClosed` | PI-37 | 開いている列のフィルターを閉じた検索ウィンドウの値を答える。 |
+| `searchPanelWithFilterOpened` | entry | function | `src/adapter/screen-renderer/search-panel.ts#searchPanelWithFilterOpened` | PI-37 | 列の見出しの `IC-122` の押下を、その列のフィルターを開いた検索ウィンドウの値へ当てる（`FR-151` の 表 T-330 の `SV-7`）。 |
+| `searchPanelWithTableViewsCleared` | entry | function | `src/adapter/screen-renderer/search-panel.ts#searchPanelWithTableViewsCleared` | PI-37 | `IC-153` の押下で、タスクの表とコメントボックスの表の列のフィルターと並べ替えを戻し、開いているフィルターを閉じた検索ウィンドウの値を答える（`FR-151` の 表 T-330 の `SV-1`）。 |
 | `shiftAmountText` | entry | function | `src/adapter/screen-renderer/notices.ts#shiftAmountText` | -- | function shiftAmountText(minutes: number): string |
 | `statusGlyphSvg` | entry | function | `src/adapter/screen-renderer/table-window.ts#statusGlyphSvg` | PI-37 | 表のステータスの値の頭に描く絵（`SQ-5`・`DT-1`・`RW-4`）。 |
 | `tableAfterVisibilityChange` | entry | function | `src/adapter/screen-renderer/table-window.ts#tableAfterVisibilityChange` | PI-37 | 表示の列の印の入れ外しを、表の値の「表示」の行へ当てる（`FR-151` の 表 T-353 の `TV-2`）。 |
 | `TableRowCells` | entry | interface | `src/adapter/screen-renderer/search-table-filters.ts#TableRowCells` | -- | interface TableRowCells |
-| `tableViewsOnTheirColumns` | entry | function | `src/adapter/screen-renderer/table-window.ts#tableViewsOnTheirColumns` | PI-37 | 表の見え方から、その表に無い列の行 ID（表 T-372 の `column`）を持つ列のフィルタと並べ替えを外す（表 T-024a の `OP-18`）。 |
+| `tableViewsOnTheirColumns` | entry | function | `src/adapter/screen-renderer/table-window.ts#tableViewsOnTheirColumns` | PI-37 | 表の見え方から、その表に無い列の行 ID（表 T-372 の `column`）を持つ列のフィルターと並べ替えを外す（表 T-024a の `OP-18`）。 |
 | `TableWindowState` | entry | interface | `src/adapter/screen-renderer/table-window.ts#TableWindowState` | PI-37 | 型。 |
 | `tableWithScheduleFilterOff` | entry | function | `src/adapter/screen-renderer/table-window.ts#tableWithScheduleFilterOff` | -- | function tableWithScheduleFilterOff(view: TableView): TableView |
 | `tableWithScheduleFilterToggled` | entry | function | `src/adapter/screen-renderer/table-window.ts#tableWithScheduleFilterToggled` | PI-37 | 表の日程抽出の入切を返す（表 T-353 の `TV-5`・`TV-8`）。 |
@@ -1552,7 +1552,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `TaskGroupPanel` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#TaskGroupPanel` | -- | interface TaskGroupPanel |
 | `TaskGroupTitle` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#TaskGroupTitle` | -- | interface TaskGroupTitle |
 | `taskGroupTitleFontPxOf` | entry | function | `src/adapter/screen-renderer/task-group-panel.ts#taskGroupTitleFontPxOf` | PI-37 | タスクグループ名の字の大きさ。 |
-| `taskSearchColumnHeadings` | entry | function | `src/adapter/screen-renderer/search-table-filters.ts#taskSearchColumnHeadings` | PI-37 | 検索パネルのタスクの表の列の一覧（列の行 ID・画面の名・値の種類）。 |
+| `taskSearchColumnHeadings` | entry | function | `src/adapter/screen-renderer/search-table-filters.ts#taskSearchColumnHeadings` | PI-37 | 検索ウィンドウのタスクの表の列の一覧（列の行 ID・画面の名・値の種類）。 |
 | `TimeShiftPreview` | entry | interface | `src/adapter/screen-renderer/notices.ts#TimeShiftPreview` | -- | interface TimeShiftPreview |
 | `timeShiftQuestionItems` | entry | function | `src/adapter/screen-renderer/notices.ts#timeShiftQuestionItems` | PI-37 | タイムシフトの確認（`QN-14`）の文の下に並べる行（表 T-377 の `BS-3`） |
 | `Tooltip` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#Tooltip` | -- | interface Tooltip |
@@ -1561,7 +1561,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `UNASSIGNED_ROW_KEY` | entry | const | `src/adapter/screen-renderer/table-window.ts#UNASSIGNED_ROW_KEY` | PI-37 | 担当リストの表の（担当なし）の行の鍵（表 T-370 の `RO-5`）。 |
 | `UNTITLED_DOCUMENT_TITLE` | entry | const | `src/adapter/screen-renderer/open-modals.ts#UNTITLED_DOCUMENT_TITLE` | PI-37 | `AT-3` の文書名が `null` のときに見出しへ出す語 `Untitled`。 |
 | `VerticalWhole` | entry | interface | `src/adapter/screen-renderer/screen-frame.ts#VerticalWhole` | PI-37 | 型。 |
-| `verticalWholeOf` | entry | function | `src/adapter/screen-renderer/screen-frame.ts#verticalWholeOf` | PI-37 | つまみが表す全体を配置と各部の矩形から測る —— `GR-21` の「内容の範囲といま見えている範囲の和」。 |
+| `verticalWholeOf` | entry | function | `src/adapter/screen-renderer/screen-frame.ts#verticalWholeOf` | PI-37 | スクロールつまみが表す全体を配置と各部の矩形から測る —— `GR-21` の「内容の範囲といま見えている範囲の和」。 |
 | `VisibilityKey` | entry | type | `src/adapter/screen-renderer/table-window.ts#VisibilityKey` | PI-37 | 型。 |
 | `WholeScheduleShiftPreview` | entry | interface | `src/adapter/screen-renderer/notices.ts#WholeScheduleShiftPreview` | -- | interface WholeScheduleShiftPreview |
 | `wholeScheduleShiftQuestionItems` | entry | function | `src/adapter/screen-renderer/notices.ts#wholeScheduleShiftQuestionItems` | PI-37 | 全体日程シフトの確認（`QN-15`）の文の下に並べる行（表 T-379 の `WH-11`） |
@@ -1773,7 +1773,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `SCROLLBAR_AXIS_ATTRIBUTE` | entry | const | `src/framework/dom-screen-surface/dom-screen-surface.ts#SCROLLBAR_AXIS_ATTRIBUTE` | -- | const SCROLLBAR_AXIS_ATTRIBUTE = 'data-axis' |
 | `SEARCH_COLUMN_WIDTH_ROWS` | entry | const | `src/framework/dom-screen-surface/dom-screen-surface.ts#SEARCH_COLUMN_WIDTH_ROWS` | -- | const SEARCH_COLUMN_WIDTH_ROWS: |
 | `SEPARATE_NOTE_ATTRIBUTE` | entry | const | `src/framework/dom-screen-surface/dom-screen-surface.ts#SEPARATE_NOTE_ATTRIBUTE` | -- | const SEPARATE_NOTE_ATTRIBUTE = 'data-separate-note' |
-| `showPointerShapeOver` | entry | function | `src/framework/dom-screen-surface/dom-screen-surface.ts#showPointerShapeOver` | PI-38 | UI パーツの根にポインタの形を書き、形があるあいだは中の要素にその形を継がせる。 |
+| `showPointerShapeOver` | entry | function | `src/framework/dom-screen-surface/dom-screen-surface.ts#showPointerShapeOver` | PI-38 | UI パーツの根にポインターの形を書き、形があるあいだは中の要素にその形を継がせる。 |
 | `stateGround` | entry | function | `src/framework/dom-screen-surface/dom-screen-surface.ts#stateGround` | -- | function stateGround(paint: string, depthTaskGroup: 'S-214' \| 'S-215'): string |
 | `STYLE` | entry | const | `src/framework/dom-screen-surface/dom-screen-surface.ts#STYLE` | -- | const STYLE = |
 | `TASK_GROUP_CARRIED_MARK` | entry | const | `src/framework/dom-screen-surface/dom-screen-surface.ts#TASK_GROUP_CARRIED_MARK` | -- | const TASK_GROUP_CARRIED_MARK = 'data-task-group-carried' |

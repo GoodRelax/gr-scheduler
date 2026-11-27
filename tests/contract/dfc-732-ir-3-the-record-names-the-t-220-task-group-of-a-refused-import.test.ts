@@ -260,7 +260,7 @@ describe(`T-233 closing / T-263 IR-3 -- ${IR_3_READABLE}`, () => {
     one.handOver(JSON.stringify(fileRefusedByIv23()))
     await settle()
     one.frames()
-    expect(JSON.stringify(one.views[one.views.length - 1]?.openModal ?? null), 'OP-5: FR-023 runs before OP-3').not.toContain('Open Chooser')
+    expect(JSON.stringify(one.views[one.views.length - 1]?.openModal ?? null), 'OP-5: FR-023 runs before OP-3').not.toContain('Open File Dialog')
     expect(one.loop.document()).toBe(before)
   })
 

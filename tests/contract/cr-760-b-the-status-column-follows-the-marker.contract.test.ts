@@ -1,4 +1,4 @@
-// CR-760 spec-only cases: the Search Panel's status column (SQ-5) shows the progress marker -- late without the diagnosis, DG-1 .. DG-3 while it is shown -- and sorts by SV-8
+// CR-760 spec-only cases: the Search Window's status column (SQ-5) shows the progress marker -- late without the diagnosis, DG-1 .. DG-3 while it is shown -- and sorts by SV-8
 
 import { describe, expect, it } from 'vitest'
 

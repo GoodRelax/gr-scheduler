@@ -44,7 +44,7 @@ const PALETTE_ALIGN_ROWS: readonly string[] = T_109.rows
   .filter((row) => surfaceOf(row.by['面'] ?? '') === 'Command Palette' && bare(row.by['群'] ?? '') === '揃える')
   .map((row) => row.id)
 const LEFT_OFF_ROWS: readonly string[] = [
-  ...T_109.rows.filter((row) => ['Open Chooser', 'Difference Review'].includes(surfaceOf(row.by['面'] ?? ''))).map((row) => row.id),
+  ...T_109.rows.filter((row) => ['Open File Dialog', 'Difference Review'].includes(surfaceOf(row.by['面'] ?? ''))).map((row) => row.id),
   'IC-52',
   'IC-53',
   'IC-75',

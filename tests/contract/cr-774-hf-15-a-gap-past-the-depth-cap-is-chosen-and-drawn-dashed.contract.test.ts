@@ -185,7 +185,7 @@ function lineOf(panel: TaskGroupPanel): FakeElement[] {
   const tree = built.host.createElement('div') as unknown as FakeElement
   const cues = built.host.createElement('div') as unknown as FakeElement
   fillTaskGroupGrabCues(built.host, cues as unknown as HTMLElement, tree as unknown as HTMLElement, panel)
-  return cues.children.filter((one) => one.getAttribute('data-role') === 'Task Group Drop Line')
+  return cues.children.filter((one) => one.getAttribute('data-role') === 'Drop Line')
 }
 
 describe('HF-15 -- the drop line is drawn dashed where the descendants go past the limit', () => {

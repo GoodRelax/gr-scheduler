@@ -310,7 +310,7 @@ function twoTaskDocument(): Document {
 // The host UF-48 is given. Copied from tests/unit/uf-48-input.test.ts.
 // ---------------------------------------------------------------------------
 
-// Why: wide enough that the bars stay in the Task Group Area beside a panel of S-171 (560 px since CR-754).
+// Why: wide enough that the bars stay in the Task Group Lanes beside a panel of S-171 (560 px since CR-754).
 const SCREEN: FrameEnvironment = {
   width: 2400,
   height: 800,
@@ -527,7 +527,7 @@ function middleOfTheBar(built: Stage, uid: number): { readonly x: number; readon
   }
   const xs = drawn.plan.points.map((one) => one.x)
   const ys = drawn.plan.points.map((one) => one.y)
-  // Why: only the part the Task Group Area shows can be pressed; a shown panel (S-171 wide, CR-572) covers the rest.
+  // Why: only the part the Task Group Lanes shows can be pressed; a shown panel (S-171 wide, CR-572) covers the rest.
   const area = values.regions.taskGroupArea
   const right = Math.min(Math.max(...xs), area.x + area.width - 1)
   const marker = drawn.marker

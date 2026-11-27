@@ -1,4 +1,4 @@
-// DFC-1287 spec-only cases: with the Search Panel and another surface standing together, each IC-52 close shows its own explanation under itself (IN-3, EZ-2, IN-7, UZ-6, UZ-7, UZ-13).
+// DFC-1287 spec-only cases: with the Search Window and another surface standing together, each IC-52 close shows its own explanation under itself (IN-3, EZ-2, IN-7, UZ-6, UZ-7, UZ-13).
 
 import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
@@ -36,12 +36,12 @@ const rowOf = (table: string, id: string) => {
 }
 
 // Why: the clauses the cases rely on, word for word.
-const EZ_2_SHOW = 'ポインタがアイコンに入ってから `_assets/tbl-settings.md` の `S-124` が経ったら、そのアイコンの説明を出すこと（MUST）。'
-const EZ_2_STAYS = '⭐ 出した説明は、ポインタがそのアイコンの上にあるあいだ、消さず、置き場も動かさないこと（MUST）'
+const EZ_2_SHOW = 'ポインターがアイコンに入ってから `_assets/tbl-settings.md` の `S-124` が経ったら、そのアイコンの説明を出すこと（MUST）。'
+const EZ_2_STAYS = '⭐ 出した説明は、ポインターがそのアイコンの上にあるあいだ、消さず、置き場も動かさないこと（MUST）'
 const EZ_2_EVERY_SURFACE = '載る面によって説明を出さない行があってはならない（MUST NOT）'
 const IN_7_LEFT_EDGE = '⭐ 対象の左端に揃えて出すと窓の右端から `S-339` の内側に収まらないときは、説明の右端を対象の右端に揃えて出すこと（MUST）'
 const UZ_7_STAYS = 'ほかの面を開いても閉じない'
-const IC_52_SURFACES = '| IC-52 | `Help Modal` / `Resource List` / `Export Chooser` / `Open Chooser` / `Properties Panel` / `Search Panel` /'
+const IC_52_SURFACES = '| IC-52 | `Help Window` / `Resource List` / `Save As Dialog` / `Open File Dialog` / `Properties Panel` / `Search Window` /'
 const SEARCH_EVENT = '| `screen/searchEntryPressed` | 入力: `IC-117` ・ `SK-24` |'
 const HELP_EVENT = '| `screen/helpEntryPressed` | 入力: `IC-22` ・ `SK-13` |'
 const SURFACE_EVENT = '| `screen/surfaceEntryPressed` | 入力（`IC-132` は `surfaceName` に `U-65` を運ぶ）: `IC-2` ・ `SK-12` ・ `IC-132` | `surfaceName` |'
@@ -56,15 +56,15 @@ describe('DFC-1287 -- the manuscript these cases are driven by', () => {
     expect(REQUIREMENTS).toContain(clause)
   })
 
-  it('UZ-6 holds the Search Panel, UZ-13 the Export Chooser, UZ-7 keeps the Help open beside other surfaces', () => {
-    expect(rowOf('T-337', 'UZ-6').cells.join(' ')).toContain('`Search Panel`')
-    expect(rowOf('T-337', 'UZ-13').cells.join(' ')).toContain('`Export Chooser`')
+  it('UZ-6 holds the Search Window, UZ-13 the Save As Dialog, UZ-7 keeps the Help open beside other surfaces', () => {
+    expect(rowOf('T-337', 'UZ-6').cells.join(' ')).toContain('`Search Window`')
+    expect(rowOf('T-337', 'UZ-13').cells.join(' ')).toContain('`Save As Dialog`')
     expect(rowOf('T-337', 'UZ-7').cells.join(' ')).toContain(UZ_7_STAYS)
   })
 
-  it('table T-109 IC-52 is the close of the Help, the Export Chooser and the Search Panel; T-103 names them', () => {
+  it('table T-109 IC-52 is the close of the Help, the Save As Dialog and the Search Window; T-103 names them', () => {
     expect(GLOSSARY).toContain(IC_52_SURFACES)
-    expect([SEARCH_SURFACE, HELP_SURFACE, EXPORT_SURFACE]).toEqual(['Search Panel', 'Help Modal', 'Export Chooser'])
+    expect([SEARCH_SURFACE, HELP_SURFACE, EXPORT_SURFACE]).toEqual(['Search Window', 'Help Window', 'Save As Dialog'])
   })
 
   it.each([SEARCH_EVENT, HELP_EVENT, SURFACE_EVENT])('table T-280 still opens a window with: %s', (row) => {
@@ -157,12 +157,12 @@ function tooltipLeft(other: Other, place: Place): number {
 
 const OTHERS: readonly Other[] = ['help', 'exportChooser']
 
-describe('IN-3 / EZ-2 / IN-7 (MUST): the explanation of IC-52 shows under the close the pointer rests on (DFC-1287, Search Panel part)', () => {
-  it.each(OTHERS)('premise (UZ-6, UZ-7, UZ-13): the Search Panel and the %s stand together, each with one IC-52', (other) => {
+describe('IN-3 / EZ-2 / IN-7 (MUST): the explanation of IC-52 shows under the close the pointer rests on (DFC-1287, Search Window part)', () => {
+  it.each(OTHERS)('premise (UZ-6, UZ-7, UZ-13): the Search Window and the %s stand together, each with one IC-52', (other) => {
     const view = viewOf(other, 'searchPanel')
-    expect(view.searchPanel ?? null, 'the Search Panel stands').not.toBeNull()
+    expect(view.searchPanel ?? null, 'the Search Window stands').not.toBeNull()
     if (other === 'help') expect(view.helpModal ?? null, 'UZ-7: the Help stands beside it').not.toBeNull()
-    else expect(view.openModal, 'UZ-13: the Export Chooser stands beside it').not.toBeNull()
+    else expect(view.openModal, 'UZ-13: the Save As Dialog stands beside it').not.toBeNull()
     const built = wire({ preference: 'light', hue: 214 }, { 'App Header': 56 })
     surfaceOf(built).showScreenView({ ...view, tooltips: [] })
     expect(closeIn(built.root(), SEARCH_SURFACE)).toBeDefined()
@@ -177,13 +177,13 @@ describe('IN-3 / EZ-2 / IN-7 (MUST): the explanation of IC-52 shows under the cl
     expect(anchorKey((onSearch[0] as Tooltip).anchor)).not.toBe(anchorKey((onOther[0] as Tooltip).anchor))
   })
 
-  it.each(OTHERS)('IN-3 / IN-7: with the %s, resting on the Search Panel close, the explanation stands under the Search Panel close', (other) => {
+  it.each(OTHERS)('IN-3 / IN-7: with the %s, resting on the Search Window close, the explanation stands under the Search Window close', (other) => {
     const left = tooltipLeft(other, 'searchPanel')
-    expect(left, `within the Search Panel close, x ${String(SEARCH_CLOSE_LEFT)} to ${String(SEARCH_CLOSE_LEFT + CLOSE_SIDE)}`).toBeGreaterThanOrEqual(SEARCH_CLOSE_LEFT)
+    expect(left, `within the Search Window close, x ${String(SEARCH_CLOSE_LEFT)} to ${String(SEARCH_CLOSE_LEFT + CLOSE_SIDE)}`).toBeGreaterThanOrEqual(SEARCH_CLOSE_LEFT)
     expect(left).toBeLessThanOrEqual(SEARCH_CLOSE_LEFT + CLOSE_SIDE)
   })
 
-  it.each(OTHERS)('IN-3 / IN-7: resting on the %s close, the explanation stands under that close, not the Search Panel close', (other) => {
+  it.each(OTHERS)('IN-3 / IN-7: resting on the %s close, the explanation stands under that close, not the Search Window close', (other) => {
     const left = tooltipLeft(other, other)
     expect(left, `within the other close, x ${String(OTHER_CLOSE_LEFT)} to ${String(OTHER_CLOSE_LEFT + CLOSE_SIDE)}`).toBeGreaterThanOrEqual(OTHER_CLOSE_LEFT)
     expect(left).toBeLessThanOrEqual(OTHER_CLOSE_LEFT + CLOSE_SIDE)

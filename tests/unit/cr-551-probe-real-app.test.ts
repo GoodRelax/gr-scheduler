@@ -493,7 +493,7 @@ describe('D: CV-9 / JDG-397 -- a press on a color swatch lands in the frame its 
 })
 
 describe('E: FR-051 E-14 -- the schedule is drawn only on the ground its task group bands paint', () => {
-  it('every layer of table T-020 sits inside one clip: the Task Group Area widened by canvasPadding to the vertical bar', () => {
+  it('every layer of table T-020 sits inside one clip: the Task Group Lanes widened by canvasPadding to the vertical bar', () => {
     // Spec: FR-051, EP-5, T-020
     const rows = Array.from({ length: 40 }, (_one, index) => ({ id: `g${index + 1}`, parentId: null }))
     const document = taskGroupDocument(rows, { isProgressMarkerVisible: false, zoomY: 2 })
@@ -509,7 +509,7 @@ describe('E: FR-051 E-14 -- the schedule is drawn only on the ground its task gr
     expect(Number(x)).toBeCloseTo(area.x, 1)
     expect(Number(y)).toBeCloseTo(area.y, 1)
     expect(Number(width), 'up to the left edge of the vertical bar').toBeCloseTo(area.width + padding, 1)
-    expect(Number(height), 'down to the Task Group Area bottom, above the canvasPadding and the horizontal bar').toBeCloseTo(area.height, 1)
+    expect(Number(height), 'down to the Task Group Lanes bottom, above the canvasPadding and the horizontal bar').toBeCloseTo(area.height, 1)
     const stack: string[] = []
     let layers = 0
     for (const tag of svg.matchAll(/<(\/?)g\b([^>]*?)(\/?)>/g)) {

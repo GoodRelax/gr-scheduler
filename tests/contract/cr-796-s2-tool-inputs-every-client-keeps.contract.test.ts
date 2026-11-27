@@ -248,7 +248,7 @@ describe('CR-796 s2 -- the relay serves two resources (AG-12 (8), design-mcp-rel
 })
 
 // Spec: AM-27, TV-5, TV-8, S-560
-describe('CR-796 s2 -- AM-27: an empty list turns the Search Panel schedule filter off', () => {
+describe('CR-796 s2 -- AM-27: an empty list turns the Search Window schedule filter off', () => {
   const template = JSON.parse(
     readRepoFile(join(ROOT, 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
   ) as Document

@@ -126,7 +126,7 @@
      "id": "N-5",
      "name": "`{written:commentBox}` / `{written:commentBoxes}`",
      "japanese": {
-      "ja": "コメントボックス 1 つ分の型と、文書が持つその配列の鍵。<br>UI パーツ名は `Comment Boxes`（`U-14`）"
+      "ja": "コメントボックス 1 つ分の型と、文書が持つその配列の鍵。<br>UI パーツ名は `Comment Box`（`U-14`）"
      }
     },
     {
@@ -175,7 +175,7 @@
      "id": "N-12",
      "name": "`{written:dependency}`",
      "japanese": {
-      "ja": "{ja:dependency}。<br>⚠️ 画面に描く線は `Dependency Lines`（`U-16`）であり、別の語である"
+      "ja": "{ja:dependency}。<br>⚠️ 画面に描く線は `Dependency Line`（`U-16`）であり、別の語である"
      }
     },
     {
@@ -464,9 +464,9 @@
     },
     {
      "id": "U-6",
-     "name": "`Resume Icon`",
+     "name": "`Resume Mark`",
      "japanese": {
-      "ja": "再開アイコン"
+      "ja": "再開マーク"
      }
     },
     {
@@ -520,7 +520,7 @@
     },
     {
      "id": "U-14",
-     "name": "`Comment Boxes`",
+     "name": "`Comment Box`",
      "japanese": {
       "ja": "{ja:commentBoxGraphic}。<br>⚠️ **「コメント」と略さない（MUST NOT）** —— 本文だけを指すのか器を指すのかが読めなくなる。<br>本文は「コメントボックスの本文」と書く"
      }
@@ -541,7 +541,7 @@
     },
     {
      "id": "U-16",
-     "name": "`Dependency Lines`",
+     "name": "`{label:dependencyLine}`",
      "japanese": {
       "ja": "{ja:dependencyLine}"
      }
@@ -592,7 +592,7 @@
      "id": "U-23",
      "name": "`{label:taskGroupTitleTree}`",
      "japanese": {
-      "ja": "タスクグループ見出しツリー。<br>**`Task Group Panel` の中身**（パネルが画面領域、ツリーがその中の木の表示）。<br>⚠️ **操作の入口を指すときは「タスクグループパネル」と書くこと（MUST）** —— 入口を 2 つの語で呼ぶと `FR-029` に触れる"
+      "ja": "タスクグループタイトルツリー。<br>**`Task Group Panel` の中身**（パネルが画面領域、ツリーがその中の木の表示）。<br>⚠️ **操作の入口を指すときは「タスクグループパネル」と書くこと（MUST）** —— 入口を 2 つの語で呼ぶと `FR-029` に触れる"
      }
     },
     {
@@ -618,14 +618,14 @@
     },
     {
      "id": "U-27",
-     "name": "`Document Title`",
+     "name": "`Project Title`",
      "japanese": {
       "ja": "文書名。<br>MSPDI の `Project/Title` に対応する。<br>⚠️ **「表題」「題名」と呼んではならない（MUST NOT）** —— 同じ値を指す"
      }
     },
     {
      "id": "U-30",
-     "name": "`Help Modal`",
+     "name": "`Help Window`",
      "japanese": {
       "ja": "ヘルプ"
      }
@@ -645,17 +645,10 @@
      }
     },
     {
-     "id": "U-33",
-     "name": "`{label:canvasOverlays}`",
-     "japanese": {
-      "ja": "（同上）"
-     }
-    },
-    {
      "id": "U-34",
      "name": "`{label:paletteGroups}` / `Palette Commands`",
      "japanese": {
-      "ja": "（同上）"
+      "ja": "（画面に出ない構造名。<br>日本語を当てない）"
      }
     },
     {
@@ -711,12 +704,12 @@
      "id": "U-42",
      "name": "`{label:pointer}`",
      "japanese": {
-      "ja": "ポインタ。<br>マウスが指す点"
+      "ja": "ポインター。<br>マウスが指す点"
      }
     },
     {
      "id": "U-43",
-     "name": "`Grab Region` / `{label:grabPoint}`",
+     "name": "`Grab Area` / `{label:grabPoint}`",
      "japanese": {
       "ja": "{ja:grabArea} / {ja:grabPoint}。<br>形と大きさの全数は表 T-266、応える順は表 T-267 と表 T-268（日程の形でないものは表 T-023d）が持つ"
      }
@@ -725,7 +718,7 @@
      "id": "U-45",
      "name": "`GoodRelax Scheduler`",
      "japanese": {
-      "ja": "本ソフトウェアの名称。<br>略称は `GRS`。<br>日本語に訳さない"
+      "ja": "`GRS` の名称。<br>略称は `GRS`。<br>日本語に訳さない"
      }
     },
     {
@@ -737,16 +730,16 @@
     },
     {
      "id": "U-47",
-     "name": "`Task Group Expander`",
+     "name": "`{label:taskGroupButtons}`",
      "japanese": {
-      "ja": "タスクグループの折りたたみの操作子。<br>⛔ **員数と置き方は 表 T-051 の `HF-1` が持ち、本行は持たない** —— **同じ数が 2 か所に載ると、必ず離れていく**"
+      "ja": "{ja:taskGroupButtons}。<br>⛔ **員数と置き方は 表 T-051 の `HF-1` が持ち、本行は持たない** —— **同じ数が 2 か所に載ると、必ず離れていく**"
      }
     },
     {
      "id": "U-48",
-     "name": "`Task Group Pin`",
+     "name": "`Pin Button`",
      "japanese": {
-      "ja": "ピン止めの操作子。<br>置き方は `FR-098`"
+      "ja": "ピン止めボタン。<br>置き方は `FR-098`"
      }
     },
     {
@@ -758,16 +751,16 @@
     },
     {
      "id": "U-50",
-     "name": "`Task Group Area`",
+     "name": "`Task Group Lanes`",
      "japanese": {
       "ja": "（画面に出ない構造名。<br>日本語を当てない）。<br>`Schedule Canvas` から `Time Ruler` の帯と余白を除いた、`Task Groups` が並ぶ領域。<br> 左右は `Task Group Panel` と `Properties Panel` の内側"
      }
     },
     {
      "id": "U-52",
-     "name": "`Actual Operation Dummy`",
+     "name": "`Actual Dummy`",
      "japanese": {
-      "ja": "実績操作のダミー。<br>**まだ始まっていない実績。<br>** 未着手のタスクに薄く出し、実績と同じ規則で置き、掴ませる。<br>札の基準は表 T-272、掴み代は表 T-266 が持つ。<br>文書のデータとしては存在しない（`FR-043`）"
+      "ja": "実績ダミー。<br>**まだ始まっていない実績。<br>** 未着手のタスクに薄く出し、実績と同じ規則で置き、掴ませる。<br>ラベルの基準は表 T-272、掴み代は表 T-266 が持つ。<br>文書のデータとしては存在しない（`FR-043`）"
      }
     },
     {
@@ -781,12 +774,12 @@
      "id": "U-53",
      "name": "`{label:tooltip}`",
      "japanese": {
-      "ja": "{ja:tooltip}。<br>何かに添えて出す説明。<br>出す場面は `FR-092` の `EZ-2`（アイコン）と `EZ-6`（タスク・期限の印・変更前の予定）／ `FR-037` が、振る舞いは表 T-028 の `IN-3` が持つ。<br>⚠️ **`FR-085` は場面ではない** —— 同要求は打ち切ったタスクグループ名の全文を出すことを禁じており、`IN-3` が「引き金ではなくなった」と述べている。<br>⚠️ **重ねて開く面ではない**（表 T-028 の `IN-4`）"
+      "ja": "{ja:tooltip}。<br>何かに添えて出す説明。<br>出す場面は `FR-092` の `EZ-2`（アイコン）と `EZ-6`（タスク・期限マーク・変更前の予定）／ `FR-037` が、振る舞いは表 T-028 の `IN-3` が持つ。<br>⚠️ **`FR-085` は場面ではない** —— 同要求は打ち切ったタスクグループ名の全文を出すことを禁じており、`IN-3` が「引き金ではなくなった」と述べている。<br>⚠️ **重ねて開く面ではない**（表 T-028 の `IN-4`）"
      }
     },
     {
      "id": "U-54",
-     "name": "`Export Chooser`",
+     "name": "`Save As Dialog`",
      "japanese": {
       "ja": "書き出しの形式を選ぶ面。<br>開く規則は `FR-096`、入口は表 T-109 の `IC-2`、鍵は表 T-036 の `SK-12` が持つ"
      }
@@ -800,16 +793,16 @@
     },
     {
      "id": "U-56",
-     "name": "`Open Chooser`",
+     "name": "`Open File Dialog`",
      "japanese": {
-      "ja": "読んだ内容の扱い方を選ぶ面。<br>選ばせる規則は 表 T-024a の `OP-3`、3 つの入口は表 T-109 の `IC-71` 〜 `IC-73` が持つ。<br>面の中身と並びは 表 T-024a の `OP-16` が持つ。<br>⚠️ **`Confirmation` ではない** —— あちらは 2 択であり、表 T-037 の `NT-7` がそう定めている。<br>⭐ **`Export Chooser`（`U-54`）の対である**"
+      "ja": "読んだ内容の扱い方を選ぶ面。<br>選ばせる規則は 表 T-024a の `OP-3`、3 つの入口は表 T-109 の `IC-71` 〜 `IC-73` が持つ。<br>面の中身と並びは 表 T-024a の `OP-16` が持つ。<br>⚠️ **`Confirmation` ではない** —— あちらは 2 択であり、表 T-037 の `NT-7` がそう定めている。<br>⭐ **`Save As Dialog`（`U-54`）の対である**"
      }
     },
     {
      "id": "U-58",
      "name": "`{label:openedFileName}`",
      "japanese": {
-      "ja": "{ja:openedFileName}。<br>⚠️ **`Document Title`（`U-27`）とは別物である** —— あちらは文書が持つ値であり、本行はファイルの名前である。<br>規則は `FR-101`"
+      "ja": "{ja:openedFileName}。<br>⚠️ **`Project Title`（`U-27`）とは別物である** —— あちらは文書が持つ値であり、本行はファイルの名前である。<br>規則は `FR-101`"
      }
     },
     {
@@ -851,14 +844,14 @@
      "id": "U-63",
      "name": "`{label:deadlineMark}`",
      "japanese": {
-      "ja": "期限の印。<br>`Task` の `deadline` を日程表の上に示す印。<br>描き方は `01-04-requirements.md` の `FR-045` の 表 T-304 が持つ。<br>⚠️ 「マーカー」と呼ばない（表 T-006b の `A-5`）"
+      "ja": "期限マーク。<br>`Task` の `deadline` をタスクグループレーンズの上に示す印。<br>描き方は `01-04-requirements.md` の `FR-045` の 表 T-304 が持つ。<br>⚠️ 「マーカー」と呼ばない（表 T-006b の `A-5`）"
      }
     },
     {
      "id": "U-64",
-     "name": "`Search Panel`",
+     "name": "`Search Window`",
      "japanese": {
-      "ja": "検索パネル。<br>語で探したタスクとコメントボックスを表に並べ、押すとそこへ飛ぶ、浮く UI パーツ。<br>規則は `01-04-requirements.md` の `FR-151`。<br>⚠️ `tbl-settings.md` の `S-99g` の面ではない"
+      "ja": "検索ウィンドウ。<br>語で探したタスクとコメントボックスを表に並べ、押すとそこへ飛ぶ、浮く UI パーツ。<br>規則は `01-04-requirements.md` の `FR-151`。<br>⚠️ `tbl-settings.md` の `S-99g` の面ではない"
      }
     },
     {
@@ -870,16 +863,16 @@
     },
     {
      "id": "U-66",
-     "name": "`Delay Diagnostics Report`",
+     "name": "`Delay Diagnosis Report`",
      "japanese": {
-      "ja": "遅延診断レポート。<br>遅延診断のまとめとタスクの表を出す浮く窓 —— 行を押せばその `Task` へ飛ぶ。<br>立てる規則と窓の形は `01-04-requirements.md` の `FR-134` と同書の 表 T-346 ・ 表 T-347 が持つ。<br>⚠️ 検索パネル（`U-64`）と同じく、`S-99g` が数える面には入らない"
+      "ja": "遅延診断レポート。<br>遅延診断のまとめとタスクの表を出す浮く窓 —— 行を押せばその `Task` へ飛ぶ。<br>立てる規則と窓の形は `01-04-requirements.md` の `FR-134` と同書の 表 T-346 ・ 表 T-347 が持つ。<br>⚠️ 検索ウィンドウ（`U-64`）と同じく、`S-99g` が数える面には入らない"
      }
     },
     {
      "id": "U-67",
      "name": "`{label:scheduleFilterBar}`",
      "japanese": {
-      "ja": "チェックで日程抽出バー。<br>3 つの表（検索パネル・遅延診断レポート・担当リスト）のどれかで日程抽出しているあいだ、そのことと、日程抽出している表の名と、件数を告げ、すべての表の日程抽出を解除する語の入口を持つ帯 —— 語の入口であってアイコンではないので、表 T-109 に行を持たない（`NT-8` の `OK` と同じ）。<br>置き方と語は `01-04-requirements.md` の 表 T-353 の `TV-11` が持つ。<br>⚠️ `Esc` で閉じる面（`tbl-settings.md` の `S-99g`）に数えない —— 帯が消えるのは、すべての表の日程抽出が解除されたときだけである（`TV-8`）"
+      "ja": "チェックで日程抽出バー。<br>3 つの表（検索ウィンドウ・遅延診断レポート・担当リスト）のどれかで日程抽出しているあいだ、そのことと、日程抽出している表の名と、件数を告げ、すべての表の日程抽出を解除する語の入口を持つ帯 —— 語の入口であってアイコンではないので、表 T-109 に行を持たない（`NT-8` の `OK` と同じ）。<br>置き方と語は `01-04-requirements.md` の 表 T-353 の `TV-11` が持つ。<br>⚠️ `Esc` で閉じる面（`tbl-settings.md` の `S-99g`）に数えない —— 帯が消えるのは、すべての表の日程抽出が解除されたときだけである（`TV-8`）"
      }
     },
     {
@@ -909,7 +902,7 @@
      "ja": "> **`AI API` を採らない理由**: 英語では「**AI を提供する API**」と読まれる（OpenAI API などと同型）。  "
     },
     {
-     "ja": "> これは AI が叩く側の API なので向きが逆であり、Chapter 2.4（表 T-009 の `XO-4`）「本ソフトウェアは AI 推論の実行系を持たない」と矛盾する。  "
+     "ja": "> これは AI が叩く側の API なので向きが逆であり、Chapter 2.4（表 T-009 の `XO-4`）「`GRS` は AI 推論の実行系を持たない」と矛盾する。  "
     },
     {
      "ja": "> `agent` は叩く側を名指しする語なので誤読が起きない。  "
@@ -1147,7 +1140,7 @@
      },
      "name": "`{written:stackGap}`",
      "japanese": {
-      "ja": "積み順の段の間隔"
+      "ja": "積み段の間隔"
      }
     },
     {
@@ -1297,7 +1290,7 @@
      },
      "name": "`{written:resumeArmOfMarker}`",
      "japanese": {
-      "ja": "再開アイコンの腕の長さ ÷ マーカー"
+      "ja": "再開マークの腕の長さ ÷ マーカー"
      }
     },
     {
@@ -1307,7 +1300,7 @@
      },
      "name": "`{written:resumeHeadOfMarker}`",
      "japanese": {
-      "ja": "再開アイコンの矢じり ÷ マーカー"
+      "ja": "再開マークの矢じり ÷ マーカー"
      }
     },
     {
@@ -1317,7 +1310,7 @@
      },
      "name": "`{written:resumeDashOn}`",
      "japanese": {
-      "ja": "再開アイコンへ繋ぐ破線の実部"
+      "ja": "再開マークへ繋ぐ破線の実部"
      }
     },
     {
@@ -1327,7 +1320,7 @@
      },
      "name": "`{written:resumeDashOff}`",
      "japanese": {
-      "ja": "再開アイコンへ繋ぐ破線の空部"
+      "ja": "再開マークへ繋ぐ破線の空部"
      }
     },
     {
@@ -1347,7 +1340,7 @@
      },
      "name": "`{written:resumeDashWidth}`",
      "japanese": {
-      "ja": "再開アイコンへ繋ぐ破線の太さ"
+      "ja": "再開マークへ繋ぐ破線の太さ"
      }
     },
     {
@@ -1397,7 +1390,7 @@
      },
      "name": "`{written:assigneeLabelGap}`",
      "japanese": {
-      "ja": "担当と進捗の札を開始から離す隙間"
+      "ja": "担当と進捗のラベルを開始から離す隙間"
      }
     },
     {
@@ -1407,7 +1400,7 @@
      },
      "name": "`{written:progressMarkerEdgeGap}`",
      "japanese": {
-      "ja": "進捗マーカーを棒の端から離す隙間"
+      "ja": "進捗ステータスマークを棒の端から離す隙間"
      }
     },
     {
@@ -2509,7 +2502,7 @@
       "ja": "矢羽根"
      },
      "reason": {
-      "ja": "図形名としての直訳は「山形」だが、要望の入力が「矢羽根」を使っており、日程表の文脈で意味が通る。<br>英語側は世界共通の図形名 `chevron` を使う（コードは英語で書くため）"
+      "ja": "図形名としての直訳は「山形」だが、要望の入力が「矢羽根」を使っており、ガントチャートの文脈で意味が通る。<br>英語側は世界共通の図形名 `chevron` を使う（コードは英語で書くため）"
      }
     },
     {
@@ -2529,7 +2522,7 @@
       "ja": "{ja:marquee}"
      },
      "reason": {
-      "ja": "`Marquee` は選ぶための矩形そのものを指し、「範囲選択」は操作を指す。<br> 直訳の「マーキー」は日程表の文脈で通じない"
+      "ja": "`Marquee` は選ぶための矩形そのものを指し、「範囲選択」は操作を指す。<br> 直訳の「マーキー」はガントチャートの文脈で通じない"
      }
     },
     {
@@ -2621,7 +2614,7 @@
     },
     "",
     {
-     "ja": "⭐ `構え` の欄は、その入口が押されたときポインタが入る 表 T-023b の行である。  "
+     "ja": "⭐ `構え` の欄は、その入口が押されたときポインターが入る 表 T-023b の行である。  "
     },
     {
      "ja": "構えを持たない入口の欄は `—` である。  "

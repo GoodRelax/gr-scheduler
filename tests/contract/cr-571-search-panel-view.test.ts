@@ -1,4 +1,4 @@
-// Contract test: FR-151 tables T-330, T-331 and T-333 against the Search Panel view and its drawing.
+// Contract test: FR-151 tables T-330, T-331 and T-333 against the Search Window view and its drawing.
 
 import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
@@ -47,23 +47,23 @@ function rowOf(table: string, id: string): SpecRow {
 const cellOf = (table: string, id: string, heading: string): string => unbroken(rowOf(table, id).by[heading] ?? '')
 
 const SV_1_ORDER =
-  '`GRS` は、検索パネルのタイトルバーに、左から、面の名（`FR-038` の辞書）・タスクの表の入口 `IC-118`・コメントボックスの表の入口 `IC-119`・列のフィルタと並べ替えを戻す入口 `IC-153`・日程抽出の入口 `IC-143`（表 T-353 —— `IC-143` の色は 表 T-353 の `TV-12`）を置くこと。'
+  '`GRS` は、検索ウィンドウのタイトルバーに、左から、面の名（`FR-038` の辞書）・タスクの表の入口 `IC-118`・コメントボックスの表の入口 `IC-119`・列のフィルターと並べ替えを戻す入口 `IC-153`・日程抽出の入口 `IC-143`（表 T-353 —— `IC-143` の色は 表 T-353 の `TV-12`）を置くこと。'
 const SV_1_RIGHT =
   '`GRS` は、タイトルバーの右端に、左から `IC-127`（字の大きさ）・`IC-129`（最小化）・`IC-130`（最大化）・`IC-52`（閉じる）を置くこと。'
 const SV_1_TITLE_FONT = '`GRS` は、タイトルバーの面の名の字を `SV-16` の段に従わせること。'
 const SV_1_GRAB = '`GRS` は、タイトルバーを、掴んで動かす帯（表 T-023d の `GR-24`）とすること。'
 const SV_2_FIELD = '`GRS` は、入力欄をタイトルバーの下に 1 行で置くこと。'
-const SV_2_REFOCUS = '検索パネルが出ている間、 `SK-24` か `IC-117` を押したとき、`GRS` は、焦点を入力欄へ戻すこと。'
-const SV_3_ONE = '`GRS` は、検索パネルに表を一度に 1 つだけ出すこと。'
+const SV_2_REFOCUS = '検索ウィンドウが出ている間、 `SK-24` か `IC-117` を押したとき、`GRS` は、焦点を入力欄へ戻すこと。'
+const SV_3_ONE = '`GRS` は、検索ウィンドウに表を一度に 1 つだけ出すこと。'
 const SV_3_DEFAULT = '`GRS` は、既定でタスクの表を出すこと。'
 const SV_3_CHOSEN = '`GRS` は、出している表の入口を 表 T-237 の `EN-6`（排他の選択のうち選んでいるもの）で示すこと。'
 const SV_6_FIXED = '`GRS` は、横には、タスクの表では `SQ-1` まで（表 T-331 の並びで 表示・ステータス・進捗・タスク種別・タスク の 5 列）、コメントボックスの表では `SQ-7` までを左に固定すること（表 T-257 の `RR-4` と同じ形）。'
 const SV_9_SIZE =
-  '`GRS` は、検索パネルの既定の幅を、`Schedule Canvas`（`U-32`）の幅に `_assets/tbl-settings.md` の 表 T-206 の `S-421` を掛けた幅にすること。'
-const SV_9_CORNER = '`GRS` は、検索パネルの左下の角を `Schedule Canvas` の左下に合わせること。'
-const SV_12_ONLY_TITLE = '`GRS` は、検索パネルの最小化を `FR-036` の 表 T-335 の `WB-2`・`WB-5` に従わせること（入口は `IC-129`）。'
+  '`GRS` は、検索ウィンドウの既定の幅を、`Schedule Canvas`（`U-32`）の幅に `_assets/tbl-settings.md` の 表 T-206 の `S-421` を掛けた幅にすること。'
+const SV_9_CORNER = '`GRS` は、検索ウィンドウの左下の角を `Schedule Canvas` の左下に合わせること。'
+const SV_12_ONLY_TITLE = '`GRS` は、検索ウィンドウの最小化を `FR-036` の 表 T-335 の `WB-2`・`WB-5` に従わせること（入口は `IC-129`）。'
 const SV_12_BOTTOM = 'タイトルバーを中身の幅に縮め、最小化する前の箱の下の縁に、右の端をそろえて置く（元の箱の右下の角）'
-const SV_13_FILL = '`GRS` は、検索パネルを最大化する範囲を `Schedule Canvas` いっぱいにすること。'
+const SV_13_FILL = '`GRS` は、検索ウィンドウを最大化する範囲を `Schedule Canvas` いっぱいにすること。'
 const SV_13_LABEL = '最大化の入口は、`WB-3` のあいだだけ `IC-131` に替えて同じ場所に描く（`IC-67`・`IC-68` と同じ組み）'
 const SV_16_PX = '`GRS` は、表・入力欄・タイトルバーの面の名の字を、`S-429` が選ぶ `_assets/tbl-settings.md` の 表 T-333 の段の px で描くこと。'
 const SV_16_CYCLE =
@@ -93,7 +93,7 @@ function found<T>(value: T | undefined, what: string): T {
 }
 
 const panelNameOf = (language: DisplayLanguage): string =>
-  found(WORDS.surfaces.find((one) => one.name === 'Search Panel'), 'Search Panel heading').heading[language]
+  found(WORDS.surfaces.find((one) => one.name === 'Search Window'), 'Search Window heading').heading[language]
 const iconLabelOf = (icon: string, language: DisplayLanguage): string =>
   found(WORDS.icons.find((one) => one.specTableRowId === icon), `label for ${icon}`).label[language]
 const columnWordOf = (column: string, language: DisplayLanguage): string =>

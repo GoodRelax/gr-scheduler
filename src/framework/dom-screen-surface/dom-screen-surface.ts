@@ -61,12 +61,12 @@ import { WINDOW_GRAB_ATTRIBUTE, type PointAsked } from './window-frame-drawing'
 const UNIT_ROW = 'UF-71'
 
 // Spec: T-337
-const HELP_MODAL_SURFACE = 'Help Modal'
+const HELP_MODAL_SURFACE = 'Help Window'
 
-const SEARCH_PANEL_SURFACE = 'Search Panel'
+const SEARCH_PANEL_SURFACE = 'Search Window'
 
 // Spec: U-66, RW-5, DT-8
-const REPORT_IDENTITY: TableWindowIdentity = { window: 'delayDiagnosticsReport', role: 'Delay Diagnostics Report', visibilityColumn: 'DT-8' }
+const REPORT_IDENTITY: TableWindowIdentity = { window: 'delayDiagnosticsReport', role: 'Delay Diagnosis Report', visibilityColumn: 'DT-8' }
 
 // Spec: U-49, RO-6, RQ-1
 const RESOURCE_LIST_IDENTITY: TableWindowIdentity = { window: 'resourceList', role: 'Resource List', visibilityColumn: 'RQ-1' }
@@ -76,8 +76,8 @@ export const ROLE = {
   branding: 'Branding',
   brandingDivider: 'Branding Divider',
   titleAndFileStrip: 'Title And File Strip',
-  documentTitleGround: 'Document Title Ground',
-  documentTitle: 'Document Title',
+  documentTitleGround: 'Project Title Ground',
+  documentTitle: 'Project Title',
   fileStatus: 'File Status',
   openedFileName: 'Opened File Name',
   fileSavedAt: 'File Saved At',
@@ -87,8 +87,8 @@ export const ROLE = {
   taskGroupPanel: 'Task Group Panel',
   taskGroupTitleTree: 'Task Group Title Tree',
   pinnedTaskGroup: 'Pinned Task Group',
-  taskGroupExpander: 'Task Group Expander',
-  taskGroupPin: 'Task Group Pin',
+  taskGroupExpander: 'Task Group Buttons',
+  taskGroupPin: 'Pin Button',
   propertiesPanel: 'Properties Panel',
   commandPalette: 'Command Palette',
   paletteGroups: 'Palette Groups',
@@ -97,9 +97,9 @@ export const ROLE = {
   confirmation: 'Confirmation',
   tooltips: 'Tooltip',
   dropCue: 'Drop Cue',
-  taskGroupDropLine: 'Task Group Drop Line',
-  taskGroupGrabCopy: 'Task Group Grab Copy',
-  taskGroupGrabCues: 'Task Group Grab Cues',
+  taskGroupDropLine: 'Drop Line',
+  taskGroupGrabCopy: 'Drag Copy',
+  taskGroupGrabCues: 'Interaction Cues',
 } as const
 
 export const HOST_ENTER = 'Enter'
@@ -364,7 +364,7 @@ export const STYLE = {
     `border-bottom:1px solid ${PAINT.rule};pointer-events:auto;`,
   // Spec: FR-039, S-529
   // Trap: every text here stays at S-529's normal weight, the h2 heading included; the bold are S-245 (OC-1 labels),
-  // S-463 (the Document Title, documentTitleStyle in app-header-drawing.ts) and NT-7's answer initial.
+  // S-463 (the Project Title, documentTitleStyle in app-header-drawing.ts) and NT-7's answer initial.
   documentTitle: 'min-width:0;overflow:hidden;text-overflow:ellipsis;line-height:1.2;',
   brandingSeat: 'display:inline-flex;align-items:center;flex-shrink:0;',
   brandingDivider:
@@ -1463,7 +1463,7 @@ function showDropCue(host: Document, layer: HTMLElement, cue: ScreenView['dropCu
   if (words.textContent !== cue.text) words.textContent = cue.text
 }
 
-const JUMP_RIPPLE_ROLE = 'Jump Landing Ripple'
+const JUMP_RIPPLE_ROLE = 'Jump Ripple'
 
 const LANDING_ATTRIBUTE = 'data-landing'
 

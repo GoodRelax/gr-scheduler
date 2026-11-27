@@ -130,7 +130,7 @@ def retired_ids():
 
 # The first cell of a table row, wrapped however the manuscripts wrap it.
 ROW = re.compile(r'^\|\s*(?:\*\*)?`?([A-Z][A-Za-z]*)-(\d+[a-z]?)`?(?:\*\*)?\s*\|')
-# 「**表 T-023a — ポインタを押したときの判定順序**」
+# 「**表 T-023a — ポインターを押したときの判定順序**」
 CAPTION = re.compile(u'^\\*\\*表\\s+([A-Za-z0-9\\-]+)\\s*(?:—|--)')
 # 「**UID**: FR-083」 -- what a captionless table is printed as.
 UID = re.compile(r'^\*\*UID\*\*:\s*(\S+)')

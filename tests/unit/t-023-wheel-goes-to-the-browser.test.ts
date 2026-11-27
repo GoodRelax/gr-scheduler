@@ -37,9 +37,9 @@
 //   T-023, the paragraph after the `MK-` rows (docs/spec/01-04-requirements.md):
 //     「**`Confirmation`（`U-55`）または `ScreenState` が持つ面が立っているあいだ、
 //       ホイールの割当（`MK-1` 〜 `MK-5`。本表のホイールの行はこの 5 つで全部
-//       である）を当てず、ブラウザの既定動作へ渡すこと（MUST）**（利用者の裁定
+//       である）を当てず、ブラウザーの既定動作へ渡すこと（MUST）**（利用者の裁定
 //       2026-08-29）—— ⛔ **当てると面の中が読めなくなる。**…⚠️ **素の `MK-1` に
-//       `MK-10` は届かない** —— 同行の主語は…「**本ツールが割り当てた**修飾キー
+//       `MK-10` は届かない** —— 同行の主語は…「**`GRS` が割り当てた**修飾キー
 //       の付いた入力」であり、修飾キーを伴わない入力については何も述べていない。
 //       ⛔⛔ **`MK-2` 〜 `MK-5` には届く。本規則はその例外である（MUST）** —— …
 //       **面が立っているあいだに限り本規則を優先する。**⚠️ **面が立っていないあいだの
@@ -60,16 +60,16 @@
 //                column names an environment rather than a turn, and its 動作 asks
 //                for on-screen buttons. The derivation says so by its shape --
 //                a wheel row ENDS by naming the wheel -- and not by naming MK-9.
-//   T-023  MK-10  「本ツールが割り当てた修飾キーの付いた入力 | ブラウザの既定動作を
+//   T-023  MK-10  「`GRS` が割り当てた修飾キーの付いた入力 | ブラウザーの既定動作を
 //                画面全体で止めること（MUST）」 -- which the closing rule now names
 //                itself an exception to, in force ONLY while a surface stands.
 //                ⭐ BOTH HALVES ARE CASES BELOW: a modified turn is stopped while
 //                no surface stands, and handed over while one does.
 //   T-028  IN-4   「`Esc` は閉じる対象または取り消す対象があるときだけ 1 階層ぶん消費
-//                し、無ければブラウザへ渡すこと。**消費する階層は …… 開いている面
+//                し、無ければブラウザーへ渡すこと。**消費する階層は …… 開いている面
 //                → …… の順とすること（MUST）**」 -- the rule's own stated reason for
 //                keeping the keys.
-//   T-028  IN-4a  「**消費する対象が 1 つも無いときは、必ずブラウザへ渡すこと（MUST）**」
+//   T-028  IN-4a  「**消費する対象が 1 つも無いときは、必ずブラウザーへ渡すこと（MUST）**」
 //                -- which is what makes the `Esc` cases below able to fail.
 //   T-036  SK-13  「ヘルプを開く | `F1`」 -- the one surface these cases can raise
 //                without drawing anything, and `ScreenState` is what holds it.
@@ -457,12 +457,12 @@ const HELP_MODAL = ((specTable('T-109').rows.find((one) => one.id === 'IC-129')?
   .replace(/[`*]/g, '')
   .trim()
 
-const HN_1 = '表 T-023 の後の段の「面が立っているあいだ」に当たらない —— 日程表に当てる'
+const HN_1 = '表 T-023 の後の段の「面が立っているあいだ」に当たらない —— `Schedule Canvas` に当てる'
 
 interface Stage {
   readonly loop: FrameLoop
   send(input: HumanInput): void
-  /** One turn of the wheel over the `Task Group Area`, spelled for one handed-over row. */
+  /** One turn of the wheel over the `Task Group Lanes`, spelled for one handed-over row. */
   wheel(modifiers: InputModifiers, sign?: 1 | -1): WheelInput
   /** MK-10's answer for one happening, asked before the loop hears it. */
   stops(input: HumanInput): boolean
@@ -566,7 +566,7 @@ describe('the manuscript still says what these cases read', () => {
     // every case below testing a habit instead of a requirement.
     const rule = closingRuleLine()
     expect(rule, 'it still names both things that can stand').toContain('`ScreenState` が持つ面')
-    expect(rule, 'the MUST').toContain('ブラウザの既定動作へ渡すこと（MUST）')
+    expect(rule, 'the MUST').toContain('ブラウザーの既定動作へ渡すこと（MUST）')
     expect(rule, 'the MUST NOT about the keys').toContain(
       'キーの割当は本規則の対象ではない（MUST NOT）',
     )
@@ -680,7 +680,7 @@ describe('表 T-023 の結び -- while a surface stands, every wheel row belongs
       })
 
       it(`${one.row} is handed to the browser while ${surface.what} stands`, () => {
-        // 「ブラウザの既定動作へ渡すこと（MUST）」 -- which is `preventDefault` NOT
+        // 「ブラウザーの既定動作へ渡すこと（MUST）」 -- which is `preventDefault` NOT
         // being called, and `isBrowserDefaultStopped` is the answer that decides
         // it. ⚠️ This is asserted for the BARE turn too: MK-10 says nothing about
         // a wheel with no modifier, but this rule names all four rows.
@@ -769,7 +769,7 @@ describe('表 T-023 の結び -- the keys are NOT what this rule hands over', ()
 
   it('IN-4a: with nothing standing, that same `Esc` goes to the browser', () => {
     // ⛔ THE CONTROL FOR THE FOUR CASES ABOVE. 「消費する対象が 1 つも無いときは、
-    // 必ずブラウザへ渡すこと（MUST）」 -- so `isBrowserDefaultStopped` is not a
+    // 必ずブラウザーへ渡すこと（MUST）」 -- so `isBrowserDefaultStopped` is not a
     // constant `true` for `Esc`, and the cases above say something.
     expect(stage().stops(ESCAPE())).toBe(false)
   })

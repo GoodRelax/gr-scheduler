@@ -21,7 +21,7 @@ const SPAN_DOES_NOT_MOVE_THE_SCREEN =
 
 // Spec: IX-13, T-241
 const SPAN_DAY_WIDTH =
-  '1 日の幅を、`Task Group Area` の幅 ÷ `S-518` の日から `S-519` の日までを両端を含めて数えた暦日の数とすること（MUST）'
+  '1 日の幅を、`Task Group Lanes` の幅 ÷ `S-518` の日から `S-519` の日までを両端を含めて数えた暦日の数とすること（MUST）'
 
 // Spec: IX-15, T-241
 const SPAN_HEIGHT =
@@ -168,7 +168,7 @@ test(`IX-13: ${SPAN_DAY_WIDTH}`, async ({ page }) => {
   expect(S_81.replace(/\s/g, ''), 'precondition: the test window is the S-81 canvas').toContain(`${VIEWPORT.width}×${VIEWPORT.height}`)
   await launch(page)
   await enableAgentApi(page)
-  // Why: with the window at S-81 and both panels closed, the screen's Task Group Area is the one IX-13 lays out for the picture.
+  // Why: with the window at S-81 and both panels closed, the screen's Task Group Lanes is the one IX-13 lays out for the picture.
   const area = await boxOf(page, '[data-role="Scrollbars"][data-axis="horizontal"]')
   await setSpan(page, SPAN_START, SPAN_FINISH)
   const svg = await exportedSvg(page)
@@ -223,7 +223,7 @@ test(`HS-11: ${STAMP_OF_THE_WRITTEN_BYTES}`, async ({ page }) => {
   const writeOut = async (format: string): Promise<string> => {
     const before = (await savedFiles(page)).length
     await press(page, 'IC-2')
-    await page.click(`[data-role="Export Chooser"] [data-format="${format}"]`)
+    await page.click(`[data-role="Save As Dialog"] [data-format="${format}"]`)
     await expect.poll(async () => (await savedFiles(page)).length).toBe(before + 1)
     await settle(page)
     return (await savedFiles(page))[before]!.text

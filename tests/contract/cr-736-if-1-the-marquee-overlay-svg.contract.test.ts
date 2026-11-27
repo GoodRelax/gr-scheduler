@@ -47,7 +47,7 @@ describe('CR-736 the manuscript these cases are driven by', () => {
     const supplies = wholeRow('T-065', 'IF-1')
     expect(supplies).toContain('口は 2 つ')
     expect(supplies).toContain('下の絵と同じ幅・高さ・viewBox')
-    expect(supplies).toContain('Task Group Area の帯')
+    expect(supplies).toContain('Task Group Lanes の帯')
     expect(supplies).toContain('Schedule Canvas の中で下の絵の手前に載せること（MUST）')
     expect(supplies).toContain('重ねの絵に ZO-6 のほかの行を載せてはならない（MUST NOT）')
     expect(supplies).toContain('渡された文字列が前に載せたものと同じなら画面を書き換えないこと（MUST）')
@@ -209,7 +209,7 @@ describe('IF-1: the overlay has the size, viewBox and clip of the picture beneat
       expect(overlay, 'table T-065 IF-1: 下の絵と同じ幅・高さ・`viewBox`').toEqual(beneath)
     })
 
-    it(`${name}: the clip is the box the picture beneath clips ZO-6 with (the Task Group Area band, JDG-365)`, () => {
+    it(`${name}: the clip is the box the picture beneath clips ZO-6 with (the Task Group Lanes band, JDG-365)`, () => {
       const beneath = clipsOf(pieces.beneath(viewer))
       const overlay = clipsOf(pieces.overlay(MARQUEE, viewer))
       expect(overlay.length, 'the overlay clips the rectangle').toBeGreaterThan(0)

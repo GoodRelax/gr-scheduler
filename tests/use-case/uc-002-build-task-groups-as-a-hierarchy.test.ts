@@ -98,7 +98,7 @@ test('UC-002 build task groups as a hierarchy (FR-085, FR-042, FR-005 HM-1 HM-2,
 
   await test.step('UC-002 step 5 kept over a save: the fold survives saving and reopening (FR-024, IO-2)', async () => {
     await press(page, 'IC-2')
-    await page.click('[data-role="Export Chooser"] [data-format="IO-2"]')
+    await page.click('[data-role="Save As Dialog"] [data-format="IO-2"]')
     await expect.poll(async () => (await savedFiles(page)).length).toBe(1)
     const saved = (await savedFiles(page))[0]!
     await openByDrop(page, saved.name, saved.text)

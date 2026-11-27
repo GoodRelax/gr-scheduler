@@ -42,7 +42,7 @@ const FR_036_NARROWED_SCROLLS_SIDEWAYS =
 const FR_036_COLUMNS_STAY = '`GRS` は、本文の領域の幅に合わせて、段の数を変えたり塊を別の段へ送ったりしないこと。'
 const FR_069_FOLDED = '`GRS` は、ヘルプを開いたときに、全文と帰属表示を開いた形で出さないこと。'
 const FR_069_NEW_TAB =
-  '人がヘルプの著作権表示を押したとき、`GRS` は、閲覧環境の新しいタブで、`_assets/tbl-settings.md` の 表 T-206 の `S-459`（本ソフトウェアのリポジトリの所）の頁を開くこと。'
+  '人がヘルプの著作権表示を押したとき、`GRS` は、閲覧環境の新しいタブで、`_assets/tbl-settings.md` の 表 T-206 の `S-459`（`GRS` のリポジトリの所）の頁を開くこと。'
 
 const CLAUSES: readonly string[] = [
   FR_036_TITLE_ORDER,
@@ -830,7 +830,7 @@ test.describe('CR-574 items 9 and 9a, CR-575 item 5a -- another surface stands i
     }
   })
 
-  test('item 9a / CR-575 5a: with the help at normal, the Export Chooser opens in front of it (UZ-13 over UZ-7); Esc closes the chooser, then the help', async () => {
+  test('item 9a / CR-575 5a: with the help at normal, the Save As Dialog opens in front of it (UZ-13 over UZ-7); Esc closes the chooser, then the help', async () => {
     test.setTimeout(240_000)
     const stage = await openTheSample(TALL)
     try {

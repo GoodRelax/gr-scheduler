@@ -11,10 +11,10 @@ import { unbroken } from '../contract/spec-table'
 
 const REQUIREMENTS = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 const DESIGN = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '05-07-design.md'), 'utf8'))
-const FR_069_NEW_TAB = '人がヘルプの著作権表示を押したとき、`GRS` は、閲覧環境の新しいタブで、`_assets/tbl-settings.md` の 表 T-206 の `S-459`（本ソフトウェアのリポジトリの所）の頁を開くこと。'
+const FR_069_NEW_TAB = '人がヘルプの著作権表示を押したとき、`GRS` は、閲覧環境の新しいタブで、`_assets/tbl-settings.md` の 表 T-206 の `S-459`（`GRS` のリポジトリの所）の頁を開くこと。'
 const FR_069_STRETCH =
   '作成者がヘルプで全文と帰属表示を開いたとき、`GRS` は、表 T-335 の `WB-1` のヘルプの窓の下の縁を、同表の `WB-3` の範囲の下端まで伸ばすこと'
-const MK_10_DO_NOT_STOP = '`GRS` は、割り当てていない組合せのブラウザの既定動作を止めないこと'
+const MK_10_DO_NOT_STOP = '`GRS` は、割り当てていない組合せのブラウザーの既定動作を止めないこと'
 const T_078_NO_OTHER_FRAME = '**本表に無い契機でフレームを起こしてはならない（MUST NOT）**'
 
 interface Fired {

@@ -138,10 +138,10 @@ const CONFIRMATION: Confirmation = {
   shownOnAnotherTaskGroupMark: '*',
 }
 
-const HELP: OpenModal = { surface: 'Help Modal', heading: 'HelpHeading', commands: [] }
+const HELP: OpenModal = { surface: 'Help Window', heading: 'HelpHeading', commands: [] }
 
 const CHOOSER: OpenModal = {
-  surface: 'Export Chooser',
+  surface: 'Save As Dialog',
   heading: 'Chooser heading',
   commands: [],
   formats: [{ row: 'IO-1', name: 'GRS JSON', extension: '.json' }],

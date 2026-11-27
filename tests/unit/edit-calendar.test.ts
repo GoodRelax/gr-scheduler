@@ -416,7 +416,7 @@ describe('EditCalendar (UF-16) -- CM-39 of table T-108', () => {
 
   it('UN-13 of table T-027 makes an edit of the calendar undoable and moves the schedule instant', () => {
     // UN-13 lists 暦（`FR-088`）among the document-wide settings undo covers,
-    // and table T-209 files its values in 日程データの群, which WS-5 of table
+    // and table T-209 files its values in スケジュールデータの群, which WS-5 of table
     // T-067 is the one that moves `documentStamp.scheduleUpdatedAt` for.
     const document = documentOf()
     const command: DocumentCommand = {

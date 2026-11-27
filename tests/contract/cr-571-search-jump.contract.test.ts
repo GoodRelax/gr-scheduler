@@ -27,7 +27,7 @@ const SJ_2_LEVEL_ZERO = '段 0 が折りたたんだ状態の間、飛ぶとき�
 const SJ_2_NOTHING_CHANGED = '`SJ-2` で `treeState` の値が 1 つも変わらないとき、`GRS` は、取り消しの段を積まないこと。'
 const SJ_6_NO_ZOOM = '`GRS` は、飛ぶときに倍率を変えないこと。'
 const SJ_6_NO_DATE = 'もし飛ぶ先の日付が空の場合、`GRS` は、横の位置を動かさないこと。'
-const SJ_6_WIDE = '飛ぶ先の予定の形の幅が `Task Group Area` の幅から `S-428` の 2 つ分を引いた幅より広いとき、`GRS` は、飛ぶ先の日付（タスクは `AT-28`、コメントボックスは `SQ-9` と同じ線先が立つ日時）が表示の左端から `S-428` だけ内側に来るよう置くこと。'
+const SJ_6_WIDE = '飛ぶ先の予定の形の幅が `Task Group Lanes` の幅から `S-428` の 2 つ分を引いた幅より広いとき、`GRS` は、飛ぶ先の日付（タスクは `AT-28`、コメントボックスは `SQ-9` と同じ線先が立つ日時）が表示の左端から `S-428` だけ内側に来るよう置くこと。'
 const SJ_7_PINNED =
   '飛ぶ先のタスクグループがピン止めのタスクグループ（`S-126`）で、ピン止めの帯（`FR-098`）に描いてある間、`GRS` は、`SJ-5` を行わずに `SJ-6` だけを行うこと。'
 const SJ_8_NO_ROOM =
@@ -47,7 +47,7 @@ const WIDE: SearchJumpReach = {
   landing: { shapeFromDatePx: 0, shapeWidthPx: 2000, shapeMiddleY: 300, roomTop: 0, roomHeight: 600, scrollingTaskGroups: [] },
 }
 const IN_BAND = (row: string): typeof NO_REACH => ({ ...NO_REACH, drawnTaskGroups: [{ taskGroupId: row, isPinned: true }] })
-const RS_66_SCENE = '**ピン止めしたタスクグループが多く、検索パネルから飛ぶ先を画面に出せない**'
+const RS_66_SCENE = '**ピン止めしたタスクグループが多く、検索ウィンドウから飛ぶ先を画面に出せない**'
 
 const TEMPLATE = JSON.parse(
   readFileSync(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),

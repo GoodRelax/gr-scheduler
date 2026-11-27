@@ -36,7 +36,7 @@ const SK_19_SETTLES = '出ている通知が無い間、 `Enter` を押したと
 const IN_4_RESTORE = '取り消したときは、編集を始める前の値へ戻すこと（MUST）。'
 const IN_4_NO_WRITE = '書きかけの文字を文書へ書いてはならない（MUST NOT）（`FR-031`）。'
 const IN_6_PRESS_OUTSIDE =
-  '確定していないその場の編集があるとき、その入力欄の外でポインタを押したら、その編集を確定すること（MUST）。'
+  '確定していないその場の編集があるとき、その入力欄の外でポインターを押したら、その編集を確定すること（MUST）。'
 const IN_6_SAME_VALUE = '**始めた値と同じ値を書いてはならない（MUST NOT）**'
 const IN_5A_UNSETTLED = '単文字キーと `Delete` / `Backspace` は、文字入力を確定していない間は効かないこと（MUST NOT）'
 
@@ -226,7 +226,7 @@ describe('IN-4 -- Esc cancels the edit in place', () => {
 })
 
 describe('IN-6 -- a press outside the field settles it', () => {
-  it('IN-6 その入力欄の外でポインタを押したら、その編集を確定すること（MUST）', () => {
+  it('IN-6 その入力欄の外でポインターを押したら、その編集を確定すること（MUST）', () => {
     const editing = typing('Kick-off meeting')
     pressOutside(editing)
     const commit = editing.surface.readFieldCommit()

@@ -34,7 +34,7 @@
 //   FR-101   ⭐ 「`GRS` は、**いま開いているファイルの名前**と、**そのファイルへ最後
 //            に書いた時刻**を画面上に示すこと。」「`GRS` は、ファイルの名前を時刻の
 //            上に置くこと。」（利用者の裁定 2026-08-29）
-//            ⚠️ 「`Document Title`（... `U-27`）と混同してはならない（MUST NOT）
+//            ⚠️ 「`Project Title`（... `U-27`）と混同してはならない（MUST NOT）
 //            —— あちらは文書が持つ値（`Project/Title`）であり、本要求が出すのは
 //            ファイルの名前である。**2 つが違う値になることは正常である。**」
 //   T-103    U-58 `Opened File Name` 「開いているファイル名 ... 規則は `FR-101`」
@@ -161,7 +161,7 @@ const EMPTY_VIEW: ScreenView = {
 /**
  * A header carrying both values FR-101 puts on the screen.
  *
- * ⚠️ THE NAME IS NOT THE `Document Title` -- U-58 says in as many words that the
+ * ⚠️ THE NAME IS NOT THE `Project Title` -- U-58 says in as many words that the
  * two are different values and that differing is normal, so the fixture gives
  * all three different words and no case can pass by confusing them.
  */

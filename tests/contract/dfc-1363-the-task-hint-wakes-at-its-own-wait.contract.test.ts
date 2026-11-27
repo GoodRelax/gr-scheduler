@@ -12,18 +12,18 @@ import { bare, specTable, unbroken } from './spec-table'
 const REQUIREMENTS = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 const SETTINGS_TABLES = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '_assets', 'tbl-settings.md'), 'utf8'))
 
-const EZ_2_WAIT = 'ポインタがアイコンに入ってから `_assets/tbl-settings.md` の `S-124` が経ったら、そのアイコンの説明を出すこと（MUST）。'
-const EZ_2_FROM_ENTERING = '⭐ 待ちは、ポインタがそのアイコンに入った時から数えること（MUST）。'
+const EZ_2_WAIT = 'ポインターがアイコンに入ってから `_assets/tbl-settings.md` の `S-124` が経ったら、そのアイコンの説明を出すこと（MUST）。'
+const EZ_2_FROM_ENTERING = '⭐ 待ちは、ポインターがそのアイコンに入った時から数えること（MUST）。'
 const EZ_6_WAIT =
-  '日程の上でポインタが `_assets/tbl-settings.md` の `S-439` のあいだ止まったら、そこに当たったものの説明を、表 T-348 の行で出すこと（MUST）。'
+  '日程の上でポインターが `_assets/tbl-settings.md` の `S-439` のあいだ止まったら、そこに当たったものの説明を、表 T-348 の行で出すこと（MUST）。'
 const EZ_6_TWO_VALUES = '⚠️ 待ち時間は `S-439` とし、`EZ-2` の待ち（`S-124`）とは別の値として持つこと（MUST）'
-const EZ_6_FROM_THE_STOP = '⚠️ 待ちを数え始めるのは、`EZ-2` と違い、ポインタが止まった時である'
+const EZ_6_FROM_THE_STOP = '⚠️ 待ちを数え始めるのは、`EZ-2` と違い、ポインターが止まった時である'
 const S_439_APART = '⚠️ **`S-124` とは別の値である** —— 片方を選び直しても、もう片方は動かない（`EZ-6`）。'
 // Why: CR-793 -- S-439 was shortened from 1000 to 500 ms (JDG-2701); it is still the longer of the two waits.
 const S_439_CHOSEN = '⚠️ **500 は、利用者が選んだ値である**（2026-10-17 に 1000 から縮めた'
 const S_439_LONGER = 'アイコンの説明（`S-124`）より長いのは、日程の上をなぞる手を説明が覆わないためである。'
-const S_439_FROM_THE_STOP = '⚠️ **待ちは、ポインタがタスクの上で止まった時から数える**（`EZ-6`）'
-const S_124_FROM_ENTERING = '⚠️ **待ちは、ポインタがアイコンに入った時から数える**（`EZ-2`）'
+const S_439_FROM_THE_STOP = '⚠️ **待ちは、ポインターがタスクの上で止まった時から数える**（`EZ-6`）'
+const S_124_FROM_ENTERING = '⚠️ **待ちは、ポインターがアイコンに入った時から数える**（`EZ-2`）'
 
 // Spec: T-212
 const T_212 = specTable('T-212')

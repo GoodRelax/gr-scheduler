@@ -28,7 +28,7 @@ const FR_098_LIFT = '`GRS` は、ピン止めしたタスクグループを、�
 const FR_098_ONCE = '`GRS` は、ピン止めしたタスクグループを本来の縦位置にも描かないこと'
 const FR_098_NOT_UNDER = '`GRS` は、スクロールするタスクグループを帯の下へ潜らせないこと'
 const FR_098_EVERY_FIGURE =
-  '`GRS` は、スクロールするタスクグループの地だけでなく、スクロールするタスクグループのバー・ラベル・進捗マーカー・依存線を含めて、帯が占める場所へ 1 つも描かないこと。'
+  '`GRS` は、スクロールするタスクグループの地だけでなく、スクロールするタスクグループのバー・ラベル・進捗ステータスマーク・依存線を含めて、帯が占める場所へ 1 つも描かないこと。'
 const FR_098_CUT_AT = '切る先は残りの領域の上端であり'
 const FR_098_SCROLL_IS_NO_REASON = '⛔ `GRS` は、縦にスクロールしたことを、ピン止めしたタスクグループを描かない理由にしないこと'
 const EL_1_UNDER_IS_NOT_SEEN = '`GRS` は、帯の下へ潜ったタスクグループの端を、見えていない端とすること。'
@@ -261,7 +261,7 @@ describe('DFC-2304: the pinned band holds its tasks in the picture and in the hi
     expect(free.y).toBeGreaterThanOrEqual(bandOf(sceneOf(AT_G1).geometry).scrollTop)
   })
 
-  it('FR-098 the pinned task stays at the top of the Task Group Area while the schedule scrolls vertically, and the others move', () => {
+  it('FR-098 the pinned task stays at the top of the Task Group Lanes while the schedule scrolls vertically, and the others move', () => {
     const [first, ...rest] = SCENES
     if (first === undefined) throw new Error('no scene')
     const pinnedAt = barOf(first.scene, PINNED_UID)
@@ -289,7 +289,7 @@ describe('DFC-2304: the pinned band holds its tasks in the picture and in the hi
     }
   })
 
-  it('FR-098 every figure of a scrolling task -- bar, label, marker -- is cut at the band edge, and the cut is the top of the rest down to the foot of the Task Group Area', () => {
+  it('FR-098 every figure of a scrolling task -- bar, label, marker -- is cut at the band edge, and the cut is the top of the rest down to the foot of the Task Group Lanes', () => {
     for (const { scroll, scene } of SCENES) {
       const picture = pictureOf(svgOf(scene))
       const scrollTop = bandOf(scene.geometry).scrollTop

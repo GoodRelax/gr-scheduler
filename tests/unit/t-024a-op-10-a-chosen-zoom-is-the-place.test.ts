@@ -3,7 +3,7 @@
 // redone every frame.
 //
 // The unit driven is UF-48 `single-html-shell` (CP-25 of table T-062), whose
-// `frame-loop.ts` takes FT-1 of table T-078 -- 人の入力（ポインタとキー） -- on
+// `frame-loop.ts` takes FT-1 of table T-078 -- 人の入力（ポインターとキー） -- on
 // `receiveInput`, and answers what one frame computed on `current()`. OP-10
 // decides what a frame draws from when the stored place is `null`, so the loop
 // is the only seam where both halves of the ruling can be measured: what the

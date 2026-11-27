@@ -59,7 +59,7 @@ const CLAUSE_ONE_CM_5 =
 const CLAUSE_UN_13 = '`GRS` は、`CM-5` の取り消しの段を 表 T-027 の `UN-13` に従わせること。'
 const CLAUSE_NO_STEP = '⛔ 書き込みが文書の値を 1 つも変えなかったときは、取り消しの段を残さないこと（MUST）'
 const CLAUSE_EXCEPTION =
-  '別の要求が設定を変える入口を文書の設定の面の欄として置いたとき、`GRS` は、別の要求が置いた欄を、置いた要求が定めるとおりに選ばせること（例: `FR-041` のテーマ色の欄）。'
+  '別の要求が設定を変える入口を文書設定の面の欄として置いたとき、`GRS` は、別の要求が置いた欄を、置いた要求が定めるとおりに選ばせること（例: `FR-041` のテーマ色の欄）。'
 
 const K_60 = 'K-60'
 const HUE_KEY = { holder: 'project', column: 'themeHue' } as const

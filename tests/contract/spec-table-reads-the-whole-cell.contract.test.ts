@@ -92,7 +92,7 @@ describe('bareAll -- every value a cell states', () => {
     // `===` on a first span, so each of them answered for one surface of six.
     const surfaces = bareAll(rowOf('T-109', 'IC-52')['面'] ?? '')
     expect(surfaces).toHaveLength(8)
-    expect(surfaces[0]).toBe('Help Modal')
+    expect(surfaces[0]).toBe('Help Window')
     expect(surfaces.at(-1)).toBe('Holiday Settings')
   })
 

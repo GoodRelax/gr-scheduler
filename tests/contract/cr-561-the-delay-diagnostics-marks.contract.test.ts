@@ -86,7 +86,7 @@ const S_395 = ((): string => {
   return found[1] as string
 })()
 
-const FR_133_HIGHEST = '診断を出している間、`GRS` は、各 `Task` の進捗マーカーを 表 T-315 の状態のうち優先順の最も高いもので描くこと。'
+const FR_133_HIGHEST = '診断を出している間、`GRS` は、各 `Task` の進捗ステータスマークを 表 T-315 の状態のうち優先順の最も高いもので描くこと。'
 const FR_133_OTHERS = '診断を出している間、`GRS` は、表 T-315 のどの状態にも当たらない `Task` を 表 T-021 の記号のまま描くこと。'
 const FR_133_SHAPE = '`GRS` は、表 T-315 の状態を記号の形でも分けること。'
 const FR_133_SIZES = '`GRS` は、色と記号の寸法を `_assets/tbl-settings.md` の `S-385` 〜 `S-396`（表 T-236 ・ 表 T-206）に従わせること。'

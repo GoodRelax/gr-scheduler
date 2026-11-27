@@ -235,7 +235,7 @@
     "App Header"
    ],
    "group": "調べる",
-   "entryTo": "検索パネルを出す（`S-442`）。<br>出ていれば前に出し（`FR-036` の 表 T-335 の `WB-11`）、入力欄へ焦点を戻す",
+   "entryTo": "検索ウィンドウを出す（`S-442`）。<br>出ていれば前に出し（`FR-036` の 表 T-335 の `WB-11`）、入力欄へ焦点を戻す",
    "authority": "`FR-151`",
    "arms": null,
    "armsShape": null
@@ -587,7 +587,7 @@
     "Command Palette"
    ],
    "group": "表示",
-   "entryTo": "進捗マーカーを表示する・非表示にする",
+   "entryTo": "進捗ステータスマークを表示する・非表示にする",
    "authority": "`FR-049`（`FR-013`）",
    "arms": null,
    "armsShape": null
@@ -771,17 +771,17 @@
   {
    "specTableRowId": "IC-52",
    "surfaces": [
-    "Help Modal",
+    "Help Window",
     "Resource List",
-    "Export Chooser",
-    "Open Chooser",
+    "Save As Dialog",
+    "Open File Dialog",
     "Properties Panel",
-    "Search Panel",
-    "Delay Diagnostics Report",
+    "Search Window",
+    "Delay Diagnosis Report",
     "Holiday Settings"
    ],
    "group": null,
-   "entryTo": "開いている面とプロパティパネルとウィンドウ（`FR-036` の 表 T-335 —— ヘルプ・検索パネル・遅延診断レポートの窓・担当リストのウィンドウ）を閉じる",
+   "entryTo": "開いている面とプロパティパネルとウィンドウ（`FR-036` の 表 T-335 —— ヘルプ・検索ウィンドウ・遅延診断レポートの窓・担当リストのウィンドウ）を閉じる",
    "authority": "表 T-028 の `IN-4`",
    "arms": null,
    "armsShape": null
@@ -803,7 +803,7 @@
     "Command Palette"
    ],
    "group": null,
-   "entryTo": "掴み帯の右端で、パレットを最小化し、**同じ入口で戻す**（`S-200`）。<br>⭐ **`IC-53` の右に並ぶ**（`FR-053`）",
+   "entryTo": "グリップの右端で、パレットを最小化し、**同じ入口で戻す**（`S-200`）。<br>⭐ **`IC-53` の右に並ぶ**（`FR-053`）",
    "authority": "`FR-053`",
    "arms": null,
    "armsShape": null
@@ -822,7 +822,7 @@
   {
    "specTableRowId": "IC-102",
    "surfaces": [
-    "Help Modal"
+    "Help Window"
    ],
    "group": null,
    "entryTo": "マウスのホイールを示す。<br>**ボタンではない** —— ヘルプの凡例に置き、割当の語の中のホイールをこの図形で示す",
@@ -833,7 +833,7 @@
   {
    "specTableRowId": "IC-128",
    "surfaces": [
-    "Help Modal"
+    "Help Window"
    ],
    "group": null,
    "entryTo": "ヘルプの言語を選ぶ（`S-434`）。<br>⭐ 図形は `IC-21` と同じである",
@@ -932,7 +932,7 @@
   {
    "specTableRowId": "IC-118",
    "surfaces": [
-    "Search Panel"
+    "Search Window"
    ],
    "group": null,
    "entryTo": "タスクとマイルストーンの表を出す",
@@ -943,7 +943,7 @@
   {
    "specTableRowId": "IC-119",
    "surfaces": [
-    "Search Panel"
+    "Search Window"
    ],
    "group": null,
    "entryTo": "コメントボックスの表を出す",
@@ -954,12 +954,12 @@
   {
    "specTableRowId": "IC-153",
    "surfaces": [
-    "Search Panel",
-    "Delay Diagnostics Report",
+    "Search Window",
+    "Delay Diagnosis Report",
     "Resource List"
    ],
    "group": null,
-   "entryTo": "その表のすべての列のフィルタをクリアし、並びを既定の並び（`FR-151` の 表 T-330 の `SV-8`）へ戻す。<br>⭐ 語・表示の列の値・日程抽出（`IC-143`）は変えない。<br>戻すものが無いあいだは効かない",
+   "entryTo": "その表のすべての列のフィルターをクリアし、並びを既定の並び（`FR-151` の 表 T-330 の `SV-8`）へ戻す。<br>⭐ 語・表示の列の値・日程抽出（`IC-143`）は変えない。<br>戻すものが無いあいだは効かない",
    "authority": "`FR-151` の 表 T-330 の `SV-1`",
    "arms": null,
    "armsShape": null
@@ -967,12 +967,12 @@
   {
    "specTableRowId": "IC-143",
    "surfaces": [
-    "Search Panel",
-    "Delay Diagnostics Report",
+    "Search Window",
+    "Delay Diagnosis Report",
     "Resource List"
    ],
    "group": null,
-   "entryTo": "その表で日程抽出し、同じ入口で解除する（`_assets/tbl-settings.md` の 表 T-203 の `S-560`・`S-564`・`S-568`）。<br>⭐ 検索パネルではタスクの表を出しているときだけ置く。<br>掛けていないあいだ、チェックの入った行が 1 つも無いときは効かない（`FR-151` の 表 T-353 の `TV-5`）。<br>掛けているあいだは赤（同表の `TV-12`）",
+   "entryTo": "その表で日程抽出し、同じ入口で解除する（`_assets/tbl-settings.md` の 表 T-203 の `S-560`・`S-564`・`S-568`）。<br>⭐ 検索ウィンドウではタスクの表を出しているときだけ置く。<br>掛けていないあいだ、チェックの入った行が 1 つも無いときは効かない（`FR-151` の 表 T-353 の `TV-5`）。<br>掛けているあいだは赤（同表の `TV-12`）",
    "authority": "`FR-151` の 表 T-353",
    "arms": null,
    "armsShape": null
@@ -980,9 +980,9 @@
   {
    "specTableRowId": "IC-129",
    "surfaces": [
-    "Help Modal",
-    "Search Panel",
-    "Delay Diagnostics Report",
+    "Help Window",
+    "Search Window",
+    "Delay Diagnosis Report",
     "Resource List"
    ],
    "group": null,
@@ -994,9 +994,9 @@
   {
    "specTableRowId": "IC-130",
    "surfaces": [
-    "Help Modal",
-    "Search Panel",
-    "Delay Diagnostics Report",
+    "Help Window",
+    "Search Window",
+    "Delay Diagnosis Report",
     "Resource List"
    ],
    "group": null,
@@ -1008,9 +1008,9 @@
   {
    "specTableRowId": "IC-131",
    "surfaces": [
-    "Help Modal",
-    "Search Panel",
-    "Delay Diagnostics Report",
+    "Help Window",
+    "Search Window",
+    "Delay Diagnosis Report",
     "Resource List"
    ],
    "group": null,
@@ -1022,12 +1022,12 @@
   {
    "specTableRowId": "IC-122",
    "surfaces": [
-    "Search Panel",
-    "Delay Diagnostics Report",
+    "Search Window",
+    "Delay Diagnosis Report",
     "Resource List"
    ],
    "group": null,
-   "entryTo": "列のフィルタと並べ替えを開く（列の見出しごとに 1 つ）。<br>⭐ [表示] の列と、修正案の表の `FM-1` には置かない（`FR-151` の 表 T-330 の `SV-7`、`FR-134` の 表 T-374 の `FM-1`）",
+   "entryTo": "列のフィルターと並べ替えを開く（列の見出しごとに 1 つ）。<br>⭐ [表示] の列と、修正案の表の `FM-1` には置かない（`FR-151` の 表 T-330 の `SV-7`、`FR-134` の 表 T-374 の `FM-1`）",
    "authority": "`FR-151`",
    "arms": null,
    "armsShape": null
@@ -1035,8 +1035,8 @@
   {
    "specTableRowId": "IC-123",
    "surfaces": [
-    "Search Panel",
-    "Delay Diagnostics Report",
+    "Search Window",
+    "Delay Diagnosis Report",
     "Resource List",
     "Properties Panel"
    ],
@@ -1049,8 +1049,8 @@
   {
    "specTableRowId": "IC-124",
    "surfaces": [
-    "Search Panel",
-    "Delay Diagnostics Report",
+    "Search Window",
+    "Delay Diagnosis Report",
     "Resource List",
     "Properties Panel"
    ],
@@ -1063,8 +1063,8 @@
   {
    "specTableRowId": "IC-125",
    "surfaces": [
-    "Search Panel",
-    "Delay Diagnostics Report",
+    "Search Window",
+    "Delay Diagnosis Report",
     "Resource List",
     "Properties Panel"
    ],
@@ -1077,8 +1077,8 @@
   {
    "specTableRowId": "IC-126",
    "surfaces": [
-    "Search Panel",
-    "Delay Diagnostics Report",
+    "Search Window",
+    "Delay Diagnosis Report",
     "Resource List",
     "Properties Panel"
    ],
@@ -1091,12 +1091,12 @@
   {
    "specTableRowId": "IC-127",
    "surfaces": [
-    "Search Panel",
-    "Delay Diagnostics Report",
+    "Search Window",
+    "Delay Diagnosis Report",
     "Resource List"
    ],
    "group": null,
-   "entryTo": "表・入力欄・タイトルバーの面の名の字の大きさの段（`S-429`、3 値排他）を変え、3 つの表のウィンドウ（検索パネル・遅延診断レポート・担当リスト）はその 1 つの段を共に使うので、どのウィンドウで押しても 3 つの字が変わる。<br>⭐ 押すたびに `tbl-settings.md` の 表 T-333 の並びの次の段へ移り、末尾の次は先頭へ戻る（`IC-99` と同じ巡り方）",
+   "entryTo": "表・入力欄・タイトルバーの面の名の字の大きさの段（`S-429`、3 値排他）を変え、3 つの表のウィンドウ（検索ウィンドウ・遅延診断レポート・担当リスト）はその 1 つの段を共に使うので、どのウィンドウで押しても 3 つの字が変わる。<br>⭐ 押すたびに `tbl-settings.md` の 表 T-333 の並びの次の段へ移り、末尾の次は先頭へ戻る（`IC-99` と同じ巡り方）",
    "authority": "`FR-151` の 表 T-330 の `SV-16`",
    "arms": null,
    "armsShape": null
@@ -1104,10 +1104,10 @@
   {
    "specTableRowId": "IC-168",
    "surfaces": [
-    "Delay Diagnostics Report"
+    "Delay Diagnosis Report"
    ],
    "group": null,
-   "entryTo": "窓を開いたまま、いまの文書で遅延診断をやり直し、日程表の印と窓の中身を作り直す（`FR-130`）。<br>語を添えた入口で、語は 表 T-206 の `S-623` の太さで描く。<br>`RW-11` のどの表でも在る",
+   "entryTo": "窓を開いたまま、いまの文書で遅延診断をやり直し、タスクグループレーンズの印と窓の中身を作り直す（`FR-130`）。<br>語を添えた入口で、語は 表 T-206 の `S-623` の太さで描く。<br>`RW-11` のどの表でも在る",
    "authority": "表 T-346 の `RW-1` ・ `RW-3`",
    "arms": null,
    "armsShape": null
@@ -1115,10 +1115,10 @@
   {
    "specTableRowId": "IC-140",
    "surfaces": [
-    "Delay Diagnostics Report"
+    "Delay Diagnosis Report"
    ],
    "group": null,
-   "entryTo": "`.md` のファイルに書き出す（札は `.md`）。<br>中身は `IC-108` のコピーと同じ文字列、置き場と名は 表 T-346 の `RW-7`",
+   "entryTo": "`.md` のファイルに書き出す（ボタンの名は `.md`）。<br>中身は `IC-108` のコピーと同じ文字列、置き場と名は 表 T-346 の `RW-7`",
    "authority": "`FR-134`",
    "arms": null,
    "armsShape": null
@@ -1126,7 +1126,7 @@
   {
    "specTableRowId": "IC-108",
    "surfaces": [
-    "Delay Diagnostics Report"
+    "Delay Diagnosis Report"
    ],
    "group": null,
    "entryTo": "まとめと表を Markdown の文字列にしてクリップボードへ置く（表 T-346 の `RW-6`）",
@@ -1137,7 +1137,7 @@
   {
    "specTableRowId": "IC-154",
    "surfaces": [
-    "Delay Diagnostics Report"
+    "Delay Diagnosis Report"
    ],
    "group": null,
    "entryTo": "遅延診断レポートの窓に、まとめと 表 T-347 の診断結果の表を出す（`FR-155`）",
@@ -1148,7 +1148,7 @@
   {
    "specTableRowId": "IC-155",
    "surfaces": [
-    "Delay Diagnostics Report"
+    "Delay Diagnosis Report"
    ],
    "group": null,
    "entryTo": "修正案を、チェック・修正前・修正後を並べた 表 T-374 の表で出す（`FR-155`）",
@@ -1159,7 +1159,7 @@
   {
    "specTableRowId": "IC-156",
    "surfaces": [
-    "Delay Diagnostics Report"
+    "Delay Diagnosis Report"
    ],
    "group": null,
    "entryTo": "直した行の記録の表（表 T-374）を出す —— 記録が 1 行以上あるときだけ置く",
@@ -1170,7 +1170,7 @@
   {
    "specTableRowId": "IC-157",
    "surfaces": [
-    "Delay Diagnostics Report"
+    "Delay Diagnosis Report"
    ],
    "group": null,
    "entryTo": "いまのファイルへ上書きして保存し、書けたらチェックの入った直しを 1 つの束で発行する",
@@ -1181,7 +1181,7 @@
   {
    "specTableRowId": "IC-158",
    "surfaces": [
-    "Delay Diagnostics Report"
+    "Delay Diagnosis Report"
    ],
    "group": null,
    "entryTo": "修正する前の文書をバックアップとして別名で保存し、書けたら `IC-157` と同じく発行する",
@@ -1192,7 +1192,7 @@
   {
    "specTableRowId": "IC-166",
    "surfaces": [
-    "Delay Diagnostics Report"
+    "Delay Diagnosis Report"
    ],
    "group": null,
    "entryTo": "修正案の表の、修正のしかたが機械の行と、択が 1 つの選ぶの行に、まとめてチェックを入れる",
@@ -1203,7 +1203,7 @@
   {
    "specTableRowId": "IC-169",
    "surfaces": [
-    "Delay Diagnostics Report"
+    "Delay Diagnosis Report"
    ],
    "group": null,
    "entryTo": "修正の記録の表を `.tsv` のファイルに書き出す。<br>置き場・名・中身は 表 T-346 の `RW-20`",
@@ -1214,7 +1214,7 @@
   {
    "specTableRowId": "IC-159",
    "surfaces": [
-    "Delay Diagnostics Report"
+    "Delay Diagnosis Report"
    ],
    "group": null,
    "entryTo": "人が修正する指摘のうち、いまの行の 1 つ前へ移って飛ぶ",
@@ -1225,7 +1225,7 @@
   {
    "specTableRowId": "IC-160",
    "surfaces": [
-    "Delay Diagnostics Report"
+    "Delay Diagnosis Report"
    ],
    "group": null,
    "entryTo": "人が修正する指摘のうち、いまの行の次へ移って飛ぶ",
@@ -1423,7 +1423,7 @@
   {
    "specTableRowId": "IC-71",
    "surfaces": [
-    "Open Chooser"
+    "Open File Dialog"
    ],
    "group": null,
    "entryTo": "読んだ内容で現在の文書を置き換える",
@@ -1434,7 +1434,7 @@
   {
    "specTableRowId": "IC-72",
    "surfaces": [
-    "Open Chooser"
+    "Open File Dialog"
    ],
    "group": null,
    "entryTo": "読んだ内容を現在の文書へ合流させる",
@@ -1445,7 +1445,7 @@
   {
    "specTableRowId": "IC-73",
    "surfaces": [
-    "Open Chooser"
+    "Open File Dialog"
    ],
    "group": null,
    "entryTo": "読んだ内容を変更前の予定として重ねる",
@@ -1503,7 +1503,7 @@
     "Command Palette"
    ],
    "group": "表示",
-   "entryTo": "操作と描画の記録を始め、**同じ入口で止める**（`S-206`）。<br>止めたとき記録はクリップボードへ渡る（表 T-008 の `CHN-9`）。<br>⭐ パレットを最小化しているあいだも、記録していれば掴み帯に押下状態で載る（`FR-053`）",
+   "entryTo": "操作と描画の記録を始め、**同じ入口で止める**（`S-206`）。<br>止めたとき記録はクリップボードへ渡る（表 T-008 の `CHN-9`）。<br>⭐ パレットを最小化しているあいだも、記録していればグリップに押下状態で載る（`FR-053`）",
    "authority": "`FR-102`",
    "arms": null,
    "armsShape": null
@@ -1547,7 +1547,7 @@
     "Properties Panel"
    ],
    "group": null,
-   "entryTo": "`GRS` がこのブラウザに持つ値を消し、ページを読み直す（GRS リセット）。<br>⭐ 置き場は文書の設定の面（`IC-17`）の頭、テーマ色の欄の上 —— 規則は `FR-153` が持つ。<br>消すものと残すものは同要求の 表 T-345 が持ち、問い方は 表 T-037 の `NT-7` が持つ（示す文は 表 T-234 の `QN-11`）",
+   "entryTo": "`GRS` がこのブラウザーに持つ値を消し、ページを読み直す（GRS リセット）。<br>⭐ 置き場は文書設定の面（`IC-17`）の頭、テーマ色の欄の上 —— 規則は `FR-153` が持つ。<br>消すものと残すものは同要求の 表 T-345 が持ち、問い方は 表 T-037 の `NT-7` が持つ（示す文は 表 T-234 の `QN-11`）",
    "authority": "`FR-153`",
    "arms": null,
    "armsShape": null

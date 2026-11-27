@@ -39,7 +39,7 @@ afterEach(() => {
   else GLOBAL['requestAnimationFrame'] = realRaf
 })
 
-const WINDOW_SURFACE = 'Delay Diagnostics Report'
+const WINDOW_SURFACE = 'Delay Diagnosis Report'
 
 function surfaceOf731(entry: string): string {
   const row = specTable('T-109').rows.find((one) => one.id === entry)
@@ -186,13 +186,13 @@ export async function windowStage(document: Document): Promise<WindowStage> {
       return view
     },
     svg: () => shown,
-    window: () => byRole(built.root(), 'Delay Diagnostics Report')[0] ?? null,
+    window: () => byRole(built.root(), 'Delay Diagnosis Report')[0] ?? null,
     inside: (role) => {
-      const window = byRole(built.root(), 'Delay Diagnostics Report')[0]
+      const window = byRole(built.root(), 'Delay Diagnosis Report')[0]
       return window === undefined ? null : (byRole(window, role)[0] ?? null)
     },
     need: (role) => {
-      const window = byRole(built.root(), 'Delay Diagnostics Report')[0]
+      const window = byRole(built.root(), 'Delay Diagnosis Report')[0]
       const found = window === undefined ? undefined : byRole(window, role)[0]
       if (found === undefined) throw new Error(`the window draws nothing under data-role="${role}"`)
       return found

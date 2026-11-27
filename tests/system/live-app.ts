@@ -52,7 +52,7 @@ export async function readDrawnSvg(page: Page): Promise<string | null> {
 }
 
 // Spec: S-56, U-50
-// Why: the drawing reaches canvasPadding past the Task Group Area, where a press answers nothing.
+// Why: the drawing reaches canvasPadding past the Task Group Lanes, where a press answers nothing.
 const CANVAS_PADDING_PX = Number(/\d+/.exec(bare(specTable('T-201').rows.find((one) => one.id === 'S-56')?.by['既定値'] ?? ''))?.[0] ?? '')
 
 // Spec: MK-13, T-266, RV-6, FR-051

@@ -24,10 +24,10 @@ import {
 } from './cr-570-tree-state-stage'
 import { rowOf } from './sws-case'
 
-const IN_3_TAKES_NO_POINTER = '⭐ ツールチップはポインタを受け取らず、下へ通すこと（MUST）（`FR-152` の 表 T-337 の `UZ-2`）'
+const IN_3_TAKES_NO_POINTER = '⭐ ツールチップはポインターを受け取らず、下へ通すこと（MUST）（`FR-152` の 表 T-337 の `UZ-2`）'
 const UZ_2_PASSES_THE_PRESS = '`GRS` は、`Tooltip` に押下を受けさせず、押下を下へ通すこと。説明は短く、押すものを持たないので、覆った入口から押す手を奪わない'
-const EZ_2_LEAVING = 'ポインタがそのアイコンの外へ出たら、説明を消し、次に入った対象で待ちを数え直すこと（MUST）'
-const EZ_2_THE_BOX_IS_OUTSIDE = '説明の箱の上へ動いたことも、アイコンの外へ出たことに数える（説明はポインタを受け取らない —— `IN-3`）。'
+const EZ_2_LEAVING = 'ポインターがそのアイコンの外へ出たら、説明を消し、次に入った対象で待ちを数え直すこと（MUST）'
+const EZ_2_THE_BOX_IS_OUTSIDE = '説明の箱の上へ動いたことも、アイコンの外へ出たことに数える（説明はポインターを受け取らない —— `IN-3`）。'
 const GR_19_NO_PRESS_IN_FRONT = '押下を受けないもの（`UZ-1`・`UZ-2`）'
 
 const CLAUSES: readonly string[] = [
@@ -269,7 +269,7 @@ async function openTheShallowTree(): Promise<Stage> {
 
 test('CR-653 -- IN-3, UZ-2, EZ-2 and GR-19 still say what these cases press, word for word', () => {
   for (const clause of CLAUSES) expect(REQUIREMENTS, clause).toContain(clause)
-  expect(REQUIREMENTS, 'IN-3 no longer asks a description to be hoverable').not.toContain('ポインタを乗せられること')
+  expect(REQUIREMENTS, 'IN-3 no longer asks a description to be hoverable').not.toContain('ポインターを乗せられること')
   expect(S_124_MS, 'premise: S-124 reads as a wait').toBeGreaterThan(0)
   for (const icon of [TASK_GROUP_HIDE, TASK_GROUP_OPEN_ONE_LEVEL, PLACE_A_RECTANGLE]) {
     expect(HINTS.has(icon), `premise: the dictionary gives ${icon} a description`).toBe(true)

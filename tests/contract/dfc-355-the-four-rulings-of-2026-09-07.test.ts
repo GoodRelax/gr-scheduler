@@ -149,10 +149,10 @@ const RS_52_NEVER_SILENTLY =
 // -- T-023d GR-21 and FR-051, the grip ------------------------------------
 
 const GR_21_LENGTH_IS_THE_VISIBLE_FRACTION =
-  '`GRS` は、つまみの長さを、帯の長さに対する「見えている範囲 ÷ 全体」の割合にすること。'
+  '`GRS` は、`Scroll Thumb` の長さを、帯の長さに対する「見えている範囲 ÷ 全体」の割合にすること。'
 
 const GR_21_FLOOR_IS_S_205 =
-  '`GRS` は、つまみの長さの下限を `S-205` にすること。'
+  '`GRS` は、`Scroll Thumb` の長さの下限を `S-205` にすること。'
 
 const FR_051_SCROLLBAR_MOVES_THE_VIEW =
   '`GRS` は、スクロールバーの操作でも表示位置を変えられるようにすること。'
@@ -168,16 +168,16 @@ const FR_020_NO_SECOND_DISPLAY_WORD =
 // -- T-076 EP-1, the band and the title it carries -------------------------
 
 const EP_1_BAND_KEEPS_THE_SCREEN_HEIGHT =
-  '`（`U-35`）／ `Opened File Name`（`U-58`）・`File Saved At`（`U-59`） | 帯と `Document Title` を描く。ほかは描かない | 帯の高さを画面のまま保つこと（MUST）'
+  '`（`U-35`）／ `Opened File Name`（`U-58`）・`File Saved At`（`U-59`） | 帯と `Project Title` を描く。ほかは描かない | 帯の高さを画面のまま保つこと（MUST）'
 
 const EP_1_NOT_COMPRESSED =
-  'File Name`（`U-58`）・`File Saved At`（`U-59`） | 帯と `Document Title` を描く。ほかは描かない | 帯の高さを画面のまま保つこと（MUST）。詰めてはならない（MUST NOT）'
+  'File Name`（`U-58`）・`File Saved At`（`U-59`） | 帯と `Project Title` を描く。ほかは描かない | 帯の高さを画面のまま保つこと（MUST）。詰めてはならない（MUST NOT）'
 
 const EP_1_TITLE_DOES_NOT_MOVE =
-  '描く。ほかは描かない | 帯の高さを画面のまま保つこと（MUST）。詰めてはならない（MUST NOT） —— 詰めると帯より下の全部が上へずれる。`Document Title` の位置を動かしてはならない（MUST NOT）'
+  '描く。ほかは描かない | 帯の高さを画面のまま保つこと（MUST）。詰めてはならない（MUST NOT） —— 詰めると帯より下の全部が上へずれる。`Project Title` の位置を動かしてはならない（MUST NOT）'
 
 const EP_1_ONE_ROW_FOR_SIZE_AND_INSET =
-  'UST NOT） —— 詰めると帯より下の全部が上へずれる。`Document Title` の位置を動かしてはならない（MUST NOT）⭐ **字の大きさと左の余白は、画面と書き出しが同じ 1 つの行を読むこと（MUST）'
+  'UST NOT） —— 詰めると帯より下の全部が上へずれる。`Project Title` の位置を動かしてはならない（MUST NOT）⭐ **字の大きさと左の余白は、画面と書き出しが同じ 1 つの行を読むこと（MUST）'
 
 const EP_1_NO_EXPORT_ONLY_CONSTANT =
   'T）**—— `_assets/tbl-settings.md` の 表 T-206 の `S-225`（字の大きさ）と `S-226`（左の余白）である。⚠️ 画面も書き出しも、どちらにも同書の 表 T-206 の `S-235` を掛けて描く（`FR-051`）。⛔ **書き出し専用の定数を持ってはならない（MUST NOT）'
@@ -232,7 +232,7 @@ const CLAUSES: readonly (readonly [string, string])[] = [
   ['FR-020 (MUST NOT) -- no new display word for it', FR_020_NO_SECOND_DISPLAY_WORD],
   ['T-076 EP-1 (MUST) -- the band keeps the height it has on screen', EP_1_BAND_KEEPS_THE_SCREEN_HEIGHT],
   ['T-076 EP-1 (MUST NOT) -- the band is not compressed', EP_1_NOT_COMPRESSED],
-  ['T-076 EP-1 (MUST NOT) -- the Document Title does not move', EP_1_TITLE_DOES_NOT_MOVE],
+  ['T-076 EP-1 (MUST NOT) -- the Project Title does not move', EP_1_TITLE_DOES_NOT_MOVE],
   ['T-076 EP-1 (MUST) -- screen and export read one row for size and inset', EP_1_ONE_ROW_FOR_SIZE_AND_INSET],
   ['T-076 EP-1 (MUST NOT) -- no export-only constant', EP_1_NO_EXPORT_ONLY_CONSTANT],
   ['T-076 EP-1 (MUST NOT) -- the DOM is not measured to line the two up', EP_1_DOES_NOT_MEASURE_THE_DOM],
@@ -554,17 +554,17 @@ function pictureOrThrow(answer: SvgExport): string {
   return answer.svg
 }
 
-/** The `<text>` element the export draws EP-1's `Document Title` with. */
+/** The `<text>` element the export draws EP-1's `Project Title` with. */
 function titleText(svg: string): { fontSize: number; x: number } {
   const escaped = TITLE.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
   const found = new RegExp(
     `<text x="(-?[\\d.]+)" y="-?[\\d.]+" font-size="(-?[\\d.]+)"[^>]*>${escaped}</text>`,
   ).exec(svg)
-  if (found === null) throw new Error('the export drew no Document Title for this scene')
+  if (found === null) throw new Error('the export drew no Project Title for this scene')
   return { x: Number(found[1]), fontSize: Number(found[2]) }
 }
 
-describe('T-076 EP-1 -- the exported Document Title reads S-225 and S-226', () => {
+describe('T-076 EP-1 -- the exported Project Title reads S-225 and S-226', () => {
   it('⭐ the size drawn is S-225 and the inset drawn is S-226, at ratio 1', () => {
     // EP-1 (MUST): 「字の大きさと左の余白は、画面と書き出しが同じ 1 つの行を読む
     // こと」. The two rows are table T-206's S-225 and S-226; at a ratio of 1

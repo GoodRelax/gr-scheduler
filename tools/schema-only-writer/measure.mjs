@@ -8,7 +8,7 @@
 //   1. schemaViolations -- validate.py beside this file (jsonschema, draft 2020-12)
 //   2. the shipped page (default dist/index.html of this checkout): the header
 //      "Open" (IC-1) answered by a stubbed showOpenFilePicker, then "replace"
-//      (IC-71) on the Open Chooser -> refused / notices / console errors /
+//      (IC-71) on the Open File Dialog -> refused / notices / console errors /
 //      page exceptions
 //   3. the Agent API (IC-20) readDocument(): every task's percentComplete,
 //      start, finish, actualStart, actualFinish, stop compared with the file
@@ -34,8 +34,8 @@ const OPEN_ENTRANCE = 'IC-1'
 const REPLACE_ENTRANCE = 'IC-71'
 const AGENT_API_ENTRANCE = 'IC-20'
 const AGENT_API_GLOBAL = 'grSchedulerAgentApi'
-const DOCUMENT_TITLE = '[data-role="Document Title"]'
-const OPEN_CHOOSER = '[data-role="Open Chooser"]'
+const DOCUMENT_TITLE = '[data-role="Project Title"]'
+const OPEN_CHOOSER = '[data-role="Open File Dialog"]'
 const PROCEED = '[data-role="Confirmation"] [data-confirmation-answer="proceed"]'
 const SCHEDULE_CANVAS = '[data-role="Schedule Canvas"]'
 
@@ -154,7 +154,7 @@ async function readInApp(app, file, text) {
   steps.push(`${OPEN_ENTRANCE} pressed: ${await press(OPEN_ENTRANCE)}`)
   const chooser = await quietly(async () =>
     (await page().$(OPEN_CHOOSER)) !== null || (await readNotices()).length > noticesBefore.length,
-  'Open Chooser or a notice')
+  'Open File Dialog or a notice')
   const chooserShown = (await page().$(OPEN_CHOOSER)) !== null
   steps.push(`${OPEN_CHOOSER} shown: ${chooserShown}${chooser === null ? ' (timed out)' : ''}`)
   if (chooserShown) {

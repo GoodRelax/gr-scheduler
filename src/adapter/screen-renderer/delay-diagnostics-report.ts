@@ -1,4 +1,4 @@
-// File: ScreenRenderer: Builds the Delay Diagnostics Report window for one frame, its Visibility column, its fix tables (FR-155), and the Markdown its IC-108 and IC-140 hand out.
+// File: ScreenRenderer: Builds the Delay Diagnosis Report window for one frame, its Visibility column, its fix tables (FR-155), and the Markdown its IC-108 and IC-140 hand out.
 // @unit      UF-194  (docs/spec/05-07-design.md, table T-075)
 // @component ScreenRenderer, layer Adapter (table T-062)
 // @purity    pure
@@ -104,7 +104,7 @@ import {
 } from './table-window'
 import { windowPlaceInRange } from './window-box'
 
-const DELAY_DIAGNOSTICS_REPORT = 'Delay Diagnostics Report'
+const DELAY_DIAGNOSTICS_REPORT = 'Delay Diagnosis Report'
 
 const EXPORT_ENTRY: IconId = 'IC-140'
 const COPY_ENTRY: IconId = 'IC-108'

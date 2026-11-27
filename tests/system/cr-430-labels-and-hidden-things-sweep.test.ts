@@ -39,7 +39,7 @@ const T_266_WHERE = '掴む所'
 const FAMILY_WORDS: readonly (readonly [string, string])[] = [
   ['fade', 'フェード'],
   ['marker', '進捗ステータスマーク'],
-  ['resume', '再開アイコン'],
+  ['resume', '再開マーク'],
   ['dependency', '依存線'],
   ['dummy', 'ダミー'],
   ['actual', '実績'],
@@ -327,7 +327,7 @@ test('FR-109: the name, the assignee and percent, the marker and the resume icon
   const counted = scenes().map((scene) => labelBoxesOf(scene).length)
   expect(
     Math.max(...counted),
-    'premise: some turn draws more than one of 名称・担当・進捗・進捗マーカー・再開アイコン, or this case asserts nothing',
+    'premise: some turn draws more than one of 名称・担当・進捗・進捗ステータスマーク・再開マーク, or this case asserts nothing',
   ).toBeGreaterThan(1)
   for (const scene of scenes()) {
     const boxes = labelBoxesOf(scene)
@@ -339,7 +339,7 @@ test('FR-109: the name, the assignee and percent, the marker and the resume icon
       }
     }
   }
-  expect(broken, 'FR-109 (MUST): 名称・担当・進捗・進捗マーカー・再開アイコンを互いに重ねず').toEqual([])
+  expect(broken, 'FR-109 (MUST): 名称・担当・進捗・進捗ステータスマーク・再開マークを互いに重ねず').toEqual([])
 })
 
 test('FR-108: nothing the frame did not draw answers the pointer', () => {
@@ -371,7 +371,7 @@ test('every family the frame did draw answers somewhere, at both ends of the zoo
     ).not.toHaveLength(0)
     expect((wantedAt.get(zoom) ?? new Set<string>()).size).toBeGreaterThan(1)
   }
-  expect(silent, 'FR-104 (MUST): 描いているそれぞれをポインタで指して操作できるようにすること').toEqual([])
+  expect(silent, 'FR-104 (MUST): 描いているそれぞれをポインターで指して操作できるようにすること').toEqual([])
 })
 
 test('control: a turn that hides everything leaves no grab area allowed', () => {

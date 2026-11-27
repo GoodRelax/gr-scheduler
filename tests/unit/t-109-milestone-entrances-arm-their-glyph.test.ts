@@ -48,7 +48,7 @@
 //   the note under 表 T-012  ⛔ 「`SH-5` が並べる 15 の印と
 //            `TaskVisual.milestoneGlyph` の綴りの対応は次のとおりとすること
 //            （MUST）」 -- where every expected spelling below comes from.
-//   表 T-028 IN-1  「ポインタ操作は……離した時点で確定する」 -- why each press is a
+//   表 T-028 IN-1  「ポインター操作は……離した時点で確定する」 -- why each press is a
 //            down and an up.
 //
 // ---------------------------------------------------------------------------
@@ -490,7 +490,7 @@ function stage(document: Document): Stage {
     frames.runAnimationFrames()
   }
   const click = (x: number, y: number): void => {
-    // IN-1 of 表 T-028: 「ポインタ操作は……離した時点で確定する」, and FR-001 makes
+    // IN-1 of 表 T-028: 「ポインター操作は……離した時点で確定する」, and FR-001 makes
     // a press with no drag the zero-length one -- so both go on one point.
     send(pointer('down', x, y))
     send(pointer('up', x, y))
@@ -524,7 +524,7 @@ function stage(document: Document): Stage {
   }
   const clickEmptyCanvas = (): void => {
     // ⛔ `drawAt(null)` is the premise: 「どのアイテムにも当たらない場所」. The
-    // point is taken from the loop's own answer for where the Task Group Area is, so
+    // point is taken from the loop's own answer for where the Task Group Lanes is, so
     // no rectangle is computed twice.
     pane.drawAt(null)
     const values = loop.current()
