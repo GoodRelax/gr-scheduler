@@ -26,12 +26,12 @@ const kindOf = (task: Record<string, any>, statusDay: number): Kind => {
 }
 const statusDayOf = (doc: GrsDocument): number => Date.parse(String(doc.schedule.project['statusDate']).slice(0, 10) + 'T00:00:00Z')
 
-test('UC-006 find delays (FR-046, FR-014 T-022, FR-013 PM-4 T-021b, FR-047, FR-015 OP-9)', async ({ page }) => {
+test('SCN-22 SCN-24 SCN-25 UC-006 find delays (FR-046, FR-014 T-022, FR-013 PM-4 T-021b, FR-047, FR-015 OP-9) @UC-006.OK', async ({ page }) => {
   await launch(page)
   await enableAgentApi(page)
   await openByDrop(page, ERP, readSample(ERP))
 
-  await test.step('UC-006 step 1: the viewer places the status date by dragging its line (FR-046, GR-16)', async () => {
+  await test.step('SCN-22 UC-006.OK: the viewer places the status date by dragging its line (FR-046, GR-16)', async () => {
     const before = await readDocument(page)
     const line = (await figureBox(page, 'status-line'))!
     await drag(page, { x: line.x, y: line.y + line.h / 2 }, { x: line.x + 60, y: line.y + line.h / 2 }, [], DROP_STEPS)
@@ -41,7 +41,7 @@ test('UC-006 find delays (FR-046, FR-014 T-022, FR-013 PM-4 T-021b, FR-047, FR-0
     expect(Math.abs(moved.x - (line.x + 60))).toBeLessThan(6)
   })
 
-  await test.step('UC-006 step 2: one unbroken progress line runs from the top to the bottom with vertices off the status line (FR-014, T-022)', async () => {
+  await test.step('SCN-24 UC-006.OK: one unbroken progress line runs from the top to the bottom with vertices off the status line (FR-014, T-022)', async () => {
     if (!(await readDocument(page)).documentSettings.isProgressLineVisible) await press(page, 'IC-39')
     const lines = page.locator('[data-figure="progress-line"]')
     await expect(lines).toHaveCount(1)
@@ -53,7 +53,7 @@ test('UC-006 find delays (FR-046, FR-014 T-022, FR-013 PM-4 T-021b, FR-047, FR-0
     expect(points.some((p) => Math.abs(p[0]! - status.x) > 2)).toBe(true)
   })
 
-  await test.step('UC-006 step 3: late tasks carry the delay mark, not-started ones included (FR-013 PM-4, T-021b DL-1 DL-2)', async () => {
+  await test.step('SCN-22 UC-006.OK: late tasks carry the delay mark, not-started ones included (FR-013 PM-4, T-021b DL-1 DL-2)', async () => {
     if (!(await readDocument(page)).documentSettings.isProgressMarkerVisible) await press(page, 'IC-40')
     const doc = await readDocument(page)
     const statusDay = statusDayOf(doc)
@@ -73,7 +73,7 @@ test('UC-006 find delays (FR-046, FR-014 T-022, FR-013 PM-4 T-021b, FR-047, FR-0
 
   // Why: step 4 left with CR-704: the late count is read in the EZ-6 tip (TL-12), never drawn (FR-047, OC-8).
 
-  await test.step('UC-006 step 5: the pre-change plan is overlaid to see how the plan moved (FR-015, OP-3 IC-73, OP-9, IC-4)', async () => {
+  await test.step('SCN-25 UC-006.OK: the pre-change plan is overlaid to see how the plan moved (FR-015, OP-3 IC-73, OP-9, IC-4)', async () => {
     const before = await page.locator('[data-figure]').count()
     // Why: a dropped file opens as a replace (OP-19), so the overlay opens through IC-1.
     await openThroughIc1(page, ERP, readSample(ERP), 'IC-73')

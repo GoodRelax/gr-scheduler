@@ -40,7 +40,7 @@ const isAncestorOrSelf = (groups: Array<Record<string, any>>, ancestor: string, 
   return false
 }
 
-test('UC-007 bring the wanted range into view (MK-1 MK-2 MK-4 MK-7, FR-016, FR-017 S-83..S-85, FR-018 T-005a, FR-098, PTD-1 PTD-5)', async ({ page }) => {
+test('SCN-26 SCN-27 SCN-28 UC-007 bring the wanted range into view (MK-1 MK-2 MK-4 MK-7, FR-016, FR-017 S-83..S-85, FR-018 T-005a, FR-098, PTD-1 PTD-5) @UC-007.OK', async ({ page }) => {
   test.setTimeout(120000)
   await launch(page)
   await enableAgentApi(page)
@@ -49,14 +49,14 @@ test('UC-007 bring the wanted range into view (MK-1 MK-2 MK-4 MK-7, FR-016, FR-0
   const groups = (await readDocument(page)).schedule.taskGroups
 
   let before = { day: 0, row: '' as string | null, zoomX: 0 }
-  await test.step('UC-007 step 1: put the pointer on the target and zoom with Ctrl and the wheel (MK-2)', async () => {
+  await test.step('SCN-26 UC-007.OK: put the pointer on the target and zoom with Ctrl and the wheel (MK-2)', async () => {
     const axis = await dayAxis(page)
     before = { day: axis.dayOf(POINTER.x), row: await bandAt(page, POINTER.y), zoomX: (await readDocument(page)).documentSettings.zoomX }
     expect(before.row).not.toBeNull()
     await wheel(page, -200, 1, 'Control')
   })
 
-  await test.step('UC-007 step 2: the date and the task group under the pointer stay put while the zoom changes (FR-016)', async () => {
+  await test.step('SCN-26 UC-007.OK: the date and the task group under the pointer stay put while the zoom changes (FR-016)', async () => {
     const doc = await readDocument(page)
     expect(doc.documentSettings.zoomX).not.toBe(before.zoomX)
     const axis = await dayAxis(page)
@@ -64,7 +64,7 @@ test('UC-007 bring the wanted range into view (MK-1 MK-2 MK-4 MK-7, FR-016, FR-0
     expect(isAncestorOrSelf(groups, before.row!, await bandAt(page, POINTER.y))).toBe(true)
   })
 
-  await test.step('UC-007 step 3: the ruler tier follows the width of one day over the font ratio (FR-017, S-8, S-83, S-84, S-85)', async () => {
+  await test.step('SCN-26 UC-007.OK: the ruler tier follows the width of one day over the font ratio (FR-017, S-8, S-83, S-84, S-85)', async () => {
     // Why: the font floor (S-8) and the tier thresholds (T-205) are constants of the tool, not of the file.
     const settings = SETTINGS_CONSTANTS
     const seen = new Set<string>()
@@ -83,7 +83,7 @@ test('UC-007 bring the wanted range into view (MK-1 MK-2 MK-4 MK-7, FR-016, FR-0
     expect(seen.has('day')).toBe(true)
   })
 
-  await test.step('UC-007 step 4: the task groups drawn follow the group LOD, and every task on a drawn task group is drawn (FR-018, T-005a)', async () => {
+  await test.step('SCN-26 UC-007.OK: the task groups drawn follow the group LOD, and every task on a drawn task group is drawn (FR-018, T-005a)', async () => {
     await press(page, 'IC-10')
     const shallow = await deepestDrawnTaskGroup(page)
     await wheel(page, -200, 8, 'Alt')
@@ -112,7 +112,7 @@ test('UC-007 bring the wanted range into view (MK-1 MK-2 MK-4 MK-7, FR-016, FR-0
     expect(await deepestDrawnTaskGroup(page)).toBeLessThanOrEqual(deep)
   })
 
-  await test.step('UC-007 step 5: Ctrl drag and middle-button drag move the view one to one (MK-7, PTD-1)', async () => {
+  await test.step('SCN-26 UC-007.OK: Ctrl drag and middle-button drag move the view one to one (MK-7, PTD-1)', async () => {
     const tick = await firstMonthTick(page)
     const x0 = (await tickX(page, tick))!
     await page.keyboard.down('Control')
@@ -131,7 +131,7 @@ test('UC-007 bring the wanted range into view (MK-1 MK-2 MK-4 MK-7, FR-016, FR-0
     expect(Math.abs((await tickX(page, tick))! - (x0 + 40))).toBeLessThanOrEqual(1)
   })
 
-  await test.step('UC-007 step 6: a pinned task group stays drawn while scrolling down (FR-098, IC-60)', async () => {
+  await test.step('SCN-26 UC-007.OK: a pinned task group stays drawn while scrolling down (FR-098, IC-60)', async () => {
     await press(page, 'IC-10')
     const target = groups.find((g) => g.parentId === null)!.id
     await pressRowControl(page, target, 'IC-60')
@@ -145,14 +145,14 @@ test('UC-007 bring the wanted range into view (MK-1 MK-2 MK-4 MK-7, FR-016, FR-0
     expect(box.y + box.height).toBeLessThanOrEqual(VIEWPORT.height)
   })
 
-  await test.step('UC-007 extension 1a: the wheel without a modifier scrolls and does not zoom (MK-1)', async () => {
+  await test.step('SCN-27 UC-007.OK: the wheel without a modifier scrolls and does not zoom (MK-1)', async () => {
     const zoom = (await readDocument(page)).documentSettings
     await wheel(page, -300, 2)
     const now = (await readDocument(page)).documentSettings
     expect([now.zoomX, now.zoomY]).toEqual([zoom.zoomX, zoom.zoomY])
   })
 
-  await test.step('UC-007 extension 5a: a plain drag on empty ground starts a range selection and does not pan (PTD-5, ZO-6)', async () => {
+  await test.step('SCN-28 UC-007.OK: a plain drag on empty ground starts a range selection and does not pan (PTD-5, ZO-6)', async () => {
     const tick = await firstMonthTick(page)
     const x0 = (await tickX(page, tick))!
     await page.mouse.move(1500, 1040)

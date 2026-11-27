@@ -24,7 +24,7 @@ const pointsOf = async (page: Page, figure: string): Promise<number[][]> => {
   return raw.trim().split(/\s+/).map((pair) => pair.split(',').map(Number))
 }
 
-test('UC-004 show dependencies between tasks (FR-009 T-018 DP-1 DP-3, T-018a, T-023b, S-201)', async ({ page }) => {
+test('SCN-14 SCN-16 UC-004 show dependencies between tasks (FR-009 T-018 DP-1 DP-3, T-018a, T-023b, S-201) @UC-004.OK', async ({ page }) => {
   await page.clock.setFixedTime(PINNED_NOW)
   await launch(page)
   await enableAgentApi(page)
@@ -38,16 +38,16 @@ test('UC-004 show dependencies between tasks (FR-009 T-018 DP-1 DP-3, T-018a, T-
   const [a, b, c] = (await readDocument(page)).schedule.tasks.map((t) => t.uid as number)
   const boxOf = async (uid: number): Promise<Box> => (await figureBox(page, 'task-' + uid + '-plan'))!
 
-  await test.step('UC-004 step 1: arm the dependency line in the palette (IC-61, T-023b AR-4)', async () => {
+  await test.step('SCN-14 UC-004.OK: arm the dependency line in the palette (IC-61, T-023b AR-4)', async () => {
     await press(page, 'IC-61')
     await expect(page.locator(icon('IC-61'))).toHaveAttribute('data-armed', 'true')
   })
 
-  await test.step('UC-004 step 2: pull from the right side of the predecessor into the left side of the successor', async () => {
+  await test.step('SCN-14 UC-004.OK: pull from the right side of the predecessor into the left side of the successor', async () => {
     await drag(page, half(await boxOf(a!), 'right'), half(await boxOf(b!), 'left'))
   })
 
-  await test.step('UC-004 step 3: the kind comes from the two sides and the lag is the default (T-018 DP-1, T-213)', async () => {
+  await test.step('SCN-14 UC-004.OK: the kind comes from the two sides and the lag is the default (T-018 DP-1, T-213)', async () => {
     const doc = await readDocument(page)
     const links = doc.schedule.tasks.find((t) => t.uid === b)!.dependencies
     expect(links).toHaveLength(1)
@@ -58,7 +58,7 @@ test('UC-004 show dependencies between tasks (FR-009 T-018 DP-1 DP-3, T-018a, T-
     expect(Object.keys(doc.documentSettings)).not.toContain('dependencyLagDefault')
   })
 
-  await test.step('UC-004 step 4: the anchors follow the kind, and drawing can go on (T-018, T-018a)', async () => {
+  await test.step('SCN-14 UC-004.OK: the anchors follow the kind, and drawing can go on (T-018, T-018a)', async () => {
     const from = await boxOf(a!)
     const to = await boxOf(b!)
     const route = await pointsOf(page, 'dep-' + a + '-' + b)
@@ -76,7 +76,7 @@ test('UC-004 show dependencies between tasks (FR-009 T-018 DP-1 DP-3, T-018a, T-
     expect(sameSide.length).toBeGreaterThanOrEqual(4)
   })
 
-  await test.step('UC-004 extension 2b: Esc while pulling drops only the half-drawn arrow (T-028 IN-4)', async () => {
+  await test.step('SCN-16 UC-004.OK: Esc while pulling drops only the half-drawn arrow (T-028 IN-4)', async () => {
     const start = half(await boxOf(a!), 'right')
     await page.mouse.move(start.x, start.y)
     await page.mouse.down()
@@ -89,7 +89,7 @@ test('UC-004 show dependencies between tasks (FR-009 T-018 DP-1 DP-3, T-018a, T-
     await expect(page.locator(icon('IC-61'))).toHaveAttribute('data-armed', 'true')
   })
 
-  await test.step('UC-004 step 5: disarm, then change the lag; the kind is shown by its abbreviation only (FR-009)', async () => {
+  await test.step('SCN-14 UC-004.OK: disarm, then change the lag; the kind is shown by its abbreviation only (FR-009)', async () => {
     await page.keyboard.press('Escape')
     await settle(page)
     await expect(page.locator(icon('IC-61'))).toHaveAttribute('data-armed', 'false')
@@ -112,7 +112,7 @@ test('UC-004 show dependencies between tasks (FR-009 T-018 DP-1 DP-3, T-018a, T-
     expect(links[0].linkType).toBe(1)
   })
 
-  await test.step('UC-004 step 6: the route is drawn again from the same anchors (T-018a)', async () => {
+  await test.step('SCN-14 UC-004.OK: the route is drawn again from the same anchors (T-018a)', async () => {
     const from = await boxOf(a!)
     const to = await boxOf(b!)
     const route = await pointsOf(page, 'dep-' + a + '-' + b)

@@ -1659,6 +1659,16 @@
    "xOwner": "spec"
   },
   {
+   "prefix": "SCN",
+   "standsFor": "Scenario",
+   "meaning": {
+    "en": "One Gherkin scenario of the use case tests: a use case path checked with concrete values. The scenarios are written in docs/spec/08-10-test.md section 8.1 (ANMS v0.36 section 6.2); the rows here are the results of the @manual ones",
+    "ja": "ユースケーステストの Gherkin のシナリオ 1 本。ユースケースの道を具体的な値で確かめる。シナリオは docs/spec/08-10-test.md の 8.1（ANMS v0.36 の 6.2）に書き、ここの行は @manual のシナリオの結果である"
+   },
+   "section": "docs/development-records/test-records/manual-scenarios.md",
+   "xOwner": "records"
+  },
+  {
    "prefix": "SD",
    "standsFor": "State-machine Definition",
    "meaning": {

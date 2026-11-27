@@ -65,7 +65,7 @@ const REFUSED_SCENES: { scene: string; name: string; text: () => string }[] = [
 ]
 
 for (const { scene, name, text } of REFUSED_SCENES) {
-  test(`${NT_1_SAYS_WHY_IN_WORDS}: opening ${scene} through IC-1 tells RS-25 with its next step and the open document does not change`, async ({ page }) => {
+  test(`SCN-38 ${NT_1_SAYS_WHY_IN_WORDS}: opening ${scene} through IC-1 tells RS-25 with its next step and the open document does not change @UC-010.RJ1`, async ({ page }) => {
     await launch(page)
     await enableAgentApi(page)
     const before = JSON.stringify(await readDocument(page))
