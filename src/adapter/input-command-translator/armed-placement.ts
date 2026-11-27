@@ -4,16 +4,12 @@
 // @purity    pure
 
 import {
-  MINUTES_PER_CALENDAR_DAY,
   taskByUid,
   textOfDayEnd,
   textOfDayStart,
-  textOfFinishSide,
-  textOfInstant,
-  textOfStartSide,
   type CalendarDay,
 } from '../../entity/document-model/schedule/schedule'
-import { snappedInstantAtX, type TaskGroupPlacement } from '../../entity/layout-engine/schedule-layout/schedule-layout'
+import type { TaskGroupPlacement } from '../../entity/layout-engine/schedule-layout/schedule-layout'
 import {
   dependencyEndAtPointer,
   dependencyStartOfHit,
@@ -23,6 +19,7 @@ import {
 import { taskUidsIn } from '../../entity/document-model/selection/selection'
 import type { DocumentCommand } from '../../use-case/edit-document/edit-document'
 import { armedOf } from '../../use-case/advance-screen-session/advance-screen-session'
+import { placedTaskSpanOf } from '../../use-case/place-task/place-task'
 import type { PointerInput } from './input-source'
 import {
   CONSUMED_ELSEWHERE,
@@ -159,14 +156,21 @@ function createdTaskWrite(context: InputContext, drag: ArmedDrag, days: DraggedD
   if (shapeKind === null) return CONSUMED_ELSEWHERE
   const isMilestone = shapeKind === 'milestone'
   if (!isMilestone && !days.dragged) return nothingToDo('barShapeReleasedWithoutADrag')
-  const project = context.document.schedule.project
-  const fine = createdSpanOnFineSnap(context, drag, isMilestone)
+  const pull = {
+    pressX: drag.press.at.x,
+    releaseX: drag.release.x,
+    snapMinutes: snapMinutesOfView(context),
+    from: days.from,
+    early: days.early,
+    late: days.late,
+  }
+  const span = placedTaskSpanOf(context.layout, context.document.schedule.project, pull, isMilestone)
   const commands: DocumentCommand[] = [
     {
       kind: 'createTask',
       shapeKind,
-      start: fine?.start ?? textOfStartSide(isMilestone ? days.from : days.early, project, isMilestone),
-      finish: fine?.finish ?? textOfFinishSide(isMilestone ? days.from : days.late, project),
+      start: span.start,
+      finish: span.finish,
       taskGroupId: days.taskGroupId,
     },
   ]
@@ -175,27 +179,6 @@ function createdTaskWrite(context: InputContext, drag: ArmedDrag, days: DraggedD
     commands.push({ kind: 'setTaskVisualMilestoneGlyph', taskUid: nextIssuedUid(context.document.schedule), milestoneGlyph: glyph })
   }
   return changedAndCreated([commands], { kind: 'task', uid: nextIssuedUid(context.document.schedule) })
-}
-
-// see FR-001, FR-103, T-378, JDG-2422
-// Why: finer than a day the press and the release are snapped instants, as a grabbed end is; a pull inside one unit spans one unit.
-/** @purity pure */
-function createdSpanOnFineSnap(
-  context: InputContext,
-  drag: ArmedDrag,
-  isMilestone: boolean,
-): { readonly start: string; readonly finish: string } | null {
-  const { press, release } = drag
-  const snap = snapMinutesOfView(context)
-  if (snap >= MINUTES_PER_CALENDAR_DAY) return null
-  const from = snappedInstantAtX(context.layout, press.at.x, snap)
-  const to = snappedInstantAtX(context.layout, release.x, snap)
-  if (from === null || to === null) return null
-  if (isMilestone) return { start: textOfInstant(from), finish: textOfInstant(from) }
-  const isLeftward = release.x < press.at.x
-  const early = from !== to ? Math.min(from, to) : isLeftward ? from - snap : from
-  const late = from !== to ? Math.max(from, to) : isLeftward ? from : from + snap
-  return { start: textOfInstant(early), finish: textOfInstant(late) }
 }
 
 // Spec: PTD-4, FR-001, FR-019
