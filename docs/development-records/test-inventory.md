@@ -12,13 +12,13 @@ what this reading does not see.
 
 | place | T-218 | T-334 | files | case sites | expected-to-fail marks | known-red lines | need the MSPDI XSDs | tied to no spec row |
 | --- | --- | --- | --: | --: | --: | --: | --: | --: |
-| `contract` | TS-5 | VT-2 | 477 | 6298 | 9 | 4 | 11 | 6 |
+| `contract` | TS-5 | VT-2 | 478 | 6315 | 9 | 4 | 11 | 6 |
 | `integration` | TS-2 | - | 3 | 76 | 0 | 0 | 0 | 0 |
 | `nfr` | TS-4 | VT-3 | 3 | 17 | 0 | 0 | 0 | 0 |
 | `system` | TS-3 | - | 106 | 668 | 0 | 0 | 0 | 1 |
 | `unit` | TS-6 | - | 197 | 4108 | 1 | 1 | 2 | 0 |
 | `use-case` | TS-1 | VT-1 | 14 | 17 | 1 | 2 | 0 | 0 |
-| **all** | | | 800 | 11184 | 11 | 7 | 13 | 7 |
+| **all** | | | 801 | 11201 | 11 | 7 | 13 | 7 |
 
 "Case sites" counts the `it(` / `test(` / `.each` calls in the source; a site driven by
 `.each` or a loop runs more cases than it counts here.
@@ -560,6 +560,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/contract/cr-830-a-plan-end-takes-the-margin-of-a-dependency-line.test.ts` | 6 | FR-104 | - | T-266 | GA-2, GA-19, RP-1, S-253, S-285 | - | - | - | - |
 | `tests/contract/cr-850-the-status-line-the-cursors-and-the-grabs-snap-to-fifteen-minutes.contract.test.ts` | 18 | FR-046 | - | T-378 | CU-3, SG-1, SG-2, TX-3, WT-4 | - | - | - | - |
 | `tests/contract/cr-858-op-19-a-dropped-grs-json-opens-without-the-chooser.contract.test.ts` | 7 | - | - | T-024a | OP-2, OP-3, OP-4, OP-19, QN-5, U-56 | - | - | - | - |
+| `tests/contract/cr-860-the-outline-takes-the-current-task-shape.contract.test.ts` | 17 | - | - | T-012, T-023d, T-058, T-201, T-221, T-239, T-267, T-339 | AT-101, BL-2, BL-3, GR-27, HT-1, LF-6, LF-7, LF-10, S-43, S-44, S-46, SH-1 | - | - | - | - |
 | `tests/contract/cr-861-the-resource-list-puts-the-selected-column-before-the-resource-name.contract.test.ts` | 12 | - | - | T-370, T-371 | IC-67, IC-68, RO-5, RO-7, RQ-1, RQ-2, RQ-3, RQ-4, RQ-5, U-49 | - | - | - | - |
 | `tests/contract/cr-862-a-pinned-task-group-is-drawn-even-when-hidden.test.ts` | 21 | FR-018 | VT-2 | T-109, T-328, T-329 | EL-20, HF-2, HF-3, HF-11, HF-13, HF-14, S-87, S-88, S-126, SJ-2, TD-1, TD-2, TD-3, TD-4, TD-5, TD-8, UN-14 | - | - | - | - |
 | `tests/contract/dfc-1000-hf-10-the-open-all-stance-counts-every-placed-task-group.test.ts` | 9 | - | - | T-051, T-109 | HF-2, HF-10, IC-58, IC-74, RS-31 | - | - | - | - |
