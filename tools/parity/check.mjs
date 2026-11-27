@@ -494,6 +494,30 @@ const KNOWN_DIVERGENCES = [
     why: 'HF-20: the head of the Task Group Panel holds an entrance that deletes every task group (IC-106); '
       + 'the sample has no such entrance, so GRS alone draws it',
   },
+  // ⭐ A PIN OUTLIVES A HIDE AND A FOLD (CR-862, JDG-3804, JDG-3811). Table T-329's TD-2 and TD-3 let a
+  // pinned task group through its own hide and through every hide or fold above it, and TD-5 keeps it at
+  // any zoom; the pin draws that one task group and no ancestor or child. The sample predates the ruling:
+  // it drops a pinned task group with its folded or hidden ancestor, and its own hide drops the pin too.
+  // ⛔ The sample is NOT changed to follow -- it is the record of the rule before CR-862.
+  // ⭐ AN ENTRY WITH `move` EXCUSES THE NAMED READINGS OF THAT ONE MOVE AND NOTHING ELSE, and every run
+  // prints both sides. ⛔ One whose reading never differs over the whole run fails it, like a stale
+  // defect pin: an excuse for a difference that is gone has rotted.
+  ...[
+    ['Phone App:foldAll', 'the pinned child Phone Sign In stays drawn under the fold (TD-3)'],
+    ['Phone App:hideSelf', 'the pinned child Phone Sign In stays drawn under the hidden Phone App (TD-3)'],
+    ['head:headOne', 'the pinned Phone Sign In and Billing stay drawn when the top level is folded (TD-3)'],
+    ['Billing:hideSelf', 'the pinned Billing stays drawn under its own hide and keeps its pin (TD-2); '
+      + 'the sample drops both'],
+    ['Billing:pin', 'GRS takes the pin off the hidden Billing, which then stays hidden (TD-2); '
+      + 'the sample had dropped the pin with the hide, so the same press pins it again',
+    ['rows  ', 'counts', 'arming']],
+    ['Whole Product:foldAll', 'the pinned grandchild Phase Gates stays drawn under the fold (TD-3)'],
+    ['Mobile Client:foldAll', 'the pinned Phone Sign In and Tablet App stay drawn under the fold (TD-3)'],
+  ].map(([move, what, readings = ['rows  ', 'counts', 'arming', 'pinned']]) => ({
+    move,
+    readings,
+    why: `CR-862 (JDG-3804, JDG-3811): a pin beats a hide and a fold -- ${what}`,
+  })),
 ]
 
 /** An item only GRS holds, excused by name for this reading? */
@@ -505,14 +529,43 @@ const excusedInGrs = (what, item) =>
  * Is this a difference the specification has already settled -- an ordering
  * the whole reading is excused for, or only items GRS alone is meant to hold?
  */
-const isKnown = (what, onlySample, onlyApp) => {
+const isKnownForEveryMove = (what, onlySample, onlyApp) => {
   if (onlySample.length > 0) return false
   if (onlyApp.length > 0) return onlyApp.every((item) => excusedInGrs(what, item))
   return KNOWN_DIVERGENCES.some((one) => one.reading === what && one.onlyInGrs === undefined)
 }
 
-const whyKnown = (what) =>
-  KNOWN_DIVERGENCES.filter((one) => one.reading === what).map((one) => one.why).join('; ')
+// ⭐ THE READING-WIDE RULES ARE JUDGED FIRST: a move-scoped entry only catches what they leave, so its
+// reason is printed, and its reading counted as differing, only where it is the one doing the excusing.
+const isKnown = (what, onlySample, onlyApp, move) =>
+  isKnownForEveryMove(what, onlySample, onlyApp) || movedDivergenceFor(move, what) !== null
+
+const whyKnown = (what, onlySample, onlyApp, move) => {
+  if (!isKnownForEveryMove(what, onlySample, onlyApp)) return movedDivergenceFor(move, what).why
+  return KNOWN_DIVERGENCES.filter((one) => one.reading === what).map((one) => one.why).join('; ')
+}
+
+/** The move-scoped divergence that excuses this reading of this move, or `null`. */
+function movedDivergenceFor(move, what) {
+  return KNOWN_DIVERGENCES.find((one) => one.move === move && one.readings.includes(what)) ?? null
+}
+
+/** Is every move-scoped divergence one this run could actually reach? */
+function theMovedDivergencesAreUsable() {
+  const moves = new Set(SCRIPT.map(say))
+  const complaints = []
+  for (const one of KNOWN_DIVERGENCES.filter((entry) => entry.move !== undefined)) {
+    if (!moves.has(one.move)) complaints.push(`${one.move} is a move this script never makes`)
+    for (const what of one.readings) {
+      if (!READINGS.includes(what)) complaints.push(`${one.move} names the reading ${JSON.stringify(what)}`)
+    }
+    if (typeof one.why !== 'string' || one.why.trim() === '') complaints.push(`${one.move} gives no reason`)
+  }
+  if (complaints.length === 0) return true
+  console.log('⛔⛔ THE MOVE-SCOPED DIVERGENCES CANNOT BE USED AS WRITTEN')
+  for (const why of complaints) console.log(`    ${why}`)
+  return false
+}
 
 // ------------------------------ the second list, and it is not the first ----
 
@@ -709,7 +762,7 @@ function sayTheDefects(when) {
 async function run() {
   // ⛔ BEFORE ANY BOARD IS BUILT. A broken or unusable list would decide which
   // of the steps below counts, so it is judged first and the run stops here.
-  const listIsSound = theMechanismWorks() && theDefectListIsUsable()
+  const listIsSound = theMechanismWorks() && theDefectListIsUsable() && theMovedDivergencesAreUsable()
   sayTheDefects('opening')
   if (listIsSound !== true) return 1
 
@@ -756,6 +809,8 @@ async function run() {
   // says nothing on its own. Measured: a per-step verdict called one live pin
   // stale because the second press took the pin off again.
   const pinsThatFailed = new Set()
+  // ⭐ THE SAME VERDICT FOR A MOVE-SCOPED DIVERGENCE: `move|reading` pairs that differed at least once.
+  const movedThatDiffered = new Set()
   for (const step of SCRIPT) {
     // ⛔⛔ A PRESS THAT LANDS ON NOTHING IS A FAILURE, NOT A PASS. Both sides
     // return false when the entrance is not there, and until this was checked
@@ -799,15 +854,18 @@ async function run() {
       ])
     // ⭐ A DIFFERENCE THE SPECIFICATION HAS ALREADY SETTLED IS NOT A FAILURE,
     // but it is never silent either -- it prints its reason every run.
+    const move = say(step)
+    for (const [what, onlySample, onlyApp] of wrong) {
+      if (!isKnownForEveryMove(what, onlySample, onlyApp)) movedThatDiffered.add(`${move}|${what}`)
+    }
     const settled = wrong.filter(([what, onlySample, onlyApp]) =>
-      isKnown(what, onlySample, onlyApp))
+      isKnown(what, onlySample, onlyApp, move))
     const rest = wrong.filter(([what, onlySample, onlyApp]) =>
-      !isKnown(what, onlySample, onlyApp))
+      !isKnown(what, onlySample, onlyApp, move))
     // ⭐ THE THIRD CATEGORY, AND IT IS KEPT APART FROM THE SECOND ON PURPOSE.
     // `settled` is "the specification says they differ". `broken` is "a defect
     // is open". Only `unexplained` decides the exit code, so a NEW regression
     // still stands out against a green baseline.
-    const move = say(step)
     const broken = rest.filter(([what]) => defectFor(move, what) !== null)
     const unexplained = rest.filter(([what]) => defectFor(move, what) === null)
     if (unexplained.length > 0) diverged += 1
@@ -827,9 +885,9 @@ async function run() {
     // ANCESTOR are order questions too, and an excuse that prints only its
     // reason would wave them through unread. ⭐ So both orders are printed
     // every run, and a reader can see that GRS's IS the order they were fixed.
-    for (const [what, , , left, right] of settled) {
+    for (const [what, onlySample, onlyApp, left, right] of settled) {
       console.log(`    ${what} differs as the specification says it should`
-        + ` -- ${whyKnown(what)}`)
+        + ` -- ${whyKnown(what, onlySample, onlyApp, move)}`)
       console.log(`    ${what} the sample:`, JSON.stringify(left))
       console.log(`    ${what} GRS       :`, JSON.stringify(right))
     }
@@ -882,7 +940,17 @@ async function run() {
       console.log(`    ⛔⛔ ${one.ledger}  ${one.move}  [${one.reading}]  -- ${one.wrong}`)
     }
   }
-  return diverged === 0 && stalePins.length === 0 ? 0 : 1
+  // ⛔⛔ A MOVE-SCOPED DIVERGENCE THAT NEVER DIFFERED IS FATAL TOO -- the excuse has outlived its difference.
+  const staleMoved = KNOWN_DIVERGENCES
+    .filter((one) => one.move !== undefined)
+    .flatMap((one) => one.readings.filter((what) => !movedThatDiffered.has(`${one.move}|${what}`))
+      .map((what) => `${one.move} [${what}]`))
+  if (staleMoved.length > 0) {
+    console.log(`⛔⛔ ${staleMoved.length} MOVE-SCOPED DIVERGENCE READING(S) NEVER DIFFERED IN THIS RUN -- `
+      + 'take them off KNOWN_DIVERGENCES in tools/parity/check.mjs:')
+    for (const one of staleMoved) console.log(`    ⛔⛔ ${one}`)
+  }
+  return diverged === 0 && stalePins.length === 0 && staleMoved.length === 0 ? 0 : 1
 }
 
 const code = await run()
