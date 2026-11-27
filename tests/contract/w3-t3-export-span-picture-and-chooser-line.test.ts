@@ -1,6 +1,6 @@
 // W3 tester 3: a document with an export span exports the span picture, and the export chooser names the span.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { afterEach, describe, expect, it, vi } from 'vitest'
@@ -23,8 +23,8 @@ import {
 afterEach(restoreAnimationFrames)
 
 const SPEC = join(process.cwd(), 'docs', 'spec')
-const REQUIREMENTS = unbroken(readFileSync(join(SPEC, '01-04-requirements.md'), 'utf8').replace(/\r\n/g, '\n'))
-const WORDS = JSON.parse(readFileSync(join(SPEC, '_source', 'display-words.json'), 'utf8')) as {
+const REQUIREMENTS = unbroken(readRepoFile(join(SPEC, '01-04-requirements.md'), 'utf8').replace(/\r\n/g, '\n'))
+const WORDS = JSON.parse(readRepoFile(join(SPEC, '_source', 'display-words.json'), 'utf8')) as {
   readonly exportChooser: readonly { readonly part: string; readonly text: Record<DisplayLanguage, string> }[]
   readonly exportFormats: readonly { readonly specTableRowId: string; readonly name?: Record<DisplayLanguage, string> }[]
 }

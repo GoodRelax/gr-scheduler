@@ -1,6 +1,6 @@
 // CR-606 spec-only cases: TaskVisual.strokeWidthPx (AT-104, CL-2) is an integer 1..10 or null, drawn on
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -51,7 +51,7 @@ const HB_12_SAME_BAND = '枠の線が透明（線なし）でも、`GRS` は、�
 const IV_9_BOTH_ENTITIES = '`TaskVisual` と `HighlightBox` のそれぞれで、`fillColor` と `strokeColor` が同時に透明でないこと'
 
 const SPEC = join(process.cwd(), 'docs', 'spec')
-const ERD_DETAIL = unbroken(readFileSync(join(SPEC, '_assets', 'fig-erd-detail.md'), 'utf8').replace(/\r\n/g, '\n'))
+const ERD_DETAIL = unbroken(readRepoFile(join(SPEC, '_assets', 'fig-erd-detail.md'), 'utf8').replace(/\r\n/g, '\n'))
 const cellText = (table: string, id: string): string =>
   unbroken((specTable(table).rows.find((one) => one.id === id)?.cells ?? []).join(' '))
 
@@ -85,7 +85,7 @@ interface ErdColumn {
   readonly name: string
   readonly json?: { readonly kind?: string; readonly min?: number; readonly max?: number; readonly null?: boolean }
 }
-const ERD = JSON.parse(readFileSync(join(SPEC, '_source', 'erd.json'), 'utf8')) as {
+const ERD = JSON.parse(readRepoFile(join(SPEC, '_source', 'erd.json'), 'utf8')) as {
   readonly entities: readonly { readonly columns?: readonly ErdColumn[] }[]
 }
 const AT_104 = ERD.entities.flatMap((one) => one.columns ?? []).find((one) => one.seat === 104)
@@ -123,7 +123,7 @@ describe(`AT-104 -- ${CL_2_RANGE_AT_AT_104}`, () => {
     expect(setWidth(value).ok).toBe(false)
   })
 
-  const TEMPLATE_TEXT = readFileSync(
+  const TEMPLATE_TEXT = readRepoFile(
     join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'),
     'utf8',
   )

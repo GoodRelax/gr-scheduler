@@ -1,6 +1,6 @@
 // Contract tests: a date-time is read as an instant, a finish at 00:00:00 ends the day before, and IV-10 compares instants.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -18,8 +18,8 @@ import { unbroken } from './spec-table'
 // Spec: IV-10
 const WITHIN = workingCalendarOver({ working: MONDAY_TO_FRIDAY_WITH_SPANS })
 
-const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
-const DESIGN = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '05-07-design.md'), 'utf8'))
+const REQUIREMENTS = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
+const DESIGN = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '05-07-design.md'), 'utf8'))
 
 // Spec: FR-054, IMPS-766, IMPS-767
 const CLAUSES = [

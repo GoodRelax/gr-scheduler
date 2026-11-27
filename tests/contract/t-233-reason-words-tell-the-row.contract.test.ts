@@ -1,7 +1,7 @@
 // Contract tests: the words a notice carries are read against the row of table T-233 they are carried for.
 
 import { createHash } from 'node:crypto'
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -26,7 +26,7 @@ interface ReasonEntry {
 }
 
 const reasonsIn = (path: string): readonly ReasonEntry[] => {
-  const raw = JSON.parse(readFileSync(path, 'utf8')) as Record<string, unknown>
+  const raw = JSON.parse(readRepoFile(path, 'utf8')) as Record<string, unknown>
   const section = raw['reasons']
   if (!Array.isArray(section)) throw new Error(`${path} holds no reasons section`)
   return section as readonly ReasonEntry[]

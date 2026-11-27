@@ -1,6 +1,6 @@
 // Contract tests: the MUST clauses four rulings wrote into the spec, quoted and pressed.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -51,12 +51,12 @@ import { bare, specTable, unbroken } from './spec-table'
 // Why: check 39 counts a clause held only when its text stands verbatim in a file under tests/,
 // so the clauses are quoted here and each is asserted against the manuscript.
 
-const REQUIREMENTS = unbroken(readFileSync(
+const REQUIREMENTS = unbroken(readRepoFile(
   join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'),
   'utf8',
 ))
 
-const NOTICE_ROSTER = unbroken(readFileSync(
+const NOTICE_ROSTER = unbroken(readRepoFile(
   join(process.cwd(), 'docs', 'spec', '_assets', 'tbl-notice-reasons.md'),
   'utf8',
 ))

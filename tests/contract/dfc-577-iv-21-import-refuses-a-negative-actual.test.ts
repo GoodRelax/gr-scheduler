@@ -1,6 +1,6 @@
 // DFC-577: import refuses a Task whose actual length, counted from actualStart to its last day, is negative (IV-21, OP-5, FR-023).
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -15,7 +15,7 @@ import {
 import { specTable, unbroken } from './spec-table'
 
 const SPEC = join(process.cwd(), 'docs', 'spec')
-const REQUIREMENTS = unbroken(readFileSync(join(SPEC, '01-04-requirements.md'), 'utf8'))
+const REQUIREMENTS = unbroken(readRepoFile(join(SPEC, '01-04-requirements.md'), 'utf8'))
 
 const cellOf = (tableId: string, specTableRowId: string, heading: string): string => {
   const row = specTable(tableId).rows.find((one) => one.id === specTableRowId)

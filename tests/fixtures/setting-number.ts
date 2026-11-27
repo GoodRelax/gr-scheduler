@@ -1,10 +1,10 @@
 // The number a row of table T-206 states, from the manuscript, and the rows a generated constant was printed with.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 export const SETTINGS_SOURCE = JSON.parse(
-  readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'settings.json'), 'utf8'),
+  readRepoFile(join(process.cwd(), 'docs', 'spec', '_source', 'settings.json'), 'utf8'),
 ) as Record<string, unknown>
 
 // Spec: T-206
@@ -44,7 +44,7 @@ export function generatedConstantOf(
   file: string,
   name: string,
 ): Record<string, number | readonly number[]> {
-  const text = readFileSync(join(process.cwd(), ...file.split('/')), 'utf8').replace(/\r\n/g, '\n')
+  const text = readRepoFile(join(process.cwd(), ...file.split('/')), 'utf8').replace(/\r\n/g, '\n')
   for (const [, region] of text.matchAll(GENERATED_REGION)) {
     const lines = (region ?? '').split('\n')
     const head = lines.findIndex((line) => new RegExp(`^(export )?const ${name}: \\{$`).test(line))

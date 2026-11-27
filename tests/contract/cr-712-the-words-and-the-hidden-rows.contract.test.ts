@@ -1,6 +1,6 @@
 // CR-712 wave 2 spec-only cases: the words the review chose (E-08, E-09), MG-10, and the sentences the hidden rows rewrote (E-03).
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -9,7 +9,7 @@ import { specTable, unbroken } from './spec-table'
 
 const SPEC = join(process.cwd(), 'docs', 'spec')
 
-const REQUIREMENTS = unbroken(readFileSync(join(SPEC, '01-04-requirements.md'), 'utf8'))
+const REQUIREMENTS = unbroken(readRepoFile(join(SPEC, '01-04-requirements.md'), 'utf8'))
 
 interface Words {
   readonly ja: string
@@ -27,7 +27,7 @@ interface PartWords {
   readonly text: Words
 }
 
-const DICTIONARY = JSON.parse(readFileSync(join(SPEC, '_source', 'display-words.json'), 'utf8')) as {
+const DICTIONARY = JSON.parse(readRepoFile(join(SPEC, '_source', 'display-words.json'), 'utf8')) as {
   readonly reasons: readonly RowWords[]
   readonly invariants: readonly RowWords[]
   readonly delayReportReasons: readonly PartWords[]

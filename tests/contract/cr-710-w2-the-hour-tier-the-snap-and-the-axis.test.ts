@@ -1,6 +1,6 @@
 // CR-710 wave 2 (spec-only): FR-017 hour tier (TM-5), FR-103 snap (T-378), FR-016 zoom ceiling, FR-158 clock text, RV-1/RV-6 instant to x.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -22,8 +22,8 @@ import {
 import { RATIO, cellOf, notStored, rowOf, stored } from '../unit/cr-430-cross-section-scene'
 import { bare, unbroken } from './spec-table'
 
-const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
-const DESIGN = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '05-07-design.md'), 'utf8'))
+const REQUIREMENTS = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
+const DESIGN = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '05-07-design.md'), 'utf8'))
 
 // Spec: IMPS-720
 describe('the clauses these cases are built from still read as quoted', () => {

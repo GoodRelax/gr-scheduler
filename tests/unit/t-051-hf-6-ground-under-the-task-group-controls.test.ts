@@ -1,6 +1,6 @@
 // Unit tests: the ground HF-6 lays under a task group's controls, and FR-029's faint entrance on every surface.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -47,7 +47,7 @@ const LATTICE = (() => {
 
 // Why: the whole file and not the one requirement, because nothing here parses Chapter 1-4
 // into requirements; the premises ask only that the sentences are still in it.
-const FR_029_TEXT = unbroken(readFileSync(
+const FR_029_TEXT = unbroken(readRepoFile(
   join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'),
   'utf8',
 ))

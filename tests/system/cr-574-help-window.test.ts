@@ -1,7 +1,7 @@
 // CR-574 section 9 items 1-11 and 9a, with CR-575 item 5a, on the shipped build: the help as an ordinary window with its own language.
 
 import { expect, test, type Browser, type Page } from '@playwright/test'
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 import { bare, specTable, unbroken } from '../contract/spec-table'
 import { CLEARING_UP_MS, launchReferenceBrowser, readSettledDrawnSvg } from './live-app'
@@ -139,7 +139,7 @@ const S_423_PX = numberOf(rowOf(T_206, 'S-423').by['既定'] ?? '')
 type Language = 'ja' | 'en'
 type Words = Readonly<Record<Language, string>>
 
-const WORDS = JSON.parse(readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8')) as {
+const WORDS = JSON.parse(readRepoFile(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8')) as {
   readonly icons: readonly { readonly specTableRowId: string; readonly label: Words }[]
   readonly surfaces: readonly { readonly name: string; readonly heading: Words }[]
   readonly helpHeadings: readonly { readonly block: string; readonly text: Words }[]

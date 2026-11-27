@@ -1,6 +1,6 @@
 // CR-631 spec-only cases: the IC-141 toggle and IC-142 arm on the palette, the QN-12 chooser, the pointers and the drawn arrows.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -46,7 +46,7 @@ import {
 
 const flat = (text: string): string => text.replace(/<br\s*\/?>/g, '').replace(/\*\*/g, '').replace(/\s*\n\s*/g, '')
 
-const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
+const REQUIREMENTS = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
 interface DictionaryWord {
   readonly part: string
@@ -54,7 +54,7 @@ interface DictionaryWord {
 }
 
 const WORDS = JSON.parse(
-  readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8'),
+  readRepoFile(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8'),
 ) as { readonly parentTaskChoice: readonly DictionaryWord[] }
 
 const wordOf = (part: string, language: 'ja' | 'en'): string => {

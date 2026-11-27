@@ -2,7 +2,7 @@
 
 /* eslint-disable @typescript-eslint/no-explicit-any -- the fake surface and the dictionary are read as loose shapes */
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { afterEach, describe, expect, it } from 'vitest'
@@ -70,7 +70,7 @@ const TEMPLATE_PATH = join(
 )
 
 function templateDocument(): Document {
-  const read = documentFromJson(readFileSync(TEMPLATE_PATH, 'utf8'))
+  const read = documentFromJson(readRepoFile(TEMPLATE_PATH, 'utf8'))
   if (!read.ok) {
     throw new Error(`the bundled template is not GRS JSON: ${JSON.stringify(read.faults)}`)
   }
@@ -259,7 +259,7 @@ describe('DFC-406 / table T-233: a write IV-2 refuses is told the row whose 正 
   it('⭐⭐ a parent task naming a uid the document does not hold is told RS-82, not RS-10', () => {
     // Why: the same command as the RS-55 case, refused on IV-2 instead, so the two
     // cases differ by the rule alone, which is what the routing reads.
-    expect(unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8')))
+    expect(unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8')))
       .toContain(FR_076_A_T_220_REFUSAL_CARRIES_ITS_ROW)
     expect(authorityOf(RS_82)).toContain('IV-2')
     const document = templateDocument()

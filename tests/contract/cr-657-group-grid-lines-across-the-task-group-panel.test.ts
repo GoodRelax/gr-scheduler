@@ -1,6 +1,6 @@
 // CR-657: the group grid lines (U-18) are drawn across the Task Group Panel (U-22) too.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -33,7 +33,7 @@ import { DEFAULT_DISPLAY_SCALE } from '../fixtures/display-scale'
 import { specTable, unbroken } from './spec-table'
 
 const REQUIREMENTS = unbroken(
-  readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'),
+  readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'),
 )
 
 

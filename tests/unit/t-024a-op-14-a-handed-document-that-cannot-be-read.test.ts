@@ -1,6 +1,6 @@
 // Unit tests: a document handed at startup that cannot be read is told, and the startup descends.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { afterEach, describe, expect, it } from 'vitest'
@@ -44,7 +44,7 @@ interface ReasonWords {
 // Why: a notice carries words, not a row ID, so a case pins it to a T-233 row by that row's dictionary words;
 // whether src/ holds the same words is checked by npm run words:check, not here.
 const MANUSCRIPT_WORDS = JSON.parse(
-  readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8'),
+  readRepoFile(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8'),
 ) as { reasons: ReasonWords[] }
 
 const wordsFor = (specTableRowId: string): ReasonWords => {
@@ -56,7 +56,7 @@ const wordsFor = (specTableRowId: string): ReasonWords => {
 }
 
 const TEMPLATE = JSON.parse(
-  readFileSync(
+  readRepoFile(
     join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'),
     'utf8',
   ),

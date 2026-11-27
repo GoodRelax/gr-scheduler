@@ -1,6 +1,7 @@
 // CR-610 / CR-611 / CR-612 spec-only system tests on the built dist/index.html: HS-8, SX-1, SK-25, FR-067 and RS-67 through the UI.
 import { expect, test, type Page } from '@playwright/test'
-import { mkdtempSync, readFileSync, writeFileSync } from 'node:fs'
+import { mkdtempSync, writeFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { tmpdir } from 'node:os'
 import { join, resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
@@ -8,8 +9,8 @@ import { VIEWPORT, answerConfirmation, enableAgentApi, launch, press, readDocume
 
 test.use({ viewport: VIEWPORT, locale: 'en-US' })
 
-const DIST = readFileSync(resolve('dist/index.html'), 'utf8')
-const WORDS = JSON.parse(readFileSync(resolve('docs/spec/_source/display-words.json'), 'utf8')) as { reasons: { specTableRowId: string; text: { ja: string; en: string } }[] }
+const DIST = readRepoFile(resolve('dist/index.html'), 'utf8')
+const WORDS = JSON.parse(readRepoFile(resolve('docs/spec/_source/display-words.json'), 'utf8')) as { reasons: { specTableRowId: string; text: { ja: string; en: string } }[] }
 const RS_67 = WORDS.reasons.find((one) => one.specTableRowId === 'RS-67')
 const LOWER_LINE = /^\d{4}\/\d{2}\/\d{2} \d{2}:\d{2}:\d{2} {2}(\d+\.\d\[kB\])$/
 const EMBEDDED = 'id="embedded-document"'

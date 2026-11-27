@@ -1,6 +1,6 @@
 // Contract tests: an entrance in effect is filled and knocked out, never rimmed.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -39,7 +39,7 @@ const rowOf = (table: string, id: string) => {
 
 // Why: the whole chapter and not one requirement: a premise asks that a sentence is still in it,
 // not which UID holds it.
-const CHAPTER_1_4 = unbroken(readFileSync(
+const CHAPTER_1_4 = unbroken(readRepoFile(
   join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'),
   'utf8',
 ))

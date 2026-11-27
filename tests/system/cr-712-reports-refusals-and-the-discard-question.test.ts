@@ -1,7 +1,8 @@
 // CR-712 wave 2 spec-only cases on the shipped build: report rows in U-62, the U-61 note, import refusals by T-220 row, QN-5 and RS-27.
 
 import { expect, test, type Page } from '@playwright/test'
-import { readFileSync, writeFileSync } from 'node:fs'
+import { writeFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { unbroken } from '../contract/spec-table'
@@ -12,14 +13,14 @@ test.use({ viewport: VIEWPORT, locale: 'en-US' })
 
 const SPEC = join(process.cwd(), 'docs', 'spec')
 
-const REQUIREMENTS = unbroken(readFileSync(join(SPEC, '01-04-requirements.md'), 'utf8'))
+const REQUIREMENTS = unbroken(readRepoFile(join(SPEC, '01-04-requirements.md'), 'utf8'))
 
 interface Words {
   readonly ja: string
   readonly en: string
 }
 
-const WORDS = JSON.parse(readFileSync(join(SPEC, '_source', 'display-words.json'), 'utf8')) as {
+const WORDS = JSON.parse(readRepoFile(join(SPEC, '_source', 'display-words.json'), 'utf8')) as {
   readonly reasons: readonly { readonly specTableRowId: string; readonly text: Words; readonly nextStep?: Words }[]
   readonly invariants: readonly { readonly specTableRowId: string; readonly text: Words }[]
   readonly differenceReview?: readonly { readonly part: string; readonly text: Words }[]
@@ -43,7 +44,7 @@ const OPEN_CHOOSER = '[data-role="Open Chooser"]'
 const CONFIRMATION = '[data-role="Confirmation"]'
 const EMBEDDED = /(<script[^>]*id="embedded-document"[^>]*>)([\s\S]*?)(<\/script>)/
 
-const SCHEMA = JSON.parse(readFileSync(join(SPEC, '_source', 'grs-document.schema.json'), 'utf8')) as {
+const SCHEMA = JSON.parse(readRepoFile(join(SPEC, '_source', 'grs-document.schema.json'), 'utf8')) as {
   readonly properties: { readonly documentSettings: { readonly properties: { readonly zoomX: { readonly maximum: number } } } }
 }
 

@@ -1,6 +1,6 @@
 // Unit tests: the four folding controls of a task group and the five of the panel head.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { afterEach, describe, expect, it } from 'vitest'
@@ -55,7 +55,7 @@ const rowOf = (table: string, id: string) => {
 
 const says = (table: string, id: string): string => rowOf(table, id).cells.join(' ')
 
-const REQUIREMENTS = unbroken(readFileSync(
+const REQUIREMENTS = unbroken(readRepoFile(
   join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'),
   'utf8',
 ))
@@ -125,7 +125,7 @@ const DELETE_THIS_TASK_GROUP = entranceFor('FR-032', ON_A_TASK_GROUP)
 const ADD_CHILD_TASK_GROUP = entranceFor('HF-14')
 
 const TEMPLATE = JSON.parse(
-  readFileSync(
+  readRepoFile(
     join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'),
     'utf8',
   ),
@@ -550,7 +550,7 @@ describe('the manuscript still says what these cases read', () => {
 
   it('⛔ the one column that decides whether a task group is drawn is AT-153, and 段 0 holds S-418', () => {
     // Spec: FR-004, AT-153, S-418
-    const detail = unbroken(readFileSync(
+    const detail = unbroken(readRepoFile(
       join(process.cwd(), 'docs', 'spec', '_assets', 'fig-erd-detail.md'),
       'utf8',
     ))

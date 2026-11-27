@@ -1,6 +1,6 @@
 // Unit tests: adding a task group walks the same road as renaming one.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { afterEach, describe, expect, it } from 'vitest'
@@ -38,7 +38,7 @@ const rowOf = (table: string, id: string) => {
 
 const says = (table: string, id: string): string => rowOf(table, id).cells.join(' ')
 
-const REQUIREMENTS = unbroken(readFileSync(
+const REQUIREMENTS = unbroken(readRepoFile(
   join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'),
   'utf8',
 ))
@@ -69,7 +69,7 @@ const ADD_CHILD_TASK_GROUP = entranceFor('HF-14')
 // Why: AT-53 is read from the ERD, not typed, so a renumbered ERD reaches the
 // cases instead of leaving them silent.
 const TASK_GROUP_NAME_FIELD = ((): string => {
-  const detail = unbroken(readFileSync(
+  const detail = unbroken(readRepoFile(
     join(process.cwd(), 'docs', 'spec', '_assets', 'fig-erd-detail.md'),
     'utf8',
   ))
@@ -90,7 +90,7 @@ interface DefaultTaskGroupName {
 // only what is generated from it.
 const DEFAULT_TASK_GROUP_NAME_WORD: DefaultTaskGroupName = ((): DefaultTaskGroupName => {
   const manuscript = JSON.parse(
-    readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8'),
+    readRepoFile(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8'),
   ) as { defaultNames?: readonly DefaultTaskGroupName[] }
   const found = (manuscript.defaultNames ?? []).find((one) => one.use === 'taskGroup')
   if (found === undefined) throw new Error('the dictionary has no defaultNames entry for `taskGroup`')
@@ -101,7 +101,7 @@ const DEFAULT_TASK_GROUP_NAME_WORD: DefaultTaskGroupName = ((): DefaultTaskGroup
 // Why: two roots, one of them already a parent, so a new task group can be told
 // apart from every one already standing.
 const TEMPLATE = JSON.parse(
-  readFileSync(
+  readRepoFile(
     join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'),
     'utf8',
   ),
@@ -394,7 +394,7 @@ describe('the manuscript still says what these cases read', () => {
   it('⭐ AT-55 scopes order to siblings under the same parent, which is what 末子 is measured against', () => {
     // Why: Alpha and AlphaChild may share order 0 because AT-55 scopes order per
     // parent, so the last child at level 0 is read against the other roots only.
-    const at55 = unbroken(readFileSync(
+    const at55 = unbroken(readRepoFile(
       join(process.cwd(), 'docs', 'spec', '_assets', 'fig-erd-detail.md'),
       'utf8',
     ))

@@ -2,7 +2,7 @@
 
 /* eslint-disable @typescript-eslint/no-explicit-any -- the cases read frame and document fields no public type names */
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { afterEach, describe, expect, it } from 'vitest'
@@ -38,7 +38,7 @@ import { SETTINGS_CONSTANTS } from '../../src/entity/document-model/document-set
 
 const SPEC = join(process.cwd(), 'docs', 'spec')
 
-const REQUIREMENTS = unbroken(readFileSync(join(SPEC, '01-04-requirements.md'), 'utf8')).split('\n')
+const REQUIREMENTS = unbroken(readRepoFile(join(SPEC, '01-04-requirements.md'), 'utf8')).split('\n')
 
 const rowIdsIn = (text: string): readonly string[] => text.match(/GR-\d+/g) ?? []
 
@@ -130,7 +130,7 @@ const TEMPLATE_PATH = join(
   'single-html-shell',
   'startup-template.json',
 )
-const TEMPLATE = JSON.parse(readFileSync(TEMPLATE_PATH, 'utf8')) as Record<string, unknown>
+const TEMPLATE = JSON.parse(readRepoFile(TEMPLATE_PATH, 'utf8')) as Record<string, unknown>
 
 const TASK_GROUP_A = '2a000000-0000-4000-8000-000000000001'
 const TASK_GROUP_B = '2a000000-0000-4000-8000-000000000002'

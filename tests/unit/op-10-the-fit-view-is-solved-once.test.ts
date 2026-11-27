@@ -1,4 +1,4 @@
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { afterEach, describe, expect, it } from 'vitest'
@@ -9,11 +9,11 @@ import { validateDocument } from '../fixtures/grs-document'
 
 type Loose = Record<string, any>
 
-const REQUIREMENTS = readFileSync(
+const REQUIREMENTS = readRepoFile(
   join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'),
   'utf8',
 )
-const DESIGN = readFileSync(join(process.cwd(), 'docs', 'spec', '05-07-design.md'), 'utf8')
+const DESIGN = readRepoFile(join(process.cwd(), 'docs', 'spec', '05-07-design.md'), 'utf8')
 
 const sectionOf = (uid: string): string => {
   const start = REQUIREMENTS.indexOf(`**UID**: ${uid}`)
@@ -96,7 +96,7 @@ const RECTANGLE = ((): string => {
 })()
 
 const TEMPLATE = JSON.parse(
-  readFileSync(
+  readRepoFile(
     join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'),
     'utf8',
   ),

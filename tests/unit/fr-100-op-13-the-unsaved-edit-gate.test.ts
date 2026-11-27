@@ -1,6 +1,6 @@
 // Unit tests: the unsaved-edit condition of FR-100 and the reopen road of OP-13.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { afterEach, describe, expect, it } from 'vitest'
@@ -82,7 +82,7 @@ const PROCEED_ANSWER = 'proceed'
 const CANCEL_ANSWER = 'cancel'
 
 const TEMPLATE = JSON.parse(
-  readFileSync(
+  readRepoFile(
     join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'),
     'utf8',
   ),

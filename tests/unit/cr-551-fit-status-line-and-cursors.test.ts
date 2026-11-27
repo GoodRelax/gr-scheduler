@@ -1,6 +1,6 @@
 // CR-551 items 10-12: the fit margins (FR-055), the status-date line (FR-046, FR-106) and the exclusive cursors
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { afterEach, describe, expect, it } from 'vitest'
@@ -24,7 +24,7 @@ import {
 import { pointerOf, taskGroupDocument, taskOf, SCREEN } from './cr-541-stage'
 
 const SPEC = join(process.cwd(), 'docs', 'spec')
-const REQUIREMENTS = unbroken(readFileSync(join(SPEC, '01-04-requirements.md'), 'utf8'))
+const REQUIREMENTS = unbroken(readRepoFile(join(SPEC, '01-04-requirements.md'), 'utf8'))
 
 const verticalIn = (table: string, id: string) => {
   const found = specTable(table).rows.find((one) => one.id === id)

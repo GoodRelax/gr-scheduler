@@ -1,7 +1,7 @@
 // CR-562 on the shipped build: IC-115 copies the image-to-GRS-JSON prompt, and IC-20 turns the Agent API on.
 
 import { expect, test, type Browser, type BrowserContext, type Page } from '@playwright/test'
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { bare, specTable } from '../contract/spec-table'
@@ -20,7 +20,7 @@ import {
 import { rowOf } from './sws-case'
 
 const ROOT = process.cwd()
-const NOTICE_ROSTER = readFileSync(join(ROOT, 'docs', 'spec', '_assets', 'tbl-notice-reasons.md'), 'utf8')
+const NOTICE_ROSTER = readRepoFile(join(ROOT, 'docs', 'spec', '_assets', 'tbl-notice-reasons.md'), 'utf8')
 
 // Why: CR-827 (JDG-3086) took the schema out of the copy; it goes to the download as IO-10 instead.
 const FR_068_ORDER =
@@ -84,15 +84,15 @@ interface PromptParts {
 
 // Why: the generated seam file CR-562 section 5 names; it is a spec artifact, not a body.
 const PROMPT = JSON.parse(
-  readFileSync(join(ROOT, 'src', 'adapter', 'screen-renderer', 'image-to-grs-json-prompt.json'), 'utf8'),
+  readRepoFile(join(ROOT, 'src', 'adapter', 'screen-renderer', 'image-to-grs-json-prompt.json'), 'utf8'),
 ) as PromptParts
 
 const TEMPLATE = JSON.parse(
-  readFileSync(join(ROOT, 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
+  readRepoFile(join(ROOT, 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
 ) as { readonly schemaVersion: string; readonly documentSettings: unknown }
 
 const SCHEMA_TEXT = JSON.stringify(
-  JSON.parse(readFileSync(join(ROOT, 'docs', 'spec', '_source', 'grs-document.schema.json'), 'utf8')),
+  JSON.parse(readRepoFile(join(ROOT, 'docs', 'spec', '_source', 'grs-document.schema.json'), 'utf8')),
 )
 
 interface SettingsBlock {
@@ -102,7 +102,7 @@ interface SettingsBlock {
 
 // Spec: T-209
 const T_209_ROWS = (
-  JSON.parse(readFileSync(join(ROOT, 'docs', 'spec', '_source', 'settings.json'), 'utf8')) as {
+  JSON.parse(readRepoFile(join(ROOT, 'docs', 'spec', '_source', 'settings.json'), 'utf8')) as {
     readonly blocks: readonly SettingsBlock[]
   }
 ).blocks.find((block) => block.id === 'T-209')?.rows ?? []
@@ -122,7 +122,7 @@ function t209Value(id: string): string {
 // Why: the manuscript's first line is its own role line and not part of the prompt (CR-562 section 5).
 /** @purity non-pure */
 function manuscriptOf(language: Language): string {
-  const text = readFileSync(join(ROOT, 'docs', 'spec', '_source', `image-to-grs-json-prompt.${language}.md`), 'utf8')
+  const text = readRepoFile(join(ROOT, 'docs', 'spec', '_source', `image-to-grs-json-prompt.${language}.md`), 'utf8')
   const body = text.replace(/\r\n/g, '\n').split('\n').slice(1).join('\n').replace(/\s+$/, '')
   const printed = body.replace(/\{\{(S-[0-9]+[a-z]?)\}\}/g, (_token, id: string) => t209Value(id))
   if (printed.includes('{{') || printed.includes('}}')) throw new Error(`${language}: a {{...}} token names no row of T-209`)

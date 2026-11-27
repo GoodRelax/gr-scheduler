@@ -1,6 +1,6 @@
 // Unit tests: a press on a spent entrance carries the T-233 row that matches it.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { afterEach, describe, expect, it } from 'vitest'
@@ -63,7 +63,7 @@ function surfaceOf(icon: string): string {
   return first
 }
 
-const REQUIREMENTS = unbroken(readFileSync(
+const REQUIREMENTS = unbroken(readRepoFile(
   join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'),
   'utf8',
 ))
@@ -91,7 +91,7 @@ interface ReasonWords {
 
 const REASON_WORDS: readonly ReasonWords[] = (
   JSON.parse(
-    readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8'),
+    readRepoFile(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8'),
   ) as { reasons: ReasonWords[] }
 ).reasons
 
@@ -104,7 +104,7 @@ function wordsFor(specTableRowId: string): ReasonWords {
 const FALLBACK = 'RS-27'
 
 const TEMPLATE = JSON.parse(
-  readFileSync(
+  readRepoFile(
     join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'),
     'utf8',
   ),

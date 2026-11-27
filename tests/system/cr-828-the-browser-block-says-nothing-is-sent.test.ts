@@ -1,7 +1,8 @@
 // CR-828 on the shipped build: the help's browser functions block shows the dictionary sentence under its rows, in ja and en, within one screen.
 
 import { expect, test, type Browser, type Page } from '@playwright/test'
-import { existsSync, readFileSync } from 'node:fs'
+import { existsSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { bare, specTable, unbroken } from '../contract/spec-table'
@@ -9,7 +10,7 @@ import { CLEARING_UP_MS, launchReferenceBrowser, readSettledDrawnSvg, screenOf }
 import { rowOf } from './sws-case'
 
 const ROOT = process.cwd()
-const REQUIREMENTS = unbroken(readFileSync(join(ROOT, 'docs', 'spec', '01-04-requirements.md'), 'utf8').replace(/\r\n/g, '\n'))
+const REQUIREMENTS = unbroken(readRepoFile(join(ROOT, 'docs', 'spec', '01-04-requirements.md'), 'utf8').replace(/\r\n/g, '\n'))
 
 const FR_036_BROWSER_NOTE =
   '`GRS` は、表 T-255 の行の塊の行の下に、ブラウザが保存の前に出す確認にサイトの名が出ても、`GRS` は手元のファイルを書き換えるだけでどこへも送らないことを告げる 1 文を添えること。'
@@ -18,7 +19,7 @@ const FR_036_NOTE_WORDS = '`FR-038` の辞書（`_source/display-words.json`）�
 const FR_036_ONE_SCREEN =
   'ない環境の両方で、ヘルプの言語が日本語でも英語でも、開いたときの大きさ（表 T-335 の `WB-1`）で全部の塊とライセンスの行（`FR-069`）を 1 画面に収め、縦にも横にもスクロールを要さないこと'
 
-const WORDS = JSON.parse(readFileSync(join(ROOT, 'docs', 'spec', '_source', 'display-words.json'), 'utf8')) as {
+const WORDS = JSON.parse(readRepoFile(join(ROOT, 'docs', 'spec', '_source', 'display-words.json'), 'utf8')) as {
   readonly helpBlockNotes: readonly { readonly block: string; readonly text: Readonly<Record<string, string>> }[]
 }
 const NOTE = WORDS.helpBlockNotes.find((one) => one.block === 'browser')?.text ?? {}

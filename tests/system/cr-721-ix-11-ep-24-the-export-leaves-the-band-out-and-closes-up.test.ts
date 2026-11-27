@@ -1,13 +1,13 @@
 // CR-721 on the shipped build: the exported picture of a schedule filtered to the checked tasks holds no band words and starts where the unfiltered picture starts (T-241 IX-11, T-076 EP-24).
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 import { expect, test, type Browser, type Page } from '@playwright/test'
 import { unbroken } from '../contract/spec-table'
 import { CLEARING_UP_MS, launchReferenceBrowser } from './live-app'
 import { BAND, ENTER, PANEL, boxOf, pressAt, pressSelector, settle, withSearch } from './cr-721-stage'
 
-const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
+const REQUIREMENTS = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
 const IX_11_NO_BAND_WORDS =
   '⛔ 絵にチェックで日程抽出バー（`_assets/tbl-glossary.md` の `U-67`）の語を書き込んではならない（MUST NOT）'
@@ -15,7 +15,7 @@ const IX_11_CLOSE_UP =
   '⭐ 帯の高さも絵に残さず、帯が無いときと同じ位置から日程表を組むこと（MUST）'
 const EP_24_CLOSE_UP = '帯が無いときと同じ位置から組む'
 
-const WORDS = JSON.parse(readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8')) as {
+const WORDS = JSON.parse(readRepoFile(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8')) as {
   readonly searchPanel: readonly { readonly part: string; readonly text: { readonly ja: string; readonly en: string } }[]
 }
 const wordsOf = (part: string): readonly string[] => {

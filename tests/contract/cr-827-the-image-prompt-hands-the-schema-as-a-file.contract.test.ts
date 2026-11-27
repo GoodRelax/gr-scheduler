@@ -1,6 +1,6 @@
 // CR-827: IC-115 copies a three-part prompt with no schema in it and hands the schema to the download as IO-10.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { afterEach, describe, expect, it } from 'vitest'
@@ -13,7 +13,7 @@ afterEach(restoreAnimationFrames)
 
 const ROOT = process.cwd()
 const SPEC = join(ROOT, 'docs', 'spec')
-const read = (...path: string[]): string => readFileSync(join(...path), 'utf8').replace(/\r\n/g, '\n')
+const read = (...path: string[]): string => readRepoFile(join(...path), 'utf8').replace(/\r\n/g, '\n')
 const REQUIREMENTS = unbroken(read(SPEC, '01-04-requirements.md'))
 const DESIGN = unbroken(read(SPEC, '05-07-design.md'))
 

@@ -1,6 +1,6 @@
 // Contract tests: every shape of F-019 is drawn in one coordinate system, packed to its ink.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -23,7 +23,7 @@ interface Glyph {
   readonly elements: readonly GlyphElement[]
 }
 
-const CARRIED_FIGURE = JSON.parse(readFileSync(CARRIED, 'utf8')) as {
+const CARRIED_FIGURE = JSON.parse(readRepoFile(CARRIED, 'utf8')) as {
   readonly viewBox: string
   readonly glyphs: readonly Glyph[]
 }
@@ -470,7 +470,7 @@ describe('FR-029 (MUST NOT): every shape is drawn in ONE coordinate system', () 
   })
 
   it('図 F-019 itself declares one coordinate system and no glyph group holds another', () => {
-    const figure = readFileSync(FIGURE, 'utf8')
+    const figure = readRepoFile(FIGURE, 'utf8')
     expect((figure.match(/\bviewBox\s*=/g) ?? []).length, '図 F-019 states more than one viewBox')
       .toBe(1)
     const groups = figure.match(/<g\b[^>]*>/g) ?? []
@@ -565,14 +565,14 @@ describe('FR-029 (MUST): the coordinate system is packed to the shapes it holds'
 // Spec: FR-029, S-138, S-141
 describe('the manuscript still says what these cases copy', () => {
   it('FR-029 still holds both rules about 図 F-019 の座標系', () => {
-    const requirements = readFileSync(REQUIREMENTS, 'utf8')
+    const requirements = readRepoFile(REQUIREMENTS, 'utf8')
     expect(requirements).toContain(FR_029_PACKED)
     expect(requirements).toContain(FR_029_ONE_SYSTEM)
     expect(requirements).toContain(FR_029_SLACK_COSTS)
   })
 
   it('§8 of the glossary still says every row of 表 T-109 has a shape', () => {
-    expect(readFileSync(GLOSSARY, 'utf8')).toContain(GLOSSARY_EVERY_TASK_GROUP_HAS_ONE)
+    expect(readRepoFile(GLOSSARY, 'utf8')).toContain(GLOSSARY_EVERY_TASK_GROUP_HAS_ONE)
   })
 
   it('⛔ the box the shapes are drawn in is still S-138, and this work must not move it', () => {
@@ -585,7 +585,7 @@ describe('the manuscript still says what these cases copy', () => {
     expect(NOT_STORED_ICON_SIZES['S-138'], 'the box stopped being S-138').toBe(
       Number(stated?.[1]),
     )
-    expect(readFileSync(REQUIREMENTS, 'utf8')).toContain(FR_029_THE_BOX)
+    expect(readRepoFile(REQUIREMENTS, 'utf8')).toContain(FR_029_THE_BOX)
     // Why: the gap S-141 must not move either; tightening a coordinate system changes
     // neither length.
     // Why: no case asserts that the gap equals a frame's corner radius: S-141's note gives
@@ -605,7 +605,7 @@ const FR_036_WHEEL_NOT_A_CHARACTER =
 
 // Spec: F-019
 function figureGlyphOf(specTableRowId: string): Glyph {
-  const figure = readFileSync(FIGURE, 'utf8')
+  const figure = readRepoFile(FIGURE, 'utf8')
   const label = figure.indexOf(`>${specTableRowId}</text>`)
   if (label < 0) throw new Error(`figure F-019 labels no ${specTableRowId}`)
   const open = figure.lastIndexOf('<g ', label)
@@ -633,7 +633,7 @@ const geometryOf = (glyph: Glyph): readonly string[] =>
 
 describe('FR-036 (MUST NOT): the wheel glyph IC-102 is not read as a character', () => {
   it('the manuscript still holds the rule, and F-019 draws IC-102 with a filled wheel beside its outline', () => {
-    expect(readFileSync(REQUIREMENTS, 'utf8')).toContain(FR_036_WHEEL_NOT_A_CHARACTER)
+    expect(readRepoFile(REQUIREMENTS, 'utf8')).toContain(FR_036_WHEEL_NOT_A_CHARACTER)
     const drawn = figureGlyphOf('IC-102')
     expect(drawn.elements.length, geometryOf(drawn).join('; ')).toBeGreaterThan(2)
     expect(drawn.elements.some((one) => attributeOf(one, 'class') === 'f'), 'no filled part').toBe(true)

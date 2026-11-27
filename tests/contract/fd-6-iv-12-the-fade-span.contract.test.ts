@@ -1,6 +1,6 @@
 // Contract tests: FD-6 of table T-012a and IV-12 of table T-220 count the same calendar days.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -39,7 +39,7 @@ const cellOf = (tableId: string, specTableRowId: string): string => {
 // Trap: specTable('T-012a') throws, because its caption is followed by the vertex table
 // first; the shared helper is not this file's to change, so the row is found by its ID.
 const fadeRow = (specTableRowId: string): string => {
-  const text = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
+  const text = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
   const line = text.split('\n').find((one) => one.startsWith(`| ${specTableRowId} |`))
   if (line === undefined) throw new Error(`no row ${specTableRowId} in 01-04-requirements.md`)
   return line

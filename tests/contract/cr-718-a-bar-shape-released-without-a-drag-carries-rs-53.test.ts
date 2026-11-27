@@ -1,6 +1,6 @@
 // CR-718 spec-only cases: a bar shape pressed and released without a drag makes no task, carries RS-53, and stands no notice (FR-001 TC-8, FR-076).
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { afterEach, describe, expect, it, vi } from 'vitest'
@@ -23,7 +23,7 @@ vi.mock('../../src/use-case/advance-screen-session/advance-screen-session', asyn
   }
 })
 
-const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
+const REQUIREMENTS = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
 const TC_8_CARRIES_THE_REASON = 'もしクリックでバーの形状のタスクを作らなかった場合、`GRS` は、作らなかった理由として 表 T-233 の `RS-53` を `FR-029` の運び方で運ぶこと。'
 const A_CLICK_MAKES_NO_BAR_TASK = '`GRS` は、クリックではバーの形状のタスクを作らないこと。'

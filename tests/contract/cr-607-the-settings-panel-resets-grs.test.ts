@@ -1,6 +1,6 @@
 // CR-607 wave 4: FR-153 GRS Reset through the frame loop and the drawn panel and confirmation.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { afterEach, describe, expect, it } from 'vitest'
@@ -46,7 +46,7 @@ import {
 import { bare, specTable, unbroken } from './spec-table'
 
 const SPEC = join(process.cwd(), 'docs', 'spec')
-const REQUIREMENTS = unbroken(readFileSync(join(SPEC, '01-04-requirements.md'), 'utf8'))
+const REQUIREMENTS = unbroken(readRepoFile(join(SPEC, '01-04-requirements.md'), 'utf8'))
 
 const FR_153_PLACE =
   '`GRS` は、GRS リセットの入口を、文書の設定の面（`FR-072`、面を出す入口は 表 T-109 の `IC-17`）の頭、テーマ色の欄（`FR-041`）の上に置くこと。'
@@ -102,7 +102,7 @@ interface Worded {
   readonly text?: Readonly<Record<DisplayLanguage, string>>
 }
 
-const WORDS = JSON.parse(readFileSync(join(SPEC, '_source', 'display-words.json'), 'utf8')) as {
+const WORDS = JSON.parse(readRepoFile(join(SPEC, '_source', 'display-words.json'), 'utf8')) as {
   readonly icons: readonly Worded[]
   readonly questions: readonly Worded[]
   readonly reasons: readonly Worded[]
@@ -264,7 +264,7 @@ const ESCAPE = keyOf(KEY.escape)
 const KEY_N = 'N'
 
 const TEMPLATE = JSON.parse(
-  readFileSync(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
+  readRepoFile(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
 ) as Document
 
 const firstTaskUid = (document: Document): number =>

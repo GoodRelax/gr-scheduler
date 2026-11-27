@@ -1,6 +1,6 @@
 // Unit tests: the shell converts the undo memory bound from megabytes to bytes.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { afterEach, describe, expect, it } from 'vitest'
@@ -34,7 +34,7 @@ interface ManuscriptRow {
 const SETTINGS_MANUSCRIPT = join(process.cwd(), 'docs', 'spec', '_source', 'settings.json')
 
 const manuscriptRow = (id: string): ManuscriptRow => {
-  const manuscript = JSON.parse(readFileSync(SETTINGS_MANUSCRIPT, 'utf8')) as {
+  const manuscript = JSON.parse(readRepoFile(SETTINGS_MANUSCRIPT, 'utf8')) as {
     blocks?: { rows?: ManuscriptRow[] }[]
   }
   for (const block of manuscript.blocks ?? []) {
@@ -162,7 +162,7 @@ const TEMPLATE_PATH = join(
   'single-html-shell',
   'startup-template.json',
 )
-const TEMPLATE_TEXT = readFileSync(TEMPLATE_PATH, 'utf8')
+const TEMPLATE_TEXT = readRepoFile(TEMPLATE_PATH, 'utf8')
 
 function documentOf(text: string): Document {
   const read = documentFromJson(text)

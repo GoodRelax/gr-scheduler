@@ -1,7 +1,7 @@
 // `FR-028`'s STATEMENT (docs/spec/01-04-requirements.md):
 
 import { emptyChangeWatchers } from '../../src/use-case/notify-change-watchers/notify-change-watchers'
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -34,19 +34,19 @@ const FR_028_NEVER_THROWS =
 const AG_9A_WHAT_A_REFUSAL_CARRIES =
   'ードのダイアログを出さずに値で返せること | FR-064 |\n| AG-8 | 画像化に失敗したときも、呼び出した側が**失敗を値で受け取れること** | FR-064 |\n| AG-9a | **拒否の値には、拒否された対象・理由の区分・現在の刻印を含めること（MUST）'
 
-const REQUIREMENTS = unbroken(readFileSync(
+const REQUIREMENTS = unbroken(readRepoFile(
   join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'),
   'utf8',
 ))
 
-const AGENT_API_MEMBERS = unbroken(readFileSync(
+const AGENT_API_MEMBERS = unbroken(readRepoFile(
   join(process.cwd(), 'docs', 'spec', '_assets', 'tbl-agent-api-members.md'),
   'utf8',
 ))
 
 
 const TEMPLATE = JSON.parse(
-  readFileSync(
+  readRepoFile(
     join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'),
     'utf8',
   ),

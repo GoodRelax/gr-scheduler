@@ -61,6 +61,8 @@ import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(HERE)))
+sys.path.insert(0, os.path.join(ROOT, 'tools'))
+import spec_files  # noqa: E402
 EXPORT = os.path.join(ROOT, 'scratch', 'spec-check', 'sd-out', 'json',
                       'index.json')
 SPEC = os.path.join(ROOT, 'docs', 'spec')
@@ -113,12 +115,11 @@ def traces_rows(spec=SPEC):
     rows = {}
     for base, dirs, names in os.walk(spec):
         dirs[:] = sorted(d for d in dirs if d not in ('output', '__pycache__'))
-        for name in sorted(names):
+        for name in spec_files.listed_names(base, sorted(names)):
             if not name.endswith('.md'):
                 continue
             column = None
-            with io.open(os.path.join(base, name), encoding='utf-8',
-                         errors='replace') as handle:
+            with io.StringIO(spec_files.read_spec_file(os.path.join(base, name))) as handle:
                 for line in handle:
                     text = line.strip()
                     if not text.startswith('|'):

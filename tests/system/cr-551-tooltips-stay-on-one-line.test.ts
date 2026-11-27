@@ -1,6 +1,6 @@
 // System tests: every icon tooltip stays on one line and inside the window (IN-7), swept live.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { expect, test, type Browser, type Page } from '@playwright/test'
@@ -8,7 +8,7 @@ import { bare, specTable, unbroken } from '../contract/spec-table'
 import { CLEARING_UP_MS, launchReferenceBrowser, readSettledDrawnSvg, screenOf } from './live-app'
 import { rowOf } from './sws-case'
 
-const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
+const REQUIREMENTS = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
 const IN_7_ONE_LINE = 'ツールチップは、説明の各行を折り返さずに 1 行で出すこと（MUST）。'
 const IN_7_ONLY_WIDER = '行が上限より広いときだけ、その行を折り返すこと（MUST）'
@@ -28,7 +28,7 @@ const S_124_MS = numberOf(specTable('T-212').rows.find((row) => row.id === 'S-12
 const S_339_PX = numberOf(specTable('T-206').rows.find((row) => row.id === 'S-339')?.by['既定'] ?? '')
 
 // Spec: FR-038, EZ-2
-const WORDS = JSON.parse(readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8')) as {
+const WORDS = JSON.parse(readRepoFile(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8')) as {
   icons: { specTableRowId: string; hint?: { ja: string; en: string } }[]
 }
 const HINTED: readonly string[] = WORDS.icons.filter((one) => one.hint !== undefined).map((one) => one.specTableRowId)

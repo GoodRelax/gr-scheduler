@@ -1,6 +1,6 @@
 // Contract tests: open, reload and save carry a hidden reason on a second press during a wait.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { afterEach, describe, expect, it } from 'vitest'
@@ -34,7 +34,7 @@ import { bare, specTable, type SpecRow, type SpecTable, unbroken } from './spec-
 
 /* eslint-disable @typescript-eslint/no-explicit-any -- the fake host patches a browser global */
 
-const REQUIREMENTS = unbroken(readFileSync(
+const REQUIREMENTS = unbroken(readRepoFile(
   join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'),
   'utf8',
 ))
@@ -95,7 +95,7 @@ interface ReasonWords {
 
 const REASON_WORDS: readonly ReasonWords[] = (
   JSON.parse(
-    readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8'),
+    readRepoFile(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8'),
   ) as { reasons: ReasonWords[] }
 ).reasons
 
@@ -211,7 +211,7 @@ async function settle(): Promise<void> {
 }
 
 const TEMPLATE = JSON.parse(
-  readFileSync(
+  readRepoFile(
     join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'),
     'utf8',
   ),

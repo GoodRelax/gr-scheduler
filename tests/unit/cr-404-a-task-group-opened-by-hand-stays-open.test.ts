@@ -1,6 +1,6 @@
 // see CR-404, CR-570, T-328, T-329, AT-153, FR-018, FR-016, HF-13
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { afterEach, describe, expect, it } from 'vitest'
@@ -25,10 +25,10 @@ import { SETTINGS_CONSTANTS } from '../../src/entity/document-model/document-set
 const LAST_SAVED_AT = '2026-10-03T09:00:00'
 
 const REQUIREMENTS = unbroken(
-  readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'),
+  readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'),
 )
 const TASK_GROUP_TREE_SECTION = unbroken(
-  readFileSync(join(process.cwd(), 'docs', 'spec', '_assets', 'tbl-state-machines.md'), 'utf8'),
+  readRepoFile(join(process.cwd(), 'docs', 'spec', '_assets', 'tbl-state-machines.md'), 'utf8'),
 ).split('## タスクグループの木（`taskGroupTree`）')[1] ?? ''
 
 const FR_018_BY_T_329 = '⭐ `GRS` は、タスクグループの木の状態（`_assets/fig-erd-detail.md` の `AT-153`、`TaskGroup.treeState`）によって、本要求の対象から外すタスクグループを 表 T-329 に従って決めること。'
@@ -78,7 +78,7 @@ interface ReasonWords {
 }
 const REASON_WORDS: readonly ReasonWords[] = (
   JSON.parse(
-    readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8'),
+    readRepoFile(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8'),
   ) as { reasons: ReasonWords[] }
 ).reasons
 const wordsOf = (specTableRowId: string): string => {
@@ -98,7 +98,7 @@ const S_55 = numberIn(rowOf('T-201', 'S-55').by['既定値'] ?? '')
 const S_53 = numberIn(rowOf('T-201', 'S-53').by['既定値'] ?? '')
 
 const TEMPLATE = JSON.parse(
-  readFileSync(
+  readRepoFile(
     join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'),
     'utf8',
   ),
@@ -152,11 +152,11 @@ describe('CR-404 / CR-570 -- the manuscript these cases are driven by', () => {
 
   it('AT-153 is TaskGroup.treeState: five values, not null, default auto; S-418 is levelZeroTreeState', () => {
     const erd = JSON.parse(
-      readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'erd.json'), 'utf8'),
+      readRepoFile(join(process.cwd(), 'docs', 'spec', '_source', 'erd.json'), 'utf8'),
     )
     expect(JSON.stringify(erd)).toContain('"seat":153,"name":"treeState"')
     const schema = JSON.parse(
-      readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'grs-document.schema.json'), 'utf8'),
+      readRepoFile(join(process.cwd(), 'docs', 'spec', '_source', 'grs-document.schema.json'), 'utf8'),
     )
     const taskGroup = schema.$defs.TaskGroup
     expect(taskGroup.required).toContain('treeState')

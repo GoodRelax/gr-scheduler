@@ -1,6 +1,6 @@
 // Unit tests: the Confirmation surface (U-55) and NT-7's two word buttons.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -35,7 +35,7 @@ import { specTable, bare, bareAll } from '../contract/spec-table'
 import { unbroken } from '../contract/spec-table'
 
 const specText = (...parts: string[]): string =>
-  unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', ...parts), 'utf8'))
+  unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', ...parts), 'utf8'))
 
 const U_55 = 'U-55'
 
@@ -57,7 +57,7 @@ const questionRow = (at: number): string =>
 // Why: read, never written: FR-076 makes what a question shows a row of T-234,
 // and FR-038 keeps its sentence in the one dictionary, which a bench may not copy.
 const DISPLAY_WORDS = JSON.parse(
-  readFileSync(
+  readRepoFile(
     join(process.cwd(), 'src', 'adapter', 'screen-renderer', 'display-words.json'),
     'utf8',
   ),
@@ -122,7 +122,7 @@ interface Roster {
 // Why: the generated roster is filtered rather than the .md, since the unit reads
 // the same file and gen:check holds it to table T-109.
 const ROSTER: Roster = JSON.parse(
-  readFileSync(
+  readRepoFile(
     join(process.cwd(), 'src', 'adapter', 'screen-renderer', 'icon-roster.json'),
     'utf8',
   ),
@@ -141,7 +141,7 @@ const ENTRY_ROWS: readonly string[] = ON_THE_CONFIRMATION.map((one) => one.specT
 const MANUSCRIPT_ANSWERS: readonly { readonly answer: string; readonly text: Record<string, string> }[] =
   (
     JSON.parse(
-      readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8'),
+      readRepoFile(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8'),
     ) as {
       confirmation: { answer: string; text: Record<string, string> }[]
     }

@@ -1,6 +1,6 @@
 // CR-786: the clauses, the commands, the undo bench and the panel helpers the cr-786-*.contract.test.ts files share.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { propertiesPanelFromSelection } from '../../src/adapter/screen-renderer/properties-panel'
@@ -39,7 +39,7 @@ import { LIMITS } from './cr-777-stage'
 import { unbroken } from './spec-table'
 
 const SPEC = join(process.cwd(), 'docs', 'spec')
-const readSpec = (...parts: string[]): string => readFileSync(join(SPEC, ...parts), 'utf8').replace(/\r\n/g, '\n')
+const readSpec = (...parts: string[]): string => readRepoFile(join(SPEC, ...parts), 'utf8').replace(/\r\n/g, '\n')
 
 export const REQUIREMENTS = unbroken(readSpec('01-04-requirements.md'))
 

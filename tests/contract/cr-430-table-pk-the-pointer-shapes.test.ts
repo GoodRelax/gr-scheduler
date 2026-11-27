@@ -1,6 +1,6 @@
 // CR-430: table T-269 (PK-1..PK-10) -- the pointer shape each grab area shows, and the seam S7 that names it.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { afterEach, describe, expect, it } from 'vitest'
@@ -20,7 +20,7 @@ import {
   type Stage,
 } from '../unit/cr-430-stage'
 
-const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
+const REQUIREMENTS = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
 const FR_106_HOLDS_WHILE_PRESSED = '押している間、`GRS` は、掴んだときの形を保つこと。'
 const FR_106_MARKER_IS_A_FINGER =

@@ -1,6 +1,6 @@
 // DFC-2980: FR-107 table T-270 rows PE-8 / PE-10 -- a progress marker pulled with many moves.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { afterEach, describe, expect, it } from 'vitest'
@@ -28,8 +28,8 @@ import {
   type Stage,
 } from './cr-430-stage'
 
-const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
-const SETTINGS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '_assets', 'tbl-settings.md'), 'utf8'))
+const REQUIREMENTS = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
+const SETTINGS = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '_assets', 'tbl-settings.md'), 'utf8'))
 
 const PE_8_ROW_PULLS_THE_END =
   '| PE-8 | 進捗マーカー（`===` で実績の右に立つ。実績はダミーを含む。中断のあいだを除く）'

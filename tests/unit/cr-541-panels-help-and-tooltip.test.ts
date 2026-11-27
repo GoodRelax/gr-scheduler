@@ -1,6 +1,6 @@
 // CR-541: what the screen shows in the properties panel, the help and the tooltip.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -108,7 +108,7 @@ const LINK_TYPE_SEAT =
   specTable('T-016').rows.find(
     (one) => bare(one.by['対象'] ?? '') === 'Dependency' && (one.by['列（`GRS JSON`）'] ?? '').trim() === '`linkType`',
   )?.id ?? 'no T-016 row for Dependency.linkType'
-const ERD_DETAIL = readFileSync(join(process.cwd(), 'docs', 'spec', '_assets', 'fig-erd-detail.md'), 'utf8')
+const ERD_DETAIL = readRepoFile(join(process.cwd(), 'docs', 'spec', '_assets', 'fig-erd-detail.md'), 'utf8')
 
 const dependencyDocument = (linkType: number) =>
   taskGroupDocument([{ id: 'task-group-1', parentId: null }, { id: 'task-group-2', parentId: null }], {}, {

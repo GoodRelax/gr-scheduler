@@ -1,6 +1,6 @@
 // Unit tests for UF-37 (embedded-html-codec.ts) and UF-38 (app-shell-source.ts): table T-075, component CP-20/PI-20.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -125,7 +125,7 @@ const TEMPLATE_PATH = join(
   'single-html-shell',
   'startup-template.json',
 )
-const TEMPLATE_TEXT = readFileSync(TEMPLATE_PATH, 'utf8')
+const TEMPLATE_TEXT = readRepoFile(TEMPLATE_PATH, 'utf8')
 const TEMPLATE = JSON.parse(TEMPLATE_TEXT) as Record<string, unknown>
 
 type Root = Record<string, unknown>

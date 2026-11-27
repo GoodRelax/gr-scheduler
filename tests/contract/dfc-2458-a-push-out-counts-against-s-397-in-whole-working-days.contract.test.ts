@@ -1,6 +1,6 @@
 // DFC-2458 (spec-only): FR-132 counts the push-out in working minutes and rounds it up to working days only to compare it with S-397.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -12,7 +12,7 @@ import { taskGroupDocument, taskOf } from '../unit/cr-541-stage'
 import { specTable, unbroken } from './spec-table'
 
 const SPEC = join(process.cwd(), 'docs', 'spec')
-const REQUIREMENTS = unbroken(readFileSync(join(SPEC, '01-04-requirements.md'), 'utf8'))
+const REQUIREMENTS = unbroken(readRepoFile(join(SPEC, '01-04-requirements.md'), 'utf8'))
 
 // Spec: FR-132, S-397, T-314
 const FR_132_COMPARED = '押し出し日数（`DQ-4`）を稼働日へ切り上げた数が `S-397` 以上で完了していない `Task` をボトルネックとすること'

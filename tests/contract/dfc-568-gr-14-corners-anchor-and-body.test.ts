@@ -1,6 +1,6 @@
 // DFC-568: GR-14 splits by box kind; highlight boxes write CM-54 per T-246, comment boxes CM-50 with CM-51 in one bundle.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { afterEach, describe, expect, it } from 'vitest'
@@ -51,11 +51,11 @@ import { DEFAULT_DISPLAY_RATIO } from '../fixtures/display-scale'
 
 const SPEC = join(process.cwd(), 'docs', 'spec')
 
-const REQUIREMENTS_RAW = readFileSync(join(SPEC, '01-04-requirements.md'), 'utf8')
+const REQUIREMENTS_RAW = readRepoFile(join(SPEC, '01-04-requirements.md'), 'utf8')
 const REQUIREMENTS = unbroken(REQUIREMENTS_RAW)
-const DESIGN = unbroken(readFileSync(join(SPEC, '05-07-design.md'), 'utf8'))
-const DOCUMENT_COMMANDS = readFileSync(join(SPEC, '_assets', 'tbl-document-commands.md'), 'utf8')
-const ERD_DETAIL = readFileSync(join(SPEC, '_assets', 'fig-erd-detail.md'), 'utf8')
+const DESIGN = unbroken(readRepoFile(join(SPEC, '05-07-design.md'), 'utf8'))
+const DOCUMENT_COMMANDS = readRepoFile(join(SPEC, '_assets', 'tbl-document-commands.md'), 'utf8')
+const ERD_DETAIL = readRepoFile(join(SPEC, '_assets', 'fig-erd-detail.md'), 'utf8')
 
 const GR_14_SPLIT = '`GRS` は、`GR-14` の場所を箱の種類で分けること。'
 // Why: CR-558 gave the highlight box eight grab points and a frame; these are the clauses as they read now.
@@ -221,7 +221,7 @@ const RS_44_WORDS = ((): string => {
 })()
 
 const TEMPLATE = JSON.parse(
-  readFileSync(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
+  readRepoFile(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
 ) as Record<string, Record<string, unknown>>
 
 const TASK_GROUP_A = '3a000000-0000-4000-8000-000000000001'

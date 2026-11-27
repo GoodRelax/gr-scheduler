@@ -1,6 +1,6 @@
 // CR-666 / IN-4 / IN-4a / FR-071 / T-283 RG-17: full screen is the last Esc rung, a held Esc consumes no rung, Escape is locked.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -21,7 +21,7 @@ import type { ScreenTheme } from '../../src/framework/dom-screen-surface/dom-scr
 import { wire, type FakeElement } from '../fixtures/fake-browser'
 import { specTable, unbroken } from '../contract/spec-table'
 
-const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
+const REQUIREMENTS = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
 const IN_4_ORDER =
   '消費する階層は 出ている通知 → 確定していないその場の編集 → 開いている面 → 進行中のドラッグ・引きかけの矢印 → 開いているウィンドウ → プロパティパネル → 構え → 選択 → `Dual Cursor` モード → 出ている説明 → 全画面表示 の順とすること（MUST）'

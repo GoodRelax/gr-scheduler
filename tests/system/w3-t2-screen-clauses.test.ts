@@ -1,6 +1,6 @@
 // W3 spec-only tester 2: screen clauses of 01-04-requirements.md pressed on the built dist/index.html.
 import { expect, test, type Browser, type Page } from '@playwright/test'
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { specTable, unbroken } from '../contract/spec-table'
@@ -8,7 +8,7 @@ import { VIEWPORT, elementBox, enableAgentApi, launch, openByDrop, openThroughIc
 
 test.use({ viewport: VIEWPORT, locale: 'en-US', colorScheme: 'light' })
 
-const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
+const REQUIREMENTS = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
 // Spec: FR-039
 // Why: CR-690 -- table T-369 places the font size field (FO-4) right under the display scale field (FO-3).

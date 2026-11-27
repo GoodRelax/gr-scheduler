@@ -2,7 +2,7 @@
 
 /* eslint-disable @typescript-eslint/no-explicit-any -- the fixture edits a cloned template and the host fakes browser globals */
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { afterEach, describe, expect, it } from 'vitest'
@@ -87,7 +87,7 @@ const TEMPLATE_PATH = join(
   'single-html-shell',
   'startup-template.json',
 )
-const TEMPLATE = JSON.parse(readFileSync(TEMPLATE_PATH, 'utf8')) as Record<string, unknown>
+const TEMPLATE = JSON.parse(readRepoFile(TEMPLATE_PATH, 'utf8')) as Record<string, unknown>
 
 const BAR_TASK_GROUP = '11111111-1111-4111-8111-111111111111'
 const STONE_TASK_GROUP = '22222222-2222-4222-8222-222222222222'
@@ -613,7 +613,7 @@ const IN_2_T_269 = '掴み代の上は `FR-106` の 表 T-269 の形'
 // Spec: IN-2, GA-1, GA-2, GA-3, GA-4, T-269
 describe('T-028 IN-2: 予定バーと実績バーの端点の上は 表 T-269 の形', () => {
   it('the manuscript still holds the four end pointers of T-266, the FR-106 clause and the IN-2 sentence quoted here', () => {
-    const requirements = readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8')
+    const requirements = readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8')
     for (const row of [...T_266_ENDS, FR_106_KEEPS, IN_2_T_269]) {
       expect(requirements, row).toContain(row)
     }

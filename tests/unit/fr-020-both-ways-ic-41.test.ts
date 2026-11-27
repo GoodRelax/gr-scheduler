@@ -1,6 +1,6 @@
 // Unit tests: one entrance, IC-41, turns the watermark both ways.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { afterEach, describe, expect, it } from 'vitest'
@@ -49,7 +49,7 @@ const DEFAULT_PASSWORD = bare(rowOf('T-207', 'S-100').by[VALUE_COLUMN] ?? '')
 
 const PROCEED = 'proceed'
 
-const REQUIREMENTS = unbroken(readFileSync(
+const REQUIREMENTS = unbroken(readRepoFile(
   join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'),
   'utf8',
 ))
@@ -60,7 +60,7 @@ const FR_020_NOT_IN_THE_DOCUMENT =
   '`watermarkVisible` を文書に保存してはならない（MUST NOT）'
 
 const TEMPLATE = JSON.parse(
-  readFileSync(
+  readRepoFile(
     join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'),
     'utf8',
   ),

@@ -1,7 +1,8 @@
 // System tests: one sweep over measured defects, pressed out of the shipped build.
 
 import { expect, test, type Browser, type BrowserContext, type Page } from '@playwright/test'
-import { existsSync, readFileSync } from 'node:fs'
+import { existsSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { specTable, type SpecTable } from '../contract/spec-table'
@@ -153,7 +154,7 @@ interface ReasonWords {
 // be a second copy.
 /** @purity semi-pure-mutable */
 function reasonWordsOfDictionary(): ReasonWords[] {
-  const held = JSON.parse(readFileSync(DICTIONARY, 'utf8')) as {
+  const held = JSON.parse(readRepoFile(DICTIONARY, 'utf8')) as {
     reasons?: Array<{ specTableRowId?: string; text?: { ja?: string; en?: string } }>
   }
   const reasons = held.reasons ?? []
@@ -168,7 +169,7 @@ function reasonWordsOfDictionary(): ReasonWords[] {
 // Spec: FR-101
 /** @purity semi-pure-mutable */
 function neverSavedWords(): readonly string[] {
-  const held = JSON.parse(readFileSync(DICTIONARY, 'utf8')) as {
+  const held = JSON.parse(readRepoFile(DICTIONARY, 'utf8')) as {
     fileStatus?: Array<{ state?: string; text?: { ja?: string; en?: string } }>
   }
   const found = (held.fileStatus ?? []).find((one) => one.state === 'neverSaved')
@@ -183,7 +184,7 @@ function neverSavedWords(): readonly string[] {
 // one language's seven would fail a build running in the other.
 /** @purity semi-pure-mutable */
 function weekdayWords(): readonly string[] {
-  const held = JSON.parse(readFileSync(DICTIONARY, 'utf8')) as {
+  const held = JSON.parse(readRepoFile(DICTIONARY, 'utf8')) as {
     weekdays?: Array<{ text?: { ja?: string; en?: string } }>
   }
   const words = (held.weekdays ?? []).flatMap((one) => [one.text?.ja ?? '', one.text?.en ?? ''])
@@ -201,7 +202,7 @@ const WHEEL_GLYPH_TOKEN = '{IC-102}'
 // Spec: FR-036
 /** @purity semi-pure-mutable */
 function assignmentPressWordsByRow(): Map<string, string> {
-  const held = JSON.parse(readFileSync(DICTIONARY, 'utf8')) as {
+  const held = JSON.parse(readRepoFile(DICTIONARY, 'utf8')) as {
     assignments?: Array<{ specTableRowId?: string; press?: { ja?: string; en?: string } }>
   }
   const rows = held.assignments ?? []
@@ -286,7 +287,7 @@ function surfacesOf(cell: string): readonly string[] {
 function helpBarred(): { readonly surfaces: ReadonlySet<string>; readonly rows: ReadonlySet<string> } {
   const opening = `${String.fromCharCode(0x8868)} T-109 ` +
     String.fromCharCode(0x306e, 0x3046, 0x3061, 0x3001)
-  const requirements = readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8')
+  const requirements = readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8')
   const line = requirements.split(/\r?\n/).find((one) => one.includes(opening))
   if (line === undefined) throw new Error('FR-036 no longer holds the sentence that keeps rows of table T-109 off the help')
   const from = line.slice(line.indexOf(opening))
@@ -323,7 +324,7 @@ function helpListedEntrances(): ReadonlySet<string> {
 // Why: the screen spells each chord of a cell Ctrl+A and writes the plus key with the help language's word.
 function screenChordsOf(cell: string): readonly string[] {
   const words = JSON.parse(
-    readFileSync(join(process.cwd(), 'src', 'adapter', 'screen-renderer', 'display-words.json'), 'utf8'),
+    readRepoFile(join(process.cwd(), 'src', 'adapter', 'screen-renderer', 'display-words.json'), 'utf8'),
   ) as { readonly keyNotation: readonly { readonly part: string; readonly text: Record<string, string> }[] }
   const plus = words.keyNotation.find((one) => one.part === 'plusKey')?.text ?? {}
   return cell
@@ -2665,7 +2666,7 @@ function dictionaryWords(): ReadonlySet<string> {
       }
     }
   }
-  walk(JSON.parse(readFileSync(DICTIONARY, 'utf8')))
+  walk(JSON.parse(readRepoFile(DICTIONARY, 'utf8')))
   if (held.size === 0) throw new Error(`${DICTIONARY} holds no words at all`)
   return held
 }
@@ -2674,7 +2675,7 @@ function dictionaryWords(): ReadonlySet<string> {
 // a case passes whatever the app did.
 /** @purity semi-pure-mutable */
 function neverSavedByLanguage(): ReadonlyMap<string, string> {
-  const held = JSON.parse(readFileSync(DICTIONARY, 'utf8')) as {
+  const held = JSON.parse(readRepoFile(DICTIONARY, 'utf8')) as {
     fileStatus?: Array<{ state?: string; text?: Record<string, string> }>
   }
   const found = (held.fileStatus ?? []).find((one) => one.state === 'neverSaved')
@@ -3162,7 +3163,7 @@ const LEDGERS: readonly string[] = ['defects.md', 'fixed-defects.md']
 
 test('every ledger row this file holds down is still a row of the ledger', () => {
   const written = LEDGERS.map((file) =>
-    readFileSync(join(process.cwd(), 'docs', 'development-records', file), 'utf8'),
+    readRepoFile(join(process.cwd(), 'docs', 'development-records', file), 'utf8'),
   )
   for (const row of HELD) {
     expect(

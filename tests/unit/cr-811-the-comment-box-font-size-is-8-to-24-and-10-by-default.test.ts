@@ -1,6 +1,6 @@
 // CR-811: the comment box font size is CommentBox.fontSizePx (AT-168), 8..24 px (S-624), and 10 px when null.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { afterEach, describe, expect, it, vi } from 'vitest'
@@ -19,10 +19,10 @@ import { specTable, unbroken } from '../contract/spec-table'
 import { DEFAULT_DISPLAY_RATIO } from '../fixtures/display-scale'
 
 const SPEC = join(process.cwd(), 'docs', 'spec')
-const REQUIREMENTS = unbroken(readFileSync(join(SPEC, '01-04-requirements.md'), 'utf8').replace(/\r\n/g, '\n'))
-const DESIGN = unbroken(readFileSync(join(SPEC, '05-07-design.md'), 'utf8').replace(/\r\n/g, '\n'))
-const ERD_DETAIL = unbroken(readFileSync(join(SPEC, '_assets', 'fig-erd-detail.md'), 'utf8').replace(/\r\n/g, '\n'))
-const DOCUMENT_COMMANDS = readFileSync(join(SPEC, '_assets', 'tbl-document-commands.md'), 'utf8').replace(/\r\n/g, '\n')
+const REQUIREMENTS = unbroken(readRepoFile(join(SPEC, '01-04-requirements.md'), 'utf8').replace(/\r\n/g, '\n'))
+const DESIGN = unbroken(readRepoFile(join(SPEC, '05-07-design.md'), 'utf8').replace(/\r\n/g, '\n'))
+const ERD_DETAIL = unbroken(readRepoFile(join(SPEC, '_assets', 'fig-erd-detail.md'), 'utf8').replace(/\r\n/g, '\n'))
+const DOCUMENT_COMMANDS = readRepoFile(join(SPEC, '_assets', 'tbl-document-commands.md'), 'utf8').replace(/\r\n/g, '\n')
 
 // Spec: FR-019
 const NULL_DRAWS_DEFAULT =
@@ -83,7 +83,7 @@ const STEP_SIZE = {
 type Step = keyof typeof STEP_SIZE
 
 const TEMPLATE = JSON.parse(
-  readFileSync(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
+  readRepoFile(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
 ) as Record<string, Record<string, unknown>>
 
 const LETTERS = ['A', 'B', 'C', 'D', 'E', 'F'] as const
@@ -267,7 +267,7 @@ describe('CR-811 premises: the clauses these cases read, and the numbers they st
     }
     expect(DESIGN, 'the design lost the read clause').toContain(MISSING_COLUMNS_READ_AS_NULL)
     expect(DESIGN, 'the design lost the default clause').toContain(MISSING_COLUMN_DEFAULT_DIFFERS)
-    const items = unbroken(readFileSync(join(SPEC, '_assets', 'tbl-property-items.md'), 'utf8').replace(/\r\n/g, '\n').replace(/<br>/g, ''))
+    const items = unbroken(readRepoFile(join(SPEC, '_assets', 'tbl-property-items.md'), 'utf8').replace(/\r\n/g, '\n').replace(/<br>/g, ''))
     expect(items, 'T-016 lost the PR-50 default clause').toContain(PR_50_SHOWS_DEFAULT)
     expect(items, 'T-016 lost the PR-50 empty clause').toContain(PR_50_EMPTY_IS_NULL)
     expect(items, 'T-016 lost the PR-48 placing clause').toContain(PR_48_BELOW_FONT_SIZE)

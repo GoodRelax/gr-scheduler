@@ -2,7 +2,7 @@
 
 /* eslint-disable @typescript-eslint/no-explicit-any -- the fixture edits a cloned template and the host fakes browser globals */
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { afterEach, describe, expect, it } from 'vitest'
@@ -93,7 +93,7 @@ const PRESS_F: KeyInput = { kind: 'key', key: 'F', modifiers: NO_MODS }
 // Why: BT-4 lends a valid calendar, project and settings, but startedFromTemplate is left off,
 // so OP-10's exclusion for the template never operates here.
 const TEMPLATE = JSON.parse(
-  readFileSync(
+  readRepoFile(
     join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'),
     'utf8',
   ),

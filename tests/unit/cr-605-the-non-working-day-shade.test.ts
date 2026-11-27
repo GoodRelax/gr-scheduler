@@ -1,6 +1,6 @@
 // CR-605 part A: non-working days are shaded in the Task Group Area (FR-054, table T-343, color S-450).
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -30,7 +30,7 @@ import { regionsFromScreen, type ScreenRect } from '../../src/entity/layout-engi
 import { bare, unbroken } from '../contract/spec-table'
 import { RATIO, SCREEN, cellOf, rowOf, scheduleOf, taskOf } from './cr-430-cross-section-scene'
 
-const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
+const REQUIREMENTS = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
 // Spec: FR-054
 const FR_054_POINTER = '`GRS` は、非稼働日を 表 T-343 に従って描くこと。'
@@ -368,7 +368,7 @@ describe('CR-605 -- the clauses these cases rest on still stand', () => {
   it('S-450 is a color on both sides that does not follow the hue; AT-82 says 9 is no recurrence', () => {
     for (const side of ['light', 'dark'] as const) expect(t236('S-450', side)).toMatch(/^rgba\(/)
     expect(rowOf('T-236', 'S-450').by['備考'] ?? '').toContain(S_450_NO_HUE)
-    const at82 = readFileSync(join(process.cwd(), 'docs', 'spec', '_assets', 'fig-erd-detail.md'), 'utf8')
+    const at82 = readRepoFile(join(process.cwd(), 'docs', 'spec', '_assets', 'fig-erd-detail.md'), 'utf8')
     expect(at82).toContain(AT_82_NONE)
   })
 

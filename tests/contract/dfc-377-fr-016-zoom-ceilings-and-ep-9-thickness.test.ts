@@ -1,6 +1,6 @@
 // Contract tests: the zoom clauses of FR-016 and the Panel Divider thickness of EP-9.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -36,7 +36,7 @@ import {
 import { unbroken } from './spec-table'
 import { displayRatioAt } from '../fixtures/display-scale'
 
-const REQUIREMENTS = unbroken(readFileSync(
+const REQUIREMENTS = unbroken(readRepoFile(
   join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'),
   'utf8',
 ))

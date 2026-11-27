@@ -1,6 +1,6 @@
 // CR-613 spec-only tests: SEAM-2, McpToolTranslator (PI-40, UF-186) against table T-107, AG-12 (2) (4) (5) and AG-9a.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -49,7 +49,7 @@ const rawCells = (line: string): string[] =>
   line.trim().replace(/^\|/, '').replace(/\|$/, '').split('|').map((cell) => cell.trim())
 
 const T_107: readonly T107Row[] = (() => {
-  const lines = readFileSync(AGENT_API_MEMBERS, 'utf8').split(/\r?\n/)
+  const lines = readRepoFile(AGENT_API_MEMBERS, 'utf8').split(/\r?\n/)
   const at = lines.findIndex((line) => line.startsWith('**') && line.includes('T-107'))
   if (at < 0) throw new Error('table T-107 is not in tbl-agent-api-members.md')
   const rows: T107Row[] = []

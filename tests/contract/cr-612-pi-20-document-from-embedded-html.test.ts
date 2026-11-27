@@ -1,6 +1,6 @@
 // CR-612 spec-only tests: PI-20 documentFromEmbeddedHtml and OP-12 -- a single .html is read without a DOM, in FR-067's order.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -14,7 +14,7 @@ import { specTable } from './spec-table'
 type EmbeddedReading = { readonly ok: true; readonly document: Document } | { readonly ok: false }
 type DocumentFromEmbeddedHtml = (html: string, elementIds: readonly string[], greatestKnownVersion: string) => EmbeddedReading
 
-const PUBLISHED = readFileSync(join(process.cwd(), 'docs', 'spec', '_assets', 'tbl-published-entries.md'), 'utf8')
+const PUBLISHED = readRepoFile(join(process.cwd(), 'docs', 'spec', '_assets', 'tbl-published-entries.md'), 'utf8')
 const VERSION = (JSON.parse(TEMPLATE_TEXT) as { schemaVersion: string }).schemaVersion
 const DOCUMENT_ID = 'embedded-document'
 const TEMPLATE_ID = 'startup-template-under-test'
@@ -72,7 +72,7 @@ describe('OP-1 -- the open route accepts every row of T-024 that comes in', () =
   })
 
   it('OP-1 / OP-12: the generated format list gives IO-7 the extension .html and the first character <', () => {
-    const formats = JSON.parse(readFileSync(join(process.cwd(), 'src', 'adapter', 'document-codec', 'exchange-formats.json'), 'utf8')) as unknown
+    const formats = JSON.parse(readRepoFile(join(process.cwd(), 'src', 'adapter', 'document-codec', 'exchange-formats.json'), 'utf8')) as unknown
     const rows: { specTableRowId: string; extension: string | null; firstCharacter: string | null }[] = []
     const walk = (node: unknown): void => {
       if (Array.isArray(node)) for (const one of node) walk(one)

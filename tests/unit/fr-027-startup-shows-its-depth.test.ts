@@ -1,7 +1,7 @@
 // Unit tests: the shipped startup template draws its task group hierarchy on its very first frame.
 
 import { describe, expect, it } from 'vitest'
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { specTable } from '../contract/spec-table'
@@ -47,7 +47,7 @@ type Loose = Record<string, unknown>
 
 // Spec: FR-027, BT-4
 const template = (): Document =>
-  JSON.parse(readFileSync(TEMPLATE_PATH, 'utf8')) as unknown as Document
+  JSON.parse(readRepoFile(TEMPLATE_PATH, 'utf8')) as unknown as Document
 
 const TEMPLATE = template()
 const SETTINGS = TEMPLATE.documentSettings as DocumentSettings

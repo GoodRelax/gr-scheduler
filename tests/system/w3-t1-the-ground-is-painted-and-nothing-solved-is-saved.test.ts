@@ -1,7 +1,7 @@
 // W3 spec-only cases for FR-041 on the shipped build: GRS paints its own ground (S-146), never the browser's system color, and saves no solved color (CF-1).
 
 import { expect, test, type Browser, type Page } from '@playwright/test'
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { colorOf } from '../../src/adapter/svg-renderer/svg-renderer'
@@ -11,7 +11,7 @@ import { CLEARING_UP_MS, launchReferenceBrowser, readSettledDrawnSvg } from './l
 import { rowOf } from './sws-case'
 import { applyCommandsOf } from './w3-t1-stage'
 
-const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
+const REQUIREMENTS = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
 // Why: each constant ends exactly at its marker, cut from the manuscript as check 39 reads it.
 const FR_041_OWN_GROUND = '`GRS` は、地の色を閲覧環境のシステム色に委ねないこと'

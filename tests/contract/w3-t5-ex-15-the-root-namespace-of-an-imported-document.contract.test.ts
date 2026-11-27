@@ -1,6 +1,6 @@
 // W3 spec-only tester 5: table T-033 EX-15 -- the exported root keeps the namespace URI the imported root named.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -9,10 +9,10 @@ import { documentFromJson, documentFromMspdi, mspdiFromDocument } from '../../sr
 import type { Document } from '../../src/entity/document-model/document/document'
 import { unbroken } from './spec-table'
 
-const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
+const REQUIREMENTS = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
 // Why: the startup template (BT-4) is a document made without importing MSPDI; no schema file is read here.
-const TEMPLATE_TEXT = readFileSync(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8')
+const TEMPLATE_TEXT = readRepoFile(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8')
 
 /** @purity pure */
 function currentDocument(): Document {

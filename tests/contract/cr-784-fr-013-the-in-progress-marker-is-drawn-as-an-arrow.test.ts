@@ -1,6 +1,6 @@
 // CR-784: table T-021 row PM-1 -- the in-progress progress marker is drawn `(->)`, not an empty disc.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -8,7 +8,7 @@ import { describe, expect, it } from 'vitest'
 import { markerGlyphSvg, NOT_STORED_DELAY_MARK_SIZES } from '../../src/adapter/svg-renderer/svg-renderer'
 import { specTable, unbroken } from './spec-table'
 
-const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
+const REQUIREMENTS = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
 const FR_013_ARROW_SHAPE =
   '`GRS` は、進行中の記号 `(→)`（表 T-021 の `PM-1`）を、中断の記号 `( − )` と同じ長さと太さの横棒に、' +
@@ -228,7 +228,7 @@ describe('CR-784: the generated S-601 is the settings.json default', () => {
       }
       return undefined
     }
-    const json: unknown = JSON.parse(readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'settings.json'), 'utf8'))
+    const json: unknown = JSON.parse(readRepoFile(join(process.cwd(), 'docs', 'spec', '_source', 'settings.json'), 'utf8'))
     const row = find(json)
     expect(row).toBeDefined()
     expect(Number(row!.default!.num)).toBe(0.5)

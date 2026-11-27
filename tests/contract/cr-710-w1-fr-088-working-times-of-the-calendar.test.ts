@@ -1,6 +1,6 @@
 // CR-710 wave 1 (spec-only): WC-8 and WC-9 pick the one set of spans, CM-39 writes it, IV-24 bounds it, RS-89 compares its sum with the day.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -42,8 +42,8 @@ import {
   type WorkingByDayType,
 } from './cr-710-w1-stage'
 
-const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
-const DESIGN = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '05-07-design.md'), 'utf8'))
+const REQUIREMENTS = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
+const DESIGN = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '05-07-design.md'), 'utf8'))
 
 // Spec: FR-088, FR-054, IMPS-729, IMPS-731
 const CLAUSES = [

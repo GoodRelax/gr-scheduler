@@ -4,7 +4,7 @@
 // Why: every number asserted is read out of docs/spec at read time, never measured locally.
 
 import { expect, test, type Browser, type Page } from '@playwright/test'
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 import { bare, specTable, type SpecTable } from '../contract/spec-table'
 import { CLEARING_UP_MS, launchReferenceBrowser, readSettledDrawnSvg, screenOf } from './live-app'
@@ -47,7 +47,7 @@ const REPLACE_ENTRANCE = rowOf(specTable('T-109'), 'IC-71').id
 const CONFIRMATION = `[data-role="${bare(rowOf(specTable('T-103'), 'U-55').cells[0] ?? '')}"]`
 const PROCEED_WORD: string = (() => {
   const raw = JSON.parse(
-    readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8'),
+    readRepoFile(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8'),
   ) as { confirmation: { answer: string; text: { en: string } }[] }
   const found = raw.confirmation.find((one) => one.answer === 'proceed')
   if (found === undefined) throw new Error('the dictionary holds no proceed answer')
@@ -55,7 +55,7 @@ const PROCEED_WORD: string = (() => {
 })()
 
 const TEMPLATE = JSON.parse(
-  readFileSync(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
+  readRepoFile(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
 ) as Record<string, unknown>
 
 const LONG_TITLE = `${'A document title long enough to fill the whole header strip '.repeat(6)}TITLE-END`

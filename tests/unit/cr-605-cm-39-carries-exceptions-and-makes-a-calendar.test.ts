@@ -1,6 +1,6 @@
 // CR-605 part B1: CM-39 carries the exception list and makes a Calendar when the default would answer (FR-088).
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -22,8 +22,8 @@ import { unbroken } from '../contract/spec-table'
 import { rowOf } from './cr-430-cross-section-scene'
 
 const SPEC = join(process.cwd(), 'docs', 'spec')
-const REQUIREMENTS = unbroken(readFileSync(join(SPEC, '01-04-requirements.md'), 'utf8'))
-const ERD = unbroken(readFileSync(join(SPEC, '_assets', 'fig-erd-detail.md'), 'utf8'))
+const REQUIREMENTS = unbroken(readRepoFile(join(SPEC, '01-04-requirements.md'), 'utf8'))
+const ERD = unbroken(readRepoFile(join(SPEC, '_assets', 'fig-erd-detail.md'), 'utf8'))
 
 // Spec: FR-088
 const FR_088_MAKE =

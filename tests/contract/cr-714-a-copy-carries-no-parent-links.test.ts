@@ -1,6 +1,6 @@
 // CR-714 (JDG-1736, DFC-2270): a copy carries no parent task link -- T-223 DU-1 and DU-2, at the use-case seam.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -20,8 +20,8 @@ const OWN_TASK_GROUP =
 const DERIVED_TASK_GROUP =
   '導出元を持つタスクグループを導出元の `Task` と一緒にコピーしたとき、`GRS` は、コピーのタスクグループの導出元を、導出元の `Task` のコピーにすること。'
 
-const REQUIREMENTS = readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8')
-const TEMPLATE_TEXT = readFileSync(
+const REQUIREMENTS = readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8')
+const TEMPLATE_TEXT = readRepoFile(
   join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'),
   'utf8',
 )

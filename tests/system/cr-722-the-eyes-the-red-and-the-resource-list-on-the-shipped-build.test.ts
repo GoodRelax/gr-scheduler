@@ -1,7 +1,7 @@
 // CR-722 on the shipped build: the Resource List window, each eye IC-143, the product drawn, the red (TV-12), the bar (TV-11), closing (TV-8), the jump (SJ-0) and AM-26 / AM-27.
 
 import { expect, test, type Browser, type Page } from '@playwright/test'
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 import { bare, specTable, unbroken } from '../contract/spec-table'
 import { validateDocument } from '../fixtures/grs-document'
@@ -9,7 +9,7 @@ import { CLEARING_UP_MS, launchReferenceBrowser, readSettledDrawnSvg } from './l
 import { keyOf, openDocument, openStage, pressEntrance, saveDocument, settle, type Stage } from './cr-570-tree-state-stage'
 import { rowOf } from './sws-case'
 
-const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
+const REQUIREMENTS = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
 const TV_12_RED =
   '`GRS` は、日程抽出している表の `IC-143` と、表を開く起動アイコン（検索パネルは `IC-117`、遅延診断レポートは `IC-107`、担当リストはコマンドパレットの `IC-62`）を、`FR-029` の 表 T-237 の `EN-8` で描くこと。'
@@ -64,7 +64,7 @@ const RED_DARK = colorOf('S-543', '暗いテーマ')
 const GLYPH_DARK = colorOf('S-544', '暗いテーマ')
 
 type Words = Record<'ja' | 'en', string>
-const WORDS = JSON.parse(readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8')) as Record<
+const WORDS = JSON.parse(readRepoFile(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8')) as Record<
   string,
   readonly { readonly part?: string; readonly specTableRowId?: string; readonly name?: string; readonly text?: Words; readonly heading?: Words }[]
 >
@@ -76,7 +76,7 @@ const wordOf = (group: string, key: string): Words => {
 }
 
 const TEMPLATE = JSON.parse(
-  readFileSync(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
+  readRepoFile(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
 ) as { $schema: string; schemaVersion: string; schedule: Record<string, any>; documentSettings: Record<string, unknown>; documentStamp: unknown }
 
 const day = (dayOfMonth: number): string => `2026-01-${String(dayOfMonth).padStart(2, '0')}T00:00:00`

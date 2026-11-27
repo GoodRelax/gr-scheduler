@@ -1,6 +1,7 @@
 // CR-699: a written GRS JSON opens with "$schema", its version is a UTC instant, the schema holds an empty ledger.
 
-import { existsSync, readFileSync } from 'node:fs'
+import { existsSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -31,7 +32,7 @@ const CH_6_2_NO_LEDGER_WRITTEN = '`GRS JSON` を書き出すとき、`GRS` は�
 const CH_6_2_SCHEMA_PLACE = '起こしたスキーマの置き場は、`_source/grs-document.schema.json` とすること。'
 
 const SPEC_DIR = join(process.cwd(), 'docs', 'spec')
-const read = (...parts: string[]): string => readFileSync(join(...parts), 'utf8').replace(/\r\n/g, '\n')
+const read = (...parts: string[]): string => readRepoFile(join(...parts), 'utf8').replace(/\r\n/g, '\n')
 const REQUIREMENTS = unbroken(read(SPEC_DIR, '01-04-requirements.md'))
 const DESIGN = unbroken(read(SPEC_DIR, '05-07-design.md'))
 

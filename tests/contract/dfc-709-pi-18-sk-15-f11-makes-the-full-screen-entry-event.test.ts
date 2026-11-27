@@ -1,6 +1,6 @@
 // Contract tests: the full-screen entrance (F11, or a press on IC-11) makes fullScreenEntryPressed and changes no document.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -20,11 +20,11 @@ import { bare, specTable, unbroken } from './spec-table'
 const SPEC = join(process.cwd(), 'docs', 'spec')
 
 // Spec: T-280
-const MACHINES = unbroken(readFileSync(join(SPEC, '_assets', 'tbl-state-machines.md'), 'utf8'))
+const MACHINES = unbroken(readRepoFile(join(SPEC, '_assets', 'tbl-state-machines.md'), 'utf8'))
 const EVENT_ROW = /\| `screen\/fullScreenEntryPressed` \| ([^|]*) \|/
 
 // Spec: PI-18
-const PI_18 = unbroken(readFileSync(join(SPEC, '_assets', 'tbl-published-entries.md'), 'utf8'))
+const PI_18 = unbroken(readRepoFile(join(SPEC, '_assets', 'tbl-published-entries.md'), 'utf8'))
 const PI_18_NULL_WHEN_NONE = '作るものが無ければ `null`。'
 const PI_18_SOURCE_IS_INPUT = '作るのは、出どころが入力の出来事だけである。'
 

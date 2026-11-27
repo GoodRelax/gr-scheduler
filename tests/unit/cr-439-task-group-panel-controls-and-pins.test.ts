@@ -1,6 +1,6 @@
 // Pins what the spec asks of the Task Group Panel the DOM surface draws (CR-439).
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -30,7 +30,7 @@ import {
 import { bare, specTable, unbroken } from '../contract/spec-table'
 
 const REQUIREMENTS = unbroken(
-  readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'),
+  readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'),
 )
 
 function rowOf(table: string, id: string) {

@@ -1,6 +1,6 @@
 // CR-551 items 1-5: plan dates beside the name (ND-5, FR-002), the delay mark (FR-013), the chevron ends (FD-5),
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { afterEach, describe, expect, it } from 'vitest'
@@ -13,8 +13,8 @@ import { bare, specTable, unbroken } from '../contract/spec-table'
 import { taskGroupDocument, taskOf, SCREEN } from './cr-541-stage'
 
 const SPEC = join(process.cwd(), 'docs', 'spec')
-const REQUIREMENTS = unbroken(readFileSync(join(SPEC, '01-04-requirements.md'), 'utf8'))
-const DESIGN = unbroken(readFileSync(join(SPEC, '05-07-design.md'), 'utf8'))
+const REQUIREMENTS = unbroken(readRepoFile(join(SPEC, '01-04-requirements.md'), 'utf8'))
+const DESIGN = unbroken(readRepoFile(join(SPEC, '05-07-design.md'), 'utf8'))
 
 const verticalIn = (table: string, id: string) => {
   const found = specTable(table).rows.find((one) => one.id === id)
@@ -394,7 +394,7 @@ describe('S-63 -- isProgressMarkerVisible defaults to true', () => {
     expect(bare(row.by['既定'] ?? '')).toBe('true')
     expect((SETTINGS_DEFAULTS as unknown as Record<string, unknown>)[key]).toBe(true)
     const template = JSON.parse(
-      readFileSync(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
+      readRepoFile(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
     ) as { documentSettings: Record<string, unknown> }
     expect(template.documentSettings[key]).toBe(true)
   })

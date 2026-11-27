@@ -1,6 +1,6 @@
 // Unit tests: a help item draws glyph, explanation, then assignment, at the S-203 ratio.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -29,7 +29,7 @@ import {
 // ratio that moves in table T-206 moves here too.
 import { bare, bareAll, specTable, unbroken } from '../contract/spec-table'
 
-const REQUIREMENTS = unbroken(readFileSync(
+const REQUIREMENTS = unbroken(readRepoFile(
   join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'),
   'utf8',
 ))
@@ -247,7 +247,7 @@ interface GlyphElement {
 }
 
 const ICON_GLYPHS = JSON.parse(
-  readFileSync(join(process.cwd(), 'src', 'framework', 'dom-screen-surface', 'icon-glyphs.json'), 'utf8'),
+  readRepoFile(join(process.cwd(), 'src', 'framework', 'dom-screen-surface', 'icon-glyphs.json'), 'utf8'),
 ) as {
   readonly glyphs: readonly { readonly specTableRowId: string; readonly elements: readonly GlyphElement[] }[]
 }

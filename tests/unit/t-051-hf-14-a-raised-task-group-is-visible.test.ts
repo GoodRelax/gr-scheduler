@@ -1,6 +1,6 @@
 // Unit tests: HF-14 keeps a raised task group visible by tree state, never by rewriting zoomY.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { afterEach, describe, expect, it } from 'vitest'
@@ -37,7 +37,7 @@ import { bare, bareAll, specTable, unbroken } from '../contract/spec-table'
 
 /* eslint-disable @typescript-eslint/no-explicit-any -- the fixture builds documents from the untyped template and patches requestAnimationFrame */
 
-const REQUIREMENTS = unbroken(readFileSync(
+const REQUIREMENTS = unbroken(readRepoFile(
   join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'),
   'utf8',
 ))
@@ -87,7 +87,7 @@ const MAX_GROUP_DEPTH = ((): number => {
 const GROUP_LOD_BASE = px('T-205', 'S-87')
 
 const TEMPLATE = JSON.parse(
-  readFileSync(
+  readRepoFile(
     join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'),
     'utf8',
   ),

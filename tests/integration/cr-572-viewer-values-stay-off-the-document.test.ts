@@ -1,6 +1,6 @@
 // CR-572: the viewer's screen values stay off the document, and the look the document keeps is saved and undoable.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
@@ -34,7 +34,7 @@ import {
 } from '../../src/use-case/advance-screen-session/advance-screen-session'
 import { bare, specTable, unbroken, type SpecRow } from '../contract/spec-table'
 
-const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
+const REQUIREMENTS = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
 const FR_039_STARTS_FROM_THE_BROWSER =
   '`GRS` が起動したとき、`GRS` は、ブラウザが伝える明暗（`prefers-color-scheme`）で描くこと。'
@@ -351,7 +351,7 @@ describe('CR-572 -- the manuscript these cases are driven by', () => {
     ]) {
       expect(REQUIREMENTS, sentence).toContain(sentence)
     }
-    expect(unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '_assets', 'tbl-document-commands.md'), 'utf8'))).toContain(T_108_IS_EVERY_COMMAND)
+    expect(unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '_assets', 'tbl-document-commands.md'), 'utf8'))).toContain(T_108_IS_EVERY_COMMAND)
   })
 
   it('the rows the cases press and read are where the tables put them', () => {

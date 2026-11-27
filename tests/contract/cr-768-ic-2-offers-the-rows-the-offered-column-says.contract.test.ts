@@ -1,6 +1,6 @@
 // CR-768 spec-only cases: the chooser of IC-2 offers the rows whose offered column says so, in the table order, and never IO-8; SX-2 follows the same set.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { afterEach, describe, expect, it } from 'vitest'
@@ -26,7 +26,7 @@ const PLAIN_SHELL =
 // Why: IC-2 on IO-4 rasterizes the picture; the bytes are not what these cases read.
 const rasterizer: Rasterizer = { rasterizePng: async () => ({ ok: true, pngBytes: new Uint8Array([0x89, 0x50, 0x4e, 0x47]) }) }
 
-const WORDS = JSON.parse(readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8')) as {
+const WORDS = JSON.parse(readRepoFile(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8')) as {
   readonly exportFormats: readonly { readonly specTableRowId: string; readonly name: Record<DisplayLanguage, string> }[]
 }
 

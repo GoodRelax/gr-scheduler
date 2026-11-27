@@ -1,6 +1,6 @@
 // Contract test: FR-151 table T-330 SV-7 / SV-8 and table T-331 against filteredSearchRows and columnValuesOf (UF-181).
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -19,7 +19,7 @@ import type {
 } from '../../src/entity/document-model/schedule/schedule'
 import { specTable, unbroken, type SpecRow } from './spec-table'
 
-const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
+const REQUIREMENTS = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
 function rowOf(table: string, id: string): SpecRow {
   const found = specTable(table).rows.find((one) => one.id === id)

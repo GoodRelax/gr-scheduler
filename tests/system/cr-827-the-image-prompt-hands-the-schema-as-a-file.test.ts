@@ -1,7 +1,7 @@
 // CR-827 on the shipped build: IC-115 copies a prompt with no schema and downloads grs-document.schema.json.
 
 import { expect, test, type Browser, type BrowserContext, type Download, type Page } from '@playwright/test'
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { specTable } from '../contract/spec-table'
@@ -22,7 +22,7 @@ const FR_068_TELL =
   '`GRS` がプロンプトをコピーできたとき、`GRS` は、コピーしたことと次に行うこと（プロンプトとダウンロードしたスキーマのファイルを AI に渡す）を告げること（運ぶ理由は 表 T-233 の `RS-65`）。'
 
 const SCHEMA_FILE_NAME = 'grs-document.schema.json'
-const SCHEMA = JSON.parse(readFileSync(join(ROOT, 'docs', 'spec', '_source', SCHEMA_FILE_NAME), 'utf8')) as unknown
+const SCHEMA = JSON.parse(readRepoFile(join(ROOT, 'docs', 'spec', '_source', SCHEMA_FILE_NAME), 'utf8')) as unknown
 const SCHEMA_ONE_LINE = JSON.stringify(SCHEMA)
 const METASCHEMA = 'https://json-schema.org/draft/2020-12/schema'
 const JSON_FENCE = '```json\n'
@@ -103,7 +103,7 @@ async function press(one: Visit): Promise<{ text: string; download: Download }> 
 /** @purity non-pure */
 async function contentOf(download: Download): Promise<string> {
   const path = await download.path()
-  return readFileSync(path, 'utf8')
+  return readRepoFile(path, 'utf8')
 }
 
 test.describe('CR-827 -- the manuscript these cases are driven by', () => {

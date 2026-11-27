@@ -1,6 +1,6 @@
 // Unit tests: readScreenPartAt of the DOM screen surface answers which UI part and entry a point is on.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -240,7 +240,7 @@ const T_065_THE_SIDE_THAT_DREW_IT =
 const S_99G_OVER_THE_SCREEN = '画面の上に重ねて開き'
 
 const specText = (...parts: string[]): string =>
-  readFileSync(join(process.cwd(), 'docs', 'spec', ...parts), 'utf8')
+  readRepoFile(join(process.cwd(), 'docs', 'spec', ...parts), 'utf8')
 
 interface FakeEvent {
   readonly type: string
@@ -1484,7 +1484,7 @@ describe('GR-19 of 表 T-023d -- the band on the palette, and the claim it has',
     expect(T_023D.rows.length, '表 T-023d has no rows').toBeGreaterThan(1)
     expect(T_023D_TOP_TASK_GROUP?.id, '表 T-023d no longer opens with the palette band').toBe('GR-19')
 
-    const requirements = unbroken(readFileSync(
+    const requirements = unbroken(readRepoFile(
       join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'),
       'utf8',
     ))

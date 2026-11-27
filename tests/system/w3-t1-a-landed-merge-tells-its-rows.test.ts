@@ -1,7 +1,7 @@
 // W3 spec-only cases on the shipped build: FR-022 table MG-14 -- a landed merge tells what it overwrote (RS-71), kept (RS-72) and missed (RS-73).
 
 import { expect, test, type Page } from '@playwright/test'
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 import { unbroken } from '../contract/spec-table'
 import { reasonWords } from './cr-570-tree-state-stage'
@@ -10,7 +10,7 @@ import { taskGroupsDocument } from './w3-t1-stage'
 
 test.use({ viewport: VIEWPORT, locale: 'en-US' })
 
-const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
+const REQUIREMENTS = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
 // Why: the constant ends exactly at its marker, cut from the manuscript as check 39 reads it.
 const MG_14 = '| MG-14 | 合流が着地した | 上書きしたもの・残したもの・届かなかったものを、表 T-233 の行で告げること（MUST）'

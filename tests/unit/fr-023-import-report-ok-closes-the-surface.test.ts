@@ -1,6 +1,6 @@
 // Unit tests: a press on the one Import Report entrance closes its surface.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -75,7 +75,7 @@ const U_62_ROW = 'U-62'
 
 const RS_50 = specTable('T-233').rows.find((one) => one.id === 'RS-50')
 
-const REQUIREMENTS = unbroken(readFileSync(
+const REQUIREMENTS = unbroken(readRepoFile(
   join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'),
   'utf8',
 ))

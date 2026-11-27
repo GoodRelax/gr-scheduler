@@ -1,6 +1,6 @@
 // Unit tests: the Command Palette draws its grab marker and prints no row id.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -60,7 +60,7 @@ interface GlyphElement {
 }
 
 const ICON_GLYPHS = JSON.parse(
-  readFileSync(join(process.cwd(), 'src', 'framework', 'dom-screen-surface', 'icon-glyphs.json'), 'utf8'),
+  readRepoFile(join(process.cwd(), 'src', 'framework', 'dom-screen-surface', 'icon-glyphs.json'), 'utf8'),
 ) as {
   readonly viewBox: string
   readonly glyphs: readonly { readonly specTableRowId: string; readonly elements: readonly GlyphElement[] }[]

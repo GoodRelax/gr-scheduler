@@ -1,7 +1,8 @@
 // NFR tests: frame time is the interval between delivered frames, judged by NFR-002 and NFR-003.
 
 import { expect, test, type Browser, type Page } from '@playwright/test'
-import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
+import { existsSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
@@ -64,7 +65,7 @@ const REASON_FALLBACK = rowOf(T233, 'RS-27').id
 /** @purity semi-pure-mutable */
 function reasonWords(specTableRowId: string): readonly string[] {
   const shape = JSON.parse(
-    readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8'),
+    readRepoFile(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8'),
   ) as { reasons?: { specTableRowId?: string; text?: Record<string, string> }[] }
   const found = (shape.reasons ?? []).find((one) => one.specTableRowId === specTableRowId)
   return Object.values(found?.text ?? {}).filter((one) => one.length > 0)
@@ -946,7 +947,7 @@ async function measureMspdiRoundTrip(page: Page): Promise<{
   mspdiRoundTripEqual: boolean
   mspdiFirstDifference: string
 }> {
-  const source = existsSync(MSPDI_SAMPLE) ? readFileSync(MSPDI_SAMPLE, 'utf8') : ''
+  const source = existsSync(MSPDI_SAMPLE) ? readRepoFile(MSPDI_SAMPLE, 'utf8') : ''
   return page.evaluate(
     async ([canonizerSource, importMember, exportMember, given]: [
       string,

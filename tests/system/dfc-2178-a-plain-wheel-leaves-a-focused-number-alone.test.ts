@@ -1,6 +1,6 @@
 // DFC-2178 (MH-4, MK-1): a plain wheel over a focused number field leaves its number and focus alone and scrolls the panel, swept live.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { expect, test, type Browser, type Page } from '@playwright/test'
@@ -8,7 +8,7 @@ import { bare, specTable, unbroken } from '../contract/spec-table'
 import { CLEARING_UP_MS, launchReferenceBrowser, readSettledDrawnSvg, screenOf, taskBodyPoint } from './live-app'
 import { rowOf } from './sws-case'
 
-const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
+const REQUIREMENTS = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
 const MH_4_KEEP_TEXT = '`GRS` は、現在の高さを書き換えるとき、編集している入力の字と焦点を動かさないこと。'
 const MK_1_SCROLL = '| MK-1 | ホイール（修飾なし） | 縦スクロール（ズームではない） |'

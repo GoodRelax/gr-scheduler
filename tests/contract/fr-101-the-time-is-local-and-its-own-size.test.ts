@@ -1,6 +1,6 @@
 // Contract tests: the App Header moment is shown in local time and sized by a coefficient.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { afterAll, describe, expect, it } from 'vitest'
@@ -21,7 +21,7 @@ import {
 } from '../fixtures/fake-browser'
 import { bare, specTable, unbroken } from './spec-table'
 
-const REQUIREMENTS = unbroken(readFileSync(
+const REQUIREMENTS = unbroken(readRepoFile(
   join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'),
   'utf8',
 ))

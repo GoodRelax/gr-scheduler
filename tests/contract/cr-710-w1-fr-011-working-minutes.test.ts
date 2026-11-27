@@ -1,6 +1,6 @@
 // CR-710 wave 1 (spec-only): FR-011 and FR-012 count working minutes between instants; DV-8 counts them without the edge rule.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -37,7 +37,7 @@ import {
   type CalendarParts,
 } from './cr-710-w1-stage'
 
-const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
+const REQUIREMENTS = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
 // Spec: FR-011
 const FR_011_CLAUSES = [

@@ -1,6 +1,6 @@
 // CR-558: a highlight box answers on eight grab points and its frame, and draws its stroke width and fill.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { afterEach, describe, expect, it } from 'vitest'
@@ -21,8 +21,8 @@ import { boxOfBar } from './cr-430-bench'
 import { DEFAULT_DISPLAY_RATIO } from '../fixtures/display-scale'
 
 const SPEC = join(process.cwd(), 'docs', 'spec')
-const REQUIREMENTS = unbroken(readFileSync(join(SPEC, '01-04-requirements.md'), 'utf8').replace(/\r\n/g, '\n'))
-const DESIGN = unbroken(readFileSync(join(SPEC, '05-07-design.md'), 'utf8').replace(/\r\n/g, '\n'))
+const REQUIREMENTS = unbroken(readRepoFile(join(SPEC, '01-04-requirements.md'), 'utf8').replace(/\r\n/g, '\n'))
+const DESIGN = unbroken(readRepoFile(join(SPEC, '05-07-design.md'), 'utf8').replace(/\r\n/g, '\n'))
 
 // Spec: T-023d
 const EIGHT_THEN_FRAME = '`GRS` は、表 T-246 の `HB-8` 〜 `HB-11` の 8 つの掴み点を先に、`HB-12` の枠を後に応えさせること。'
@@ -132,7 +132,7 @@ const environmentShapeOf = (pk: string): string => {
 }
 
 const TEMPLATE = JSON.parse(
-  readFileSync(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
+  readRepoFile(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
 ) as Record<string, Record<string, unknown>>
 
 const LETTERS = ['A', 'B', 'C', 'D', 'E', 'F'] as const

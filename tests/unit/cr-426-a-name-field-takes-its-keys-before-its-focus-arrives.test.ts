@@ -1,6 +1,6 @@
 // CR-426: while a name field is asked for focus, one-character keys are not shortcuts; the ask is retried; the record writes table T-263.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { afterEach, describe, expect, it } from 'vitest'
@@ -26,7 +26,7 @@ import {
 import { specTable, unbroken } from '../contract/spec-table'
 import { SETTINGS_CONSTANTS } from '../../src/entity/document-model/document-settings/document-settings'
 
-const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
+const REQUIREMENTS = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
 const IN_5A_NOT_A_SHORTCUT =
   '本行のキー（単文字キーと `Delete` / `Backspace`）をショートカットとして扱ってはならない（MUST NOT）'
@@ -72,7 +72,7 @@ describe('CR-426 -- the manuscript these cases are driven by', () => {
 })
 
 const TEMPLATE = JSON.parse(
-  readFileSync(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
+  readRepoFile(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
 ) as Record<string, any>
 
 const SECRET_NAME = 'SecretTaskName77'

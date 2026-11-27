@@ -1,6 +1,6 @@
 // DFC-2304 spec-only cases: FR-098 -- the tasks of a pinned task group are drawn once, in the pinned band, and stay there while the schedule scrolls vertically; the tasks of the scrolling task groups are cut at the band's lower edge and never drawn over the band; a press on a task bar in the band picks that task (T-023c SL-2), and the drawing and the hit test agree on which tasks are in the band (T-064 PI-6).
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -22,7 +22,7 @@ import {
 import { regionsFromScreen, type ScreenRegions } from '../../src/entity/layout-engine/screen-regions/screen-regions'
 import { SCREEN, day, scheduleOf, taskOf } from '../unit/cr-430-cross-section-scene'
 
-const REQUIREMENTS = readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8')
+const REQUIREMENTS = readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8')
 
 // Spec: IMPS-780
 const FR_098_LIFT = '`GRS` は、ピン止めしたタスクグループを、スクロールする領域から抜いて画面の上端へ固定すること。'

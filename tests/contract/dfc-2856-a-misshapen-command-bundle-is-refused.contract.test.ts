@@ -1,6 +1,6 @@
 // DFC-2856: applyCommands (AM-7) refuses a command out of table T-108's shape as malformedRequest and leaves the document alone (FR-028, AG-9a).
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { afterEach, describe, expect, it } from 'vitest'
@@ -11,9 +11,9 @@ import { shell, taskGroupDocument, taskOf, TEMPLATE, type ShellBench } from '../
 import { unbroken } from './spec-table'
 
 const SPEC = join(process.cwd(), 'docs', 'spec')
-const REQUIREMENTS = unbroken(readFileSync(join(SPEC, '01-04-requirements.md'), 'utf8'))
-const MEMBERS = unbroken(readFileSync(join(SPEC, '_assets', 'tbl-agent-api-members.md'), 'utf8'))
-const PUBLISHED = unbroken(readFileSync(join(SPEC, '_assets', 'tbl-published-entries.md'), 'utf8'))
+const REQUIREMENTS = unbroken(readRepoFile(join(SPEC, '01-04-requirements.md'), 'utf8'))
+const MEMBERS = unbroken(readRepoFile(join(SPEC, '_assets', 'tbl-agent-api-members.md'), 'utf8'))
+const PUBLISHED = unbroken(readRepoFile(join(SPEC, '_assets', 'tbl-published-entries.md'), 'utf8'))
 
 // Spec: IMPS-1057
 const FR_028_NO_THROW = '`GRS` は、`Agent API` の呼び出しで例外を投げないこと。'

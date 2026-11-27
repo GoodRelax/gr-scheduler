@@ -1,6 +1,6 @@
 // Unit tests: an add-child press at the depth cap is drawn faint and refused (HF-14).
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { afterEach, describe, expect, it } from 'vitest'
@@ -39,7 +39,7 @@ const rowOf = (table: string, id: string) => {
 
 const says = (table: string, id: string): string => rowOf(table, id).cells.join(' ')
 
-const REQUIREMENTS = unbroken(readFileSync(
+const REQUIREMENTS = unbroken(readRepoFile(
   join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'),
   'utf8',
 ))
@@ -79,7 +79,7 @@ interface ReasonWords {
 // because these cases are driven from the specification, not from src/.
 const REASON_WORDS: readonly ReasonWords[] = (
   JSON.parse(
-    readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8'),
+    readRepoFile(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8'),
   ) as { reasons: ReasonWords[] }
 ).reasons
 
@@ -97,7 +97,7 @@ const MAX_GROUP_DEPTH = ((): number => {
 })()
 
 const TEMPLATE = JSON.parse(
-  readFileSync(
+  readRepoFile(
     join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'),
     'utf8',
   ),

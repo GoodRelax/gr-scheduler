@@ -1,6 +1,6 @@
 // Unit tests: a document always holds at least one task group.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -33,7 +33,7 @@ import type {
 import { undoEdit } from '../../src/use-case/undo-edit/undo-edit'
 import displayWords from '../../src/adapter/screen-renderer/display-words.json'
 
-const REQUIREMENTS = unbroken(readFileSync(
+const REQUIREMENTS = unbroken(readRepoFile(
   join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'),
   'utf8',
 ))

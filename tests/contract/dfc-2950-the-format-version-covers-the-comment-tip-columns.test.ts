@@ -1,6 +1,6 @@
 // DFC-2950 spec-only cases: the format version (DR-4 schemaVersion) that the spec's published schema records, the shipped documents carry and a written GRS JSON carries is newer than the version that lacked the comment tip columns AT-163 .. AT-167, and a document saved with those columns opens (FR-073, FR-024).
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -28,7 +28,7 @@ const VERSION_WITHOUT_TIP_COLUMNS = '2026-10-15T05:52:20Z'
 const INSTANT_FORM = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/
 
 const ROOT = process.cwd()
-const readJson = (...parts: string[]): Record<string, any> => JSON.parse(readFileSync(join(ROOT, ...parts), 'utf8')) as Record<string, any>
+const readJson = (...parts: string[]): Record<string, any> => JSON.parse(readRepoFile(join(ROOT, ...parts), 'utf8')) as Record<string, any>
 
 // Spec: DR-4
 const SCHEMA = readJson('docs', 'spec', '_source', 'grs-document.schema.json')

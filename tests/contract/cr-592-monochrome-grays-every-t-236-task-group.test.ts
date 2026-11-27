@@ -1,6 +1,6 @@
 // CR-592 spec-only tests: monochrome grays every row of table T-236, hue column "o" and "-" alike.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -10,8 +10,8 @@ import { themeStyle, type ScreenTheme } from '../../src/framework/dom-screen-sur
 import { bare, specTable, unbroken } from './spec-table'
 
 const SPEC = join(process.cwd(), 'docs', 'spec')
-const REQUIREMENTS = unbroken(readFileSync(join(SPEC, '01-04-requirements.md'), 'utf8'))
-const SETTINGS_MD = unbroken(readFileSync(join(SPEC, '_assets', 'tbl-settings.md'), 'utf8'))
+const REQUIREMENTS = unbroken(readRepoFile(join(SPEC, '01-04-requirements.md'), 'utf8'))
+const SETTINGS_MD = unbroken(readRepoFile(join(SPEC, '_assets', 'tbl-settings.md'), 'utf8'))
 
 const CLAUSE_EVERY_TASK_GROUP =
   'モノクロ（`_assets/tbl-settings.md` の 表 T-203 の `S-74`）が入っている間、`GRS` は、`_assets/tbl-settings.md` の 表 T-236 のすべての行を（色相の欄が ○ の行も — の行も）、日程の図の中にも画面の枠（罫 `S-149`・パネルの地 `S-150`・強調 `S-151`・掴み代の印 `S-231`・文字 `S-147`・押下の緑 `S-183` ほか）にも、例外を置かずに無彩色にして描くこと。'

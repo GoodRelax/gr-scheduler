@@ -1,6 +1,6 @@
 // CR-712 wave 2 spec-only cases: a report row raised inside one reading reaches U-62 as a count, not as a notice.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -17,7 +17,7 @@ import { readStateMachineView } from './state-machine-manuscript'
 
 const SPEC = join(process.cwd(), 'docs', 'spec')
 
-const REQUIREMENTS = unbroken(readFileSync(join(SPEC, '01-04-requirements.md'), 'utf8'))
+const REQUIREMENTS = unbroken(readRepoFile(join(SPEC, '01-04-requirements.md'), 'utf8'))
 
 // Spec: IMPS-1133
 const FR_076_REPORT_ROWS_GO_TO_U_62 =
@@ -40,7 +40,7 @@ interface ReasonEntry {
   readonly scene: { readonly ja: string }
 }
 
-const ROSTER = JSON.parse(readFileSync(join(SPEC, '_source', 'notice-reasons.json'), 'utf8')) as {
+const ROSTER = JSON.parse(readRepoFile(join(SPEC, '_source', 'notice-reasons.json'), 'utf8')) as {
   readonly reasons: readonly ReasonEntry[]
 }
 

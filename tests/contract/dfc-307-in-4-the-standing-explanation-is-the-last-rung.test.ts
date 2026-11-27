@@ -1,6 +1,6 @@
 // Contract tests: Esc puts a standing explanation away as the last rung before full screen.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -75,7 +75,7 @@ const IN_3_CAN_BE_PUT_AWAY = '**消せること** —— ポインタもフォ�
 const IN_4_WHY_LAST =
   '説明を全画面表示の前に置くのは、`IN-3` が求める「消せること」を果たす手立てがほかに 1 つも無いからである'
 
-const REQUIREMENTS = unbroken(readFileSync(
+const REQUIREMENTS = unbroken(readRepoFile(
   join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'),
   'utf8',
 ))

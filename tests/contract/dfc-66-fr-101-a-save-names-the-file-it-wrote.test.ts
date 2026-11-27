@@ -1,6 +1,6 @@
 // Contract tests: after a save, the header names the file written and the moment it was written.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { afterEach, describe, expect, it } from 'vitest'
@@ -43,7 +43,7 @@ function rowOf(table: SpecTable, id: string): SpecRow {
   return found
 }
 
-const REQUIREMENTS = unbroken(readFileSync(
+const REQUIREMENTS = unbroken(readRepoFile(
   join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'),
   'utf8',
 ))
@@ -99,7 +99,7 @@ const TEMPLATE_PATH = join(
 )
 
 function templateDocument(): Document {
-  const read = documentFromJson(readFileSync(TEMPLATE_PATH, 'utf8'))
+  const read = documentFromJson(readRepoFile(TEMPLATE_PATH, 'utf8'))
   if (!read.ok) {
     throw new Error(`the bundled template is not GRS JSON: ${JSON.stringify(read.faults)}`)
   }

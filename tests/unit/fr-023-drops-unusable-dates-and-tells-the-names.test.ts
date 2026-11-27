@@ -1,6 +1,6 @@
 // Unit tests: a Task with an unusable date is dropped, the rest is taken in, and the dropped names are told.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { afterEach, describe, expect, it } from 'vitest'
@@ -34,7 +34,7 @@ import { bare, specTable, type SpecRow, type SpecTable, unbroken } from '../cont
 
 /* eslint-disable @typescript-eslint/no-explicit-any -- the harness reads document and modal fields and patches globals the types close */
 
-const REQUIREMENTS = unbroken(readFileSync(
+const REQUIREMENTS = unbroken(readRepoFile(
   join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'),
   'utf8',
 ))
@@ -111,7 +111,7 @@ const SK_10 = keyOf('SK-10')
 const PROCEED_ANSWER = 'proceed'
 
 const TEMPLATE = JSON.parse(
-  readFileSync(
+  readRepoFile(
     join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'),
     'utf8',
   ),

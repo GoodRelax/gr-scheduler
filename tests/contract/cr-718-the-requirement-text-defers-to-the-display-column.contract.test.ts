@@ -1,6 +1,6 @@
 // CR-718 spec-only cases: the clauses of FR-001 (TC-8), FR-033, FR-008 and FR-076, and the rows of tables T-233 and T-220, read as quoted here.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -9,7 +9,7 @@ import { specTable, unbroken } from './spec-table'
 
 const SPEC = join(process.cwd(), 'docs', 'spec')
 
-const REQUIREMENTS = unbroken(readFileSync(join(SPEC, '01-04-requirements.md'), 'utf8'))
+const REQUIREMENTS = unbroken(readRepoFile(join(SPEC, '01-04-requirements.md'), 'utf8'))
 
 // Why: each constant is one sentence cut from the manuscript as it stands, ending at its MUST marker where it has one (check 39).
 const TC_8_CARRIES_THE_REASON = 'もしクリックでバーの形状のタスクを作らなかった場合、`GRS` は、作らなかった理由として 表 T-233 の `RS-53` を `FR-029` の運び方で運ぶこと。'

@@ -39,6 +39,8 @@ import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(HERE)))
+sys.path.insert(0, os.path.join(ROOT, 'tools'))
+import spec_files  # noqa: E402
 GLOSSARY = 'docs/development-rules/session-names.md'
 BASELINE = os.path.join(HERE, 'old-session-words-baseline.txt')
 OLD_WORD_HEADER = '\u65e7\u3044\u8a9e'  # "old word", the header of the table in section 2
@@ -106,15 +108,19 @@ def in_scope(path):
 
 def tracked_files():
     out = subprocess.run(['git', 'ls-files'], cwd=ROOT, capture_output=True, text=True, encoding='utf-8')
-    return [p for p in out.stdout.splitlines() if in_scope(p)]
+    return [p for p in spec_files.listed_paths(out.stdout.splitlines()) if in_scope(p)]
 
 
 def counts(pats):
     found = {}
     for path in tracked_files():
         try:
-            with open(os.path.join(ROOT, path), encoding='utf-8') as f:
-                n = count(f.read(), pats)
+            if spec_files.is_split_document(path):
+                text = spec_files.read_document(path)
+            else:
+                with open(os.path.join(ROOT, path), encoding='utf-8') as f:
+                    text = f.read()
+            n = count(text, pats)
         except (OSError, UnicodeDecodeError):
             continue
         if n:

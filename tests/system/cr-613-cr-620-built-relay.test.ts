@@ -3,7 +3,8 @@
 import { expect, test } from '@playwright/test'
 import { spawn, type ChildProcess } from 'node:child_process'
 import { createHash } from 'node:crypto'
-import { existsSync, readdirSync, readFileSync } from 'node:fs'
+import { existsSync, readdirSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { request as httpRequest } from 'node:http'
 import { join } from 'node:path'
 import { inflateRawSync } from 'node:zlib'
@@ -78,7 +79,7 @@ function built(path: string): Buffer {
   if (!existsSync(path)) {
     throw new Error(`the built artifact ${path} is not there; run \`npm run build\` then \`npm run build:relay\` first`)
   }
-  return readFileSync(path)
+  return readRepoFile(path)
 }
 
 const bundled = (): Map<string, Buffer> => unzip(built(BUNDLE))
@@ -130,7 +131,7 @@ test('design 7 / AG-12 (9): the manifest asks for saveFolder and confirmBeforeOv
 // Why: design 6 (CR-799, CR-820) -- the version is the UTC time held as grsRelayBuiltAt in tools/artifact-versions.json (never asked of git):
 // builtAt for people, YEAR.MMDD.HHMMSS for semver.
 function expectedBuild(): { builtAt: string; semver: string } {
-  const versions = JSON.parse(readFileSync(join(process.cwd(), 'tools', 'artifact-versions.json'), 'utf8')) as { grsRelayBuiltAt?: string }
+  const versions = JSON.parse(readRepoFile(join(process.cwd(), 'tools', 'artifact-versions.json'), 'utf8')) as { grsRelayBuiltAt?: string }
   const builtAt = versions.grsRelayBuiltAt ?? ''
   if (!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/.test(builtAt)) throw new Error(`grsRelayBuiltAt is missing or malformed: ${builtAt}`)
   const [year = '', month = '', day = '', hour = '', minute = '', second = ''] = builtAt.split(/[-T:Z]/)
@@ -224,7 +225,7 @@ test('AG-12 (1) / design 3.2: the built relay, run on node, serves dist/index.ht
     )
     const read = JSON.parse(await schemaLine) as { id?: number; result?: { contents?: { text?: string }[] } }
     expect(read.id).toBe(2)
-    expect(read.result?.contents?.[0]?.text).toBe(readFileSync(SCHEMA_SOURCE, 'utf8'))
+    expect(read.result?.contents?.[0]?.text).toBe(readRepoFile(SCHEMA_SOURCE, 'utf8'))
   } finally {
     relay.kill()
   }

@@ -1,6 +1,6 @@
 // CR-690 spec-only cases: the task group panel width fields (table T-368), the settings face order (table T-369).
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { afterEach, describe, expect, it } from 'vitest'
@@ -21,12 +21,12 @@ import { exportStage, restoreAnimationFrames, type ExportStage } from './w3-t3-f
 afterEach(restoreAnimationFrames)
 
 const SPEC = join(process.cwd(), 'docs', 'spec')
-const REQUIREMENTS = unbroken(readFileSync(join(SPEC, '01-04-requirements.md'), 'utf8').replace(/\r\n/g, '\n'))
+const REQUIREMENTS = unbroken(readRepoFile(join(SPEC, '01-04-requirements.md'), 'utf8').replace(/\r\n/g, '\n'))
 
 type Words = readonly { readonly part: string; readonly text: Record<DisplayLanguage, string> }[]
 
 const withoutBreakMarks = (_key: string, value: unknown): unknown => (typeof value === 'string' ? value.replace(/\|/g, '') : value)
-const WORDS = JSON.parse(readFileSync(join(SPEC, '_source', 'display-words.json'), 'utf8'), withoutBreakMarks) as {
+const WORDS = JSON.parse(readRepoFile(join(SPEC, '_source', 'display-words.json'), 'utf8'), withoutBreakMarks) as {
   readonly settings: readonly { readonly specTableRowId: string; readonly label: Record<DisplayLanguage, string> }[]
   readonly icons: readonly { readonly specTableRowId: string; readonly label: Record<DisplayLanguage, string> }[]
   readonly taskGroupPanelWidthField: Words
@@ -85,7 +85,7 @@ interface SettingRow {
 }
 
 const SETTING_ROWS: readonly SettingRow[] = (
-  JSON.parse(readFileSync(join(SPEC, '_source', 'settings.json'), 'utf8')) as { blocks: { rows?: SettingRow[] }[] }
+  JSON.parse(readRepoFile(join(SPEC, '_source', 'settings.json'), 'utf8')) as { blocks: { rows?: SettingRow[] }[] }
 ).blocks.flatMap((block) => block.rows ?? [])
 
 function setting(id: string): number {

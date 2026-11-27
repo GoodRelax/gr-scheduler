@@ -1,6 +1,6 @@
 // CR-606 spec-only stage: one document, the panel it describes, and the commands a field commit makes.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import {
@@ -34,7 +34,7 @@ import { taskGroupDocument, taskOf as seedTaskOf } from '../unit/cr-541-stage'
 import { unbroken } from './spec-table'
 
 const SPEC = join(process.cwd(), 'docs', 'spec')
-const readSpec = (...parts: string[]): string => readFileSync(join(SPEC, ...parts), 'utf8').replace(/\r\n/g, '\n')
+const readSpec = (...parts: string[]): string => readRepoFile(join(SPEC, ...parts), 'utf8').replace(/\r\n/g, '\n')
 
 export const REQUIREMENTS = unbroken(readSpec('01-04-requirements.md'))
 export const DESIGN = unbroken(readSpec('05-07-design.md'))

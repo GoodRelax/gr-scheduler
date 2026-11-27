@@ -1,6 +1,6 @@
 // H10 spec-only cases, moved to CR-788: the assignee field is one field over a checked list; the first seated is the primary.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -82,7 +82,7 @@ const SK_3_ROW =
   '| SK-3 | 選択しているものを削除する（対象の全数は表 T-023c の SL-1） | `Delete` ／ `Backspace` | — |'
 
 const readText = (...parts: string[]): string =>
-  readFileSync(join(process.cwd(), ...parts), 'utf8').replace(/\r\n/g, '\n')
+  readRepoFile(join(process.cwd(), ...parts), 'utf8').replace(/\r\n/g, '\n')
 const REQUIREMENTS = unbroken(readText('docs', 'spec', '01-04-requirements.md'))
 const PROPERTY_ITEMS = unbroken(readText('docs', 'spec', '_assets', 'tbl-property-items.md'))
 

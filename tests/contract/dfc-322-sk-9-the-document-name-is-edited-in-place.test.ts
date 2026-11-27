@@ -1,6 +1,6 @@
 // Contract tests: the document name is opened by F2 and edited in place.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -48,12 +48,12 @@ const SK_19_SETTLES_THE_IN_PLACE_EDIT =
 
 const IF_9_THE_FIELD_NAMES_U_27 = 'ヘッダーの文書名の欄は 表 T-103 の `U-27` を名乗る'
 
-const REQUIREMENTS = unbroken(readFileSync(
+const REQUIREMENTS = unbroken(readRepoFile(
   join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'),
   'utf8',
 ))
 
-const DESIGN = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '05-07-design.md'), 'utf8'))
+const DESIGN = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '05-07-design.md'), 'utf8'))
 
 const U_27 = 'U-27'
 

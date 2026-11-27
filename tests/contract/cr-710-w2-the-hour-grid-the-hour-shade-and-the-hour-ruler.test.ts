@@ -1,6 +1,6 @@
 // CR-710 wave 2 (spec-only): FR-017 / TM-5 draws the hour ruler, the hour grid lines and the 30-minute dotted lines; OD-1 shades the hours outside the working time.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -21,7 +21,7 @@ import { RATIO, SCREEN, cellOf, rowOf, scheduleOf, stored, taskOf } from '../uni
 import { MONDAY_TO_FRIDAY_WITH_SPANS, calendarRowOf } from './cr-710-w1-stage'
 import { bare, unbroken } from './spec-table'
 
-const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
+const REQUIREMENTS = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
 // Spec: FR-017, FR-089, OD-1, S-581, IMPS-707, IMPS-713
 const CLAUSES = [

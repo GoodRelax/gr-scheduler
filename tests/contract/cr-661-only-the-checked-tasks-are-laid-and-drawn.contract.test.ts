@@ -1,6 +1,6 @@
 // CR-661 spec-only tests: the shown set decides the lanes (FR-003), the task groups (TD-8), what is laid (TV-3) and the unseen ends (EL-20, FR-135).
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -18,7 +18,7 @@ import { regionsFromScreen, type ScreenEnvironment } from '../../src/entity/layo
 
 import { unbroken } from './spec-table'
 
-const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
+const REQUIREMENTS = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
 // Spec: IMPS-1941
 // Why: each constant ends exactly at its marker, cut from the manuscript as check 39 reads it.
@@ -53,7 +53,7 @@ describe('CR-661 the manuscript these cases are driven by', () => {
 })
 
 const TEMPLATE = JSON.parse(
-  readFileSync(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
+  readRepoFile(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
 ) as Record<string, any>
 
 // Why: January 2026; Alpha and Bravo overlap in task group C so the task group stacks two lanes, Charlie sits alone in task group Q.

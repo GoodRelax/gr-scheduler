@@ -1,6 +1,6 @@
 // Unit tests: a double click on a task group name opens the panel at the name field.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { afterEach, describe, expect, it } from 'vitest'
@@ -48,7 +48,7 @@ const TASK_GROUP_PANEL = ((): string => {
 // Spec: T-023, MK-13
 const MK_13 = rowOf('T-023', 'MK-13').cells.join(' ')
 
-const REQUIREMENTS = unbroken(readFileSync(
+const REQUIREMENTS = unbroken(readRepoFile(
   join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'),
   'utf8',
 ))
@@ -67,7 +67,7 @@ const THE_OVERRIDDEN_SENTENCE =
 // Why: AT-53 is read from the ERD, not typed, because the row ID is the join
 // across IF-9 (focusPropertyField takes one).
 const TASK_GROUP_NAME_FIELD = ((): string => {
-  const detail = unbroken(readFileSync(
+  const detail = unbroken(readRepoFile(
     join(process.cwd(), 'docs', 'spec', '_assets', 'fig-erd-detail.md'),
     'utf8',
   ))
@@ -80,7 +80,7 @@ const TASK_GROUP_NAME_FIELD = ((): string => {
 
 
 const TEMPLATE = JSON.parse(
-  readFileSync(
+  readRepoFile(
     join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'),
     'utf8',
   ),

@@ -1,6 +1,6 @@
 // Contract tests: an imported ActualDuration is written back as carried until a person edits the task's actuals.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -19,7 +19,7 @@ const LAST_SAVED_AT = '2026-10-03T09:00:00'
 
 const DEFAULT_TASK_GROUP_NAME_FIXTURE = 'fixture default task group name'
 
-const REQUIREMENTS = unbroken(readFileSync(
+const REQUIREMENTS = unbroken(readRepoFile(
   join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'),
   'utf8',
 ))
@@ -123,7 +123,7 @@ const UNSTARTED_FILE = fileOf(UNSTARTED_TASK_XML)
 const fileFor = (specTableRowId: string): string => (specTableRowId === 'CM-14' ? UNSTARTED_FILE : SUSPENDED_FILE)
 
 const TEMPLATE = JSON.parse(
-  readFileSync(
+  readRepoFile(
     join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'),
     'utf8',
   ),

@@ -1,6 +1,6 @@
 // DFC-2951 spec-only cases: a comment box placed with the armed press (AR-5) is written with the S-600 offset so its tip and leader stand out at the lower left (FR-019, LF-17), is selected at once with the focus in the PR-21 text field (createdCommentBoxSelected), and shows the PK-8 palm over its body and leader (FR-106).
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { afterEach, describe, expect, it } from 'vitest'
@@ -23,9 +23,9 @@ import { specTable, unbroken } from './spec-table'
 afterEach(restoreAnimationFrames)
 
 const SPEC = join(process.cwd(), 'docs', 'spec')
-const REQUIREMENTS = unbroken(readFileSync(join(SPEC, '01-04-requirements.md'), 'utf8'))
-const DESIGN = unbroken(readFileSync(join(SPEC, '05-07-design.md'), 'utf8'))
-const STATE_MACHINES = unbroken(readFileSync(join(SPEC, '_assets', 'tbl-state-machines.md'), 'utf8'))
+const REQUIREMENTS = unbroken(readRepoFile(join(SPEC, '01-04-requirements.md'), 'utf8'))
+const DESIGN = unbroken(readRepoFile(join(SPEC, '05-07-design.md'), 'utf8'))
+const STATE_MACHINES = unbroken(readRepoFile(join(SPEC, '_assets', 'tbl-state-machines.md'), 'utf8'))
 
 // Spec: FR-019, CM-46, S-600
 const FR_019_PLACED_OFFSET =

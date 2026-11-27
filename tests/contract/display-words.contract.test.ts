@@ -1,6 +1,6 @@
 // Contract tests: the road that carries the display words to the screen.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest'
 
@@ -65,7 +65,7 @@ const withoutBreakMarks = (_key: string, value: unknown): unknown =>
   typeof value === 'string' ? value.replace(BREAK_MARK, '') : value
 
 const readDictionary = (path: string): Dictionary => {
-  const raw = JSON.parse(readFileSync(path, 'utf8'), withoutBreakMarks) as Record<string, unknown>
+  const raw = JSON.parse(readRepoFile(path, 'utf8'), withoutBreakMarks) as Record<string, unknown>
   const out: Record<string, readonly Entry[]> = {}
   for (const [section, value] of Object.entries(raw)) {
     // Why: `$comment` is a string in the generated file and a list in the manuscript, so it is
@@ -256,14 +256,14 @@ const T234 = specTable('T-234').rows.map((row) => ({
 const T220 = specTable('T-220').rows.map((row) => row.id)
 
 const T220_SHARING: Readonly<Record<string, string>> = (
-  JSON.parse(readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'notice-reasons.json'), 'utf8')) as {
+  JSON.parse(readRepoFile(join(process.cwd(), 'docs', 'spec', '_source', 'notice-reasons.json'), 'utf8')) as {
     readonly invariantRefusals: { readonly wordsOf?: Record<string, string> }
   }
 ).invariantRefusals.wordsOf ?? {}
 
 // Spec: FR-076
 const IMPORT_REFUSAL_MANNER = ((): string => {
-  const requirements = readFileSync(join(ROOT, 'docs', 'spec', '01-04-requirements.md'), 'utf8')
+  const requirements = readRepoFile(join(ROOT, 'docs', 'spec', '01-04-requirements.md'), 'utf8')
   const found = /取り込みの検証が拒んだとき、`GRS` は `(NT-\d+[a-z]?)` の通知に、拒んだ Chapter 6\.1 の 表 T-220 の行の行 ID を理由として運ぶこと/.exec(requirements)
   if (found === null) throw new Error('FR-076 no longer names the manner an import refusal is told in')
   return found[1] as string
@@ -2484,7 +2484,7 @@ const glyphRowsIn = (text: string): readonly string[] =>
 // Spec: FR-036, T-109
 const FIGURED_ROWS: ReadonlySet<string> = new Set(
   [
-    ...readFileSync(join(ROOT, 'docs', 'spec', '_assets', 'fig-icons.svg'), 'utf8').matchAll(
+    ...readRepoFile(join(ROOT, 'docs', 'spec', '_assets', 'fig-icons.svg'), 'utf8').matchAll(
       /<text class="lbl"[^>]*>(IC-\d+[a-z]?)<\/text>/g,
     ),
   ].map((found) => found[1] as string),
@@ -2858,7 +2858,7 @@ describe('CR-194 section 5 / PND-160 -- fill one word of the manuscript and it r
       .map((row) => row.id)
     expect(keyRowsWithoutEntrance.length).toBeGreaterThan(0)
     const helpRoster = JSON.parse(
-      readFileSync(join(ROOT, 'src', 'adapter', 'screen-renderer', 'help-roster.json'), 'utf8'),
+      readRepoFile(join(ROOT, 'src', 'adapter', 'screen-renderer', 'help-roster.json'), 'utf8'),
     ) as { readonly entries: readonly { readonly kind: string; readonly table: string; readonly row: string }[] }
     const keyRowsOnTheirOwn = helpRoster.entries
       .filter((entry) => entry.kind === 'item' && entry.table === 'T-036')
@@ -2944,7 +2944,7 @@ describe('CR-194 section 5 / PND-160 -- fill one word of the manuscript and it r
     const dir = join(ROOT, 'src', 'adapter', 'screen-renderer')
     const inTheTree = readdirSync(dir)
       .filter((name) => name.endsWith('.ts'))
-      .filter((name) => readFileSync(join(dir, name), 'utf8').includes('<word '))
+      .filter((name) => readRepoFile(join(dir, name), 'utf8').includes('<word '))
 
     expect(inTheTree, 'a unit that could write this shape itself would make the carriage group pass by accident').toEqual(
       [],
@@ -2985,7 +2985,7 @@ describe('CR-194 section 5 / PND-160 -- fill one word of the manuscript and it r
       cell.section === 'fileStatus' ||
       cell.section === 'exportFormats' ||
       (cell.section === 'icons' && cell.field === 'label' && ON_U_55.includes(cell.key))
-    expect(readFileSync(join(ROOT, 'docs', 'spec', '01-04-requirements.md'), 'utf8')).toContain(FR_076_NO_SETTING_COPIED)
+    expect(readRepoFile(join(ROOT, 'docs', 'spec', '01-04-requirements.md'), 'utf8')).toContain(FR_076_NO_SETTING_COPIED)
     const owed = written.filter(
       (cell) => !stated.has(`${cell.section}.${cell.key}`) || reachedByTheWholeView(cell),
     )

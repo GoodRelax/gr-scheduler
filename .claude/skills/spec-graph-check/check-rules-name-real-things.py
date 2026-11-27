@@ -51,6 +51,8 @@ import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(HERE)))
+sys.path.insert(0, os.path.join(ROOT, 'tools'))
+import spec_files  # noqa: E402
 RULES = os.path.join(ROOT, 'docs', 'development-rules')
 
 BACKTICK = re.compile(r'`([^`\n]+)`')
@@ -68,7 +70,7 @@ PROBE_CHILD = 'check-73-probe.file'
 def tracked_files():
     out = subprocess.run(['git', 'ls-files'], cwd=ROOT, capture_output=True,
                          text=True, encoding='utf-8').stdout
-    return set(out.splitlines())
+    return set(out.splitlines()) | set(spec_files.listed_paths(out.splitlines()))
 
 
 def ignored(paths):

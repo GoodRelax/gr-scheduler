@@ -1,6 +1,6 @@
 // Unit tests: adding a task group at level 0 unfolds a folded level 0 by one level only.
 
-import { readFileSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 import { afterEach, describe, expect, it } from 'vitest'
@@ -30,7 +30,7 @@ import { bare, bareAll, specTable, unbroken } from '../contract/spec-table'
 
 /* eslint-disable @typescript-eslint/no-explicit-any -- the host stubs an untyped global and the panel reads fields the types close */
 
-const REQUIREMENTS = unbroken(readFileSync(
+const REQUIREMENTS = unbroken(readRepoFile(
   join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'),
   'utf8',
 ))
@@ -74,7 +74,7 @@ const HEAD_FOLD_EVERY_TASK_GROUP = entranceFor('HF-12')
 const HEAD_ADD_TASK_GROUP = entranceFor('HF-17')
 
 const TEMPLATE = JSON.parse(
-  readFileSync(
+  readRepoFile(
     join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'),
     'utf8',
   ),

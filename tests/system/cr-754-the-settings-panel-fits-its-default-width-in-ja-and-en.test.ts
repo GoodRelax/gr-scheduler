@@ -1,6 +1,7 @@
 // CR-754 on the shipped build: the settings face fits S-171 in ja and en, closes from its own row, and cuts no date or item name (DFC-2516..2520, DFC-2525).
 
-import { existsSync, readFileSync } from 'node:fs'
+import { existsSync } from 'node:fs'
+import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
 
@@ -10,8 +11,8 @@ import { CLEARING_UP_MS, readSettledDrawnSvg, screenOf, taskBodyPoint } from './
 import { rowOf } from './sws-case'
 
 const SPEC = join(process.cwd(), 'docs', 'spec')
-const REQUIREMENTS = unbroken(readFileSync(join(SPEC, '01-04-requirements.md'), 'utf8'))
-const SETTINGS_BOOK = unbroken(readFileSync(join(SPEC, '_assets', 'tbl-settings.md'), 'utf8'))
+const REQUIREMENTS = unbroken(readRepoFile(join(SPEC, '01-04-requirements.md'), 'utf8'))
+const SETTINGS_BOOK = unbroken(readRepoFile(join(SPEC, '_assets', 'tbl-settings.md'), 'utf8'))
 
 // Spec: FR-006, FR-072, S-171
 const FR_006_FITS_AT_DEFAULT = 'パネルが中身ごとの既定の幅（`FR-052`）である間、`GRS` は、パネルを横に送らずに選びを収めること。'
