@@ -34,7 +34,7 @@ const pressMarker = async (page: Page, uid: number): Promise<void> => {
   await settle(page)
 }
 
-test('UC-005 record actuals (FR-043, FR-011, FR-012, FR-013 T-021 T-021a PV-1..PV-4, T-019)', async ({ page }) => {
+test('SCN-18 SCN-21 UC-005 record actuals (FR-043, FR-011, FR-012, FR-013 T-021 T-021a PV-1..PV-4, T-019) @UC-005.OK', async ({ page }) => {
   await launch(page)
   await enableAgentApi(page)
   await press(page, 'IC-106')
@@ -48,7 +48,7 @@ test('UC-005 record actuals (FR-043, FR-011, FR-012, FR-013 T-021 T-021a PV-1..P
   const uid = (await readDocument(page)).schedule.tasks[0]!.uid as number
   const task = async () => (await readDocument(page)).schedule.tasks[0]!
 
-  await test.step('UC-005 step 1: grab the end of the actual bar and place it (FR-043 dummy, FR-011)', async () => {
+  await test.step('SCN-18 UC-005.OK: grab the end of the actual bar and place it (FR-043 dummy, FR-011)', async () => {
     expect((await task()).actualStart).toBeNull()
     const dummy = (await figureBox(page, 'task-' + uid + '-dummies'))!
     await drag(page, { x: dummy.x + dummy.w - 1, y: dummy.y + dummy.h / 2 }, { x: dummy.x + dummy.w + 99, y: dummy.y + dummy.h / 2 })
@@ -59,7 +59,7 @@ test('UC-005 record actuals (FR-043, FR-011, FR-012, FR-013 T-021 T-021a PV-1..P
     expect(Date.parse((await task()).stop)).toBeGreaterThan(Date.parse(first.stop))
   })
 
-  await test.step('UC-005 step 2: actual start and duration are stored, and percentComplete is worked out from the dates (FR-012)', async () => {
+  await test.step('SCN-18 UC-005.OK: actual start and duration are stored, and percentComplete is worked out from the dates (FR-012)', async () => {
     const now = await task()
     expect(now.actualStart).toBe(now.start)
     expect(now.actualFinish).toBeNull()
@@ -72,7 +72,7 @@ test('UC-005 record actuals (FR-043, FR-011, FR-012, FR-013 T-021 T-021a PV-1..P
   })
 
   const shapes: string[] = []
-  await test.step('UC-005 step 3: press the progress marker to move the state on (T-021a PV-2)', async () => {
+  await test.step('SCN-18 UC-005.OK: press the progress marker to move the state on (T-021a PV-2)', async () => {
     shapes.push(await markerShape(page, uid))
     const before = await task()
     await pressMarker(page, uid)
@@ -83,7 +83,7 @@ test('UC-005 record actuals (FR-043, FR-011, FR-012, FR-013 T-021 T-021a PV-1..P
     expect(after.actualStart).toBe(before.actualStart)
   })
 
-  await test.step('UC-005 step 4: the state cycles and each state has its own marker shape (T-021, T-021a PV-3 PV-4 PV-1, FR-030)', async () => {
+  await test.step('SCN-21 UC-005.OK: the state cycles and each state has its own marker shape (T-021, T-021a PV-3 PV-4 PV-1, FR-030)', async () => {
     shapes.push(await markerShape(page, uid))
     const complete = await task()
     await pressMarker(page, uid)

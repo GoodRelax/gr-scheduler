@@ -14,7 +14,6 @@ export interface ConfirmedChange {
   readonly hasUpdatedSchedule: boolean
 }
 
-// Spec: AV-14, AG-6
 // Why: the stamp, never the document: the receiver reads again what it needs (AG-6).
 export interface ChangeNotice {
   readonly watcher: string

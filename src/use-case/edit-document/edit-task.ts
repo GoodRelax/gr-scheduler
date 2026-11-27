@@ -48,7 +48,6 @@ export type TaskShapeKind = NonNullable<TaskVisual['shapeKind']>
 
 export type TaskMilestoneGlyph = NonNullable<TaskVisual['milestoneGlyph']>
 
-// Spec: T-266, FR-043, CM-14
 // Why: the holds are table T-108's, printed into TaskCommand below; read off it, never retyped.
 export type ActualGrabHold = Extract<TaskCommand, { readonly kind: 'beginTaskActual' }>['grabbed']
 
@@ -236,7 +235,7 @@ export function checkDay(text: string): DayCheck {
   return { ok: true, day }
 }
 
-// Spec: CM-7, FR-019
+// Spec: IMPS-833, CM-7, IMPS-233, IMPS-240, IMPS-242
 // Why: a tip snapped to a deleted Task falls back to a free point in this same command (FR-031).
 /** @purity pure */
 function deleteTask(document: Document, uid: Task['uid'], defaultTaskGroupName: string): EditResult {
@@ -280,7 +279,7 @@ function deleteTask(document: Document, uid: Task['uid'], defaultTaskGroupName: 
   )
 }
 
-// Spec: T-108, IV-2
+// Spec: T-108, IV-2, HM-10, HM-2, HM-3, IMPS-1402, IMPS-1421, IMPS-427, IMPS-428
 /** @purity pure */
 export function editTask(document: Document, command: TaskCommand, defaultTaskGroupName: string): EditResult {
   const schedule = document.schedule

@@ -8,7 +8,6 @@ import { planActualState, type Task } from '../../document-model/schedule/schedu
 import { dummyInkWidthOf, type ShapeKind } from './schedule-layout'
 import { actualPlacementOf, isLaidBelow, planHeightOf } from './shape-cross-sections'
 
-// Spec: RF-1, RF-3
 export interface LabelReference {
   readonly x: number
   readonly width: number
@@ -16,7 +15,6 @@ export interface LabelReference {
   readonly nameFloor: number
 }
 
-// Spec: LP-1, LP-2, LP-3, LP-4, LP-5, LP-6, LP-7, LP-8
 export interface LabelLayout {
   readonly fits: boolean
   readonly markerLeft: number | null
@@ -33,7 +31,7 @@ export function hasUndecidedResume(task: Task, shapeKind: ShapeKind): boolean {
   )
 }
 
-// Spec: RF-1, RF-3
+// Spec: RF-1, RF-3, IMPS-1680, IMPS-1722, IMPS-1723, IMPS-1736
 /** @purity pure */
 export function labelReferenceOf(
   shapeKind: ShapeKind,
@@ -56,7 +54,7 @@ export function labelReferenceOf(
   return { ...band, fitWidth: band.width, nameFloor: band.x }
 }
 
-// Spec: RF-1, DM-1, DM-3, DM-12, FR-158
+// Spec: RF-1, DM-1, DM-3, DM-12, FR-158, DM-2
 /** @purity pure */
 export function dummyBandOf(
   shapeKind: ShapeKind,
@@ -69,7 +67,7 @@ export function dummyBandOf(
     : { x: plan.x, width: dummyInkWidthOf(markerDiameter, axis) }
 }
 
-// Spec: LP-2, LP-4, GA-20
+// Spec: LP-2, LP-4, GA-20, IMPS-1735
 /** @purity pure */
 export function outwardStartOf(
   referenceEnd: number,
@@ -81,7 +79,7 @@ export function outwardStartOf(
   return referenceEnd + markerDiameter + NOT_STORED_SIZES['S-286']
 }
 
-// Spec: LP-1, LP-2, LP-3, LP-4, LP-5, LP-6, LP-7, LP-8, S-584
+// Spec: LP-1, LP-2, LP-3, LP-4, LP-5, LP-6, LP-7, LP-8, S-584, IMPS-1951, IMPS-487, IMPS-1679, IMPS-1683, IMPS-1711, IMPS-1712, IMPS-1718, IMPS-1720, IMPS-1721, IMPS-1723, IMPS-1724, IMPS-1737, IMPS-1920
 /** @purity pure */
 export function labelLayoutOf(
   shapeKind: ShapeKind,
@@ -118,7 +116,7 @@ export function labelLayoutOf(
   }
 }
 
-// Spec: FR-109, OC-2
+// Spec: FR-109, OC-2, IMPS-1715, IMPS-1716, IMPS-1717
 /** @purity pure */
 export function assigneeAnchorOf(
   shapeKind: ShapeKind,

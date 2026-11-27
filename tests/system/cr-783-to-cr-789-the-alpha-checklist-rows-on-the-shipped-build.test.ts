@@ -451,7 +451,7 @@ test.describe('CR-788: the assignee field is a checkbox list and the first check
     await expect.poll(async () => (await namesOf(page, uid)).length, { timeout: 10_000 }).toBe(count)
   }
 
-  test('CR-788 section 5: the list, add, uncheck all, primary first, one undo per person, label double-click, MSPDI round trip', async ({ page }) => {
+  test('SCN-11 CR-788 section 5: the list, add, uncheck all, primary first, one undo per person, label double-click, MSPDI round trip @UC-003.OK', async ({ page }) => {
     await launch(page)
     await enableAgentApi(page)
     await press(page, 'IC-79')

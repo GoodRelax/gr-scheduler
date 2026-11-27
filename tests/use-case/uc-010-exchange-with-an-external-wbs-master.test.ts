@@ -66,15 +66,15 @@ const exportMspdiByUi = async (page: Page): Promise<string> => {
   return (await savedFiles(page))[before]!.text
 }
 
-test('UC-010 exchange with an external WBS master (FR-087 OP-3 OP-5, FR-023, FR-021 T-228, T-053)', async ({ page }) => {
+test('SCN-37 SCN-38 UC-010 exchange with an external WBS master (FR-087 OP-3 OP-5, FR-023, FR-021 T-228, T-053) @UC-010.OK @UC-010.RJ1', async ({ page }) => {
   test.setTimeout(120000)
-  specMismatch('UC-010 extension 2a / FR-023, OP-5: a truncated MSPDI file dropped on the schedule is dropped silently, with no notice of where it failed')
+  specMismatch('SCN-38 UC-010.RJ1 / FR-023, OP-5: a truncated MSPDI file dropped on the schedule is dropped silently, with no notice of where it failed')
   await launch(page)
   await enableAgentApi(page)
   const original = readSample(ERP)
   let unedited: string[] = []
 
-  await test.step('UC-010 extension 2a: a broken file is not taken in and the place it failed is told (FR-023, OP-5)', async () => {
+  await test.step('SCN-38 UC-010.RJ1: a broken file is not taken in and the place it failed is told (FR-023, OP-5)', async () => {
     const before = await readDocument(page)
     await page.evaluate((text) => {
       const transfer = new DataTransfer()
@@ -91,11 +91,11 @@ test('UC-010 exchange with an external WBS master (FR-087 OP-3 OP-5, FR-023, FR-
   })
 
   // Why: a dropped file opens as a replace without U-56 (OP-19), so the author who wants the choice opens through IC-1.
-  await test.step('UC-010 step 1: the author opens an MSPDI file through the file dialog (FR-087 OP-2)', async () => {
+  await test.step('SCN-37 UC-010.OK: the author opens an MSPDI file through the file dialog (FR-087 OP-2)', async () => {
     await openThroughIc1(page, ERP, original, null)
   })
 
-  await test.step('UC-010 step 3: GRS asks whether to replace or merge, and the author picks replace (OP-3, IC-71, IC-72)', async () => {
+  await test.step('SCN-37 UC-010.OK: GRS asks whether to replace or merge, and the author picks replace (OP-3, IC-71, IC-72)', async () => {
     await expect(page.locator(icon('IC-71', '[data-role="Open File Dialog"]'))).toHaveCount(1)
     await expect(page.locator(icon('IC-72', '[data-role="Open File Dialog"]'))).toHaveCount(1)
     await page.click(icon('IC-71', '[data-role="Open File Dialog"]'))
@@ -104,20 +104,20 @@ test('UC-010 exchange with an external WBS master (FR-087 OP-3 OP-5, FR-023, FR-
     await settle(page)
   })
 
-  await test.step('UC-010 step 2: the input was checked, and items GRS does not use are held as they were (FR-023, T-053)', async () => {
+  await test.step('SCN-37 UC-010.OK: the input was checked, and items GRS does not use are held as they were (FR-023, T-053)', async () => {
     const doc = await readDocument(page)
     expect(doc.schedule.tasks.length).toBeGreaterThan(100)
     expect(doc.schedule.tasks.some((t) => Object.keys(t.carry ?? {}).length > 0 || (t.carryElements ?? []).length > 0)).toBe(true)
   })
 
-  await test.step('UC-010 step 6 (no edit): writing back without an edit gives the same file after normalization (FR-021, T-228)', async () => {
+  await test.step('SCN-37 UC-010.OK (no edit): writing back without an edit gives the same file after normalization (FR-021, T-228)', async () => {
     const written = await exportMspdiByUi(page)
     unedited = await mspdiDifferences(page, original, written, true)
     expect.soft(unedited).toEqual([])
     expect.soft(await mspdiDifferences(page, original, written)).toEqual([])
   })
 
-  await test.step('UC-010 step 4: the author edits the schedule (MK-13, PR-1)', async () => {
+  await test.step('SCN-37 UC-010.OK: the author edits the schedule (MK-13, PR-1)', async () => {
     await press(page, 'IC-7')
     const plan = (await figureBox(page, 'task-' + EDITED_UID + '-plan'))!
     await page.mouse.dblclick(plan.x + Math.min(plan.w / 2, 20), plan.y + plan.h / 2)
@@ -129,7 +129,7 @@ test('UC-010 exchange with an external WBS master (FR-087 OP-3 OP-5, FR-023, FR-
     expect((await readDocument(page)).schedule.tasks.find((t) => t.uid === EDITED_UID)!.name).toBe(EDITED_NAME)
   })
 
-  await test.step('UC-010 steps 5-6: the author writes MSPDI and the held items come back around the edit (FR-021, FR-057)', async () => {
+  await test.step('SCN-37 UC-010.OK: the author writes MSPDI and the held items come back around the edit (FR-021, FR-057)', async () => {
     const written = await exportMspdiByUi(page)
     const differences = (await mspdiDifferences(page, original, written, true)).filter((line) => !unedited.includes(line))
     expect(differences).toHaveLength(1)

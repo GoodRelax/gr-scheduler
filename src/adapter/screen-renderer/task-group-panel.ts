@@ -45,7 +45,6 @@ interface PanelIndex extends OpenArming {
 
 type IndexCore = Omit<PanelIndex, keyof OpenArming>
 
-// Spec: T-329, RS-28, RS-30, RS-31
 interface OpenArming {
   readonly taskGroupIdsWithAnUnplacedTaskGroupBelow: ReadonlySet<string>
   readonly taskGroupIdsWithAChildToOpen: ReadonlySet<string>
@@ -67,15 +66,16 @@ function labelUnits(text: string): number {
   return units
 }
 
+// Spec: IMPS-1967
 /** @purity pure */
 function labelWidthPx(text: string, fontSizePx: number, settings: DrawnSettings): number {
   return labelUnits(text) * fontSizePx * settings.labelCoef
 }
 
+// Spec: IMPS-1964, IMPS-1966
 /** @purity pure */
 function availableLabelWidthPx(depth: number, settings: DrawnSettings): number {
   const roomForControlsPx = NOT_STORED_TASK_GROUP_CONTROL_SIZES['S-140']
-  // Spec: FR-029
   const roomForGrabStripPx =
     NOT_STORED_TASK_GROUP_GRAB_ROOM_SIZES['S-138'] * NOT_STORED_CHROME_SCALE['S-235'] +
     NOT_STORED_TASK_GROUP_GRAB_ROOM_SIZES['S-218']
@@ -87,13 +87,14 @@ function availableLabelWidthPx(depth: number, settings: DrawnSettings): number {
   return Math.max(0, available)
 }
 
-// Spec: HF-5, FR-016, PI-37, T-252, DS-1, S-36
+// Spec: HF-5, FR-016, PI-37, T-252, DS-1, S-36, IMPS-1478
 /** @purity pure */
 export function taskGroupTitleFontPxOf(depth: number, settings: DocumentSettings): number {
   const drawn = drawnSettingsOf(settings)
   return depth === 1 ? drawn.taskGroupTitleFont * drawn.taskGroupTitleTopScale : drawn.taskGroupTitleFont
 }
 
+// Spec: IMPS-1962, IMPS-1970
 /** @purity pure */
 function labelCutToFit(
   text: string,
@@ -185,6 +186,7 @@ function grabCuesOf(
   }
 }
 
+// Spec: IMPS-1954
 /** @purity pure */
 function taskGroupTitleOf(
   group: TaskGroup,
@@ -217,14 +219,12 @@ function taskGroupTitleOf(
     canOpenOneLevel: index.taskGroupIdsWithAChildToOpen.has(group.id),
     canAddChildTaskGroup: depth < settings.maxGroupDepth,
     isPinned,
-    // Spec: FR-085, T-293
     isSelected: chosenTaskGroupIds.has(group.id),
     foldedTaskGroupCount: index.foldedTaskGroupCountByTaskGroupId.get(group.id) ?? 0,
     isHeld,
   }
 }
 
-// Spec: T-329
 // Why: the task groups the picture places, off-screen ones included: a task group only scrolled away is drawn
 // (decision 15 of CR-570). Without the reading, the on-screen boxes stand in for it.
 /** @purity pure */
@@ -280,7 +280,6 @@ function openArmingOf(
   }
 }
 
-// Spec: S-418, T-329
 /** @purity pure */
 function panelIndexWithArmingOf(
   schedule: Schedule,
@@ -289,14 +288,80 @@ function panelIndexWithArmingOf(
   isLevelZeroCollapsed: boolean,
 ): PanelIndex {
   return {
-    ...panelIndexOf(schedule, readings, isLevelZeroCollapsed),
+    ...panelIndexOf(schedule, readings, isLevelZeroCollapsed, drawnPinIdsOf(settings, readings)),
     ...openArmingOf(schedule, settings, readings),
   }
 }
 
+// Spec: FR-098, TD-2, TD-3
+/** @purity pure */
+function drawnPinIdsOf(settings: DrawnSettings, readings: ScreenViewReadings): ReadonlySet<string> {
+  const placed = placedRowIdsOf(readings)
+  return new Set(settings.pinnedTaskGroupIds.filter((taskGroupId) => placed.has(taskGroupId)))
+}
+
+// Trap: visited guards a parentId ring; without it the walk never returns.
+/** @purity pure */
+function deepestFirstOf(childrenByParentId: ReadonlyMap<string | null, readonly TaskGroup[]>): readonly TaskGroup[] {
+  const orderedDeepestFirst: TaskGroup[] = []
+  const visited = new Set<string>()
+  /** @purity pure */
+  const walkDeepestFirst = (parentId: string | null): void => {
+    for (const child of childrenByParentId.get(parentId) ?? []) {
+      if (visited.has(child.id)) continue
+      visited.add(child.id)
+      walkDeepestFirst(child.id)
+      orderedDeepestFirst.push(child)
+    }
+  }
+  walkDeepestFirst(null)
+  return orderedDeepestFirst
+}
+
+// Spec: HF-12, HF-13, FR-098
+// Why: a drawn pin adds no count, so a fold above it counts only the task groups out of view (CR-862).
+/** @purity pure */
+function foldedCountsOf(
+  childrenByParentId: ReadonlyMap<string | null, readonly TaskGroup[]>,
+  drawnPinIds: ReadonlySet<string>,
+  isLevelZeroCollapsed: boolean,
+): Pick<IndexCore, 'foldedTaskGroupCountByTaskGroupId' | 'foldedTaskGroupCountAtLevelZero'> {
+  const foldedTaskGroupCountByTaskGroupId = new Map<string, number>()
+  const subtreeSizeByTaskGroupId = new Map<string, number>()
+  for (const group of deepestFirstOf(childrenByParentId)) {
+    let subtreeSize = drawnPinIds.has(group.id) ? 0 : 1
+    let folded = 0
+    for (const child of childrenByParentId.get(group.id) ?? []) {
+      const childSubtree = subtreeSizeByTaskGroupId.get(child.id) ?? 1
+      subtreeSize += childSubtree
+      folded +=
+        group.treeState === 'collapsed' || child.treeState === 'hidden'
+          ? childSubtree
+          : (foldedTaskGroupCountByTaskGroupId.get(child.id) ?? 0)
+    }
+    subtreeSizeByTaskGroupId.set(group.id, subtreeSize)
+    foldedTaskGroupCountByTaskGroupId.set(group.id, folded)
+  }
+
+  let foldedTaskGroupCountAtLevelZero = 0
+  for (const root of childrenByParentId.get(null) ?? []) {
+    const subtreeSize = subtreeSizeByTaskGroupId.get(root.id) ?? 1
+    foldedTaskGroupCountAtLevelZero +=
+      isLevelZeroCollapsed || root.treeState === 'hidden'
+        ? subtreeSize
+        : (foldedTaskGroupCountByTaskGroupId.get(root.id) ?? 0)
+  }
+  return { foldedTaskGroupCountByTaskGroupId, foldedTaskGroupCountAtLevelZero }
+}
+
 // Spec: HF-12, HF-13, HF-18
 /** @purity pure */
-function panelIndexOf(schedule: Schedule, readings: ScreenViewReadings, isLevelZeroCollapsed: boolean): IndexCore {
+function panelIndexOf(
+  schedule: Schedule,
+  readings: ScreenViewReadings,
+  isLevelZeroCollapsed: boolean,
+  drawnPinIds: ReadonlySet<string>,
+): IndexCore {
   const groupsById = new Map<string, TaskGroup>()
   const childrenByParentId = new Map<string | null, TaskGroup[]>()
   for (const group of schedule.taskGroups) {
@@ -319,45 +384,12 @@ function panelIndexOf(schedule: Schedule, readings: ScreenViewReadings, isLevelZ
     taskGroupIdsWithDrawnChildren.add(group.parentId)
   }
 
-  const foldedTaskGroupCountByTaskGroupId = new Map<string, number>()
-  const subtreeSizeByTaskGroupId = new Map<string, number>()
-  const orderedDeepestFirst: TaskGroup[] = []
-  // Trap: visited guards a parentId ring; without it the walk never returns.
-  const visited = new Set<string>()
-  /** @purity pure */
-  const walkDeepestFirst = (parentId: string | null): void => {
-    for (const child of childrenByParentId.get(parentId) ?? []) {
-      if (visited.has(child.id)) continue
-      visited.add(child.id)
-      walkDeepestFirst(child.id)
-      orderedDeepestFirst.push(child)
-    }
-  }
-  walkDeepestFirst(null)
-  for (const group of orderedDeepestFirst) {
-    let subtreeSize = 1
-    let folded = 0
-    for (const child of childrenByParentId.get(group.id) ?? []) {
-      const childSubtree = subtreeSizeByTaskGroupId.get(child.id) ?? 1
-      subtreeSize += childSubtree
-      folded +=
-        group.treeState === 'collapsed' || child.treeState === 'hidden'
-          ? childSubtree
-          : (foldedTaskGroupCountByTaskGroupId.get(child.id) ?? 0)
-    }
-    subtreeSizeByTaskGroupId.set(group.id, subtreeSize)
-    foldedTaskGroupCountByTaskGroupId.set(group.id, folded)
-  }
-
   const rootGroups = childrenByParentId.get(null) ?? []
-  let foldedTaskGroupCountAtLevelZero = 0
-  for (const root of rootGroups) {
-    const subtreeSize = subtreeSizeByTaskGroupId.get(root.id) ?? 1
-    foldedTaskGroupCountAtLevelZero +=
-      isLevelZeroCollapsed || root.treeState === 'hidden'
-        ? subtreeSize
-        : (foldedTaskGroupCountByTaskGroupId.get(root.id) ?? 0)
-  }
+  const { foldedTaskGroupCountByTaskGroupId, foldedTaskGroupCountAtLevelZero } = foldedCountsOf(
+    childrenByParentId,
+    drawnPinIds,
+    isLevelZeroCollapsed,
+  )
 
   return {
     groupsById,
@@ -370,7 +402,7 @@ function panelIndexOf(schedule: Schedule, readings: ScreenViewReadings, isLevelZ
   }
 }
 
-// Spec: FR-042, FR-098
+// Spec: IMPS-181, IMPS-182, IMPS-183, IMPS-184, IMPS-185, IMPS-789, IMPS-1978
 // Why: from the placed boxes, not a held task group's moved one: the schedule side's line stays put too.
 /** @purity pure */
 function groupGridLinesOf(
@@ -397,7 +429,6 @@ export function taskGroupPanelFromSchedule(
   _session: ScreenSession,
   readings: ScreenViewReadings,
 ): TaskGroupPanel {
-  // Spec: FR-039, T-252
   const settings = drawnSettingsOf(storedSettings)
   const isLevelZeroCollapsed = settings.levelZeroTreeState === 'collapsed'
   const index = panelIndexWithArmingOf(schedule, settings, readings, isLevelZeroCollapsed)
@@ -443,7 +474,7 @@ export function taskGroupPanelFromSchedule(
   }
 }
 
-// see FR-017, FR-156, JDG-2043, S-313, EP-3
+// Spec: FR-017, FR-156, S-313, EP-3, IMPS-715
 // Why: each clock row of the ruler gets its zone's abbreviation in the blank over the panel, right-aligned S-313 in
 // from the panel's right edge (as the head controls, HF-10); none while time of day is not shown.
 /** @purity pure */
@@ -498,7 +529,7 @@ const NOT_STORED_CHROME_SCALE: {
 }
 // </generated>
 
-// Spec: SC-1, FR-098
+// Spec: SC-1, FR-098, IMPS-784
 /** @purity pure */
 export function drawnTaskGroupBoxesOf(
   layout: ScheduleLayout,

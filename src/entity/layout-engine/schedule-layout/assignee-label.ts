@@ -7,7 +7,6 @@ import type { Schedule } from '../../document-model/schedule/schedule'
 
 const WORK_RESOURCE = 1
 
-// Spec: FR-059
 export const MORE_ASSIGNEES_MARK = ', …'
 
 interface LabeledAssignee {
@@ -15,7 +14,7 @@ interface LabeledAssignee {
   readonly uid: number
 }
 
-// Spec: FR-059
+// Spec: IMPS-917
 /** @purity pure */
 function labeledAssigneeOf(resource: Schedule['resources'][number] | undefined): LabeledAssignee | null {
   if (resource === undefined) return null
@@ -38,7 +37,7 @@ export function labeledAssigneeUidOf(schedule: Schedule, taskUid: number): numbe
   return null
 }
 
-// Spec: FR-059
+// Spec: FR-059, IMPS-917, IMPS-918
 /** @purity pure */
 export function assigneeLabelsOf(schedule: Schedule): ReadonlyMap<number, string> {
   const resourceByUid = new Map<number, Schedule['resources'][number]>()

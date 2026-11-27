@@ -369,7 +369,7 @@ async function restOnBar(
   return { early, late }
 }
 
-test('DFC-45: resting on a task bar tells the task name and its two dates, and moving clears it', async ({
+test('SCN-5 DFC-45: resting on a task bar tells the task name and its two dates, and moving clears it @UC-001.OK', async ({
   baseURL,
 }) => {
   test.setTimeout(240_000)

@@ -10,7 +10,7 @@ interface ImportedTaskGroups {
   readonly taskGroupMembers: readonly TaskGroupMember[]
 }
 
-// Spec: FR-058
+// Spec: FR-058, IMPS-911, IMPS-912, IMPS-913
 /** @purity pure */
 export function taskGroupsFromTasks(tasks: readonly Task[], maxGroupDepth: number): ImportedTaskGroups {
   const depths = new Map<number, number>()
@@ -51,6 +51,7 @@ export function taskGroupsFromTasks(tasks: readonly Task[], maxGroupDepth: numbe
   return { taskGroups, taskGroupMembers }
 }
 
+// Spec: IMPS-911
 /** @purity pure */
 function deepestAncestorTaskGroup(
   task: Task,
@@ -69,7 +70,6 @@ function deepestAncestorTaskGroup(
 }
 
 // Why: derived from the task UID, since a pure function may not mint a random UUID; importing twice gives the same ids.
-// Spec: AT-51
 /** @purity pure */
 function rowIdOfTask(uid: number): string {
   const scalar = Math.trunc(uid)

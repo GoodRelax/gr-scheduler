@@ -5,6 +5,7 @@
 
 import type { DrawnSettings } from '../../document-model/document-settings/document-settings'
 import {
+  COLUMN_DEFAULTS,
   dayOf,
   lastDayForLength,
   planActualState,
@@ -48,7 +49,7 @@ import {
   type TaskGeometry,
 } from './schedule-geometry'
 
-// Spec: T-012a
+// Spec: FD-1, FD-2, FD-3, IMPS-1909
 /** @purity pure */
 function fadedOutline(x0: number, x1: number, top: number, height: number,
                       fadeIn: number, fadeOut: number): Path {
@@ -97,7 +98,6 @@ interface FadeEnds {
   readonly fadeOut: number | null
 }
 
-// Spec: FD-6a
 const UNSET_FADE: FadeEnds = { fadeIn: null, fadeOut: null }
 
 // Spec: FD-5, LF-6
@@ -140,7 +140,6 @@ interface ShapeSource {
   readonly rule?: string
 }
 
-// Spec: LF-18
 // Why: flattened only for the hit and the boxes; fine enough that a pointer never finds a corner.
 const CURVE_STEPS_PER_TURN = 48
 
@@ -345,7 +344,6 @@ function mergedLayers(layers: readonly MilestoneLayer[]): readonly MilestoneLaye
   return out
 }
 
-// see LF-18, F-044, DFC-1227
 // Why: keyed over the generated union, so a role figure F-044 adds or drops stops the build here.
 const LAYER_ROLES: Readonly<Record<MilestoneLayerRole, true>> = { body: true, inner: true, dot: true, shade: true }
 
@@ -417,7 +415,7 @@ function placedSegment(segment: PathSegment, center: Point, half: number): PathS
   }
 }
 
-// Spec: LF-10, LF-18, DM-4
+// Spec: LF-10, LF-18, DM-4, IMPS-1323, IMPS-1881
 /** @purity pure */
 function milestoneBarOf(center: Point, side: number, glyph: MilestoneGlyph,
                         starInnerOfOuter: number): BarGeometry {
@@ -441,7 +439,7 @@ function lineEndHalfHeight(kind: 'arrow' | 'endpointSpan', settings: DrawnSettin
   return (kind === 'arrow' ? settings.thinArrowHeadHeight : settings.spanDotSize) / 2
 }
 
-// Spec: LF-7, LF-8, XS-5
+// Spec: LF-7, LF-8, XS-5, IMPS-1688, IMPS-1699
 /** @purity pure */
 function lineBar(kind: ShapeKind, x0: number, x1: number, middle: number,
                  settings: DrawnSettings): BarGeometry {
@@ -474,7 +472,7 @@ function lineBar(kind: ShapeKind, x0: number, x1: number, middle: number,
   }
 }
 
-// Spec: FR-109
+// Spec: IMPS-1701
 // Why: a head or an end dot says "it ended here"; a suspended Task's actual line stops flat on the stop day.
 /** @purity pure */
 function stoppedWhileSuspended(task: Task, bar: BarGeometry): BarGeometry {
@@ -484,13 +482,13 @@ function stoppedWhileSuspended(task: Task, bar: BarGeometry): BarGeometry {
   return { ...bar, to: end, head: null, dots: bar.dots.slice(0, -1) }
 }
 
-// Spec: T-012
+// Spec: T-012, IMPS-1687
 /** @purity pure */
 export function isThinShape(shapeKind: ShapeKind): boolean {
   return shapeKind === 'arrow' || shapeKind === 'endpointSpan'
 }
 
-// Spec: XS-4, XS-5, XS-6, XS-7
+// Spec: XS-4, XS-5, XS-6, XS-7, IMPS-1681, IMPS-1684, IMPS-1694, IMPS-1696
 // Trap: shape-cross-sections.ts reserves the same three tiers (shapeHeightOf, labelLiftOf); change them together.
 /** @purity pure */
 export function thinTierMiddle(placed: TaskPlacement, settings: DrawnSettings,
@@ -500,6 +498,7 @@ export function thinTierMiddle(placed: TaskPlacement, settings: DrawnSettings,
   return isActual ? planMiddle + stroke + settings.actualGap : planMiddle
 }
 
+// Spec: IMPS-1879, DM-8
 /** @purity pure */
 function barOf(inputs: GeometryInputs, placed: TaskPlacement, x0: number, x1: number,
                top: number, height: number, isActual: boolean): BarGeometry {
@@ -524,7 +523,27 @@ function barOf(inputs: GeometryInputs, placed: TaskPlacement, x0: number, x1: nu
   return { form: 'outline', points: fadedOutline(x0, x1, top, height, fade.fadeIn ?? 0, fade.fadeOut ?? 0) }
 }
 
-// Spec: FR-133, T-315
+// Spec: BL-2, T-012, LF-6, LF-7, LF-10
+// Why: the current Task's shape without its fades: a fade is the current Task's own data (FR-075), never the pre-change plan's.
+// Trap: a point in time or a span follows the pre-change milestone flag; when the current shape is of the other kind, take that kind's default (SH-1, AT-101).
+/** @purity pure */
+export function baselineBarOf(placed: TaskPlacement, x0: number, x1: number, top: number, height: number,
+                              isPointInTime: boolean, settings: DrawnSettings): BarGeometry {
+  const isMilestoneShape = placed.shapeKind === 'milestone'
+  if (isPointInTime) {
+    const glyph = isMilestoneShape ? placed.milestoneGlyph : COLUMN_DEFAULTS.TaskVisual.milestoneGlyph
+    return milestoneBarOf(point(x0, top + height / 2), height, glyph, settings.starInnerOfOuter)
+  }
+  const kind = isMilestoneShape ? 'rectangle' : placed.shapeKind
+  if (kind === 'arrow' || kind === 'endpointSpan') return lineBar(kind, x0, x1, top + height / 2, settings)
+  if (kind === 'chevron') {
+    const notch = chevronNotch(x1 - x0, height, settings)
+    return { form: 'outline', points: chevronOutline(x0, x1, top, height, notch, notch) }
+  }
+  return { form: 'outline', points: fadedOutline(x0, x1, top, height, 0, 0) }
+}
+
+// Spec: IMPS-604, IMPS-624
 /** @purity pure */
 function diagnosedSymbolOf(inputs: GeometryInputs, taskUid: number): 'DG-1' | 'DG-2' | 'DG-3' | undefined {
   const diagnostics = inputs.delayDiagnostics
@@ -532,7 +551,7 @@ function diagnosedSymbolOf(inputs: GeometryInputs, taskUid: number): 'DG-1' | 'D
   return diagnostics.symbolByUid.get(taskUid)
 }
 
-// Spec: RF-1, RF-3
+// Spec: IMPS-1710
 /** @purity pure */
 function drawnReferenceOf(inputs: GeometryInputs, placed: TaskPlacement): LabelReference {
   const settings = inputs.settings
@@ -546,7 +565,6 @@ function drawnReferenceOf(inputs: GeometryInputs, placed: TaskPlacement): LabelR
   return labelReferenceOf(placed.shapeKind, plan, fade, band, settings)
 }
 
-// Spec: LP-1, LP-2, LP-3, LP-4, LP-5, LP-6, LP-7, LP-8
 /** @purity pure */
 function drawnLabelLayoutOf(inputs: GeometryInputs, task: Task,
                             placed: TaskPlacement): LabelLayout {
@@ -573,7 +591,7 @@ function labelTierMiddleOf(placed: TaskPlacement, settings: DrawnSettings): numb
   return labelTopOf(settings, placed, placed.labelFontSize) + placed.labelFontSize / 2
 }
 
-// Spec: LF-11, XS-3, XS-4
+// Spec: LF-11, XS-3, XS-4, NG-4, IMPS-487
 /** @purity pure */
 function markerOf(inputs: GeometryInputs, task: Task,
                   placed: TaskPlacement): MarkerGeometry | null {
@@ -586,7 +604,6 @@ function markerOf(inputs: GeometryInputs, task: Task,
     symbol: progressMarkerOf(task, inputs.statusDate, diagnosedSymbolOf(inputs, task.uid)),
     center: point(markerLeft + radius, labelTierMiddleOf(placed, settings)),
     radius,
-    // Spec: GA-18, FR-013, S-584
     // Why: the x of the edge the marker stands off (T-273); optional, so a hand-built geometry may omit it.
     standsOffX: markerLeft - settings.progressMarkerEdgeGap,
   }
@@ -618,7 +635,7 @@ function deadlineOf(placed: TaskPlacement, settings: DrawnSettings): DeadlineGeo
   }
 }
 
-// Spec: LF-13, XS-10, XS-12, S-25
+// Spec: LF-13, XS-10, XS-12, S-25, IMPS-1897, IMPS-1901, OR-2, IMPS-1689, IMPS-1702, IMPS-1729, IMPS-1730, IMPS-458
 /** @purity pure */
 function resumeOf(inputs: GeometryInputs, task: Task, placed: TaskPlacement,
                   settings: DrawnSettings): ResumeGeometry {
@@ -656,6 +673,7 @@ function dummyAxisOf(inputs: GeometryInputs): { readonly pxPerDay: number; reado
   return { pxPerDay: inputs.layout.pxPerDay, isTimeOfDayVisible: inputs.settings.isTimeOfDayVisible }
 }
 
+// Spec: IMPS-446
 // Trap: keyed by textOfDay, since two equal CalendarDay records are not one Map key.
 /** @purity pure */
 function dummyEndOf(inputs: GeometryInputs, from: CalendarDay): CalendarDay {
@@ -668,7 +686,7 @@ function dummyEndOf(inputs: GeometryInputs, from: CalendarDay): CalendarDay {
   return made
 }
 
-// Spec: FR-043, T-240
+// Spec: DM-14, DM-2, DM-7, IMPS-435, IMPS-442, IMPS-444, IMPS-445, T-240, NG-2, IMPS-430, IMPS-1708, DM-9
 /** @purity pure */
 function dummiesOf(inputs: GeometryInputs, task: Task, placed: TaskPlacement,
                    actualHeight: number): readonly DummyGeometry[] {
@@ -715,11 +733,10 @@ function dummiesOf(inputs: GeometryInputs, task: Task, placed: TaskPlacement,
   ]
 }
 
-// Spec: T-012, OC-10, XS-4
+// Spec: T-012, OC-10, XS-4, DS-3, IMPS-1681, IMPS-1695, IMPS-1883, IMPS-1884, IMPS-1885
 /** @purity pure */
 function labelTopOf(settings: DrawnSettings, placed: TaskPlacement, height: number): number {
   if (!isThinShape(placed.shapeKind)) return placed.y + (placed.height - height) / 2
-  // Spec: DS-3
   const lift = NOT_STORED_LABEL_SIZES['S-196'] * displayRatioOf(settings)
   return placed.y - lift - height
 }
@@ -738,7 +755,7 @@ function labelBoxOf(inputs: GeometryInputs, task: Task, placed: TaskPlacement): 
   }
 }
 
-// Spec: OC-2, FR-090, XS-3, XS-4, XS-8, SH-5, F-024
+// Spec: OC-2, FR-090, XS-3, XS-4, XS-8, SH-5, F-024, IMPS-1714, IMPS-1715, IMPS-1718, IMPS-926, IMPS-927, IMPS-924
 /** @purity pure */
 function outsideLabelBoxOf(inputs: GeometryInputs, placed: TaskPlacement): ScreenRect | null {
   if (placed.outsideLabel === '') return null
@@ -762,6 +779,7 @@ function outsideLabelBoxOf(inputs: GeometryInputs, placed: TaskPlacement): Scree
   }
 }
 
+// Spec: LF-9, SWS-4, NG-1, NG-2, NG-5, NG-9, IMPS-398, IMPS-1661, IMPS-1674, IMPS-1709, IMPS-1728, IMPS-1731, IMPS-1738, XS-1, XS-2, XS-9, IMPS-1620, IMPS-456, IMPS-866
 /** @purity pure */
 export function taskGeometryOf(inputs: GeometryInputs, task: Task, placed: TaskPlacement): TaskGeometry {
   const settings = inputs.settings

@@ -16,7 +16,6 @@ import { layoutFromSchedule, type ScheduleLayout } from './schedule-layout'
 import { zoomYAtPlanHeightFloor } from './shape-cross-sections'
 import { dateAtX, xFromDay } from './time-axis'
 
-// Spec: FR-055, OP-10
 export interface FitToScreen {
   readonly zoomX: number
   readonly zoomY: number
@@ -47,7 +46,7 @@ function deepestDrawnDepth(schedule: Schedule, settings: DocumentSettings, shown
   return Math.min(deepest, SETTINGS_CONSTANTS.maxGroupDepth)
 }
 
-// Spec: FR-016, FR-055, T-068
+// Spec: IMPS-1458
 /** @purity pure */
 function clampedZoom(value: number, zoom: NotStoredZoom): number {
   const lifted = Number.isFinite(zoom.min) ? Math.max(zoom.min, value) : value
@@ -68,7 +67,7 @@ interface FitRun {
   readonly run: ScheduleLayout
 }
 
-// Spec: FR-055, LF-16
+// Spec: FR-055, LF-16, IMPS-808
 /** @purity pure */
 function fitsTaskGroupArea(run: ScheduleLayout, regions: ScreenRegions): boolean {
   // Provisional: OPQ-9
@@ -77,6 +76,7 @@ function fitsTaskGroupArea(run: ScheduleLayout, regions: ScreenRegions): boolean
   return run.contentHeight <= regions.taskGroupArea.y + regions.taskGroupArea.height - remainderTop
 }
 
+// Spec: IMPS-808
 /** @purity pure */
 function deepestFittingDepth(
   deepest: number,
@@ -106,7 +106,7 @@ function isWidthSettled(run: ScheduleLayout, room: number): boolean {
   return run.contentWidth <= 0 || (spare >= 0 && spare <= FIT_WIDTH_TOLERANCE_PX)
 }
 
-// Spec: FR-055
+// Spec: IMPS-804, IMPS-809
 // Why: the widest run that fits; when none does (the labels alone are wider), the narrowest one.
 /** @purity pure */
 function widthFittedRun(
@@ -129,7 +129,7 @@ function widthFittedRun(
   return pool.find((one) => one.zoomX === zoomX)!
 }
 
-// Spec: FR-055
+// Spec: IMPS-804, IMPS-808, IMPS-809
 /** @purity pure */
 function landedFit(
   deepestFitting: number,
@@ -144,7 +144,7 @@ function landedFit(
   }
 }
 
-// Spec: FR-055, S-177
+// Spec: IMPS-810
 /** @purity pure */
 function fittedLeftEdge(
   chosen: ScheduleLayout,
@@ -158,7 +158,7 @@ function fittedLeftEdge(
   return { day, offset: into > 0 && into < 1 ? into : 0 }
 }
 
-// Spec: FR-055, S-332, TV-1
+// Spec: FR-055, S-332, TV-1, WT-8, IMPS-805, IMPS-807, IMPS-809
 // Temporary: spec clamps both axes to S-75/S-76 (FR-016); here only zoomX is (DFC-726). Until: DFC-726 is fixed.
 /** @purity pure */
 export function fitZoom(

@@ -72,10 +72,8 @@ export {
   editDocumentSettings,
 }
 
-// Spec: AG-9a
 export type Refusal = CommandRefusal | InvariantRefusal
 
-// Spec: AG-9a
 export interface CommandRefusal {
   readonly command: string
   readonly rule: string
@@ -83,10 +81,8 @@ export interface CommandRefusal {
   readonly what: string
 }
 
-// Spec: T-220
 export type InvariantRow = `IV-${number}`
 
-// Spec: AG-9a, FR-023, FR-076
 export interface InvariantRefusal {
   readonly command?: never
   readonly rule: InvariantRow
@@ -95,12 +91,10 @@ export interface InvariantRefusal {
   readonly what: string
 }
 
-// Spec: FR-028
 export type EditResult =
   | { readonly ok: true; readonly document: Document; readonly report: EditReport }
   | { readonly ok: false; readonly refusals: readonly Refusal[] }
 
-// Spec: FR-012
 export interface EditReport {
   readonly recountedTaskUids: readonly number[]
 }
@@ -303,7 +297,6 @@ const ROUTE_TABLE: Record<Exclude<DocumentCommand['kind'], UnimplementedDocument
     editCalendar(document, command as CalendarCommand),
   ),
   ...routes(COMMAND_KINDS_BY_UNION.ProjectCommand, (document, command) => editProject(document, command as ProjectCommand)),
-  // Spec: CM-99, UT-2
   ...routes(COMMAND_KINDS_BY_UNION.WholeScheduleShiftCommand, (document, command) => wholeScheduleShifted(document, command as WholeScheduleShiftCommand)),
   ...routes(COMMAND_KINDS_BY_UNION.DocumentSettingsCommand, (document, command, limits) =>
     editDocumentSettings(document, command as DocumentSettingsCommand, limits),

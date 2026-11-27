@@ -410,14 +410,12 @@ export const SETTINGS_CONSTANTS: {
 export type DrawnSettings = DocumentSettings & typeof SETTINGS_CONSTANTS
 // </generated>
 
-// Spec: S-234, FR-039
 // Trap: the order is table T-202's own type column, and FR-039 (MUST NOT) forbids either
 // end wrapping round, so the ends are read from this list rather than counted modulo it.
 export const DISPLAY_SCALE_STEPS: readonly DocumentSettings['displayScale'][] = [
   50, 67, 75, 90, 100, 110, 125, 150, 175, 200,
 ]
 
-// Spec: FR-151, T-203, T-372
 // Why: the views of the three tables, one key each; the table names everywhere are this type's keys.
 export type TableViews = DocumentSettings['tableViews']
 

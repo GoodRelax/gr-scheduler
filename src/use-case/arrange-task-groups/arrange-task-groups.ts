@@ -18,7 +18,7 @@ import {
 /** @purity pure */
 export function taskGroupTreeWrites(document: Document, event: TreeStateEvent): readonly DocumentCommand[] {
   return [
-    ...treeStateWritesFor(document.schedule, event),
+    ...treeStateWritesFor(document.schedule, event, document.documentSettings.pinnedTaskGroupIds),
     ...levelZeroWritesFor(document.documentSettings.levelZeroTreeState, event),
   ]
 }

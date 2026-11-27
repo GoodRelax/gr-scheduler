@@ -116,6 +116,7 @@ function rectSvg(rect: ScreenRect, fill: string): string {
   )
 }
 
+// Spec: IMPS-1215
 /** @purity pure */
 function textSvg(
   x: number, y: number, fontSizePx: number, text: string, ink: string, weight: number | null = null,
@@ -128,7 +129,7 @@ function textSvg(
   )
 }
 
-// Spec: EP-1, BR-2, BR-6, BR-7
+// Spec: EP-1, BR-2, BR-6, BR-7, IMPS-1220
 /** @purity pure */
 function appHeaderSvg(
   band: ScreenRect,
@@ -139,7 +140,6 @@ function appHeaderSvg(
   const ground = rectSvg(scaledRect(band, ratio), chromeGround(scene))
   const documentTitle = items.documentTitle
   if (documentTitle === null || documentTitle === '') return ground
-  // Spec: FR-051, EP-1
   const titlePx = NOT_STORED_DOCUMENT_TITLE_SIZES['S-225'] * NOT_STORED_CHROME_SCALE['S-235']
   const x = (band.x + (items.documentTitleLeftPx ?? 0)) * ratio
   const y = bandBaselineYOf(band, titlePx) * ratio
@@ -147,7 +147,7 @@ function appHeaderSvg(
   return ground + textSvg(x, y, titlePx * ratio, documentTitle, chromeInk(scene), weight)
 }
 
-// Spec: EP-3
+// Spec: EP-3, EP-4
 /** @purity pure */
 function taskGroupTitleSvg(
   title: TaskGroupTitle,
@@ -163,7 +163,7 @@ function taskGroupTitleSvg(
   return textSvg(x, y, fontSizePx * ratio, title.label, ink)
 }
 
-// Spec: EP-2, EP-3, FR-017, FR-156
+// Spec: EP-2, EP-3, FR-017, FR-156, IMPS-715
 // Why: the zone abbreviation of each ruler clock row, as the screen prints it over the panel (text-anchor end).
 /** @purity pure */
 function rulerAbbreviationsSvg(view: ScreenView, ink: string, ratio: number): string {
@@ -193,7 +193,7 @@ function dividerLinesSvg(view: ScreenView, scene: ExportScene, ratio: number): s
     .join('')
 }
 
-// Spec: FR-025, FR-080, IX-10, IX-11, EP-24
+// Spec: FR-025, FR-080, IX-10, IX-11, EP-24, TX-9, IMPS-961, IX-1, IX-5, IX-9, IMPS-801, EP-10, EP-13, EP-15, EP-16, EP-17, EP-18, EP-19, EP-20, EP-21, EP-22, EP-23, IMPS-948, IMPS-956, IMPS-957, IMPS-959
 /** @purity pure */
 export function exportSvg(scene: ExportScene): SvgExport {
   const { regions, screenView, settings } = scene
@@ -211,7 +211,6 @@ export function exportSvg(scene: ExportScene): SvgExport {
   const titles = screenView.taskGroupPanel.titles
   const panel = regions.taskGroupPanel
   const pinned = screenView.taskGroupPanel.pinnedTitles
-  // Spec: FR-039, T-252
   const drawn = drawnSettingsOf(settings)
   const ink = chromeInk(scene)
   const drawnHere =

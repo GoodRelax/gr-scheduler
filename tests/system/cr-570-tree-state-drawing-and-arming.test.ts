@@ -109,6 +109,21 @@ const DRAWING_CASES: readonly { readonly name: string; readonly arranged: Arrang
     arranged: { zoomY: SHALLOW_ZOOM, pinned: ['T1a1'] },
     drawn: ['T1', 'T1a1', 'T2', 'T3'],
   },
+  {
+    name: 'CR-862 TD-3: a pinned task group under a hidden ancestor is drawn; the ancestor and its children are not',
+    arranged: { zoomY: DEEP_ZOOM, states: { T1a: 'hidden' }, pinned: ['T1a1'] },
+    drawn: ['T1', 'T1a1', 'T1b', 'T2', 'T2a', 'T3'],
+  },
+  {
+    name: 'CR-862 TD-2: a pinned task group whose own treeState is hidden is drawn; its children are not',
+    arranged: { zoomY: DEEP_ZOOM, states: { T1a1: 'hidden' }, pinned: ['T1a1'] },
+    drawn: ['T1', 'T1a', 'T1a1', 'T1b', 'T2', 'T2a', 'T3'],
+  },
+  {
+    name: 'CR-862 TD-3 / TD-5: a pinned deep task group under a collapsed ancestor is drawn below the depth-2 threshold',
+    arranged: { zoomY: SHALLOW_ZOOM, states: { T1: 'collapsed' }, pinned: ['T1a1'] },
+    drawn: ['T1', 'T1a1', 'T2', 'T3'],
+  },
 ]
 
 test.describe('claim 12: table T-329, row by row', () => {

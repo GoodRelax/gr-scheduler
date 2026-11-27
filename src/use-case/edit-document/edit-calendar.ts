@@ -45,7 +45,7 @@ export type CalendarCommand =
 
 const DAY_TYPES = [1, 2, 3, 4, 5, 6, 7] as const
 
-// Spec: CM-39, FR-088, FR-012
+// Spec: CM-39, FR-088, FR-012, IMPS-464, IMPS-466, IMPS-467, IMPS-722, IMPS-724, IMPS-725
 /** @purity pure */
 export function editCalendar(document: Document, command: CalendarCommand): EditResult {
   switch (command.kind) {
@@ -119,7 +119,7 @@ function refusalsOf(command: CalendarCommand): Refusal[] {
   return refusals
 }
 
-// Spec: FR-088, WC-8
+// Spec: FR-088, WC-8, IMPS-730, IMPS-731
 // Why: a weekday holding another set keeps it (FR-088), and so does an exception holding its own spans.
 /** @purity pure */
 function withWorkingTimes(
@@ -196,7 +196,7 @@ function withExceptions(calendar: Calendar, exceptions: readonly Exception[] | u
   return isSame ? calendar : { ...calendar, exceptions: stampedExceptions(calendar.exceptions, exceptions) }
 }
 
-// Spec: FR-057, CM-39, WT-6, WT-7, WT-10
+// Spec: FR-057, CM-39, WT-6, WT-7, WT-10, IMPS-910
 // Why: the one writer stamps the times, so the issuers (the panel's draft WC-6, the agent relay) never learn them.
 /** @purity pure */
 function stampedExceptions(held: readonly Exception[], incoming: readonly Exception[]): Exception[] {
@@ -209,7 +209,7 @@ function stampedExceptions(held: readonly Exception[], incoming: readonly Except
   })
 }
 
-// Spec: WT-10, EX-4
+// Spec: WT-10, EX-4, IMPS-910
 // Why: a text with no readable day is kept as it came; stamping it would have to invent the day.
 /** @purity pure */
 function writtenDayText(
@@ -222,7 +222,7 @@ function writtenDayText(
   return day === null ? incomingText : textOfSide(day)
 }
 
-// Spec: FR-088, CM-39, AT-20, AT-67
+// Spec: IMPS-733
 // Why: the T-209 default is no row of the document, so the first edit makes one and points the project at it.
 /** @purity pure */
 function withMadeCalendar(

@@ -12,7 +12,7 @@ import {
 import { xFromDay, type TaskPlacement } from '../schedule-layout/schedule-layout'
 import { point, statusLineXOf, type GeometryInputs, type Path, type Point } from './schedule-geometry'
 
-// Spec: T-022, RV-1
+// Spec: IMPS-1439, PL-5
 // Why: the day comes from progressPointDayOf, which VS-6 reads too; the in-progress x stays the drawn actual bar's end.
 // Trap: an in-progress task with no stop has no day there, yet its zero-width actual bar still places a vertex.
 /** @purity pure */
@@ -25,7 +25,7 @@ function vertexXOf(inputs: GeometryInputs, task: Task, placed: TaskPlacement,
   return day === null ? null : xFromDay(inputs.layout, day)
 }
 
-// Spec: FR-014, LF-12
+// Spec: FR-014, LF-12, IMPS-1440, IMPS-1441, IMPS-1442, IMPS-1443, SWS-5
 /** @purity pure */
 export function progressLineOf(inputs: GeometryInputs): Path {
   const { layout, settings, statusDate } = inputs

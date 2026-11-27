@@ -70,7 +70,6 @@ export interface DropSurface {
   ): void
 }
 
-// Spec: FR-060, S-452
 interface ChooserPlace {
   readonly id: string
   readonly startIn?: FileHandle
@@ -90,7 +89,6 @@ export type SaveFilePicker = (options: ChooserPlace & {
   readonly excludeAcceptAllOption?: boolean
 }) => Promise<FileHandle>
 
-// Spec: FR-068, IO-10
 // Why: the page's own download, handed in; it takes no chooser and reports nothing back.
 export type StartDownload = (fileName: string, bytes: Uint8Array, mediaType: string) => void
 
@@ -102,7 +100,7 @@ export interface FileSystemAccessEnvironment {
   readonly startDownload?: StartDownload
 }
 
-// Spec: FR-096, T-024
+// Spec: IMPS-1037
 // Trap: excludeAcceptAllOption rides only with a known type; some hosts refuse it beside empty types.
 // Why: no description: the OS names the one extension in its own language; a word here would be one language.
 /** @purity pure */
@@ -112,7 +110,7 @@ function saveFileTypesFor(extension: string): readonly SaveFileType[] | undefine
   return [{ accept: { [mediaType]: [extension] } }]
 }
 
-// Spec: T-024, IO-10
+// Spec: T-024, IO-10, IMPS-881
 /** @purity pure */
 function mediaTypeOfFileName(fileName: string): string {
   const dot = fileName.lastIndexOf('.')
@@ -189,7 +187,6 @@ async function readOpenedState(handle: FileHandle | null): Promise<OpenedFileSta
   return openedStateOf(handle.name, await readWritePermission(handle))
 }
 
-// Spec: CS-4, T-227
 /** @purity semi-pure-mutable */
 async function readWriteDestination(handle: FileHandle): Promise<ChosenWriteDestination> {
   const file = await handle.getFile()
@@ -235,7 +232,7 @@ async function writeBytesToFile(
   }
 }
 
-// Spec: FR-060, S-452
+// Spec: IMPS-973, IMPS-972, IMPS-975
 // Why: no known folder is ever passed as startIn; before the first read or write the browser's own default stands.
 /** @purity pure */
 function chooserPlaceOf(lastHandle: FileHandle | null): ChooserPlace {
@@ -243,7 +240,7 @@ function chooserPlaceOf(lastHandle: FileHandle | null): ChooserPlace {
   return lastHandle === null ? { id } : { id, startIn: lastHandle }
 }
 
-// Spec: FR-096, FR-060
+// Spec: IMPS-1036
 /** @purity pure */
 function saveChooserOptionsOf(write: ChosenFileWrite, place: ChooserPlace): Parameters<SaveFilePicker>[0] {
   const types = saveFileTypesFor(write.extension)
@@ -307,7 +304,6 @@ export function fileSystemAccessFileStore(
   environment: FileSystemAccessEnvironment,
 ): FileStore {
   let openedHandle: FileHandle | null = null
-  // Spec: FR-060, IF-3
   // Why: apart from openedHandle: an overlay read moves the folder but never the save target.
   let lastHandle: FileHandle | null = null
   // Trap: a read only proposes its handle; adopting it on read let a merge save over the file it read (DFC-1224).
@@ -358,7 +354,7 @@ export function fileSystemAccessFileStore(
     noteHandleUsed(handle)
   }
 
-  // Spec: FR-060
+  // Spec: IMPS-972, IMPS-974, IMPS-976
   /** @purity non-pure */
   function noteHandleUsed(handle: FileHandle | null): void {
     if (handle !== null) lastHandle = handle
@@ -451,7 +447,7 @@ export function fileSystemAccessFileStore(
       if (handleReadToOpen !== null) openedHandle = handleReadToOpen.handle
     },
 
-    // Spec: FR-095
+    // Spec: IMPS-1055
     /** @purity non-pure */
     forgetOpenedFile(): void {
       openedHandle = null

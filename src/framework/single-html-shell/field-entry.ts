@@ -199,7 +199,7 @@ export function spendFieldCommit(hands: FieldEntryHands, frame: FrameValues): bo
 
 const TIME_SHIFT_QUESTION = 'QN-14'
 
-// Spec: FR-157, QN-14, BS-3, NT-7, IC-162
+// Spec: FR-157, QN-14, BS-3, NT-7, IC-162, IMPS-747
 // Why: the Time Shift alone asks first (FR-157); the answer carries the one write out as a deletion's does.
 /** @purity non-pure */
 export function askTimeShift(hands: Pick<FieldEntryHands, 'readHeld' | 'readSession' | 'sendToSession'>, frame: FrameValues, minutes: number): void {
@@ -222,7 +222,7 @@ export function isTimeShiftWrite(writes: readonly (readonly DocumentCommand[])[]
 
 const WHOLE_SCHEDULE_SHIFT_QUESTION = 'QN-15'
 
-// Spec: FR-159, QN-15, WH-11, WH-12, NT-7
+// Spec: FR-159, QN-15, WH-11, WH-12, NT-7, IMPS-751, IMPS-752
 // Why: nothing to move (no start, or no working day between) asks nothing, as the dim Apply button does (WH-12).
 /** @purity pure */
 function wholeScheduleShiftQuestionsOf(document: Document, session: ScreenSession, newStartDate: string): readonly SessionEvent[] {
@@ -269,7 +269,7 @@ type CalendarCommand = Extract<DocumentCommand, { readonly kind: 'setCalendar' }
 
 type CalendarCommandHands = Pick<FieldEntryHands, 'readHeld' | 'writeDocument' | 'raiseNotice'>
 
-// Spec: FR-088, IC-138, CM-39, RS-89, WC-7
+// Spec: FR-088, IC-138, CM-39, RS-89, WC-7, IMPS-732
 // Why: RS-89 only when CM-39 changed the document; a draft equal to the document writes nothing and tells nothing.
 /** @purity non-pure */
 export function issueCalendarCommand(hands: CalendarCommandHands, command: CalendarCommand, frame: FrameValues): void {

@@ -12,7 +12,6 @@ import type {
 
 const PNG_TYPE = 'image/png'
 
-// Spec: FR-025
 // Trap: reached through globalThis, not imported as a DOM type: this unit is compiled
 // without the DOM library, and an absent host constructor must read as unsupported.
 type MakeBlob = new (parts: readonly unknown[], options: { type: string }) => unknown
@@ -53,6 +52,7 @@ export function browserClipboard(
     | undefined,
 ): Clipboard {
   return {
+    // Spec: IO-6
     /** @purity non-pure */
     async writeClipboardContent(content: ClipboardContent) {
       if (systemClipboard === undefined) return { ok: false, fault: 'unsupported' }
@@ -61,7 +61,6 @@ export function browserClipboard(
           await systemClipboard.writeText(content.text)
           return { ok: true }
         }
-        // Spec: FR-025
         const { makeBlob, makeItem } = pictureHost()
         const write = systemClipboard.write
         if (write === undefined || makeBlob === undefined || makeItem === undefined) {

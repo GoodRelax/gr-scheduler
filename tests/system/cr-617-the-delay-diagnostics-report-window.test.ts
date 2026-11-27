@@ -64,7 +64,7 @@ async function isDiagnosePressed(page: Page): Promise<boolean> {
 test.describe('CR-617 -- the report window on the shipped build', () => {
   test.setTimeout(120_000)
 
-  test('RW-1 / RW-2 / RW-3: IC-107 opens the window with its title row and IC-140, IC-108 under it', async () => {
+  test('SCN-58 RW-1 / RW-2 / RW-3: IC-107 opens the window with its title row and IC-140, IC-108 under it @UC-015.OK', async () => {
     const stage = await opened()
     try {
       const page = stage.page

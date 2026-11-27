@@ -30,7 +30,7 @@ import {
   zoomWrites,
 } from './zoom-and-fit'
 
-// Spec: T-036, IN-5a, IN-4, MK-10, SK-24
+// Spec: T-036, IN-5a, IN-4, MK-10, SK-24, IMPS-1874, IMPS-1875, IMPS-1876, SK-10, SK-20, SK-21, SK-6, SK-7, SK-9, IMPS-1887
 /** @purity pure */
 export function commandFromKey(input: KeyInput, context: InputContext): TranslatedInput {
   const key = input.key
@@ -127,7 +127,7 @@ function isVerticalZoomKey(input: KeyInput): boolean {
   return isCombo(input.modifiers, false, false, true) && isPlusOrMinus(input.key)
 }
 
-// Spec: SK-22, SK-23, MK-10
+// Spec: SK-22, SK-23, MK-10, IMPS-1876, IMPS-1236
 /** @purity pure */
 function isDisplayScaleKey(input: KeyInput): boolean {
   return isCombo(input.modifiers, true, true, false) && isPlusOrMinus(input.key)
@@ -139,7 +139,7 @@ export function isViewScaleKey(input: KeyInput): boolean {
   return isTimeZoomKey(input) || isVerticalZoomKey(input) || isDisplayScaleKey(input)
 }
 
-// Spec: SK-3, SL-1, FR-046
+// Spec: SK-3, SL-1, FR-046, IMPS-1400, IMPS-1417, IMPS-1419, PTL-11
 /** @purity pure */
 function deleteCommandsFor(context: InputContext): readonly DocumentCommand[] {
   const schedule = context.document.schedule

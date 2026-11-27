@@ -42,7 +42,6 @@ import {
   type Watermark,
 } from './svg-renderer'
 
-// Spec: S-72, S-66, EL-16, SJ-10, T-280
 // Why: the screen values the picture reads, spelled here so the renderer
 // depends on no use case; ScreenValues satisfies it as it stands.
 export interface ViewerValues {
@@ -55,7 +54,6 @@ export interface ViewerValues {
         readonly successorUid: number } | null; readonly landedTarget: LandedTarget; readonly landedRelatedTasks?: readonly number[] }
 }
 
-// Spec: SJ-10, S-555, S-556, S-588
 export interface JumpLandingRing {
   readonly inner: ScreenRect
   readonly lineWidth: number
@@ -83,10 +81,8 @@ export interface OverlaysInput {
 }
 
 export interface OverlayParts {
-  // Spec: ZO-14
   readonly fillParts: readonly string[]
   readonly linkParts: readonly string[]
-  // Spec: ZO-16
   readonly progressLineParts: readonly string[]
   readonly annotationParts: readonly string[]
   readonly selectionParts: readonly string[]
@@ -94,15 +90,13 @@ export interface OverlayParts {
 
 const WATERMARK_ROLE = 'Watermark'
 
-// Spec: SJ-10
 const JUMP_LANDING_RING_ROLE = 'Jump Landing Ring'
 
-// Spec: RW-13, S-573
 const RELATED_TASK_RING_ROLE = 'Jump Related Ring'
 
 const UNDECIDED_PARENT_MARK = '?'
 
-// Spec: FR-135, S-398, S-485, S-486, SL-8, VO-4, IP-4
+// Spec: FR-135, S-398, S-485, S-486, SL-8, VO-4, IP-4, IMPS-1410, IMPS-1413, IMPS-1414, IMPS-1416
 /** @purity pure */
 export function parentTaskParts(
   geometry: ScheduleGeometry,
@@ -118,7 +112,6 @@ export function parentTaskParts(
     const width = arrow.isSelected ? emphasizedWidthOf(settings.dependencyWidth) : settings.dependencyWidth
     const dash = arrow.dash === null ? '' : ` stroke-dasharray="${rounded(arrow.dash[0])} ${rounded(arrow.dash[1])}"`
     const key = `parent-task-${arrow.childUid}`
-    // Spec: FR-135, EL-20, TV-3
     const radius = arrow.continuationRadius ?? 0
     const dots = (arrow.continuationDots ?? []).map(
       (dot) => `<circle cx="${rounded(dot.x)}" cy="${rounded(dot.y)}" r="${rounded(radius)}" fill="${ink}"${figureKey(key)}/>`,
@@ -154,7 +147,7 @@ export function parentTaskParts(
   return parts
 }
 
-// Spec: FR-020, T-207
+// Spec: FR-020, T-207, EP-7, IMPS-872, WM-13, WM-14
 /** @purity pure */
 export function watermarkSvg(
   area: ScreenRect,
@@ -207,7 +200,7 @@ function grabPointsOfBox(box: HighlightGeometry): readonly Point[] {
   return points
 }
 
-// Spec: FR-016, S-372, S-146, S-151, S-174
+// Spec: IMPS-1564, IMPS-1565
 // Why: a fixed screen size, never scaled: the reach the square shows (S-230) is in screen px too.
 /** @purity pure */
 function grabPointSquares(box: HighlightGeometry, ground: string, edge: string): readonly string[] {
@@ -221,7 +214,7 @@ function grabPointSquares(box: HighlightGeometry, ground: string, edge: string):
   )
 }
 
-// Spec: FR-019, AT-146, AT-147, ZO-14
+// Spec: FR-019, AT-146, AT-147, ZO-14, IMPS-845, IMPS-846
 // Provisional: OPQ-12
 /** @purity pure */
 function highlightFillSvg(
@@ -242,7 +235,7 @@ function highlightFillSvg(
   ]
 }
 
-// Spec: FR-019, ZO-8, ZO-10, ZO-14
+// Spec: FR-019, ZO-8, ZO-10, ZO-14, IMPS-1568, IMPS-844
 /** @purity pure */
 function highlightBoxSvg(
   box: HighlightGeometry,
@@ -250,7 +243,6 @@ function highlightBoxSvg(
   annotationColor: string,
 ): { readonly fill: readonly string[]; readonly frame: string; readonly selection: readonly string[] } {
   const { chosen, themed, strokeOfBox } = input
-  // Spec: CV-6
   const stroke = chosen(strokeOfBox.get(box.id) ?? null, 'outline') ?? annotationColor
   const radius = box.cornerRadiusPx
   const rounding = radius !== null && radius > 0 ? ` rx="${rounded(radius)}"` : ''
@@ -267,7 +259,7 @@ function highlightBoxSvg(
   return { fill: highlightFillSvg(box, chosen, themed, rounding), frame, selection }
 }
 
-// Spec: FR-019, CV-6, LF-17
+// Spec: FR-019, CV-6, LF-17, IMPS-853, IMPS-854, IMPS-855, IMPS-850
 // Why: one color and one width for the frame and the leader, which read as one line from the note to its point;
 // transparency is laid on the fill alone.
 /** @purity pure */
@@ -303,7 +295,7 @@ function commentBoxSvg(box: CommentGeometry, input: OverlaysInput, annotationCol
   return parts
 }
 
-// Spec: FR-016, S-376, S-146, S-151, S-174
+// Spec: IMPS-1544, IMPS-1545, IMPS-1546
 // Why: a fixed screen size, never scaled: the reach it shows (S-292) is in screen px too.
 /** @purity pure */
 function commentHandleSvg(box: CommentGeometry, ground: string, edge: string): string {
@@ -328,14 +320,13 @@ export function guideCursorPointOf(
   return { x: pointer.x, y: pointer.y }
 }
 
-// Spec: CU-2, DC-2, DC-8
+// Spec: CU-2, DC-2, DC-8, IMPS-859
 /** @purity pure */
 function dualCursorLines(input: OverlaysInput): readonly string[] {
   const { geometry, layout, themed, following } = input
   const cursors = geometry.dualCursor
   if (cursors === null) return []
   const color = themed('S-195')
-  // Spec: DC-3, T-378
   const followedAt =
     following === null || following.x === null ? null : cursorInstantAtX(layout, following.x, input.settings)
   const followedX = followedAt === null ? null : xOfInstant(layout, followedAt)
@@ -355,6 +346,7 @@ function dualCursorLines(input: OverlaysInput): readonly string[] {
   return lines
 }
 
+// Spec: ZO-16, FR-110, IMPS-1544, IMPS-1547, IMPS-1548, IMPS-1565, IMPS-1566, IMPS-529, IMPS-844, EP-6
 /** @purity pure */
 export function overlayParts(input: OverlaysInput): OverlayParts {
   const {
@@ -376,7 +368,6 @@ export function overlayParts(input: OverlaysInput): OverlayParts {
   const selectionParts: string[] = []
   const annotationColor = themed('S-312')
 
-  // Spec: FR-110, ZO-16
   if (geometry.progressLine.length > 0 && settings.isProgressLineVisible) {
     progressLineParts.push(
       `<polyline points="${pointsOf(geometry.progressLine)}" fill="none"` +
@@ -387,7 +378,6 @@ export function overlayParts(input: OverlaysInput): OverlayParts {
 
   const status = geometry.statusLine
   if (status !== null) {
-    // Spec: SL-8, S-438
     // Why: S-438 is the chosen line's own width, not S-333 times S-178: the two are picked apart in px.
     const statusWidth = NOT_STORED_DUAL_CURSOR_SIZES[selectedStatusLine ? 'S-438' : 'S-333']
     linkParts.push(
@@ -460,7 +450,6 @@ export function jumpLandingRingOf(layout: ScheduleLayout, geometry: ScheduleGeom
   }
 }
 
-// Spec: SJ-10, FR-041, S-74
 type RingInput = Pick<OverlaysInput, 'geometry' | 'layout' | 'themed'> & { readonly monochrome: boolean }
 
 // Spec: SJ-10, ZO-8, EP-12, FR-098, S-587

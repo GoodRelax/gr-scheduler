@@ -143,7 +143,7 @@ test(`FR-135: ${ONLY_A_PERSON_WRITES_THE_PARENT}`, async ({ page }) => {
   expect(cleared.map((uid) => writtenTasks.find((one) => one['uid'] === uid)?.['parentTaskUid'])).toEqual(cleared.map(() => null))
 })
 
-test(`FX-2: ${SPAN_DOES_NOT_MOVE_THE_SCREEN}`, async ({ page }) => {
+test(`SCN-45 FX-2: ${SPAN_DOES_NOT_MOVE_THE_SCREEN} @UC-011.OK`, async ({ page }) => {
   await launch(page)
   await enableAgentApi(page)
   const screen = async (): Promise<{ view: Record<string, unknown>; figures: string[] }> => {
@@ -203,7 +203,7 @@ test(`IX-15: ${SPAN_HEIGHT}`, async ({ page }) => {
   expect(height).toBe(Math.max(Math.ceil(onGrid), S_81_HEIGHT))
 })
 
-test(`OP-9: ${OVERLAY_ONLY_MATCHING_UIDS}`, async ({ page }) => {
+test(`SCN-25 OP-9: ${OVERLAY_ONLY_MATCHING_UIDS} @UC-006.OK`, async ({ page }) => {
   test.setTimeout(120_000)
   await launch(page)
   await enableAgentApi(page)

@@ -8,7 +8,6 @@ import { inTreeOrder, xFromDay, type TaskGroupPlacement, type ScheduleLayout } f
 import { isAtLeastDrawnPx } from './dependency-route'
 import type { HighlightGeometry } from './schedule-geometry'
 
-// Spec: FR-019
 // Why: the one place a highlight box's end day is counted inclusive; its right edge is where the next day begins.
 /** @purity pure */
 function rightEdgeOfDay(layout: ScheduleLayout, day: CalendarDay): number {
@@ -17,7 +16,7 @@ function rightEdgeOfDay(layout: ScheduleLayout, day: CalendarDay): number {
 
 type AnnotationNumberRow = keyof typeof NOT_STORED_ANNOTATION_BOUNDS
 
-// Spec: T-217, FR-019
+// Spec: T-217, FR-019, IMPS-836, IMPS-845, IMPS-1031
 // Why: a null column draws the table's default, and a stored value outside the bounds is drawn clamped while the
 // document keeps it -- refusing the document for one look value would lose every other value in it.
 /** @purity pure */
@@ -33,14 +32,12 @@ function sideHandlesOf(width: number, height: number): HighlightGeometry['hasSid
   return { leftRight: isAtLeastDrawnPx(height, shortest), topBottom: isAtLeastDrawnPx(width, shortest) }
 }
 
-// Spec: FR-019, UC-008
 interface DrawnTaskGroupsInTree {
   readonly treeIndexOf: ReadonlyMap<string, number>
   // Why: the drawn task groups in tree order, each with its index in the whole tree (drawn or not).
   readonly drawn: readonly { readonly taskGroup: TaskGroupPlacement; readonly at: number }[]
 }
 
-// Spec: FR-019, UC-008
 /** @purity pure */
 function drawnTaskGroupsInTreeOf(schedule: Schedule, taskGroupById: ReadonlyMap<string, TaskGroupPlacement>): DrawnTaskGroupsInTree {
   const tree = inTreeOrder(schedule.taskGroups, new Map(schedule.taskGroups.map((group) => [group.id, group])))
@@ -52,7 +49,7 @@ function drawnTaskGroupsInTreeOf(schedule: Schedule, taskGroupById: ReadonlyMap<
   return { treeIndexOf: new Map(tree.map((group, at) => [group.id, at])), drawn }
 }
 
-// Spec: FR-019, UC-008
+// Spec: IMPS-838, UC-008, IMPS-842
 // Why: UC-008 4a -- an undrawn end task group gives way to the nearest drawn task group of the range in tree order, so the frame
 // shrinks to the shown task groups; a null or unknown end keeps the screen's first or last task group, and no drawn task group, no box.
 /** @purity pure */
@@ -79,7 +76,7 @@ function drawnEndsOf(
   return shownTop === undefined || shownBottom === undefined ? undefined : { top: shownTop, bottom: shownBottom }
 }
 
-// Spec: FR-019
+// Spec: FR-019, UC-008, IMPS-837, IMPS-842
 /** @purity pure */
 export function highlightGeometry(schedule: Schedule, layout: ScheduleLayout): readonly HighlightGeometry[] {
   const taskGroupById = new Map(layout.taskGroups.map((taskGroup) => [taskGroup.taskGroupId, taskGroup]))
@@ -110,7 +107,6 @@ export function highlightGeometry(schedule: Schedule, layout: ScheduleLayout): r
       strokeWidthPx: drawnAnnotationNumber(box.strokeWidthPx, 'S-369'),
       // Why: null is the project theme color (FR-019); the renderer, which holds the theme, paints it.
       fillColor: box.fillColor ?? null,
-      // Spec: AT-147
       fillOpacity: 1 - drawnAnnotationNumber(box.fillTransparencyPercent, 'S-371') / 100,
       hasSideHandles: sideHandlesOf(width, height),
     })

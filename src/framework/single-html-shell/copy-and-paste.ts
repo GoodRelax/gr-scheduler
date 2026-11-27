@@ -20,6 +20,7 @@ import {
 
 type SelectionCopied = NonNullable<ScreenSession['selection']['copiedForPaste']>
 
+// Spec: IMPS-293
 // Why: one chosen task group wins over chosen Tasks; two task groups or nothing copy nothing (RS-27). see FR-033, SL-7b
 /** @purity pure */
 export function copiedForPasteOf(chosenTaskGroups: readonly string[], selected: Selection): SelectionCopied | null {
@@ -29,6 +30,7 @@ export function copiedForPasteOf(chosenTaskGroups: readonly string[], selected: 
   return uids.length === 0 ? null : { kind: 'task', uids }
 }
 
+// Spec: IMPS-302
 // Why: two or more paste targets refuse any paste, a task group copy or a Task copy alike (RS-27). see FR-033
 /** @purity pure */
 export function isPasteRefusedFor(chosenTaskGroups: readonly string[]): boolean {
@@ -41,7 +43,7 @@ export type CopyAndPasteHands = Pick<
   | 'settingsLimitsOf'
 >
 
-// Spec: SK-4, FR-033
+// Spec: SK-4, FR-033, IMPS-307
 /** @purity non-pure */
 export function copyForPaste(hands: CopyAndPasteHands): void {
   const session = hands.readSession()
@@ -53,7 +55,7 @@ export function copyForPaste(hands: CopyAndPasteHands): void {
   hands.sendToSession({ type: 'copyTaken', copiedForPaste }, hands.readValues())
 }
 
-// Spec: SK-5, FR-033
+// Spec: SK-5, FR-033, IMPS-289, IMPS-303, IMPS-308, ST-7, CY-10, IMPS-288, DU-2, IV-2, RS-82, IMPS-300, IMPS-301
 /** @purity non-pure */
 export function pasteWhatWasCopied(hands: CopyAndPasteHands, frame: FrameValues): void {
   const copied = hands.readSession().selection.copiedForPaste
@@ -70,7 +72,6 @@ export function pasteWhatWasCopied(hands: CopyAndPasteHands, frame: FrameValues)
   hands.writeDocument([command], frame)
 }
 
-// Spec: FR-033, ST-7, CY-10
 // Why: one test for both roads that copy -- a cap that held the paste but not the drag would work in one place only.
 /** @purity semi-pure-mutable */
 function isStackSafetyCapReachedBy(
@@ -94,7 +95,7 @@ function isStackSafetyCapReachedBy(
   return wouldDraw.stackSafetyCapReached !== null
 }
 
-// Spec: PTD-7, CY-8, CY-10
+// Spec: PTD-7, CY-8, CY-10, IMPS-304, IMPS-306, FR-033, ST-7, IMPS-288
 /** @purity non-pure */
 export function landCopyDrag(
   hands: CopyAndPasteHands,
@@ -112,7 +113,6 @@ export function landCopyDrag(
   if (isLanded) hands.sendToSession({ type: 'objectsPicked', pickedObjects: picked }, frame)
 }
 
-// Spec: FR-033, DU-2, IV-2, RS-82
 // Why: a copied source that is gone is still sent, so CM-8 / CM-28 refuse it by IV-2 and the paste is told RS-82, not RS-27.
 /** @purity non-pure */
 function pasteCommandFor(

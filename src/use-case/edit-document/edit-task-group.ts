@@ -139,7 +139,7 @@ export function subtreeOf(groups: readonly TaskGroup[], rootId: string): Subtree
   return { taskGroups, height }
 }
 
-// Spec: CD-1, DU-1, IV-4
+// Spec: CD-1, DU-1, IV-4, IMPS-245
 // Why: a sweep, not a recursion, because task groups arrive in no parent-before-child order.
 /** @purity pure */
 export function wbsSubtreesOf(tasks: readonly Task[], seeds: Iterable<number>): ReadonlySet<number> {
@@ -163,7 +163,7 @@ function pastedTreeState(state: TaskGroup['treeState']): TaskGroup['treeState'] 
   return state === 'expanded' || state === 'temporarilyExpanded' ? 'auto' : state
 }
 
-// Spec: CD-1, DU-2, AT-54
+// Spec: CD-1, DU-2, AT-54, IMPS-237, IMPS-238, IMPS-239, IMPS-241
 /** @purity pure */
 export function settledTaskGroup(schedule: Schedule, taskGroup: TaskGroup, defaultTaskGroupName: string): TaskGroup {
   const source = taskGroup.derivedFromTaskUid === null ? null : taskByUid(schedule, taskGroup.derivedFromTaskUid)
@@ -174,7 +174,7 @@ type PastePlan =
   | { readonly ok: false; readonly refusals: readonly Refusal[] }
   | { readonly ok: true; readonly copied: Subtree; readonly idOf: ReadonlyMap<string, string> }
 
-// Spec: CM-28, FR-033, FR-004, AT-51, IV-1, IV-2
+// Spec: CM-28, FR-033, FR-004, AT-51, IV-1, IV-2, IMPS-290
 /** @purity pure */
 function pastePlanOf(
   command: TaskGroupCommandOf<'pasteTaskGroupSubtree'>,
@@ -234,7 +234,7 @@ function copiedTaskGroupOf(
   return copy === undefined ? settledTaskGroup(schedule, pasted, defaultTaskGroupName) : { ...pasted, derivedFromTaskUid: copy }
 }
 
-// Spec: CM-28, FR-033, DU-1, DU-2
+// Spec: CM-28, FR-033, DU-1, DU-2, IMPS-285, IMPS-297
 // Why: only the Tasks on the copied task groups; a WBS descendant on another task group is not copied, and no paste is refused.
 /** @purity pure */
 function pasteTaskGroupSubtree(
@@ -284,7 +284,7 @@ function pasteTaskGroupSubtree(
   }))
 }
 
-// Spec: CM-26, CM-27, CM-28, CM-29, CM-30, CM-31, CM-32, CM-35, CM-72, CM-73, CM-85
+// Spec: CM-26, CM-27, CM-28, CM-29, CM-30, CM-31, CM-32, CM-35, CM-72, CM-73, CM-85, IMPS-233, IMPS-242, IMPS-243, IMPS-245
 // Trap: a command that changes nothing returns the same document object; a write is detected
 // by the schedule reference.
 /** @purity pure */

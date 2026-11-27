@@ -43,7 +43,6 @@ export interface ReportHeld {
   readonly documentName: string
   readonly language: DisplayLanguage
   readonly fixTables?: DelayFixTables
-  // Spec: FR-158, TX-7, TX-8
   readonly isTimeOfDayVisible?: boolean
   readonly viewTimeZone?: unknown
 }
@@ -80,7 +79,7 @@ function localMomentOf(now: Date): string {
   return `${now.getFullYear()}-${two(now.getMonth() + 1)}-${two(now.getDate())}T${two(now.getHours())}:${two(now.getMinutes())}`
 }
 
-// Spec: FR-134, RW-6, RW-7, T-227
+// Spec: FR-134, RW-6, RW-7, T-227, IMPS-633, IMPS-634
 // Why: a text that is no document: never the opened file (FR-096 holds one export entry), always asked before an occupied file.
 // Trap: started inside the input's own call; deferred, the browser can refuse the clipboard write and the picker.
 /** @purity non-pure */
@@ -125,7 +124,7 @@ function handOutFixLogTsv(held: ReportHeld, outlets: ReportOutlets): void {
     .then((writing) => (writing.ok ? undefined : outlets.raiseFileFault(writing.fault)))
 }
 
-// Spec: T-346, IC-108, IC-140, RW-1, TV-8, UN-20
+// Spec: T-346, IC-108, IC-140, RW-1, TV-8, UN-20, IO-8
 // Why: the view is written before the window is held, so a close that lifts the filter writes it once (CM-92).
 /** @purity non-pure */
 export function answerDelayDiagnosticsReportEntry(

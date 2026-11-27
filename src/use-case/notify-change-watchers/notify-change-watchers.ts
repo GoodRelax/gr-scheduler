@@ -34,7 +34,6 @@ interface Registration {
   readonly mark: WatcherMark
 }
 
-// Spec: SF-10, CP-15
 // Why: the shell holds these (CR-530 decision 6); the delivery window sits beside them, not in a
 // flag parameter of its own, which would let a subscriber fake this window's edge (uf-24-25).
 export interface ChangeWatchers {

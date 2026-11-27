@@ -9,14 +9,14 @@ import type { Selection } from '../../document-model/selection/selection'
 import type { ScheduleGeometry, TaskGeometry } from '../schedule-geometry/schedule-geometry'
 import type { ScheduleLayout } from '../schedule-layout/schedule-layout'
 
-// Spec: T-023c, FR-049, T-240
+// Spec: T-023c, FR-049, T-240, IMPS-226
 // Trap: never milestoneFigure: task-figures.ts builds it with the plan hidden too.
 /** @purity pure */
 export function isTaskDrawn(task: TaskGeometry): boolean {
   return task.plan !== null || task.actual !== null || task.dummies.length > 0
 }
 
-// Spec: T-023c, SL-7b
+// Spec: T-023c, SL-7b, IMPS-226, IMPS-228, IMPS-229
 // Trap: the same object when nothing leaves; the shell compares selections by identity.
 /** @purity pure */
 export function selectionWithinDrawn(selection: Selection, geometry: ScheduleGeometry): Selection {
@@ -34,7 +34,7 @@ export function selectionWithinDrawn(selection: Selection, geometry: ScheduleGeo
   return { items, isOrdered: selection.isOrdered }
 }
 
-// Spec: T-023c, FR-098, ST-7
+// Spec: T-023c, FR-098, ST-7, IMPS-228
 // Why: a pin the band cannot hold and a task group past the stack safety cap are no row T-023c names.
 /** @purity pure */
 export function selectionWithinDrawnTaskGroups(

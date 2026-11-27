@@ -36,11 +36,8 @@ export interface McpRelayOptions {
   readonly log: (line: string) => void
   readonly pageHtml: Uint8Array
   readonly documentSchema: string
-  // Spec: AG-12
   readonly commandsSchema: string
-  // Spec: AG-12
   readonly callDeadlineMs?: number
-  // Spec: AG-12
   readonly saveFolder?: string
   readonly confirmBeforeOverwrite?: boolean
 }
@@ -84,7 +81,6 @@ const INVALID_PARAMS = -32602
 const INTERNAL_ERROR = -32603
 const RESOURCE_NOT_FOUND = -32002
 const SCHEMA_MIME_TYPE = 'application/schema+json'
-// Spec: AG-12
 // Why: the two resources of design-mcp-relay.md 3.1, the document's first; `text` names the option holding the bytes.
 interface SchemaResource {
   readonly uri: string
@@ -109,7 +105,6 @@ const SCHEMA_RESOURCES: readonly SchemaResource[] = [
     text: 'commandsSchema',
   },
 ]
-// Spec: AM-30
 // Why: the one member the relay answers from what it carries, so it works before a page is connected (AG-12 (4)).
 const READ_SCHEMA = 'readSchema'
 const SCHEMA_TEXT_OF: Readonly<Record<string, SchemaResource['text']>> = {
@@ -122,10 +117,8 @@ const KEY_PRESENTED = 'relayKeyPresented'
 const CHANGE_NOTICED = 'changeNoticed'
 const CANCELED = 'notifications/cancelled'
 const LONGEST_TIMER_MS = 2 ** 31 - 1
-// Spec: AG-12
 // Why: shorter than the MCP client's request timeout, which restarts the relay and drops the page (DFC-3252).
 const DEFAULT_CALL_DEADLINE_MS = 45_000
-// Spec: AM-17
 // Why: shorter than the call deadline, so a watch never runs into the client's timeout itself.
 const LONGEST_WATCH_WAIT_MS = 40_000
 
@@ -808,7 +801,6 @@ function schemaResourceOf(resource: SchemaResource, options: McpRelayOptions): R
   }
 }
 
-// Spec: AM-30
 // Why: one line per definition is enough to choose from; the whole description stays in the definition.
 /** @purity pure */
 function aboutOf(definition: unknown): string {
@@ -828,7 +820,6 @@ function schemaVersionOf(options: McpRelayOptions): unknown {
   return recordAt(recordAt(parsedJsonOf(options.documentSchema), 'properties'), 'schemaVersion')['const'] ?? null
 }
 
-// Spec: AM-30
 // Why: the page the relay serves is built with these schemas, so the version printed here is the page's (CR-802).
 /** @purity pure */
 function schemaPartOf(options: McpRelayOptions, which: string, defs: readonly string[] | undefined): string {
@@ -858,7 +849,6 @@ function isStringList(value: unknown): value is readonly string[] {
   return Array.isArray(value) && value.every((one) => typeof one === 'string')
 }
 
-// Spec: AM-30
 /** @purity pure */
 function schemaToolResultOf(options: McpRelayOptions, toolArguments: unknown): McpToolResult {
   const given = isPlainRecord(toolArguments) ? toolArguments : {}

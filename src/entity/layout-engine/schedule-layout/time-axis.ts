@@ -24,13 +24,13 @@ export function serialOf(day: CalendarDay): number {
   return Math.floor(Date.UTC(day.year, day.month - 1, day.day) / MS_PER_DAY)
 }
 
-// Spec: FR-017, S-8, T-205
+// Spec: FR-017, S-8, T-205, IMPS-706
 /** @purity pure */
 export function thresholdPxPerDayOf(pxPerDay: number, settings: DrawnSettings): number {
   return pxPerDay / (settings.rulerFontSizePx / SETTINGS_CONSTANTS.fontMin)
 }
 
-// Spec: LC-3, FR-017, T-252, DS-1, DS-4, S-8, TM-5, S-577
+// Spec: LC-3, FR-017, T-252, DS-1, DS-4, S-8, TM-5, S-577, IMPS-701, IMPS-702, IMPS-704, IMPS-705, IMPS-1211
 // Trap: STORED settings with a DRAWN pxPerDay; the ruler font is scaled here, the S-8 divisor is not.
 /** @purity pure */
 export function rulerTierOf(pxPerDay: number, storedSettings: DocumentSettings): RulerTier {
@@ -57,7 +57,7 @@ export function snapMinutesOf(pxPerDay: number, storedSettings: DocumentSettings
   return MINUTES_PER_CALENDAR_DAY
 }
 
-// Spec: LF-1
+// Spec: LF-1, IMPS-703
 /** @purity pure */
 export function tickStrideOf(layout: ScheduleLayout, _settings: DocumentSettings): number {
   return layout.tier === 'yearMonthWeek' ? DAYS_PER_WEEK : 1
@@ -65,7 +65,7 @@ export function tickStrideOf(layout: ScheduleLayout, _settings: DocumentSettings
 
 export type TimeAxis = Pick<ScheduleLayout, 'pxPerDay' | 'originDay' | 'originX'>
 
-// Spec: FR-017, DC-3
+// Spec: FR-017, DC-3, IMPS-700
 // Why: the axis alone, without laying out a task group, for readers that only turn a pointer into a day.
 /** @purity pure */
 export function timeAxisOf(storedSettings: DocumentSettings, regions: ScreenRegions): TimeAxis {
@@ -135,7 +135,7 @@ export function xOfInstant(layout: TimeAxis, instant: number): number {
   return layout.originX + (instant / MINUTES_PER_CALENDAR_DAY - serialOf(layout.originDay)) * layout.pxPerDay
 }
 
-// Spec: FR-103, T-378
+// Spec: FR-103, T-378, IMPS-1600
 /** @purity pure */
 export function snappedInstantAtX(layout: TimeAxis, x: number, snapMinutes: number): number | null {
   if (layout.originDay === null || layout.pxPerDay <= 0) return null

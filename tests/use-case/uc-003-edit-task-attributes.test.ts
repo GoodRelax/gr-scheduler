@@ -14,13 +14,13 @@ const commit = async (page: Page): Promise<void> => {
   await settle(page)
 }
 
-test('UC-003 edit the attributes of a task (FR-072, T-016, FR-083 SP-2, FR-007, FR-008, FR-049, FR-090, FR-039)', async ({ page }) => {
+test('SCN-9 SCN-10 SCN-13 UC-003 edit the attributes of a task (FR-072, T-016, FR-083 SP-2, FR-007, FR-008, FR-049, FR-090, FR-039) @UC-003.OK @UC-003.RJ1', async ({ page }) => {
   // Why: 12 s alone and 15 s in a whole run, all of it steps UC-003 names; a loaded GT-2 ran it past 30 s (DFC-2313).
   test.setTimeout(60000)
   await launch(page)
   await enableAgentApi(page)
 
-  await test.step('UC-003 step 1: the author picks a task (MK-13)', async () => {
+  await test.step('SCN-9 UC-003.OK: the author picks a task (MK-13)', async () => {
     const plan = (await figureBox(page, 'task-' + TASK + '-plan'))!
     await page.mouse.dblclick(plan.x + plan.w / 2, plan.y + plan.h / 2)
     await settle(page)
@@ -30,7 +30,7 @@ test('UC-003 edit the attributes of a task (FR-072, T-016, FR-083 SP-2, FR-007, 
     await settle(page)
   })
 
-  await test.step('UC-003 step 2: the Properties Panel shows its attributes under display-language item names, English here as the locale is en-US (FR-072, T-016, FR-038)', async () => {
+  await test.step('SCN-9 UC-003.OK: the Properties Panel shows its attributes under display-language item names, English here as the locale is en-US (FR-072, T-016, FR-038)', async () => {
     await expect(page.locator('[data-role="Properties Panel"]')).toHaveAttribute('data-showing', 'selection')
     const names = await page.locator(PANEL + ':not(button)[data-field-row] > span:first-child').allTextContents()
     expect(names.length).toBeGreaterThan(5)
@@ -38,7 +38,7 @@ test('UC-003 edit the attributes of a task (FR-072, T-016, FR-083 SP-2, FR-007, 
     await expect(page.locator(PANEL + 'textarea[data-field-row="PR-1"]')).toHaveValue(taskOf(await readDocument(page)).name)
   })
 
-  await test.step('UC-003 step 3: the author changes date, shape, color, outline width and assignee (PR-3, SP-2, PR-39, PR-40, PR-16)', async () => {
+  await test.step('SCN-9 UC-003.OK: the author changes date, shape, color, outline width and assignee (PR-3, SP-2, PR-39, PR-40, PR-16)', async () => {
     const before = await readDocument(page)
     await page.fill(PANEL + 'input[data-field-row="PR-3"] >> nth=0', '2026-05-01')
     await commit(page)
@@ -66,7 +66,7 @@ test('UC-003 edit the attributes of a task (FR-072, T-016, FR-083 SP-2, FR-007, 
     await expect.poll(async () => assigneesOf(await readDocument(page))).toEqual([other.uid])
   })
 
-  await test.step('UC-003 step 4: the drawing follows and the assignee and percent labels obey the display settings (FR-049, FR-090, S-60, S-61)', async () => {
+  await test.step('SCN-9 UC-003.OK: the drawing follows and the assignee and percent labels obey the display settings (FR-049, FR-090, S-60, S-61)', async () => {
     const doc = await readDocument(page)
     const resource = doc.schedule.resources.find((r) => assigneesOf(doc).includes(r.uid))!
     const plan = (await figureBox(page, 'task-' + TASK + '-plan'))!
@@ -82,7 +82,7 @@ test('UC-003 edit the attributes of a task (FR-072, T-016, FR-083 SP-2, FR-007, 
     await expect(tag).toHaveCount(0)
   })
 
-  await test.step('UC-003 step 5: the author opens the display and format settings and sets toggles and theme (IC-17, IC-42, IC-16)', async () => {
+  await test.step('SCN-9 UC-003.OK: the author opens the display and format settings and sets toggles and theme (IC-17, IC-42, IC-16)', async () => {
     await press(page, 'IC-17')
     await expect(page.locator('[data-role="Properties Panel"]')).toHaveAttribute('data-showing', 'documentSettings')
     const before = (await readDocument(page)).documentSettings
@@ -99,7 +99,7 @@ test('UC-003 edit the attributes of a task (FR-072, T-016, FR-083 SP-2, FR-007, 
     expect(Object.keys(themed)).not.toContain('themePreference')
   })
 
-  await test.step('UC-003 step 6: the schedule is drawn again as set (FR-089, FR-039)', async () => {
+  await test.step('SCN-9 UC-003.OK: the schedule is drawn again as set (FR-089, FR-039)', async () => {
     const settings = (await readDocument(page)).documentSettings
     const gridLines = await page.locator('[data-figure^="date-grid-"]').count()
     expect(gridLines > 0).toBe(settings.isDateGridLinesVisible)
@@ -108,7 +108,7 @@ test('UC-003 edit the attributes of a task (FR-072, T-016, FR-083 SP-2, FR-007, 
     expect(await page.locator('[data-figure="ruler-ground"]').getAttribute('fill')).not.toBe(ground)
   })
 
-  await test.step('UC-003 extension 3a: stroke and fill cannot both be made transparent (FR-007)', async () => {
+  await test.step('SCN-10 UC-003.RJ1: stroke and fill cannot both be made transparent (FR-007)', async () => {
     const plan = (await figureBox(page, 'task-' + TASK + '-plan'))!
     await page.mouse.dblclick(plan.x + plan.w / 2, plan.y + plan.h / 2)
     await settle(page)
@@ -122,7 +122,7 @@ test('UC-003 edit the attributes of a task (FR-072, T-016, FR-083 SP-2, FR-007, 
     await expect(page.locator('[data-role="Notification Area"]')).not.toHaveText('')
   })
 
-  await test.step('UC-003 extension 4a: moving the task on screen moves the dates in the panel (FR-006)', async () => {
+  await test.step('SCN-13 UC-003.OK: moving the task on screen moves the dates in the panel (FR-006)', async () => {
     const plan = (await figureBox(page, 'task-' + TASK + '-plan'))!
     const startBefore = taskOf(await readDocument(page)).start
     await drag(page, { x: plan.x + plan.w / 2, y: plan.y + plan.h / 2 }, { x: plan.x + plan.w / 2 + 60, y: plan.y + plan.h / 2 }, [], DROP_STEPS)

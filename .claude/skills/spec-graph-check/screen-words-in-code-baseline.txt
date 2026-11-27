@@ -3,4 +3,4 @@
 # Started 2026-11-25 at the measured tree (rule 03 section 1, JDG-3836, JDG-3837):
 # "Resource List" x5 and "Command Palette" x2 written in src/. Lower only.
 glossary-lookup 0
-word-literal 7
+word-literal 0

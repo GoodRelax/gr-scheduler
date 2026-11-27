@@ -60,8 +60,8 @@ function noticesOfCandidates(candidates: StartupCandidates): readonly StartupNot
   return notices
 }
 
-// Spec: BO-2, T-034
-// STOP: spec does not decide running FR-023's validation over BT-1. Looked in FR-023, FR-067, OP-5, T-008 (PND-452)
+// Spec: BO-2, T-034, IMPS-1072
+// Temporary: spec says the embedded document (BT-1) is validated as an import is (FR-023); here it is not (DFC-3631). Until: DFC-3631 is fixed.
 /** @purity pure */
 export function chooseStartupDocument(candidates: StartupCandidates): StartupChoice {
   const order: readonly (readonly [StartupRow, Document | null])[] = [

@@ -23,16 +23,16 @@ const watermark = (page: Page) =>
     }
   })
 
-test('UC-009 show a confidential schedule on screen (FR-020 T-242 WM-6 WM-8 WM-10, S-99a, S-100, S-102, S-220, U-60)', async ({ page }) => {
+test('SCN-34 SCN-35 UC-009 show a confidential schedule on screen (FR-020 T-242 WM-6 WM-8 WM-10, S-99a, S-100, S-102, S-220, U-60) @UC-009.OK @UC-009.RJ1', async ({ page }) => {
   await launch(page)
   await enableAgentApi(page)
 
-  await test.step('UC-009 step 1: the author opens the schedule (FR-087)', async () => {
+  await test.step('SCN-34 UC-009.OK: the author opens the schedule (FR-087)', async () => {
     await openByDrop(page, ERP, readSample(ERP))
     expect((await readDocument(page)).schedule.tasks.length).toBeGreaterThan(100)
   })
 
-  await test.step('UC-009 step 2: the opener and the run time are laid faint, slanted and repeated over the Task Group Lanes only (FR-020, WM-13, WM-14)', async () => {
+  await test.step('SCN-34 UC-009.OK: the opener and the run time are laid faint, slanted and repeated over the Task Group Lanes only (FR-020, WM-13, WM-14)', async () => {
     const mark = (await watermark(page))!
     expect(mark).not.toBeNull()
     expect(mark.texts.length).toBeGreaterThan(1)
@@ -52,13 +52,13 @@ test('UC-009 show a confidential schedule on screen (FR-020 T-242 WM-6 WM-8 WM-1
     expect(Object.keys(settings).some((key) => key.toLowerCase().includes('watermark'))).toBe(false)
   })
 
-  await test.step('UC-009 step 3: the author tries to take the watermark off (IC-41, WM-6, U-60)', async () => {
+  await test.step('SCN-34 UC-009.OK: the author tries to take the watermark off (IC-41, WM-6, U-60)', async () => {
     await press(page, 'IC-41')
     await expect(page.locator(UNLOCK)).toHaveCount(1)
     await expect(page.locator(UNLOCK + ' input[type="password"]')).toHaveCount(1)
   })
 
-  await test.step('UC-009 extension 4a: a wrong unlock password leaves the watermark on and says why (WM-8, RS-41)', async () => {
+  await test.step('SCN-35 UC-009.RJ1: a wrong unlock password leaves the watermark on and says why (WM-8, RS-41)', async () => {
     await page.fill(UNLOCK + ' input[type="password"]', 'not-the-password')
     await page.click(UNLOCK + ' [data-confirmation-answer="proceed"]')
     await settle(page)
@@ -67,7 +67,7 @@ test('UC-009 show a confidential schedule on screen (FR-020 T-242 WM-6 WM-8 WM-1
     await expect(page.locator('[data-role="Notification Area"]')).not.toHaveText('')
   })
 
-  await test.step('UC-009 step 4: only the matching password removes it, and putting it back asks nothing (WM-8, WM-10)', async () => {
+  await test.step('SCN-34 UC-009.OK: only the matching password removes it, and putting it back asks nothing (WM-8, WM-10)', async () => {
     await page.fill(UNLOCK + ' input[type="password"]', DEFAULT_UNLOCK)
     await page.click(UNLOCK + ' [data-confirmation-answer="proceed"]')
     await settle(page)

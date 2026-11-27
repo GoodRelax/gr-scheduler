@@ -48,7 +48,6 @@ export interface DelayFinding {
   readonly proposedActualFinish: string | null
 }
 
-// Spec: T-314, DQ-2, DQ-3, DQ-4
 export interface DelayQuantities {
   readonly uid: number
   readonly name: string | null
@@ -62,7 +61,6 @@ export interface Bottleneck extends DelayQuantities {
   readonly path: readonly number[]
 }
 
-// Spec: DX-5, BD-4
 export interface TerminalPushOut {
   readonly uid: number
   readonly name: string | null
@@ -87,14 +85,12 @@ export interface DerivedParentTask {
   readonly parentUid: number
 }
 
-// Spec: DX-10, T-021b
 export interface LateDays {
   readonly uid: number
   readonly row: string
   readonly days: number
 }
 
-// Spec: T-317, FR-135
 export interface DelayDiagnosticsReport {
   readonly outcome: 'diagnosed' | 'notDiagnosed'
   readonly statusDate: string | null
@@ -109,7 +105,6 @@ export interface DelayDiagnosticsReport {
   readonly lateDays: readonly LateDays[]
 }
 
-// Spec: T-018
 const FINISH_TO_FINISH = 0
 const FINISH_TO_START = 1
 const START_TO_FINISH = 2
@@ -141,7 +136,6 @@ interface EndOfChildren {
   readonly day: CalendarDay | null
 }
 
-// Spec: FR-054
 interface Instants {
   readonly start: number | null
   readonly finish: number | null
@@ -161,12 +155,10 @@ interface Structure {
   readonly parentOf: ReadonlyMap<number, number>
 }
 
-// Spec: BD-1, BD-2, VC-15
 export type WorkingTimeWalk = (from: number, minutes: number) => number
 
 interface Facts extends Structure {
   readonly calendar: WorkingCalendar
-  // Spec: FR-054, T-350
   readonly onSide: InstantOnSide
   readonly walk: WorkingTimeWalk
   readonly minutesPerDay: number
@@ -179,13 +171,10 @@ interface Facts extends Structure {
   readonly linksOf: ReadonlyMap<number, readonly Link[]>
   readonly successorsOf: ReadonlyMap<number, readonly number[]>
   readonly achievedOnOf: ReadonlyMap<number, string>
-  // see DW-3, FR-136, JDG-2902
   readonly originUids: ReadonlySet<number>
-  // see VO-4, FA-25, JDG-2900
   readonly bareTaskGroupAboveOf: ReadonlyMap<number, string>
 }
 
-// Spec: BD-1, BD-2, T-314
 // Why: instants and working minutes (FR-054); the quantities are counted in minutes, never in days.
 interface Flow {
   readonly earliestStart: number
@@ -207,6 +196,7 @@ interface PushOuts {
   readonly quantities: readonly DelayQuantities[]
 }
 
+// Spec: IMPS-565, IMPS-566
 /** @purity pure */
 function isFinished(task: Task): boolean {
   return planActualState(task) === 'finished'
@@ -336,6 +326,7 @@ function columnsOf(task: Task, names: readonly ScalarColumn[]): Record<string, F
   return values
 }
 
+// Spec: IMPS-562
 /** @purity pure */
 function findingOf(row: string, task: Task, values: Record<string, FindingValue>,
                    proposedActualFinish: string | null = null): DelayFinding {
@@ -360,7 +351,7 @@ function taskGroupDepthByTask(schedule: Schedule): ReadonlyMap<number, number> {
   return new Map(schedule.taskGroupMembers.map((member) => [member.taskUid, depthOf(member.taskGroupId)]))
 }
 
-// Spec: IP-1
+// Spec: IP-1, IMPS-695
 /** @purity pure */
 function encloses(parent: Task, child: Task): boolean {
   const outer = plannedEnds(parent)
@@ -370,7 +361,7 @@ function encloses(parent: Task, child: Task): boolean {
   return compareDays(outer.start, inner.start) <= 0 && compareDays(inner.finish, outer.finish) <= 0
 }
 
-// Spec: FR-135
+// Spec: IMPS-695, IMPS-696
 // Why: a point holds no span, so a stated parent that is a milestone is read as no parent and the child is derived.
 /** @purity pure */
 function statedParentUidOf(task: Task, byUid: ReadonlyMap<number, Task>): number | null {
@@ -378,7 +369,7 @@ function statedParentUidOf(task: Task, byUid: ReadonlyMap<number, Task>): number
   return parent?.milestone === true ? null : task.parentTaskUid
 }
 
-// Spec: FR-135, IP-2, IP-3
+// Spec: FR-135, IP-2, IP-3, IMPS-694
 /** @purity pure */
 function derivedParentsOf(tasks: readonly Task[], byUid: ReadonlyMap<number, Task>, taskGroupDepthOf: ReadonlyMap<number, number>,
                           tasksAtDepth: ReadonlyMap<number, readonly Task[]>): ReadonlyMap<number, ParentDerivation> {
@@ -407,7 +398,7 @@ function parentTasksOf(tasks: readonly Task[], byUid: ReadonlyMap<number, Task>,
   return parents
 }
 
-// Spec: DG-3, DX-4
+// Spec: DG-3, DX-4, IMPS-607, IMPS-608
 /** @purity pure */
 function ancestorsOf(uid: number, parentOf: ReadonlyMap<number, number>): readonly number[] {
   const chain: number[] = []
@@ -427,7 +418,7 @@ function latestMilestones(tasks: readonly Task[]): readonly Task[] {
   return milestones.filter((task) => sameDay(plannedEnds(task).finish, latest.day))
 }
 
-// Spec: MP-1, MP-2, MP-3
+// Spec: MP-1, MP-2, MP-3, IMPS-1438
 /** @purity pure */
 function milestoneLinksOf(milestone: Task, taskGroupDepthOf: ReadonlyMap<number, number>,
                           tasksAtDepth: ReadonlyMap<number, readonly Task[]>,
@@ -450,11 +441,10 @@ function milestoneLinksOf(milestone: Task, taskGroupDepthOf: ReadonlyMap<number,
     .map((task) => ({ predecessorUid: task.uid, linkType: FINISH_TO_START, lagMinutes: 0 }))
 }
 
-// Spec: VC-15, BD-2, FR-009, AT-47
 // Why: 7, 5 and 3 are the d, h and m formats FR-009 reads (mspdi_pj12.xsd LagFormat); the value is always tenths of a minute.
 const READ_LAG_FORMATS: ReadonlySet<number> = new Set([7, 5, 3])
 
-// Spec: VC-15, BD-2, FR-009, AT-47
+// Spec: VC-15, BD-2, FR-009, AT-47, IMPS-359, IMPS-360
 // Trap: null means the format is not read, never "no lag"; a zero lag is zero whatever its format.
 // Why: rounding down never makes a bound later, so a lag with a fraction of a minute cannot raise a contradiction.
 /** @purity pure */
@@ -465,7 +455,7 @@ export function lagMinutesOf(dependency: Dependency): number | null {
   return Math.floor(lag / TENTHS_OF_A_MINUTE)
 }
 
-// Spec: T-214, S-119, S-120
+// Spec: IMPS-932
 /** @purity pure */
 function acceptedSerialOf(text: string): number {
   const day = dayOf(text)
@@ -473,7 +463,6 @@ function acceptedSerialOf(text: string): number {
   return serial(day)
 }
 
-// Spec: T-214, S-119, S-120
 const ACCEPTED_SERIALS = {
   from: acceptedSerialOf(SETTINGS_CONSTANTS.importMinDate),
   to: acceptedSerialOf(SETTINGS_CONSTANTS.importMaxDate),
@@ -522,7 +511,7 @@ function statedLinksOf(task: Task, byUid: ReadonlyMap<number, Task>): readonly L
     }))
 }
 
-// Spec: MP-4
+// Spec: MP-4, IMPS-1429, IMPS-1432
 /** @purity pure */
 function achievedOn(milestone: Task, links: readonly Link[], byUid: ReadonlyMap<number, Task>): string | null {
   if (milestone.milestone !== true || milestone.actualFinish !== null || links.length === 0) return null
@@ -553,7 +542,7 @@ function membersByTaskGroup(schedule: Schedule): ReadonlyMap<string, readonly nu
   return members
 }
 
-// see DW-3, FR-136, JDG-2902
+// Spec: DW-3, FR-136, IMPS-1433
 // Why: a milestone with no predecessor that heads its own task group by date starts that row; no Task drawn on the row
 // starts before it, so a missing predecessor there is the shape of a kickoff, not a forgotten line.
 /** @purity pure */
@@ -572,7 +561,7 @@ function originUidsOf(schedule: Schedule, byUid: ReadonlyMap<number, Task>,
   return origins
 }
 
-// see VO-4, FA-25, IP-1, JDG-2900
+// Spec: VO-4, FA-25, IP-1
 // Why: a task whose parent cannot be derived because the task group above it draws no span bar; the name of that task
 // group is the warning (the report prints it with the finding's values).
 /** @purity pure */
@@ -591,6 +580,7 @@ function bareTaskGroupAboveOf(schedule: Schedule, byUid: ReadonlyMap<number, Tas
   return bare
 }
 
+// Spec: IMPS-1432
 /** @purity pure */
 function factsOf(schedule: Schedule, calendar: WorkingCalendar, statusDate: CalendarDay): Facts {
   const structure = structureOf(schedule)
@@ -710,7 +700,7 @@ function dependencyShapeContradictions(facts: Facts): readonly DelayFinding[] {
   return found
 }
 
-// Spec: VC-4, VC-5, VC-6, VC-7, VC-8
+// Spec: VC-4, VC-5, VC-6, VC-7, VC-8, IMPS-578
 /** @purity pure */
 function columnContradictions(task: Task): readonly DelayFinding[] {
   const found: DelayFinding[] = []
@@ -751,7 +741,7 @@ function parentContradictions(parent: Task, children: readonly Task[]): readonly
   return found
 }
 
-// Spec: VC-11, FR-054
+// Spec: VC-11, FR-054, IMPS-578
 /** @purity pure */
 function plannedSpanContradictions(parent: Task, children: readonly Task[]): readonly DelayFinding[] {
   const childStart = extremeEnd(children, plannedEnds, 'start', 'start', false)
@@ -764,7 +754,7 @@ function plannedSpanContradictions(parent: Task, children: readonly Task[]): rea
   })]
 }
 
-// Spec: VC-12, FR-054
+// Spec: VC-12, FR-054, IMPS-578
 /** @purity pure */
 function actualSpanContradictions(parent: Task, children: readonly Task[], isEveryChildFinished: boolean): readonly DelayFinding[] {
   const childActualStart = extremeEnd(children, actualEnds, 'start', 'actualStart', false)
@@ -807,7 +797,7 @@ function orderContradictions(facts: Facts, task: Task): readonly DelayFinding[] 
   return found
 }
 
-// Spec: T-310
+// Spec: IMPS-562
 /** @purity pure */
 function contradictionsOf(facts: Facts): readonly DelayFinding[] {
   return [
@@ -870,7 +860,7 @@ interface PointOfTask {
   readonly day: CalendarDay
 }
 
-// Spec: VS-6, T-022, FR-014, S-487
+// Spec: VS-6, T-022, FR-014, S-487, IMPS-571
 // Why: a leaf with no vertex is read at the status date, as the progress line passes there (FR-014).
 /** @purity pure */
 function progressSpreadSuspicion(facts: Facts, parent: Task, toleranceDays: number): readonly DelayFinding[] {
@@ -908,7 +898,7 @@ function workingMinutesBetweenDays(calendar: WorkingCalendar, from: CalendarDay,
   return workingMinutesBetween(calendar, serial(from) * MINUTES_PER_CALENDAR_DAY, serial(to) * MINUTES_PER_CALENDAR_DAY)
 }
 
-// Spec: T-311
+// Spec: IMPS-562, IMPS-571, IMPS-580
 /** @purity pure */
 function suspicionsOf(facts: Facts, toleranceDays: number): readonly DelayFinding[] {
   const found: DelayFinding[] = []
@@ -927,7 +917,7 @@ function suspicionsOf(facts: Facts, toleranceDays: number): readonly DelayFindin
   return found
 }
 
-// Spec: VO-1, VO-2, FR-054
+// Spec: VO-1, VO-2, FR-054, IMPS-583
 /** @purity pure */
 function rowOmissions(facts: Facts, task: Task): readonly DelayFinding[] {
   const found: DelayFinding[] = []
@@ -960,7 +950,7 @@ function successorOmissions(facts: Facts, task: Task): readonly DelayFinding[] {
   })
 }
 
-// Spec: T-312
+// Spec: IMPS-562, IMPS-699, IMPS-1436, IMPS-1437
 /** @purity pure */
 function omissionsOf(facts: Facts): readonly DelayFinding[] {
   const found: DelayFinding[] = []
@@ -980,6 +970,7 @@ function omissionsOf(facts: Facts): readonly DelayFinding[] {
   return found
 }
 
+// Spec: DW-1
 /** @purity pure */
 function downstreamOf(uid: number, successorsOf: ReadonlyMap<number, readonly number[]>): readonly number[] {
   const seen = new Set([uid])
@@ -997,7 +988,7 @@ function downstreamOf(uid: number, successorsOf: ReadonlyMap<number, readonly nu
   return reached
 }
 
-// Spec: T-316
+// Spec: IMPS-599, IMPS-1433, DW-1, DW-2
 /** @purity pure */
 function wallsOf(facts: Facts, contradictions: readonly DelayFinding[]): Walls {
   const walls: AnalysisWall[] = []
@@ -1087,7 +1078,7 @@ function boundOf(facts: Facts, link: Link, flows: ReadonlyMap<number, Flow>, len
   }
 }
 
-// Spec: BD-1, FR-011
+// Spec: BD-1, FR-011, IMPS-594
 // Why: a started task without a stop has worked at least up to the FR-011 floor (S-129 working days).
 /** @purity pure */
 function remainingMinutesOf(facts: Facts, task: Task, actualStart: number, length: number): number {
@@ -1110,7 +1101,7 @@ function startedFinishOf(facts: Facts, task: Task, actualStart: number, finish: 
   return laterInstant(finish, resumed)
 }
 
-// Spec: BD-1, BD-2
+// Spec: BD-1, BD-2, IMPS-593
 /** @purity pure */
 function estimatedFinishOf(facts: Facts, task: Task, children: readonly Flow[],
                            earliestStart: number, finish: number, length: number): number {
@@ -1145,7 +1136,7 @@ function holdingBoundsOf(facts: Facts, task: Task, flows: ReadonlyMap<number, Fl
     .filter(isHeldBy)
 }
 
-// Spec: BD-2, BD-3, T-314
+// Spec: BD-2, BD-3, T-314, IMPS-590, IMPS-591, IMPS-595
 /** @purity pure */
 function flowOf(facts: Facts, task: Task, flows: ReadonlyMap<number, Flow>): Flow | null {
   const { start, finish } = plannedInstants(facts, task)
@@ -1169,6 +1160,7 @@ function flowOf(facts: Facts, task: Task, flows: ReadonlyMap<number, Flow>): Flo
   }
 }
 
+// Spec: IMPS-599
 /** @purity pure */
 function flowsOf(facts: Facts, cut: ReadonlySet<number>): ReadonlyMap<number, Flow> {
   const nodes = new Set(facts.tasks.filter((task) => !cut.has(task.uid)).map((task) => task.uid))
@@ -1196,7 +1188,7 @@ function spreadFrom(terminalUid: number, delay: number, flows: ReadonlyMap<numbe
   return given
 }
 
-// Spec: BD-4, DQ-4, DX-5
+// Spec: BD-4, DQ-4, DX-5, IMPS-590, IMPS-591
 /** @purity pure */
 function pushOutsOf(facts: Facts, flows: ReadonlyMap<number, Flow>, undiagnosable: ReadonlySet<number>): PushOuts {
   const terminals: TerminalPushOut[] = []
@@ -1227,7 +1219,6 @@ function pushOutsOf(facts: Facts, flows: ReadonlyMap<number, Flow>, undiagnosabl
   return { terminals, quantities }
 }
 
-// Spec: T-315
 /** @purity pure */
 function markerStatesOf(facts: Facts, unreliable: ReadonlySet<number>, bottlenecks: readonly Bottleneck[]): readonly DelayMarkerState[] {
   const red = new Set(bottlenecks.map((one) => one.uid))
@@ -1241,13 +1232,13 @@ function markerStatesOf(facts: Facts, unreliable: ReadonlySet<number>, bottlenec
   })
 }
 
-// Spec: FR-133, VO-1
+// Spec: FR-133, VO-1, IMPS-615, IMPS-617, IMPS-618, IMPS-619
 /** @purity pure */
 function isNotDueYet(task: Task, statusDayOnSide: CalendarDay): boolean {
   return !isStarted(task) && isBefore(statusDayOnSide, plannedEnds(task).start)
 }
 
-// Spec: FR-133, T-315
+// Spec: FR-133, T-315, IMPS-615, IMPS-616, IMPS-620, IMPS-621, IMPS-623
 // Why: only the drawn mark drops, so markerStates (DX-8) stays; DG-4 is left out, the geometry draws it as PM-4.
 /** @purity pure */
 export function diagnosedMarkerRowsOf(report: DelayDiagnosticsReport, schedule: Schedule): ReadonlyMap<number, 'DG-1' | 'DG-2' | 'DG-3'> {
@@ -1266,7 +1257,7 @@ export function diagnosedMarkerRowsOf(report: DelayDiagnosticsReport, schedule: 
   return rows
 }
 
-// Spec: VO-3, VO-5, VS-6, DG-1
+// Spec: VO-3, VO-5, VS-6, DG-1, IMPS-1436, IMPS-579, IMPS-582
 // Why: the tasks these rows name are DG-1 but no wall; the doubt reaches only one recorded date, so the flow goes on.
 /** @purity pure */
 function uidsWith(findings: readonly DelayFinding[], row: 'VO-3' | 'VO-5' | 'VS-6'): ReadonlySet<number> {
@@ -1291,7 +1282,7 @@ function lateDaysOf(facts: Facts): readonly LateDays[] {
   })
 }
 
-// Spec: DG-2, DX-9, S-397, TX-8
+// Spec: DG-2, DX-9, S-397, TX-8, IMPS-592
 // Why: S-397 counts working days, and TX-8 shows a push-out rounded up to whole days (30 minutes is 1d),
 // so a push-out counts against S-397 as the days it is shown with; any minute that pushes is at least 1d.
 /** @purity pure */
@@ -1299,7 +1290,7 @@ function pushOutWorkingDaysOf(quantities: DelayQuantities, minutesPerDay: number
   return Math.ceil(quantities.pushOutMinutes / minutesPerDay)
 }
 
-// Spec: FR-130, FR-131, FR-132, FR-133, FR-134
+// Spec: FR-130, FR-131, FR-132, FR-133, FR-134, DX-1, IMPS-625, TV-10, IMPS-589, IMPS-600, IMPS-601, IMPS-547, IMPS-550, IMPS-579, IMPS-582
 /** @purity pure */
 export function diagnoseDelay(document: DiagnosedDocument, calendar: WorkingCalendar,
                               bottleneckMinPushOutDays = NOT_STORED_BOTTLENECK_THRESHOLD['S-397']): DelayDiagnosticsReport {
@@ -1320,11 +1311,9 @@ export function diagnoseDelay(document: DiagnosedDocument, calendar: WorkingCale
   const omissions = omissionsOf(facts)
   const suspicions = suspicionsOf(facts, project.parentTaskProgressToleranceDays)
   const omittedFinishUids = uidsWith(omissions, 'VO-3')
-  // Spec: DG-1, VS-6
   const doubted = new Set([
     ...unreliable, ...omittedFinishUids, ...uidsWith(omissions, 'VO-5'), ...uidsWith(suspicions, 'VS-6'),
   ])
-  // Spec: VO-3, DG-2
   const bottlenecks = pushing.filter((one) => isOpen(one.uid) && !omittedFinishUids.has(one.uid))
     .map((one) => ({ ...one, path: ancestorsOf(one.uid, facts.parentOf) }))
   return {
@@ -1353,7 +1342,7 @@ function nearestEndDays(bar: Task, child: Task): number {
   return gaps.length === 0 ? Number.POSITIVE_INFINITY : Math.min(...gaps)
 }
 
-// Spec: IP-4
+// Spec: IP-4, IMPS-1405
 /** @purity pure */
 export function parentCandidatesOf(document: DiagnosedDocument, taskUid: number): readonly number[] {
   const { byUid, taskGroupDepthOf, tasksAtDepth, parentOf } = structureOf(document.schedule)
@@ -1376,7 +1365,6 @@ export function parentCandidatesOf(document: DiagnosedDocument, taskUid: number)
     .map((one) => one.bar.uid)
 }
 
-// Spec: FR-135, IP-2, IP-4, IP-5, VO-4
 export type ParentTaskResolution =
   | { readonly kind: 'stated'; readonly parentUid: number }
   | { readonly kind: 'derived'; readonly parentUid: number }
@@ -1384,7 +1372,7 @@ export type ParentTaskResolution =
   | { readonly kind: 'undecided'; readonly candidates: readonly number[]; readonly enclosing: number }
   | { readonly kind: 'root' }
 
-// Spec: FR-135, IP-2, IP-4, IP-5, VO-4
+// Spec: FR-135, IP-2, IP-4, IP-5, VO-4, IMPS-696, PTL-11
 // Why: read off the same derivation the report uses, so the arrows and the diagnosis never disagree on a parent.
 // Why: onlyTaskUid answers one Task (PTL-15), so a panel showing one child does not order every undecided child's candidates.
 /** @purity pure */

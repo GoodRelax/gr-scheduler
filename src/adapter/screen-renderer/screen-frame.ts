@@ -69,7 +69,7 @@ function scrollbarIn(
   }
 }
 
-// Spec: FR-052, GR-22, S-99h, WF-4
+// Spec: FR-052, GR-22, S-99h, WF-4, IMPS-1766, IMPS-1798, IMPS-1799
 // Why: a put-away panel's boundary is the screen's right edge, the only place to grab the vertical bar;
 // a fixed task group title width lays no band there, so nothing grabs it and the pointer keeps its shape.
 /** @purity pure */
@@ -82,7 +82,7 @@ function dividersOf(regions: ScreenRegions, settings: DocumentSettings, session:
   return [...taskGroupTitle, properties]
 }
 
-// Spec: FR-051
+// Spec: IMPS-1773
 // Why: on the canvas bottom edge, so canvasPadding lies between the task groups and the bar, not under it.
 /** @purity pure */
 function horizontalTrackOf(regions: ScreenRegions, thickness: number): ScreenRect {
@@ -95,7 +95,7 @@ function horizontalTrackOf(regions: ScreenRegions, thickness: number): ScreenRec
   }
 }
 
-// Spec: FR-051, FR-052, SC-4
+// Spec: FR-051, FR-052, SC-4, IMPS-1767, IMPS-1768, IMPS-1769
 /** @purity pure */
 export function screenFrameFromRegions(
   regions: ScreenRegions,

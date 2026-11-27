@@ -40,7 +40,6 @@ const HELP_MODAL = 'Help Window'
 
 const ICON_TABLE = 'T-109'
 
-// Spec: WB-4
 const MAXIMIZE_ICON: IconId = 'IC-130'
 const RESTORE_ICON: IconId = 'IC-131'
 
@@ -50,7 +49,6 @@ const OPEN_CHOOSER = 'Open File Dialog'
 
 const CLOSE_SURFACE_ENTRY: IconId = 'IC-52'
 
-// Spec: FR-035, OP-16, PI-37
 export const UNTITLED_DOCUMENT_TITLE = 'Untitled'
 
 const OPEN_CHOOSER_WORDS_BY_PART = new Map(displayWords.openChooser.map((entry) => [entry.part, entry]))
@@ -71,7 +69,6 @@ const IMPORT_REPORT = 'Import Report'
 
 const HOLIDAY_SETTINGS = HOLIDAY_SETTINGS_SURFACE
 
-// Spec: T-103, T-280
 const SURFACE_OF_ROW: ReadonlyMap<string, string> = new Map([
   ['U-54', EXPORT_CHOOSER],
   ['U-56', OPEN_CHOOSER],
@@ -87,7 +84,7 @@ const MISSING_TASKS_REASON = 'RS-73'
 
 const NEWER_FORMAT_VERSION_REASON = 'RS-48'
 
-// Spec: FR-073
+// Spec: IMPS-1319, IMPS-1005
 /** @purity pure */
 function unreadWords(readings: ScreenViewReadings, language: DisplayLanguage): {
   readonly unreadText: string
@@ -120,12 +117,11 @@ function missingWords(readings: ScreenViewReadings, language: DisplayLanguage): 
   return { missingTaskNames, missingText: said.text, missingNextStep: said.nextStep }
 }
 
-// Spec: T-233
 const PRINTED_REASON_ORDER: readonly string[] = Object.keys(NOTICE_DISPLAY_OF_REASON)
 
 type ReportedReason = Pick<ImportReportLine, 'reason' | 'count' | 'names'>
 
-// Spec: U-62, FR-076, MG-14
+// Spec: U-62, FR-076, MG-14, IMPS-937
 /** @purity pure */
 function reportLinesOf(readings: ScreenViewReadings, language: DisplayLanguage): readonly ImportReportLine[] {
   const named: readonly ReportedReason[] = [
@@ -141,7 +137,7 @@ function reportLinesOf(readings: ScreenViewReadings, language: DisplayLanguage):
     })
 }
 
-// Spec: U-62, FR-023, MG-14
+// Spec: U-62, FR-023, MG-14, IMPS-937
 /** @purity pure */
 function importReportWords(readings: ScreenViewReadings, language: DisplayLanguage) {
   return {
@@ -160,7 +156,7 @@ const FORMAT_NAME_BY_TASK_GROUP = new Map(
   displayWords.exportFormats.map((entry) => [entry.specTableRowId, entry]),
 )
 
-// Spec: FR-096
+// Spec: IMPS-1033, IMPS-1038, IMPS-1039
 /** @purity pure */
 function exportFormatChoices(
   language: DisplayLanguage,
@@ -176,7 +172,7 @@ const NO_WORDS = ''
 
 const FIT_SPAN_WORD = displayWords.exportChooser.find((entry) => entry.part === 'fitSpan')
 
-// Spec: FR-096, IX-12, FX-1, FX-8
+// Spec: FR-096, IX-12, FX-1, FX-8, IMPS-1045, IMPS-1046
 /** @purity pure */
 function fitSpanLineOf(settings: DocumentSettings, language: DisplayLanguage): string | null {
   if (fixedFitSpanOf(settings) === null || FIT_SPAN_WORD === undefined) return null
@@ -187,10 +183,8 @@ function fitSpanLineOf(settings: DocumentSettings, language: DisplayLanguage): s
 
 const HEADINGS_BY_SURFACE = new Map(displayWords.surfaces.map((entry) => [entry.name, entry]))
 
-// Spec: FN-1
 const FILE_NAME_REPLACED = /[\s\\/:*?"<>|\x00-\x1f\x7f]/g
 
-// Spec: FN-2
 const FILE_NAME_DROPPED = /[^\x00-\x7f]/g
 
 const FILE_NAME_RUNS = /_+/g
@@ -199,10 +193,9 @@ const FILE_NAME_ENDS = /^[_. ]+|[_. ]+$/g
 
 const FILE_NAME_JOINER = '_'
 
-// Spec: FN-5
 const FILE_NAME_WHEN_EMPTY = 'schedule'
 
-// Spec: T-352, FR-096, RW-7
+// Spec: T-352, FR-096, RW-7, FN-1, FN-2, FN-3, FN-4, IMPS-1051
 /** @purity pure */
 export function exportNameBodyOf(documentName: string): string {
   return documentName
@@ -212,7 +205,7 @@ export function exportNameBodyOf(documentName: string): string {
     .replace(FILE_NAME_ENDS, NO_WORDS)
 }
 
-// Spec: FR-096, FN-5
+// Spec: FR-096, FN-5, IMPS-1036
 /** @purity pure */
 export function exportFileNameOf(documentName: string, extension: string): string {
   const body = exportNameBodyOf(documentName)
@@ -260,7 +253,6 @@ const HELP_NOTES_BY_ROW = new Map(displayWords.helpNotes.map((entry) => [entry.s
 
 const HELP_LINKS_BY_KEY = new Map(displayWords.helpLinks.map((entry) => [entry.link, entry]))
 
-// Spec: FR-036, IC-20
 // Why: a link that stands on an item names its T-109 row in the dictionary (helpLinks agentApi on IC-20).
 const HELP_LINKS_BY_ROW = new Map(
   displayWords.helpLinks.flatMap((entry) => (entry.specTableRowId === undefined ? [] : [[entry.specTableRowId, entry] as const])),
@@ -282,7 +274,7 @@ const BROWSER_FUNCTION_TABLE = 'T-255'
 
 type HelpRosterEntry = (typeof helpRoster.entries)[number]
 
-// Spec: FR-036, S-350
+// Spec: IMPS-1145
 // Why: the download page switches its own language (default English), so its address carries no ?lang.
 /** @purity pure */
 function helpDownloadLink(language: DisplayLanguage): HelpLink {
@@ -292,7 +284,7 @@ function helpDownloadLink(language: DisplayLanguage): HelpLink {
   }
 }
 
-// Spec: FR-036, S-583
+// Spec: IMPS-1145
 /** @purity pure */
 function helpAboutLink(language: DisplayLanguage): HelpLink {
   return {
@@ -301,7 +293,7 @@ function helpAboutLink(language: DisplayLanguage): HelpLink {
   }
 }
 
-// Spec: FR-036, IC-20, S-350
+// Spec: IMPS-1157
 // Why: the link on an item follows its name, so the item's text stays the icon label alone.
 /** @purity pure */
 function helpEntryLink(entry: HelpRosterEntry, language: DisplayLanguage): HelpLink | null {
@@ -311,7 +303,7 @@ function helpEntryLink(entry: HelpRosterEntry, language: DisplayLanguage): HelpL
   return { words: link.text[language], address: downloadPageAddress() }
 }
 
-// Spec: FR-036
+// Spec: IMPS-1156
 /** @purity pure */
 function withNote(label: string, note: string | null, language: DisplayLanguage): string {
   if (note === null) return label
@@ -319,7 +311,7 @@ function withNote(label: string, note: string | null, language: DisplayLanguage)
   return word === undefined || word === '' ? label : `${label} ${word}`
 }
 
-// Spec: FR-036, FR-038
+// Spec: IMPS-1142, IMPS-1148, IMPS-1177
 // Trap: an item's word is its own row's; an entrance item takes the icon label, never a shortcut word.
 /** @purity pure */
 function helpText(entry: HelpRosterEntry, language: DisplayLanguage): string {
@@ -343,7 +335,6 @@ function helpPress(entry: HelpRosterEntry, language: DisplayLanguage): string | 
   return word === undefined || word === '' ? null : word
 }
 
-// Spec: FR-036
 /** @purity pure */
 function helpEntries(language: DisplayLanguage): readonly HelpEntry[] {
   return helpRoster.entries.map((entry) => helpEntry(entry, language))
@@ -396,7 +387,6 @@ function commandItemFor(icon: IconId, language: DisplayLanguage): CommandItem {
   }
 }
 
-// Spec: FR-029
 /** @purity pure */
 function commandsOnSurface(surface: string, language: DisplayLanguage): readonly CommandItem[] {
   return iconRoster.icons
@@ -404,7 +394,7 @@ function commandsOnSurface(surface: string, language: DisplayLanguage): readonly
     .map((row) => commandItemFor(row.specTableRowId, language))
 }
 
-// Spec: FR-069
+// Spec: IMPS-1088
 /** @purity pure */
 function helpLegalWords(language: DisplayLanguage): HelpModal['helpLegal'] {
   return {
@@ -458,7 +448,6 @@ function openChooserOf(session: ScreenSession, heading: string, commands: readon
   }
 }
 
-// Spec: T-280, S-99g, T-103
 // Why: the session names a surface by its U row; the drawing names it by the glossary word of that row.
 /** @purity pure */
 function openSurfaceNameOf(session: ScreenSession): string | null {
@@ -467,7 +456,7 @@ function openSurfaceNameOf(session: ScreenSession): string | null {
   return SURFACE_OF_ROW.get(open.surfaceName) ?? null
 }
 
-// Spec: FR-036, FR-038, T-335, HN-4
+// Spec: FR-036, FR-038, T-335, HN-4, WB-4, HN-6
 /** @purity pure */
 export function helpModalFromSession(session: ScreenSession, area: HelpWindowArea): HelpModal | null {
   const help = session.screen.helpDisplayState
@@ -503,7 +492,6 @@ interface SurfaceFrame {
   readonly language: DisplayLanguage
 }
 
-// Spec: U-65, FR-088, T-280
 /** @purity pure */
 function holidaySettingsOrBare(frame: SurfaceFrame): OpenModal {
   const { session, schedule, surface, heading, commands, language } = frame
@@ -511,7 +499,7 @@ function holidaySettingsOrBare(frame: SurfaceFrame): OpenModal {
   return holidaySettingsOf(session, schedule, heading, commands, language)
 }
 
-// Spec: FR-029, FR-038
+// Spec: FR-029, FR-038, IMPS-901, WM-6, WM-7
 /** @purity pure */
 export function openModalFromSession(
   session: ScreenSession,

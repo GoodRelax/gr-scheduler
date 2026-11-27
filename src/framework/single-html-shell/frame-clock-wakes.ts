@@ -21,7 +21,7 @@ interface RepeatTimes {
   readonly intervalMs: number
 }
 
-// Spec: FR-018, T-206
+// Spec: FR-018, T-206, IMPS-774
 /** @purity pure */
 export function repeatTimesOfHeldEntry(): RepeatTimes {
   return {
@@ -42,7 +42,6 @@ export function frameClockWakesOf(hands: FrameClockWakesHands) {
   let hintTargetEnteredAt: number | null = null
   let callOffIconHintWait: (() => void) | null = null
   let callOffEntryRepeat: (() => void) | null = null
-  // Spec: SE-3, SE-4
   let callOffScaleMessage: (() => void) | null = null
 
   // Spec: EZ-6, S-439
@@ -85,7 +84,7 @@ export function frameClockWakesOf(hands: FrameClockWakesHands) {
     callOffScaleMessage = () => clearTimeout(wake)
   }
 
-  // Spec: FR-018, S-172, T-289
+  // Spec: IMPS-774
   /** @purity non-pure */
   function beginEntryRepeat(): void {
     endEntryRepeat()

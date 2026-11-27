@@ -17,7 +17,7 @@ const BL_2_X = '横は、`start` から `finish` までを、予定バーと同�
 
 interface Outline {
   readonly taskUid: number
-  readonly kind: string
+  readonly bar: Bar
   readonly box: { readonly x: number; readonly y: number; readonly width: number; readonly height: number }
 }
 
@@ -88,7 +88,7 @@ describe('BL-2 -- the outline is placed with the plan bar\'s conversion from a d
   it(`BL-2 「${BL_2_X}」: minute level, 04:15 to 08:15 on one day -- the box spans the plan bar's left and right, not the whole day`, () => {
     const texts = { start: '2026-03-10T04:15:00', finish: '2026-03-10T08:15:00' }
     const { outline, plan } = sameTexts(texts, MINUTES)
-    expect(outline.kind).toBe('rectangle')
+    expect(outline.bar.form).toBe('outline')
     expect(outline.box.x, BL_2_X).toBeCloseTo(plan.left, 6)
     expect(outline.box.x + outline.box.width, BL_2_X).toBeCloseTo(plan.right, 6)
 
@@ -100,7 +100,7 @@ describe('BL-2 -- the outline is placed with the plan bar\'s conversion from a d
 
   it(`BL-2 「${BL_2_X}」: minute level, 03-09 13:00 to 03-11 10:30 -- the box spans the plan bar's left and right`, () => {
     const { outline, plan } = sameTexts({ start: '2026-03-09T13:00:00', finish: '2026-03-11T10:30:00' }, MINUTES)
-    expect(outline.kind).toBe('rectangle')
+    expect(outline.bar.form).toBe('outline')
     expect(outline.box.x, BL_2_X).toBeCloseTo(plan.left, 6)
     expect(outline.box.x + outline.box.width, BL_2_X).toBeCloseTo(plan.right, 6)
   })
@@ -108,7 +108,7 @@ describe('BL-2 -- the outline is placed with the plan bar\'s conversion from a d
   it(`BL-2 「${BL_2_X}」: minute level milestone at 09:00 -- the diamond is centred on where the plan bar places that instant`, () => {
     const texts = { start: '2026-03-10T09:00:00', finish: '2026-03-10T09:00:00', milestone: true }
     const { outline } = sameTexts(texts, MINUTES)
-    expect(outline.kind).toBe('diamond')
+    expect(outline.bar.form).toBe('outline')
     // Why: a plan milestone stub has a minimum width that begins at the instant, so its centre is not the instant;
     // the left edge of a plain bar with the same start text is (BL-2 centres the diamond on the start position).
     const atStart = sameTexts({ start: texts.start, finish: '2026-03-10T12:00:00' }, MINUTES).plan.left
@@ -117,14 +117,14 @@ describe('BL-2 -- the outline is placed with the plan bar\'s conversion from a d
 
   it(`BL-2 「${BL_2_X}」: day level, date-only texts 03-06 to 03-14 -- the box equals the plan bar (day-level documents unchanged)`, () => {
     const { outline, plan } = sameTexts({ start: '2026-03-06', finish: '2026-03-14' }, DAYS)
-    expect(outline.kind).toBe('rectangle')
+    expect(outline.bar.form).toBe('outline')
     expect(outline.box.x, BL_2_X).toBeCloseTo(plan.left, 6)
     expect(outline.box.x + outline.box.width, BL_2_X).toBeCloseTo(plan.right, 6)
   })
 
   it(`BL-2 「${BL_2_X}」: day level, finish 03-14T00:00:00 on both the baseline and the Task -- the box equals the plan bar (FR-054 reads both alike)`, () => {
     const { outline, plan } = sameTexts({ start: '2026-03-06T00:00:00', finish: '2026-03-14T00:00:00' }, DAYS)
-    expect(outline.kind).toBe('rectangle')
+    expect(outline.bar.form).toBe('outline')
     expect(outline.box.x, BL_2_X).toBeCloseTo(plan.left, 6)
     expect(outline.box.x + outline.box.width, BL_2_X).toBeCloseTo(plan.right, 6)
   })

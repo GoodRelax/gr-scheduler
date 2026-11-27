@@ -84,7 +84,7 @@
 | `DC` | Dual Cursor | `Dual Cursor` の操作の条 | 仕様書 | `T-029a` | 9 |
 | `DEV` | Device | 配置図に載る機器（⛔ `D-` は台帳の欠陥の行と紛れるので使わない。<br>`words` は発明した語ではない） | 仕様書 | `T-007` | 6 |
 | `DF` | — | 文書の形の条 —— 交換相手の木をどう写し、解釈しない要素をどこへ置くか | 仕様書 | `T-053` | 5 |
-| `DFC` | Defect | 台帳に載る欠陥（⛔ `D-` は配置図の機器と紛れるので使わない） | 台帳 | `docs/development-records/defects.md` ／ `docs/development-records/fixed-defects.md` ／ `docs/development-records/history/backlog-plan-2026-10-04.md` ／ `docs/development-records/history/evidence/measured-2026-09-06.md` ／ `docs/development-records/history/evidence/measured-2026-09-07.md` ／ `docs/development-records/history/evidence/order-2026-09-06.md` | 1947 |
+| `DFC` | Defect | 台帳に載る欠陥（⛔ `D-` は配置図の機器と紛れるので使わない） | 台帳 | `docs/development-records/defects.md` ／ `docs/development-records/fixed-defects.md` ／ `docs/development-records/history/backlog-plan-2026-10-04.md` ／ `docs/development-records/history/evidence/measured-2026-09-06.md` ／ `docs/development-records/history/evidence/measured-2026-09-07.md` ／ `docs/development-records/history/evidence/order-2026-09-06.md` | 1953 |
 | `DG` | — | 遅延診断が進捗ステータスマークに与える状態 | 仕様書 | `T-315` | 4 |
 | `DI` | Document Identity | 同じ文書かどうかの見分け方と、上書きの確認の条 | 仕様書 | `T-227` | 6 |
 | `DL` | Delay | 遅れの量の数え方の場合分け | 仕様書 | `T-021b` | 3 |
@@ -139,7 +139,7 @@
 | `IR` | Interaction Record | 人の操作と画面の描画の記録に、描いたフレームごとに書く画面の状態 | 仕様書 | `T-263` | 4 |
 | `IV` | Invariant | 文書が満たす不変条件 | 仕様書（台帳にも 1 行。コピーとして申告済み） | `T-220` | 23 |
 | `IX` | Image eXport | 画像の書き出しの規則の条 | 仕様書 | `T-241` | 16 |
-| `JDG` | Judgment | 利用者の裁定（⛔ `R-` はデータの経路と紛れるので使わない。<br>`RL` が「実体のあいだの関係」であり `RLG-` は 1 字違い、`RUL-` は「規則」と紛れるので選ばなかった） | 台帳 | `docs/development-records/rulings.md` | 2368 |
+| `JDG` | Judgment | 利用者の裁定（⛔ `R-` はデータの経路と紛れるので使わない。<br>`RL` が「実体のあいだの関係」であり `RLG-` は 1 字違い、`RUL-` は「規則」と紛れるので選ばなかった） | 台帳 | `docs/development-records/rulings.md` | 2369 |
 | `JF` | — | `src/` の `.json` の置き場 | 仕様書 | `T-248` | 4 |
 | `K` | Key | 設定値のキー 1 つ | 仕様書 | `T-104` | 132 |
 | `L` | Level of Detail | 表示量の増減（LOD）の種別 | 仕様書 | `T-005a` | 2 |
@@ -168,7 +168,7 @@
 | `OC` | Occupancy | 形状の占有幅に算入するもの | 仕様書 | `T-038` | 10 |
 | `OD` | Off Day | 非稼働日の塗り（表 T-343） | 仕様書 | `T-343` | 7 |
 | `OP` | Open | 文書を開くときの規則の条 | 仕様書（台帳にも 1 行。コピーとして申告済み） | `T-024a` | 20 |
-| `OPQ` | Open Question | 仕様が決めていない振る舞いの、未決の問い（付録 A.3 の一覧。<br>レビュー基準書の付録 A.3。<br>開いた `PND` の行がここへ移る） | 仕様書 | —（`DOC-APPENDIX` の無題の表） | 26 |
+| `OPQ` | Open Question | 仕様が決めていない振る舞いの、未決の問い（付録 A.3 の一覧。<br>レビュー基準書の付録 A.3。<br>開いた `PND` の行がここへ移る） | 仕様書 | —（`DOC-APPENDIX` の無題の表） | 27 |
 | `OR` | Order | 形状の外へ出すものの左右の並びの条 | 仕様書 | `T-243` | 1 |
 | `OW` | Owner | 要求の持ち主の区分（どのユニットから開くか） | 仕様書 | `T-277` | 5 |
 | `P` | Property | 画面に出すプロパティの語 | 仕様書 | `T-102` | 22 |
@@ -209,6 +209,7 @@
 | `RW` | — | 遅延診断レポートの窓が検索ウィンドウと違う所 | 仕様書 | `T-346` | 20 |
 | `S` | Setting | 設定値 1 つ。<br>一連の通し番号を主題ごとに複数の表へ割っているだけであり、同じ綴りが別のものを指しているのではない | 仕様書 | `T-201` ／ `T-202` ／ `T-203` ／ `T-216` ／ `T-204` ／ `T-205` ／ `T-206` ／ `T-333` ／ `T-207` ／ `T-236` ／ `T-294` ／ `T-212` ／ `T-211` ／ `T-213` ／ `T-214` ／ `T-215` ／ `T-210` ／ `T-209` ／ `T-208` ／ `T-217` | 523 |
 | `SC` | Scroll | 何がスクロールし、何がしないか | 仕様書 | `T-031` | 6 |
+| `SCN` | Scenario | ユースケーステストの Gherkin のシナリオ 1 本。<br>ユースケースの道を具体的な値で確かめる。<br>シナリオは docs/spec/08-10-test.md の 8.1（ANMS v0.36 の 6.2）に書き、ここの行は @manual のシナリオの結果である | 台帳 | `docs/development-records/test-records/manual-scenarios.md` | 18 |
 | `SD` | State-machine Definition | ステートマシンの原稿が持つものの条 | 仕様書 | `T-250` | 5 |
 | `SE` | Scale Echo | 表示の倍率を変えたときに出す、いまの倍率を示すメッセージの出し方と消え方 | 仕様書 | `T-260` | 5 |
 | `SF` | State-machine Form | ステートマシンの形の条 | 仕様書 | `T-249` | 10 |

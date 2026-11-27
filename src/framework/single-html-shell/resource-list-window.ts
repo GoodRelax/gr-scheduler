@@ -13,11 +13,12 @@ import {
   type IconId,
   type TableWindowState,
 } from '../../adapter/screen-renderer/screen-renderer'
+import { UI_PART_NAMES } from '../../adapter/screen-renderer/screen-renderer'
 import { DELAY_DIAGNOSTICS_REPORT_SURFACE } from './delay-diagnostics-report-window'
 import type { HeldTableWindows, ShownTasksHold } from './shown-tasks-hold'
 import { CONFIRMATION_MANNER, NOTHING_TO_DO_REASON, isQuestionAskedIn, type FrameLoopHands, type FrameValues } from './frame-loop'
 
-export const RESOURCE_LIST_SURFACE = 'Resource List'
+export const RESOURCE_LIST_SURFACE = UI_PART_NAMES['U-49']
 
 const SCHEDULE_FILTER_BAR_SURFACE = 'Filtered by Checks Bar'
 
@@ -29,7 +30,6 @@ const RESOURCE_DELETE_ENTRY: IconId = 'IC-66'
 
 const TEXT_SIZE_ENTRY: IconId = 'IC-127'
 
-// Spec: RO-1, RO-6, S-545, S-546
 export type ResourceListWindow = TableWindowState
 
 interface ResourceListRows {
@@ -62,14 +62,14 @@ export function scheduleFilterLetGoOf(table: VisibilityTable, view: TableView): 
   return { kind: 'setTableView', table, view: { ...view, visibility: { ...view.visibility, isScheduleFilterApplied: false } } }
 }
 
-// Spec: RO-1, WB-6, S-546
+// Spec: RO-1, WB-6, S-546, IMPS-282
 /** @purity pure */
 export function tableWindowReopened<W extends TableWindowState>(held: W | null, closed: W | null, opened: W): W {
   if (held === null) return closed === null ? opened : { ...closed, shown: 'normal', isInFront: true }
   return { ...held, shown: held.shown === 'minimized' ? 'normal' : held.shown, isInFront: true }
 }
 
-// Spec: T-370, RO-1, RO-2, RO-3, SV-7, SV-8, WB-2, WB-3, TV-8, UN-20
+// Spec: T-370, RO-1, RO-2, RO-3, SV-7, SV-8, WB-2, WB-3, TV-8, UN-20, IMPS-279
 /** @purity non-pure */
 function answerResourceListEntry(
   entry: IconId,
@@ -115,7 +115,7 @@ export function answerTableWindowEntry(
   return false
 }
 
-// Spec: RO-10, FR-099, CD-5
+// Spec: RO-10, FR-099, CD-5, IMPS-267, IMPS-273, IMPS-274
 /** @purity non-pure */
 function answerResourceDeletion(hands: FrameLoopHands, frame: FrameValues): boolean {
   const chosen = hands.readSession().selection.chosenResources

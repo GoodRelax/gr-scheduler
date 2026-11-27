@@ -46,7 +46,6 @@ import {
 
 export type { SvgSurface } from './svg-surface'
 
-// Spec: FR-133, SQ-5, DT-1
 export { markerGlyphSvg } from './schedule-task-figures'
 
 export type SchedulePicture = 'screen' | 'export'
@@ -58,19 +57,16 @@ export { jumpLandingRingOf } from './schedule-overlays'
 export { rulerClockRowsOf } from './schedule-grid'
 export type { RulerClockRow } from './schedule-grid'
 
-// Spec: DC-2, DC-8
 export interface DualCursorFollow {
   readonly side: 'cursorA' | 'cursorB'
   readonly x: number | null
 }
 
-// Spec: FR-020
 export interface Watermark {
   readonly openedBy: string
   readonly stampedAt: string
 }
 
-// Spec: PI-19, CA-1, IF-1
 export interface BeneathPointerReading {
   readonly guideCursorPoint: Point | null
   readonly pointerInsideDummyTaskUids: readonly number[]
@@ -96,7 +92,6 @@ export function beneathPointerReadingOf(
 
 const OFF_SCREEN_SIDE_MARGIN = 0.25
 
-// Spec: PE-0, FR-105
 // Why: the chart's own surface, not a stopped default: MK-12 leaves the browser its defaults, and PE-0 takes out the one of them that starts a text selection.
 // Trap: the prefixed spelling first, so a viewer that reads only that one still obeys PE-0.
 const NO_TEXT_SELECTION_STYLE = '-webkit-user-select:none;user-select:none'
@@ -184,7 +179,7 @@ export function isScheduleColorRow(specTableRowId: string): boolean {
   return SCHEDULE_COLORS[specTableRowId] !== undefined
 }
 
-// Spec: FR-041
+// Spec: FR-041, IMPS-168
 /** @purity pure */
 export function achromatic(color: string): string {
   const asHsl = /^hsla?\(\s*[\d.]+\s*[, ]\s*[\d.]+%\s*[, ]\s*([\d.]+)%/.exec(color.trim())
@@ -198,7 +193,7 @@ export function achromatic(color: string): string {
   return `hsl(0 0% ${rounded(lightness * 100)}%)`
 }
 
-// Spec: T-236, FR-041, CF-1
+// Spec: T-236, FR-041, CF-1, IMPS-129, IMPS-137, IMPS-138, IMPS-139, IMPS-140, IMPS-146, IMPS-160, IMPS-169
 // Why: a row whose cell names another row (S-527, S-528) is drawn as that row, so it shifts with it (T-366).
 /** @purity pure */
 export function colorOf(specTableRowId: string, hue: number, dark: boolean, monochrome: boolean): string {
@@ -216,7 +211,6 @@ interface ThemeSolve {
   readonly groundSaturation: number | null
 }
 
-// Spec: T-366, CF-2, CF-4
 const SHIFT_RATIO_ROW_OF: Readonly<Record<string, 'S-522' | 'S-523' | 'S-524' | 'S-525'>> = {
   'S-155': 'S-522',
   'S-156': 'S-523',
@@ -228,7 +222,6 @@ const GROUND_ROW = 'S-146'
 
 const CT_FLOOR = { 'CT-3': 3, 'CT-4': 3, 'CT-5': 1.3 } as const
 
-// Spec: CF-5, NFR-007
 const TEXT_ON_GROUND_FLOOR = 4.5
 const TEXT_ROWS_ON_GROUND = ['S-147', 'S-148', 'S-503'] as const
 const LINE_ROWS_ON_GROUND = ['S-159', 'S-160', 'S-163', 'S-195', 'S-312', 'S-364'] as const
@@ -259,7 +252,7 @@ function shiftDeltaOf(specTableRowId: string, shift: number, dark: boolean): num
   return (dark ? 1 : -1) * shift * NOT_STORED_THEME_SOLVE[ratioRow]
 }
 
-// Spec: CF-2, CF-4
+// Spec: CF-2, CF-4, IMPS-147
 /** @purity pure */
 function solvedCellOf(specTableRowId: string, written: string, solve: ThemeSolve, dark: boolean): string {
   const delta = shiftDeltaOf(specTableRowId, solve.shift, dark)
@@ -301,7 +294,7 @@ function shiftedThemeCellOf(specTableRowId: string, shift: number, dark: boolean
   return solvedCellOf(specTableRowId, themeCellOf(specTableRowId, dark), { shift, groundSaturation: null }, dark)
 }
 
-// Spec: CF-3, CT-3, CT-4, CT-5
+// Spec: CF-3, CT-3, CT-4, CT-5, IMPS-1267, IMPS-130
 /** @purity pure */
 function meetsShiftFloors(hue: number, dark: boolean, monochrome: boolean, shift: number): boolean {
   const ground = measuredCellOf(withSaturation(themeCellOf(GROUND_ROW, dark), 0), hue, monochrome)
@@ -315,6 +308,7 @@ function meetsShiftFloors(hue: number, dark: boolean, monochrome: boolean, shift
   )
 }
 
+// Spec: IMPS-130, IMPS-147
 /** @purity pure */
 function shiftOf(hue: number, dark: boolean, monochrome: boolean): number {
   const cap = NOT_STORED_THEME_SOLVE['S-521']
@@ -335,7 +329,7 @@ function shiftedGroundPairsOf(hue: number, dark: boolean, shift: number): readon
   return pairs.map(([cell, floor]) => [relativeLuminance(measuredCellOf(cell, hue, false)), floor] as const)
 }
 
-// Spec: CF-5, CV-8, T-294
+// Spec: CF-5, CV-8, T-294, NFR-007
 // Why: these inks do not follow the hue, so they are measured once per light/dark, not once per hue.
 /** @purity pure */
 function fixedGroundPairsOf(dark: boolean): readonly GroundPair[] {
@@ -362,7 +356,7 @@ function groundPasses(hue: number, dark: boolean, pairs: readonly GroundPair[], 
     (Math.max(ink, groundLuminance) + LUMINANCE_OFFSET) / (Math.min(ink, groundLuminance) + LUMINANCE_OFFSET) >= floor)
 }
 
-// Spec: CF-4, S-526
+// Spec: CF-4, S-526, IMPS-130, IMPS-147
 /** @purity pure */
 function groundSaturationOf(hue: number, dark: boolean, shift: number, fixed: readonly GroundPair[]): number | null {
   const pairs = [...shiftedGroundPairsOf(hue, dark, shift), ...fixed]
@@ -380,6 +374,7 @@ function groundSaturationOf(hue: number, dark: boolean, shift: number, fixed: re
   return found >= top ? null : found
 }
 
+// Spec: IMPS-146
 // Why: monochrome draws S-146 gray whatever its saturation, so CF-4's 0 is the table's own cell grayed.
 /** @purity pure */
 function solvedThemeOf(hue: number, dark: boolean, monochrome: boolean, fixed: readonly GroundPair[]): ThemeSolve {
@@ -417,10 +412,8 @@ function themedColors(hue: number, dark: boolean, monochrome: boolean): (specTab
   return (specTableRowId) => colorOf(specTableRowId, hue, dark, monochrome)
 }
 
-// Spec: CV-6
 export type ColorForm = keyof PaletteForms
 
-// Spec: CV-6
 export type ChosenColor = (stored: string | null, form: ColorForm) => string | null
 
 const NOT_DRAWN = 'none'
@@ -457,7 +450,6 @@ function hueSector(red: number, green: number, blue: number, high: number, chrom
   return (red - green) / chroma + 4
 }
 
-// Spec: CV-10
 interface Hsl {
   readonly h: number
   readonly s: number
@@ -526,7 +518,7 @@ function contrastRatioOf(a: readonly [number, number, number], b: readonly [numb
   return (Math.max(lumA, lumB) + LUMINANCE_OFFSET) / (Math.min(lumA, lumB) + LUMINANCE_OFFSET)
 }
 
-const ACTUAL_TO_PICK_CONTRAST_TARGET = 3 // Spec: CT-3
+const ACTUAL_TO_PICK_CONTRAST_TARGET = 3
 
 // Spec: CV-10
 /** @purity pure */
@@ -548,7 +540,7 @@ function lightnessCandidateOf(pick: Hsl, delta: number): number {
   return Math.min(bounds['S-416'], Math.max(bounds['S-415'], pick.l + delta))
 }
 
-// Spec: CV-10
+// Spec: CV-10, IMPS-133
 /** @purity pure */
 function lightnessOfActual(
   pick: Hsl,
@@ -568,7 +560,7 @@ function lightnessOfActual(
   return floorRatio >= ceilingRatio ? floor.l : ceiling.l
 }
 
-// Spec: CV-6, CV-10
+// Spec: CV-6, CV-10, IMPS-132, IMPS-134
 /** @purity pure */
 export function actualOfCustom(hex: string, dark: boolean, monochrome: boolean): string {
   const pick = hexToHsl(hex)
@@ -578,7 +570,7 @@ export function actualOfCustom(hex: string, dark: boolean, monochrome: boolean):
   return `hsl(${rounded(pick.h)} ${rounded(s)}% ${rounded(l)}%)`
 }
 
-// Spec: CV-6, CV-3, T-294
+// Spec: CV-6, CV-3, T-294, IMPS-122, IMPS-127, IMPS-128
 /** @purity pure */
 function drawnChoice(
   stored: string,
@@ -600,7 +592,7 @@ function drawnChoice(
   return form === 'actual' ? actualOfCustom(side, dark, monochrome) : side
 }
 
-// Spec: CV-6, CV-7, FR-041
+// Spec: CV-6, CV-7, FR-041, IMPS-126
 // Why: null keeps the theme's color: nothing chosen, or a form the chosen name offers no value for.
 /** @purity pure */
 function chosenColorOf(
@@ -616,7 +608,6 @@ function chosenColorOf(
   return monochrome ? achromatic(drawn) : drawn
 }
 
-// Spec: CV-9, T-236
 const THEME_ROW_OF_FORM: Readonly<Record<ColorForm, string>> = {
   fill: 'S-155',
   outline: 'S-156',
@@ -653,12 +644,13 @@ export function swatchOf(
 
 export const GROUP_GRID_LINE_WIDTH_PX = 1
 
-// Spec: FR-039, S-246
+// Spec: FR-039, S-246, IMPS-1215, IMPS-1216
 /** @purity pure */
 export function typefaceAttribute(): string {
   return ` font-family="${escaped(NOT_STORED_TYPEFACES['S-246'])}"`
 }
 
+// Spec: NS-4
 // Trap: SVG ids are document-wide; an id not unique to the picture collides when an export is drawn into the screen's document.
 /** @purity pure */
 function pictureId(seed: string): string {
@@ -670,7 +662,7 @@ function pictureId(seed: string): string {
   return (hash >>> 0).toString(36)
 }
 
-// Spec: T-020
+// Spec: IMPS-1739, IMPS-399
 // Trap: one group per row of table T-020, pinned half first: the seam reads the order off this string.
 /** @purity pure */
 function zoLayer(row: string, drawn: readonly string[]): readonly string[] {
@@ -679,7 +671,7 @@ function zoLayer(row: string, drawn: readonly string[]): readonly string[] {
   return [`<g data-zo="${row}">${inner}</g>`]
 }
 
-// Spec: FR-051, EP-5
+// Spec: FR-051, EP-5, IMPS-1772, IMPS-1774, IMPS-1746
 // Why: drawn only on the ground the task group bands paint (no scrollbar band, no canvasPadding under task groups).
 // Trap: one clip per layer; one group around them all, halo mask inside, paints 3-4x slower (DFC-1132).
 /** @purity pure */
@@ -701,7 +693,6 @@ function groundClipped(
   ]
 }
 
-// Spec: IF-1
 /** @purity pure */
 function pictureSizeOf(regions: ScreenRegions): { readonly width: number; readonly height: number } {
   return {
@@ -710,7 +701,7 @@ function pictureSizeOf(regions: ScreenRegions): { readonly width: number; readon
   }
 }
 
-// Spec: FR-080, T-020, T-076
+// Spec: FR-080, T-020, T-076, FR-105, BL-3, IMPS-1450, IMPS-1412, IMPS-1622, IMPS-1623, IMPS-1739, IMPS-1740, IMPS-1741, IMPS-1743, IMPS-1744, ZO-1, ZO-11, ZO-12, ZO-1a, ZO-4, ZO-7, EP-6, GD-7
 // Trap: snapshot-source.ts reads Parameters<typeof svgFromSchedule>[3] and [4] by position; insert no parameter ahead of regions.
 /** @purity pure */
 export function svgFromSchedule(
@@ -853,7 +844,6 @@ export function svgFromSchedule(
     )
   }
 
-  // Spec: FR-009
   // Why: FR-009 calls it a tentative dependency line, so it takes the line's own color, width and head.
   const tentative = drawsOperationState ? tentativeLink : null
   const tentativeArrowId = `grs-tentative-arrow-${pictureId(`${rounded(width)}x${rounded(height)}`)}`
@@ -872,7 +862,6 @@ export function svgFromSchedule(
             ` marker-end="url(#${tentativeArrowId})"/>`,
         ]
 
-  // Spec: T-020
   // Trap: the rows run back to front in the order the table prints them, not in row-ID order.
   const parts = [
     ...defsParts,
@@ -928,7 +917,7 @@ export function svgFromSchedule(
   )
 }
 
-// Spec: IF-1, ZO-6, SL-3
+// Spec: IF-1, ZO-6, SL-3, FR-105, IMPS-1741, IMPS-1747
 // Why: the size, viewBox and clip box of the picture beneath, under its own clip id (one document); never exported (FR-080).
 /** @purity pure */
 export function marqueeOverlaySvg(
@@ -1253,6 +1242,5 @@ export const WATERMARK_MARKS: {
 }
 // </generated>
 
-// Spec: CF-1
 // Why: solved once per hue, light/dark and monochrome when the module loads, never per frame; colorOf reads it.
 const SOLVED_THEMES = solvedThemeTableOf()

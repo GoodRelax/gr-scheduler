@@ -8,13 +8,12 @@ import { xOfInstant, type ScheduleLayout } from '../schedule-layout/schedule-lay
 import type { ScreenRegions } from '../screen-regions/screen-regions'
 import type { DualCursorGeometry } from './schedule-geometry'
 
-// Spec: S-65, DC-6
 export interface DualCursorDates {
   readonly cursorADate: string
   readonly cursorBDate: string
 }
 
-// Spec: CU-2, S-65, DC-3
+// Spec: CU-2, S-65, DC-3, DC-6
 // Why: a placed date is read as its instant; one placed without time of day is the day's 00:00, its column's left edge.
 /** @purity pure */
 export function dualCursorGeometry(

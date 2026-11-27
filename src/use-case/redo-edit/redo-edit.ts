@@ -18,7 +18,7 @@ export type RedoOutcome =
       readonly commands: readonly string[]
     }
 
-// Spec: FR-031, PI-12
+// Spec: FR-031, PI-12, IMPS-204
 /** @purity pure */
 export function redoEdit(held: HeldDocument): RedoOutcome {
   const moved = nextStep(held.history, (step) => ({ ...step, document: held.document }))

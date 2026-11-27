@@ -9,7 +9,6 @@ import type { ScreenRect } from '../screen-regions/screen-regions'
 import { placedEndOf, plannedPlacementsOf, unseenEndStubOf, type LinkEnd } from './dependency-route'
 import { point, type GeometryInputs, type Path, type Point } from './schedule-geometry'
 
-// Spec: FR-135, T-351
 export interface ParentTaskFamilies {
   readonly resolutions: ReadonlyMap<number, ParentTaskResolution>
   readonly ownerUids: readonly number[]
@@ -17,7 +16,6 @@ export interface ParentTaskFamilies {
   readonly selectedLinkChildUids: ReadonlySet<number>
 }
 
-// Spec: FR-135, S-19, S-300, S-485, S-486
 export interface ParentTaskArrowGeometry {
   readonly childUid: number
   readonly parentUid: number
@@ -28,13 +26,11 @@ export interface ParentTaskArrowGeometry {
   readonly hitPoints: Path
   readonly hitWidth: number
   readonly dash: readonly [number, number] | null
-  // Spec: FR-135, EL-20, TV-3
   // Trap: optional so literals compile; absent draws no mark, the same as an empty list.
   readonly continuationDots?: readonly Point[]
   readonly continuationRadius?: number
 }
 
-// Spec: FR-135, VO-4, IP-4
 export interface ParentTaskCandidateGeometry {
   readonly uid: number
   readonly order: number
@@ -56,7 +52,6 @@ export interface ParentTaskGeometry {
   readonly highlightedParentUid: number | null
 }
 
-// Spec: FR-135
 // Why: three, as the ruling's sample showed; more numbers than that crowd the bars they ring.
 const SHOWN_CANDIDATE_COUNT = 3
 
@@ -73,7 +68,7 @@ function middleXOf(end: LinkEnd): number {
   return end.x + end.width / 2
 }
 
-// Spec: FR-135, S-19, S-300
+// Spec: IMPS-1409, IMPS-1410, IMPS-1411
 // Why: the bend sits one head length above the child, so a bent arrow never runs along the child's own top edge.
 /** @purity pure */
 function arrowOf(inputs: GeometryInputs, child: LinkEnd, parent: LinkEnd, resolution: ParentTaskResolution,
@@ -107,7 +102,7 @@ function arrowOf(inputs: GeometryInputs, child: LinkEnd, parent: LinkEnd, resolu
   }
 }
 
-// Spec: FR-135, EL-20, TV-3
+// Spec: FR-135, EL-20, TV-3, IMPS-1408
 // Why: the far end is the one the filter leaves undrawn; the stub stands on the seen end, up from a child and down from a parent.
 /** @purity pure */
 function stubOf(inputs: GeometryInputs, seen: LinkEnd, isChildSeen: boolean, childUid: number, parentUid: number,
@@ -136,7 +131,7 @@ function stubOf(inputs: GeometryInputs, seen: LinkEnd, isChildSeen: boolean, chi
   }
 }
 
-// Spec: FR-135, VO-4, IP-4
+// Spec: FR-135, VO-4, IP-4, IMPS-1416
 /** @purity pure */
 function queryOf(child: LinkEnd, fontSize: number, candidates: readonly number[],
                  endByUid: ReadonlyMap<number, LinkEnd>): ParentTaskQueryGeometry {
@@ -170,7 +165,7 @@ function childrenByParentOf(resolutions: ReadonlyMap<number, ParentTaskResolutio
   return children
 }
 
-// see FR-135, T-351, JDG-1131
+// Spec: FR-135, T-351, IMPS-1406, IMPS-1407, IMPS-1408, IMPS-697
 // Why: only the owners' families, never every pair: one sheet full of arrows reads as nothing (JDG-1131).
 /** @purity pure */
 export function parentTaskGeometryOf(inputs: GeometryInputs, families: ParentTaskFamilies | null): ParentTaskGeometry {

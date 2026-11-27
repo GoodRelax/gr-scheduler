@@ -25,7 +25,7 @@ import {
 } from './input-command-translator'
 import { taskGroupPointIn, topEdgeIn, unstoredZoomWrites, zoomOnScreen } from './zoom-and-fit'
 
-// Spec: FR-039, S-234
+// Spec: IMPS-1229, IMPS-1232, IMPS-1233
 /** @purity pure */
 function steppedDisplayScale(
   current: DocumentSettings['displayScale'],
@@ -52,7 +52,7 @@ function withDisplayScaleShown(
   return { ...answer, displayScaleShown: { end } }
 }
 
-// Spec: FR-039, CM-74, SE-1, SE-5
+// Spec: FR-039, CM-74, SE-1, SE-5, IMPS-1234
 /** @purity pure */
 export function displayScaleStep(context: InputContext, towards: 1 | -1): TranslatedInput {
   const next = steppedDisplayScale(context.document.documentSettings.displayScale, towards)
@@ -73,7 +73,7 @@ function taskGroupAreaWidthAt(context: InputContext, next: DocumentSettings['dis
   return context.regions.taskGroupArea.width + held - moved
 }
 
-// Spec: FR-039, DS-1
+// Spec: FR-039, DS-1, IMPS-1234, IMPS-1255, IMPS-1256, IMPS-1257
 /** @purity pure */
 function displayScaleWrites(
   context: InputContext,

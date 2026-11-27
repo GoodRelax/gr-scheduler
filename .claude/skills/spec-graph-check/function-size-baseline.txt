@@ -1,4 +1,5 @@
 excess-lines=5151 excess-branches=461
+# PRUNED task-group-panel.ts::panelIndexOf (held 72/20, now below the band) on 2026-11-27 (CR-862, FR-098): the folded counts moved to foldedCountsOf and the deepest-first walk to deepestFirstOf, so a pin drawn under a hide adds no count. Totals left for the coordinator to lower.
 # PRUNED armed-placement.ts::commandFromArmed (held 51/16, now below the band) on 2026-10-23 (CR-767 wave 2, FR-019): the highlight box placement moved to highlightBoxPlacement. Totals left for the coordinator to lower.
 # LOWERED totals 5170/465 -> 5151/461 on 2026-11-27 (JDG-520): B12 moved the pure part of tentativeDependencyOf (held 65/19) into LinkTasks, split in two below the band; the HELD line leaves.
 # LOWERED totals 5744/509 -> 5383/467 and every HELD line to its measured value on 2026-10-23 (JDG-520): the wave 2 cleanup shrank the held functions; no HELD line rose, the key set is unchanged.
@@ -81,7 +82,6 @@ HELD src/adapter/input-command-translator/selection-input.ts::selectionFromInput
 HELD src/adapter/input-command-translator/shortcut-keys.ts::commandFromKey lines=77 branches=63
 HELD src/adapter/input-command-translator/wheel-input.ts::commandFromWheel lines=53 branches=17
 HELD src/adapter/screen-renderer/open-modals.ts::openModalFromSession lines=57 branches=8
-HELD src/adapter/screen-renderer/task-group-panel.ts::panelIndexOf lines=72 branches=20
 HELD src/adapter/screen-renderer/task-group-panel.ts::taskGroupPanelFromSchedule lines=52 branches=12
 HELD src/adapter/svg-renderer/schedule-grid.ts::rulerSvg lines=67 branches=10
 HELD src/adapter/svg-renderer/schedule-overlays.ts::overlayParts lines=84 branches=12

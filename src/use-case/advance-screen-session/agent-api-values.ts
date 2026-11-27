@@ -60,7 +60,6 @@ type EventOf<T extends AgentApiValuesEvent['type']> = Extract<AgentApiValuesEven
 
 const ENABLED: AgentApiEnablingState = { kind: 'enabled' }
 
-// Spec: T-296
 export const emptyAgentApiValues: AgentApiValues = { ...AGENT_API_VALUES_INITIAL_AXES }
 
 // Why: the root cell stores the value after the press (S-99b); only turning it off tells RS-20 (FR-065).

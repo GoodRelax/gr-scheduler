@@ -49,7 +49,6 @@ const ADD_TOP_ROW_ENTRY = 'IC-93'
 
 const DELETE_EVERY_ROW_ENTRY = 'IC-106'
 
-// Spec: HF-10, HF-12
 // Why: one line, left to right; each entry's step from the right edge is read from here only.
 const HEAD_RUN = [
   COLLAPSE_EVERY_ROW_ENTRY,
@@ -114,7 +113,6 @@ const ROW_CONTROL_PAIR_CELLS = {
 
 const TASK_GROUP_CONTROL_LEFTMOST_STEP = TASK_GROUP_CONTROL_STEPS.foldingGrid + 1
 
-// Spec: HF-1, HF-4
 const TASK_GROUP_CONTROL_RANKS = 2
 
 // Spec: HF-1, LF-16
@@ -137,7 +135,7 @@ function taskGroupControlGroundStyle(leftmostStepsFromEdge: number): string {
   )
 }
 
-// Spec: FR-029, S-243
+// Spec: IMPS-1103, IMPS-1104
 /** @purity pure */
 function taskGroupControlBoxPx(): number {
   return entranceOuterWidthPx('S-243')
@@ -158,7 +156,7 @@ function taskGroupControlBoxStyle(): string {
   )
 }
 
-// Spec: FR-029, S-243
+// Spec: IMPS-1103
 /** @purity pure */
 function taskGroupControlGlyphGapStyle(): string {
   return `margin:${entranceGapPx('S-243')}px 0;`
@@ -337,7 +335,7 @@ interface TaskGroupAnchors {
   readonly taskGroupId: string
 }
 
-// see FR-029, HF-5, T-109, IN-3, DFC-1720
+// Spec: FR-029, HF-5, T-109, IN-3
 /** @purity non-pure */
 function taskGroupControlElement(
   host: Document,
@@ -359,7 +357,7 @@ function taskGroupControlElement(
   return control
 }
 
-// Spec: FR-098, GR-20, HF-4, HF-15, HF-18
+// Spec: FR-098, GR-20, HF-4, HF-15, HF-18, IMPS-1965, IMPS-1968, IMPS-1969, IMPS-1971, EN-3, IMPS-791, IMPS-1972, IMPS-1987, IMPS-793
 /** @purity non-pure */
 function taskGroupTitleElement(host: Document, title: TaskGroupTitle, isPinned: boolean, anchoredIn: TaskGroupAnchors): HTMLElement {
   const row = made(
@@ -526,7 +524,7 @@ function panelCornerRightPx(stepsFromEdge: number): number {
   return NOT_STORED_TASK_GROUP_CONTROL_EDGE_SIZES['S-313'] + panelCornerStepPx() * stepsFromEdge
 }
 
-// Spec: FR-029, S-237
+// Spec: IMPS-1104
 // Trap: step by the width the host paints; a border thinner than one device pixel is
 // painted at 1px, so the box outgrows entranceOuterWidthPx and the entries lap (DFC-160).
 /** @purity pure */
@@ -581,7 +579,7 @@ function markHeadEntry(
   markPanelCornerEntry(entry, headStepFromEdge(icon), canAct)
 }
 
-// Spec: HF-10, HF-12, HF-16, HF-17, HF-20
+// Spec: HF-10, HF-12, HF-16, HF-17, HF-20, IMPS-1987, IMPS-1988
 /** @purity non-pure */
 export function headEntryElements(host: Document): HeadEntries {
   return {
@@ -616,7 +614,6 @@ export function taskGroupsTopPx(panel: TaskGroupPanel): number | null {
   return top
 }
 
-// see FR-017, FR-156, JDG-2043
 // Why: right-aligned in its box; a box narrower than the words clips them on the left (flex-end overflows leftward).
 /** @purity non-pure */
 function rulerAbbreviationElement(host: Document, abbreviation: RulerAbbreviation): HTMLElement {

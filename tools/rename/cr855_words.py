@@ -99,6 +99,43 @@ def replace_all(text, rows):
     return ''.join(out), counts
 
 
+# The frozen contract manuscripts (JDG-3807) keep their words, and so do the
+# tables printed from them; a test that quotes them must keep the same words.
+FROZEN_PRINTED = ('docs/spec/_assets/tbl-agent-api-members.md',
+                  'docs/spec/_assets/tbl-document-commands.md')
+TEST_LITERAL = re.compile(r"'(?:[^'\\\n]|\\.){6,}'|\"(?:[^\"\\\n]|\\.){6,}\"")
+HOLE = '\x00'
+
+
+def frozen_text():
+    parts = []
+    for name in agr.FROZEN - {'glossary.json'}:
+        path = os.path.join(ROOT, 'docs', 'spec', '_source', name)
+        if os.path.exists(path):
+            parts.append(agr.read(path))
+    for rel_path in FROZEN_PRINTED:
+        path = os.path.join(ROOT, rel_path)
+        if os.path.exists(path):
+            parts.append(agr.read(path))
+    return '\n'.join(parts)
+
+
+def replace_outside_frozen_quotes(text, rows, frozen):
+    """replace_all, but a quoted string the frozen manuscripts hold word for
+    word is left as it is."""
+    kept = []
+
+    def hide(m):
+        if m.group(0)[1:-1] in frozen:
+            kept.append(m.group(0))
+            return '%s%d%s' % (HOLE, len(kept) - 1, HOLE)
+        return m.group(0)
+    hidden = TEST_LITERAL.sub(hide, text)
+    changed, counts = replace_all(hidden, rows)
+    changed = re.sub(HOLE + r'(\d+)' + HOLE, lambda m: kept[int(m.group(1))], changed)
+    return changed, counts
+
+
 def glossary_strings(doc):
     """The definition dicts of glossary.json this tool may edit."""
     for term in doc['terms']:
@@ -114,6 +151,7 @@ def run(mode, list_path=None):
     total = {r['no']: 0 for r in rows}
     files = 0
     listing = []
+    frozen = frozen_text()
     for path in agr.target_files():
         text = agr.read(path)
         if mode == 'list':
@@ -122,7 +160,10 @@ def run(mode, list_path=None):
                     if r['mode'] == 'read' and r['regex'].search(line):
                         listing.append((agr.rel(path), number, r['no'], line.strip()))
             continue
-        changed, counts = replace_all(text, rows)
+        if agr.rel(path).startswith('tests/'):
+            changed, counts = replace_outside_frozen_quotes(text, rows, frozen)
+        else:
+            changed, counts = replace_all(text, rows)
         if counts:
             files += 1
             for no, n in counts.items():

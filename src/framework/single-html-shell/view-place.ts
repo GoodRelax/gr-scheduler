@@ -60,7 +60,6 @@ function firstRowIdOf(held: Document): string | null {
 
 const HALF = 2
 
-// Spec: S-534
 /** @purity pure */
 function startupMarginPx(): number {
   return (

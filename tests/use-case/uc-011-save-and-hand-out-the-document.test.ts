@@ -20,10 +20,10 @@ const exportSvg = (page: Page): Promise<string> => page.evaluate(() => (window a
 // Spec: T-231
 const normalizedSvg = (svg: string): string => svg.replace(STAMP, 'STAMP').replace(/-?\d+\.\d+/g, (n) => Number(n).toFixed(2)).replace(/>\s+</g, '><')
 
-test('UC-011 save the document and hand it out (FR-096, FR-024, FR-080, FR-025, T-204 S-81, FR-027, FR-095)', async ({ page }) => {
+test('SCN-40 SCN-42 SCN-43 UC-011 save the document and hand it out (FR-096, FR-024, FR-080, FR-025, T-204 S-81, FR-027, FR-095) @UC-011.OK', async ({ page }) => {
   test.setTimeout(120000)
 
-  await test.step('UC-011 extension 1a: with nothing of one\'s own yet, one starting template is shown (FR-027, BT-4)', async () => {
+  await test.step('SCN-42 UC-011.OK: with nothing of one\'s own yet, one starting template is shown (FR-027, BT-4)', async () => {
     await launch(page)
     await enableAgentApi(page)
     const doc = await readDocument(page)
@@ -32,13 +32,13 @@ test('UC-011 save the document and hand it out (FR-096, FR-024, FR-080, FR-025, 
   })
 
   let saved = { name: '', text: '' }
-  await test.step('UC-011 step 1: the author saves as JSON (IC-2, IO-2)', async () => {
+  await test.step('SCN-40 UC-011.OK: the author saves as JSON (IC-2, IO-2)', async () => {
     saved = await saveAs(page, 'IO-2')
     expect(saved.name.endsWith('.json')).toBe(true)
     expect(saved.text.trimStart().startsWith('{')).toBe(true)
   })
 
-  await test.step('UC-011 step 2: that JSON carries enough to draw the same picture again (FR-024, OP-6)', async () => {
+  await test.step('SCN-40 UC-011.OK: that JSON carries enough to draw the same picture again (FR-024, OP-6)', async () => {
     const pictureBefore = normalizedSvg(await exportSvg(page))
     const documentBefore = await readDocument(page)
     await openByDrop(page, saved.name, saved.text)
@@ -58,7 +58,7 @@ test('UC-011 save the document and hand it out (FR-096, FR-024, FR-080, FR-025, 
     expect(normalizedSvg(await exportSvg(page)) === viewSet).toBe(true)
   })
 
-  await test.step('UC-011 step 3: the author writes the schedule out as images (IO-3, IO-4)', async () => {
+  await test.step('SCN-40 UC-011.OK: the author writes the schedule out as images (IO-3, IO-4)', async () => {
     const svg = await saveAs(page, 'IO-3')
     expect(svg.name.endsWith('.svg')).toBe(true)
     expect(svg.text.startsWith('<svg')).toBe(true)
@@ -67,7 +67,7 @@ test('UC-011 save the document and hand it out (FR-096, FR-024, FR-080, FR-025, 
     expect(png.text.slice(1, 4)).toBe('PNG')
   })
 
-  await test.step('UC-011 step 4: the output size is a constant of the tool, the font size lives in the document, and the same document gives the same output (S-81, S-70, NS-5)', async () => {
+  await test.step('SCN-40 UC-011.OK: the output size is a constant of the tool, the font size lives in the document, and the same document gives the same output (S-81, S-70, NS-5)', async () => {
     const settings = (await readDocument(page)).documentSettings
     const size = SETTINGS_CONSTANTS.exportCanvas
     const first = await saveAs(page, 'IO-3')
@@ -81,7 +81,7 @@ test('UC-011 save the document and hand it out (FR-096, FR-024, FR-080, FR-025, 
     expect(reopened.documentSettings.fontSizeStep).toBe(settings.fontSizeStep)
   })
 
-  await test.step('UC-011 extension 1b: starting anew asks first, then shows the empty document (FR-095, OP-4, T-342 BK-1 BK-2)', async () => {
+  await test.step('SCN-43 UC-011.OK: starting anew asks first, then shows the empty document (FR-095, OP-4, T-342 BK-1 BK-2)', async () => {
     await press(page, 'IC-23')
     await drag(page, { x: 1500, y: 1000 }, { x: 1700, y: 1000 })
     await page.keyboard.type('Unsaved work')

@@ -24,7 +24,7 @@ import {
   type TaskGeometry,
 } from './schedule-geometry'
 
-// Spec: GR-14, LF-17
+// Spec: GR-14, LF-17, IMPS-850, IMPS-851
 // Why: the nearest of the four corners, chosen per axis against the body's middle (a tie takes left and bottom, the
 // offset's own corner); an anchor inside the body, edges included, has no leader -- any corner would cross the text.
 /** @purity pure */
@@ -42,7 +42,6 @@ export function leaderOf(comment: CommentGeometry): Path | null {
 export type AnchorSnapPoint = NonNullable<CommentBox['anchorSnapPoint']>
 export type AnchorTaskFigure = NonNullable<CommentBox['anchorTaskFigure']>
 
-// Spec: LF-15, GR-14
 // Why: read from the generated column shapes, in AT-167's order: a tie between two points takes the earlier one.
 // The casts hold because the generator prints each union and its choices from the same erd.json values.
 const SNAP_POINTS = (COLUMN_SHAPES.CommentBox['anchorSnapPoint']?.choices ?? []) as readonly AnchorSnapPoint[]
@@ -159,7 +158,7 @@ export function anchorSnapsOf(
   return out
 }
 
-// Spec: LF-15
+// Spec: LF-15, IMPS-838
 /** @purity pure */
 export function freeAnchorPointOf(
   layout: ScheduleLayout,
@@ -179,7 +178,7 @@ export interface AnchorSurroundings {
   readonly snaps: readonly AnchorSnap[]
 }
 
-// Spec: LF-15, FR-019, NG-7
+// Spec: LF-15, FR-019, NG-7, IMPS-832
 // Why: the one formula for where a tip stands, read by the drawing and the drag; an undrawn target answers null.
 /** @purity pure */
 export function commentAnchorPointOf(around: AnchorSurroundings, box: CommentBox): Point | null {
@@ -192,7 +191,7 @@ export function commentAnchorPointOf(around: AnchorSurroundings, box: CommentBox
   return instant === null ? null : freeAnchorPointOf(around.layout, instant, box.anchorTaskGroupId, box.anchorBandFraction ?? null)
 }
 
-// Spec: FR-019, UC-008, AT-12
+// Spec: IMPS-830, AT-12
 // Why: a box with no anchor date stands at the document's start date, or it could not be chosen or deleted.
 /** @purity pure */
 function freeInstantOf(schedule: Schedule, box: CommentBox): number | null {
@@ -210,6 +209,7 @@ type HeldTarget =
     }
   | { readonly kind: 'highlightBox'; readonly highlightBoxId: string; readonly snapPoint: AnchorSnapPoint }
 
+// Spec: IMPS-832
 /** @purity pure */
 function targetOf(box: CommentBox): HeldTarget | null {
   const snapPoint = box.anchorSnapPoint ?? null
@@ -247,7 +247,7 @@ function targetPointOf(snaps: readonly AnchorSnap[], target: HeldTarget, taskGro
   return first
 }
 
-// Spec: FR-093
+// Spec: IMPS-1939
 // Trap: repeats labelUnits in label-width.ts; change them together.
 /** @purity pure */
 function charUnits(ch: string): number {
@@ -261,7 +261,7 @@ function labelUnits(text: string): number {
   return units
 }
 
-// Spec: FR-097, S-182
+// Spec: IMPS-1027, IMPS-1028
 /** @purity pure */
 function wrappedLines(text: string, limit: number): readonly string[] {
   const out: string[] = []
@@ -283,7 +283,7 @@ function wrappedLines(text: string, limit: number): readonly string[] {
   return out
 }
 
-// Spec: FR-093, FR-097, S-624
+// Spec: IMPS-1027, IMPS-1029
 // Why: an empty or null text estimates 0 units, so it takes the box's own font size as its floor, never one full-width
 // character: that one is scaled by S-30 and would move the floor with a document setting (FR-097).
 /** @purity pure */
@@ -293,7 +293,7 @@ function textWidthOf(lines: readonly string[], fontSize: number, labelCoef: numb
   return widest === 0 ? fontSize : widest * fontSize * labelCoef
 }
 
-// Spec: FR-019, FR-097
+// Spec: FR-019, FR-097, IMPS-827, IMPS-837, IMPS-803, IMPS-1027, IMPS-1030, IMPS-1032, IMPS-853, IMPS-855
 /** @purity pure */
 export function commentGeometry(
   schedule: Schedule,
@@ -308,7 +308,6 @@ export function commentGeometry(
     if (anchor === null) continue
     const lines = wrappedLines(box.text ?? '', settings.commentBoxWrapUnits)
     const offset = box.bodyOffsetPx ?? { dx: 0, dy: 0 }
-    // Spec: AT-168, S-624
     const fontSize = drawnAnnotationNumber(box.fontSizePx ?? null, 'S-624')
     const pad = settings.commentBoxPad
     const width = textWidthOf(lines, fontSize, settings.labelCoef) + 2 * pad
@@ -325,7 +324,6 @@ export function commentGeometry(
       lines,
       fontSize,
       strokeWidthPx: drawnAnnotationNumber(box.strokeWidthPx, 'S-374'),
-      // Spec: AT-151
       fillOpacity: 1 - drawnAnnotationNumber(box.fillTransparencyPercent, 'S-375') / 100,
       // Trap: '?? null', not the bare column: a document built by hand without the CR-559 columns carries undefined
       strokeColor: box.strokeColor ?? null,

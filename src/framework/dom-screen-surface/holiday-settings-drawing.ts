@@ -35,7 +35,6 @@ export function isHolidaySettingsModal(modal: OpenModal): modal is HolidaySettin
   return 'holidaySettings' in modal
 }
 
-// Spec: IF-9, WC-2, WC-4, WC-8
 export const HOLIDAY_SETTINGS_TARGET_ATTRIBUTE = 'data-holiday-target'
 
 const HOLIDAY_LIST_ATTRIBUTE = 'data-holiday-list'
@@ -231,6 +230,7 @@ export function holidaySettingsBodyElements(
 
 const WHEEL_MAY_STOP_DEFAULT: AddEventListenerOptions = { passive: false }
 
+// Spec: IMPS-1515, IMPS-1518, IMPS-1519
 /** @purity semi-pure-mutable */
 function wheelPxOf(wheel: WheelEvent, list: HTMLElement): number {
   const turned = wheel.deltaX !== 0 ? wheel.deltaX : wheel.deltaY

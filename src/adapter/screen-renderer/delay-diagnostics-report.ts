@@ -120,11 +120,9 @@ const STATUS_WORDS: ReadonlyMap<string, LanguageWord> = new Map(displayWords.del
 const SUMMARY_WORDS: ReadonlyMap<string, LanguageWord> = new Map(displayWords.delayReportSummary.map((entry) => [entry.part, entry.text]))
 const MARKDOWN_WORDS: ReadonlyMap<string, LanguageWord> = new Map(displayWords.delayReportMarkdown.map((entry) => [entry.part, entry.text]))
 const REASON_WORDS: ReadonlyMap<string, LanguageWord> = new Map(displayWords.delayReportReasons.map((entry) => [entry.part, entry.text]))
-// Spec: DT-7, T-310, T-311, T-316
 const ASPECT_WORDS: ReadonlyMap<string, LanguageWord> = new Map(displayWords.delayReportAspects.map((entry) => [entry.specTableRowId, entry.text]))
 const WALL_WORDS: ReadonlyMap<string, LanguageWord> = new Map(displayWords.delayReportWalls.map((entry) => [entry.specTableRowId, entry.text]))
 
-// Spec: T-347
 export const DELAY_REPORT_COLUMNS: readonly string[] = displayWords.delayReportColumns.map((entry) => entry.specTableRowId)
 
 const STATUS_COLUMN = 'DT-1'
@@ -136,38 +134,29 @@ const TASK_TYPE_COLUMN = 'DT-9'
 // Why: the Visibility column is a tool laid on the schedule, not a finding, so the Markdown neither prints nor filters by it.
 const MARKDOWN_COLUMNS: readonly string[] = DELAY_REPORT_COLUMNS.filter((column) => column !== VISIBILITY_COLUMN)
 
-// Spec: DT-4, SJ-1
 const JUMP_COLUMN_AT = DELAY_REPORT_COLUMNS.indexOf('DT-4')
 
-// Spec: RW-10
 const LAST_FIXED_COLUMN = 'DT-4'
 
-// Spec: RW-3
 const UNSEARCHED_COLUMNS: readonly string[] = ['DT-6', 'DT-7', TASK_TYPE_COLUMN]
 
-// Spec: RW-9, SV-18
 const MEASURED_COLUMNS: readonly string[] = ['DT-1', 'DT-3', TASK_TYPE_COLUMN, 'DT-5', 'DT-6']
 
 const WORD_COLUMNS_AT: readonly number[] = DELAY_REPORT_COLUMNS.flatMap((column, at) => (UNSEARCHED_COLUMNS.includes(column) ? [] : [at]))
 
-// Spec: VO-5, VS-6
 const MILESTONE_ACHIEVED_ROW = 'VO-5'
 const PARENT_PROGRESS_OUTSIDE_ROW = 'VS-6'
 
 const PARENT_PROGRESS_OUTSIDE_PART = 'parentProgressOutside'
 
-// Spec: T-312
 const OMISSION_ROW_HEAD = 'VO-'
 
-// Spec: DT-5, DT-6, TL-5
 const DATE_RANGE = ' - '
 
-// Spec: DT-6
 const OPEN_DATE_RANGE = ' -'
 
 const WORD_JOIN = ', '
 
-// Spec: RW-7
 const REPORT_FILE_WORD = 'delay-diagnostics'
 
 const FILE_NAME_JOIN = '_'
@@ -177,7 +166,6 @@ export const DELAY_DIAGNOSTICS_REPORT_EXTENSION = exportFormats.files.find((one)
 // Why: a filter change reads the columns and their kinds only; no word it would print is shown.
 const COLUMNS_ONLY_LANGUAGE: DisplayLanguage = 'en'
 
-// Spec: T-315, RW-6
 const STATUS_SYMBOLS: Readonly<Record<DelayReportStatus, string>> = {
   'DG-1': '?',
   doubtful: '',
@@ -187,7 +175,6 @@ const STATUS_SYMBOLS: Readonly<Record<DelayReportStatus, string>> = {
   settled: '',
 }
 
-// Spec: DT-1, RW-4, FR-133, T-315
 const STATUS_GLYPHS: Readonly<Record<DelayReportStatus, MarkGlyph | null>> = {
   'DG-1': 'DG-1',
   doubtful: null,
@@ -197,7 +184,6 @@ const STATUS_GLYPHS: Readonly<Record<DelayReportStatus, MarkGlyph | null>> = {
   settled: null,
 }
 
-// Spec: RW-1, RW-5, RW-8, RW-11, S-451, S-564, WB-6
 // Why: held by the shell and never saved (FR-134, FR-155 MUST NOT); the text size is the search panel's (CR-617 decision 3).
 // fixes absent reads as the diagnosis table with nothing picked.
 export interface DelayDiagnosticsReportWindow extends TableWindowState {
@@ -217,7 +203,6 @@ export interface DelayReportRowView extends SearchRowView {
   readonly isCurrent?: boolean
 }
 
-// Spec: RW-4
 // Why: glyph null keeps a blank of the picture's width (a status with no picture); absent means no picture place.
 export interface DelayReportLine {
   readonly status: DelayReportStatus | null
@@ -282,7 +267,6 @@ function statusTextIn(status: DelayReportStatus, language: DisplayLanguage, isWi
   return isWindow ? statusWordOf(status, language) : statusText(status, language)
 }
 
-// Spec: TX-7, TX-8, FR-158, S-576
 // Why: the S-576 switch and the length of 1d (FR-054), read only when a quantity is shown.
 interface ShownTimes {
   readonly isTimeOfDayVisible: boolean
@@ -290,7 +274,7 @@ interface ShownTimes {
   readonly dates: ShownDateTimes
 }
 
-// Spec: TX-8, TX-10, DQ-2, DQ-3, DQ-4, VS-6
+// Spec: TX-8, TX-10, DQ-2, DQ-3, DQ-4, VS-6, IMPS-603
 // Why: TX-10 has one speller, lengthTextOf (PI-5); a copy here would drift from the panel and the tooltips.
 /** @purity pure */
 function quantityText(minutes: number, times: ShownTimes): string {
@@ -301,7 +285,6 @@ function quantityText(minutes: number, times: ShownTimes): string {
 
 const WHEN_TIME_SHOWN = 'WhenTimeShown'
 
-// Spec: TX-8, DT-7, VS-6, FR-158
 // Why: TX-10 spells its own units, so a word that adds a unit after the amount would read "1d 2h days" (JDG-1982).
 interface QuantityWord {
   readonly part: string
@@ -313,7 +296,7 @@ function quantityWordOf(part: string, times: ShownTimes): QuantityWord {
   return times.isTimeOfDayVisible ? { part: `${part}${WHEN_TIME_SHOWN}`, slot: 'amount' } : { part, slot: 'days' }
 }
 
-// Spec: FR-158, S-576, FR-054, FR-156, S-574
+// Spec: TX-7, TX-8
 /** @purity pure */
 function shownTimesOf(schedule: Schedule, isTimeOfDayVisible: boolean, viewTimeZone: unknown): ShownTimes {
   return {
@@ -353,7 +336,7 @@ function parentProgressSlotsOf(
   }
 }
 
-// Spec: DT-7, DX-3, T-312, VO-5, VS-6
+// Spec: DT-7, DX-3, T-312, VO-5, VS-6, IMPS-569, IMPS-581
 /** @purity pure */
 function findingText(
   one: Extract<DelayReportReason, { kind: 'unreliable' }>['findings'][number],
@@ -406,7 +389,7 @@ function reasonText(row: DelayReportRow, language: DisplayLanguage, times: Shown
   }
 }
 
-// Spec: T-347
+// Spec: IMPS-629, DT-2
 /** @purity pure */
 function cellsOf(row: DelayReportRow, language: DisplayLanguage, times: ShownTimes): readonly string[] {
   const isFinished = row.actualFinish !== null
@@ -431,7 +414,6 @@ function cellOf(shown: ShownTaskGroup, column: string): string {
   return shown.cells[DELAY_REPORT_COLUMNS.indexOf(column)] ?? BLANK_SEARCH_VALUE
 }
 
-// Spec: DT-1, DT-3, T-347
 const REPORT_TABLE: TableColumns<ShownTaskGroup> = {
   values: {
     'DT-1': (shown) => [shown.row.status],
@@ -474,6 +456,7 @@ function shownTaskGroupsOf(
   return shownTaskGroupsFrom(look, taskGroupsWithCells(rows, language, times))
 }
 
+// Spec: IMPS-641, IMPS-642
 /** @purity pure */
 function shownTaskGroupsFrom(look: TableLook, all: readonly ShownTaskGroup[]): readonly ShownTaskGroup[] {
   const found = all.filter((shown) => isWordFound(shown, look.word))
@@ -526,7 +509,7 @@ function reportTableOf(
   }
 }
 
-// see TV-5, JDG-2820
+// Spec: TV-5
 // Why: only a checked row the report holds counts; a checked task the report dropped does not.
 /** @purity pure */
 function reportFilterReadinessOf(view: TableView, rows: readonly DelayReportRow[]): ScheduleFilterReadiness {
@@ -563,7 +546,7 @@ function summaryLineOf(summary: readonly DelayReportLine[], language: DisplayLan
   return `${date ?? ''}${word('afterStatusDate')}${rest.join(word('between'))}`
 }
 
-// Spec: FR-134, FR-155, T-346, RW-2, RW-11, S-564
+// Spec: FR-134, FR-155, T-346, RW-2, RW-11, S-564, IMPS-643
 /** @purity pure */
 export function delayDiagnosticsReportFromWindow(
   session: ScreenSession,
@@ -589,7 +572,7 @@ export function delayDiagnosticsReportFromWindow(
   return { ...diagnosis, ...table, summary: [], glyphAt: null, showAt, showHeading, entryRefusals: [], rowRevealed: null, ...fixView }
 }
 
-// Spec: FR-134, T-346, RW-2, RW-3, RW-4, RW-9, S-564
+// Spec: FR-134, T-346, RW-2, RW-3, RW-4, RW-9, S-564, IMPS-626, IMPS-627, IMPS-628
 /** @purity pure */
 function diagnosisReportViewOf(
   session: ScreenSession,
@@ -655,7 +638,7 @@ function reportRowViewsOf(view: TableView, found: readonly ShownTaskGroup[], mar
   }))
 }
 
-// Spec: AM-28, AV-17, T-347
+// Spec: AM-28, AV-17, T-347, IMPS-629, IMPS-639
 /** @purity pure */
 export function delayReportColumnHeadings(): readonly SearchColumnHeading[] {
   return columnHeadingsOf(DELAY_REPORT_COLUMNS, COLUMN_WORDS, (column) => REPORT_TABLE.dates[column] !== undefined)
@@ -685,7 +668,7 @@ export function delayReportTableRows(
   })
 }
 
-// see RW-19, RW-3, RW-11, SV-7, JDG-2195
+// Spec: RW-19, RW-3, RW-11, SV-7
 // Why: only what hides the pressed task's row comes off; the other filters and the sort stay.
 /** @purity pure */
 export function delayDiagnosticsReportShowingRow(
@@ -756,7 +739,7 @@ export function delayDiagnosticsReportAfterEntry(
   }, listed)
 }
 
-// Spec: SV-7, DT-8, TV-2, UN-20
+// Spec: SV-7, DT-8, TV-2, UN-20, IMPS-655
 /** @purity pure */
 export function delayDiagnosticsReportAfterFilterChange(
   window: DelayDiagnosticsReportWindow,
@@ -827,7 +810,7 @@ function filterConditionText(one: TableView['columnFilters'][number], labelOf: (
   return `${dateText(one.fromDate)}${DATE_RANGE}${dateText(one.toDate)}`
 }
 
-// Spec: FR-134, FR-155, RW-4, RW-6, IC-108, IC-140
+// Spec: FR-134, FR-155, RW-4, RW-6, IC-108, IC-140, IO-8
 /** @purity pure */
 export function delayDiagnosticsReportMarkdownOf(
   window: DelayDiagnosticsReportWindow,
@@ -878,7 +861,6 @@ const FIX_LOG_TSV_ENTRY: IconId = 'IC-169'
 const PREVIOUS_FIX_ENTRY: IconId = 'IC-159'
 const NEXT_FIX_ENTRY: IconId = 'IC-160'
 
-// Spec: RW-11, RW-12, RW-14, T-290
 const TABLE_OF_ENTRY: { readonly [entry: IconId]: DelayReportTable } = {
   [DIAGNOSIS_ENTRY]: 'diagnosis',
   [PROPOSALS_ENTRY]: 'proposals',
@@ -895,10 +877,8 @@ const STEP_OF_ENTRY: { readonly [entry: IconId]: number } = { [PREVIOUS_FIX_ENTR
 const FIX_COLUMN_WORDS: ReadonlyMap<string, LanguageWord> = new Map(displayWords.delayFixColumns.map((entry) => [entry.specTableRowId, entry.text]))
 const FIX_WORDS: ReadonlyMap<string, LanguageWord> = new Map(displayWords.delayFixes.map((entry) => [entry.part, entry.text]))
 const ITEM_WORDS: ReadonlyMap<string, LanguageWord> = new Map(displayWords.properties.map((entry) => [entry.specTableRowId, entry.label]))
-// Spec: FM-7, SV-7
 const BLANK_WORD = displayWords.searchPanel.find((entry) => entry.part === 'blank')?.text
 
-// Spec: FM-6, T-016
 const ITEM_OF_TASK_COLUMN: ReadonlyMap<string, string> = new Map(
   propertyItems.items.filter((item) => item.appliesTo === 'Task' && item.columns.length === 1).map((item) => [item.columns[0] ?? '', item.specTableRowId]),
 )
@@ -925,7 +905,6 @@ const FIX_AFTER_COLUMN = 'FM-8'
 
 const FIX_WORD_COLUMNS: readonly string[] = ['FM-4', 'FM-5', 'FM-6']
 
-// Spec: T-374, RW-9, SV-18
 const DEFAULT_WIDTH_FIX_COLUMNS: readonly string[] = ['FM-4', 'FM-5']
 
 export type DelayReportTable = 'diagnosis' | 'proposals' | 'log'
@@ -934,7 +913,6 @@ type FixTable = Exclude<DelayReportTable, 'diagnosis'>
 
 export type DelayFixWriteForm = 'beforeFixOverwrite' | 'beforeFixBackup'
 
-// Spec: RW-11, RW-14, RW-16, FR-155
 // Why: never saved (FR-155 MUST NOT); each fix table keeps its own view, and picks are proposeDelayFixes' checks by row key.
 export interface DelayFixWindowValues {
   readonly table: DelayReportTable
@@ -943,12 +921,10 @@ export interface DelayFixWindowValues {
   readonly at: string | null
 }
 
-// Spec: FR-155, RW-17, RS-10, T-233
 export type DelayFixTelling =
   | { readonly kind: 'fixed'; readonly count: number }
   | { readonly kind: 'refused'; readonly row: DelayFixRow; readonly reason: string }
 
-// Spec: DX-11, DX-12, T-374, RW-17
 // Why: the proposals come in the default order of T-374; telling is what the last bundle came to, absent before any.
 export interface DelayFixTables {
   readonly proposals: readonly DelayFixRow[]
@@ -971,7 +947,6 @@ export const NO_DELAY_FIX_VALUES: DelayFixWindowValues = {
   at: null,
 }
 
-// Spec: FM-1, FM-8, T-373
 // Why: a choice answers by its key, never by its place; dateNote is the cell's text drawn after the date field (FM-8).
 export interface DelayFixCellView {
   readonly key: string
@@ -1036,7 +1011,7 @@ function fixColumnWordOf(column: string, language: DisplayLanguage): string {
   return item === undefined ? column : rowWordOf(ITEM_WORDS, item, language)
 }
 
-// see FM-8, T-373, JDG-1950
+// Spec: FM-8, T-373
 /** @purity pure */
 function fixChoiceWordOf(choice: DelayFixChoice, nameOf: (taskUid: number) => string, language: DisplayLanguage): string {
   return filled(fixWordOf(choice.word, language), {
@@ -1079,7 +1054,7 @@ function fixWordsOf(schedule: Schedule, language: DisplayLanguage, report: Delay
   }
 }
 
-// Spec: FM-1, T-373, RW-16
+// Spec: FM-1, T-373, RW-16, IMPS-665, IMPS-675
 // Why: proposeDelayFixes settled each box; a row an earlier row mends stays checked with that row and is held there.
 /** @purity pure */
 function fixCheckOf(row: DelayFixRow): DelayFixCellView['check'] {
@@ -1120,7 +1095,6 @@ function fixValueOf(shown: ShownFixRow, column: string): string {
   return text === shown.blankWord ? BLANK_SEARCH_VALUE : text
 }
 
-// Spec: T-374, SV-7, SV-8, FM-2
 const FIX_TABLE: TableColumns<ShownFixRow> = {
   values: Object.fromEntries(FIX_COLUMNS.map((column) => [column, (shown: ShownFixRow) => [fixValueOf(shown, column)]])),
   dates: {
@@ -1143,7 +1117,7 @@ function fixKindWordMatches(type: DelayFixRow['fixKind'], word: string): boolean
   return fixWordOf(type, 'ja') === word || fixWordOf(type, 'en') === word
 }
 
-// Spec: T-374
+// Spec: IMPS-684
 // Why: a chain row stays right under its source row, however the table is sorted.
 /** @purity pure */
 function withCascadesUnderOrigins(kept: readonly ShownFixRow[]): readonly ShownFixRow[] {
@@ -1196,7 +1170,7 @@ function foundFixRowsOf(all: readonly ShownFixRow[], word: string, view: TableVi
   return withCascadesUnderOrigins(filteredTableRows(found, FIX_TABLE, view.columnFilters, view.sort))
 }
 
-// Spec: T-374, RW-9, RW-10, SV-18
+// Spec: T-374, RW-9, RW-10, SV-18, IMPS-686, IMPS-691
 /** @purity pure */
 function fixWindowTableOf(
   table: FixTable,
@@ -1218,7 +1192,7 @@ function fixWindowTableOf(
   }
 }
 
-// Spec: T-374, SV-18, FM-1, FM-9
+// Spec: T-374, SV-18, FM-1, FM-9, IMPS-687, IMPS-688
 // Why: FM-1's value is a check box, narrower than its heading word and IC-122, so the heading alone sets its width.
 /** @purity pure */
 function fixWidthSamplesIn(all: readonly ShownFixRow[], language: DisplayLanguage): (column: string) => readonly string[] | null {
@@ -1230,7 +1204,7 @@ function fixWidthSamplesIn(all: readonly ShownFixRow[], language: DisplayLanguag
   }
 }
 
-// Spec: RW-13, T-373, SJ-0
+// Spec: RW-13, T-373, SJ-0, IMPS-665
 // Why: a proposal row jumps to the task holding its field and rings the related tasks (RW-13); a log row jumps as a search row does.
 /** @purity pure */
 function fixTargetOf(shown: ShownFixRow): SearchRowView['target'] {
@@ -1286,7 +1260,7 @@ function delayReportTabEntriesOf(values: DelayFixWindowValues, tables: DelayFixT
 
 const REASON_ROW_WORDS: ReadonlyMap<string, LanguageWord> = new Map(displayWords.reasons.map((entry) => [entry.specTableRowId, entry.text]))
 
-// Spec: RW-17, FR-155, NT-1, T-233
+// Spec: RW-17, FR-155, NT-1, T-233, IMPS-650
 /** @purity pure */
 function delayFixTellingText(telling: DelayFixTelling, words: FixWords): string {
   const language = words.language
@@ -1341,7 +1315,6 @@ function delayFixWalkOf(values: DelayFixWindowValues, tables: DelayFixTables, wo
   return { entries, counter: filled(fixWordOf('humanCounter', language), { k: at + 1, m: keys.length }) }
 }
 
-// Spec: RW-11, RW-12, RW-14, T-374
 // Why: tabCounts is the count each tab adds after its word (RW-11); the entry's label stays the dictionary's word (FR-038).
 export interface DelayFixView {
   readonly tabEntries: readonly CommandItem[]
@@ -1366,7 +1339,7 @@ function delayFixViewOf(values: DelayFixWindowValues, tables: DelayFixTables, wo
   }
 }
 
-// Spec: T-374, RW-11, RW-13, SV-7
+// Spec: T-374, RW-11, RW-13, SV-7, IMPS-643
 /** @purity pure */
 function fixTableViewOf(
   window: DelayDiagnosticsReportWindow,
@@ -1425,7 +1398,7 @@ function taskUidCellOf(value: DelayFixValue | null): string {
 
 const FIX_LOG_TSV_UID_PARTS = ['tsvTaskUid', 'tsvBeforeUid', 'tsvAfterUid'] as const
 
-// Spec: RW-20, IO-9, IC-169
+// Spec: RW-20, IO-9, IC-169, IMPS-653
 // Why: the rows the Fix Log table shows, in its order and filter, so the file is what the person sees (RW-6).
 /** @purity pure */
 export function delayFixLogTsvOf(
@@ -1578,7 +1551,7 @@ export function delayDiagnosticsReportWithAdoptAll(window: DelayDiagnosticsRepor
   )
 }
 
-// see FM-1, FR-155, JDG-2920, JDG-2921
+// Spec: FM-1, FR-155
 // Why: empty, it checks every listed row that can take a check; checked, it clears every row, the unlisted ones included.
 /** @purity pure */
 export function delayDiagnosticsReportWithFixHeading(
@@ -1621,6 +1594,7 @@ export function delayDiagnosticsReportWithInput(
   }, { window: typed as DelayDiagnosticsReportWindow | null, view })
 }
 
+// Spec: IMPS-656, IMPS-657
 /** @purity pure */
 function delayFixAfterFilterChange(window: DelayDiagnosticsReportWindow, values: DelayFixWindowValues, change: SearchFilterChange): TableView {
   const table = values.table === 'log' ? 'log' : 'proposals'

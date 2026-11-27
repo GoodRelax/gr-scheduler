@@ -8,7 +8,8 @@
 //
 //   node tools/gate/test-record.mjs --check
 //       every record under docs/development-records/test-records/ has the shape below and holds
-//       no absolute path and no account name (check 95 of check.sh)
+//       no absolute path and no account name (check 95 of check.sh); the one manual record,
+//       manual-scenarios.md, has the shape of manualRecordFaults instead (B10)
 //   node tools/gate/test-record.mjs --write --gate GT-2 --verdict passed <vitest.json> [<playwright.json>]
 //       writes one record from reports at hand (run-gate.mjs calls writeTestRecord directly)
 //   node tools/gate/test-record.mjs --self-test
@@ -60,6 +61,15 @@ const HEAD_LINES = [
 ]
 // Why: a drive letter, a home folder or a UNC share names the machine and often the account.
 const ABSOLUTE_PATH = /(?:^|[\s(|`'"])(?:[A-Za-z]:[\\/]|\\\\[^\s\\]|\/(?:Users|home|root|mnt|tmp|var|private)\/)/
+// Why: the @manual scenarios have no tool report; the person who checked writes their results in
+// one file of the same folder, in the table ANMS v0.36 section 6.2 gives (Scenario / Result / Remark).
+export const MANUAL_RECORD = 'manual-scenarios.md'
+const MANUAL_HEAD = '| Scenario | Result | Remark |'
+const MANUAL_RULE = '| ----------- | --------- | --------- |'
+const MANUAL_ROW = /^\| (SCN-[1-9]\d*) \| ([^|\s]+) \| (.*) \|$/
+// Why: ANMS v0.36 section 6.2 limits Result to the Cucumber result values.
+const CUCUMBER_RESULTS = new Set(['passed', 'failed', 'skipped', 'pending', 'undefined', 'ambiguous'])
+const SPEC_DIR = 'docs/spec'
 
 const posix = (path) => path.split('\\').join('/')
 
@@ -228,6 +238,59 @@ export function writeTestRecord({ gate, verdict, vitestReport, playwrightReport,
   return { record: `${RECORD_DIR}/${name}`, reports: posix(relative(root, keep)) }
 }
 
+// Summary: the faults of the manual record; an empty list is a well-formed record. With
+// `manualScenarios` (the SCN ids the specification tags @manual), every one of them has exactly one
+// row and no other id has a row.
+// @purity pure
+export function manualRecordFaults(name, text, accountName, manualScenarios) {
+  const faults = []
+  const lines = text.replace(/\r\n/g, '\n').split('\n')
+  const head = lines.indexOf(MANUAL_HEAD)
+  if (head < 0 || lines[head + 1] !== MANUAL_RULE) faults.push(`${name}: no table "${MANUAL_HEAD}"`)
+  const seen = new Set()
+  for (let k = head < 0 ? lines.length : head + 2; k < lines.length && lines[k].startsWith('|'); k += 1) {
+    const row = MANUAL_ROW.exec(lines[k])
+    if (row === null) {
+      faults.push(`${name}:${k + 1}: not a row "| SCN-n | result | remark |"`)
+      continue
+    }
+    const [, scenario, result, remark] = row
+    if (!CUCUMBER_RESULTS.has(result)) faults.push(`${name}:${k + 1}: ${result} is not a Cucumber result value`)
+    if (result !== 'passed' && remark.trim() === '') faults.push(`${name}:${k + 1}: ${result} needs a Remark`)
+    if (seen.has(scenario)) faults.push(`${name}:${k + 1}: ${scenario} has a second row`)
+    seen.add(scenario)
+    if (manualScenarios !== undefined && !manualScenarios.has(scenario)) {
+      faults.push(`${name}:${k + 1}: ${scenario} is not a @manual scenario of the specification`)
+    }
+  }
+  if (manualScenarios !== undefined) {
+    for (const scenario of manualScenarios) {
+      if (!seen.has(scenario)) faults.push(`${name}: the @manual scenario ${scenario} has no row`)
+    }
+  }
+  lines.forEach((line, index) => {
+    if (ABSOLUTE_PATH.test(line)) faults.push(`${name}:${index + 1}: an absolute path`)
+    if (accountName && accountName.length >= 3 && line.toLowerCase().includes(accountName.toLowerCase())) {
+      faults.push(`${name}:${index + 1}: the account name of this machine`)
+    }
+  })
+  return faults
+}
+
+// Summary: the SCN ids whose scenario's tag line carries @manual, in the Gherkin of `texts`.
+// @purity pure
+export function manualScenariosOf(texts) {
+  const ids = new Set()
+  for (const text of texts) {
+    const lines = text.replace(/\r\n/g, '\n').split('\n')
+    lines.forEach((line, index) => {
+      const scenario = /^\s*Scenario: (SCN-[1-9]\d*) /.exec(line)
+      if (scenario !== null && /(^|\s)@manual(\s|$)/.test(lines[index - 1] ?? '')) ids.add(scenario[1])
+    })
+  }
+  return ids
+}
+
 // @purity non-pure
 function checkAll(root = ROOT) {
   const dir = join(root, RECORD_DIR)
@@ -237,7 +300,18 @@ function checkAll(root = ROOT) {
   }
   const names = readdirSync(dir).filter((name) => name !== 'README.md').sort()
   const account = userInfo().username
-  const faults = names.flatMap((name) => recordFaults(name, readFileSync(join(dir, name), 'utf8'), account))
+  const specDir = join(root, SPEC_DIR)
+  const specTexts = existsSync(specDir)
+    ? readdirSync(specDir).filter((one) => one.endsWith('.md')).map((one) => readFileSync(join(specDir, one), 'utf8'))
+    : []
+  const manualScenarios = manualScenariosOf(specTexts)
+  const faults = names.flatMap((name) => {
+    const text = readFileSync(join(dir, name), 'utf8')
+    return name === MANUAL_RECORD ? manualRecordFaults(name, text, account, manualScenarios) : recordFaults(name, text, account)
+  })
+  if (!names.includes(MANUAL_RECORD) && manualScenarios.size > 0) {
+    faults.push(`${RECORD_DIR}/${MANUAL_RECORD}: missing, while the specification tags ${manualScenarios.size} scenario(s) @manual`)
+  }
   for (const fault of faults) console.log(`FAIL ${fault}`)
   if (faults.length > 0) return 1
   console.log(`OK  ${names.length} record(s) under ${RECORD_DIR}/ keep the shape, with no absolute path and no account name`)
@@ -264,6 +338,21 @@ function selfTest() {
   let bad = 0
   for (const [label, file, text, wantRed] of cases) {
     const red = recordFaults(file, text, 'someaccount').length > 0 ? 1 : 0
+    console.log(`${red === wantRed ? 'OK  ' : 'FAIL'} self-test: ${label} -> ${red ? 'red' : 'green'}`)
+    if (red !== wantRed) bad += 1
+  }
+  const spec = '  @UC-001.OK @manual\n  Scenario: SCN-7 one\n\n  @UC-001.OK\n  Scenario: SCN-8 two\n'
+  const manualIds = manualScenariosOf([spec])
+  const manual = `# Manual test record\n\n${MANUAL_HEAD}\n${MANUAL_RULE}\n| SCN-7 | pending | not checked yet |\n`
+  const manualCases = [
+    ['manual: clean', manual, 0],
+    ['manual: a result that is not a Cucumber value', manual.replace('| pending |', '| ok |'), 1],
+    ['manual: pending with no Remark', manual.replace('not checked yet', ' '), 1],
+    ['manual: a scenario not tagged @manual', manual.replace('SCN-7', 'SCN-8'), 1],
+    ['manual: a @manual scenario with no row', manual.replace('| SCN-7 | pending | not checked yet |\n', ''), 1],
+  ]
+  for (const [label, text, wantRed] of manualCases) {
+    const red = manualRecordFaults(MANUAL_RECORD, text, 'someaccount', manualIds).length > 0 ? 1 : 0
     console.log(`${red === wantRed ? 'OK  ' : 'FAIL'} self-test: ${label} -> ${red ? 'red' : 'green'}`)
     if (red !== wantRed) bad += 1
   }

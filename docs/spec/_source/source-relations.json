@@ -1243,7 +1243,7 @@
   {
    "from": "docs/spec/_source/published-entries.json",
    "to": "docs/spec/_source/glossary.json",
-   "count": 49
+   "count": 51
   },
   {
    "from": "docs/spec/_source/published-entries.json",
@@ -1684,7 +1684,7 @@
    "WS": 7
   },
   "docs/spec/A-appendix.md": {
-   "OPQ": 26
+   "OPQ": 27
   },
   "docs/spec/_source/agent-api-members.json": {
    "AM": 27,

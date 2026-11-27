@@ -126,7 +126,6 @@ type GestureStep = Step<GestureValues, GestureValuesEffect>
 
 type EventOf<T extends GestureValuesEvent['type']> = Extract<GestureValuesEvent, { readonly type: T }>
 
-// Spec: T-289
 export const emptyGestureValues: GestureValues = { ...GESTURE_VALUES_INITIAL_AXES }
 
 // Why: a machine the event leaves alone keeps its reference, and so does the region (SD-3, SF-3).

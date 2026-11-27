@@ -21,7 +21,6 @@ const JSON_RPC_VERSION = '2.0'
 const KEY_PRESENTED = 'relayKeyPresented'
 const CHANGE_NOTICED = 'changeNoticed'
 const INTERNAL_ERROR = -32603
-// Spec: AG-12
 const CLOSE_REFUSED_BY_RELAY = 1008
 const RECONNECT_DELAYS_MS: readonly number[] = [1000, 2000, 4000, 8000]
 

@@ -430,7 +430,7 @@ function beforeUnderSt2(left: DocTask, right: DocTask): number {
 }
 
 // Spec: FR-019, IV-19, IV-10, HM-3, HM-8, HM-9
-test('the task group tree, and not the screen, decides what is below (FR-019 / IV-19 / HM-9 / HM-3)', async ({
+test('SCN-8 the task group tree, and not the screen, decides what is below (FR-019 / IV-19 / HM-9 / HM-3) @UC-002.OK', async ({
   baseURL,
 }) => {
   test.setTimeout(600_000)

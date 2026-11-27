@@ -25,7 +25,6 @@ import type { EditResult } from './edit-document'
 import { refused, edited, reject } from './edit-document'
 import type { ProjectCommand } from './edit-project'
 
-// Spec: FR-016, FR-052, T-206
 export interface SettingsLimits {
   readonly zoomMin: number
   readonly zoomMax: number
@@ -220,7 +219,7 @@ function tableViewFaultOf(table: unknown, view: unknown): string | null {
   return isColumnSort(fieldOf(view, 'sort')) ? null : 'the sort is neither null nor of the shape table T-372 gives'
 }
 
-// Spec: CM-92, FR-151, UN-20
+// Spec: CM-92, FR-151, UN-20, IMPS-636, IMPS-1863, IMPS-1864
 // Why: an unchanged view writes nothing, so a repeated press adds no undo step.
 /** @purity pure */
 function tableViewEdited(
@@ -280,7 +279,7 @@ function withSettings(document: Document, settings: DocumentSettings): Document 
 
 type SettingsPut = (part: Partial<DocumentSettings>) => EditResult
 
-// Spec: CM-67, FR-052
+// Spec: CM-67, IMPS-1780, IMPS-1781, IMPS-1782, IMPS-1783
 /** @purity pure */
 function taskGroupPanelWidthEdited(
   settings: DocumentSettings,
@@ -301,7 +300,7 @@ function taskGroupPanelWidthEdited(
   return put({ taskGroupPanelWidthPx: command.taskGroupPanelWidthPx })
 }
 
-// Spec: CM-86, S-418, T-328
+// Spec: IMPS-778
 /** @purity pure */
 function levelZeroTreeStateEdited(
   command: Extract<DocumentSettingsCommand, { readonly kind: 'setLevelZeroTreeState' }>,
@@ -316,7 +315,7 @@ function levelZeroTreeStateEdited(
   return put({ levelZeroTreeState: command.levelZeroTreeState })
 }
 
-// Spec: CM-62, FR-039, S-70
+// Spec: CM-62, IMPS-1209, IMPS-1210, IMPS-1212, IMPS-1203
 /** @purity pure */
 function fontSizeStepEdited(
   settings: DocumentSettings,
@@ -337,7 +336,7 @@ function fontSizeStepEdited(
   })
 }
 
-// Spec: CM-68, FR-098
+// Spec: CM-68, IMPS-780, IMPS-794
 /** @purity pure */
 function pinEdited(
   settings: DocumentSettings,
@@ -439,7 +438,7 @@ function isZoneCommand(command: DocumentSettingsCommand): command is ZoneCommand
 
 const MOST_DISPLAY_TIME_ZONES = 4
 
-// Spec: CM-95, CM-96, FR-156, T-376, S-574, S-575
+// Spec: IMPS-737
 /** @purity pure */
 function zoneCommandEdited(settings: DocumentSettings, command: ZoneCommand, put: SettingsPut): EditResult {
   if (command.kind === 'setViewTimeZone') {
@@ -458,7 +457,7 @@ function zoneCommandEdited(settings: DocumentSettings, command: ZoneCommand, put
   return put({ displayTimeZones: [...zones] })
 }
 
-// Spec: CM-64, CM-91, CM-97
+// Spec: IMPS-152, IMPS-153
 /** @purity pure */
 function flagCommandEdited(command: FlagCommand, put: SettingsPut): EditResult {
   if (command.kind === 'setThemeMonochrome') return put({ isThemeMonochrome: command.isThemeMonochrome })
@@ -472,7 +471,6 @@ function composedCommandEdited(settings: DocumentSettings, command: ComposedComm
   return fitSpanCommandEdited(settings, command, put)
 }
 
-// Spec: FR-016
 /** @purity pure */
 function isZoomFinite(zoom: { readonly zoomX: number; readonly zoomY: number }): boolean {
   return Number.isFinite(zoom.zoomX) && Number.isFinite(zoom.zoomY)
@@ -480,7 +478,7 @@ function isZoomFinite(zoom: { readonly zoomX: number; readonly zoomY: number }):
 
 type FitCommand = Extract<DocumentSettingsCommand, { readonly kind: 'fitScheduleToScreen' | 'fitScheduleToScreenOnPage' }>
 
-// Spec: CM-71, CM-102, FR-016, FR-055
+// Spec: IMPS-1458
 /** @purity pure */
 function fitEdited(command: FitCommand, put: SettingsPut, clamp: (value: number) => number): EditResult {
   // Why: the Agent API puts the page's own CM-71 in place of CM-102; reaching here, no page has drawn a screen to count from.
@@ -508,7 +506,7 @@ function fitSpanCommandEdited(settings: DocumentSettings, command: FitSpanComman
   return put({ fitSpanStart: null, fitSpanFinish: null, isFitSpanFixed: false })
 }
 
-// Spec: T-108, FR-063
+// Spec: T-108, FR-063, IMPS-1942, IMPS-1944, IMPS-1203, IMPS-1251
 /** @purity pure */
 export function editDocumentSettings(
   document: Document,
@@ -538,7 +536,6 @@ export function editDocumentSettings(
     case 'setFontSizeStep':
       return fontSizeStepEdited(settings, command, put)
 
-    // Spec: CM-74, FR-039
     case 'setDisplayScale':
       return put({ displayScale: command.displayScale })
 
@@ -589,13 +586,14 @@ export interface BaseTimeZones {
   readonly viewTimeZone: string | null
 }
 
+// Spec: IMPS-741
 /** @purity pure */
 export function baseTimeZonesAfterChange(held: BaseTimeZones, chosenRegion: string, chosenWay: BaseChangeWay): BaseTimeZones {
   if (chosenWay === 'keepLocalTime') return { scheduleDataTimeZone: chosenRegion, viewTimeZone: null }
   return { ...held, viewTimeZone: chosenRegion === held.scheduleDataTimeZone ? null : chosenRegion }
 }
 
-// Spec: FR-156, FO-14, CM-94, CM-95, UN-13
+// Spec: FR-156, FO-14, CM-94, CM-95, UN-13, IMPS-744
 // Why: one list written at once, so one undo takes it back (UN-13); held.viewTimeZone is the stored S-574.
 /** @purity pure */
 export function baseChangeCommandOf(

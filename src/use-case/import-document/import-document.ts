@@ -36,7 +36,6 @@ export interface TaskMappingDecision {
   readonly mapping: TaskMapping
 }
 
-// Spec: T-032a, MM-3, MG-9
 export type MergeMapping =
   | { readonly kind: 'allSame' }
   | { readonly kind: 'allDifferent' }
@@ -47,14 +46,12 @@ export type MergeMapping =
     }
   | { readonly kind: 'cancelImport' }
 
-// Spec: FR-022, MG-4, MG-12
 export interface MergeChoices {
   readonly mapping: MergeMapping | null
   readonly profileConflict: ConflictChoice | null
   readonly settingsConflict: ConflictChoice | null
 }
 
-// Spec: T-024a, OP-4, OP-5, OP-8
 export interface ImportRequest {
   readonly current: Document
   readonly incoming: Document
@@ -68,7 +65,6 @@ export interface ImportRequest {
   readonly importSessionId: string
 }
 
-// Spec: FR-022, MG-10
 export interface MergeCandidate {
   readonly incomingTaskUid: number
   readonly incomingTaskName: string | null
@@ -78,7 +74,6 @@ export interface MergeCandidate {
 
 export type SourceJudgment = 'sameMaster' | 'differentMaster' | 'undecidable' | 'notJudged'
 
-// Spec: T-024a, T-032
 export type ImportRefusal =
   | { readonly reason: 'openInProgress'; readonly rule: 'OP-8'; readonly what: string }
   | { readonly reason: 'notValidated'; readonly rule: 'OP-5'; readonly what: string }
@@ -116,7 +111,6 @@ export interface AddedAsDifferent {
   readonly taskUid: number
 }
 
-// Spec: T-050, IV-2
 export interface DroppedReference {
   readonly what:
     | 'dependency'
@@ -129,7 +123,6 @@ export interface DroppedReference {
   readonly missing: string
 }
 
-// Spec: OP-10, MG-7, MG-11, FR-015
 export interface ImportReport {
   readonly choice: OpenChoice
   readonly undo: UndoDisposition
@@ -152,7 +145,6 @@ export type ImportOutcome =
   | { readonly ok: false; readonly refusal: ImportRefusal }
   | { readonly ok: true; readonly document: Document; readonly report: ImportReport }
 
-// Spec: T-224, MG-4
 const PROFILE_COLUMNS: readonly { readonly row: string; readonly key: keyof Project }[] = [
   { row: 'PF-1', key: 'name' },
   { row: 'PF-2', key: 'subject' },
@@ -233,6 +225,7 @@ function refuse(refusal: ImportRefusal): ImportOutcome {
   return { ok: false, refusal }
 }
 
+// Spec: MG-7
 /** @purity pure */
 function emptyReport(choice: OpenChoice, importSequence: number): ImportReport {
   return {
@@ -317,7 +310,7 @@ function replacedDocument(request: ImportRequest): ImportOutcome {
   }
 }
 
-// Spec: OP-9, FR-015
+// Spec: OP-9, FR-015, IMPS-1447, IMPS-1448, IMPS-1451, IMPS-1453, IMPS-1455, IMPS-1456, IMPS-1457, UN-18
 /** @purity pure */
 function baselinedDocument(request: ImportRequest): ImportOutcome {
   const currentTaskUids = new Set(request.current.schedule.tasks.map((task) => task.uid))
@@ -401,7 +394,7 @@ function currentIndexOf(schedule: Schedule): CurrentIndex {
   }
 }
 
-// Spec: MG-1, AT-1
+// Spec: MG-1, AT-1, IMPS-903
 /** @purity pure */
 function judgedSource(incoming: Project, index: CurrentIndex): SourceJudgment {
   if (incoming.id === null) return 'undecidable'
@@ -413,7 +406,7 @@ type IncomingPlan =
   | { readonly kind: 'candidate'; readonly currentTaskUid: number }
   | { readonly kind: 'fresh' }
 
-// Spec: MG-3, FR-022
+// Spec: MG-3, FR-022, MG-2, IMPS-902, IMPS-903
 // Trap: match origins only for the same master, or a different master becomes a silent identity.
 /** @purity pure */
 function plannedIncomingTasks(
@@ -441,7 +434,7 @@ function plannedIncomingTasks(
 
 type ChosenMapping = Exclude<MergeMapping, { readonly kind: 'cancelImport' }>
 
-// Spec: T-032a
+// Spec: MG-2, MM-3
 /** @purity pure */
 function resolvedMapping(
   mapping: ChosenMapping,
@@ -500,7 +493,7 @@ function conflictingSettingsKeys(
   return differing.sort()
 }
 
-// Spec: FR-019, RL-33
+// Spec: IMPS-833, RL-33
 // Why: the tip follows its task's renumbered UID; a task the merge did not take leaves a free point behind,
 // held in the box's own date, band and height columns.
 /** @purity pure */
@@ -648,7 +641,7 @@ interface MergeInput {
   readonly settingsConflicted: boolean
 }
 
-// Spec: T-032, MG-5, MG-8, MG-13
+// Spec: T-032, MG-5, MG-8, MG-13, MG-8a, IMPS-902
 /** @purity pure */
 function builtMerge(input: MergeInput): ImportOutcome {
   const { request, index, answers, source, plans, decided } = input
@@ -707,7 +700,7 @@ function builtMerge(input: MergeInput): ImportOutcome {
   }
 
   // Why: resolved before writing, since a dependency or parent task may point at a later task.
-  // STOP: spec does not decide two incoming tasks landing on one current task. Looked in T-032, MG-2, MG-3 (PND-487)
+  // Provisional: OPQ-10
   const mergedUidOf = new Map<number, number>()
   const overwritten: number[] = []
   const added: number[] = []

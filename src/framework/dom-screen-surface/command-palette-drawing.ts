@@ -21,7 +21,7 @@ import {
 
 export const PALETTE_GRAB_BAND_ENTRY = 'IC-53'
 
-// Spec: FR-053
+// Spec: FR-053, IMPS-1826
 /** @purity pure */
 export function paletteGroupRuleStyle(): string {
   const [thickness, clearance] = NOT_STORED_PALETTE_GROUP_RULE_SIZES['S-143']
@@ -31,7 +31,7 @@ export function paletteGroupRuleStyle(): string {
   )
 }
 
-// Spec: FR-053, S-488
+// Spec: FR-053, S-488, IMPS-1848, IMPS-1849
 /** @purity pure */
 export function paletteColumnsOf(entranceCount: number, perRowCap: number): number {
   if (entranceCount <= 0) return 0
@@ -39,12 +39,14 @@ export function paletteColumnsOf(entranceCount: number, perRowCap: number): numb
   return Math.ceil(entranceCount / rows)
 }
 
+// Spec: IMPS-1848
 /** @purity pure */
 export function paletteColumnsStyle(entranceCount: number): string {
   const columns = paletteColumnsOf(entranceCount, NOT_STORED_PALETTE_ROW_CAP['S-488'])
   return `grid-template-columns:repeat(${columns},auto);`
 }
 
+// Spec: IMPS-1853, IMPS-1854
 // Why: screen px on purpose (FR-053, IC-54, S-489); S-235 would take it below FR-077's S-8.
 /** @purity pure */
 export function armedLabelStyle(): string {
@@ -56,7 +58,7 @@ function cornerStyle(at: { readonly x: number; readonly y: number }): string {
   return `position:absolute;left:${at.x}px;top:${at.y}px;`
 }
 
-// Spec: GR-19, FR-053
+// Spec: GR-19, FR-053, IMPS-1820, IMPS-1821, IMPS-1823, IMPS-1836, IMPS-1838, IMPS-1839
 /** @purity non-pure */
 function grabBandElement(
   host: Document,
@@ -67,7 +69,6 @@ function grabBandElement(
   const band = made(host, 'div', STYLE.paletteGrabBand + `height:${heightPx}px;`)
   band.setAttribute('data-icon', PALETTE_GRAB_BAND_ENTRY)
   fillEntry(host, band, PALETTE_GRAB_BAND_ENTRY)
-  // Spec: FR-053, FR-102
   const record = palette.bandRecord ?? null
   if (record !== null) band.prepend(anchoredEntry(host, record, anchors))
 
@@ -79,7 +80,7 @@ function grabBandElement(
   return band
 }
 
-// Spec: U-26, FR-053
+// Spec: U-26, FR-053, IMPS-1822, IMPS-1824, IMPS-1825, IMPS-1838, IMPS-1845, IMPS-1850
 /** @purity non-pure */
 export function paletteElement(
   host: Document,
