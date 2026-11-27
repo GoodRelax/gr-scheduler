@@ -7,6 +7,7 @@ import { keyOfRow } from './cr-610-file-flow-stage'
 import { firstTask, REQUIREMENTS, rowOf, settleLoop, templateDocument, wordsOf } from './cr-719-stage'
 import { keyOf, shell, taskGroupDocument, taskOf, type ShellBench } from '../unit/cr-541-stage'
 
+// Spec: IMPS-1130
 const FR_076_A_T_220_REFUSAL_CARRIES_ITS_ROW =
   '画面からの書き込みが Chapter 6.1 の 表 T-220 の行で拒まれたとき、`GRS` は 表 T-233 のうち出典の欄が拒んだ行を名指す行を運ぶこと。'
 const FR_076_NO_COLLAPSE_OF_THE_REASON = '`GRS` は、拒否の理由を 1 つの行へ潰さないこと。'

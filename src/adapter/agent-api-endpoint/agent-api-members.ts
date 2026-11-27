@@ -9,11 +9,9 @@ import type { Document } from '../../entity/document-model/document/document'
 import {
   delayFixCommands,
   delayFixProposalRows,
-  diagnoseDelay,
   isRecommendedDelayFix,
   proposeDelayFixes,
   searchRowsOf,
-  workingCalendarOf,
   type DelayDiagnosticsReport,
   type DelayFixLogRow,
   type DelayFixRow,
@@ -26,11 +24,9 @@ import {
   type ChangeAudience,
   type DocumentCommand,
   type DocumentHolder,
-  type PlanRefusal,
   type Refusal,
   type ReplaceOutcome,
   type ReplacementCall,
-  type ReplacementRefusal,
   type WriteMoment,
 } from '../../use-case/apply-document-change/apply-document-change'
 import {
@@ -42,6 +38,13 @@ import {
   type InvariantRow,
 } from '../../use-case/edit-document/edit-document'
 import * as NotifyChangeWatchers from '../../use-case/notify-change-watchers/notify-change-watchers'
+import { delayDiagnosisOf } from '../../use-case/run-delay-diagnostics/run-delay-diagnostics'
+import {
+  reasonOfPlanRefusal,
+  reasonOfStepRefusal,
+  ruleOfPlanRefusal,
+  stepRefusalWhat,
+} from '../../use-case/operate-through-agent-api/operate-through-agent-api'
 import * as DocumentCodec from '../document-codec/document-codec'
 import { jsonFromDocument, mspdiFromDocument } from '../document-codec/document-codec'
 import * as ImageExporter from '../image-exporter/image-exporter'
@@ -485,7 +488,7 @@ function tableRowsListedOf(document: Document, table: AgentTable, word: string, 
   const look = { word, isAsShown, language: TABLE_CELL_LANGUAGE } as const
   const { schedule, documentSettings } = document
   if (table === 'resourceList') return resourceListTableRows(schedule, documentSettings, NO_CHOSEN_RESOURCES, look)
-  const report = diagnoseDelay(document, workingCalendarOf(schedule))
+  const report = delayDiagnosisOf(document)
   if (table === 'delayDiagnosticsReport') return delayReportTableRows(report, schedule, documentSettings, look)
   const { fixProposals, fixLog } = delayDiagnosticsWithFixes(document, log)
   const fixTable = table === 'delayFixLog' ? 'log' : 'proposals'
@@ -512,44 +515,6 @@ function tableRowsPageOf(document: Document, table: AgentTable, look: { readonly
 /** @purity pure */
 function stampHandedOut(stamp: DocumentStamp, snapshot: AgentSnapshot): DocumentStamp {
   return frozenCopy({ ...stamp, fileSavedAt: snapshot.documentAsWritten.documentStamp.fileSavedAt })
-}
-
-/** @purity pure */
-function reasonOfPlanRefusal(refusal: PlanRefusal): AgentRefusalReason {
-  switch (refusal.step) {
-    case 'WS-1':
-      return 'staleStamp'
-    case 'WS-2':
-      return refusal.reason
-    case 'WS-3':
-      return 'commandRefused'
-  }
-}
-
-/** @purity pure */
-function ruleOfPlanRefusal(refusal: PlanRefusal): string {
-  switch (refusal.step) {
-    case 'WS-1':
-      return 'AG-2'
-    case 'WS-2':
-      return refusal.reason === 'deliveringNotices' ? 'Chapter 5.5' : 'AG-9'
-    case 'WS-3':
-      return 'AG-3'
-  }
-}
-
-// Why: commandRefused for an empty side of the history: AV-4 has no reason of its own, and notAvailable means a missing component.
-/** @purity pure */
-function reasonOfStepRefusal(refusal: ReplacementRefusal): AgentRefusalReason {
-  if (refusal.step !== 'WS-3') return reasonOfPlanRefusal(refusal)
-  return refusal.reason === 'notOwnStep' ? 'notOwnStep' : 'commandRefused'
-}
-
-/** @purity pure */
-function stepRefusalWhat(refusal: ReplacementRefusal): string {
-  if (refusal.step !== 'WS-3') return `${refusal.step} refused it; the rule is ${ruleOfPlanRefusal(refusal)}`
-  if (refusal.reason === 'notOwnStep') return 'AG-10: the step was written by another writer, not by you'
-  return 'FR-031: the history holds no step to move'
 }
 
 /** @purity pure */
@@ -582,7 +547,7 @@ const NO_SHOWN_TASKS: AgentShownTasks = { drawnTaskUids: null, filteringTables: 
 // Why: the proposals with no row checked or chosen by a person: AM-19 reads no screen value but the log.
 /** @purity semi-pure-mutable */
 function delayDiagnosticsWithFixes(document: Document, log: DelayFixLogSource | undefined): AgentDelayDiagnostics {
-  const report = diagnoseDelay(document, workingCalendarOf(document.schedule))
+  const report = delayDiagnosisOf(document)
   const fixProposals = delayFixProposalRows(proposeDelayFixes(document, report, []), document.schedule)
   return { ...report, fixProposals, fixLog: log?.readDelayFixLog() ?? [] }
 }
@@ -649,8 +614,7 @@ function focusTaskThrough(wiring: AgentApiWiring, snapshot: AgentSnapshot, taskU
   const target = { kind: 'task', taskUid } as const
   const plan = searchJumpWrites(snapshot.document, target, hasRoom, searchJumpReachOf(frame.layout, frame.geometry, frame.regions.taskGroupArea, target))
   const commands = [...(wiring.shownTasks?.jumpViewWrites(taskUid) ?? []), ...searchJumpCommands(plan, frame.unstoredZoom ?? null)]
-  // Why: WS-1 gets the stamp just read: the caller named a task, not a document it read,
-  // so a concurrent edit does not refuse it.
+  // Why: WS-1 gets the stamp just read: the caller named a task, not a document it read, so a concurrent edit does not refuse it.
   const written = writeThroughTheOnePath(wiring, snapshot, 'AM-16', snapshot.document.documentStamp, commands)
   if (written.ok) wiring.shownTasks?.holdJumpTarget(taskUid)
   return written.ok ? { ...written, isScrolled: !plan.isBlockedByPinnedTaskGroups } : written
@@ -1014,7 +978,7 @@ function closeWindowThrough(wiring: AgentApiWiring, which: unknown): AgentWriteO
 // Why: the rows are rebuilt from the document as readDelayDiagnostics lists them, so a key the caller read names the same row.
 /** @purity pure */
 function issuedFixRowsOf(document: Document, fixKeys: readonly string[]): { rows: readonly DelayFixRow[]; unknown: readonly string[] } {
-  const report = diagnoseDelay(document, workingCalendarOf(document.schedule))
+  const report = delayDiagnosisOf(document)
   const proposed = proposeDelayFixes(document, report, [])
   const known = new Set(proposed.map((row) => row.key))
   const picked = fixKeys.length > 0 ? fixKeys.filter((key) => known.has(key)) : proposed.filter(isRecommendedDelayFix).map((row) => row.key)
@@ -1283,7 +1247,7 @@ export function agentApiMembers(wiring: AgentApiWiring): AgentApi {
     exportFixLogTsv(): AgentExport<string> {
       const document = source.readSnapshot().document
       const { fixProposals, fixLog } = delayDiagnosticsWithFixes(document, wiring.delayFixLog)
-      const report = diagnoseDelay(document, workingCalendarOf(document.schedule))
+      const report = delayDiagnosisOf(document)
       return { ok: true, value: delayFixLogTsvWhole({ proposals: fixProposals, log: fixLog }, document, report, TABLE_CELL_LANGUAGE) }
     },
 

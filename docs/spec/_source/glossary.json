@@ -20807,30 +20807,6 @@
    ]
   },
   {
-   "key": "resourceListWindowResourceColumn",
-   "label": {
-    "en": "Resource",
-    "ja": "担当名"
-   },
-   "definition": {
-    "en": "The column Resource of the table of the Resource List Window.",
-    "ja": "担当リストウィンドウの表の「担当名」の列。"
-   },
-   "xGroup": "tableColumns",
-   "xIdentifier": "resourceColumn",
-   "xOwner": "resourceListWindow",
-   "checkedBasis": [
-    "JDG-1856",
-    "JDG-1871",
-    "JDG-3726"
-   ],
-   "xSpecTableRowId": "RQ-2",
-   "xUses": [
-    "screen",
-    "spec"
-   ]
-  },
-  {
    "key": "resourceListWindowSelectedColumn",
    "label": {
     "en": "Selected",
@@ -20849,6 +20825,30 @@
     "JDG-3726"
    ],
    "xSpecTableRowId": "RQ-3",
+   "xUses": [
+    "screen",
+    "spec"
+   ]
+  },
+  {
+   "key": "resourceListWindowResourceColumn",
+   "label": {
+    "en": "Resource",
+    "ja": "担当名"
+   },
+   "definition": {
+    "en": "The column Resource of the table of the Resource List Window.",
+    "ja": "担当リストウィンドウの表の「担当名」の列。"
+   },
+   "xGroup": "tableColumns",
+   "xIdentifier": "resourceColumn",
+   "xOwner": "resourceListWindow",
+   "checkedBasis": [
+    "JDG-1856",
+    "JDG-1871",
+    "JDG-3726"
+   ],
+   "xSpecTableRowId": "RQ-2",
    "xUses": [
     "screen",
     "spec"

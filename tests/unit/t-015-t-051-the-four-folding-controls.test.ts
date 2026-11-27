@@ -1,69 +1,4 @@
-// The four folding controls of a task group, the five of the panel's head, and the
-// picture each of them leaves behind -- 表 T-015 の `HR-1a` / `HR-2` / `HR-3` /
-// `HR-4` / `HR-5` / `HR-6` / `HR-7`, 表 T-051 の `HF-2` / `HF-3` / `HF-10` /
-// `HF-11` / `HF-12` / `HF-13` / `HF-16` / `HF-17` / `HF-18` / `HF-20` and the two
-// paragraphs printed under that table, all rewritten on 2026-08-31.
-//
-// WRITTEN WITHOUT READING ONE LINE OF `src/` (docs/development-rules/
-// 04-verification.md, section 1). What was read: docs/spec/ for every rule
-// below, and the neighboring test files for the shape of the published surface
-// -- how `frameLoop`, `domScreenSurface` and `ScreenView` are driven. No
-// expected value here was taken from how a unit computes its answer.
-//
-// Chapter 9 admits no Unit as a TEST_LEVEL, so these cases have no node in the
-// specification; 表 T-218 of Chapter 7 gives them their place: TS-6,
-// tests/unit/.
-//
-// ---------------------------------------------------------------------------
-// ⛔⛔ WHY THIS FILE EXISTS -- THE OFF-BY-ONE-LEVEL THE MANUSCRIPT MEASURED
-// ---------------------------------------------------------------------------
-//
-// The closing paragraph under 表 T-051 records what the shipping build did:
-//
-//   ⭐⭐ 「**折りたたみの 4 つの操作子は、どれも押したタスクグループそのものの状態を書き換える**
-//   （見本と同じ動作に揃える）… ⛔ **押したタスクグループの状態を書き換えずに、
-//   その配下の状態だけを書き換えてはならない（MUST NOT）** —— ⚠️ **実測で、`HF-11` は
-//   直下の子を残し、`HF-13` は孫を開いた。どちらも 1 階層ずれており、頭に置いた同じ
-//   入口とは別の絵になっていた。**」
-//
-// ⇒ every case below asks the SAME question of one control: after the press,
-// which task groups are drawn, and which task group's two columns moved.
-//
-// ⚠️⚠️ THE ONE PLACE THE MANUSCRIPT ARGUES WITH ITSELF, and the reading these
-// cases take. Read on its own, 「押したタスクグループではなく、その配下の状態を書き換えては
-// ならない（MUST NOT）」 forbids a press from writing any descendant at all. Three
-// other MUSTs require exactly that:
-//   `HR-1a` 「⇒ ⭐ **折りたたむ操作は必ず配下ごと状態を書き換えること（MUST）。**」
-//   `HR-3`  「**選択した `TaskGroup` と、その配下のすべてから、折りたたみと格納を取り除く
-//            こと（MUST）。**」
-//   `HR-7`  「⭐ **直下の子が `HR-6` で格納されているときは、その隠しも解くこと
-//            （MUST）。**」
-// ⇒ the only reading that leaves all four standing is 「その配下の状態を書き換え
-// てはならない」 = 「the pressed task group's own two columns must be the ones that move;
-// writing descendants INSTEAD of the task group is what is forbidden」, which is also
-// what the 実測 sentence describes (a press one level off its target). The cases
-// below are written to that reading and the report says so.
-//
-// ---------------------------------------------------------------------------
-// WHERE EACH CASE IS DRIVEN FROM
-// ---------------------------------------------------------------------------
-//
-// (A) THE FRAME LOOP (`frameLoop`, UF-48). A press arrives the way the shell
-//     receives one -- the surface answers which entrance the point is on, and
-//     the loop does the rest -- so a case can read BOTH answers the rewritten
-//     rows are about: the document's `AT-153` column (treeState), and the task groups the
-//     panel drew afterwards. ⭐ The picture is the half no purer seam can show,
-//     and it is the half 「サンプルと同じ動作にしろ」 was about.
-// (B) THE DOM SURFACE (`domScreenSurface`, UF-71) for ONE case: how many
-//     entrances the head carries and how many a task group carries. Nothing in
-//     `ScreenView` enumerates them, so the count is only observable where they
-//     are drawn.
-//
-// ⚠️ WHAT IS DELIBERATELY NOT HERE: the `HF-17` ⇔ `HF-14` half of the head's
-// correspondence. Both open a name field rather than writing the document
-// (`HF-14`: CR-348 「**名前は空で立て、その場で打たせること（MUST）**」), and IF-9 carries
-// no member for that -- so the pairing cannot be read at this seam. It is held
-// as a premise (the manuscript still states it) and reported as a hole.
+// Unit tests: the four folding controls of a task group and the five of the panel head.
 
 import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
@@ -110,11 +45,7 @@ import { validateDocument } from '../fixtures/grs-document'
 import { taskGroupNameFont } from '../fixtures/task-group-name-font'
 import { emptyScreenSession } from '../../src/use-case/advance-screen-session/advance-screen-session'
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
-// ===========================================================================
-// The manuscripts, read at run time rather than copied (Chapter 1.9)
-// ===========================================================================
+/* eslint-disable @typescript-eslint/no-explicit-any -- the fixture builds documents and fake hosts as loose shapes */
 
 const rowOf = (table: string, id: string) => {
   const found = specTable(table).rows.find((one) => one.id === id)
@@ -122,7 +53,6 @@ const rowOf = (table: string, id: string) => {
   return found
 }
 
-/** Everything one row of a table says, as one string. */
 const says = (table: string, id: string): string => rowOf(table, id).cells.join(' ')
 
 const REQUIREMENTS = unbroken(readRepoFile(
@@ -130,7 +60,6 @@ const REQUIREMENTS = unbroken(readRepoFile(
   'utf8',
 ))
 
-/** 表 T-103's settled English names, which W-4 of 表 T-006a puts into `data-role`. */
 const partName = (row: string): string => bare(rowOf('T-103', row).by['確定名（英）'] ?? '')
 const TASK_GROUP_PANEL = partName('U-22')
 const TASK_GROUP_TITLE_TREE = partName('U-23')
@@ -138,16 +67,8 @@ const TASK_GROUP_TITLE_TREE = partName('U-23')
 const T_109 = specTable('T-109')
 const T_051 = specTable('T-051')
 
-/**
- * The rows of 表 T-051 that stand a control at the PANEL'S HEAD rather than on
- * each task group, found by what those rows say about themselves.
- *
- * ⭐ DERIVED AND NEVER LISTED -- the reading is borrowed from
- * tests/unit/uf-72-screen-part.test.ts, which records that a list written here
- * has already gone stale once. `HF-10` names 「タスクグループパネルの最上部」 outright
- * and `HF-12` / `HF-16` / `HF-17` each place themselves against 「`HF-10` の操作
- * 子」; a row placed on 「各タスクグループに」 says neither.
- */
+// Why: derived from what the rows say about themselves, never listed: a
+// list written here has already gone stale once.
 const T_051_AT_THE_HEAD: readonly string[] = T_051.rows
   .filter((one) => {
     const said = one.cells.join(' ')
@@ -155,7 +76,6 @@ const T_051_AT_THE_HEAD: readonly string[] = T_051.rows
   })
   .map((one) => one.id)
 
-/** Whether a cell of 表 T-109 names one of those rows. */
 const isHeadRule = (authority: string): boolean =>
   T_051_AT_THE_HEAD.some((rule) =>
     new RegExp(`(^|[^0-9A-Za-z-])${rule}([^0-9-]|$)`).test(authority),
@@ -166,24 +86,16 @@ const isHeadRule = (authority: string): boolean =>
 const namesHeadRule = (one: { readonly by: Readonly<Record<string, string>> }): boolean =>
   isHeadRule(one.by['正'] ?? '') || isHeadRule(one.by['何の入口か'] ?? '')
 
-/** Every entrance 表 T-109 stands on the `Task Group Panel`, head and task groups alike. */
 const T_109_ON_THE_PANEL = T_109.rows.filter(
   (one) => bareAll(one.by['面'] ?? '').includes(TASK_GROUP_PANEL),
 )
 
-/** Those of them the panel's HEAD carries, and those each TASK GROUP carries. */
 const AT_THE_HEAD: readonly string[] = T_109_ON_THE_PANEL.filter(namesHeadRule).map((one) => one.id)
 
 const ON_A_TASK_GROUP: readonly string[] = T_109_ON_THE_PANEL.filter((one) => !namesHeadRule(one)).map((one) => one.id)
 
-/**
- * The entrance 表 T-109 gives one row of 表 T-051 or one requirement.
- *
- * ⭐ THE JOIN IS THE SPECIFICATION'S OWN: 表 T-109's 正 column names the rule that
- * owns each entrance, so a case that means 「HF-13's control」 says so and is told
- * which icon that is, instead of typing `IC-90` and going quiet the day the
- * roster is renumbered.
- */
+// Why: table T-109's authority column names the rule that owns each
+// entrance, so a case names the rule and survives a renumbered icon roster.
 function entranceFor(rule: string, among: readonly string[] = [...AT_THE_HEAD, ...ON_A_TASK_GROUP]): string {
   const found = T_109_ON_THE_PANEL.filter(
     (one) =>
@@ -196,13 +108,12 @@ function entranceFor(rule: string, among: readonly string[] = [...AT_THE_HEAD, .
   return first.id
 }
 
-/** The four folding controls of a task group (`HF-1`'s 2 x 2 lattice), by their rule. */
-const HIDE = entranceFor('HF-3') //        HR-6 -- hide this task group
-const OPEN_ONE_LEVEL = entranceFor('HF-13') // HR-7 -- open one level
-const FOLD_BELOW = entranceFor('HF-11') //  HR-4 -- fold this task group
-const OPEN_ALL_BELOW = entranceFor('HF-2') // HR-3 -- open everything below
+// Spec: HF-1
+const HIDE = entranceFor('HF-3')
+const OPEN_ONE_LEVEL = entranceFor('HF-13')
+const FOLD_BELOW = entranceFor('HF-11')
+const OPEN_ALL_BELOW = entranceFor('HF-2')
 
-/** The five the head carries, each of them one of a task group's entrances done at 段 0. */
 const HEAD_OPEN_ONE_LEVEL = entranceFor('HF-16')
 const HEAD_FOLD_EVERY_TASK_GROUP = entranceFor('HF-12')
 const HEAD_OPEN_EVERY_TASK_GROUP = entranceFor('HF-10')
@@ -211,13 +122,7 @@ const HEAD_ADD_TASK_GROUP = entranceFor('HF-17')
 const HEAD_DELETE_EVERY_TASK_GROUP = entranceFor('FR-032', AT_THE_HEAD)
 const DELETE_THIS_TASK_GROUP = entranceFor('FR-032', ON_A_TASK_GROUP)
 
-/** The two a task group carries and the head must not (closing paragraph). */
 const ADD_CHILD_TASK_GROUP = entranceFor('HF-14')
-
-// ===========================================================================
-// (A) The frame loop. Fixture and harness copied from
-//     tests/unit/fr-029-the-reason-a-press-carries.test.ts.
-// ===========================================================================
 
 const TEMPLATE = JSON.parse(
   readRepoFile(
@@ -234,24 +139,8 @@ const EPSILON = '55555555-5555-4555-8555-555555555555'
 const ZETA = '66666666-6666-4666-8666-666666666666'
 const ZETA_KID = '77777777-7777-4777-8777-777777777777'
 
-/**
- * The tree these cases are driven by.
- *
- *   Alpha            (root)
- *     Beta
- *       Gamma
- *         Delta
- *     Epsilon
- *   Zeta             (a second root)
- *     ZetaKid
- *
- * ⭐⭐ FOUR LEVELS DEEP AND NOT THREE, and `HR-7` (MUST NOT) is why: 「⛔ **孫より
- * 下の折りたたみに触れてはならない（MUST NOT）**」 is a claim about everything BELOW the
- * grandchildren, so a tree that stopped at the grandchild could not tell a
- * press that obeyed it from one that reached one level too far.
- * ⭐ EPSILON is a second child of Alpha, so 「直下の子」 is a set and not a task group.
- * ⭐ ZETA is a second root, so 「配下」 has an outside for a press to leave alone.
- */
+// Why: four levels deep so HR-7's limit below the grandchildren is testable;
+// Epsilon makes the direct children a set, Zeta gives a press an outside.
 const TASK_GROUPS: readonly { readonly id: string; readonly parentId: string | null; readonly name: string }[] =
   [
     { id: ALPHA, parentId: null, name: 'Alpha' },
@@ -263,18 +152,15 @@ const TASK_GROUPS: readonly { readonly id: string; readonly parentId: string | n
     { id: ZETA_KID, parentId: ZETA, name: 'ZetaKid' },
   ]
 
-/** Every task group, in the order the panel draws them when nothing is folded. */
 const EVERY_TASK_GROUP = TASK_GROUPS.map((one) => one.name)
 
 const nameOf = (taskGroupId: string): string =>
   TASK_GROUPS.find((one) => one.id === taskGroupId)?.name ?? taskGroupId
 
 interface Fixture {
-  /** Task groups standing `collapsed` (AT-153). */
   readonly folded?: readonly string[]
-  /** Task groups standing `hidden` (AT-153); hidden wins over folded, as one task group holds one value. */
   readonly hidden?: readonly string[]
-  // Why: OP-10 keeps the stored zoom 1, where FR-018 draws every depth; JDG-302 needs that.
+  // Why: OP-10 keeps the stored zoom 1, where FR-018 draws every depth.
   readonly atStoredZoom?: boolean
 }
 
@@ -431,7 +317,6 @@ const pointer = (phase: PointerPhase, x: number, y: number): PointerInput => ({
   clickCount: 1,
 })
 
-/** Somewhere inside the surface the fake answers for. */
 const ON_THE_SURFACE = { x: 80, y: 120 }
 
 interface Stage {
@@ -439,7 +324,6 @@ interface Stage {
   readonly screen: ScreenPane
   send(input: HumanInput): void
   aim(entry: string, taskGroupId: string | null): void
-  /** Aim one entrance and press it. */
   press(entry: string, taskGroupId: string | null): void
 }
 
@@ -470,24 +354,18 @@ function stage(part: Fixture = {}): Stage {
     aim,
     press: (entry, taskGroupId) => {
       aim(entry, taskGroupId)
-      // IN-1 settles a pointer operation on release, so a press is down then up.
+      // Why: IN-1 settles a pointer operation on release, so a press is down then up.
       send(pointer('down', ON_THE_SURFACE.x, ON_THE_SURFACE.y))
       send(pointer('up', ON_THE_SURFACE.x, ON_THE_SURFACE.y))
     },
   }
 }
 
-// ---------------------------------------------------------------------------
-// Reading the two answers back
-// ---------------------------------------------------------------------------
-
-/** The task groups the panel drew, by name, in the order it drew them. */
 function drawnTaskGroups(built: Stage): readonly string[] {
   const panel = built.screen.last().taskGroupPanel
   return [...panel.pinnedTitles, ...panel.titles].map((one) => nameOf(one.taskGroupId))
 }
 
-/** The title the panel drew for one task group. */
 function titleOf(built: Stage, taskGroupId: string): TaskGroupTitle {
   const panel = built.screen.last().taskGroupPanel
   const found = [...panel.pinnedTitles, ...panel.titles].find((one) => one.taskGroupId === taskGroupId)
@@ -497,7 +375,6 @@ function titleOf(built: Stage, taskGroupId: string): TaskGroupTitle {
   return found
 }
 
-/** The task group as the DOCUMENT holds it -- `AT-153` of _assets/fig-erd-detail.md. */
 function storedTaskGroup(built: Stage, taskGroupId: string): TaskGroup {
   const found = (built.loop.document().schedule as any).taskGroups.find(
     (one: any) => one.id === taskGroupId,
@@ -514,29 +391,17 @@ const isFolded = (built: Stage, taskGroupId: string): boolean => treeOf(built, t
 
 const isHiddenTaskGroup = (built: Stage, taskGroupId: string): boolean => treeOf(built, taskGroupId) === 'hidden'
 
-/** `HF-18`'s number, as the panel drew it. */
 const foldedCountOf = (built: Stage, taskGroupId: string): number =>
   ((titleOf(built, taskGroupId) as any).foldedTaskGroupCount as number | null | undefined) ?? 0
 
-/** The words a telling carried, so a case can say a press ACTED instead of refusing. */
 const noticeTexts = (built: Stage): readonly string[] =>
   built.screen.last().notices.map((one) => one.text)
 
-/**
- * The press acted rather than being answered with a reason.
- *
- * ⭐ `FR-029` (MUST) makes the two exclusive: 「**押されたときに限り、行えない理由を
- * 通知の仕組みへ運ぶこと（MUST）**」 is the answer of an entrance that 「いま文書にも画面にも
- * 何も変えられない」. ⇒ a case that means 「this entrance was armed」 can say so by
- * the absence of a telling, without naming which row of 表 T-233 would have come.
- */
+// Why: FR-029 makes acting and telling a reason exclusive, so the absence of
+// a telling shows the entrance was armed without naming a row of table T-233.
 function actedRatherThanRefused(built: Stage, what: string): void {
   expect(noticeTexts(built), `${what} was answered with a reason instead of acting`).toEqual([])
 }
-
-// ===========================================================================
-// (B) The DOM surface, for the one case about how MANY entrances are drawn.
-// ===========================================================================
 
 const EMPTY_HEADER: AppHeaderItems = {
   documentTitle: null,
@@ -557,13 +422,13 @@ const rect = (x: number, y: number, width: number, height: number): ScreenRect =
   height,
 })
 
-/** S-73's default hue, read out of 表 T-216 rather than written here (rule 03 section 1). */
 const THEME: ScreenTheme = {
   preference: emptyScreenSession.screen.themePreference,
   hue: Number(bare(rowOf('T-216', 'S-73').by['既定'] ?? '')),
 }
 
-/** One task group with every control armed, so nothing is left undrawn for want of work. */
+// Why: every control is armed so that no entrance is left undrawn for want
+// of work.
 const ONE_DRAWN_TASK_GROUP: TaskGroupTitle = {
   taskGroupId: 'TaskGroupAlpha',
   depth: 1,
@@ -599,21 +464,17 @@ const PANEL_VIEW: ScreenView = {
   tooltips: [],
 } as unknown as ScreenView
 
-/** Every row of 表 T-109 carried by a node at or under this one. */
 const iconsUnder = (node: FakeElement): readonly string[] =>
   selfAndDescendants(node)
     .map((one) => one.getAttribute('data-icon'))
     .filter((one): one is string => one !== null)
     .filter((one) => T_109_ON_THE_PANEL.some((row) => row.id === one))
 
-// ===========================================================================
-// The premises every case below stands on
-// ===========================================================================
-
+// Spec: IMPS-1980, IMPS-1982, IMPS-1983, IMPS-1984, IMPS-1986, IMPS-1987, IMPS-1988, IMPS-1990
 describe('the manuscript still says what these cases read', () => {
   it('⭐ was really driven by the manuscript, and not by a hollow read of it', () => {
-    // ⛔ WITHOUT THIS, A PARSE THAT LOST A COLUMN WOULD MAKE EVERY CASE BELOW
-    // AGREE WITH ANYTHING -- rule 04 section 2.
+    // Why: a parse that lost a column would make every case below agree with
+    // anything.
     expect(TASK_GROUP_PANEL).toBe('Task Group Panel')
     expect(TASK_GROUP_TITLE_TREE).toBe('Task Group Title Tree')
     expect(T_051_AT_THE_HEAD.slice().sort()).toEqual(['HF-10', 'HF-12', 'HF-16', 'HF-17', 'HF-20'])
@@ -631,9 +492,8 @@ describe('the manuscript still says what these cases read', () => {
   })
 
   it('⛔ 表 T-015 still says what each of the four folding operations does', () => {
-    // The four sentences the ruling of 2026-08-31 wrote, each pinned so that a
-    // manuscript which went back on one fails HERE rather than in a case that
-    // would then be asserting a rule nobody holds.
+    // Why: pinned so a manuscript that went back on a sentence fails here, not in
+    // a case asserting a rule nobody holds.
     expect(says('T-015', 'HR-3')).toContain(
       '子を全展開を押したとき、`GRS` は、選択した `TaskGroup` と配下のすべてから、折りたたみと格納を取り除くこと。',
     )
@@ -645,7 +505,6 @@ describe('the manuscript still says what these cases read', () => {
     expect(says('T-015', 'HR-7')).toContain(
       '直下の子が `HR-6` で格納されているとき、子を 1 階層展開を押したとき、`GRS` は、直下の子の格納も解くこと。',
     )
-    // `HR-5` is the row that keeps `HR-4` honest: the two are ONE operation.
     expect(says('T-015', 'HR-5')).toContain('`GRS` は、`HR-5` を `HR-4` と同じ操作として行うこと（見本と同じ動作に揃える）。')
     expect(says('T-051', 'HF-11')).toContain(
       '`GRS` は、配下をすべて折りたたむ操作子で、表 T-015 の `HR-4` を行うこと（見本と同じ動作に揃える）。',
@@ -681,7 +540,6 @@ describe('the manuscript still says what these cases read', () => {
     expect(REQUIREMENTS).toContain(
       '`GRS` は、`HF-16` で `HF-13` を、`HF-12` で `HF-11` を、`HF-10` で `HF-2` を、`HF-17` で `HF-14` を、`HF-20` でタスクグループごとの削除（表 T-109 の `IC-82`）を、それぞれ段 0 に対して行うこと。',
     )
-    // The arming rule every case in the last block rests on.
     expect(REQUIREMENTS).toContain(
       '`IMPS-1979` の操作で、描かれるタスクグループが 1 つも増減しないとき、`GRS` は、対象が 1 つも無いものとして扱うこと（数えるのは配下のタスクグループの数ではなく、操作の前後で描かれるタスクグループの差である）。',
     )
@@ -709,8 +567,8 @@ describe('the manuscript still says what these cases read', () => {
   })
 
   it('⭐ every task group of the fixture is drawn before anything is pressed', () => {
-    // ⛔ WITHOUT THIS, A PICTURE CASE BELOW COULD PASS ON A PANEL THAT NEVER DREW
-    // THE TASK GROUP IT SAYS A PRESS TOOK AWAY.
+    // Why: otherwise a picture case could pass on a panel that never drew the
+    // task group it says a press took away.
     expect(drawnTaskGroups(stage())).toEqual(EVERY_TASK_GROUP)
   })
 
@@ -719,16 +577,10 @@ describe('the manuscript still says what these cases read', () => {
   })
 })
 
-// ===========================================================================
-// 1. Each control writes the state of the task group it was PRESSED ON
-// ===========================================================================
-
+// Why: the closing paragraph's MUST NOT is read as writing descendants
+// instead of the pressed task group; HR-1a, HR-3 and HR-7 need the rest.
 describe('表 T-051 の結び -- the press writes the pressed task group, not its children', () => {
   it('⛔ MUST: HF-11 folds the task group it was pressed on (HR-4, 指示 2026-08-31)', () => {
-    // `HR-4`: 「**選択した `TaskGroup` を折りたたむこと（MUST）**」 —— ⇒ 「**その直下の子
-    // から下が描かれなくなる**」. ⛔⛔ THE BUG THE ROW RECORDS: 「**2026-08-31 まで
-    // 「配下を折り畳み」と書いていた** —— **実装はその読みどおり配下のタスクグループだけを
-    // 閉じ、その行を閉じていなかった**」.
     const built = stage()
 
     built.press(FOLD_BELOW, BETA)
@@ -737,10 +589,8 @@ describe('表 T-051 の結び -- the press writes the pressed task group, not it
   })
 
   it('⛔ MUST NOT: HF-11 does not hide the task group it was pressed on (HR-4)', () => {
-    // `HR-4`: 「⛔ **そのタスクグループ自身を隠してはならない（MUST NOT）** —— 隠すのは `HR-6`
-    // である」. ⭐ The two values are the whole of 「描かない向きへ働く値は
-    // 2 つだけ」, so a press that wrote the wrong one would still move the
-    // picture and be invisible to a case that only counted task groups.
+    // Why: hidden and collapsed both move the picture, so a fold that wrote the
+    // wrong value would pass a case that only counted task groups.
     const built = stage()
 
     built.press(FOLD_BELOW, BETA)
@@ -749,9 +599,6 @@ describe('表 T-051 の結び -- the press writes the pressed task group, not it
   })
 
   it('⛔ MUST: HF-3 hides the task group it was pressed on and NOT its children (HR-6)', () => {
-    // `HF-3`: 「**親に格納する操作子の職務は 表 T-015 の `HR-6` である（MUST）**」, and
-    // `HR-6` keeps 「格納したタスクグループの配下のタスクグループ…を描いてはならない（MUST NOT）」 as a rule
-    // about what is DRAWN -- so one write is the whole of it.
     const built = stage()
 
     built.press(HIDE, BETA)
@@ -766,34 +613,18 @@ describe('表 T-051 の結び -- the press writes the pressed task group, not it
   })
 
   it('⛔ MUST: HF-3 folds every task group under the task group it hid (HR-6)', () => {
-    // `HR-6` since 2026-08-31: 「**あわせて、そのタスクグループと、その配下を折りたたんだ状態にすること
-    // （MUST）**」（利用者の指示「サンプルと同じ動作にしろ」）—— ⛔ 「**何も折りたたまずに
-    // 隠してもならない（MUST NOT）**」.
-    //
-    // ⭐⭐ THE REASON IS THE WAY BACK, and it is measurable on the sample. `HR-6`
-    // has the task group return through the parent's 「配下を 1 階層展開する」, and `HR-7`
-    // (MUST NOT) has that press touch no fold below the direct children -- so
-    // what comes back is THIS TASK GROUP ALONE. Without the fold the whole subtree
-    // returns at once, which is the 「折りたたむ前の形を覚えて戻す」 `HR-1a` threw out.
-    //
-    // ⚠️ THE FOLD OUTLIVES THE HIDING, and the row says so on purpose rather
-    // than by omission: the task group comes back folded and its own 「1 階層展開する」
-    // opens it. ⛔ THIS CASE HELD THE OPPOSITE UNTIL HR-6 CARRIED THE MUST --
-    // the write was in the product and not in the manuscript, which is what a
-    // body reading only the specification is for.
+    // Why: the fold is the way back: HR-7 opens no fold below the direct
+    // children, so the hidden task group returns alone, not its whole subtree.
     const built = stage()
 
     built.press(HIDE, BETA)
 
     expect(isFolded(built, GAMMA), 'the task group beneath the hidden one was left open').toBe(true)
     expect(isFolded(built, DELTA), 'a task group two levels beneath was left open').toBe(true)
-    // ⛔ AND NOT BEYOND. Only what the hiding took out of the picture is folded.
     expect(isHiddenTaskGroup(built, GAMMA), 'the hide wrote hidden below the task group it hid').toBe(false)
   })
 
   it('⛔ MUST: HF-13 unfolds the task group it was pressed on (HR-7)', () => {
-    // `HR-7`: 「**選択した `TaskGroup` の折りたたみだけを解くこと（MUST）**」 —— ⇒ 「**直下
-    // の子が描かれ、孫より下は折りたたまれたままになる**」.
     const built = stage({ folded: [ALPHA, BETA, GAMMA] })
 
     built.press(OPEN_ONE_LEVEL, ALPHA)
@@ -802,23 +633,17 @@ describe('表 T-051 の結び -- the press writes the pressed task group, not it
   })
 
   it('⛔ MUST NOT: HF-13 does not touch the fold of anything below the direct children (HR-7)', () => {
-    // `HR-7`: 「⛔ **孫より下の折りたたみに触れてはならない（MUST NOT）** —— **触れると
-    // 本行と `HR-3` の違いが消える**」. Measured: HF-13 opened the grandchild.
     const built = stage({ folded: [ALPHA, BETA, GAMMA] })
 
     built.press(OPEN_ONE_LEVEL, ALPHA)
 
     expect(isFolded(built, GAMMA), 'HR-7 (MUST NOT): the grandchild was unfolded').toBe(true)
-    // ⭐ AND THE DIRECT CHILD'S OWN FOLD IS NOT SOMETHING THIS PRESS UNDOES
-    // EITHER: the row 「折りたたみだけを解く」 names one task group, and it is the pressed one.
-    // ⛔ Were this false, the grandchild would be drawn and 「1 階層」 would be two.
+    // Why: the row unfolds one task group, the pressed one; unfolding the child
+    // too would draw the grandchild and make one level two.
     expect(isFolded(built, BETA), 'HR-7: the direct child was unfolded too').toBe(true)
   })
 
   it('⛔ MUST: HF-2 unfolds the pressed task group ITSELF as well as everything below (HR-3, 指示 2026-08-31)', () => {
-    // ⭐⭐ THE RULING THAT REVERSED THIS: 「⭐⭐ **そのタスクグループ自身の折りたたみも解くこと
-    // （MUST）**（利用者の指示 2026-08-31「サンプルと同じ動作にしろ」）—— **`HR-4`
-    // が折りたたむのはそのタスクグループ自身なので、解く側が同じタスクグループを解かなければ対にならない。**」
     const built = stage({ folded: [ALPHA, BETA, GAMMA, DELTA] })
 
     built.press(OPEN_ALL_BELOW, ALPHA)
@@ -830,8 +655,6 @@ describe('表 T-051 の結び -- the press writes the pressed task group, not it
   })
 
   it('⛔ MUST NOT: HF-2 leaves task groups outside the pressed task group’s subtree alone (HR-3)', () => {
-    // 「**選択した `TaskGroup` と、その配下のすべてから**」 -- a second root is
-    // under no part of the pressed task group.
     const built = stage({ folded: [ALPHA, BETA, ZETA] })
 
     built.press(OPEN_ALL_BELOW, ALPHA)
@@ -840,16 +663,8 @@ describe('表 T-051 の結び -- the press writes the pressed task group, not it
   })
 
   it('⭐ MUST: a fold writes the state of the whole subtree, so no shape is remembered (HR-1a)', () => {
-    // `HR-1a`: 「⛔⛔ **折りたたんだタスクグループの配下は、それ自身も折りたたまれた状態とすること（MUST）。
-    // 折りたたむ前の形を覚えて、展開したときに戻してはならない（MUST NOT）**…⇒ ⭐ **折りたたむ操作
-    // は必ず配下ごと状態を書き換えること（MUST）。**」
-    //
-    // ⚠️⚠️ THIS IS THE ONE CASE THE CLOSING PARAGRAPH'S MUST NOT ARGUES WITH, and
-    // the file header says which reading it takes: 「押したタスクグループではなく、その配下の
-    // 状態を書き換えてはならない」 forbids writing the descendants INSTEAD OF the
-    // pressed task group, not writing them AS WELL -- otherwise `HR-1a`'s own MUST, and
-    // `HR-3`'s 「配下のすべてから」, and `HR-7`'s 「その隠しも解く」 could none of
-    // them be obeyed. Reported as a contradiction rather than papered over.
+    // Why: writing the descendants as well as the pressed task group is allowed;
+    // otherwise HR-1a, HR-3 and HR-7 could not be obeyed.
     const built = stage()
 
     built.press(FOLD_BELOW, ALPHA)
@@ -861,15 +676,8 @@ describe('表 T-051 の結び -- the press writes the pressed task group, not it
   })
 })
 
-// ===========================================================================
-// 2. The picture each control leaves behind
-// ===========================================================================
-
 describe('表 T-015 -- the picture each of the four controls leaves', () => {
   it('⭐ HF-11 on a middle task group takes its whole subtree off the picture and leaves the task group (HR-4)', () => {
-    // `HR-4`: ⇒ 「**その直下の子から下が描かれなくなる**」, and `HR-1a` (MUST NOT)
-    // 「**折りたたんだ `TaskGroup` の配下のタスクグループと、そのタスクグループに載っている `Task` を描いては
-    // ならない**」. ⚠️ 実測: 「押しても直下の子が描かれたまま残り、見本と違う絵になる」.
     const built = stage()
 
     built.press(FOLD_BELOW, BETA)
@@ -886,9 +694,6 @@ describe('表 T-015 -- the picture each of the four controls leaves', () => {
   })
 
   it('⭐ HF-13 draws the DIRECT CHILDREN and nothing deeper (HR-7)', () => {
-    // ⭐ THE WHOLE OF 「1 階層」 IN ONE PICTURE: Beta and Epsilon come back, Gamma
-    // does not. ⛔ A press that reached one level further would draw Gamma, which
-    // is the 実測 the closing paragraph records.
     const built = stage({ folded: [ALPHA, BETA, GAMMA, DELTA, EPSILON] })
 
     built.press(OPEN_ONE_LEVEL, ALPHA)
@@ -905,8 +710,6 @@ describe('表 T-015 -- the picture each of the four controls leaves', () => {
   })
 
   it('⭐ HF-3 takes the task group itself off the picture, and its subtree with it (HR-6)', () => {
-    // `HR-6` (MUST NOT): 「**格納したタスクグループの配下のタスクグループと、そのタスクグループに載っている `Task` を
-    // 描いてはならない**」 -- so hiding Beta costs three task groups and not one.
     const built = stage()
 
     built.press(HIDE, BETA)
@@ -915,16 +718,8 @@ describe('表 T-015 -- the picture each of the four controls leaves', () => {
   })
 })
 
-// ===========================================================================
-// 3. HR-3 and HR-4 are inverses of each other on the same task group
-// ===========================================================================
-
 describe('表 T-015 -- HR-3 and HR-4 are one pair on one task group', () => {
   it('⭐⭐ MUST: folding a task group and then opening it below restores the picture exactly', () => {
-    // 「**`HR-4` が折りたたむのはそのタスクグループ自身なので、解く側が同じタスクグループを解かなければ対に
-    // ならない**」. ⛔ Under the reading of 2026-08-30 -- HF-2 reaching 配下 only --
-    // this round trip could not close, because the task group HF-11 folded was the one
-    // task group HF-2 would not open.
     const built = stage()
     const before = drawnTaskGroups(built)
 
@@ -937,8 +732,8 @@ describe('表 T-015 -- HR-3 and HR-4 are one pair on one task group', () => {
   })
 
   it('⭐ and no task group of the document is left collapsed or hidden', () => {
-    // ⛔ A PICTURE THAT MATCHED WITH A VALUE STILL SET would come apart at the
-    // next press; treeState (AT-153) is what the next press reads.
+    // Why: a matching picture with a value still set would come apart at the
+    // next press, which reads treeState (AT-153).
     const built = stage()
 
     built.press(FOLD_BELOW, ALPHA)
@@ -950,11 +745,8 @@ describe('表 T-015 -- HR-3 and HR-4 are one pair on one task group', () => {
     }
   })
 
+  // Spec: HR-5, HF-1
   it('⭐ HR-5 needs no entrance of its own: one press of HF-11 draws the same picture', () => {
-    // `HR-5`: 「⛔⛔ **`HR-4` と同じ操作である**…⭐ **入口は 1 つだけである**（表
-    // T-051 の `HF-11`）」, and `HF-1`: 「**`HR-4` を 1 度押せば同じ絵になる**」.
-    // ⇒ 「fold myself」 and 「fold below me」 must leave ONE picture, which is only
-    // testable as: the task group stays, everything under it goes.
     const built = stage()
 
     built.press(FOLD_BELOW, BETA)
@@ -964,10 +756,6 @@ describe('表 T-015 -- HR-3 and HR-4 are one pair on one task group', () => {
     expect(drawnTaskGroups(built)).not.toContain('Delta')
   })
 })
-
-// ===========================================================================
-// 4. HR-6's two ways back, and the difference between them
-// ===========================================================================
 
 describe('表 T-015 の HR-6 -- the two ways back from a hide, and their one difference', () => {
   it('⛔ the manuscript still names both doors and says the difference is only the range', () => {
@@ -992,10 +780,8 @@ describe('表 T-015 の HR-6 -- the two ways back from a hide, and their one dif
   })
 
   it('⭐⭐ MUST: and it brings that task group ALONE, not its subtree (「1 本は直下の子だけ」)', () => {
-    // Beta is hidden AND folded, so its own subtree is off the picture for a
-    // second reason. ⛔ A one-level opener that also cleared Beta's fold would
-    // be doing HF-2's work at HF-13's entrance, which `HF-13` (MUST NOT)
-    // forbids: 「**同じ入口に兼ねさせてはならない（MUST NOT）**」.
+    // Why: Beta is hidden and folded, so a one-level opener that also cleared
+    // its fold would do HF-2's work at HF-13's entrance.
     const built = stage({ hidden: [BETA], folded: [BETA, GAMMA, DELTA] })
 
     built.press(OPEN_ONE_LEVEL, ALPHA)
@@ -1004,9 +790,6 @@ describe('表 T-015 の HR-6 -- the two ways back from a hide, and their one dif
   })
 
   it('⭐⭐ MUST: the parent’s 配下をすべて control brings the task group AND its subtree (HR-6 through HF-2)', () => {
-    // 「⭐⭐ **「配下を展開」操作子でも戻せること（MUST）**（利用者の裁定
-    // 2026-08-31）…**2 本は配下のすべて**」, and `HR-3` (MUST NOT) 「**折りたたみだけを解いて
-    // 隠しを残してはならない**」.
     const built = stage({ hidden: [BETA], folded: [BETA, GAMMA, DELTA], atStoredZoom: true })
 
     built.press(OPEN_ALL_BELOW, ALPHA)
@@ -1026,9 +809,8 @@ describe('表 T-015 の HR-6 -- the two ways back from a hide, and their one dif
   })
 
   it('⭐ the pairing itself: the same start, two ranges, two pictures', () => {
-    // ⛔ WITHOUT THIS THE FIVE ABOVE WOULD ALL PASS ON A BUILD THAT MADE THE TWO
-    // ENTRANCES ONE. `HF-13` (MUST NOT): 「押すたびに違う量が開く入口は、何が起きる
-    // かを押す前に読めない」.
+    // Why: without this the five above would all pass on a build that made the
+    // two entrances one.
     const narrow = stage({ hidden: [BETA], folded: [BETA, GAMMA, DELTA], atStoredZoom: true })
     const wide = stage({ hidden: [BETA], folded: [BETA, GAMMA, DELTA], atStoredZoom: true })
 
@@ -1041,10 +823,6 @@ describe('表 T-015 の HR-6 -- the two ways back from a hide, and their one dif
     expect(drawnTaskGroups(wide).length).toBeGreaterThan(drawnTaskGroups(narrow).length)
   })
 })
-
-// ===========================================================================
-// 5. The head is 段 0: each of its entrances is a task group entrance done at 段 0
-// ===========================================================================
 
 describe('表 T-051 の結び -- the head does at 段 0 what the paired control does on a task group', () => {
   it('⭐⭐ HF-12 is HF-11 at 段 0: pressing it can leave no task group drawn at all (HR-2)', () => {
@@ -1062,8 +840,6 @@ describe('表 T-051 の結び -- the head does at 段 0 what the paired control 
   })
 
   it('⭐⭐ HF-16 is HF-13 at 段 0: it brings the shallowest level back and nothing deeper', () => {
-    // `HR-2`: 「⭐ **`HR-7`（子を 1 階層展開）を頭で押せば最も浅い段が戻る。**」 ⇒ the
-    // head's opener does exactly what a task group's one-level opener does: one level.
     const built = stage()
 
     built.press(HEAD_FOLD_EVERY_TASK_GROUP, null)
@@ -1072,9 +848,8 @@ describe('表 T-051 の結び -- the head does at 段 0 what the paired control 
     expect(drawnTaskGroups(built), 'HF-16 opened more or less than one level').toEqual(['Alpha', 'Zeta'])
   })
 
+  // Spec: HR-6, HF-16, FR-085
   it('⭐⭐ HF-16 also brings back a hidden TOP-LEVEL task group, as HF-13 does for a child (HR-6)', () => {
-    // 「**親を持たない最上位のタスクグループは、段 0 の同じ操作子で戻せること（MUST）** ——
-    // 同表の `HF-16` である。`FR-085` が最上位のタスクグループを許しているためである」.
     const built = stage({ hidden: [ZETA] })
     expect(drawnTaskGroups(built)).not.toContain('Zeta')
 
@@ -1095,8 +870,6 @@ describe('表 T-051 の結び -- the head does at 段 0 what the paired control 
   })
 
   it('⭐⭐ HF-10 brings back what HF-3 hid, wherever it is (HR-1: HR-3 と同じく)', () => {
-    // `HR-1`: 「⭐ **`HR-3` と同じく、`HR-6` が格納したタスクグループもすべて戻すこと（MUST）** ——
-    // **本行は `HR-3` の段 0 である**」.
     const built = stage({ hidden: [ZETA, DELTA], folded: [ALPHA], atStoredZoom: true })
 
     built.press(HEAD_OPEN_EVERY_TASK_GROUP, null)
@@ -1105,8 +878,6 @@ describe('表 T-051 の結び -- the head does at 段 0 what the paired control 
   })
 
   it('⭐ the four head entrances are told apart: 1 階層 and すべて are not one control', () => {
-    // `HF-16` (MUST NOT): 「**`HF-10`（すべて展開する）に兼ねさせてはならない（MUST NOT）**
-    // —— **理由は `HF-13` がタスクグループについて述べたものと同じである**」.
     const oneLevel = stage()
     const everyTaskGroup = stage()
 
@@ -1122,7 +893,8 @@ describe('表 T-051 の結び -- the head does at 段 0 what the paired control 
 
   // Spec: HF-20
   it('⛔ MUST NOT: the head carries neither of the two a task group keeps to itself', () => {
-    // A press that names no task group cannot hide or pin anything, whichever of the two entrances it carries.
+    // Why: a press that names no task group can hide or pin nothing, so an
+    // unmoved picture is all either entrance may leave.
     const taskGroupsBefore = drawnTaskGroups(stage())
     for (const rule of ['HF-3', 'FR-098']) {
       const built = stage()
@@ -1140,16 +912,12 @@ describe('表 T-051 の結び -- the head does at 段 0 what the paired control 
   })
 })
 
-// ===========================================================================
-// 6. Four entrances at the head, seven on a task group -- and why
-// ===========================================================================
-
 // Spec: HF-20
 describe('表 T-051 の結び -- the head has five entrances and a task group has seven', () => {
   it('⛔ the roster itself splits five and seven, and hide and pin stay on the task group', () => {
     expect(AT_THE_HEAD).toHaveLength(5)
     expect(ON_A_TASK_GROUP).toHaveLength(7)
-    // ⭐ AND THE THREE ARE THE NAMED THREE, so the arithmetic is the
+    // Why: none of the seven is also at the head, so the split is the
     // manuscript's reason and not a coincidence of two counts.
     expect(ON_A_TASK_GROUP.filter((one) => !AT_THE_HEAD.includes(one))).toHaveLength(7)
     for (const rule of ['HF-3', 'FR-098']) {
@@ -1161,9 +929,8 @@ describe('表 T-051 の結び -- the head has five entrances and a task group ha
   })
 
   it('⛔ MUST: the panel draws seven entrances on a task group and five at its head', () => {
-    // ⭐ THE COUNT IS ONLY OBSERVABLE WHERE THEY ARE DRAWN: nothing in
-    // `ScreenView` enumerates a task group's entrances, so this one case is driven
-    // through the DOM surface rather than the loop.
+    // Why: nothing in ScreenView enumerates a task group's entrances, so this
+    // one case is driven through the DOM surface.
     const built = wire(THEME, { 'App Header': 37 })
     domSurfaceOf(built).showScreenView(PANEL_VIEW)
 
@@ -1185,10 +952,6 @@ describe('表 T-051 の結び -- the head has five entrances and a task group ha
     ).toEqual([...AT_THE_HEAD].sort())
   })
 })
-
-// ===========================================================================
-// 7. FR-029 -- when each of these entrances is armed and when it is faint
-// ===========================================================================
 
 describe('FR-029 -- the arming of every entrance the panel carries', () => {
   it('⛔ the manuscript still gives each of them its own condition', () => {
@@ -1216,9 +979,8 @@ describe('FR-029 -- the arming of every entrance the panel carries', () => {
   })
 
   it('⛔ MUST: HF-3 is never faint on a drawn task group (「薄く描く場面は無い」)', () => {
-    // ⭐ THE ONE ENTRANCE WITH NO SPENT STATE, and the reason is in the row: a
-    // drawn task group can always be taken off the screen. ⚠️ Read through `canClose`,
-    // which is the panel's own statement of it.
+    // Why: a drawn task group can always be hidden, so HF-3 has no spent state;
+    // it is read through canClose, the panel's own statement of it.
     for (const fixture of [{}, { folded: [ALPHA] }, { folded: [BETA, GAMMA, DELTA] }]) {
       const built = stage(fixture)
       for (const name of drawnTaskGroups(built)) {
@@ -1248,10 +1010,6 @@ describe('FR-029 -- the arming of every entrance the panel carries', () => {
   })
 
   it('⛔ MUST: HF-11 is faint on a task group whose press would move no task group (表 T-051 の結び)', () => {
-    // 「⛔ **その操作で、描かれるタスクグループが 1 つも増減しないときは、対象が 1 つも無いものと
-    // して扱うこと（MUST）** —— **折りたたむ相手が描かれていても、その相手が配下を持たな
-    // ければ、折りたたんで隠れるタスクグループは 1 つも無い**」. ⭐ Delta is a leaf, so folding it takes
-    // nothing off the screen; Gamma holds Delta, so folding Gamma does.
     const built = stage()
 
     expect(
@@ -1265,9 +1023,6 @@ describe('FR-029 -- the arming of every entrance the panel carries', () => {
   })
 
   it('⛔ MUST: HF-13 is faint when there is no direct child to open, and armed when there is', () => {
-    // 「⛔ **展開できる直下の子が 1 つも無いときは、`FR-029` に従って薄く描くこと
-    // （MUST）**」, whose two ways of having one are `HR-7`'s own: this task group's fold,
-    // and a direct child that `HR-6` hid.
     const open = stage()
     expect(
       (titleOf(open, ALPHA) as any).canOpenOneLevel ?? false,
@@ -1288,8 +1043,6 @@ describe('FR-029 -- the arming of every entrance the panel carries', () => {
   })
 
   it('⛔ MUST: HF-16 is faint with no level to open, and armed once 段 0 is folded', () => {
-    // 「⛔ **展開できる段が無いときは、`FR-029` に従って薄く描くこと（MUST）**」, and
-    // `HR-2` names this control as the way back from the fold it describes.
     const open = stage()
     expect(
       (open.screen.last().taskGroupPanel as any).canOpenLevelZero ?? false,
@@ -1337,10 +1090,8 @@ describe('FR-029 -- the arming of every entrance the panel carries', () => {
   })
 
   it('⭐ MUST: a press on an armed entrance acts instead of telling a reason (FR-029)', () => {
-    // ⛔ WITHOUT THIS, EVERY ARMING CASE ABOVE COULD PASS ON A BUILD THAT DREW
-    // THE FLAG AND ANSWERED THE PRESS WITH A REASON ANYWAY. ⭐ It also carries
-    // the `HF-17` / `HF-14` pairing as far as this seam can: both are armed,
-    // because a new task group can always be added -- at 段 0 and under a task group alike.
+    // Why: arming cases could pass on a build that drew the flag yet answered
+    // with a reason; the HF-17/HF-14 pairing is held only this far here.
     const folded = stage({ folded: [BETA] })
     folded.press(OPEN_ALL_BELOW, ALPHA)
     actedRatherThanRefused(folded, 'HF-2 on a task group holding a folded child')
@@ -1358,10 +1109,6 @@ describe('FR-029 -- the arming of every entrance the panel carries', () => {
     actedRatherThanRefused(addingAtLevelZero, 'HF-17 at 段 0')
   })
 })
-
-// ===========================================================================
-// 8. HF-18's count is the number that arms HF-2
-// ===========================================================================
 
 describe('表 T-051 の HF-18 -- the number a task group shows is the number that arms its opener', () => {
   it('⛔ the manuscript ties the count to the arming only where no zoom takes part', () => {
@@ -1388,8 +1135,8 @@ describe('表 T-051 の HF-18 -- the number a task group shows is the number tha
   })
 
   it('⛔ MUST: with every task group drawn by the zoom, the number shown and the arming of HF-2 agree', () => {
-    // 「構えの条件は `HF-18` の数と同じではない」 only through the zoom, so without
-    // it the two agree -- walked over several shapes so a split shows.
+    // Why: the count and the arming differ only through the zoom, so at the
+    // stored zoom they agree; several shapes are walked so a split shows.
     const shapes: readonly Fixture[] = [
       {},
       { folded: [BETA] },
@@ -1419,9 +1166,8 @@ describe('表 T-051 の HF-18 -- the number a task group shows is the number tha
   })
 
   it('⛔ MUST: the number is the task groups that come back when that task group’s HF-2 is pressed', () => {
-    // 「⭐ **数えるのは配下のタスクグループの数ではなく、その操作の前後で描かれるタスクグループの差である。**」
-    // ⇒ the count is measurable without this file deciding what 「抱えている」 means:
-    // press the control and count the task groups that arrived.
+    // Why: the count is the difference in drawn task groups, so it is measured
+    // by pressing the control and counting the task groups that arrived.
     const wrong: string[] = []
     const shapes: readonly Fixture[] = [
       { folded: [BETA] },

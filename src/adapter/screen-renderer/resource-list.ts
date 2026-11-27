@@ -73,10 +73,12 @@ const CHOICE_ENTRIES: readonly IconId[] = [CHOOSE_ALL_ENTRY, CLEAR_CHOSEN_ENTRY,
 export const RESOURCE_LIST_COLUMNS: readonly string[] = displayWords.resourceListColumns.map((entry) => entry.specTableRowId)
 
 const VISIBILITY_COLUMN = 'RQ-1'
+const NAME_COLUMN = 'RQ-2'
 const CHOSEN_COLUMN = 'RQ-3'
 const COUNT_COLUMN = 'RQ-4'
+const TASKS_COLUMN = 'RQ-5'
 
-const FIXED_COLUMN_COUNT = RESOURCE_LIST_COLUMNS.indexOf('RQ-2') + 1
+const FIXED_COLUMN_COUNT = RESOURCE_LIST_COLUMNS.indexOf(NAME_COLUMN) + 1
 
 const MEASURED_COLUMNS: readonly string[] = [CHOSEN_COLUMN, COUNT_COLUMN]
 
@@ -171,13 +173,12 @@ function referencedResourcesOf(schedule: Schedule): ReadonlySet<number> {
 function lineOf(key: VisibilityKey, name: string, taskUids: readonly number[], facts: { readonly isChosen: boolean | null; readonly isReferenced: boolean }, input: LinesInput, namesByUid: ReadonlyMap<number, string>): ResourceLine {
   const taskNameValues = taskUids.map((uid) => namesByUid.get(uid) ?? '')
   const separator = wordOf(LIST_WORDS.get('taskSeparator'), input.language)
-  const cells = [
-    '',
-    key === UNASSIGNED_ROW_KEY ? name : nameText(name, input.language),
-    '',
-    String(taskUids.length),
-    taskNameValues.map((one) => nameText(one, input.language)).join(separator),
-  ]
+  const cellOfColumn: Readonly<Record<string, string>> = {
+    [NAME_COLUMN]: key === UNASSIGNED_ROW_KEY ? name : nameText(name, input.language),
+    [COUNT_COLUMN]: String(taskUids.length),
+    [TASKS_COLUMN]: taskNameValues.map((one) => nameText(one, input.language)).join(separator),
+  }
+  const cells = RESOURCE_LIST_COLUMNS.map((column) => cellOfColumn[column] ?? '')
   return { key, nameValue: name, taskNameValues, isChosen: facts.isChosen, isReferenced: facts.isReferenced, cells }
 }
 
@@ -213,10 +214,10 @@ function compareCounts(a: string, b: string): number {
 
 const LINE_TABLE: TableColumns<ResourceLine> = {
   values: {
-    'RQ-2': (line) => [line.nameValue],
+    [NAME_COLUMN]: (line) => [line.nameValue],
     [CHOSEN_COLUMN]: (line) => [chosenValueOf(line)],
-    [COUNT_COLUMN]: (line) => [line.cells[3] ?? ''],
-    'RQ-5': (line) => (line.taskNameValues.length === 0 ? [BLANK_SEARCH_VALUE] : line.taskNameValues),
+    [COUNT_COLUMN]: (line) => [line.cells[RESOURCE_LIST_COLUMNS.indexOf(COUNT_COLUMN)] ?? ''],
+    [TASKS_COLUMN]: (line) => (line.taskNameValues.length === 0 ? [BLANK_SEARCH_VALUE] : line.taskNameValues),
   },
   dates: {},
   orders: { [COUNT_COLUMN]: compareCounts },

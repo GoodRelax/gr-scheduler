@@ -32,7 +32,7 @@ import type {
 import type { Document } from '../../src/entity/document-model/document/document'
 import { specTable, unbroken } from '../contract/spec-table'
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-explicit-any -- the fixtures reach into decoded shapes the types close */
 
 const REQUIREMENTS = unbroken(readRepoFile(
   join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'),

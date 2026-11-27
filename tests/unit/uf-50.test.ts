@@ -1,79 +1,4 @@
-// Unit tests for UF-50 `dom-input-source.ts` -- table T-075 of
-// docs/spec/05-07-design.md, component `DomInputSource` (CP-27 of table T-062),
-// published as PI-27 of table T-064. It is the implementation of `InputSource`
-// (IF-2 of table T-065).
-//
-// ⚠️ Chapter 9 does not admit Unit as a TEST_LEVEL, so these have no node in
-// the specification. Table T-218 of Chapter 7 gives them their place: TS-6,
-// tests/unit/.
-//
-// ⛔ WRITTEN WITHOUT READING THE UNIT'S BODY (docs/development-rules/
-// 04-verification.md, §1). What was read: docs/spec/ for every rule below, the
-// seam declaration `src/adapter/input-command-translator/input-source.ts`, and
-// of the unit itself only its head comment, its two published interfaces
-// (`InputHost`, `PointerCaptureTarget`) and the one signature
-// `domInputSource(host, isBrowserDefaultStopped): InputSource`. Every expected
-// value here comes from a requirement, a table, or a recorded provisional
-// decision -- never from the implementation.
-//
-// ⭐ WHY THE FAKE IS SHAPED THE WAY IT IS. This is a Framework unit: it talks
-// to the browser, and `npm test` runs under Node with no DOM at all. R7.3 asks
-// for the outside to be handed in rather than reached for, so the unit takes
-// the browser as an argument and these cases hand it `fakeHost()` instead.
-// ⚠️ R6.3 warns that a fake can quietly become the thing under test, so the
-// cases below assert what the unit DID to the fake -- which listeners it
-// registered and with what options, in which order it asked and told, which
-// capture calls it made, which events it called `preventDefault` on -- and not
-// merely that a call came back. The fake carries ONLY the five members
-// `InputHost` declares and the three `PointerCaptureTarget` declares, so a unit
-// that reached for a sixth would fail rather than pass quietly.
-//
-// The rules these cases answer to:
-//   表 T-065 IF-2   the seam this unit implements, and (with the note under
-//                   表 T-078) the rule that its supply is not widened -- no
-//                   member reports a size, a time or a date
-//   表 T-078 FT-1   a person's input is a trigger of a frame; with NFR-010,
-//                   nothing this table does not list may wake one
-//   表 T-060 LY-5   the Framework is the only layer that may hold a current
-//                   value -- the gesture in flight lives here
-//   IN-1            a pointer operation settles on RELEASE, not on press
-//                   (MUST); the pointer leaving the drawing area may not be
-//                   read as an interruption (MUST NOT)
-//   IN-1a           a pointer lost outside the window before the button was
-//                   released ends the drag as an abort (MUST)
-//   IN-4 / IN-4a    `Esc` consumes one level only when there is something to
-//                   consume; with nothing to consume it MUST reach the browser
-//   IN-5a           `Ctrl+C` / `Ctrl+V` during unsettled text entry reach the
-//                   browser as character operations (MUST)
-//   MK-10           the browser's own behavior is stopped for an input this
-//                   tool assigned (MUST) and NOT stopped for one it did not
-//                   (MUST NOT); the canvas alone is not enough
-//   MK-12           the unit of an assignment is the COMBINATION, so all four
-//                   modifiers travel together
-//   MK-13           how many presses in a row -- counted here, because telling
-//                   a double click from two single ones is a question about
-//                   elapsed time
-//   MK-1 〜 MK-5    one wheel happening carries both magnitudes; S-96 says why
-//                   (「1 ノッチで何倍動くかは入力装置に依存する」)
-//   表 T-036        the spelling of the assignment column
-//   表 T-035 AG-9   the harm IN-1a avoids: a drag that never ends refuses every
-//                   later `Agent API` write
-//
-// ⭐ Chapter 1.9 (:275) asks a test of a requirement that points at a table to
-// be driven by a fixed copy of that table, one test walking every row.
-// T_036_KEYS, T_023_BUTTONS, WHEEL_TURNS, MK_13_RUNS and NOT_LISTENED_FOR are
-// those copies; the T-036 one is checked against the table itself at read time
-// so that it cannot fall behind a new row.
-//
-// ⚠️ THREE THINGS ARE DELIBERATELY NOT ASSERTED, because no requirement decides
-// them. Each is written down where it would otherwise have been tested, so a
-// reader can tell an untested question from an untested unit:
-//   - what a SIDEWAYS detent, or a detent reported by the PAGE, is worth
-//     (`TURNS_WHOSE_DETENTS_NO_ROW_STATES`)
-//   - whether a press of another button inside the interval merely starts its
-//     own run or also ends the first one (`MK_13_RUNS`)
-//   - what must happen when the host's own capture API throws (the comment
-//     above the last describe)
+// Unit tests: the DOM input source (UF-50) turns browser events into human inputs.
 
 import { describe, expect, it } from 'vitest'
 
@@ -88,26 +13,13 @@ import {
   type InputHost,
   type PointerCaptureTarget,
 } from '../../src/framework/dom-input-source/dom-input-source'
-// ⭐ Borrowed from the contract kind on purpose: it is the one reader that
-// takes the copy from the .md at read time, which is what keeps the roster
-// below from falling behind a row added to 表 T-036.
+// Why: the contract reader takes the copy from the .md at read time, which
+// keeps the roster below from falling behind a row added to table T-036.
 import { specTable } from '../contract/spec-table'
 
-// ---------------------------------------------------------------------------
-// Fixed copies of the tables these cases are driven by.
-// ---------------------------------------------------------------------------
-
-/**
- * 表 T-036 — ショートカットキーの割当, as the host would report each press.
- *
- * `key` is the column's own spelling, which is what `KeyInput.key` carries.
- * ⚠️ `SK-1` / `SK-1a` are deliberately absent: their assignment cell is `—`,
- * and the note under the table says such a row 「その経路を持たないと定めた記録
- * であって、割当ではない」.
- *
- * `hostKey` / `hostCode` are what a common layout reports: Shift+- arrives as
- * `_` and Alt++ as `=`, so only the physical key is shared (PND-93).
- */
+// Spec: T-036
+// Why: SK-1 and SK-1a are absent because their assignment cell is a dash;
+// hostKey/hostCode are a common layout's, so only the physical key is shared.
 const T_036_KEYS = [
   { row: 'SK-19', hostKey: 'Enter', hostCode: 'Enter', mods: {}, key: 'Enter' },
   { row: 'SK-2', hostKey: 'a', hostCode: 'KeyA', mods: { ctrl: true }, key: 'A' },
@@ -135,18 +47,14 @@ const T_036_KEYS = [
   { row: 'SK-23', hostKey: '_', hostCode: 'Minus', mods: { ctrl: true, shift: true }, key: '-' },
   { row: 'SK-18', hostKey: 'f', hostCode: 'KeyF', mods: {}, key: 'F' },
   { row: 'SK-20', hostKey: 'd', hostCode: 'KeyD', mods: { ctrl: true, shift: true }, key: 'D' },
-  // ⭐ CR-280 put `SK-21`「開いているファイルを読み直す」`Ctrl` ＋ `R` in the
-  // place the retired autosave left (rule OP-13 of table T-024a).
+  // Spec: SK-21
   { row: 'SK-21', hostKey: 'r', hostCode: 'KeyR', mods: { ctrl: true }, key: 'R' },
   // Spec: SK-24, FR-151
   { row: 'SK-24', hostKey: 'f', hostCode: 'KeyF', mods: { ctrl: true }, key: 'F' },
 ] as const
 
-/**
- * The same three signs off the numeric keypad. PND-93 recognizes `+` / `-` / `0`
- * by the physical key, and the keypad is the second physical key that produces
- * each of them.
- */
+// Why: the sign keys are recognized by the physical key, and the keypad is
+// the second physical key that produces each of them.
 const T_036_NUMPAD = [
   { row: 'SK-16', hostKey: '+', hostCode: 'NumpadAdd', mods: { shift: true }, key: '+' },
   { row: 'SK-16b', hostKey: '-', hostCode: 'NumpadSubtract', mods: { shift: true }, key: '-' },
@@ -154,13 +62,9 @@ const T_036_NUMPAD = [
   { row: 'SK-23', hostKey: '-', hostCode: 'NumpadSubtract', mods: { ctrl: true, shift: true }, key: '-' },
 ] as const
 
-/**
- * The buttons of 表 T-023. `MK-7` names the middle one and `MK-6` / `MK-8` /
- * `MK-11` the left; the right has no row, and the seam carries it anyway
- * because `MK-10` needs the translator to see that the press was not this
- * tool's. ⚠️ A host also numbers the back and forward buttons (3 and 4), and
- * no row of any table assigns them.
- */
+// Spec: MK-6, MK-7, MK-8, MK-11
+// Why: the right button has no row but is carried, because MK-10 needs to
+// see the press was not this tool's; no row assigns buttons 3 and 4.
 const T_023_BUTTONS = [
   { hostButton: 0, button: 'left', assigned: true },
   { hostButton: 1, button: 'middle', assigned: true },
@@ -169,18 +73,9 @@ const T_023_BUTTONS = [
   { hostButton: 4, button: null, assigned: false },
 ] as const
 
-/**
- * What a host may report a wheel turn in, and what one turn is worth in each.
- *
- * ⭐ S-96 states outright that 「1 ノッチで何倍動くかは入力装置に依存する」,
- * which is why one happening carries BOTH magnitudes: `notches` for the zoom
- * rows (`MK-2` 〜 `MK-4`, whose step S-53 is stated per notch) and `scrollPx`
- * for the scroll rows (`MK-1` / `MK-5`, for which no row gives a day per
- * notch). ⚠️ The divisors that recover one from the other are PND-91's
- * recommendation, not a decided value: 40 px per line, 100 px per notch, 3
- * lines per notch, and the host's own `innerWidth` / `innerHeight` for a page.
- * These cases are the ones that fail if that recommendation is reversed.
- */
+// Spec: MK-1, MK-4, MK-5, S-96, S-53
+// Why: the divisors (40 px a line, 100 px a notch, 3 lines a notch, the
+// window for a page) are a recommendation, not decided; these cases pin it.
 const DOM_DELTA_PIXEL = 0
 const DOM_DELTA_LINE = 1
 const DOM_DELTA_PAGE = 2
@@ -231,27 +126,8 @@ const WHEEL_TURNS = [
   },
 ] as const
 
-/**
- * The turns whose PIXELS are settled but whose DETENTS nothing settles.
- *
- * ⛔ `notches` is deliberately not stated here, and the omission is the point.
- *
- *   - SIDEWAYS. The seam calls a detent 「positive when the wheel was turned
- *     TOWARD the person -- the direction that reads a document further down」,
- *     which names one axis and settles nothing about the other, and no row of
- *     表 T-023 says what a sideways detent is worth. ⚠️ It cannot be zero
- *     either: `MK-3` assigns `Shift`＋ホイール to the horizontal zoom, whose
- *     step S-53 is stated per notch, and a common host reports a shifted wheel
- *     turn in `deltaX` rather than `deltaY`.
- *   - BY THE PAGE. PND-91 recommends a figure for pixels-per-line and
- *     pixels-per-notch and states that a page is measured in the host's own
- *     `innerWidth` / `innerHeight` -- it names no pages-per-notch figure, and
- *     neither does any table.
- *
- * ⭐ So these cases assert the pixels exactly (`MK-1` and `MK-5` need a
- * distance, because the scroll position is an anchor in the document -- S-77 /
- * S-78) and assert of the detents only that a turn produced some.
- */
+// Why: no row states what a sideways or page detent is worth, so notches is
+// left out on purpose; the pixels are exact and the detents only nonzero.
 const TURNS_WHOSE_DETENTS_NO_ROW_STATES = [
   {
     why: 'sideways, reported in pixels (MK-5)',
@@ -283,15 +159,9 @@ const TURNS_WHOSE_DETENTS_NO_ROW_STATES = [
   },
 ] as const
 
-/**
- * `MK-13` — how many presses in a row. Each run is a list of presses, given as
- * the gap in milliseconds and the distance in pixels from the press before it,
- * with the count each press must answer.
- *
- * ⚠️ Neither figure is in the specification. PND-90 recommends 500 ms and 4 px,
- * measured press-to-press and kept per button; `500` and `4` below are the two
- * places that fail if that is reversed.
- */
+// Spec: MK-13
+// Why: 500 ms and 4 px are a recommendation, not in the spec, measured
+// press-to-press per button; these runs fail if it is reversed.
 const MK_13_RUNS = [
   {
     why: 'two presses inside the interval, at the same point',
@@ -330,8 +200,8 @@ const MK_13_RUNS = [
     ],
   },
   {
-    // A double click is two presses of the SAME button, so a press of another
-    // button inside the interval begins a run of its own rather than joining.
+    // Why: a double click is two presses of the same button, so another button
+    // inside the interval begins a run of its own.
     why: 'another button inside the interval does not continue the run',
     presses: [
       { afterMs: 0, dx: 0, hostButton: 0, count: 1 },
@@ -340,17 +210,7 @@ const MK_13_RUNS = [
   },
 ] as const
 
-/**
- * ⛔ What this unit may not listen for.
- *
- * NFR-010 forbids waking a frame on anything 表 T-078 does not list (MUST NOT),
- * and the note under that table says the window's size (`FT-3`) and the clock
- * (`FT-4`) are the shell's to observe. `IN-1` forbids reading the pointer
- * leaving the drawing area as an interruption (MUST NOT), so the events that
- * report exactly that may not be listened for either -- the pointer is captured
- * instead. `MK-10`'s MUST NOT leaves the context menu to the browser, because
- * the right button has no row in 表 T-023.
- */
+// Spec: NFR-010, IN-1, MK-10
 const NOT_LISTENED_FOR = [
   { type: 'resize', why: 'FT-3 of 表 T-078 -- the shell observes the size' },
   { type: 'scroll', why: 'FT-3 of 表 T-078' },
@@ -369,7 +229,6 @@ const NOT_LISTENED_FOR = [
   { type: 'keypress', why: '表 T-036 assigns nothing to it' },
 ] as const
 
-/** The seven the unit is allowed. Every one reports a happening FT-1 names. */
 const LISTENED_FOR = [
   'pointerdown',
   'pointermove',
@@ -380,22 +239,16 @@ const LISTENED_FOR = [
   'keydown',
 ] as const
 
-/**
- * The five on which the unit ever stops the browser (`MK-10`). A listener
- * registered as passive cannot stop anything, and on a window `wheel` is
- * passive by default -- so leaving it out would silently let the page zoom
- * under `MK-2`.
- */
+// Why: a passive listener cannot stop the browser, and a window's wheel is
+// passive by default, so leaving it out would let the page zoom under MK-2.
 const MUST_NOT_BE_PASSIVE = ['pointerdown', 'pointermove', 'pointerup', 'wheel', 'keydown'] as const
 
 const NO_MODIFIERS: InputModifiers = { ctrl: false, shift: false, alt: false, meta: false }
 
 const modifiersOf = (over: Partial<InputModifiers>): InputModifiers => ({ ...NO_MODIFIERS, ...over })
 
-// ---------------------------------------------------------------------------
-// The browser, faked. Only the members InputHost and PointerCaptureTarget
-// declare -- a unit that reached for a sixth would fail here rather than pass.
-// ---------------------------------------------------------------------------
+// Why: the fake carries only the members InputHost and PointerCaptureTarget
+// declare, so a unit that reached for another would fail rather than pass.
 
 interface Registration {
   readonly type: string
@@ -405,7 +258,6 @@ interface Registration {
 
 type Fake<T> = T & { preventDefault(): void; preventedCount(): number }
 
-/** Wraps a plain object literal so a case can count what was stopped. */
 function withPreventDefault<T extends object>(fields: T): Fake<T> {
   let prevented = 0
   return {
@@ -429,17 +281,11 @@ interface HostOptions {
 
 interface FakeHost {
   readonly host: InputHost
-  /** Every registration, in the order it was made. */
   readonly added: readonly Registration[]
-  /** Every removal, in the order it was made. */
   readonly removed: readonly Registration[]
-  /** The options each registration carried, by type. */
   optionsFor(type: string): boolean | AddEventListenerOptions | undefined
-  /** Registered and not yet removed -- what a happening would actually reach. */
   live(): readonly Registration[]
-  /** `set:7`, `has:7`, `release:7` -- in the order the unit made them. */
   readonly captureCalls: string[]
-  /** Deliver one happening to every live listener of that type, as a host does. */
   send(type: string, event: object): void
 }
 
@@ -449,10 +295,8 @@ const isSameRegistration = (a: Registration, b: Registration): boolean =>
 function fakeHost(options: HostOptions = {}): FakeHost {
   const added: Registration[] = []
   const removed: Registration[] = []
-  // ⚠️ The live set is kept as its own list rather than derived from the two
-  // logs: a unit that registers, unregisters and registers the same handler
-  // again is a live listener at the end, and a log difference would call it
-  // dead.
+  // Why: the live set is its own list, not derived from the two logs: a
+  // handler registered, removed and registered again is live at the end.
   const alive: Registration[] = []
   const optionsByType = new Map<string, boolean | AddEventListenerOptions | undefined>()
   const captureCalls: string[] = []
@@ -478,9 +322,8 @@ function fakeHost(options: HostOptions = {}): FakeHost {
       const made: Registration = { type, listener, capture: captureOf(listenerOptions) }
       added.push(made)
       optionsByType.set(type, listenerOptions)
-      // A host ignores a second registration of the same triple, so the fake
-      // does too -- otherwise a unit that registered twice would look as if it
-      // reported twice, and the difference matters to NFR-010.
+      // Why: a host ignores a second registration of the same triple; without
+      // this a unit that registered twice would look as if it reported twice.
       if (!alive.some((one) => isSameRegistration(one, made))) alive.push(made)
     },
     removeEventListener(type, listener, listenerOptions): void {
@@ -510,10 +353,6 @@ function fakeHost(options: HostOptions = {}): FakeHost {
   }
 }
 
-// ---------------------------------------------------------------------------
-// The happenings, as a host reports them.
-// ---------------------------------------------------------------------------
-
 interface PointerFields {
   pointerId: number
   button: number
@@ -524,10 +363,8 @@ interface PointerFields {
   altKey: boolean
   metaKey: boolean
   timeStamp: number
-  // ⚠️ Deliberately unlike clientX / clientY. 表 T-023a 〜 T-023d are read in
-  // the window's own frame of reference -- the one `regionAtPointer` (PI-35)
-  // takes without conversion -- so a unit that reached for one of these
-  // instead would place every happening somewhere else.
+  // Why: unlike clientX/clientY on purpose; the pointer tables are read in
+  // the window's frame, so a unit reading these would place everything elsewhere.
   pageX: number
   pageY: number
   screenX: number
@@ -623,22 +460,13 @@ const withMods = <T extends { ctrlKey: boolean; shiftKey: boolean; altKey: boole
     metaKey: mods.meta ?? false,
   }) as Partial<T>
 
-// ---------------------------------------------------------------------------
-// One unit, one fake host, and a log of everything that passed between them.
-// ---------------------------------------------------------------------------
-
 interface Harness {
   readonly fake: FakeHost
   readonly source: InputSource
-  /** What the watcher was handed, in order. */
   readonly heard: HumanInput[]
-  /** What MK-10's question was asked about, in order. */
   readonly asked: HumanInput[]
-  /** `ask` and `hear`, interleaved -- IN-4 needs the ask to come first. */
   readonly order: string[]
-  /** Make MK-10's answer for the happenings that follow. */
   answer(next: boolean | ((input: HumanInput) => boolean)): void
-  /** Start watching with the recording watcher. */
   watch(): void
 }
 
@@ -673,7 +501,6 @@ function harness(options: HostOptions = {}): Harness {
   }
 }
 
-/** A press, then a release, at one place -- the ordinary settled gesture. */
 function pressAndRelease(
   run: Harness,
   over: Partial<PointerFields> = {},
@@ -687,10 +514,6 @@ function pressAndRelease(
 
 const pointers = (run: Harness): readonly PointerInput[] =>
   run.heard.filter((one): one is PointerInput => one.kind === 'pointer')
-
-// ---------------------------------------------------------------------------
-// The rosters these cases walk are the ones the tables state.
-// ---------------------------------------------------------------------------
 
 describe('the rosters these cases walk are the ones the tables state', () => {
   it('names every row of 表 T-036 that carries an assignment', () => {
@@ -706,8 +529,6 @@ describe('the rosters these cases walk are the ones the tables state', () => {
   })
 
   it('leaves out only the rows whose assignment cell is `—` (SK-1 / SK-1a)', () => {
-    // The note under 表 T-036: 「割当の欄が `—` の行は、その経路を持たないと
-    // 定めた記録であって、割当ではない」.
     const unassigned = specTable('T-036')
       .rows.filter((row) => /^[—-]$/.test((row.by['割当'] ?? '').trim()))
       .map((row) => row.id)
@@ -721,10 +542,6 @@ describe('the rosters these cases walk are the ones the tables state', () => {
     expect(typeof (globalThis as { WheelEvent?: unknown }).WheelEvent).toBe('undefined')
   })
 })
-
-// ---------------------------------------------------------------------------
-// IF-2 of 表 T-065 -- the seam, and only the seam.
-// ---------------------------------------------------------------------------
 
 describe('IF-2 of 表 T-065 -- the seam this unit implements', () => {
   it('publishes watchInput and unwatchInput, and nothing beside them', () => {
@@ -797,10 +614,6 @@ describe('IF-2 of 表 T-065 -- the seam this unit implements', () => {
   })
 })
 
-// ---------------------------------------------------------------------------
-// FT-1 of 表 T-078 with NFR-010 -- what may be listened for, and what may not.
-// ---------------------------------------------------------------------------
-
 describe('FT-1 of 表 T-078 -- seven listeners, every one a pointer or a key', () => {
   it('registers exactly the seven, on the window itself (MK-10)', () => {
     const run = harness()
@@ -838,10 +651,6 @@ describe('FT-1 of 表 T-078 -- seven listeners, every one a pointer or a key', (
     }
   })
 })
-
-// ---------------------------------------------------------------------------
-// IN-1 -- down and up are separate happenings, and nothing settles on the press.
-// ---------------------------------------------------------------------------
 
 describe('IN-1 -- a pointer operation settles on release, not on press', () => {
   it('reports the press, the moves and the release as four happenings', () => {
@@ -901,12 +710,8 @@ describe('IN-1 -- a pointer operation settles on release, not on press', () => {
   })
 
   it('holds only a press this tool assigned, and still settles one it did not (PND-94)', () => {
-    // ⚠️ Which of the two risks to carry is undecided. Holding a press this
-    // tool did not assign would send the compatibility mouse events to the
-    // holder instead of to what was pressed, and the in-place editing of
-    // `SK-19` needs that click to reach a text field; not holding it leaves
-    // IN-1a's abort resting on the host's implicit capture. PND-94 recommends
-    // not holding it, and this is the case that fails if that is reversed.
+    // Why: holding an unassigned press would send its compatibility mouse events away from a
+    // text field; the undecided choice not to hold it rests IN-1a on the host's capture.
     const run = harness()
     run.answer((input) => input.kind === 'pointer' && input.button === 'left')
     run.watch()
@@ -924,10 +729,6 @@ describe('IN-1 -- a pointer operation settles on release, not on press', () => {
     expect(run.fake.captureCalls).toContain('set:4')
   })
 })
-
-// ---------------------------------------------------------------------------
-// 表 T-023 -- which button, and which are not reported at all.
-// ---------------------------------------------------------------------------
 
 describe('表 T-023 -- the buttons (one case walks the roster)', () => {
   it('maps the host numbering onto PointerButton, and drops what no row names', () => {
@@ -962,10 +763,6 @@ describe('表 T-023 -- the buttons (one case walks the roster)', () => {
     expect(pointers(run).map((one) => one.button)).toEqual(['middle', 'middle', 'middle'])
   })
 })
-
-// ---------------------------------------------------------------------------
-// IN-1a -- a pointer lost before the button was released ends the drag.
-// ---------------------------------------------------------------------------
 
 describe('IN-1a -- the drag ends as an abort when the pointer is lost (表 T-035 AG-9)', () => {
   it('turns pointercancel into a lost that carries what the press carried', () => {
@@ -1073,10 +870,6 @@ describe('IN-1a -- the drag ends as an abort when the pointer is lost (表 T-035
   })
 })
 
-// ---------------------------------------------------------------------------
-// MK-10 / IN-4 / IN-4a / IN-5a -- what the browser is allowed to keep doing.
-// ---------------------------------------------------------------------------
-
 describe('MK-10 -- the browser is stopped only for an input this tool assigned', () => {
   it('stops the browser when the answer says the input was assigned', () => {
     const run = harness()
@@ -1134,10 +927,8 @@ describe('MK-10 -- the browser is stopped only for an input this tool assigned',
   })
 
   it('lets Esc reach the browser when there is nothing to consume (IN-4a, MUST)', () => {
-    // ⭐ IN-4a is the reason MK-10's answer is injected rather than decided
-    // here: with nothing open, no drag, no armed tool and no Dual Cursor, the
-    // caller answers `false` and the key must reach the browser -- otherwise
-    // the browser loses whatever it gives Esc.
+    // Why: IN-4a is why MK-10's answer is injected: with nothing to consume the
+    // caller answers false, and the key must reach the browser.
     const run = harness()
     run.answer((input) => input.kind !== 'key' || input.key !== 'Esc')
     run.watch()
@@ -1151,9 +942,8 @@ describe('MK-10 -- the browser is stopped only for an input this tool assigned',
   })
 
   it('lets Ctrl+C and Ctrl+V through during unsettled text entry (IN-5a, MUST)', () => {
-    // IN-5a is 表 T-023 MK-10's one exception, and no special case is needed
-    // here: the caller answers `false` while text entry is unsettled, and the
-    // pair reach the browser as character operations.
+    // Why: no special case is needed: the caller answers false while text entry
+    // is unsettled, so the pair reach the browser.
     const run = harness()
     run.answer(false)
     run.watch()
@@ -1167,9 +957,8 @@ describe('MK-10 -- the browser is stopped only for an input this tool assigned',
     expect(run.heard.map((one) => (one.kind === 'key' ? one.key : one.kind))).toEqual(['C', 'V'])
   })
 
+  // Spec: MK-12, MK-10
   it('leaves an unassigned modifier drag to the browser (MK-12, MUST NOT)', () => {
-    // MK-12 leaves Alt + drag unassigned (CR-656 gave Ctrl + Shift + drag to MK-7 / MK-15),
-    // and MK-10 forbids stopping a combination that has none.
     const run = harness()
     run.answer(false)
     run.watch()
@@ -1205,10 +994,6 @@ describe('MK-10 -- the browser is stopped only for an input this tool assigned',
     expect(event.preventedCount()).toBe(0)
   })
 })
-
-// ---------------------------------------------------------------------------
-// MK-12 -- the unit of an assignment is the combination, so all four travel.
-// ---------------------------------------------------------------------------
 
 describe('MK-12 -- all four modifiers travel together on every happening', () => {
   const COMBINATIONS: readonly Partial<InputModifiers>[] = [
@@ -1263,10 +1048,6 @@ describe('MK-12 -- all four modifiers travel together on every happening', () =>
     ])
   })
 })
-
-// ---------------------------------------------------------------------------
-// MK-13 -- how many presses in a row.
-// ---------------------------------------------------------------------------
 
 describe('MK-13 -- the count of presses in a row (one case walks the runs)', () => {
   it('answers the count each press of each run must carry', () => {
@@ -1327,9 +1108,8 @@ describe('MK-13 -- the count of presses in a row (one case walks the runs)', () 
   })
 
   it('reads the moment off the event, not off a clock it was handed', () => {
-    // ⚠️ Both presses are far apart in wall-clock time but the host reports
-    // them 100 ms apart on its own timeline, which is the only timeline the
-    // seam mentions. A unit reading `Date.now()` instead would answer 1.
+    // Why: the host reports the presses 100 ms apart on its own timeline, the
+    // only one the seam mentions; a unit reading Date.now() would answer 1.
     const run = harness()
     run.watch()
     run.fake.send('pointerdown', hostPointer({ timeStamp: 5_000_000 }))
@@ -1339,10 +1119,6 @@ describe('MK-13 -- the count of presses in a row (one case walks the runs)', () 
     expect(pointers(run).at(-1)?.clickCount).toBe(2)
   })
 })
-
-// ---------------------------------------------------------------------------
-// MK-1 〜 MK-5 with S-96 and S-53 -- one turn, two magnitudes.
-// ---------------------------------------------------------------------------
 
 describe('MK-1 〜 MK-5 -- one wheel happening carries detents and pixels', () => {
   it('answers both magnitudes for every way a host reports a turn (one case walks the roster)', () => {
@@ -1420,10 +1196,6 @@ describe('MK-1 〜 MK-5 -- one wheel happening carries detents and pixels', () =
   })
 })
 
-// ---------------------------------------------------------------------------
-// 表 T-036 -- the assignment column's own spelling.
-// ---------------------------------------------------------------------------
-
 describe('表 T-036 -- the key is spelled as the assignment column spells it', () => {
   it('maps every assigned row from what a host reports (one case walks the table)', () => {
     const wrong: string[] = []
@@ -1470,21 +1242,8 @@ describe('表 T-036 -- the key is spelled as the assignment column spells it', (
   })
 })
 
-// ---------------------------------------------------------------------------
-// ⭐ The failure paths -- the outside behaving unlike the ordinary sequence.
-//
-// ⛔ ONE FAILURE PATH IS DELIBERATELY NOT TESTED HERE, and it is reported
-// rather than guessed at: what must happen when the host's own capture API
-// throws (a browser throws `NotFoundError` from `setPointerCapture` when the
-// pointer id is no longer active). `InputSource` has no channel to answer with
-// -- both its members return nothing -- and the note under 表 T-078 forbids
-// widening IF-2 to give it one, so the only two possible behaviors are to
-// swallow the throw or to let it out, and no requirement chooses between them.
-// A case either way would be inventing the decision, so the choice is left to
-// the pending-decision list instead (04-verification.md §1: 仕様が曖昧ならその
-// 件を落とし、食い違いとして報告する).
-// ---------------------------------------------------------------------------
-
+// Why: a throwing capture API is not tested: InputSource has no channel to
+// answer with, and no requirement chooses swallowing or letting it out.
 describe('the happenings that arrive out of order', () => {
   it('does not throw on a release with no press before it', () => {
     const run = harness()

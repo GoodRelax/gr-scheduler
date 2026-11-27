@@ -28,6 +28,7 @@ const DESIGN = unbroken(readRepoFile(join(SPEC, '05-07-design.md'), 'utf8').repl
 const EIGHT_THEN_FRAME = '`GRS` は、表 T-246 の `HB-8` 〜 `HB-11` の 8 つの掴み点を先に、`HB-12` の枠を後に応えさせること。'
 const NEAREST_WINS =
   '`GRS` は、8 つの掴み点を 1 つの段とし、押した点を掴み代に含む点のうち、押した点にいちばん近い点を採ること。'
+// Spec: IMPS-1562
 const TIE_ORDER = '距離が等しいとき、`GRS` は、表 T-246 の先の行を採り、同じ行の 2 点では上の点（左右の辺の中点は左）を採ること。'
 const DRAWN_WHILE_SELECTED =
   '`GRS` は、掴み点を、箱を選んでいる間だけ描くこと —— 1 辺 `S-372` の正方形を点に中心を合わせて置き、地を `_assets/tbl-settings.md` の 表 T-236 の `S-146`、縁を 表 T-236 の `S-151`、縁の太さを 表 T-206 の `S-174` で描く。'
@@ -49,17 +50,21 @@ const NULL_FILL_IS_THE_THEME =
   '塗りの色の列が `null` のとき、`GRS` は、テーマの色（`_assets/tbl-settings.md` の 表 T-236 の `S-155`）で塗ること。'
 const PLACED_UNFILLED = 'ハイライトボックスを置くとき（表 T-108 の `CM-52`）、`GRS` は、塗りの色の列に 表 T-217 の `S-370`（透明）をコピーすること。'
 const OPACITY = '不透明度を 1 − `AT-147` ÷ 100 として塗ること（`AT-147` は透過率であり、0 は不透明、100 は透明）。'
+// Spec: IMPS-846
 const TRANSPARENT_IS_NOT_FILLED = '`GRS` は、塗りの色が透明の箱を塗らないこと。'
 const FILL_AT_ZO_14 = '`GRS` は、塗りを `FR-110` の 表 T-020 の `ZO-14` に描くこと。'
+// Spec: IMPS-836
 const CLAMPED_NOT_REWRITTEN = '`GRS` は、範囲へ寄せて描くこと。表 T-217 の数値の列が範囲の外の値を持つ文書を読んだとき、`GRS` は、文書を書き換えないこと。'
 const OUT_OF_RANGE_REFUSED =
   '`GRS` は、同じ範囲の外の値を置く命令（表 T-108 の `CM-77` ・ `CM-79` ・ `CM-81` ・ `CM-83`）を拒むこと。'
 const NO_TRANSPARENT_OUTLINE = '`GRS` は、ハイライトボックスの枠の線にも、タスクと同じく透明（線なし）を選ばせること。'
+// Spec: IMPS-848
 const NOT_BOTH_TRANSPARENT = '`GRS` は、塗りと枠の線を同時に透明にすることを許さないこと。'
 const FILL_MAY_BE_TRANSPARENT = '`GRS` は、塗りに透明を選ばせてもよい'
 // Why: 05-07-design reads a GRS JSON document this way before the schema runs.
 const MISSING_COLUMNS_READ_AS_NULL =
   '`GRS JSON` を読むとき、`GRS` は、スキーマを走らせる前に、`_assets/fig-erd-detail.md` の `AT-145` ・ `AT-146` ・ `AT-147` の列を持たない `HighlightBox` の項と、`AT-148` 〜 `AT-152` と `AT-168` の列を持たない `CommentBox` の項に、欠けている列を `null` として足すこと。'
+// Spec: IMPS-1309
 const WHATEVER_THE_VERSION = '`GRS` は、欠けている列を形式の版（`FR-073`）によらずに足すこと。'
 const SILENTLY = '`GRS` は、欠けている列を足したことを通知しないこと。'
 

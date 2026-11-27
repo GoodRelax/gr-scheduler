@@ -1,78 +1,4 @@
-// MK-13's second half: the name field a double click leaves a person typing in,
-// with everything that was already in it chosen.
-//
-// Unit under test: UF-71 of table T-075 (`dom-screen-surface.ts`, component
-// CP-38 of table T-062). It is the side of IF-9 that turns a `ScreenView` into
-// nodes, so it is the only side that HAS a field to put the focus in -- the row
-// asks for a state of the page, and a description cannot hold one.
-//
-// ⚠️ Chapter 9 does not admit Unit as a TEST_LEVEL, so these cases have no node
-// in the specification. Table T-218 of Chapter 7 gives them their place: TS-6,
-// tests/unit/.
-//
-// ---------------------------------------------------------------------------
-// ⛔ WHY THIS FILE EXISTS -- THE HOLE IT WAS WRITTEN TO STAND IN
-// ---------------------------------------------------------------------------
-//
-// `MK-13` gained this half on 2026-08-30 (CR-304) and nothing has asked for it
-// since: broken on purpose, no case went red. ⭐ And the seam it travels on says
-// so itself -- `holdFocusPropertyField` is declared optional, and its own
-// declaration records the cost: 「a caller which never passes it leaves MK-13
-// half done and neither the compiler nor a reader will say so」.
-//
-// ---------------------------------------------------------------------------
-// THE ROWS THESE CASES REST ON
-// ---------------------------------------------------------------------------
-//
-//   表 T-023 MK-13 「ダブルクリック | 対象ごとに定めること（MUST）—— …タスク（名称
-//                  ラベルと本体のどちらでも）＝ プロパティパネルを出し、名称の欄
-//                  （表 T-016 の `PR-1`）を編集できる状態にして焦点を置き、既にある
-//                  文字をすべて選んだ状態にすること（MUST）（利用者の指示と裁定
-//                  2026-08-30）—— 全選択とするのは、利用者の逐語が「容易にタスク名を
-//                  変更できるように」であり、打ち直しが 1 手で済むからである」
-//                  ⭐ WHICH ROW OF 表 T-016 IS READ OUT OF THAT CELL, never typed.
-//   `FR-006`       「プロパティパネルが選択を出しているとき、`GRS` は、表 T-016 の
-//                  項目をプロパティパネルに出し、同表が読み取り専用と記した項目を
-//                  除いて編集できるようにすること」／「入力の形は同表の「入力の型」
-//                  の欄に従うこと（MUST）」 -- why the name is a control a person
-//                  can type in at all.
-//   `FR-072`       CR-304 「出す入口は 表 T-023 の `MK-13` と `IC-17` の 2 つである」 -- the
-//                  entrance whose second half this is.
-//   `SK-19`        「その場の編集を確定する」 -- what a person presses when the
-//                  typing is done. ⚠️ Not driven here:
-//                  tests/unit/fr-072-a-moved-selection-does-not-open-the-panel.test.ts owns
-//                  that key.
-//
-// ---------------------------------------------------------------------------
-// ⛔ WRITTEN FROM docs/spec AND NOTHING ELSE (docs/development-rules/
-// 04-verification.md section 1). What was read of `src/`: the exported types of
-// `screen-renderer.ts` (`AppHeaderItems`, `PropertiesPanel`, `PropertyControl`,
-// `PropertyField`, `ScreenFrame`, `ScreenSurface`, `ScreenView`) and the
-// exported declarations of `dom-screen-surface.ts` (`domScreenSurface`,
-// `ScreenSurfaceWiring`, `ScreenTheme`). ⛔ NO FUNCTION BODY WAS READ.
-//
-// ⭐ THE SHAPE IS COPIED, NOT INVENTED. The fake browser is
-// tests/unit/fr-029-palette-grab-marker.test.ts's and the panel literal is
-// tests/unit/fr-006-panel-fields-drawn.test.ts's. ⚠️ TWO THINGS WERE ADDED TO
-// THE FAKE, both marked where they stand: a control's chosen text (`select` /
-// `setSelectionRange`, which a real `input` answers and MK-13 is about), and the
-// wiring member the focus travels on.
-//
-// ---------------------------------------------------------------------------
-// ⭐ WHAT IS DELIBERATELY NOT ASSERTED, AND WHY
-// ---------------------------------------------------------------------------
-//   1. THAT A DOUBLE CLICK IS WHAT CALLS IT. The press is read by UF-48 and the
-//      shell is what joins the two sides, so a case here would be asserting a
-//      unit it is not driving.
-//      tests/unit/fr-072-a-moved-selection-does-not-open-the-panel.test.ts holds the half
-//      that can be seen from the loop: the panel goes up, showing that Task.
-//      ⛔ THE JOIN ITSELF -- that the shell calls this with `PR-1` when MK-13
-//      happens -- IS WATCHED BY NEITHER FILE, and is reported rather than
-//      guessed at: `holdFocusPropertyField` is the Framework's own arrangement
-//      and no seam of the specification carries it.
-//   2. WHICH ELEMENT THE CONTROL IS. FR-006 fixes the FORM of a control (表
-//      T-016's 入力の型), not the tag, so these cases ask for the control of the
-//      row rather than for an `input`.
+// Unit tests: MK-13's second half, the name field a double click leaves focused with its text chosen.
 
 import { describe, expect, it } from 'vitest'
 
@@ -93,37 +19,16 @@ import {
 import { bare, specTable } from '../contract/spec-table'
 import { emptyScreenSession } from '../../src/use-case/advance-screen-session/advance-screen-session'
 
-// ---------------------------------------------------------------------------
-// The manuscripts, read at run time rather than copied here (Chapter 1.9).
-// ---------------------------------------------------------------------------
-
 const rowOf = (table: string, id: string) => {
   const found = specTable(table).rows.find((one) => one.id === id)
   if (found === undefined) throw new Error(`table ${table} has no row ${id}`)
   return found
 }
 
-/** Everything MK-13 writes, as one string. */
 const MK_13 = rowOf('T-023', 'MK-13').cells.join(' ')
 
-/**
- * The row of 表 T-016 MK-13 names FOR A TASK -- read OUT OF MK-13's own cell.
- *
- * ⭐ NOT TYPED (rule 03 section 1): the cell reads 「名称の欄（表 T-016 の
- * `PR-1`）」, so the row id has a home already and this file reads it from there.
- * ⛔ A cell that stopped naming one fails here, in one line, instead of leaving
- * every case below asking about a row nothing points at.
- *
- * ⚠️ THE 欄 IS PART OF THE PATTERN, AND HAS TO BE (CR-368, 2026-09-06). MK-13
- * settles one destination per 対象, and from that day it names a SECOND row of
- * 表 T-016 -- 「コメントボックス ＝ プロパティパネルを出し、本文の欄（表 T-016 の
- * `PR-21`）を編集できる状態にして焦点を置くこと（MUST）」 -- and prints it BEFORE
- * the task's clause. ⛔ A pattern that took the first `PR-n` in the cell would
- * hand this file the comment box's 本文の欄 and every case below would be
- * driving the wrong 対象 while reading as though it drove the task's. These
- * cases are the TASK's half (the head of this file quotes only that clause), so
- * the clause is picked by the 欄 the task's own wording names.
- */
+// Trap: a pattern taking the first PR-n in the cell picks the comment box's row, which
+// MK-13 prints first; the clause is picked by the field the task's wording names.
 const NAME_TASK_GROUP = ((): string => {
   const found = /名称の欄（表 T-016 の `(PR-\d+)`）/.exec(MK_13)
   if (found === null) {
@@ -132,12 +37,7 @@ const NAME_TASK_GROUP = ((): string => {
   return found[1] as string
 })()
 
-/** U-25 of 表 T-103 -- the settled name that reaches `data-role`. */
 const U_25 = bare(rowOf('T-103', 'U-25').by['確定名（英）'] ?? '')
-
-// ---------------------------------------------------------------------------
-// The fake browser. Copied from tests/unit/fr-053-palette-group-boundary.test.ts.
-// ---------------------------------------------------------------------------
 
 interface FakeEvent {
   readonly type: string
@@ -152,7 +52,6 @@ interface Registration {
   readonly listener: (event: FakeEvent) => void
 }
 
-/** One write to an element's inline style, in the order the unit made it. */
 type StyleWrite =
   | { readonly kind: 'reset'; readonly css: string }
   | { readonly kind: 'set'; readonly property: string; readonly value: string }
@@ -170,7 +69,6 @@ class FakeElement {
   readonly childNodes: FakeNode[] = []
   readonly styleWrites: StyleWrite[] = []
   parentNode: FakeElement | null = null
-  /** Only an `input` really has one; harmless elsewhere and it keeps the fake small. */
   value = ''
   isMount = false
 
@@ -180,8 +78,6 @@ class FakeElement {
   ) {
     this.tagName = tagName.toUpperCase()
   }
-
-  // -- attributes ---------------------------------------------------------
 
   setAttribute(name: string, value: string): void {
     if (name === 'style') {
@@ -274,7 +170,7 @@ class FakeElement {
     }
   }
 
-  /** ⛔ FR-023: an assignment here would be markup. It is recorded, never obeyed. */
+  // Why: FR-023 forbids markup, so an assignment here is recorded and never obeyed.
   get innerHTML(): string {
     this.world.markupWrites.push({ node: this, value: '(read)' })
     return ''
@@ -319,8 +215,6 @@ class FakeElement {
     if (value) this.attributes.set('disabled', '')
     else this.attributes.delete('disabled')
   }
-
-  // -- the tree -----------------------------------------------------------
 
   private adopt(node: FakeNode | string): FakeNode {
     if (typeof node === 'string') return new FakeText(node)
@@ -429,8 +323,6 @@ class FakeElement {
     return descendants(this).filter((one) => matches(one, selector))
   }
 
-  // -- what only a browser can answer -------------------------------------
-
   getBoundingClientRect(): {
     x: number
     y: number
@@ -452,15 +344,8 @@ class FakeElement {
     this.world.activeElement = this
   }
 
-  /**
-   * What a browser tells about the text chosen inside this control.
-   *
-   * ⭐ ADDED FOR MK-13, whose row (MUST) asks for 「既にある文字をすべて選んだ
-   * 状態にすること」 -- a real `input` answers both `select()` and
-   * `setSelectionRange`, and a fake that answered neither would fail a unit for
-   * using either. ⛔ IT DECIDES NOTHING: it records what was asked for, exactly
-   * as the rest of this fake records what was written.
-   */
+  // Why: a real input answers select() and setSelectionRange, and a fake answering neither
+  // would fail a unit for using either; it records what was asked and decides nothing.
   selectionStart: number | null = null
   selectionEnd: number | null = null
 
@@ -477,8 +362,6 @@ class FakeElement {
   blur(): void {
     if (this.world.activeElement === this) this.world.activeElement = null
   }
-
-  // -- events -------------------------------------------------------------
 
   addEventListener(type: string, listener: (event: FakeEvent) => void): void {
     this.world.registrations.push({ node: this, type, listener })
@@ -508,24 +391,16 @@ interface Stage {
   readonly world: World
   readonly host: Document
   readonly mount: FakeElement
-  /** Every number `onAppHeaderHeightMeasured` was told, in order. */
   readonly reportedHeights: number[]
   clockMs: number
   author: string
   surface: ScreenSurface | undefined
-  /**
-   * What `holdFocusPropertyField` handed over, or `null` while it handed nothing.
-   *
-   * ⭐ MK-13's SECOND HALF TRAVELS HERE. `ScreenSurface` names five members and
-   * none of them is a command, so the row's 「焦点を置き…すべて選んだ状態に
-   * する」 reaches the drawing side through the wiring instead.
-   */
+  // Why: ScreenSurface has no command member, so MK-13's focus reaches the drawing side
+  // through the wiring instead.
   focusField: ((row: string) => void) | null
-  /** The tree the unit built inside the mount. */
   root(): FakeElement
 }
 
-/** A browser that is only what `ScreenSurfaceWiring` says it is. */
 function stage(heightsByRole: Record<string, number> = {}): Stage {
   const world: World = {
     created: [],
@@ -539,7 +414,7 @@ function stage(heightsByRole: Record<string, number> = {}): Stage {
     activeElement: null,
   }
 
-  // Why: CR-788 -- the assignee list AS-1 opens closes on a press anywhere, so it listens on the document.
+  // Why: the assignee list AS-1 opens closes on a press anywhere, so it listens on the document.
   const document = {
     createElement(tagName: string): FakeElement {
       const made = new FakeElement(tagName, world)
@@ -576,13 +451,8 @@ function stage(heightsByRole: Record<string, number> = {}): Stage {
   }
 }
 
-/**
- * The rendering and hue every case below wires the surface with.
- *
- * ⛔ NEITHER VALUE IS TYPED HERE (rule 03 section 1). ⭐ No case reads a color
- * back -- `readTheme` is a REQUIRED member of `ScreenSurfaceWiring`, so the
- * cases need a theme to build the surface at all, not a particular one.
- */
+// Why: no case reads a colour back; readTheme is a required member of ScreenSurfaceWiring,
+// so the cases need some theme to build the surface, not a particular one.
 const S_73 = specTable('T-216').rows.find((row) => row.id === 'S-73')
 if (S_73 === undefined) throw new Error('table T-216 no longer has row S-73')
 const THEME: ScreenTheme = {
@@ -605,7 +475,6 @@ function wiringOf(built: Stage): ScreenSurfaceWiring {
   }
 }
 
-/** Wire the unit up the way contract line 1 asks the caller to. */
 function wire(heightsByRole: Record<string, number> = {}): Stage {
   const built = stage(heightsByRole)
   built.surface = domScreenSurface(wiringOf(built))
@@ -616,10 +485,6 @@ function surfaceOf(built: Stage): ScreenSurface {
   if (built.surface === undefined) throw new Error('the surface was not built')
   return built.surface
 }
-
-// ---------------------------------------------------------------------------
-// Reading the tree the unit built. Copied from tests/unit/uf-71.test.ts.
-// ---------------------------------------------------------------------------
 
 const kebab = (name: string): string => name.replace(/[A-Z]/g, (one) => `-${one.toLowerCase()}`)
 
@@ -640,7 +505,6 @@ function styleMap(element: FakeElement): Map<string, string> {
   return held
 }
 
-/** The inline style as it stands now, with later writes winning over earlier ones. */
 function inlineStyle(element: FakeElement): string {
   return [...styleMap(element)].map(([property, value]) => `${property}:${value}`).join(';')
 }
@@ -671,11 +535,7 @@ function oneByRole(root: FakeElement, role: string): FakeElement {
   return first
 }
 
-/**
- * A tiny selector engine: enough for `[attr]`, `[attr="value"]`, a tag name and
- * a descendant combinator. ⭐ It exists so that a unit which DID query is not
- * failed for it.
- */
+// Why: a tiny selector engine, so that a unit which did query is not failed for it.
 function matches(element: FakeElement, selector: string): boolean {
   const parts = selector.trim().split(/\s+(?![^[]*\])/)
   const last = parts[parts.length - 1]
@@ -713,12 +573,6 @@ function matchesSimple(element: FakeElement, selector: string): boolean {
   return element.tagName === selector.toUpperCase()
 }
 
-// ---------------------------------------------------------------------------
-// ---------------------------------------------------------------------------
-// Descriptions to draw. Every one is a value of `ScreenView` and nothing else.
-// The panel literal is tests/unit/fr-006-panel-fields-drawn.test.ts's.
-// ---------------------------------------------------------------------------
-
 const EMPTY_HEADER: AppHeaderItems = {
   documentTitle: null,
   openedFileName: null,
@@ -746,25 +600,16 @@ const EMPTY_VIEW: ScreenView = {
 
 const viewWith = (patch: Partial<ScreenView>): ScreenView => ({ ...EMPTY_VIEW, ...patch })
 
-/**
- * The name a Task already carries -- ⭐ THE WHOLE POINT OF THE ROW.
- *
- * 「全選択とするのは、利用者の逐語が「容易にタスク名を変更できるように」であり、
- * 打ち直しが 1 手で済むからである」: an empty field would have nothing to choose,
- * so a case driven on one could not tell 「すべて選んだ」 from 「何も選んでいない」.
- * ⚠️ The word is this file's own; no dictionary holds a Task's name.
- */
+// Why: a name already there, because an empty field has nothing to choose and a case on
+// one could not tell all chosen from nothing chosen.
 const THE_NAME_ALREADY_THERE = 'TaskNameAlreadyHere'
 
-/** A second row, so that WHICH row was asked for is a question with two answers. */
+// Why: a second row, so that which row was asked for is a question with two answers.
 const NOTES_ROW = 'PR-2'
 const THE_OTHER_VALUE = 'NotesAlreadyHere'
 
-/**
- * ⚠️ `widthInFontSizes` IS THIS FILE'S OWN AND DECIDES NOTHING. FR-006 has the
- * estimating side work the room out, tests/unit/fr-006-panel-typography.test.ts
- * holds that arithmetic, and no case here reads a width.
- */
+// Why: widthInFontSizes is this file's own and decides nothing; FR-006 leaves the width to
+// the estimating side, and no case here reads one.
 const controlOf = (
   patch: Partial<PropertyControl> & Pick<PropertyControl, 'key' | 'kind'>,
 ): PropertyControl => ({
@@ -812,16 +657,13 @@ const panelWith = (fields: readonly PropertyField[]): PropertiesPanel =>
     commands: [],
   }) as PropertiesPanel
 
-/** The App Header measures to something, so BO-1's dimension is settled. */
 const HEADER_HEIGHT = { 'App Header': 37 }
 
-/** The controls a person edits a field through -- a form element, and nothing else. */
 const CONTROL_TAGS = new Set(['INPUT', 'TEXTAREA', 'SELECT'])
 
 const controlsIn = (panel: FakeElement): FakeElement[] =>
   selfAndDescendants(panel).filter((one) => CONTROL_TAGS.has(one.tagName))
 
-/** Everything a failure needs to be read without opening the unit. */
 const whatWasDrawn = (part: FakeElement): string =>
   controlsIn(part)
     .map(
@@ -830,14 +672,12 @@ const whatWasDrawn = (part: FakeElement): string =>
     )
     .join(' ; ')
 
-/** Draw a panel of the two fields and hand back the stage it was drawn on. */
 function drawPanel(fields: readonly PropertyField[] = [NAME_FIELD, OTHER_FIELD]): Stage {
   const built = wire(HEADER_HEIGHT)
   surfaceOf(built).showScreenView(viewWith({ propertiesPanel: panelWith(fields) }))
   return built
 }
 
-/** The one control that carries this value, whichever element it turned out to be. */
 function controlCarrying(built: Stage, value: string): FakeElement {
   const panel = oneByRole(built.root(), U_25)
   const found = controlsIn(panel).filter((one) => one.value === value)
@@ -848,7 +688,6 @@ function controlCarrying(built: Stage, value: string): FakeElement {
   return first
 }
 
-/** Ask the drawing side to do MK-13's second half for one row of 表 T-016. */
 function askForFocus(built: Stage, row: string): void {
   if (built.focusField === null) {
     throw new Error('the surface handed over no way to place the focus at all')
@@ -856,23 +695,16 @@ function askForFocus(built: Stage, row: string): void {
   built.focusField(row)
 }
 
-/** Whether every character this control already held is chosen. */
 const wholeValueIsChosen = (control: FakeElement): boolean =>
   control.selectionStart === 0 && control.selectionEnd === control.value.length
 
-// ===========================================================================
-// The premises every case below stands on
-// ===========================================================================
-
 describe('the manuscript still says what these cases read', () => {
   it('⭐ was really driven by the manuscript, and not by a hollow read of it', () => {
-    // ⛔ WITHOUT THIS, A PARSE THAT LOST THE CELL WOULD MAKE EVERY CASE BELOW
-    // AGREE WITH ANYTHING -- rule 04 section 2.
+    // Why: without this, a parse that lost the cell would make every case below agree with anything.
     expect(U_25).toBe('Properties Panel')
     expect(NAME_TASK_GROUP).toBe('PR-1')
-    // ⛔ AND THE ROW IT IS NOT. MK-13 names a second row of 表 T-016 for the
-    // comment box (CR-368) and prints that clause FIRST, so this states that
-    // the guard above is picking a clause rather than the first `PR-n` it meets.
+    // Why: MK-13 prints the comment box's clause first, so this shows the guard above picks a
+    // clause rather than the first PR-n it meets.
     expect(MK_13, 'MK-13 still settles the comment box on 本文の欄').toContain(
       '本文の欄（表 T-016 の `PR-21`）',
     )
@@ -886,10 +718,8 @@ describe('the manuscript still says what these cases read', () => {
   })
 
   it('⛔ the surface really handed a way to place the focus over', () => {
-    // ⭐ THE PREMISE THE WHOLE ROW RESTS ON. MK-13 (MUST) asks for a state of the
-    // page, and every member of IF-9 is a question -- so if nothing is handed
-    // over, the row cannot be carried out at all and every case below would be
-    // failing for want of a seam rather than for want of the behavior.
+    // Why: without a handed-over seam the row cannot be carried out, and every case below would
+    // fail for want of a seam rather than of the behaviour.
     expect(drawPanel().focusField).not.toBeNull()
   })
 
@@ -900,20 +730,16 @@ describe('the manuscript still says what these cases read', () => {
   })
 
   it('nothing is focused, and nothing is chosen, before the row is asked for', () => {
-    // ⭐ The premise without which "it took the focus" says nothing.
+    // Why: without this premise, a case finding the field focused says nothing.
     const built = drawPanel()
     expect(built.world.activeElement).toBeNull()
     expect(wholeValueIsChosen(controlCarrying(built, THE_NAME_ALREADY_THERE))).toBe(false)
   })
 })
 
-// ===========================================================================
-// MK-13 (MUST) -- the focus, and everything already there chosen
-// ===========================================================================
-
+// Spec: MK-13, FR-072
 describe('表 T-023 MK-13 -- 名称の欄を編集できる状態にして焦点を置き、既にある文字をすべて選ぶ', () => {
   it('⛔ MUST: the name field takes the focus', () => {
-    // 「名称の欄（表 T-016 の `PR-1`）を編集できる状態にして焦点を置き」.
     const built = drawPanel()
 
     askForFocus(built, NAME_TASK_GROUP)
@@ -925,10 +751,8 @@ describe('表 T-023 MK-13 -- 名称の欄を編集できる状態にして焦点
   })
 
   it('⛔ MUST: and every character already in it is chosen', () => {
-    // 「既にある文字をすべて選んだ状態にすること（MUST）—— 全選択とするのは、利用者
-    //   の逐語が「容易にタスク名を変更できるように」であり、打ち直しが 1 手で済むから
-    //   である」. ⛔ A focus without the choosing leaves a person deleting the old
-    // name character by character, which is the very cost the ruling names.
+    // Why: a focus without the choosing leaves a person deleting the old name character by
+    // character, the very cost the row's reason names.
     const built = drawPanel()
 
     askForFocus(built, NAME_TASK_GROUP)
@@ -944,9 +768,8 @@ describe('表 T-023 MK-13 -- 名称の欄を編集できる状態にして焦点
   })
 
   it('⭐ the row asked for is the row that answers -- the other field is left alone', () => {
-    // ⛔ WITHOUT THIS, A UNIT THAT FOCUSED THE FIRST CONTROL IT DREW WOULD PASS
-    // BOTH CASES ABOVE. MK-13 names ONE row of 表 T-016, and the panel prints
-    // several (FR-006).
+    // Why: without this, a unit that focused the first control it drew would pass both cases
+    // above; MK-13 names one row and the panel prints several (FR-006).
     const built = drawPanel()
 
     askForFocus(built, NAME_TASK_GROUP)
@@ -957,8 +780,8 @@ describe('表 T-023 MK-13 -- 名称の欄を編集できる状態にして焦点
   })
 
   it('⭐ and asking for the OTHER row moves both answers to it', () => {
-    // The pair that makes the case above a rule about the row rather than about
-    // the order the panel happens to draw its fields in.
+    // Why: the pair makes the case above a rule about the row, not about the order the panel
+    // draws its fields in.
     const built = drawPanel()
 
     askForFocus(built, NOTES_ROW)
@@ -969,10 +792,7 @@ describe('表 T-023 MK-13 -- 名称の欄を編集できる状態にして焦点
   })
 
   it('⛔ the panel is still one a person can type in -- the control is not read-only', () => {
-    // FR-006: 「同表が読み取り専用と記した項目を除いて編集できるようにすること」, and
-    // MK-13 asks for the field to be 「編集できる状態」 before the focus is put in
-    // it. ⛔ A focused field a person cannot type into satisfies the focus half
-    // and none of the point.
+    // Why: a focused field a person cannot type into satisfies the focus half and none of the point.
     const built = drawPanel()
 
     askForFocus(built, NAME_TASK_GROUP)
@@ -983,34 +803,8 @@ describe('表 T-023 MK-13 -- 名称の欄を編集できる状態にして焦点
   })
 })
 
-// ===========================================================================
-// 表 T-225 AS-1 (MUST) -- the assignee's own field, which MK-13 sends 担当ラベル to
-// ===========================================================================
-//
-// ⛔⛔ WHY THIS BLOCK STANDS BESIDE THE ONES ABOVE. AS-1 asks for the same two
-// halves as MK-13's task entry -- 「プロパティパネルを出し、担当の欄（表 T-016
-// の `PR-16`）を編集できる状態にして焦点を置くこと（MUST）」 -- but for a row whose
-// 入力の型 is 選択 rather than 文字, and 表 T-225 の `AS-5` (MUST) hangs 「ドロップ
-// ダウンと部分一致の検索」 off it. ⚠️⚠️ A row drawn only as a chooser holds no
-// place for the focus to land: measured on the shipped build 2026-09-08, the
-// panel came up on a double click and the focus stayed on the page's body, so
-// the person was left outside every field of the panel they had just opened.
-// ⭐ THAT IS WHAT THESE CASES WATCH, and the whole reason they are here: the
-// cases above drive a 文字 row, which cannot see it.
-//
-// ⛔ WHICH ELEMENT THE FOCUS LANDS ON IS NOT ASSERTED, for the reason case 2 of
-// this file's head already gives -- FR-006 fixes the FORM of a control (表 T-016
-// の 入力の型) and not the tag, and `AS-5` names two entrances for this one row
-// without saying which of them 「焦点を置く」 means. ⭐ What IS asserted is that
-// the focus landed on a control OF THAT ROW, which is the half that was missing.
-
-/** Everything AS-1 writes, as one string. */
 const AS_1 = rowOf('T-225', 'AS-1').cells.join(' ')
 
-/**
- * The row of 表 T-016 AS-1 names -- read OUT OF AS-1's own cell, never typed
- * (rule 03 section 1), exactly as `NAME_TASK_GROUP` is read out of MK-13's.
- */
 const ASSIGNEE_ROW = ((): string => {
   const found = /担当の欄（表 T-016 の `(PR-\d+)`）/.exec(AS_1)
   if (found === null) {
@@ -1019,19 +813,11 @@ const ASSIGNEE_ROW = ((): string => {
   return found[1] as string
 })()
 
-/** One person already on the Task, and one who is not -- `AS-5`'s 名簿. */
 const THE_PERSON_ON_IT = 'PersonAlreadyOn'
 const THE_OTHER_PERSON = 'PersonNotOnItYet'
 
-/**
- * `PR-16` as `AS-5` (MUST) has it drawn: a chooser over the roster with a
- * partial-match search beside it.
- *
- * ⚠️ THE CONTROL CARRIES NO TEXT OF ITS OWN, which is `AS-6`'s doing -- the
- * field shows the names and the control shows what one press of it would
- * settle. ⛔ So no case below can find this row by a value, the way
- * `controlCarrying` finds the others.
- */
+// Why: the control carries no text of its own (AS-6), so no case can find this row by a
+// value the way controlCarrying finds the others.
 const ASSIGNEE_FIELD: PropertyField = {
   row: ASSIGNEE_ROW,
   name: 'assignee',
@@ -1039,9 +825,8 @@ const ASSIGNEE_FIELD: PropertyField = {
   isEditable: true,
   controls: [
     controlOf({
-      // ⭐ THE KEY IS THE ONE `AS-9` (MUST) SETTLES -- what a press of the
-      // chooser commits is a `uid`, so the key names the Task and its `uid`
-      // column. ⚠️ It decides nothing here: no case below reads a commit.
+      // Why: AS-9 settles that a press of the chooser commits a uid, so the key names the Task
+      // and its uid column; no case below reads a commit.
       key: { holder: 'assignment', taskUid: 1, resourceUid: null, column: 'resourceUid' },
       kind: 'choice',
       text: '',
@@ -1062,32 +847,32 @@ const ASSIGNEE_FIELD: PropertyField = {
   ],
 }
 
+// Spec: AS-1, AS-5, PR-16
+// Why: AS-1 asks the same for a chooser row, which may hold no place for the focus to land;
+// the cases above drive a text row and cannot see that.
 describe('表 T-225 AS-1 -- 担当の欄を編集できる状態にして焦点を置く', () => {
   it('⭐ was really driven by the manuscript, and not by a hollow read of it', () => {
-    // ⛔ WITHOUT THIS, A PARSE THAT LOST THE CELL WOULD MAKE EVERY CASE BELOW
-    // AGREE WITH ANYTHING -- rule 04 section 2.
+    // Why: without this, a parse that lost the cell would make every case below agree with anything.
     expect(ASSIGNEE_ROW).toBe('PR-16')
     expect(AS_1, 'AS-1 still puts the focus in the assignee field').toContain(
       '編集できる状態にして焦点を置くこと',
     )
-    // ⛔ AND THE ROAD IT IS NOT. AS-1 forbids an editor drawn on the schedule
-    // itself, which is what makes the panel the only place a focus can land.
+    // Why: AS-1 forbids an editor drawn on the schedule, which makes the panel the only place
+    // a focus can land.
     expect(AS_1, 'AS-1 still forbids an in-place editor').toContain(
       '`GRS` は、担当ラベルの上に打ち換える器を置かないこと。',
     )
   })
 
   it('⛔ MUST: the assignee field takes the focus', () => {
-    // 「担当の欄（表 T-016 の `PR-16`）を編集できる状態にして焦点を置くこと」.
-    // ⛔ GOES RED IF the row is drawn with nothing the focus can be put into --
-    // which is the state measured on the shipped build on 2026-09-08.
     const built = drawPanel([NAME_FIELD, ASSIGNEE_FIELD])
 
     askForFocus(built, ASSIGNEE_ROW)
 
     const active = built.world.activeElement
     expect(active, 'AS-1 (MUST): 担当の欄 ... 焦点を置くこと').not.toBe(null)
-    // CR-788: AS-1 opens the field's list and puts the focus in the filter at its head.
+    // Why: AS-1 opens the field's list and puts the focus in the filter at its head, so the
+    // focus is sought inside the field, not on it.
     let inField = false
     for (let at = active; at !== null; at = at.parentNode) if (at.getAttribute('data-assignee-field') === ASSIGNEE_ROW) inField = true
     expect(inField, 'the focused control stands in the PR-16 assignee field').toBe(true)
@@ -1095,9 +880,8 @@ describe('表 T-225 AS-1 -- 担当の欄を編集できる状態にして焦点�
   })
 
   it('⭐ the row asked for is the row that answers -- the name field is left alone', () => {
-    // ⛔ WITHOUT THIS, A UNIT THAT FOCUSED THE FIRST CONTROL IT DREW WOULD PASS
-    // THE CASE ABOVE. AS-1 names ONE row of 表 T-016 and the panel prints
-    // several (FR-006).
+    // Why: without this, a unit that focused the first control it drew would pass the case
+    // above; AS-1 names one row and the panel prints several (FR-006).
     const built = drawPanel([NAME_FIELD, ASSIGNEE_FIELD])
 
     askForFocus(built, ASSIGNEE_ROW)
@@ -1106,7 +890,6 @@ describe('表 T-225 AS-1 -- 担当の欄を編集できる状態にして焦点�
   })
 
   it('⛔ the field is still one a person can type in -- the control is not read-only', () => {
-    // 「編集できる状態にして」 comes before 「焦点を置く」 in the row's own order.
     const built = drawPanel([NAME_FIELD, ASSIGNEE_FIELD])
 
     askForFocus(built, ASSIGNEE_ROW)

@@ -13,14 +13,11 @@ import {
   dayOfInstant,
   instantOf,
   MINUTES_PER_CALENDAR_DAY,
-  delayWorkingDays,
-  isDelayed,
   serial,
   shownInstantReader,
   startSideOf,
   taskByUid,
   viewWallReader,
-  workingCalendarOf,
   type BaselineTask,
   type CalendarDay,
   type DateTimeSide,
@@ -41,6 +38,7 @@ import {
   type ScreenRegions,
 } from '../../entity/layout-engine/screen-regions/screen-regions'
 import type { ScreenSession } from '../../use-case/advance-screen-session/advance-screen-session'
+import { lateWorkingDaysOf } from '../../use-case/find-delays/find-delays'
 import type {
   DisplayLanguage,
   DualCursorReadout,
@@ -399,8 +397,8 @@ const WORKING_DAYS_WORDS = displayWords.propertyField.find((entry) => entry.part
 // Why: DX-10's count under DG-4's word, so the tip and the report never differ on one delay.
 /** @purity pure */
 function lateRow(task: Task, schedule: Schedule, statusDate: CalendarDay | null, language: DisplayLanguage): TooltipRow | null {
-  if (!isDelayed(task, statusDate)) return null
-  const days = delayWorkingDays(workingCalendarOf(schedule), task, statusDate)
+  const days = lateWorkingDaysOf(task, schedule, statusDate)
+  if (days === null) return null
   const unit = WORKING_DAYS_WORDS?.[language] ?? WORKING_DAYS_UNIT_PART
   return labeledRow(LATE_WORDS?.[language] ?? LATE_ROW, `${days} ${unit}`)
 }

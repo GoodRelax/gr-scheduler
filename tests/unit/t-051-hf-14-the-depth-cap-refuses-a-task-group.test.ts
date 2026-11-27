@@ -1,71 +1,4 @@
-// 表 T-051 の `HF-14` (MUST, 利用者の裁定 2026-09-03, CR-340 then CR-348,
-// ledger row DFC-206): the entrance that adds a child task group is drawn FAINT on a task group
-// that has reached `FR-085`'s depth cap, and a press on it is answered with a
-// reason instead of a task group.
-//
-// ⚠️ THE ROW WAS REWRITTEN ON 2026-09-04 (CR-348) AND THIS FILE FOLLOWED IT.
-// 「打ち込み口を出さずに」 became 「タスクグループを立てずに」 because the field it named was
-// withdrawn from the same row: an ordinary press now raises the task group with a
-// default name and opens its properties panel (the `FR-085` rename road), so
-// there is no name field left to withhold -- what the refusal withholds is the
-// TASK GROUP. ⛔ Nothing in this file may be written from the withdrawn model.
-//
-// ⭐ THE THREE SENTENCES THIS FILE IS WRITTEN FROM, verbatim out of 表 T-051's
-// `HF-14` (docs/spec/01-04-requirements.md):
-//
-//   ⛔ 「**そのタスクグループの深さが `FR-085` の上限に達しているときは、`FR-029` に従って薄く
-//    描くこと（MUST）**」 —— ⭐ 「**`HF-13` が「展開できる直下の子が 1 つも無いとき」に
-//    採るのと同じ形である。**」
-//   ⛔⛔ 「**薄いまま押されたときは、そのタスクグループの配下に新しいタスクグループを立てないこと（MUST）。運ぶ理由は
-//    表 T-233 の `RS-46` とすること（MUST）**」
-//   ⛔ 「**タスクグループを立ててからパネルを開き、そこで拒んではならない（MUST NOT）**」 ——
-//    「**押した人には、名づけを求められたうえで捨てられたようにしか見えない。**」
-//
-// and out of 表 T-233:
-//
-//   「| RS-46 | **これ以上深い段にはタスクグループを足せない** | `NT-3a` | `FR-085` |」
-//
-// ⚠️ CR-340 once set a MOVE row beside it, told at the cap of a carried task group;
-// CR-772 retired that row, since a carried task group now stops silently (HF-15).
-//
-// ---------------------------------------------------------------------------
-// Unit under test: UF-48 of 表 T-075 (`frame-loop.ts`, component CP-25 of
-// 表 T-062) -- the layer that turns a press into a raised telling and hands the
-// frame that carries it to the surface.
-//
-// ⚠️ Chapter 9 admits no Unit as a TEST_LEVEL, so these cases have no node in
-// the specification. 表 T-218 of Chapter 7 gives them their place: TS-6,
-// tests/unit/.
-//
-// ⛔ WRITTEN FROM docs/spec AND NOTHING ELSE (docs/development-rules/
-// 04-verification.md section 1). ⛔ NO FILE UNDER src/ WAS OPENED. The host, the
-// fake surface and the fixture are copied from
-// tests/unit/fr-029-the-reason-a-press-carries.test.ts and
-// tests/unit/t-015-t-051-the-four-folding-controls.test.ts, which drive this
-// same unit through the same seams; `startup-template.json` is a generated
-// document and is read as data.
-//
-// ---------------------------------------------------------------------------
-// ⛔ WHAT IS DELIBERATELY NOT ASSERTED, AND WHY
-// ---------------------------------------------------------------------------
-//   1. WHAT AN ORDINARY (UNREFUSED) PRESS RAISES. 「既定の名前でタスクグループを立てること
-//      （MUST）。そのタスクグループのプロパティパネルを出し…（MUST）」 is HF-14's other half, and
-//      it belongs to a file about the ordinary press -- this one is named for
-//      the cap. ⛔ The old note here said the withheld half could not be read at
-//      this seam because it was a NAME FIELD; CR-348 withdrew that field, and
-//      what the refusal withholds is now the TASK GROUP and the PANEL, both of which
-//      this seam carries (`FrameLoop.document()` and
-//      `ScreenView.propertiesPanel`) and both of which are asserted below.
-//   1b. WHETHER THE DETAIL TIER WAS OPENED. 「立てたタスクグループが…詳しさの段（`FR-018`）で
-//      落ちる深さになるときは、そのタスクグループが描かれるまで詳しさの段を開くこと（MUST）」 is a
-//      2026-09-04 MUST about the press that SUCCEEDS. ⛔ It is not written here:
-//      no press in this file raises a task group, and choosing the seam it is read
-//      through is the implementer's, not this file's.
-//   2. HOW FAINT IS DRAWN. That is the surface's, and
-//      tests/unit/uf-72-screen-part.test.ts already holds `canOpenOneLevel`'s
-//      faintness there. Here the question is the one only this unit can answer:
-//      whether the task group AT the cap is described to the surface as having nothing
-//      to add, while a shallower task group is not.
+// Unit tests: an add-child press at the depth cap is drawn faint and refused (HF-14).
 
 import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
@@ -96,11 +29,7 @@ import {
 } from '../../src/framework/single-html-shell/frame-loop'
 import { bare, bareAll, specTable, unbroken } from '../contract/spec-table'
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
-// ===========================================================================
-// The manuscripts, read at run time rather than copied (Chapter 1.9)
-// ===========================================================================
+/* eslint-disable @typescript-eslint/no-explicit-any -- the fixture builds documents and fake hosts as loose shapes */
 
 const rowOf = (table: string, id: string) => {
   const found = specTable(table).rows.find((one) => one.id === id)
@@ -108,7 +37,6 @@ const rowOf = (table: string, id: string) => {
   return found
 }
 
-/** Everything one row of a table says, as one string. */
 const says = (table: string, id: string): string => rowOf(table, id).cells.join(' ')
 
 const REQUIREMENTS = unbroken(readRepoFile(
@@ -116,17 +44,10 @@ const REQUIREMENTS = unbroken(readRepoFile(
   'utf8',
 ))
 
-/** 表 T-103's settled English name for U-22 -- the 面 a task group's controls answer as. */
 const TASK_GROUP_PANEL = bare(rowOf('T-103', 'U-22').by['確定名（英）'] ?? '')
 
-/**
- * The entrance 表 T-109 gives one rule of 表 T-051.
- *
- * ⭐ THE JOIN IS THE SPECIFICATION'S OWN: 表 T-109's 正 column names the rule
- * that owns each entrance, so a case that means 「HF-14's control」 says so and
- * is told which icon that is, instead of typing `IC-91` and going quiet the day
- * the roster is renumbered.
- */
+// Why: table T-109's authority column names the rule that owns each
+// entrance, so a case names the rule and survives a renumbered icon roster.
 function entranceFor(rule: string): string {
   const onThePanel = specTable('T-109').rows.filter(
     (one) => bareAll(one.by['面'] ?? '').includes(TASK_GROUP_PANEL),
@@ -141,15 +62,11 @@ function entranceFor(rule: string): string {
   return first.id
 }
 
-/** `HF-14`'s entrance -- the one that adds a task group under this one. */
 const ADD_CHILD_TASK_GROUP = entranceFor('HF-14')
 
-/** The manner 表 T-233 writes one reason against. */
 const mannerOf = (reason: string): string => bare(rowOf('T-233', reason).by['作法'] ?? '')
 
-/** RS-46 -- 「これ以上深い段にはタスクグループを足せない」. */
 const RS_46 = 'RS-46'
-/** RS-15 -- FR-029's landing place for a reason 表 T-233 has no row for. */
 const RS_15 = 'RS-15'
 
 interface ReasonWords {
@@ -158,14 +75,8 @@ interface ReasonWords {
   readonly nextStep?: Readonly<Record<DisplayLanguage, string>>
 }
 
-/**
- * FR-038's dictionary, as the MANUSCRIPT keeps it.
- *
- * ⭐ docs/spec/_source/ is where the words are written and `src/` holds what is
- * printed from it; rule 04 section 1 has these cases driven from docs/spec.
- * tests/contract/t-233-reason-words-tell-the-row.contract.test.ts is what holds
- * the two copies together and holds each word to the row it is carried for.
- */
+// Why: the words are read from docs/spec/_source, where they are written,
+// because these cases are driven from the specification, not from src/.
 const REASON_WORDS: readonly ReasonWords[] = (
   JSON.parse(
     readRepoFile(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8'),
@@ -178,16 +89,12 @@ function wordsFor(specTableRowId: string): ReasonWords {
   return found
 }
 
-/** S-125 -- `maxGroupDepth`, the cap `FR-085` states and 表 T-211 carries. */
+// Spec: S-125, FR-085
 const MAX_GROUP_DEPTH = ((): number => {
   const value = SETTINGS_CONSTANTS['maxGroupDepth']
   if (typeof value !== 'number') throw new Error('SETTINGS_CONSTANTS.maxGroupDepth is not a number')
   return value
 })()
-
-// ===========================================================================
-// The document these cases drive: one chain, exactly as deep as S-125 allows.
-// ===========================================================================
 
 const TEMPLATE = JSON.parse(
   readRepoFile(
@@ -196,17 +103,11 @@ const TEMPLATE = JSON.parse(
   ),
 ) as Record<string, unknown>
 
-/** A `TaskGroup.id` -- AT-51 types the column as a UUID. */
+// Why: AT-51 types TaskGroup.id as a UUID.
 const uuidOf = (n: number): string => `00000000-0000-4000-8000-${String(n).padStart(12, '0')}`
 
-/**
- * One chain of task groups, the root at depth 1 and the last at exactly `S-125`.
- *
- * ⭐ THE DEPTH IS COUNTED FROM THE ROOT, which S-125 fixes and
- * tests/contract/document-invariants.contract.test.ts reads the same way. So
- * the last link is the task group 「そのタスクグループの深さが `FR-085` の上限に達している」 names, and
- * the one before it is the control: it is deep, and it may still take a child.
- */
+// Why: depth is counted from the root, so the last link is the task group at
+// the cap and the one before it is the control: deep, yet it may take a child.
 const CHAIN: readonly { readonly id: string; readonly depth: number }[] = Array.from(
   { length: MAX_GROUP_DEPTH },
   (_unused, index) => ({ id: uuidOf(index + 1), depth: index + 1 }),
@@ -218,7 +119,6 @@ const linkAt = (depth: number): string => {
   return found.id
 }
 
-/** The task group that has reached the cap, and the one a step above it. */
 const AT_THE_CAP = linkAt(MAX_GROUP_DEPTH)
 const ONE_ABOVE_THE_CAP = linkAt(MAX_GROUP_DEPTH - 1)
 
@@ -260,27 +160,14 @@ function chainDocument(): Document {
   } as unknown as Document
 }
 
-// ===========================================================================
-// The host UF-48 is given.
-// ===========================================================================
-
-/** The px figure one settings row states in its 既定 column. */
 const px = (table: string, id: string): number => {
   const found = /-?\d+(?:\.\d+)?/.exec(rowOf(table, id).by['既定'] ?? '')
   if (found === null) throw new Error(`${id} states no number in its 既定 column`)
   return Number(found[0])
 }
 
-/**
- * The height 表 T-051 の `HF-1`'s 2 x 2 lattice takes, as far as docs/spec pins
- * it down: two entrances stacked, each `S-138 + S-243 × 2` tall.
- *
- * COMPOSED FROM 表 T-206 AND NEVER TYPED. Since CR-553 it floors no band
- * (HF-19 MUST NOT); `LF-16` reserves it under the last task group, and the host is
- * what measures it (UF-105) -- so a case that drives the loop hands one in.
- * Nothing in this file depends on the figure; tests/unit/cr-553-the-row-
- * controls-no-longer-set-the-task-group-height.test.ts asserts the reserve.
- */
+// Why: the host measures the controls' reserve, so a case that drives the
+// loop hands one in; nothing in this file depends on the figure.
 const TASK_GROUP_CONTROLS_TALL = (px('T-206', 'S-138') + px('T-206', 'S-243') * 2) * 2
 
 const SCREEN: FrameEnvironment = {
@@ -293,11 +180,8 @@ const SCREEN: FrameEnvironment = {
 
 const realRaf = (globalThis as any).requestAnimationFrame
 
-/**
- * ⚠️ THE HOST IS A FAKE, AND THE FAKE IS NOT THE TEST (R6.3). Vitest runs under
- * node with no `requestAnimationFrame`, and LY-5 of 表 T-060 puts the browser in
- * this layer. ⛔ Nothing in this fake decides anything about a telling.
- */
+// Why: Vitest runs under node with no requestAnimationFrame, so the host is
+// a fake; nothing in it decides anything about a telling.
 function host(): { readonly surface: { showSvg(svg: string): void; showMarqueeOverlaySvg(svg: string): void }; runAnimationFrames(): void } {
   const waiting: ((time: number) => void)[] = []
   let handle = 0
@@ -350,10 +234,6 @@ afterEach(() => {
   else (globalThis as any).requestAnimationFrame = realRaf
 })
 
-// ---------------------------------------------------------------------------
-// Spelling one happening
-// ---------------------------------------------------------------------------
-
 const NO_MODIFIERS: InputModifiers = { ctrl: false, shift: false, alt: false, meta: false }
 
 const pointer = (phase: PointerPhase, x: number, y: number): PointerInput => ({
@@ -366,14 +246,13 @@ const pointer = (phase: PointerPhase, x: number, y: number): PointerInput => ({
   clickCount: 1,
 })
 
-/** Somewhere inside the surface the fake answers for. */
 const ON_THE_SURFACE = { x: 80, y: 120 }
 
 interface Stage {
   readonly loop: FrameLoop
   readonly screen: ScreenPane
   send(input: HumanInput): void
-  /** Aim one entrance of one task group and press it -- CS-2 freezes the aim at the press. */
+  // Why: CS-2 freezes the aim at the press, so the aim is set before it.
   press(entry: string, taskGroupId: string): void
   titleOf(taskGroupId: string): TaskGroupTitle
   notices(): ScreenView['notices']
@@ -402,7 +281,7 @@ function stage(language: DisplayLanguage = 'ja'): Stage {
         dividerPanel: null,
         noticeDismissKey: null,
       })
-      // IN-1 settles a pointer operation on release, so a press is down then up.
+      // Why: IN-1 settles a pointer operation on release, so a press is down then up.
       send(pointer('down', ON_THE_SURFACE.x, ON_THE_SURFACE.y))
       send(pointer('up', ON_THE_SURFACE.x, ON_THE_SURFACE.y))
       screen.drawAt(null)
@@ -417,18 +296,13 @@ function stage(language: DisplayLanguage = 'ja'): Stage {
   }
 }
 
-/** How many task groups the document holds -- the number a refused press may not move. */
 const taskGroupCount = (built: Stage): number =>
   ((built.loop.document().schedule as any).taskGroups as readonly unknown[]).length
 
-// ===========================================================================
-// The premises every case below stands on
-// ===========================================================================
-
 describe('the manuscript still says what these cases read', () => {
   it('⭐ was really driven by the manuscript, and not by a hollow read of it', () => {
-    // ⛔ WITHOUT THIS, A PARSE THAT LOST A COLUMN WOULD MAKE EVERY CASE BELOW
-    // AGREE WITH ANYTHING -- rule 04 section 2.
+    // Why: a parse that lost a column would make every case below agree with
+    // anything.
     expect(TASK_GROUP_PANEL).toBe('Task Group Panel')
     expect(ADD_CHILD_TASK_GROUP).toBe('IC-91')
     expect(MAX_GROUP_DEPTH, 'S-125 no longer leaves room for a task group above the cap').toBeGreaterThan(1)
@@ -436,40 +310,34 @@ describe('the manuscript still says what these cases read', () => {
   })
 
   it('⛔ HF-14 still draws the capped entrance faint and still tells RS-46 when it is pressed', () => {
-    // The three sentences the refusal path stands on, pinned so that a
-    // manuscript which went back on any of them fails HERE rather than in a
-    // case that would then be asserting a rule nobody holds.
+    // Why: pinned so a manuscript that went back on a sentence fails here, not in
+    // a case asserting a rule nobody holds.
     expect(says('T-051', 'HF-14')).toContain(
       '押したタスクグループの深さが `FR-085` の上限に達しているとき、`GRS` は、配下に足す操作子を `FR-029` に従って薄く描くこと。',
     )
     expect(says('T-051', 'HF-14')).toContain(
       'もし薄い配下に足す操作子を押した場合、`GRS` は、押したタスクグループの配下に新しいタスクグループを立てないこと。もし薄い配下に足す操作子を押した場合、`GRS` は、運ぶ理由を 表 T-233 の `RS-46` とすること。',
     )
-    // ⛔⛔ CR-348's own MUST NOT, and the reason the case below reads the task group
-    // count and the panel rather than the reason alone: raising the task group and
-    // refusing inside the panel would tell RS-46 and still be forbidden.
+    // Why: raising the task group and refusing inside the panel would tell RS-46
+    // and still be forbidden, so the cases read the count and the panel too.
     expect(says('T-051', 'HF-14')).toContain(
       '`GRS` は、タスクグループを立ててからパネルを開き、パネルで拒むことをしないこと。',
     )
   })
 
   it('⛔ HF-14 no longer holds the model that was withdrawn on 2026-09-04', () => {
-    // ⚠️ THE GUARD THAT KEEPS THIS FILE HONEST. CR-348 withdrew three MUSTs
-    // (「名前は空で立てる」「既定の名を与えてはならない」「空のまま確定されたら立てない」)
-    // and the row now says the opposite: 「**押された瞬間に、既定の名前でタスクグループを立てる
-    // こと（MUST）。そのタスクグループのプロパティパネルを出し、名前の欄で名づけさせること（MUST）**」.
-    // ⛔ If a case in this file ever reads an empty name field or an empty-name
-    // confirmation again, this is what says it is reading a rule nobody holds.
+    // Why: the guard against the withdrawn model: a case that reads an empty
+    // name field again would be reading a rule nobody holds.
     expect(says('T-051', 'HF-14')).toContain(
       '配下に足す操作子を押したとき、`GRS` は、押した瞬間に既定の名前でタスクグループを立てること。配下に足す操作子を押したとき、`GRS` は、立てたタスクグループのプロパティパネルを出し、名前の欄で名づけさせること。',
     )
     expect(says('T-051', 'HF-14')).not.toContain('打ち込み口')
   })
 
+  // Spec: NT-3a, NT-1
   it('⛔ 表 T-233 still holds RS-46, against NT-3a, and its words are in the dictionary', () => {
-    // ⭐ THE MANNER IS THE HALF THAT IS EASY TO GET WRONG, and CR-340 argued it:
-    // the reader asked for something the tool cannot do, and a next step exists
-    // (「もっと浅いタスクグループに足してください」), so NT-3a and not NT-1.
+    // Why: a next step exists (add to a shallower task group), so the manner is
+    // NT-3a and not NT-1; it is the half that is easy to get wrong.
     expect(rowOf('T-233', RS_46).by['場面']).toContain('これ以上深い段にはタスクグループを足せない')
     expect(mannerOf(RS_46)).toBe('NT-3a')
     expect(bare(rowOf('T-233', RS_46).by['正'] ?? '')).toBe('FR-085')
@@ -485,18 +353,14 @@ describe('the manuscript still says what these cases read', () => {
   })
 })
 
-// ===========================================================================
-// The rule
-// ===========================================================================
+// Spec: HF-14, HF-13, FR-085, FR-029, RS-46
+// Why: no press here raises a task group, so the detail tier (FR-018) and a
+// carried task group's silent stop at the cap (HF-15) are not asserted.
 
 describe('表 T-051 HF-14 (MUST): a task group at FR-085s cap has no child to add', () => {
   it('⛔ the task group AT the cap is described as having nothing to add, and the one above it is not', () => {
-    // ⭐ 「そのタスクグループの深さが `FR-085` の上限に達しているときは、`FR-029` に従って薄く描く
-    // こと（MUST）」. Faintness is drawn by the surface; what this unit owes is the
-    // answer the surface draws FROM -- and 「`HF-13` が「開ける直下の子が 1 つも無い
-    // とき」に採るのと同じ形である」 is what says the two are read the same way.
-    // ⛔ THE CONTROL IS THE HALF THAT MAKES THIS A TEST: a unit that answered
-    // `false` for every task group would pass the first expectation alone.
+    // Why: faintness is the surface's; this unit owes the answer it draws from,
+    // read the way HF-13 reads it. The shallower task group is the control.
     const built = stage()
     expect(
       (built.titleOf(ONE_ABOVE_THE_CAP) as any).canAddChildTaskGroup,
@@ -510,10 +374,6 @@ describe('表 T-051 HF-14 (MUST): a task group at FR-085s cap has no child to ad
 
   for (const language of ['ja', 'en'] as const) {
     it(`⭐ a press at the cap shows none of RS-46's or RS-15's words (${language})`, () => {
-      // ⛔⛔ THE DEFECT THIS CASE IS WRITTEN FOR, measured in CR-340 and still
-      // written into HF-14: 「⚠️ **実測（2026-09-03、出荷ビルド）: 深さ 5 で入口は
-      // 薄いまま押せ、押した先は開き、確定してもタスクグループは増えず通知も出なかった。**」
-      // ⇒ 「**押した人には、名づけを求められたうえで捨てられたようにしか見えない。**」
       const built = stage(language)
 
       built.press(ADD_CHILD_TASK_GROUP, AT_THE_CAP)
@@ -537,9 +397,6 @@ describe('表 T-051 HF-14 (MUST): a task group at FR-085s cap has no child to ad
   })
 
   it('⛔ the refused press leaves the document exactly as it was', () => {
-    // ⭐ 「**薄いまま押されたときは、そのタスクグループの配下に新しいタスクグループを立てないこと（MUST）**」. Since
-    // CR-348 this is the WHOLE of that half, and it is readable right here: the
-    // task group is what the refusal withholds, so the task group count is the assertion.
     const built = stage()
     const before = JSON.stringify(built.loop.document())
     const taskGroupsBefore = taskGroupCount(built)
@@ -549,9 +406,8 @@ describe('表 T-051 HF-14 (MUST): a task group at FR-085s cap has no child to ad
     expect(taskGroupCount(built), 'a task group was added past S-125').toBe(taskGroupsBefore)
     expect(JSON.stringify(built.loop.document())).toBe(before)
     expect(built.loop.hasUnsavedEdits()).toBe(false)
-    // ⛔ 「**タスクグループを立ててからパネルを開き、そこで拒んではならない（MUST NOT）**」 -- the
-    // ordinary press opens the properties panel (`UF-64`), so a refusal that
-    // opened it too would be the very shape CR-348 forbids.
+    // Why: the ordinary press opens the properties panel, so a refusal that
+    // opened it too would be the very shape HF-14 forbids.
     expect(
       built.screen.last().propertiesPanel,
       'the capped press opened the panel it was refused in',
@@ -559,9 +415,8 @@ describe('表 T-051 HF-14 (MUST): a task group at FR-085s cap has no child to ad
   })
 
   it('⛔ the control: the same press one level above the cap is NOT answered with a reason', () => {
-    // ⚠️ WITHOUT THIS, A UNIT THAT TOLD RS-46 ON EVERY PRESS OF IC-91 WOULD PASS
-    // EVERY CASE ABOVE. FR-029 (MUST) ties the telling to an entrance that can
-    // do nothing, and one level above the cap the entrance has work.
+    // Why: without this, a unit that told RS-46 on every press of IC-91 would
+    // pass every case above.
     const built = stage()
 
     built.press(ADD_CHILD_TASK_GROUP, ONE_ABOVE_THE_CAP)

@@ -1,4 +1,4 @@
-// File: EditDocument: counts what a deletion removes or frees, and decides whether table T-234 asks first.
+// File: EditDocument: counts what a deletion removes, and decides whether table T-234 asks first.
 // @unit      UF-162  (docs/spec/05-07-design.md, table T-075)
 // @component EditDocument, layer UseCase (table T-062)
 // @purity    pure
@@ -12,8 +12,6 @@ export interface DeletionQuestion {
   readonly question: 'QN-1' | 'QN-2' | 'QN-3' | 'QN-10' | 'QN-16'
   readonly items: readonly { readonly name: string | null; readonly isShownOnAnotherTaskGroup: boolean }[]
 }
-
-const UNASSIGNMENT_QUESTION: DeletionQuestion['question'] = 'QN-3'
 
 const DEPTH_CAP_QUESTION: DeletionQuestion['question'] = 'QN-16'
 
@@ -70,35 +68,4 @@ function deletionOwedBy(
   }
   const question: DeletionQuestion['question'] = asked ?? (lostTaskGroups.size > 0 ? 'QN-1' : 'QN-2')
   return { question, items }
-}
-
-// Spec: FR-099, QN-3, CD-5, IMPS-274, IMPS-275, IMPS-276
-/** @purity pure */
-export function confirmationOwedByResourceDeletion(
-  uids: readonly number[],
-  held: Document,
-): DeletionQuestion | null {
-  const schedule = held.schedule
-  const going = new Set(uids)
-  const reached: number[] = []
-  const seen = new Set<number>()
-  let isFreeingAny = false
-  for (const assignment of schedule.assignments) {
-    const resourceUid = assignment.resourceUid
-    if (resourceUid === null || !going.has(resourceUid)) continue
-    isFreeingAny = true
-    const taskUid = assignment.taskUid
-    if (taskUid === null || seen.has(taskUid)) continue
-    seen.add(taskUid)
-    reached.push(taskUid)
-  }
-  if (!isFreeingAny) return null
-  const taskOfUid = new Map(schedule.tasks.map((one) => [one.uid, one]))
-  const items: DeletionQuestion['items'][number][] = []
-  for (const taskUid of reached) {
-    const task = taskOfUid.get(taskUid)
-    if (task === undefined) continue
-    items.push({ name: task.name, isShownOnAnotherTaskGroup: false })
-  }
-  return { question: UNASSIGNMENT_QUESTION, items }
 }

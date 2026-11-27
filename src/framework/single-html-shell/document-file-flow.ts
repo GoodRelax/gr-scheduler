@@ -16,9 +16,11 @@ import {
   type DelayFixLogRow,
   type DelayFixRow,
   type Project,
-  type Task,
 } from '../../entity/document-model/schedule/schedule'
 import { editDocument, wbsSubtreesOf } from '../../use-case/edit-document/edit-document'
+import { holdsWorkValues, taskUidsWithAnUnusableDate } from '../../use-case/exchange-with-wbs-master/exchange-with-wbs-master'
+import { documentStampedAt } from '../../use-case/save-and-share-document/save-and-share-document'
+import { missingTaskNamesOf } from '../../use-case/merge-schedules/merge-schedules'
 import type {
   FileFlowImportAnswer,
   FileFlowOpenRoute,
@@ -145,8 +147,6 @@ const WRITING_BROKE_REASON: NoticeReason = 'RS-76'
 
 const WORK_NOT_REWRITTEN_REASON: NoticeReason = 'RS-77'
 
-const WORK_COLUMN = 'Work'
-
 const UNLISTED_REASON: NoticeReason = 'RS-15'
 
 type EmbeddedHtmlFaultReason = Exclude<
@@ -211,13 +211,6 @@ const DEFAULT_DOCUMENT_SETTINGS: DocumentSettings = defaultDocumentSettings()
 /** @purity pure */
 function suggestedFileNameOf(project: Project, form: SaveFileForm): string {
   return exportFileNameOf(project.title ?? '', extensionOfForm(form))
-}
-
-// Spec: AT-140, HS-11, IMPS-994
-// Why: only the bytes carry the stamp; the held document keeps the one it was opened with (HS-11).
-/** @purity pure */
-export function documentStampedAt(document: Document, savedAt: string | null): Document {
-  return { ...document, documentStamp: { ...document.documentStamp, fileSavedAt: savedAt } }
 }
 
 // Spec: AT-140, FR-101, HS-11, IMPS-993
@@ -361,38 +354,6 @@ function tellNewerFormat(hands: Pick<DocumentFileFlowHands, 'raiseNotice'>, read
   // Temporary: spec says unread columns ask whether to go on (FR-073, U-61); here U-61 stands
   // only for a merge with candidates, so the other opens tell RS-48 after opening (DFC-855). Until: DFC-855 is fixed.
   if (!isUnreadAsked) hands.raiseNotice(NEWER_FORMAT_UNREAD_REASON, null)
-}
-
-const UNUSABLE_DATE_RULES: ReadonlySet<string> = new Set(['IV-14'])
-
-const TASK_REFUSAL_PREFIX = '/schedule/tasks/'
-
-/** @purity pure */
-function taskIndexOfRefusal(at: string): number | null {
-  if (!at.startsWith(TASK_REFUSAL_PREFIX)) return null
-  const rest = at.slice(TASK_REFUSAL_PREFIX.length)
-  const cut = rest.indexOf('/')
-  if (cut <= 0) return null
-  const index = Number(rest.slice(0, cut))
-  return Number.isInteger(index) && index >= 0 ? index : null
-}
-
-// Spec: FR-023, CD-1, IMPS-935, IMPS-936
-/** @purity pure */
-function taskUidsWithAnUnusableDate(
-  refusals: readonly { readonly rule: string; readonly at: string }[],
-  tasks: readonly Task[],
-): ReadonlySet<number> {
-  const seeds = new Set<number>()
-  for (const refusal of refusals) {
-    if (!UNUSABLE_DATE_RULES.has(refusal.rule)) continue
-    const index = taskIndexOfRefusal(refusal.at)
-    if (index === null) continue
-    const task = tasks[index]
-    if (task === undefined) continue
-    seeds.add(task.uid)
-  }
-  return seeds
 }
 
 // Spec: DI-3
@@ -719,12 +680,6 @@ function handedReadingOf(hands: Pick<DocumentFileFlowHands, 'raiseNotice'>, hand
   }
 }
 
-// Spec: EX-3
-/** @purity pure */
-function holdsWorkValues(document: Document): boolean {
-  return document.schedule.tasks.some((task) => task.carry[WORK_COLUMN] !== undefined)
-}
-
 type ImportReport = Extract<ReturnType<typeof importDocument>, { readonly ok: true }>['report']
 
 /** @purity non-pure */
@@ -737,14 +692,6 @@ function landOpenedDocument(
 ): void {
   hands.sendFromFlow({ type: 'documentOpenLanded', ...names, openedFileName, openChoice })
   tellNewerFormat(hands, newer)
-}
-
-// Spec: MG-11, MG-14, RS-73
-/** @purity pure */
-function missingTaskNamesOf(current: Document, report: ImportReport | null): ReportedLines['missingTaskNames'] {
-  if (report === null) return []
-  const missing = new Set(report.taskUidsMissingSinceLastImport)
-  return current.schedule.tasks.filter((task) => missing.has(task.uid)).map((task) => task.name)
 }
 
 // Spec: MG-14, RS-71, RS-72, OP-15, RS-16, IMPS-1457

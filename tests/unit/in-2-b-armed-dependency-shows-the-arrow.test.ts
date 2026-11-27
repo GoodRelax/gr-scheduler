@@ -1,4 +1,4 @@
-// T-028 IN-2, CR-383: pointer shape while armed for a dependency line (AR-4).
+// Unit tests: T-028 IN-2, the pointer shape while armed for a dependency line (AR-4).
 
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -61,8 +61,6 @@ const DEPENDENCY_ARMING_ENTRY: IconId = ((): string => {
   if (found === undefined) throw new Error('table T-109 has no entry whose 構え is AR-4')
   return found.id
 })()
-
-// see CR-382, CR-383
 
 const TEMPLATE_PATH = join(
   process.cwd(),
@@ -200,7 +198,7 @@ function fixtureDocument(): Document {
     },
     documentSettings: {
       ...structuredClone(template.documentSettings),
-      // Why: S-1 is a constant (CR-572); the stored zoomX (S-75) carries the day width this fixture draws at.
+      // Why: S-1 is a constant; the stored zoomX (S-75) carries the day width this fixture draws at.
       zoomX: PX_PER_DAY_AT_1X / SETTINGS_CONSTANTS.pxPerDayAt1x,
     },
     documentStamp: structuredClone(template.documentStamp),
@@ -510,7 +508,6 @@ describe('T-028 IN-2 -- armed for a dependency line, every named place is the de
   })
 })
 
-// see CR-388
 describe('unarmed control -- T-023d places keep their own shapes, not the arrow', () => {
   it('T-269: answers four different arrows at the four ends, and the task dummies take the actual ends arrows', () => {
     const built = stage()

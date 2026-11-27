@@ -1,4 +1,4 @@
-// CR-824 / JDG-3053 / DFC-3411 spec-only tests: a comment box over a name or assignee label answers the double click (MK-13; ZO-9 drawn over ZO-5).
+// Contract tests: a comment box over a name or assignee label answers the double click.
 
 import { afterEach, describe, expect, it } from 'vitest'
 
@@ -19,7 +19,6 @@ const verticalIn = (table: string, id: string) => {
 
 // Spec: T-023, MK-13
 const MK_13 = verticalIn('T-023', 'MK-13').cells.join(' ')
-// see CR-824, JDG-3053, DFC-3411
 const MK_13_COMMENT_OVER_LABEL =
   'コメントボックス（表 T-023d の `GR-14` の本体・引出し線・線先）が名称ラベルか担当ラベル（表 T-023d の `GR-10` / `GR-11`）に重なる点では、`GRS` はコメントボックスの宛先を読むこと。'
 

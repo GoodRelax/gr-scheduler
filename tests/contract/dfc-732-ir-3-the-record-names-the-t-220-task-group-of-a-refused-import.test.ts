@@ -1,4 +1,4 @@
-// DFC-732 spec-only cases: T-263 IR-3 -- while a notice told for a refused import stands, every frame line of the record carries the T-220 row that refused it.
+// Contract tests: while a notice of a refused import stands, every frame line of the record carries the T-220 row that refused it.
 
 import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
@@ -264,7 +264,7 @@ describe(`T-233 closing / T-263 IR-3 -- ${IR_3_READABLE}`, () => {
     expect(one.loop.document()).toBe(before)
   })
 
-  // see DFC-732, T-233
+  // Spec: T-233
   it('DFC-732: a refused import leaves an NT-1 notice standing whose reason is the T-220 row, and the record names it', async () => {
     const one = bench()
     one.pressRecordEntrance()

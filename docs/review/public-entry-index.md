@@ -449,7 +449,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `boxOfPath` | entry | function | `src/entity/layout-engine/item-hit-area/item-hit-area.ts#boxOfPath` | -- | function boxOfPath(points: Path): ScreenRect \| null |
 | `BoxPart` | entry | type | `src/entity/layout-engine/item-hit-area/item-hit-area.ts#BoxPart` | -- | type BoxPart = \| { readonly kind: 'body' } \| { readonly kind: 'anchor' } \| { readonly kind: 'leader' } \| |
 | `cutRect` | entry | function | `src/entity/layout-engine/item-hit-area/item-hit-area.ts#cutRect` | -- | function cutRect(box: ScreenRect \| null, cut: BandCut, isCut: boolean): ScreenRect \| null |
-| `DependencyEnd` | entry | interface | `src/entity/layout-engine/item-hit-area/dependency-end.ts#DependencyEnd` | -- | interface DependencyEnd |
+| `DependencyEnd` | entry | interface | `src/entity/layout-engine/item-hit-area/dependency-end.ts#DependencyEnd` | PI-7 | 型。 |
 | `dependencyEndAtPointer` | entry | function | `src/entity/layout-engine/item-hit-area/dependency-end.ts#dependencyEndAtPointer` | PI-7 | `FR-009` の「左半分 / 右半分」を答える。 |
 | `dependencyItemOf` | entry | function | `src/entity/layout-engine/item-hit-area/item-hit-area.ts#dependencyItemOf` | -- | function dependencyItemOf(line: DependencyGeometry): Item |
 | `dependencyStartOfHit` | entry | function | `src/entity/layout-engine/item-hit-area/dependency-end.ts#dependencyStartOfHit` | PI-7 | 押したときの当たり（`itemAtPointer` の答え）から、引き出す依存線の起点を答える。 |
@@ -525,7 +525,6 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `CalendarCommand` | entry | type | `src/use-case/edit-document/edit-calendar.ts#CalendarCommand` | -- | type CalendarCommand = \| |
 | `CommandRefusal` | entry | interface | `src/use-case/edit-document/edit-document.ts#CommandRefusal` | -- | interface CommandRefusal |
 | `confirmationOwedBy` | entry | function | `src/use-case/edit-document/deletion-confirmations.ts#confirmationOwedBy` | PI-9 | 削除の書き込みの束が 表 T-234 の問い（`QN-1`・`QN-2`・`QN-10`）を負うかを決め、負うなら消える `Task` の名を挙げた問いを返す —— 連鎖は 表 T-050 の `CD-1`・`CD-2`・`CD-6` |
-| `confirmationOwedByResourceDeletion` | entry | function | `src/use-case/edit-document/deletion-confirmations.ts#confirmationOwedByResourceDeletion` | PI-9 | 担当の削除が解く割当があるときの `QN-3` の問い —— `CD-5` |
 | `CycledPlanActual` | entry | interface | `src/use-case/edit-document/task-plan-actual.ts#CycledPlanActual` | -- | interface CycledPlanActual |
 | `CycleSurroundings` | entry | interface | `src/use-case/edit-document/task-plan-actual.ts#CycleSurroundings` | -- | interface CycleSurroundings |
 | `cycleTaskPlanActualState` | entry | function | `src/use-case/edit-document/task-plan-actual.ts#cycleTaskPlanActualState` | PI-9 | 表 T-108 の `CM-15` の効果を求める。 |
@@ -657,7 +656,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `ImportFormat` | entry | type | `src/use-case/import-document/import-document.ts#ImportFormat` | -- | type ImportFormat = 'grsJson' \| 'mspdi' |
 | `ImportOutcome` | entry | type | `src/use-case/import-document/import-document.ts#ImportOutcome` | -- | type ImportOutcome = \| { readonly ok: false; readonly refusal: ImportRefusal } \| { readonly ok: true; readonly document: Document; readonly report: ImportRep... |
 | `ImportRefusal` | entry | type | `src/use-case/import-document/import-document.ts#ImportRefusal` | -- | type ImportRefusal = \| { readonly reason: 'openInProgress'; readonly rule: 'OP-8'; readonly what: string } \| { readonly reason: 'notValidated'; readonly rule... |
-| `ImportReport` | entry | interface | `src/use-case/import-document/import-document.ts#ImportReport` | -- | interface ImportReport |
+| `ImportReport` | entry | interface | `src/use-case/import-document/import-document.ts#ImportReport` | PI-10 | 型。 |
 | `ImportRequest` | entry | interface | `src/use-case/import-document/import-document.ts#ImportRequest` | -- | interface ImportRequest |
 | `MergeCandidate` | entry | interface | `src/use-case/import-document/import-document.ts#MergeCandidate` | -- | interface MergeCandidate |
 | `MergeChoices` | entry | interface | `src/use-case/import-document/import-document.ts#MergeChoices` | -- | interface MergeChoices |
@@ -899,7 +898,6 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `treeWritesOf` | file only | function | `src/adapter/input-command-translator/task-group-tree-entrances.ts#treeWritesOf` | -- | function treeWritesOf(context: InputContext, event: TreeStateEvent): readonly DocumentCommand[] |
 | `commandFromWheel` | file only | function | `src/adapter/input-command-translator/wheel-input.ts#commandFromWheel` | -- | function commandFromWheel( input: WheelInput, context: InputContext, searchPanelBox: ScreenRect \| null = null, |
 | `taskGroupTurnedTo` | file only | function | `src/adapter/input-command-translator/wheel-input.ts#taskGroupTurnedTo` | -- | function taskGroupTurnedTo(context: InputContext, dy: number): TaskGroupAnchor |
-| `isPlaceNamed` | file only | function | `src/adapter/input-command-translator/zoom-and-fit.ts#isPlaceNamed` | -- | function isPlaceNamed( schedule: Schedule, scrollDate: string \| null, scrollTaskGroupId: string \| null, ): boolean |
 | `isPlaceSeatedIn` | file only | function | `src/adapter/input-command-translator/zoom-and-fit.ts#isPlaceSeatedIn` | -- | function isPlaceSeatedIn(context: InputContext): boolean |
 | `keyZoomFactor` | file only | function | `src/adapter/input-command-translator/zoom-and-fit.ts#keyZoomFactor` | -- | function keyZoomFactor(context: InputContext, isIn: boolean): number |
 | `statusLineCentered` | file only | function | `src/adapter/input-command-translator/zoom-and-fit.ts#statusLineCentered` | -- | function statusLineCentered(context: InputContext, date: string): readonly DocumentCommand[] |
@@ -1147,7 +1145,6 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `DocumentFileFlow` | file only | type | `src/framework/single-html-shell/document-file-flow.ts#DocumentFileFlow` | -- | type DocumentFileFlow = ReturnType<typeof documentFileFlowOf> |
 | `DocumentFileFlowHands` | file only | type | `src/framework/single-html-shell/document-file-flow.ts#DocumentFileFlowHands` | -- | type DocumentFileFlowHands = Pick< |
 | `documentFileFlowOf` | file only | function | `src/framework/single-html-shell/document-file-flow.ts#documentFileFlowOf` | -- | function documentFileFlowOf( hands: DocumentFileFlowHands, viewPlace: Pick<HeldViewPlace, 'documentToWrite'>, ) |
-| `documentStampedAt` | file only | function | `src/framework/single-html-shell/document-file-flow.ts#documentStampedAt` | -- | function documentStampedAt(document: Document, savedAt: string \| null): Document |
 | `EMBEDDED_DOCUMENT_ELEMENT_ID` | file only | const | `src/framework/single-html-shell/document-file-flow.ts#EMBEDDED_DOCUMENT_ELEMENT_ID` | -- | const EMBEDDED_DOCUMENT_ELEMENT_ID = 'embedded-document' |
 | `FileSavedReading` | file only | interface | `src/framework/single-html-shell/document-file-flow.ts#FileSavedReading` | -- | interface FileSavedReading |
 | `NO_FILE_SAVED` | file only | const | `src/framework/single-html-shell/document-file-flow.ts#NO_FILE_SAVED` | -- | const NO_FILE_SAVED: FileSavedReading = { fileSavedAt: null, fileSavedByteLength: null } |
@@ -2118,4 +2115,101 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `McpRelayOptions` | entry | interface | `src/framework/mcp-relay-server/mcp-relay-server.ts#McpRelayOptions` | -- | interface McpRelayOptions |
 | `startMcpRelay` | entry | function | `src/framework/mcp-relay-server/mcp-relay-server.ts#startMcpRelay` | PI-41 | `non-pure`。 |
 
-Totals: 1079 name(s) leave through a public entry (534 of them published by table T-064), 839 more are exported by a file and not by its entry.
+## PlaceTask (PI-42, `src/use-case/place-task/place-task.ts`)
+
+| name | reach | kind | declared in | T-064 | what it is for / its declaration |
+| --- | --- | --- | --- | --- | --- |
+| `PlacedSpan` | entry | interface | `src/use-case/place-task/place-task.ts#PlacedSpan` | -- | interface PlacedSpan |
+| `placedTaskSpanOf` | entry | function | `src/use-case/place-task/place-task.ts#placedTaskSpanOf` | PI-42 | 置くタスクの期間（`FR-001`・`FR-103`）。 |
+| `PlacingPull` | entry | interface | `src/use-case/place-task/place-task.ts#PlacingPull` | -- | interface PlacingPull |
+
+## ArrangeTaskGroups (PI-43, `src/use-case/arrange-task-groups/arrange-task-groups.ts`)
+
+| name | reach | kind | declared in | T-064 | what it is for / its declaration |
+| --- | --- | --- | --- | --- | --- |
+| `TaskGroupStandUp` | entry | interface | `src/use-case/arrange-task-groups/arrange-task-groups.ts#TaskGroupStandUp` | -- | interface TaskGroupStandUp |
+| `taskGroupStandUpWrites` | entry | function | `src/use-case/arrange-task-groups/arrange-task-groups.ts#taskGroupStandUpWrites` | PI-43 | 親の下に新しいタスクグループを立てる書き込み（`HF-14`）。 |
+| `taskGroupTreeWrites` | entry | function | `src/use-case/arrange-task-groups/arrange-task-groups.ts#taskGroupTreeWrites` | PI-43 | 表 T-328 の出来事 1 つが書き換える木の状態と段 0 の値 |
+
+## EditTaskProperties (PI-44, `src/use-case/edit-task-properties/edit-task-properties.ts`)
+
+| name | reach | kind | declared in | T-064 | what it is for / its declaration |
+| --- | --- | --- | --- | --- | --- |
+| `confirmationOwedByResourceDeletion` | entry | function | `src/use-case/edit-task-properties/edit-task-properties.ts#confirmationOwedByResourceDeletion` | PI-44 | 担当の削除が解く割当があるときの `QN-3` の問い —— `CD-5` |
+
+## LinkTasks (PI-45, `src/use-case/link-tasks/link-tasks.ts`)
+
+| name | reach | kind | declared in | T-064 | what it is for / its declaration |
+| --- | --- | --- | --- | --- | --- |
+| `tentativeDependencyLine` | entry | function | `src/use-case/link-tasks/link-tasks.ts#tentativeDependencyLine` | PI-45 | 先行タスクの辺からポインタまでの仮の依存の線（`FR-009`・`PTD-3`） |
+| `TentativeDependencyPicture` | entry | interface | `src/use-case/link-tasks/link-tasks.ts#TentativeDependencyPicture` | -- | interface TentativeDependencyPicture |
+| `TentativeDependencyRules` | entry | interface | `src/use-case/link-tasks/link-tasks.ts#TentativeDependencyRules` | -- | interface TentativeDependencyRules |
+
+## RecordActuals (PI-46, `src/use-case/record-actuals/record-actuals.ts`)
+
+| name | reach | kind | declared in | T-064 | what it is for / its declaration |
+| --- | --- | --- | --- | --- | --- |
+| `MarkerPullActual` | entry | interface | `src/use-case/record-actuals/record-actuals.ts#MarkerPullActual` | -- | interface MarkerPullActual |
+| `markerPullActualOf` | entry | function | `src/use-case/record-actuals/record-actuals.ts#markerPullActualOf` | PI-46 | 進捗マーカーを引いて離したときに始める実績（表 T-245 の `GO-9`・表 T-240 の `DM-2`） |
+
+## FindDelays (PI-47, `src/use-case/find-delays/find-delays.ts`)
+
+| name | reach | kind | declared in | T-064 | what it is for / its declaration |
+| --- | --- | --- | --- | --- | --- |
+| `lateWorkingDaysOf` | entry | function | `src/use-case/find-delays/find-delays.ts#lateWorkingDaysOf` | PI-47 | 基準日の時点の遅れの稼働日数。 |
+
+## ShowRange (PI-48, `src/use-case/show-range/show-range.ts`)
+
+| name | reach | kind | declared in | T-064 | what it is for / its declaration |
+| --- | --- | --- | --- | --- | --- |
+| `isPlaceNamed` | entry | function | `src/use-case/show-range/show-range.ts#isPlaceNamed` | PI-48 | 保存した表示の場所が、文書の中の場所をまだ指しているか（表 T-024a の `OP-10`） |
+
+## AnnotateSchedule (PI-49, `src/use-case/annotate-schedule/annotate-schedule.ts`)
+
+| name | reach | kind | declared in | T-064 | what it is for / its declaration |
+| --- | --- | --- | --- | --- | --- |
+| `freeAnchorAt` | entry | function | `src/use-case/annotate-schedule/annotate-schedule.ts#freeAnchorAt` | PI-49 | タスクグループの上の点に置く、コメントボックスの線先（表 T-221 の `LF-15`） |
+
+## ShowConfidentialSchedule (PI-50, `src/use-case/show-confidential-schedule/show-confidential-schedule.ts`)
+
+| name | reach | kind | declared in | T-064 | what it is for / its declaration |
+| --- | --- | --- | --- | --- | --- |
+| `isWatermarkUnlockMatched` | entry | function | `src/use-case/show-confidential-schedule/show-confidential-schedule.ts#isWatermarkUnlockMatched` | PI-50 | 透かし解除の答えのハッシュが、記憶の値（`S-99c`、無ければ `S-101`）と合うか |
+| `watermarkOpenedByOf` | entry | function | `src/use-case/show-confidential-schedule/show-confidential-schedule.ts#watermarkOpenedByOf` | PI-50 | 透かしが名を出す者（`S-99a`） |
+
+## ExchangeWithWbsMaster (PI-51, `src/use-case/exchange-with-wbs-master/exchange-with-wbs-master.ts`)
+
+| name | reach | kind | declared in | T-064 | what it is for / its declaration |
+| --- | --- | --- | --- | --- | --- |
+| `holdsWorkValues` | entry | function | `src/use-case/exchange-with-wbs-master/exchange-with-wbs-master.ts#holdsWorkValues` | PI-51 | 作業量の値を持つ文書か（表 T-033 の `EX-3`） |
+| `taskUidsWithAnUnusableDate` | entry | function | `src/use-case/exchange-with-wbs-master/exchange-with-wbs-master.ts#taskUidsWithAnUnusableDate` | PI-51 | 使えない日付のために落とすタスク（`FR-023`） |
+
+## SaveAndShareDocument (PI-52, `src/use-case/save-and-share-document/save-and-share-document.ts`)
+
+| name | reach | kind | declared in | T-064 | what it is for / its declaration |
+| --- | --- | --- | --- | --- | --- |
+| `documentStampedAt` | entry | function | `src/use-case/save-and-share-document/save-and-share-document.ts#documentStampedAt` | PI-52 | 保存する文書に、書いた時刻の刻印（表 T-058 の `AT-140`）を押す |
+
+## MergeSchedules (PI-53, `src/use-case/merge-schedules/merge-schedules.ts`)
+
+| name | reach | kind | declared in | T-064 | what it is for / its declaration |
+| --- | --- | --- | --- | --- | --- |
+| `missingTaskNamesOf` | entry | function | `src/use-case/merge-schedules/merge-schedules.ts#missingTaskNamesOf` | PI-53 | 同じマスタの前回の取り込みから消えたタスクの名（表 T-032 の `MG-11`） |
+
+## OperateThroughAgentApi (PI-54, `src/use-case/operate-through-agent-api/operate-through-agent-api.ts`)
+
+| name | reach | kind | declared in | T-064 | what it is for / its declaration |
+| --- | --- | --- | --- | --- | --- |
+| `reasonOfPlanRefusal` | entry | function | `src/use-case/operate-through-agent-api/operate-through-agent-api.ts#reasonOfPlanRefusal` | PI-54 | 書き込みの経路の拒否を、表 T-400 の `AV-4` の理由へ写す |
+| `reasonOfStepRefusal` | entry | function | `src/use-case/operate-through-agent-api/operate-through-agent-api.ts#reasonOfStepRefusal` | PI-54 | 取り消しとやり直しの拒否を、`AV-4` の理由へ写す |
+| `ruleOfPlanRefusal` | entry | function | `src/use-case/operate-through-agent-api/operate-through-agent-api.ts#ruleOfPlanRefusal` | PI-54 | その拒否が破った規則の行 |
+| `stepRefusalWhat` | entry | function | `src/use-case/operate-through-agent-api/operate-through-agent-api.ts#stepRefusalWhat` | PI-54 | その拒否を AI エージェントに伝える文 |
+| `WriteRefusalReason` | entry | type | `src/use-case/operate-through-agent-api/operate-through-agent-api.ts#WriteRefusalReason` | -- | type WriteRefusalReason = \| 'staleStamp' \| 'commandRefused' \| 'notOwnStep' \| Extract<PlanRefusal, { readonly step: 'WS-2' }>['reason'] // Provisional: OPQ-26... |
+
+## RunDelayDiagnostics (PI-55, `src/use-case/run-delay-diagnostics/run-delay-diagnostics.ts`)
+
+| name | reach | kind | declared in | T-064 | what it is for / its declaration |
+| --- | --- | --- | --- | --- | --- |
+| `delayDiagnosisOf` | entry | function | `src/use-case/run-delay-diagnostics/run-delay-diagnostics.ts#delayDiagnosisOf` | PI-55 | 文書の暦で求めた遅延診断（`FR-130`） |
+
+Totals: 1105 name(s) leave through a public entry (555 of them published by table T-064), 837 more are exported by a file and not by its entry.

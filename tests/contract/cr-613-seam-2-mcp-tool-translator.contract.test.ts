@@ -144,7 +144,6 @@ describe('SEAM-2 mcpToolList: the tools are table T-107, row for row (AG-12 (4))
   })
 
   it('design 3.1: each description is the English of the row\'s description cell, printed from the manuscript (each line a newline)', () => {
-    // see CR-796
     const got = mcpToolList().map((tool) => ({ name: tool.name, description: tool.description }))
     expect(got).toEqual(manuscriptMembers().map((row) => ({ name: row.name, description: englishOf(row.carries) })))
   })

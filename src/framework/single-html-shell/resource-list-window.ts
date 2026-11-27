@@ -5,7 +5,7 @@
 
 import type { Schedule } from '../../entity/document-model/schedule/schedule'
 import type { DocumentCommand } from '../../use-case/apply-document-change/apply-document-change'
-import { confirmationOwedByResourceDeletion } from '../../use-case/edit-document/edit-document'
+import { confirmationOwedByResourceDeletion } from '../../use-case/edit-task-properties/edit-task-properties'
 import type { FileFlowOwedAction, TableView, VisibilityTable } from '../../use-case/advance-screen-session/advance-screen-session'
 import {
   resourceListAfterEntry,

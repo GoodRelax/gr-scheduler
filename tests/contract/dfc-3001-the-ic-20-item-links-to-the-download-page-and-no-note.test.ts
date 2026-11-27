@@ -1,4 +1,4 @@
-// DFC-3001 spec-only cases: FR-036 -- the Help carries no note *1 row, and the IC-20 item carries after its name, unparenthesised, a link in the helpLinks agentApi words to S-350 in a new tab, S-503 underlined.
+// Contract tests: the Help IC-20 item links to the download page, and the Help holds no note row.
 
 import { describe, expect, it } from 'vitest'
 
@@ -21,13 +21,13 @@ import {
   targetOf,
 } from './dfc-3000-help-stage'
 
+// Spec: IMPS-1157
 const FR_036_IC_20_LINK =
   '`GRS` は、`IC-20` の項目の名の語の後ろに、最新版を入手する頁（`_assets/tbl-settings.md` の 表 T-206 の `S-350`）へのリンクを添えること。利用者が `IC-20` のリンクを押したとき、`GRS` は頁を閲覧環境の新しいタブで開くこと。'
 const FR_036_IC_20_WORDS = '`FR-038` の辞書の `helpLinks` の `agentApi` は、リンクの語を持つこと。'
 const FR_036_IC_20_UNPARENTHESISED = '`GRS` は、`IC-20` に添えるリンクを丸括弧で囲まないこと。'
 const FR_036_INK = '`GRS` は、ヘルプのリンク（`IMPS-1145` の 2 つ、`IC-20` の項目に添えるリンク、`FR-069` の著作権表示）の字を'
 
-// see JDG-2501, JDG-2512
 const AGENT_API_WORDS: Readonly<Record<DisplayLanguage, string>> = { ja: '詳細→AI連携', en: 'Details → AI integration' }
 
 const NOTE_MARK = '※'

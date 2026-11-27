@@ -297,6 +297,8 @@
 | `rulings.md`（Agent API の名の席、2026-11-23 の 15） | `JDG-3785`（Agent API と文書の命令の名を、まず AI-C で、次にほかの AI でレビューし、GRS JSON・用語集・画面の札との関係も見る）を足した。AI-C のレビューの結果は `studies/76-grs-json-beta-shape/terms/agent-api-names-ai-c-review.md` |
 | `rulings.md`（Agent API の名 2 の席、2026-11-25 の 1） | `JDG-3786`（実績ダミーの命令の引数 `grabbedArea` → `grabbedPoint`。`JDG-3779` の前半を改める）を足した。原稿と src・tests は本書の実装で当てる |
 | `rulings.md`（Agent API の名 2 の席、2026-11-25 の 2） | `JDG-3787`（命令の断りの欄 `field` → `jsonPointer`。値は命令の中の JSON Pointer）を足した。原稿と src・tests は本書の実装で当てる |
+| `rulings.md`（Agent API の名 2 の席、2026-11-27 の 1） | `JDG-3788`（Agent API と文書の命令の名で答えの無い問いは仮の名で先へ進み、原本に `xProvisional` を付け、後で道具で一度に当てる。名の頭の重なりの守り）を足した |
+| `rulings.md`（Agent API の名 2 の席、2026-11-27 の 2） | `JDG-3789`（BGQA7 の答えの無い 13 問を席の推しの名で仮に決める。一覧 `agent-api-provisional-names.md`）を足した。原稿と src・tests は本書の実装で当てる |
 | `defects.md` | `DFC-3579`（本書）—— 行のレビューの後に起こす |
 | `changelog.md` | 当てるときに 1 行 |
 

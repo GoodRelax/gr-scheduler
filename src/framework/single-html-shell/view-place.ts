@@ -9,6 +9,7 @@ import { calendarDaysBetween, dayOf, textOfDayStart } from '../../entity/documen
 import { dateAtX, fitZoom, timeAxisOf } from '../../entity/layout-engine/schedule-layout/schedule-layout'
 import type { ScreenRegions } from '../../entity/layout-engine/screen-regions/screen-regions'
 import { NOT_STORED_ZOOM_BOUNDS, type DocumentCommand } from '../../use-case/edit-document/edit-document'
+import { isPlaceNamed } from '../../use-case/show-range/show-range'
 import { NOT_STORED_ZOOM_STEP } from '../../adapter/input-command-translator/input-command-translator'
 import { isSameEnvironment, readToday, type FrameEnvironment, type FrameLoopHands } from './frame-loop'
 
@@ -23,12 +24,10 @@ type ScrollPlace = CarriedBy<'setScrollPosition'>
 
 type ViewPlace = CarriedBy<'setZoom'> & ScrollPlace
 
-// Trap: input-command-translator.ts names the same half of OP-10's condition in isPlaceNamed; change both together.
 // Spec: OP-10
 /** @purity pure */
 function storedNamesAPlace(held: Document, stored: ViewPlace): boolean {
-  if (stored.scrollDate === null) return false
-  return held.schedule.taskGroups.some((one) => one.id === stored.scrollTaskGroupId)
+  return isPlaceNamed(held.schedule, stored.scrollDate, stored.scrollTaskGroupId)
 }
 
 // Spec: OP-10

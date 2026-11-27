@@ -22,14 +22,12 @@ import {
 } from '../../entity/document-model/edit-history/edit-history'
 import {
   delayDiagnosticsReportRows,
-  diagnoseDelay,
   diagnosedMarkerRowsOf,
   scheduleViolations,
   standardTimeZoneKeyForSystem,
   textOfDay,
   textOfDayEnd,
   textOfDayStart,
-  workingCalendarOf,
   type CalendarDay,
   type DelayDiagnosticsReport,
   type Schedule,
@@ -123,6 +121,9 @@ import {
   type OpenChoice,
 } from '../../use-case/import-document/import-document'
 import { emptyChangeWatchers, notifyChangeWatchers } from '../../use-case/notify-change-watchers/notify-change-watchers'
+import { delayDiagnosisOf } from '../../use-case/run-delay-diagnostics/run-delay-diagnostics'
+import { watermarkOpenedByOf } from '../../use-case/show-confidential-schedule/show-confidential-schedule'
+import { documentStampedAt } from '../../use-case/save-and-share-document/save-and-share-document'
 import type { installAgentApi } from '../../adapter/agent-api-endpoint/agent-api-endpoint'
 import {
   type AppShellSource,
@@ -245,7 +246,6 @@ import {
   answerSettledFormat,
   askToOpenDroppedFile,
   documentFileFlowOf,
-  documentStampedAt,
   NO_FILE_SAVED,
   takeInHandedDocument,
   OPEN_ROUTE_FROM_CHOOSER,
@@ -512,7 +512,7 @@ const NO_MARKED_TASKS: ReadonlySet<number> = new Set()
 // Why: made only on a run (IC-107, IC-168), never on an edit.
 /** @purity pure */
 function delayDiagnosticsOf(document: Document, fixLogAtRun: ReadonlySet<DelayFixLogRow>): HeldDelayDiagnostics {
-  const report = diagnoseDelay(document, workingCalendarOf(document.schedule))
+  const report = delayDiagnosisOf(document)
   const symbolByUid = new Map(diagnosedMarkerRowsOf(report, document.schedule))
   const reportTaskUids = new Set(delayDiagnosticsReportRows(report, document.schedule).map((row) => row.taskUid))
   return { of: document, report, drawing: { shown: true, symbolByUid }, reportTaskUids, markedTaskUids: new Set(symbolByUid.keys()), fixLogAtRun }
@@ -2858,11 +2858,7 @@ export function frameLoop(
     screen?.themePreference ?? startupThemePreference(),
   )
   let watermarkStampedAt = readInstantOfWrite()
-  const watermarkStoredName = readBrowserStored('S-99a')
-  const watermarkOpenedBy =
-    watermarkStoredName === null || watermarkStoredName === ''
-      ? NOT_STORED_WATERMARK_NAME['S-99a']
-      : watermarkStoredName
+  const watermarkOpenedBy = watermarkOpenedByOf(readBrowserStored('S-99a'), NOT_STORED_WATERMARK_NAME['S-99a'])
   // Spec: IMPS-872, WM-2, WM-11, WM-1
   /** @purity semi-pure-mutable */
   function watermarkNow(): { readonly openedBy: string; readonly stampedAt: string } | null {

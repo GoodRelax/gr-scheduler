@@ -14,6 +14,7 @@ const READ = (...parts: string[]): string => readRepoFile(join(process.cwd(), ..
 const DESIGN = unbroken(READ('docs', 'spec', '05-07-design.md'))
 const REQUIREMENTS = unbroken(READ('docs', 'spec', '01-04-requirements.md'))
 
+// Spec: IMPS-1380
 // Why: each clause is cut from the manuscript as check 39 reads it, so the cases cannot drift from the words they test.
 const CHAPTER_6_2_ONE_DEFINITION =
   '起こしたスキーマで、日時の列は 1 つの日時の定義を指すこと。日時の定義は、形を `xsd:dateTime` の字面の `pattern` で言うこと。'

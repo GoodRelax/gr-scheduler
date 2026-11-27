@@ -7,6 +7,7 @@ import { describe, expect, it } from 'vitest'
 
 const MANUSCRIPT = readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8')
 
+// Spec: IMPS-755, IMPS-767
 const CLAUSES: readonly (readonly [string, string])[] = [
   ["FR-011", "`GRS` は、間にある非稼働日を、実績の長さに数えないこと。"],
   ["FR-011", "`GRS` は、実績の長さを文書の列に持たないこと。"],

@@ -1,43 +1,12 @@
-// Contract test: IF-1 `SvgSurface` -- the seam between SvgRenderer (Adapter,
-// CP-19) and DomSvgSurface (Framework, CP-26).
-//
-// Table T-218 row TS-5: a contract test belongs to neither side of a seam. The
-// side that declares `SvgSurface` is `pure` and cannot be run against a screen;
-// the side that implements it holds no picture of its own. Only the seam
-// between them can be asked whether the string one built is the string the
-// other showed, so that question is asked here, once, from the table.
-//
-// Driven by a fixed copy of table T-065 row IF-1 (Chapter 1.9). The copy
-// is transcribed rather than parsed: `seams.contract.test.ts` already walks all
-// nine rows structurally, and this file is about the one row's behavior, so a
-// failure here names IF-1 and nothing else.
-//
-// The specification this file is held to:
-//   T-065 IF-1   `SvgSurface`, declared by SvgRenderer, implemented by
-//                DomSvgSurface, supplying "put the finished SVG string on the
-//                screen"
-//   Chapter 5.3  the declaration sits in its own file; the public entry
-//                re-exports it (MUST); nothing outside a folder reads any file
-//                in it but the public entry (MUST NOT)
-//   T-061 LR-6   `Entity` and `UseCase` must not touch a type the browser
-//                supplies -- which is why what crosses this seam is a value
-//   T-060 LY-5   only `Framework` holds a current value
-//   T-077 BO-1 / BO-5, NFR-011  nothing is drawn before the first frame is due
-//   T-078        the whole of what makes a frame run (MUST NOT run on anything
-//                else)
-//
-// ⚠️ The environment is `node` (vitest.config.ts). The host is a bare object
-// carrying the one member this seam touches, so the test never needs a DOM.
+// Contract tests: the IF-1 SvgSurface seam puts the finished SVG string on the screen.
 
 import { existsSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
 import { domSvgSurface } from '../../src/framework/dom-svg-surface/dom-svg-surface'
 
-/**
- * Fixed data copied from table T-065, row IF-1, plus the two folders Chapter
- * 5.3 draws for the components it names.
- */
+// Why: IF-1 is transcribed, not parsed: seams.contract.test.ts already walks
+// every row, so a failure here names IF-1 alone.
 const IF_1 = {
   id: 'IF-1',
   seam: 'SvgSurface',
@@ -57,18 +26,14 @@ const read = (path: string): string => {
   return readFileSync(path, 'utf8')
 }
 
-/** Drops comments, so a scan reads what the file declares and not what it says. */
+// Summary: code() blanks the comments of a source, so a scan reads only what it declares.
 const code = (source: string): string =>
   source.replace(/\/\*[\s\S]*?\*\//g, ' ').replace(/(^|[^:])\/\/.*$/gm, '$1')
 
-/** Every module specifier the file imports from. */
 const importsOf = (source: string): string[] =>
   [...code(source).matchAll(/from\s+'([^']+)'/g)].map((m) => m[1] as string)
 
-/**
- * A host with the one member IF-1 needs, and a record of every write to it.
- * ⚠️ Not a DOM node: the seam is supposed to need nothing more than this.
- */
+// Summary: bareHost() records every innerHTML write to a host that has no other member.
 const bareHost = (): {
   host: Element
   writes: readonly string[]
@@ -91,26 +56,19 @@ const bareHost = (): {
 const A_PICTURE = '<svg viewBox="0 0 10 10"><rect width="10" height="10"/></svg>'
 const ANOTHER_PICTURE = '<svg viewBox="0 0 20 20"><rect width="20" height="20"/></svg>'
 
+// Spec: IF-1, T-065
 describe(`${IF_1.id} ${IF_1.seam} -- the seam reaches across the layer boundary`, () => {
   it(`is declared in a file of its own inside ${IF_1.declaredBy}`, () => {
-    // Chapter 5.3 (MUST): the declaration lives in the declaring component's
-    // folder under the stem of the interface name.
     expect(code(read(DECLARATION))).toMatch(/export interface SvgSurface\b/)
   })
 
   it(`leaves through the public entry of ${IF_1.declaredBy} (Chapter 5.3, MUST)`, () => {
-    // "公開エントリは、そのインターフェースを再び公開すること（MUST）" --
-    // otherwise the implementing layer would have to read a file that is not
-    // the public entry, which the same section forbids.
     expect(code(read(DECLARING_ENTRY))).toMatch(
       /export type \{[^}]*\bSvgSurface\b[^}]*\} from '\.\/svg-surface'/,
     )
   })
 
   it(`${IF_1.implementedBy} takes it from that entry and reads no other file of the folder`, () => {
-    // The half of the MUST that the re-export exists to serve: Chapter 5.3's
-    // MUST NOT is broken by the reader, not by the writer, so it is the
-    // implementing unit that has to be looked at.
     const reaching = importsOf(read(IMPLEMENTING_ENTRY)).filter((p) =>
       p.includes('adapter/svg-renderer'),
     )
@@ -123,6 +81,7 @@ describe(`${IF_1.id} ${IF_1.seam} -- the seam reaches across the layer boundary`
   })
 })
 
+// Spec: IF-1, CP-19, CP-26
 describe(`${IF_1.id} ${IF_1.seam} -- ${IF_1.supplies}`, () => {
   it('puts the string it is given on the host', () => {
     const { host, writes, content } = bareHost()
@@ -132,8 +91,6 @@ describe(`${IF_1.id} ${IF_1.seam} -- ${IF_1.supplies}`, () => {
   })
 
   it('shows the whole picture, replacing the one before it', () => {
-    // The declaration takes a whole picture rather than a patch, so the second
-    // one is what the host carries afterwards -- not the two joined.
     const { host, content } = bareHost()
     const surface = domSvgSurface(host)
     surface.showSvg(A_PICTURE)
@@ -141,33 +98,29 @@ describe(`${IF_1.id} ${IF_1.seam} -- ${IF_1.supplies}`, () => {
     expect(content()).toBe(ANOTHER_PICTURE)
   })
 
+  // Spec: BO-1, BO-5, NFR-011, T-078
   it('touches nothing until it is told to show something', () => {
-    // T-077 BO-1: nothing is drawn until the sizes are settled, and BO-5 is
-    // what puts the first picture out (NFR-011). Wiring the surface up is not
-    // a trigger of table T-078, so wiring it must not paint.
     const { host, writes, content } = bareHost()
     domSvgSurface(host)
     expect(writes).toEqual([])
     expect(content()).toBe('')
   })
 
+  // Spec: LY-5
   it('needs no member of the host but the one it writes into', () => {
-    // LY-5 puts the current value in `Framework`, so the surface may remember
-    // what it showed -- but it may not need the host to be a real DOM node for
-    // that. The bare host above is the whole of what this seam requires.
     const { host } = bareHost()
     expect(() => domSvgSurface(host).showSvg(A_PICTURE)).not.toThrow()
   })
 })
 
+// Spec: LR-6
 describe(`${IF_1.id} ${IF_1.seam} -- only a value crosses it (LR-6)`, () => {
   it('declares a string parameter and no browser type', () => {
     const declaration = code(read(DECLARATION))
     expect(declaration).toMatch(/showSvg\s*\(\s*\w+\s*:\s*string\s*\)\s*:\s*void/)
     expect(importsOf(read(DECLARATION))).toEqual([])
-    // LR-6 keeps browser types out of `Entity` and `UseCase`; the declaration
-    // is what those layers would see through SvgRenderer's public entry, so it
-    // is the file that has to name none of them.
+    // Why: Entity and UseCase see only this declaration through SvgRenderer's entry,
+    // so it is the file that must name no browser type.
     const browserTypes =
       /\b(Element|Node|HTMLElement|SVGElement|SVGSVGElement|DocumentFragment|Window|window|document)\b/
     expect(declaration).not.toMatch(browserTypes)
@@ -180,7 +133,6 @@ describe(`${IF_1.id} ${IF_1.seam} -- only a value crosses it (LR-6)`, () => {
     expect(content()).toBe(A_PICTURE)
   })
 
-  // Why: table T-065 IF-1 has two seams since CR-736 -- the picture beneath and the marquee overlay.
   it('gives back nothing but the members the seam declares', () => {
     const { host } = bareHost()
     const surface = domSvgSurface(host)
@@ -211,9 +163,8 @@ describe(`${IF_1.id} ${IF_1.seam} -- showing the same picture twice`, () => {
   })
 
   it('remembers per surface, not across surfaces', () => {
-    // Two surfaces over two hosts: the second must still paint. ⚠️ Held here
-    // because a module-level cache would make a second host start out blank,
-    // which NFR-011 forbids for the first picture.
+    // Why: a module-level cache would leave a second host blank, which NFR-011
+    // forbids for its first picture.
     const first = bareHost()
     const second = bareHost()
     domSvgSurface(first.host).showSvg(A_PICTURE)
