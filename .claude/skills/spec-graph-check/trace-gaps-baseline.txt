@@ -23,4 +23,5 @@ no-child 0
 # LOWERED on the merge of B11a with develop e7614edf0 (B11b tests marks, B12 use cases): leaf-unbuilt 37 -> 30, below-unbuilt 1988 -> 1847, measured on the merged tree.
 leaf-unbuilt 30
 # LOWERED below-unbuilt 2334 -> 2327 on 2026-11-27 (B11b): tests now name traces rows in // Spec: lines; measured on e053fb30a plus this commit.
-below-unbuilt 1847
+# LOWERED below-unbuilt 1847 -> 1846 on the merge of develop 16cbd6c6a (CR-860, CR-862, B10).
+below-unbuilt 1846
