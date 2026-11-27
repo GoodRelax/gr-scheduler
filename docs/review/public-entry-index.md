@@ -434,6 +434,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `ParentTaskQueryGeometry` | file only | interface | `src/entity/layout-engine/schedule-geometry/parent-task-arrows.ts#ParentTaskQueryGeometry` | -- | interface ParentTaskQueryGeometry |
 | `guidesOf` | file only | function | `src/entity/layout-engine/schedule-geometry/plan-actual-guides.ts#guidesOf` | -- | function guidesOf(inputs: GeometryInputs, task: Task, placed: TaskPlacement, actualHeight: number): readonly Path[] |
 | `progressLineOf` | file only | function | `src/entity/layout-engine/schedule-geometry/progress-line.ts#progressLineOf` | -- | function progressLineOf(inputs: GeometryInputs): Path |
+| `baselineBarOf` | file only | function | `src/entity/layout-engine/schedule-geometry/task-figures.ts#baselineBarOf` | -- | function baselineBarOf(placed: TaskPlacement, x0: number, x1: number, top: number, height: number, isPointInTime: boolean, settings: DrawnSettings): BarGeometry |
 | `isThinShape` | file only | function | `src/entity/layout-engine/schedule-geometry/task-figures.ts#isThinShape` | -- | function isThinShape(shapeKind: ShapeKind): boolean |
 | `taskGeometryOf` | file only | function | `src/entity/layout-engine/schedule-geometry/task-figures.ts#taskGeometryOf` | -- | function taskGeometryOf(inputs: GeometryInputs, task: Task, placed: TaskPlacement): TaskGeometry |
 | `thinTierMiddle` | file only | function | `src/entity/layout-engine/schedule-geometry/task-figures.ts#thinTierMiddle` | -- | function thinTierMiddle(placed: TaskPlacement, settings: DrawnSettings, isActual: boolean): number |
@@ -2211,4 +2212,4 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | --- | --- | --- | --- | --- | --- |
 | `delayDiagnosisOf` | entry | function | `src/use-case/run-delay-diagnostics/run-delay-diagnostics.ts#delayDiagnosisOf` | PI-55 | 文書の暦で求めた遅延診断（`FR-130`） |
 
-Totals: 1104 name(s) leave through a public entry (554 of them published by table T-064), 837 more are exported by a file and not by its entry.
+Totals: 1104 name(s) leave through a public entry (554 of them published by table T-064), 838 more are exported by a file and not by its entry.

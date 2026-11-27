@@ -3,6 +3,6 @@
 # Started 2026-11-24 on e90fc8c65 at the measured tree (study 82, A17). Raising a
 # line needs the owner's OK (JDG-520).
 untagged-named 0
-untagged-anonymous 219
+untagged-anonymous 218
 bad-value 0
 two-tags 0

@@ -1178,17 +1178,15 @@ function deadlineHintOf(boxes: readonly DeadlineBox[], x: number, y: number): Hi
   return found === undefined ? null : { kind: 'deadline', taskUid: found.taskUid }
 }
 
-// Spec: GR-27, BL-2
+// Spec: GR-27, BL-2, HT-1
 /** @purity pure */
 function baselineHintOf(geometry: ScheduleGeometry, x: number, y: number): HintHolder | null {
   const cut = geometry.pinnedBand ?? null
   for (const outline of geometry.baselineOutlines) {
     if (isCutAway(cut, !outline.isPinned, y)) continue
-    const center = centerOf(outline.box)
-    const across = Math.abs(x - center.x) / (outline.box.width / 2)
-    const down = Math.abs(y - center.y) / (outline.box.height / 2)
-    const isInside = outline.kind === 'diamond' ? across + down <= 1 : isInsideRect(x, y, outline.box)
-    if (isInside) return { kind: 'baseline', taskUid: outline.taskUid }
+    const drawn = drawnOfBar(outline.bar)
+    if (drawn === null || !drawn.covers(x, y)) continue
+    return { kind: 'baseline', taskUid: outline.taskUid }
   }
   return null
 }
