@@ -1,63 +1,6 @@
-// The anchor for ONE line of the shell: the row of table T-233 a dependency
-// drawn from a task to ITSELF is told on (`REFUSAL_SITUATIONS` of
-// `frame-loop.ts`, reached through `Refusal.reasonCategory`).
-//
-// ⛔⛔ WHAT WAS MEASURED BEFORE THIS (2026-09-09). Table T-233 held `RS-56`
-// 「同じ `Task` を、依存の先行と後続の両方にしようとした」 and FR-038's dictionary
-// held its words, and a person who drew a dependency line from a bar back onto
-// the same bar was told `RS-10` 「命令が拒否されたので、束ごと落とした」 -- whose
-// next step is 「拒まれた変更を取り除いて、もう一度」, and a person who drew ONE
-// line has nothing to take out. The three rows seated beside it on the same day
-// (`RS-55`, `RS-57`, `RS-58`) reached their seats; this one did not, because
-// `edit-dependency.ts` spells FOUR different refusals as `CM-36` against
-// `FR-009` and the road was keyed on that pair alone.
-//
-// Unit under test:
-//   UF-48  `frame-loop.ts` (CP-25 of table T-062) -- the shell, which is the one
-//          side that turns a refusal into a telling (FR-076).
-//
-// ⚠️ Chapter 9 does not admit Unit as a TEST_LEVEL, so these cases have no node
-// in the specification. Table T-218 of Chapter 7 gives them their place: TS-6,
-// tests/unit/.
-//
-// ---------------------------------------------------------------------------
-// THE CLAUSES THESE CASES EXIST FOR (rule 03 section 3: quoted because holding
-// them verbatim IS the point)
-// ---------------------------------------------------------------------------
-//
-//   T-037's closing paragraph, under FR-076:
-//     ⛔ 「拒否の理由を 1 つの行へ潰してはならない（MUST NOT）」
-//     ⭐ 「本表に行を足す者は、その行へ振り分ける道が在ることまで確かめること
-//        （MUST）」 -- 「行と辞書の項が揃っていても、運ぶ側が別を捨てていれば、
-//        届くのは古い語である」
-//
-//   FR-009: 「表 T-018b が並べる依存を作ってはならない（MUST NOT）」, and table
-//     T-018b holds the three -- `DN-1` the self-reference (「自己参照」), `DN-2`
-//     the pair that already has a dependency, `DN-3` an end that is neither
-//     task nor milestone. Table T-233 gives `DN-1` a row of its own and the
-//     other two none.
-//     ⚠️ RE-CUT 2026-09-10: until that day the three sat in ONE sentence with
-//     no row IDs, and this header quoted that sentence. FR-009 itself now
-//     records the change, and names this file's row RS-56 as its reason.
-//
-//   T-035 AG-9a: 「拒否の値には、拒否された対象・理由の区分・現在の刻印を含める
-//     こと（MUST）」 -- 「理由の区分」 is what `Refusal.reasonCategory` carries.
-//
-//   T-023a PTD-3: 「構えが依存線のときは表 T-023d を適用せず、当たったタスクの
-//     左半分 / 右半分で依存の端点を決める」 -- the road these cases drive.
-//   T-023b AR-4 / T-109 IC-61: the entrance that arms the dependency line.
-//
-// ---------------------------------------------------------------------------
-// ⛔ WHAT IS DELIBERATELY NOT ASSERTED
-// ---------------------------------------------------------------------------
-//   - A row for FR-009's OTHER TWO prohibitions. Table T-233 gives them none,
-//     and `RS-10` is true of them: a bundle was dropped and the person can take
-//     the refused change out and try again. Giving them a row is the
-//     specification's to do, not this build's.
-//   - Which words the reader sees. FR-038 (MUST NOT) keeps them in one
-//     dictionary; these cases compare against THAT, never against a spelling.
+// Unit tests: a dependency drawn from a task to itself is told RS-56, FR-009's own row.
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-explicit-any -- the dictionary and the drawn bars are read as loose shapes */
 
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -84,10 +27,6 @@ import {
 } from '../../src/framework/single-html-shell/frame-loop'
 import { bare, specTable, type SpecRow, type SpecTable } from '../contract/spec-table'
 
-// ---------------------------------------------------------------------------
-// The manuscript, read at read time rather than copied (Chapter 1.9)
-// ---------------------------------------------------------------------------
-
 const T_233: SpecTable = specTable('T-233')
 const T_109: SpecTable = specTable('T-109')
 
@@ -97,13 +36,11 @@ function rowOf(table: SpecTable, id: string): SpecRow {
   return found
 }
 
-/** The manner column table T-233 writes one reason against. */
 const mannerOf = (specTableRowId: string): string => bare(rowOf(T_233, specTableRowId).cells[1] ?? '')
 
-/** The 正 column table T-233 gives one reason, as printed. */
 const authorityOf = (specTableRowId: string): string => rowOf(T_233, specTableRowId).by['正'] ?? ''
 
-/** The words FR-038's one dictionary holds for one row of table T-233. */
+// Why: compared against FR-038's one dictionary, never against a spelling.
 const wordsOf = (specTableRowId: string): { readonly ja: string; readonly en: string } => {
   const found = (displayWords as any).reasons.find((one: any) => one.specTableRowId === specTableRowId)
   if (found === undefined) throw new Error(`the dictionary holds no row ${specTableRowId}`)
@@ -113,10 +50,8 @@ const wordsOf = (specTableRowId: string): { readonly ja: string; readonly en: st
 const RS_10 = 'RS-10'
 const RS_56 = 'RS-56'
 
-/** `AR-4` of table T-023b -- the dependency line is armed. */
 const DEPENDENCY_ARM = 'AR-4'
 
-/** The one entrance of table T-109 that arms the dependency line. */
 const DEPENDENCY_ENTRANCE = ((): { row: string; surface: string } => {
   const found = T_109.rows.filter((row) => bare(row.by['構え'] ?? '') === DEPENDENCY_ARM)
   if (found.length !== 1) {
@@ -126,7 +61,6 @@ const DEPENDENCY_ENTRANCE = ((): { row: string; surface: string } => {
   return { row: row.id, surface: bare(row.by['面'] ?? '') }
 })()
 
-/** One entry of table T-109, as the side that DREW it answers for the point. */
 const ENTRANCE_PART = {
   part: DEPENDENCY_ENTRANCE.surface,
   entry: DEPENDENCY_ENTRANCE.row,
@@ -137,10 +71,6 @@ const ENTRANCE_PART = {
   noticeDismissKey: null,
 } as unknown as ScreenPart
 
-// ---------------------------------------------------------------------------
-// The loop, driven the way a person draws a dependency line
-// ---------------------------------------------------------------------------
-
 const TEMPLATE_PATH = join(
   process.cwd(),
   'src',
@@ -149,7 +79,6 @@ const TEMPLATE_PATH = join(
   'startup-template.json',
 )
 
-/** BT-4 of table T-034 -- the template FR-027 starts a reader with. */
 function templateDocument(): Document {
   const read = documentFromJson(readFileSync(TEMPLATE_PATH, 'utf8'))
   if (!read.ok) {
@@ -192,12 +121,8 @@ interface Box {
   readonly height: number
 }
 
-/**
- * The box one drawn bar stands in.
- *
- * ⚠️ Read off the outline's own points rather than off a member: `BarGeometry`
- * carries the silhouette, and the box is what `dependencyEndAtPointer` halves.
- */
+// Why: the box is read off the outline's points, since BarGeometry carries the silhouette
+// and the box is what dependencyEndAtPointer halves.
 function boxOfOutline(bar: any): Box | null {
   if (bar === null || bar === undefined || bar.form !== 'outline') return null
   const xs = bar.points.map((one: any) => one.x)
@@ -208,24 +133,14 @@ function boxOfOutline(bar: any): Box | null {
 }
 
 interface Stage {
-  /** Press the entrance of table T-109 that arms the dependency line. */
   armDependencyLine(): void
-  /** Every drawn bar wide enough for two presses to fall in different halves. */
   bars(): readonly { readonly uid: number; readonly box: Box }[]
-  /** One press and one release, with nothing of the screen under either. */
   drag(from: { x: number; y: number }, to: { x: number; y: number }): void
-  /** The tellings the last drawn description carries. */
   notices(): readonly { readonly text: string; readonly manner: string }[]
-  /** Every dependency the document holds, as pairs. */
   dependencyCount(): number
 }
 
-/**
- * UF-48, driven with a surface that answers for the palette entry when asked and
- * for nothing else.
- *
- * ⚠️ THE FAKE IS NOT THE TEST (R6.3). Nothing in it decides which row is told.
- */
+// Summary: When asked for the part under the pointer, the surface shall answer the palette entry while the arm is pressed and nothing otherwise.
 function stage(): Stage {
   const views: ScreenView[] = []
   const waiting: ((time: number) => void)[] = []
@@ -284,10 +199,6 @@ function stage(): Stage {
   }
 }
 
-// ===========================================================================
-// The manuscript still says what these cases read
-// ===========================================================================
-
 describe('the rows this case is driven by are still in the manuscript', () => {
   it('⭐ table T-233 still holds RS-56 against NT-1, with FR-009 as its 正', () => {
     expect(mannerOf(RS_56)).toBe('NT-1')
@@ -295,8 +206,7 @@ describe('the rows this case is driven by are still in the manuscript', () => {
   })
 
   it('⛔ the dictionary gives RS-56 and RS-10 different words', () => {
-    // ⚠️ WITHOUT THIS THE CASE BELOW IS VACUOUS: telling `RS-56` and telling
-    // `RS-10` would be indistinguishable, which is the whole defect.
+    // Why: without this the case below is vacuous, as telling RS-56 and RS-10 would look alike.
     expect(wordsOf(RS_56).ja).not.toBe(wordsOf(RS_10).ja)
     expect(wordsOf(RS_56).ja.length).toBeGreaterThan(0)
   })
@@ -306,10 +216,7 @@ describe('the rows this case is driven by are still in the manuscript', () => {
   })
 })
 
-// ===========================================================================
-// The row a self-dependency is told on
-// ===========================================================================
-
+// Spec: T-037, T-233, RS-56, FR-009, DN-1, DN-2, PTD-3, AR-4, IC-61
 describe('table T-037 / T-233: a dependency drawn onto its own task is told RS-56', () => {
   it('⭐⭐ RS-56: both ends on one bar is told FR-009s own row and not RS-10', () => {
     const one = stage()
@@ -317,9 +224,8 @@ describe('table T-037 / T-233: a dependency drawn onto its own task is told RS-5
     const bar = one.bars()[0] as { uid: number; box: Box }
     const before = one.dependencyCount()
 
-    // PTD-3 with the dependency armed: the press names the predecessor by the
-    // half of the bar it landed on, the release names the successor the same
-    // way -- and both halves belong to the SAME bar, which is FR-009's 自己参照.
+    // Why: under PTD-3 each end is named by the half of the bar it lands on, and both halves
+    // here are the same bar, FR-009's self-reference.
     one.drag(
       { x: bar.box.x + bar.box.width * 0.25, y: bar.box.y + bar.box.height / 2 },
       { x: bar.box.x + bar.box.width * 0.75, y: bar.box.y + bar.box.height / 2 },
@@ -334,15 +240,13 @@ describe('table T-037 / T-233: a dependency drawn onto its own task is told RS-5
   })
 
   it('⛔ THE CONTROL: a dependency between TWO tasks is told nothing at all', () => {
-    // ⚠️ WITHOUT THIS, A BUILD THAT REFUSED EVERY DEPENDENCY DRAG WOULD PASS.
-    // The same posture, the same two presses, two different bars.
+    // Why: without this, a build that refused every dependency drag would pass.
     const one = stage()
     one.armDependencyLine()
     const drawn = one.bars()
     const first = drawn[0] as { uid: number; box: Box }
-    // ⚠️ A bar that does not OVERLAP the first, because the release names its
-    // task by the bar its point falls in and two boxes sharing a point would
-    // leave which of them answers to the order of the walk.
+    // Why: a bar not overlapping the first, since the release names the bar its point falls in
+    // and a shared point would leave the answer to the order of the walk.
     const second = drawn.find((bar) => bar.uid !== first.uid && !overlaps(bar.box, first.box))
     if (second === undefined) throw new Error('the bundled template drew only one usable bar')
 
@@ -357,12 +261,10 @@ describe('table T-037 / T-233: a dependency drawn onto its own task is told RS-5
   })
 
   it('⭐⭐ THE WIDE HALF: FR-009s OTHER refusals keep RS-10 and do not borrow RS-56', () => {
-    // ⛔⛔ THIS IS THE HALF THAT MAKES THE CATEGORY NECESSARY. `edit-dependency.ts`
-    // spells all three of FR-009's prohibitions `CM-36` against `FR-009`, so a
-    // road keyed on that pair alone would answer `RS-56` 「同じ `Task` を、依存の
-    // 先行と後続の両方にしようとした」 to a person who drew a SECOND line between
-    // two DIFFERENT tasks -- 「どの項目が、なぜ誤りか」 (NT-1, MUST) said, and said
-    // wrongly. ⭐ Only `Refusal.reasonCategory` keeps the two apart.
+    // Why: every FR-009 refusal is spelled CM-36 against FR-009, so only reasonCategory keeps
+    // RS-56 off a second line between two different tasks.
+    // Why: table T-233 gives FR-009's other prohibitions no row and RS-10 is true of them, so
+    // they keep RS-10.
     const one = stage()
     one.armDependencyLine()
     const drawn = one.bars()
@@ -379,8 +281,7 @@ describe('table T-037 / T-233: a dependency drawn onto its own task is told RS-5
     const written = one.dependencyCount()
     expect(one.notices().length, 'the first line landed').toBe(0)
 
-    // 「既に同じ 2 つの間にある依存と同じ組」 -- FR-009's SECOND prohibition, which
-    // table T-233 gives no row of its own.
+    // Step: the same line again is FR-009's second prohibition, which T-233 gives no row.
     one.drag(from, into)
 
     expect(one.dependencyCount(), 'FR-009 (MUST NOT): nothing was written twice').toBe(written)

@@ -1,125 +1,6 @@
-// The two sentences the user ruled into `OP-10` of 表 T-024a on 2026-09-06:
-// a person's choice of zoom or of place BECOMES the place, and the row is not
-// redone every frame.
-//
-// The unit driven is UF-48 `single-html-shell` (CP-25 of table T-062), whose
-// `frame-loop.ts` takes FT-1 of table T-078 -- 人の入力（ポインタとキー） -- on
-// `receiveInput`, and answers what one frame computed on `current()`. OP-10
-// decides what a frame draws from when the stored place is `null`, so the loop
-// is the only seam where both halves of the ruling can be measured: what the
-// press did, and what the frames AFTER it did to that.
-//
-// ---------------------------------------------------------------------------
-// WHERE TABLE T-218 PUTS THIS FILE
-// ---------------------------------------------------------------------------
-// `TS-6`, tests/unit/ -- the inside of one unit, driven by values alone
-// (vitest.config.ts lists the three Vitest places). ⛔ `TS-3` (tests/system/,
-// Playwright) is not open to it: every case under `TS-3` is a `SW_SPEC_TEST` of
-// Chapter 9 and `TW-2` of table T-219 requires each to take an `SWS-xxx` of
-// Chapter 6.1 as its parent, and none of the eight `SW_SPEC` nodes reaches a
-// zoom press. Whether the case is written is decided by the omission
-// rows of rule 04 (table UO), not by a receptacle in table T-218.
-//
-// ---------------------------------------------------------------------------
-// ⛔ WRITTEN FROM docs/spec, AND WHAT WAS READ OF `src/` IS NAMED HERE
-// ---------------------------------------------------------------------------
-// (docs/development-rules/04-verification.md section 1: the body that wrote a
-// unit does not write its test; what may be read is the head comment, the
-// published types and the signatures.)
-//
-// Exported declarations read, and nothing else:
-//   frame-loop.ts        `FrameEnvironment`, `FrameLoop`, `FrameValues`,
-//                        `ScreenWiring`, and the one signature
-//                        `frameLoop(surface, first, env, screen?, files?,
-//                        showPointerShape?, clipboard?, startedFromTemplate?)`
-//   input-source.ts      `HumanInput`, `InputModifiers`, `KeyInput`
-//   screen-renderer.ts   `DisplayLanguage`, `ScreenPart`, `ScreenSurface`,
-//                        `ScreenView`
-//   schedule-layout.ts   `ScheduleLayout` (`pxPerDay`, `rectangleHeight`,
-//                        `originDay`, `taskGroups`)
-//   document-settings.ts `DocumentSettings`
-// ⛔ NOT ONE EXPECTED VALUE BELOW CAME OUT OF A BODY. Every assertion is either
-// a sentence read out of the manuscript at run time, or a RELATION between two
-// pictures this file made the program draw: the picture before a press against
-// the picture after it, and the picture on one frame against the picture on the
-// frames that follow with nothing pressed.
-//
-// ---------------------------------------------------------------------------
-// THE ROWS THESE CASES REST ON
-// ---------------------------------------------------------------------------
-//   T-024a OP-10  its condition -- 「表示位置が `null`、または指すタスクグループが存在しない
-//           とき」 -- and the two clauses this file is for:
-//           「⛔⛔ **人が倍率か表示位置を選んだときは、それを表示位置とすること
-//           （MUST）**（利用者の裁定 2026-09-06）—— **選んだ時点で「人がまだ場所
-//           を決めていない」ではなくなるので、本行の条件は成り立たなくなり、
-//           全体表示はやり直されない。**⛔ **本行を毎フレームやり直しては
-//           ならない（MUST NOT）** —— **本行は結果を定めるものであって、頻度を
-//           定めるものではない。**」
-//           and the measurement the ruling was made on: 「⚠️ 実測（2026-09-05、
-//           出荷ビルド）: 毎フレームやり直していたので、人が書いた倍率が次の
-//           フレームで上書きされ、`IC-12` / `IC-13` / `IC-15` / `IC-10` の 4 つ
-//           とも絵を 1 度も動かさなかった。」
-//   FR-055  what the row falls back to -- 「1 つの操作で、縦横の倍率と表示位置を
-//           全体が収まる側へ合わせること」 -- and `HF-8` of table T-051, whose
-//           MUST NOT the ruling explicitly does not move.
-//   T-036   SK-16 (Shift + '+', IC-13), SK-16b (Shift + '-', IC-12),
-//           SK-16a (Alt + '+', IC-15), SK-16c (Alt + '-', IC-14) and
-//           SK-18 (`F`, entrance IC-10) -- the keys that reach the four
-//           entrances the measurement names.
-//   T-109   IC-10 全体を 1 画面に収める / IC-12 時間軸を縮小する /
-//           IC-13 時間軸を拡大する / IC-15 縦軸を拡大する.
-//   T-203   S-77 `scrollDate` and S-78 `scrollTaskGroupId` -- 表示位置, the pair
-//           OP-10's condition reads and the ruling says a choice fills in.
-//
-// ---------------------------------------------------------------------------
-// ⛔⛔ IC-14 IS NOT PRESSED HERE, AND THAT IS DELIBERATE
-// ---------------------------------------------------------------------------
-// OP-10 says so itself (its note on `IC-14`, now in the past tense since CR-553:
-// the row then sat on `LF-3`'s floor, which counted the lattice). A case that pressed
-// `Alt` ＋ `-` and demanded the picture move would be asserting the opposite of
-// what the manuscript states, and a case that pressed it and demanded the
-// picture NOT move would be this file holding `LF-3`'s floor, which is another
-// file's row. ⇒ The vertical-axis entrance driven below is IC-15 alone.
-//
-// ---------------------------------------------------------------------------
-// ⭐⭐ SEVEN CASES BELOW ARE RED ON PURPOSE, AND WHAT WAS MEASURED IS HERE
-// ---------------------------------------------------------------------------
-// CR-359 moved the sentences of `OP-10` and left the implementation to a later
-// body: 「⭐ 裁定 1 の実装場所を仕様では指さない」. Measured here on
-// 2026-09-06, at commit c782071, through the harness below:
-//
-//   one press of SK-16 (`Shift` ＋ `+`) writes `zoomX: 1 -> 1.1` into the
-//   document, and the frame it asks for draws `pxPerDay` 18.67924528301887 --
-//   the SAME number as before the press. `scrollDate` and `scrollTaskGroupId` are
-//   both still `null` afterwards.
-//
-// ⇒ The press is delivered and the zoom IS written; `OP-10` then runs again and
-// draws over it, and the choice never becomes 表示位置. That is exactly the
-// defect the row's own ⚠️ records (「人が書いた倍率が次のフレームで上書きされ」),
-// and the two clauses this file holds are the ones that forbid it.
-//
-// ⛔ NOT ONE ASSERTION WAS WEAKENED TO MAKE A CASE PASS. A red case holds a
-// clause as well as a green one and says the work is owed; the day the row
-// stops being redone every frame, all seven go green with no edit here.
-//
-// ---------------------------------------------------------------------------
-// WHAT IS DELIBERATELY NOT ASSERTED
-// ---------------------------------------------------------------------------
-//   - WHICH day and WHICH task group a press settles on. The ruling says the choice
-//     becomes 表示位置; it does not say the place is the one the fit would have
-//     chosen, and inventing an answer here would put a rule in a test that the
-//     manuscript does not carry.
-//   - The ⛔⛔ that keeps the row off a `BT-4` document, and the definition of
-//     「その文書が覆う最初の日」. Those are
-//     tests/unit/t-024a-op-10-first-day-covered.test.ts's, and every loop below
-//     is booted with `startedFromTemplate` left off so the exclusion is not in
-//     play at all.
-//   - `HF-8` of table T-051. The ruling states it is not moved, and
-//     tests/unit/uf-47-48.test.ts already holds it.
-//   - The three branches where OP-10 DOES fire (a null place, and a
-//     `scrollTaskGroupId` naming no task group). tests/unit/uf-47-48.test.ts owns those.
+// Unit tests: a zoom or place a person chooses becomes the place, and OP-10 is not redone every frame.
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-explicit-any -- the fixture edits a cloned template and the host fakes browser globals */
 
 import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
@@ -149,10 +30,6 @@ import {
 import { specTable } from '../contract/spec-table'
 import { validateDocument } from '../fixtures/grs-document'
 
-// ===========================================================================
-// 1. The two sentences, read out of the manuscript rather than believed
-// ===========================================================================
-
 const T_024A = specTable('T-024a')
 
 const RULE_COLUMN = ((): string => {
@@ -161,7 +38,7 @@ const RULE_COLUMN = ((): string => {
   return found
 })()
 
-/** The 事項 column -- table T-024a puts each row's CONDITION there, not in 規則. */
+// Why: table T-024a puts each row's condition in the subject column, not in the rule column.
 const SUBJECT_COLUMN = ((): string => {
   const found = T_024A.headings.find((heading) => heading.includes('事項'))
   if (found === undefined) throw new Error('table T-024a has no 事項 column')
@@ -177,29 +54,16 @@ const OP_10_ROW = ((): { readonly by: Readonly<Record<string, string>> } => {
 const OP_10 = OP_10_ROW.by[RULE_COLUMN] ?? ''
 const OP_10_WHEN = OP_10_ROW.by[SUBJECT_COLUMN] ?? ''
 
-/**
- * The ruling of 2026-09-06, quoted from `OP-10`'s own cell.
- *
- * ⚠️ Japanese literals in code. Rule 03 section 5 keeps code English and ASCII
- * and admits 日本語そのものを扱う処理 as the exception -- these two strings ARE
- * the clauses, and matching them against the manuscript is what makes the cases
- * below cases about the specification rather than about this file's memory.
- */
+// Spec: OP-10
 const A_CHOICE_IS_THE_PLACE =
   '⛔ **人が倍率か表示位置を選んだときは、それを表示位置とすること（MUST）**'
 
 const NOT_EVERY_FRAME = '⛔ **本行を毎フレームやり直してはならない（MUST NOT）**'
 
-/** The reason the first of the two gives, which is what the second rests on. */
 const BECAUSE_THE_CONDITION_STOPS_HOLDING =
   '選んだ時点で「人がまだ場所を決めていない」ではなくなるので、本行の条件は成り立たなくなり、全体表示はやり直されない。'
 
-/** OP-10's condition -- what has to be true of the fixture for any of this to run. */
 const THE_CONDITION = '表示位置が `null`、または指すタスクグループが存在しないとき'
-
-// ===========================================================================
-// 2. The keys, tied to the entrances the measurement names
-// ===========================================================================
 
 const T_036 = specTable('T-036')
 // Spec: S-53
@@ -219,31 +83,15 @@ const entrancesOf = (row: string): string => {
 
 const NO_MODS: InputModifiers = { ctrl: false, shift: false, alt: false, meta: false }
 
-/**
- * The four presses, spelled the way `KeyInput.key` says table T-036's
- * assignment column spells one -- 「a letter or a sign as one upper-case
- * character」.
- *
- * ⭐ The SPELLING is this file's reading of the assignment column
- * (`Shift` ＋ `+`, `Alt` ＋ `+`, `F`); the case at the head of section 4 checks
- * that each row still names the entrance the case says it reaches, so a
- * reassignment of the key to another entrance fails there by name rather than
- * silently pressing the wrong thing here.
- */
+// Why: the spelling is this file's reading of the T-036 assignment column; a premise case checks each row
+// still names its entrance, so a reassigned key fails there by name instead of pressing the wrong thing.
 const SHIFT_PLUS: KeyInput = { kind: 'key', key: '+', modifiers: { ...NO_MODS, shift: true } }
 const SHIFT_MINUS: KeyInput = { kind: 'key', key: '-', modifiers: { ...NO_MODS, shift: true } }
 const ALT_PLUS: KeyInput = { kind: 'key', key: '+', modifiers: { ...NO_MODS, alt: true } }
 const PRESS_F: KeyInput = { kind: 'key', key: 'F', modifiers: NO_MODS }
 
-// ===========================================================================
-// 3. The document these cases drive
-// ===========================================================================
-
-// BT-4 of table T-034 supplies the calendar, the project and the settings,
-// because those are the ones the specification has decided. ⛔ The loops below
-// are NOT told they came from it (`startedFromTemplate` is left off), so OP-10's
-// ⛔⛔ exclusion never operates -- what is borrowed is a valid document, not the
-// template's own branch.
+// Why: BT-4 lends a valid calendar, project and settings, but startedFromTemplate is left off,
+// so OP-10's exclusion for the template never operates here.
 const TEMPLATE = JSON.parse(
   readRepoFile(
     join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'),
@@ -293,10 +141,7 @@ const group = (id: string, order: number, label: string): unknown => ({
   minHeightPx: null,
 })
 
-/**
- * Two task groups, two Tasks, and no stored place -- which is OP-10's condition, so
- * the first frame of every case below is drawn by the row.
- */
+// Summary: the fixture holds two task groups, two Tasks and no stored place, so OP-10 draws every first frame.
 function fixtureDocument(edit: (draft: any) => void = () => {}): Document {
   const template = structuredClone(TEMPLATE) as any
   const draft = {
@@ -337,11 +182,6 @@ function fixtureDocument(edit: (draft: any) => void = () => {}): Document {
 const settingsOf = (document: Document): DocumentSettings =>
   (document as unknown as { readonly documentSettings: DocumentSettings }).documentSettings
 
-// ===========================================================================
-// 4. The host UF-48 is given
-// ===========================================================================
-
-/** BO-1 of table T-077 has already settled these by the time a loop exists. */
 const SCREEN: FrameEnvironment = {
   width: 1200,
   height: 700,
@@ -351,13 +191,7 @@ const SCREEN: FrameEnvironment = {
 
 const realRaf = (globalThis as any).requestAnimationFrame
 
-/**
- * ⚠️ THE HOST IS A FAKE, AND THE FAKE IS NOT THE TEST (R6.3). Vitest runs under
- * node with no `requestAnimationFrame`, and LY-5 of table T-060 puts the browser
- * in this layer. ⛔ Nothing in this fake decides anything: it drains the queue,
- * and it counts the turns it drained so a case can ask for MORE frames than the
- * loop would otherwise have run -- which is the whole of the second clause.
- */
+// Summary: the fake host drains the animation-frame queue and counts the turns, so a case can ask for more frames.
 function host(): {
   readonly surface: { showSvg(svg: string): void }
   runAnimationFrames(turns?: number): number
@@ -399,21 +233,16 @@ afterEach(() => {
   else (globalThis as any).requestAnimationFrame = realRaf
 })
 
-/** What one frame drew from: the zoom on each axis, and the place it used. */
+// Spec: S-1, FR-017
 interface Picture {
-  /** S-1 times `zoomX` -- FR-017 makes this the width of one day. */
   readonly pxPerDay: number
-  /** What a rectangle's plan bar is tall at this zoom -- the vertical axis. */
   readonly rectangleHeight: number
-  /** The height of the first task group's band, the other reading of the vertical axis. */
   readonly firstTaskGroupHeight: number
 }
 
 interface Booted {
   readonly loop: FrameLoop
-  /** One press, and the frames it asks for. */
   send(input: HumanInput): void
-  /** Drain up to `turns` more animation frames with nothing pressed. */
   idle(turns?: number): number
   picture(): Picture
   place(): { readonly scrollDate: unknown; readonly scrollTaskGroupId: unknown }
@@ -422,8 +251,7 @@ interface Booted {
 function boot(document: Document = fixtureDocument()): Booted {
   const pen = host()
   const loop = frameLoop(pen.surface as any, document, SCREEN, screenPane())
-  // FT-3 of table T-078 is not what starts this: the first frame is owed by the
-  // loop being made, so drain it before any case reads `current()`.
+  // Why: the first frame is owed by making the loop, not by an input of FT-3, so drain it before any case reads current().
   pen.runAnimationFrames()
   const picture = (): Picture => {
     const values = loop.current()
@@ -454,10 +282,7 @@ function boot(document: Document = fixtureDocument()): Booted {
   }
 }
 
-// ===========================================================================
-// 5. The premises every case below stands on
-// ===========================================================================
-
+// Spec: OP-10, SK-16, SK-16a, SK-16b, SK-16c, SK-18, IC-14, BT-4
 describe('表 T-024a OP-10 -- the manuscript this file is driven by', () => {
   it('still carries the rule that a choice becomes the place', () => {
     expect(OP_10).toContain(A_CHOICE_IS_THE_PLACE)
@@ -478,8 +303,7 @@ describe('表 T-024a OP-10 -- the manuscript this file is driven by', () => {
   })
 
   it('leaves table T-036 pointing the pressed keys at those same entrances', () => {
-    // ⭐ Not a copy of the assignment column: what is asserted is the tie
-    // between the row this file presses and the entrance OP-10 names.
+    // Why: what is asserted is the tie between the row pressed here and the entrance OP-10 names, not the assignment column.
     expect(entrancesOf('SK-16')).toContain('IC-13')
     expect(entrancesOf('SK-16')).not.toContain('IC-12')
     expect(entrancesOf('SK-16b')).toContain('IC-12')
@@ -496,10 +320,9 @@ describe('表 T-024a OP-10 -- the manuscript this file is driven by', () => {
   })
 })
 
-// ===========================================================================
-// 6. 「人が倍率か表示位置を選んだときは、それを表示位置とすること（MUST）」
-// ===========================================================================
-
+// Spec: OP-10, IC-10, IC-12, IC-13, IC-15, FR-055, ZE-1, ZE-6, S-53, S-77, S-78
+// Why: IC-14 is not pressed: OP-10 says its not moving is another row's matter (LF-3), so a case on it
+// would either contradict the row or hold another file's row.
 describe('OP-10 (MUST) -- what a person chose becomes the place', () => {
   it('IC-13: a press of the time-axis zoom-in moves the picture', () => {
     const one = boot()
@@ -532,10 +355,8 @@ describe('OP-10 (MUST) -- what a person chose becomes the place', () => {
   })
 
   it('IC-10: the fit is still reachable, and moves the picture back after a zoom', () => {
-    // ⭐ The fit is a choice of 表示位置 too -- FR-055 「1 つの操作で、縦横の倍率と
-    // 表示位置を全体が収まる側へ合わせること」 -- so it is on this clause's side
-    // of the row, not the row's own fallback. What it must do is MOVE the
-    // picture when the person is not standing where the fit stands.
+    // Why: FR-055 makes the fit a choice of place too, so it is on this clause's side of the row
+    // and must move the picture back when the person stands elsewhere.
     const one = boot()
     const fitted = one.picture()
     one.send(SHIFT_PLUS)
@@ -546,12 +367,8 @@ describe('OP-10 (MUST) -- what a person chose becomes the place', () => {
   })
 
   it('fills in 表示位置, so the condition of OP-10 stops holding', () => {
-    // The sentence's own reason: 「選んだ時点で「人がまだ場所を決めていない」では
-    // なくなるので、本行の条件は成り立たなくなり、全体表示はやり直されない」.
-    // ⛔ WHICH day and WHICH task group is not asserted -- see the head of this file.
-    // What the clause requires is that the pair no longer reads as 「人がまだ場所
-    // を決めていない」, which is the two halves of the condition: `null`, or a
-    // task group that is not there.
+    // Why: which day and task group a press settles on is not asserted: the ruling says the choice becomes the place,
+    // not that it is the fit's place; nor is HF-8, which the ruling leaves unmoved.
     const one = boot()
     expect(one.place().scrollDate).toBeNull()
     expect(one.place().scrollTaskGroupId).toBeNull()
@@ -561,22 +378,12 @@ describe('OP-10 (MUST) -- what a person chose becomes the place', () => {
     const after = one.place()
     expect(after.scrollDate, 'S-77 still says the person has not chosen a place').not.toBeNull()
     expect(after.scrollTaskGroupId, 'S-78 still says the person has not chosen a place').not.toBeNull()
-    // 「または指すタスクグループが存在しないとき」 -- the other half of the same condition.
     expect([TASK_GROUP_ONE, TASK_GROUP_TWO]).toContain(after.scrollTaskGroupId)
   })
 
   it('fills it in for the vertical axis and for the fit as well, not only for the time axis', () => {
-    // 「倍率か表示位置」 -- either one, so no entrance may leave the pair unset.
-    //
-    // ⚠️ ONE READING HERE IS WORTH OVERTURNING IF IT IS WRONG. Pressing SK-18
-    // is taken as 「人が…表示位置を選んだ」, because FR-055 says the fit is what
-    // 「縦横の倍率と表示位置を全体が収まる側へ合わせる」 and the person asked for
-    // it. ⛔ A press is not the same thing as the row FIRING ON ITS OWN at boot:
-    // that one must leave the pair `null` (「`null` は…欠けているのではない
-    // （`OP-6` の補完に当たらない）」), and tests/unit/uf-47-48.test.ts holds it.
-    // The premise case above asserts the boot leaves it null, so these two
-    // files do not disagree -- but if a later ruling says a pressed fit is not a
-    // choice either, PRESS_F belongs out of this list and nowhere else changes.
+    // Why: a pressed fit (SK-18) is read as choosing the place, unlike OP-10 firing at boot, which leaves the pair null
+    // (not an OP-6 completion); if a ruling says a pressed fit is no choice, PRESS_F leaves this list and nothing else.
     for (const press of [ALT_PLUS, PRESS_F, SHIFT_MINUS]) {
       const one = boot()
       one.send(press)
@@ -587,16 +394,11 @@ describe('OP-10 (MUST) -- what a person chose becomes the place', () => {
   })
 })
 
-// ===========================================================================
-// 7. 「本行を毎フレームやり直してはならない（MUST NOT）」
-// ===========================================================================
-
+// Spec: OP-10
 describe('OP-10 (MUST NOT) -- the row is not redone every frame', () => {
   it('does not overwrite the zoom the person wrote on the frames that follow', () => {
-    // ⭐⭐ THIS IS THE MEASURED DEFECT, PUT THE OTHER WAY ROUND: 「毎フレーム
-    // やり直していたので、人が書いた倍率が次のフレームで上書きされ」. So the
-    // case presses once and then asks for MORE frames than the press did, with
-    // nothing pressed, and reads the picture after each.
+    // Why: redoing the row every frame overwrote the person's zoom on the next frame, so the case presses once
+    // and then drains more frames than the press asked for, with nothing pressed.
     const one = boot()
     one.send(SHIFT_PLUS)
     const chosen = one.picture()
@@ -620,8 +422,7 @@ describe('OP-10 (MUST NOT) -- the row is not redone every frame', () => {
   })
 
   it('keeps the zoom working AFTER the fit, which is where the row used to come back', () => {
-    // ⭐ The fit writes a place of its own, and the frames after it must not
-    // re-enter the row either -- otherwise the next press is overwritten again.
+    // Why: the fit writes a place of its own, and frames after it must not re-enter the row, or the next press is lost.
     const one = boot()
     one.send(PRESS_F)
     const fitted = one.picture()
@@ -633,17 +434,8 @@ describe('OP-10 (MUST NOT) -- the row is not redone every frame', () => {
   })
 
   it('does not move the picture at all while nothing is pressed', () => {
-    // The plainest reading of 「毎フレームやり直してはならない」: with no input,
-    // frame two draws what frame one drew. ⚠️ This is asserted from the FIRST
-    // frame, where the row legitimately fires -- the ban is on repeating it, not
-    // on running it.
-    //
-    // ⛔ THE WEAKEST OF THE FOUR, AND IT IS GREEN TODAY WHILE THE OTHER THREE
-    // ARE NOT. Redoing the row on every frame draws the same picture each time
-    // as long as nothing changed, so this case cannot see the defect at all;
-    // the three above it can, because a press is what the redone row destroys.
-    // It is kept because it catches the OTHER way a frame loop rots -- a
-    // picture that drifts with the clock while the person is not touching it.
+    // Why: redoing the row with nothing changed draws the same picture, so this case cannot see that defect;
+    // it is kept for a picture that drifts with the clock while nothing is pressed, asserted from the first frame.
     const one = boot()
     const first = one.picture()
     one.idle(12)

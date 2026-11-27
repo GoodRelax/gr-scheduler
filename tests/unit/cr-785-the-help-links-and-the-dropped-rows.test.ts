@@ -297,6 +297,7 @@ function inkOf(built: Stage, anchor: FakeElement, help: FakeElement): string {
   return ''
 }
 
+// Spec: IMPS-1157
 describe('CR-785 -- the premises read from the specification', () => {
   it('FR-036 puts two links, one per line, above the frame of the basics block, and names the dictionary section', () => {
     expect(REQUIREMENTS).toContain('`GRS` は、ヘルプの基本操作の塊（辞書の見出しの `basics`）の枠のすぐ上に、2 つのリンクを 1 行ずつ縦に並べて置くこと')

@@ -1,4 +1,4 @@
-// CR-710 wave 1 (spec-only): FR-054 reads a date-time as an instant, the finish side's 00:00:00 ends the day before, IV-10 compares instants.
+// Contract tests: a date-time is read as an instant, a finish at 00:00:00 ends the day before, and IV-10 compares instants.
 
 import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
@@ -15,13 +15,13 @@ import {
 import { MONDAY_TO_FRIDAY_WITH_SPANS, workingCalendarOver } from './cr-710-w1-stage'
 import { unbroken } from './spec-table'
 
-// see IV-10, CR-741
+// Spec: IV-10
 const WITHIN = workingCalendarOver({ working: MONDAY_TO_FRIDAY_WITH_SPANS })
 
 const REQUIREMENTS = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 const DESIGN = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '05-07-design.md'), 'utf8'))
 
-// Spec: FR-054
+// Spec: FR-054, IMPS-766, IMPS-767
 const CLAUSES = [
   '`GRS` は、日時の字面の日付と時刻を、文書の日程データのタイムゾーン（`FR-156`）の現地の時刻として読むこと。',
   '`GRS` は、時差を換算しないこと',

@@ -21,6 +21,7 @@ import {
 
 const REQUIREMENTS = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
+// Spec: IMPS-878
 const FR_021_READS_BY_T_265 = '`GRS` は、取り込むときの読み方を表 T-265 に従わせること。'
 
 const EX_1_BOTH_VERSIONS =

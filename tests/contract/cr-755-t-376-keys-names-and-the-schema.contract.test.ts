@@ -47,7 +47,9 @@ const FR_156_NAME =
   '`GRS` は、タイムゾーンの見せる名を 2 行とし、1 行目を 表 T-376 の UTC の差と略称を `FR-038` の辞書の `timeZoneField` の `zoneHead` の形でつないだもの、2 行目を同じ辞書の `timeZones` が行ごとに持つ地名とすること（利用者の判断）'
 const FR_156_NAME_EXAMPLES = '例「UTC +09:00 JST」／「東京」、「UTC -07:00 MST」／「Mountain Standard Time (US, Canada)」'
 const FR_156_OFFSET_FORM = '差は時も分も 2 桁とし、0 は `±00:00` と書く'
+// Spec: IMPS-739
 const FR_156_NO_ABBREVIATION = '略称を持たない行は、1 行目の略称の部を詰める（例「UTC -12:00」／「日付変更線の西」）。'
+// Spec: IMPS-745
 const FR_156_PC_STANDARD = 'PC の標準時は、その PC の今年の 1 月 1 日と 7 月 1 日の UTC の差の小さいほうとする。'
 const T_376_UTC = '±0:00 の標準時の略称は UTC とする（利用者の判断）。'
 const T_376_KNOWN = '広く知られた地域の略称を持つ時差の行は、その略称とする（例 AST・ADT・CET・MSK）（利用者の判断）。'

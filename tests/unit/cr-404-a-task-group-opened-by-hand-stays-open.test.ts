@@ -32,6 +32,7 @@ const TASK_GROUP_TREE_SECTION = unbroken(
 ).split('## タスクグループの木（`taskGroupTree`）')[1] ?? ''
 
 const FR_018_BY_T_329 = '⭐ `GRS` は、タスクグループの木の状態（`_assets/fig-erd-detail.md` の `AT-153`、`TaskGroup.treeState`）によって、本要求の対象から外すタスクグループを 表 T-329 に従って決めること。'
+// Spec: IMPS-778
 const FR_018_ONLY_T_328 = '⭐ `GRS` は、`treeState` の値を書き換える入口と先の値を、段 0 の折りたたみ（`_assets/tbl-settings.md` の 表 T-203 の `S-418`）を含めて、`_assets/tbl-state-machines.md` の 表 T-328 に従わせること。`GRS` は、表 T-328 に無い操作で `treeState` の値を書き換えないこと。'
 const T_329_HOW_TO_READ = '⭐ `GRS` は、表 T-329 の種類が「すべて要る」の行がすべて成り立ち、「どれか 1 つ」の行が 1 つでも成り立つときだけ、タスクグループを描くこと。'
 const FR_016_TALLEST_AMONG_DRAWN = '`GRS` は、いちばん高いタスクグループを、調べる倍率で `FR-018` が描くタスクグループから選ぶこと。'

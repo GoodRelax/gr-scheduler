@@ -12,6 +12,7 @@ import {
 import { REQUIREMENTS, rowOf } from './cr-719-stage'
 
 const FR_076_THE_COLUMN_HOLDS_IT = '`GRS` は、理由ごとに画面へどう出すかを、表 T-233 の「表示の仕方」の欄に従わせること。'
+// Spec: IMPS-1132
 const FR_076_NOT_DECIDED_AGAIN = '要求の本文は、「告げる」と書いていても、理由を出すかどうかを本文で決め直さないこと。'
 const NT_2_ONLY_TIMED_ROWS = '時間で消すのは、表 T-233 の表示の仕方が「時間で消す」の理由の通知だけとする（MUST）'
 const NT_2_GONE_AFTER_S_542 =

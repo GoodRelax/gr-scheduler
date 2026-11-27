@@ -1,4 +1,4 @@
-// CR-644 spec-derived cases: a lag is stored in tenths of a minute and shown and typed in working days.
+// Unit tests: a lag is stored in tenths of a minute and shown and typed in working days.
 
 import { describe, expect, it } from 'vitest'
 
@@ -194,7 +194,7 @@ interface Plan {
   readonly minutesPerDay?: number | null
 }
 
-// Why: CR-710 reads the time of day (FR-054); an unpadded hour (T8:00:00) is no time and left the link unjudged.
+// Why: the time of day is read (FR-054); an unpadded hour (T8:00:00) is no time and left the link unjudged.
 const day = (date: number, hour: number): string => `2026-04-${String(date).padStart(2, '0')}T${String(hour).padStart(2, '0')}:00:00`
 
 function planDocument(plan: Plan): Document {
@@ -238,7 +238,7 @@ describe(`VC-15 -- ${VC_15_LAG}`, () => {
     expect(contradictionsOn(planned(day(8, 8), tenthsOfDays(2), WORKING_DAYS))).toEqual(['VC-15'])
   })
 
-  // Why: CR-710 advances the lag from A's instant (Tue 7th 17:00) by working minutes: two working days end Thu 9th 17:00,
+  // Why: the lag advances from A's instant (Tue 7th 17:00) by working minutes: two working days end Thu 9th 17:00,
   // so B holds from the next working morning (VC-15).
   it('VC-15 the same link holds when B starts on the 10th, two working days after A ends on the evening of the 7th', () => {
     expect(contradictionsOn(planned(day(10, 8), tenthsOfDays(2), WORKING_DAYS))).toEqual([])
@@ -248,7 +248,7 @@ describe(`VC-15 -- ${VC_15_LAG}`, () => {
     expect(contradictionsOn(planned(day(8, 8), tenthsOfDays(2, 450), WORKING_DAYS, 450))).toEqual(['VC-15'])
   })
 
-  // Why: CR-710 counts the lag in working minutes and no longer rounds it to whole days: 1.5 days end at noon on the 9th.
+  // Why: the lag is counted in working minutes, not rounded to whole days: 1.5 days end at noon on the 9th.
   it('VC-15 one and a half working days after the evening of the 7th end at noon on the 9th: B at 13:00 holds', () => {
     expect(contradictionsOn(planned(day(9, 13), tenthsOfDays(1.5), WORKING_DAYS))).toEqual([])
   })
@@ -268,12 +268,12 @@ const terminalDelayOfB = (lagFormat: number): number | undefined => {
     lagFormat,
   })
   return diagnoseDelay(document, workingCalendarOf(document.schedule)).terminalPushOuts
-    // Why: CR-710 counts the push-out in working minutes (T-314); read back as working days of S-128 minutes.
+    // Why: the push-out is counted in working minutes (T-314); read back as working days of S-128 minutes.
     .map((one) => ({ ...one, days: one.terminalDelayMinutes / S_128 })).find((one) => one.uid === B)?.days
 }
 
 describe(`BD-2 -- ${BD_2_LAG}`, () => {
-  // Why: CR-710 reads instants: A ends Thu 9th 17:00, two working days of lag run Fri and Mon, so B (one day, planned
+  // Why: instants are read: A ends Thu 9th 17:00, two working days of lag run Fri and Mon, so B (one day, planned
   // Fri 10th) runs Tue 14th and ends two working days late (BD-2).
   it('BD-2 A finished on the evening of the 9th and B waits 2 working days after it, so B ends two working days late', () => {
     expect(terminalDelayOfB(WORKING_DAYS)).toBe(2)
@@ -284,7 +284,7 @@ describe(`BD-2 -- ${BD_2_LAG}`, () => {
   })
 })
 
-// see FR-009, TX-3, DFC-2465
+// Spec: FR-009, TX-3
 const FR_009_DAY_DOCUMENT_LITERAL =
   '時を単位に打ったラグを日の文書で稼働日の小数（`0.38`）に換えないのは、日の文書の見せ方を今のまま保つからである（利用者の判断）'
 const TX_3_LAG = '時刻を表示しないときは整数の稼働日 —— 形式 `5`・`3` のラグは字面で見せる、`FR-009`'
@@ -314,7 +314,7 @@ describe('DFC-2465 FR-009 PR-42: a document that does not show the time of day s
   })
 })
 
-// see FR-009, TX-10, DFC-2466
+// Spec: FR-009, TX-10
 const FR_009_FINEST_UNIT =
   '2 つ以上の単位で打ったラグを書くとき（`1d 2h`）、`GRS` は、打った単位のうち最も細かいものの形式を書くこと —— `1d 2h` は `5`、`2h 30m` は `3` である。'
 const FR_009_BARE_NUMBER = '`GRS` は、単位の無い整数のラグを稼働日（`7`）と読むこと。'

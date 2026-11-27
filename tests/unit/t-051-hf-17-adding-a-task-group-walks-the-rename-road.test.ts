@@ -1,90 +1,4 @@
-// 表 T-051 の `HF-17` and `HF-14` (MUST, 利用者の裁定 2026-09-03, CR-346 then
-// CR-348, ledger row DFC-243): 「行を足す操作が、タスクグループ名を変える操作と同じ操作感で
-// あること」 -- adding a task group at 段 0 (the panel's head, `HF-17`) must feel exactly
-// like renaming one already on the panel (`FR-085`'s double-click path).
-//
-// ⭐⭐ THE RULING THIS FILE IS WRITTEN FROM (quoted in 表 T-051's `HF-14`,
-// 利用者の裁定 2026-09-03; the one clause naming an example task group's placeholder
-// text is deliberately not quoted here -- HF-14 itself forbids printing that
-// spelling, so this file does not print it either):
-//
-//   「⋯つまり、現在タスクグループ名を変更する際の操作と操作感を合わせろ。」
-//
-// ⚠️ THE MODEL THIS SUPERSEDED (withdrawn 2026-09-04, CR-348): a press used to
-// open an EMPTY name field and wait for `Enter`; three MUSTs said so
-// (「名前は空で立てる」「既定の名を与えてはならない」「空のまま確定されたら立てな
-// い」). ⛔ If a case below ever reads an empty field or an empty-name
-// confirmation, that is this file drifting back onto a rule nobody holds --
-// see the guard in "the manuscript still says..." below.
-//
-// ⭐ THE THREE SENTENCES THIS FILE IS WRITTEN FROM, verbatim out of 表 T-051's
-// `HF-14` (docs/spec/01-04-requirements.md):
-//
-//   ⭐⭐ 「**押された瞬間に、既定の名前でタスクグループを立てること（MUST）。そのタスクグループのプロパティ
-//    パネルを出し、名前の欄で名づけさせること（MUST）**」
-//   ⛔ 「**改名と別の道を作ってはならない（MUST NOT）。道は `FR-085` が改名につい
-//    て定めるものと同じものとすること（MUST）。**」
-//   ⭐ DFC-259 「**既定の名前は表示語として持つこと（MUST）。仕様書に綴りを刷ってはならない
-//    （MUST NOT）**」 -- so this file reads the word from the dictionary at run
-//    time and never types it.
-//
-// and out of `HF-17` (the same table): 「**足したタスクグループは最も浅い段の末子とすること
-// （MUST）。名前の扱いは `HF-14` に従う。**」 and 「**`HF-14`（配下に足す）も同じと
-// すること（MUST）**」 -- one naming MUST, read by two entrances.
-//
-// and out of `FR-085` (the road `HF-14` points to): 「**タスクグループ名を変える経路は、
-// タスクグループパネルでその名前をダブルクリックすること（表 T-023 の `MK-13`）とし、
-// `GRS` はプロパティパネルを出し、名前の欄（`_assets/fig-erd-detail.md` の
-// `AT-53`）を編集できる状態にして焦点を置き、既にある文字をすべて選んだ状態にする
-// こと（MUST）**」.
-//
-// and out of `FR-072`, which now counts this entrance among the ones that may
-// put the panel up: 「**`FR-091`（2026-09-03）と 表 T-051 の `HF-14`（2026-09-04）
-// がさらに求めている。**」
-//
-// ---------------------------------------------------------------------------
-// Unit under test: UF-48 of 表 T-075 (`frame-loop.ts`, component CP-25 of
-// 表 T-062) -- the layer that holds the current values (LY-5 of 表 T-060), so
-// raising the task group, putting the panel up and asking for the field are all its
-// answer.
-//
-// ⚠️ Chapter 9 admits no Unit as a TEST_LEVEL, so these cases have no node in
-// the specification. 表 T-218 of Chapter 7 gives them their place: TS-6,
-// tests/unit/.
-//
-// ⛔ WRITTEN FROM docs/spec AND NOTHING ELSE (docs/development-rules/
-// 04-verification.md section 1). ⛔ NO FILE UNDER src/ WAS OPENED. The host,
-// the fake surface, the fixture shape and the double-click helper are copied
-// from tests/unit/fr-085-double-click-a-task-group-name.test.ts and
-// tests/unit/t-051-hf-14-the-depth-cap-refuses-a-task-group.test.ts, which drive this
-// same unit through the same seams; `startup-template.json` is a generated
-// document and is read as data.
-//
-// ---------------------------------------------------------------------------
-// ⛔ WHAT IS DELIBERATELY NOT ASSERTED, AND WHY
-// ---------------------------------------------------------------------------
-//   1. WHETHER THE DETAIL TIER OR A FOLDED ANCESTOR IS OPENED so the new task group is
-//      visible. Those are `HF-14`'s OWN separate MUSTs (「そのタスクグループが描かれるまで
-//      詳しさの段を開くこと」 and 「立てたタスクグループが…折りたたんだ親の下に入るときは、その親を
-//      開くこと」), argued and measured independently (`DFC-237`); they are not
-//      part of what makes the OPERATION feel like a rename, which is this
-//      file's one question.
-//   2. THE DEPTH-CAP REFUSAL (`RS-46`, faint entrance). That is
-//      tests/unit/t-051-hf-14-the-depth-cap-refuses-a-task-group.test.ts's file, named
-//      for the cap; this file is named for the ordinary press.
-//   3. WHETHER THE EXISTING TEXT IS SELECTED once focus lands
-//      (`FR-085`: 「既にある文字をすべて選んだ状態にすること」). The seam this
-//      unit is driven through, `focusPropertyField`, carries only the row ID
-//      being asked for (tests/unit/fr-085-double-click-a-task-group-name.test.ts's own
-//      fake proves this -- its `asked.push(row)` takes one argument). Selection
-//      range is drawn by the DOM surface (UF-71), not decided here.
-//   4. HF-9's SCROLL-INTO-VIEW when the new task group lands off-screen. A separate
-//      MUST of `HF-17` / `HF-14`, not part of the operation's FEEL at the
-//      moment of the press.
-//   5. A DOCUMENT WITH ZERO TASK GROUPS. `HF-17`'s own RATIONALE names this case
-//      (「タスクグループが 1 つも無い文書では押す相手が存在しない」), but whether `frameLoop`
-//      normalizes such a document on load is not established by any file this
-//      one is allowed to read, so no case here assumes an answer either way.
+// Unit tests: adding a task group walks the same road as renaming one.
 
 import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
@@ -114,11 +28,7 @@ import {
 } from '../../src/framework/single-html-shell/frame-loop'
 import { bare, bareAll, specTable, unbroken } from '../contract/spec-table'
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
-// ===========================================================================
-// The manuscripts, read at run time rather than copied (Chapter 1.9)
-// ===========================================================================
+/* eslint-disable @typescript-eslint/no-explicit-any -- the document is read as untyped JSON */
 
 const rowOf = (table: string, id: string) => {
   const found = specTable(table).rows.find((one) => one.id === id)
@@ -126,7 +36,6 @@ const rowOf = (table: string, id: string) => {
   return found
 }
 
-/** Everything one row of a table says, as one string. */
 const says = (table: string, id: string): string => rowOf(table, id).cells.join(' ')
 
 const REQUIREMENTS = unbroken(readRepoFile(
@@ -134,17 +43,11 @@ const REQUIREMENTS = unbroken(readRepoFile(
   'utf8',
 ))
 
-/** 表 T-103's settled English name for U-22 -- the 面 both entrances sit on. */
+// Spec: T-103, U-22
 const TASK_GROUP_PANEL = bare(rowOf('T-103', 'U-22').by['確定名（英）'] ?? '')
 
-/**
- * The entrance 表 T-109 gives one rule of 表 T-051.
- *
- * ⭐ THE JOIN IS THE SPECIFICATION'S OWN: 表 T-109's 正 column names the rule
- * that owns each entrance, so a case that means 「HF-17's control」 says so and
- * is told which icon that is, instead of typing `IC-93` and going quiet the
- * day the roster is renumbered.
- */
+// Why: the entrance is joined through the T-109 column that names its rule, so
+// a renumbered icon roster cannot leave a typed IC id silent.
 function entranceFor(rule: string): string {
   const onThePanel = specTable('T-109').rows.filter(
     (one) => bareAll(one.by['面'] ?? '').includes(TASK_GROUP_PANEL),
@@ -159,18 +62,12 @@ function entranceFor(rule: string): string {
   return first.id
 }
 
-/** `HF-17`'s entrance -- adds a task group to 段 0, the panel's own head. */
+// Spec: T-109, HF-17, HF-14
 const HEAD_ADD_TASK_GROUP = entranceFor('HF-17')
-/** `HF-14`'s entrance -- adds a task group under whichever task group is pressed. */
 const ADD_CHILD_TASK_GROUP = entranceFor('HF-14')
 
-/**
- * `AT-53` -- the task group's name, read out of the ERD rather than typed.
- *
- * ⭐ THE ROW ID IS THE JOIN across `focusPropertyField`'s argument, so a case
- * that means 「the name field was asked for」 is told which row that is instead
- * of typing `AT-53` and going quiet the day the ERD is renumbered.
- */
+// Why: AT-53 is read from the ERD, not typed, so a renumbered ERD reaches the
+// cases instead of leaving them silent.
 const TASK_GROUP_NAME_FIELD = ((): string => {
   const detail = unbroken(readRepoFile(
     join(process.cwd(), 'docs', 'spec', '_assets', 'fig-erd-detail.md'),
@@ -188,13 +85,9 @@ interface DefaultTaskGroupName {
   readonly text: Readonly<Record<DisplayLanguage, string>>
 }
 
-/**
- * FR-038's dictionary word for a freshly stood-up task group, as the MANUSCRIPT
- * keeps it -- never as `src/` prints it, and never typed here.
- *
- * ⭐ docs/spec/_source/ is where the word is written; `src/` holds what is
- * generated from it (Chapter 1.9 / rule 04 section 1).
- */
+// Spec: FR-038
+// Why: the word is read from docs/spec/_source, where it is written; src holds
+// only what is generated from it.
 const DEFAULT_TASK_GROUP_NAME_WORD: DefaultTaskGroupName = ((): DefaultTaskGroupName => {
   const manuscript = JSON.parse(
     readRepoFile(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8'),
@@ -205,18 +98,8 @@ const DEFAULT_TASK_GROUP_NAME_WORD: DefaultTaskGroupName = ((): DefaultTaskGroup
 })()
 
 
-// ===========================================================================
-// The document these cases drive: two roots, one of them already a parent, so
-// a press can be told apart from every task group already standing.
-//
-//   Alpha            (root)
-//     AlphaChild
-//   Beta             (a second root)
-//
-// Copied in shape from tests/unit/fr-085-double-click-a-task-group-name.test.ts and
-// tests/unit/t-015-t-051-the-four-folding-controls.test.ts.
-// ===========================================================================
-
+// Why: two roots, one of them already a parent, so a new task group can be told
+// apart from every one already standing.
 const TEMPLATE = JSON.parse(
   readRepoFile(
     join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'),
@@ -280,10 +163,6 @@ function threeTaskGroupDocument(): Document {
   } as unknown as Document
 }
 
-// ===========================================================================
-// The host UF-48 is given. Copied from the same two files.
-// ===========================================================================
-
 const SCREEN: FrameEnvironment = {
   width: 1400,
   height: 800,
@@ -293,10 +172,6 @@ const SCREEN: FrameEnvironment = {
 
 const realRaf = (globalThis as any).requestAnimationFrame
 
-/**
- * ⚠️ THE HOST IS A FAKE, AND THE FAKE IS NOT THE TEST (R6.3). Nothing in it
- * decides anything about a task group, the panel or the field.
- */
 function host(): { readonly surface: { showSvg(svg: string): void; showMarqueeOverlaySvg(svg: string): void }; runAnimationFrames(): void } {
   const waiting: ((time: number) => void)[] = []
   let handle = 0
@@ -319,7 +194,6 @@ interface ScreenPane {
   readonly wiring: ScreenWiring
   drawAt(part: ScreenPart | null): void
   last(): ScreenView
-  /** Every row `focusPropertyField` was asked for, in order. */
   focusAsks(): readonly string[]
 }
 
@@ -353,10 +227,6 @@ afterEach(() => {
   else (globalThis as any).requestAnimationFrame = realRaf
 })
 
-// ---------------------------------------------------------------------------
-// Spelling one happening
-// ---------------------------------------------------------------------------
-
 const NO_MODIFIERS: InputModifiers = { ctrl: false, shift: false, alt: false, meta: false }
 
 const pointer = (
@@ -374,7 +244,6 @@ const pointer = (
   clickCount: options.clickCount ?? 1,
 })
 
-/** Somewhere inside the surface the fake answers for. */
 const ON_THE_SURFACE = { x: 80, y: 120 }
 
 interface Stage {
@@ -383,9 +252,8 @@ interface Stage {
   send(input: HumanInput): void
   aim(entry: string | null, taskGroupId: string | null): void
   aimAtNothing(): void
-  /** Aim one control entrance and press it -- CS-2 freezes the aim at the press. */
+  // Why: the aim is set before the press because CS-2 freezes it at the press.
   press(entry: string, taskGroupId: string | null): void
-  /** `MK-13` on a row's name: the rename road `HF-14` points at. */
   doubleClickName(taskGroupId: string): void
   panel(): PropertiesPanel | null
   rows(): readonly StoredRow[]
@@ -420,14 +288,14 @@ function stage(language: DisplayLanguage = 'ja'): Stage {
     aimAtNothing,
     press: (entry, taskGroupId) => {
       aim(entry, taskGroupId)
-      // IN-1 settles a pointer operation on release, so a press is down then up.
+      // Why: IN-1 settles a pointer operation on release, so a press is down then up.
       send(pointer('down', ON_THE_SURFACE.x, ON_THE_SURFACE.y))
       send(pointer('up', ON_THE_SURFACE.x, ON_THE_SURFACE.y))
       aimAtNothing()
     },
     doubleClickName: (taskGroupId) => {
-      // ⛔ BOTH CLICKS ARE SENT, WHICH IS WHAT A BROWSER DELIVERS. The first
-      // (clickCount 1) chooses the task group; the second (clickCount 2) is `MK-13`'s.
+      // Why: both clicks are sent, as a browser delivers them: clickCount 1 chooses
+      // the task group and clickCount 2 is MK-13's.
       aim(null, taskGroupId)
       send(pointer('down', ON_THE_SURFACE.x, ON_THE_SURFACE.y))
       send(pointer('up', ON_THE_SURFACE.x, ON_THE_SURFACE.y))
@@ -440,11 +308,9 @@ function stage(language: DisplayLanguage = 'ja'): Stage {
   }
 }
 
-/** The field the panel drew for one row of table T-058, or undefined. */
 const fieldOf = (panel: PropertiesPanel | null, row: string) =>
   panel?.fields.find((one) => one.row === row)
 
-/** The one task group present after a press that was not present before it. */
 function newTaskGroupSince(before: readonly StoredRow[], after: readonly StoredRow[]): StoredRow {
   const knownIds = new Set(before.map((one) => one.id))
   const created = after.filter((one) => !knownIds.has(one.id))
@@ -454,14 +320,11 @@ function newTaskGroupSince(before: readonly StoredRow[], after: readonly StoredR
   return created[0]!
 }
 
-// ===========================================================================
-// The premises every case below stands on
-// ===========================================================================
-
+// Spec: T-051, HF-14, HF-17, FR-085, FR-072, FR-038, AT-55, T-064, PI-37
 describe('the manuscript still says what these cases read', () => {
   it('⭐ was really driven by the manuscript, and not by a hollow read of it', () => {
-    // ⛔ WITHOUT THIS, A PARSE THAT LOST A COLUMN WOULD MAKE EVERY CASE BELOW
-    // AGREE WITH ANYTHING -- rule 04 section 2.
+    // Why: without this premise, a parse that lost a column would make every case
+    // below agree with anything.
     expect(TASK_GROUP_PANEL).toBe('Task Group Panel')
     expect(HEAD_ADD_TASK_GROUP).toBe('IC-93')
     expect(ADD_CHILD_TASK_GROUP).toBe('IC-91')
@@ -481,18 +344,10 @@ describe('the manuscript still says what these cases read', () => {
   })
 
   it('⛔ HF-14 no longer holds the model withdrawn on 2026-09-04 (guards this file against drifting back)', () => {
-    // ⚠️ CR-348 withdrew three MUSTs about an EMPTY name field, and the row now
-    // says the opposite (quoted above). ⛔ If a case in this file ever reads an
-    // empty name field or a confirm-to-create step, this is what says it is
-    // reading a rule nobody holds.
     expect(says('T-051', 'HF-14')).not.toContain('打ち込み口')
 
-    // ⭐⭐ ASK WHETHER THE RULE IS LIVE, NOT WHETHER THE WORDS APPEAR. The
-    // manuscript keeps a withdrawn rule as a dated note on purpose -- DFC-243 「2026-09-04
-    // までは…と定めていた」 -- because that is how this project records what
-    // moved and why. Measured 2026-09-05: a guard reading for the words alone
-    // went red against a manuscript that says the opposite of them. So the
-    // withdrawn wording must appear ONLY inside that dated note.
+    // Why: the manuscript keeps a withdrawn rule as a dated note, so the guard asks
+    // that the withdrawn words stand only inside that note.
     const hf14 = says('T-051', 'HF-14')
     const withdrawn = '名前は空で立て'
     const at = hf14.indexOf(withdrawn)
@@ -520,10 +375,6 @@ describe('the manuscript still says what these cases read', () => {
   })
 
   it('⭐ FR-072 forbids enumerating the entrances that put the panel up', () => {
-    // CR-375 removed the dated enumeration (FR-091 / HF-14) this case used to
-    // read. FR-072 now states the opposite: it does not count entrances at
-    // all, and points at table T-103's U-47 instead. HF-14's own MUST to open
-    // the panel is unchanged and is still asserted elsewhere in this file.
     expect(REQUIREMENTS).toContain(
       '⛔ **その入口を本要求が数え上げてはならない（MUST NOT）**',
     )
@@ -541,10 +392,8 @@ describe('the manuscript still says what these cases read', () => {
   })
 
   it('⭐ AT-55 scopes order to siblings under the same parent, which is what 末子 is measured against', () => {
-    // ⭐ WHY THE FIXTURE IS SAFE: Alpha (a root, order 0) and AlphaChild (Alpha's
-    // own child, also order 0) can share an order value because AT-55 scopes it
-    // per parent -- so 「末子」 for a press at 段 0 is read against the OTHER
-    // ROOTS only, never against a deeper task group that happens to share a number.
+    // Why: Alpha and AlphaChild may share order 0 because AT-55 scopes order per
+    // parent, so the last child at level 0 is read against the other roots only.
     const at55 = unbroken(readRepoFile(
       join(process.cwd(), 'docs', 'spec', '_assets', 'fig-erd-detail.md'),
       'utf8',
@@ -554,10 +403,7 @@ describe('the manuscript still says what these cases read', () => {
   })
 })
 
-// ===========================================================================
-// HF-17 / HF-14 (MUST): the task group exists the instant the entrance is pressed
-// ===========================================================================
-
+// Spec: T-051, HF-17, HF-14, HR-8
 describe('表 T-051 HF-17 and HF-14 (MUST): the press raises the task group at once', () => {
   for (const language of ['ja', 'en'] as const) {
     it(`⭐⭐ HF-17 at 段 0: a new root task group appears, last among the roots, named from the dictionary (${language})`, () => {
@@ -595,10 +441,8 @@ describe('表 T-051 HF-17 and HF-14 (MUST): the press raises the task group at o
   })
 
   it('⛔ neither press needs a second input to create the task group -- one press is the whole operation', () => {
-    // ⚠️ THE DEFECT THIS GUARDS AGAINST (DFC-237 / the withdrawn model): a press
-    // used to open an input box that created nothing until a later `Enter`.
-    // `press()` above sends only pointer down and up -- if a case needed more
-    // than that to see the task group count change, this line would have said so.
+    // Why: press() sends only pointer down and up, so a changed count proves one
+    // press is the whole operation, with no later Enter.
     const built = stage()
     const before = built.rows()
     built.press(HEAD_ADD_TASK_GROUP, null)
@@ -606,10 +450,9 @@ describe('表 T-051 HF-17 and HF-14 (MUST): the press raises the task group at o
   })
 })
 
-// ===========================================================================
-// The core of DFC-243: the road is FR-085s own -- same ask, same editable field
-// ===========================================================================
-
+// Spec: HF-17, HF-14, FR-085, FR-072, FR-091, MK-13, AT-53
+// Why: the selection of the existing text is not asserted: the focus seam carries
+// only the row ID.
 describe('DFC-243 (利用者の裁定 2026-09-03): adding a task group feels exactly like renaming one', () => {
   it('⭐⭐ HF-17: the press opens the panel already turned to the new task group, asking to focus AT-53', () => {
     const built = stage()
@@ -641,9 +484,6 @@ describe('DFC-243 (利用者の裁定 2026-09-03): adding a task group feels exa
   })
 
   it('⭐⭐⭐ the literal comparison: HF-17s press and FR-085s rename ask the SAME thing of the SAME field', () => {
-    // ⭐ THIS IS DFC-243 ITSELF, MADE OBSERVABLE: two different presses, on two
-    // different task groups, land on identical shapes at this seam -- which is what
-    // 「操作感を合わせろ」 asks for at the one seam a Unit test can read it at.
     const added = stage()
     added.press(HEAD_ADD_TASK_GROUP, null)
 
@@ -659,10 +499,8 @@ describe('DFC-243 (利用者の裁定 2026-09-03): adding a task group feels exa
     expect(addedField?.isEditable).toBe(true)
     expect(renamedField?.isEditable).toBe(true)
     expect(addedField?.isEditable).toBe(renamedField?.isEditable)
-    // ⛔ THE TEXT IS NOT EXPECTED TO MATCH -- one shows the dictionary's word
-    // for a new task group, the other shows Alpha's own name. What must match is the
-    // SHAPE of the road (which field, editable, asked for by name), not the
-    // value sitting in it.
+    // Why: the text is not expected to match: one holds the dictionary word, the
+    // other Alpha's name; only the shape of the road must match.
     expect(addedField?.text).not.toBe(renamedField?.text)
   })
 
@@ -680,9 +518,8 @@ describe('DFC-243 (利用者の裁定 2026-09-03): adding a task group feels exa
   })
 
   it('⛔ a plain press that only chooses a task group (no double click, no add) asks for no field', () => {
-    // ⚠️ THE CONTROL CASE. Without it, a build that asked `focusPropertyField`
-    // on every press touching the Task Group Panel would pass every case above
-    // for the wrong reason.
+    // Why: the control case: a build that asked for the field on every press on the
+    // Task Group Panel would otherwise pass every case above.
     const built = stage()
     built.aim(null, BETA)
     built.send(pointer('down', ON_THE_SURFACE.x, ON_THE_SURFACE.y))

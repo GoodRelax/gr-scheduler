@@ -24,6 +24,7 @@ import { SCREEN, day, scheduleOf, taskOf } from '../unit/cr-430-cross-section-sc
 
 const REQUIREMENTS = readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8')
 
+// Spec: IMPS-780
 const FR_098_LIFT = '`GRS` は、ピン止めしたタスクグループを、スクロールする領域から抜いて画面の上端へ固定すること。'
 const FR_098_ONCE = '`GRS` は、ピン止めしたタスクグループを本来の縦位置にも描かないこと'
 const FR_098_NOT_UNDER = '`GRS` は、スクロールするタスクグループを帯の下へ潜らせないこと'

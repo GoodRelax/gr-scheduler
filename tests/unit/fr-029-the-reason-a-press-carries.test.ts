@@ -1,117 +1,4 @@
-// FR-029 (MUST): an entrance that has nothing to do says WHY -- but only when
-// it is pressed, and the reason it carries is the row of 表 T-233 that matches
-// THAT entrance's situation.
-//
-// Unit under test: UF-48 of table T-075 (`frame-loop.ts`, component CP-25 of
-// table T-062). It is the only layer that may hold a current value (LY-5 of
-// table T-060), so it is the side that turns a press into a raised telling and
-// hands the frame that carries it to the surface.
-//
-// ⚠️ Chapter 9 does not admit Unit as a TEST_LEVEL, so these cases have no node
-// in the specification. Table T-218 of Chapter 7 gives them their place: TS-6,
-// tests/unit/.
-//
-// ---------------------------------------------------------------------------
-// ⛔ THIS FILE REPLACES tests/unit/fr-029-rs-27-the-reason-a-press-is-told.test.ts,
-// AND THE RULE IT ASSERTED WAS REVERSED
-// ---------------------------------------------------------------------------
-//
-// What stood here asked that EVERY faint entrance answer a press with `RS-27`.
-// CR-307 (2026-08-30) turned that into the thing FR-029 now forbids:
-//
-//   ⛔ 「当たる行があるのに落ち先を運んではならない（MUST NOT）」（利用者の裁定
-//      2026-08-30「通知は『行えることがありません』じゃ意味がないだろ。できない
-//      理由を表示しろよ」）
-//
-// 表 T-233 gained eight rows on the same day -- `RS-28` .. `RS-35` -- one per
-// situation a task group control, a header toggle or a palette entry can be spent in.
-// ⭐ `RS-27` survives ONLY as the landing place FR-029 gives to an entrance no
-// row of that table covers: 「⚠️ どの入口にも当たる行が無いときの落ち先が `RS-27`
-// である。」
-//
-// ---------------------------------------------------------------------------
-// THE ROWS THESE CASES REST ON
-// ---------------------------------------------------------------------------
-//
-//   `FR-029`   「その入口を押しても、いま文書にも画面にも何も変えられないときは、
-//              その入口を薄く描くこと（MUST）」／「押されたときに限り、行えない理由を
-//              通知の仕組みへ運ぶこと（MUST）。作法は `FR-076` の 表 T-037 の `NT-1` に従い、
-//              運ぶ理由は、押された入口の場面に当たる同要求の 表 T-233 の行とすること
-//              （MUST）」／⛔ 「当たる行があるのに落ち先を運んではならない（MUST
-//              NOT）」／⛔ 「ポインタが乗っただけで理由を出してはならない（MUST
-//              NOT）」（利用者の裁定 2026-08-30「薄く描け。押下した場合のみ理由を
-//              説明するポップアップを出せ」）
-//   表 T-233   RS-28 「配下に、展開できるタスクグループが 1 つも無い」（正: 表 T-051 の `HF-2`）
-//              RS-29 「そのタスクグループは、描かれている子を 1 つも持たない」（`HF-11`）
-//              RS-30 「直下に、画面へ戻せる子が 1 つも無い」（`HF-13`）
-//                    ⛔⛔ THE ROW MOVED ON 2026-08-31（利用者の指示「サンプルと
-//                    同じ動作にしろ」）: its 正 was `HF-3` and its 場面 was 「その
-//                    行は既に折りたたまれている」, which stopped being reachable when
-//                    `HF-3` became `HR-6`. ⭐ It is now `HF-13`'s spent 場面,
-//                    which that row states itself 「展開できる直下の子が 1 つも無い
-//                    ときは、`FR-029` に従って薄く描くこと（MUST）」 -- and the
-//                    roster below carries it again, on `IC-90`.
-//              RS-31 「描かれていないタスクグループが 1 つも無い」（`HF-10`）
-//              RS-32 「展開しているタスクグループが 1 つも無い」（`HF-12`）
-//              RS-33 「予定と実績のうち、いま出ているのが一方だけである」（`FR-049`）
-//              RS-34 「揃える相手の `Task` が選ばれていない」（`FR-034`）
-//              RS-27 「押した入口が、いま行えることを持たない」（`FR-029`）
-//              -- every one read at run time below, never typed.
-//   表 T-233 の結び 「⭐ 通知が運ぶ理由は 表 T-233 の行とすること（MUST）。同表に
-//              無い理由を運んではならない（MUST NOT）—— 理由の語は `FR-038` の辞書
-//              が持ち、辞書は行 ID で引く。」
-//   表 T-037 NT-1 「入力を受け付けないとき | どの項目が、なぜ誤りかを文字で示すこと
-//              （MUST）。訂正の手がかりを添えること。色や枠だけで示してはならない
-//              （MUST NOT）」
-//   表 T-051 の結び ⛔ 「`HF-2` / `HF-3` / `HF-10` / `HF-11` / `HF-12` / `HF-13` /
-//              `HF-16` が対象とするのは、いま描かれているタスクグループである（MUST）。描かれて
-//              いないタスクグループの折りたたみを数えてはならない（MUST NOT）」／⛔ 「その操作で、描か
-//              れるタスクグループが 1 つも増減しないときは、対象が 1 つも無いものとして扱うこと
-//              （MUST）」
-//              -- ⭐ THAT CLOSING RULE IS WHAT MAKES EACH FIXTURE BELOW SPENT.
-//   表 T-015   HR-3（`HF-2`）／HR-4（`HF-11`）／HR-6（`HF-3`）／HR-7（`HF-13`）,
-//              rewritten on 2026-08-31（利用者の指示「サンプルと同じ動作にしろ」）
-//              so that each of the four writes the task group it was pressed on. ⛔ IT
-//              IS WHAT MOVED TWO FIXTURES BELOW: `HR-4` folds the PRESSED task group,
-//              so `IC-77` is spent only where that task group draws no child of its
-//              own, and `HR-7` clears the PRESSED task group's fold, so `IC-90` is
-//              spent only where that task group is open and hides no direct child.
-//   表 T-109   IC-58 / IC-77 / IC-90 / IC-74 / IC-78 / IC-37 /
-//              IC-38 -- the entrances pressed, and the 面 each is on.
-//
-// ---------------------------------------------------------------------------
-// ⛔ WRITTEN FROM docs/spec AND NOTHING ELSE (docs/development-rules/
-// 04-verification.md section 1). What was read of `src/`: the exported
-// declarations of `frame-loop.ts` (`FrameEnvironment`, `FrameLoop`,
-// `ScreenWiring`) and the one signature `frameLoop(surface, first, env, screen?,
-// files?, showPointerShape?)`; the exported types of `screen-renderer.ts`
-// (`ScreenPart`, `ScreenSurface`, `ScreenView`, `DisplayLanguage`) and of
-// `input-command-translator.ts` (`HumanInput`, `InputModifiers`, `KeyInput`,
-// `PointerButton`, `PointerInput`, `PointerPhase`); and `startup-template.json`,
-// which is a generated document and not a body. ⛔ NO FUNCTION BODY WAS READ.
-//
-// ⭐ THE SHAPE IS COPIED, NOT INVENTED. The host, the fake surface and the
-// fixture are tests/unit/in-4-escape-closes-the-panel.test.ts's; the way a
-// notice is pinned to a row of 表 T-233 through FR-038's dictionary is
-// tests/unit/uf-47-48-choosers.test.ts's, which says at length why that is the
-// only end this join can be taken from.
-//
-// ---------------------------------------------------------------------------
-// ⭐ WHAT IS DELIBERATELY NOT ASSERTED, AND WHY
-// ---------------------------------------------------------------------------
-//   1. WHICH ROW OF 表 T-233 BELONGS TO AN ENTRANCE THE TABLE DOES NOT NAME.
-//      表 T-233 has a 場面 column and no 入口 column, so the pairing is prose.
-//      The pairs below are the ones whose 場面 the table states outright, and
-//      each one is held to the manuscript by `sameRule` -- the 正 of the entrance's row of
-//      表 T-109 and the 正 of the reason's row of 表 T-233 must name the SAME
-//      rule. ⛔ A pair the manuscript stops agreeing about fails there rather
-//      than passing quietly.
-//   2. WHAT THE WORDS SAY. FR-038's dictionary holds them; these cases ask that
-//      the words which arrived are the ones that dictionary holds for the row,
-//      which is the join, and never that a particular sentence is good.
-//   3. WHICH ENTRANCES ARE DRAWN FAINT. That is each entrance's own rule. The
-//      walk at the foot reads the faintness the screen itself decided and asks
-//      only that a press on it is answered.
+// Unit tests: a press on a spent entrance carries the T-233 row that matches it.
 
 import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
@@ -142,11 +29,7 @@ import {
 import { bare, specTable, unbroken } from '../contract/spec-table'
 import { validateDocument } from '../fixtures/grs-document'
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
-// ---------------------------------------------------------------------------
-// What the manuscript says, read at run time rather than copied
-// ---------------------------------------------------------------------------
+/* eslint-disable @typescript-eslint/no-explicit-any -- the fakes cast host and screen parts loosely */
 
 const rowOf = (table: string, id: string) => {
   const found = specTable(table).rows.find((one) => one.id === id)
@@ -154,21 +37,14 @@ const rowOf = (table: string, id: string) => {
   return found
 }
 
-/** The manner 表 T-037 gives one row of 表 T-233. */
 const mannerOf = (reason: string): string => bare(rowOf('T-233', reason).by['作法'] ?? '')
 
 const displayOf = (reason: string): string => bare(rowOf('T-233', reason).by['表示の仕方'] ?? '')
 
 const HIDDEN = '出さない'
 
-/**
- * The rule a row of 表 T-233 or of 表 T-109 says it comes from.
- *
- * ⛔ READ AND NOT TYPED. It is the one thing the two tables have in common, so
- * it is what holds a pair below to the manuscript: `RS-28` and `IC-58` both name
- * 表 T-051 の `HF-2`, and a table that moved either of them apart fails the
- * premise rather than the case.
- */
+// Why: the rule cell is the one thing T-233 and T-109 share, so it holds each
+// pair below to the manuscript; a table that moves one fails the premise.
 const ruleOf = (table: string, id: string): string => {
   const cell = bare(rowOf(table, id).by['正'] ?? '')
   const found = [...cell.matchAll(/`([^`]+)`/g)]
@@ -176,16 +52,10 @@ const ruleOf = (table: string, id: string): string => {
   return last ?? cell
 }
 
-/** U-22 of 表 T-103 -- the surface a row's controls are answered as. */
 const TASK_GROUP_PANEL = bare(rowOf('T-103', 'U-22').by['確定名（英）'] ?? '')
 
-/**
- * The 面 表 T-109 puts one entrance on, as that table spells it.
- *
- * ⛔ READ AND NOT TYPED: the 面 column is the join between an entrance and the
- * surface a press on it is answered as, and a file that typed the pairs would be
- * a second copy of that column.
- */
+// Why: the surface column is read, not typed: typing the pairs would make a
+// second copy of that column.
 function surfaceOf(icon: string): string {
   const cell = bare(rowOf('T-109', icon).by['面'] ?? '')
   const first = cell.split('/')[0]?.trim() ?? ''
@@ -202,27 +72,17 @@ const FR_029_ONLY_WHEN_PRESSED = '利用者が薄く描いた入口を押した�
 const FR_029_THE_MATCHING_ROW =
   '`GRS` は、運ぶ理由を、押された入口の場面に当たる `FR-076` の 表 T-233 の行とすること。'
 const FR_029_NOT_THE_FALLBACK = '押された入口の場面に当たる行が 表 T-233 にあるとき、`GRS` は落ち先を運ばないこと。'
+// Spec: IMPS-1113
 const FR_029_RS_27_IS_THE_FALLBACK = 'もし押された入口の場面に当たる行が 表 T-233 に無い場合、`GRS` は落ち先の `RS-27`（出さない）を運ぶこと。'
 const FR_029_NOT_ON_HOVER = '`GRS` は、ポインタが入口に乗っただけで、行えない理由を出さないこと。'
 const T_051_ONLY_DRAWN_TASK_GROUPS =
   '`GRS` は、描かれていないタスクグループの折りたたみを数えないこと（`IMPS-1981` の例外を除く）。'
+// Spec: IMPS-1980
 const T_051_NO_CHANGE_MEANS_SPENT =
   '`IMPS-1979` の操作で、描かれるタスクグループが 1 つも増減しないとき、`GRS` は、対象が 1 つも無いものとして扱うこと（数えるのは配下のタスクグループの数ではなく、操作の前後で描かれるタスクグループの差である）。'
 
-/**
- * FR-038's dictionary, as the manuscript keeps it.
- *
- * ⭐ THE MANUSCRIPT'S COPY AND NOT THE BUILT ONE. `docs/spec/_source/` is where
- * the words are written and `src/` holds what is printed from it; rule 04
- * section 1 has these cases driven from docs/spec, and `npm run words:check` is
- * what holds the two together.
- *
- * ⚠️ IT IS WHAT LETS A NOTICE BE PINNED TO ONE ROW OF 表 T-233. `Notice` carries
- * the manner and the WORDS; only `RaisedNotice` carries the reason, and the loop
- * publishes neither its session nor its raised half -- so a case reads the row's
- * words out of here and asks whether those are the words that reached the
- * screen. ⭐ Copied from tests/unit/uf-47-48-choosers.test.ts.
- */
+// Why: a Notice carries words but not its reason, so a notice is pinned to a
+// row of T-233 by the words the manuscript's dictionary holds for that row.
 interface ReasonWords {
   readonly specTableRowId: string
   readonly text: Readonly<Record<DisplayLanguage, string>>
@@ -243,12 +103,6 @@ function wordsFor(specTableRowId: string): ReasonWords {
 
 const FALLBACK = 'RS-27'
 
-// ---------------------------------------------------------------------------
-// The documents these cases drive. Copied from
-// tests/unit/in-4-escape-closes-the-panel.test.ts and given three task groups, one
-// under the next, so that "配下" and "this task group" cannot answer alike.
-// ---------------------------------------------------------------------------
-
 const TEMPLATE = JSON.parse(
   readRepoFile(
     join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'),
@@ -261,26 +115,14 @@ const BETA = '22222222-2222-4222-8222-222222222222'
 const GAMMA = '33333333-3333-4333-8333-333333333333'
 
 interface Fixture {
-  /** Task groups the person folded: treeState `collapsed` (AT-153). */
   readonly folded?: readonly string[]
-  /**
-   * S-227 / S-228 -- FR-049's two independent booleans since 2026-09-07.
-   *
-   * ⛔ NEITHER ENTRANCE IS EVER SPENT ANY MORE, which is why IC-8 and IC-9
-   * left the roster above: hiding the second half is allowed, so there is no
-   * press left for FR-029's rule to answer.
-   */
+  // Why: S-227 and S-228 are independent, so neither IC-8 nor IC-9 is ever spent
+  // and both appear only among the armed entrances.
   readonly planActual?: { readonly isPlanVisible: boolean; readonly isActualVisible: boolean }
 }
 
-/**
- * ALPHA > BETA > GAMMA, all three drawn unless a fold hides one.
- *
- * ⭐ THREE DEEP AND NOT TWO, because 表 T-051's closing rule counts 「その操作の
- * 前後で描かれるタスクグループの差」: a leaf carries no descendant to hide, so folding it
- * changes no picture at all, and that is what makes `IC-77` on BETA spent while
- * the same control on ALPHA still has work.
- */
+// Why: three deep, since T-051 counts the change in drawn task groups: folding
+// a leaf changes no picture, which is what leaves IC-77 spent there.
 function documentWith(part: Fixture = {}): Document {
   const template = structuredClone(TEMPLATE) as any
   const folded = new Set(part.folded ?? [])
@@ -361,10 +203,6 @@ function documentWith(part: Fixture = {}): Document {
   } as unknown as Document
 }
 
-// ---------------------------------------------------------------------------
-// The host UF-48 is given. Copied from tests/unit/uf-48-input.test.ts.
-// ---------------------------------------------------------------------------
-
 const SCREEN: FrameEnvironment = {
   width: 1400,
   height: 800,
@@ -433,10 +271,6 @@ afterEach(() => {
   else (globalThis as any).requestAnimationFrame = realRaf
 })
 
-// ---------------------------------------------------------------------------
-// Spelling one happening
-// ---------------------------------------------------------------------------
-
 const NO_MODIFIERS: InputModifiers = { ctrl: false, shift: false, alt: false, meta: false }
 
 const pointer = (
@@ -454,16 +288,13 @@ const pointer = (
   clickCount: 1,
 })
 
-/** Somewhere inside the surface the fake answers for. */
 const ON_THE_SURFACE = { x: 80, y: 120 }
 
 interface Stage {
   readonly loop: FrameLoop
   readonly screen: ScreenPane
   send(input: HumanInput): void
-  /** Aim whatever comes next at one entrance of one task group. CS-2 freezes it at the press. */
   aimAt(entry: string, taskGroupId: string): void
-  /** Aim it at one entrance of a surface that is not a task group -- the header, the palette. */
   aimAtEntry(part: string, entry: string): void
   aimAtNothing(): void
   notices(): ScreenView['notices']
@@ -499,41 +330,23 @@ function stage(part: Fixture = {}, language: DisplayLanguage = 'ja'): Stage {
   }
 }
 
-/** One press and its release on whatever the surface is answering with. */
 function press(built: Stage): void {
   built.send(pointer('down', ON_THE_SURFACE.x, ON_THE_SURFACE.y))
   built.send(pointer('up', ON_THE_SURFACE.x, ON_THE_SURFACE.y))
 }
 
-// ---------------------------------------------------------------------------
-// The situations 表 T-233 states outright and a press can reach.
-// ⭐ TEN AGAIN SINCE 2026-08-31: `RS-30` lost its 場面 when `HF-3` stopped
-// folding on 2026-08-30, and the rewrite of the folding family gave it back to
-// `HF-13` -- see the pair below, at the place its old one used to stand.
-// ---------------------------------------------------------------------------
-
 interface Spent {
-  /** The row of 表 T-109 pressed. */
   readonly icon: string
-  /** The row of 表 T-233 FR-029 (MUST) makes that press carry. */
   readonly reason: string
-  /** The document the press happens in. */
   readonly fixture: Fixture
-  /** The task group the control belongs to, or `null` for a control the surface owns. */
   readonly onTaskGroup: string | null
-  /** The 場面 of that row of 表 T-233, in this fixture's own terms. */
   readonly because: string
-  /**
-   * Presses that put the SCREEN into the state this row's 場面 describes, run
-   * before the one that is measured.
-   *
-   * WHY A PRESS AND NOT A FIXTURE: the level-zero fold (S-418, a document
-   * setting and not a row column) is reached here through the entrance that
-   * writes it, exactly as a person reaches it.
-   */
+  // Why: primed by a press, not a fixture, since the level-zero fold (S-418) is a
+  // document setting reached here through the entrance that writes it.
   readonly primedBy?: readonly { readonly entry: string; readonly onTaskGroup: string | null }[]
 }
 
+// Spec: HF-2, HF-10, HF-11, HF-12, HF-13, HR-2, HR-4, HR-7, FR-034
 const SPENT: readonly Spent[] = [
   {
     icon: 'IC-58',
@@ -546,31 +359,12 @@ const SPENT: readonly Spent[] = [
     icon: 'IC-77',
     reason: 'RS-29',
     fixture: {},
-    // ⛔⛔ THIS PRESS MOVED FROM BETA TO GAMMA ON 2026-08-31（利用者の指示「サンプル
-    // と同じ動作にしろ」）. `HF-11` was 「そのタスクグループの配下をすべて折りたたむ」, under which
-    // BETA -- whose only descendant is the leaf GAMMA -- had nothing to fold; it
-    // is now 表 T-015 の `HR-4`, 「**選択した `TaskGroup` を折りたたむこと（MUST）**」 ⇒
-    // 「**その直下の子から下が描かれなくなる**」, so a press on BETA takes GAMMA
-    // off the screen and ACTS. ⭐ The leaf is what is left spent.
+    // Why: on GAMMA, not BETA: HR-4 folds the pressed task group, so a press on BETA
+    // takes GAMMA off the screen and acts; only the leaf is spent.
     onTaskGroup: GAMMA,
     because: 'GAMMA is a drawn leaf, so folding it takes no drawn task group away',
   },
   {
-    // ⛔⛔ `IC-59` / `RS-30` STOOD HERE AND `IC-90` HAS TAKEN ITS PLACE.
-    // 表 T-233's `RS-30` read docs/development-records/pending-decisions.md 「その行は既に折りたたまれている」 with 正 表 T-051 の
-    // `HF-3`; on 2026-08-30 利用者の裁定 gave that entrance 表 T-015 の `HR-6`
-    // (hide), so 「既に折りたたまれている」 stopped being its situation and the task group it
-    // stands on is by definition DRAWN -- hiding it always takes one task group off the
-    // screen, and `HF-3` says so: 「⭐ **描かれているタスクグループはいつでも親に格納できるので、本操作
-    // 子を薄く描く場面は無い**」.
-    // ⭐⭐ ON 2026-08-31 THE ROW MOVED TO `HF-13`, and it now reads 「直下に、
-    // 画面へ戻せる子が 1 つも無い」 -- what `HR-7` would put back: 「**選択した
-    // `TaskGroup` の折りたたみだけを解くこと（MUST）**」 and 「⭐ **直下の子が `HR-6`
-    // で隠されているときは、その隠しも解くこと（MUST）**」. `HF-13` states the
-    // spent side itself: 「⛔ **展開できる直下の子が 1 つも無いときは、`FR-029` に
-    // 従って薄く描くこと（MUST）**」.
-    // ⇒ an untouched document, where every direct child of ALPHA is drawn, is
-    // that 場面 exactly.
     icon: 'IC-90',
     reason: 'RS-30',
     fixture: {},
@@ -589,13 +383,8 @@ const SPENT: readonly Spent[] = [
     reason: 'RS-32',
     fixture: {},
     onTaskGroup: null,
-    // ⛔⛔ ONE FOLD OF EVERY TASK GROUP IS NO LONGER ENOUGH TO SPEND THIS ONE, AND
-    // 表 T-015's `HR-2` IS WHY: 「**最も浅い段のタスクグループも折りたたむこと（MUST）**—— ⭐ パネルの頭は最も浅い段のさらに上、
-    // すなわち段 0 として扱う」, and
-    // `HF-12` repeats it. ⇒ while ALPHA alone is folded there is still 段 0 to
-    // fold, and the press acts. ⭐ The 場面 「展開しているタスクグループが 1 つも無い」 is
-    // reached only once 段 0 itself is down, which is the state a first press
-    // on this same entrance leaves behind.
+    // Why: primed by one press, since HR-2 also folds level 0: while ALPHA alone is
+    // folded there is still level 0 to fold, and the press acts.
     primedBy: [{ entry: 'IC-78', onTaskGroup: null }],
     because: 'a first press folded 段 0 itself, so no drawn task group and no level is left open',
   },
@@ -615,13 +404,11 @@ const SPENT: readonly Spent[] = [
   },
 ]
 
-/** Aim one entrance of one task group -- or of a surface, where the task group is null. */
 function aim(built: Stage, entry: string, onTaskGroup: string | null): void {
   if (onTaskGroup === null) built.aimAtEntry(surfaceOf(entry), entry)
   else built.aimAt(entry, onTaskGroup)
 }
 
-/** Aim one of those situations and press it. */
 function pressed(one: Spent, language: DisplayLanguage = 'ja'): Stage {
   const built = stage(one.fixture, language)
   for (const first of one.primedBy ?? []) {
@@ -633,14 +420,10 @@ function pressed(one: Spent, language: DisplayLanguage = 'ja'): Stage {
   return built
 }
 
-// ===========================================================================
-// The premises every case below stands on
-// ===========================================================================
-
+// Spec: FR-029, T-233, T-051, NT-1, U-22
 describe('the manuscript still says what these cases read', () => {
   it('⭐ was really driven by the manuscript, and not by a hollow read of it', () => {
-    // ⛔ WITHOUT THIS, A PARSE THAT LOST A COLUMN WOULD MAKE EVERY CASE BELOW
-    // AGREE WITH ANYTHING -- rule 04 section 2.
+    // Why: a parse that lost a column would make every case below agree with anything.
     expect(TASK_GROUP_PANEL).toBe('Task Group Panel')
     expect(mannerOf(FALLBACK), '表 T-233 still gives RS-27 its manner').toBe('NT-1')
     expect(ruleOf('T-233', FALLBACK)).toBe('FR-029')
@@ -649,25 +432,20 @@ describe('the manuscript still says what these cases read', () => {
   it('⛔ FR-029 ties the telling to a PRESS, to the MATCHING row, and off a hover', () => {
     expect(REQUIREMENTS).toContain(FR_029_ONLY_WHEN_PRESSED)
     expect(REQUIREMENTS).toContain(FR_029_THE_MATCHING_ROW)
-    // ⛔ THE SENTENCE THAT REVERSED THIS FILE, pinned so that a manuscript which
-    // went back to one reason for every entrance fails here first.
     expect(REQUIREMENTS).toContain(FR_029_NOT_THE_FALLBACK)
     expect(REQUIREMENTS).toContain(FR_029_RS_27_IS_THE_FALLBACK)
     expect(REQUIREMENTS).toContain(FR_029_NOT_ON_HOVER)
   })
 
   it('⛔ 表 T-051 still counts the DRAWN task groups, and calls a still picture spent', () => {
-    // ⭐ THE RULE EVERY FIXTURE ABOVE RESTS ON. Without it, `IC-77` on a row
-    // whose only child is a leaf would still be armed and the RS-29 case would
-    // be asserting the opposite of the manuscript.
+    // Why: without it, IC-77 on a row whose only child is a leaf would still be
+    // armed, and the RS-29 case would assert the opposite of the manuscript.
     expect(REQUIREMENTS).toContain(T_051_ONLY_DRAWN_TASK_GROUPS)
     expect(REQUIREMENTS).toContain(T_051_NO_CHANGE_MEANS_SPENT)
   })
 
   it('⛔ each pair below is the manuscript’s own: the entrance and the reason name one rule', () => {
-    // ⛔ THE ONE MACHINE-CHECKABLE HALF OF A PAIRING THAT IS OTHERWISE PROSE.
-    // 表 T-233 has a 場面 column and no 入口 column, so nothing joins a row to an
-    // entrance except the rule both of them cite.
+    // Why: T-233 has no entrance column, so the rule both rows cite is the only join.
     for (const one of SPENT) {
       expect(
         ruleOf('T-109', one.icon),
@@ -682,15 +460,14 @@ describe('the manuscript still says what these cases read', () => {
       const words = wordsFor(reason)
       expect(words.text.ja.length, reason).toBeGreaterThan(0)
       expect(words.text.en.length, reason).toBeGreaterThan(0)
-      // ⭐ The pair that makes the language case below a test: one word for two
-      // languages would pass it whatever the loop did.
+      // Why: one word for two languages would pass the language case whatever the loop did.
       expect(words.text.ja, reason).not.toBe(words.text.en)
     }
   })
 
   it('⭐ the rows CR-307 raised that these cases press say different things', () => {
-    // ⛔ WITHOUT THIS, A DICTIONARY THAT ANSWERED ALIKE FOR EVERY ROW WOULD MAKE
-    // "carries RS-29 and not RS-27" pass on a loop that carries neither.
+    // Why: a dictionary that answered alike for every row would let the cases below
+    // pass on a loop that carries no matching row at all.
     const said = SPENT.map((one) => wordsFor(one.reason).text.ja)
     expect(new Set([...said, wordsFor(FALLBACK).text.ja]).size).toBe(
       new Set(SPENT.map((one) => one.reason)).size + 1,
@@ -707,15 +484,11 @@ describe('the manuscript still says what these cases read', () => {
   })
 
   it('nothing is being told before anything is pressed', () => {
-    // ⭐ The premise without which every count below counts nothing.
     expect(stage().notices()).toEqual([])
   })
 })
 
-// ===========================================================================
-// (a) FR-029 (MUST) -- the press is answered, and with THAT entrance's row
-// ===========================================================================
-
+// Spec: FR-029, FR-076, T-233
 describe('FR-029 (MUST) -- a press on a spent entrance carries the row that matches it', () => {
   it('⛔ MUST: every one of them carries a row table T-233 does not show, so no notice stands', () => {
     const shown: string[] = []
@@ -731,10 +504,6 @@ describe('FR-029 (MUST) -- a press on a spent entrance carries the row that matc
   })
 
   it('⛔ MUST NOT: not one of them falls back to RS-27', () => {
-    // 「当たる行があるのに落ち先を運んではならない（MUST NOT）」（利用者の裁定
-    //   2026-08-30「通知は『行えることがありません』じゃ意味がないだろ。できない理由を
-    //   表示しろよ」）。⭐ THIS IS THE WHOLE OF CR-307: the file that stood here
-    //   asked for exactly what this case now forbids.
     const fell: string[] = []
     for (const one of SPENT) {
       const told = pressed(one).notices()[0]
@@ -750,8 +519,6 @@ describe('FR-029 (MUST) -- a press on a spent entrance carries the row that matc
   })
 
   it('⭐ 表 T-233 is the whole roster: no telling carries words the table has no row for', () => {
-    // 表 T-233 の結び: 「通知が運ぶ理由は 表 T-233 の行とすること（MUST）。同表に無い
-    //   理由を運んではならない（MUST NOT）」
     const known = new Set(REASON_WORDS.map((one) => one.text.ja))
     const strange: string[] = []
     for (const one of SPENT) {
@@ -763,15 +530,9 @@ describe('FR-029 (MUST) -- a press on a spent entrance carries the row that matc
   })
 })
 
-// ===========================================================================
-// (b) FR-029 (MUST NOT) -- a pointer that only rested there is told nothing
-// ===========================================================================
-
+// Spec: FR-029
 describe('FR-029 (MUST NOT) -- resting a pointer on it is not a press', () => {
   it('⛔ MUST NOT: moving onto the entrance tells no reason', () => {
-    // 「ポインタが乗っただけで理由を出してはならない（MUST NOT）—— 乗せて出るのは
-    //   `FR-092` の `EZ-2` の説明であり、あちらはその入口が何をするものかを述べる
-    //   ものであって、いま行えない理由ではない」（利用者の裁定 2026-08-30）.
     const built = stage()
     built.aimAt('IC-58', ALPHA)
 
@@ -784,9 +545,8 @@ describe('FR-029 (MUST NOT) -- resting a pointer on it is not a press', () => {
   })
 
   it('⛔ MUST NOT: nor does resting there over several frames', () => {
-    // ⭐ SEVERAL MOVES AND SEVERAL FRAMES, because EZ-2's explanation is raised
-    // after a REST -- a reason hung on the same clock would appear only once the
-    // pointer had been still for a while, and a single move would not see it.
+    // Why: several moves over several frames, because EZ-2's explanation rises after
+    // a rest, and a reason hung on that clock would need the pointer kept still.
     const built = stage()
     built.aimAt('IC-58', ALPHA)
 
@@ -810,12 +570,8 @@ describe('FR-029 (MUST NOT) -- resting a pointer on it is not a press', () => {
   })
 })
 
-// ===========================================================================
-// (c) An entrance that DOES have work is told nothing
-// ===========================================================================
-
+// Spec: FR-029, FR-049
 describe('FR-029 -- the telling belongs to an entrance that is spent, and to no other', () => {
-  /** Every situation above, turned into the one where the same control has work. */
   const ARMED: readonly { readonly icon: string; readonly fixture: Fixture; readonly onTaskGroup: string | null; readonly because: string }[] =
     [
       {
@@ -865,13 +621,8 @@ describe('FR-029 -- the telling belongs to an entrance that is spent, and to no 
     ]
 
   it('⛔ an entrance that has work raises no reason at all', () => {
-    // 「その入口を押しても、いま文書にも画面にも何も変えられないとき」 is the
-    // condition of the whole rule, so an entrance that changes something is
-    // outside it. ⚠️ These cases read only that no reason was told, never what
-    // the press did -- each control's own requirement owns that.
-    //
-    // ⛔ WITHOUT THIS BLOCK, EVERY CASE IN (a) WOULD PASS ON A LOOP THAT TOLD
-    // THE REASON FOR EVERY PRESS.
+    // Why: without this block every case in the spent block above would pass on a
+    // loop that told the reason for every press.
     const told: string[] = []
     const reasons = new Set(REASON_WORDS.map((one) => one.text.ja))
     for (const one of ARMED) {
@@ -887,8 +638,6 @@ describe('FR-029 -- the telling belongs to an entrance that is spent, and to no 
   })
 
   it('⭐ and pressing nothing at all raises no reason either', () => {
-    // The surface answers no part, so no entrance was pressed. ⛔ A loop that
-    // told a reason for every press would pass every case in (a).
     const built = stage()
     built.aimAtNothing()
 
@@ -898,26 +647,15 @@ describe('FR-029 -- the telling belongs to an entrance that is spent, and to no 
   })
 })
 
-// ===========================================================================
-// (d) The two halves of FR-029 are one rule -- faint means "press me and I will
-//     say why"
-// ===========================================================================
-//
-// ⭐ THE WALK, AND WHY IT IS ONE CASE AND NOT MANY. FR-029 states the drawing
-// and the telling of ONE condition -- 「その入口を押しても、いま文書にも画面にも
-// 何も変えられないときは、その入口を薄く描くこと（MUST）…押されたときに限り、
-// 行えない理由を通知の仕組みへ運ぶこと（MUST）」 -- so the set of entrances drawn faint and
-// the set that answer a press with a reason are the SAME set. ⛔ A case per
-// entrance would need this file to decide, for each row of 表 T-109, when it is
-// spent; the screen already decided that, and the faintness is where it said so.
-
+// Why: one walk, not a case per entrance, since the screen already decided which
+// entrances are spent and the faintness is where it said so.
+// Spec: FR-029, T-109, T-233
 describe('FR-029 -- every entrance the screen drew faint answers a press with a reason', () => {
   it('⛔ MUST: not one of them is silent, and each carries a row of 表 T-233', () => {
     const known = new Set(REASON_WORDS.map((one) => one.text.ja))
     const drawn = stage()
     const view = drawn.screen.last()
 
-    // The entrances this frame drew faint, each with the 面 表 T-109 puts it on.
     const faint: { readonly icon: string; readonly surface: string }[] = []
     for (const entry of view.appHeaderItems.commands) {
       if (!entry.isEnabled) faint.push({ icon: entry.icon, surface: surfaceOf(entry.icon) })
@@ -927,9 +665,8 @@ describe('FR-029 -- every entrance the screen drew faint answers a press with a 
         if (!entry.isEnabled) faint.push({ icon: entry.icon, surface: surfaceOf(entry.icon) })
       }
     }
-    // ⛔ A frame that drew none would make this case pass while asserting
-    // nothing -- and FR-029's own RATIONALE says such a screen is unlikely: the
-    // document opens with nothing selected and nothing folded.
+    // Why: a frame that drew none would pass while asserting nothing; the document
+    // opens with nothing selected and nothing folded, so some entrance is faint.
     expect(faint.length, 'no entrance was drawn faint, so this case asked nothing').toBeGreaterThan(
       0,
     )
@@ -948,10 +685,7 @@ describe('FR-029 -- every entrance the screen drew faint answers a press with a 
   })
 
   it('⛔ MUST NOT: a faint entrance 表 T-233 has a row for does not fall back to RS-27', () => {
-    // 「当たる行があるのに落ち先を運んではならない（MUST NOT）」, walked over the
-    //   entrances the screen itself drew faint rather than over a list this file
-    //   chose. ⚠️ An entrance no row covers is left alone -- `RS-27` is its
-    //   landing place, which is all FR-029 keeps that row for.
+    // Why: an entrance no row covers is left alone, since RS-27 is its landing place.
     const fallback = wordsFor(FALLBACK).text.ja
     const wanted = new Map(SPENT.filter((one) => one.onTaskGroup === null).map((one) => [one.icon, one]))
     const drawn = stage()

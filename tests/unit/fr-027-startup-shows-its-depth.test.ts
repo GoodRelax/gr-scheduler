@@ -1,77 +1,4 @@
-// What the SHIPPED startup template draws on its very first frame.
-//
-// ⚠️ Chapter 9 does not admit Unit as a TEST_LEVEL, so these have no node in
-// the specification. Table T-218 of Chapter 7 gives them their place: TS-6,
-// tests/unit/.
-//
-// WRITTEN WITHOUT READING THE UNIT'S BODY (docs/development-rules/
-// 04-verification.md, section 1). What was read: docs/spec/ for every row
-// quoted below, and of `src/` only the published signatures of `frameLoop`,
-// `layoutFromSchedule`, `groupDepthLimit`, `regionsFromScreen`, `dayOf` and
-// `commandFromInput`. The shipped artifact
-// `src/framework/single-html-shell/startup-template.json` (which FR-027 makes
-// a document and not code) is read here as bytes, the way any GRS JSON is.
-//
-// ⭐ WHY THIS FILE EXISTS BESIDE `uf-47-48` (AND THE FOUR `fr-055-*` FILES CR-573 DELETED).
-// Those four drove fixtures this repository builds by hand, and `uf-47-48`
-// drives OP-10's three branches as a RULE on a two-task-group document. Not one of
-// them asks what the ONE document the specification has actually decided --
-// BT-4 of table T-034, the template FR-027 keeps exactly one of -- looks like
-// when the shell boots on it. Every case below is about that artifact, and no
-// case below restates a rule those files already state:
-//   * the FR-018 ladder itself (that threshold(d) stands where S-87 and S-88
-//     put it, that depth 1 is never a candidate, that it never runs backwards)
-//     was `fr-055-vertical-fit.test.ts`'s (deleted by CR-573). This file CALLS `groupDepthLimit` and
-//     asks what the shipped document draws under it.
-//   * that the fit takes the deepest tier that fits, on documents built to
-//     answer 5 / 4 / 3 / 1, was the fr-055 deep-tiers unit test's (deleted by CR-573).
-//   * that OP-10 branches on null, on a dangling id, and on a good place is
-//     `uf-47-48.test.ts`.
-//
-// The rows these cases answer to (rule 03: name the row, never copy its value):
-//   T-226    TP-8 -- 「タスクグループの深さと WBS の深さ」 are 「同じ 5 段に揃える」 in the
-//            template. The number is read out of the cell at run time.
-//   T-024a   OP-10 -- 「表示位置が `null`、または指すタスクグループが存在しないとき」 the
-//            zoom and the place come from FR-055's fit (MUST), ⛔ EXCEPT for a
-//            document opened from BT-4: 「表 T-034 の `BT-4`（起動テンプレート）
-//            から開いた文書には働かせてはならない（MUST NOT）」, and then
-//            「その文書が覆う最初の日と、タスクグループの木の先頭から描くこと（MUST）——
-//            倍率は文書が持つものをそのまま使う」, with 「日も行 ID も新しく
-//            持たせてはならない（MUST NOT）—— どちらも文書から導ける」, and
-//            since 2026-08-29 the definition itself (MUST): 「「その文書が覆う
-//            最初の日」とは、その文書の `Task` が持つ `start` と `actualStart`
-//            のうち最も早い日のことである」 —— which is what
-//            `TASK_DATE_COLUMNS` below now counts, and only that.
-//   T-034    BT-4 -- 「初期表示用のテンプレート（`FR-027`）」, the third seat of
-//            the boot order, and the one OP-10 excludes by name.
-//   T-051    HF-8 -- 「起動のときは働かせてはならない（MUST NOT。表 T-024a の
-//            `OP-10`）」.
-//   T-068    LC-9 -- 「タスクグループを木の順に並べ、帯高と縦位置を決める」, and the rule
-//            after that table: 「タスクグループを並べる順は木の順とすること（MUST）...
-//            深さの順に並べてはならない（MUST NOT）—— ... タスクグループが画面に収まり
-//            きらないとき、上端に来るのが根ばかりになり、木を持つ文書が階層の
-//            無い一覧に見える」.
-//   T-077    BO-3 / BO-4 -- the boot reads the zoom and the place from the
-//            display group, and 「`OP-10` に当たるときは、この 2 つを `BO-4` が
-//            決める」.
-//   T-201    S-1 `pxPerDayAt1x`, and T-203 S-75 `zoomX` -- the width of one day.
-//   T-203    S-77 `scrollDate` / S-78 `scrollTaskGroupId` -- the stored place, and
-//            what a `null` in either means.
-//   T-206    S-96 / S-97 / S-98 -- the three zoom values the document does not
-//            keep, which the fit is handed.
-//   FR-018   the group level of detail: which depths a `zoomY` admits.
-//   FR-055   the fit -- DFC-621 「描くものが Task Group Area に収まる最も深い段を採る」, depth
-//            1 when even that does not fit, and the vertical scroll left over.
-//   FR-094   the floor under the plan height, which is why a smaller `zoomY`
-//            below it removes task groups instead of shrinking them.
-//
-// ⭐ THE HEAD OF THIS FILE'S SUBJECT. The shipped template stores NO place --
-// OP-10's own MUST NOT forbids giving it one -- and yet the first frame must
-// still show the document's hierarchy. Two rows together make that so: OP-10's
-// exclusion keeps the fit off the boot (the fit answers depth 1 on a document
-// this large, which section 4 measures), and LC-9's tree order puts a task group's
-// children directly under it, so the first screenful is not seven roots. Every
-// case below is derived from a quoted row.
+// Unit tests: the shipped startup template draws its task group hierarchy on its very first frame.
 
 import { describe, expect, it } from 'vitest'
 import { readRepoFile } from '../spec-files'
@@ -108,11 +35,6 @@ import { emptyScreenSession } from '../../src/use-case/advance-screen-session/ad
 import { displayRatioAt } from '../fixtures/display-scale'
 import { settingNumber } from '../fixtures/setting-number'
 
-// ---------------------------------------------------------------------------
-// The artifact. FR-027 (MUST): 「テンプレートはバンドル済みの `GRS JSON` として
-// 持つこと」, so it is read as the shipped bytes rather than rebuilt here.
-// ---------------------------------------------------------------------------
-
 const TEMPLATE_PATH = join(
   process.cwd(),
   'src',
@@ -123,6 +45,7 @@ const TEMPLATE_PATH = join(
 
 type Loose = Record<string, unknown>
 
+// Spec: FR-027, BT-4
 const template = (): Document =>
   JSON.parse(readRepoFile(TEMPLATE_PATH, 'utf8')) as unknown as Document
 
@@ -133,18 +56,12 @@ const SCHEDULE = TEMPLATE.schedule as Schedule
 const GROUPS = (SCHEDULE as unknown as Loose)['taskGroups'] as readonly Loose[]
 const TASKS = (SCHEDULE as unknown as Loose)['tasks'] as readonly Loose[]
 
-// ---------------------------------------------------------------------------
-// The rows, read out of the manuscript at run time (Chapter 1.9), so a
-// re-ruled cell moves these cases instead of leaving a stale figure behind.
-// ---------------------------------------------------------------------------
-
 const rowOf = (tableId: string, specTableRowId: string): Readonly<Record<string, string>> => {
   const found = specTable(tableId).rows.find((row) => row.id === specTableRowId)
   if (found === undefined) throw new Error(`table ${tableId} has no row ${specTableRowId}`)
   return found.by
 }
 
-/** The first figure a cell writes. */
 const firstNumberOf = (cell: string): number => {
   const hit = /[0-9]+(?:\.[0-9]+)?/.exec(cell)
   if (hit === null) throw new Error(`no figure in the cell: ${cell}`)
@@ -153,12 +70,7 @@ const firstNumberOf = (cell: string): number => {
 
 const TP_8 = rowOf('T-226', 'TP-8')
 
-// ---------------------------------------------------------------------------
-// The two trees, walked out of the artifact. ⛔ Neither depth is typed here:
-// both are counted from the document, and TP-8's own cell says what they owe.
-// ---------------------------------------------------------------------------
-
-/** Depth 1 is a root, which is the sense `TaskGroupPlacement.depth` publishes. */
+// Summary: depthByParent() counts a root as depth 1, the sense TaskGroupPlacement.depth publishes.
 function depthByParent(
   rows: readonly Loose[],
   keyOf: (row: Loose) => unknown,
@@ -171,14 +83,14 @@ function depthByParent(
   for (const row of rows) {
     let depth = 1
     let walk: Loose | undefined = row
-    // Bounded by the task group count: IV-2 forbids a cycle, and a bound rather than
-    // a trust makes a broken artifact fail here instead of hanging.
+    // Why: bounded by the row count: IV-2 forbids a cycle, and a bound makes a broken
+    // artifact fail here instead of hanging.
     while (walk !== undefined && depth <= rows.length) {
       const parent = parentOf(walk)
       if (parent === null || parent === undefined) break
       const above = byKey.get(parent)
-      // ⛔ A parent that resolves to nothing would be an IV-2 break; counting it
-      // as a level would hide that behind a depth one too deep.
+      // Why: a parent that resolves to nothing is an IV-2 break; counting it as a
+      // level would hide that behind a depth one too deep.
       expect(above, `a parent reference resolves to no task group: ${String(parent)}`).toBeDefined()
       walk = above
       depth += 1
@@ -194,16 +106,8 @@ const taskGroupForestDepth = (): number =>
 const wbsDepth = (): number =>
   depthByParent(TASKS, (row) => row['uid'], (row) => row['parentTaskUid'])
 
-// ---------------------------------------------------------------------------
-// One boot. A full-HD window: FR-051 has BO-1 settle the header height and the
-// scrollbar thickness from the environment, so they are the host's to report
-// and are given here as one.
-//
-// ⛔ NO CASE'S ANSWER IS A FIGURE OF THIS WINDOW. The depths drawn under
-// FR-018 follow `zoomY` alone, and the one case that does depend on the Task Group
-// Area re-measures it from these same regions rather than naming a height.
-// ---------------------------------------------------------------------------
-
+// Why: no case's answer is a figure of this window: FR-018 depths follow zoomY
+// alone, and the one Task Group Area case re-measures from these regions.
 const SCREEN: ScreenEnvironment = {
   width: 1920,
   height: 1080,
@@ -214,16 +118,8 @@ const SCREEN: ScreenEnvironment = {
 
 const REGIONS: ScreenRegions = regionsFromScreen(SCREEN, SETTINGS)
 
-/**
- * What BO-5 of table T-077 put up, taken once -- the document has 1000 Tasks.
- *
- * ⭐ `startedFromTemplate` is BT-4 of table T-034 being told to the boot. OP-10
- * excludes 「表 T-034 の `BT-4`（起動テンプレート）から開いた文書」 and nothing
- * else, so the boot cannot obey that MUST NOT without being told which seat of
- * table T-034 the document came from. ⚠️ It is the ONE thing this file says
- * about the shell's shape, and it is what BT-1 / BT-2 -- for which OP-10 is in
- * full force -- would leave unset.
- */
+// Why: the last argument tells the boot the document came from BT-4, which OP-10
+// excludes; a BT-1 or BT-2 boot, where OP-10 is in force, leaves it unset.
 const bootFrame = (() => {
   const painted: string[] = []
   const loop = frameLoop(
@@ -247,21 +143,9 @@ const deepestDrawn = (layout: ScheduleLayout): number =>
 const drawnDepths = (layout: ScheduleLayout): number[] =>
   [...new Set(layout.taskGroups.map((taskGroup) => taskGroup.depth))].sort((a, b) => a - b)
 
-/**
- * 「その文書が覆う最初の日」, derived rather than stored -- which is what
- * OP-10's 「日も行 ID も新しく持たせてはならない（MUST NOT）—— どちらも文書から
- * 導ける」 says it must be.
- *
- * ⭐ TWO COLUMNS, AND THE ROW NAMES BOTH OF THEM. OP-10 (MUST, 利用者の裁定
- * 2026-08-29): 「「その文書が覆う最初の日」とは、その文書の `Task` が持つ `start`
- * と `actualStart` のうち最も早い日のことである」.
- * ⛔ THIS USED TO READ FIVE -- every date column `_assets/fig-erd-detail.md`
- * gives `Task` (`finish` / `actualFinish` / `resume` as well). That was a guess
- * made before the row said anything, and it went on passing because the shipped
- * template answers the same day either way; on a document whose `finish` or
- * `resume` stood before every `start`, it would have agreed with a tree
- * counting columns the row excludes.
- */
+// Spec: OP-10
+// Trap: the shipped template answers the same day with finish, actualFinish or
+// resume added, so no case here catches a column OP-10 excludes.
 const TASK_DATE_COLUMNS = ['start', 'actualStart'] as const
 
 const firstDayCovered = (): string => {
@@ -276,11 +160,8 @@ const firstDayCovered = (): string => {
   return days.reduce((earliest, one) => (one < earliest ? one : earliest))
 }
 
-/**
- * 「タスクグループの木の先頭」 -- the first task group of LC-9's tree order, which is the root the
- * `AT-55` ascent puts first. ⛔ Not `GROUPS[0]`: the artifact's array order is
- * not a row of any table.
- */
+// Why: not GROUPS[0]: the artifact's array order is no row of any table; LC-9's
+// tree order reaches the root with the lowest order first (AT-55).
 const headOfTaskGroupTree = (): unknown => {
   const roots = GROUPS.filter((row) => row['parentId'] === null || row['parentId'] === undefined)
   expect(roots.length, 'TP-4 makes the top level a forest, so it has at least one root').toBeGreaterThan(0)
@@ -290,24 +171,18 @@ const headOfTaskGroupTree = (): unknown => {
   return first['id']
 }
 
-/** The task groups whose band meets the Task Group Area -- what a person sees on frame one. */
 const taskGroupsInFirstScreenful = (layout: ScheduleLayout) =>
   layout.taskGroups.filter(
     (taskGroup) =>
       taskGroup.y < REGIONS.taskGroupArea.y + REGIONS.taskGroupArea.height && taskGroup.y + taskGroup.height > REGIONS.taskGroupArea.y,
   )
 
-// ---------------------------------------------------------------------------
-// One press of the entrance SK-18 of table T-036 names, built the way
-// the fr-055 deep-tiers unit test (deleted by CR-573) built it: the answer FR-055 owes is
-// read off the `CM-71` write, because the rule after table T-068 runs that
-// table up to twice and no row says which component holds the loop.
-// ---------------------------------------------------------------------------
-
 const NO_MODS: InputModifiers = { ctrl: false, shift: false, alt: false, meta: false }
-/** SK-18 of table T-036 prints its key upper case, and so does this. */
+// Why: SK-18 of table T-036 prints its key upper case, and so does this press.
 const PRESS_F: KeyInput = { kind: 'key', key: 'F', modifiers: NO_MODS }
 
+// Why: the answer FR-055 owes is read off the CM-71 write, since no row says which
+// component holds the loop that runs table T-068 up to twice.
 function fitWrite(settings: DocumentSettings): Record<string, unknown> {
   const layout = layoutFromSchedule(SCHEDULE, settings, REGIONS)
   const context = {
@@ -317,7 +192,7 @@ function fitWrite(settings: DocumentSettings): Record<string, unknown> {
     regions: REGIONS,
     screen: emptyScreenSession.screen,
     selection: emptySelection(),
-    // S-53 arrives as a value; no case here reads it, so it is deliberately
+    // Why: S-53 arrives as a value; no case here reads it, so it is deliberately
     // not the figure the manuscript prints.
     zoomStep: 3,
     pressed: null,
@@ -339,16 +214,9 @@ function fitWrite(settings: DocumentSettings): Record<string, unknown> {
   return writes[0] as unknown as Record<string, unknown>
 }
 
-/**
- * The smallest `zoomY` at which FR-018 admits `depth`, found by bisecting the
- * published ladder between S-97 and S-98.
- *
- * ⭐ THE EXPRESSION IS NOT COPIED HERE. S-87's cell carries
- * `threshold(d) = base x ratio^(d - 2)`, and `fr-055-vertical-fit.test.ts`
- * checked the ladder against it until CR-573 deleted that file. What this needs is only WHERE the rung is, and the ladder is
- * monotone in `zoomY` (S-88 above one, which that same file checks), so a
- * bisection finds it from the published answer alone.
- */
+// Why: bisection, not S-87's expression: only where the rung stands matters, and
+// S-88 above one keeps the ladder monotone in zoomY.
+// Summary: rungOf() returns the smallest zoomY at which FR-018 admits a depth, between S-97 and S-98.
 function rungOf(depth: number, settings: DocumentSettings): number {
   let below = NOT_STORED_ZOOM_BOUNDS['S-97']
   let above = NOT_STORED_ZOOM_BOUNDS['S-98']
@@ -362,95 +230,56 @@ function rungOf(depth: number, settings: DocumentSettings): number {
   return above
 }
 
-// ---------------------------------------------------------------------------
-// 1. TP-8 of table T-226 -- the shipped document really is that deep on both
-//    axes. Every case below is vacuous if this is not so.
-// ---------------------------------------------------------------------------
-
+// Spec: TP-8, T-226
 describe('TP-8 of table T-226 -- the shipped template on both axes', () => {
   it('gives the task group forest the number of levels the cell writes', () => {
     expect(taskGroupForestDepth()).toBe(firstNumberOf(TP_8['値'] ?? ''))
   })
 
   it('gives the WBS the same number, which is what 「同じ ... に揃える」 asks', () => {
-    // ⭐ 「タスクグループの深さと WBS の深さ」 -- two axes, and TP-8 levels them for THIS
-    // document. 5.4 keeps them separate as a rule, which is why the case
-    // compares the two counts rather than assuming one implies the other.
+    // Why: TP-8 levels the two axes for this document only; 5.4 keeps them apart as a
+    // rule, so the case compares both counts rather than assuming one implies the other.
     expect(wbsDepth()).toBe(firstNumberOf(TP_8['値'] ?? ''))
     expect(wbsDepth()).toBe(taskGroupForestDepth())
   })
 
   it('really does hang most Tasks off a parent task, so the second axis is not one level wearing five', () => {
-    // ⛔ A document where five Tasks form one chain and the other 995 are roots
-    // would satisfy the case above. What TP-8 means by an axis is that the
-    // document is BUILT on it, so more Tasks carry a parent than do not.
+    // Why: five Tasks in one chain and 995 roots would pass the case above; TP-8 means
+    // the document is built on the axis.
     const parented = TASKS.filter((task) => task['parentTaskUid'] !== null).length
     expect(parented).toBeGreaterThan(TASKS.length - parented)
   })
 
   it('ships nothing collapsed and nothing hidden, so what is undrawn is FR-018 doing it', () => {
-    // The premise of section 3. HR-1a of table T-015 takes a collapsed task group's
-    // children out of the drawing and HR-6 takes a hidden branch out, so either
-    // one would remove task groups the level of detail had nothing to do with.
+    // Why: HR-1a takes a collapsed task group's children out and HR-6 a hidden branch,
+    // so either would remove task groups the level of detail never touched.
     expect(GROUPS.filter((row) => row['treeState'] === 'collapsed')).toHaveLength(0)
     expect(GROUPS.filter((row) => row['treeState'] === 'hidden')).toHaveLength(0)
   })
 })
 
-// ---------------------------------------------------------------------------
-// 2. The place the shipped template does NOT ship, and why that is the rule.
-//
-// ⭐ OP-10 forbids giving the template one: 「日も行 ID も新しく持たせては
-// ならない（MUST NOT）—— どちらも文書から導ける」. So `S-77` and `S-78` stand at
-// the `null` table T-203 gives them, the first half AND the second half of
-// OP-10's condition are both met, and the row would fire -- except that the
-// same row excludes a BT-4 document by name. ⚠️ THE EXCLUSION IS WHAT ACTS,
-// not a place the artifact carries.
-// ---------------------------------------------------------------------------
-
+// Spec: OP-10, S-77, S-78
 describe('OP-10 (MUST NOT) -- the template carries no place of its own', () => {
   it('ships no day, because OP-10 forbids giving it one', () => {
-    // 「日も行 ID も新しく持たせてはならない（MUST NOT）」. S-77's own default in
-    // table T-203 is `null`, and 「`null` は「人がまだ場所を決めていない」を表す」
-    // -- which the template, that nobody has ever opened, is.
     expect(SETTINGS.scrollDate).toBeNull()
   })
 
   it('ships no row id either, for the same MUST NOT', () => {
-    // S-78: 「表示の上端が指すタスクグループ。⚠️ 整数ではない」 -- a `TaskGroup.id`, and the
-    // template names none.
     expect(SETTINGS.scrollTaskGroupId).toBeNull()
   })
 
   it('so both halves of OP-10 condition are met, and only the BT-4 exclusion keeps the fit off', () => {
-    // ⭐ The premise of section 3. 「表示位置が `null`、または指すタスクグループが存在しない
-    // とき」 is satisfied here, so without 「表 T-034 の `BT-4`（起動テンプレート）
-    // から開いた文書には働かせてはならない（MUST NOT）」 every boot would land on
-    // FR-055's fit -- and section 4 measures what that fit answers.
     expect(SETTINGS.scrollDate === null || SETTINGS.scrollTaskGroupId === null).toBe(true)
   })
 })
 
-// ---------------------------------------------------------------------------
-// 3. What the first frame draws.
-// ---------------------------------------------------------------------------
-
+// Spec: FR-018, FR-094, OP-10, LC-9, BO-3
 describe('FR-018 -- the depths the first frame of the shipped template draws', () => {
   it('draws task groups deeper than the first level', () => {
-    // ⭐ THE WHOLE POINT. OP-10 does not hand a BT-4 document to FR-055:
-    // 「`BT-4`（起動テンプレート）から開いた文書には働かせてはならない（MUST NOT）」, and
-    // 「倍率は文書が持つものをそのまま使う」. So the `zoomY` in force is the one
-    // BO-3 of table T-077 read out of the display group, and FR-018 draws every
-    // depth that `zoomY` admits.
-    // ⚠️ Section 1 has already ruled out HR-1a and HR-6 as the reason a task group is
-    // missing, so what is left is the level of detail.
     expect(deepestDrawn(bootFrame.values.layout)).toBeGreaterThan(1)
   })
 
   it('starts at the head of the task group tree, drawn from the top of the Task Group Area', () => {
-    // OP-10: 「その文書が覆う最初の日と、タスクグループの木の先頭から描くこと（MUST）」. The
-    // head of the tree is the root LC-9's order reaches first, and 「から描く」
-    // puts it at the top edge -- not scrolled past.
     const first = bootFrame.values.layout.taskGroups[0]
     expect(first, 'the boot drew task groups at all').toBeDefined()
     expect(first?.taskGroupId).toBe(headOfTaskGroupTree())
@@ -458,12 +287,6 @@ describe('FR-018 -- the depths the first frame of the shipped template draws', (
   })
 
   it('⭐ puts a task group deeper than the first level into the FIRST SCREENFUL, not merely into the layout', () => {
-    // ⭐ THE USER-VISIBLE CLAIM, and the reason LC-9 got its rule. The prose
-    // after table T-068: 「深さの順に並べてはならない（MUST NOT）—— 同じ深さのタスクグループ
-    // が塊になり、親とその配下が画面の離れた場所に出る。タスクグループが画面に収まりきらない
-    // とき、上端に来るのが根ばかりになり、木を持つ文書が階層の無い一覧に見える」.
-    // TP-5 makes this document 100 task groups, so it does NOT fit -- which is exactly
-    // the condition that prose names.
     const drawn = bootFrame.values.layout
     expect(drawn.contentHeight, 'TP-5 keeps this document taller than the Task Group Area').toBeGreaterThan(
       REGIONS.taskGroupArea.height,
@@ -478,8 +301,8 @@ describe('FR-018 -- the depths the first frame of the shipped template draws', (
   })
 
   it('⭐ and a parent stands directly above its own child there, which is what 「木の順」 means', () => {
-    // 「親のタスクグループの直下にその配下を置き」. Measured on the task groups a person actually
-    // sees, so a tree order that only holds far down the document would fail.
+    // Why: measured on the task groups a person sees, so a tree order that holds only
+    // far down the document fails.
     const seen = taskGroupsInFirstScreenful(bootFrame.values.layout)
     const parentOf = new Map(GROUPS.map((row) => [row['id'], row['parentId']]))
     const pairs = seen.filter(
@@ -489,10 +312,6 @@ describe('FR-018 -- the depths the first frame of the shipped template draws', (
   })
 
   it('draws exactly the depths the ladder admits at the stored zoomY, and none deeper', () => {
-    // FR-018 decides the depth from the zoom in force. Where the rungs stand was
-    // `fr-055-vertical-fit.test.ts`'s (deleted by CR-573); what this case adds is that the SHIPPED
-    // document is drawn under them rather than under a zoom something else
-    // chose.
     const admitted = groupDepthLimit(drawnSettingsOf(SETTINGS))
     expect(admitted, 'the ladder admits more than the first level at the stored zoom').toBeGreaterThan(1)
 
@@ -502,12 +321,6 @@ describe('FR-018 -- the depths the first frame of the shipped template draws', (
   })
 
   it('draws the left edge at the first day the document covers, and one day at the width S-1 x S-75 gives it', () => {
-    // The horizontal half of the same claim. OP-10: 「その文書が覆う最初の日 ...
-    // から描くこと（MUST）—— 倍率は文書が持つものをそのまま使う」, so the origin
-    // is derived from the schedule (S-77 is `null`, section 2) and the width of
-    // one day is still S-1 `pxPerDayAt1x` times S-75 `zoomX`.
-    // ⛔ A fit would have replaced BOTH, which is what `uf-47-48.test.ts`
-    // measures on the branch where OP-10 does run.
     const first = dayOf(firstDayCovered())
     expect(first, 'the template covers a day').not.toBeNull()
     expect(xFromDay(bootFrame.values.layout, first!)).toBeCloseTo(
@@ -520,11 +333,8 @@ describe('FR-018 -- the depths the first frame of the shipped template draws', (
     ).toBe(SETTINGS_CONSTANTS.pxPerDayAt1x * SETTINGS.zoomX * displayRatioAt(SETTINGS.displayScale))
   })
 
+  // Spec: HF-8, OP-10
   it('HF-8 (MUST NOT): boot discards nothing -- the shipped settings still say what they said', () => {
-    // HF-8: 「起動のときは働かせてはならない（MUST NOT。表 T-024a の `OP-10`）」,
-    // and OP-10 gives the reason: 「起動のたびに折りたたみを捨てると、`HR-6` が `WY-1`
-    // のために保存させた状態が消える」. FR-051 puts OP-10 on the reading side, so
-    // the document itself comes through a boot unedited either way.
     const held = bootFrame.held.documentSettings as DocumentSettings
     expect(held.scrollDate).toBe(SETTINGS.scrollDate)
     expect(held.scrollTaskGroupId).toBe(SETTINGS.scrollTaskGroupId)
@@ -536,18 +346,9 @@ describe('FR-018 -- the depths the first frame of the shipped template draws', (
   })
 })
 
-// ---------------------------------------------------------------------------
-// 4. FR-055 is still there, and still answers the first level for this
-//    document -- which is precisely what OP-10's BT-4 exclusion exists to keep
-//    off the boot: 「その規模では収まる段が 1 つしか無く、階層を持つ文書が
-//    「階層の無い文書」として初回に現れる」.
-// ---------------------------------------------------------------------------
-
+// Spec: FR-055, OP-10
 describe('FR-055 -- one press still answers the first level on this document', () => {
   it('has no second level to take: its drawing overruns the Task Group Area at its own rung', () => {
-    // FR-055 (MUST): 「その文書が持つ最も深い段から順に見て、描くものが Task Group Area
-    // に収まる最も深い段を採る」, and its MUST NOT keeps the zoom at or above
-    // 「採った段を描ける最小の倍率」. So depth 2 is judged at depth 2's own rung.
     const rung = rungOf(2, SETTINGS)
     const drawn = layoutFromSchedule(SCHEDULE, { ...SETTINGS, zoomY: rung }, REGIONS)
 
@@ -556,12 +357,7 @@ describe('FR-055 -- one press still answers the first level on this document', (
   })
 
   it('answers the first level, because it is the deepest one that fits', () => {
-    // 「その文書が持つ最も深い段から順に見て、描くものが Task Group Area に収まる最も深
-    // い段を採る」. The case above rules out 2, and every depth deeper than 2
-    // draws MORE task groups at a HIGHER rung (FR-018's monotonicity with S-88 above
-    // one), so none of those fits either -- 1 is what is left.
-    // ⚠️ NOT asserted here: what the landing `zoomY` is.
-    // FR-018 keeps depth 1 out of the ladder's domain, so it has no rung and
+    // Why: the landing zoomY is not asserted: FR-018 gives depth 1 no rung, so
     // FR-055's MUST NOT bounds the zoom from below only.
     const write = fitWrite(SETTINGS)
     const drawn = layoutFromSchedule(
@@ -571,16 +367,13 @@ describe('FR-055 -- one press still answers the first level on this document', (
     )
 
     expect(deepestDrawn(drawn)).toBe(1)
-    // ⚠️ And the gap under it is allowed: 「画面の下に隙間が残ることは許す ——
-    // 本要求は収めることを求めており、埋めることを求めていない」. So this case
-    // says nothing about how much of the Task Group Area the answer uses.
+    // Why: FR-055 allows a gap under the drawing, so the case says nothing of how
+    // much of the Task Group Area the answer uses.
   })
 
+  // Why: the fit is not asked to change: it answers FR-055 rightly on a template T-226 makes
+  // larger than the MC-7 scale GL-002 is judged at.
   it('so the fit and the BT-4 boot are two different pictures, which is why the exclusion is what shows the depth', () => {
-    // ⭐ The contrast OP-10's exclusion turns on, measured. Nothing here asks
-    // the fit to change: it is answering FR-055 correctly on a document table
-    // T-226 deliberately makes larger than the MC-7 scale GL-002 is judged at
-    // -- 「本テンプレートは表 T-025 の `MC-7` よりタスクグループが多い」.
     const write = fitWrite(SETTINGS)
     const afterFit = layoutFromSchedule(
       SCHEDULE,

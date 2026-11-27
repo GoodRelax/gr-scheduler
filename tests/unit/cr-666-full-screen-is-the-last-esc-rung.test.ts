@@ -34,6 +34,7 @@ const IN_4_NO_REPEAT =
 const IN_4A_PASS_ON = '**消費する対象が 1 つも無いときは、必ずブラウザへ渡すこと（MUST）**'
 const IN_4A_FULL_SCREEN_ALWAYS_STANDS =
   '⚠️ 全画面表示のあいだは、`IN-4` の全画面表示の段がいつも立つので、本行の「渡す」は起きない。'
+// Spec: IMPS-816
 const FR_071_ESCAPE_LOCKED =
   '閲覧環境が Keyboard Lock（`navigator.keyboard`）を持つ場合、全画面表示に入ることをブラウザに求める押下の中で、`GRS` は、`Escape` の鍵をかけることを求めること。全画面表示を出たことを受けたとき、`GRS` は、`Escape` の鍵を放すこと。'
 const FR_071_LOCK_REFUSAL_UNTOLD = 'もし鍵を断られた場合、または閲覧環境が Keyboard Lock を持たない場合、`GRS` は、断られたこと・持たないことを通知しないこと。'

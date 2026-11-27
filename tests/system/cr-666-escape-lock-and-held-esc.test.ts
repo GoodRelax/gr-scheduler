@@ -11,6 +11,7 @@ import { rowOf } from './sws-case'
 
 const REQUIREMENTS = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
+// Spec: IMPS-816
 // Why: each constant ends exactly at its marker, cut from the manuscript as check 39 reads it.
 const FR_071_LOCK =
   '閲覧環境が Keyboard Lock（`navigator.keyboard`）を持つ場合、全画面表示に入ることをブラウザに求める押下の中で、`GRS` は、`Escape` の鍵をかけることを求めること。全画面表示を出たことを受けたとき、`GRS` は、`Escape` の鍵を放すこと。'

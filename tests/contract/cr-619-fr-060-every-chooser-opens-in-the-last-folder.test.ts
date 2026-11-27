@@ -18,8 +18,10 @@ import {
 const PICKER_ID = String(settingRow('S-452')['default']['lit']).replace(/^'|'$/g, '')
 
 const ONE_FOLDER = '`GRS` は、ファイルを選ばせる面を、目的を問わず、同じ 1 つのフォルダから開くこと'
+// Spec: IMPS-972
 const LAST_HANDLE =
   '`GRS` は、最後に読むか書いたファイルの取っ手を面に渡すこと。同じ起動のうちに人がファイルを読むか書いたとき、`GRS` は、面を最後に読むか書いたファイルのフォルダから開くこと。'
+// Spec: IMPS-975
 const NO_KNOWN_FOLDER = '`GRS` は、起動した直後の面に、既知のフォルダ（例: `documents`）を `startIn` として渡さないこと。'
 const CANCEL_KEEPS = '人が面を取り消したとき、`GRS` は、渡す取っ手を変えないこと。'
 const TWO_HANDLES = '上書きする先と、選ばせる面に渡す最後に読み書きしたファイルの 2 つであり、どちらも同じ起動のあいだだけ持つ'

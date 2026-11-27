@@ -1,81 +1,4 @@
-// FR-038 and the date controls of the `Properties Panel` -- whether the
-// language the screen stands in reaches the parts the HOST draws inside it.
-//
-// Unit under test: UF-71 of table T-075 (`dom-screen-surface.ts`, component
-// CP-38 of table T-062, published as PI-38 of table T-064). It is the side of
-// IF-9 that turns a `ScreenView` into nodes, so it is the only side that can
-// tell the host anything at all -- `properties-panel.ts` (UF-64) says WHICH
-// items the panel holds and makes no node.
-//
-// ⚠️ Chapter 9 does not admit Unit as a TEST_LEVEL, so these cases have no node
-// in the specification. Table T-218 of Chapter 7 gives them their place: TS-6,
-// tests/unit/.
-//
-// ⛔ WRITTEN FROM docs/spec AND NOTHING ELSE (docs/development-rules/
-// 04-verification.md section 1). What was read of `src/`: `domScreenSurface`,
-// `ScreenSurfaceWiring`, `ScreenTheme`, the `ScreenView` family and
-// `SETTINGS_DEFAULTS` -- their exported declarations and nothing more.
-// ⛔ NO FUNCTION BODY WAS READ.
-//
-// ⭐ THE SHAPE IS COPIED, NOT INVENTED. The fake browser, `stage` / `wiringOf` /
-// `wire` / `surfaceOf` and the tree readers are tests/unit/
-// fr-006-panel-typography.test.ts's, which drives this same unit against this
-// same fake; the `ScreenView` fixtures are that file's too.
-//
-// ---------------------------------------------------------------------------
-// THE RULES THESE CASES ANSWER TO
-// ---------------------------------------------------------------------------
-//
-//   FR-038      「利用者が画面の言語を選んだとき、`GRS` は、ヘルプの中を除く画面の
-//               文字をその言語で示すこと。」 and 「対象は `ja` と `en` の 2 言語と
-//               する。」 The help has its own language (S-434); none is drawn here.
-//   `S-99`      表 T-206: 「`screenLanguage`（`ja` / `en`）| — | 別枠。
-//               `localStorage` に置く。保存しない規則と理由は `FR-038`」.
-//   FR-006      CR-304 「作成者がタスクを選んだとき、`GRS` は、**表 T-016 の項目**を
-//               プロパティパネルに出し…」, and under that table: 「**入力の形は
-//               同表の「入力の型」の欄に従うこと（MUST）**」 -- so a row whose
-//               入力の型 is 日付 is drawn as a date control, and a date control
-//               is what the host hangs a calendar on.
-//   表 T-016    the roster itself. The row this file drives is read out of it at
-//               run time by its 入力の型 column, never typed.
-//   U-25        表 T-103's settled name, which W-4 of 表 T-006a (MUST) carries
-//               into the DOM as a `data-role`.
-//
-// ---------------------------------------------------------------------------
-// ⛔ THE INFERENCE THIS FILE MAKES, STATED PLAINLY SO A FAILURE IS NOT MISREAD
-// ---------------------------------------------------------------------------
-//
-// FR-038's dictionary rule -- 「画面に刷る語は、言語ごとの辞書として 1 か所に持つ
-// こと（MUST）」 -- governs the words GRS PRINTS, and the month names inside a
-// date control's calendar are not among them: the host prints those. ⛔ NO CASE
-// HERE ASSERTS A WORD, and none may.
-//
-// What the cases DO read is the STATEMENT of the same requirement quoted above.
-// A panel whose date fields open a calendar in one language while the rest of
-// the screen stands in the other is text outside the help standing in a
-// language other than the screen language, which that sentence refuses; only
-// the help region may name a second language, and no help is drawn here.
-//
-// ⚠️ SO THE CASES ASK WHAT THE SURFACE DECLARED, NEVER WHAT THE HOST DREW. The
-// declaration is the one thing this unit can do about it, and the host's own
-// language for a subtree is settled by `lang` (or `xml:lang`) and by nothing
-// else -- so those two names are the whole of what is looked for. ⛔ If the
-// ruling is that the host's calendar stands outside FR-038 altogether, these
-// cases are wrong and the manuscript needs the sentence that says so, beside
-// FR-038's existing exception for 「タスク名とタスクグループ名、および表 T-016 の項目名」.
-// Reported rather than dropped.
-//
-// ⭐ WHAT IS DELIBERATELY NOT ASSERTED:
-//   1. WHICH WORDS the calendar shows. FR-038's dictionary is for the words GRS
-//      prints; these are the host's.
-//   2. WHERE the declaration sits. A declaration on the tree's root reaches
-//      every control by inheritance and one on the control reaches it directly;
-//      no table settles which, so the cases read the NEAREST one reaching each
-//      control and accept either.
-//   3. THE WIDTH OF THE DATE FIELD. The year-month heading wrapping onto two
-//      lines is a second report against the same control, and no row of table
-//      T-206 holds a width for a field -- `S-186` is a height and `S-189` a
-//      share of the panel. Reported; not guessed at here.
+// Unit tests: the screen language reaches the date controls of the Properties Panel.
 
 import { describe, expect, it } from 'vitest'
 
@@ -97,11 +20,6 @@ import {
 import { bare, specTable } from '../contract/spec-table'
 import { emptyScreenSession } from '../../src/use-case/advance-screen-session/advance-screen-session'
 
-// ---------------------------------------------------------------------------
-// The manuscript, read at run time rather than copied here (Chapter 1.9).
-// ---------------------------------------------------------------------------
-
-/** U-25 of table T-103 -- the settled name that reaches the DOM as `data-role`. */
 const U_25 = ((): string => {
   const row = specTable('T-103').rows.find((one) => one.id === 'U-25')
   if (row === undefined) throw new Error('table T-103 no longer has row U-25')
@@ -110,14 +28,7 @@ const U_25 = ((): string => {
 
 const T_016 = specTable('T-016')
 
-/** The column of table T-016 that says what form an item is edited in. */
 const SHAPE_COLUMN = '入力の型'
-/** The column that holds the item's own name, which the panel prints as-is. */
-// ⭐ THE COLUMN IN THE FILE, WHICH IS WHAT THESE CASES WANTED ALL ALONG.
-// Table T-016 carried an 項目名（英語・画面表示） column until CR-278; the
-// name the SCREEN shows is now the dictionary's (FR-038, MUST NOT), and
-// what stayed in the table is the GRS JSON column. Every use below reads
-// the code spans out of it to name a field, which is the column.
 const NAME_COLUMN = '列（`GRS JSON`）'
 
 for (const column of [SHAPE_COLUMN, NAME_COLUMN]) {
@@ -126,30 +37,20 @@ for (const column of [SHAPE_COLUMN, NAME_COLUMN]) {
   }
 }
 
-/** 表 T-016's word for the form this file is about. */
 const DATE_SHAPE = '日時'
 
-/**
- * The first row of table T-016 whose 入力の型 is 日付.
- *
- * ⭐ READ AND NOT TYPED. Which rows carry dates is the table's own fact, and a
- * file that named `PR-3` outright would go on driving a row the table had moved
- * the dates off.
- */
+// Why: read and not typed: which rows carry dates is the table's fact, and a typed PR-3
+// would keep driving a row the table had moved the dates off.
 const DATE_ROW = ((): { readonly id: string; readonly name: string } => {
   const found = T_016.rows.find((row) => (row.by[SHAPE_COLUMN] ?? '').includes(DATE_SHAPE))
   if (found === undefined) {
     throw new Error(`no row of table T-016 states an 入力の型 of ${DATE_SHAPE}`)
   }
-  // ⚠️ Several columns to a cell, written with ` / ` between them (PR-3 is
-  // `start` AND `finish`), so the first is taken as the name of the field.
+  // Why: a cell may name several columns with ` / ` between them (PR-3 is start and finish),
+  // so the first is taken as the name of the field.
   const written = (found.by[NAME_COLUMN] ?? '').split('/')
   return { id: found.id, name: bare(written[0] ?? '') }
 })()
-
-// ---------------------------------------------------------------------------
-// The fake browser. Copied from tests/unit/fr-006-panel-typography.test.ts.
-// ---------------------------------------------------------------------------
 
 interface FakeEvent {
   readonly type: string
@@ -164,7 +65,6 @@ interface Registration {
   readonly listener: (event: FakeEvent) => void
 }
 
-/** One write to an element's inline style, in the order the unit made it. */
 type StyleWrite =
   | { readonly kind: 'reset'; readonly css: string }
   | { readonly kind: 'set'; readonly property: string; readonly value: string }
@@ -182,7 +82,6 @@ class FakeElement {
   readonly childNodes: FakeNode[] = []
   readonly styleWrites: StyleWrite[] = []
   parentNode: FakeElement | null = null
-  /** Only an `input` really has one; harmless elsewhere and it keeps the fake small. */
   value = ''
   isMount = false
 
@@ -192,8 +91,6 @@ class FakeElement {
   ) {
     this.tagName = tagName.toUpperCase()
   }
-
-  // -- attributes ---------------------------------------------------------
 
   setAttribute(name: string, value: string): void {
     if (name === 'style') {
@@ -286,7 +183,7 @@ class FakeElement {
     }
   }
 
-  /** ⛔ FR-023: an assignment here would be markup. It is recorded, never obeyed. */
+  // Summary: the fake records every innerHTML read and assignment as markup (FR-023) and never obeys one.
   get innerHTML(): string {
     this.world.markupWrites.push({ node: this, value: '(read)' })
     return ''
@@ -331,8 +228,6 @@ class FakeElement {
     if (value) this.attributes.set('disabled', '')
     else this.attributes.delete('disabled')
   }
-
-  // -- the tree -----------------------------------------------------------
 
   private adopt(node: FakeNode | string): FakeNode {
     if (typeof node === 'string') return new FakeText(node)
@@ -441,8 +336,6 @@ class FakeElement {
     return descendants(this).filter((one) => matches(one, selector))
   }
 
-  // -- what only a browser can answer -------------------------------------
-
   getBoundingClientRect(): {
     x: number
     y: number
@@ -467,8 +360,6 @@ class FakeElement {
   blur(): void {
     if (this.world.activeElement === this) this.world.activeElement = null
   }
-
-  // -- events -------------------------------------------------------------
 
   addEventListener(type: string, listener: (event: FakeEvent) => void): void {
     this.world.registrations.push({ node: this, type, listener })
@@ -502,11 +393,9 @@ interface Stage {
   clockMs: number
   author: string
   surface: ScreenSurface | undefined
-  /** The tree the unit built inside the mount. */
   root(): FakeElement
 }
 
-/** A browser that is only what `ScreenSurfaceWiring` says it is. */
 function stage(heightsByRole: Record<string, number> = {}): Stage {
   const world: World = {
     created: [],
@@ -553,13 +442,6 @@ function stage(heightsByRole: Record<string, number> = {}): Stage {
   }
 }
 
-/**
- * The rendering and hue every case below wires the surface with.
- *
- * ⛔ NEITHER VALUE IS TYPED HERE (rule 03 section 1): S-72's default arrives
- * through the generated `SETTINGS_DEFAULTS` and S-73's is read out of table
- * T-216 at load time. ⭐ No case reads a color back.
- */
 const S_73 = specTable('T-216').rows.find((row) => row.id === 'S-73')
 if (S_73 === undefined) throw new Error('table T-216 no longer has row S-73')
 const THEME: ScreenTheme = {
@@ -579,7 +461,6 @@ function wiringOf(built: Stage): ScreenSurfaceWiring {
   }
 }
 
-/** Wire the unit up the way its contract asks the caller to. */
 function wire(heightsByRole: Record<string, number> = {}): Stage {
   const built = stage(heightsByRole)
   built.surface = domScreenSurface(wiringOf(built))
@@ -590,10 +471,6 @@ function surfaceOf(built: Stage): ScreenSurface {
   if (built.surface === undefined) throw new Error('the surface was not built')
   return built.surface
 }
-
-// ---------------------------------------------------------------------------
-// Reading the tree. Copied from tests/unit/fr-006-panel-typography.test.ts.
-// ---------------------------------------------------------------------------
 
 const kebab = (name: string): string => name.replace(/[A-Z]/g, (one) => `-${one.toLowerCase()}`)
 
@@ -614,7 +491,6 @@ function styleMap(element: FakeElement): Map<string, string> {
   return held
 }
 
-/** The inline style as it stands now, with later writes winning over earlier ones. */
 function inlineStyle(element: FakeElement): string {
   return [...styleMap(element)].map(([property, value]) => `${property}:${value}`).join(';')
 }
@@ -645,11 +521,7 @@ function oneByRole(root: FakeElement, role: string): FakeElement {
   return first
 }
 
-/**
- * A tiny selector engine: enough for `[attr]`, `[attr="value"]`, a tag name and
- * a descendant combinator. ⭐ It exists so that a unit which DID query is not
- * failed for it.
- */
+// Why: a tiny selector engine, so that a unit which does query is not failed for it.
 function matches(element: FakeElement, selector: string): boolean {
   const parts = selector.trim().split(/\s+(?![^[]*\])/)
   const last = parts[parts.length - 1]
@@ -687,22 +559,10 @@ function matchesSimple(element: FakeElement, selector: string): boolean {
   return element.tagName === selector.toUpperCase()
 }
 
-// ---------------------------------------------------------------------------
-// Reading the language a subtree was put in
-// ---------------------------------------------------------------------------
-
-/**
- * The two attribute names a host reads a subtree's language from.
- *
- * ⭐ NOT A CHOICE THIS FILE MADE. A browser settles which language it draws a
- * date control's calendar in from the element's language, and the element's
- * language is `lang` (with `xml:lang` its XML spelling). There is no third
- * name, so looking for these two is looking for "was the language declared at
- * all", not for one particular way of declaring it.
- */
+// Why: a host settles a subtree's language from lang (xml:lang in XML) and nothing else,
+// so looking for these two asks whether the language was declared at all.
 const LANGUAGE_ATTRIBUTES = ['lang', 'xml:lang'] as const
 
-/** What this node itself declares, or `null`. */
 function declaredLanguage(element: FakeElement): string | null {
   for (const name of LANGUAGE_ATTRIBUTES) {
     const held = element.getAttribute(name)
@@ -711,7 +571,6 @@ function declaredLanguage(element: FakeElement): string | null {
   return null
 }
 
-/** The nearest declaration reaching this node, walking upwards. `null` when none does. */
 function languageReaching(from: FakeElement): string | null {
   let at: FakeElement | null = from
   while (at !== null) {
@@ -722,29 +581,22 @@ function languageReaching(from: FakeElement): string | null {
   return null
 }
 
-/** Every language any node of a tree declares, so a second state is visible. */
 const languagesDeclaredIn = (root: FakeElement): string[] =>
   selfAndDescendants(root)
     .map((one) => declaredLanguage(one))
     .filter((one): one is string => one !== null)
 
-/** The controls a person edits a field through -- a form element, and nothing else. */
 const CONTROL_TAGS = new Set(['INPUT', 'TEXTAREA', 'SELECT'])
 
 const controlsIn = (panel: FakeElement): FakeElement[] =>
   selfAndDescendants(panel).filter((one) => CONTROL_TAGS.has(one.tagName))
 
-/** Everything a failure needs to be read without opening the unit. */
 function whatWasDeclared(built: Stage): string {
   const declared = selfAndDescendants(built.root())
     .filter((one) => declaredLanguage(one) !== null)
     .map((one) => `${one.tagName}[${one.getAttribute('data-role') ?? '-'}]=${declaredLanguage(one)}`)
   return `every language declared in the tree: ${declared.join(', ') || '(none)'}`
 }
-
-// ---------------------------------------------------------------------------
-// Descriptions to draw. Every one is a value of `ScreenView` and nothing else.
-// ---------------------------------------------------------------------------
 
 const EMPTY_HEADER: AppHeaderItems = {
   documentTitle: null,
@@ -771,13 +623,7 @@ const EMPTY_VIEW: ScreenView = {
   tooltips: [],
 }
 
-/**
- * `PropertyControlKind`'s member for table T-016's 日付.
- *
- * ⚠️ The SEAM's own spelling and not the manuscript's: the type declares its
- * members against that column, and rule 03 section 1 asks a caller to copy the
- * name a published type already settled rather than mint a second one.
- */
+// Why: the seam's own spelling, not the manuscript's: a caller copies the name a published type settled.
 const DATE_SHAPE_KIND: PropertyControlKind = 'date'
 
 const controlOf = (
@@ -787,20 +633,13 @@ const controlOf = (
   choices: null,
   min: null,
   max: null,
-  // ⚠️ A room this file has no case about, stated so the description is a
-  // whole one. FR-006's own room is `fr-006-panel-fields-drawn.test.ts`;
-  // what matters here is only that the member is not missing.
+  // Why: no case here is about the width; it is stated only so the description is a whole one.
   widthInFontSizes: 0,
   ...patch,
 })
 
-/**
- * The one field these cases drive: the row of table T-016 whose 入力の型 is
- * 日付, drawn with the two controls that row's cell names.
- *
- * ⚠️ The column names are this file's own strings for the seam's `key`, which
- * carries 「どの列を編集しているか」; no case reads one as the manuscript's.
- */
+// Why: the column names are this file's own strings for the seam's key;
+// no case reads one as the manuscript's.
 const DATE_FIELD: PropertyField = {
   row: DATE_ROW.id,
   name: DATE_ROW.name,
@@ -820,17 +659,8 @@ const DATE_FIELD: PropertyField = {
   ],
 }
 
-/**
- * ⛔ NO HEADING IS OFFERED. FR-072 (MUST NOT) refuses the panel one -- 「⛔ **パネ
- * ルの先頭にタイトルバーを置いてはならない（MUST NOT）**（利用者の指示 2026-08-27）」
- * (CR-272) -- and this fixture carried one until that row moved.
- *
- * ⚠️ THE CAST IS DELIBERATE AND NARROW: whether the published description still
- * declares a member for a heading is the implementation's answer, and a fixture
- * that turned either answer into a COMPILE error would take every case in this
- * file down with it. Rule 04 section 1 asks a disagreement to arrive as a test
- * that falls; the uf-64 unit test, where that one fell, was deleted by CR-573.
- */
+// Why: no heading is offered (FR-072), and the cast is narrow on purpose: a fixture that made
+// a heading member a compile error would take every case in this file down with it.
 const panelWith = (fields: readonly PropertyField[]): PropertiesPanel =>
   ({
     showing: 'selection',
@@ -839,7 +669,7 @@ const panelWith = (fields: readonly PropertyField[]): PropertiesPanel =>
     commands: [],
   }) as PropertiesPanel
 
-/** The App Header measures to something, so the screen is drawn. */
+// Why: the App Header must measure to something, or the screen is not drawn.
 const HEADER_HEIGHT = { 'App Header': 37 }
 
 function drawPanel(language: ScreenView['language']): { built: Stage; panel: FakeElement } {
@@ -853,15 +683,12 @@ function drawPanel(language: ScreenView['language']): { built: Stage; panel: Fak
   return { built, panel: oneByRole(built.root(), U_25) }
 }
 
-/** FR-038: 「対象は `ja` と `en` の 2 言語とする」. */
 const BOTH_LANGUAGES = ['ja', 'en'] as const
 
-// ===========================================================================
-
+// Spec: FR-038, FR-006, U-25
 describe('the manuscript still says what these cases read', () => {
   it('⭐ was really driven by the manuscript, and not by a hollow read of it', () => {
-    // ⛔ WITHOUT THIS, A PARSE THAT LOST THE 入力の型 COLUMN WOULD MAKE EVERY CASE
-    // BELOW DRIVE A FIELD THAT IS NOT A DATE -- rule 04 section 2.
+    // Why: without this, a parse that lost the input-type column makes every case below drive a non-date field.
     expect(U_25).toBe('Properties Panel')
     expect(T_016.rows.length, 'table T-016 has rows').toBeGreaterThan(0)
     expect(
@@ -872,12 +699,13 @@ describe('the manuscript still says what these cases read', () => {
   })
 })
 
+// Spec: FR-038
+// Why: no case asserts a word: the month names of a calendar are printed by the host, not by GRS,
+// so only the declared language is asked, never what the host drew.
 describe('FR-038 (MUST) -- the screen language reaches the panel', () => {
   it('⛔ the surface declares a language for the tree it builds', () => {
-    // 「ヘルプの中を除く画面の文字をその言語で示すこと」. ⭐ A tree that
-    // declares no language at all leaves every part the HOST draws inside it --
-    // a date control's calendar above all -- standing in whatever the host
-    // guessed, which is text outside the help in some other language.
+    // Why: a tree that declares no language leaves every part the host draws inside it,
+    // a calendar above all, in whatever language the host guessed.
     for (const language of BOTH_LANGUAGES) {
       const { built } = drawPanel(language)
       expect(
@@ -888,10 +716,8 @@ describe('FR-038 (MUST) -- the screen language reaches the panel', () => {
   })
 
   it('⛔ MUST: every control of the date field stands in `ScreenView.language`', () => {
-    // 「利用者が画面の言語を選んだとき、`GRS` は、ヘルプの中を除く画面の文字をその言語で
-    // 示すこと」. ⚠️ The nearest
-    // declaration is read, so a language written once on the tree's root and one
-    // written on the control itself are both accepted -- no table settles where.
+    // Why: the nearest declaration is read, so one on the root and one on the control are both accepted;
+    // no table settles where it sits.
     for (const language of BOTH_LANGUAGES) {
       const { built, panel } = drawPanel(language)
       const controls = controlsIn(panel)
@@ -907,9 +733,8 @@ describe('FR-038 (MUST) -- the screen language reaches the panel', () => {
   })
 
   it('⛔ MUST: the declaration MOVES when the screen language moves', () => {
-    // ⭐ THE CASE THAT SEPARATES "declared" FROM "declared correctly". A tree
-    // that always said `ja` would satisfy the case above at `ja` and would be
-    // exactly the defect: DFC-60 「英語モードでもカレンダーが日本語のまま」.
+    // Why: this separates declared from declared correctly: a tree that always said ja passes the case
+    // above at ja and is exactly the defect.
     const inJapanese = drawPanel('ja')
     const inEnglish = drawPanel('en')
 
@@ -928,8 +753,6 @@ describe('FR-038 (MUST) -- the screen language reaches the panel', () => {
   })
 
   it('⛔ MUST: with no help drawn, no part of the tree stands in a language other than the view\'s', () => {
-    // 「ヘルプの中を除く画面の文字をその言語で示すこと」 -- only the help region may
-    // name another language (FR-038), and no help is drawn here.
     for (const language of BOTH_LANGUAGES) {
       const { built } = drawPanel(language)
       const declared = new Set(languagesDeclaredIn(built.root()))

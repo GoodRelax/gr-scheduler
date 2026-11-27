@@ -31,6 +31,7 @@ import { specTable } from './spec-table'
 afterEach(restoreAnimationFrames)
 
 const FR_019_TWO_KINDS = '`GRS` は、コメントボックスの線先（留めた点）を、次の 2 つのどちらかとして持つこと。'
+// Spec: IMPS-831
 const FR_019_FREE = '① 自由点 —— 日時（`_assets/fig-erd-detail.md` の `AT-113`、分まで）、タスクグループ（`AT-114`）、タスクグループの帯の中の高さ（`AT-163`）。'
 const FR_019_SNAPPED = '② 吸着した対象の点 —— タスク（`AT-164` の `UID` と `AT-165` の図形）かハイライトボックス（`AT-166`）と、対象の 8 点のどれか（`AT-167`）。'
 const FR_019_FOLLOW = '`GRS` は、② の線先を、描くたびに対象の図形から点を求めて描くこと。'
