@@ -15,12 +15,9 @@ import type {
 } from '../../entity/document-model/screen-state/screen-state'
 import {
   dayOf,
-  instantOf,
-  MINUTES_PER_CALENDAR_DAY,
   planActualState,
   taskByUid,
   textOfDayStart,
-  textOfInstant,
   textOfFinishSide,
   textOfStartSide,
   type CalendarDay,
@@ -28,6 +25,7 @@ import {
   type Task,
   type TaskGroup,
 } from '../../entity/document-model/schedule/schedule'
+import { freeAnchorAt } from '../../use-case/annotate-schedule/annotate-schedule'
 import { isSelected, type Selection } from '../../entity/document-model/selection/selection'
 import {
   anchorSnapAt,
@@ -586,18 +584,6 @@ function snappedAnchorOf(layout: ScheduleLayout, snap: AnchorSnap): PlacedCommen
       : { ...free, highlightBoxId: target.highlightBoxId, snapPoint: target.snapPoint }
   return { anchor, at }
 }
-
-// Spec: LF-15
-/** @purity pure */
-function freeAnchorAt(layout: ScheduleLayout, taskGroup: TaskGroupPlacement, x: number, y: number): AnnotationAnchor {
-  const originStart = layout.originDay === null ? null : instantOf(textOfDayStart(layout.originDay))
-  const minutes = (originStart ?? 0) + Math.round(((x - layout.originX) / layout.pxPerDay) * MINUTES_PER_CALENDAR_DAY)
-  const share = taskGroup.height > 0 ? (y - taskGroup.y) / taskGroup.height : 0.5
-  const bandFraction = Math.round(Math.min(1, Math.max(0, share)) * BAND_FRACTION_STEPS) / BAND_FRACTION_STEPS
-  return { date: textOfInstant(minutes), taskGroupId: taskGroup.taskGroupId, bandFraction }
-}
-
-const BAND_FRACTION_STEPS = 10_000
 
 export interface ScrollAnchor {
   readonly scrollDate: string | null

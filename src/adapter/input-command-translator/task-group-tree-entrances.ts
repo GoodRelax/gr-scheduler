@@ -4,7 +4,6 @@
 // @purity    pure
 
 import { SETTINGS_CONSTANTS } from '../../entity/document-model/document-settings/document-settings'
-import type { Schedule } from '../../entity/document-model/schedule/schedule'
 import {
   groupDepthLimit,
   keptInViewByTreeState,
@@ -13,10 +12,10 @@ import { drawnSettingsOf } from '../../entity/layout-engine/screen-regions/scree
 import { DEFAULT_TASK_GROUP_NAME } from '../screen-renderer/screen-renderer'
 import {
   levelZeroWritesFor,
-  treeStateWritesFor,
   type DocumentCommand,
   type TreeStateEvent,
 } from '../../use-case/edit-document/edit-document'
+import { taskGroupStandUpWrites, taskGroupTreeWrites } from '../../use-case/arrange-task-groups/arrange-task-groups'
 import {
   CONSUMED_ELSEWHERE,
   ENTRY,
@@ -145,11 +144,7 @@ export function everyTaskGroupDeleted(context: InputContext): TranslatedInput {
 
 /** @purity pure */
 export function treeWritesOf(context: InputContext, event: TreeStateEvent): readonly DocumentCommand[] {
-  const document = context.document
-  return [
-    ...treeStateWritesFor(document.schedule, event, document.documentSettings.pinnedTaskGroupIds),
-    ...levelZeroWritesFor(document.documentSettings.levelZeroTreeState, event),
-  ]
+  return taskGroupTreeWrites(context.document, event)
 }
 
 /** @purity pure */
@@ -207,39 +202,12 @@ function isOpenOneLevelArmed(context: InputContext, taskGroupId: string): boolea
 }
 
 // Spec: HF-14
-/** @purity pure */
-function orderPastLastChild(schedule: Schedule, parentTaskGroupId: string | null): number {
-  // Trap: one past the largest order, not the child count: orders may have gaps (AT-55).
-  let lastOrder: number | null = null
-  for (const taskGroup of schedule.taskGroups) {
-    if (taskGroup.parentId !== parentTaskGroupId) continue
-    if (lastOrder === null || taskGroup.order > lastOrder) lastOrder = taskGroup.order
-  }
-  return lastOrder === null ? 0 : lastOrder + 1
-}
-
 // Spec: HF-14, HF-17, T-328, AT-153
-// Why: the new task group is shown by its tree state (temporarilyExpanded, CM-26), never by a zoom write (HF-14).
 /** @purity pure */
 export function taskGroupStoodUp(context: InputContext, parentTaskGroupId: string | null): TranslatedInput {
   const newTaskGroupId = context.newTaskGroupId
-  // Trap: keep the tree state writes in the task group's bundle; a bundle of their own is a second undo step.
-  return changedAndCreated(
-    [
-      [
-        ...treeWritesOf(context, { type: 'childTaskGroupAddPressed', pressedRowId: parentTaskGroupId }),
-        {
-          kind: 'createTaskGroup',
-          id: newTaskGroupId,
-          parentId: parentTaskGroupId,
-          name: DEFAULT_TASK_GROUP_NAME,
-          derivedFromTaskUid: null,
-          order: orderPastLastChild(context.document.schedule, parentTaskGroupId),
-        } as const,
-      ],
-    ],
-    { kind: 'taskGroup', taskGroupId: newTaskGroupId },
-  )
+  const standUp = { newTaskGroupId, parentTaskGroupId, defaultTaskGroupName: DEFAULT_TASK_GROUP_NAME }
+  return changedAndCreated([taskGroupStandUpWrites(context.document, standUp)], { kind: 'taskGroup', taskGroupId: newTaskGroupId })
 }
 
 /** @purity pure */

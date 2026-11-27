@@ -28,13 +28,15 @@ const ERD = unbroken(readRepoFile(join(SPEC, '_assets', 'fig-erd-detail.md'), 'u
 // Spec: FR-088
 const FR_088_MAKE =
   '⭐ 文書の暦が 表 T-209 の既定に解けるとき、`CM-39` は同じ書き込みで `Calendar` を 1 行作り、`Project.calendarUid` に指させてから、曜日と例外日を書くこと。'
+// Spec: IMPS-733
 const FR_088_UID = '作る暦の `uid` は `Project.uidHighWaterMark`（`AT-20`）に従って採り、`isBaseCalendar` を真とする。'
 const FR_088_EXCEPTIONS = '`GRS` は、繰り返しの無い例外日（表 T-058 の `AT-82` が言う繰り返しの無い例外日）を、足し、直し、消せるようにすること。'
+// Spec: IMPS-728
 const FR_088_DAY_WORKING = '`GRS` は、例外日の行ごとに休みか稼働か（`AT-81`）を選べるようにすること —— 交換相手の `Exception` が休みと稼働の両方を持つ。'
 const FR_088_RECURRING_DELETE =
   '⚠️ `GRS` は、取り込んだ繰り返しの例外日を、一覧に出して消せるようにし、直させないこと。'
 const FR_088_UNDO = '`GRS` は、暦の変更を取り消しの対象とすること（表 T-027 の `UN-13`）。'
-// Spec: FR-054
+// Spec: FR-054, IMPS-762
 const FR_054_RESOLVE =
   '`Project.calendarUid` が指していないとき、および指す先が無いとき、`GRS` は、`isBaseCalendar` が真の `Calendar` のうち `ordinal` が最小のものを文書の暦とし、そのような `Calendar` も無いときは表 T-209 の既定を文書の暦とすること。'
 // Spec: CM-39

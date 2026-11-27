@@ -1,35 +1,4 @@
-// NFR-004, judged over the population the clause names, from `file://`.
-//
-// ⭐ WHY THIS FILE EXISTS. NFR-004 (:4272 of docs/spec/01-04-requirements.md)
-// settles its own judgment: the requirement is met when 「表 T-023a・表 T-023b・
-// 表 T-023c・表 T-023d・表 T-023 ・表 T-036 が挙げる操作と、表 T-024 の書出の形式」
-// work with the network cut, and 「判定は、ファイルを直接開いた状態でも行うこと
-// （MUST）」. Until this file, the only two cases that opened the deliverable as
-// `file://` were `tests/nfr/nfr-004-single-file.test.ts:288` and `:302`, and
-// neither presses one row of that population: :288 counts requests that left the
-// file, :302 counts a first frame and a policy refusal. So the clause's own
-// measure had never been taken.
-//
-// ⭐ WHAT A DIFFERENCE MEANS, AND WHY BOTH SCHEMES ARE RUN. NFR-004's MUST is
-// about a SCHEME, not about a feature: a row that fails under `http://` too is
-// some other defect, and a row that fails only under `file://` is this
-// requirement's. The sweep therefore runs the same battery over the same built
-// deliverable twice -- once from `file://`, once from a loopback `http://` that
-// serves the same bytes -- and reports the two separately as well as their
-// difference.
-//
-// ⚠️ WHAT THE STUBBED HOST DIALOG CAN AND CANNOT SHOW. `showSaveFilePicker` and
-// `showOpenFilePicker` are replaced before the page loads, because a driven
-// browser cannot answer a host chooser. That means every export row below shows
-// only THE BEHAVIOR AFTER THE HANDLE IS IN HAND -- whether the tool asked for a
-// destination and then wrote bytes to it. It does NOT show whether the host
-// would have opened the chooser at all from a `file://` page. LM-14 is the row
-// that says that second question is open, and it is not answered here.
-//
-// ⚠️ WHAT LM-14 TAKES OUT OF THE POPULATION (:187). Two things: 上書き保存, and
-// the rows of table T-206 kept in `localStorage`. `EXCLUDED_BY_LM_14` below
-// names which rows of the six tables those are, and the census case fails if
-// that set stops matching the tables.
+// System tests: NFR-004 judged over the population the clause names, from file:// beside http://.
 
 import { expect, test } from '@playwright/test'
 import type { Browser, Page } from '@playwright/test'
@@ -70,27 +39,16 @@ function rowsOf(tableId: string): readonly string[] {
   return rows
 }
 
-/**
- * Table T-024's outward formats. ⭐ NFR-004 names 「表 T-024 の書出の形式」 and
- * not the whole table, so the direction column is what selects -- the same
- * reading `src/adapter/document-codec/exchange-formats.json` is generated on.
- */
+// Why: NFR-004 names only the export formats of T-024, so the direction column selects, the same
+// reading the exchange formats file is generated on.
 function outwardFormatsOfT024(): readonly string[] {
   return specTable('T-024')
     .rows.filter((row) => ROW_ID.test(row.id) && (row.by['方向'] ?? '').includes('書出'))
     .map((row) => row.id)
 }
 
-/**
- * What LM-14 (:187) takes out of NFR-004's population, and the row of the six
- * tables each exclusion lands on.
- *
- * ⛔ THE TWO ENTRIES ARE THE WHOLE OF IT. LM-14 names 上書き保存 and the rows of
- * table T-206 marked 「別枠。`localStorage` に置く。」 -- nothing else. IO-5 is
- * table T-024's row for that store, and it is not an outward format either, so
- * it is doubly outside; SK-11 is the assignment FR-060's overwrite stands
- * behind.
- */
+// Why: the two entries are the whole of LM-14's exclusion (overwrite save and the localStorage rows of
+// T-206); IO-5 is that store's row, and SK-11 is the key FR-060's overwrite stands behind.
 const EXCLUDED_BY_LM_14: Readonly<Record<string, string>> = {
   'SK-11': 'LM-14: 上書き保存 (FR-060) is outside NFR-004 judgment under file://',
   'IO-5': 'LM-14: localStorage is the 別枠 store of table T-206',
@@ -130,6 +88,8 @@ interface Outcome {
   readonly failure: string | null
 }
 
+// Why: a driven browser cannot answer a host chooser, so it is stubbed and an export row shows only what
+// follows once a handle is in hand; whether file:// opens the chooser at all is LM-14's open question.
 const HOST_STUB = `
   window.__grsSaved = []
   window.__grsAsked = []
@@ -552,15 +512,8 @@ async function reveal(page: Page, at: Spot): Promise<void> {
   await page.waitForTimeout(120)
 }
 
-/**
- * One drag, with a reading taken WHILE THE BUTTON IS STILL DOWN.
- *
- * ⭐ THE HELD READING IS NOT A CONVENIENCE. ZO-6 of table T-020 has the rubber
- * band of SL-3 「範囲選択（表 T-023c の `SL-3`）で押下を握っている間だけ、`GRS` は範囲選択の矩形を描くこと。…範囲選択の押下を離したとき、`GRS` は範囲選択の矩形を消すこと」, so a
- * before/after pair is blind to it by the specification's own design: the
- * drawing is meant to come back. PTD-1 and GR-19 put the same MUST on following
- * the pointer while held.
- */
+// Why: the reading is taken while the button is held, because ZO-6 draws the rubber band of SL-3 only
+// while held, so a before/after pair is blind to it; PTD-1 and GR-19 follow the pointer while held too.
 async function dragFrom(page: Page, from: Spot, dx: number, dy: number): Promise<number> {
   await reveal(page, from)
   await page.mouse.down()
@@ -587,29 +540,9 @@ interface Lane {
   readonly trackLength: number
 }
 
-/**
- * One lane of U-21 `Scrollbars` -- `GR-21` of table T-023d.
- *
- * ⛔ NOT PART OF `GEOMETRY_SCRIPT`, and not a member of `Geometry`. The two
- * lanes are drawn as `div`s OUTSIDE the `Schedule Canvas` SVG that script
- * measures, and the grip is the lane's first child rather than a shape in the
- * drawing -- so the absence recorded above (no `data-uid`, no `id` on a bar)
- * says nothing about this one, and no coordinate has to be guessed here.
- *
- * ⭐ WHICH LANE IS READ OFF `data-axis`, the mark
- * `src/framework/dom-screen-surface/dom-screen-surface.ts` writes for exactly
- * this reason: table T-103 gives BOTH lanes the one name `Scrollbars`, so the
- * role alone cannot tell them apart, and `GR-21` needs which -- the two move
- * different halves of the display position.
- *
- * ⭐ THE TWO LENGTHS COME BACK TOO, because `GR-21` (MUST) makes the grip's
- * length 「見えている範囲 ÷ 全体」 of the lane's: a grip AS LONG AS ITS LANE is
- * the tool saying there is nothing to scroll on that axis, and a drag that
- * moves nothing then says something about the document rather than about the
- * row.
- *
- * @purity non-pure
- */
+// Why: the lane is read off data-axis because T-103 gives both lanes the one name Scrollbars; its two
+// lengths come back too, since a grip as long as its lane (GR-21) means nothing to scroll.
+/** @purity non-pure */
 async function laneOf(page: Page, axis: 'horizontal' | 'vertical'): Promise<Lane> {
   const found = (await page.evaluate((wanted: string) => {
     const lane = document.querySelector(`[data-role="Scrollbars"][data-axis="${wanted}"]`)
@@ -814,7 +747,7 @@ async function searchPanelPlaces(page: Page): Promise<{ box: Box4; band: Spot | 
 }
 
 // Spec: GR-28, SV-18
-// Why: SV-18 gives the Show column (SQ-10, first since CR-661) no GR-28 border, so it is passed over.
+// Why: SV-18 gives the Show column (SQ-10, the first column) no GR-28 border, so it is passed over.
 async function searchColumnBorder(page: Page): Promise<{ border: Spot; width: number } | null> {
   return page.evaluate(() => {
     const cell = document.querySelector('[data-role="Search Panel"] thead th:not([data-column="SQ-10"])')
@@ -1135,8 +1068,6 @@ const PROBES: readonly Probe[] = [
     },
   },
   {
-    // MK-10: 「`GRS` は、ブラウザの既定動作を画面全体で止めること。」 for a
-    // combination this tool assigned. `Ctrl+S` is the row's own example.
     rows: ['MK-10'],
     expect: 'answers',
     setUp: selectBar,
@@ -1153,9 +1084,8 @@ const PROBES: readonly Probe[] = [
     },
   },
   {
-    // MK-12: 「`GRS` は、`Alt` ＋ ドラッグの組合せに本ツールの割当を与えないこと。」. The row forbids writing
-    // "nothing happens", so what is judged is that no shape is placed by the
-    // combination -- the host's own default is left to the host.
+    // Why: the row forbids writing that nothing happens, so what is judged is that the combination places
+    // no shape; the host's own default is left to the host.
     rows: ['MK-12'],
     expect: 'placesNothing',
     act: async (p, g) => {
@@ -1193,9 +1123,8 @@ const PROBES: readonly Probe[] = [
     act: async (p) => press(p, 'IC-27'),
   },
   {
-    // PTD-4a: 「`GRS` は、何もしないこと。`GRS` は、引きかけの矢印があれば捨てること。`GRS` は、構えを解除しないこと。」 -- so
-    // the drawing must NOT gain a shape. ⛔ The arm is taken in `setUp`, because
-    // arming marks the palette and that marking is a screen change of its own.
+    // Why: the arm is taken in setUp, because arming marks the palette and that marking is a screen
+    // change of its own.
     rows: ['AR-4', 'PTD-4a'],
     expect: 'placesNothing',
     setUp: async (p) => { await press(p, 'IC-61') },
@@ -1215,7 +1144,7 @@ const PROBES: readonly Probe[] = [
     act: async (p, g) => { await p.mouse.click(g.barBody.x, g.barBody.y); return null },
   },
   {
-    // AR-1: 「解除は `Esc`」. Something has to be armed for the release to show.
+    // Why: something has to be armed for the release to show.
     rows: ['AR-1'],
     expect: 'answers',
     setUp: async (p) => { await press(p, 'IC-23'); await p.waitForTimeout(300) },
@@ -1251,7 +1180,6 @@ const PROBES: readonly Probe[] = [
   },
   { rows: ['SL-5', 'SK-2'], expect: 'answers', setUp: selectBar, act: async (p) => stroke(p, 'Control+a') },
   {
-    // SL-7a: 「端をドラッグしたとき、`GRS` は、選択を掴んだ 1 つに絞ること。…掴んだタスクだけをリサイズすること」.
     rows: ['SL-7a', 'GA-2'],
     expect: 'answers',
     setUp: selectBar,
@@ -1305,9 +1233,8 @@ const PROBES: readonly Probe[] = [
   },
 
   {
-    // PTD-2: in `Dual Cursor` mode 「当たり判定を行わない」, so a press on a bar
-    // must not be a press on the bar. IC-45 is that mode's entrance, and it is
-    // taken in `setUp` so that what is read is the PRESS and not the entering.
+    // Why: IC-45 is the Dual Cursor entrance, taken in setUp so that what is read is the press and not
+    // the entering.
     rows: ['PTD-2'],
     expect: 'answers',
     setUp: async (p) => { await press(p, 'IC-45'); await p.waitForTimeout(400) },
@@ -1444,8 +1371,8 @@ const PROBES: readonly Probe[] = [
   { rows: ['GA-7'], expect: 'answers', setUp: selectBar, act: async (p, g) => dragFrom(p, { x: g.barStart.x + 2, y: g.barStart.y - 8 }, 60, 0) },
   { rows: ['GA-8'], expect: 'answers', setUp: selectBar, act: async (p, g) => dragFrom(p, { x: g.barFinish.x - 2, y: g.barFinish.y + 8 }, -60, 0) },
   {
-    // see AR-5, PTD-4, CR-782
-    // Why: a placed comment box is selected and takes the text at once (CR-782), so the first Escape leaves
+    // Spec: AR-5, PTD-4
+    // Why: a placed comment box is selected and takes the text at once, so the first Escape leaves
     // Why: the text field and only the second one puts the entrance down; the box is then grabbed by its tip
     // Why: where it was placed, because the empty place measured after the placing is another one.
     rows: ['GR-14'],
@@ -1569,47 +1496,16 @@ const PROBES: readonly Probe[] = [
   },
   { rows: ['SK-18'], expect: 'answers', setUp: selectBar, act: async (p) => stroke(p, 'f') },
   {
-    // ⛔⛔ WHAT THIS PROBE JUDGES IS SK-19's SECOND STAGE (DFC-382). Table T-036's
-    // row reads 「その場の編集を確定する」 and then 「確定していないその場の編集が
-    // 1 つも無いときは、プロパティパネルを出しているならば出すのをやめること
-    // （MUST）」. The MUST is the second one, so the panel has to be UP before the
-    // press this probe reads, and nothing may be held in a field.
-    //
-    // ⛔⛔ THE DOUBLE-CLICK THAT USED TO SET THIS UP DID NOT PUT THE PANEL UP,
-    // AND THAT -- NOT THE BUILD -- IS WHY THE ROW WAS RED. Measured 2026-09-08 on
-    // the shipped build with the four probes that stand before this one replayed
-    // in order (SK-16, SK-16a, the reset key JDG-301 retired, SK-18) and `calm` run between them, then
-    // the same `geometryOf` point double-clicked:
-    //
-    //   from a fresh page   dblclick (584, 511) -> Properties Panel 279px wide
-    //   after those four    dblclick (839, 762) -> Properties Panel 0px wide
-    //
-    // ⭐ THE ZOOM IS WHAT MOVED IT. `SK-18` is `f`, and after the fit the widest
-    // `-plan` run this file's geometry picks is not a `Task`'s bar -- and `MK-13`
-    // of table T-023 opens the panel for 「タスク（名称ラベルと本体のどちらでも）」
-    // and for a task group heading, not for whatever else may be the widest thing drawn.
-    // ⇒ Both `Enter` presses then landed with no panel up and nothing held, so
-    // `moved` read zero on a build that was obeying the row.
-    //
-    // ⭐⭐ THE PANEL IS THEREFORE PUT UP THROUGH `IC-17`, which is the OTHER
-    // settled road to it: 表 T-109 gives that entrance 「文書の描画設定をプロパ
-    // ティパネルに表示する」, and it sits in the `App Header`, so no zoom can move
-    // it out from under the press. ⛔ This is the same shape `SK-8` already uses
-    // -- put the surface up through its own entrance, then read the key that has
-    // to close it. Measured on the same run: `IC-17` -> panel 279px, `Enter` ->
-    // panel 0px with the canvas and the body both redrawn.
-    // ⛔ NOT A WEAKENED EXPECTATION: the row still has to move something, and the
-    // reading is still `answers`.
+    // Why: SK-19's second stage needs the panel up and nothing held; the panel is put up through IC-17 in
+    // the App Header, since after SK-18's fit a double-click no longer lands on a Task's bar (MK-13).
     rows: ['SK-19'],
     expect: 'answers',
     setUp: async (p, g) => {
       await selectBar(p, g)
       await press(p, 'IC-17')
       await p.waitForTimeout(600)
-      // ⛔ THE LEVEL ABOVE BOTH STAGES IS PUT AWAY FIRST. The same row opens with
-      // 「出ている通知がある間、 `Enter` を押したとき、`GRS` は、出ている通知を 1 つ消すこと」, and a telling
-      // left standing would eat the press below -- the reading would then be
-      // `NT-8`'s put-away rather than the panel's.
+      // Why: a notice left standing would eat the press below, and the reading would be NT-8's put-away
+      // rather than the panel's.
       const telling = await p.$('[data-notice]')
       if (telling !== null) await telling.click({ timeout: 2_000 }).catch(() => undefined)
     },
@@ -1671,10 +1567,8 @@ const PROBES: readonly Probe[] = [
     },
   },
   {
-    // SK-1 / SK-1a are the record that 「キーボードだけで図形を置く経路は持たない」.
-    // ⭐ PRESSED RATHER THAN PASSED OVER: what the rows assert is that no key
-    // puts a shape out, so the sweep arms a shape first and then presses every
-    // key that could plausibly place one.
+    // Why: pressed rather than passed over: the sweep arms a shape first, then presses every key that
+    // could plausibly place one.
     rows: ['SK-1', 'SK-1a'],
     expect: 'placesNothing',
     // Why: the pointer sits over PTD-4's empty place, and Enter also closes
@@ -1726,7 +1620,6 @@ const PROBES: readonly Probe[] = [
     },
   },
   {
-    // IO-6: CR-120 「現在の画面を画像として他のアプリへ渡す」, IC-3 in the header.
     rows: ['IO-6'],
     expect: 'answers',
     act: async (p) => {
@@ -1746,7 +1639,7 @@ const PROBES: readonly Probe[] = [
   },
   {
     // Spec: IO-10, FR-068
-    // Why: CR-827 -- IC-115 hands the schema to the download and writes the prompt to the clipboard in one press.
+    // Why: IC-115 hands the schema to the download and writes the prompt to the clipboard in one press.
     rows: ['IO-10'],
     expect: 'answers',
     act: async (p) => {
@@ -1941,58 +1834,18 @@ const PROBES: readonly Probe[] = [
   {
     rows: ['GR-21'],
     expect: 'answers',
-    // ⛔⛔ THE VIEW IS PUT INTO A STATED PLACE FIRST, and without this the row
-    // is read as dead for a reason that is the sweep's rather than the build's.
-    // ⚠️ MEASURED 2026-09-08, twice, over the whole sweep: dragged at its place
-    // here, the VERTICAL grip moved nothing -- and the reason is not `GR-21`.
-    // `SK-18` (the `f` key) runs seventy probes earlier and fits the schedule,
-    // and once everything is fitted the vertical grip is EXACTLY AS LONG AS ITS
-    // LANE (8 x 977 in a 8 x 977 lane, measured) -- `GR-21`'s own 「見えている
-    // 範囲 ÷ 全体」 saying there is nothing left to scroll downwards. ⛔ A drag
-    // that moves nothing there is the tool being right.
-    // ⭐ So the state is MADE rather than inherited: `SK-18` of table T-036 is
-    // pressed here too, which is the tool's own entrance and leaves a place
-    // this file can state. ⚠️ `Escape` first, because `f` typed into a field is
-    // a letter and not a shortcut.
+    // Why: after SK-18's fit the vertical grip is as long as its lane, so the view is put into a stated
+    // place first; Escape first, because f typed into a field is a letter and not a shortcut.
     setUp: async (p) => {
       await p.keyboard.press('Escape')
       await p.waitForTimeout(150)
       await p.keyboard.press('f')
       await p.waitForTimeout(600)
     },
-    // ⭐⭐ THE HORIZONTAL LANE, and that is measured rather than preferred.
-    // After the Fit above, the two lanes stand differently (2026-09-08, shipped
-    // build, msedge, 1920x1080): the vertical grip fills its lane, and the
-    // horizontal grip is 1535 in a 1702 lane -- the schedule is longer than the
-    // window sideways even when it has been fitted, because `FR-051` fits what
-    // the `Task Group Area` can hold. ⇒ Sideways is where `GR-21` still has something
-    // to answer with. ⚠️ Before the Fit the horizontal grip is 421.5 in the
-    // same lane and answers a 200px drag the same way, so the row is not being
-    // pressed in an unusual state -- it is being pressed in a stated one.
-    // ⚠️ AND WHAT WAS MEASURED NOT TO HAPPEN, the same day, with the button
-    // held 600ms at the halfway point: the drawing does NOT move while the grip
-    // is held -- it moves on release, on both lanes. The closing rule of table
-    // T-023d (:2411 of docs/spec/01-04-requirements.md) names `GR-21` among the
-    // rows that must follow the pointer while held, so that is a question of
-    // its own, and it has an answer today. ⛔ It is NOT this file's question:
-    // NFR-004 asks whether the row works when the deliverable is opened
-    // directly, and an `answersWhileHeld` here would turn this sweep red for a
-    // defect that has nothing to do with the scheme.
-    // ⇒ `answers`, which is what `GR-21`'s own 操作 column promises:
-    // 「つまみを掴んだとき、`GRS` は表示位置を変えること（規則は `FR-051`）」.
-    //
-    // ⛔⛔ AND `answers` ALONE WOULD BE VACUOUS HERE, WHICH IS WHY THE ACT
-    // JUDGES FOR ITSELF AND THROWS. `moved` folds five readings and two of them
-    // are hashes of markup the shell mints afresh on every frame, so ANY redraw
-    // moves them whether or not the display position followed the grip --
-    // `drawingOf` above carries the measurement. ⚠️ MEASURED 2026-09-08 by
-    // shortening this drag to 0px and running the whole sweep again: `GR-21`
-    // still came back `answers` under both schemes. ⛔ The row would have
-    // passed with the grip doing nothing.
-    // ⭐ A THROW rather than a second expectation: `couldNotBePressed` already
-    // reports a probe that threw, with its own sentence, and the case at the
-    // foot of this file already asserts that list is empty. Repeating the same
-    // sweep with the drag at 0px now names `GR-21` there.
+    // Why: the horizontal lane, because after the fit only sideways still has something to scroll; answers,
+    // not answersWhileHeld, since following the grip while held is not a question of the file:// scheme.
+    // Why: answers alone would be vacuous, as any redraw moves the markup hashes; so the act judges the
+    // display position itself and throws, which couldNotBePressed reports.
     act: async (p) => {
       let lane = await laneOf(p, 'horizontal')
       // Spec: FR-039, T-252, DS-4, S-1, SK-16
@@ -2161,7 +2014,7 @@ function didNotAnswer(result: SweepResult): readonly string[] {
   ).map((probe) => `${nameOf(probe)} (${probe.expect}: ${reading(result.outcomes[nameOf(probe)])})`)
 }
 
-// Why: a step that never reads the geometry is not failed for a bar it does not press (SK-4 beside a S-171 panel, CR-754).
+// Why: a step that never reads the geometry is not failed for a bar it does not press (SK-4 beside a S-171 panel).
 async function geometryWanted(page: Page, step: (page: Page, at: Geometry) => Promise<unknown>): Promise<Geometry> {
   return step.length > 1 ? geometryOf(page) : (undefined as unknown as Geometry)
 }

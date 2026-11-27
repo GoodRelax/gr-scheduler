@@ -23,7 +23,7 @@ import { bare, unbroken } from './spec-table'
 
 const REQUIREMENTS = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
-// Spec: FR-017, FR-089, OD-1, S-581
+// Spec: FR-017, FR-089, OD-1, S-581, IMPS-707, IMPS-713
 const CLAUSES = [
   '時刻を表示し、目盛が時の段にある間、`GRS` は日付罫線（`FR-089`）を毎正時に実線で引くこと。時刻を表示し、目盛が時の段にあり、1 日の幅が `_assets/tbl-settings.md` の 表 T-205 の `S-578` 以上である間、`GRS` は日付罫線を毎 30 分にも点線（刻みは 表 T-201 の `S-581`）で引くこと。',
   '`GRS` は、30 分の線を実線で引かないこと',
@@ -405,7 +405,7 @@ describe('OD-1, OD-2, OD-6: the hours outside the working time are shaded on the
   })
 })
 
-// see TM-5, FR-017, DFC-2457
+// Spec: TM-5, FR-017
 const TM_5_THINNED_HOURS = '⭐ 間引いた数字は、0 時から数えて刻みの倍数の時に置く（0・2・4… ／ 0・3・6…）'
 
 describe('DFC-2457 TM-5: a thinned hour digit stands on a multiple of the stride counted from 0 o\'clock', () => {

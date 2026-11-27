@@ -33,7 +33,7 @@ afterEach(restoreAnimationFrames)
 
 const REQUIREMENTS = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
-// Spec: FR-019, AR-5, PR-21
+// Spec: FR-019, AR-5, PR-21, IMPS-829
 const PLACED_IS_SELECTED_AND_FOCUSED =
   '作成者がコメントボックスを構えて置いたとき（表 T-023b の `AR-5`）、`GRS` は、置いたコメントボックスを選ぶこと。作成者がコメントボックスを構えて置いたとき、`GRS` は、プロパティパネルを出すこと。作成者がコメントボックスを構えて置いたとき、`GRS` は、本文の欄（`_assets/tbl-property-items.md` の 表 T-016 の `PR-21`）に焦点を置くこと。'
 const BODY_FIELD_ROW = 'PR-21'

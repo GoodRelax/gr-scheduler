@@ -7,6 +7,7 @@ import { fileSystemAccessFileStore } from '../../src/framework/file-system-acces
 import { REQUIREMENTS, UTF8, standInBrowser, standInFile } from './cr-610-file-flow-stage'
 import { bare, specTable } from './spec-table'
 
+// Spec: IMPS-1036
 const FR_096_ENDS_WITH = '`GRS` は、書き出した先の名前が、選んだ行の拡張子で終わることを保証すること。'
 const RW_7_ENDS_WITH = '`GRS` は、書いた名前が 表 T-024 の `IO-8` の拡張子で終わることを保証すること。'
 

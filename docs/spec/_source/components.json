@@ -235,6 +235,90 @@
    "shape": "component",
    "description": "Carries an MCP client's calls to the page it served on 127.0.0.1 and holds the key, the connected page, the pending calls and the queued notices.",
    "remark": "FR-150 / AG-12"
+  },
+  {
+   "name": "PlaceTask",
+   "shape": "component",
+   "description": "Decides the span of the task use case UC-001 places.",
+   "remark": "UC-001"
+  },
+  {
+   "name": "ArrangeTaskGroups",
+   "shape": "component",
+   "description": "Writes the task group tree states and stands a new task group up (UC-002).",
+   "remark": "UC-002"
+  },
+  {
+   "name": "EditTaskProperties",
+   "shape": "component",
+   "description": "Asks before resources are deleted about the tasks their assignments free (UC-003).",
+   "remark": "UC-003"
+  },
+  {
+   "name": "LinkTasks",
+   "shape": "component",
+   "description": "Draws the tentative dependency line from the predecessor edge to the pointer (UC-004).",
+   "remark": "UC-004"
+  },
+  {
+   "name": "RecordActuals",
+   "shape": "component",
+   "description": "Decides where the actual begins when a progress marker is pulled (UC-005).",
+   "remark": "UC-005"
+  },
+  {
+   "name": "FindDelays",
+   "shape": "component",
+   "description": "Answers how many working days a task is late (UC-006).",
+   "remark": "UC-006"
+  },
+  {
+   "name": "ShowRange",
+   "shape": "component",
+   "description": "Decides whether a stored view place still names a place (UC-007).",
+   "remark": "UC-007"
+  },
+  {
+   "name": "AnnotateSchedule",
+   "shape": "component",
+   "description": "Places the free end of a comment box on a task group (UC-008).",
+   "remark": "UC-008"
+  },
+  {
+   "name": "ShowConfidentialSchedule",
+   "shape": "component",
+   "description": "Decides who the watermark names and whether an answer lifts it (UC-009).",
+   "remark": "UC-009"
+  },
+  {
+   "name": "ExchangeWithWbsMaster",
+   "shape": "component",
+   "description": "Picks the tasks dropped for an unusable date and tells work values apart (UC-010).",
+   "remark": "UC-010"
+  },
+  {
+   "name": "SaveAndShareDocument",
+   "shape": "component",
+   "description": "Stamps the saved document with the time it is written (UC-011).",
+   "remark": "UC-011"
+  },
+  {
+   "name": "MergeSchedules",
+   "shape": "component",
+   "description": "Names the tasks missing since the last import of the same master (UC-014).",
+   "remark": "UC-014"
+  },
+  {
+   "name": "OperateThroughAgentApi",
+   "shape": "component",
+   "description": "Reads a refusal of the write path as the reason and rule the agent gets (UC-012).",
+   "remark": "UC-012"
+  },
+  {
+   "name": "RunDelayDiagnostics",
+   "shape": "component",
+   "description": "Computes the delay diagnosis by the document calendar (UC-015).",
+   "remark": "UC-015"
   }
  ],
  "edges": [
@@ -1267,6 +1351,335 @@
    "arrow": "dependency",
    "label": "table windows",
    "description": "names its table windows by the keys of the three table views (T-353), so the two lists cannot drift"
+  },
+  {
+   "source": "AgentApiEndpoint",
+   "target": "OperateThroughAgentApi",
+   "arrow": "dependency",
+   "label": "calls",
+   "description": "AgentApiEndpoint calls what OperateThroughAgentApi publishes"
+  },
+  {
+   "source": "AgentApiEndpoint",
+   "target": "RunDelayDiagnostics",
+   "arrow": "dependency",
+   "label": "calls",
+   "description": "AgentApiEndpoint calls what RunDelayDiagnostics publishes"
+  },
+  {
+   "source": "AnnotateSchedule",
+   "target": "EditDocument",
+   "arrow": "dependency",
+   "label": "calls",
+   "description": "AnnotateSchedule calls what EditDocument publishes"
+  },
+  {
+   "source": "AnnotateSchedule",
+   "target": "Schedule",
+   "arrow": "dependency",
+   "label": "calls",
+   "description": "AnnotateSchedule calls what Schedule publishes"
+  },
+  {
+   "source": "AnnotateSchedule",
+   "target": "ScheduleLayout",
+   "arrow": "dependency",
+   "label": "calls",
+   "description": "AnnotateSchedule calls what ScheduleLayout publishes"
+  },
+  {
+   "source": "ArrangeTaskGroups",
+   "target": "Document",
+   "arrow": "dependency",
+   "label": "calls",
+   "description": "ArrangeTaskGroups calls what Document publishes"
+  },
+  {
+   "source": "ArrangeTaskGroups",
+   "target": "EditDocument",
+   "arrow": "dependency",
+   "label": "calls",
+   "description": "ArrangeTaskGroups calls what EditDocument publishes"
+  },
+  {
+   "source": "ArrangeTaskGroups",
+   "target": "Schedule",
+   "arrow": "dependency",
+   "label": "calls",
+   "description": "ArrangeTaskGroups calls what Schedule publishes"
+  },
+  {
+   "source": "EditTaskProperties",
+   "target": "Document",
+   "arrow": "dependency",
+   "label": "calls",
+   "description": "EditTaskProperties calls what Document publishes"
+  },
+  {
+   "source": "EditTaskProperties",
+   "target": "EditDocument",
+   "arrow": "dependency",
+   "label": "calls",
+   "description": "EditTaskProperties calls what EditDocument publishes"
+  },
+  {
+   "source": "ExchangeWithWbsMaster",
+   "target": "Document",
+   "arrow": "dependency",
+   "label": "calls",
+   "description": "ExchangeWithWbsMaster calls what Document publishes"
+  },
+  {
+   "source": "ExchangeWithWbsMaster",
+   "target": "Schedule",
+   "arrow": "dependency",
+   "label": "calls",
+   "description": "ExchangeWithWbsMaster calls what Schedule publishes"
+  },
+  {
+   "source": "FindDelays",
+   "target": "Schedule",
+   "arrow": "dependency",
+   "label": "calls",
+   "description": "FindDelays calls what Schedule publishes"
+  },
+  {
+   "source": "InputCommandTranslator",
+   "target": "AnnotateSchedule",
+   "arrow": "dependency",
+   "label": "calls",
+   "description": "InputCommandTranslator calls what AnnotateSchedule publishes"
+  },
+  {
+   "source": "InputCommandTranslator",
+   "target": "ArrangeTaskGroups",
+   "arrow": "dependency",
+   "label": "calls",
+   "description": "InputCommandTranslator calls what ArrangeTaskGroups publishes"
+  },
+  {
+   "source": "InputCommandTranslator",
+   "target": "PlaceTask",
+   "arrow": "dependency",
+   "label": "calls",
+   "description": "InputCommandTranslator calls what PlaceTask publishes"
+  },
+  {
+   "source": "InputCommandTranslator",
+   "target": "RecordActuals",
+   "arrow": "dependency",
+   "label": "calls",
+   "description": "InputCommandTranslator calls what RecordActuals publishes"
+  },
+  {
+   "source": "InputCommandTranslator",
+   "target": "ShowRange",
+   "arrow": "dependency",
+   "label": "calls",
+   "description": "InputCommandTranslator calls what ShowRange publishes"
+  },
+  {
+   "source": "LinkTasks",
+   "target": "Document",
+   "arrow": "dependency",
+   "label": "calls",
+   "description": "LinkTasks calls what Document publishes"
+  },
+  {
+   "source": "LinkTasks",
+   "target": "DocumentSettings",
+   "arrow": "dependency",
+   "label": "calls",
+   "description": "LinkTasks calls what DocumentSettings publishes"
+  },
+  {
+   "source": "LinkTasks",
+   "target": "EditDocument",
+   "arrow": "dependency",
+   "label": "calls",
+   "description": "LinkTasks calls what EditDocument publishes"
+  },
+  {
+   "source": "LinkTasks",
+   "target": "ItemHitArea",
+   "arrow": "dependency",
+   "label": "calls",
+   "description": "LinkTasks calls what ItemHitArea publishes"
+  },
+  {
+   "source": "LinkTasks",
+   "target": "Schedule",
+   "arrow": "dependency",
+   "label": "calls",
+   "description": "LinkTasks calls what Schedule publishes"
+  },
+  {
+   "source": "LinkTasks",
+   "target": "ScheduleGeometry",
+   "arrow": "dependency",
+   "label": "calls",
+   "description": "LinkTasks calls what ScheduleGeometry publishes"
+  },
+  {
+   "source": "LinkTasks",
+   "target": "ScheduleLayout",
+   "arrow": "dependency",
+   "label": "calls",
+   "description": "LinkTasks calls what ScheduleLayout publishes"
+  },
+  {
+   "source": "LinkTasks",
+   "target": "ScreenRegions",
+   "arrow": "dependency",
+   "label": "calls",
+   "description": "LinkTasks calls what ScreenRegions publishes"
+  },
+  {
+   "source": "LinkTasks",
+   "target": "Selection",
+   "arrow": "dependency",
+   "label": "calls",
+   "description": "LinkTasks calls what Selection publishes"
+  },
+  {
+   "source": "MergeSchedules",
+   "target": "Document",
+   "arrow": "dependency",
+   "label": "calls",
+   "description": "MergeSchedules calls what Document publishes"
+  },
+  {
+   "source": "MergeSchedules",
+   "target": "ImportDocument",
+   "arrow": "dependency",
+   "label": "calls",
+   "description": "MergeSchedules calls what ImportDocument publishes"
+  },
+  {
+   "source": "OperateThroughAgentApi",
+   "target": "ApplyDocumentChange",
+   "arrow": "dependency",
+   "label": "calls",
+   "description": "OperateThroughAgentApi calls what ApplyDocumentChange publishes"
+  },
+  {
+   "source": "PlaceTask",
+   "target": "Schedule",
+   "arrow": "dependency",
+   "label": "calls",
+   "description": "PlaceTask calls what Schedule publishes"
+  },
+  {
+   "source": "PlaceTask",
+   "target": "ScheduleLayout",
+   "arrow": "dependency",
+   "label": "calls",
+   "description": "PlaceTask calls what ScheduleLayout publishes"
+  },
+  {
+   "source": "RecordActuals",
+   "target": "Document",
+   "arrow": "dependency",
+   "label": "calls",
+   "description": "RecordActuals calls what Document publishes"
+  },
+  {
+   "source": "RecordActuals",
+   "target": "Schedule",
+   "arrow": "dependency",
+   "label": "calls",
+   "description": "RecordActuals calls what Schedule publishes"
+  },
+  {
+   "source": "RunDelayDiagnostics",
+   "target": "Document",
+   "arrow": "dependency",
+   "label": "calls",
+   "description": "RunDelayDiagnostics calls what Document publishes"
+  },
+  {
+   "source": "RunDelayDiagnostics",
+   "target": "Schedule",
+   "arrow": "dependency",
+   "label": "calls",
+   "description": "RunDelayDiagnostics calls what Schedule publishes"
+  },
+  {
+   "source": "SaveAndShareDocument",
+   "target": "Document",
+   "arrow": "dependency",
+   "label": "calls",
+   "description": "SaveAndShareDocument calls what Document publishes"
+  },
+  {
+   "source": "ScreenRenderer",
+   "target": "FindDelays",
+   "arrow": "dependency",
+   "label": "calls",
+   "description": "ScreenRenderer calls what FindDelays publishes"
+  },
+  {
+   "source": "ShowRange",
+   "target": "Schedule",
+   "arrow": "dependency",
+   "label": "calls",
+   "description": "ShowRange calls what Schedule publishes"
+  },
+  {
+   "source": "SingleHtmlShell",
+   "target": "EditTaskProperties",
+   "arrow": "dependency",
+   "label": "calls",
+   "description": "SingleHtmlShell calls what EditTaskProperties publishes"
+  },
+  {
+   "source": "SingleHtmlShell",
+   "target": "ExchangeWithWbsMaster",
+   "arrow": "dependency",
+   "label": "calls",
+   "description": "SingleHtmlShell calls what ExchangeWithWbsMaster publishes"
+  },
+  {
+   "source": "SingleHtmlShell",
+   "target": "LinkTasks",
+   "arrow": "dependency",
+   "label": "calls",
+   "description": "SingleHtmlShell calls what LinkTasks publishes"
+  },
+  {
+   "source": "SingleHtmlShell",
+   "target": "MergeSchedules",
+   "arrow": "dependency",
+   "label": "calls",
+   "description": "SingleHtmlShell calls what MergeSchedules publishes"
+  },
+  {
+   "source": "SingleHtmlShell",
+   "target": "RunDelayDiagnostics",
+   "arrow": "dependency",
+   "label": "calls",
+   "description": "SingleHtmlShell calls what RunDelayDiagnostics publishes"
+  },
+  {
+   "source": "SingleHtmlShell",
+   "target": "SaveAndShareDocument",
+   "arrow": "dependency",
+   "label": "calls",
+   "description": "SingleHtmlShell calls what SaveAndShareDocument publishes"
+  },
+  {
+   "source": "SingleHtmlShell",
+   "target": "ShowConfidentialSchedule",
+   "arrow": "dependency",
+   "label": "calls",
+   "description": "SingleHtmlShell calls what ShowConfidentialSchedule publishes"
+  },
+  {
+   "source": "SingleHtmlShell",
+   "target": "ShowRange",
+   "arrow": "dependency",
+   "label": "calls",
+   "description": "SingleHtmlShell calls what ShowRange publishes"
   }
  ],
  "layout": {
@@ -1329,7 +1742,21 @@
      "ValidateImportedDocument",
      "ChooseStartupDocument",
      "NotifyChangeWatchers",
-     "AdvanceScreenSession"
+     "AdvanceScreenSession",
+     "PlaceTask",
+     "ArrangeTaskGroups",
+     "EditTaskProperties",
+     "LinkTasks",
+     "RecordActuals",
+     "FindDelays",
+     "ShowRange",
+     "AnnotateSchedule",
+     "ShowConfidentialSchedule",
+     "ExchangeWithWbsMaster",
+     "SaveAndShareDocument",
+     "MergeSchedules",
+     "OperateThroughAgentApi",
+     "RunDelayDiagnostics"
     ]
    },
    {

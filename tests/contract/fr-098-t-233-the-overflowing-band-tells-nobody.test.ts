@@ -15,6 +15,7 @@ const REQUIREMENTS = unbroken(readRepoFile(
 const RULING_2026_09_06 =
   'ピンが多すぎてスクロールできなくなったら、人が自分でピンを抜けばよく、その状態が起きうることは前提である'
 
+// Spec: IMPS-782, IMPS-792
 describe('FR-098 after CR-363 -- an overflowing band tells nobody', () => {
   it('FR-098 says in as many words that no notice is raised and no row is added to table T-233', () => {
     expect(REQUIREMENTS).toContain(RULING_2026_09_06)

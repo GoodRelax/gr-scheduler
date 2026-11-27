@@ -1,4 +1,4 @@
-// CR-787 (spec-only): S-171..S-607, FR-156 two-line zone names and their list, RN-3's joined edge rows, and the WH-1 word.
+// Contract tests: the settings face shows two-line zone names and their list, RN-3's joined edge rows, and the WH-1 word.
 
 import { describe, expect, it } from 'vitest'
 
@@ -14,10 +14,12 @@ import { bare, specTable } from './spec-table'
 const FR_156_TWO_LINES =
   '`GRS` は、タイムゾーンの見せる名を 2 行とし、1 行目を 表 T-376 の UTC の差と略称を `FR-038` の辞書の `timeZoneField` の `zoneHead` の形でつないだもの、2 行目を同じ辞書の `timeZones` が行ごとに持つ地名とすること（利用者の判断）'
 const FR_156_DIGITS = '差は時も分も 2 桁とし、0 は `±00:00` と書く'
+// Spec: IMPS-739
 const FR_156_NO_ABBREVIATION = '略称を持たない行は、1 行目の略称の部を詰める（例「UTC -12:00」／「日付変更線の西」）。'
 const FR_156_COMMA = '英語の地名は、並べる国や都市を and でなく「,」で区切る'
 const FR_156_LIST =
   '⭐ `GRS` は、タイムゾーンを選ぶ欄（`FO-14`・`FO-15`）に、いま選んでいる名を同じ 2 行で見せ、欄を押すと欄の下に 2 行の選択肢の一覧を開き、選択肢を押すと押した選択肢を選んで一覧を閉じること'
+// Spec: IMPS-740
 const FR_156_OUTSIDE = '欄の外を押すと、選ばずに一覧を閉じる。'
 const FR_156_WRAP =
   '⭐ `GRS` は、欄の幅を、1 行目が収まる幅を下限とし（`FR-006` の要る幅）、2 行目の地名が欄に入り切らないときは欄の中で折り返すこと（利用者の判断）'
@@ -334,7 +336,7 @@ describe(`FO-14 -- ${FR_156_LIST}`, () => {
   })
 })
 
-// see T-380, RN-3, T-369, JDG-2469
+// Spec: T-380, RN-3, T-369
 describe(`T-380 RN-3 -- ${RN_3_JOINED}`, () => {
   const groupName = (TEMPLATE.schedule.taskGroups as readonly Loose[]).find((one) => one['id'] === FIRST_GROUP_ID)?.['name'] as string
   const readOnly = (language: DisplayLanguage, settings: Loose): readonly PropertyField[] =>

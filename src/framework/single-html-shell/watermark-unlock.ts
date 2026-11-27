@@ -4,6 +4,7 @@
 // @purity    non-pure
 
 import { readBrowserStored } from './browser-stored-values'
+import { isWatermarkUnlockMatched } from '../../use-case/show-confidential-schedule/show-confidential-schedule'
 import { openSurfaceNameIn, WATERMARK_UNLOCK_ROW, type FrameLoopHands } from './frame-loop'
 
 const HEX_DIGIT_BITS = 4
@@ -32,14 +33,6 @@ async function sha256HexOf(text: string): Promise<string | null> {
   }
 }
 
-// Spec: FR-020, FR-086, S-99c, S-101
-/** @purity semi-pure-mutable */
-function watermarkUnlockDigest(): string {
-  const set = readBrowserStored('S-99c')
-  // Trap: an empty stored digest must count as unset, or the empty password opens the gate.
-  return set === null || set === '' ? WATERMARK_UNLOCK_DIGEST['S-101'] : set
-}
-
 export type WatermarkUnlockHands = Pick<FrameLoopHands, 'readSession' | 'readValues' | 'sendToSession' | 'ask'>
 
 // Spec: FR-020, U-60
@@ -56,7 +49,7 @@ export function answerWatermarkUnlock(hands: WatermarkUnlockHands, isProceeding:
 export async function matchWatermarkUnlock(hands: WatermarkUnlockHands, answer: string): Promise<void> {
   const given = await sha256HexOf(answer)
   // Temporary: spec says a reason with no row is RS-15 (T-233); here no SHA-256 reads as RS-41 (DFC-559). Until: DFC-559 is fixed.
-  if (given === null || given !== watermarkUnlockDigest()) {
+  if (given === null || !isWatermarkUnlockMatched(given, readBrowserStored('S-99c'), WATERMARK_UNLOCK_DIGEST['S-101'])) {
     hands.sendToSession({ type: 'watermarkUnlockMismatched' }, null)
     return
   }

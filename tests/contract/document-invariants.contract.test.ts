@@ -1,67 +1,4 @@
-// Contract test: table T-220 of Chapter 6.1 -- the document invariants.
-//
-// Table T-218 row TS-5 puts this here: a contract test is owned by neither side
-// of the seam and is driven by a specification table, under tests/contract/ and
-// run by Vitest. It is not TS-6 -- that row gives tests/unit/ to whoever
-// implemented the unit, and rule 04 section 1 forbids that person writing them.
-// It is not TS-2 or TS-3 either: both hang from an `SWS-xxx`, and Chapter 6.1
-// declares no `SW_SPEC` node over table T-220.
-//
-// Chapter 6.1 requires `scheduleViolations` (table T-064's PI-1) to be DRIVEN by
-// table T-220 and forbids writing the rows out one by one (MUST NOT). A test
-// written out row by row would carry the very defect that MUST NOT names -- a
-// second copy of the table, going stale in silence -- so this file walks the
-// table instead. `specTable` reads T-220 out of docs/spec at run time, which is
-// Chapter 1.9 (:275) taken literally, and the roster of breaches below is
-// checked against the table's own row IDs in both directions: a row added to
-// T-220 fails this file rather than slipping past it.
-//
-// ⚠️ Written from docs/spec alone (rule 04 section 1). Of the unit under test,
-// only what its public entry declares was read -- the exported entity types, the
-// generated rosters, `ScheduleViolation`, `InvariantKind` and the signature. The
-// body of `scheduleViolations` was not opened, so a misreading inside it cannot
-// have been copied into the expectations here.
-//
-// ⛔ WHAT IS DELIBERATELY NOT ASSERTED, and why:
-//
-//   - The order of the answer. Table T-220 prints its rows in an order, but
-//     nothing in docs/spec says the answer follows it, and Chapter 1.9's rule
-//     about keeping a table's printed order is addressed to code that reads a
-//     ruling out of the order (rule 03 section 4), not to a list of findings.
-//     ⛔ Missing: a sentence saying whether the answer is ordered at all.
-//   - What `at` and `what` hold. Table T-220 names the invariant and its kind
-//     and stops there; the two fields are the published type's, not the
-//     table's. ⛔ Missing: any statement of what a violation reports beyond
-//     which row broke. Only `row` and `kind` are asserted.
-//   - How much a breach must be reported. One document can break one row in
-//     several places, and docs/spec nowhere says whether all of them are
-//     answered or the first. Each case asserts its row is present, never a
-//     count.
-//   - Whether a `Calendar` carrying no `WeekDay` row at all breaks IV-17.
-//     ⛔ Missing: IV-17 asks the resolved calendar to hold at least one working
-//     weekday, and version 0.52 of the revision history records that an
-//     exchanged calendar may carry no weekday rows whatsoever -- which reads
-//     both as "zero working weekdays, so a breach" and as "nothing was stated,
-//     so nothing to judge". The IV-17 case below switches every weekday the
-//     document HAS off instead, which FR-088 describes as a thing a person
-//     reaches by hand, so it breaks under either reading.
-//   - Where IV-12 measures the task's span from, and in which days. ⛔ Missing:
-//     the row names `start` and `finish` as its material but not whether the
-//     span is counted in calendar days or working days, nor whether both ends
-//     count. The case below overshoots by two orders of magnitude so that every
-//     reading of the row is broken.
-//   - `changeLog.ordinal`, though table T-058 marks it a primary key and IV-1
-//     therefore reaches it. ⛔ Missing: any way for this seam to be shown it.
-//     DR-4 of table T-052 puts that array at the document root, outside both
-//     groups the signature takes, so `scheduleViolations` is never handed the
-//     column it is asked to judge. The sweep below files it as out of reach
-//     rather than dropping it, so the roster still fails when table T-058
-//     grows or loses a key column.
-//   - Every settings row whose bound names another settings row. ⛔ Missing: a
-//     grammar for that column. Some of its cells hold one key and some hold
-//     arithmetic over several keys, and docs/spec nowhere says how the second
-//     sort is to be read -- so IV-16 is probed from the cells that hold one
-//     key and nothing else, and the arithmetic ones are left alone.
+// Contract tests: the document invariants of table T-220.
 
 import { describe, expect, it } from 'vitest'
 
@@ -95,25 +32,10 @@ import {
   type DocumentSettings,
 } from '../../src/entity/document-model/document-settings/document-settings'
 
-// ---------------------------------------------------------------------------
-// The table, read rather than copied
-// ---------------------------------------------------------------------------
-
 const T220 = specTable('T-220')
 
-/**
- * The 種別 column of table T-220, paired with the spelling `InvariantKind`
- * publishes for it.
- *
- * ⚠️ Japanese literals on the left. Rule 03 section 5 keeps code in English and
- * ASCII and names one exception -- 日本語そのものを扱う処理（分類の欄を解析する
- * など）-- which is exactly this: the column being read is written in Japanese
- * and the published type is written in English, so something has to pair them.
- * Nothing else in the repository does, so it is here rather than duplicated.
- *
- * ⭐ A kind the table grows is absent from this map and `kindOf` throws, so the
- * table cannot gain a sixth kind without this file saying so.
- */
+// Why: a kind the table grows is absent from this map and kindOf throws, so the table cannot
+// gain a kind without this file saying so.
 const KIND_BY_COLUMN: Readonly<Record<string, InvariantKind>> = {
   '一意': 'unique',
   '参照': 'reference',
@@ -122,11 +44,7 @@ const KIND_BY_COLUMN: Readonly<Record<string, InvariantKind>> = {
   '範囲': 'range',
 }
 
-/**
- * The kind one row of table T-220 states.
- *
- * @purity pure
- */
+/** @purity pure */
 const kindOf = (column: string): InvariantKind => {
   const kind = KIND_BY_COLUMN[column]
   if (kind === undefined) {
@@ -135,7 +53,6 @@ const kindOf = (column: string): InvariantKind => {
   return kind
 }
 
-/** One row of table T-220, as this file needs it. */
 interface Invariant {
   readonly id: string
   readonly kind: InvariantKind
@@ -153,75 +70,44 @@ const KIND_BY_ROW: Readonly<Record<string, InvariantKind>> = INVARIANTS.reduce<
   return all
 }, {})
 
-/**
- * The columns table T-058 marks, read rather than copied.
- *
- * ⭐ IV-1 and IV-2 reach their material through the key column of that table
- * instead of naming columns, so a case that breaks one column proves only that
- * column. The two sweeps below break every column the table marks, which is
- * what makes them able to fail an answer that was written out by hand.
- */
+// Why: IV-1 and IV-2 reach their material through the key column of T-058, so the sweeps below
+// break every column the table marks; one broken column proves only that column.
 const T058 = specTable('T-058')
 
-/**
- * The headings of table T-058 this file reads.
- *
- * ⚠️ Japanese literals, for the reason KIND_BY_COLUMN gives above: the headings
- * being matched are written in Japanese, and rule 03 section 5 admits exactly
- * this case -- code whose subject is the Japanese itself.
- */
 const HEADING_ENTITY = 'エンティティ'
 const HEADING_COLUMN = '列'
 const HEADING_KEY = '鍵'
 
-/** One row of table T-058 as `Entity.column`, which is W-7's form. @purity pure */
+/** @purity pure */
 const memberOf = (row: SpecRow): string =>
   `${bare(row.by[HEADING_ENTITY] ?? '')}.${bare(row.by[HEADING_COLUMN] ?? '')}`
 
-/**
- * The marks one row of table T-058 carries in its key column.
- *
- * ⚠️ Two separators are accepted. Table T-220 and table T-058 punctuate the
- * compound key differently, and which of the two spellings a row happens to use
- * must not decide whether this file sees it.
- *
- * @purity pure
- */
+// Why: two separators are accepted because T-220 and T-058 punctuate the compound key differently.
+/** @purity pure */
 const keyMarksOf = (row: SpecRow): readonly string[] =>
   bare(row.by[HEADING_KEY] ?? '')
     .split(/[,/]/)
     .map((mark) => mark.trim())
 
-/** Every column of table T-058 whose key column carries one mark. @purity pure */
+/** @purity pure */
 const columnsMarked = (mark: string): readonly string[] =>
   T058.rows.filter((row) => keyMarksOf(row).includes(mark)).map(memberOf)
 
 const PRIMARY_KEY_COLUMNS = columnsMarked('PK')
 const FOREIGN_KEY_COLUMNS = columnsMarked('FK')
 
-// ---------------------------------------------------------------------------
-// A document that breaks nothing, and the pieces every breach starts from
-// ---------------------------------------------------------------------------
-
-/**
- * The pair `scheduleViolations` is judged over. Table T-052's DR-1 binds the
- * three groups into a `Document`, but the signature takes the schedule group
- * and the presentation group separately, so the cases carry the same two.
- */
+// Why: DR-1 binds three groups into a Document, but the signature takes the schedule and the
+// presentation group separately, so the cases carry the same two.
 interface DocumentUnderTest {
   readonly schedule: Schedule
   readonly settings: DocumentSettings
 }
 
-/**
- * A `TaskGroup.id` -- AT-51 types the column as a UUID, so the cases use one
- * rather than a bare word. The number only keeps them apart.
- *
- * @purity pure
- */
+// Why: AT-51 types the column as a UUID, so the cases use one; the number only keeps them apart.
+/** @purity pure */
 const uuidOf = (n: number): string => `00000000-0000-4000-8000-${String(n).padStart(12, '0')}`
 
-/** Expand SETTINGS_DEFAULTS' dotted keys into the nested shape the type has. @purity pure */
+/** @purity pure */
 const settingsOf = (over: Readonly<Record<string, unknown>> = {}): DocumentSettings => {
   const out: Record<string, unknown> = {}
   for (const [key, value] of Object.entries({ ...SETTINGS_DEFAULTS, ...over })) {
@@ -240,16 +126,9 @@ const settingsOf = (over: Readonly<Record<string, unknown>> = {}): DocumentSetti
 
 const SETTINGS = settingsOf()
 
-/**
- * The weekdays of the document's calendar, worked on the days table T-209 says.
- *
- * ⭐ Built from `DEFAULT_CALENDAR_VALUES`, which is generated from the
- * manuscript, so no weekday number is typed here and none can go stale. The
- * ordinal is AT-72's primary key and only has to be unique inside this array
- * (IV-1), so the position in the roster is enough.
- *
- * @purity pure
- */
+// Why: the ordinal is the key of AT-72 and only has to be unique inside this array (IV-1),
+// so the position in the roster is enough.
+/** @purity pure */
 const workedWeekDays = (): readonly WeekDay[] =>
   DEFAULT_CALENDAR_VALUES['S-106'].map((dayType, i) => ({
     ordinal: i + 1,
@@ -310,14 +189,12 @@ const PROJECT: Project = {
   minutesPerWeek: null,
   daysPerMonth: null,
   weekStartDay: null,
-  // FR-054: the document's calendar is the one this names. Naming it keeps the
-  // IV-17 case honest -- the calendar it breaks is the resolved one.
+  // Why: naming the calendar keeps the IV-17 case honest: it breaks the resolved one (FR-054).
   calendarUid: CALENDAR_UID,
   defaultStartTime: null,
   defaultFinishTime: null,
-  // ⛔ Table T-220 judges nothing about the hue and AT-19 refuses `null`, so
-  // this is a placeholder inside the column's range and not a reading of S-73,
-  // whose value reaches no generated artifact this file can call.
+  // Why: T-220 judges nothing about the hue and AT-19 refuses null, so this is a placeholder
+  // inside the column's range and not a reading of S-73.
   themeHue: 0,
   parentTaskProgressToleranceDays: 1,
   uidHighWaterMark: 400,
@@ -365,9 +242,8 @@ const TASK_B: Task = {
   start: '2026-01-12',
   finish: '2026-01-16',
   dependencies: [
-    // ⛔ Table T-220 judges nothing about the link kind and AT-46 refuses
-    // `null`, so this is a code inside that column's range, not a choice of
-    // which kind the case is about.
+    // Why: T-220 judges nothing about the link kind and AT-46 refuses null, so this is a code
+    // inside the range, not a choice of kind.
     { predecessorUid: TASK_A_UID, linkType: 1, linkLag: null, lagFormat: null, carry: {}, carryElements: [] },
   ],
 }
@@ -394,7 +270,7 @@ const GROUP_TWO: TaskGroup = {
   order: 2,
 }
 
-// IV-6 asks for exactly one of these per `Task`, so the sound document has two.
+// Why: IV-6 asks for exactly one member per Task, so the sound document has two.
 const MEMBER_A: TaskGroupMember = { taskUid: TASK_A_UID, taskGroupId: GROUP_ONE_ID }
 const MEMBER_B: TaskGroupMember = { taskUid: TASK_B_UID, taskGroupId: GROUP_TWO_ID }
 
@@ -418,8 +294,8 @@ const ASSIGNMENT: Assignment = {
   carryElements: [],
 }
 
-// IV-9 weighs two colors against each other, so the sound document carries a
-// row for it to weigh. Both are unchosen, which P-19 says is not transparent.
+// Why: IV-9 weighs two colors, so the sound document carries a row for it to weigh;
+// both are unchosen, which P-19 says is not transparent.
 const VISUAL: TaskVisual = {
   taskUid: TASK_A_UID,
   shapeKind: null,
@@ -431,8 +307,7 @@ const VISUAL: TaskVisual = {
 
 const VISUAL_B: TaskVisual = { ...VISUAL, taskUid: TASK_B_UID }
 
-// IV-15 weighs this against `Project.importSequence`, so the sound document sets the
-// two equal -- the boundary the row admits.
+// Why: IV-15 weighs this against Project.importSequence, so the two are equal: the boundary the row admits.
 const ORIGIN: TaskOrigin = {
   taskUid: TASK_A_UID,
   sourceProjectId: null,
@@ -458,40 +333,26 @@ const SCHEDULE: Schedule = {
 
 const SOUND: DocumentUnderTest = { schedule: SCHEDULE, settings: SETTINGS }
 
-/** The same document with some of the schedule group replaced. @purity pure */
+/** @purity pure */
 const withSchedule = (part: Partial<Schedule>): DocumentUnderTest => ({
   ...SOUND,
   schedule: { ...SCHEDULE, ...part },
 })
 
-/** The same document with some of the presentation group replaced. @purity pure */
+/** @purity pure */
 const withSettings = (part: Readonly<Record<string, unknown>>): DocumentUnderTest => ({
   ...SOUND,
   settings: settingsOf(part),
 })
 
-/**
- * A day one whole year below the floor of table T-214.
- *
- * ⭐ Derived from the floor the settings group carries rather than typed, so
- * moving S-119 moves this case with it instead of leaving a stale year that
- * happens to still be outside the range -- or, one day, inside it.
- *
- * @purity pure
- */
+// Why: derived from the floor the settings carry rather than typed, so moving S-119 moves this case.
+/** @purity pure */
 const beforeAcceptedDates = (): string =>
   `${Number(SETTINGS_CONSTANTS.importMinDate.slice(0, 4)) - 1}-01-01`
 
-/**
- * A chain of task groups nested one level deeper than S-125 allows.
- *
- * S-125 fixes where the depth count starts, and it starts at the root, so the
- * chain is one link longer than the bound. The bound itself is read off the
- * settings the case carries and is never typed here. Every link names itself so
- * that IV-8 stays whole while IV-5 breaks.
- *
- * @purity pure
- */
+// Why: S-125 counts the depth from the root, so the chain is one link longer than the bound;
+// every link names itself so that IV-8 stays whole while IV-5 breaks.
+/** @purity pure */
 const overDeepGroups = (): readonly TaskGroup[] => {
   const links: TaskGroup[] = []
   for (let depth = 1; depth <= SETTINGS_CONSTANTS.maxGroupDepth + 1; depth += 1) {
@@ -506,13 +367,8 @@ const overDeepGroups = (): readonly TaskGroup[] => {
   return links
 }
 
-// ---------------------------------------------------------------------------
-// Rows the sound document does not need, but the sweeps below do
-// ---------------------------------------------------------------------------
-//
-// Four arrays of the schedule group are empty in the sound document because no
-// row of table T-220 needs them there. Table T-058 marks a key column inside
-// each of them all the same, so the sweeps have to put a row in.
+// Why: these arrays are empty in the sound document, but T-058 marks a key column in each,
+// so the sweeps need a row in them.
 
 const EXCEPTION_ONE: Exception = {
   ordinal: 1,
@@ -559,9 +415,8 @@ const HIGHLIGHT_BOX_ONE: HighlightBox = {
   fillTransparencyPercent: null,
 }
 
-// ⛔ W-9 keeps the exchange partner's spelling inside `carryElements`, so the
-// name is one of theirs and not a word coined here. Nothing in table T-220
-// weighs it; only the ordinal beside it is judged.
+// Why: W-9 keeps the partner's spelling inside carryElements, so the name is one of theirs;
+// only the ordinal beside it is judged.
 const CARRY_ONE: CarryElement = { ordinal: 1, name: 'Cost', fields: {}, children: [] }
 
 const BASELINE_ONE: BaselineTask = {
@@ -572,69 +427,43 @@ const BASELINE_ONE: BaselineTask = {
   milestone: null,
 }
 
-/** An integer key no row of the sound document carries. */
 const MISSING_UID = 999
 
-/** A UUID key no row of the sound document carries. */
 const MISSING_GROUP_ID = uuidOf(999)
 
-// ---------------------------------------------------------------------------
-// One breach per row of the table
-// ---------------------------------------------------------------------------
-
-/**
- * A document that breaks the row it is filed under, and as little else as the
- * row allows. Each is keyed by the row ID so the test can walk the table and
- * ask for them by name rather than listing them a second time.
- */
 const BREACH: Readonly<Record<string, () => DocumentUnderTest>> = {
-  // Two rows of the same primary key inside one array. `Resource` is used
-  // because no other invariant of the table looks at it, so the breach is
-  // exactly one row wide.
+  // Why: Resource is used because no other invariant looks at it, so the breach is one row wide.
   'IV-1': () => withSchedule({ resources: [RESOURCE, { ...RESOURCE, name: 'another' }] }),
 
-  // A non-null foreign key naming a row the document does not hold. RL-15 is
-  // the pointer for this column.
   'IV-2': () => withSchedule({ assignments: [{ ...ASSIGNMENT, resourceUid: 999 }] }),
 
-  // A pinned task group (S-126) naming a `TaskGroup` that is not there.
   'IV-3': () => withSettings({ pinnedTaskGroupIds: [uuidOf(999)] }),
 
-  // The parent tasks close a ring: each of the two names the other.
   'IV-4': () =>
     withSchedule({
       tasks: [{ ...TASK_A, parentTaskUid: TASK_B_UID }, TASK_B],
     }),
 
-  // A chain of task groups nested past S-125.
   'IV-5': () => withSchedule({ taskGroups: [GROUP_ONE, GROUP_TWO, ...overDeepGroups()] }),
 
-  // The task group parents close a ring: each of the two names the other. The same
-  // shape as the IV-4 case, one axis over.
-  //
-  // ⚠️ IV-5 may be answered alongside it and that is not a fault of the case:
-  // a ring has no depth to compare against S-125, so whichever way an answer
-  // counts one, it will not stop. The assertion below asks only that IV-18 is
-  // among the answers.
+  // Why: IV-5 may be answered alongside, since a ring has no depth to compare against S-125;
+  // the assertion asks only that IV-18 is among the answers.
   'IV-18': () =>
     withSchedule({
       taskGroups: [{ ...GROUP_ONE, parentId: GROUP_TWO_ID }, GROUP_TWO],
     }),
 
-  // A `Task` no `TaskGroupMember` names.
   'IV-6': () => withSchedule({ taskGroupMembers: [MEMBER_A] }),
 
   'IV-23': () => withSchedule({ taskVisuals: [VISUAL] }),
 
-  // No calendar at all. `Project.calendarUid` is cleared with it, so the
-  // dangling reference of IV-2 is not raised alongside; FR-054 then resolves
-  // the document's calendar to table T-209's default, which is worked, so
-  // IV-17 is not raised either.
+  // Why: calendarUid is cleared too so IV-2 is not raised alongside; FR-054 then resolves the
+  // default calendar of T-209, which is worked, so IV-17 is not raised either.
   'IV-7': () =>
     withSchedule({ calendars: [], project: { ...PROJECT, calendarUid: null } }),
 
-  // Every weekday of the resolved calendar switched off -- what FR-088 says a
-  // person reaches by taking all seven away.
+  // Why: every weekday the calendar has is switched off (FR-088), not none carried: a calendar with
+  // no weekday rows reads two ways under IV-17, and this breaks under either.
   'IV-17': () =>
     withSchedule({
       calendars: [
@@ -642,63 +471,43 @@ const BREACH: Readonly<Record<string, () => DocumentUnderTest>> = {
       ],
     }),
 
-  // A task group with neither a name of its own nor a task to take one from.
   'IV-8': () =>
     withSchedule({
       taskGroups: [{ ...GROUP_ONE, name: null, derivedFromTaskUid: null }, GROUP_TWO],
     }),
 
-  // Both colors transparent. P-19 is the value that means transparent, and it
-  // is not `null`, which means unchosen.
+  // Why: P-19 is the value that means transparent; null means unchosen.
   'IV-9': () =>
     withSchedule({
       taskVisuals: [{ ...VISUAL, fillColor: 'transparent', strokeColor: 'transparent' }, VISUAL_B],
     }),
 
-  // `finish` before `start`, both present.
   'IV-10': () =>
     withSchedule({
       tasks: [{ ...TASK_A, start: TASK_A.finish, finish: TASK_A.start }, TASK_B],
     }),
 
-  // A fade on a task with no `finish`.
   'IV-11': () =>
     withSchedule({
       tasks: [{ ...TASK_A, finish: null, fadeInDays: 1 }, TASK_B],
     }),
 
-  // Fades that together overshoot the span by two orders of magnitude, so that
-  // no reading of "the task's span" leaves them inside it.
+  // Why: the fades overshoot the span by two orders of magnitude, so no reading of the span
+  // (calendar or working days, ends counted or not) leaves them inside it.
   'IV-12': () =>
     withSchedule({
       tasks: [{ ...TASK_A, fadeInDays: 100, fadeOutDays: 100 }, TASK_B],
     }),
 
-  // A date column outside table T-214.
   'IV-14': () => withSchedule({ tasks: [{ ...TASK_A, start: beforeAcceptedDates() }, TASK_B] }),
 
-  // An import sequence recorded on a task that is ahead of the document's own.
   'IV-15': () =>
     withSchedule({
       taskOrigins: [{ ...ORIGIN, lastSeenImportSequence: PROJECT.importSequence + 1 }],
     }),
 
-  // A highlight box drawn backwards in time. Table T-220's IV-19 (CR-341,
-  // ledger row DFC-211): 「ハイライトボックスの `start` が `finish` より後で
-  // ないこと、および `topTaskGroupId` が `bottomTaskGroupId` より下でないこと」, 対象 「その
-  // 4 列」, 種別 「組合せ」 -- read off the table, never typed here.
-  //
-  // ⭐ THE ROW NAMES TWO CONDITIONS AND THIS CASE BREAKS ONE. The other half is
-  // in REVERSED below, as a probe, for the same reason IV-1 and IV-2 have
-  // sweeps: a case that broke only the dates proves only the dates.
-  //
-  // ⚠️ THE TWO GROUP IDS ARE LEFT SOUND HERE and both name task groups the document
-  // holds, so IV-2 is not raised alongside; the dates are inside table T-214,
-  // so IV-14 is not either. ⛔ The row's own note says a value that came from a
-  // drag is not its material -- 「`FR-019` が離した時点で正規化すると定めており、
-  // 正規化された値は本行を必ず満たす」 -- and 「打ち込みと取り込みから来た値には
-  // 効かせること（MUST）」 is the half this seam is on: `scheduleViolations` judges
-  // a document, which is where a typed or imported value has arrived.
+  // Why: this breaks the date half of IV-19 (REVERSED breaks the group half); the ids stay sound and the
+  // dates inside T-214, so no IV-2 or IV-14 is raised; FR-019 leaves typed or imported values as the material.
   'IV-19': () =>
     withSchedule({
       highlightBoxes: [
@@ -712,22 +521,11 @@ const BREACH: Readonly<Record<string, () => DocumentUnderTest>> = {
       ],
     }),
 
-  // A stored setting whose floor names another setting, put one whole unit
-  // under it: S-3's floor names fontMin, so the value breaks the bound whichever
-  // way it is read -- inclusive or not.
+  // Why: one whole unit under the floor S-3 names, so the bound breaks whether read inclusive or not.
   'IV-16': () => withSettings({ rulerFontSizePx: SETTINGS_CONSTANTS.fontMin - 1 }),
 
-  // A document holding no task group at all -- the state IV-20 forbids, whose origin
-  // the row names as the sentence under table T-050 of Chapter 1.4.
-  //
-  // ⚠️ EMPTYING THE TASK GROUPS ALONE WOULD BREAK MORE THAN ONE ROW, so everything
-  // that leans on a task group or on a task goes with them: `TaskGroupMember` would
-  // name a group that is gone (IV-2) and its tasks would then be housed by
-  // nobody (IV-6), and `TaskVisual`, `TaskOrigin` and `Assignment` each point
-  // at a `Task` (IV-2 again). With all six arrays empty, every other row of the
-  // table is judged over nothing. The calendar, the project and the settings
-  // group are left as the sound document has them, so IV-7, IV-17, IV-3 and the
-  // settings rows all still stand -- IV-20 is the only row left to break.
+  // Why: every array that leans on a task group or a task is emptied too, or IV-2 and IV-6 would
+  // be raised alongside; IV-20 is then the only row left to break.
   'IV-20': () =>
     withSchedule({
       taskGroups: [],
@@ -745,7 +543,6 @@ const BREACH: Readonly<Record<string, () => DocumentUnderTest>> = {
 
   'IV-24': () => withSchedule({ calendars: [calendarWithMonday(SIX_SPANS)] }),
 
-  // A milestone shape drawn for a Task whose `milestone` is not true.
   'IV-22': () =>
     withSchedule({
       taskVisuals: [{ ...VISUAL, shapeKind: 'milestone' }, VISUAL_B],
@@ -764,51 +561,31 @@ const IV_21_OUTSIDE: Readonly<Record<string, () => DocumentUnderTest>> = {
     }),
 }
 
-/** The case filed under one row of table T-220. @purity pure */
+/** @purity pure */
 const breachOf = (id: string): DocumentUnderTest => {
   const build = BREACH[id]
   if (build === undefined) throw new Error(`no case breaks table T-220 row ${id}`)
   return build()
 }
 
-/** A failure message that names what came back instead. @purity pure */
+/** @purity pure */
 const listed = (found: readonly ScheduleViolation[]): string =>
   found.length === 0 ? 'nothing' : found.map((one) => `${one.row}/${one.kind}`).join(', ')
 
-// ---------------------------------------------------------------------------
-// The three rows that are judged over a whole column of another table
-// ---------------------------------------------------------------------------
-//
-// IV-1, IV-2 and IV-16 do not name their material: the first two point at the
-// key column of table T-058 and the third at the bound columns of
-// _assets/tbl-settings.md. One case each proves one column, which an answer
-// that hard-codes that column also passes. These sweeps break every column the
-// pointed-at table marks, and the rosters are read from it, so an answer that
-// covers only what somebody thought of fails here.
+// Why: IV-1 and IV-2 point at the key column of T-058, and one case per row passes an answer that
+// hard-codes that column; these sweeps break every column that table marks.
 
-/** One document that must draw one row of table T-220. */
 interface Probe {
-  /** The row of table T-220 the answer must hold. */
   readonly row: string
-  /** What is broken, as `Entity.column` (W-7) or a settings key. */
   readonly member: string
   readonly document: () => DocumentUnderTest
 }
 
-/**
- * Primary key columns of table T-058 that this seam is never handed.
- *
- * ⛔ See the head of this file: DR-4 of table T-052 puts this array at the
- * document root and the signature takes two groups, neither of which holds it.
- * It is listed rather than dropped so that the roster below still counts.
- */
+// Why: DR-4 puts this array at the document root, outside both groups the signature takes;
+// it is listed rather than dropped so that the roster still counts.
 const OUT_OF_REACH: readonly string[] = ['changeLog.ordinal']
 
-/**
- * One document per primary key column of table T-058, each holding two rows of
- * the same key in one array. Keyed the way `memberOf` spells the table's rows,
- * so the roster is checked against the table and not against itself.
- */
+// Why: keyed the way memberOf spells the rows of T-058, so the roster is checked against the table.
 const REPEATED: Readonly<Record<string, () => DocumentUnderTest>> = {
   'Task.uid': () => withSchedule({ tasks: [TASK_A, TASK_B, { ...TASK_B, name: 'copy' }] }),
 
@@ -821,8 +598,6 @@ const REPEATED: Readonly<Record<string, () => DocumentUnderTest>> = {
   'Calendar.uid': () =>
     withSchedule({ calendars: [CALENDAR, { ...CALENDAR, ordinal: 2, isBaseCalendar: false }] }),
 
-  // The weak entities of RL-12 and RL-13 sit inside the calendar, so the two
-  // rows of the same key are put in the array that holds them.
   'WeekDay.ordinal': () =>
     withSchedule({
       calendars: [{ ...CALENDAR, weekDays: [...workedWeekDays(), ...workedWeekDays().slice(0, 1)] }],
@@ -858,8 +633,7 @@ const REPEATED: Readonly<Record<string, () => DocumentUnderTest>> = {
   'HighlightBox.id': () =>
     withSchedule({ highlightBoxes: [HIGHLIGHT_BOX_ONE, { ...HIGHLIGHT_BOX_ONE }] }),
 
-  // AT-123 says the owner and the ordinal together are what identify one of
-  // these, so both rows are put under the same owner.
+  // Why: AT-123 identifies one by the owner and the ordinal together, so both rows share one owner.
   'CarryElement.ordinal': () =>
     withSchedule({
       project: { ...PROJECT, carryElements: [CARRY_ONE, { ...CARRY_ONE, name: 'Other' }] },
@@ -869,10 +643,6 @@ const REPEATED: Readonly<Record<string, () => DocumentUnderTest>> = {
     withSchedule({ baselineTasks: [BASELINE_ONE, { ...BASELINE_ONE, name: 'copy' }] }),
 }
 
-/**
- * One document per foreign key column of table T-058, each holding a non-null
- * value in that column that names no row of the document.
- */
 const DANGLING: Readonly<Record<string, () => DocumentUnderTest>> = {
   'Project.calendarUid': () => withSchedule({ project: { ...PROJECT, calendarUid: MISSING_UID } }),
 
@@ -882,8 +652,7 @@ const DANGLING: Readonly<Record<string, () => DocumentUnderTest>> = {
   'Task.calendarUid': () =>
     withSchedule({ tasks: [{ ...TASK_A, calendarUid: MISSING_UID }, TASK_B] }),
 
-  // The dependency is nested under its successor (DF-4 of table T-053), so the
-  // one the sound document already carries is the one bent.
+  // Why: a dependency is nested under its successor (DF-4), so the one the sound document carries is bent.
   'Dependency.predecessorUid': () =>
     withSchedule({
       tasks: [
@@ -957,18 +726,8 @@ const DANGLING: Readonly<Record<string, () => DocumentUnderTest>> = {
     withSchedule({ highlightBoxes: [{ ...HIGHLIGHT_BOX_ONE, bottomTaskGroupId: MISSING_GROUP_ID }] }),
 }
 
-/**
- * The OTHER half of IV-19 -- the two group columns, put the wrong way up.
- *
- * ⭐ IV-19 states two conditions over four columns and the case in BREACH breaks
- * the date pair. This one breaks the row pair, so an answer that judged only
- * the dates -- the half a reader thinks of first -- fails here.
- *
- * ⚠️ WHICH OF TWO ROWS IS 「下」 IS THE TREE'S ORDER AND NOT A NUMBER OF THIS
- * FILE'S. GROUP_TWO is GROUP_ONE's child, so the panel draws GROUP_ONE first
- * and GROUP_TWO under it; naming GROUP_TWO as the top and GROUP_ONE as the
- * bottom is 「`topTaskGroupId` が `bottomTaskGroupId` より下」 exactly.
- */
+// Why: this breaks the group half of IV-19, so an answer that judged only the dates fails;
+// GROUP_TWO is the child of GROUP_ONE, so naming it the top puts the top below the bottom.
 const REVERSED: Readonly<Record<string, () => DocumentUnderTest>> = {
   'HighlightBox.topTaskGroupId': () =>
     withSchedule({
@@ -1066,7 +825,7 @@ const NOT_REPORTED: Readonly<Record<string, { readonly row: string; readonly doc
   },
 }
 
-/** Every probe, with the row of table T-220 each one must draw. @purity pure */
+/** @purity pure */
 const probesOf = (
   row: string,
   built: Readonly<Record<string, () => DocumentUnderTest>>,
@@ -1082,14 +841,12 @@ const PROBES: readonly Probe[] = [
   ...probesOf('IV-14', UNREADABLE_TIMES),
 ]
 
-// ---------------------------------------------------------------------------
-// The walk
-// ---------------------------------------------------------------------------
-
+// Spec: T-220, PI-1
+// Why: only row and kind are asserted, and presence rather than count or order: the table states
+// no order, no count, and nothing of what `at` and `what` hold.
 describe('table T-220 -- the document invariants, through scheduleViolations (PI-1)', () => {
   it('has a case for every row of the table, and no case for a row it does not have', () => {
-    // ⭐ Both directions. One way alone would let a row added to T-220 pass
-    // unnoticed, which is the failure Chapter 6.1's MUST NOT is written against.
+    // Why: both directions, or a row added to T-220 passes unnoticed.
     expect(Object.keys(BREACH).sort()).toEqual(INVARIANTS.map((one) => one.id).sort())
   })
 
@@ -1124,8 +881,7 @@ describe('table T-220 -- the document invariants, through scheduleViolations (PI
   })
 
   it('breaks every primary key column table T-058 marks, and no column it does not', () => {
-    // ⭐ Both directions again, and the same reason: IV-1 is judged over the
-    // key column of that table, so a column added there has to reach this file.
+    // Why: both directions, so a key column added to T-058 has to reach this file.
     expect([...Object.keys(REPEATED), ...OUT_OF_REACH].sort()).toEqual([...PRIMARY_KEY_COLUMNS].sort())
   })
 

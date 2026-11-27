@@ -40,7 +40,6 @@ const sentenceOf = (language: 'ja' | 'en'): string => {
 }
 
 describe('UF-97 -- a release past the limit returns the move and the lifts as one bundle, tagged with QN-16', () => {
-  // see JDG-2414
   it('H let go at depth 2 under P: one changeDocument with question QN-16, the lifts of H4a and H4b first, then the move', () => {
     const landing = landingAt('H', 1, under('P1'))
     expect(landing?.isPastDepthCap).toBe(true)
@@ -59,7 +58,6 @@ describe('UF-97 -- a release past the limit returns the move and the lifts as on
     ])
   })
 
-  // see JDG-2414
   it('the bundle lands the same tree as the held move followed by taskGroupLiftMovesAfter', () => {
     const landing = landingAt('H', 1, under('P1'))
     expect(landing).not.toBeNull()
