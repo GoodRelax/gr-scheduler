@@ -96,6 +96,9 @@ describe('HF-15 -- premise: the stacking reader sees the flicker the row reports
   })
 })
 
+// Why: a whole-route frame sweep takes about 3 s alone (warm) and 7.6 s in a cold full run (measured 2026-11-28, CR-855), so the 5 s default is too tight; an explicit ceiling, not a retry.
+const WHOLE_ROUTE_SWEEP_TIMEOUT_MS = 20_000
+
 describe('HF-15 -- the line and the copy are drawn in front of the rows and their controls', () => {
   it('paints the copy and the line over every drawn row and every part of it, with the row under the pointer hovered, on every frame of the route', () => {
     const { bench, route } = startCarry()
@@ -121,7 +124,7 @@ describe('HF-15 -- the line and the copy are drawn in front of the rows and thei
       checkedFrames += 1
     }
     expect(checkedFrames).toBe(route.length)
-  })
+  }, WHOLE_ROUTE_SWEEP_TIMEOUT_MS)
 })
 
 describe('HF-15 -- the copy follows the pointer by S-599 to the right and down', () => {
