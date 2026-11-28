@@ -14,7 +14,7 @@
       "creationDate": "2026-10-31T08:50:00",
       "revision": 11,
       "startDate": "2026-10-17T05:30:00",
-      "statusDate": "2026-11-28T14:07:00",
+      "statusDate": "2026-11-28T14:15:00",
       "minutesPerDay": 1440,
       "minutesPerWeek": 10080,
       "daysPerMonth": 30,
@@ -1664,14 +1664,6 @@
           },
           {
             "predecessorUid": 391,
-            "linkType": 1,
-            "linkLag": 0,
-            "lagFormat": 7,
-            "carry": {},
-            "carryElements": []
-          },
-          {
-            "predecessorUid": 558,
             "linkType": 1,
             "linkLag": 0,
             "lagFormat": 7,
@@ -11419,11 +11411,11 @@
         "parentTaskUid": null,
         "wbsOrder": 416,
         "name": "🌑 CR-855(名の辞書のとおりにコードの名を改める)の段 C: コードの識別子(SUB)",
-        "start": "2026-11-29T05:33:55",
-        "finish": "2026-11-29T07:33:55",
+        "start": "2026-11-29T16:48:55",
+        "finish": "2026-11-29T18:48:55",
         "milestone": false,
         "deadline": null,
-        "notes": "pmo-6 2026-11-28T14:07: BOSS 6th line 11-28: stage C (code identifiers) is a new seat after CR-851 lands (556). No estimate; 2 h placeholder. PMO assumption: the last develop merge (228) waits it.",
+        "notes": "pmo-6 2026-11-28T14:07: BOSS 6th line 11-28: stage C (code identifiers) is a new seat after CR-851 lands (556). No estimate; 2 h placeholder. PMO assumption: the last develop merge (228) waits it. pmo-7 2026-11-28T14:15: BOSS 6th: stage C is cleanup after the develop merge, not a gate; it follows 228 (not 556), and 228 no longer waits it.",
         "calendarUid": null,
         "actualStart": null,
         "stop": null,
@@ -11435,7 +11427,7 @@
         "fadeOutDays": null,
         "dependencies": [
           {
-            "predecessorUid": 556,
+            "predecessorUid": 228,
             "linkType": 1,
             "linkLag": 0,
             "lagFormat": 7,
@@ -18244,10 +18236,10 @@
     "zoomY": 1.099862517185352
   },
   "documentStamp": {
-    "scheduleUpdatedAt": "2026-11-28T05:07:00Z",
+    "scheduleUpdatedAt": "2026-11-28T05:15:00Z",
     "lastEditedBy": "PMO child session",
     "settingsUpdatedAt": "2026-10-20T20:24:42Z",
-    "fileSavedAt": "2026-11-28T05:07:00Z"
+    "fileSavedAt": "2026-11-28T05:15:00Z"
   },
   "changeLog": [
     {
@@ -19299,6 +19291,12 @@
       "editedBy": "PMO child session",
       "explanation": "Fact at 11-28 14:07 JST: BOSS 6th line, CR-855 stage B done (303, 12:50); GT-2 runs 12 (red twice) and 13 (passed 13:40-14:04, develop aacb4f204) = 555; CR-851 apply 3 (544) handed over 13:39; apply 4 (560) waits the owner order 559 and does items 2..5, then 7..8 in 543; CR-855 stage C (558) after CR-851 lands.",
       "changedAt": "2026-11-28T05:07:00Z"
+    },
+    {
+      "ordinal": 176,
+      "editedBy": "PMO child session",
+      "explanation": "Fact at 11-28 14:15 JST: BOSS 6th line, CR-855 stage C (558) is cleanup after the develop merge: it follows 228, and 228 no longer waits it. Measured with the measure.mjs of 357976e92 (DFC-3711).",
+      "changedAt": "2026-11-28T05:15:00Z"
     }
   ]
 }
