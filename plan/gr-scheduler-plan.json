@@ -14,7 +14,7 @@
       "creationDate": "2026-10-31T08:50:00",
       "revision": 11,
       "startDate": "2026-10-17T05:30:00",
-      "statusDate": "2026-11-28T16:43:00",
+      "statusDate": "2026-11-28T16:51:00",
       "minutesPerDay": 1440,
       "minutesPerWeek": 10080,
       "daysPerMonth": 30,
@@ -24,7 +24,7 @@
       "defaultFinishTime": "23:59:00",
       "themeHue": 214,
       "parentTaskProgressToleranceDays": 1,
-      "uidHighWaterMark": 560,
+      "uidHighWaterMark": 562,
       "importSequence": 0,
       "carry": {},
       "carryElements": [],
@@ -10030,7 +10030,7 @@
         "wbsOrder": 375,
         "name": "🌒 オーナー: BGQA9 の 5 回目(12 問)に答える",
         "start": "2026-11-25T00:53:00",
-        "finish": "2026-11-28T18:57:39",
+        "finish": "2026-11-28T18:41:39",
         "milestone": false,
         "deadline": null,
         "notes": "pmo-6 2026-11-25T01:07: BOSS line 11-25: BGQA9 round 4 (393 outward terms, 28 proposals) is with the owner. Length = 28 proposals at 8.6 rows/h in owner hours (provisional). The full review B14 (493) waits for it. pmo-7 2026-11-27T07:06: BOSS line: not answered yet (28 proposals left); the owner has a cold and returns to the GQAs after recovery. Finish placed from now in owner hours at 8.6 rows/h (provisional; no pressure on the owner). pmo-7 2026-11-28T07:52: BOSS 6th: still open; the owner has a cold. Finish placed from now in owner hours (provisional). pmo-7 2026-11-28T09:57: BOSS 6th: BGQA9 is at round 5 (12 questions; 724ec6bf7 recorded q14-1 and q14-2). The same owner wait goes on; length = 12 questions at 8.6 rows/h in owner hours (provisional). pmo-7 2026-11-28T10:11: BOSS 6th: the owner is editing round 5 now (root copy).",
@@ -10213,7 +10213,7 @@
         "wbsOrder": 381,
         "name": "🌒 オーナー: BGQA の問 24(固めた GRS JSON の説明の 2 つの語、Delay Diagnosis と date-time)に答える",
         "start": "2026-11-25T02:28:00",
-        "finish": "2026-11-28T19:25:33",
+        "finish": "2026-11-28T19:09:33",
         "milestone": false,
         "deadline": null,
         "notes": "pmo-6 2026-11-25T02:28: BOSS line 11-25: question 24 asks about two words in the descriptions of the frozen GRS JSON. Length = 2 questions at 8.6 rows/h in owner hours (provisional). pmo-6 2026-11-25T08:05: the owner decides the GRS JSON and Agent API names first tonight; placed in tonight owner window (provisional). pmo-7 2026-11-27T07:06: BOSS line: not answered yet (2 questions left); the owner has a cold and returns to the GQAs after recovery. Finish placed from now in owner hours at 8.6 rows/h (provisional; no pressure on the owner). pmo-7 2026-11-28T07:52: BOSS 6th: still open; the owner has a cold. Finish placed from now in owner hours (provisional).",
@@ -10307,8 +10307,8 @@
         "parentTaskUid": null,
         "wbsOrder": 384,
         "name": "🌑 決まった名を grep・置換の道具で一括に当てる(仕様・tests・表示語・用語集)(SUB)",
-        "start": "2026-11-28T18:57:39",
-        "finish": "2026-11-28T21:57:39",
+        "start": "2026-11-28T18:41:39",
+        "finish": "2026-11-28T21:41:39",
         "milestone": false,
         "deadline": null,
         "notes": "pmo-6 2026-11-25T07:50: BOSS line 11-25 (owner order: names are data keyed by ID; renames are applied later in bulk with a grep-and-replace tool). After the owner answers 517, 524 and 507; PMO also puts it after CR-855 (303, the rename procedure) and the rest of CR-857 (525, the glossary). Before the final merge 228. 3 h = middle of 2..4 h (provisional). SUB: Opus 5.5 high. pmo-6 2026-11-25T08:40: candidate: 20 dictionary screen words still have verb-form Japanese (JDG-3902: a noun in English is a noun in Japanese). Also waits for BGQA11 round 2 (529).",
@@ -11014,8 +11014,8 @@
         "parentTaskUid": null,
         "wbsOrder": 403,
         "name": "🌑 オーナー: Agent API の名を決める(今は仮の名)",
-        "start": "2026-11-28T19:25:33",
-        "finish": "2026-11-28T19:31:33",
+        "start": "2026-11-28T19:09:33",
+        "finish": "2026-11-28T19:15:33",
         "milestone": false,
         "deadline": null,
         "notes": "pmo-6 2026-11-28T09:11: BOSS 6th line 11-28, owner: main is too early; the Agent API names are provisional. The PR merge (231), Pages (232) and the tag (233) wait it. No date; PMO places a 6 min placeholder from now each round.",
@@ -11037,8 +11037,8 @@
         "parentTaskUid": null,
         "wbsOrder": 404,
         "name": "🌑 オーナー: UI の操作の試験をする",
-        "start": "2026-11-28T19:31:33",
-        "finish": "2026-11-28T19:37:33",
+        "start": "2026-11-28T19:15:33",
+        "finish": "2026-11-28T19:21:33",
         "milestone": false,
         "deadline": null,
         "notes": "pmo-6 2026-11-28T09:11: BOSS 6th line 11-28, owner: the owner has not run the UI operation test yet. 231..233 wait it. No date; PMO places a 6 min placeholder from now each round. pmo-7 2026-11-28T09:39: the UI test uses the beta page on main, so it waits 548 (the owner merges the beta page PR). pmo-7 2026-11-28T09:57: BOSS 6th: the beta page serves the tested build; the owner starts the UI test whenever they choose (no date). pmo-7 2026-11-28T16:34: the owner opened grs-beta.html; the UI test can start any time. pmo-8 2026-11-28T16:43: the owner opened grs-beta.html about 16:30 (BOSS line); may start any time, no date.",
@@ -11164,19 +11164,19 @@
         "uid": 550,
         "parentTaskUid": null,
         "wbsOrder": 408,
-        "name": "🌑 新 ANMS・NDD B5: BGQA10 の 3 回目の答えを記録し、短い 4 回目を書く(SUB)",
-        "start": "2026-11-28T16:43:00",
-        "finish": "2026-11-28T17:13:00",
+        "name": "🌕 新 ANMS・NDD B5: BGQA10 の 3 回目の答えを記録し、短い 4 回目を書く(SUB)",
+        "start": "2026-11-28T09:57:00",
+        "finish": "2026-11-28T10:10:00",
         "milestone": false,
         "deadline": null,
-        "notes": "pmo-6 2026-11-28T10:11: BOSS 6th line 11-28: the B5 seat (local_4dadce35) records round 3 and writes a short round 4. 0.5 h (provisional). pmo-7 2026-11-28T10:26: not reported yet (BOSS 6th). pmo-7 2026-11-28T11:37: not reported yet; placed from now. pmo-7 2026-11-28T14:07: not reported yet; placed from now. pmo-7 2026-11-28T16:34: still unreported (BOSS 6th); placed from now. pmo-8 2026-11-28T16:43: still unreported (BOSS 6th 16:42); placed from now.",
+        "notes": "pmo-6 2026-11-28T10:11: BOSS 6th line 11-28: the B5 seat (local_4dadce35) records round 3 and writes a short round 4. 0.5 h (provisional). pmo-7 2026-11-28T10:26: not reported yet (BOSS 6th). pmo-7 2026-11-28T11:37: not reported yet; placed from now. pmo-7 2026-11-28T14:07: not reported yet; placed from now. pmo-7 2026-11-28T16:34: still unreported (BOSS 6th); placed from now. pmo-8 2026-11-28T16:43: still unreported (BOSS 6th 16:42); placed from now. pmo-8 2026-11-28T16:51: done: B5 committed round 4 at 10:10 (b26c85b69); merged into develop 16:43 (d48b6f848) and pushed. It was simply unreported.",
         "calendarUid": null,
-        "actualStart": null,
+        "actualStart": "2026-11-28T09:57:00",
         "stop": null,
-        "actualFinish": null,
+        "actualFinish": "2026-11-28T10:10:00",
         "resume": null,
         "resumeValid": null,
-        "percentComplete": 0,
+        "percentComplete": 100,
         "fadeInDays": null,
         "fadeOutDays": null,
         "dependencies": [
@@ -11197,11 +11197,11 @@
         "parentTaskUid": null,
         "wbsOrder": 409,
         "name": "🌑 オーナー: BGQA10 の 4 回目に答える",
-        "start": "2026-11-28T17:13:00",
-        "finish": "2026-11-28T17:33:55",
+        "start": "2026-11-28T16:51:00",
+        "finish": "2026-11-28T17:11:55",
         "milestone": false,
         "deadline": null,
-        "notes": "pmo-6 2026-11-28T10:11: BOSS 6th line 11-28: a short round 4 after the B5 sha. 3 questions at 8.6 rows/h in owner hours (provisional). B14 (493) waits BGQA10, so it waits this round too.",
+        "notes": "pmo-6 2026-11-28T10:11: BOSS 6th line 11-28: a short round 4 after the B5 sha. 3 questions at 8.6 rows/h in owner hours (provisional). B14 (493) waits BGQA10, so it waits this round too. pmo-8 2026-11-28T16:51: BGQA10 round 4 is in develop (d48b6f848); the owner can answer now.",
         "calendarUid": null,
         "actualStart": null,
         "stop": null,
@@ -11301,8 +11301,8 @@
         "parentTaskUid": null,
         "wbsOrder": 412,
         "name": "🌑 オーナー: BGQA11 の問 5・問 6(用語集)に答える",
-        "start": "2026-11-28T18:57:39",
-        "finish": "2026-11-28T19:11:36",
+        "start": "2026-11-28T18:41:39",
+        "finish": "2026-11-28T18:55:36",
         "milestone": false,
         "deadline": null,
         "notes": "pmo-6 2026-11-28T11:37: BOSS 6th line 11-28: the glossary seat (local_81e9d333) now only waits these 2 questions. 2 questions at 8.6 rows/h in owner hours (provisional).",
@@ -11483,6 +11483,78 @@
         "dependencies": [
           {
             "predecessorUid": 559,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          }
+        ],
+        "carry": {},
+        "carryElements": []
+      },
+      {
+        "uid": 561,
+        "parentTaskUid": null,
+        "wbsOrder": 419,
+        "name": "🌑 オーナー: 1 章とユースケースを仕様へ当てる席を立てる合図を出す",
+        "start": "2026-11-28T17:11:55",
+        "finish": "2026-11-28T17:17:55",
+        "milestone": false,
+        "deadline": null,
+        "notes": "pmo-8 2026-11-28T16:51: BOSS 6th 16:4x: the owner orders the new seat after 551 (6 min placeholder).",
+        "calendarUid": null,
+        "actualStart": null,
+        "stop": null,
+        "actualFinish": null,
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 0,
+        "fadeInDays": null,
+        "fadeOutDays": null,
+        "dependencies": [
+          {
+            "predecessorUid": 551,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          }
+        ],
+        "carry": {},
+        "carryElements": []
+      },
+      {
+        "uid": 562,
+        "parentTaskUid": null,
+        "wbsOrder": 420,
+        "name": "🌑 新 ANMS・NDD: 1 章とユースケースを仕様へ当てる(B5 の後の新しい席。引き継ぎは temp/handovers/b5-seat-handover-2026-11-28.md)(SUB)",
+        "start": "2026-11-28T17:17:55",
+        "finish": "2026-11-28T20:17:55",
+        "milestone": false,
+        "deadline": null,
+        "notes": "pmo-8 2026-11-28T16:51: BOSS 6th 16:4x: B5 context is large, so a new seat applies chapter 1 and the use cases after the owner answers BGQA10 round 4 (551). 3 h placeholder.",
+        "calendarUid": null,
+        "actualStart": null,
+        "stop": null,
+        "actualFinish": null,
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 0,
+        "fadeInDays": null,
+        "fadeOutDays": null,
+        "dependencies": [
+          {
+            "predecessorUid": 551,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          },
+          {
+            "predecessorUid": 561,
             "linkType": 1,
             "linkLag": 0,
             "lagFormat": 7,
@@ -13249,6 +13321,14 @@
       },
       {
         "taskUid": 560,
+        "taskGroupId": "5321b390-7f24-598b-8fb6-6de6c53cf32f"
+      },
+      {
+        "taskUid": 561,
+        "taskGroupId": "b2a0e74c-4c44-5678-b53c-aecd31dc8ae5"
+      },
+      {
+        "taskUid": 562,
         "taskGroupId": "5321b390-7f24-598b-8fb6-6de6c53cf32f"
       }
     ],
@@ -16228,6 +16308,22 @@
         "fillColor": "blue",
         "strokeColor": null,
         "strokeWidthPx": null
+      },
+      {
+        "taskUid": 561,
+        "shapeKind": "rectangle",
+        "milestoneGlyph": "diamond",
+        "fillColor": "blue",
+        "strokeColor": null,
+        "strokeWidthPx": null
+      },
+      {
+        "taskUid": 562,
+        "shapeKind": "rectangle",
+        "milestoneGlyph": "diamond",
+        "fillColor": "blue",
+        "strokeColor": null,
+        "strokeWidthPx": null
       }
     ],
     "commentBoxes": [
@@ -18236,10 +18332,10 @@
     "zoomY": 1.099862517185352
   },
   "documentStamp": {
-    "scheduleUpdatedAt": "2026-11-28T07:43:00Z",
+    "scheduleUpdatedAt": "2026-11-28T07:51:00Z",
     "lastEditedBy": "PMO child session",
     "settingsUpdatedAt": "2026-10-20T20:24:42Z",
-    "fileSavedAt": "2026-11-28T07:43:00Z"
+    "fileSavedAt": "2026-11-28T07:51:00Z"
   },
   "changeLog": [
     {
@@ -19309,6 +19405,12 @@
       "editedBy": "PMO child session",
       "explanation": "Fact at 11-28 16:43 JST: PMO rotation, pmo-7 handed over at 16:38 (round 18, 918f36300) and pmo-8 started 16:41 (Opus, effort medium); B5 round 4 (550) still unreported, owner waits placed from now; the owner opened grs-beta.html about 16:30.",
       "changedAt": "2026-11-28T07:43:00Z"
+    },
+    {
+      "ordinal": 179,
+      "editedBy": "PMO child session",
+      "explanation": "Fact at 11-28 16:51 JST: B5 round 4 (550) committed 10:10 and merged 16:43 (d48b6f848); the owner answers BGQA10 round 4 (551) from now; new owner order and a new seat that applies chapter 1 and the use cases after 551 (3 h placeholder).",
+      "changedAt": "2026-11-28T07:51:00Z"
     }
   ]
 }
