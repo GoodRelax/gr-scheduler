@@ -145,6 +145,7 @@ function expectRefused(stage: Stage): void {
 }
 
 describe('E-24 -- a copied Task pasted while two task groups are chosen is refused', () => {
+  // Spec: IMPS-302
   it(`${SEVERAL_TARGET_TASK_GROUPS_REFUSED} -- one copied Task`, () => {
     expectRefused(copiedThenTwoTaskGroupsPicked(() => threeTaskGroups(false), [1]))
   })

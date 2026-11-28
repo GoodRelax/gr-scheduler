@@ -106,6 +106,7 @@ const REPORT_ORDER: readonly string[] = ['DT-8', 'DT-1', 'DT-3', 'DT-9', 'DT-4',
 describe('T-347 -- the rows of the report table (FR-134, DT-1)', () => {
   const rows = delayDiagnosticsReportRows(REPORT, SCHEDULE)
 
+  // Spec: IMPS-631, IMPS-638
   it('holds one row per Task, under the first status of DT-1 it holds', () => {
     expect(rows.map((one) => [one.taskUid, one.status])).toEqual([
       [1, 'DG-1'],
@@ -127,6 +128,7 @@ describe('T-347 -- the rows of the report table (FR-134, DT-1)', () => {
     expect(rows.find((one) => one.taskUid === 1)?.reason.kind).toBe('unreliable')
   })
 
+  // Spec: IMPS-640
   it('orders a status by the oldest Task.start, then by Task.uid (the doubtful before DG-4, CR-648)', () => {
     const tied: DelayDiagnosticsReport = { ...REPORT, markerStates: [1, 3, 4].map((uid) => ({ uid, row: 'DG-4' as const })) }
     expect(delayDiagnosticsReportRows(tied, SCHEDULE).map((one) => one.taskUid)).toEqual([1, 6, 4, 3, 5])
@@ -153,6 +155,7 @@ describe('T-346 -- the report window (RW-2, RW-3, RW-4, RW-9)', () => {
     expect(view?.summary).toHaveLength(8)
   })
 
+  // Spec: IMPS-629, IMPS-639
   it('T-347: the columns are DT-8, DT-1, DT-3, DT-9, DT-4, DT-2, DT-5, DT-6, DT-7, and the name cell DT-4 is the one a press jumps from', () => {
     expect(view?.columns.map((one) => one.column)).toEqual(REPORT_ORDER)
     expect(view?.jumpAt).toBe(REPORT_ORDER.indexOf('DT-4'))
@@ -205,6 +208,7 @@ describe('T-346 / T-335 -- the window entries (WB-2, WB-3, WB-5, SV-7, SV-8, SV-
     expect(after(OPENED_DELAY_DIAGNOSTICS_REPORT, 'IC-52')).toEqual({ window: null, view: NO_VIEW })
   })
 
+  // Spec: IMPS-627, IMPS-641
   it('IC-122 opens a column filter, IC-124 sorts it, and Esc closes the filter first', () => {
     const opened = after(OPENED_DELAY_DIAGNOSTICS_REPORT, 'IC-122', 'DT-4') as { window: DelayDiagnosticsReportWindow; view: TableView }
     expect(opened.window.panel.filters.open).toBe('DT-4')
@@ -298,6 +302,7 @@ describe('IC-108 / IC-140 -- the shell hands the string out', () => {
     writeView: () => undefined,
   })
 
+  // Spec: IMPS-633
   it('IC-108 copies the Markdown string as a document text', async () => {
     const copied: ClipboardContent[] = []
     expect(answerDelayDiagnosticsReportEntry('IC-108', null, held, outletsOf(copied, [], []))).toBe(true)
@@ -306,6 +311,7 @@ describe('IC-108 / IC-140 -- the shell hands the string out', () => {
     expect(copied[0]?.kind === 'document' ? copied[0].text : '').toMatch(/^# /)
   })
 
+  // Spec: IMPS-634
   it('IC-140 writes a .md file under the RW-7 name, which never becomes the opened file', async () => {
     const written: ChosenFileWrite[] = []
     expect(answerDelayDiagnosticsReportEntry('IC-140', null, held, outletsOf([], written, []))).toBe(true)

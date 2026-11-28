@@ -520,6 +520,7 @@ describe(`T-338 MH-3 -- "${MH_3_SHOW}"`, () => {
     expect(drawnTexts(built, MH_3)).toContain(readoutOf(typed, 'ja'))
   })
 
+  // Spec: IMPS-17, IMPS-175
   it(`"${MH_2_CHECK}" "${MH_1_UNIT}" "${MH_3_SHOW}" -- the check line, the value line (input, then unit), the read-only line`, () => {
     const built = openedOn({})
     const rows = built.view().propertiesPanel?.fields.map((one) => one.row) ?? []
@@ -647,6 +648,7 @@ describe(`FR-042 "${FR_042_WORDS}"`, () => {
     for (const language of LANGUAGES) expect(partWord('currentValue', language)).toContain(PX_SLOT)
   })
 
+  // Spec: IMPS-18, IMPS-191
   it.each(LANGUAGES)(`"${MH_1_UNIT}" -- the three names, the unit and the readout, %s`, (language) => {
     const built = openedOn({}, A, language)
     expect(describedField(built, MH_2).name).toBe(partWord('enable', language))

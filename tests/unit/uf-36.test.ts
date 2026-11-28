@@ -857,6 +857,7 @@ describe('the ordinary case -- one MSPDI in', () => {
 })
 
 describe('table T-058 -- the column-by-column mapping', () => {
+  // Spec: IMPS-418
   it('puts every exchanged column where its row says (one case, every row)', () => {
     const document = accepted(BASE_TEXT)
     for (const each of T_058_MSPDI) {
@@ -1806,6 +1807,7 @@ describe('the fade roster these cases walk', () => {
 })
 
 describe('FR-023 -- a leading byte order mark is accepted and dropped', () => {
+  // Spec: IMPS-930
   it('GIVEN an MSPDI text behind a BOM WHEN read THEN it is not refused (MUST NOT)', () => {
     const read = documentFromMspdi(`${BYTE_ORDER_MARK}${BASE_TEXT}`, CURRENT)
     expect(read.ok, 'a BOM is not a reason to refuse').toBe(true)
@@ -1927,6 +1929,7 @@ describe('EX-6 and DF-2 -- reading a custom-field frame', () => {
     if (!ROSTER_ALIASES_ARE_USABLE) expect(carriedNames(task)).toContain('ExtendedAttribute')
   })
 
+  // Spec: IMPS-1905
   it('GIVEN no frame at all WHEN read THEN the fade columns are null, not zero (AT-40, AT-41)', () => {
     const task = instanceOf(accepted(fadeFileText([], [])), 'Task')
     expect(task['fadeInDays']).toBeNull()
@@ -2178,6 +2181,7 @@ function valueRowsOf(task: XmlNode): ReadonlyMap<string, string> {
 }
 
 describe('the roster the code reads is the roster the manuscript states (rule 04 section 2)', () => {
+  // Spec: IMPS-1349
   it('GIVEN the manuscript WHEN the generated roster is read THEN every value is the manuscript`s', () => {
     // Why: the code reads the generated roster, so this case is what fails when a
     // manuscript value changes without a rebuild.
@@ -2679,6 +2683,7 @@ describe('FR-054 -- an amount of time carrying years or months', () => {
     expect(told.every(namesAnItem)).toBe(true)
   })
 
+  // Spec: FR-303
   it('GIVEN an amount of one year WHEN read THEN it is not converted and the person is told (FR-054 MUST)', () => {
     const text = durationFileText(['P1Y'])
     expect(lastDayOf(accepted(text), 1)).toBeNull()

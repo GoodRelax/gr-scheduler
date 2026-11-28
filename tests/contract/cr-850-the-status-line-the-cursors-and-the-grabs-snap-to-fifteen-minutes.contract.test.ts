@@ -79,6 +79,7 @@ describe(`FR-046: ${FR_046_DRAG_SNAPS}`, () => {
     expect(REQUIREMENTS).toContain(FR_046_DRAG_SNAPS)
   })
 
+  // Spec: IMPS-518, IMPS-519
   it.each([
     ['10:07 writes 10:00', 113, '2026-10-14T10:00:00'],
     ['10:08 writes 10:15', 112, '2026-10-14T10:15:00'],
@@ -88,6 +89,7 @@ describe(`FR-046: ${FR_046_DRAG_SNAPS}`, () => {
     expect(statusDateOf(built)).toBe(instant)
   })
 
+  // Spec: IMPS-520
   it('day (SG-1), time hidden: the day column the release falls in, at the finish-side default time (WT-4)', () => {
     const built = stage(TIME_HIDDEN)
     dragBy(built, statusLineGrab(built), 2.5 * pxPerDay(built.loop))
@@ -107,17 +109,20 @@ describe(`FR-046: ${FR_046_LINE_AT_INSTANT}`, () => {
     expect(REQUIREMENTS).toContain(FR_046_LINE_AT_INSTANT)
   })
 
+  // Spec: IMPS-514
   it('time shown: a status date of 12:00 stands on the right edge of a bar that finishes at 12:00', () => {
     const built = stage(HOUR_TIER)
     const box = planBox(built.loop)
     expect(statusLineOf(built.loop).x).toBeCloseTo(box.x + box.width, 1)
   })
 
+  // Spec: IMPS-521
   it('time shown: a status date of 10:37 stands 97 minutes right of the 09:00 bar start, between the 15-minute steps', () => {
     const built = stage({ ...HOUR_TIER, statusDate: '2026-10-14T10:37:00' })
     expect(statusLineOf(built.loop).x).toBeCloseTo(planBox(built.loop).x + pxOfMinutes(built.loop, 97), 1)
   })
 
+  // Spec: IMPS-522
   it('time hidden: the line stands at the left edge of the status day column', () => {
     const built = stage({ ...TIME_HIDDEN, statusDate: '2026-10-14T12:00:00' })
     expect(statusLineOf(built.loop).x).toBeCloseTo(xFromDay(frameOf(built.loop).layout, { year: 2026, month: 10, day: 14 }), 1)

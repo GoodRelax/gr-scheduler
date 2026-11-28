@@ -128,6 +128,7 @@ test('the clauses are the specification words', () => {
   for (const clause of CLAUSES) expect(REQUIREMENTS, clause).toContain(clause)
 })
 
+// Spec: IMPS-1240
 test(`FR-039: ${FONT_SIZE_STEP_FIELD}`, async ({ page }) => {
   await launch(page)
   await enableAgentApi(page)
@@ -396,6 +397,7 @@ const wheelOutcome = async (browser: Browser, wheel: { deltaMode: number; deltaY
   }
 }
 
+// Spec: IMPS-1517
 test(`T-023: ${WHEEL_UNITS}`, async ({ browser }) => {
   test.setTimeout(180_000)
   const S_514_PX = numberIn(cellOf('T-206', 'S-514', '既定'))
@@ -518,6 +520,7 @@ test(`HF-10: ${OPEN_ALL_NOT_OUTERMOST}`, async ({ page }) => {
   expect(at > 0 && at < order.length - 1, `IC-74 is outermost in the Tab order ${order.join(' ')}`).toBe(true)
 })
 
+// Spec: IMPS-1585
 test(`FR-016: ${FADE_FROM_POINTER}`, async ({ page }) => {
   await launch(page)
   await enableAgentApi(page)

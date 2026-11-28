@@ -108,6 +108,7 @@ describe(`SQ-9 -- a tip not snapped reads its own anchorDate (AT-113)`, () => {
 })
 
 describe(`SQ-9 -- ${FR_019_SHOWN_DATE}`, () => {
+  // Spec: IMPS-835
   it.each(SNAP_ORDER)('planned bar %s: the search row reads the date the delete command would write', (point) => {
     const document = withTip(toTask(SECOND_BAR_UID, 'plannedBar', point))
     const expected = freedDate(document, { kind: 'deleteTask', taskUid: SECOND_BAR_UID })

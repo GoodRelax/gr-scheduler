@@ -266,6 +266,7 @@ describe(`T-330 SV-4 -- ${SV_4_WHERE}`, () => {
     expect(rows.taskRows).toEqual([])
   })
 
+  // Spec: IMPS-1860
   it(FR_151_NOT_NOTES_NOR_TASK_GROUP_NAMES, () => {
     // Step: 205's notes say "steering budget" and "review"; R11 is "1.5 Steering", R2 "2. Review Delivery"
     expect(uidsOf(searchRowsOf(SCHEDULE, 'steering').taskRows)).toEqual([])

@@ -171,6 +171,7 @@ describe('FR-012: documentFromJson recounts percentComplete from the dates', () 
     expect(taskOf(read.document, 1).percentComplete).toBe(0)
   })
 
+  // Spec: IMPS-468
   it('a running Task written as 0 reads as its worked days over its plan, 33', () => {
     expect(taskOf(read.document, 2).percentComplete).toBe(33)
   })
@@ -209,6 +210,7 @@ describe('FR-012 / IO-7: a GRS JSON embedded in a single .html is recounted too'
 })
 
 describe('FR-012 / FR-021: an MSPDI read keeps the value it carried', () => {
+  // Spec: IMPS-469
   it('a Task written as 70 with no actuals still reads as 70', () => {
     const source = documentObject([UNSTARTED_WRITTEN_70, AGREEING]) as unknown as Document
     const text = mspdiFromDocument(source, LAST_SAVED_AT).text
@@ -370,6 +372,7 @@ async function openedByReplacing(text: string, fileName: string): Promise<Opened
 }
 
 describe('RS-52 (NT-3): opening a GRS JSON that disagrees with its dates tells the recount on the Import Report (CR-712)', () => {
+  // Spec: IMPS-470
   it('the Import Report line carries the number of Tasks whose value moved, and the opened document holds the recount', async () => {
     const { loop, notices, reportLines } = await openedByReplacing(disagreeingText(), 'incoming.json')
     expect(taskOf(loop.document(), 1).percentComplete).toBe(0)
@@ -379,6 +382,7 @@ describe('RS-52 (NT-3): opening a GRS JSON that disagrees with its dates tells t
     expect(told?.count).toBe(3)
   })
 
+  // Spec: IMPS-471, IMPS-472
   it('FR-012 / FR-100: a recount alone leaves no unsaved edits after a replacing open', async () => {
     const { loop } = await openedByReplacing(disagreeingText(), 'incoming.json')
     expect(loop.hasUnsavedEdits()).toBe(false)

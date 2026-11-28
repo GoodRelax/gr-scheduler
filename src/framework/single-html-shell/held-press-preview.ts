@@ -133,7 +133,7 @@ export function heldPropertyPanelWidthOf(
   return isLeavingTaskGroupArea(settled.propertyPanelWidth, context.regions) ? settled.propertyPanelWidth : null
 }
 
-// Spec: FR-009, PTD-3, T-018, T-018a, IMPS-329, IMPS-330, IMPS-331, IMPS-332, IMPS-333, IMPS-334, IMPS-336, IMPS-335
+// Spec: FR-009, PTD-3, T-018, T-018a, IMPS-329, IMPS-330, IMPS-331, IMPS-332, IMPS-333, IMPS-334, IMPS-336, IMPS-335, IMPS-339
 /** @purity semi-pure-mutable */
 export function tentativeDependencyOf(
   hands: HeldPressPreviewHands, press: PointerPress | null,

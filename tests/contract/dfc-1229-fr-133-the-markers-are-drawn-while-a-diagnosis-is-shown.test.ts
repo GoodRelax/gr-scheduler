@@ -129,12 +129,14 @@ describe('DFC-1229: a diagnosis draws the progress markers whatever S-63 holds (
     expect(hasMarkers(bench.svg())).toBe(false)
   })
 
+  // Spec: IMPS-612, IMPS-864
   it('FR-133 starting a diagnosis draws the markers although S-63 is false (DFC-1229)', () => {
     const bench = benchOf(false)
     bench.pressDiagnose()
     expect(hasMarkers(bench.svg())).toBe(true)
   })
 
+  // Spec: IMPS-611
   it('FR-133 starting a diagnosis does not write S-63 (MUST NOT)', () => {
     const bench = benchOf(false)
     bench.pressDiagnose()
@@ -148,6 +150,7 @@ describe('DFC-1229: a diagnosis draws the progress markers whatever S-63 holds (
     expect(hasMarkers(bench.svg())).toBe(true)
   })
 
+  // Spec: IMPS-613
   it('FR-130 IC-40 ends the diagnosis (RW-1): the markers go away again, S-63 being false (CR-797)', () => {
     const bench = benchOf(false)
     bench.pressDiagnose()

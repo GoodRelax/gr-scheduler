@@ -55,6 +55,7 @@ const said = (value: unknown): string => JSON.stringify(value)
 const inJson = (text: string): string => JSON.stringify(text).slice(1, -1)
 
 describe(`FR-099 (MUST): ${FR_099_COLUMNS}`, () => {
+  // Spec: IMPS-281
   it(`${T_371_ORDER.slice(0, 30)} -- RQ-1, RQ-3, RQ-2, RQ-4, RQ-5 in the table's order`, () => {
     expect(T_371_IDS).toEqual(['RQ-1', 'RQ-3', 'RQ-2', 'RQ-4', 'RQ-5'])
     expect(viewIn('ja').columns.map((one) => one.column)).toEqual(T_371_IDS)
@@ -97,6 +98,7 @@ describe(`FR-099 T-370 RO-4 / RO-5 -- ${RO_4_ORDER}`, () => {
 })
 
 describe(`FR-099 (MUST): ${FR_099_WINDOW.slice(-40)} -- the window entrances of SV-12 / SV-14`, () => {
+  // Spec: IMPS-278
   it('IC-129 minimizes the window', () => {
     const after = resourceListAfterEntry(OPENED as never, NO_VIEW, 'IC-129' as never, null, { schedule: SCHEDULE, chosenResourceUids: [], language: 'ja' } as never) as unknown as {
       readonly window: { readonly shown: string } | null

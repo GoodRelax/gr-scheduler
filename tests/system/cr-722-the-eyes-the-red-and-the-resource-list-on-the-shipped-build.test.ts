@@ -308,6 +308,7 @@ const sentencesOf = (names: readonly string[], total: number, shown: number): re
 test.describe('CR-722 / FR-151 T-353 / FR-099 T-370 on the shipped build', () => {
   test.setTimeout(180_000)
 
+  // Spec: IMPS-268
   test('FR-099 (MUST): IC-62 opens the Resource List as a table window with the T-371 columns and the (Unassigned) row last', async () => {
     const stage = await opened()
     try {

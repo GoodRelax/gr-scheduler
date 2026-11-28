@@ -1277,6 +1277,11 @@
   },
   {
    "from": "docs/spec/_source/row-id-prefixes.json",
+   "to": "docs/spec/08-10-test.md",
+   "count": 1
+  },
+  {
+   "from": "docs/spec/_source/row-id-prefixes.json",
    "to": "docs/spec/_source/agent-api-members.json",
    "count": 4
   },
@@ -1682,6 +1687,9 @@
    "UF": 199,
    "UT": 17,
    "WS": 7
+  },
+  "docs/spec/08-10-test.md": {
+   "DPC": 35
   },
   "docs/spec/A-appendix.md": {
    "OPQ": 27

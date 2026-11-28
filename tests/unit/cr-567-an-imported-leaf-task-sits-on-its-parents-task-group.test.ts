@@ -292,6 +292,7 @@ describe('CR-567 -- FR-058 on an MSPDI document built in the test', () => {
     expect(document.schedule.taskGroups).toHaveLength(5)
   })
 
+  // Spec: IMPS-916
   it('leaves every Task on exactly one task group (FR-058 MUST NOT, IV-6)', () => {
     for (const task of document.schedule.tasks) {
       const mine = document.schedule.taskGroupMembers.filter((each) => each.taskUid === task.uid)

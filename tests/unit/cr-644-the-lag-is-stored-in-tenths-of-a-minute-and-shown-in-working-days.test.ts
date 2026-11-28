@@ -107,10 +107,12 @@ describe(`FR-009 PR-42 -- ${FR_009_SHOWN_AND_TYPED}`, () => {
     expect(field.controls[0]?.text).toBe('2')
   })
 
+  // Spec: IMPS-353
   it('PR-42 converts with Project.minutesPerDay when it is set', () => {
     expect(lagFieldOf(lineDocument(tenthsOfDays(3, 450), WORKING_DAYS, 450)).text).toBe('3')
   })
 
+  // Spec: IMPS-365
   it(`PR-42 ${FR_009_DECIMALS} -- an imported fraction is shown, rounded to two places`, () => {
     expect(lagFieldOf(lineDocument(tenthsOfDays(0.5), WORKING_DAYS)).text).toBe('0.5')
     expect(lagFieldOf(lineDocument(tenthsOfDays(1) / 3, WORKING_DAYS)).text).toBe('0.33')
@@ -127,11 +129,13 @@ describe(`FR-009 PR-42 -- ${FR_009_SHOWN_AND_TYPED}`, () => {
     expect(lagFieldOf(lineDocument(24 * 60 * TENTHS, ELAPSED_DAYS_ESTIMATED)).text).toBe('1ed?')
   })
 
+  // Spec: IMPS-364
   it(`PR-42 ${FR_009_MINUTES}`, () => {
     expect(lagFieldOf(lineDocument(2880 * TENTHS, PERCENT)).text).toBe('2880m')
     expect(lagFieldOf(lineDocument(2880 * TENTHS, null)).text).toBe('2880m')
   })
 
+  // Spec: IMPS-351
   it('CM-38 the typed text is whole working days, handed on as they are', () => {
     const document = lineDocument(0, WORKING_DAYS)
     const control = lagFieldOf(document).controls[0]
@@ -172,6 +176,7 @@ describe(`FR-009 CM-38 -- ${FR_009_WRITTEN}`, () => {
     expect(setLag(lineDocument(0, WORKING_DAYS), 1.5).ok).toBe(false)
   })
 
+  // Spec: IMPS-358
   it(`CM-36 ${FR_009_CREATED} -- a new link holds S-117 in tenths of a minute with lagFormat 7`, () => {
     const document = documentOf({ tasks: [panelTaskOf(FROM), panelTaskOf(TO)] })
     const result = editDependency(document, {
@@ -300,6 +305,7 @@ describe('DFC-2465 FR-009 PR-42: a document that does not show the time of day s
     expect(lineDocument(0, WORKING_DAYS).documentSettings.isTimeOfDayVisible).toBe(false)
   })
 
+  // Spec: IMPS-350, IMPS-359
   it.each([
     ['30 minutes in lagFormat 3', 30 * TENTHS, MINUTES, '30m'],
     ['90 minutes in lagFormat 3', 90 * TENTHS, MINUTES, '90m'],
@@ -348,6 +354,7 @@ describe('DFC-2466 FR-009 CM-38: a lag typed in two or more units writes the for
     expect(typed(text)).toEqual({ lag, lagFormat })
   })
 
+  // Spec: IMPS-355, IMPS-357
   it.each([
     ['2d', tenthsOfDays(2), WORKING_DAYS],
     ['3h', 3 * 60 * TENTHS, HOURS],

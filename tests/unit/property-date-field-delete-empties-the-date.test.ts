@@ -377,6 +377,7 @@ describe('an emptied date -- what the commit writes', () => {
     expect(settled.task['deadline']).toBeNull()
   })
 
+  // Spec: IMPS-406
   it('PR-4 actualStart emptied becomes null', () => {
     const settled = emptied(IN_PROGRESS, 'PR-4', 'actualStart')
     expect(settled.accepted, 'premise: the commit asks for an edit').toBeGreaterThan(0)

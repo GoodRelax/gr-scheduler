@@ -223,6 +223,7 @@ describe('CR-569 -- MR-4 on an MS Project file built in the test', () => {
     expect(carried, 'the project summary task is held once').toHaveLength(1)
   })
 
+  // Spec: IMPS-914
   it(NOT_A_TASK, () => {
     expect(document.schedule.tasks.map((each) => each.uid).sort((a, b) => a - b)).toEqual([1, 2, 3, 4])
     expect(document.schedule.taskGroups.some((each) => each.derivedFromTaskUid === 0)).toBe(false)

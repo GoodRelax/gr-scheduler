@@ -544,6 +544,7 @@ describe('CR-559 premises: the clauses these cases read, and the fixture they st
 describe(`T-023d: ${BODY_OR_LEADER_MOVES_ALONE}`, () => {
   const pull = (loop: FrameLoop): Point => ({ x: Math.round(3.3 * pxPerDay(loop)), y: Math.round(taskGroupStep(loop)) + 3 })
 
+  // Spec: IMPS-1537
   it('premise: the body center answers as the body and the leader midpoint as the leader', () => {
     const built = stage()
     const note = drawnNote(built.loop)
@@ -605,6 +606,7 @@ describe(`T-023d: ${BODY_OR_LEADER_MOVES_ALONE}`, () => {
     expect(drawnNote(built.loop).body).toEqual(before.body)
   })
 
+  // Spec: IMPS-1543
   it(`${BODY_NO_TASK_GROUP} -- the anchor released so far down that no task group is drawn under it`, () => {
     const built = stage()
     const note = drawnNote(built.loop)
@@ -669,6 +671,7 @@ describe(`T-023d: ${ANCHOR_MOVES_ALONE}`, () => {
     expect(drawnNote(built.loop).body.x).toBeCloseTo(before.body.x, 1)
   })
 
+  // Spec: IMPS-1542
   it(`${ONE_UNDO} -- one undo after an anchor move brings back both the anchor and the offset`, () => {
     const built = stage()
     const stored = storedNote(built.loop)
@@ -775,6 +778,7 @@ describe(`FR-019: ${LEADER_ONE_CORNER} -- in the drawn picture`, () => {
   ]
 
   for (const index of [0, 1, 2, 3]) {
+    // Spec: FR-323
     it(`placement ${index + 1}: one line from the anchor to the corner LF-17 picks, in the drawn picture`, () => {
       const [corner, dx, dy] = placements(measured())[index]!
       const built = stage({ notes: [{ dx, dy }] })
@@ -826,12 +830,14 @@ describe(`FR-019: ${LEADER_ONE_CORNER} -- in the drawn picture`, () => {
 describe(`T-023d: ${HANDLE_WHILE_SELECTED}`, () => {
   const TWO_NOTES: Fixture = { notes: [{}, { id: OTHER_NOTE_ID, anchorDay: 20, anchorTaskGroup: 'E', dx: 40, dy: -40 }] }
 
+  // Spec: IMPS-1548
   it(`${NO_HANDLE_UNSELECTED} -- nothing selected, no handle`, () => {
     const built = stage(TWO_NOTES)
     expect(tagsOf(built.lastSvg(), 'rect', HANDLE_FIGURE(NOTE_ID))).toEqual([])
     expect(tagsOf(built.lastSvg(), 'rect', HANDLE_FIGURE(OTHER_NOTE_ID))).toEqual([])
   })
 
+  // Spec: IMPS-1544, IMPS-1547
   it(`selecting one note draws its handle alone, ${HANDLE_AT_ZO_10}`, () => {
     const built = stage(TWO_NOTES)
     click(built, centerOf(drawnNote(built.loop).body))
@@ -842,6 +848,7 @@ describe(`T-023d: ${HANDLE_WHILE_SELECTED}`, () => {
     expect(tagsOf(svg, 'rect', HANDLE_FIGURE(OTHER_NOTE_ID)), 'the unselected note drew a handle').toEqual([])
   })
 
+  // Spec: IMPS-1545
   it(`${HANDLE_SHAPE}`, () => {
     const built = stage()
     const note = drawnNote(built.loop)
@@ -858,6 +865,7 @@ describe(`T-023d: ${HANDLE_WHILE_SELECTED}`, () => {
     expect(numberAttribute(tag, 'stroke-width')).toBe(S_174)
   })
 
+  // Spec: IMPS-1546
   it(`${HANDLE_NOT_SCALED} -- at twice and half the zoom the side is still S-376`, () => {
     for (const zoomFactor of [2, 0.5]) {
       const built = stage({ zoomFactor })
@@ -896,6 +904,7 @@ describe(`FR-106: ${FR_106_ANCHOR}`, () => {
   })
 
   for (const selected of [false, true]) {
+    // Spec: IMPS-1549
     it(`${HANDLE_KEEPS_THE_REACH} -- ${selected ? 'selected' : 'not selected'}: within S-292 below the anchor is the anchor, beyond it is not`, () => {
       const built = stage()
       const note = drawnNote(built.loop)
@@ -926,6 +935,7 @@ describe(`T-023d: ${BODY_DOES_NOT_PASS_THROUGH}`, () => {
   }
 
   for (const percent of [100, 0, null]) {
+    // Spec: IMPS-1550
     it(`transparency ${String(percent)}: a press on the body over a plan bar answers as the body`, () => {
       const built = stage({ withTasks: true, notes: [{ fillTransparencyPercent: percent, text: 'Note\nsecond line\nthird line' }] })
       const at = overlap(built.loop)
@@ -947,6 +957,7 @@ describe('FR-019: the five look columns AT-148 .. AT-152 as drawn', () => {
   const drawnSvg = (spec: NoteSpec, zoomFactor = 1): string => stage({ notes: [spec], zoomFactor }).lastSvg()
   const textTags = (svg: string): readonly Tag[] => tagsOf(svg, 'text', LINE_FIGURE())
 
+  // Spec: IMPS-852
   it(`${NULLS_DRAW_DEFAULTS}`, () => {
     const svg = drawnSvg({})
     const body = bodyTag(svg)
@@ -1013,6 +1024,7 @@ describe('FR-019: the five look columns AT-148 .. AT-152 as drawn', () => {
     }
   })
 
+  // Spec: IMPS-837
   it(`${WIDTH_NOT_SCALED} -- at twice the zoom the frame and the leader keep the width the column holds`, () => {
     for (const zoomFactor of [1, 2, 0.5]) {
       const svg = drawnSvg({ strokeWidthPx: 4 }, zoomFactor)

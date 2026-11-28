@@ -425,6 +425,7 @@ test('control for DFC-115: both scrollbars are on the screen (SC-4 of table T-03
 
 // Why: DFC-215's evidence as much as DFC-115's -- the halving applies to a
 // thickness only the host reports, which no Vitest can be given.
+// Spec: IMPS-1763, IMPS-1764, IMPS-1765
 test('DFC-115: neither scrollbar is drawn thinner than `S-205`, the floor FR-051 states', async ({
   baseURL,
 }) => {

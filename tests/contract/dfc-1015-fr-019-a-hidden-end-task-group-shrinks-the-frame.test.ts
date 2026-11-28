@@ -77,6 +77,7 @@ describe('DFC-1015: the frame closes round the task groups the screen shows (FR-
     expect((shown.frame?.y ?? 0) + (shown.frame?.height ?? 0)).toBeCloseTo(bottom.y + bottom.height, 3)
   })
 
+  // Spec: IMPS-838
   it('FR-019 hiding the bottom end task group ends the frame at the last shown task group of the range (DFC-1015)', () => {
     const hidden = sceneWith(['gd'])
     const last = hidden.rowOf('gc')

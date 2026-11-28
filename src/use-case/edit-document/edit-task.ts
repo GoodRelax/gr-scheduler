@@ -235,7 +235,7 @@ export function checkDay(text: string): DayCheck {
   return { ok: true, day }
 }
 
-// Spec: IMPS-833, CM-7, IMPS-233, IMPS-240, IMPS-242
+// Spec: IMPS-833, CM-7, IMPS-233, IMPS-240, IMPS-242, IMPS-234
 // Why: a tip snapped to a deleted Task falls back to a free point in this same command (FR-031).
 /** @purity pure */
 function deleteTask(document: Document, uid: Task['uid'], defaultTaskGroupName: string): EditResult {

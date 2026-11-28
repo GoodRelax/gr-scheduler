@@ -47,6 +47,7 @@ describe(`GR-14: ${READ_AT_RELEASE}`, () => {
     return { built, corner }
   }
 
+  // Spec: IMPS-1553
   it('a release 3px from a bar corner writes the figure, the point and the free columns at that point', () => {
     const { built, corner } = cornerOfBar()
     dragTip(built, { x: corner.at.x - 3, y: corner.at.y - 3 })
@@ -74,6 +75,7 @@ describe(`GR-14: ${READ_AT_RELEASE}`, () => {
     expect(built.loop.document().schedule.commentBoxes).toEqual(before)
   })
 
+  // Spec: IMPS-1559
   it(`${SHOWN_WHILE_HELD} -- while it is held the tip is drawn on the point it would snap to`, () => {
     const { built, corner } = cornerOfBar()
     const tip = tipOf(built.loop)
@@ -93,6 +95,7 @@ describe(`GR-14: ${READ_AT_RELEASE}`, () => {
 })
 
 describe(`GR-14: ${FREE_POINT} / ${NO_CENTERING}`, () => {
+  // Spec: IMPS-1556
   it('a release away from every point writes the instant and the height of the release point', () => {
     const built = stage(documentWith([commentRow()]))
     const band = bandOf(built.loop, FREE_ROW)
@@ -108,6 +111,7 @@ describe(`GR-14: ${FREE_POINT} / ${NO_CENTERING}`, () => {
     expect(tipOf(built.loop).y).toBeCloseTo(to.y, 0)
   })
 
+  // Spec: IMPS-1557
   it('the point is not pulled to the middle of the day column or of the band', () => {
     const built = stage(documentWith([commentRow()]))
     const band = bandOf(built.loop, FREE_ROW)

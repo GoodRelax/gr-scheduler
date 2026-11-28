@@ -138,6 +138,7 @@ describe(`CM-30 setTaskGroupColor takes the one list (CV-9, CR-586 seam S-4)`, (
     expect(result.refusals.some((one) => one.command === 'CM-30' && one.rule === 'CV-9'), JSON.stringify(result.refusals)).toBe(true)
   })
 
+  // Spec: IMPS-122
   it(`${CV_2_TWO_VALUES} -- a custom color is still accepted`, () => {
     const custom = '#123456/#abcdef'
     const result = editWithSetTaskGroupColor(custom)

@@ -347,6 +347,7 @@ describe('FR-031 -- 1 段 is measured in bytes, and never in 文字数', () => {
     expect(stepsThatFit(stepChars(PADDED), S_95_BYTES)).toBeLessThan(S_94)
   })
 
+  // Spec: IMPS-208, IMPS-210
   it('GIVEN the real shell holding a document of CJK text WHEN more changes are written than either measure admits THEN the 段 that survive are the byte count, not the character count', () => {
     const byBytes = stepsThatFit(stepBytes(PADDED), S_95_BYTES)
     const byCharacters = stepsThatFit(stepChars(PADDED), S_95_BYTES)

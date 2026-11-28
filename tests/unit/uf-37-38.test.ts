@@ -445,6 +445,7 @@ describe('BT-1 of table T-034 -- the payload is what the application itself read
 })
 
 describe('FR-067 -- the embedded content does not leak into the body (CN-8)', () => {
+  // Spec: IMPS-1070
   it('puts the document in a script element, so nothing of it is rendered', async () => {
     const container = onlyContainer(await exported(PLAIN_SHELL, ID, SMALL), ID)
     expect(container.startTag.toLowerCase().startsWith('<script')).toBe(true)

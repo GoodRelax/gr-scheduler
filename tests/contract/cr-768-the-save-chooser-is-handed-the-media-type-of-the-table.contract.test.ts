@@ -37,6 +37,7 @@ describe('CR-768 -- the manuscript these cases read', () => {
 })
 
 describe(`FR-096 "${FR_096_MEDIA_TYPE_FROM_TABLE}" -- the store hands the chooser what the row says`, () => {
+  // Spec: IMPS-1037, IMPS-881
   it.each(fileRows().map((one) => [one.id, one.extension ?? ''] as const))(
     '%s (%s): one type, keyed by the media type of the row, naming the extension of the row',
     async (row, extension) => {

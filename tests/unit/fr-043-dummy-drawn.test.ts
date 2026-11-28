@@ -854,6 +854,7 @@ describe('FR-043 / table T-206 S-180 -- the Actual Operation Dummy is drawn', ()
       }
     })
 
+    // Spec: IMPS-442
     it(`⛔ T-240 DM-1: the dummy ink starts in the plan start day's column, clear of GA-1, and stays in it where the day is wider than the mark, at ${days}`, () => {
       const fresh = draw(notStartedSchedule(), zoomX)
       const started = draw(startedSchedule(), zoomX)
@@ -876,6 +877,7 @@ describe('FR-043 / table T-206 S-180 -- the Actual Operation Dummy is drawn', ()
     })
   }
 
+  // Spec: IMPS-1708, IMPS-435
   it('S-180 governs the horizontal only: the dummy stands in the actual bar band', () => {
     // Spec: S-180, S-257, S-260
     // Why: the band is read off the twin's actual bar, the actual FR-043 places when GA-5 is
@@ -895,6 +897,7 @@ describe('FR-043 / table T-206 S-180 -- the Actual Operation Dummy is drawn', ()
     }
   })
 
+  // Spec: IMPS-491
   it('FR-013 (MUST) draws it faint, at S-131', () => {
     // Spec: FR-013, S-131
     const fresh = draw(notStartedSchedule(), NARROW_DAY_ZOOM)
@@ -931,6 +934,7 @@ describe('FR-043 / table T-206 S-180 -- the Actual Operation Dummy is drawn', ()
   for (const zoomX of [NARROW_DAY_ZOOM, WIDE_DAY_ZOOM]) {
     const days = `${onGrid(dayWidthAt(zoomX))}px/day`
 
+    // Spec: DM-7
     it(`GA-17 (MUST): a milestone not started draws one dummy, the same square as its own actual figure at ${days}`, () => {
       // Spec: FR-043, FR-104, GA-16, S-130
       // Why: a milestone has no actual bar, so its dummy box is a square the size of its own actual
@@ -945,6 +949,7 @@ describe('FR-043 / table T-206 S-180 -- the Actual Operation Dummy is drawn', ()
       expect(onGrid(box.y1 - box.y0), 'GA-17 height').toBeCloseTo(onGrid(side), 2)
     })
 
+    // Spec: IMPS-444
     it(`GA-17 (MUST) is centered where the same-day actual milestone figure is centered at ${days}`, () => {
       const fresh = draw(milestoneSchedule(), zoomX)
       const started = draw(startedMilestoneSchedule(), zoomX)
@@ -978,6 +983,7 @@ describe('FR-043 / table T-206 S-180 -- the Actual Operation Dummy is drawn', ()
       expect(shapeOf(verticesOf(ink[0]!))).toBe(actualMilestoneShapeOf(started))
     })
 
+    // Spec: IMPS-445
     it(`FR-043 (MUST) draws GA-17's box where the same-day actual milestone figure stands at ${days}`, () => {
       const fresh = draw(milestoneSchedule(), zoomX)
       const started = draw(startedMilestoneSchedule(), zoomX)
@@ -1135,6 +1141,7 @@ describe('EP-14 of table T-076 -- an export draws no dummy, and moves nothing', 
     expect(atTheMarker(pictures.exportInner)).toEqual(atTheMarker(pictures.screen))
   })
 
+  // Spec: IMPS-957
   it('EP-14 leaves the room: the plan bar is written identically in both pictures', () => {
     // Spec: EP-14
     const pictures = shellPictures(notStartedSchedule())
@@ -1150,6 +1157,7 @@ describe('EP-14 of table T-076 -- an export draws no dummy, and moves nothing', 
     expect(sameBox(pictures.screen).length).toBeGreaterThan(0)
   })
 
+  // Spec: IMPS-948
   it('WY-3 of table T-041: one ratio carries the screen picture into the export', () => {
     // Spec: WY-3, FR-080
     const pictures = shellPictures(notStartedSchedule())

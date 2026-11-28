@@ -78,6 +78,7 @@ describe('premise -- the tables and rows these cases are built from', () => {
 
 // Spec: FR-156, T-376, RS-25
 describe('FR-156: a GRS JSON whose scheduleDataTimeZone is not a standard-time key of T-376 is refused whole with RS-25', () => {
+  // Spec: FR-302
   it.each([...OUTSIDE, ...DAYLIGHT_KEYS].map((value) => [JSON.stringify(value), value]))(
     '%s is refused with RS-25, and the faults name the column (RS-25: a column does not match its form)',
     (_name, value) => {
@@ -189,6 +190,7 @@ describe('FR-156 / OP-6: a view key outside T-376 does not refuse; after a repla
     ['S-575', 'displayTimeZones', 'UTC+09:00'],
   ]
 
+  // Spec: IMPS-738
   it.each(cases.map(([id, key, value]) => [`${id} ${key} = ${JSON.stringify(value)}`, id, key, value]))(
     '%s opens, and replaces to the whole default (OP-6: a nested mismatch resets the whole key)',
     (_name, id, key, value) => {
@@ -337,6 +339,7 @@ describe('IV-24 / S-582: the span count is a T-220 row, not a reading condition 
     expect(verdict.ok, JSON.stringify(verdict).slice(0, 400)).toBe(true)
   })
 
+  // Spec: IMPS-1304
   it('a weekday with S-582 + 1 spans is not refused by the schema check: documentFromJson ok, no RS-25 (Chapter 6.1 lists what the reading schema enforces; maxItems is not in it)', () => {
     const read = documentFromJson(withWeekdaySpans(spanRun(S_582 + 1)), KNOWN_VERSION)
     expect(read.ok, read.ok ? '' : `${read.reason} ${JSON.stringify(read.faults).slice(0, 400)}`).toBe(true)

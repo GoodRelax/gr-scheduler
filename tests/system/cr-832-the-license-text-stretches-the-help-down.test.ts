@@ -301,6 +301,7 @@ test.describe('CR-832 the manuscript these cases are driven by', () => {
 
 for (const [screenName, size] of SCREENS) {
   test.describe(`CR-832 FR-069 at ${screenName} -- the full text stretches the help down`, () => {
+    // Spec: IMPS-1091, IMPS-1092
     test(`FR-069 (MUST): ${FR_069_STRETCH}; ${FR_069_SCROLLS_INSIDE}; ${FR_069_FOLD_BACK}`, async () => {
       test.setTimeout(180_000)
       const app = await openApp(size)

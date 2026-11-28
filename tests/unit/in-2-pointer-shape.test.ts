@@ -490,6 +490,7 @@ describe('the fixture draws what IN-2 names', () => {
     expect(drawnTask(built.loop, BAR_UID).label).toBeNull()
   })
 
+  // Spec: IMPS-1904, IMPS-1620
   it('draws no fade grab point, so GA-7 / GA-8 do not outrank the ends', () => {
     const built = stage()
     expect(
@@ -654,6 +655,7 @@ describe('T-028 IN-2: 予定バーと実績バーの端点の上は 表 T-269 �
 
 // Spec: FR-106, IN-1
 describe('FR-106: while pressed, the pointer keeps the shape it had when pressed', () => {
+  // Spec: IMPS-1258
   it('a press on the plan end keeps its arrow while dragged off the end, over empty canvas', () => {
     const built = stage()
     const end = planEnds(built.loop)[1] as Point
@@ -667,6 +669,7 @@ describe('FR-106: while pressed, the pointer keeps the shape it had when pressed
     expect(built.latest(), FR_106_KEEPS).toBe(atPress)
   })
 
+  // Spec: IMPS-1270
   it('a press on the bar body keeps the grab shape while dragged over empty canvas (not only ends)', () => {
     const built = stage()
     const body = barBody(built.loop)

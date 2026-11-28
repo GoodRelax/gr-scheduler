@@ -151,7 +151,7 @@ function opposedPatternOf(sameLane: boolean, below: boolean, x2ReachesX1: boolea
   return below ? 'RP-4' : 'RP-5'
 }
 
-// Spec: IMPS-1326, IMPS-1335, IMPS-315, IMPS-374, IMPS-383, RP-1, RP-6, RP-7, RP-8, RT-2, RT-3, SWS-3, RT-1
+// Spec: IMPS-1326, IMPS-1335, IMPS-315, IMPS-374, IMPS-383, RP-1, RP-6, RP-7, RP-8, RT-2, RT-3, SWS-3, RT-1, IMPS-371
 /** @purity pure */
 function routeOf(from: Anchored, to: Anchored, linkType: number, settings: DrawnSettings,
                  lanes: readonly LaneSpan[]): Route {

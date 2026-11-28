@@ -87,6 +87,7 @@ describe('S-560 to S-572 / FR-024 -- every one of the 13 keys is written, at its
 describe('OP-18 / S-560 to S-572 -- what is saved comes back as it was', () => {
   const saved = (): Loose => savedObjectOf(openedFrom(documentText({ tableViews: tableViewsText(VIEWS_SAVED) })))
 
+  // Spec: IMPS-1863
   it('the saved file holds the checked rows, the eyes, the column filters (with fromDate and toDate) and the sorts as given', () => {
     const views = tableViewsIn(saved())
     expect(views['searchPanel']).toEqual({
@@ -218,6 +219,7 @@ describe('OP-18 -- a uid that points at nothing and a column that is in no table
 })
 
 describe('FR-151 -- what is not a view is not saved', () => {
+  // Spec: IMPS-1861
   it('no word, place, size, text-size step, column width, open filter or selection is anywhere in a saved file', () => {
     const found = keysAnywhere(savedObjectOf(openedFrom(documentText({ tableViews: tableViewsText(VIEWS_SAVED) }))))
     for (const key of NOT_STORED_KEYS) expect(found, key).not.toContain(key)

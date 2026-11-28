@@ -279,6 +279,7 @@ test.describe('FR-096 the Export Chooser on the shipped build', () => {
   })
 
   for (const width of [1920, 640]) {
+    // Spec: IMPS-1042
     test(`FR-096 (MUST): ${FR_096_GAP.slice(-30)} -- at a ${width}px window the formats stand one a row, one size, S-517 apart`, async () => {
       const opened = await stageWith(4, {})
       try {

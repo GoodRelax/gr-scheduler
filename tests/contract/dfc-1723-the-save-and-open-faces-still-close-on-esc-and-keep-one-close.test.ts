@@ -91,6 +91,7 @@ describe('WB-10 / IN-4 (MUST): the faces that look like windows still close on E
       expect(byRole(built.domRoot(), face.role())).toHaveLength(0)
     })
 
+    // Spec: IMPS-1044
     it(`${face.name}: its title row holds IC-52 and none of IC-129 to IC-131 (WB-10)`, async () => {
       const built = await shellStage({ dom: true, document: here() })
       await face.open(built)

@@ -249,6 +249,7 @@ describe('HF-20 / CD-6 / QN-10 -- the head deletes every task group', () => {
     expect(built.loop.document(), 'nothing is deleted before the answer').toBe(before)
   })
 
+  // Spec: IMPS-233, IMPS-1989
   it('CD-6: 深さ L1 のすべてのタスクグループに CD-2 を当てた和 -- every task group and every task goes, and one L1 task group is made', () => {
     // Spec: CD-6, CD-2
     const built = bench(documentWith(TASK_GROUPS, NAMES))
@@ -327,6 +328,7 @@ describe('FR-006 -- the date fields', () => {
   })
 
   for (const key of ['Delete', 'Backspace']) {
+    // Spec: IMPS-3
     it(`FR-006 E-28: ${key} while editing a date field empties it (欄の字をすべて消して空にする)`, () => {
       // Spec: FR-006
       const document = documentWith([{ id: 'g1', parentId: null }], ['Alpha'])
@@ -337,6 +339,7 @@ describe('FR-006 -- the date fields', () => {
     })
   }
 
+  // Spec: IMPS-5
   it('FR-006 E-41: それ以外の日付の欄なら null を書く -- deadline is written null', () => {
     // Spec: FR-006, T-016, PR-10
     const document = documentWith([{ id: 'g1', parentId: null }], ['Alpha'])
@@ -348,6 +351,7 @@ describe('FR-006 -- the date fields', () => {
   })
 
   for (const [column, row] of [['start', 'PR-3'], ['finish', 'PR-47']] as const) {
+    // Spec: IMPS-4
     it(`FR-006 E-41: ${column} の欄 (${row}) なら何も書かずに欄を元の値へ戻す`, () => {
       // Spec: FR-006, T-016, PR-3, PR-47
       const built = panelOnTask(documentWith([{ id: 'g1', parentId: null }], ['Alpha']))
@@ -384,6 +388,7 @@ describe('FR-006 E-28 -- the look rows are last in their object order', () => {
     }
   })
 
+  // Spec: IMPS-6
   it('FR-006: the panel on a (non-milestone) Task shows the outline width row, then its color rows, last', () => {
     // Step: the rows T-016 shows for this kind (FR-006)
     const built = panelOnTask(documentWith([{ id: 'g1', parentId: null }], ['Alpha']))
@@ -526,6 +531,7 @@ describe('CV-9 -- the color field', () => {
     expect(drawn.filter((one) => one.getAttribute('data-color-sides') !== null || one.getAttribute('data-color-swatch') !== null)).toEqual([])
   })
 
+  // Spec: IMPS-121
   it('CV-9 (2): transparent then custom closes the second row of every color field (task fill, task line, task group color)', () => {
     // Spec: CV-9, CV-5, FR-007
     const task = panelOnTask(documentWith([{ id: 'g1', parentId: null }], ['Alpha']))

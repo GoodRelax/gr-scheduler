@@ -64,6 +64,7 @@ export const emptyAgentApiValues: AgentApiValues = { ...AGENT_API_VALUES_INITIAL
 
 // Why: the root cell stores the value after the press (S-99b); only turning it off tells RS-20 (FR-065).
 /** @purity pure */
+// Spec: FR-365
 function onAgentApiEntryPressed(values: AgentApiValues): AgentApiStep {
   if (values.agentApiEnablingState.kind === 'disabled') {
     return { state: { ...values, agentApiEnablingState: ENABLED }, effects: [{ type: 'storeAgentApiEnabling' }] }

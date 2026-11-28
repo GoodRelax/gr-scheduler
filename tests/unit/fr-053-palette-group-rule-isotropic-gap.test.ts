@@ -788,6 +788,7 @@ describe('S-143 (利用者の裁定 2026-08-29) -- the gap reaches every side of
     ).toBe(GROUP_COUNT - 1)
   })
 
+  // Spec: IMPS-1826
   it('insets each boundary by S-143’s second number on ALL FOUR sides -- top and bottom included', () => {
     // Why: the ruling makes the same number reach all four sides and mints no new one, so
     // RULE_SIDE_GAP_PX is checked on every side rather than a second constant.

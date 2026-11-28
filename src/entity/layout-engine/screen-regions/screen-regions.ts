@@ -57,7 +57,7 @@ function rectHoldsPoint(area: ScreenRect, x: number, y: number): boolean {
   return x >= area.x && x < area.x + area.width && y >= area.y && y < area.y + area.height
 }
 
-// Spec: FR-039, T-252, IMPS-1223, IMPS-1228
+// Spec: FR-039, T-252, IMPS-1223, IMPS-1228, IMPS-1202
 // Trap: never answer a non-finite ratio. Callers multiply with it directly, and a NaN
 // would travel silently -- as a refused panel drag, or as a shape drawn nowhere.
 /** @purity pure */

@@ -995,7 +995,7 @@ function commandFromItemPress(release: PointerInput, press: PointerPress, contex
   return commandFromGrab(release, press, context)
 }
 
-// Spec: T-023a, IN-1, IN-1a, MK-10, IMPS-1491, PTD-4a, DC-5
+// Spec: T-023a, IN-1, IN-1a, MK-10, IMPS-1491, PTD-4a, DC-5, IMPS-1624
 /** @purity pure */
 function pointerAssignment(input: PointerInput, context: InputContext): TranslatedInput {
   if (input.phase === 'down') {
@@ -1100,7 +1100,7 @@ function panFollow(input: PointerInput, context: InputContext): TranslatedInput 
   return panTo(context, -by.dx, -by.dy)
 }
 
-// Spec: T-109, IN-1, FR-085, OP-15, MK-9, IMPS-1452, IMPS-1943, IMPS-1114, IMPS-1214, IMPS-152
+// Spec: T-109, IN-1, FR-085, OP-15, MK-9, IMPS-1452, IMPS-1943, IMPS-1114, IMPS-1214, IMPS-152, IMPS-177
 /** @purity pure */
 function commandFromEntry(
   release: PointerInput,

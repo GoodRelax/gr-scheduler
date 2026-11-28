@@ -932,6 +932,7 @@ describe('the manuscript still says what these cases read', () => {
 
 // Spec: FR-006, S-197, FR-039, T-215
 describe("FR-006 (MUST) -- the panel's text is S-197 of the base the host gives", () => {
+  // Spec: IMPS-71, IMPS-75
   it('computes to S-197 of the base, at every base a reader might set', () => {
     // Why: the base never reaches this unit, so the panel can meet this at every base only by stating a ratio.
     const { built, panel } = drawPanel([READ_ONLY_FIELD])
@@ -941,6 +942,7 @@ describe("FR-006 (MUST) -- the panel's text is S-197 of the base the host gives"
     }
   })
 
+  // Spec: IMPS-73
   it('⛔ MUST NOT: doubling the base doubles what the panel computes to', () => {
     // Why: a px constant, on the panel, behind a custom property or on an ancestor, gives the same number
     // under both bases, and a ratio cannot.
@@ -952,6 +954,7 @@ describe("FR-006 (MUST) -- the panel's text is S-197 of the base the host gives"
     expect(large / small, 'the panel follows the reader, rather than a constant').toBeCloseTo(2, 9)
   })
 
+  // Spec: IMPS-74
   it('⛔ MUST NOT: it is not `fontSizeStepSizes[fontSizeStep]` that is multiplied', () => {
     // Why: the base is none of T-215's own numbers, so a panel that multiplied the wrong thing cannot pass by accident.
     const base = 20
@@ -982,6 +985,7 @@ describe('FR-006 (MUST) -- the item name takes S-198 on top of that', () => {
     }
   })
 
+  // Spec: IMPS-72
   it('and so it is S-197 then S-198 of the base, never S-198 of the base alone', () => {
     // Why: the two ratios compound; S-198 against the base alone would leave the item name larger than its value.
     const { built, panel } = drawPanel([READ_ONLY_FIELD])
@@ -1009,6 +1013,7 @@ describe('FR-006 (MUST) -- the item name sits to the left of the value, right-al
     )
   })
 
+  // Spec: IMPS-31
   it('⛔ MUST: the item name comes before the value it names', () => {
     // Why: this seam sees only node order, so a panel that reorders with CSS order would pass here and fail a reader;
     // no table settles which property may place a field's parts, so that is not asserted.
@@ -1022,6 +1027,7 @@ describe('FR-006 (MUST) -- the item name sits to the left of the value, right-al
     expect(value).toBeGreaterThan(name)
   })
 
+  // Spec: IMPS-30
   it("⛔ takes S-189's share of the width, and states no px for it", () => {
     // Why: the share may be stated on the name's cell or on the row's box, so the chain up to the panel is read;
     // a row that states its columns another way would fail here for the wording, not the rule.

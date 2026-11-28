@@ -317,7 +317,7 @@ export function taskGroupBandCeilingOf(
   return bandCeilingUpTo(context, zoomOnScreen(context).x, upTo, enough)
 }
 
-// Spec: FR-016, T-253, OC-10, PI-5, PI-18, BC-1, BC-3, BC-4, BC-5, IMPS-1466, IMPS-1467, IMPS-1479, IMPS-1480
+// Spec: FR-016, T-253, OC-10, PI-5, PI-18, BC-1, BC-3, BC-4, BC-5, IMPS-1466, IMPS-1467, IMPS-1479, IMPS-1480, IMPS-1468
 // Why: no answer is below the last probe short of the band, so min(enough, ceiling) is settled there.
 /** @purity pure */
 function bandCeilingUpTo(

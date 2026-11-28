@@ -372,12 +372,14 @@ describe('CR-557 S-2 -- the first field of the document settings panel is K-60',
     expect(panel.fields.filter((one) => one.row === K_60)).toHaveLength(1)
   })
 
+  // Spec: IMPS-161
   it.each(LANGUAGES)(`FR-041 "${CLAUSE_NAME_AND_VALUE}" -- %s`, (language) => {
     const field = hueField(settingsPanel({ language }))
     expect(field.name).toBe(fieldNameOf(language))
     expect(field.isEditable).toBe(true)
   })
 
+  // Spec: IMPS-164
   it.each(ROSTER.map((one) => [one.specTableRowId, one.hue] as const))(
     `FR-041 "${CLAUSE_TOOLTIP}" -- the swatch holding themeHue %s's value carries its word when themeHue is %s`,
     (specTableRowId, hue) => {
@@ -397,6 +399,7 @@ describe('CR-557 S-2 -- the first field of the document settings panel is K-60',
     expect(control.choices).toEqual(ROSTER.map((one) => hueWordOf(one.specTableRowId, language)))
   })
 
+  // Spec: IMPS-166
   it(`FR-041 "${CLAUSE_NO_ROW}" -- themeHue ${HUE_OFF_THE_ROSTER} is shown as the number`, () => {
     const field = hueField(settingsPanel({ hue: HUE_OFF_THE_ROSTER }))
     expect(field.text).toBe(String(HUE_OFF_THE_ROSTER))
@@ -406,6 +409,7 @@ describe('CR-557 S-2 -- the first field of the document settings panel is K-60',
 
 describe('CR-557 S-2 -- each swatch is S-151 solved at its row hue (table T-236)', () => {
   for (const preference of PREFERENCES) {
+    // Spec: IMPS-158
     it(`FR-041 "${CLAUSE_SWATCH_PAINT}" -- ${preference}`, () => {
       const paints = paintsOf(hueControl(settingsPanel({ preference })))
       ROSTER.forEach((row, index) => {
@@ -433,6 +437,7 @@ describe('CR-557 S-2 -- nothing else enters the field, and every other setting i
     expect(control.color?.customWord ?? '').toBe('')
   })
 
+  // Spec: IMPS-572, IMPS-750, IMPS-98, IMPS-99
   it(`FR-072 "${CLAUSE_READ_ONLY}" / "${CLAUSE_EXCEPTION}"`, () => {
     // Why: table T-369 (CR-690) orders the fields under this one: FO-3 K-125, FO-4 K-85, FO-5 K-143, FO-6 K-71,
     // FO-7 (read-out), FO-8 IC-44, FO-9 K-142, FO-10 K-141, FO-11 (read-out and copy), FO-12 K-140, FO-13 to FO-16 (CR-710).
@@ -447,6 +452,7 @@ describe('CR-557 S-2 -- nothing else enters the field, and every other setting i
 })
 
 describe('CR-557 S-4 -- the drawn field: buttons in a grid of S-368 per line', () => {
+  // Spec: IMPS-155
   it(`FR-041 "${CLAUSE_ROWS_IN_ORDER}" -- one button per T-305 row, S-368 to a line`, () => {
     const buttons = buttonsOf(drawnHueField())
     expect(buttons).toHaveLength(ROSTER.length)
@@ -458,6 +464,7 @@ describe('CR-557 S-4 -- the drawn field: buttons in a grid of S-368 per line', (
     expect(columnsOfGrid(grid)).toBe(S_368)
   })
 
+  // Spec: IMPS-167
   it(`FR-041 "${CLAUSE_NO_ENTRANCES}" -- no color input, no transparent, no theme entrance is drawn`, () => {
     const field = drawnHueField()
     expect(field.filter((one) => one.tagName === 'INPUT' && one.getAttribute('type') === 'color')).toEqual([])
@@ -469,6 +476,7 @@ describe('CR-557 S-4 -- the drawn field: buttons in a grid of S-368 per line', (
     for (const word of entranceWords) expect(texts.filter((text) => text === word), word).toEqual([])
   })
 
+  // Spec: IMPS-165
   it(`FR-041 "${CLAUSE_NO_ROW}" -- themeHue ${HUE_OFF_THE_ROSTER}: no swatch is shown chosen`, () => {
     const standing = buttonsOf(drawnHueField()).map(isMarkedSelected)
     expect(standing, 'premise: at the S-73 default the TH-1 swatch alone is shown chosen').toEqual(

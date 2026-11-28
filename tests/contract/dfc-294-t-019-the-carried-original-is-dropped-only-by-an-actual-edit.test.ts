@@ -238,6 +238,7 @@ describe('表 T-019 の注 -- the manuscript this file is driven by', () => {
 
 // Spec: T-019, T-005, G-13, T-033, EX-2, PA-1
 describe('表 T-019 の注 (MUST) -- while nobody edited the actuals, the original is written back', () => {
+  // Spec: IMPS-393
   it('an untouched import writes the length the file carried, not the length DV-11 computes', () => {
     expect(exportedActualDuration(imported())).toContain(CARRIED_ACTUAL_DURATION)
   })
@@ -279,6 +280,7 @@ describe('表 T-019 の注 (MUST) -- while nobody edited the actuals, the origin
 // Spec: T-019, CM-13, CM-14, CM-15
 describe('表 T-019 の注 -- an edit of the actuals replaces it with the computed value', () => {
   for (const specTableRowId of ACTUAL_EDITS) {
+    // Spec: IMPS-394
     it(`${specTableRowId} (${commandNameOf(specTableRowId)}) stops exporting the value the import carried`, () => {
       const after = edited(imported(fileFor(specTableRowId)), commandFor(specTableRowId))
 

@@ -56,6 +56,7 @@ describe('T-340 / FR-060 / T-290 -- the manuscript still says it', () => {
 })
 
 describe('SX-1 (MUST) -- a GRS JSON written through IC-2 is a save', () => {
+  // Spec: IMPS-1049
   it('SX-1: after IC-2 writes GRS JSON (IO-2), the header names the file written (FR-101, U-58)', async () => {
     const built = await shellStage()
     const chosen = built.file('chosen.json', new Uint8Array(0))
@@ -89,6 +90,7 @@ describe('SX-1 (MUST) -- a GRS JSON written through IC-2 is a save', () => {
     expect(built.last().appHeaderItems.openedFileName).toBe('chosen.json')
   })
 
+  // Spec: IMPS-969
   it('SX-1 / DI-5: the next SK-11 writes over the file IC-2 wrote, without a chooser (FR-060)', async () => {
     const { built } = await stageWithTarget()
     const questionsBefore = built.browser.saveQuestions()
@@ -159,6 +161,7 @@ describe('SX-2 (MUST NOT) -- any other form written through IC-2 is an export', 
 })
 
 describe('T-340 note (MUST) -- a write that did not happen moves nothing', () => {
+  // Spec: IMPS-1050
   it('SX-1 not reached: an IC-2 GRS JSON write whose chooser is closed moves no header, edit or target', async () => {
     const { built } = await stageWithTarget()
     await mergeSomething(built)

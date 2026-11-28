@@ -380,6 +380,7 @@ async function replacedWith(incoming: Document): Promise<{ loop: FrameLoop; scre
 
 // Spec: FR-023, UF-48, IV-14, CD-1, OP-3, OP-4
 describe('FR-023 -- a Task with an unusable date is dropped, and the rest lands', () => {
+  // Spec: IMPS-936
   it('⭐⭐ the bad Task and its own WBS child are both gone; the good one lands (CD-1)', async () => {
     const { loop } = await replacedWith(there())
 

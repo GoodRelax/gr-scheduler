@@ -320,6 +320,7 @@ describe('table T-269 -- the image each row draws', () => {
     if (inks.stroke !== null) expect(strokes, `${labelOf(variant)}: ${variant.words}`).toEqual(new Set([inks.stroke]))
   })
 
+  // Spec: IMPS-1640
   it.each(VARIANT_CASES)(`$label: one edge width for every shape: ${T_269_ONE_EDGE_WIDTH}`, async ({ variant }) => {
     const cursor = await imageOfVariant(variant)
     expect(cursor, labelOf(variant)).not.toBeNull()
@@ -358,6 +359,7 @@ describe('table T-269 -- the image each row draws', () => {
     },
   )
 
+  // Spec: IMPS-1643
   it.each(VARIANT_CASES)(`$label: the environment shape it falls back to: ${T_269_FALLBACKS}`, async ({ variant }) => {
     const wanted = FALLBACK_BY_VARIANT[labelOf(variant)]
     expect(wanted, `${labelOf(variant)}: the closing clause of table T-269 names no fallback`).toBeDefined()
@@ -392,6 +394,7 @@ describe('table T-269 -- the image each row draws', () => {
 })
 
 describe('table T-266 -- the pointer row each grab area shows', () => {
+  // Spec: IMPS-1629, IMPS-1630, IMPS-1645
   it.each(grabAreaTaskGroups())('%s shows the table T-269 row that table T-266 names', async (grabArea) => {
     const pointerRowOf = await seamOf('pointerRowOf')
     const hit = { item: { kind: 'task', taskUid: BAR_UID }, grab: grabArea }
@@ -417,6 +420,7 @@ describe('table T-266 -- the pointer row each grab area shows', () => {
     }
   })
 
+  // Spec: IMPS-1644
   it(`${T_269_ARMED_WINS}`, async () => {
     const pointerRowOf = await seamOf('pointerRowOf')
     const hit = { item: { kind: 'task', taskUid: BAR_UID }, grab: 'GA-2' }
@@ -444,6 +448,7 @@ describe('FR-106 -- what the product writes under the pointer', { timeout: LOADE
     expect(atEnd!.svg, T_269_TWO_HEADINGS).not.toBe(atStart!.svg)
   })
 
+  // Spec: IMPS-1642
   it(`${T_269_NO_DISPLAY_SCALE}`, () => {
     const shapes = [50, 200].map((displayScale) => {
       const one = stage(benchDocument({ displayScale }))
@@ -454,6 +459,7 @@ describe('FR-106 -- what the product writes under the pointer', { timeout: LOADE
     expect(sidesOf(shapes[1]!.svg), T_269_NO_DISPLAY_SCALE).toEqual(sidesOf(shapes[0]!.svg))
   })
 
+  // Spec: IMPS-1628
   it(`${FR_106_HOLDS_WHILE_PRESSED}`, () => {
     const one = built()
     const place = planEndPoint(one)

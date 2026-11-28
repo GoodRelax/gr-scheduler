@@ -159,6 +159,7 @@ describe('CR-862 TD-2 / TD-3 -- a pinned task group is drawn when it or an ances
     { name: 'TD-3: A is hidden and P is expanded -- its children still are not drawn', states: { A: 'hidden', P: 'expanded' }, drawn: ['P', 'X', 'Y', 'Y1'] },
   ]
 
+  // Spec: IMPS-779
   it.each(cases)('$name: P is drawn, its ancestors and children stay as the other rows say', ({ states, drawn }) => {
     expect(sortedNames(drawnOf({ zoomY: 1, states, pinned: ['P'] })), 'CR-862 TD-2 / TD-3 (the pin draws only P)').toEqual([...drawn].sort())
   })
@@ -184,6 +185,7 @@ describe('CR-862 -- what still beats the pin, and what the pin still beats', () 
     expect(drawn, 'TD-2: A stays hidden').not.toContain('A')
   })
 
+  // Spec: IMPS-777
   it('TD-5: below the depth-2 threshold, P under a hidden parent is still drawn', () => {
     const zoomY = thresholdOf(2) * 0.5
     expect(named(drawnOf({ zoomY, states: { A: 'hidden' }, pinned: ['P'] })), 'CR-862 TD-5 still beats the zoom drop').toContain('P')

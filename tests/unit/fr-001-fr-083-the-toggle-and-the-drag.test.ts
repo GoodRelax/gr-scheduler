@@ -479,6 +479,7 @@ describe('FR-083 SP-1..SP-4 and table T-023b: the entrance is a toggle', () => {
     expect(twice.armModeState.kind).toBe('notArmed')
   })
 
+  // Spec: IMPS-1890
   it('⭐⭐ THE RULING: the same re-press puts the arm down WITH SOMETHING SELECTED', () => {
     // Why: its controls are the case above (the arm can stand) and the case below (a
     // press can still arm while a selection stands).
@@ -488,6 +489,7 @@ describe('FR-083 SP-1..SP-4 and table T-023b: the entrance is a toggle', () => {
     expect(twice.armModeState.kind).toBe('notArmed')
   })
 
+  // Spec: IMPS-1499
   it('⭐ the two roads answer the same: a selection changes NOTHING about the re-press', () => {
     // Why: one comparison, not two expectations, so the only way to pass is for the
     // selection to have no say at all.
@@ -500,6 +502,7 @@ describe('FR-083 SP-1..SP-4 and table T-023b: the entrance is a toggle', () => {
     expect(holding.armModeState).toEqual(alone.armModeState)
   })
 
+  // Spec: IMPS-1500, IMPS-1501
   it('⛔ THE CONTROL: pressing a DIFFERENT entrance ARMS it, selection or not', () => {
     // Why: the control: a build that disarmed on every palette press would pass the
     // three cases above.
@@ -509,6 +512,7 @@ describe('FR-083 SP-1..SP-4 and table T-023b: the entrance is a toggle', () => {
     expect((armOf(moved) as any).shapeKind).toBe(CHEVRON_SPELLING)
   })
 
+  // Spec: IMPS-1502
   it('⭐ the arms of table T-023b are exclusive: the milestone press takes the shape arm off', () => {
     const armed = pressEntrance(RECTANGLE, emptyScreenSession.screen)
     const moved = pressEntrance(MILESTONE, armed)
@@ -531,6 +535,7 @@ describe('FR-001 / FR-083: a bar shape is made by a drag and by nothing else', (
     expect(made[0].start < made[0].finish, 'the span drawn was not carried').toBe(true)
   })
 
+  // Spec: TC-7
   it('⭐⭐ THE RULING: a bar shape released without traveling makes NO task', () => {
     const armed = pressEntrance(RECTANGLE, emptyScreenSession.screen)
     const pressed = gesture({ screen: armed, from: GROUND })
@@ -847,10 +852,12 @@ describe('FR-083 / table T-233: a shape the selection cannot take is told RS-54'
     })
   }
 
+  // Spec: IMPS-1893
   it('⭐ and it is told in NT-1s manner, the manner table T-233 writes RS-54 against', () => {
     expect(shapeRefusedOnTheSelection().notices()[0]?.manner).toBe(mannerOf(RS_54))
   })
 
+  // Spec: IMPS-1892
   it('⭐⭐ FR-083 (MUST): the arming STANDS through the refusal', () => {
     const built = shapeRefusedOnTheSelection()
     const armed = built.armedText()
@@ -858,6 +865,7 @@ describe('FR-083 / table T-233: a shape the selection cannot take is told RS-54'
     expect(armed?.length ?? 0).toBeGreaterThan(0)
   })
 
+  // Spec: FR-161
   it('⛔ and nothing reached the document: AG-3 makes the bundle atomic', () => {
     const built = stage()
     built.pressEntry(MILESTONE)
@@ -1005,6 +1013,7 @@ describe('FR-091: the created name is settled by ONE press', () => {
     expect(drawnTask().panel()).not.toBe(null)
   })
 
+  // Spec: IMPS-1910
   it('⭐⭐ THE RULING: one Enter closes it', () => {
     const built = drawnTask()
     // Trap: the field must be standing, or this case passes on a build with no fix,
@@ -1032,6 +1041,7 @@ describe('FR-091: the created name is settled by ONE press', () => {
     expect((built.loop.document().schedule as any).tasks.length).toBe(0)
   })
 
+  // Spec: IMPS-1913
   it('⛔ FR-091 (MUST NOT): the arming stands through that press', () => {
     const built = drawnTask()
     const armedBefore = built.armedText()

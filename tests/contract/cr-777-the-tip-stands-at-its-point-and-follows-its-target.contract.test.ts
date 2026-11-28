@@ -179,6 +179,7 @@ describe(`GR-14 / S-292: ${NEAREST} -- anchorSnapAt`, () => {
     expect(anchorSnapAt(empty, 106, 100, grabSizesOf())?.target.snapPoint).toBe('topMiddle')
   })
 
+  // Spec: IMPS-1555
   it('an equal distance takes a task figure before a highlight box', () => {
     const over: HighlightGeometry = {
       id: 'over',
@@ -213,6 +214,7 @@ describe(`FR-019: ${DRAW_TIME}`, () => {
     expect(tipOf(built.loop).y).toBeCloseTo(box.y0, 3)
   })
 
+  // Spec: IMPS-832, IMPS-1554
   it('moving the task writes no comment column and the redrawn tip stands on the moved bar', () => {
     const before = stage(documentWith([snapped()]))
     const document = before.loop.document()

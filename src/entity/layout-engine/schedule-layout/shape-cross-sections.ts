@@ -21,7 +21,7 @@ export function shapeHeightOf(shapeKind: ShapeKind, settings: DrawnSettings): nu
   return stroke + settings.actualGap + stroke / 2 + thinEndHalfHeightOf(shapeKind, settings)
 }
 
-// Spec: OC-10, XS-4, IMPS-1697, IMPS-1704, IMPS-1705
+// Spec: OC-10, XS-4, IMPS-1697, IMPS-1704, IMPS-1705, IMPS-1706
 // Trap: the tier is the font size, never S-233; that ratio moves every stacked task group.
 /** @purity pure */
 export function labelLiftOf(shapeKind: ShapeKind, settings: DrawnSettings): number {
@@ -101,7 +101,7 @@ export function planHeightOf(shapeKind: ShapeKind, settings: DrawnSettings): num
   return Math.max(planHeightFloor(settings), settings.basePlanHeight * settings.zoomY) * ratio
 }
 
-// Spec: FR-094, IMPS-1897, IMPS-1900
+// Spec: FR-094, IMPS-1897, IMPS-1900, FR-162
 /** @purity pure */
 export function markerDiameterOf(shapeKind: ShapeKind, nameFontSize: number,
                                  settings: DrawnSettings): number {

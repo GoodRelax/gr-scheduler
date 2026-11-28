@@ -297,6 +297,7 @@ describe(`FR-019: ${NULL_DRAWS_DEFAULT}`, () => {
     }
   })
 
+  // Spec: IMPS-1028
   it('the text lines of the picture carry the drawn size', () => {
     const svg = stage({ notes: [{ fontSizePx: 20, text: 'one\ntwo' }] }).lastSvg()
     const lines = [...svg.matchAll(/<text\b[^>]*data-figure="comment-[^"]*-line-\d+"[^>]*>/g)].map((one) => one[0])
@@ -340,6 +341,7 @@ describe(`FR-097: ${RANGE_IS_S_624}`, () => {
     expect(drawnNote(stage({ notes: [{ fontSizePx: 5 }] }).loop).body).toEqual(drawnNote(stage({ notes: [{ fontSizePx: LOW }] }).loop).body)
   })
 
+  // Spec: IMPS-803, IMPS-1032
   it(`${FLOOR_NOT_APPLIED} -- 8, 9 and the default 10 are below fontMin 12 and are still drawn as they stand (${BELOW_FONT_MIN})`, () => {
     for (const step of ['S', 'M', 'L'] as const) {
       for (const size of [8, 9, 10]) {
@@ -539,6 +541,7 @@ describe('T-016 PR-50 and FR-006: the Font Size row sits right after the body ro
     expect(item.inputKinds).toEqual(['数値'])
   })
 
+  // Spec: IMPS-9
   it(`${FR_006_FONT_SIZE_BELOW_BODY} -- the comment box panel lists PR-50 immediately after PR-21`, () => {
     const rows = panelWith(null).fields.map((one) => one.row)
     expect(rows).toContain('PR-21')

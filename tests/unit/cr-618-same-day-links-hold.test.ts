@@ -327,6 +327,7 @@ describe(`CR-618 T2 -- T-310 VC-15: FS, B starts the day BEFORE A ends`, () => {
       { uid: C, start: at(13, 8), finish: at(14, 17), after: [[B, FS]] },
     ])
 
+  // Spec: IMPS-562
   it(`${FR_131_ONE_EACH} -- exactly one VC-15, and no other T-310 row`, () => {
     const rows = findingRows(diagnose(make()))
     expect(countOf(rows, 'VC-15')).toBe(1)

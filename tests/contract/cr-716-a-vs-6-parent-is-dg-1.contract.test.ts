@@ -242,6 +242,7 @@ describe('CR-716 T-311 -- the other rows of T-311 do not make DG-1', () => {
       DEFAULT_TOLERANCE,
     )
 
+  // Spec: IMPS-579
   it.each([
     ['VS-4', VS_4, 301],
     ['VS-5', VS_5, 310],

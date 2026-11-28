@@ -85,6 +85,7 @@ describe('DFC-697 / FR-039 -- the manuscript still holds the rule these cases pr
 })
 
 describe('DFC-697 / FR-039, DS-1, DS-9, S-234 -- the middle of the Task Group Area holds its date and its task group', () => {
+  // Spec: IMPS-1255
   it.each([
     ['SK-22 from the default step', DEFAULT_DISPLAY_SCALE, SK_22],
     ['SK-23 from the default step', DEFAULT_DISPLAY_SCALE, SK_23],

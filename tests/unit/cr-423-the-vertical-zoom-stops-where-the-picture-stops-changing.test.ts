@@ -454,6 +454,7 @@ describe('ZE-1 -- the scenes stand where the manuscript puts the ends', () => {
 })
 
 describe('ZE-2 / ZE-4 -- at the lower end a zoom-out input writes nothing', () => {
+  // Spec: IMPS-1483
   it.each(ZOOM_OUT_INPUTS)(
     '端にあるときに縮める入力（表 T-023 の `MK-4` の縮める向き、`_assets/tbl-glossary.md` の 表 T-109 の `IC-14`、表 T-036 の `SK-16c`）を受けたら、`zoomY` を書き換えてはならない（MUST NOT） -- %s at zoomY 0.3 with a depth-2 task group',
     (_name, press) => {
@@ -590,6 +591,7 @@ function ceilingReachedBySk16a(): number {
 }
 
 describe('ZE-3 / ZE-4 -- at the ceiling a zoom-in input writes nothing', () => {
+  // Spec: IMPS-1471
   it('premise: the raise stops at the text side of the FR-016 ceiling in this window', () => {
     expect(ceilingReachedBySk16a()).toBeCloseTo(TEXT_SIDE_CEILING, 6)
   })

@@ -152,6 +152,7 @@ describe(`表 T-024a OP-10 -- ${OP_10_MARGIN}`, () => {
 })
 
 describe(`表 T-024a OP-10 -- ${OP_10_WRITTEN}`, () => {
+  // Spec: IMPS-954, IMPS-955
   it('the written copy reopens on the same picture: its place names the day and fraction at the Task Group Area\'s left edge', () => {
     const document = template()
     const regions = drawnNow(bench(document, true).loop).regions
@@ -177,6 +178,7 @@ describe(`表 T-024a OP-10 -- ${OP_10_WRITTEN}`, () => {
 })
 
 describe(`FR-053 -- ${FR_053_CORNER}`, () => {
+  // Spec: IMPS-1818, IMPS-1819
   it('an undragged palette stands with its band\'s right end on the Task Group Area\'s right edge and its top on the Task Group Area\'s top', () => {
     const { loop, view } = bench(template(), true)
     const area = drawnNow(loop).regions.taskGroupArea
@@ -197,6 +199,7 @@ describe(`FR-053 -- ${FR_053_CORNER}`, () => {
 })
 
 describe(`FR-085 -- ${FR_085_TOP}`, () => {
+  // Spec: IMPS-1971
   it('every drawn task group heading starts its line at the top of its box and sets nothing down', () => {
     const { built } = bench(template(), true)
     const rows = selfAndDescendants(built.root()).filter(

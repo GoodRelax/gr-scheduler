@@ -36,6 +36,7 @@ const documentOf = (name: string | null, derivedFromTaskUid: number | null): Doc
 const nameFieldOf = (document: Document) => fieldOf(panelOf(document, null, [GROUP_ID]), NAME_ROW)
 
 describe('DFC-3320 -- FR-058 / AT-53 / AT-54 / MK-13: the task group name field holds the name the task group shows', () => {
+  // Spec: IMPS-915, IMPS-176
   it('FR-058 / AT-53: a task group with name null derived from a Task shows that Task name in the name field', () => {
     const field = nameFieldOf(documentOf(null, TASK_UID))
     expect(field.controls.length, 'premise: the name field has a control').toBeGreaterThan(0)

@@ -553,6 +553,7 @@ const fitOrThrow = <T extends { readonly ok: boolean }>(result: T): Extract<T, {
 }
 
 describe('IO-6 of table T-024 -- the picture on this route is IO-3\'s own', () => {
+  // Spec: IMPS-963
   it('GIVEN the PNG ImageExporter painted WHEN it leaves by the clipboard THEN the seam is handed those very bytes (IO-6, FR-025)', async () => {
     const pngBytes = pngOrThrow(await exportPng(STILL_RASTERIZER, EXPORT_SCENE))
     const { clipboard, received } = answeringClipboard({ ok: true })

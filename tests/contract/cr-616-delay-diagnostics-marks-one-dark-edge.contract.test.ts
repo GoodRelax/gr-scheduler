@@ -199,6 +199,7 @@ describe('FR-013 (CR-616 E-10) -- the edge of every DG mark is the color of its 
       })
     }
 
+    // Spec: IMPS-496
     it(`PM-2 and PM-3 (${theme}): the edge follows the same rule, the S-161 symbol color`, () => {
       for (const uid of [DONE, SUSPENDED]) {
         const mark = markOf(COLORED, theme, uid)
@@ -213,6 +214,7 @@ describe('FR-133 (CR-616 E-13) -- in monochrome (FR-041) the close colors are to
   const shapeOf = (row: DgRow): string =>
     markOf(GRAY, 'light', UID_OF[row]).symbolShapes.map((one) => /^<([a-z]+)/.exec(one)?.[1] ?? '').join(' ')
 
+  // Spec: IMPS-605
   it('DG-2, DG-3 and DG-4 draw three different symbol shapes', () => {
     const shapes = (['DG-2', 'DG-3', 'DG-4'] as const).map(shapeOf)
     expect(new Set(shapes).size, shapes.join(' | ')).toBe(3)

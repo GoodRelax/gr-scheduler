@@ -197,6 +197,7 @@ describe('DFC-2410 -- MK-5: a sideways wheel on a document with no view position
     expect(after.barWidth).toBeCloseTo(before.barWidth, 9)
   })
 
+  // Spec: IMPS-1755
   it('MK-5 points at a place even though the view position was null: the group is a drawn one', () => {
     const built = viewless()
     const ids = pictureOf(built).drawn

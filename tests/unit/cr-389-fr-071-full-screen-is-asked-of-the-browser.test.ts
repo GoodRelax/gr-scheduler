@@ -357,6 +357,7 @@ describe(`FR-071 (MUST) -- ${FR_071_ENTER_OR_LEAVE}`, () => {
     expect(built.browser.requests).toHaveLength(0)
   })
 
+  // Spec: IMPS-818
   it(`F11 has its browser default stopped: ${FR_071_F11_DEFAULT}`, () => {
     const built = stage()
     expect(built.loop.isBrowserDefaultStopped(key('F11')), FR_071_F11_DEFAULT).toBe(true)
@@ -440,6 +441,7 @@ describe(`FR-071 (MUST) / FT-6 -- ${FR_071_S_99F_ON_CHANGE}`, () => {
 })
 
 describe(`FR-071 (MUST) -- ${FR_071_RS_59}`, () => {
+  // Spec: IMPS-817
   it('the browser refuses IC-11: one RS-59 notice with its NT-3a words, and S-99f unchanged', async () => {
     const built = stage()
     built.browser.refuses = true

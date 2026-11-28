@@ -224,6 +224,7 @@ describe('SD-3 (T-296): every cell of the table', () => {
       expect(effectsOf(result)).toEqual([STORE])
     })
 
+    // Spec: FR-365
     it('enabled x agentApiEntryPressed -> disabled / raiseNotice(RS-20) and the root cell storeAgentApiEnabling', () => {
       const result = step(withEnabling('enabled', base), PRESS)
       expect(agentOf(result.state)).toEqual({ [FIELD]: { kind: 'disabled' } })

@@ -148,6 +148,7 @@ describe('the halo rule -- the manuscript these cases are driven by', () => {
 })
 
 describe(`the halo rule -- ${HALO_SPARES}`, () => {
+  // Spec: IMPS-379, IMPS-380
   it('every plan, actual and milestone shape of a linked schedule lies, ink included, inside a box the halo is not laid on', async () => {
     const built = await shellStage({ document: shapesDocument() })
     const svg = built.loop.exportScene()?.svg ?? ''

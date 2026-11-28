@@ -255,7 +255,7 @@ function startupTemplateDocument(): Document | null {
   return shippedDocumentOf(read, 'the startup template the page carries')
 }
 
-// Spec: FR-095, T-342, BK-4
+// Spec: FR-095, T-342, BK-4, BK-1, BK-3, BK-5
 /** @purity semi-pure-mutable */
 function emptyDocument(): Document {
   const read = shippedDocumentOf(

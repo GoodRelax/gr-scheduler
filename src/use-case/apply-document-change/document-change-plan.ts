@@ -243,7 +243,7 @@ function editedInTurn(input: PlanInput): { readonly held: Document; readonly ref
   return { held, refusals, recountedTaskUids }
 }
 
-// Spec: T-067, AG-3, AG-10, FR-063, IMPS-212, IMPS-213, IMPS-217, IMPS-1064
+// Spec: T-067, AG-3, AG-10, FR-063, IMPS-212, IMPS-213, IMPS-217, IMPS-1064, IMPS-575
 /** @purity pure */
 export function planDocumentChange(input: PlanInput): ChangePlan {
   const stale = refusalOfStamp(input.expectedStamp, input.document.documentStamp)

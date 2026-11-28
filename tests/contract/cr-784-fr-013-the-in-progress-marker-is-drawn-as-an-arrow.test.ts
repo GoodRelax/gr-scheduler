@@ -172,6 +172,7 @@ describe('CR-784: the PM-1 glyph is a bar with two arrowhead strokes (FR-013, S-
     expect(near(found!.a.y, g.cy) && near(found!.b.y, g.cy)).toBe(true)
   })
 
+  // Spec: IMPS-501
   it('has an upper head stroke from the right end to (tip - h, cy - h), h = half x S-601', () => {
     expect(g.segments.some((seg) => hasEnds(seg, tip, { x: tip.x - reach, y: g.cy - reach }))).toBe(true)
   })
@@ -201,6 +202,7 @@ describe('CR-784: the PM-3 glyph is the same bar without the heads', () => {
     expect(near(pause.segments[0]!.width, bar.width)).toBe(true)
   })
 
+  // Spec: IMPS-500
   it('differs from the arrow only by the head strokes', () => {
     const base = barOf(arrow)!
     const other = barOf(pause)!

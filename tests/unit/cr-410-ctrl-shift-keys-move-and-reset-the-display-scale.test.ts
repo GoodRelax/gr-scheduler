@@ -116,6 +116,7 @@ const HIGHEST = DISPLAY_SCALE_STEPS[DISPLAY_SCALE_STEPS.length - 1]!
 const stepAfter = (scale: number, by: number): number => DISPLAY_SCALE_STEPS[DISPLAY_SCALE_STEPS.indexOf(scale) + by]!
 
 describe('SK-22 / SK-23 -- Ctrl + Shift + [+] / [-] move the display scale one step of S-234', () => {
+  // Spec: IMPS-1236
   it('raises the default one step with SK-22, and stops the browser default (MK-10)', () => {
     const built = stage({ displayScale: DEFAULT_DISPLAY_SCALE })
     expect(built.press(key('+', CTRL_SHIFT)), MK_10_STOPS_ASSIGNED).toBe(true)
@@ -130,6 +131,7 @@ describe('SK-22 / SK-23 -- Ctrl + Shift + [+] / [-] move the display scale one s
 
   // Why: every step redraws the startup template at a new scale, so this one case outgrows the
   // Why: 5 s default on a loaded machine; the timeout is named here, not raised for the file (DFC-2312).
+  // Spec: IMPS-1232
   it('walks every step in the order table T-202 spells, up and then down', { timeout: WALK_TIMEOUT_MS }, () => {
     const built = stage({ displayScale: LOWEST })
     const up: number[] = [LOWEST]
@@ -146,6 +148,7 @@ describe('SK-22 / SK-23 -- Ctrl + Shift + [+] / [-] move the display scale one s
     expect(down).toEqual([...DISPLAY_SCALE_STEPS].reverse())
   })
 
+  // Spec: IMPS-1233
   it('changes nothing past either end, and does not wrap', () => {
     const top = stage({ displayScale: HIGHEST })
     top.press(key('+', CTRL_SHIFT))
@@ -167,6 +170,7 @@ describe('JDG-301 -- Ctrl + Shift + [0] is no longer assigned, so MK-10 leaves i
 })
 
 describe('MK-10 (MUST NOT) -- Ctrl + [+] / [-] / [0] without Shift are the browser zoom, and GRS takes none of them', () => {
+  // Spec: IMPS-1876
   it.each(['+', '-', '0'])('leaves the document alone and the browser default running for Ctrl + %s', (sign) => {
     const start = { displayScale: 150, zoomX: 2, zoomY: 0.5 }
     const built = stage(start)

@@ -68,6 +68,7 @@ describe('FD-6 -- the manuscript these cases are driven by', () => {
 })
 
 describe(`FD-6 -- ${FD_6_IV_12_AGREES.slice(-40)}`, () => {
+  // Spec: IMPS-1586
   it('pulling the fade-in point (GA-7) as far as it goes lands, and the two fades together still fit the span', () => {
     const one = selectedTask(documentWith(1, KEPT_END_DAYS))
     expect(fadesOf(one), 'premise: the document starts in range').toEqual({ fadeIn: 1, fadeOut: KEPT_END_DAYS })

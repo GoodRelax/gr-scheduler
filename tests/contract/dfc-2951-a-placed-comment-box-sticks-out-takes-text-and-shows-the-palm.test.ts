@@ -143,6 +143,7 @@ describe('FR-019 / CM-46 / S-600 -- the armed press (AR-5) stores the body offse
     expect(box.anchor.y - (box.body.y + box.body.height)).toBeCloseTo(S_600, 1)
   })
 
+  // Spec: IMPS-850
   it('FR-019 / LF-17: the tip is outside the body, so a leader is drawn from the tip to the bottom-left corner', async () => {
     const { built } = await placedOn(documentWith([]))
     const box = placedBoxOf(built)

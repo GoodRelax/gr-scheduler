@@ -250,6 +250,7 @@ describe('FR-102: one toggle begins and stops the record', () => {
     expect(run(1)).toEqual([['recordingInteractions', ['beginInteractionRecord']]])
   })
 
+  // Spec: IMPS-819
   it('面の描画の記録**を始めること（MUST）。**同じ入口で止めること（MUST）', () => {
     expect(run(4).map(([kind]) => kind)).toEqual(['recordingInteractions', 'notRecording', 'recordingInteractions', 'notRecording'])
   })

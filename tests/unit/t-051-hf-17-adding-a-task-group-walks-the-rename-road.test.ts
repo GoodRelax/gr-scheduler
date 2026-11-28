@@ -406,6 +406,7 @@ describe('the manuscript still says what these cases read', () => {
 // Spec: T-051, HF-17, HF-14, HR-8
 describe('表 T-051 HF-17 and HF-14 (MUST): the press raises the task group at once', () => {
   for (const language of ['ja', 'en'] as const) {
+    // Spec: IMPS-1952
     it(`⭐⭐ HF-17 at 段 0: a new root task group appears, last among the roots, named from the dictionary (${language})`, () => {
       const built = stage(language)
       const before = built.rows()

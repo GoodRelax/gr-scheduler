@@ -122,6 +122,7 @@ const AT_A_12PX_RULER: DocumentSettings = { ...SETTINGS, rulerFontSizePx: S_8 / 
 const JUST_UNDER = 1 - 1e-9
 
 describe('FR-017 with table T-205 -- S-83 and S-84 are the edges where the label fits (CR-584 T1, T2)', () => {
+  // Spec: IMPS-705
   it('the manuscript values reach the built constants (rule 04 section 2: change one value, a test goes red)', () => {
     expect(SETTINGS_CONSTANTS.rulerTierPxPerDayMonth, 'S-83 (MUST) "the thresholds are fixed values"').toBe(S_83)
     expect(SETTINGS_CONSTANTS.rulerTierPxPerDayWeek, 'S-84 (MUST) "the thresholds are fixed values"').toBe(S_84)
@@ -134,6 +135,7 @@ describe('FR-017 with table T-205 -- S-83 and S-84 are the edges where the label
     )
   })
 
+  // Spec: IMPS-704
   it('at a 12px ruler, exactly S-83 px/day is the month tier TM-2 and just under it is the year tier TM-1', () => {
     expect(
       AT_A_12PX_RULER.rulerFontSizePx * DEFAULT_DISPLAY_RATIO,

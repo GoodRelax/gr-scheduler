@@ -243,6 +243,7 @@ const emptyRecord = (): AskRecord => ({ identityReads: [], questions: 0 })
 const SAME_PROJECT: IdentityReader = () => ({ projectName: 'Alpha', projectId: 'P-1' })
 
 describe('IF-3 FileStore -- table T-227, from the gateway through to the disk', () => {
+  // Spec: IMPS-1052
   it(
     seamCase(
       ['DI-1'],
@@ -583,6 +584,7 @@ describe('IF-3 FileStore -- CN-5 of table T-003: the encoding rule, applied once
     expect(destination.content()).toEqual(UTF8.encode(WITH_A_WIDE_CHARACTER))
   })
 
+  // Spec: IMPS-880
   it(seamCase(['CN-5'], 'adds no BOM'), async () => {
     const log: string[] = []
     const destination = standInFile('plan.json', null, log)

@@ -350,6 +350,7 @@ describe('FR-055 T-367 FX-2 / FX-3 -- the fixed fit', () => {
     expect([settingsOf(stage).zoomX, settingsOf(stage).scrollDate?.slice(0, 10), settingsOf(stage).scrollDateFraction]).toEqual([end, start, 0])
   })
 
+  // Spec: IMPS-1945
   it(`${FR_055_MARGIN} -- unfixed, the fit keeps the margin on each side`, async () => {
     const stage = exportStage(withFit(...SPAN, false))
     await stage.take('IC-10')

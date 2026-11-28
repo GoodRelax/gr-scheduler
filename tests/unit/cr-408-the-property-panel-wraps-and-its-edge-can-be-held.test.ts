@@ -286,6 +286,7 @@ describe('FR-052 (MUST / MUST NOT) -- the property panel width counts from the w
     expect(drawnWidth(built.loop)).toBeGreaterThanOrEqual(0)
   })
 
+  // Spec: IMPS-1782
   it('a pull left past the Task Group Area never leaves the Task Group Area at 0 or less', () => {
     const built = withThePanelOpen()
     drag(built, -SCREEN.width)
@@ -512,6 +513,7 @@ function controlOf(built: Stage, fieldName: string): { control: FakeElement; row
 const minWidthOf = (element: FakeElement): string => (styleMap(element).get('min-width') ?? '').trim()
 
 describe('FR-006 (MUST / MUST NOT) -- text and multiline fields stay inside the panel and wrap', () => {
+  // Spec: IMPS-56
   it.each([
     ['PR-1', 'NameLabelToken'],
     ['PR-2', 'NotesLabelToken'],
@@ -521,12 +523,14 @@ describe('FR-006 (MUST / MUST NOT) -- text and multiline fields stay inside the 
     expect(minWidthOf(wide), `${whatWasDrawn(wide)} against ${whatWasDrawn(narrow)}`).toBe(minWidthOf(narrow))
   })
 
+  // Spec: IMPS-57
   it('PR-1 (text): the control can wrap -- it is not a one-line input', () => {
     const { control } = controlOf(drawnSurface(viewWith(panelWith(80, 80))), 'NameLabelToken')
     expect(control.tagName === 'TEXTAREA' || control.hasAttribute('contenteditable'), whatWasDrawn(control)).toBe(true)
     expect((styleMap(control).get('white-space') ?? '').trim()).not.toBe('nowrap')
   })
 
+  // Spec: IMPS-58
   it('PR-2 (multiline): at least S-193 lines are shown, and no fixed height holds a long value to them', () => {
     const { control } = controlOf(drawnSurface(viewWith(panelWith(80, 80))), 'NotesLabelToken')
     const rows = Number(control.getAttribute('rows') ?? '0')
@@ -535,6 +539,7 @@ describe('FR-006 (MUST / MUST NOT) -- text and multiline fields stay inside the 
     expect(/^[\d.]+(px|em|rem)$/.test((styleMap(control).get('height') ?? '').trim()), whatWasDrawn(control)).toBe(false)
   })
 
+  // Spec: IMPS-59
   it.each([
     ['PR-1', 'NameLabelToken', LONG_NAME],
     ['PR-2', 'NotesLabelToken', LONG_NOTES],
@@ -549,6 +554,7 @@ describe('FR-006 (MUST / MUST NOT) -- text and multiline fields stay inside the 
 })
 
 describe('FR-006 (MUST NOT) -- the close entrance IC-52 lies on no field', () => {
+  // Spec: IMPS-60
   it('IC-52 is drawn on the panel, apart from every field control', () => {
     const built = drawnSurface(viewWith(panelWith(80, 80)))
     const close = selfAndDescendants(built.root()).filter((one) => one.getAttribute('data-icon') === 'IC-52')

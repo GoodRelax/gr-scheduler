@@ -408,6 +408,7 @@ describe('FR-099 -- the manuscript this file is driven by', () => {
 })
 
 describe('FR-099 (MUST) -- IC-66 deletes the CHOSEN assignees', () => {
+  // Spec: IMPS-274
   it('choosing one and taking IC-66 raises a question rather than writing at once', () => {
     const built = rosterWith([ANNA])
     const before = built.document()
@@ -424,7 +425,7 @@ describe('FR-099 (MUST) -- IC-66 deletes the CHOSEN assignees', () => {
     ).toBe(before)
   })
 
-  // Spec: RO-10
+  // Spec: RO-10, IMPS-267, IMPS-269
   it('answering yes takes the chosen assignee and its assignments, and nothing else', () => {
     const built = rosterWith([ANNA])
     built.take('IC-66')
@@ -475,6 +476,7 @@ describe('表 T-234 QN-3 (MUST) -- the question names the TASKS, not the assigne
     expect(built.view().confirmation?.question).toBe(QN_3)
   })
 
+  // Spec: IMPS-275
   it('⭐⭐ one item per TASK whose assignment would be freed', () => {
     const built = rosterWith([ANNA])
     built.take('IC-66')
@@ -511,6 +513,7 @@ describe('表 T-234 QN-3 (MUST) -- the question names the TASKS, not the assigne
     ).toEqual([TASK_NAMES[GAMMA]])
   })
 
+  // Spec: IMPS-276
   it('⛔ a bare count is not offered in place of the names (MUST NOT)', () => {
     const built = rosterWith([ANNA])
     built.take('IC-66')

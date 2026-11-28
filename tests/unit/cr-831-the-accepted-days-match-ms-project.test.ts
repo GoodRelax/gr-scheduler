@@ -113,6 +113,7 @@ const openedJson = (parts: DocumentParts): Document => {
 const oneTask = (start: string, finish: string): DocumentParts => ({ tasks: [taskRow(1, { start, finish })] })
 
 describe('FR-023 / IV-14: a GRS JSON is opened only with Task dates inside T-214', () => {
+  // Spec: IMPS-932
   it(`a Task start on ${DAY_BEFORE_MIN} is refused under IV-14, naming the start column`, () => {
     const verdict = verdictOf(openedJson(oneTask(`${DAY_BEFORE_MIN}T${S_482}`, april(10, S_483))))
     expect(verdict.ok).toBe(false)

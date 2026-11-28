@@ -296,6 +296,7 @@ describe('DFC-587 Properties Panel: the entrances drawn on it', () => {
     }
   })
 
+  // Spec: IMPS-1120
   it('FR-029 (MUST NOT): 同じ機能の入口を画面上の 2 か所に置いてはならない（MUST NOT）', () => {
     for (const showing of ['selection', 'documentSettings'] as const) {
       const panel = drawnPanel(showing)

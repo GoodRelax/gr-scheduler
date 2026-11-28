@@ -103,6 +103,7 @@ function changed(before: Task, after: Task, column: keyof Task): boolean {
 }
 
 describe('X-1 WT-1 / WT-2: a task placed on the ground (IC-23, FR-083) takes the side times', () => {
+  // Spec: IMPS-909
   it('WT-1 / S-482: the new task starts at 08:00:00 when defaultStartTime is null', () => {
     const built = stage(grsDocument())
     const y = taskGroupY(built, BAR)
@@ -123,6 +124,7 @@ describe('X-1 WT-1 / WT-2: a task placed on the ground (IC-23, FR-083) takes the
     expect(timeOf(made[0]?.finish)).toBe(S_483)
   })
 
+  // Spec: IMPS-909
   it('AT-154 / AT-155: with defaultStartTime 09:00:00 the new task is written at 09:00:00 .. 18:00:00', () => {
     const built = stage(grsDocument(ownTimes))
     const y = taskGroupY(built, BAR)
@@ -135,6 +137,7 @@ describe('X-1 WT-1 / WT-2: a task placed on the ground (IC-23, FR-083) takes the
 })
 
 describe('X-1 WT-1 / WT-2 / WT-5: a task moved by its grab areas (T-245) takes the side times', () => {
+  // Spec: IMPS-908, IMPS-1601
   it('GO-1 / WT-1: the plan start released is written at S-482', () => {
     const built = stage(grsDocument())
     grabAndRelease(built, BAR, 'GA-1', 3)

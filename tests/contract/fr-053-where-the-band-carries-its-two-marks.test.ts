@@ -245,6 +245,7 @@ describe('FR-053 (MUST) -- the band carries IC-53 and IC-75, and nothing else', 
     }
   })
 
+  // Spec: IMPS-1820
   it('⛔ MUST: IC-53 sits at the band’s RIGHT END', () => {
     // Why: no layout engine here can say where a box landed, so the case asks
     // that the band or the mark states that its content ends at the right edge.
@@ -259,6 +260,7 @@ describe('FR-053 (MUST) -- the band carries IC-53 and IC-75, and nothing else', 
     ).toBe(true)
   })
 
+  // Spec: IMPS-1821
   it('⛔ MUST: IC-75 comes after IC-53, which is what 「その右に」 means', () => {
     // Why: this seam sees node order only; a band that pulled IC-75 back with
     // `order` or `row-reverse` would pass, and no row settles that property.
@@ -292,6 +294,7 @@ describe('FR-053 (MUST) -- the band carries IC-53 and IC-75, and nothing else', 
 describe('FR-053 (MUST) -- minimizing moves neither mark', () => {
   const MINIMIZED = paletteWith({ isMinimized: true, groups: [], armedText: null })
 
+  // Spec: IMPS-1822, IMPS-1839
   it('⭐ the band still carries both, in the same order', () => {
     // Why: another bench asks only that both are there, in either order; this
     // one asks the order.

@@ -431,6 +431,7 @@ describe(`T-330 SV-9 -- ${SV_9_SIZE} ${SV_9_CORNER}`, () => {
 })
 
 describe(`T-330 SV-1 -- ${SV_1_ORDER}`, () => {
+  // Spec: IMPS-1857
   it.each(LANGUAGES)('%s: the name, then IC-118, IC-119, IC-153 and IC-143, then IC-127, IC-129, IC-130 and IC-52', (language) => {
     const { panel } = drawn(viewOf(sessionIn(language)))
     const title = titleRowOf(panel)
@@ -511,6 +512,7 @@ describe(`T-330 SV-2 -- ${SV_2_REFOCUS}`, () => {
 })
 
 describe(`T-330 SV-3 -- ${SV_3_ONE} / table T-331 -- the column headings`, () => {
+  // Spec: IMPS-1858, IMPS-1870
   it.each(LANGUAGES)('%s: the tasks table shows SQ-1..SQ-6 in order, headed by the dictionary words', (language) => {
     const { panel } = drawn(viewOf(sessionIn(language)))
     // Why: SQ-10's heading cell is its box and IC-122; at the S-496 width SV-18 cuts the word first, so it rides as the title.

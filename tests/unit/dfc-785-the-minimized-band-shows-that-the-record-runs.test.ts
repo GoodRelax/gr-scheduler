@@ -32,6 +32,7 @@ describe('FR-053 / FR-102 (DFC-785) -- the record can be read from a minimized p
     return built
   }
 
+  // Spec: IMPS-820
   it('minimized and recording: IC-76 stands on the band, pressed', () => {
     const built = benchOf()
     take(built, RECORD)
@@ -62,6 +63,7 @@ describe('FR-053 / FR-102 (DFC-785) -- the record can be read from a minimized p
     expect(built.last().commandPalette).toBeNull()
   })
 
+  // Spec: IMPS-1840
   it('stopping the record from the band takes IC-76 off it', () => {
     const built = benchOf()
     take(built, RECORD)

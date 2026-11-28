@@ -234,6 +234,7 @@ describe('DFC-3479 c: a pull farther than S-208 still moves the end and still ch
     })
   }
 
+  // Spec: IMPS-1903
   it('GA-7: a pull of two days changes fadeInDays and keeps fadeOutDays', () => {
     const built = stage(endsDocument())
     const box = planBox(built.loop, FADED)

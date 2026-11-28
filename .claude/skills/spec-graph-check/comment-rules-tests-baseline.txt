@@ -44,7 +44,8 @@
 # LOWERED on 2026-10-23 to the measured values (tree density 1327 -> 1284 bp; 7 files: dfc-355 246 -> 214, fr-029-in-effect 333 -> 332, fr-027 324 -> 323, t-023d-follows-the-pointer 752 -> 706, uf-27-28-29 359 -> 346, uf-48-input 551 -> 549, uf-71 1421 -> 1407; the uf-26 line dropped, the file is gone) under JDG-520: the wave 2 test cleanup.
 # LOWERED on 2026-10-23 to 1283 bp after CR-825 under JDG-520.
 # LOWERED 105 lines on 2026-11-27 to the measured values (tree density -> 438 bp) under JDG-520: B11b judged the comments of tests/ (comments only, the code lexer-identical); measured on e053fb30a plus this commit.
-tree-density-basis-points 438
+# LOWERED on 2026-11-28 to the measured value (tree density 438 -> 340 bp) under JDG-520: JDG-4100 (the owner, "b でOK。") takes the tests/ lines whose only comment is a `// Spec:` link out of the count; measured on develop 138d6e9c3 plus B13 before the B13 links.
+tree-density-basis-points 340
 tests/contract/display-words.contract.test.ts 0
 tests/contract/document-invariants.contract.test.ts 0
 tests/contract/erd-seats-are-never-reissued.contract.test.ts 0

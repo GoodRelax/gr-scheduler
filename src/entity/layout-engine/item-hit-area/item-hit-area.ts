@@ -563,7 +563,7 @@ function actualRegionsOf(shape: TaskShape, sizes: GrabSizes): readonly (Region |
   ]
 }
 
-// Spec: GA-5, GA-6, GA-17, GA-21, GA-22, IMPS-436, IMPS-437, IMPS-443, IMPS-447, IMPS-1612, IMPS-1613, IMPS-1615, IMPS-1616, IMPS-1617
+// Spec: GA-5, GA-6, GA-17, GA-21, GA-22, IMPS-436, IMPS-437, IMPS-443, IMPS-447, IMPS-1612, IMPS-1613, IMPS-1615, IMPS-1616, IMPS-1617, IMPS-1618
 // Why: the family decides, not the mark's own row, which the three of them do not share.
 /** @purity pure */
 function dummyRegionsOf(shape: TaskShape, sizes: GrabSizes): readonly (Region | null)[] {
@@ -1181,7 +1181,7 @@ function baselineHintOf(geometry: ScheduleGeometry, x: number, y: number): HintH
   return null
 }
 
-// Spec: EZ-6, GR-26, GR-27, IMPS-1494, IMPS-1526, IMPS-1527
+// Spec: EZ-6, GR-26, GR-27, IMPS-1494, IMPS-1526, IMPS-1527, BL-5, NG-10
 // Why: the press rows in their printed order with the two hint rows set between; the first row holding the point answers, and one with no hint answers none.
 /** @purity pure */
 function hintPastNotesOf(walk: PointerWalk, pressed: Hit | null, x: number, y: number): HintHolder | null {

@@ -44,7 +44,7 @@ function withScheduleParts(document: Document, part: Partial<Schedule>): Documen
   return { ...document, schedule: { ...document.schedule, ...part } }
 }
 
-// Spec: CM-40, CM-41, CM-42, CM-43, CM-44, CM-45, IMPS-193, IMPS-194, IMPS-196, IMPS-197, IMPS-198, IMPS-199, IMPS-200, IMPS-201, IMPS-267, IMPS-277
+// Spec: CM-40, CM-41, CM-42, CM-43, CM-44, CM-45, IMPS-193, IMPS-194, IMPS-196, IMPS-197, IMPS-198, IMPS-199, IMPS-200, IMPS-201, IMPS-267, IMPS-277, IMPS-283
 /** @purity pure */
 export function editResource(document: Document, command: ResourceCommand): EditResult {
   const { project, resources, assignments, tasks } = document.schedule

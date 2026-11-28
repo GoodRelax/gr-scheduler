@@ -730,6 +730,7 @@ describe('the manuscript still says what these cases read', () => {
 
 // Spec: FR-053, S-143
 describe('FR-053 (MUST) -- the boundary between two groups is shown by a line', () => {
+  // Spec: IMPS-1825
   it('draws one line for every boundary, and none where there is no boundary', () => {
     for (const groups of GROUP_COUNTS) {
       const palette = drawPalette(groups)
@@ -757,6 +758,7 @@ describe('FR-053 (MUST) -- the boundary between two groups is shown by a line', 
 
 // Spec: FR-053, FR-029
 describe("FR-053 (MUST NOT) -- the group's caption is not printed", () => {
+  // Spec: IMPS-1824
   it('prints the word of no group, in a palette that prints a word at all', () => {
     // Why: the armed word is asserted first, so this case cannot pass by reading no text at all.
     const palette = drawPalette(Math.max(...GROUP_COUNTS))

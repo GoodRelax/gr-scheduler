@@ -109,6 +109,7 @@ describe('FR-033 -- a paste while two task groups are chosen is refused, carries
     expect(bench.loop.hasUnsavedEdits(), 'the paste adds no unsaved edit').toBe(unsavedBefore)
   })
 
+  // Spec: IMPS-303
   it(`${THE_REASON_IS_RS_27} -- RS-27 is carried`, () => {
     const bench = copiedThenTaskGroupsChosen(['task-group-2', 'task-group-3'])
     bench.send(PASTE)

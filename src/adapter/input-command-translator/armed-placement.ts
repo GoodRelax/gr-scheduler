@@ -71,7 +71,7 @@ export function commandFromArmingEntry(entry: string, context: InputContext): Tr
   return changed(commands)
 }
 
-// Spec: UC-004, FR-009, IMPS-342
+// Spec: UC-004, FR-009, IMPS-342, IMPS-340
 /** @purity pure */
 export function commandFromDependencyDrag(
   release: PointerInput,

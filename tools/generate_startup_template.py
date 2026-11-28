@@ -3572,6 +3572,7 @@ def check_rollup_reading(built):
                % (task['name'], task['percentComplete'], share))
 
 
+# Spec: TP-5, TP-6
 def check_counts(built):
     """A13 -- the counts table T-226 fixes.
 
@@ -4499,6 +4500,7 @@ def assert_settings_complete(settings):
 # Assembly
 # ---------------------------------------------------------------------------
 
+# Spec: IMPS-1024
 def build():
     """The whole document, checked before it is handed back.
 
@@ -4699,6 +4701,7 @@ def json_text(value):
     return json.dumps(value, ensure_ascii=False, indent=1) + '\n'
 
 
+# Spec: MC-10
 def main():
     """@purity non-pure"""
     document = build()

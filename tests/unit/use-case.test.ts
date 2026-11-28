@@ -138,6 +138,7 @@ describe('ApplyDocumentChange -- how big one undo step is (FR-031)', () => {
 })
 
 describe('EditDocument (PI-9) -- the Project aggregate', () => {
+  // Spec: IMPS-312
   it('FR-035 refuses an empty document name but accepts null', () => {
     const document = documentOf()
     const empty = editProject(document, { kind: 'setProjectTitle', title: '' })
@@ -148,6 +149,7 @@ describe('EditDocument (PI-9) -- the Project aggregate', () => {
     expect(cleared.ok).toBe(true)
   })
 
+  // Spec: IMPS-1017, IMPS-1018, IMPS-1097
   it('T-224 writes the eight editable columns and cannot reach the document name', () => {
     const result = editProject(documentOf(), {
       kind: 'setProjectProfile',
@@ -198,6 +200,7 @@ describe('EditDocument (PI-9) -- the presentation aggregate', () => {
     expect(settingsOf(result.document).zoomY).toBe(0.02)
   })
 
+  // Spec: IMPS-1781
   it('FR-052 refuses a task group panel width that leaves the Task Group Area at or below zero', () => {
     const ok = editDocumentSettings(
       documentOf(),
@@ -215,6 +218,7 @@ describe('EditDocument (PI-9) -- the presentation aggregate', () => {
     if (!tooWide.ok) expect(tooWide.refusals[0]!.rule).toBe('FR-052')
   })
 
+  // Spec: IMPS-1783
   it('FR-052 refuses a task group panel of zero, which SC-3 forbids', () => {
     // Why: width 0 breaks SC-3's "showing at every zoom" (MUST NOT), so it
     // is refused even though the Task Group Area would be at its widest.
@@ -227,6 +231,7 @@ describe('EditDocument (PI-9) -- the presentation aggregate', () => {
     if (!flat.ok) expect(flat.refusals[0]!.rule).toBe('FR-052')
   })
 
+  // Spec: IMPS-794, FR-307
   it('FR-098 refuses a pin at the cap and leaves the ones already placed alone', () => {
     // Why: S-127 is a constant (CR-572); the document holds as many pins as it allows.
     const held = Array.from({ length: SETTINGS_CONSTANTS.pinnedTaskGroupMax }, (_, at) => `g${at}`)

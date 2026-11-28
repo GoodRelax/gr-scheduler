@@ -242,6 +242,7 @@ describe('table T-050 -- deleting the last task group', () => {
     ).toHaveLength(0)
   })
 
+  // Spec: IMPS-266
   it('moves the schedule instant, because a TaskGroup is schedule-group data', () => {
     const plan = accepted(planOf(ONE_TASK_GROUP, [{ kind: 'deleteTaskGroup', taskGroupId: 'g1', newTaskGroupId: 'fresh-task-group' }]))
     expect(plan.hasUpdatedSchedule).toBe(true)

@@ -4093,3 +4093,9 @@
 | JDG-4131 | **「6 代目を立てろ」**（2026-11-28。5 代目のチャット）。BOSSBOSS（4 代目）が全 BOSS へ伝えた持ち主の決め（2026-11-28）: 区切りで 400k トークンを越えていれば交代、700k が遅くともの線、後任はトップ。SUB は「目的を達した」か「次へ確実に引き継いだ」を宣言させ、記録を写してから BOSS がアーカイブしてよい。依頼書と引継書はファイルにし、リポジトリの root の .gitignore された場所に置き、依頼の文にはパスを書く | ⭐ 6 代目（local_952ce5ca）が 5 代目から継いだ。依頼書は root の `temp/briefs/`、引継書は `temp/handovers/`（worktree の席は root に書けないので、共有のメモに書き、BOSS が写す） | `docs/development-records/handoff.md` | 指示 —— BOSS が当てる |
 | JDG-4132 | **「だめ。 まだmainは早い。 そもそもAPIの用語も仮だし。 俺がUI操作テストもしてない。」**（2026-11-28。PR の説明を受けて。6 代目のチャット） | ⭐ develop を main へ入れる PR・Pages の公開・タグは、持ち主が Agent API の名を決めることと、持ち主の UI 操作テストの後まで出さない。β やタグの日付は予定に置かない | `plan/gr-scheduler-plan.md` | 指示 —— PMO が計画に当てる |
 | JDG-4133 | **「もしβ版のdevelop版が動くなら、今後はそれでGRS JSONを見る。 良いタイミングで、 β版を grs-beta.html の1ファイルのみmainに出して、 https://goodrelax.github.io/gr-scheduler/grs-beta.html を使えるようにしろ。 俺はこれでテストする。」**（2026-11-28。6 代目のチャット） | ⭐ GT-2 を通った develop の 1 ファイル版を `docs/grs-beta.html` として main に置く（枝 `beta/grs-beta-page`、PR。持ち主が merge）。main のほかの物は変えない。持ち主はこれで GRS JSON を見て、UI を試す | `docs/development-records/test-records/2026-11-28-GT-2-138d6e9c339d.md` | 指示 —— BOSS が PR を出し、持ち主が merge する |
+
+## 2026-11-28 —— 検査 55 の tests の密度と `Spec` の行（B13 の問い。持ち主は [gr-scheduler BOSS（6 代目）](#local_952ce5ca-9d69-4e83-a561-dcd4ba28640d) を通して答えた。JDG-4100）
+
+| # | 逐語（⛔ 1 文字も変えるな） | 読み | 着地先 | 状態 |
+|---|---|---|---|---|
+| JDG-4100 | **「b でOK。」**（2026-11-28。B13 の問い「行とテストを結ぶ `// Spec:` の行を tests に足すと、検査 55 の tests のコメントの密度の基準線（438 bp）が上がる。a 持ち主が基準線を上げてよいとする ／ b 検査 55 が `// Spec:` の行を密度に数えない ／ c 新しい行を足さず、`Spec` の行が既にある所だけ結ぶ」への答え。BOSS の推奨は b） | ⭐ tests の、コメントが `Spec: <ID>[, <ID>...]` だけの行は、R1b が求める追跡の印であって地の文ではないので、検査 55 は tests のコメントの密度に数えない。⭐ 形の検査は今のまま読む（1 つの塊に `Spec` の行は 1 行）。⭐ src は数え続ける（検査 60 の Node の測り方とそろえる）。⭐ 数えなくなって下がった密度は、測った値へ下げる（438 → 340 bp） | `.claude/skills/spec-graph-check/check-comment-rules.py`・`.claude/skills/spec-graph-check/comment-rules-tests-baseline.txt` | 適用済 —— B13 |

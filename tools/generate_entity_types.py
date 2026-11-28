@@ -117,6 +117,7 @@ def ts_element(spec):
             'string': 'string', 'boolean': 'boolean'}[kind]
 
 
+# Spec: IMPS-80
 def entity_block(entity, row_id):
     """One entity, documented by pointing at its rows rather than copying them.
 
@@ -2883,6 +2884,7 @@ CONSTANTS_NOTE = [
 ]
 
 
+# Spec: IMPS-1200
 def constant_rows():
     """Every (row id, key, cell) the not-stored tables state by an English name.
 

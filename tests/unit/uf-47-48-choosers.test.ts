@@ -797,6 +797,7 @@ describe('OP-3 answered -- table T-230 says where each of the three lands', () =
     expect(baselineUidsOf(loop.document())).toEqual([])
   })
 
+  // Spec: IMPS-1457
   it('FR-015 (MUST): a task the overlay could not match is told, not silently dropped', async () => {
     // Why: no row of table T-233 is named: what is driven is the MUST itself, that something is
     // told in words, so the case stays true whichever row carries it.

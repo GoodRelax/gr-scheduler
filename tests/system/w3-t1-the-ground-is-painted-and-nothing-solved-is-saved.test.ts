@@ -94,6 +94,7 @@ test.describe(`FR-041 (MUST NOT): ${FR_041_OWN_GROUND}`, () => {
     ['light', 'dark'],
     ['dark', 'light'],
   ] as const) {
+    // Spec: IMPS-148, IMPS-149
     test(`the system says ${system}, the viewer chooses ${chosen}: the page ground is S-146 ${chosen}`, async () => {
       const opened = await openUnder(system)
       try {
@@ -111,6 +112,7 @@ test.describe(`FR-041 (MUST NOT): ${FR_041_OWN_GROUND}`, () => {
 test.describe(`CF-1 (MUST NOT): ${CF_1_NOT_SAVED.slice(-40)}`, () => {
   test.setTimeout(120_000)
 
+  // Spec: IMPS-144
   test('a new hue and a new light / dark choice change nothing in the saved bytes but themeHue itself', async () => {
     const opened = await openUnder('light')
     try {

@@ -1,0 +1,730 @@
+term	id	lacks	category	implementation note	test note
+leaf-unbuilt	NFR-005	no implementation	not product code	whole-tree property (spec-ch5-01 line 633: no unit can be named); src holds no browser-specific code to point at	
+leaf-unbuilt	NFR-008	no implementation and no test or verification row	missing implementation	not implemented in src: no focus-visible / outline styling found (grep focus-visible, :focus, outline in src); relies on browser default; spec-ch5-01 line 633 names no unit	no test reads focus visibility (grep focus-visible, :focus, 2.4.7, IMPS-1269 in tests: 0); a test could check the computed focus outline, so not VERIFY
+leaf-unbuilt	NFR-012	no implementation and no test or verification row	implementation not located	a structural room claim, nothing to implement now: FU-1..FU-5 of T-039 are out of scope (SO-12); spec-ch5-01 line 633 names no unit	reviewer reads the structure against T-039: Agent API is the one set a server can wrap (FU-1), TaskGroup is the permission unit (FU-2), the document is not fixed to one project (FU-3/4), drawing is derived from data (FU-5)
+below-unbuilt	BF-1	no implementation	absence or no single unit	help content is generated data: tools/generate_help_roster.py writes the browser block (Ctrl + / Ctrl -) into src/adapter/screen-renderer/help-roster.json HC-1; no src function holds it / data row of T-255; no code decides it beyond generic table read	
+below-unbuilt	BF-2	no implementation	absence or no single unit	help content is generated data: tools/generate_help_roster.py writes the browser block (Ctrl 0) into src/adapter/screen-renderer/help-roster.json HC-1; no src function holds it / data row of T-255; no code decides it beyond generic table read	
+below-unbuilt	BR-5	no test	no verifying test		cr-628 and cr-650 check the Branding link, size and order; no expect on no tooltip, no key, no faint/pressed state or the T-109 count
+below-unbuilt	BS-1	no test	no verifying test		no test runs shiftScheduleTimes (CM-98) and checks which columns move; cr-757 covers CM-99 (FR-159) only
+below-unbuilt	BS-2	no test	no verifying test		no test runs CM-98 and checks the whole-day ranges, creationDate and calendars stay
+below-unbuilt	BS-3	no test	no verifying test		no test reads the CM-98 confirmation (amount, counts, one example); the cr-767 scenes reach only the draft state machine
+below-unbuilt	BS-4	no test	no verifying test		no test runs CM-98 past table T-214 and checks the IV-14 refusal
+below-unbuilt	BT-2	no implementation	missing implementation	not implemented on purpose: the row says this source is not built (a single .html gets no file association); nothing in src opens a passed document	
+below-unbuilt	CL-1	no implementation	implementation not located	generated data: the palette names and their values are COLOR_NAME_VALUES (svg-renderer.ts generated block) from docs/spec/_source/settings.json table T-294	
+below-unbuilt	CQ-2	no test	no verifying test		no test opens a confirmation with a name list and checks the full-width rule at S-242
+below-unbuilt	CQ-4	no test	no verifying test		no expect checks that a confirmation with no names draws neither the rule nor the list
+below-unbuilt	CT-1	no test	no verifying test		no test measures text against the plan bar at 4.5:1 (no CT-1 in tests)
+below-unbuilt	CT-2	no test	no verifying test		no test measures text against the actual bar at 4.5:1 (no CT-2 in tests)
+below-unbuilt	CV-10	no test	no verifying test		no test fills a task with a custom colour and checks the derived actual fill (saturation / lightness shift, CT-3 fallbacks)
+below-unbuilt	CV-8	no test	no verifying test		w3-t1 / w3-t4 check the theme colours per hue; no expect checks the T-294 named values against CT-4 / CT-5 on S-146, nor the no-auto-correction of custom values
+below-unbuilt	DF-1	no implementation	absence or no single unit	a shape rule on the document model (interpreted elements keep the partner's position); realised by the generated entity types, no function implements it as a whole	
+below-unbuilt	DF-5	no implementation	absence or no single unit	a shape rule on the document model (GRS-only things as new groups, e.g. taskGroups, taskVisuals); realised by the generated entity types, no function implements it	
+below-unbuilt	DM-14	no test	no verifying test		no test turns S-228 off with a dummy; only the S-227 half is checked (dfc-407 :228 same figure with the plan shown or not); occupancy, FR-049 count and grab-off not checked
+below-unbuilt	ED-3	no implementation	absence or no single unit	data, not code: src/framework/single-html-shell/startup-template.json carries lastEditedBy "template"; no function writes it	
+below-unbuilt	EP-16	no test	no verifying test		no test raises a notice and checks the export draws no Notification Area and leaves no room
+below-unbuilt	EZ-1	no implementation and no test	missing implementation	pointer row: its defining-place column hands the means to FR-029; no code point implements EZ-1 itself (FR-029's rows carry the marks)	pointer row to FR-029; no test names or checks EZ-1 itself
+below-unbuilt	EZ-10	no implementation and no test	missing implementation	pointer row: the means is FR-039's (text size and theme); no code point implements EZ-10 itself	pointer row to FR-039; no test names or checks EZ-10 itself
+below-unbuilt	EZ-11	no implementation and no test	missing implementation	pointer row: the means is FR-040's (pointer and keyboard conventions); no code point implements EZ-11 itself	pointer row to FR-040; no test names or checks EZ-11 itself
+below-unbuilt	EZ-12	no implementation and no test	missing implementation	pointer row: the means is FR-076's (what happened and the next step in a notice); no code point implements EZ-12 itself	pointer row to FR-076; no test names or checks EZ-12 itself
+below-unbuilt	EZ-3	no implementation and no test	missing implementation	pointer row: the means is FR-036's (the one-screen help); no code point implements EZ-3 itself	pointer row to FR-036; no test names or checks EZ-3 itself
+below-unbuilt	EZ-4	no implementation and no test	implementation not located	SHOULD design aim (feel of drawing and spreadsheet tools); not a code point; held by this requirement only	a design aim; no automated test can check closeness of feel, judged by the owner on trial
+below-unbuilt	EZ-5	no implementation and no test	implementation not located	MUST design property (improvable on trial, R2 of 07-review-standards.md); not a code point, Chapter 5 holds the design	checked by review against R2 of docs/development-rules/07-review-standards.md, not by a test
+below-unbuilt	EZ-7	no implementation and no test	missing implementation	pointer row: the means is FR-030's (state and kind not by color alone); no code point implements EZ-7 itself	pointer row to FR-030; no test names or checks EZ-7 itself
+below-unbuilt	EZ-8	no implementation and no test	missing implementation	pointer row: the means is FR-037's (the faster assignment shown at the scrollbar); no code point implements EZ-8 itself	pointer row to FR-037; no test names or checks EZ-8 itself
+below-unbuilt	EZ-9	no implementation and no test	missing implementation	pointer row: the means is FR-038's (screen words and help words by their languages); no code point implements EZ-9 itself	pointer row to FR-038; no test names or checks EZ-9 itself
+below-unbuilt	FA-13	no test	no verifying test		no test proposes a fix for a VC-13 finding and checks the FA-13 date candidate or the actualStart it adds
+below-unbuilt	FA-17	no test	no verifying test		no test proposes a fix for a VS-2 finding and checks it is the FA-17 by-hand row on the child
+below-unbuilt	FA-18	no test	no verifying test		no test proposes a fix for a VS-3 finding and checks the FA-18 date candidate on the predecessor
+below-unbuilt	FA-5	no test	no verifying test		no test checks the FA-5 date candidate (start, or actualFinish when earlier) of a VC-5 row; cr-618 counts VC-5 findings only
+below-unbuilt	FA-6	no test	no verifying test		no test proposes a fix for a VC-6 finding and checks the FA-6 date candidate
+below-unbuilt	FD-3	no test	no verifying test		no test draws a Task with both fadeIn and fadeOut and checks a parallelogram
+below-unbuilt	FU-1	no implementation and no test	not product code	extension-room claim (Agent API functions can be wrapped for shared editing); nothing is built, no function to name	extension-room claim; checked by design review, not by an automated test
+below-unbuilt	FU-2	no implementation and no test	not product code	extension-room claim (permissions per TaskGroup); nothing is built	extension-room claim; checked by design review, not by an automated test
+below-unbuilt	FU-3	no implementation and no test	not product code	extension-room claim (document not fixed to one project); nothing is built	extension-room claim; checked by design review, not by an automated test
+below-unbuilt	FU-4	no implementation and no test	not product code	extension-room claim (sub-projects from one project); nothing is built	extension-room claim; checked by design review, not by an automated test
+below-unbuilt	FU-5	no implementation and no test	not product code	extension-room claim (list mode, drawing derived from data CN-9); nothing is built	extension-room claim; checked by design review, not by an automated test
+below-unbuilt	GD-1	no test	no verifying test		no test reaches guidesOf or the drawn plan-actual guides
+below-unbuilt	GD-2	no test	no verifying test		no test reaches guidesOf; no expect on the two dotted lines
+below-unbuilt	GD-3	no test	no verifying test		no test reaches guidesOf; no expect on the one dotted line
+below-unbuilt	GD-4	no test	no verifying test		no test reaches guidesOf; no expect on the milestone guide
+below-unbuilt	GD-5	no test	no verifying test		no test reaches guidesOf; no expect on the guide span
+below-unbuilt	GD-7	no test	no verifying test		no expect checks the guides' paint order (ZO-1a); fr-043 states no order is asserted
+below-unbuilt	GO-11	no implementation	missing implementation	not implemented as stated: GA-15 goes to bodyMoveWrites (item-grab.ts:448), whose bodyDayCount (:570) moves the milestone by the dragged amount, not by the released position	
+below-unbuilt	GP-2	no test	no verifying test		no test gives a task group a non-null editPermission (FR-111 waits: cr-560 CY-10 is it.todo)
+below-unbuilt	GP-3	no implementation and no test	missing implementation	not implemented: FR-111 edit groups wait (setTaskGroupEditPermission is in UnimplementedDocumentCommand, edit-document.ts:133); no bulk write found	no test; FR-111 not built
+below-unbuilt	GP-4	no implementation and no test	missing implementation	not implemented: no move gate on editPermission in src (grep editPermission: only codec, model and readOnlyUidsOf)	no test; cr-560 CY-10 refusal is it.todo waiting for FR-111
+below-unbuilt	GP-5	no implementation and no test	missing implementation	not implemented: the FR-032 delete question does not list successors in another editPermission group (grep editPermission in src)	no test
+below-unbuilt	GP-6	no implementation and no test	missing implementation	not implemented: GP-1 itself is not built, so no rebuild exemption exists (FR-111 pending)	no test
+below-unbuilt	GP-7	no implementation and no test	missing implementation	not implemented: no Agent API refusal with RS-61 and no listing of other-group tasks on delete (grep editPermission and RS-61 in src)	no test with a non-null editPermission
+below-unbuilt	HF-9	no implementation	absence or no single unit	not found as a code point: the task group panel style (dom-screen-surface.ts:395 taskGroupPanel) has no overflow scroll, its rows ride the schedule's vertical scroll; no function marks the overflow case	
+below-unbuilt	HM-11	no implementation and no test	missing implementation	not implemented: no move refusal reads TaskGroup.editPermission (searched src for editPermission, HM-11)	no test moves a bar into a task group of another editPermission
+below-unbuilt	HN-3	no test	no verifying test		cr-574 covers HN-1, HN-2, HN-4, HN-5; no test presses SK-19 with the help minimized
+below-unbuilt	IMPS-1013	no implementation and no test	absence or no single unit	absence row: the version is an instant only (json-codec compares it as a string); nothing encodes compatibility, nothing to name	no expect checks that the version carries no breaking-change meaning
+below-unbuilt	IMPS-1014	no implementation	absence or no single unit	development rule outside src: the version is raised by hand in the manifest when the shape changes; guarded by tests, no src function	
+below-unbuilt	IMPS-1015	no implementation	absence or no single unit	absence row: no reader of old shapes exists in src (json-codec refuses misfit schedule data with RS-64/RS-25); ledger empty is generator output (erd_json_to_schema.py)	
+below-unbuilt	IMPS-1016	no implementation and no test	missing implementation	not built: S-541 is null, so no ledger reader exists in src/adapter/document-codec/json-codec.ts	no test applies a ledger row to an older document (S-541 still null)
+below-unbuilt	IMPS-102	no implementation and no test	absence or no single unit	absence rule; no function marks the held panel content as stale (panelSubjectOf in properties-panel.ts returns the held subject as is, with no stale flag)	no test checks that a deselect leaves no 'previous content' indication on the panel
+below-unbuilt	IMPS-1020	no implementation and no test	not product code	content rule on the template and on-screen examples: the template is written by tools/generate_startup_template.py into src/framework/single-html-shell/startup-template.json / content rule on template wording	no test checks the template or screen examples for industry or product words
+below-unbuilt	IMPS-1021	no implementation and no test	not product code	content rule on the template text, written by tools/generate_startup_template.py; no src function holds it / content rule on template wording	no test checks the template for industry or product names
+below-unbuilt	IMPS-1023	no implementation and no test	absence or no single unit	an absence: the template is the generated startup-template.json read by startupTemplateDocument(); no code builds a document, so nothing to mark	no test checks src holds no document-building procedure (cr-612:75 checks only that no module script carries the template)
+below-unbuilt	IMPS-103	no test	no verifying test		cr-609-ic-17 checks isIc17Pressed true/false with the settings shown/closed, but no test deselects and checks the pressed state stays unchanged
+below-unbuilt	IMPS-1034	no implementation and no test	absence or no single unit	the single export entrance is data: icon-roster.json generated from table T-109 holds IC-2 only; no src function decides it	no expect checks that no per-format export entrance exists
+below-unbuilt	IMPS-1047	no test	no verifying test		no expect checks that a fixed-span export raises no notice
+below-unbuilt	IMPS-105	no test	no verifying test		no test compares the gap between settings-face fields with the FR-006 field gap (propertyFieldStyle shared, unchecked)
+below-unbuilt	IMPS-1056	no test	no verifying test		cr-611 :259 checks documentStamp.fileSavedAt null only; no expect on the header's two rows (empty name, HS-5) after a new document
+below-unbuilt	IMPS-1058	no test	no verifying test		tests publish the Agent API through its entrance, but no expect checks it is absent before enabling
+below-unbuilt	IMPS-1065	no implementation	absence or no single unit	a definition of the presentation group; the split lives in the settings tables (T-202/T-203 in the file, T-206 off it), no function	
+below-unbuilt	IMPS-1066	no implementation	missing implementation	the words are generated constants (EDITED_BY_SCREEN = 'user' in frame-loop.ts); no function; the caller-side rule is not enforced (DFC-560: every Agent API caller is 'agent')	
+below-unbuilt	IMPS-1068	no test	no verifying test		no expect reads an on-screen sign that the Agent API is enabled
+below-unbuilt	IMPS-1069	no test	no verifying test		S-99b appears only in the reset tests (cr-607); no expect that the enabling is kept per origin and not per document
+below-unbuilt	IMPS-1077	no test	no verifying test		no expect checks that the copied prompt holds nothing of the open document
+below-unbuilt	IMPS-1081	no implementation	not product code	a manuscript property: the text of docs/spec/_source/image-to-grs-json-prompt.{ja,en}.md, built into src/adapter/screen-renderer/image-to-grs-json-prompt.json by tools/generate_image_to_grs_json_prompt.py / manuscript content of the prompt text	
+below-unbuilt	IMPS-1083	no implementation and no test	absence or no single unit	nothing to build: GRS reads only the returned GRS JSON through OP-2; the assumption table stays in the AI's answer text	no test opens an AI answer holding the assumption table and checks it is not read
+below-unbuilt	IMPS-1087	no test	no verifying test		no expect checks the legal row's border-top (S-437 width, S-149 color); cr-405 checks the block frames only
+below-unbuilt	IMPS-109	no test	no verifying test		cr-754-t-380:365 checks the groups are DETAILS/SUMMARY and start open, but no test presses a group heading and checks it folds
+below-unbuilt	IMPS-1095	no implementation and no test	absence or no single unit	a rule on the specification table T-040 itself; no src function and no check script under .claude/skills or tools names it	no test compares the GL-006 child FRs with the rows of table T-040
+below-unbuilt	IMPS-1096	no implementation and no test	absence or no single unit	a rule on the specification table T-040 itself (its reason column); no src function or check script found	no test reads the not-counted reason column of table T-040
+below-unbuilt	IMPS-1100	no implementation and no test	not product code	a rule on the wording of FR-029 (spec text), not product code	no test checks that FR-029 leaves out faint endpoints with a tooltip reason
+below-unbuilt	IMPS-1107	no implementation	implementation not located	a rule on figure F-019 (spec asset docs/spec/_assets), carried into src by a generator; verified by fr-029-glyph-coordinate-system tests	
+below-unbuilt	IMPS-1115	no implementation	missing implementation	an absence; no code point states it (reasons are raised only from press handlers)	
+below-unbuilt	IMPS-1117	no test	no verifying test		no test reaches entranceHoverGroundCss or checks the S-147/S-214 ground under an armed entrance
+below-unbuilt	IMPS-1120	no implementation	missing implementation	an absence kept by the T-109 placement; no code point states it	
+below-unbuilt	IMPS-1122	no implementation and no test	not product code	a scoping rule on IMPS-1120 and on the wording of FR-029, not product code	no test checks the two-surface editing exemption
+below-unbuilt	IMPS-1123	no implementation and no test	not product code	a rule on the wording of FR-029 (spec text), not product code	no test checks that FR-029 prose states no icon count
+below-unbuilt	IMPS-1124	no implementation and no test	missing implementation	an absence; glyphs are carried from F-019 by the generator, no code point states the ban	only IC-102 is compared element for element with F-019 (cr-425:193); no expect covers every glyph
+below-unbuilt	IMPS-1126	no test	no verifying test		no test raises a reason that has no T-233 row and checks the RS-15 words come back (cr-767 :745 checks only noticeDisplay null)
+below-unbuilt	IMPS-1127	no test	no verifying test		dfc-582 :50 only covers the T-220 dictionary entries; no expect that a sharing row prints the shared words or that the Agent API refusal carries the sharing row itself
+below-unbuilt	IMPS-1129	no implementation and no test	not product code	authoring rule for whoever edits T-233 and the dictionary; no code	process rule; no automated test checks an edit kept the dictionary in step
+below-unbuilt	IMPS-1131	no implementation and no test	not product code	authoring rule (confirm a route reaches a new T-233 row); no code	process rule; cr-719 :18 only quotes the clause
+below-unbuilt	IMPS-1136	no test	no verifying test		tests print T-234 (cr-712 :125) and dfc-1280 :44 checks the state machine names only T-234 rows; no expect on the QN-8 fallback or on a question outside T-234 never raised
+below-unbuilt	IMPS-1137	no implementation and no test	not product code	content rule for table T-234 itself; no code	no expect checks that T-234 holds only NT-7 questions and no OP-3, MG-1 or FR-095 row
+below-unbuilt	IMPS-1138	no test	no verifying test		dfc-756 :87 draws a hand-made name-list confirmation (CQ-3) but no expect ties the T-234 'names listed' column to building one
+below-unbuilt	IMPS-1139	no implementation and no test	missing implementation	a design principle across all drawing; no code point states it	no test checks that every state and kind distinction has a non-color cue
+below-unbuilt	IMPS-1144	no test	no verifying test	behaviour lives in the build script tools/generate_help_roster.py (build), which writes src/adapter/screen-renderer/help-roster.json (CR-637 branch in build())	no expect checks an assignment whose entrance item is left off lands in the no-entrance block
+below-unbuilt	IMPS-1152	no test	no verifying test	behaviour lives in the build script tools/generate_help_roster.py (build), which writes src/adapter/screen-renderer/help-roster.json (HF-10 / HF-1 / HF-4 screen order)	no expect checks the item order inside the Task Group Panel block
+below-unbuilt	IMPS-1155	no test	no verifying test	behaviour lives in the build script tools/generate_help_roster.py (build), which writes src/adapter/screen-renderer/help-roster.json (AR-3 rows merged with IC-50)	dfc-3005:64 checks only that T-109 has AR-3 rows; no expect on the merged item or its S-216/IC-50 glyphs
+below-unbuilt	IMPS-1163	no implementation and no test	implementation not located	a definition of the term window; shared behaviour is in window-box.ts (WB-*) but no code states the four-window enumeration	no expect checks the four windows share one T-335 behaviour or that the browser window is not one
+below-unbuilt	IMPS-1165	no implementation	absence or no single unit	an outcome of S-203 scaling and the column layout; no function aims at it (helpWindowStyle open-modals-drawing.ts:127 carries IMPS-1181)	
+below-unbuilt	IMPS-1172	no test	no verifying test		no expect checks that the column count and ratio carry no px (the floor takes an opened px width)
+below-unbuilt	IMPS-1175	no test	no verifying test		no expect checks the empty assignment place of an item with neither key nor mouse operation
+below-unbuilt	IMPS-1178	no implementation	not product code	a rule on the manuscript tables T-036/T-255, not product code	
+below-unbuilt	IMPS-1182	no test	no verifying test		display-words:916 reads the scrollbar tooltip words; no test moves the pointer off the scrollbar and checks the assignment goes away
+below-unbuilt	IMPS-1186	no test	no verifying test		save tests cover the help language only (cr-574 :923); none saves after IC-21 and checks the file
+below-unbuilt	IMPS-119	no implementation and no test	absence or no single unit	constraint on stored key names (isPlanVisible etc. declared in the settings type/schema); no function implements 'keys are not renamed'	no test pins the xxxVisible key names of RN-1/RN-2/RN-4 (cr-754-t-380 reads keys from T-380 only as labels)
+below-unbuilt	IMPS-1191	no implementation	absence or no single unit	dictionary data: docs/spec/_source/display-words.json generated into src/adapter/screen-renderer/display-words.json; no function	
+below-unbuilt	IMPS-1192	no test	no verifying test		no test boots with a stored S-99 or with none and checks startupDisplayLanguage
+below-unbuilt	IMPS-1193	no implementation	implementation not located	lives in the dictionary docs/spec/_source/display-words.json (spec asset), a MAY on its words	
+below-unbuilt	IMPS-1200	no test	no verifying test		no expect compares fontSizeStepSizes with the T-215 values; cr-572 reads S-3/S-2 from T-202 and use-case.test reads the generated constant itself
+below-unbuilt	IMPS-1201	no implementation and no test	absence or no single unit	no single implementing site: the saved fontSizeStep/displayScale are plain documentSettings changed by CM-62/CM-74 (edit-document-settings.ts); nothing states the not-forcing rule	tests change the font size and scale from a saved value (cr-410, uf-48) but none states or checks the not-forcing rule as such
+below-unbuilt	IMPS-1207	no test	no verifying test		cr-572 checks IC-16 flips the value and a reload resets it; no expect checks the switch lasting through the life of the page
+below-unbuilt	IMPS-1212	no test	no verifying test		cr-572 checks both keys change together on IC-99; no expect checks they are two independent keys
+below-unbuilt	IMPS-1213	no test	no verifying test		uf-48 and cr-572 inject a faked Command Palette part for IC-99; no expect checks the drawn palette holds IC-99
+below-unbuilt	IMPS-1224	no test	no verifying test		tests check single T-252 rows (DS-1, DS-4, DS-7, DS-13) but no expect walks the table as the set of scaled dimensions
+below-unbuilt	IMPS-1225	no test	no verifying test		no expect checks that the stored T-252 values or S-76 stay unchanged after drawing at another ratio
+below-unbuilt	IMPS-1227	no test	no verifying test		no expect checks a derived value is not scaled on top of its scaled source
+below-unbuilt	IMPS-124	no implementation and no test	implementation not located	palette values are data: T-294 in docs/spec/_source, generated into src; no code chooses them	no expect checks that no T-294 value is a primary color
+below-unbuilt	IMPS-1243	no test	no verifying test		tests find the two fields by data-field-row K-125 / K-85; no expect checks the drawn field names against the dictionary words
+below-unbuilt	IMPS-125	no test	no verifying test		no test writes a primary custom color (e.g. #ff0000) and checks it is accepted (CV-8)
+below-unbuilt	IMPS-1254	no test	no verifying test		no expect checks the Task Group Area width formula or the FR-085 name width with drawn values
+below-unbuilt	IMPS-1256	no test	no verifying test		dfc-697 checks the landing only; no expect shows the position came from taskGroupPlacesAtZoomY
+below-unbuilt	IMPS-1257	no test	no verifying test		an outcome test cannot tell a query from arithmetic; no expect checks the absence of the computed position
+below-unbuilt	IMPS-126	no test	no verifying test		cr-606-color-field-words:207 checks the tooltip word only; no expect that a null color is drawn in the theme color
+below-unbuilt	IMPS-1260	no implementation and no test	absence or no single unit	no function marked; a property of the whole frame loop (each frame drawn whole), nothing implements it alone	nfr PG-4 counts empty canvases on the way up only; no test watches for blank or partial frames during operation
+below-unbuilt	IMPS-1261	no implementation and no test	absence or no single unit	no function marked; a property of the frame loop during pan	no test pans fast and checks no undrawn band shows at the edge
+below-unbuilt	IMPS-1262	no implementation	absence or no single unit	MUST NOT on algorithm choice across src; no single function implements it	
+below-unbuilt	IMPS-1263	no implementation	absence or no single unit	MUST NOT, nothing to build: no src code opens a connection; the single-file build inlines every resource	
+below-unbuilt	IMPS-1264	no implementation	absence or no single unit	MUST NOT, nothing to build: the build inlines every resource into the one file; no src function	
+below-unbuilt	IMPS-1265	no implementation and no test	missing implementation	a support-scope statement (Firefox is only checked to work); no code point; would be a demonstration by the owner	no automated test; Firefox operation is a manual check
+below-unbuilt	IMPS-1266	no implementation and no test	missing implementation	a support-scope statement (Safari is not targeted); no code point	a statement of what is not targeted; no test can check it
+below-unbuilt	IMPS-1268	no implementation and no test	missing implementation	not implemented: no code measures or solves the comment box text contrast against NFR-007	no test measures the contrast of comment box text
+below-unbuilt	IMPS-1269	no implementation and no test	missing implementation	not implemented: grep finds no NFR-008 mark and no focus-visible styling in src; the scope the row sets has no code point	no test names NFR-008 or checks the focus is visible on the T-036 entrances and in-place edit fields
+below-unbuilt	IMPS-127	no test	no verifying test		no test picks a palette color, changes themeHue and checks the drawn color stays
+below-unbuilt	IMPS-128	no test	no verifying test		no test switches light/dark and checks a chosen palette name is drawn with that theme's value (CV-6)
+below-unbuilt	IMPS-13	no implementation and no test	implementation not located	not in src: T-016 columns-only shape lives in docs/spec/_source/property-items.json and tools/generate_property_items.py (no shown name field); searched src for label in property-items / data file property-items.json; no code decides a shown name field	no test checks that property-items.json carries no shown name
+below-unbuilt	IMPS-1301	no implementation and no test	implementation not located	not found as stated: edits refuse per command (e.g. edit-annotation.ts reject IV-14/IV-2); scheduleViolations runs only on import (validate-imported-document.ts:335, two rows) and for IV-17 at startup (frame-loop.ts:945)	no test judges every T-220 row on the document after an operation ends
+below-unbuilt	IMPS-1302	no implementation and no test	implementation not located	a rule on how T-220 is driven and tested (its rationale points at spec-writing-rules.md), not a src behaviour	no test checks the T-220 conditions are not written out row by row
+below-unbuilt	IMPS-1303	no implementation and no test	not product code	a writing rule on table T-220 in docs/spec (hold only conditions the schema cannot); not src behaviour; no check found that enforces it	no test compares T-220's rows with what the generated schema holds
+below-unbuilt	IMPS-1305	no implementation and no test	not product code	a process rule for the spec manuscripts (fix the manuscript so the schema enforces); not src behaviour	a process rule; no test can check it
+below-unbuilt	IMPS-131	no test	no verifying test		no test measures the text halo against CT-1/CT-2
+below-unbuilt	IMPS-1310	no implementation and no test	implementation not located	a rule on the content of spec table T-297, not product code	no test checks that T-297 holds no rows of columns removed before operation
+below-unbuilt	IMPS-1311	no implementation and no test	not product code	a process rule for the published schema change ledger (Chapter 6.2), not product code	no test checks where a post-operation column removal is recorded
+below-unbuilt	IMPS-1312	no implementation and no test	not product code	a process rule for the change that declares official operation (remove bridges, fold T-297), not product code	no test checks the declaration change; it has not happened
+below-unbuilt	IMPS-1313	no implementation	implementation not located	lives in the published schema docs/spec/_source/grs-document.schema.json (spec asset), not src	
+below-unbuilt	IMPS-132	no test	no verifying test		w3-t1:140 compares lightness and saturation only; no expect that the actual hue equals the plan hue
+below-unbuilt	IMPS-1320	no implementation and no test	missing implementation	an absence; the MSPDI reader simply never calls the JSON schema check, no code point states it	no expect checks that the MSPDI path skips the GRS JSON schema check
+below-unbuilt	IMPS-1321	no implementation and no test	not product code	a writing rule on the spec table T-220 itself, not app behaviour; nothing in src	no test or check reads T-220 for a list of column names
+below-unbuilt	IMPS-1324	no test	no verifying test	outside src: tools/generate_milestone_shapes.py check 3 compares each F-044 shape with the F-019 glyph, allowing only the two LF-18 differences; src only reads the generated milestone-shapes.json	no test in tests/ runs the F-044 vs F-019 comparison; it is enforced by npm run milestones:check under gen:check
+below-unbuilt	IMPS-1325	no test	no verifying test		no test routes an SF or SS dependency (left exit); the route cases use FS and FF only
+below-unbuilt	IMPS-1327	no implementation and no test	implementation not located	the comparison is the test method of tests/system/mspdi-normalization.sws.test.ts (SWS-6), not product code	the T-228 steps are applied to both sides by construction in mspdi-normalization.sws; no expect checks the rule itself
+below-unbuilt	IMPS-1328	no implementation and no test	not product code	content rule for table T-228 itself; no code	no expect checks that T-228 omits what NR-1 already canonicalizes
+below-unbuilt	IMPS-1329	no implementation and no test	implementation not located	no SVG comparison exists in src (drawn-svg-normalization test records NS-1 as implemented in no file under src/); the pair comparison lives in tests/system/drawn-svg-normalization.sws.test.ts	the system test applies its own shapeOf to both drawings; no expect checks that T-231 is applied to both sides
+below-unbuilt	IMPS-133	no test	no verifying test		w3-t1:158 checks the actual/plan contrast ratio, not that the actual is the darker one
+below-unbuilt	IMPS-1330	no implementation and no test	absence or no single unit	a rule on what table T-231 holds (spec content); nothing to build in src	no test checks the contents of table T-231 against NS-1
+below-unbuilt	IMPS-1331	no implementation and no test	absence or no single unit	a scope rule on table T-228 (spec content); nothing to build in src	no test; scope rule of the specification
+below-unbuilt	IMPS-1336	no implementation and no test	not product code	a writing rule on 6.2 Data Schema in docs/spec, not GRS behaviour; no src code and no spec-graph-check script found that enforces it	no test reads 6.2 Data Schema for restated defaults or ranges
+below-unbuilt	IMPS-1337	no implementation	not product code	a writing rule on quotations from the exchange partner's schema in docs/spec (CN-7); not src behaviour; tools/generate_mspdi_child_order.py follows CN-7 for its own output only / writing rule on quotations from the partner schema	
+below-unbuilt	IMPS-1338	no implementation	not product code	a writing rule on how docs/spec cites the XSD (versioned file name, line, hash of A.1); no src code and no check found that enforces it	
+below-unbuilt	IMPS-1339	no implementation and no test	not product code	a writing rule on spec tables (no copy of carry contents, CN-7); not src behaviour; no check found	no test reads the spec tables for copied carry contents
+below-unbuilt	IMPS-134	no test	no verifying test		no expect checks that plan and actual cannot take different hues
+below-unbuilt	IMPS-1340	no implementation and no test	not product code	a writing rule on the edge labels of figure F-011; not src behaviour; no check found	no test reads figure F-011's edge labels
+below-unbuilt	IMPS-1341	no implementation and no test	implementation not located	a numbering rule for ET-/AT-/RL-/DV- ids in docs/spec; not src behaviour; no check found that forbids renumbering them	no test checks ET-/AT-/RL-/DV- ids are never renumbered
+below-unbuilt	IMPS-1342	no implementation and no test	not product code	a writing rule on how docs/spec refers to entities and columns (Task.parentTaskUid form, W-7); not src behaviour; no check found	no test reads the spec for the entity-name / column-pair form
+below-unbuilt	IMPS-1343	no implementation	absence or no single unit	absence row: T-059 values are made on export (MSPDI writer), never held in Document; no function to name	
+below-unbuilt	IMPS-1346	no implementation and no test	implementation not located	repository layout rule for docs/spec/_source; no code	no test checks that no manuscript sits in docs/spec/_assets
+below-unbuilt	IMPS-1347	no implementation and no test	not product code	manuscript format rule (docs/development-rules/manuscript-schemas); no src code	no test checks the published prose fields are per-language dictionaries
+below-unbuilt	IMPS-1348	no implementation and no test	not product code	manuscript format rule; the generators print the per-language words; no src code	no test checks the type and null cells stay classifications
+below-unbuilt	IMPS-1349	no implementation	implementation not located	outside src: docs/spec/_source/mspdi-custom-fields.json, copied by tools/generate_mspdi_custom_fields.py into src/adapter/document-codec/mspdi-custom-fields.json / data file mspdi-custom-fields.json	
+below-unbuilt	IMPS-1350	no implementation and no test	not product code	content of the manuscript docs/spec/_source/mspdi-custom-fields.json; no code	no expect reads the citation of PjCustomField in the manuscript
+below-unbuilt	IMPS-1351	no implementation and no test	not product code	outside src: tools/generate_display_words.py reads docs/spec/_source/display-words.json and writes src/adapter/screen-renderer/display-words.json / data file name of the word manuscript	held by the gen:check drift check, not a tests/ case; cr-429 compares only RS-60 between the manuscript and the generated file
+below-unbuilt	IMPS-1352	no test	no verifying test	outside src: tools/generate_display_words.py roster() rebuilds the needed-word list from the requirements and problems() checks it against the manuscript	no tests/ case checks the manuscript holds no roster or that the generator rebuilds it
+below-unbuilt	IMPS-1353	no implementation and no test	implementation not located	a rule on the specification text; nothing in src or tools prints words into spec tables	no tests/ case checks that no spec table carries the display words
+below-unbuilt	IMPS-1354	no test	no verifying test	outside src: tools/generate_display_words.py writes the one product src/adapter/screen-renderer/display-words.json	no tests/ case checks the words reach exactly one generated file in src
+below-unbuilt	IMPS-1355	no implementation	not product code	outside src: tools/generate_notice_reasons.py and docs/spec/_source/notice_reasons_json_to_md.py print T-233/T-234 and the src roster from notice-reasons.json / two printers and a manuscript; no single function	
+below-unbuilt	IMPS-1356	no test	no verifying test	outside src: tools/generate_display_words.py notice_roster() reads docs/spec/_source/notice-reasons.json and checks the dictionary against it	no tests/ case runs the dictionary generator cross-check against the reason and question roster
+below-unbuilt	IMPS-1361	no implementation	not product code	outside src: the manuscript is docs/spec/_source/erd.json (types, ranges, nullability), read by docs/spec/_source/erd_json_to_schema.py and tools/generate_entity_types.py / manuscript erd.json content rule	
+below-unbuilt	IMPS-1362	no implementation and no test	not product code	outside src: manuscript docs/spec/_source/settings.json, printer docs/spec/_source/settings_json_to_md.py (npm run gen:settings, drift check gen:settings:check in check 16) / manuscript form rule; several printers, no single function	no vitest runs settings_json_to_md.py --check; the drift is caught by gen:check (check 16), not by a test in tests/
+below-unbuilt	IMPS-1363	no test	no verifying test	outside src: the T-372 shapes are held once in docs/spec/_source/settings.json and raised into $defs by docs/spec/_source/erd_json_to_schema.py	cr-723:196 checks T-372 holds the two shapes; no expect checks the schema $defs are raised from that one place
+below-unbuilt	IMPS-1364	no implementation and no test	implementation not located	a one-off migration procedure, not code in src; the byte-for-byte rule is kept by the printers in docs/spec/_source (settings_json_to_md.py notes it)	no test re-runs a manuscript transfer and compares bytes both ways
+below-unbuilt	IMPS-1365	no implementation	implementation not located	outside src: the generators under docs/spec/_source and tools/generate_*.py with --check, run together by npm run gen:check (check 16)	
+below-unbuilt	IMPS-1367	no test	no verifying test	outside src: the schema is generated by docs/spec/_source/erd_json_to_schema.py (build, line 972), one English file	no expect checks that the generated schema holds no Japanese or exists once only
+below-unbuilt	IMPS-1368	no test	no verifying test	outside src: docs/spec/_source/erd_json_to_schema.py picks the en notes (manuscript_notes, line 159)	no expect compares schema descriptions with the en text of erd.json / settings.json schemaNote
+below-unbuilt	IMPS-1369	no implementation and no test	implementation not located	publication rule, outside src (one file docs/spec/_source/grs-document.schema.json); nothing to name in src	no test on splitting the publication by language
+below-unbuilt	IMPS-1370	no implementation and no test	implementation not located	statement of the intended reader; no code embodies it	reader stance; no automated test can check it
+below-unbuilt	IMPS-1371	no implementation and no test	not product code	authoring rule for the generated descriptions (docs/spec/_source/erd_json_to_schema.py); no src function / authoring rule for descriptions	no expect checks that descriptions repeat no type, range, default or constant
+below-unbuilt	IMPS-1372	no implementation	not product code	outside src: descriptions come from the manuscripts via docs/spec/_source/erd_json_to_schema.py / authoring rule for descriptions; no single function	
+below-unbuilt	IMPS-1373	no implementation and no test	not product code	outside src: column names and codes come from erd.json through docs/spec/_source/erd_json_to_schema.py / manuscript content rule for partner-derived columns	no expect checks that exchange-partner integer codes stay integers in the schema
+below-unbuilt	IMPS-1374	no implementation and no test	not product code	manuscript authoring rule (erd.json / settings.json schemaNote); no code	no test checks where schemaNote is placed
+below-unbuilt	IMPS-1377	no test	no verifying test	outside src: docs/spec/_source/erd_json_to_schema.py settings_row_default (line 337) reads settings.json	no expect checks the values are read from settings.json like the type generator, nor the themeHue default from S-73
+below-unbuilt	IMPS-1378	no test	no verifying test	outside src: docs/spec/_source/erd_json_to_schema.py constant_bound (line 942)	no expect checks that a bound naming a saved key (rulerFontSizePx by rulerHeightPx) stays unresolved
+below-unbuilt	IMPS-1379	no test	no verifying test	outside src: docs/spec/_source/erd_json_to_schema.py carry_def (line 507), one $defs/Carry	no test reads $defs/Carry or the carry references of the schema
+below-unbuilt	IMPS-1387	no test	no verifying test	the ledger is printed by the build script docs/spec/_source/erd_json_to_schema.py from docs/spec/_source/grs-json-changes.json, not by src	cr-699:168 checks x-grsChanges is an empty array; no expect on append-only order or on its being printed from grs-json-changes.json
+below-unbuilt	IMPS-1389	no implementation and no test	missing implementation	not implemented: no code reads x-grsChanges; the ledger is empty while S-541 is null, so no added/removed/renamed/converted/refused branch exists	no test reads an old document against a ledger entry
+below-unbuilt	IMPS-139	no test	no verifying test		no test draws an annotation (S-312) at two hues and checks the color stays; cr-592 checks only the monochrome gray
+below-unbuilt	IMPS-1390	no implementation	implementation not located	holds by data: docs/spec/_source/grs-json-changes.json is empty and erd_json_to_schema.py prints it; no src	
+below-unbuilt	IMPS-1392	no implementation and no test	implementation not located	a rule for the headers of the files in docs/spec/_source/, not src/	no test reads every _source file for its edit / do-not-edit self-naming
+below-unbuilt	IMPS-1394	no implementation and no test	not product code	a writing rule for Chapter 6.2 of the specification, not src/	no test checks Chapter 6.2 holds no copy of the generator's unreadable-row roster
+below-unbuilt	IMPS-1395	no test	no verifying test	lives in the build script docs/spec/_source/erd_json_to_schema.py (widening and its record), not src/	no expect checks that a column with unspelled enum values widens to a plain string and is recorded in the schema
+below-unbuilt	IMPS-1396	no implementation and no test	implementation not located	a statement about what conformance means, nothing in src/ implements it	no automated test can check this statement; nothing found
+below-unbuilt	IMPS-140	no test	no verifying test		no test draws the dependency line (S-159) or progress line (S-160) at two hues and checks the stroke is unchanged
+below-unbuilt	IMPS-1400	no test	no verifying test		tests check single hands write CM-18 (cr-631-wbs-parent-hits-and-hands) but no expect checks that no other path writes parentTaskUid
+below-unbuilt	IMPS-1401	no implementation and no test	missing implementation	not implemented as a site: an absence; no code path writes candidates (searched parentCandidatesOf users)	no expect checks that candidates are never written to parentTaskUid
+below-unbuilt	IMPS-1404	no test	no verifying test		no test checks the unsaved-edit flag after a parentTaskUid write
+below-unbuilt	IMPS-141	no test	no verifying test		no test checks the drawn dependency/progress line color equals the fixed T-236 value apart from the theme hue
+below-unbuilt	IMPS-1412	no test	no verifying test		no test checks the draw order of the family arrows or the ?/candidate frames against ZO-4
+below-unbuilt	IMPS-142	no test	no verifying test		no test checks the saved file holds no dependency or progress line color
+below-unbuilt	IMPS-1420	no test	no verifying test		undo is checked only for one child (w3-t1:176,195); no expect undoes a batch link/unlink in one step
+below-unbuilt	IMPS-1421	no test	no verifying test		no test mixes an unbindable child into a batch link and checks nothing is written
+below-unbuilt	IMPS-1422	no test	no verifying test		no test checks the NT-1 notice for an unbindable child in a batch (PTL-8 milestone-target RS-69 is another case)
+below-unbuilt	IMPS-1425	no implementation and no test	missing implementation	not implemented as a site: an absence (searched armed-placement, pointer translators); no code point states it	no expect compares a hand's meaning before/after arming or with/without a selection
+below-unbuilt	IMPS-1426	no test	no verifying test		only the manuscript clause WL_POINTER is checked; no expect on the pointer shape while AR-7 is armed
+below-unbuilt	IMPS-1430	no test	no verifying test		no expect checks the derived predecessors are used nowhere outside the diagnosis
+below-unbuilt	IMPS-1431	no test	no verifying test		cr-633:209 checks only that M's actualFinish stays null; no expect checks the derived predecessors are not written as dependencies
+below-unbuilt	IMPS-1432	no test	no verifying test		cr-633:215 covers the hand actualFinish winning; no test shows a hand dependency winning over the MP-1..MP-3 derivation
+below-unbuilt	IMPS-1434	no test	no verifying test		no expect checks the derived achievement is used only in the push-out and route computation
+below-unbuilt	IMPS-1438	no test	no verifying test		no test puts a Task's finish on the same day as the milestone's finish and checks it is neither before nor after
+below-unbuilt	IMPS-144	no implementation	absence or no single unit	data-shape rule: only project.themeHue and DocumentSettings.isThemeMonochrome (document-settings.ts:35, grs-json-schema.ts:941) exist as color values; no function holds it	
+below-unbuilt	IMPS-1440	no test	no verifying test		no test draws a task group of two or more lanes and checks one vertex per lane
+below-unbuilt	IMPS-1441	no test	no verifying test		no test checks a multi-lane task group gets more than one vertex
+below-unbuilt	IMPS-1442	no test	no verifying test		no test puts two tasks on one lane and checks the leftmost vertex is taken
+below-unbuilt	IMPS-1454	no implementation and no test	implementation not located	no coded step: the MSPDI writer never reads schedule.baselineTasks (mspdi-codec.ts only sets [] on read)	no test exports a document holding baseline tasks and checks they are absent from the MSPDI
+below-unbuilt	IMPS-1455	no test	no verifying test		no expect checks that a held BaselineTask carries no dependencies, calendar, assignee or assignment
+below-unbuilt	IMPS-1463	no test	no verifying test		tests read S-229 from table T-206; no expect checks that src holds no S-229 literal
+below-unbuilt	IMPS-1470	no test	no verifying test		cr-423 and DFC-374 measure rectangles only; no document with other shapes checks the ceiling is still measured as a rectangle
+below-unbuilt	IMPS-1472	no test	no verifying test		no expect tells the solved answer from one taken from the current font/zoom ratio
+below-unbuilt	IMPS-1473	no test	no verifying test		no test sets a settings group whose floor alone already reaches the depth-1 task group name font
+below-unbuilt	IMPS-1474	no test	no verifying test		no expect checks the ceiling asks PI-5 and PI-37 (architecture only)
+below-unbuilt	IMPS-1475	no test	no verifying test		no expect checks the PI-5 / PI-37 formulas are not copied
+below-unbuilt	IMPS-1476	no test	no verifying test		dfc-628 compares end positions only; no expect checks the tallest band is asked of taskGroupPlacesAtZoomY
+below-unbuilt	IMPS-1478	no test	no verifying test		the display ratio applies to both fonts in every case; no expect tells a comparison before the ratio from one after it
+below-unbuilt	IMPS-1479	no test	no verifying test		no test changes the display scale and checks the band ceiling moves
+below-unbuilt	IMPS-1482	no test	no verifying test		dfc-377 holds only the clause words; no expect checks how reaching the ceiling is shown
+below-unbuilt	IMPS-1484	no test	no verifying test		no test zooms and checks the grabbed task group stays under the center on the vertical axis
+below-unbuilt	IMPS-1485	no test	no verifying test		dfc-377:354 checks only that PI-5 differs from a scaled position; no expect checks the zoom hold avoids arithmetic
+below-unbuilt	IMPS-1487	no test	no verifying test		no expect checks the Adapter does no layout of its own (architecture only)
+below-unbuilt	IMPS-1491	no test	no verifying test		no expect checks the PTD order is applied only inside the schedule drawing area
+below-unbuilt	IMPS-1497	no test	no verifying test		no test places an item while armed and checks the arm still stands
+below-unbuilt	IMPS-150	no test	no verifying test		no test reads the color-scheme property GRS sets; tests only feed prefers-color-scheme in
+below-unbuilt	IMPS-1504	no test	no verifying test		no test turns MK-1 past the top or bottom end and checks where the view lands (OPQ-1 provisional)
+below-unbuilt	IMPS-1515	no test	no verifying test		w3-t2:399 checks the units on the schedule only; no expect compares the schedule with the RR-3 list
+below-unbuilt	IMPS-1516	no test	no verifying test		no expect checks that a wheel handed to the browser default (e.g. over the App Header or a standing surface) is not counted
+below-unbuilt	IMPS-1519	no test	no verifying test		no expect compares the line length used on the schedule with that on the holiday list or the property panel
+below-unbuilt	IMPS-1520	no test	no verifying test		no test lays two T-023d rows on one point to check the earlier row wins (cr-824 checks the MK-13 comment-box exception)
+below-unbuilt	IMPS-1523	no test	no verifying test		no expect enumerates the rows not established by a plain press (only GR-10/11 are pressed in cr-824)
+below-unbuilt	IMPS-1524	no test	no verifying test		no test presses, double-clicks or drags on the deadline mark or the baseline outline to check nothing is established
+below-unbuilt	IMPS-1525	no test	no verifying test		no test checks a press on GR-26/GR-27 passes through to the next T-023d row
+below-unbuilt	IMPS-1526	no test	no verifying test		cr-860:483 and cr-624 check one hint row alone; no case checks the T-023d order of hint choice or a no-hint row first
+below-unbuilt	IMPS-1528	no test	no verifying test		no test arms the dependency tool and presses the name or assignee label
+below-unbuilt	IMPS-1529	no test	no verifying test		no test checks the deadline mark or outline is no hit for the dependency tool
+below-unbuilt	IMPS-1551	no test	no verifying test		no test presses a tip that lies over a drawn task shape; cr-559/cr-777/dfc-2911 press tips on empty ground only
+below-unbuilt	IMPS-1564	no test	no verifying test		no test checks the highlight-box grab point reach or square size at a zoom other than 1 (cr-559:861 covers only the tip mark)
+below-unbuilt	IMPS-1568	no test	no verifying test		no test checks that the SL-8 frame is unchanged under the drawn grab points
+below-unbuilt	IMPS-1570	no test	no verifying test		no test selects two or more boxes and drags a grab point or the frame
+below-unbuilt	IMPS-1571	no test	no verifying test		no highlight-box grab test undoes a release or counts CM-54 per release
+below-unbuilt	IMPS-1587	no test	no verifying test		no test drags a fade point by less than a day-width and checks the drag starts with no threshold
+below-unbuilt	IMPS-1588	no test	no verifying test		no test releases a fade point on the day it stood on and checks no command is written
+below-unbuilt	IMPS-1598	no test	no verifying test		no expect checks the MK-9a order covers every target Chapter 4 asks for (T-023d rows plus T-267/T-268)
+below-unbuilt	IMPS-160	no test	no verifying test		no test picks a hue while monochrome is on and checks the color drawn after turning monochrome off
+below-unbuilt	IMPS-1606	no implementation and no test	absence or no single unit	an absence: grab releases refuse only with the T-220 IV rows (IV-10, IV-12, IV-14); no FR-103 refusal exists to mark	no test checks that FR-103 adds no refusal of its own (fr-103:440 only reads the IV rows)
+below-unbuilt	IMPS-1610	no implementation	implementation not located	structural: each region function (planRegionsOf, dummyRegionsOf, fadeRegionsOf in item-hit-area.ts) reads only its own T-206 rows; no one function holds the rule	
+below-unbuilt	IMPS-1614	no implementation	implementation not located	generated data: the defaults are T-206 values in docs/spec/_source/settings.json, generated into NOT_STORED_SIZES (item-hit-area.ts generated block)	
+below-unbuilt	IMPS-1618	no test	no verifying test		no test presses where a line-only dummy and the plan start GA-10 could meet
+below-unbuilt	IMPS-1619	no implementation	implementation not located	generated data: S-251 and S-254 defaults are 0 in docs/spec/_source/settings.json, generated into NOT_STORED_SIZES	
+below-unbuilt	IMPS-162	no test	no verifying test		no test checks the hue field draws no row words outside the swatches (cr-557:461 checks only the entrance words)
+below-unbuilt	IMPS-1627	no test	no verifying test		cr-430-ht:186 checks only the left half, and only when the marker sits on the actual start (otherwise it returns after a manuscript check); no expect on the right half
+below-unbuilt	IMPS-1636	no test	no verifying test		cr-739:379 filters out the checkbox cells (hasCheckbox); no expect checks the [Shown] header checkbox keeps the host shape
+below-unbuilt	IMPS-1650	no test	no verifying test		no test drives a selection past the first/last drawn task group (searched clampedTaskGroupShift, stop/clamp test titles)
+below-unbuilt	IMPS-1651	no test	no verifying test		no test mixes a highlight box into a task-group move at the edge
+below-unbuilt	IMPS-1659	no implementation and no test	missing implementation	not implemented as a site: a closed list of three roads; no code point states it (searched task-plan-actual, item-grab)	no expect checks that only undo, the field and the cycle remove an actual
+below-unbuilt	IMPS-1660	no test	no verifying test		no test reaches pointerOnMarkerTaskUidOf or checks which grab area darkens on hover
+below-unbuilt	IMPS-1662	no test	no verifying test		hidden dependency lines are not an axis of the FR-108 sweep; no expect on picking a hidden line
+below-unbuilt	IMPS-1667	no test	no verifying test		no expect checks the remembered actual lives in ScreenState and not in the saved document
+below-unbuilt	IMPS-1668	no implementation and no test	implementation not located	no dedicated code; would rest on the generic undo of the cycle command (no Spec mark, searched task-plan-actual)	no test undoes a cycle that removed an actual
+below-unbuilt	IMPS-1669	no test	no verifying test		dfc-572:330 checks only finished->not started of a milestone; no expect on the remembered day coming back
+below-unbuilt	IMPS-1670	no test	no verifying test		no expect checks a restored actual counts as human-placed (FR-011)
+below-unbuilt	IMPS-1671	no test	no verifying test		no test removes and restores an imported actual and checks it is not an edit
+below-unbuilt	IMPS-1672	no test	no verifying test		no test arms the dependency tool and presses the marker, resume icon or label boxes
+below-unbuilt	IMPS-1674	no test	no verifying test		only the manuscript clause is checked (cr-602:119); no expect that drawing a dependency is refused while the plan is hidden
+below-unbuilt	IMPS-1675	no test	no verifying test		no test presses a task with no plan dates with the dependency tool
+below-unbuilt	IMPS-1676	no implementation and no test	absence or no single unit	not found: no src function names FR-108 or guards keyboard/align/other edits against an undrawn target (searched FR-108, selection-input.ts, item-grab.ts)	no test moves an undrawn edit target by another operation and checks it stays
+below-unbuilt	IMPS-1680	no test	no verifying test		no test sets a fade and checks the name stays off it (labelReferenceOf nameFloor untested)
+below-unbuilt	IMPS-1681	no test	no verifying test		schedule-drawing.sws:1283 checks plan line above actual line only; no expect puts the label row above the plan line
+below-unbuilt	IMPS-1682	no implementation	implementation not located	no code bounds it; holds by the T-206/T-201 defaults summed in shapeHeightOf/labelLiftOf (shape-cross-sections.ts)	
+below-unbuilt	IMPS-1684	no test	no verifying test		T-271 is not walked by any test; only XS-6 (schedule-drawing:1283) and XS-10 foot (:1493) are checked
+below-unbuilt	IMPS-1686	no test	no verifying test		the FR-109 sweep (cr-430 sweep:325) draws one task only; no expect checks that labels of two tasks are left to stacking
+below-unbuilt	IMPS-1687	no test	no verifying test		SH-4 is drawn in cr-673:473 and schedule-drawing:1229 but no expect checks its XS-4..XS-7/XS-12 tiers
+below-unbuilt	IMPS-1689	no test	no verifying test		schedule-drawing:1493 checks S-25 only for a dated resume with resumeValid false; no expect on the undecided (resume null) icon size
+below-unbuilt	IMPS-1690	no test	no verifying test		GA-10/GA-11 tests (cr-430-ga:436) probe at plan.middleY only; no expect that the plan grab stops at the mid-line
+below-unbuilt	IMPS-1691	no test	no verifying test		GA-12/GA-13 tests (cr-430-ga:446) probe at actual.middleY only; no expect that the actual grab stays below the mid-line
+below-unbuilt	IMPS-1693	no test	no verifying test		no expect checks that a rectangle/milestone grab is not split into upper/lower lanes
+below-unbuilt	IMPS-1695	no test	no verifying test		no expect measures tier 1 bottom (font box f) to the plan line top edge (S-196)
+below-unbuilt	IMPS-1697	no test	no verifying test		no expect computes the 3-tier height f + S-196 + line + S-10 + line + (end mark - line)/2
+below-unbuilt	IMPS-1698	no test	no verifying test		MAY clause; no test draws an endpointSpan whose plan and actual start on the same day
+below-unbuilt	IMPS-1699	no test	no verifying test		no test varies the arrow head width and checks the tier positions stay
+below-unbuilt	IMPS-1700	no test	no verifying test		cr-673:460 quotes this sentence in its describe title but its expects check the stopped line, not the reserved third tier
+below-unbuilt	IMPS-1702	no test	no verifying test		no test draws a resume icon on a line-only shape and checks the stem reaching the VG-2 gap
+below-unbuilt	IMPS-1703	no test	no verifying test		no expect checks that the thin-shape resume stem is left out of VG-5 drawn edge
+below-unbuilt	IMPS-1704	no test	no verifying test		no expect checks the tier-1 height equals the font size f
+below-unbuilt	IMPS-1705	no test	no verifying test		no expect checks that S-233 is not used for the tier-1 height (S_233 in cr-430-cross-section-scene is unused)
+below-unbuilt	IMPS-1706	no test	no verifying test		no test draws a line-only shape in the top task group and checks its label box against the ruler
+below-unbuilt	IMPS-1707	no test	no verifying test		GA-18 tests (cr-430-ga:495) use the rectangle only; no expect on a line-only shape marker grab
+below-unbuilt	IMPS-1709	no test	no verifying test		no test hides both plan and actual and checks that no shape is drawn
+below-unbuilt	IMPS-171	no test	no verifying test		cr-582:182 checks only the min-height band; no test draws a task group with a specified color and checks the band fill
+below-unbuilt	IMPS-1710	no test	no verifying test		no test hides both plan and actual and checks the label stands at the plan (RF-3)
+below-unbuilt	IMPS-1711	no test	no verifying test		cr-430-t-273:124 only asserts the scene's basis width; :145 checks one switch but no expect pins the fit threshold formula
+below-unbuilt	IMPS-1712	no test	no verifying test		no expect checks that the start side is not reserved in the fit test
+below-unbuilt	IMPS-1716	no test	no verifying test		no test draws a milestone assignee label (cr-430-t-273:251 uses a rectangle)
+below-unbuilt	IMPS-1717	no test	no verifying test		no test draws a line-only shape assignee label
+below-unbuilt	IMPS-1718	no test	no verifying test		no expect checks the left-to-right order assignee:percent -> marker -> name on tier 1 of a line-only shape
+below-unbuilt	IMPS-1722	no test	no verifying test		no test sets a fade with the plan as basis and checks the fit uses the width less the fade
+below-unbuilt	IMPS-1723	no test	no verifying test		no test sets a fade and checks the name starts at the fadeIn end
+below-unbuilt	IMPS-1724	no test	no verifying test		no test sets a fade with a marker and checks max(fadeIn end, marker right + S-32)
+below-unbuilt	IMPS-1725	no test	no verifying test		no test reads the label text fill/halo (stroke, paint-order) of the name or assignee label
+below-unbuilt	IMPS-1726	no test	no verifying test		no test checks the label ink stays the same over a dark actual
+below-unbuilt	IMPS-1727	no test	no verifying test		no test puts an outside label against another Task and checks it is not shifted
+below-unbuilt	IMPS-1728	no test	no verifying test		no test checks that a non-suspended Task draws no resume icon
+below-unbuilt	IMPS-1729	no test	no verifying test		only the undecided case is checked (cr-430-t-273:276 box.left at basis right); no expect over the dated case or other shapes
+below-unbuilt	IMPS-1731	no test	no verifying test		no test checks that a milestone draws no resume icon
+below-unbuilt	IMPS-1732	no test	no verifying test		no test checks that a milestone has no GA-20 grab
+below-unbuilt	IMPS-1736	no test	no verifying test		no expect checks that the fit is judged on the actual width as is
+below-unbuilt	IMPS-1737	no test	no verifying test		no expect checks that the resume icon width is not added to the fit test
+below-unbuilt	IMPS-1738	no test	no verifying test		no test hides the actual (S-228 false) on a suspended Task and checks the resume icon and dash are absent
+below-unbuilt	IMPS-1745	no test	no verifying test		rulerSvg is drawn in the tests, but no expect checks that the ruler scale stays inside the ruler band
+below-unbuilt	IMPS-1747	no test	no verifying test		MAY clause; no test checks the marquee part pulled into the ruler band
+below-unbuilt	IMPS-1748	no implementation	absence or no single unit	an absence (no delay days drawn on the chart); no function or Spec mark implements it; the days live only in the TL-12 tip	
+below-unbuilt	IMPS-1751	no test	no verifying test		cr-653:285 checks a tooltip passes presses under itself; no expect presses outside a part over its layer
+below-unbuilt	IMPS-1753	no test	no verifying test		cr-789:243 checks the copy is in the cue layer, not that the layer stands in the grabbed thing's tier; no test for the palette follow or the provisional line
+below-unbuilt	IMPS-1756	no implementation and no test	implementation not located	no dedicated code: S-77/S-78 reach a file only through the save path (json-codec FR-024); nothing else writes them	no test scrolls and checks that no file is written until a save is asked
+below-unbuilt	IMPS-1757	no test	no verifying test		no expect reads the task group panel x against the schedule area (w3-t5 checks its width only)
+below-unbuilt	IMPS-1760	no test	no verifying test		no expect checks that the settings hold no App Header height or scrollbar thickness
+below-unbuilt	IMPS-1762	no test	no verifying test		rows-fixed:428 checks the S-205 floor only; with the host default the half is never observed above the floor
+below-unbuilt	IMPS-1766	no test	no verifying test		no expect checks the Panel Divider band against the Task Group Area
+below-unbuilt	IMPS-1767	no test	no verifying test		no test opens the properties panel and checks the vertical bar touches its left edge
+below-unbuilt	IMPS-1768	no test	no verifying test		no expect checks the vertical bar right edge equals the screen right edge with the panel hidden
+below-unbuilt	IMPS-1769	no test	no verifying test		no expect checks the gap between the vertical bar and what it touches is zero
+below-unbuilt	IMPS-177	no test	no verifying test		no test double-clicks a task group title and checks the name field gets focus, or that a single click does not
+below-unbuilt	IMPS-1775	no test	no verifying test		no test changes the display scale (S-234) and checks the App Header contents keep their size
+below-unbuilt	IMPS-178	no test	no verifying test		no test checks the band color of an uncolored task group by depth and position (bandTaskGroupOf has no test)
+below-unbuilt	IMPS-1780	no test	no verifying test		tests check each panel alone (cr-408 drag keeps Task Group Area > 0, use-case refuses a too wide task group panel); none shows a pair judged on both widths
+below-unbuilt	IMPS-1786	no implementation and no test	absence or no single unit	MUST NOT, nothing to build: no published entry (table T-064) answers the held width; it is derived inside held-press-preview.ts	no test checks the published entries for a held-width answer
+below-unbuilt	IMPS-179	no test	no verifying test		no test checks that a task group with no minHeight takes its band height from its lane count
+below-unbuilt	IMPS-1810	no test	no verifying test		no expect reads the corner while the band is held; cr-575:332 checks only that the band stays in the window, uf-48:737 reads after release
+below-unbuilt	IMPS-1815	no test	no verifying test		MAY clause; no expect checks that the rest of the palette may sit outside the window
+below-unbuilt	IMPS-1817	no test	no verifying test		no test drags, writes, reopens and checks that the corner was not kept
+below-unbuilt	IMPS-1823	no test	no verifying test		cr-439:159 checks the band height equals the handed grabBandHeight (10 px), not S-135a; no expect ties the height to S-135a with the marks on
+below-unbuilt	IMPS-1828	no test	no verifying test		no test opens the help and checks group names are not printed; w3-t5:340 runs with the help closed
+below-unbuilt	IMPS-1829	no test	no verifying test		cr-652:272 checks only that S-216 constant equals 3; no expect counts the shapes shown before the list opens
+below-unbuilt	IMPS-1830	no test	no verifying test		t-109:420 checks all shapes after opening; measured-sweep only presses the list conditionally, no expect that the rest are absent while folded
+below-unbuilt	IMPS-1831	no test	no verifying test		no expect reads S-142 default closed from the session
+below-unbuilt	IMPS-1832	no test	no verifying test		no test presses IC-50 a second time to fold the list
+below-unbuilt	IMPS-1833	no test	no verifying test		no expect counts the expand/fold entrances
+below-unbuilt	IMPS-1834	no test	no verifying test		no test presses Esc with the list open and checks it stays open
+below-unbuilt	IMPS-1841	no test	no verifying test		no expect checks armedText is null while minimized (fixtures hand null)
+below-unbuilt	IMPS-1842	no test	no verifying test		no test presses Esc while minimized and checks it stays minimized
+below-unbuilt	IMPS-1845	no test	no verifying test		no expect measures the palette size against its content
+below-unbuilt	IMPS-1846	no test	no verifying test		no expect checks the absence of a palette size setting
+below-unbuilt	IMPS-1847	no test	no verifying test		cr-439:139 also passes on an inline opacity, so no expect pins the judgement to the UI part under the pointer
+below-unbuilt	IMPS-1851	no test	no verifying test		no test checks the palette entrance boxes are scaled by S-235 and not S-234
+below-unbuilt	IMPS-1852	no test	no verifying test		no test checks S-235 on palette entrance box, band height and S-143 gap
+below-unbuilt	IMPS-1867	no test	no verifying test		no expect checks the search panel is not handled as an S-99g open surface
+below-unbuilt	IMPS-1868	no test	no verifying test		no test edits the document with the search panel open and checks the table follows
+below-unbuilt	IMPS-1869	no test	no verifying test		no test edits, undoes or replaces the document and checks the search table is rebuilt
+below-unbuilt	IMPS-1873	no implementation and no test	missing implementation	not implemented as a code point: grep of OPQ-15 in src finds nothing; no code marks the filter bar and picture note values as tentative	no test names or checks the OPQ-15 tentative values
+below-unbuilt	IMPS-1874	no test	no verifying test		no test compares the keys commandFromKey answers with the T-036 rows
+below-unbuilt	IMPS-1875	no test	no verifying test		no test checks that a T-036 row whose assignment is a dash has no key
+below-unbuilt	IMPS-1877	no test	no verifying test		t-283-priorities checks the manuscript ladder; no test presses Enter with U-55 or an S-99g surface standing and checks the panel stays
+below-unbuilt	IMPS-1878	no implementation and no test	missing implementation	no code point found that keeps SK-19 stage 1 under a standing surface (onSettleKeyPressed carries only IMPS-1877)	no test settles an in-place edit with Enter while U-55 or a surface stands
+below-unbuilt	IMPS-1879	no test	no verifying test		no test checks a task's shape kind is kept as given (short tasks included)
+below-unbuilt	IMPS-1882	no test	no verifying test		t-012-sh-5-glyph-binding:144 only checks the by-position pairing still agrees with the note; no expect checks the binding does not rely on print order
+below-unbuilt	IMPS-1883	no test	no verifying test		no test checks the name label vertical position per the T-012 column
+below-unbuilt	IMPS-1884	no test	no verifying test		S-196 is read into GAP_TIER_1 in cr-430-cross-section-scene.ts but no test uses it; no expect on the label lift amount
+below-unbuilt	IMPS-1885	no test	no verifying test		no test checks the vertical rule leaves the label's horizontal place (T-273) unchanged
+below-unbuilt	IMPS-1886	no test	no verifying test		no test creates a task with start equal to finish and checks it is accepted with no length floor
+below-unbuilt	IMPS-1887	no test	no verifying test		cr-426:303 checks Delete after a double click (MK-13), not just after drawing; no test drives Delete in PR-1 then Esc then Delete after drawing
+below-unbuilt	IMPS-1889	no test	no verifying test		fr-001 :482 and t-109 :467 check only that the re-press disarms with a selection; no expect that the selected shape changes to the pressed shape
+below-unbuilt	IMPS-189	no test	no verifying test		no test checks the band stripes alternate by task group position
+below-unbuilt	IMPS-1895	no test	no verifying test		cr-860:454 checks a baseline outline takes the AT-101 diamond, not a placed milestone; no test draws a milestone with milestoneGlyph null and checks the default figure
+below-unbuilt	IMPS-1896	no implementation and no test	missing implementation	an absence; no code point states it (searched layout-engine for T-201 sourcing)	no expect checks that every drawing dimension comes from T-201
+below-unbuilt	IMPS-1897	no test	no verifying test		no expect checks the drawn marker diameter against S-22 or the resume icon against S-25..S-29 (S-22 is used only to derive other widths)
+below-unbuilt	IMPS-190	no test	no verifying test		no test checks the stripe count ignores color overrides
+below-unbuilt	IMPS-1900	no test	no verifying test		no test draws an SH-3/SH-4 marker and compares its diameter with the name label font size
+below-unbuilt	IMPS-1901	no test	no verifying test		no expect derives the SH-3/SH-4 resume icon spread from the marker diameter
+below-unbuilt	IMPS-1907	no test	no verifying test		no test empties the PR-14 field and commits it
+below-unbuilt	IMPS-1908	no test	no verifying test		no expect that an emptied PR-14 commit writes null rather than 0
+below-unbuilt	IMPS-1909	no test	no verifying test		no test checks the fade polygon joins points 1 to 4 in order
+below-unbuilt	IMPS-1913	no implementation	absence or no single unit	absence row: the Enter path (frame-loop.ts:3961) never touches the arm; no function of its own to name	
+below-unbuilt	IMPS-1914	no test	no verifying test		t-051 :486 compares the task-group add road with the FR-085 rename road; no expect compares the task name entry road with FR-085
+below-unbuilt	IMPS-1915	no test	no verifying test		no expect checks that truncation runs before the placement (T-273) is chosen
+below-unbuilt	IMPS-1917	no test	no verifying test		uc-001 checks the drawn label is shorter; no expect checks the truncation mark at its end
+below-unbuilt	IMPS-1918	no test	no verifying test		no expect checks the cut label with its mark fits S-35 units
+below-unbuilt	IMPS-1919	no test	no verifying test		no expect checks the mark is the same in ja and en and not in the dictionary
+below-unbuilt	IMPS-1922	no test	no verifying test		no test hovers a truncated name and checks the tip shows the full name
+below-unbuilt	IMPS-1923	no test	no verifying test		no expect checks the full name of a truncated label in the EZ-6 tip
+below-unbuilt	IMPS-1924	no test	no verifying test		no expect checks that no separate tooltip is raised for a truncated name
+below-unbuilt	IMPS-193	no test	no verifying test		no expect checks that only the name and the assignments are editable
+below-unbuilt	IMPS-1939	no test	no verifying test		no test checks that GRS never measures the drawn text (no expect on measureText / getBBox absence)
+below-unbuilt	IMPS-194	no test	no verifying test		no expect checks that kind, cost flag, calendar and units cannot be edited
+below-unbuilt	IMPS-1940	no test	no verifying test		no test checks that no measured result is cached
+below-unbuilt	IMPS-1947	no test	no verifying test		a design-quality row; no test measures the reach of a change
+below-unbuilt	IMPS-1948	no test	no verifying test		dfc-1229 checks S-63 false hides the progress markers, but no expect checks the resume icon follows the same switch
+below-unbuilt	IMPS-1949	no test	no verifying test		no test hides the plan, actual or dummy and compares the occupancy and band height with the drawn case
+below-unbuilt	IMPS-195	no implementation and no test	missing implementation	not implemented: RS-49 appears only in the notice-values tables; nothing raises it on setResourceName (searched src for RS-49, setResourceName)	cr-718:76 checks only the RS-49 display column; no test renames a resource and expects RS-49 with a count
+below-unbuilt	IMPS-1951	no test	no verifying test		cr-430 t-273 :276 checks where the resume icon and marker stand, but no expect checks that no slot is left for the icon inside the label row
+below-unbuilt	IMPS-1956	no test	no verifying test		e24 and cr-551 pick two task groups only as a premise (throw / no expect); no expect checks that two task groups are chosen
+below-unbuilt	IMPS-196	no test	no verifying test		tests check the deleteAssignment shape (h10-one-assignee-per-line, cr-788) but no expect that the Resource remains
+below-unbuilt	IMPS-1961	no test	no verifying test		mk-13:753 checks select-all only for the Task name field (PR-1); no test checks the task group name field text is all chosen
+below-unbuilt	IMPS-1962	no test	no verifying test		dfc-49:214 checks where the cut starts (isLabelTruncated); dfc-612 draws a pre-cut label; no expect checks the trailing ellipsis mark of labelCutToFit
+below-unbuilt	IMPS-1963	no implementation and no test	absence or no single unit	absence rule; no tooltip for the full task group name (wholeLabel is carried in the view but no surface shows it)	no test checks that a cut task group name shows no tooltip
+below-unbuilt	IMPS-1965	no test	no verifying test		no test checks that the grab strip is not drawn over the task group name
+below-unbuilt	IMPS-1966	no test	no verifying test		no test varies whether the controls are drawn (hover) and checks the reserved S-140 room stays
+below-unbuilt	IMPS-197	no test	no verifying test		no expect checks an unreferenced resource survives without an explicit delete
+below-unbuilt	IMPS-1974	no implementation and no test	not product code	a wording rule: no code names a big / middle / small tier; searched src for the three words, none; depth is used throughout	no expect checks the dictionary or the screen holds no big / middle / small tier words
+below-unbuilt	IMPS-1975	no test	no verifying test		no expect checks that a WBS deeper than S-125 is kept unclamped (cr-567 checks only the task group placement at the cap)
+below-unbuilt	IMPS-1976	no test	no verifying test		no test imports six or more levels and checks parentTaskUid and the written OutlineLevel come back
+below-unbuilt	IMPS-1977	no test	no verifying test		no expect checks that the S-125 cap is applied only in the LOD judgement
+below-unbuilt	IMPS-1978	no test	no verifying test		cr-657 checks the group grid line at the U-18 thickness, but never with more hidden task groups; no expect on the absence of thickening
+below-unbuilt	IMPS-1985	no test	no verifying test		no test pits an expanded / temporarilyExpanded task group against a hidden or collapsed ancestor and checks it stays undrawn
+below-unbuilt	IMPS-199	no test	no verifying test		no expect checks resourceKind of a newly created resource
+below-unbuilt	IMPS-1991	no test	no verifying test		no expect checks level 0 (S-418) never takes expanded or temporarilyExpanded
+below-unbuilt	IMPS-1992	no test	no verifying test		readOnlyUidsOf reads null as open, but no test gives a task group a non-null editPermission
+below-unbuilt	IMPS-1993	no implementation and no test	missing implementation	not implemented: no T-275 or HM-11 refusal exists yet (FR-111 pending)	no test
+below-unbuilt	IMPS-1994	no implementation and no test	missing implementation	not implemented: RS-61 and RS-62 are never raised for edit groups in src (FR-111 pending)	no test
+below-unbuilt	IMPS-2	no test	no verifying test		no test moves a task on the canvas and then checks the panel date text
+below-unbuilt	IMPS-209	no test	no verifying test		no test checks that the compact form is kept nowhere
+below-unbuilt	IMPS-211	no implementation and no test	missing implementation	not implemented as a function: a prohibition on confirmations outside the listed scenes; no Spec mark or guard found in src	no test checks that no confirmation is asked outside the listed scenes
+below-unbuilt	IMPS-218	no test	no verifying test		no test drags a pan or a range selection and checks that the history stays empty
+below-unbuilt	IMPS-226	no test	no verifying test		no test checks that the selection holds only drawn tasks (selectionWithinDrawn is reached only for a dependency line in cr-555)
+below-unbuilt	IMPS-227	no test	no verifying test		no test runs SL-2..SL-5 (Ctrl+A, marquee) over a hidden or filtered-out task and checks it is not taken
+below-unbuilt	IMPS-228	no test	no verifying test		no test hides, folds or filters out a selected task and checks it leaves the selection
+below-unbuilt	IMPS-229	no test	no verifying test		no test checks a task dropped by IMPS-228 also leaves the SL-7b order
+below-unbuilt	IMPS-230	no test	no verifying test		no test presses the visible figure of a task with the plan or actual hidden and checks it is selected
+below-unbuilt	IMPS-231	no test	no verifying test		dfc-947:40 checks the SL-8 frame encloses the drawn dummies; no expect checks the hidden figure is left out
+below-unbuilt	IMPS-232	no implementation and no test	implementation not located	a limit spread over the translators: deleteTaskGroup is issued only in task-group-tree-entrances.ts and moveTaskGroup only in task-group-grab.ts; no one function holds it	no test checks that a task group cannot be deleted or moved from outside the Task Group Panel
+below-unbuilt	IMPS-234	no test	no verifying test		no test reads the notices after a deletion and expects none
+below-unbuilt	IMPS-235	no test	no verifying test		no test runs a deletion through confirmationOwedBy and checks the question lists what goes; uf-71 draws hand-built questions only
+below-unbuilt	IMPS-236	no test	no verifying test		only the delete-all head QN-10 is seen asking (w3-t1:175); no test deletes one task group or a Task with descendants and checks a question stands
+below-unbuilt	IMPS-238	no test	no verifying test		no test holds a task group with a numeric derivedFromTaskUid and deletes that Task (all fixtures use null)
+below-unbuilt	IMPS-239	no test	no verifying test		no test deletes a derivation-source Task of a nameless task group and checks the name is settled
+below-unbuilt	IMPS-240	no test	no verifying test		three-rows:553 deletes every task but the template task groups all have derivedFromTaskUid null; no test deletes a derivation source
+below-unbuilt	IMPS-242	no test	no verifying test		no test deletes a nameless derivation-source Task and checks it is not refused
+below-unbuilt	IMPS-243	no test	no verifying test		no expect checks there is no way to delete a parent task group while keeping its descendants
+below-unbuilt	IMPS-244	no test	no verifying test		no test deletes a task group with descendant task groups and checks their Tasks are named in the question
+below-unbuilt	IMPS-245	no test	no verifying test		cr-551:252 deletes everything; no test checks CD-2 takes the WBS descendants (CD-1) of each Task on the task group
+below-unbuilt	IMPS-261	no implementation and no test	missing implementation	not implemented: DeletionQuestion items (deletion-confirmations.ts:13) carry only name and isShownOnAnotherTaskGroup, no task group name	nothing to test: no task group name is carried to the confirmation
+below-unbuilt	IMPS-262	no test	no verifying test		no test deletes a Task with descendants and checks the question names them as for a task group
+below-unbuilt	IMPS-264	no test	no verifying test		uf-71:1432 checks the word is there; no expect checks no figure (icon / shape) is drawn for the mark
+below-unbuilt	IMPS-265	no implementation and no test	implementation not located	no code names the propagation; the exporters write the document as it stands, and nothing marks a task group deletion for the exchange partner	no test deletes a task group and checks the exported file reflects it
+below-unbuilt	IMPS-27	no implementation and no test	implementation not located	design goal met by the row order of T-016 (docs/spec/_source/property-items.json); no src logic decides frequency	no test measures scrolling for the most-touched values
+below-unbuilt	IMPS-272	no implementation and no test	absence or no single unit	MUST NOT, nothing to build: the roster entrances (T-109 IC-63..IC-68) hold no delete-all; searched resource-list.ts	no expect checks the roster entrances for a one-step delete-all
+below-unbuilt	IMPS-277	no test	no verifying test		no test deletes a resource that came in by an import
+below-unbuilt	IMPS-279	no test	no verifying test		tests check pieces (columns, window entrances); no expect compares the list's look and behaviour with the search panel
+below-unbuilt	IMPS-280	no test	no verifying test		no expect counts the tables in the Resource List window
+below-unbuilt	IMPS-283	no test	no verifying test		no expect checks that kind, cost, calendar or rate cannot be edited
+below-unbuilt	IMPS-287	no implementation	missing implementation	not implemented: pasteTasks (src/use-case/edit-document/task-paste.ts) copies each member onto its source task group and never reads editPermission; tests/contract/e24-paste-refused-while-several-task-groups-are-chosen.test.ts:207 is it.fails pending DFC-730	
+below-unbuilt	IMPS-289	no test	no verifying test		dfc-290 refuses the over-cap paste and checks a T-233 word is told, but states that which row is told is not asserted; no expect on RS-24
+below-unbuilt	IMPS-291	no test	no verifying test		no test pastes Tasks linked by a dependency; no expect on copied dependencies
+below-unbuilt	IMPS-292	no test	no verifying test		no test pastes a Task with a dependency leaving the copied set; no expect that it is dropped
+below-unbuilt	IMPS-298	no implementation and no test	missing implementation	not implemented as a check: no function compares what DU-1 copies with what CD-1 deletes; searched src for CD-1 and DU-1 marks	no test compares table T-223 DU-1 with table T-050 CD-1
+below-unbuilt	IMPS-299	no implementation and no test	missing implementation	not implemented as its own function: an emergent property of pasteTasks and the delete; no Spec mark or function found	no test pastes then deletes the copy and compares the document with the one before
+below-unbuilt	IMPS-306	no test	no verifying test		no test checks that a Ctrl drag copy leaves the SK-4 paste store (copiedForPaste) unchanged
+below-unbuilt	IMPS-307	no test	no verifying test		tests check the OS clipboard is never read, but no expect checks the in-app store itself
+below-unbuilt	IMPS-309	no implementation and no test	absence or no single unit	an absence: tasks move sideways only by a person's grab, alignment (alignWrites) or an explicit command; no auto-shift function exists to mark	no test checks that GRS never shifts a task sideways on its own
+below-unbuilt	IMPS-310	no test	no verifying test		nfr-004 sweep presses IC-37 and checks only that it answers; no expect checks the other end moves by the same calendar days
+below-unbuilt	IMPS-311	no test	no verifying test		nameBrowserTab is reached by no test; dfc-1780:28 checks only the manuscript word
+below-unbuilt	IMPS-314	no test	no verifying test		no test switches the screen language and reads the browser tab heading (dfc-1780:85 checks the Open Chooser)
+below-unbuilt	IMPS-319	no test	no verifying test	lives outside src/: tools/generate_display_words.py dependency_kinds() writes src/adapter/screen-renderer/dependency-kinds.json from T-018, outside the FR-038 dictionary	cr-606:305 checks the shown text equals the T-018 abbreviation, but no expect checks the json is generated from T-018 or absent from the dictionary
+below-unbuilt	IMPS-321	no test	no verifying test		no test checks that grab margins are ignored while the dependency line is armed
+below-unbuilt	IMPS-322	no test	no verifying test		cr-383 and uc-004 probe quarter / 20-80 points, deliberately clear of the midpoint; no expect on the split point
+below-unbuilt	IMPS-323	no test	no verifying test		no test checks the halves are not split by the T-038 occupied width
+below-unbuilt	IMPS-324	no test	no verifying test		no test presses a task without a plan while armed and checks no end is answered
+below-unbuilt	IMPS-325	no test	no verifying test		no test presses exactly on the midpoint; cr-383 says its probes keep clear of the midpoint rule
+below-unbuilt	IMPS-326	no test	no verifying test		dfc-2160:111 calls dependencyEndAtPointer but expects only taskUid, never the edge (half)
+below-unbuilt	IMPS-327	no test	no verifying test		no test checks that itemAtPointer (SL-1 / PI-7) is not handed the arm state
+below-unbuilt	IMPS-328	no test	no verifying test		no expect checks the half-answering name is separate from the SL-1 public name
+below-unbuilt	IMPS-329	no test	no verifying test		no test checks the half-answering name is called only while the dependency line is armed
+below-unbuilt	IMPS-337	no test	no verifying test		t-233:221 (DN-1 self) and t-233:263 (DN-2 duplicate) check refusals; DN-3 (an end that is no Task) is never tested
+below-unbuilt	IMPS-339	no test	no verifying test		t-233 refusal cases check the notice and the count only; no expect on the draft or other state after a refusal
+below-unbuilt	IMPS-340	no test	no verifying test		t-233 refusal cases never read the arm state after the refusal (uc-004 checks the arm only after a success and after Esc)
+below-unbuilt	IMPS-341	no test	no verifying test		edge->kind checked only piecemeal: FS/FF in uc-004:27, SS in cr-806:90, FF in cr-586:286; SF never; no test checks the 1:1 mapping
+below-unbuilt	IMPS-342	no test	no verifying test		cr-606:320 / uc-004 check the panel type row has no control; no expect checks there is no other kind-choosing entry (palette, menu, command)
+below-unbuilt	IMPS-344	no implementation and no test	missing implementation	not implemented: routeOf / exitsRight (dependency-route.ts:41,156) pick exit and entry by linkType only; no milestone case, so an imported non-FS milestone line is not drawn point-rightwards	no test draws a line from or into a milestone and checks its direction
+below-unbuilt	IMPS-345	no test	no verifying test		no test imports a non-FS milestone dependency and checks its kind is kept
+below-unbuilt	IMPS-346	no implementation	missing implementation	not implemented: withLagSet (edit-dependency.ts:185), the only edit of an existing dependency, writes linkLag/lagFormat only and never moves linkType to FS for a milestone end	
+below-unbuilt	IMPS-348	no test	no verifying test		lag tests (cr-644) use linkType 1 only; no expect checks a lag is held for each kind
+below-unbuilt	IMPS-35	no test	no verifying test		no expect checks where a boolean check box sits in the value column
+below-unbuilt	IMPS-352	no test	no verifying test		cr-644:342/351 type d/h/m in a timed document, but no expect checks the shown d/h/m text in a timed document
+below-unbuilt	IMPS-360	no test	no verifying test		cr-644:119 checks a zero lag shows 0 for any format; an empty (null) linkLag is never tested
+below-unbuilt	IMPS-362	no test	no verifying test		uf-36 round trip uses lagFormat 7 only; no test round-trips a lag of another format
+below-unbuilt	IMPS-363	no test	no verifying test		cr-644:124 checks only the elapsed day, hour and estimated elapsed day lengths; week, month, elapsed week/hour/minute never
+below-unbuilt	IMPS-370	no test	no verifying test		cr-644 lagOf reads only the lag; no expect checks the task dates stay after setDependencyLag
+below-unbuilt	IMPS-371	no test	no verifying test		no test checks the route is the same whatever the lag
+below-unbuilt	IMPS-373	no test	no verifying test		no test with an actual or a dummy checks the line is not attached to them
+below-unbuilt	IMPS-374	no test	no verifying test		no expect checks the route is fully automatic (absence of a manual route)
+below-unbuilt	IMPS-375	no test	no verifying test		no test draws two crossing lines and checks which reads in front
+below-unbuilt	IMPS-378	no test	no verifying test		no test checks the front order (EL-16 mark, selected line, later-made line)
+below-unbuilt	IMPS-381	no test	no verifying test		w3-t4 checks shapes are spared; no expect checks the halo is laid over a dummy
+below-unbuilt	IMPS-382	no test	no verifying test		no expect checks the main line is drawn through the spared sections
+below-unbuilt	IMPS-383	no test	no verifying test		no test pans or zooms and compares the route
+below-unbuilt	IMPS-385	no test	no verifying test		no test checks T-303 elision is skipped for lines RT-4a drops (cr-602:525 checks only that a plan-off line is not drawn)
+below-unbuilt	IMPS-388	no test	no verifying test		no test commits an input outside the five T-019 rows and checks it is not refused
+below-unbuilt	IMPS-389	no test	no verifying test		no expect checks the absence of a cancelled state
+below-unbuilt	IMPS-390	no test	no verifying test		no expect checks that delay is not a sixth plan/actual state
+below-unbuilt	IMPS-40	no test	no verifying test		cr-754 system test checks breaks and line balance, no expect compares item name width to its column
+below-unbuilt	IMPS-405	no test	no verifying test		no test checks that minShapeWidth (S-49) is not applied to the actual bar width
+below-unbuilt	IMPS-411	no implementation and no test	absence or no single unit	naming rule on words (position vs last day); no function implements it	only spec-text checks (dfc-507:382, go-3:367); no test checks the naming in code or UI
+below-unbuilt	IMPS-417	no implementation	absence or no single unit	absence of a length column; lives in the GRS JSON schema / Task type, no function implements it	
+below-unbuilt	IMPS-42	no test	no verifying test		fr-006-panel-fields-drawn feeds its own widthInFontSizes; no test reaches widthOf's S-199 term
+below-unbuilt	IMPS-429	no implementation	absence or no single unit	absence rule over all other direct operations; no single function implements it (searched item-grab.ts, task-plan-actual.ts)	
+below-unbuilt	IMPS-432	no test	no verifying test		no test presses a progress marker on an unselected Task and checks no selection step is needed
+below-unbuilt	IMPS-434	no test	no verifying test		no expect checks the guide width, dash or color against T-208
+below-unbuilt	IMPS-436	no test	no verifying test		tests grab the dummy ends (cr-430-table-go) and compare pointer shapes (in-2-a :451) but no expect compares the dummy's grab rule with the actual's
+below-unbuilt	IMPS-437	no test	no verifying test		partial only: dummy margins S-262..S-264 vs actual at cr-430-ga-1-to-22 (equal defaults), PE-3 on the dummy end at cr-430-table-pe :268; no expect on the label basis of T-272
+below-unbuilt	IMPS-439	no implementation and no test	absence or no single unit	absence row: no handler cycles the Task state from a grab-area press; nothing to name	no expect that pressing a grab area of the dummy leaves the Task state as it was
+below-unbuilt	IMPS-446	no test	no verifying test		no expect reads the day the GA-6 handle points at; fr-043 :811 only checks no second mark at that day
+below-unbuilt	IMPS-459	no implementation and no test	missing implementation	not implemented as a function: the absence lives in the command set (no edit command writes percentComplete); searched src/use-case/edit-document and src/adapter for a percent-complete input or guard	no test checks that no command or field accepts a typed percentComplete
+below-unbuilt	IMPS-462	no test	no verifying test		no test stores an actualDuration that disagrees with the actual dates; the cases only set dates
+below-unbuilt	IMPS-465	no test	no verifying test		tests check report.recountedTaskUids of editCalendar, but no expect checks the NT-3 notice with RS-52 and the count after a calendar edit
+below-unbuilt	IMPS-475	no test	no verifying test		a design-quality row; no test measures change resilience
+below-unbuilt	IMPS-476	no test	no verifying test		no test checks that the formula lives in one place or that callers do not depend on it
+below-unbuilt	IMPS-484	no test	no verifying test		tests check the refusal of a reversed input, but no expect checks that finish is not rewritten to start
+below-unbuilt	IMPS-49	no test	no verifying test		no expect checks that a row of several controls wraps
+below-unbuilt	IMPS-492	no test	no verifying test		no test puts the pointer on a not-started marker or a dummy and checks it is drawn dark
+below-unbuilt	IMPS-493	no test	no verifying test		no expect checks the marker colour is taken from the actual bar colour
+below-unbuilt	IMPS-494	no test	no verifying test		no expect checks that no marker colour of its own is saved in the document
+below-unbuilt	IMPS-50	no test	no verifying test		no expect checks the control font size after narrowing the panel
+below-unbuilt	IMPS-502	no test	no verifying test		no expect compares the opacity of a marker with that of the in-progress marker
+below-unbuilt	IMPS-503	no test	no verifying test		no expect checks the opacity of the (!) PM-4 marker
+below-unbuilt	IMPS-504	no test	no verifying test		cr-760-a checks a not-started late task answers PM-4, but no expect checks it is drawn at the T-273 marker place
+below-unbuilt	IMPS-509	no test	no verifying test		no expect checks that the values a marker press sets count as placed by a person (FR-011)
+below-unbuilt	IMPS-51	no test	no verifying test		no test compares the adapter's widthInFontSizes with labelCoef; drawing tests build their own controls
+below-unbuilt	IMPS-510	no test	no verifying test		no expect checks that the actual ends set by a marker press stay put afterwards
+below-unbuilt	IMPS-513	no test	no verifying test		no expect gives a task a passed deadline and checks it is not read as late (PM-4) on that ground alone
+below-unbuilt	IMPS-52	no test	no verifying test		drawing tests check room >= estimate, which an extra coefficient above 1 would still pass
+below-unbuilt	IMPS-525	no test	no verifying test		uf-48-input:868 checks the clear only through statusDate null; no expect checks there is no second flag
+below-unbuilt	IMPS-526	no test	no verifying test		tests check the line is drawn once statusDate is set; no expect checks no line is drawn while statusDate is null
+below-unbuilt	IMPS-54	no test	no verifying test		no expect checks the PR-5 unit word or that it stands right of the input
+below-unbuilt	IMPS-542	no implementation	absence or no single unit	MUST NOT, nothing to build: the picture draws no delay days	
+below-unbuilt	IMPS-543	no test	no verifying test		no expect checks that the delay days take no occupied width (OC-8); only quoted as a premise
+below-unbuilt	IMPS-546	no test	no verifying test		tests run the diagnosis from several states, but no expect checks that it may run at any time (no state that forbids it is probed)
+below-unbuilt	IMPS-548	no implementation and no test	missing implementation	not implemented: diagnoseDelay returns emptyReport on a null statusDate and no notice or dictionary word tells that the diagnosis was skipped; searched frame-loop.ts, delay-diagnostics-report.ts, display-words.json	no test checks a telling when the status date is null
+below-unbuilt	IMPS-558	no test	no verifying test		cr-803 AM-31 test only checks the seam is called once with a stub; no expect that the window opens with a diagnosis
+below-unbuilt	IMPS-559	no test	no verifying test		cr-803 AM-31 test only checks the stub seam call; no expect that an open window's diagnosis is rebuilt
+below-unbuilt	IMPS-563	no implementation and no test	absence or no single unit	constraint row (reads document-model columns only); no single function, diagnoseDelay reads Schedule fields; nothing to point at	no expect checks that the diagnosis reads nothing outside the document model
+below-unbuilt	IMPS-564	no implementation and no test	absence or no single unit	absence row: nothing in src/entity/document-model/schedule/delay-diagnostics.ts reads carry/carryElements; no function to name	fixtures carry empty carry/carryElements only; no expect that a carried value is not judged
+below-unbuilt	IMPS-566	no test	no verifying test		no test diagnoses a task with percentComplete 100 and no actualFinish to check it is not done
+below-unbuilt	IMPS-567	no implementation and no test	absence or no single unit	absence row (no Error/Warning word); the words live in the dictionary, no function to name	no expect checks the finding words hold no Error/Warning
+below-unbuilt	IMPS-568	no implementation and no test	absence or no single unit	absence row (no assertive word for doubts and omissions); words live in the dictionary	no expect on the wording of doubts and omissions being non-assertive
+below-unbuilt	IMPS-569	no test	no verifying test		the missingActual word is never asserted; cr-648 :137 checks only the VO-5 question
+below-unbuilt	IMPS-570	no implementation and no test	absence or no single unit	absence row: import refusals of T-220 are never findings; no function to name	no test checks that a T-220 refusal is not a finding
+below-unbuilt	IMPS-573	no test	no verifying test		cr-690 :316 only checks controls kind number; no expect that a typed negative or fraction is refused in the field
+below-unbuilt	IMPS-578	no test	no verifying test		no test puts VC-4, VC-11 or VC-12 on a same-day different-time pair
+below-unbuilt	IMPS-580	no test	no verifying test		no test checks VS-5 on the same day as the status date at another time
+below-unbuilt	IMPS-581	no test	no verifying test		cr-648 :137 checks only the VO-5 question; no expect that other T-312 omissions read only the missingActual word
+below-unbuilt	IMPS-583	no test	no verifying test		no test checks VO-1/VO-2 against the status date on the same day
+below-unbuilt	IMPS-584	no implementation and no test	absence or no single unit	absence row: no viewpoint compares percentComplete 100 with actualFinish; nothing to name	no expect that the percent/actualFinish mismatch yields no finding
+below-unbuilt	IMPS-585	no implementation and no test	absence or no single unit	absence row: no viewpoint compares a parent start alone	no expect that a parent-start-only gap yields no finding
+below-unbuilt	IMPS-586	no implementation and no test	absence or no single unit	absence row: no viewpoint compares a parent percent with the child average	no expect that the parent percent vs child average yields no finding
+below-unbuilt	IMPS-587	no implementation and no test	absence or no single unit	absence row: no viewpoint reads BaselineTask coverage	no expect that partial BaselineTask yields no finding
+below-unbuilt	IMPS-588	no implementation and no test	absence or no single unit	absence row: no viewpoint judges plans or actuals on non-working days	no expect that a plan or actual on a non-working day yields no finding
+below-unbuilt	IMPS-589	no test	no verifying test		cases check the outcome quantities; no expect tells the BD-1..BD-4 order apart
+below-unbuilt	IMPS-593	no test	no verifying test		BD-1 projections are checked on single tasks; no case shows that BD-2..BD-4 do not move the projected finish
+below-unbuilt	IMPS-596	no implementation and no test	absence or no single unit	MUST NOT, nothing to build: delay-diagnostics.ts reads no baseline (grep baseline found none there)	no test gives a BaselineTask and checks the diagnosis ignores it
+below-unbuilt	IMPS-597	no implementation and no test	implementation not located	no slack quantity is computed; nearest is flowOf (delay-diagnostics.ts:1141) taking the earliest start from links and calendar	no test checks a recomputed slack
+below-unbuilt	IMPS-598	no implementation and no test	absence or no single unit	MUST NOT, nothing to build: delay-diagnostics.ts reads no slack or critical value (grep found none)	no test imports slack or critical values and checks they are ignored
+below-unbuilt	IMPS-602	no implementation and no test	absence or no single unit	MUST NOT (no enforcing, no detecting); nothing to build	no test; absence of an operations rule
+below-unbuilt	IMPS-603	no test	no verifying test		report tests feed T-314 minutes but no expect checks their shown text against TX-8
+below-unbuilt	IMPS-609	no test	no verifying test		no test folds a task group and checks the drawn ancestor keeps DG-3
+below-unbuilt	IMPS-622	no test	no verifying test		no test reads the search panel status (SQ-5) or the RW-19 feed for a not-due task whose drawn mark differs from DX-8
+below-unbuilt	IMPS-625	no test	no verifying test		tests read single DX fields of diagnoseDelay (cr-561); none checks one report holding the T-317 fields
+below-unbuilt	IMPS-628	no test	no verifying test		no test checks the summary stands above the task table in the report window
+below-unbuilt	IMPS-632	no test	no verifying test		no test checks that rows of different kinds take the same jump path
+below-unbuilt	IMPS-635	no implementation and no test	absence or no single unit	an absence: report and window state live in the screen session; no document column or writer exists for them (searched document-settings.ts, grs-json-schema.ts)	cr-723:64 only quotes the clause; no test saves with the report window open/moved and checks its state is absent
+below-unbuilt	IMPS-637	no test	no verifying test		no test jumps from a VO-4 row and checks no T-351 parent-task setting is armed
+below-unbuilt	IMPS-64	no test	no verifying test		no test opens the candidate list and checks the names are whole
+below-unbuilt	IMPS-649	no test	no verifying test		only it.fails cases at cr-731-un-21 test :66 and :74 (DFC-730: GP-1 not enforced on the write path); no passing expect on all-or-nothing
+below-unbuilt	IMPS-650	no test	no verifying test		cr-759-a test :102 is it.todo (refusedNotice); no expect on the refused rows and reason
+below-unbuilt	IMPS-654	no implementation	absence or no single unit	absence row: proposal, checks, picks and fix log live only in the window state (DelayDiagnosticsReportWindow.fixes, src/adapter/screen-renderer/delay-diagnostics-report.ts), never in Document; no writer to name	
+below-unbuilt	IMPS-655	no test	no verifying test		rw-11 :310 only shows the diagnosis-table filter is an edit; the T-374 half is it.todo at rw-11 :323; no expect on only-T-347-views-in-the-document
+below-unbuilt	IMPS-656	no test	no verifying test		rw-11 :323 is it.todo (no way to press a filter menu); no expect on hasUnsavedEdits after a T-374 filter or sort
+below-unbuilt	IMPS-657	no test	no verifying test		rw-11 :323 is it.todo; no expect that a T-374 filter or sort pushes no UN-20 step
+below-unbuilt	IMPS-660	no test	no verifying test		cr-803 :201 checks the bundle lands but no expect checks that nothing is saved first; am-19 :62 only quotes the manuscript
+below-unbuilt	IMPS-661	no implementation and no test	absence or no single unit	no function: the save after AM-32 is left to the existing export tools (exportJson etc.); nothing in src ties AM-32 to them	no test checks how the AI saves after AM-32
+below-unbuilt	IMPS-670	no test	no verifying test		readOnlyReason only appears in the dictionary test (jdg-1929 :53); no expect reads the after cell of a read-only row
+below-unbuilt	IMPS-671	no test	no verifying test		t-373 :139 checks only the end state of a 3-level chain; no expect tells layer order or deeper-first within a pass
+below-unbuilt	IMPS-673	no test	no verifying test		no test builds a finding already mended by an earlier machine row (settleCovered); no expect on its own row
+below-unbuilt	IMPS-674	no test	no verifying test		no test reaches a covered (already mended) finding row; no expect on its place
+below-unbuilt	IMPS-675	no test	no verifying test		no expect on the check of a covered row (checked true, isCheckable false)
+below-unbuilt	IMPS-676	no test	no verifying test		no expect that a covered row carries no command
+below-unbuilt	IMPS-677	no test	no verifying test		the RW-16 uncheck case is it.todo at t-373 :135; no expect on covered rows returning to their own fix
+below-unbuilt	IMPS-680	no test	no verifying test		no delay-fix test uses an MSPDI-sourced document (sourceFormat pj12/pj15)
+below-unbuilt	IMPS-682	no test	no verifying test		delayFixProposalRows/compareDelayFixRows reached by cr-816 but no expect checks the default order by kind, layer, depth, start, uid
+below-unbuilt	IMPS-683	no test	no verifying test		t-373 :118 checks the raw proposeDelayFixes order only; no expect on the drawn table putting the chain row right under its origin
+below-unbuilt	IMPS-684	no test	no verifying test		no test sorts the proposals table and checks the chain row stays with its origin
+below-unbuilt	IMPS-686	no test	no verifying test		no test checks sort, column filter, width change or sticky header on the T-374 tables as RW-9/RW-10
+below-unbuilt	IMPS-687	no test	no verifying test		cr-759-b :82 only checks FM-1 widens with the type step; no expect on FM-4 = S-481 or FM-5 = S-478
+below-unbuilt	IMPS-688	no test	no verifying test		cr-759-b :76 only compares FM-1 with the narrowest other column; no expect on the box width or the uncut heading
+below-unbuilt	IMPS-689	no test	no verifying test		cr-759-b :101 is it.todo (drag of the FM-1 right edge)
+below-unbuilt	IMPS-690	no test	no verifying test		no expect compares the FM-1 width with S-425; cr-759-b :76 compares with other columns only
+below-unbuilt	IMPS-692	no implementation and no test	implementation not located	no code confines derived parents to diagnosis: parentTaskResolutionsOf also feeds parent-task-hold (dashed arrows) and properties-panel	no expect checks that derived parents are used only in diagnosis
+below-unbuilt	IMPS-708	no test	no verifying test		measured-sweep skips empty labels when counting rows; no expect checks a not-printed row is not printed as an empty row
+below-unbuilt	IMPS-709	no test	no verifying test		no expect checks that only TM-3 / TM-4 fold year and month into YYYY-MM and TM-2 does not
+below-unbuilt	IMPS-710	no test	no verifying test		no expect checks the ruler writes no month word and no weekday on the week row
+below-unbuilt	IMPS-711	no test	no verifying test		no expect on the TM-4 third row size (S-219) or its font family
+below-unbuilt	IMPS-712	no test	no verifying test		cr-710 hour-grid checks the stride is one of 1/2/3, is monotone and is 1 when wide; no expect that it is the finest stride fitting two digits
+below-unbuilt	IMPS-714	no test	no verifying test		cr-755 checks the abbreviation boxes on each zone row; no expect on the added row height or on the hour / 0-o-clock date it prints
+below-unbuilt	IMPS-718	no implementation and no test	absence or no single unit	no function owns it: the GRS JSON and MSPDI writers write the stored instant and never read isTimeOfDayVisible; no Spec mark or switch-dependent write path found	no test saves or exports with the time of day hidden and checks the written time
+below-unbuilt	IMPS-720	no implementation	absence or no single unit	a rule on the specification table T-375 (every place that shows a date-time is a row); no src function collects the places	
+below-unbuilt	IMPS-721	no test	no verifying test		no test checks that no date-time form outside T-375 is shown, nor the real duration (e.g. 2h) while time is hidden
+below-unbuilt	IMPS-726	no test	no verifying test		dfc-721:75 opens U-65 from state only; no expect on the IC-132 palette entrance or the T-344 fields
+below-unbuilt	IMPS-732	no test	no verifying test		cr-710-w1:341 tests only the sum predicate; no expect that RS-89 is told once when a set is applied
+below-unbuilt	IMPS-734	no test	no verifying test		only the ruler base-row abbreviation is checked to follow S-574 (cr-755 ruler test :135); no expect that the ticks and shown date-times read in S-574, or in the schedule data zone when it is empty
+below-unbuilt	IMPS-746	no implementation and no test	absence or no single unit	an absence: the MSPDI writer in src/adapter/document-codec/mspdi-codec.ts emits no zone element; no function or Spec mark owns the rule	no test exports an MSPDI and checks that no time zone is written
+below-unbuilt	IMPS-747	no test	no verifying test		QN-14 appears only in the stage and the dictionary; no test presses IC-162 and expects the NT-7 question
+below-unbuilt	IMPS-748	no test	no verifying test		no test runs shiftScheduleTimes (CM-98) and checks one write and one undo (cr-757 covers CM-99 only)
+below-unbuilt	IMPS-749	no test	no verifying test		no test checks CM-98 leaves the calendar alone (cr-757:151 is CM-99)
+below-unbuilt	IMPS-76	no implementation and no test	not product code	dictionary wording rule; the words live in docs/spec/_source/display-words.json, no src logic	no test judges how the dictionary words are formed
+below-unbuilt	IMPS-77	no implementation and no test	not product code	dictionary wording rule (display-words.json); no src logic	no test checks that names omit words the value shows
+below-unbuilt	IMPS-772	no test	no verifying test		cr-430 sweep checks no Task is dropped near the floor; no expect checks the drawn width is max(days x pxPerDay, S-49 x ratio) or the grab areas
+below-unbuilt	IMPS-773	no test	no verifying test		no expect checks the depth is capped at S-125 only in the judgement and the written value is not capped
+below-unbuilt	IMPS-775	no test	no verifying test		no expect checks there is no draw-all-below-a-count threshold
+below-unbuilt	IMPS-78	no implementation and no test	not product code	MAY on English dictionary wording (display-words.json); nothing to build in src	MAY permission; no test
+below-unbuilt	IMPS-781	no test	no verifying test		no test pins two task groups and checks they stack in pin order with no precedence
+below-unbuilt	IMPS-784	no test	no verifying test		no expect compares the pinned heading y on the panel side with its band y on the schedule side
+below-unbuilt	IMPS-788	no test	no verifying test		no expect checks that the band takes room inside the Task Group Area rather than from it as Scrollbars do
+below-unbuilt	IMPS-79	no implementation and no test	absence or no single unit	constraint on renaming; GRS JSON column names are fixed by the schema, no src function for it	no test checks that column names stay unchanged
+below-unbuilt	IMPS-791	no test	no verifying test		no expect checks the pinned task group's own ground is S-151 at the S-214 depth
+below-unbuilt	IMPS-801	no test	no verifying test		no test checks that an export draws text below the legibility floor without the screen's fallback
+below-unbuilt	IMPS-804	no test	no verifying test		measured-sweep:1676 allows depth 1 over the edge but no expect checks that the axis keeps its scroll
+below-unbuilt	IMPS-805	no test	no verifying test		no test presses the fit on a document with nothing to draw and checks zoom 1 and scrollDate
+below-unbuilt	IMPS-811	no test	no verifying test		no test zooms out to the end and checks only depth 1 of TaskGroup and WBS is drawn, with pinned/TD-6/TD-7 task groups kept
+below-unbuilt	IMPS-824	no test	no verifying test		no test fills the record past S-207 or reads the dropped count; state-machine :267 only checks the fileFlow region
+below-unbuilt	IMPS-826	no implementation and no test	absence or no single unit	a data-model property: annotations hold the task group id (anchorTaskGroupId), no src function picks a task group by position; nothing to mark	no expect checks that a reorder of task groups leaves an annotation on its task group
+below-unbuilt	IMPS-830	no test	no verifying test		no test draws or grabs a comment box whose anchor date is null (cr-786:103 reads only the search date)
+below-unbuilt	IMPS-839	no test	no verifying test		no test clicks while a highlight box is armed, nor tells a drag from a click at S-208
+below-unbuilt	IMPS-844	no test	no verifying test		cr-558 checks null width and transparency defaults (:745, :750) and ranges (:831); no expect checks a null stroke drawn in S-312
+below-unbuilt	IMPS-847	no implementation and no test	implementation not located	SHOULD on picking the S-312 value (tbl-settings T-236); a palette choice, no src logic	SHOULD; no test compares S-312 with the theme, dependency or progress line colors
+below-unbuilt	IMPS-849	no test	no verifying test		no test presses the theme entrance on a highlight box and checks fill and stroke written null
+below-unbuilt	IMPS-851	no test	no verifying test		dfc-2951:146 and cr-782:293 read only the first and last leader points; no expect checks there is no bend (two points), no choice of two kinds and no balloon tail
+below-unbuilt	IMPS-862	no implementation and no test	absence or no single unit	spread over every drawing condition; no single function implements 'visibility in every drawing requirement'	no test sweeps every drawing requirement for the T-202 visibility condition
+below-unbuilt	IMPS-863	no implementation and no test	absence or no single unit	no function implements 'hidden elements keep their operation entrances' as such; no code marks it	no test hides an element and operates it from the properties panel, nor checks no other surface for dependency lines
+below-unbuilt	IMPS-866	no test	no verifying test		no test hides plan or actual (S-227 / S-228) and checks the occupancy, the band height or the hit test
+below-unbuilt	IMPS-867	no test	no verifying test		no test types a watermark name or checks the watermark text is the S-99a default for every reader
+below-unbuilt	IMPS-868	no test	no verifying test		fr-020:133 reads the manuscript only; no test checks the name starts at S-99a and the schedule is shown without asking for it
+below-unbuilt	IMPS-869	no test	no verifying test		fr-020-the-surface:327 checks the held default digest is a SHA-256, not the raw password; no test unlocks with the T-207 default password
+below-unbuilt	IMPS-875	no implementation and no test	missing implementation	not implemented as code: the absence of a warning; the MSPDI writer rebuilds OutlineLevel from the tree and outlineBase with no check on roots (mspdi-codec.ts), nothing to mark	no test adds a second root to a base-0 document and checks no warning is raised
+below-unbuilt	IMPS-879	no implementation	not product code	a rule for the verification side; the normalization lives in tests/system/mspdi-normalization.sws.test.ts (table T-228), not in src	
+below-unbuilt	IMPS-882	no implementation and no test	absence or no single unit	a data-model rule held in docs/spec/_source/erd.json; the codec rebuilds ID/OutlineLevel/OutlineNumber/Summary on write (mspdi-codec.ts TASK_CONSUMED, a const), no function to mark	no expect checks that no stored column duplicates what the structure decides
+below-unbuilt	IMPS-919	no test	no verifying test		h10:464 checks labeledAssigneeUidOf is null only; no expect on the label drawn per AS-2 when nobody is labelable
+below-unbuilt	IMPS-923	no test	no verifying test		no test draws a not-started task and checks its percent label is absent (cr-663:356 is the tooltip line, not the label)
+below-unbuilt	IMPS-926	no test	no verifying test		t-273:266 checks only the ' : ' separator; no expect on the joined order with the % mark nor on the right edge S-32 left of the plan (t-273:251 measures S-302)
+below-unbuilt	IMPS-949	no test	no verifying test		no test varies the view toggles, display scale, zoom tier or LOD and compares the export with the screen (fr-043:1138 compares one default state only)
+below-unbuilt	IMPS-951	no implementation and no test	implementation not located	a rule on how FR-080 is judged (T-041 in the MC-5/MC-6 reference environment), not product behaviour	no test runs the T-041 judgement in the MC-5/MC-6 reference environment with both panels closed
+below-unbuilt	IMPS-952	no implementation and no test	implementation not located	a rule for the judging side (normalize / round both sides), not product behaviour	no T-041 comparison test states or checks that both sides get the same normalization and rounding
+below-unbuilt	IMPS-953	no implementation and no test	implementation not located	a rule for the judging side (PNG compared by decoded pixels), not product behaviour	no test decodes PNG pixels to compare two exports (no png decoder used in tests/)
+below-unbuilt	IMPS-958	no test	no verifying test		no test exports with the properties panel or palette open and checks they are drawn closed with the room given to the schedule
+below-unbuilt	IMPS-960	no implementation and no test	absence or no single unit	absence rule; no export-only position for pinned task groups exists to implement	no test checks a pinned task group in the export stands where the screen puts it
+below-unbuilt	IMPS-964	no test	no verifying test		no test sets the FR-020 watermark choice and checks the IO-6 clipboard route passes it
+below-unbuilt	IMPS-970	no implementation	absence or no single unit	an absence: no code keeps the file handle across runs or offers a permission return; fileSystemAccessFileStore holds it per run only, no function owns the rule	
+below-unbuilt	IMPS-995	no implementation and no test	not product code	a rule for the write-then-read comparison of the verification side, not product code; no src function to mark	no round-trip test found that drops AT-140 (fileSavedAt) before comparing
+below-unbuilt	IN-5	no test	no verifying test		tests check IN-5a (keys typed into an entry reach it, dfc-3101 system :69); no expect checks a single-key shortcut can be turned off, remapped or is focus-only
+below-unbuilt	MC-1	no implementation and no test	implementation not located	measurement-environment condition (OS of the lab machine); not product code	no test reads or checks the OS build of the measuring machine
+below-unbuilt	MC-2	no implementation and no test	implementation not located	measurement-environment condition (CPU of the lab machine); not product code	nfr-002 records hardwareConcurrency but no expect checks the CPU
+below-unbuilt	MC-3	no implementation and no test	implementation not located	measurement-environment condition (memory of the lab machine); not product code	no test reads or checks the machine memory
+below-unbuilt	MC-4	no implementation	not product code	measurement-environment condition (integrated GPU); recorded by the tests/nfr harness, not product code	
+below-unbuilt	MC-5	no implementation	not product code	measurement-environment condition (Chrome / Edge); the tests/nfr harness launches the reference browser	
+below-unbuilt	MC-6	no implementation	not product code	measurement-environment condition (1920x1080); the tests/nfr harness reads it into BASE_SCREEN	
+below-unbuilt	MC-7	no implementation	not product code	target scale of the measurement; read by the tests/nfr harness, the document is the template data	
+below-unbuilt	MC-9	no implementation	implementation not located	measurement procedure (1x/2x/4x/8x, median of 3); lives in tests/nfr/nfr-001-010-011-013-the-rest-of-chapter-7.test.ts	
+below-unbuilt	MG-13	no test	no verifying test		no test checks importSequence goes up by one per import and is recorded on what came in (uc-014 SCN-55 relies on it but expects only task counts)
+below-unbuilt	MM-3	no test	no verifying test		no test answers the merge one candidate at a time (eachCandidate) with same/different/rest
+below-unbuilt	NG-6	no test	no verifying test		no test zooms until a deep task group is not drawn and probes its Task or box for a grab
+below-unbuilt	NG-7	no test	no verifying test		no test folds the task group a comment or highlight box points at and probes the box for a grab
+below-unbuilt	NG-8	no test	no verifying test		no test stores a task group (HR-6) and probes its Task or box for a grab
+below-unbuilt	NR-1	no implementation	implementation not located	a comparison rule of the round-trip tests, not app behaviour: lives in tests/unit/cr-429-mspdi-schema.ts normalizedMspdi() (:468); tests/system/mspdi-normalization.sws.test.ts lists NR-1 as out of reach	
+below-unbuilt	NR-2	no implementation	not product code	test-side normalizer, not src: tests/unit/cr-429-mspdi-schema.ts normalizedNode() (:442) and tests/system/mspdi-normalization.sws.test.ts (Spec: NR-2 at :314)	
+below-unbuilt	NR-3	no implementation	not product code	test-side normalizer, not src: tests/unit/cr-429-mspdi-schema.ts and tests/system/mspdi-normalization.sws.test.ts (Spec: NR-3 at :286/:408)	
+below-unbuilt	NR-4	no implementation	not product code	test-side normalizer, not src: tests/unit/cr-429-mspdi-schema.ts typedValue() (:412) with the canonical* helpers	
+below-unbuilt	NR-5	no implementation	not product code	test-side normalizer, not src: tests/unit/cr-429-mspdi-schema.ts durationAmount() (:403)	
+below-unbuilt	NR-6	no implementation	not product code	test-side normalizer, not src: tests/unit/cr-429-mspdi-schema.ts normalizedNode(keepOrder) (:442) and mspdi-normalization.sws.test.ts (Spec: NR-6 at :300)	
+below-unbuilt	NR-7	no implementation	not product code	test-side normalizer, not src: tests/system/mspdi-normalization.sws.test.ts drops Project/LastSaved (Spec: NR-7 at :279); LastSaved itself is made at write (DV-12)	
+below-unbuilt	NS-1	no implementation	not product code	a rule of the picture-comparison harness, not product code; tests/system/drawn-svg-normalization.sws.test.ts records it as out of reach (no c14n in src)	
+below-unbuilt	NS-2	no implementation	not product code	a rule of the picture-comparison harness (step before NS-1); recorded out of reach in tests/system/drawn-svg-normalization.sws.test.ts	
+below-unbuilt	NS-5	no implementation	not product code	a rule of the picture-comparison harness: the pair is two exports of one run, read in tests/system/drawn-svg-normalization.sws.test.ts (PAIR_ROW)	
+below-unbuilt	NS-6	no implementation	not product code	a rule of the picture-comparison harness; recorded out of reach in tests/system/drawn-svg-normalization.sws.test.ts (no export path in the shell)	
+below-unbuilt	OC-3	no test	no verifying test		no test draws a progress marker past the bar and checks occupiedX0/X1 leave it out
+below-unbuilt	OC-4	no test	no verifying test		no test draws a resume icon and checks the occupied span leaves it out
+below-unbuilt	OC-7	no implementation and no test	missing implementation	not implemented: occupiedSpanOf counts the label span, the inside actual and the deadline head only; the FR-084 plan-actual guides (plan-actual-guides.ts guidesOf) are not added	no test checks that a plan-actual guide widens the occupied span
+below-unbuilt	RO-8	no test	no verifying test		no test edits, undoes or replaces the document and checks the Resource List rows are rebuilt
+below-unbuilt	RR-1	no test	no verifying test		no test draws the holiday settings list and checks its text at the host ground size x S-240
+below-unbuilt	RR-2	no test	no verifying test		no test scrolls the holiday settings list and checks the title bar and the WC-2/WC-3 rows stay
+below-unbuilt	RR-3	no test	no verifying test		no test turns the MK-5 wheel over the holiday list and checks it scrolls sideways while the schedule stays
+below-unbuilt	RR-6	no test	no verifying test		cr-754-fr-072 checks the close entrance of the property panel faces; no test checks IC-52 at the holiday settings title bar right end
+below-unbuilt	RT-4	no implementation and no test	absence or no single unit	an absence: no route is stored in the document and no command adjusts a route; no function owns the rule	no test checks that the schema or the commands hold no route and no route-adjusting entrance
+below-unbuilt	RT-5	no implementation	absence or no single unit	an absence: routeOf (dependency-route.ts) does no avoidance of other figures; no function owns the allowance	
+below-unbuilt	SC-2	no implementation and no test	missing implementation	no code point found that ties the time ruler to the body horizontally and keeps it still vertically (searched screen-regions, schedule-grid, screen-frame for SC-2)	no test scrolls the body and checks the ruler follows sideways and not vertically
+below-unbuilt	ST-4	no test	no verifying test		no test checks that a milestone is stacked by the same rule as a bar
+below-unbuilt	ST-8	no test	no verifying test		no test checks that the last tier is never reused to allow an overlap
+below-unbuilt	SWS-6	no implementation	implementation not located	a comparison step of the tests, not app behaviour: the T-228 normalizer is tests/unit/cr-429-mspdi-schema.ts normalizedMspdi() (:468)	
+below-unbuilt	SWS-7	no implementation	implementation not located	a comparison step of the tests, not app behaviour: the T-231 normalizer lives in tests/system/drawn-svg-normalization.sws.test.ts	
+below-unbuilt	TC-11	no test	no verifying test		no test reads parentTaskUid of a created task
+below-unbuilt	TC-4	no test	no verifying test		tests read single T-012 rows; no expect checks the set of shape kinds equals T-012
+below-unbuilt	TP-1	no implementation and no test	implementation not located	template content; lives in tools/generate_startup_template.py -> src/framework/single-html-shell/startup-template.json (generated data) / template subject content; data spread over constants	no test checks the template subject (software development) or its plain English words
+below-unbuilt	TP-2	no implementation and no test	absence or no single unit	template content; lives in tools/generate_startup_template.py -> startup-template.json (generated data) / two constants PROJECT_START/FINISH; no single one	no test checks the template spans 3 years
+below-unbuilt	TP-3	no implementation and no test	implementation not located	template content; lives in tools/generate_startup_template.py -> startup-template.json (generated data) / phases, shapes and gates spread over several constants	no test checks 7 phases, the arrow shape (SH-2) or one milestone per phase in the template
+below-unbuilt	TP-4	no implementation	implementation not located	template content; lives in tools/generate_startup_template.py -> startup-template.json (generated data) / forest content is the TREE constant (assignment, not allowed target)	
+below-unbuilt	TP-7	no implementation and no test	implementation not located	template content; lives in tools/generate_startup_template.py -> startup-template.json (generated data) / non-uniform spread is many constants and checks	no test checks that tasks per task group are not uniform in the template
+below-unbuilt	TP-8	no implementation	implementation not located	template content; lives in tools/generate_startup_template.py -> startup-template.json (generated data) / content property of the tree, no one function	
+below-unbuilt	TV-4	no test	no verifying test		no test turns on the schedule filter and checks highlight boxes, the status line, the today line and comment boxes stay drawn
+below-unbuilt	TX-9	no test	no verifying test		no test compares the date-time texts of the exported picture with the screen's
+below-unbuilt	VC-7	no test	no verifying test		no test names VC-7; no case gives an unstarted task a stop or resume
+below-unbuilt	WC-5	no test	no verifying test		holiday-settings repeatingText and the disabled name cell are never asserted by a test
+below-unbuilt	WM-1	no test	no verifying test		no test checks that the user is told the export carries the mark, nor the choice for images
+below-unbuilt	WM-2	no test	no verifying test		no test exports a picture after hiding the watermark and checks the mark is gone
+below-unbuilt	WM-3	no test	no verifying test		no expect checks that the image choice is not raised as a question
+below-unbuilt	WM-5	no test	no verifying test		no expect contrasts the watermark time with MSPDI local dates
+below-unbuilt	WP-9	no implementation	absence or no single unit	an absence: the screen values (T-206 body rows) are never stored, so a reload starts from the defaults; no function owns the row	
+below-unbuilt	WY-1	no implementation	not product code	an acceptance criterion of FR-080 over the whole write, initialize, read and draw path; no single src function implements it	
+below-unbuilt	WY-2	no implementation	not product code	an acceptance criterion of FR-080 (two exports equal after normalization, watermark excluded); no single src function implements it	
+below-unbuilt	WY-3	no implementation	not product code	an acceptance criterion of FR-080 (screen boxes scaled match the export boxes); no single src function implements it	
+below-unbuilt	WY-4	no implementation	not product code	an acceptance criterion of FR-080 over the fixed-span export (IX-12); no single src function implements it	
+below-unbuilt	XS-12	no test	no verifying test		cr-430-ga:528/535 check the resume box answers GA-20 and its width; no expect on the third-tier placement (arm on the actual line, bar downward)
+below-unbuilt	XS-7	no test	no verifying test		no test checks the plan/actual grab split at the midpoint of the two line centers of a line-only shape

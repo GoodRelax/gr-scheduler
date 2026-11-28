@@ -174,6 +174,7 @@ const CELLS: readonly (readonly [string, boolean])[] = [
 ]
 
 describe('CR-609 -- each cell of the settingsEntryPressed row, against advanceScreenSession', () => {
+  // Spec: IMPS-82
   it.each(CELLS)('%s x settingsEntryPressed, something selected: %s', (from, isSomethingSelected) => {
     const before = sessionWith(from, isSomethingSelected)
     const after = press(before)
@@ -192,6 +193,7 @@ describe('CR-609 -- each cell of the settingsEntryPressed row, against advanceSc
 })
 
 describe('CR-609 section 8 wave 3 -- pressing the settings entry again while the settings are shown', () => {
+  // Spec: IMPS-97
   it('(a) after a selection was shown: the first press shows the settings, the second hides the panel, and the selection stays', () => {
     const start = sessionWith(SELECTION_DISPLAYED, true)
     const shown = press(start)
@@ -210,6 +212,7 @@ describe('CR-609 section 8 wave 3 -- pressing the settings entry again while the
     expect(closed.selection, FR_072_CLOSING_KEEPS_THE_SELECTION).toBe(start.selection)
   })
 
+  // Spec: IMPS-84
   it('(c) opened from a closed panel while a selection stays: one press shows the settings, the next hides the panel, the selection stays', () => {
     const start = sessionWith(HIDDEN, true)
     const shown = press(start)
@@ -219,6 +222,7 @@ describe('CR-609 section 8 wave 3 -- pressing the settings entry again while the
     expect(closed.selection, FR_072_CLOSING_KEEPS_THE_SELECTION).toBe(start.selection)
   })
 
+  // Spec: IMPS-85
   it('a press after the closing press shows the settings again, not the selection shown before', () => {
     const start = sessionWith(SELECTION_DISPLAYED, true)
     const closed = press(press(start))

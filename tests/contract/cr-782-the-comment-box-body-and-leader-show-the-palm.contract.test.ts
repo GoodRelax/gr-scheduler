@@ -39,6 +39,7 @@ describe('FR-106: the clauses stand verbatim in the requirements', () => {
 })
 
 describe(`GR-14 comment box: ${BODY_AND_LEADER_ARE_THE_PALM}`, () => {
+  // Spec: IMPS-1632
   it('the body shows PK-8', () => {
     expect(pointerRowOf(hitOf({ kind: 'body' }), false)).toBe('PK-8')
   })
@@ -53,6 +54,7 @@ describe(`GR-14 comment box: ${BODY_AND_LEADER_ARE_THE_PALM}`, () => {
 })
 
 describe(`GR-14 comment box: ${ANCHOR_IS_THE_MOVE_SHAPE}`, () => {
+  // Spec: IMPS-1631
   it('the anchor shows PK-11', () => {
     expect(pointerRowOf(hitOf({ kind: 'anchor' }), false)).toBe('PK-11')
   })

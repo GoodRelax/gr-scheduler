@@ -75,6 +75,7 @@ test('SX-1 / HS-1 / HS-2 / HS-3: a GRS JSON written through IC-2 names the file,
   expect(LOWER_LINE.exec(lower)?.[1]).toBe(sizeSpelling(new TextEncoder().encode(saved.text).byteLength))
 })
 
+// Spec: IMPS-1778
 test('HS-8: the two lines do not count toward the App Header height and stay inside it at the default 16px ground', async ({ page }) => {
   await launch(page)
   const before = (await savedFiles(page)).length
@@ -100,6 +101,7 @@ test('SK-25 / FR-095 / T-342: N with nothing unsaved asks nothing and leaves the
   expect(document.schedule.taskGroups).toHaveLength(1)
 })
 
+// Spec: IMPS-1073
 test('FR-067 (MUST NOT): a single .html written out carries the embedded document and no template container', async ({ page }) => {
   await launch(page)
   const template = templateContainerId()
@@ -148,6 +150,7 @@ const startFrom = async (page: Page, html: string): Promise<void> => {
   await settle(page)
 }
 
+// Spec: IMPS-1071, IMPS-1072
 test('FR-067 / RS-67 / BT-4: an exported .html holding two embedded documents tells RS-67 and starts empty', async ({ page }) => {
   await launch(page)
   const written = await writeOut(page, 'IO-7')

@@ -130,6 +130,7 @@ test.describe('W3-T1 the manuscript these cases are driven by', () => {
 test.describe(`FR-135 (MUST): ${FR_135_FIELD.slice(-40)}`, () => {
   test.setTimeout(180_000)
 
+  // Spec: IMPS-1418
   test('PTL-15 / PTL-16: the stated parent is a link in the S-503 ink with a cross; pressing it selects the parent and writes nothing', async () => {
     const opened = await stage()
     try {
@@ -173,6 +174,7 @@ test.describe(`FR-135 (MUST): ${FR_135_FIELD.slice(-40)}`, () => {
     }
   })
 
+  // Spec: IMPS-1403
   test('PTL-17: the cross unbinds the parent in one undo step', async () => {
     const opened = await stage()
     try {
@@ -232,6 +234,7 @@ test.describe(`FR-135 (MUST): ${FR_135_HANDS.slice(-40)}`, () => {
 test.describe(`FR-075 (MUST): ${FR_075_COLORS.slice(-40)}`, () => {
   test.setTimeout(180_000)
 
+  // Spec: IMPS-1906
   test('the grab points of the chosen task take S-527 / S-528, and follow a dark theme and a new hue', async () => {
     const opened = await stage()
     try {

@@ -404,6 +404,7 @@ describe('the manuscript still says what these cases read', () => {
 
 // Spec: FR-036, FR-038, FR-029, F-019, IC-102
 describe('FR-036 (MUST) -- glyph, then explanation, then assignment', () => {
+  // Spec: IMPS-1173
   it('⛔ MUST: an item carrying all three draws them in that order', () => {
     // Why: the seam sees only the order the nodes were put in; a part moved later by
     // CSS order would pass here, and no row settles that property.
@@ -487,6 +488,7 @@ describe('FR-036 (MUST) -- glyph, then explanation, then assignment', () => {
 
 // Spec: FR-036, S-203, S-197, NFR-007, T-215
 describe('FR-036 (MUST) -- the list’s text is S-203 of the base the host gives', () => {
+  // Spec: IMPS-1181
   it('computes to S-203 of the base, at every base a reader might set', () => {
     const { built, help } = drawn([entry({ keys: KEYS })])
     const explanation = theCellShowing(help, EXPLANATION)

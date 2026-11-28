@@ -61,6 +61,7 @@ describe('PI-1 progressMarkerOf -- the manuscript these cases read', () => {
 })
 
 describe('T-021 / T-021b -- with no diagnosis, PM-4 when late, otherwise the marker of the state', () => {
+  // Spec: IMPS-540, IMPS-508
   it.each(MARKER_TASKS.map((one) => [caseName(one), one] as const))('%s', (_name, task) => {
     const marker = progressMarkerSeam()
     expect(marker(taskOf(task.uid), STATUS_DAY)).toBe(markerWithoutDiagnosis(task))
@@ -81,6 +82,7 @@ describe('T-315 -- a diagnosed DG-1 .. DG-3 wins over PM-4 and over the state', 
   const late = MARKER_TASKS.filter((one) => one.late !== null)
   const onTime = MARKER_TASKS.filter((one) => one.late === null && one.state !== 'PS-2')
 
+  // Spec: IMPS-507
   it.each(DIAGNOSED)('%s wins over PM-4 on every late task', (row) => {
     for (const task of late) expect(progressMarkerSeam()(taskOf(task.uid), STATUS_DAY, row), caseName(task)).toBe(row)
   })

@@ -145,6 +145,7 @@ const rulesOf = (verdict: ImportVerdict): readonly string[] => (verdict.ok ? [] 
 const IN_RANGE = { start: '2026-01-05', finish: '2026-01-09' } as const
 
 describe('IV-10 -- a Task that finishes before it starts is refused under IV-10', () => {
+  // Spec: IMPS-481, IMPS-483
   it(`${AN_IMPORT_REFUSAL_CARRIES_ITS_T_220_ROW} -- finish before start`, () => {
     const verdict = verdictOf(documentOf([taskOf({ uid: 1, name: 't1', start: '2026-01-09', finish: '2026-01-05' })]))
     expect(verdict.ok).toBe(false)

@@ -309,6 +309,7 @@ test.describe('CR-570 section 9 on sample-large-erp-program.ja.xml', () => {
 
   // Why: red if fit keeps a folded task group or level zero folded, un-hides a task group, or its undo is not
   // one step that restores the values and keeps the new zoom.
+  // Spec: IMPS-806
   test('claim 8: fit returns every value but hidden to auto and opens level zero; one undo restores them', async () => {
     const stage = await openTheSample()
     try {

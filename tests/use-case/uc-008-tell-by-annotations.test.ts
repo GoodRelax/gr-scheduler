@@ -29,6 +29,7 @@ const bareSpotNear = (page: Page, near: { x: number; y: number }): Promise<{ x: 
 
 const cornerRadius = async (page: Page, id: string): Promise<number> => Number(await page.locator('[data-figure="box-' + id + '"]').getAttribute('rx'))
 
+// Spec: IMPS-1025, IMPS-1026
 test('SCN-29 SCN-30 SCN-31 SCN-33 UC-008 tell by annotations (FR-019, T-023b AR-5 AR-6, FR-097 PR-21, T-217, FR-016) @UC-008.OK', async ({ page }) => {
   await launch(page)
   await enableAgentApi(page)

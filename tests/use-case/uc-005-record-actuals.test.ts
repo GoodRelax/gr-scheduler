@@ -34,6 +34,7 @@ const pressMarker = async (page: Page, uid: number): Promise<void> => {
   await settle(page)
 }
 
+// Spec: IMPS-490, IMPS-511, IMPS-512, IMPS-463, IMPS-1663, IMPS-1664, IMPS-1665, IMPS-1666, IMPS-430, IMPS-431, NFR-006
 test('SCN-18 SCN-21 UC-005 record actuals (FR-043, FR-011, FR-012, FR-013 T-021 T-021a PV-1..PV-4, T-019) @UC-005.OK', async ({ page }) => {
   await launch(page)
   await enableAgentApi(page)

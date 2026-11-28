@@ -197,12 +197,14 @@ describe('T-374 FM-1 -- pressed while empty, the heading checks every listed row
     for (const row of rows) expect(row.checked, row.key).toBe(false)
   })
 
+  // Spec: IMPS-669
   it('leaves the read-only rows without a check', () => {
     const rows = rowsIn(CHECKED_ALL).filter((row) => row.refusal === 'readOnly')
     expect(rows.length).toBeGreaterThan(0)
     for (const row of rows) expect(row.checked, row.key).toBe(false)
   })
 
+  // Spec: IMPS-663
   it('leaves the choose rows of two or more choices unchecked and unchosen', () => {
     const rows = ofKind(CHECKED_ALL, 'choose').filter((row) => row.choices.length >= 2)
     expect(rows.length).toBeGreaterThan(0)

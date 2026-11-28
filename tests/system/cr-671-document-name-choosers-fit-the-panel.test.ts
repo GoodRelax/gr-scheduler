@@ -225,6 +225,7 @@ const CASES = [
 ] as const
 
 for (const { theme, locale } of CASES) {
+  // Spec: IMPS-62, IMPS-63, IMPS-65
   test(`FR-006 (MUST, MUST NOT), ${theme}, ${locale}: PR-15 and PR-16 stay inside the panel at S-602 and at S-248, cut with an ellipsis, value kept`, async () => {
     test.setTimeout(180_000)
     if (browser === null) throw new Error('the reference browser was not opened')

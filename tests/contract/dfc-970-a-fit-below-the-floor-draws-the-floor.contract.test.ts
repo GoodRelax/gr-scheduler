@@ -47,6 +47,7 @@ describe('DFC-970 / FR-094 -- the manuscript still holds the rule these cases pr
 })
 
 describe('DFC-970 / FR-055, FR-094 -- the fitted zoomY may sit below the floor, the drawn plan does not', () => {
+  // Spec: IMPS-1898
   it(`IC-10 fits a flat schedule below the plan floor -- ${FR_094_ONE_FLOOR}`, () => {
     const fitted = keep(shell(taskGroupDocument(rows())))
     fitted.press('App Header', 'IC-10', null)

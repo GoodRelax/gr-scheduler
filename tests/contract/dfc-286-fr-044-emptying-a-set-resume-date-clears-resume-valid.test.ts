@@ -412,6 +412,7 @@ describe('FR-044 (MUST) -- erasing a resume date that was put', () => {
     ).toBe(false)
   })
 
+  // Spec: IMPS-454
   it('leaves the task on 表 T-019 の `PA-4`, not on `PA-2`', () => {
     const after = theTask(afterSettling(PA_3(), ''))
 

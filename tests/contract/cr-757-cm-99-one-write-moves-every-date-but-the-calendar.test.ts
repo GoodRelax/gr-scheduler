@@ -148,6 +148,7 @@ describe('WH-6 -- only the day part changes', () => {
 describe(`WH-8 / FR-159 -- ${FR_159_NOT_THE_CALENDAR}`, () => {
   const { before, after } = SHIFTED()
 
+  // Spec: IMPS-753
   it(`${WH_7_NOT_EXCEPTIONS} -- the calendars come out exactly as they went in`, () => {
     expect(after.schedule.calendars).toEqual(before.schedule.calendars)
   })
@@ -177,6 +178,7 @@ describe(`UN-13 -- ${FR_159_ONE_WRITE}`, () => {
     expect(SHIFTED().steps).toBe(1)
   })
 
+  // Spec: IMPS-752
   it('one undo gives back every date of the schedule and the settings; one redo moves them again', () => {
     const before = WORKED()
     const moved = written(heldOf(before), [shiftTo(NEW_START)])

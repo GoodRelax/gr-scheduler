@@ -352,6 +352,7 @@ const wantedMiddleY = (scene: Scene): number => scene.regions.taskGroupArea.y + 
 const FAR_START = { scrollDate: iso(300), scrollTaskGroupId: 'g25', scrollTaskGroupFraction: 0.4, scrollDateFraction: 0.3 }
 
 describe(`T-332 SJ-5 / SJ-6 -- ${SJ_5_MIDDLE}`, () => {
+  // Spec: IMPS-1856
   it.each([
     ['from the top', {}, 15],
     ['from a view far below and to the right', FAR_START, 13],
@@ -488,6 +489,7 @@ describe(`T-332 SJ-6 -- ${SJ_6_WIDE}`, () => {
     expect(Math.abs(middleOfTask(after, 15).y - wantedMiddleY(after)), 'SJ-5 still holds for a wide shape').toBeLessThanOrEqual(WITHIN_A_PIXEL)
   })
 
+  // Spec: IMPS-924, IMPS-928
   it('a wide shape with a left-hanging assignee and percent label puts the left end of that occupancy S-428 inside', () => {
     const spec = withWidth(daysFor(areaWidth - 2 * S_428 + 200), {
       resources: [{ ...(TEMPLATE['schedule'].resources[0] as Loose), uid: 1001, name: 'Analyst A' }],

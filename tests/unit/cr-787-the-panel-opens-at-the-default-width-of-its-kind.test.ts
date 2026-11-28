@@ -326,6 +326,7 @@ describe(`FR-052 -- ${FR_052_STARTS}`, () => {
     expect(built.width()).toBeCloseTo(S_606, 6)
   })
 
+  // Spec: IMPS-1789
   it(`FR-052: ${FR_052_WIDEST} -- a Task added to a shown dependency line starts at the wider S-602`, () => {
     const built = bench()
     built.doubleClick(onTask(built, 1))
@@ -347,6 +348,7 @@ describe(`FR-052 -- ${FR_052_STARTS}`, () => {
 })
 
 describe(`FR-052 -- ${FR_052_KIND_CHANGE}`, () => {
+  // Spec: IMPS-1790
   it('FR-052 (MUST): a dragged Task width goes back to S-604 when a comment box is shown', () => {
     const built = bench()
     built.doubleClick(onTask(built, 1))
@@ -384,6 +386,7 @@ describe(`FR-052 -- ${FR_052_KIND_CHANGE}`, () => {
 })
 
 describe(`FR-052 -- ${FR_052_SAME_KIND}`, () => {
+  // Spec: IMPS-1791
   it('FR-052: another Task shown after a drag keeps the dragged width', () => {
     const built = bench()
     built.doubleClick(onTask(built, 1))

@@ -931,7 +931,7 @@ test('PG-14 -- the four steps of MC-9, and what O(n log n) allows between them',
   expect(m.scale.length).toBe(SCALE_STEPS.length)
 })
 
-// Spec: NFR-001, NFR-002, NFR-003, NFR-010, NFR-011, NFR-013, T-043
+// Spec: NFR-001, NFR-002, NFR-003, NFR-010, NFR-011, NFR-013, T-043, IMPS-1262
 // Why: the one case that can go red is last, since a failure followed by another case leaves the
 // run unfinished, and every number must print first.
 // Trap: lowering a pass mark here to make a run green hides a real breach, and no check stops it.

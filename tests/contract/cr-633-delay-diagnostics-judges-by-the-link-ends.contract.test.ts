@@ -196,6 +196,7 @@ describe('CR-633 T-312 VO-5 / FR-136 -- a milestone whose predecessors are all d
       taskOf(M, { name: 'Gate', milestone: true, start: S(5, 10), finish: S(5, 10), dependencies: [after(P, FS)], ...milestone }),
     ])
 
+  // Spec: IMPS-1436
   it('VO-5 names M and DG-1 paints it (not DG-4)', () => {
     const report = diagnose(make({}))
     expect(findingCount(report, 'VO-5', M)).toBe(1)
@@ -225,6 +226,7 @@ describe('CR-633 T-313 BD-1 -- a started task ends the remaining days after the 
   const single = (statusDate: string, task: Loose): DelayDiagnosticsReport =>
     diagnose(flatOf(statusDate, [taskOf(T, { name: 'Work', percentComplete: 40, ...task })]))
 
+  // Spec: IMPS-594, IMPS-595
   it('JDG-1150: 13 planned days, 6 done, status 06-04 -- ends 06-15, 9 past its 06-02 finish', () => {
     const report = single(F(6, 4), { start: S(5, 17), finish: F(6, 2), actualStart: S(5, 17), stop: F(5, 24) })
     expect(terminalDelayOf(report, T)).toBe(9)

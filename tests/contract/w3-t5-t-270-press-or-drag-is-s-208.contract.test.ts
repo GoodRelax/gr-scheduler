@@ -48,6 +48,7 @@ describe('W3-T5 -- the manuscript these cases are driven by', () => {
 })
 
 describe(`T-270 "${T_270_ONE_DISTANCE}"`, () => {
+  // Spec: IMPS-1657
   it.each([
     ['still', 0, 0, false],
     ['exactly S-208 to the right', S_208, 0, false],

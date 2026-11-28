@@ -469,6 +469,7 @@ describe('the fixtures these cases stand on', () => {
 })
 
 describe('table T-245 GO-1 -- the plan start', () => {
+  // Spec: IMPS-1599
   it('GO-1: `start` ＝ 離した日, and `finish` stands', () => {
     const built = stage(aprilDocument())
     const before = structuredClone(taskOf(built.loop, PLAIN_UID))

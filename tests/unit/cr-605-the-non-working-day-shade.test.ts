@@ -380,6 +380,7 @@ describe('CR-605 -- the clauses these cases rest on still stand', () => {
 })
 
 describe('OD-1 -- the days the document calendar does not work are shaded', () => {
+  // Spec: IMPS-768
   it(`「${OD_1_RULE}」 every run at the day tier is exactly the days the counting calendar does not work`, () => {
     // Why: no recurring row here, so this case does not depend on how the count reads one (see the next case).
     const frame = tierFrame('yearMonthDayWeekday', { exceptions: EXCEPTIONS.filter((one) => one !== RECURRING_OFF) })

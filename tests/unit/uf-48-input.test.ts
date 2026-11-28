@@ -428,6 +428,7 @@ describe("FT-1 of table T-078 -- a person's input is what owes a frame", () => {
     expect(pane.frames()).toBe(before)
   })
 
+  // Spec: IMPS-857
   it('FR-048 (MUST NOT): a bare pointer move with no line following it draws nothing', () => {
     // Spec: FR-048
     // Why: the move is over the time ruler, which has no pointer operations, so nothing FR-048
@@ -460,6 +461,7 @@ describe('MK-10 of table T-023 -- the browser is stopped for what this tool assi
     }
   })
 
+  // Spec: IMPS-1624
   it("MK-10 (MUST NOT): a combination this tool assigns nothing keeps the browser's own", () => {
     // Spec: MK-10
     const pane = host()
@@ -734,6 +736,7 @@ describe('GR-19 of table T-023d -- a drag on the band moves the `Command Palette
     screen.drawAt({ part: U_26_PART, entry: T_109_GRAB_BAND, format: null, taskGroupId: null, resourceUid: null, dividerPanel: null, noticeDismissKey: null })
   }
 
+  // Spec: IMPS-1802, IMPS-1811
   it('FR-053 (MUST): the palette ends up the distance the pointer traveled away', () => {
     const pane = host()
     const screen = screenPane()
@@ -773,6 +776,7 @@ describe('GR-19 of table T-023d -- a drag on the band moves the `Command Palette
     expect(paletteCorner(screen)).toEqual({ x: before.x - 60 - 25, y: before.y + 40 + 15 })
   })
 
+  // Spec: IMPS-1812
   it('IN-1a (MUST): a pointer lost outside the window leaves the palette where it was', () => {
     // Spec: IN-1a, IN-1
     const pane = host()
@@ -846,6 +850,7 @@ describe('FR-046 and SK-20 -- the day written into statusDate is the LOCAL calen
   }
 
   for (const machine of [AHEAD, BEHIND]) {
+    // Spec: IMPS-523, IMPS-524
     it(`FR-046 (MUST NOT): on a machine in ${machine.zone} the line is dated the reader's day, not UTC's`, () => {
       // Spec: FR-046
       process.env.TZ = machine.zone
@@ -865,6 +870,7 @@ describe('FR-046 and SK-20 -- the day written into statusDate is the LOCAL calen
     })
   }
 
+  // Spec: IMPS-516
   it('SK-20: pressing it again clears the line, and FR-046 forbids a second flag for it', () => {
     // Spec: FR-046, SK-20
     const pane = host()
@@ -890,6 +896,7 @@ describe('FR-063 and ED-1 of table T-229 -- who wrote it, and when', () => {
     return host()
   }
 
+  // Spec: IMPS-1066
   it('ED-1 (MUST): a write made from the screen signs itself with table T-229’s word', () => {
     // Spec: ED-1
     const pane = frozen()
@@ -900,6 +907,7 @@ describe('FR-063 and ED-1 of table T-229 -- who wrote it, and when', () => {
     expect(stampOf(loop.document()).lastEditedBy).toBe(ED_1_WORD)
   })
 
+  // Spec: IMPS-1061
   it('FR-063 (MUST): the instant is ISO 8601, UTC, to the second -- no milliseconds', () => {
     // Spec: FR-063, AT-129
     const pane = frozen()

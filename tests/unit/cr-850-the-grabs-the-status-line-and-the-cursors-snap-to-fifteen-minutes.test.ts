@@ -104,6 +104,7 @@ describe('FR-103 GO-2: a grabbed plan finish released at the hour tier snaps to 
 
   describe.each(SCENES)('%s', (_tier, scene) => {
     describe.each(KEYS)('%s', (_keys, keys) => {
+      // Spec: IMPS-1600
       it.each(RELEASES)('%s', (_name, minutesLeft, finish) => {
         const built = stage(scene)
         dragBy(built, planFinishGrab(built), -pxOfMinutes(built.loop, minutesLeft), keys, keys)
@@ -126,6 +127,7 @@ describe('FR-103 GO-2: a grabbed plan finish released at the hour tier snaps to 
 })
 
 describe('FR-046: the status line dragged at 15 minutes', () => {
+  // Spec: IMPS-1604
   it.each(RELEASES)('half-hour tier: %s', (_name, minutesLeft, instant) => {
     const built = stage(HALF_HOUR_TIER)
     dragBy(built, statusLineGrab(built), -pxOfMinutes(built.loop, minutesLeft))
@@ -213,6 +215,7 @@ describe('FR-046 FO-8: the status date field follows TX-3', () => {
     expect(isDateTime(hidden)).toBe(false)
   })
 
+  // Spec: IMPS-1605
   it('time shown: 10:37 typed is written as typed, not rounded to 15 minutes', () => {
     expect(statusDateAfterTyping(fixtureDocument(HOUR_TIER), '2026-10-16T10:37')).toBe('2026-10-16T10:37:00')
   })
@@ -279,6 +282,7 @@ describe('FR-014: a lane with no vertex passes where the status line stands', ()
   const pointsOf = (built: ReturnType<typeof stage>): readonly { x: number; y: number }[] =>
     (frameOf(built.loop).geometry as unknown as { progressLine: readonly { x: number; y: number }[] }).progressLine
 
+  // Spec: IMPS-1443, IMPS-1444
   it.each([
     ['time shown, a status date of 10:15', { ...HOUR_TIER, statusDate: '2026-10-14T10:15:00' }],
     ['time hidden', TIME_HIDDEN],
@@ -293,6 +297,7 @@ describe('FR-014: a lane with no vertex passes where the status line stands', ()
 })
 
 describe('FR-046 / FR-103: a status line pull on the day unit writes the column the release falls in', () => {
+  // Spec: IMPS-1603
   it('time hidden: pulled 1.5 days right of the 10/14 column edge writes 10/15 at the default finish time', () => {
     const built = stage(TIME_HIDDEN)
     dragBy(built, statusLineGrab(built), 1.5 * pxPerDay(built.loop))

@@ -401,6 +401,7 @@ describe('FR-033 -- SK-4 then SK-5 on a chosen Task duplicates that Task only', 
     ).toBe(3)
   })
 
+  // Spec: IMPS-295
   it('and the copies wear UIDs of their own (MUST NOT)', () => {
     const built = stage(documentOfTwoTaskGroups())
     built.pressTask(PARENT_TASK)
@@ -425,6 +426,7 @@ describe('FR-033 -- SK-4 then SK-5 on a chosen Task duplicates that Task only', 
     expect(rows, 'the copy landed on a task group its original is not on').toEqual([PARENT_TASK_GROUP])
   })
 
+  // Spec: IMPS-296
   it('and no TaskOrigin is put on a copy (MUST NOT)', () => {
     const built = stage(documentOfTwoTaskGroups())
     built.pressTask(PARENT_TASK)
@@ -452,6 +454,7 @@ describe('FR-033 -- SK-4 then SK-5 on a chosen task group duplicates the task gr
     ).toBe(4)
   })
 
+  // Spec: IMPS-297
   it('and the Tasks on the copied task groups come with them (DU-2)', () => {
     const built = stage(documentOfTwoTaskGroups())
     built.pressRow(PARENT_TASK_GROUP)

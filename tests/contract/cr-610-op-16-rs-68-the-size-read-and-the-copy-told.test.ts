@@ -65,6 +65,7 @@ describe('OP-16 (MUST) -- U-56 shows the file read and its size, spelled as HS-3
 })
 
 describe('FR-025 (MUST / MUST NOT) / RS-68 -- a picture copied through IC-3', () => {
+  // Spec: IMPS-965, FR-343
   it('RS-68: a picture the clipboard took is told (NT-5)', async () => {
     const copy = clipboard('ok')
     const built = await shellStage({ clipboard: copy.clipboard, rasterizer })
@@ -73,6 +74,7 @@ describe('FR-025 (MUST / MUST NOT) / RS-68 -- a picture copied through IC-3', ()
     expect(told(built), 'FR-025: the copy was not told').toContain(RS_68.text.ja)
   })
 
+  // Spec: IMPS-966
   it('RS-68 (MUST NOT): a picture the clipboard refused is not told as copied', async () => {
     const copy = clipboard('refused')
     const built = await shellStage({ clipboard: copy.clipboard, rasterizer })

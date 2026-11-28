@@ -254,6 +254,7 @@ describe('RW-20 -- delayFixLogTsvOf writes the Fix Log table with the uid cells'
     for (const line of lines) expect(line).toHaveLength(10)
   })
 
+  // Spec: IMPS-685
   it('the rows follow the Fix Log order: the newest fixed time first, then the order within the bundle', () => {
     const lines = linesOf(tsvIn('ja')).slice(1)
     expect(lines.map((line) => line[7])).toEqual(['2', '3', '1'])
@@ -372,6 +373,7 @@ describe('RW-20 / RW-12 -- the footer under the Fix Log holds IC-169, and no oth
     expect(footerEntriesOf('diagnosis')).not.toContain('IC-169')
   })
 
+  // Spec: IMPS-653
   it('the Fix Log footer is reached by pressing IC-156 and then holds IC-169, with the IC-157 / IC-158 entries left to the proposals', () => {
     const step = delayDiagnosticsReportAfterEntry(OPENED_DELAY_DIAGNOSTICS_REPORT, NO_VIEW, 'IC-156', null, {
       report: REPORT,

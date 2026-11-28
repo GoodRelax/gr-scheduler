@@ -120,6 +120,7 @@ describe('PTL-10 / PTL-12 / FR-135 -- the arrow as a thing to press', () => {
     expect(hit?.grab).toBe('PTL-10')
   })
 
+  // Spec: IMPS-1415
   it('FR-135: where a bar answers, the arrow does not -- the start of the arrow on the child bar is the bar', () => {
     const scene = sceneOf(DRAWN)
     const start = arrowOf(scene, P).points[0]!
@@ -231,6 +232,7 @@ describe('PTL-1 / PTL-2 / AR-7 -- arming the parent link', () => {
     expect(armedByEntry('IC-142')).toEqual({ kind: 'parentTaskArmed' })
   })
 
+  // Spec: IMPS-1423
   it('PTL-1: pressing IC-142 arms, and the selection stays', () => {
     const before = emptyScreenSession
     const after = pressed(before)
@@ -242,6 +244,7 @@ describe('PTL-1 / PTL-2 / AR-7 -- arming the parent link', () => {
     expect(pressed(pressed(emptyScreenSession)).screen.armModeState.kind).toBe('notArmed')
   })
 
+  // Spec: IMPS-1498
   it('PTL-2: Esc disarms', () => {
     const armed = pressed(emptyScreenSession)
     const after = advanceScreenSession(armed, { type: 'escapePressed', rung: 'armed' } as never).state
@@ -251,11 +254,13 @@ describe('PTL-1 / PTL-2 / AR-7 -- arming the parent link', () => {
 })
 
 describe('PTL-3 / PTL-5 .. PTL-8 -- armed, a release picks and a drag links', () => {
+  // Spec: IMPS-1490
   it('PTD-3 / AR-7: armed, a press on a bar is PTD-3, not a T-023d grab row', () => {
     const scene = sceneOf(DRAWN, emptySelection(), true)
     expect(pressedRowOf(pressOf(scene, centerOf(barOf(scene, C))), scene.context)).toBe('PTD-3')
   })
 
+  // Spec: IMPS-1424
   it('PTL-3: armed, a still release on a bar selects it and writes nothing', () => {
     const scene = sceneOf(DRAWN, pick(task(F)), true)
     const done = gesture(scene, centerOf(barOf(scene, C)))
@@ -271,6 +276,7 @@ describe('PTL-3 / PTL-5 .. PTL-8 -- armed, a release picks and a drag links', ()
     expect(kindsOf(done.selection)).toEqual([`task ${C}`, `task ${F}`].sort())
   })
 
+  // Spec: IMPS-1402, IMPS-1417, IMPS-1419
   it('PTL-5: a drag from a bar in S to another bar links every task of S in one writes entry; the selection stays', () => {
     const selection = pick(task(C), task(F))
     const scene = sceneOf(DRAWN, selection, true)

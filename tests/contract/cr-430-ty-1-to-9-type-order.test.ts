@@ -162,6 +162,7 @@ describe('TY-3 / TY-4 -- the dummy answers before the actual end and before the 
 })
 
 describe('TY-4 / TY-6 -- the actual end answers before the plan end where the two overlap', () => {
+  // Spec: IMPS-1692
   it('hands the shared pixel to the actual once the actual end reaches outside its bar', () => {
     const plan = boxOf((SCENE.started as unknown as { plan: unknown }).plan)
     const actual = boxOf(actualOf(SCENE.started))

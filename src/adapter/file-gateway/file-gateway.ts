@@ -97,6 +97,7 @@ function isRoundTripForm(form: SaveFileForm): boolean {
   return ROUND_TRIP_FORMS.includes(form)
 }
 
+// Spec: IMPS-880
 /** @purity pure */
 function bytesOfContent(content: SaveFileContent): Uint8Array {
   return 'text' in content ? new TextEncoder().encode(content.text) : content.bytes

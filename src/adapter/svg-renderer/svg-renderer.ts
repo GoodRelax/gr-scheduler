@@ -193,7 +193,7 @@ export function achromatic(color: string): string {
   return `hsl(0 0% ${rounded(lightness * 100)}%)`
 }
 
-// Spec: T-236, FR-041, CF-1, IMPS-129, IMPS-137, IMPS-138, IMPS-139, IMPS-140, IMPS-146, IMPS-160, IMPS-169
+// Spec: T-236, FR-041, CF-1, IMPS-129, IMPS-137, IMPS-138, IMPS-139, IMPS-140, IMPS-146, IMPS-160, IMPS-169, IMPS-141, IMPS-142, IMPS-143
 // Why: a row whose cell names another row (S-527, S-528) is drawn as that row, so it shifts with it (T-366).
 /** @purity pure */
 export function colorOf(specTableRowId: string, hue: number, dark: boolean, monochrome: boolean): string {
@@ -701,7 +701,7 @@ function pictureSizeOf(regions: ScreenRegions): { readonly width: number; readon
   }
 }
 
-// Spec: FR-080, T-020, T-076, FR-105, BL-3, IMPS-1450, IMPS-1412, IMPS-1622, IMPS-1623, IMPS-1739, IMPS-1740, IMPS-1741, IMPS-1743, IMPS-1744, ZO-1, ZO-11, ZO-12, ZO-1a, ZO-4, ZO-7, EP-6, GD-7
+// Spec: FR-080, T-020, T-076, FR-105, BL-3, IMPS-1450, IMPS-1412, IMPS-1622, IMPS-1623, IMPS-1739, IMPS-1740, IMPS-1741, IMPS-1743, IMPS-1744, ZO-1, ZO-11, ZO-12, ZO-1a, ZO-4, ZO-7, EP-6, GD-7, IMPS-1446
 // Trap: snapshot-source.ts reads Parameters<typeof svgFromSchedule>[3] and [4] by position; insert no parameter ahead of regions.
 /** @purity pure */
 export function svgFromSchedule(

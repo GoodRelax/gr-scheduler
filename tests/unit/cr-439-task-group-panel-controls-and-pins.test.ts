@@ -224,6 +224,7 @@ describe('each task group (HF-18, HF-2, HF-6, HF-15, FR-098)', () => {
     for (const one of controls) expect(styleMap(one).get('display')).not.toBe('none')
   })
 
+  // Spec: FR-306
   it('HF-6 ピン止めしているタスクグループの IC-60 だけは、ポインタが乗っていなくても描くこと', () => {
     const built = drawn({ pinnedTitles: [PINNED], titles: [PLAIN] })
     const pinOf = (taskGroupId: string): FakeElement =>

@@ -47,6 +47,7 @@ test.describe('W3-T1 the manuscript this case is driven by', () => {
 test.describe(`MG-14 (MUST): ${MG_14.slice(-40)}`, () => {
   test.setTimeout(180_000)
 
+  // Spec: IMPS-902
   test('SCN-53 a GRS JSON merge that overwrites task 2 and lacks task 3 tells RS-71 and RS-72 @UC-014.OK', async ({ page }) => {
     await launch(page)
     await enableAgentApi(page)

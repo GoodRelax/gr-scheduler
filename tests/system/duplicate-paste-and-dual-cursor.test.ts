@@ -789,6 +789,7 @@ test.describe(`FR-033, driven by ${COPY_KEY} and ${PASTE_KEY} of table T-036`, (
   })
 
   // Why: goes red if a copied task group lands anywhere but under the chosen task group.
+  // Spec: IMPS-300
   test('a copied task group lands as a child of the task group that is chosen', () => {
     const seen = readingsOfTheSweep()
     const added = taskGroupsAdded(seen.intoChosenTaskGroup)
@@ -828,6 +829,7 @@ test.describe(`FR-033, driven by ${COPY_KEY} and ${PASTE_KEY} of table T-036`, (
   })
 
   // Why: goes red if a paste with no task group chosen buries the new task group somewhere.
+  // Spec: IMPS-301
   test('a copied task group pasted with no task group chosen lands at the top level', () => {
     const seen = readingsOfTheSweep()
     const added = taskGroupsAdded(seen.atTopLevel)
@@ -839,6 +841,7 @@ test.describe(`FR-033, driven by ${COPY_KEY} and ${PASTE_KEY} of table T-036`, (
 
   // Why: goes red if a paste is taken past S-125's depth -- the MUST NOT
   // FR-033 states, with FR-004 owning the ceiling.
+  // Spec: IMPS-290
   test(`a paste that would pass the depth of S-125 (${String(MAX_GROUP_DEPTH)}) is refused whole`, () => {
     const seen = readingsOfTheSweep()
     expect(
@@ -870,6 +873,7 @@ test.describe(`FR-033, driven by ${COPY_KEY} and ${PASTE_KEY} of table T-036`, (
 
   // Why: goes red if the application ever asks the host for its clipboard
   // -- the MUST NOT FR-033 states, and why table T-008 row CHN-9's route is outward only.
+  // Spec: IMPS-308
   test('nothing in a copy or a paste reads the clipboard of the host', () => {
     const seen = readingsOfTheSweep()
     expect(

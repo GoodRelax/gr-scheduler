@@ -142,6 +142,7 @@ describe(`AT-104 -- ${CL_2_RANGE_AT_AT_104}`, () => {
     }
   })
 
+  // Spec: IMPS-1306, IMPS-1307
   it('the GRS JSON read refuses a width outside the range (the schema the column definition makes)', () => {
     for (const width of [LOW - 1, HIGH + 1]) {
       expect(documentFromJson(templateWith({ strokeWidthPx: width })).ok, `width ${width}`).toBe(false)
@@ -299,6 +300,7 @@ describe(`VG-5 -- ${VG_5_OUTER_EDGE}`, () => {
     return Math.abs(two.y - one.y)
   }
 
+  // Spec: ST-1
   it.each([[4], [10]])('both outlines at %s px push the stacked shapes apart by the difference from S-39', (width) => {
     const ratio = displayRatioOf(settingsOf())
     expect(stackedGap(width) - stackedGap(null)).toBeCloseTo((width - S_39) * ratio, 6)
@@ -342,6 +344,7 @@ const run = (document: Document, command: Record<string, unknown>): EditResult =
 const isIv9 = (result: EditResult): boolean => !result.ok && result.refusals.some((one) => one.rule === 'IV-9')
 
 describe(`FR-019 -- ${FR_019_NO_LINE}`, () => {
+  // Spec: IMPS-136
   it('CM-55 places a transparent outline on a filled box', () => {
     const result = run(boxDocument({ fillColor: 'red' }), { kind: 'setHighlightBoxStrokeColor', highlightBoxId: BOX, strokeColor: TRANSPARENT })
     expect(result.ok, JSON.stringify(result)).toBe(true)
@@ -354,6 +357,7 @@ describe(`FR-019 -- ${FR_019_NO_LINE}`, () => {
 })
 
 describe(`FR-019 / IV-9 -- ${FR_019_NOT_BOTH}`, () => {
+  // Spec: IMPS-123
   it('CM-55: a transparent outline on a transparent fill is refused by IV-9', () => {
     const result = run(boxDocument({ fillColor: TRANSPARENT }), {
       kind: 'setHighlightBoxStrokeColor',
@@ -376,6 +380,7 @@ describe(`FR-019 / IV-9 -- ${FR_019_NOT_BOTH}`, () => {
     expect(run(boxDocument({ strokeColor: 'red' }), { kind: 'setHighlightBoxFillColor', highlightBoxId: BOX, fillColor: TRANSPARENT }).ok).toBe(true)
   })
 
+  // Spec: IMPS-123
   it('IV-9 still refuses both transparent on a TaskVisual', () => {
     const document = documentOf({ tasks: [taskOf(TASK)], visuals: [visualOf(TASK, { shapeKind: 'rectangle' })] })
     const result = run(document, { kind: 'setTaskVisualColors', taskUid: TASK, fillColor: TRANSPARENT, strokeColor: TRANSPARENT })

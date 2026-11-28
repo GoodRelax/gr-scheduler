@@ -190,6 +190,7 @@ const FITTING: readonly (Screen & { readonly why: string })[] = [
 ]
 
 describe('FR-025 IX-4 -- the exported height is the least whole pixel count that holds the picture (DFC-1143)', () => {
+  // Spec: IMPS-956, IMPS-959, IX-1
   it.each(FITTING)('exportSvg on $width x $height ($why)', (screen) => {
     const scene = sceneOn(screen)
     const raw = rawHeightOf(scene)
@@ -323,6 +324,7 @@ const REFUSED: readonly (Screen & { readonly why: string })[] = [
 ]
 
 describe('FR-025 IX-5 -- past S-217 nothing is written (DFC-1143)', () => {
+  // Spec: IX-2, IX-9
   it.each(REFUSED)('exportSvg and exportPng refuse $width x $height ($why)', async (screen) => {
     const scene = sceneOn(screen)
     expect(rawHeightOf(scene)).toBeGreaterThan(S_217_CAP)

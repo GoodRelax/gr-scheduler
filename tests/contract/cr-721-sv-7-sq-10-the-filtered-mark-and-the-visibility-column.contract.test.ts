@@ -216,6 +216,7 @@ describe('FR-151 T-331 SQ-10, T-330 SV-8 -- the Visibility column words and valu
     expect(columns.slice(0, 5).every((one) => one.isFixed)).toBe(true)
   })
 
+  // Spec: IMPS-1871
   it('SQ-10 is not a column of the comment box table', () => {
     expect(viewOf({ ...TASK_PANEL, panel: { ...TASK_PANEL.panel, table: 'commentBoxes' } }).columns.map((one) => one.column)).toEqual(['SQ-7', 'SQ-8', 'SQ-9'])
   })

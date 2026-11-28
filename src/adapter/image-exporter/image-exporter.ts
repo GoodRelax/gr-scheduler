@@ -193,7 +193,7 @@ function dividerLinesSvg(view: ScreenView, scene: ExportScene, ratio: number): s
     .join('')
 }
 
-// Spec: FR-025, FR-080, IX-10, IX-11, EP-24, TX-9, IMPS-961, IX-1, IX-5, IX-9, IMPS-801, EP-10, EP-13, EP-15, EP-16, EP-17, EP-18, EP-19, EP-20, EP-21, EP-22, EP-23, IMPS-948, IMPS-956, IMPS-957, IMPS-959
+// Spec: FR-025, FR-080, IX-10, IX-11, EP-24, TX-9, IMPS-961, IX-1, IX-5, IX-9, IMPS-801, EP-10, EP-13, EP-15, EP-16, EP-17, EP-18, EP-19, EP-20, EP-21, EP-22, EP-23, IMPS-948, IMPS-956, IMPS-957, IMPS-959, IX-2
 /** @purity pure */
 export function exportSvg(scene: ExportScene): SvgExport {
   const { regions, screenView, settings } = scene

@@ -172,6 +172,7 @@ describe('Chapter 6.2 export: Stop is the last day itself, ActualDuration is DV-
   const MINUTES = 420
 
   for (const one of RUNNING) {
+    // Spec: IMPS-410
     it(`${one.what}: Stop is ${one.last} at 17:00:00 and ActualDuration is ${one.days} days of working time`, () => {
       const block = taskBlock(written(MINUTES), one.uid)
       expect(childText(block, 'Stop')).toBe(storedEnd(one.last))
@@ -204,6 +205,7 @@ describe('FR-011 import: Stop is read as stop; without Stop, ActualDuration plac
     return found
   }
 
+  // Spec: IMPS-80, IMPS-419
   it('a Saturday Stop comes back as that Saturday, not the Monday its ActualDuration would count to', () => {
     expect(dayPart(importedTask(text, 1).stop)).toBe(ymd(10))
   })
@@ -270,6 +272,7 @@ describe('FR-011 / FR-073: an older GRS JSON with actualDuration and no stop sti
     expect(taskIn(document, 5).stop).toBeNull()
   })
 
+  // Spec: IMPS-417
   it('the opened document holds no length column', () => {
     for (const task of opened().schedule.tasks) expect(Object.keys(task)).not.toContain('actualDuration')
   })

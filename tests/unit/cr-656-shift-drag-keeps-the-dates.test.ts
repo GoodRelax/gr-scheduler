@@ -570,6 +570,7 @@ describe('MK-16 / T-270 / SL-4: a Shift-only body drag through the shell', () =>
     expect(day(after.start), 'PE-1: the plan moves without Shift').not.toBe(day(before.start))
   })
 
+  // Spec: IMPS-1654
   it('MK-16 / SL-4 / T-270: a Shift drag from an unselected task adds it and moves both to other task groups, dates kept', () => {
     const built = stage()
     selectRoot(built)
@@ -606,6 +607,7 @@ describe('MK-16 / T-270 / SL-4: a Shift-only body drag through the shell', () =>
 })
 
 describe('SL-4 / SL-7a: a Shift drag of an end narrows and resizes, as before', () => {
+  // Spec: IMPS-1652, IMPS-1656
   it('SL-7a: a Shift drag of the plan end of a selected task narrows to it and changes its finish', () => {
     const built = stage()
     selectRootAndOther(built)
@@ -704,6 +706,7 @@ describe('MK-12: Alt + drag has no assignment of its own', () => {
 })
 
 describe('CY-11 / T-270: Shift is read at the press', () => {
+  // Spec: IMPS-1655
   it('CY-11 / T-270: pressed with Shift, released without it -- the dates are kept (translator)', () => {
     const built = stage()
     const done = release(built, PICKED_ROOT, bodyOf(built.loop, ROOT), travel(built.loop, 3, TASK_GROUP_A, TASK_GROUP_B), SHIFT, {})
