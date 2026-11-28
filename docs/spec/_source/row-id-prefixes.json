@@ -1634,9 +1634,8 @@
     "en": "One finding on a review report (it holds the severity, the handling, the due date and the person who approved it; appendix A.1 of the review standard. A defect points at a `DFC` row)",
     "ja": "レビューの報告に載る指摘 1 件（重大度・対応・期限・承認した人を持つ。レビュー基準書の付録 A.1。不具合は `DFC` の行を指す）"
    },
-   "section": "",
-   "xOwner": "review",
-   "xPending": true
+   "section": "docs/review/b14-whole-spec-review-2026-11-28.md",
+   "xOwner": "review"
   },
   {
    "prefix": "RW",
