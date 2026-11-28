@@ -299,7 +299,7 @@ const draw = (
     taskGroupId: taskGroupIds[i] ?? ids[0] ?? 'g1',
   }))
   const schedule = scheduleOf(tasks, groups, members, visuals, statusDate)
-  // Why: scrollDate (S-77) pins the left edge of the Task Group Area, so the axis is
+  // Why: scrollDate (S-77) pins the left edge of the Task Group Lanes, so the axis is
   // fixed and a case can state the x it expects.
   const settings = settingsOf({
     zoomX: 10,
@@ -477,7 +477,7 @@ const ONE_TASK_SCHEDULE = scheduleOf(
   null,
 )
 
-// Why: a task group carrying nothing, so a vertical line in the Task Group Area can
+// Why: a task group carrying nothing, so a vertical line in the Task Group Lanes can
 // only be a grid line.
 const NO_TASK_SCHEDULE = scheduleOf([], [taskGroup('g1', 0)], [], [], null)
 
@@ -614,7 +614,7 @@ describe('SWS-1 -- decide the interval between two ticks (FR-017)', () => {
       covers: ['LF-1'],
       given: 'date grid lines turned on at the week step and at the day step',
       when: 'svgFromSchedule draws the frame',
-      then: 'the lines in the Task Group Area stand exactly where the finest row ticks',
+      then: 'the lines in the Task Group Lanes stand exactly where the finest row ticks',
     }),
     () => {
       // Why: the document carries no Task, so with S-67 on any vertical line in the Task
@@ -775,7 +775,7 @@ describe('SWS-2 -- decide a task group band and where it sits (FR-003)', () => {
       for (const [name, drawn] of bandDocuments()) {
         const taskGroups = drawn.layout.taskGroups
         expect(taskGroups.length, name).toBeGreaterThan(0)
-        expect(taskGroups[0]?.y, `${name}: the first task group starts at the Task Group Area`).toBeCloseTo(
+        expect(taskGroups[0]?.y, `${name}: the first task group starts at the Task Group Lanes`).toBeCloseTo(
           drawn.regions.taskGroupArea.y,
           6,
         )
@@ -868,10 +868,10 @@ describe('SWS-2 -- decide a task group band and where it sits (FR-003)', () => {
       covers: ['LF-14'],
       given: 'four task groups, the third of them pinned (S-126 of table T-203)',
       when: 'layoutFromSchedule places them',
-      then: 'the pinned task group stands at the top of the Task Group Area and the rest close up one band and one taskGroupGap below it',
+      then: 'the pinned task group stands at the top of the Task Group Lanes and the rest close up one band and one taskGroupGap below it',
     }),
     () => {
-      mentions(T221, 'LF-14', 'taskGroupGap', 'LF-2', 'LF-3', 'Task Group Area')
+      mentions(T221, 'LF-14', 'taskGroupGap', 'LF-2', 'LF-3', 'Task Group Lanes')
       const rows = ['g1', 'g2', 'g3', 'g4']
       const drawn = draw(
         rows.map((_id, index) =>
@@ -883,7 +883,7 @@ describe('SWS-2 -- decide a task group band and where it sits (FR-003)', () => {
       )
 
       const pinned = taskGroupByIdOf(drawn, 'g3')
-      expect(pinned.y, 'FR-098: the band stands at the top of the Task Group Area').toBeCloseTo(
+      expect(pinned.y, 'FR-098: the band stands at the top of the Task Group Lanes').toBeCloseTo(
         drawn.regions.taskGroupArea.y,
         6,
       )

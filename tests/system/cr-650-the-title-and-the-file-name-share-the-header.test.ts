@@ -154,7 +154,7 @@ async function openLongNamed(page: Page): Promise<void> {
   await page.waitForTimeout(1_000)
   const proceed = await page.$(`${CONFIRMATION} button:has-text(${JSON.stringify(PROCEED_WORD)})`)
   if (proceed !== null) await proceed.click({ timeout: 3_000 })
-  await expect(page.locator('[data-role="Document Title"]').first()).toHaveText(LONG_TITLE, { timeout: 15_000 })
+  await expect(page.locator('[data-role="Project Title"]').first()).toHaveText(LONG_TITLE, { timeout: 15_000 })
   await expect(page.locator('[data-role="Opened File Name"]')).toHaveText(LONG_NAME, { timeout: 15_000 })
   await page.waitForTimeout(500)
 }
@@ -184,8 +184,8 @@ async function measure(page: Page): Promise<Measured> {
     return {
       header: box('App Header'),
       divider: box('Branding Divider'),
-      ground: box('Document Title Ground'),
-      title: box('Document Title'),
+      ground: box('Project Title Ground'),
+      title: box('Project Title'),
       status: box('File Status'),
       name,
       savedAt,

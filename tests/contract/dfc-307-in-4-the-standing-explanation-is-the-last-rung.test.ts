@@ -51,13 +51,13 @@ import { specTable, unbroken } from './spec-table'
 // Why: the clauses are quoted to the character, so a re-wording of the
 // manuscript takes this file red instead of leaving it holding a dead rule.
 const IN_3_THE_TWO =
-  '表 T-269 が画像で定める形は、本ツールが描いて宿主へ渡す | FR-040 |\n| IN-3 | ツールチップは、次の 2 つをすべて満たすこと（MUST）'
+  '表 T-269 が画像で定める形は、`GRS` が描いて宿主へ渡す | FR-040 |\n| IN-3 | ツールチップは、次の 2 つをすべて満たすこと（MUST）'
 
 const IN_3_UNTIL_THE_TRIGGER_GOES =
-  '手立てがあること。**引き金が外れるまで出ていること** —— ポインタまたはフォーカスがその対象から外れるか、人が消すか、その内容が有効でなくなるまで、消してはならない（MUST NOT）'
+  '手立てがあること。**引き金が外れるまで出ていること** —— ポインターまたはフォーカスがその対象から外れるか、人が消すか、その内容が有効でなくなるまで、消してはならない（MUST NOT）'
 
 const IN_4_THE_LADDER =
-  'ればブラウザへ渡すこと。消費する階層は 出ている通知 → 確定していないその場の編集 → 開いている面 → 進行中のドラッグ・引きかけの矢印 → 開いているウィンドウ → プロパティパネル → 構え → 選択 → `Dual Cursor` モード → 出ている説明 → 全画面表示 の順とすること（MUST）'
+  'ればブラウザーへ渡すこと。消費する階層は 出ている通知 → 確定していないその場の編集 → 開いている面 → 進行中のドラッグ・引きかけの矢印 → 開いているウィンドウ → プロパティパネル → 構え → 選択 → `Dual Cursor` モード → 出ている説明 → 全画面表示 の順とすること（MUST）'
 
 const IN_4_SELECTION_NOT_ABOVE_THE_ARM =
   '**構えより前に置いてはならない（MUST NOT）** —— **構えたまま何かを選んでいるとき、構えを解除する手立てが `Esc` から消える。**'
@@ -68,9 +68,9 @@ const IN_4_NO_PANEL_CONDITION =
 // Why: anchored on the row itself, not on what precedes it: the preceding
 // cell (FR-031) was rewritten once and broke the anchor.
 const IN_4A_TO_THE_BROWSER =
-  '\n| IN-4a | **消費する対象が 1 つも無いときは、必ずブラウザへ渡すこと（MUST）**'
+  '\n| IN-4a | **消費する対象が 1 つも無いときは、必ずブラウザーへ渡すこと（MUST）**'
 
-const IN_3_CAN_BE_PUT_AWAY = '**消せること** —— ポインタもフォーカスも動かさずに消す手立てがあること'
+const IN_3_CAN_BE_PUT_AWAY = '**消せること** —— ポインターもフォーカスも動かさずに消す手立てがあること'
 
 const IN_4_WHY_LAST =
   '説明を全画面表示の前に置くのは、`IN-3` が求める「消せること」を果たす手立てがほかに 1 つも無いからである'

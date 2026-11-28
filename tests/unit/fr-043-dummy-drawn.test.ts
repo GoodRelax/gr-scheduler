@@ -1,4 +1,4 @@
-// Unit tests: the Actual Operation Dummy (U-52) is drawn, DM-3 wide, and left out of the export.
+// Unit tests: the Actual Dummy (U-52) is drawn, DM-3 wide, and left out of the export.
 
 import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
@@ -116,7 +116,7 @@ const NARROW_DAY_ZOOM = 0.5 / DEFAULT_DISPLAY_RATIO
 const WIDE_DAY_ZOOM = 8 / DEFAULT_DISPLAY_RATIO
 
 const DM_3_THE_WIDTH =
-  '`GRS` は、ダミーを描く幅を、ダミーを描くタスクの進捗マーカーの径に `_assets/tbl-settings.md` の 表 T-206 の `S-247` を掛けた幅と、表 T-206 の `S-180` の小さい方とすること。'
+  '`GRS` は、ダミーを描く幅を、ダミーを描くタスクの進捗ステータスマークの径に `_assets/tbl-settings.md` の 表 T-206 の `S-247` を掛けた幅と、表 T-206 の `S-180` の小さい方とすること。'
 const DM_3_NOT_CUT_BY_A_DAY =
   '`GRS` は、ダミーを描く幅の左端を `DM-1` の位置に揃えること。`GRS` は、印の幅を 1 日ぶんの幅で切らないこと。'
 
@@ -295,7 +295,7 @@ interface Drawn {
 
 // Spec: T-068, PI-19
 const draw = (schedule: Schedule, zoomX: number): Drawn => {
-  // Why: scrollDate (S-77) pins the left edge of the Task Group Area, so the two documents a case
+  // Why: scrollDate (S-77) pins the left edge of the Task Group Lanes, so the two documents a case
   // compares are drawn on the same axis.
   const settings = settingsOf({
     zoomX,
@@ -754,7 +754,7 @@ describe('the reader this file measures pictures with', () => {
 // Spec: FR-043, S-180
 // Why: no paint order is asserted, as no row of T-020 (ZO-1, ZO-1a, ZO-2, ZO-3, ZO-4, ZO-5) names
 // U-52; nor the drag preview of GA-21 and GA-22, as no picture here is handed a gesture.
-describe('FR-043 / table T-206 S-180 -- the Actual Operation Dummy is drawn', () => {
+describe('FR-043 / table T-206 S-180 -- the Actual Dummy is drawn', () => {
   it('S-180 is still the row that bounds the drawn width DM-3 gives, and S-247 the ratio to the marker', () => {
     // Why: a guard, not the claim: if a row moved, the cases after it would be the wrong ones rather
     // than a failure of the code.
@@ -1118,7 +1118,7 @@ describe('EP-14 of table T-076 -- an export draws no dummy, and moves nothing', 
     expect(onlyIn(pictures.screen, alsoMissingTheBar).some((one) => !isADummy(one))).toBe(true)
   })
 
-  it('EP-5 keeps the not-started Progress Marker in the export, at the screen x', () => {
+  it('EP-5 keeps the not-started Progress Status Mark in the export, at the screen x', () => {
     // Spec: EP-5, GA-18, U-5
     // Why: emptying dummies for the export would satisfy EP-14 and take the marker with it, as its
     // x hangs off GA-6; EP-5 draws the marker in the export, so it must survive.

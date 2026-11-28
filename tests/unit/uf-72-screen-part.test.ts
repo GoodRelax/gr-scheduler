@@ -79,11 +79,11 @@ const T_103_PARTS = [
   { row: 'U-22', name: 'Task Group Panel' },
   { row: 'U-23', name: 'Task Group Title Tree' },
   { row: 'U-26', name: 'Command Palette' },
-  { row: 'U-30', name: 'Help Modal' },
+  { row: 'U-30', name: 'Help Window' },
   { row: 'U-31', name: 'App Header' },
   { row: 'U-34', name: 'Palette Commands' },
   { row: 'U-35', name: 'Header Commands' },
-  { row: 'U-47', name: 'Task Group Expander' },
+  { row: 'U-47', name: 'Task Group Buttons' },
   { row: 'U-57', name: 'Notification Area' },
 ] as const
 
@@ -105,7 +105,7 @@ const T_051 = specTable('T-051')
 const T_051_AT_THE_HEAD: readonly string[] = T_051.rows
   .filter((one) => {
     const says = one.cells.join(' ')
-    return says.includes('タスクグループパネルの最上部') || says.includes('`HF-10` の操作子')
+    return says.includes('タスクグループパネルの最上部') || says.includes('`HF-10` のボタン')
   })
   .map((one) => one.id)
 
@@ -183,12 +183,12 @@ const T_109_TASK_GROUP_EXPANDER = [
 ]
 
 const T_051_HF1_FOUR_CONTROLS =
-  '親に格納する操作子と、配下を 1 階層展開する操作子と、配下をすべて折りたたむ操作子と、配下をすべて展開する操作子を 1 つずつ'
-const T_051_HF1_IS_A_LATTICE = '`GRS` は、`HF-1` の 4 つの操作子を 2 × 2 の格子に並べること'
+  '`Retract Into Parent Button` と、`Expand One Level Button` と、`Collapse Below Button` と、`Expand Below Button` を 1 つずつ'
+const T_051_HF1_IS_A_LATTICE = '`GRS` は、`HF-1` の 4 つのボタンを 2 × 2 の格子に並べること'
 const T_051_HF1_LEFT_TO_RIGHT = '左の列を上から 親に格納・1 階層展開する'
 
 const T_051_HF4_THE_WHOLE_RUN =
-  '`GRS` は、折りたたみの 4 つ（`HF-1` の格子）、消すと足すの縦の対、ピン止めの順に、左から右へ操作子を置くこと。'
+  '`GRS` は、折りたたみの 4 つ（`HF-1` の格子）、消すと足すの縦の対、ピン止めの順に、左から右へボタンを置くこと。'
 
 const T_051_HF4_DELETE_ABOVE_ADD = '`GRS` は、消すを上、足すを下に置くこと。'
 
@@ -196,7 +196,7 @@ const T_051_HF10_THE_HEAD_RUN =
   '`GRS` は、頭の並びを、左から すべて折りたたむ・1 階層展開する・すべて展開する・足す・すべて消すの順に、1 行に並べること。'
 
 const T_051_HF10_NOT_TWO_TIERS =
-  '2 段に積まないのは、パネルの頭の高さが 2 段に足りない倍率で、下の段の操作子が隠れて押せなくなるからである。'
+  '2 段に積まないのは、パネルの頭の高さが 2 段に足りない倍率で、下の段のボタンが隠れて押せなくなるからである。'
 
 const T_051_HF20_LAST_IN_THE_RUN = '並びの最後、`HF-17`（最も浅い段へ足す）の右隣である。'
 
@@ -219,11 +219,11 @@ const T_051_HF1_LATTICE = [
 const T_051_EXPANDER = [
   { row: 'HF-1', gist: T_051_HF1_FOUR_CONTROLS },
   { row: 'HF-1', gist: T_051_HF1_IS_A_LATTICE },
-  { row: 'HF-2', gist: '`GRS` は、展開する操作子の職務を 表 T-015 の `HR-3` にすること。' },
-  { row: 'HF-3', gist: '`GRS` は、親に格納する操作子の職務を 表 T-015 の `HR-6` にすること。' },
-  { row: 'HF-11', gist: '`GRS` は、配下をすべて折りたたむ操作子で、表 T-015 の `HR-4` を行うこと（見本と同じ動作に揃える）。' },
-  { row: 'HF-13', gist: '`GRS` は、1 階層だけ展開する操作子を、タスクグループごとに 1 つ置くこと。' },
-  { row: 'HF-13', gist: '`GRS` は、1 階層だけ展開する操作子の職務を 表 T-015 の `HR-7` にすること（見本と同じ動作に揃える）。' },
+  { row: 'HF-2', gist: '`GRS` は、`Expand Below Button` の職務を 表 T-015 の `HR-3` にすること。' },
+  { row: 'HF-3', gist: '`GRS` は、`Retract Into Parent Button` の職務を 表 T-015 の `HR-6` にすること。' },
+  { row: 'HF-11', gist: '`GRS` は、`Collapse Below Button` で、表 T-015 の `HR-4` を行うこと（見本と同じ動作に揃える）。' },
+  { row: 'HF-13', gist: '`GRS` は、`Expand One Level Button` を、タスクグループごとに 1 つ置くこと。' },
+  { row: 'HF-13', gist: '`GRS` は、`Expand One Level Button` の職務を 表 T-015 の `HR-7` にすること（見本と同じ動作に揃える）。' },
 ] as const
 
 // Why: the count lives only at its owner HF-1; a copy in U-47 went stale once,
@@ -948,7 +948,7 @@ const GRAB_BAND_HEIGHT = 10
 // is derived from PALETTE_BOX rather than typed.
 const GRAB_BAND_BOX = rect(PALETTE_BOX.x, PALETTE_BOX.y, PALETTE_BOX.width, GRAB_BAND_HEIGHT)
 
-// Why: each relation a case needs is present once: the Help Modal overlaps the palette
+// Why: each relation a case needs is present once: the Help Window overlaps the palette
 // without covering it, and the Notification Area starts on the header's bottom edge.
 const LAYOUT = new Map<string, ScreenRect>([
   ['role:App Header', rect(0, 0, WINDOW.width, HEADER_HEIGHT)],
@@ -956,7 +956,7 @@ const LAYOUT = new Map<string, ScreenRect>([
   ['role:Task Group Title Tree', rect(0, 40, 170, 660)],
   // Trap: layoutKey reads data-icon first, so a node marked with an icon must be
   // registered under icon:, or it gets the ZERO rectangle and takes no press.
-  ['role:Task Group Expander', rect(10, 60, 16, 16)],
+  ['role:Task Group Buttons', rect(10, 60, 16, 16)],
   // Why: the boxes share edges so R3.4 has one to resolve, and a strip of bare panel
   // before the pin tells a point on the surface from a point on an entry.
   [`icon:${entranceForRule('HF-13')}`, rect(52, 60, 16, 16)],
@@ -967,7 +967,7 @@ const LAYOUT = new Map<string, ScreenRect>([
   ['icon:IC-60', rect(140, 60, 16, 16)],
   ['role:Command Palette', PALETTE_BOX],
   [`icon:${T_109_GRAB_BAND.row}`, GRAB_BAND_BOX],
-  ['role:Help Modal', rect(500, 380, 400, 300)],
+  ['role:Help Window', rect(500, 380, 400, 300)],
   [`role:${partName('U-57')}`, rect(700, 40, 280, 80)],
   ['icon:IC-52', rect(860, 390, ENTRY, ENTRY)],
   ...Object.entries(HEADER_ENTRY_X).map(
@@ -1087,7 +1087,7 @@ const PALETTE: CommandPalette = {
 }
 
 const HELP_MODAL: HelpModal = {
-  surface: 'Help Modal',
+  surface: 'Help Window',
   heading: 'HelpHeading',
   commands: [command({ icon: 'IC-52', label: 'CloseHelp' })],
   entries: [{
@@ -1223,7 +1223,7 @@ describe('the specification still says what these cases copy', () => {
     }
   })
 
-  it('表 T-109 still gives the Task Group Expander TWO rows, one per side (IC-58 / IC-59)', () => {
+  it('表 T-109 still gives the Task Group Buttons TWO rows, one per side (IC-58 / IC-59)', () => {
     const rows = specTable('T-109').rows
     for (const one of T_109_TASK_GROUP_EXPANDER) {
       const row = rows.find((held) => held.id === one.row)
@@ -1356,7 +1356,7 @@ describe("表 T-023a (MUST) -- the decision order is the drawing area's alone", 
   // taskGroupArea there; a non-null answer stops PTD-5's marquee underneath.
   const overTheSchedule = [
     { part: 'Command Palette', at: AT.paletteNoEntry, why: 'FR-053 floats it' },
-    { part: 'Help Modal', at: AT.modalOnly, why: 'S-99g opens it over the screen' },
+    { part: 'Help Window', at: AT.modalOnly, why: 'S-99g opens it over the screen' },
     { part: partName('U-57'), at: AT.notices, why: 'FR-076 raises it over the screen' },
   ] as const
 
@@ -1676,18 +1676,18 @@ describe('overlapping parts', () => {
   it('gives the overlap to the open surface, which S-99g opens OVER the screen', () => {
     const built = drawn(OVER_THE_SCHEDULE)
 
-    // Why: the Help Modal is x 500..900 / y 380..680 and the palette x 400..620 /
+    // Why: the Help Window is x 500..900 / y 380..680 and the palette x 400..620 /
     // y 300..480, so this point is on both.
     expect(byRole(built.root(), 'Command Palette').length).toBeGreaterThan(0)
-    expect(byRole(built.root(), 'Help Modal').length).toBeGreaterThan(0)
-    expect(ask(built, AT.paletteUnderModal.x, AT.paletteUnderModal.y)?.part).toBe('Help Modal')
+    expect(byRole(built.root(), 'Help Window').length).toBeGreaterThan(0)
+    expect(ask(built, AT.paletteUnderModal.x, AT.paletteUnderModal.y)?.part).toBe('Help Window')
   })
 
   it('answers the same point for the palette once the surface is closed', () => {
     // Why: the same press one frame apart changes answer because what is drawn changed,
     // which is why the drawing side is the side asked.
     const built = drawn(OVER_THE_SCHEDULE)
-    expect(ask(built, AT.paletteUnderModal.x, AT.paletteUnderModal.y)?.part).toBe('Help Modal')
+    expect(ask(built, AT.paletteUnderModal.x, AT.paletteUnderModal.y)?.part).toBe('Help Window')
 
     surfaceOf(built).showScreenView(PALETTE_VIEW)
     expect(ask(built, AT.paletteUnderModal.x, AT.paletteUnderModal.y)?.part).toBe('Command Palette')
@@ -1696,9 +1696,9 @@ describe('overlapping parts', () => {
   it('carries one of each where a part and its own entry hold the same point', () => {
     const built = drawn(OVER_THE_SCHEDULE)
 
-    // Why: IC-52 is drawn inside the Help Modal, so the answer carries one of each.
+    // Why: IC-52 is drawn inside the Help Window, so the answer carries one of each.
     expect(ask(built, AT.modalEntry.x, AT.modalEntry.y)).toEqual({
-      part: 'Help Modal',
+      part: 'Help Window',
       entry: 'IC-52',
       format: null,
       taskGroupId: null,
@@ -1777,10 +1777,10 @@ describe('⛔ R6.3 -- what the unit actually did to the fake', () => {
 
 describe('the entries of 表 T-109 on the `Task Group Panel`', () => {
   // Spec: FR-098, AT-51, U-48
-  it('answers IC-60 for a press on the Task Group Pin (FR-098, 表 T-109 IC-60)', () => {
+  it('answers IC-60 for a press on the Pin Button (FR-098, 表 T-109 IC-60)', () => {
     const built = drawn(viewWith({}))
 
-    expect(byRole(built.root(), 'Task Group Pin').length).toBeGreaterThan(0)
+    expect(byRole(built.root(), 'Pin Button').length).toBeGreaterThan(0)
     expect(ask(built, AT.taskGroupPin.x, AT.taskGroupPin.y)).toEqual({
       part: 'Task Group Panel',
       entry: 'IC-60',
@@ -2024,9 +2024,9 @@ describe('表 T-051 HF-13 -- 1 階層だけ展開する操作子を、タスク�
     const hf13 = specTable('T-051').rows.find((one) => one.id === 'HF-13')
     expect(hf13, '表 T-051 no longer holds HF-13').toBeDefined()
     const cells = hf13?.cells.join(' ') ?? ''
-    expect(cells).toContain('`GRS` は、1 階層だけ展開する操作子を、タスクグループごとに 1 つ置くこと。')
+    expect(cells).toContain('`GRS` は、`Expand One Level Button` を、タスクグループごとに 1 つ置くこと。')
     expect(cells).toContain('`GRS` は、1 つの入口に `HF-13` と `HF-2` を兼ねさせないこと。')
-    expect(cells).toContain('展開できる直下の子が 1 つも無いとき、`GRS` は、1 階層だけ展開する操作子を `FR-029` に従って薄く描くこと。')
+    expect(cells).toContain('展開できる直下の子が 1 つも無いとき、`GRS` は、`Expand One Level Button` を `FR-029` に従って薄く描くこと。')
     expect(cells).toContain(`\`${IC_OPEN_ONE_LEVEL}\``)
   })
 
@@ -2091,17 +2091,17 @@ describe('表 T-051 HF-14 -- 配下にタスクグループを足す操作子を
     expect(hf14, '表 T-051 no longer holds HF-14').toBeDefined()
     const cells = hf14?.cells.join(' ') ?? ''
 
-    expect(cells).toContain('`GRS` は、配下にタスクグループを足す操作子を、タスクグループごとに 1 つ置くこと（表 T-015 の `HR-8`）。')
+    expect(cells).toContain('`GRS` は、配下にタスクグループを足すボタンを、タスクグループごとに 1 つ置くこと（表 T-015 の `HR-8`）。')
     expect(cells).toContain('`GRS` は、足したタスクグループを末子とすること。')
     expect(cells).toContain(`\`${IC_ADD_CHILD}\``)
     expect(cells).toContain(
-      '押したタスクグループの深さが `FR-085` の上限に達しているとき、`GRS` は、配下に足す操作子を `FR-029` に従って薄く描くこと。',
+      '押したタスクグループの深さが `FR-085` の上限に達しているとき、`GRS` は、配下に足すボタンを `FR-029` に従って薄く描くこと。',
     )
 
     // Why: read so the press this unit draws is not planned into a second, in-place
     // naming road beside FR-085's.
-    expect(cells).toContain('配下に足す操作子を押したとき、`GRS` は、押した瞬間に既定の名前でタスクグループを立てること。')
-    expect(cells).toContain('配下に足す操作子を押したとき、`GRS` は、立てたタスクグループのプロパティパネルを出し、名前の欄で名づけさせること。')
+    expect(cells).toContain('配下に足すボタンを押したとき、`GRS` は、押した瞬間に既定の名前でタスクグループを立てること。')
+    expect(cells).toContain('配下に足すボタンを押したとき、`GRS` は、立てたタスクグループのプロパティパネルを出し、名前の欄で名づけさせること。')
     expect(cells).toContain('`GRS` は、改名と別の名づけの道を作らないこと。')
 
     // Why: the row keeps a history note repeating these words without their (MUST),
@@ -2155,7 +2155,7 @@ describe('表 T-109 IC-58 / IC-59 -- the entry a press on either side answers', 
 
     for (const one of T_109_TASK_GROUP_EXPANDER) {
       const node = entryFor(built.root(), one.row)
-      expect(node.getAttribute('data-role')).toBe('Task Group Expander')
+      expect(node.getAttribute('data-role')).toBe('Task Group Buttons')
       const at = EXPANDER_AT[one.row]
       expect(ask(built, at?.x ?? -1, at?.y ?? -1)?.entry).toBe(one.row)
     }
@@ -2205,7 +2205,7 @@ describe('表 T-109 IC-58 / IC-59 -- the entry a press on either side answers', 
   })
 })
 
-describe('the Task Group Expander at the edges -- R3.4, the bare panel, and a redraw', () => {
+describe('the Task Group Buttons at the edges -- R3.4, the bare panel, and a redraw', () => {
   it('GIVEN IC-58 holds x 84..100 and IC-59 x 100..116 WHEN the shared edge is pressed THEN it belongs to IC-59 (R3.4, half-open)', () => {
     const built = drawn(withExpander({ canOpen: true, canClose: true, canCloseBelow: false }))
 
@@ -2270,9 +2270,9 @@ describe('the Task Group Expander at the edges -- R3.4, the bare panel, and a re
 // Why: the fake answers boxes from LAYOUT, so a width read here would pass a 4 x 0
 // control; the cases read the declarations a browser turns into the pixel instead.
 
-const T_051_HF5_SAME_SIZE = '`GRS` は、タスクグループ名の文字サイズにかかわらず、操作子を同じ大きさで描くこと。'
+const T_051_HF5_SAME_SIZE = '`GRS` は、タスクグループ名の文字サイズにかかわらず、ボタンを同じ大きさで描くこと。'
 
-const FR_098_ONE_PER_TASK_GROUP = '`GRS` は、ピン止めの操作子（`Task Group Pin`）を、タスクグループパネルの各タスクグループに 1 つ置くこと。'
+const FR_098_ONE_PER_TASK_GROUP = '`GRS` は、ピン止めボタン（`Pin Button`）を、タスクグループパネルの各タスクグループに 1 つ置くこと。'
 
 // Summary: A length that contributes nothing, counting `none` and `auto` as its absence.
 const isZeroLength = (value: string): boolean =>
@@ -2558,7 +2558,7 @@ const FR_098_SAME_AS_THE_EXPANDER = '置き方・大きさ・濃さと'
 // would pass controls on the left; the cases read the flex arrangement instead.
 
 const T_051_HF4_RIGHT_EDGE =
-  '`GRS` は、タスクグループ名の長さにかかわらず、操作子をタスクグループパネルの右端に揃えること。'
+  '`GRS` は、タスクグループ名の長さにかかわらず、`Task Group Buttons` をタスクグループパネルの右端に揃えること。'
 
 const FR_085_INDENT_BY_DEPTH = 'タスクグループの深さぶんのインデント（`taskGroupTitleIndent`、表 T-201 の `S-37`）'
 
@@ -2841,7 +2841,7 @@ describe('表 T-051 HF-4 / FR-098 -- the controls hold the right edge whatever t
     const hf4 = specTable('T-051').rows.find((one) => one.id === 'HF-4')
     expect(hf4, '表 T-051 no longer holds HF-4').toBeDefined()
     expect(hf4?.cells.join(' ')).toContain('タスクグループ名の長さにかかわらず')
-    expect(hf4?.cells.join(' ')).toContain('操作子をタスクグループパネルの右端に揃えること。')
+    expect(hf4?.cells.join(' ')).toContain('`Task Group Buttons` をタスクグループパネルの右端に揃えること。')
     expect(specText('01-04-requirements.md')).toContain(T_051_HF4_RIGHT_EDGE)
     expect(specText('01-04-requirements.md')).toContain(FR_098_SAME_AS_THE_EXPANDER)
   })
@@ -2979,10 +2979,10 @@ function restingDeclaration(
 }
 
 const T_051_HF6_ONLY_WHILE_POINTED =
-  '`GRS` は、操作子を、タスクグループ名か、タスクグループのために描いた操作子の群（地を敷く範囲）にポインタが乗っているあいだだけ描くこと。'
+  '`GRS` は、`Task Group Buttons` を、タスクグループ名か、タスクグループのために描いたボタンの群（地を敷く範囲）にポインターが乗っているあいだだけ描くこと。'
 const T_051_HF6_THE_GROUP_STAYS =
-  '`GRS` は、一度あるタスクグループのために描いた群を、ポインタが群から外れて群が消えるまで、描き始めたタスクグループの操作子のままにすること。'
-const T_051_HF6_ROOM_UNCHANGED = '`GRS` は、操作子を描かないあいだも、確保する場所を変えないこと（規則と理由は `FR-085` が持つ）。'
+  '`GRS` は、一度あるタスクグループのために描いた群を、ポインターが群から外れて群が消えるまで、描き始めたタスクグループのボタンのままにすること。'
+const T_051_HF6_ROOM_UNCHANGED = '`GRS` は、ボタンを描かないあいだも、確保する場所を変えないこと（規則と理由は `FR-085` が持つ）。'
 
 // Spec: HF-6, FR-085, S-140
 // Why: the room must stay: display:none and content-visibility:hidden take the box
@@ -3056,7 +3056,7 @@ describe('表 T-051 HF-6 / FR-098 -- the task group controls are drawn only whil
   it('⛔ GIVEN a rule that hides with display, one that never hides, and one written for somebody else WHEN each is read through the predicates above THEN none of them passes -- so the cases above are not greens that prove nothing (04-verification.md §2)', () => {
     const built = drawn(oneLiveTaskGroup())
     const node = entryFor(built.root(), 'IC-58')
-    const base = '[data-unit="UF-71"] [data-role="Task Group Expander"]'
+    const base = '[data-unit="UF-71"] [data-role="Task Group Buttons"]'
 
     // Why: a sheet hiding the control by taking its box out is read as the wrong mechanism.
     const takesTheRoom = parseCss(`${base}{display:none;}${base}:hover{display:inline-block;}`)
@@ -3108,7 +3108,7 @@ describe('表 T-051 HF-6 / FR-098 -- the task group controls are drawn only whil
     }
   })
 
-  it('⛔⛔ MUST GIVEN a PINNED task group WHEN its IC-60 is read THEN it is drawn with NO pointer on the task group (表 T-051 HF-6: ピン止めしているタスクグループの IC-60 だけは、ポインタが乗っていなくても描くこと)', () => {
+  it('⛔⛔ MUST GIVEN a PINNED task group WHEN its IC-60 is read THEN it is drawn with NO pointer on the task group (表 T-051 HF-6: ピン止めしているタスクグループの IC-60 だけは、ポインターが乗っていなくても描くこと)', () => {
     // Why: drawn at rest means no resting rule reaches the pin, or the control states the
     // property back inline, since an inline declaration outranks the sheet.
     const built = drawn(
@@ -3161,10 +3161,10 @@ describe('表 T-051 HF-6 / FR-098 -- the task group controls are drawn only whil
     const hf6 = (specTable('T-051').rows.find((one) => one.id === 'HF-6')?.cells ?? []).join(' ')
 
     expect(hf6).toContain(
-      'タスクグループをピン止めしている間、`GRS` は、ピン止めしているタスクグループの `IC-60` を、ポインタが乗っていなくても描くこと（`HF-6` の唯一の例外）。',
+      'タスクグループをピン止めしている間、`GRS` は、ピン止めしているタスクグループの `IC-60` を、ポインターが乗っていなくても描くこと（`HF-6` の唯一の例外）。',
     )
-    expect(hf6).toContain('ポインタが乗っていなくても描くこと（`HF-6` の唯一の例外）')
-    expect(hf6).toContain('`GRS` は、`IC-60` のほかの操作子を常時描かないこと。')
+    expect(hf6).toContain('ポインターが乗っていなくても描くこと（`HF-6` の唯一の例外）')
+    expect(hf6).toContain('`GRS` は、`IC-60` のほかのボタンを常時描かないこと。')
   })
 
   it('GIVEN nothing has been drawn yet WHEN the sheet is read THEN no rule of it draws these controls on its own (BO-1 of 表 T-077, the empty case)', () => {
@@ -3198,9 +3198,9 @@ describe('表 T-051 HF-6 / FR-098 -- the task group controls are drawn only whil
 // Why: which CSS property carries the placement is not asserted; only the shapes
 // HF-5 names, centered and level with the name's top.
 
-const T_051_HF5_LEVEL_WITH_TOP = '名前が操作子より大きいとき、`GRS` は、操作子を名前の上端に揃えること。'
-const T_051_HF5_NOT_CENTERED = '名前が操作子より大きいとき、`GRS` は、操作子を中央で揃えないこと。'
-const T_051_HF5_NOT_SET_DOWN = '名前が操作子より大きいとき、`GRS` は、操作子を上端から下げないこと。'
+const T_051_HF5_LEVEL_WITH_TOP = '名前がボタンより大きいとき、`GRS` は、ボタンを名前の上端に揃えること。'
+const T_051_HF5_NOT_CENTERED = '名前がボタンより大きいとき、`GRS` は、ボタンを中央で揃えないこと。'
+const T_051_HF5_NOT_SET_DOWN = '名前がボタンより大きいとき、`GRS` は、ボタンを上端から下げないこと。'
 
 const CENTERING_PROPERTIES = [
   'align-items',
@@ -3809,9 +3809,9 @@ describe('表 T-051 HF-4 (MUST) -- the whole run of a task group, left to right'
     const says = (hf4?.cells ?? []).join(' ')
 
     expect(says).toContain(T_051_HF4_THE_WHOLE_RUN)
-    expect(says).toContain('`GRS` は、足すと消すのあいだに他の操作子を挟まないこと')
+    expect(says).toContain('`GRS` は、足すと消すのあいだに他のボタンを挟まないこと')
     expect(says).toContain(
-      '`GRS` は、ピン止めの操作子（表 T-109 の `IC-60`）を、並びのいちばん外（右端）に置くこと。',
+      '`GRS` は、`Pin Button`（表 T-109 の `IC-60`）を、並びのいちばん外（右端）に置くこと。',
     )
     expect(says).toContain(T_051_HF4_DELETE_ABOVE_ADD)
     expect(says).toContain('縦に隣り合うので、この禁止は縦に読む')
@@ -4141,7 +4141,7 @@ describe('表 T-051 HF-18 (MUST) -- the count of what a task group holds folded 
   })
 })
 
-const IN_3_TAKES_NO_POINTER = '\u2b50 \u30c4\u30fc\u30eb\u30c1\u30c3\u30d7\u306f\u30dd\u30a4\u30f3\u30bf\u3092\u53d7\u3051\u53d6\u3089\u305a\u3001\u4e0b\u3078\u901a\u3059\u3053\u3068\uff08MUST\uff09'
+const IN_3_TAKES_NO_POINTER = '\u2b50 \u30c4\u30fc\u30eb\u30c1\u30c3\u30d7\u306f\u30dd\u30a4\u30f3\u30bf\u30fc\u3092\u53d7\u3051\u53d6\u3089\u305a\u3001\u4e0b\u3078\u901a\u3059\u3053\u3068\uff08MUST\uff09'
 const UZ_2_PASSES_THE_PRESS = '`GRS` \u306f\u3001`Tooltip` \u306b\u62bc\u4e0b\u3092\u53d7\u3051\u3055\u305b\u305a\u3001\u62bc\u4e0b\u3092\u4e0b\u3078\u901a\u3059\u3053\u3068\u3002'
 const TOOLTIP_PART = bare(specTable('T-103').rows.find((one) => one.id === 'U-53')?.by['\u78ba\u5b9a\u540d\uff08\u82f1\uff09'] ?? '')
 const TIPPED_ENTRY = 'IC-23'

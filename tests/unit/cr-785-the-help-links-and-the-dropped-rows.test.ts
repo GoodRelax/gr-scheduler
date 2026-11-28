@@ -225,7 +225,7 @@ function drawnHelp(
   const theme: ScreenTheme = { preference, hue: 214 }
   const built = wire(theme, { 'App Header': 37 })
   surfaceOf(built).showScreenView({ ...EMPTY_VIEW, language: screenLanguage, helpModal: modal })
-  return { built, help: oneByRole(built.root(), 'Help Modal') }
+  return { built, help: oneByRole(built.root(), 'Help Window') }
 }
 
 const withAttribute = (root: FakeElement, name: string, value: string): FakeElement[] =>

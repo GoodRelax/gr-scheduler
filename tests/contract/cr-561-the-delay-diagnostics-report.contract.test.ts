@@ -493,7 +493,7 @@ describe('CR-561 -- the clauses these cases are driven by', () => {
   it('T-313 BD-1 .. BD-4, T-314 DQ-1 .. DQ-4 and T-317 DX-1 .. DX-10 are still the rows read here, DX-11 and DX-12 after them', () => {
     expect(specTable('T-313').rows.map((row) => row.id)).toEqual(['BD-1', 'BD-2', 'BD-3', 'BD-4'])
     expect(specTable('T-314').rows.map((row) => bare(row.by['英（コード）'] ?? ''))).toEqual([
-      'projectedFinish',
+      'estimatedFinish',
       'inheritedDelayMinutes',
       'selfDelayMinutes',
       'pushOutMinutes',
@@ -512,7 +512,7 @@ describe('CR-561 -- the clauses these cases are driven by', () => {
       'DX-11',
       'DX-12',
     ])
-    expect(cellOf('T-313', 'BD-1', '何をするか')).toContain('`GRS` は、着手済みで未完了の `Task` の見込み終了を 基準日 ＋ 残り（基準日の瞬間（`Project.statusDate`）から残りの分だけ文書の暦の稼働時間を進めた瞬間）とすること。')
+    expect(cellOf('T-313', 'BD-1', '何をするか')).toContain('`GRS` は、着手済みで未完了の `Task` の終了見込みを 基準日 ＋ 残り（基準日の瞬間（`Project.statusDate`）から残りの分だけ文書の暦の稼働時間を進めた瞬間）とすること。')
     expect(cellOf('T-314', 'DQ-3', '定義')).toContain('max(0, `DQ-1` − (最早開始 ＋ 計画期間))')
     expect(cellOf('T-316', 'DW-1', '紫（表 T-315 の `DG-1`）を付けるタスク')).toBe('原因の `Task` と、その依存の下流すべて')
     expect(cellOf('T-316', 'DW-2', '紫（表 T-315 の `DG-1`）を付けるタスク')).toContain('候補が 0 なら原因だけ')

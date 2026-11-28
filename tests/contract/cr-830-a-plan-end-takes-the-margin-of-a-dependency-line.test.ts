@@ -44,7 +44,7 @@ const GA_19_ORDER_KEPT = '`GRS` は、依存線の応える順（表 T-268 の `
 const GA_19_SHORT_LINE = '描いた線の上では線が先に応えるので、端と端のあいだの短い線も、描いた所で選べる'
 const GA_19_MARGIN = '線の縁から左右へ `S-285`。'
 const HT_1_DRAWN = '依存線の描いた線は本線と矢じりであり'
-const TY_2_OFF_SHAPE = '依存線の続きの印・依存線（この順）'
+const TY_2_OFF_SHAPE = '依存線の続きマーク・依存線（この順）'
 
 const REQUIREMENTS = unbroken(
   readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8').replace(/\r\n/g, '\n'),

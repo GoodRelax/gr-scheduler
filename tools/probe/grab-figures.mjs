@@ -517,7 +517,7 @@ async function buildPointerShapesFigure(page) {
   return {
     file: 'fig-pointer-shapes.svg',
     svg: svgDocument({
-      file: 'fig-pointer-shapes.svg', title: `図 F-025 -- 表 PK（ポインタの形）${kinds} 種、実寸と 4 倍`,
+      file: 'fig-pointer-shapes.svg', title: `図 F-025 -- 表 PK（ポインターの形）${kinds} 種、実寸と 4 倍`,
       width, height, viewBox: `0 0 ${width} ${height}`,
       ariaLabel: `${kinds} pointer kinds (${glyphRows.length} glyphs) at actual size and 4x magnification`,
       body,

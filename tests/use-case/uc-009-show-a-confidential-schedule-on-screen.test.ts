@@ -32,7 +32,7 @@ test('SCN-34 SCN-35 UC-009 show a confidential schedule on screen (FR-020 T-242 
     expect((await readDocument(page)).schedule.tasks.length).toBeGreaterThan(100)
   })
 
-  await test.step('SCN-34 UC-009.OK: the opener and the run time are laid faint, slanted and repeated over the Task Group Area only (FR-020, WM-13, WM-14)', async () => {
+  await test.step('SCN-34 UC-009.OK: the opener and the run time are laid faint, slanted and repeated over the Task Group Lanes only (FR-020, WM-13, WM-14)', async () => {
     const mark = (await watermark(page))!
     expect(mark).not.toBeNull()
     expect(mark.texts.length).toBeGreaterThan(1)

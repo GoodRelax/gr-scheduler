@@ -107,7 +107,7 @@ function drawnHelp(helpLanguage: DisplayLanguage, screenLanguage: DisplayLanguag
     language: screenLanguage,
     helpModal: helpModal(helpLanguage, screenLanguage),
   })
-  return oneByRole(built.root(), 'Help Modal')
+  return oneByRole(built.root(), 'Help Window')
 }
 
 const withAttribute = (root: FakeElement, name: string, value: string): FakeElement[] =>

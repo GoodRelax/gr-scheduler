@@ -16,7 +16,7 @@ import { windowStage, type WindowStage } from './cr-760-stage'
 import { specTable, unbroken } from './spec-table'
 
 const RW_19_STEPS_IN_ORDER =
-  '遅延診断レポートの窓が開いている間（最小化（`IC-129`）を含む —— `RW-1`）、日程表で `FR-133` の 表 T-315 の `DG-1` 〜 `DG-3` で描いた進捗マーカー（表 T-266 の `GA-18`）を押して離したとき、押したタスクの行に ④ のいまの行の印が付いていなければ、`GRS` は、次をこの順に行うこと'
+  '遅延診断レポートの窓が開いている間（最小化（`IC-129`）を含む —— `RW-1`）、`Task Group Lanes` で `FR-133` の 表 T-315 の `DG-1` 〜 `DG-3` で描いた進捗ステータスマーク（表 T-266 の `GA-18`）を押して離したとき、押したタスクの行に ④ のいまの行の印が付いていなければ、`GRS` は、次をこの順に行うこと'
 const RW_19_FIRST = '① 最小化していれば戻し（`IC-129`）、手前に出す'
 const RW_19_SECOND = '② 診断結果の表（`RW-11` の `IC-154`）を出していなければ出す'
 const RW_19_FOURTH = '④ 行を表の中に送り、`RW-14` と同じいまの行の印を付ける。'
@@ -26,8 +26,8 @@ const RW_19_ONE_MARK = '`GRS` は、いまの行の印を、次に別のタス�
 const RW_19_MARK_GONE = '`GRS` が診断を作り直して印の付いた行が無くなったとき、`GRS` は、いまの行の印を消すこと。'
 const RW_19_FIXES_STILL = '`GRS` は、`RW-19` の押下で、修正案の表と修正案の表のいまの行（`RW-14`）を動かさないこと。'
 const RW_19_SELECTED = '`GRS` は、押したタスクを今どおり選ぶこと（`FR-107`）。'
-const RW_19_VIEW_STILL = '`GRS` は、`RW-19` の押下で日程表の見る位置を動かさないこと。'
-const RW_1_REOPENED = '窓だけを閉じている間、日程表のマーカーを押したとき、`GRS` は、窓を開かないこと（`RW-19`）。'
+const RW_19_VIEW_STILL = '`GRS` は、`RW-19` の押下で `Schedule Canvas` の見る位置を動かさないこと。'
+const RW_1_REOPENED = '窓だけを閉じている間、`Task Group Lanes` のマーカーを押したとき、`GRS` は、窓を開かないこと（`RW-19`）。'
 const RW_1_IC_107 = '窓だけを閉じている間、`IC-107` を押したとき、`GRS` は、診断をやり直して窓を開くこと（`FR-130`）。'
 const PE_8_EXCEPTION =
   '遅延診断レポートの窓が開いている間、`FR-133` の 表 T-315 の `DG-1` 〜 `DG-3` で描いたマーカーを押したとき、`GRS` は、マーカーのタスクの行にいまの行の印が付いていなければ巡らせないこと（`FR-134` の 表 T-346 の `RW-19` に従う）。'
@@ -362,8 +362,8 @@ describe(`RW-19 ① -- ${RW_19_FIRST}`, () => {
   it('a window behind another is brought to the front', async () => {
     const stage = await diagnosed()
     await stage.press('IC-117')
-    expect(searchPanelOf(stage), 'premise: the Search Panel is open').not.toBeNull()
-    expect(needReport(stage).isInFront, 'premise: the Search Panel opened later stands in front').toBe(false)
+    expect(searchPanelOf(stage), 'premise: the Search Window is open').not.toBeNull()
+    expect(needReport(stage).isInFront, 'premise: the Search Window opened later stands in front').toBe(false)
     await pressMarker(stage, PARENT)
     expect(needReport(stage).isInFront).toBe(true)
   })
@@ -425,7 +425,7 @@ describe(`FR-130 -- ${FR_130_THE_SAME_ENTRY}`, () => {
     const shipped = SHIPPED_WORDS.icons.find((one) => one.specTableRowId === 'IC-107')?.hint
     // Why: CR-781 reworded the hint of IC-107 (display-words.json): an open report is closed alone.
     expect(spec?.ja).toBe('遅延診断を行う。レポートを閉じていれば診断をやり直して開き、開いていればレポートだけを閉じる')
-    expect(spec?.en).toBe('Run the Delay Diagnostics; runs them again and opens the report if it is closed, or closes only the report while it is open')
+    expect(spec?.en).toBe('Run the Delay Diagnosis; runs it again and opens the report if it is closed, or closes only the report while it is open')
     expect(shipped).toEqual(spec)
   })
 })

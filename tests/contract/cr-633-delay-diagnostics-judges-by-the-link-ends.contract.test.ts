@@ -1,4 +1,4 @@
-// Contract cases for CR-633: Delay Diagnostics judges by the two ends a link binds and by the remaining days.
+// Contract cases for CR-633: Delay Diagnosis judges by the two ends a link binds and by the remaining days.
 
 import { describe, expect, it } from 'vitest'
 
@@ -100,8 +100,8 @@ describe('CR-633 -- the rows these cases are driven by', () => {
     ['T-312', 'VO-3', '観点', '先行は 表 T-315 の `DG-1`（`?`）とし、ボトルネック（`DG-2`）としない'],
     ['T-312', 'VO-5', '観点', '「このマイルストーンは達成してるのでは？」'],
     // Why: CR-710 reads BD-1 and BD-2 by instants and working minutes; the sentences follow the new wording.
-    ['T-313', 'BD-1', '何をするか', '`GRS` は、着手済みで未完了の `Task` の見込み終了を 基準日 ＋ 残り（基準日の瞬間（`Project.statusDate`）から残りの分だけ文書の暦の稼働時間を進めた瞬間）とすること。'],
-    ['T-313', 'BD-1', '何をするか', '`GRS` は、着手済みで未完了の `Task` の見込み終了を `finish` より前にしないこと。'],
+    ['T-313', 'BD-1', '何をするか', '`GRS` は、着手済みで未完了の `Task` の終了見込みを 基準日 ＋ 残り（基準日の瞬間（`Project.statusDate`）から残りの分だけ文書の暦の稼働時間を進めた瞬間）とすること。'],
+    ['T-313', 'BD-1', '何をするか', '`GRS` は、着手済みで未完了の `Task` の終了見込みを `finish` より前にしないこと。'],
     ['T-313', 'BD-2', '何をするか', '課す瞬間が `actualStart` より後のものを最早開始に使わない'],
     ['T-313', 'BD-2', '何をするか', '`GRS` は、未着手の `Task` の最早開始を、基準日で押し上げないこと。'],
     ['T-315', 'DG-1', '条件', '表 T-312 の `VO-3`（先行の側）か `VO-5` の指摘を持つ'],

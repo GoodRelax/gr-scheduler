@@ -15,7 +15,7 @@ const GLOSSARY = unbroken(readRepoFile(join(SPEC, '_assets', 'tbl-glossary.md'),
 
 // Spec: HF-10
 const HF_10_COUNT_PLACE =
-  '`GRS` は、`HF-12` の折りたたみ込んだタスクグループの数を、頭の並びのいちばん左の操作子（すべて折りたたむ）のすぐ左に置き、数の右端を操作子の外形の左端に接すること。'
+  '`GRS` は、`HF-12` の折りたたみ込んだタスクグループの数を、頭の並びのいちばん左のボタン（すべて折りたたむ）のすぐ左に置き、数の右端をボタンの外形の左端に接すること。'
 // Spec: FR-096
 const FR_096_ONE_COLUMN = '`GRS` は、書き出しの選択面に、形式を 表 T-664 の `IMPS-1039` の順で、上から下へ 1 段に 1 つずつ並べること。'
 const FR_096_SAME_SIZE = '`GRS` は、形式のボタンの幅と高さをすべて揃えること。'
@@ -23,7 +23,7 @@ const FR_096_WIDTH_FROM_THE_ROW =
   '`GRS` は、選択面の幅を、縦に並べた形式と見出しの段から決めること。`GRS` は、選択面の幅を、閲覧環境の窓の幅の割合で抑えないこと。'
 // Spec: FR-053, IMPS-1838
 const FR_053_RECORDING_ON_THE_BAND =
-  'パレットを最小化し、操作と描画を記録している間（表 T-206 の `S-206`）、`GRS` は、記録の入口（表 T-109 の `IC-76`）も、押下状態のまま掴み帯の `IC-53` の左に載せること。'
+  'パレットを最小化し、操作と描画を記録している間（表 T-206 の `S-206`）、`GRS` は、記録の入口（表 T-109 の `IC-76`）も、押下状態のままグリップの `IC-53` の左に載せること。'
 // Spec: FR-095
 const FR_095_BOTH_TIERS_BACK =
   '新しく始めた後、`GRS` は、`FR-101` のファイルの状態を 2 段ともまだ書いていない側へ戻すこと'
@@ -200,14 +200,14 @@ test(`FR-096: "${FR_096_ONE_COLUMN}" / "${FR_096_SAME_SIZE}" / "${FR_096_WIDTH_F
   await launch(page)
   const measure = async (): Promise<{ chooser: Rect; buttons: Rect[] }> => {
     await press(page, 'IC-2')
-    const chooser = await rectOf(page, '[data-role="Export Chooser"]')
+    const chooser = await rectOf(page, '[data-role="Save As Dialog"]')
     const buttons = await page.evaluate(() =>
-      [...document.querySelectorAll('[data-role="Export Chooser"] [data-format]')].map((element) => {
+      [...document.querySelectorAll('[data-role="Save As Dialog"] [data-format]')].map((element) => {
         const r = element.getBoundingClientRect()
         return { left: r.left, right: r.right, top: r.top, bottom: r.bottom, width: r.width, height: r.height }
       }),
     )
-    if (chooser === null) throw new Error('the Export Chooser did not open')
+    if (chooser === null) throw new Error('the Save As Dialog did not open')
     await page.keyboard.press('Escape')
     await settle(page)
     return { chooser, buttons }

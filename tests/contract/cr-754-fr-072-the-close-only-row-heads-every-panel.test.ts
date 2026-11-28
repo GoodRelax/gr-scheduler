@@ -10,7 +10,7 @@ import { drawnPanel, iconLabel, REQUIREMENTS, settingLabel, settingsPanel, taskG
 const FR_072_CLOSE_ROW =
   '`GRS` は、閉じる入口を、閉じる入口だけの行の右端に置くこと。'
 const FR_072_NOT_IN_A_FIELD = '`GRS` は、閉じる入口を、欄の行や、ほかの入口・見本の並びに置かないこと。'
-const FR_072_EVERY_FACE = '`GRS` は、プロパティパネルが文書の設定と選択物のどちらを出していても、パネルの先頭に、閉じる入口（`_assets/tbl-glossary.md` の 表 T-109 の `IC-52`）だけの行を置くこと（表 T-369 の行の上）。'
+const FR_072_EVERY_FACE = '`GRS` は、プロパティパネルが文書設定と選択物のどちらを出していても、パネルの先頭に、閉じる入口（`_assets/tbl-glossary.md` の 表 T-109 の `IC-52`）だけの行を置くこと（表 T-369 の行の上）。'
 
 const CLOSE = 'IC-52'
 const TIME_SHIFT = 'IC-162'

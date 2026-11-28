@@ -410,7 +410,7 @@ const CANVAS = '[data-role="Schedule Canvas"] svg'
 const TOOLTIP = '[data-role="Tooltip"]'
 const PANEL = '[data-role="Properties Panel"]'
 const PALETTE = '[data-role="Command Palette"]'
-const HELP_SURFACE_NAME = 'Help Modal'
+const HELP_SURFACE_NAME = 'Help Window'
 const HELP = `[data-role="${HELP_SURFACE_NAME}"]`
 const HEADER_FILE_STATUS = '[data-role="File Status"]'
 const HEADER_FILE_NAME = '[data-role="Opened File Name"]'
@@ -720,7 +720,7 @@ async function rulerTiers(page: Page): Promise<RulerTier[]> {
       const box = drawn.getBoundingClientRect()
       const said = (drawn.textContent ?? '').trim()
       if (said === '') continue
-      // Why: skip the watermark: FR-020's marks are clipped to the Task Group Area but report
+      // Why: skip the watermark: FR-020's marks are clipped to the Task Group Lanes but report
       // their unclipped box, and this walk picks labels by geometry.
       if (drawn.closest('[data-role="Watermark"]') !== null) continue
       // Why: the middle, not the edges: a word's box is taller than its tier, so a top or bottom
@@ -786,7 +786,7 @@ async function pressExportFormat(page: Page, chooser: string, ending: string): P
   if (!(await pressEntrance(page, chooser))) return false
   await page.waitForTimeout(600)
   const at = await page.evaluate((wanted: string) => {
-    const surface = document.querySelector('[data-role="Export Chooser"]')
+    const surface = document.querySelector('[data-role="Save As Dialog"]')
     if (surface === null) return null
     const found = Array.from(surface.querySelectorAll('button')).filter((one) =>
       (one.textContent ?? '').includes(wanted),
@@ -1059,7 +1059,7 @@ test('DFC-105: a help item reads shape, description, assignment, drawn at S-203'
 
   const ground = await groundTextPx(page)
   // Why: FR-036 also owns the legend mark, which stands inside the help itself;
-  // Why: only a row placed outside the Help Modal can be what opens it.
+  // Why: only a row placed outside the Help Window can be what opens it.
   const helpSurface = /"([^"]+)"/.exec(HELP)?.[1] ?? HELP
   const helpEntrances = T109.rows
     .filter((row) => row.cells.length === T109_COLUMNS)
@@ -1096,7 +1096,7 @@ test('DFC-105: a help item reads shape, description, assignment, drawn at S-203'
       })),
     }
   }, HELP)
-  expect(read, 'pressing the help entrance put no Help Modal on the screen').not.toBeNull()
+  expect(read, 'pressing the help entrance put no Help Window on the screen').not.toBeNull()
   if (read === null) return
 
   // Why: a guard, not the assertion: an empty help must not pass vacuously.
@@ -1784,7 +1784,7 @@ test('DFC-52: the written picture is the same whether or not something is select
       expect(await pressEntrance(page, chooser), `${chooser} is not on the screen`).toBe(true)
       await page.waitForTimeout(900)
       const at = await page.evaluate(() => {
-        const surface = document.querySelector('[data-role="Export Chooser"]')
+        const surface = document.querySelector('[data-role="Save As Dialog"]')
         if (surface === null) return null
         const wanted = Array.from(surface.querySelectorAll('button')).find((one) =>
           (one.textContent ?? '').includes('.svg'),
@@ -2467,7 +2467,7 @@ async function panelLinesOnScreen(page: Page): Promise<PanelLine[]> {
   return [...lines].sort((one, two) => one.down - two.down)
 }
 
-// Why: the FR-020 watermark is a grid of text marks over the Task Group Area, each looking like
+// Why: the FR-020 watermark is a grid of text marks over the Task Group Lanes, each looking like
 // a task group name by coordinate, so its layer is cut out first.
 // Trap: the layer nests a g of its own, so searching for the first closing tag cuts it short.
 function withoutTheWatermark(picture: string): string {
@@ -2494,7 +2494,7 @@ function withoutTheWatermark(picture: string): string {
 // Why: the window is read off the screen and shrunk by the FR-080 ratio, so right and below
 // arrive already multiplied.
 // Why: the head's band is cut off: the HF-12 fold count stands there and is not a task group,
-// and EP-1's Document Title sits higher still.
+// and EP-1's Project Title sits higher still.
 /** @purity pure */
 function panelLinesInPicture(picture: string, right: number, below: number): PanelLine[] {
   const found: PanelLine[] = []
@@ -2997,7 +2997,7 @@ test('DFC-235: changing the display language changes the language the document n
   try {
     const page = opened.page
     // Why: FR-038 has two entrances since CR-574 -- the screen's language in the
-    // Why: App Header and the help's own inside the Help Modal; this case is the former.
+    // Why: App Header and the help's own inside the Help Window; this case is the former.
     const screenToggles = T109.rows
       .filter((row) => row.cells.length === T109_COLUMNS)
       .filter((row) => (row.cells[T109_SOURCE] ?? '').includes('FR-038'))

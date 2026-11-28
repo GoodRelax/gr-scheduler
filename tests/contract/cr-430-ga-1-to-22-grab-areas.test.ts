@@ -41,7 +41,7 @@ const T_266_NO_OTHER_ROW = '⛔ どの値も、ほかのタスクグループの
 const T_266_VALUES_LIVE_IN_T_206 =
   '値は `_assets/tbl-settings.md` の 表 T-206 が持ち、単位は画面の px である（マイルストーンの予定の幅だけが比である）。'
 const FR_104_EVERY_TARGET =
-  '`GRS` は、表示をどこまで縮小しても、描いているタスク・マイルストーン・進捗マーカー・依存線のそれぞれを、ポインタで指して操作できるようにすること（MUST）。'
+  '`GRS` は、表示をどこまで縮小しても、描いているタスク・マイルストーン・進捗ステータスマーク・依存線のそれぞれを、ポインターで指して操作できるようにすること（MUST）。'
 const FR_104_OWN_MARGIN = 'そのために、各操作対象に、他の対象に取られない掴み代を持たせること（MUST）。'
 const FR_104_INDEPENDENT =
   '⭐ 掴み代の値を対象ごとに独立させるのは、1 つの対象の掴みやすさを直したときに、ほかの対象の掴みやすさを変えないためである。'
@@ -58,7 +58,7 @@ const T_266_NO_DISPLAY_RATIO =
   '⚠️ 掴み代に表示の倍率の描く比を掛けないこと（MUST NOT） —— 規則は 表 T-252 の `DS-7` が持つ。'
 
 const T_303_MARK_IS_PART_OF_THE_LINE =
-  '⭐ 続きの印はその依存線の一部である —— 押して離せばその依存線を選び（表 T-270 の `PE-12`）、掴み代は `FR-104` の 表 T-266 の `GA-24`、応える順は `FR-105` の 表 T-268 が持つ。'
+  '⭐ 続きマークはその依存線の一部である —— 押して離せばその依存線を選び（表 T-270 の `PE-12`）、掴み代は `FR-104` の 表 T-266 の `GA-24`、応える順は `FR-105` の 表 T-268 が持つ。'
 
 // Why: the rows the table holds as it stands: CR-555 added GA-24, and the id before it was never
 // Why: written (CR-431 used it as its example of an id that does not exist).
@@ -86,7 +86,7 @@ const sceneKindOf = (shape: string): ShapeKind => {
 const RECTANGLE = sceneOf('rectangle', { isProgressMarkerVisible: true })
 const ARROW = sceneOf('arrow', { isProgressMarkerVisible: true })
 const MILESTONE = sceneOf('milestone', { isProgressMarkerVisible: true })
-// Why: the same three Tasks drawn wider, so the line's successor lies wholly right of the Task Group Area
+// Why: the same three Tasks drawn wider, so the line's successor lies wholly right of the Task Group Lanes
 // Why: while its predecessor is still in it -- EL-4, a short line ending in the mark (EL-9).
 const ELIDED = sceneOf('rectangle', { isProgressMarkerVisible: true, zoomX: 16 })
 
@@ -545,7 +545,7 @@ describe('GA-20 -- the resume icon is grabbed on a box that does not shrink', ()
     const box = boxOfRect(shown!.box)
     const marker = markerOf(undecided.started)
     expect(marker, 'no marker was drawn').not.toBeNull()
-    expect(box.width, '箱はそのタスクの進捗マーカーの径であり').toBeCloseTo(marker!.radius * 2, 3)
+    expect(box.width, '箱はそのタスクの進捗ステータスマークの径であり').toBeCloseTo(marker!.radius * 2, 3)
   })
 })
 

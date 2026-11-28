@@ -20,7 +20,7 @@ const NO_UNREADABLE_COLUMN_REASON = 'RS-63'
 const later = (): Promise<void> => new Promise((done) => setTimeout(done, 30))
 
 const takeOnChooser = (built: ShellBench, icon: string): void => {
-  built.aim({ part: 'Open Chooser', entry: icon, format: null, taskGroupId: null, resourceUid: null, dividerPanel: null, noticeDismissKey: null } as ScreenPart)
+  built.aim({ part: 'Open File Dialog', entry: icon, format: null, taskGroupId: null, resourceUid: null, dividerPanel: null, noticeDismissKey: null } as ScreenPart)
   built.click(80, 120)
   built.aim(null)
 }
@@ -51,7 +51,7 @@ describe('FR-073 / FR-022 / AM-8 (DFC-552 3) -- a newer version handed to import
     built.send(keyOf('x'))
     // Why: AG-12 (6) returns as soon as the person is asked, so the call is no longer pending here.
     expect(outcome?.asked, 'FR-073 MUST NOT refuse a newer version; AG-12 (6) returns once the person is asked').toBe('U-61')
-    expect((built.last().openModal as { surface?: string } | null)?.surface, 'the document waits at the Open Chooser').toBe('Open Chooser')
+    expect((built.last().openModal as { surface?: string } | null)?.surface, 'the document waits at the Open File Dialog').toBe('Open File Dialog')
     takeOnChooser(built, REPLACE_ENTRANCE)
     await later()
     built.send(keyOf(PROCEED_KEY))

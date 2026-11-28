@@ -1,4 +1,4 @@
-// DFC-1721: MK-13 -- a double click on the Document Title (U-27) opens the same in-place field as SK-9 (F2); one press does not.
+// DFC-1721: MK-13 -- a double click on the Project Title (U-27) opens the same in-place field as SK-9 (F2); one press does not.
 
 import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
@@ -39,10 +39,10 @@ const verticalIn = (table: string, id: string) => {
 // Why: each clause is cut from the manuscript as check 39 reads it, so the cases cannot drift from the words they test.
 const MK_13_DOCUMENT_TITLE =
   '表 T-036 の `SK-9` が開くのと同じ、その場で編集する欄（`FR-035`）を開くこと。'
-const MK_13_NOT_ONE_PRESS = '`GRS` は、`Document Title` の 1 回の押下でその場で編集する欄を開かないこと。'
+const MK_13_NOT_ONE_PRESS = '`GRS` は、`Project Title` の 1 回の押下でその場で編集する欄を開かないこと。'
 
 describe('DFC-1721 the manuscript these cases are driven by', () => {
-  it('MK-13 still names the Document Title and the F2 field', () => {
+  it('MK-13 still names the Project Title and the F2 field', () => {
     expect(verticalIn('T-023', 'MK-13').cells.join(' ')).toContain(MK_13_DOCUMENT_TITLE)
   })
 
@@ -112,21 +112,21 @@ function bench(under: ScreenPart | null) {
   return { asked, press, send }
 }
 
-describe('MK-13 (MUST): a double click on the Document Title opens the in-place field, as SK-9 does (DFC-1721)', () => {
+describe('MK-13 (MUST): a double click on the Project Title opens the in-place field, as SK-9 does (DFC-1721)', () => {
   it('F2 (SK-9) asks the host to focus the title field -- the premise the double click is compared with', () => {
     const { asked, send } = bench(null)
     send(keyOf('F2'))
     expect(asked).toEqual([TITLE_FIELD_ROW])
   })
 
-  it('a double click on the Document Title asks the host to focus the same field as F2', () => {
+  it('a double click on the Project Title asks the host to focus the same field as F2', () => {
     const { asked, press } = bench(part(DOCUMENT_TITLE))
     press(1)
     press(2)
     expect(asked).toEqual([TITLE_FIELD_ROW])
   })
 
-  it('MK-13 (MUST NOT): one press on the Document Title does not open the field', () => {
+  it('MK-13 (MUST NOT): one press on the Project Title does not open the field', () => {
     const { asked, press } = bench(part(DOCUMENT_TITLE))
     press(1)
     expect(asked).toEqual([])
@@ -141,7 +141,7 @@ describe('MK-13 (MUST): a double click on the Document Title opens the in-place 
 })
 
 // Why: the translator can only tell the title from the header's empty space if the surface answers the title's own name.
-describe('IF-9 / MK-13: the surface answers the Document Title for a point on the title, not the App Header around it', () => {
+describe('IF-9 / MK-13: the surface answers the Project Title for a point on the title, not the App Header around it', () => {
   const THEME = { preference: 'light', hue: 214 } as const
   const items = {
     brandingText: 'GRS',
@@ -168,12 +168,12 @@ describe('IF-9 / MK-13: the surface answers the Document Title for a point on th
     tooltips: [],
   }) as unknown as ScreenView
 
-  it('a point on the title element reads as the Document Title', () => {
+  it('a point on the title element reads as the Project Title', () => {
     const built = stage({ [APP_HEADER]: 37 })
     const surface = domScreenSurface(wiringOf(built, THEME))
     surface.showScreenView(view())
     const title = selfAndDescendants(oneByRole(built.root(), APP_HEADER)).find((one) => one.getAttribute('data-role') === DOCUMENT_TITLE)
-    expect(title, 'premise: the header draws the Document Title').toBeDefined()
+    expect(title, 'premise: the header draws the Project Title').toBeDefined()
     ;(built.host as unknown as { elementFromPoint: () => FakeElement | undefined }).elementFromPoint = () => title
     expect(surface.readScreenPartAt(1, 1)?.part).toBe(DOCUMENT_TITLE)
   })

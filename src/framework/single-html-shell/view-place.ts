@@ -68,7 +68,7 @@ function startupMarginPx(): number {
 }
 
 // Spec: OP-10, S-534, S-177
-// Why: the day under the Task Group Area's left edge and the fraction into it, S-534 left of the first day.
+// Why: the day under the Task Group Lanes's left edge and the fraction into it, S-534 left of the first day.
 /** @purity pure */
 function dayLeftOfFirstDay(
   firstDay: string,

@@ -33,15 +33,15 @@ const cellOf = (table: string, id: string, heading: string): string => {
 }
 
 const SV_7_GREEN =
-  '`GRS` は、列のフィルタを掛けている列 —— 値の一覧の印を 1 つでも外した列か、「いつから」か「いつまで」を置いた列 —— の見出しのセルを、`_assets/tbl-settings.md` の 表 T-236 の `S-183` で塗ること。'
-const SV_7_SORT_ONLY = '`GRS` は、並べ替えだけを掛けた列の見出しを塗らないこと —— 緑は列のフィルタだけの合図である（利用者が定めた）'
+  '`GRS` は、列のフィルターを掛けている列 —— 値の一覧の印を 1 つでも外した列か、「いつから」か「いつまで」を置いた列 —— の見出しのセルを、`_assets/tbl-settings.md` の 表 T-236 の `S-183` で塗ること。'
+const SV_7_SORT_ONLY = '`GRS` は、並べ替えだけを掛けた列の見出しを塗らないこと —— 緑は列のフィルターだけの合図である（利用者が定めた）'
 const SV_8_VISIBILITY = '表示の列（`SQ-10`）では並べ替えない'
 const SV_7_NO_ENTRANCE = '`GRS` は、[表示] の列の見出しに、`IC-122` を置かずに、見出しのチェックボックスだけを置くこと（`SQ-10`）。'
-const SV_7_NO_GREEN = '`GRS` は、[表示] の列の見出しのセルを、列のフィルタを掛けている列の緑（`S-183`）で塗らないこと。'
+const SV_7_NO_GREEN = '`GRS` は、[表示] の列の見出しのセルを、列のフィルターを掛けている列の緑（`S-183`）で塗らないこと。'
 const SQ_10_HEADING_STATES =
   '`GRS` は、`SQ-10` の見出しのセルに、入っている・空 の 2 つの状態のチェックボックスだけを置くこと。'
 const SQ_10_HEADING_ADD = '`SQ-10` の見出しのチェックボックスが空の間、見出しのチェックボックスを押したとき、`GRS` は、一覧に出ているすべての行にだけチェックを入れること（一覧に出ていない行は変えない）。'
-const SQ_10_HEADING_CLEAR = '`SQ-10` の見出しのチェックボックスが入っている間、見出しのチェックボックスを押したとき、`GRS` は、表のすべての行（語や列のフィルタで一覧に出ていない行を含む）のチェックを外すこと。'
+const SQ_10_HEADING_CLEAR = '`SQ-10` の見出しのチェックボックスが入っている間、見出しのチェックボックスを押したとき、`GRS` は、表のすべての行（語や列のフィルターで一覧に出ていない行を含む）のチェックを外すこと。'
 const SQ_10_NO_VALUES = '持たない（表 T-330 の `SV-7`）'
 const SV_6_FIRST_COLUMN_NOTE = '表示・進捗ステータス・完了率・タスク種別・タスク の 5 列'
 
@@ -55,7 +55,7 @@ describe('CR-721 the manuscript these cases are driven by', () => {
     expect(cellOf('T-331', 'SQ-10', '書き方')).toContain(SQ_10_HEADING_STATES)
     expect(cellOf('T-331', 'SQ-10', '書き方')).toContain(SQ_10_HEADING_ADD)
     expect(cellOf('T-331', 'SQ-10', '書き方')).toContain(SQ_10_HEADING_CLEAR)
-    expect(cellOf('T-331', 'SQ-10', 'フィルタ')).toBe(SQ_10_NO_VALUES)
+    expect(cellOf('T-331', 'SQ-10', 'フィルター')).toBe(SQ_10_NO_VALUES)
     expect(cellOf('T-330', 'SV-6', '定め')).toContain(SV_6_FIRST_COLUMN_NOTE)
   })
 })
@@ -72,7 +72,7 @@ const uidsOf = (pane: Pane): readonly number[] => viewOf(pane).rows.map((one) =>
 const filteredColumns = (pane: Pane): readonly string[] =>
   viewOf({ ...pane, panel: { ...pane.panel, filters: { ...pane.panel.filters, open: null } } }).columns.filter((one) => one.isFiltered).map((one) => one.column)
 
-describe('FR-151 T-330 SV-7 -- 列のフィルタを掛けている列: a column with one value unchecked is filtered', () => {
+describe('FR-151 T-330 SV-7 -- 列のフィルターを掛けている列: a column with one value unchecked is filtered', () => {
   it('a fresh table has no filtered heading', () => {
     expect(filteredColumns(TASK_PANEL)).toEqual([])
   })

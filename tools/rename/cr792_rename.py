@@ -7,6 +7,8 @@
 Reads docs/review/cr-792-rename-map.tsv (the ruled renames) and
 docs/review/cr-792-related.tsv (the decision for every OTHER identifier that
 contains an old name), and prints the dry-run tables CR-792 carries.
+Another change request passes its own tables with --map <tsv> and
+--related <tsv> (CR-855: docs/review/cr-855-rename-map.tsv).
 
 TWO KINDS OF MAP ROW.
   whole  the old name is specific: every token that IS the old name, on
@@ -252,7 +254,23 @@ def files_of(name):
         print('%5d %s%s' % (n, path, '  (generated)' if path in generated else ''))
 
 
+def take_tables(argv):
+    """--map <tsv> and --related <tsv> point the tool at another change
+    request's tables (CR-855 reuses this tool for its code names)."""
+    global MAP_TSV, RELATED_TSV
+    for flag in ('--map', '--related'):
+        if flag in argv:
+            i = argv.index(flag)
+            if i + 1 >= len(argv):
+                raise SystemExit('%s needs a repository-relative path' % flag)
+            if flag == '--map':
+                MAP_TSV = argv[i + 1]
+            else:
+                RELATED_TSV = argv[i + 1]
+
+
 def main(argv):
+    take_tables(argv)
     if '--survey' in argv:
         text, undecided = survey()
         sys.stdout.write(text)

@@ -112,11 +112,11 @@ describe('item 18 -- a name pressed in the proposals opens the panel on the fiel
     expect(stage.asked).toEqual([])
   })
 
-  it('SJ-4 regression: a row of the Search Panel puts no panel up either', async () => {
+  it('SJ-4 regression: a row of the Search Window puts no panel up either', async () => {
     const stage = await windowStage(NOT_STARTED_AFTER_START())
     await stage.key(keyOfRow('SK-24'))
-    const panel = selfAndDescendants(stage.built.root()).find((one) => one.getAttribute('data-role') === 'Search Panel')
-    expect(panel, 'premise: the Search Panel is drawn').toBeDefined()
+    const panel = selfAndDescendants(stage.built.root()).find((one) => one.getAttribute('data-role') === 'Search Window')
+    expect(panel, 'premise: the Search Window is drawn').toBeDefined()
     await stage.clickOn(smallestWithText(panel!, 'Task 1')!)
     expect(selectedUids(stage)).toEqual([1])
     expect(stage.last().propertiesPanel).toBeNull()

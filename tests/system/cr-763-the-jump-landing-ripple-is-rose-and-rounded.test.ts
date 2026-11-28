@@ -23,7 +23,7 @@ const S_586_EDGES = '内の縁は `S-588` − `S-556` の半分（0 を下回れ
 // Why: a CSS outline follows the box's border-radius from the line's inner edge, so the box rounds by half a line less.
 const INNER_EDGE_RADIUS = Math.max(0, S_586 - S_556 / 2)
 
-const RIPPLE = '[data-role="Jump Landing Ripple"]'
+const RIPPLE = '[data-role="Jump Ripple"]'
 const AGENT_API = rowOf(specTable('T-109'), 'IC-20').id
 const TARGET_UID = 25
 const CHANNEL_TOLERANCE = 1

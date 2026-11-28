@@ -46,17 +46,17 @@ const T_103_PARTS = [
   { row: 'U-24', name: 'Panel Divider' },
   { row: 'U-25', name: 'Properties Panel' },
   { row: 'U-26', name: 'Command Palette' },
-  { row: 'U-27', name: 'Document Title' },
+  { row: 'U-27', name: 'Project Title' },
   { row: 'U-58', name: 'Opened File Name' },
   { row: 'U-59', name: 'File Saved At' },
-  { row: 'U-30', name: 'Help Modal' },
+  { row: 'U-30', name: 'Help Window' },
   { row: 'U-31', name: 'App Header' },
   { row: 'U-34', name: 'Palette Groups' },
   { row: 'U-34', name: 'Palette Commands' },
   { row: 'U-35', name: 'Header Commands' },
   { row: 'U-46', name: 'Pinned Task Group' },
-  { row: 'U-47', name: 'Task Group Expander' },
-  { row: 'U-48', name: 'Task Group Pin' },
+  { row: 'U-47', name: 'Task Group Buttons' },
+  { row: 'U-48', name: 'Pin Button' },
   { row: 'U-49', name: 'Resource List' },
   { row: 'U-53', name: 'Tooltip' },
   { row: 'U-57', name: 'Notification Area' },
@@ -903,7 +903,7 @@ const PROPERTIES: PropertiesPanel = {
 } as PropertiesPanel
 
 const HELP_MODAL: HelpModal = {
-  surface: 'Help Modal',
+  surface: 'Help Window',
   heading: 'HelpHeading',
   commands: [command({ icon: 'IC-52', label: 'CloseHelp' })],
   entries: [{
@@ -946,7 +946,7 @@ const RICH_VIEW: ScreenView = viewWith({
   },
   appHeaderItems: {
     documentTitle: 'DocumentTitleHere',
-    // Why: FR-101's file name is not the Document Title; U-58 says the two differ
+    // Why: FR-101's file name is not the Project Title; U-58 says the two differ
     // normally, so the two fixtures differ.
     openedFileName: 'OpenedFileNameHere.grs.json',
     fileSavedAt: '2026-08-29T01:02:03Z',
@@ -1165,7 +1165,7 @@ describe('表 T-078 / NFR-010 (MUST NOT) -- nothing in this unit wakes a frame',
       const isLinkGuard = one.node.getAttribute('target') === '_blank' && LINK_GUARDS.includes(one.type)
       // Why: FR-069: the help's full-text summary keeps its press and Enter from the shell like the links, and its
       // details hears toggle so the drawn help box stretches; neither reports to the shell nor raises a frame (T-078).
-      const inHelp = byRole(root, 'Help Modal').some((help) => help.contains(one.node))
+      const inHelp = byRole(root, 'Help Window').some((help) => help.contains(one.node))
       const isFullTextGuard =
         inHelp &&
         ((one.node.tagName === 'SUMMARY' && one.node.parentNode?.tagName === 'DETAILS' && LINK_GUARDS.includes(one.type)) ||
@@ -1365,8 +1365,8 @@ describe('HF-14 of 表 T-051 (MUST) -- 既定の名前でタスクグループ�
     expect(hf14, '表 T-051 no longer holds HF-14').toBeDefined()
     const cells = hf14?.cells.join(' ') ?? ''
 
-    expect(cells).toContain('配下に足す操作子を押したとき、`GRS` は、押した瞬間に既定の名前でタスクグループを立てること。')
-    expect(cells).toContain('配下に足す操作子を押したとき、`GRS` は、立てたタスクグループのプロパティパネルを出し、名前の欄で名づけさせること。')
+    expect(cells).toContain('配下に足すボタンを押したとき、`GRS` は、押した瞬間に既定の名前でタスクグループを立てること。')
+    expect(cells).toContain('配下に足すボタンを押したとき、`GRS` は、立てたタスクグループのプロパティパネルを出し、名前の欄で名づけさせること。')
     expect(cells).toContain('`GRS` は、改名と別の名づけの道を作らないこと。')
     expect(cells).toContain('`GRS` は、名づけの道を、`FR-085` が改名について定める道と同じものにすること。')
     expect(cells).toContain('`GRS` は、既定の名前を表示語として持つこと（置き場は `FR-038` の辞書）。')
@@ -1732,7 +1732,7 @@ describe('SC-1 / SC-4 / SC-5 of 表 T-031 -- what is placed by what', () => {
     const bands = byRole(built.root(), 'Panel Divider')
     expect(bands).toHaveLength(2)
     const drawn = bands.map((one) => selfAndDescendants(one).map(styleOf).join(' ')).join(' ')
-    // Why: FR-051 gives the band no width of its own from the Task Group Area, so
+    // Why: FR-051 gives the band no width of its own from the Task Group Lanes, so
     // it may be drawn only with the numbers it arrived with.
     expect(drawn).toContain('170')
     expect(drawn).toContain('800')
@@ -1819,7 +1819,7 @@ describe('SC-1 / SC-4 / SC-5 of 表 T-031 -- what is placed by what', () => {
 
   // Spec: HF-6, S-140
   it('⛔ DFC-116 / HF-6 (MUST): every task group control is laid OVER the name, not beside it', () => {
-    expect(s140(), '表 T-206 の `S-140`: タスクグループの操作子に確保する場所').toBe(0)
+    expect(s140(), '表 T-206 の `S-140`: タスクグループボタンに確保する場所').toBe(0)
 
     const { children } = drawnTaskGroup(
       taskGroupTitle({
@@ -2007,7 +2007,7 @@ describe('FR-038 -- the words are carried, and the language is readable before t
     const built = wire({ 'App Header': 37 })
     surfaceOf(built).showScreenView(RICH_VIEW)
 
-    const help = oneByRole(built.root(), 'Help Modal')
+    const help = oneByRole(built.root(), 'Help Window')
     const named = selfAndDescendants(help).flatMap((one) =>
       [...one.attributes].filter(([name, value]) => name.includes('lang') && value === 'en'),
     )
@@ -2018,7 +2018,7 @@ describe('FR-038 -- the words are carried, and the language is readable before t
     const built = wire({ 'App Header': 37 })
     surfaceOf(built).showScreenView(RICH_VIEW)
 
-    const help = oneByRole(built.root(), 'Help Modal')
+    const help = oneByRole(built.root(), 'Help Window')
     expect(help.textContent).toContain('LicenseTextHere')
     expect(help.textContent).toContain('CopyrightNoticeHere')
     expect(help.textContent).toContain('AttributionOne')
@@ -2104,7 +2104,7 @@ describe('FR-023 -- nothing that arrived from a document becomes markup', () => 
       viewWith({ appHeaderItems: { ...EMPTY_HEADER, documentTitle: HOSTILE } }),
     )
 
-    expect(oneByRole(built.root(), 'Document Title').textContent).toBe(HOSTILE)
+    expect(oneByRole(built.root(), 'Project Title').textContent).toBe(HOSTILE)
   })
 
   it('builds no selector out of what a document said', () => {
@@ -2183,7 +2183,7 @@ describe('showScreenView twice -- the whole description each time', () => {
 
     surface.showScreenView(second)
 
-    for (const role of ['Help Modal', 'Command Palette', 'Properties Panel']) {
+    for (const role of ['Help Window', 'Command Palette', 'Properties Panel']) {
       for (const one of byRole(built.root(), role)) {
         expect(isShown(one), role).toBe(false)
       }
@@ -2197,7 +2197,7 @@ describe('showScreenView twice -- the whole description each time', () => {
 
     surface.showScreenView(second)
 
-    expect(oneByRole(built.root(), 'Document Title').textContent).toBe('TitleTwo')
+    expect(oneByRole(built.root(), 'Project Title').textContent).toBe('TitleTwo')
   })
 
   it('keeps one root, however many descriptions arrive', () => {
@@ -2232,7 +2232,7 @@ describe('boundaries', () => {
 
     // Why: FR-035 fixes Untitled for the browser tab and says nothing of the header,
     // so nothing is invented here.
-    expect(oneByRole(built.root(), 'Document Title').textContent).toBe('')
+    expect(oneByRole(built.root(), 'Project Title').textContent).toBe('')
     expect(built.root().textContent).not.toContain('Untitled')
   })
 
@@ -2273,7 +2273,7 @@ describe('boundaries', () => {
     expect(withText(built.root(), 'DocumentTitleHere')).toHaveLength(readingTheTitleOnce)
     // Why: W-4 gives the settled name to exactly one box, and oneByRole() throws on a
     // second.
-    expect(oneByRole(built.root(), 'Document Title').textContent).toBe('DocumentTitleHere')
+    expect(oneByRole(built.root(), 'Project Title').textContent).toBe('DocumentTitleHere')
   })
 })
 
@@ -2354,7 +2354,7 @@ describe('LY-5 of 表 T-060 / R7.3 -- the outside arrives as an argument', () =>
   })
 })
 
-const T_051_HF5_SAME_SIZE_HERE = '`GRS` は、タスクグループ名の文字サイズにかかわらず、操作子を同じ大きさで描くこと。'
+const T_051_HF5_SAME_SIZE_HERE = '`GRS` は、タスクグループ名の文字サイズにかかわらず、ボタンを同じ大きさで描くこと。'
 
 const FR_029_THE_BOX = '`GRS` は、図形を描く箱の一辺を `_assets/tbl-settings.md` の 表 T-206 の `S-138` に従わせること'
 const FR_029_NOT_BY_SURFACE = '`GRS` は、図形を描く箱の一辺を、載る面によって変えないこと'
@@ -2364,7 +2364,7 @@ const FR_029_NOT_BY_SURFACE = '`GRS` は、図形を描く箱の一辺を、載�
 const T_109_ONE_PER_SURFACE = [
   { row: 'IC-20', surface: 'App Header' },
   { row: 'IC-61', surface: 'Command Palette' },
-  { row: 'IC-52', surface: 'Help Modal' },
+  { row: 'IC-52', surface: 'Help Window' },
   { row: 'IC-58', surface: 'Task Group Panel' },
   { row: 'IC-59', surface: 'Task Group Panel' },
   { row: 'IC-60', surface: 'Task Group Panel' },

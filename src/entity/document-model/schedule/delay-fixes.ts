@@ -1,4 +1,4 @@
-// File: Schedule: the Delay Diagnostics fix proposals (table T-373), the bundle they issue and the log of what was fixed.
+// File: Schedule: the Delay Diagnosis fix proposals (table T-373), the bundle they issue and the log of what was fixed.
 // @unit      UF-201  (docs/spec/05-07-design.md, table T-075)
 // @component Schedule, layer documentModel (table T-062)
 // @purity    pure

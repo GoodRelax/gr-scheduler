@@ -14,8 +14,8 @@ import * as clause from './cr-772-clauses'
 import { REQUIREMENTS, S_213, S_599, boxesOf, documentOf, landingAt, under } from './cr-772-stage'
 
 const S_215 = numberIn(rowOf('T-206', 'S-215').by['既定'] ?? '')
-const DROP_LINE_ROLE = 'Task Group Drop Line'
-const GRAB_COPY_ROLE = 'Task Group Grab Copy'
+const DROP_LINE_ROLE = 'Drop Line'
+const GRAB_COPY_ROLE = 'Drag Copy'
 const POINTER = { x: 250, y: 180 }
 
 describe('CR-772 -- the manuscript these cases are driven by', () => {

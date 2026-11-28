@@ -27,28 +27,28 @@ const REQUIREMENTS = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '
 const DESIGN = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '05-07-design.md'), 'utf8'))
 
 const FR_071_FULLSCREEN_API =
-  '`GRS` は、ブラウザの全画面表示の機能（Fullscreen API）を使い、文書全体（`document.documentElement`）を全画面にすること。'
+  '`GRS` は、ブラウザーの全画面表示の機能（Fullscreen API）を使い、文書全体（`document.documentElement`）を全画面にすること。'
 // Spec: IMPS-813
 const FR_071_NOT_WIDENED_INSIDE = '`GRS` は、アプリの中で描く領域を広げることを、全画面表示に代えないこと。'
 const FR_071_ENTER_OR_LEAVE =
-  '入口（`_assets/tbl-glossary.md` の 表 T-109 の `IC-11` と、表 T-036 の `SK-15`）が押されたとき、`GRS` は、いまブラウザが全画面でなければ全画面表示に入ることを、全画面なら全画面表示を出ることを、ブラウザに求めること。'
+  '入口（`_assets/tbl-glossary.md` の 表 T-109 の `IC-11` と、表 T-036 の `SK-15`）が押されたとき、`GRS` は、いまブラウザーが全画面でなければ全画面表示に入ることを、全画面なら全画面表示を出ることを、ブラウザーに求めること。'
 // Spec: IMPS-814
-const FR_071_JUDGED_BY_ELEMENT = '`GRS` は、いまブラウザが全画面かどうかを、`document.fullscreenElement` の有無で判じること。'
+const FR_071_JUDGED_BY_ELEMENT = '`GRS` は、いまブラウザーが全画面かどうかを、`document.fullscreenElement` の有無で判じること。'
 const FR_071_S_99F_ON_CHANGE =
-  'ブラウザが全画面表示に入ったこと・出たことを告げたとき（`fullscreenchange`）、`GRS` は、`_assets/tbl-settings.md` の 表 T-206 の `S-99f` を `document.fullscreenElement` の有無へ合わせること。'
+  'ブラウザーが全画面表示に入ったこと・出たことを告げたとき（`fullscreenchange`）、`GRS` は、`_assets/tbl-settings.md` の 表 T-206 の `S-99f` を `document.fullscreenElement` の有無へ合わせること。'
 // Spec: IMPS-815
 const FR_071_NOT_ON_ASKING = '`GRS` は、全画面表示を求めただけで `S-99f` を変えないこと。'
 const FR_071_RS_59 =
-  'もしブラウザが求めを拒んだ場合、またはブラウザが全画面表示の機能を持たない場合、`GRS` は、表 T-233 の `RS-59` を運ぶ通知を出すこと。'
-const FR_071_F11_DEFAULT = '`GRS` は、`SK-15` の `F11` について、ブラウザの既定動作を止めること。'
+  'もしブラウザーが求めを拒んだ場合、またはブラウザーが全画面表示の機能を持たない場合、`GRS` は、表 T-233 の `RS-59` を運ぶ通知を出すこと。'
+const FR_071_F11_DEFAULT = '`GRS` は、`SK-15` の `F11` について、ブラウザーの既定動作を止めること。'
 const UF_48_INSIDE_THE_CALL =
   '全画面表示の求めは、入口の入力（表 T-078 の `FT-1`）を受けたその呼び出しの中で、フレームを待たずに出すこと（MUST）'
-const IN_4A_REASON = '本ツールが何もしない `Esc` を止めると、ブラウザが `Esc` に持たせた働きを奪う'
+const IN_4A_REASON = '`GRS` が何もしない `Esc` を止めると、ブラウザーが `Esc` に持たせた働きを奪う'
 const IN_4A_BROWSER_LEAVES =
-  '**閲覧環境が Keyboard Lock を持たないか断ったときは、ブラウザが `Esc` をページより先に取って全画面表示を解く**'
+  '**閲覧環境が Keyboard Lock を持たないか断ったときは、ブラウザーが `Esc` をページより先に取って全画面表示を解く**'
 // Spec: IMPS-816
 const FR_071_ESCAPE_LOCKED =
-  '閲覧環境が Keyboard Lock（`navigator.keyboard`）を持つ場合、全画面表示に入ることをブラウザに求める押下の中で、`GRS` は、`Escape` の鍵をかけることを求めること。全画面表示を出たことを受けたとき、`GRS` は、`Escape` の鍵を放すこと。'
+  '閲覧環境が Keyboard Lock（`navigator.keyboard`）を持つ場合、全画面表示に入ることをブラウザーに求める押下の中で、`GRS` は、`Escape` の鍵をかけることを求めること。全画面表示を出たことを受けたとき、`GRS` は、`Escape` の鍵を放すこと。'
 const FR_071_LOCK_REFUSAL_UNTOLD = 'もし鍵を断られた場合、または閲覧環境が Keyboard Lock を持たない場合、`GRS` は、断られたこと・持たないことを通知しないこと。'
 
 const REQUIREMENT_CLAUSES: readonly (readonly [string, string])[] = [

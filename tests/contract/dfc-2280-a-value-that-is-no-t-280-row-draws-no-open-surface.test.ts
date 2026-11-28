@@ -1,4 +1,4 @@
-// DFC-2280 spec-only cases: T-280 -- S-99g open on a value that is no U row openSurfaceStateMachine.open carries draws no open surface, and the Search Panel, the Delay Diagnostics Report and the Properties Panel reach the screen through their own views, never as the open surface.
+// DFC-2280 spec-only cases: T-280 -- S-99g open on a value that is no U row openSurfaceStateMachine.open carries draws no open surface, and the Search Window, the Delay Diagnosis Report and the Properties Panel reach the screen through their own views, never as the open surface.
 
 import { describe, expect, it } from 'vitest'
 
@@ -19,11 +19,11 @@ import {
 
 const T_280_OPEN_CARRIES = '`openSurfaceStateMachine.open` —— 運ぶ値 `surfaceName`'
 const S_99G_PANEL_IS_NO_SURFACE = '⚠️ プロパティパネルは面ではない'
-const S_99G_HELP_IS_NO_SURFACE = '⭐ **ヘルプ（`U-30` の `Help Modal`）は面ではない**'
+const S_99G_HELP_IS_NO_SURFACE = '⭐ **ヘルプ（`U-30` の `Help Window`）は面ではない**'
 const FR_072_NO_TITLE_BAR = '`GRS` は、プロパティパネルの先頭にタイトルバーを置かないこと。'
 
-const SEARCH_PANEL = 'Search Panel'
-const DELAY_REPORT = 'Delay Diagnostics Report'
+const SEARCH_PANEL = 'Search Window'
+const DELAY_REPORT = 'Delay Diagnosis Report'
 
 // Why: values the code once drew as surfaces (FR-074, FR-088) and window names the focus names; none is a T-280 row.
 const NAMED_NON_ROWS: readonly string[] = ['FR-074', 'FR-088', SEARCH_PANEL, DELAY_REPORT, 'Properties Panel', 'Dialogue Field']
@@ -62,7 +62,7 @@ describe('DFC-2280 -- the manuscript these cases are driven by', () => {
     expect(specText('01-04-requirements.md')).toContain(FR_072_NO_TITLE_BAR)
   })
 
-  it('T-280 / T-103: none of the walked values is a carried row, and U-30 (Help Modal) is among them', () => {
+  it('T-280 / T-103: none of the walked values is a carried row, and U-30 (Help Window) is among them', () => {
     for (const value of NON_ROWS) expect(OPEN_SURFACE_ROWS, value).not.toContain(value)
     expect(NON_ROWS).toContain('U-30')
     expect(NON_ROWS).toContain('Holiday Settings')
@@ -70,7 +70,7 @@ describe('DFC-2280 -- the manuscript these cases are driven by', () => {
 })
 
 describe('DFC-2280 -- T-280 openSurfaceStateMachine.open: a value that is no carried row draws nothing', () => {
-  it('S-99g open on every value outside the T-280 rows (FR-074, FR-088, Search Panel, U-30, ...) draws no open surface', () => {
+  it('S-99g open on every value outside the T-280 rows (FR-074, FR-088, Search Window, U-30, ...) draws no open surface', () => {
     for (const value of NON_ROWS) {
       for (const language of LANGUAGES) {
         expect(viewOf(sessionOpenOn(value, language)).openModal, `${value} ${language}`).toBeNull()
@@ -84,7 +84,7 @@ describe('DFC-2280 -- T-280 openSurfaceStateMachine.open: a value that is no car
 })
 
 describe('DFC-2280 -- T-280 / FR-038: the windows carry their headings through their own views', () => {
-  it('Search Panel: shown by searchPanelDisplayState, headed by its dictionary word in view.searchPanel, with no open surface', () => {
+  it('Search Window: shown by searchPanelDisplayState, headed by its dictionary word in view.searchPanel, with no open surface', () => {
     for (const language of LANGUAGES) {
       const view = viewOf(sessionWith(language, { searchPanelDisplayState: { kind: 'shown', child: { kind: 'normal' } } }), {
         searchPanel: emptySearchPanelSession,
@@ -94,7 +94,7 @@ describe('DFC-2280 -- T-280 / FR-038: the windows carry their headings through t
     }
   })
 
-  it('Delay Diagnostics Report: raised by the shell reading (S-451), headed by its dictionary word in view.delayDiagnosticsReport, with no open surface', () => {
+  it('Delay Diagnosis Report: raised by the shell reading (S-451), headed by its dictionary word in view.delayDiagnosticsReport, with no open surface', () => {
     for (const language of LANGUAGES) {
       const view = viewOf(sessionWith(language, {}), {
         delayDiagnosticsReport: {

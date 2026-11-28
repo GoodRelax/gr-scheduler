@@ -1170,7 +1170,7 @@ describe('the specification still says what these cases copy', () => {
     expect(manner).toContain('ツールチップ')
     expect(manner).toContain('次の 2 つをすべて満たすこと（MUST）')
     expect(manner).toContain('消せること')
-    expect(manner).not.toContain('ポインタを乗せられること')
+    expect(manner).not.toContain('ポインターを乗せられること')
     expect(manner).toContain('引き金が外れるまで出ていること')
     expect(manner).toContain('引き金が外れたら消してよい')
   })

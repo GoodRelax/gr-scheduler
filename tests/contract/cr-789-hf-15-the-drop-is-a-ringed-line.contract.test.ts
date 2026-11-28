@@ -16,8 +16,8 @@ import { numberIn, rowOf } from '../unit/cr-541-stage'
 import { REQUIREMENTS, S_213, boxesOf, documentOf, landingAt, under } from './cr-772-stage'
 
 const S_620 = numberIn(rowOf('T-206', 'S-620').by['既定'] ?? '')
-const LINE_ROLE = 'Task Group Drop Line'
-const COPY_ROLE = 'Task Group Grab Copy'
+const LINE_ROLE = 'Drop Line'
+const COPY_ROLE = 'Drag Copy'
 const POINTER = { x: 250, y: 180 }
 
 describe('CR-789 -- the manuscript these cases are driven by', () => {
@@ -26,23 +26,23 @@ describe('CR-789 -- the manuscript these cases are driven by', () => {
     '`GRS` は、差し込み線の左端に丸を立てること。`GRS` は、丸の中心を線の左端（選んだ段の字下げの位置）に置くこと。',
     '`GRS` は、丸を中の抜けた輪とし、外径を 表 T-206 の `S-620`、輪の太さを線と同じ `S-213`、中をパネルの地（表 T-236 の `S-150`）とすること。',
     '差し込み線を破線で描く段でも、`GRS` は、輪を実線で描くこと。',
-    '`GRS` は、差し込み線をポインタの高さに付いて行かせないこと。',
-    'ポインタの高さに付いて行かせると、どこに落ちるかが 1 行単位で読めなくなる。',
+    '`GRS` は、差し込み線をポインターの高さに付いて行かせないこと。',
+    'ポインターの高さに付いて行かせると、どこに落ちるかが 1 行単位で読めなくなる。',
     '折りたたまれたタスクグループの中へ落とす間、`GRS` は、折りたたまれたタスクグループの行の真下の隙間に、1 段深い字下げから線を引いて示すこと。',
     '`GRS` は、落ち先を示すために、タスクグループを枠で囲まないこと。',
     '`GRS` は、差し込み線と丸の色を 表 T-236 の `S-151`、太さを 表 T-206 の `S-213` とすること。',
-    '`GRS` は、差し込み線と名前の写しを、パネルの行と操作子より前に描くこと。',
-    'タスクグループを運んでいる間、`GRS` は、ポインタが動いただけでパネルの行を描き直さないこと。タスクグループを運んでいる間、`GRS` は、差し込み線と写しだけを描き直すこと。',
-    'タスクグループを運んでいる間、`GRS` は、どの行にも操作子（`HF-6`）と操作子の地を描かないこと。',
+    '`GRS` は、差し込み線と名前のコピーを、パネルの行とボタンより前に描くこと。',
+    'タスクグループを運んでいる間、`GRS` は、ポインターが動いただけでパネルの行を描き直さないこと。タスクグループを運んでいる間、`GRS` は、差し込み線とコピーだけを描き直すこと。',
+    'タスクグループを運んでいる間、`GRS` は、どの行にも `Task Group Buttons`（`HF-6`）とボタンの地を描かないこと。',
     'タスクグループを運んでいる間も、`GRS` は、ピン止めしているタスクグループの `IC-60` の常時の印（`HF-6`）を残すこと。',
-    '離すか `Esc` でやめたとき、`GRS` は、操作子を `HF-6` のとおりに戻すこと。',
+    '離すか `Esc` でやめたとき、`GRS` は、`Task Group Buttons` を `HF-6` のとおりに戻すこと。',
   ])('HF-15 still says it, word for word: %s', (text) => {
     expect(REQUIREMENTS).toContain(text)
   })
 
   it('HF-6 ends by pointing at HF-15 for the carried case', () => {
     expect(REQUIREMENTS).toContain(
-      'タスクグループを運んでいる間（`HF-15`）、`GRS` は、ポインタが乗っていても操作子と地を描かないこと（規則と理由は `HF-15` が持つ）。',
+      'タスクグループを運んでいる間（`HF-15`）、`GRS` は、ポインターが乗っていてもボタンと地を描かないこと（規則と理由は `HF-15` が持つ）。',
     )
   })
 

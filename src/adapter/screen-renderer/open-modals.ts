@@ -36,16 +36,16 @@ import displayWords from './display-words.json'
 import helpRoster from './help-roster.json'
 import license from './license.json'
 
-const HELP_MODAL = 'Help Modal'
+const HELP_MODAL = 'Help Window'
 
 const ICON_TABLE = 'T-109'
 
 const MAXIMIZE_ICON: IconId = 'IC-130'
 const RESTORE_ICON: IconId = 'IC-131'
 
-const EXPORT_CHOOSER = 'Export Chooser'
+const EXPORT_CHOOSER = 'Save As Dialog'
 
-const OPEN_CHOOSER = 'Open Chooser'
+const OPEN_CHOOSER = 'Open File Dialog'
 
 const CLOSE_SURFACE_ENTRY: IconId = 'IC-52'
 

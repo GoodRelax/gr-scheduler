@@ -147,7 +147,7 @@ describe('T-331 SQ-14 / T-347 DT-9 / T-374 FM-9 -- the manuscript these cases re
     expect(cellOf('T-331', 'SQ-14', '値')).toContain(SQ_14_NOT_SHAPE)
     expect(cellOf('T-331', 'SQ-14', '書き方')).toContain(SQ_14_WORDS)
     expect(cellOf('T-331', 'SQ-14', '書き方')).toContain(SQ_14_SORT)
-    expect(cellOf('T-331', 'SQ-14', 'フィルタ')).toBe(SQ_14_FILTER)
+    expect(cellOf('T-331', 'SQ-14', 'フィルター')).toBe(SQ_14_FILTER)
     expect(cellOf('T-330', 'SV-8', '定め')).toContain(SV_8_TASK_TYPE)
     expect(REQUIREMENTS).toContain(T_331_TYPE_LEFT_OF_TASK)
   })

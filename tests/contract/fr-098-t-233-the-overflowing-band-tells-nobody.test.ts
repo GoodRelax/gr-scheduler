@@ -38,22 +38,22 @@ describe('FR-098 after CR-363 -- an overflowing band tells nobody', () => {
     // overflow but drops the table cannot slip past separate substring checks.
     expect(REQUIREMENTS).toContain(
       '`GRS` がピン止めしたタスクグループを描かないのは、`FR-018` の 表 T-329 の種類「すべて要る」の行のどれかが成り立たないときと、' +
-        '帯が `Task Group Area` に収まらず入りきらないときに限ること',
+        '帯が `Task Group Lanes` に収まらず入りきらないときに限ること',
     )
     expect(REQUIREMENTS).toContain('`GRS` は、ほかの理由でピン止めしたタスクグループを描くのをやめないこと。')
   })
 
-  it('⛔ the MUST NOT against filling the Task Group Area is gone, and its replacement stands', () => {
+  it('⛔ the MUST NOT against filling the Task Group Lanes is gone, and its replacement stands', () => {
     expect(
       REQUIREMENTS.includes(
-        '帯が `Task Group Area` を埋め尽くし、スクロールするタスクグループが 1 つも描けなくなってはならない',
+        '帯が `Task Group Lanes` を埋め尽くし、スクロールするタスクグループが 1 つも描けなくなってはならない',
       ),
       'the withdrawn MUST NOT is back in FR-098; CR-363 removed it on 2026-09-06',
     ).toBe(false)
     expect(REQUIREMENTS).toContain(
-      '帯が `Task Group Area` を埋め尽くし、スクロールするタスクグループが 1 つも描けなくなることは在りうる',
+      '帯が `Task Group Lanes` を埋め尽くし、スクロールするタスクグループが 1 つも描けなくなることは在りうる',
     )
-    expect(REQUIREMENTS).toContain('`GRS` は、帯が `Task Group Area` を埋め尽くし、スクロールするタスクグループが 1 つも描けなくなることを防ぐ仕掛けを置かないこと。')
+    expect(REQUIREMENTS).toContain('`GRS` は、帯が `Task Group Lanes` を埋め尽くし、スクロールするタスクグループが 1 つも描けなくなることを防ぐ仕掛けを置かないこと。')
   })
 
   it('⛔ and FR-098 no longer asks the band to scroll', () => {

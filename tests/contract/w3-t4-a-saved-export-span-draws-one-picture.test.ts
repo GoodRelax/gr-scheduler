@@ -33,7 +33,7 @@ const IX_12 =
 const IX_13 =
   '画と横 | ⭐ 絵の区画は、画面と同じ区画の組み方で、閲覧環境の幅の代わりに `S-81` の幅を、プロパティパネルとコマンドパレットを閉じた状態として与えて求めること（MUST）'
 const IX_13_DAY =
-  '1 日の幅を、`Task Group Area` の幅 ÷ `S-518` の日から `S-519` の日までを両端を含めて数えた暦日の数とすること（MUST）'
+  '1 日の幅を、`Task Group Lanes` の幅 ÷ `S-518` の日から `S-519` の日までを両端を含めて数えた暦日の数とすること（MUST）'
 const IX_4_CAP =
   'い —— タスクグループを足して埋めない規則は `IX-10` が持つ。固定しているときの高さは `IX-15` が持つ。⛔ **伸ばしてよいのはその `S-217` までとすること（MUST）'
 const IX_10 =
@@ -262,12 +262,12 @@ describe(`IX-13 -- ${IX_13}`, () => {
     expect(narrow.taskGroupArea, IX_13).toEqual(wide.taskGroupArea)
   })
 
-  it(`the Task Group Area runs from the S-518 day's left edge to the day after S-519 -- ${IX_13_DAY}`, async () => {
+  it(`the Task Group Lanes runs from the S-518 day's left edge to the day after S-519 -- ${IX_13_DAY}`, async () => {
     const { built } = await spannedStage()
     const { taskGroupArea } = sceneOf(built).regions
     const xs = planXs(pictureOf(built).svg, SPANNED_TASK)
-    expect(Math.min(...xs), `${IX_13_DAY}: the span's first day opens the Task Group Area`).toBeCloseTo(taskGroupArea.x, 1)
-    expect(Math.max(...xs), `${IX_13_DAY}: the span's last day closes the Task Group Area`).toBeCloseTo(taskGroupArea.x + taskGroupArea.width, 1)
+    expect(Math.min(...xs), `${IX_13_DAY}: the span's first day opens the Task Group Lanes`).toBeCloseTo(taskGroupArea.x, 1)
+    expect(Math.max(...xs), `${IX_13_DAY}: the span's last day closes the Task Group Lanes`).toBeCloseTo(taskGroupArea.x + taskGroupArea.width, 1)
     const firstTaskXs = planXs(pictureOf(built).svg, 1)
     const dayWidth = taskGroupArea.width / SPAN_DAYS
     // Why: Task 1 runs 6 .. 10 April, five calendar days; its width is five of the span's days.

@@ -31,7 +31,7 @@ const AGENT_API_ENTRANCE = ((): string => {
 })()
 
 const HF_6_NOT_THE_LOWER_TASK_GROUP =
-  '群が下のタスクグループに重なっているとき、`GRS` は、群の上にあるポインタを、下のタスクグループ名に乗っていると数えないこと'
+  '群が下のタスクグループに重なっているとき、`GRS` は、群の上にあるポインターを、下のタスクグループ名に乗っていると数えないこと'
 
 const ROW = '[data-depth]'
 const GRID = '[data-row-folding-grid]'
@@ -316,8 +316,8 @@ interface TaskGroupArea {
 }
 
 // Spec: FR-051, GR-21
-// Why: Scrollbars take their room from the Task Group Area (FR-051), so the vertical one spans exactly the
-// Task Group Area's height, and the horizontal one starts where nothing of the schedule may be drawn.
+// Why: Scrollbars take their room from the Task Group Lanes (FR-051), so the vertical one spans exactly the
+// Task Group Lanes's height, and the horizontal one starts where nothing of the schedule may be drawn.
 /** @purity semi-pure-mutable */
 async function taskGroupAreaOf(page: Page): Promise<TaskGroupArea> {
   return page.evaluate((selector: string) => {
@@ -357,7 +357,7 @@ async function hoverAndRead(page: Page, id: string): Promise<DrawnTaskGroup> {
 }
 
 test.describe('LF-16 / HF-19 (MUST): the last task group keeps room for its lattice', () => {
-  test('scrolled to the end, the whole lattice of the last task group is inside the Task Group Area', async ({ baseURL }) => {
+  test('scrolled to the end, the whole lattice of the last task group is inside the Task Group Lanes', async ({ baseURL }) => {
     test.setTimeout(180_000)
     const opened = await openWith(baseURL, 60)
     try {
@@ -368,7 +368,7 @@ test.describe('LF-16 / HF-19 (MUST): the last task group keeps room for its latt
       const shown = await hoverAndRead(page, 'r59')
       if (shown.grid === null || shown.entrance === null) throw new Error('the last task group draws no lattice')
       expect(shown.grid.height, 'the premise: the lattice is taller than the band').toBeGreaterThan(shown.box.height)
-      expect(shown.grid.y + shown.grid.height, 'LF-16: the lattice bottom is inside the Task Group Area').toBeLessThanOrEqual(area.bottom + 0.5)
+      expect(shown.grid.y + shown.grid.height, 'LF-16: the lattice bottom is inside the Task Group Lanes').toBeLessThanOrEqual(area.bottom + 0.5)
       const lowest = { x: shown.entrance.x + shown.entrance.width / 2, y: shown.entrance.y + shown.entrance.height - 1 }
       expect(await ownerAt(page, lowest), 'the lowest rank takes the pointer').toBe('r59')
     } finally {
@@ -383,7 +383,7 @@ test.describe('LF-16 / HF-19 (MUST): the last task group keeps room for its latt
     return found[0]?.id ?? ''
   })()
 
-  // Why: the Task Group Area is sized so that 40 one-lane task groups fit and 40 task groups plus the reserve do not; FR-055
+  // Why: the Task Group Lanes is sized so that 40 one-lane task groups fit and 40 task groups plus the reserve do not; FR-055
   // (MUST) then has to settle on depth 1, and a fit that forgot LF-16 would draw depth 2 and cut the lattice.
   const fittedWith = async (baseURL: string | undefined, spare: (reserve: number) => number) => {
     const measuring = await openWith(baseURL, 20)
@@ -426,7 +426,7 @@ test.describe('LF-16 / HF-19 (MUST): the last task group keeps room for its latt
     }
   })
 
-  test('the control: one reserve more of Task Group Area and the fit draws depth 2, the last lattice inside', async ({ baseURL }) => {
+  test('the control: one reserve more of Task Group Lanes and the fit draws depth 2, the last lattice inside', async ({ baseURL }) => {
     test.setTimeout(240_000)
     const fitted = await fittedWith(baseURL, (reserve) => reserve + 2)
     try {
@@ -435,7 +435,7 @@ test.describe('LF-16 / HF-19 (MUST): the last task group keeps room for its latt
       expect(ids).toHaveLength(40)
       const shown = await hoverAndRead(fitted.opened.page, 'r19c')
       if (shown.grid === null) throw new Error('the last task group draws no lattice')
-      expect(shown.grid.y + shown.grid.height, 'LF-16: the last lattice is inside the Task Group Area').toBeLessThanOrEqual(fitted.area.bottom + 0.5)
+      expect(shown.grid.y + shown.grid.height, 'LF-16: the last lattice is inside the Task Group Lanes').toBeLessThanOrEqual(fitted.area.bottom + 0.5)
     } finally {
       await fitted.opened.close()
     }
@@ -443,7 +443,7 @@ test.describe('LF-16 / HF-19 (MUST): the last task group keeps room for its latt
 })
 
 test.describe('FR-051 / JDG-376 (MUST NOT): the group is not drawn into the horizontal Scrollbars band', () => {
-  test('a task group cut at the Task Group Area bottom, hovered, paints nothing of its group into the band', async ({ baseURL }) => {
+  test('a task group cut at the Task Group Lanes bottom, hovered, paints nothing of its group into the band', async ({ baseURL }) => {
     test.setTimeout(180_000)
     const opened = await openWith(baseURL, 60, BASE_SCREEN, 0.5)
     try {

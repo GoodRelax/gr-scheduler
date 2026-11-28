@@ -1,4 +1,4 @@
-// CR-649: CM-39 stamps exception-day times, DV-8 counts the finish day, the Open Chooser takes its new words.
+// CR-649: CM-39 stamps exception-day times, DV-8 counts the finish day, the Open File Dialog takes its new words.
 
 import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
@@ -238,7 +238,7 @@ describe('DV-8 / EX-12: Task/Duration counts the finish day', () => {
   })
 })
 
-describe('JDG-1164 / JDG-1223: the Open Chooser (U-56) heading and the three descriptions (IC-71 to IC-73)', () => {
+describe('JDG-1164 / JDG-1223: the Open File Dialog (U-56) heading and the three descriptions (IC-71 to IC-73)', () => {
   const MANUSCRIPT = JSON.parse(
     readRepoFile(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8'),
   ) as Record<string, any>
@@ -248,7 +248,7 @@ describe('JDG-1164 / JDG-1223: the Open Chooser (U-56) heading and the three des
 
   /** @purity pure */
   function headingOf(words: Record<string, any>): unknown {
-    const surface = (words['surfaces'] as Record<string, any>[]).find((one) => one['name'] === 'Open Chooser')
+    const surface = (words['surfaces'] as Record<string, any>[]).find((one) => one['name'] === 'Open File Dialog')
     return surface?.['heading']
   }
 

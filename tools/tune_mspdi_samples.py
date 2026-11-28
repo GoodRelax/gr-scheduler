@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Tune the MSPDI samples in sample-schedule/ so Delay Diagnostics reads each
+"""Tune the MSPDI samples in sample-schedule/ so Delay Diagnosis reads each
 one as an ordinarily managed project with a few delays (CR-618, section 9.2).
 
     python tools/tune_mspdi_samples.py            # rewrite the six samples

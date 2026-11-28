@@ -21,8 +21,8 @@ import { specTable, unbroken } from './spec-table'
 
 const cellOf = (id: string): string => unbroken(specTable('T-353').rows.find((one) => one.id === id)?.by['定め'] ?? '')
 
-const TV_1_PRODUCT = '日程抽出した表が 1 つ以上ある間、`GRS` は、日程表に、日程抽出した表のどれもが「表示」とするタスク（積）だけを描くこと。'
-const TV_1_TOOLS_ONLY = '`GRS` は、列のフィルタと語を日程表に効かせないこと。'
+const TV_1_PRODUCT = '日程抽出した表が 1 つ以上ある間、`GRS` は、`Task Group Lanes` に、日程抽出した表のどれもが「表示」とするタスク（積）だけを描くこと。'
+const TV_1_TOOLS_ONLY = '`GRS` は、列のフィルターと語を `Task Group Lanes` に効かせないこと。'
 const TV_2_CHECKED_SHOW = '`GRS` は、チェックの入った行を「表示」とすること。'
 const TV_2_FIRST_UNCHECKED = '`GRS` は、初めはどの表のどの行のチェックも外しておくこと（「非表示」）。'
 const TV_2_REPORT_ONLY = '`GRS` は、タスクがレポートに載り、レポートの表のタスクの行が「表示」のときだけ、レポートの表がタスクを「表示」とすると判じること（レポートに載らないタスクは描かない）。'

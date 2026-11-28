@@ -56,8 +56,8 @@ test(`${FR_023_NO_PARTIAL_APPLY}: a GRS JSON of ${LIMIT + 1} tasks opened throug
     ;(window as unknown as { __grsNextOpen: unknown }).__grsNextOpen = { name: 'over-the-limit.json', text: given }
   }, text)
   await press(page, 'IC-1')
-  if (await page.locator('[data-role="Open Chooser"]').count()) {
-    await page.click(icon('IC-71', '[data-role="Open Chooser"]'))
+  if (await page.locator('[data-role="Open File Dialog"]').count()) {
+    await page.click(icon('IC-71', '[data-role="Open File Dialog"]'))
     await settle(page)
   }
   if (await page.locator('[data-role="Confirmation"] [data-confirmation-answer="proceed"]').count()) await answerConfirmation(page, 'proceed')

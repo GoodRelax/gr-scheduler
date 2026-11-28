@@ -11,7 +11,7 @@ import { rowOf } from './sws-case'
 const REQUIREMENTS = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8').replace(/\r\n/g, '\n'))
 
 const CLAUSE_RIGHT_MARGIN =
-  '`GRS` は、頭の並びのいちばん右の操作子（すべて消す）の外形と、タスクグループパネルの右端とのあいだを、タスクグループの並び（`HF-4`）と同じく `_assets/tbl-settings.md` の 表 T-206 の `S-313` とすること'
+  '`GRS` は、頭の並びのいちばん右のボタン（すべて消す）の外形と、タスクグループパネルの右端とのあいだを、タスクグループの並び（`HF-4`）と同じく `_assets/tbl-settings.md` の 表 T-206 の `S-313` とすること'
 const CLAUSE_TAB_ORDER = '`GRS` は、焦点が `Tab` で進む順を、頭の並びの左から右とすること'
 
 // Spec: T-109

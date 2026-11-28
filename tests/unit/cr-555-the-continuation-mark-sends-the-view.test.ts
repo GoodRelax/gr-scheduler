@@ -51,26 +51,26 @@ const UN_8 = specTable('T-027').rows.find((one) => one.id === 'UN-8')?.cells.joi
 function cellColumnOfMk13(): string {
   const row = specTable('T-023').rows.find((one) => one.id === 'MK-13')
   if (row === undefined) throw new Error('table T-023 has no row MK-13')
-  const column = Object.keys(row.by).find((key) => (row.by[key] ?? '').includes('依存線の続きの印'))
-  if (column === undefined) throw new Error('table T-023 MK-13 no longer names 依存線の続きの印')
+  const column = Object.keys(row.by).find((key) => (row.by[key] ?? '').includes('依存線の続きマーク'))
+  if (column === undefined) throw new Error('table T-023 MK-13 no longer names 依存線の続きマーク')
   return column
 }
 
 const EL_10_DEPTH =
-  '続きの印を押して離したとき、印の先の端が `EL-2` の端なら、`GRS` は、縦の倍率を、先の端のタスクグループの深さを描く最小の倍率（`FR-018` のしきい値、表 T-205 の `S-87` ／ `S-88`）にすること。'
-const EL_10_ZOOM_X = '続きの印を押して離したとき、`GRS` は、横の倍率を変えないこと。'
+  '続きマークを押して離したとき、印の先の端が `EL-2` の端なら、`GRS` は、縦の倍率を、先の端のタスクグループの深さを描く最小の倍率（`FR-018` のしきい値、表 T-205 の `S-87` ／ `S-88`）にすること。'
+const EL_10_ZOOM_X = '続きマークを押して離したとき、`GRS` は、横の倍率を変えないこと。'
 const EL_10_UN_8 = '`GRS` は、`EL-10` の倍率の変更を、取り消しの対象にしないこと（表 T-027 の `UN-8`）。'
 const EL_11_SEND =
-  '続きの印を押して離したとき、印の先の端の予定の形が `Task Group Area` の横の範囲に入っていなければ、`GRS` は、倍率を変えずに、予定の形の横の中点が `Task Group Area` の横の中点に来るよう、表示位置を横に送ること（入っていれば横に送らない）。'
+  '続きマークを押して離したとき、印の先の端の予定の形が `Task Group Lanes` の横の範囲に入っていなければ、`GRS` は、倍率を変えずに、予定の形の横の中点が `Task Group Lanes` の横の中点に来るよう、表示位置を横に送ること（入っていれば横に送らない）。'
 const EL_11_STAY = '（入っていれば横に送らない）'
 const EL_12_SEND =
-  '続きの印を押して離したとき、印の先の端が `EL-1` の縦の範囲（端のタスクグループを描く場所）に入っていないか、`EL-10` で縦の倍率を変えたか、`EL-21` でタスクグループを展開したなら、`GRS` は、端のタスクグループが帯の下の残りの上端に来るよう、表示位置を縦に送ること（入っているときは縦に送らない） —— `_assets/tbl-settings.md` の 表 T-203 の `S-78` を端のタスクグループに、`S-176` を 0 にする（`Agent API` の `focusTask`、`_assets/tbl-agent-api-members.md` の 表 T-107 の `AM-16` と同じ置き方）'
+  '続きマークを押して離したとき、印の先の端が `EL-1` の縦の範囲（端のタスクグループを描く場所）に入っていないか、`EL-10` で縦の倍率を変えたか、`EL-21` でタスクグループを展開したなら、`GRS` は、端のタスクグループが帯の下の残りの上端に来るよう、表示位置を縦に送ること（入っているときは縦に送らない） —— `_assets/tbl-settings.md` の 表 T-203 の `S-78` を端のタスクグループに、`S-176` を 0 にする（`Agent API` の `focusTask`、`_assets/tbl-agent-api-members.md` の 表 T-107 の `AM-16` と同じ置き方）'
 const EL_12_STAY = '（入っているときは縦に送らない）'
 const EL_12_PINNED = 'ピン止めしたタスクグループの端は、いつも縦の範囲に入っている'
 const MK_13_MARK =
-  '`GRS` は、依存線の続きの印のダブルクリックに宛先を持たせないこと。'
+  '`GRS` は、依存線の続きマークのダブルクリックに宛先を持たせないこと。'
 const PE_12_MARK_SENDS =
-  '続きの印を押して離したとき、`GRS` は、線を選ばず、選択を空にしたうえで `FR-009` の 表 T-303 の `EL-10` 〜 `EL-12` に従って印の先へ送り'
+  '続きマークを押して離したとき、`GRS` は、線を選ばず、選択を空にしたうえで `FR-009` の 表 T-303 の `EL-10` 〜 `EL-12` に従って印の先へ送り'
 const FR_018_DEPTH_ONE = '`FR-018` は深さ 1 を倍率で落とさない'
 
 const REQUIREMENTS = readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8')
@@ -409,7 +409,7 @@ describe('CR-555 -- the manuscript these cases are driven by', () => {
   it('T-023 MK-13 gives the mark no destination; T-270 PE-12 sends on one press and release', () => {
     const flat = MK_13.replace(/<br\s*\/?>/g, '')
     expect(flat).toContain(MK_13_MARK)
-    expect(PE_12, 'T-270 PE-12 is the dependency line, mark included').toContain('続きの印を含む')
+    expect(PE_12, 'T-270 PE-12 is the dependency line, mark included').toContain('続きマークを含む')
     expect(PE_12.replace(/<br\s*\/?>/g, '')).toContain(PE_12_MARK_SENDS)
   })
 
@@ -428,14 +428,14 @@ describe(`EL-11 -- ${EL_11_SEND}`, () => {
     ['(i) successor off to the right', offRight, 2, [1, 2]],
     ["(i') predecessor off to the left", offLeft, 1, [1, 2]],
   ] as const) {
-    it(`${name}: the far end's plan midpoint is sent to the Task Group Area midpoint, zoom untouched`, () => {
+    it(`${name}: the far end's plan midpoint is sent to the Task Group Lanes midpoint, zoom untouched`, () => {
       const scene = make()
       const line = lineOf(scene, pair[0], pair[1])
       expect(line.continuation?.farUid, 'premise: the mark leads to the far end').toBe(far)
       const before = placementOf(scene, far)!
       expect(
         before.x + before.width <= scene.taskGroupArea.x || before.x >= scene.taskGroupArea.x + scene.taskGroupArea.width,
-        'premise: the far end lies wholly outside the Task Group Area across',
+        'premise: the far end lies wholly outside the Task Group Lanes across',
       ).toBe(true)
       const { press, out } = clickOnce(scene, markOf(scene, pair[0], pair[1]))
       expect(press.hit?.grab, 'premise: the press lands on GA-24').toBe('GA-24')
@@ -508,12 +508,12 @@ describe(`EL-12 -- ${EL_12_SEND}`, () => {
       expect(scroll!['scrollTaskGroupFraction'], `${EL_12_SEND} (S-176)`).toBe(0)
     })
 
-    it(`${name}: the far end is inside the Task Group Area across, so the view is not sent across (${EL_11_STAY})`, () => {
+    it(`${name}: the far end is inside the Task Group Lanes across, so the view is not sent across (${EL_11_STAY})`, () => {
       const scene = make()
       const far = placementOf(scene, 2)!
       expect(
         within(far.x, far.x + far.width, scene.taskGroupArea.x, scene.taskGroupArea.x + scene.taskGroupArea.width),
-        'premise: Task 2 lies inside the Task Group Area across',
+        'premise: Task 2 lies inside the Task Group Lanes across',
       ).toBe(true)
       const scroll = onlyOf(writesOf(clickOnce(scene, markOf(scene, 1, 2)).out), SET_SCROLL)
       expect(scroll, 'premise: EL-12 sent the view down').toBeDefined()
@@ -555,7 +555,7 @@ describe(`EL-10 -- ${EL_10_DEPTH}`, () => {
     expect(scroll!['scrollTaskGroupFraction'], `${EL_12_SEND} (S-176)`).toBe(0)
   })
 
-  it(`(iii) the far end stands inside the Task Group Area across by its dates, so the view is not sent across (${EL_11_STAY})`, () => {
+  it(`(iii) the far end stands inside the Task Group Lanes across by its dates, so the view is not sent across (${EL_11_STAY})`, () => {
     const scene = deep()
     const scroll = onlyOf(writesOf(clickOnce(scene, markOf(scene, 1, 2)).out), SET_SCROLL)
     expect(scroll, 'premise: EL-12 sent the view down').toBeDefined()

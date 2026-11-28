@@ -70,7 +70,7 @@ test.describe(`HS-11 (MUST): ${HS_11.slice(-40)}`, () => {
     const before = (await savedFiles(page)).length
     await page.click(icon('IC-2'))
     await settle(page)
-    await page.click('[data-role="Export Chooser"] [data-format="IO-7"]')
+    await page.click('[data-role="Save As Dialog"] [data-format="IO-7"]')
     await settle(page)
     const written = await savedFiles(page)
     expect(written.length, 'premise: the chooser wrote the .html').toBeGreaterThan(before)

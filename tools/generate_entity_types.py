@@ -1075,7 +1075,7 @@ def default_calendar_block():
 # ⚠️ Which rows land in which unit is decided HERE, not in the manuscript: it
 # is a fact about the code's shape, and the manuscript describes values.
 #
-# ⛔ ONE CONSTANT PER CONSUMING UNIT, never a shared one. S-134 is a 掴み帯 the
+# ⛔ ONE CONSTANT PER CONSUMING UNIT, never a shared one. S-134 is a グリップ the
 # same way S-90 to S-92 are, but its consumer is screen-frame.ts in the Adapter
 # layer while NOT_STORED_SIZES is generated into item-hit-area.ts in the Entity
 # layer. Adding the row to that constant would hand one unit a value belonging
@@ -1150,7 +1150,7 @@ DRAWN_INTO_THE_EXPORTED_PICTURE = []
 # gap the name label of a line-only shape is lifted by (the label column of table
 # T-012), and it is read by the unit that lays the label out. ⛔ The ground of
 # S-138 and S-180 does NOT fit: both close with some form of "the
-# export does not show this", and EP-5 of table T-076 draws the Task Group Area's
+# export does not show this", and EP-5 of table T-076 draws the Task Group Lanes's
 # contents -- the name label among them -- INTO the exported picture. ⚠️ Nor is
 # S-194's sentence right: that one turns on the document keeping the two DATES,
 # and a label has no such pair. What table T-206 records here is that the
@@ -1160,7 +1160,7 @@ DRAWN_INTO_THE_EXPORTED_PICTURE_FROM_THE_SHAPE = []
 
 # ⛔ AN EIGHTH GROUND, AND THE THIRD WHOSE PICTURE LEAVES THE TOOL -- but the
 # first where the SCREEN AND THE EXPORT READ THE SAME ROW. S-225 is the size
-# the `Document Title` is written at and S-226 is its inset from the band's
+# the `Project Title` is written at and S-226 is its inset from the band's
 # left edge, and EP-1 of table T-076 (MUST) has both sides read one row while
 # forbidding (MUST NOT) an export a constant of its own, because an export
 # with its own constants draws the title at a different size and inset from
@@ -1187,7 +1187,7 @@ DRAWN_ON_THE_SCREEN_AND_IN_THE_EXPORT = []
 # right: that one turns on the picture LEAVING the tool, and EP-6 of table
 # T-076 draws the `Status Line` and the `Dual Cursor` while keeping the
 # `Guide Cursor` OUT. ⭐ The reason EP-6 gives is this row's own, and no other
-# row of table T-206 stands on it: 「書き出した時点のポインタの位置に意味が
+# row of table T-206 stands on it: 「書き出した時点のポインターの位置に意味が
 # 無い」 -- a line that follows a hand has nowhere to stand in a picture no
 # hand is over.
 DRAWN_UNDER_THE_HAND_ALONE = []
@@ -1231,7 +1231,7 @@ KEPT_WHERE_IT_STANDS = []
 SETTLED_WHERE_IT_STANDS = []
 # ⛔ AN EIGHTH SEAM: no door AND no caller, because the value is one END of a
 # DERIVATION this unit alone can carry out. FR-016 (MUST) states the ceiling of
-# the day axis as 「`Task Group Area` の幅 ÷（`S-229` × 等倍のときの 1 日の幅）」, and
+# the day axis as 「`Task Group Lanes` の幅 ÷（`S-229` × 等倍のときの 1 日の幅）」, and
 # both of the other two terms are already here and nowhere else: the region is
 # `InputContext.regions.taskGroupArea` and the width of one day at 等倍 is read back
 # off the frame's own layout. ⛔ The row's own note forbids the number itself
@@ -1257,7 +1257,7 @@ ARRIVES_AS_ARGUMENT_ZOOM = list(ARRIVES_AS_ARGUMENT)
 # ⭐ THE FALLBACK IS THE ROW'S OWN DEFAULT, AND FR-086 IS WHY THAT IS THE RIGHT
 # ONE. That requirement (MUST) has a person enter the name and starts them from
 # this very value; nothing in this build asks yet, so the start is all there is
-# -- and FR-020 (MUST) still lays a name over the Task Group Area meanwhile. ⛔ The
+# -- and FR-020 (MUST) still lays a name over the Task Group Lanes meanwhile. ⛔ The
 # alternative was the shell typing the word in, which rule 03 forbids.
 STORED_WHERE_IT_STANDS = []
 NOT_STORED_TARGETS = {
@@ -1542,7 +1542,7 @@ NOT_STORED_TARGETS = {
     # schedule) and the surface (the Holiday Settings list, RR-3). Neither may
     # import the other's, as NOT_STORED_SCHEDULE_FILTER_BAR_SIZES.
     'NOT_STORED_WHEEL_UNITS': (['S-514', 'S-515', 'S-516'], READ_WHERE_IT_STANDS),
-    # CR-685: the gap between two format buttons of the Export Chooser (FR-096).
+    # CR-685: the gap between two format buttons of the Save As Dialog (FR-096).
     'NOT_STORED_EXPORT_CHOOSER_SIZES': (['S-517'], DRAWN_WITH_WHERE_IT_STANDS),
     # CR-727: the rim of the Drop Cue (U-68, OP-17 of table T-024a). Not folded
     # into NOT_STORED_STATE_GROUND_PERCENTS: S-214 is how faint the cue's ground
@@ -1559,7 +1559,7 @@ NOT_STORED_TARGETS = {
     # went to NOT_STORED_HELP_SIZES with the rest of table T-335 (CR-621).
     # S-427 still holds no value and S-428 is read by the use case that jumps
     # (search-jump.ts), so neither is here -- S-428 has its own constant below.
-    # CR-639: S-475 .. S-481, the default widths of the Delay Diagnostics
+    # CR-639: S-475 .. S-481, the default widths of the Delay Diagnosis
     # Report's table columns DT-1 .. DT-7 (RW-9 of table T-346, SV-18 as for
     # the search panel). The window is drawn as the search panel's sibling
     # with its view (FR-134), so the rows join this constant, which
@@ -1673,7 +1673,7 @@ NOT_STORED_TARGETS = {
     # group exists yet, and this group is already schedule-task-figures.ts's
     # one constant for the progress marker's glyph, so S-341 lands here rather
     # than founding a new group of its own.
-    # CR-561: the Delay Diagnostics marker glyphs (S-391 .. S-396, table T-315)
+    # CR-561: the Delay Diagnosis marker glyphs (S-391 .. S-396, table T-315)
     # and the parent label's weight S-399 join their sibling rows of table
     # T-206 here. ⛔ S-397 is NOT here: the bottleneck threshold is no glyph
     # and nothing in this adapter reads it -- see NOT_STORED_BOTTLENECK_THRESHOLD.
@@ -1719,7 +1719,7 @@ NOT_STORED_TARGETS = {
     'NOT_STORED_THEME_SOLVE': (['S-520', 'S-521', 'S-522', 'S-523', 'S-524',
                                 'S-525', 'S-526'],
                                DRAWN_ON_THE_SCREEN_AND_IN_THE_EXPORT),
-    # ⭐ DFC-276: the two numbers EP-1 writes the `Document Title` with, in the
+    # ⭐ DFC-276: the two numbers EP-1 writes the `Project Title` with, in the
     # unit that assembles an exported picture. ⛔ NOT FOLDED INTO ANY LINE
     # ABOVE -- every one of them is read by a unit that draws the schedule,
     # and these two are read where the CHROME around it is drawn.
@@ -1737,7 +1737,7 @@ NOT_STORED_TARGETS = {
     'NOT_STORED_DOCUMENT_TITLE_SIZES': (['S-225', 'S-226', 'S-461', 'S-462',
                                          'S-463', 'S-490', 'S-491', 'S-492'],
                                         DRAWN_ON_THE_SCREEN_AND_IN_THE_EXPORT),
-    # CR-797: S-623, the weight the Delay Diagnostics Report's Re-diagnose word
+    # CR-797: S-623, the weight the Delay Diagnosis Report's Re-diagnose word
     # (IC-168, RW-3) is drawn at. NOT folded into the title's line above -- its
     # note forbids sharing S-463, and search-panel-drawing.ts draws the word.
     'NOT_STORED_RE_DIAGNOSE_WEIGHT': (['S-623'], DRAWN_WITH_WHERE_IT_STANDS),
@@ -1794,7 +1794,7 @@ NOT_STORED_TARGETS = {
     # <tspan> at the same factor and reads it from this unit's public entry.
     'NOT_STORED_LABEL_SIZES': (['S-196', 'S-233', 'S-325'],
                                DRAWN_INTO_THE_EXPORTED_PICTURE_FROM_THE_SHAPE),
-    # ⭐ CR-551: FR-055's fit leaves S-332 of the Task Group Area's width free on each
+    # ⭐ CR-551: FR-055's fit leaves S-332 of the Task Group Lanes's width free on each
     # side. ⛔ A NEW CONSTANT: its subject is the fit, which fitZoom in
     # fit-zoom.ts carries out, and no line above is the fit's.
     'NOT_STORED_FIT_MARGIN': (['S-332'], READ_WHERE_IT_STANDS),
@@ -2073,7 +2073,7 @@ COLOR_TARGETS = {
     # already holds for 「いま効いている」, and FR-029's table T-237 has this unit
     # FILL the armed entrance with it (EN-1), so it is the chrome's after all.
     # ⭐ S-151 IS THE CHROME'S TOO, by the same
-    # reading: EN-3 of table T-237 fills a PINNED task group's `Task Group Pin` with it and
+    # reading: EN-3 of table T-237 fills a PINNED task group's `Pin Button` with it and
     # HF-6 of table T-051 (MUST) points at that task group. The pin is a task group control
     # this unit draws, not a bar, so the row has a reader on this side as
     # well as on the drawing side (where SL-8's selection frame keeps it).
@@ -2129,7 +2129,7 @@ COLOR_TARGETS = {
                          'S-169', 'S-195', 'S-223',
                          # CR-551: the delay marker's ground and symbol (PM-4, FR-013).
                          'S-326', 'S-327',
-                         # CR-561: the Delay Diagnostics markers' grounds and symbols
+                         # CR-561: the Delay Diagnosis markers' grounds and symbols
                          # (table T-315) and the parent label's color (FR-135).
                          'S-385', 'S-386', 'S-387', 'S-388', 'S-389', 'S-390', 'S-398',
                          # CR-556: the deadline mark's fill (DA-3 of table T-304, FR-045).
@@ -2733,7 +2733,7 @@ def annotation_bounds_block():
 #
 # ⭐ S-102 AND THE THREE OF CR-348 REACH THE DRAWING SIDE. ⛔ Do not leave a
 # value out on the ground that nothing draws it yet: FR-020 (MUST) has GRS lay
-# the mark over the Task Group Area, and FR-020 (MUST) names S-220 / S-221 / S-222
+# the mark over the Task Group Lanes, and FR-020 (MUST) names S-220 / S-221 / S-222
 # and S-223 as the values it is drawn with and (MUST NOT) forbids them in
 # `src/`, so the values are carried here -- the alternative is the drawing
 # side typing -30.
@@ -3533,7 +3533,7 @@ TARGETS = [
       'docs/spec/_assets/tbl-glossary.md (table T-109)']),
     # CR-589: the header paints EN-2 for the entries whose settings row it
     # reads, from the map printed here rather than from arms of its own.
-    # DFC-1786: the Branding seat and the Document Title's left end (BR-2)
+    # DFC-1786: the Branding seat and the Project Title's left end (BR-2)
     # are worked out here, once, and carried on AppHeaderItems; the screen
     # and the export read that answer (EP-1) instead of each composing it.
     (os.path.join(ADAPTER, 'screen-renderer', 'app-header-items.ts'),
@@ -3637,7 +3637,7 @@ TARGETS = [
      + not_stored_block('NOT_STORED_STATE_GROUND_PERCENTS') + NEWLINE * 2
      + not_stored_block('NOT_STORED_HELP_SIZES') + NEWLINE * 2
      + not_stored_block('NOT_STORED_HOLIDAY_SETTINGS_LIST_SIZES') + NEWLINE * 2
-     # CR-681 / CR-685: the roster's wheel line and the Export Chooser's gap.
+     # CR-681 / CR-685: the roster's wheel line and the Save As Dialog's gap.
      + not_stored_block('NOT_STORED_WHEEL_UNITS') + NEWLINE * 2
      + not_stored_block('NOT_STORED_EXPORT_CHOOSER_SIZES') + NEWLINE * 2
      # CR-727: the Drop Cue's rim (OP-17).
@@ -3704,7 +3704,7 @@ TARGETS = [
      + color_sources_block('SCHEDULE_COLORS') + NEWLINE * 2
      # ⭐ CR-548: the palette colors' drawn values, beside the theme's own.
      + palette_block()
-     # ⭐ FR-020's four, in the unit that lays the mark over the Task Group Area. The
+     # ⭐ FR-020's four, in the unit that lays the mark over the Task Group Lanes. The
      # ink rides in SCHEDULE_COLORS above, because it is a row of table T-236
      # and has a light and a dark rendering; the angle, the size, the spacing
      # and the opacity have one value each and are rows of table T-207.
@@ -3712,7 +3712,7 @@ TARGETS = [
      # compared against an answer the shell hashes, and these are drawn.
      + NEWLINE * 2 + watermark_block('WATERMARK_MARKS'),
      ['docs/spec/_source/settings.json (tables T-206, T-207, T-236 and T-294)']),
-    # ⭐ DFC-276: the two numbers EP-1 writes the `Document Title` with, in the
+    # ⭐ DFC-276: the two numbers EP-1 writes the `Project Title` with, in the
     # one unit that assembles a picture that goes out. ⛔ Do not derive them
     # here as fractions of the band's own height (PND-52): EP-1 (MUST NOT)
     # forbids an export a constant of its own, because a second value lets

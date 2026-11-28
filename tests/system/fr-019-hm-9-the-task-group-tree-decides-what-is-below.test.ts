@@ -515,7 +515,7 @@ test('SCN-8 the task group tree, and not the screen, decides what is below (FR-0
       const shot = await readDocumentShot(page)
       const rank = rankInTaskGroupTree(shot?.groups ?? [])
       const pinnedIndex = rows.findIndex((one) => one.pinned)
-      expect.soft(pinnedIndex, 'FR-098: the pinned task group is drawn first, at the top of Task Group Area').toBe(0)
+      expect.soft(pinnedIndex, 'FR-098: the pinned task group is drawn first, at the top of Task Group Lanes').toBe(0)
 
       const pinned = rows[pinnedIndex < 0 ? 0 : pinnedIndex] as DrawnTaskGroup
       const others = rows.filter((one) => !one.pinned)

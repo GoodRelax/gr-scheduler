@@ -277,7 +277,7 @@ describe('FR-158, TX-1, TX-2: the clock reads in 24 hours, the hour is not padde
 
   it('table T-375 keeps the general unpadded hour rule and names the tip (TX-2) as its one exception', () => {
     expect(REQUIREMENTS).toContain('⭐ 時刻は 24 時間制で、時を 0 で埋めず、分を 2 桁とする（`9:05`・`17:00`）')
-    expect(REQUIREMENTS).toContain('⚠️ ただし、ポインタを止めたときの説明（`TX-2`）だけは時も 2 桁に 0 で埋める（`09:05`）')
+    expect(REQUIREMENTS).toContain('⚠️ ただし、ポインターを止めたときの説明（`TX-2`）だけは時も 2 桁に 0 で埋める（`09:05`）')
   })
 })
 
@@ -298,7 +298,7 @@ describe('FR-016: the zoomX ceiling while the time of day is shown', () => {
     expect(stored('S-55')).toBe(240)
   })
 
-  it('does not depend on the Task Group Area: the ceiling of the days is another axis', () => {
+  it('does not depend on the Task Group Lanes: the ceiling of the days is another axis', () => {
     const narrow = { regions: { taskGroupArea: { width: 300 } }, document: { documentSettings: SETTINGS_DEFAULTS } } as never
     const wide = { regions: { taskGroupArea: { width: 3000 } }, document: { documentSettings: SETTINGS_DEFAULTS } } as never
     expect(zoomXCeiling(narrow, true)).toBe(zoomXCeiling(wide, true))

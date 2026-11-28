@@ -54,7 +54,7 @@ export const ALPHA_UID = 1
 
 const day = (d: number): string => `2026-04-${String(d).padStart(2, '0')}T00:00:00`
 
-// Why: no actual start, so the task is not started -- FR-043 draws its Actual Operation Dummy and
+// Why: no actual start, so the task is not started -- FR-043 draws its Actual Dummy and
 // T-023d GA-18 puts its progress marker outside the end grab, the two figures CA-1 (3) names.
 function notStartedTask(uid: number, name: string, start: number, finish: number): Task {
   return {

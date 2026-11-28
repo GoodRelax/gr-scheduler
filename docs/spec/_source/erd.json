@@ -188,7 +188,7 @@
       "オブジェクト",
       "schedule",
       {
-       "ja": "日程データの群"
+       "ja": "スケジュールデータの群"
       }
      ],
      [
@@ -202,14 +202,14 @@
       "オブジェクト",
       "documentStamp",
       {
-       "ja": "文書の刻印"
+       "ja": "文書刻印"
       }
      ],
      [
       "配列",
       "changeLog",
       {
-       "ja": "文書の刻印"
+       "ja": "文書刻印"
       }
      ]
     ]
@@ -359,7 +359,7 @@
     "to": "schedule",
     "multiplicity": "1 ─ 1",
     "label": {
-     "ja": "日程データの群"
+     "ja": "スケジュールデータの群"
     }
    },
    {
@@ -375,7 +375,7 @@
     "to": "documentStamp",
     "multiplicity": "1 ─ 1",
     "label": {
-     "ja": "文書の刻印"
+     "ja": "文書刻印"
     }
    },
    {
@@ -383,7 +383,7 @@
     "to": "changeLog",
     "multiplicity": "1 ─ 0..n",
     "label": {
-     "ja": "文書の刻印"
+     "ja": "文書刻印"
     }
    },
    {
@@ -835,7 +835,7 @@
       "ja": "親タスクの進捗の疑義（`01-04-requirements.md` の 表 T-311 の `VS-6`）が許す日数。置き場はテーマ色と同じく `Project`（表 T-052 の `DR-5` と同じ理由）、値は `tbl-settings.md` の `S-487`。MSPDI へは書き出さない"
      },
      "schemaNote": {
-      "en": "How many working days a parent task's progress point may lie outside the progress points of the work below it before Delay Diagnostics asks whether an update is missing. It belongs to the project (how often progress is collected), not to the reader, so it is here and not in documentSettings."
+      "en": "How many working days a parent task's progress point may lie outside the progress points of the work below it before Delay Diagnosis asks whether an update is missing. It belongs to the project (how often progress is collected), not to the reader, so it is here and not in documentSettings."
      }
     },
     {
@@ -965,7 +965,7 @@
      "origin": "GRS",
      "exchange": "",
      "meaning": {
-      "ja": "日程データのタイムゾーン —— 保存する日時の数字を、どの固定の UTC の差の時刻として読むか（`01-04-requirements.md` の `FR-156`）。値は同要求の 表 T-376 の種が標準時の行の鍵であり、それ以外の値を持つ文書は開かない（同要求）。夏時間を季節で当てない。MSPDI を取り込んだ文書と新しく作った文書では、その PC の標準時の行の鍵とする（同要求）。⛔ MSPDI へは書き出さない —— 交換相手に置き場が無い"
+      "ja": "スケジュールデータのタイムゾーン —— 保存する日時の数字を、どの固定の UTC の差の時刻として読むか（`01-04-requirements.md` の `FR-156`）。値は同要求の 表 T-376 の種が標準時の行の鍵であり、それ以外の値を持つ文書は開かない（同要求）。夏時間を季節で当てない。MSPDI を取り込んだ文書と新しく作った文書では、その PC の標準時の行の鍵とする（同要求）。⛔ MSPDI へは書き出さない —— 交換相手に置き場が無い"
      },
      "schemaNote": {
       "en": "The fixed UTC offset whose wall clock the schedule date-times are, as a standard-time key such as UTC+09:00. Daylight saving is never applied by season. Not written to MS Project, which has no place for it."
@@ -2665,7 +2665,7 @@
      "origin": "GRS",
      "exchange": "",
      "meaning": {
-      "ja": "対象のタスク。**行が無い = 本ソフトウェア生まれ**"
+      "ja": "対象のタスク。**行が無い = `GRS` 生まれ**"
      }
     },
     {
@@ -3343,7 +3343,7 @@
      "origin": "GRS",
      "exchange": "",
      "meaning": {
-      "ja": "日程データの群が動いた刻。動かす条件は `FR-063`。**監視（`AG-6`）が見るのはこれだけである**"
+      "ja": "スケジュールデータの群が動いた刻。動かす条件は `FR-063`。**監視（`AG-6`）が見るのはこれだけである**"
      }
     },
     {
@@ -3393,7 +3393,7 @@
      "origin": "GRS",
      "exchange": "",
      "meaning": {
-      "ja": "開いているファイルへ最後に書いた時刻（`FR-101`）。**秒までとする**（`AT-127` / `AT-129` と揃える）。⛔ **日程データの群が動いた刻（`AT-127`）とは別物である** —— **あちらは文書の中身が動いた刻であり、本列はファイルへ書けた刻である。**⚠️ **まだ 1 度もファイルへ書いていないあいだは空とする** —— `FR-101` がその旨を画面に示す。⛔ **往復無損失の突き合わせから本列を外すこと** —— 保存のたびに変わるので、書き出して読み直した文書と元の文書は本列だけが必ず食い違う。⭐ **ファイルへ書けた時刻を持つのは本列だけである** —— MSPDI の `LastSaved` は列に持たず、書き出すその瞬間から作る（表 T-059 の `DV-12`）。保存の時刻を 1 か所に持ち、保存を日程の変更に数えないためである。⚠️ **文書を開いているあいだは本列を書き換えない** —— 書けた時刻の正は `FR-101` の 表 T-341 の下段であり、文書を運ぶバイト列の本列はそこから作る（同表の `HS-11`）。`Agent API` が手渡す文書と刻印の本列も、そこから作る（同表の `HS-12`）"
+      "ja": "開いているファイルへ最後に書いた時刻（`FR-101`）。**秒までとする**（`AT-127` / `AT-129` と揃える）。⛔ **スケジュールデータの群が動いた刻（`AT-127`）とは別物である** —— **あちらは文書の中身が動いた刻であり、本列はファイルへ書けた刻である。**⚠️ **まだ 1 度もファイルへ書いていないあいだは空とする** —— `FR-101` がその旨を画面に示す。⛔ **往復無損失の突き合わせから本列を外すこと** —— 保存のたびに変わるので、書き出して読み直した文書と元の文書は本列だけが必ず食い違う。⭐ **ファイルへ書けた時刻を持つのは本列だけである** —— MSPDI の `LastSaved` は列に持たず、書き出すその瞬間から作る（表 T-059 の `DV-12`）。保存の時刻を 1 か所に持ち、保存を日程の変更に数えないためである。⚠️ **文書を開いているあいだは本列を書き換えない** —— 書けた時刻の正は `FR-101` の 表 T-341 の下段であり、文書を運ぶバイト列の本列はそこから作る（同表の `HS-11`）。`Agent API` が手渡す文書と刻印の本列も、そこから作る（同表の `HS-12`）"
      },
      "schemaNote": {
       "en": "When this document was last written to its file. It lives in documentStamp, not in schedule.project, so that a save does not move scheduleUpdatedAt; it is UTC so that each reader sees it in their own local time. MS Project's LastSaved is not stored but made from the moment of export, so that the save time is held once and a save never counts as a schedule change."

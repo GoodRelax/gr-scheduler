@@ -1,4 +1,4 @@
-// CR-597 on the shipped build: the Search Panel's typed word (SV-5), row jump (SJ-1..SJ-4) and heading grab (GR-24, SV-10, SV-11).
+// CR-597 on the shipped build: the Search Window's typed word (SV-5), row jump (SJ-1..SJ-4) and heading grab (GR-24, SV-10, SV-11).
 
 import { expect, test, type Browser, type Page } from '@playwright/test'
 import { readRepoFile } from '../spec-files'
@@ -24,14 +24,14 @@ const DESIGN = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '05-07-
 const STATE_MACHINES = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '_assets', 'tbl-state-machines.md'), 'utf8'))
 
 const IF_9_WORD =
-  '上の MUST NOT の例外は、検索パネル（`U-64`）の入力欄（`FR-151` の 表 T-330 の `SV-2`）の 1 つだけとする —— 面は、この欄の語が変わるたびに、打ちかけの語をそのまま返すこと（MUST）'
+  '上の MUST NOT の例外は、検索ウィンドウ（`U-64`）の入力欄（`FR-151` の 表 T-330 の `SV-2`）の 1 つだけとする —— 面は、この欄の語が変わるたびに、打ちかけの語をそのまま返すこと（MUST）'
 const IF_9_POINT =
-  '⭐ ウィンドウ（`01-04-requirements.md` の `FR-036` の 表 T-335 —— ヘルプ・検索パネル・遅延診断レポートの窓）の上の点には、上の UI パーツと入口の答えに加えて下の 2 つ目を、検索パネルの上の点には 1 つ目も答えること（MUST）'
+  '⭐ ウィンドウ（`01-04-requirements.md` の `FR-036` の 表 T-335 —— ヘルプ・検索ウィンドウ・遅延診断レポートの窓）の上の点には、上の UI パーツと入口の答えに加えて下の 2 つ目を、検索ウィンドウの上の点には 1 つ目も答えること（MUST）'
 const IF_9_OTHER_CELLS = 'ほかのセルの上では、この答えを `null` とする —— `SJ-1` のとおり、ほかのセルは飛ばない。'
 const IF_9_ENTRY_ONLY = '入口の上では入口だけを答える —— `GR-24` は入口の載っていない所である'
 const SV_5_EACH = '語を 1 文字打ったとき、`GRS` は、表を作り直すこと。'
 const SV_5_NO_ENTER = '`GRS` は、表を作り直すのに `Enter` を要しないこと。'
-const SV_5_ENTER = '焦点が検索パネルの中にある間、 `Enter` を押したとき、`GRS` は、`SK-19` を当てないこと。焦点が検索パネルの中にある間、 `Enter` を押したとき、`GRS` は、`Enter` をブラウザへ渡すこと。'
+const SV_5_ENTER = '焦点が検索ウィンドウの中にある間、 `Enter` を押したとき、`GRS` は、`SK-19` を当てないこと。焦点が検索ウィンドウの中にある間、 `Enter` を押したとき、`GRS` は、`Enter` をブラウザーへ渡すこと。'
 const SJ_1_WHERE = '`GRS` は、飛ぶ入口を、タスクの表では `SQ-1` のセル、コメントボックスの表では `SQ-7` のセルにすること。'
 const SJ_1_OTHERS = ' `SJ-1` のほかのセルを押したとき、`GRS` は、飛ばないこと。'
 const SJ_2_OPEN =
@@ -42,12 +42,12 @@ const SJ_2_NO_STEP = '`SJ-2` で `treeState` の値が 1 つも変わらない�
 const SJ_4_CHOOSE = '`GRS` は、飛ぶ先のタスクかコメントボックスを選ぶこと（表 T-023c の `SL-1`）。'
 const SJ_4_PANEL_KEPT =
   '`GRS` は、表 T-346 の `RW-13` のほかでは、飛ぶことを理由に、プロパティパネル（`_assets/tbl-settings.md` の `S-99h`）を出したり閉じたりしないこと'
-const SV_10_WB_8 = '`GRS` は、検索パネルを `FR-036` の 表 T-335 の `WB-8` に従って動かすこと（掴む帯は `GR-24`）。'
-const SV_10_FOLLOW = 'タイトルバーの帯（表 T-023d の `GR-24`）を握っているあいだ、ウィンドウをポインタに追従させること（MUST）。'
+const SV_10_WB_8 = '`GRS` は、検索ウィンドウを `FR-036` の 表 T-335 の `WB-8` に従って動かすこと（掴む帯は `GR-24`）。'
+const SV_10_FOLLOW = 'タイトルバーの帯（表 T-023d の `GR-24`）を握っているあいだ、ウィンドウをポインターに追従させること（MUST）。'
 const SV_10_SETTLE = '位置が決まるのは離した時点、中断では元の位置へ戻す（表 T-028 の `IN-1`）。'
 const SV_11_INSIDE = 'ウィンドウを、ウィンドウごとの範囲（`WB-3` と同じ）の外へ出してはならない（MUST NOT）'
-const SV_11_EDGE = '縁と角（表 T-023d の `GR-25`）を握っているあいだ、ウィンドウの大きさをポインタに追従させること（MUST）。'
-const GR_24_WHERE = 'タイトルバーの、入口の載っていない所（検索パネルでは 表 T-330 の `SV-1` のタイトルバー）。'
+const SV_11_EDGE = '縁と角（表 T-023d の `GR-25`）を握っているあいだ、ウィンドウの大きさをポインターに追従させること（MUST）。'
+const GR_24_WHERE = 'タイトルバーの、入口の載っていない所（検索ウィンドウでは 表 T-330 の `SV-1` のタイトルバー）。'
 const GR_25_WHERE = '縁の内側と外側に、同じ `_assets/tbl-settings.md` の `S-426` の幅ずつ敷く'
 const RG_16_ROW = '| RG-16 | `Esc` | 開いているウィンドウ |'
 const AM_25_SAME_ROWS = '語を 1 つ受け、検索パネルの 2 つの表と同じ行を返す。'
@@ -232,7 +232,7 @@ async function scheduleCanvasRange(page: Page): Promise<Box> {
 /** @purity semi-pure-mutable */
 async function panelBox(page: Page): Promise<Box> {
   const box = await boxOf(page, SEARCH_PANEL)
-  if (box === null) throw new Error('the Search Panel is not on the screen')
+  if (box === null) throw new Error('the Search Window is not on the screen')
   return box
 }
 
@@ -263,7 +263,7 @@ async function cellCenter(page: Page, column: string, rowIndex: number): Promise
     },
     { panel: SEARCH_PANEL, column, row: rowIndex },
   )
-  if (found === null) throw new Error(`the Search Panel draws no ${column} cell in row ${String(rowIndex)}`)
+  if (found === null) throw new Error(`the Search Window draws no ${column} cell in row ${String(rowIndex)}`)
   return found
 }
 

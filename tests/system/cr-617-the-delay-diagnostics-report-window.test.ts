@@ -1,4 +1,4 @@
-// CR-617 / CR-781 / CR-797 on the shipped build: IC-107 opens the Delay Diagnostics Report window (RW-1), IC-52, Esc and a second IC-107 close it alone, IC-40 ends the diagnosis, IC-168 runs it again with the window open.
+// CR-617 / CR-781 / CR-797 on the shipped build: IC-107 opens the Delay Diagnosis Report window (RW-1), IC-52, Esc and a second IC-107 close it alone, IC-40 ends the diagnosis, IC-168 runs it again with the window open.
 
 import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'

@@ -131,7 +131,7 @@ test('OP-17 (MUST): dropping takes the cue down, and the drop opens the GRS JSON
   await expect.poll(() => cueCount(page)).toBe(1)
   await fire(page, 'drop', CANVAS)
   expect(await cueCount(page), `${OP_17_OUTSIDE} -- the cue stayed after the drop`).toBe(0)
-  await expect(page.locator('[data-role="Open Chooser"]'), 'OP-19: the dropped GRS JSON raised the Open Chooser').toHaveCount(0)
+  await expect(page.locator('[data-role="Open File Dialog"]'), 'OP-19: the dropped GRS JSON raised the Open File Dialog').toHaveCount(0)
 })
 
 test('OP-17: after a drop, the next drag starts counting from the window again (a drop leaves no depth behind)', async ({ page }) => {
@@ -147,7 +147,7 @@ test('OP-17: after a drop, the next drag starts counting from the window again (
     await page.click('[data-role="Confirmation"] [data-confirmation-answer="proceed"]')
     await settle(page)
   }
-  await expect(page.locator('[data-role="Open Chooser"]')).toHaveCount(0)
+  await expect(page.locator('[data-role="Open File Dialog"]')).toHaveCount(0)
   await fire(page, 'dragenter', CANVAS)
   await expect.poll(() => cueCount(page), 'the earlier drop left a depth behind, so the new drag is not seen as entering').toBe(1)
   await fire(page, 'dragleave', CANVAS)
@@ -158,7 +158,7 @@ test('OP-17 (MUST NOT): while an open chooser stands the app would refuse a drop
   await launch(page)
   // Why: the file dialog keeps U-56; a dropped GRS JSON skips it (OP-19).
   await openThroughIc1(page, 'dragged.json', DOCUMENT_TEXT, null)
-  await expect(page.locator('[data-role="Open Chooser"]')).toHaveCount(1)
+  await expect(page.locator('[data-role="Open File Dialog"]')).toHaveCount(1)
   await fire(page, 'dragleave', CANVAS)
   await fire(page, 'dragenter', CANVAS)
   expect(await cueCount(page), `${OP_17_REFUSED} -- the cue invites a drop that RS-27 refuses`).toBe(0)

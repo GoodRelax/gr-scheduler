@@ -43,7 +43,7 @@ const FR_102_EVERY_FRAME = '`GRS` は、画面の状態を、描いたフレー�
 const IR_1_FOCUS = '| IR-1 | 焦点の位置 | 焦点を持つ要素の種類を書くこと（MUST）'
 const IR_1_NO_CONTENT = 'どれでもなければ文書の本体。⛔ 欄の中身を書いてはならない（MUST NOT）'
 const IR_2_PANEL =
-  '出しているときの中身が選択物か文書の設定か（`_assets/tbl-settings.md` の 表 T-206 の `S-99h`）を書くこと（MUST）'
+  '出しているときの中身が選択物か文書設定か（`_assets/tbl-settings.md` の 表 T-206 の `S-99h`）を書くこと（MUST）'
 const IR_3_REASON = '| IR-3 | 出ている通知の理由 | 出ている通知ごとに、その理由の行 ID（表 T-233 の `RS-` の行、または Chapter 6.1 の 表 T-220 の行）を書くこと（MUST）'
 
 describe('CR-426 -- the manuscript these cases are driven by', () => {

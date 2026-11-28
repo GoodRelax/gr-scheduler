@@ -300,7 +300,7 @@ describe('FR-101 (MUST) -- once one save has succeeded', () => {
   })
 
   // Spec: IMPS-998
-  it('⛔ MUST NOT: the name it shows is the file’s, not the `Document Title`', async () => {
+  it('⛔ MUST NOT: the name it shows is the file’s, not the `Project Title`', async () => {
     const one = bench(templateDocument())
     one.runFrames()
     const title = one.last().appHeaderItems.documentTitle

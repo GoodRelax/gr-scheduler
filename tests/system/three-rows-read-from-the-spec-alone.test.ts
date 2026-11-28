@@ -211,7 +211,7 @@ const SHIPPED_BUILD = join(process.cwd(), 'dist', 'index.html')
 const CANVAS = '[data-role="Schedule Canvas"] svg'
 const CANVAS_PART = '[data-role="Schedule Canvas"]'
 const TASK_GROUP_PANEL_BOX = '[data-role="Task Group Panel"]'
-const HELP = '[data-role="Help Modal"]'
+const HELP = '[data-role="Help Window"]'
 
 let browser: Browser | null = null
 

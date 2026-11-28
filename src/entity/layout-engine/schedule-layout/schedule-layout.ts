@@ -169,7 +169,7 @@ export interface ScheduleLayout {
   readonly pxPerDay: number
   readonly tier: RulerTier
   readonly originDay: CalendarDay | null
-  // Trap: axis readers start here, not at the Task Group Area edge: S-177 puts that edge inside the day.
+  // Trap: axis readers start here, not at the Task Group Lanes edge: S-177 puts that edge inside the day.
   readonly originX: number
   readonly rectangleHeight: number
   readonly taskGroups: readonly TaskGroupPlacement[]

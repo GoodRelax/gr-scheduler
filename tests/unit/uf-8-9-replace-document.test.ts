@@ -753,7 +753,7 @@ describe('表 T-230 の刻印の欄 -- 行ごとに', () => {
         // which is the thing being judged.
         expect(
           drive.ws3Document.schedule,
-          'the merge this row drives is meant to change the 日程データの群',
+          'the merge this row drives is meant to change the スケジュールデータの群',
         ).not.toEqual(drive.start.document.schedule)
         expect(landed.documentStamp.scheduleUpdatedAt).toBe(WRITE_INSTANT)
       }
@@ -957,7 +957,7 @@ describe('WS-6 then WS-7 -- 差し替えの後に通知を配る', () => {
   })
 })
 
-describe('日程データの群が動いたか -- 出て行く文書と入ってくる文書の等値で導く', () => {
+describe('スケジュールデータの群が動いたか -- 出て行く文書と入ってくる文書の等値で導く', () => {
   it('GIVEN two different `scheduleUpdatedAt` WHEN the replacement lands THEN WS-7 is told the schedule moved', () => {
     expect(OUT_OF_A_FILE.documentStamp.scheduleUpdatedAt).not.toBe(
       CURRENT.documentStamp.scheduleUpdatedAt,

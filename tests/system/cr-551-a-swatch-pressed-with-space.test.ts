@@ -10,7 +10,7 @@ import { rowOf } from './sws-case'
 
 const DESIGN = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '05-07-design.md'), 'utf8'))
 
-const FT_1_INPUT = '人の入力（ポインタとキー）'
+const FT_1_INPUT = '人の入力（ポインターとキー）'
 
 const WORDS = JSON.parse(readRepoFile(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8')) as {
   colorNames: { spelling: string; text: { ja: string; en: string } }[]
@@ -47,7 +47,7 @@ test.afterAll(async () => {
   await browser?.close()
 })
 
-test('FT-1 still says: 人の入力（ポインタとキー）', () => {
+test('FT-1 still says: 人の入力（ポインターとキー）', () => {
   expect(DESIGN).toContain(FT_1_INPUT)
   expect(LINE_ROW).not.toBe('')
 })

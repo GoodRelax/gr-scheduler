@@ -1,4 +1,4 @@
-// DFC-1053: the guide cursor and the Dual Cursor readout answer the same region for a point on the edge of the Task Group Area (CU-2, DC-3, T-064).
+// DFC-1053: the guide cursor and the Dual Cursor readout answer the same region for a point on the edge of the Task Group Lanes (CU-2, DC-3, T-064).
 
 import { describe, expect, it } from 'vitest'
 
@@ -77,7 +77,7 @@ const MIDDLE_X = AREA.x + AREA.width / 2
 const MIDDLE_Y = AREA.y + AREA.height / 2
 
 const POINTS = [
-  { name: 'the middle of the Task Group Area', x: MIDDLE_X, y: MIDDLE_Y },
+  { name: 'the middle of the Task Group Lanes', x: MIDDLE_X, y: MIDDLE_Y },
   { name: 'the last whole pixel inside the right edge', x: RIGHT - 1, y: MIDDLE_Y },
   { name: 'the right edge itself', x: RIGHT, y: MIDDLE_Y },
   { name: 'one pixel past the right edge', x: RIGHT + 1, y: MIDDLE_Y },

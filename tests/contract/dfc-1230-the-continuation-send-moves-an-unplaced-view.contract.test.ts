@@ -59,12 +59,12 @@ const S_77 = rowCells('T-203', 'S-77')
 const S_78 = rowCells('T-203', 'S-78')
 const S_176 = rowCells('T-203', 'S-176')
 
-const EL_11_STAY = '続きの印を押して離したとき、印の先の端の予定の形が `Task Group Area` の横の範囲に入っていなければ、`GRS` は、倍率を変えずに、予定の形の横の中点が `Task Group Area` の横の中点に来るよう、表示位置を横に送ること（入っていれば横に送らない）。'
+const EL_11_STAY = '続きマークを押して離したとき、印の先の端の予定の形が `Task Group Lanes` の横の範囲に入っていなければ、`GRS` は、倍率を変えずに、予定の形の横の中点が `Task Group Lanes` の横の中点に来るよう、表示位置を横に送ること（入っていれば横に送らない）。'
 const EL_12_SEND =
-  '続きの印を押して離したとき、印の先の端が `EL-1` の縦の範囲（端のタスクグループを描く場所）に入っていないか、`EL-10` で縦の倍率を変えたか、`EL-21` でタスクグループを展開したなら、`GRS` は、端のタスクグループが帯の下の残りの上端に来るよう、表示位置を縦に送ること（入っているときは縦に送らない）'
+  '続きマークを押して離したとき、印の先の端が `EL-1` の縦の範囲（端のタスクグループを描く場所）に入っていないか、`EL-10` で縦の倍率を変えたか、`EL-21` でタスクグループを展開したなら、`GRS` は、端のタスクグループが帯の下の残りの上端に来るよう、表示位置を縦に送ること（入っているときは縦に送らない）'
 const EL_12_HOW = '`_assets/tbl-settings.md` の 表 T-203 の `S-78` を端のタスクグループに、`S-176` を 0 にする'
-const EL_16_MARK = '続きの印を押して離したとき、`GRS` は、印の先の端の `Task` と、押した印の依存線（`EL-13` が応えた線）に、送った先の印を付けること。'
-const PE_12_SEND = '続きの印を押して離したとき、`GRS` は、線を選ばず、選択を空にしたうえで `FR-009` の 表 T-303 の `EL-10` 〜 `EL-12` に従って印の先へ送り'
+const EL_16_MARK = '続きマークを押して離したとき、`GRS` は、印の先の端の `Task` と、押した印の依存線（`EL-13` が応えた線）に、送った先の印を付けること。'
+const PE_12_SEND = '続きマークを押して離したとき、`GRS` は、線を選ばず、選択を空にしたうえで `FR-009` の 表 T-303 の `EL-10` 〜 `EL-12` に従って印の先へ送り'
 const OP_10_CHOICE = '人が倍率か表示位置を選んだときは、それを表示位置とすること（MUST）'
 const OP_10_NOT_REDONE = '選んだ時点で「人がまだ場所を決めていない」ではなくなるので、本行の条件は成り立たなくなり、全体表示はやり直されない。'
 const OP_10_TEMPLATE_HAS_NO_PLACE = '同梱のテンプレートは誰も一度も開いたことがないので必ず表示位置を持たず'
@@ -363,7 +363,7 @@ describe(`(a) translator -- EL-12: ${EL_12_SEND}`, () => {
       expect(far, 'premise: Task 2 is laid out (depth 1, not hidden by the LOD)').toBeDefined()
       expect(
         far!.x >= scene.taskGroupArea.x && far!.x + far!.width <= scene.taskGroupArea.x + scene.taskGroupArea.width,
-        'premise: Task 2 lies inside the Task Group Area across',
+        'premise: Task 2 lies inside the Task Group Lanes across',
       ).toBe(true)
       const { press } = stillClickOn(scene)
       expect(press.hit?.grab, `premise: the still press lands on GA-24 (${PE_12_SEND})`).toBe('GA-24')

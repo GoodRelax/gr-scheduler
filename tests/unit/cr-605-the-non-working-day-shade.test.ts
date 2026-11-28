@@ -1,4 +1,4 @@
-// CR-605 part A: non-working days are shaded in the Task Group Area (FR-054, table T-343, color S-450).
+// CR-605 part A: non-working days are shaded in the Task Group Lanes (FR-054, table T-343, color S-450).
 
 import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
@@ -45,7 +45,7 @@ const OD_2_DAY = '「年 ＋ 月 ＋ 日 ＋ 曜日」の段では非稼働日�
 const OD_2_WEEK_MONTH = '「年 ＋ 月 ＋ 週」と「年 ＋ 月」の段では、例外日で非稼働になった日だけを塗る。'
 const OD_2_YEAR = '「年」の段では塗らない。'
 // Spec: OD-3
-const OD_3_EXTENT = '`Task Group Area`（`_assets/tbl-glossary.md` の `U-50`）の上端から下端まで、その日の列の幅（時間帯の外は、その時間の幅）で塗ること（MUST）。'
+const OD_3_EXTENT = '`Task Group Lanes`（`_assets/tbl-glossary.md` の `U-50`）の上端から下端まで、その日の列の幅（時間帯の外は、その時間の幅）で塗ること（MUST）。'
 const OD_3_PINNED = 'ピン止めしたタスクグループ（`U-46`）の上も塗る。'
 const OD_3_NOT_RULER = '⛔ `Time Ruler`（`U-19`）の帯は塗らない（MUST NOT）'
 // Spec: OD-4
@@ -306,7 +306,7 @@ const expectedRunsOf = (frame: Frame, svg: string, shaded: (at: CalendarDay) => 
   const right = bandRightOf(svg)
   const first = dateAtX(frame.layout, left)
   const last = dateAtX(frame.layout, right)
-  if (first === null || last === null) throw new Error('premise: the layout maps the Task Group Area to days')
+  if (first === null || last === null) throw new Error('premise: the layout maps the Task Group Lanes to days')
   const px = frame.layout.pxPerDay
   const out: Run[] = []
   let open: { x0: number; x1: number } | null = null
@@ -470,14 +470,14 @@ describe('OD-3 -- where the shade stands', () => {
     ['no pinned task group', {}],
     ['the first task group pinned', { [PINNED_KEY]: ['g1'] }],
   ] as const) {
-    it(`「${OD_3_EXTENT}」 ${name}: every run spans the Task Group Area from top to bottom`, () => {
+    it(`「${OD_3_EXTENT}」 ${name}: every run spans the Task Group Lanes from top to bottom`, () => {
       const frame = tierFrame('yearMonthDayWeekday', {}, over)
       const runs = runsOf(shadeOf(frame.svg()))
       expect(runs.length, 'premise: something is shaded').toBeGreaterThan(0)
       for (const one of runs) {
-        expect(Math.abs(one.y0 - frame.taskGroupArea.y), 'top of the Task Group Area').toBeLessThanOrEqual(ROUND)
-        expect(Math.abs(one.y1 - (frame.taskGroupArea.y + frame.taskGroupArea.height)), 'bottom of the Task Group Area').toBeLessThanOrEqual(ROUND)
-        expect(one.x0, 'not left of the Task Group Area').toBeGreaterThanOrEqual(frame.taskGroupArea.x - ROUND)
+        expect(Math.abs(one.y0 - frame.taskGroupArea.y), 'top of the Task Group Lanes').toBeLessThanOrEqual(ROUND)
+        expect(Math.abs(one.y1 - (frame.taskGroupArea.y + frame.taskGroupArea.height)), 'bottom of the Task Group Lanes').toBeLessThanOrEqual(ROUND)
+        expect(one.x0, 'not left of the Task Group Lanes').toBeGreaterThanOrEqual(frame.taskGroupArea.x - ROUND)
       }
     })
   }
@@ -499,7 +499,7 @@ describe('OD-3 -- where the shade stands', () => {
   it(`「${OD_3_NOT_RULER}」 no run reaches into the Time Ruler band`, () => {
     const frame = tierFrame('yearMonthDayWeekday')
     const ruler = frame.timeRuler
-    expect(ruler.y + ruler.height, 'premise: the ruler sits above the Task Group Area').toBeLessThanOrEqual(frame.taskGroupArea.y + ROUND)
+    expect(ruler.y + ruler.height, 'premise: the ruler sits above the Task Group Lanes').toBeLessThanOrEqual(frame.taskGroupArea.y + ROUND)
     for (const one of runsOf(shadeOf(frame.svg()))) {
       const overlap = Math.min(one.y1, ruler.y + ruler.height) - Math.max(one.y0, ruler.y)
       expect(overlap, 'shade inside the ruler band').toBeLessThanOrEqual(ROUND)

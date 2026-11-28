@@ -1,4 +1,4 @@
-// W3 spec-only cases on the shipped build: FR-025 IX-12 / IX-14 / IX-15 / IX-16 (the export span picture) and FR-096 (the Export Chooser row, its span line).
+// W3 spec-only cases on the shipped build: FR-025 IX-12 / IX-14 / IX-15 / IX-16 (the export span picture) and FR-096 (the Save As Dialog row, its span line).
 
 import { expect, test, type Browser, type Page } from '@playwright/test'
 import { readRepoFile } from '../spec-files'
@@ -20,7 +20,7 @@ const IX_15_NO_FIT = '`S-217` を超えるときは `IX-5` ・ `IX-6` のとお�
 const IX_16 = '| IX-16 | 期間の絵に描く UI パーツ | 表 T-076 に従うこと（MUST）'
 // Spec: IMPS-1045
 const FR_096_SPAN = '`GRS` は、期間の行の語を、`FR-038` の辞書の `exportChooser` の `fitSpan` の語とすること。`GRS` は、語の中の 2 つの日を、`FR-055` の 表 T-367 の `FX-8` の形で書くこと。'
-const EP_3_NO_DOM = '画面は名前を箱の上端に寄せて置き（`FR-085`）、書き出しは字をベースラインで置くので、測らずに同じ高さへ揃えるには上端からの補正が要る —— `EP-1` の `Document Title` と同じ考え方である。⛔ DOM を測って揃えてはならない（MUST NOT）'
+const EP_3_NO_DOM = '画面は名前を箱の上端に寄せて置き（`FR-085`）、書き出しは字をベースラインで置くので、測らずに同じ高さへ揃えるには上端からの補正が要る —— `EP-1` の `Project Title` と同じ考え方である。⛔ DOM を測って揃えてはならない（MUST NOT）'
 const WB_10_MOVE = 'タイトルバーの帯（表 T-023d の `GR-24`）で動かす —— 追従と、位置が決まる時点と、中断は `WB-8` と同じとすること（MUST）'
 const FR_077_NO_FLOOR = '`GRS` は、書き出した画像の側に可読の下限を課さないこと。'
 const FR_096_GAP = '`GRS` は、上下に隣り合う 2 つの形式のボタンのあいだを、`_assets/tbl-settings.md` の 表 T-206 の `S-517` の隔たりとすること。 | FR-362 |\n| IMPS-1043 | 選択面の幅 | `GRS` は、選択面の幅を、縦に並べた形式と見出しの段から決めること。'
@@ -167,7 +167,7 @@ test.describe('FR-025 the export span picture on the shipped build', () => {
     }
   })
 
-  test(`IX-12 (MUST): ${IX_12.slice(-40)} -- the day width is the Task Group Area over the span's days, whatever the window`, async () => {
+  test(`IX-12 (MUST): ${IX_12.slice(-40)} -- the day width is the Task Group Lanes over the span's days, whatever the window`, async () => {
     const opened = await stageWith(12, { ...SPAN_28, isFitSpanFixed: true })
     try {
       const at28 = await pictureOf(opened.page)
@@ -183,8 +183,8 @@ test.describe('FR-025 the export span picture on the shipped build', () => {
       const at14 = await pictureOf(opened.page)
       const bar14 = planOf(at14, 1)
       const day14 = (bar14.right - bar14.left) / 3
-      expect(bar14.left, 'the span start sits on the Task Group Area left edge both times').toBeCloseTo(bar28.left, 1)
-      expect(14 * day14, 'one Task Group Area width, divided by 14 or by 28 days').toBeCloseTo(28 * day28, 0)
+      expect(bar14.left, 'the span start sits on the Task Group Lanes left edge both times').toBeCloseTo(bar28.left, 1)
+      expect(14 * day14, 'one Task Group Lanes width, divided by 14 or by 28 days').toBeCloseTo(28 * day28, 0)
     } finally {
       await opened.close()
     }
@@ -230,7 +230,7 @@ test.describe('FR-025 the export span picture on the shipped build', () => {
       }, PALETTE_COMMANDS)
       expect(paletteWords.length, 'premise: the Command Palette is open on the screen').toBeGreaterThan(0)
       const svg = await pictureOf(opened.page)
-      expect(textYOf(svg, 'Span plan'), 'EP-1: the Document Title').not.toBeNull()
+      expect(textYOf(svg, 'Span plan'), 'EP-1: the Project Title').not.toBeNull()
       expect(textYOf(svg, 'Row 12'), 'EP-3: the Task Group Panel').not.toBeNull()
       expect(svg, 'EP-5: the task bars').toContain('data-figure="task-12-plan"')
       const texts = [...svg.matchAll(/<text\b[^>]*>([^<]*)<\/text>/g)].map((one) => one[1] ?? '')
@@ -241,7 +241,7 @@ test.describe('FR-025 the export span picture on the shipped build', () => {
   })
 })
 
-test.describe('FR-096 the Export Chooser on the shipped build', () => {
+test.describe('FR-096 the Save As Dialog on the shipped build', () => {
   test.setTimeout(180_000)
 
   /** @purity semi-pure-mutable */
@@ -263,7 +263,7 @@ test.describe('FR-096 the Export Chooser on the shipped build', () => {
   test(`SCN-45 FR-096 (MUST): ${FR_096_SPAN.slice(-40)} -- the span line reads 2026/03/02 - 2026/03/29 and is gone with the span @UC-011.OK`, async () => {
     const opened = await stageWith(4, { ...SPAN_28, isFitSpanFixed: true })
     try {
-      expect(await pressEntrance(opened.page, OPEN_EXPORT_CHOOSER), 'IC-2 opens the Export Chooser').toBe(true)
+      expect(await pressEntrance(opened.page, OPEN_EXPORT_CHOOSER), 'IC-2 opens the Save As Dialog').toBe(true)
       const shown = await chooserOf(opened.page)
       const said = [SPAN_WORDS.ja, SPAN_WORDS.en].map((words) => words.replace('{start}', '2026/03/02').replace('{finish}', '2026/03/29'))
       expect(said, 'FX-8: the year, the month and the day, zero-filled').toContain(shown.line)
@@ -365,13 +365,13 @@ test.describe(`WB-10 (MUST): ${WB_10_MOVE.slice(-40)}`, () => {
     }, selector)
   }
 
-  test('the Export Chooser follows its title band, stays where released, and opens in the center again', async () => {
+  test('the Save As Dialog follows its title band, stays where released, and opens in the center again', async () => {
     const opened = await stageWith(4, {})
     try {
       expect(await pressEntrance(opened.page, OPEN_EXPORT_CHOOSER)).toBe(true)
       const band = await boxOf(opened.page, `${EXPORT_CHOOSER} [data-window-grab="true"]`)
       const start = await boxOf(opened.page, EXPORT_CHOOSER)
-      if (band === null || start === null) throw new Error('the Export Chooser and its title band are on the screen')
+      if (band === null || start === null) throw new Error('the Save As Dialog and its title band are on the screen')
       const grip = { x: band.x + 20, y: band.y + band.h / 2 }
       await opened.page.mouse.move(grip.x, grip.y)
       await opened.page.mouse.down()

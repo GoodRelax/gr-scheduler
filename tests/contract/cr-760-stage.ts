@@ -226,8 +226,8 @@ export async function searchShown(stage: WindowStage): Promise<void> {
 }
 
 export const searchPanelElement = (stage: WindowStage): FakeElement => {
-  const found = selfAndDescendants(stage.built.root()).find((one) => one.getAttribute('data-role') === 'Search Panel')
-  if (found === undefined) throw new Error('the Search Panel is not drawn')
+  const found = selfAndDescendants(stage.built.root()).find((one) => one.getAttribute('data-role') === 'Search Window')
+  if (found === undefined) throw new Error('the Search Window is not drawn')
   return found
 }
 
@@ -258,7 +258,7 @@ const tableReadOf = (view: unknown, what: string): TableRead => {
   }
 }
 
-export const searchRead = (stage: WindowStage): TableRead => tableReadOf(stage.last().searchPanel, 'the Search Panel')
+export const searchRead = (stage: WindowStage): TableRead => tableReadOf(stage.last().searchPanel, 'the Search Window')
 export const reportRead = (stage: WindowStage): TableRead =>
   tableReadOf((stage.last() as unknown as { delayDiagnosticsReport: unknown }).delayDiagnosticsReport, 'the report window')
 

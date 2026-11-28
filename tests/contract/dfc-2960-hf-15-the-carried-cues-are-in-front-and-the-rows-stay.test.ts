@@ -24,13 +24,13 @@ afterEach(() => {
   else GLOBAL['requestAnimationFrame'] = realRaf
 })
 
-const HF_15_IN_FRONT = '`GRS` は、差し込み線と名前の写しを、パネルの行と操作子より前に描くこと。'
-const HF_15_NO_REDRAW = 'タスクグループを運んでいる間、`GRS` は、ポインタが動いただけでパネルの行を描き直さないこと。タスクグループを運んでいる間、`GRS` は、差し込み線と写しだけを描き直すこと。'
-const HF_15_FOLLOW = 'タスクグループを握っている間、`GRS` は、掴み代の印とタスクグループ名の写しを、ポインタから 表 T-206 の `S-599` だけ右と下へずらして付いて行かせること。'
-const HF_15_NO_CONTROLS = 'タスクグループを運んでいる間、`GRS` は、どの行にも操作子（`HF-6`）と操作子の地を描かないこと。'
-const HF_15_BACK = '離すか `Esc` でやめたとき、`GRS` は、操作子を `HF-6` のとおりに戻すこと。'
-const HF_6_TAIL = 'タスクグループを運んでいる間（`HF-15`）、`GRS` は、ポインタが乗っていても操作子と地を描かないこと（規則と理由は `HF-15` が持つ）。'
-const HF_6_HEAD = '`GRS` は、操作子を、タスクグループ名か、タスクグループのために描いた操作子の群（地を敷く範囲）にポインタが乗っているあいだだけ描くこと。'
+const HF_15_IN_FRONT = '`GRS` は、差し込み線と名前のコピーを、パネルの行とボタンより前に描くこと。'
+const HF_15_NO_REDRAW = 'タスクグループを運んでいる間、`GRS` は、ポインターが動いただけでパネルの行を描き直さないこと。タスクグループを運んでいる間、`GRS` は、差し込み線とコピーだけを描き直すこと。'
+const HF_15_FOLLOW = 'タスクグループを握っている間、`GRS` は、掴み代の印とタスクグループ名のコピーを、ポインターから 表 T-206 の `S-599` だけ右と下へずらして付いて行かせること。'
+const HF_15_NO_CONTROLS = 'タスクグループを運んでいる間、`GRS` は、どの行にも `Task Group Buttons`（`HF-6`）とボタンの地を描かないこと。'
+const HF_15_BACK = '離すか `Esc` でやめたとき、`GRS` は、`Task Group Buttons` を `HF-6` のとおりに戻すこと。'
+const HF_6_TAIL = 'タスクグループを運んでいる間（`HF-15`）、`GRS` は、ポインターが乗っていてもボタンと地を描かないこと（規則と理由は `HF-15` が持つ）。'
+const HF_6_HEAD = '`GRS` は、`Task Group Buttons` を、タスクグループ名か、タスクグループのために描いたボタンの群（地を敷く範囲）にポインターが乗っているあいだだけ描くこと。'
 
 // Why: the held task group B (with B1 under it) in the cr-772 tree; drawn order A, A1, A1x, Ah, A2, A2a, B, B1, C (folded), D, E, E1, E2, E3.
 const HELD = 'B'

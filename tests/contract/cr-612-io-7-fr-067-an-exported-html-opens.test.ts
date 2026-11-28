@@ -23,7 +23,7 @@ import { specTable } from './spec-table'
 const RS_67 = reasonWords('RS-67')
 
 const OPENS_ELSEWHERE = '`GRS` は、書き出した `.html` を、開く道（`FR-087`）でも読めるようにすること。'
-const HTML_HAS_NO_TARGET = '単一 `.html`（表 T-024 の `IO-7`）から置き換えで開いた文書も同じである'
+const HTML_HAS_NO_TARGET = '`GRS HTML`（表 T-024 の `IO-7`）から置き換えで開いた文書も同じである'
 
 const PLAIN_SHELL =
   '<!doctype html><html lang="en"><head><meta charset="utf-8">' +

@@ -22,9 +22,9 @@ import {
 } from './cr-721-stage'
 
 const SV_7_GREEN =
-  '`GRS` は、列のフィルタを掛けている列 —— 値の一覧の印を 1 つでも外した列か、「いつから」か「いつまで」を置いた列 —— の見出しのセルを、`_assets/tbl-settings.md` の 表 T-236 の `S-183` で塗ること。`GRS` は、列のフィルタを掛けている列の見出しのセルの語と `IC-122` の絵を、`S-146`（地の色）で描くこと'
-const SV_7_SORT_ONLY = '`GRS` は、並べ替えだけを掛けた列の見出しを塗らないこと —— 緑は列のフィルタだけの合図である（利用者が定めた）'
-const SV_1_NOTHING = '列のフィルタも並べ替えも掛かっていない間、`GRS` は、`IC-153` を効かなくすること（`FR-092`）。'
+  '`GRS` は、列のフィルターを掛けている列 —— 値の一覧の印を 1 つでも外した列か、「いつから」か「いつまで」を置いた列 —— の見出しのセルを、`_assets/tbl-settings.md` の 表 T-236 の `S-183` で塗ること。`GRS` は、列のフィルターを掛けている列の見出しのセルの語と `IC-122` の絵を、`S-146`（地の色）で描くこと'
+const SV_7_SORT_ONLY = '`GRS` は、並べ替えだけを掛けた列の見出しを塗らないこと —— 緑は列のフィルターだけの合図である（利用者が定めた）'
+const SV_1_NOTHING = '列のフィルターも並べ替えも掛かっていない間、`GRS` は、`IC-153` を効かなくすること（`FR-092`）。'
 const IC_153_KEEPS = '⭐ 語・表示の列の値・日程抽出（`IC-143`）は変えない。'
 
 let browser: Browser | null = null
@@ -164,7 +164,7 @@ test.describe('T-330 SV-7 -- a date bound paints the heading too', () => {
   })
 })
 
-test.describe('T-330 SV-1 / T-109 IC-153 -- Clear Filters on the Search Panel', () => {
+test.describe('T-330 SV-1 / T-109 IC-153 -- Clear Filters on the Search Window', () => {
   test.setTimeout(240_000)
 
   test(`SV-1 「${SV_1_NOTHING}」 -- the entry is idle on a fresh table`, async () => {

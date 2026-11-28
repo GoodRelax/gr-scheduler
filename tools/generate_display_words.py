@@ -458,7 +458,7 @@ TASK_TYPE_PARTS = ('task', 'milestone')
 RESOURCE_LIST_COLUMN_ROW = re.compile(r'^\| (RQ-\d+[a-z]?) \|')
 RESOURCE_LIST_COLUMN_TABLE = 'T-371'
 RESOURCE_LIST_PARTS = ('unassigned', 'taskSeparator')
-# CR-623: the Open Chooser (U-56, row OP-16 of table T-024a). The labels of
+# CR-623: the Open File Dialog (U-56, row OP-16 of table T-024a). The labels of
 # its file line and document-title line, and the word beside its cancel row,
 # are no table's rows, so they are HELD HERE, the same move as
 # SEARCH_PANEL_PARTS. KEYS, not words.
@@ -473,7 +473,7 @@ DROP_CUE_PARTS = ('dropToOpen',)
 # "take in as a separate task" (MG-10 of table T-032). No table holds it as a
 # row, so it is HELD HERE, the same move as OPEN_CHOOSER_PARTS. KEYS, not words.
 DIFFERENCE_REVIEW_PARTS = ('separateNote',)
-# CR-677: the one line the Export Chooser (U-54, FR-096) shows under its
+# CR-677: the one line the Save As Dialog (U-54, FR-096) shows under its
 # format grid while the document fixes its fit span (S-532, CR-690). No
 # table holds it as a row, so it is HELD HERE, the same move as
 # OPEN_CHOOSER_PARTS. KEYS, not words.
@@ -492,7 +492,7 @@ PARENT_TASK_CHOICE_PARTS = ('childTasks', 'tasks', 'links')
 # weekday reuses `weekdays`, and TL-9 / TL-11 forbid a second word), so a
 # roster of every row would ask for words the specification forbids. The row
 # id IS the key, and `hint_lines` checks each one is still a row of the table.
-# CR-648: the Delay Diagnostics Report window (FR-134, table T-346). The column
+# CR-648: the Delay Diagnosis Report window (FR-134, table T-346). The column
 # headings are READ from table T-347, the move `searchColumns` makes with table
 # T-331. The statuses are DT-1's six in its order, each keyed by the row it is
 # made of -- four rows of table T-315, and the two rows of table T-317 DT-1 names
@@ -530,7 +530,7 @@ DELAY_ASPECT_TABLES = ('T-310', 'T-311')
 DELAY_ASPECTS_WITH_OWN_WORDS = ('VS-6',)
 DELAY_WALL_ROW = re.compile(r'^\| (DW-\d+[a-z]?) \|')
 DELAY_WALL_TABLE = 'T-316'
-# CR-731: the fix proposals and the fix log of the Delay Diagnostics Report
+# CR-731: the fix proposals and the fix log of the Delay Diagnosis Report
 # (FR-155). The column headings are READ from table T-374, the move
 # `delayReportColumns` makes with table T-347. The count beside the two
 # fix entrances (RW-12), the counter of RW-14, the four fix types of table

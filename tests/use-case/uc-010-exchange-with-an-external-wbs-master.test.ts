@@ -61,7 +61,7 @@ const mspdiDifferences = (page: Page, left: string, right: string, namespaceBlin
 const exportMspdiByUi = async (page: Page): Promise<string> => {
   const before = (await savedFiles(page)).length
   await press(page, 'IC-2')
-  await page.click('[data-role="Export Chooser"] [data-format="IO-1"]')
+  await page.click('[data-role="Save As Dialog"] [data-format="IO-1"]')
   await expect.poll(async () => (await savedFiles(page)).length).toBe(before + 1)
   return (await savedFiles(page))[before]!.text
 }
@@ -83,7 +83,7 @@ test('SCN-37 SCN-38 UC-010 exchange with an external WBS master (FR-087 OP-3 OP-
       for (const type of ['dragenter', 'dragover', 'drop']) target.dispatchEvent(new DragEvent(type, { bubbles: true, cancelable: true, dataTransfer: transfer }))
     }, original.slice(0, Math.floor(original.length / 2)))
     await settle(page)
-    await expect(page.locator('[data-role="Open Chooser"]')).toHaveCount(0)
+    await expect(page.locator('[data-role="Open File Dialog"]')).toHaveCount(0)
     await expect.soft(page.locator('[data-role="Notification Area"]')).not.toHaveText('')
     expect((await readDocument(page)).schedule.tasks.length).toBe(before.schedule.tasks.length)
     await page.keyboard.press('Escape')
@@ -96,9 +96,9 @@ test('SCN-37 SCN-38 UC-010 exchange with an external WBS master (FR-087 OP-3 OP-
   })
 
   await test.step('SCN-37 UC-010.OK: GRS asks whether to replace or merge, and the author picks replace (OP-3, IC-71, IC-72)', async () => {
-    await expect(page.locator(icon('IC-71', '[data-role="Open Chooser"]'))).toHaveCount(1)
-    await expect(page.locator(icon('IC-72', '[data-role="Open Chooser"]'))).toHaveCount(1)
-    await page.click(icon('IC-71', '[data-role="Open Chooser"]'))
+    await expect(page.locator(icon('IC-71', '[data-role="Open File Dialog"]'))).toHaveCount(1)
+    await expect(page.locator(icon('IC-72', '[data-role="Open File Dialog"]'))).toHaveCount(1)
+    await page.click(icon('IC-71', '[data-role="Open File Dialog"]'))
     await page.waitForTimeout(200)
     if (await page.locator('[data-role="Confirmation"] [data-confirmation-answer="proceed"]').count()) await page.click('[data-role="Confirmation"] [data-confirmation-answer="proceed"]')
     await settle(page)

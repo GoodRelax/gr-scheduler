@@ -152,7 +152,7 @@ function fixtureDocument(): Document {
       project: {
         ...structuredClone(template.schedule.project),
         uidHighWaterMark: 100,
-        // Why: no status date: the CU-1 line runs the height of the Task Group Area and
+        // Why: no status date: the CU-1 line runs the height of the Task Group Lanes and
         // would cross every drag below.
         statusDate: null,
       },

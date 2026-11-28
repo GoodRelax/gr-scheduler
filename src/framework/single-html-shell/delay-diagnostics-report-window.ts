@@ -1,4 +1,4 @@
-// File: SingleHtmlShell: answers the Delay Diagnostics Report window's entries: its tables and frame, IC-108, IC-140 and the fixes (IC-154 .. IC-160).
+// File: SingleHtmlShell: answers the Delay Diagnosis Report window's entries: its tables and frame, IC-108, IC-140 and the fixes (IC-154 .. IC-160).
 // @unit      UF-195  (docs/spec/05-07-design.md, table T-075)
 // @component SingleHtmlShell, layer Framework (table T-062)
 // @purity    non-pure
@@ -29,7 +29,7 @@ import {
   type ScreenPart,
 } from '../../adapter/screen-renderer/screen-renderer'
 
-export const DELAY_DIAGNOSTICS_REPORT_SURFACE = 'Delay Diagnostics Report'
+export const DELAY_DIAGNOSTICS_REPORT_SURFACE = 'Delay Diagnosis Report'
 
 const COPY_ENTRY: IconId = 'IC-108'
 const EXPORT_ENTRY: IconId = 'IC-140'

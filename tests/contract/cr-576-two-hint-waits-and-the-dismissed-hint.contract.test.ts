@@ -25,15 +25,15 @@ const REQUIREMENTS = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '
 const SETTINGS_TABLES = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '_assets', 'tbl-settings.md'), 'utf8'))
 const MACHINE_TABLES = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '_assets', 'tbl-state-machines.md'), 'utf8'))
 
-const EZ_2_WAIT = 'ポインタがアイコンに入ってから `_assets/tbl-settings.md` の `S-124` が経ったら、そのアイコンの説明を出すこと（MUST）。'
-const EZ_2_FROM_ENTERING = '⭐ 待ちは、ポインタがそのアイコンに入った時から数えること（MUST）。'
+const EZ_2_WAIT = 'ポインターがアイコンに入ってから `_assets/tbl-settings.md` の `S-124` が経ったら、そのアイコンの説明を出すこと（MUST）。'
+const EZ_2_FROM_ENTERING = '⭐ 待ちは、ポインターがそのアイコンに入った時から数えること（MUST）。'
 const EZ_6_WAIT =
-  '日程の上でポインタが `_assets/tbl-settings.md` の `S-439` のあいだ止まったら、そこに当たったものの説明を、表 T-348 の行で出すこと（MUST）。'
+  '日程の上でポインターが `_assets/tbl-settings.md` の `S-439` のあいだ止まったら、そこに当たったものの説明を、表 T-348 の行で出すこと（MUST）。'
 const EZ_6_TWO_VALUES = '⚠️ 待ち時間は `S-439` とし、`EZ-2` の待ち（`S-124`）とは別の値として持つこと（MUST）'
-const EZ_6_FROM_THE_STOP = '⚠️ 待ちを数え始めるのは、`EZ-2` と違い、ポインタが止まった時である'
+const EZ_6_FROM_THE_STOP = '⚠️ 待ちを数え始めるのは、`EZ-2` と違い、ポインターが止まった時である'
 const S_439_APART = '⚠️ **`S-124` とは別の値である** —— 片方を選び直しても、もう片方は動かない（`EZ-6`）。'
 const S_124_ICON_ONLY = '⚠️ **アイコンの説明だけの待ちである** —— タスクの説明（`EZ-6`）の待ちは `S-439` が持つ。'
-const IN_3_CAN_BE_PUT_AWAY = '**消せること** —— ポインタもフォーカスも動かさずに消す手立てがあること。'
+const IN_3_CAN_BE_PUT_AWAY = '**消せること** —— ポインターもフォーカスも動かさずに消す手立てがあること。'
 const MACHINE_ROW_ESCAPE = "| `screen/escapePressed` | → `dismissed` [`isRungTooltip`（`event.rung == 'tooltip'`）]それ以外 → — | — |"
 const MACHINE_ROW_TARGET = '| `screen/hintTargetChanged` | — | → `allowed` |'
 const MACHINE_UNLISTED = '表に無い出来事は `tooltipDisplayStateMachine` を変えない（同じ参照）。'

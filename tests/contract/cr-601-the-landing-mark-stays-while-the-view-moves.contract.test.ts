@@ -60,9 +60,9 @@ const EL_17_SCROLLBAR = 'スクロールバー（表 T-031 の `SC-4`）の押�
 const EL_17_ENTRIES = '`_assets/tbl-glossary.md` の 表 T-109 の `IC-12` 〜 `IC-15` ・ `IC-104` ・ `IC-105` の入口の押下'
 const EL_17_KEYS = '表 T-036 の `SK-16` ・ `SK-16a` ・ `SK-16b` ・ `SK-16c` ・ `SK-22` ・ `SK-23` のキー'
 const EL_17_MODIFIERS = '`GRS` は、修飾キー（`Ctrl` ・ `Shift` ・ `Alt` ・ `Meta`）だけの押下でも印を消さないこと。'
-const EL_17_FIT = '全体を収める操作（`FR-055`、表 T-036 の `SK-18`、表 T-109 の `IC-10`）を受けたとき、`GRS` は、印を消すこと。'
-const EL_17_STAR = '続きの印を押して離したとき、`GRS` は、押下で古い印を消し、離したときに新しい印を付けること。'
-const EL_17_MOVE = '`GRS` は、ポインタを動かすだけでは印を消さないこと。'
+const EL_17_FIT = '全体表示（`FR-055`、表 T-036 の `SK-18`、表 T-109 の `IC-10`）を受けたとき、`GRS` は、印を消すこと。'
+const EL_17_STAR = '続きマークを押して離したとき、`GRS` は、押下で古い印を消し、離したときに新しい印を付けること。'
+const EL_17_MOVE = '`GRS` は、ポインターを動かすだけでは印を消さないこと。'
 const UN_8_VIEW = 'ズーム・スクロール・パン'
 const T_280_SOURCE =
   '入力（印が出ているあいだの押下・キーの押下。見る位置と倍率だけを動かす操作と修飾キーだけの押下（EL-17 の ⭐）、印を付けた押下の 2 回目（EL-18）を除く）: `EL-17`'
@@ -504,7 +504,7 @@ const isInTaskGroupArea = (shell: Shell, uid: number): boolean => {
   )
 }
 
-// Why: an end the view has moved off is not outlined, so the outline is asked of an end inside the Task Group Area only.
+// Why: an end the view has moved off is not outlined, so the outline is asked of an end inside the Task Group Lanes only.
 const keepsIt = (shell: Shell, clause: string): void => {
   expect(isLandingShown(shell), `${clause} (the emphasized line stays)`).toBe(true)
   if (isInTaskGroupArea(shell, 1) || isInTaskGroupArea(shell, 2)) {
@@ -531,13 +531,13 @@ describe(`(a) the shell -- EL-17: ${EL_17_VIEW_ONLY}`, () => {
     shell.send(keyOf('SK-24'))
     clickAt(shell, markOf(shell, 1, 2))
     expect(isLandingShown(shell), 'premise: the landing is shown with the panel open').toBe(true)
-    shell.aim(partOf('Search Panel', null))
+    shell.aim(partOf('Search Window', null))
     shell.send(wheelAt(middleOf(shell.taskGroupArea()), MODS))
     shell.aim(null)
     keepsIt(shell, EL_17_WHEEL)
   })
 
-  it(`${EL_17_PAN} -- a middle press and drag on the Task Group Area keeps it`, () => {
+  it(`${EL_17_PAN} -- a middle press and drag on the Task Group Lanes keeps it`, () => {
     const shell = landedShell()
     const before = viewOf(shell)
     dragFrom(shell, emptyPlace(shell), { x: -120, y: 0 }, 'middle')
@@ -545,7 +545,7 @@ describe(`(a) the shell -- EL-17: ${EL_17_VIEW_ONLY}`, () => {
     keepsIt(shell, EL_17_PAN)
   })
 
-  it(`${EL_17_PAN} -- a Ctrl+left press and drag on an empty place of the Task Group Area keeps it`, () => {
+  it(`${EL_17_PAN} -- a Ctrl+left press and drag on an empty place of the Task Group Lanes keeps it`, () => {
     const shell = landedShell()
     const before = viewOf(shell)
     dragFrom(shell, emptyPlace(shell), { x: -120, y: 0 }, 'left', { ctrl: true })

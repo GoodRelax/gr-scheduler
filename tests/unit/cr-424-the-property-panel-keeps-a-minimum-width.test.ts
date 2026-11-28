@@ -28,17 +28,17 @@ const FR_052_STARTS_AT_THE_KIND_DEFAULT =
   '`GRS` は、プロパティパネルの幅を、出している中身の種の既定の幅から始めること'
 const FR_052_KIND_CHANGE_RESETS = '出す中身の種が変わったとき、`GRS` は、プロパティパネルの幅を、新しい種の既定の幅へ戻すこと。'
 const FR_052_SAME_KIND_KEEPS = '同じ種の別の物を出したときと、パネルを閉じて同じ種で開き直したとき、`GRS` は、人が境界で決めた幅を保つこと。'
-const FR_052_COUNTED_FROM_THE_DRAWN_WIDTH = '境界を掴んでいる間、`GRS` は、プロパティパネルの幅を、境界を押した時点に描いていた幅から、ポインタが動いたぶんだけ変えること。'
+const FR_052_COUNTED_FROM_THE_DRAWN_WIDTH = '境界を掴んでいる間、`GRS` は、プロパティパネルの幅を、境界を押した時点に描いていた幅から、ポインターが動いたぶんだけ変えること。'
 const FR_052_STOPS_AT_S_248 =
-  '境界を掴んでいる間、もしポインタ位置が決めるプロパティパネルの幅が `S-248` を下回る場合、`GRS` はプロパティパネルの幅を `S-248` で止めて描くこと。'
+  '境界を掴んでいる間、もしポインター位置が決めるプロパティパネルの幅が `S-248` を下回る場合、`GRS` はプロパティパネルの幅を `S-248` で止めて描くこと。'
 const FR_052_KEEPS_THE_STOPPED_WIDTH = '境界を離したとき、`GRS` は、止めて描いた幅を、プロパティパネルの幅の画面の値にすること。'
-const FR_052_WRITES_NOTHING = '`GRS` は、プロパティパネルの幅を、文書にもブラウザの保管庫にも書かないこと。'
+const FR_052_WRITES_NOTHING = '`GRS` は、プロパティパネルの幅を、文書にもブラウザーの保管庫にも書かないこと。'
 const FR_072_SECOND_PRESS_CLOSES =
-  'プロパティパネルが文書の設定を出している間、設定を出す入口を再び押したとき、`GRS` は、直前の選択物の有無によらず、中身を選択物へ戻さずにプロパティパネルを閉じること（`_assets/tbl-state-machines.md` の 表 T-280 の `propertiesPanelContentStateMachine`）。'
+  'プロパティパネルが文書設定を出している間、設定を出す入口を再び押したとき、`GRS` は、直前の選択物の有無によらず、中身を選択物へ戻さずにプロパティパネルを閉じること（`_assets/tbl-state-machines.md` の 表 T-280 の `propertiesPanelContentStateMachine`）。'
 const FR_072_NOT_BACK_TO_THE_SELECTION = '直前の選択物の有無によらず、中身を選択物へ戻さずにプロパティパネルを閉じること'
 const FR_072_SETTINGS_AFTER_A_CLOSE =
-  '文書の設定を出したままプロパティパネルを閉じたあとに設定を出す入口を押したとき、`GRS` は、文書の設定を出すこと（閉じたあとの押しは `IMPS-83` の「再び押した」に数えない）。'
-const FR_072_NOT_THE_SELECTION_AFTER_A_CLOSE = '文書の設定を出したままプロパティパネルを閉じたあとに設定を出す入口を押したとき、`GRS` は、中身を直前の選択物へ切り替えないこと。'
+  '文書設定を出したままプロパティパネルを閉じたあとに設定を出す入口を押したとき、`GRS` は、文書設定を出すこと（閉じたあとの押しは `IMPS-83` の「再び押した」に数えない）。'
+const FR_072_NOT_THE_SELECTION_AFTER_A_CLOSE = '文書設定を出したままプロパティパネルを閉じたあとに設定を出す入口を押したとき、`GRS` は、中身を直前の選択物へ切り替えないこと。'
 const FR_072_THE_PRESSED_STATE = '`GRS` は、いま何を出しているかを、入口の押下状態で示すこと。'
 
 describe('CR-424 -- the manuscript these cases are driven by', () => {
@@ -267,7 +267,7 @@ const OPENINGS: readonly (readonly [string, (built: Bench) => void, () => number
 ]
 
 describe('FR-052 -- a drag stops the property panel at S-248', () => {
-  it('⭐ プロパティパネルの幅は、ポインタ位置が決める幅が `S-248` を下回るとき、`S-248` で止めて描くこと（MUST） -- the boundary pulled to the right edge of the window', () => {
+  it('⭐ プロパティパネルの幅は、ポインター位置が決める幅が `S-248` を下回るとき、`S-248` で止めて描くこと（MUST） -- the boundary pulled to the right edge of the window', () => {
     const built = bench()
     built.openBySelectingTheTask()
     expect(built.drawnWidth(), 'premise: a Task opens the panel at S-602').toBeCloseTo(S_602, 6)
@@ -358,7 +358,7 @@ const CLOSINGS: readonly (readonly [string, KeyInput])[] = [
 
 describe('FR-072 -- the settings entrance after a close shows the settings', () => {
   it.each(CLOSINGS)(
-    '⭐ 文書の設定を出したままパネルを閉じたあとに、設定を出す入口を押したときは、設定を出すこと（MUST） -- the settings shown, closed by %s, IC-17 pressed again',
+    '⭐ 文書設定を出したままパネルを閉じたあとに、設定を出す入口を押したときは、設定を出すこと（MUST） -- the settings shown, closed by %s, IC-17 pressed again',
     (_name, close) => {
       const built = bench()
       built.pressIc17()
@@ -409,5 +409,5 @@ describe('FR-072 -- the settings entrance after a close shows the settings', () 
 })
 
 describe('CR-424 section 9 -- returned questions', () => {
-  it.skip('a window so narrow that S-248 leaves the Task Group Area at 0 or less -- open: CR-424 question 1 (JDG-78, DFC-586)', () => {})
+  it.skip('a window so narrow that S-248 leaves the Task Group Lanes at 0 or less -- open: CR-424 question 1 (JDG-78, DFC-586)', () => {})
 })

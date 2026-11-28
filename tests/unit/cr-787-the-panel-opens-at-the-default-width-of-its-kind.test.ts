@@ -19,11 +19,11 @@ const REQUIREMENTS = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '
 const FR_052_STARTS =
   '`GRS` は、プロパティパネルの幅を、出している中身の種の既定の幅から始めること'
 const FR_052_ROWS =
-  '文書の設定の面は `S-171`、表 T-016 の `適用先` が `Task`・`TaskGroup`・`CommentBox`・`HighlightBox`・`Dependency` の物は `S-602`〜`S-606`（`Task` から `Dependency` まで、挙げた順）。'
+  '文書設定の面は `S-171`、表 T-016 の `適用先` が `Task`・`TaskGroup`・`CommentBox`・`HighlightBox`・`Dependency` の物は `S-602`〜`S-606`（`Task` から `Dependency` まで、挙げた順）。'
 const FR_052_WIDEST = 'いくつもの種を一度に出しているとき、`GRS` は、プロパティパネルの幅を、出している種の既定の幅のうち最も広いものから始めること。'
 const FR_052_KIND_CHANGE = '出す中身の種が変わったとき、`GRS` は、プロパティパネルの幅を、新しい種の既定の幅へ戻すこと。'
 const FR_052_SAME_KIND = '同じ種の別の物を出したときと、パネルを閉じて同じ種で開き直したとき、`GRS` は、人が境界で決めた幅を保つこと。'
-const FR_052_WRITES_NOTHING = '`GRS` は、プロパティパネルの幅を、文書にもブラウザの保管庫にも書かないこと。'
+const FR_052_WRITES_NOTHING = '`GRS` は、プロパティパネルの幅を、文書にもブラウザーの保管庫にも書かないこと。'
 // Spec: FR-072
 const FR_072_FOLLOWS = 'プロパティパネルを出している間、選択が動いたとき、`GRS` は、中身を動いた先の選択へ移すこと（STATEMENT の「最後の操作」）。'
 

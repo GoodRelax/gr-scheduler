@@ -387,7 +387,7 @@ function emptyCanvas(loop: FrameLoop): Point {
   return { x: area.x + area.width - 4, y: area.y + area.height - 4 }
 }
 
-// Why: the Task Group Area is half-open at the right (R3.4), so a point on its right edge is on no region;
+// Why: the Task Group Lanes is half-open at the right (R3.4), so a point on its right edge is on no region;
 // the clamp is kept as a guard that holds a probe inside it, though no end of this fixture falls there.
 function onEndpoint(loop: FrameLoop, x: number, y: number): Point {
   const area = frameOf(loop).regions.taskGroupArea

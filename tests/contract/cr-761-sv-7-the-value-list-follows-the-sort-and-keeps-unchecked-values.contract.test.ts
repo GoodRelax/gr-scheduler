@@ -42,14 +42,14 @@ import { windowStage, type WindowStage } from './cr-731-window-stage'
 import { specTable, unbroken } from './spec-table'
 
 const SV_7_ORDER =
-  'フィルタの列で並べ替えている（`SV-8`）間、`GRS` は、値の一覧を並べ替えの向きに並べること。'
+  'フィルターの列で並べ替えている（`SV-8`）間、`GRS` は、値の一覧を並べ替えの向きに並べること。'
 const SV_7_SOURCE = '`GRS` は、値の一覧を、語で残した行（`SV-4`）の値から作ること。'
-const SV_7_KEPT = '`GRS` は、ほかの列のフィルタで表から外れた行の値も、値の一覧に残すこと。'
+const SV_7_KEPT = '`GRS` は、ほかの列のフィルターで表から外れた行の値も、値の一覧に残すこと。'
 const SV_7_BLANK_ITEM = '`GRS` は、空のセルを、値の一覧の「（空白）」の 1 項目にまとめること。'
 const SV_8_STATUS = '状態の列（`SQ-5`）で昇順に並べ替えたとき、`GRS` は、行を 信用できない・要修正 → ボトルネック → ボトルネック経路 → 遅れ → 未着手 → 進行中 → 完了 → 中断・再開予定あり → 中断・再開日未定 の順に並べること。'
 const SV_8_VISIBILITY = '`GRS` は、表示の列（`SQ-10`）では並べ替えないこと。'
 const T_347_STATUS = '`GRS` は、ステータスの欄の昇順を `DT-1` の順、降順を `DT-1` の逆の順とすること。'
-const T_374_SAME = '`GRS` は、表 T-374 の表の並べ替え・列のフィルタ・列の幅の変え方・見出し行の縦の固定を、表 T-346 の `RW-9` ・ `RW-10` と同じ作りとすること。'
+const T_374_SAME = '`GRS` は、表 T-374 の表の並べ替え・列のフィルター・列の幅の変え方・見出し行の縦の固定を、表 T-346 の `RW-9` ・ `RW-10` と同じ作りとすること。'
 const HIDDEN_VALUES_BLANK = '空のセルの項目（「（空白）」）は空の文字列。'
 
 const REQUIREMENTS = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
@@ -248,7 +248,7 @@ function distinctCells(view: { columns: readonly { column: string }[]; rows: rea
   return made
 }
 
-describe(`SV-7 「${SV_7_ORDER.slice(2, 60)}…」 -- Search Panel, tasks table`, () => {
+describe(`SV-7 「${SV_7_ORDER.slice(2, 60)}…」 -- Search Window, tasks table`, () => {
   it('with no sort every list is ascending by the SV-8 comparison, the blank last', () => {
     expect(labels(panelItems('SQ-1', TASK_PANEL))).toEqual(['Alpha', 'Bravo', 'Charlie', 'Delta', BLANK])
     expect(labels(panelItems('SQ-11', TASK_PANEL))).toEqual(['7%', '25%', '40%', '100%', BLANK])
@@ -309,7 +309,7 @@ describe(`SV-7 「${SV_7_ORDER.slice(2, 60)}…」 -- Search Panel, tasks table`
   })
 })
 
-describe(`SV-7 「${SV_7_ORDER.slice(2, 60)}…」 -- Search Panel, comment box table`, () => {
+describe(`SV-7 「${SV_7_ORDER.slice(2, 60)}…」 -- Search Window, comment box table`, () => {
   it('IC-124 on the body reverses its list with the blank last; another sort and IC-153 bring it back ascending', () => {
     const ascending = ['Note A', 'Note B', 'Note C', BLANK]
     expect(labels(panelItems('SQ-7', COMMENT_PANEL))).toEqual(ascending)
@@ -339,7 +339,7 @@ const valueOn = (column: string, label: string, pane: Pane): Pane => {
   return changed(there, { kind: 'value', column: column as never, value: item.value, isShown: true })
 }
 
-describe(`SV-7 「${SV_7_SOURCE.slice(2)}」 -- Search Panel`, () => {
+describe(`SV-7 「${SV_7_SOURCE.slice(2)}」 -- Search Window`, () => {
   it.each(VALUE_COLUMNS_OF_TASKS)('%s: the first value unchecked drops its rows, stays listed unchecked, and checks back', (column) => {
     const before = panelItems(column, TASK_PANEL)
     const first = found(before[0], `the first value of ${column}`).label
@@ -516,7 +516,7 @@ const reportUids = (pane: ReportPane): readonly number[] => reportViewOf(pane).r
 const REPORT_NAMES = ['Alpha', 'Bravo', 'Charlie', 'Delta', 'Echo', BLANK]
 const REPORT_PROGRESS = ['0%', '7%', '25%', '40%', '100%']
 
-describe('SV-7 order -- Delay Diagnostics Report, the diagnosis table (T-346 preface, T-347)', () => {
+describe('SV-7 order -- Delay Diagnosis Report, the diagnosis table (T-346 preface, T-347)', () => {
   it('with no sort the lists are ascending, the blank last, the status in the DT-1 order', () => {
     expect(labels(reportItems('DT-4'))).toEqual(REPORT_NAMES)
     expect(labels(reportItems('DT-3'))).toEqual(REPORT_PROGRESS)
@@ -558,7 +558,7 @@ describe('SV-7 order -- Delay Diagnostics Report, the diagnosis table (T-346 pre
   })
 })
 
-describe('SV-7 source -- Delay Diagnostics Report, the diagnosis table', () => {
+describe('SV-7 source -- Delay Diagnosis Report, the diagnosis table', () => {
   it.each(['DT-1', 'DT-3', 'DT-4', 'DT-2'])('%s: the first value unchecked drops its rows, stays listed unchecked, and checks back', (column) => {
     const before = reportItems(column)
     const first = found(before[0], `the first value of ${column}`).label
@@ -713,7 +713,7 @@ const listNames = (pane: ListPane): readonly string[] => {
 
 const LIST_NAMES_ASCENDING = ['Ann', 'Bob', 'Dee', UNASSIGNED, BLANK]
 
-describe('SV-7 order -- Resource List (FR-099: the Search Panel behaviour, T-370 / T-371)', () => {
+describe('SV-7 order -- Resource List (FR-099: the Search Window behaviour, T-370 / T-371)', () => {
   it('with no sort the lists are ascending, the counts by number (RQ-4), the blank last', () => {
     const names = labels(listItems('RQ-2'))
     expect(names[names.length - 1]).toBe(BLANK)
@@ -842,7 +842,7 @@ const fixRowsOf = (stage: WindowStage, column: string): readonly string[] => {
   return view.rows.map((row) => row.cells[at] ?? '')
 }
 
-describe('T-374 「⭐ 並べ替え・列のフィルタ…は RW-9・RW-10 と同じ作り」 -- the fix proposals table', () => {
+describe('T-374 「⭐ 並べ替え・列のフィルター…は RW-9・RW-10 と同じ作り」 -- the fix proposals table', () => {
   it('premise: the proposals of the document hold three tasks and a blank before-value', async () => {
     const stage = await proposalsStage()
     expect(fixView(stage).columns.map((one) => one.column)).toContain('FM-5')

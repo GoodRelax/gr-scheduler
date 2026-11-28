@@ -336,7 +336,7 @@ describe('FR-065: one entrance enables and disables, remembered per browser', ()
     expect(enablingOf(step(once, loaded(false)).state)).toEqual({ kind: 'enabled' })
   })
 
-  it('**有効化はブラウザ（オリジン）ごとに記憶すること（MUST）', () => {
+  it('**有効化はブラウザー（オリジン）ごとに記憶すること（MUST）', () => {
     const on = step(emptyScreenSession, PRESS)
     const off = step(on.state, PRESS)
     expect(effectTypes(on)).toContain('storeAgentApiEnabling')

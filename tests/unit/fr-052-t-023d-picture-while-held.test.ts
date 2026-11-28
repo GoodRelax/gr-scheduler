@@ -557,7 +557,7 @@ describe('table T-023d: while GA-7 is held the fade is DRAWN and not WRITTEN', (
     const now = fadeHandlesOf(built.loop)[0] as Point
     expect(
       now.x,
-      'T-023d: 掴んでいるあいだ……掴み点はポインタが決める日に置くこと（MUST）',
+      'T-023d: 掴んでいるあいだ……掴み点はポインターが決める日に置くこと（MUST）',
     ).toBeCloseTo(dayEdge, 6)
     expect(now.x).toBeGreaterThan(before.x)
   })
@@ -627,7 +627,7 @@ describe('table T-023d: while GA-7 is held the fade is DRAWN and not WRITTEN', (
     // carries this grab point towards the start.
     const { dayEdge } = dragGrabPoint(built, 1, -2)
     const now = fadeHandlesOf(built.loop)[1] as Point
-    expect(now.x, 'T-266 GA-8: 掴み点はポインタが決める日に置くこと（MUST）').toBeCloseTo(
+    expect(now.x, 'T-266 GA-8: 掴み点はポインターが決める日に置くこと（MUST）').toBeCloseTo(
       dayEdge,
       6,
     )
@@ -763,7 +763,7 @@ describe('table T-028 IN-1a: a lost pointer abandons the fade drag', () => {
     built.send(pointer('lost', insideTheDay(from.x, 3, scale), from.y))
     expect(
       taskOf(built.loop, FADED_UID),
-      'IN-1a: ボタンを離す前に窓の外でポインタが失われたときは、ドラッグを中断として終わらせること（MUST）',
+      'IN-1a: ボタンを離す前に窓の外でポインターが失われたときは、ドラッグを中断として終わらせること（MUST）',
     ).toEqual(before)
   })
 
@@ -827,7 +827,7 @@ describe('FR-052: while the boundary is held the widths are DRAWN and not WRITTE
     built.send(pointer('move', at.x + 40, at.y))
     expect(
       drawnPanelWidth(built.loop),
-      'FR-052: 境界を掴んでいるあいだ、その時点のポインタ位置が決める 2 つの幅で画面を描いて示すこと（MUST）',
+      'FR-052: 境界を掴んでいるあいだ、その時点のポインター位置が決める 2 つの幅で画面を描いて示すこと（MUST）',
     ).toBeCloseTo(was + 40, 6)
   })
 
@@ -868,7 +868,7 @@ describe('FR-052: while the boundary is held the widths are DRAWN and not WRITTE
     built.send(pointer('move', at.x - 30, at.y))
     expect(
       drawnPanelWidth(built.loop),
-      'FR-052: ⭐ ただしタスクグループパネルの幅は、ポインタ位置が決める幅が `FR-039` の 表 T-252 の後の段が定める床を下回るとき、床で止めて描くこと（MUST）',
+      'FR-052: ⭐ ただしタスクグループパネルの幅は、ポインター位置が決める幅が `FR-039` の 表 T-252 の後の段が定める床を下回るとき、床で止めて描くこと（MUST）',
     ).toBeCloseTo(was, 6)
   })
 
@@ -979,7 +979,7 @@ describe('FR-052: while the boundary is held the widths are DRAWN and not WRITTE
     built.send(pointer('move', at.x - 120, at.y))
     expect(
       frameOf(built.loop).regions.propertiesPanel.width,
-      'FR-052: その時点のポインタ位置が決める 2 つの幅で画面を描いて示すこと（MUST）',
+      'FR-052: その時点のポインター位置が決める 2 つの幅で画面を描いて示すこと（MUST）',
     ).toBeCloseTo(drawn + 120, 6)
     built.send(pointer('up', at.x - 120, at.y))
     expect(frameOf(built.loop).regions.propertiesPanel.width, 'FR-052: 確定は IN-1 に従う').toBeCloseTo(
@@ -988,7 +988,7 @@ describe('FR-052: while the boundary is held the widths are DRAWN and not WRITTE
     )
     expect(
       settingsOf(built.loop),
-      'FR-052: ⛔ プロパティパネルの幅を、文書にもブラウザの保管庫にも書いてはならない（MUST NOT）',
+      'FR-052: ⛔ プロパティパネルの幅を、文書にもブラウザーの保管庫にも書いてはならない（MUST NOT）',
     ).not.toHaveProperty('propertyPanelWidth')
   })
 
@@ -1110,8 +1110,8 @@ describe('FD-6 and IV-12: the fade a release writes is cut to the Task', () => {
   })
 })
 
-describe('FR-052: the pair a release writes keeps the `Task Group Area` above zero', () => {
-  it('refuses a pair that would leave no `Task Group Area` (MUST NOT)', () => {
+describe('FR-052: the pair a release writes keeps the `Task Group Lanes` above zero', () => {
+  it('refuses a pair that would leave no `Task Group Lanes` (MUST NOT)', () => {
     const built = stage()
     const at = boundaryOf(built, 'taskGroupPanel')
     const canvas = frameOf(built.loop).regions.scheduleCanvas
@@ -1121,7 +1121,7 @@ describe('FR-052: the pair a release writes keeps the `Task Group Area` above ze
     built.send(pointer('up', far, at.y))
     expect(
       frameOf(built.loop).regions.taskGroupArea.width,
-      'FR-052: 判定は `Task Group Area` の幅が 0 より大きいことをもって行うこと（MUST）……これが 0 以下になる組を受け付けてはならない（MUST NOT）',
+      'FR-052: 判定は `Task Group Lanes` の幅が 0 より大きいことをもって行うこと（MUST）……これが 0 以下になる組を受け付けてはならない（MUST NOT）',
     ).toBeGreaterThan(0)
   })
 
@@ -1137,8 +1137,8 @@ describe('FR-052: the pair a release writes keeps the `Task Group Area` above ze
     ).toBeGreaterThan(0)
   })
 
-  it('keeps the `Task Group Area` above zero in the PICTURE too, while the pointer is out there', () => {
-    // Why: what to draw for a refused pair is unsettled, but a Task Group Area of
+  it('keeps the `Task Group Lanes` above zero in the PICTURE too, while the pointer is out there', () => {
+    // Why: what to draw for a refused pair is unsettled, but a Task Group Lanes of
     // 0 or less is never accepted, and a collapsed frame has drawn one.
     const built = stage()
     const at = boundaryOf(built, 'taskGroupPanel')

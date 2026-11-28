@@ -6,17 +6,17 @@ import { CLEARING_UP_MS, launchReferenceBrowser } from './live-app'
 import { REQUIREMENTS, keyOf, openStage, settle, type Stage } from './cr-570-tree-state-stage'
 import { rowOf } from './sws-case'
 
-const SK_24_DOES = '検索パネルを出し、入力欄に焦点を置く（`FR-151`）'
+const SK_24_DOES = '検索ウィンドウを出し、入力欄に焦点を置く（`FR-151`）'
 const MK_10_CTRL_F =
-  '`GRS` は、表 T-036 の `SK-24` に割り当てた `Ctrl+F` のブラウザの既定動作も止めること。'
-const SV_2_FOCUS = '検索パネルを開いたとき、`GRS` は、焦点を入力欄へ置くこと。'
-const SV_2_AGAIN = '検索パネルが出ている間、 `SK-24` か `IC-117` を押したとき、`GRS` は、検索パネルを前に出すこと（`FR-036` の 表 T-335 の `WB-11`）。検索パネルが出ている間、 `SK-24` か `IC-117` を押したとき、`GRS` は、焦点を入力欄へ戻すこと。検索パネルが出ている間、 `SK-24` か `IC-117` を押したとき、`GRS` は、入力欄に打ってある語をすべて選ぶこと'
+  '`GRS` は、表 T-036 の `SK-24` に割り当てた `Ctrl+F` のブラウザーの既定動作も止めること。'
+const SV_2_FOCUS = '検索ウィンドウを開いたとき、`GRS` は、焦点を入力欄へ置くこと。'
+const SV_2_AGAIN = '検索ウィンドウが出ている間、 `SK-24` か `IC-117` を押したとき、`GRS` は、検索ウィンドウを前に出すこと（`FR-036` の 表 T-335 の `WB-11`）。検索ウィンドウが出ている間、 `SK-24` か `IC-117` を押したとき、`GRS` は、焦点を入力欄へ戻すこと。検索ウィンドウが出ている間、 `SK-24` か `IC-117` を押したとき、`GRS` は、入力欄に打ってある語をすべて選ぶこと'
 const SV_14_ESC =
-  '`IC-52` を押したとき、`GRS` は、検索パネルを閉じること。列のフィルタが開いておらず、検索パネルが 表 T-028 の `IN-4` の「開いているウィンドウ」の段に立っている間、 `Esc` を押したとき、`GRS` は、検索パネルを閉じること。焦点が検索パネルの外にある間も、`GRS` は、検索パネルを `IN-4` の「開いているウィンドウ」の段に立てること。検索パネルを最小化している間、`GRS` は、検索パネルを `IN-4` の「開いているウィンドウ」の段に立てないこと。'
+  '`IC-52` を押したとき、`GRS` は、検索ウィンドウを閉じること。列のフィルターが開いておらず、検索ウィンドウが 表 T-028 の `IN-4` の「開いているウィンドウ」の段に立っている間、 `Esc` を押したとき、`GRS` は、検索ウィンドウを閉じること。焦点が検索ウィンドウの外にある間も、`GRS` は、検索ウィンドウを `IN-4` の「開いているウィンドウ」の段に立てること。検索ウィンドウを最小化している間、`GRS` は、検索ウィンドウを `IN-4` の「開いているウィンドウ」の段に立てないこと。'
 const IN_4_RUNG =
   '消費する階層は 出ている通知 → 確定していないその場の編集 → 開いている面 → 進行中のドラッグ・引きかけの矢印 → 開いているウィンドウ'
 const IN_5A_FIELD =
-  '⭐ 検索パネルの入力欄（`FR-151` の 表 T-330 の `SV-2`・`SV-7`）はこの状態に数えず、キーの行き先で判じる —— 焦点がこれらの欄にある間、本行のキー（単文字キー・`Delete` / `Backspace`・下の `SK-4` / `SK-5` / `SK-2`）は欄への打鍵としてブラウザへ渡し、既定動作を止めず、ショートカットとしても扱わない。'
+  '⭐ 検索ウィンドウの入力欄（`FR-151` の 表 T-330 の `SV-2`・`SV-7`）はこの状態に数えず、キーの行き先で判じる —— 焦点がこれらの欄にある間、本行のキー（単文字キー・`Delete` / `Backspace`・下の `SK-4` / `SK-5` / `SK-2`）は欄への打鍵としてブラウザーへ渡し、既定動作を止めず、ショートカットとしても扱わない。'
 const EP_23_NOT_DRAWN = '探して飛ぶためのウィンドウであり、日程ではない。'
 // Spec: EP-17, EP-18, EP-19, EP-20, EP-21
 const EP_23_NO_ROOM = '⚠️ **場所は空けない** —— `EP-15` に同じ'
@@ -87,7 +87,7 @@ test.describe('CR-571 -- the clauses these cases are driven by', () => {
     expect(REQUIREMENTS).toContain(IN_4_RUNG)
     expect(REQUIREMENTS).toContain(IN_5A_FIELD)
     const ep23 = unbroken(rowOf(specTable('T-076'), 'EP-23').cells.join(' '))
-    expect(ep23).toContain('`Search Panel`（`U-64`）')
+    expect(ep23).toContain('`Search Window`（`U-64`）')
     expect(ep23).toContain('描かない')
     expect(ep23).toContain(EP_23_NOT_DRAWN)
     expect(ep23).toContain(EP_23_NO_ROOM)

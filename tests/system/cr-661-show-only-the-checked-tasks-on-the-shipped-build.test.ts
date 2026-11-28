@@ -13,11 +13,11 @@ const REQUIREMENTS = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '
 
 // Why: each constant ends exactly at its marker, cut from the manuscript as check 39 reads it.
 const FR_151_RULES =
-  '`GRS` は、検索の表・遅延診断レポートの表・担当リストの表の表示の列（Visibility）と、表ごとの日程抽出の入口（`_assets/tbl-glossary.md` の 表 T-109 の `IC-143`）で日程表に描くタスクを抽出すること（日程抽出）を、表 T-353 に従わせること'
-const FR_151_SAVED = '`GRS` は、検索の表・遅延診断レポートの表・担当リストの表の見え方 —— 表示の列の値・日程抽出の入切・列のフィルタ・並べ替え —— を文書に保存すること'
+  '`GRS` は、検索の表・遅延診断レポートの表・担当リストの表の表示の列（Visibility）と、表ごとの日程抽出の入口（`_assets/tbl-glossary.md` の 表 T-109 の `IC-143`）で `Task Group Lanes` に描くタスクを抽出すること（日程抽出）を、表 T-353 に従わせること'
+const FR_151_SAVED = '`GRS` は、検索の表・遅延診断レポートの表・担当リストの表の見え方 —— 表示の列の値・日程抽出の入切・列のフィルター・並べ替え —— を文書に保存すること'
 const FR_151_ONE_STEP = '3 つの表の見え方が変わったとき、`GRS` は、見え方の変更を取り消しの 1 段（`FR-031` の 表 T-027 の `UN-20`）とすること。'
 const TV_3_NOT_FAINT = '「描かれていないタスク」）。`GRS` は、積に入らないタスクを薄く描かないこと'
-const EL_21_SJ_0 = '続きの印を押して離したとき、印の先の端のタスクを日程抽出（`FR-151` の 表 T-353）で描いていなければ、`GRS` は、先に 表 T-332 の `SJ-0` を行うこと'
+const EL_21_SJ_0 = '続きマークを押して離したとき、印の先の端のタスクを日程抽出（`FR-151` の 表 T-353）で描いていなければ、`GRS` は、先に 表 T-332 の `SJ-0` を行うこと'
 const FR_134_JUMP = '表の 1 行の名前を押したとき、`GRS` は、行の `Task` へ、`FR-151` の 表 T-332 の飛び方（`SJ-0`・`SJ-2` 〜 `SJ-8`・`SJ-10`）で飛ぶこと'
 const IX_11_NO_BAND_WORDS =
   '⛔ 絵にチェックで日程抽出バー（`_assets/tbl-glossary.md` の `U-67`）の語を書き込んではならない（MUST NOT）'

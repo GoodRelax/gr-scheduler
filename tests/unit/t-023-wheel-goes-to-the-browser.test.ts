@@ -292,7 +292,7 @@ const HELP_MODAL = ((specTable('T-109').rows.find((one) => one.id === 'IC-129')?
   .replace(/[`*]/g, '')
   .trim()
 
-const HN_1 = '表 T-023 の後の段の「面が立っているあいだ」に当たらない —— 日程表に当てる'
+const HN_1 = '表 T-023 の後の段の「面が立っているあいだ」に当たらない —— `Schedule Canvas` に当てる'
 
 interface Stage {
   readonly loop: FrameLoop
@@ -389,7 +389,7 @@ describe('the manuscript still says what these cases read', () => {
     // Why: without this, a rule reworded or withdrawn would leave every case below testing a habit.
     const rule = closingRuleLine()
     expect(rule, 'it still names both things that can stand').toContain('`ScreenState` が持つ面')
-    expect(rule, 'the MUST').toContain('ブラウザの既定動作へ渡すこと（MUST）')
+    expect(rule, 'the MUST').toContain('ブラウザーの既定動作へ渡すこと（MUST）')
     expect(rule, 'the MUST NOT about the keys').toContain(
       'キーの割当は本規則の対象ではない（MUST NOT）',
     )

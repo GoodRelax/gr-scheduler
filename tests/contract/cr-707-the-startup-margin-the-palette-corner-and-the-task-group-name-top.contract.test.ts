@@ -18,9 +18,9 @@ import { settingNumber } from '../fixtures/setting-number'
 import { specTable } from './spec-table'
 
 const OP_10_MARGIN =
-  'その最初の日の左端は、`Task Group Area` の左端から `_assets/tbl-settings.md` の 表 T-206 の `S-534` だけ右に置くこと（MUST）'
+  'その最初の日の左端は、`Task Group Lanes` の左端から `_assets/tbl-settings.md` の 表 T-206 の `S-534` だけ右に置くこと（MUST）'
 const OP_10_WRITTEN =
-  '書く文書の `scrollDate`（`S-77`）と `S-177` に `Task Group Area` の左端が指す日とその日の中の位置を、`scrollTaskGroupId`（`S-78`）に描いているタスクグループの木の先頭のタスクグループを、`S-176` に `0` を書くこと（MUST）'
+  '書く文書の `scrollDate`（`S-77`）と `S-177` に `Task Group Lanes` の左端が指す日とその日の中の位置を、`scrollTaskGroupId`（`S-78`）に描いているタスクグループの木の先頭のタスクグループを、`S-176` に `0` を書くこと（MUST）'
 const FR_053_CORNER = '`GRS` は、既定の角を、`_assets/tbl-settings.md` の 表 T-206 の `S-535` に従わせること。'
 const FR_085_TOP = '`GRS` は、タスクグループ名を、タスクグループパネルのタスクグループの箱の上端に寄せて置くこと（タスクグループが名前の 1 行より高いときも同じ）。'
 
@@ -134,7 +134,7 @@ describe('CR-707 -- the clauses this file holds are the manuscript\'s', () => {
 })
 
 describe(`表 T-024a OP-10 -- ${OP_10_MARGIN}`, () => {
-  it('a boot from the startup template draws the first day covered S-534 right of the Task Group Area\'s left edge', () => {
+  it('a boot from the startup template draws the first day covered S-534 right of the Task Group Lanes\'s left edge', () => {
     const document = template()
     const { loop } = bench(document, true)
     const now = drawnNow(loop)
@@ -153,7 +153,7 @@ describe(`表 T-024a OP-10 -- ${OP_10_MARGIN}`, () => {
 
 describe(`表 T-024a OP-10 -- ${OP_10_WRITTEN}`, () => {
   // Spec: IMPS-954, IMPS-955
-  it('the written copy reopens on the same picture: its place names the day and fraction at the Task Group Area\'s left edge', () => {
+  it('the written copy reopens on the same picture: its place names the day and fraction at the Task Group Lanes\'s left edge', () => {
     const document = template()
     const regions = drawnNow(bench(document, true).loop).regions
     const shell = heldViewPlaceOf({ readEnvironment: () => SCREEN }, true)
@@ -179,7 +179,7 @@ describe(`表 T-024a OP-10 -- ${OP_10_WRITTEN}`, () => {
 
 describe(`FR-053 -- ${FR_053_CORNER}`, () => {
   // Spec: IMPS-1818, IMPS-1819
-  it('an undragged palette stands with its band\'s right end on the Task Group Area\'s right edge and its top on the Task Group Area\'s top', () => {
+  it('an undragged palette stands with its band\'s right end on the Task Group Lanes\'s right edge and its top on the Task Group Lanes\'s top', () => {
     const { loop, view } = bench(template(), true)
     const area = drawnNow(loop).regions.taskGroupArea
     const palette = view().commandPalette

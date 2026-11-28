@@ -201,14 +201,14 @@ describe('EditDocument (PI-9) -- the presentation aggregate', () => {
   })
 
   // Spec: IMPS-1781
-  it('FR-052 refuses a task group panel width that leaves the Task Group Area at or below zero', () => {
+  it('FR-052 refuses a task group panel width that leaves the Task Group Lanes at or below zero', () => {
     const ok = editDocumentSettings(
       documentOf(),
       { kind: 'setTaskGroupPanelWidthPx', taskGroupPanelWidthPx: 170 },
       LIMITS,
     )
     expect(ok.ok).toBe(true)
-    // Why: CM-67 writes the task group panel width alone; 982 drawn px wide leaves the Task Group Area at zero.
+    // Why: CM-67 writes the task group panel width alone; 982 drawn px wide leaves the Task Group Lanes at zero.
     const tooWide = editDocumentSettings(
       documentOf(),
       { kind: 'setTaskGroupPanelWidthPx', taskGroupPanelWidthPx: 982 / DEFAULT_DISPLAY_RATIO },
@@ -221,7 +221,7 @@ describe('EditDocument (PI-9) -- the presentation aggregate', () => {
   // Spec: IMPS-1783
   it('FR-052 refuses a task group panel of zero, which SC-3 forbids', () => {
     // Why: width 0 breaks SC-3's "showing at every zoom" (MUST NOT), so it
-    // is refused even though the Task Group Area would be at its widest.
+    // is refused even though the Task Group Lanes would be at its widest.
     const flat = editDocumentSettings(
       documentOf(),
       { kind: 'setTaskGroupPanelWidthPx', taskGroupPanelWidthPx: 0 },

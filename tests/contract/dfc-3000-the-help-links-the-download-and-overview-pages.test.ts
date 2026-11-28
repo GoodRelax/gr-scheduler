@@ -28,7 +28,7 @@ const FR_036_DESTINATIONS =
 const FR_036_WORDS = '`FR-038` の辞書（`helpLinks` の `download` と `about`）は、2 つのリンクの語を持つこと。'
 const FR_036_INK =
   '`GRS` は、ヘルプのリンク（`IMPS-1145` の 2 つ、`IC-20` の項目に添えるリンク、`FR-069` の著作権表示）の字を、`_assets/tbl-settings.md` の 表 T-236 の `S-503` の色で下線を引いて描くこと。'
-const T_256_HC_1 = '| HC-1 | 左端の段 | 入口を持たない割当 → 表 T-255 のブラウザの機能 |'
+const T_256_HC_1 = '| HC-1 | 左端の段 | 入口を持たない割当 → 表 T-255 のブラウザーの機能 |'
 
 const aboutAddress = (language: DisplayLanguage): string => `${ABOUT_ADDRESS}?lang=${language}`
 

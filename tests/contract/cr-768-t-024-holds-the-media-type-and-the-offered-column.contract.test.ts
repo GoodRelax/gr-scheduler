@@ -24,7 +24,7 @@ const FR_096_MEDIA_TYPE_FROM_TABLE =
   '宿主に「選んだ行の拡張子の形式である」ことを伝える手立てがある場合、`GRS` は、表 T-024 の「保存の選択面に渡す媒体の型」の欄の値で伝えること。'
 const FR_096_NO_COPY_OF_MEDIA_TYPE = '⛔ 媒体の型を本要求と子の要求（`FR-362`・`FR-363`）に書き写してはならない（MUST NOT） —— 拡張子と同じく、正は 表 T-024 ただ 1 か所である。'
 const FR_096_MEDIA_TYPE_IS_OURS =
-  '⭐ 媒体の型は本製品が決める値である —— 宿主がよく知る型を渡すと、宿主はその型に結び付いたほかの拡張子まで選択面に並べる（利用者が `.html` だけと定めた）ので、`.svg`・`.html`・`.md` には本製品の `x-` の型を渡す。'
+  '⭐ 媒体の型は `GRS` が決める値である —— 宿主がよく知る型を渡すと、宿主はその型に結び付いたほかの拡張子まで選択面に並べる（利用者が `.html` だけと定めた）ので、`.svg`・`.html`・`.md` には `GRS` の `x-` の型を渡す。'
 const FR_096_CHOOSES_BY_THE_COLUMN =
   '作成者が書き出しを選んだとき、`GRS` は、表 T-024 のうち「`IC-2` に出す」の欄が「出す」の形式から、作成者に形式を選ばせること。'
 const FR_096_NO_CLIPBOARD =
@@ -115,7 +115,7 @@ describe('CR-768 -- table T-024 carries the two new columns', () => {
   })
 })
 
-describe('CR-768 -- IO-8, the Markdown row for the Delay Diagnostics Report', () => {
+describe('CR-768 -- IO-8, the Markdown row for the Delay Diagnosis Report', () => {
   it('is a Markdown format that only goes out, with the extension .md and the media type text/x-grs-markdown', () => {
     const row = rowOf('IO-8')
     expect(specTable('T-024').rows.find((one) => one.id === 'IO-8')?.by['形式']).toBe('Markdown')

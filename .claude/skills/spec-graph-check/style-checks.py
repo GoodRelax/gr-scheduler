@@ -281,8 +281,10 @@ ONE_WORD = re.compile(r'^[^\s|、。・（）()「」`*]+$')
 MUST_GATE = ('ウィンドウ', 'ウインドウ')
 # CR-721 gated three more rows the coordinator decided (JDG-1850, JDG-1855),
 # and CR-726 the user's 取り込み (JDG-1863); the self-test is red when one of
-# them stops being gated.
-ALSO_GATED = (('フィルタ', 'フィルター'), ('マーカー', 'マーカ'), ('ヘッダー', 'ヘッダ'),
+# them stops being gated. CR-855 took the フィルタ row out: JDG-3375 ruled the
+# long vowel (フィルター), and the row stays ungated while the frozen contract
+# manuscripts still write フィルタ (JDG-3807, BGQA question 24).
+ALSO_GATED = (('マーカー', 'マーカ'), ('ヘッダー', 'ヘッダ'),
               ('取り込み', '取込'), ('color', 'colour'))
 # JDG-1921 (CR-730): American spelling everywhere. A row whose banned spelling
 # is all ASCII is matched in every case, so the one row for the lower-case

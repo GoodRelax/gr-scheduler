@@ -197,7 +197,7 @@ async function openApp(browser) {
    * Widen the panel until the product says it is cutting no name, so that the
    * word `rows()` reads IS the task group's whole name.
    *
-   * ⚠️ IT CAN FAIL, AND THEN IT SAYS SO. `S-79` is bounded by 「`Task Group Area` の幅
+   * ⚠️ IT CAN FAIL, AND THEN IT SAYS SO. `S-79` is bounded by 「`Task Group Lanes` の幅
    * > 0」 (FR-052) and `edit-document-settings.ts` holds that bound, so a drag
    * past it moves nothing. Returning `false` is how a caller learns that the
    * names it is about to read are NOT whole -- ⛔ it must not read them anyway.

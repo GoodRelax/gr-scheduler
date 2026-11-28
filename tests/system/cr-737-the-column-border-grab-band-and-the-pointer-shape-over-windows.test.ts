@@ -15,7 +15,7 @@ const SV_7_WORD = '見出しのセルのうち、列の境目の掴み代（表 
 const GR_28_ANSWER = '`GRS` は、帯の上では、見出しの語の上でも境目を答えさせること。'
 const S_425_NOTE = '`IC-122` を列の境目の掴み代の外に立てる離れ（`S-465`、表 T-330 の `SV-7`）と、罫 1px が入る幅を、そのときの字の段（`S-429`）で測る'
 const FR_106_HELD = '押している間、`GRS` は、掴んだときの形を保つこと。'
-const FR_106_TABLES = '`GRS` は、3 つの表のウィンドウ（検索パネル・遅延診断レポート・担当リスト）の列の境目（表 T-023d の `GR-28`）でも、表 T-269 の `PK-10` にすること'
+const FR_106_TABLES = '`GRS` は、3 つの表のウィンドウ（検索ウィンドウ・遅延診断レポート・担当リスト）の列の境目（表 T-023d の `GR-28`）でも、表 T-269 の `PK-10` にすること'
 const FR_106_EDGES =
   '`GRS` は、ウィンドウの縁の掴み代（表 T-023d の `GR-25`）では、左と右の辺を 表 T-269 の `PK-12`、上と下の辺を `PK-13`、左上と右下の角を `PK-14`、右上と左下の角を `PK-15` にすること'
 
@@ -51,8 +51,8 @@ async function withResourceList(browser: Browser): Promise<Stage> {
 }
 
 const WINDOWS: readonly Window[] = [
-  { name: 'Search Panel', selector: PANEL, open: (browser) => withSearch(browser) },
-  { name: 'Delay Diagnostics Report', selector: REPORT, open: (browser) => withReport(browser) },
+  { name: 'Search Window', selector: PANEL, open: (browser) => withSearch(browser) },
+  { name: 'Delay Diagnosis Report', selector: REPORT, open: (browser) => withReport(browser) },
   { name: 'Resource List', selector: RESOURCE_LIST, open: withResourceList },
 ]
 

@@ -475,11 +475,11 @@ const CLOSE_SURFACE_ENTRY: IconId = 'IC-52'
 
 const PROPERTIES_PANEL_SURFACE = 'Properties Panel'
 
-const SEARCH_PANEL_SURFACE = 'Search Panel'
+const SEARCH_PANEL_SURFACE = 'Search Window'
 
 const REPORT_RESTORE_ENTRY: IconId = 'IC-131'
 
-const HELP_MODAL_SURFACE = 'Help Modal'
+const HELP_MODAL_SURFACE = 'Help Window'
 
 const SEARCH_WORD_ROW = 'SV-2'
 
@@ -1399,7 +1399,7 @@ function screenExportViewOf(
 
 // Spec: IX-15
 // Why: the picture is the four stacked sections only (JDG-1627): the screen's bottom padding (S-56)
-// and scrollbar strip under the Task Group Area are cut, as the bar's thickness differs per machine.
+// and scrollbar strip under the Task Group Lanes are cut, as the bar's thickness differs per machine.
 /** @purity pure */
 function regionsClosedUnderTaskGroupArea(regions: ScreenRegions): ScreenRegions {
   const taskGroupAreaBottom = regions.taskGroupArea.y + regions.taskGroupArea.height
@@ -3516,7 +3516,7 @@ export function frameLoop(
   /** @purity semi-pure-mutable */
   function collectPress(at: PointerInput, frame: FrameValues, on: ScreenPart | null): PointerPress {
     const resolving = at.clickCount >= 2 ? 'doubleClick' : 'press'
-    // Trap: without the Task Group Area test a bar clipped under the Task Group Panel still takes the press.
+    // Trap: without the Task Group Lanes test a bar clipped under the Task Group Panel still takes the press.
     const hit =
       on === null && regionAtPointer(frame.regions, at.x, at.y) === 'taskGroupArea'
         ? itemAtPointer(frame.geometry, at.x, at.y, grabSizesOf(), resolving, landedLinkIn(session))

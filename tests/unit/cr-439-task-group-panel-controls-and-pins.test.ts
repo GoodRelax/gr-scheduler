@@ -45,14 +45,14 @@ const englishName = (id: string): string => bare(rowOf('T-103', id).by['確定�
 const HF_10_ORDER =
   '`GRS` は、頭の並びを、左から すべて折りたたむ・1 階層展開する・すべて展開する・足す・すべて消すの順に、1 行に並べること。'
 const HF_10_NOT_TWO_TIERS =
-  '2 段に積まないのは、パネルの頭の高さが 2 段に足りない倍率で、下の段の操作子が隠れて押せなくなるからである。'
+  '2 段に積まないのは、パネルの頭の高さが 2 段に足りない倍率で、下の段のボタンが隠れて押せなくなるからである。'
 const HF_20_LAST = '並びの最後、`HF-17`（最も浅い段へ足す）の右隣である。'
 const HF_12_COUNT = '描かれるタスクグループが 0 になったとき、`GRS` は、頭にいまいくつのタスクグループを折りたたみ込んでいるかを示すこと。'
 const HF_18_COUNT = '配下に折りたたみ込んでいるタスクグループがあるとき、`GRS` は、折りたたみ込んでいるタスクグループの数をタスクグループに示すこと。'
-const HF_2_FAINT = '`GRS` は、展開する操作子を、押しても何も変わらないときだけ `FR-029` に従って薄く描くこと。'
-const HF_2_ARMED = '`GRS` は、押したタスクグループの配下に `FR-018` の 表 T-329 で描かれていないタスクグループが 1 つでもあるとき、展開する操作子の押しが何かを変えると判ずること'
-const HF_6_KEEP_PLACE = '`GRS` は、操作子を描かないあいだも、確保する場所を変えないこと（規則と理由は `FR-085` が持つ）。'
-const HF_6_PIN = 'タスクグループをピン止めしている間、`GRS` は、ピン止めしているタスクグループの `IC-60` を、ポインタが乗っていなくても描くこと（`HF-6` の唯一の例外）。'
+const HF_2_FAINT = '`GRS` は、`Expand Below Button` を、押しても何も変わらないときだけ `FR-029` に従って薄く描くこと。'
+const HF_2_ARMED = '`GRS` は、押したタスクグループの配下に `FR-018` の 表 T-329 で描かれていないタスクグループが 1 つでもあるとき、`Expand Below Button` の押しが何かを変えると判ずること'
+const HF_6_KEEP_PLACE = '`GRS` は、ボタンを描かないあいだも、確保する場所を変えないこと（規則と理由は `FR-085` が持つ）。'
+const HF_6_PIN = 'タスクグループをピン止めしている間、`GRS` は、ピン止めしているタスクグループの `IC-60` を、ポインターが乗っていなくても描くこと（`HF-6` の唯一の例外）。'
 const HF_15_MARK = '`GRS` は、掴み代の印を、縦に並べた 2 本の三点リーダ（`⋮⋮` U+22EE を 2 つ）とすること。'
 const FR_098_ONCE = '`GRS` は、ピン止めしたタスクグループを本来の縦位置にも描かないこと'
 const FR_029_NOT_DISABLED = '`GRS` は、薄く描いた入口を、宿主の意味で無効にしないこと。'
@@ -225,7 +225,7 @@ describe('each task group (HF-18, HF-2, HF-6, HF-15, FR-098)', () => {
   })
 
   // Spec: FR-306
-  it('HF-6 ピン止めしているタスクグループの IC-60 だけは、ポインタが乗っていなくても描くこと', () => {
+  it('HF-6 ピン止めしているタスクグループの IC-60 だけは、ポインターが乗っていなくても描くこと', () => {
     const built = drawn({ pinnedTitles: [PINNED], titles: [PLAIN] })
     const pinOf = (taskGroupId: string): FakeElement =>
       byRole(taskGroupNode(built, taskGroupId)[0] as FakeElement, TASK_GROUP_PIN)[0] as FakeElement

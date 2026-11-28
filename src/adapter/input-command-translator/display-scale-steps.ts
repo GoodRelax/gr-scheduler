@@ -1,4 +1,4 @@
-// File: InputCommandTranslator: one display scale step, keeping the Task Group Area's middle (table T-252).
+// File: InputCommandTranslator: one display scale step, keeping the Task Group Lanes's middle (table T-252).
 // @unit      UF-93   (docs/spec/05-07-design.md, table T-075)
 // @component InputCommandTranslator, layer Adapter (table T-062)
 // @purity    pure

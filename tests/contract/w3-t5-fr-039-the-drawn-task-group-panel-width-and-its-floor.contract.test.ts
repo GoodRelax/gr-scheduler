@@ -19,7 +19,7 @@ const REQUIREMENTS = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '
 // Spec: FR-039
 const FR_039_LARGER_OF_THE_TWO = '`GRS` は、描くタスクグループパネルの幅を、`S-79` に描く比を掛けた値と、床（`IMPS-1253`）の大きい方とすること。'
 const FR_039_THE_FLOOR =
-  '`GRS` は、タスクグループパネルの幅の床を、`S-37` × 描く比 × `_assets/tbl-settings.md` の 表 T-211 の `S-125` ＋ タスクグループの掴み代の幅（`S-138` × `S-235`）＋ タスクグループの操作子の 4 列（表 T-051 の `HF-4`）ぶんの入口の外形の幅（`FR-029` が定める外形の幅 × `S-235`）とすること。'
+  '`GRS` は、タスクグループパネルの幅の床を、`S-37` × 描く比 × `_assets/tbl-settings.md` の 表 T-211 の `S-125` ＋ タスクグループの掴み代の幅（`S-138` × `S-235`）＋ `Task Group Buttons` の 4 列（表 T-051 の `HF-4`）ぶんの入口の外形の幅（`FR-029` が定める外形の幅 × `S-235`）とすること。'
 const FR_039_THE_OUTER_WIDTH = '53.336 は `S-138` 16 ＋ `S-243` 1 × 2 ＋ `S-237` 1 × 2 ＝ 20px の 4 列に'
 
 /** @purity pure */
@@ -64,7 +64,7 @@ function settingsWith(panelWidth: number, displayScale: number): DocumentSetting
   return { ...read.document.documentSettings, [PANEL_WIDTH_KEY]: panelWidth, [DISPLAY_SCALE_KEY]: displayScale } as DocumentSettings
 }
 
-// Why: wide enough that the Task Group Area bound of FR-052 never binds.
+// Why: wide enough that the Task Group Lanes bound of FR-052 never binds.
 const ENV: ScreenEnvironment = { width: 3000, height: 1200, appHeaderHeight: 40, scrollbarThickness: 8, propertyPanelWidth: 0 }
 
 // Why: half a hundredth of a px is float noise, not a different rule.

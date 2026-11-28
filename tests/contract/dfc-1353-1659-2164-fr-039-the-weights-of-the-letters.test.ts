@@ -1,4 +1,4 @@
-// DFC-1353, DFC-1659, DFC-2164: only the Document Title is bold (S-463); every other letter is S-529, table heads included (FR-039).
+// DFC-1353, DFC-1659, DFC-2164: only the Project Title is bold (S-463); every other letter is S-529, table heads included (FR-039).
 
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -93,20 +93,20 @@ const drawnScreen = () => {
 const hasOwnText = (element: FakeElement): boolean =>
   element.childNodes.some((one) => 'data' in one && typeof one.data === 'string' && one.data.trim() !== '')
 
-describe('DFC-1353: the Document Title is drawn S-463 bold on the screen and in the picture (FR-039)', () => {
+describe('DFC-1353: the Project Title is drawn S-463 bold on the screen and in the picture (FR-039)', () => {
   it('FR-039 premise: S-463 is a weight of its own, apart from S-529', () => {
     expect(S_463).toBeGreaterThan(S_529)
   })
 
   // Spec: IMPS-1219
-  it('FR-039 the Document Title on the screen has the S-463 weight', () => {
-    const title = drawnScreen().find((one) => one.getAttribute('data-role') === 'Document Title')
+  it('FR-039 the Project Title on the screen has the S-463 weight', () => {
+    const title = drawnScreen().find((one) => one.getAttribute('data-role') === 'Project Title')
     expect(title).toBeDefined()
     expect(weightOf(title as FakeElement)).toBe(S_463)
   })
 
   // Spec: IMPS-1220
-  it('FR-039 / EP-1 the Document Title in the exported picture has the S-463 weight', () => {
+  it('FR-039 / EP-1 the Project Title in the exported picture has the S-463 weight', () => {
     const settings = SETTINGS_DEFAULTS as unknown as DocumentSettings
     const regions: ScreenRegions = {
       appHeader: { x: 0, y: 0, width: 1000, height: 56 },
@@ -133,15 +133,15 @@ describe('DFC-1353: the Document Title is drawn S-463 bold on the screen and in 
 })
 
 describe('DFC-1659: every other letter on the screen is S-529 (FR-039)', () => {
-  it('FR-039 premise: the drawn screen holds text outside the Document Title', () => {
-    const texts = drawnScreen().filter((one) => hasOwnText(one) && one.getAttribute('data-role') !== 'Document Title')
+  it('FR-039 premise: the drawn screen holds text outside the Project Title', () => {
+    const texts = drawnScreen().filter((one) => hasOwnText(one) && one.getAttribute('data-role') !== 'Project Title')
     expect(texts.length).toBeGreaterThan(2)
   })
 
   // Spec: IMPS-1221
-  it('FR-039 no element but the Document Title draws its letters in any weight but S-529', () => {
+  it('FR-039 no element but the Project Title draws its letters in any weight but S-529', () => {
     const odd = drawnScreen()
-      .filter((one) => hasOwnText(one) && one.getAttribute('data-role') !== 'Document Title')
+      .filter((one) => hasOwnText(one) && one.getAttribute('data-role') !== 'Project Title')
       .filter((one) => weightOf(one) !== S_529)
       .map((one) => `${one.tagName}[${one.getAttribute('data-role') ?? ''}] ${weightOf(one)}`)
     expect(odd).toEqual([])
@@ -202,7 +202,7 @@ const searchViewOf = (): SearchPanelView => {
   return view
 }
 
-describe('DFC-2164: the heads of the Search Panel table are drawn S-529 too (FR-039)', () => {
+describe('DFC-2164: the heads of the Search Window table are drawn S-529 too (FR-039)', () => {
   const heads = (): readonly FakeElement[] => {
     const box = searchTableElement(stage().host, searchViewOf(), 14) as unknown as FakeElement
     return selfAndDescendants(box).filter((one) => one.tagName === 'TH')

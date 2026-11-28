@@ -111,7 +111,7 @@ const EMPTY_VIEW: ScreenView = {
   tooltips: [],
 }
 
-// Why: U-58 makes the name and the Document Title different values, so all three words are unlike.
+// Why: U-58 makes the name and the Project Title different values, so all three words are unlike.
 const HEADER_WITH_A_SAVED_FILE: AppHeaderItems = {
   ...EMPTY_HEADER,
   documentTitle: 'DocumentTitleHere',

@@ -33,14 +33,14 @@ import { bare, specTable, unbroken } from '../contract/spec-table'
 const REQUIREMENTS = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
 const CLAUSES: readonly (readonly [string, string])[] = [
-  ['FR-052 (MUST) -- the property panel counts from the width drawn at the press', '境界を掴んでいる間、`GRS` は、プロパティパネルの幅を、境界を押した時点に描いていた幅から、ポインタが動いたぶんだけ変えること。'],
-  ['FR-052 (MUST NOT) -- the width is written nowhere (CR-572)', '`GRS` は、プロパティパネルの幅を、文書にもブラウザの保管庫にも書かないこと。'],
-  ['FR-052 (MUST) -- the held boundary is drawn where the pointer names', '境界を掴んでいる間、`GRS` は、`IMPS-1785`・`IMPS-1794` の場合と、タスクグループパネルの幅が床を下回る場合を除き、境界を掴んでいる時点のポインタ位置が決める 2 つの幅で画面を描くこと。'],
-  ['FR-052 (MUST NOT) -- no pair leaving Task Group Area at 0 or less', '`GRS` は、`Task Group Area` の幅が 0 以下になる幅の組を受け付けないこと。'],
+  ['FR-052 (MUST) -- the property panel counts from the width drawn at the press', '境界を掴んでいる間、`GRS` は、プロパティパネルの幅を、境界を押した時点に描いていた幅から、ポインターが動いたぶんだけ変えること。'],
+  ['FR-052 (MUST NOT) -- the width is written nowhere (CR-572)', '`GRS` は、プロパティパネルの幅を、文書にもブラウザーの保管庫にも書かないこと。'],
+  ['FR-052 (MUST) -- the held boundary is drawn where the pointer names', '境界を掴んでいる間、`GRS` は、`IMPS-1785`・`IMPS-1794` の場合と、タスクグループパネルの幅が床を下回る場合を除き、境界を掴んでいる時点のポインター位置が決める 2 つの幅で画面を描くこと。'],
+  ['FR-052 (MUST NOT) -- no pair leaving Task Group Lanes at 0 or less', '`GRS` は、`Task Group Lanes` の幅が 0 以下になる幅の組を受け付けないこと。'],
   ['T-023d (MUST) -- a higher row wins', '`GRS` は、表 T-023d で先に並ぶ `GR` の行ほど優先すること。'],
   ['T-023d GR-22 (MUST NOT) -- no part of the band misses the band', '`GRS` は、帯の幅のうち、押しても帯に届かない所を残さないこと。'],
-  ['FR-006 (MUST) -- text and multiline fit inside the panel', '`GRS` は、表 T-016 の `入力の型` が `文字` と `複数行` の操作子に `IMPS-41` を当てず、操作子をパネルの幅の中に収めること。'],
-  ['FR-006 (MUST NOT) -- they do not run out to the right', '`GRS` は、`文字` と `複数行` の操作子をパネルの右へはみ出させないこと。'],
+  ['FR-006 (MUST) -- text and multiline fit inside the panel', '`GRS` は、表 T-016 の `入力の型` が `文字` と `複数行` の入力欄に `IMPS-41` を当てず、入力欄をパネルの幅の中に収めること。'],
+  ['FR-006 (MUST NOT) -- they do not run out to the right', '`GRS` は、`文字` と `複数行` の入力欄をパネルの右へはみ出させないこと。'],
   ['FR-006 (MUST) -- a long value wraps and the field grows down', '`GRS` は、`文字` と `複数行` の欄の幅に入り切らない値を欄の中で折り返し、欄を縦に伸ばすこと。'],
   ['FR-006 (MUST NOT) -- wrapping adds no line break to the value', '`GRS` は、欄の中の折り返しで値に改行を足さないこと。'],
   ['FR-006 (MUST NOT) -- the close entrance lies on no field', '`GRS` は、パネルの閉じる入口（`_assets/tbl-glossary.md` の 表 T-109 の `IC-52`）を、どの欄にも重ねないこと。'],
@@ -287,7 +287,7 @@ describe('FR-052 (MUST / MUST NOT) -- the property panel width counts from the w
   })
 
   // Spec: IMPS-1782
-  it('a pull left past the Task Group Area never leaves the Task Group Area at 0 or less', () => {
+  it('a pull left past the Task Group Lanes never leaves the Task Group Lanes at 0 or less', () => {
     const built = withThePanelOpen()
     drag(built, -SCREEN.width)
     expect(frameOf(built.loop).regions.taskGroupArea.width).toBeGreaterThan(0)
@@ -469,7 +469,7 @@ function drawnSurface(view: ScreenView): Stage {
 const OFFSETS = Array.from({ length: S_134 }, (_unused, index) => index - S_134 / 2)
 
 describe('T-023d GR-22 (MUST NOT) -- every point of the band answers the band, whatever lies under it', () => {
-  it.each(OFFSETS)('the property panel boundary %ipx from the line, at mid Task Group Area height', (offset) => {
+  it.each(OFFSETS)('the property panel boundary %ipx from the line, at mid Task Group Lanes height', (offset) => {
     const built = drawnSurface(viewWith(panelWith(10, 10)))
     const y = TASK_GROUP_AREA_TOP + TASK_GROUP_AREA_HEIGHT / 2
     const answer = surfaceOf(built).readScreenPartAt(LINE_X + offset, y)

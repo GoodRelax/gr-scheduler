@@ -57,7 +57,7 @@ function paragraphHolding(words: string): string | undefined {
 }
 
 function closingRuleLine(): string {
-  const found = paragraphHolding('を掴んでいるあいだ、置くことになる姿を、ポインタに追従させて描いて示すこと')
+  const found = paragraphHolding('を掴んでいるあいだ、置くことになる姿を、ポインターに追従させて描いて示すこと')
   if (found === undefined) {
     throw new Error('table T-023d no longer states the closing rule this file is about')
   }
@@ -115,7 +115,7 @@ const FOLLOWING_ROWS = closingRuleRows()
 // Why: GR-22 joined T-023d with an operation cell that sends the held picture to FR-052, and none
 // of the three closing sentences of T-023d names it; FR-052 states that MUST itself.
 const FR_052_HELD_PICTURE =
-  '境界を掴んでいる間、`GRS` は、`IMPS-1785`・`IMPS-1794` の場合と、タスクグループパネルの幅が床を下回る場合を除き、境界を掴んでいる時点のポインタ位置が決める 2 つの幅で画面を描くこと。'
+  '境界を掴んでいる間、`GRS` は、`IMPS-1785`・`IMPS-1794` の場合と、タスクグループパネルの幅が床を下回る場合を除き、境界を掴んでいる時点のポインター位置が決める 2 つの幅で画面を描くこと。'
 
 function followedByFr052Rows(): readonly string[] {
   return specTable('T-023d')
@@ -535,7 +535,7 @@ const FOLLOWERS: readonly Follower[] = [
   },
   {
     row: 'GA-20',
-    area: '再開アイコン -- マーカーのさらに外側',
+    area: '再開マーク -- マーカーのさらに外側',
     press: (loop) => resumePoint(loop, SUSPENDED_UID),
     reads: (loop) => centroid(resumeOf(loop, SUSPENDED_UID).head, 'the resume icon head').x,
   },
@@ -680,13 +680,13 @@ describe('the fixture draws every figure the nine rows are grabbed on', () => {
     const built = stage()
     const marker = markerOf(built.loop, SUSPENDED_UID)
     const icon = resumeOf(built.loop, SUSPENDED_UID)
-    expect(icon.arm.length, 'FR-044: 中断のあいだは再開アイコンを描くこと（MUST）').toBeGreaterThan(
+    expect(icon.arm.length, 'FR-044: 中断のあいだは再開マークを描くこと（MUST）').toBeGreaterThan(
       0,
     )
     expect(icon.head.length).toBeGreaterThan(0)
     const at = resumePoint(built.loop, SUSPENDED_UID)
     const away = Math.hypot(at.x - marker.center.x, at.y - marker.center.y)
-    expect(away, 'table T-023d GA-20: 再開アイコンはマーカーのさらに外側').toBeGreaterThan(
+    expect(away, 'table T-023d GA-20: 再開マークはマーカーのさらに外側').toBeGreaterThan(
       marker.radius,
     )
   })
@@ -733,7 +733,7 @@ describe.each(FOLLOWERS.map((one) => [one.row, one] as [string, Follower]))(
       const now = follower.reads(built.loop)
       expect(
         now,
-        `table T-023d (${follower.area}): 掴んでいるあいだ、置くことになる姿を、ポインタに追従させて描いて示すこと（MUST）`,
+        `table T-023d (${follower.area}): 掴んでいるあいだ、置くことになる姿を、ポインターに追従させて描いて示すこと（MUST）`,
       ).toBeGreaterThan(held)
       // Why: within one day and not to the pixel, because the figure that would be placed is
       // a whole day and a picture quantized to the day is one the specification permits.
@@ -1072,7 +1072,7 @@ describe('table T-023d GA-18: the progress marker is pressed, not carried', () =
       built.send(pointer('move', pressX + days * oneDay, marker.center.y))
       expect(
         structuredClone(drawnTask(built.loop, SUSPENDED_UID)),
-        'table T-270 `PE-10`（進捗マーカー、中断のあいだ）: 横に引く ＝ 何もしない',
+        'table T-270 `PE-10`（進捗ステータスマーク、中断のあいだ）: 横に引く ＝ 何もしない',
       ).toEqual(unpressed)
     }
   })
@@ -1085,7 +1085,7 @@ describe('table T-023d GA-18: the progress marker is pressed, not carried', () =
     built.send(pointer('move', marker.center.x + 4 * pxPerDay(built.loop), marker.center.y))
     expect(
       built.loop.document(),
-      'table T-028 IN-1: ポインタ操作は押した時点で実行せず、離した時点で確定すること',
+      'table T-028 IN-1: ポインター操作は押した時点で実行せず、離した時点で確定すること',
     ).toEqual(before)
   })
 })
@@ -1111,7 +1111,7 @@ const LANE_THICKNESS = 14
 
 const overflowTaskGroupId = (n: number): string => `2a000000-0000-4000-8000-${String(n).padStart(12, '0')}`
 
-// Why: FR-055's fit shrinks any span to the Task Group Area, so only a span past the
+// Why: FR-055's fit shrinks any span to the Task Group Lanes, so only a span past the
 // S-97 zoom floor overflows the width; the forty extra groups overflow the height.
 function wideFixtureDocument(): Document {
   const draft = fixtureDocument() as unknown as {
@@ -1132,7 +1132,7 @@ function wideFixtureDocument(): Document {
       uid: OVERFLOW_UID,
       name: 'Overflow',
       start: '2026-04-01T00:00:00',
-      // Why: sixty years, since S-1 is the constant 6: thirty no longer outgrow the Task Group Area at the S-97 floor.
+      // Why: sixty years, since S-1 is the constant 6: thirty no longer outgrow the Task Group Lanes at the S-97 floor.
       finish: '2086-04-01T00:00:00',
     }),
   )
@@ -1230,7 +1230,7 @@ describe('table T-023d GR-21: the schedule follows the pointer while its grip is
     ).not.toContain(GRIP_ROW)
   })
 
-  it('is drawn on both axes, over a document that genuinely overflows the Task Group Area', () => {
+  it('is drawn on both axes, over a document that genuinely overflows the Task Group Lanes', () => {
     // Why: scrolling gears to zero where the content fits, so without an overflow on both
     // axes the cases below could not tell a working grab from a dead one.
     const built = laneStage()
@@ -1247,11 +1247,11 @@ describe('table T-023d GR-21: the schedule follows the pointer while its grip is
     const area = (built.loop.current() as any).regions.taskGroupArea as { width: number; height: number }
     expect(
       (frame.layout as any).contentWidth,
-      'wideFixtureDocument: the horizontal content must overflow the Task Group Area',
+      'wideFixtureDocument: the horizontal content must overflow the Task Group Lanes',
     ).toBeGreaterThan(area.width)
     expect(
       (frame.layout as any).contentHeight,
-      'wideFixtureDocument: the vertical content must overflow the Task Group Area',
+      'wideFixtureDocument: the vertical content must overflow the Task Group Lanes',
     ).toBeGreaterThan(area.height)
   })
 

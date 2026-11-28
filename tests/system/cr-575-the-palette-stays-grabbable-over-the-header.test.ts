@@ -7,12 +7,12 @@ import { ERP_SAMPLE, REQUIREMENTS, openDocument, openStage, settle, type Stage }
 import { rowOf } from './sws-case'
 
 const FR_053_OVER_THE_HEADER = '`GRS` は、パレットを `App Header` の上へ運べるようにすること。'
-const FR_053_FOLLOWS_THE_POINTER = '掴み帯を握っている間、`GRS` はパレットをポインタに追従させること。'
-const FR_053_NEVER_OUT_OF_THE_WINDOW = '`GRS` は、掴み帯を閲覧環境の窓の外へ出さないこと。'
+const FR_053_FOLLOWS_THE_POINTER = 'グリップを握っている間、`GRS` はパレットをポインターに追従させること。'
+const FR_053_NEVER_OUT_OF_THE_WINDOW = '`GRS` は、グリップを閲覧環境の窓の外へ出さないこと。'
 const FR_053_WHAT_STAYS_IN =
   '`GRS` は、追従しているあいだも、離して角が決まるときも、窓の大きさが変わったときも、帯の上端と下端と、帯の右端の `IC-53` と `IC-75` を窓の中に置くこと。'
 const FR_053_MINIMIZED_SHOWS_THE_BAND_ONLY =
-  'パレットを最小化している間、`GRS` は、`S-206` の間の記録の入口を除き、掴み帯だけを出し、ほかは何も出さないこと。'
+  'パレットを最小化している間、`GRS` は、`S-206` の間の記録の入口を除き、グリップだけを出し、ほかは何も出さないこと。'
 const FR_152_FOLLOW_T_337 = '`GRS` は、コマンドパレットの前後を、`FR-152` の 表 T-337 に従わせること。'
 const T_337_THE_FRONT_ONE_TAKES_THE_PRESS = '`GRS` は、押下を、押下の点で最も手前に描いた UI パーツに受けさせること。'
 const T_337_NO_PART_STOPS_PRESSES_OUTSIDE = '`GRS` は、UI パーツに、UI パーツの外の押下を止めさせないこと'

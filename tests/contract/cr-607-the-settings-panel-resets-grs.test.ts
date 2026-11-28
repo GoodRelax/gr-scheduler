@@ -49,7 +49,7 @@ const SPEC = join(process.cwd(), 'docs', 'spec')
 const REQUIREMENTS = unbroken(readRepoFile(join(SPEC, '01-04-requirements.md'), 'utf8'))
 
 const FR_153_PLACE =
-  '`GRS` は、GRS リセットの入口を、文書の設定の面（`FR-072`、面を出す入口は 表 T-109 の `IC-17`）の頭、テーマ色の欄（`FR-041`）の上に置くこと。'
+  '`GRS` は、GRS リセットの入口を、文書設定の面（`FR-072`、面を出す入口は 表 T-109 の `IC-17`）の頭、テーマ色の欄（`FR-041`）の上に置くこと。'
 // Spec: IMPS-984
 const FR_153_NOT_A_FIELD = '`GRS` は、GRS リセットの入口を面の欄に数えないこと —— `FR-072` の「その欄は読むだけ」にも、`FR-041` の「先頭の欄」にも数えない。'
 // Spec: IMPS-985

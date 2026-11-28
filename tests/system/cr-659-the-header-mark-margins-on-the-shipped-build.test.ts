@@ -15,10 +15,10 @@ const REQUIREMENTS = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '
 // Why: each constant ends exactly at its marker, cut from the manuscript as check 39 reads it.
 const BR_2_SEAT =
   '| BR-2 | 席 | `GRS` は、帯の左端から、表 T-206 の `S-226` に `S-235` を掛けた長さだけ右を左端とし、幅が `S-490` × 表 T-206 の `S-462` × `S-235` の席を取ること。'
-const BR_2_GLYPH = '`GRS` は、`Branding` の字を、左の縁（`BR-3`）が席の左端に接するように置くこと。`GRS` は、`Branding` の字を、`Document Title` と同じく、縦は帯の縦の中央に置くこと。'
-const BR_2_TITLE = '`GRS` は、`Document Title` の左端を、席の右に `BR-7` の縦線と縦線の両脇の隔たりを置いた右にすること'
-const BR_2_NOT_MEASURED = '表 T-076 の `EP-1` が書き出しでも同じ行から題を置く。`GRS` は、字の実寸を測って `Document Title` を置かないこと。'
-const BR_7_LINE = '`GRS` は、席の右に、帯の上端から下端までの縦線を 1 本引き、`Branding` と `Document Title` を隔てること。'
+const BR_2_GLYPH = '`GRS` は、`Branding` の字を、左の縁（`BR-3`）が席の左端に接するように置くこと。`GRS` は、`Branding` の字を、`Project Title` と同じく、縦は帯の縦の中央に置くこと。'
+const BR_2_TITLE = '`GRS` は、`Project Title` の左端を、席の右に `BR-7` の縦線と縦線の両脇の隔たりを置いた右にすること'
+const BR_2_NOT_MEASURED = '表 T-076 の `EP-1` が書き出しでも同じ行から題を置く。`GRS` は、字の実寸を測って `Project Title` を置かないこと。'
+const BR_7_LINE = '`GRS` は、席の右に、帯の上端から下端までの縦線を 1 本引き、`Branding` と `Project Title` を隔てること。'
 const BR_7_SIDES = '`GRS` は、縦線の左右に、帯の左端から席までと同じ隔たり —— 表 T-206 の `S-226` に `S-235` を掛けた長さ —— を空けること。'
 const BR_7_NOT_A_GLYPH = '`GRS` は、縦線を字（例: 縦棒）で書かないこと。'
 const HS_9_COMMANDS =
@@ -119,7 +119,7 @@ async function readHeader(page: Page): Promise<Header> {
       inkRight: advance.left + metrics.actualBoundingBoxRight + fontPx * rim,
       divider: box('Branding Divider'),
       dividerText: one('Branding Divider').textContent ?? '',
-      ground: box('Document Title Ground'),
+      ground: box('Project Title Ground'),
       status: box('File Status'),
       commands: box('Header Commands'),
     }

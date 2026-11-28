@@ -162,7 +162,7 @@ function openPanelDocument(edit: (draft: any) => void = () => {}): Document {
   return draft as unknown as Document
 }
 
-// Why: wide, so the bar stays inside the Task Group Area beside the open panel;
+// Why: wide, so the bar stays inside the Task Group Lanes beside the open panel;
 // FR-051 keeps the window size out of the settings, so this decides nothing.
 const SCREEN: FrameEnvironment = {
   width: 1400,
@@ -369,7 +369,7 @@ describe('the manuscript still says what these cases read', () => {
     // case below agree with anything.
     expect(U_25).toBe('Properties Panel')
     expect(IN_4, 'IN-4 still fixes the order of the levels').toContain('1 階層')
-    expect(IN_4A, 'IN-4a still hands the rest to the browser').toContain('ブラウザへ渡すこと')
+    expect(IN_4A, 'IN-4a still hands the rest to the browser').toContain('ブラウザーへ渡すこと')
     expect(S_99G, 'S-99g still defines a 面 by what Esc closes').toContain('「開いている面」で閉じられるもの')
     expect(IN_4, 'IN-4 gives the panel its own rung after the drag and the open windows').toContain(
       '進行中のドラッグ・引きかけの矢印 → 開いているウィンドウ → プロパティパネル',
@@ -399,7 +399,7 @@ describe('the manuscript still says what these cases read', () => {
     expect((made as any).documentSettings).not.toHaveProperty('propertyPanelWidth')
   })
 
-  it('FR-052: the width chosen leaves the `Task Group Area` wider than zero', () => {
+  it('FR-052: the width chosen leaves the `Task Group Lanes` wider than zero', () => {
     // Why: a fixture failing this would be an unlawful document rather than a
     // case about Esc.
     expect(stage().taskGroupAreaWidth()).toBeGreaterThan(0)
@@ -474,7 +474,7 @@ describe('IN-4 of table T-028 -- `Esc` closes the `Properties Panel`', () => {
     // Step: the third Esc finds no rung and reaches the browser.
     expect(
       built.loop.isBrowserDefaultStopped(ESCAPE()),
-      'IN-4a: 本ツールが何もしない `Esc` を止めると、ブラウザが `Esc` に持たせた働きを奪う',
+      'IN-4a: `GRS` が何もしない `Esc` を止めると、ブラウザーが `Esc` に持たせた働きを奪う',
     ).toBe(false)
   })
 
@@ -554,7 +554,7 @@ describe('FR-052 and S-99h -- a closed panel leaves no gap at the right edge', (
     expect(built.panelWidth()).toBe(CLOSED_WIDTH)
   })
 
-  it('the `Task Group Area` grows by exactly what the panel had', () => {
+  it('the `Task Group Lanes` grows by exactly what the panel had', () => {
     // Why: the two widths move together by arithmetic, so this case shows the
     // closing reached the width and not only the drawing.
     const built = withThePanelUp()
@@ -562,6 +562,6 @@ describe('FR-052 and S-99h -- a closed panel leaves no gap at the right edge', (
 
     built.send(ESCAPE())
 
-    expect(built.taskGroupAreaWidth() - before, 'FR-052: the残り is what the Task Group Area gets').toBe(S_602)
+    expect(built.taskGroupAreaWidth() - before, 'FR-052: the残り is what the Task Group Lanes gets').toBe(S_602)
   })
 })

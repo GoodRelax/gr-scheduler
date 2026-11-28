@@ -42,7 +42,7 @@ import { holidaySettingsBodyElements, holidaySettingsFrameStyle, isHolidaySettin
 
 const CLOSE_SURFACE_ENTRY = 'IC-52'
 const HELP_LANGUAGE_ENTRY = 'IC-128'
-const HELP_SURFACE = 'Help Modal'
+const HELP_SURFACE = 'Help Window'
 const HOLIDAY_SETTINGS_SURFACE = 'Holiday Settings'
 
 const MODAL_BORDER_PX = 1

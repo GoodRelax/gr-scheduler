@@ -1,4 +1,4 @@
-// CR-858 on the dev server with real browser drops (CDP Input.dispatchDragEvent): one dropped file opens as a replace without the Open Chooser, several dropped files open none (FR-087 T-024a OP-19, OP-11, OP-4).
+// CR-858 on the dev server with real browser drops (CDP Input.dispatchDragEvent): one dropped file opens as a replace without the Open File Dialog, several dropped files open none (FR-087 T-024a OP-19, OP-11, OP-4).
 import { expect, test, type Page } from '@playwright/test'
 import { writeFileSync } from 'node:fs'
 import { readRepoFile } from '../spec-files'
@@ -11,7 +11,7 @@ test.use({ viewport: VIEWPORT, locale: 'en-US' })
 const REQUIREMENTS = readRepoFile(resolve('docs', 'spec', '01-04-requirements.md'), 'utf8').replace(/\r?\n/g, '')
 
 const OP_19_OPENS_WITHOUT_CHOOSER =
-  '人がファイルを 1 つウィンドウへドロップしたとき、`GRS` は、`Open Chooser`（`_assets/tbl-glossary.md` の `U-56`）を出さずに、`OP-3` の 3 択を置き換えに定めて開くこと（MUST）'
+  '人がファイルを 1 つウィンドウへドロップしたとき、`GRS` は、`Open File Dialog`（`_assets/tbl-glossary.md` の `U-56`）を出さずに、`OP-3` の 3 択を置き換えに定めて開くこと（MUST）'
 const OP_19_KEEPS_OP_4 = '`OP-4` の確認は掛かること（MUST）'
 const OP_11_SEVERAL_OPEN_NONE =
   '人が 2 つ以上のファイルを同時にウィンドウへドロップしたとき、`GRS` は、どのファイルも開かずに断り、現在の文書を変えないこと（MUST）'
@@ -20,7 +20,7 @@ const WORDS = JSON.parse(readRepoFile(resolve('docs', 'spec', '_source', 'displa
 }
 const RS_14_EN = WORDS.reasons.find((one) => one.specTableRowId === 'RS-14')?.text.en ?? ''
 
-const OPEN_CHOOSER = '[data-role="Open Chooser"]'
+const OPEN_CHOOSER = '[data-role="Open File Dialog"]'
 const CONFIRMATION = '[data-role="Confirmation"]'
 const CANVAS = '[data-role="Schedule Canvas"]'
 const NOTICES = '[data-role="Notification Area"]'
@@ -86,7 +86,7 @@ test('the clauses these cases drive are still in the manuscript', () => {
   expect(RS_14_EN, 'the dictionary holds the RS-14 words').not.toBe('')
 })
 
-test('Given nothing is unsaved, When a person drops a GRS JSON, Then GRS opens it without the Open Chooser or a question', async ({ page }, info) => {
+test('Given nothing is unsaved, When a person drops a GRS JSON, Then GRS opens it without the Open File Dialog or a question', async ({ page }, info) => {
   await openDevServer(page)
   const dropped = writtenFixture(info.outputPath('cr-858-seven.json'), 7)
   await dropForReal(page, dropped)
@@ -120,7 +120,7 @@ test('Given an unsaved edit, When a person drops a GRS JSON and cancels QN-5, Th
   expect(after.schedule.tasks[0]?.name).toBe('Edited here')
 })
 
-test('Given nothing is unsaved, When a person drops an MSPDI XML, Then GRS opens it without the Open Chooser', async ({ page }) => {
+test('Given nothing is unsaved, When a person drops an MSPDI XML, Then GRS opens it without the Open File Dialog', async ({ page }) => {
   await openDevServer(page)
   const before = (await readDocument(page)).schedule.tasks.length
   await dropForReal(page, MSPDI_SAMPLE)
@@ -185,7 +185,7 @@ test('Given an unsaved edit, When a person drops an MSPDI XML and cancels QN-5, 
   expect(after.schedule.tasks[0]?.name).toBe('Edited here')
 })
 
-test('Given nothing is unsaved, When a person drops a single .html, Then GRS opens its document without the Open Chooser', async ({ page }, info) => {
+test('Given nothing is unsaved, When a person drops a single .html, Then GRS opens its document without the Open File Dialog', async ({ page }, info) => {
   await openDevServer(page)
   await dropForReal(page, writtenHtmlFixture(info.outputPath('cr-858-six.html'), 6))
   await expect(page.locator(OPEN_CHOOSER), OP_19_OPENS_WITHOUT_CHOOSER).toHaveCount(0)
@@ -221,7 +221,7 @@ test('Given an unsaved edit, When a person drops a single .html and cancels QN-5
 
 // Why: a headless browser has no file picker, so the host stub hands IC-1 the next file as a person's pick would.
 for (const name of ['cr-858-picked.json', 'sample-medium-sfa-webapp.en.xml'] as const) {
-  test(`Given any document, When a person picks ${name} in the file dialog, Then GRS raises the Open Chooser with its three choices`, async ({ page }) => {
+  test(`Given any document, When a person picks ${name} in the file dialog, Then GRS raises the Open File Dialog with its three choices`, async ({ page }) => {
     await page.addInitScript(HOST_STUB)
     await openDevServer(page)
     const text = name.endsWith('.json') ? taskGroupsDocument({ rows: 3 }) : readRepoFile(MSPDI_SAMPLE, 'utf8')

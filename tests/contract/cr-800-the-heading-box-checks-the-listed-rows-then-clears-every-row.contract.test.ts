@@ -71,7 +71,7 @@ const SQ_10_STATES = '`GRS` は、`SQ-10` の見出しのセルに、入って�
 const SQ_10_ANY_ROW = 'タスクの表の行のどれか 1 つにでもチェックが入っている間、`GRS` は、チェックの入った行が一覧に出ていても出ていなくても、`SQ-10` の見出しのチェックボックスを入っている状態にすること。'
 const SQ_10_FIRST = '初めは空'
 const SQ_10_ADD = '`SQ-10` の見出しのチェックボックスが空の間、見出しのチェックボックスを押したとき、`GRS` は、一覧に出ているすべての行にだけチェックを入れること（一覧に出ていない行は変えない）。'
-const SQ_10_CLEAR = '`SQ-10` の見出しのチェックボックスが入っている間、見出しのチェックボックスを押したとき、`GRS` は、表のすべての行（語や列のフィルタで一覧に出ていない行を含む）のチェックを外すこと。'
+const SQ_10_CLEAR = '`SQ-10` の見出しのチェックボックスが入っている間、見出しのチェックボックスを押したとき、`GRS` は、表のすべての行（語や列のフィルターで一覧に出ていない行を含む）のチェックを外すこと。'
 const SQ_10_RETIRED_THREE_STATES = '3 つの状態'
 const SQ_10_NO_FUNNEL = '持たない（表 T-330 の `SV-7`）'
 const SQ_10_RETIRED = '一覧に出ている行だけをすべて入れる（すべて入っていればすべて外す）'
@@ -80,7 +80,7 @@ const SV_7_BOX_ONLY = '`GRS` は、[表示] の列の見出しに、`IC-122` を
 const SV_7_RETIRED_DROPDOWN = '`IC-122` は、本段の操作の段と値の一覧の代わりに、`IC-125` と `IC-126` の 2 つの行だけを持つドロップダウンを開く'
 const SV_7_RETIRED_EVERY_ROW = 'そこでの `IC-125`・`IC-126` は'
 const TV_5_NONE = '表で日程抽出しておらず、表にチェックの入った行が 1 つも無い間、`GRS` は、`IC-143` を効かなくすること（`FR-092`）。'
-const TV_5_STAYS_ON = '表で日程抽出している間、行をすべて「表示」にしたときも、すべての行のチェックを外したときも、`GRS` は、日程抽出したままにすること（すべて外せば日程表に何も描かない）。'
+const TV_5_STAYS_ON = '表で日程抽出している間、行をすべて「表示」にしたときも、すべての行のチェックを外したときも、`GRS` は、日程抽出したままにすること（すべて外せば `Task Group Lanes` に何も描かない）。'
 const TV_5_RETIRED = '掛けても描くものが'
 const TV_6_ONE_STEP = '`GRS` は、1 回の入れ（見出しのチェックボックスの 1 回を含む）の展開を、表示の列の値の変更（`UN-20`）と合わせて 1 段とすること。'
 const UN_20_ONE_STEP = '行の「表示」／「非表示」の 1 回（見出しのチェックボックスの 1 回を含む'
@@ -239,7 +239,7 @@ function eyeOf(view: { readonly titleEntries: SearchPanelView['titleEntries']; r
 
 const searchPanelOf = (word: string): SearchPanelSession => ({ ...emptySearchPanelSession, table: 'tasks', word })
 const searchViewOf = (visibility: Visibility, word: string): SearchPanelView =>
-  found(searchPanelFromSession(sessionIn(), searchPanelOf(word), { ...startOf('searchPanel'), visibility }, SCHEDULE, CANVAS), 'a view of the shown Search Panel')
+  found(searchPanelFromSession(sessionIn(), searchPanelOf(word), { ...startOf('searchPanel'), visibility }, SCHEDULE, CANVAS), 'a view of the shown Search Window')
 
 const reportWindowOf = (word: string): DelayDiagnosticsReportWindow => ({ ...OPENED_DELAY_DIAGNOSTICS_REPORT, panel: { ...OPENED_DELAY_DIAGNOSTICS_REPORT.panel, word } })
 const reportViewOf = (visibility: Visibility, word: string): DelayDiagnosticsReportView =>
@@ -394,7 +394,7 @@ describe.each(PROBES)('FR-151 T-331 SQ-10 ($name) -- 空のときに押すと、
   })
 })
 
-describe.each(PROBES)('FR-151 T-331 SQ-10 ($name) -- 入っているときに押すと、表のすべての行（語や列のフィルタで一覧に出ていない行も）のチェックを外す', (probe) => {
+describe.each(PROBES)('FR-151 T-331 SQ-10 ($name) -- 入っているときに押すと、表のすべての行（語や列のフィルターで一覧に出ていない行も）のチェックを外す', (probe) => {
   const ALL = (): Partial<Visibility> => probe.visibilityOf(probe.everyKey)
 
   it('SQ-10: with every row checked and listed, the heading press clears every row', () => {
@@ -516,7 +516,7 @@ describe('FR-099 T-371 RQ-1 -- 担当の行と（担当なし）の行', () => {
 describe('FR-151 T-330 SV-7 / T-331 SQ-10 -- 見出しに IC-122 を置かない（持たない）', () => {
   const closedPanel = (): SearchPanelSession => searchPanelOf('')
 
-  it('SQ-10: the Search Panel opens no filter on the check column', () => {
+  it('SQ-10: the Search Window opens no filter on the check column', () => {
     expect(searchPanelWithFilterOpened(sessionIn(), closedPanel(), SEARCH.base, 'SQ-10')).toBeNull()
   })
 

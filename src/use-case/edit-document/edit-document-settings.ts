@@ -295,7 +295,7 @@ function taskGroupPanelWidthEdited(
   // Trap: the limit is measured off the DRAWN regions, so the stored width has to be scaled to meet it.
   const taskGroupArea = limits.taskGroupAreaWidthWithoutPanels - command.taskGroupPanelWidthPx * displayRatioOf(settings)
   if (!(taskGroupArea > 0)) {
-    return refused([reject('CM-67', 'FR-052', 'the width would leave the Task Group Area at or below zero')])
+    return refused([reject('CM-67', 'FR-052', 'the width would leave the Task Group Lanes at or below zero')])
   }
   return put({ taskGroupPanelWidthPx: command.taskGroupPanelWidthPx })
 }

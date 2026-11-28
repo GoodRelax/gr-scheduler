@@ -303,8 +303,8 @@ const T_036_DRIVEN = [
 ] as const
 
 // Spec: MK-10
-const MK_10_CTRL_P = '`Ctrl+P`（印刷）まで奪うと、ブラウザの機能が使えなくなる'
-const MK_10_CTRL_F = '`GRS` は、表 T-036 の `SK-24` に割り当てた `Ctrl+F` のブラウザの既定動作も止めること。'
+const MK_10_CTRL_P = '`Ctrl+P`（印刷）まで奪うと、ブラウザーの機能が使えなくなる'
+const MK_10_CTRL_F = '`GRS` は、表 T-036 の `SK-24` に割り当てた `Ctrl+F` のブラウザーの既定動作も止めること。'
 
 const NOT_ASSIGNED = [
   { why: 'MK-10 names it: `Ctrl+P`（印刷）', input: () => key('P', { ctrl: true }) },
@@ -980,7 +980,7 @@ describe('the specification still says what these cases copy', () => {
 
   it('MK-10 still names Ctrl+P as one this tool must not take, and Ctrl+F as SK-24, so taken', () => {
     const mk10 = rowOf('T-023', 'MK-10').cells.join(' ')
-    expect(mk10).toContain('`GRS` は、割り当てていない組合せのブラウザの既定動作を止めないこと')
+    expect(mk10).toContain('`GRS` は、割り当てていない組合せのブラウザーの既定動作を止めないこと')
     expect(mk10).toContain(MK_10_CTRL_P)
     expect(mk10).toContain(MK_10_CTRL_F)
   })
@@ -1003,7 +1003,7 @@ describe('the specification still says what these cases copy', () => {
   it('FR-063 still spells both instants ISO 8601, UTC, to the second', () => {
     expect(REQUIREMENTS).toContain('`GRS` は、2 つの刻を、いずれも `ISO 8601`・UTC・秒までで書くこと')
     expect(REQUIREMENTS).toContain(
-      '`GRS` は、見せ方の群だけを変える更新で、日程データの群の刻を動かさないこと',
+      '`GRS` は、見せ方の群だけを変える更新で、スケジュールデータの群の刻を動かさないこと',
     )
   })
 
@@ -1012,7 +1012,7 @@ describe('the specification still says what these cases copy', () => {
     expect(in4).toContain('1 階層ぶん消費し')
     expect(in4).toContain('開いている面 → 進行中のドラッグ・引きかけの矢印 → 開いているウィンドウ → プロパティパネル → 構え')
     expect(rowOf('T-028', 'IN-4a').cells.join(' ')).toContain(
-      '消費する対象が 1 つも無いときは、必ずブラウザへ渡すこと（MUST）',
+      '消費する対象が 1 つも無いときは、必ずブラウザーへ渡すこと（MUST）',
     )
   })
 
@@ -1021,7 +1021,7 @@ describe('the specification still says what these cases copy', () => {
       'ドラッグを中断として終わらせること（MUST）',
     )
     expect(rowOf('T-028', 'IN-1').cells.join(' ')).toContain(
-      'ポインタが描画領域の外へ出たことを中断としてはならない（MUST NOT）',
+      'ポインターが描画領域の外へ出たことを中断としてはならない（MUST NOT）',
     )
   })
 
@@ -1034,7 +1034,7 @@ describe('the specification still says what these cases copy', () => {
 
     const gr19 = t023d.rows[0]?.cells.join(' ') ?? ''
     expect(gr19).toContain(U_26_PART)
-    expect(gr19).toContain('掴み帯を掴んだとき、`GRS` はパレットを動かすこと（`FR-053`）。')
+    expect(gr19).toContain('グリップを掴んだとき、`GRS` はパレットを動かすこと（`FR-053`）。')
     expect(gr19).toContain('FR-053')
   })
 
@@ -1054,11 +1054,11 @@ describe('the specification still says what these cases copy', () => {
   it('CS-2 of table T-066 still freezes the gesture at the press', () => {
     const cs2 = rowOf('T-066', 'CS-2').cells.join(' ')
     expect(cs2).toContain('身振りを始めた時点の文書')
-    expect(cs2).toContain('ポインタを押した時点')
+    expect(cs2).toContain('ポインターを押した時点')
   })
 
   it('table T-078 still makes a person’s input FT-1, and BO-1 still holds the first frame back', () => {
-    expect(rowOf('T-078', 'FT-1').cells.join(' ')).toContain('人の入力（ポインタとキー）')
+    expect(rowOf('T-078', 'FT-1').cells.join(' ')).toContain('人の入力（ポインターとキー）')
     expect(rowOf('T-077', 'BO-1').cells.join(' ')).toContain('寸法が確定するまで 1 枚も描かない')
   })
 })

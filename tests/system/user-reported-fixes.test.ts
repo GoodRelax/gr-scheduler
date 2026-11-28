@@ -1026,7 +1026,7 @@ test('DFC-297: a zoom holds the date under the pointer, and the middle date when
 
     const before = timeAxisOf(await readRuler(app.page, canvas), 'before the wheel')
     const band = (await readRuler(app.page, canvas)).band
-    expect(band.width, 'the time ruler draws no ground, so the Task Group Area cannot be located').toBeGreaterThan(0)
+    expect(band.width, 'the time ruler draws no ground, so the Task Group Lanes cannot be located').toBeGreaterThan(0)
     const roughly = band.x + band.width * 0.25
     const at = Math.round(
       band.x + (Math.floor((roughly - band.x) / before.pxPerDay) + 0.5) * before.pxPerDay,
@@ -1034,7 +1034,7 @@ test('DFC-297: a zoom holds the date under the pointer, and the middle date when
     const middle = band.x + band.width / 2
     expect(
       Math.abs(at - middle),
-      `the point the wheel is turned at (${String(at)}) is the middle of the Task Group Area, so this ` +
+      `the point the wheel is turned at (${String(at)}) is the middle of the Task Group Lanes, so this ` +
         'case could not tell a pointer-centered zoom from a middle-centered one',
     ).toBeGreaterThan(before.pxPerDay)
     const heldByPointer = dayUnder(before, at)
@@ -1071,7 +1071,7 @@ test('DFC-297: a zoom holds the date under the pointer, and the middle date when
     ).not.toBe(beforeKey.pxPerDay)
     expect(
       dayUnder(afterKey, middle),
-      `FR-016 (MUST): a route that carries no pointer takes the middle of the Task Group Area as the ` +
+      `FR-016 (MUST): a route that carries no pointer takes the middle of the Task Group Lanes as the ` +
         `center, so the date at x=${String(Math.round(middle))} does not move. The pointer was ` +
         `parked at x=${String(Math.round(band.x + band.width * 0.1))}, where the date was ` +
         `${dayUnder(beforeKey, band.x + band.width * 0.1)}`,
@@ -1128,7 +1128,7 @@ test('DFC-375: magnifying the date axis stops with S-229 days still on the scree
     expect(
       wideDays,
       `FR-016 (MUST): 「日付の軸（\`zoomX\`）の上限は、見えている範囲が ... 表 T-206 の ` +
-        `\`S-229\` 日を下回らない倍率とすること（MUST）」. The Task Group Area is ` +
+        `\`S-229\` 日を下回らない倍率とすること（MUST）」. The Task Group Lanes is ` +
         `${String(Math.round(wide.band.width))}px wide and shows ${wideDays.toFixed(2)} days`,
     ).toBeGreaterThanOrEqual(VISIBLE_DAY_FLOOR - 0.01)
     await wheelAway(10)
@@ -1147,11 +1147,11 @@ test('DFC-375: magnifying the date axis stops with S-229 days still on the scree
     const narrowDays = narrow.band.width / narrowAxis.pxPerDay
     expect(
       narrow.band.width,
-      'the narrower window did not narrow the Task Group Area, so the two readings are one reading',
+      'the narrower window did not narrow the Task Group Lanes, so the two readings are one reading',
     ).toBeLessThan(wide.band.width)
     expect(
       narrowDays,
-      `FR-016 (MUST): the promise is a number of DAYS and not a magnification. The Task Group Area is ` +
+      `FR-016 (MUST): the promise is a number of DAYS and not a magnification. The Task Group Lanes is ` +
         `now ${String(Math.round(narrow.band.width))}px wide and shows ${narrowDays.toFixed(2)} days`,
     ).toBeGreaterThanOrEqual(VISIBLE_DAY_FLOOR - 0.01)
     expect(
@@ -1283,7 +1283,7 @@ function fontsOfKeys(
 }
 
 // Spec: IMPS-1468, IMPS-1481
-test('DFC-374: magnifying the vertical axis stops before one task group fills the Task Group Area', async ({
+test('DFC-374: magnifying the vertical axis stops before one task group fills the Task Group Lanes', async ({
   baseURL,
 }) => {
   test.setTimeout(240_000)
@@ -1362,7 +1362,7 @@ test('DFC-374: magnifying the vertical axis stops before one task group fills th
     ).toBeGreaterThan(tallestBandOf(opened))
     expect(
       tall.length,
-      `FR-016 (MUST): 「縦軸（\`zoomY\`）の上限は、いちばん高いタスクグループの帯が \`Task Group Area\` の高さに` +
+      `FR-016 (MUST): 「縦軸（\`zoomY\`）の上限は、いちばん高いタスクグループの帯が \`Task Group Lanes\` の高さに` +
         `達する倍率とすること（MUST）」. Forty-five notches of MK-4 left ${String(tall.length)} ` +
         `task group(s) on a ${String(canvasBox.height)}px canvas, the tallest reading ` +
         `${tallestBandOf(tall).toFixed(1)}px -- past the ceiling the magnifying goes on until ` +
@@ -1391,20 +1391,20 @@ test('DFC-374: magnifying the vertical axis stops before one task group fills th
     const shortArea = taskGroupAreaSpanOf(short)
     expect(
       tallestBandOf(tall),
-      `FR-016 (MUST): 「縦軸（\`zoomY\`）の上限は、いちばん高いタスクグループの帯が \`Task Group Area\` の高さに` +
+      `FR-016 (MUST): 「縦軸（\`zoomY\`）の上限は、いちばん高いタスクグループの帯が \`Task Group Lanes\` の高さに` +
         `達する倍率とすること（MUST）」. The tallest band on the 1080px window reads ` +
-        `${tallestBandOf(tall).toFixed(2)}px against a ${tallArea.toFixed(2)}px Task Group Area -- a ` +
+        `${tallestBandOf(tall).toFixed(2)}px against a ${tallArea.toFixed(2)}px Task Group Lanes -- a ` +
         'band that fills the area at both ends is a band the area cut, which is what a build ' +
         'with no ceiling settles at',
     ).toBeLessThan(tallArea)
     expect(
       tallestBandOf(short),
       `FR-016 (MUST): the same on the 700px window: ${tallestBandOf(short).toFixed(2)}px ` +
-        `against a ${shortArea.toFixed(2)}px Task Group Area`,
+        `against a ${shortArea.toFixed(2)}px Task Group Lanes`,
     ).toBeLessThan(shortArea)
     expect(
       shortArea,
-      `the shorter window did not shorten the Task Group Area (${shortArea.toFixed(2)}px against ` +
+      `the shorter window did not shorten the Task Group Lanes (${shortArea.toFixed(2)}px against ` +
         `${tallArea.toFixed(2)}px), so the two readings are one reading`,
     ).toBeLessThan(tallArea)
 
@@ -1448,7 +1448,7 @@ test('DFC-374: magnifying the vertical axis stops before one task group fills th
     expect(
       tallestBandOf(low),
       `FR-016 (MUST): on the low window the tallest band reads ${tallestBandOf(low).toFixed(2)}px ` +
-        `against a ${taskGroupAreaSpanOf(low).toFixed(2)}px Task Group Area`,
+        `against a ${taskGroupAreaSpanOf(low).toFixed(2)}px Task Group Lanes`,
     ).toBeLessThan(taskGroupAreaSpanOf(low))
     const lowByKey = await nameLabelFontsNow(app.page)
     await wheelAway(10)
@@ -1513,7 +1513,7 @@ test('DFC-366: one notch of the vertical-axis zoom leaves the task group under t
     const nowAt = sameTaskGroup.y + into * sameTaskGroup.height
     expect(
       Math.abs(nowAt - at),
-      `FR-016 (MUST): 「ズームはポインタ位置を中心とし、カーソル下の日付とタスクグループが動かないこと` +
+      `FR-016 (MUST): 「ズームはポインター位置を中心とし、カーソル下の日付とタスクグループが動かないこと` +
         `（MUST）」 and 「倍率を変えたとき、縦軸でも掴んだタスクグループを留めること（MUST）」. The wheel ` +
         `was turned at y=${String(at)}, where the band was ${held.height.toFixed(1)}px and is ` +
         `now ${sameTaskGroup.height.toFixed(1)}px; the point under the pointer has moved to ` +

@@ -445,7 +445,7 @@ describe(`FR-002 (MUST) -- ${FR_002_T_273_MEASURES_THE_DATES}`, () => {
 
   // Spec: FR-039, OP-10
   // Why: a view held by the document, not the FR-055 fit -- since S-332 the fit spreads these four weeks
-  // over the Task Group Area, and at that zoom the name and its dates fit inside the three days together.
+  // over the Task Group Lanes, and at that zoom the name and its dates fit inside the three days together.
   const AT_THE_DEFAULT_STEP = {
     displayScale: DEFAULT_DISPLAY_SCALE,
     zoomX: 2,

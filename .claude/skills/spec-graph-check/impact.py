@@ -34,7 +34,7 @@ ROOT = REPO
 # another. Membership is by table, because tables are what requirements point
 # at.
 CLUSTERS = [
-    ('ポインタ操作',
+    ('ポインター操作',
      ['T-023', 'T-023a', 'T-023b', 'T-023c', 'T-023d', 'T-036'],
      '判定順序（T-023a）が正。T-023 は指すだけ'),
     ('予実と遅れ',

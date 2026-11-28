@@ -1,4 +1,4 @@
-// Unit tests: the Open Chooser, the Confirmation and the Export Chooser the frame loop puts up.
+// Unit tests: the Open File Dialog, the Confirmation and the Save As Dialog the frame loop puts up.
 
 import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
@@ -619,7 +619,7 @@ describe('the documents these cases drive', () => {
 
 // Spec: OP-3, U-56, IC-71, IC-72, IC-73, FR-029
 describe('OP-3 -- reading a file puts the three-way question up', () => {
-  it('U-56: taking SK-10 and handing over a file leaves the Open Chooser standing', async () => {
+  it('U-56: taking SK-10 and handing over a file leaves the Open File Dialog standing', async () => {
     const pane = host()
     const screen = screenPane()
     const files = fileStore()
@@ -1191,7 +1191,7 @@ describe('CS-4 -- what the screen does while the person is being waited on', () 
 })
 
 // Spec: FR-096, U-54, IC-2, IC-3, IC-52, IN-4, FR-025, FR-029
-describe('FR-096 -- the Export Chooser', () => {
+describe('FR-096 -- the Save As Dialog', () => {
   it('U-54: SK-12 puts the surface up', () => {
     const pane = host()
     const screen = screenPane()
@@ -1848,8 +1848,8 @@ describe('the tables are read by position, so the positions are pinned', () => {
 
   it('table T-103 prints the settled English name first', () => {
     expect(T_103.headings.length).toBe(3)
-    expect(OPEN_CHOOSER).toBe('Open Chooser')
-    expect(EXPORT_CHOOSER).toBe('Export Chooser')
+    expect(OPEN_CHOOSER).toBe('Open File Dialog')
+    expect(EXPORT_CHOOSER).toBe('Save As Dialog')
   })
 
   it('table T-109 prints the surface an entry stands on first', () => {

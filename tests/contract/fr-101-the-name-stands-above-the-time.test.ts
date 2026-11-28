@@ -75,7 +75,7 @@ const EMPTY_VIEW: ScreenView = {
 }
 
 // Why: the title, the file name and the never-saved text are three different words,
-// so no case can pass by confusing the file name with the Document Title.
+// so no case can pass by confusing the file name with the Project Title.
 const HEADER_WITH_A_SAVED_FILE: AppHeaderItems = {
   ...EMPTY_HEADER,
   documentTitle: 'DocumentTitleHere',

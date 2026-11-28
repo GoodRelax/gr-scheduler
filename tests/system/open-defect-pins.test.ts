@@ -554,7 +554,7 @@ async function dropTheDummy(page: Page, steps: number): Promise<Dropped> {
   const step = dummy.width
   expect(
     step,
-    `表 T-240 の DM-3 (MUST): ダミーを描く幅は進捗マーカーの径（S-22 ${S_22}px × 描く比 ` +
+    `表 T-240 の DM-3 (MUST): ダミーを描く幅は進捗ステータスマークの径（S-22 ${S_22}px × 描く比 ` +
       `${DEFAULT_DISPLAY_RATIO}）× S-247 ${S_247} と S-180 ${S_180}px の小さい方であり、` +
       `${MARK_WIDTH_PX}px になる`,
   ).toBe(Math.round(MARK_WIDTH_PX))
@@ -776,7 +776,7 @@ const CLAUSES: readonly (readonly [string, string])[] = [
 ]
 
 const DM_3_THE_DRAWN_WIDTH =
-  '`GRS` は、ダミーを描く幅を、ダミーを描くタスクの進捗マーカーの径に `_assets/tbl-settings.md` の 表 T-206 の `S-247` を掛けた幅と、表 T-206 の `S-180` の小さい方とすること'
+  '`GRS` は、ダミーを描く幅を、ダミーを描くタスクの進捗ステータスマークの径に `_assets/tbl-settings.md` の 表 T-206 の `S-247` を掛けた幅と、表 T-206 の `S-180` の小さい方とすること'
 
 test('the manuscript still states the mark this file measures, word for word', () => {
   for (const [name, clause] of CLAUSES) {

@@ -308,13 +308,13 @@ const TITLED: readonly Screen[] = [
   { width: 2560, height: 1440, appHeaderHeight: 48, why: 'a wider screen and band, ratio under 1' },
 ]
 
-describe('T-076 EP-1 -- the exported Document Title baseline sits S-225 x S-235 x S-33 below the band center (CR-584 T6)', () => {
+describe('T-076 EP-1 -- the exported Project Title baseline sits S-225 x S-235 x S-33 below the band center (CR-584 T6)', () => {
   it.each(TITLED)('$width x $height with a $appHeaderHeight px band ($why)', (screen) => {
     const scene = sceneOn(screen, 'light')
     const ratio = S_81_WIDTH / screen.width
     const band = scene.regions.appHeader
     const text = /<text\b((?:[^<>"]|"[^"]*")*)>([^<]*)<\/text>/.exec(pictureOrThrow(exportSvg(scene)).svg)
-    expect(text?.[2], 'EP-1 (MUST) "draw the band and the Document Title"').toBe(TITLE)
+    expect(text?.[2], 'EP-1 (MUST) "draw the band and the Project Title"').toBe(TITLE)
     const baseline = Number(attrsOf(text?.[1] ?? '')['y'])
     const wanted = (band.y + band.height / 2 + S_225 * S_235 * S_33) * ratio
 

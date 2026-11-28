@@ -50,7 +50,7 @@ const FR_036_NARROWED_SCROLLS_SIDEWAYS =
 const FR_036_COLUMNS_STAY = '`GRS` は、本文の領域の幅に合わせて、段の数を変えたり塊を別の段へ送ったりしないこと。'
 const FR_069_FOLDED = '`GRS` は、ヘルプを開いたときに、全文と帰属表示を開いた形で出さないこと。'
 const FR_069_NEW_TAB =
-  '人がヘルプの著作権表示を押したとき、`GRS` は、閲覧環境の新しいタブで、`_assets/tbl-settings.md` の 表 T-206 の `S-459`（本ソフトウェアのリポジトリの所）の頁を開くこと。'
+  '人がヘルプの著作権表示を押したとき、`GRS` は、閲覧環境の新しいタブで、`_assets/tbl-settings.md` の 表 T-206 の `S-459`（`GRS` のリポジトリの所）の頁を開くこと。'
 
 const CLAUSES: readonly string[] = [
   FR_036_TITLE_ORDER,
@@ -95,7 +95,7 @@ const WB_2_DRAWS = '本文は描かない'
 const WB_4_SAME_PLACE = '最大化の入口は、`WB-3` のあいだだけ `IC-131` に替えて同じ場所に描く'
 const WB_5_BACK_TO_NORMAL = '`WB-2` から `IC-129` で戻す先は、最小化の前が `WB-3` でも `WB-1` とする'
 const WB_6_NOT_SAVED = '状態を文書にも閲覧環境の保管庫にも保存しない。'
-const HN_1_WHEEL = '日程表に当てる'
+const HN_1_WHEEL = '`Schedule Canvas` に当てる'
 const HN_2_ESC = 'ヘルプは閉じない'
 const HN_4_OTHER_SURFACE = 'ヘルプを最小化のまま残し、その面をヘルプより手前に立てる'
 const HN_5_BACK = '開き直しではない —— ヘルプの言語を変えない'
@@ -841,7 +841,7 @@ test.describe('CR-574 items 9 and 9a, CR-575 item 5a -- another surface stands i
     }
   })
 
-  test('item 9a / CR-575 5a: with the help at normal, the Export Chooser opens in front of it (UZ-13 over UZ-7); Esc closes the chooser, then the help', async () => {
+  test('item 9a / CR-575 5a: with the help at normal, the Save As Dialog opens in front of it (UZ-13 over UZ-7); Esc closes the chooser, then the help', async () => {
     test.setTimeout(240_000)
     const stage = await openTheSample(TALL)
     try {

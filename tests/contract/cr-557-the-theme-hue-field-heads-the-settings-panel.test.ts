@@ -48,7 +48,7 @@ const WORDS = JSON.parse(readRepoFile(join(SPEC, '_source', 'display-words.json'
 
 // Why: CR-690 -- the place moved to table T-369 (FO-2, the first field under the GRS reset entrance FO-1).
 const CLAUSE_FIRST_FIELD =
-  '⭐ テーマ色を選ぶ入口は、文書の設定の面（`FR-072`、面を出す入口は `_assets/tbl-glossary.md` の 表 T-109 の `IC-17`）の欄とし、置き場は `FR-072` の 表 T-369 の `FO-2` とすること（MUST）'
+  '⭐ テーマ色を選ぶ入口は、文書設定の面（`FR-072`、面を出す入口は `_assets/tbl-glossary.md` の 表 T-109 の `IC-17`）の欄とし、置き場は `FR-072` の 表 T-369 の `FO-2` とすること（MUST）'
 const CLAUSE_ROWS_IN_ORDER =
   '`GRS` は、テーマ色の欄に、表 T-305 の行を表 T-305 の順に、1 段に `_assets/tbl-settings.md` の 表 T-206 の `S-368` 個ずつ並べること。'
 const CLAUSE_SWATCH_PAINT =
@@ -60,9 +60,9 @@ const CLAUSE_NO_ROW =
   'もし文書の `themeHue` と等しい行が無い場合（例: `Agent API` やファイルが置いた値）、`GRS` は、どの見本も囲まないこと。'
 const CLAUSE_NO_ENTRANCES =
   '`GRS` は、テーマ色の欄に、カスタムカラーの入口・透明・テーマ追随へ戻す入口（表 T-017b の `CV-9` と `FR-007` の「戻す入口」）を並べないこと。'
-const CLAUSE_READ_ONLY = 'プロパティパネルが文書の設定を出している間、`GRS` は、`IMPS-100` の欄を除き、文書の設定の欄を読むだけの欄とすること。'
+const CLAUSE_READ_ONLY = 'プロパティパネルが文書設定を出している間、`GRS` は、`IMPS-100` の欄を除き、文書設定の欄を読むだけの欄とすること。'
 const CLAUSE_EXCEPTION =
-  '別の要求が設定を変える入口を文書の設定の面の欄として置いたとき、`GRS` は、別の要求が置いた欄を、置いた要求が定めるとおりに選ばせること（例: `FR-041` のテーマ色の欄）。'
+  '別の要求が設定を変える入口を文書設定の面の欄として置いたとき、`GRS` は、別の要求が置いた欄を、置いた要求が定めるとおりに選ばせること（例: `FR-041` のテーマ色の欄）。'
 
 const K_60 = 'K-60'
 const LANGUAGES: readonly DisplayLanguage[] = ['ja', 'en']

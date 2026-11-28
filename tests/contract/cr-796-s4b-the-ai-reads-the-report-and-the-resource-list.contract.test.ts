@@ -1,4 +1,4 @@
-// CR-796 slice 4b: the AI reads the Delay Diagnostics Report and the Resource List in pages (AM-28, AV-17..AV-20, AM-19, T-347, T-371).
+// CR-796 slice 4b: the AI reads the Delay Diagnosis Report and the Resource List in pages (AM-28, AV-17..AV-20, AM-19, T-347, T-371).
 
 import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
@@ -243,7 +243,7 @@ const cellOf = (row: TableRow, column: string): TableCell | undefined => row.cel
 function kindsOfTable(tableId: string): Map<string, string> {
   const rows = specTable(tableId).rows
   const filterCellOf = (at: number): string => {
-    const cell = rows[at]!.by['フィルタ'] ?? ''
+    const cell = rows[at]!.by['フィルター'] ?? ''
     return cell.trim().startsWith('同上') && at > 0 ? filterCellOf(at - 1) : cell
   }
   const kinds = new Map<string, string>()
@@ -353,7 +353,7 @@ describe('AM-28 readTableRows(resourceList) -- the Resource List table by the co
 })
 
 // Spec: AM-28, AM-19, AV-17, AV-19, AV-20, T-347
-describe('AM-28 readTableRows(delayDiagnosticsReport) -- the Delay Diagnostics Report table by the columns of table T-347', () => {
+describe('AM-28 readTableRows(delayDiagnosticsReport) -- the Delay Diagnosis Report table by the columns of table T-347', () => {
   const page = (): TablePage => readerOf(stateOf(delayedDocument())).readTableRows('delayDiagnosticsReport', '')
   const rowOf = (uid: number): TableRow => page().rows.find((row) => row.key === uid)!
 
@@ -553,16 +553,16 @@ describe('AM-28 readTableRows -- a table the call does not name is refused as ma
 })
 
 // Spec: AM-28, AM-25
-describe('AM-28 / AM-25 -- the Search Panel is read by readSearchRows, one table one road', () => {
+describe('AM-28 / AM-25 -- the Search Window is read by readSearchRows, one table one road', () => {
   const text = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '_assets', 'tbl-agent-api-members.md'), 'utf8'))
   const rowLine = text.split('\n').find((line) => line.startsWith('| AM-28 |')) ?? ''
 
-  it('the printed AM-28 row says the Search Panel table is read by readSearchRows (AM-25)', () => {
+  it('the printed AM-28 row says the Search Window table is read by readSearchRows (AM-25)', () => {
     expect(rowLine.length).toBeGreaterThan(0)
     expect(rowLine).toContain('検索パネルの表は `readSearchRows`（`AM-25`）が読む')
   })
 
-  it('readSearchRows still reads the Search Panel: tasks as rows with a taskUid', () => {
+  it('readSearchRows still reads the Search Window: tasks as rows with a taskUid', () => {
     const reader = readerOf(stateOf(resourceDocument())) as unknown as {
       readSearchRows(word: string): { taskRows: readonly { taskUid: number }[] }
     }

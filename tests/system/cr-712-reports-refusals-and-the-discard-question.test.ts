@@ -40,7 +40,7 @@ const NT_7_DROPPED_AS_RS_27 =
 const NOTIFICATION_AREA = '[data-role="Notification Area"]'
 const IMPORT_REPORT = '[data-role="Import Report"]'
 const DIFFERENCE_REVIEW = '[data-role="Difference Review"]'
-const OPEN_CHOOSER = '[data-role="Open Chooser"]'
+const OPEN_CHOOSER = '[data-role="Open File Dialog"]'
 const CONFIRMATION = '[data-role="Confirmation"]'
 const EMBEDDED = /(<script[^>]*id="embedded-document"[^>]*>)([\s\S]*?)(<\/script>)/
 
@@ -114,7 +114,7 @@ async function dropOnly(page: Page, name: string, text: string): Promise<void> {
 async function writeOutHtml(page: Page): Promise<string> {
   const before = (await savedFiles(page)).length
   await press(page, 'IC-2')
-  await page.click('[data-role="Export Chooser"] [data-format="IO-7"]')
+  await page.click('[data-role="Save As Dialog"] [data-format="IO-7"]')
   await expect.poll(async () => (await savedFiles(page)).length).toBe(before + 1)
   return (await savedFiles(page))[before]!.text
 }

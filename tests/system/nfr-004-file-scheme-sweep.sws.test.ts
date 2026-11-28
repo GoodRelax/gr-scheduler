@@ -260,7 +260,7 @@ const GEOMETRY_SCRIPT = `(() => {
   // startup document: the widest shape drawn is 6348px across, so its middle
   // lands 1556px outside the window and every gesture aimed there is dispatched
   // into nothing. SL-3 states the same fact from the specification's side --
-  // 「日程表は横に長いバーが並ぶので、触れたものを取ると画面外まで伸びたバーが
+  // 「横に長いバーが並ぶので、触れたものを取ると画面外まで伸びたバーが
   // 巻き込まれる」. What is taken is therefore the widest bar lying WHOLLY inside
   // the schedule area.
   // ⛔ ONLY THE PLAN BOX IS GRABBABLE. item-hit-area.ts states it in as many
@@ -732,7 +732,7 @@ async function scaleStroke(page: Page, keys: string, towards: 1 | -1): Promise<n
 // Spec: GR-24, GR-25, SV-10, SV-11
 async function searchPanelPlaces(page: Page): Promise<{ box: Box4; band: Spot | null } | null> {
   return page.evaluate(() => {
-    const panel = document.querySelector('[data-role="Search Panel"]')
+    const panel = document.querySelector('[data-role="Search Window"]')
     const field = panel?.querySelector('[data-field-row="SV-2"]')
     if (panel === null || panel === undefined || field === null || field === undefined) return null
     const outer = panel.getBoundingClientRect()
@@ -750,7 +750,7 @@ async function searchPanelPlaces(page: Page): Promise<{ box: Box4; band: Spot | 
 // Why: SV-18 gives the Show column (SQ-10, the first column) no GR-28 border, so it is passed over.
 async function searchColumnBorder(page: Page): Promise<{ border: Spot; width: number } | null> {
   return page.evaluate(() => {
-    const cell = document.querySelector('[data-role="Search Panel"] thead th:not([data-column="SQ-10"])')
+    const cell = document.querySelector('[data-role="Search Window"] thead th:not([data-column="SQ-10"])')
     if (cell === null) return null
     const r = cell.getBoundingClientRect()
     if (r.width < 1 || r.height < 1) return null
@@ -1268,7 +1268,7 @@ const PROBES: readonly Probe[] = [
           const x = Math.round(r.left + r.width / 2)
           const palette = document.querySelector('[data-role="Command Palette"]')
           // Why: table T-337 draws the Command Palette (UZ-5) in front of this
-          // Why: band (UZ-10), and its first corner sits on the Task Group Area's edge,
+          // Why: band (UZ-10), and its first corner sits on the Task Group Lanes's edge,
           // Why: so a stretch it covers is passed over rather than read as GR-22's.
           for (let y = Math.round(r.top + Math.min(r.height / 2, 200)); y < r.bottom - 4; y += 40) {
             const top = document.elementFromPoint(x, y)
@@ -1522,12 +1522,12 @@ const PROBES: readonly Probe[] = [
     setUp: async (p) => { await p.keyboard.press('Control+f'); await p.waitForTimeout(400) },
     act: async (p) => {
       const before = await searchPanelPlaces(p)
-      if (before === null || before.band === null) throw new Error('GR-24 needs the Search Panel heading row (SK-24 opens it)')
+      if (before === null || before.band === null) throw new Error('GR-24 needs the Search Window heading row (SK-24 opens it)')
       const held = await dragFrom(p, before.band, 60, -120)
       await settled(p)
       const after = await searchPanelPlaces(p)
       if (after === null || (after.box.x === before.box.x && after.box.y === before.box.y)) {
-        throw new Error('GR-24: the Search Panel heading row was dragged and the panel stayed (SV-10)')
+        throw new Error('GR-24: the Search Window heading row was dragged and the panel stayed (SV-10)')
       }
       return held
     },
@@ -1538,13 +1538,13 @@ const PROBES: readonly Probe[] = [
     setUp: async (p) => { await p.keyboard.press('Control+f'); await p.waitForTimeout(400) },
     act: async (p) => {
       const before = await searchPanelPlaces(p)
-      if (before === null) throw new Error('GR-25 needs the Search Panel (SK-24 opens it)')
+      if (before === null) throw new Error('GR-25 needs the Search Window (SK-24 opens it)')
       const edge = { x: before.box.x + before.box.width - 1, y: before.box.y + before.box.height / 2 }
       const held = await dragFrom(p, edge, 80, 0)
       await settled(p)
       const after = await searchPanelPlaces(p)
       if (after === null || after.box.width === before.box.width) {
-        throw new Error('GR-25: the right edge of the Search Panel was dragged and its width stayed (SV-11; DFC-1286: S-426 has no value)')
+        throw new Error('GR-25: the right edge of the Search Window was dragged and its width stayed (SV-11; DFC-1286: S-426 has no value)')
       }
       return held
     },
@@ -1556,12 +1556,12 @@ const PROBES: readonly Probe[] = [
     setUp: async (p) => { await p.keyboard.press('Control+f'); await p.waitForTimeout(400) },
     act: async (p) => {
       const before = await searchColumnBorder(p)
-      if (before === null) throw new Error('GR-28 needs the Search Panel heading row (SK-24 opens it)')
+      if (before === null) throw new Error('GR-28 needs the Search Window heading row (SK-24 opens it)')
       const held = await dragFrom(p, before.border, 60, 0)
       await settled(p)
       const after = await searchColumnBorder(p)
       if (after === null || after.width === before.width) {
-        throw new Error('GR-28: the first column border of the Search Panel was dragged and the column kept its width (SV-18)')
+        throw new Error('GR-28: the first column border of the Search Window was dragged and the column kept its width (SV-18)')
       }
       return held
     },

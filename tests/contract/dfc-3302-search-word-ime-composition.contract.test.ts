@@ -1,4 +1,4 @@
-// Contract test: SV-2 and SV-5 against the Search Panel word field under IME composition (DFC-3302).
+// Contract test: SV-2 and SV-5 against the Search Window word field under IME composition (DFC-3302).
 
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -85,7 +85,7 @@ function watchedField(): Wired {
   return { built, layer, wordFieldIn: () => wordFieldOf(layer), typedCount: () => typed, readWord: watch.read }
 }
 
-// Why: the painter -- the field comes from a drawn Search Panel, as in the app.
+// Why: the painter -- the field comes from a drawn Search Window, as in the app.
 function paintedField(): Wired & { readonly draw: (word: string) => void } {
   const built = stage()
   const layer = built.host.createElement('div') as unknown as FakeElement
@@ -113,7 +113,7 @@ function composeAll(wired: Wired, field: FakeElement): void {
 
 describe.each([
   ['typedWordWatch on a word field', watchedField],
-  ['searchPanelPainter on a drawn Search Panel', paintedField],
+  ['searchPanelPainter on a drawn Search Window', paintedField],
 ] as const)('DFC-3302 SV-2 -- IME composition in the word field (%s)', (_name, build) => {
   it('SV-2: during composition the field stays the same node, keeps the composed text, and no word is sent', () => {
     const wired = build()

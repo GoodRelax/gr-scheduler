@@ -92,7 +92,7 @@ const WATERMARK_ROLE = 'Watermark'
 
 const JUMP_LANDING_RING_ROLE = 'Jump Landing Ring'
 
-const RELATED_TASK_RING_ROLE = 'Jump Landing Related Ring'
+const RELATED_TASK_RING_ROLE = 'Jump Related Ring'
 
 const UNDECIDED_PARENT_MARK = '?'
 

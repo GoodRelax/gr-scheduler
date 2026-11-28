@@ -28,10 +28,10 @@ import {
 const REQUIREMENTS = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
 const FR_016_THE_MARKER_SHOWS_THE_END =
-  '⭐ 進捗マーカーを引いているあいだ（`FR-107` の 表 T-270 の `PE-8`）は、置くことになる実績の終了を描いて示すこと（MUST）。'
-const FR_016_THE_MARKER_FOLLOWS = '⚠️ 進捗マーカーは押す的と引く的を兼ねるので、引く場面（`PE-8`）では追従する。'
+  '⭐ 進捗ステータスマークを引いているあいだ（`FR-107` の 表 T-270 の `PE-8`）は、置くことになる実績の終了を描いて示すこと（MUST）。'
+const FR_016_THE_MARKER_FOLLOWS = '⚠️ 進捗ステータスマークは押す的と引く的を兼ねるので、引く場面（`PE-8`）では追従する。'
 const FR_106_THE_MARKER_IS_A_FINGER =
-  '`GRS` は、押す役と引く役を兼ねる進捗マーカー（表 T-270 の `PE-8`）の形を、押す役の形（指）にすること。'
+  '`GRS` は、押す役と引く役を兼ねる進捗ステータスマーク（表 T-270 の `PE-8`）の形を、押す役の形（指）にすること。'
 
 const GRABBED = '掴んだもの'
 

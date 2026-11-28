@@ -32,7 +32,7 @@ const GR_14_TIP_ONLY = '線先（線先から 表 T-206 の `S-292`）を掴ん�
 const S_291_NOTE = '引けば本文の箱だけが動き、線先は動かない'
 
 const FREE_ROW = groupOf(3)
-// Why: the free tip stands in the third band (FREE_ROW); this offset and pull keep the box inside the Task Group Area.
+// Why: the free tip stands in the third band (FREE_ROW); this offset and pull keep the box inside the Task Group Lanes.
 const START_OFFSET = { dx: 60, dy: -30 }
 const PULL = { dx: 60, dy: 20 }
 
@@ -106,7 +106,7 @@ describe('GR-14 / CM-51: a pull on the body moves only the box', () => {
   })
 
   it('GR-14 / AT-164 .. AT-167: a tip snapped to a task keeps its target and point after a body pull', () => {
-    // Why: the bar stands in the top band, so the box hangs below-right of the tip to stay inside the Task Group Area.
+    // Why: the bar stands in the top band, so the box hangs below-right of the tip to stay inside the Task Group Lanes.
     const { built, columnsBefore } = pulledBody({
       bodyOffsetPx: { dx: 60, dy: 30 },
       anchorTaskGroupId: groupOf(BAR_UID),

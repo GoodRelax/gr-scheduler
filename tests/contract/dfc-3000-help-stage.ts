@@ -212,7 +212,7 @@ export function drawnHelp(
   const view = viewOf(screenLanguage, helpLanguage, true)
   const built = wire({ preference, hue: 214 }, { 'App Header': 56 })
   surfaceOf(built).showScreenView(view)
-  return { built, help: oneByRole(built.root(), 'Help Modal') }
+  return { built, help: oneByRole(built.root(), 'Help Window') }
 }
 
 const declared = (element: FakeElement, name: string): string => {

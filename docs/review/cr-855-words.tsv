@@ -1,0 +1,51 @@
+no	pattern	replacement	mode	basis	note
+W-01	ポインタ(?!ー)	ポインター	all	JDG-3375	long vowel (a)
+W-02	フィルタ(?!ー)	フィルター	all	JDG-3375	long vowel (a)
+W-03	ブラウザ(?!ー)	ブラウザー	all	JDG-3375	long vowel (a)
+W-04	進捗マーカー	進捗ステータスマーク	all	JDG-3372 JDG-3742	Mark (JDG-3372), then Progress Status Mark (JDG-3742)
+W-05	再開アイコン	再開マーク	all	JDG-3372	Mark
+W-06	期限の印	期限マーク	all	JDG-3372	Mark
+W-07	続きの印	続きマーク	all	JDG-3372 JDG-3378	Mark
+W-08	実績操作のダミー|実績のダミー	実績ダミー	all	JDG-3375	one name
+W-09	2 連カーソル	デュアルカーソル	all	JDG-3375	one name
+W-10	日程データ	スケジュールデータ	all	JDG-3358	Schedule Data
+W-11	タスクグループ見出しツリー	タスクグループタイトルツリー	all	JDG-3363	Task Group Title Tree
+W-12	掴み帯	グリップ	all	JDG-3366	Grip
+W-13	ヘッダーのコマンド	ヘッダーコマンド	all	JDG-3365	no particle inside a name
+W-14	休日の設定ウィンドウ	休日設定ウィンドウ	all	JDG-3365	no particle inside a name
+W-15	文書の設定	文書設定	all	JDG-3365	no particle inside a name
+W-16	文書の刻印	文書刻印	all	JDG-3365	no particle inside a name
+W-17	変更の記録	変更記録	all	JDG-3365	no particle inside a name
+W-18	本ソフトウェア|本ツール|本製品	`GRS`	all	JDG-3351	the product is GRS in sentences
+W-19	日程表		read	JDG-3357	Schedule Canvas or Task Group Lanes, by what the sentence means
+W-20	操作子		read	JDG-3368	the name of each Task Group Button
+W-21	札		read	JDG-3370	ラベル; ボタンの名 when it means the name of a button
+W-22	写し		read	JDG-3369	コピー where it means the drag copy; other senses stay
+W-23	つまみ		read	JDG-3367	スクロールつまみ where it means the scroll thumb
+W-24	積み順の段|段目		read	JDG-3377	積み段 where it means the stack tier
+W-25	全体を収める		read	JDG-3376	全体表示 where it names Zoom to Fit
+W-26	単一 HTML|単一 `\.html`|単一の `\.html`		read	JDG-3353 JDG-3467	GRS HTML where it means the file format (IO-7); 単一 HTML stays as the value word singleHtml (JDG-3467)
+W-27	\b[Cc]hart\b		read	JDG-3357	not used: Schedule Canvas or Task Group Lanes
+W-28	Delay Diagnostics	Delay Diagnosis	all	JDG-3512	screen word; the frozen contract manuscripts are not edited (JDG-3807)
+W-29	Actual Operation Dummy	Actual Dummy	all	JDG-3375	no other sense
+W-30	Comment Boxes	Comment Box	all	JDG-3375	singular
+W-31	Document Title	Project Title	all	JDG-3355	no other sense
+W-32	Export Chooser	Save As Dialog	all	JDG-3356 JDG-3364	no other sense
+W-33	Grab Region	Grab Area	all	JDG-3366	no other sense
+W-34	Help Modal	Help Window	all	JDG-3356	no other sense
+W-35	Jump Landing Related Ring	Jump Related Ring	all	JDG-3369	no other sense
+W-36	Jump Landing Ripple	Jump Ripple	all	JDG-3369	no other sense
+W-37	Open Chooser	Open File Dialog	all	JDG-3356	no other sense
+W-38	Progress Marker	Progress Status Mark	all	JDG-3372 JDG-3742	no other sense
+W-39	Resume Icon	Resume Mark	all	JDG-3372	no other sense
+W-40	Search Panel	Search Window	all	JDG-3356	no other sense
+W-41	Task Group Area	Task Group Lanes	all	JDG-3361 JDG-3374	no other sense
+W-42	Task Group Drop Line	Drop Line	all	JDG-3369	no other sense
+W-43	Task Group Grab Copy	Drag Copy	all	JDG-3369	no other sense
+W-44	Task Group Pin	Pin Button	all	JDG-3368	no other sense
+W-45	Callout	Comment Box	all	JDG-3371	no other sense
+W-46	Task Group Expander		read	JDG-3368	the Collapse / Expand button it means
+W-47	Task Group Grab Cues		read	JDG-3369	a child of Interaction Cues
+W-48	Dependency Lines		read	JDG-3375	Dependency Line, except the frozen settings label isDependencyLineVisible
+W-49	Canvas Overlays		read	JDG-3362	deleted: CR-855 section 5
+W-50	検索パネル	検索ウィンドウ	all	JDG-3356	the Japanese name of the Search Window

@@ -171,7 +171,7 @@ const entry = (patch: Partial<HelpItem> = {}): HelpItem => {
 
 const helpWith = (entries: readonly HelpItem[]): OpenModal =>
   ({
-    surface: 'Help Modal',
+    surface: 'Help Window',
     heading: 'HelpHeadingHere',
     commands: [command({ icon: CLOSE_ICON, label: 'CloseHelp' })],
     entries,
@@ -181,7 +181,7 @@ const helpWith = (entries: readonly HelpItem[]): OpenModal =>
     copyrightNotice: 'CopyrightNoticeHere',
     attributions: ['AttributionOne'],
     helpLegal: { licensedUnder: 'LicensedUnderHere', fullText: 'FullTextHere' },
-    // Why: blockNotes is a required member of the Help Modal view; these cases do not read it.
+    // Why: blockNotes is a required member of the Help Window view; these cases do not read it.
     blockNotes: [],
     area: { belowAppHeader: { x: 0, y: 37, width: 1280, height: 763 } },
     downloadLink: { words: '', address: '' },
@@ -398,7 +398,7 @@ describe('the manuscript still says what these cases read', () => {
     expect(S_203).toBeGreaterThan(0)
     expect(S_203).toBeLessThan(1)
     expect(FONT_SIZE_STEP_SIZES.every((one) => one > 0)).toBe(true)
-    expect(U_30_HELP).toBe('Help Modal')
+    expect(U_30_HELP).toBe('Help Window')
   })
 })
 

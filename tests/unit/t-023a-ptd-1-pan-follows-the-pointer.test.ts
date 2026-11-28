@@ -390,8 +390,8 @@ describe('the manuscript still states the rule this file is about', () => {
     const result = resultOf('PTD-1')
     expect(
       result,
-      'table T-023a PTD-1: 握っているあいだ、縦横の両方向でポインタに追従させること（MUST）',
-    ).toContain('握っている間、`GRS` は、日程表を縦横の両方向でポインタに追従させること')
+      'table T-023a PTD-1: 握っているあいだ、縦横の両方向でポインターに追従させること（MUST）',
+    ).toContain('握っている間、`GRS` は、`Schedule Canvas` を縦横の両方向でポインターに追従させること')
     expect(result, 'and the reason it gives').toContain(
       '離すまで動かないと、掴めていないのと見分けがつかない',
     )
@@ -419,8 +419,8 @@ describe('the manuscript still states the rule this file is about', () => {
 
   it('still states 等倍 where PTD-1 points, and forbids landing only on the lock', () => {
     const line = equalTravelLine()
-    expect(line, 'table T-023d: ポインタが動いた距離だけ日程表が動く。倍率を掛けない').toContain(
-      'ポインタが動いた距離だけ日程表が動く',
+    expect(line, 'table T-023d: ポインターが動いた距離だけ `Schedule Canvas` が動く。倍率を掛けない').toContain(
+      'ポインターが動いた距離だけ `Schedule Canvas` が動く',
     )
     expect(line, 'table T-023d: 錠の上にしか着地できない形にしてはならない（MUST NOT）').toContain(
       '錠の上にしか着地できない形にしてはならない（MUST NOT）',
@@ -473,7 +473,7 @@ describe.each(GESTURES.map((one) => [one.name, one.how] as const))(
       const now = whereIs(built.loop, NEAR_UID)
       expect(
         now.x,
-        'table T-023a PTD-1: 握っているあいだ、縦横の両方向でポインタに追従させること（MUST）',
+        'table T-023a PTD-1: 握っているあいだ、縦横の両方向でポインターに追従させること（MUST）',
       ).toBeGreaterThan(held.x)
       expect(
         Math.abs(now.x - held.x - travel.x),

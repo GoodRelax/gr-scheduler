@@ -30,7 +30,7 @@ const FR_024_OWN_VERSION = '`GRS` は、載せる形式の版を、この造り�
 // Spec: OP-6
 const OP_6_DROPPED_NOT_WRITTEN_BACK = '範囲へ収める（表 T-233 の `RS-51`）。⛔ 捨てた鍵を書き戻してはならない（MUST NOT）'
 // Spec: FR-073, IMPS-1002
-const FR_073_NOT_REFUSED_FOR_BEING_NEWER = '`GRS` は、版が新しいことを理由に文書を拒まないこと —— 拒むのは、日程データの群が合わない場合（`IMPS-1007`）だけである。'
+const FR_073_NOT_REFUSED_FOR_BEING_NEWER = '`GRS` は、版が新しいことを理由に文書を拒まないこと —— 拒むのは、スケジュールデータの群が合わない場合（`IMPS-1007`）だけである。'
 const FR_073_NOT_OPENED_SILENTLY = '`GRS` は、読めない版の文書を黙って開かないこと。'
 const FR_073_DROPPED_ON_GOING_ON = '作成者が続けることを選んだとき、`GRS` は、読めなかった列を捨てて文書を開くこと。'
 const FR_073_NOT_CARRIED = '`GRS` は、読めなかった列を持ち回って書き戻さないこと。'
@@ -39,7 +39,7 @@ const FR_073_NOT_DROPPED_UNLISTED = '`GRS` は、読めなかった列を、続�
 // Spec: IMPS-1008
 const FR_073_RS_63 = 'もし読めない版の文書に読めなかった列が 1 つも無い場合、`GRS` は、問わずに文書を開くこと。読めなかった列が 1 つも無い読めない版の文書を開いたとき、`GRS` は、表 T-233 の `RS-63` を告げること。'
 const FR_073_SCHEDULE_REFUSED_WHOLE =
-  'もし文書の日程データの群が動いている造りのスキーマに合わない場合、`GRS` は版によらず文書ごと拒むこと。'
+  'もし文書のスケジュールデータの群が動いている造りのスキーマに合わない場合、`GRS` は版によらず文書ごと拒むこと。'
 const FR_073_LEAD_TO_THE_LATEST =
   '`GRS` が 表 T-233 の `RS-48`・`RS-63`・`RS-64` のどの理由を告げるときも、`GRS` は、最新版を入手する所（`_assets/tbl-settings.md` の 表 T-206 の `S-350`）を案内すること。'
 const FR_073_NOT_COPIED_INTO_WORDS = '`GRS` は、最新版を入手する所を、告げる語に書き写さないこと。'
@@ -52,7 +52,7 @@ const READER_DOES_NOT_REFUSE_SETTINGS =
   '`GRS JSON` を読むとき、`GRS` は、`documentSettings` の群の鍵を理由に文書を拒まないこと。'
 const READER_LOOKS_AT_TYPE_AND_ENUM =
   '`GRS JSON` を読むとき、`GRS` は、`documentSettings` の群の値について、鍵ごとの型と、原稿が値を綴った列挙だけを見ること。'
-const NO_LENIENCY_FOR_SCHEDULE = '`GRS` は、`IMPS-1314`・`IMPS-1315` の寛さを日程データの群に当てないこと。'
+const NO_LENIENCY_FOR_SCHEDULE = '`GRS` は、`IMPS-1314`・`IMPS-1315` の寛さをスケジュールデータの群に当てないこと。'
 
 const REQUIREMENT_CLAUSES: readonly (readonly [string, string])[] = [
   ['FR-024 (MUST) the written document fits the published schema', FR_024_FITS_THE_SCHEMA],

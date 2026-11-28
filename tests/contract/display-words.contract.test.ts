@@ -118,9 +118,9 @@ const KEY_FIELD: Readonly<Record<string, string>> = {
   exportFormats: 'specTableRowId',
   // Why: this keys the settings face's fit span field's words by the part they fill (T-367).
   fitSpanField: 'part',
-  // Why: this keys the Export Chooser's span line by the part it fills; FR-096 holds no table row for it.
+  // Why: this keys the Save As Dialog's span line by the part it fills; FR-096 holds no table row for it.
   exportChooser: 'part',
-  // Why: this keys the Open Chooser's words by the part they fill.
+  // Why: this keys the Open File Dialog's words by the part they fill.
   openChooser: 'part',
   // Why: this keys the Drop Cue's line (OP-17, U-68) by the part it fills.
   dropCue: 'part',
@@ -769,7 +769,7 @@ const SCENE_OF_WINDOW: ReadonlyMap<string, SurfaceScene> = new Map([
     },
   ],
   [
-    'Search Panel',
+    'Search Window',
     {
       frame: (specTableRowId) => (specTableRowId === RESTORE_ENTRY ? SEARCH_MAXIMIZED : SEARCH_TASKS_CHECKED),
       heading: (view) => view.searchPanel?.heading,
@@ -777,7 +777,7 @@ const SCENE_OF_WINDOW: ReadonlyMap<string, SurfaceScene> = new Map([
     },
   ],
   [
-    'Delay Diagnostics Report',
+    'Delay Diagnosis Report',
     {
       frame: (specTableRowId) => delayReportShown(specTableRowId === RESTORE_ENTRY ? 'maximized' : 'normal', FIX_FOOTER_ENTRIES.includes(specTableRowId ?? '') ? 'proposals' : FIX_LOG_FOOTER_ENTRIES.includes(specTableRowId ?? '') ? 'log' : 'diagnosis'),
       heading: (view) => view.delayDiagnosticsReport?.heading,
@@ -1743,7 +1743,7 @@ for (const entry of GENERATED['helpLegal'] ?? []) {
 // Why: the chooser stands while the file flow waits for the OP-3 answer, which is what carries the file read.
 const OPEN_CHOOSER_SHOWN = frameWith({
   root: {
-    ...rootWithSurface('Open Chooser'),
+    ...rootWithSurface('Open File Dialog'),
     fileFlow: {
       ...SCREEN_ROOT.fileFlow,
       fileOperationState: {
@@ -1770,7 +1770,7 @@ for (const entry of GENERATED['openChooser'] ?? []) {
   const part = keyOf('openChooser', entry)
   const member = OPEN_CHOOSER_WORD[part]
   if (member === undefined) {
-    drop('openChooser', part, 'OP-16 names no row of the Open Chooser for this part')
+    drop('openChooser', part, 'OP-16 names no row of the Open File Dialog for this part')
     continue
   }
   place({
@@ -1778,7 +1778,7 @@ for (const entry of GENERATED['openChooser'] ?? []) {
     key: part,
     field: 'text',
     unit: 'UF-66',
-    what: `the Open Chooser's ${part} word`,
+    what: `the Open File Dialog's ${part} word`,
     frame: OPEN_CHOOSER_SHOWN,
     read: (view) => {
       const chooser = view.openModal
@@ -1809,7 +1809,7 @@ for (const entry of GENERATED['dropCue'] ?? []) {
 // Why: the line stands only while the document fixes its fit span (S-532), so this frame
 // stores one; its two days are put back as {start} and {finish} to hold the line to the written word.
 const EXPORT_CHOOSER_WITH_SPAN = frameWith({
-  root: rootWithSurface('Export Chooser'),
+  root: rootWithSurface('Save As Dialog'),
   settings: { ...SETTINGS, isFitSpanFixed: true, fitSpanStart: '2026-11-02T00:00:00', fitSpanFinish: '2026-12-25T23:59:00' },
 })
 const SPAN_DAY = /(\d{4}\/)?\d{1,2}\/\d{1,2}/
@@ -1817,7 +1817,7 @@ const exportSpanWordOf = (line: string): string => line.replace(SPAN_DAY, '{star
 for (const entry of GENERATED['exportChooser'] ?? []) {
   const part = keyOf('exportChooser', entry)
   if (part !== 'fitSpan') {
-    drop('exportChooser', part, 'FR-096 names no line of the Export Chooser for this part')
+    drop('exportChooser', part, 'FR-096 names no line of the Save As Dialog for this part')
     continue
   }
   place({
@@ -1825,7 +1825,7 @@ for (const entry of GENERATED['exportChooser'] ?? []) {
     key: part,
     field: 'text',
     unit: 'UF-66',
-    what: "the Export Chooser's export span line",
+    what: "the Save As Dialog's export span line",
     frame: EXPORT_CHOOSER_WITH_SPAN,
     read: (view) => {
       const chooser = view.openModal
@@ -1854,7 +1854,7 @@ for (const entry of GENERATED['scaleEcho'] ?? []) {
 }
 
 // Spec: DC-3
-// Why: the mode is on and the pointer stands on the Task Group Area, the one frame DC-3 shows the readout in.
+// Why: the mode is on and the pointer stands on the Task Group Lanes, the one frame DC-3 shows the readout in.
 const DUAL_CURSOR_READOUT_LINE: Readonly<Record<string, number>> = { left: 0, right: 1, span: 2 }
 // Why: this frame stores no date and its axis has no day, so DC-3 writes its dash where the word
 // holds {date} or {span}; the mark is put back so the line can be held to the written word.
@@ -2242,7 +2242,7 @@ for (const entry of GENERATED['searchColumns'] ?? []) {
     key: column,
     field: 'text',
     unit: 'UF-180',
-    what: `the heading of column ${column} of table T-331 on the Search Panel's table`,
+    what: `the heading of column ${column} of table T-331 on the Search Window's table`,
     frame: COMMENT_BOX_COLUMNS.has(column) ? SEARCH_COMMENT_BOXES_SHOWN : SEARCH_TASKS_SHOWN,
     read: (view) => view.searchPanel?.columns.find((one) => one.column === column)?.heading,
   })
@@ -2255,7 +2255,7 @@ for (const entry of GENERATED['planActualStates'] ?? []) {
     key: state,
     field: 'text',
     unit: 'UF-180',
-    what: `the state word ${state} of table T-019a in column SQ-5 of the Search Panel's task table`,
+    what: `the state word ${state} of table T-019a in column SQ-5 of the Search Window's task table`,
     frame: SEARCH_TASKS_SHOWN,
     read: (view) => {
       const task = SEARCH_TASK_BY_STATE[state]
@@ -2292,7 +2292,7 @@ for (const entry of GENERATED['taskTypes'] ?? []) {
     key: part,
     field: 'text',
     unit: 'UF-180',
-    what: `the ${part} word of column SQ-14 of the Search Panel's task table`,
+    what: `the ${part} word of column SQ-14 of the Search Window's task table`,
     frame: at.frame,
     read: (view) => searchCellOf(view, at.uid, TASK_TYPE_COLUMN),
   })
@@ -2348,7 +2348,7 @@ for (const entry of GENERATED['searchPanel'] ?? []) {
     continue
   }
   if (reading === undefined) {
-    drop('searchPanel', part, 'no requirement of FR-151 names where this part of the Search Panel is printed')
+    drop('searchPanel', part, 'no requirement of FR-151 names where this part of the Search Window is printed')
     continue
   }
   place({
@@ -2356,7 +2356,7 @@ for (const entry of GENERATED['searchPanel'] ?? []) {
     key: part,
     field: 'text',
     unit: 'UF-180',
-    what: `the ${part} word of the Search Panel (FR-151)`,
+    what: `the ${part} word of the Search Window (FR-151)`,
     frame: reading.frame,
     read: reading.read,
   })

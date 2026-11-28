@@ -29,7 +29,7 @@ const NO_FALL_TO_A_T_233_ROW =
   '`GRS` は、取り込みの検証が拒んだ通知を、表 T-233 の行（`RS-15` を含む）へ振り替えないこと。'
 
 const NOTIFICATION_AREA = '[data-role="Notification Area"]'
-const OPEN_CHOOSER = '[data-role="Open Chooser"]'
+const OPEN_CHOOSER = '[data-role="Open File Dialog"]'
 
 // Spec: S-119, T-214
 // Why: the first accepted day is read off the table, so the file below is one day short of it.

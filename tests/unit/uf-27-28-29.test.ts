@@ -863,7 +863,7 @@ describe('AM-7 applyCommands -- AG-9, a person is part way through something', (
 })
 
 describe('IF-7 -- every current value arrives over the seam (LY-5 of table T-060)', () => {
-  it('hands the write path the zoom and Task Group Area bounds it was given (S-97 / S-98 / FR-052)', () => {
+  it('hands the write path the zoom and Task Group Lanes bounds it was given (S-97 / S-98 / FR-052)', () => {
     const one = bench()
     // Why: FR-052 is judged against a bound only the snapshot carries, so the refusal is the
     // evidence that the bound traveled.

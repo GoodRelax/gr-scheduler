@@ -321,7 +321,7 @@ export const UNASSIGNED: TranslatedInput = { action: null, isBrowserDefaultStopp
 
 export const CONSUMED_ELSEWHERE: TranslatedInput = { action: null, isBrowserDefaultStopped: true }
 
-const DOCUMENT_TITLE_PART = 'Document Title'
+const DOCUMENT_TITLE_PART = 'Project Title'
 
 export type GrabTaskGroup = GrabArea
 
@@ -1062,7 +1062,7 @@ export function isLandingMarkKeptBy(
   if (input.phase !== 'down' || input.clickCount >= 2) return true
   if (press === null) return false
   const on = press.on
-  // Trap: the Task Group Area test matches pointerAssignment; a PTD-1 press elsewhere pans nothing.
+  // Trap: the Task Group Lanes test matches pointerAssignment; a PTD-1 press elsewhere pans nothing.
   if (on === null) return press.pressRow === 'PTD-1' && regionAtPointer(regions, input.x, input.y) === 'taskGroupArea'
   if (on.scrollbarAxis !== undefined) return true
   return on.entry !== null && VIEW_SCALE_ENTRIES.includes(on.entry)

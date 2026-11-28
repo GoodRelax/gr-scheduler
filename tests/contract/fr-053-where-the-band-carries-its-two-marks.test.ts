@@ -35,9 +35,9 @@ const REQUIREMENTS = unbroken(readRepoFile(
 ))
 
 const THE_PLACEMENT_MUST =
-  '`GRS` は、掴み帯の右端に、掴めることを示す 表 T-109 の `IC-53` を置くこと。'
+  '`GRS` は、グリップの右端に、掴めることを示す 表 T-109 の `IC-53` を置くこと。'
 
-const THE_BAND_STAYS = '`GRS` は、掴み帯そのものを取り去らないこと。'
+const THE_BAND_STAYS = '`GRS` は、グリップそのものを取り去らないこと。'
 
 const U_26 = ((): string => {
   const row = specTable('T-103').rows.find((one) => one.id === 'U-26')
@@ -202,7 +202,7 @@ describe('the manuscripts still say what these cases read', () => {
   it('⭐ table T-109 still says the same of IC-75, so the two do not disagree', () => {
     // Why: the row and the requirement are checked together so the cases are
     // not driven by one of two rules that drifted apart unnoticed.
-    expect(IC_75_CELL).toContain('掴み帯の右端')
+    expect(IC_75_CELL).toContain('グリップの右端')
     expect(IC_75_CELL).toContain('IC-53')
   })
 

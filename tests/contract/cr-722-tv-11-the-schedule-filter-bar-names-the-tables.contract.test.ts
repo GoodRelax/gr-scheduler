@@ -10,7 +10,7 @@ import { specTable, unbroken } from './spec-table'
 const cellOf = (id: string): string => unbroken(specTable('T-353').rows.find((one) => one.id === id)?.by['定め'] ?? '')
 
 const TV_11_WORDS = '`GRS` は、帯に、語「{表の名}で日程抽出しています（N 件中 M 件）」と、語の入口「日程抽出を解除」（どちらも `FR-038` の辞書）を置くこと。'
-const TV_11_ORDER = '`GRS` は、表の名を、日程抽出している表のウィンドウの名（辞書の面の名）を、検索パネル・遅延診断レポート・担当リストの順に、辞書のつなぎの語でつないで作ること。'
+const TV_11_ORDER = '`GRS` は、表の名を、日程抽出している表のウィンドウの名（辞書の面の名）を、検索ウィンドウ・遅延診断レポート・担当リストの順に、辞書のつなぎの語でつないで作ること。'
 const TV_11_COUNTS = '`GRS` は、N を文書のタスクの数に、M を描いているタスクの数（積）にすること。'
 
 describe('CR-722 the manuscript these cases are driven by', () => {

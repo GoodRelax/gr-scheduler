@@ -868,7 +868,7 @@ const longRunOf = (one: Scene): { readonly y: number; readonly x: number } => {
   const seenLeft = Math.max(shape.x1, one.area.x)
   const x = seenLeft + (shape.x2 - seenLeft) / 3
   expect(shape.x2 - x, 'premise: the press is far from the short line').toBeGreaterThan(50)
-  expect(x, 'premise: the press is inside the Task Group Area').toBeGreaterThan(one.area.x + 5)
+  expect(x, 'premise: the press is inside the Task Group Lanes').toBeGreaterThan(one.area.x + 5)
   return { y: shape.corridorY, x }
 }
 
@@ -1008,8 +1008,8 @@ describe('CR-758 case 9 -- FR-013 / T-266 GA-18: the S-584 gap between the bar e
 describe('CR-758 clauses held verbatim (EL-19, FR-013, GA-18)', () => {
   const CLAUSES = [
     ['EL-19', '`GRS` は、印を付けた線の掴み代（`FR-104` の 表 T-266 の `GA-19`）を、描いた経路の全体と後続の入口の矢じりにすること'],
-    ['FR-013', '`GRS` は、基準の端と進捗マーカーのあいだの隙間（表 T-201 の `S-584`）を押したポインタに、予定の本体も予定の終了も掴ませないこと。'],
-    ['GA-18', '`GRS` は、左を、マーカーが離れて立つ端（表 T-273 の「マーカーの位置」の棒の端、再開アイコンの右に並ぶときはアイコンの掴む箱の右端）まで延ばすこと'],
+    ['FR-013', '`GRS` は、基準の端と進捗ステータスマークのあいだの隙間（表 T-201 の `S-584`）を押したポインターに、予定の本体も予定の終了も掴ませないこと。'],
+    ['GA-18', '`GRS` は、左を、マーカーが離れて立つ端（表 T-273 の「マーカーの位置」の棒の端、再開マークの右に並ぶときはアイコンの掴む箱の右端）まで延ばすこと'],
   ] as const
 
   it.each(CLAUSES)('%s: the clause stands in the requirements as the cases above read it', (_id, clause) => {

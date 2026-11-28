@@ -18,7 +18,7 @@ const WORDS = JSON.parse(readRepoFile(join(SPEC, '_source', 'display-words.json'
 
 const NT_2_GONE_AFTER_S_542 =
   'その通知は、立ってから `_assets/tbl-settings.md` の 表 T-206 の `S-542` が経ったら、人の操作を待たずに消すこと（MUST）'
-const NT_2_NOT_COUNTED_UNDER_THE_POINTER = 'ポインタがその通知の箱の上にある間は数えないこと（MUST）'
+const NT_2_NOT_COUNTED_UNDER_THE_POINTER = 'ポインターがその通知の箱の上にある間は数えないこと（MUST）'
 const NT_2_COUNTED_AGAIN_AFTER_LEAVING = '箱から離れたら `S-542` を始めから数え直すこと（MUST）'
 const NT_2_COUNTED_AGAIN_WHEN_BUNDLED = '同じ理由が上がって `NT-3` で束ねたときも、始めから数え直すこと（MUST）'
 const NT_2_ONLY_TIMED_ROWS = '時間で消すのは、表 T-233 の表示の仕方が「時間で消す」の理由の通知だけとする（MUST）'

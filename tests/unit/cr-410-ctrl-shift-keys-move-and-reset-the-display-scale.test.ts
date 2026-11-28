@@ -24,8 +24,8 @@ const REQUIREMENTS = unbroken(
 const FR_039_THE_TWO_KEYS = '`GRS` は、表示の倍率を 1 段ずつ上げ下げする割当を、表 T-036 の `SK-22`（上げる）と `SK-23`（下げる）にすること。'
 const T_036_PLAIN_CTRL_IS_THE_BROWSERS =
   '`GRS` は、`Shift` を伴わない `Ctrl` ＋ `+` / `-` / `0` をショートカットキーに割り当てないこと。'
-const MK_10_STOPS_ASSIGNED = '`GRS` は、ブラウザの既定動作を画面全体で止めること。'
-const MK_10_KEEPS_UNASSIGNED = '`GRS` は、割り当てていない組合せのブラウザの既定動作を止めないこと'
+const MK_10_STOPS_ASSIGNED = '`GRS` は、ブラウザーの既定動作を画面全体で止めること。'
+const MK_10_KEEPS_UNASSIGNED = '`GRS` は、割り当てていない組合せのブラウザーの既定動作を止めないこと'
 
 describe('CR-410 -- the manuscript these cases are driven by', () => {
   it.each([

@@ -21,7 +21,7 @@ const T033: SpecTable = specTable('T-033')
 const FORMAT_ROW = 'IO-1'
 
 // Trap: keep this at IC-2; IC-3 is a different entrance that opens no
-// Export Chooser at all.
+// Save As Dialog at all.
 const EXPORT_ENTRY_ROW = 'IC-2'
 
 // Spec: T-103

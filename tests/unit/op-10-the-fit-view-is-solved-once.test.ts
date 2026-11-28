@@ -38,7 +38,7 @@ const FR_080_SAME_AS_THE_SCREEN =
 const FR_091_CLOSES_THE_PANEL =
   '作った直後の名称を `Enter` で確定したとき、`GRS` は、同じ 1 回の押下でプロパティパネルを閉じること。'
 const FR_052_JUDGES_ON_THE_TASK_GROUP_AREA =
-  '`GRS` は、幅の判定を、`Task Group Area` の幅が 0 より大きいことをもって行うこと。'
+  '`GRS` は、幅の判定を、`Task Group Lanes` の幅が 0 より大きいことをもって行うこと。'
 const BO_3_READS_THE_ZOOM_AND_THE_VIEW_PLACE = '| BO-3 | 3 | 見せ方の群から倍率と表示位置を読む。'
 
 const NOTHING_OF_THE_VIEW_PLACE = [
@@ -397,7 +397,7 @@ describe('表 T-024a の OP-10 -- 本ファイルを動かす条文', () => {
     expect(DESIGN).toContain(BO_3_READS_THE_ZOOM_AND_THE_VIEW_PLACE)
   })
 
-  it('FR-091 はパネルを開かせ、FR-052 は Task Group Area の幅で判定する -- どちらも表示位置と倍率について何も言わない', () => {
+  it('FR-091 はパネルを開かせ、FR-052 は Task Group Lanes の幅で判定する -- どちらも表示位置と倍率について何も言わない', () => {
     expect(REQUIREMENTS).toContain(FR_091_CLOSES_THE_PANEL)
     expect(REQUIREMENTS).toContain(FR_052_JUDGES_ON_THE_TASK_GROUP_AREA)
     for (const uid of ['FR-091', 'FR-072', 'FR-052']) {
@@ -428,7 +428,7 @@ describe('表 T-024a の OP-10 -- 本ファイルを動かす条文', () => {
 })
 
 describe('OP-10 の答えは 1 度だけ求める -- 求め直す出来事が来るまで', () => {
-  it('前提: 同じ文書でも Task Group Area が狭ければ全体表示は別の答えを出す', () => {
+  it('前提: 同じ文書でも Task Group Lanes が狭ければ全体表示は別の答えを出す', () => {
     const pen = pump()
     const wide = bench(documentWithNoViewPlace(), SCREEN, pen)
     const narrow = bench(documentWithNoViewPlace(), NARROWER, pen)
@@ -438,7 +438,7 @@ describe('OP-10 の答えは 1 度だけ求める -- 求め直す出来事が来
     expect(narrow.picture().pxPerDay).not.toBe(wide.picture().pxPerDay)
   })
 
-  it('タスクを描いてパネルが開き Task Group Area が狭まっても、描く日の幅も最初の日も動かない', () => {
+  it('タスクを描いてパネルが開き Task Group Lanes が狭まっても、描く日の幅も最初の日も動かない', () => {
     const pen = pump()
     const built = bench(documentWithNoViewPlace(), SCREEN, pen)
     const before = built.picture()
@@ -554,7 +554,7 @@ describe('OP-10 の答えを取り直す出来事', () => {
 })
 
 describe('FR-080 -- 書き出す絵は、画面が立っている答えで描く', () => {
-  it('パネルが開いて Task Group Area が狭まっても、書き出す絵の倍率と表示位置は画面の答えのままである', () => {
+  it('パネルが開いて Task Group Lanes が狭まっても、書き出す絵の倍率と表示位置は画面の答えのままである', () => {
     const pen = pump()
     const built = bench(documentWithNoViewPlace(), SCREEN, pen)
     const onTheScreen = built.picture()

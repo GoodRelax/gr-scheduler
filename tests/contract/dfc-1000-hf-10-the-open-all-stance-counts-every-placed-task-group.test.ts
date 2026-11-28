@@ -13,7 +13,7 @@ const TASK_GROUP_PANEL = 'Task Group Panel'
 const NOTHING_TO_OPEN = 'RS-31'
 
 const HF_10_NOT_IN_HF_18 =
-  '`GRS` は、押したタスクグループの配下に `FR-018` の 表 T-329 で描かれていないタスクグループが 1 つでもあるとき、展開する操作子の押しが何かを変えると判ずること'
+  '`GRS` は、押したタスクグループの配下に `FR-018` の 表 T-329 で描かれていないタスクグループが 1 つでもあるとき、`Expand Below Button` の押しが何かを変えると判ずること'
 const FIRST = 'f0000000-0000-4000-8000-000000000000'
 const FIRST_CHILD = 'f0000000-0000-4000-8000-0000000000c1'
 const TASK_GROUPS = 40

@@ -38,8 +38,8 @@ const PK_1_SQUARE =
 const FR_106_COLORS =
   '`GRS` は、白 ＝ 予定、黒 ＝ 実績とダミー、の約束を、箱の矢印と円で揃えること。'
 const FR_106_FALLBACK =
-  'もし画像のポインタを描けない環境である場合、`GRS` は、動く向きを示す環境の形に替えること'
-const FR_106_NO_DISPLAY_SCALE = '`GRS` は、ポインタの画像に表示の倍率を掛けないこと。'
+  'もし画像のポインターを描けない環境である場合、`GRS` は、動く向きを示す環境の形に替えること'
+const FR_106_NO_DISPLAY_SCALE = '`GRS` は、ポインターの画像に表示の倍率を掛けないこと。'
 
 describe('CR-427 -- the manuscript these cases are driven by', () => {
   it.each([PK_1_SQUARE, FR_106_COLORS, FR_106_FALLBACK, FR_106_NO_DISPLAY_SCALE])(
@@ -430,7 +430,7 @@ describe('CR-427 section 9 -- what the change request leaves open', () => {
     const T_269_PK_3 = '| PK-3 | 三角 入 ／ 出 | 直角三角形。入は左上へ、出は右下へ広がる | 白 ／ 黒 | 丸め | `S-294` | 直角の頂点 |'
     const T_269_PK_5 = '| PK-5 | 円 | 円 | 予定は ○（白 ／ 黒）、実績とダミーは ●（黒 ／ 白）（同上） | — | 径は `S-295`（○ と ● で別の値） | 中心 |'
     for (const clause of [T_269_PK_5_ON_MILESTONES, T_269_FALLBACKS, T_269_PK_3, T_269_PK_5]) expect(REQUIREMENTS).toContain(clause)
-    const pointerCell = (id: string): string => (specTable('T-266').rows.find((one) => one.id === id)?.by['ポインタ（表 T-269）'] ?? '').trim()
+    const pointerCell = (id: string): string => (specTable('T-266').rows.find((one) => one.id === id)?.by['ポインター（表 T-269）'] ?? '').trim()
     expect(['GA-7', 'GA-8', 'GA-15', 'GA-16', 'GA-17'].map(pointerCell)).toEqual(['三角 入（`PK-3`）', '三角 出（`PK-3`）', '円 ○（`PK-5`）', '円 ●（`PK-5`）', '円 ●（`PK-5`）'])
     const settingCell = (id: string): readonly number[] =>
       (bare(specTable('T-206').rows.find((one) => one.id === id)?.by['既定'] ?? '').match(/\d+(?:\.\d+)?/g) ?? []).map(Number)

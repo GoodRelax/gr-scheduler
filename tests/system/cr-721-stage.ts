@@ -1,4 +1,4 @@
-// CR-721 on the shipped build: the large sample with the Search Panel or the report open, and the readers and presses the cases share.
+// CR-721 on the shipped build: the large sample with the Search Window or the report open, and the readers and presses the cases share.
 
 import { expect, type Browser, type Page } from '@playwright/test'
 import { bare, specTable, unbroken } from '../contract/spec-table'

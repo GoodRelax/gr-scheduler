@@ -77,7 +77,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
 SOURCE = os.path.join(ROOT, 'docs', 'spec', '01-04-requirements.md')
 OUT = os.path.join(ROOT, 'src', 'adapter', 'document-codec', 'exchange-formats.json')
-# The ScreenRenderer's copy. FR-096 (MUST) has the `Export Chooser` propose
+# The ScreenRenderer's copy. FR-096 (MUST) has the `Save As Dialog` propose
 # the document name with the chosen row's extension, RW-7 names the written
 # report with IO-8's, and LR-2 of table T-061 forbids that component reaching
 # into DocumentCodec's folder for either.
@@ -373,7 +373,7 @@ def offered_rows():
 
 
 def chooser_roster():
-    """What the `Export Chooser` offers, and every row that is a file.
+    """What the `Save As Dialog` offers, and every row that is a file.
 
     ⛔ IO-6 IS NOT AMONG EITHER and neither is IO-5: a row with no extension is
     not a file, so it has no name to propose. FR-096 (MUST NOT) keeps the

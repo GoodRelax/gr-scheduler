@@ -17,15 +17,15 @@ import {
 
 // Spec: FR-016
 const FR_016_FIRST_BAND_THAT_FILLS =
-  '`GRS` は、縦軸（`zoomY`）の帯の側の上限を、いちばん高いタスクグループの帯の高さが初めて `Task Group Area` の高さ以上になった倍率にすること（表 T-253 の手順が調べるどの倍率も含まないほど狭い区間は見落としてよい）。'
+  '`GRS` は、縦軸（`zoomY`）の帯の側の上限を、いちばん高いタスクグループの帯の高さが初めて `Task Group Lanes` の高さ以上になった倍率にすること（表 T-253 の手順が調べるどの倍率も含まないほど狭い区間は見落としてよい）。'
 // Spec: T-253, BC-3, FR-042
 const BC_3_FIRST_ALREADY = '最初の倍率で既に達していれば、`GRS` は帯の側の上限を最初の倍率とし、`BC-4` と `BC-5` を行わないこと。'
 const FR_042_NOT_ZOOM_Y = '`GRS` は、最小の高さを縦のズーム（`_assets/tbl-settings.md` の 表 T-203 の `S-76`）で縮めないこと。'
 // Spec: FR-016
-const FR_016_POINTER_HOLDS = '`GRS` は、ポインタ位置を中心にズームし、カーソル下の日付とタスクグループを動かさないこと。'
+const FR_016_POINTER_HOLDS = '`GRS` は、ポインター位置を中心にズームし、カーソル下の日付とタスクグループを動かさないこと。'
 // Spec: FR-016
 const FR_016_NO_POINTER_USES_THE_MIDDLE =
-  'ポインタを伴わない経路（画面上のボタン・ショートカット・`Agent API`）では、`Task Group Area` の中心をズームの中心とすること（MUST）'
+  'ポインターを伴わない経路（画面上のボタン・ショートカット・`Agent API`）では、`Task Group Lanes` の中心をズームの中心とすること（MUST）'
 
 const PERCENT = 100
 
@@ -116,19 +116,19 @@ describe('DFC-699 / FR-016 -- the manuscript still holds the rules these cases p
   })
 })
 
-describe('DFC-699 / FR-016, T-253, DS-13 -- the vertical zoom stops where the tallest band first fills the Task Group Area', () => {
-  it(`${FR_042_NOT_ZOOM_Y} -- a task group floor (AT-59) short of the Task Group Area never sets the ceiling: the zoom passes where the old zoomY-scaled floor stopped it`, () => {
+describe('DFC-699 / FR-016, T-253, DS-13 -- the vertical zoom stops where the tallest band first fills the Task Group Lanes', () => {
+  it(`${FR_042_NOT_ZOOM_Y} -- a task group floor (AT-59) short of the Task Group Lanes never sets the ceiling: the zoom passes where the old zoomY-scaled floor stopped it`, () => {
     const { floorBand, reached, floored, height } = ceilingCase(MIN_HEIGHT_ABOVE_THE_FLOOR)
-    expect(floorBand, 'premise: the floor alone is short of the Task Group Area').toBeLessThan(height)
+    expect(floorBand, 'premise: the floor alone is short of the Task Group Lanes').toBeLessThan(height)
     expect(floored, 'DS-13: the floored band is the floor, whatever zoomY is').toBeCloseTo(floorBand, 6)
     expect(reached, 'the ceiling lies above the zoomY a zoomY-scaled floor would fill at').toBeGreaterThan(height / floorBand)
   })
 
   it.each(MIN_HEIGHTS_BELOW_THE_FLOOR)(
-    `${BC_3_FIRST_ALREADY} -- a task group floor (AT-59) %d that fills the Task Group Area at every zoomY: the vertical zoom does not rise`,
+    `${BC_3_FIRST_ALREADY} -- a task group floor (AT-59) %d that fills the Task Group Lanes at every zoomY: the vertical zoom does not rise`,
     (minHeight) => {
       const { floorBand, reached, floored, height } = ceilingCase(minHeight)
-      expect(floorBand, 'premise: the floor alone fills the Task Group Area').toBeGreaterThanOrEqual(height)
+      expect(floorBand, 'premise: the floor alone fills the Task Group Lanes').toBeGreaterThanOrEqual(height)
       expect(floored, 'BC-2: the band has reached').toBeGreaterThanOrEqual(height)
       expect(reached, 'the band-side ceiling is the first candidate, so pressing in never raises zoomY').toBeLessThanOrEqual(START_ZOOM_Y)
     },
@@ -137,13 +137,13 @@ describe('DFC-699 / FR-016, T-253, DS-13 -- the vertical zoom stops where the ta
 
 describe('DFC-699 / FR-016, T-253 -- task groups with no floor: the band ceiling follows zoomY', () => {
   // Spec: IMPS-1466
-  it(`${FR_016_FIRST_BAND_THAT_FILLS} -- the zoom stops at the first band that fills the Task Group Area, not past it`, () => {
+  it(`${FR_016_FIRST_BAND_THAT_FILLS} -- the zoom stops at the first band that fills the Task Group Lanes, not past it`, () => {
     const built = stackedTaskGroupBench()
     const height = frameOf(built).regions.taskGroupArea.height
     const bands = bandsUpToTheEnd(built)
     expect(built.loop.document().schedule.taskGroups[0]?.minHeightPx, 'premise: the task group has no floor').toBeNull()
-    expect(bands[0], 'premise: the band starts short of the Task Group Area').toBeLessThan(height)
-    expect(bands[bands.length - 1], 'the last zoom fills the Task Group Area').toBeGreaterThanOrEqual(height - 1)
+    expect(bands[0], 'premise: the band starts short of the Task Group Lanes').toBeLessThan(height)
+    expect(bands[bands.length - 1], 'the last zoom fills the Task Group Lanes').toBeGreaterThanOrEqual(height - 1)
     expect(bands[bands.length - 2], 'the zoom before it did not').toBeLessThan(height)
   })
 })
@@ -189,7 +189,7 @@ describe('DFC-699 / FR-016, MK-3, SK-16 -- a time-axis zoom leaves the day at it
     expect(daySerialAt(after, x)).toBeCloseTo(held, DAY_DIGITS)
   })
 
-  it(`SK-16 at the Task Group Area middle -- ${FR_016_NO_POINTER_USES_THE_MIDDLE}`, () => {
+  it(`SK-16 at the Task Group Lanes middle -- ${FR_016_NO_POINTER_USES_THE_MIDDLE}`, () => {
     const built = timeAxisBench()
     const before = frameOf(built)
     const area = before.regions.taskGroupArea

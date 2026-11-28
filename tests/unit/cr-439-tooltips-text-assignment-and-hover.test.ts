@@ -32,9 +32,9 @@ const rowText = (table: string, id: string): string => unbroken(rowOf(table, id)
 const EZ_2_ASSIGNMENT = '説明の後ろに、その行の割当も出すこと（MUST）'
 const EZ_2_SIZE = '字の大きさは 表 T-206 の `S-204` が定める係数で決めること（MUST）'
 const EZ_6_WHOLE_NAME = '**名前は打ち切らずに全文を出すこと（MUST）**'
-const IN_3_TAKES_NO_POINTER = '⭐ ツールチップはポインタを受け取らず、下へ通すこと（MUST）（`FR-152` の 表 T-337 の `UZ-2`）'
+const IN_3_TAKES_NO_POINTER = '⭐ ツールチップはポインターを受け取らず、下へ通すこと（MUST）（`FR-152` の 表 T-337 の `UZ-2`）'
 const UZ_2_PASSES_THE_PRESS = '`GRS` は、`Tooltip` に押下を受けさせず、押下を下へ通すこと。説明は短く、押すものを持たないので、覆った入口から押す手を奪わない'
-const IN_3_THE_OLD_CLAUSE = 'ポインタを乗せられること'
+const IN_3_THE_OLD_CLAUSE = 'ポインターを乗せられること'
 
 const TOOLTIP = bare(rowOf('T-103', 'U-53').by['確定名（英）'] ?? '')
 const S_204 = Number.parseFloat(bare(rowOf('T-206', 'S-204').by['既定'] ?? ''))
@@ -131,7 +131,7 @@ describe('the Tooltip (U-53)', () => {
     expect(style.get('text-overflow')).not.toBe('ellipsis')
   })
 
-  it('IN-3 / UZ-2 ツールチップはポインタを受け取らず、下へ通すこと -- the tip takes no pointer, and nothing inside it takes one back', () => {
+  it('IN-3 / UZ-2 ツールチップはポインターを受け取らず、下へ通すこと -- the tip takes no pointer, and nothing inside it takes one back', () => {
     for (const tip of [ICON_TIP, TASK_TIP]) {
       const built = drawn([tip])
       const box = tipsOf(built)[0] as FakeElement

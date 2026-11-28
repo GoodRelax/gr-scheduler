@@ -91,7 +91,7 @@ describe('CR-656 -- the rows these cases are driven by', () => {
     expect(text).toContain('`Shift` を併用してクリックしたとき、`GRS` は、選択を 1 つずつ増減すること。')
     expect(text).toContain('`Shift` を併用してタスクの本体を引いたとき、`GRS` は、選択の全部を動かすこと（表 T-023 の `MK-16`）。')
     expect(text).toContain('`Shift` を併用してタスクの本体を引いたとき、`GRS` は、選択を増減せず、離した後も全部を選んだままとすること（`FR-107` の 表 T-270）。')
-    expect(text).toContain('端・フェードの掴み点・進捗マーカー・ダミー・再開アイコンを `Shift` を併用して引いたとき、`GRS` は、`SL-7a` のとおり選択を掴んだ 1 つに絞ること。')
+    expect(text).toContain('端・フェードの掴み点・進捗ステータスマーク・ダミー・再開マークを `Shift` を併用して引いたとき、`GRS` は、`SL-7a` のとおり選択を掴んだ 1 つに絞ること。')
   })
 
   it('T-270: a Shift-only body drag applies only the vertical part and reads Shift at the press', () => {

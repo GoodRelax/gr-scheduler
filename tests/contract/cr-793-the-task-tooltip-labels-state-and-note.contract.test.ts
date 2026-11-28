@@ -27,7 +27,7 @@ const LANGUAGES = ['ja', 'en'] as const
 const REQUIREMENTS = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
 const TL_8_FORM = '進捗の語、`:`、半角空白 1 つ、`percentComplete`、半角空白 1 つ、`(`、状態の語、`)` の順に書くこと（MUST）'
-const TL_8_SAME_AS_SQ_5 = '⭐ 状態の語は、検索パネルの 表 T-331 の `SQ-5` と同じ判定で選んだ状態の語とすること（MUST）'
+const TL_8_SAME_AS_SQ_5 = '⭐ 状態の語は、検索ウィンドウの 表 T-331 の `SQ-5` と同じ判定で選んだ状態の語とすること（MUST）'
 const TL_8_NO_NEW_WORD = '⛔ 状態のために新しい語を辞書に持ってはならない（MUST NOT）'
 const TL_9_FORM = '期限の語、`:`、半角空白 1 つ、`deadline` の日（`TL-10`）の順に書くこと（MUST）'
 const TL_12_FORM = '遅れの語、`:`、半角空白 1 つ、日数、半角空白 1 つ、稼働日の語 の順に、1 行で書くこと（MUST）'

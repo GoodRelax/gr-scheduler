@@ -24,7 +24,7 @@ const REPORT = roleOf('U-66')
 const OPEN_SEARCH = keyOf('SK-24')
 const DIAGNOSE = rowOf(specTable('T-109'), 'IC-107').id
 const RING = '[data-role="Jump Landing Ring"]'
-const RIPPLE = '[data-role="Jump Landing Ripple"]'
+const RIPPLE = '[data-role="Jump Ripple"]'
 const WITHIN_A_PIXEL = 1
 const TO_SEARCH_NAME = 'Task 25'
 
@@ -123,7 +123,7 @@ interface Reading {
   readonly areaHeight: number
 }
 
-// Why: the Task Group Area is read off the drawing -- the ruler ground spans its width and ends at its top, and the
+// Why: the Task Group Lanes is read off the drawing -- the ruler ground spans its width and ends at its top, and the
 // ground clip spans its height.
 /** @purity semi-pure-mutable */
 async function readingOf(page: Page, uid: number): Promise<Reading> {
@@ -243,13 +243,13 @@ async function jumpFromSearch(page: Page): Promise<number> {
     const box = name.getBoundingClientRect()
     return { uid: Number(uid), x: box.x + Math.min(box.width / 2, 40), y: box.y + box.height / 2 }
   }, SEARCH_PANEL)
-  if (target === null) throw new Error('the Search Panel draws no SQ-1 cell in row 0')
+  if (target === null) throw new Error('the Search Window draws no SQ-1 cell in row 0')
   expect(await pressAndSeeRipple(page, { x: target.x, y: target.y }), 'SJ-10 ②: a ripple starts').toBeGreaterThan(0)
   await settle(page)
   return target.uid
 }
 
-test.describe('CR-728 -- SJ-1: a press on a name in the Search Panel', () => {
+test.describe('CR-728 -- SJ-1: a press on a name in the Search Window', () => {
   test.setTimeout(180_000)
 
   test('lands the task in the middle across and S-554 down, marks it with the ring, and the ripple ends while the ring stays', async () => {
@@ -440,7 +440,7 @@ test.describe('CR-728 -- the other entrances that press and jump', () => {
     }
   })
 
-  test('FR-134: a name in the Delay Diagnostics Report lands that task and marks it', async () => {
+  test('FR-134: a name in the Delay Diagnosis Report lands that task and marks it', async () => {
     if (browser === null) throw new Error('no browser')
     const opened = await openStage(browser)
     try {

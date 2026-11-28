@@ -1,4 +1,4 @@
-// File: ScreenRenderer: Builds the Search Panel description for one frame: title row, word field and the shown table.
+// File: ScreenRenderer: Builds the Search Window description for one frame: title row, word field and the shown table.
 // @unit      UF-180  (docs/spec/05-07-design.md, table T-075)
 // @component ScreenRenderer, layer Adapter (table T-062)
 // @purity    pure
@@ -79,7 +79,7 @@ import {
 export { windowTitleEntriesOf }
 export type { EntryRefusal, SearchColumnView, SearchFilterChange, SearchFilterMenuView, SearchFilterValueView } from './table-window'
 
-const SEARCH_PANEL = 'Search Panel'
+const SEARCH_PANEL = 'Search Window'
 
 const TASKS_TABLE_ENTRY: IconId = 'IC-118'
 const COMMENT_BOXES_TABLE_ENTRY: IconId = 'IC-119'

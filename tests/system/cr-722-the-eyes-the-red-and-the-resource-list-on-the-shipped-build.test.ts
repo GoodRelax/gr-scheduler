@@ -12,7 +12,7 @@ import { rowOf } from './sws-case'
 const REQUIREMENTS = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
 const TV_12_RED =
-  '`GRS` は、日程抽出している表の `IC-143` と、表を開く起動アイコン（検索パネルは `IC-117`、遅延診断レポートは `IC-107`、担当リストはコマンドパレットの `IC-62`）を、`FR-029` の 表 T-237 の `EN-8` で描くこと。'
+  '`GRS` は、日程抽出している表の `IC-143` と、表を開く起動アイコン（検索ウィンドウは `IC-117`、遅延診断レポートは `IC-107`、担当リストはコマンドパレットの `IC-62`）を、`FR-029` の 表 T-237 の `EN-8` で描くこと。'
 const TV_12_NOT_RED = '`GRS` は、日程抽出していない表の入口を赤くしないこと。'
 const FR_099_NOT_SAVED = '`GRS` は、担当リストのウィンドウの状態（出ているか・位置・大きさ・語・列の幅・選択）を文書に保存しないこと'
 const FR_099_SAVED = '`IMPS-282` —— 保存する側の値は `FR-151` が持つ。担当リストの表の値は 表 T-203 の `S-568` 〜 `S-572` である。'
@@ -21,7 +21,7 @@ const EN_8_ROW = 'その入口の表で日程抽出している（`FR-151` の �
 const EN_TOP_WINS = '1 つの入口に 表 T-237 の行が 2 つ同時に当たるとき、`GRS` は 表 T-237 で上に並ぶ行を勝たせること。'
 const SJ_0_ONLY_THAT_ROW = '`GRS` は、日程抽出していて飛ぶ先のタスクを「表示」としない検索の表とレポートの表で、飛ぶ先のタスクの行だけを「表示」にすること（チェックを入れる）。担当リストの表が飛ぶ先のタスクを「表示」としない間、描いていないタスクへ飛ぶとき、`GRS` は、担当リストの表の日程抽出を解除すること。`GRS` は、`SJ-0` の「表示」と解除を、`SJ-2` 以降より先に行うこと。'
 const SJ_0_KEEPS_HIDE = '描いていないタスクへ飛ぶとき、`GRS` は、担当の行の表示の列の値を変えないこと。'
-const TV_8_CLOSE = '表の `IC-143` をもう一度押したとき・表のウィンドウを閉じたとき（検索パネルは 表 T-330 の `SV-14`、遅延診断レポートの窓は 表 T-346 の `RW-1`、担当リストのウィンドウは 表 T-370 の `RO-1`）、`GRS` は、表の日程抽出を解除すること。'
+const TV_8_CLOSE = '表の `IC-143` をもう一度押したとき・表のウィンドウを閉じたとき（検索ウィンドウは 表 T-330 の `SV-14`、遅延診断レポートの窓は 表 T-346 の `RW-1`、担当リストのウィンドウは 表 T-370 の `RO-1`）、`GRS` は、表の日程抽出を解除すること。'
 
 const CLAUSES = [TV_12_RED, TV_12_NOT_RED, FR_099_NOT_SAVED, FR_099_SAVED, EN_TOP_WINS, SJ_0_ONLY_THAT_ROW, SJ_0_KEEPS_HIDE, TV_8_CLOSE]
 
@@ -402,13 +402,13 @@ test.describe('CR-722 / FR-151 T-353 / FR-099 T-370 on the shipped build', () =>
       await checkRowIn(page, PANEL, NAMES[ECHO] ?? '')
       await press(page, `${PANEL} [data-icon="${EYE}"]`)
       const one = (await textOf(page, BAND)) ?? ''
-      expect(sentencesOf(['Search Panel'], ALL.length, 2).some((sentence) => one.includes(sentence)), `the bar reads ${one}`).toBe(true)
+      expect(sentencesOf(['Search Window'], ALL.length, 2).some((sentence) => one.includes(sentence)), `the bar reads ${one}`).toBe(true)
       await openResourceList(page)
       await checkListedIn(page, RESOURCE_LIST, TANAKA)
       await press(page, `${RESOURCE_LIST} [data-icon="${EYE}"]`)
       expect(await readShown(page)).toEqual({ drawnTaskUids: [DELTA], filteringTables: ['searchPanel', 'resourceList'] })
       const two = (await textOf(page, BAND)) ?? ''
-      expect(sentencesOf(['Search Panel', 'Resource List'], ALL.length, 1).some((sentence) => two.includes(sentence)), `the bar reads ${two}`).toBe(true)
+      expect(sentencesOf(['Search Window', 'Resource List'], ALL.length, 1).some((sentence) => two.includes(sentence)), `the bar reads ${two}`).toBe(true)
       const off = wordOf('searchPanel', 'scheduleFilterOff')
       await page.locator(BAND).getByText(new RegExp(`^(${off.ja}|${off.en})$`)).click()
       await settle(page)

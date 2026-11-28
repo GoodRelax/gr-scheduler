@@ -18,7 +18,10 @@ record <rows.tsv>
     One rename per row, tab separated, with a header line:
         key  language  new  basis  reasonEn  reasonJa
     language is en (label.en) or ja (label.ja); basis is ruling ids separated
-    by spaces. The term's label takes the new name, and renames[] gets
+    by spaces. An optional column `old` names the former name of a label the
+    dictionary ALREADY carries as `new` (CR-857 took the ruled name into the
+    dictionary first): the label is left as it is and renames[] records
+    {from: old}; several rows may give one term several former names (CR-855). The term's label takes the new name, and renames[] gets
     {from: the old label, version: CR-855, reason, basis, xAppliedToSpec: false}
     (xLanguage: en or ja says which label it was). Refused, with nothing written:
     an unknown key, a new name equal to the old one, a new name that is a
@@ -261,9 +264,23 @@ def loose_hits(text, olds, names):
 
 def record(path):
     doc = load_glossary()
+    rows = list(csv.DictReader(io.open(path, encoding='utf-8'), delimiter='\t'))
+    problems, planned = plan_records(doc, rows)
+    if problems:
+        for p in problems:
+            say('  ' + p)
+        say('REFUSED  %d problem(s); glossary.json is unchanged' % len(problems))
+        return 1
+    write_records(planned)
+    save_glossary(doc)
+    say('OK       recorded %d rename(s) in glossary.json; next: apply' % len(planned))
+    return 0
+
+
+def plan_records(doc, rows):
+    """(problems, planned) for record rows; nothing is changed here."""
     by_key = {t['key']: t for t in doc['terms']}
     former = {r['from'] for t in doc['terms'] for r in t.get('renames', [])}
-    rows = list(csv.DictReader(io.open(path, encoding='utf-8'), delimiter='\t'))
     problems, planned = [], []
     for number, row in enumerate(rows, 2):
         key, language, new = row.get('key', ''), row.get('language', ''), row.get('new', '')
@@ -279,9 +296,21 @@ def record(path):
             problems.append('line %d: %s is in a frozen contract (JDG-3807); the owner '
                             'reopens the contract first' % (number, key))
             continue
-        old = term['label'][language]
+        label = term['label'][language]
+        given = (row.get('old') or '').strip()
+        if given and label != new:
+            problems.append('line %d: %s: old %r is given, but the label is %r, not the '
+                            'new name %r -- leave old empty to rename the label'
+                            % (number, key, given, label, new))
+            continue
+        old = given or label
         if not new or new == old:
             problems.append('line %d: %s: new name %r equals the old one' % (number, key, new))
+            continue
+        if any(r['from'] == old and r.get('xLanguage') == language
+               for r in term.get('renames', [])):
+            problems.append('line %d: %s: %r is already recorded as a former name'
+                            % (number, key, old))
             continue
         if new in former:
             problems.append('line %d: %s: %r is a former name of a term (A.2)' % (number, key, new))
@@ -289,8 +318,8 @@ def record(path):
         if not basis or not all(re.match(r'^JDG-\d+$', b) for b in basis):
             problems.append('line %d: %s: basis needs ruling ids JDG-n' % (number, key))
             continue
-        if any(r.get('xAppliedToSpec') is False and r.get('xLanguage') == language
-               for r in term.get('renames', [])):
+        if not given and any(r.get('xAppliedToSpec') is False and r.get('xLanguage') == language
+                             for r in term.get('renames', [])):
             problems.append('line %d: %s already has a pending %s rename' % (number, key, language))
             continue
         planned.append((term, language, old, new, basis, row))
@@ -299,11 +328,10 @@ def record(path):
     for head, name in name_heads.new_pairs([p[3] for p in planned if p[1] == 'en']):
         problems.append('head pair not in %s: %s is the head of %s' % (
             rel(name_heads.BASELINE), name_heads.spell(head), name_heads.spell(name)))
-    if problems:
-        for p in problems:
-            say('  ' + p)
-        say('REFUSED  %d problem(s); glossary.json is unchanged' % len(problems))
-        return 1
+    return problems, planned
+
+
+def write_records(planned):
     for term, language, old, new, basis, row in planned:
         rename = OrderedDict([
             ('from', old), ('version', VERSION),
@@ -317,9 +345,14 @@ def record(path):
         for b in basis:
             if b not in term.setdefault('checkedBasis', []):
                 term['checkedBasis'].append(b)
-    save_glossary(doc)
-    say('OK       recorded %d rename(s) in glossary.json; next: apply' % len(planned))
-    return 0
+        # A.2: a former name is kept in renames[], never also in avoid.
+        avoid = term.get('avoid') or {}
+        if old in avoid.get(language, []):
+            avoid[language] = [a for a in avoid[language] if a != old]
+            if not avoid[language]:
+                del avoid[language]
+            if not avoid:
+                del term['avoid']
 
 
 def scan(names, files, edit):
@@ -415,6 +448,17 @@ def self_test():
     if not problems:
         bad += 1
         say('FAIL     a former name sent to two names was not refused')
+    doc = {'terms': [{'key': 'helpWindow', 'label': {'en': 'Help Window', 'ja': 'H'},
+                      'xUses': ['spec']}]}
+    row = {'key': 'helpWindow', 'language': 'en', 'new': 'Help Window', 'basis': 'JDG-1'}
+    problems, planned = plan_records(doc, [dict(row, old='Help Modal'), dict(row, old='Help Box')])
+    if problems or [p[2] for p in planned] != ['Help Modal', 'Help Box']:
+        bad += 1
+        say('FAIL     a label the dictionary already carries: %r %r' % (problems, planned))
+    problems, _p = plan_records(doc, [dict(row, new='Help Pane', old='Help Modal')])
+    if not problems:
+        bad += 1
+        say('FAIL     old given while the label is not the new name was not refused')
     inv = name_heads.Inventory()
     for name in ('Fit All', 'Search Panel'):
         inv.add('t', 'k', name)
@@ -422,7 +466,7 @@ def self_test():
     if [name_heads.pair_line(p) for p in fresh] != ['fit\tfitAll', 'searchPanel\tsearchPanelRows']:
         bad += 1
         say('FAIL     head pairs of new labels %r' % fresh)
-    say('%s self-test: %d case(s)' % ('OK      ' if not bad else 'FAIL    ', len(cases) + 3))
+    say('%s self-test: %d case(s)' % ('OK      ' if not bad else 'FAIL    ', len(cases) + 5))
     return 1 if bad else 0
 
 

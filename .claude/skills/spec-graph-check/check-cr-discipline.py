@@ -48,7 +48,7 @@ CR_FROM = 175
 # no challenge had received) and 1.3 gained GL-008. ⛔ Leaving the old range
 # would read a change request that names GL-008 as naming nothing at all.
 # ⚠️ CR-561 widened both again: 表 T-054 gained CH-7 and 1.3 gained GL-009
-# (Delay Diagnostics). The range stayed at CH-6 / GL-008 until CR-616 and
+# (Delay Diagnosis). The range stayed at CH-6 / GL-008 until CR-616 and
 # CR-617 named CH-7 / GL-009 and went red (DFC-1482).
 CHALLENGE = re.compile(r'`?(CH-[1-7]|GL-00[1-9])`?')
 # Rule ②: which clauses of the review standard were held against it?

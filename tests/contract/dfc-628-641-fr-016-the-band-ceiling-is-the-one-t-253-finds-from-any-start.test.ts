@@ -1,4 +1,4 @@
-// DFC-628 / DFC-641 spec-only cases: FR-016 and T-253 BC-1..BC-5 -- the vertical zoom stops where the ladder of T-253 first finds the tallest band reaching the Task Group Area, whatever zoomY the zoom starts from.
+// DFC-628 / DFC-641 spec-only cases: FR-016 and T-253 BC-1..BC-5 -- the vertical zoom stops where the ladder of T-253 first finds the tallest band reaching the Task Group Lanes, whatever zoomY the zoom starts from.
 
 import { afterEach, describe, expect, it } from 'vitest'
 
@@ -7,12 +7,12 @@ import { keyOf, REQUIREMENTS, taskGroupDocument, shell, taskOf, type ShellBench 
 
 // Spec: FR-016
 const FR_016_FIRST_REACH =
-  '`GRS` は、縦軸（`zoomY`）の帯の側の上限を、いちばん高いタスクグループの帯の高さが初めて `Task Group Area` の高さ以上になった倍率にすること（表 T-253 の手順が調べるどの倍率も含まないほど狭い区間は見落としてよい）。'
+  '`GRS` は、縦軸（`zoomY`）の帯の側の上限を、いちばん高いタスクグループの帯の高さが初めて `Task Group Lanes` の高さ以上になった倍率にすること（表 T-253 の手順が調べるどの倍率も含まないほど狭い区間は見落としてよい）。'
 const FR_016_ANY_START =
   '`GRS` は、縦軸の上限を、拡大を始めた倍率によらず同じ倍率にすること。'
 // Spec: T-253
 const BC_1_LADDER = '次の倍率は、1 つ前の倍率に `_assets/tbl-settings.md` の 表 T-206 の `S-238` を掛けた値とする。'
-const BC_2_EQUAL_REACHES = '帯の高さが `Task Group Area` の高さと等しいときも、達したとする。'
+const BC_2_EQUAL_REACHES = '帯の高さが `Task Group Lanes` の高さと等しいときも、達したとする。'
 const BC_5_UPPER_END = '`GRS` は、帯の側の上限を、止めたときの上端にすること。'
 
 // Spec: S-54, S-55, S-238, S-239
@@ -50,7 +50,7 @@ function frameOf(built: ShellBench) {
 }
 
 // Spec: BC-2
-// Why: the tallest band reaches the Task Group Area when it is at least as tall.
+// Why: the tallest band reaches the Task Group Lanes when it is at least as tall.
 function bandReachesAt(zoomY: number): boolean {
   const built = stackedTaskGroupBench(zoomY)
   const frame = frameOf(built)
@@ -121,7 +121,7 @@ describe('DFC-628 / DFC-641 premise -- the clauses these cases press still stand
 describe('FR-016 / T-253 BC-3..BC-5 -- the vertical zoom ends at the ceiling the ladder finds', () => {
   const ceiling = bandCeilingByTheTable()
 
-  it('premise: the ladder finds a ceiling strictly inside the bounds, so a band reaches the Task Group Area on the way', () => {
+  it('premise: the ladder finds a ceiling strictly inside the bounds, so a band reaches the Task Group Lanes on the way', () => {
     expect(ceiling).toBeGreaterThan(ZOOM_MIN)
     expect(ceiling).toBeLessThan(ZOOM_MAX)
     expect(bandReachesAt(ceiling), BC_5_UPPER_END).toBe(true)
@@ -171,7 +171,7 @@ function flooredTaskGroupBench(minHeight: number): ShellBench {
 const flooredBandOf = (built: ShellBench): number =>
   frameOf(built).layout.taskGroups.find((taskGroup) => taskGroup.taskGroupId === 'task-group-1')?.height ?? Number.NaN
 
-// Why: the floor is the only thing that sets the band, so a floor landing exactly on the Task Group Area's height makes "equal" a real case.
+// Why: the floor is the only thing that sets the band, so a floor landing exactly on the Task Group Lanes's height makes "equal" a real case.
 function minHeightFillingTheAreaExactly(): number {
   const probe = flooredTaskGroupBench(1)
   const height = frameOf(probe).regions.taskGroupArea.height
@@ -181,13 +181,13 @@ function minHeightFillingTheAreaExactly(): number {
     const candidate = center + nudge * Number.EPSILON * center
     if (flooredBandOf(flooredTaskGroupBench(candidate)) === height) return candidate
   }
-  throw new Error('premise: some floor lands the first task group exactly on the Task Group Area height')
+  throw new Error('premise: some floor lands the first task group exactly on the Task Group Lanes height')
 }
 
-describe('FR-016 / T-253 BC-2 -- a band exactly as tall as the Task Group Area has reached it', () => {
+describe('FR-016 / T-253 BC-2 -- a band exactly as tall as the Task Group Lanes has reached it', () => {
   it(`${BC_2_EQUAL_REACHES} -- the zoom does not rise past the lowest candidate`, () => {
     const built = flooredTaskGroupBench(minHeightFillingTheAreaExactly())
-    expect(flooredBandOf(built), 'premise: the band equals the Task Group Area').toBe(frameOf(built).regions.taskGroupArea.height)
+    expect(flooredBandOf(built), 'premise: the band equals the Task Group Lanes').toBe(frameOf(built).regions.taskGroupArea.height)
     let previous = Number.NaN
     for (let press = 0; press < PRESS_LIMIT && zoomYOf(built) !== previous; press++) {
       previous = zoomYOf(built)

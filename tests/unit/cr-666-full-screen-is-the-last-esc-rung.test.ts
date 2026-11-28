@@ -28,15 +28,15 @@ const IN_4_ORDER =
 const IN_4_FULL_SCREEN_LAST =
   '⭐ **全画面表示を最後に置くのは、利用者が「もう何もキャンセルできない状態になってから」全画面表示を出ると定めたからである**'
 const IN_4_FULL_SCREEN_RUNG_ASKS =
-  '全画面表示の段は、全画面表示を出ることをブラウザに求める（`FR-071` の入口の押下と同じ求め）。'
+  '全画面表示の段は、全画面表示を出ることをブラウザーに求める（`FR-071` の入口の押下と同じ求め）。'
 const IN_4_NO_REPEAT =
   '⛔ 押しっぱなしの `Esc` の繰り返し（`KeyboardEvent.repeat` が真の押下）で段を消費してはならない（MUST NOT）'
-const IN_4A_PASS_ON = '**消費する対象が 1 つも無いときは、必ずブラウザへ渡すこと（MUST）**'
+const IN_4A_PASS_ON = '**消費する対象が 1 つも無いときは、必ずブラウザーへ渡すこと（MUST）**'
 const IN_4A_FULL_SCREEN_ALWAYS_STANDS =
   '⚠️ 全画面表示のあいだは、`IN-4` の全画面表示の段がいつも立つので、本行の「渡す」は起きない。'
 // Spec: IMPS-816
 const FR_071_ESCAPE_LOCKED =
-  '閲覧環境が Keyboard Lock（`navigator.keyboard`）を持つ場合、全画面表示に入ることをブラウザに求める押下の中で、`GRS` は、`Escape` の鍵をかけることを求めること。全画面表示を出たことを受けたとき、`GRS` は、`Escape` の鍵を放すこと。'
+  '閲覧環境が Keyboard Lock（`navigator.keyboard`）を持つ場合、全画面表示に入ることをブラウザーに求める押下の中で、`GRS` は、`Escape` の鍵をかけることを求めること。全画面表示を出たことを受けたとき、`GRS` は、`Escape` の鍵を放すこと。'
 const FR_071_LOCK_REFUSAL_UNTOLD = 'もし鍵を断られた場合、または閲覧環境が Keyboard Lock を持たない場合、`GRS` は、断られたこと・持たないことを通知しないこと。'
 const FR_071_LAST_RUNG = '`Esc` で全画面表示を出るのは、アプリの `Esc` の階層の最後の段である（表 T-028 の `IN-4`）。'
 

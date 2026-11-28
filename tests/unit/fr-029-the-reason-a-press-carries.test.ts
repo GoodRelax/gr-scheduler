@@ -74,7 +74,7 @@ const FR_029_THE_MATCHING_ROW =
 const FR_029_NOT_THE_FALLBACK = '押された入口の場面に当たる行が 表 T-233 にあるとき、`GRS` は落ち先を運ばないこと。'
 // Spec: IMPS-1113
 const FR_029_RS_27_IS_THE_FALLBACK = 'もし押された入口の場面に当たる行が 表 T-233 に無い場合、`GRS` は落ち先の `RS-27`（出さない）を運ぶこと。'
-const FR_029_NOT_ON_HOVER = '`GRS` は、ポインタが入口に乗っただけで、行えない理由を出さないこと。'
+const FR_029_NOT_ON_HOVER = '`GRS` は、ポインターが入口に乗っただけで、行えない理由を出さないこと。'
 const T_051_ONLY_DRAWN_TASK_GROUPS =
   '`GRS` は、描かれていないタスクグループの折りたたみを数えないこと（`IMPS-1981` の例外を除く）。'
 // Spec: IMPS-1980
@@ -540,7 +540,7 @@ describe('FR-029 (MUST NOT) -- resting a pointer on it is not a press', () => {
 
     expect(
       built.notices(),
-      'FR-029 (MUST NOT): ポインタが乗っただけで理由を出してはならない',
+      'FR-029 (MUST NOT): ポインターが乗っただけで理由を出してはならない',
     ).toEqual([])
   })
 

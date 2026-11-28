@@ -360,7 +360,7 @@ function stage(document: Document): Stage {
     click(Math.round(placed.x + placed.width / 2), Math.round(placed.y + placed.height / 2))
   }
   const clickEmptyCanvas = (): void => {
-    // Why: the point comes from the loop's own answer for the Task Group Area, so
+    // Why: the point comes from the loop's own answer for the Task Group Lanes, so
     // no rectangle is computed twice.
     pane.drawAt(null)
     const values = loop.current()

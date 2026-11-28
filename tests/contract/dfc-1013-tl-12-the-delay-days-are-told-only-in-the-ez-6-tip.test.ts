@@ -18,7 +18,7 @@ import { unbroken } from './spec-table'
 type Language = 'ja' | 'en'
 
 const REQUIREMENTS = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
-const FR_047_ONLY_IN_THE_TIP = '`GRS` は、遅れの日数を日程表に描かないこと。'
+const FR_047_ONLY_IN_THE_TIP = '`GRS` は、遅れの日数を `Task Group Lanes` に描かないこと。'
 const TL_12_NO_NEW_WORD = '⛔ 遅れの行のために新しい語を辞書に持ってはならない（MUST NOT）'
 // Why: CR-793 -- the late line is the DG-4 word, a colon, the days and the working-days word.
 const TL_12_THE_FORM = '遅れの語、`:`、半角空白 1 つ、日数、半角空白 1 つ、稼働日の語 の順に、1 行で書くこと（MUST）'

@@ -12,7 +12,7 @@ const REQUIREMENTS = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '
 const IX_11_NO_BAND_WORDS =
   '⛔ 絵にチェックで日程抽出バー（`_assets/tbl-glossary.md` の `U-67`）の語を書き込んではならない（MUST NOT）'
 const IX_11_CLOSE_UP =
-  '⭐ 帯の高さも絵に残さず、帯が無いときと同じ位置から日程表を組むこと（MUST）'
+  '⭐ 帯の高さも絵に残さず、帯が無いときと同じ位置から `Schedule Canvas` を組むこと（MUST）'
 const EP_24_CLOSE_UP = '帯が無いときと同じ位置から組む'
 
 const WORDS = JSON.parse(readRepoFile(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8')) as {

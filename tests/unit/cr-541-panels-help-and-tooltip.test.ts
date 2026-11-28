@@ -34,11 +34,11 @@ import {
 } from '../fixtures/fake-browser'
 import { REQUIREMENTS, taskGroupDocument, rowOf, taskOf } from './cr-541-stage'
 
-const Q07 = 'プロパティパネルが文書の設定を出している間、`GRS` は、`IMPS-100` の欄を除き、文書の設定の欄を読むだけの欄とすること。'
-const Q08 = 'プロパティパネルが文書の設定を出している間、`GRS` は、`IMPS-100` の欄を除き、文書の設定の欄を編集できると示さないこと。'
-const Q08A = '別の要求が設定を変える入口を文書の設定の面の欄として置いたとき、`GRS` は、別の要求が置いた欄を、置いた要求が定めるとおりに選ばせること（例: `FR-041` のテーマ色の欄）。'
+const Q07 = 'プロパティパネルが文書設定を出している間、`GRS` は、`IMPS-100` の欄を除き、文書設定の欄を読むだけの欄とすること。'
+const Q08 = 'プロパティパネルが文書設定を出している間、`GRS` は、`IMPS-100` の欄を除き、文書設定の欄を編集できると示さないこと。'
+const Q08A = '別の要求が設定を変える入口を文書設定の面の欄として置いたとき、`GRS` は、別の要求が置いた欄を、置いた要求が定めるとおりに選ばせること（例: `FR-041` のテーマ色の欄）。'
 // Why: CR-690 -- the order of the face's fields moved to table T-369, and no placing requirement names another field.
-const Q08B = '`GRS` は、文書の設定の面の欄の並びと欄の名を 表 T-369 に従わせること。'
+const Q08B = '`GRS` は、文書設定の面の欄の並びと欄の名を 表 T-369 に従わせること。'
 const THEME_HUE_FIELD = 'K-60'
 // Why: table T-369 places under K-60 the fields FO-3 to FO-16 name; FR-156, FR-157 and FR-158 placed the last four.
 // Why: CR-755 (FO-15) -- the display time zones are four rows, the setting's row and its number.
@@ -49,10 +49,10 @@ const Q17 = '`GRS` は、画面に依存の種別を出すとき、表 T-018 の
 const Q18 = '`GRS` は、保存した数（`linkType`）をそのまま画面に出さないこと。'
 // Spec: IMPS-1160
 const Q34 = '`GRS` は、タイトルバーを本文のスクロールの中に置かないこと。'
-const Q38 = '説明をポインタの点に出すこと（MUST）'
-const IN_3_TAKES_NO_POINTER = '⭐ ツールチップはポインタを受け取らず、下へ通すこと（MUST）'
+const Q38 = '説明をポインターの点に出すこと（MUST）'
+const IN_3_TAKES_NO_POINTER = '⭐ ツールチップはポインターを受け取らず、下へ通すこと（MUST）'
 const IN_7_BELOW =
-  '左上の隅を、ポインタの点と同じ横の位置で、点から `_assets/tbl-settings.md` の 表 T-206 の `S-460` だけ下に置く'
+  '左上の隅を、ポインターの点と同じ横の位置で、点から `_assets/tbl-settings.md` の 表 T-206 の `S-460` だけ下に置く'
 
 describe('CR-541 -- the clauses still stand in the manuscript', () => {
   it.each([Q07, Q08, Q08A, Q08B, Q17, Q18, Q34, Q38, IN_3_TAKES_NO_POINTER, IN_7_BELOW])('%s', (clause) => {
@@ -222,7 +222,7 @@ function viewWith(part: Partial<ScreenView>): ScreenView {
 describe('FR-036 -- the help title row stands outside what scrolls', () => {
   it(Q34, () => {
     const HELP_MODAL = bareAll(rowOf('T-103', 'U-30').by['確定名（英）'] ?? '').find((one) => one.startsWith('Help')) ?? ''
-    expect(HELP_MODAL).toBe('Help Modal')
+    expect(HELP_MODAL).toBe('Help Window')
     const HELP: OpenModal = {
       surface: HELP_MODAL,
       heading: 'Help heading',
@@ -235,7 +235,7 @@ describe('FR-036 -- the help title row stands outside what scrolls', () => {
       copyrightNotice: 'Copyright notice',
       attributions: ['An attribution'],
       helpLegal: { licensedUnder: 'LicensedUnderHere', fullText: 'FullTextHere' },
-      // Why: CR-828 made blockNotes a required member of the Help Modal view; these cases do not read the notes.
+      // Why: CR-828 made blockNotes a required member of the Help Window view; these cases do not read the notes.
       blockNotes: [],
       area: { belowAppHeader: { x: 0, y: 37, width: 1280, height: 763 } },
       downloadLink: { words: '', address: '' },

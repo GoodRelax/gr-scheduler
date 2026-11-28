@@ -8,10 +8,10 @@ import { numberIn, REQUIREMENTS, rowOf, shell, taskGroupDocument, type ShellBenc
 
 const FR_029_FAINT =
   '`GRS` は、押してもいま文書にも画面にも何も変えられない入口を薄く描くこと。'
-const FR_029_EVERY_SURFACE = '`GRS` は、`IMPS-1108` 〜 `IMPS-1115` の薄さの規則を、`_assets/tbl-glossary.md` の 表 T-109 の全行の入口に当てること（タスクグループの操作子もパレットもヘッダーも同じである）。'
+const FR_029_EVERY_SURFACE = '`GRS` は、`IMPS-1108` 〜 `IMPS-1115` の薄さの規則を、`_assets/tbl-glossary.md` の 表 T-109 の全行の入口に当てること（`Task Group Buttons` もパレットもヘッダーも同じである）。'
 const FR_016_THE_RANGE = '`GRS` は、ズームの倍率を表 T-203 の `S-75` / `S-76` が持つ範囲へ収めること。'
 const FR_016_ZOOM_X_CEILING =
-  '`GRS` は、日付の軸（`zoomX`）の上限を、見えている範囲が `_assets/tbl-settings.md` の 表 T-206 の `S-229` 日を下回らない倍率 —— `Task Group Area` の幅 ÷（`S-229` × 等倍のときの 1 日の幅） —— にすること。'
+  '`GRS` は、日付の軸（`zoomX`）の上限を、見えている範囲が `_assets/tbl-settings.md` の 表 T-206 の `S-229` 日を下回らない倍率 —— `Task Group Lanes` の幅 ÷（`S-229` × 等倍のときの 1 日の幅） —— にすること。'
 const FR_016_DAY_WIDTH_SCALED = '等倍のときの 1 日の幅は、`FR-039` の表示の倍率の描く比を掛けたあとの `S-1` とする。'
 const FR_016_NO_DEAD_ENTRANCE = '`GRS` は、上限に達したことを、押しても何も起きない入口で示さないこと。'
 const ZE_1_THE_LOWER_END =
@@ -194,7 +194,7 @@ describe('DFC-567 part 3 -- the ends the walks stop at are the ends the manuscri
   })
 
   // Spec: IMPS-1460, IMPS-1461
-  it('IC-13 stops on the FR-016 zoomX ceiling: Task Group Area width / (S-229 x S-1 x the S-236 ratio at the default display scale)', () => {
+  it('IC-13 stops on the FR-016 zoomX ceiling: Task Group Lanes width / (S-229 x S-1 x the S-236 ratio at the default display scale)', () => {
     const built = bench()
     walkToEnd(built, ENTRANCES[1]!)
     const width = built.loop.current()?.regions.taskGroupArea.width

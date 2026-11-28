@@ -40,11 +40,11 @@ import { unbroken } from '../contract/spec-table'
 
 const REQUIREMENTS = unbroken(readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
-const DC_3_THREE_LINES = '本モードにいるあいだ、ポインタのそばに 3 行を小さく示すこと（MUST）'
+const DC_3_THREE_LINES = '本モードにいるあいだ、ポインターのそばに 3 行を小さく示すこと（MUST）'
 const DC_3_BY_DATE =
   '⭐ 左と右は、カーソル A（`cursorADate`）とカーソル B（`cursorBDate`）の別ではなく、日付の順で名づけること（MUST）'
 const DC_3_FOLLOWING = '⭐ 追従している側の日付は、その線がいま立っている日とすること（MUST）'
-const DC_3_DATE = '日付は、表 T-029 の `CU-3` の日付の札と同じ書き方で書くこと（MUST）'
+const DC_3_DATE = '日付は、表 T-029 の `CU-3` の日付のラベルと同じ書き方で書くこと（MUST）'
 const DC_3_SPAN =
   '⭐ 間隔は、2 つの日付のうち早いほうを E、遅いほうを L として、年・か月・日の数 y・m・d と暦日の数 n を 1 行に書くこと（MUST）'
 const DC_3_ZEROS = '⭐ y・m・d は、0 のときも省かずに 3 つとも書くこと（MUST）'
@@ -52,15 +52,15 @@ const DC_3_ONE_DAY = 'n が 1 のときは `(1 day)` と書くこと（MUST）'
 const DC_3_UNDECIDED =
   '日付が 1 つしか決まっていないときは、決まっている日付を左の行に示し、右の行と間隔の行を `—` で示すこと（MUST）'
 const DC_3_PLACE =
-  '⭐ 置き方は、表 T-028 の `IN-7` の後段（ポインタの点に出す説明）に従い、ポインタを受け取らせないこと（MUST）'
+  '⭐ 置き方は、表 T-028 の `IN-7` の後段（ポインターの点に出す説明）に従い、ポインターを受け取らせないこと（MUST）'
 const IN_7_BELOW =
-  '左上の隅を、ポインタの点と同じ横の位置で、点から `_assets/tbl-settings.md` の 表 T-206 の `S-460` だけ下に置く'
+  '左上の隅を、ポインターの点と同じ横の位置で、点から `_assets/tbl-settings.md` の 表 T-206 の `S-460` だけ下に置く'
 const IN_7_RIGHT =
-  '右端が窓の右端から `S-339` の内側に収まらないときは、右端をポインタの点の横の位置に揃え、ポインタの左へ返すこと（MUST）'
+  '右端が窓の右端から `S-339` の内側に収まらないときは、右端をポインターの点の横の位置に揃え、ポインターの左へ返すこと（MUST）'
 const IN_7_LEFT =
   'それでも左端が窓の左端から `S-339` の内側に収まらないときは、左端を窓の左端から `S-339` の位置に置くこと（MUST）'
 const IN_7_BOTTOM =
-  '下端が窓の下端から `S-339` の内側に収まらないときに限り、下端を点から `S-460` だけ上に揃え、ポインタの上へ返すこと（MUST）'
+  '下端が窓の下端から `S-339` の内側に収まらないときに限り、下端を点から `S-460` だけ上に揃え、ポインターの上へ返すこと（MUST）'
 const IN_7_NOT_ABOVE =
   '上へ返しても上端が窓の上端から `S-339` の内側に収まらないときは、返さずに下に置くこと（MUST）'
 const DC_3_NO_EZ_6 = '⛔ 本モードにいるあいだ、`EZ-6` の説明を出してはならない（MUST NOT）'

@@ -47,12 +47,12 @@ const drawnHeader = () => {
     if (found === undefined) throw new Error(`premise: the header draws ${role}`)
     return found
   }
-  return { header, all, branding: byRole('Branding'), title: byRole('Document Title') }
+  return { header, all, branding: byRole('Branding'), title: byRole('Project Title') }
 }
 
 const px = (value: string | undefined): number => Number((value ?? '').replace('px', ''))
 
-describe('BR-1 / BR-4 -- the Branding is a link to S-459, before the Document Title', () => {
+describe('BR-1 / BR-4 -- the Branding is a link to S-459, before the Project Title', () => {
   it('an <a> with the dictionary word, S-459 in a new tab, no opener and no referrer', () => {
     const { all, branding, title } = drawnHeader()
     expect(LOGO, 'premise: the dictionary holds the logo word').not.toBe('')
@@ -64,7 +64,7 @@ describe('BR-1 / BR-4 -- the Branding is a link to S-459, before the Document Ti
     expect(all.indexOf(branding)).toBeLessThan(all.indexOf(title))
   })
 
-  it('BR-1: the glyphs are S-490 x S-235, smaller than the Document Title, normal weight, in S-147', () => {
+  it('BR-1: the glyphs are S-490 x S-235, smaller than the Project Title, normal weight, in S-147', () => {
     const { branding, title } = drawnHeader()
     const style = styleMap(branding)
     expect(px(style.get('font-size'))).toBeCloseTo(chromeScaledPx(SIZES['S-490']), 6)

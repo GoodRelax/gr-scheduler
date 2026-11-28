@@ -376,8 +376,8 @@ describe('表 T-067 WS-2 -- the moment refuses the walk as it refuses any other 
 
     const center = planCenter(loop, 1)
     const taskGroupArea = loop.current()!.regions.taskGroupArea
-    expect(center.x, 'premise: the bar is still in the Task Group Area').toBeGreaterThan(taskGroupArea.x)
-    expect(center.x, 'premise: the bar is still in the Task Group Area').toBeLessThan(taskGroupArea.x + taskGroupArea.width)
+    expect(center.x, 'premise: the bar is still in the Task Group Lanes').toBeGreaterThan(taskGroupArea.x)
+    expect(center.x, 'premise: the bar is still in the Task Group Lanes').toBeLessThan(taskGroupArea.x + taskGroupArea.width)
     loop.receiveInput(pointer('down', center.x, center.y))
     loop.receiveInput(UNDO)
 

@@ -16,7 +16,7 @@ const IO_7_DOCTYPE = '⭐ 書き出す `.html` は、文書型の宣言 `<!DOCTY
 const writeOut = async (page: Page, format: string): Promise<{ name: string; text: string }> => {
   const before = (await savedFiles(page)).length
   await press(page, 'IC-2')
-  await page.click('[data-role="Export Chooser"] [data-format="' + format + '"]')
+  await page.click('[data-role="Save As Dialog"] [data-format="' + format + '"]')
   await expect.poll(async () => (await savedFiles(page)).length).toBe(before + 1)
   await settle(page)
   return (await savedFiles(page))[before]!

@@ -27,7 +27,7 @@ function rowOf(table: string, id: string): SpecRow {
 const cellOf = (table: string, id: string, heading: string): string => unbroken(rowOf(table, id).by[heading] ?? '')
 
 const FR_151_STATEMENT =
-  '作成者が語を打ったとき、`GRS` は、名前・担当名・コメントボックスの本文に打った語を含むタスクとコメントボックスを検索パネル（`_assets/tbl-glossary.md` の `U-64`）の表に並べること。'
+  '作成者が語を打ったとき、`GRS` は、名前・担当名・コメントボックスの本文に打った語を含むタスクとコメントボックスを検索ウィンドウ（`_assets/tbl-glossary.md` の `U-64`）の表に並べること。'
 const FR_151_NOT_NOTES_NOR_TASK_GROUP_NAMES =
   '`GRS` は、語を比べる相手に `Task.notes`（`_assets/fig-erd-detail.md` の `AT-32`）とタスクグループ名（`AT-53`）を含めないこと。'
 

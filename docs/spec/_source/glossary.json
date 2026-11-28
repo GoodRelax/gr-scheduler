@@ -2063,7 +2063,7 @@
    },
    "definition": {
     "en": "Document: everything that GRS saves in one file. It consists of three parts: the schedule data, the view settings and the stamp.",
-    "ja": "文書: GRS が 1 つのファイルに保存する全部。日程データ・見せ方の設定・刻印の 3 つからなる。"
+    "ja": "文書: GRS が 1 つのファイルに保存する全部。スケジュールデータ・見せ方の設定・刻印の 3 つからなる。"
    },
    "xGroup": "designShape",
    "checkedBasis": [
@@ -2476,7 +2476,7 @@
     "ja": "スケジュール"
    },
    "definition": {
-    "en": "Schedule: all the planned and actual date-times of the work of one project. GRS draws the schedule as a chart that lines the tasks up along the time axis.",
+    "en": "Schedule: all the planned and actual date-times of the work of one project. GRS draws the schedule with the tasks lined up along the time axis.",
     "ja": "スケジュール: 1 つのプロジェクトの作業の、予定と実績の日時の全体。GRS は、タスクを時間の軸に沿って並べた図として、スケジュールを描く。"
    },
    "xGroup": "scheduleConcepts",
@@ -13059,6 +13059,20 @@
    ],
    "xTags": [
     "title"
+   ],
+   "renames": [
+    {
+     "from": "Document Title",
+     "version": "CR-855",
+     "reason": {
+      "en": "The App Header shows the Project Title (study 83).",
+      "ja": "App Header に出す名は Project Title である（study 83）。"
+     },
+     "basis": [
+      "JDG-3355"
+     ],
+     "xLanguage": "en"
+    }
    ]
   },
   {
@@ -13145,6 +13159,20 @@
    "xUses": [
     "screen",
     "spec"
+   ],
+   "renames": [
+    {
+     "from": "ヘッダーのコマンド",
+     "version": "CR-855",
+     "reason": {
+      "en": "No particle inside a name (study 83).",
+      "ja": "名の途中に助詞を挟まない（study 83）。"
+     },
+     "basis": [
+      "JDG-3365"
+     ],
+     "xLanguage": "ja"
+    }
    ]
   },
   {
@@ -13248,6 +13276,20 @@
    "xUses": [
     "screen",
     "spec"
+   ],
+   "renames": [
+    {
+     "from": "タスクグループ見出しツリー",
+     "version": "CR-855",
+     "reason": {
+      "en": "The owner wrote the name (study 83).",
+      "ja": "持ち主が名を書いた（study 83）。"
+     },
+     "basis": [
+      "JDG-3363"
+     ],
+     "xLanguage": "ja"
+    }
    ]
   },
   {
@@ -13500,6 +13542,20 @@
    "xUses": [
     "screen",
     "spec"
+   ],
+   "renames": [
+    {
+     "from": "Help Modal",
+     "version": "CR-855",
+     "reason": {
+      "en": "Windows terms: Help Window (study 83).",
+      "ja": "Windows の語に合わせて Help Window にした（study 83）。"
+     },
+     "basis": [
+      "JDG-3356"
+     ],
+     "xLanguage": "en"
+    }
    ]
   },
   {
@@ -13509,7 +13565,7 @@
     "ja": "検索ウィンドウ"
    },
    "definition": {
-    "en": "The Search Window: finds tasks and Comment Boxes by a word, lists them in tables, and jumps to one when pressed.",
+    "en": "The Search Window: finds tasks and Comment Box by a word, lists them in tables, and jumps to one when pressed.",
     "ja": "検索ウィンドウ: 語でタスクとコメントボックスを探して表に並べ、押すとそこへ飛ぶ。"
    },
    "xGroup": "screenAreas",
@@ -13521,6 +13577,20 @@
    "xUses": [
     "screen",
     "spec"
+   ],
+   "renames": [
+    {
+     "from": "Search Panel",
+     "version": "CR-855",
+     "reason": {
+      "en": "Windows terms: Search Window (study 83).",
+      "ja": "Windows の語に合わせて Search Window にした（study 83）。"
+     },
+     "basis": [
+      "JDG-3356"
+     ],
+     "xLanguage": "en"
+    }
    ]
   },
   {
@@ -13601,6 +13671,20 @@
    "xUses": [
     "screen",
     "spec"
+   ],
+   "renames": [
+    {
+     "from": "休日の設定ウィンドウ",
+     "version": "CR-855",
+     "reason": {
+      "en": "No particle inside a name (study 83).",
+      "ja": "名の途中に助詞を挟まない（study 83）。"
+     },
+     "basis": [
+      "JDG-3365"
+     ],
+     "xLanguage": "ja"
+    }
    ]
   },
   {
@@ -13643,6 +13727,21 @@
    "xUses": [
     "screen",
     "spec"
+   ],
+   "renames": [
+    {
+     "from": "Export Chooser",
+     "version": "CR-855",
+     "reason": {
+      "en": "Windows terms: Save As Dialog (study 83).",
+      "ja": "Windows の語に合わせて Save As Dialog にした（study 83）。"
+     },
+     "basis": [
+      "JDG-3356",
+      "JDG-3364"
+     ],
+     "xLanguage": "en"
+    }
    ]
   },
   {
@@ -13666,6 +13765,20 @@
    "xUses": [
     "screen",
     "spec"
+   ],
+   "renames": [
+    {
+     "from": "Open Chooser",
+     "version": "CR-855",
+     "reason": {
+      "en": "Windows terms: Open File Dialog (study 83).",
+      "ja": "Windows の語に合わせて Open File Dialog にした（study 83）。"
+     },
+     "basis": [
+      "JDG-3356"
+     ],
+     "xLanguage": "en"
+    }
    ]
   },
   {
@@ -13856,6 +13969,21 @@
    "xUses": [
     "screen",
     "spec"
+   ],
+   "renames": [
+    {
+     "from": "Task Group Area",
+     "version": "CR-855",
+     "reason": {
+      "en": "The place of the task groups is the Task Group Lanes (study 83).",
+      "ja": "タスクグループの置き場は Task Group Lanes である（study 83）。"
+     },
+     "basis": [
+      "JDG-3361",
+      "JDG-3374"
+     ],
+     "xLanguage": "en"
+    }
    ]
   },
   {
@@ -14047,6 +14175,44 @@
    "xUses": [
     "screen",
     "spec"
+   ],
+   "renames": [
+    {
+     "from": "Actual Operation Dummy",
+     "version": "CR-855",
+     "reason": {
+      "en": "One name for the dummy of the actual (study 83).",
+      "ja": "実績のダミーの名を 1 つにした（study 83）。"
+     },
+     "basis": [
+      "JDG-3375"
+     ],
+     "xLanguage": "en"
+    },
+    {
+     "from": "実績操作のダミー",
+     "version": "CR-855",
+     "reason": {
+      "en": "One name for the dummy of the actual (study 83).",
+      "ja": "実績のダミーの名を 1 つにした（study 83）。"
+     },
+     "basis": [
+      "JDG-3375"
+     ],
+     "xLanguage": "ja"
+    },
+    {
+     "from": "実績のダミー",
+     "version": "CR-855",
+     "reason": {
+      "en": "One name for the dummy of the actual (study 83).",
+      "ja": "実績のダミーの名を 1 つにした（study 83）。"
+     },
+     "basis": [
+      "JDG-3375"
+     ],
+     "xLanguage": "ja"
+    }
    ]
   },
   {
@@ -14176,11 +14342,38 @@
       "JDG-3901"
      ],
      "xLanguage": "ja"
+    },
+    {
+     "from": "Progress Marker",
+     "version": "CR-855",
+     "reason": {
+      "en": "Every small mark is a Mark (study 83), then Progress Status Mark.",
+      "ja": "小さな印は Mark にし（study 83）、その後 Progress Status Mark にした。"
+     },
+     "basis": [
+      "JDG-3372",
+      "JDG-3742"
+     ],
+     "xLanguage": "en"
+    },
+    {
+     "from": "進捗マーカー",
+     "version": "CR-855",
+     "reason": {
+      "en": "Every small mark is a Mark (study 83), then Progress Status Mark.",
+      "ja": "小さな印は Mark にし（study 83）、その後 進捗ステータスマーク にした。"
+     },
+     "basis": [
+      "JDG-3372",
+      "JDG-3742"
+     ],
+     "xLanguage": "ja"
     }
    ],
    "checkedBasis": [
     "JDG-3742",
-    "JDG-3901"
+    "JDG-3901",
+    "JDG-3372"
    ]
   },
   {
@@ -14193,11 +14386,6 @@
     "en": "The Resume Mark: the mark of a suspended task at its planned restart.",
     "ja": "再開マーク: 中断したタスクの、再開予定の位置の印。"
    },
-   "avoid": {
-    "en": [
-     "Resume Icon"
-    ]
-   },
    "xGroup": "drawnParts",
    "xParent": "taskGraphic",
    "checkedBasis": [
@@ -14207,6 +14395,32 @@
    "xUses": [
     "screen",
     "spec"
+   ],
+   "renames": [
+    {
+     "from": "Resume Icon",
+     "version": "CR-855",
+     "reason": {
+      "en": "Every small mark is a Mark (study 83).",
+      "ja": "小さな印は Mark にした（study 83）。"
+     },
+     "basis": [
+      "JDG-3372"
+     ],
+     "xLanguage": "en"
+    },
+    {
+     "from": "再開アイコン",
+     "version": "CR-855",
+     "reason": {
+      "en": "Every small mark is a Mark (study 83).",
+      "ja": "小さな印は Mark にした（study 83）。"
+     },
+     "basis": [
+      "JDG-3372"
+     ],
+     "xLanguage": "ja"
+    }
    ]
   },
   {
@@ -14236,8 +14450,8 @@
     "ja": "期限マーク"
    },
    "definition": {
-    "en": "The Deadline Mark: the mark that shows the deadline of a task on the chart.",
-    "ja": "期限マーク: タスクの期限を日程表の上に示す印。"
+    "en": "The Deadline Mark: the mark that shows the deadline of a task on the Task Group Lanes.",
+    "ja": "期限マーク: タスクの期限をタスクグループレーンズの上に示す印。"
    },
    "xGroup": "drawnParts",
    "xParent": "taskGraphic",
@@ -14251,6 +14465,20 @@
    ],
    "xTags": [
     "deadline"
+   ],
+   "renames": [
+    {
+     "from": "期限の印",
+     "version": "CR-855",
+     "reason": {
+      "en": "Every small mark is a Mark (study 83).",
+      "ja": "小さな印は Mark にした（study 83）。"
+     },
+     "basis": [
+      "JDG-3372"
+     ],
+     "xLanguage": "ja"
+    }
    ]
   },
   {
@@ -14394,11 +14622,27 @@
    "xGroup": "drawnParts",
    "xParent": "dependencyLine",
    "checkedBasis": [
-    "JDG-3378"
+    "JDG-3378",
+    "JDG-3372"
    ],
    "xUses": [
     "screen",
     "spec"
+   ],
+   "renames": [
+    {
+     "from": "続きの印",
+     "version": "CR-855",
+     "reason": {
+      "en": "Every small mark is a Mark (study 83).",
+      "ja": "小さな印は Mark にした（study 83）。"
+     },
+     "basis": [
+      "JDG-3372",
+      "JDG-3378"
+     ],
+     "xLanguage": "ja"
+    }
    ]
   },
   {
@@ -14451,6 +14695,20 @@
    ],
    "xTags": [
     "commentBox"
+   ],
+   "renames": [
+    {
+     "from": "Comment Boxes",
+     "version": "CR-855",
+     "reason": {
+      "en": "A name is singular (study 83).",
+      "ja": "名は単数にする（study 83）。"
+     },
+     "basis": [
+      "JDG-3375"
+     ],
+     "xLanguage": "en"
+    }
    ]
   },
   {
@@ -14794,6 +15052,20 @@
    "xUses": [
     "screen",
     "spec"
+   ],
+   "renames": [
+    {
+     "from": "Grab Region",
+     "version": "CR-855",
+     "reason": {
+      "en": "Grab Point, Grab Area, Handle, Grip (study 83).",
+      "ja": "掴み点・掴み領域・ハンドル・グリップに分けた（study 83）。"
+     },
+     "basis": [
+      "JDG-3366"
+     ],
+     "xLanguage": "en"
+    }
    ]
   },
   {
@@ -14814,6 +15086,20 @@
    "xUses": [
     "screen",
     "spec"
+   ],
+   "renames": [
+    {
+     "from": "掴み帯",
+     "version": "CR-855",
+     "reason": {
+      "en": "Grip (study 83).",
+      "ja": "グリップにした（study 83）。"
+     },
+     "basis": [
+      "JDG-3366"
+     ],
+     "xLanguage": "ja"
+    }
    ]
   },
   {
@@ -15035,6 +15321,20 @@
    ],
    "xTags": [
     "pinIcon"
+   ],
+   "renames": [
+    {
+     "from": "Task Group Pin",
+     "version": "CR-855",
+     "reason": {
+      "en": "Task Group Buttons (study 83).",
+      "ja": "タスクグループボタンの名を決めた（study 83）。"
+     },
+     "basis": [
+      "JDG-3368"
+     ],
+     "xLanguage": "en"
+    }
    ]
   },
   {
@@ -15154,6 +15454,20 @@
    "xUses": [
     "screen",
     "spec"
+   ],
+   "renames": [
+    {
+     "from": "Task Group Drop Line",
+     "version": "CR-855",
+     "reason": {
+      "en": "Interaction cue names (study 83).",
+      "ja": "操作合図の名を決めた（study 83）。"
+     },
+     "basis": [
+      "JDG-3369"
+     ],
+     "xLanguage": "en"
+    }
    ]
   },
   {
@@ -15164,7 +15478,7 @@
    },
    "definition": {
     "en": "The Drag Copy: the copy of a task group that follows the pointer while it is dragged.",
-    "ja": "ドラッグ中コピー: ドラッグしているあいだポインターに付いて動く、タスクグループの写し。"
+    "ja": "ドラッグ中コピー: ドラッグしているあいだポインターに付いて動く、タスクグループのコピー。"
    },
    "xGroup": "pointerParts",
    "xParent": "interactionCues",
@@ -15174,6 +15488,20 @@
    "xUses": [
     "screen",
     "spec"
+   ],
+   "renames": [
+    {
+     "from": "Task Group Grab Copy",
+     "version": "CR-855",
+     "reason": {
+      "en": "Interaction cue names (study 83).",
+      "ja": "操作合図の名を決めた（study 83）。"
+     },
+     "basis": [
+      "JDG-3369"
+     ],
+     "xLanguage": "en"
+    }
    ]
   },
   {
@@ -15254,6 +15582,20 @@
    "xUses": [
     "screen",
     "spec"
+   ],
+   "renames": [
+    {
+     "from": "Jump Landing Related Ring",
+     "version": "CR-855",
+     "reason": {
+      "en": "Interaction cue names (study 83).",
+      "ja": "操作合図の名を決めた（study 83）。"
+     },
+     "basis": [
+      "JDG-3369"
+     ],
+     "xLanguage": "en"
+    }
    ]
   },
   {
@@ -15274,6 +15616,20 @@
    "xUses": [
     "screen",
     "spec"
+   ],
+   "renames": [
+    {
+     "from": "Jump Landing Ripple",
+     "version": "CR-855",
+     "reason": {
+      "en": "Interaction cue names (study 83).",
+      "ja": "操作合図の名を決めた（study 83）。"
+     },
+     "basis": [
+      "JDG-3369"
+     ],
+     "xLanguage": "en"
+    }
    ]
   },
   {
@@ -15345,7 +15701,7 @@
    "xSpecTableRowId": "U-40",
    "xNonLiteral": {
     "en": "Marquee names the rectangle used to select; the Japanese names the operation. The literal katakana word does not read in a schedule.",
-    "ja": "Marquee は選ぶための矩形そのものを指し、日本語は操作を指す。直訳の「マーキー」は日程表の文脈で通じない。"
+    "ja": "Marquee は選ぶための矩形そのものを指し、日本語は操作を指す。直訳の「マーキー」はガントチャートの文脈で通じない。"
    },
    "xUses": [
     "screen",
@@ -15407,6 +15763,20 @@
    "xUses": [
     "screen",
     "spec"
+   ],
+   "renames": [
+    {
+     "from": "2 連カーソル",
+     "version": "CR-855",
+     "reason": {
+      "en": "One name (study 83).",
+      "ja": "名を 1 つにした（study 83）。"
+     },
+     "basis": [
+      "JDG-3375"
+     ],
+     "xLanguage": "ja"
+    }
    ]
   },
   {
@@ -15448,23 +15818,6 @@
    ],
    "xTags": [
     "pinnedTaskGroupIds"
-   ]
-  },
-  {
-   "key": "canvasOverlays",
-   "label": {
-    "en": "Canvas Overlays",
-    "ja": "Canvas Overlays"
-   },
-   "definition": {
-    "en": "The Canvas Overlays: a structure name for what is drawn over the Schedule Canvas; not shown on screen.",
-    "ja": "キャンバスオーバーレイ: スケジュールキャンバスの上に重ねて描くものの構造の名。画面には出ない。"
-   },
-   "xGroup": "otherUiParts",
-   "xSpecTableRowId": "U-33",
-   "xUses": [
-    "screen",
-    "spec"
    ]
   },
   {
@@ -15596,12 +15949,12 @@
   {
    "key": "singleHtmlFormat",
    "label": {
-    "en": "Single HTML",
-    "ja": "単一 HTML"
+    "en": "GRS HTML",
+    "ja": "GRS HTML"
    },
    "definition": {
-    "en": "Single HTML: one .html file that holds GRS and the document together.",
-    "ja": "単一 HTML: GRS と文書を合わせた 1 つの .html ファイル。"
+    "en": "GRS HTML: one .html file that holds GRS and the document together.",
+    "ja": "GRS HTML: GRS と文書を合わせた 1 つの .html ファイル。"
    },
    "xGroup": "otherUiParts",
    "xParent": "exportFormats",
@@ -15609,6 +15962,35 @@
    "xUses": [
     "screen",
     "spec"
+   ],
+   "renames": [
+    {
+     "from": "Single HTML",
+     "version": "CR-855",
+     "reason": {
+      "en": "The file format that carries GRS and the whole document is named GRS HTML; the value word Single HTML (singleHtml) stays.",
+      "ja": "GRS の本体と文書の全部を入れるファイルの形式の名を GRS HTML にした。価値の語「単一 HTML」（singleHtml）は残る。"
+     },
+     "basis": [
+      "JDG-3353"
+     ],
+     "xLanguage": "en"
+    },
+    {
+     "from": "単一 HTML",
+     "version": "CR-855",
+     "reason": {
+      "en": "The file format that carries GRS and the whole document is named GRS HTML; the value word Single HTML (singleHtml) stays.",
+      "ja": "GRS の本体と文書の全部を入れるファイルの形式の名を GRS HTML にした。価値の語「単一 HTML」（singleHtml）は残る。"
+     },
+     "basis": [
+      "JDG-3353"
+     ],
+     "xLanguage": "ja"
+    }
+   ],
+   "checkedBasis": [
+    "JDG-3353"
    ]
   },
   {
@@ -15619,7 +16001,7 @@
    },
    "definition": {
     "en": "SVG Image: the picture of the schedule as SVG.",
-    "ja": "SVG 画像: 日程表の絵を SVG にしたもの。"
+    "ja": "SVG 画像: スケジュールキャンバスの絵を SVG にしたもの。"
    },
    "xGroup": "otherUiParts",
    "xParent": "exportFormats",
@@ -15641,7 +16023,7 @@
    },
    "definition": {
     "en": "PNG Image: the picture of the schedule as PNG.",
-    "ja": "PNG 画像: 日程表の絵を PNG にしたもの。"
+    "ja": "PNG 画像: スケジュールキャンバスの絵を PNG にしたもの。"
    },
    "xGroup": "otherUiParts",
    "xParent": "exportFormats",
@@ -15786,7 +16168,7 @@
    },
    "definition": {
     "en": "Open a file (or drop one onto the schedule); how its contents are used is chosen after reading",
-    "ja": "ファイルを開く。日程表にファイルを落としても開ける。読んだ内容の扱いは開いたあとで選ぶ"
+    "ja": "ファイルを開く。スケジュールキャンバスにファイルを落としても開ける。読んだ内容の扱いは開いたあとで選ぶ"
    },
    "xGroup": "icons",
    "checkedBasis": [
@@ -15944,8 +16326,8 @@
     "ja": "小さく表示"
    },
    "definition": {
-    "en": "Make the chart's shapes and text smaller",
-    "ja": "日程表の図形と文字を縮小"
+    "en": "Make the shapes and text of the Schedule Canvas smaller",
+    "ja": "スケジュールキャンバスの図形と文字を縮小"
    },
    "xGroup": "icons",
    "checkedBasis": [
@@ -15964,8 +16346,8 @@
     "ja": "大きく表示"
    },
    "definition": {
-    "en": "Make the chart's shapes and text larger",
-    "ja": "日程表の図形と文字を拡大"
+    "en": "Make the shapes and text of the Schedule Canvas larger",
+    "ja": "スケジュールキャンバスの図形と文字を拡大"
    },
    "xGroup": "icons",
    "checkedBasis": [
@@ -16165,7 +16547,7 @@
    },
    "definition": {
     "en": "Open the search panel; if it is open, bring it to the front and return to its search box",
-    "ja": "検索パネルを出す。出ていれば前に出して入力欄へ戻る"
+    "ja": "検索ウィンドウを出す。出ていれば前に出して入力欄へ戻る"
    },
    "xGroup": "icons",
    "checkedBasis": [
@@ -16915,7 +17297,7 @@
     "ja": "コメントボックス"
    },
    "definition": {
-    "en": "Callout: drag where it should stand to place one",
+    "en": "Comment Box: drag where it should stand to place one",
     "ja": "コメントボックスを構える。置きたい位置をドラッグすると置く"
    },
    "xGroup": "icons",
@@ -17021,8 +17403,8 @@
     "ja": "進捗ステータスマーク"
    },
    "definition": {
-    "en": "Show or hide the Progress Marker and the Resume Icon",
-    "ja": "進捗マーカーと再開アイコンを表示する。もう一度押すと非表示にする"
+    "en": "Show or hide the Progress Status Mark and the Resume Mark",
+    "ja": "進捗ステータスマークと再開マークを表示する。もう一度押すと非表示にする"
    },
    "xGroup": "icons",
    "xSpecTableRowId": "IC-40",
@@ -17208,7 +17590,7 @@
     "ja": "依存線の表示"
    },
    "definition": {
-    "en": "Show or hide the Dependency Lines",
+    "en": "Show or hide every Dependency Line",
     "ja": "依存線を表示する。もう一度押すと非表示にする"
    },
    "xGroup": "icons",
@@ -17824,7 +18206,7 @@
    },
    "definition": {
     "en": "Clear every column filter in this table and put the rows back in their original order",
-    "ja": "この表のすべての列のフィルタをクリアし、並びを元の順に戻す"
+    "ja": "この表のすべての列のフィルターをクリアし、並びを元の順に戻す"
    },
    "xGroup": "icons",
    "checkedBasis": [
@@ -17844,7 +18226,7 @@
    },
    "definition": {
     "en": "Turn the Schedule Filter on or off: draw only the tasks this table shows",
-    "ja": "日程抽出の切替。この表で「表示」の行のタスクだけを日程表に描く"
+    "ja": "日程抽出の切替。この表で「表示」の行のタスクだけをタスクグループレーンズに描く"
    },
    "xGroup": "icons",
    "xSpecTableRowId": "IC-143",
@@ -17956,7 +18338,7 @@
    },
    "definition": {
     "en": "Open this column's filter and sort",
-    "ja": "この列のフィルタと並べ替えを開く"
+    "ja": "この列のフィルターと並べ替えを開く"
    },
    "xGroup": "icons",
    "checkedBasis": [
@@ -18076,7 +18458,7 @@
    },
    "definition": {
     "en": "Run the Delay Diagnosis again on the current document; the report stays open and the schedule marks are rebuilt",
-    "ja": "いまの文書で遅延診断をやり直す。レポートは開いたまま、日程表の印も作り直す"
+    "ja": "いまの文書で遅延診断をやり直す。レポートは開いたまま、タスクグループレーンズの印も作り直す"
    },
    "xGroup": "icons",
    "checkedBasis": [
@@ -18954,7 +19336,7 @@
    },
    "definition": {
     "en": "Clear what GRS keeps in this browser and reload the page; asks first",
-    "ja": "GRS がこのブラウザに覚えた値を消して、ページを読み直す。先に確かめる"
+    "ja": "GRS がこのブラウザーに覚えた値を消して、ページを読み直す。先に確かめる"
    },
    "xGroup": "icons",
    "checkedBasis": [
@@ -21798,7 +22180,7 @@
    },
    "definition": {
     "en": "The question that asks: \"Reset GRS? What GRS keeps in this browser (such as the display language) is cleared and the page is reloaded. Unsaved edits, if any, are lost too.\"",
-    "ja": "次を問う問い: 「GRS をリセットしますか？ GRS がこのブラウザに覚えた値（画面の言語など）を消して、ページを読み直します。保存していない編集があれば、それも失われます」"
+    "ja": "次を問う問い: 「GRS をリセットしますか？ GRS がこのブラウザーに覚えた値（画面の言語など）を消して、ページを読み直します。保存していない編集があれば、それも失われます」"
    },
    "xGroup": "questions",
    "xSpecTableRowId": "QN-11",
@@ -22162,7 +22544,7 @@
    },
    "definition": {
     "en": "The palette is minimized to its grip.",
-    "ja": "パレットを掴み帯まで最小化している。"
+    "ja": "パレットをグリップまで最小化している。"
    },
    "xGroup": "stateMachines",
    "xParent": "paletteDisplayStateMachineShown",
@@ -22458,7 +22840,7 @@
    },
    "definition": {
     "en": "The panel shows the document settings.",
-    "ja": "パネルが文書の設定を出している。"
+    "ja": "パネルが文書設定を出している。"
    },
    "xGroup": "stateMachines",
    "xParent": "propertiesPanelContentStateMachine",
@@ -34424,7 +34806,7 @@
    },
    "definition": {
     "en": "The code type of the Schedule Document: the schema version, the Schedule Data, the document settings, the document stamp and the change log.",
-    "ja": "スケジュール文書のコードの型。スキーマの版、スケジュールデータ、文書の設定、文書の刻印、変更ログ。"
+    "ja": "スケジュール文書のコードの型。スキーマの版、スケジュールデータ、文書設定、文書刻印、変更ログ。"
    },
    "xGroup": "entityComponents",
    "xParent": "documentModel",
@@ -34444,7 +34826,7 @@
    },
    "definition": {
     "en": "The code type of the document settings.",
-    "ja": "文書の設定のコードの型。"
+    "ja": "文書設定のコードの型。"
    },
    "xGroup": "entityComponents",
    "xParent": "documentModel",
@@ -34464,7 +34846,7 @@
    },
    "definition": {
     "en": "The document settings joined with the built-in setting constants, as the drawing reads them.",
-    "ja": "文書の設定と、組み込みの設定の定数を合わせたもの。描く側はこれを読む。"
+    "ja": "文書設定と、組み込みの設定の定数を合わせたもの。描く側はこれを読む。"
    },
    "xGroup": "entityComponents",
    "xParent": "documentModel",
@@ -36393,7 +36775,7 @@
    },
    "definition": {
     "en": "The state of the Search Window: the word, the table, the filters, the place, the size and the text size step.",
-    "ja": "検索ウィンドウの状態。語、表、フィルタ、置き場所、大きさ、文字の大きさの段。"
+    "ja": "検索ウィンドウの状態。語、表、フィルター、置き場所、大きさ、文字の大きさの段。"
    },
    "xGroup": "usecaseComponents",
    "xParent": "advanceScreenSession",
@@ -36427,7 +36809,7 @@
    },
    "definition": {
     "en": "How one table is shown: the visibility column, the column filters and the sort.",
-    "ja": "1 つの表の見え方。表示の列、列のフィルタ、並べ替え。"
+    "ja": "1 つの表の見え方。表示の列、列のフィルター、並べ替え。"
    },
    "xGroup": "usecaseComponents",
    "xParent": "advanceScreenSession",
@@ -36512,7 +36894,7 @@
    },
    "definition": {
     "en": "The view of one table, read from the document settings.",
-    "ja": "文書の設定から読んだ、1 つの表の見え方。"
+    "ja": "文書設定から読んだ、1 つの表の見え方。"
    },
    "xGroup": "usecaseComponents",
    "xParent": "advanceScreenSession",
@@ -37338,7 +37720,7 @@
    },
    "definition": {
     "en": "Builds the description of the UI parts outside the schedule. Declares ScreenSurface. (src/adapter/screen-renderer)",
-    "ja": "日程表の外の UI パーツの記述を作る。ScreenSurface を宣言する。（src/adapter/screen-renderer）"
+    "ja": "スケジュールキャンバスの外の UI パーツの記述を作る。ScreenSurface を宣言する。（src/adapter/screen-renderer）"
    },
    "xGroup": "adapterComponents",
    "xUses": [
@@ -37479,7 +37861,7 @@
    },
    "definition": {
     "en": "The description of every UI part outside the schedule drawing, in the screen language.",
-    "ja": "日程表の絵の外にあるすべての UI パーツの、画面の言語での記述。"
+    "ja": "スケジュールキャンバスの絵の外にあるすべての UI パーツの、画面の言語での記述。"
    },
    "xGroup": "adapterComponents",
    "xParent": "screenRenderer",
@@ -37496,7 +37878,7 @@
    },
    "definition": {
     "en": "A change to a column filter of the Search Window; it names its column.",
-    "ja": "検索ウィンドウの列のフィルタへの変更。列を名指す。"
+    "ja": "検索ウィンドウの列のフィルターへの変更。列を名指す。"
    },
    "xGroup": "adapterComponents",
    "xParent": "screenRenderer",

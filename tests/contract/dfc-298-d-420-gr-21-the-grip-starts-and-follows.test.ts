@@ -43,7 +43,7 @@ const rect = (x: number, y: number, width: number, height: number): ScreenRect =
   height,
 })
 
-// Why: FR-052 read backwards: the gap between the Task Group Area and the Properties Panel
+// Why: FR-052 read backwards: the gap between the Task Group Lanes and the Properties Panel
 // is the lane plus canvasPadding, so these regions leave a lane of LANE_THICKNESS.
 const LANE_THICKNESS = 10
 const CANVAS_PADDING = 4

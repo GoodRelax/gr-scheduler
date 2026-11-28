@@ -8,13 +8,13 @@ import { drawnPanel, LANGUAGES, REQUIREMENTS, SETTINGS_BOOK, settingsPanel, sett
 
 // Spec: FR-006, S-171, S-197
 const FR_006_KEPT_CHOICE =
-  '`GRS` は、候補が決まった一覧の選び（表 T-016 の `入力の型` が `選択` で `IMPS-61` に当たらないもの、と文書の設定の面の選び）に、要る幅より狭い幅を割らないこと。'
+  '`GRS` は、候補が決まった一覧の選び（表 T-016 の `入力の型` が `選択` で `IMPS-61` に当たらないもの、と文書設定の面の選び）に、要る幅より狭い幅を割らないこと。'
 const FR_006_SCROLL_NOT_SHRINK = 'パネルを `_assets/tbl-settings.md` の 表 T-206 の `S-248` まで狭めて選びが値の欄に入らないとき、`GRS` は、選びを縮めずに、パネルを横に送って見せること。'
 // Why: CR-787 -- S-171 is the settings face's default, measured in 10 px steps to the smallest width that fits.
 const S_171_RULE = '縦のスクロールバーを出したパネルの幅を 900 px から 10 px ずつ狭め、横にはみ出さず、どの項目名も 2 行以内に収まる最も小さい幅とする'
-const S_171_SETTINGS_FACE = '本値は、文書の設定の面（`FR-072` の 表 T-369 のすべての行と、先頭の閉じる入口だけの行と、読むだけの行）を出したプロパティパネルの既定の幅である。'
+const S_171_SETTINGS_FACE = '本値は、文書設定の面（`FR-072` の 表 T-369 のすべての行と、先頭の閉じる入口だけの行と、読むだけの行）を出したプロパティパネルの既定の幅である。'
 const FR_156_LIST = '⭐ `GRS` は、タイムゾーンを選ぶ欄（`FO-14`・`FO-15`）に、いま選んでいる名を同じ 2 行で見せ、欄を押すと欄の下に 2 行の選択肢の一覧を開き、選択肢を押すと押した選択肢を選んで一覧を閉じること'
-const S_197_ONE_PANEL = '文書の設定を出しているときも、選択物を出しているときも同じ値である（パネルは 1 つ）。'
+const S_197_ONE_PANEL = '文書設定を出しているときも、選択物を出しているときも同じ値である（パネルは 1 つ）。'
 
 const PANEL_FONT = settingValue('S-197')
 const NAME_FONT = settingValue('S-198')

@@ -26,9 +26,9 @@ const says = (row: string): string =>
   `T-020 ${row} [${RANK}: ${cellOf('T-020', row, RANK)}] ${ELEMENT}: ${cellOf('T-020', row, ELEMENT)}`
 
 const FR_110_ONE_TABLE_DECIDES =
-  '`GRS` は、日程表に描くものの前後（どれが手前に見えるか）を 1 つの表で決めること（MUST）。'
+  '`GRS` は、`Schedule Canvas` に描くものの前後（どれが手前に見えるか）を 1 つの表で決めること（MUST）。'
 const FR_110_LABELS_IN_FRONT_OF_LINES =
-  '名称・担当と進捗・進捗マーカーは、イナズマ線を除く線と形より手前に描くこと（MUST）。'
+  '名称・担当と進捗・進捗ステータスマークは、イナズマ線を除く線と形より手前に描くこと（MUST）。'
 const FR_110_THE_THREE_IN_FRONT =
   '選択の枠・構えて引いている仮の依存線・範囲選択の矩形は、それよりさらに手前とすること（MUST）。'
 const ZO_THE_ACTUAL_NEVER_COVERS_THE_NAME = '**実績バーが名称ラベルを覆ってはならない（MUST NOT）。**'

@@ -28,7 +28,7 @@ const FREE_ROW = groupOf(3)
 const READ_AT_RELEASE = '`LF-15`）が在れば、そのうち離した点にいちばん近い点へ吸着すること（MUST）'
 const FREE_POINT = '。⭐ 吸着する点が無いときは、離した点そのものを自由点として持つこと（MUST）'
 const NO_CENTERING = '①）。⛔ 日の列の中央にも、帯の縦の中央にも寄せてはならない（MUST NOT）'
-const SHOWN_WHILE_HELD = '点（吸着する点か、ポインタの点）に線先と引出し線と線先の印を描くこと（MUST）'
+const SHOWN_WHILE_HELD = '点（吸着する点か、ポインターの点）に線先と引出し線と線先の印を描くこと（MUST）'
 const READ_WHERE_LET_GO = 'も同じ掴み代で応えること（MUST）。⭐ 線先は離した位置で読むこと（MUST）'
 
 const minutesOf = (text: unknown): number => Date.parse(`${String(text).slice(0, 16)}:00Z`) / 60000

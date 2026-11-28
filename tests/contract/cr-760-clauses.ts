@@ -4,11 +4,11 @@ import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'
 
 export const SQ_5_VALUE =
-  'そのタスクの進捗マーカーの値（`FR-013` の 表 T-021、遅延診断を出しているあいだ（表 T-206 の `S-445`）は `FR-133` の 表 T-315 の優先順で勝つもの）'
+  'そのタスクの進捗ステータスマークの値（`FR-013` の 表 T-021、遅延診断を出しているあいだ（表 T-206 の `S-445`）は `FR-133` の 表 T-315 の優先順で勝つもの）'
 export const SQ_5_DG_WINS = '値が 表 T-315 の `DG-1` 〜 `DG-3` か 表 T-021 の `PM-4` ならその行'
 export const SQ_5_LATE_ALWAYS = '⭐ 遅れ（`PM-4`、表 T-021b）は予定の日と基準日だけで決まるので、診断を出していなくても出す。'
 export const SQ_5_WHILE_SHOWN = '`GRS` は、`SQ-5` に `DG-1` 〜 `DG-3` を、遅延診断を出している間だけ出すこと。'
-export const SQ_5_NOT_BY_DRAWING = '`GRS` は、`SQ-5` の値を、進捗マーカーを描くかどうか（`S-63`・`IC-40`）によらずに決めること。'
+export const SQ_5_NOT_BY_DRAWING = '`GRS` は、`SQ-5` の値を、進捗ステータスマークを描くかどうか（`S-63`・`IC-40`）によらずに決めること。'
 export const SQ_5_GLYPHS =
   '未着手は `PM-1a`、進行中は `PM-1`、完了は `PM-2`、中断の 2 つは `PM-3`、遅れは `PM-4`、信用できない・要修正は `DG-1`、ボトルネックは `DG-2` の炎、ボトルネック経路は `DG-3`。'
 export const SQ_5_WORDS = '表 T-315 の `DG-1` 〜 `DG-4` の語（`FR-134` の 表 T-347 の `DT-1` と同じ語 —— `PM-4` は `DG-4` の語）'
@@ -34,16 +34,16 @@ export const SV_6_FIXED =
   '`GRS` は、横には、タスクの表では `SQ-1` まで（表 T-331 の並びで 表示・進捗ステータス・完了率・タスク種別・タスク の 5 列）、コメントボックスの表では `SQ-7` までを左に固定すること（表 T-257 の `RR-4` と同じ形）。'
 export const RW_10_FIXED =
   '横は `DT-8`・`DT-1`・`DT-3`・`DT-9`・`DT-4`（表示・ステータス・進捗・タスク種別・タスク —— 表 T-347 の並びで左の 5 列）を左に固定し'
-export const RW_6_ORDER = '`GRS` は、中身の表に、書き出す時の並べ替えとフィルタを済ませた行を、表 T-347 の欄の順で書くこと。'
+export const RW_6_ORDER = '`GRS` は、中身の表に、書き出す時の並べ替えとフィルターを済ませた行を、表 T-347 の欄の順で書くこと。'
 export const RW_6_NO_VISIBILITY = '`GRS` は、中身に表示の列（`DT-8`）を書かないこと。'
 export const RW_6_FIX_ORDER =
-  '`GRS` は、中身の表の後に、修正案の表と修正の記録の表（`FR-155` の 表 T-374）を、それぞれの見出し（辞書の語）・各表のフィルタの条件（無ければ「なし」）・表の順で書き、表には、書き出す時の並べ替えとフィルタを済ませた行を 表 T-374 の欄の順で書くこと。'
+  '`GRS` は、中身の表の後に、修正案の表と修正の記録の表（`FR-155` の 表 T-374）を、それぞれの見出し（辞書の語）・各表のフィルターの条件（無ければ「なし」）・表の順で書き、表には、書き出す時の並べ替えとフィルターを済ませた行を 表 T-374 の欄の順で書くこと。'
 export const RW_3_WORD =
   '`GRS` は、入力欄の語が表 T-347 の ステータス・進捗・タスク・担当・予定日（`DT-1`・`DT-3`・`DT-4`・`DT-2`・`DT-5`）の値の一部と一致する行を残すこと（`SV-4` の比べ方）。'
 export const SV_4_WHERE =
   '`GRS` は、タスクの表では名前（`SQ-1`）か担当名のどれか 1 つ（`SQ-2`）の一部と語が一致する行を、コメントボックスの表では本文（`SQ-7`）の一部と語が一致する行を載せること。'
 
-export const PM_4_MUST = '`PM-4` が成立したとき、`GRS` は、進捗マーカーに `PM-4` を出すこと。'
+export const PM_4_MUST = '`PM-4` が成立したとき、`GRS` は、進捗ステータスマークに `PM-4` を出すこと。'
 export const PM_4_NOT_FINISHED = '`GRS` は、完了した `Task` を遅れとしないこと。'
 export const T_021B_ALL = '`GRS` は、表 T-021 の `PM-4`（遅れ）を、表 T-021b の `DL-1` 〜 `DL-3` のどれかが成り立つときにだけ成立させること。'
 export const T_315_PRIORITY = '優先順の小さいほうが勝つ。'
@@ -58,7 +58,7 @@ export const AM_19_SEARCH_ONLY = '`readSearchRows`（`AM-25`）の遅れは基�
 
 export const PI_1_CALL =
   '呼び方: `Task`、基準日（`CalendarDay`、無いこともある）、遅延診断を出しているあいだのそのタスクの 表 T-315 の行（`DG-1` 〜 `DG-3`、無いこともある）の順に渡し、答えは 表 T-021 か 表 T-315 の行 ID（`PM-1a`・`PM-1`・`PM-2`・`PM-3`・`PM-4`・`DG-1`・`DG-2`・`DG-3`）の 1 つ'
-export const PI_1_NO_COPY = '—— ⛔ 優先の順をコピーして持たせてはならない（MUST NOT） —— コピーすれば、表の値と日程表のマーカーが食い違う'
+export const PI_1_NO_COPY = '—— ⛔ 優先の順をコピーして持たせてはならない（MUST NOT） —— コピーすれば、表の値とタスクグループレーンズのマーカーが食い違う'
 
 const PUBLISHED = JSON.parse(readRepoFile(join(process.cwd(), 'docs', 'spec', '_source', 'published-entries.json'), 'utf8')) as unknown
 

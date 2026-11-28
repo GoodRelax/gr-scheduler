@@ -1,4 +1,4 @@
-// CR-721 spec-only stage: one small document, the Search Panel session over it, and the report window over a fixed report.
+// CR-721 spec-only stage: one small document, the Search Window session over it, and the report window over a fixed report.
 
 import { readRepoFile } from '../spec-files'
 import { join } from 'node:path'

@@ -580,7 +580,7 @@ describe('ADR-001 and table T-071 -- computed once at the head of a frame', () =
     expect(after.regions.scheduleCanvas.width).toBe(1400)
     // Spec: S-177, FR-055
     // Why: the fit keeps the left edge inside a day (scrollDate plus scrollDateFraction, never snapped to
-    // the day boundary), so the origin stands up to one day left of the Task Group Area and never right of it.
+    // the day boundary), so the origin stands up to one day left of the Task Group Lanes and never right of it.
     const dayOffset = (after.regions.taskGroupArea.x - after.layout.originX) / after.layout.pxPerDay
     expect(dayOffset).toBeGreaterThanOrEqual(0)
     expect(dayOffset).toBeLessThan(1)
@@ -782,7 +782,7 @@ describe('SC-4 of table T-031 -- both scrollbars, always', () => {
   })
 
   // Spec: IMPS-1761
-  it('FR-051: GIVEN a frame THEN the scrollbar lanes take their place FROM the Task Group Area, not over it', () => {
+  it('FR-051: GIVEN a frame THEN the scrollbar lanes take their place FROM the Task Group Lanes, not over it', () => {
     const pane = host()
     const screen = screenPane()
     const loop = frameLoop(pane.surface, twoTaskGroupDocument(), SCREEN, screen.wiring)
@@ -807,7 +807,7 @@ describe('SC-4 of table T-031 -- both scrollbars, always', () => {
 // Spec: SC-1, HF-8, HR-1a
 describe('SC-1 of table T-031 -- the panel follows the body, sideways it does not', () => {
   it('GIVEN two drawn task groups THEN each title stands at the y and height the body task group has', () => {
-    // Why: the panel and the Task Group Area must be the same numbers, so a title takes its box from this frame's measurement.
+    // Why: the panel and the Task Group Lanes must be the same numbers, so a title takes its box from this frame's measurement.
     const pane = host()
     const screen = screenPane()
     const loop = frameLoop(pane.surface, twoTaskGroupDocument(), SCREEN, screen.wiring)
@@ -880,7 +880,7 @@ describe('SC-1 of table T-031 -- the panel and the body hold the SAME task group
       const taskGroups: unknown[] = []
       const members: unknown[] = []
       const tasks = [...draft.schedule.tasks]
-      // Why: 48, not 24: the 24px lattice lets 24 task groups fit the Task Group Area whole, and nothing would be clipped.
+      // Why: 48, not 24: the 24px lattice lets 24 task groups fit the Task Group Lanes whole, and nothing would be clipped.
       for (let index = 0; index < 48; index += 1) {
         const id = `row-${index}`
         taskGroups.push({
@@ -901,7 +901,7 @@ describe('SC-1 of table T-031 -- the panel and the body hold the SAME task group
       draft.documentSettings.scrollTaskGroupId = `row-${anchorAt}`
     })
 
-  it('GIVEN the stack is anchored below its top THEN some task groups really do fall outside the Task Group Area', () => {
+  it('GIVEN the stack is anchored below its top THEN some task groups really do fall outside the Task Group Lanes', () => {
     // Why: the premise of the case below: with nothing clipped, an equality of counts says nothing.
     const pane = host()
     const screen = screenPane()
@@ -913,12 +913,12 @@ describe('SC-1 of table T-031 -- the panel and the body hold the SAME task group
       (taskGroup) =>
         Math.min(taskGroup.y + taskGroup.height, area.y + area.height) <= Math.max(taskGroup.y, area.y),
     )
-    expect(outside.length, 'no task group is off the Task Group Area, so nothing is being clipped').toBeGreaterThan(
+    expect(outside.length, 'no task group is off the Task Group Lanes, so nothing is being clipped').toBeGreaterThan(
       0,
     )
   })
 
-  it('GIVEN task groups fall outside the Task Group Area THEN the panel holds exactly the task groups the body draws', () => {
+  it('GIVEN task groups fall outside the Task Group Lanes THEN the panel holds exactly the task groups the body draws', () => {
     // Why: a title painted where the body has no band stands up in the Time Ruler, over the corner HF-10's control needs.
     const pane = host()
     const screen = screenPane()
@@ -935,7 +935,7 @@ describe('SC-1 of table T-031 -- the panel and the body hold the SAME task group
     expect(titles.length).toBe(showing.length)
   })
 
-  it('GIVEN a title is drawn THEN its band lies inside the Task Group Area, cut the same way the body is', () => {
+  it('GIVEN a title is drawn THEN its band lies inside the Task Group Lanes, cut the same way the body is', () => {
     // Why: a title that kept its whole height while its band was cut would stand taller than the task group it names.
     const pane = host()
     const screen = screenPane()
@@ -945,10 +945,10 @@ describe('SC-1 of table T-031 -- the panel and the body hold the SAME task group
 
     for (const title of titlesOf(screen.last())) {
       const taskGroup = values.layout.taskGroups.find((one) => one.taskGroupId === title.taskGroupId)!
-      expect(title.box.y, `${title.taskGroupId} starts above the Task Group Area`).toBeGreaterThanOrEqual(area.y)
+      expect(title.box.y, `${title.taskGroupId} starts above the Task Group Lanes`).toBeGreaterThanOrEqual(area.y)
       expect(
         title.box.y + title.box.height,
-        `${title.taskGroupId} runs past the foot of the Task Group Area`,
+        `${title.taskGroupId} runs past the foot of the Task Group Lanes`,
       ).toBeLessThanOrEqual(area.y + area.height)
       expect(title.box.y, `${title.taskGroupId} is not the body's own top`).toBe(
         Math.max(taskGroup.y, area.y),
@@ -997,7 +997,7 @@ describe('CA-4 and FR-051 -- one frame of screen, at the size that frame settled
   })
 
   it('FT-3: GIVEN only the scrollbar thickness changed THEN a frame runs', () => {
-    // Why: the thickness takes its place from the Task Group Area, so a thicker bar shrinks the drawing area.
+    // Why: the thickness takes its place from the Task Group Lanes, so a thicker bar shrinks the drawing area.
     const pane = host()
     const screen = screenPane()
     const loop = frameLoop(pane.surface, twoTaskGroupDocument(), SCREEN, screen.wiring)

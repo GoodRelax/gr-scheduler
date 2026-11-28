@@ -13,7 +13,7 @@ import {
 } from './cr-610-file-flow-stage'
 import { BUILT_VERSION } from './cr-731-stage'
 
-export const WINDOW = 'Delay Diagnostics Report'
+export const WINDOW = 'Delay Diagnosis Report'
 export const PROPOSALS_ROLE = 'Delay Fix Proposals'
 export const LOG_ROLE = 'Delay Fix Log'
 export const FOOTER_ROLE = 'Delay Fix Footer'

@@ -31,7 +31,7 @@ const DESIGN_ADVANCED =
   '進んだ人向けに、コマンドで MCP の相手を起動する客で `grs-relay.mjs` を動かす形と、`grs-relay.mcpb.sha256` でダウンロードしたものを確かめる手。'
 const DESIGN_SWITCH = '右上に `English` と `日本語` の 2 つ並びのボタンを置いて、選んでいる方を塗りつぶす。'
 const DESIGN_DEFAULT = '既定は英語とする —— 頁は、閲覧者がどの言語を読むかを知る前に開かれる。'
-const DESIGN_REMEMBERED = '選んだ言語は閲覧者のブラウザにだけ覚えさせる'
+const DESIGN_REMEMBERED = '選んだ言語は閲覧者のブラウザーにだけ覚えさせる'
 const DESIGN_LISTEN = '待ち受けるのは `127.0.0.1` だけであり'
 const SETTINGS_NOTHING_ON_OPEN = '⛔ 頁を開いただけでは何も落とさせない'
 const SETTINGS_BUNDLE_LINK = '⭐ この頁には、AI のアプリが入れる MCP の束（`grs-relay.mcpb`、`FR-150`）もリンクで置く（利用者の指示）。'

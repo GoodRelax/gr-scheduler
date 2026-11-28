@@ -79,13 +79,13 @@ describe(`T-107 AM-25 readSearchRows -- ${AM_25_STATUS}`, () => {
   it('while the diagnosis is shown the rows are the same: no DG-1, DG-2 or DG-3 ever', async () => {
     const stage = await stageIn(markerDocument(), 'ja')
     await stage.press('IC-107')
-    expect(stage.last().searchPanel ?? null, 'premise: the Search Panel is not needed for AM-25').toBeNull()
+    expect(stage.last().searchPanel ?? null, 'premise: the Search Window is not needed for AM-25').toBeNull()
     const rows = rowsOf(stage)
     expect(rows.filter((one) => String(one.progressMarker).startsWith('DG-'))).toEqual([])
     expectMarkersWithoutDiagnosis(rows)
   })
 
-  it('with the Search Panel open beside the diagnosis, the panel shows DG rows and readSearchRows still does not', async () => {
+  it('with the Search Window open beside the diagnosis, the panel shows DG rows and readSearchRows still does not', async () => {
     const stage = await stageIn(markerDocument(), 'ja')
     await stage.press('IC-107')
     await searchShown(stage)

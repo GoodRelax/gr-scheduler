@@ -110,28 +110,28 @@ describe('DFC-703 -- PI-18 the surface an entrance opens is named by its U row',
     expect(eventOfPressOn(ROSTER_ENTRANCE)).toBeNull()
   })
 
-  it('IC-2 makes surfaceEntryPressed naming the Export Chooser by its U row', () => {
-    expect(eventOfPressOn(EXPORT_ENTRANCE)).toEqual({ type: 'surfaceEntryPressed', surfaceName: uRowNamed('Export Chooser') })
+  it('IC-2 makes surfaceEntryPressed naming the Save As Dialog by its U row', () => {
+    expect(eventOfPressOn(EXPORT_ENTRANCE)).toEqual({ type: 'surfaceEntryPressed', surfaceName: uRowNamed('Save As Dialog') })
   })
 
   it('SK-12 names the same row as IC-2 (U-54 says both open it)', () => {
     expect(screenEventFromInput(keyOfRow(EXPORT_KEY_ROW), context)).toEqual({
       type: 'surfaceEntryPressed',
-      surfaceName: uRowNamed('Export Chooser'),
+      surfaceName: uRowNamed('Save As Dialog'),
     })
   })
 
   it('each surface the entrances open is a value T-280 allows, and the Resource List is none of them (CR-722 X-2)', () => {
     expect(OPEN_STATE_ROWS).not.toContain(uRowNamed('Resource List'))
-    expect(OPEN_STATE_ROWS).toContain(uRowNamed('Export Chooser'))
+    expect(OPEN_STATE_ROWS).toContain(uRowNamed('Save As Dialog'))
   })
 })
 
 describe('DFC-703 -- T-280 surfaceEntryPressed x open: the road surface that awaits an answer is not replaced', () => {
-  it('control: with no surface standing, IC-2 raises the Export Chooser', async () => {
+  it('control: with no surface standing, IC-2 raises the Save As Dialog', async () => {
     const built = await paletteStage()
     await built.press(surfaceOfEntrance(EXPORT_ENTRANCE), EXPORT_ENTRANCE)
-    expect(built.surfaceName()).toBe('Export Chooser')
+    expect(built.surfaceName()).toBe('Save As Dialog')
   })
 
   it('U-56 awaits: IC-2 carries RS-27 unseen (CR-712) and U-56 stays', async () => {
@@ -153,7 +153,7 @@ describe('DFC-703 -- T-280 surfaceEntryPressed x open: the road surface that awa
     const built = await paletteStage()
     await built.press(surfaceOfEntrance(EXPORT_ENTRANCE), EXPORT_ENTRANCE)
     await built.press(surfaceOfEntrance(ROSTER_ENTRANCE), ROSTER_ENTRANCE)
-    expect(built.surfaceName()).toBe('Export Chooser')
+    expect(built.surfaceName()).toBe('Save As Dialog')
     expect(toldReasons(built.last())).not.toContain(REFUSAL)
   })
 })
