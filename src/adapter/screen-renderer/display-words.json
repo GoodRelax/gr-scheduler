@@ -1152,7 +1152,7 @@
     "en": "Adopt All Recommended"
    },
    "hint": {
-    "ja": "修正のしかたが機械の行と、択が 1 つの選ぶの行に、まとめてチェックを入れる",
+    "ja": "修正方法が機械の行と、択が 1 つの選ぶの行に、まとめてチェックを入れる",
     "en": "Check every automatic row and every row with one choice"
    }
   },
@@ -1606,7 +1606,7 @@
    "specTableRowId": "PR-7",
    "label": {
     "ja": "再開予定日",
-    "en": "Resume"
+    "en": "Resume Date"
    }
   },
   {
@@ -1633,8 +1633,8 @@
   {
    "specTableRowId": "PR-14",
    "label": {
-    "ja": "フェード日数 前/後",
-    "en": "Fade In/Out Days"
+    "ja": "開始/終了の傾き（日）",
+    "en": "Start/Finish Slope (Days)"
    }
   },
   {
@@ -1668,15 +1668,15 @@
   {
    "specTableRowId": "PR-40",
    "label": {
-    "ja": "枠線幅",
-    "en": "Outline Width"
+    "ja": "線の太さ",
+    "en": "Stroke Width"
    }
   },
   {
    "specTableRowId": "PR-39",
    "label": {
-    "ja": "枠線色",
-    "en": "Outline Color"
+    "ja": "線の色",
+    "en": "Stroke Color"
    }
   },
   {
@@ -1703,8 +1703,8 @@
   {
    "specTableRowId": "PR-33",
    "label": {
-    "ja": "編集権限",
-    "en": "Edit Permission"
+    "ja": "編集できるグループ",
+    "en": "Allowed Editor Group"
    }
   },
   {
@@ -1738,15 +1738,15 @@
   {
    "specTableRowId": "PR-26",
    "label": {
-    "ja": "枠線幅",
-    "en": "Outline Width"
+    "ja": "線の太さ",
+    "en": "Stroke Width"
    }
   },
   {
    "specTableRowId": "PR-28",
    "label": {
-    "ja": "枠線色",
-    "en": "Outline Color"
+    "ja": "線の色",
+    "en": "Stroke Color"
    }
   },
   {
@@ -1767,7 +1767,7 @@
    "specTableRowId": "PR-46",
    "label": {
     "ja": "文字色",
-    "en": "Text Color"
+    "en": "Font Color"
    }
   },
   {
@@ -1780,15 +1780,15 @@
   {
    "specTableRowId": "PR-23",
    "label": {
-    "ja": "枠線幅",
-    "en": "Outline Width"
+    "ja": "線の太さ",
+    "en": "Stroke Width"
    }
   },
   {
    "specTableRowId": "PR-22",
    "label": {
-    "ja": "枠線色",
-    "en": "Outline Color"
+    "ja": "線の色",
+    "en": "Stroke Color"
    }
   },
   {
@@ -4334,19 +4334,19 @@
   {
    "specTableRowId": "RS-61",
    "text": {
-    "ja": "このタスクグループは読み取り専用です（編集権限が設定されています）",
-    "en": "This task group is read-only (an edit permission is set on it)."
+    "ja": "このタスクグループは読み取り専用です（編集できるグループが設定されています）",
+    "en": "This task group is read-only (an allowed editor group is set on it)."
    },
    "nextStep": {
-    "ja": "編集権限の無いタスクグループへコピーしてから編集してください",
-    "en": "Copy it into a task group with no edit permission, then edit it."
+    "ja": "編集できるグループの無いタスクグループへコピーしてから編集してください",
+    "en": "Copy it into a task group with no allowed editor group, then edit it."
    }
   },
   {
    "specTableRowId": "RS-62",
    "text": {
-    "ja": "編集権限は人だけが変えられます",
-    "en": "Only a person can change the edit permission."
+    "ja": "編集できるグループは人だけが変えられます",
+    "en": "Only a person can change the allowed editor group."
    },
    "nextStep": {
     "ja": "プロパティパネルで、人に入れてもらってください",
@@ -6673,15 +6673,15 @@
   {
    "specTableRowId": "SQ-5",
    "text": {
-    "ja": "ステータス",
-    "en": "Status"
+    "ja": "進捗ステータス",
+    "en": "Progress Status"
    }
   },
   {
    "specTableRowId": "SQ-11",
    "text": {
-    "ja": "進捗",
-    "en": "Progress"
+    "ja": "完了率",
+    "en": "% Complete"
    }
   },
   {
@@ -6736,15 +6736,15 @@
   {
    "specTableRowId": "SQ-6",
    "text": {
-    "ja": "最上位までの階層",
-    "en": "Path from Top"
+    "ja": "タスクグループ階層",
+    "en": "Task Group Path"
    }
   },
   {
    "specTableRowId": "SQ-7",
    "text": {
     "ja": "本文",
-    "en": "Body"
+    "en": "Text"
    }
   },
   {
@@ -6905,8 +6905,8 @@
   {
    "specTableRowId": "RQ-3",
    "text": {
-    "ja": "選択",
-    "en": "Selected"
+    "ja": "選択状態",
+    "en": "Selection Status"
    }
   },
   {
@@ -6920,7 +6920,7 @@
    "specTableRowId": "RQ-4",
    "text": {
     "ja": "担当タスク数",
-    "en": "Task Count"
+    "en": "Assigned Task Count"
    }
   },
   {
@@ -7422,7 +7422,7 @@
   {
    "specTableRowId": "FM-3",
    "text": {
-    "ja": "修正のしかた",
+    "ja": "修正方法",
     "en": "Fix Type"
    }
   },
