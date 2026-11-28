@@ -100,6 +100,7 @@ describe('FO-17 -- the row on the settings face', () => {
     expect(field.controls.map((one) => one.hint)).toEqual([undefined, undefined])
   })
 
+  // Spec: IMPS-754
   it(`${FO_17_ABOVE_FO_16} -- the row stands after the FO-15 field and before the FO-16 field`, async () => {
     const rows = ((await shiftStage(WORKED())).lastView().propertiesPanel?.fields ?? []).map((one) => one.row)
     expect(rows.indexOf(FO_17)).toBe(rows.indexOf(FACE_ROW_OF_FO_15) + 1)
@@ -176,6 +177,7 @@ describe('FR-159 / QN-15 -- Apply asks like the Time Shift, and only "proceed" w
     expect((await settledStage(WORKED(), NEW_START)).lastView().confirmation).toBeNull()
   })
 
+  // Spec: IMPS-751
   it.each(['ja', 'en'] as const)('%s: Apply raises QN-15 in the manner NT-7, with its text and the WH-11 lines', async (language) => {
     const stage = await settledStage(WORKED(), NEW_START, language)
     await stage.commit('entry', '')

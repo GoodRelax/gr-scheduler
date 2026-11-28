@@ -21,6 +21,12 @@ WHAT A LINE IS
                 A `@purity n/a` line IS counted: the Node measurement's
                 value pattern admits no slash, and parity with it is
                 kept. The form check still reads it as a tag.
+                In tests/ only, a line whose only comment is a
+                `Spec: <ID>[, <ID>...]` link (JDG-4100, the owner
+                2026-11-28): a required traceability link of R1b, not
+                prose. The form check still reads it (one Spec line per
+                block). src/ keeps counting it, at parity with the Node
+                measurement of check 60.
 
 Comments are found by a lexer, not by a line regex: strings, template literals
 with `${}` nesting, regex literals, and block and line comments. It is a port
@@ -887,6 +893,10 @@ def measure_text(src, rel, ledger, tree='src', questions=None):
         if PURITY_ONLY.fullmatch(body):
             purity.add(number)
             continue
+        # Why: JDG-4100 -- a tests/ line whose only comment is a Spec link is a
+        # required traceability link (R1b), not prose; it leaves the density.
+        if tree == 'tests' and SPEC.fullmatch(body):
+            continue
         counted.add(number)
         if NON_ASCII.search(text):
             non_ascii.append(number)
@@ -1321,6 +1331,22 @@ def self_test():
             failures.append('%s: expected red with %d, got %s with %d'
                             % (name, rise, 'red' if red else 'green',
                                held_of(broken)))
+    # JDG-4100: a Spec-only link line leaves the tests/ density; prose does not.
+    anchor = u"    const data = "
+    linked = measure_text(SELF_TEST_CLEAN.replace(
+        anchor, u'    // Spec: FR-014\n' + anchor, 1), SELF_TEST_REL, ledger,
+        'tests', SELF_TEST_QUESTIONS)
+    prose = measure_text(SELF_TEST_CLEAN.replace(
+        anchor, u'    // Why: the data is a fixed sample\n' + anchor, 1),
+        SELF_TEST_REL, ledger, 'tests', SELF_TEST_QUESTIONS)
+    red, _lines = tests_verdict([linked], base)
+    say('         a Spec link line added: %d comment line(s) (clean %d), %s; '
+        'a prose line added: %d' % (linked['comment'], clean['comment'],
+                                    'RED' if red else 'green', prose['comment']))
+    if red or linked['comment'] != clean['comment'] or held_of(linked) != 0:
+        failures.append('a Spec link line in tests/ changed the count or went red')
+    if prose['comment'] != clean['comment'] + 1:
+        failures.append('a prose comment line in tests/ was not counted')
     back = measure_text(SELF_TEST_CLEAN, SELF_TEST_REL, ledger, 'tests',
                         SELF_TEST_QUESTIONS)
     red, _lines = tests_verdict([back], base)

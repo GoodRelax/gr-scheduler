@@ -228,6 +228,7 @@ describe('T-290 initial state: the root\'s empty session holds nothingUnsaved', 
 })
 
 describe('SD-3 (T-290): every unsavedEditsStateMachine state x every fileFlow event, crossed with the other two machines', () => {
+  // Spec: IMPS-981
   it.each(cellCases())('%s', (_, kind, fields, event) => {
     const before = { kind }
     const session = withFlow({ ...fields, unsavedEditsState: before })
@@ -281,6 +282,7 @@ describe('FR-100: the machine is what says whether unsaved edits exist', () => {
     ).toEqual(['editsUnsaved', 'editsUnsaved', 'nothingUnsaved', 'editsUnsaved', 'nothingUnsaved', 'editsUnsaved', 'nothingUnsaved'])
   })
 
+  // Spec: IMPS-977
   it('未保存の編集が無いときに出させてはならない（MUST NOT）', () => {
     const quiet = flowEvents().filter((e) => e['type'] !== 'documentEditLanded' && !(e['type'] === 'documentOpenLanded' && e['openChoice'] !== 'replace'))
     for (const event of quiet) {

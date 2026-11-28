@@ -13,7 +13,7 @@ import {
   type WorkingTimeCounter,
 } from '../../entity/document-model/schedule/schedule'
 
-// Spec: FR-012, FR-090, EX-5, IMPS-416, IMPS-462, IMPS-473, IMPS-474, IMPS-476, IMPS-485, IMPS-486, IMPS-922
+// Spec: FR-012, FR-090, EX-5, IMPS-416, IMPS-462, IMPS-473, IMPS-474, IMPS-476, IMPS-485, IMPS-486, IMPS-922, IMPS-475
 /** @purity pure */
 function percentCompleteOf(count: WorkingTimeCounter, task: Task): number | null {
   const span = count.plannedLengthMinutes(task)

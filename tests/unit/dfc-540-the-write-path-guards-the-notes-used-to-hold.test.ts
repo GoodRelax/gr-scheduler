@@ -68,6 +68,7 @@ describe('FR-020 / FR-063 (DFC-540 4) -- a Resource or Dependency write that cha
     expect(same.ok && same.document === document).toBe(true)
   })
 
+  // Spec: IMPS-198
   it('CM-43 deleteUnreferencedResources: written twice, the second answers the same document', () => {
     const document = withResourcesAndALine()
     const referencedOnly = documentOf({

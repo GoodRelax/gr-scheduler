@@ -14,6 +14,7 @@ const commit = async (page: Page): Promise<void> => {
   await settle(page)
 }
 
+// Spec: IMPS-921
 test('SCN-9 SCN-10 SCN-13 UC-003 edit the attributes of a task (FR-072, T-016, FR-083 SP-2, FR-007, FR-008, FR-049, FR-090, FR-039) @UC-003.OK @UC-003.RJ1', async ({ page }) => {
   // Why: 12 s alone and 15 s in a whole run, all of it steps UC-003 names; a loaded GT-2 ran it past 30 s (DFC-2313).
   test.setTimeout(60000)

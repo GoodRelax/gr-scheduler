@@ -417,6 +417,7 @@ test('DFC-341: no reason the product can carry is missing from table T-233', () 
 })
 
 
+// Spec: IMPS-871
 test('DFC-354: the watermark is stamped when the document opens and when it changes', async ({
   baseURL,
 }) => {

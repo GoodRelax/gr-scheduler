@@ -155,6 +155,7 @@ describe('table T-266 -- the manuscript shape the 23 rows and the 42 values make
 })
 
 describe('grabSizesOf -- the 42 values reach the hit test unchanged', () => {
+  // Spec: IMPS-1609
   it.each(grabSettingIds())(`carries %s at the default table T-206 prints: ${T_266_VALUES_LIVE_IN_T_206}`, (settingId) => {
     expect(sizeIn(RECTANGLE.sizes, settingId), `${settingId} is not a key of GrabSizes`).toBeDefined()
     expect(sizeIn(RECTANGLE.sizes, settingId), `${settingId}: ${T_266_VALUES_LIVE_IN_T_206}`).toBeCloseTo(
@@ -163,6 +164,7 @@ describe('grabSizesOf -- the 42 values reach the hit test unchanged', () => {
     )
   })
 
+  // Spec: IMPS-1611
   it(`keeps the display ratio off every one of them: ${T_266_NO_DISPLAY_RATIO}`, () => {
     const scaled = sceneOf('rectangle', { displayScale: 200 })
     for (const settingId of grabSettingIds()) {
@@ -180,6 +182,7 @@ describe(`table T-266 -- every row is reachable with a pointer: ${FR_104_EVERY_T
     expect(lines.some((one) => one.continuation !== null && one.continuation !== undefined)).toBe(true)
   })
 
+  // Spec: IMPS-1608
   it.each(EXPECTED_ROW_IDS)('%s answers somewhere over the shape it belongs to', (id) => {
     const kind = sceneKindOfRow(grabTaskGroup(id))
     expect([...answersOf(kind)].sort(), `${id} (${kind}): ${FR_104_OWN_MARGIN}`).toContain(id)
@@ -197,6 +200,7 @@ describe(`table T-266 -- one value moves one target and one direction: ${FR_104_
     return { owner, kind, scene, changes: changesUnder(scene, PROBES[kind]!, moved) }
   }
 
+  // Spec: IMPS-1610
   it.each(grabSettingIds())(`%s moves no other row of table T-266: ${T_266_NO_OTHER_ROW}`, (settingId) => {
     const { owner, changes } = sweepOf(settingId)
     const strangers = changes.filter((one) => one.before !== owner.id && one.after !== owner.id)
@@ -311,6 +315,7 @@ describe('GA-1 / GA-2 -- the plan ends of a rectangle', () => {
     expect(grabAt(RECTANGLE, plan.right + outerFinish + 2, plan.middleY)).not.toBe('GA-2')
   })
 
+  // Spec: IMPS-1619
   it(`keeps the plan ends from eating the body, S-251 and S-254 being 0: ${T_266_PLAN_INNER_ZERO}`, () => {
     expect(defaultOf('S-251'), T_266_PLAN_INNER_ZERO).toBe(0)
     expect(defaultOf('S-254'), T_266_PLAN_INNER_ZERO).toBe(0)
@@ -359,12 +364,14 @@ describe('GA-5 / GA-6 -- the dummy of a rectangle that has not started', () => {
     expect(dummies.length, 'the fixture drew no dummy, so this file cannot ask its question').toBeGreaterThan(0)
   })
 
+  // Spec: IMPS-443, IMPS-447, IMPS-1615
   it(`takes the left half as GA-5 and the right half as GA-6: ${T_266_DUMMY_HALVES}`, () => {
     expect(ink, 'no dummy ink').not.toBeNull()
     expect(grabAt(RECTANGLE, ink!.left + ink!.width * 0.25, ink!.middleY), T_266_DUMMY_HALVES).toBe('GA-5')
     expect(grabAt(RECTANGLE, ink!.left + ink!.width * 0.75, ink!.middleY), T_266_DUMMY_HALVES).toBe('GA-6')
   })
 
+  // Spec: IMPS-1616
   it(`holds the dummy on its drawn mark and nothing wider: ${T_266_DUMMY_NOT_OUTSIDE}`, () => {
     expect(ink, 'no dummy ink').not.toBeNull()
     for (const x of [ink!.left - 2, ink!.right + 2]) {
@@ -373,6 +380,7 @@ describe('GA-5 / GA-6 -- the dummy of a rectangle that has not started', () => {
     }
   })
 
+  // Spec: IMPS-1613, IMPS-1614
   it(`keeps the dummy values apart from the actual values, equal by default: ${T_266_DUMMY_OWN_VALUES}`, () => {
     expect(grabTaskGroup('GA-5').settingIds, T_266_DUMMY_OWN_VALUES).toEqual(['S-262', 'S-263', 'S-264'])
     expect(grabTaskGroup('GA-3').settingIds, T_266_DUMMY_OWN_VALUES).toEqual(['S-256', 'S-257', 'S-258'])
@@ -548,6 +556,7 @@ describe('GA-21 / GA-22 -- the dummy of a line-only shape splits at the center o
     expect(dummies.length, 'the fixture drew no dummy on the line-only shape').toBeGreaterThan(0)
   })
 
+  // Spec: IMPS-1617
   it(`takes the left half as GA-21 and the right half as GA-22: ${T_266_ARROW_DUMMY_SPLIT}`, () => {
     const ink = boxOfRect(dummies[0]!.ink)
     expect(grabAt(ARROW, ink.left + ink.width * 0.25, ink.middleY), T_266_ARROW_DUMMY_SPLIT).toBe('GA-21')

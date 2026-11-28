@@ -2703,6 +2703,7 @@ describe('FR-038 -- a word the dictionary holds is the word the screen prints', 
     expect(CASES).toHaveLength(PLACES.length * LANGUAGES.length)
   })
 
+  // Spec: IMPS-12, IMPS-14, IMPS-15, IMPS-1191
   it.each(CASES)(
     '$section $key $field holds a word in $language -> the view is built -> $what prints exactly it',
     (one: Case) => {
@@ -2714,6 +2715,7 @@ describe('FR-038 -- a word the dictionary holds is the word the screen prints', 
     },
   )
 
+  // Spec: IMPS-1184
   it.each(PLACES)(
     '$section $key $field holds a different word per language -> the view is built in each -> $what answers a different one in each',
     (at: Place) => {
@@ -2728,6 +2730,7 @@ describe('FR-038 -- a word the dictionary holds is the word the screen prints', 
     },
   )
 
+  // Spec: IMPS-1495, IMPS-1496
   it.each(CASES.filter((one) => one.word !== ''))(
     '$section $key $field is written in $language -> the view is built from the file -> $what prints exactly it',
     (one: Case) => {

@@ -41,7 +41,7 @@
 | 仕様書の分け方 | ANMS の Chapter Structure の括弧の外側から分け、1 ファイルを約 100 KB までにする。B9（2026-11-27）が、要求の文書 `01-04-requirements.md` を `spec-ch1-3.md` と `spec-ch4-01.md`〜`spec-ch4-17.md` に、設計の文書 `05-07-design.md` を `spec-ch5-01.md`・`spec-ch5-02.md`・`spec-ch6-7.md` に割った。名の章の番号は、ファイルの中の見出しの番号（旧い章）に合わせる。切れ目は見出しの行に置く。部品の並びと切れ目は `docs/spec/_source/spec-files.json` が持つ。旧い 2 つの名は文書の全体の名として残る —— 仕様の文と src・tests のコメントがその名で指すからである。道具と試験は文書の全体を `tools/spec_files.py`・`tests/spec-files.ts` で読む。部品の本文をつなぐと、割る前のファイルと 1 字も違わない。2 つ目から後の部品は、頭に StrictDoc の欄（題・`**Grammar**`・`**UID**`）、続ける節の見出し、最初のファイルの名の行（`> 最初のファイル: …`）を持つ。⛔ 部品の頭を手で書き換えない —— `python tools/spec_files.py --check` が赤くなる | ANMS「仕様書の分割」 |
 | 6.2 のシナリオ | Gherkin のシナリオを 6.2 に書き、今の e2e の試験の題にシナリオの ID（`SCN-xxx`）とユースケースの印のタグを付けて対応させる。新しい道具を足さない | `JDG-3830` |
 | テスト記録 | GT-2 ごとに、試験した sha とファイルごとの passed・failed・skipped の数の要約を `docs/development-records/test-records/` に置く | `JDG-3827` |
-| 第 7 章 | 設計原則の準拠確認の表を置く（計画の B13） | `JDG-3823` |
+| 第 7 章 | 設計原則の準拠確認の表を置く（計画の B13）。組み替えの間は、旧い章の番号の続きの Chapter 11 として `08-10-test.md` の末尾に置く（表 T-740、行 ID `DPC`）。新しいファイルにしないのは、仕様書のファイルの名を並べた道具と試験の一覧を増やさないためである | `JDG-3823` |
 | レビューの指摘 | 仕様書のノードは持たない。置き場は規則 07 の「レビュー指摘の置き場（GRS）」 | 規則 07 の付録 A.1 |
 
 ---
@@ -75,7 +75,7 @@
 | 7 Test Strategy | 6.1 Test Strategy | 検証方法の表 |
 | 8 Use Case Tests | 6.2 Use Case Tests | シナリオ（`JDG-3830`） |
 | 9 Software Specification Tests・10 Non-Functional Tests | 6.3 から後の節 | — |
-| （無い） | 7 Design Principles Compliance | 計画の B13 |
+| 11 Design Principles Compliance（B13 が足した） | 7 Design Principles Compliance | — |
 | A.1 References・A.2 Licenses | A.1 References・A.2 Licenses | — |
 | A.3 Changelog（2026-09-11 に `changelog.md` へ移した） | 頭の 3 行の「変更履歴」 | 1 節 |
 | （無い） | A.3 Open Questions | 開いた `PND` の行を `OPQ` で移す（計画の B7） |

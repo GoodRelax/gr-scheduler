@@ -189,6 +189,7 @@ const HIGHEST = DISPLAY_SCALE_STEPS[DISPLAY_SCALE_STEPS.length - 1]!
 const stepAfter = (scale: number, by: number): number => DISPLAY_SCALE_STEPS[DISPLAY_SCALE_STEPS.indexOf(scale) + by]!
 
 describe('SE-1 / SE-2 (MUST) -- one message with the value after the press', () => {
+  // Spec: IMPS-1234, IMPS-1244
   it.each([
     ['IC-105', 1],
     ['IC-104', -1],

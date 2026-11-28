@@ -219,6 +219,7 @@ describe('FR-025 / FR-096 -- the manuscript these cases are driven by', () => {
 })
 
 describe(`IX-12 -- ${IX_12}`, () => {
+  // Spec: WY-4, IMPS-950
   it('the span picture is the same after the window is resized, both zooms move and both panels open', async () => {
     // Why: the picture carries the edit time; the zoom write lands a second later under load and differs by it alone.
     vi.useFakeTimers({ toFake: ['Date'] })

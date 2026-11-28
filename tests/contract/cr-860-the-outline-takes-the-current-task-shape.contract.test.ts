@@ -480,6 +480,7 @@ describe(`GR-27 「${GR_27_AREA}」 -- the hint area is the drawn outline`, () =
   const sizes = grabSizesOf()
   const hintAt = (stage: Stage, at: Pt): unknown => itemAtPointer(stage.geometry as never, at.x, at.y, sizes, 'hint')
 
+  // Spec: IMPS-1494
   it(`GR-27: a point inside the chevron outline names the baseline (control)`, () => {
     const stage = stageOf(barTask(CHEVRON), BASELINE_SPAN)
     const { x, y, width, height } = stage.outline().box

@@ -103,6 +103,7 @@ def say(message):
     sys.stdout.write(message.encode(enc, 'replace').decode(enc) + '\n')
 
 
+# Spec: IMPS-1357, IMPS-1358, IMPS-1359
 def prompt_of(language):
     """One manuscript from its second line, with LF line ends.
 
@@ -159,6 +160,7 @@ def empty_calendar():
     return calendar
 
 
+# Spec: IMPS-1082
 def empty_document():
     """A GRS JSON with no task, at the startup template's version (FR-068).
 
@@ -244,6 +246,7 @@ def sizes(built):
                          count(joined(built, 'ja')), count(joined(built, 'en'))))
 
 
+# Spec: IMPS-1360
 def main():
     """Write the artifact, or say whether the one on disk still matches.
 

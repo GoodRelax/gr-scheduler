@@ -100,6 +100,7 @@ describe('Chapter 6.2: the notice roster is a manuscript and the two tables are 
     expect(REQUIREMENTS).toContain(FR_076_POINTS_AT_THE_PRINT)
   })
 
+  // Spec: IMPS-1366
   it('the generated document says it is generated and names its manuscript', () => {
     expect(PRINTED).toContain('本書は生成物である')
     expect(PRINTED).toContain('`_source/notice-reasons.json`')

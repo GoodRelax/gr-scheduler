@@ -198,6 +198,7 @@ describe('AM-32 issueDelayFixes -- the proposals land as one bundle, one undo st
     expect(proposals.length).toBeGreaterThan(0)
   })
 
+  // Spec: IMPS-659
   it('issuing [] writes the recommended rows in one write: ok, a new stamp, the document changed, the log seam fed', () => {
     const state = stateOf(ONE_PARENT())
     const land = vi.fn()
@@ -352,6 +353,7 @@ describe('AM-19 readDelayDiagnostics parts and limit -- the caller narrows the r
 })
 
 describe('AV-2 createdUids -- the uids a write made, in order', () => {
+  // Spec: TC-2
   it('a write creating two tasks answers [hwm + 1, hwm + 2]', () => {
     const state = stateOf(ONE_PARENT())
     const api = apiOf(state)

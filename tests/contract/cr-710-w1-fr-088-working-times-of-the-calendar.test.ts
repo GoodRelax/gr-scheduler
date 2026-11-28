@@ -204,6 +204,7 @@ describe('CM-39: the one set is written to the weekdays FR-088 names and to no o
     }
   })
 
+  // Spec: IMPS-730
   it('keeps the spans of a weekday that holds another set', () => {
     const before = documentOver({ working: { ...MONDAY_TO_FRIDAY_WITH_SPANS, [WEDNESDAY]: FULL_DAY } })
     const after = applied(before, { workingTimes: NEW_SET }).document
@@ -322,6 +323,7 @@ describe('FR-012: a calendar edit counts the stored completion again from the in
     expect(after.schedule.tasks.find((one) => one.uid === 2)?.percentComplete).toBe(33)
   })
 
+  // Spec: IMPS-922
   it('stores 100 for a finished task whose plan counts for no minute and 0 for one that has not begun', () => {
     const empty = { start: jan(JAN_WEDNESDAY, '17:00'), finish: jan(JAN_WEDNESDAY, '17:00') }
     const finished = task(1, { ...empty, actualStart: jan(JAN_WEDNESDAY, '17:00'), actualFinish: jan(JAN_WEDNESDAY, '17:00'), percentComplete: 40 })

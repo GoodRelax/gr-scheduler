@@ -70,6 +70,7 @@ describe('RW-11 -- three tables, one at a time, the diagnosis first', () => {
     }
   })
 
+  // Spec: IMPS-643
   it('the table draws one row for each row of the proposal', async () => {
     for (const make of [ONE_PARENT, MIXED]) {
       const document = make()
@@ -79,6 +80,7 @@ describe('RW-11 -- three tables, one at a time, the diagnosis first', () => {
     }
   })
 
+  // Spec: IMPS-681
   it('the headings are the words of FM-1, FM-3, FM-4, FM-5, FM-6, FM-7 and FM-8, in that order', async () => {
     const stage = await opened(ONE_PARENT())
     await stage.press('IC-155')
@@ -99,6 +101,7 @@ describe('RW-11 -- three tables, one at a time, the diagnosis first', () => {
     expect(text).toContain('Task 1')
   })
 
+  // Spec: IMPS-678
   it('a suggested date row says Suggested beside the day (FA-24), and a choice row says to choose', async () => {
     const stage = await opened(FS_SUCCESSOR_STARTED())
     await stage.press('IC-155')
@@ -108,6 +111,7 @@ describe('RW-11 -- three tables, one at a time, the diagnosis first', () => {
     expect(text).toContain(fixWord('choosePlaceholder'))
   })
 
+  // Spec: IMPS-665
   it('a row to mend by hand says to click the name, and draws no box to check', async () => {
     const stage = await opened(ACTUAL_AGAINST_LINK())
     await stage.press('IC-155')
@@ -132,6 +136,7 @@ describe('RW-11 -- three tables, one at a time, the diagnosis first', () => {
 })
 
 describe('RW-12 -- the strip under the proposals', () => {
+  // Spec: IMPS-662
   it('stands under the proposals only, holds IC-157 and IC-158, and says how many rows will be mended', async () => {
     const stage = await opened(ONE_PARENT())
     expect(stage.inside(FOOTER_ROLE)).toBeNull()

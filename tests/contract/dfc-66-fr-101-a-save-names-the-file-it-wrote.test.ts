@@ -286,6 +286,7 @@ describe('FR-101 (MUST) -- once one save has succeeded', () => {
     expect(one.last().appHeaderItems.fileSavedAt).not.toBeNull()
   })
 
+  // Spec: IMPS-993
   it('⛔ that moment is kept in UTC, to the second (FR-101 MUST / FR-063)', async () => {
     // Why: the spelling on the screen is not asserted, since FR-101 leaves it open; the value
     // the header carries is read instead.
@@ -298,6 +299,7 @@ describe('FR-101 (MUST) -- once one save has succeeded', () => {
     expect(at).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/)
   })
 
+  // Spec: IMPS-998
   it('⛔ MUST NOT: the name it shows is the file’s, not the `Document Title`', async () => {
     const one = bench(templateDocument())
     one.runFrames()

@@ -99,6 +99,7 @@ describe('T-109 (MUST): the App Header shows its entrances in the table order, g
     expect(expected.length).toBeGreaterThan(5)
   })
 
+  // Spec: IMPS-1231
   it('every App Header entrance of the table is drawn, in the rule\'s order', () => {
     expect(shown).toEqual(expected)
   })

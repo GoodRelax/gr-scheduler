@@ -332,6 +332,7 @@ describe(`FR-102 -- ${FR_102_START_AND_STOP}`, () => {
     expect(startAt, FR_102_START_AND_STOP).toBeLessThan(firstFrame)
   })
 
+  // Spec: IMPS-822
   it('the last line of the record handed to the clipboard is the stop line, and it appears once', () => {
     const lines = oneRecord()
     expect(lines[lines.length - 1]?.endsWith(STOP_LINE), FR_102_START_AND_STOP).toBe(true)

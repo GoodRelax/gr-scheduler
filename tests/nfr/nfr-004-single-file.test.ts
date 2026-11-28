@@ -129,6 +129,7 @@ test('NFR-004 / CN-1: given a fresh production build, when dist is listed, then 
   expect(listed[0]).toMatch(/\.html$/i)
 })
 
+// Spec: IMPS-1264
 test('NFR-004 / CN-6: given the built deliverable, when every URL-bearing attribute and CSS url() is resolved, then none of them points off the file', async ({ page }) => {
   // Why: parsed via DOMParser rather than navigated to -- reads the file's
   // text without running a script or fetching a sub-resource.
@@ -223,6 +224,7 @@ test('NFR-004 / CN-6: given the built deliverable, when its raw text is scanned 
   ).toBe(false)
 })
 
+// Spec: IMPS-1263
 test('NFR-004 (judged from file://) / CN-6: given the deliverable opened as file://, when it has finished loading, then no request left the file and none failed', async ({ page }) => {
   const requested: string[] = []
   const failed: string[] = []

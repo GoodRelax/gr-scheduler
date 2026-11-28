@@ -772,6 +772,7 @@ describe('AM-7 applyCommands -- the ordinary case', () => {
 })
 
 describe('AM-7 applyCommands -- AG-2, the optimistic lock', () => {
+  // Spec: IMPS-1067
   it('turns a write away when any one of the three stamp fields differs (WS-1, MUST)', () => {
     for (const row of T_067_WS1) {
       const one = bench()

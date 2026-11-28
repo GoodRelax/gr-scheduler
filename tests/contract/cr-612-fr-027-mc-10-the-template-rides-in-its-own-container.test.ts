@@ -64,6 +64,7 @@ describe('FR-027 (MUST / MUST NOT) -- the shipped dist/index.html', () => {
     expect(containers[0]?.attributes).toMatch(/\sid="[^"]+"/)
   })
 
+  // Spec: IMPS-1024
   it('FR-027 / T-226: the container holds the template -- 100 task groups (TP-5) and 1000 Task (TP-6)', () => {
     const container = SCRIPTS.find(isJson)
     expect(container, 'FR-027: the shipped page holds no template container').toBeDefined()

@@ -233,6 +233,7 @@ test.describe('CR-669 the manuscript these cases are driven by', () => {
 })
 
 test.describe('CR-669 FR-036 / WB-3 -- the maximized help', () => {
+  // Spec: IMPS-1161
   test(`FR-036 (MUST): ${FR_036_MAXIMIZED}`, async () => {
     test.setTimeout(180_000)
     const app = await openApp(LOW_SCREEN)

@@ -2198,6 +2198,7 @@ test('the declarations this file makes are ones a Chapter 9 generator could use'
 
 // Why: one case for all three readings, last in the file -- a failing case
 // Why: followed by another hangs the run (measured), so this is soft and last.
+// Spec: NFR-005
 test(
   registry.swsCase({
     sws: 'SWS-8',

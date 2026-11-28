@@ -342,6 +342,7 @@ describe('FR-016 (MUST) -- 「その倍率でのタスクグループの位置�
     }
   })
 
+  // Spec: IMPS-1486
   it('PI-5’s member answers a position for every task group, at a zoom nothing has drawn yet', () => {
     const places = placesAt(ZOOM_HIGH)
     expect(places).toHaveLength(THREE_FLAT_TASK_GROUPS)

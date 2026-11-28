@@ -91,7 +91,7 @@ export function finishSideDayFrom(day: CalendarDay | null, text: string | null):
   return dayFromSerial(serial(read.day) - (read.minute > 0 ? 0 : 1))
 }
 
-// Spec: RV-1, RV-6, BL-2, FR-054, FR-158, IMPS-396, IMPS-397
+// Spec: RV-1, RV-6, BL-2, FR-054, FR-158, IMPS-396, IMPS-397, IMPS-721
 /** @purity pure */
 export function edgeInstantOf(text: string | null, side: 'start' | 'finish', instantAt: () => number | null,
                               isTimeOfDayVisible: boolean, dayAt: (text: string | null) => CalendarDay | null): number | null {

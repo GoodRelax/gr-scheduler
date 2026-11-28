@@ -679,6 +679,7 @@ describe('SD-3 (T-250): "コードの判定もその式から生成する" -- ev
     },
   )
 
+  // Spec: IMPS-81, IMPS-86
   it.each(GUARD_CASES.flatMap((c) => c.scenes.map((s) => [`${caseName(c)} x ${String(s.event['type'])}: ${s.label}`, c, s] as const)))(
     '%s',
     (_, c, scene) => {

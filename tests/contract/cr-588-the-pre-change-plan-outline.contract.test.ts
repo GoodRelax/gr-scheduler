@@ -382,18 +382,21 @@ describe('CR-588 -- the clauses these cases quote still stand', () => {
 })
 
 describe('BL-1 -- which BaselineTask is drawn', () => {
+  // Spec: IMPS-1450
   it(`BL-1 「${BL_1_ONLY}」: all three met -- one outline, for that Task, and the ZO-15 layer draws it (control for every case below)`, () => {
     const stage = stageOf({ tasks: [PLAIN], baselines: [SHIFTED] })
     expect(stage.outlines().map((one) => one.taskUid), BL_1_ONLY).toEqual([1])
     expect(outlineShapesOf(stage.svg()).length, BL_1_ONLY).toBeGreaterThan(0)
   })
 
+  // Spec: IMPS-1448
   it(`BL-1 「${BL_1_TASK_GROUP}」, FR-015 「${FR_015_ONE_SIDE}」: no Task has the UID -- nothing drawn`, () => {
     const stage = stageOf({ tasks: [PLAIN], baselines: [{ ...SHIFTED, uid: 99 }] })
     expect(stage.outlines(), BL_1_TASK_GROUP).toEqual([])
     expect(outlineShapesOf(stage.svg()), BL_1_TASK_GROUP).toEqual([])
   })
 
+  // Spec: IMPS-1447, IMPS-1456
   it(`BL-1 「${BL_1_TASK_GROUP}」: of two, only the one whose UID matches a Task is drawn`, () => {
     const stage = stageOf({ tasks: [PLAIN], baselines: [SHIFTED, { ...SHIFTED, uid: 99 }] })
     expect(stage.outlines().map((one) => one.taskUid), BL_1_TASK_GROUP).toEqual([1])
@@ -466,6 +469,7 @@ describe('BL-2 -- where the outline stands and its shape', () => {
     expect(Math.abs(onlyOutline(stage).box.x - own.left), BL_2_X).toBeGreaterThan(1)
   })
 
+  // Spec: IMPS-1449
   it(`BL-2 「${BL_2_Y}」: of two stacked Tasks, the box takes the matching one's plan band`, () => {
     const stage = stageOf({
       tasks: [PLAIN, taskOf({ uid: 2, start: day(6), finish: day(12) })],
@@ -631,6 +635,7 @@ describe('BL-3 -- the line', () => {
     }
   })
 
+  // Spec: IMPS-1445
   it(`BL-3 「${BL_3_VALUES}」, S-444 「${S_444_NOT_SCALED}」: the dash is S-444 at every display scale`, () => {
     for (const scale of [...SCALES, DEFAULT_DISPLAY_SCALE]) {
       const shapes = outlineShapesOf(stage({ [DISPLAY_SCALE]: scale }).svg())
@@ -641,6 +646,7 @@ describe('BL-3 -- the line', () => {
     }
   })
 
+  // Spec: IMPS-1446
   it(`BL-3 「${BL_3_NOT_SAME_DASH}」: the drawn dash is neither S-104's pair nor S-175's`, () => {
     const shapes = outlineShapesOf(stage().svg())
     expect(shapes.length, 'premise: the outline is drawn').toBeGreaterThan(0)
@@ -693,6 +699,7 @@ describe('S-3, FR-108 -- the outline takes no press', () => {
     ['over the current bar', { uid: 1, start: day(3), finish: day(9) }],
     ['a diamond clear of the current bar', { uid: 1, start: day(14), finish: day(14), milestone: true }],
   ] as const) {
+    // Spec: BL-5, IMPS-1493
     it(`FR-108 「${FR_108_THE_OVERLAY}${FR_108_NO_GRAB}」: every point on and in the outline (${name}) answers as without it`, () => {
       const withIt = stageOf({ tasks: [CURRENT], baselines: [baseline] })
       const without = stageOf({ tasks: [CURRENT], baselines: [] })

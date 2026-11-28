@@ -66,6 +66,7 @@ const BEYOND = [
 ] as const
 
 describe(`opening a file past a limit -- ${FR_023_NO_PARTIAL_APPLY}`, () => {
+  // Spec: IMPS-1128
   it.each(BEYOND)('$row: the words are the dictionarys with the limit filled in, no brace is left, and the open document does not change', async ({ row, file }) => {
     const text = file()
     if (row !== 'RS-78') assertReadable(text)

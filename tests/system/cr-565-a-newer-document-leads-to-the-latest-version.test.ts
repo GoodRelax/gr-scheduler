@@ -133,6 +133,7 @@ test.afterAll(async () => {
   await browser?.close()
 })
 
+// Spec: IMPS-1010, IMPS-1011
 test('FR-073 -- a newer document with nothing unread tells RS-63, and its link opens S-350 in a new tab with no reference', () => {
   if (failed !== null) throw failed
   if (seen === null) throw new Error('the sweep did not run')

@@ -86,6 +86,7 @@ describe('W3-T5 -- the manuscript these cases are driven by', () => {
 
 describe(`FR-039 "${FR_039_LARGER_OF_THE_TWO}"`, () => {
   // Why: each pair is (stored S-79, display scale); the first two fall under the floor, the last two clear it.
+  // Spec: IMPS-1252
   it.each([
     [100, 50],
     [100, 200],

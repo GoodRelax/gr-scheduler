@@ -297,6 +297,7 @@ describe('T-109 IC-4 / OP-15 -- with no BaselineTask, IC-4 asks for the file ins
     },
   )
 
+  // Spec: IMPS-1452
   it.each([false, true])(
     'OP-15 「OP-2 のファイル選択と同じ画面を開き、選んだファイルを重ねる用途で開くこと（MUST）」: S-69 %s asks with openRoute baseline',
     (before) => {
@@ -478,6 +479,7 @@ describe('FR-015 / UN-18 / UN-7 (S-6) -- the overlay import turns S-69 on, in on
     expect(s69Of(START)).toBe(false)
   })
 
+  // Spec: IMPS-1451, IMPS-1453
   it('FR-015 「重ねを読み込んだときは … S-69 を真にすること（MUST）」: importDocument(baseline) lands S-69 true', () => {
     const request: ImportRequest = { ...BASELINE_CALL, current: START }
     const outcome = importDocument(request)

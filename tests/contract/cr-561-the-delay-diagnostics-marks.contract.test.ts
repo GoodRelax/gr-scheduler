@@ -474,6 +474,7 @@ describe('FR-133 / T-315 -- the mark takes the DG state while the diagnostics ar
     expect([symbolOf(LATE), symbolOf(GOING), symbolOf(LATER), symbolOf(LATE_TOO)]).toEqual(['DG-1', 'DG-2', 'DG-3', 'PM-4'])
   })
 
+  // Spec: IMPS-624
   it(`${T_315_ONLY_SHOWN} -- shown false keeps the mark of today (control)`, () => {
     for (const uid of [LATE, GOING, LATER]) {
       const hidden: Diagnostics = { shown: false, symbolByUid: shownWith(uid, 'DG-2').symbolByUid }
@@ -485,6 +486,7 @@ describe('FR-133 / T-315 -- the mark takes the DG state while the diagnostics ar
     for (const uid of [LATE, GOING, LATER]) expect(taskFigureOf(uid, undefined).marker, `task ${uid}`).toEqual(todayOf(uid).marker)
   })
 
+  // Spec: IMPS-604
   it(`${FR_133_OTHERS} -- shown, but the Task is not in the map (control)`, () => {
     const others: Diagnostics = { shown: true, symbolByUid: new Map([[LATE_TOO, 'DG-1']]) }
     for (const uid of [LATE, GOING, LATER]) expect(taskFigureOf(uid, others).marker, `task ${uid}`).toEqual(todayOf(uid).marker)
@@ -500,6 +502,7 @@ describe('FR-133 / T-315 -- the mark takes the DG state while the diagnostics ar
 describe('FR-013 / T-315 -- the ground and the ink of each DG mark, both themes', () => {
   for (const theme of ['light', 'dark'] as const) {
     for (const row of ['DG-1', 'DG-2', 'DG-3'] as const) {
+      // Spec: IMPS-505
       it(`${row} (${theme}): 同表が指す地 -- the ground is ${groundIdOf(row)}`, () => {
         const read = readingOf(LATE, shownWith(LATE, row), theme, groundIdOf(row), inkIdOf(row))
         expect(read.grounds.length, `the drawn mark: ${read.mark}`).toBeGreaterThanOrEqual(1)
@@ -513,6 +516,7 @@ describe('FR-013 / T-315 -- the ground and the ink of each DG mark, both themes'
       })
     }
 
+    // Spec: IMPS-623
     it(`DG-4 (${theme}): ${T_315_DG_4.slice(0, 30)}... -- PM-4 keeps S-326 while shown, and no DG ground (control)`, () => {
       const shown: Diagnostics = { shown: true, symbolByUid: new Map([[LATE, 'DG-2']]) }
       const read = readingOf(LATE_TOO, shown, theme, groundIdOf('DG-4'), inkIdOf('DG-4'))
@@ -565,6 +569,7 @@ describe('FR-133 / T-315 -- the shape of each symbol', () => {
     for (const one of read.strokes) expect(attr(one.tag, 'stroke-width')).toBeCloseTo(delayBarWidth('light'), 1)
   })
 
+  // Spec: IMPS-614
   it('DG-2: 炎（S-395 ・ S-396） -- the flame is S-395 scaled to S-396 x the diameter, filled with S-388', () => {
     const read = readingOf(LATE, shownWith(LATE, 'DG-2'), 'light', 'S-387', 'S-388')
     const ink = colorOf('S-388', 'light')
@@ -612,6 +617,7 @@ describe('FR-133 / T-315 -- the shape of each symbol', () => {
     }
   })
 
+  // Spec: IMPS-606
   it(`${FR_133_SHAPE.slice(0, 20)}... -- no two of DG-1 .. DG-3 and PM-4 draw the same ink shapes (control)`, () => {
     const signature = (row: DgRow, uid: number, diagnostics: Diagnostics | undefined): string => {
       const read = readingOf(uid, diagnostics, 'light', groundIdOf(row), inkIdOf(row))
@@ -638,6 +644,7 @@ describe('FR-013 -- a DG mark on a Task not yet started is not faded', () => {
   })
 
   for (const row of ['DG-1', 'DG-2', 'DG-3'] as const) {
+    // Spec: IMPS-506
     it(`${row}: ${FR_013_NOT_FADED}`, () => {
       const read = readingOf(LATER, shownWith(LATER, row), 'light', groundIdOf(row), inkIdOf(row))
       expect(read.grounds.length, `premise: the ${row} ground is drawn: ${read.mark}`).toBeGreaterThanOrEqual(1)

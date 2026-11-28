@@ -128,6 +128,7 @@ describe(`FR-006 -- ${FR_006_DATE_ROOM}`, () => {
 })
 
 describe(`FR-006 -- ${FR_006_EMPTY_IS_AS_WIDE}`, () => {
+  // Spec: IMPS-46
   it.each(TASK_DATE_ROWS)('%s is as wide empty as filled, the time hidden and shown', (row) => {
     for (const settings of [HIDDEN_TIME, SHOWN_TIME]) {
       const empty = taskDateControl(taskPanel({ settings, tasks: EMPTIED_TASK }), row).widthInFontSizes
@@ -146,6 +147,7 @@ describe(`FR-006 -- ${FR_006_EMPTY_IS_AS_WIDE}`, () => {
 })
 
 describe(`FR-006 -- ${FR_006_NOT_THE_ESTIMATE}`, () => {
+  // Spec: IMPS-47
   it.each(TASK_DATE_ROWS)('%s, empty, is wider than the estimate of its format', (row) => {
     const control = taskDateControl(taskPanel({ settings: HIDDEN_TIME, tasks: EMPTIED_TASK }), row)
     expect(control.widthInFontSizes).toBeGreaterThan(ESTIMATE_OF_A_DATE)
@@ -153,6 +155,7 @@ describe(`FR-006 -- ${FR_006_NOT_THE_ESTIMATE}`, () => {
 })
 
 describe(`FR-006 -- ${FR_006_ACTUAL_LENGTH}`, () => {
+  // Spec: IMPS-53
   it('the time hidden: the actual length (PR-5) is as wide as the date fields beside it', () => {
     const panel = taskPanel({ settings: HIDDEN_TIME })
     const length = panel.fields.find((one) => one.row === ACTUAL_LENGTH_ROW)?.controls[0]
@@ -167,7 +170,7 @@ describe(`FR-006 -- ${FR_006_ACTUAL_LENGTH}`, () => {
 })
 
 describe(`FR-006 -- ${FR_006_OTHER_DATE_FIELDS}`, () => {
-  // Spec: FR-088, WC-4
+  // Spec: FR-088, WC-4, IMPS-48
   it('Holiday Settings: every exception date (WC-4) takes at least S-589', () => {
     const session = { ...emptyScreenSession } as unknown as ScreenSession
     const surface = holidaySettingsOf(session, TEMPLATE.schedule, '', [], 'ja')

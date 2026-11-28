@@ -211,7 +211,7 @@ function isFoldedMilestoneGlyph(met: number): boolean {
   return met > NOT_STORED_COMMAND_PALETTE_SIZES['S-216']
 }
 
-// Spec: IMPS-1829, IMPS-1830
+// Spec: IMPS-1829, IMPS-1830, IMPS-268, IMPS-1213
 /** @purity pure */
 function paletteGroups(
   selection: Selection,

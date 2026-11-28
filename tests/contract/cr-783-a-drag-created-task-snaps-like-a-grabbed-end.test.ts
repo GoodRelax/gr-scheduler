@@ -425,6 +425,7 @@ describe(`FR-001 / T-239 TC-6 -- ${TC_6_THE_DRAWN_SPAN_IS_READ_AS_SNAPPED_INSTAN
   })
 
   describe('(f) a day unit keeps the day reading with the T-350 default times', () => {
+    // Spec: IMPS-946
     it('time hidden: the pressed day starts at the default start, the released day ends at the default finish', () => {
       const made = createdByDrag(bar({ scene: TIME_HIDDEN, pressMinute: at(12, 0), releaseMinute: at(12, 0), releaseDay: 2 }))
       expect(spanOf(made)).toEqual({ start: `2026-10-14T${DEFAULT_START_TIME}`, finish: `2026-10-16T${DEFAULT_FINISH_TIME}` })

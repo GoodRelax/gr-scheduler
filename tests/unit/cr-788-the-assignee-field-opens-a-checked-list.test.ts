@@ -206,6 +206,7 @@ describe('AS-5 -- the closed field shows the primary, the mark when others are s
 })
 
 describe('AS-5 -- pressing the field opens the list; pressing it again, or outside, closes it', () => {
+  // Spec: IMPS-192
   it('AS-5 (MUST): a press opens the list under the field, in the order filter, IC-125, IC-126, IC-123, IC-124, then the rows', () => {
     const view = drawn(TWO_SEATED)
     view.click(view.shown())

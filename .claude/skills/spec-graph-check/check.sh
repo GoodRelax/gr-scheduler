@@ -1380,9 +1380,11 @@ section "97  the traceability gap counts of R1b do not grow"
 # any docs/spec table with a traces column; src/ builds an ID by a see or
 # Spec: comment, tests/ tests it by naming it anywhere. A RATCHET in
 # trace-gaps-baseline.txt. MEASURED 2026-11-24 on 9994f6d0c: 0, 0, 29, 8 --
-# the 29 and 8 fall as stage B8 links the implementation tables. The
-# verification method list and the MAY/SHOULD exemption are not read yet
-# (no such table exists). MEASURED by breaking it (--self-test): a requirement
+# the 29 and 8 fall as stage B8 links the implementation tables. Since stage
+# B13 (2026-11-28) it reads the verification method list (a table with a
+# verification method and a verifier column; leaf requirements only), the
+# MAY/SHOULD requirements the 1.7 Limitations section names, and leaves the
+# retired rows out. MEASURED by breaking it (--self-test): a requirement
 # whose parent is missing, a goal with no child, an unbuilt leaf and an
 # unbuilt implementation specification each land in their term.
 PYTHONIOENCODING=utf-8 python "$HERE/check-trace-gaps.py" --self-test >/dev/null || { echo "FAIL the self-test of check-trace-gaps.py"; failed; }

@@ -52,12 +52,14 @@ describe('CR-768 -- the manuscript these cases read', () => {
 })
 
 describe(`FR-096 "${FR_096_CHOOSES_BY_THE_COLUMN}" -- the chooser of IC-2 lists those rows`, () => {
+  // Spec: IMPS-1033
   it.each(LANGUAGES)('(%s) the rows listed are the offered rows, in the order of the table, with the extension of the row', async (language) => {
     const formats = await chooserFormats(language)
     expect(formats.map((one) => one.row)).toEqual(OFFERED)
     expect(formats.map((one) => one.extension)).toEqual(offeredRows().map((one) => one.extension))
   })
 
+  // Spec: IMPS-1038
   it.each(LANGUAGES)('(%s) every listed row shows a word of the dictionary, never its row id', async (language) => {
     for (const one of await chooserFormats(language)) {
       expect(one.name, one.row).not.toBe('')
@@ -66,6 +68,7 @@ describe(`FR-096 "${FR_096_CHOOSES_BY_THE_COLUMN}" -- the chooser of IC-2 lists 
     }
   })
 
+  // Spec: IMPS-1035
   it.each(['IO-8', 'IO-5', 'IO-6'])('(%s) is not listed in either language', async (row) => {
     expect(rowOf(row).offered).toBe('出さない')
     for (const language of LANGUAGES) {

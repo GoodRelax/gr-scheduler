@@ -102,6 +102,7 @@ describe('item 18 -- a name pressed in the proposals opens the panel on the fiel
     expect(stage.asked).toEqual([])
   })
 
+  // Spec: IMPS-630
   it('SJ-4 regression: a name pressed in the diagnosis table puts no panel up', async () => {
     const stage = await windowStage(NOT_STARTED_AFTER_START())
     await stage.press('IC-107')

@@ -542,6 +542,7 @@ const TIER_SAMPLES: ReadonlyArray<readonly [RulerTier, RulerRow, number, string]
 // Why: LF-1 fixes an interval per row, seen only in the band the ruler draws, so ticks
 // are read out of the SVG and the expected set is built from the calendar.
 describe('SWS-1 -- decide the interval between two ticks (FR-017)', () => {
+  // Spec: IMPS-703
   it(
     swsCase({
       sws: 'SWS-1',
@@ -567,6 +568,7 @@ describe('SWS-1 -- decide the interval between two ticks (FR-017)', () => {
     },
   )
 
+  // Spec: IMPS-761
   it(
     swsCase({
       sws: 'SWS-1',
@@ -680,6 +682,7 @@ const bandDocuments = (): ReadonlyArray<readonly [string, Drawn]> => {
 }
 
 describe('SWS-2 -- decide a task group band and where it sits (FR-003)', () => {
+  // Spec: VG-1, VG-6, VG-7, IMPS-1902
   it(
     swsCase({
       sws: 'SWS-2',
@@ -789,6 +792,7 @@ describe('SWS-2 -- decide a task group band and where it sits (FR-003)', () => {
     },
   )
 
+  // Spec: IMPS-1682, IMPS-1685
   it(
     swsCase({
       sws: 'SWS-2',
@@ -821,6 +825,7 @@ describe('SWS-2 -- decide a task group band and where it sits (FR-003)', () => {
     },
   )
 
+  // Spec: IMPS-1334
   it(
     swsCase({
       sws: 'SWS-2',
@@ -939,6 +944,7 @@ const dependencyOf = (drawn: Drawn) => {
 }
 
 describe('SWS-3 -- draw the route of a dependency line (FR-009)', () => {
+  // Spec: IMPS-315
   it(
     swsCase({
       sws: 'SWS-3',
@@ -1077,6 +1083,7 @@ describe('SWS-3 -- draw the route of a dependency line (FR-009)', () => {
     },
   )
 
+  // Spec: IMPS-1326, IMPS-1335
   it(
     swsCase({
       sws: 'SWS-3',
@@ -1226,6 +1233,7 @@ describe('SWS-4 -- make the vertices of what is drawn (FR-094)', () => {
     },
   )
 
+  // Spec: IMPS-1688
   it(
     swsCase({
       sws: 'SWS-4',
@@ -1280,6 +1288,7 @@ describe('SWS-4 -- make the vertices of what is drawn (FR-094)', () => {
     },
   )
 
+  // Spec: IMPS-1694, IMPS-1696, IMPS-398
   it(
     swsCase({
       sws: 'SWS-4',
@@ -1453,6 +1462,7 @@ describe('SWS-4 -- make the vertices of what is drawn (FR-094)', () => {
     },
   )
 
+  // Spec: IMPS-1677
   it(
     swsCase({
       sws: 'SWS-4',
@@ -1490,6 +1500,7 @@ describe('SWS-4 -- make the vertices of what is drawn (FR-094)', () => {
     },
   )
 
+  // Spec: IMPS-1730, IMPS-458
   it(
     swsCase({
       sws: 'SWS-4',

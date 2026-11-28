@@ -236,6 +236,7 @@ describe(`(c) the Agent API write path -- ${CLAUSE_UNCHANGED_WRITE_RAISES_NOTHIN
     expect(stage.loop.hasUnsavedEdits()).toBe(false)
   })
 
+  // Spec: IMPS-978
   it('control: applyCommands setting a task name to a new name: unsaved edits, QN-5 raised', async () => {
     const stage = stageOf()
     const api = apiOf(stage)

@@ -576,6 +576,7 @@ function questionWord(row: string, language: DisplayLanguage): string {
 }
 
 describe('FR-020 -- where "evidence, not access control" is shown', () => {
+  // Spec: WM-4
   it('⭐ the place is QN-9’s own sentence, on the surface that raises the misreading', () => {
     // Spec: FR-020, QN-9
     // Why: the misreading arises at U-60, where a person was just asked for a password, so the

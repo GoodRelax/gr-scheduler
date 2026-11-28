@@ -80,6 +80,7 @@ describe('SK-19 -- Enter, once nothing else is left to it, clears both selection
 })
 
 describe('FR-091 -- one Enter closes and clears only for a name just created', () => {
+  // Spec: IMPS-1912
   it(`"${CLAUSE_ONLY_JUST_CREATED}" -- renaming a task made earlier keeps it picked`, async () => {
     const stage = exportStage(documentWithTaskGroups())
     await clickTask(stage, 2, 2)

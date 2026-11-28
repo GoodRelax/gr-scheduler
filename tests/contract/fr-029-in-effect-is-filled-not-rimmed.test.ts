@@ -366,6 +366,7 @@ describe('表 T-237 EN-2 (MUST) -- an entrance whose function is ON is filled', 
 // Spec: EN-4, FR-072
 describe('表 T-237 EN-4 (MUST) -- the entrance the properties panel is showing from is filled', () => {
   for (const preference of THEMES) {
+    // Spec: IMPS-88
     it(`fills the App Header entrance while the panel shows its subject (${preference})`, () => {
       // Why: IC-17 stands on the App Header and is FR-072's own entrance, so a surface other than
       // the palette is asked: one rule, every surface.

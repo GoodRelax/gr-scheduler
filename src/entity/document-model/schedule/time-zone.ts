@@ -26,7 +26,7 @@ export const PRINTED_TIME_ZONE: StandardTimeZoneKey = 'UTC+00:00'
 
 const ROW_OF_KEY: ReadonlyMap<string, TimeZoneRow> = new Map(TIME_ZONE_ROWS.map((row) => [row.key, row]))
 
-// Spec: FR-156, T-376
+// Spec: FR-156, T-376, ZN-29, ZN-30, ZN-31, ZN-32, ZN-33, ZN-34, ZN-35, ZN-36, ZN-37, ZN-38, ZN-39, ZN-40, ZN-41, ZN-42, ZN-43, ZN-44, ZN-45, ZN-46, ZN-48, ZN-49, ZN-50, ZN-51, ZN-52, ZN-53, ZN-54, ZN-55, ZN-56, ZN-57, ZN-58, ZN-59, ZN-60, ZN-61, ZN-62, ZN-63, ZN-64, ZN-65, ZN-66, ZN-67
 /** @purity pure */
 export function timeZoneRowOf(key: unknown): TimeZoneRow | null {
   return typeof key === 'string' ? (ROW_OF_KEY.get(key) ?? null) : null

@@ -209,6 +209,7 @@ describe('FR-055 -- the fit leaves a margin on each side', () => {
     expect(area.x + area.width - right, 'the right margin').toBeCloseTo(margin, 0)
   })
 
+  // Spec: IMPS-807
   it('FR-055: no name label is cut at the right edge of the Task Group Area (the drawn label measured by LC-5)', () => {
     // Spec: FR-055, LC-5
     const built = fitted()
@@ -289,6 +290,7 @@ describe('FR-046 / FR-106 -- the status-date line', () => {
     expect(built.settings()['zoomY'], '倍率を変えずに').toBe(before['zoomY'])
   })
 
+  // Spec: IMPS-528
   it('FR-046: 縦の表示位置は動かさない -- scrollTaskGroupId and scrollTaskGroupFraction stay', () => {
     // Spec: FR-046
     const built = bench(documentOf(SEEDS, { scrollDate: '2020-01-06', scrollTaskGroupId: 'g2', scrollTaskGroupFraction: 0 }))
@@ -298,6 +300,7 @@ describe('FR-046 / FR-106 -- the status-date line', () => {
     expect(built.settings()['scrollTaskGroupFraction']).toBe(before['scrollTaskGroupFraction'])
   })
 
+  // Spec: IMPS-529
   it('FR-046: 色を S-163、太さを S-333 で描く', () => {
     // Spec: FR-046, S-163, S-333
     const document = documentOf(SEEDS)
@@ -307,6 +310,7 @@ describe('FR-046 / FR-106 -- the status-date line', () => {
     expect(Number(attrOf(line, 'stroke-width'))).toBeCloseTo(S_333, 3)
   })
 
+  // Spec: IMPS-539
   it('FR-046: 基準日線を描いているあいだ、IC-44 を EN-7 で塗る (S-183), and not while it is not drawn', () => {
     // Spec: FR-046, EN-7
     expect(bare(verticalIn('T-237', 'EN-7').cells[1] ?? '')).toBe('S-183')
@@ -318,6 +322,7 @@ describe('FR-046 / FR-106 -- the status-date line', () => {
     expect(paintedGround(hidden.built, iconEntry(hidden.built.root(), 'IC-44'))).not.toBe(S_183)
   })
 
+  // Spec: IMPS-1633
   it('FR-106 E-17: GR-16 は PK-10 -- the pointer on the status-date line is col-resize', () => {
     // Spec: FR-106, GR-16, PK-10
     const document = documentOf(SEEDS)

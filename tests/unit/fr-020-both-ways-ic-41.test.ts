@@ -271,6 +271,7 @@ describe('FR-020 (MUST): one entrance, and it turns the watermark both ways', ()
     expect(built.surface()).toBe(U_60)
   })
 
+  // Spec: WM-11
   it('⛔⛔ neither direction touches the document (MUST NOT)', async () => {
     // Why: hasUnsavedEdits is a second reading, not a repeat: a write that was
     // undone leaves the document equal but the flag raised.

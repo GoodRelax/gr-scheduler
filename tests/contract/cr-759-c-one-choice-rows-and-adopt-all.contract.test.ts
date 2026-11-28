@@ -105,6 +105,7 @@ describe('T-374 FM-1 / FM-8 -- a choose row with exactly one choice', () => {
     expect(isTicked(needBox(stage, key()))).toBe(true)
   })
 
+  // Spec: IMPS-666
   it('IC-157 after the tick applies that choice: the status date moves to the day of the actual start', async () => {
     const stage = await proposalsOpened(ACTUAL_AFTER_STATUS_DATE())
     await pressBox(stage, needBox(stage, key()))

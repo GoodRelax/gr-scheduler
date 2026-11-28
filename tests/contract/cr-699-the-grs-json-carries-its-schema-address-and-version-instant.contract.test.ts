@@ -104,6 +104,7 @@ describe('CR-699 -- the clauses these cases hold are the manuscript words', () =
 })
 
 describe(`表 T-052 DR-4 -- ${DR_4_FIRST_KEY}`, () => {
+  // Spec: IMPS-1060
   it('DR-4 / S-540: the first key of a written GRS JSON is "$schema", holding the S-540 address', () => {
     const written = JSON.parse(jsonFromDocument(templateDocument())) as Record<string, unknown>
     expect(Object.keys(written)[0]).toBe('$schema')
@@ -137,6 +138,7 @@ describe(`Chapter 6.2 -- ${CH_6_2_NOT_REFUSED_BY_VALUE}`, () => {
     ['another address', 'https://example.invalid/somewhere-else.schema.json'],
     ['an empty string', ''],
   ] as const) {
+    // Spec: IMPS-1386
     it(`DR-4 / Chapter 6.2: a "$schema" holding ${what} is read`, () => {
       const reading = opened({ ...TEMPLATE_ROOT, $schema: value })
       expect(reading.ok, JSON.stringify(reading.ok ? null : reading.faults)).toBe(true)
@@ -145,6 +147,7 @@ describe(`Chapter 6.2 -- ${CH_6_2_NOT_REFUSED_BY_VALUE}`, () => {
 })
 
 describe(`Chapter 6.2 -- ${CH_6_2_ROOT_ACCEPTS}`, () => {
+  // Spec: IMPS-1385
   it('the published root requires "$schema" and binds only its type, never a const', () => {
     expect(PUBLISHED_SCHEMA['required']).toContain('$schema')
     const own = PUBLISHED_SCHEMA['properties']?.['$schema'] as Record<string, unknown> | undefined
@@ -154,6 +157,7 @@ describe(`Chapter 6.2 -- ${CH_6_2_ROOT_ACCEPTS}`, () => {
 })
 
 describe(`Chapter 6.2 -- ${CH_6_2_ID}`, () => {
+  // Spec: IMPS-1383
   it('S-540: the published schema names the S-540 address as its $id', () => {
     expect(PUBLISHED_SCHEMA['$id']).toBe(S_540)
   })
@@ -165,6 +169,7 @@ describe(`Chapter 6.2 -- ${CH_6_2_ID}`, () => {
 })
 
 describe(`Chapter 6.2 -- ${CH_6_2_LEDGER}`, () => {
+  // Spec: IMPS-1390
   it('x-grsChanges is an array, and it is empty while S-541 is null', () => {
     expect(Array.isArray(PUBLISHED_SCHEMA['x-grsChanges'])).toBe(true)
     expect(S_541).toBe('null')
@@ -176,6 +181,7 @@ describe(`Chapter 6.2 -- ${CH_6_2_LEDGER}`, () => {
     expect(LEDGER_SOURCE['changes']).toEqual([])
   })
 
+  // Spec: IMPS-1388
   it(`Chapter 6.2 -- ${CH_6_2_NO_LEDGER_WRITTEN}`, () => {
     const text = jsonFromDocument(templateDocument())
     expect(text.includes('x-grsChanges')).toBe(false)
@@ -199,6 +205,7 @@ describe(`FR-073 -- ${FR_073_FORM}`, () => {
 })
 
 describe(`FR-073 -- ${FR_073_NEWER_UNREADABLE}`, () => {
+  // Spec: IMPS-1001
   it(`FR-073 -- ${FR_073_STRING_ORDER}: one second after the known version is newer`, () => {
     const later = secondsMoved(KNOWN_VERSION, 1)
     expect(later > KNOWN_VERSION).toBe(true)

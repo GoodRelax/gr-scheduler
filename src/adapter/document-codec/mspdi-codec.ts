@@ -684,7 +684,7 @@ function withStopsFromActualDurations(schedule: Schedule, run: ImportRun): Sched
   return { ...schedule, tasks }
 }
 
-// Spec: IMPS-756
+// Spec: IMPS-756, FR-303
 /** @purity pure */
 function minutesOfActualDuration(raw: string | null, at: string, run: ImportRun): number | null {
   if (raw === null || raw.trim() === '') return null
@@ -701,7 +701,7 @@ interface LinksReading {
   readonly carried: readonly CarryElement[]
 }
 
-// Spec: MR-4, IMPS-362, DF-4
+// Spec: MR-4, IMPS-362, DF-4, IMPS-345
 // Trap: a carried link keeps the ordinal among the Task's children, which splicing reads; EX-10 writes it
 // before the Task's written links, so its order among them holds only when it came first.
 /** @purity pure */

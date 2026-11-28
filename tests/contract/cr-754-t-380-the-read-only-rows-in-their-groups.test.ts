@@ -266,6 +266,7 @@ describe('CR-754 premise -- the clauses and table T-380 these cases read', () =>
 })
 
 describe(`T-369 -- ${T_369_AFTER_FO_16}`, () => {
+  // Spec: IMPS-106
   it.each(LANGUAGES)('%s: the read-only rows come after FO-16 and nothing else does', (language) => {
     const fields = panelOf(language).fields
     const shift = fields.findIndex((one) => one.name === iconLabel(TIME_SHIFT, language))
@@ -275,6 +276,7 @@ describe(`T-369 -- ${T_369_AFTER_FO_16}`, () => {
     expect(fields.slice(firstReadOnly).every((one) => one.readOnlyGroup !== undefined)).toBe(true)
   })
 
+  // Spec: IMPS-111, IMPS-115
   it.each(LANGUAGES)('%s: the rows stand in the groups and the order of T-380, every group and window named by the dictionary', (language) => {
     const drawn = readOnlyFieldsOf(panelOf(language)).map((one) => ({
       group: one.readOnlyGroup?.name,
@@ -303,6 +305,7 @@ describe(`T-369 -- ${T_369_AFTER_FO_16}`, () => {
 })
 
 describe(`T-369 -- ${T_369_WORDS}`, () => {
+  // Spec: IMPS-112
   it.each(LOOKS.flatMap(([name, settings]) => LANGUAGES.map((language) => [name, language, settings] as const)))(
     '%s, %s: every value is shown in the words of T-380',
     (_name, language, settings) => {
@@ -319,6 +322,7 @@ describe(`T-369 -- ${T_369_WORDS}`, () => {
 })
 
 describe(`T-369 -- ${T_369_NO_RAW}`, () => {
+  // Spec: IMPS-113
   it.each(LOOKS.flatMap(([name, settings]) => LANGUAGES.map((language) => [name, language, settings] as const)))(
     '%s, %s: no value is the stored text',
     (_name, language, settings) => {
@@ -340,6 +344,7 @@ describe(`T-369 -- ${T_369_NO_RAW}`, () => {
 })
 
 describe(`T-369 -- ${T_369_NO_CONTROL}`, () => {
+  // Spec: IMPS-114
   it.each(LANGUAGES)('%s: no read-only row carries a control or reads as editable', (language) => {
     for (const field of readOnlyFieldsOf(panelOf(language))) {
       expect(field.controls, field.name).toEqual([])
@@ -358,10 +363,12 @@ describe(`T-369 -- ${T_369_NO_CONTROL}`, () => {
 })
 
 describe(`T-369 -- ${T_369_HEADINGS}`, () => {
+  // Spec: IMPS-107
   it.each(LANGUAGES)('%s: the panel carries the heading word of readOnlySettings', (language) => {
     expect(panelOf(language).readOnlyHeading).toBe(partWord(SECTION, 'heading', language))
   })
 
+  // Spec: IMPS-108
   it.each(LANGUAGES)(`%s drawn: the heading line, then each group as an open box headed by its name -- ${T_369_FOLDABLE}`, (language) => {
     const drawn = drawnPanel(panelOf(language))
     const children = drawn.children
@@ -380,6 +387,7 @@ describe(`T-369 -- ${T_369_HEADINGS}`, () => {
     })
   })
 
+  // Spec: IMPS-116, IMPS-117
   it.each(LANGUAGES)('%s drawn: the table views group heads each window with its name and no row carries the window name', (language) => {
     const drawn = drawnPanel(panelOf(language))
     const box = drawn.children.find((one) => one.tagName === 'DETAILS' && one.textContent.startsWith(partWord(SECTION, 'groupTableViews', language)))
@@ -396,6 +404,7 @@ describe(`T-369 -- ${T_369_HEADINGS}`, () => {
 })
 
 describe(`T-369 FO-12 -- ${T_369_FO_12}`, () => {
+  // Spec: IMPS-576
   it.each(LANGUAGES)('%s: the unit is the dictionary word workingDaysUnit, and the name holds no unit', (language) => {
     const field = panelOf(language).fields.find((one) => one.name === settingLabel(DELAY_TOLERANCE, language))
     expect(field, 'premise: FO-12 is a field').toBeDefined()

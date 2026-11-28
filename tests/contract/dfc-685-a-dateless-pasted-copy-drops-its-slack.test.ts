@@ -53,6 +53,7 @@ function dateless(missing: 'Start' | 'Finish'): Document {
 }
 
 describe(`CM-8, EX-12: ${EX_12_NO_SLACK}`, () => {
+  // Spec: IMPS-907
   it('a copy pasted from a task with no Start drops every carried slack value', () => {
     const document = dateless('Start')
     const source = document.schedule.tasks.find((each) => each.uid === SOURCE_UID)

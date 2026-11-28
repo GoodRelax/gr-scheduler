@@ -58,6 +58,7 @@ describe('FR-067 (MUST) / OP-3 -- an exported .html is opened like any file', ()
     expect(told(built)).not.toContain(RS_67.text.ja)
   })
 
+  // Spec: IMPS-1074
   it('FR-067 / IC-71: a replace takes the embedded document', async () => {
     const built = await shellStage()
     await replaceWith(built, built.file('handed.html', UTF8.encode(await exported(there()))))
@@ -97,6 +98,7 @@ describe('FR-067 (MUST NOT) / RS-67 -- an .html GRS cannot open', () => {
     expect(titleOf(built)).toBe(before)
   })
 
+  // Spec: FR-366
   it('RS-67: an .html with two embedded documents is not opened and RS-67 is told', async () => {
     const built = await shellStage()
     const one = await exported(there())

@@ -129,6 +129,7 @@ function expectSameLineOnBothSides(measured: Measured): void {
   expect(measured.panelLines.length, 'no panel line stands where the schedule side has none').toBe(visible.length)
 }
 
+// Spec: IMPS-180, IMPS-182, IMPS-184
 test('FR-042: while S-68 is true the panel carries, at each task group boundary, the schedule side\'s line', async () => {
   test.setTimeout(180_000)
   const opened = await openTheApp()
@@ -139,6 +140,7 @@ test('FR-042: while S-68 is true the panel carries, at each task group boundary,
   }
 })
 
+// Spec: IMPS-185
 test('S-68 through IC-43: switched off, neither side has the lines; switched back, both have them again', async () => {
   test.setTimeout(180_000)
   const opened = await openTheApp()

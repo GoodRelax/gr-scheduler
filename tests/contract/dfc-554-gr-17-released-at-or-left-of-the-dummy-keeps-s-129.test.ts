@@ -248,6 +248,7 @@ describe('DFC-554 premises: the clauses and the fixture still read this way', ()
 })
 
 describe('DFC-554 table T-266 GA-6: released on the dummy day', () => {
+  // Spec: IMPS-400
   it('⭐ 着手しているタスクの実績の最後の日を、床の日より前に置かないこと（MUST） -- GA-6 released on the GA-5 day is accepted as a one-day actual', () => {
     const result = releasedFromGr17(DUMMY_DAY)
     expect(result.ok, 'FR-043: moving the end point to the start point position is accepted').toBe(true)
@@ -265,6 +266,7 @@ describe('DFC-554 table T-266 GA-6: released on the dummy day', () => {
 
 describe('DFC-554 table T-023d GA-6: released on a rest day left of the dummy day, zero by the FR-011 count', () => {
   for (const dropped of [ymd(11), ymd(10)]) {
+    // Spec: IMPS-402, IMPS-404
     it(`掴んで 0 稼働日まで縮められるようにしてはならない（MUST NOT） -- GA-6 released on ${dropped} is lifted to the floor day`, () => {
       expect(signedLength(DUMMY_DAY, dropped), 'premise: zero by the FR-011 count').toBe(0)
       const result = releasedFromGr17(dropped)
@@ -281,6 +283,7 @@ describe('DFC-554 table T-023d GA-6: released on a rest day left of the dummy da
 
 describe('DFC-554 table T-023d GA-6: released on a worked day left of the dummy day, negative by the FR-011 count', () => {
   for (const dropped of [ymd(9), ymd(7)]) {
+    // Spec: IMPS-403
     it(`IV-21 -- GA-6 released on ${dropped} is refused and writes nothing`, () => {
       expect(signedLength(DUMMY_DAY, dropped), 'premise: below zero').toBeLessThan(0)
       const result = releasedFromGr17(dropped)

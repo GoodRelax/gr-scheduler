@@ -13,7 +13,7 @@ export type PlanActualState =
   | 'suspendedResumePlanned'
   | 'inProgress'
 
-// Spec: T-019a, IMPS-390, IMPS-391, IMPS-392, IMPS-565, IMPS-454
+// Spec: T-019a, IMPS-390, IMPS-391, IMPS-392, IMPS-565, IMPS-454, IMPS-389
 /** @purity pure */
 export function planActualState(task: Task): PlanActualState {
   if (task.actualStart === null) return 'notStarted'

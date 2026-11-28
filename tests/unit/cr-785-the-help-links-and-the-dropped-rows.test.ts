@@ -602,6 +602,7 @@ describe('FR-036 (MUST) -- every help link is drawn in the S-503 colour with an 
   ]
 
   describe.each(LANGUAGES)('%s', (language) => {
+    // Spec: IMPS-1146
     it.each(['light', 'dark'] as const)('%s theme: the ink is the S-503 value of that theme', (preference) => {
       const { built, help } = drawnHelp(language, language, preference)
       for (const [name, anchor] of linksOf(help)) {

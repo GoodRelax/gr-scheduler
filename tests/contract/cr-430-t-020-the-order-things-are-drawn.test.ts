@@ -200,6 +200,7 @@ describe('T-020 -- every row of the table is a drawn layer, in the order the tab
   })
 
   for (const row of ROWS) {
+    // Spec: IMPS-1739, IMPS-1744, IMPS-399
     it(`${says(row.id)} -- the layer is drawn, and every lower rank is drawn behind it`, () => {
       const order = drawnOrder()
       expect(order, says(row.id)).toContain(row.id)
@@ -215,6 +216,7 @@ describe('T-020 -- every row of the table is a drawn layer, in the order the tab
 })
 
 describe('T-020 -- the rules FR-110 states in words', () => {
+  // Spec: IMPS-1743
   it(ZO_THE_ACTUAL_NEVER_COVERS_THE_NAME, () => {
     const order = drawnOrder()
     expect(firstIndexOf(order, 'ZO-2'), ZO_THE_ACTUAL_NEVER_COVERS_THE_NAME).toBeGreaterThanOrEqual(0)
@@ -223,6 +225,7 @@ describe('T-020 -- the rules FR-110 states in words', () => {
     )
   })
 
+  // Spec: IMPS-1740
   it(FR_110_LABELS_IN_FRONT_OF_LINES, () => {
     const order = drawnOrder()
     for (const behind of ['ZO-1', 'ZO-2', 'ZO-4']) {
@@ -235,6 +238,7 @@ describe('T-020 -- the rules FR-110 states in words', () => {
     }
   })
 
+  // Spec: IMPS-1741
   it(FR_110_THE_THREE_IN_FRONT, () => {
     const order = drawnOrder()
     for (const front of ['ZO-10', 'ZO-11', 'ZO-6']) {

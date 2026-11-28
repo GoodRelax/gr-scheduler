@@ -293,7 +293,7 @@ function textWidthOf(lines: readonly string[], fontSize: number, labelCoef: numb
   return widest === 0 ? fontSize : widest * fontSize * labelCoef
 }
 
-// Spec: FR-019, FR-097, IMPS-827, IMPS-837, IMPS-803, IMPS-1027, IMPS-1030, IMPS-1032, IMPS-853, IMPS-855
+// Spec: FR-019, FR-097, IMPS-827, IMPS-837, IMPS-803, IMPS-1027, IMPS-1030, IMPS-1032, IMPS-853, IMPS-855, TV-4
 /** @purity pure */
 export function commentGeometry(
   schedule: Schedule,

@@ -43,6 +43,7 @@ describe('item 6 (undo) -- UN-21: what one approval mended comes back with one u
     expect(stepsOf(held)).toBe(1)
   })
 
+  // Spec: IMPS-651
   it('one undo gives back the schedule and the settings as they were, and one redo mends again', () => {
     const before = CHAIN()
     const mended = written(heldOf(before), bundleOf(CHAIN))
@@ -53,6 +54,7 @@ describe('item 6 (undo) -- UN-21: what one approval mended comes back with one u
     expect(again.document.schedule).toEqual(mended.document.schedule)
   })
 
+  // Spec: IMPS-658
   it('the bundle writes no view of a table: the settings come out as they went in', () => {
     const before = ONE_PARENT()
     const mended = written(heldOf(before), bundleOf(ONE_PARENT))
@@ -81,6 +83,7 @@ describe('item 8 -- all or nothing: a command the document refuses stops the who
 })
 
 describe('item 15 -- FR-130: making the proposal changes nothing', () => {
+  // Spec: IMPS-549, IMPS-550
   it('the diagnosis and the proposal leave the document as it was', () => {
     const document = CHAIN()
     const copy = structuredClone(document)

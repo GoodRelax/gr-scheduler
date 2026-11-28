@@ -24,6 +24,7 @@ const pointsOf = async (page: Page, figure: string): Promise<number[][]> => {
   return raw.trim().split(/\s+/).map((pair) => pair.split(',').map(Number))
 }
 
+// Spec: IMPS-372
 test('SCN-14 SCN-16 UC-004 show dependencies between tasks (FR-009 T-018 DP-1 DP-3, T-018a, T-023b, S-201) @UC-004.OK', async ({ page }) => {
   await page.clock.setFixedTime(PINNED_NOW)
   await launch(page)

@@ -242,6 +242,7 @@ describe('EditCalendar (UF-16) -- CM-39 of table T-108', () => {
     ).toBe(false)
   })
 
+  // Spec: IMPS-723, FR-300
   it('FR-088 refuses a calendar that works no weekday at all, and resets nothing', () => {
     const document = documentOf()
     const result = editCalendar(document, { kind: 'setCalendar', workingDayTypes: [] })
@@ -301,6 +302,7 @@ describe('EditCalendar (UF-16) -- CM-39 of table T-108', () => {
     }
   })
 
+  // Spec: IMPS-763
   it('FR-054 must not read Task.calendarUid or Resource.calendarUid', () => {
     // Why: these pointers name a calendar FR-054's own order never reaches, so an edit landing there
     // would break its MUST NOT.
@@ -405,6 +407,7 @@ const documentWithAPricedTask = (): Document =>
 
 // Spec: FR-012, NT-3, EX-5
 describe('FR-012 -- 暦を編集したときの完了率の数え直し (DFC-353)', () => {
+  // Spec: IMPS-464
   it('GIVEN a plan of 9/7 to 9/14 with 3 worked days WHEN Saturday becomes a worked day THEN the stored 完了率 is counted again', () => {
     const document = documentWithAPricedTask()
     expect(percentOf(document, 10), 'the figure the document arrives with').toBe(
@@ -471,6 +474,7 @@ describe('FR-012 -- 暦を編集したときの完了率の数え直し (DFC-353
     expect(result.report.recountedTaskUids).toEqual([])
   })
 
+  // Spec: IMPS-466
   it('FR-012 -- 暦の変更と同じ書き込みの中で行うこと（MUST）。別の書き込みに分けてはならない（MUST NOT）', () => {
     // Why: the proof is one plan carrying both halves and one undo step holding the document before the
     // write, where the old figure is.
@@ -582,6 +586,7 @@ describe('FR-012 -- the controls on the recount (DFC-353)', () => {
     expect(twice.report.recountedTaskUids).toEqual([])
   })
 
+  // Spec: IMPS-467
   it('ⓑ GIVEN the calendar edit WHEN ONE undo is pressed THEN both the calendar and the 完了率 go back', () => {
     // Why: the undo is pressed, not inferred; a build that wrote the recount as a second step would put
     // back one half only, and the paired assertions and the history length catch it.
@@ -600,6 +605,7 @@ describe('FR-012 -- the controls on the recount (DFC-353)', () => {
     expect(undone.next.history.done).toHaveLength(0)
   })
 
+  // Spec: IMPS-725
   it('ⓒ GIVEN two tasks whose figures move and one whose figure does not WHEN the calendar is edited THEN the count is 2', () => {
     // Why: a build that told without a count has no list; one counting every task reached or rebuilt
     // answers 3; only the tasks whose value changed answer 2.

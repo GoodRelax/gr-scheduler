@@ -494,6 +494,7 @@ describe('HF-8 of table T-051 -- what boot must not do', () => {
 
 // Spec: FT-2, FT-3, NFR-010
 describe('table T-078 -- the whole of what may wake a frame', () => {
+  // Spec: IMPS-1259
   it('FT-3: a change of size runs exactly one more frame', () => {
     const pane = host()
     const loop = frameLoop(pane.surface, twoTaskGroupDocument(), SCREEN)
@@ -780,6 +781,7 @@ describe('SC-4 of table T-031 -- both scrollbars, always', () => {
     expect(titlesOf(view)).toEqual([])
   })
 
+  // Spec: IMPS-1761
   it('FR-051: GIVEN a frame THEN the scrollbar lanes take their place FROM the Task Group Area, not over it', () => {
     const pane = host()
     const screen = screenPane()
@@ -1009,6 +1011,7 @@ describe('CA-4 and FR-051 -- one frame of screen, at the size that frame settled
     expect(loop.current()!.regions.taskGroupArea.width).toBeLessThan(before)
   })
 
+  // Spec: IMPS-1758
   it('FR-051: GIVEN a host reporting a header taller than S-116 THEN the cap is what is used', () => {
     // Why: S-116 is the cap, not the height, so 40 above is used as it stands and 80 here is not.
     const pane = host()

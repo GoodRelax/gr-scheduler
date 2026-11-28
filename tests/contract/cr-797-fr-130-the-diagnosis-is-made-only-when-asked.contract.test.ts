@@ -143,6 +143,7 @@ const currentUids = (stage: WindowStage): readonly number[] =>
   (reportOf(stage)?.rows ?? []).flatMap((row) => (row.isCurrent === true && row.target?.kind === 'task' ? [row.target.taskUid ?? -1] : []))
 
 describe('FR-130 (a) -- an edit that touches no marker rebuilds nothing', () => {
+  // Spec: IMPS-557
   it('moving other tasks through the Agent API leaves the DG marks and the report rows as diagnosed', async () => {
     const stage = await diagnosed()
     expect([SELF, LATE, PARENT].map((uid) => symbolOf(stage, uid)), 'premise').toEqual(['DG-1', 'DG-2', 'DG-3'])
@@ -214,6 +215,7 @@ describe('FR-130 / PE-8 (b) -- window closed: a pressed marker drops its own DG 
 })
 
 describe('FR-130 / RW-19 / PE-8 (c) -- window open: the jump keeps the mark, the cycling press drops it', () => {
+  // Spec: IMPS-561
   it('the first press jumps to the row (mark stays); the next press on the marked row cycles and drops the mark', async () => {
     const stage = await diagnosed()
     const before = taskText(stage, LATE)
@@ -264,6 +266,7 @@ const entryOf = (stage: WindowStage, icon: string): FakeElement | null =>
 const weightOf = (element: FakeElement | null): string => (element?.getAttribute('style') ?? '').replace(/\s+/g, '')
 
 describe('FR-130 / RW-3 (e) -- IC-168 makes the diagnosis again with the window kept open', () => {
+  // Spec: IMPS-555
   it('IC-168 alone brings back the mark that a press dropped, and the window is open all the while', async () => {
     const stage = await diagnosed()
     await stage.press('IC-107')

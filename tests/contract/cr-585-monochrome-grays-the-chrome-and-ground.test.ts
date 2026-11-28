@@ -298,6 +298,7 @@ describe(`CR-585 (2) FR-041 "${CLAUSE_ANY_HUE_COLUMN}" / T-294 "${CLAUSE_KEEP_LI
 describe(`CR-585 (3) FR-041 "${CLAUSE_FOLLOW_T236}" -- monochrome off`, () => {
   for (const preference of PREFERENCES) {
     for (const hue of HUES) {
+      // Spec: IMPS-137
       it(`${preference}, hue ${hue}: every --gr-<name> is its T-236 value with H substituted`, () => {
         for (const name of Object.keys(NAME_TO_TASK_GROUP)) {
           const specTableRowId = NAME_TO_TASK_GROUP[name] ?? ''
@@ -348,6 +349,7 @@ describe(`CR-585 (5) FR-041 "${CLAUSE_SAME_VALUE}"`, () => {
   for (const preference of PREFERENCES) {
     for (const hue of HUES) {
       for (const monochrome of [true, false]) {
+        // Spec: IMPS-169
         it(`${preference}, hue ${hue}, monochrome ${monochrome}: --gr-<name> equals the export's color for the same row`, () => {
           for (const name of both) {
             const specTableRowId = NAME_TO_TASK_GROUP[name] ?? ''

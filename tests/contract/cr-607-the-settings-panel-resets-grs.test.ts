@@ -707,6 +707,7 @@ describe(`FR-153 "${FR_153_ONLY_T_345}" -- going on (Yes, y)`, () => {
     ['the y key', (built) => built.send(keyOf(KEY.y))],
   ]
 
+  // Spec: IMPS-988
   it.each(ways)(`%s: "${FR_153_CLEAR_THEN_RELOAD}" -- the page reloads once, after the keys T-345 clears are gone`, async (_name, answer) => {
     const built = await askedBench('ja')
     await answer(built)
@@ -800,6 +801,7 @@ describe(`FR-153 "${FR_153_NO_AGENT_API}"`, () => {
     expect(NAMES.filter((name) => /reset|reload|clearStored/i.test(name))).toEqual([])
   })
 
+  // Spec: IMPS-989
   it('the installed Agent API carries no reset: every member is a row of table T-107', async () => {
     const built = await bench('ja')
     const api = installAgentApi({

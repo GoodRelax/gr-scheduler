@@ -135,6 +135,7 @@ def stamp_drawio(path):
             handle.write(body)
 
 
+# Spec: IMPS-1366
 def stamp(path):
     """Put the back-pointer at the top of a generated document."""
     with open(path, encoding="utf-8") as handle:

@@ -358,6 +358,7 @@ describe('the manuscript still says what these cases read', () => {
 // carried task group's silent stop at the cap (HF-15) are not asserted.
 
 describe('表 T-051 HF-14 (MUST): a task group at FR-085s cap has no child to add', () => {
+  // Spec: IMPS-1953
   it('⛔ the task group AT the cap is described as having nothing to add, and the one above it is not', () => {
     // Why: faintness is the surface's; this unit owes the answer it draws from,
     // read the way HF-13 reads it. The shallower task group is the control.
@@ -396,6 +397,7 @@ describe('表 T-051 HF-14 (MUST): a task group at FR-085s cap has no child to ad
     expect(bare(rowOf('T-233', RS_46).by['表示の仕方'] ?? '')).toBe('出さない')
   })
 
+  // Spec: IMPS-1973, IMPS-1954
   it('⛔ the refused press leaves the document exactly as it was', () => {
     const built = stage()
     const before = JSON.stringify(built.loop.document())

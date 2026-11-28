@@ -128,6 +128,7 @@ describe(`T-245 GO-6 (beginTaskActual, GA-5): ${GO_6_S_585_WORKING_MINUTES}`, ()
     expect(task.resumeValid, '⭐ 片端だけが決まった状態を作らないこと（MUST）').toBe(true)
   })
 
+  // Spec: IMPS-401
   it(`time shown on the day unit (SG-1): ${GO_6_THE_FLOOR}`, () => {
     const task = begun(true, 'barDummyStart', '2026-04-07T08:00:00', DAY_UNIT)
     expect(written(task), GO_6_THE_FLOOR).toEqual({ actualStart: '2026-04-07T08:00', last: '2026-04-07T17:00' })
@@ -223,6 +224,7 @@ describe('the screen: a dummy released or pressed with time of day shown (DFC-25
     })
   })
 
+  // Spec: IMPS-1602
   it(`day tier with time shown, GA-5 released at 03:00 on 04-07: ${FR_103_THE_NEAREST_DAY_EDGE}`, () => {
     const one = stageOf({ isTimeOfDayVisible: true, pxPerDay: DAY_TIER })
     dragFrom(one, halfOf(one, TIMED_UID, 'left'), xOfInstant(one, '2026-04-07T03:00:00'))

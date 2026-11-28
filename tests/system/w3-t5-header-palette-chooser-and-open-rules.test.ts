@@ -195,6 +195,7 @@ test(`HF-10: "${HF_10_COUNT_PLACE}"`, async ({ page }) => {
   expect(count?.left ?? 0, 'the number stands to the left, outside the row of controls').toBeLessThan(control?.left ?? 0)
 })
 
+// Spec: IMPS-1040, IMPS-1041
 test(`FR-096: "${FR_096_ONE_COLUMN}" / "${FR_096_SAME_SIZE}" / "${FR_096_WIDTH_FROM_THE_ROW}"`, async ({ page }) => {
   await launch(page)
   const measure = async (): Promise<{ chooser: Rect; buttons: Rect[] }> => {

@@ -113,6 +113,7 @@ describe(`FR-151 T-353 TV-2 -- ${TV_2_REPORT_ONLY.slice(0, 40)}`, () => {
     expect(drawn({ report: visibility({ isScheduleFilterApplied: true }), reportTaskUids: [ALPHA, BRAVO] })).toEqual([])
   })
 
+  // Spec: IMPS-1862
   it('the three tables on together draw the intersection', () => {
     const three = drawn({
       search: visibility({ shownTaskUids: [ALPHA, BRAVO, CHARLIE, ECHO], isScheduleFilterApplied: true }),

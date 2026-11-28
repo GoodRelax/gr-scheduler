@@ -46,6 +46,7 @@ describe('W3-T3 -- the manuscript still says what these cases read', () => {
 })
 
 describe('FR-039 -- a release that saves the stored S-79 rewrites nothing', () => {
+  // Spec: IMPS-1251
   it(`"${CLAUSE_SAME_VALUE_IS_NO_EDIT}" -- held and let go where it was`, async () => {
     const document = documentOf()
     const stage = exportStage(document)

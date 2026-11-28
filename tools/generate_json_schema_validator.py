@@ -152,6 +152,7 @@ def unknown_keyword(keyword, at):
         % (keyword, at or '/'))
 
 
+# Spec: IMPS-1317
 def reduce_node(node, at, formats):
     """One schema node, cut down to what the walker in grs-json-schema.ts obeys."""
     if not isinstance(node, dict):

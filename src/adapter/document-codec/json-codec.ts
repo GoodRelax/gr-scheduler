@@ -274,7 +274,7 @@ const RETIRED_COLUMNS: readonly { readonly entity: string; readonly key: string 
   { entity: 'TaskVisual', key: 'nameAlign' },
 ]
 
-// Spec: IMPS-1308, RK-1, RK-2
+// Spec: IMPS-1308, RK-1, RK-2, IMPS-1925
 // Why: an older document still carries these keys, often null; the schema no longer lists them,
 // so validating without this step would refuse every such document.
 /** @purity pure */
@@ -338,7 +338,7 @@ function withStopsFromOlderLengths(
   return { ...document, schedule: { ...document.schedule, tasks } }
 }
 
-// Spec: DR-4, S-540
+// Spec: DR-4, S-540, IMPS-1386
 /** @purity pure */
 function withOwnAddress(parsed: unknown): unknown {
   if (!isObject(parsed) || !Object.hasOwn(parsed, SCHEMA_ADDRESS_KEY)) return parsed
@@ -350,7 +350,7 @@ function documentWithoutAddress(shaped: unknown): Document {
   return withoutKeyAt(shaped, [SCHEMA_ADDRESS_KEY]) as unknown as Document
 }
 
-// Spec: FR-023, FR-073, OP-7, FR-012, IMPS-1306, IMPS-1307, IMPS-1002, IMPS-1007
+// Spec: FR-023, FR-073, OP-7, FR-012, IMPS-1306, IMPS-1307, IMPS-1002, IMPS-1007, FR-302
 /** @purity pure */
 export function documentFromJson(
   text: string,

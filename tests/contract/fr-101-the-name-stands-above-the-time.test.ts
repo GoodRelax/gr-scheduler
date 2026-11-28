@@ -180,6 +180,7 @@ describe('FR-101 (MUST) -- the name stands above the time', () => {
     expect(oneByRole(root, U_59).textContent.length).toBeGreaterThan(0)
   })
 
+  // Spec: IMPS-990
   it('⛔ MUST: the name comes before the time in the document', () => {
     // Why: the fake has no layout engine, so this case checks document order and
     // the next one checks that the box holding the two stacks down the page.

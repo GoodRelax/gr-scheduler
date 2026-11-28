@@ -197,6 +197,7 @@ describe('the rows these cases read are still in the manuscript', () => {
 // Why: whether a standing telling should hold the write back is not asserted: the panel
 // settles the value before the shell hears the key, a seam these cases cannot reach.
 describe('NT-8 / SK-19: the dismissal is reckoned at the moment the key arrived', () => {
+  // Spec: IMPS-482
   it('⭐⭐ THE DEFECT: settling a refused value with SK-19 leaves the telling standing', () => {
     // Why: the settling raises its refusal at the head of the happening, so SK-19's first stage
     // must be reckoned on what stood when the key arrived, or it puts this answer away.

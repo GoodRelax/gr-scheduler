@@ -156,7 +156,7 @@ const FORMAT_NAME_BY_TASK_GROUP = new Map(
   displayWords.exportFormats.map((entry) => [entry.specTableRowId, entry]),
 )
 
-// Spec: IMPS-1033, IMPS-1038, IMPS-1039
+// Spec: IMPS-1033, IMPS-1038, IMPS-1039, IMPS-1035
 /** @purity pure */
 function exportFormatChoices(
   language: DisplayLanguage,
@@ -172,7 +172,7 @@ const NO_WORDS = ''
 
 const FIT_SPAN_WORD = displayWords.exportChooser.find((entry) => entry.part === 'fitSpan')
 
-// Spec: FR-096, IX-12, FX-1, FX-8, IMPS-1045, IMPS-1046
+// Spec: FR-096, IX-12, FX-1, FX-8, IMPS-1045, IMPS-1046, IMPS-1047
 /** @purity pure */
 function fitSpanLineOf(settings: DocumentSettings, language: DisplayLanguage): string | null {
   if (fixedFitSpanOf(settings) === null || FIT_SPAN_WORD === undefined) return null
@@ -387,6 +387,7 @@ function commandItemFor(icon: IconId, language: DisplayLanguage): CommandItem {
   }
 }
 
+// Spec: IMPS-906
 /** @purity pure */
 function commandsOnSurface(surface: string, language: DisplayLanguage): readonly CommandItem[] {
   return iconRoster.icons
@@ -499,7 +500,7 @@ function holidaySettingsOrBare(frame: SurfaceFrame): OpenModal {
   return holidaySettingsOf(session, schedule, heading, commands, language)
 }
 
-// Spec: FR-029, FR-038, IMPS-901, WM-6, WM-7
+// Spec: FR-029, FR-038, IMPS-901, WM-6, WM-7, WM-4
 /** @purity pure */
 export function openModalFromSession(
   session: ScreenSession,

@@ -159,7 +159,7 @@ function unhiddenIdsFor(schedule: Schedule, event: TreeStateEvent, pinnedTaskGro
   return new Set(stateOf.get(pressedRowId) === 'hidden' ? [...unhidden, pressedRowId] : unhidden)
 }
 
-// Spec: T-328, FR-018, UN-14, IMPS-778, HR-1a
+// Spec: T-328, FR-018, UN-14, IMPS-778, HR-1a, IMPS-1982, IMPS-1984
 /** @purity pure */
 export function treeStateWritesFor(
   schedule: Schedule,

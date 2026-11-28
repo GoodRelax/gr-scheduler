@@ -395,6 +395,7 @@ describe('FR-060 / T-290 / FR-096 / OP-5 -- the manuscript still says it', () =>
 })
 
 describe('FR-060 -- a replace (IC-71) makes the read file the target', () => {
+  // Spec: IMPS-967
   it('⭐ after IC-71, SK-11 writes over the chosen file and asks nothing', async () => {
     const { built } = await stageWithTarget()
     const theirs = built.file('theirs.json', jsonBytes(there()))
@@ -412,6 +413,7 @@ describe('FR-060 -- a replace (IC-71) makes the read file the target', () => {
 })
 
 describe(`FR-060 (MUST) -- ${KEEP_THE_TARGET_MUST}`, () => {
+  // Spec: IMPS-968
   it('⛔ after a merge (IC-72), SK-11 writes the previous target, never the file read', async () => {
     const { built } = await stageWithTarget()
     const theirs = built.file('theirs.json', jsonBytes(there()))
@@ -502,6 +504,7 @@ describe(`FR-060 (MUST) -- ${KEEP_THE_TARGET_MUST}`, () => {
 })
 
 describe(`FR-096 -- ${MSPDI_HAS_NO_TARGET}`, () => {
+  // Spec: IMPS-1048
   it('⛔ after IC-71 on an MSPDI file, SK-11 asks for a file and never writes the .xml', async () => {
     const { built } = await stageWithTarget()
     const xml = mspdiFromDocument(there(), LAST_SAVED_AT).text

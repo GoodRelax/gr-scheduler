@@ -211,6 +211,7 @@ describe('DFC-49 / FR-085 -- the task group panel works the indent out once', ()
     )
   })
 
+  // Spec: IMPS-1964, IMPS-1967, IMPS-1970
   it.each(DEPTHS)(
     'cuts a depth %i name at the room `indentPx`, `S-140`, `S-138` and `S-218` leave',
     (depth) => {

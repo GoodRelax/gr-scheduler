@@ -64,11 +64,13 @@ describe('CR-646 the manuscript as these cases read it', () => {
   })
 
   // Why: CR-699 (JDG-1677) made the version an RFC 3339 UTC instant; check 76 holds the same shape.
+  // Spec: IMPS-1381
   it('FR-073 / JDG-1677: the schema const is the manifest version, and it is an instant in YYYY-MM-DDTHH:MM:SSZ', () => {
     expect(SCHEMA['properties'].schemaVersion.const).toBe(MANIFEST['schemaVersion'])
     expect(SCHEMA['properties'].schemaVersion.const).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/)
   })
 
+  // Spec: IMPS-1382
   it('$defs/Time: the two default-time columns point at one time definition with the xsd:time pattern', () => {
     const project = SCHEMA['$defs'].Project.properties
     expect(project.defaultStartTime.$ref).toBe('#/$defs/Time')
@@ -78,6 +80,7 @@ describe('CR-646 the manuscript as these cases read it', () => {
 })
 
 describe('X-8 Chapter 6.1 / AT-154: a malformed default time refuses the whole GRS JSON (RS-25)', () => {
+  // Spec: IMPS-1318
   it('RS-25: defaultStartTime 8:00 refuses the document', () => {
     const read = documentFromJson(textOf(twoTasks({ defaultStartTime: '8:00' })), KNOWN_VERSION)
     expect(read.ok).toBe(false)
@@ -188,6 +191,7 @@ describe('X-10 FR-073 / T-297 / JDG-1206: the old shape is refused, not read acr
     expect(documentFromJson(textOf(document), KNOWN_VERSION).ok).toBe(false)
   })
 
+  // Spec: IMPS-1343
   it('AT-62 / AT-11 retired: the written GRS JSON holds no stackOrder and no lastSaved', () => {
     const text = jsonFromDocument(readOk(textOf(twoTasks())))
     expect(text).not.toContain('"stackOrder"')

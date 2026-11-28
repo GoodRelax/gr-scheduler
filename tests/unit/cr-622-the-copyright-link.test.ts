@@ -25,6 +25,7 @@ describe('FR-069 -- the copyright is a link of its own words', () => {
     for (const clause of [FR_069_NEW_TAB, FR_069_NO_REFERRER, FR_069_NOT_TRANSLATED]) expect(REQUIREMENTS).toContain(clause)
   })
 
+  // Spec: IMPS-1089, IMPS-1090
   it('opens the address in a new tab, with no opener and no referrer, showing the notice as written', () => {
     const link = linkOf(NOTICE)
     expect(link.getAttribute('href'), FR_069_NEW_TAB).toBe(ADDRESS)

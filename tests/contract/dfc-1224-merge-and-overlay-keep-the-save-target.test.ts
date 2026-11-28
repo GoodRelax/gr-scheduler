@@ -325,6 +325,7 @@ describe('DFC-1224 -- only a replace makes the chosen file the save target', () 
     expect(saveTo.writes.length).toBe(2)
   })
 
+  // Spec: IMPS-971
   it('IC-72 with no save target yet: SK-11 asks for a file instead of writing the chosen one', async () => {
     const chosen = recordingHandle(CHOSEN_FILE_NAME, JSON.stringify(there()))
     const saveTo = recordingHandle(SAVED_FILE_NAME, '')

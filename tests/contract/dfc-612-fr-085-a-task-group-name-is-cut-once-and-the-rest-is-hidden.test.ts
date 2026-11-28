@@ -66,6 +66,7 @@ describe('DFC-612: the drawn task group name is cut once, by the panel rule, and
     expect(name.textContent).toBe(CUT_LABEL)
   })
 
+  // Spec: IMPS-1968
   it('FR-085 (MUST NOT) no box around the name adds a second cut symbol of its own', () => {
     const { chain } = nameElementOf(CUT_LABEL, true)
     const adding = chain
@@ -74,6 +75,7 @@ describe('DFC-612: the drawn task group name is cut once, by the panel rule, and
     expect(adding).toEqual([])
   })
 
+  // Spec: IMPS-1969
   it('FR-085 (MUST) the width beyond the usable room is hidden', () => {
     const { chain } = nameElementOf(CUT_LABEL, true)
     const hides = chain.some((one) => ['hidden', 'clip'].includes((styleMap(one).get('overflow') ?? styleMap(one).get('overflow-x') ?? '').trim().toLowerCase()))

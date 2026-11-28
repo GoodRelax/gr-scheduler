@@ -171,6 +171,7 @@ for (const win of WINDOWS) {
   test.describe(`CR-737 ${win.name}: the column border`, () => {
     test.setTimeout(240_000)
 
+    // Spec: IMPS-1634
     test(`GR-28 / PK-10: col-resize anywhere within S-465 left and right of a border`, async () => {
       const stage = await win.open(need())
       try {

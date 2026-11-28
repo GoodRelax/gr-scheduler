@@ -580,6 +580,7 @@ describe('the manuscript still says what these cases read', () => {
 // Why: the closing paragraph's MUST NOT is read as writing descendants
 // instead of the pressed task group; HR-1a, HR-3 and HR-7 need the rest.
 describe('表 T-051 の結び -- the press writes the pressed task group, not its children', () => {
+  // Spec: IMPS-1972
   it('⛔ MUST: HF-11 folds the task group it was pressed on (HR-4, 指示 2026-08-31)', () => {
     const built = stage()
 

@@ -37,6 +37,7 @@ const neverCalled = (): number | null => {
 
 describe('edgeInstantOf with the time of day hidden -- ' + NOTE_HIDDEN, () => {
   for (const [text, side, expectedDay, after] of HIDDEN_ROWS) {
+    // Spec: IMPS-396
     it(`${side} edge of ${text} stands at the start of ${expectedDay} + ${after} day(s)`, () => {
       const edge = edgeInstantOf(text, side, neverCalled, false, dayOf)
       expect(edge).toBe(dayStartOf(expectedDay, after))
@@ -86,6 +87,7 @@ describe('edgeInstantOf with the time of day visible -- ' + NOTE_VISIBLE, () => 
   const READ_INSTANT = 29_000_000 + 13 * 60
 
   for (const side of ['start', 'finish'] as const) {
+    // Spec: IMPS-397
     it(`${side} edge is exactly what instantAt returns (${RV_1_VISIBLE})`, () => {
       const dayAtNeverCalled = () => {
         throw new Error('dayAt is not needed when the time of day is visible')

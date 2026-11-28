@@ -85,6 +85,7 @@ describe('DFC-3005 -- FR-036 the T-109 rows in the help', () => {
     expect(shown.filter((one) => !KEPT.includes(one) && one !== 'IC-102')).toEqual([])
   })
 
+  // Spec: IMPS-1140
   it.each(LANGUAGES)('%s: every T-109 row FR-036 keeps is shown', (language) => {
     const shown = t109RowsIn(helpOf(language).entries)
     expect(KEPT.filter((one) => !shown.has(one))).toEqual([])

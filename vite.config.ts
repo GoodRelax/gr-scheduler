@@ -39,6 +39,7 @@ import { defineConfig, type Plugin } from 'vite'
 //     as an inline `<style>` by this plugin needs the same permission.
 //     ⛔ Never grant it to scripts: an injected `<script>` would then run, and
 //     the hash below would be decoration.
+// Spec: SWS-8, NFR-004
 function inlineBuiltAssetsIntoHtml(): Plugin {
   return {
     name: 'grs-inline-built-assets-into-html',
@@ -71,6 +72,7 @@ function inlineBuiltAssetsIntoHtml(): Plugin {
         // that text only after the parser has turned every CR and CRLF in it
         // into a bare LF. Hash exactly that, or the policy refuses the one
         // script in the file and the page comes up blank.
+        // Spec: PO-4, IMPS-1333
         const scriptSourceHashOf = (scriptText: string): string => {
           const asTheParserSeesIt = scriptText.replace(/\r\n?/g, '\n')
           return `'sha256-${createHash('sha256').update(asTheParserSeesIt, 'utf8').digest('base64')}'`
@@ -142,6 +144,7 @@ function inlineBuiltAssetsIntoHtml(): Plugin {
           // ⚠️ `base-uri` and `form-action` are listed there because
           // `default-src` does NOT reach them: without the first, an injected
           // base URL redirects every relative reference in the document.
+          // Spec: PO-1, PO-2, PO-3, PO-5, PO-6, PO-7, IMPS-1332
           const policy = [
             `default-src 'none'`,
             `img-src data:`,

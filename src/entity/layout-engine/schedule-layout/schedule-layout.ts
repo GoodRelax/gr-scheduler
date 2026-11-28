@@ -401,7 +401,7 @@ export function deadlineHeadHalfWidthOf(markerDiameter: number): number {
   return (markerDiameter * NOT_STORED_DEADLINE_MARK_SIZES['S-365']) / 2
 }
 
-// Spec: OC-9, DA-2, IMPS-1946, OC-3, OC-4, OC-5, OC-6
+// Spec: OC-9, DA-2, IMPS-1946, OC-3, OC-4, OC-5, OC-6, IMPS-1947
 /** @purity pure */
 function occupiedSpanOf(
   labeled: { readonly x0: number; readonly x1: number },
@@ -455,7 +455,7 @@ function drawnMinHeightPxOf(minHeight: number | null, drawn: DrawnSettings): num
   return (minHeight ?? 0) * displayScaleFractionOf(drawn)
 }
 
-// Spec: LF-2, VG-2, VG-1, VG-7, ST-9, IMPS-1685
+// Spec: LF-2, VG-2, VG-1, VG-7, ST-9, IMPS-1685, SWS-2
 // Why: a task group with no Task still stacks one rectangle lane, or placing its first Task shifts every task group below.
 /** @purity pure */
 function packedLanesOf(laneHeights: readonly number[], emptyLane: number, laneGap: number): number {
@@ -487,7 +487,7 @@ function membersByGroupOf(schedule: Schedule): ReadonlyMap<string, readonly Task
   return membersByGroup
 }
 
-// Spec: T-068, VG-6, IMPS-1322, IMPS-1941, IMPS-1945, IMPS-1949, IMPS-1950, OC-6, OC-8, ST-1, ST-10, ST-3, ST-4, ST-5, ST-6, ST-8, ST-9, IMPS-770, IMPS-777, IMPS-779, TD-4, TD-5, IMPS-543, IMPS-171, IMPS-172, IMPS-173, IMPS-174, IMPS-179, IMPS-792, AS-2, IMPS-919, IMPS-1685, IMPS-1915, IMPS-928, IMPS-866
+// Spec: T-068, VG-6, IMPS-1322, IMPS-1941, IMPS-1945, IMPS-1949, IMPS-1950, OC-6, OC-8, ST-1, ST-10, ST-3, ST-4, ST-5, ST-6, ST-8, ST-9, IMPS-770, IMPS-777, IMPS-779, TD-4, TD-5, IMPS-543, IMPS-171, IMPS-172, IMPS-173, IMPS-174, IMPS-179, IMPS-792, AS-2, IMPS-919, IMPS-1685, IMPS-1915, IMPS-928, IMPS-866, NG-6, NG-8
 /** @purity pure */
 export function layoutFromSchedule(
   schedule: Schedule,

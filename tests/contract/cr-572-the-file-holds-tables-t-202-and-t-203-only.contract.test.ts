@@ -105,6 +105,7 @@ describe('CR-572 -- the manuscript these cases are driven by', () => {
     expect(STORED_KEYS.filter((key) => NOT_STORED_KEYS.has(key))).toEqual([])
   })
 
+  // Spec: IMPS-1313
   it('FR-024: the published schema, which a written document conforms to, lists exactly the T-202 + T-203 keys', () => {
     const schema = JSON.parse(readRepoFile(join(SPEC, '_source', 'grs-document.schema.json'), 'utf8')) as {
       properties: { documentSettings: { required: string[]; properties: Record<string, unknown> } }
@@ -115,6 +116,7 @@ describe('CR-572 -- the manuscript these cases are driven by', () => {
 })
 
 describe('CR-572 item 1 -- the saved documentSettings holds exactly the keys of T-202 and T-203', () => {
+  // Spec: IMPS-941
   it(`FR-024 「${WRITE_EVERY_KEY}」: every stored key is written, and nothing else`, () => {
     const saved = savedFrom(JSON.stringify(templateCopy()))
     expect(Object.keys(settingsOf(saved)).sort()).toEqual([...STORED_KEYS].sort())

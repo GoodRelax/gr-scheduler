@@ -156,6 +156,7 @@ def manuscript_types():
 MANUSCRIPT_TYPES = manuscript_types()
 
 
+# Spec: IMPS-1368
 def manuscript_notes():
     """Rows of settings.json that carry a `schemaNote` for their key (CR-646).
 
@@ -298,6 +299,7 @@ LEDGER_NOTE = (
     'older version. It stays empty until GRS goes into official use.')
 
 
+# Spec: IMPS-1387
 def change_ledger():
     """The ledger's elements, read from its one manuscript (CR-699)."""
     ledger = json.load(io.open(CHANGES, encoding='utf-8'),
@@ -334,6 +336,7 @@ def frag(spec, open_enums, where):
     return out
 
 
+# Spec: IMPS-1377
 def settings_row_default(row_id, where):
     """The machine default one settings row states, read where it is held."""
     found = [said for said in settings_reader.settings_manuscript().values()
@@ -472,6 +475,7 @@ VALUES_ONLY = {
 }
 
 
+# Spec: IMPS-1395
 def enum_node(spec, where):
     """An enumeration, spelled out in the column or read from its table."""
     if 'valuesFrom' in spec:
@@ -504,6 +508,7 @@ def is_carry_store(entity, column):
     return True
 
 
+# Spec: IMPS-1379
 def carry_def(erd):
     """The one definition every carry store points at, typed by erd.json."""
     stores = [c for e in erd['entities'] for c in e['columns']
@@ -534,6 +539,7 @@ def date_time_ref(spec, where, marker='isDate', target=None):
     return collections.OrderedDict([('$ref', '#/$defs/%s' % target)])
 
 
+# Spec: IMPS-1380
 def date_time_def():
     return collections.OrderedDict([
         ('description', DATE_TIME_DESCRIPTION),
@@ -542,6 +548,7 @@ def date_time_def():
     ])
 
 
+# Spec: IMPS-1382
 def time_def():
     """The one time-of-day definition (CR-646). Its pattern IS a reading
     condition: tools/generate_json_schema_validator.py drops the pattern only
@@ -552,6 +559,7 @@ def time_def():
     ])
 
 
+# Spec: IMPS-1363
 def shape_defs(open_enums, taken):
     """CR-723: one $defs entry per shape of settings.json's shape tables.
 
@@ -893,6 +901,7 @@ def document_settings(tables, open_types, skipped):
 NO_DEFAULT = object()
 
 
+# Spec: IMPS-1376
 def with_defaults_and_bounds(flat):
     """Give each presentation key its default and its constant-named bounds.
 
@@ -939,6 +948,7 @@ def with_defaults_and_bounds(flat):
                 node[keyword] = folded
 
 
+# Spec: IMPS-1378
 def constant_bound(cell, stored, direct):
     """A bound field that names only constants, worked out; else None."""
     if not isinstance(cell, str):
@@ -969,6 +979,7 @@ def constant_bound(cell, stored, direct):
 # ---------------------------------------------------------------------- build
 
 
+# Spec: IMPS-1383, IMPS-1385, IMPS-1393, IMPS-1367, IMPS-1375, IMPS-1381, IMPS-1344, IMPS-1345
 def build():
     erd = json.load(io.open(ERD, encoding='utf-8'),
                     object_pairs_hook=collections.OrderedDict)
@@ -1066,6 +1077,7 @@ def render(schema):
     return json.dumps(schema, ensure_ascii=False, indent=1) + '\n'
 
 
+# Spec: IMPS-1391
 def main():
     schema, problems, open_enums, open_types, unplaced, skipped = build()
     text = render(schema)

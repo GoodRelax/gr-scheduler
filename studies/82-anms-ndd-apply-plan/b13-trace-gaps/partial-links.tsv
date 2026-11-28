@@ -1,0 +1,120 @@
+id	test target	note (the part the linked test leaves unchecked)
+FR-079	tests/contract/cr-583-milestone-figures-sit-on-the-task-group-center.contract.test.ts:683	at zoomX 8 / zoomY 1, expectFigureAt: drawn width and height both equal unit extent * planSide/2 (milestone figures only; arrowheads, corners, dashes not checked)
+FR-161	tests/unit/fr-001-fr-083-the-toggle-and-the-drag.test.ts:861	milestone selected, rectangle pressed: expect(JSON.stringify(document)).toBe(before) -- the change is refused (milestone->bar direction only)
+FR-162	tests/contract/cr-596-a-click-on-the-mark-jumps-and-marks-the-landing.contract.test.ts:1316	at zoomX 2 the selected dependency line width toBeCloseTo(EMPHASIZED_WIDTH(200)) = S-18*ratio + S-447, a zoom-free width (dependency line only; markers/resume icon not checked across zooms)
+FR-300	tests/unit/edit-calendar.test.ts:245	editCalendar(setCalendar workingDayTypes []): expect(result.ok).toBe(false), refusal rule FR-088 / CM-39, and the working days stay S-106 (refusal verified; the notice words not checked)
+FR-307	tests/unit/use-case.test.ts:230	pinTaskGroup at pinnedTaskGroupMax (S-127): expect(result.ok).toBe(false), refusal rule FR-098, held pins unchanged (refusal verified; the notice words not checked)
+HN-7	tests/system/cr-574-help-window.test.ts:757	minimized help: a spot off the title row leaves the Schedule Canvas the front (as with the help closed); title-bar band drag not checked
+IMPS-1003	tests/unit/cr-565-a-grs-json-is-written-to-its-own-schema.test.ts:397	a newer document is opened only with RS-63 told (told toBeDefined); not silent
+IMPS-1009	tests/unit/cr-565-a-grs-json-is-written-to-its-own-schema.test.ts:239	RS-48/RS-63/RS-64 words hold the {downloadUrl} seat in both languages and never S-350 itself (inserted on screen: :397)
+IMPS-1018	tests/unit/use-case.test.ts:151	profile write sets author/company/revision and leaves title (other non-T-224 columns not checked)
+IMPS-1038	tests/contract/cr-768-ic-2-offers-the-rows-the-offered-column-says.contract.test.ts:61	every listed row shows a dictionary word, never its row id
+IMPS-1044	tests/contract/dfc-1723-the-save-and-open-faces-still-close-on-esc-and-keep-one-close.test.ts:94	the save face title row holds IC-52 and none of IC-129..IC-131 (WB-10); the title word is not checked
+IMPS-1055	tests/contract/cr-611-sk-25-fr-095-n-starts-an-empty-document.test.ts:275	after a replace-open then N, SK-11 asks for a file and never writes the file opened
+IMPS-106	tests/contract/cr-754-t-380-the-read-only-rows-in-their-groups.test.ts:269	expect(firstReadOnly).toBe(FO-16 index + 1) and all after are readOnlyGroup; groups/order at :278
+IMPS-1060	tests/contract/cr-699-the-grs-json-carries-its-schema-address-and-version-instant.contract.test.ts:107	expect(keys of the written GRS JSON).toContain('documentStamp') (fields inside not checked)
+IMPS-1066	tests/unit/uf-48-input.test.ts:893	a screen write: expect(lastEditedBy).toBe(T-229 ED-1 word) (the Agent API caller-name half is not checked)
+IMPS-107	tests/contract/cr-754-t-380-the-read-only-rows-in-their-groups.test.ts:361	expect(panel.readOnlyHeading).toBe(partWord(readOnlySettings, heading))
+IMPS-108	tests/contract/cr-754-t-380-the-read-only-rows-in-their-groups.test.ts:365	expect(summary.textContent).toBe(group word of readOnlySettings) for each group box
+IMPS-1092	tests/system/cr-832-the-license-text-stretches-the-help-down.test.ts:304	fold again: expectSameBox(helpBox, opened); a kept WB-8 move at :381; WB-9 edge moves not checked
+IMPS-1103	tests/unit/uf-71.test.ts:2529	framed entrances: right/left/down room toBeGreaterThanOrEqual S-141 (the S-243 task group panel gap is not checked here)
+IMPS-1111	tests/unit/t-051-hf-6-ground-under-the-task-group-controls.test.ts:1050	a faint entrance is never disabled in the host's own sense
+IMPS-1120	tests/contract/dfc-587-title-row-entries-are-drawn.test.ts:299	each panel-face entrance: expect(count).toBe(1) (the panel faces only)
+IMPS-114	tests/contract/cr-754-t-380-the-read-only-rows-in-their-groups.test.ts:343	expect(field.controls).toEqual([]) for every read-only row
+IMPS-1154	tests/unit/cr-405-the-help-scrolls-down-in-three-columns.test.ts:494	rule lines only inside the Command Palette frame (group names not printed is not checked)
+IMPS-1190	tests/system/cr-574-help-window.test.ts:690	after IC-128 header, palette and screen code toBe unchanged; the reverse direction is not checked
+IMPS-1202	tests/unit/cr-409-the-display-scale-counts-the-new-look-as-100.test.ts:107	expect(read.document.documentSettings.displayScale).toBe(stored) and ratio = stored/100 x S-236 (display scale only, font size not checked)
+IMPS-1203	tests/integration/cr-572-viewer-values-stay-off-the-document.test.ts:561	after IC-99: expect(hasUnsavedEdits()).toBe(true), saved file carries fontSizeStep, undo restores (font size only, display scale not checked here)
+IMPS-122	tests/contract/cr-586-the-task-group-color-list-is-one-and-black-is-refused.test.ts:141	expect(colorOf(document)).toBe('#123456/#abcdef') -- a custom color is held as the CV-2 light/dark pair (drawing side not checked)
+IMPS-1220	tests/contract/dfc-1353-1659-2164-fr-039-the-weights-of-the-letters.test.ts:107	exported picture title font-weight toBe(S_463) (the in-place edit field is not checked)
+IMPS-1222	tests/contract/dfc-1353-1659-2164-fr-039-the-weights-of-the-letters.test.ts:147	a heading, table head or bold tag never keeps the browser weight: expect(left).toEqual([])
+IMPS-1270	tests/unit/in-2-pointer-shape.test.ts:670	press on the bar body (the grab cue) then move off: latest shape toBe the shape at the press (hand and drawing cues not checked apart)
+IMPS-130	tests/contract/w3-t1-theme-colors-are-solved-per-hue.contract.test.ts:158	contrast(actual, fill) >= 3 (CT-3), (edge, ground) >= 3 (CT-4), (fill, ground) >= 1.3 (CT-5) for every hue; CT-1/CT-2 not checked
+IMPS-1313	tests/contract/cr-572-the-file-holds-tables-t-202-and-t-203-only.contract.test.ts:108	published schema documentSettings.required and properties equal the T-202+T-203 keys (unknown-key and per-key bounds not checked)
+IMPS-1335	tests/integration/schedule-drawing.sws.test.ts:1080	RP-2 route: exit/entry runs from dependencyLeadOut/dependencyLeadIn and the corridor toBeCloseTo the LF-5 midpoint; arrowhead size not checked
+IMPS-1343	tests/unit/cr-646-grs-json-shape.test.ts:191	written GRS JSON not.toContain "lastSaved" (DV-12 of T-059 only; other DV values not checked)
+IMPS-1359	tests/system/cr-562-the-image-to-grs-json-prompt-is-copied.test.ts:258	PROMPT.ja toBe the manuscript with its first line sliced off (that the line names itself is not checked)
+IMPS-1360	tests/system/cr-562-the-image-to-grs-json-prompt-is-copied.test.ts:258	src image-to-grs-json-prompt.json holds the manuscripts, minified schema and version (one file read; uniqueness not checked)
+IMPS-1365	tests/contract/w3-t5-the-grs-json-schema-is-generated-from-the-manuscripts.contract.test.ts:36	erd_json_to_schema.py --check exits 0: the published schema is byte for byte its rebuild (schema only; planted-drift cases at cr-768:194)
+IMPS-1366	tests/contract/cr-712-the-notice-roster-is-printed-from-its-manuscript.contract.test.ts:103	expect(PRINTED).toContain('this document is generated') and the manuscript name (the rebuild procedure line is not checked)
+IMPS-1393	tests/contract/w3-t5-the-grs-json-schema-is-generated-from-the-manuscripts.contract.test.ts:46	the schema holds each erd.json entity with exactly its columns; the settings side and the self-named unreadable rows are not checked
+IMPS-144	tests/system/w3-t1-the-ground-is-painted-and-nothing-solved-is-saved.test.ts:114	after setThemeHue 52 and IC-16, strip(after) toEqual strip(before): only themeHue differs in the saved JSON
+IMPS-1447	tests/contract/cr-588-the-pre-change-plan-outline.contract.test.ts:397	of two baseline tasks only the one whose UID matches a Task is drawn
+IMPS-1456	tests/contract/cr-588-the-pre-change-plan-outline.contract.test.ts:397	of two baseline tasks only the one whose UID matches a Task is drawn
+IMPS-1493	tests/contract/cr-588-the-pre-change-plan-outline.contract.test.ts:696	every point on/in the outline answers as without it (deadline mark at cr-556:624; LOD, stowed groups, folded boxes not checked)
+IMPS-15	tests/contract/display-words.contract.test.ts:2706	field name toBe exactly the dictionary sentinel, so never a join of column names
+IMPS-1518	tests/unit/uf-50.test.ts:1178	page mode in a 400 x 300 host: expect(scrollPx).toMatchObject({x: 400, y: 300}) (the list window side and one-notch count not checked)
+IMPS-1527	tests/unit/cr-624-a-rested-hint-names-its-holder.test.ts:101	GR-23 task hint lines (GR-26 at :85, GR-27 at :93 tell their hints); that only these three tell is not checked
+IMPS-1559	tests/contract/cr-777-a-released-tip-snaps-or-stands-free.contract.test.ts:77	while held near a bar corner the drawn anchor x/y toBeCloseTo the snap point (leader and mark not checked separately)
+IMPS-1589	tests/contract/dfc-699-the-vertical-zoom-ceiling-and-the-held-day.contract.test.ts:177	MK-3 at a pointer left of the middle leaves the day under the pointer where it was; the task group side is not checked
+IMPS-1617	tests/contract/cr-430-ga-1-to-22-grab-areas.test.ts:551	line-only dummy: 25% toBe GA-21, 75% toBe GA-22 (reaches outside the mark at :557)
+IMPS-1677	tests/integration/schedule-drawing.sws.test.ts:1456	not-started task: marker stands S-584 right of the dummy end (RF-1 basis, LP-2); RF-3 not checked
+IMPS-175	tests/contract/cr-582-the-min-height-field-reads-the-current-height.test.ts:523	the field draws the T-338 check line, value line (input then unit) and read-only line
+IMPS-1860	tests/contract/cr-571-search-rows.contract.test.ts:269	words only in notes or task group names hit nothing: taskRows and commentBoxRows equal []
+IMPS-1894	tests/unit/t-109-milestone-entrances-arm-their-glyph.test.ts:453	with a milestone selected the press changes its glyph and arms; with nothing selected it only arms (:486)
+IMPS-1898	tests/contract/dfc-970-a-fit-below-the-floor-draws-the-floor.contract.test.ts:50	fit below the floor: plan height toBeCloseTo the plan height at the floor zoomY (no separate actual floor not checked)
+IMPS-1912	tests/contract/w3-t3-enter-and-the-two-selections.test.ts:83	renaming a task made earlier keeps it picked (the deselect is for the just-created task only)
+IMPS-1916	tests/use-case/uc-001-place-a-task-and-set-its-period.test.ts:15	SCN-5 step: a name past truncateUnits: expect(drawn.length).toBeLessThan(longName.length), drawn is its head (the S-35 length itself is not checked)
+IMPS-1920	tests/contract/t-273-name-glyph-start.test.ts:128	LP-3: glyphs start at basis start + S-31 exactly; the describe asserts S-31 is never added again (LP-1..LP-8 at :114-:145)
+IMPS-198	tests/unit/dfc-540-the-write-path-guards-the-notes-used-to-hold.test.ts:71	deleteUnreferencedResources: referenced-only doc unchanged; after createResource 'Unused' the sweep changes the document
+IMPS-200	tests/unit/h10-one-assignee-per-line.test.ts:498	add item: expect(commands).toEqual([make(NEW_NAME), seats(T_TWO, HIGH_WATER_MARK+1)]) (Resource uid only; Assignment uid not checked)
+IMPS-260	tests/unit/uf-71-confirmation.test.ts:1407	the shown-on-another-task-group flag reaches the drawn surface on its own item (serialize differs); the flag computation itself is untested
+IMPS-273	tests/contract/dfc-567-fr-029-a-faint-roster-entrance-that-is-pressed-tells-rs-27.test.ts:110	press IC-65: expect(chosenUids).toEqual([BOB]) -- it only chooses the unreferenced; IC-66 deletes
+IMPS-316	tests/unit/cr-555-dependency-lines-are-elided.test.ts:835	EL-4: one inked polyline equals the short line, never the whole route, no arrow head
+IMPS-336	tests/unit/cr-383-fr-009-the-dependency-line-follows-the-pointer.test.ts:404	after release onlyArrowedLine expects exactly one arrowed line (the draft is gone, only the made line)
+IMPS-36	tests/contract/cr-754-fr-006-fr-038-item-names-wrap-at-the-dictionary-break-marks.test.ts:142	drawn pieces toEqual(field.nameBreakSegments) and no space inside a piece (break only at marks)
+IMPS-367	tests/contract/cr-606-the-panel-task-groups-follow-t-016.test.ts:320	only the linkLag row is editable; type and both ends have no controls
+IMPS-377	tests/unit/cr-555-dependency-lines-are-elided.test.ts:865	the ground halo follows the whole drawn path (samePathEitherWay), not only crossing spots
+IMPS-387	tests/contract/cr-606-a-milestone-date-is-one-input.test.ts:167	expect(actualStart/actualFinish day).toBe(DAY) after the CM-13 PA-5 command (PA-5 only)
+IMPS-398	tests/integration/schedule-drawing.sws.test.ts:1283	expect(actualPlacement).toBe('inside') for SH-1 and 'below' for SH-3 with the actualGap drop (milestone 'sideways' not checked)
+IMPS-416	tests/contract/cr-710-w1-ex-working-times-and-durations-round-trip.test.ts:257	expect(ActualDuration).toEqual(['PT16H0M0S']) = the FR-011 length (FR-012 numerator side not checked here)
+IMPS-430	tests/use-case/uc-005-record-actuals.test.ts:37	step SCN-18: expect(actualStart).toBeNull() while only the dummy is drawn, not null after grabbing it
+IMPS-445	tests/unit/fr-043-dummy-drawn.test.ts:981	GA-17 box left/right/top/bottom toBeCloseTo the same-day actual milestone figure (figure at :970); z-order not checked
+IMPS-48	tests/contract/cr-754-fr-006-date-fields-take-s-589-and-s-590.test.ts:171	Holiday WC-4 date cells widthInFontSizes >= S-589; SV-7 in system cr-754 test :463; FM-8 not checked
+IMPS-500	tests/contract/cr-784-fr-013-the-in-progress-marker-is-drawn-as-an-arrow.test.ts:204	PM-1 differs from the PM-3 bar only by the two head strokes (same bar length and width)
+IMPS-507	tests/contract/cr-760-a-progress-marker-of-gives-one-marker.contract.test.ts:84	progressMarkerOf answers one row: a diagnosed DG row wins over PM-4, never both
+IMPS-540	tests/contract/cr-760-a-progress-marker-of-gives-one-marker.contract.test.ts:64	marker toBe(markerWithoutDiagnosis(task)) over tasks holding each DL row and none: PM-4 only when late
+IMPS-545	tests/contract/cr-781-fr-130-rw-1-rw-3-ic-107-closes-the-open-report-and-ic-167-ends-the-diagnosis.contract.test.ts:143	IC-107 with the window never opened runs the diagnosis, draws the marks and opens the window
+IMPS-618	tests/contract/cr-826-fr-133-no-question-mark-or-flame-on-a-task-not-due-yet.contract.test.ts:59	boundary: a task starting on the status day keeps DG-1, only a later day drops
+IMPS-641	tests/unit/cr-617-the-delay-diagnostics-report-window.test.ts:208	IC-124 sort: view.sort {column DT-4, descending}; rows ordered by DT-4 descending (blank-last not checked on rows)
+IMPS-645	tests/contract/cr-731-t-373-the-rows-that-mend-themselves.contract.test.ts:118	FA-11 rows taskUid toEqual [1, 10]: the root row that only comes up after the first is applied follows it
+IMPS-664	tests/contract/cr-731-t-373-the-rows-a-person-chooses-or-dates.contract.test.ts:74	FA-22 row fixKind suggestedDate, after contains the start 2027-05-10 (opens unchecked: rw-11 :147 fixCount n=0); rewriting by the person not checked
+IMPS-668	tests/contract/cr-731-t-373-the-rows-that-mend-themselves.contract.test.ts:201	oneRow(rows,'VC-11',1) exists on the read-only parent and row.refusal not.toBeNull
+IMPS-669	tests/contract/cr-816-the-fix-heading-box-checks-the-listed-rows-then-clears-every-row.contract.test.ts:200	read-only rows: checked toBe false even after the heading checks all
+IMPS-702	tests/contract/cr-710-w2-the-hour-tier-the-snap-and-the-axis.test.ts:109	widening the day: expect(tier index).toBeGreaterThanOrEqual(last) - finer, never coarser
+IMPS-703	tests/integration/schedule-drawing.sws.test.ts:545	SWS-1: per tier the finest row ticks equal the calendar set (sameTicks): a thinned row drops ticks; coarser rows not checked
+IMPS-705	tests/contract/cr-584-the-picture-is-painted-on-the-ground-color.test.ts:125	SETTINGS_CONSTANTS rulerTierPxPerDayMonth/Week toBe(S-83/S-84): fixed values (the not-one-array clause is not checked)
+IMPS-727	tests/contract/state-machine-screen-values.contract.test.ts:585	U-65 closed/replaced drops the draft per calendarDraftStateMachine (the IC-138-only CM-39 write is not checked)
+IMPS-760	tests/contract/cr-710-w1-ex-working-times-and-durations-round-trip.test.ts:223	Duration written = working minutes between start and finish of the calendar (PT16H0M0S ...); the d display and the minutesPerWeek / daysPerMonth clauses not checked
+IMPS-765	tests/contract/document-invariants.contract.test.ts:918	a start '2026-01-05T08:00:30' is not reported (read truncated to the minute); seconds-00 round trip at cr-710-w1-fr-054:93; the 2-digit hour clause not checked
+IMPS-769	tests/contract/cr-710-w2-the-hour-grid-the-hour-shade-and-the-hour-ruler.test.ts:217	at the hour tier lines stand on every midnight and every hour (the finest row); day tier at :210 draws midnight lines only
+IMPS-771	tests/unit/cr-404-a-task-group-opened-by-hand-stays-open.test.ts:448	lowering zoomY: expect(count).toBeLessThanOrEqual(before) (the rounding clause is not checked)
+IMPS-776	tests/unit/cr-404-a-task-group-opened-by-hand-stays-open.test.ts:396	all auto at zoomY 0.6: expect(drawn).toEqual(depth <= 3 groups), deeper dropped first (depth 1 exemption not checked separately)
+IMPS-837	tests/unit/cr-559-comment-box-leader-handle-bundles-and-look.test.ts:1016	at twice the zoom the comment box frame and leader keep their width; the highlight box corner radius is not checked
+IMPS-838	tests/contract/dfc-1015-fr-019-a-hidden-end-task-group-shrinks-the-frame.test.ts:80	hiding the bottom end task group ends the highlight frame at the last shown task group; the comment box on a folded task group is not checked
+IMPS-852	tests/unit/cr-559-comment-box-leader-handle-bundles-and-look.test.ts:950	null columns draw the T-217 defaults; ranges S-374 / S-375 at :1104 / :1115, S-624 at cr-811:409 (the PR-26..PR-50 entrances not checked)
+IMPS-861	tests/contract/cr-589-each-entry-rewrites-the-setting-its-cell-names.contract.test.ts:293	each FR-049 entry flips the boolean T-202 row its cell names, from -> !from, others untouched (boolean-only rows checked at :93)
+IMPS-871	tests/system/display-words-reasons-and-watermark.test.ts:420	the instant is set at open, stays toBe opened after 2.5 s idle (no per-frame clock), and changes after an edit; refused/no-op writes not checked
+IMPS-879	tests/system/mspdi-normalization.sws.test.ts:683	a copy differing as text only in LastSaved: expect(sameAfterNormalization(...).same).toBe(true); another leaf moved: false
+IMPS-900	tests/use-case/uc-014-merge-schedules-into-one.test.ts:35	merge by drop: page.locator(REVIEW) toHaveCount(1) (the U-61 Difference Review); no expect on the absence of an icon entry
+IMPS-903	tests/use-case/uc-014-merge-schedules-into-one.test.ts:35	the review row is the task with the same UID (data-uid EDITED_UID) on both sides; MG-1 for non-matching UIDs not checked
+IMPS-915	tests/contract/dfc-3320-a-derived-task-group-name-fills-the-name-field.test.ts:39	a task group with name null derived from a Task: expect(control.text).toBe(TASK_NAME) (the no-name-no-derivation clause not checked)
+IMPS-927	tests/unit/h10-one-assignee-per-line.test.ts:449	with S-61 off, expect(labelOf(uid)).toBe('Bravo') -- only the assignee, no separator (the neither-shown case is not tested)
+IMPS-947	tests/integration/cr-572-viewer-values-stay-off-the-document.test.ts:440	IC-100 (settings branch): settingsUpdatedAt changes, scheduleUpdatedAt toBe(before); one key only
+IMPS-954	tests/contract/cr-707-the-startup-margin-the-palette-corner-and-the-task-group-name-top.contract.test.ts:155	written copy: expect(scrollDate, scrollDateFraction, scrollTaskGroupId).toBe(drawn place) (zoomX/zoomY saving not checked here)
+IMPS-966	tests/contract/cr-610-op-16-rs-68-the-size-read-and-the-copy-told.test.ts:76	clipboard refused: expect(told(built)).not.toContain(RS_68.text.ja) (the IX-6 ceiling and picture-failure reasons not checked)
+IMPS-968	tests/contract/dfc-1224-fr-060-only-a-replace-moves-the-save-target.test.ts:415	after a merge (IC-72), SK-11 writes the previous target, never the file read (overlay at :428)
+IMPS-98	tests/contract/cr-557-the-theme-hue-field-heads-the-settings-panel.test.ts:436	expect(rest.filter(isEditable).rows).toEqual(placed fields only)
+IMPS-987	tests/unit/cr-607-the-reset-clears-only-what-table-t-345-clears.test.ts:240	after the reset what is left is exactly the S-99c key and the foreign keys (clear() never called at :235)
+IMPS-988	tests/contract/cr-607-the-settings-panel-resets-grs.test.ts:710	going on: expect(built.reloads).toHaveLength(1) and at the reload only S-99c and foreign keys are left (no expect on the host warning)
+IMPS-99	tests/contract/cr-557-the-theme-hue-field-heads-the-settings-panel.test.ts:436	expect(isEditable rows).toEqual(placed) and controls only on placed rows
+IMPS-991	tests/contract/cr-610-t-341-hs-1-to-7-the-header-file-status.test.ts:133	HS-5: the lower line holds the never-saved words alone and no size
+IMPS-993	tests/contract/dfc-66-fr-101-a-save-names-the-file-it-wrote.test.ts:289	the written moment is kept in UTC, to the second; reading AT-127 as the save time is not checked
+NFR-005	tests/system/nfr-004-file-scheme-sweep.sws.test.ts:2201	the NFR-004 population swept in launchReferenceBrowser() = chromium channel msedge: expect.soft(didNotAnswer(fileResult)).toEqual([]) and no page errors (Edge only; Chrome not run)
+NFR-006	tests/use-case/uc-005-record-actuals.test.ts:37	SCN-21: cycling the marker through in-progress, finished, interrupted: expect(new Set(shapes).size).toBe(3) -- each state a different element shape (markers only, no monochrome run)
+NG-3	tests/unit/cr-555-dependency-lines-are-elided.test.ts:1024	an EL-6 line with nothing drawn cannot be grabbed where its route crosses the area (the S-62-false sentence is not tested)
+NG-5	tests/system/cr-430-labels-and-hidden-things-sweep.test.ts:345	expect(broken).toEqual([]) -- the resume grab is allowed only with marker and actual both shown
+NG-9	tests/system/cr-430-labels-and-hidden-things-sweep.test.ts:345	expect(broken).toEqual([]) -- with an empty selection the fade family is never allowed and none answers
+UN-6a	tests/contract/cr-735-one-named-dependency-line.contract.test.ts:160	deleting a line: expect(stepsOf(held)).toBe(1) and undo brings the lines back (add and lag change not checked here)
+VG-7	tests/integration/schedule-drawing.sws.test.ts:683	the gap across groups is exactly the VG-2 gap in every band case (never below); no floor-raised band is checked
+WY-4	tests/contract/w3-t4-a-saved-export-span-draws-one-picture.test.ts:222	with S-532 fixed: expect(pictureOf(built).svg).toBe(first) after resize, CM-65 zoom and panel/palette toggles; PNG pixels not checked

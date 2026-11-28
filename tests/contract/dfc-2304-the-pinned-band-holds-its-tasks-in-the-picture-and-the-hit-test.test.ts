@@ -245,6 +245,7 @@ describe('DFC-2304 -- the manuscript these cases are driven by', () => {
 })
 
 describe('DFC-2304: the pinned band holds its tasks in the picture and in the hit test (FR-098, PI-6)', () => {
+  // Spec: IMPS-790
   it('FR-098 premise: in every scroll state the band holds the pinned task, g1 is under it at g2 and straddles it halfway into g1', () => {
     for (const { scroll, scene } of SCENES) {
       const band = bandOf(scene.geometry)
@@ -262,6 +263,7 @@ describe('DFC-2304: the pinned band holds its tasks in the picture and in the hi
     expect(free.y).toBeGreaterThanOrEqual(bandOf(sceneOf(AT_G1).geometry).scrollTop)
   })
 
+  // Spec: IMPS-783
   it('FR-098 the pinned task stays at the top of the Task Group Area while the schedule scrolls vertically, and the others move', () => {
     const [first, ...rest] = SCENES
     if (first === undefined) throw new Error('no scene')
@@ -290,6 +292,7 @@ describe('DFC-2304: the pinned band holds its tasks in the picture and in the hi
     }
   })
 
+  // Spec: IMPS-785
   it('FR-098 every figure of a scrolling task -- bar, label, marker -- is cut at the band edge, and the cut is the top of the rest down to the foot of the Task Group Area', () => {
     for (const { scroll, scene } of SCENES) {
       const picture = pictureOf(svgOf(scene))

@@ -144,6 +144,7 @@ describe(`FR-019: ${DELETE_REWRITES}`, () => {
     }
   }
 
+  // Spec: IMPS-833
   it('deleting a task turns the tip snapped to its planned bar left corner into a free point at the bar start', () => {
     const document = snappedTo({ anchorTaskGroupId: groupOf(BAR_UID), anchorTaskUid: BAR_UID, anchorTaskFigure: 'plannedBar', anchorSnapPoint: 'topLeftCorner' })
     const result = editDocument(document, { kind: 'deleteTask', taskUid: BAR_UID }, LIMITS, 'row')
@@ -171,6 +172,7 @@ describe(`FR-019: ${DELETE_REWRITES}`, () => {
     expect(rowOf(result.document, OTHER_COMMENT_ID)).toEqual(rowOf(document, OTHER_COMMENT_ID))
   })
 
+  // Spec: CD-4
   it('deleting a highlight box turns a top-row tip into a free point at its top task group, fraction 0', () => {
     const document = snappedTo({ anchorHighlightBoxId: HIGHLIGHT_ID, anchorSnapPoint: 'topLeftCorner' })
     const result = editDocument(document, { kind: 'deleteHighlightBox', highlightBoxId: HIGHLIGHT_ID }, LIMITS, 'row')

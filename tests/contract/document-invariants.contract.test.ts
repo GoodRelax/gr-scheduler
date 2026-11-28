@@ -855,6 +855,7 @@ describe('table T-220 -- the document invariants, through scheduleViolations (PI
     expect(found, `the sound document was reported for ${listed(found)}`).toEqual([])
   })
 
+  // Spec: IMPS-1300
   it.each(INVARIANTS)('$id is reported, and as a $kind', ({ id, kind }) => {
     const broken = breachOf(id)
     const found = scheduleViolations(broken.schedule, broken.settings)
@@ -889,6 +890,7 @@ describe('table T-220 -- the document invariants, through scheduleViolations (PI
     expect(Object.keys(DANGLING).sort()).toEqual([...FOREIGN_KEY_COLUMNS].sort())
   })
 
+  // Spec: IMPS-841
   it.each(PROBES)('$row is reported for $member too', ({ row, member, document }) => {
     const broken = document()
     const found = scheduleViolations(broken.schedule, broken.settings)
@@ -915,6 +917,7 @@ describe('table T-220 -- the document invariants, through scheduleViolations (PI
     expect(found.filter((one) => one.row === row), listed(found)).toEqual([])
   })
 
+  // Spec: IMPS-765
   it('IV-14 is not reported for a time with seconds: it reads truncated to the minute (DFC-2453, CR-741)', () => {
     const held = withSchedule({ tasks: [{ ...TASK_A, start: '2026-01-05T08:00:30' }, TASK_B] })
     const found = scheduleViolations(held.schedule, held.settings)

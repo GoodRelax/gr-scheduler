@@ -73,6 +73,7 @@ describe('FR-054: instantOf reads the written date and the written time as one v
     expect(instantAt('2026-01-07T08:00:00')).not.toBe(instantAt('2026-01-07T08:01:00'))
   })
 
+  // Spec: IMPS-764
   it('does not convert a zone: a written offset or Z reads as the same wall clock', () => {
     const plain = instantAt('2026-01-07T08:00:00')
     expect(instantAt('2026-01-07T08:00:00Z')).toBe(plain)

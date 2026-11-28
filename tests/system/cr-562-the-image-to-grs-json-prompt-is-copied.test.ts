@@ -255,6 +255,7 @@ test.describe('CR-562 -- the clauses and the generated seam these cases are driv
     expect(roleName('U-30'), '表 T-103 U-30 names the Help Modal only').toBe('Help Modal')
   })
 
+  // Spec: IMPS-1357, IMPS-1359, IMPS-1360
   test(`${FR_068_ONE_LINE} -- the seam file holds the manuscripts, the minified schema and the version`, () => {
     expect(PROMPT.ja).toBe(manuscriptOf('ja'))
     expect(PROMPT.en).toBe(manuscriptOf('en'))
@@ -264,6 +265,7 @@ test.describe('CR-562 -- the clauses and the generated seam these cases are driv
     expect(PROMPT.emptyDocument).toBe(JSON.stringify(JSON.parse(PROMPT.emptyDocument)))
   })
 
+  // Spec: IMPS-1082
   test(FR_068_BASE, () => {
     const base = JSON.parse(PROMPT.emptyDocument) as {
       schemaVersion: string
@@ -308,6 +310,7 @@ test.describe(`IC-115 -- ${FR_068_NO_SURFACE}`, () => {
     }
   })
 
+  // Spec: FR-368
   test(`SCN-44 ${FR_068_TELL} -- and no surface is opened @UC-011.OK`, async () => {
     const one = await visit()
     try {

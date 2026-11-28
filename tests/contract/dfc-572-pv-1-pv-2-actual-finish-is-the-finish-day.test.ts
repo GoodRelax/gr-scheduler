@@ -253,6 +253,7 @@ describe('DFC-572 premises: the clauses and the calendar still read this way', (
 describe('DFC-572 table T-021a PV-1: not started -> in progress writes the floor day', () => {
   // Why: CR-430 lengthened the cycle, so `PV-1` writes its floor day to `stop`
   // and not `actualFinish`; the day is the actual's last, not the bar's end.
+  // Spec: IMPS-452, IMPS-433
   it('⭐ 実績の開始と終わりが同じ日の 08:00 〜 17:00 であるとき、その実績は 480 分（1d）である -- PV-1 on a Monday writes stop = actualStart', () => {
     const task = pressed(documentWith(taskOf({ start: stored(ymd(5)), finish: stored(ymd(9)) }), 'rectangle'))
     expect(task.actualStart).toBe(startSide(ymd(5)))
@@ -273,6 +274,7 @@ describe('DFC-572 table T-021a PV-1: not started -> in progress writes the floor
     expect(task.stop, 'MUST NOT: the right end (Saturday)').not.toBe(stored(ymd(10)))
   })
 
+  // Spec: IMPS-409
   it('⚠️ マイルストーンにはこの読みを当てない —— 長さを持たない点なので（`S-130`、表 T-012 の `SH-5`）、実績の終了日は `actualStart` と同じ日である。 -- PV-1 on a milestone', () => {
     const task = pressed(
       documentWith(taskOf({ name: 'Ship', start: stored(ymd(9)), finish: stored(ymd(9)), milestone: true }), 'milestone'),

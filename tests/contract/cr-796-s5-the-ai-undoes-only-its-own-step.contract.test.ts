@@ -144,6 +144,7 @@ describe('AM-9 undoEdit -- the AI takes back its own step; the stamp comes back 
     if (undone.ok) expect(undone.stamp).toEqual(before)
   })
 
+  // Spec: IMPS-213
   it('RD-1: walking the history adds no step of its own -- a second undo finds nothing', () => {
     const state = startingState()
     const api = agentApiMembers(wiringFor(state, AI))
@@ -157,6 +158,7 @@ describe('AM-9 undoEdit -- the AI takes back its own step; the stamp comes back 
     expect(state.document).toBe(restored)
   })
 
+  // Spec: IMPS-212
   it('only the newest step is taken back: a person step below the AI step stays', () => {
     const state = startingState()
     expect(writeAs(state, PERSON, SECOND_UID, 'renamed by the person').ok).toBe(true)

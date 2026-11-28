@@ -221,6 +221,7 @@ describe('表 T-206 -- the two values FR-031 says the bounds are', () => {
 })
 
 describe('FR-031 / S-94 -- 段数の上限は、実際の書き込みを通して届くこと', () => {
+  // Spec: IMPS-206
   it('S-94: more real writes than S-94 through CP-8 leave exactly S-94 段', () => {
     const one = bench()
     writeNames(one, S_94 + 3)
@@ -254,6 +255,7 @@ describe('FR-031 / S-94 -- 段数の上限は、実際の書き込みを通し�
     expect(JSON.stringify(beyond.next.document)).toBe(past)
   })
 
+  // Spec: IMPS-207
   it('S-94: 上限を超えたときは最も古い段から捨てる -- the OLDEST goes, so the newest still undoes', () => {
     const one = bench()
     writeNames(one, S_94 + 3)
@@ -370,6 +372,7 @@ describe('FR-031 -- 取り消して、やり直して、元の文書へ戻る', 
     expect(JSON.stringify(held.document)).toBe(started)
   })
 
+  // Spec: IMPS-204
   it('redoing every 段 lands byte-identically on the document the undos started from', () => {
     const one = bench()
     writeNames(one, 5)

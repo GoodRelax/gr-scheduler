@@ -33,6 +33,7 @@ describe('W3-T5 -- the manuscript these cases are driven by', () => {
 })
 
 describe(`05-07 "${SCHEMA_IS_GENERATED}"`, () => {
+  // Spec: IMPS-1365, IMPS-1391, IMPS-1344
   it('the published schema is byte for byte what its generator raises from the manuscripts', () => {
     const run = spawnSync('python', [join(SOURCE, 'erd_json_to_schema.py'), '--check'], {
       cwd: process.cwd(),
@@ -43,6 +44,7 @@ describe(`05-07 "${SCHEMA_IS_GENERATED}"`, () => {
     expect({ status: run.status, out: `${run.stdout}${run.stderr}`.trim() }, SCHEMA_IS_GENERATED).toMatchObject({ status: 0 })
   })
 
+  // Spec: IMPS-1361, IMPS-1393, IMPS-1345
   it.each(ERD.entities.map((entity) => [entity.name, entity] as const))(
     'the schema holds %s with exactly the columns erd.json gives it, and no column of its own',
     (name, entity) => {

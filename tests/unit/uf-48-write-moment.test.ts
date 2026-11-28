@@ -861,6 +861,7 @@ describe('FR-018 -- holding a zoom entrance down', () => {
     }
   }
 
+  // Spec: IMPS-774, FR-305
   it('FR-018 (MUST): holding IC-13 steps after S-172, then at S-173, each step wakes a frame, release stops it', async () => {
     const held = await holding('IC-13', {})
     try {
@@ -1147,6 +1148,7 @@ describe('IC-99 -- FR-039 (MUST) puts the font size on the Command Palette', () 
 
   for (const [index, from] of FONT_SIZE_STEPS.entries()) {
     const to = FONT_SIZE_STEPS[(index + 1) % FONT_SIZE_STEPS.length] as string
+    // Spec: IMPS-1214
     it(`takes a document saved at ${from} to ${to}`, () => {
       const run = standing({ ...CONTRARY, fontSizeStep: from })
       expect(settingsOf(run.loop).fontSizeStep, 'the premise').toBe(from)
@@ -1192,6 +1194,7 @@ describe('IC-101 -- FR-003 (MUST) puts the stacking direction on the palette', (
 
   for (const [index, from] of STACK_VALUES.entries()) {
     const to = STACK_VALUES[1 - index] as string
+    // Spec: IMPS-1942, IMPS-1943, IMPS-1944
     it(`takes a document saved as ${from} to ${to}`, () => {
       const run = standing({ ...CONTRARY, stackDirection: from })
       expect(settingsOf(run.loop).stackDirection, 'the premise').toBe(from)
@@ -1213,6 +1216,7 @@ describe('IC-8 / IC-9 -- each entrance flips its own row and leaves the other', 
 
   for (const [entry, key] of spelled) {
     for (const from of [true, false]) {
+      // Spec: IMPS-865
       it(`${entry} takes ${key} from ${String(from)} to ${String(!from)}`, () => {
         const other = key === 'isPlanVisible' ? 'isActualVisible' : 'isPlanVisible'
         for (const otherFrom of [true, false]) {

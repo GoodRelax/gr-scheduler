@@ -327,6 +327,7 @@ describe('FR-042 (MUST): the task group s name is a field of the panel', () => {
 // Why: no case presses Enter: SK-19 already puts the panel away, and FR-085
 // forbids restating it here.
 describe('FR-085 (MUST): a double click on the name opens the panel at that field', () => {
+  // Spec: IMPS-1959, IMPS-1960
   it('⭐ puts the panel up and asks for AT-53', () => {
     // Why: the focus itself belongs to the side that drew the control (LR-6), so
     // this unit owes only the ask.

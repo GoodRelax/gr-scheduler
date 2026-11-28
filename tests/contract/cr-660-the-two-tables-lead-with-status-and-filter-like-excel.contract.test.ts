@@ -546,6 +546,7 @@ describe('T-330 SV-7 -- the open filter closes on its own entrance pressed again
     expect(viewOf(opened('SQ-1', opened('SQ-5'))).filterMenu?.column).toBe('SQ-1')
   })
 
+  // Spec: IMPS-626
   it('SV-7 / T-346: IC-122 of the same column closes the report filter too', () => {
     const open = reportAfter(OPENED_REPORT, 'IC-122', 'DT-3')
     expect(reportViewOf(open).filterMenu?.column).toBe('DT-3')

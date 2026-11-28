@@ -53,6 +53,7 @@ export function armedLabelStyle(): string {
   return `font-size:${NOT_STORED_ARMED_LABEL_SIZES['S-489']}px;`
 }
 
+// Spec: SC-6
 /** @purity pure */
 function cornerStyle(at: { readonly x: number; readonly y: number }): string {
   return `position:absolute;left:${at.x}px;top:${at.y}px;`
@@ -80,7 +81,7 @@ function grabBandElement(
   return band
 }
 
-// Spec: U-26, FR-053, IMPS-1822, IMPS-1824, IMPS-1825, IMPS-1838, IMPS-1845, IMPS-1850
+// Spec: U-26, FR-053, IMPS-1822, IMPS-1824, IMPS-1825, IMPS-1838, IMPS-1845, IMPS-1850, IMPS-1846
 /** @purity non-pure */
 export function paletteElement(
   host: Document,

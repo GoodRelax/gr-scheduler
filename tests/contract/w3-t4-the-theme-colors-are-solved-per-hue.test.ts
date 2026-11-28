@@ -159,6 +159,7 @@ describe(`T-366 CF-3 -- ${CF_3}`, () => {
 })
 
 describe(`T-366 CF-2 -- ${CF_2}`, () => {
+  // Spec: IMPS-147
   it.each(SIDES)('every hue, %s theme: S-155 / S-156 / S-157 / S-151 are drawn at the solved k', (side) => {
     const wrong: string[] = []
     for (const hue of HUES) {

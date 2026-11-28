@@ -103,7 +103,7 @@ function isPressInPlace(grab: string, press: PointerPress, release: PointerInput
   return isPressOnly && !hasDraggedPastThreshold(press, release)
 }
 
-// Spec: T-023d, MK-13, GO-10, IMPS-517, IMPS-1678, GO-1, GO-2, IMPS-1599, IMPS-1646, IMPS-1652, IMPS-1656, PE-13, PE-3, IMPS-457
+// Spec: T-023d, MK-13, GO-10, IMPS-517, IMPS-1678, GO-1, GO-2, IMPS-1599, IMPS-1646, IMPS-1652, IMPS-1656, PE-13, PE-3, IMPS-457, IMPS-1733, IMPS-1658
 /** @purity pure */
 export function commandFromGrab(
   release: PointerInput,
