@@ -680,6 +680,7 @@ describe('LF-10 -- the plan figure: side = the plan height, bounding-box center 
     expect(stageFor('diamond').planSide(STARTED_UID)).toBeCloseTo(H * S_17, 6)
   })
 
+  // Spec: IMPS-1323, FR-079
   it.each(GLYPHS)("LF-10 %s plan: F-044's bounding box at the plan side, centered on (start, the plan middle)", (glyph) => {
     const stage = stageFor(glyph)
     expectFigureAt(figureOf(stage.elements, STARTED_UID, 'plan'), glyph, planPlace(stage), 'plan')
@@ -698,6 +699,7 @@ describe('LF-10 -- the plan figure: side = the plan height, bounding-box center 
 })
 
 describe('LF-10 -- the actual figure: S-5 times the plan, on its own day, the same middle', () => {
+  // Spec: XS-9
   it.each(GLYPHS)('LF-10 %s actual: F-044 at S-5 times the plan side, centered on (actual day, the plan middle)', (glyph) => {
     const stage = stageFor(glyph)
     const figure = figureOf(stage.elements, STARTED_UID, 'actual')

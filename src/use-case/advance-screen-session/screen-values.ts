@@ -695,7 +695,7 @@ function onPaletteMinimizeToggled(values: ScreenValues): ScreenStep {
   return moved(values, { paletteDisplayState: { kind: 'shown', child: { kind } } })
 }
 
-// Spec: IMPS-1831, IMPS-1832
+// Spec: IMPS-1831, IMPS-1832, IMPS-1833
 /** @purity pure */
 function onMilestoneListToggled(values: ScreenValues): ScreenStep {
   const kind = values.milestoneListDisplayState.kind === 'closed' ? 'open' : 'closed'
@@ -809,7 +809,7 @@ function windowRungConsumed(values: ScreenValues, key: ToggleableWindowKey): Scr
   return moved(values, { [key]: { kind: 'hidden' } } as Partial<ScreenValues>)
 }
 
-// Spec: T-280, IN-4, RG-16, IMPS-1498
+// Spec: T-280, IN-4, RG-16, IMPS-1498, IMPS-1867
 /** @purity pure */
 function onEscapePressed(values: ScreenValues, event: EventOf<'escapePressed'>): ScreenStep {
   if (SCREEN_VALUES_GUARDS.isRungSearchPanel(event)) return windowRungConsumed(values, 'searchPanelDisplayState')
@@ -839,7 +839,7 @@ const ARMED_BY_KIND: {
   parentTaskArmed: () => ({ kind: 'parentTaskArmed' }),
 }
 
-// Spec: IMPS-1497, IMPS-1498, IMPS-1499, IMPS-1500, IMPS-1501, IMPS-1502, IMPS-1890, IMPS-1891, IMPS-1892, SP-1, SP-2, SP-3, SP-4
+// Spec: IMPS-1497, IMPS-1498, IMPS-1499, IMPS-1500, IMPS-1501, IMPS-1502, IMPS-1890, IMPS-1891, IMPS-1892, SP-1, SP-2, SP-3, SP-4, UN-11, PTL-1, PTL-2, IMPS-1423
 /** @purity pure */
 function onArmEntryPressed(values: ScreenValues, event: EventOf<'armEntryPressed'>): ScreenStep {
   if (SCREEN_VALUES_GUARDS.isSameArm(values, event)) return moved(values, { armModeState: { kind: 'notArmed' } })
@@ -993,7 +993,7 @@ function onScaleMessageTimeElapsed(values: ScreenValues): ScreenStep {
   return moved(values, { scaleMessageDisplayState: { kind: 'hidden' } })
 }
 
-// Spec: IMPS-1186, IMPS-1188, IMPS-1190
+// Spec: IMPS-1186, IMPS-1188, IMPS-1190, UN-10
 /** @purity pure */
 function onScreenLanguageChosen(
   values: ScreenValues,
@@ -1003,7 +1003,7 @@ function onScreenLanguageChosen(
   return moved(values, { screenLanguage }, [{ type: 'storeScreenLanguage', screenLanguage }])
 }
 
-// Spec: IMPS-1188, IMPS-1190
+// Spec: IMPS-1188, IMPS-1190, FR-380
 /** @purity pure */
 function onHelpLanguageChosen(values: ScreenValues, event: EventOf<'helpLanguageChosen'>): ScreenStep {
   const helpLanguage = event.helpLanguage

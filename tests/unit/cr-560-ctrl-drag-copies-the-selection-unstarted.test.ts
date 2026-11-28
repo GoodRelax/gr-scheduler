@@ -543,6 +543,7 @@ function pressAt(built: Stage, context: InputContext, at: Point, modifiers: Part
 }
 
 describe('T-023a PTD-7 / T-308 CY-1, CY-2: which press starts a copy (pressedRowOf)', () => {
+  // Spec: IMPS-1489
   it('a Ctrl-only left press on a selected Task body is PTD-7', () => {
     const built = stage()
     const context = contextOf(built, PICKED_ROOT)
@@ -589,6 +590,7 @@ describe('T-023a PTD-7 / T-308 CY-1, CY-2: which press starts a copy (pressedRow
 })
 
 describe('T-308 CY-3, CY-5, CY-6, CY-8: the release of a PTD-7 press (commandFromInput + editDocument)', () => {
+  // Spec: IMPS-305
   it('writes one CM-8 carrying the selection, the day shift and the task groups, and picks the copies', () => {
     const built = stage()
     const context = contextOf(built, PICKED_ROOT)
@@ -650,6 +652,7 @@ describe('T-308 CY-3, CY-5, CY-6, CY-8: the release of a PTD-7 press (commandFro
 })
 
 describe('T-308 through the shell: a Ctrl drag on the selection copies it', () => {
+  // Spec: IMPS-304
   it('CY-5, CY-6: a drag 3 days right and 1 task group down stands the copies there and leaves the source', () => {
     const moved = stage()
     selectRoot(moved)

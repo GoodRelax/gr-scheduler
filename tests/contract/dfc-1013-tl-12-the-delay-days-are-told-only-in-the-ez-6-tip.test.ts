@@ -132,6 +132,7 @@ describe('DFC-1013 -- TL-12 the tip of a late Task', () => {
     expect(diagnosedDaysOf(schedule, FINISHED)).toBeUndefined()
   })
 
+  // Spec: IMPS-541
   it.each([
     [NOT_STARTED_LATE, 'ja'],
     [NOT_STARTED_LATE, 'en'],
@@ -168,6 +169,7 @@ describe('DFC-1013 -- TL-12 the tip of a late Task', () => {
     }
   })
 
+  // Spec: IMPS-544
   it('with no status date the tip has no late line', () => {
     const schedule = scheduleWith(null)
     for (const uid of [NOT_STARTED_LATE, IN_PROGRESS_LATE]) {
@@ -184,6 +186,7 @@ afterEach(() => {
 })
 
 describe('DFC-1013 -- FR-047 (MUST NOT) the picture holds no days of delay', () => {
+  // Spec: IMPS-542, IMPS-1748
   it('the drawn schedule carries the late sentence of no late Task, in either language', () => {
     const waiting: ((time: number) => void)[] = []
     ;(globalThis as { requestAnimationFrame?: unknown }).requestAnimationFrame = (callback: (time: number) => void): number => {

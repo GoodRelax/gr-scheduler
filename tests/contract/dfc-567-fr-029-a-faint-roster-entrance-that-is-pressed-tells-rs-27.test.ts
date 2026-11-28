@@ -91,6 +91,7 @@ describe('DFC-567 -- FR-029 a roster whose choice already is what the entrance w
     expect(entranceOf(built, CLEAR_ALL)?.isEnabled).toBe(false)
   })
 
+  // Spec: IMPS-270
   it('control: a pressable IC-63 chooses everybody and tells nothing', async () => {
     const built = await rosterWith(adaAndBob())
     await built.press(ROSTER, SELECT_ALL)
@@ -107,6 +108,7 @@ describe('DFC-567 -- FR-029 a roster whose choice already is what the entrance w
     expect([...chosenUids(built)].sort()).toEqual([ADA, BOB])
   })
 
+  // Spec: IMPS-273
   it('only the unreferenced person chosen: IC-65 is faint and a press carries RS-27 unseen', async () => {
     const built = await rosterWith(adaAndBob())
     await built.press(ROSTER, SELECT_UNREFERENCED)
@@ -117,6 +119,7 @@ describe('DFC-567 -- FR-029 a roster whose choice already is what the entrance w
     expect(chosenUids(built)).toEqual([BOB])
   })
 
+  // Spec: IMPS-271
   it('control: with a choice standing IC-64 is pressable, clears it and tells nothing', async () => {
     const built = await rosterWith(adaAndBob())
     await built.press(ROSTER, SELECT_ALL)

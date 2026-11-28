@@ -62,7 +62,7 @@ describe('FR-155 / T-373 -- the manuscript these cases read', () => {
 
   it('T-373 gives every row one of the four fix types, FA-3 and FA-25 alone by their content', () => {
     for (const one of T_373.rows) {
-      const type = (one.by['修正のしかた'] ?? '').trim()
+      const type = (one.by['修正方法'] ?? '').trim()
       if (one.id === 'FA-3') expect(type, one.id).toContain('機械')
       // Why: CR-810 gave FA-25 a choose row for a task group under a task group with no span bar.
       else if (one.id === 'FA-25') expect(type, one.id).toMatch(/^手で修正.*選ぶ/)
@@ -115,6 +115,7 @@ describe('item 2 -- the chain: a mend that makes the grandparent wrong brings a 
     expect(findingRowsOf(CHAIN())).toEqual(['VC-11'])
   })
 
+  // Spec: IMPS-645
   it('two FA-11 rows: the middle parent, then under it the root that only comes up after the first is applied', () => {
     expect(mendsOf().map((one) => one.taskUid)).toEqual([1, 10])
   })
@@ -126,6 +127,7 @@ describe('item 2 -- the chain: a mend that makes the grandparent wrong brings a 
     expect(chained?.fixKind).toBe('automatic')
   })
 
+  // Spec: IMPS-644
   it('the chain row reads 2027/05/21 before and 2027/05/26 after, as if the first mend were done', () => {
     const chained = mendsOf()[1]
     expect(dayTextIn(chained?.before)).toContain('2027-05-21')
@@ -136,6 +138,7 @@ describe('item 2 -- the chain: a mend that makes the grandparent wrong brings a 
 })
 
 describe('item 3 -- children first: three levels end with no VC-11 on a second look', () => {
+  // Spec: IMPS-672
   it('the middle parent and the root both end at 2027/05/26 and the diagnosis finds none', () => {
     const next = mended(CHAIN())
     expect(dayOf(taskIn(next, 1)['finish'])).toBe('2027-05-26')
@@ -143,6 +146,7 @@ describe('item 3 -- children first: three levels end with no VC-11 on a second l
     expect(findingRowsOf(next)).not.toContain('VC-11')
   })
 
+  // Spec: IMPS-667, IMPS-679
   it('the starts of the parents stay, and no childless task is touched', () => {
     const before = CHAIN()
     const next = mended(before)
@@ -198,6 +202,7 @@ describe('the other machine rows -- FA-2, FA-8, FA-10, FA-12, FA-26 mend the fin
 })
 
 describe('item 9 -- a read-only parent: the row is shown and cannot be checked', () => {
+  // Spec: IMPS-668
   it('the row for VC-11 on the parent carries a refusal and the checked rows make no command from it', () => {
     const rows = proposed(READ_ONLY_PARENT())
     const row = oneRow(rows, 'VC-11', 1)

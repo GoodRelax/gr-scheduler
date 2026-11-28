@@ -235,6 +235,7 @@ describe('CR-651 FR-014 T-022 -- progressPointDayOf answers the day the vertex i
     )
   })
 
+  // Spec: IMPS-1439
   it.each([
     ['start before the status date -> the start day', S(5, 10), D(5, 10)],
     ['start on the status date -> null (strictly before)', S(5, 21), null],
@@ -320,6 +321,7 @@ describe('CR-651 FR-131 T-311 VS-6 -- the parent point against the points of its
     expect(vs6Of(diagnose(document))).toEqual([])
   })
 
+  // Spec: IMPS-571
   it('VS-6 S-487 is read from Project.parentTaskProgressToleranceDays: raising it takes the finding away', () => {
     const document = LEFT_PARENT(S_487_DEFAULT)
     expect(vs6On(diagnose(document), G)).toHaveLength(1)
@@ -577,6 +579,7 @@ describe('CR-651 CM-87 FR-131 -- setParentTaskProgressToleranceDays', () => {
     if (result.ok) expect(result.document.schedule.project.parentTaskProgressToleranceDays).toBe(value)
   })
 
+  // Spec: IMPS-577
   it.each([-1, 1.5, Number.NaN])('CM-87 refuses %s (FR-131: never clamped into range)', (value) => {
     const document = currentDocument()
     const result = editProject(document, cm87(value) as never)
@@ -584,6 +587,7 @@ describe('CR-651 CM-87 FR-131 -- setParentTaskProgressToleranceDays', () => {
     expect(document.schedule.project.parentTaskProgressToleranceDays).toBe(S_487_DEFAULT)
   })
 
+  // Spec: IMPS-575
   it('CM-87 UN-13: one undo step, and undo restores the old value', () => {
     const document = currentDocument()
     const plan = planDocumentChange({

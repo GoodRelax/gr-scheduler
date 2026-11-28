@@ -206,6 +206,7 @@ describe('FR-002 -- plan dates at the name size x S-325', () => {
     expect(shown.labelTextWidth).toBeCloseTo(lc5('Alpha', font) + lc5(' 4/6 - 4/24', font * S_325), 3)
   })
 
+  // Spec: IMPS-1950
   it('FR-002 / OC-1: switching S-232 on widens the occupied width by the dates part measured at x S-325', () => {
     // Spec: OC-1, FR-002
     // Why: a one-day bar, so the name stands outside the shape with and without the dates.
@@ -258,6 +259,7 @@ describe('FR-013 -- the delay mark', () => {
     expect(REQUIREMENTS).toContain(FR_013_PARTS)
   })
 
+  // Spec: IMPS-495
   it('FR-013: 地を S-326 で塗る -- the ground of the PM-4 mark is S-326 (light theme)', () => {
     // Spec: FR-013, S-326
     const { svg } = delayMark()
@@ -275,6 +277,7 @@ describe('FR-013 -- the delay mark', () => {
     expect(glyph.length, `the bar and the dot of (!): ${svg}`).toBeGreaterThanOrEqual(2)
   })
 
+  // Spec: IMPS-497
   it('FR-013: 縦棒の太さは S-24 に S-328 を掛けた値 -- the bar width', () => {
     // Spec: FR-013, S-24, S-328
     const { svg } = delayMark()
@@ -288,6 +291,7 @@ describe('FR-013 -- the delay mark', () => {
     expect(S_24, 'premise: S-24 is the ring the bar multiplies').toBeGreaterThan(0)
   })
 
+  // Spec: IMPS-498
   it('FR-013: 縦棒の下端・点の中心・点の半径は S-329 ・ S-330 ・ S-331 (a gap between bar and dot)', () => {
     // Spec: S-329, S-330, S-331
     // Trap: S-329 / S-330 measure against the half height of the symbol, which no row sizes;
@@ -436,6 +440,7 @@ describe('T-297 -- retired columns are dropped when read', () => {
     ])
   })
 
+  // Spec: IMPS-1925
   it('RK-1 / RK-2: a document with nameAnchor / nameAlign opens without error and without a notice', () => {
     // Spec: T-297, RK-1, RK-2
     const decoded = documentFromJson(oldDocumentText())

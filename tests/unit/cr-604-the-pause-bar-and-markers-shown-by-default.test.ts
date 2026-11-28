@@ -151,6 +151,7 @@ describe('FR-013 -- the pause mark PM-3 is one horizontal bar through the center
       expect(mark.glyph.map((one) => one.tag), FR_013_PAUSE_BAR).toEqual(['line'])
     })
 
+    // Spec: IMPS-499
     it(`${name}: 円の中心を通る水平の横棒 -- y1 == y2 == cy, x1 + x2 == 2 cx`, () => {
       const mark = drawnMarkOf(pausedScene(pause), 1)
       const bar = barOf(mark, 1)

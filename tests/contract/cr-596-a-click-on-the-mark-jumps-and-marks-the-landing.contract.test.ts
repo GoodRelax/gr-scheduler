@@ -1313,6 +1313,7 @@ describe(`(c) EL-16 / SL-8 -- the end outlines: ${EL_16_ENDS}`, () => {
     expect(outlinedUids(svgOf(after, 'screen', landed(1, 2, 2)), [1, 2]), EL_16_EL_2).toEqual([1, 2])
   })
 
+  // Spec: FR-162
   it(`${S_447_PX}: at display scale 200 and zoomX 2 the added S-447 stays S-447 px`, () => {
     const scene = bothSeen(LINE_1_2, HIDDEN, { displayScale: 200, zoomX: 2 })
     const svg = svgOf(scene)

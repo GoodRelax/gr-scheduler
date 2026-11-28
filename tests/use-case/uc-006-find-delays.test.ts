@@ -26,6 +26,7 @@ const kindOf = (task: Record<string, any>, statusDay: number): Kind => {
 }
 const statusDayOf = (doc: GrsDocument): number => Date.parse(String(doc.schedule.project['statusDate']).slice(0, 10) + 'T00:00:00Z')
 
+// Spec: IMPS-517
 test('SCN-22 SCN-24 SCN-25 UC-006 find delays (FR-046, FR-014 T-022, FR-013 PM-4 T-021b, FR-047, FR-015 OP-9) @UC-006.OK', async ({ page }) => {
   await launch(page)
   await enableAgentApi(page)

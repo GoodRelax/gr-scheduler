@@ -1564,7 +1564,7 @@ export function isSameEnvironment(one: FrameEnvironment, other: FrameEnvironment
   )
 }
 
-// Spec: BO-1
+// Spec: BO-1, NFR-011
 /** @purity pure */
 export function isSizeSettled(env: FrameEnvironment): boolean {
   return env.width > 0 && env.height > 0
@@ -2192,7 +2192,7 @@ interface ReportBeforeJump {
   readonly openField?: (row: string) => void
 }
 
-// Spec: T-332, SJ-0, SJ-2, SJ-3, SJ-4, SJ-5, SJ-6, SJ-8, SJ-10, UN-20, IMPS-630
+// Spec: T-332, SJ-0, SJ-2, SJ-3, SJ-4, SJ-5, SJ-6, SJ-8, SJ-10, UN-20, IMPS-630, IMPS-632, IMPS-637
 // Why: placed on this picture; a target this picture does not draw is placed again on the picture its reveal draws (SJ-5).
 /** @purity non-pure */
 function jumpToSearchHit(hands: FrameLoopHands, cell: SearchJumpCell | null, frame: FrameValues, report: ReportBeforeJump): void {
@@ -2767,7 +2767,7 @@ export function readSystemStandardTimeZone(): StandardTimeZoneKey {
   return standardTimeZoneKeyForSystem({ januaryOffsetMinutes: offsetOn(JANUARY), julyOffsetMinutes: offsetOn(JULY) })
 }
 
-// Spec: FR-063, IMPS-1061, IMPS-870
+// Spec: FR-063, IMPS-1061, IMPS-870, WM-5
 /** @purity semi-pure-mutable */
 export function readInstantOfWrite(): string {
   return new Date().toISOString().replace(/\.\d+Z$/, 'Z')
@@ -2832,7 +2832,7 @@ function copyPromptAndHandSchema(seam: Clipboard, files: FileStore | undefined, 
   return copying.then((writing) => writing.ok)
 }
 
-// Spec: IMPS-867, IMPS-868
+// Spec: IMPS-867, IMPS-868, IMPS-1817
 /** @purity non-pure */
 export function frameLoop(
   surface: SvgSurface,
@@ -3729,7 +3729,7 @@ export function frameLoop(
   const askToStartNewDocument = (frame: FrameValues | null): void =>
     sendToSession({ type: 'newDocumentEntryPressed', question: discardQuestionOf(held.document) }, frame)
 
-  // Spec: IMPS-613, IMPS-864
+  // Spec: IMPS-613, IMPS-864, IMPS-1840
   /** @purity non-pure */
   function answerSettledEntry(entry: IconId, surface: string | null, frame: FrameValues, filterColumn: string | null, listed: readonly string[] | null): boolean {
     if (entry === CLOSE_SURFACE_ENTRY && surface === PROPERTIES_PANEL_SURFACE) {
@@ -3975,7 +3975,7 @@ export function frameLoop(
     if (subject !== null) sendToSession({ type: 'selectionMoved', subject }, frame)
   }
 
-  // Spec: FR-068, IC-115, RS-65, UF-48, IO-10, IMPS-1078, IMPS-1084
+  // Spec: FR-068, IC-115, RS-65, UF-48, IO-10, IMPS-1078, IMPS-1084, FR-368
   /** @purity non-pure */
   function copyImageToJsonPrompt(): void {
     const seam = clipboard

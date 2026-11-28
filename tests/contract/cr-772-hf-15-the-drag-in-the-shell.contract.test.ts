@@ -64,6 +64,7 @@ describe('HF-15 -- one drag writes once, and one undo takes it back', () => {
     expect(built.loop.hasUnsavedEdits()).toBe(false)
   })
 
+  // Spec: IMPS-1955
   it('a release before the travel passes S-208 only chooses the task group', () => {
     const built = shell()
     const at = built.press(idOf(2))

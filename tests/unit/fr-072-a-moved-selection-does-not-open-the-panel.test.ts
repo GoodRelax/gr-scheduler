@@ -462,6 +462,7 @@ describe('the manuscript still says what these cases read', () => {
 })
 
 describe('FR-072 (MUST NOT) -- one press chooses, and does not put the panel up', () => {
+  // Spec: IMPS-94
   it('⛔ MUST NOT: a plain press on a Task leaves the panel off the screen', () => {
     const built = stage()
 
@@ -496,6 +497,7 @@ describe('FR-072 (MUST NOT) -- one press chooses, and does not put the panel up'
     expect(built.taskUids().length, 'SK-3 acts on a selection, and there is none').toBe(2)
   })
 
+  // Spec: IMPS-93
   it('⛔ MUST NOT: a press that moves the selection to ANOTHER Task does not open it either', () => {
     // Why: the second press is the move the rule is about; refusing only the first press
     // would pass the case above.
@@ -547,6 +549,7 @@ describe('table T-023 MK-13 and table T-109 IC-17 -- two roads that do put it up
     expect(built.panel()?.showing).toBe('documentSettings')
   })
 
+  // Spec: IMPS-95
   it('⚠️ while it is up, a moved selection moves what it shows', () => {
     const built = stage()
 
@@ -559,6 +562,7 @@ describe('table T-023 MK-13 and table T-109 IC-17 -- two roads that do put it up
 })
 
 describe('FR-072 (DFC-706) -- the document settings give way to a moved selection', () => {
+  // Spec: IMPS-96
   it('while IC-17 shows the settings, a press that chooses a Task moves the panel to that Task', () => {
     const built = stage()
     pressIc17(built)

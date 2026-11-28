@@ -446,6 +446,7 @@ describe('AS-5 -- one field per task, closed on the primary', () => {
 describe('FR-059 / AS-13 -- the assignee label names the first labelable person of the assignment order', () => {
   const labelOf = (taskUid: number): string => LAYOUT.placements.find((one) => one.taskUid === taskUid)?.outsideLabel ?? ''
 
+  // Spec: IMPS-927, IMPS-918
   it.each([
     ['Bravo seated before Alpha', T_TWO, BRAVO.uid, `Bravo${MORE_ASSIGNEES_MARK}`],
     ['Alpha seated first though of the higher uid', T_ALPHA_FIRST, ALPHA.uid, `Alpha${MORE_ASSIGNEES_MARK}`],
@@ -476,6 +477,7 @@ describe('AS-12 -- checking a person who is not seated seats them, at the tail, 
     expect(committed(T_NONE, null, String(CHARLIE.uid), 'candidate')).toEqual([seats(T_NONE, CHARLIE.uid)])
   })
 
+  // Spec: IMPS-201
   it('AS-10: checking a person already seated writes nothing', () => {
     expect(committed(T_TWO, null, String(ALPHA.uid), 'candidate')).toEqual([])
   })
@@ -495,6 +497,7 @@ describe('AS-3 -- unchecking releases that person only', () => {
 })
 
 describe('AS-7 / AS-4 -- a name the roster does not hold, through the add item', () => {
+  // Spec: IMPS-200, IMPS-202
   it('AS-7: the add item makes the person and seats the new uid, releasing nobody', () => {
     expect(committed(T_TWO, null, NEW_NAME, 'add')).toEqual([make(NEW_NAME), seats(T_TWO, NEW_PERSON_UID)])
   })
@@ -509,6 +512,7 @@ describe('AS-7 / AS-4 -- a name the roster does not hold, through the add item',
 })
 
 describe('T-225 paragraph -- IC-125 / IC-126 write every listed person in one call', () => {
+  // Spec: IMPS-203
   it('T_225_ALL_IN_ONE_CALL: IC-125 seats every listed person not yet seated, in the order listed', () => {
     expect(committed(T_TWO, null, listOf(ALPHA, BRAVO, CHARLIE, WORKER), 'all')).toEqual([
       seats(T_TWO, CHARLIE.uid),

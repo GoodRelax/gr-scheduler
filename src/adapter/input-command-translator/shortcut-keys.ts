@@ -30,7 +30,7 @@ import {
   zoomWrites,
 } from './zoom-and-fit'
 
-// Spec: T-036, IN-5a, IN-4, MK-10, SK-24, IMPS-1874, IMPS-1875, IMPS-1876, SK-10, SK-20, SK-21, SK-6, SK-7, SK-9, IMPS-1887
+// Spec: T-036, IN-5a, IN-4, MK-10, SK-24, IMPS-1874, IMPS-1875, IMPS-1876, SK-10, SK-20, SK-21, SK-6, SK-7, SK-9, IMPS-1887, SK-1, SK-1a
 /** @purity pure */
 export function commandFromKey(input: KeyInput, context: InputContext): TranslatedInput {
   const key = input.key

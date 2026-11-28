@@ -54,6 +54,7 @@ type Stamp = Document['documentStamp']
 const noNotice = (): void => undefined
 
 describe('AM-1 and AG-1: the version the AgentApi hands out is the one the table prints', () => {
+  // Spec: IMPS-1059
   it('agentApiVersion is the date-time the prose of T-107 gives and the manuscript declares (JDG-2741)', () => {
     expect(installAgentApi(stubbedWiring).agentApiVersion).toBe('2026-10-19T01:15:00Z')
     expect(MANUSCRIPT.version).toBe('2026-10-19T01:15:00Z')

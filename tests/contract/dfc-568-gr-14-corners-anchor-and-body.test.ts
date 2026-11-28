@@ -825,6 +825,7 @@ describe('DFC-568 T-246 HB-3: the body moves vertically by drawn task groups', (
     expectNoRs44(built, 'HB-3 to the last task group')
   })
 
+  // Spec: IMPS-1563
   it(`${HB_3_NO_TASK_GROUP} -- three drawn task groups down leaves the bottom edge with no task group, so nothing moves and RS-44 is carried unseen (CR-712)`, () => {
     const built = stage()
     const before = storedRange(built.loop)
@@ -1008,6 +1009,7 @@ describe('DFC-568 FR-019: the box is drawn by whole day columns', () => {
 
 describe('DFC-568 comment box: no corners; the body writes CM-51 alone and the anchor writes CM-50 and CM-51 in one bundle', () => {
   for (const corner of CORNERS) {
+    // Spec: IMPS-1560
     it(`⛔ コメントボックスに四隅を持たせてはならない（MUST NOT） —— 本文の箱の大きさは \`FR-097\` が本文に合わせて決めており、文書は大きさの列を持たない（\`AT-110\` 〜 \`AT-115\`）。 -- the ${corner.name} corner of the body resizes nothing`, () => {
       const built = stage()
       const drawn = commentDrawn(built.loop)
@@ -1270,6 +1272,7 @@ describe('DFC-568 JDG-72: a moved anchor is read where it is released, not by th
 })
 
 describe('DFC-568 JDG-72: no drawn task group under the release writes nothing and carries RS-44 unseen', () => {
+  // Spec: IMPS-1558
   it(`${ANCHOR_NO_TASK_GROUP} -- released below every drawn band`, () => {
     const built = stage()
     const moved = moveAnchor(built, DEAD_ON, { x: dayColumnLeft(built, 25) + pxPerDay(built.loop) / 2, y: bandBottom(built.loop, TASK_GROUP_F) + 4 * S_230 })

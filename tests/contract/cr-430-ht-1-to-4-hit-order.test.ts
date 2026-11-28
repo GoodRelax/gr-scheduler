@@ -80,6 +80,7 @@ describe('table T-267 -- the four steps the manuscript writes', () => {
 })
 
 describe(`HT-1 -- on a drawn shape only that Task answers: ${HT_1_OWN_TASK_ONLY}`, () => {
+  // Spec: IMPS-1621
   it('gives every point of a drawn plan bar to the Task that drew it', () => {
     const strangers = gridOver((STACKED.started as unknown as { plan: unknown }).plan)
       .map((at) => ({ at, seen: answerAt(STACKED, at.x, at.y) }))
@@ -198,6 +199,7 @@ describe(`HT-3 -- within one step the type order of table T-268 decides: ${HT_3_
     )
   })
 
+  // Spec: IMPS-1626
   it(`puts the fade grab point ahead of the plan end where the two overlap: ${HT_3_TYPE_ORDER}`, () => {
     const points = [...fadeHandlesOf(ROWS.started)].sort((a, b) => a.y - b.y)
     expect(points, 'premise: the selected Task has its two fade points').toHaveLength(2)
@@ -225,12 +227,14 @@ describe(`HT-4 -- among grabs of one type the nearer center answers: ${HT_4_NEAR
     expect(grabAt(ROWS, ink.middleX, ink.middleY), HT_4_TIE_GOES_LATER).toBe('GA-6')
   })
 
+  // Spec: IMPS-1742
   it(`does not read the painting order, which FR-110 decides: ${HT_4_NOT_PAINT_ORDER}`, () => {
     expect(cellOf('T-267', 'HT-4', '規則'), HT_4_NOT_PAINT_ORDER).toContain('FR-110')
   })
 })
 
 describe(`the steps stop as soon as one decides: ${T_267_STOPS_EARLY}`, () => {
+  // Spec: IMPS-1625
   it('HT-1 settles a point on a drawn shape although HT-2 would prefer the nearer neighbor', () => {
     const tall = sizesWith(STACKED.sizes, 'S-255', defaultOf('S-255') + 60)
     const own = boxOf((STACKED.unstarted as unknown as { plan: unknown }).plan)

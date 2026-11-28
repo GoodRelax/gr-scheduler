@@ -114,6 +114,7 @@ describe('PI-20 documentFromEmbeddedHtml -- one container, by the ids in the ord
     expect(titleOf(read(made.html, [DOCUMENT_ID], VERSION))).toBe(hostile.schedule.project.title)
   })
 
+  // Spec: IMPS-1075
   it('FR-067: the embedded document is read before the template container', () => {
     const html = page(container(TEMPLATE_ID, there()), container(DOCUMENT_ID, here()))
     expect(titleOf(reader()(html, [DOCUMENT_ID, TEMPLATE_ID], VERSION))).toBe('Here')

@@ -469,6 +469,7 @@ describe(`T-246 HB-8 .. HB-11 and HB-7: each of the eight points moves exactly t
   }
 
   for (const point of GRAB_POINTS) {
+    // Spec: IMPS-1532, IMPS-1567
     it(`${point.hb} the ${point.name} point, pressed on an unselected box, gives ${EXPECTED[point.name]}`, () => {
       const built = stage()
       const at = point.at(drawnBox(built.loop).box)
@@ -498,6 +499,7 @@ describe(`T-246 HB-8 .. HB-11 and HB-7: each of the eight points moves exactly t
 
 describe(`T-023d: which part of the box a press answers -- ${EIGHT_THEN_FRAME}`, () => {
   for (const point of GRAB_POINTS) {
+    // Spec: IMPS-1530, IMPS-1531, IMPS-1561
     it(`the ${point.name} point answers as GR-14 ${point.hb}`, () => {
       const built = stage()
       const hit = hitAt(built.loop, point.at(drawnBox(built.loop).box))
@@ -579,6 +581,7 @@ describe(`T-023d: ${FRAME_ON_A_SHAPE}`, () => {
     expect(hit?.grab).toBe('GR-14')
   })
 
+  // Spec: IMPS-1534, IMPS-1535, IMPS-1536
   it('on the shape, the same press is not the frame -- the task under it answers', () => {
     const { built, box, onShapeY } = scene()
     const hit = hitAt(built.loop, { x: box.x + WIDTH / 2 + S_293 / 2, y: onShapeY })
@@ -593,6 +596,7 @@ describe(`T-023d: ${FRAME_ON_A_SHAPE}`, () => {
     expect(hit?.item).toEqual({ kind: 'highlightBox', id: BOX_ID })
   })
 
+  // Spec: IMPS-1569
   it(`${POINTS_ON_A_SHAPE} -- the top-left corner over the bar still answers within S-230`, () => {
     const built = stage({ withTask: true, boxes: [{ start: 6, end: 16, top: 'B', bottom: 'D' }] })
     const box = drawnBox(built.loop).box
@@ -638,6 +642,7 @@ describe(`T-023d: ${NEAREST_WINS} ${TIE_ORDER}`, () => {
 
 describe(`FR-106: ${FR_106_HIGHLIGHT}`, () => {
   for (const point of GRAB_POINTS) {
+    // Spec: IMPS-1637
     it(`the ${point.name} point shows the ${point.hb} pointer, drawn as the environment shape table T-269 names`, () => {
       const built = stage()
       const hit = hitAt(built.loop, point.at(drawnBox(built.loop).box))
@@ -664,6 +669,7 @@ describe(`T-023d: ${DRAWN_WHILE_SELECTED}`, () => {
     expect(tagsOf(built.lastSvg(), GRAB_FIGURE(OTHER_ID))).toEqual([])
   })
 
+  // Spec: IMPS-1566
   it(`selecting one box draws its eight points and none of the other box's, ${POINTS_AT_ZO_10}`, () => {
     const built = stage(TWO_BOXES)
     click(built, onTheFrame(drawnBox(built.loop).box))
@@ -674,6 +680,7 @@ describe(`T-023d: ${DRAWN_WHILE_SELECTED}`, () => {
     for (const square of squares) expect(layerOf(svg, square.at), square.text).toBe('ZO-10')
   })
 
+  // Spec: IMPS-1565
   it('each square is S-372 on a side, centered on its point, with the S-146 ground, the S-151 edge and the S-174 edge width', () => {
     const built = stage()
     const box = drawnBox(built.loop).box
@@ -828,6 +835,7 @@ describe(`T-108 CM-77 .. CM-79: ${OUT_OF_RANGE_REFUSED}`, () => {
     return found
   }
 
+  // Spec: IMPS-29
   it('CM-77 places a width inside S-369, and null, and refuses one outside it or not whole', () => {
     for (const width of [S_369.low, S_369.high, null]) {
       expect(acceptedBox({ kind: 'setHighlightBoxStrokeWidthPx', highlightBoxId: BOX_ID, strokeWidthPx: width })['strokeWidthPx']).toBe(width)

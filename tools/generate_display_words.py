@@ -639,6 +639,7 @@ def table_rows(rel, row_pattern, table):
     return found
 
 
+# Spec: IMPS-1356
 def notice_roster(key):
     """The row ids of one list of the notice roster, in its printed order.
 
@@ -759,6 +760,7 @@ def delay_report_statuses():
     return list(DELAY_REPORT_STATUSES)
 
 
+# Spec: IMPS-1352
 def roster():
     """Which words the screen needs, read from the specification every run.
 
@@ -1080,6 +1082,7 @@ def help_link_row_problems(doc, wanted):
     return found
 
 
+# Spec: IMPS-1354
 def build(doc, keys_by_row):
     """What reaches src/: the manuscript's own entries, under a banner.
 
@@ -1133,6 +1136,7 @@ def build(doc, keys_by_row):
     return json.dumps(out, ensure_ascii=False, indent=1) + '\n'
 
 
+# Spec: IMPS-1194, FR-381
 def unmarked(entry, section):
     """The entry as src/ reads it: break marks out of its words (CR-754).
 
@@ -1178,6 +1182,7 @@ def build_dependency_kinds():
     return json.dumps(out, ensure_ascii=False, indent=1) + '\n'
 
 
+# Spec: IMPS-319
 def dependency_kinds():
     """Table T-018's rows as the screen needs them: row id, stored number and
     the abbreviation its name column starts with (CR-541).

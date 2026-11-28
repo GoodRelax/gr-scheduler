@@ -237,6 +237,7 @@ describe(`FR-153 "${FR_153_ONLY_WHAT_T_345_CLEARS}"`, () => {
     expect(local.calls).not.toContain('clear')
   })
 
+  // Spec: IMPS-987
   it('what is left is exactly the S-99c key and the foreign keys', () => {
     clearForReset()()
     expect([...local.held.keys()].sort()).toEqual([KEYS['S-99c'], ...Object.keys(FOREIGN_KEYS)].sort())

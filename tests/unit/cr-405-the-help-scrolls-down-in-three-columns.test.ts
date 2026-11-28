@@ -219,6 +219,7 @@ describe('CR-405 -- the premises read from the manuscript', () => {
     for (const combo of combosOf(rowOf(T_255, 'BF-1').by[H_KEYS] ?? '')) expect(T_036_COMBOS.has(combo)).toBe(false)
   })
 
+  // Spec: IMPS-1178
   it('FR-036: 表 T-036 と 表 T-255 の `割当` の欄は、キーを 1 つずつコードの印で囲み、＋ で繋ぐ形（例: `Ctrl` ＋ `Shift` ＋ `0`）にそろえること（MUST）', () => {
     const misspelt: string[] = []
     for (const row of [...T_036.rows, ...T_255.rows]) {
@@ -344,6 +345,7 @@ describe('FR-036 + T-256 (MUST) -- the roster the help is described from', () =>
     entries = entriesOf(helpModal('en'))
   })
 
+  // Spec: IMPS-1150
   it('lists the blocks in the order T-256 names them, column by column', () => {
     const sequence: string[] = []
     for (const entry of entries) {
@@ -377,6 +379,7 @@ describe('FR-036 + T-256 (MUST) -- the roster the help is described from', () =>
     }
   })
 
+  // Spec: IMPS-1148
   it('carries BF-1 with the keys of its T-255 cell, spelled Ctrl+A and joined by the keyNotation word, and no glyph', () => {
     const entry = entries.find((one) => rowIdOf(one) === 'BF-1')
     expect(entry, 'BF-1 is not in the help').toBeDefined()
@@ -386,6 +389,7 @@ describe('FR-036 + T-256 (MUST) -- the roster the help is described from', () =>
     expect(entry?.['icon'] ?? null).toBeNull()
   })
 
+  // Spec: IMPS-1142
   it('carries one heading ahead of every block, in the order T-256 names the blocks, and no other', () => {
     const headings = entries.filter((one) => one['kind'] === 'heading')
     expect(headings.map(rowIdOf)).toEqual([...BLOCK_ORDER])
@@ -491,6 +495,7 @@ describe('FR-036 (MUST) -- every block stands in a frame of its own (CR-622)', (
     }
   })
 
+  // Spec: IMPS-1827, IMPS-1154
   it('draws the group lines inside the Command Palette frame only, and no line between two frames', () => {
     const help = drawnHelp()
     for (const block of BLOCK_ORDER) {
@@ -532,6 +537,7 @@ describe('FR-036 (MUST / MUST NOT) -- the help box scrolls down, and not sideway
   })
 
   // Why: E-14 lets the body scroll sideways once narrowed; the floor keeps the opened help from doing so.
+  // Spec: IMPS-1171
   it('the body scrolls on both axes, and each column floors at min(S-458 em, the opened column width)', () => {
     const help = drawnHelp()
     const { container } = columnsOf(help)

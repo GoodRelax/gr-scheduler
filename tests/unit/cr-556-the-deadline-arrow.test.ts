@@ -673,6 +673,7 @@ describe('DA-7 -- cut at the Task Group Lanes as the other shapes are', () => {
 })
 
 describe('OC-9 -- the mark counts in the occupied width', () => {
+  // Spec: IMPS-1946
   it(`OC-9 「${OC_9_WIDTH}」: a deadline right of the bar ends the occupation at the head's right edge`, () => {
     const scene = oneTask({ start: day(2), finish: day(4), deadline: day(20) })
     const placed = placedOf(scene, 1)

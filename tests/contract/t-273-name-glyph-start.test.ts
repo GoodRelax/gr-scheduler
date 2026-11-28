@@ -125,6 +125,7 @@ describe('T-273 -- the drawn glyphs start where the table puts the name, and S-3
     expectGlyphAt(scene, markerRightOf(scene) + LABEL_GAP, 'LP-2')
   })
 
+  // Spec: IMPS-1920
   it('LP-3: no marker, inside, the glyphs start at the basis start + S-31 (MUST)', () => {
     const scene = rectangle(WIDE_ACTUAL, NO_MARKER)
     expect(scene.taskOf(1).marker, 'premise: no marker').toBeNull()

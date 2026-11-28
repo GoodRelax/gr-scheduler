@@ -305,6 +305,7 @@ describe('CM-39 carries the exception list (FR-088)', () => {
     expect(exceptionsOf(calendarWithUid(after, 1))).toEqual([IMPORTED_YEARLY])
   })
 
+  // Spec: IMPS-722
   it('weekdays, week start and exceptions land in ONE document from ONE command', () => {
     const after = edited(POINTED(), { workingDayTypes: [2, 3, 4], weekStartDay: 0, exceptions: [SHUTDOWN] })
     expect(workingOf(calendarWithUid(after, 1))).toEqual([2, 3, 4])
@@ -390,6 +391,7 @@ describe('a command that changes nothing writes nothing (WC-7, FR-031)', () => {
 })
 
 describe('undo takes the made Calendar back in one step (FR-088, UN-13)', () => {
+  // Spec: IMPS-724
   it(`「${FR_088_UNDO}」 one write, one step; one undo restores no calendar, no pointer and the old high water`, () => {
     const bench = benchOf(NO_CALENDAR())
     bench.write(setCalendar({ workingDayTypes: [2, 3, 4], exceptions: [SHUTDOWN] }))

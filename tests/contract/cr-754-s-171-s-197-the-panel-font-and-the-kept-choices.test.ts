@@ -68,6 +68,7 @@ describe(`S-197 -- ${S_197_ONE_PANEL}`, () => {
 })
 
 describe(`FR-006 -- ${FR_006_KEPT_CHOICE}`, () => {
+  // Spec: IMPS-66
   it.each(LANGUAGES)('the document settings (%s): each drawn choice holds its room as a floor, and the panel may scroll sideways', (language) => {
     const panel = settingsPanel({ language })
     const choices = choicesOf(panel)

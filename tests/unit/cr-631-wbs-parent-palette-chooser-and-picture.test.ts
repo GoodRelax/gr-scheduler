@@ -302,6 +302,7 @@ describe('T-269 PK-17 / PK-18 -- the pointer over the arrows', () => {
     expect(String(pointerImageOf('PK-18' as never))).toBe('not-allowed')
   })
 
+  // Spec: IMPS-1427, IMPS-1428
   it('T-351: unarmed, a solid arrow shows PK-17 and a dashed one PK-18', () => {
     const scene = sceneOf({ ownerUids: [P, D] })
     const on = (childUid: number) => {
@@ -324,10 +325,12 @@ describe('FR-135 -- the arrows as drawn', () => {
   }
   const widthOf = (polyline: string): number => Number(polyline.match(/stroke-width="([^"]+)"/)?.[1])
 
+  // Spec: IMPS-1413
   it('FR-135 / T-076: a picture drawn without the operation state carries no arrow, no ? and no candidate', () => {
     expect(partsOf(sceneOf({ ownerUids: [P, D, E] }), false)).toEqual([])
   })
 
+  // Spec: IMPS-1410
   it('FR-135 / S-486 / S-398: on the screen the stated arrow is a solid S-398 line, the derived one dashed by S-486', () => {
     const parts = partsOf(sceneOf({ ownerUids: [P, D] }), true)
     const solid = polylineOf(parts, P)
@@ -339,12 +342,14 @@ describe('FR-135 -- the arrows as drawn', () => {
     expect(numbersIn(dash)).toEqual(numbersIn(cellOf('T-206', 'S-486', '既定')).slice(0, 2))
   })
 
+  // Spec: IMPS-1414
   it('FR-135 / SL-8: a selected arrow is drawn S-447 thicker than an unselected one', () => {
     const parts = partsOf(sceneOf({ ownerUids: [P], selectedLinkChildUids: [F] }, pick(link(F))), true)
     expect(arrowOf(sceneOf({ ownerUids: [P], selectedLinkChildUids: [F] }, pick(link(F))), F).isSelected).toBe(true)
     expect(widthOf(polylineOf(parts, F)) - widthOf(polylineOf(parts, C))).toBeCloseTo(numberIn(cellOf('T-206', 'S-447', '既定')), 3)
   })
 
+  // Spec: IMPS-1416
   it('FR-135 / VO-4 / S-389: an undecided child is marked with ? and its candidates are ringed and numbered in S-389', () => {
     const drawn = partsOf(sceneOf({ ownerUids: [E] }), true).join('')
     expect(drawn).toMatch(/fill="ink-S-389"[^>]*>\?<\/text>/)

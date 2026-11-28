@@ -1047,6 +1047,7 @@ describe('FR-029 (MUST) -- an entrance with nothing to do is painted S-149', () 
     expect(paintedColor(built, iconEntry(built.root(), IC_HEADER))).not.toBe(S_149)
   })
 
+  // Spec: IMPS-1111
   it('⛔ MUST NOT: a faint entrance is never disabled in the host’s own sense', () => {
     const header = drawn(
       viewWith({

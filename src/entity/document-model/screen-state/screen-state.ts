@@ -96,7 +96,7 @@ export function windowClosedByEscape(standing: WindowStanding): WindowName | nul
   return windowsFrontToBack(standing).find((window) => isWindowStanding(standing, window)) ?? null
 }
 
-// Spec: IN-4, T-283, SK-8
+// Spec: IN-4, T-283, SK-8, IMPS-1834, IMPS-1842
 /** @purity pure */
 export function escapeTarget(context: EscapeContext): EscapeTarget | null {
   if (context.isNoticeStanding === true) return 'notice'

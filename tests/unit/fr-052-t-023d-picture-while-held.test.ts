@@ -715,6 +715,7 @@ describe('table T-028 IN-1: the fade is settled on the release', () => {
 })
 
 describe('FR-031: one whole drag is ONE undo step', () => {
+  // Spec: IMPS-217
   it('takes the fade back to where the drag began, in a single undo', () => {
     const built = withFadeHandles()
     const scale = pxPerDay(built.loop)
@@ -817,6 +818,7 @@ describe('FR-052: while the boundary is held the widths are DRAWN and not WRITTE
     expect(boundary.x, 'S-134: the band lies ON the boundary').toBeCloseTo(panel.x + panel.width, 6)
   })
 
+  // Spec: IMPS-1784
   it('moves the drawn width with the pointer (MUST)', () => {
     const built = stage()
     const at = boundaryOf(built, 'taskGroupPanel')
@@ -840,6 +842,7 @@ describe('FR-052: while the boundary is held the widths are DRAWN and not WRITTE
     }
   })
 
+  // Spec: IMPS-1801
   it('leaves the stored width untouched while the button is down (MUST NOT)', () => {
     const built = stage()
     const at = boundaryOf(built, 'taskGroupPanel')
@@ -881,6 +884,7 @@ describe('FR-052: while the boundary is held the widths are DRAWN and not WRITTE
     ).toBeCloseTo((was + 40) / DEFAULT_DISPLAY_RATIO, 6)
   })
 
+  // Spec: IMPS-1800
   it('settles the width on the release (IN-1)', () => {
     const built = stage()
     const at = boundaryOf(built, 'taskGroupPanel')

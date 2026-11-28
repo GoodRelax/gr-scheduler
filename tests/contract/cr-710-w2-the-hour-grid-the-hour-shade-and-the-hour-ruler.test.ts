@@ -214,6 +214,7 @@ describe('FR-089: the date line goes by the finest row the ruler prints', () => 
     expect(figuresOf(frame.svg, 'hour-grid-')).toEqual([])
   })
 
+  // Spec: IMPS-769
   it('stands on every midnight and every hour at the hour tier: the hour row is the finest', () => {
     const frame = frameOf(HOUR_TIER, true)
     for (const day of [MONDAY, '2026-01-06']) expect(dateLineOf(frame, day), day).not.toBeNull()
@@ -304,6 +305,7 @@ describe('TM-5: the ruler of the hour tier', () => {
     expect(labels.some((one) => /^2026\/1\/5 \(月\)$/.test(one)), labels.slice(0, 6).join(' | ')).toBe(true)
   })
 
+  // Spec: IMPS-716
   it('keeps the height of the ruler band the same on every tier and with the time shown or not', () => {
     const footOf = (threshold: number, shows: boolean): string | null => {
       const element = elementOf(frameOf(threshold, shows).svg, 'ruler-foot-rule')

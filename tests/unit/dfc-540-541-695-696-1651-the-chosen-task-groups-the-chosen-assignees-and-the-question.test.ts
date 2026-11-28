@@ -141,6 +141,7 @@ describe('FR-085 / IN-4 / SK-19 (DFC-695) -- a chosen task group is a selection 
     expect(built.loop.isBrowserDefaultStopped(keyOf('Esc')), 'IN-4a: nothing left, the key goes to the browser').toBe(false)
   })
 
+  // Spec: IMPS-1957
   it('DFC-695: with only a task group chosen and no panel up, Enter clears the choice', () => {
     const built = benchOf()
     take(built, TASK_GROUP_PANEL, null, 'g2')
@@ -152,6 +153,7 @@ describe('FR-085 / IN-4 / SK-19 (DFC-695) -- a chosen task group is a selection 
 })
 
 describe('FR-085 (DFC-696) -- a task group that left the document is no longer chosen', () => {
+  // Spec: IMPS-1958
   it('after a chosen task group is deleted by a write, a new task group that takes its id is not chosen', () => {
     const built = benchOf()
     take(built, TASK_GROUP_PANEL, null, 'g1')

@@ -95,6 +95,7 @@ type Asking = (incoming: unknown, reading: unknown, onAsked: (asked: 'U-61') => 
 const road = (body: Asking): TakeIn => body as unknown as TakeIn
 
 describe('CR-796 AM-8 / AG-12 (6): importDocument returns at once when the road asks a person (AV-15)', () => {
+  // Spec: IMPS-904, IMPS-905
   it('AM-8: a road that asks and has not settled -> { ok: true, asked: "U-61", stamp } without waiting for the road', async () => {
     let finish: (landing: unknown) => void = () => undefined
     const api = agentApiMembers(

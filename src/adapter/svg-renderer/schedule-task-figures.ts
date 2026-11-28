@@ -290,7 +290,7 @@ function arrowSvg(marker: MarkerGeometry, ink: string, settings: MarkerStroke, n
   )
 }
 
-// Spec: ZO-3, T-021, T-315, FR-013, IMPS-605, IMPS-606, IMPS-614, IMPS-499, IMPS-511, IMPS-512, PM-1a, PM-2, PM-3
+// Spec: ZO-3, T-021, T-315, FR-013, IMPS-605, IMPS-606, IMPS-614, IMPS-499, IMPS-511, IMPS-512, PM-1a, PM-2, PM-3, FR-030, NFR-006
 /** @purity pure */
 function markSymbolSvg(marker: MarkerGeometry, ink: string, settings: MarkerStroke, named: string): string {
   const { center, radius } = marker
@@ -376,7 +376,7 @@ function resumeSvg(
   return `<g opacity="${rounded(settings.resumeOpacityInvalid)}"${named}>${drawn}</g>`
 }
 
-// Spec: IMPS-697, IMPS-698, IMPS-1217, IMPS-1726
+// Spec: IMPS-697, IMPS-698, IMPS-1217, IMPS-1726, IMPS-1218
 /** @purity pure */
 function nameLabelInkOf(input: TaskFiguresInput, taskUid: number): { readonly ink: string; readonly weight: number } {
   const isParentShown = input.picture === 'screen' && input.geometry.parentTasks?.highlightedParentUid === taskUid

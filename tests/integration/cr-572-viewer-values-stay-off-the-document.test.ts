@@ -366,6 +366,7 @@ describe('CR-572 -- the manuscript these cases are driven by', () => {
 })
 
 describe('CR-572 item 4 -- light and dark start from the browser (FR-039)', () => {
+  // Spec: IMPS-1205, IMPS-1206
   it.each([
     ['dark', 'dark'],
     ['light', 'light'],
@@ -398,6 +399,7 @@ describe('CR-572 item 4 -- switching light and dark touches nothing the document
     expect(JSON.stringify(built.loop.document())).toBe(document)
   })
 
+  // Spec: IMPS-1208
   it(`FR-039 「${FR_039_REMEMBERED_NOWHERE}」: nothing is written to the browser's storage`, () => {
     const built = bench()
     const before = storage.writes.length
@@ -417,6 +419,7 @@ describe('CR-572 item 4 -- switching light and dark touches nothing the document
     expect(built.loop.themePreference()).toBe(switched)
   })
 
+  // Spec: IMPS-1204, IMPS-145
   it('FR-039: the saved file does not carry it, and after a reload the browser decides again', async () => {
     browserPrefers('light')
     const built = bench()
@@ -437,6 +440,7 @@ describe('CR-572 item 5 -- monochrome stays in the file (FR-041, UN-13)', () => 
     expect(built.loop.hasUnsavedEdits()).toBe(true)
   })
 
+  // Spec: IMPS-947
   it(`FR-063 「${FR_063_SETTINGS_STAMP_MOVES}」 and 「${FR_063_SCHEDULE_STAMP_STAYS}」`, () => {
     const built = bench()
     const before = stampOf(built.loop)
@@ -453,6 +457,7 @@ describe('CR-572 item 5 -- monochrome stays in the file (FR-041, UN-13)', () => 
     expect(settingsOf(built.loop)['isThemeMonochrome']).toBe(false)
   })
 
+  // Spec: IMPS-153
   it('WY-1: a saved file reopens monochrome', async () => {
     const built = bench()
     built.press('IC-100')
@@ -483,6 +488,7 @@ describe('CR-572 item 6 -- the guide cursor and the property panel width are scr
     expect(reloaded.chosen('IC-48')).toBe(false)
   })
 
+  // Spec: IMPS-1792
   it(`FR-052 「${FR_052_STARTS_AT_THE_KIND_DEFAULT}」: a dragged width is not in the saved file, and a reload on the settings face starts at S-171`, async () => {
     const built = bench()
     built.press('IC-17')
@@ -498,6 +504,7 @@ describe('CR-572 item 6 -- the guide cursor and the property panel width are scr
     expect(reloaded.drawnPanelWidth()).toBeCloseTo(S_171, 6)
   })
 
+  // Spec: IMPS-1796
   it(`FR-052 「${FR_052_WRITES_NOWHERE}」: nothing reaches the browser's storage either`, () => {
     const built = bench()
     built.press('IC-17')
@@ -547,6 +554,7 @@ describe('CR-572 item 7 -- the dual cursor dates are never in the file, and leav
 })
 
 describe('CR-572 item 8 -- the font size stays in the file and the ruler follows it (FR-039)', () => {
+  // Spec: IMPS-1209, IMPS-1210
   it(`FR-039 「${FR_039_FONT_REACHES_THE_RULER}」: IC-99 moves fontSizeStep to the next step of T-215, and S-3 / S-2 follow`, () => {
     const built = bench()
     const from = settingsOf(built.loop)['fontSizeStep'] as string
@@ -558,6 +566,7 @@ describe('CR-572 item 8 -- the font size stays in the file and the ruler follows
     expect(after['rulerHeightPx']).toBe(perScale('S-2')[next])
   })
 
+  // Spec: IMPS-1203
   it(`FR-039 「${FR_039_FONT_IS_AN_EDIT}」: an unsaved edit, an undo step (UN-13), and in the saved file`, async () => {
     const built = bench()
     const from = settingsOf(built.loop)['fontSizeStep']
@@ -584,6 +593,7 @@ describe('CR-572 item 9 -- the Agent API sends CM-64 and none of the four retire
     expect(RETIRED.filter((name) => names.includes(name))).toEqual([])
   })
 
+  // Spec: IMPS-152
   it('CM-64: an Agent can still switch monochrome, and it lands in the document', () => {
     const built = bench()
     const api = agentOf(built)

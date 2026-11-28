@@ -295,6 +295,7 @@ def chords_of(keys):
                for one in keys.split(ASSIGNMENT_SEPARATOR))
 
 
+# Spec: IMPS-1151
 def block_of(written, moved):
     """The block one step of a table T-256 cell names.
 
@@ -323,6 +324,7 @@ def block_of(written, moved):
     return None
 
 
+# Spec: HC-1, HC-2, HC-3, HC-4, IMPS-1150
 def column_layout():
     """([(column row id, [block, ...]), ...] in table T-256's order, moved group).
 
@@ -365,6 +367,7 @@ def item(block, segment, table, row, keys=None, press=None, glyphs=None,
     }
 
 
+# Spec: IMPS-1140, IMPS-1141, IMPS-1143, IMPS-1144, IMPS-1147, IMPS-1152, IMPS-1155
 def build():
     """The roster, as it is written out.
 

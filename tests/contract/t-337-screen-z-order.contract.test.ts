@@ -276,6 +276,7 @@ describe('T-337 -- every row of the table is a layer on the screen, and nothing 
     })
   }
 
+  // Spec: IMPS-1752
   it(`${T_337_NO_PART_WITHOUT_A_ROW} -- every ${LAYER} on the screen names a row of the table`, () => {
     const { help, chooser } = screens()
     const known = new Set(ROWS.map((one) => one.id))
@@ -299,6 +300,7 @@ describe('T-337 -- the layers stack by z-index in the order the table gives', ()
   })
 
   for (const row of ROWS) {
+    // Spec: IMPS-1749
     it(`${says(row.id)} -- every row above it is stacked in front, every row below it behind`, () => {
       for (const built of Object.values(screens())) {
         const stacked = stackedOf(built)

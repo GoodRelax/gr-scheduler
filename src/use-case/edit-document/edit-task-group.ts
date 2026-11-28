@@ -284,7 +284,7 @@ function pasteTaskGroupSubtree(
   }))
 }
 
-// Spec: CM-26, CM-27, CM-28, CM-29, CM-30, CM-31, CM-32, CM-35, CM-72, CM-73, CM-85, IMPS-233, IMPS-242, IMPS-243, IMPS-245
+// Spec: CM-26, CM-27, CM-28, CM-29, CM-30, CM-31, CM-32, CM-35, CM-72, CM-73, CM-85, IMPS-233, IMPS-242, IMPS-243, IMPS-245, IMPS-266
 // Trap: a command that changes nothing returns the same document object; a write is detected
 // by the schedule reference.
 /** @purity pure */

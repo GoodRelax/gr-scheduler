@@ -188,6 +188,7 @@ describe('CR-650 BR-7 -- the divider between the Branding and the Project Title'
   })
 
   // Why: CR-659 retired the S-491 gap here (JDG-1350); the divider's two sides are the inset left of the mark.
+  // Spec: IMPS-1776
   it('BR-7 S-226: the gap on both sides of the divider is S-226 x S-235, the same as the inset left of the seat', () => {
     const { header, byRole } = drawnHeader()
     const style = styleMap(header)
@@ -204,6 +205,7 @@ describe('CR-650 BR-7 -- the divider between the Branding and the Project Title'
     expect(px(style.get('margin-left'))).toBeCloseTo(S_491 * S_235, 2)
   })
 
+  // Spec: IMPS-1779
   it('BR-2 BR-7: header order is Branding seat, divider, title and file strip, Header Commands', () => {
     const { header } = drawnHeader()
     const roles = header.children.map(

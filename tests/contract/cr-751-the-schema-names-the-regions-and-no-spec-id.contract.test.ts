@@ -80,6 +80,7 @@ describe('JDG-2039 / Chapter 6.2: the region keys enumerate the T-376 regions in
     expect(SETTINGS['viewTimeZone']['default']).toBe(null)
   })
 
+  // Spec: IMPS-1376
   it('documentSettings.displayTimeZones is an array of at most 4 regions, defaulting to [] (S-575: 0 to 4)', () => {
     expect(SETTINGS['displayTimeZones']['type']).toBe('array')
     expect(SETTINGS['displayTimeZones']['maxItems']).toBe(4)
@@ -112,6 +113,7 @@ describe('Chapter 6.2: the root description states the minute-level reading, not
     expect(root).not.toMatch(/last day \([^)]*\) is included/i)
   })
 
+  // Spec: IMPS-1375
   it('it names the schedule data time zone, minute reading, no offset shift, and UTC for record instants (Chapter 6.2: says why the kinds of time differ)', () => {
     expect(root).toContain('scheduleDataTimeZone')
     expect(root).toMatch(/minute/i)
@@ -127,6 +129,7 @@ describe('Chapter 6.2: no description in the schema names a specification ID', (
     expect(descriptionsOf(SCHEMA, '', []).length).toBeGreaterThan(10)
   })
 
+  // Spec: IMPS-1372
   it('no description holds an ID of a registered prefix, a requirement or a table', () => {
     expect(found.map(([at, text]) => `${at}: ${text.match(SPEC_ID)?.[0]}`)).toEqual([])
   })

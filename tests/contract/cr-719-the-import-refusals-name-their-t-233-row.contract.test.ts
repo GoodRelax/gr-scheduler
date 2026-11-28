@@ -74,6 +74,7 @@ describe('FR-023 / FR-076 / AG-9a -- the clauses this file is driven by still st
 })
 
 describe(`RS-78 -- ${FR_023_LIMITS_CARRY_THEIR_ROW}: the file size`, () => {
+  // Spec: IMPS-1135
   it('a file one byte over the limit is refused as RS-78 and as no setting or requirement', () => {
     const verdict = verdictOf([goodTask(1)], LIMITS.bytes * BYTES_PER_MEGABYTE + 1)
     expect(verdict.ok).toBe(false)
@@ -123,6 +124,7 @@ describe('RS-80 -- the WBS depth, the root counting as depth 1', () => {
 })
 
 describe(`RS-81 -- ${FR_012_NO_TASK_WITHOUT_AN_END}`, () => {
+  // Spec: IMPS-478
   it.each([
     ['no start', { finish: '2026-01-09' }],
     ['no finish', { start: '2026-01-05' }],
@@ -136,6 +138,7 @@ describe(`RS-81 -- ${FR_012_NO_TASK_WITHOUT_AN_END}`, () => {
     expect(refusalsOf(verdict).find((one) => one.rule === 'RS-81')?.notice).toBe('NT-1')
   })
 
+  // Spec: IMPS-479, IMPS-480
   it(`${FR_012_EX_5_IS_EXEMPT} -- an empty row of the file is not refused`, () => {
     const verdict = verdictOf([goodTask(1), taskOf({ uid: 2 })], 1024, [2])
     expect(rulesOf(verdict)).not.toContain('RS-81')

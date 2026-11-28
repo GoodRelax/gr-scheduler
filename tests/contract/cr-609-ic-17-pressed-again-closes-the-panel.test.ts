@@ -198,6 +198,7 @@ function expectClosedByTheSecondPress(built: Bench): void {
 }
 
 describe('CR-609 section 8 wave 3 -- IC-17 pressed again while the settings are shown closes the panel', () => {
+  // Spec: IMPS-87
   it('(a) a Task shown by MK-13 just before: IC-17 shows the settings, IC-17 again closes the panel', () => {
     const built = bench()
     built.openBySelectingTheTask()

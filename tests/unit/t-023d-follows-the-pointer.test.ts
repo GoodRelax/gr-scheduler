@@ -675,6 +675,7 @@ describe('the fixture draws every figure the nine rows are grabbed on', () => {
     )
   })
 
+  // Spec: IMPS-456
   it('draws a progress marker and a resume icon on the suspended Task (FR-044, MUST)', () => {
     const built = stage()
     const marker = markerOf(built.loop, SUSPENDED_UID)
@@ -1273,6 +1274,7 @@ describe('table T-023d GR-21: the schedule follows the pointer while its grip is
   }
 
   for (const axis of ['horizontal', 'vertical'] as const) {
+    // Spec: IMPS-1754
     it(`settles the ${axis} display position on the release (table T-028 IN-1)`, () => {
       const built = laneStage()
       const before = built.loop.document().documentSettings

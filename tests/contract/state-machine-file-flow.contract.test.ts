@@ -434,6 +434,7 @@ describe('SD-3 (T-290): every fileFlow state (both machines crossed, root values
   const cases = crossedSessions().flatMap((s) =>
     flowEvents().map((event) => [`${s.name} x ${describeEvent(event)}`, s.session, event] as const),
   )
+  // Spec: MG-9a
   it.each(cases)('%s', (_, session, event) => {
     expectFlowStep(session, event)
   })

@@ -30,7 +30,7 @@ function storedNamesAPlace(held: Document, stored: ViewPlace): boolean {
   return isPlaceNamed(held.schedule, stored.scrollDate, stored.scrollTaskGroupId)
 }
 
-// Spec: OP-10
+// Spec: OP-10, IMPS-954
 /** @purity pure */
 function viewPlaceOf(settings: DocumentSettings): ViewPlace {
   return {

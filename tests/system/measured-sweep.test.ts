@@ -1405,7 +1405,7 @@ test('DFC-152: settling the same value again writes nothing, so one undo puts th
 // on two lines, so a count alone cannot tell them apart.
 // Why: the presses are not counted out: the opening stage moves with the font (S-3), so the
 // walk presses until the stage changes, under a ceiling.
-// Spec: FR-017, T-238, TM-1, TM-2, TM-3, TM-4
+// Spec: FR-017, T-238, TM-1, TM-2, TM-3, TM-4, IMPS-717
 test('DFC-92: the ruler band keeps its height across stages and splits it evenly', async () => {
   test.setTimeout(180_000)
   const page = shared()
@@ -1668,7 +1668,7 @@ test('DFC-91: the weekday tier of the ruler is ticked exactly where the day tier
   ).toBeLessThanOrEqual(2)
 })
 
-// Spec: FR-055, HF-8, T-068, T-328
+// Spec: FR-055, HF-8, T-068, T-328, IMPS-808
 // Why: fitPressed returns every collapsed task group to auto (table T-328), so the first task group reads
 // as before the fold; the task groups landed on must fit, or the drawing is already at depth 1.
 // Trap: how many runs table T-068 took is not published by the build, so only its two

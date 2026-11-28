@@ -276,6 +276,7 @@ describe('FR-020 -- how U-60 is drawn', () => {
     expect(typed[0]?.getAttribute('type')).toBe('password')
   })
 
+  // Spec: WM-7
   it('draws the two answers as words, with no shape and no row of table T-109', () => {
     const drawn = drawnOn('ja')
     const answers = descendants(drawn).filter(
@@ -324,6 +325,7 @@ describe('FR-020 -- the default watermark unlock digest', () => {
     expect(WATERMARK_UNLOCK_DIGEST['S-101']).toBe(bare(row?.by['値'] ?? ''))
   })
 
+  // Spec: WM-12
   it('is a SHA-256 and not the password itself', () => {
     // Why: two readings, because either alone is weak: the shape is a 64-digit
     // lower-case hexadecimal string, and it is not S-100.

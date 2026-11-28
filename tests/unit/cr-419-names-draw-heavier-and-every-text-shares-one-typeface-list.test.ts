@@ -204,6 +204,7 @@ describe.each(['screen', 'export'] as const)(`FR-039 (MUST) -- the %s picture`, 
     expect(texts.some((one) => /-oc2-label$/.test(one.figure))).toBe(true)
   })
 
+  // Spec: IMPS-1215
   it(`draws every text in the S-246 list: ${FR_039_ONE_TYPEFACE_LIST}`, () => {
     for (const text of texts) {
       expect(text.family === null ? null : familyOf(text.family), `${text.figure}: ${FR_039_ONE_TYPEFACE_LIST}`).toBe(
@@ -212,12 +213,14 @@ describe.each(['screen', 'export'] as const)(`FR-039 (MUST) -- the %s picture`, 
     }
   })
 
+  // Spec: IMPS-1217
   it(`draws the SH-1 to SH-5 name labels at S-245: ${FR_039_NAMES_ARE_HEAVIER}`, () => {
     for (const text of texts.filter(isNameLabel)) {
       expect(text.weight, `${text.figure}: ${FR_039_NAMES_ARE_HEAVIER}`).toBe(String(S_245))
     }
   })
 
+  // Spec: IMPS-1218
   it(`does not draw the cards or the ruler at that weight: ${FR_039_NOTHING_ELSE_IS_HEAVIER}`, () => {
     for (const text of texts.filter((one) => !isNameLabel(one))) {
       expect(text.weight, `${text.figure}: ${FR_039_NOTHING_ELSE_IS_HEAVIER}`).not.toBe(String(S_245))
@@ -317,6 +320,7 @@ describe('FR-039 (MUST) -- the DOM surfaces: App Header, Command Palette, help a
     expect(wrong.slice(0, 5), FR_039_ONE_TYPEFACE_LIST).toEqual([])
   })
 
+  // Spec: IMPS-1216
   it(`writes no other typeface list anywhere in the surfaces: ${FR_039_NOT_PER_SURFACE}`, () => {
     const { mount } = domDrawn()
     const families = selfAndDescendants(mount)

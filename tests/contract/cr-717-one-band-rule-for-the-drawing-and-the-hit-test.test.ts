@@ -150,11 +150,13 @@ describe('CR-717 / DFC-2161: one band rule for the drawing and the hit test (FR-
     for (const at of pointsInTheBand()) expect(answersAt(at, false)).toBe(true)
   })
 
+  // Spec: IMPS-786
   it('EL-19 / FR-098 the landed line is drawn below the band, and does not answer in it (DFC-2161)', () => {
     expect(drawnInBand(true)).toBe(false)
     for (const at of pointsInTheBand()) expect(answersAt(at, true)).toBe(false)
   })
 
+  // Spec: IMPS-787
   it('FR-098 / PI-6 at every point in the band, the hit test answers exactly where the drawing puts the line in the band', () => {
     for (const isLanding of [false, true]) {
       const inBand = drawnInBand(isLanding)

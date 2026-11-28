@@ -109,6 +109,7 @@ test.describe('W3-T5 -- the manuscript these cases are driven by', () => {
   })
 })
 
+// Spec: IMPS-1245, IMPS-1246, IMPS-1248, IMPS-1249, IMPS-1250
 test(`FR-039: "${FR_039_UNROUNDED}"`, async ({ browser }) => {
   // Why: display scale 110 puts the drawn width at a quarter past a pixel and the floor just past a whole pixel,
   // so a release a quarter px over the floor reads "wider" unrounded but "equal" when both are rounded.

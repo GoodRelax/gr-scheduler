@@ -276,6 +276,7 @@ describe('FR-052 -- a drag stops the property panel at S-248', () => {
     expect(storedWhileHeld, FR_052_WRITES_NOTHING).toBe(false)
   })
 
+  // Spec: IMPS-1795
   it('離したときの幅は止めて描いた幅とし、それを画面の値とすること（MUST） -- released at the right edge, and past it, the panel stays S-248 wide', () => {
     for (const x of [SCREEN.width - 1, SCREEN.width + 200]) {
       const built = bench()
@@ -305,6 +306,7 @@ describe('FR-052 -- a drag stops the property panel at S-248', () => {
 })
 
 describe('FR-052 -- the width is a screen value that starts at the default of the kind shown (CR-572, CR-787)', () => {
+  // Spec: IMPS-1788
   it.each(OPENINGS)(
     '⭐ プロパティパネルの幅は画面の値とし、出している中身の種の既定の幅から始めること（MUST） -- opened by %s',
     (_name, open, expected) => {
@@ -316,6 +318,7 @@ describe('FR-052 -- the width is a screen value that starts at the default of th
     },
   )
 
+  // Spec: IMPS-1793
   it('pulled left by 10 px, the panel is drawn and kept at S-602 + 10 (counted from the drawn width)', () => {
     const built = bench()
     built.openBySelectingTheTask()
@@ -325,6 +328,7 @@ describe('FR-052 -- the width is a screen value that starts at the default of th
     expect(built.drawnWidth(), FR_052_KEEPS_THE_STOPPED_WIDTH).toBeCloseTo(S_602 + 10, 6)
   })
 
+  // Spec: IMPS-1787
   it('a settled width is the screen value: closed by Esc and opened again on the same Task by MK-13, the panel keeps it', () => {
     const built = bench()
     built.openBySelectingTheTask()

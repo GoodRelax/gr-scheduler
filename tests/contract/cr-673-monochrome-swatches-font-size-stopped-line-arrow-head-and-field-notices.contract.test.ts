@@ -460,6 +460,7 @@ const finishedEndX = (bar: LineBar): number => bar.head?.[0]?.x ?? bar.dots[bar.
 describe(`CR-673 FR-109 "${FR_109_STOPPED}"`, () => {
   const lines = actualLines()
   for (const state of ['PS-3', 'PS-4'] as const) {
+    // Spec: IMPS-1701
     it(`arrow, ${state}: the actual line has no head and runs flat to the stop day`, () => {
       const bar = lineOf(lines, 'arrow', state)
       const finished = lineOf(lines, 'arrow', 'PS-2')

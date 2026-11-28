@@ -220,6 +220,7 @@ const durationOf = (document: Document, uid = 1): string[] =>
 describe('DV-8: a task a person made writes Duration as the working time between its start and its finish', () => {
   const standard = { working: MONDAY_TO_FRIDAY_WITH_SPANS }
 
+  // Spec: IMPS-760
   it.each([
     ['Wed 08:00 to Thu 17:00, the example of DV-8', jan(JAN_WEDNESDAY, '08:00'), jan(JAN_THURSDAY, '17:00'), 'PT16H0M0S'],
     ['08:00 to 17:00 of one day', jan(JAN_WEDNESDAY, '08:00'), jan(JAN_WEDNESDAY, '17:00'), 'PT8H0M0S'],
@@ -254,6 +255,7 @@ describe('DV-11: a task a person made writes ActualDuration as the actual length
     return elementTexts(taskElementOf(mspdiFromDocument(document, SAVED_AT).text, 1), 'ActualDuration')
   }
 
+  // Spec: IMPS-416
   it('writes 960 minutes for a Friday 08:00 to Saturday 17:00 actual', () => {
     expect(actualOf({ actualStart: jan(JAN_FRIDAY, '08:00'), stop: jan(JAN_SATURDAY, '17:00') })).toEqual(['PT16H0M0S'])
   })
@@ -279,6 +281,7 @@ describe('FR-011: a file with an ActualStart and an ActualDuration but no Stop g
     expect(stopOf(duration)).toBe(stop)
   })
 
+  // Spec: IMPS-422, IMPS-423
   it('writes no Stop back while a person has not edited the actual', () => {
     const extra = `<ActualStart>${april(8, '08:00')}</ActualStart><ActualDuration>PT16H0M0S</ActualDuration>`
     const document = readDocument(mspdiOf(taskXml(1, april(8, '08:00'), april(10, '17:00'), extra), '', STANDARD_WEEK))
@@ -293,6 +296,7 @@ describe('FR-054: a length is read in minutes and is not rounded to a day on the
   const half = taskXml(1, april(8, '09:00'), april(8, '11:30'))
   const text = mspdiOf(half.replace('<Duration>PT16H0M0S</Duration>', '<Duration>PT2H30M0S</Duration>'), '', STANDARD_WEEK)
 
+  // Spec: IMPS-756
   it('gives back the Duration of a task nobody edited', () => {
     const document = readDocument(text)
     expect(elementTexts(taskElementOf(mspdiFromDocument(document, SAVED_AT).text, 1), 'Duration')).toEqual(['PT2H30M0S'])

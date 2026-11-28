@@ -179,12 +179,14 @@ describe('T-252 DS-13 -- the drawn floor is minHeight x (S-234 / 100), whatever 
     expect(DISPLAY_SCALE_STEPS).toContain(DEFAULT_DISPLAY_SCALE)
   })
 
+  // Spec: IMPS-186
   it(`FR-042 "${FR_042_HELD_AS_PX}" -- at display scale ${DEFAULT_DISPLAY_SCALE} and zoomY ${S_76_DEFAULT} the band is the typed px exactly`, () => {
     const content = contentBand(DEFAULT_DISPLAY_SCALE, S_76_DEFAULT)
     const typed = Math.ceil(content) * 2
     expect(bandOf(documentOf(typed), DEFAULT_DISPLAY_SCALE, S_76_DEFAULT), MH_1_VALUE).toBeCloseTo(typed, 9)
   })
 
+  // Spec: IMPS-1322, IMPS-172, IMPS-187
   it.each(GRID)(
     `"${DS_13_MULTIPLY}" "${DS_13_NOT_S_236}" -- a floor above the content, display scale %d, zoomY %d`,
     (displayScale, zoomY) => {
@@ -202,6 +204,7 @@ describe('T-252 DS-13 -- the drawn floor is minHeight x (S-234 / 100), whatever 
     },
   )
 
+  // Spec: IMPS-173, IMPS-174
   it.each(GRID)(`FR-042 "${FR_042_FLOOR}" "${FR_042_WIDEN}" -- a floor below the content, display scale %d, zoomY %d`, (displayScale, zoomY) => {
     const content = contentBand(displayScale, zoomY)
     const typed = Math.max(1, Math.floor(content / (2 * scaleOf(displayScale))))
@@ -219,6 +222,7 @@ describe('T-252 DS-13 -- the drawn floor is minHeight x (S-234 / 100), whatever 
     )
   })
 
+  // Spec: IMPS-188
   it(`FR-042 "${FR_042_NOT_ZOOM_Y}" -- a tall floored task group keeps its typed band at every notch the zoom goes down`, () => {
     const content = contentBand(DEFAULT_DISPLAY_SCALE, ZOOMS[ZOOMS.length - 1]!)
     const typed = Math.ceil(content) * 4

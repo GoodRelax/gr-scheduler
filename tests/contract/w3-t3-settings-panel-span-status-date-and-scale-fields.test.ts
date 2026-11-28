@@ -159,11 +159,13 @@ describe('FR-072 T-369 FO-10 -- the fit span field stands right below its fix (F
 })
 
 describe('FR-046 -- the status date field', () => {
+  // Spec: IMPS-530
   it(`"${CLAUSE_STATUS_DATE_FIELD}" -- it stands right below FO-7's current width`, () => {
     const panel = settingsPanel()
     expect(placeOf(panel, IC_44)).toBe(placeOf(panel, DRAWN_WIDTH_READOUT) + 1)
   })
 
+  // Spec: IMPS-531
   it(`"${CLAUSE_STATUS_DATE_FIELD}" -- a committed date issues ${CM_3} once`, () => {
     const field = oneFieldOf(settingsPanel(), IC_44)
     const date = '2027-07-01'
@@ -173,18 +175,21 @@ describe('FR-046 -- the status date field', () => {
     expect(JSON.stringify(commands)).toContain(date)
   })
 
+  // Spec: IMPS-532
   it(`"${CLAUSE_STATUS_DATE_FIELD}" -- an emptied field issues ${CM_4} once`, () => {
     const field = oneFieldOf(settingsPanel(), IC_44)
     const commands = commandFromFieldCommit(commit(field, ''), contextOf(TEMPLATE))
     expect(kindsOf(commands)).toEqual([CM_4])
   })
 
+  // Spec: IMPS-533
   it.each(['ja', 'en'] as const)(`"${CLAUSE_STATUS_DATE_NAME}" -- %s`, (language) => {
     expect(oneFieldOf(settingsPanel(language), IC_44).name).toBe(statusDateWordOf(language))
   })
 })
 
 describe('FR-039 -- the display scale field', () => {
+  // Spec: IMPS-1237
   it(`"${CLAUSE_SCALE_FIELD}" -- it stands right below FO-2's theme color field`, () => {
     const panel = settingsPanel()
     expect(placeOf(panel, K_SCALE)).toBe(placeOf(panel, K_THEME) + 1)

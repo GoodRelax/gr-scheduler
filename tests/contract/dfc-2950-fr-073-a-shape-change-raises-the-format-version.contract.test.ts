@@ -181,6 +181,7 @@ describe(`FR-073 -- a shape change raises the version (${FR_073_RAISE_TO_INSTANT
     expect(NEWEST.version, `the newest pair must be the version of the schema. ${RAISE_MESSAGE}`).toBe(SCHEMA_VERSION)
   })
 
+  // Spec: IMPS-1014
   it('FR-073 / DR-4: while the version equals the newest pair, the shape fingerprint equals its fingerprint', () => {
     // Step: only the case "version unchanged" is judged here; a changed version is the case above.
     if (SCHEMA_VERSION !== NEWEST.version) return

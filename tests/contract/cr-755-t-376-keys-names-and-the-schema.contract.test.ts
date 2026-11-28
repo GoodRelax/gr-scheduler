@@ -129,6 +129,7 @@ describe(`T-376 -- ${FR_156_FIXED_OFFSET}`, () => {
     }
   })
 
+  // Spec: ZN-30, ZN-31, ZN-32, ZN-34, ZN-36, ZN-37, ZN-38, ZN-39, ZN-40, ZN-41, ZN-42, ZN-43, ZN-44, ZN-45, ZN-46, ZN-48, ZN-49, ZN-50, ZN-51, ZN-52, ZN-53, ZN-54, ZN-55, ZN-56, ZN-58, ZN-59, ZN-60, ZN-63, ZN-64, ZN-65, ZN-66
   it('the roster the code holds is the table: row ID, key, offset, kind and abbreviation, in table order', () => {
     expect(TIME_ZONE_ROWS.map((row) => [row.specTableRowId, row.key, row.offsetMinutes, row.isDaylight, row.abbreviation])).toEqual(
       T_376_ROWS.map((row) => [row.id, row.key, row.offsetMinutes, row.isDaylight, row.abbreviation]),
@@ -158,6 +159,7 @@ describe(`FR-156 -- ${FR_156_NO_SEASON}`, () => {
     (ms) => ms / MS_PER_MINUTE,
   )
 
+  // Spec: IMPS-736
   it('the PDT row reads UTC-7 in January as in August, and the PST row reads UTC-8 in August as in January', () => {
     const pdt = zoneClockOf('UTC-07:00 DST')
     const pst = zoneClockOf('UTC-08:00')

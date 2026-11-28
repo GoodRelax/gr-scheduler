@@ -146,6 +146,7 @@ function openedBrowser(): Browser {
   return browser
 }
 
+// Spec: PO-1, PO-2, PO-3, PO-5, PO-6, IMPS-1332
 test(
   swsCase({
     sws: 'SWS-8',
@@ -228,6 +229,7 @@ test(
   },
 )
 
+// Spec: IMPS-1333
 test(
   swsCase({
     sws: 'SWS-8',

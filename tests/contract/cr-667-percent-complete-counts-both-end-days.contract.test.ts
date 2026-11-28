@@ -178,6 +178,7 @@ function readDocument(): Document {
 
 describe(`FR-012 (MUST): ${FR_012_PLAN_BY_FR_011}`, () => {
   const document = readDocument()
+  // Spec: IMPS-460, IMPS-461, IMPS-474, IMPS-485, IMPS-486
   it.each(CASES)('$name', ({ row, expected }) => {
     const task = document.schedule.tasks.find((one) => one.uid === row['uid'])
     expect(task?.percentComplete).toBe(expected)
@@ -344,6 +345,7 @@ const ROUNDING_CASES: readonly Case[] = [
 describe('FR-012 (MUST): the percent complete is round(actual / plan x 100), neither floor nor ceil (DFC-682)', () => {
   const read = documentFromJson(documentText(ROUNDING_CASES.map((one) => one.row)), TEMPLATE['schemaVersion'] as string)
   if (!read.ok) throw new Error(`the fixture was refused: ${JSON.stringify(read.faults).slice(0, 400)}`)
+  // Spec: IMPS-473
   it.each(ROUNDING_CASES)('$name', ({ row, expected }) => {
     expect(read.document.schedule.tasks.find((one) => one.uid === row['uid'])?.percentComplete).toBe(expected)
   })

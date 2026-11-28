@@ -360,6 +360,7 @@ describe('the bench -- a released line is drawn where the frame says, before any
 
 describe(`FR-009 (MUST) -- over nothing: ${FR_009_DRAFT_ENTERS_FROM_THE_LEFT}`, () => {
   for (const from of ['start', 'finish'] as const) {
+    // Spec: IMPS-332
     it(`pulled from the ${from} side, the draft leaves T-018's exit and its arrow tip is the pointer, entered from the left`, () => {
       const built = stage()
       arm(built)
@@ -385,6 +386,7 @@ describe(`FR-009 (MUST) -- over nothing: ${FR_009_DRAFT_ENTERS_FROM_THE_LEFT}`, 
     })
   }
 
+  // Spec: IMPS-330
   it('follows the pointer: a second move moves the tip with it', () => {
     const built = stage()
     arm(built)
@@ -401,6 +403,7 @@ describe(`FR-009 (MUST) -- over nothing: ${FR_009_DRAFT_ENTERS_FROM_THE_LEFT}`, 
 describe(`FR-009 (MUST) -- over a partner: ${FR_009_DRAFT_OVER_A_PARTNER}`, () => {
   for (const from of ['start', 'finish'] as const) {
     for (const into of ['start', 'finish'] as const) {
+      // Spec: IMPS-333, IMPS-336, IMPS-1673
       it(`${from} side into the ${into} half of B: the draft ends on T-018's entry and matches the line release makes`, () => {
         const built = stage()
         arm(built)
@@ -426,6 +429,7 @@ describe(`FR-009 (MUST) -- over a partner: ${FR_009_DRAFT_OVER_A_PARTNER}`, () =
 })
 
 describe(`FR-009 (MUST) -- ${FR_009_SELF_IS_NO_PARTNER}`, () => {
+  // Spec: IMPS-334
   it('over the other half of the pulled task itself, the draft still ends at the pointer from its left', () => {
     const built = stage()
     arm(built)
@@ -441,6 +445,7 @@ describe(`FR-009 (MUST) -- ${FR_009_SELF_IS_NO_PARTNER}`, () => {
 })
 
 describe(`FR-009 (MUST NOT) -- ${FR_009_NO_WRITE_WHILE_PULLING}`, () => {
+  // Spec: IMPS-335
   it('holds the same dependencies through every move before the release', () => {
     const built = stage()
     arm(built)

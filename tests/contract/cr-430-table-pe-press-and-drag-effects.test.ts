@@ -209,6 +209,7 @@ describe('PE-0 -- 日程表のどこでも, a press and a drag start no text sel
 })
 
 describe('PE-1 -- 予定の本体', () => {
+  // Spec: IMPS-1646, IMPS-1678, IMPS-425, IMPS-426
   it(`PE-1 sideways: ${cellOf('PE-1', SIDEWAYS)}`, () => {
     const one = built()
     const before = datesOf(one, BAR_UID)
@@ -220,6 +221,7 @@ describe('PE-1 -- 予定の本体', () => {
     expect(after['stop'], cellOf('PE-1', SIDEWAYS)).toBe(before['stop'])
   })
 
+  // Spec: IMPS-427, IMPS-428
   it(`PE-1 downwards: ${cellOf('PE-1', DOWNWARDS)}`, () => {
     const one = built()
     const before = datesOf(one, BAR_UID)
@@ -413,6 +415,7 @@ describe('PE-13 -- 再開マーク', () => {
     expect(JSON.stringify(one.loop.document().schedule), cellOf('PE-13', ON_RELEASE)).toBe(before)
   })
 
+  // Spec: IMPS-457
   it(`PE-13 sideways: ${cellOf('PE-13', SIDEWAYS)}`, () => {
     const one = built()
     dragTo(one, at(one, PAUSED_UID, 'GA-20'), xOfDay(one.loop, april(22)))
@@ -429,6 +432,7 @@ describe('T-270 closing -- a Task row is selected by a press that does not move'
     expect(drawnTask(one.loop, uid).fadeHandles.length, T_270_SELECTS).toBeGreaterThan(0)
   })
 
+  // Spec: IMPS-1647
   it(`${T_270_SELECTS} -- and the one before it is replaced`, () => {
     const one = built()
     pressAndRelease(one, at(one, FADED_UID, 'GA-9'))
@@ -438,6 +442,7 @@ describe('T-270 closing -- a Task row is selected by a press that does not move'
 })
 
 describe('T-270 closing -- a completed Task keeps its actual when the plan is dragged', () => {
+  // Spec: IMPS-1658
   it(`${T_270_NO_OTHER_ROAD}`, () => {
     const one = built()
     const before = datesOf(one, DONE_UID)

@@ -220,10 +220,12 @@ const T019A: readonly {
 ]
 
 describe('Schedule (PI-1) -- table T-019a', () => {
+  // Spec: FR-010
   it.each(T019A)('$row gives $state', ({ task, state }) => {
     expect(planActualState({ ...emptyTask, ...task })).toBe(state)
   })
 
+  // Spec: IMPS-391, IMPS-392
   it('is total: the task that suspended and then finished still lands on a row', () => {
     // Why: an actualFinish together with resume and resumeValid is the combination an earlier rule set matched to no row.
     expect(
@@ -319,6 +321,7 @@ describe('Schedule (PI-1) -- one calendar for the document (FR-054)', () => {
     expect(workingCalendarOf(scheduleWith({ calendarUid: 99 }, [calendar])).calendar.uid).toBe(1)
   })
 
+  // Spec: IMPS-757
   it('falls to table T-209 default -- Monday to Friday, no exception -- when the document holds none', () => {
     const held = workingCalendarOf(scheduleWith({ calendarUid: null }, []))
     expect(held.exceptions).toEqual([])

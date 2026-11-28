@@ -253,6 +253,7 @@ describe('the manuscript still says what these cases read', () => {
 })
 
 describe('FR-053 (MUST): S-99e going from hidden to shown clears S-200', () => {
+  // Spec: IMPS-1837
   it('⭐ the palette starts shown and not minimized, as table T-206 states', () => {
     // Spec: T-206
     const built = stage()
@@ -260,6 +261,7 @@ describe('FR-053 (MUST): S-99e going from hidden to shown clears S-200', () => {
     expect(isMinimized(built)).toBe(false)
   })
 
+  // Spec: IMPS-1835
   it('⭐ the minimize entrance still minimizes, and nothing else undoes it', () => {
     // Spec: IC-75
     // Why: the control case; without it a unit that never minimized would pass the cases below.
@@ -271,6 +273,7 @@ describe('FR-053 (MUST): S-99e going from hidden to shown clears S-200', () => {
     expect(isMinimized(built), 'S-200 stands until something moves it').toBe(true)
   })
 
+  // Spec: IMPS-1809
   it('⭐ showing it again from the header brings it back at its standard size', () => {
     // Spec: FR-053, IC-7
     const built = stage()
@@ -283,6 +286,7 @@ describe('FR-053 (MUST): S-99e going from hidden to shown clears S-200', () => {
     expect(isMinimized(built)).toBe(false)
   })
 
+  // Spec: IMPS-1844
   it('⭐ the key SK-14 assigns brings it back the same way', () => {
     // Spec: FR-053, SK-14
     // Why: FR-053 is written about S-99e and not about one entrance, so a clearing hung on the

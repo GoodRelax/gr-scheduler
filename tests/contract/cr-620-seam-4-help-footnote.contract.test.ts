@@ -180,6 +180,7 @@ describe('SEAM-4 the IC-20 item carries a link to the latest-version page (FR-03
     }
   })
 
+  // Spec: FR-380
   it('FR-038: the link follows the help language, not the screen language', () => {
     const entry = helpOf('en' as DisplayLanguage, 'ja' as DisplayLanguage).entries.find((one) => one.row === 'IC-20')
     expect(entry?.link?.words).toBe(AGENT_API_LINKS[0]?.text['en'])

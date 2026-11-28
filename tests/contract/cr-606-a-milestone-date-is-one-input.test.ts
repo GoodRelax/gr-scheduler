@@ -98,6 +98,7 @@ describe('T-016 oneInput -- the manuscript rows', () => {
     }
   })
 
+  // Spec: IMPS-28
   it.each([
     ['planned', PLANNED_ROW],
     ['actual', ACTUAL_ROW],
@@ -164,6 +165,7 @@ describe(`T-016 ${ACTUAL_ROW} -- ${ACTUAL_ONE_INPUT}`, () => {
     expect((command['place'] as Readonly<Record<string, unknown>>)['state']).toBe('notStarted')
   })
 
+  // Spec: IMPS-387
   it('the PA-5 command is accepted and leaves actualStart and actualFinish on one day', () => {
     const command = committed(OPEN, ACTUAL_ROW, DAY)[0] as DocumentCommand
     const result = editDocument(MILESTONES, command, LIMITS, 'row')

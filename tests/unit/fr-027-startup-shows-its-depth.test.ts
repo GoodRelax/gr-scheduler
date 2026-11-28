@@ -279,6 +279,7 @@ describe('FR-018 -- the depths the first frame of the shipped template draws', (
     expect(deepestDrawn(bootFrame.values.layout)).toBeGreaterThan(1)
   })
 
+  // Spec: IMPS-1019
   it('starts at the head of the task group tree, drawn from the top of the Task Group Lanes', () => {
     const first = bootFrame.values.layout.taskGroups[0]
     expect(first, 'the boot drew task groups at all').toBeDefined()

@@ -251,6 +251,7 @@ describe('FR-011: the actual instants and the length of a reversed actual read d
     expect(asText((instants as readonly [number, number])[1])).toBe(jan(JAN_WEDNESDAY, '17:00'))
   })
 
+  // Spec: IMPS-395
   it('reads actualFinish, not stop, as the end of a finished task', () => {
     const instants = actualInstantsOf(STANDARD, actualOf(ISO_MONDAY, ISO_TUESDAY, ISO_WEDNESDAY))
     expect(asText((instants as readonly [number, number])[1])).toBe(jan(JAN_WEDNESDAY, '17:00'))

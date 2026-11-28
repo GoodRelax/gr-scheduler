@@ -1175,6 +1175,7 @@ describe('MK-1 〜 MK-5 -- one wheel happening carries detents and pixels', () =
     expect(run.heard[0]).toMatchObject({ kind: 'wheel', x: 640, y: 400 })
   })
 
+  // Spec: IMPS-1518
   it('measures a page in the host own window, not in an invented page size', () => {
     const tall = harness({ innerWidth: 400, innerHeight: 300 })
     tall.watch()

@@ -43,9 +43,9 @@ import { specTable, unbroken, type SpecRow } from './spec-table'
 
 // Why: The clauses this file is driven by (quoted from docs/spec, so a changed sentence reddens case 1)
 
-const T_331_ORDER = '`GRS` は、検索の表の列を、表ごとに 表 T-331 の行の順に左から並べること（タスクの表では 表示・ステータス・進捗・タスク種別・タスク・担当名・予定開始・予定終了・実績開始・実績終了・最上位までの階層 の順）。'
+const T_331_ORDER = '`GRS` は、検索の表の列を、表ごとに 表 T-331 の行の順に左から並べること（タスクの表では 表示・進捗ステータス・完了率・タスク種別・タスク・担当名・予定開始・予定終了・実績開始・実績終了・タスクグループ階層 の順）。'
 const T_347_ORDER = '`GRS` は、表 T-347 の欄を 表 T-347 の行の順に左から並べること —— 表示・ステータス・進捗・タスク種別・タスク・担当・予定日・実績日・理由。'
-const SV_6_FIXED = '`GRS` は、横には、タスクの表では `SQ-1` まで（表 T-331 の並びで 表示・ステータス・進捗・タスク種別・タスク の 5 列）、コメントボックスの表では `SQ-7` までを左に固定すること（表 T-257 の `RR-4` と同じ形）。'
+const SV_6_FIXED = '`GRS` は、横には、タスクの表では `SQ-1` まで（表 T-331 の並びで 表示・進捗ステータス・完了率・タスク種別・タスク の 5 列）、コメントボックスの表では `SQ-7` までを左に固定すること（表 T-257 の `RR-4` と同じ形）。'
 const RW_10_FIXED = '横は `DT-8`・`DT-1`・`DT-3`・`DT-9`・`DT-4`（表示・ステータス・進捗・タスク種別・タスク —— 表 T-347 の並びで左の 5 列）を左に固定し'
 const FR_134_COLUMNS = '`GRS` は、窓の表の欄を 表 T-347 に従わせること。'
 const SV_7_CONTROLS_FIRST = '`GRS` は、フィルターの中身を、上から操作の段と値の一覧の順に置くこと。'
@@ -546,6 +546,7 @@ describe('T-330 SV-7 -- the open filter closes on its own entrance pressed again
     expect(viewOf(opened('SQ-1', opened('SQ-5'))).filterMenu?.column).toBe('SQ-1')
   })
 
+  // Spec: IMPS-626
   it('SV-7 / T-346: IC-122 of the same column closes the report filter too', () => {
     const open = reportAfter(OPENED_REPORT, 'IC-122', 'DT-3')
     expect(reportViewOf(open).filterMenu?.column).toBe('DT-3')

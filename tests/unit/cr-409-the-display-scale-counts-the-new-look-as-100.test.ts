@@ -75,6 +75,7 @@ const textWith = (settings: Record<string, unknown>): string =>
 const ENV: FrameEnvironment = { width: 1200, height: 700, appHeaderHeight: 56, scrollbarThickness: 8 }
 
 describe('FR-039 (MUST) -- the drawn ratio', () => {
+  // Spec: IMPS-1223
   it.each([
     [DEFAULT_DISPLAY_SCALE, 0.625],
     [200, 1.25],
@@ -104,6 +105,7 @@ describe('FR-039 (MUST) -- the drawn ratio', () => {
 })
 
 describe('FR-039 (MUST) -- a document opens at the step it stored', () => {
+  // Spec: IMPS-1202, IMPS-1228
   it.each([150, DEFAULT_DISPLAY_SCALE])('reads a stored %s as that step and draws it at S-234 / 100 x S-236', (stored) => {
     const read = documentFromJson(textWith({ displayScale: stored }))
     if (!read.ok) throw new Error(`${FR_039_OPEN_AT_THE_STORED_STEP} -- refused: ${JSON.stringify(read.faults)}`)
@@ -115,6 +117,7 @@ describe('FR-039 (MUST) -- a document opens at the step it stored', () => {
 describe('FR-039 (MUST NOT) with OP-6 -- a value off the steps opens at the default, not at a near step', () => {
   // Why: OP-6 (CR-565) reads an enum miss as that key alone at its default; the trailing
   // clause of FR-039 still says refused with RS-25, reported as a spec mismatch, not pinned.
+  // Spec: IMPS-1229, IMPS-1230
   it.each([33, 66, 85])('reads a stored %s as the default step', (scale) => {
     const read = documentFromJson(textWith({ displayScale: scale }))
     if (!read.ok) throw new Error(`OP-6 -- ${scale} refused: ${JSON.stringify(read.faults)}`)
@@ -165,6 +168,7 @@ const enabledOf = (view: ScreenView, icon: string): boolean => {
 }
 
 describe('FR-029 / FR-039 -- the two entrances are faint at the two ends of the new steps', () => {
+  // Spec: IMPS-1235
   it('draws IC-104 faint at the lowest step and IC-105 live', () => {
     const view = headerAt(DISPLAY_SCALE_STEPS[0]!)
     expect(enabledOf(view, 'IC-104')).toBe(false)

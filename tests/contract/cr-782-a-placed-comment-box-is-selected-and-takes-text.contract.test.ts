@@ -97,6 +97,7 @@ describe(`FR-019: ${PLACED_IS_SELECTED_AND_FOCUSED}`, () => {
 })
 
 describe(`AR-5: ${PLACED_IS_SELECTED_AND_FOCUSED} -- the press hands the placed box over as created`, () => {
+  // Spec: IMPS-825
   it('a press on empty ground with the comment box armed writes one createCommentBox and names that box as created', () => {
     const document = documentWith([])
     const built = stageFor(document)
@@ -251,6 +252,7 @@ describe(`FR-019: ${PLACED_OFFSET_CLAUSE}`, () => {
     expect(S_600).toBeGreaterThan(0)
   })
 
+  // Spec: IMPS-828
   it('CM-46 writes bodyOffsetPx as { dx: S-600, dy: -S-600 }', () => {
     const made = editDocument(
       documentWith([]),

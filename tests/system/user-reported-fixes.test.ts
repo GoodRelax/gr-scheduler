@@ -1282,6 +1282,7 @@ function fontsOfKeys(
   return keys.flatMap((key) => (fonts[key] === undefined ? [] : [fonts[key] ?? 0]))
 }
 
+// Spec: IMPS-1468, IMPS-1481
 test('DFC-374: magnifying the vertical axis stops before one task group fills the Task Group Lanes', async ({
   baseURL,
 }) => {

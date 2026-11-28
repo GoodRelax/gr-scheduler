@@ -181,6 +181,7 @@ const BY_RESOURCE = { column: 'SQ-2', direction: 'descending' }
 test.describe('CR-723 on the shipped build', () => {
   test.setTimeout(240_000)
 
+  // Spec: IMPS-636
   test('S-560 to S-572 / OP-18 / TV-12: check rows, one person, filter and sort, two eyes, save; reopen gives the same views, minimized windows and red', async () => {
     const first = await opened(NO_VIEWS())
     let saved = ''
@@ -234,6 +235,7 @@ test.describe('CR-723 on the shipped build', () => {
     }
   })
 
+  // Spec: IMPS-1864
   test('UN-20 / FR-100: checking rows is an unsaved edit and one undo step; undoing it clears the mark', async () => {
     const stage = await opened(NO_VIEWS())
     try {

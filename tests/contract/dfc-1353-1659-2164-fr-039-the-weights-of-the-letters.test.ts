@@ -98,12 +98,14 @@ describe('DFC-1353: the Project Title is drawn S-463 bold on the screen and in t
     expect(S_463).toBeGreaterThan(S_529)
   })
 
+  // Spec: IMPS-1219
   it('FR-039 the Project Title on the screen has the S-463 weight', () => {
     const title = drawnScreen().find((one) => one.getAttribute('data-role') === 'Project Title')
     expect(title).toBeDefined()
     expect(weightOf(title as FakeElement)).toBe(S_463)
   })
 
+  // Spec: IMPS-1220
   it('FR-039 / EP-1 the Project Title in the exported picture has the S-463 weight', () => {
     const settings = SETTINGS_DEFAULTS as unknown as DocumentSettings
     const regions: ScreenRegions = {
@@ -136,6 +138,7 @@ describe('DFC-1659: every other letter on the screen is S-529 (FR-039)', () => {
     expect(texts.length).toBeGreaterThan(2)
   })
 
+  // Spec: IMPS-1221
   it('FR-039 no element but the Project Title draws its letters in any weight but S-529', () => {
     const odd = drawnScreen()
       .filter((one) => hasOwnText(one) && one.getAttribute('data-role') !== 'Project Title')
@@ -144,6 +147,7 @@ describe('DFC-1659: every other letter on the screen is S-529 (FR-039)', () => {
     expect(odd).toEqual([])
   })
 
+  // Spec: IMPS-1222
   it('FR-039 a heading, table head or bold tag never keeps the browser weight', () => {
     const left = drawnScreen()
       .filter((one) => BOLD_BY_DEFAULT.has(one.tagName) && styleMap(one).get('font-weight') === undefined)

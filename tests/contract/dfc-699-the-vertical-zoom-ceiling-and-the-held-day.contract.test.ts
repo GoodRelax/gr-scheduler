@@ -136,6 +136,7 @@ describe('DFC-699 / FR-016, T-253, DS-13 -- the vertical zoom stops where the ta
 })
 
 describe('DFC-699 / FR-016, T-253 -- task groups with no floor: the band ceiling follows zoomY', () => {
+  // Spec: IMPS-1466
   it(`${FR_016_FIRST_BAND_THAT_FILLS} -- the zoom stops at the first band that fills the Task Group Lanes, not past it`, () => {
     const built = stackedTaskGroupBench()
     const height = frameOf(built).regions.taskGroupArea.height
@@ -174,6 +175,7 @@ const timeAxisBench = (): ShellBench =>
   )
 
 describe('DFC-699 / FR-016, MK-3, SK-16 -- a time-axis zoom leaves the day at its center where it was', () => {
+  // Spec: IMPS-1589
   it(`MK-3 at a pointer left of the middle -- ${FR_016_POINTER_HOLDS}`, () => {
     const built = timeAxisBench()
     const before = frameOf(built)

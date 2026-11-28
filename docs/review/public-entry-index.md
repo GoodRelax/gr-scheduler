@@ -59,7 +59,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `DEFAULT_CALENDAR_VALUES` | entry | const | `src/entity/document-model/schedule/schedule-entities.ts#DEFAULT_CALENDAR_VALUES` | -- | const DEFAULT_CALENDAR_VALUES: |
 | `defaultFinishTimeOf` | entry | function | `src/entity/document-model/schedule/working-calendar.ts#defaultFinishTimeOf` | PI-1 | 文書の既定の終了時刻。 |
 | `defaultStartTimeOf` | entry | function | `src/entity/document-model/schedule/working-calendar.ts#defaultStartTimeOf` | PI-1 | 文書の既定の開始時刻。 |
-| `DELAY_FIX_KINDS` | entry | const | `src/entity/document-model/schedule/delay-fixes.ts#DELAY_FIX_KINDS` | PI-1 | 表 T-373 の修正のしかたを、表 T-374 の既定の並びの順に並べたもの |
+| `DELAY_FIX_KINDS` | entry | const | `src/entity/document-model/schedule/delay-fixes.ts#DELAY_FIX_KINDS` | PI-1 | 表 T-373 の修正方法を、表 T-374 の既定の並びの順に並べたもの |
 | `DELAY_REPORT_STATUSES` | entry | const | `src/entity/document-model/schedule/delay-diagnostics-report-table.ts#DELAY_REPORT_STATUSES` | PI-1 | 表 T-347 の `DT-1` のステータスを、表の順に並べたもの。 |
 | `DelayDiagnosticsReport` | entry | interface | `src/entity/document-model/schedule/delay-diagnostics.ts#DelayDiagnosticsReport` | PI-1 | 型。 |
 | `delayDiagnosticsReportMarkdown` | entry | function | `src/entity/document-model/schedule/delay-diagnostics-report-table.ts#delayDiagnosticsReportMarkdown` | PI-1 | 遅延診断レポートを Markdown の文字列 1 つにする（表 T-346 の `RW-6`）。 |
@@ -150,7 +150,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `progressMarkerOf` | entry | function | `src/entity/document-model/schedule/task-delay.ts#progressMarkerOf` | PI-1 | 進捗ステータスマークの値を 1 つ求める（`FR-013` の 表 T-021、遅延診断の行を受ければ `FR-133` の 表 T-315 の優先順）。 |
 | `progressPointDayOf` | entry | function | `src/entity/document-model/schedule/plan-actual-state.ts#progressPointDayOf` | PI-1 | 表 T-022 の頂点を打つ日。 |
 | `Project` | entry | interface | `src/entity/document-model/schedule/schedule-entities.ts#Project` | -- | interface Project |
-| `proposeDelayFixes` | entry | function | `src/entity/document-model/schedule/delay-fixes.ts#proposeDelayFixes` | PI-1 | 遅延診断の指摘（表 T-317 の `DX-3`）ごとに、表 T-373 の修正のしかたで修正案の行を作る（`FR-155`）。 |
+| `proposeDelayFixes` | entry | function | `src/entity/document-model/schedule/delay-fixes.ts#proposeDelayFixes` | PI-1 | 遅延診断の指摘（表 T-317 の `DX-3`）ごとに、表 T-373 の修正方法で修正案の行を作る（`FR-155`）。 |
 | `Resource` | entry | interface | `src/entity/document-model/schedule/schedule-entities.ts#Resource` | -- | interface Resource |
 | `reversedActualMinutesOf` | entry | function | `src/entity/document-model/schedule/working-calendar.ts#reversedActualMinutesOf` | PI-1 | 終わりが始まりより前の実績の長さ（分、`FR-011` の数え方）。 |
 | `Schedule` | entry | interface | `src/entity/document-model/schedule/schedule-entities.ts#Schedule` | PI-1 | 型。 |

@@ -135,11 +135,13 @@ describe('X-6 DV-12 / NR-7 / FR-101: LastSaved is made at export and never held'
     expect(elementTexts(projectLevelOf(written(read(sourceText()), NOW_TEXT)), 'LastSaved')).toEqual([NOW_TEXT])
   })
 
+  // Spec: IMPS-994
   it('FR-101 / AT-11 retired: the document read from MSPDI holds no lastSaved column', () => {
     const project = read(sourceText()).schedule.project as unknown as Record<string, unknown>
     expect(Object.keys(project)).not.toContain('lastSaved')
   })
 
+  // Spec: IMPS-877
   it('FR-021: the document read from MSPDI holds no LastSaved in its carry', () => {
     const project = read(sourceText()).schedule.project as unknown as Record<string, unknown>
     expect(JSON.stringify([project['carry'], project['carryElements']])).not.toContain('LastSaved')
@@ -171,12 +173,14 @@ describe('X-7 FR-021 / AT-154 / AT-155: the two default times round-trip at thei
     expect(JSON.stringify([project['carry'], project['carryElements']])).not.toMatch(/DefaultStartTime|DefaultFinishTime/)
   })
 
+  // Spec: IMPS-876
   it('FR-021 / EX-10: the export writes DefaultStartTime once, right after CalendarUID', () => {
     const project = projectLevelOf(written(read(sourceText(TIMES))))
     expect(elementTexts(project, 'DefaultStartTime')).toEqual(['09:00:00'])
     expect(project).toMatch(/<CalendarUID>[^<]*<\/CalendarUID>\s*<DefaultStartTime>09:00:00<\/DefaultStartTime>\s*<DefaultFinishTime>18:00:00<\/DefaultFinishTime>\s*<MinutesPerDay>/)
   })
 
+  // Spec: IMPS-908
   it('WT-1 / AT-154: a date the person edits in that document is written at its default start time', () => {
     const document = read(sourceText(TIMES))
     const day = (published('textOfStartSide') as (d: unknown, p: unknown, milestone: boolean) => string)(

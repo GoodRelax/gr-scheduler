@@ -88,6 +88,7 @@ describe('T-205: the new rows are 288 and 576 and sit in order after the day thr
 describe('FR-017: rulerTierOf names the hour tier (TM-5) only while the time of day is shown', () => {
   const px = (threshold: number): number => threshold * PX_SCALE
 
+  // Spec: IMPS-701
   it.each([
     ['just under S-577', S_577 - 1, 'yearMonthDayWeekday'],
     ['just over S-577', S_577 + 1, 'dayHour'],
@@ -106,6 +107,7 @@ describe('FR-017: rulerTierOf names the hour tier (TM-5) only while the time of 
     expect(rulerTierOf(px(threshold), withTime(false))).toBe('yearMonthDayWeekday')
   })
 
+  // Spec: IMPS-702
   it('goes finer, never coarser, as the day widens', () => {
     const order = ['year', 'yearMonth', 'yearMonthWeek', 'yearMonthDayWeekday', 'dayHour']
     let last = 0
@@ -117,6 +119,7 @@ describe('FR-017: rulerTierOf names the hour tier (TM-5) only while the time of 
     expect(last).toBe(order.length - 1)
   })
 
+  // Spec: IMPS-1211, IMPS-706
   it('divides the width by the font the ruler is drawn with over S-8: a larger ruler font moves the boundary out', () => {
     const big = withTime(true, { rulerFontSizePx: (SETTINGS_DEFAULTS['rulerFontSizePx'] as number) * 2 })
     expect(rulerTierOf(px(S_577 + 1), big)).toBe('yearMonthDayWeekday')
@@ -282,6 +285,7 @@ describe('FR-016: the zoomX ceiling while the time of day is shown', () => {
   const S_579 = notStored('S-579')
   const S_1 = stored('S-1')
 
+  // Spec: IMPS-1464
   it('is 24 times the width of an hour at S-579, over S-1 as stored', () => {
     expect(S_579).toBe(60)
     const ceiling = zoomXCeiling({} as never, true)

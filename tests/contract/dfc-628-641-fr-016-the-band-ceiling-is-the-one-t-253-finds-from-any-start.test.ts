@@ -127,10 +127,12 @@ describe('FR-016 / T-253 BC-3..BC-5 -- the vertical zoom ends at the ceiling the
     expect(bandReachesAt(ceiling), BC_5_UPPER_END).toBe(true)
   })
 
+  // Spec: IMPS-1467
   it(`${FR_016_FIRST_REACH} -- zooming in from the lowest start ends at it`, () => {
     expect(Math.abs(zoomedInToItsEnd(ZOOM_MIN) - ceiling), 'distance from the ceiling the table finds').toBeLessThanOrEqual(ANSWER_SLACK)
   })
 
+  // Spec: IMPS-1480
   it.each([0.05, 0.2, 0.5])(`${FR_016_ANY_START} -- starting at zoomY %d ends at the same place`, (start) => {
     expect(start, 'premise: the start is below the ceiling').toBeLessThan(ceiling)
     expect(Math.abs(zoomedInToItsEnd(start) - ceiling)).toBeLessThanOrEqual(ANSWER_SLACK)

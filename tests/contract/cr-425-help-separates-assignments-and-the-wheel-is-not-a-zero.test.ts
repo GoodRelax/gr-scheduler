@@ -91,6 +91,7 @@ const keyCellsOfTable = (table: typeof T_036): readonly { readonly row: string; 
     .filter((one) => assignmentsIn(one.cell).length > 0)
 
 describe(`FR-036 (MUST) -- the roster carries each key cell's keys and no join: ${FR_036_THE_KEY_SPELLING}`, () => {
+  // Spec: IMPS-1177
   it.each(keyCellsOfTable(T_036).map((one) => [one.row, one] as const))('T-036 %s', (_row, one) => {
     const byTableRow = ROSTER.entries.find((entry) => entry.kind === 'item' && entry.table === 'T-036' && entry.row === one.row)
     const icon = /IC-\d+/.exec(one.entrance)?.[0]
@@ -129,6 +130,7 @@ describe(`FR-036 (MUST) -- the screen spells a chord Ctrl+A and joins with the d
     expect(notation('alternative')).toEqual({ ja: ` ${SLASH} `, en: ' or ' })
   })
 
+  // Spec: IMPS-1179
   it.each(['ja', 'en'] as const)(`writes the plus key with the %s word: ${FR_036_THE_PLUS_KEY}`, (language) => {
     const plus = ROSTER.entries.find((found) => found.kind === 'item' && (found.keys ?? []).some((chord) => chord.includes('+')))
     expect(plus, 'premise: a roster item holds the plus key').toBeDefined()

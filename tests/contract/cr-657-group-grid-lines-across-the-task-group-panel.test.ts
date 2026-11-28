@@ -162,6 +162,7 @@ const lineAtBottomOf = (panel: TaskGroupPanel, box: ScreenRect): ScreenRect | un
 describe('FR-042 (MUST) -- 「タスクグループパネル（`U-22`）のタスクグループの境にも引くこと」', () => {
   const panel = panelOf(settingsOf({ isGroupGridLinesVisible: true }))
 
+  // Spec: IMPS-181
   it('draws one line at the bottom boundary of every task group the panel draws', () => {
     const titles = titlesOf(panel)
     expect(titles.map((one) => one.taskGroupId).sort()).toEqual([...IDS])
@@ -179,6 +180,7 @@ describe('FR-042 (MUST) -- 「タスクグループパネル（`U-22`）のタ�
     }
   })
 
+  // Spec: IMPS-183
   it('draws it from the panel task group\'s left edge to its right edge', () => {
     for (const title of titlesOf(panel)) {
       const line = lineAtBottomOf(panel, title.box) as ScreenRect

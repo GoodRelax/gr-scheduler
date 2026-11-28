@@ -67,6 +67,7 @@ describe(`FR-135 -- ${FR_135_NO_DESCENDANT}`, () => {
     expect([...candidatesOf(familyDocument(false), CHILD)].sort()).toEqual([ABOVE_ONE, ABOVE_TWO])
   })
 
+  // Spec: IMPS-1405
   it("a grandchild and a great-grandchild drawn on the task group above, enclosing the child, are not among its candidates", () => {
     const found = candidatesOf(familyDocument(true), CHILD)
     expect(found, IP_4_NO_DESCENDANT).toContain(ABOVE_ONE)

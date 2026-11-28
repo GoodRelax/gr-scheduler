@@ -126,6 +126,7 @@ describe('AG-2 / WS-1: looking around does not make the next schedule write stal
 })
 
 describe('WS-5: one undoable write in the batch moves the stamp as before', () => {
+  // Spec: IMPS-1064
   it('[setScrollPosition, setTaskName] advances settingsUpdatedAt and lastEditedBy', () => {
     const planned = planOf(DOCUMENT, [SCROLL, RENAME])
     expect(planned.ok).toBe(true)
@@ -145,6 +146,7 @@ describe('WS-5: one undoable write in the batch moves the stamp as before', () =
 })
 
 describe('control (UN-13): an undoable view-group write still moves the stamp and still fights a stale one', () => {
+  // Spec: IMPS-1063
   it('setFontSizeStep alone advances settingsUpdatedAt and lastEditedBy, not the schedule time', () => {
     const planned = planOf(DOCUMENT, [FONT_STEP])
     expect(planned.ok).toBe(true)

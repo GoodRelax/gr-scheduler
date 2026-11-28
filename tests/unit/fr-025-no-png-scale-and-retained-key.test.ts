@@ -288,6 +288,7 @@ describe('FR-025 IX-3 (MUST NOT) -- the retired exportPngScale key is dropped on
     expect(decoded.unreadColumns, 'IX-3: the drop is not told').toEqual([])
   })
 
+  // Spec: IMPS-961
   it('⭐⭐ a document read with the key writes without it, and reads back without it', () => {
     const decoded = documentFromJson(JSON.stringify(documentWithRetiredKey(5)))
     expect(decoded.ok).toBe(true)

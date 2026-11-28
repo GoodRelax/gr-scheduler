@@ -128,6 +128,7 @@ describe('T-108 CM-93 -- deletes only the order-th line among the lines from one
     expect(linesOf(after, 1)).toEqual([line(2, SS, 0)])
   })
 
+  // Spec: CD-3
   it('no other task changes and no other column of the successor changes', () => {
     const before = THREE_LINES()
     const after = written(heldOf(before), [deleteAt(1, 2, 1)]).document
@@ -157,6 +158,7 @@ describe('T-108 CM-93 -- deletes only the order-th line among the lines from one
     expect(left[0]?.['carry']).toEqual({ marker: 1 })
   })
 
+  // Spec: UN-6a
   it('is one undoable step, and undo brings the line back where it stood', () => {
     const before = THREE_LINES()
     const held = written(heldOf(before), [deleteAt(1, 2, 1)])

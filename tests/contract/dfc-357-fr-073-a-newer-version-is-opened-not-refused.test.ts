@@ -47,6 +47,7 @@ describe('DFC-357 / FR-073 -- a version newer than this build is opened, not ref
     expect(read.unreadColumns).toEqual([COLUMN_FROM_THE_FUTURE])
   })
 
+  // Spec: IMPS-1006
   it('drops the unread column from the document it opens, rather than carrying it (MUST)', () => {
     const read = documentFromJson(handed(NEWER_THAN_KNOWN), GREATEST_KNOWN)
     expect(read.ok).toBe(true)

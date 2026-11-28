@@ -110,6 +110,7 @@ const NARROW_ACTUAL = { actualStart: day(4), actualFinish: day(5), percentComple
 const NO_MARKER = { isProgressMarkerVisible: false }
 
 describe(`T-273 LP-1 -- ${says('LP-1')}`, () => {
+  // Spec: IMPS-1683
   it('stands the marker left S-584 right of the start of the basis and the name S-32 right of it', () => {
     const scene = rectangle(WIDE_ACTUAL)
     const basis = basisOf(scene)
@@ -236,6 +237,7 @@ describe(`T-273 LP-8 -- ${says('LP-8')}`, () => {
 })
 
 describe('T-273 the closing rules of the table', () => {
+  // Spec: IMPS-1720, IMPS-1721
   it(LP_NEVER_THE_NAME_LEFT_OF_THE_MARKER, () => {
     const frames = Array.from({ length: 24 }, (_, index) => 25 - index).map((lastDay) =>
       rectangle({ actualStart: day(2), actualFinish: day(lastDay), percentComplete: 50 }, {}, LONG),
@@ -248,6 +250,7 @@ describe('T-273 the closing rules of the table', () => {
     }
   })
 
+  // Spec: IMPS-1714, IMPS-1715
   it(LP_THE_ASSIGNEE_LABEL, () => {
     const scene = sceneOf({
       tasks: [taskOf({ name: SHORT, start: day(6), finish: day(28), ...WIDE_ACTUAL })],
@@ -263,6 +266,7 @@ describe('T-273 the closing rules of the table', () => {
     expect(label.right, LP_THE_ASSIGNEE_LABEL).toBeCloseTo(earliest - ASSIGNEE_GAP, 6)
   })
 
+  // Spec: IMPS-1713, IMPS-1719, IMPS-925, FR-340
   it(LP_THE_SEPARATOR, () => {
     const scene = sceneOf({
       tasks: [taskOf({ name: SHORT, start: day(2), finish: day(28), ...WIDE_ACTUAL })],
@@ -273,6 +277,7 @@ describe('T-273 the closing rules of the table', () => {
     expect(scene.placedOf(1).outsideLabel, LP_THE_SEPARATOR).toContain(' : ')
   })
 
+  // Spec: IMPS-1730, IMPS-1734, IMPS-1735, OR-2
   it(`${LP_THE_RESUME_ICON_IS_OUT_OF_THE_ROW} ${LP_WHEN_IT_DOES_NOT_FIT_AND_THE_ICON_IS_REACHED}`, () => {
     const undecided = rectangle(
       { actualStart: day(2), stop: day(4), resume: null, resumeValid: false, percentComplete: 20 },

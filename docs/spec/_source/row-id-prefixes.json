@@ -460,6 +460,16 @@
    "xOwner": "spec"
   },
   {
+   "prefix": "DPC",
+   "standsFor": "Design Principles Compliance",
+   "meaning": {
+    "en": "One design principle the architecture and the implementation are checked against, with the reviewer's verdict and evidence (ANMS v0.36 chapter 7)",
+    "ja": "アーキテクチャと実装を照らす設計原則の 1 つと、レビュアーの判定と根拠（ANMS v0.36 の第 7 章）"
+   },
+   "section": "T-740",
+   "xOwner": "spec"
+  },
+  {
    "prefix": "DQ",
    "standsFor": "",
    "meaning": {
@@ -624,7 +634,7 @@
    "standsFor": "",
    "meaning": {
     "en": "How to fix, per Delay Diagnosis viewpoint (table T-373)",
-    "ja": "遅延診断の観点ごとの修正のしかた（表 T-373）"
+    "ja": "遅延診断の観点ごとの修正方法（表 T-373）"
    },
    "section": "T-373",
    "xOwner": "spec"

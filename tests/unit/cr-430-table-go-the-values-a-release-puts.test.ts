@@ -159,6 +159,7 @@ describe(`GO-6 -- ダミーの開始: ${cellOf('GO-6', PUTS)}`, () => {
     { what: 'GA-21', uid: FRESH_ARROW_UID, grab: 'GA-21' },
   ]
 
+  // Spec: IMPS-438, IMPS-440, IMPS-448
   it.each(STARTS)('GO-6 through $what: actualStart is the released day and the last day is the FR-011 floor', ({ what, uid, grab }) => {
     const one = built()
     dragTo(one, at(one, uid, grab), xOfDay(one.loop, april(15)))
@@ -185,6 +186,7 @@ describe(`GO-7 -- ダミーの終了: ${cellOf('GO-7', PUTS)}`, () => {
     { what: 'GA-22', uid: FRESH_ARROW_UID, grab: 'GA-22' },
   ]
 
+  // Spec: IMPS-449, IMPS-451
   it.each(ENDS)('GO-7 through $what: the last day is the released day and actualStart is the plan start', ({ what, uid, grab }) => {
     const one = built()
     const planStart = dayPart(taskIn(one.loop, uid).start)
@@ -195,6 +197,7 @@ describe(`GO-7 -- ダミーの終了: ${cellOf('GO-7', PUTS)}`, () => {
     expect(task.resumeValid, `${what}: ${cellOf('GO-7', PUTS)}`).toBe(true)
   })
 
+  // Spec: IMPS-441
   it(`GO-7 on a rest day: ${T_245_NO_WORKING_DAY_SNAP}`, () => {
     const one = built()
     expect(isWorkingDay(CALENDAR, dayValue('2026-04-11')), 'premise: 2026-04-11 is a rest day').toBe(false)
@@ -250,6 +253,7 @@ describe(`GO-9 -- 進捗ステータスマークを引く: ${cellOf('GO-9', PUTS
 })
 
 describe(`GO-10 -- 再開マークを引く: ${cellOf('GO-10', PUTS)}`, () => {
+  // Spec: IMPS-453
   it('GO-10: resume is the released day and resumeValid is true', () => {
     const one = built()
     dragTo(one, at(one, PAUSED_UID, 'GA-20'), xOfDay(one.loop, april(22)))
@@ -258,6 +262,7 @@ describe(`GO-10 -- 再開マークを引く: ${cellOf('GO-10', PUTS)}`, () => {
     expect(task.resumeValid, cellOf('GO-10', PUTS)).toBe(true)
   })
 
+  // Spec: IMPS-1733
   it('GO-10: released before the day after the stop, it is pushed back, not refused', () => {
     const one = built()
     const stopDay = dayPart(taskIn(one.loop, PAUSED_UID).stop)

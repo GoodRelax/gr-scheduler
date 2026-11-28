@@ -530,6 +530,7 @@ describe('SV-7 order -- Delay Diagnosis Report, the diagnosis table (T-346 prefa
     expect(labels(reportItems('DT-2', reportSorted('DT-2', 'IC-124')))).toEqual(['Bob', 'Ann', BLANK])
   })
 
+  // Spec: IMPS-642
   it(`「${T_347_STATUS}」 -- the status list follows the DT-1 order both ways`, () => {
     expect(labels(reportItems('DT-1', reportSorted('DT-1', 'IC-123')))).toEqual(REPORT_STATUS_ASCENDING)
     expect(labels(reportItems('DT-1', reportSorted('DT-1', 'IC-124')))).toEqual([...REPORT_STATUS_ASCENDING].reverse())

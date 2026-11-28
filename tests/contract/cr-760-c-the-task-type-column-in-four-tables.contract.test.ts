@@ -178,6 +178,7 @@ describe('T-331 SQ-14 / T-347 DT-9 / T-374 FM-9 -- the manuscript these cases re
 })
 
 describe(`T-331 -- ${T_331_TYPE_LEFT_OF_TASK}`, () => {
+  // Spec: IMPS-1872
   it.each(LANGUAGES)('%s: the search table puts SQ-14 just left of SQ-1, headed by its dictionary word, and fixes up to SQ-1', async (language) => {
     const stage = await searchOpened(language)
     const read = searchRead(stage)
@@ -203,6 +204,7 @@ describe(`T-331 -- ${T_331_TYPE_LEFT_OF_TASK}`, () => {
     expectTypeCells(read, 'DT-9', language)
   })
 
+  // Spec: IMPS-691
   it.each(LANGUAGES)('%s: the fix proposals put FM-9 just left of FM-5, fix 修正 .. タスク, and write the type of each row', async (language) => {
     const stage = await reportOpened(language)
     await stage.press('IC-155')

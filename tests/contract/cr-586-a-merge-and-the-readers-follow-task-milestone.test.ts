@@ -275,6 +275,7 @@ describe('FR-009 FS rule reads Task.milestone only (CR-586 E-02)', () => {
     expect(rowOf(T_018, 'DP-3').by['名'] ?? '').toContain('FF')
   })
 
+  // Spec: IMPS-347
   it(`${FS_MILESTONE_IS_TASK_MILESTONE} -- a Task.milestone true end drawn as a bar makes FS from finish-to-finish edges`, () => {
     expect(createdLinkType(true, 'rectangle')).toBe(linkTypeOf('DP-1'))
   })

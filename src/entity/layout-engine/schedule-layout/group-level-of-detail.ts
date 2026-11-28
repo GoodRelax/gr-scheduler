@@ -38,7 +38,7 @@ export function keptInViewByTreeState(
   return kept
 }
 
-// Spec: LC-2, FR-018, IMPS-773, IMPS-775, IMPS-776, TD-4, IMPS-1977
+// Spec: LC-2, FR-018, IMPS-773, IMPS-775, IMPS-776, TD-4, IMPS-1977, IMPS-811
 /** @purity pure */
 export function groupDepthLimit(settings: DrawnSettings): number {
   let limit = 1

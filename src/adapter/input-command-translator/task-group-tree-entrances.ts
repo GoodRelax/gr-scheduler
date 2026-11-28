@@ -164,7 +164,7 @@ function isEveryTaskGroupOpenArmed(context: InputContext): boolean {
   return context.document.schedule.taskGroups.some((taskGroup) => !placed.has(taskGroup.id))
 }
 
-// Spec: IC-58, HF-2, RS-28, T-329, IMPS-1979, IMPS-1981
+// Spec: IC-58, HF-2, RS-28, T-329, IMPS-1979, IMPS-1981, IMPS-1980
 /** @purity pure */
 function isOpenAllBelowArmed(context: InputContext, taskGroupId: string): boolean {
   const placed = placedRowIdsOf(context)

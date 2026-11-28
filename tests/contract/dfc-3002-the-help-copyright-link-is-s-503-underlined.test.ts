@@ -45,6 +45,7 @@ describe('DFC-3002 -- the manuscript these cases are driven by', () => {
 })
 
 describe('DFC-3002 -- FR-069 the copyright link as drawn', () => {
+  // Spec: FR-369
   it.each(LANGUAGES)('%s: one link to S-459 whose words are the copyright notice, opening a new tab', (language) => {
     const { anchor } = copyrightOf(language)
     expect(anchor.textContent.trim()).toBe(helpOf(language).copyrightNotice.trim())

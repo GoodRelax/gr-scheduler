@@ -215,6 +215,7 @@ describe('the manuscripts still say what these cases read', () => {
 
 // Spec: FR-101, S-210, NFR-007
 describe('FR-101 (MUST / MUST NOT) -- the moment is sized by S-210 and not by px', () => {
+  // Spec: IMPS-996
   it('⛔ MUST: the moment ends up `S-210` of the size the host gives', () => {
     // Why: asked as the product along the chain up to the App Header, because a font size inherits
     // and no row says which box states it.

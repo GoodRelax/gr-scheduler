@@ -315,6 +315,7 @@ describe('表 T-027 -- the 対象外 half, and this file covering all of it', ()
 describe('表 T-067 WS-4 -- an 対象外 write pushes no 段 of its own', () => {
   for (const one of OUTSIDE_CASES) {
     const name = `${one.undoRow} / ${one.commandRow} (${one.keys.join(', ')})`
+    // Spec: IMPS-205
     it(`${name}: changes the document and leaves the history empty`, () => {
       const run = bench()
       for (const first of one.before) mustWrite(run, [first], `${one.commandRow}'s precondition`)
@@ -340,6 +341,7 @@ describe('FR-031 -- 対象外 の値は、無関係な編集の取り消しで�
   for (const one of OUTSIDE_CASES) {
     const name = `${one.undoRow} / ${one.commandRow} (${one.keys.join(', ')})`
 
+    // Spec: IMPS-216
     it(`${name}: set BEFORE the unrelated edit, it survives that edit's undo`, () => {
       const run = bench()
       for (const first of one.before) mustWrite(run, [first], `${one.commandRow}'s precondition`)

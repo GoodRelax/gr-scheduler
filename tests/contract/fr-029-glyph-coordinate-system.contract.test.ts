@@ -479,6 +479,7 @@ describe('FR-029 (MUST NOT): every shape is drawn in ONE coordinate system', () 
       .toEqual([])
   })
 
+  // Spec: IMPS-1101
   it('表 T-109 and 図 F-019 hold the same 74 rows, so the one system covers them all', () => {
     const roster = specTable('T-109').rows.map((one) => one.id)
     const drawn = CARRIED_FIGURE.glyphs.map((one) => one.specTableRowId)

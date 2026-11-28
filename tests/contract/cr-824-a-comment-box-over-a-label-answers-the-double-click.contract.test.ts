@@ -175,6 +175,7 @@ describe(`MK-13 (CR-824) -- ${MK_13_COMMENT_OVER_LABEL}`, () => {
 })
 
 describe('T-023d closing paragraph (CR-824 control) -- GR-10 / GR-11 never answer a plain press', () => {
+  // Spec: IMPS-1521
   it('a plain press where the comment box body lies over the name label answers the comment box too', () => {
     const at = labelPoint('label', NAMED_UID)
     const geometry = geometryWithBodyOver(at)

@@ -450,6 +450,7 @@ describe('⛔ every milestone entrance sets the figure its row names (SP-2 of FR
     expect(wrong, wrong.join('; ')).toEqual([])
   })
 
+  // Spec: IMPS-1894
   it('⭐ pressing one of them with a milestone selected ALSO arms it (SP-2)', () => {
     // Why: the document half proves the click selected: an unselected milestone
     // cannot have had its figure changed by a palette press.

@@ -190,12 +190,14 @@ describe('FR-053 / S-488 -- paletteColumnsOf wraps into the fewest, evened rows'
     expect(paletteColumnsOf(0, S_488)).toBe(0)
   })
 
+  // Spec: IMPS-1848
   it('FR-053 / S-488 -- up to the cap, one row of n columns', () => {
     for (let n = 1; n <= S_488; n += 1) {
       expect(paletteColumnsOf(n, S_488), `n=${n}`).toBe(n)
     }
   })
 
+  // Spec: IMPS-1849
   it('FR-053 / S-488 -- above the cap, ceil(n / ceil(n / S-488)) columns', () => {
     const cases: ReadonlyArray<readonly [number, number]> = [
       [12, 6],
@@ -231,6 +233,7 @@ describe('FR-053 / S-488 / S-143 -- the drawn palette', () => {
     expect(gridColumnsIn(palette)).toEqual([7, 10, 8])
   })
 
+  // Spec: IMPS-1850
   it('FR-053 / S-143 -- no rule between wrapped rows: rules == groups - 1', () => {
     const palette = drawn([14, 20, 8])
     expect(selfAndDescendants(palette).filter(isRule)).toHaveLength(2)
@@ -258,6 +261,7 @@ describe('FR-053 / IC-54 / S-489 -- the armed label', () => {
     expect(written).not.toContain(`${S_489 * S_235}`)
   })
 
+  // Spec: IMPS-1853, IMPS-1854
   it('FR-053 / IC-54 / S-489 -- the drawn IC-54 label is S-489 px exactly, with neither S-235 nor S-234 applied', () => {
     const palette = drawn([14, 20, 8])
     const label = armedLabelIn(palette)

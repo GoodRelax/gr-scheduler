@@ -125,6 +125,7 @@ async function pressEntry(page: Page): Promise<Seen> {
 
 const toldRs59 = (seen: Seen): boolean => RS_59_WORDS.some((words) => seen.notices.includes(words))
 
+// Spec: IMPS-812
 test('FR-071 (MUST): IC-11 asks the browser to enter, the look follows fullscreenchange, and a second press leaves', async () => {
   test.setTimeout(180_000)
   const opened = await openTheApp(true)

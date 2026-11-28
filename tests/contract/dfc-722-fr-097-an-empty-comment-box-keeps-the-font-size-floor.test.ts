@@ -36,6 +36,7 @@ const bodyOf = (text: string | null, fontSizeStep: keyof typeof FONT_SIZE_OF): B
 describe('DFC-722: an empty or null body is no smaller than the font size (FR-097, S-624)', () => {
   for (const scale of ['S', 'M', 'L'] as const) {
     for (const [name, text] of [['empty', ''], ['null', null]] as const) {
+      // Spec: IMPS-1029
       it(`FR-097 a ${name} body is at least the S-624 font size wide at fontSizeStep ${scale}`, () => {
         expect(bodyOf(text, scale).width).toBeGreaterThanOrEqual(floorOf(scale))
       })

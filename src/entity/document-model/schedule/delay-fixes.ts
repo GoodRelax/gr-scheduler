@@ -1078,6 +1078,7 @@ interface FixWay {
   readonly build: FixBuilder
 }
 
+// Spec: IMPS-667
 /** @purity pure */
 function contradictionWayOf(findingRow: string): FixWay | null {
   switch (findingRow) {
@@ -1375,7 +1376,7 @@ export function proposeDelayFixes(
   return [...settled, ...withheldChainsOf(settled, discovered)]
 }
 
-// Spec: FR-155, UN-21
+// Spec: FR-155, UN-21, IMPS-658
 /** @purity pure */
 export function delayFixCommands(rows: readonly DelayFixRow[]): readonly DelayFixCommand[] {
   return rows.filter(isIssued).sort((a, b) => a.applyOrder - b.applyOrder).flatMap((row) => row.commands)

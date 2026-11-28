@@ -183,6 +183,7 @@ describe('FR-052 T-368 WF-1 / WF-2 -- the fix check and the width input', () => 
     expect(kindsOf(commandFromFieldCommit(fix, contextOf(DOCUMENT)))).toEqual([CM_91])
   })
 
+  // Spec: IMPS-1797
   it.each(['ja', 'en'] as const)(`${WF_2_NAME} -- %s`, async (language) => {
     const field = fieldOf((await settingsStage(DOCUMENT, language)).lastView(), K_71)
     expect([field.name, field.unit]).toEqual([settingsWordOf(K_71, language), partWordOf(WORDS.taskGroupPanelWidthField, 'unit', language)])
@@ -243,11 +244,13 @@ describe('FR-052 T-368 WF-3 -- the drawn width read-out', () => {
 })
 
 describe('FR-052 T-368 WF-4 -- the boundary while the width is fixed', () => {
+  // Spec: IMPS-1798
   it(`${FR_052_T_368} / ${WF_4_NO_BAND} -- no task group title band; the properties panel keeps its band`, async () => {
     expect(dividersOf(await settingsStage(withWidth(300, false)))).toEqual(['taskGroupPanel', 'propertiesPanel'])
     expect(dividersOf(await settingsStage(withWidth(300, true)))).toEqual(['propertiesPanel'])
   })
 
+  // Spec: IMPS-1799
   it(FR_052_HIDDEN, () => {
     const stage = exportStage(withWidth(300, false))
     expect(stage.lastView().propertiesPanel, 'premise: the properties panel is not shown').toBeNull()
@@ -296,6 +299,7 @@ const numberedOf = (row: string, name: string): readonly { readonly row: string;
 }
 
 describe('FR-072 T-369 -- the order and the names of the settings face', () => {
+  // Spec: IMPS-101, IMPS-104
   it.each(['ja', 'en'] as const)(`${FR_072_ORDER} -- %s`, async (language) => {
     const fields = (await settingsStage(DOCUMENT, language)).lastView().propertiesPanel?.fields ?? []
     const rows = FACE_ROWS.flatMap((row) => numberedOf(faceRowOf(row), faceNameOf(row, language)))
@@ -313,6 +317,7 @@ describe('FR-072 T-369 -- the order and the names of the settings face', () => {
     expect(/の欄の(下|上)に置|先頭の欄とすること/.test(REQUIREMENTS)).toBe(false)
   })
 
+  // Spec: IMPS-574
   it(`${FR_131_FIELD} -- a whole number of working days settles as one ${CM_87}`, async () => {
     const field = fieldOf((await settingsStage(DOCUMENT)).lastView(), K_140)
     expect(field.controls.map((one) => one.kind)).toEqual(['number'])
@@ -349,6 +354,7 @@ function hueButtonsOf(view: ScreenView, hue: number): FakeElement[] {
 }
 
 describe('FR-041 -- the chosen theme hue swatch is ringed', () => {
+  // Spec: IMPS-163
   it(`${FR_041_RING} -- the swatch equal to themeHue alone carries the S-530 outline at S-531`, async () => {
     const stage = await settingsStage(DOCUMENT)
     const hue = stage.loop.document().schedule.project.themeHue

@@ -205,6 +205,7 @@ for (const win of WINDOWS) {
   test.describe(`CR-739 ${win.name}: the window edge over the title bar`, () => {
     test.setTimeout(240_000)
 
+    // Spec: IMPS-1639
     test(`GR-24 / GR-25 / PK-13..PK-15: inside S-426 of the top edge the shapes are the resize shapes, and below it the title bar is not`, async () => {
       const stage = await win.open(need())
       try {
@@ -376,6 +377,7 @@ for (const win of WINDOWS) {
   test.describe(`CR-739 ${win.name}: the heading cell outside the border band`, () => {
     test.setTimeout(240_000)
 
+    // Spec: IMPS-1635
     test(`FR-106 / SV-7 / PK-7: the word, IC-122, the gap between and the side padding show the finger; the band stays col-resize`, async () => {
       const stage = await win.open(need())
       try {

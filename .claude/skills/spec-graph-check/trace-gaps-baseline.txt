@@ -18,10 +18,17 @@
 # LOWERED for stage B11a (2026-11-27, JDG-3966): src Spec lines now name the traces rows the
 #   functions implement (2,513 links judged by 8 bodies). leaf-unbuilt 44 -> 37, below-unbuilt
 #   2334 -> 1988; most of the rest have a src mark and wait for a test mark (B11b).
-no-parent 3
+# LOWERED on 2026-11-28 (B13, JDG-520) to the values measured on develop 138d6e9c3 plus B13:
+#   no-parent 3 -> 0: a retired row (second cell opens with the retired mark) is no chain item.
+#   leaf-unbuilt 30 -> 3 and below-unbuilt 1846 -> 726: 11 bodies judged every gap row
+#   read-only; the links they named went in as `// Spec:` lines (tests 869 new lines + 14 ids
+#   appended, src 9 + 143, build code 34), check 97 now also reads the build-time code whose
+#   output ships, the verification method list and the limitations exemption. The rows left
+#   are listed with the reason in studies/82-anms-ndd-apply-plan/b13-trace-gaps/.
+no-parent 0
 no-child 0
 # LOWERED on the merge of B11a with develop e7614edf0 (B11b tests marks, B12 use cases): leaf-unbuilt 37 -> 30, below-unbuilt 1988 -> 1847, measured on the merged tree.
-leaf-unbuilt 30
+leaf-unbuilt 3
 # LOWERED below-unbuilt 2334 -> 2327 on 2026-11-27 (B11b): tests now name traces rows in // Spec: lines; measured on e053fb30a plus this commit.
 # LOWERED below-unbuilt 1847 -> 1846 on the merge of develop 16cbd6c6a (CR-860, CR-862, B10).
-below-unbuilt 1846
+below-unbuilt 726

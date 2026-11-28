@@ -493,6 +493,7 @@ describe('D: CV-9 / JDG-397 -- a press on a color swatch lands in the frame its 
 })
 
 describe('E: FR-051 E-14 -- the schedule is drawn only on the ground its task group bands paint', () => {
+  // Spec: IMPS-1770, DS-5, IMPS-1746
   it('every layer of table T-020 sits inside one clip: the Task Group Lanes widened by canvasPadding to the vertical bar', () => {
     // Spec: FR-051, EP-5, T-020
     const rows = Array.from({ length: 40 }, (_one, index) => ({ id: `g${index + 1}`, parentId: null }))

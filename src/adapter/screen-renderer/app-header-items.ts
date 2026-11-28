@@ -188,6 +188,7 @@ function inGroupBlocks<Row extends { readonly group: string | null }>(rows: read
   return [...blocks.values()].flat()
 }
 
+// Spec: IMPS-1231, IMPS-151
 /** @purity pure */
 function headerCommands(
   settings: DocumentSettings,
@@ -260,7 +261,7 @@ const JSON_FENCE_OPEN = '```json\n'
 
 const JSON_FENCE_CLOSE = '\n```'
 
-// Spec: FR-068, FR-027, FR-038, IMPS-1078, IMPS-1079
+// Spec: FR-068, FR-027, FR-038, IMPS-1078, IMPS-1079, IMPS-1076, IMPS-1077
 /** @purity pure */
 export function imageToJsonPromptText(language: DisplayLanguage, schemaVersion: string): string {
   const versionLine = `schemaVersion: ${schemaVersion}`

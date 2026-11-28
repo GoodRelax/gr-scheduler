@@ -20,9 +20,9 @@ import { specTable } from './spec-table'
 
 const SPEC_FILE = readRepoFile(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8')
 
-const IMPS_284_ORDER = '`GRS` は、担当リストの表の列を、表 T-371 の行の順に左から並べること —— 表示・選択・担当名・担当タスク数・担当タスク。'
-const RO_7_FIXED = '`GRS` は、見出し行と、`RQ-1`・`RQ-3`・`RQ-2`（表示・選択・担当名 —— 表 T-371 の並びで左の 3 列）を固定すること（`SV-6` の形）。'
-const RO_5_EMPTY = '`GRS` は、`RO-5` の行の選択の列（`RQ-3`）を空にすること。'
+const IMPS_284_ORDER = '`GRS` は、担当リストの表の列を、表 T-371 の行の順に左から並べること —— 表示・選択状態・担当名・担当タスク数・担当タスク。'
+const RO_7_FIXED = '`GRS` は、見出し行と、`RQ-1`・`RQ-3`・`RQ-2`（表示・選択状態・担当名 —— 表 T-371 の並びで左の 3 列）を固定すること（`SV-6` の形）。'
+const RO_5_EMPTY = '`GRS` は、`RO-5` の行の選択状態の列（`RQ-3`）を空にすること。'
 const RQ_3_WRITES = '`GRS` は、担当を選択していれば `IC-67` を、選択していなければ `IC-68` を書くこと。'
 
 const T_371_IDS: readonly string[] = specTable('T-371').rows.map((one) => one.id)

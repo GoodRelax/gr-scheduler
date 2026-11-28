@@ -50,6 +50,7 @@ describe('W3-T3 -- the manuscript still says what these cases read', () => {
 })
 
 describe('FR-068 -- the prompt follows the screen language', () => {
+  // Spec: IMPS-1078
   it.each(LANGUAGES)(`"${CLAUSE_SCREEN_LANGUAGE}" -- a screen in %s copies that manuscript`, async (language) => {
     const stage = exportStage(templateDocument(), SMALL_SCREEN, language)
     await stage.take(COPY_PROMPT)

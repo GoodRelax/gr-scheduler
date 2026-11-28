@@ -351,6 +351,7 @@ describe('CR-557 S-4 -- pressing a swatch hands back the commit of its row', () 
 describe('CR-557 -- the press, the document and the history (CM-5, UN-13)', () => {
   const target = ROSTER.find((one) => one.hue !== S_73_DEFAULT)
 
+  // Spec: IMPS-156, IMPS-157
   it(`FR-041 "${CLAUSE_ONE_CM_5}" / "${CLAUSE_UN_13}" -- one press sets themeHue in one step, one undo returns it`, () => {
     if (target === undefined) throw new Error('premise: table T-305 has a row off the S-73 default')
     const built = drawn(START)

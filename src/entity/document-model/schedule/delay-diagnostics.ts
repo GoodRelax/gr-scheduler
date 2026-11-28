@@ -418,7 +418,7 @@ function latestMilestones(tasks: readonly Task[]): readonly Task[] {
   return milestones.filter((task) => sameDay(plannedEnds(task).finish, latest.day))
 }
 
-// Spec: MP-1, MP-2, MP-3, IMPS-1438
+// Spec: MP-1, MP-2, MP-3, IMPS-1438, IMPS-1430
 /** @purity pure */
 function milestoneLinksOf(milestone: Task, taskGroupDepthOf: ReadonlyMap<number, number>,
                           tasksAtDepth: ReadonlyMap<number, readonly Task[]>,
@@ -511,7 +511,7 @@ function statedLinksOf(task: Task, byUid: ReadonlyMap<number, Task>): readonly L
     }))
 }
 
-// Spec: MP-4, IMPS-1429, IMPS-1432
+// Spec: MP-4, IMPS-1429, IMPS-1432, IMPS-1434, IMPS-1435
 /** @purity pure */
 function achievedOn(milestone: Task, links: readonly Link[], byUid: ReadonlyMap<number, Task>): string | null {
   if (milestone.milestone !== true || milestone.actualFinish !== null || links.length === 0) return null
@@ -1290,7 +1290,7 @@ function pushOutWorkingDaysOf(quantities: DelayQuantities, minutesPerDay: number
   return Math.ceil(quantities.pushOutMinutes / minutesPerDay)
 }
 
-// Spec: FR-130, FR-131, FR-132, FR-133, FR-134, DX-1, IMPS-625, TV-10, IMPS-589, IMPS-600, IMPS-601, IMPS-547, IMPS-550, IMPS-579, IMPS-582
+// Spec: FR-130, FR-131, FR-132, FR-133, FR-134, DX-1, IMPS-625, TV-10, IMPS-589, IMPS-600, IMPS-601, IMPS-547, IMPS-550, IMPS-579, IMPS-582, IMPS-1431
 /** @purity pure */
 export function diagnoseDelay(document: DiagnosedDocument, calendar: WorkingCalendar,
                               bottleneckMinPushOutDays = NOT_STORED_BOTTLENECK_THRESHOLD['S-397']): DelayDiagnosticsReport {
@@ -1372,7 +1372,7 @@ export type ParentTaskResolution =
   | { readonly kind: 'undecided'; readonly candidates: readonly number[]; readonly enclosing: number }
   | { readonly kind: 'root' }
 
-// Spec: FR-135, IP-2, IP-4, IP-5, VO-4, IMPS-696, PTL-11
+// Spec: FR-135, IP-2, IP-4, IP-5, VO-4, IMPS-696, PTL-11, IMPS-693
 // Why: read off the same derivation the report uses, so the arrows and the diagnosis never disagree on a parent.
 // Why: onlyTaskUid answers one Task (PTL-15), so a panel showing one child does not order every undecided child's candidates.
 /** @purity pure */

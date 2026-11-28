@@ -233,6 +233,7 @@ test('CR-575 -- FR-053, FR-152, T-337 and IN-3 still say what these cases press,
 })
 
 test.describe('CR-575 item 2 -- the band is carried over the App Header and stays the front there (FR-053, T-337 UZ-5 over UZ-8)', () => {
+  // Spec: IMPS-1816
   test('FR-053 / T-337: over the header the band center shows the palette, and the band carries it back', async () => {
     test.setTimeout(240_000)
     const stage = await openTheSample(TALL)
@@ -252,6 +253,7 @@ test.describe('CR-575 item 2 -- the band is carried over the App Header and stay
     }
   })
 
+  // Spec: IMPS-1836
   test('FR-053 / IC-75: over the header IC-75 minimizes to the band alone, and the same entrance restores it in place', async () => {
     test.setTimeout(240_000)
     const stage = await openTheSample(TALL)
@@ -282,6 +284,7 @@ test.describe('CR-575 item 2 -- the band is carried over the App Header and stay
 })
 
 test.describe('CR-575 item 3 -- the palette over the open help is in front and armable (T-337 UZ-5 over UZ-7, JDG-661)', () => {
+  // Spec: IMPS-1750, IMPS-1803
   test('T-337: with the help open, an entrance of the palette carried over the help is the front and arms', async () => {
     test.setTimeout(240_000)
     const stage = await openTheSample(TALL)
@@ -329,6 +332,7 @@ test.describe('CR-575 item 4 -- the band never leaves the window (FR-053, JDG-66
     expect(insideWindow(read.minimize, read.window), `${FR_053_WHAT_STAYS_IN} ${when}: ${MINIMIZE} ${said(read.minimize)}`).toBe(true)
   }
 
+  // Spec: IMPS-1813
   test('FR-053: thrown past the top and the right edge, the band stays in while held and after release', async () => {
     test.setTimeout(240_000)
     const stage = await openTheSample(TALL)
@@ -352,6 +356,7 @@ test.describe('CR-575 item 4 -- the band never leaves the window (FR-053, JDG-66
     }
   })
 
+  // Spec: IMPS-1814
   test('FR-053: left at the bottom right corner, the band and its two marks stay in when the window shrinks', async () => {
     test.setTimeout(240_000)
     const stage = await openTheSample(TALL)

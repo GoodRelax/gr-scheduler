@@ -105,7 +105,7 @@ export function drawLanguageReading(host: Document, entry: HTMLElement, language
   entry.append(code)
 }
 
-// Spec: U-31, FR-101, BR-7, HS-9, HS-10, HS-8, IMPS-990, IMPS-997, IMPS-998, IMPS-1779
+// Spec: U-31, FR-101, BR-7, HS-9, HS-10, HS-8, IMPS-990, IMPS-997, IMPS-998, IMPS-1779, IMPS-1778
 /** @purity non-pure */
 export function fillAppHeader(
   host: Document,

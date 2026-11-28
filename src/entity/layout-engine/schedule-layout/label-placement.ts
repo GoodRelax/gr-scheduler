@@ -31,7 +31,7 @@ export function hasUndecidedResume(task: Task, shapeKind: ShapeKind): boolean {
   )
 }
 
-// Spec: RF-1, RF-3, IMPS-1680, IMPS-1722, IMPS-1723, IMPS-1736
+// Spec: RF-1, RF-3, IMPS-1680, IMPS-1722, IMPS-1723, IMPS-1736, IMPS-1677
 /** @purity pure */
 export function labelReferenceOf(
   shapeKind: ShapeKind,
@@ -79,7 +79,7 @@ export function outwardStartOf(
   return referenceEnd + markerDiameter + NOT_STORED_SIZES['S-286']
 }
 
-// Spec: LP-1, LP-2, LP-3, LP-4, LP-5, LP-6, LP-7, LP-8, S-584, IMPS-1951, IMPS-487, IMPS-1679, IMPS-1683, IMPS-1711, IMPS-1712, IMPS-1718, IMPS-1720, IMPS-1721, IMPS-1723, IMPS-1724, IMPS-1737, IMPS-1920
+// Spec: LP-1, LP-2, LP-3, LP-4, LP-5, LP-6, LP-7, LP-8, S-584, IMPS-1951, IMPS-487, IMPS-1679, IMPS-1683, IMPS-1711, IMPS-1712, IMPS-1718, IMPS-1720, IMPS-1721, IMPS-1723, IMPS-1724, IMPS-1737, IMPS-1920, IMPS-1686, IMPS-1727, IMPS-1734
 /** @purity pure */
 export function labelLayoutOf(
   shapeKind: ShapeKind,

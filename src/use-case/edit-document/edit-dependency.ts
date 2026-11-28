@@ -180,7 +180,7 @@ function withOneLineDeleted(document: Document, command: Extract<DependencyComma
   return edited(withTask(document, kept))
 }
 
-// Spec: IMPS-348, IMPS-349
+// Spec: IMPS-348, IMPS-349, IMPS-370
 /** @purity pure */
 function withLagSet(document: Document, command: Extract<DependencyCommand, { kind: 'setDependencyLag' }>): EditResult {
   const schedule = document.schedule

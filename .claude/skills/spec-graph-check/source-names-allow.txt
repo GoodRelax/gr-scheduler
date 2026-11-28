@@ -10,12 +10,6 @@
 # -- the user kept these names on purpose (JDG-2691) --
 screen | K-77 | isDependencyVisible | Dependency Lines | JDG-2691: the dependency is the thing; the line is how it is drawn (JDG-2241)
 screen | PR-17 | milestoneGlyph | Milestone Shape | JDG-2691: keeps it apart from shapeKind's value milestone (JDG-1628 set only the screen word)
-screen | PR-39 | strokeColor | Outline Color | JDG-2691: the SVG attribute name, paired with fillColor
-screen | PR-28 | strokeColor | Outline Color | JDG-2691: the SVG attribute name, paired with fillColor
-screen | PR-22 | strokeColor | Outline Color | JDG-2691: the SVG attribute name, paired with fillColor
-screen | PR-40 | strokeWidthPx | Outline Width | JDG-2691: the SVG attribute name, paired with fillColor
-screen | PR-26 | strokeWidthPx | Outline Width | JDG-2691: the SVG attribute name, paired with fillColor
-screen | PR-23 | strokeWidthPx | Outline Width | JDG-2691: the SVG attribute name, paired with fillColor
 screen | K-144 | viewTimeZone | Project Base Time Zone | JDG-2691: the user chose the name (JDG-1784); the base field writes viewTimeZone and Project.scheduleDataTimeZone both
 screen | K-138 | levelZeroTreeState | Top-Level Tree State | JDG-2691: the ja screen word says level 0 too; it names how levels are counted, like outlineBase
 #
@@ -56,3 +50,7 @@ screen | K-78 | isProgressMarkerVisible | Progress Status Mark | JDG-3742: the s
 screen | K-83 | isGroupGridLinesVisible | Task Group Grid Lines | JDG-3745: the screen word is settled; the key becomes isTaskGroupGridLinesVisible in the GRS JSON beta, applied by CR-851
 screen | PR-24 | fillTransparencyPercent | Fill Opacity (%) | JDG-3526: the screen word is settled; the key becomes fill.opacityPercent in the GRS JSON beta, applied by CR-851
 screen | PR-27 | fillTransparencyPercent | Fill Opacity (%) | JDG-3526: the screen word is settled; the key becomes fill.opacityPercent in the GRS JSON beta, applied by CR-851
+screen | PR-14 | fadeInDays | Start/Finish Slope (Days) | JDG-3838: the screen word is settled; the key becomes grs.startSlopeCalendarDays in the GRS JSON beta, applied by CR-851
+screen | PR-14 | fadeOutDays | Start/Finish Slope (Days) | JDG-3838: the screen word is settled; the key becomes grs.finishSlopeCalendarDays in the GRS JSON beta, applied by CR-851
+screen | PR-33 | editPermission | Allowed Editor Group | JDG-3838: the screen word is settled; the key becomes allowedEditorGroupName in the GRS JSON beta, applied by CR-851
+screen | PR-46 | textColor | Font Color | JDG-3838: the screen word is settled; the key becomes style.font.color in the GRS JSON beta, applied by CR-851

@@ -612,6 +612,7 @@ describe('EL-2 -- the end of a task group the group LOD does not draw stands at 
     expect(entry.x).toBeCloseTo(placementOf(open, 2).x, 9)
   })
 
+  // Spec: IMPS-1880
   it('EL-2: a hidden predecessor exits from the foot of its ancestor at the right side it would open with (S-49 floor)', () => {
     const hidden = deep(0.4)
     const open = deep(1)
@@ -689,6 +690,7 @@ describe('EL-3 .. EL-8 -- which part of the route is drawn', () => {
     expect(line.continuation ?? null).toBeNull()
   })
 
+  // Spec: IMPS-384
   it('FR-009 / RT-3: the route itself does not change with what is visible (EL-4 on a narrow screen, EL-3 on a wide one)', () => {
     const narrow = predecessorOnly()
     const wide = sceneOf({
@@ -832,6 +834,7 @@ describe('the drawn picture follows T-303', () => {
   const dependencyInk = LIGHT('S-159')
   const ground = LIGHT('S-146')
 
+  // Spec: IMPS-316
   it('EL-4: the SVG draws the short line, never the whole route, and no arrow head', () => {
     const scene = predecessorOnly()
     const line = lineOf(scene, 1, 2)
@@ -862,6 +865,7 @@ describe('the drawn picture follows T-303', () => {
     for (const dot of dots) expect(attrOf(dot.attrs, 'fill')).toBe(DARK('S-159'))
   })
 
+  // Spec: IMPS-376, IMPS-377
   it('EL-9 (the ground-color halo S-224 lies under the short line, not under the dots)', () => {
     const scene = predecessorOnly()
     const line = lineOf(scene, 1, 2)
@@ -944,6 +948,7 @@ describe('the drawn picture follows T-303', () => {
 })
 
 describe('GA-24 / T-268 -- the mark is grabbed as part of its line', () => {
+  // Spec: IMPS-386
   it('GA-24 / PE-12: a press on a dot answers the dependency line with GA-24', () => {
     const scene = predecessorOnly()
     const dot = lineOf(scene, 1, 2).continuation!.dots[0]!
@@ -1021,6 +1026,7 @@ describe('GA-24 / T-268 -- the mark is grabbed as part of its line', () => {
     expect(answer.item?.['taskUid']).toBe(4)
   })
 
+  // Spec: NG-3
   it('EL-6 / FR-108: a line with nothing drawn cannot be grabbed where its route crosses the Task Group Lanes', () => {
     const scene = neitherEnd()
     const line = lineOf(scene, 1, 2)

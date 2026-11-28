@@ -393,6 +393,7 @@ describe('CR-404 -- premises of the fixture', () => {
     expect(report.errors).toEqual([])
   })
 
+  // Spec: IMPS-776
   it('with every task group auto, the depth rule of FR-018 alone decides what is drawn (0.6: depth <= 3)', () => {
     const layout = layoutOf(smallDocument({ zoomY: 0.6 }))
     expect(named(layout)).toEqual(named([A, B, R, S, B2, B2a, Z, Z1]))
@@ -445,6 +446,7 @@ describe('FR-018 table T-329 -- an expanded task group, its ancestors and its di
     expect(layoutOf(smallDocument({ zoomY, expanded: [R], levelZero: 'collapsed' }))).toEqual([])
   })
 
+  // Spec: IMPS-771
   it('with the values fixed, lowering zoomY never draws more task groups (monotonic)', () => {
     const zooms = [4, 2.2, 2, 1.2, 1.1, 0.8, 0.59, 0.4, 0.31, 0.1, S_54]
     for (const fixture of [
@@ -794,6 +796,7 @@ describe('HF-8 / FR-031 / UN-17 -- fit returns every value but hidden to auto in
     }
   }
 
+  // Spec: IMPS-220, IMPS-221
   it('F stays two writes: the zoom first, then CM-72 (and CM-86 when level zero is folded)', () => {
     for (const levelZero of ['auto', 'collapsed'] as const) {
       const doc = smallDocument({ zoomY: 0.8, expanded: [R], folded: [B2], levelZero })
@@ -810,6 +813,7 @@ describe('HF-8 / FR-031 / UN-17 -- fit returns every value but hidden to auto in
     }
   })
 
+  // Spec: IMPS-219
   it(`${HF_8_BY_T_328} -- after F every value but hidden is auto; one Ctrl+Z restores them while the zoom stays new`, () => {
     const built = stage(smallDocument({ zoomY: 0.8, expanded: [R], folded: [B2], temporarily: [Z], hidden: [S1] }))
     const before = built.states()

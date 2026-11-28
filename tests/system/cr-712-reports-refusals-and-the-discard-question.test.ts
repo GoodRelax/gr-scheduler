@@ -214,6 +214,7 @@ test.describe(`MG-10 (MUST): ${MG_10_ALWAYS_ON_U_61}`, () => {
 test.describe(`T-233 closing (MUST): ${T_233_REFUSAL_CARRIES_THE_ROW}`, () => {
   test.setTimeout(120_000)
 
+  // Spec: IMPS-931
   test('a file whose tasks form a parent loop is refused with the IV-4 words, not with RS-10', async ({ page }) => {
     const iv4 = WORDS.invariants.find((one) => one.specTableRowId === 'IV-4')?.text
     expect(iv4?.en ?? '', 'the dictionary words IV-4').not.toBe('')

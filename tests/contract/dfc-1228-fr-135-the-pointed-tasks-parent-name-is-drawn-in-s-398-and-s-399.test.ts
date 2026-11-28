@@ -50,6 +50,7 @@ describe('DFC-1228: the parent name label of the pointed Task (FR-135, S-398, S-
     expect(Number(labelOf({ ownerUids: [], pointedUid: F }, P)['font-weight'])).toBe(S_399)
   })
 
+  // Spec: IMPS-697
   it('FR-135 a derived parent: pointing D draws the name of Q in the S-398 color and the S-399 weight', () => {
     const label = labelOf({ ownerUids: [], pointedUid: D }, Q)
     expect(label['fill']).toBe(S_398)
@@ -62,6 +63,7 @@ describe('DFC-1228: the parent name label of the pointed Task (FR-135, S-398, S-
     expect(Number(other['font-weight'])).toBe(S_245)
   })
 
+  // Spec: IMPS-698
   it('FR-135 with no Task pointed and no family view, no name is drawn in S-398', () => {
     expect(labelOf(null, P)['fill']).not.toBe(S_398)
     expect(Number(labelOf(null, P)['font-weight'])).toBe(S_245)

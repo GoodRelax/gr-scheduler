@@ -113,14 +113,17 @@ const rowsFor = (kind: 'task' | 'milestone'): readonly string[] =>
 const rowsOf = (panel: PropertiesPanel): readonly string[] => panel.fields.map((one) => one.row)
 
 describe(`FR-006 -- ${FR_006_SHOWN_FOR}`, () => {
+  // Spec: IMPS-1, IMPS-11, IMPS-20, IMPS-22, IMPS-26
   it(`${FR_006_BY_MILESTONE} -- a task (milestone false) gets exactly the task and both rows, in T-016 order`, () => {
     expect(rowsOf(panelOf(KINDS, taskItem(PLAIN)))).toEqual(rowsFor('task'))
   })
 
+  // Spec: IMPS-21
   it(`${FR_006_BY_MILESTONE} -- a milestone (milestone true) gets exactly the milestone and both rows, in T-016 order`, () => {
     expect(rowsOf(panelOf(KINDS, taskItem(MILESTONE)))).toEqual(rowsFor('milestone'))
   })
 
+  // Spec: IMPS-23
   it(`${FR_006_NOT_BY_SHAPE} -- Task.milestone true drawn as a rectangle still gets the milestone rows`, () => {
     expect(rowsOf(panelOf(KINDS, taskItem(MILESTONE_DRAWN_AS_BAR)))).toEqual(rowsFor('milestone'))
   })
@@ -139,6 +142,7 @@ describe(`FR-006 -- ${FR_006_SHOWN_FOR}`, () => {
     for (const id of others) expect(shown, id).not.toContain(id)
   })
 
+  // Spec: IMPS-19, IMPS-24, IMPS-25
   it(`${FR_006_ONLY_SAME_TARGET} -- no row of another target (TaskGroup, boxes, Dependency) reaches a task's panel`, () => {
     const foreign = T_016.filter((one) => appliesToOf(one) !== 'Task').map((one) => one.id)
     for (const uid of [PLAIN, MILESTONE]) {
@@ -147,6 +151,7 @@ describe(`FR-006 -- ${FR_006_SHOWN_FOR}`, () => {
     }
   })
 
+  // Spec: IMPS-120
   it(`${FR_006_VISUAL_ORDER} -- a task ends with outline width, outline color, fill color on both kinds`, () => {
     for (const uid of [PLAIN, MILESTONE]) {
       const shown = rowsOf(panelOf(KINDS, taskItem(uid)))
@@ -161,6 +166,7 @@ describe(`FR-006 -- ${FR_006_PR_1_BY_KIND}`, () => {
     expect(fieldOf(panelOf(KINDS, taskItem(PLAIN)), 'PR-1').name).toBe(propertyLabelOf('PR-1', 'label'))
   })
 
+  // Spec: IMPS-16
   it('a milestone names PR-1 with properties[PR-1].milestoneLabel', () => {
     expect(fieldOf(panelOf(KINDS, taskItem(MILESTONE)), 'PR-1').name).toBe(propertyLabelOf('PR-1', 'milestoneLabel'))
   })
@@ -298,10 +304,12 @@ describe(`FR-009 -- ${FR_009_ROWS}`, () => {
     expect(DEPENDENCY_ROWS.map((one) => one.columns[0])).toEqual(['linkType', 'linkLag', 'predecessorUid', 'successorUid'])
   })
 
+  // Spec: IMPS-366
   it('the panel of a selected line holds exactly T-016\'s Dependency rows, in order', () => {
     expect(rowsOf(panelOf(LINES, dependencyItem(successorOf(0))))).toEqual(DEPENDENCY_ROWS.map((one) => one.id))
   })
 
+  // Spec: IMPS-317, IMPS-318, IMPS-368
   it.each(LINK_TYPES.map(([id, number, abbreviation], index) => [id, number, abbreviation, index] as const))(
     `${T_018_ABBREVIATION} -- %s: linkType %s shows as %s`,
     (_id, number, abbreviation, index) => {
@@ -311,12 +319,14 @@ describe(`FR-009 -- ${FR_009_ROWS}`, () => {
     },
   )
 
+  // Spec: IMPS-369
   it(`${FR_009_ABBREVIATION_AND_ENDS} -- the two ends read as propertyField.dependencyEnd`, () => {
     const panel = panelOf(LINES, dependencyItem(successorOf(1)))
     expect(fieldOf(panel, rowOfColumn('predecessorUid')).text).toBe(dependencyEndOf(`Task${FROM}`, FROM))
     expect(fieldOf(panel, rowOfColumn('successorUid')).text).toBe(dependencyEndOf(`Task${successorOf(1)}`, successorOf(1)))
   })
 
+  // Spec: IMPS-367
   it(`${FR_009_LAG_ONLY} -- only the lag row is editable; type and both ends have no control`, () => {
     const panel = panelOf(LINES, dependencyItem(successorOf(0)))
     for (const item of DEPENDENCY_ROWS) {
@@ -332,6 +342,7 @@ describe(`FR-009 -- ${FR_009_ROWS}`, () => {
     }
   })
 
+  // Spec: IMPS-349
   it('the lag control commits CM-38 setDependencyLag on this line', () => {
     const panel = panelOf(LINES, dependencyItem(successorOf(0)))
     const field = fieldOf(panel, rowOfColumn('linkLag'))

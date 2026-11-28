@@ -175,6 +175,7 @@ describe(`FR-003 (MUST): ${FR_003_LANES}`, () => {
     expect(rowOf(layoutOf(OPEN, null), TASK_GROUP_C)?.stackCount).toBe(2)
   })
 
+  // Spec: ST-9
   it('with only Alpha checked, task group C stacks one lane and its height follows that count', () => {
     const whole = rowOf(layoutOf(OPEN, null), TASK_GROUP_C)
     const narrowed = rowOf(layoutOf(OPEN, [ALPHA, CHARLIE]), TASK_GROUP_C)
@@ -251,6 +252,7 @@ describe(`FR-135 (MUST): ${FR_135_FILTERED_END}`, () => {
     expect(arrowOf(geometryOf(OPEN, null))?.continuationDots ?? []).toEqual([])
   })
 
+  // Spec: IMPS-1408
   it.each([
     ['the parent Alpha is unchecked (the child Bravo is seen)', [BRAVO, CHARLIE]],
     ['the child Bravo is unchecked (the parent Alpha is seen)', [ALPHA, CHARLIE]],

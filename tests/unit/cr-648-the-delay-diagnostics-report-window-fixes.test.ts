@@ -244,6 +244,7 @@ describe('CR-648 T-352 / FR-096 / RW-7 -- one rule shapes every suggested name',
     expect(exportFileNameOf('', '.xml')).toBe('schedule.xml')
   })
 
+  // Spec: IMPS-1051
   it('RW-7 / FN-5: the report name is the shaped title, delay-diagnostics and the status date; an empty title is left out', () => {
     expect(delayDiagnosticsReportFileNameOf('Sample Project - Press N to start a new one', REPORT.statusDate)).toBe(
       'Sample_Project_-_Press_N_to_start_a_new_one_delay-diagnostics_2027-06-04.md',

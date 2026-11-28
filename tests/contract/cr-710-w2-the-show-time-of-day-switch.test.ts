@@ -107,6 +107,7 @@ describe('FR-158, FR-072 T-369 FO-13: the field of the switch', () => {
     expect(field.controls.map((one) => one.kind)).toEqual(['boolean'])
   })
 
+  // Spec: IMPS-719
   it('sits after FO-12 (K-140) in the order of table T-369', async () => {
     const rows = fieldsOf((await settingsStage(documentWith({}))).lastView()).map((one) => one.row)
     expect(rows).toContain(K_140)
@@ -161,6 +162,7 @@ describe('FR-016: turning the time off pulls a zoomX that is over the ceiling of
   const ZOOM_OVER_THE_DAYS = 200
   const ZOOM_UNDER_THE_DAYS = 2
 
+  // Spec: IMPS-1465
   it('a zoomX above the ceiling of the days goes back to that ceiling', async () => {
     const stage = await settingsStage(documentWith({ [SHOWS_TIME_OF_DAY]: true, zoomX: ZOOM_OVER_THE_DAYS }))
     const ceiling = dayCeilingOf(stage)

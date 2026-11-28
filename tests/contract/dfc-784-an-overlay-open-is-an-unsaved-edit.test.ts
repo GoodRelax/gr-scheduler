@@ -9,6 +9,7 @@ const CLOSE_ENTRANCE = 'IC-52'
 const SAME_TASK_UID = 1
 
 describe('FR-100 / OP-9 (DFC-784) -- the overlay open lands as an unsaved edit', () => {
+  // Spec: IMPS-980
   it('after IC-73 the pre-change plan is in the document and hasUnsavedEdits is true', async () => {
     const built = await shellStage({ document: here() })
     expect(built.loop.hasUnsavedEdits(), 'premise: a document just started has no unsaved edit').toBe(false)

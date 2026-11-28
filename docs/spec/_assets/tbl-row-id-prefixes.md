@@ -84,13 +84,14 @@
 | `DC` | Dual Cursor | `Dual Cursor` の操作の条 | 仕様書 | `T-029a` | 9 |
 | `DEV` | Device | 配置図に載る機器（⛔ `D-` は台帳の欠陥の行と紛れるので使わない。<br>`words` は発明した語ではない） | 仕様書 | `T-007` | 6 |
 | `DF` | — | 文書の形の条 —— 交換相手の木をどう写し、解釈しない要素をどこへ置くか | 仕様書 | `T-053` | 5 |
-| `DFC` | Defect | 台帳に載る欠陥（⛔ `D-` は配置図の機器と紛れるので使わない） | 台帳 | `docs/development-records/defects.md` ／ `docs/development-records/fixed-defects.md` ／ `docs/development-records/history/backlog-plan-2026-10-04.md` ／ `docs/development-records/history/evidence/measured-2026-09-06.md` ／ `docs/development-records/history/evidence/measured-2026-09-07.md` ／ `docs/development-records/history/evidence/order-2026-09-06.md` | 1953 |
+| `DFC` | Defect | 台帳に載る欠陥（⛔ `D-` は配置図の機器と紛れるので使わない） | 台帳 | `docs/development-records/defects.md` ／ `docs/development-records/fixed-defects.md` ／ `docs/development-records/history/backlog-plan-2026-10-04.md` ／ `docs/development-records/history/evidence/measured-2026-09-06.md` ／ `docs/development-records/history/evidence/measured-2026-09-07.md` ／ `docs/development-records/history/evidence/order-2026-09-06.md` | 1958 |
 | `DG` | — | 遅延診断が進捗ステータスマークに与える状態 | 仕様書 | `T-315` | 4 |
 | `DI` | Document Identity | 同じ文書かどうかの見分け方と、上書きの確認の条 | 仕様書 | `T-227` | 6 |
 | `DL` | Delay | 遅れの量の数え方の場合分け | 仕様書 | `T-021b` | 3 |
 | `DM` | Dummy | 実績ダミーの規則の条 | 仕様書 | `T-240` | 9 |
 | `DN` | — | 作ってはならない依存の形 | 仕様書 | `T-018b` | 3 |
 | `DP` | Dependency | 依存の種別と、線を着ける位置 | 仕様書 | `T-018` | 4 |
+| `DPC` | Design Principles Compliance | アーキテクチャと実装を照らす設計原則の 1 つと、レビュアーの判定と根拠（ANMS v0.36 の第 7 章） | 仕様書 | `T-740` | 35 |
 | `DQ` | — | 遅延診断が数える遅れの量 | 仕様書 | `T-314` | 4 |
 | `DR` | Document Root | 文書ルートに置く群と、その中身の条 | 仕様書 | `T-052` | 5 |
 | `DS` | Display Scale | 表示の倍率を何に掛け、何に掛けないか | 仕様書 | `T-252` | 10 |
@@ -107,7 +108,7 @@
 | `ET` | Entity | エンティティ 1 つ | 仕様書 | `T-056` | 19 |
 | `EX` | Export | 書き出しの規約の条 | 仕様書 | `T-033` | 16 |
 | `EZ` | Easy | マニュアルを読まずに使えるようにする手立て | 仕様書 | `T-040` | 12 |
-| `FA` | — | 遅延診断の観点ごとの修正のしかた（表 T-373） | 仕様書 | `T-373` | 26 |
+| `FA` | — | 遅延診断の観点ごとの修正方法（表 T-373） | 仕様書 | `T-373` | 26 |
 | `FD` | Fade | フェードの形の場合分け | 仕様書 | `T-012a` | 9 |
 | `FM` | — | 遅延診断の修正案と修正の記録の表の欄（表 T-374） | 仕様書 | `T-374` | 9 |
 | `FN` | File Name | 書き出しの提案する名の整え方の段 | 仕様書 | `T-352` | 5 |
@@ -139,7 +140,7 @@
 | `IR` | Interaction Record | 人の操作と画面の描画の記録に、描いたフレームごとに書く画面の状態 | 仕様書 | `T-263` | 4 |
 | `IV` | Invariant | 文書が満たす不変条件 | 仕様書（台帳にも 1 行。コピーとして申告済み） | `T-220` | 23 |
 | `IX` | Image eXport | 画像の書き出しの規則の条 | 仕様書 | `T-241` | 16 |
-| `JDG` | Judgment | 利用者の裁定（⛔ `R-` はデータの経路と紛れるので使わない。<br>`RL` が「実体のあいだの関係」であり `RLG-` は 1 字違い、`RUL-` は「規則」と紛れるので選ばなかった） | 台帳 | `docs/development-records/rulings.md` | 2369 |
+| `JDG` | Judgment | 利用者の裁定（⛔ `R-` はデータの経路と紛れるので使わない。<br>`RL` が「実体のあいだの関係」であり `RLG-` は 1 字違い、`RUL-` は「規則」と紛れるので選ばなかった） | 台帳 | `docs/development-records/rulings.md` | 2386 |
 | `JF` | — | `src/` の `.json` の置き場 | 仕様書 | `T-248` | 4 |
 | `K` | Key | 設定値のキー 1 つ | 仕様書 | `T-104` | 132 |
 | `L` | Level of Detail | 表示量の増減（LOD）の種別 | 仕様書 | `T-005a` | 2 |
@@ -238,7 +239,7 @@
 | `TW` | — | 章ごとのテストの方針と合格基準 | 仕様書 | `T-219` | 3 |
 | `TX` | Time teXt | 日時を見せる所と、その所での日時と長さの形（表 T-375） | 仕様書 | `T-375` | 12 |
 | `TY` | Type | 同じ手順の中で、種別の掴み代が応える順 | 仕様書 | `T-268` | 9 |
-| `U` | UI part | 画面の UI パーツ 1 つ | 仕様書 | `T-103` | 65 |
+| `U` | UI part | 画面の UI パーツ 1 つ | 仕様書 | `T-103` | 66 |
 | `UD` | Unit Division | ユニットを割る基準 | 仕様書 | `T-276` | 5 |
 | `UF` | — | ユニット 1 つ —— 1 ファイルと、その純粋性と持ち主 | 仕様書（台帳にも 97 行。コピーとして申告済み） | `T-075` | 199 |
 | `UN` | Undo | 取り消しの対象と対象外 | 仕様書 | `T-027` | 21 |

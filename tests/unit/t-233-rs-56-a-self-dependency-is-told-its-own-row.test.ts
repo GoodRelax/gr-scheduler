@@ -218,6 +218,7 @@ describe('the rows this case is driven by are still in the manuscript', () => {
 
 // Spec: T-037, T-233, RS-56, FR-009, DN-1, DN-2, PTD-3, AR-4, IC-61
 describe('table T-037 / T-233: a dependency drawn onto its own task is told RS-56', () => {
+  // Spec: IMPS-338
   it('⭐⭐ RS-56: both ends on one bar is told FR-009s own row and not RS-10', () => {
     const one = stage()
     one.armDependencyLine()

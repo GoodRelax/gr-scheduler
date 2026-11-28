@@ -342,6 +342,7 @@ const STOPPING_BOX =
 
 const APP_HEADER_BLOCK_PADDING = '0.375em'
 
+// Spec: IMPS-1221, IMPS-1222
 export const STYLE = {
   root:
     'position:fixed;left:0;top:0;right:0;bottom:0;pointer-events:none;' +
@@ -901,6 +902,7 @@ function windowReadersOf(
 
 // Why: stacking comes from each element's z-index (markZOrder), not the order of the tree.
 /** @purity non-pure */
+// Spec: IMPS-1751, IMPS-1753
 function screenLayersOf(host: Document) {
   const hoverSheet = host.createElement('style')
   hoverSheet.textContent = hoverCss()

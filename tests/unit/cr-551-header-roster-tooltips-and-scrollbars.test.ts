@@ -104,6 +104,7 @@ describe('IC-100 -- the monochrome entrance', () => {
     expect(bare(verticalIn('T-109', 'IC-100').cells[0] ?? '')).toBe('App Header')
   })
 
+  // Spec: IMPS-151
   it('IC-100: App Header の IC-16 の左 -- the header lists IC-100 immediately before IC-16', () => {
     // Spec: IC-100, FR-041
     const icons = bench(oneTaskGroupDocument()).view().appHeaderItems.commands.map((one) => one.icon)
@@ -306,6 +307,7 @@ describe('FR-051 -- the scrollbar bands', () => {
     expect(REQUIREMENTS).toContain(FR_051_NOT_IN_HORIZONTAL)
   })
 
+  // Spec: IMPS-1773
   it('FR-051: 横の Scrollbars は、GRS が占める画面の下端に接して置く', () => {
     // Spec: FR-051
     const bars = manyTaskGroups().view().frame.scrollbars
@@ -314,6 +316,7 @@ describe('FR-051 -- the scrollbar bands', () => {
     expect((horizontal?.track.y ?? 0) + (horizontal?.track.height ?? 0)).toBeCloseTo(SCREEN.height, 3)
   })
 
+  // Spec: IMPS-1771
   it('FR-051: タスクグループの帯の地を、縦の Scrollbars の左端まで続けて塗る', () => {
     // Spec: FR-051
     const built = manyTaskGroups()
@@ -323,6 +326,7 @@ describe('FR-051 -- the scrollbar bands', () => {
     for (const band of bands) expect(band.x + band.width).toBeCloseTo(vertical?.track.x ?? Number.NaN, 2)
   })
 
+  // Spec: IMPS-1772
   it('FR-051: タスクグループの帯の地も日程の形も、縦の Scrollbars の帯の中へ描いてはならない', () => {
     // Spec: FR-051
     const built = manyTaskGroups()
@@ -332,6 +336,7 @@ describe('FR-051 -- the scrollbar bands', () => {
     expect(inside, JSON.stringify(inside.slice(0, 3))).toEqual([])
   })
 
+  // Spec: IMPS-1774
   it('FR-051: 日程（タスクグループの帯・形・罫線）を横の Scrollbars の帯の中へ描いてはならない', () => {
     // Spec: FR-051
     const built = manyTaskGroups()

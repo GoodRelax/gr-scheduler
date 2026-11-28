@@ -274,6 +274,7 @@ describe('FD-5 (table T-012a) -- each chevron end on its own: null keeps the def
 })
 
 describe('FD-6a (table T-012a) -- the actual bar of a chevron is drawn as unset', () => {
+  // Spec: IMPS-1888, FR-160
   it.each(CHEVRON_ROWS)('FD-6a: plan fadeIn=%s fadeOut=%s -- the actual keeps the default depth at both ends', (fadeIn, fadeOut) => {
     const { placed, task } = drawn('chevron', fadeIn, fadeOut, { actual: true })
     const ends = endsOf(outlineOf(task.actual, 'actual chevron'))

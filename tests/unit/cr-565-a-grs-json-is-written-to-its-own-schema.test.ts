@@ -131,6 +131,7 @@ describe('CR-565 -- the manuscript these cases are driven by', () => {
 })
 
 describe('FR-024 (MUST) -- what is written fits this build s own schema, at this build s version', () => {
+  // Spec: IMPS-940, IMPS-942, IMPS-945
   it.each([
     ['a newer document', NEWER],
     ['an older document', OLDER],
@@ -189,6 +190,7 @@ describe('OP-6 (MUST) -- documentSettings is read for what this build s schema k
     expect(read.unreadColumns, 'OP-6: not told on a document that is not newer').toEqual([])
   })
 
+  // Spec: IMPS-1004, IMPS-1319
   it('on a newer document, a dropped key and a key put back to its default are listed as unread (OP-6, FR-073)', () => {
     const read = opened(
       handed(NEWER, (root) => {
@@ -228,6 +230,7 @@ describe('FR-073 (MUST) -- schedule data of the wrong shape refuses the whole do
     if (!read.ok) expect(read.reason).toBe('RS-64')
   })
 
+  // Spec: IMPS-1316
   it('an unknown schedule column of a document that is not newer is refused, not dropped (Chapter 6.1)', () => {
     const read = documentFromJson(handed(THIS_BUILD, (root) => void (firstTaskOf(root)[UNKNOWN_COLUMN] = 1)), THIS_BUILD)
     expect(read.ok, NO_LENIENCY_FOR_SCHEDULE).toBe(false)
@@ -236,6 +239,7 @@ describe('FR-073 (MUST) -- schedule data of the wrong shape refuses the whole do
 
 describe('FR-073 -- the reason words name the place of the latest version by its seat', () => {
   const reasons = (DISPLAY_WORDS as { reasons: { specTableRowId: string; nextStep?: { ja: string; en: string } }[] }).reasons
+  // Spec: IMPS-1009
   it.each(['RS-48', 'RS-63', 'RS-64'])('%s holds the {downloadUrl} seat in both languages, and never S-350 itself', (row) => {
     const next = reasons.find((one) => one.specTableRowId === row)?.nextStep
     expect(next, `${row} has no next step`).toBeDefined()
@@ -394,6 +398,7 @@ const toldOf = (view: ScreenView, row: string): Notice | undefined =>
   view.notices.find((one) => one.text === wordsOf(row).text)
 
 describe('FR-073 through the shell -- a newer document opened and saved', () => {
+  // Spec: IMPS-1000, IMPS-1003, FR-361
   it('a newer document with nothing unread opens unasked and tells RS-63, its next step naming S-350', async () => {
     const run = bench()
     await run.openAndReplace(handed(NEWER, titled))

@@ -76,7 +76,7 @@ export function setTaskFadeDays(
   return edited(withTask(document, faded))
 }
 
-// Spec: CM-20, FR-083, IMPS-1893
+// Spec: CM-20, FR-083, IMPS-1893, FR-161
 /** @purity pure */
 export function setTaskVisualShapeKind(
   document: Document,

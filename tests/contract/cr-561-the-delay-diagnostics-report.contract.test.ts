@@ -530,6 +530,7 @@ describe('CR-561 -- the clauses these cases are driven by', () => {
 })
 
 describe(`FR-130 -- ${FR_130_NO_STATUS}`, () => {
+  // Spec: IMPS-547
   it('with no status date the report is returned, and nothing in it is a diagnosis (DX-1)', () => {
     const report = diagnose(TRUST(null))
     expect(report).toBeDefined()
@@ -572,6 +573,7 @@ describe(`FR-130 -- ${FR_130_NO_WRITE}`, () => {
     expect(diagnose(document)).toEqual(diagnose(document))
   })
 
+  // Spec: IMPS-693
   it(`${FR_135_NOT_WRITTEN} -- Y keeps parentTaskUid null`, () => {
     diagnose(DERIVED)
     expect(taskIn(DERIVED, Y)['parentTaskUid']).toBeNull()
@@ -594,6 +596,7 @@ describe(`FR-132 -- ${FR_132_BOTTLENECK}`, () => {
     expect(PAINTED).not.toContain(markOf(report(), B))
   })
 
+  // Spec: IMPS-590, IMPS-591
   it(`${FR_132_WORKING_DAYS} -- A: DQ-2 0, DQ-3 7, DQ-4 7 (T-313 BD-1, T-314, CR-633)`, () => {
     const entry = onePushed(report(), A)
     expect(entry.values['inheritedDelayMinutes']).toBe(0)
@@ -622,10 +625,12 @@ describe(`FR-132 -- ${FR_132_BOTTLENECK}`, () => {
 describe(`FR-132 -- ${FR_132_NOT_DONE}`, () => {
   const report = (): Report => diagnose(CHAIN_TASK_GROUPS(STATUS))
 
+  // Spec: IMPS-600, IMPS-565
   it('A2 is done (PS-2): DX-8 does not hold DG-2 for it', () => {
     expect(markOf(report(), A2)).not.toBe('DG-2')
   })
 
+  // Spec: IMPS-601
   it(`${FR_132_DX_9} -- A2 pushed B2's end by 2 working days`, () => {
     const entry = onePushed(report(), A2)
     expect(entry.values['selfDelayMinutes']).toBe(2 * DAY)
@@ -651,6 +656,7 @@ describe(`FR-131 -- ${FR_131_ONE_EACH}`, () => {
     expect(found.some((one) => holdsNumber(one, 50))).toBe(true)
   })
 
+  // Spec: IMPS-599
   it('DW-1 (T-316): C and its dependency downstream D and E are DG-1; F, apart and done, is not', () => {
     const one = report()
     expect(markOf(one, C)).toBe('DG-1')
@@ -676,6 +682,7 @@ describe(`FR-131 -- ${FR_131_ONE_EACH}`, () => {
     expect(namesTask(diagnose(CHAIN_TASK_GROUPS(STATUS)), 'VO-2', A).length).toBeGreaterThan(0)
   })
 
+  // Spec: IMPS-582
   it('a doubt and a VO-1 omission do not paint: DG-1 takes T-310, VO-3, VO-5 and T-316 only (T-315), so L and M are not DG-1', () => {
     const one = diagnose(DOUBT)
     expect(markOf(one, L)).not.toBe('DG-1')
@@ -695,10 +702,12 @@ describe(`FR-135 -- ${FR_135_DERIVE}`, () => {
     expect(onePushed(report(), Y).values['pushOutMinutes']).toBe(7 * DAY)
   })
 
+  // Spec: IMPS-607
   it(`${FR_133_PATH_MARK} -- X, the derived parent, is DG-3`, () => {
     expect(markOf(report(), X)).toBe('DG-3')
   })
 
+  // Spec: IMPS-608
   it(`${FR_133_NOT_DOWNSTREAM} -- Z, downstream of Y, is not DG-3`, () => {
     expect(markOf(report(), Z)).not.toBe('DG-3')
   })
@@ -713,6 +722,7 @@ describe(`FR-135 -- ${FR_135_DERIVE}`, () => {
 })
 
 describe(`FR-135 -- ${FR_135_VO_4}`, () => {
+  // Spec: IMPS-694
   it(`${FR_135_NOT_NARROWER} -- Y2 has two candidates (X1, X2): VO-4 names it`, () => {
     expect(namesTask(diagnose(TWO_CANDIDATES), 'VO-4', Y2).length).toBeGreaterThan(0)
   })
@@ -725,6 +735,7 @@ describe(`FR-135 -- ${FR_135_VO_4}`, () => {
     expect(namesTask(one, 'DW-2', Y2).length).toBeGreaterThan(0)
   })
 
+  // Spec: IMPS-699
   it('IP-1 (not by start alone): X3 starts before Y3 but ends before it -- no candidate, VO-4 names Y3', () => {
     expect(namesTask(diagnose(NO_CANDIDATE), 'VO-4', Y3).length).toBeGreaterThan(0)
   })
@@ -751,6 +762,7 @@ describe(`FR-136 -- ${FR_136_DW_3}`, () => {
 })
 
 describe(`FR-136 -- ${FR_136_VO_5}`, () => {
+  // Spec: IMPS-1429
   it('VO-5 names M1 and proposes the latest actualFinish of its predecessors, T2\'s (MP-4)', () => {
     const found = namesTask(diagnose(ACHIEVED), 'VO-5', M1)
     expect(found.length).toBeGreaterThan(0)

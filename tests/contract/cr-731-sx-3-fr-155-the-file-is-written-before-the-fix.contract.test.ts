@@ -71,6 +71,7 @@ describe('item 15 -- FR-130: starting the diagnosis writes nothing', () => {
 })
 
 describe('item 6 -- IC-157: the file is written first, then one bundle is issued', () => {
+  // Spec: IMPS-646
   it('with no save target the chooser opens; the file holds the document as it was and the document is then mended', async () => {
     const bench = await benchOver(ONE_PARENT(), { withTarget: false })
     await proposalsShown(bench)
@@ -82,6 +83,7 @@ describe('item 6 -- IC-157: the file is written first, then one bundle is issued
     expect(parentFinish(bench.built.loop.document()), 'the document was mended after the write').toBe('2027-05-26')
   })
 
+  // Spec: IMPS-647
   it('with a save target it writes over that file and asks nothing', async () => {
     const bench = await benchOver(ONE_PARENT(), { withTarget: true })
     await proposalsShown(bench)
@@ -109,6 +111,7 @@ describe('item 6 -- IC-157: the file is written first, then one bundle is issued
     expect(bench.built.written).toEqual(['mine.json'])
   })
 
+  // Spec: IMPS-648
   it('a chooser closed with nothing chosen mends nothing', async () => {
     const bench = await benchOver(ONE_PARENT(), { withTarget: false })
     await proposalsShown(bench)
@@ -190,6 +193,7 @@ describe('item 7 -- IC-158 and SX-3: a backup is written, the work file and the 
 })
 
 describe('item 11 -- the log of what was mended stands in the window only', () => {
+  // Spec: IMPS-652
   it('before any fix IC-156 is not there; after one it is, and the log holds the one mended row', async () => {
     const bench = await benchOver(ONE_PARENT(), { withTarget: true })
     await proposalsShown(bench)
@@ -216,6 +220,7 @@ describe('item 11 -- the log of what was mended stands in the window only', () =
     expect(entryIn(bench.built, 'IC-156')).toBeNull()
   })
 
+  // Spec: IMPS-654
   it('the file the fix is saved in holds no trace of the proposal, the checks or the log', async () => {
     const bench = await benchOver(ONE_PARENT(), { withTarget: true })
     const plainKeys = Object.keys(JSON.parse(new TextDecoder().decode(bench.target!.bytes())) as object)

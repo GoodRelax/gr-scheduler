@@ -142,6 +142,7 @@ describe('FR-135 / JDG-1118 -- "マイルストーンを親にしてはならな
     expect(REQUIREMENTS, FR_135_READ_AS_NULL).toContain(FR_135_READ_AS_NULL)
   })
 
+  // Spec: IMPS-695
   it('FR-135 / JDG-1118: no child is resolved as stated with a milestone for its parent', () => {
     const resolutions = resolutionsOf(MILESTONE_PARENTS)
     for (const uid of [X, Y, Z]) {
@@ -149,6 +150,7 @@ describe('FR-135 / JDG-1118 -- "マイルストーンを親にしてはならな
     }
   })
 
+  // Spec: IMPS-696
   it('FR-135 / JDG-1118: a child stating a milestone parent falls to T-318 -- derived, undecided or root', () => {
     const resolutions = resolutionsOf(MILESTONE_PARENTS)
     expect(resolutions.get(X), 'IP-2: P alone encloses X').toEqual({ kind: 'derived', parentUid: P })
@@ -187,6 +189,7 @@ describe('FR-135 -- the family arrows', () => {
     expect(arrowPairs({ ownerUids: [P] })).toEqual([`${C}->${P}`, `${F}->${P}`, `${P}->${G}`].sort())
   })
 
+  // Spec: IMPS-1407
   it('FR-135: the owner C draws only C -> P, not its sibling F -> P nor the grandparent', () => {
     expect(arrowPairs({ ownerUids: [C] })).toEqual([`${C}->${P}`])
   })
@@ -211,6 +214,7 @@ describe('FR-135 -- the family arrows', () => {
     expect(tip.x).toBeLessThanOrEqual(parent.x + parent.width)
   })
 
+  // Spec: IMPS-1409
   it('FR-135: a child whose middle lies outside the parent width jogs once above the child into the parent width', () => {
     const X = 10
     const spec: SceneSpec = {
@@ -251,6 +255,7 @@ describe('FR-135 -- the family arrows', () => {
     expect(span.across).toBeCloseTo(T201('S-300') * DRAW_RATIO_AT_100, 3)
   })
 
+  // Spec: IMPS-1411
   it('FR-135 / S-485: every arrow is hit within the S-485 width', () => {
     const hit = numberIn(cellOf('T-206', 'S-485', '既定'))
     for (const arrow of parentTasksOf(sceneOf({ ownerUids: [P, D] })).arrows) expect(arrow.hitWidth).toBe(hit)

@@ -220,6 +220,7 @@ describe('FR-054, RS-89: an opened file whose working day does not add up to the
     expect(told(stage.last().notices)).toHaveLength(1)
   })
 
+  // Spec: FR-304
   it('tells it once and not again on the frames that follow', async () => {
     const stage = stageOf(currentDocument())
     await openFile(stage, fileText(MORNING_ONLY, null))

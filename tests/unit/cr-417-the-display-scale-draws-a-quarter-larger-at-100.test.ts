@@ -148,6 +148,7 @@ describe(`FR-039 (MUST) -- ${FR_039_THE_DRAWN_RATIO}`, () => {
     expect(displayRatioOf(settingsOf({ displayScale: scale })), FR_039_THE_DRAWN_RATIO).toBeCloseTo(ratio, 12)
   })
 
+  // Spec: IMPS-1226, IMPS-700
   it.each(DISPLAY_SCALE_STEPS)('draws one day at S-1 x zoomX x (step / 100 x S-236), at step %s', (scale) => {
     const settings = settingsOf({ displayScale: scale, zoomX: 1 })
     const layout = layoutFromSchedule(ONE_TASK, settings, regionsFromScreen(ENV, settings))
@@ -157,6 +158,7 @@ describe(`FR-039 (MUST) -- ${FR_039_THE_DRAWN_RATIO}`, () => {
 })
 
 describe(`FR-077 (MUST) -- ${FR_077_THE_FLOOR}`, () => {
+  // Spec: IMPS-1899, IMPS-800, IMPS-802
   it('lets a name fall to S-8 x 0.625 = 7.5px at the default step, and no further', () => {
     expect(S_8 * displayRatioOf(settingsOf()), FR_077_THE_FLOOR).toBeCloseTo(
       S_8 * S_236,
@@ -254,6 +256,7 @@ describe(`DS-6 -- ${FR_039_HEADER_AND_PALETTE_KEEP_THEIR_SIZE}`, () => {
   const lowest = DISPLAY_SCALE_STEPS[0]!
   const highest = DISPLAY_SCALE_STEPS[DISPLAY_SCALE_STEPS.length - 1]!
 
+  // Spec: IMPS-1104
   it.each([lowest, DEFAULT_DISPLAY_SCALE, highest])(
     'draws the App Header entrance IC-17 17.3342px wide at display scale %s',
     (scale) => {
@@ -265,6 +268,7 @@ describe(`DS-6 -- ${FR_039_HEADER_AND_PALETTE_KEEP_THEIR_SIZE}`, () => {
     },
   )
 
+  // Spec: IMPS-1105
   it.each([lowest, DEFAULT_DISPLAY_SCALE, highest])(
     'draws the Command Palette entrance IC-61 17.3342px wide at display scale %s',
     (scale) => {

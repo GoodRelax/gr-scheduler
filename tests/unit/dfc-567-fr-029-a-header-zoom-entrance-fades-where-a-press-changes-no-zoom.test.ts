@@ -155,6 +155,7 @@ describe('DFC-567 part 3 -- FR-029 in between, all four zoom entrances are drawn
 })
 
 describe('DFC-567 part 3 -- FR-029 a zoom entrance is faint exactly when a press changes no zoom', () => {
+  // Spec: IMPS-1109
   it.each(ENTRANCES)('$icon pressed from 1 to its end ($end): every press finds it dark when it moves the zoom, faint when it does not', (entrance) => {
     const built = bench()
     const steps = walkToEnd(built, entrance)
@@ -185,12 +186,14 @@ describe('DFC-567 part 3 -- FR-029 a zoom entrance is faint exactly when a press
 })
 
 describe('DFC-567 part 3 -- the ends the walks stop at are the ends the manuscript names', () => {
+  // Spec: IMPS-1458
   it('IC-12 stops on the S-75 floor S-54 (S-97)', () => {
     const built = bench()
     walkToEnd(built, ENTRANCES[0]!)
     expect(zoomOf(built, 'zoomX'), FR_016_THE_RANGE).toBeCloseTo(S_54, 12)
   })
 
+  // Spec: IMPS-1460, IMPS-1461
   it('IC-13 stops on the FR-016 zoomX ceiling: Task Group Lanes width / (S-229 x S-1 x the S-236 ratio at the default display scale)', () => {
     const built = bench()
     walkToEnd(built, ENTRANCES[1]!)

@@ -323,6 +323,7 @@ test('CR-754 the manuscript this file is driven by still reads this way', () => 
 
 for (const { language, locale } of LOCALES) {
   test.describe(`${language}: the settings face at its default width`, () => {
+    // Spec: IMPS-68, IMPS-70
     test(`S-171: ${FR_006_FITS_AT_DEFAULT}`, async () => {
       test.setTimeout(120_000)
       const opened = await openSettings(locale)
@@ -393,6 +394,7 @@ for (const { language, locale } of LOCALES) {
       }
     })
 
+    // Spec: IMPS-67
     test(`FR-006 narrowed to S-248: ${FR_006_SCROLL_NOT_SHRINK}`, async () => {
       test.setTimeout(120_000)
       const opened = await openSettings(locale)

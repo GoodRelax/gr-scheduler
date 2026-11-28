@@ -65,6 +65,7 @@ describe('DFC-1412 premise -- the clause these cases press still stands', () => 
 
 describe(`FR-006 -- ${FR_006_VISUAL_ORDER}`, () => {
   // Why: a task group has one color (TaskGroup.color), which is none of the five looks, so it has no order to keep.
+  // Spec: IMPS-7
   it.each(SCENES.filter(([name]) => name !== 'a task group'))('%s: the look rows the panel shows keep the order of the clause', (_name, item, taskGroupIds) => {
     const shown = looksOf(panelOf(DOCUMENT, item, taskGroupIds))
     expect(shown.length, 'premise: the target shows at least one look row').toBeGreaterThan(0)
@@ -73,6 +74,7 @@ describe(`FR-006 -- ${FR_006_VISUAL_ORDER}`, () => {
     )
   })
 
+  // Spec: IMPS-10
   it('the highlight box shows outline width, outline color, fill color, fill transparency, and no text color', () => {
     expect(looksOf(panelOf(DOCUMENT, { kind: 'highlightBox', id: BOX }, []))).toEqual([
       'strokeWidthPx',
@@ -86,6 +88,7 @@ describe(`FR-006 -- ${FR_006_VISUAL_ORDER}`, () => {
     expect(looksOf(panelOf(DOCUMENT, { kind: 'commentBox', id: NOTE }, []))).toEqual(LOOK_COLUMNS)
   })
 
+  // Spec: IMPS-8
   it.each(SCENES)('%s: every color row holds exactly one color control', (_name, item, taskGroupIds) => {
     const panel = panelOf(DOCUMENT, item, taskGroupIds)
     let colorRows = 0

@@ -57,7 +57,7 @@ const SV_2_REFOCUS = '検索ウィンドウが出ている間、 `SK-24` か `IC
 const SV_3_ONE = '`GRS` は、検索ウィンドウに表を一度に 1 つだけ出すこと。'
 const SV_3_DEFAULT = '`GRS` は、既定でタスクの表を出すこと。'
 const SV_3_CHOSEN = '`GRS` は、出している表の入口を 表 T-237 の `EN-6`（排他の選択のうち選んでいるもの）で示すこと。'
-const SV_6_FIXED = '`GRS` は、横には、タスクの表では `SQ-1` まで（表 T-331 の並びで 表示・ステータス・進捗・タスク種別・タスク の 5 列）、コメントボックスの表では `SQ-7` までを左に固定すること（表 T-257 の `RR-4` と同じ形）。'
+const SV_6_FIXED = '`GRS` は、横には、タスクの表では `SQ-1` まで（表 T-331 の並びで 表示・進捗ステータス・完了率・タスク種別・タスク の 5 列）、コメントボックスの表では `SQ-7` までを左に固定すること（表 T-257 の `RR-4` と同じ形）。'
 const SV_9_SIZE =
   '`GRS` は、検索ウィンドウの既定の幅を、`Schedule Canvas`（`U-32`）の幅に `_assets/tbl-settings.md` の 表 T-206 の `S-421` を掛けた幅にすること。'
 const SV_9_CORNER = '`GRS` は、検索ウィンドウの左下の角を `Schedule Canvas` の左下に合わせること。'
@@ -431,6 +431,7 @@ describe(`T-330 SV-9 -- ${SV_9_SIZE} ${SV_9_CORNER}`, () => {
 })
 
 describe(`T-330 SV-1 -- ${SV_1_ORDER}`, () => {
+  // Spec: IMPS-1857
   it.each(LANGUAGES)('%s: the name, then IC-118, IC-119, IC-153 and IC-143, then IC-127, IC-129, IC-130 and IC-52', (language) => {
     const { panel } = drawn(viewOf(sessionIn(language)))
     const title = titleRowOf(panel)
@@ -511,6 +512,7 @@ describe(`T-330 SV-2 -- ${SV_2_REFOCUS}`, () => {
 })
 
 describe(`T-330 SV-3 -- ${SV_3_ONE} / table T-331 -- the column headings`, () => {
+  // Spec: IMPS-1858, IMPS-1870
   it.each(LANGUAGES)('%s: the tasks table shows SQ-1..SQ-6 in order, headed by the dictionary words', (language) => {
     const { panel } = drawn(viewOf(sessionIn(language)))
     // Why: SQ-10's heading cell is its box and IC-122; at the S-496 width SV-18 cuts the word first, so it rides as the title.

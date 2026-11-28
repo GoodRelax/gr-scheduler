@@ -102,6 +102,7 @@ const farFrom = (at: Pt): Pt => ({ x: at.x + S_208 * 4 + 40, y: at.y })
 describe('T-270 / SL-4 / SL-7a -- Shift with a press on a selected task', () => {
   const both = (): Scene => sceneOf(null, pick(task(A), task(B)))
 
+  // Spec: IMPS-1649
   it('T-270 / SL-4: a Shift press on the body of a selected task, dragged well past S-208, leaves both selected', () => {
     const scene = both()
     const from = bodyOf(scene, A)

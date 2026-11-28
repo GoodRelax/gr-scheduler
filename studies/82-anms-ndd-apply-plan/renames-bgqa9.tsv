@@ -1,0 +1,18 @@
+key	enNow	jaNow	enNew	jaNew	basis
+taskResumeField	Resume	再開予定日	Resume Date	再開予定日	JDG-3838
+taskFadeInOutDaysField	Fade In/Out Days	フェード日数 前/後	Start/Finish Slope (days)	開始/終了の傾き（日）	JDG-3838
+taskOutlineWidthField	Outline Width	枠線幅	Stroke Width	線の太さ	JDG-3838
+taskOutlineColorField	Outline Color	枠線色	Stroke Color	線の色	JDG-3838
+taskGroupEditPermissionField	Edit Permission	編集権限	Allowed Editor Group	編集できるグループ	JDG-3838
+commentBoxOutlineWidthField	Outline Width	枠線幅	Stroke Width	線の太さ	JDG-3838
+commentBoxOutlineColorField	Outline Color	枠線色	Stroke Color	線の色	JDG-3838
+commentBoxTextColorField	Text Color	文字色	Font Color	文字色	JDG-3838
+highlightBoxOutlineWidthField	Outline Width	枠線幅	Stroke Width	線の太さ	JDG-3838
+highlightBoxOutlineColorField	Outline Color	枠線色	Stroke Color	線の色	JDG-3838
+searchWindowStatusColumn	Status	ステータス	Progress Status	進捗ステータス	JDG-3839
+searchWindowProgressColumn	Progress	進捗	% Complete	完了率	JDG-3839
+searchWindowPathFromTopColumn	Path from Top	最上位までの階層	Task Group Path	タスクグループ階層	JDG-3839
+searchWindowBodyColumn	Body	本文	Text	本文	JDG-3839
+resourceListWindowSelectedColumn	Selected	選択	Selection Status	選択状態	JDG-3839
+resourceListWindowTaskCountColumn	Task Count	担当タスク数	Assigned Task Count	担当タスク数	JDG-3839
+fixTablesFixTypeColumn	Fix Type	修正のしかた	Fix Type	修正方法	JDG-3839

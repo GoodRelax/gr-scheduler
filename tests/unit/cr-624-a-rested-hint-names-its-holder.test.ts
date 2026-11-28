@@ -98,6 +98,7 @@ describe('EZ-6 / T-023d -- the holder the hint walk found is the one the tooltip
     })
   }
 
+  // Spec: IMPS-1527
   it('GR-23 / TL-1: resting on the bar tells the task lines, the deadline line last', () => {
     const tips = tipsFor(restingOn({ hintHolderUnderPointer: { kind: 'task', taskUid: TASK.uid } }))
     const lines = tips[0]?.text.split('\n') ?? []

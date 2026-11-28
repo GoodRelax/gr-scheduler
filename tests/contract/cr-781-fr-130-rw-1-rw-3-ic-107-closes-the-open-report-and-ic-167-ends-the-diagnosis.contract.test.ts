@@ -140,6 +140,7 @@ describe('CR-781 -- the clauses this file is driven by', () => {
 })
 
 describe(`FR-130 / RW-1 / IC-107 -- ${RW_1_OPEN_PRESS}`, () => {
+  // Spec: IMPS-545
   it('with the window never opened, a press runs the diagnosis, draws the marks and opens the window; IC-107 looks pressed', async () => {
     const stage = await staged()
     await stage.press('IC-107')
@@ -149,6 +150,7 @@ describe(`FR-130 / RW-1 / IC-107 -- ${RW_1_OPEN_PRESS}`, () => {
     expectPressed(stage, true, 'IC-107 while the window is open')
   })
 
+  // Spec: IMPS-551
   it('with the window open, a press closes the window alone: the marks stay and IC-107 is not pressed (RW-1)', async () => {
     const stage = await staged()
     await stage.press('IC-107')
@@ -187,6 +189,7 @@ describe(`FR-130 / RW-1 / IC-107 -- ${RW_1_OPEN_PRESS}`, () => {
     expectPressed(stage, true, 'IC-107 after the press that opened the window')
   })
 
+  // Spec: IMPS-552
   it('the result is the one of the document as it is now: a change made while the window was closed shows in the marks (FR-130)', async () => {
     const stage = await staged()
     await stage.press('IC-107')
@@ -247,6 +250,7 @@ describe(`RW-1 / IC-40 -- ${RW_1_ENDING}`, () => {
     expect(icons.slice(0, 3)).toEqual(['IC-168', 'IC-140', 'IC-108'])
   })
 
+  // Spec: IMPS-554
   it('pressing IC-40 ends the diagnosis: the window is gone, the marks are gone, IC-107 is not pressed', async () => {
     const stage = await staged()
     await stage.press('IC-107')

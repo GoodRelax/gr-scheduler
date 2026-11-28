@@ -323,6 +323,7 @@ def differs(wanted, found):
         abs(a - b) > TOLERANCE for a, b in zip(wanted, found))
 
 
+# Spec: IMPS-1324
 def compare(glyph, elements, glyph_entry, center, k):
     """Figure F-044's shape against figure F-019's glyph, element by element."""
     # @purity pure

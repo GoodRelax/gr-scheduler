@@ -79,6 +79,7 @@ describe('DFC-699 / FR-016, T-253, FR-018 -- the ceiling is found among the task
     expect(tallestBandOf(built)).toBeLessThan(frameOf(built).regions.taskGroupArea.height)
   })
 
+  // Spec: IMPS-1477
   it('the vertical zoom stops where the tallest band first fills the Task Group Lanes, not at a later zoomY', () => {
     const built = deepTaskGroupBench()
     const height = frameOf(built).regions.taskGroupArea.height

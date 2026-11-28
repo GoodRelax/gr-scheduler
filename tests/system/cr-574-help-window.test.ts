@@ -638,6 +638,7 @@ test.describe('CR-574 items 1-2 -- the title row and the body are two regions (F
 })
 
 test.describe('CR-574 item 3 -- what the title row holds, left to right (FR-036, T-335 WB-4)', () => {
+  // Spec: IMPS-1158
   test('item 3: title, legend, IC-128, IC-129, IC-130, IC-52 and nothing else; IC-131 in the place of IC-130 while maximized', async () => {
     test.setTimeout(240_000)
     const stage = await openTheSample(TALL)
@@ -687,6 +688,7 @@ test.describe('CR-574 item 4, CR-622 -- the assignment stands at the right end, 
 })
 
 test.describe('CR-574 items 5-6 -- the help has a language of its own (FR-038, S-434)', () => {
+  // Spec: IMPS-1183, IMPS-1188, IMPS-1190
   test('item 5: the help globe changes the help words only, and shows the code it changed to', async () => {
     test.setTimeout(240_000)
     const stage = await openTheSample(TALL)
@@ -754,6 +756,7 @@ test.describe('CR-574 items 5-6 -- the help has a language of its own (FR-038, S
 })
 
 test.describe('CR-574 items 7-8 -- the minimized help (T-335 WB-2, T-336 HN-1, HN-2, HN-5)', () => {
+  // Spec: HN-7
   test('item 7: minimized, only the title row is left at WB-2; the wheel reaches the schedule; Esc does not close it', async () => {
     test.setTimeout(240_000)
     const stage = await openTheSample(TALL)
@@ -967,6 +970,7 @@ async function readLicenseLines(page: Page) {
 }
 
 test.describe('CR-622 -- where the help opens, and the license line (FR-036, FR-069)', () => {
+  // Spec: IMPS-1167
   test('item 12: opened, the help stands centered in the window below the App Header at S-201 of it, and its body does not scroll sideways', async () => {
     test.setTimeout(240_000)
     const stage = await openTheSample(TALL)

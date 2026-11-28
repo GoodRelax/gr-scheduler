@@ -758,7 +758,7 @@ function dataWallTextOf(text: string, column: keyof Task, context: InputContext)
   return DATE_COLUMNS.Task.includes(column) ? typedDataWallTextOf(text, context) : text
 }
 
-// Spec: TX-3, FR-156, FR-046, IMPS-535
+// Spec: TX-3, FR-156, FR-046, IMPS-535, IMPS-1605
 /** @purity pure */
 function typedDataWallTextOf(text: string, context: InputContext): string {
   const settings = context.document.documentSettings

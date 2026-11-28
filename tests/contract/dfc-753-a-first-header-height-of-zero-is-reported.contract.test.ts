@@ -41,6 +41,7 @@ function viewTitled(documentTitle: string): ScreenView {
 }
 
 describe('DFC-753 / FR-051 -- the App Header height settled from the host is reported even when it is zero', () => {
+  // Spec: IMPS-1759
   it('FR-051: a host that measures the header at zero reports zero once, at startup', () => {
     const built = wire(THEME, { [ROLE.appHeader]: ZERO_HEIGHT_PX })
     expect(built.reportedHeights).toEqual([ZERO_HEIGHT_PX])
@@ -53,6 +54,7 @@ describe('DFC-753 / FR-051 -- the App Header height settled from the host is rep
     expect(built.reportedHeights).toEqual([ZERO_HEIGHT_PX])
   })
 
+  // Spec: IMPS-1777
   it('FR-051: a header that grows from zero reports its new height', () => {
     const built = wire(THEME, { [ROLE.appHeader]: ZERO_HEIGHT_PX })
     // Step: the host now measures the header taller, and the header is redrawn

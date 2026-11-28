@@ -44,6 +44,7 @@ describe('FR-133: ⛔ 予定の開始（`start`）の日が基準日より後で
     expect(drawn(document, diagnose(document)).has(NOT_DUE)).toBe(false)
   })
 
+  // Spec: IMPS-617
   it('a milestone dated after the status day is compared by its start and has no drawn entry', () => {
     const document = dw1Document()
     expect(drawn(document, diagnose(document)).has(NOT_DUE_MILESTONE)).toBe(false)
@@ -56,16 +57,19 @@ describe('FR-133: ⛔ 予定の開始（`start`）の日が基準日より後で
     expect(marks.get(DUE_BEFORE)).toBe('DG-1')
   })
 
+  // Spec: IMPS-618
   it('boundary: a task starting on the status day itself keeps DG-1 (only a later day drops)', () => {
     const document = dw1Document()
     expect(drawn(document, diagnose(document)).get(DUE_ON_STATUS_DAY)).toBe('DG-1')
   })
 
+  // Spec: IMPS-619
   it('a task started early (actualStart set) keeps DG-1 although its start is after the status day', () => {
     const document = dw1Document()
     expect(drawn(document, diagnose(document)).get(STARTED_EARLY)).toBe('DG-1')
   })
 
+  // Spec: IMPS-616
   it('a not-due DG-1 parent of a bottleneck falls to the next remaining state, DG-3; the started child keeps DG-2', () => {
     const document = parentDocument(true)
     const marks = drawn(document, diagnose(document))
@@ -93,6 +97,7 @@ describe('FR-133: ⛔ 外すのは日程表の印だけとし、診断の結果�
     expect(report.unreliableCount).toBeGreaterThanOrEqual(6)
   })
 
+  // Spec: IMPS-621
   it('DX-8 and DT-1: the not-due tasks stay DG-1 in the marker states and the report table', () => {
     const document = dw1Document()
     const report = diagnose(document)
@@ -107,6 +112,7 @@ describe('FR-133: ⛔ 外すのは日程表の印だけとし、診断の結果�
     expect(statusOf(document, diagnose(document), NOT_DUE_PARENT)).toBe('DG-1')
   })
 
+  // Spec: IMPS-620
   it('reading the drawn marks leaves the report as it was', () => {
     const document = dw1Document()
     const report = diagnose(document)

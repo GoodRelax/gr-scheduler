@@ -2526,6 +2526,7 @@ describe("FR-029 (MUST) -- S-141's least gap between a shape and its entrance's 
     expect(framed().length).toBeGreaterThan(0)
   })
 
+  // Spec: IMPS-1103
   it('\u2b50 keeps at least S-141 between the shape and the frame, on both axes', () => {
     // Why: sideways the entrance's padding is the gap; downwards its room must hold
     // the S-138 shape with S-141 on each side.
@@ -2549,6 +2550,7 @@ describe("FR-029 (MUST) -- S-141's least gap between a shape and its entrance's 
     }
   })
 
+  // Spec: IMPS-1106
   it("\u26d4 states that room in px alone, so the gap cannot follow the reader's text size (FR-029 MUST NOT)", () => {
     // Why: pxExpression() answers null for every relative unit, so a gap written in
     // em fails here whatever number it holds.
@@ -2585,6 +2587,7 @@ describe('FR-029 (MUST) -- the box a shape is drawn in is S-138, on whatever sur
     return built
   }
 
+  // Spec: IMPS-1102
   it.each(T_109_ONE_PER_SURFACE)(
     '⭐ GIVEN $row is drawn on the $surface WHEN the box its shape is drawn in is read THEN both sides are S-138 (FR-029 MUST, 表 T-206 S-138) -- $row',
     ({ row, surface }) => {
@@ -2635,6 +2638,7 @@ describe('FR-029 (MUST) -- the box a shape is drawn in is S-138, on whatever sur
     }
   })
 
+  // Spec: IMPS-793
   it('⭐ GIVEN two task groups at different depths WHEN their controls are read THEN the box is the same on both, and neither is set down (表 T-051 HF-5 MUST: タスクグループ名の文字サイズにかかわらず、操作子を同じ大きさで描くこと)', () => {
     // Why: TaskGroupTitle carries no text size; only the depth reaches this side of
     // IF-9, so a box that moved with depth would break HF-5 here.

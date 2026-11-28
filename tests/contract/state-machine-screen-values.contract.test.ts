@@ -582,6 +582,7 @@ describe('DFC-3458 guard isLeavingHolidaySettings: the U-65 surface closed or re
     ['surfaceCloseAsked(target=panel)', [], { type: 'surfaceCloseAsked', target: 'panel' }, false],
   ]
 
+  // Spec: IMPS-727
   it.each(cases)('open(U-65) & calendarDraftStateMachine.drafted: %s', (_, more, event, leaves) => {
     const session = holidayOpen(...more)
     expectStepMatchesManuscript(session, event)

@@ -126,6 +126,7 @@ describe('SK-25 / FR-095 / T-342 / QN-5 -- the manuscript still says it', () => 
 })
 
 describe('FR-095 (MUST) / SK-25 -- N asks first while an edit is unsaved', () => {
+  // Spec: IMPS-1054
   it('SK-25 / FR-095: N with nothing unsaved starts anew without asking (retired: it used to raise QN-5)', async () => {
     const built = await shellStage()
     expect(built.loop.hasUnsavedEdits(), 'precondition: the bench starts with unsaved edits').toBe(false)
@@ -134,6 +135,7 @@ describe('FR-095 (MUST) / SK-25 -- N asks first while an edit is unsaved', () =>
     expect(documentOf(built)['schedule']['tasks'], 'FR-095: N did not start anew').toEqual([])
   })
 
+  // Spec: IMPS-1053
   it('SK-25 / FR-095: N with an unsaved edit raises QN-5', async () => {
     const built = await shellStage()
     await mergeSomething(built)
@@ -272,6 +274,7 @@ describe('T-342 -- the empty document, after N and proceed', () => {
 })
 
 describe('FR-095 (MUST) -- no save target after starting anew', () => {
+  // Spec: IMPS-1055
   it('FR-095: after a replace-open then N, SK-11 asks for a file and never writes the file opened', async () => {
     const built = await shellStage()
     await replaceWith(built, built.file('theirs.json', jsonBytes(there())))

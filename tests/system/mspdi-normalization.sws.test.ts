@@ -680,6 +680,7 @@ test(
   },
 )
 
+// Spec: IMPS-879
 test(
   swsCase({
     sws: 'SWS-6',

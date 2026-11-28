@@ -118,7 +118,7 @@ const SETTINGS_WORDS_BY_KEY = new Map(
 
 const NO_ENTRY_WORDS = ''
 
-// Spec: IMPS-12, IMPS-15, IMPS-16, PR-1
+// Spec: IMPS-12, IMPS-15, IMPS-16, PR-1, IMPS-1184
 // Why: a milestone's name row reads the row's own milestone word, any other row its label.
 /** @purity pure */
 function itemName(row: string, language: DisplayLanguage, isMilestone = false): string {
@@ -265,6 +265,7 @@ function heldByOf(row: string, appliesTo: AppliesTo): PropertyItem['heldBy'] {
 }
 
 // Trap: keep the roster's order, which is FR-006's printed order; never sort by row id.
+// Spec: IMPS-11, IMPS-20, IMPS-26, IMPS-6, IMPS-7, IMPS-9
 const PROPERTY_ITEMS: readonly PropertyItem[] = propertyItems.items.map((item) => {
   const appliesTo = item.appliesTo as AppliesTo
   return {
@@ -740,7 +741,7 @@ function textOfItem(
   }
 }
 
-// Spec: IMPS-1, IMPS-14
+// Spec: IMPS-1, IMPS-14, IMPS-2
 /** @purity pure */
 function taskFields(
   schedule: Schedule,
@@ -983,7 +984,7 @@ function subjectOf(selection: Selection): ItemRef | null {
   return lastPicked(selection)
 }
 
-// Spec: IMPS-19
+// Spec: IMPS-19, IMPS-10
 /** @purity pure */
 function fieldsOfItem(
   schedule: Schedule,
@@ -1058,7 +1059,7 @@ interface ObjectRows<Held> {
   readonly rowOf?: (item: ItemRows) => string
 }
 
-// Spec: T-016, MK-13, FR-019, IMPS-1, IMPS-14
+// Spec: T-016, MK-13, FR-019, IMPS-1, IMPS-14, IMPS-8
 /** @purity pure */
 function objectFields<Held>(
   rows: ObjectRows<Held>,
@@ -1227,7 +1228,7 @@ const THEME_HUE_KEY = { holder: 'project', column: 'themeHue' } as const
 
 const THEME_HUE_SWATCH_ROW = 'S-151'
 
-// Spec: IMPS-155, IMPS-158, IMPS-159, IMPS-161, IMPS-164, FO-2
+// Spec: IMPS-155, IMPS-158, IMPS-159, IMPS-161, IMPS-164, FO-2, IMPS-170
 // Why: the swatches gray with the rest under monochrome (JDG-1244 6): the author picks by the gray each hue becomes.
 /** @purity pure */
 function themeHueField(hue: number, dark: boolean, monochrome: boolean, language: DisplayLanguage): PropertyField {

@@ -266,7 +266,7 @@ const HANDLERS: {
   copyTaken: onCopyTaken,
 }
 
-// Spec: SF-2, SF-8, T-293
+// Spec: SF-2, SF-8, T-293, UN-9
 /** @purity pure */
 export function stepSelectionValues(values: SelectionValues, event: SelectionValuesEvent): SelectionStep {
   const handler = HANDLERS[event.type] as (values: SelectionValues, event: SelectionValuesEvent) => SelectionStep

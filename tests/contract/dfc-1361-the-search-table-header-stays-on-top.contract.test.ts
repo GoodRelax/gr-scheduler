@@ -31,7 +31,7 @@ function rowOf(table: string, id: string): SpecRow {
 const cellOf = (table: string, id: string, heading: string): string => unbroken(rowOf(table, id).by[heading] ?? '')
 
 const SV_6_HEADING = '`GRS` は、見出し行を縦に固定すること。'
-const SV_6_FIXED = '`GRS` は、横には、タスクの表では `SQ-1` まで（表 T-331 の並びで 表示・ステータス・進捗・タスク種別・タスク の 5 列）、コメントボックスの表では `SQ-7` までを左に固定すること（表 T-257 の `RR-4` と同じ形）。'
+const SV_6_FIXED = '`GRS` は、横には、タスクの表では `SQ-1` まで（表 T-331 の並びで 表示・進捗ステータス・完了率・タスク種別・タスク の 5 列）、コメントボックスの表では `SQ-7` までを左に固定すること（表 T-257 の `RR-4` と同じ形）。'
 const SV_6_UNDER = '`GRS` は、残りの列を、左に固定した列の下で横に送ること。'
 const RR_4_UNDER = '⭐ ほかの欄はその下を通って送られる'
 const S_146_ROLE = '地'

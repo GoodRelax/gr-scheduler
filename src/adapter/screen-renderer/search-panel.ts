@@ -336,7 +336,7 @@ function taskUidSetOf(schedule: Schedule): ReadonlySet<number> {
   return new Set(schedule.tasks.map((task) => task.uid))
 }
 
-// Spec: FR-151, T-330, S-442, SQ-5, S-560, TX-4, IMPS-1857, IMPS-1868, IMPS-1869
+// Spec: FR-151, T-330, S-442, SQ-5, S-560, TX-4, IMPS-1857, IMPS-1868, IMPS-1869, IMPS-1861
 // Why: view is the search table's view the document holds (tableViewOf), the panel the screen-only values.
 /** @purity pure */
 export function searchPanelFromSession(

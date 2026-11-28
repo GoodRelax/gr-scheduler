@@ -171,6 +171,7 @@ describe(`FO-14 -- ${FR_156_FIELD}`, () => {
     expect(settingWord('K-144', 'en')).toBe('Project Base Time Zone')
   })
 
+  // Spec: IMPS-737
   it('no daylight row is offered as the base', async () => {
     const chooser = chooserOf(fieldOf(await shiftStage(benchOf(TASKS)), BASE_ROW))
     for (const row of T_376_ROWS.filter((one) => one.isDaylight)) expect(chooser.choiceValues, row.key).not.toContain(row.key)
@@ -267,6 +268,7 @@ describe(`FO-14 -- ${FR_156_ONLY_ON_ANSWER} / ${FR_156_ONE_UNDO}`, () => {
     expect(zonesOf(built)).toEqual(['UTC-08:00', null])
   })
 
+  // Spec: IMPS-744
   it(`Convert and Apply: S-574 becomes the chosen zone, no question is asked, the field shows it, one undo takes it back -- ${FR_156_SHOWN_AFTER}`, async () => {
     const built = await chosen(benchOf(TASKS), 'UTC+09:00')
     await built.commitField(BASE_ROW, APPLY, '')

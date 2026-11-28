@@ -415,7 +415,7 @@ function placedSegment(segment: PathSegment, center: Point, half: number): PathS
   }
 }
 
-// Spec: LF-10, LF-18, DM-4, IMPS-1323, IMPS-1881
+// Spec: LF-10, LF-18, DM-4, IMPS-1323, IMPS-1881, FR-079
 /** @purity pure */
 function milestoneBarOf(center: Point, side: number, glyph: MilestoneGlyph,
                         starInnerOfOuter: number): BarGeometry {
@@ -439,7 +439,7 @@ function lineEndHalfHeight(kind: 'arrow' | 'endpointSpan', settings: DrawnSettin
   return (kind === 'arrow' ? settings.thinArrowHeadHeight : settings.spanDotSize) / 2
 }
 
-// Spec: LF-7, LF-8, XS-5, IMPS-1688, IMPS-1699
+// Spec: LF-7, LF-8, XS-5, IMPS-1688, IMPS-1699, IMPS-1698
 /** @purity pure */
 function lineBar(kind: ShapeKind, x0: number, x1: number, middle: number,
                  settings: DrawnSettings): BarGeometry {
@@ -498,7 +498,7 @@ export function thinTierMiddle(placed: TaskPlacement, settings: DrawnSettings,
   return isActual ? planMiddle + stroke + settings.actualGap : planMiddle
 }
 
-// Spec: IMPS-1879, DM-8
+// Spec: IMPS-1879, DM-8, FR-160
 /** @purity pure */
 function barOf(inputs: GeometryInputs, placed: TaskPlacement, x0: number, x1: number,
                top: number, height: number, isActual: boolean): BarGeometry {
@@ -543,7 +543,7 @@ export function baselineBarOf(placed: TaskPlacement, x0: number, x1: number, top
   return { form: 'outline', points: fadedOutline(x0, x1, top, height, 0, 0) }
 }
 
-// Spec: IMPS-604, IMPS-624
+// Spec: IMPS-604, IMPS-624, IMPS-609
 /** @purity pure */
 function diagnosedSymbolOf(inputs: GeometryInputs, taskUid: number): 'DG-1' | 'DG-2' | 'DG-3' | undefined {
   const diagnostics = inputs.delayDiagnostics
@@ -779,7 +779,7 @@ function outsideLabelBoxOf(inputs: GeometryInputs, placed: TaskPlacement): Scree
   }
 }
 
-// Spec: LF-9, SWS-4, NG-1, NG-2, NG-5, NG-9, IMPS-398, IMPS-1661, IMPS-1674, IMPS-1709, IMPS-1728, IMPS-1731, IMPS-1738, XS-1, XS-2, XS-9, IMPS-1620, IMPS-456, IMPS-866
+// Spec: LF-9, SWS-4, NG-1, NG-2, NG-5, NG-9, IMPS-398, IMPS-1661, IMPS-1674, IMPS-1709, IMPS-1728, IMPS-1731, IMPS-1738, XS-1, XS-2, XS-9, IMPS-1620, IMPS-456, IMPS-866, IMPS-1888
 /** @purity pure */
 export function taskGeometryOf(inputs: GeometryInputs, task: Task, placed: TaskPlacement): TaskGeometry {
   const settings = inputs.settings

@@ -100,6 +100,7 @@ describe('HS-1 / HS-2 / HS-3 / HS-4 -- after one save', () => {
     expect(all.indexOf(oneByRole(built.domRoot(), NAME))).toBeLessThan(all.indexOf(oneByRole(built.domRoot(), SAVED_AT)))
   })
 
+  // Spec: IMPS-997
   it('HS-1: the lower line is the time, two spaces, then the size', async () => {
     const { built } = await savedOnce()
     expect(lowerText(built), 'HS-1 / HS-2 / HS-3: the lower line is not `yyyy/mm/dd hh:mm:ss  n.n[kB]`').toMatch(
@@ -130,6 +131,7 @@ describe('HS-1 / HS-2 / HS-3 / HS-4 -- after one save', () => {
 })
 
 describe('HS-5 -- nothing written yet', () => {
+  // Spec: IMPS-991
   it('HS-5: the lower line holds the never-saved words alone and no size', async () => {
     const built = await shellStage({ dom: true })
     await built.repaint()
@@ -182,6 +184,7 @@ describe('HS-6 -- after a replace-open, before any write to that file', () => {
 })
 
 describe('HS-7 -- the size of the two lines', () => {
+  // Spec: IMPS-1776
   it('HS-7: the upper line is the host ground times S-235 times S-449', async () => {
     const { built } = await savedOnce()
     const factor = factorUpTo(oneByRole(built.domRoot(), NAME), built.dom?.mount as FakeElement)

@@ -66,6 +66,7 @@ describe('CM-92 -- setTableView puts one table\'s whole view into the document',
 })
 
 describe('UN-20 / FR-151 -- a change of a view is an unsaved edit and one undo step', () => {
+  // Spec: IMPS-1865
   it('checking rows is one step; undo brings the none-checked view back; redo checks them again', () => {
     const base = fresh()
     const checked = written(base, [setTableView('searchPanel', CHECK_TWO)])

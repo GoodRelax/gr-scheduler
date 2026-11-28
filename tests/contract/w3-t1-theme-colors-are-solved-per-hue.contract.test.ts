@@ -137,6 +137,7 @@ describe('W3-T1 -- the clauses these cases are driven by', () => {
 
 describe(`CF-6 "${CF_6.slice(-60)}"`, () => {
   for (const dark of [false, true]) {
+    // Spec: IMPS-129
     it(`${dark ? 'dark' : 'light'}: every hue draws S-155 / S-156 / S-157 / S-151 at the k an 8-bit WCAG measure picks`, () => {
       const wrong: string[] = []
       for (const hue of HUES) {
@@ -155,6 +156,7 @@ describe(`CF-6 "${CF_6.slice(-60)}"`, () => {
 })
 
 describe(`CF-1 "${CF_1.slice(-60)}"`, () => {
+  // Spec: IMPS-130, IMPS-1267
   it('CF-2 runs before CF-3 picks k: the drawn S-157 / S-155 ratio is the one measured AFTER the shift', () => {
     for (const dark of [false, true]) {
       for (const hue of HUES) {

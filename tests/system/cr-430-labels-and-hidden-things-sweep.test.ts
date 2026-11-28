@@ -322,6 +322,7 @@ test('the sweep covers 256 turns of the seven axes CR-430 names', () => {
   )
 })
 
+// Spec: IMPS-1679
 test('FR-109: the name, the assignee and percent, the marker and the resume icon never overlap', () => {
   const broken: string[] = []
   const counted = scenes().map((scene) => labelBoxesOf(scene).length)
@@ -342,6 +343,7 @@ test('FR-109: the name, the assignee and percent, the marker and the resume icon
   expect(broken, 'FR-109 (MUST): 名称・担当・進捗・進捗ステータスマーク・再開マークを互いに重ねず').toEqual([])
 })
 
+// Spec: NG-1, NG-2, NG-4, NG-5, NG-9, IMPS-1661, IMPS-1492, IMPS-1612
 test('FR-108: nothing the frame did not draw answers the pointer', () => {
   const broken: string[] = []
   for (const scene of scenes()) {
@@ -391,7 +393,7 @@ test('control: a turn that hides everything leaves no grab area allowed', () => 
   ).toBeGreaterThan(0)
 })
 
-// Spec: FR-018, S-49, S-54
+// Spec: FR-018, S-49, S-54, IMPS-770
 test('FR-018: no turn leaves its Task undrawn, at either end of the zoom', () => {
   const low = scenes().filter((scene) => scene.turn.zoomX === ZOOM_ENDS[0] && scene.turn.shape === 'rectangle')
   const floor = (drawingDefault('S-49') * sizePx('S-236') * Number(SETTINGS_DEFAULTS['displayScale'])) / 100

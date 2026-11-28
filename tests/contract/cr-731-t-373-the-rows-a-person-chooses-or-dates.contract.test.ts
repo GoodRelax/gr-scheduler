@@ -71,6 +71,7 @@ describe('item 5 -- FA-24: a successor started on 05/28 while the predecessor ha
     expect(machineRows(rows)).not.toContain(row)
   })
 
+  // Spec: IMPS-664
   it('FA-22: a task past its start with no actual start suggests its start as the day', () => {
     const row = oneRow(proposed(NOT_STARTED_AFTER_START()), 'VO-1', 1)
     expect(row.fixRow).toBe('FA-22')

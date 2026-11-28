@@ -186,6 +186,7 @@ describe('table T-332 and RS-66 -- the clauses these cases are driven by', () =>
 })
 
 describe(`T-332 SJ-2 -- ${SJ_2_OPENS}`, () => {
+  // Spec: IMPS-1855, IMPS-1859
   it('opens the task\'s task group and its ancestor, a hidden one without asking, and level 0 when it is folded', () => {
     const plan = searchJumpWrites(
       documentOf({ treeStates: { [R1]: 'collapsed', [R11]: 'hidden', [R2]: 'collapsed' }, levelZero: 'collapsed' }),

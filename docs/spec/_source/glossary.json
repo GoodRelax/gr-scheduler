@@ -2,7 +2,7 @@
  "$schema": "../../development-rules/manuscript-schemas/glossary.schema.json",
  "$comment": [
   "SINGLE SOURCE OF TRUTH -- EDIT THIS FILE.",
-  "The names dictionary (CR-857; JDG-3411, JDG-3419): every name GRS uses, one entry of terms[] per term. English is the primary text and Japanese its translation (JDG-3422, JDG-3825). Order is array position only (JDG-3423): a definition uses only names defined earlier, and a child term follows its parent.",
+  "The names dictionary (CR-857; JDG-3411, JDG-3419): every name GRS uses, one entry of terms[] per term. English is the primary text and Japanese its translation (JDG-3422, JDG-3825). Order is array position only (JDG-3423): a definition uses only names defined earlier, and a child term follows its parent. Within a group, a term follows the screen's order where the screen has one (the print order of the Properties Panel, the column order of each table, the row order of the manuscript that holds an icon, a notice, a question or a setting), else the row order of the specification table that holds it; the GRS JSON groups run from the leaves to the root. A generated table and a table shown to the owner print this order and never sort by name (JDG-4110).",
   "checkedBasis lists the rulings that record a person's check of the term (NDD review standard, Glossary). A term without checkedBasis waits for the owner's check (study 82, stage B3). A key the project adds starts with x, as the standard asks.",
   "Validated by docs/development-rules/manuscript-schemas/glossary.schema.json and by docs/spec/_source/glossary_json_to_md.py, which also prints the review tables. Check: npm run glossary:check."
  ],
@@ -15676,11 +15676,6 @@
     "en": "The Armed Shape: what the next drag will create or link, chosen on the palette. It is not a selection.",
     "ja": "構え: パレットで選んでいて、次に引いたら作られる、または結ばれるもの。選択ではない。"
    },
-   "avoid": {
-    "ja": [
-     "選択"
-    ]
-   },
    "xGroup": "otherUiParts",
    "xSpecTableRowId": "U-38",
    "xNonLiteral": {
@@ -18628,7 +18623,7 @@
    },
    "definition": {
     "en": "Check every automatic row and every row with one choice",
-    "ja": "修正のしかたが機械の行と、択が 1 つの選ぶの行に、まとめてチェックを入れる"
+    "ja": "修正方法が機械の行と、択が 1 つの選ぶの行に、まとめてチェックを入れる"
    },
    "xGroup": "icons",
    "xSpecTableRowId": "IC-166",
@@ -19640,18 +19635,33 @@
   {
    "key": "taskResumeField",
    "label": {
-    "en": "Resume",
+    "en": "Resume Date",
     "ja": "再開予定日"
    },
    "definition": {
-    "en": "The Properties Panel field that shows and edits the resume of the selected task.",
+    "en": "The Properties Panel field that shows and edits the resume date of the selected task.",
     "ja": "選んだタスクの再開予定日を表示し編集する、プロパティパネルの欄。"
    },
+   "renames": [
+    {
+     "from": "Resume",
+     "version": "BGQA9",
+     "reason": {
+      "en": "The owner settled the name (BGQA9 question 14-1).",
+      "ja": "持ち主が名を決めた（BGQA9 の問 14-1）。"
+     },
+     "basis": [
+      "JDG-3838"
+     ],
+     "xLanguage": "en"
+    }
+   ],
    "xGroup": "propertiesPanelFields",
    "xIdentifier": "resumeField",
    "xOwner": "Task",
    "checkedBasis": [
-    "JDG-1651"
+    "JDG-1651",
+    "JDG-3838"
    ],
    "xSpecTableRowId": "PR-7",
    "xUses": [
@@ -19737,18 +19747,45 @@
   {
    "key": "taskFadeInOutDaysField",
    "label": {
-    "en": "Fade In/Out Days",
-    "ja": "フェード日数 前/後"
+    "en": "Start/Finish Slope (Days)",
+    "ja": "開始/終了の傾き（日）"
    },
    "definition": {
-    "en": "The Properties Panel field that shows and edits the fade in/out days of the selected task.",
-    "ja": "選んだタスクのフェード日数 前/後を表示し編集する、プロパティパネルの欄。"
+    "en": "The Properties Panel field that shows and edits the start slope and the finish slope (in days) of the selected task.",
+    "ja": "選んだタスクの開始と終了の傾き（日）を表示し編集する、プロパティパネルの欄。"
    },
+   "renames": [
+    {
+     "from": "Fade In/Out Days",
+     "version": "BGQA9",
+     "reason": {
+      "en": "The owner settled the name (BGQA9 question 14-1).",
+      "ja": "持ち主が名を決めた（BGQA9 の問 14-1）。"
+     },
+     "basis": [
+      "JDG-3838"
+     ],
+     "xLanguage": "en"
+    },
+    {
+     "from": "フェード日数 前/後",
+     "version": "BGQA9",
+     "reason": {
+      "en": "The owner settled the name (BGQA9 question 14-1).",
+      "ja": "持ち主が名を決めた（BGQA9 の問 14-1）。"
+     },
+     "basis": [
+      "JDG-3838"
+     ],
+     "xLanguage": "ja"
+    }
+   ],
    "xGroup": "propertiesPanelFields",
    "xIdentifier": "fadeInOutDaysField",
    "xOwner": "Task",
    "checkedBasis": [
-    "JDG-1651"
+    "JDG-1651",
+    "JDG-3838"
    ],
    "xSpecTableRowId": "PR-14",
    "xUses": [
@@ -19859,19 +19896,46 @@
   {
    "key": "taskOutlineWidthField",
    "label": {
-    "en": "Outline Width",
-    "ja": "枠線幅"
+    "en": "Stroke Width",
+    "ja": "線の太さ"
    },
    "definition": {
-    "en": "The Properties Panel field that shows and edits the outline width of the selected task.",
-    "ja": "選んだタスクの枠線幅を表示し編集する、プロパティパネルの欄。"
+    "en": "The Properties Panel field that shows and edits the stroke width of the selected task.",
+    "ja": "選んだタスクの線の太さを表示し編集する、プロパティパネルの欄。"
    },
+   "renames": [
+    {
+     "from": "Outline Width",
+     "version": "BGQA9",
+     "reason": {
+      "en": "The owner settled the name (BGQA9 question 14-1).",
+      "ja": "持ち主が名を決めた（BGQA9 の問 14-1）。"
+     },
+     "basis": [
+      "JDG-3838"
+     ],
+     "xLanguage": "en"
+    },
+    {
+     "from": "枠線幅",
+     "version": "BGQA9",
+     "reason": {
+      "en": "The owner settled the name (BGQA9 question 14-1).",
+      "ja": "持ち主が名を決めた（BGQA9 の問 14-1）。"
+     },
+     "basis": [
+      "JDG-3838"
+     ],
+     "xLanguage": "ja"
+    }
+   ],
    "xGroup": "propertiesPanelFields",
    "xIdentifier": "outlineWidthField",
    "xOwner": "Task",
    "checkedBasis": [
     "JDG-1566",
-    "JDG-1651"
+    "JDG-1651",
+    "JDG-3838"
    ],
    "xSpecTableRowId": "PR-40",
    "xUses": [
@@ -19885,19 +19949,46 @@
   {
    "key": "taskOutlineColorField",
    "label": {
-    "en": "Outline Color",
-    "ja": "枠線色"
+    "en": "Stroke Color",
+    "ja": "線の色"
    },
    "definition": {
-    "en": "The Properties Panel field that shows and edits the outline color of the selected task.",
-    "ja": "選んだタスクの枠線色を表示し編集する、プロパティパネルの欄。"
+    "en": "The Properties Panel field that shows and edits the stroke color of the selected task.",
+    "ja": "選んだタスクの線の色を表示し編集する、プロパティパネルの欄。"
    },
+   "renames": [
+    {
+     "from": "Outline Color",
+     "version": "BGQA9",
+     "reason": {
+      "en": "The owner settled the name (BGQA9 question 14-1).",
+      "ja": "持ち主が名を決めた（BGQA9 の問 14-1）。"
+     },
+     "basis": [
+      "JDG-3838"
+     ],
+     "xLanguage": "en"
+    },
+    {
+     "from": "枠線色",
+     "version": "BGQA9",
+     "reason": {
+      "en": "The owner settled the name (BGQA9 question 14-1).",
+      "ja": "持ち主が名を決めた（BGQA9 の問 14-1）。"
+     },
+     "basis": [
+      "JDG-3838"
+     ],
+     "xLanguage": "ja"
+    }
+   ],
    "xGroup": "propertiesPanelFields",
    "xIdentifier": "outlineColorField",
    "xOwner": "Task",
    "checkedBasis": [
     "JDG-1566",
-    "JDG-1651"
+    "JDG-1651",
+    "JDG-3838"
    ],
    "xSpecTableRowId": "PR-39",
    "xUses": [
@@ -19988,19 +20079,46 @@
   {
    "key": "taskGroupEditPermissionField",
    "label": {
-    "en": "Edit Permission",
-    "ja": "編集権限"
+    "en": "Allowed Editor Group",
+    "ja": "編集できるグループ"
    },
    "definition": {
-    "en": "The Properties Panel field that shows and edits the edit permission of the selected task group.",
-    "ja": "選んだタスクグループの編集権限を表示し編集する、プロパティパネルの欄。"
+    "en": "The Properties Panel field that shows and edits the allowed editor group of the selected task group: the group that may edit it.",
+    "ja": "選んだタスクグループを編集できるグループを表示し編集する、プロパティパネルの欄。"
    },
+   "renames": [
+    {
+     "from": "Edit Permission",
+     "version": "BGQA9",
+     "reason": {
+      "en": "The owner settled the name (BGQA9 question 14-1).",
+      "ja": "持ち主が名を決めた（BGQA9 の問 14-1）。"
+     },
+     "basis": [
+      "JDG-3838"
+     ],
+     "xLanguage": "en"
+    },
+    {
+     "from": "編集権限",
+     "version": "BGQA9",
+     "reason": {
+      "en": "The owner settled the name (BGQA9 question 14-1).",
+      "ja": "持ち主が名を決めた（BGQA9 の問 14-1）。"
+     },
+     "basis": [
+      "JDG-3838"
+     ],
+     "xLanguage": "ja"
+    }
+   ],
    "xGroup": "propertiesPanelFields",
    "xIdentifier": "editPermissionField",
    "xOwner": "TaskGroup",
    "checkedBasis": [
     "JDG-508",
-    "JDG-2643"
+    "JDG-2643",
+    "JDG-3838"
    ],
    "xSpecTableRowId": "PR-33",
    "xUses": [
@@ -20111,18 +20229,45 @@
   {
    "key": "commentBoxOutlineWidthField",
    "label": {
-    "en": "Outline Width",
-    "ja": "枠線幅"
+    "en": "Stroke Width",
+    "ja": "線の太さ"
    },
    "definition": {
-    "en": "The Properties Panel field that shows and edits the outline width of the selected Comment Box.",
-    "ja": "選んだコメントボックスの枠線幅を表示し編集する、プロパティパネルの欄。"
+    "en": "The Properties Panel field that shows and edits the stroke width of the selected Comment Box.",
+    "ja": "選んだコメントボックスの線の太さを表示し編集する、プロパティパネルの欄。"
    },
+   "renames": [
+    {
+     "from": "Outline Width",
+     "version": "BGQA9",
+     "reason": {
+      "en": "The owner settled the name (BGQA9 question 14-1).",
+      "ja": "持ち主が名を決めた（BGQA9 の問 14-1）。"
+     },
+     "basis": [
+      "JDG-3838"
+     ],
+     "xLanguage": "en"
+    },
+    {
+     "from": "枠線幅",
+     "version": "BGQA9",
+     "reason": {
+      "en": "The owner settled the name (BGQA9 question 14-1).",
+      "ja": "持ち主が名を決めた（BGQA9 の問 14-1）。"
+     },
+     "basis": [
+      "JDG-3838"
+     ],
+     "xLanguage": "ja"
+    }
+   ],
    "xGroup": "propertiesPanelFields",
    "xIdentifier": "outlineWidthField",
    "xOwner": "CommentBox",
    "checkedBasis": [
-    "JDG-1566"
+    "JDG-1566",
+    "JDG-3838"
    ],
    "xSpecTableRowId": "PR-26",
    "xUses": [
@@ -20136,18 +20281,45 @@
   {
    "key": "commentBoxOutlineColorField",
    "label": {
-    "en": "Outline Color",
-    "ja": "枠線色"
+    "en": "Stroke Color",
+    "ja": "線の色"
    },
    "definition": {
-    "en": "The Properties Panel field that shows and edits the outline color of the selected Comment Box.",
-    "ja": "選んだコメントボックスの枠線色を表示し編集する、プロパティパネルの欄。"
+    "en": "The Properties Panel field that shows and edits the stroke color of the selected Comment Box.",
+    "ja": "選んだコメントボックスの線の色を表示し編集する、プロパティパネルの欄。"
    },
+   "renames": [
+    {
+     "from": "Outline Color",
+     "version": "BGQA9",
+     "reason": {
+      "en": "The owner settled the name (BGQA9 question 14-1).",
+      "ja": "持ち主が名を決めた（BGQA9 の問 14-1）。"
+     },
+     "basis": [
+      "JDG-3838"
+     ],
+     "xLanguage": "en"
+    },
+    {
+     "from": "枠線色",
+     "version": "BGQA9",
+     "reason": {
+      "en": "The owner settled the name (BGQA9 question 14-1).",
+      "ja": "持ち主が名を決めた（BGQA9 の問 14-1）。"
+     },
+     "basis": [
+      "JDG-3838"
+     ],
+     "xLanguage": "ja"
+    }
+   ],
    "xGroup": "propertiesPanelFields",
    "xIdentifier": "outlineColorField",
    "xOwner": "CommentBox",
    "checkedBasis": [
-    "JDG-1566"
+    "JDG-1566",
+    "JDG-3838"
    ],
    "xSpecTableRowId": "PR-28",
    "xUses": [
@@ -20190,8 +20362,8 @@
     "ja": "塗りの不透明度（%）"
    },
    "definition": {
-    "en": "The Properties Panel field that shows and edits the fill transparency of the selected Comment Box.",
-    "ja": "選んだコメントボックスの塗りの透過率（%）を表示し編集する、プロパティパネルの欄。"
+    "en": "The Properties Panel field that shows and edits the fill opacity (%) of the selected Comment Box: 100 is opaque, 0 lets everything behind show through.",
+    "ja": "選んだコメントボックスの塗りの不透明度（%）を表示し編集する、プロパティパネルの欄。100 は透けず、0 は後ろがすべて透ける。"
    },
    "xGroup": "propertiesPanelFields",
    "xIdentifier": "fillTransparencyPercentField",
@@ -20234,24 +20406,40 @@
    ],
    "checkedBasis": [
     "JDG-3526",
-    "JDG-3901"
+    "JDG-3901",
+    "JDG-3838"
    ]
   },
   {
    "key": "commentBoxTextColorField",
    "label": {
-    "en": "Text Color",
+    "en": "Font Color",
     "ja": "文字色"
    },
    "definition": {
-    "en": "The Properties Panel field that shows and edits the text color of the selected Comment Box.",
+    "en": "The Properties Panel field that shows and edits the font color of the selected Comment Box.",
     "ja": "選んだコメントボックスの文字色を表示し編集する、プロパティパネルの欄。"
    },
+   "renames": [
+    {
+     "from": "Text Color",
+     "version": "BGQA9",
+     "reason": {
+      "en": "The owner settled the name (BGQA9 question 14-1).",
+      "ja": "持ち主が名を決めた（BGQA9 の問 14-1）。"
+     },
+     "basis": [
+      "JDG-3838"
+     ],
+     "xLanguage": "en"
+    }
+   ],
    "xGroup": "propertiesPanelFields",
    "xIdentifier": "textColorField",
    "xOwner": "CommentBox",
    "checkedBasis": [
-    "JDG-1566"
+    "JDG-1566",
+    "JDG-3838"
    ],
    "xSpecTableRowId": "PR-46",
    "xUses": [
@@ -20287,18 +20475,45 @@
   {
    "key": "highlightBoxOutlineWidthField",
    "label": {
-    "en": "Outline Width",
-    "ja": "枠線幅"
+    "en": "Stroke Width",
+    "ja": "線の太さ"
    },
    "definition": {
-    "en": "The Properties Panel field that shows and edits the outline width of the selected Highlight Box.",
-    "ja": "選んだハイライトボックスの枠線幅を表示し編集する、プロパティパネルの欄。"
+    "en": "The Properties Panel field that shows and edits the stroke width of the selected Highlight Box.",
+    "ja": "選んだハイライトボックスの線の太さを表示し編集する、プロパティパネルの欄。"
    },
+   "renames": [
+    {
+     "from": "Outline Width",
+     "version": "BGQA9",
+     "reason": {
+      "en": "The owner settled the name (BGQA9 question 14-1).",
+      "ja": "持ち主が名を決めた（BGQA9 の問 14-1）。"
+     },
+     "basis": [
+      "JDG-3838"
+     ],
+     "xLanguage": "en"
+    },
+    {
+     "from": "枠線幅",
+     "version": "BGQA9",
+     "reason": {
+      "en": "The owner settled the name (BGQA9 question 14-1).",
+      "ja": "持ち主が名を決めた（BGQA9 の問 14-1）。"
+     },
+     "basis": [
+      "JDG-3838"
+     ],
+     "xLanguage": "ja"
+    }
+   ],
    "xGroup": "propertiesPanelFields",
    "xIdentifier": "outlineWidthField",
    "xOwner": "HighlightBox",
    "checkedBasis": [
-    "JDG-1566"
+    "JDG-1566",
+    "JDG-3838"
    ],
    "xSpecTableRowId": "PR-23",
    "xUses": [
@@ -20312,18 +20527,45 @@
   {
    "key": "highlightBoxOutlineColorField",
    "label": {
-    "en": "Outline Color",
-    "ja": "枠線色"
+    "en": "Stroke Color",
+    "ja": "線の色"
    },
    "definition": {
-    "en": "The Properties Panel field that shows and edits the outline color of the selected Highlight Box.",
-    "ja": "選んだハイライトボックスの枠線色を表示し編集する、プロパティパネルの欄。"
+    "en": "The Properties Panel field that shows and edits the stroke color of the selected Highlight Box.",
+    "ja": "選んだハイライトボックスの線の色を表示し編集する、プロパティパネルの欄。"
    },
+   "renames": [
+    {
+     "from": "Outline Color",
+     "version": "BGQA9",
+     "reason": {
+      "en": "The owner settled the name (BGQA9 question 14-1).",
+      "ja": "持ち主が名を決めた（BGQA9 の問 14-1）。"
+     },
+     "basis": [
+      "JDG-3838"
+     ],
+     "xLanguage": "en"
+    },
+    {
+     "from": "枠線色",
+     "version": "BGQA9",
+     "reason": {
+      "en": "The owner settled the name (BGQA9 question 14-1).",
+      "ja": "持ち主が名を決めた（BGQA9 の問 14-1）。"
+     },
+     "basis": [
+      "JDG-3838"
+     ],
+     "xLanguage": "ja"
+    }
+   ],
    "xGroup": "propertiesPanelFields",
    "xIdentifier": "outlineColorField",
    "xOwner": "HighlightBox",
    "checkedBasis": [
-    "JDG-1566"
+    "JDG-1566",
+    "JDG-3838"
    ],
    "xSpecTableRowId": "PR-22",
    "xUses": [
@@ -20366,8 +20608,8 @@
     "ja": "塗りの不透明度（%）"
    },
    "definition": {
-    "en": "The Properties Panel field that shows and edits the fill transparency of the selected Highlight Box.",
-    "ja": "選んだハイライトボックスの塗りの透過率（%）を表示し編集する、プロパティパネルの欄。"
+    "en": "The Properties Panel field that shows and edits the fill opacity (%) of the selected Highlight Box: 100 is opaque, 0 lets everything behind show through.",
+    "ja": "選んだハイライトボックスの塗りの不透明度（%）を表示し編集する、プロパティパネルの欄。100 は透けず、0 は後ろがすべて透ける。"
    },
    "xGroup": "propertiesPanelFields",
    "xIdentifier": "fillTransparencyPercentField",
@@ -20410,7 +20652,8 @@
    ],
    "checkedBasis": [
     "JDG-3526",
-    "JDG-3901"
+    "JDG-3901",
+    "JDG-3838"
    ]
   },
   {
@@ -20525,18 +20768,45 @@
   {
    "key": "searchWindowStatusColumn",
    "label": {
-    "en": "Status",
-    "ja": "ステータス"
+    "en": "Progress Status",
+    "ja": "進捗ステータス"
    },
    "definition": {
-    "en": "The column Status of the task or Comment Box tables of the Search Window.",
-    "ja": "検索ウィンドウのタスクかコメントボックスの表の「ステータス」の列。"
+    "en": "The column Progress Status of the task or Comment Box tables of the Search Window.",
+    "ja": "検索ウィンドウのタスクかコメントボックスの表の「進捗ステータス」の列。"
    },
+   "renames": [
+    {
+     "from": "Status",
+     "version": "BGQA9",
+     "reason": {
+      "en": "The owner settled the name (BGQA9 question 14-2).",
+      "ja": "持ち主が名を決めた（BGQA9 の問 14-2）。"
+     },
+     "basis": [
+      "JDG-3839"
+     ],
+     "xLanguage": "en"
+    },
+    {
+     "from": "ステータス",
+     "version": "BGQA9",
+     "reason": {
+      "en": "The owner settled the name (BGQA9 question 14-2).",
+      "ja": "持ち主が名を決めた（BGQA9 の問 14-2）。"
+     },
+     "basis": [
+      "JDG-3839"
+     ],
+     "xLanguage": "ja"
+    }
+   ],
    "xGroup": "tableColumns",
    "xIdentifier": "statusColumn",
    "xOwner": "searchWindow",
    "checkedBasis": [
-    "JDG-3726"
+    "JDG-3726",
+    "JDG-3839"
    ],
    "xSpecTableRowId": "SQ-5",
    "xUses": [
@@ -20547,18 +20817,45 @@
   {
    "key": "searchWindowProgressColumn",
    "label": {
-    "en": "Progress",
-    "ja": "進捗"
+    "en": "% Complete",
+    "ja": "完了率"
    },
    "definition": {
-    "en": "The column Progress of the task or Comment Box tables of the Search Window.",
-    "ja": "検索ウィンドウのタスクかコメントボックスの表の「進捗」の列。"
+    "en": "The column % Complete of the task or Comment Box tables of the Search Window.",
+    "ja": "検索ウィンドウのタスクかコメントボックスの表の「完了率」の列。"
    },
+   "renames": [
+    {
+     "from": "Progress",
+     "version": "BGQA9",
+     "reason": {
+      "en": "The owner settled the name (BGQA9 question 14-2).",
+      "ja": "持ち主が名を決めた（BGQA9 の問 14-2）。"
+     },
+     "basis": [
+      "JDG-3839"
+     ],
+     "xLanguage": "en"
+    },
+    {
+     "from": "進捗",
+     "version": "BGQA9",
+     "reason": {
+      "en": "The owner settled the name (BGQA9 question 14-2).",
+      "ja": "持ち主が名を決めた（BGQA9 の問 14-2）。"
+     },
+     "basis": [
+      "JDG-3839"
+     ],
+     "xLanguage": "ja"
+    }
+   ],
    "xGroup": "tableColumns",
    "xIdentifier": "progressColumn",
    "xOwner": "searchWindow",
    "checkedBasis": [
-    "JDG-3726"
+    "JDG-3726",
+    "JDG-3839"
    ],
    "xSpecTableRowId": "SQ-11",
    "xUses": [
@@ -20725,18 +21022,45 @@
   {
    "key": "searchWindowPathFromTopColumn",
    "label": {
-    "en": "Path from Top",
-    "ja": "最上位までの階層"
+    "en": "Task Group Path",
+    "ja": "タスクグループ階層"
    },
    "definition": {
-    "en": "The column Path from Top of the task or Comment Box tables of the Search Window.",
-    "ja": "検索ウィンドウのタスクかコメントボックスの表の「最上位までの階層」の列。"
+    "en": "The column Task Group Path of the task or Comment Box tables of the Search Window.",
+    "ja": "検索ウィンドウのタスクかコメントボックスの表の「タスクグループ階層」の列。"
    },
+   "renames": [
+    {
+     "from": "Path from Top",
+     "version": "BGQA9",
+     "reason": {
+      "en": "The owner settled the name (BGQA9 question 14-2).",
+      "ja": "持ち主が名を決めた（BGQA9 の問 14-2）。"
+     },
+     "basis": [
+      "JDG-3839"
+     ],
+     "xLanguage": "en"
+    },
+    {
+     "from": "最上位までの階層",
+     "version": "BGQA9",
+     "reason": {
+      "en": "The owner settled the name (BGQA9 question 14-2).",
+      "ja": "持ち主が名を決めた（BGQA9 の問 14-2）。"
+     },
+     "basis": [
+      "JDG-3839"
+     ],
+     "xLanguage": "ja"
+    }
+   ],
    "xGroup": "tableColumns",
    "xIdentifier": "pathFromTopColumn",
    "xOwner": "searchWindow",
    "checkedBasis": [
-    "JDG-3726"
+    "JDG-3726",
+    "JDG-3839"
    ],
    "xSpecTableRowId": "SQ-6",
    "xUses": [
@@ -20747,19 +21071,34 @@
   {
    "key": "searchWindowBodyColumn",
    "label": {
-    "en": "Body",
+    "en": "Text",
     "ja": "本文"
    },
    "definition": {
-    "en": "The column Body of the task or Comment Box tables of the Search Window.",
+    "en": "The column Text of the task or Comment Box tables of the Search Window.",
     "ja": "検索ウィンドウのタスクかコメントボックスの表の「本文」の列。"
    },
+   "renames": [
+    {
+     "from": "Body",
+     "version": "BGQA9",
+     "reason": {
+      "en": "The owner settled the name (BGQA9 question 14-2).",
+      "ja": "持ち主が名を決めた（BGQA9 の問 14-2）。"
+     },
+     "basis": [
+      "JDG-3839"
+     ],
+     "xLanguage": "en"
+    }
+   ],
    "xGroup": "tableColumns",
    "xIdentifier": "bodyColumn",
    "xOwner": "searchWindow",
    "checkedBasis": [
     "JDG-631",
-    "JDG-3726"
+    "JDG-3726",
+    "JDG-3839"
    ],
    "xSpecTableRowId": "SQ-7",
    "xUses": [
@@ -21191,20 +21530,47 @@
   {
    "key": "resourceListWindowSelectedColumn",
    "label": {
-    "en": "Selected",
-    "ja": "選択"
+    "en": "Selection Status",
+    "ja": "選択状態"
    },
    "definition": {
-    "en": "The column Selected of the table of the Resource List Window.",
-    "ja": "担当リストウィンドウの表の「選択」の列。"
+    "en": "The column Selection Status of the table of the Resource List Window.",
+    "ja": "担当リストウィンドウの表の「選択状態」の列。"
    },
+   "renames": [
+    {
+     "from": "Selected",
+     "version": "BGQA9",
+     "reason": {
+      "en": "The owner settled the name (BGQA9 question 14-2).",
+      "ja": "持ち主が名を決めた（BGQA9 の問 14-2）。"
+     },
+     "basis": [
+      "JDG-3839"
+     ],
+     "xLanguage": "en"
+    },
+    {
+     "from": "選択",
+     "version": "BGQA9",
+     "reason": {
+      "en": "The owner settled the name (BGQA9 question 14-2).",
+      "ja": "持ち主が名を決めた（BGQA9 の問 14-2）。"
+     },
+     "basis": [
+      "JDG-3839"
+     ],
+     "xLanguage": "ja"
+    }
+   ],
    "xGroup": "tableColumns",
    "xIdentifier": "selectedColumn",
    "xOwner": "resourceListWindow",
    "checkedBasis": [
     "JDG-1827",
     "JDG-1871",
-    "JDG-3726"
+    "JDG-3726",
+    "JDG-3839"
    ],
    "xSpecTableRowId": "RQ-3",
    "xUses": [
@@ -21239,19 +21605,34 @@
   {
    "key": "resourceListWindowTaskCountColumn",
    "label": {
-    "en": "Task Count",
+    "en": "Assigned Task Count",
     "ja": "担当タスク数"
    },
    "definition": {
-    "en": "The column Task Count of the table of the Resource List Window.",
+    "en": "The column Assigned Task Count of the table of the Resource List Window.",
     "ja": "担当リストウィンドウの表の「担当タスク数」の列。"
    },
+   "renames": [
+    {
+     "from": "Task Count",
+     "version": "BGQA9",
+     "reason": {
+      "en": "The owner settled the name (BGQA9 question 14-2).",
+      "ja": "持ち主が名を決めた（BGQA9 の問 14-2）。"
+     },
+     "basis": [
+      "JDG-3839"
+     ],
+     "xLanguage": "en"
+    }
+   ],
    "xGroup": "tableColumns",
    "xIdentifier": "taskCountColumn",
    "xOwner": "resourceListWindow",
    "checkedBasis": [
     "JDG-1871",
-    "JDG-3726"
+    "JDG-3726",
+    "JDG-3839"
    ],
    "xSpecTableRowId": "RQ-4",
    "xUses": [
@@ -21333,19 +21714,34 @@
    "key": "fixTablesFixTypeColumn",
    "label": {
     "en": "Fix Type",
-    "ja": "修正のしかた"
+    "ja": "修正方法"
    },
    "definition": {
     "en": "The column Fix Type of the fix proposal and fix log tables of the Delay Diagnosis Report Window.",
-    "ja": "遅延診断レポートウィンドウの修正案と修正の記録の表の「修正のしかた」の列。"
+    "ja": "遅延診断レポートウィンドウの修正案と修正の記録の表の「修正方法」の列。"
    },
+   "renames": [
+    {
+     "from": "修正のしかた",
+     "version": "BGQA9",
+     "reason": {
+      "en": "The owner settled the name (BGQA9 question 14-2).",
+      "ja": "持ち主が名を決めた（BGQA9 の問 14-2）。"
+     },
+     "basis": [
+      "JDG-3839"
+     ],
+     "xLanguage": "ja"
+    }
+   ],
    "xGroup": "tableColumns",
    "xIdentifier": "fixTypeColumn",
    "xOwner": "fixTables",
    "checkedBasis": [
     "JDG-1948",
     "JDG-2154",
-    "JDG-3512"
+    "JDG-3512",
+    "JDG-3839"
    ],
    "xSpecTableRowId": "FM-3",
    "xUses": [

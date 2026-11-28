@@ -132,7 +132,7 @@ const DEFAULT_CALENDAR: Calendar = {
 }
 
 // Why: baseCalendarUid is not walked; the import resolves inheritance once instead of every frame.
-// Spec: FR-054, IMPS-755, IMPS-757, IMPS-762
+// Spec: FR-054, IMPS-755, IMPS-757, IMPS-762, IMPS-763
 /** @purity pure */
 export function workingCalendarOf(schedule: Schedule): WorkingCalendar {
   const named = schedule.project.calendarUid

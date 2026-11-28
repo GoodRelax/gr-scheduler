@@ -74,6 +74,7 @@ function readWith(duration: string): Document {
 const stopIn = (document: Document): string | null | undefined => document.schedule.tasks.find((one) => one.uid === 1)?.stop
 
 describe('DFC-2449 FR-011: the stop put from an ActualDuration is the earliest instant that many working minutes on', () => {
+  // Spec: IMPS-421
   it.each([
     ['PT2H0M0S', april(8, '10:00'), 'two hours into the morning span'],
     ['PT4H0M0S', april(8, '12:00'), 'the end of the morning span, not 13:00'],

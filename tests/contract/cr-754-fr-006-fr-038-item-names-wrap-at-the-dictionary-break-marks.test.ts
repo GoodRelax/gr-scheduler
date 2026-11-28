@@ -99,6 +99,7 @@ describe('CR-754 premise -- the clauses these cases press still stand', () => {
     expect(REQUIREMENTS).toContain(clause)
   })
 
+  // Spec: IMPS-1193
   it('the dictionary marks some panel item names, and no mark leaves an empty piece', () => {
     expect(MARKED.length).toBeGreaterThan(0)
     for (const word of MARKED) expect(word.marked.split(BREAK_MARK).every((piece) => piece !== ''), word.marked).toBe(true)
@@ -111,6 +112,7 @@ describe(`FR-038 -- ${FR_038_MARK_NEVER_SHOWN}`, () => {
     expect(marked).toEqual([])
   })
 
+  // Spec: IMPS-1194
   it.each(MARKED.map((word) => [`${word.section} ${word.key} ${word.language}`, word] as const))(
     `${FR_038_GENERATOR} -- %s`,
     (_name, word) => {
@@ -139,6 +141,7 @@ describe(`FR-006 -- ${FR_006_BREAK_AT_MARKS}`, () => {
     for (const field of fields) expect(field.nameBreakSegments, field.name).toEqual(byName.get(field.name))
   })
 
+  // Spec: IMPS-36
   it('the settings face (ja): each marked name is drawn as its pieces with a break opportunity between them and none inside', () => {
     const fields = SETTINGS_FIELDS('ja')
     const drawn = drawnPanel(settingsPanel({ language: 'ja' }))

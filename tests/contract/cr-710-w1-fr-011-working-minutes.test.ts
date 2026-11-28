@@ -92,6 +92,7 @@ describe.each(STANDARD)('FR-011: actualMinutesOf over Monday to Friday, 08:00-12
     expect(actualMinutesOf(within, at(from), at(to))).toBe(minutes)
   })
 
+  // Spec: IMPS-415
   it('counts a finish earlier than the start as the negative of the count from the finish to the start', () => {
     const start = at(jan(JAN_SATURDAY, '17:00'))
     const end = at(jan(JAN_FRIDAY, '08:00'))
@@ -122,6 +123,7 @@ describe('FR-011: other spans of a day, and exception days', () => {
     expect(actualMinutesOf(within, at(jan(JAN_MONDAY, '20:00')), at(jan(JAN_TUESDAY, '00:00')))).toBe(120)
   })
 
+  // Spec: IMPS-414
   it('does not count a holiday between the ends, but counts it when it holds an end', () => {
     const within = workingCalendarOver({ working: MONDAY_TO_FRIDAY, exceptions: [exceptionOf(1, JAN_THURSDAY, JAN_THURSDAY, false)] })
     expect(actualMinutesOf(within, at(jan(JAN_WEDNESDAY, '08:00')), at(jan(JAN_NEXT_FRIDAY, '17:00')))).toBe(960)

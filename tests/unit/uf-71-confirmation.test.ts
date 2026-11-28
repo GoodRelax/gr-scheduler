@@ -1370,6 +1370,7 @@ describe('table T-037 NT-7 (MUST) -- what would go is named, one by one', () => 
     }
   })
 
+  // Spec: IMPS-258
   it('GIVEN three things would go WHEN the question is drawn THEN no name is missing from the surface', () => {
     const built = drawn(asking(questionRow(1), NAMES.map((name) => named(name))))
     const text = shownText(confirmationPartOf(built))
@@ -1379,6 +1380,7 @@ describe('table T-037 NT-7 (MUST) -- what would go is named, one by one', () => 
     }
   })
 
+  // Spec: IMPS-259
   it("GIVEN three things would go WHEN the question is drawn THEN a count does not stand in for them (NT-3's count sits beside the names, never instead of them)", () => {
     // Why: the count is allowed beside the names, so what matters is that the names
     // survive a surface that also counts.
@@ -1404,6 +1406,7 @@ describe('table T-037 NT-7 (MUST) -- what would go is named, one by one', () => 
     }
   })
 
+  // Spec: IMPS-260
   it('GIVEN a thing that goes is drawn on ANOTHER task group WHEN the question is drawn THEN the flag reaches the drawn surface, on the item it belongs to', () => {
     // Why: the flag must survive to the drawn surface on its own item, the half that
     // has to be in place before a mark can be drawn and would rot silently.
@@ -1429,6 +1432,7 @@ describe('table T-037 NT-7 (MUST) -- what would go is named, one by one', () => 
     )
   })
 
+  // Spec: IMPS-263
   it('GIVEN a thing that goes is drawn on ANOTHER task group WHEN the question is drawn THEN the WORD the dictionary holds for that mark is on the surface (FR-032 MUST)', () => {
     // Why: the mark is owed to the reader, so the dictionary's word must be on the
     // surface, and only where the flag is set, so the unmarked twin is asked too.

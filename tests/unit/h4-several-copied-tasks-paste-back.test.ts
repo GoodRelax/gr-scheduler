@@ -211,6 +211,7 @@ const copyThenPaste = (uids: readonly number[]) => {
 }
 
 describe('FR-033 through the shell -- Ctrl+C then Ctrl+V on several picked Tasks', () => {
+  // Spec: IMPS-293
   it('FR-033 MANY_TASKS_ALL_COPIED: two leaf Tasks picked -> two copies, each on its source task group', () => {
     const { stage, made, byName } = copyThenPaste([A1, B])
     expect(made.map((one) => one.name).sort()).toEqual(['A1', 'B'])
@@ -233,6 +234,7 @@ describe('FR-033 through the shell -- Ctrl+C then Ctrl+V on several picked Tasks
     for (const one of made) expect([P, A, A1, B]).not.toContain(one.uid)
   })
 
+  // Spec: IMPS-294
   it('FR-033 ONLY_CHOSEN_COPIED: descendant picked FIRST, then its ancestor -> the subtree once', () => {
     const { made, byName } = copyThenPaste([A1, A])
     expect(made.map((one) => one.name).sort()).toEqual(['A', 'A1'])

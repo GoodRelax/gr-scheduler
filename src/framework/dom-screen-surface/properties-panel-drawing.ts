@@ -54,7 +54,7 @@ function fieldSizes(): {
   }
 }
 
-// Spec: IMPS-67, IMPS-70, IMPS-71, IMPS-73, IMPS-74
+// Spec: IMPS-67, IMPS-70, IMPS-71, IMPS-73, IMPS-74, IMPS-75, SC-5
 /** @purity pure */
 export function propertiesPanelStyle(): string {
   const size = fieldSizes()
@@ -124,7 +124,7 @@ function propertyControlsStyle(): string {
   return `flex:1;display:flex;flex-wrap:wrap;align-items:flex-start;gap:${fieldSizes().nameGap}px;min-width:0;`
 }
 
-// Spec: IMPS-43, IMPS-50, IMPS-66, PR-5, S-589, S-590
+// Spec: IMPS-43, IMPS-50, IMPS-66, PR-5, S-589, S-590, IMPS-52
 // Why: a date or a choice from a fixed list never shrinks below the host's own drawing of it (JDG-2046, JDG-2098):
 // the em floor alone falls short where the host raises small text to its least size.
 /** @purity pure */
@@ -1430,7 +1430,7 @@ export function markPropertiesPanel(panel: HTMLElement, description: PropertiesP
   panel.setAttribute('data-subject-gone', String(description.isSubjectGone))
 }
 
-// Spec: U-25, FR-072, IMPS-90, IMPS-92
+// Spec: U-25, FR-072, IMPS-90, IMPS-92, IMPS-89
 /** @purity non-pure */
 export function fillPropertiesPanel(
   host: Document,

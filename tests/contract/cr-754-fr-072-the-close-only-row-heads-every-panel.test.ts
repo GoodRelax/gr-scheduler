@@ -69,11 +69,13 @@ describe('CR-754 premise -- the clauses these cases press still stand', () => {
 })
 
 describe(`FR-072 -- ${FR_072_CLOSE_ROW}`, () => {
+  // Spec: IMPS-89
   it.each(FACES)('$name: the first child of the panel is the way-out row', ({ panel }) => {
     const drawn = drawnPanel(panel())
     expect(firstRowOf(drawn).getAttribute(WAY_OUT), whatWasDrawn(firstRowOf(drawn))).not.toBeNull()
   })
 
+  // Spec: IMPS-90
   it.each(FACES)(`$name: the way-out row holds ${CLOSE} and nothing else`, ({ panel }) => {
     const row = firstRowOf(drawnPanel(panel()))
     expect(iconsIn(row)).toEqual([CLOSE])
@@ -92,6 +94,7 @@ describe(`FR-072 -- ${FR_072_CLOSE_ROW}`, () => {
 })
 
 describe(`FR-072 -- ${FR_072_NOT_IN_A_FIELD}`, () => {
+  // Spec: IMPS-92
   it.each(FACES)(`$name: ${CLOSE} is drawn once, and inside no field row`, ({ panel }) => {
     const drawn = drawnPanel(panel())
     const closes = selfAndDescendants(drawn).filter((one) => one.getAttribute('data-icon') === CLOSE)

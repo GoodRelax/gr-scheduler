@@ -106,6 +106,7 @@ describe('FR-060 (MUST) / S-452 -- every chooser is given the one id', () => {
     expect(Object.keys(one.lastSave())).not.toContain('startIn')
   })
 
+  // Spec: IMPS-973
   it('FR-060: open, overlay, save and every export are given the same single id', async () => {
     const one = bench()
     await one.openChosen(one.file('a.json'))
@@ -180,6 +181,7 @@ describe('FR-060 (MUST) -- the chooser opens where the last file was read or wri
     expect(one.lastOpen()['startIn'], 'FR-060: the SK-11 overwrite did not move the folder').toBe(opened.handle)
   })
 
+  // Spec: IMPS-976
   it('FR-060: a chooser the person closes leaves the handle as it was', async () => {
     const one = bench()
     const read = one.file('a.json')
@@ -199,6 +201,7 @@ describe('FR-060 (MUST NOT) -- nothing is stored', () => {
     scope['indexedDB'] = held.indexedDB
   })
 
+  // Spec: IMPS-974
   it('FR-060: neither the folder nor the handle reaches localStorage or IndexedDB', async () => {
     const writes: string[] = []
     scope['localStorage'] = {

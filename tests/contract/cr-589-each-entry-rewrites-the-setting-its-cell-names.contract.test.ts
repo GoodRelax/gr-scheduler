@@ -290,6 +290,7 @@ describe('CR-589 T2 -- each FR-049 entry flips the T-202 row its cell names, fro
     const named = namedBy(row.by[SWITCH] ?? '')
     const key = keyOfRow(named?.row ?? '')
     for (const from of [false, true]) {
+      // Spec: IMPS-861
       it(`${row.id} (${bare(row.by[SURFACE] ?? '')}) turns ${named?.row} ${key} from ${from} to ${!from}`, () => {
         expect(key, `table T-202 prints a key for ${named?.row}`).not.toBe('')
         const built = stage({ [key]: from })

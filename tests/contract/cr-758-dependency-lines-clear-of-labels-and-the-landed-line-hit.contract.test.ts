@@ -500,6 +500,7 @@ describe('CR-758 case 2 -- T-273 LP-1 / LP-2 / LP-5 / LP-7 and the fits sum', ()
   const SCALES = [50, 100, 200] as const
   const plainTask = taskOf({ uid: 1, group: 'g', start: 0, finish: 5 })
 
+  // Spec: IMPS-487
   it.each(SCALES)('display scale %i: LP-1 / LP-2 / LP-5 / LP-7 put the marker left S-584 (drawn) off the bar edge', (scale) => {
     const drawnSettings = drawnSettingsOf(settingsOf({ displayScale: scale }))
     const ratio = displayRatioAt(scale)
@@ -617,6 +618,7 @@ describe('CR-758 case 3 -- T-222 RP-2 / RP-3 route through the corridor with fou
     expect(shape.corridorY, `${RP(pattern)}: the corridor runs between the two lanes (LF-5)`).toBeLessThan(lower.y)
   })
 
+  // Spec: RT-1
   it('T-018 DP-1 / DP-2: every FS and SF route bends 0 or 4 times', () => {
     const layouts: readonly (readonly [string, string, number, number, number, number])[] = [
       ['a', 'b', 0, 5, 12, 18],
@@ -971,6 +973,7 @@ describe('CR-758 case 9 -- FR-013 / T-266 GA-18: the S-584 gap between the bar e
   ] as const
 
   for (const { row, uid, before } of cases) {
+    // Spec: IMPS-488, IMPS-489
     it.each(SCALES)(`T-273 ${row}, display scale %i: a press in the middle of the gap answers the progress marker (GA-18), not the plan (GA-2 / GA-9 / GA-15)`, (scale) => {
       const one = sceneOf({ groups: SAMPLE_GROUPS, tasks: SAMPLE_TASKS, displayScale: scale, settings: SAMPLE_SETTINGS })
       const drawn = one.task(uid)

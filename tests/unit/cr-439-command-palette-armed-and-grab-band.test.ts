@@ -114,6 +114,7 @@ describe('CR-439 Command Palette -- the clauses still stand', () => {
 })
 
 describe('FR-053 -- the armed entrance', () => {
+  // Spec: IMPS-1805, IMPS-1806
   it('FR-053 / EN-1 -- the armed entrance is filled with S-183, the unarmed one is not', () => {
     const built = drawn()
     const armed = selfAndDescendants(iconEntry(built.root(), 'IC-23')).map((one) => paintedGround(built, one))
@@ -122,6 +123,7 @@ describe('FR-053 -- the armed entrance', () => {
     expect(unarmed).not.toContain(S_183_LIGHT)
   })
 
+  // Spec: IMPS-1807
   it('FR-053 押されている形にしてはならない（MUST NOT） -- the armed entrance does not say it is pressed', () => {
     const built = drawn()
     const armed = iconEntry(built.root(), 'IC-23')
@@ -129,6 +131,7 @@ describe('FR-053 -- the armed entrance', () => {
     expect(armed.getAttribute('data-pressed')).not.toBe('true')
   })
 
+  // Spec: IMPS-1808
   it('the palette carries the words of what is armed', () => {
     const built = drawn()
     expect(oneByRole(built.root(), COMMAND_PALETTE).textContent).toContain('Rectangle armed')
@@ -136,6 +139,7 @@ describe('FR-053 -- the armed entrance', () => {
 })
 
 describe('FR-053 -- the floating palette', () => {
+  // Spec: IMPS-1804
   it('FR-053 ポインターが乗っていないあいだは薄く透明に描くこと -- a rule fades the palette while the pointer is off it', () => {
     const built = drawn()
     const palette = oneByRole(built.root(), COMMAND_PALETTE)
