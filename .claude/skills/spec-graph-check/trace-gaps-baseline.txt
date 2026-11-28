@@ -22,7 +22,7 @@
 #   no-parent 3 -> 0: a retired row (second cell opens with the retired mark) is no chain item.
 #   leaf-unbuilt 30 -> 3 and below-unbuilt 1846 -> 726: 11 bodies judged every gap row
 #   read-only; the links they named went in as `// Spec:` lines (tests 869 new lines + 14 ids
-#   appended, src 11 + 143, build code 32), check 97 now also reads the build-time code whose
+#   appended, src 9 + 143, build code 34), check 97 now also reads the build-time code whose
 #   output ships, the verification method list and the limitations exemption. The rows left
 #   are listed with the reason in studies/82-anms-ndd-apply-plan/b13-trace-gaps/.
 no-parent 0
