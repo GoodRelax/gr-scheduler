@@ -3595,18 +3595,18 @@
    "specTableRowId": "RS-61",
    "text": {
     "ja": "このタスクグループは読み取り専用です（編集できるグループが設定されています）",
-    "en": "This task group is read-only (an edit permission is set on it)."
+    "en": "This task group is read-only (an allowed editor group is set on it)."
    },
    "nextStep": {
     "ja": "編集できるグループの無いタスクグループへコピーしてから編集してください",
-    "en": "Copy it into a task group with no edit permission, then edit it."
+    "en": "Copy it into a task group with no allowed editor group, then edit it."
    }
   },
   {
    "specTableRowId": "RS-62",
    "text": {
     "ja": "編集できるグループは人だけが変えられます",
-    "en": "Only a person can change the edit permission."
+    "en": "Only a person can change the allowed editor group."
    },
    "nextStep": {
     "ja": "プロパティパネルで、人に入れてもらってください",

@@ -4,7 +4,7 @@
   "grsRelay: grs-relay.mcpb, grs-relay.mjs and the relay's serverInfo. serverSyncDemo: grs-server-sync-demo.zip.",
   "node tools/artifact_versions.mjs check (check.sh section 85) is red when an input changed after the line holding the artifact's BuiltAt last changed."
  ],
-  "grsRelayBuiltAt": "2026-11-28T00:32:32Z",
+  "grsRelayBuiltAt": "2026-11-28T01:31:59Z",
  "grsRelayInputs": [
   "src",
   "dist/index.html",
