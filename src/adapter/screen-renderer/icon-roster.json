@@ -1195,7 +1195,7 @@
     "Delay Diagnostics Report"
    ],
    "group": null,
-   "entryTo": "修正案の表の、修正のしかたが機械の行と、択が 1 つの選ぶの行に、まとめてチェックを入れる",
+   "entryTo": "修正案の表の、修正方法が機械の行と、択が 1 つの選ぶの行に、まとめてチェックを入れる",
    "authority": "表 T-346 の `RW-18`",
    "arms": null,
    "armsShape": null

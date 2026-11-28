@@ -43,7 +43,7 @@ const SQ_10_HEADING_STATES =
 const SQ_10_HEADING_ADD = '`SQ-10` の見出しのチェックボックスが空の間、見出しのチェックボックスを押したとき、`GRS` は、一覧に出ているすべての行にだけチェックを入れること（一覧に出ていない行は変えない）。'
 const SQ_10_HEADING_CLEAR = '`SQ-10` の見出しのチェックボックスが入っている間、見出しのチェックボックスを押したとき、`GRS` は、表のすべての行（語や列のフィルタで一覧に出ていない行を含む）のチェックを外すこと。'
 const SQ_10_NO_VALUES = '持たない（表 T-330 の `SV-7`）'
-const SV_6_FIRST_COLUMN_NOTE = '表示・ステータス・進捗・タスク種別・タスク の 5 列'
+const SV_6_FIRST_COLUMN_NOTE = '表示・進捗ステータス・完了率・タスク種別・タスク の 5 列'
 
 describe('CR-721 the manuscript these cases are driven by', () => {
   it('T-330 SV-7 and SV-8 and T-331 SQ-10 still say it, word for word', () => {

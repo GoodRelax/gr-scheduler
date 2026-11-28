@@ -1,7 +1,7 @@
 // CR-731 spec-only clauses: the MUST and MUST NOT sentences of FR-155, T-373 and T-340, copied byte for byte from docs/spec
 
 export const FR_155_MACHINE_ROWS_APPLIED =
-  '`GRS` は、修正案を、修正のしかたが「機械」の行を 表 T-373 の結びの順で当て終えた後の姿で作ること。'
+  '`GRS` は、修正案を、修正方法が「機械」の行を 表 T-373 の結びの順で当て終えた後の姿で作ること。'
 
 export const FR_155_SAVE_THEN_ONE_BUNDLE =
   '作成者が `IC-157` ・ `IC-158` のどちらかを押したとき、`GRS` は、文書を書けたときだけ、チェックの入った行の直しを 1 つの束として発行すること。'

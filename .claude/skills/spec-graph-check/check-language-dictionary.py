@@ -41,12 +41,14 @@ MANUSCRIPT = 'SINGLE SOURCE OF TRUTH'
 EXEMPT = {
     'glossary.json': {
         '/terms[]/renames[]/from': (
-            33, 'a NAME, not prose: a rename of a Japanese label keeps the former '
+            46, 'a NAME, not prose: a rename of a Japanese label keeps the former '
                 'label as written, and xLanguage ja says its language (NDD '
                 'review standard A.2 step 2). 29 on 2026-11-25: the BGQA11 '
                 'renames (JDG-3901, JDG-3903) applied by '
                 'tools/apply_glossary_renames.py. 33 on 2026-11-27: BGQA11 '
                 'round 2 renamed four Japanese labels again (JDG-3904..3906). '
+                '46 on 2026-11-28: BGQA9 renamed thirteen Japanese labels of '
+                'panel fields and table columns (JDG-3838, JDG-3839). '
                 'Each later Japanese label rename raises the count by one.'),
     },
     'erd.json': {

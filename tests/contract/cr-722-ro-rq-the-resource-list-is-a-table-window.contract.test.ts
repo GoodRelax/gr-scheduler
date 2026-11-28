@@ -11,10 +11,10 @@ import { specTable, unbroken } from './spec-table'
 const FR_099_WINDOW =
   '`GRS` は、担当リスト（`_assets/tbl-glossary.md` の `U-49`）をウィンドウ（`FR-036` の 表 T-335）にすること。'
 const FR_099_COLUMNS = '`GRS` は、担当リストの表の列を 表 T-371 に従わせること。'
-const T_371_ORDER = '`GRS` は、担当リストの表の列を、表 T-371 の行の順に左から並べること —— 表示・選択・担当名・担当タスク数・担当タスク。'
+const T_371_ORDER = '`GRS` は、担当リストの表の列を、表 T-371 の行の順に左から並べること —— 表示・選択状態・担当名・担当タスク数・担当タスク。'
 const RO_4_ORDER = '`GRS` は、担当リストの表の既定の並びを、文書の `Resource` の並びにすること。`GRS` は、既定の並びで、（担当なし）の行を末尾に置くこと。'
 const RO_5_ALWAYS = '`GRS` は、担当のいないタスクを持つ 1 行を、担当のいないタスクが文書に無くても置くこと。'
-const RO_7_FIXED = '`GRS` は、見出し行と、`RQ-1`・`RQ-3`・`RQ-2`（表示・選択・担当名 —— 表 T-371 の並びで左の 3 列）を固定すること（`SV-6` の形）。'
+const RO_7_FIXED = '`GRS` は、見出し行と、`RQ-1`・`RQ-3`・`RQ-2`（表示・選択状態・担当名 —— 表 T-371 の並びで左の 3 列）を固定すること（`SV-6` の形）。'
 
 const cellOf = (table: string, id: string, heading: string): string =>
   unbroken(specTable(table).rows.find((one) => one.id === id)?.by[heading] ?? '')
